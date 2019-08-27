@@ -1,0 +1,5 @@
+if(NOT ${OPTION_PLATFORM} STREQUAL "android")
+set(can_build true)
+else()
+set(can_build false)
+endif()

@@ -1,0 +1,127 @@
+file(GLOB source_files "*.cpp" )
+file(GLOB header_files "*.h" )
+
+set(thirdparty_sources
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dec/alpha_dec.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dec/buffer_dec.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dec/frame_dec.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dec/idec_dec.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dec/io_dec.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dec/quant_dec.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dec/tree_dec.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dec/vp8_dec.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dec/vp8l_dec.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dec/webp_dec.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/demux/anim_decode.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/demux/demux.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/alpha_processing.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/alpha_processing_mips_dsp_r2.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/alpha_processing_neon.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/alpha_processing_sse2.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/alpha_processing_sse41.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/cost.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/cost_mips32.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/cost_mips_dsp_r2.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/cost_neon.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/cost_sse2.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/cpu.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/dec.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/dec_clip_tables.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/dec_mips32.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/dec_mips_dsp_r2.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/dec_msa.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/dec_neon.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/dec_sse2.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/dec_sse41.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/enc.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/enc_mips32.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/enc_mips_dsp_r2.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/enc_msa.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/enc_neon.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/enc_sse2.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/enc_sse41.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/filters.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/filters_mips_dsp_r2.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/filters_msa.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/filters_neon.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/filters_sse2.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/lossless.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/lossless_enc.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/lossless_enc_mips32.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/lossless_enc_mips_dsp_r2.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/lossless_enc_msa.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/lossless_enc_neon.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/lossless_enc_sse2.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/lossless_enc_sse41.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/lossless_mips_dsp_r2.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/lossless_msa.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/lossless_neon.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/lossless_sse2.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/rescaler.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/rescaler_mips32.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/rescaler_mips_dsp_r2.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/rescaler_msa.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/rescaler_neon.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/rescaler_sse2.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/ssim.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/ssim_sse2.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/upsampling.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/upsampling_mips_dsp_r2.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/upsampling_msa.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/upsampling_neon.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/upsampling_sse2.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/upsampling_sse41.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/yuv.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/yuv_mips32.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/yuv_mips_dsp_r2.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/yuv_neon.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/yuv_sse2.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/dsp/yuv_sse41.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/enc/alpha_enc.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/enc/analysis_enc.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/enc/backward_references_cost_enc.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/enc/backward_references_enc.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/enc/config_enc.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/enc/cost_enc.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/enc/filter_enc.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/enc/frame_enc.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/enc/histogram_enc.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/enc/iterator_enc.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/enc/near_lossless_enc.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/enc/picture_csp_enc.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/enc/picture_enc.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/enc/picture_psnr_enc.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/enc/picture_rescale_enc.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/enc/picture_tools_enc.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/enc/predictor_enc.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/enc/quant_enc.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/enc/syntax_enc.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/enc/token_enc.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/enc/tree_enc.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/enc/vp8l_enc.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/enc/webp_enc.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/mux/anim_encode.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/mux/muxedit.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/mux/muxinternal.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/mux/muxread.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/utils/bit_reader_utils.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/utils/bit_writer_utils.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/utils/color_cache_utils.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/utils/filters_utils.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/utils/huffman_encode_utils.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/utils/huffman_utils.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/utils/quant_levels_dec_utils.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/utils/quant_levels_utils.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/utils/random_utils.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/utils/rescaler_utils.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/utils/thread_utils.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src/utils/utils.c
+)
+
+set_plugin_options(
+    NAME webp
+    CLASSPROP ImageLoaderWEBP
+    SOURCES ${source_files} ${header_files} ${thirdparty_sources}
+    INCLUDES ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/ ${PROJECT_SOURCE_DIR}/thirdparty/libwebp/src
+
+)

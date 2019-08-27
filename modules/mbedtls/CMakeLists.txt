@@ -1,0 +1,96 @@
+file(GLOB source_files "*.cpp" )
+file(GLOB header_files "*.h" )
+set(thirdparty_sources)
+if(OPTION_BUILTIN_MBEDTLS)
+    set(thirdparty_sources
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/aes.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/aesni.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/arc4.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/aria.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/asn1parse.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/asn1write.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/base64.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/bignum.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/blowfish.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/camellia.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/ccm.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/certs.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/chacha20.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/chachapoly.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/cipher.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/cipher_wrap.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/cmac.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/ctr_drbg.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/debug.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/des.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/dhm.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/ecdh.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/ecdsa.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/ecjpake.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/ecp.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/ecp_curves.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/entropy.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/entropy_poll.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/error.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/gcm.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/havege.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/hkdf.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/hmac_drbg.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/md2.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/md4.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/md5.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/md.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/md_wrap.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/memory_buffer_alloc.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/net_sockets.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/nist_kw.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/oid.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/padlock.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/pem.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/pk.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/pkcs11.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/pkcs12.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/pkcs5.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/pkparse.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/pk_wrap.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/pkwrite.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/platform.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/platform_util.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/poly1305.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/ripemd160.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/rsa.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/rsa_internal.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/sha1.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/sha256.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/sha512.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/ssl_cache.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/ssl_ciphersuites.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/ssl_cli.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/ssl_cookie.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/ssl_srv.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/ssl_ticket.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/ssl_tls.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/threading.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/timing.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/version.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/version_features.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/x509.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/x509_create.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/x509_crl.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/x509_crt.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/x509_csr.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/x509write_crt.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/x509write_csr.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/xtea.c
+    )
+endif()
+
+foreach(tgt ${global_targets})
+    add_library(${tgt}_mbedtls OBJECT ${source_files} ${header_files} ${thirdparty_sources})
+    target_compile_definitions(${tgt}_mbedtls PUBLIC BUILTIN_CERTS_ENABLED)
+    if(OPTION_BUILTIN_MBEDTLS)
+        target_include_directories(${tgt}_mbedtls PRIVATE ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/include)
+    endif()
+    target_link_libraries(${tgt}_mbedtls PUBLIC ${tgt}_core)
+    set_common_target_properties(${tgt}_mbedtls)
+endforeach()

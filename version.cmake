@@ -1,0 +1,6 @@
+set(short_name "godot")
+set(name "Godot Engine")
+set(major 3)
+set(minor 1)
+set(status "dev")
+set(module_config "")
