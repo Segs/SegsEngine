@@ -122,10 +122,10 @@ void RotatedFileLogger::close_file() {
 void RotatedFileLogger::clear_old_backups() {
     int max_backups = max_files - 1; // -1 for the current file
 
-	String basename =  PathUtils::get_basename(PathUtils::get_file(base_path));
-	String extension = PathUtils::get_extension(base_path);
+    String basename =  PathUtils::get_basename(PathUtils::get_file(base_path));
+    String extension = PathUtils::get_extension(base_path);
 
-	DirAccess *da = DirAccess::open(PathUtils::get_base_dir(base_path));
+    DirAccess *da = DirAccess::open(PathUtils::get_base_dir(base_path));
     if (!da) {
         return;
     }
@@ -134,7 +134,7 @@ void RotatedFileLogger::clear_old_backups() {
     String f = da->get_next();
     Set<String> backups;
     while (f != String()) {
-		if (!da->current_is_dir() && f.begins_with(basename) && PathUtils::get_extension(f) == extension && f != PathUtils::get_file(base_path)) {
+        if (!da->current_is_dir() && f.begins_with(basename) && PathUtils::get_extension(f) == extension && f != PathUtils::get_file(base_path)) {
             backups.insert(f);
         }
         f = da->get_next();
@@ -163,12 +163,12 @@ void RotatedFileLogger::rotate_file() {
             OS::Time time = OS::get_singleton()->get_time();
             sprintf(timestamp, "-%04d-%02d-%02d-%02d-%02d-%02d", date.year, date.month, date.day, time.hour, time.min, time.sec);
 
-			String backup_name = PathUtils::get_basename(base_path) + timestamp;
-			if (PathUtils::get_extension(base_path) != String()) {
-				backup_name += "." + PathUtils::get_extension(base_path);
+            String backup_name = PathUtils::get_basename(base_path) + timestamp;
+            if (PathUtils::get_extension(base_path) != String()) {
+                backup_name += "." + PathUtils::get_extension(base_path);
             }
 
-			DirAccess *da = DirAccess::open(PathUtils::get_base_dir(base_path));
+            DirAccess *da = DirAccess::open(PathUtils::get_base_dir(base_path));
             if (da) {
                 da->copy(base_path, backup_name);
                 memdelete(da);
@@ -178,7 +178,7 @@ void RotatedFileLogger::rotate_file() {
     } else {
         DirAccess *da = DirAccess::create(DirAccess::ACCESS_USERDATA);
         if (da) {
-			da->make_dir_recursive(PathUtils::get_base_dir(base_path));
+            da->make_dir_recursive(PathUtils::get_base_dir(base_path));
             memdelete(da);
         }
     }
@@ -187,7 +187,7 @@ void RotatedFileLogger::rotate_file() {
 }
 
 RotatedFileLogger::RotatedFileLogger(const String &p_base_path, int p_max_files) :
-		base_path(PathUtils::simplify_path(p_base_path)),
+        base_path(PathUtils::simplify_path(p_base_path)),
         max_files(p_max_files > 0 ? p_max_files : 1),
         file(nullptr) {
     rotate_file();

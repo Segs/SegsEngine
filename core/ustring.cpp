@@ -1624,7 +1624,7 @@ String String::format(const Variant &values, const char *placeholder) const {
                     val = val.substr(1, val.length() - 2);
                 }
 
-                if (StringUtils::contains(placeholder,"_") > -1) {
+                if (StringUtils::contains(placeholder,"_")) {
                     new_string = new_string.replace(String(placeholder).replace("_", i_as_str), val);
                 } else {
                     new_string = new_string.replace_first(placeholder, val);

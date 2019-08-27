@@ -335,17 +335,17 @@ String OS::get_locale() const {
 // Helper function to ensure that a dir name/path will be valid on the OS
 String OS::get_safe_dir_name(String p_dir_name, bool p_allow_dir_separator) const {
 
-    std::vector<String> invalid_chars = {":","*","?", "\\", "<",">","|"};
+    String invalid_chars[8] = {":","*","?", "\\", "<",">","|"};
     if (p_allow_dir_separator) {
         // Dir separators are allowed, but disallow ".." to avoid going up the filesystem
-        invalid_chars.push_back("..");
+        invalid_chars[7]="..";
     } else {
-        invalid_chars.push_back("/");
+        invalid_chars[7] = "/";
     }
 
     String safe_dir_name = String(p_dir_name.replace("\\", "/")).strip_edges();
-    for (int i = 0; i < invalid_chars.size(); i++) {
-        safe_dir_name = safe_dir_name.replace(invalid_chars[i], "-");
+    for (const String &s  : invalid_chars) {
+        safe_dir_name = safe_dir_name.replace(s, "-");
     }
     return safe_dir_name;
 }
