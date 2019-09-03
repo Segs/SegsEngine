@@ -48,6 +48,7 @@ private:
 	String text;
 	String xl_text;
 	Ref<Texture> icon;
+	bool expand_icon;
 	bool clip_text;
 	TextAlign align;
 	float _internal_margin[4];
@@ -67,6 +68,9 @@ public:
 
 	void set_icon(const Ref<Texture> &p_icon);
 	Ref<Texture> get_icon() const;
+
+	void set_expand_icon(bool p_expand_icon);
+	bool is_expand_icon() const;
 
 	void set_flat(bool p_flat);
 	bool is_flat() const;
