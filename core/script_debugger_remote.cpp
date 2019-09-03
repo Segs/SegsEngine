@@ -541,6 +541,9 @@ bool ScriptDebuggerRemote::_parse_live_edit(const Array &p_command) {
 
 void ScriptDebuggerRemote::_send_object_id(ObjectID p_id) {
 
+    using ScriptMemberMap = Map<const Script *, Set<StringName> >;
+    using ScriptConstantsMap = Map<const Script *, Map<StringName, Variant> >;
+
     Object *obj = ObjectDB::get_instance(p_id);
     if (!obj)
         return;
@@ -550,9 +553,6 @@ void ScriptDebuggerRemote::_send_object_id(ObjectID p_id) {
 
     if (ScriptInstance *si = obj->get_script_instance()) {
         if (!si->get_script().is_null()) {
-
-            typedef Map<const Script *, Set<StringName> > ScriptMemberMap;
-            typedef Map<const Script *, Map<StringName, Variant> > ScriptConstantsMap;
 
             ScriptMemberMap members;
             members[si->get_script().ptr()] = Set<StringName>();

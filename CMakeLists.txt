@@ -197,7 +197,6 @@ if(OPTION_PRECISE_MATH_CHECKS)
 endif()
 
 add_subdirectory("${PROJECT_SOURCE_DIR}/thirdparty/zstd")
-add_subdirectory("${PROJECT_SOURCE_DIR}/thirdparty/zlib")
 
 
 add_subdirectory(utils)

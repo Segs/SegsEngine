@@ -4,6 +4,7 @@ include(ExternalProject_EASTL.cmake)
 
 add_subdirectory(entt)
 add_subdirectory(bullet)
+add_subdirectory(zlib)
 
 
 add_library(thirdparty_misc STATIC
@@ -23,9 +24,10 @@ add_library(thirdparty_misc STATIC
         ${PROJECT_SOURCE_DIR}/thirdparty/minizip/zip.c
         # Used in scene
         ${PROJECT_SOURCE_DIR}/thirdparty/misc/mikktspace.c
-
     )
 target_include_directories(thirdparty_misc PUBLIC thirdparty/misc/)
+target_link_libraries(thirdparty_misc PUBLIC zlib)
+
 
 if(OPTION_BUILTIN_SQUISH)
 # Thirdparty source files
@@ -245,7 +247,7 @@ configure_file(${PROJECT_SOURCE_DIR}/thirdparty/miniupnpc/miniupnpc/miniupnpcstr
 set(MINIUPNPC_VERSION "2.1")
 set(SYSTEM_NAME "Godot Engine")
 add_library(miniupnpc STATIC ${thirdparty_sources})
-target_include_directories(miniupnpc PRIVATE ${PROJECT_SOURCE_DIR}/thirdparty/miniupnpc/)
+target_include_directories(miniupnpc PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/miniupnpc/)
 target_compile_definitions(miniupnpc PUBLIC MINIUPNP_STATICLIB)
 target_compile_definitions(miniupnpc PRIVATE MINIUPNPC_SET_SOCKET_TIMEOUT)
 
@@ -314,6 +316,7 @@ set(thirdparty_sources
 if(OPTION_BUILTIN_LIBPNG)
     add_library(png STATIC ${thirdparty_sources})
     target_include_directories(png PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/libpng/)
+    target_link_libraries(png PUBLIC zlib)
 endif()
 
 
@@ -365,4 +368,4 @@ add_library(freetype STATIC ${source_files})
 target_include_directories(freetype PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/freetype/include)
 target_compile_definitions(freetype PRIVATE FT2_BUILD_LIBRARY)
 target_compile_definitions(freetype PUBLIC FREETYPE_ENABLED FT_CONFIG_OPTION_USE_PNG)
-target_link_libraries(freetype PUBLIC png zlib)
+target_link_libraries(freetype PUBLIC png)

@@ -549,7 +549,7 @@ ProceduralSky::ProceduralSky(bool p_desaturate) {
     update_queued = false;
     sky_top_color = Color::hex(0xa5d6f1ff);
     sky_horizon_color = Color::hex(0xd6eafaff);
-    sky_curve = 0.09;
+    sky_curve = 0.09f;
     sky_energy = 1;
 
     ground_bottom_color = Color::hex(0x282f36ff);
@@ -568,7 +568,7 @@ ProceduralSky::ProceduralSky(bool p_desaturate) {
     sun_longitude = 0;
     sun_angle_min = 1;
     sun_angle_max = 100;
-    sun_curve = 0.05;
+    sun_curve = 0.05f;
     sun_energy = 1;
 
     texture_size = TEXTURE_SIZE_1024;

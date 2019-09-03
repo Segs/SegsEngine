@@ -430,7 +430,7 @@ public:
             String &path,
             AssimpImageData &image_state) {
         aiString ai_filename = aiString();
-        if (AI_SUCCESS == ai_material->GetTexture(texture_type, 0, &ai_filename, NULL, NULL, NULL, NULL, image_state.map_mode)) {
+        if (AI_SUCCESS == ai_material->GetTexture(texture_type, 0, &ai_filename, nullptr, nullptr, nullptr, nullptr, image_state.map_mode)) {
             return CreateAssimpTexture(state, ai_filename, filename, path, image_state);
         }
 

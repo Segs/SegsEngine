@@ -665,7 +665,7 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
         } break;
         case TYPE_OF: {
 
-			*r_return = p_inputs[0]->get_type();
+            *r_return = p_inputs[0]->get_type();
 
         } break;
         case TYPE_EXISTS: {
@@ -995,7 +995,7 @@ Error Expression::_get_token(Token &r_token) {
                         //escaped characters...
 
                         CharType next = GET_CHAR();
-                        if (next == 0) {
+                        if (next.isNull()) {
                             _set_error("Unterminated String");
                             r_token.type = TK_ERROR;
                             return ERR_PARSE_ERROR;

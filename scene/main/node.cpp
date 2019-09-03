@@ -1872,6 +1872,20 @@ String Node::get_filename() const {
     return data.filename;
 }
 
+void Node::set_editor_description(const String &p_editor_description) {
+
+	set_meta("_editor_description_", p_editor_description);
+}
+
+String Node::get_editor_description() const {
+
+	if (has_meta("_editor_description_")) {
+		return get_meta("_editor_description_");
+	} else {
+		return "";
+	}
+}
+
 void Node::set_editable_instance(Node *p_node, bool p_editable) {
 
     ERR_FAIL_NULL(p_node)
@@ -2858,10 +2872,6 @@ void Node::_bind_methods() {
     ADD_SIGNAL(MethodInfo("tree_exiting"));
     ADD_SIGNAL(MethodInfo("tree_exited"));
 
-    //ADD_PROPERTY( PropertyInfo( Variant::BOOL, "process/process" ),"set_process","is_processing") ;
-    //ADD_PROPERTY( PropertyInfo( Variant::BOOL, "process/physics_process" ), "set_physics_process","is_physics_processing") ;
-    //ADD_PROPERTY( PropertyInfo( Variant::BOOL, "process/input" ), "set_process_input","is_processing_input" ) ;
-    //ADD_PROPERTY( PropertyInfo( Variant::BOOL, "process/unhandled_input" ), "set_process_unhandled_input","is_processing_unhandled_input" ) ;
     ADD_GROUP("Pause", "pause_");
     ADD_PROPERTY(PropertyInfo(Variant::INT, "pause_mode", PROPERTY_HINT_ENUM, "Inherit,Stop,Process"), "set_pause_mode", "get_pause_mode");
 
@@ -2885,9 +2895,6 @@ void Node::_bind_methods() {
     BIND_VMETHOD(MethodInfo("_unhandled_input", PropertyInfo(Variant::OBJECT, "event", PROPERTY_HINT_RESOURCE_TYPE, "InputEvent")));
     BIND_VMETHOD(MethodInfo("_unhandled_key_input", PropertyInfo(Variant::OBJECT, "event", PROPERTY_HINT_RESOURCE_TYPE, "InputEventKey")));
     BIND_VMETHOD(MethodInfo(Variant::STRING, "_get_configuration_warning"));
-
-    //MethodBinder::bind_method(D_METHOD("get_child",&Node::get_child,PH("index")));
-    //MethodBinder::bind_method(D_METHOD("get_node",&Node::get_node,PH("path")));
 }
 
 String Node::_get_name_num_separator() {

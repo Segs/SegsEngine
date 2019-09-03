@@ -52,63 +52,63 @@
 
 namespace AssimpImporter {
 /** Import state is for global scene import data
-	 * This makes the code simpler and contains useful lookups.
-	 */
+     * This makes the code simpler and contains useful lookups.
+     */
 struct ImportState {
 
-	String path;
-	const aiScene *assimp_scene;
-	uint32_t max_bone_weights;
+    String path;
+    const aiScene *assimp_scene;
+    uint32_t max_bone_weights;
 
-	Spatial *root;
-	Map<String, Ref<Mesh> > mesh_cache;
-	Map<int, Ref<Material> > material_cache;
-	Map<String, int> light_cache;
-	Map<String, int> camera_cache;
-	//Vector<Skeleton *> skeletons;
-	Map<Skeleton *, const Spatial *> armature_skeletons; // maps skeletons based on their armature nodes.
-	Map<const aiBone *, Skeleton *> bone_to_skeleton_lookup; // maps bones back into their skeleton
-	// very useful for when you need to ask assimp for the bone mesh
-	Map<String, Node *> node_map;
-	Map<const aiNode *, const Node *> assimp_node_map;
-	Map<String, Ref<Image> > path_to_image_cache;
-	bool fbx; //for some reason assimp does some things different for FBX
-	AnimationPlayer *animation_player;
+    Spatial *root;
+    Map<String, Ref<Mesh> > mesh_cache;
+    Map<int, Ref<Material> > material_cache;
+    Map<String, int> light_cache;
+    Map<String, int> camera_cache;
+    //Vector<Skeleton *> skeletons;
+    Map<Skeleton *, const Spatial *> armature_skeletons; // maps skeletons based on their armature nodes.
+    Map<const aiBone *, Skeleton *> bone_to_skeleton_lookup; // maps bones back into their skeleton
+    // very useful for when you need to ask assimp for the bone mesh
+    Map<String, Node *> node_map;
+    Map<const aiNode *, const Node *> assimp_node_map;
+    Map<String, Ref<Image> > path_to_image_cache;
+    bool fbx; //for some reason assimp does some things different for FBX
+    AnimationPlayer *animation_player;
 };
 
 struct AssimpImageData {
-	Ref<Image> raw_image;
-	Ref<ImageTexture> texture;
-	aiTextureMapMode *map_mode = NULL;
+    Ref<Image> raw_image;
+    Ref<ImageTexture> texture;
+    aiTextureMapMode map_mode[3];
 };
 
 /** Recursive state is used to push state into functions instead of specifying them
-	* This makes the code easier to handle too and add extra arguments without breaking things
-	*/
+    * This makes the code easier to handle too and add extra arguments without breaking things
+    */
 struct RecursiveState {
-	RecursiveState(
-			Transform &_node_transform,
-			Skeleton *_skeleton,
-			Spatial *_new_node,
-			const String &_node_name,
-			const aiNode *_assimp_node,
-			Node *_parent_node,
-			const aiBone *_bone) :
-			node_transform(_node_transform),
-			skeleton(_skeleton),
-			new_node(_new_node),
-			node_name(_node_name),
-			assimp_node(_assimp_node),
-			parent_node(_parent_node),
-			bone(_bone) {}
+    RecursiveState(
+            Transform &_node_transform,
+            Skeleton *_skeleton,
+            Spatial *_new_node,
+            const String &_node_name,
+            const aiNode *_assimp_node,
+            Node *_parent_node,
+            const aiBone *_bone) :
+            node_transform(_node_transform),
+            skeleton(_skeleton),
+            new_node(_new_node),
+            node_name(_node_name),
+            assimp_node(_assimp_node),
+            parent_node(_parent_node),
+            bone(_bone) {}
 
-	Transform &node_transform;
-	Skeleton *skeleton;
-	Spatial *new_node;
-	const String &node_name;
-	const aiNode *assimp_node;
-	Node *parent_node;
-	const aiBone *bone;
+    Transform &node_transform;
+    Skeleton *skeleton;
+    Spatial *new_node;
+    const String &node_name;
+    const aiNode *assimp_node;
+    Node *parent_node;
+    const aiBone *bone;
 };
 } // namespace AssimpImporter
 

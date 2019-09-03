@@ -1,8 +1,3 @@
-#def make_debug(target, source, env):
-#    os.system('objcopy --only-keep-debug {0} {0}.debugsymbols'.format(target[0]))
-#    os.system('strip --strip-debug --strip-unneeded {0}'.format(target[0]))
-#    os.system('objcopy --add-gnu-debuglink={0}.debugsymbols {0}'.format(target[0]))
-
 set(common_x11
     context_gl_x11.cpp
     crash_handler_x11.cpp
@@ -13,8 +8,9 @@ set(common_x11
     detect_prime.cpp
 )
 
+find_package(OpenGL REQUIRED)
+
 foreach(tgt ${global_targets})
-    find_package(OpenGL REQUIRED)
     add_executable(godot_${tgt} godot_x11.cpp ${common_x11})
     target_link_libraries(godot_${tgt} ${tgt}_main editor ${tgt}_scene ${tgt}_servers ${tgt}_modules ${tgt}_core)
     target_link_libraries(godot_${tgt} ${LIBRARIES} ${X11_LIBRARIES} ${X11_Xcursor_LIB} ${X11_Xrender_LIB} Xinerama Xrandr X11 dl pthread Xi ${OPENGL_LIBRARIES})
