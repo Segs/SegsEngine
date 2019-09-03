@@ -1,0 +1,11 @@
+file(GLOB source_files "*.cpp" )
+file(GLOB header_files "*.h" )
+set(thirdparty_sources)
+
+foreach(tgt ${global_targets})
+    add_library(${tgt}_mbedtls OBJECT ${source_files} ${header_files} ${thirdparty_sources})
+    target_compile_definitions(${tgt}_mbedtls PUBLIC BUILTIN_CERTS_ENABLED)
+    target_link_libraries(${tgt}_mbedtls PUBLIC mbedtls)
+    target_link_libraries(${tgt}_mbedtls PUBLIC ${tgt}_core)
+    set_common_target_properties(${tgt}_mbedtls)
+endforeach()

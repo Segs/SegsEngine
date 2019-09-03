@@ -1,0 +1,11 @@
+set(tests_sources)
+file(GLOB test_sources "*.cpp")
+
+foreach(tgt ${global_targets})
+    add_library(${tgt}_tests STATIC ${test_sources})
+    target_link_libraries(${tgt}_tests PUBLIC ${tgt}_core)
+    if(OPTION_GDSCRIPT)
+        target_compile_definitions(${tgt}_tests  PRIVATE GDSCRIPT_ENABLED)
+    endif()
+    set_common_target_properties(${tgt}_tests)
+endforeach()

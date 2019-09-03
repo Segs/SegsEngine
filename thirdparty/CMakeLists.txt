@@ -1,0 +1,368 @@
+
+set(ThirdParty_Install_Dir ${PROJECT_BINARY_DIR}/ThirdParty_Builds)
+include(ExternalProject_EASTL.cmake)
+
+add_subdirectory(entt)
+add_subdirectory(bullet)
+
+
+add_library(thirdparty_misc STATIC
+    # Add required thirdparty code. Header paths are hardcoded, we don't need to append
+    # to the include path (saves a few chars on the compiler invocation for touchy MSVC...)
+        # C sources
+        ${PROJECT_SOURCE_DIR}/thirdparty/misc/fastlz.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/misc/smaz.c
+        # C++ sources
+        ${PROJECT_SOURCE_DIR}/thirdparty/misc/hq2x.cpp
+        ${PROJECT_SOURCE_DIR}/thirdparty/misc/pcg.cpp
+        ${PROJECT_SOURCE_DIR}/thirdparty/misc/triangulator.cpp
+    # Minizip library, can be unbundled in theory
+    # However, our version has some custom modifications, so it won't compile with the system one
+        ${PROJECT_SOURCE_DIR}/thirdparty/minizip/ioapi.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/minizip/unzip.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/minizip/zip.c
+        # Used in scene
+        ${PROJECT_SOURCE_DIR}/thirdparty/misc/mikktspace.c
+
+    )
+target_include_directories(thirdparty_misc PUBLIC thirdparty/misc/)
+
+if(OPTION_BUILTIN_SQUISH)
+# Thirdparty source files
+set(thirdparty_sources
+    ${PROJECT_SOURCE_DIR}/thirdparty/squish/alpha.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/squish/clusterfit.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/squish/colourblock.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/squish/colourfit.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/squish/colourset.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/squish/maths.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/squish/rangefit.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/squish/singlecolourfit.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/squish/squish.cpp
+)
+add_library(squish STATIC ${thirdparty_sources})
+target_include_directories(squish PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/squish/)
+endif()
+
+add_library(cvtt_lib STATIC cvtt/ConvectionKernels.cpp)
+target_include_directories(cvtt_lib PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/cvtt/)
+
+set(thirdparty_sources
+#    ${PROJECT_SOURCE_DIR}/thirdparty/enet/godot.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/enet/callbacks.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/enet/compress.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/enet/host.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/enet/list.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/enet/packet.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/enet/peer.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/enet/protocol.c
+
+)
+add_library(enet_lib STATIC ${thirdparty_sources})
+target_include_directories(enet_lib PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/enet/)
+
+# Thirdparty source files
+set(thirdparty_sources
+    pvrtccompressor/BitScale.cpp
+    pvrtccompressor/MortonTable.cpp
+    pvrtccompressor/PvrTcDecoder.cpp
+    pvrtccompressor/PvrTcEncoder.cpp
+    pvrtccompressor/PvrTcPacket.cpp
+)
+add_library(pvr_lib STATIC ${thirdparty_sources})
+target_include_directories(pvr_lib PUBLIC pvrtccompressor/)
+
+
+macro(remove_flag_from_target _target _flag)
+    get_target_property(_target_cxx_flags ${_target} COMPILE_OPTIONS)
+    if(_target_cxx_flags)
+        list(REMOVE_ITEM _target_cxx_flags ${_flag})
+        set_target_properties(${_target} PROPERTIES COMPILE_OPTIONS "${_target_cxx_flags}")
+    endif()
+endmacro()
+
+set(source_files
+    ${PROJECT_SOURCE_DIR}/thirdparty/etc2comp/EtcBlock4x4.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/etc2comp/EtcBlock4x4Encoding.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/etc2comp/EtcBlock4x4Encoding_ETC1.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/etc2comp/EtcBlock4x4Encoding_R11.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/etc2comp/EtcBlock4x4Encoding_RG11.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/etc2comp/EtcBlock4x4Encoding_RGB8A1.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/etc2comp/EtcBlock4x4Encoding_RGB8.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/etc2comp/EtcBlock4x4Encoding_RGBA8.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/etc2comp/Etc.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/etc2comp/EtcDifferentialTrys.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/etc2comp/EtcFilter.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/etc2comp/EtcImage.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/etc2comp/EtcIndividualTrys.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/etc2comp/EtcMath.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/etc2comp/EtcSortedBlockList.cpp
+)
+add_library(etc2comp ${source_files})
+target_include_directories(etc2comp PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/etc2comp/)
+remove_flag_from_target(etc2comp -ffast-math)
+
+set(thirdparty_sources
+    ${PROJECT_SOURCE_DIR}/thirdparty/pcre2/src/pcre2_auto_possess.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/pcre2/src/pcre2_chartables.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/pcre2/src/pcre2_compile.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/pcre2/src/pcre2_config.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/pcre2/src/pcre2_context.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/pcre2/src/pcre2_dfa_match.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/pcre2/src/pcre2_error.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/pcre2/src/pcre2_find_bracket.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/pcre2/src/pcre2_jit_compile.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/pcre2/src/pcre2_maketables.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/pcre2/src/pcre2_match.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/pcre2/src/pcre2_match_data.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/pcre2/src/pcre2_newline.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/pcre2/src/pcre2_ord2utf.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/pcre2/src/pcre2_pattern_info.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/pcre2/src/pcre2_serialize.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/pcre2/src/pcre2_string_utils.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/pcre2/src/pcre2_study.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/pcre2/src/pcre2_substitute.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/pcre2/src/pcre2_substring.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/pcre2/src/pcre2_tables.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/pcre2/src/pcre2_ucd.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/pcre2/src/pcre2_valid_utf.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/pcre2/src/pcre2_xclass.c
+
+    ${PROJECT_SOURCE_DIR}/thirdparty/pcre2/src/pcre2_convert.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/pcre2/src/pcre2_extuni.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/pcre2/src/pcre2_script_run.c
+
+)
+add_library(regex STATIC ${thirdparty_sources})
+target_include_directories(regex PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/pcre2/src/)
+target_compile_definitions(regex PUBLIC PCRE2_CODE_UNIT_WIDTH=16 PCRE2_STATIC HAVE_CONFIG_H SUPPORT_JIT)
+
+if(OPTION_BUILTIN_MBEDTLS)
+    set(thirdparty_sources
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/aes.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/aesni.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/arc4.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/aria.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/asn1parse.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/asn1write.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/base64.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/bignum.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/blowfish.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/camellia.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/ccm.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/certs.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/chacha20.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/chachapoly.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/cipher.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/cipher_wrap.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/cmac.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/ctr_drbg.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/debug.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/des.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/dhm.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/ecdh.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/ecdsa.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/ecjpake.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/ecp.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/ecp_curves.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/entropy.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/entropy_poll.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/error.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/gcm.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/havege.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/hkdf.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/hmac_drbg.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/md2.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/md4.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/md5.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/md.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/md_wrap.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/memory_buffer_alloc.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/net_sockets.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/nist_kw.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/oid.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/padlock.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/pem.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/pk.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/pkcs11.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/pkcs12.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/pkcs5.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/pkparse.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/pk_wrap.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/pkwrite.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/platform.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/platform_util.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/poly1305.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/ripemd160.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/rsa.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/rsa_internal.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/sha1.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/sha256.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/sha512.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/ssl_cache.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/ssl_ciphersuites.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/ssl_cli.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/ssl_cookie.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/ssl_srv.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/ssl_ticket.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/ssl_tls.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/threading.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/timing.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/version.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/version_features.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/x509.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/x509_create.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/x509_crl.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/x509_crt.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/x509_csr.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/x509write_crt.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/x509write_csr.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/xtea.c
+    )
+    add_library(mbedtls STATIC ${thirdparty_sources})
+    target_include_directories(mbedtls PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/include)
+endif()
+
+add_subdirectory(assimp)
+
+set(thirdparty_sources
+    ${PROJECT_SOURCE_DIR}/thirdparty/miniupnpc/miniupnpc/miniupnpc.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/miniupnpc/miniupnpc/upnpcommands.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/miniupnpc/miniupnpc/miniwget.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/miniupnpc/miniupnpc/upnpdev.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/miniupnpc/miniupnpc/igd_desc_parse.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/miniupnpc/miniupnpc/minissdpc.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/miniupnpc/miniupnpc/minisoap.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/miniupnpc/miniupnpc/minixml.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/miniupnpc/miniupnpc/connecthostport.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/miniupnpc/miniupnpc/receivedata.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/miniupnpc/miniupnpc/portlistingparse.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/miniupnpc/miniupnpc/upnpreplyparse.c
+)
+configure_file(${PROJECT_SOURCE_DIR}/thirdparty/miniupnpc/miniupnpc/miniupnpcstrings.h.cmake
+    ${PROJECT_SOURCE_DIR}/thirdparty/miniupnpc/miniupnpc/miniupnpcstrings.h
+)
+set(MINIUPNPC_VERSION "2.1")
+set(SYSTEM_NAME "Godot Engine")
+add_library(miniupnpc STATIC ${thirdparty_sources})
+target_include_directories(miniupnpc PRIVATE ${PROJECT_SOURCE_DIR}/thirdparty/miniupnpc/)
+target_compile_definitions(miniupnpc PUBLIC MINIUPNP_STATICLIB)
+target_compile_definitions(miniupnpc PRIVATE MINIUPNPC_SET_SOCKET_TIMEOUT)
+
+
+
+set(thirdparty_sources
+    ${PROJECT_SOURCE_DIR}/thirdparty/vhacd/src/vhacdManifoldMesh.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/vhacd/src/FloatMath.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/vhacd/src/vhacdMesh.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/vhacd/src/vhacdICHull.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/vhacd/src/vhacdVolume.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/vhacd/src/VHACD-ASYNC.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/vhacd/src/btAlignedAllocator.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/vhacd/src/vhacdRaycastMesh.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/vhacd/src/VHACD.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/vhacd/src/btConvexHullComputer.cpp
+)
+add_library(vhacd STATIC ${thirdparty_sources})
+target_include_directories(vhacd PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/vhacd/inc)
+
+
+set(thirdparty_sources
+
+    ${PROJECT_SOURCE_DIR}/thirdparty/wslay/wslay_net.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/wslay/wslay_event.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/wslay/wslay_queue.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/wslay/wslay_stack.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/wslay/wslay_frame.c
+)
+add_library(wslay STATIC ${thirdparty_sources})
+target_include_directories(wslay PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/wslay/includes)
+
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows") # Winsock
+    target_compile_definitions(wslay PRIVATE HAVE_WINSOCK2_H)
+else() # Unix socket
+    target_compile_definitions(wslay PRIVATE HAVE_NETINET_IN_H)
+endif()
+
+
+if(OPTION_BUILTIN_LIBOGG)
+    set(thirdparty_sources
+        ${PROJECT_SOURCE_DIR}/thirdparty/libogg/bitwise.c
+        ${PROJECT_SOURCE_DIR}/thirdparty/libogg/framing.c
+    )
+    add_library(ogg STATIC ${thirdparty_sources})
+    target_include_directories(ogg PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/libogg/)
+endif()
+
+set(thirdparty_sources
+    ${PROJECT_SOURCE_DIR}/thirdparty/libpng/png.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libpng/pngerror.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libpng/pngget.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libpng/pngmem.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libpng/pngpread.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libpng/pngread.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libpng/pngrio.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libpng/pngrtran.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libpng/pngrutil.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libpng/pngset.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libpng/pngtrans.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libpng/pngwio.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libpng/pngwrite.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libpng/pngwtran.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/libpng/pngwutil.c
+)
+if(OPTION_BUILTIN_LIBPNG)
+    add_library(png STATIC ${thirdparty_sources})
+    target_include_directories(png PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/libpng/)
+endif()
+
+
+set(source_files
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/autofit/autofit.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/base/ftbase.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/base/ftbbox.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/base/ftbdf.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/base/ftbitmap.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/base/ftcid.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/base/ftdebug.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/base/ftfstype.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/base/ftgasp.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/base/ftglyph.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/base/ftgxval.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/base/ftinit.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/base/ftmm.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/base/ftotval.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/base/ftpatent.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/base/ftpfr.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/base/ftstroke.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/base/ftsynth.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/base/ftsystem.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/base/fttype1.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/base/ftwinfnt.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/bdf/bdf.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/bzip2/ftbzip2.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/cache/ftcache.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/cff/cff.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/cid/type1cid.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/gxvalid/gxvalid.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/gzip/ftgzip.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/lzw/ftlzw.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/otvalid/otvalid.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/pcf/pcf.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/pfr/pfr.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/psaux/psaux.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/pshinter/pshinter.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/psnames/psnames.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/raster/raster.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/smooth/smooth.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/truetype/truetype.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/type1/type1.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/type42/type42.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/winfonts/winfnt.c
+    ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/sfnt/sfnt.c
+)
+add_library(freetype STATIC ${source_files})
+target_include_directories(freetype PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/freetype/include)
+target_compile_definitions(freetype PRIVATE FT2_BUILD_LIBRARY)
+target_compile_definitions(freetype PUBLIC FREETYPE_ENABLED FT_CONFIG_OPTION_USE_PNG)
+target_link_libraries(freetype PUBLIC png zlib)
