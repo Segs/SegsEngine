@@ -126,31 +126,34 @@ String DirAccessWindows::get_drive(int p_drive) {
 Error DirAccessWindows::change_dir(String p_dir) {
 
     GLOBAL_LOCK_FUNCTION
-
+    bool worked = true;
     p_dir = fix_path(p_dir);
 
-    wchar_t real_current_dir_name[2048];
-    GetCurrentDirectoryW(2048, real_current_dir_name);
-    String prev_dir = QDir::currentPath();
-    bool worked = QDir::setCurrent(current_dir.m_str);
-
-    String base = _get_root_path();
-    if (base != "") {
-
-        String new_dir = prev_dir;
-        if (!StringUtils::begins_with(new_dir,base)) {
-            worked = false;
-        }
+    // try_dir is the directory we are trying to change into
+    String try_dir;
+    if (PathUtils::is_rel_path(p_dir)) {
+        String next_dir = PathUtils::plus_file(current_dir, p_dir);
+        next_dir = PathUtils::simplify_path(next_dir);
+        if (next_dir.empty())
+            next_dir = ".";
+        try_dir = next_dir;
+    }
+    else {
+        try_dir = p_dir;
+    }
+    QFileInfo my_dir(try_dir.m_str);
+    if(!my_dir.isDir() || !my_dir.isReadable()) {
+        return ERR_INVALID_PARAMETER;
     }
 
-    if (worked) {
+    String base = _get_root_path();
+    // If base was set, and new path is not under base, revert the path.
+    if (!base.empty() && !StringUtils::begins_with(try_dir,base)) {
+        try_dir = current_dir; //revert
+        worked = false;
+    }
 
-        current_dir = QDir::currentPath();
-    } // else {
-    //TODO: what is this doing ?????
-    QDir::setCurrent(prev_dir.m_str);
-    //}
-
+    current_dir = try_dir;
     return worked ? OK : ERR_INVALID_PARAMETER;
 }
 
