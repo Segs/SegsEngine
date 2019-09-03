@@ -39,9 +39,9 @@
 #include "editor/scene_tree_dock.h"
 #include "scene/resources/theme.h"
 
-typedef void (*EditorNodeInitCallback)();
-typedef void (*EditorPluginInitializeCallback)();
-typedef bool (*EditorBuildCallback)();
+using EditorNodeInitCallback = void (*)();
+using EditorPluginInitializeCallback = void (*)();
+using EditorBuildCallback = bool (*)();
 
 class PaneDrag;
 class EditorRunNative;

@@ -149,7 +149,7 @@
 #include "editor/register_exporters.h"
 #include "editor/script_editor_debugger.h"
 #include "scene/gui/tabs.h"
-#include <stdio.h>
+#include <cstdio>
 
 EditorNode *EditorNode::singleton = nullptr;
 
@@ -6590,7 +6590,7 @@ EditorNode::EditorNode() {
     EditorExport::get_singleton()->add_export_plugin(export_text_to_binary_plugin);
 
     _edit_current();
-    current = NULL;
+    current = nullptr;
     saving_resource = Ref<Resource>();
 
     reference_resource_mem = true;

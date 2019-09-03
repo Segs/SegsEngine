@@ -2864,7 +2864,7 @@ void SpatialEditorViewport::_toggle_cinema_preview(bool p_activate) {
         if (previewing != nullptr)
             previewing->disconnect("tree_exited", this, "_preview_exited_scene");
 
-        previewing = NULL;
+        previewing = nullptr;
         VS::get_singleton()->viewport_attach_camera(viewport->get_viewport_rid(), camera->get_camera()); //restore
         preview_camera->set_pressed(false);
         if (!preview) {
@@ -3490,7 +3490,7 @@ SpatialEditorViewport::SpatialEditorViewport(SpatialEditor *p_spatial_editor, Ed
     _edit.mode = TRANSFORM_NONE;
     _edit.plane = TRANSFORM_VIEW;
     _edit.edited_gizmo = 0;
-    _edit.snap = 1;
+    _edit.snap = true;
     _edit.gizmo_handle = 0;
 
     index = p_index;

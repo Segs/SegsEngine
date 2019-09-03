@@ -123,8 +123,8 @@ public:
 	ScriptEditorBase() {}
 };
 
-typedef SyntaxHighlighter *(*CreateSyntaxHighlighterFunc)();
-typedef ScriptEditorBase *(*CreateScriptEditorFunc)(const RES &p_resource);
+using CreateSyntaxHighlighterFunc = SyntaxHighlighter *(*)();
+using CreateScriptEditorFunc = ScriptEditorBase *(*)(const RES &);
 
 class EditorScriptCodeCompletionCache;
 class FindInFilesDialog;

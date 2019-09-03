@@ -1276,7 +1276,7 @@ bool CanvasItemEditor::_gui_input_pivot(const Ref<InputEvent> &p_event) {
                 if (drag_selection.size() == 1) {
                     new_pos = snap_point(drag_from, SNAP_NODE_SIDES | SNAP_NODE_CENTER | SNAP_NODE_ANCHORS | SNAP_OTHER_NODES | SNAP_GRID | SNAP_PIXEL, 0, drag_selection[0]);
                 } else {
-                    new_pos = snap_point(drag_from, SNAP_OTHER_NODES | SNAP_GRID | SNAP_PIXEL, 0, NULL, drag_selection);
+                    new_pos = snap_point(drag_from, SNAP_OTHER_NODES | SNAP_GRID | SNAP_PIXEL, 0, nullptr, drag_selection);
                 }
                 for (List<CanvasItem *>::Element *E = drag_selection.front(); E; E = E->next()) {
                     CanvasItem *canvas_item = E->get();
@@ -1935,7 +1935,7 @@ bool CanvasItemEditor::_gui_input_move(const Ref<InputEvent> &p_event) {
             } else {
                 previous_pos = _get_encompassing_rect_from_list(drag_selection).position;
             }
-            Point2 new_pos = snap_point(previous_pos + (drag_to - drag_from), SNAP_GRID | SNAP_GUIDES | SNAP_PIXEL | SNAP_NODE_PARENT | SNAP_NODE_ANCHORS | SNAP_OTHER_NODES, 0, NULL, drag_selection);
+            Point2 new_pos = snap_point(previous_pos + (drag_to - drag_from), SNAP_GRID | SNAP_GUIDES | SNAP_PIXEL | SNAP_NODE_PARENT | SNAP_NODE_ANCHORS | SNAP_OTHER_NODES, 0, nullptr, drag_selection);
             bool single_axis = m->get_shift();
             if (single_axis) {
                 if (ABS(new_pos.x - previous_pos.x) > ABS(new_pos.y - previous_pos.y)) {

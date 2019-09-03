@@ -111,9 +111,9 @@ public:
 
 	};
 
-	typedef void (*BakeBeginFunc)(int);
-	typedef bool (*BakeStepFunc)(int, const String &);
-	typedef void (*BakeEndFunc)();
+	using BakeBeginFunc = void (*)(int);
+	using BakeStepFunc = bool (*)(int, const String &);
+	using BakeEndFunc = void (*)();
 
 private:
 	float bake_cell_size;

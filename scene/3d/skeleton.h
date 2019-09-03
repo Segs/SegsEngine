@@ -35,7 +35,7 @@
 #include "scene/3d/spatial.h"
 
 #ifndef _3D_DISABLED
-typedef int BoneId;
+using BoneId = int;
 
 class PhysicalBone;
 #endif // _3D_DISABLED

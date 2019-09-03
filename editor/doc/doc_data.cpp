@@ -989,7 +989,7 @@ Error DocData::save_classes(const String &p_default_path, const Map<String, Stri
 
         ERR_CONTINUE_MSG(err != OK, "Can't write doc file: " + save_file + ".");
 
-        _write_string(f, 0, "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
+        _write_string(f, 0, R"(<?xml version="1.0" encoding="UTF-8" ?>)");
 
         String header = "<class name=\"" + c.name + "\"";
         if (c.inherits != "")

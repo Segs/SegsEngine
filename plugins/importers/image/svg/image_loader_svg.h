@@ -40,7 +40,7 @@ class Dictionary;
 
 extern "C" {
 struct NSVGimage;
-typedef struct NSVGrasterizer NSVGrasterizer;
+using NSVGrasterizer = struct NSVGrasterizer;
 }
 /**
     @author Daniel Ramirez <djrmuv@gmail.com>

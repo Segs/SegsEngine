@@ -156,8 +156,8 @@ class EditorExportPlatform : public Reference {
 	GDCLASS(EditorExportPlatform,Reference)
 
 public:
-	typedef Error (*EditorExportSaveFunction)(void *p_userdata, const String &p_path, const Vector<uint8_t> &p_data, int p_file, int p_total);
-	typedef Error (*EditorExportSaveSharedObject)(void *p_userdata, const SharedObject &p_so);
+	using EditorExportSaveFunction = Error (*)(void *, const String &, const Vector<uint8_t> &, int, int);
+	using EditorExportSaveSharedObject = Error (*)(void *, const SharedObject &);
 
 private:
 	struct SavedData {
@@ -392,7 +392,7 @@ class EditorExportPlatformPC : public EditorExportPlatform {
 	GDCLASS(EditorExportPlatformPC,EditorExportPlatform)
 
 public:
-	typedef Error (*FixUpEmbeddedPckFunc)(const String &p_path, int64_t p_embedded_start, int64_t p_embedded_size);
+	using FixUpEmbeddedPckFunc = Error (*)(const String &, int64_t, int64_t);
 
 private:
 	Ref<ImageTexture> logo;

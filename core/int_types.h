@@ -51,7 +51,7 @@ typedef signed int int32_t;
 typedef long long int64_t;
 typedef unsigned long long uint64_t;
 #else
-#include <stdint.h>
+#include <cstdint>
 #endif
 
 #endif

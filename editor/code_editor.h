@@ -135,7 +135,7 @@ public:
 	FindReplaceBar();
 };
 
-typedef void (*CodeTextEditorCodeCompleteFunc)(void *p_ud, const String &p_code, List<ScriptCodeCompletionOption> *r_options, bool &r_forced);
+using CodeTextEditorCodeCompleteFunc = void (*)(void *, const String &, List<ScriptCodeCompletionOption> *, bool &);
 
 class CodeTextEditor : public VBoxContainer {
 

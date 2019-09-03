@@ -84,7 +84,7 @@ void EditorPath::_about_to_show() {
 void EditorPath::update_path() {
     set_text("");
     set_tooltip("");
-    set_icon(NULL);
+    set_icon(nullptr);
 
     for (int i = 0; i < history->get_path_size(); i++) {
 
