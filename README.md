@@ -4,6 +4,8 @@
 
 Synced with upstream up to godotengine/godot@037237f5183c4b8752f8a08d610bb9395ad294ea
 
+### Note: Our changes likely introduced new errors, please if at all possible, check similar operations on upstream editor.
+
 ## Differences & Goals (incomplete list)
 
 * Codebase is meant to be modernized to a current c++ standard (c++17), but we will be careful with readability ( no `auto`-everything )
