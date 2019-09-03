@@ -1084,7 +1084,7 @@ private:
                 collision_object(p_collision_object) {
         }
 
-        void Process(const btDbvtNode *leaf) override {
+        void Process(const btDbvtNode *leaf) {
             BroadphaseResult result;
             result.collision_object = collision_object;
             result.compound_child_index = leaf->dataAsInt;

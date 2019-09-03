@@ -32,7 +32,6 @@
 #include "core/typedefs.h"
 #include "core/vector.h"
 #include "core/hashfuncs.h"
-#include "thirdparty/utf_hpp/utf.hpp"
 
 #include <QtCore/QString>
 class Array;

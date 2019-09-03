@@ -11,25 +11,6 @@ add_custom_command(
 update_version("")
 
 
-# Add required thirdparty code. Header paths are hardcoded, we don't need to append
-# to the include path (saves a few chars on the compiler invocation for touchy MSVC...)
-set(thirdparty_sources
-    # C sources
-    ${PROJECT_SOURCE_DIR}/thirdparty/misc/fastlz.c
-    ${PROJECT_SOURCE_DIR}/thirdparty/misc/smaz.c
-    # C++ sources
-    ${PROJECT_SOURCE_DIR}/thirdparty/misc/hq2x.cpp
-    ${PROJECT_SOURCE_DIR}/thirdparty/misc/pcg.cpp
-    ${PROJECT_SOURCE_DIR}/thirdparty/misc/triangulator.cpp
-# Minizip library, can be unbundled in theory
-# However, our version has some custom modifications, so it won't compile with the system one
-    ${PROJECT_SOURCE_DIR}/thirdparty/minizip/ioapi.c
-    ${PROJECT_SOURCE_DIR}/thirdparty/minizip/unzip.c
-    ${PROJECT_SOURCE_DIR}/thirdparty/minizip/zip.c
-)
-list(APPEND core_sources ${thirdparty_sources})
-
-
 add_custom_command(
     COMMAND editor_to_header license "${PROJECT_SOURCE_DIR}/COPYRIGHT.txt" "${PROJECT_SOURCE_DIR}/LICENSE.txt" ${CMAKE_CURRENT_BINARY_DIR}/license.gen.h
     OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/license.gen.h
@@ -76,9 +57,9 @@ foreach(tgt ${global_targets})
     )
 
 
-    target_link_libraries(${tgt}_core PRIVATE core_plugin_interfaces) # access to embedded resources
+    target_link_libraries(${tgt}_core PRIVATE core_plugin_interfaces ) # access to embedded resources
     target_link_libraries(${tgt}_core PUBLIC core_service_interfaces Qt5::Core)
-    target_link_libraries(${tgt}_core PUBLIC zstd_internal zlib )
+    target_link_libraries(${tgt}_core PUBLIC zstd_internal thirdparty_misc )
     target_link_libraries(${tgt}_core PUBLIC EASTL )
 
     target_compile_definitions(${tgt}_core PUBLIC BUILTIN_CERTS_ENABLED)
