@@ -37,8 +37,9 @@
 
 class Light : public VisualInstance {
 
-	GDCLASS(Light, VisualInstance);
-	OBJ_CATEGORY("3D Light Nodes");
+	GDCLASS(Light,VisualInstance)
+
+    OBJ_CATEGORY("3D Light Nodes");
 
 public:
 	enum Param {
@@ -88,7 +89,7 @@ protected:
 
 	static void _bind_methods();
 	void _notification(int p_what);
-	virtual void _validate_property(PropertyInfo &property) const;
+	void _validate_property(PropertyInfo &property) const override;
 
 	Light(VisualServer::LightType p_type);
 
@@ -122,11 +123,11 @@ public:
 	void set_bake_mode(BakeMode p_mode);
 	BakeMode get_bake_mode() const;
 
-	virtual AABB get_aabb() const;
-	virtual PoolVector<Face3> get_faces(uint32_t p_usage_flags) const;
+	AABB get_aabb() const override;
+	PoolVector<Face3> get_faces(uint32_t p_usage_flags) const override;
 
 	Light();
-	~Light();
+	~Light() override;
 };
 
 VARIANT_ENUM_CAST(Light::Param);
@@ -134,7 +135,7 @@ VARIANT_ENUM_CAST(Light::BakeMode);
 
 class DirectionalLight : public Light {
 
-	GDCLASS(DirectionalLight, Light);
+	GDCLASS(DirectionalLight,Light)
 
 public:
 	enum ShadowMode {
@@ -174,7 +175,7 @@ VARIANT_ENUM_CAST(DirectionalLight::ShadowDepthRange)
 
 class OmniLight : public Light {
 
-	GDCLASS(OmniLight, Light);
+	GDCLASS(OmniLight,Light)
 
 public:
 	// omni light
@@ -211,13 +212,13 @@ VARIANT_ENUM_CAST(OmniLight::ShadowDetail)
 
 class SpotLight : public Light {
 
-	GDCLASS(SpotLight, Light);
+	GDCLASS(SpotLight,Light)
 
 protected:
 	static void _bind_methods();
 
 public:
-	virtual String get_configuration_warning() const;
+	String get_configuration_warning() const override;
 
 	SpotLight() :
 			Light(VisualServer::LIGHT_SPOT) {}

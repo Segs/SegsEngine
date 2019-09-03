@@ -30,6 +30,9 @@
 
 #include "collision_polygon_2d_editor_plugin.h"
 
+IMPL_GDCLASS(CollisionPolygon2DEditor)
+IMPL_GDCLASS(CollisionPolygon2DEditorPlugin)
+
 Node2D *CollisionPolygon2DEditor::_get_node() const {
 
 	return node;

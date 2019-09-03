@@ -37,11 +37,13 @@
 #include "core/math/math_funcs.h"
 #include "core/print_string.h"
 #include "core/plugin_interfaces/ImageLoaderInterface.h"
+#include "core/method_bind.h"
 
 #include "thirdparty/misc/hq2x.h"
 
 #include <stdio.h>
 
+IMPL_GDCLASS(Image)
 
 const char *Image::format_names[Image::FORMAT_MAX] = {
     "Lum8", //luminance
@@ -89,7 +91,7 @@ Error Image::save_png_func(const String &p_path, const Ref<Image> &p_img)
     PoolVector<uint8_t> buffer;
     Ref<Image> source_image = prepareForPngStorage(p_img);
     ERR_FAIL_COND_V(source_image==nullptr, FAILED)
-    Error err = ImageSaver::save_image("png",source_image,buffer);
+    Error err = ImageSaver::save_image(String("png"),source_image,buffer);
     ERR_FAIL_COND_V(err, err)
     FileAccess *file = FileAccess::open(p_path, FileAccess::WRITE, &err);
     ERR_FAIL_COND_V(err, err)
@@ -111,7 +113,7 @@ Error Image::save_exr_func(const String &p_path, const Ref<Image> &source_image,
 {
     PoolVector<uint8_t> buffer;
     ERR_FAIL_COND_V(source_image==nullptr, FAILED)
-    Error err = ImageSaver::save_image("exr",source_image,buffer);
+    Error err = ImageSaver::save_image(String("exr"),source_image,buffer);
     ERR_FAIL_COND_V(err, err)
     FileAccess *file = FileAccess::open(p_path, FileAccess::WRITE, &err);
     ERR_FAIL_COND_V(err, err)
@@ -466,7 +468,7 @@ void Image::convert(Format p_new_format) {
 
     if (format > FORMAT_RGBE9995 || p_new_format > FORMAT_RGBE9995) {
 
-        ERR_FAIL_MSG("Cannot convert to <-> from compressed formats. Use compress() and decompress() instead.");
+        ERR_FAIL_CMSG("Cannot convert to <-> from compressed formats. Use compress() and decompress() instead.");
 
     } else if (format > FORMAT_RGBA8 || p_new_format > FORMAT_RGBA8) {
 
@@ -906,7 +908,7 @@ bool Image::is_size_po2() const {
 
 void Image::resize_to_po2(bool p_square) {
 
-    ERR_FAIL_COND_MSG(!_can_modify(format), "Cannot resize in indexed, compressed or custom image formats.");
+    ERR_FAIL_COND_CMSG(!_can_modify(format), "Cannot resize in compressed or custom image formats.");
 
     int w = next_power_of_2(width);
     int h = next_power_of_2(height);
@@ -922,9 +924,9 @@ void Image::resize_to_po2(bool p_square) {
 
 void Image::resize(int p_width, int p_height, Interpolation p_interpolation) {
 
-    ERR_FAIL_COND_MSG(data.size() == 0, "Cannot resize image before creating it, use create() or create_from_data() first.");
+    ERR_FAIL_COND_CMSG(data.size() == 0, "Cannot resize image before creating it, use create() or create_from_data() first.");
 
-    ERR_FAIL_COND_MSG(!_can_modify(format), "Cannot resize in indexed, compressed or custom image formats.");
+    ERR_FAIL_COND_CMSG(!_can_modify(format), "Cannot resize in compressed or custom image formats.");
 
     bool mipmap_aware = p_interpolation == INTERPOLATE_TRILINEAR /* || p_interpolation == INTERPOLATE_TRICUBIC */;
 
@@ -1137,7 +1139,7 @@ void Image::resize(int p_width, int p_height, Interpolation p_interpolation) {
 
 void Image::crop_from_point(int p_x, int p_y, int p_width, int p_height) {
 
-    ERR_FAIL_COND_MSG(!_can_modify(format), "Cannot crop in indexed, compressed or custom image formats.");
+    ERR_FAIL_COND_CMSG(!_can_modify(format), "Cannot crop in compressed or custom image formats.");
 
     ERR_FAIL_COND(p_x < 0);
     ERR_FAIL_COND(p_y < 0);
@@ -1192,7 +1194,7 @@ void Image::crop(int p_width, int p_height) {
 
 void Image::flip_y() {
 
-    ERR_FAIL_COND_MSG(!_can_modify(format), "Cannot flip_y in indexed, compressed or custom image formats.");
+    ERR_FAIL_COND_CMSG(!_can_modify(format), "Cannot flip_y in compressed or custom image formats.");
 
     bool used_mipmaps = has_mipmaps();
     if (used_mipmaps) {
@@ -1225,7 +1227,7 @@ void Image::flip_y() {
 
 void Image::flip_x() {
 
-    ERR_FAIL_COND_MSG(!_can_modify(format), "Cannot flip_x in indexed, compressed or custom image formats.");
+    ERR_FAIL_COND_CMSG(!_can_modify(format), "Cannot flip_x in compressed or custom image formats.");
 
     bool used_mipmaps = has_mipmaps();
     if (used_mipmaps) {
@@ -1484,9 +1486,9 @@ void Image::normalize() {
 
 Error Image::generate_mipmaps(bool p_renormalize) {
 
-    ERR_FAIL_COND_V_MSG(!_can_modify(format), ERR_UNAVAILABLE, "Cannot generate mipmaps in indexed, compressed or custom image formats.");
+    ERR_FAIL_COND_V_CMSG(!_can_modify(format), ERR_UNAVAILABLE, "Cannot generate mipmaps in compressed or custom image formats.")
 
-    ERR_FAIL_COND_V_MSG(width == 0 || height == 0, ERR_UNCONFIGURED, "Cannot generate mipmaps with width or height equal to 0.");
+    ERR_FAIL_COND_V_CMSG(width == 0 || height == 0, ERR_UNCONFIGURED, "Cannot generate mipmaps with width or height equal to 0.")
 
     int mmcount;
 
@@ -1701,13 +1703,12 @@ void Image::create(const char **p_xpm) {
 
             case READING_HEADER: {
 
-                String line_str = line_ptr;
-                line_str.replace("\t", " ");
+                String line_str = StringUtils::replace(String(line_ptr),'\t', ' ');
 
-                size_width = line_str.get_slicec(' ', 0).to_int();
-                size_height = line_str.get_slicec(' ', 1).to_int();
-                colormap_size = line_str.get_slicec(' ', 2).to_int();
-                pixelchars = line_str.get_slicec(' ', 3).to_int();
+                size_width = StringUtils::to_int(StringUtils::get_slice(line_str,' ', 0));
+                size_height = StringUtils::to_int(StringUtils::get_slice(line_str,' ', 1));
+                colormap_size = StringUtils::to_int(StringUtils::get_slice(line_str,' ', 2));
+                pixelchars = StringUtils::to_int(StringUtils::get_slice(line_str,' ', 3));
                 ERR_FAIL_COND(colormap_size > 32766)
                 ERR_FAIL_COND(pixelchars > 5)
                 ERR_FAIL_COND(size_width > 32767)
@@ -1794,8 +1795,8 @@ void Image::create(const char **p_xpm) {
                     char pixelstr[6] = { 0, 0, 0, 0, 0, 0 };
                     for (int i = 0; i < pixelchars; i++)
                         pixelstr[i] = line_ptr[x * pixelchars + i];
-
-                    Color *colorptr = colormap.getptr(pixelstr);
+                    //FIXME: code below is allocating a String instance for every pixelstr :|
+                    Color *colorptr = colormap.getptr(String(pixelstr));
                     ERR_FAIL_COND(!colorptr)
                     uint8_t pixel[4];
                     for (uint32_t i = 0; i < pixel_size; i++) {
@@ -1940,7 +1941,7 @@ Image::AlphaMode Image::detect_alpha() const {
 
 Error Image::load(const String &p_path) {
 #ifdef DEBUG_ENABLED
-    if (p_path.begins_with("res://") && ResourceLoader::exists(p_path)) {
+    if (StringUtils::begins_with(p_path,"res://") && ResourceLoader::exists(p_path)) {
         WARN_PRINTS("Loaded resource as image file, this will not work on export: '" + p_path + "'. Instead, import the image file as an Image resource and load it normally as a resource.");
     }
 #endif
@@ -2398,7 +2399,7 @@ PoolVector<uint8_t> Image::lossy_packer(const Ref<Image> &p_image, float qualt)
     w[2] = 'B';
     w[3] = 'P';
 
-    if(OK!=ImageSaver::save_image("webp",p_image,tmp,qualt))
+    if(OK!=ImageSaver::save_image(String("webp"),p_image,tmp,qualt))
         return {};
     res.append_array(tmp);
     return res;
@@ -2429,7 +2430,7 @@ PoolVector<uint8_t> Image::lossless_packer(const Ref<Image> &p_image)
     w[2] = 'G';
     w[3] = ' ';
 
-    if(OK!=ImageSaver::save_image("png",p_image,tmp,1.0f))
+    if(OK!=ImageSaver::save_image(String("png"),p_image,tmp,1.0f))
         return {};
     res.append_array(tmp);
     return res;
@@ -2503,7 +2504,7 @@ Color Image::get_pixel(int p_x, int p_y) const {
 
     uint8_t *ptr = write_lock.ptr();
 #ifdef DEBUG_ENABLED
-    ERR_FAIL_COND_V_MSG(!ptr, Color(), "Image must be locked with 'lock()' before using get_pixel().");
+    ERR_FAIL_COND_V_CMSG(!ptr, Color(), "Image must be locked with 'lock()' before using get_pixel().");
 
     ERR_FAIL_INDEX_V(p_x, width, Color());
     ERR_FAIL_INDEX_V(p_y, height, Color());
@@ -2619,7 +2620,7 @@ Color Image::get_pixel(int p_x, int p_y) const {
             return Color::from_rgbe9995(((uint32_t *)ptr)[ofs]);
         }
         default: {
-            ERR_FAIL_V_MSG(Color(), "Can't get_pixel() on compressed image, sorry.");
+            ERR_FAIL_V_CMSG(Color(), "Can't get_pixel() on compressed image, sorry.");
         }
     }
 }
@@ -2632,7 +2633,7 @@ void Image::set_pixel(int p_x, int p_y, const Color &p_color) {
 
     uint8_t *ptr = write_lock.ptr();
 #ifdef DEBUG_ENABLED
-    ERR_FAIL_COND_MSG(!ptr, "Image must be locked with 'lock()' before using set_pixel().");
+    ERR_FAIL_COND_CMSG(!ptr, "Image must be locked with 'lock()' before using set_pixel().");
 
     ERR_FAIL_INDEX(p_x, width);
     ERR_FAIL_INDEX(p_y, height);
@@ -2744,7 +2745,7 @@ void Image::set_pixel(int p_x, int p_y, const Color &p_color) {
 
         } break;
         default: {
-            ERR_FAIL_MSG("Can't set_pixel() on compressed image, sorry.");
+            ERR_FAIL_CMSG("Can't set_pixel() on compressed image, sorry.");
         }
     }
 }
@@ -2807,139 +2808,139 @@ void Image::optimize_channels() {
 
 void Image::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("get_width"), &Image::get_width);
-    ClassDB::bind_method(D_METHOD("get_height"), &Image::get_height);
-    ClassDB::bind_method(D_METHOD("get_size"), &Image::get_size);
-    ClassDB::bind_method(D_METHOD("has_mipmaps"), &Image::has_mipmaps);
-    ClassDB::bind_method(D_METHOD("get_format"), &Image::get_format);
-    ClassDB::bind_method(D_METHOD("get_data"), &Image::get_data);
+    MethodBinder::bind_method(D_METHOD("get_width"), &Image::get_width);
+    MethodBinder::bind_method(D_METHOD("get_height"), &Image::get_height);
+    MethodBinder::bind_method(D_METHOD("get_size"), &Image::get_size);
+    MethodBinder::bind_method(D_METHOD("has_mipmaps"), &Image::has_mipmaps);
+    MethodBinder::bind_method(D_METHOD("get_format"), &Image::get_format);
+    MethodBinder::bind_method(D_METHOD("get_data"), &Image::get_data);
 
-    ClassDB::bind_method(D_METHOD("convert", "format"), &Image::convert);
+    MethodBinder::bind_method(D_METHOD("convert", "format"), &Image::convert);
 
-    ClassDB::bind_method(D_METHOD("get_mipmap_offset", "mipmap"), &Image::get_mipmap_offset);
+    MethodBinder::bind_method(D_METHOD("get_mipmap_offset", "mipmap"), &Image::get_mipmap_offset);
 
-    ClassDB::bind_method(D_METHOD("resize_to_po2", "square"), &Image::resize_to_po2, {DEFVAL(false)});
-    ClassDB::bind_method(D_METHOD("resize", "width", "height", "interpolation"), &Image::resize, {DEFVAL(INTERPOLATE_BILINEAR)});
-    ClassDB::bind_method(D_METHOD("shrink_x2"), &Image::shrink_x2);
-    ClassDB::bind_method(D_METHOD("expand_x2_hq2x"), &Image::expand_x2_hq2x);
+    MethodBinder::bind_method(D_METHOD("resize_to_po2", "square"), &Image::resize_to_po2, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("resize", "width", "height", "interpolation"), &Image::resize, {DEFVAL(INTERPOLATE_BILINEAR)});
+    MethodBinder::bind_method(D_METHOD("shrink_x2"), &Image::shrink_x2);
+    MethodBinder::bind_method(D_METHOD("expand_x2_hq2x"), &Image::expand_x2_hq2x);
 
-    ClassDB::bind_method(D_METHOD("crop", "width", "height"), &Image::crop);
-    ClassDB::bind_method(D_METHOD("flip_x"), &Image::flip_x);
-    ClassDB::bind_method(D_METHOD("flip_y"), &Image::flip_y);
-    ClassDB::bind_method(D_METHOD("generate_mipmaps", "renormalize"), &Image::generate_mipmaps, {DEFVAL(false)});
-    ClassDB::bind_method(D_METHOD("clear_mipmaps"), &Image::clear_mipmaps);
+    MethodBinder::bind_method(D_METHOD("crop", "width", "height"), &Image::crop);
+    MethodBinder::bind_method(D_METHOD("flip_x"), &Image::flip_x);
+    MethodBinder::bind_method(D_METHOD("flip_y"), &Image::flip_y);
+    MethodBinder::bind_method(D_METHOD("generate_mipmaps", "renormalize"), &Image::generate_mipmaps, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("clear_mipmaps"), &Image::clear_mipmaps);
 
-    ClassDB::bind_method(D_METHOD("create", "width", "height", "use_mipmaps", "format"), &Image::_create_empty);
-    ClassDB::bind_method(D_METHOD("create_from_data", "width", "height", "use_mipmaps", "format", "data"), &Image::_create_from_data);
+    MethodBinder::bind_method(D_METHOD("create", "width", "height", "use_mipmaps", "format"), &Image::_create_empty);
+    MethodBinder::bind_method(D_METHOD("create_from_data", "width", "height", "use_mipmaps", "format", "data"), &Image::_create_from_data);
 
-    ClassDB::bind_method(D_METHOD("is_empty"), &Image::empty);
+    MethodBinder::bind_method(D_METHOD("is_empty"), &Image::empty);
 
-    ClassDB::bind_method(D_METHOD("load", "path"), &Image::load);
-    ClassDB::bind_method(D_METHOD("save_png", "path"), &Image::save_png);
-    ClassDB::bind_method(D_METHOD("save_exr", "path", "grayscale"), &Image::save_exr, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("load", "path"), &Image::load);
+    MethodBinder::bind_method(D_METHOD("save_png", "path"), &Image::save_png);
+    MethodBinder::bind_method(D_METHOD("save_exr", "path", "grayscale"), &Image::save_exr, {DEFVAL(false)});
 
-    ClassDB::bind_method(D_METHOD("detect_alpha"), &Image::detect_alpha);
-    ClassDB::bind_method(D_METHOD("is_invisible"), &Image::is_invisible);
+    MethodBinder::bind_method(D_METHOD("detect_alpha"), &Image::detect_alpha);
+    MethodBinder::bind_method(D_METHOD("is_invisible"), &Image::is_invisible);
 
-    ClassDB::bind_method(D_METHOD("compress", "mode", "source", "lossy_quality"), &Image::compress);
-    ClassDB::bind_method(D_METHOD("decompress"), &Image::decompress);
-    ClassDB::bind_method(D_METHOD("is_compressed"), &Image::is_compressed);
+    MethodBinder::bind_method(D_METHOD("compress", "mode", "source", "lossy_quality"), &Image::compress);
+    MethodBinder::bind_method(D_METHOD("decompress"), &Image::decompress);
+    MethodBinder::bind_method(D_METHOD("is_compressed"), &Image::is_compressed);
 
-    ClassDB::bind_method(D_METHOD("fix_alpha_edges"), &Image::fix_alpha_edges);
-    ClassDB::bind_method(D_METHOD("premultiply_alpha"), &Image::premultiply_alpha);
-    ClassDB::bind_method(D_METHOD("srgb_to_linear"), &Image::srgb_to_linear);
-    ClassDB::bind_method(D_METHOD("normalmap_to_xy"), &Image::normalmap_to_xy);
-    ClassDB::bind_method(D_METHOD("rgbe_to_srgb"), &Image::rgbe_to_srgb);
-    ClassDB::bind_method(D_METHOD("bumpmap_to_normalmap", "bump_scale"), &Image::bumpmap_to_normalmap, {DEFVAL(1.0)});
+    MethodBinder::bind_method(D_METHOD("fix_alpha_edges"), &Image::fix_alpha_edges);
+    MethodBinder::bind_method(D_METHOD("premultiply_alpha"), &Image::premultiply_alpha);
+    MethodBinder::bind_method(D_METHOD("srgb_to_linear"), &Image::srgb_to_linear);
+    MethodBinder::bind_method(D_METHOD("normalmap_to_xy"), &Image::normalmap_to_xy);
+    MethodBinder::bind_method(D_METHOD("rgbe_to_srgb"), &Image::rgbe_to_srgb);
+    MethodBinder::bind_method(D_METHOD("bumpmap_to_normalmap", "bump_scale"), &Image::bumpmap_to_normalmap, {DEFVAL(1.0)});
 
-    ClassDB::bind_method(D_METHOD("blit_rect", "src", "src_rect", "dst"), &Image::blit_rect);
-    ClassDB::bind_method(D_METHOD("blit_rect_mask", "src", "mask", "src_rect", "dst"), &Image::blit_rect_mask);
-    ClassDB::bind_method(D_METHOD("blend_rect", "src", "src_rect", "dst"), &Image::blend_rect);
-    ClassDB::bind_method(D_METHOD("blend_rect_mask", "src", "mask", "src_rect", "dst"), &Image::blend_rect_mask);
-    ClassDB::bind_method(D_METHOD("fill", "color"), &Image::fill);
+    MethodBinder::bind_method(D_METHOD("blit_rect", "src", "src_rect", "dst"), &Image::blit_rect);
+    MethodBinder::bind_method(D_METHOD("blit_rect_mask", "src", "mask", "src_rect", "dst"), &Image::blit_rect_mask);
+    MethodBinder::bind_method(D_METHOD("blend_rect", "src", "src_rect", "dst"), &Image::blend_rect);
+    MethodBinder::bind_method(D_METHOD("blend_rect_mask", "src", "mask", "src_rect", "dst"), &Image::blend_rect_mask);
+    MethodBinder::bind_method(D_METHOD("fill", "color"), &Image::fill);
 
-    ClassDB::bind_method(D_METHOD("get_used_rect"), &Image::get_used_rect);
-    ClassDB::bind_method(D_METHOD("get_rect", "rect"), &Image::get_rect);
+    MethodBinder::bind_method(D_METHOD("get_used_rect"), &Image::get_used_rect);
+    MethodBinder::bind_method(D_METHOD("get_rect", "rect"), &Image::get_rect);
 
-    ClassDB::bind_method(D_METHOD("copy_from", "src"), &Image::copy_internals_from);
+    MethodBinder::bind_method(D_METHOD("copy_from", "src"), &Image::copy_internals_from);
 
-    ClassDB::bind_method(D_METHOD("_set_data", "data"), &Image::_set_data);
-    ClassDB::bind_method(D_METHOD("_get_data"), &Image::_get_data);
+    MethodBinder::bind_method(D_METHOD("_set_data", "data"), &Image::_set_data);
+    MethodBinder::bind_method(D_METHOD("_get_data"), &Image::_get_data);
 
-    ClassDB::bind_method(D_METHOD("lock"), &Image::lock);
-    ClassDB::bind_method(D_METHOD("unlock"), &Image::unlock);
-    ClassDB::bind_method(D_METHOD("get_pixelv", "src"), &Image::get_pixelv);
-    ClassDB::bind_method(D_METHOD("get_pixel", "x", "y"), &Image::get_pixel);
-    ClassDB::bind_method(D_METHOD("set_pixelv", "dst", "color"), &Image::set_pixelv);
-    ClassDB::bind_method(D_METHOD("set_pixel", "x", "y", "color"), &Image::set_pixel);
+    MethodBinder::bind_method(D_METHOD("lock"), &Image::lock);
+    MethodBinder::bind_method(D_METHOD("unlock"), &Image::unlock);
+    MethodBinder::bind_method(D_METHOD("get_pixelv", "src"), &Image::get_pixelv);
+    MethodBinder::bind_method(D_METHOD("get_pixel", "x", "y"), &Image::get_pixel);
+    MethodBinder::bind_method(D_METHOD("set_pixelv", "dst", "color"), &Image::set_pixelv);
+    MethodBinder::bind_method(D_METHOD("set_pixel", "x", "y", "color"), &Image::set_pixel);
 
-    ClassDB::bind_method(D_METHOD("load_png_from_buffer", "buffer"), &Image::load_png_from_buffer);
-    ClassDB::bind_method(D_METHOD("load_jpg_from_buffer", "buffer"), &Image::load_jpg_from_buffer);
-    ClassDB::bind_method(D_METHOD("load_webp_from_buffer", "buffer"), &Image::load_webp_from_buffer);
+    MethodBinder::bind_method(D_METHOD("load_png_from_buffer", "buffer"), &Image::load_png_from_buffer);
+    MethodBinder::bind_method(D_METHOD("load_jpg_from_buffer", "buffer"), &Image::load_jpg_from_buffer);
+    MethodBinder::bind_method(D_METHOD("load_webp_from_buffer", "buffer"), &Image::load_webp_from_buffer);
 
     ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "data", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_STORAGE), "_set_data", "_get_data");
 
-    BIND_CONSTANT(MAX_WIDTH);
-    BIND_CONSTANT(MAX_HEIGHT);
+    BIND_CONSTANT(MAX_WIDTH)
+    BIND_CONSTANT(MAX_HEIGHT)
 
-    BIND_ENUM_CONSTANT(FORMAT_L8); //luminance
-    BIND_ENUM_CONSTANT(FORMAT_LA8); //luminance-alpha
-    BIND_ENUM_CONSTANT(FORMAT_R8);
-    BIND_ENUM_CONSTANT(FORMAT_RG8);
-    BIND_ENUM_CONSTANT(FORMAT_RGB8);
-    BIND_ENUM_CONSTANT(FORMAT_RGBA8);
-    BIND_ENUM_CONSTANT(FORMAT_RGBA4444);
-    BIND_ENUM_CONSTANT(FORMAT_RGBA5551);
-    BIND_ENUM_CONSTANT(FORMAT_RF); //float
-    BIND_ENUM_CONSTANT(FORMAT_RGF);
-    BIND_ENUM_CONSTANT(FORMAT_RGBF);
-    BIND_ENUM_CONSTANT(FORMAT_RGBAF);
-    BIND_ENUM_CONSTANT(FORMAT_RH); //half float
-    BIND_ENUM_CONSTANT(FORMAT_RGH);
-    BIND_ENUM_CONSTANT(FORMAT_RGBH);
-    BIND_ENUM_CONSTANT(FORMAT_RGBAH);
-    BIND_ENUM_CONSTANT(FORMAT_RGBE9995);
-    BIND_ENUM_CONSTANT(FORMAT_DXT1); //s3tc bc1
-    BIND_ENUM_CONSTANT(FORMAT_DXT3); //bc2
-    BIND_ENUM_CONSTANT(FORMAT_DXT5); //bc3
-    BIND_ENUM_CONSTANT(FORMAT_RGTC_R);
-    BIND_ENUM_CONSTANT(FORMAT_RGTC_RG);
-    BIND_ENUM_CONSTANT(FORMAT_BPTC_RGBA); //btpc bc6h
-    BIND_ENUM_CONSTANT(FORMAT_BPTC_RGBF); //float /
-    BIND_ENUM_CONSTANT(FORMAT_BPTC_RGBFU); //unsigned float
-    BIND_ENUM_CONSTANT(FORMAT_PVRTC2); //pvrtc
-    BIND_ENUM_CONSTANT(FORMAT_PVRTC2A);
-    BIND_ENUM_CONSTANT(FORMAT_PVRTC4);
-    BIND_ENUM_CONSTANT(FORMAT_PVRTC4A);
-    BIND_ENUM_CONSTANT(FORMAT_ETC); //etc1
-    BIND_ENUM_CONSTANT(FORMAT_ETC2_R11); //etc2
-    BIND_ENUM_CONSTANT(FORMAT_ETC2_R11S); //signed ); NOT srgb.
-    BIND_ENUM_CONSTANT(FORMAT_ETC2_RG11);
-    BIND_ENUM_CONSTANT(FORMAT_ETC2_RG11S);
-    BIND_ENUM_CONSTANT(FORMAT_ETC2_RGB8);
-    BIND_ENUM_CONSTANT(FORMAT_ETC2_RGBA8);
-    BIND_ENUM_CONSTANT(FORMAT_ETC2_RGB8A1);
-    BIND_ENUM_CONSTANT(FORMAT_MAX);
+    BIND_ENUM_CONSTANT(FORMAT_L8) //luminance
+    BIND_ENUM_CONSTANT(FORMAT_LA8) //luminance-alpha
+    BIND_ENUM_CONSTANT(FORMAT_R8)
+    BIND_ENUM_CONSTANT(FORMAT_RG8)
+    BIND_ENUM_CONSTANT(FORMAT_RGB8)
+    BIND_ENUM_CONSTANT(FORMAT_RGBA8)
+    BIND_ENUM_CONSTANT(FORMAT_RGBA4444)
+    BIND_ENUM_CONSTANT(FORMAT_RGBA5551)
+    BIND_ENUM_CONSTANT(FORMAT_RF) //float
+    BIND_ENUM_CONSTANT(FORMAT_RGF)
+    BIND_ENUM_CONSTANT(FORMAT_RGBF)
+    BIND_ENUM_CONSTANT(FORMAT_RGBAF)
+    BIND_ENUM_CONSTANT(FORMAT_RH) //half float
+    BIND_ENUM_CONSTANT(FORMAT_RGH)
+    BIND_ENUM_CONSTANT(FORMAT_RGBH)
+    BIND_ENUM_CONSTANT(FORMAT_RGBAH)
+    BIND_ENUM_CONSTANT(FORMAT_RGBE9995)
+    BIND_ENUM_CONSTANT(FORMAT_DXT1) //s3tc bc1
+    BIND_ENUM_CONSTANT(FORMAT_DXT3) //bc2
+    BIND_ENUM_CONSTANT(FORMAT_DXT5) //bc3
+    BIND_ENUM_CONSTANT(FORMAT_RGTC_R)
+    BIND_ENUM_CONSTANT(FORMAT_RGTC_RG)
+    BIND_ENUM_CONSTANT(FORMAT_BPTC_RGBA) //btpc bc6h
+    BIND_ENUM_CONSTANT(FORMAT_BPTC_RGBF) //float /
+    BIND_ENUM_CONSTANT(FORMAT_BPTC_RGBFU) //unsigned float
+    BIND_ENUM_CONSTANT(FORMAT_PVRTC2) //pvrtc
+    BIND_ENUM_CONSTANT(FORMAT_PVRTC2A)
+    BIND_ENUM_CONSTANT(FORMAT_PVRTC4)
+    BIND_ENUM_CONSTANT(FORMAT_PVRTC4A)
+    BIND_ENUM_CONSTANT(FORMAT_ETC) //etc1
+    BIND_ENUM_CONSTANT(FORMAT_ETC2_R11) //etc2
+    BIND_ENUM_CONSTANT(FORMAT_ETC2_R11S) //signed ) NOT srgb.
+    BIND_ENUM_CONSTANT(FORMAT_ETC2_RG11)
+    BIND_ENUM_CONSTANT(FORMAT_ETC2_RG11S)
+    BIND_ENUM_CONSTANT(FORMAT_ETC2_RGB8)
+    BIND_ENUM_CONSTANT(FORMAT_ETC2_RGBA8)
+    BIND_ENUM_CONSTANT(FORMAT_ETC2_RGB8A1)
+    BIND_ENUM_CONSTANT(FORMAT_MAX)
 
-    BIND_ENUM_CONSTANT(INTERPOLATE_NEAREST);
-    BIND_ENUM_CONSTANT(INTERPOLATE_BILINEAR);
-    BIND_ENUM_CONSTANT(INTERPOLATE_CUBIC);
-    BIND_ENUM_CONSTANT(INTERPOLATE_TRILINEAR);
-    BIND_ENUM_CONSTANT(INTERPOLATE_LANCZOS);
+    BIND_ENUM_CONSTANT(INTERPOLATE_NEAREST)
+    BIND_ENUM_CONSTANT(INTERPOLATE_BILINEAR)
+    BIND_ENUM_CONSTANT(INTERPOLATE_CUBIC)
+    BIND_ENUM_CONSTANT(INTERPOLATE_TRILINEAR)
+    BIND_ENUM_CONSTANT(INTERPOLATE_LANCZOS)
 
-    BIND_ENUM_CONSTANT(ALPHA_NONE);
-    BIND_ENUM_CONSTANT(ALPHA_BIT);
-    BIND_ENUM_CONSTANT(ALPHA_BLEND);
+    BIND_ENUM_CONSTANT(ALPHA_NONE)
+    BIND_ENUM_CONSTANT(ALPHA_BIT)
+    BIND_ENUM_CONSTANT(ALPHA_BLEND)
 
-    BIND_ENUM_CONSTANT(COMPRESS_S3TC);
-    BIND_ENUM_CONSTANT(COMPRESS_PVRTC2);
-    BIND_ENUM_CONSTANT(COMPRESS_PVRTC4);
-    BIND_ENUM_CONSTANT(COMPRESS_ETC);
-    BIND_ENUM_CONSTANT(COMPRESS_ETC2);
+    BIND_ENUM_CONSTANT(COMPRESS_S3TC)
+    BIND_ENUM_CONSTANT(COMPRESS_PVRTC2)
+    BIND_ENUM_CONSTANT(COMPRESS_PVRTC4)
+    BIND_ENUM_CONSTANT(COMPRESS_ETC)
+    BIND_ENUM_CONSTANT(COMPRESS_ETC2)
 
-    BIND_ENUM_CONSTANT(COMPRESS_SOURCE_GENERIC);
-    BIND_ENUM_CONSTANT(COMPRESS_SOURCE_SRGB);
-    BIND_ENUM_CONSTANT(COMPRESS_SOURCE_NORMAL);
+    BIND_ENUM_CONSTANT(COMPRESS_SOURCE_GENERIC)
+    BIND_ENUM_CONSTANT(COMPRESS_SOURCE_SRGB)
+    BIND_ENUM_CONSTANT(COMPRESS_SOURCE_NORMAL)
 }
 
 void Image::set_compress_bc_func(void (*p_compress_func)(Image *, float, CompressSource)) {
@@ -3174,7 +3175,7 @@ void Image::fix_alpha_edges() {
 String Image::get_format_name(Format p_format) {
 
     ERR_FAIL_INDEX_V(p_format, FORMAT_MAX, String())
-    return format_names[p_format];
+    return String(format_names[p_format]);
 }
 
 Error Image::load_png_from_buffer(const PoolVector<uint8_t> &p_array) {
@@ -3189,6 +3190,11 @@ Error Image::load_webp_from_buffer(const PoolVector<uint8_t> &p_array) {
     return _load_from_buffer(p_array, "webp");
 }
 
+Error Image::load_from_buffer(const uint8_t *p_array, int size, const char *ext)
+{
+    return _load_from_buffer(p_array,size,ext);
+}
+
 Error Image::_load_from_buffer(const PoolVector<uint8_t> &p_array, const char *ext) {
     int buffer_size = p_array.size();
     PoolVector<uint8_t>::Read r = p_array.read();
@@ -3198,7 +3204,7 @@ Error Image::_load_from_buffer(const uint8_t *p_array,int buffer_size, const cha
     ERR_FAIL_COND_V(buffer_size == 0, ERR_INVALID_PARAMETER)
     ERR_FAIL_COND_V(!ext, ERR_INVALID_PARAMETER)
 
-    ImageData d = ImageLoader::load_image(ext,p_array, buffer_size);
+    ImageData d = ImageLoader::load_image(String(ext),p_array, buffer_size);
     ERR_FAIL_COND_V(d.data.size()==0, ERR_PARSE_ERROR)
 
     create(std::move(d));

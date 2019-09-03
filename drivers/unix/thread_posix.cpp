@@ -122,7 +122,7 @@ Error ThreadPosix::set_name_func_posix(const String &p_name) {
 #ifdef PTHREAD_RENAME_SELF
 
     // check if thread is the same as caller
-    int err = pthread_setname_np(p_name.utf8().get_data());
+    int err = pthread_setname_np(StringUtils::to_utf8(p_name).get_data());
 
 #else
 
@@ -131,7 +131,7 @@ Error ThreadPosix::set_name_func_posix(const String &p_name) {
     pthread_set_name_np(running_thread, p_name.utf8().get_data());
     int err = 0; // Open/FreeBSD ignore errors in this function
 #else
-    int err = pthread_setname_np(running_thread, qPrintable(p_name));
+	int err = pthread_setname_np(running_thread, qPrintable(p_name.m_str));
 #endif // PTHREAD_BSD_SET_NAME
 
 #endif // PTHREAD_RENAME_SELF

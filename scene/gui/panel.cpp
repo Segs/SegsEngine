@@ -30,6 +30,9 @@
 
 #include "panel.h"
 #include "core/print_string.h"
+#include "scene/resources/style_box.h"
+
+IMPL_GDCLASS(Panel)
 
 void Panel::_notification(int p_what) {
 

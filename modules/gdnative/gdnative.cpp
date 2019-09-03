@@ -31,10 +31,12 @@
 #include "gdnative.h"
 
 #include "core/global_constants.h"
+#include "core/method_bind.h"
 #include "core/io/file_access_encrypted.h"
 #include "core/os/file_access.h"
 #include "core/os/os.h"
 #include "core/project_settings.h"
+#include "core/string_formatter.h"
 
 #include "scene/main/scene_tree.h"
 
@@ -47,6 +49,9 @@ static const bool default_reloadable = true;
 
 // Defined in gdnative_api_struct.gen.cpp
 extern const godot_gdnative_core_api_struct api_struct;
+
+IMPL_GDCLASS(GDNativeLibrary)
+IMPL_GDCLASS(GDNative)
 
 Map<String, Vector<Ref<GDNative> > > GDNativeLibrary::loaded_libraries;
 
@@ -66,8 +71,8 @@ bool GDNativeLibrary::_set(const StringName &p_name, const Variant &p_property) 
 
     String name = p_name;
 
-    if (name.begins_with("entry/")) {
-        String key = name.substr(6, name.length() - 6);
+    if (StringUtils::begins_with(name,"entry/")) {
+        String key = StringUtils::substr(name,6, name.length() - 6);
 
         config_file->set_value("entry", key, p_property);
 
@@ -76,8 +81,8 @@ bool GDNativeLibrary::_set(const StringName &p_name, const Variant &p_property) 
         return true;
     }
 
-    if (name.begins_with("dependency/")) {
-        String key = name.substr(11, name.length() - 11);
+    if (StringUtils::begins_with(name,"dependency/")) {
+        String key = StringUtils::substr(name,11, name.length() - 11);
 
         config_file->set_value("dependencies", key, p_property);
 
@@ -92,16 +97,16 @@ bool GDNativeLibrary::_set(const StringName &p_name, const Variant &p_property) 
 bool GDNativeLibrary::_get(const StringName &p_name, Variant &r_property) const {
     String name = p_name;
 
-    if (name.begins_with("entry/")) {
-        String key = name.substr(6, name.length() - 6);
+    if (StringUtils::begins_with(name,"entry/")) {
+        String key = StringUtils::substr(name,6, name.length() - 6);
 
         r_property = config_file->get_value("entry", key);
 
         return true;
     }
 
-    if (name.begins_with("dependency/")) {
-        String key = name.substr(11, name.length() - 11);
+    if (StringUtils::begins_with(name,"dependency/")) {
+        String key = StringUtils::substr(name,11, name.length() - 11);
 
         r_property = config_file->get_value("dependencies", key);
 
@@ -223,21 +228,21 @@ void GDNativeLibrary::set_config_file(Ref<ConfigFile> p_config_file) {
 }
 
 void GDNativeLibrary::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("get_config_file"), &GDNativeLibrary::get_config_file);
-    ClassDB::bind_method(D_METHOD("set_config_file", "config_file"), &GDNativeLibrary::set_config_file);
+    MethodBinder::bind_method(D_METHOD("get_config_file"), &GDNativeLibrary::get_config_file);
+    MethodBinder::bind_method(D_METHOD("set_config_file", "config_file"), &GDNativeLibrary::set_config_file);
 
-    ClassDB::bind_method(D_METHOD("get_current_library_path"), &GDNativeLibrary::get_current_library_path);
-    ClassDB::bind_method(D_METHOD("get_current_dependencies"), &GDNativeLibrary::get_current_dependencies);
+    MethodBinder::bind_method(D_METHOD("get_current_library_path"), &GDNativeLibrary::get_current_library_path);
+    MethodBinder::bind_method(D_METHOD("get_current_dependencies"), &GDNativeLibrary::get_current_dependencies);
 
-    ClassDB::bind_method(D_METHOD("should_load_once"), &GDNativeLibrary::should_load_once);
-    ClassDB::bind_method(D_METHOD("is_singleton"), &GDNativeLibrary::is_singleton);
-    ClassDB::bind_method(D_METHOD("get_symbol_prefix"), &GDNativeLibrary::get_symbol_prefix);
-    ClassDB::bind_method(D_METHOD("is_reloadable"), &GDNativeLibrary::is_reloadable);
+    MethodBinder::bind_method(D_METHOD("should_load_once"), &GDNativeLibrary::should_load_once);
+    MethodBinder::bind_method(D_METHOD("is_singleton"), &GDNativeLibrary::is_singleton);
+    MethodBinder::bind_method(D_METHOD("get_symbol_prefix"), &GDNativeLibrary::get_symbol_prefix);
+    MethodBinder::bind_method(D_METHOD("is_reloadable"), &GDNativeLibrary::is_reloadable);
 
-    ClassDB::bind_method(D_METHOD("set_load_once", "load_once"), &GDNativeLibrary::set_load_once);
-    ClassDB::bind_method(D_METHOD("set_singleton", "singleton"), &GDNativeLibrary::set_singleton);
-    ClassDB::bind_method(D_METHOD("set_symbol_prefix", "symbol_prefix"), &GDNativeLibrary::set_symbol_prefix);
-    ClassDB::bind_method(D_METHOD("set_reloadable", "reloadable"), &GDNativeLibrary::set_reloadable);
+    MethodBinder::bind_method(D_METHOD("set_load_once", "load_once"), &GDNativeLibrary::set_load_once);
+    MethodBinder::bind_method(D_METHOD("set_singleton", "singleton"), &GDNativeLibrary::set_singleton);
+    MethodBinder::bind_method(D_METHOD("set_symbol_prefix", "symbol_prefix"), &GDNativeLibrary::set_symbol_prefix);
+    MethodBinder::bind_method(D_METHOD("set_reloadable", "reloadable"), &GDNativeLibrary::set_reloadable);
 
     ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "config_file", PROPERTY_HINT_RESOURCE_TYPE, "ConfigFile", 0), "set_config_file", "get_config_file");
 
@@ -256,13 +261,13 @@ GDNative::~GDNative() {
 }
 
 void GDNative::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("set_library", "library"), &GDNative::set_library);
-    ClassDB::bind_method(D_METHOD("get_library"), &GDNative::get_library);
+    MethodBinder::bind_method(D_METHOD("set_library", "library"), &GDNative::set_library);
+    MethodBinder::bind_method(D_METHOD("get_library"), &GDNative::get_library);
 
-    ClassDB::bind_method(D_METHOD("initialize"), &GDNative::initialize);
-    ClassDB::bind_method(D_METHOD("terminate"), &GDNative::terminate);
+    MethodBinder::bind_method(D_METHOD("initialize"), &GDNative::initialize);
+    MethodBinder::bind_method(D_METHOD("terminate"), &GDNative::terminate);
 
-    ClassDB::bind_method(D_METHOD("call_native", "calling_type", "procedure_name", "arguments"), &GDNative::call_native);
+    MethodBinder::bind_method(D_METHOD("call_native", "calling_type", "procedure_name", "arguments"), &GDNative::call_native);
 
     ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "library", PROPERTY_HINT_RESOURCE_TYPE, "GDNativeLibrary"), "set_library", "get_library");
 }
@@ -281,13 +286,13 @@ extern "C" void _gdnative_report_loading_error(const godot_object *p_library, co
 
 bool GDNative::initialize() {
     if (library.is_null()) {
-        ERR_PRINT("No library set, can't initialize GDNative object");
+        ERR_PRINT("No library set, can't initialize GDNative object")
         return false;
     }
 
     String lib_path = library->get_current_library_path();
     if (lib_path.empty()) {
-        ERR_PRINT("No library set for this platform");
+        ERR_PRINT("No library set for this platform")
         return false;
     }
 #ifdef IPHONE_ENABLED
@@ -300,7 +305,7 @@ bool GDNative::initialize() {
     String path = PathUtils::get_file(lib_path);
 #elif defined(UWP_ENABLED)
     // On UWP we use a relative path from the app
-    String path = lib_path.replace("res://", "");
+    String path = StringUtils::replace(lib_path,"res://", "");
 #elif defined(OSX_ENABLED)
     // On OSX the exported libraries are located under the Frameworks directory.
     // So we need to replace the library path.
@@ -339,7 +344,7 @@ bool GDNative::initialize() {
     if (err || !library_init) {
         OS::get_singleton()->close_dynamic_library(native_handle);
         native_handle = nullptr;
-        ERR_PRINT("Failed to obtain godot_gdnative_init symbol");
+        ERR_PRINT("Failed to obtain godot_gdnative_init symbol")
         return false;
     }
 
@@ -455,7 +460,7 @@ Variant GDNative::call_native(StringName p_native_call_type, StringName p_proced
 
     Map<StringName, native_call_cb>::Element *E = GDNativeCallRegistry::singleton->native_calls.find(p_native_call_type);
     if (!E) {
-        ERR_PRINT(String("No handler for native call type \"%1\" found").arg(p_native_call_type));
+		ERR_PRINT(FormatV("No handler for native call type \"%s\" found",qPrintable(String(p_native_call_type).m_str)))
         return Variant();
     }
 

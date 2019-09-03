@@ -46,7 +46,7 @@ class StyleBox;
 
 class CanvasItemMaterial : public Material {
 
-	GDCLASS(CanvasItemMaterial, Material);
+	GDCLASS(CanvasItemMaterial,Material)
 
 public:
 	enum BlendMode {
@@ -126,7 +126,7 @@ private:
 
 protected:
 	static void _bind_methods();
-	void _validate_property(PropertyInfo &property) const;
+	void _validate_property(PropertyInfo &property) const override;
 
 public:
 	void set_blend_mode(BlendMode p_blend_mode);
@@ -152,10 +152,10 @@ public:
 
 	RID get_shader_rid() const;
 
-	virtual Shader::Mode get_shader_mode() const;
+	Shader::Mode get_shader_mode() const override;
 
 	CanvasItemMaterial();
-	virtual ~CanvasItemMaterial();
+	~CanvasItemMaterial() override;
 };
 
 VARIANT_ENUM_CAST(CanvasItemMaterial::BlendMode)
@@ -163,7 +163,7 @@ VARIANT_ENUM_CAST(CanvasItemMaterial::LightMode)
 
 class CanvasItem : public Node {
 
-	GDCLASS(CanvasItem, Node);
+	GDCLASS(CanvasItem,Node)
 
 public:
 	enum BlendMode {
@@ -385,7 +385,7 @@ public:
 	int get_canvas_layer() const;
 
 	CanvasItem();
-	~CanvasItem();
+	~CanvasItem() override;
 };
 
 VARIANT_ENUM_CAST(CanvasItem::BlendMode);

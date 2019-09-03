@@ -34,11 +34,17 @@
 #include "core/engine.h"
 #include "core/list.h"
 #include "core/math/math_funcs.h"
-#include "method_bind_ext.gen.h"
+#include "core/method_bind.h"
 #include "core/object.h"
 #include "core/object_db.h"
 #include "core/rid.h"
 #include "scene/scene_string_names.h"
+
+IMPL_GDCLASS(PhysicsBody2D)
+IMPL_GDCLASS(StaticBody2D)
+IMPL_GDCLASS(RigidBody2D)
+IMPL_GDCLASS(KinematicBody2D)
+IMPL_GDCLASS(KinematicCollision2D)
 
 void PhysicsBody2D::_notification(int p_what) {
 }
@@ -56,23 +62,23 @@ uint32_t PhysicsBody2D::_get_layers() const {
 
 void PhysicsBody2D::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_collision_layer", "layer"), &PhysicsBody2D::set_collision_layer);
-    ClassDB::bind_method(D_METHOD("get_collision_layer"), &PhysicsBody2D::get_collision_layer);
-    ClassDB::bind_method(D_METHOD("set_collision_mask", "mask"), &PhysicsBody2D::set_collision_mask);
-    ClassDB::bind_method(D_METHOD("get_collision_mask"), &PhysicsBody2D::get_collision_mask);
+    MethodBinder::bind_method(D_METHOD("set_collision_layer", "layer"), &PhysicsBody2D::set_collision_layer);
+    MethodBinder::bind_method(D_METHOD("get_collision_layer"), &PhysicsBody2D::get_collision_layer);
+    MethodBinder::bind_method(D_METHOD("set_collision_mask", "mask"), &PhysicsBody2D::set_collision_mask);
+    MethodBinder::bind_method(D_METHOD("get_collision_mask"), &PhysicsBody2D::get_collision_mask);
 
-    ClassDB::bind_method(D_METHOD("set_collision_mask_bit", "bit", "value"), &PhysicsBody2D::set_collision_mask_bit);
-    ClassDB::bind_method(D_METHOD("get_collision_mask_bit", "bit"), &PhysicsBody2D::get_collision_mask_bit);
+    MethodBinder::bind_method(D_METHOD("set_collision_mask_bit", "bit", "value"), &PhysicsBody2D::set_collision_mask_bit);
+    MethodBinder::bind_method(D_METHOD("get_collision_mask_bit", "bit"), &PhysicsBody2D::get_collision_mask_bit);
 
-    ClassDB::bind_method(D_METHOD("set_collision_layer_bit", "bit", "value"), &PhysicsBody2D::set_collision_layer_bit);
-    ClassDB::bind_method(D_METHOD("get_collision_layer_bit", "bit"), &PhysicsBody2D::get_collision_layer_bit);
+    MethodBinder::bind_method(D_METHOD("set_collision_layer_bit", "bit", "value"), &PhysicsBody2D::set_collision_layer_bit);
+    MethodBinder::bind_method(D_METHOD("get_collision_layer_bit", "bit"), &PhysicsBody2D::get_collision_layer_bit);
 
-    ClassDB::bind_method(D_METHOD("_set_layers", "mask"), &PhysicsBody2D::_set_layers);
-    ClassDB::bind_method(D_METHOD("_get_layers"), &PhysicsBody2D::_get_layers);
+    MethodBinder::bind_method(D_METHOD("_set_layers", "mask"), &PhysicsBody2D::_set_layers);
+    MethodBinder::bind_method(D_METHOD("_get_layers"), &PhysicsBody2D::_get_layers);
 
-    ClassDB::bind_method(D_METHOD("get_collision_exceptions"), &PhysicsBody2D::get_collision_exceptions);
-    ClassDB::bind_method(D_METHOD("add_collision_exception_with", "body"), &PhysicsBody2D::add_collision_exception_with);
-    ClassDB::bind_method(D_METHOD("remove_collision_exception_with", "body"), &PhysicsBody2D::remove_collision_exception_with);
+    MethodBinder::bind_method(D_METHOD("get_collision_exceptions"), &PhysicsBody2D::get_collision_exceptions);
+    MethodBinder::bind_method(D_METHOD("add_collision_exception_with", "body"), &PhysicsBody2D::add_collision_exception_with);
+    MethodBinder::bind_method(D_METHOD("remove_collision_exception_with", "body"), &PhysicsBody2D::remove_collision_exception_with);
     ADD_PROPERTY(PropertyInfo(Variant::INT, "layers", PROPERTY_HINT_LAYERS_2D_PHYSICS, "", 0), "_set_layers", "_get_layers"); //for backwards compat
 
     ADD_GROUP("Collision", "collision_");
@@ -269,23 +275,23 @@ Ref<PhysicsMaterial> StaticBody2D::get_physics_material_override() const {
 
 void StaticBody2D::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_constant_linear_velocity", "vel"), &StaticBody2D::set_constant_linear_velocity);
-    ClassDB::bind_method(D_METHOD("set_constant_angular_velocity", "vel"), &StaticBody2D::set_constant_angular_velocity);
-    ClassDB::bind_method(D_METHOD("get_constant_linear_velocity"), &StaticBody2D::get_constant_linear_velocity);
-    ClassDB::bind_method(D_METHOD("get_constant_angular_velocity"), &StaticBody2D::get_constant_angular_velocity);
+    MethodBinder::bind_method(D_METHOD("set_constant_linear_velocity", "vel"), &StaticBody2D::set_constant_linear_velocity);
+    MethodBinder::bind_method(D_METHOD("set_constant_angular_velocity", "vel"), &StaticBody2D::set_constant_angular_velocity);
+    MethodBinder::bind_method(D_METHOD("get_constant_linear_velocity"), &StaticBody2D::get_constant_linear_velocity);
+    MethodBinder::bind_method(D_METHOD("get_constant_angular_velocity"), &StaticBody2D::get_constant_angular_velocity);
 
 #ifndef DISABLE_DEPRECATED
-    ClassDB::bind_method(D_METHOD("set_friction", "friction"), &StaticBody2D::set_friction);
-    ClassDB::bind_method(D_METHOD("get_friction"), &StaticBody2D::get_friction);
+    MethodBinder::bind_method(D_METHOD("set_friction", "friction"), &StaticBody2D::set_friction);
+    MethodBinder::bind_method(D_METHOD("get_friction"), &StaticBody2D::get_friction);
 
-    ClassDB::bind_method(D_METHOD("set_bounce", "bounce"), &StaticBody2D::set_bounce);
-    ClassDB::bind_method(D_METHOD("get_bounce"), &StaticBody2D::get_bounce);
+    MethodBinder::bind_method(D_METHOD("set_bounce", "bounce"), &StaticBody2D::set_bounce);
+    MethodBinder::bind_method(D_METHOD("get_bounce"), &StaticBody2D::get_bounce);
 #endif // DISABLE_DEPRECATED
 
-    ClassDB::bind_method(D_METHOD("set_physics_material_override", "physics_material_override"), &StaticBody2D::set_physics_material_override);
-    ClassDB::bind_method(D_METHOD("get_physics_material_override"), &StaticBody2D::get_physics_material_override);
+    MethodBinder::bind_method(D_METHOD("set_physics_material_override", "physics_material_override"), &StaticBody2D::set_physics_material_override);
+    MethodBinder::bind_method(D_METHOD("get_physics_material_override"), &StaticBody2D::get_physics_material_override);
 
-    ClassDB::bind_method(D_METHOD("_reload_physics_characteristics"), &StaticBody2D::_reload_physics_characteristics);
+    MethodBinder::bind_method(D_METHOD("_reload_physics_characteristics"), &StaticBody2D::_reload_physics_characteristics);
 
     ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "constant_linear_velocity"), "set_constant_linear_velocity", "get_constant_linear_velocity");
     ADD_PROPERTY(PropertyInfo(Variant::REAL, "constant_angular_velocity"), "set_constant_angular_velocity", "get_constant_angular_velocity");
@@ -957,86 +963,86 @@ String RigidBody2D::get_configuration_warning() const {
 
 void RigidBody2D::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_mode", "mode"), &RigidBody2D::set_mode);
-    ClassDB::bind_method(D_METHOD("get_mode"), &RigidBody2D::get_mode);
+    MethodBinder::bind_method(D_METHOD("set_mode", "mode"), &RigidBody2D::set_mode);
+    MethodBinder::bind_method(D_METHOD("get_mode"), &RigidBody2D::get_mode);
 
-    ClassDB::bind_method(D_METHOD("set_mass", "mass"), &RigidBody2D::set_mass);
-    ClassDB::bind_method(D_METHOD("get_mass"), &RigidBody2D::get_mass);
+    MethodBinder::bind_method(D_METHOD("set_mass", "mass"), &RigidBody2D::set_mass);
+    MethodBinder::bind_method(D_METHOD("get_mass"), &RigidBody2D::get_mass);
 
-    ClassDB::bind_method(D_METHOD("get_inertia"), &RigidBody2D::get_inertia);
-    ClassDB::bind_method(D_METHOD("set_inertia", "inertia"), &RigidBody2D::set_inertia);
+    MethodBinder::bind_method(D_METHOD("get_inertia"), &RigidBody2D::get_inertia);
+    MethodBinder::bind_method(D_METHOD("set_inertia", "inertia"), &RigidBody2D::set_inertia);
 
-    ClassDB::bind_method(D_METHOD("set_weight", "weight"), &RigidBody2D::set_weight);
-    ClassDB::bind_method(D_METHOD("get_weight"), &RigidBody2D::get_weight);
+    MethodBinder::bind_method(D_METHOD("set_weight", "weight"), &RigidBody2D::set_weight);
+    MethodBinder::bind_method(D_METHOD("get_weight"), &RigidBody2D::get_weight);
 
 #ifndef DISABLE_DEPRECATED
-    ClassDB::bind_method(D_METHOD("set_friction", "friction"), &RigidBody2D::set_friction);
-    ClassDB::bind_method(D_METHOD("get_friction"), &RigidBody2D::get_friction);
+    MethodBinder::bind_method(D_METHOD("set_friction", "friction"), &RigidBody2D::set_friction);
+    MethodBinder::bind_method(D_METHOD("get_friction"), &RigidBody2D::get_friction);
 
-    ClassDB::bind_method(D_METHOD("set_bounce", "bounce"), &RigidBody2D::set_bounce);
-    ClassDB::bind_method(D_METHOD("get_bounce"), &RigidBody2D::get_bounce);
+    MethodBinder::bind_method(D_METHOD("set_bounce", "bounce"), &RigidBody2D::set_bounce);
+    MethodBinder::bind_method(D_METHOD("get_bounce"), &RigidBody2D::get_bounce);
 #endif // DISABLE_DEPRECATED
 
-    ClassDB::bind_method(D_METHOD("set_physics_material_override", "physics_material_override"), &RigidBody2D::set_physics_material_override);
-    ClassDB::bind_method(D_METHOD("get_physics_material_override"), &RigidBody2D::get_physics_material_override);
+    MethodBinder::bind_method(D_METHOD("set_physics_material_override", "physics_material_override"), &RigidBody2D::set_physics_material_override);
+    MethodBinder::bind_method(D_METHOD("get_physics_material_override"), &RigidBody2D::get_physics_material_override);
 
-    ClassDB::bind_method(D_METHOD("_reload_physics_characteristics"), &RigidBody2D::_reload_physics_characteristics);
+    MethodBinder::bind_method(D_METHOD("_reload_physics_characteristics"), &RigidBody2D::_reload_physics_characteristics);
 
-    ClassDB::bind_method(D_METHOD("set_gravity_scale", "gravity_scale"), &RigidBody2D::set_gravity_scale);
-    ClassDB::bind_method(D_METHOD("get_gravity_scale"), &RigidBody2D::get_gravity_scale);
+    MethodBinder::bind_method(D_METHOD("set_gravity_scale", "gravity_scale"), &RigidBody2D::set_gravity_scale);
+    MethodBinder::bind_method(D_METHOD("get_gravity_scale"), &RigidBody2D::get_gravity_scale);
 
-    ClassDB::bind_method(D_METHOD("set_linear_damp", "linear_damp"), &RigidBody2D::set_linear_damp);
-    ClassDB::bind_method(D_METHOD("get_linear_damp"), &RigidBody2D::get_linear_damp);
+    MethodBinder::bind_method(D_METHOD("set_linear_damp", "linear_damp"), &RigidBody2D::set_linear_damp);
+    MethodBinder::bind_method(D_METHOD("get_linear_damp"), &RigidBody2D::get_linear_damp);
 
-    ClassDB::bind_method(D_METHOD("set_angular_damp", "angular_damp"), &RigidBody2D::set_angular_damp);
-    ClassDB::bind_method(D_METHOD("get_angular_damp"), &RigidBody2D::get_angular_damp);
+    MethodBinder::bind_method(D_METHOD("set_angular_damp", "angular_damp"), &RigidBody2D::set_angular_damp);
+    MethodBinder::bind_method(D_METHOD("get_angular_damp"), &RigidBody2D::get_angular_damp);
 
-    ClassDB::bind_method(D_METHOD("set_linear_velocity", "linear_velocity"), &RigidBody2D::set_linear_velocity);
-    ClassDB::bind_method(D_METHOD("get_linear_velocity"), &RigidBody2D::get_linear_velocity);
+    MethodBinder::bind_method(D_METHOD("set_linear_velocity", "linear_velocity"), &RigidBody2D::set_linear_velocity);
+    MethodBinder::bind_method(D_METHOD("get_linear_velocity"), &RigidBody2D::get_linear_velocity);
 
-    ClassDB::bind_method(D_METHOD("set_angular_velocity", "angular_velocity"), &RigidBody2D::set_angular_velocity);
-    ClassDB::bind_method(D_METHOD("get_angular_velocity"), &RigidBody2D::get_angular_velocity);
+    MethodBinder::bind_method(D_METHOD("set_angular_velocity", "angular_velocity"), &RigidBody2D::set_angular_velocity);
+    MethodBinder::bind_method(D_METHOD("get_angular_velocity"), &RigidBody2D::get_angular_velocity);
 
-    ClassDB::bind_method(D_METHOD("set_max_contacts_reported", "amount"), &RigidBody2D::set_max_contacts_reported);
-    ClassDB::bind_method(D_METHOD("get_max_contacts_reported"), &RigidBody2D::get_max_contacts_reported);
+    MethodBinder::bind_method(D_METHOD("set_max_contacts_reported", "amount"), &RigidBody2D::set_max_contacts_reported);
+    MethodBinder::bind_method(D_METHOD("get_max_contacts_reported"), &RigidBody2D::get_max_contacts_reported);
 
-    ClassDB::bind_method(D_METHOD("set_use_custom_integrator", "enable"), &RigidBody2D::set_use_custom_integrator);
-    ClassDB::bind_method(D_METHOD("is_using_custom_integrator"), &RigidBody2D::is_using_custom_integrator);
+    MethodBinder::bind_method(D_METHOD("set_use_custom_integrator", "enable"), &RigidBody2D::set_use_custom_integrator);
+    MethodBinder::bind_method(D_METHOD("is_using_custom_integrator"), &RigidBody2D::is_using_custom_integrator);
 
-    ClassDB::bind_method(D_METHOD("set_contact_monitor", "enabled"), &RigidBody2D::set_contact_monitor);
-    ClassDB::bind_method(D_METHOD("is_contact_monitor_enabled"), &RigidBody2D::is_contact_monitor_enabled);
+    MethodBinder::bind_method(D_METHOD("set_contact_monitor", "enabled"), &RigidBody2D::set_contact_monitor);
+    MethodBinder::bind_method(D_METHOD("is_contact_monitor_enabled"), &RigidBody2D::is_contact_monitor_enabled);
 
-    ClassDB::bind_method(D_METHOD("set_continuous_collision_detection_mode", "mode"), &RigidBody2D::set_continuous_collision_detection_mode);
-    ClassDB::bind_method(D_METHOD("get_continuous_collision_detection_mode"), &RigidBody2D::get_continuous_collision_detection_mode);
+    MethodBinder::bind_method(D_METHOD("set_continuous_collision_detection_mode", "mode"), &RigidBody2D::set_continuous_collision_detection_mode);
+    MethodBinder::bind_method(D_METHOD("get_continuous_collision_detection_mode"), &RigidBody2D::get_continuous_collision_detection_mode);
 
-    ClassDB::bind_method(D_METHOD("set_axis_velocity", "axis_velocity"), &RigidBody2D::set_axis_velocity);
-    ClassDB::bind_method(D_METHOD("apply_central_impulse", "impulse"), &RigidBody2D::apply_central_impulse);
-    ClassDB::bind_method(D_METHOD("apply_impulse", "offset", "impulse"), &RigidBody2D::apply_impulse);
-    ClassDB::bind_method(D_METHOD("apply_torque_impulse", "torque"), &RigidBody2D::apply_torque_impulse);
+    MethodBinder::bind_method(D_METHOD("set_axis_velocity", "axis_velocity"), &RigidBody2D::set_axis_velocity);
+    MethodBinder::bind_method(D_METHOD("apply_central_impulse", "impulse"), &RigidBody2D::apply_central_impulse);
+    MethodBinder::bind_method(D_METHOD("apply_impulse", "offset", "impulse"), &RigidBody2D::apply_impulse);
+    MethodBinder::bind_method(D_METHOD("apply_torque_impulse", "torque"), &RigidBody2D::apply_torque_impulse);
 
-    ClassDB::bind_method(D_METHOD("set_applied_force", "force"), &RigidBody2D::set_applied_force);
-    ClassDB::bind_method(D_METHOD("get_applied_force"), &RigidBody2D::get_applied_force);
+    MethodBinder::bind_method(D_METHOD("set_applied_force", "force"), &RigidBody2D::set_applied_force);
+    MethodBinder::bind_method(D_METHOD("get_applied_force"), &RigidBody2D::get_applied_force);
 
-    ClassDB::bind_method(D_METHOD("set_applied_torque", "torque"), &RigidBody2D::set_applied_torque);
-    ClassDB::bind_method(D_METHOD("get_applied_torque"), &RigidBody2D::get_applied_torque);
+    MethodBinder::bind_method(D_METHOD("set_applied_torque", "torque"), &RigidBody2D::set_applied_torque);
+    MethodBinder::bind_method(D_METHOD("get_applied_torque"), &RigidBody2D::get_applied_torque);
 
-    ClassDB::bind_method(D_METHOD("add_central_force", "force"), &RigidBody2D::add_central_force);
-    ClassDB::bind_method(D_METHOD("add_force", "offset", "force"), &RigidBody2D::add_force);
-    ClassDB::bind_method(D_METHOD("add_torque", "torque"), &RigidBody2D::add_torque);
+    MethodBinder::bind_method(D_METHOD("add_central_force", "force"), &RigidBody2D::add_central_force);
+    MethodBinder::bind_method(D_METHOD("add_force", "offset", "force"), &RigidBody2D::add_force);
+    MethodBinder::bind_method(D_METHOD("add_torque", "torque"), &RigidBody2D::add_torque);
 
-    ClassDB::bind_method(D_METHOD("set_sleeping", "sleeping"), &RigidBody2D::set_sleeping);
-    ClassDB::bind_method(D_METHOD("is_sleeping"), &RigidBody2D::is_sleeping);
+    MethodBinder::bind_method(D_METHOD("set_sleeping", "sleeping"), &RigidBody2D::set_sleeping);
+    MethodBinder::bind_method(D_METHOD("is_sleeping"), &RigidBody2D::is_sleeping);
 
-    ClassDB::bind_method(D_METHOD("set_can_sleep", "able_to_sleep"), &RigidBody2D::set_can_sleep);
-    ClassDB::bind_method(D_METHOD("is_able_to_sleep"), &RigidBody2D::is_able_to_sleep);
+    MethodBinder::bind_method(D_METHOD("set_can_sleep", "able_to_sleep"), &RigidBody2D::set_can_sleep);
+    MethodBinder::bind_method(D_METHOD("is_able_to_sleep"), &RigidBody2D::is_able_to_sleep);
 
-    ClassDB::bind_method(D_METHOD("test_motion", "motion", "infinite_inertia", "margin", "result"), &RigidBody2D::_test_motion, {DEFVAL(true), DEFVAL(0.08), DEFVAL(Variant())});
+    MethodBinder::bind_method(D_METHOD("test_motion", "motion", "infinite_inertia", "margin", "result"), &RigidBody2D::_test_motion, {DEFVAL(true), DEFVAL(0.08), DEFVAL(Variant())});
 
-    ClassDB::bind_method(D_METHOD("_direct_state_changed"), &RigidBody2D::_direct_state_changed);
-    ClassDB::bind_method(D_METHOD("_body_enter_tree"), &RigidBody2D::_body_enter_tree);
-    ClassDB::bind_method(D_METHOD("_body_exit_tree"), &RigidBody2D::_body_exit_tree);
+    MethodBinder::bind_method(D_METHOD("_direct_state_changed"), &RigidBody2D::_direct_state_changed);
+    MethodBinder::bind_method(D_METHOD("_body_enter_tree"), &RigidBody2D::_body_enter_tree);
+    MethodBinder::bind_method(D_METHOD("_body_exit_tree"), &RigidBody2D::_body_exit_tree);
 
-    ClassDB::bind_method(D_METHOD("get_colliding_bodies"), &RigidBody2D::get_colliding_bodies);
+    MethodBinder::bind_method(D_METHOD("get_colliding_bodies"), &RigidBody2D::get_colliding_bodies);
 
     BIND_VMETHOD(MethodInfo("_integrate_forces", PropertyInfo(Variant::OBJECT, "state", PROPERTY_HINT_RESOURCE_TYPE, "Physics2DDirectBodyState")));
 
@@ -1461,27 +1467,27 @@ void KinematicBody2D::_notification(int p_what) {
 }
 void KinematicBody2D::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("move_and_collide", "rel_vec", "infinite_inertia", "exclude_raycast_shapes", "test_only"), &KinematicBody2D::_move, {DEFVAL(true), DEFVAL(true), DEFVAL(false)});
-    ClassDB::bind_method(D_METHOD("move_and_slide", "linear_velocity", "floor_normal", "stop_on_slope", "max_slides", "floor_max_angle", "infinite_inertia"), &KinematicBody2D::move_and_slide, {DEFVAL(Vector2(0, 0)), DEFVAL(false), DEFVAL(4), DEFVAL(Math::deg2rad((float)45)), DEFVAL(true)});
-    ClassDB::bind_method(D_METHOD("move_and_slide_with_snap", "linear_velocity", "snap", "floor_normal", "stop_on_slope", "max_slides", "floor_max_angle", "infinite_inertia"), &KinematicBody2D::move_and_slide_with_snap, {DEFVAL(Vector2(0, 0)), DEFVAL(false), DEFVAL(4), DEFVAL(Math::deg2rad((float)45)), DEFVAL(true)});
+    MethodBinder::bind_method(D_METHOD("move_and_collide", "rel_vec", "infinite_inertia", "exclude_raycast_shapes", "test_only"), &KinematicBody2D::_move, {DEFVAL(true), DEFVAL(true), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("move_and_slide", "linear_velocity", "floor_normal", "stop_on_slope", "max_slides", "floor_max_angle", "infinite_inertia"), &KinematicBody2D::move_and_slide, {DEFVAL(Vector2(0, 0)), DEFVAL(false), DEFVAL(4), DEFVAL(Math::deg2rad((float)45)), DEFVAL(true)});
+    MethodBinder::bind_method(D_METHOD("move_and_slide_with_snap", "linear_velocity", "snap", "floor_normal", "stop_on_slope", "max_slides", "floor_max_angle", "infinite_inertia"), &KinematicBody2D::move_and_slide_with_snap, {DEFVAL(Vector2(0, 0)), DEFVAL(false), DEFVAL(4), DEFVAL(Math::deg2rad((float)45)), DEFVAL(true)});
 
-    ClassDB::bind_method(D_METHOD("test_move", "from", "rel_vec", "infinite_inertia"), &KinematicBody2D::test_move, {DEFVAL(true)});
+    MethodBinder::bind_method(D_METHOD("test_move", "from", "rel_vec", "infinite_inertia"), &KinematicBody2D::test_move, {DEFVAL(true)});
 
-    ClassDB::bind_method(D_METHOD("is_on_floor"), &KinematicBody2D::is_on_floor);
-    ClassDB::bind_method(D_METHOD("is_on_ceiling"), &KinematicBody2D::is_on_ceiling);
-    ClassDB::bind_method(D_METHOD("is_on_wall"), &KinematicBody2D::is_on_wall);
-    ClassDB::bind_method(D_METHOD("get_floor_velocity"), &KinematicBody2D::get_floor_velocity);
+    MethodBinder::bind_method(D_METHOD("is_on_floor"), &KinematicBody2D::is_on_floor);
+    MethodBinder::bind_method(D_METHOD("is_on_ceiling"), &KinematicBody2D::is_on_ceiling);
+    MethodBinder::bind_method(D_METHOD("is_on_wall"), &KinematicBody2D::is_on_wall);
+    MethodBinder::bind_method(D_METHOD("get_floor_velocity"), &KinematicBody2D::get_floor_velocity);
 
-    ClassDB::bind_method(D_METHOD("set_safe_margin", "pixels"), &KinematicBody2D::set_safe_margin);
-    ClassDB::bind_method(D_METHOD("get_safe_margin"), &KinematicBody2D::get_safe_margin);
+    MethodBinder::bind_method(D_METHOD("set_safe_margin", "pixels"), &KinematicBody2D::set_safe_margin);
+    MethodBinder::bind_method(D_METHOD("get_safe_margin"), &KinematicBody2D::get_safe_margin);
 
-    ClassDB::bind_method(D_METHOD("get_slide_count"), &KinematicBody2D::get_slide_count);
-    ClassDB::bind_method(D_METHOD("get_slide_collision", "slide_idx"), &KinematicBody2D::_get_slide_collision);
+    MethodBinder::bind_method(D_METHOD("get_slide_count"), &KinematicBody2D::get_slide_count);
+    MethodBinder::bind_method(D_METHOD("get_slide_collision", "slide_idx"), &KinematicBody2D::_get_slide_collision);
 
-    ClassDB::bind_method(D_METHOD("set_sync_to_physics", "enable"), &KinematicBody2D::set_sync_to_physics);
-    ClassDB::bind_method(D_METHOD("is_sync_to_physics_enabled"), &KinematicBody2D::is_sync_to_physics_enabled);
+    MethodBinder::bind_method(D_METHOD("set_sync_to_physics", "enable"), &KinematicBody2D::set_sync_to_physics);
+    MethodBinder::bind_method(D_METHOD("is_sync_to_physics_enabled"), &KinematicBody2D::is_sync_to_physics_enabled);
 
-    ClassDB::bind_method(D_METHOD("_direct_state_changed"), &KinematicBody2D::_direct_state_changed);
+    MethodBinder::bind_method(D_METHOD("_direct_state_changed"), &KinematicBody2D::_direct_state_changed);
 
     ADD_PROPERTY(PropertyInfo(Variant::REAL, "collision/safe_margin", PROPERTY_HINT_RANGE, "0.001,256,0.001"), "set_safe_margin", "get_safe_margin");
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "motion/sync_to_physics"), "set_sync_to_physics", "is_sync_to_physics_enabled");
@@ -1570,17 +1576,17 @@ Variant KinematicCollision2D::get_collider_metadata() const {
 
 void KinematicCollision2D::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("get_position"), &KinematicCollision2D::get_position);
-    ClassDB::bind_method(D_METHOD("get_normal"), &KinematicCollision2D::get_normal);
-    ClassDB::bind_method(D_METHOD("get_travel"), &KinematicCollision2D::get_travel);
-    ClassDB::bind_method(D_METHOD("get_remainder"), &KinematicCollision2D::get_remainder);
-    ClassDB::bind_method(D_METHOD("get_local_shape"), &KinematicCollision2D::get_local_shape);
-    ClassDB::bind_method(D_METHOD("get_collider"), &KinematicCollision2D::get_collider);
-    ClassDB::bind_method(D_METHOD("get_collider_id"), &KinematicCollision2D::get_collider_id);
-    ClassDB::bind_method(D_METHOD("get_collider_shape"), &KinematicCollision2D::get_collider_shape);
-    ClassDB::bind_method(D_METHOD("get_collider_shape_index"), &KinematicCollision2D::get_collider_shape_index);
-    ClassDB::bind_method(D_METHOD("get_collider_velocity"), &KinematicCollision2D::get_collider_velocity);
-    ClassDB::bind_method(D_METHOD("get_collider_metadata"), &KinematicCollision2D::get_collider_metadata);
+    MethodBinder::bind_method(D_METHOD("get_position"), &KinematicCollision2D::get_position);
+    MethodBinder::bind_method(D_METHOD("get_normal"), &KinematicCollision2D::get_normal);
+    MethodBinder::bind_method(D_METHOD("get_travel"), &KinematicCollision2D::get_travel);
+    MethodBinder::bind_method(D_METHOD("get_remainder"), &KinematicCollision2D::get_remainder);
+    MethodBinder::bind_method(D_METHOD("get_local_shape"), &KinematicCollision2D::get_local_shape);
+    MethodBinder::bind_method(D_METHOD("get_collider"), &KinematicCollision2D::get_collider);
+    MethodBinder::bind_method(D_METHOD("get_collider_id"), &KinematicCollision2D::get_collider_id);
+    MethodBinder::bind_method(D_METHOD("get_collider_shape"), &KinematicCollision2D::get_collider_shape);
+    MethodBinder::bind_method(D_METHOD("get_collider_shape_index"), &KinematicCollision2D::get_collider_shape_index);
+    MethodBinder::bind_method(D_METHOD("get_collider_velocity"), &KinematicCollision2D::get_collider_velocity);
+    MethodBinder::bind_method(D_METHOD("get_collider_metadata"), &KinematicCollision2D::get_collider_metadata);
 
     ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "position"), "", "get_position");
     ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "normal"), "", "get_normal");

@@ -36,7 +36,7 @@
 
 class ImmediateGeometry : public GeometryInstance {
 
-	GDCLASS(ImmediateGeometry, GeometryInstance);
+	GDCLASS(ImmediateGeometry,GeometryInstance)
 
 	RID im;
 	//a list of textures drawn need to be kept, to avoid references
@@ -63,11 +63,11 @@ public:
 
 	void add_sphere(int p_lats, int p_lons, float p_radius, bool p_add_uv = true);
 
-	virtual AABB get_aabb() const;
-	virtual PoolVector<Face3> get_faces(uint32_t p_usage_flags) const;
+	AABB get_aabb() const override;
+	PoolVector<Face3> get_faces(uint32_t p_usage_flags) const override;
 
 	ImmediateGeometry();
-	~ImmediateGeometry();
+	~ImmediateGeometry() override;
 };
 
 #endif // IMMEDIATE_GEOMETRY_H

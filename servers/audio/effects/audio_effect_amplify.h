@@ -36,18 +36,19 @@
 class AudioEffectAmplify;
 
 class AudioEffectAmplifyInstance : public AudioEffectInstance {
-	GDCLASS(AudioEffectAmplifyInstance, AudioEffectInstance);
+	GDCLASS(AudioEffectAmplifyInstance,AudioEffectInstance)
+
 	friend class AudioEffectAmplify;
 	Ref<AudioEffectAmplify> base;
 
 	float mix_volume_db;
 
 public:
-	virtual void process(const AudioFrame *p_src_frames, AudioFrame *p_dst_frames, int p_frame_count);
+	void process(const AudioFrame *p_src_frames, AudioFrame *p_dst_frames, int p_frame_count) override;
 };
 
 class AudioEffectAmplify : public AudioEffect {
-	GDCLASS(AudioEffectAmplify, AudioEffect);
+	GDCLASS(AudioEffectAmplify,AudioEffect)
 
 	friend class AudioEffectAmplifyInstance;
 	float volume_db;
@@ -56,7 +57,7 @@ protected:
 	static void _bind_methods();
 
 public:
-	Ref<AudioEffectInstance> instance();
+	Ref<AudioEffectInstance> instance() override;
 	void set_volume_db(float p_volume);
 	float get_volume_db() const;
 

@@ -32,6 +32,7 @@
 
 #include "core/io/stream_peer_ssl.h"
 #include "core/version.h"
+#include "core/method_bind.h"
 
 const char *HTTPClient::_methods[METHOD_MAX] = {
     "GET",
@@ -45,6 +46,8 @@ const char *HTTPClient::_methods[METHOD_MAX] = {
     "PATCH"
 };
 
+IMPL_GDCLASS(HTTPClient)
+
 #ifndef JAVASCRIPT_ENABLED
 Error HTTPClient::connect_to_host(const String &p_host, int p_port, bool p_ssl, bool p_verify_host) {
 
@@ -57,13 +60,13 @@ Error HTTPClient::connect_to_host(const String &p_host, int p_port, bool p_ssl, 
     ssl_verify_host = p_verify_host;
 
     String host_lower = StringUtils::to_lower(conn_host);
-    if (host_lower.begins_with("http://")) {
+    if (StringUtils::begins_with(host_lower,"http://")) {
 
-        conn_host = conn_host.substr(7, conn_host.length() - 7);
-    } else if (host_lower.begins_with("https://")) {
+        conn_host = StringUtils::substr(conn_host,7, conn_host.length() - 7);
+    } else if (StringUtils::begins_with(host_lower,"https://")) {
 
         ssl = true;
-        conn_host = conn_host.substr(8, conn_host.length() - 8);
+        conn_host = StringUtils::substr(conn_host,8, conn_host.length() - 8);
     }
 
     ERR_FAIL_COND_V(conn_host.length() < HOST_MIN_LEN, ERR_INVALID_PARAMETER);
@@ -111,7 +114,7 @@ Ref<StreamPeer> HTTPClient::get_connection() const {
 Error HTTPClient::request_raw(Method p_method, const String &p_url, const Vector<String> &p_headers, const PoolVector<uint8_t> &p_body) {
 
     ERR_FAIL_INDEX_V(p_method, METHOD_MAX, ERR_INVALID_PARAMETER);
-    ERR_FAIL_COND_V(!p_url.begins_with("/"), ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(!StringUtils::begins_with(p_url,"/"), ERR_INVALID_PARAMETER);
     ERR_FAIL_COND_V(status != STATUS_CONNECTED, ERR_INVALID_PARAMETER);
     ERR_FAIL_COND_V(connection.is_null(), ERR_INVALID_DATA);
 
@@ -127,13 +130,13 @@ Error HTTPClient::request_raw(Method p_method, const String &p_url, const Vector
     bool add_accept = true;
     for (int i = 0; i < p_headers.size(); i++) {
         request += p_headers[i] + "\r\n";
-        if (add_clen && p_headers[i].findn("Content-Length:") == 0) {
+        if (add_clen && StringUtils::findn(p_headers[i],"Content-Length:") == 0) {
             add_clen = false;
         }
-        if (add_uagent && p_headers[i].findn("User-Agent:") == 0) {
+        if (add_uagent && StringUtils::findn(p_headers[i],"User-Agent:") == 0) {
             add_uagent = false;
         }
-        if (add_accept && p_headers[i].findn("Accept:") == 0) {
+        if (add_accept && StringUtils::findn(p_headers[i],"Accept:") == 0) {
             add_accept = false;
         }
     }
@@ -148,7 +151,7 @@ Error HTTPClient::request_raw(Method p_method, const String &p_url, const Vector
         request += "Accept: */*\r\n";
     }
     request += "\r\n";
-    CharString cs = request.utf8();
+    CharString cs = StringUtils::to_utf8(request);
 
     PoolVector<uint8_t> data;
     data.resize(cs.length());
@@ -177,10 +180,10 @@ Error HTTPClient::request_raw(Method p_method, const String &p_url, const Vector
 
 Error HTTPClient::request(Method p_method, const String &p_url, const Vector<String> &p_headers, const String &p_body) {
 
-    ERR_FAIL_INDEX_V(p_method, METHOD_MAX, ERR_INVALID_PARAMETER);
-    ERR_FAIL_COND_V(!p_url.begins_with("/"), ERR_INVALID_PARAMETER);
-    ERR_FAIL_COND_V(status != STATUS_CONNECTED, ERR_INVALID_PARAMETER);
-    ERR_FAIL_COND_V(connection.is_null(), ERR_INVALID_DATA);
+    ERR_FAIL_INDEX_V(p_method, METHOD_MAX, ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(!StringUtils::begins_with(p_url,'/'), ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(status != STATUS_CONNECTED, ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(connection.is_null(), ERR_INVALID_DATA)
 
     String request = String(_methods[p_method]) + " " + p_url + " HTTP/1.1\r\n";
     if ((ssl && conn_port == PORT_HTTPS) || (!ssl && conn_port == PORT_HTTP)) {
@@ -194,18 +197,18 @@ Error HTTPClient::request(Method p_method, const String &p_url, const Vector<Str
     bool add_clen = p_body.length() > 0;
     for (int i = 0; i < p_headers.size(); i++) {
         request += p_headers[i] + "\r\n";
-        if (add_clen && p_headers[i].findn("Content-Length:") == 0) {
+        if (add_clen && StringUtils::findn(p_headers[i],"Content-Length:") == 0) {
             add_clen = false;
         }
-        if (add_uagent && p_headers[i].findn("User-Agent:") == 0) {
+        if (add_uagent && StringUtils::findn(p_headers[i],"User-Agent:") == 0) {
             add_uagent = false;
         }
-        if (add_accept && p_headers[i].findn("Accept:") == 0) {
+        if (add_accept && StringUtils::findn(p_headers[i],"Accept:") == 0) {
             add_accept = false;
         }
     }
     if (add_clen) {
-        request += "Content-Length: " + itos(p_body.utf8().length()) + "\r\n";
+        request += "Content-Length: " + itos(StringUtils::to_utf8(p_body).length()) + "\r\n";
         // Should it add utf8 encoding?
     }
     if (add_uagent) {
@@ -217,7 +220,7 @@ Error HTTPClient::request(Method p_method, const String &p_url, const Vector<Str
     request += "\r\n";
     request += p_body;
 
-    CharString cs = request.utf8();
+    CharString cs = StringUtils::to_utf8(request);
     Error err = connection->put_data((const uint8_t *)cs.data(), cs.length());
     if (err) {
         close();
@@ -278,7 +281,7 @@ void HTTPClient::close() {
     body_size = -1;
     body_left = 0;
     chunk_left = 0;
-    chunk_trailer_part = 0;
+    chunk_trailer_part = false;
     read_until_eof = false;
     response_num = 0;
     handshaking = false;
@@ -421,8 +424,7 @@ Error HTTPClient::poll() {
 
                     // End of response, parse.
                     response_str.push_back(0);
-                    String response;
-                    response.parse_utf8((const char *)response_str.ptr());
+                    String response = StringUtils::from_utf8((const char *)response_str.ptr());
                     Vector<String> responses = StringUtils::split(response,"\n");
                     body_size = -1;
                     chunked = false;
@@ -441,27 +443,27 @@ Error HTTPClient::poll() {
 
                     for (int i = 0; i < responses.size(); i++) {
 
-                        String header = responses[i].strip_edges();
+                        String header =StringUtils::strip_edges( responses[i]);
                         String s = StringUtils::to_lower(header);
-                        if (s.length() == 0)
+                        if (s.empty())
                             continue;
-                        if (s.begins_with("content-length:")) {
-                            body_size = s.substr(s.find(":") + 1, s.length()).strip_edges().to_int();
+                        if (StringUtils::begins_with(s,"content-length:")) {
+                            body_size = StringUtils::to_int(StringUtils::strip_edges(StringUtils::substr(s,StringUtils::find(s,":") + 1)));
                             body_left = body_size;
 
-                        } else if (s.begins_with("transfer-encoding:")) {
-                            String encoding = header.substr(header.find(":") + 1, header.length()).strip_edges();
+                        } else if (StringUtils::begins_with(s,"transfer-encoding:")) {
+                            String encoding = StringUtils::strip_edges(StringUtils::substr(header,StringUtils::find(header,":") + 1));
                             if (encoding == "chunked") {
                                 chunked = true;
                             }
-                        } else if (s.begins_with("connection: close")) {
+                        } else if (StringUtils::begins_with(s,"connection: close")) {
                             keep_alive = false;
                         }
 
-                        if (i == 0 && responses[i].begins_with("HTTP")) {
+                        if (i == 0 && StringUtils::begins_with(responses[i],"HTTP")) {
 
-                            String num = responses[i].get_slicec(' ', 1);
-                            response_num = num.to_int();
+                            String num = StringUtils::get_slice(responses[i],' ', 1);
+                            response_num = StringUtils::to_int(num);
                         } else {
 
                             response_headers.push_back(header);
@@ -762,7 +764,7 @@ String HTTPClient::query_string_from_dict(const Dictionary &p_dict) {
             }
         }
     }
-    query.erase(0, 1);
+    StringUtils::erase(query,0, 1);
     return query;
 }
 
@@ -773,11 +775,11 @@ Dictionary HTTPClient::_get_response_headers_as_dictionary() {
     Dictionary ret;
     for (const List<String>::Element *E = rh.front(); E; E = E->next()) {
         const String &s = E->get();
-        int sp = s.find(":");
+        int sp = StringUtils::find(s,":");
         if (sp == -1)
             continue;
-        String key = s.substr(0, sp).strip_edges();
-        String value = s.substr(sp + 1, s.length()).strip_edges();
+        String key = StringUtils::strip_edges(StringUtils::substr(s,0, sp));
+        String value = StringUtils::strip_edges(StringUtils::substr(s,sp + 1, s.length()));
         ret[key] = value;
     }
 
@@ -800,29 +802,29 @@ PoolStringArray HTTPClient::_get_response_headers() {
 
 void HTTPClient::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("connect_to_host", "host", "port", "use_ssl", "verify_host"), &HTTPClient::connect_to_host, {DEFVAL(-1), DEFVAL(false), DEFVAL(true)});
-    ClassDB::bind_method(D_METHOD("set_connection", "connection"), &HTTPClient::set_connection);
-    ClassDB::bind_method(D_METHOD("get_connection"), &HTTPClient::get_connection);
-    ClassDB::bind_method(D_METHOD("request_raw", "method", "url", "headers", "body"), &HTTPClient::request_raw);
-    ClassDB::bind_method(D_METHOD("request", "method", "url", "headers", "body"), &HTTPClient::request, {DEFVAL(String())});
-    ClassDB::bind_method(D_METHOD("close"), &HTTPClient::close);
+    MethodBinder::bind_method(D_METHOD("connect_to_host", "host", "port", "use_ssl", "verify_host"), &HTTPClient::connect_to_host, {DEFVAL(-1), DEFVAL(false), DEFVAL(true)});
+    MethodBinder::bind_method(D_METHOD("set_connection", "connection"), &HTTPClient::set_connection);
+    MethodBinder::bind_method(D_METHOD("get_connection"), &HTTPClient::get_connection);
+    MethodBinder::bind_method(D_METHOD("request_raw", "method", "url", "headers", "body"), &HTTPClient::request_raw);
+    MethodBinder::bind_method(D_METHOD("request", "method", "url", "headers", "body"), &HTTPClient::request, {DEFVAL(String())});
+    MethodBinder::bind_method(D_METHOD("close"), &HTTPClient::close);
 
-    ClassDB::bind_method(D_METHOD("has_response"), &HTTPClient::has_response);
-    ClassDB::bind_method(D_METHOD("is_response_chunked"), &HTTPClient::is_response_chunked);
-    ClassDB::bind_method(D_METHOD("get_response_code"), &HTTPClient::get_response_code);
-    ClassDB::bind_method(D_METHOD("get_response_headers"), &HTTPClient::_get_response_headers);
-    ClassDB::bind_method(D_METHOD("get_response_headers_as_dictionary"), &HTTPClient::_get_response_headers_as_dictionary);
-    ClassDB::bind_method(D_METHOD("get_response_body_length"), &HTTPClient::get_response_body_length);
-    ClassDB::bind_method(D_METHOD("read_response_body_chunk"), &HTTPClient::read_response_body_chunk);
-    ClassDB::bind_method(D_METHOD("set_read_chunk_size", "bytes"), &HTTPClient::set_read_chunk_size);
+    MethodBinder::bind_method(D_METHOD("has_response"), &HTTPClient::has_response);
+    MethodBinder::bind_method(D_METHOD("is_response_chunked"), &HTTPClient::is_response_chunked);
+    MethodBinder::bind_method(D_METHOD("get_response_code"), &HTTPClient::get_response_code);
+    MethodBinder::bind_method(D_METHOD("get_response_headers"), &HTTPClient::_get_response_headers);
+    MethodBinder::bind_method(D_METHOD("get_response_headers_as_dictionary"), &HTTPClient::_get_response_headers_as_dictionary);
+    MethodBinder::bind_method(D_METHOD("get_response_body_length"), &HTTPClient::get_response_body_length);
+    MethodBinder::bind_method(D_METHOD("read_response_body_chunk"), &HTTPClient::read_response_body_chunk);
+    MethodBinder::bind_method(D_METHOD("set_read_chunk_size", "bytes"), &HTTPClient::set_read_chunk_size);
 
-    ClassDB::bind_method(D_METHOD("set_blocking_mode", "enabled"), &HTTPClient::set_blocking_mode);
-    ClassDB::bind_method(D_METHOD("is_blocking_mode_enabled"), &HTTPClient::is_blocking_mode_enabled);
+    MethodBinder::bind_method(D_METHOD("set_blocking_mode", "enabled"), &HTTPClient::set_blocking_mode);
+    MethodBinder::bind_method(D_METHOD("is_blocking_mode_enabled"), &HTTPClient::is_blocking_mode_enabled);
 
-    ClassDB::bind_method(D_METHOD("get_status"), &HTTPClient::get_status);
-    ClassDB::bind_method(D_METHOD("poll"), &HTTPClient::poll);
+    MethodBinder::bind_method(D_METHOD("get_status"), &HTTPClient::get_status);
+    MethodBinder::bind_method(D_METHOD("poll"), &HTTPClient::poll);
 
-    ClassDB::bind_method(D_METHOD("query_string_from_dict", "fields"), &HTTPClient::query_string_from_dict);
+    MethodBinder::bind_method(D_METHOD("query_string_from_dict", "fields"), &HTTPClient::query_string_from_dict);
 
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "blocking_mode_enabled"), "set_blocking_mode", "is_blocking_mode_enabled");
     ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "connection", PROPERTY_HINT_RESOURCE_TYPE, "StreamPeer", 0), "set_connection", "get_connection");

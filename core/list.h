@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef GLOBALS_LIST_H
-#define GLOBALS_LIST_H
+#pragma once
 
 #include "core/os/memory.h"
 #include "core/sort_array.h"
@@ -760,4 +759,3 @@ public:
     }
 };
 
-#endif

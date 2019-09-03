@@ -55,7 +55,7 @@ class ScriptEditorDebuggerInspectedObject;
 
 class ScriptEditorDebugger : public Control {
 
-	GDCLASS(ScriptEditorDebugger, Control);
+	GDCLASS(ScriptEditorDebugger,Control)
 
 	enum MessageType {
 		MESSAGE_ERROR,
@@ -256,9 +256,9 @@ public:
 
 	void reload_scripts();
 
-	virtual Size2 get_minimum_size() const;
+	Size2 get_minimum_size() const override;
 	ScriptEditorDebugger(EditorNode *p_editor = nullptr);
-	~ScriptEditorDebugger();
+	~ScriptEditorDebugger() override;
 };
 
 #endif // SCRIPT_EDITOR_DEBUGGER_H

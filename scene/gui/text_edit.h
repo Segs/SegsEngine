@@ -35,12 +35,13 @@
 #include "scene/gui/popup_menu.h"
 #include "scene/gui/scroll_bar.h"
 #include "scene/main/timer.h"
+#include "scene/resources/font.h"
 
 class SyntaxHighlighter;
 
 class TextEdit : public Control {
 
-	GDCLASS(TextEdit, Control);
+	GDCLASS(TextEdit,Control)
 
 public:
 	struct HighlighterInfo {
@@ -277,7 +278,7 @@ private:
 	uint32_t version;
 	uint32_t saved_version;
 
-	int max_chars;
+	int max_chars=0;
 	bool readonly;
 	bool syntax_coloring;
 	bool indent_using_spaces;
@@ -286,20 +287,20 @@ private:
 
 	Timer *caret_blink_timer;
 	bool caret_blink_enabled;
-	bool draw_caret;
+	bool draw_caret=true;
 	bool window_has_focus;
 	bool block_caret;
 	bool right_click_moves_caret;
 
-	bool wrap_enabled;
-	int wrap_at;
-	int wrap_right_offset;
+	bool wrap_enabled=false;
+	int wrap_at=0;
+	int wrap_right_offset=10;
 
 	bool first_draw;
-	bool setting_row;
-	bool draw_tabs;
-	bool draw_spaces;
-	bool override_selected_font_color;
+	bool setting_row=false;
+	bool draw_tabs=false;
+	bool draw_spaces=false;
+	bool override_selected_font_color=false;
 	bool cursor_changed_dirty;
 	bool text_changed_dirty;
 	bool undo_enabled;
@@ -420,7 +421,7 @@ private:
 	void _scroll_lines_down();
 
 	//void mouse_motion(const Point& p_pos, const Point& p_rel, int p_button_mask);
-	Size2 get_minimum_size() const;
+	Size2 get_minimum_size() const override;
 	int _get_control_height() const;
 
 	int get_row_height() const;
@@ -457,7 +458,7 @@ private:
 	int _calculate_spaces_till_next_right_indent(int column);
 
 protected:
-	virtual String get_tooltip(const Point2 &p_pos) const;
+	String get_tooltip(const Point2 &p_pos) const override;
 
 	void _insert_text(int p_line, int p_char, const String &p_text, int *r_end_line = nullptr, int *r_end_char = nullptr);
 	void _remove_text(int p_from_line, int p_from_column, int p_to_line, int p_to_column);
@@ -497,7 +498,7 @@ public:
 		SEARCH_BACKWARDS = 4
 	};
 
-	virtual CursorShape get_cursor_shape(const Point2 &p_pos = Point2i()) const;
+	CursorShape get_cursor_shape(const Point2 &p_pos = Point2i()) const override;
 
 	void _get_mouse_pos(const Point2i &p_mouse, int &r_row, int &r_col) const;
 	void _get_minimap_mouse_row(const Point2i &p_mouse, int &r_row) const;
@@ -740,9 +741,9 @@ public:
 	String get_text_for_completion();
 	String get_text_for_lookup_completion();
 
-	virtual bool is_text_field() const;
+	bool is_text_field() const override;
 	TextEdit();
-	~TextEdit();
+	~TextEdit() override;
 };
 
 VARIANT_ENUM_CAST(TextEdit::MenuItems);

@@ -94,48 +94,48 @@ public:
 #endif
 
 #define BIND0R(m_r, m_name) \
-	m_r m_name() { return BINDBASE->m_name(); }
-#define BIND1R(m_r, m_name, m_type1) \
-	m_r m_name(m_type1 arg1) { return BINDBASE->m_name(arg1); }
-#define BIND1RC(m_r, m_name, m_type1) \
-	m_r m_name(m_type1 arg1) const { return BINDBASE->m_name(arg1); }
+	m_r m_name() override { return BINDBASE->m_name(); }
+#define BIND1R(m_r, m_name, m_type1)  \
+	m_r m_name(m_type1 arg1) override { return BINDBASE->m_name(arg1); }
+#define BIND1RC(m_r, m_name, m_type1)  \
+	m_r m_name(m_type1 arg1) const override { return BINDBASE->m_name(arg1); }
 #define BIND2R(m_r, m_name, m_type1, m_type2) \
-	m_r m_name(m_type1 arg1, m_type2 arg2) { return BINDBASE->m_name(arg1, arg2); }
+	m_r m_name(m_type1 arg1, m_type2 arg2) override { return BINDBASE->m_name(arg1, arg2); }
 #define BIND2RC(m_r, m_name, m_type1, m_type2) \
-	m_r m_name(m_type1 arg1, m_type2 arg2) const { return BINDBASE->m_name(arg1, arg2); }
+	m_r m_name(m_type1 arg1, m_type2 arg2) const override { return BINDBASE->m_name(arg1, arg2); }
 #define BIND3RC(m_r, m_name, m_type1, m_type2, m_type3) \
-	m_r m_name(m_type1 arg1, m_type2 arg2, m_type3 arg3) const { return BINDBASE->m_name(arg1, arg2, arg3); }
+	m_r m_name(m_type1 arg1, m_type2 arg2, m_type3 arg3) const override { return BINDBASE->m_name(arg1, arg2, arg3); }
 #define BIND4RC(m_r, m_name, m_type1, m_type2, m_type3, m_type4) \
-	m_r m_name(m_type1 arg1, m_type2 arg2, m_type3 arg3, m_type4 arg4) const { return BINDBASE->m_name(arg1, arg2, arg3, arg4); }
+	m_r m_name(m_type1 arg1, m_type2 arg2, m_type3 arg3, m_type4 arg4) const override { return BINDBASE->m_name(arg1, arg2, arg3, arg4); }
 
 #define BIND1(m_name, m_type1) \
-	void m_name(m_type1 arg1) { DISPLAY_CHANGED BINDBASE->m_name(arg1); }
+	void m_name(m_type1 arg1) override { DISPLAY_CHANGED BINDBASE->m_name(arg1); }
 #define BIND2(m_name, m_type1, m_type2) \
-	void m_name(m_type1 arg1, m_type2 arg2) { DISPLAY_CHANGED BINDBASE->m_name(arg1, arg2); }
+	void m_name(m_type1 arg1, m_type2 arg2) override { DISPLAY_CHANGED BINDBASE->m_name(arg1, arg2); }
 #define BIND2C(m_name, m_type1, m_type2) \
-	void m_name(m_type1 arg1, m_type2 arg2) const { BINDBASE->m_name(arg1, arg2); }
+	void m_name(m_type1 arg1, m_type2 arg2) const override { BINDBASE->m_name(arg1, arg2); }
 #define BIND3(m_name, m_type1, m_type2, m_type3) \
-	void m_name(m_type1 arg1, m_type2 arg2, m_type3 arg3) { DISPLAY_CHANGED BINDBASE->m_name(arg1, arg2, arg3); }
+	void m_name(m_type1 arg1, m_type2 arg2, m_type3 arg3) override { DISPLAY_CHANGED BINDBASE->m_name(arg1, arg2, arg3); }
 #define BIND4(m_name, m_type1, m_type2, m_type3, m_type4) \
-	void m_name(m_type1 arg1, m_type2 arg2, m_type3 arg3, m_type4 arg4) { DISPLAY_CHANGED BINDBASE->m_name(arg1, arg2, arg3, arg4); }
+	void m_name(m_type1 arg1, m_type2 arg2, m_type3 arg3, m_type4 arg4) override { DISPLAY_CHANGED BINDBASE->m_name(arg1, arg2, arg3, arg4); }
 #define BIND5(m_name, m_type1, m_type2, m_type3, m_type4, m_type5) \
-	void m_name(m_type1 arg1, m_type2 arg2, m_type3 arg3, m_type4 arg4, m_type5 arg5) { DISPLAY_CHANGED BINDBASE->m_name(arg1, arg2, arg3, arg4, arg5); }
+	void m_name(m_type1 arg1, m_type2 arg2, m_type3 arg3, m_type4 arg4, m_type5 arg5) override { DISPLAY_CHANGED BINDBASE->m_name(arg1, arg2, arg3, arg4, arg5); }
 #define BIND6(m_name, m_type1, m_type2, m_type3, m_type4, m_type5, m_type6) \
-	void m_name(m_type1 arg1, m_type2 arg2, m_type3 arg3, m_type4 arg4, m_type5 arg5, m_type6 arg6) { DISPLAY_CHANGED BINDBASE->m_name(arg1, arg2, arg3, arg4, arg5, arg6); }
+	void m_name(m_type1 arg1, m_type2 arg2, m_type3 arg3, m_type4 arg4, m_type5 arg5, m_type6 arg6) override { DISPLAY_CHANGED BINDBASE->m_name(arg1, arg2, arg3, arg4, arg5, arg6); }
 #define BIND7(m_name, m_type1, m_type2, m_type3, m_type4, m_type5, m_type6, m_type7) \
-	void m_name(m_type1 arg1, m_type2 arg2, m_type3 arg3, m_type4 arg4, m_type5 arg5, m_type6 arg6, m_type7 arg7) { DISPLAY_CHANGED BINDBASE->m_name(arg1, arg2, arg3, arg4, arg5, arg6, arg7); }
+	void m_name(m_type1 arg1, m_type2 arg2, m_type3 arg3, m_type4 arg4, m_type5 arg5, m_type6 arg6, m_type7 arg7) override { DISPLAY_CHANGED BINDBASE->m_name(arg1, arg2, arg3, arg4, arg5, arg6, arg7); }
 #define BIND8(m_name, m_type1, m_type2, m_type3, m_type4, m_type5, m_type6, m_type7, m_type8) \
-	void m_name(m_type1 arg1, m_type2 arg2, m_type3 arg3, m_type4 arg4, m_type5 arg5, m_type6 arg6, m_type7 arg7, m_type8 arg8) { DISPLAY_CHANGED BINDBASE->m_name(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8); }
+	void m_name(m_type1 arg1, m_type2 arg2, m_type3 arg3, m_type4 arg4, m_type5 arg5, m_type6 arg6, m_type7 arg7, m_type8 arg8) override { DISPLAY_CHANGED BINDBASE->m_name(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8); }
 #define BIND9(m_name, m_type1, m_type2, m_type3, m_type4, m_type5, m_type6, m_type7, m_type8, m_type9) \
-	void m_name(m_type1 arg1, m_type2 arg2, m_type3 arg3, m_type4 arg4, m_type5 arg5, m_type6 arg6, m_type7 arg7, m_type8 arg8, m_type9 arg9) { DISPLAY_CHANGED BINDBASE->m_name(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9); }
+	void m_name(m_type1 arg1, m_type2 arg2, m_type3 arg3, m_type4 arg4, m_type5 arg5, m_type6 arg6, m_type7 arg7, m_type8 arg8, m_type9 arg9) override { DISPLAY_CHANGED BINDBASE->m_name(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9); }
 #define BIND10(m_name, m_type1, m_type2, m_type3, m_type4, m_type5, m_type6, m_type7, m_type8, m_type9, m_type10) \
-	void m_name(m_type1 arg1, m_type2 arg2, m_type3 arg3, m_type4 arg4, m_type5 arg5, m_type6 arg6, m_type7 arg7, m_type8 arg8, m_type9 arg9, m_type10 arg10) { DISPLAY_CHANGED BINDBASE->m_name(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10); }
+	void m_name(m_type1 arg1, m_type2 arg2, m_type3 arg3, m_type4 arg4, m_type5 arg5, m_type6 arg6, m_type7 arg7, m_type8 arg8, m_type9 arg9, m_type10 arg10) override { DISPLAY_CHANGED BINDBASE->m_name(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10); }
 #define BIND11(m_name, m_type1, m_type2, m_type3, m_type4, m_type5, m_type6, m_type7, m_type8, m_type9, m_type10, m_type11) \
-	void m_name(m_type1 arg1, m_type2 arg2, m_type3 arg3, m_type4 arg4, m_type5 arg5, m_type6 arg6, m_type7 arg7, m_type8 arg8, m_type9 arg9, m_type10 arg10, m_type11 arg11) { DISPLAY_CHANGED BINDBASE->m_name(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11); }
+	void m_name(m_type1 arg1, m_type2 arg2, m_type3 arg3, m_type4 arg4, m_type5 arg5, m_type6 arg6, m_type7 arg7, m_type8 arg8, m_type9 arg9, m_type10 arg10, m_type11 arg11) override { DISPLAY_CHANGED BINDBASE->m_name(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11); }
 #define BIND12(m_name, m_type1, m_type2, m_type3, m_type4, m_type5, m_type6, m_type7, m_type8, m_type9, m_type10, m_type11, m_type12) \
-	void m_name(m_type1 arg1, m_type2 arg2, m_type3 arg3, m_type4 arg4, m_type5 arg5, m_type6 arg6, m_type7 arg7, m_type8 arg8, m_type9 arg9, m_type10 arg10, m_type11 arg11, m_type12 arg12) { DISPLAY_CHANGED BINDBASE->m_name(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12); }
+	void m_name(m_type1 arg1, m_type2 arg2, m_type3 arg3, m_type4 arg4, m_type5 arg5, m_type6 arg6, m_type7 arg7, m_type8 arg8, m_type9 arg9, m_type10 arg10, m_type11 arg11, m_type12 arg12) override { DISPLAY_CHANGED BINDBASE->m_name(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12); }
 #define BIND13(m_name, m_type1, m_type2, m_type3, m_type4, m_type5, m_type6, m_type7, m_type8, m_type9, m_type10, m_type11, m_type12, m_type13) \
-	void m_name(m_type1 arg1, m_type2 arg2, m_type3 arg3, m_type4 arg4, m_type5 arg5, m_type6 arg6, m_type7 arg7, m_type8 arg8, m_type9 arg9, m_type10 arg10, m_type11 arg11, m_type12 arg12, m_type13 arg13) { DISPLAY_CHANGED BINDBASE->m_name(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13); }
+	void m_name(m_type1 arg1, m_type2 arg2, m_type3 arg3, m_type4 arg4, m_type5 arg5, m_type6 arg6, m_type7 arg7, m_type8 arg8, m_type9 arg9, m_type10 arg10, m_type11 arg11, m_type12 arg12, m_type13 arg13) override { DISPLAY_CHANGED BINDBASE->m_name(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13); }
 
 //from now on, calls forwarded to this singleton
 #define BINDBASE VSG::storage
@@ -659,45 +659,45 @@ public:
 
 	/* BLACK BARS */
 
-	virtual void black_bars_set_margins(int p_left, int p_top, int p_right, int p_bottom);
-	virtual void black_bars_set_images(RID p_left, RID p_top, RID p_right, RID p_bottom);
+	void black_bars_set_margins(int p_left, int p_top, int p_right, int p_bottom) override;
+	void black_bars_set_images(RID p_left, RID p_top, RID p_right, RID p_bottom) override;
 
 	/* FREE */
 
-	virtual void free(RID p_rid); ///< free RIDs associated with the visual server
+	void free(RID p_rid) override; ///< free RIDs associated with the visual server
 
 	/* EVENT QUEUING */
 
-	virtual void request_frame_drawn_callback(Object *p_where, const StringName &p_method, const Variant &p_userdata);
+	void request_frame_drawn_callback(Object *p_where, const StringName &p_method, const Variant &p_userdata) override;
 
-	virtual void draw(bool p_swap_buffers, double frame_step);
-	virtual void sync();
-	virtual bool has_changed() const;
-	virtual void init();
-	virtual void finish();
+	void draw(bool p_swap_buffers, double frame_step) override;
+	void sync() override;
+	bool has_changed() const override;
+	void init() override;
+	void finish() override;
 
 	/* STATUS INFORMATION */
 
-	virtual int get_render_info(RenderInfo p_info);
+	int get_render_info(RenderInfo p_info) override;
 
-	virtual RID get_test_cube();
+	RID get_test_cube() override;
 
 	/* TESTING */
 
-	virtual void set_boot_image(const Ref<Image> &p_image, const Color &p_color, bool p_scale, bool p_use_filter = true);
-	virtual void set_default_clear_color(const Color &p_color);
+	void set_boot_image(const Ref<Image> &p_image, const Color &p_color, bool p_scale, bool p_use_filter = true) override;
+	void set_default_clear_color(const Color &p_color) override;
 
-	virtual bool has_feature(Features p_feature) const;
+	bool has_feature(Features p_feature) const override;
 
-	virtual bool has_os_feature(const String &p_feature) const;
-	virtual void set_debug_generate_wireframes(bool p_generate);
+	bool has_os_feature(const String &p_feature) const override;
+	void set_debug_generate_wireframes(bool p_generate) override;
 
-	virtual void call_set_use_vsync(bool p_enable);
+	void call_set_use_vsync(bool p_enable) override;
 
-	virtual bool is_low_end() const;
+	bool is_low_end() const override;
 
 	VisualServerRaster();
-	~VisualServerRaster();
+	~VisualServerRaster() override;
 
 #undef DISPLAY_CHANGED
 

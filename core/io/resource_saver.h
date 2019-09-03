@@ -47,7 +47,7 @@ public:
 	~ResourceFormatSaver() override = default;
 };
 
-typedef void (*ResourceSavedCallback)(Ref<Resource> p_resource, const String &p_path);
+using ResourceSavedCallback = void (*)(Ref<Resource>, const String &);
 
 class ResourceSaver {
 

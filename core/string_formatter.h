@@ -44,7 +44,7 @@
 //using FmtBuffer = fmt::basic_memory_buffer<char,500>;
 //using FmtBuffer16 = fmt::basic_memory_buffer<char16_t,500>;
 //template <typename... Args>
-//inline String Format(const char16_t *formatString, const Args &... args)
+//inline String FormatV(const char *formatString, const Args &... args)
 //{
 //    String ret;
 //    fmt::format_to(std::back_inserter(ret), formatString, args...);
@@ -58,4 +58,4 @@
 //    return ret;
 //}
 
-#define FormatV(FMT,...) String::asprintf(FMT,__VA_ARGS__)
+#define FormatV(FMT,...) String(QString::asprintf(FMT,__VA_ARGS__))

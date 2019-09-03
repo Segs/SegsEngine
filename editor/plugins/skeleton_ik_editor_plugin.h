@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef SKELETON_IK_EDITOR_PLUGIN_H
-#define SKELETON_IK_EDITOR_PLUGIN_H
+#pragma once
 
 #include "editor/editor_node.h"
 #include "editor/editor_plugin.h"
@@ -38,7 +37,7 @@ class SkeletonIK;
 
 class SkeletonIKEditorPlugin : public EditorPlugin {
 
-	GDCLASS(SkeletonIKEditorPlugin, EditorPlugin);
+	GDCLASS(SkeletonIKEditorPlugin,EditorPlugin)
 
 	SkeletonIK *skeleton_ik;
 
@@ -52,14 +51,13 @@ protected:
 	static void _bind_methods();
 
 public:
-	virtual String get_name() const { return "SkeletonIK"; }
-	bool has_main_screen() const { return false; }
-	virtual void edit(Object *p_object);
-	virtual bool handles(Object *p_object) const;
-	virtual void make_visible(bool p_visible);
+	String get_name() const override { return "SkeletonIK"; }
+	bool has_main_screen() const override { return false; }
+	void edit(Object *p_object) override;
+	bool handles(Object *p_object) const override;
+	void make_visible(bool p_visible) override;
 
 	SkeletonIKEditorPlugin(EditorNode *p_node);
-	~SkeletonIKEditorPlugin();
+	~SkeletonIKEditorPlugin() override;
 };
 
-#endif // SKELETON_IK_EDITOR_PLUGIN_H

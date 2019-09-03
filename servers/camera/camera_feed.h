@@ -44,7 +44,8 @@
 **/
 
 class CameraFeed : public Reference {
-	GDCLASS(CameraFeed, Reference);
+	GDCLASS(CameraFeed,Reference)
+
 
 public:
 	enum FeedDataType {
@@ -97,7 +98,7 @@ public:
 
 	CameraFeed();
 	CameraFeed(String p_name, FeedPosition p_position = CameraFeed::FEED_UNSPECIFIED);
-	virtual ~CameraFeed();
+	~CameraFeed() override;
 
 	FeedDataType get_datatype() const;
 	void set_RGB_img(Ref<Image> p_rgb_img);

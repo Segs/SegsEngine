@@ -32,12 +32,13 @@
 #define BASE_BUTTON_H
 
 #include "scene/gui/control.h"
+#include "scene/gui/shortcut.h"
 
 class ButtonGroup;
 
 class BaseButton : public Control {
 
-	GDCLASS(BaseButton, Control);
+	GDCLASS(BaseButton,Control)
 
 public:
 	enum ActionMode {
@@ -123,13 +124,13 @@ public:
 	void set_shortcut(const Ref<ShortCut> &p_shortcut);
 	Ref<ShortCut> get_shortcut() const;
 
-	virtual String get_tooltip(const Point2 &p_pos) const;
+	String get_tooltip(const Point2 &p_pos) const override;
 
 	void set_button_group(const Ref<ButtonGroup> &p_group);
 	Ref<ButtonGroup> get_button_group() const;
 
 	BaseButton();
-	~BaseButton();
+	~BaseButton() override;
 };
 
 VARIANT_ENUM_CAST(BaseButton::DrawMode)
@@ -137,8 +138,9 @@ VARIANT_ENUM_CAST(BaseButton::ActionMode)
 
 class ButtonGroup : public Resource {
 
-	GDCLASS(ButtonGroup, Resource);
-	friend class BaseButton;
+	GDCLASS(ButtonGroup,Resource)
+
+                               friend class BaseButton;
 	Set<BaseButton *> buttons;
 
 protected:

@@ -36,7 +36,7 @@
 class Skeleton2D;
 
 class Bone2D : public Node2D {
-	GDCLASS(Bone2D, Node2D);
+	GDCLASS(Bone2D,Node2D)
 
 	friend class Skeleton2D;
 #ifdef TOOLS_ENABLED
@@ -60,7 +60,7 @@ public:
 	void apply_rest();
 	Transform2D get_skeleton_rest() const;
 
-	String get_configuration_warning() const;
+	String get_configuration_warning() const override;
 
 	void set_default_length(float p_length);
 	float get_default_length() const;
@@ -71,7 +71,7 @@ public:
 };
 
 class Skeleton2D : public Node2D {
-	GDCLASS(Skeleton2D, Node2D);
+	GDCLASS(Skeleton2D,Node2D)
 
 	friend class Bone2D;
 #ifdef TOOLS_ENABLED
@@ -110,7 +110,7 @@ public:
 
 	RID get_skeleton() const;
 	Skeleton2D();
-	~Skeleton2D();
+	~Skeleton2D() override;
 };
 
 #endif // SKELETON_2D_H

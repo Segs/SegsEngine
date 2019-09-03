@@ -28,13 +28,13 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef SHAPE_2D_H
-#define SHAPE_2D_H
+#pragma once
 
 #include "core/resource.h"
 
 class Shape2D : public Resource {
-	GDCLASS(Shape2D, Resource);
+	GDCLASS(Shape2D,Resource)
+
 	OBJ_SAVE_TYPE(Shape2D);
 
 	RID shape;
@@ -58,9 +58,7 @@ public:
 
 	virtual void draw(const RID &p_to_rid, const Color &p_color) {}
 	virtual Rect2 get_rect() const { return Rect2(); }
-	virtual RID get_rid() const;
+	RID get_rid() const override;
 	Shape2D();
-	~Shape2D();
+	~Shape2D() override;
 };
-
-#endif // SHAPE_2D_H

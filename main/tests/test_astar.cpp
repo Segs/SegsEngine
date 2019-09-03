@@ -57,7 +57,7 @@ public:
 	}
 
 	// Disable heuristic completely
-	float _compute_cost(int p_from, int p_to) {
+	float _compute_cost(int p_from, int p_to) override {
 		if (p_from == A && p_to == C) {
 			return 1000;
 		}

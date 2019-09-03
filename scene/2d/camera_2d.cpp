@@ -32,9 +32,12 @@
 
 #include "core/engine.h"
 #include "core/object_db.h"
+#include "core/method_bind.h"
 #include "core/math/math_funcs.h"
 #include "scene/scene_string_names.h"
 #include "servers/visual_server.h"
+
+IMPL_GDCLASS(Camera2D)
 
 void Camera2D::_update_scroll() {
 
@@ -661,77 +664,77 @@ bool Camera2D::is_margin_drawing_enabled() const {
 
 void Camera2D::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_offset", "offset"), &Camera2D::set_offset);
-    ClassDB::bind_method(D_METHOD("get_offset"), &Camera2D::get_offset);
+    MethodBinder::bind_method(D_METHOD("set_offset", "offset"), &Camera2D::set_offset);
+    MethodBinder::bind_method(D_METHOD("get_offset"), &Camera2D::get_offset);
 
-    ClassDB::bind_method(D_METHOD("set_anchor_mode", "anchor_mode"), &Camera2D::set_anchor_mode);
-    ClassDB::bind_method(D_METHOD("get_anchor_mode"), &Camera2D::get_anchor_mode);
+    MethodBinder::bind_method(D_METHOD("set_anchor_mode", "anchor_mode"), &Camera2D::set_anchor_mode);
+    MethodBinder::bind_method(D_METHOD("get_anchor_mode"), &Camera2D::get_anchor_mode);
 
-    ClassDB::bind_method(D_METHOD("set_rotating", "rotating"), &Camera2D::set_rotating);
-    ClassDB::bind_method(D_METHOD("is_rotating"), &Camera2D::is_rotating);
+    MethodBinder::bind_method(D_METHOD("set_rotating", "rotating"), &Camera2D::set_rotating);
+    MethodBinder::bind_method(D_METHOD("is_rotating"), &Camera2D::is_rotating);
 
-    ClassDB::bind_method(D_METHOD("make_current"), &Camera2D::make_current);
-    ClassDB::bind_method(D_METHOD("clear_current"), &Camera2D::clear_current);
-    ClassDB::bind_method(D_METHOD("_make_current"), &Camera2D::_make_current);
+    MethodBinder::bind_method(D_METHOD("make_current"), &Camera2D::make_current);
+    MethodBinder::bind_method(D_METHOD("clear_current"), &Camera2D::clear_current);
+    MethodBinder::bind_method(D_METHOD("_make_current"), &Camera2D::_make_current);
 
-    ClassDB::bind_method(D_METHOD("_update_scroll"), &Camera2D::_update_scroll);
+    MethodBinder::bind_method(D_METHOD("_update_scroll"), &Camera2D::_update_scroll);
 
-    ClassDB::bind_method(D_METHOD("set_process_mode", "mode"), &Camera2D::set_process_mode);
-    ClassDB::bind_method(D_METHOD("get_process_mode"), &Camera2D::get_process_mode);
+    MethodBinder::bind_method(D_METHOD("set_process_mode", "mode"), &Camera2D::set_process_mode);
+    MethodBinder::bind_method(D_METHOD("get_process_mode"), &Camera2D::get_process_mode);
 
-    ClassDB::bind_method(D_METHOD("_set_current", "current"), &Camera2D::_set_current);
-    ClassDB::bind_method(D_METHOD("is_current"), &Camera2D::is_current);
+    MethodBinder::bind_method(D_METHOD("_set_current", "current"), &Camera2D::_set_current);
+    MethodBinder::bind_method(D_METHOD("is_current"), &Camera2D::is_current);
 
-    ClassDB::bind_method(D_METHOD("set_limit", "margin", "limit"), &Camera2D::set_limit);
-    ClassDB::bind_method(D_METHOD("get_limit", "margin"), &Camera2D::get_limit);
+    MethodBinder::bind_method(D_METHOD("set_limit", "margin", "limit"), &Camera2D::set_limit);
+    MethodBinder::bind_method(D_METHOD("get_limit", "margin"), &Camera2D::get_limit);
 
-    ClassDB::bind_method(D_METHOD("set_limit_smoothing_enabled", "limit_smoothing_enabled"), &Camera2D::set_limit_smoothing_enabled);
-    ClassDB::bind_method(D_METHOD("is_limit_smoothing_enabled"), &Camera2D::is_limit_smoothing_enabled);
+    MethodBinder::bind_method(D_METHOD("set_limit_smoothing_enabled", "limit_smoothing_enabled"), &Camera2D::set_limit_smoothing_enabled);
+    MethodBinder::bind_method(D_METHOD("is_limit_smoothing_enabled"), &Camera2D::is_limit_smoothing_enabled);
 
-    ClassDB::bind_method(D_METHOD("set_v_drag_enabled", "enabled"), &Camera2D::set_v_drag_enabled);
-    ClassDB::bind_method(D_METHOD("is_v_drag_enabled"), &Camera2D::is_v_drag_enabled);
+    MethodBinder::bind_method(D_METHOD("set_v_drag_enabled", "enabled"), &Camera2D::set_v_drag_enabled);
+    MethodBinder::bind_method(D_METHOD("is_v_drag_enabled"), &Camera2D::is_v_drag_enabled);
 
-    ClassDB::bind_method(D_METHOD("set_h_drag_enabled", "enabled"), &Camera2D::set_h_drag_enabled);
-    ClassDB::bind_method(D_METHOD("is_h_drag_enabled"), &Camera2D::is_h_drag_enabled);
+    MethodBinder::bind_method(D_METHOD("set_h_drag_enabled", "enabled"), &Camera2D::set_h_drag_enabled);
+    MethodBinder::bind_method(D_METHOD("is_h_drag_enabled"), &Camera2D::is_h_drag_enabled);
 
-    ClassDB::bind_method(D_METHOD("set_v_offset", "ofs"), &Camera2D::set_v_offset);
-    ClassDB::bind_method(D_METHOD("get_v_offset"), &Camera2D::get_v_offset);
+    MethodBinder::bind_method(D_METHOD("set_v_offset", "ofs"), &Camera2D::set_v_offset);
+    MethodBinder::bind_method(D_METHOD("get_v_offset"), &Camera2D::get_v_offset);
 
-    ClassDB::bind_method(D_METHOD("set_h_offset", "ofs"), &Camera2D::set_h_offset);
-    ClassDB::bind_method(D_METHOD("get_h_offset"), &Camera2D::get_h_offset);
+    MethodBinder::bind_method(D_METHOD("set_h_offset", "ofs"), &Camera2D::set_h_offset);
+    MethodBinder::bind_method(D_METHOD("get_h_offset"), &Camera2D::get_h_offset);
 
-    ClassDB::bind_method(D_METHOD("set_drag_margin", "margin", "drag_margin"), &Camera2D::set_drag_margin);
-    ClassDB::bind_method(D_METHOD("get_drag_margin", "margin"), &Camera2D::get_drag_margin);
+    MethodBinder::bind_method(D_METHOD("set_drag_margin", "margin", "drag_margin"), &Camera2D::set_drag_margin);
+    MethodBinder::bind_method(D_METHOD("get_drag_margin", "margin"), &Camera2D::get_drag_margin);
 
-    ClassDB::bind_method(D_METHOD("get_camera_position"), &Camera2D::get_camera_position);
-    ClassDB::bind_method(D_METHOD("get_camera_screen_center"), &Camera2D::get_camera_screen_center);
+    MethodBinder::bind_method(D_METHOD("get_camera_position"), &Camera2D::get_camera_position);
+    MethodBinder::bind_method(D_METHOD("get_camera_screen_center"), &Camera2D::get_camera_screen_center);
 
-    ClassDB::bind_method(D_METHOD("set_zoom", "zoom"), &Camera2D::set_zoom);
-    ClassDB::bind_method(D_METHOD("get_zoom"), &Camera2D::get_zoom);
+    MethodBinder::bind_method(D_METHOD("set_zoom", "zoom"), &Camera2D::set_zoom);
+    MethodBinder::bind_method(D_METHOD("get_zoom"), &Camera2D::get_zoom);
 
-    ClassDB::bind_method(D_METHOD("set_custom_viewport", "viewport"), &Camera2D::set_custom_viewport);
-    ClassDB::bind_method(D_METHOD("get_custom_viewport"), &Camera2D::get_custom_viewport);
+    MethodBinder::bind_method(D_METHOD("set_custom_viewport", "viewport"), &Camera2D::set_custom_viewport);
+    MethodBinder::bind_method(D_METHOD("get_custom_viewport"), &Camera2D::get_custom_viewport);
 
-    ClassDB::bind_method(D_METHOD("set_follow_smoothing", "follow_smoothing"), &Camera2D::set_follow_smoothing);
-    ClassDB::bind_method(D_METHOD("get_follow_smoothing"), &Camera2D::get_follow_smoothing);
+    MethodBinder::bind_method(D_METHOD("set_follow_smoothing", "follow_smoothing"), &Camera2D::set_follow_smoothing);
+    MethodBinder::bind_method(D_METHOD("get_follow_smoothing"), &Camera2D::get_follow_smoothing);
 
-    ClassDB::bind_method(D_METHOD("set_enable_follow_smoothing", "follow_smoothing"), &Camera2D::set_enable_follow_smoothing);
-    ClassDB::bind_method(D_METHOD("is_follow_smoothing_enabled"), &Camera2D::is_follow_smoothing_enabled);
+    MethodBinder::bind_method(D_METHOD("set_enable_follow_smoothing", "follow_smoothing"), &Camera2D::set_enable_follow_smoothing);
+    MethodBinder::bind_method(D_METHOD("is_follow_smoothing_enabled"), &Camera2D::is_follow_smoothing_enabled);
 
-    ClassDB::bind_method(D_METHOD("force_update_scroll"), &Camera2D::force_update_scroll);
-    ClassDB::bind_method(D_METHOD("reset_smoothing"), &Camera2D::reset_smoothing);
-    ClassDB::bind_method(D_METHOD("align"), &Camera2D::align);
+    MethodBinder::bind_method(D_METHOD("force_update_scroll"), &Camera2D::force_update_scroll);
+    MethodBinder::bind_method(D_METHOD("reset_smoothing"), &Camera2D::reset_smoothing);
+    MethodBinder::bind_method(D_METHOD("align"), &Camera2D::align);
 
-    ClassDB::bind_method(D_METHOD("_set_old_smoothing", "follow_smoothing"), &Camera2D::_set_old_smoothing);
+    MethodBinder::bind_method(D_METHOD("_set_old_smoothing", "follow_smoothing"), &Camera2D::_set_old_smoothing);
 
-    ClassDB::bind_method(D_METHOD("set_screen_drawing_enabled", "screen_drawing_enabled"), &Camera2D::set_screen_drawing_enabled);
-    ClassDB::bind_method(D_METHOD("is_screen_drawing_enabled"), &Camera2D::is_screen_drawing_enabled);
+    MethodBinder::bind_method(D_METHOD("set_screen_drawing_enabled", "screen_drawing_enabled"), &Camera2D::set_screen_drawing_enabled);
+    MethodBinder::bind_method(D_METHOD("is_screen_drawing_enabled"), &Camera2D::is_screen_drawing_enabled);
 
-    ClassDB::bind_method(D_METHOD("set_limit_drawing_enabled", "limit_drawing_enabled"), &Camera2D::set_limit_drawing_enabled);
-    ClassDB::bind_method(D_METHOD("is_limit_drawing_enabled"), &Camera2D::is_limit_drawing_enabled);
+    MethodBinder::bind_method(D_METHOD("set_limit_drawing_enabled", "limit_drawing_enabled"), &Camera2D::set_limit_drawing_enabled);
+    MethodBinder::bind_method(D_METHOD("is_limit_drawing_enabled"), &Camera2D::is_limit_drawing_enabled);
 
-    ClassDB::bind_method(D_METHOD("set_margin_drawing_enabled", "margin_drawing_enabled"), &Camera2D::set_margin_drawing_enabled);
-    ClassDB::bind_method(D_METHOD("is_margin_drawing_enabled"), &Camera2D::is_margin_drawing_enabled);
+    MethodBinder::bind_method(D_METHOD("set_margin_drawing_enabled", "margin_drawing_enabled"), &Camera2D::set_margin_drawing_enabled);
+    MethodBinder::bind_method(D_METHOD("is_margin_drawing_enabled"), &Camera2D::is_margin_drawing_enabled);
 
     ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "offset"), "set_offset", "get_offset");
     ADD_PROPERTY(PropertyInfo(Variant::INT, "anchor_mode", PROPERTY_HINT_ENUM, "Fixed TopLeft,Drag Center"), "set_anchor_mode", "get_anchor_mode");

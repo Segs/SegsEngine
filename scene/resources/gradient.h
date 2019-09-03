@@ -34,7 +34,7 @@
 #include "core/resource.h"
 
 class Gradient : public Resource {
-	GDCLASS(Gradient, Resource);
+	GDCLASS(Gradient,Resource)
 	OBJ_SAVE_TYPE(Gradient);
 
 public:
@@ -56,7 +56,7 @@ protected:
 
 public:
 	Gradient();
-	virtual ~Gradient();
+	~Gradient() override;
 
 	void add_point(float p_offset, const Color &p_color);
 	void remove_point(int p_index);

@@ -56,7 +56,7 @@ class EditorToolAddons;
 class ScriptEditor;
 
 class EditorInterface : public Node {
-	GDCLASS(EditorInterface, Node);
+	GDCLASS(EditorInterface,Node)
 
 protected:
 	static void _bind_methods();
@@ -107,8 +107,9 @@ public:
 
 class EditorPlugin : public Node {
 
-	GDCLASS(EditorPlugin, Node);
-	friend class EditorData;
+	GDCLASS(EditorPlugin,Node)
+
+    friend class EditorData;
 	UndoRedo *undo_redo;
 
 	UndoRedo *_get_undo_redo() { return undo_redo; }
@@ -239,7 +240,7 @@ public:
 	void disable_plugin();
 
 	EditorPlugin();
-	virtual ~EditorPlugin();
+	~EditorPlugin() override;
 };
 
 VARIANT_ENUM_CAST(EditorPlugin::CustomControlContainer);

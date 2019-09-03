@@ -32,6 +32,7 @@
 
 #include "core/reference.h"
 #include "core/variant.h"
+#include "core/ustring.h"
 
 #ifdef __cplusplus
 extern "C" {

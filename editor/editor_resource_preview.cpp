@@ -30,8 +30,7 @@
 
 #include "editor_resource_preview.h"
 
-#include "method_bind_ext.gen.h"
-
+#include "core/method_bind.h"
 #include "core/io/resource_loader.h"
 #include "core/io/resource_saver.h"
 #include "core/message_queue.h"
@@ -40,6 +39,9 @@
 #include "editor_node.h"
 #include "editor_scale.h"
 #include "editor_settings.h"
+
+IMPL_GDCLASS(EditorResourcePreviewGenerator)
+IMPL_GDCLASS(EditorResourcePreview)
 
 bool EditorResourcePreviewGenerator::handles(const String &p_type) const {
 
@@ -89,11 +91,11 @@ bool EditorResourcePreviewGenerator::can_generate_small_preview() const {
 
 void EditorResourcePreviewGenerator::_bind_methods() {
 
-    ClassDB::add_virtual_method(get_class_static(), MethodInfo(Variant::BOOL, "handles", PropertyInfo(Variant::STRING, "type")));
-    ClassDB::add_virtual_method(get_class_static(), MethodInfo(CLASS_INFO(Texture), "generate", PropertyInfo(Variant::OBJECT, "from", PROPERTY_HINT_RESOURCE_TYPE, "Resource"), PropertyInfo(Variant::VECTOR2, "size")));
-    ClassDB::add_virtual_method(get_class_static(), MethodInfo(CLASS_INFO(Texture), "generate_from_path", PropertyInfo(Variant::STRING, "path", PROPERTY_HINT_FILE), PropertyInfo(Variant::VECTOR2, "size")));
-    ClassDB::add_virtual_method(get_class_static(), MethodInfo(Variant::BOOL, "generate_small_preview_automatically"));
-    ClassDB::add_virtual_method(get_class_static(), MethodInfo(Variant::BOOL, "can_generate_small_preview"));
+    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(Variant::BOOL, "handles", PropertyInfo(Variant::STRING, "type")));
+    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(CLASS_INFO(Texture), "generate", PropertyInfo(Variant::OBJECT, "from", PROPERTY_HINT_RESOURCE_TYPE, "Resource"), PropertyInfo(Variant::VECTOR2, "size")));
+    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(CLASS_INFO(Texture), "generate_from_path", PropertyInfo(Variant::STRING, "path", PROPERTY_HINT_FILE), PropertyInfo(Variant::VECTOR2, "size")));
+    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(Variant::BOOL, "generate_small_preview_automatically"));
+    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(Variant::BOOL, "can_generate_small_preview"));
 }
 
 EditorResourcePreviewGenerator::EditorResourcePreviewGenerator() {
@@ -115,9 +117,9 @@ void EditorResourcePreview::_preview_ready(const String &p_str, const Ref<Textur
     uint32_t hash = 0;
     uint64_t modified_time = 0;
 
-    if (p_str.begins_with("ID:")) {
-        hash = p_str.get_slicec(':', 2).to_int();
-        path = "ID:" + p_str.get_slicec(':', 1);
+    if (StringUtils::begins_with(p_str,"ID:")) {
+        hash = StringUtils::to_int(StringUtils::get_slice(p_str,':', 2));
+        path = "ID:" + StringUtils::get_slice(p_str,':', 1);
     } else {
         modified_time = FileAccess::get_modified_time(path);
     }
@@ -271,9 +273,9 @@ void EditorResourcePreview::_thread() {
                     } else {
 
                         uint64_t modtime = FileAccess::get_modified_time(item.path);
-                        int tsize = f->get_line().to_int64();
-                        bool has_small_texture = f->get_line().to_int();
-                        uint64_t last_modtime = f->get_line().to_int64();
+                        int tsize = StringUtils::to_int64(f->get_line());
+                        bool has_small_texture = StringUtils::to_int(f->get_line());
+                        uint64_t last_modtime = StringUtils::to_int64(f->get_line());
 
                         bool cache_valid = true;
 
@@ -416,13 +418,13 @@ EditorResourcePreview *EditorResourcePreview::get_singleton() {
 
 void EditorResourcePreview::_bind_methods() {
 
-    ClassDB::bind_method("_preview_ready", &EditorResourcePreview::_preview_ready);
+    MethodBinder::bind_method("_preview_ready", &EditorResourcePreview::_preview_ready);
 
-    ClassDB::bind_method(D_METHOD("queue_resource_preview", "path", "receiver", "receiver_func", "userdata"), &EditorResourcePreview::queue_resource_preview);
-    ClassDB::bind_method(D_METHOD("queue_edited_resource_preview", "resource", "receiver", "receiver_func", "userdata"), &EditorResourcePreview::queue_edited_resource_preview);
-    ClassDB::bind_method(D_METHOD("add_preview_generator", "generator"), &EditorResourcePreview::add_preview_generator);
-    ClassDB::bind_method(D_METHOD("remove_preview_generator", "generator"), &EditorResourcePreview::remove_preview_generator);
-    ClassDB::bind_method(D_METHOD("check_for_invalidation", "path"), &EditorResourcePreview::check_for_invalidation);
+    MethodBinder::bind_method(D_METHOD("queue_resource_preview", "path", "receiver", "receiver_func", "userdata"), &EditorResourcePreview::queue_resource_preview);
+    MethodBinder::bind_method(D_METHOD("queue_edited_resource_preview", "resource", "receiver", "receiver_func", "userdata"), &EditorResourcePreview::queue_edited_resource_preview);
+    MethodBinder::bind_method(D_METHOD("add_preview_generator", "generator"), &EditorResourcePreview::add_preview_generator);
+    MethodBinder::bind_method(D_METHOD("remove_preview_generator", "generator"), &EditorResourcePreview::remove_preview_generator);
+    MethodBinder::bind_method(D_METHOD("check_for_invalidation", "path"), &EditorResourcePreview::check_for_invalidation);
 
     ADD_SIGNAL(MethodInfo("preview_invalidated", PropertyInfo(Variant::STRING, "path")));
 }

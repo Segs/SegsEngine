@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef INSTANCE_PLACEHOLDER_H
-#define INSTANCE_PLACEHOLDER_H
+#pragma once
 
 #include "scene/main/node.h"
 
@@ -37,7 +36,7 @@ class PackedScene;
 
 class InstancePlaceholder : public Node {
 
-	GDCLASS(InstancePlaceholder, Node);
+	GDCLASS(InstancePlaceholder,Node)
 
 	String path;
 	struct PropSet {
@@ -65,5 +64,3 @@ public:
 
 	InstancePlaceholder();
 };
-
-#endif // INSTANCE_PLACEHOLDER_H

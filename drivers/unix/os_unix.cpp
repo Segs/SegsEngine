@@ -155,7 +155,7 @@ void OS_Unix::finalize_core() {
 
 void OS_Unix::alert(const String &p_alert, const String &p_title) {
 
-    fprintf(stderr, "ERROR: %s\n", qPrintable(p_alert));
+    fprintf(stderr, "ERROR: %s\n", qPrintable(p_alert.m_str));
 }
 
 String OS_Unix::get_stdin_string(bool p_block) {
@@ -298,9 +298,9 @@ Error OS_Unix::execute(const String &p_path, const List<String> &p_arguments, bo
         } else {
             argss += " 2>/dev/null"; //silence stderr
         }
-        FILE *f = popen(qPrintable(argss), "r");
+        FILE *f = popen(qPrintable(argss.m_str), "r");
 
-        ERR_FAIL_COND_V(!f, ERR_CANT_OPEN);
+        ERR_FAIL_COND_V(!f, ERR_CANT_OPEN)
 
         char buf[65535];
 
@@ -322,7 +322,7 @@ Error OS_Unix::execute(const String &p_path, const List<String> &p_arguments, bo
     }
 
     pid_t pid = fork();
-    ERR_FAIL_COND_V(pid < 0, ERR_CANT_FORK);
+    ERR_FAIL_COND_V(pid < 0, ERR_CANT_FORK)
 
     if (pid == 0) {
         // is child
@@ -334,18 +334,18 @@ Error OS_Unix::execute(const String &p_path, const List<String> &p_arguments, bo
         }
 
         Vector<CharString> cs;
-        cs.push_back(p_path.utf8());
+        cs.push_back(StringUtils::to_utf8(p_path));
         for (int i = 0; i < p_arguments.size(); i++)
-            cs.push_back(p_arguments[i].utf8());
+            cs.push_back(StringUtils::to_utf8(p_arguments[i]));
 
         Vector<char *> args;
         for (int i = 0; i < cs.size(); i++)
             args.push_back((char *)cs[i].data());
-        args.push_back(0);
+        args.push_back(nullptr);
 
-        execvp(qPrintable(p_path), &args[0]);
+        execvp(qPrintable(p_path.m_str), &args[0]);
         // still alive? something failed..
-        fprintf(stderr, "**ERROR** OS_Unix::execute - Could not create child process while executing: %s\n", qPrintable(p_path));
+        fprintf(stderr, "**ERROR** OS_Unix::execute - Could not create child process while executing: %s\n", qPrintable(p_path.m_str));
         abort();
     }
 
@@ -384,7 +384,7 @@ int OS_Unix::get_process_id() const {
 
 bool OS_Unix::has_environment(const String &p_var) const {
 
-    return getenv(qPrintable(p_var)) != nullptr;
+    return getenv(qPrintable(p_var.m_str)) != nullptr;
 }
 
 String OS_Unix::get_locale() const {
@@ -393,9 +393,9 @@ String OS_Unix::get_locale() const {
         return "en";
 
     String locale = get_environment("LANG");
-    int tp = locale.find(".");
+    int tp = StringUtils::find(locale,".");
     if (tp != -1)
-        locale = locale.substr(0, tp);
+        locale = StringUtils::substr(locale,0, tp);
     return locale;
 }
 
@@ -403,7 +403,7 @@ Error OS_Unix::open_dynamic_library(const String p_path, void *&p_library_handle
 
     String path = p_path;
 
-	if (FileAccess::exists(path) && PathUtils::is_rel_path(path)) {
+    if (FileAccess::exists(path) && PathUtils::is_rel_path(path)) {
         // dlopen expects a slash, in this case a leading ./ for it to be interpreted as a relative path,
         //  otherwise it will end up searching various system directories for the lib instead and finally failing.
         path = "./" + path;
@@ -411,15 +411,15 @@ Error OS_Unix::open_dynamic_library(const String p_path, void *&p_library_handle
 
     if (!FileAccess::exists(path)) {
         //this code exists so gdnative can load .so files from within the executable path
-		path = PathUtils::plus_file(PathUtils::get_base_dir(get_executable_path()),PathUtils::get_file(p_path));
+        path = PathUtils::plus_file(PathUtils::get_base_dir(get_executable_path()),PathUtils::get_file(p_path));
     }
 
     if (!FileAccess::exists(path)) {
         //this code exists so gdnative can load .so files from a standard unix location
-		path = PathUtils::plus_file(PathUtils::plus_file(PathUtils::get_base_dir(get_executable_path()),"../lib"),PathUtils::get_file(p_path));
+        path = PathUtils::plus_file(PathUtils::plus_file(PathUtils::get_base_dir(get_executable_path()),"../lib"),PathUtils::get_file(p_path));
     }
 
-    p_library_handle = dlopen(qPrintable(path), RTLD_NOW);
+    p_library_handle = dlopen(qPrintable(path.m_str), RTLD_NOW);
     ERR_FAIL_COND_V_MSG(!p_library_handle, ERR_CANT_OPEN, "Can't open dynamic library: " + p_path + ". Error: " + dlerror());
     return OK;
 }
@@ -435,7 +435,7 @@ Error OS_Unix::get_dynamic_library_symbol_handle(void *p_library_handle, const S
     const char *error;
     dlerror(); // Clear existing errors
 
-    p_symbol_handle = dlsym(p_library_handle, qPrintable(p_name));
+    p_symbol_handle = dlsym(p_library_handle, qPrintable(p_name.m_str));
 
     error = dlerror();
     if (error != nullptr) {
@@ -448,7 +448,7 @@ Error OS_Unix::get_dynamic_library_symbol_handle(void *p_library_handle, const S
 
 Error OS_Unix::set_cwd(const String &p_cwd) {
 
-    if (chdir(qPrintable(p_cwd)) != 0)
+    if (chdir(qPrintable(p_cwd.m_str)) != 0)
         return ERR_CANT_OPEN;
 
     return OK;
@@ -456,14 +456,14 @@ Error OS_Unix::set_cwd(const String &p_cwd) {
 
 String OS_Unix::get_environment(const String &p_var) const {
 
-    if (getenv(qPrintable(p_var)))
-        return getenv(qPrintable(p_var));
+    if (getenv(qPrintable(p_var.m_str)))
+        return getenv(qPrintable(p_var.m_str));
     return "";
 }
 
 bool OS_Unix::set_environment(const String &p_var, const String &p_value) const {
 
-    return setenv(qPrintable(p_var), qPrintable(p_value), /* overwrite: */ true) == 0;
+    return setenv(qPrintable(p_var.m_str), qPrintable(p_value.m_str), /* overwrite: */ true) == 0;
 }
 
 int OS_Unix::get_processor_count() const {
@@ -481,9 +481,9 @@ String OS_Unix::get_user_data_dir() const {
             if (custom_dir == "") {
                 custom_dir = appname;
             }
-			return PathUtils::plus_file(get_data_path(),custom_dir);
+            return PathUtils::plus_file(get_data_path(),custom_dir);
         } else {
-			return PathUtils::plus_file(PathUtils::plus_file(PathUtils::plus_file(get_data_path(),get_godot_dir_name()),"app_userdata"),appname);
+            return PathUtils::plus_file(PathUtils::plus_file(PathUtils::plus_file(get_data_path(),get_godot_dir_name()),"app_userdata"),appname);
         }
     }
 
@@ -499,10 +499,10 @@ String OS_Unix::get_executable_path() const {
     ssize_t len = readlink("/proc/self/exe", buf, sizeof(buf));
     String b;
     if (len > 0) {
-        b.parse_utf8(buf, len);
+        StringUtils::parse_utf8(b,buf, len);
     }
     if (b == "") {
-        WARN_PRINT("Couldn't get executable path from /proc/self/exe, using argv[0]");
+        WARN_PRINT("Couldn't get executable path from /proc/self/exe, using argv[0]")
         return OS::get_executable_path();
     }
     return b;
@@ -556,21 +556,21 @@ void UnixTerminalLogger::log_error(const char *p_function, const char *p_file, i
 
     switch (p_type) {
         case ERR_WARNING:
-            logf_error(FormatV("\E[1;33mWARNING: %s: \E[0m\E[1m%s\n", p_function, err_details).constData());
-            logf_error(FormatV("\E[0;33m   At: %s:%i.\E[0m\n", p_file, p_line).constData());
+            logf_error(FormatV("\E[1;33mWARNING: %s: \E[0m\E[1m%s\n", p_function, err_details).cdata());
+            logf_error(FormatV("\E[0;33m   At: %s:%i.\E[0m\n", p_file, p_line).cdata());
             break;
         case ERR_SCRIPT:
-            logf_error(FormatV("\E[1;35mSCRIPT ERROR: %s: \E[0m\E[1m%s\n", p_function, err_details).constData());
-            logf_error(FormatV("\E[0;35m   At: %s:%i.\E[0m\n", p_file, p_line).constData());
+            logf_error(FormatV("\E[1;35mSCRIPT ERROR: %s: \E[0m\E[1m%s\n", p_function, err_details).cdata());
+            logf_error(FormatV("\E[0;35m   At: %s:%i.\E[0m\n", p_file, p_line).cdata());
             break;
         case ERR_SHADER:
-            logf_error(FormatV("\E[1;36mSHADER ERROR: %s: \E[0m\E[1m%s\n", p_function, err_details).constData());
-            logf_error(FormatV("\E[0;36m   At: %s:%i.\E[0m\n", p_file, p_line).constData());
+            logf_error(FormatV("\E[1;36mSHADER ERROR: %s: \E[0m\E[1m%s\n", p_function, err_details).cdata());
+            logf_error(FormatV("\E[0;36m   At: %s:%i.\E[0m\n", p_file, p_line).cdata());
             break;
         case ERR_ERROR:
         default:
-            logf_error(FormatV("\E[1;31mERROR: %s: \E[0m\E[1m%s\n", p_function, err_details).constData());
-            logf_error(FormatV("\E[0;31m   At: %s:%i.\E[0m\n", p_file, p_line).constData());
+            logf_error(FormatV("\E[1;31mERROR: %s: \E[0m\E[1m%s\n", p_function, err_details).cdata());
+            logf_error(FormatV("\E[0;31m   At: %s:%i.\E[0m\n", p_file, p_line).cdata());
             break;
     }
 }

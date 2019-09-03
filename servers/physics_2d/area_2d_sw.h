@@ -102,7 +102,7 @@ class Area2DSW : public CollisionObject2DSW {
 	//virtual void shape_deleted_notify(Shape2DSW *p_shape);
 	Set<Constraint2DSW *> constraints;
 
-	virtual void _shapes_changed();
+	void _shapes_changed() override;
 	void _queue_monitor_update();
 
 public:
@@ -161,12 +161,12 @@ public:
 
 	void set_transform(const Transform2D &p_transform);
 
-	void set_space(Space2DSW *p_space);
+	void set_space(Space2DSW *p_space) override;
 
 	void call_queries();
 
 	Area2DSW();
-	~Area2DSW();
+	~Area2DSW() override;
 };
 
 void Area2DSW::add_body_to_query(Body2DSW *p_body, uint32_t p_body_shape, uint32_t p_area_shape) {

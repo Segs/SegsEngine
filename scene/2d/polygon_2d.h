@@ -35,7 +35,7 @@
 
 class Polygon2D : public Node2D {
 
-	GDCLASS(Polygon2D, Node2D);
+	GDCLASS(Polygon2D,Node2D)
 
 	PoolVector<Vector2> polygon;
 	PoolVector<Vector2> uv;
@@ -77,16 +77,16 @@ protected:
 	static void _bind_methods();
 
 public:
-	virtual Dictionary _edit_get_state() const;
-	virtual void _edit_set_state(const Dictionary &p_state);
+	Dictionary _edit_get_state() const override;
+	void _edit_set_state(const Dictionary &p_state) override;
 
-	virtual void _edit_set_pivot(const Point2 &p_pivot);
-	virtual Point2 _edit_get_pivot() const;
-	virtual bool _edit_use_pivot() const;
-	virtual Rect2 _edit_get_rect() const;
-	virtual bool _edit_use_rect() const;
+	void _edit_set_pivot(const Point2 &p_pivot) override;
+	Point2 _edit_get_pivot() const override;
+	bool _edit_use_pivot() const override;
+	Rect2 _edit_get_rect() const override;
+	bool _edit_use_rect() const override;
 
-	virtual bool _edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const;
+	bool _edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const override;
 
 	void set_polygon(const PoolVector<Vector2> &p_polygon);
 	PoolVector<Vector2> get_polygon() const;

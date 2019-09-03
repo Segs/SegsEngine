@@ -43,7 +43,7 @@ class ProjectList;
 class ProjectListFilter;
 
 class ProjectManager : public Control {
-	GDCLASS(ProjectManager, Control);
+	GDCLASS(ProjectManager,Control)
 
 	Button *erase_btn;
 	Button *erase_missing_btn;
@@ -96,6 +96,7 @@ class ProjectManager : public Control {
 	void _restart_confirm();
 	void _exit_dialog();
 	void _scan_begin(const String &p_base);
+	void _global_menu_action(const Variant &p_id, const Variant &p_meta);
 
 	void _confirm_update_settings();
 
@@ -121,12 +122,12 @@ protected:
 
 public:
 	ProjectManager();
-	~ProjectManager();
+	~ProjectManager() override;
 };
 
 class ProjectListFilter : public HBoxContainer {
 
-	GDCLASS(ProjectListFilter, HBoxContainer);
+	GDCLASS(ProjectListFilter,HBoxContainer)
 
 public:
 	enum FilterOption {

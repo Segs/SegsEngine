@@ -37,7 +37,7 @@
 
 class EditorAutoloadSettings : public VBoxContainer {
 
-	GDCLASS(EditorAutoloadSettings, VBoxContainer);
+	GDCLASS(EditorAutoloadSettings,VBoxContainer)
 
 	enum {
 		BUTTON_OPEN,
@@ -103,7 +103,7 @@ public:
 	void autoload_remove(const String &p_name);
 
 	EditorAutoloadSettings();
-	~EditorAutoloadSettings();
+	~EditorAutoloadSettings() override;
 };
 
 #endif

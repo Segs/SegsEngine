@@ -34,19 +34,17 @@
 #include "core/math/transform_2d.h"
 #include "core/rid.h"
 #include "scene/2d/canvas_item.h"
-#include "scene/gui/shortcut.h"
-#include "scene/main/node.h"
-#include "scene/main/timer.h"
-#include "scene/resources/theme.h"
 
 class Viewport;
 class Label;
 class Panel;
+class Theme;
 
 class Control : public CanvasItem {
 
-	GDCLASS(Control, CanvasItem);
-	OBJ_CATEGORY("GUI Nodes");
+	GDCLASS(Control,CanvasItem)
+
+	OBJ_CATEGORY("GUI Nodes")
 
 public:
 	enum Anchor {
@@ -283,7 +281,7 @@ public:
 	void _edit_set_state(const Dictionary &p_state) override;
 
 	void _edit_set_position(const Point2 &p_position) override;
-	virtual Point2 _edit_get_position() const;
+	Point2 _edit_get_position() const override;
 
 	void _edit_set_scale(const Size2 &p_scale) override;
 	Size2 _edit_get_scale() const override;

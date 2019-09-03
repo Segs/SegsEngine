@@ -70,7 +70,7 @@ static PluginHolder s_plugins;
 
 static void load_image_loader_plugins() {
     print_line("Retrieving statically linked plugins");
-    auto ents = QPluginLoader::staticPlugins();
+
     for (QObject *ob : QPluginLoader::staticInstances()) {
         auto image_loader_interface = qobject_cast<ImageFormatLoader *>(ob);
         if (image_loader_interface) {
@@ -83,7 +83,7 @@ static void load_image_loader_plugins() {
         }
     }
     String exepath = OS::get_singleton()->get_executable_path();
-    auto z = QFileInfo(exepath).path();
+	auto z = QFileInfo(exepath.m_str).path();
     QDir plugins_dir(z+"/plugins");
     QCoreApplication::addLibraryPath( z+"/plugins" );
     for (QString filename : plugins_dir.entryList(QDir::Files)) {

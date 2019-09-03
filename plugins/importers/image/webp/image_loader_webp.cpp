@@ -52,12 +52,12 @@ static PoolVector<uint8_t> _webp_lossy_pack(const ImageData &p_image, float p_qu
     size_t dst_size = 0;
     if (p_image.format == ImageData::FORMAT_RGB8) {
 
-        dst_size = WebPEncodeRGB(r.ptr(), s.width, s.height, 3 * s.width, CLAMP(p_quality * 100.0, 0, 100.0), &dst_buff);
+        dst_size = WebPEncodeRGB(r.ptr(), s.width, s.height, 3 * s.width, CLAMP(p_quality * 100.0f, 0, 100.0), &dst_buff);
     } else {
-        dst_size = WebPEncodeRGBA(r.ptr(), s.width, s.height, 4 * s.width, CLAMP(p_quality * 100.0, 0, 100.0), &dst_buff);
+        dst_size = WebPEncodeRGBA(r.ptr(), s.width, s.height, 4 * s.width, CLAMP(p_quality * 100.0f, 0, 100.0), &dst_buff);
     }
 
-    ERR_FAIL_COND_V(dst_size == 0, PoolVector<uint8_t>());
+    ERR_FAIL_COND_V(dst_size == 0, PoolVector<uint8_t>())
     PoolVector<uint8_t> dst;
     dst.resize(4 + dst_size);
     PoolVector<uint8_t>::Write w = dst.write();
@@ -90,7 +90,7 @@ Error webp_load_image_from_buffer(ImageData &p_image, const uint8_t *p_buffer, i
     }
     dst_w.release();
 
-    ERR_FAIL_COND_V_MSG(errdec, ERR_FILE_CORRUPT, "Failed decoding WebP image.")
+    ERR_FAIL_COND_V_CMSG(errdec, ERR_FILE_CORRUPT, "Failed decoding WebP image.")
 
     p_image.width=features.width;
     p_image.height=features.height;
@@ -143,7 +143,7 @@ bool ImageLoaderWEBP::can_save(const String &extension)
 
 void ImageLoaderWEBP::get_recognized_extensions(List<String> *p_extensions) const {
 
-    p_extensions->push_back("webp");
+    p_extensions->push_back(String("webp"));
 }
 
 ImageLoaderWEBP::ImageLoaderWEBP() {

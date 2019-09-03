@@ -57,7 +57,7 @@ enum ErrorHandlerType {
     ERR_HANDLER_SHADER,
 };
 
-typedef void (*ErrorHandlerFunc)(void *, const char *, const char *, int p_line, const char *, const char *, ErrorHandlerType p_type);
+using ErrorHandlerFunc = void (*)(void *, const char *, const char *, int, const char *, const char *, ErrorHandlerType);
 GODOT_EXPORT void _err_set_last_error(const char *p_err);
 GODOT_EXPORT void _err_clear_last_error();
 
@@ -80,7 +80,7 @@ GODOT_EXPORT void remove_error_handler(ErrorHandlerList *p_handler);
 
 GODOT_EXPORT void _err_print_error(const char *p_function, const char *p_file, int p_line, const char *p_error,
         ErrorHandlerType p_type = ERR_HANDLER_ERROR);
-GODOT_EXPORT void _err_print_error(const char *p_function, const char *p_file, int p_line, const QString &p_error,
+GODOT_EXPORT void _err_print_error(const char *p_function, const char *p_file, int p_line, const class String &p_error,
         ErrorHandlerType p_type = ERR_HANDLER_ERROR);
 GODOT_EXPORT void _err_print_index_error(const char *p_function, const char *p_file, int p_line, int64_t p_index,
         int64_t p_size, const char *p_index_str, const char *p_size_str, bool fatal = false);
@@ -105,7 +105,7 @@ extern GODOT_EXPORT bool _err_error_exists;
     }
 #define ERR_EXPLAIN(m_string)                                    \
     {                                                            \
-        _err_set_last_error(String(m_string).utf8().data()); \
+        _err_set_last_error(StringUtils::utf8(m_string).data()); \
     }
 
 #else
@@ -276,6 +276,10 @@ extern GODOT_EXPORT bool _err_error_exists;
         }                                                                                                  \
         _err_error_exists = false;                                                                         \
     }
+#define ERR_REPORT_COND(m_cond)\
+    _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' " _STR(m_cond) " ' is true.");
+#define ERR_RESET() \
+    _err_error_exists = false;                                                                         \
 
 #define ERR_FAIL_COND_MSG(m_cond, m_msg)                                                                   \
     {                                                                                                      \
@@ -373,7 +377,15 @@ extern GODOT_EXPORT bool _err_error_exists;
         }                                                                                                                \
         _err_error_exists = false;                                                                                       \
     }
-
+#define ERR_CONTINUE_CMSG(m_cond, m_msg)                                                                                  \
+    {                                                                                                                    \
+        if (unlikely(m_cond)) {                                                                                          \
+            ERR_EXPLAINC(m_msg);                                                                                          \
+            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' " _STR(m_cond) " ' is true. Continuing..:"); \
+            continue;                                                                                                    \
+        }                                                                                                                \
+        _err_error_exists = false;                                                                                       \
+    }
 /** An error condition happened (m_cond tested true) (WARNING this is the opposite as assert().
  * the loop will break
  */
@@ -466,7 +478,7 @@ extern GODOT_EXPORT bool _err_error_exists;
 
 #define ERR_PRINTS(m_string)                                                                    \
     {                                                                                           \
-        _err_print_error(FUNCTION_STR, __FILE__, __LINE__, String(m_string).utf8().data()); \
+        _err_print_error(FUNCTION_STR, __FILE__, __LINE__, StringUtils::utf8(m_string).data()); \
         _err_error_exists = false;                                                              \
     }
 
@@ -491,7 +503,7 @@ extern GODOT_EXPORT bool _err_error_exists;
 
 #define WARN_PRINTS(m_string)                                                                                        \
     {                                                                                                                \
-        _err_print_error(FUNCTION_STR, __FILE__, __LINE__, String(m_string).utf8().data(), ERR_HANDLER_WARNING); \
+        _err_print_error(FUNCTION_STR, __FILE__, __LINE__, StringUtils::utf8(m_string).data(), ERR_HANDLER_WARNING); \
         _err_error_exists = false;                                                                                   \
     }
 

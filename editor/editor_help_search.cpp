@@ -28,10 +28,14 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
+#include "editor_feature_profile.h"
 #include "editor_help_search.h"
 
+#include "core/method_bind.h"
 #include "core/os/keyboard.h"
 #include "editor_node.h"
+
+IMPL_GDCLASS(EditorHelpSearch)
 
 void EditorHelpSearch::_update_icons() {
 
@@ -145,11 +149,11 @@ void EditorHelpSearch::_notification(int p_what) {
 
 void EditorHelpSearch::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_update_results"), &EditorHelpSearch::_update_results);
-    ClassDB::bind_method(D_METHOD("_search_box_gui_input"), &EditorHelpSearch::_search_box_gui_input);
-    ClassDB::bind_method(D_METHOD("_search_box_text_changed"), &EditorHelpSearch::_search_box_text_changed);
-    ClassDB::bind_method(D_METHOD("_filter_combo_item_selected"), &EditorHelpSearch::_filter_combo_item_selected);
-    ClassDB::bind_method(D_METHOD("_confirmed"), &EditorHelpSearch::_confirmed);
+    MethodBinder::bind_method(D_METHOD("_update_results"), &EditorHelpSearch::_update_results);
+    MethodBinder::bind_method(D_METHOD("_search_box_gui_input"), &EditorHelpSearch::_search_box_gui_input);
+    MethodBinder::bind_method(D_METHOD("_search_box_text_changed"), &EditorHelpSearch::_search_box_text_changed);
+    MethodBinder::bind_method(D_METHOD("_filter_combo_item_selected"), &EditorHelpSearch::_filter_combo_item_selected);
+    MethodBinder::bind_method(D_METHOD("_confirmed"), &EditorHelpSearch::_confirmed);
     ADD_SIGNAL(MethodInfo("go_to_help"));
 }
 
@@ -338,10 +342,10 @@ bool EditorHelpSearch::Runner::_phase_match_classes() {
             if (search_flags & SEARCH_METHODS)
                 for (int i = 0; i < class_doc.methods.size(); i++) {
                     String method_name = (search_flags & SEARCH_CASE_SENSITIVE) ? class_doc.methods[i].name : StringUtils::to_lower(class_doc.methods[i].name);
-                    if (method_name.find(term) > -1 ||
-                            (term.begins_with(".") && method_name.begins_with(term.right(1))) ||
-                            (term.ends_with("(") && method_name.ends_with(term.left(term.length() - 1).strip_edges())) ||
-                            (term.begins_with(".") && term.ends_with("(") && method_name == term.substr(1, term.length() - 2).strip_edges()))
+                    if (StringUtils::find(method_name,term) > -1 ||
+                            (StringUtils::begins_with(term,".") && StringUtils::begins_with(method_name,StringUtils::right(term,1))) ||
+                            (StringUtils::ends_with(term,"(") && StringUtils::ends_with(method_name,StringUtils::strip_edges(StringUtils::left(term,term.length() - 1)))) ||
+                            (StringUtils::begins_with(term,".") && StringUtils::ends_with(term,"(") && method_name == StringUtils::strip_edges(StringUtils::substr(term,1, term.length() - 2))))
                         match.methods.push_back(const_cast<DocData::MethodDoc *>(&class_doc.methods[i]));
                 }
             if (search_flags & SEARCH_SIGNALS)
@@ -431,19 +435,19 @@ bool EditorHelpSearch::Runner::_phase_select_match() {
 bool EditorHelpSearch::Runner::_match_string(const String &p_term, const String &p_string) const {
 
     if (search_flags & SEARCH_CASE_SENSITIVE)
-        return p_string.find(p_term) > -1;
+        return StringUtils::find(p_string,p_term) > -1;
     else
-        return p_string.findn(p_term) > -1;
+        return StringUtils::findn(p_string,p_term) > -1;
 }
 
 void EditorHelpSearch::Runner::_match_item(TreeItem *p_item, const String &p_text) {
 
     if (!matched_item) {
         if (search_flags & SEARCH_CASE_SENSITIVE) {
-            if (p_text.compare(term) == 0)
+			if (p_text==term)
                 matched_item = p_item;
         } else {
-            if (p_text.compare(term,Qt::CaseInsensitive) == 0)
+			if (StringUtils::compare(p_text,term,StringUtils::CaseInsensitive) == 0)
                 matched_item = p_item;
         }
     }
@@ -477,7 +481,7 @@ TreeItem *EditorHelpSearch::Runner::_create_class_item(TreeItem *p_parent, const
         icon = ui_service->get_icon(p_doc->name, "EditorIcons");
     else if (ClassDB::class_exists(p_doc->name) && ClassDB::is_parent_class(p_doc->name, "Object"))
         icon = ui_service->get_icon("Object", "EditorIcons");
-    String tooltip = p_doc->brief_description.strip_edges();
+    String tooltip = StringUtils::strip_edges(p_doc->brief_description);
 
     TreeItem *item = results_tree->create_item(p_parent);
     item->set_icon(0, icon);
@@ -590,7 +594,7 @@ EditorHelpSearch::Runner::Runner(Control *p_icon_service, Tree *p_results_tree, 
         phase(0),
         ui_service(p_icon_service),
         results_tree(p_results_tree),
-        term((p_search_flags & SEARCH_CASE_SENSITIVE) == 0 ? StringUtils::to_lower(p_term.strip_edges()) : p_term.strip_edges()),
+        term((p_search_flags & SEARCH_CASE_SENSITIVE) == 0 ? StringUtils::to_lower(StringUtils::strip_edges(p_term)) : StringUtils::strip_edges( p_term)),
         search_flags(p_search_flags),
         empty_icon(ui_service->get_icon("ArrowRight", "EditorIcons")),
         disabled_color(ui_service->get_color("disabled_font_color", "Editor")) {

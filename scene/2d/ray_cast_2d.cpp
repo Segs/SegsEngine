@@ -33,8 +33,11 @@
 #include "collision_object_2d.h"
 #include "core/engine.h"
 #include "core/object_db.h"
+#include "core/method_bind.h"
 #include "physics_body_2d.h"
 #include "servers/physics_2d_server.h"
+
+IMPL_GDCLASS(RayCast2D)
 
 void RayCast2D::set_cast_to(const Vector2 &p_point) {
 
@@ -290,42 +293,42 @@ bool RayCast2D::is_collide_with_bodies_enabled() const {
 
 void RayCast2D::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_enabled", "enabled"), &RayCast2D::set_enabled);
-    ClassDB::bind_method(D_METHOD("is_enabled"), &RayCast2D::is_enabled);
+    MethodBinder::bind_method(D_METHOD("set_enabled", "enabled"), &RayCast2D::set_enabled);
+    MethodBinder::bind_method(D_METHOD("is_enabled"), &RayCast2D::is_enabled);
 
-    ClassDB::bind_method(D_METHOD("set_cast_to", "local_point"), &RayCast2D::set_cast_to);
-    ClassDB::bind_method(D_METHOD("get_cast_to"), &RayCast2D::get_cast_to);
+    MethodBinder::bind_method(D_METHOD("set_cast_to", "local_point"), &RayCast2D::set_cast_to);
+    MethodBinder::bind_method(D_METHOD("get_cast_to"), &RayCast2D::get_cast_to);
 
-    ClassDB::bind_method(D_METHOD("is_colliding"), &RayCast2D::is_colliding);
-    ClassDB::bind_method(D_METHOD("force_raycast_update"), &RayCast2D::force_raycast_update);
+    MethodBinder::bind_method(D_METHOD("is_colliding"), &RayCast2D::is_colliding);
+    MethodBinder::bind_method(D_METHOD("force_raycast_update"), &RayCast2D::force_raycast_update);
 
-    ClassDB::bind_method(D_METHOD("get_collider"), &RayCast2D::get_collider);
-    ClassDB::bind_method(D_METHOD("get_collider_shape"), &RayCast2D::get_collider_shape);
-    ClassDB::bind_method(D_METHOD("get_collision_point"), &RayCast2D::get_collision_point);
-    ClassDB::bind_method(D_METHOD("get_collision_normal"), &RayCast2D::get_collision_normal);
+    MethodBinder::bind_method(D_METHOD("get_collider"), &RayCast2D::get_collider);
+    MethodBinder::bind_method(D_METHOD("get_collider_shape"), &RayCast2D::get_collider_shape);
+    MethodBinder::bind_method(D_METHOD("get_collision_point"), &RayCast2D::get_collision_point);
+    MethodBinder::bind_method(D_METHOD("get_collision_normal"), &RayCast2D::get_collision_normal);
 
-    ClassDB::bind_method(D_METHOD("add_exception_rid", "rid"), &RayCast2D::add_exception_rid);
-    ClassDB::bind_method(D_METHOD("add_exception", "node"), &RayCast2D::add_exception);
+    MethodBinder::bind_method(D_METHOD("add_exception_rid", "rid"), &RayCast2D::add_exception_rid);
+    MethodBinder::bind_method(D_METHOD("add_exception", "node"), &RayCast2D::add_exception);
 
-    ClassDB::bind_method(D_METHOD("remove_exception_rid", "rid"), &RayCast2D::remove_exception_rid);
-    ClassDB::bind_method(D_METHOD("remove_exception", "node"), &RayCast2D::remove_exception);
+    MethodBinder::bind_method(D_METHOD("remove_exception_rid", "rid"), &RayCast2D::remove_exception_rid);
+    MethodBinder::bind_method(D_METHOD("remove_exception", "node"), &RayCast2D::remove_exception);
 
-    ClassDB::bind_method(D_METHOD("clear_exceptions"), &RayCast2D::clear_exceptions);
+    MethodBinder::bind_method(D_METHOD("clear_exceptions"), &RayCast2D::clear_exceptions);
 
-    ClassDB::bind_method(D_METHOD("set_collision_mask", "mask"), &RayCast2D::set_collision_mask);
-    ClassDB::bind_method(D_METHOD("get_collision_mask"), &RayCast2D::get_collision_mask);
+    MethodBinder::bind_method(D_METHOD("set_collision_mask", "mask"), &RayCast2D::set_collision_mask);
+    MethodBinder::bind_method(D_METHOD("get_collision_mask"), &RayCast2D::get_collision_mask);
 
-    ClassDB::bind_method(D_METHOD("set_collision_mask_bit", "bit", "value"), &RayCast2D::set_collision_mask_bit);
-    ClassDB::bind_method(D_METHOD("get_collision_mask_bit", "bit"), &RayCast2D::get_collision_mask_bit);
+    MethodBinder::bind_method(D_METHOD("set_collision_mask_bit", "bit", "value"), &RayCast2D::set_collision_mask_bit);
+    MethodBinder::bind_method(D_METHOD("get_collision_mask_bit", "bit"), &RayCast2D::get_collision_mask_bit);
 
-    ClassDB::bind_method(D_METHOD("set_exclude_parent_body", "mask"), &RayCast2D::set_exclude_parent_body);
-    ClassDB::bind_method(D_METHOD("get_exclude_parent_body"), &RayCast2D::get_exclude_parent_body);
+    MethodBinder::bind_method(D_METHOD("set_exclude_parent_body", "mask"), &RayCast2D::set_exclude_parent_body);
+    MethodBinder::bind_method(D_METHOD("get_exclude_parent_body"), &RayCast2D::get_exclude_parent_body);
 
-    ClassDB::bind_method(D_METHOD("set_collide_with_areas", "enable"), &RayCast2D::set_collide_with_areas);
-    ClassDB::bind_method(D_METHOD("is_collide_with_areas_enabled"), &RayCast2D::is_collide_with_areas_enabled);
+    MethodBinder::bind_method(D_METHOD("set_collide_with_areas", "enable"), &RayCast2D::set_collide_with_areas);
+    MethodBinder::bind_method(D_METHOD("is_collide_with_areas_enabled"), &RayCast2D::is_collide_with_areas_enabled);
 
-    ClassDB::bind_method(D_METHOD("set_collide_with_bodies", "enable"), &RayCast2D::set_collide_with_bodies);
-    ClassDB::bind_method(D_METHOD("is_collide_with_bodies_enabled"), &RayCast2D::is_collide_with_bodies_enabled);
+    MethodBinder::bind_method(D_METHOD("set_collide_with_bodies", "enable"), &RayCast2D::set_collide_with_bodies);
+    MethodBinder::bind_method(D_METHOD("is_collide_with_bodies_enabled"), &RayCast2D::is_collide_with_bodies_enabled);
 
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "enabled"), "set_enabled", "is_enabled");
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "exclude_parent"), "set_exclude_parent_body", "get_exclude_parent_body");

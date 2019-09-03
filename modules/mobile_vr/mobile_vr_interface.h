@@ -48,7 +48,8 @@
 */
 
 class MobileVRInterface : public ARVRInterface {
-	GDCLASS(MobileVRInterface, ARVRInterface);
+	GDCLASS(MobileVRInterface,ARVRInterface)
+IMPL_GDCLASS(MobileVRInterface)
 
 private:
 	bool initialized;

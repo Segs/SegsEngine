@@ -35,7 +35,7 @@
 
 class Translation : public Resource {
 
-	GDCLASS(Translation, Resource);
+	GDCLASS(Translation,Resource)
 	OBJ_SAVE_TYPE(Translation);
 	RES_BASE_EXTENSION("translation");
 
@@ -66,7 +66,7 @@ public:
 
 class TranslationServer : public Object {
 
-	GDCLASS(TranslationServer, Object);
+	GDCLASS(TranslationServer,Object)
 
 	String locale;
 	String fallback;
@@ -79,7 +79,7 @@ class TranslationServer : public Object {
 	bool enabled = true;
 
 	static TranslationServer *singleton;
-	bool _load_translations(const String &p_from);
+	bool _load_translations(const StringName &p_from);
 
 	static void _bind_methods();
 

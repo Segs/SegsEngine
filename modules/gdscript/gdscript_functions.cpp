@@ -109,6 +109,7 @@ const char *GDScriptFunctions::get_func_name(Function p_func) {
         "typeof",
         "type_exists",
         "char",
+        "ord",
         "str",
         "print",
         "printt",
@@ -634,8 +635,8 @@ void GDScriptFunctions::call(Function p_func, const Variant **p_args, int p_arg_
 
         } break;
         case TYPE_CONVERT: {
-            VALIDATE_ARG_COUNT(2);
-            VALIDATE_ARG_NUM(1);
+            VALIDATE_ARG_COUNT(2)
+            VALIDATE_ARG_NUM(1)
             int type = *p_args[1];
             if (type < 0 || type >= Variant::VARIANT_MAX) {
 
@@ -652,20 +653,46 @@ void GDScriptFunctions::call(Function p_func, const Variant **p_args, int p_arg_
         } break;
         case TYPE_OF: {
 
-            VALIDATE_ARG_COUNT(1);
+            VALIDATE_ARG_COUNT(1)
             r_ret = p_args[0]->get_type();
 
         } break;
         case TYPE_EXISTS: {
 
-            VALIDATE_ARG_COUNT(1);
+            VALIDATE_ARG_COUNT(1)
             r_ret = ClassDB::class_exists(*p_args[0]);
 
         } break;
         case TEXT_CHAR: {
             VALIDATE_ARG_COUNT(1);
             VALIDATE_ARG_NUM(0);
-            r_ret = String(p_args[0]->as<QChar>());
+            r_ret = String(*p_args[0]);
+        } break;
+        case TEXT_ORD: {
+
+            VALIDATE_ARG_COUNT(1);
+
+            if (p_args[0]->get_type() != Variant::STRING) {
+
+                r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+                r_error.argument = 0;
+                r_error.expected = Variant::STRING;
+                r_ret = Variant();
+                return;
+            }
+
+            String str = p_args[0]->operator String();
+
+            if (str.length() != 1) {
+
+                r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+                r_error.argument = 0;
+                r_error.expected = Variant::STRING;
+                r_ret = RTR("Expected a string of length 1 (a character).");
+                return;
+            }
+
+            r_ret = str[0];
         } break;
         case TEXT_STR: {
             if (p_arg_count < 1) {
@@ -1090,7 +1117,7 @@ void GDScriptFunctions::call(Function p_func, const Variant **p_args, int p_arg_
                     }
                     sname.invert();
 
-					if (!PathUtils::is_resource_file(p->path)) {
+                    if (!PathUtils::is_resource_file(p->path)) {
                         r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
                         r_error.argument = 0;
                         r_error.expected = Variant::DICTIONARY;
@@ -1509,6 +1536,7 @@ bool GDScriptFunctions::is_deterministic(Function p_func) {
         case TYPE_OF:
         case TYPE_EXISTS:
         case TEXT_CHAR:
+        case TEXT_ORD:
         case TEXT_STR:
         case COLOR8:
         case LEN:
@@ -1848,6 +1876,13 @@ MethodInfo GDScriptFunctions::get_info(Function p_func) {
 
             MethodInfo mi("char", PropertyInfo(Variant::INT, "ascii"));
             mi.return_val.type = Variant::STRING;
+            return mi;
+
+        } break;
+        case TEXT_ORD: {
+
+            MethodInfo mi("ord", PropertyInfo(Variant::STRING, "char"));
+            mi.return_val.type = Variant::INT;
             return mi;
 
         } break;

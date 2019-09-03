@@ -114,7 +114,7 @@ bool WSLClient::_verify_headers(String &r_protocol) {
         Vector<String> header = StringUtils::split(psa[i],":", false, 1);
         ERR_FAIL_COND_V_MSG(header.size() != 2, false, "Invalid header -> " + psa[i] + ".");
         String name = StringUtils::to_lower(header[0]);
-        String value = header[1].strip_edges();
+        String value =StringUtils::strip_edges( header[1]);
         if (headers.has(name))
             headers[name] += "," + value;
         else
@@ -200,7 +200,7 @@ Error WSLClient::connect_to_host(String p_host, String p_path, uint16_t p_port, 
         request += "\r\n";
     }
     request += "\r\n";
-    _request = request.utf8();
+	_request = StringUtils::to_utf8(request);
 
     return OK;
 }

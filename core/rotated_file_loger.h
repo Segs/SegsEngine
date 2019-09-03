@@ -15,7 +15,7 @@ class RotatedFileLogger : public Logger {
 
     void rotate_file_without_closing();
     void close_file();
-    void clear_old_backups();
+    void clear_old_backups() const;
     void rotate_file();
 
 public:
@@ -23,5 +23,5 @@ public:
 
     void logv(const QChar *p_msg, bool p_err) override;
     void logv(const char *p_msg, bool p_err) override;
-    virtual ~RotatedFileLogger();
+    ~RotatedFileLogger() override;
 };

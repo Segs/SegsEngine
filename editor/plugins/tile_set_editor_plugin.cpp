@@ -30,11 +30,17 @@
 
 #include "tile_set_editor_plugin.h"
 
+#include "core/method_bind.h"
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
 #include "editor/plugins/canvas_item_editor_plugin.h"
 #include "scene/2d/physics_body_2d.h"
 #include "scene/2d/sprite.h"
+#include "editor/editor_scale.h"
+
+IMPL_GDCLASS(TileSetEditor)
+IMPL_GDCLASS(TilesetEditorContext)
+IMPL_GDCLASS(TileSetEditorPlugin)
 
 void TileSetEditor::edit(const Ref<TileSet> &p_tileset) {
 
@@ -257,40 +263,40 @@ void TileSetEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data, C
 }
 void TileSetEditor::_bind_methods() {
 
-    ClassDB::bind_method("_undo_redo_import_scene", &TileSetEditor::_undo_redo_import_scene);
-    ClassDB::bind_method("_on_tileset_toolbar_button_pressed", &TileSetEditor::_on_tileset_toolbar_button_pressed);
-    ClassDB::bind_method("_on_textures_added", &TileSetEditor::_on_textures_added);
-    ClassDB::bind_method("_on_tileset_toolbar_confirm", &TileSetEditor::_on_tileset_toolbar_confirm);
-    ClassDB::bind_method("_on_texture_list_selected", &TileSetEditor::_on_texture_list_selected);
-    ClassDB::bind_method("_on_edit_mode_changed", &TileSetEditor::_on_edit_mode_changed);
-    ClassDB::bind_method("_on_workspace_mode_changed", &TileSetEditor::_on_workspace_mode_changed);
-    ClassDB::bind_method("_on_workspace_overlay_draw", &TileSetEditor::_on_workspace_overlay_draw);
-    ClassDB::bind_method("_on_workspace_process", &TileSetEditor::_on_workspace_process);
-    ClassDB::bind_method("_on_workspace_draw", &TileSetEditor::_on_workspace_draw);
-    ClassDB::bind_method("_on_workspace_input", &TileSetEditor::_on_workspace_input);
-    ClassDB::bind_method("_on_tool_clicked", &TileSetEditor::_on_tool_clicked);
-    ClassDB::bind_method("_on_priority_changed", &TileSetEditor::_on_priority_changed);
-    ClassDB::bind_method("_on_z_index_changed", &TileSetEditor::_on_z_index_changed);
-    ClassDB::bind_method("_on_grid_snap_toggled", &TileSetEditor::_on_grid_snap_toggled);
-    ClassDB::bind_method("_set_snap_step", &TileSetEditor::_set_snap_step);
-    ClassDB::bind_method("_set_snap_off", &TileSetEditor::_set_snap_off);
-    ClassDB::bind_method("_set_snap_sep", &TileSetEditor::_set_snap_sep);
-    ClassDB::bind_method("_validate_current_tile_id", &TileSetEditor::_validate_current_tile_id);
-    ClassDB::bind_method("_zoom_in", &TileSetEditor::_zoom_in);
-    ClassDB::bind_method("_zoom_out", &TileSetEditor::_zoom_out);
-    ClassDB::bind_method("_zoom_reset", &TileSetEditor::_zoom_reset);
-    ClassDB::bind_method("_select_edited_shape_coord", &TileSetEditor::_select_edited_shape_coord);
-    ClassDB::bind_method("_sort_tiles", &TileSetEditor::_sort_tiles);
+    MethodBinder::bind_method("_undo_redo_import_scene", &TileSetEditor::_undo_redo_import_scene);
+    MethodBinder::bind_method("_on_tileset_toolbar_button_pressed", &TileSetEditor::_on_tileset_toolbar_button_pressed);
+    MethodBinder::bind_method("_on_textures_added", &TileSetEditor::_on_textures_added);
+    MethodBinder::bind_method("_on_tileset_toolbar_confirm", &TileSetEditor::_on_tileset_toolbar_confirm);
+    MethodBinder::bind_method("_on_texture_list_selected", &TileSetEditor::_on_texture_list_selected);
+    MethodBinder::bind_method("_on_edit_mode_changed", &TileSetEditor::_on_edit_mode_changed);
+    MethodBinder::bind_method("_on_workspace_mode_changed", &TileSetEditor::_on_workspace_mode_changed);
+    MethodBinder::bind_method("_on_workspace_overlay_draw", &TileSetEditor::_on_workspace_overlay_draw);
+    MethodBinder::bind_method("_on_workspace_process", &TileSetEditor::_on_workspace_process);
+    MethodBinder::bind_method("_on_workspace_draw", &TileSetEditor::_on_workspace_draw);
+    MethodBinder::bind_method("_on_workspace_input", &TileSetEditor::_on_workspace_input);
+    MethodBinder::bind_method("_on_tool_clicked", &TileSetEditor::_on_tool_clicked);
+    MethodBinder::bind_method("_on_priority_changed", &TileSetEditor::_on_priority_changed);
+    MethodBinder::bind_method("_on_z_index_changed", &TileSetEditor::_on_z_index_changed);
+    MethodBinder::bind_method("_on_grid_snap_toggled", &TileSetEditor::_on_grid_snap_toggled);
+    MethodBinder::bind_method("_set_snap_step", &TileSetEditor::_set_snap_step);
+    MethodBinder::bind_method("_set_snap_off", &TileSetEditor::_set_snap_off);
+    MethodBinder::bind_method("_set_snap_sep", &TileSetEditor::_set_snap_sep);
+    MethodBinder::bind_method("_validate_current_tile_id", &TileSetEditor::_validate_current_tile_id);
+    MethodBinder::bind_method("_zoom_in", &TileSetEditor::_zoom_in);
+    MethodBinder::bind_method("_zoom_out", &TileSetEditor::_zoom_out);
+    MethodBinder::bind_method("_zoom_reset", &TileSetEditor::_zoom_reset);
+    MethodBinder::bind_method("_select_edited_shape_coord", &TileSetEditor::_select_edited_shape_coord);
+    MethodBinder::bind_method("_sort_tiles", &TileSetEditor::_sort_tiles);
 
-    ClassDB::bind_method(D_METHOD("get_drag_data_fw"), &TileSetEditor::get_drag_data_fw);
-    ClassDB::bind_method(D_METHOD("can_drop_data_fw"), &TileSetEditor::can_drop_data_fw);
-    ClassDB::bind_method(D_METHOD("drop_data_fw"), &TileSetEditor::drop_data_fw);
+    MethodBinder::bind_method(D_METHOD("get_drag_data_fw"), &TileSetEditor::get_drag_data_fw);
+    MethodBinder::bind_method(D_METHOD("can_drop_data_fw"), &TileSetEditor::can_drop_data_fw);
+    MethodBinder::bind_method(D_METHOD("drop_data_fw"), &TileSetEditor::drop_data_fw);
 
-    ClassDB::bind_method("edit", &TileSetEditor::edit);
-    ClassDB::bind_method("add_texture", &TileSetEditor::add_texture);
-    ClassDB::bind_method("remove_texture", &TileSetEditor::remove_texture);
-    ClassDB::bind_method("update_texture_list_icon", &TileSetEditor::update_texture_list_icon);
-    ClassDB::bind_method("update_workspace_minsize", &TileSetEditor::update_workspace_minsize);
+    MethodBinder::bind_method("edit", &TileSetEditor::edit);
+    MethodBinder::bind_method("add_texture", &TileSetEditor::add_texture);
+    MethodBinder::bind_method("remove_texture", &TileSetEditor::remove_texture);
+    MethodBinder::bind_method("update_texture_list_icon", &TileSetEditor::update_texture_list_icon);
+    MethodBinder::bind_method("update_workspace_minsize", &TileSetEditor::update_workspace_minsize);
 }
 
 void TileSetEditor::_notification(int p_what) {
@@ -3286,8 +3292,8 @@ bool TilesetEditorContext::_set(const StringName &p_name, const Variant &p_value
         Vector2 snap = p_value;
         tileset_editor->_set_snap_sep(snap);
         return true;
-    } else if (p_name.operator String().left(5) == "tile_") {
-        String name2 = p_name.operator String().right(5);
+    } else if (StringUtils::begins_with(p_name,"tile_")) {
+        String name2 = StringUtils::right(p_name,5);
         bool v = false;
 
         if (tileset_editor->get_current_tile() < 0 || tileset.is_null())
@@ -3350,8 +3356,8 @@ bool TilesetEditorContext::_get(const StringName &p_name, Variant &r_ret) const 
     } else if (name == "options_separation") {
         r_ret = tileset_editor->snap_separation;
         v = true;
-    } else if (name.left(5) == "tile_") {
-        name = name.right(5);
+    } else if (StringUtils::begins_with(name,"tile_")) {
+        name = StringUtils::right(name,5);
 
         if (tileset_editor->get_current_tile() < 0 || tileset.is_null())
             return false;
@@ -3453,7 +3459,7 @@ void TilesetEditorContext::_get_property_list(List<PropertyInfo> *p_list) const 
 
 void TilesetEditorContext::_bind_methods() {
 
-    ClassDB::bind_method("_hide_script_from_inspector", &TilesetEditorContext::_hide_script_from_inspector);
+    MethodBinder::bind_method("_hide_script_from_inspector", &TilesetEditorContext::_hide_script_from_inspector);
 }
 
 TilesetEditorContext::TilesetEditorContext(TileSetEditor *p_tileset_editor) {

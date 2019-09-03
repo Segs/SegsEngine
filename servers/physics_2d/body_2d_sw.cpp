@@ -34,6 +34,8 @@
 #include "space_2d_sw.h"
 #include "core/object_db.h"
 
+IMPL_GDCLASS(Physics2DDirectBodyStateSW)
+
 void Body2DSW::_update_inertia() {
 
     if (!user_inertia && get_space() && !inertia_update_list.in_list())

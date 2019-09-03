@@ -49,6 +49,7 @@
 	@author AndreaCatania
 */
 
+
 #define CreateThenReturnRID(owner, ridData) \
 	RID rid = owner.make_rid(ridData);      \
 	ridData->set_self(rid);                 \
@@ -74,8 +75,11 @@
 	body->get_space()->add_constraint(joint, joint->is_disabled_collisions_between_bodies());
 // <--------------- Joint creation asserts
 
+IMPL_GDCLASS(BulletPhysicsServer)
+
+
 void BulletPhysicsServer::_bind_methods() {
-	//ClassDB::bind_method(D_METHOD("DoTest"), &BulletPhysicsServer::DoTest);
+	//MethodBinder::bind_method(D_METHOD("DoTest"), &BulletPhysicsServer::DoTest);
 }
 
 BulletPhysicsServer::BulletPhysicsServer() :

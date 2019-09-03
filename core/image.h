@@ -32,10 +32,14 @@
 #define IMAGE_H
 
 #include "core/color.h"
+#include "core/image_data.h"
 #include "core/math/rect2.h"
+#include "core/method_arg_casters.h"
+#include "core/method_enum_caster.h"
 #include "core/pool_vector.h"
 #include "core/resource.h"
-#include "core/image_data.h"
+
+
 /**
  *	@author Juan Linietsky <reduzio@gmail.com>
  *
@@ -46,10 +50,10 @@
 
 class Image;
 
-typedef Error (*SavePNGFunc)(const String &p_path, const Ref<Image> &p_img);
-typedef ImageData (*ImageMemLoadFunc)(const uint8_t *p_png, int p_size);
+using SavePNGFunc = Error (*)(const String &, const Ref<Image> &);
+using ImageMemLoadFunc = ImageData (*)(const uint8_t *, int);
 
-typedef Error (*SaveEXRFunc)(const String &p_path, const Ref<Image> &p_img, bool p_grayscale);
+using SaveEXRFunc = Error (*)(const String &, const Ref<Image> &, bool);
 
 class Image : public Resource, public ImageData {
     GDCLASS(Image, Resource)
@@ -168,7 +172,6 @@ public:
 
     /**
      * Resize the image, using the preferred interpolation method.
-     * Indexed-Color images always use INTERPOLATE_NEAREST.
      */
 
     void resize_to_po2(bool p_square = false);
@@ -279,6 +282,7 @@ public:
     Error load_png_from_buffer(const PoolVector<uint8_t> &p_array);
     Error load_jpg_from_buffer(const PoolVector<uint8_t> &p_array);
     Error load_webp_from_buffer(const PoolVector<uint8_t> &p_array);
+    Error load_from_buffer(const uint8_t *p_array,int size, const char *ext);
 
     Image(const uint8_t *p_mem_png_jpg, int p_len = -1);
     Image(const char **p_xpm);

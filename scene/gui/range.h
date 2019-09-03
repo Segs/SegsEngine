@@ -35,7 +35,7 @@
 
 class Range : public Control {
 
-	GDCLASS(Range, Control);
+	GDCLASS(Range,Control)
 
 	struct Shared {
 		double val, min, max;
@@ -95,10 +95,10 @@ public:
 	void share(Range *p_range);
 	void unshare();
 
-	virtual String get_configuration_warning() const;
+	String get_configuration_warning() const override;
 
 	Range();
-	~Range();
+	~Range() override;
 };
 
 #endif

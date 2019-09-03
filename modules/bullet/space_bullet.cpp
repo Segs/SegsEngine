@@ -58,6 +58,8 @@
     @author AndreaCatania
 */
 
+IMPL_GDCLASS(BulletPhysicsDirectSpaceState)
+
 BulletPhysicsDirectSpaceState::BulletPhysicsDirectSpaceState(SpaceBullet *p_space) :
         PhysicsDirectSpaceState(),
         space(p_space) {}
@@ -1082,7 +1084,7 @@ private:
                 collision_object(p_collision_object) {
         }
 
-        void Process(const btDbvtNode *leaf) {
+        void Process(const btDbvtNode *leaf) override {
             BroadphaseResult result;
             result.collision_object = collision_object;
             result.compound_child_index = leaf->dataAsInt;
@@ -1107,9 +1109,9 @@ public:
         bounds = btDbvtVolume::FromMM(p_aabb_min, p_aabb_max);
     }
 
-    virtual ~RecoverPenetrationBroadPhaseCallback() {}
+    ~RecoverPenetrationBroadPhaseCallback() override {}
 
-    virtual bool process(const btBroadphaseProxy *proxy) {
+    bool process(const btBroadphaseProxy *proxy) override {
 
         btCollisionObject *co = static_cast<btCollisionObject *>(proxy->m_clientObject);
         if (co->getInternalType() <= btCollisionObject::CO_RIGID_BODY) {

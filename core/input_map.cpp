@@ -32,6 +32,10 @@
 
 #include "core/os/keyboard.h"
 #include "core/project_settings.h"
+#include "core/method_bind.h"
+
+
+IMPL_GDCLASS(InputMap)
 
 InputMap *InputMap::singleton = nullptr;
 
@@ -39,19 +43,19 @@ int InputMap::ALL_DEVICES = -1;
 
 void InputMap::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("has_action", "action"), &InputMap::has_action);
-    ClassDB::bind_method(D_METHOD("get_actions"), &InputMap::_get_actions);
-    ClassDB::bind_method(D_METHOD("add_action", "action", "deadzone"), &InputMap::add_action, {DEFVAL(0.5f)});
-    ClassDB::bind_method(D_METHOD("erase_action", "action"), &InputMap::erase_action);
+    MethodBinder::bind_method(D_METHOD("has_action", "action"), &InputMap::has_action);
+    MethodBinder::bind_method(D_METHOD("get_actions"), &InputMap::_get_actions);
+    MethodBinder::bind_method(D_METHOD("add_action", "action", "deadzone"), &InputMap::add_action, {DEFVAL(0.5f)});
+    MethodBinder::bind_method(D_METHOD("erase_action", "action"), &InputMap::erase_action);
 
-    ClassDB::bind_method(D_METHOD("action_set_deadzone", "action", "deadzone"), &InputMap::action_set_deadzone);
-    ClassDB::bind_method(D_METHOD("action_add_event", "action", "event"), &InputMap::action_add_event);
-    ClassDB::bind_method(D_METHOD("action_has_event", "action", "event"), &InputMap::action_has_event);
-    ClassDB::bind_method(D_METHOD("action_erase_event", "action", "event"), &InputMap::action_erase_event);
-    ClassDB::bind_method(D_METHOD("action_erase_events", "action"), &InputMap::action_erase_events);
-    ClassDB::bind_method(D_METHOD("get_action_list", "action"), &InputMap::_get_action_list);
-    ClassDB::bind_method(D_METHOD("event_is_action", "event", "action"), &InputMap::event_is_action);
-    ClassDB::bind_method(D_METHOD("load_from_globals"), &InputMap::load_from_globals);
+    MethodBinder::bind_method(D_METHOD("action_set_deadzone", "action", "deadzone"), &InputMap::action_set_deadzone);
+    MethodBinder::bind_method(D_METHOD("action_add_event", "action", "event"), &InputMap::action_add_event);
+    MethodBinder::bind_method(D_METHOD("action_has_event", "action", "event"), &InputMap::action_has_event);
+    MethodBinder::bind_method(D_METHOD("action_erase_event", "action", "event"), &InputMap::action_erase_event);
+    MethodBinder::bind_method(D_METHOD("action_erase_events", "action"), &InputMap::action_erase_events);
+    MethodBinder::bind_method(D_METHOD("get_action_list", "action"), &InputMap::_get_action_list);
+    MethodBinder::bind_method(D_METHOD("event_is_action", "event", "action"), &InputMap::event_is_action);
+    MethodBinder::bind_method(D_METHOD("load_from_globals"), &InputMap::load_from_globals);
 }
 
 void InputMap::add_action(const StringName &p_action, float p_deadzone) {
@@ -222,7 +226,7 @@ const Map<StringName, InputMap::Action> &InputMap::get_action_map() const {
 }
 
 void InputMap::load_from_globals() {
-
+    using namespace StringUtils;
     input_map.clear();
 
     List<PropertyInfo> pinfo;
@@ -231,10 +235,10 @@ void InputMap::load_from_globals() {
     for (List<PropertyInfo>::Element *E = pinfo.front(); E; E = E->next()) {
         const PropertyInfo &pi = E->get();
 
-        if (!pi.name.begins_with("input/"))
+        if (!begins_with(pi.name,"input/"))
             continue;
 
-        String name = pi.name.substr(pi.name.find("/") + 1, pi.name.length());
+        String name = substr(pi.name,find(pi.name,"/") + 1, pi.name.length());
 
         Dictionary action = ProjectSettings::get_singleton()->get(pi.name);
         float deadzone = action.has("deadzone") ? action["deadzone"].as<float>() : 0.5f;
@@ -249,85 +253,36 @@ void InputMap::load_from_globals() {
         }
     }
 }
+namespace {
+void addActionKeys(InputMap &im,Ref<InputEventKey> &k,const StringName &n,std::initializer_list<KeyList> action_keys,bool shifted=false) {
+	im.add_action(n);
+	for(KeyList key : action_keys) {
+		k.instance();
+		k->set_scancode(key);
+		if(shifted)
+			k->set_shift(true);
+		im.action_add_event(n, k);
+	}
 
+}
+}
 void InputMap::load_default() {
 
     Ref<InputEventKey> key;
+	addActionKeys(*this,key,StaticCString("ui_accept"),{KEY_ENTER,KEY_KP_ENTER,KEY_SPACE});
+	addActionKeys(*this,key,StaticCString("ui_select"),{KEY_SPACE});
+	addActionKeys(*this,key,StaticCString("ui_cancel"),{KEY_ESCAPE});
+	addActionKeys(*this,key,StaticCString("ui_focus_next"),{KEY_TAB});
+	addActionKeys(*this,key,StaticCString("ui_focus_prev"),{KEY_TAB},true);
+	addActionKeys(*this,key,StaticCString("ui_left"),{KEY_LEFT});
+	addActionKeys(*this,key,StaticCString("ui_right"),{KEY_RIGHT});
+	addActionKeys(*this,key,StaticCString("ui_up"),{KEY_UP});
+	addActionKeys(*this,key,StaticCString("ui_down"),{KEY_DOWN});
 
-    add_action("ui_accept");
-    key.instance();
-    key->set_scancode(KEY_ENTER);
-    action_add_event("ui_accept", key);
-
-    key.instance();
-    key->set_scancode(KEY_KP_ENTER);
-    action_add_event("ui_accept", key);
-
-    key.instance();
-    key->set_scancode(KEY_SPACE);
-    action_add_event("ui_accept", key);
-
-    add_action("ui_select");
-    key.instance();
-    key->set_scancode(KEY_SPACE);
-    action_add_event("ui_select", key);
-
-    add_action("ui_cancel");
-    key.instance();
-    key->set_scancode(KEY_ESCAPE);
-    action_add_event("ui_cancel", key);
-
-    add_action("ui_focus_next");
-    key.instance();
-    key->set_scancode(KEY_TAB);
-    action_add_event("ui_focus_next", key);
-
-    add_action("ui_focus_prev");
-    key.instance();
-    key->set_scancode(KEY_TAB);
-    key->set_shift(true);
-    action_add_event("ui_focus_prev", key);
-
-    add_action("ui_left");
-    key.instance();
-    key->set_scancode(KEY_LEFT);
-    action_add_event("ui_left", key);
-
-    add_action("ui_right");
-    key.instance();
-    key->set_scancode(KEY_RIGHT);
-    action_add_event("ui_right", key);
-
-    add_action("ui_up");
-    key.instance();
-    key->set_scancode(KEY_UP);
-    action_add_event("ui_up", key);
-
-    add_action("ui_down");
-    key.instance();
-    key->set_scancode(KEY_DOWN);
-    action_add_event("ui_down", key);
-
-    add_action("ui_page_up");
-    key.instance();
-    key->set_scancode(KEY_PAGEUP);
-    action_add_event("ui_page_up", key);
-
-    add_action("ui_page_down");
-    key.instance();
-    key->set_scancode(KEY_PAGEDOWN);
-    action_add_event("ui_page_down", key);
-
-    add_action("ui_home");
-    key.instance();
-    key->set_scancode(KEY_HOME);
-    action_add_event("ui_home", key);
-
-    add_action("ui_end");
-    key.instance();
-    key->set_scancode(KEY_END);
-    action_add_event("ui_end", key);
-
+	addActionKeys(*this,key,StaticCString("ui_page_up"),{KEY_PAGEUP});
+	addActionKeys(*this,key,StaticCString("ui_page_down"),{KEY_PAGEDOWN});
+	addActionKeys(*this,key,StaticCString("ui_home"),{KEY_HOME});
+	addActionKeys(*this,key,StaticCString("ui_end"),{KEY_END});
     //set("display/window/handheld/orientation", "landscape");
 }
 

@@ -35,7 +35,7 @@
 
 class Tween : public Node {
 
-	GDCLASS(Tween, Node);
+	GDCLASS(Tween,Node)
 
 public:
 	enum TweenProcessMode {
@@ -189,7 +189,7 @@ public:
 	bool targeting_method(Object *p_object, StringName p_method, Object *p_initial, StringName p_initial_method, Variant p_final_val, real_t p_duration, TransitionType p_trans_type, EaseType p_ease_type, real_t p_delay = 0);
 
 	Tween();
-	~Tween();
+	~Tween() override;
 };
 
 VARIANT_ENUM_CAST(Tween::TweenProcessMode);

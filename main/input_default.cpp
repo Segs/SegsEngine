@@ -36,11 +36,13 @@
 #include "scene/resources/texture.h"
 #include "servers/visual_server.h"
 
+IMPL_GDCLASS(InputDefault)
+
 void InputDefault::SpeedTrack::update(const Vector2 &p_delta_p) {
 
     uint64_t tick = OS::get_singleton()->get_ticks_usec();
     uint32_t tdiff = tick - last_tick;
-    float delta_t = tdiff / 1000000.0;
+    float delta_t = tdiff / 1000000.0f;
     last_tick = tick;
 
     accum += p_delta_p;
@@ -1015,27 +1017,27 @@ void InputDefault::parse_mapping(String p_mapping) {
         if (entry[idx] == "")
             continue;
 
-        String from = entry[idx].get_slice(":", 1).replace(" ", "");
-        String to = entry[idx].get_slice(":", 0).replace(" ", "");
+        String from = StringUtils::replace(StringUtils::get_slice(entry[idx],":", 1)," ", "");
+        String to = StringUtils::replace(StringUtils::get_slice(entry[idx],":", 0)," ", "");
 
         JoyEvent to_event = _find_to_event(to);
         if (to_event.type == -1)
             continue;
 
-        String etype = from.substr(0, 1);
+        String etype = StringUtils::substr(from,0, 1);
         if (etype == "a") {
 
-            int aid = from.substr(1, from.length() - 1).to_int();
+            int aid = StringUtils::to_int(StringUtils::substr(from,1, from.length() - 1));
             mapping.axis[aid] = to_event;
 
         } else if (etype == "b") {
 
-            int bid = from.substr(1, from.length() - 1).to_int();
+            int bid = StringUtils::to_int(StringUtils::substr(from,1, from.length() - 1));
             mapping.buttons[bid] = to_event;
 
         } else if (etype == "h") {
 
-            int hat_value = from.get_slice(".", 1).to_int();
+            int hat_value = StringUtils::to_int(StringUtils::get_slice(from,".", 1));
             switch (hat_value) {
                 case 1:
                     mapping.hat[HAT_UP] = to_event;

@@ -36,7 +36,8 @@
 
 class Space2D : public Resource {
 
-	GDCLASS(Space2D, Resource);
+	GDCLASS(Space2D,Resource)
+
 	bool active;
 	RID space;
 
@@ -47,10 +48,10 @@ public:
 	void set_active(bool p_active);
 	bool is_active() const;
 
-	virtual RID get_rid() const;
+	RID get_rid() const override;
 
 	Space2D();
-	~Space2D();
+	~Space2D() override;
 };
 
 #endif // SPACE_2D_H

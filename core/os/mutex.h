@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef MUTEX_H
-#define MUTEX_H
+#pragma once
 
 #include "core/error_list.h"
 
@@ -70,4 +69,3 @@ public:
 	}
 };
 
-#endif

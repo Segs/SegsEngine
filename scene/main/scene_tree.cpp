@@ -34,10 +34,12 @@
 #include "core/io/resource_loader.h"
 #include "core/message_queue.h"
 #include "core/object_db.h"
+#include "core/os/dir_access.h"
 #include "core/os/keyboard.h"
 #include "core/os/os.h"
 #include "core/print_string.h"
 #include "core/project_settings.h"
+#include "core/method_bind.h"
 #include "main/input_default.h"
 #include "node.h"
 #include "scene/resources/dynamic_font.h"
@@ -51,10 +53,13 @@
 
 #include <stdio.h>
 
+IMPL_GDCLASS(SceneTreeTimer)
+IMPL_GDCLASS(SceneTree)
+
 void SceneTreeTimer::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_time_left", "time"), &SceneTreeTimer::set_time_left);
-    ClassDB::bind_method(D_METHOD("get_time_left"), &SceneTreeTimer::get_time_left);
+    MethodBinder::bind_method(D_METHOD("set_time_left", "time"), &SceneTreeTimer::set_time_left);
+    MethodBinder::bind_method(D_METHOD("get_time_left"), &SceneTreeTimer::get_time_left);
 
     ADD_PROPERTY(PropertyInfo(Variant::REAL, "time_left"), "set_time_left", "get_time_left");
 
@@ -117,7 +122,7 @@ SceneTree::Group *SceneTree::add_to_group(const StringName &p_group, Node *p_nod
         E = group_map.insert(p_group, Group());
     }
 
-    ERR_FAIL_COND_V_MSG(E->get().nodes.find(p_node) != -1, &E->get(), "Already in group: " + p_group + ".");
+    ERR_FAIL_COND_V_MSG(E->get().nodes.find(p_node) != -1, &E->get(), "Already in group: " + p_group + ".")
     E->get().nodes.push_back(p_node);
     //E->get().last_tree_version=0;
     E->get().changed = true;
@@ -127,7 +132,7 @@ SceneTree::Group *SceneTree::add_to_group(const StringName &p_group, Node *p_nod
 void SceneTree::remove_from_group(const StringName &p_group, Node *p_node) {
 
     Map<StringName, Group>::Element *E = group_map.find(p_group);
-    ERR_FAIL_COND(!E);
+    ERR_FAIL_COND(!E)
 
     E->get().nodes.erase(p_node);
     if (E->get().nodes.empty())
@@ -204,7 +209,7 @@ void SceneTree::call_group_flags(uint32_t p_call_flags, const StringName &p_grou
 
     if (p_call_flags & GROUP_CALL_UNIQUE && !(p_call_flags & GROUP_CALL_REALTIME)) {
 
-        ERR_FAIL_COND(ugc_locked);
+        ERR_FAIL_COND(ugc_locked)
 
         UGCall ug;
         ug.call = p_function;
@@ -213,7 +218,7 @@ void SceneTree::call_group_flags(uint32_t p_call_flags, const StringName &p_grou
         if (unique_group_calls.has(ug))
             return;
 
-        VARIANT_ARGPTRS;
+        VARIANT_ARGPTRS
 
         Vector<Variant> args;
         for (int i = 0; i < VARIANT_ARG_MAX; i++) {
@@ -568,7 +573,7 @@ bool SceneTree::idle(float p_time) {
     if (Engine::get_singleton()->is_editor_hint()) {
         //simple hack to reload fallback environment if it changed from editor
         String env_path = ProjectSettings::get_singleton()->get("rendering/environment/default_environment");
-        env_path = env_path.strip_edges(); //user may have added a space or two
+        env_path =StringUtils::strip_edges( env_path); //user may have added a space or two
         String cpath;
         Ref<Environment> fallback = get_root()->get_world()->get_fallback_environment();
         if (fallback.is_valid()) {
@@ -676,7 +681,7 @@ void SceneTree::_notification(int p_notification) {
 
         default:
             break;
-    };
+    }
 };
 
 void SceneTree::set_auto_accept_quit(bool p_enable) {
@@ -851,7 +856,7 @@ Ref<ArrayMesh> SceneTree::get_debug_contact_mesh() {
 
     PoolVector<Vector3> vertices;
     for (int i = 0; i < 6; i++)
-        vertices.push_back(diamond[i] * 0.1);
+        vertices.push_back(diamond[i] * 0.1f);
 
     Array arr;
     arr.resize(Mesh::ARRAY_MAX);
@@ -979,10 +984,10 @@ Variant SceneTree::_call_group_flags(const Variant **p_args, int p_argcount, Var
 
     r_error.error = Variant::CallError::CALL_OK;
 
-    ERR_FAIL_COND_V(p_argcount < 3, Variant());
-    ERR_FAIL_COND_V(!p_args[0]->is_num(), Variant());
-    ERR_FAIL_COND_V(p_args[1]->get_type() != Variant::STRING, Variant());
-    ERR_FAIL_COND_V(p_args[2]->get_type() != Variant::STRING, Variant());
+    ERR_FAIL_COND_V(p_argcount < 3, Variant())
+    ERR_FAIL_COND_V(!p_args[0]->is_num(), Variant())
+    ERR_FAIL_COND_V(p_args[1]->get_type() != Variant::STRING, Variant())
+    ERR_FAIL_COND_V(p_args[2]->get_type() != Variant::STRING, Variant())
 
     int flags = *p_args[0];
     StringName group = *p_args[1];
@@ -1002,9 +1007,9 @@ Variant SceneTree::_call_group(const Variant **p_args, int p_argcount, Variant::
 
     r_error.error = Variant::CallError::CALL_OK;
 
-    ERR_FAIL_COND_V(p_argcount < 2, Variant());
-    ERR_FAIL_COND_V(p_args[0]->get_type() != Variant::STRING, Variant());
-    ERR_FAIL_COND_V(p_args[1]->get_type() != Variant::STRING, Variant());
+    ERR_FAIL_COND_V(p_argcount < 2, Variant())
+    ERR_FAIL_COND_V(p_args[0]->get_type() != Variant::STRING, Variant())
+    ERR_FAIL_COND_V(p_args[1]->get_type() != Variant::STRING, Variant())
 
     StringName group = *p_args[0];
     StringName method = *p_args[1];
@@ -1110,7 +1115,7 @@ void SceneTree::_flush_delete_queue() {
 void SceneTree::queue_delete(Object *p_object) {
 
     _THREAD_SAFE_METHOD_
-    ERR_FAIL_NULL(p_object);
+    ERR_FAIL_NULL(p_object)
     p_object->_is_queued_for_deletion = true;
     delete_queue.push_back(p_object->get_instance_id());
 }
@@ -1144,7 +1149,7 @@ void SceneTree::_update_root_rect() {
     float video_mode_aspect = video_mode.aspect();
 
     if (use_font_oversampling && stretch_aspect == STRETCH_ASPECT_IGNORE) {
-        WARN_PRINT("Font oversampling only works with the resize modes 'Keep Width', 'Keep Height', and 'Expand'.");
+        WARN_PRINT("Font oversampling only works with the resize modes 'Keep Width', 'Keep Height', and 'Expand'.")
     }
 
     if (stretch_aspect == STRETCH_ASPECT_IGNORE || Math::is_equal_approx(viewport_aspect, video_mode_aspect)) {
@@ -1191,11 +1196,11 @@ void SceneTree::_update_root_rect() {
     Size2 offset;
     //black bars and margin
     if (stretch_aspect != STRETCH_ASPECT_EXPAND && screen_size.x < video_mode.x) {
-        margin.x = Math::round((video_mode.x - screen_size.x) / 2.0);
+        margin.x = Math::round((video_mode.x - screen_size.x) / 2.0f);
         VisualServer::get_singleton()->black_bars_set_margins(margin.x, 0, margin.x, 0);
         offset.x = Math::round(margin.x * viewport_size.y / screen_size.y);
     } else if (stretch_aspect != STRETCH_ASPECT_EXPAND && screen_size.y < video_mode.y) {
-        margin.y = Math::round((video_mode.y - screen_size.y) / 2.0);
+        margin.y = Math::round((video_mode.y - screen_size.y) / 2.0f);
         VisualServer::get_singleton()->black_bars_set_margins(0, margin.y, 0, margin.y);
         offset.y = Math::round(margin.y * viewport_size.x / screen_size.x);
     } else {
@@ -1227,7 +1232,7 @@ void SceneTree::_update_root_rect() {
             root->update_canvas_items(); //force them to update just in case
 
             if (use_font_oversampling) {
-                WARN_PRINT("Font oversampling does not work in 'Viewport' stretch mode, only '2D'.");
+                WARN_PRINT("Font oversampling does not work in 'Viewport' stretch mode, only '2D'.")
             }
 
         } break;
@@ -1260,7 +1265,7 @@ Node *SceneTree::get_edited_scene_root() const {
 
 void SceneTree::set_current_scene(Node *p_scene) {
 
-    ERR_FAIL_COND(p_scene && p_scene->get_parent() != root);
+    ERR_FAIL_COND(p_scene && p_scene->get_parent() != root)
     current_scene = p_scene;
 }
 
@@ -1295,7 +1300,7 @@ Error SceneTree::change_scene_to(const Ref<PackedScene> &p_scene) {
     Node *new_scene = nullptr;
     if (p_scene.is_valid()) {
         new_scene = p_scene->instance();
-        ERR_FAIL_COND_V(!new_scene, ERR_CANT_CREATE);
+        ERR_FAIL_COND_V(!new_scene, ERR_CANT_CREATE)
     }
 
     call_deferred("_change_scene", new_scene);
@@ -1303,7 +1308,7 @@ Error SceneTree::change_scene_to(const Ref<PackedScene> &p_scene) {
 }
 Error SceneTree::reload_current_scene() {
 
-    ERR_FAIL_COND_V(!current_scene, ERR_UNCONFIGURED);
+    ERR_FAIL_COND_V(!current_scene, ERR_UNCONFIGURED)
     String fname = current_scene->get_filename();
     return change_scene(fname);
 }
@@ -1674,6 +1679,12 @@ void SceneTree::drop_files(const Vector<String> &p_files, int p_from_screen) {
     MainLoop::drop_files(p_files, p_from_screen);
 }
 
+void SceneTree::global_menu_action(const Variant &p_id, const Variant &p_meta) {
+
+    emit_signal("global_menu_action", p_id, p_meta);
+    MainLoop::global_menu_action(p_id, p_meta);
+}
+
 Ref<SceneTreeTimer> SceneTree::create_timer(float p_delay_sec, bool p_process_pause) {
 
     Ref<SceneTreeTimer> stt;
@@ -1722,7 +1733,7 @@ bool SceneTree::is_multiplayer_poll_enabled() const {
 }
 
 void SceneTree::set_multiplayer(Ref<MultiplayerAPI> p_multiplayer) {
-    ERR_FAIL_COND(!p_multiplayer.is_valid());
+    ERR_FAIL_COND(!p_multiplayer.is_valid())
 
     if (multiplayer.is_valid()) {
         multiplayer->disconnect("network_peer_connected", this, "_network_peer_connected");
@@ -1785,36 +1796,36 @@ bool SceneTree::is_refusing_new_network_connections() const {
 
 void SceneTree::_bind_methods() {
 
-    //ClassDB::bind_method(D_METHOD("call_group","call_flags","group","method","arg1","arg2"),&SceneMainLoop::_call_group,{DEFVAL(Variant()),DEFVAL(Variant())});
+    //MethodBinder::bind_method(D_METHOD("call_group","call_flags","group","method","arg1","arg2"),&SceneMainLoop::_call_group,{DEFVAL(Variant()),DEFVAL(Variant())});
 
-    ClassDB::bind_method(D_METHOD("get_root"), &SceneTree::get_root);
-    ClassDB::bind_method(D_METHOD("has_group", "name"), &SceneTree::has_group);
+    MethodBinder::bind_method(D_METHOD("get_root"), &SceneTree::get_root);
+    MethodBinder::bind_method(D_METHOD("has_group", "name"), &SceneTree::has_group);
 
-    ClassDB::bind_method(D_METHOD("set_auto_accept_quit", "enabled"), &SceneTree::set_auto_accept_quit);
-    ClassDB::bind_method(D_METHOD("set_quit_on_go_back", "enabled"), &SceneTree::set_quit_on_go_back);
+    MethodBinder::bind_method(D_METHOD("set_auto_accept_quit", "enabled"), &SceneTree::set_auto_accept_quit);
+    MethodBinder::bind_method(D_METHOD("set_quit_on_go_back", "enabled"), &SceneTree::set_quit_on_go_back);
 
-    ClassDB::bind_method(D_METHOD("set_debug_collisions_hint", "enable"), &SceneTree::set_debug_collisions_hint);
-    ClassDB::bind_method(D_METHOD("is_debugging_collisions_hint"), &SceneTree::is_debugging_collisions_hint);
-    ClassDB::bind_method(D_METHOD("set_debug_navigation_hint", "enable"), &SceneTree::set_debug_navigation_hint);
-    ClassDB::bind_method(D_METHOD("is_debugging_navigation_hint"), &SceneTree::is_debugging_navigation_hint);
+    MethodBinder::bind_method(D_METHOD("set_debug_collisions_hint", "enable"), &SceneTree::set_debug_collisions_hint);
+    MethodBinder::bind_method(D_METHOD("is_debugging_collisions_hint"), &SceneTree::is_debugging_collisions_hint);
+    MethodBinder::bind_method(D_METHOD("set_debug_navigation_hint", "enable"), &SceneTree::set_debug_navigation_hint);
+    MethodBinder::bind_method(D_METHOD("is_debugging_navigation_hint"), &SceneTree::is_debugging_navigation_hint);
 
-    ClassDB::bind_method(D_METHOD("set_edited_scene_root", "scene"), &SceneTree::set_edited_scene_root);
-    ClassDB::bind_method(D_METHOD("get_edited_scene_root"), &SceneTree::get_edited_scene_root);
+    MethodBinder::bind_method(D_METHOD("set_edited_scene_root", "scene"), &SceneTree::set_edited_scene_root);
+    MethodBinder::bind_method(D_METHOD("get_edited_scene_root"), &SceneTree::get_edited_scene_root);
 
-    ClassDB::bind_method(D_METHOD("set_pause", "enable"), &SceneTree::set_pause);
-    ClassDB::bind_method(D_METHOD("is_paused"), &SceneTree::is_paused);
-    ClassDB::bind_method(D_METHOD("set_input_as_handled"), &SceneTree::set_input_as_handled);
-    ClassDB::bind_method(D_METHOD("is_input_handled"), &SceneTree::is_input_handled);
+    MethodBinder::bind_method(D_METHOD("set_pause", "enable"), &SceneTree::set_pause);
+    MethodBinder::bind_method(D_METHOD("is_paused"), &SceneTree::is_paused);
+    MethodBinder::bind_method(D_METHOD("set_input_as_handled"), &SceneTree::set_input_as_handled);
+    MethodBinder::bind_method(D_METHOD("is_input_handled"), &SceneTree::is_input_handled);
 
-    ClassDB::bind_method(D_METHOD("create_timer", "time_sec", "pause_mode_process"), &SceneTree::create_timer, {DEFVAL(true)});
+    MethodBinder::bind_method(D_METHOD("create_timer", "time_sec", "pause_mode_process"), &SceneTree::create_timer, {DEFVAL(true)});
 
-    ClassDB::bind_method(D_METHOD("get_node_count"), &SceneTree::get_node_count);
-    ClassDB::bind_method(D_METHOD("get_frame"), &SceneTree::get_frame);
-    ClassDB::bind_method(D_METHOD("quit"), &SceneTree::quit);
+    MethodBinder::bind_method(D_METHOD("get_node_count"), &SceneTree::get_node_count);
+    MethodBinder::bind_method(D_METHOD("get_frame"), &SceneTree::get_frame);
+    MethodBinder::bind_method(D_METHOD("quit"), &SceneTree::quit);
 
-    ClassDB::bind_method(D_METHOD("set_screen_stretch", "mode", "aspect", "minsize", "shrink"), &SceneTree::set_screen_stretch, {DEFVAL(1)});
+    MethodBinder::bind_method(D_METHOD("set_screen_stretch", "mode", "aspect", "minsize", "shrink"), &SceneTree::set_screen_stretch, {DEFVAL(1)});
 
-    ClassDB::bind_method(D_METHOD("queue_delete", "obj"), &SceneTree::queue_delete);
+    MethodBinder::bind_method(D_METHOD("queue_delete", "obj"), &SceneTree::queue_delete);
 
     MethodInfo mi;
     mi.name = "call_group_flags";
@@ -1822,54 +1833,54 @@ void SceneTree::_bind_methods() {
     mi.arguments.push_back(PropertyInfo(Variant::STRING, "group"));
     mi.arguments.push_back(PropertyInfo(Variant::STRING, "method"));
 
-    ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "call_group_flags", &SceneTree::_call_group_flags, mi);
+    MethodBinder::bind_vararg_method("call_group_flags", &SceneTree::_call_group_flags, mi);
 
-    ClassDB::bind_method(D_METHOD("notify_group_flags", "call_flags", "group", "notification"), &SceneTree::notify_group_flags);
-    ClassDB::bind_method(D_METHOD("set_group_flags", "call_flags", "group", "property", "value"), &SceneTree::set_group_flags);
+    MethodBinder::bind_method(D_METHOD("notify_group_flags", "call_flags", "group", "notification"), &SceneTree::notify_group_flags);
+    MethodBinder::bind_method(D_METHOD("set_group_flags", "call_flags", "group", "property", "value"), &SceneTree::set_group_flags);
 
     MethodInfo mi2;
     mi2.name = "call_group";
     mi2.arguments.push_back(PropertyInfo(Variant::STRING, "group"));
     mi2.arguments.push_back(PropertyInfo(Variant::STRING, "method"));
 
-    ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "call_group", &SceneTree::_call_group, mi2);
+    MethodBinder::bind_vararg_method( "call_group", &SceneTree::_call_group, mi2);
 
-    ClassDB::bind_method(D_METHOD("notify_group", "group", "notification"), &SceneTree::notify_group);
-    ClassDB::bind_method(D_METHOD("set_group", "group", "property", "value"), &SceneTree::set_group);
+    MethodBinder::bind_method(D_METHOD("notify_group", "group", "notification"), &SceneTree::notify_group);
+    MethodBinder::bind_method(D_METHOD("set_group", "group", "property", "value"), &SceneTree::set_group);
 
-    ClassDB::bind_method(D_METHOD("get_nodes_in_group", "group"), &SceneTree::_get_nodes_in_group);
+    MethodBinder::bind_method(D_METHOD("get_nodes_in_group", "group"), &SceneTree::_get_nodes_in_group);
 
-    ClassDB::bind_method(D_METHOD("set_current_scene", "child_node"), &SceneTree::set_current_scene);
-    ClassDB::bind_method(D_METHOD("get_current_scene"), &SceneTree::get_current_scene);
+    MethodBinder::bind_method(D_METHOD("set_current_scene", "child_node"), &SceneTree::set_current_scene);
+    MethodBinder::bind_method(D_METHOD("get_current_scene"), &SceneTree::get_current_scene);
 
-    ClassDB::bind_method(D_METHOD("change_scene", "path"), &SceneTree::change_scene);
-    ClassDB::bind_method(D_METHOD("change_scene_to", "packed_scene"), &SceneTree::change_scene_to);
+    MethodBinder::bind_method(D_METHOD("change_scene", "path"), &SceneTree::change_scene);
+    MethodBinder::bind_method(D_METHOD("change_scene_to", "packed_scene"), &SceneTree::change_scene_to);
 
-    ClassDB::bind_method(D_METHOD("reload_current_scene"), &SceneTree::reload_current_scene);
+    MethodBinder::bind_method(D_METHOD("reload_current_scene"), &SceneTree::reload_current_scene);
 
-    ClassDB::bind_method(D_METHOD("_change_scene"), &SceneTree::_change_scene);
+    MethodBinder::bind_method(D_METHOD("_change_scene"), &SceneTree::_change_scene);
 
-    ClassDB::bind_method(D_METHOD("set_multiplayer", "multiplayer"), &SceneTree::set_multiplayer);
-    ClassDB::bind_method(D_METHOD("get_multiplayer"), &SceneTree::get_multiplayer);
-    ClassDB::bind_method(D_METHOD("set_multiplayer_poll_enabled", "enabled"), &SceneTree::set_multiplayer_poll_enabled);
-    ClassDB::bind_method(D_METHOD("is_multiplayer_poll_enabled"), &SceneTree::is_multiplayer_poll_enabled);
-    ClassDB::bind_method(D_METHOD("set_network_peer", "peer"), &SceneTree::set_network_peer);
-    ClassDB::bind_method(D_METHOD("get_network_peer"), &SceneTree::get_network_peer);
-    ClassDB::bind_method(D_METHOD("is_network_server"), &SceneTree::is_network_server);
-    ClassDB::bind_method(D_METHOD("has_network_peer"), &SceneTree::has_network_peer);
-    ClassDB::bind_method(D_METHOD("get_network_connected_peers"), &SceneTree::get_network_connected_peers);
-    ClassDB::bind_method(D_METHOD("get_network_unique_id"), &SceneTree::get_network_unique_id);
-    ClassDB::bind_method(D_METHOD("get_rpc_sender_id"), &SceneTree::get_rpc_sender_id);
-    ClassDB::bind_method(D_METHOD("set_refuse_new_network_connections", "refuse"), &SceneTree::set_refuse_new_network_connections);
-    ClassDB::bind_method(D_METHOD("is_refusing_new_network_connections"), &SceneTree::is_refusing_new_network_connections);
-    ClassDB::bind_method(D_METHOD("_network_peer_connected"), &SceneTree::_network_peer_connected);
-    ClassDB::bind_method(D_METHOD("_network_peer_disconnected"), &SceneTree::_network_peer_disconnected);
-    ClassDB::bind_method(D_METHOD("_connected_to_server"), &SceneTree::_connected_to_server);
-    ClassDB::bind_method(D_METHOD("_connection_failed"), &SceneTree::_connection_failed);
-    ClassDB::bind_method(D_METHOD("_server_disconnected"), &SceneTree::_server_disconnected);
+    MethodBinder::bind_method(D_METHOD("set_multiplayer", "multiplayer"), &SceneTree::set_multiplayer);
+    MethodBinder::bind_method(D_METHOD("get_multiplayer"), &SceneTree::get_multiplayer);
+    MethodBinder::bind_method(D_METHOD("set_multiplayer_poll_enabled", "enabled"), &SceneTree::set_multiplayer_poll_enabled);
+    MethodBinder::bind_method(D_METHOD("is_multiplayer_poll_enabled"), &SceneTree::is_multiplayer_poll_enabled);
+    MethodBinder::bind_method(D_METHOD("set_network_peer", "peer"), &SceneTree::set_network_peer);
+    MethodBinder::bind_method(D_METHOD("get_network_peer"), &SceneTree::get_network_peer);
+    MethodBinder::bind_method(D_METHOD("is_network_server"), &SceneTree::is_network_server);
+    MethodBinder::bind_method(D_METHOD("has_network_peer"), &SceneTree::has_network_peer);
+    MethodBinder::bind_method(D_METHOD("get_network_connected_peers"), &SceneTree::get_network_connected_peers);
+    MethodBinder::bind_method(D_METHOD("get_network_unique_id"), &SceneTree::get_network_unique_id);
+    MethodBinder::bind_method(D_METHOD("get_rpc_sender_id"), &SceneTree::get_rpc_sender_id);
+    MethodBinder::bind_method(D_METHOD("set_refuse_new_network_connections", "refuse"), &SceneTree::set_refuse_new_network_connections);
+    MethodBinder::bind_method(D_METHOD("is_refusing_new_network_connections"), &SceneTree::is_refusing_new_network_connections);
+    MethodBinder::bind_method(D_METHOD("_network_peer_connected"), &SceneTree::_network_peer_connected);
+    MethodBinder::bind_method(D_METHOD("_network_peer_disconnected"), &SceneTree::_network_peer_disconnected);
+    MethodBinder::bind_method(D_METHOD("_connected_to_server"), &SceneTree::_connected_to_server);
+    MethodBinder::bind_method(D_METHOD("_connection_failed"), &SceneTree::_connection_failed);
+    MethodBinder::bind_method(D_METHOD("_server_disconnected"), &SceneTree::_server_disconnected);
 
-    ClassDB::bind_method(D_METHOD("set_use_font_oversampling", "enable"), &SceneTree::set_use_font_oversampling);
-    ClassDB::bind_method(D_METHOD("is_using_font_oversampling"), &SceneTree::is_using_font_oversampling);
+    MethodBinder::bind_method(D_METHOD("set_use_font_oversampling", "enable"), &SceneTree::set_use_font_oversampling);
+    MethodBinder::bind_method(D_METHOD("is_using_font_oversampling"), &SceneTree::is_using_font_oversampling);
 
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "debug_collisions_hint"), "set_debug_collisions_hint", "is_debugging_collisions_hint");
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "debug_navigation_hint"), "set_debug_navigation_hint", "is_debugging_navigation_hint");
@@ -1895,26 +1906,27 @@ void SceneTree::_bind_methods() {
     ADD_SIGNAL(MethodInfo("physics_frame"));
 
     ADD_SIGNAL(MethodInfo("files_dropped", PropertyInfo(Variant::POOL_STRING_ARRAY, "files"), PropertyInfo(Variant::INT, "screen")));
+    ADD_SIGNAL(MethodInfo("global_menu_action", PropertyInfo(Variant::NIL, "id"), PropertyInfo(Variant::NIL, "meta")));
     ADD_SIGNAL(MethodInfo("network_peer_connected", PropertyInfo(Variant::INT, "id")));
     ADD_SIGNAL(MethodInfo("network_peer_disconnected", PropertyInfo(Variant::INT, "id")));
     ADD_SIGNAL(MethodInfo("connected_to_server"));
     ADD_SIGNAL(MethodInfo("connection_failed"));
     ADD_SIGNAL(MethodInfo("server_disconnected"));
 
-    BIND_ENUM_CONSTANT(GROUP_CALL_DEFAULT);
-    BIND_ENUM_CONSTANT(GROUP_CALL_REVERSE);
-    BIND_ENUM_CONSTANT(GROUP_CALL_REALTIME);
-    BIND_ENUM_CONSTANT(GROUP_CALL_UNIQUE);
+    BIND_ENUM_CONSTANT(GROUP_CALL_DEFAULT)
+    BIND_ENUM_CONSTANT(GROUP_CALL_REVERSE)
+    BIND_ENUM_CONSTANT(GROUP_CALL_REALTIME)
+    BIND_ENUM_CONSTANT(GROUP_CALL_UNIQUE)
 
-    BIND_ENUM_CONSTANT(STRETCH_MODE_DISABLED);
-    BIND_ENUM_CONSTANT(STRETCH_MODE_2D);
-    BIND_ENUM_CONSTANT(STRETCH_MODE_VIEWPORT);
+    BIND_ENUM_CONSTANT(STRETCH_MODE_DISABLED)
+    BIND_ENUM_CONSTANT(STRETCH_MODE_2D)
+    BIND_ENUM_CONSTANT(STRETCH_MODE_VIEWPORT)
 
-    BIND_ENUM_CONSTANT(STRETCH_ASPECT_IGNORE);
-    BIND_ENUM_CONSTANT(STRETCH_ASPECT_KEEP);
-    BIND_ENUM_CONSTANT(STRETCH_ASPECT_KEEP_WIDTH);
-    BIND_ENUM_CONSTANT(STRETCH_ASPECT_KEEP_HEIGHT);
-    BIND_ENUM_CONSTANT(STRETCH_ASPECT_EXPAND);
+    BIND_ENUM_CONSTANT(STRETCH_ASPECT_IGNORE)
+    BIND_ENUM_CONSTANT(STRETCH_ASPECT_KEEP)
+    BIND_ENUM_CONSTANT(STRETCH_ASPECT_KEEP_WIDTH)
+    BIND_ENUM_CONSTANT(STRETCH_ASPECT_KEEP_HEIGHT)
+    BIND_ENUM_CONSTANT(STRETCH_ASPECT_EXPAND)
 }
 
 SceneTree *SceneTree::singleton = nullptr;
@@ -1930,7 +1942,7 @@ void SceneTree::_call_idle_callbacks() {
 }
 
 void SceneTree::add_idle_callback(IdleCallback p_callback) {
-    ERR_FAIL_COND(idle_callback_count >= MAX_IDLE_CALLBACKS);
+    ERR_FAIL_COND(idle_callback_count >= MAX_IDLE_CALLBACKS)
     idle_callbacks[idle_callback_count++] = p_callback;
 }
 
@@ -1947,6 +1959,38 @@ bool SceneTree::is_using_font_oversampling() const {
     return use_font_oversampling;
 }
 
+void SceneTree::get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const {
+    using namespace PathUtils;
+
+    if (p_function == "change_scene") {
+        DirAccessRef dir_access = DirAccess::create(DirAccess::ACCESS_RESOURCES);
+        List<String> directories;
+        directories.push_back(dir_access->get_current_dir());
+
+        while (!directories.empty()) {
+            dir_access->change_dir(directories.back()->get());
+            directories.pop_back();
+
+            dir_access->list_dir_begin();
+            String filename = dir_access->get_next();
+
+            while (filename != "") {
+                if (filename == "." || filename == "..") {
+                    filename = dir_access->get_next();
+                    continue;
+                }
+
+                if (dir_access->dir_exists(filename)) {
+                    directories.push_back(plus_file(dir_access->get_current_dir(),filename));
+                } else if (StringUtils::ends_with(filename,".tscn") || StringUtils::ends_with(filename,".scn")) {
+                    r_options->push_back("\"" + plus_file(dir_access->get_current_dir(),filename) + "\"");
+                }
+
+                filename = dir_access->get_next();
+            }
+        }
+    }
+}
 SceneTree::SceneTree() {
 
     if (singleton == nullptr) singleton = this;
@@ -1959,10 +2003,10 @@ SceneTree::SceneTree() {
     debug_collisions_hint = false;
     debug_navigation_hint = false;
 #endif
-    debug_collisions_color = GLOBAL_DEF("debug/shapes/collision/shape_color", Color(0.0, 0.6, 0.7, 0.5));
-    debug_collision_contact_color = GLOBAL_DEF("debug/shapes/collision/contact_color", Color(1.0, 0.2, 0.1, 0.8));
-    debug_navigation_color = GLOBAL_DEF("debug/shapes/navigation/geometry_color", Color(0.1, 1.0, 0.7, 0.4));
-    debug_navigation_disabled_color = GLOBAL_DEF("debug/shapes/navigation/disabled_geometry_color", Color(1.0, 0.7, 0.1, 0.4));
+    debug_collisions_color = GLOBAL_DEF("debug/shapes/collision/shape_color", Color(0.0, 0.6f, 0.7f, 0.5));
+    debug_collision_contact_color = GLOBAL_DEF("debug/shapes/collision/contact_color", Color(1.0, 0.2f, 0.1f, 0.8f));
+    debug_navigation_color = GLOBAL_DEF("debug/shapes/navigation/geometry_color", Color(0.1f, 1.0, 0.7f, 0.4f));
+    debug_navigation_disabled_color = GLOBAL_DEF("debug/shapes/navigation/disabled_geometry_color", Color(1.0, 0.7f, 0.1f, 0.4f));
     collision_debug_contacts = GLOBAL_DEF("debug/shapes/collision/max_contacts_displayed", 10000);
     ProjectSettings::get_singleton()->set_custom_property_info("debug/shapes/collision/max_contacts_displayed", PropertyInfo(Variant::INT, "debug/shapes/collision/max_contacts_displayed", PROPERTY_HINT_RANGE, "0,20000,1")); // No negative
 
@@ -2031,7 +2075,7 @@ SceneTree::SceneTree() {
         String env_path = GLOBAL_DEF("rendering/environment/default_environment", "");
         //setup property
         ProjectSettings::get_singleton()->set_custom_property_info("rendering/environment/default_environment", PropertyInfo(Variant::STRING, "rendering/viewport/default_environment", PROPERTY_HINT_FILE, ext_hint));
-        env_path = env_path.strip_edges();
+        env_path =StringUtils::strip_edges( env_path);
         if (env_path != String()) {
             Ref<Environment> env = ResourceLoader::load(env_path);
             if (env.is_valid()) {

@@ -79,7 +79,7 @@ public:
 	virtual bool setup(real_t p_step) = 0;
 	virtual void solve(real_t p_step) = 0;
 
-	virtual ~ConstraintSW() {}
+	~ConstraintSW() override {}
 };
 
 #endif // CONSTRAINT__SW_H

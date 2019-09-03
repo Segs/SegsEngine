@@ -28,17 +28,21 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef REFERENCE_H
-#define REFERENCE_H
+#pragma once
 
 #include "core/object.h"
 #include "core/class_db.h"
 #include "core/ref_ptr.h"
 #include "core/safe_refcount.h"
+#include "core/typesystem_decls.h"
+
+template <class T, typename>
+struct GetTypeInfo;
 
 class Reference : public Object {
 
-    GDCLASS(Reference, Object)
+    GDCLASS(Reference,Object)
+
     friend class RefBase;
     SafeRefCount refcount;
     SafeRefCount refcount_init;
@@ -54,7 +58,7 @@ public:
     int reference_get_count() const;
 
     Reference();
-	~Reference() override  = default;
+    ~Reference() override  = default;
 };
 
 template <class T>
@@ -296,13 +300,13 @@ public:
     }
 };
 
-typedef Ref<Reference> REF;
+using REF = Ref<Reference>;
 
 class WeakRef : public Reference {
 
-	GDCLASS(WeakRef, Reference)
+    GDCLASS(WeakRef,Reference)
 
-	ObjectID ref {0};
+    ObjectID ref {0};
 
 protected:
     static void _bind_methods();
@@ -312,10 +316,12 @@ public:
     void set_obj(Object *p_object);
     void set_ref(const REF &p_ref);
 
-	WeakRef() {}
+    WeakRef() {}
 };
 
 #ifdef PTRCALL_ENABLED
+template <class T>
+struct PtrToArg;
 
 template <class T>
 struct PtrToArg<Ref<T> > {
@@ -371,25 +377,23 @@ struct PtrToArg<const RefPtr &> {
 #ifdef DEBUG_METHODS_ENABLED
 
 template <class T>
-struct GetTypeInfo<Ref<T> > {
+struct GetTypeInfo<Ref<T>,void> {
     static const Variant::Type VARIANT_TYPE = Variant::OBJECT;
     static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;
 
-    static inline PropertyInfo get_class_info() {
-        return PropertyInfo(Variant::OBJECT, String(), PROPERTY_HINT_RESOURCE_TYPE, T::get_class_static());
+    static RawPropertyInfo get_class_info() {
+        return RawPropertyInfo{ nullptr,T::get_class_static(),nullptr,Variant::OBJECT, PROPERTY_HINT_RESOURCE_TYPE };
     }
 };
 
 template <class T>
-struct GetTypeInfo<const Ref<T> &> {
+struct GetTypeInfo<const Ref<T> &,void> {
     static const Variant::Type VARIANT_TYPE = Variant::OBJECT;
     static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;
 
-    static inline PropertyInfo get_class_info() {
-        return PropertyInfo(Variant::OBJECT, String(), PROPERTY_HINT_RESOURCE_TYPE, T::get_class_static());
+    static inline RawPropertyInfo get_class_info() {
+        return RawPropertyInfo { nullptr,T::get_class_static(),nullptr,Variant::OBJECT, PROPERTY_HINT_RESOURCE_TYPE };
     }
 };
 
 #endif // DEBUG_METHODS_ENABLED
-
-#endif // REFERENCE_H

@@ -31,6 +31,10 @@
 #include "audio_stream_sample.h"
 #include "core/io/marshalls.h"
 #include "core/os/file_access.h"
+#include "core/method_bind.h"
+
+IMPL_GDCLASS(AudioStreamPlaybackSample)
+IMPL_GDCLASS(AudioStreamSample)
 
 void AudioStreamPlaybackSample::start(float p_from_pos) {
 
@@ -540,7 +544,7 @@ Error AudioStreamSample::save_to_wav(const String &p_path) {
     }
 
     String file_path = p_path;
-    if (!(file_path.substr(file_path.length() - 4, 4) == ".wav")) {
+    if (!StringUtils::ends_with(file_path,".wav")) {
         file_path += ".wav";
     }
 
@@ -604,28 +608,28 @@ String AudioStreamSample::get_stream_name() const {
 
 void AudioStreamSample::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_data", "data"), &AudioStreamSample::set_data);
-    ClassDB::bind_method(D_METHOD("get_data"), &AudioStreamSample::get_data);
+    MethodBinder::bind_method(D_METHOD("set_data", "data"), &AudioStreamSample::set_data);
+    MethodBinder::bind_method(D_METHOD("get_data"), &AudioStreamSample::get_data);
 
-    ClassDB::bind_method(D_METHOD("set_format", "format"), &AudioStreamSample::set_format);
-    ClassDB::bind_method(D_METHOD("get_format"), &AudioStreamSample::get_format);
+    MethodBinder::bind_method(D_METHOD("set_format", "format"), &AudioStreamSample::set_format);
+    MethodBinder::bind_method(D_METHOD("get_format"), &AudioStreamSample::get_format);
 
-    ClassDB::bind_method(D_METHOD("set_loop_mode", "loop_mode"), &AudioStreamSample::set_loop_mode);
-    ClassDB::bind_method(D_METHOD("get_loop_mode"), &AudioStreamSample::get_loop_mode);
+    MethodBinder::bind_method(D_METHOD("set_loop_mode", "loop_mode"), &AudioStreamSample::set_loop_mode);
+    MethodBinder::bind_method(D_METHOD("get_loop_mode"), &AudioStreamSample::get_loop_mode);
 
-    ClassDB::bind_method(D_METHOD("set_loop_begin", "loop_begin"), &AudioStreamSample::set_loop_begin);
-    ClassDB::bind_method(D_METHOD("get_loop_begin"), &AudioStreamSample::get_loop_begin);
+    MethodBinder::bind_method(D_METHOD("set_loop_begin", "loop_begin"), &AudioStreamSample::set_loop_begin);
+    MethodBinder::bind_method(D_METHOD("get_loop_begin"), &AudioStreamSample::get_loop_begin);
 
-    ClassDB::bind_method(D_METHOD("set_loop_end", "loop_end"), &AudioStreamSample::set_loop_end);
-    ClassDB::bind_method(D_METHOD("get_loop_end"), &AudioStreamSample::get_loop_end);
+    MethodBinder::bind_method(D_METHOD("set_loop_end", "loop_end"), &AudioStreamSample::set_loop_end);
+    MethodBinder::bind_method(D_METHOD("get_loop_end"), &AudioStreamSample::get_loop_end);
 
-    ClassDB::bind_method(D_METHOD("set_mix_rate", "mix_rate"), &AudioStreamSample::set_mix_rate);
-    ClassDB::bind_method(D_METHOD("get_mix_rate"), &AudioStreamSample::get_mix_rate);
+    MethodBinder::bind_method(D_METHOD("set_mix_rate", "mix_rate"), &AudioStreamSample::set_mix_rate);
+    MethodBinder::bind_method(D_METHOD("get_mix_rate"), &AudioStreamSample::get_mix_rate);
 
-    ClassDB::bind_method(D_METHOD("set_stereo", "stereo"), &AudioStreamSample::set_stereo);
-    ClassDB::bind_method(D_METHOD("is_stereo"), &AudioStreamSample::is_stereo);
+    MethodBinder::bind_method(D_METHOD("set_stereo", "stereo"), &AudioStreamSample::set_stereo);
+    MethodBinder::bind_method(D_METHOD("is_stereo"), &AudioStreamSample::is_stereo);
 
-    ClassDB::bind_method(D_METHOD("save_to_wav", "path"), &AudioStreamSample::save_to_wav);
+    MethodBinder::bind_method(D_METHOD("save_to_wav", "path"), &AudioStreamSample::save_to_wav);
 
     ADD_PROPERTY(PropertyInfo(Variant::POOL_BYTE_ARRAY, "data", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_data", "get_data");
     ADD_PROPERTY(PropertyInfo(Variant::INT, "format", PROPERTY_HINT_ENUM, "8-Bit,16-Bit,IMA-ADPCM"), "set_format", "get_format");

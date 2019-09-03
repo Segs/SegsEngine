@@ -229,15 +229,15 @@ void ContextGL_X11::set_use_vsync(bool p_use) {
     static PFNGLXSWAPINTERVALEXTPROC glXSwapIntervalEXT = nullptr;
     static PFNGLXSWAPINTERVALSGIPROC glXSwapIntervalMESA = nullptr;
     static PFNGLXSWAPINTERVALSGIPROC glXSwapIntervalSGI = nullptr;
-
+    using namespace StringUtils;
     if (!setup) {
         setup = true;
         String extensions = glXQueryExtensionsString(x11_display, DefaultScreen(x11_display));
-        if (extensions.find("GLX_EXT_swap_control") != -1)
+        if (contains(extensions,"GLX_EXT_swap_control"))
             glXSwapIntervalEXT = (PFNGLXSWAPINTERVALEXTPROC)glXGetProcAddressARB((const GLubyte *)"glXSwapIntervalEXT");
-        if (extensions.find("GLX_MESA_swap_control") != -1)
+        if (contains(extensions,"GLX_MESA_swap_control"))
             glXSwapIntervalMESA = (PFNGLXSWAPINTERVALSGIPROC)glXGetProcAddressARB((const GLubyte *)"glXSwapIntervalMESA");
-        if (extensions.find("GLX_SGI_swap_control") != -1)
+        if (contains(extensions,"GLX_SGI_swap_control"))
             glXSwapIntervalSGI = (PFNGLXSWAPINTERVALSGIPROC)glXGetProcAddressARB((const GLubyte *)"glXSwapIntervalSGI");
     }
     int val = p_use ? 1 : 0;

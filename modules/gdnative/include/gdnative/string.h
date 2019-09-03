@@ -113,7 +113,7 @@ godot_int GDAPI godot_string_findn(const godot_string *p_self, godot_string p_wh
 godot_int GDAPI godot_string_findn_from(const godot_string *p_self, godot_string p_what, godot_int p_from);
 godot_int GDAPI godot_string_find_last(const godot_string *p_self, godot_string p_what);
 godot_string GDAPI godot_string_format(const godot_string *p_self, const godot_variant *p_values);
-godot_string GDAPI godot_string_format_with_custom_placeholder(const godot_string *p_self, const godot_variant *p_values, const char *p_placeholder);
+
 godot_string GDAPI godot_string_hex_encode_buffer(const uint8_t *p_buffer, godot_int p_len);
 godot_int GDAPI godot_string_hex_to_int(const godot_string *p_self);
 godot_int GDAPI godot_string_hex_to_int_without_prefix(const godot_string *p_self);

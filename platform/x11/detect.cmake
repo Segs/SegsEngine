@@ -120,7 +120,7 @@ if(UNIX)
         find_package(ZLIB REQUIRED)
     endif()
     include_directories(${PROJECT_SOURCE_DIR}/platform/x11)
-    add_definitions(-DX11_ENABLED -DUNIX_ENABLED -DOPENGL_ENABLED -DGLES_ENABLED -DGLES_OVER_GL)
+    add_definitions(-DX11_ENABLED -DUNIX_ENABLED -DOPENGL_ENABLED -DGLES_OVER_GL)
 
     ## Cross-compilation
 

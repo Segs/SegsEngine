@@ -62,7 +62,7 @@ public:
 	_FORCE_INLINE_ bool is_disabled_collisions_between_bodies() const { return disabled_collisions_between_bodies; }
 
 public:
-	virtual ~ConstraintBullet() {
+	~ConstraintBullet() override {
 		bulletdelete(constraint);
 		constraint = nullptr;
 	}

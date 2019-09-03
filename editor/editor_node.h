@@ -32,69 +32,51 @@
 #define EDITOR_NODE_H
 
 #include "core/print_string.h"
-#include "editor/audio_stream_preview.h"
-#include "editor/connections_dialog.h"
-#include "editor/create_dialog.h"
-#include "editor/editor_about.h"
-#include "editor/editor_data.h"
-#include "editor/editor_export.h"
-#include "editor/editor_feature_profile.h"
+
 #include "editor/editor_folding.h"
-#include "editor/editor_inspector.h"
-#include "editor/editor_layouts_dialog.h"
-#include "editor/editor_log.h"
-#include "editor/editor_plugin.h"
-#include "editor/editor_resource_preview.h"
 #include "editor/editor_run.h"
-#include "editor/editor_run_native.h"
-#include "editor/editor_run_script.h"
-#include "editor/editor_scale.h"
-#include "editor/editor_sub_scene.h"
-#include "editor/export_template_manager.h"
-#include "editor/fileserver/editor_file_server.h"
-#include "editor/filesystem_dock.h"
-#include "editor/groups_editor.h"
-#include "editor/import_dock.h"
 #include "editor/inspector_dock.h"
-#include "editor/node_dock.h"
-#include "editor/pane_drag.h"
-#include "editor/plugin_config_dialog.h"
-#include "editor/progress_dialog.h"
-#include "editor/project_export.h"
-#include "editor/project_settings_editor.h"
-#include "editor/property_editor.h"
-#include "editor/quick_open.h"
-#include "editor/reparent_dialog.h"
-#include "editor/run_settings_dialog.h"
 #include "editor/scene_tree_dock.h"
-#include "editor/scene_tree_editor.h"
-#include "editor/script_create_dialog.h"
-#include "editor/settings_config_dialog.h"
-#include "scene/gui/center_container.h"
-#include "scene/gui/control.h"
-#include "scene/gui/dialogs.h"
-#include "scene/gui/file_dialog.h"
-#include "scene/gui/menu_button.h"
-#include "scene/gui/panel.h"
-#include "scene/gui/panel_container.h"
-#include "scene/gui/separator.h"
-#include "scene/gui/split_container.h"
-#include "scene/gui/tab_container.h"
-#include "scene/gui/tabs.h"
-#include "scene/gui/texture_progress.h"
-#include "scene/gui/tool_button.h"
-#include "scene/gui/tree.h"
-#include "scene/gui/viewport_container.h"
+#include "scene/resources/theme.h"
 
 typedef void (*EditorNodeInitCallback)();
 typedef void (*EditorPluginInitializeCallback)();
 typedef bool (*EditorBuildCallback)();
 
+class PaneDrag;
+class EditorRunNative;
+class EditorAbout;
+class EditorLayoutsDialog;
+class EditorFeatureProfileManager;
+class EditorLog;
+
 class EditorPluginList;
+class Tabs;
+class CenterContainer;
+class TextureProgress;
+class PluginConfigDialog;
+class ImportDock;
+class FileSystemDock;
+class ProjectSettingsEditor;
+class NodeDock;
+class EditorSettingsDialog;
+class RunSettingsDialog;
+class ExportTemplateManager;
+class ProgressDialog;
+class BackgroundProgress;
+class DependencyErrorDialog;
+class DependencyEditor;
+class OrphanResourcesDialog;
+class ProjectExportDialog;
+class EditorFileServer;
+class AudioStreamPreviewGenerator;
+class FileDialog;
+class EditorResourceConversionPlugin;
+
 
 class EditorNode : public Node {
 
-	GDCLASS(EditorNode, Node);
+	GDCLASS(EditorNode,Node)
 
 public:
 	enum DockSlot {
@@ -206,6 +188,9 @@ private:
 		HELP_ABOUT,
 
 		SET_VIDEO_DRIVER_SAVE_AND_RESTART,
+
+		GLOBAL_NEW_WINDOW,
+		GLOBAL_SCENE,
 
 		IMPORT_PLUGIN_BASE = 100,
 
@@ -504,6 +489,7 @@ private:
 	void _add_to_recent_scenes(const String &p_scene);
 	void _update_recent_scenes();
 	void _open_recent_scene(int p_idx);
+	void _global_menu_action(const Variant &p_id, const Variant &p_meta);
 	void _dropped_files(const Vector<String> &p_files, int p_screen);
 	void _add_dropped_files_recursive(const Vector<String> &p_files, String to_path);
 	String _recent_scene;
@@ -628,13 +614,6 @@ private:
 
 	static int build_callback_count;
 	static EditorBuildCallback build_callbacks[MAX_BUILD_CALLBACKS];
-
-	bool _dimming;
-	float _dim_time;
-	Timer *_dim_timer;
-
-	void _start_dimming(bool p_dimming);
-	void _dim_timeout();
 
 	void _license_tree_selected();
 
@@ -845,7 +824,7 @@ public:
 	void save_scene_list(Vector<String> p_scene_filenames);
 	void restart_editor();
 
-	void dim_editor(bool p_dimming);
+	void dim_editor(bool p_dimming, bool p_force_dim = false);
 
 	void edit_current() { _edit_current(); };
 
@@ -855,7 +834,7 @@ public:
 	int execute_and_show_output(const String &p_title, const String &p_path, const List<String> &p_arguments, bool p_close_on_ok = true, bool p_close_on_errors = false);
 
 	EditorNode();
-	~EditorNode();
+	~EditorNode() override;
 	void get_singleton(const char *arg1, bool arg2);
 
 	void add_resource_conversion_plugin(const Ref<EditorResourceConversionPlugin> &p_plugin);
@@ -909,7 +888,7 @@ public:
 	bool empty();
 
 	EditorPluginList();
-	~EditorPluginList();
+	~EditorPluginList() override;
 };
 
 struct EditorProgressBG {

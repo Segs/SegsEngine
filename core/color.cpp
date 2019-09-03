@@ -33,7 +33,6 @@
 #include "core/color_names.inc"
 #include "core/map.h"
 #include "core/math/math_funcs.h"
-#include "core/print_string.h"
 #include "core/ustring.h"
 
 uint32_t Color::to_argb32() const {
@@ -134,9 +133,9 @@ float Color::get_h() const {
     else
         h = 4 + (r - g) / delta; // between magenta & cyan
 
-    h /= 6.0;
+    h /= 6.0f;
     if (h < 0)
-        h += 1.0;
+        h += 1.0f;
 
     return h;
 }
@@ -316,7 +315,7 @@ Color Color::contrasted() const {
 Color Color::html(const String &p_color) {
 
     String exp_color;
-    QStringRef color(&p_color);
+    QStringRef color(&p_color.m_str);
     if (color.length() == 0)
         return Color();
     if (color[0] == '#')
@@ -326,7 +325,7 @@ Color Color::html(const String &p_color) {
             exp_color += color[i];
             exp_color += color[i];
         }
-        color = &exp_color;
+        color = &exp_color.m_str;
     }
 
     bool alpha = false;
@@ -359,7 +358,7 @@ Color Color::html(const String &p_color) {
 
 bool Color::html_is_valid(const String &p_color) {
 
-    QStringRef color(&p_color);
+    QStringRef color(&p_color.m_str);
 
     if (color.length() == 0)
         return false;
@@ -405,15 +404,15 @@ Color Color::named(const String &p_name) {
     if (_named_colors.empty()) _populate_named_colors(); // from color_names.inc
     String name = p_name;
     // Normalize name
-    name = name.replace(" ", "");
-    name = name.replace("-", "");
-    name = name.replace("_", "");
-    name = name.replace("'", "");
-    name = name.replace(".", "");
+    name = StringUtils::replace(name," ", "");
+    name = StringUtils::replace(name,"-", "");
+    name = StringUtils::replace(name,"_", "");
+    name = StringUtils::replace(name,"'", "");
+    name = StringUtils::replace(name,".", "");
     name = StringUtils::to_lower(name);
 
-    const Map<String, Color>::Element *color = _named_colors.find(name);
-    ERR_FAIL_NULL_V_MSG(color, Color(), "Invalid color name: " + p_name + ".");
+    const Map<const char *, Color>::Element *color = _named_colors.find(StringUtils::to_utf8(name).data());
+    ERR_FAIL_NULL_V_MSG(color, Color(), "Invalid color name: " + p_name + ".")
     return color->value();
 }
 
@@ -501,13 +500,6 @@ Color Color::from_hsv(float p_h, float p_s, float p_v, float p_a) const {
 
     const float m = p_v - c;
     return Color(m + r, m + g, m + b, p_a);
-}
-
-// FIXME: Remove once Godot 3.1 has been released
-float Color::gray() const {
-
-    WARN_DEPRECATED_MSG("Color.gray() is deprecated and will be removed in a future version. Use Color.get_v() for a better grayscale approximation.");
-    return (r + g + b) / 3.0;
 }
 
 Color::operator String() const {

@@ -1,7 +1,7 @@
 
 
 foreach(tgt ${global_targets})
-    OPTION(OPTION_${tgt}_DISABLE_RENDERING "Useful for some tests or server" OFF)
+    OPTION(OPTION_${tgt}_DISABLE_RENDERING "Useful for some tests or a server build" OFF)
     OPTION(OPTION_${tgt}_ENABLE_MIDI "Support for midi access" OFF)
 
     add_library(${tgt}_drivers OBJECT )

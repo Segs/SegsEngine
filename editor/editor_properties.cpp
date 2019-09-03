@@ -29,12 +29,55 @@
 /*************************************************************************/
 
 #include "editor_properties.h"
+#include "filesystem_dock.h"
+
+#include "core/method_bind.h"
+#include "editor/editor_spin_slider.h"
+#include "editor/property_selector.h"
+
+#include "editor/create_dialog.h"
 
 #include "core/object_db.h"
 #include "editor/editor_resource_preview.h"
+#include "editor/scene_tree_editor.h"
 #include "editor_node.h"
+#include "editor/editor_scale.h"
 #include "editor_properties_array_dict.h"
 #include "scene/main/viewport.h"
+#include "scene/gui/color_picker.h"
+
+#include <QList>
+
+IMPL_GDCLASS(EditorPropertyNil)
+IMPL_GDCLASS(EditorPropertyText)
+IMPL_GDCLASS(EditorPropertyMultilineText)
+IMPL_GDCLASS(EditorPropertyTextEnum)
+IMPL_GDCLASS(EditorPropertyPath)
+IMPL_GDCLASS(EditorPropertyClassName)
+IMPL_GDCLASS(EditorPropertyMember)
+IMPL_GDCLASS(EditorPropertyCheck)
+IMPL_GDCLASS(EditorPropertyEnum)
+IMPL_GDCLASS(EditorPropertyFlags)
+IMPL_GDCLASS(EditorPropertyLayers)
+IMPL_GDCLASS(EditorPropertyInteger)
+IMPL_GDCLASS(EditorPropertyObjectID)
+IMPL_GDCLASS(EditorPropertyFloat)
+IMPL_GDCLASS(EditorPropertyEasing)
+IMPL_GDCLASS(EditorPropertyVector2)
+IMPL_GDCLASS(EditorPropertyRect2)
+IMPL_GDCLASS(EditorPropertyVector3)
+IMPL_GDCLASS(EditorPropertyPlane)
+IMPL_GDCLASS(EditorPropertyQuat)
+IMPL_GDCLASS(EditorPropertyAABB)
+IMPL_GDCLASS(EditorPropertyTransform2D)
+IMPL_GDCLASS(EditorPropertyBasis)
+IMPL_GDCLASS(EditorPropertyTransform)
+IMPL_GDCLASS(EditorPropertyColor)
+IMPL_GDCLASS(EditorPropertyNodePath)
+IMPL_GDCLASS(EditorPropertyRID)
+IMPL_GDCLASS(EditorPropertyResource)
+IMPL_GDCLASS(EditorInspectorDefaultPlugin)
+
 
 ///////////////////// NULL /////////////////////////
 
@@ -80,8 +123,8 @@ void EditorPropertyText::set_placeholder(const String &p_string) {
 
 void EditorPropertyText::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_text_changed", "txt"), &EditorPropertyText::_text_changed);
-    ClassDB::bind_method(D_METHOD("_text_entered", "txt"), &EditorPropertyText::_text_entered);
+    MethodBinder::bind_method(D_METHOD("_text_changed", "txt"), &EditorPropertyText::_text_changed);
+    MethodBinder::bind_method(D_METHOD("_text_entered", "txt"), &EditorPropertyText::_text_entered);
 }
 
 EditorPropertyText::EditorPropertyText() {
@@ -117,7 +160,7 @@ void EditorPropertyMultilineText::_open_big_text() {
         add_child(big_text_dialog);
     }
 
-    big_text_dialog->popup_centered_clamped(Size2(1000, 900) * EDSCALE, 0.8);
+    big_text_dialog->popup_centered_clamped(Size2(1000, 900) * EDSCALE, 0.8f);
     big_text->set_text(text->get_text());
     big_text->grab_focus();
 }
@@ -145,12 +188,12 @@ void EditorPropertyMultilineText::_notification(int p_what) {
 
 void EditorPropertyMultilineText::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_text_changed"), &EditorPropertyMultilineText::_text_changed);
-    ClassDB::bind_method(D_METHOD("_big_text_changed"), &EditorPropertyMultilineText::_big_text_changed);
-    ClassDB::bind_method(D_METHOD("_open_big_text"), &EditorPropertyMultilineText::_open_big_text);
+    MethodBinder::bind_method(D_METHOD("_text_changed"), &EditorPropertyMultilineText::_text_changed);
+    MethodBinder::bind_method(D_METHOD("_big_text_changed"), &EditorPropertyMultilineText::_big_text_changed);
+    MethodBinder::bind_method(D_METHOD("_open_big_text"), &EditorPropertyMultilineText::_open_big_text);
 }
 
-EditorPropertyMultilineText::EditorPropertyMultilineText() {
+EditorPropertyMultilineText::EditorPropertyMultilineText()  {
     HBoxContainer *hb = memnew(HBoxContainer);
     add_child(hb);
     set_bottom_editor(hb);
@@ -194,7 +237,7 @@ void EditorPropertyTextEnum::setup(const Vector<String> &p_options) {
 
 void EditorPropertyTextEnum::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_option_selected"), &EditorPropertyTextEnum::_option_selected);
+    MethodBinder::bind_method(D_METHOD("_option_selected"), &EditorPropertyTextEnum::_option_selected);
 }
 
 EditorPropertyTextEnum::EditorPropertyTextEnum() {
@@ -238,9 +281,9 @@ void EditorPropertyPath::_path_pressed() {
     } else {
         dialog->set_mode(save_mode ? EditorFileDialog::MODE_SAVE_FILE : EditorFileDialog::MODE_OPEN_FILE);
         for (int i = 0; i < extensions.size(); i++) {
-            String e = extensions[i].strip_edges();
+            String e =StringUtils::strip_edges( extensions[i]);
             if (e != String()) {
-                dialog->add_filter(extensions[i].strip_edges());
+                dialog->add_filter(StringUtils::strip_edges(extensions[i]));
             }
         }
         dialog->set_current_path(full_path);
@@ -282,9 +325,9 @@ void EditorPropertyPath::_path_focus_exited() {
 
 void EditorPropertyPath::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_path_pressed"), &EditorPropertyPath::_path_pressed);
-    ClassDB::bind_method(D_METHOD("_path_selected"), &EditorPropertyPath::_path_selected);
-    ClassDB::bind_method(D_METHOD("_path_focus_exited"), &EditorPropertyPath::_path_focus_exited);
+    MethodBinder::bind_method(D_METHOD("_path_pressed"), &EditorPropertyPath::_path_pressed);
+    MethodBinder::bind_method(D_METHOD("_path_selected"), &EditorPropertyPath::_path_selected);
+    MethodBinder::bind_method(D_METHOD("_path_focus_exited"), &EditorPropertyPath::_path_focus_exited);
 }
 
 EditorPropertyPath::EditorPropertyPath() {
@@ -335,8 +378,8 @@ void EditorPropertyClassName::_dialog_created() {
 }
 
 void EditorPropertyClassName::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("_dialog_created"), &EditorPropertyClassName::_dialog_created);
-    ClassDB::bind_method(D_METHOD("_property_selected"), &EditorPropertyClassName::_property_selected);
+    MethodBinder::bind_method(D_METHOD("_dialog_created"), &EditorPropertyClassName::_dialog_created);
+    MethodBinder::bind_method(D_METHOD("_property_selected"), &EditorPropertyClassName::_property_selected);
 }
 
 EditorPropertyClassName::EditorPropertyClassName() {
@@ -387,13 +430,13 @@ void EditorPropertyMember::_property_select() {
 
     } else if (hint == MEMBER_METHOD_OF_INSTANCE) {
 
-        Object *instance = ObjectDB::get_instance(hint_text.to_int64());
+        Object *instance = ObjectDB::get_instance(StringUtils::to_int64(hint_text));
         if (instance)
             selector->select_method_from_instance(instance, current);
 
     } else if (hint == MEMBER_METHOD_OF_SCRIPT) {
 
-        Object *obj = ObjectDB::get_instance(hint_text.to_int64());
+        Object *obj = ObjectDB::get_instance(StringUtils::to_int64(hint_text));
         if (Object::cast_to<Script>(obj)) {
             selector->select_method_from_script(Object::cast_to<Script>(obj), current);
         }
@@ -402,8 +445,8 @@ void EditorPropertyMember::_property_select() {
 
         Variant::Type type = Variant::NIL;
         String tname = hint_text;
-        if (tname.find(".") != -1)
-            tname = tname.get_slice(".", 0);
+        if (StringUtils::contains(tname,"."))
+            tname = StringUtils::get_slice(tname,".", 0);
         for (int i = 0; i < Variant::VARIANT_MAX; i++) {
             if (tname == Variant::get_type_name(Variant::Type(i))) {
                 type = Variant::Type(Variant::Type(i));
@@ -419,13 +462,13 @@ void EditorPropertyMember::_property_select() {
 
     } else if (hint == MEMBER_PROPERTY_OF_INSTANCE) {
 
-        Object *instance = ObjectDB::get_instance(hint_text.to_int64());
+        Object *instance = ObjectDB::get_instance(StringUtils::to_int64(hint_text));
         if (instance)
             selector->select_property_from_instance(instance, current);
 
     } else if (hint == MEMBER_PROPERTY_OF_SCRIPT) {
 
-        Object *obj = ObjectDB::get_instance(hint_text.to_int64());
+        Object *obj = ObjectDB::get_instance(StringUtils::to_int64(hint_text));
         if (Object::cast_to<Script>(obj)) {
             selector->select_property_from_script(Object::cast_to<Script>(obj), current);
         }
@@ -444,8 +487,8 @@ void EditorPropertyMember::update_property() {
 }
 
 void EditorPropertyMember::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("_property_selected"), &EditorPropertyMember::_property_selected);
-    ClassDB::bind_method(D_METHOD("_property_select"), &EditorPropertyMember::_property_select);
+    MethodBinder::bind_method(D_METHOD("_property_selected"), &EditorPropertyMember::_property_selected);
+    MethodBinder::bind_method(D_METHOD("_property_select"), &EditorPropertyMember::_property_select);
 }
 
 EditorPropertyMember::EditorPropertyMember() {
@@ -471,7 +514,7 @@ void EditorPropertyCheck::update_property() {
 
 void EditorPropertyCheck::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_checkbox_pressed"), &EditorPropertyCheck::_checkbox_pressed);
+    MethodBinder::bind_method(D_METHOD("_checkbox_pressed"), &EditorPropertyCheck::_checkbox_pressed);
 }
 
 EditorPropertyCheck::EditorPropertyCheck() {
@@ -508,7 +551,7 @@ void EditorPropertyEnum::setup(const Vector<String> &p_options) {
     for (int i = 0; i < p_options.size(); i++) {
         Vector<String> text_split = StringUtils::split(p_options[i],":");
         if (text_split.size() != 1)
-            current_val = text_split[1].to_int64();
+            current_val = StringUtils::to_int64(text_split[1]);
         options->add_item(text_split[0]);
         options->set_item_metadata(i, current_val);
         current_val += 1;
@@ -521,7 +564,7 @@ void EditorPropertyEnum::set_option_button_clip(bool p_enable) {
 
 void EditorPropertyEnum::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_option_selected"), &EditorPropertyEnum::_option_selected);
+    MethodBinder::bind_method(D_METHOD("_option_selected"), &EditorPropertyEnum::_option_selected);
 }
 
 EditorPropertyEnum::EditorPropertyEnum() {
@@ -570,7 +613,7 @@ void EditorPropertyFlags::setup(const Vector<String> &p_options) {
 
     bool first = true;
     for (int i = 0; i < p_options.size(); i++) {
-        String option = p_options[i].strip_edges();
+        String option =StringUtils::strip_edges( p_options[i]);
         if (option != "") {
             CheckBox *cb = memnew(CheckBox);
             cb->set_text(option);
@@ -590,7 +633,7 @@ void EditorPropertyFlags::setup(const Vector<String> &p_options) {
 
 void EditorPropertyFlags::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_flag_toggled"), &EditorPropertyFlags::_flag_toggled);
+    MethodBinder::bind_method(D_METHOD("_flag_toggled"), &EditorPropertyFlags::_flag_toggled);
 }
 
 EditorPropertyFlags::EditorPropertyFlags() {
@@ -602,7 +645,7 @@ EditorPropertyFlags::EditorPropertyFlags() {
 ///////////////////// LAYERS /////////////////////////
 
 class EditorPropertyLayersGrid : public Control {
-    GDCLASS(EditorPropertyLayersGrid, Control);
+    GDCLASS(EditorPropertyLayersGrid,Control)
 
 public:
     uint32_t value;
@@ -610,12 +653,12 @@ public:
     Vector<String> names;
     Vector<String> tooltips;
 
-    virtual Size2 get_minimum_size() const {
+    Size2 get_minimum_size() const override {
         Ref<Font> font = get_font("font", "Label");
         return Vector2(0, font->get_height() * 2);
     }
 
-    virtual String get_tooltip(const Point2 &p_pos) const {
+    String get_tooltip(const Point2 &p_pos) const override {
         for (int i = 0; i < flag_rects.size(); i++) {
             if (i < tooltips.size() && flag_rects[i].has_point(p_pos)) {
                 return tooltips[i];
@@ -685,7 +728,7 @@ public:
 
     static void _bind_methods() {
 
-        ClassDB::bind_method(D_METHOD("_gui_input"), &EditorPropertyLayersGrid::_gui_input);
+        MethodBinder::bind_method(D_METHOD("_gui_input"), &EditorPropertyLayersGrid::_gui_input);
         ADD_SIGNAL(MethodInfo("flag_changed", PropertyInfo(Variant::INT, "flag")));
     }
 
@@ -693,6 +736,10 @@ public:
         value = 0;
     }
 };
+
+IMPL_GDCLASS(EditorPropertyLayersGrid)
+
+
 void EditorPropertyLayers::_grid_changed(uint32_t p_grid) {
 
     emit_changed(get_edited_property(), p_grid);
@@ -776,9 +823,9 @@ void EditorPropertyLayers::_menu_pressed(int p_menu) {
 
 void EditorPropertyLayers::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_grid_changed"), &EditorPropertyLayers::_grid_changed);
-    ClassDB::bind_method(D_METHOD("_button_pressed"), &EditorPropertyLayers::_button_pressed);
-    ClassDB::bind_method(D_METHOD("_menu_pressed"), &EditorPropertyLayers::_menu_pressed);
+    MethodBinder::bind_method(D_METHOD("_grid_changed"), &EditorPropertyLayers::_grid_changed);
+    MethodBinder::bind_method(D_METHOD("_button_pressed"), &EditorPropertyLayers::_button_pressed);
+    MethodBinder::bind_method(D_METHOD("_menu_pressed"), &EditorPropertyLayers::_menu_pressed);
 }
 
 EditorPropertyLayers::EditorPropertyLayers() {
@@ -819,7 +866,7 @@ void EditorPropertyInteger::update_property() {
 
 void EditorPropertyInteger::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_value_changed"), &EditorPropertyInteger::_value_changed);
+    MethodBinder::bind_method(D_METHOD("_value_changed"), &EditorPropertyInteger::_value_changed);
 }
 
 void EditorPropertyInteger::setup(int p_min, int p_max, int p_step, bool p_allow_greater, bool p_allow_lesser) {
@@ -868,7 +915,7 @@ void EditorPropertyObjectID::setup(const String &p_base_type) {
 }
 
 void EditorPropertyObjectID::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("_edit_pressed"), &EditorPropertyObjectID::_edit_pressed);
+    MethodBinder::bind_method(D_METHOD("_edit_pressed"), &EditorPropertyObjectID::_edit_pressed);
 }
 
 EditorPropertyObjectID::EditorPropertyObjectID() {
@@ -896,7 +943,7 @@ void EditorPropertyFloat::update_property() {
 
 void EditorPropertyFloat::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_value_changed"), &EditorPropertyFloat::_value_changed);
+    MethodBinder::bind_method(D_METHOD("_value_changed"), &EditorPropertyFloat::_value_changed);
 }
 
 void EditorPropertyFloat::setup(double p_min, double p_max, double p_step, bool p_no_slider, bool p_exp_range, bool p_greater, bool p_lesser) {
@@ -1063,12 +1110,12 @@ void EditorPropertyEasing::_notification(int p_what) {
 
 void EditorPropertyEasing::_bind_methods() {
 
-    ClassDB::bind_method("_draw_easing", &EditorPropertyEasing::_draw_easing);
-    ClassDB::bind_method("_drag_easing", &EditorPropertyEasing::_drag_easing);
-    ClassDB::bind_method("_set_preset", &EditorPropertyEasing::_set_preset);
+    MethodBinder::bind_method("_draw_easing", &EditorPropertyEasing::_draw_easing);
+    MethodBinder::bind_method("_drag_easing", &EditorPropertyEasing::_drag_easing);
+    MethodBinder::bind_method("_set_preset", &EditorPropertyEasing::_set_preset);
 
-    ClassDB::bind_method("_spin_value_changed", &EditorPropertyEasing::_spin_value_changed);
-    ClassDB::bind_method("_spin_focus_exited", &EditorPropertyEasing::_spin_focus_exited);
+    MethodBinder::bind_method("_spin_value_changed", &EditorPropertyEasing::_spin_value_changed);
+    MethodBinder::bind_method("_spin_focus_exited", &EditorPropertyEasing::_spin_focus_exited);
 }
 
 EditorPropertyEasing::EditorPropertyEasing() {
@@ -1134,7 +1181,7 @@ void EditorPropertyVector2::_notification(int p_what) {
 
 void EditorPropertyVector2::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_value_changed"), &EditorPropertyVector2::_value_changed);
+    MethodBinder::bind_method(D_METHOD("_value_changed"), &EditorPropertyVector2::_value_changed);
 }
 
 void EditorPropertyVector2::setup(double p_min, double p_max, double p_step, bool p_no_slider) {
@@ -1217,7 +1264,7 @@ void EditorPropertyRect2::_notification(int p_what) {
 }
 void EditorPropertyRect2::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_value_changed"), &EditorPropertyRect2::_value_changed);
+    MethodBinder::bind_method(D_METHOD("_value_changed"), &EditorPropertyRect2::_value_changed);
 }
 
 void EditorPropertyRect2::setup(double p_min, double p_max, double p_step, bool p_no_slider) {
@@ -1299,7 +1346,7 @@ void EditorPropertyVector3::_notification(int p_what) {
 }
 void EditorPropertyVector3::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_value_changed"), &EditorPropertyVector3::_value_changed);
+    MethodBinder::bind_method(D_METHOD("_value_changed"), &EditorPropertyVector3::_value_changed);
 }
 
 void EditorPropertyVector3::setup(double p_min, double p_max, double p_step, bool p_no_slider) {
@@ -1381,7 +1428,7 @@ void EditorPropertyPlane::_notification(int p_what) {
 }
 void EditorPropertyPlane::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_value_changed"), &EditorPropertyPlane::_value_changed);
+    MethodBinder::bind_method(D_METHOD("_value_changed"), &EditorPropertyPlane::_value_changed);
 }
 
 void EditorPropertyPlane::setup(double p_min, double p_max, double p_step, bool p_no_slider) {
@@ -1465,7 +1512,7 @@ void EditorPropertyQuat::_notification(int p_what) {
 }
 void EditorPropertyQuat::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_value_changed"), &EditorPropertyQuat::_value_changed);
+    MethodBinder::bind_method(D_METHOD("_value_changed"), &EditorPropertyQuat::_value_changed);
 }
 
 void EditorPropertyQuat::setup(double p_min, double p_max, double p_step, bool p_no_slider) {
@@ -1554,7 +1601,7 @@ void EditorPropertyAABB::_notification(int p_what) {
 }
 void EditorPropertyAABB::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_value_changed"), &EditorPropertyAABB::_value_changed);
+    MethodBinder::bind_method(D_METHOD("_value_changed"), &EditorPropertyAABB::_value_changed);
 }
 
 void EditorPropertyAABB::setup(double p_min, double p_max, double p_step, bool p_no_slider) {
@@ -1630,7 +1677,7 @@ void EditorPropertyTransform2D::_notification(int p_what) {
 }
 void EditorPropertyTransform2D::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_value_changed"), &EditorPropertyTransform2D::_value_changed);
+    MethodBinder::bind_method(D_METHOD("_value_changed"), &EditorPropertyTransform2D::_value_changed);
 }
 
 void EditorPropertyTransform2D::setup(double p_min, double p_max, double p_step, bool p_no_slider) {
@@ -1711,7 +1758,7 @@ void EditorPropertyBasis::_notification(int p_what) {
 }
 void EditorPropertyBasis::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_value_changed"), &EditorPropertyBasis::_value_changed);
+    MethodBinder::bind_method(D_METHOD("_value_changed"), &EditorPropertyBasis::_value_changed);
 }
 
 void EditorPropertyBasis::setup(double p_min, double p_max, double p_step, bool p_no_slider) {
@@ -1798,7 +1845,7 @@ void EditorPropertyTransform::_notification(int p_what) {
 }
 void EditorPropertyTransform::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_value_changed"), &EditorPropertyTransform::_value_changed);
+    MethodBinder::bind_method(D_METHOD("_value_changed"), &EditorPropertyTransform::_value_changed);
 }
 
 void EditorPropertyTransform::setup(double p_min, double p_max, double p_step, bool p_no_slider) {
@@ -1845,8 +1892,8 @@ void EditorPropertyColor::_popup_closed() {
 
 void EditorPropertyColor::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_color_changed"), &EditorPropertyColor::_color_changed);
-    ClassDB::bind_method(D_METHOD("_popup_closed"), &EditorPropertyColor::_popup_closed);
+    MethodBinder::bind_method(D_METHOD("_color_changed"), &EditorPropertyColor::_color_changed);
+    MethodBinder::bind_method(D_METHOD("_popup_closed"), &EditorPropertyColor::_popup_closed);
 }
 
 void EditorPropertyColor::update_property() {
@@ -1953,7 +2000,7 @@ void EditorPropertyNodePath::update_property() {
     Node *target_node = base_node->get_node(p);
     ERR_FAIL_COND(!target_node);
 
-    if (String(target_node->get_name()).find("@") != -1) {
+    if (StringUtils::contains(String(target_node->get_name()),"@")) {
         assign->set_icon(Ref<Texture>());
         assign->set_text(String(p));
         return;
@@ -1980,9 +2027,9 @@ void EditorPropertyNodePath::_notification(int p_what) {
 
 void EditorPropertyNodePath::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_node_selected"), &EditorPropertyNodePath::_node_selected);
-    ClassDB::bind_method(D_METHOD("_node_assign"), &EditorPropertyNodePath::_node_assign);
-    ClassDB::bind_method(D_METHOD("_node_clear"), &EditorPropertyNodePath::_node_clear);
+    MethodBinder::bind_method(D_METHOD("_node_selected"), &EditorPropertyNodePath::_node_selected);
+    MethodBinder::bind_method(D_METHOD("_node_assign"), &EditorPropertyNodePath::_node_assign);
+    MethodBinder::bind_method(D_METHOD("_node_clear"), &EditorPropertyNodePath::_node_clear);
 }
 
 EditorPropertyNodePath::EditorPropertyNodePath() {
@@ -2028,20 +2075,20 @@ void EditorPropertyResource::_file_selected(const String &p_path) {
 
     RES res = ResourceLoader::load(p_path);
 
-    ERR_FAIL_COND(res.is_null());
+    ERR_FAIL_COND(res.is_null())
 
     List<PropertyInfo> prop_list;
     get_edited_object()->get_property_list(&prop_list);
-    String property_types;
+    CharString property_types;
 
     for (List<PropertyInfo>::Element *E = prop_list.front(); E; E = E->next()) {
         if (E->get().name == get_edited_property() && (E->get().hint & PROPERTY_HINT_RESOURCE_TYPE)) {
-            property_types = E->get().hint_string;
+            property_types = StringUtils::to_utf8(E->get().hint_string);
         }
     }
-    if (!property_types.empty()) {
+    if (!property_types.isEmpty()) {
         bool any_type_matches = false;
-        const Vector<String> split_property_types = StringUtils::split(property_types,",");
+        const auto split_property_types = property_types.split(',');
         for (int i = 0; i < split_property_types.size(); ++i) {
             if (res->is_class(split_property_types[i])) {
                 any_type_matches = true;
@@ -2050,7 +2097,7 @@ void EditorPropertyResource::_file_selected(const String &p_path) {
         }
 
         if (!any_type_matches)
-            EditorNode::get_singleton()->show_warning(vformat(TTR("The selected resource (%s) does not match any type expected for this property (%s)."), res->get_class(), property_types));
+            EditorNode::get_singleton()->show_warning(vformat(TTR("The selected resource (%s) does not match any type expected for this property (%s)."), res->get_class(), StringUtils::from_utf8(property_types)));
     }
 
     emit_changed(get_edited_property(), res);
@@ -2072,9 +2119,9 @@ void EditorPropertyResource::_menu_option(int p_which) {
             String type = base_type;
 
             List<String> extensions;
-            for (int i = 0; i < type.get_slice_count(","); i++) {
+            for (int i = 0; i <StringUtils::get_slice_count( type,","); i++) {
 
-                ResourceLoader::get_recognized_extensions_for_type(type.get_slice(",", i), &extensions);
+                ResourceLoader::get_recognized_extensions_for_type(StringUtils::get_slice(type,",", i), &extensions);
             }
 
             Set<String> valid_extensions;
@@ -2316,14 +2363,14 @@ void EditorPropertyResource::_update_menu_items() {
             custom_resources = EditorNode::get_editor_data().get_custom_types()["Resource"];
         }
 
-        for (int i = 0; i < base_type.get_slice_count(","); i++) {
+        for (int i = 0; i < StringUtils::get_slice_count(base_type,","); i++) {
 
-            String base = base_type.get_slice(",", i);
+            String base = StringUtils::get_slice(base_type,",", i);
 
             Set<String> valid_inheritors;
             valid_inheritors.insert(base);
             List<StringName> inheritors;
-            ClassDB::get_inheriters_from_class(base.strip_edges(), &inheritors);
+            ClassDB::get_inheriters_from_class(StringUtils::strip_edges(base), &inheritors);
 
             for (int j = 0; j < custom_resources.size(); j++) {
                 inheritors.push_back(custom_resources[j].name);
@@ -2407,8 +2454,8 @@ void EditorPropertyResource::_update_menu_items() {
         if (base_type == "")
             paste_valid = true;
         else
-            for (int i = 0; i < base_type.get_slice_count(","); i++)
-                if (ClassDB::is_parent_class(cb->get_class(), base_type.get_slice(",", i))) {
+            for (int i = 0; i <StringUtils::get_slice_count( base_type,","); i++)
+                if (ClassDB::is_parent_class(cb->get_class_name(), StringUtils::get_slice(base_type,",", i))) {
                     paste_valid = true;
                     break;
                 }
@@ -2469,7 +2516,7 @@ void EditorPropertyResource::_sub_inspector_property_keyed(const String &p_prope
 
 void EditorPropertyResource::_sub_inspector_resource_selected(const RES &p_resource, const String &p_property) {
 
-    emit_signal("resource_selected", String(get_edited_property() + ":" + p_property), p_resource);
+    emit_signal("resource_selected", String(get_edited_property()) + ":" + p_property, p_resource);
 }
 
 void EditorPropertyResource::_sub_inspector_object_id_selected(int p_id) {
@@ -2539,7 +2586,6 @@ void EditorPropertyResource::update_property() {
         if (res.is_valid() != assign->is_toggle_mode()) {
             assign->set_toggle_mode(res.is_valid());
         }
-#ifdef TOOLS_ENABLED
         if (res.is_valid() && get_edited_object()->editor_is_section_unfolded(get_edited_property())) {
 
             if (!sub_inspector) {
@@ -2608,7 +2654,6 @@ void EditorPropertyResource::update_property() {
                 }
             }
         }
-#endif
     }
 
     preview->set_texture(Ref<Texture>());
@@ -2742,9 +2787,9 @@ bool EditorPropertyResource::_is_drop_valid(const Dictionary &p_drag_data) const
     Dictionary drag_data = p_drag_data;
     if (drag_data.has("type") && String(drag_data["type"]) == "resource") {
         Ref<Resource> res = drag_data["resource"];
-        for (int i = 0; i < allowed_type.get_slice_count(","); i++) {
-            String at = allowed_type.get_slice(",", i).strip_edges();
-            if (res.is_valid() && ClassDB::is_parent_class(res->get_class(), at)) {
+        for (int i = 0; i <StringUtils::get_slice_count( allowed_type,","); i++) {
+            String at = StringUtils::strip_edges(StringUtils::get_slice(allowed_type,",", i));
+            if (res.is_valid() && ClassDB::is_parent_class(res->get_class_name(), at)) {
                 return true;
             }
         }
@@ -2760,8 +2805,8 @@ bool EditorPropertyResource::_is_drop_valid(const Dictionary &p_drag_data) const
 
             if (ftype != "") {
 
-                for (int i = 0; i < allowed_type.get_slice_count(","); i++) {
-                    String at = allowed_type.get_slice(",", i).strip_edges();
+                for (int i = 0; i <StringUtils::get_slice_count( allowed_type,","); i++) {
+                    String at = StringUtils::strip_edges(StringUtils::get_slice(allowed_type,",", i));
                     if (ClassDB::is_parent_class(ftype, at)) {
                         return true;
                     }
@@ -2813,22 +2858,22 @@ void EditorPropertyResource::set_use_sub_inspector(bool p_enable) {
 
 void EditorPropertyResource::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_file_selected"), &EditorPropertyResource::_file_selected);
-    ClassDB::bind_method(D_METHOD("_menu_option"), &EditorPropertyResource::_menu_option);
-    ClassDB::bind_method(D_METHOD("_update_menu"), &EditorPropertyResource::_update_menu);
-    ClassDB::bind_method(D_METHOD("_resource_preview"), &EditorPropertyResource::_resource_preview);
-    ClassDB::bind_method(D_METHOD("_resource_selected"), &EditorPropertyResource::_resource_selected);
-    ClassDB::bind_method(D_METHOD("_viewport_selected"), &EditorPropertyResource::_viewport_selected);
-    ClassDB::bind_method(D_METHOD("_sub_inspector_property_keyed"), &EditorPropertyResource::_sub_inspector_property_keyed);
-    ClassDB::bind_method(D_METHOD("_sub_inspector_resource_selected"), &EditorPropertyResource::_sub_inspector_resource_selected);
-    ClassDB::bind_method(D_METHOD("_sub_inspector_object_id_selected"), &EditorPropertyResource::_sub_inspector_object_id_selected);
-    ClassDB::bind_method(D_METHOD("get_drag_data_fw"), &EditorPropertyResource::get_drag_data_fw);
-    ClassDB::bind_method(D_METHOD("can_drop_data_fw"), &EditorPropertyResource::can_drop_data_fw);
-    ClassDB::bind_method(D_METHOD("drop_data_fw"), &EditorPropertyResource::drop_data_fw);
-    ClassDB::bind_method(D_METHOD("_button_draw"), &EditorPropertyResource::_button_draw);
-    ClassDB::bind_method(D_METHOD("_open_editor_pressed"), &EditorPropertyResource::_open_editor_pressed);
-    ClassDB::bind_method(D_METHOD("_button_input"), &EditorPropertyResource::_button_input);
-    ClassDB::bind_method(D_METHOD("_fold_other_editors"), &EditorPropertyResource::_fold_other_editors);
+    MethodBinder::bind_method(D_METHOD("_file_selected"), &EditorPropertyResource::_file_selected);
+    MethodBinder::bind_method(D_METHOD("_menu_option"), &EditorPropertyResource::_menu_option);
+    MethodBinder::bind_method(D_METHOD("_update_menu"), &EditorPropertyResource::_update_menu);
+    MethodBinder::bind_method(D_METHOD("_resource_preview"), &EditorPropertyResource::_resource_preview);
+    MethodBinder::bind_method(D_METHOD("_resource_selected"), &EditorPropertyResource::_resource_selected);
+    MethodBinder::bind_method(D_METHOD("_viewport_selected"), &EditorPropertyResource::_viewport_selected);
+    MethodBinder::bind_method(D_METHOD("_sub_inspector_property_keyed"), &EditorPropertyResource::_sub_inspector_property_keyed);
+    MethodBinder::bind_method(D_METHOD("_sub_inspector_resource_selected"), &EditorPropertyResource::_sub_inspector_resource_selected);
+    MethodBinder::bind_method(D_METHOD("_sub_inspector_object_id_selected"), &EditorPropertyResource::_sub_inspector_object_id_selected);
+    MethodBinder::bind_method(D_METHOD("get_drag_data_fw"), &EditorPropertyResource::get_drag_data_fw);
+    MethodBinder::bind_method(D_METHOD("can_drop_data_fw"), &EditorPropertyResource::can_drop_data_fw);
+    MethodBinder::bind_method(D_METHOD("drop_data_fw"), &EditorPropertyResource::drop_data_fw);
+    MethodBinder::bind_method(D_METHOD("_button_draw"), &EditorPropertyResource::_button_draw);
+    MethodBinder::bind_method(D_METHOD("_open_editor_pressed"), &EditorPropertyResource::_open_editor_pressed);
+    MethodBinder::bind_method(D_METHOD("_button_input"), &EditorPropertyResource::_button_input);
+    MethodBinder::bind_method(D_METHOD("_fold_other_editors"), &EditorPropertyResource::_fold_other_editors);
 }
 
 EditorPropertyResource::EditorPropertyResource() {
@@ -2950,18 +2995,18 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, Variant::Typ
                 int min = 0, max = 65535, step = 1;
                 bool greater = true, lesser = true;
 
-                if (p_hint == PROPERTY_HINT_RANGE && p_hint_text.get_slice_count(",") >= 2) {
+                if (p_hint == PROPERTY_HINT_RANGE &&StringUtils::get_slice_count( p_hint_text,",") >= 2) {
                     greater = false; //if using ranged, assume false by default
                     lesser = false;
-                    min = p_hint_text.get_slice(",", 0).to_int();
-                    max = p_hint_text.get_slice(",", 1).to_int();
+                    min = StringUtils::to_int(StringUtils::get_slice(p_hint_text,",", 0));
+                    max = StringUtils::to_int(StringUtils::get_slice(p_hint_text,",", 1));
 
-                    if (p_hint_text.get_slice_count(",") >= 3) {
-                        step = p_hint_text.get_slice(",", 2).to_int();
+                    if (StringUtils::get_slice_count(p_hint_text,",") >= 3) {
+                        step = StringUtils::to_int(StringUtils::get_slice(p_hint_text,",", 2));
                     }
 
-                    for (int i = 2; i < p_hint_text.get_slice_count(","); i++) {
-                        String slice = p_hint_text.get_slice(",", i).strip_edges();
+                    for (int i = 2; i < StringUtils::get_slice_count(p_hint_text,","); i++) {
+                        String slice = StringUtils::strip_edges(StringUtils::get_slice(p_hint_text,",", i));
                         if (slice == "or_greater") {
                             greater = true;
                         }
@@ -2984,7 +3029,7 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, Variant::Typ
                 bool flip = false;
                 Vector<String> hints = StringUtils::split(p_hint_text,",");
                 for (int i = 0; i < hints.size(); i++) {
-                    String h = hints[i].strip_edges();
+                    String h =StringUtils::strip_edges( hints[i]);
                     if (h == "attenuation") {
                         flip = true;
                     }
@@ -3003,18 +3048,18 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, Variant::Typ
                 bool exp_range = false;
                 bool greater = true, lesser = true;
 
-                if ((p_hint == PROPERTY_HINT_RANGE || p_hint == PROPERTY_HINT_EXP_RANGE) && p_hint_text.get_slice_count(",") >= 2) {
+                if ((p_hint == PROPERTY_HINT_RANGE || p_hint == PROPERTY_HINT_EXP_RANGE) &&StringUtils::get_slice_count( p_hint_text,",") >= 2) {
                     greater = false; //if using ranged, assume false by default
                     lesser = false;
-                    min = p_hint_text.get_slice(",", 0).to_double();
-                    max = p_hint_text.get_slice(",", 1).to_double();
-                    if (p_hint_text.get_slice_count(",") >= 3) {
-                        step = p_hint_text.get_slice(",", 2).to_double();
+                    min = StringUtils::to_double(StringUtils::get_slice(p_hint_text,",", 0));
+                    max = StringUtils::to_double(StringUtils::get_slice(p_hint_text,",", 1));
+                    if (StringUtils::get_slice_count(p_hint_text,",") >= 3) {
+                        step = StringUtils::to_double(StringUtils::get_slice(p_hint_text,",", 2));
                     }
                     hide_slider = false;
                     exp_range = p_hint == PROPERTY_HINT_EXP_RANGE;
-                    for (int i = 2; i < p_hint_text.get_slice_count(","); i++) {
-                        String slice = p_hint_text.get_slice(",", i).strip_edges();
+                    for (int i = 2; i <StringUtils::get_slice_count( p_hint_text,","); i++) {
+                        String slice = StringUtils::strip_edges(StringUtils::get_slice(p_hint_text,",", i));
                         if (slice == "or_greater") {
                             greater = true;
                         }
@@ -3098,11 +3143,11 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, Variant::Typ
             double min = -65535, max = 65535, step = default_float_step;
             bool hide_slider = true;
 
-            if (p_hint == PROPERTY_HINT_RANGE && p_hint_text.get_slice_count(",") >= 2) {
-                min = p_hint_text.get_slice(",", 0).to_double();
-                max = p_hint_text.get_slice(",", 1).to_double();
-                if (p_hint_text.get_slice_count(",") >= 3) {
-                    step = p_hint_text.get_slice(",", 2).to_double();
+            if (p_hint == PROPERTY_HINT_RANGE &&StringUtils::get_slice_count( p_hint_text,",") >= 2) {
+                min = StringUtils::to_double(StringUtils::get_slice(p_hint_text,",", 0));
+                max = StringUtils::to_double(StringUtils::get_slice(p_hint_text,",", 1));
+                if (StringUtils::get_slice_count(p_hint_text,",") >= 3) {
+                    step = StringUtils::to_double(StringUtils::get_slice(p_hint_text,",", 2));
                 }
                 hide_slider = false;
             }
@@ -3116,11 +3161,11 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, Variant::Typ
             double min = -65535, max = 65535, step = default_float_step;
             bool hide_slider = true;
 
-            if (p_hint == PROPERTY_HINT_RANGE && p_hint_text.get_slice_count(",") >= 2) {
-                min = p_hint_text.get_slice(",", 0).to_double();
-                max = p_hint_text.get_slice(",", 1).to_double();
-                if (p_hint_text.get_slice_count(",") >= 3) {
-                    step = p_hint_text.get_slice(",", 2).to_double();
+            if (p_hint == PROPERTY_HINT_RANGE &&StringUtils::get_slice_count( p_hint_text,",") >= 2) {
+                min = StringUtils::to_double(StringUtils::get_slice(p_hint_text,",", 0));
+                max = StringUtils::to_double(StringUtils::get_slice(p_hint_text,",", 1));
+                if (StringUtils::get_slice_count(p_hint_text,",") >= 3) {
+                    step = StringUtils::to_double(StringUtils::get_slice(p_hint_text,",", 2));
                 }
                 hide_slider = false;
             }
@@ -3133,11 +3178,11 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, Variant::Typ
             double min = -65535, max = 65535, step = default_float_step;
             bool hide_slider = true;
 
-            if (p_hint == PROPERTY_HINT_RANGE && p_hint_text.get_slice_count(",") >= 2) {
-                min = p_hint_text.get_slice(",", 0).to_double();
-                max = p_hint_text.get_slice(",", 1).to_double();
-                if (p_hint_text.get_slice_count(",") >= 3) {
-                    step = p_hint_text.get_slice(",", 2).to_double();
+            if (p_hint == PROPERTY_HINT_RANGE && StringUtils::get_slice_count(p_hint_text,",") >= 2) {
+                min = StringUtils::to_double(StringUtils::get_slice(p_hint_text,",", 0));
+                max = StringUtils::to_double(StringUtils::get_slice(p_hint_text,",", 1));
+                if (StringUtils::get_slice_count(p_hint_text,",") >= 3) {
+                    step = StringUtils::to_double(StringUtils::get_slice(p_hint_text,",", 2));
                 }
                 hide_slider = false;
             }
@@ -3151,11 +3196,11 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, Variant::Typ
             double min = -65535, max = 65535, step = default_float_step;
             bool hide_slider = true;
 
-            if (p_hint == PROPERTY_HINT_RANGE && p_hint_text.get_slice_count(",") >= 2) {
-                min = p_hint_text.get_slice(",", 0).to_double();
-                max = p_hint_text.get_slice(",", 1).to_double();
-                if (p_hint_text.get_slice_count(",") >= 3) {
-                    step = p_hint_text.get_slice(",", 2).to_double();
+            if (p_hint == PROPERTY_HINT_RANGE && StringUtils::get_slice_count(p_hint_text,",") >= 2) {
+                min = StringUtils::to_double(StringUtils::get_slice(p_hint_text,",", 0));
+                max = StringUtils::to_double(StringUtils::get_slice(p_hint_text,",", 1));
+                if (StringUtils::get_slice_count(p_hint_text,",") >= 3) {
+                    step = StringUtils::to_double(StringUtils::get_slice(p_hint_text,",", 2));
                 }
                 hide_slider = false;
             }
@@ -3169,11 +3214,11 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, Variant::Typ
             double min = -65535, max = 65535, step = default_float_step;
             bool hide_slider = true;
 
-            if (p_hint == PROPERTY_HINT_RANGE && p_hint_text.get_slice_count(",") >= 2) {
-                min = p_hint_text.get_slice(",", 0).to_double();
-                max = p_hint_text.get_slice(",", 1).to_double();
-                if (p_hint_text.get_slice_count(",") >= 3) {
-                    step = p_hint_text.get_slice(",", 2).to_double();
+            if (p_hint == PROPERTY_HINT_RANGE && StringUtils::get_slice_count(p_hint_text,",") >= 2) {
+                min = StringUtils::to_double(StringUtils::get_slice(p_hint_text,",", 0));
+                max = StringUtils::to_double(StringUtils::get_slice(p_hint_text,",", 1));
+                if (StringUtils::get_slice_count(p_hint_text,",") >= 3) {
+                    step = StringUtils::to_double(StringUtils::get_slice(p_hint_text,",", 2));
                 }
                 hide_slider = false;
             }
@@ -3186,11 +3231,11 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, Variant::Typ
             double min = -65535, max = 65535, step = default_float_step;
             bool hide_slider = true;
 
-            if (p_hint == PROPERTY_HINT_RANGE && p_hint_text.get_slice_count(",") >= 2) {
-                min = p_hint_text.get_slice(",", 0).to_double();
-                max = p_hint_text.get_slice(",", 1).to_double();
-                if (p_hint_text.get_slice_count(",") >= 3) {
-                    step = p_hint_text.get_slice(",", 2).to_double();
+            if (p_hint == PROPERTY_HINT_RANGE && StringUtils::get_slice_count(p_hint_text,",") >= 2) {
+                min = StringUtils::to_double(StringUtils::get_slice(p_hint_text,",", 0));
+                max = StringUtils::to_double(StringUtils::get_slice(p_hint_text,",", 1));
+                if (StringUtils::get_slice_count(p_hint_text,",") >= 3) {
+                    step = StringUtils::to_double(StringUtils::get_slice(p_hint_text,",", 2));
                 }
                 hide_slider = false;
             }
@@ -3203,11 +3248,11 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, Variant::Typ
             double min = -65535, max = 65535, step = default_float_step;
             bool hide_slider = true;
 
-            if (p_hint == PROPERTY_HINT_RANGE && p_hint_text.get_slice_count(",") >= 2) {
-                min = p_hint_text.get_slice(",", 0).to_double();
-                max = p_hint_text.get_slice(",", 1).to_double();
-                if (p_hint_text.get_slice_count(",") >= 3) {
-                    step = p_hint_text.get_slice(",", 2).to_double();
+            if (p_hint == PROPERTY_HINT_RANGE && StringUtils::get_slice_count(p_hint_text,",") >= 2) {
+                min = StringUtils::to_double(StringUtils::get_slice(p_hint_text,",", 0));
+                max = StringUtils::to_double(StringUtils::get_slice(p_hint_text,",", 1));
+                if (StringUtils::get_slice_count(p_hint_text,",") >= 3) {
+                    step = StringUtils::to_double(StringUtils::get_slice(p_hint_text,",", 2));
                 }
                 hide_slider = false;
             }
@@ -3220,11 +3265,11 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, Variant::Typ
             double min = -65535, max = 65535, step = default_float_step;
             bool hide_slider = true;
 
-            if (p_hint == PROPERTY_HINT_RANGE && p_hint_text.get_slice_count(",") >= 2) {
-                min = p_hint_text.get_slice(",", 0).to_double();
-                max = p_hint_text.get_slice(",", 1).to_double();
-                if (p_hint_text.get_slice_count(",") >= 3) {
-                    step = p_hint_text.get_slice(",", 2).to_double();
+            if (p_hint == PROPERTY_HINT_RANGE && StringUtils::get_slice_count(p_hint_text,",") >= 2) {
+                min = StringUtils::to_double(StringUtils::get_slice(p_hint_text,",", 0));
+                max = StringUtils::to_double(StringUtils::get_slice(p_hint_text,",", 1));
+                if (StringUtils::get_slice_count(p_hint_text,",") >= 3) {
+                    step = StringUtils::to_double(StringUtils::get_slice(p_hint_text,",", 2));
                 }
                 hide_slider = false;
             }
@@ -3237,11 +3282,11 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, Variant::Typ
             double min = -65535, max = 65535, step = default_float_step;
             bool hide_slider = true;
 
-            if (p_hint == PROPERTY_HINT_RANGE && p_hint_text.get_slice_count(",") >= 2) {
-                min = p_hint_text.get_slice(",", 0).to_double();
-                max = p_hint_text.get_slice(",", 1).to_double();
-                if (p_hint_text.get_slice_count(",") >= 3) {
-                    step = p_hint_text.get_slice(",", 2).to_double();
+            if (p_hint == PROPERTY_HINT_RANGE && StringUtils::get_slice_count(p_hint_text,",") >= 2) {
+                min = StringUtils::to_double(StringUtils::get_slice(p_hint_text,",", 0));
+                max = StringUtils::to_double(StringUtils::get_slice(p_hint_text,",", 1));
+                if (StringUtils::get_slice_count(p_hint_text,",") >= 3) {
+                    step = StringUtils::to_double(StringUtils::get_slice(p_hint_text,",", 2));
                 }
                 hide_slider = false;
             }
@@ -3281,10 +3326,10 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, Variant::Typ
 
             if (p_hint == PROPERTY_HINT_RESOURCE_TYPE) {
                 String open_in_new = EDITOR_GET("interface/inspector/resources_to_open_in_new_inspector");
-                for (int i = 0; i < open_in_new.get_slice_count(","); i++) {
-                    String type = open_in_new.get_slicec(',', i).strip_edges();
-                    for (int j = 0; j < p_hint_text.get_slice_count(","); j++) {
-                        String inherits = p_hint_text.get_slicec(',', j);
+                for (int i = 0; i < StringUtils::get_slice_count(open_in_new,","); i++) {
+                    String type = StringUtils::strip_edges(StringUtils::get_slice(open_in_new,',', i));
+                    for (int j = 0; j < StringUtils::get_slice_count(p_hint_text,","); j++) {
+                        String inherits = StringUtils::get_slice(p_hint_text,',', j);
                         if (ClassDB::is_parent_class(inherits, type)) {
 
                             editor->set_use_sub_inspector(false);

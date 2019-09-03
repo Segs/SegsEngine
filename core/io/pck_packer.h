@@ -28,10 +28,10 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef PCK_PACKER_H
-#define PCK_PACKER_H
+#pragma once
 
 #include "core/reference.h"
+#include "core/ustring.h"
 
 class FileAccess;
 
@@ -59,7 +59,5 @@ public:
 	Error flush(bool p_verbose = false);
 
 	PCKPacker();
-	~PCKPacker();
+	~PCKPacker() override;
 };
-
-#endif // PCK_PACKER_H

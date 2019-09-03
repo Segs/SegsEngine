@@ -43,7 +43,7 @@
 #include "core/print_string.h"
 #include "core/object_db.h"
 
-#include <stdarg.h>
+#include <cstdarg>
 #include <codecvt>
 
 OS *OS::singleton = nullptr;
@@ -67,22 +67,12 @@ String OS::get_iso_date_time(bool local) const {
         if (zone.bias >= 0) {
             timezone = "+";
         }
-        timezone = timezone + itos(zone.bias / 60).pad_zeros(2) + itos(zone.bias % 60).pad_zeros(2);
+		timezone += FormatV("%02d %02d",(zone.bias / 60),zone.bias % 60);
     } else {
         timezone = "Z";
     }
 
-    return itos(date.year).pad_zeros(2) +
-           "-" +
-           itos(date.month).pad_zeros(2) +
-           "-" +
-           itos(date.day).pad_zeros(2) +
-           "T" +
-           itos(time.hour).pad_zeros(2) +
-           ":" +
-           itos(time.min).pad_zeros(2) +
-           ":" +
-           itos(time.sec).pad_zeros(2) +
+	return FormatV("%02d-%02d-%02dT%02d:%02d:%02d",date.year,date.month,date.day,time.hour,time.min,time.sec) +
            timezone;
 }
 
@@ -132,14 +122,14 @@ void OS::print(const char *p_msg) {
 
 void OS::print(const String &p_msg)
 {
-    _logger->logv(p_msg.constData(), false);
+	_logger->logv(p_msg.cdata(), false);
 };
 
 void OS::printerr(const char *p_format) {
     _logger->logv(p_format, true);
 };
 void OS::printerr(const String &p_format) {
-    _logger->logv(p_format.constData(), true);
+	_logger->logv(p_format.cdata(), true);
 };
 
 void OS::set_keep_screen_on(bool p_enabled) {
@@ -267,7 +257,7 @@ OS::CursorShape OS::get_cursor_shape() const {
 void OS::set_custom_mouse_cursor(const RES &p_cursor, CursorShape p_shape, const Vector2 &p_hotspot) {
 }
 
-void OS::print_all_resources(String p_to_file) {
+void OS::print_all_resources(const String &p_to_file) {
 
     ERR_FAIL_COND(p_to_file != "" && _OSPRF);
     if (p_to_file != "") {
@@ -343,9 +333,9 @@ String OS::get_safe_dir_name(String p_dir_name, bool p_allow_dir_separator) cons
         invalid_chars[7] = "/";
     }
 
-    String safe_dir_name = String(p_dir_name.replace("\\", "/")).strip_edges();
+	String safe_dir_name = StringUtils::strip_edges(PathUtils::from_native_path(p_dir_name));
     for (const String &s  : invalid_chars) {
-        safe_dir_name = safe_dir_name.replace(s, "-");
+        safe_dir_name = StringUtils::replace(safe_dir_name,s, "-");
     }
     return safe_dir_name;
 }
@@ -401,19 +391,19 @@ Error OS::shell_open(String p_uri) {
 
 // implement these with the canvas?
 Error OS::dialog_show(String p_title, String p_description, Vector<String> p_buttons, Object *p_obj, String p_callback) {
-
+    using namespace StringUtils;
     while (true) {
 
-        print(QString("%1\n--------\n%2\n").arg(p_title, p_description));
+		print(FormatV("%s\n--------\n%s\n",qPrintable(p_title.m_str), qPrintable(p_description.m_str)));
         for (int i = 0; i < p_buttons.size(); i++) {
             if (i > 0) print(", ");
-            print(QString("%1=%2").arg(i + 1).arg(p_buttons[i]));
+			print(FormatV("%d=%s",i + 1,qPrintable(p_buttons[i].m_str)));
         }
         print("\n");
-        String res = get_stdin_string().strip_edges();
-        if (!StringUtils::is_numeric(res))
+        String res = StringUtils::strip_edges(get_stdin_string());
+        if (!is_numeric(res))
             continue;
-        int n = res.to_int();
+        int n = to_int(res);
         if (n < 0 || n >= p_buttons.size())
             continue;
         if (p_obj && p_callback != "")
@@ -427,9 +417,9 @@ Error OS::dialog_input_text(String p_title, String p_description, String p_parti
 
     ERR_FAIL_COND_V(!p_obj, FAILED)
     ERR_FAIL_COND_V(p_callback == "", FAILED)
-    print(QString("%1\n---------\n%2\n[%3]:\n").arg(p_title, p_description, p_partial));
+	print(FormatV("%s\n---------\n%s\n[%s]:\n",qPrintable(p_title.m_str), qPrintable(p_description.m_str), qPrintable(p_partial.m_str)));
 
-    String res = get_stdin_string().strip_edges();
+    String res = StringUtils::strip_edges(get_stdin_string());
     bool success = true;
     if (res == "") {
         res = p_partial;

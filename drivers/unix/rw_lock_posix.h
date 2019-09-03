@@ -43,19 +43,19 @@ class RWLockPosix : public RWLock {
 	static RWLock *create_func_posix();
 
 public:
-	virtual void read_lock();
-	virtual void read_unlock();
-	virtual Error read_try_lock();
+	void read_lock() override;
+	void read_unlock() override;
+	Error read_try_lock() override;
 
-	virtual void write_lock();
-	virtual void write_unlock();
-	virtual Error write_try_lock();
+	void write_lock() override;
+	void write_unlock() override;
+	Error write_try_lock() override;
 
 	static void make_default();
 
 	RWLockPosix();
 
-	~RWLockPosix();
+	~RWLockPosix() override;
 };
 
 #endif

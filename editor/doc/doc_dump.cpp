@@ -33,6 +33,8 @@
 #include "core/os/file_access.h"
 #include "core/version.h"
 #include "scene/main/node.h"
+#include "core/method_bind_interface.h"
+
 
 static void _write_string(FileAccess *f, int p_tablevel, const String &p_string) {
 
@@ -48,8 +50,8 @@ struct _ConstantSort {
     int value;
     bool operator<(const _ConstantSort &p_c) const {
 
-        String left_a = name.find("_") == -1 ? name : name.substr(0, name.find("_"));
-        String left_b = p_c.name.find("_") == -1 ? p_c.name : p_c.name.substr(0, p_c.name.find("_"));
+        String left_a = StringUtils::find(name,"_") == -1 ? name : StringUtils::substr(name,0, StringUtils::find(name,"_"));
+        String left_b = StringUtils::find(p_c.name,"_") == -1 ? p_c.name : StringUtils::substr(p_c.name,0, StringUtils::find(p_c.name,"_"));
         if (left_a == left_b)
             return value < p_c.value;
         else
@@ -60,17 +62,17 @@ struct _ConstantSort {
 static String _escape_string(const String &p_str) {
 
     String ret = p_str;
-    ret = ret.replace("&", "&amp;");
-    ret = ret.replace("<", "&gt;");
-    ret = ret.replace(">", "&lt;");
-    ret = ret.replace("'", "&apos;");
-    ret = ret.replace("\"", "&quot;");
+    ret = StringUtils::replace(ret,"&", "&amp;");
+    ret = StringUtils::replace(ret,"<", "&gt;");
+    ret = StringUtils::replace(ret,">", "&lt;");
+    ret = StringUtils::replace(ret,"'", "&apos;");
+    ret = StringUtils::replace(ret,"\"", "&quot;");
     for (char i = 1; i < 32; i++) {
 
         char chr[2] = { i, 0 };
-        ret = ret.replace(chr, "&#" + StringUtils::num(i) + ";");
+        ret = StringUtils::replace(ret,chr, "&#" + StringUtils::num(i) + ";");
     }
-    ret = ret.utf8();
+    ret = QString::fromUtf16((ushort *)ret.cdata(),ret.m_str.size());
     return ret;
 }
 void DocDump::dump(const String &p_file) {
@@ -91,10 +93,10 @@ void DocDump::dump(const String &p_file) {
 
         String header = "<class name=\"" + name + "\"";
         String inherits = ClassDB::get_parent_class(name);
-        if (!inherits.isEmpty())
+        if (!inherits.empty())
             header += " inherits=\"" + inherits + "\"";
         String category = ClassDB::get_category(name);
-        if (category.isEmpty())
+        if (category.empty())
             category = "Core";
         header += " category=\"" + category + "\"";
         header += ">";
@@ -175,7 +177,7 @@ void DocDump::dump(const String &p_file) {
                                     default_arg_text = "";
                                 }
 
-                                default_arg_text = Variant::get_type_name(default_arg.get_type()) + "(" + default_arg_text + ")";
+                                default_arg_text = String(Variant::get_type_name(default_arg.get_type())) + "(" + default_arg_text + ")";
                                 break;
 
                             case Variant::VECTOR2:
@@ -192,7 +194,7 @@ void DocDump::dump(const String &p_file) {
                             case Variant::POOL_STRING_ARRAY:
                             case Variant::POOL_VECTOR3_ARRAY:
                             case Variant::POOL_COLOR_ARRAY:
-                                default_arg_text = Variant::get_type_name(default_arg.get_type()) + "(" + default_arg_text + ")";
+                                default_arg_text = String(Variant::get_type_name(default_arg.get_type())) + "(" + default_arg_text + ")";
                                 break;
                             case Variant::OBJECT:
                             case Variant::DICTIONARY: // 20
@@ -211,20 +213,23 @@ void DocDump::dump(const String &p_file) {
                 String hint;
                 switch (arginfo.hint) {
                     case PROPERTY_HINT_DIR: hint = "A directory."; break;
-                    case PROPERTY_HINT_RANGE: hint = "Range - min: " + arginfo.hint_string.get_slice(",", 0) + " max: " + arginfo.hint_string.get_slice(",", 1) + " step: " + arginfo.hint_string.get_slice(",", 2); break;
+                case PROPERTY_HINT_RANGE:
+                    hint = "Range - min: " + StringUtils::get_slice(arginfo.hint_string,",", 0) + " max: " + StringUtils::get_slice(arginfo.hint_string,",", 1) +
+                           " step: " + StringUtils::get_slice(arginfo.hint_string,",", 2);
+                    break;
                     case PROPERTY_HINT_ENUM:
                         hint = "Values: ";
-                        for (int j = 0; j < arginfo.hint_string.get_slice_count(","); j++) {
+                        for (int j = 0; j < StringUtils::get_slice_count(arginfo.hint_string,","); j++) {
                             if (j > 0) hint += ", ";
-                            hint += arginfo.hint_string.get_slice(",", j) + "=" + itos(j);
+                            hint += StringUtils::get_slice(arginfo.hint_string,",", j) + "=" + itos(j);
                         }
                         break;
                     case PROPERTY_HINT_LENGTH: hint = "Length: " + arginfo.hint_string; break;
                     case PROPERTY_HINT_FLAGS:
                         hint = "Values: ";
-                        for (int j = 0; j < arginfo.hint_string.get_slice_count(","); j++) {
+                        for (int j = 0; j < StringUtils::get_slice_count(arginfo.hint_string,","); j++) {
                             if (j > 0) hint += ", ";
-                            hint += arginfo.hint_string.get_slice(",", j) + "=" + itos((uint64_t)1 << j);
+                            hint += StringUtils::get_slice(arginfo.hint_string,",", j) + "=" + itos((uint64_t)1 << j);
                         }
                         break;
                     case PROPERTY_HINT_FILE: hint = "A file:"; break;

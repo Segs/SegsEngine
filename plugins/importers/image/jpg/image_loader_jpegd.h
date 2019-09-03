@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef IMAGE_LOADER_JPG_H
-#define IMAGE_LOADER_JPG_H
+#pragma once
 
 #include "core/plugin_interfaces/ImageLoaderInterface.h"
 
@@ -43,5 +42,3 @@ public:
     void get_recognized_extensions(List<String> *p_extensions) const override;
     ImageLoaderJPG();
 };
-
-#endif

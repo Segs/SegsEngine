@@ -30,6 +30,9 @@
 
 #include "line_2d_editor_plugin.h"
 
+IMPL_GDCLASS(Line2DEditor)
+IMPL_GDCLASS(Line2DEditorPlugin)
+
 Node2D *Line2DEditor::_get_node() const {
 
 	return node;

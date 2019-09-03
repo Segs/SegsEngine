@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef CANVAS_LAYER_H
-#define CANVAS_LAYER_H
+#pragma once
 
 #include "scene/main/node.h"
 #include "scene/resources/world_2d.h"
@@ -37,7 +36,7 @@
 class Viewport;
 class CanvasLayer : public Node {
 
-	GDCLASS(CanvasLayer, Node);
+	GDCLASS(CanvasLayer,Node)
 
 	bool locrotscale_dirty;
 	Vector2 ofs;
@@ -104,7 +103,6 @@ public:
 	RID get_canvas() const;
 
 	CanvasLayer();
-	~CanvasLayer();
+	~CanvasLayer() override;
 };
 
-#endif // CANVAS_LAYER_H

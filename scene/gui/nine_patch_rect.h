@@ -35,7 +35,7 @@
 
 class NinePatchRect : public Control {
 
-    GDCLASS(NinePatchRect, Control);
+    GDCLASS(NinePatchRect,Control)
 
 public:
     enum AxisStretchMode {
@@ -53,7 +53,7 @@ public:
 
 protected:
     void _notification(int p_what);
-    virtual Size2 get_minimum_size() const;
+    Size2 get_minimum_size() const override;
     static void _bind_methods();
 
 public:

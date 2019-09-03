@@ -233,7 +233,7 @@ public:
 
 class EditorSelection : public Object {
 
-	GDCLASS(EditorSelection, Object);
+	GDCLASS(EditorSelection,Object)
 
 private:
 	Map<Node *, Object *> selection;
@@ -276,7 +276,7 @@ public:
 	Map<Node *, Object *> &get_selection() { return selection; }
 
 	EditorSelection();
-	~EditorSelection();
+	~EditorSelection() override;
 };
 
 #endif // EDITOR_DATA_H

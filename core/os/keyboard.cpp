@@ -437,8 +437,7 @@ int find_keycode(const String &p_code) {
     const _KeyCodeText *kct = &_keycodes[0];
 
     while (kct->text) {
-
-        if (p_code.compare(kct->text,Qt::CaseInsensitive) == 0) {
+		if (StringUtils::compare(p_code,kct->text,StringUtils::CaseInsensitive) == 0) {
             return kct->code;
         }
         kct++;

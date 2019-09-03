@@ -30,6 +30,7 @@
 
 #include "editor_export.h"
 
+#include "core/method_bind.h"
 #include "core/crypto/crypto_core.h"
 #include "core/io/config_file.h"
 #include "core/io/resource_loader.h"
@@ -45,6 +46,13 @@
 #include "editor_node.h"
 #include "editor_settings.h"
 #include "scene/resources/resource_format_text.h"
+
+IMPL_GDCLASS(EditorExportPreset)
+IMPL_GDCLASS(EditorExportPlatform)
+IMPL_GDCLASS(EditorExportPlugin)
+IMPL_GDCLASS(EditorExport)
+IMPL_GDCLASS(EditorExportPlatformPC)
+IMPL_GDCLASS(EditorExportTextSceneToBinaryPlugin)
 
 static int _get_pad(int p_alignment, int p_n) {
 
@@ -294,7 +302,7 @@ void EditorExportPlatform::gen_debug_flags(Vector<String> &r_flags, int p_flags)
             String bpoints;
             for (const List<String>::Element *E = breakpoints.front(); E; E = E->next()) {
 
-                bpoints += String(E->get()).replace(" ", "%20");
+                bpoints += StringUtils::replace(E->get()," ", "%20");
                 if (E->next())
                     bpoints += ",";
             }
@@ -319,7 +327,7 @@ Error EditorExportPlatform::_save_pack_file(void *p_userdata, const String &p_pa
     PackData *pd = (PackData *)p_userdata;
 
     SavedData sd;
-    sd.path_utf8 = p_path.utf8();
+    sd.path_utf8 = StringUtils::to_utf8(p_path);
     sd.ofs = pd->f->get_position();
     sd.size = p_data.size();
 
@@ -349,14 +357,14 @@ Error EditorExportPlatform::_save_pack_file(void *p_userdata, const String &p_pa
 
 Error EditorExportPlatform::_save_zip_file(void *p_userdata, const String &p_path, const Vector<uint8_t> &p_data, int p_file, int p_total) {
 
-    String path = p_path.replace_first("res://", "");
+    String path = StringUtils::replace_first(p_path,"res://", "");
 
     ZipData *zd = (ZipData *)p_userdata;
 
     zipFile zip = (zipFile)zd->zip;
 
     zipOpenNewFileInZip(zip,
-            qPrintable(path),
+            qPrintable(path.m_str),
             nullptr,
             nullptr,
             0,
@@ -449,10 +457,10 @@ void EditorExportPlatform::_export_find_dependencies(const String &p_path, Set<S
 void EditorExportPlatform::_edit_files_with_filter(DirAccess *da, const Vector<String> &p_filters, Set<String> &r_list, bool exclude) {
 
     da->list_dir_begin();
-    String cur_dir = da->get_current_dir().replace("\\", "/");
-    if (!cur_dir.ends_with("/"))
+    String cur_dir = StringUtils::replace(da->get_current_dir(),"\\", "/");
+    if (!StringUtils::ends_with(cur_dir,"/"))
         cur_dir += "/";
-    String cur_dir_no_prefix = cur_dir.replace("res://", "");
+    String cur_dir_no_prefix = StringUtils::replace(cur_dir,"res://", "");
 
     Vector<String> dirs;
     String f;
@@ -464,7 +472,8 @@ void EditorExportPlatform::_edit_files_with_filter(DirAccess *da, const Vector<S
             // Test also against path without res:// so that filters like `file.txt` can work.
             String fullpath_no_prefix = cur_dir_no_prefix + f;
             for (int i = 0; i < p_filters.size(); ++i) {
-                if (fullpath.matchn(p_filters[i]) || fullpath_no_prefix.matchn(p_filters[i])) {
+                if (StringUtils::match(fullpath,p_filters[i],StringUtils::CaseInsensitive) ||
+                    StringUtils::match(fullpath_no_prefix,p_filters[i],StringUtils::CaseInsensitive)) {
                     if (!exclude) {
                         r_list.insert(fullpath);
                     } else {
@@ -479,7 +488,7 @@ void EditorExportPlatform::_edit_files_with_filter(DirAccess *da, const Vector<S
 
     for (int i = 0; i < dirs.size(); ++i) {
         String dir = dirs[i];
-        if (dir.begins_with("."))
+        if (StringUtils::begins_with(dir,"."))
             continue;
         da->change_dir(dir);
         _edit_files_with_filter(da, p_filters, r_list, exclude);
@@ -494,7 +503,7 @@ void EditorExportPlatform::_edit_filter_list(Set<String> &r_list, const String &
     Vector<String> split = StringUtils::split(p_filter,",");
     Vector<String> filters;
     for (int i = 0; i < split.size(); i++) {
-        String f = split[i].strip_edges();
+        String f =StringUtils::strip_edges( split[i]);
         if (f.empty())
             continue;
         filters.push_back(f);
@@ -609,14 +618,14 @@ void EditorExportPlugin::skip() {
 
 void EditorExportPlugin::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("add_shared_object", "path", "tags"), &EditorExportPlugin::add_shared_object);
-    ClassDB::bind_method(D_METHOD("add_file", "path", "file", "remap"), &EditorExportPlugin::add_file);
-    ClassDB::bind_method(D_METHOD("add_ios_framework", "path"), &EditorExportPlugin::add_ios_framework);
-    ClassDB::bind_method(D_METHOD("add_ios_plist_content", "plist_content"), &EditorExportPlugin::add_ios_plist_content);
-    ClassDB::bind_method(D_METHOD("add_ios_linker_flags", "flags"), &EditorExportPlugin::add_ios_linker_flags);
-    ClassDB::bind_method(D_METHOD("add_ios_bundle_file", "path"), &EditorExportPlugin::add_ios_bundle_file);
-    ClassDB::bind_method(D_METHOD("add_ios_cpp_code", "code"), &EditorExportPlugin::add_ios_cpp_code);
-    ClassDB::bind_method(D_METHOD("skip"), &EditorExportPlugin::skip);
+    MethodBinder::bind_method(D_METHOD("add_shared_object", "path", "tags"), &EditorExportPlugin::add_shared_object);
+    MethodBinder::bind_method(D_METHOD("add_file", "path", "file", "remap"), &EditorExportPlugin::add_file);
+    MethodBinder::bind_method(D_METHOD("add_ios_framework", "path"), &EditorExportPlugin::add_ios_framework);
+    MethodBinder::bind_method(D_METHOD("add_ios_plist_content", "plist_content"), &EditorExportPlugin::add_ios_plist_content);
+    MethodBinder::bind_method(D_METHOD("add_ios_linker_flags", "flags"), &EditorExportPlugin::add_ios_linker_flags);
+    MethodBinder::bind_method(D_METHOD("add_ios_bundle_file", "path"), &EditorExportPlugin::add_ios_bundle_file);
+    MethodBinder::bind_method(D_METHOD("add_ios_cpp_code", "code"), &EditorExportPlugin::add_ios_cpp_code);
+    MethodBinder::bind_method(D_METHOD("skip"), &EditorExportPlugin::skip);
 
     BIND_VMETHOD(MethodInfo("_export_file", PropertyInfo(Variant::STRING, "path"), PropertyInfo(Variant::STRING, "type"), PropertyInfo(Variant::POOL_STRING_ARRAY, "features")));
     BIND_VMETHOD(MethodInfo("_export_begin", PropertyInfo(Variant::POOL_STRING_ARRAY, "features"), PropertyInfo(Variant::BOOL, "is_debug"), PropertyInfo(Variant::STRING, "path"), PropertyInfo(Variant::INT, "flags")));
@@ -644,7 +653,7 @@ EditorExportPlatform::FeatureContainers EditorExportPlatform::get_feature_contai
         Vector<String> tmp_custom_list = StringUtils::split(p_preset->get_custom_features(),",");
 
         for (int i = 0; i < tmp_custom_list.size(); i++) {
-            String f = tmp_custom_list[i].strip_edges();
+            String f =StringUtils::strip_edges( tmp_custom_list[i]);
             if (f != String()) {
                 result.features.insert(f);
                 result.features_pv.push_back(f);
@@ -753,7 +762,7 @@ Error EditorExportPlatform::export_project_files(const Ref<EditorExportPreset> &
             for (List<String>::Element *F = remaps.front(); F; F = F->next()) {
 
                 String remap = F->get();
-                String feature = remap.get_slice(".", 1);
+                String feature = StringUtils::get_slice(remap,".", 1);
                 if (features.has(feature)) {
                     remap_features.insert(feature);
                 }
@@ -772,8 +781,8 @@ Error EditorExportPlatform::export_project_files(const Ref<EditorExportPreset> &
                     String remapped_path = config->get_value("remap", remap);
                     Vector<uint8_t> array = FileAccess::get_file_as_array(remapped_path);
                     err = p_func(p_udata, remapped_path, array, idx, total);
-                } else if (remap.begins_with("path.")) {
-                    String feature = remap.get_slice(".", 1);
+                } else if (StringUtils::begins_with(remap,"path.")) {
+                    String feature = StringUtils::get_slice(remap,".", 1);
 
                     if (remap_features.has(feature)) {
                         String remapped_path = config->get_value("remap", remap);
@@ -846,7 +855,7 @@ Error EditorExportPlatform::export_project_files(const Ref<EditorExportPreset> &
         Vector<String> tmp_custom_list = StringUtils::split(p_preset->get_custom_features(),",");
 
         for (int i = 0; i < tmp_custom_list.size(); i++) {
-            String f = tmp_custom_list[i].strip_edges();
+            String f =StringUtils::strip_edges( tmp_custom_list[i]);
             if (f != String()) {
                 custom_list.push_back(f);
             }
@@ -860,7 +869,7 @@ Error EditorExportPlatform::export_project_files(const Ref<EditorExportPreset> &
                 String from = path_remaps[i];
                 String to = path_remaps[i + 1];
                 String remap_file = "[remap]\n\npath=\"" + StringUtils::c_escape(to) + "\"\n";
-                CharString utf8 = remap_file.utf8();
+                CharString utf8 = StringUtils::to_utf8(remap_file);
                 Vector<uint8_t> new_file;
                 new_file.resize(utf8.length());
                 for (int j = 0; j < utf8.length(); j++) {
@@ -997,7 +1006,7 @@ Error EditorExportPlatform::save_pack(const Ref<EditorExportPreset> &p_preset, c
         int pad = _get_pad(4, string_len);
 
         f->store_32(string_len + pad);
-        f->store_buffer((const uint8_t *)pd.file_ofs[i].path_utf8.constData(), string_len);
+        f->store_buffer((const uint8_t *)pd.file_ofs[i].path_utf8.data(), string_len);
         for (int j = 0; j < pad; j++) {
             f->store_8(0);
         }
@@ -1062,7 +1071,7 @@ Error EditorExportPlatform::save_zip(const Ref<EditorExportPreset> &p_preset, co
 
     FileAccess *src_f;
     zlib_filefunc_def io = zipio_create_io_from_file(&src_f);
-    zipFile zip = zipOpen2(qPrintable(p_path), APPEND_STATUS_CREATE, nullptr, &io);
+    zipFile zip = zipOpen2(qPrintable(p_path.m_str), APPEND_STATUS_CREATE, nullptr, &io);
 
     ZipData zd;
     zd.ep = &ep;
@@ -1121,7 +1130,7 @@ void EditorExportPlatform::gen_export_flags(Vector<String> &r_flags, int p_flags
             String bpoints;
             for (const List<String>::Element *E = breakpoints.front(); E; E = E->next()) {
 
-                bpoints += String(E->get()).replace(" ", "%20");
+                bpoints += StringUtils::replace(E->get()," ", "%20");
                 if (E->next())
                     bpoints += ",";
             }
@@ -1206,7 +1215,7 @@ void EditorExport::save_presets() {
 
 void EditorExport::_bind_methods() {
 
-    ClassDB::bind_method("_save", &EditorExport::_save);
+    MethodBinder::bind_method("_save", &EditorExport::_save);
 }
 
 void EditorExport::add_export_platform(const Ref<EditorExportPlatform> &p_platform) {
@@ -1415,7 +1424,7 @@ EditorExport::EditorExport() {
 
     save_timer = memnew(Timer);
     add_child(save_timer);
-    save_timer->set_wait_time(0.8);
+    save_timer->set_wait_time(0.8f);
     save_timer->set_one_shot(true);
     save_timer->connect("timeout", this, "_save");
     block_save = false;
@@ -1547,7 +1556,7 @@ Error EditorExportPlatformPC::export_project(const Ref<EditorExportPreset> &p_pr
 
     String template_path = p_debug ? custom_debug : custom_release;
 
-    template_path = template_path.strip_edges();
+    template_path =StringUtils::strip_edges( template_path);
 
     if (template_path == String()) {
 

@@ -28,16 +28,22 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
+#include "editor_export.h"
 #include "project_settings_editor.h"
 
+#include "core/method_bind.h"
 #include "core/global_constants.h"
 #include "core/input_map.h"
 #include "core/os/keyboard.h"
 #include "core/project_settings.h"
 #include "core/translation.h"
 #include "editor/editor_node.h"
+#include "editor/editor_scale.h"
 #include "scene/gui/margin_container.h"
 #include "scene/gui/tab_container.h"
+
+
+IMPL_GDCLASS(ProjectSettingsEditor)
 
 ProjectSettingsEditor *ProjectSettingsEditor::singleton = nullptr;
 
@@ -132,7 +138,7 @@ void ProjectSettingsEditor::_notification(int p_what) {
 }
 
 static bool _validate_action_name(const String &p_name) {
-    const CharType *cstr = p_name.constData();
+    const CharType *cstr = p_name.cdata();
     for (int i = 0; !cstr[i].isNull(); i++)
         if (cstr[i] == '/' || cstr[i] == ':' || cstr[i] == '"' ||
                 cstr[i] == '=' || cstr[i] == '\\' || cstr[i] < 32)
@@ -159,7 +165,7 @@ void ProjectSettingsEditor::_action_edited() {
     if (input_editor->get_selected_column() == 0) {
 
         String new_name = ti->get_text(0);
-        String old_name = add_at.substr(add_at.find("/") + 1, add_at.length());
+        String old_name = StringUtils::substr(add_at,StringUtils::find(add_at,"/") + 1, add_at.length());
 
         if (new_name == old_name)
             return;
@@ -384,7 +390,7 @@ void ProjectSettingsEditor::_show_last_added(const Ref<InputEvent> &p_event, con
     TreeItem *r = input_editor->get_root();
 
     String name = p_name;
-    name.erase(0, 6);
+    StringUtils::erase(name,0, 6);
     if (!r)
         return;
     r = r->get_children();
@@ -421,7 +427,7 @@ void ProjectSettingsEditor::_wait_for_key(const Ref<InputEvent> &p_event) {
     if (k.is_valid() && k->is_pressed() && k->get_scancode() != 0) {
 
         last_wait_for_key = p_event;
-        String str = keycode_get_string(k->get_scancode()).capitalize();
+        String str = StringUtils::capitalize(keycode_get_string(k->get_scancode()));
         if (k->get_metakey())
             str = vformat("%s+", find_keycode_name(KEY_META)) + str;
         if (k->get_shift())
@@ -680,10 +686,10 @@ void ProjectSettingsEditor::_update_actions() {
     for (List<PropertyInfo>::Element *E = props.front(); E; E = E->next()) {
 
         const PropertyInfo &pi = E->get();
-        if (!pi.name.begins_with("input/"))
+        if (!StringUtils::begins_with(pi.name,"input/"))
             continue;
 
-        String name = pi.name.get_slice("/", 1);
+        String name = StringUtils::get_slice(pi.name,"/", 1);
         if (name == "")
             continue;
 
@@ -719,7 +725,7 @@ void ProjectSettingsEditor::_update_actions() {
             Ref<InputEventKey> k = event;
             if (k.is_valid()) {
 
-                String str = keycode_get_string(k->get_scancode()).capitalize();
+                String str = StringUtils::capitalize(keycode_get_string(k->get_scancode()));
                 if (k->get_metakey())
                     str = vformat("%s+", find_keycode_name(KEY_META)) + str;
                 if (k->get_shift())
@@ -831,8 +837,8 @@ void ProjectSettingsEditor::_item_add() {
         case 3: value = ""; break;
     }
 
-    String catname = category->get_text().strip_edges();
-    String propname = property->get_text().strip_edges();
+    String catname = StringUtils::strip_edges(category->get_text());
+    String propname = StringUtils::strip_edges(property->get_text());
 
     if (propname.empty()) {
         return;
@@ -875,7 +881,7 @@ void ProjectSettingsEditor::_item_del() {
         return;
     }
 
-	String property = PathUtils::plus_file(globals_editor->get_current_section(),path);
+    String property = PathUtils::plus_file(globals_editor->get_current_section(),path);
 
     if (!ProjectSettings::get_singleton()->has_setting(property)) {
         EditorNode::get_singleton()->show_warning(vformat(TTR("No property '%s' exists."), property));
@@ -1029,7 +1035,7 @@ void ProjectSettingsEditor::_copy_to_platform_about_to_show() {
         String custom = EditorExport::get_singleton()->get_export_preset(i)->get_custom_features();
         Vector<String> custom_list = StringUtils::split(custom,",");
         for (int j = 0; j < custom_list.size(); j++) {
-            String f = custom_list[j].strip_edges();
+            String f =StringUtils::strip_edges( custom_list[j]);
             if (f != String()) {
                 presets.insert(f);
             }
@@ -1051,12 +1057,12 @@ void ProjectSettingsEditor::_copy_to_platform(int p_which) {
         return;
     }
 
-	String property = PathUtils::plus_file(globals_editor->get_current_section(),path);
+    String property = PathUtils::plus_file(globals_editor->get_current_section(),path);
 
     undo_redo->create_action(TTR("Override for Feature"));
 
     Variant value = ProjectSettings::get_singleton()->get(property);
-    if (property.find(".") != -1) { //overwriting overwrite, keep overwrite
+    if (StringUtils::contains(property,'.') ) { //overwriting overwrite, keep overwrite
         undo_redo->add_do_method(ProjectSettings::get_singleton(), "clear", property);
         undo_redo->add_undo_method(ProjectSettings::get_singleton(), "set", property, value);
     }
@@ -1408,7 +1414,7 @@ void ProjectSettingsEditor::_update_translations() {
 
             TreeItem *t = translation_list->create_item(root);
             t->set_editable(0, false);
-            t->set_text(0, translations[i].replace_first("res://", ""));
+            t->set_text(0, StringUtils::replace_first(translations[i],"res://", ""));
             t->set_tooltip(0, translations[i]);
             t->set_metadata(0, i);
             t->add_button(0, get_icon("Remove", "EditorIcons"), 0, false, TTR("Remove"));
@@ -1526,7 +1532,7 @@ void ProjectSettingsEditor::_update_translations() {
 
             TreeItem *t = translation_remap->create_item(root);
             t->set_editable(0, false);
-            t->set_text(0, keys[i].replace_first("res://", ""));
+            t->set_text(0, StringUtils::replace_first(keys[i],"res://", ""));
             t->set_tooltip(0, keys[i]);
             t->set_metadata(0, keys[i]);
             t->add_button(0, get_icon("Remove", "EditorIcons"), 0, false, TTR("Remove"));
@@ -1538,13 +1544,13 @@ void ProjectSettingsEditor::_update_translations() {
                 for (int j = 0; j < selected.size(); j++) {
 
                     String s2 = selected[j];
-                    int qp = s2.find_last(":");
-                    String path = s2.substr(0, qp);
-                    String locale = s2.substr(qp + 1, s2.length());
+                    int qp = StringUtils::find_last(s2,":");
+                    String path = StringUtils::substr(s2,0, qp);
+                    String locale = StringUtils::substr(s2,qp + 1, s2.length());
 
                     TreeItem *t2 = translation_remap_options->create_item(root2);
                     t2->set_editable(0, false);
-                    t2->set_text(0, path.replace_first("res://", ""));
+                    t2->set_text(0, StringUtils::replace_first(path,"res://", ""));
                     t2->set_tooltip(0, path);
                     t2->set_metadata(0, j);
                     t2->add_button(0, get_icon("Remove", "EditorIcons"), 0, false, TTR("Remove"));
@@ -1615,53 +1621,53 @@ void ProjectSettingsEditor::_editor_restart_close() {
 
 void ProjectSettingsEditor::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_item_selected"), &ProjectSettingsEditor::_item_selected);
-    ClassDB::bind_method(D_METHOD("_item_add"), &ProjectSettingsEditor::_item_add);
-    ClassDB::bind_method(D_METHOD("_item_adds"), &ProjectSettingsEditor::_item_adds);
-    ClassDB::bind_method(D_METHOD("_item_del"), &ProjectSettingsEditor::_item_del);
-    ClassDB::bind_method(D_METHOD("_item_checked"), &ProjectSettingsEditor::_item_checked);
-    ClassDB::bind_method(D_METHOD("_save"), &ProjectSettingsEditor::_save);
-    ClassDB::bind_method(D_METHOD("_action_add"), &ProjectSettingsEditor::_action_add);
-    ClassDB::bind_method(D_METHOD("_action_adds"), &ProjectSettingsEditor::_action_adds);
-    ClassDB::bind_method(D_METHOD("_action_check"), &ProjectSettingsEditor::_action_check);
-    ClassDB::bind_method(D_METHOD("_action_selected"), &ProjectSettingsEditor::_action_selected);
-    ClassDB::bind_method(D_METHOD("_action_edited"), &ProjectSettingsEditor::_action_edited);
-    ClassDB::bind_method(D_METHOD("_action_activated"), &ProjectSettingsEditor::_action_activated);
-    ClassDB::bind_method(D_METHOD("_action_button_pressed"), &ProjectSettingsEditor::_action_button_pressed);
-    ClassDB::bind_method(D_METHOD("_update_actions"), &ProjectSettingsEditor::_update_actions);
-    ClassDB::bind_method(D_METHOD("_wait_for_key"), &ProjectSettingsEditor::_wait_for_key);
-    ClassDB::bind_method(D_METHOD("_add_item"), &ProjectSettingsEditor::_add_item, {DEFVAL(Variant())});
-    ClassDB::bind_method(D_METHOD("_device_input_add"), &ProjectSettingsEditor::_device_input_add);
-    ClassDB::bind_method(D_METHOD("_press_a_key_confirm"), &ProjectSettingsEditor::_press_a_key_confirm);
-    ClassDB::bind_method(D_METHOD("_settings_prop_edited"), &ProjectSettingsEditor::_settings_prop_edited);
-    ClassDB::bind_method(D_METHOD("_copy_to_platform"), &ProjectSettingsEditor::_copy_to_platform);
-    ClassDB::bind_method(D_METHOD("_update_translations"), &ProjectSettingsEditor::_update_translations);
-    ClassDB::bind_method(D_METHOD("_translation_delete"), &ProjectSettingsEditor::_translation_delete);
-    ClassDB::bind_method(D_METHOD("_settings_changed"), &ProjectSettingsEditor::_settings_changed);
-    ClassDB::bind_method(D_METHOD("_translation_add"), &ProjectSettingsEditor::_translation_add);
-    ClassDB::bind_method(D_METHOD("_translation_file_open"), &ProjectSettingsEditor::_translation_file_open);
+    MethodBinder::bind_method(D_METHOD("_item_selected"), &ProjectSettingsEditor::_item_selected);
+    MethodBinder::bind_method(D_METHOD("_item_add"), &ProjectSettingsEditor::_item_add);
+    MethodBinder::bind_method(D_METHOD("_item_adds"), &ProjectSettingsEditor::_item_adds);
+    MethodBinder::bind_method(D_METHOD("_item_del"), &ProjectSettingsEditor::_item_del);
+    MethodBinder::bind_method(D_METHOD("_item_checked"), &ProjectSettingsEditor::_item_checked);
+    MethodBinder::bind_method(D_METHOD("_save"), &ProjectSettingsEditor::_save);
+    MethodBinder::bind_method(D_METHOD("_action_add"), &ProjectSettingsEditor::_action_add);
+    MethodBinder::bind_method(D_METHOD("_action_adds"), &ProjectSettingsEditor::_action_adds);
+    MethodBinder::bind_method(D_METHOD("_action_check"), &ProjectSettingsEditor::_action_check);
+    MethodBinder::bind_method(D_METHOD("_action_selected"), &ProjectSettingsEditor::_action_selected);
+    MethodBinder::bind_method(D_METHOD("_action_edited"), &ProjectSettingsEditor::_action_edited);
+    MethodBinder::bind_method(D_METHOD("_action_activated"), &ProjectSettingsEditor::_action_activated);
+    MethodBinder::bind_method(D_METHOD("_action_button_pressed"), &ProjectSettingsEditor::_action_button_pressed);
+    MethodBinder::bind_method(D_METHOD("_update_actions"), &ProjectSettingsEditor::_update_actions);
+    MethodBinder::bind_method(D_METHOD("_wait_for_key"), &ProjectSettingsEditor::_wait_for_key);
+    MethodBinder::bind_method(D_METHOD("_add_item"), &ProjectSettingsEditor::_add_item, {DEFVAL(Variant())});
+    MethodBinder::bind_method(D_METHOD("_device_input_add"), &ProjectSettingsEditor::_device_input_add);
+    MethodBinder::bind_method(D_METHOD("_press_a_key_confirm"), &ProjectSettingsEditor::_press_a_key_confirm);
+    MethodBinder::bind_method(D_METHOD("_settings_prop_edited"), &ProjectSettingsEditor::_settings_prop_edited);
+    MethodBinder::bind_method(D_METHOD("_copy_to_platform"), &ProjectSettingsEditor::_copy_to_platform);
+    MethodBinder::bind_method(D_METHOD("_update_translations"), &ProjectSettingsEditor::_update_translations);
+    MethodBinder::bind_method(D_METHOD("_translation_delete"), &ProjectSettingsEditor::_translation_delete);
+    MethodBinder::bind_method(D_METHOD("_settings_changed"), &ProjectSettingsEditor::_settings_changed);
+    MethodBinder::bind_method(D_METHOD("_translation_add"), &ProjectSettingsEditor::_translation_add);
+    MethodBinder::bind_method(D_METHOD("_translation_file_open"), &ProjectSettingsEditor::_translation_file_open);
 
-    ClassDB::bind_method(D_METHOD("_translation_res_add"), &ProjectSettingsEditor::_translation_res_add);
-    ClassDB::bind_method(D_METHOD("_translation_res_file_open"), &ProjectSettingsEditor::_translation_res_file_open);
-    ClassDB::bind_method(D_METHOD("_translation_res_option_add"), &ProjectSettingsEditor::_translation_res_option_add);
-    ClassDB::bind_method(D_METHOD("_translation_res_option_file_open"), &ProjectSettingsEditor::_translation_res_option_file_open);
-    ClassDB::bind_method(D_METHOD("_translation_res_select"), &ProjectSettingsEditor::_translation_res_select);
-    ClassDB::bind_method(D_METHOD("_translation_res_option_changed"), &ProjectSettingsEditor::_translation_res_option_changed);
-    ClassDB::bind_method(D_METHOD("_translation_res_delete"), &ProjectSettingsEditor::_translation_res_delete);
-    ClassDB::bind_method(D_METHOD("_translation_res_option_delete"), &ProjectSettingsEditor::_translation_res_option_delete);
+    MethodBinder::bind_method(D_METHOD("_translation_res_add"), &ProjectSettingsEditor::_translation_res_add);
+    MethodBinder::bind_method(D_METHOD("_translation_res_file_open"), &ProjectSettingsEditor::_translation_res_file_open);
+    MethodBinder::bind_method(D_METHOD("_translation_res_option_add"), &ProjectSettingsEditor::_translation_res_option_add);
+    MethodBinder::bind_method(D_METHOD("_translation_res_option_file_open"), &ProjectSettingsEditor::_translation_res_option_file_open);
+    MethodBinder::bind_method(D_METHOD("_translation_res_select"), &ProjectSettingsEditor::_translation_res_select);
+    MethodBinder::bind_method(D_METHOD("_translation_res_option_changed"), &ProjectSettingsEditor::_translation_res_option_changed);
+    MethodBinder::bind_method(D_METHOD("_translation_res_delete"), &ProjectSettingsEditor::_translation_res_delete);
+    MethodBinder::bind_method(D_METHOD("_translation_res_option_delete"), &ProjectSettingsEditor::_translation_res_option_delete);
 
-    ClassDB::bind_method(D_METHOD("_translation_filter_option_changed"), &ProjectSettingsEditor::_translation_filter_option_changed);
-    ClassDB::bind_method(D_METHOD("_translation_filter_mode_changed"), &ProjectSettingsEditor::_translation_filter_mode_changed);
+    MethodBinder::bind_method(D_METHOD("_translation_filter_option_changed"), &ProjectSettingsEditor::_translation_filter_option_changed);
+    MethodBinder::bind_method(D_METHOD("_translation_filter_mode_changed"), &ProjectSettingsEditor::_translation_filter_mode_changed);
 
-    ClassDB::bind_method(D_METHOD("_toggle_search_bar"), &ProjectSettingsEditor::_toggle_search_bar);
+    MethodBinder::bind_method(D_METHOD("_toggle_search_bar"), &ProjectSettingsEditor::_toggle_search_bar);
 
-    ClassDB::bind_method(D_METHOD("_copy_to_platform_about_to_show"), &ProjectSettingsEditor::_copy_to_platform_about_to_show);
+    MethodBinder::bind_method(D_METHOD("_copy_to_platform_about_to_show"), &ProjectSettingsEditor::_copy_to_platform_about_to_show);
 
-    ClassDB::bind_method(D_METHOD("_editor_restart_request"), &ProjectSettingsEditor::_editor_restart_request);
-    ClassDB::bind_method(D_METHOD("_editor_restart"), &ProjectSettingsEditor::_editor_restart);
-    ClassDB::bind_method(D_METHOD("_editor_restart_close"), &ProjectSettingsEditor::_editor_restart_close);
+    MethodBinder::bind_method(D_METHOD("_editor_restart_request"), &ProjectSettingsEditor::_editor_restart_request);
+    MethodBinder::bind_method(D_METHOD("_editor_restart"), &ProjectSettingsEditor::_editor_restart);
+    MethodBinder::bind_method(D_METHOD("_editor_restart_close"), &ProjectSettingsEditor::_editor_restart_close);
 
-    ClassDB::bind_method(D_METHOD("get_tabs"), &ProjectSettingsEditor::get_tabs);
+    MethodBinder::bind_method(D_METHOD("get_tabs"), &ProjectSettingsEditor::get_tabs);
 }
 
 ProjectSettingsEditor::ProjectSettingsEditor(EditorData *p_data) {
@@ -1674,6 +1680,7 @@ ProjectSettingsEditor::ProjectSettingsEditor(EditorData *p_data) {
 
     tab_container = memnew(TabContainer);
     tab_container->set_tab_align(TabContainer::ALIGN_LEFT);
+	tab_container->set_use_hidden_tabs_for_min_size(true);
     add_child(tab_container);
 
     VBoxContainer *props_base = memnew(VBoxContainer);

@@ -35,7 +35,7 @@
 
 class RemoteTransform2D : public Node2D {
 
-	GDCLASS(RemoteTransform2D, Node2D);
+	GDCLASS(RemoteTransform2D,Node2D)
 
 	NodePath remote_node;
 
@@ -71,7 +71,7 @@ public:
 
 	void force_update_cache();
 
-	virtual String get_configuration_warning() const;
+	String get_configuration_warning() const override;
 
 	RemoteTransform2D();
 };

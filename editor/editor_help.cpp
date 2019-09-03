@@ -35,6 +35,12 @@
 #include "editor/plugins/script_editor_plugin.h"
 #include "editor_node.h"
 #include "editor_settings.h"
+#include "editor_scale.h"
+#include "core/method_bind.h"
+
+IMPL_GDCLASS(FindBar)
+IMPL_GDCLASS(EditorHelp)
+IMPL_GDCLASS(EditorHelpBit)
 
 #define CONTRIBUTE_URL "https://docs.godotengine.org/en/latest/community/contributing/updating_the_class_reference.html"
 #define CONTRIBUTE2_URL "https://github.com/godotengine/godot-docs"
@@ -54,6 +60,7 @@ void EditorHelp::_init_colors() {
     qualifier_color = text_color * Color(1, 1, 1, 0.8f);
     type_color = get_color("accent_color", "Editor").linear_interpolate(text_color, 0.5);
     class_desc->add_color_override("selection_color", get_color("accent_color", "Editor") * Color(1, 1, 1, 0.4f));
+	class_desc->add_constant_override("line_separation", Math::round(5 * EDSCALE));
 }
 
 void EditorHelp::_unhandled_key_input(const Ref<InputEvent> &p_ev) {
@@ -82,25 +89,25 @@ void EditorHelp::_class_list_select(const String &p_select) {
 
 void EditorHelp::_class_desc_select(const String &p_select) {
 
-    if (p_select.begins_with("$")) { //enum
-        String select = p_select.substr(1, p_select.length());
+    if (StringUtils::begins_with(p_select,"$")) { //enum
+        String select = StringUtils::substr(p_select,1, p_select.length());
         String class_name;
-        if (select.find(".") != -1) {
-            class_name = select.get_slice(".", 0);
-            select = select.get_slice(".", 1);
+        if (StringUtils::find(select,".") != -1) {
+            class_name = StringUtils::get_slice(select,".", 0);
+            select = StringUtils::get_slice(select,".", 1);
         } else {
             class_name = "@GlobalScope";
         }
         emit_signal("go_to_help", String("class_enum:" + class_name + ":" + select));
         return;
-    } else if (p_select.begins_with("#")) {
-        emit_signal("go_to_help", String("class_name:" + p_select.substr(1, p_select.length())));
+    } else if (StringUtils::begins_with(p_select,"#")) {
+        emit_signal("go_to_help", String("class_name:" + StringUtils::substr(p_select,1, p_select.length())));
         return;
-    } else if (p_select.begins_with("@")) {
-        int tag_end = p_select.find(" ");
+    } else if (StringUtils::begins_with(p_select,"@")) {
+        int tag_end = StringUtils::find(p_select," ");
 
-        String tag = p_select.substr(1, tag_end - 1);
-        String link = p_select.substr(tag_end + 1, p_select.length()).lstrip(" ");
+        String tag = StringUtils::substr(p_select,1, tag_end - 1);
+        String link = StringUtils::lstrip(StringUtils::substr(p_select,tag_end + 1, p_select.length())," ");
 
         String topic;
         Map<String, int> *table = nullptr;
@@ -124,8 +131,8 @@ void EditorHelp::_class_desc_select(const String &p_select) {
             return;
         }
 
-        if (link.find(".") != -1) {
-            emit_signal("go_to_help", String(topic + ":" + link.get_slice(".", 0) + ":" + link.get_slice(".", 1)));
+        if (StringUtils::find(link,".") != -1) {
+            emit_signal("go_to_help", String(topic + ":" + StringUtils::get_slice(link,".", 0) + ":" + StringUtils::get_slice(link,".", 1)));
         } else {
             if (table->has(link)) {
                 // Found in the current page
@@ -156,7 +163,7 @@ void EditorHelp::_class_desc_select(const String &p_select) {
                 }
             }
         }
-    } else if (p_select.begins_with("http")) {
+    } else if (StringUtils::begins_with(p_select,"http")) {
         OS::get_singleton()->shell_open(p_select);
     }
 }
@@ -183,10 +190,10 @@ void EditorHelp::_add_type(const String &p_type, const String &p_enum) {
     bool can_ref = (t != "int" && t != "real" && t != "bool" && t != "void") || p_enum != String();
 
     if (p_enum != String()) {
-        if (p_enum.get_slice_count(".") > 1) {
-            t = p_enum.get_slice(".", 1);
+        if (StringUtils::get_slice_count(p_enum,".") > 1) {
+            t = StringUtils::get_slice(p_enum,".", 1);
         } else {
-            t = p_enum.get_slice(".", 0);
+            t = StringUtils::get_slice(p_enum,".", 0);
         }
     }
     const Color text_color = get_color("default_color", "RichTextLabel");
@@ -207,15 +214,15 @@ void EditorHelp::_add_type(const String &p_type, const String &p_enum) {
 
 String EditorHelp::_fix_constant(const String &p_constant) const {
 
-    if (p_constant.strip_edges() == "4294967295") {
+    if (StringUtils::strip_edges(p_constant) == "4294967295") {
         return "0xFFFFFFFF";
     }
 
-    if (p_constant.strip_edges() == "2147483647") {
+    if (StringUtils::strip_edges(p_constant) == "2147483647") {
         return "0x7FFFFFFF";
     }
 
-    if (p_constant.strip_edges() == "1048575") {
+    if (StringUtils::strip_edges(p_constant) == "1048575") {
         return "0xFFFFF";
     }
 
@@ -226,7 +233,7 @@ void EditorHelp::_add_method(const DocData::MethodDoc &p_method, bool p_overview
 
     method_line[p_method.name] = class_desc->get_line_count() - 2; //gets overridden if description
 
-    const bool is_vararg = p_method.qualifiers.find("vararg") != -1;
+    const bool is_vararg = StringUtils::find(p_method.qualifiers,"vararg") != -1;
 
     if (p_overview) {
         class_desc->push_cell();
@@ -324,6 +331,8 @@ Error EditorHelp::_goto_desc(const String &p_class, int p_vscr) {
 }
 
 void EditorHelp::_update_doc() {
+    using namespace StringUtils;
+
     if (!doc->class_list.has(edited_class))
         return;
 
@@ -562,7 +571,7 @@ void EditorHelp::_update_doc() {
 
             for (int i = 0; i < methods.size(); i++) {
                 const String &q = methods[i].qualifiers;
-                if ((pass == 0 && q.find("virtual") != -1) || (pass == 1 && q.find("virtual") == -1)) {
+                if ((pass == 0 && StringUtils::find(q,"virtual") != -1) || (pass == 1 && StringUtils::find(q,"virtual") == -1)) {
                     m.push_back(methods[i]);
                 }
             }
@@ -576,10 +585,10 @@ void EditorHelp::_update_doc() {
 
             String group_prefix;
             for (int i = 0; i < m.size(); i++) {
-                const String new_prefix = m[i].name.substr(0, 3);
+                const String new_prefix = StringUtils::substr(m[i].name,0, 3);
                 bool is_new_group = false;
 
-                if (i < m.size() - 1 && new_prefix == m[i + 1].name.substr(0, 3) && new_prefix != group_prefix) {
+                if (i < m.size() - 1 && new_prefix == StringUtils::substr(m[i + 1].name,0, 3) && new_prefix != group_prefix) {
                     is_new_group = i > 0;
                     group_prefix = new_prefix;
                 } else if (group_prefix != "" && new_prefix != group_prefix) {
@@ -751,7 +760,7 @@ void EditorHelp::_update_doc() {
 
         for (int i = 0; i < cd.constants.size(); i++) {
 
-            if (cd.constants[i].enumeration != String()) {
+            if (not cd.constants[i].enumeration.empty()) {
                 if (!enums.has(cd.constants[i].enumeration)) {
                     enums[cd.constants[i].enumeration] = Vector<DocData::ConstantDoc>();
                 }
@@ -785,8 +794,8 @@ void EditorHelp::_update_doc() {
                 class_desc->pop();
                 class_desc->push_font(doc_code_font);
                 String e = E->key();
-                if (e.get_slice_count(".")) {
-                    e = e.get_slice(".", 1);
+                if (StringUtils::get_slice_count(e,".")) {
+                    e = StringUtils::get_slice(e,".", 1);
                 }
 
                 class_desc->push_color(headline_color);
@@ -867,8 +876,8 @@ void EditorHelp::_update_doc() {
                 constant_line[constants[i].name] = class_desc->get_line_count() - 2;
                 class_desc->push_font(doc_code_font);
                 String cval=constants[i].value;
-                if (cval.startsWith("Color(") && cval.endsWith(")")) {
-                    String stripped = cval.replace(" ", "").replace("Color(", "").replace(")", "");
+                if (StringUtils::begins_with(cval,"Color(") && StringUtils::ends_with(cval,")")) {
+                    String stripped = StringUtils::replace(StringUtils::replace(StringUtils::replace(cval," ", ""),"Color(", ""),")", "");
                     Vector<float> color = StringUtils::split_floats(stripped,",");
                     if (color.size() >= 3) {
                         class_desc->push_color(Color(color[0], color[1], color[2]));
@@ -952,9 +961,9 @@ void EditorHelp::_update_doc() {
             for (int i = 0; i < cd.tutorials.size(); i++) {
                 String link = cd.tutorials[i];
                 String linktxt = link;
-                int seppos = linktxt.find("//");
+                int seppos = StringUtils::find(linktxt,"//");
                 if (seppos != -1) {
-                    linktxt = link.right(seppos + 2);
+                    linktxt = StringUtils::right(link,seppos + 2);
                 }
 
                 class_desc->push_color(symbol_color);
@@ -962,9 +971,14 @@ void EditorHelp::_update_doc() {
                 class_desc->pop();
                 class_desc->add_newline();
             }
-        } else {
+        }
+        else {
             class_desc->push_color(comment_color);
-            class_desc->append_bbcode(TTR("There are currently no tutorials for this class, you can [color=$color][url=$url]contribute one[/url][/color] or [color=$color][url=$url2]request one[/url][/color].").replace("$url2", REQUEST_URL).replace("$url", CONTRIBUTE2_URL).replace("$color", link_color_text));
+            String translated =
+                    TTR("There are currently no tutorials for this class, you can [color=$color][url=$url]contribute "
+                        "one[/url][/color] or [color=$color][url=$url2]request one[/url][/color].");
+            class_desc->append_bbcode(replace(
+                    replace(replace(translated, "$url2", REQUEST_URL), "$url", CONTRIBUTE2_URL), "$color", link_color_text));
             class_desc->pop();
         }
         class_desc->pop();
@@ -1065,13 +1079,16 @@ void EditorHelp::_update_doc() {
             class_desc->push_color(text_color);
             class_desc->push_font(doc_font);
             class_desc->push_indent(1);
-            if (cd.properties[i].description.strip_edges() != String()) {
+            if (not StringUtils::strip_edges(cd.properties[i].description).empty()) {
                 _add_text(cd.properties[i].description);
-            } else {
+            }
+            else {
                 class_desc->add_image(get_icon("Error", "EditorIcons"));
                 class_desc->add_text(" ");
                 class_desc->push_color(comment_color);
-                class_desc->append_bbcode(TTR("There is currently no description for this property. Please help us by [color=$color][url=$url]contributing one[/url][/color]!").replace("$url", CONTRIBUTE_URL).replace("$color", link_color_text));
+                String translated = TTR("There is currently no description for this property. Please help us by "
+                                        "[color=$color][url=$url]contributing one[/url][/color]!");
+                class_desc->append_bbcode(replace(replace(translated, "$url", CONTRIBUTE_URL), "$color", link_color_text));
                 class_desc->pop();
             }
             class_desc->pop();
@@ -1108,13 +1125,15 @@ void EditorHelp::_update_doc() {
             class_desc->push_color(text_color);
             class_desc->push_font(doc_font);
             class_desc->push_indent(1);
-            if (methods[i].description.strip_edges() != String()) {
+            if (not StringUtils::strip_edges(methods[i].description).empty()) {
                 _add_text(methods[i].description);
             } else {
                 class_desc->add_image(get_icon("Error", "EditorIcons"));
                 class_desc->add_text(" ");
                 class_desc->push_color(comment_color);
-                class_desc->append_bbcode(TTR("There is currently no description for this method. Please help us by [color=$color][url=$url]contributing one[/url][/color]!").replace("$url", CONTRIBUTE_URL).replace("$color", link_color_text));
+                String translated=TTR("There is currently no description for this method. Please help us by "
+                                      "[color=$color][url=$url]contributing one[/url][/color]!");
+                class_desc->append_bbcode(replace(replace(translated,"$url", CONTRIBUTE_URL),"$color", link_color_text));
                 class_desc->pop();
             }
 
@@ -1140,11 +1159,11 @@ void EditorHelp::_request_help(const String &p_string) {
 
 void EditorHelp::_help_callback(const String &p_topic) {
 
-    String what = p_topic.get_slice(":", 0);
-    String clss = p_topic.get_slice(":", 1);
+    String what = StringUtils::get_slice(p_topic,":", 0);
+    String clss = StringUtils::get_slice(p_topic,":", 1);
     String name;
-    if (p_topic.get_slice_count(":") == 3)
-        name = p_topic.get_slice(":", 2);
+    if (StringUtils::get_slice_count(p_topic,":") == 3)
+        name = StringUtils::get_slice(p_topic,":", 2);
 
     _request_help(clss); //first go to class
 
@@ -1191,6 +1210,7 @@ void EditorHelp::_help_callback(const String &p_topic) {
 }
 
 static void _add_text_to_rt(const String &p_bbcode, RichTextLabel *p_rt) {
+    using namespace StringUtils;
 
     DocData *doc = EditorHelp::get_doc_data();
     String base_path;
@@ -1201,7 +1221,7 @@ static void _add_text_to_rt(const String &p_bbcode, RichTextLabel *p_rt) {
     Color font_color_hl = p_rt->get_color("headline_color", "EditorHelp");
     Color link_color = p_rt->get_color("accent_color", "Editor").linear_interpolate(font_color_hl, 0.8f);
 
-    String bbcode = String(String(p_bbcode.dedent()).replace("\t", "").replace("\r", "")).strip_edges();
+    String bbcode = strip_edges(replace(replace(dedent(p_bbcode),"\t", ""),"\r", ""));
 
     List<String> tag_stack;
     bool code_tag = false;
@@ -1209,37 +1229,37 @@ static void _add_text_to_rt(const String &p_bbcode, RichTextLabel *p_rt) {
     int pos = 0;
     while (pos < bbcode.length()) {
 
-        int brk_pos = bbcode.find("[", pos);
+        int brk_pos = StringUtils::find(bbcode,"[", pos);
 
         if (brk_pos < 0)
             brk_pos = bbcode.length();
 
         if (brk_pos > pos) {
-            String text = bbcode.substr(pos, brk_pos - pos);
+            String text = StringUtils::substr(bbcode,pos, brk_pos - pos);
             if (!code_tag)
-                text = text.replace("\n", "\n\n");
+                text = replace(text,"\n", "\n\n");
             p_rt->add_text(text);
         }
 
         if (brk_pos == bbcode.length())
             break; //nothing else to add
 
-        int brk_end = bbcode.find("]", brk_pos + 1);
+        int brk_end = StringUtils::find(bbcode,"]", brk_pos + 1);
 
         if (brk_end == -1) {
 
-            String text = bbcode.substr(brk_pos, bbcode.length() - brk_pos);
+            String text = StringUtils::substr(bbcode,brk_pos, bbcode.length() - brk_pos);
             if (!code_tag)
-                text = text.replace("\n", "\n\n");
+                text = replace(text,"\n", "\n\n");
             p_rt->add_text(text);
 
             break;
         }
 
-        String tag = bbcode.substr(brk_pos + 1, brk_end - brk_pos - 1);
+        String tag = StringUtils::substr(bbcode,brk_pos + 1, brk_end - brk_pos - 1);
 
-        if (tag.begins_with("/")) {
-            bool tag_ok = tag_stack.size() && tag_stack.front()->get() == tag.substr(1, tag.length());
+        if (StringUtils::begins_with(tag,"/")) {
+            bool tag_ok = tag_stack.size() && tag_stack.front()->get() == StringUtils::substr(tag,1, tag.length());
 
             if (!tag_ok) {
 
@@ -1258,16 +1278,16 @@ static void _add_text_to_rt(const String &p_bbcode, RichTextLabel *p_rt) {
             p_rt->add_text("[");
             pos = brk_pos + 1;
 
-        } else if (tag.begins_with("method ") || tag.begins_with("member ") || tag.begins_with("signal ") || tag.begins_with("enum ") || tag.begins_with("constant ")) {
+        } else if (StringUtils::begins_with(tag,"method ") || StringUtils::begins_with(tag,"member ") || StringUtils::begins_with(tag,"signal ") || StringUtils::begins_with(tag,"enum ") || StringUtils::begins_with(tag,"constant ")) {
 
-            int tag_end = tag.find(" ");
+            int tag_end = StringUtils::find(tag," ");
 
-            String link_tag = tag.substr(0, tag_end);
-            String link_target = tag.substr(tag_end + 1, tag.length()).lstrip(" ");
+            String link_tag = StringUtils::substr(tag,0, tag_end);
+            String link_target = StringUtils::lstrip(StringUtils::substr(tag,tag_end + 1, tag.length())," ");
 
             p_rt->push_color(link_color);
             p_rt->push_meta(String("@" + link_tag + " " + link_target));
-            p_rt->add_text(link_target + (tag.begins_with("method ") ? "()" : ""));
+            p_rt->add_text(link_target + (StringUtils::begins_with(tag,"method ") ? "()" : ""));
             p_rt->pop();
             p_rt->pop();
             pos = brk_end + 1;
@@ -1326,26 +1346,26 @@ static void _add_text_to_rt(const String &p_bbcode, RichTextLabel *p_rt) {
 
         } else if (tag == "url") {
 
-            int end = bbcode.find("[", brk_end);
+            int end = StringUtils::find(bbcode,"[", brk_end);
             if (end == -1)
                 end = bbcode.length();
-            String url = bbcode.substr(brk_end + 1, end - brk_end - 1);
+            String url = StringUtils::substr(bbcode,brk_end + 1, end - brk_end - 1);
             p_rt->push_meta(url);
 
             pos = brk_end + 1;
             tag_stack.push_front(tag);
-        } else if (tag.begins_with("url=")) {
+        } else if (StringUtils::begins_with(tag,"url=")) {
 
-            String url = tag.substr(4, tag.length());
+            String url = StringUtils::substr(tag,4, tag.length());
             p_rt->push_meta(url);
             pos = brk_end + 1;
             tag_stack.push_front("url");
         } else if (tag == "img") {
 
-            int end = bbcode.find("[", brk_end);
+            int end = StringUtils::find(bbcode,"[", brk_end);
             if (end == -1)
                 end = bbcode.length();
-            String image = bbcode.substr(brk_end + 1, end - brk_end - 1);
+            String image = StringUtils::substr(bbcode,brk_end + 1, end - brk_end - 1);
 
             Ref<Texture> texture = ResourceLoader::load(PathUtils::plus_file(base_path,image), "Texture");
             if (texture.is_valid())
@@ -1353,12 +1373,12 @@ static void _add_text_to_rt(const String &p_bbcode, RichTextLabel *p_rt) {
 
             pos = end;
             tag_stack.push_front(tag);
-        } else if (tag.begins_with("color=")) {
+        } else if (StringUtils::begins_with(tag,"color=")) {
 
-            String col = tag.substr(6, tag.length());
+            String col = StringUtils::substr(tag,6, tag.length());
             Color color;
 
-            if (col.begins_with("#"))
+            if (StringUtils::begins_with(col,"#"))
                 color = Color::html(col);
             else if (col == "aqua")
                 color = Color(0, 1, 1);
@@ -1399,9 +1419,9 @@ static void _add_text_to_rt(const String &p_bbcode, RichTextLabel *p_rt) {
             pos = brk_end + 1;
             tag_stack.push_front("color");
 
-        } else if (tag.begins_with("font=")) {
+        } else if (StringUtils::begins_with(tag,"font=")) {
 
-            String fnt = tag.substr(5, tag.length());
+            String fnt = StringUtils::substr(tag,5, tag.length());
 
             Ref<Font> font = ResourceLoader::load(PathUtils::plus_file(base_path,fnt), "Font");
             if (font.is_valid())
@@ -1496,14 +1516,14 @@ void EditorHelp::set_scroll(int p_scroll) {
 
 void EditorHelp::_bind_methods() {
 
-    ClassDB::bind_method("_class_list_select", &EditorHelp::_class_list_select);
-    ClassDB::bind_method("_class_desc_select", &EditorHelp::_class_desc_select);
-    ClassDB::bind_method("_class_desc_input", &EditorHelp::_class_desc_input);
-    ClassDB::bind_method("_class_desc_resized", &EditorHelp::_class_desc_resized);
-    ClassDB::bind_method("_request_help", &EditorHelp::_request_help);
-    ClassDB::bind_method("_unhandled_key_input", &EditorHelp::_unhandled_key_input);
-    ClassDB::bind_method("_search", &EditorHelp::_search);
-    ClassDB::bind_method("_help_callback", &EditorHelp::_help_callback);
+    MethodBinder::bind_method("_class_list_select", &EditorHelp::_class_list_select);
+    MethodBinder::bind_method("_class_desc_select", &EditorHelp::_class_desc_select);
+    MethodBinder::bind_method("_class_desc_input", &EditorHelp::_class_desc_input);
+    MethodBinder::bind_method("_class_desc_resized", &EditorHelp::_class_desc_resized);
+    MethodBinder::bind_method("_request_help", &EditorHelp::_request_help);
+    MethodBinder::bind_method("_unhandled_key_input", &EditorHelp::_unhandled_key_input);
+    MethodBinder::bind_method("_search", &EditorHelp::_search);
+    MethodBinder::bind_method("_help_callback", &EditorHelp::_help_callback);
 
     ADD_SIGNAL(MethodInfo("go_to_help"));
 }
@@ -1548,34 +1568,34 @@ void EditorHelpBit::_go_to_help(String p_what) {
 
 void EditorHelpBit::_meta_clicked(String p_select) {
 
-    if (p_select.begins_with("$")) { //enum
+    if (StringUtils::begins_with(p_select,"$")) { //enum
 
-        String select = p_select.substr(1, p_select.length());
+        String select = StringUtils::substr(p_select,1, p_select.length());
         String class_name;
-        if (select.find(".") != -1) {
-            class_name = select.get_slice(".", 0);
+        if (StringUtils::find(select,".") != -1) {
+            class_name = StringUtils::get_slice(select,".", 0);
         } else {
             class_name = "@Global";
         }
         _go_to_help("class_enum:" + class_name + ":" + select);
         return;
-    } else if (p_select.begins_with("#")) {
+    } else if (StringUtils::begins_with(p_select,"#")) {
 
-        _go_to_help("class_name:" + p_select.substr(1, p_select.length()));
+        _go_to_help("class_name:" + StringUtils::substr(p_select,1, p_select.length()));
         return;
-    } else if (p_select.begins_with("@")) {
+    } else if (StringUtils::begins_with(p_select,"@")) {
 
-        String m = p_select.substr(1, p_select.length());
+        String m = StringUtils::substr(p_select,1, p_select.length());
 
-        if (m.find(".") != -1)
-            _go_to_help("class_method:" + m.get_slice(".", 0) + ":" + m.get_slice(".", 0)); //must go somewhere else
+        if (StringUtils::find(m,".") != -1)
+            _go_to_help("class_method:" + StringUtils::get_slice(m,".", 0) + ":" + StringUtils::get_slice(m,".", 0)); //must go somewhere else
     }
 }
 
 void EditorHelpBit::_bind_methods() {
 
-    ClassDB::bind_method("_meta_clicked", &EditorHelpBit::_meta_clicked);
-    ClassDB::bind_method(D_METHOD("set_text", "text"), &EditorHelpBit::set_text);
+    MethodBinder::bind_method("_meta_clicked", &EditorHelpBit::_meta_clicked);
+    MethodBinder::bind_method(D_METHOD("set_text", "text"), &EditorHelpBit::set_text);
     ADD_SIGNAL(MethodInfo("request_hide"));
 }
 
@@ -1681,13 +1701,13 @@ void FindBar::_notification(int p_what) {
 
 void FindBar::_bind_methods() {
 
-    ClassDB::bind_method("_unhandled_input", &FindBar::_unhandled_input);
+    MethodBinder::bind_method("_unhandled_input", &FindBar::_unhandled_input);
 
-    ClassDB::bind_method("_search_text_changed", &FindBar::_search_text_changed);
-    ClassDB::bind_method("_search_text_entered", &FindBar::_search_text_entered);
-    ClassDB::bind_method("_search_next", &FindBar::search_next);
-    ClassDB::bind_method("_search_prev", &FindBar::search_prev);
-    ClassDB::bind_method("_hide_pressed", &FindBar::_hide_bar);
+    MethodBinder::bind_method("_search_text_changed", &FindBar::_search_text_changed);
+    MethodBinder::bind_method("_search_text_entered", &FindBar::_search_text_entered);
+    MethodBinder::bind_method("_search_next", &FindBar::search_next);
+    MethodBinder::bind_method("_search_prev", &FindBar::search_prev);
+    MethodBinder::bind_method("_hide_pressed", &FindBar::_hide_bar);
 
     ADD_SIGNAL(MethodInfo("search"));
 }
@@ -1741,7 +1761,7 @@ void FindBar::_update_results_count() {
     int from_pos = 0;
 
     while (true) {
-        int pos = full_text.find(searched, from_pos);
+        int pos = StringUtils::find(full_text,searched, from_pos);
         if (pos == -1)
             break;
 

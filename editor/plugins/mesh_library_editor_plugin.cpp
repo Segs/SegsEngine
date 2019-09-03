@@ -30,6 +30,7 @@
 
 #include "mesh_library_editor_plugin.h"
 
+#include "core/method_bind.h"
 #include "editor/editor_node.h"
 #include "editor/editor_settings.h"
 #include "main/main.h"
@@ -39,6 +40,9 @@
 #include "scene/main/viewport.h"
 #include "scene/resources/packed_scene.h"
 #include "spatial_editor_plugin.h"
+
+IMPL_GDCLASS(MeshLibraryEditor)
+IMPL_GDCLASS(MeshLibraryEditorPlugin)
 
 void MeshLibraryEditor::edit(const Ref<MeshLibrary> &p_mesh_library) {
 
@@ -228,9 +232,9 @@ void MeshLibraryEditor::_menu_cbk(int p_option) {
         case MENU_OPTION_REMOVE_ITEM: {
 
             String p = editor->get_inspector()->get_selected_path();
-            if (p.begins_with("/MeshLibrary/item") && p.get_slice_count("/") >= 3) {
+            if (StringUtils::begins_with(p,"/MeshLibrary/item") && StringUtils::get_slice_count(p,"/") >= 3) {
 
-                to_erase = p.get_slice("/", 3).to_int();
+                to_erase = StringUtils::to_int(StringUtils::get_slice(p,"/", 3));
                 cd->set_text(vformat(TTR("Remove item %d?"), to_erase));
                 cd->popup_centered(Size2(300, 60));
             }
@@ -249,9 +253,9 @@ void MeshLibraryEditor::_menu_cbk(int p_option) {
 
 void MeshLibraryEditor::_bind_methods() {
 
-    ClassDB::bind_method("_menu_cbk", &MeshLibraryEditor::_menu_cbk);
-    ClassDB::bind_method("_menu_confirm", &MeshLibraryEditor::_menu_confirm);
-    ClassDB::bind_method("_import_scene_cbk", &MeshLibraryEditor::_import_scene_cbk);
+    MethodBinder::bind_method("_menu_cbk", &MeshLibraryEditor::_menu_cbk);
+    MethodBinder::bind_method("_menu_confirm", &MeshLibraryEditor::_menu_confirm);
+    MethodBinder::bind_method("_import_scene_cbk", &MeshLibraryEditor::_import_scene_cbk);
 }
 
 MeshLibraryEditor::MeshLibraryEditor(EditorNode *p_editor) {

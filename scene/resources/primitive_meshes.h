@@ -43,7 +43,7 @@
 */
 class PrimitiveMesh : public Mesh {
 
-	GDCLASS(PrimitiveMesh, Mesh);
+	GDCLASS(PrimitiveMesh,Mesh)
 
 private:
 	RID mesh;
@@ -65,19 +65,19 @@ protected:
 	void _request_update();
 
 public:
-	virtual int get_surface_count() const;
-	virtual int surface_get_array_len(int p_idx) const;
-	virtual int surface_get_array_index_len(int p_idx) const;
-	virtual Array surface_get_arrays(int p_surface) const;
-	virtual Array surface_get_blend_shape_arrays(int p_surface) const;
-	virtual uint32_t surface_get_format(int p_idx) const;
-	virtual Mesh::PrimitiveType surface_get_primitive_type(int p_idx) const;
-	virtual void surface_set_material(int p_idx, const Ref<Material> &p_material);
-	virtual Ref<Material> surface_get_material(int p_idx) const;
-	virtual int get_blend_shape_count() const;
-	virtual StringName get_blend_shape_name(int p_index) const;
-	virtual AABB get_aabb() const;
-	virtual RID get_rid() const;
+	int get_surface_count() const override;
+	int surface_get_array_len(int p_idx) const override;
+	int surface_get_array_index_len(int p_idx) const override;
+	Array surface_get_arrays(int p_surface) const override;
+	Array surface_get_blend_shape_arrays(int p_surface) const override;
+	uint32_t surface_get_format(int p_idx) const override;
+	Mesh::PrimitiveType surface_get_primitive_type(int p_idx) const override;
+	void surface_set_material(int p_idx, const Ref<Material> &p_material) override;
+	Ref<Material> surface_get_material(int p_idx) const override;
+	int get_blend_shape_count() const override;
+	StringName get_blend_shape_name(int p_index) const override;
+	AABB get_aabb() const override;
+	RID get_rid() const override;
 
 	void set_material(const Ref<Material> &p_material);
 	Ref<Material> get_material() const;
@@ -91,14 +91,14 @@ public:
 	bool get_flip_faces() const;
 
 	PrimitiveMesh();
-	~PrimitiveMesh();
+	~PrimitiveMesh() override;
 };
 
 /**
 	Mesh for a simple capsule
 */
 class CapsuleMesh : public PrimitiveMesh {
-	GDCLASS(CapsuleMesh, PrimitiveMesh);
+	GDCLASS(CapsuleMesh,PrimitiveMesh)
 
 private:
 	float radius;
@@ -108,7 +108,7 @@ private:
 
 protected:
 	static void _bind_methods();
-	virtual void _create_mesh_array(Array &p_arr) const;
+	void _create_mesh_array(Array &p_arr) const override;
 
 public:
 	void set_radius(const float p_radius);
@@ -131,7 +131,7 @@ public:
 */
 class CubeMesh : public PrimitiveMesh {
 
-	GDCLASS(CubeMesh, PrimitiveMesh);
+	GDCLASS(CubeMesh,PrimitiveMesh)
 
 private:
 	Vector3 size;
@@ -141,7 +141,7 @@ private:
 
 protected:
 	static void _bind_methods();
-	virtual void _create_mesh_array(Array &p_arr) const;
+	void _create_mesh_array(Array &p_arr) const override;
 
 public:
 	void set_size(const Vector3 &p_size);
@@ -165,7 +165,7 @@ public:
 
 class CylinderMesh : public PrimitiveMesh {
 
-	GDCLASS(CylinderMesh, PrimitiveMesh);
+	GDCLASS(CylinderMesh,PrimitiveMesh)
 
 private:
 	float top_radius;
@@ -176,7 +176,7 @@ private:
 
 protected:
 	static void _bind_methods();
-	virtual void _create_mesh_array(Array &p_arr) const;
+	void _create_mesh_array(Array &p_arr) const override;
 
 public:
 	void set_top_radius(const float p_radius);
@@ -202,7 +202,7 @@ public:
 */
 class PlaneMesh : public PrimitiveMesh {
 
-	GDCLASS(PlaneMesh, PrimitiveMesh);
+	GDCLASS(PlaneMesh,PrimitiveMesh)
 
 private:
 	Size2 size;
@@ -211,7 +211,7 @@ private:
 
 protected:
 	static void _bind_methods();
-	virtual void _create_mesh_array(Array &p_arr) const;
+	void _create_mesh_array(Array &p_arr) const override;
 
 public:
 	void set_size(const Size2 &p_size);
@@ -231,7 +231,7 @@ public:
 */
 class PrismMesh : public PrimitiveMesh {
 
-	GDCLASS(PrismMesh, PrimitiveMesh);
+	GDCLASS(PrismMesh,PrimitiveMesh)
 
 private:
 	float left_to_right;
@@ -242,7 +242,7 @@ private:
 
 protected:
 	static void _bind_methods();
-	virtual void _create_mesh_array(Array &p_arr) const;
+	void _create_mesh_array(Array &p_arr) const override;
 
 public:
 	void set_left_to_right(const float p_left_to_right);
@@ -269,14 +269,14 @@ public:
 
 class QuadMesh : public PrimitiveMesh {
 
-	GDCLASS(QuadMesh, PrimitiveMesh);
+	GDCLASS(QuadMesh,PrimitiveMesh)
 
 private:
 	Size2 size;
 
 protected:
 	static void _bind_methods();
-	virtual void _create_mesh_array(Array &p_arr) const;
+	void _create_mesh_array(Array &p_arr) const override;
 
 public:
 	QuadMesh();
@@ -290,7 +290,7 @@ public:
 */
 class SphereMesh : public PrimitiveMesh {
 
-	GDCLASS(SphereMesh, PrimitiveMesh);
+	GDCLASS(SphereMesh,PrimitiveMesh)
 
 private:
 	float radius;
@@ -301,7 +301,7 @@ private:
 
 protected:
 	static void _bind_methods();
-	virtual void _create_mesh_array(Array &p_arr) const;
+	void _create_mesh_array(Array &p_arr) const override;
 
 public:
 	void set_radius(const float p_radius);
@@ -328,10 +328,10 @@ public:
 
 class PointMesh : public PrimitiveMesh {
 
-	GDCLASS(PointMesh, PrimitiveMesh)
+	GDCLASS(PointMesh,PrimitiveMesh)
 
 protected:
-	virtual void _create_mesh_array(Array &p_arr) const;
+	void _create_mesh_array(Array &p_arr) const override;
 
 public:
 	PointMesh();

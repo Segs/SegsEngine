@@ -31,6 +31,8 @@
 #include "canvas.h"
 #include "servers/visual_server.h"
 
+IMPL_GDCLASS(Canvas)
+
 RID Canvas::get_rid() const {
 
 	return canvas;

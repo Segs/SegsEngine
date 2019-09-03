@@ -35,7 +35,8 @@
 #include "modules/webrtc/webrtc_data_channel.h"
 
 class WebRTCPeerConnection : public Reference {
-	GDCLASS(WebRTCPeerConnection, Reference);
+	GDCLASS(WebRTCPeerConnection,Reference)
+
 
 public:
 	enum ConnectionState {
@@ -67,7 +68,7 @@ public:
 	static WebRTCPeerConnection *create();
 
 	WebRTCPeerConnection();
-	~WebRTCPeerConnection();
+	~WebRTCPeerConnection() override;
 };
 
 VARIANT_ENUM_CAST(WebRTCPeerConnection::ConnectionState);

@@ -111,7 +111,7 @@ typedef double real_t;
 
 #else
 
-typedef float real_t;
+using real_t = float;
 
 #endif
 

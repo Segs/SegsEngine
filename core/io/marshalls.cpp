@@ -34,13 +34,16 @@
 #include "core/print_string.h"
 #include "core/reference.h"
 #include "core/object_db.h"
+#include "core/method_bind.h"
 
-#include <limits.h>
-#include <stdio.h>
+#include <climits>
+#include <cstdio>
+
+IMPL_GDCLASS(EncodedObjectAsID)
 
 void EncodedObjectAsID::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("set_object_id", "id"), &EncodedObjectAsID::set_object_id);
-    ClassDB::bind_method(D_METHOD("get_object_id"), &EncodedObjectAsID::get_object_id);
+    MethodBinder::bind_method(D_METHOD("set_object_id", "id"), &EncodedObjectAsID::set_object_id);
+    MethodBinder::bind_method(D_METHOD("get_object_id"), &EncodedObjectAsID::get_object_id);
 
     ADD_PROPERTY(PropertyInfo(Variant::INT, "object_id"), "set_object_id", "get_object_id");
 }
@@ -77,11 +80,11 @@ static Error _decode_string(const uint8_t *&buf, int &len, int *r_len, String &r
     len -= 4;
 
     // Ensure buffer is big enough
-    ERR_FAIL_ADD_OF(strlen, pad, ERR_FILE_EOF);
-    ERR_FAIL_COND_V(strlen < 0 || strlen + pad > len, ERR_FILE_EOF);
+	ERR_FAIL_ADD_OF(strlen, pad, ERR_FILE_EOF)
+	ERR_FAIL_COND_V(strlen < 0 || strlen + pad > len, ERR_FILE_EOF)
 
-    String str;
-    ERR_FAIL_COND_V(str.parse_utf8((const char *)buf, strlen), ERR_INVALID_DATA);
+	String str = StringUtils::from_utf8((const char *)buf, strlen);
+	ERR_FAIL_COND_V(str.empty(), ERR_INVALID_DATA)
     r_string = str;
 
     // Add padding
@@ -757,7 +760,7 @@ Error decode_variant(Variant &r_variant, const uint8_t *p_buffer, int p_len, int
 
 static void _encode_string(const String &p_string, uint8_t *&buf, int &r_len) {
 
-    CharString utf8 = p_string.utf8();
+	CharString utf8 = StringUtils::to_utf8(p_string);
 
     if (buf) {
         encode_uint32(utf8.length(), buf);
@@ -893,7 +896,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
                 else
                     str = np.get_subname(i - np.get_name_count());
 
-                CharString utf8 = str.utf8();
+				CharString utf8 = StringUtils::to_utf8(str);
 
                 int pad = 0;
 
@@ -1263,7 +1266,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
 
             for (int i = 0; i < len; i++) {
 
-                CharString utf8 = data.get(i).utf8();
+				CharString utf8 = StringUtils::to_utf8(data.get(i));
 
                 if (buf) {
                     encode_uint32(utf8.length() + 1, buf);

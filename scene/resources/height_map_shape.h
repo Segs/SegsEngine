@@ -34,7 +34,7 @@
 #include "scene/resources/shape.h"
 
 class HeightMapShape : public Shape {
-	GDCLASS(HeightMapShape, Shape);
+	GDCLASS(HeightMapShape,Shape)
 
 	int map_width;
 	int map_depth;
@@ -44,9 +44,9 @@ class HeightMapShape : public Shape {
 
 protected:
 	static void _bind_methods();
-	virtual void _update_shape();
+	void _update_shape() override;
 
-	virtual Vector<Vector3> _gen_debug_mesh_lines();
+	Vector<Vector3> _gen_debug_mesh_lines() override;
 
 public:
 	void set_map_width(int p_new);

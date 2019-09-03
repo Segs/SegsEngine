@@ -173,7 +173,7 @@ void PowerX11::check_proc_acpi_battery(const char *node, bool *have_battery, boo
             }
         } else if (String(key) == "remaining capacity") {
             String sval = val;
-            const int cvt = sval.to_int();
+            const int cvt = StringUtils::to_int(sval);
             remaining = cvt;
         }
     }
@@ -182,7 +182,7 @@ void PowerX11::check_proc_acpi_battery(const char *node, bool *have_battery, boo
     while (make_proc_acpi_key_val(&ptr, &key, &val)) {
         if (String(key) == "design capacity") {
             String sval = val;
-            const int cvt = sval.to_int();
+            const int cvt = StringUtils::to_int(sval);
             maximum = cvt;
         }
     }
@@ -265,7 +265,7 @@ bool PowerX11::GetPowerInfo_Linux_proc_acpi() {
     } else {
         node = dirp->get_next();
         while (node != "") {
-            check_proc_acpi_battery(qPrintable(node), &have_battery, &charging /*, seconds, percent*/);
+            check_proc_acpi_battery(qPrintable(node.m_str), &have_battery, &charging /*, seconds, percent*/);
             node = dirp->get_next();
         }
     }
@@ -276,7 +276,7 @@ bool PowerX11::GetPowerInfo_Linux_proc_acpi() {
     } else {
         node = dirp->get_next();
         while (node != "") {
-            check_proc_acpi_ac_adapter(qPrintable(node), &have_ac);
+            check_proc_acpi_ac_adapter(qPrintable(node.m_str), &have_ac);
             node = dirp->get_next();
         }
     }
@@ -321,7 +321,7 @@ bool PowerX11::next_string(char **_ptr, char **_str) {
 
 bool PowerX11::int_string(char *str, int *val) {
     String sval = str;
-    *val = sval.to_int();
+    *val = StringUtils::to_int(sval);
     return (*str != '\0');
 }
 
@@ -380,10 +380,10 @@ bool PowerX11::GetPowerInfo_Linux_proc_apm() {
     if (!next_string(&ptr, &str)) { /* remaining battery life percent */
         return false;
     }
-    String sstr = str;
-    if (sstr[sstr.length() - 1] == '%') {
-        sstr[sstr.length() - 1] = '\0';
-    }
+//    String sstr = str;
+//    if (sstr[sstr.length() - 1] == '%') {
+//        sstr[sstr.length() - 1] = '\0';
+//    }
     if (!int_string(str, &battery_percent)) {
         return false;
     }
@@ -463,7 +463,7 @@ bool PowerX11::GetPowerInfo_Linux_sys_class_power_supply(/*PowerState *state, in
             name = dirp->get_next();
             continue; //skip these, of course.
         } else {
-            if (!read_power_file(base, qPrintable(name), "type", str, sizeof(str))) {
+            if (!read_power_file(base, qPrintable(name.m_str), "type", str, sizeof(str))) {
                 name = dirp->get_next();
                 continue; // Don't know _what_ we're looking at. Give up on it.
             } else {
@@ -475,9 +475,9 @@ bool PowerX11::GetPowerInfo_Linux_sys_class_power_supply(/*PowerState *state, in
         }
 
         /* some drivers don't offer this, so if it's not explicitly reported assume it's present. */
-        if (read_power_file(base, qPrintable(name), "present", str, sizeof(str)) && (String(str) == "0\n")) {
+        if (read_power_file(base, qPrintable(name.m_str), "present", str, sizeof(str)) && (String(str) == "0\n")) {
             st = OS::POWERSTATE_NO_BATTERY;
-        } else if (!read_power_file(base, qPrintable(name), "status", str, sizeof(str))) {
+        } else if (!read_power_file(base, qPrintable(name.m_str), "status", str, sizeof(str))) {
             st = OS::POWERSTATE_UNKNOWN; /* uh oh */
         } else if (String(str) == "Charging\n") {
             st = OS::POWERSTATE_CHARGING;
@@ -489,17 +489,17 @@ bool PowerX11::GetPowerInfo_Linux_sys_class_power_supply(/*PowerState *state, in
             st = OS::POWERSTATE_UNKNOWN; /* uh oh */
         }
 
-        if (!read_power_file(base, qPrintable(name), "capacity", str, sizeof(str))) {
+        if (!read_power_file(base, qPrintable(name.m_str), "capacity", str, sizeof(str))) {
             pct = -1;
         } else {
-            pct = String(str).to_int();
+            pct = StringUtils::to_int(str);
             pct = (pct > 100) ? 100 : pct; /* clamp between 0%, 100% */
         }
 
-        if (!read_power_file(base, qPrintable(name), "time_to_empty_now", str, sizeof(str))) {
+        if (!read_power_file(base, qPrintable(name.m_str), "time_to_empty_now", str, sizeof(str))) {
             secs = -1;
         } else {
-            secs = String(str).to_int();
+            secs = StringUtils::to_int(str);
             secs = (secs <= 0) ? -1 : secs; /* 0 == unknown */
         }
 

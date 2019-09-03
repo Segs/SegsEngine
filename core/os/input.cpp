@@ -33,10 +33,14 @@
 #include "core/input_map.h"
 #include "core/os/os.h"
 #include "core/project_settings.h"
+#include "core/method_bind.h"
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_settings.h"
 #endif
+
+
+IMPL_GDCLASS(Input)
 
 Input *Input::singleton = nullptr;
 
@@ -57,47 +61,47 @@ Input::MouseMode Input::get_mouse_mode() const {
 
 void Input::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("is_key_pressed", "scancode"), &Input::is_key_pressed);
-    ClassDB::bind_method(D_METHOD("is_mouse_button_pressed", "button"), &Input::is_mouse_button_pressed);
-    ClassDB::bind_method(D_METHOD("is_joy_button_pressed", "device", "button"), &Input::is_joy_button_pressed);
-    ClassDB::bind_method(D_METHOD("is_action_pressed", "action"), &Input::is_action_pressed);
-    ClassDB::bind_method(D_METHOD("is_action_just_pressed", "action"), &Input::is_action_just_pressed);
-    ClassDB::bind_method(D_METHOD("is_action_just_released", "action"), &Input::is_action_just_released);
-    ClassDB::bind_method(D_METHOD("get_action_strength", "action"), &Input::get_action_strength);
-    ClassDB::bind_method(D_METHOD("add_joy_mapping", "mapping", "update_existing"), &Input::add_joy_mapping, {DEFVAL(false)});
-    ClassDB::bind_method(D_METHOD("remove_joy_mapping", "guid"), &Input::remove_joy_mapping);
-    ClassDB::bind_method(D_METHOD("joy_connection_changed", "device", "connected", "name", "guid"), &Input::joy_connection_changed);
-    ClassDB::bind_method(D_METHOD("is_joy_known", "device"), &Input::is_joy_known);
-    ClassDB::bind_method(D_METHOD("get_joy_axis", "device", "axis"), &Input::get_joy_axis);
-    ClassDB::bind_method(D_METHOD("get_joy_name", "device"), &Input::get_joy_name);
-    ClassDB::bind_method(D_METHOD("get_joy_guid", "device"), &Input::get_joy_guid);
-    ClassDB::bind_method(D_METHOD("get_connected_joypads"), &Input::get_connected_joypads);
-    ClassDB::bind_method(D_METHOD("get_joy_vibration_strength", "device"), &Input::get_joy_vibration_strength);
-    ClassDB::bind_method(D_METHOD("get_joy_vibration_duration", "device"), &Input::get_joy_vibration_duration);
-    ClassDB::bind_method(D_METHOD("get_joy_button_string", "button_index"), &Input::get_joy_button_string);
-    ClassDB::bind_method(D_METHOD("get_joy_button_index_from_string", "button"), &Input::get_joy_button_index_from_string);
-    ClassDB::bind_method(D_METHOD("get_joy_axis_string", "axis_index"), &Input::get_joy_axis_string);
-    ClassDB::bind_method(D_METHOD("get_joy_axis_index_from_string", "axis"), &Input::get_joy_axis_index_from_string);
-    ClassDB::bind_method(D_METHOD("start_joy_vibration", "device", "weak_magnitude", "strong_magnitude", "duration"), &Input::start_joy_vibration, {DEFVAL(0)});
-    ClassDB::bind_method(D_METHOD("stop_joy_vibration", "device"), &Input::stop_joy_vibration);
-    ClassDB::bind_method(D_METHOD("vibrate_handheld", "duration_ms"), &Input::vibrate_handheld, {DEFVAL(500)});
-    ClassDB::bind_method(D_METHOD("get_gravity"), &Input::get_gravity);
-    ClassDB::bind_method(D_METHOD("get_accelerometer"), &Input::get_accelerometer);
-    ClassDB::bind_method(D_METHOD("get_magnetometer"), &Input::get_magnetometer);
-    ClassDB::bind_method(D_METHOD("get_gyroscope"), &Input::get_gyroscope);
-    //ClassDB::bind_method(D_METHOD("get_mouse_position"),&Input::get_mouse_position); - this is not the function you want
-    ClassDB::bind_method(D_METHOD("get_last_mouse_speed"), &Input::get_last_mouse_speed);
-    ClassDB::bind_method(D_METHOD("get_mouse_button_mask"), &Input::get_mouse_button_mask);
-    ClassDB::bind_method(D_METHOD("set_mouse_mode", "mode"), &Input::set_mouse_mode);
-    ClassDB::bind_method(D_METHOD("get_mouse_mode"), &Input::get_mouse_mode);
-    ClassDB::bind_method(D_METHOD("warp_mouse_position", "to"), &Input::warp_mouse_position);
-    ClassDB::bind_method(D_METHOD("action_press", "action", "strength"), &Input::action_press, {DEFVAL(1.f)});
-    ClassDB::bind_method(D_METHOD("action_release", "action"), &Input::action_release);
-    ClassDB::bind_method(D_METHOD("set_default_cursor_shape", "shape"), &Input::set_default_cursor_shape, {DEFVAL(CURSOR_ARROW)});
-    ClassDB::bind_method(D_METHOD("get_current_cursor_shape"), &Input::get_current_cursor_shape);
-    ClassDB::bind_method(D_METHOD("set_custom_mouse_cursor", "image", "shape", "hotspot"), &Input::set_custom_mouse_cursor, {DEFVAL(CURSOR_ARROW), DEFVAL(Vector2())});
-    ClassDB::bind_method(D_METHOD("parse_input_event", "event"), &Input::parse_input_event);
-    ClassDB::bind_method(D_METHOD("set_use_accumulated_input", "enable"), &Input::set_use_accumulated_input);
+    MethodBinder::bind_method(D_METHOD("is_key_pressed", "scancode"), &Input::is_key_pressed);
+    MethodBinder::bind_method(D_METHOD("is_mouse_button_pressed", "button"), &Input::is_mouse_button_pressed);
+    MethodBinder::bind_method(D_METHOD("is_joy_button_pressed", "device", "button"), &Input::is_joy_button_pressed);
+    MethodBinder::bind_method(D_METHOD("is_action_pressed", "action"), &Input::is_action_pressed);
+    MethodBinder::bind_method(D_METHOD("is_action_just_pressed", "action"), &Input::is_action_just_pressed);
+    MethodBinder::bind_method(D_METHOD("is_action_just_released", "action"), &Input::is_action_just_released);
+    MethodBinder::bind_method(D_METHOD("get_action_strength", "action"), &Input::get_action_strength);
+    MethodBinder::bind_method(D_METHOD("add_joy_mapping", "mapping", "update_existing"), &Input::add_joy_mapping, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("remove_joy_mapping", "guid"), &Input::remove_joy_mapping);
+    MethodBinder::bind_method(D_METHOD("joy_connection_changed", "device", "connected", "name", "guid"), &Input::joy_connection_changed);
+    MethodBinder::bind_method(D_METHOD("is_joy_known", "device"), &Input::is_joy_known);
+    MethodBinder::bind_method(D_METHOD("get_joy_axis", "device", "axis"), &Input::get_joy_axis);
+    MethodBinder::bind_method(D_METHOD("get_joy_name", "device"), &Input::get_joy_name);
+    MethodBinder::bind_method(D_METHOD("get_joy_guid", "device"), &Input::get_joy_guid);
+    MethodBinder::bind_method(D_METHOD("get_connected_joypads"), &Input::get_connected_joypads);
+    MethodBinder::bind_method(D_METHOD("get_joy_vibration_strength", "device"), &Input::get_joy_vibration_strength);
+    MethodBinder::bind_method(D_METHOD("get_joy_vibration_duration", "device"), &Input::get_joy_vibration_duration);
+    MethodBinder::bind_method(D_METHOD("get_joy_button_string", "button_index"), &Input::get_joy_button_string);
+    MethodBinder::bind_method(D_METHOD("get_joy_button_index_from_string", "button"), &Input::get_joy_button_index_from_string);
+    MethodBinder::bind_method(D_METHOD("get_joy_axis_string", "axis_index"), &Input::get_joy_axis_string);
+    MethodBinder::bind_method(D_METHOD("get_joy_axis_index_from_string", "axis"), &Input::get_joy_axis_index_from_string);
+    MethodBinder::bind_method(D_METHOD("start_joy_vibration", "device", "weak_magnitude", "strong_magnitude", "duration"), &Input::start_joy_vibration, {DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("stop_joy_vibration", "device"), &Input::stop_joy_vibration);
+    MethodBinder::bind_method(D_METHOD("vibrate_handheld", "duration_ms"), &Input::vibrate_handheld, {DEFVAL(500)});
+    MethodBinder::bind_method(D_METHOD("get_gravity"), &Input::get_gravity);
+    MethodBinder::bind_method(D_METHOD("get_accelerometer"), &Input::get_accelerometer);
+    MethodBinder::bind_method(D_METHOD("get_magnetometer"), &Input::get_magnetometer);
+    MethodBinder::bind_method(D_METHOD("get_gyroscope"), &Input::get_gyroscope);
+    //MethodBinder::bind_method(D_METHOD("get_mouse_position"),&Input::get_mouse_position); - this is not the function you want
+    MethodBinder::bind_method(D_METHOD("get_last_mouse_speed"), &Input::get_last_mouse_speed);
+    MethodBinder::bind_method(D_METHOD("get_mouse_button_mask"), &Input::get_mouse_button_mask);
+    MethodBinder::bind_method(D_METHOD("set_mouse_mode", "mode"), &Input::set_mouse_mode);
+    MethodBinder::bind_method(D_METHOD("get_mouse_mode"), &Input::get_mouse_mode);
+    MethodBinder::bind_method(D_METHOD("warp_mouse_position", "to"), &Input::warp_mouse_position);
+    MethodBinder::bind_method(D_METHOD("action_press", "action", "strength"), &Input::action_press, {DEFVAL(1.f)});
+    MethodBinder::bind_method(D_METHOD("action_release", "action"), &Input::action_release);
+    MethodBinder::bind_method(D_METHOD("set_default_cursor_shape", "shape"), &Input::set_default_cursor_shape, {DEFVAL(CURSOR_ARROW)});
+    MethodBinder::bind_method(D_METHOD("get_current_cursor_shape"), &Input::get_current_cursor_shape);
+    MethodBinder::bind_method(D_METHOD("set_custom_mouse_cursor", "image", "shape", "hotspot"), &Input::set_custom_mouse_cursor, {DEFVAL(CURSOR_ARROW), DEFVAL(Vector2())});
+    MethodBinder::bind_method(D_METHOD("parse_input_event", "event"), &Input::parse_input_event);
+    MethodBinder::bind_method(D_METHOD("set_use_accumulated_input", "enable"), &Input::set_use_accumulated_input);
 
     BIND_ENUM_CONSTANT(MOUSE_MODE_VISIBLE);
     BIND_ENUM_CONSTANT(MOUSE_MODE_HIDDEN);
@@ -139,10 +143,10 @@ void Input::get_argument_options(const StringName &p_function, int p_idx, List<S
         for (List<PropertyInfo>::Element *E = pinfo.front(); E; E = E->next()) {
             const PropertyInfo &pi = E->get();
 
-            if (!pi.name.begins_with("input/"))
+            if (!StringUtils::begins_with(pi.name,"input/"))
                 continue;
 
-            String name = pi.name.substr(pi.name.find("/") + 1, pi.name.length());
+            String name = StringUtils::substr(pi.name,StringUtils::find(pi.name,"/") + 1, pi.name.length());
             r_options->push_back(quote_style + name + quote_style);
         }
     }

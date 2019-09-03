@@ -239,8 +239,8 @@ void EditorFolding::_do_object_unfolds(Object *p_object, Set<RES> &resources) {
         if (E->get().usage & PROPERTY_USAGE_GROUP) {
             group = E->get().name;
             group_base = E->get().hint_string;
-            if (group_base.ends_with("_")) {
-                group_base = group_base.substr(0, group_base.length() - 1);
+            if (StringUtils::ends_with(group_base,"_")) {
+                group_base = StringUtils::substr(group_base,0, group_base.length() - 1);
             }
         }
 
@@ -248,18 +248,18 @@ void EditorFolding::_do_object_unfolds(Object *p_object, Set<RES> &resources) {
         if (E->get().usage & PROPERTY_USAGE_EDITOR) {
 
             if (group != "") { //group
-                if (group_base == String() || E->get().name.begins_with(group_base)) {
+                if (group_base == String() || StringUtils::begins_with(E->get().name,group_base)) {
                     bool can_revert = EditorPropertyRevert::can_property_revert(p_object, E->get().name);
                     if (can_revert) {
                         unfold_group.insert(group);
                     }
                 }
             } else { //path
-                int last = E->get().name.find_last("/");
+                int last = StringUtils::find_last(E->get().name,"/");
                 if (last != -1) {
                     bool can_revert = EditorPropertyRevert::can_property_revert(p_object, E->get().name);
                     if (can_revert) {
-                        unfold_group.insert(E->get().name.substr(0, last));
+                        unfold_group.insert(StringUtils::substr(E->get().name,0, last));
                     }
                 }
             }
@@ -267,7 +267,7 @@ void EditorFolding::_do_object_unfolds(Object *p_object, Set<RES> &resources) {
 
         if (E->get().type == Variant::OBJECT) {
             RES res = p_object->get(E->get().name);
-            if (res.is_valid() && !resources.has(res) && res->get_path() != String() && !PathUtils::is_resource_file(res->get_path())) {
+            if (res.is_valid() && !resources.has(res) && not res->get_path().empty() && !PathUtils::is_resource_file(res->get_path())) {
 
                 resources.insert(res);
                 _do_object_unfolds(res.ptr(), resources);

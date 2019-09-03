@@ -174,7 +174,7 @@ DWORD CrashHandlerException(EXCEPTION_POINTERS *ep) {
 		msg = proj_settings->get("debug/settings/crash_handler/message");
 	}
 
-	fprintf(stderr, "Dumping the backtrace. %ls\n", qUtf16Printable(msg));
+	fprintf(stderr, "Dumping the backtrace. %ls\n", qUtf16Printable(msg.m_str));
 
 	int n = 0;
 	do {

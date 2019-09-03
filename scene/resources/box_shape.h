@@ -35,14 +35,15 @@
 
 class BoxShape : public Shape {
 
-	GDCLASS(BoxShape, Shape);
-	Vector3 extents;
+	GDCLASS(BoxShape,Shape)
+
+    Vector3 extents;
 
 protected:
 	static void _bind_methods();
 
-	virtual void _update_shape();
-	virtual Vector<Vector3> _gen_debug_mesh_lines();
+	void _update_shape() override;
+	Vector<Vector3> _gen_debug_mesh_lines() override;
 
 public:
 	void set_extents(const Vector3 &p_extents);

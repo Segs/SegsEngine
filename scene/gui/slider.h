@@ -35,7 +35,7 @@
 
 class Slider : public Range {
 
-	GDCLASS(Slider, Range);
+	GDCLASS(Slider,Range)
 
 	struct Grab {
 		int pos;
@@ -57,7 +57,7 @@ protected:
 	bool ticks_on_borders;
 
 public:
-	virtual Size2 get_minimum_size() const;
+	Size2 get_minimum_size() const override;
 
 	void set_custom_step(float p_custom_step);
 	float get_custom_step() const;
@@ -79,7 +79,7 @@ public:
 
 class HSlider : public Slider {
 
-	GDCLASS(HSlider, Slider);
+	GDCLASS(HSlider,Slider)
 
 public:
 	HSlider() :
@@ -88,7 +88,7 @@ public:
 
 class VSlider : public Slider {
 
-	GDCLASS(VSlider, Slider);
+	GDCLASS(VSlider,Slider)
 
 public:
 	VSlider() :

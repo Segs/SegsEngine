@@ -45,7 +45,7 @@ class TileSetEditor : public HSplitContainer {
 	friend class TileSetEditorPlugin;
 	friend class TilesetEditorContext;
 
-	GDCLASS(TileSetEditor, HSplitContainer);
+	GDCLASS(TileSetEditor,HSplitContainer)
 
 	enum TextureToolButtons {
 		TOOL_TILESET_ADD_TEXTURE,
@@ -188,7 +188,7 @@ public:
 	static Error update_library_file(Node *p_base_scene, Ref<TileSet> ml, bool p_merge = true);
 
 	TileSetEditor(EditorNode *p_editor);
-	~TileSetEditor();
+	~TileSetEditor() override;
 
 private:
 	void _on_tileset_toolbar_button_pressed(int p_index);
@@ -251,7 +251,7 @@ private:
 class TilesetEditorContext : public Object {
 
 	friend class TileSetEditor;
-	GDCLASS(TilesetEditorContext, Object);
+	GDCLASS(TilesetEditorContext,Object)
 
 	Ref<TileSet> tileset;
 	TileSetEditor *tileset_editor;
@@ -276,20 +276,20 @@ public:
 
 class TileSetEditorPlugin : public EditorPlugin {
 
-	GDCLASS(TileSetEditorPlugin, EditorPlugin);
+	GDCLASS(TileSetEditorPlugin,EditorPlugin)
 
 	TileSetEditor *tileset_editor;
 	Button *tileset_editor_button;
 	EditorNode *editor;
 
 public:
-	virtual String get_name() const { return "TileSet"; }
-	bool has_main_screen() const { return false; }
-	virtual void edit(Object *p_node);
-	virtual bool handles(Object *p_node) const;
-	virtual void make_visible(bool p_visible);
-	void set_state(const Dictionary &p_state);
-	Dictionary get_state() const;
+	String get_name() const override { return "TileSet"; }
+	bool has_main_screen() const override { return false; }
+	void edit(Object *p_node) override;
+	bool handles(Object *p_node) const override;
+	void make_visible(bool p_visible) override;
+	void set_state(const Dictionary &p_state) override;
+	Dictionary get_state() const override;
 
 	TileSetEditorPlugin(EditorNode *p_node);
 };

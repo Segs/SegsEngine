@@ -34,8 +34,8 @@
 #include "core/reference.h"
 
 class StreamPeer : public Reference {
-	GDCLASS(StreamPeer, Reference);
-	OBJ_CATEGORY("Networking");
+	GDCLASS(StreamPeer, Reference)
+	OBJ_CATEGORY("Networking")
 
 protected:
 	static void _bind_methods();
@@ -94,7 +94,7 @@ public:
 
 class StreamPeerBuffer : public StreamPeer {
 
-	GDCLASS(StreamPeerBuffer, StreamPeer);
+	GDCLASS(StreamPeerBuffer, StreamPeer)
 
 	PoolVector<uint8_t> data;
 	int pointer;
@@ -103,13 +103,13 @@ protected:
 	static void _bind_methods();
 
 public:
-	Error put_data(const uint8_t *p_data, int p_bytes);
-	Error put_partial_data(const uint8_t *p_data, int p_bytes, int &r_sent);
+	Error put_data(const uint8_t *p_data, int p_bytes) override;
+	Error put_partial_data(const uint8_t *p_data, int p_bytes, int &r_sent) override;
 
-	Error get_data(uint8_t *p_buffer, int p_bytes);
-	Error get_partial_data(uint8_t *p_buffer, int p_bytes, int &r_received);
+	Error get_data(uint8_t *p_buffer, int p_bytes) override;
+	Error get_partial_data(uint8_t *p_buffer, int p_bytes, int &r_received) override;
 
-	virtual int get_available_bytes() const;
+	int get_available_bytes() const override;
 
 	void seek(int p_pos);
 	int get_size() const;

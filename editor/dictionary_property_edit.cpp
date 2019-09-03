@@ -29,15 +29,18 @@
 /*************************************************************************/
 
 #include "dictionary_property_edit.h"
+#include "core/method_bind.h"
 #include "core/object_db.h"
 #include "editor_node.h"
+
+IMPL_GDCLASS(DictionaryPropertyEdit)
 
 void DictionaryPropertyEdit::_notif_change() {
     _change_notify();
 }
 
 void DictionaryPropertyEdit::_notif_changev(const String &p_v) {
-    _change_notify(qPrintable(p_v));
+    _change_notify(qPrintable(p_v.m_str));
 }
 
 void DictionaryPropertyEdit::_set_key(const Variant &p_old_key, const Variant &p_new_key) {
@@ -108,11 +111,11 @@ bool DictionaryPropertyEdit::_dont_undo_redo() {
 
 void DictionaryPropertyEdit::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_set_key"), &DictionaryPropertyEdit::_set_key);
-    ClassDB::bind_method(D_METHOD("_set_value"), &DictionaryPropertyEdit::_set_value);
-    ClassDB::bind_method(D_METHOD("_notif_change"), &DictionaryPropertyEdit::_notif_change);
-    ClassDB::bind_method(D_METHOD("_notif_changev"), &DictionaryPropertyEdit::_notif_changev);
-    ClassDB::bind_method(D_METHOD("_dont_undo_redo"), &DictionaryPropertyEdit::_dont_undo_redo);
+    MethodBinder::bind_method(D_METHOD("_set_key"), &DictionaryPropertyEdit::_set_key);
+    MethodBinder::bind_method(D_METHOD("_set_value"), &DictionaryPropertyEdit::_set_value);
+    MethodBinder::bind_method(D_METHOD("_notif_change"), &DictionaryPropertyEdit::_notif_change);
+    MethodBinder::bind_method(D_METHOD("_notif_changev"), &DictionaryPropertyEdit::_notif_changev);
+    MethodBinder::bind_method(D_METHOD("_dont_undo_redo"), &DictionaryPropertyEdit::_dont_undo_redo);
 }
 
 bool DictionaryPropertyEdit::_set(const StringName &p_name, const Variant &p_value) {
@@ -122,10 +125,10 @@ bool DictionaryPropertyEdit::_set(const StringName &p_name, const Variant &p_val
     keys.sort();
 
     String pn = p_name;
-    int slash = pn.find(": ");
+    int slash = StringUtils::find(pn,": ");
     if (slash != -1 && pn.length() > slash) {
-        String type = pn.substr(slash + 2, pn.length());
-        int index = pn.substr(0, slash).to_int();
+        String type = StringUtils::substr(pn,slash + 2, pn.length());
+        int index = StringUtils::to_int(StringUtils::substr(pn,0, slash));
         if (type == "key" && index < keys.size()) {
 
             const Variant &key = keys[index];
@@ -168,12 +171,12 @@ bool DictionaryPropertyEdit::_get(const StringName &p_name, Variant &r_ret) cons
     keys.sort();
 
     String pn = p_name;
-    int slash = pn.find(": ");
+    int slash = StringUtils::find(pn,": ");
 
     if (slash != -1 && pn.length() > slash) {
 
-        String type = pn.substr(slash + 2, pn.length());
-        int index = pn.substr(0, slash).to_int();
+        String type = StringUtils::substr(pn,slash + 2, pn.length());
+        int index = StringUtils::to_int(StringUtils::substr(pn,0, slash));
 
         if (type == "key" && index < keys.size()) {
             r_ret = keys[index];

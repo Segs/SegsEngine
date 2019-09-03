@@ -28,15 +28,14 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef COLLISION_OBJECT_H
-#define COLLISION_OBJECT_H
+#pragma once
 
 #include "scene/3d/spatial.h"
 #include "scene/resources/shape.h"
 
 class CollisionObject : public Spatial {
 
-	GDCLASS(CollisionObject, Spatial);
+	GDCLASS(CollisionObject,Spatial)
 
 	bool area;
 
@@ -110,10 +109,8 @@ public:
 
 	_FORCE_INLINE_ RID get_rid() const { return rid; }
 
-	virtual String get_configuration_warning() const;
+	String get_configuration_warning() const override;
 
 	CollisionObject();
-	~CollisionObject();
+	~CollisionObject() override;
 };
-
-#endif // COLLISION_OBJECT__H

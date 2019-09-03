@@ -44,9 +44,9 @@ class PinJointBullet : public JointBullet {
 
 public:
 	PinJointBullet(RigidBodyBullet *p_body_a, const Vector3 &p_pos_a, RigidBodyBullet *p_body_b, const Vector3 &p_pos_b);
-	~PinJointBullet();
+	~PinJointBullet() override;
 
-	virtual PhysicsServer::JointType get_type() const { return PhysicsServer::JOINT_PIN; }
+	PhysicsServer::JointType get_type() const override { return PhysicsServer::JOINT_PIN; }
 
 	void set_param(PhysicsServer::PinJointParam p_param, real_t p_value);
 	real_t get_param(PhysicsServer::PinJointParam p_param) const;

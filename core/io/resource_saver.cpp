@@ -38,6 +38,8 @@
 
 #include "scene/resources/texture.h"
 
+IMPL_GDCLASS(ResourceFormatSaver)
+
 Ref<ResourceFormatSaver> ResourceSaver::saver[MAX_SAVERS];
 
 int ResourceSaver::saver_count = 0;
@@ -95,11 +97,11 @@ void ResourceFormatSaver::_bind_methods() {
         PropertyInfo arg0 = PropertyInfo(Variant::STRING, "path");
         PropertyInfo arg1 = PropertyInfo(Variant::OBJECT, "resource", PROPERTY_HINT_RESOURCE_TYPE, "Resource");
         PropertyInfo arg2 = PropertyInfo(Variant::INT, "flags");
-        ClassDB::add_virtual_method(get_class_static(), MethodInfo(Variant::INT, "save", arg0, arg1, arg2));
+		ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(Variant::INT, "save", arg0, arg1, arg2));
     }
 
-    ClassDB::add_virtual_method(get_class_static(), MethodInfo(Variant::POOL_STRING_ARRAY, "get_recognized_extensions", PropertyInfo(Variant::OBJECT, "resource", PROPERTY_HINT_RESOURCE_TYPE, "Resource")));
-    ClassDB::add_virtual_method(get_class_static(), MethodInfo(Variant::BOOL, "recognize", PropertyInfo(Variant::OBJECT, "resource", PROPERTY_HINT_RESOURCE_TYPE, "Resource")));
+	ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(Variant::POOL_STRING_ARRAY, "get_recognized_extensions", PropertyInfo(Variant::OBJECT, "resource", PROPERTY_HINT_RESOURCE_TYPE, "Resource")));
+	ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(Variant::BOOL, "recognize", PropertyInfo(Variant::OBJECT, "resource", PROPERTY_HINT_RESOURCE_TYPE, "Resource")));
 }
 
 Error ResourceSaver::save(const String &p_path, const RES &p_resource, uint32_t p_flags) {
@@ -118,7 +120,7 @@ Error ResourceSaver::save(const String &p_path, const RES &p_resource, uint32_t 
 
         for (List<String>::Element *E = extensions.front(); E; E = E->next()) {
 
-			if (E->get().compare(extension,Qt::CaseInsensitive) == 0)
+			if (StringUtils::compare(E->get(),extension,StringUtils::CaseInsensitive) == 0)
                 recognized = true;
         }
 
@@ -150,7 +152,7 @@ Error ResourceSaver::save(const String &p_path, const RES &p_resource, uint32_t 
             if (p_flags & FLAG_CHANGE_PATH)
                 rwcopy->set_path(old_path);
 
-            if (save_callback && p_path.begins_with("res://"))
+			if (save_callback && StringUtils::begins_with(p_path,"res://"))
                 save_callback(p_resource, p_path);
 
             return OK;

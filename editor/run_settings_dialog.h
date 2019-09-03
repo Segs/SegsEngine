@@ -38,7 +38,7 @@
 
 class RunSettingsDialog : public AcceptDialog {
 
-	GDCLASS(RunSettingsDialog, AcceptDialog);
+	GDCLASS(RunSettingsDialog,AcceptDialog)
 
 public:
 	enum RunMode {

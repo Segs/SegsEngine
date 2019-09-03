@@ -30,6 +30,8 @@
 
 #include "tool_button.h"
 
+IMPL_GDCLASS(ToolButton)
+
 ToolButton::ToolButton() {
 	set_flat(true);
 }

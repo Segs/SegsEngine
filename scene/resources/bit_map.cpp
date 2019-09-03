@@ -32,6 +32,9 @@
 
 #include "core/io/image_loader.h"
 #include "core/print_string.h"
+#include "core/method_bind.h"
+
+IMPL_GDCLASS(BitMap)
 
 void BitMap::create(const Size2 &p_size) {
 
@@ -654,22 +657,22 @@ void BitMap::blit(const Vector2 &p_pos, const Ref<BitMap> &p_bitmap) {
 
 void BitMap::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("create", "size"), &BitMap::create);
-    ClassDB::bind_method(D_METHOD("create_from_image_alpha", "image", "threshold"), &BitMap::create_from_image_alpha, {DEFVAL(0.1)});
+    MethodBinder::bind_method(D_METHOD("create", "size"), &BitMap::create);
+    MethodBinder::bind_method(D_METHOD("create_from_image_alpha", "image", "threshold"), &BitMap::create_from_image_alpha, {DEFVAL(0.1)});
 
-    ClassDB::bind_method(D_METHOD("set_bit", "position", "bit"), &BitMap::set_bit);
-    ClassDB::bind_method(D_METHOD("get_bit", "position"), &BitMap::get_bit);
+    MethodBinder::bind_method(D_METHOD("set_bit", "position", "bit"), &BitMap::set_bit);
+    MethodBinder::bind_method(D_METHOD("get_bit", "position"), &BitMap::get_bit);
 
-    ClassDB::bind_method(D_METHOD("set_bit_rect", "rect", "bit"), &BitMap::set_bit_rect);
-    ClassDB::bind_method(D_METHOD("get_true_bit_count"), &BitMap::get_true_bit_count);
+    MethodBinder::bind_method(D_METHOD("set_bit_rect", "rect", "bit"), &BitMap::set_bit_rect);
+    MethodBinder::bind_method(D_METHOD("get_true_bit_count"), &BitMap::get_true_bit_count);
 
-    ClassDB::bind_method(D_METHOD("get_size"), &BitMap::get_size);
+    MethodBinder::bind_method(D_METHOD("get_size"), &BitMap::get_size);
 
-    ClassDB::bind_method(D_METHOD("_set_data"), &BitMap::_set_data);
-    ClassDB::bind_method(D_METHOD("_get_data"), &BitMap::_get_data);
+    MethodBinder::bind_method(D_METHOD("_set_data"), &BitMap::_set_data);
+    MethodBinder::bind_method(D_METHOD("_get_data"), &BitMap::_get_data);
 
-    ClassDB::bind_method(D_METHOD("grow_mask", "pixels", "rect"), &BitMap::grow_mask);
-    ClassDB::bind_method(D_METHOD("opaque_to_polygons", "rect", "epsilon"), &BitMap::_opaque_to_polygons_bind, {DEFVAL(2.0)});
+    MethodBinder::bind_method(D_METHOD("grow_mask", "pixels", "rect"), &BitMap::grow_mask);
+    MethodBinder::bind_method(D_METHOD("opaque_to_polygons", "rect", "epsilon"), &BitMap::_opaque_to_polygons_bind, {DEFVAL(2.0)});
 
     ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "data", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_data", "_get_data");
 }

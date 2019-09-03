@@ -85,7 +85,7 @@ bool make_license_header(const QStringList &source)
         return false;
     QTextStream out(&g);
     out.setGenerateByteOrderMark(true);
-
+    out.setCodec("UTF-8");
     QMap<QString,QVector<QHash<QString,QStringList>>> projects;
     QVector<QStringList> license_list;
 
@@ -239,7 +239,7 @@ bool make_license_header2(QStringList source)
     while(lic_stream.readLineInto(&line))
     {
         QString escaped_string = escape_string(line.trimmed());
-        g.write(qPrintable("\n\t\"" + escaped_string + "\\n\""));
+        g.write(qUtf8Printable("\n\t\"" + escaped_string + "\\n\""));
     }
 
     g.write(";\n");
@@ -512,6 +512,7 @@ bool make_donors_header(QStringList source)
         return false;
     QTextStream out(&g);
     out.setGenerateByteOrderMark(true);
+    out.setCodec("UTF-8");
     out << "/* THIS FILE IS GENERATED DO NOT EDIT */\n";
     out << "#ifndef _EDITOR_DONORS_H\n";
     out << "#define _EDITOR_DONORS_H\n";
@@ -582,7 +583,7 @@ static bool _make_doc_data_class_path(const QStringList &paths,const QString &to
         QFileInfo fi(c);
         QString module_path = fi.path();
         module_path = module_path.mid(module_path.indexOf("modules"));
-        g.write(qPrintable(QString("\t{\"%1\", \"%2\"},\n").arg(fi.baseName(), module_path)));
+        g.write(qUtf8Printable(QString("\t{\"%1\", \"%2\"},\n").arg(fi.baseName(), module_path)));
 
     }
     g.write("\t{nullptr, nullptr}\n");
@@ -711,7 +712,7 @@ bool make_translations_header(QStringList args)
         buf.remove(0,4); // remove the decomp size that is added by qCompress
         QString name = QFileInfo(path).baseName();
 
-        g.write(qPrintable("static const unsigned char _translation_" + name + "_compressed[] = {\n"));
+        g.write(qUtf8Printable("static const unsigned char _translation_" + name + "_compressed[] = {\n"));
         byteArrayToHexInFile(buf,g);
         g.write("};\n");
 
@@ -726,7 +727,7 @@ bool make_translations_header(QStringList args)
     g.write("static EditorTranslationList _editor_translations[] = {\n");
     for (TranslationEntry &x : xl_names)
     {
-        g.write(qPrintable(QString("\t{ \"%1\", %2, %3, _translation_%1_compressed},\n")
+        g.write(qUtf8Printable(QString("\t{ \"%1\", %2, %3, _translation_%1_compressed},\n")
                            .arg(x.name).arg(x.comp_len).arg(x.decomp_len)));
     }
     g.write("\t{nullptr, 0, 0, nullptr}\n");
@@ -742,8 +743,8 @@ bool make_default_controller_mappings(QStringList args)
     if(!g.open(QFile::WriteOnly))
         return false;
     g.write("/* THIS FILE IS GENERATED DO NOT EDIT */\n");
-    g.write("#include \"default_controller_mappings.h\"\n");
-    g.write("#include \"typedefs.h\"\n");
+    g.write("#include \"main/default_controller_mappings.h\"\n");
+    g.write("#include \"core/typedefs.h\"\n");
 
     // ensure mappings have a consistent order
     QMap<QString,QMap<QString,QString>> platform_mappings;

@@ -41,7 +41,7 @@
 #include "scene/gui/tree.h"
 
 class EditorFeatureProfile : public Reference {
-	GDCLASS(EditorFeatureProfile, Reference);
+	GDCLASS(EditorFeatureProfile,Reference)
 
 public:
 	enum Feature {
@@ -95,7 +95,7 @@ VARIANT_ENUM_CAST(EditorFeatureProfile::Feature)
 
 class EditorFeatureProfileManager : public AcceptDialog {
 
-	GDCLASS(EditorFeatureProfileManager, AcceptDialog);
+	GDCLASS(EditorFeatureProfileManager,AcceptDialog)
 
 	enum Action {
 		PROFILE_CLEAR,

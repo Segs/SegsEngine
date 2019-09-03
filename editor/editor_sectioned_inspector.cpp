@@ -31,10 +31,13 @@
 #include "editor_sectioned_inspector.h"
 #include "editor_scale.h"
 #include "core/object_db.h"
+#include "core/method_bind.h"
+
+IMPL_GDCLASS(SectionedInspector)
 
 class SectionedInspectorFilter : public Object {
 
-    GDCLASS(SectionedInspectorFilter, Object);
+    GDCLASS(SectionedInspectorFilter,Object)
 
     Object *edited;
     String section;
@@ -80,18 +83,18 @@ class SectionedInspectorFilter : public Object {
         for (List<PropertyInfo>::Element *E = pinfo.front(); E; E = E->next()) {
 
             PropertyInfo pi = E->get();
-            int sp = pi.name.find("/");
+            int sp = StringUtils::find(pi.name,"/");
 
-            if (pi.name == "resource_path" || pi.name == "resource_name" || pi.name == "resource_local_to_scene" || pi.name.begins_with("script/") || pi.name.begins_with("_global_script")) //skip resource stuff
+            if (pi.name == "resource_path" || pi.name == "resource_name" || pi.name == "resource_local_to_scene" || StringUtils::begins_with(pi.name,"script/") || StringUtils::begins_with(pi.name,"_global_script")) //skip resource stuff
                 continue;
 
             if (sp == -1) {
                 pi.name = "global/" + pi.name;
             }
 
-            if (pi.name.begins_with(section + "/")) {
-                pi.name = pi.name.replace_first(section + "/", "");
-                if (!allow_sub && pi.name.find("/") != -1)
+            if (StringUtils::begins_with(pi.name,section + "/")) {
+				pi.name = StringUtils::replace_first(pi.name,section + "/", "");
+                if (!allow_sub && StringUtils::find(pi.name,"/") != -1)
                     continue;
                 p_list->push_back(pi);
             }
@@ -111,8 +114,8 @@ class SectionedInspectorFilter : public Object {
 protected:
     static void _bind_methods() {
 
-        ClassDB::bind_method("property_can_revert", &SectionedInspectorFilter::property_can_revert);
-        ClassDB::bind_method("property_get_revert", &SectionedInspectorFilter::property_get_revert);
+        MethodBinder::bind_method("property_can_revert", &SectionedInspectorFilter::property_can_revert);
+        MethodBinder::bind_method("property_get_revert", &SectionedInspectorFilter::property_get_revert);
     }
 
 public:
@@ -132,13 +135,14 @@ public:
         edited = nullptr;
     }
 };
+IMPL_GDCLASS(SectionedInspectorFilter)
 
 void SectionedInspector::_bind_methods() {
 
-    ClassDB::bind_method("_section_selected", &SectionedInspector::_section_selected);
-    ClassDB::bind_method("_search_changed", &SectionedInspector::_search_changed);
+    MethodBinder::bind_method("_section_selected", &SectionedInspector::_section_selected);
+    MethodBinder::bind_method("_search_changed", &SectionedInspector::_search_changed);
 
-    ClassDB::bind_method("update_category_list", &SectionedInspector::update_category_list);
+    MethodBinder::bind_method("update_category_list", &SectionedInspector::update_category_list);
 }
 
 void SectionedInspector::_section_selected() {
@@ -244,17 +248,17 @@ void SectionedInspector::update_category_list() {
         else if (!(pi.usage & PROPERTY_USAGE_EDITOR))
             continue;
 
-        if (pi.name.find(":") != -1 || pi.name == "script" || pi.name == "resource_name" || pi.name == "resource_path" || pi.name == "resource_local_to_scene" || pi.name.begins_with("_global_script"))
+        if (StringUtils::find(pi.name,":") != -1 || pi.name == "script" || pi.name == "resource_name" || pi.name == "resource_path" || pi.name == "resource_local_to_scene" || StringUtils::begins_with(pi.name,"_global_script"))
             continue;
 
-        int sp = pi.name.find("/");
+        int sp = StringUtils::find(pi.name,"/");
         if (sp == -1)
             pi.name = "global/" + pi.name;
 
         Vector<String> sectionarr = StringUtils::split(pi.name,"/");
         String metasection;
 
-        if (!filter.empty() && !StringUtils::is_subsequence_ofi(filter,sectionarr[sectionarr.size() - 1].capitalize()))
+        if (!filter.empty() && !StringUtils::is_subsequence_ofi(filter,StringUtils::capitalize(sectionarr[sectionarr.size() - 1])))
             continue;
 
         int sc = MIN(2, sectionarr.size() - 1);
@@ -273,7 +277,7 @@ void SectionedInspector::update_category_list() {
             if (!section_map.has(metasection)) {
                 TreeItem *ms = sections->create_item(parent);
                 section_map[metasection] = ms;
-                ms->set_text(0, sectionarr[i].capitalize());
+                ms->set_text(0, StringUtils::capitalize(sectionarr[i]));
                 ms->set_metadata(0, metasection);
                 ms->set_selectable(0, false);
             }
@@ -318,7 +322,7 @@ SectionedInspector::SectionedInspector() :
     add_constant_override("autohide", 1); // Fixes the dragger always showing up
 
     VBoxContainer *left_vb = memnew(VBoxContainer);
-    left_vb->set_custom_minimum_size(Size2(170, 0) * EDSCALE);
+	left_vb->set_custom_minimum_size(Size2(190, 0) * EDSCALE);
     add_child(left_vb);
 
     sections->set_v_size_flags(SIZE_EXPAND_FILL);

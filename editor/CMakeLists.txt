@@ -1,5 +1,5 @@
 set(editor_sources)
-
+set(exporter_sources)
 
 if(NOT OPTION_TOOLS)
     return()
@@ -10,7 +10,8 @@ set(reg_exporters_inc "#include \"register_exporters.h\"\n")
 set(reg_exporters "void register_exporters() {\n")
 foreach(e ${platform_exporters})
     string(REPLACE "/" ";" path_parts ${e})
-    list(APPEND editor_sources ${PROJECT_SOURCE_DIR}/${e})
+    list(APPEND exporter_sources ${PROJECT_SOURCE_DIR}/${e})
+    source_group(exporters/${exporter_name} ${PROJECT_SOURCE_DIR}/${e})
     list(GET path_parts 1 exporter_name)
 
     string(APPEND reg_exporters "    register_${exporter_name}_exporter();\n")
@@ -18,7 +19,6 @@ foreach(e ${platform_exporters})
 endforeach()
 string(APPEND reg_exporters "}\n")
 configure_file(register_exporters.cpp.cmake ${CMAKE_CURRENT_BINARY_DIR}/register_exporters.gen.cpp)
-list(APPEND editor_sources ${CMAKE_CURRENT_BINARY_DIR}/register_exporters.gen.cpp)
 
 if(NOT FREETYPE_FOUND AND NOT OPTION_BUILTIN_FREETYPE)
     message(FATAL_ERROR "Editor requires freetype font library")
@@ -38,21 +38,18 @@ add_custom_command(
     COMMENT "Generating compressed translations header"
 )
 # Godot's own sources
-file(GLOB source_files "*.cpp")
-list(APPEND editor_sources ${source_files} editor.qrc)
-list(APPEND editor_sources ${PROJECT_SOURCE_DIR}/thirdparty/misc/clipper.cpp)
-list(APPEND editor_sources ${CMAKE_CURRENT_BINARY_DIR}/doc_data_compressed.gen.h)
-list(APPEND editor_sources ${CMAKE_CURRENT_BINARY_DIR}/doc_data_class_path.gen.h)
-list(APPEND editor_sources ${CMAKE_CURRENT_BINARY_DIR}/translations.gen.h)
+file(GLOB_RECURSE source_files "*.cpp")
+file(GLOB_RECURSE header_files "*.h")
+list(APPEND editor_sources ${source_files} editor.qrc ${header_files})
 #list(APPEND editor_sources register_exporters.gen.cpp)
-add_subdirectory(collada)
-add_subdirectory(doc)
-add_subdirectory(fileserver)
-add_subdirectory(icons)
-add_subdirectory(import)
-add_subdirectory(plugins)
 
-add_library(editor ${editor_sources})
+add_library(editor ${editor_sources} ${exporter_sources}
+    ${CMAKE_CURRENT_BINARY_DIR}/register_exporters.gen.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/misc/clipper.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/doc_data_compressed.gen.h
+    ${CMAKE_CURRENT_BINARY_DIR}/doc_data_class_path.gen.h
+    ${CMAKE_CURRENT_BINARY_DIR}/translations.gen.h
+)
 add_plugins_to_target(editor)
 target_include_directories(editor PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 target_compile_options(editor PRIVATE
@@ -63,11 +60,13 @@ target_compile_options(editor PRIVATE
 set_target_properties(editor PROPERTIES AUTORCC_OPTIONS "--compress;7;--verbose")
 set_target_properties(editor PROPERTIES AUTORCC ON)
 #target_link_libraries(editor PUBLIC drivers scene)
+
 target_link_libraries(editor PUBLIC Qt5::Core)
-target_link_libraries(editor PUBLIC ${editor_MODULES})
 
 foreach(tgt ${global_targets})
     target_link_libraries(editor PUBLIC ${tgt}_core ${tgt}_scene ${tgt}_modules)
 endforeach()
 
 set_common_target_properties(editor)
+
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${editor_sources})

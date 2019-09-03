@@ -40,7 +40,8 @@
 
 class Material : public Resource {
 
-	GDCLASS(Material, Resource);
+	GDCLASS(Material,Resource)
+
 	RES_BASE_EXTENSION("material")
 	OBJ_SAVE_TYPE(Material)
 
@@ -53,7 +54,7 @@ protected:
 	static void _bind_methods();
 	virtual bool _can_do_next_pass() const { return false; }
 
-	void _validate_property(PropertyInfo &property) const;
+	void _validate_property(PropertyInfo &property) const override;
 
 public:
 	enum {
@@ -66,16 +67,17 @@ public:
 	void set_render_priority(int p_priority);
 	int get_render_priority() const;
 
-	virtual RID get_rid() const;
+	RID get_rid() const override;
 
 	virtual Shader::Mode get_shader_mode() const = 0;
 	Material();
-	virtual ~Material();
+	~Material() override;
 };
 
 class ShaderMaterial : public Material {
 
-	GDCLASS(ShaderMaterial, Material);
+	GDCLASS(ShaderMaterial,Material)
+
 	Ref<Shader> shader;
 
 protected:
@@ -87,9 +89,9 @@ protected:
 
 	static void _bind_methods();
 
-	void get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const;
+	void get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const override;
 
-	virtual bool _can_do_next_pass() const;
+	bool _can_do_next_pass() const override;
 
 	void _shader_changed();
 
@@ -100,15 +102,15 @@ public:
 	void set_shader_param(const StringName &p_param, const Variant &p_value);
 	Variant get_shader_param(const StringName &p_param) const;
 
-	virtual Shader::Mode get_shader_mode() const;
+	Shader::Mode get_shader_mode() const override;
 
 	ShaderMaterial();
-	~ShaderMaterial();
+	~ShaderMaterial() override;
 };
 
 class SpatialMaterial : public Material {
 
-	GDCLASS(SpatialMaterial, Material);
+	GDCLASS(SpatialMaterial,Material)
 
 public:
 	enum TextureParam {
@@ -438,7 +440,7 @@ private:
 	_FORCE_INLINE_ void _validate_feature(const String &text, Feature feature, PropertyInfo &property) const;
 
 	enum {
-		MAX_MATERIALS_FOR_2D = 32
+		MAX_MATERIALS_FOR_2D = 128
 	};
 
 	static Ref<SpatialMaterial> materials_for_2d[MAX_MATERIALS_FOR_2D]; //used by Sprite3D and other stuff
@@ -447,8 +449,8 @@ private:
 
 protected:
 	static void _bind_methods();
-	void _validate_property(PropertyInfo &property) const;
-	virtual bool _can_do_next_pass() const { return true; }
+	void _validate_property(PropertyInfo &property) const override;
+	bool _can_do_next_pass() const override { return true; }
 
 public:
 	void set_albedo(const Color &p_albedo);
@@ -626,14 +628,14 @@ public:
 	static void finish_shaders();
 	static void flush_changes();
 
-	static RID get_material_rid_for_2d(bool p_shaded, bool p_transparent, bool p_double_sided, bool p_cut_alpha, bool p_opaque_prepass);
+	static RID get_material_rid_for_2d(bool p_shaded, bool p_transparent, bool p_double_sided, bool p_cut_alpha, bool p_opaque_prepass, bool p_billboard = false, bool p_billboard_y = false);
 
 	RID get_shader_rid() const;
 
-	virtual Shader::Mode get_shader_mode() const;
+	Shader::Mode get_shader_mode() const override;
 
 	SpatialMaterial();
-	virtual ~SpatialMaterial();
+	~SpatialMaterial() override;
 };
 
 VARIANT_ENUM_CAST(SpatialMaterial::TextureParam)

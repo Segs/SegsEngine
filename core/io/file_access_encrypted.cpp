@@ -33,6 +33,7 @@
 #include "core/crypto/crypto_core.h"
 #include "core/print_string.h"
 #include "core/variant.h"
+#include "core/ustring.h"
 
 #include <stdio.h>
 
@@ -93,7 +94,7 @@ Error FileAccessEncrypted::open_and_parse(FileAccess *p_base, const Vector<uint8
         unsigned char hash[16];
         ERR_FAIL_COND_V(CryptoCore::md5(data.ptr(), data.size(), hash) != OK, ERR_BUG)
 
-        ERR_FAIL_COND_V_MSG(StringUtils::md5(hash) != StringUtils::md5(md5d), ERR_FILE_CORRUPT, "The MD5 sum of the decrypted file does not match the expected value. It could be that the file is corrupt, or that the provided decryption key is invalid.")
+        ERR_FAIL_COND_V_CMSG(StringUtils::md5(hash) != StringUtils::md5(md5d), ERR_FILE_CORRUPT, "The MD5 sum of the decrypted file does not match the expected value. It could be that the file is corrupt, or that the provided decryption key is invalid.")
 
         file = p_base;
     }

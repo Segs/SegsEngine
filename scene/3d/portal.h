@@ -42,7 +42,8 @@
 #if 0
 class Portal : public VisualInstance {
 
-	GDCLASS(Portal, VisualInstance);
+	GDCLASS(Portal,VisualInstance)
+IMPL_GDCLASS(Portal)
 
 	RID portal;
 	Vector<Point2> shape;

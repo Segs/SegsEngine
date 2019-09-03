@@ -28,15 +28,19 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
+#include "editor_log.h"
 #include "script_editor_debugger.h"
 
 #include "core/io/marshalls.h"
+#include "core/method_bind.h"
 #include "core/object_db.h"
 #include "core/project_settings.h"
 #include "core/ustring.h"
+#include "core/string_formatter.h"
 #include "editor_node.h"
 #include "editor_profiler.h"
 #include "editor_settings.h"
+#include "editor/editor_scale.h"
 #include "main/performance.h"
 #include "property_editor.h"
 #include "scene/gui/dialogs.h"
@@ -51,9 +55,11 @@
 #include "scene/gui/tree.h"
 #include "scene/resources/packed_scene.h"
 
+IMPL_GDCLASS(ScriptEditorDebugger)
+
 class ScriptEditorDebuggerVariables : public Object {
 
-    GDCLASS(ScriptEditorDebuggerVariables, Object);
+    GDCLASS(ScriptEditorDebuggerVariables,Object)
 
     List<PropertyInfo> props;
     Map<StringName, Variant> values;
@@ -87,7 +93,7 @@ public:
     String get_var_value(const String &p_var) const {
 
         for (Map<StringName, Variant>::Element *E = values.front(); E; E = E->next()) {
-            String v = E->key().operator String().get_slice("/", 1);
+            String v = StringUtils::get_slice(E->key(),"/", 1);
             if (v == p_var)
                 return E->get();
         }
@@ -113,15 +119,16 @@ public:
     ScriptEditorDebuggerVariables() {
     }
 };
+IMPL_GDCLASS(ScriptEditorDebuggerVariables)
 
 class ScriptEditorDebuggerInspectedObject : public Object {
 
-    GDCLASS(ScriptEditorDebuggerInspectedObject, Object);
+    GDCLASS(ScriptEditorDebuggerInspectedObject,Object)
 
 protected:
     bool _set(const StringName &p_name, const Variant &p_value) {
 
-        if (!prop_values.has(p_name) || String(p_name).begins_with("Constants/"))
+        if (!prop_values.has(p_name) || StringUtils::begins_with(p_name,"Constants/"))
             return false;
 
         prop_values[p_name] = p_value;
@@ -148,10 +155,10 @@ protected:
 
     static void _bind_methods() {
 
-        ClassDB::bind_method(D_METHOD("get_title"), &ScriptEditorDebuggerInspectedObject::get_title);
-        ClassDB::bind_method(D_METHOD("get_variant"), &ScriptEditorDebuggerInspectedObject::get_variant);
-        ClassDB::bind_method(D_METHOD("clear"), &ScriptEditorDebuggerInspectedObject::clear);
-        ClassDB::bind_method(D_METHOD("get_remote_object_id"), &ScriptEditorDebuggerInspectedObject::get_remote_object_id);
+        MethodBinder::bind_method(D_METHOD("get_title"), &ScriptEditorDebuggerInspectedObject::get_title);
+        MethodBinder::bind_method(D_METHOD("get_variant"), &ScriptEditorDebuggerInspectedObject::get_variant);
+        MethodBinder::bind_method(D_METHOD("clear"), &ScriptEditorDebuggerInspectedObject::clear);
+        MethodBinder::bind_method(D_METHOD("get_remote_object_id"), &ScriptEditorDebuggerInspectedObject::get_remote_object_id);
 
         ADD_SIGNAL(MethodInfo("value_edited"));
     }
@@ -195,6 +202,7 @@ public:
         remote_object_id = 0;
     }
 };
+IMPL_GDCLASS(ScriptEditorDebuggerInspectedObject)
 
 void ScriptEditorDebugger::debug_copy() {
     String msg = reason->get_text();
@@ -655,7 +663,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
             d["frame"] = i;
             s->set_metadata(0, d);
 
-            String line = String("%1 - %2:%3 - at function: %4").arg(i).arg(String(d["file"])).arg(int(d["line"])).arg(String(d["function"]));
+            String line = FormatV("%d - %s:%d - at function: %s",i,qPrintable(String(d["file"]).m_str),int(d["line"]),qPrintable(String(d["function"]).m_str));
             s->set_text(0, line);
 
             if (i == 0)
@@ -733,7 +741,6 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
 
             String t = p_data[i];
             //LOG
-
             if (!EditorNode::get_log()->is_visible()) {
                 if (EditorNode::get_singleton()->are_bottom_panels_hidden()) {
                     if (EDITOR_GET("run/output/always_open_output_on_play")) {
@@ -790,7 +797,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
 
         bool warning = err[9];
         bool e;
-        String time = String("%d:%02d:%02d:%04d").sprintf(vals, &e);
+        String time = StringUtils::sprintf("%d:%02d:%02d:%04d",vals, &e);
         String txt = err[8].is_zero() ? String(err[7]) : String(err[8]);
 
         TreeItem *r = error_tree->get_root();
@@ -801,14 +808,14 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
         TreeItem *error = error_tree->create_item(r);
         error->set_collapsed(true);
 
-        error->set_icon(0, get_icon(warning ? "Warning" : "Error", "EditorIcons"));
+        error->set_icon(0, get_icon(warning ? StringName("Warning") : StringName("Error"), "EditorIcons"));
         error->set_text(0, time);
         error->set_text_align(0, TreeItem::ALIGN_LEFT);
 
         error->set_text(1, txt);
 
         String source(err[5]);
-        bool source_is_project_file = source.begins_with("res://");
+        bool source_is_project_file = StringUtils::begins_with(source,"res://");
         if (source_is_project_file)
             txt = PathUtils::get_file(source) + ":" + String(err[6]);
         else
@@ -913,7 +920,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
             EditorProfiler::Metric::Category c;
             String name = p_data[idx++];
             Array values = p_data[idx++];
-            c.name = name.capitalize();
+            c.name = StringUtils::capitalize(name);
             c.items.resize(values.size() / 2);
             c.total_time = 0;
             c.signature = "categ::" + name;
@@ -926,7 +933,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
                 item.self = values[j + 1];
                 item.total = item.self;
                 item.signature = "categ::" + name + "::" + item.name;
-                item.name = item.name.capitalize();
+                item.name = StringUtils::capitalize(item.name);
                 c.total_time += item.total;
                 c.items.write[j / 2] = item;
             }
@@ -955,11 +962,11 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
                 if (strings.size() == 3) {
                     item.name = strings[2];
                     item.script = strings[0];
-                    item.line = strings[1].to_int();
+                    item.line = StringUtils::to_int(strings[1]);
                 } else if (strings.size() == 4) { //Built-in scripts have an :: in their name
                     item.name = strings[3];
                     item.script = strings[0] + "::" + strings[1];
-                    item.line = strings[2].to_int();
+                    item.line = StringUtils::to_int(strings[2]);
                 }
 
             } else {
@@ -1933,7 +1940,7 @@ void ScriptEditorDebugger::_item_menu_id_pressed(int p_option) {
             text = type + text + ti->get_text(1) + "\n";
             TreeItem *ci = ti->get_children();
             while (ci) {
-                text += "  " + ci->get_text(0).rpad(rpad_len) + ci->get_text(1) + "\n";
+                text += "  " + StringUtils::rpad(ci->get_text(0),rpad_len) + ci->get_text(1) + "\n";
                 ci = ci->get_next();
             }
 
@@ -1979,50 +1986,50 @@ void ScriptEditorDebugger::_item_menu_id_pressed(int p_option) {
 
 void ScriptEditorDebugger::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_stack_dump_frame_selected"), &ScriptEditorDebugger::_stack_dump_frame_selected);
+    MethodBinder::bind_method(D_METHOD("_stack_dump_frame_selected"), &ScriptEditorDebugger::_stack_dump_frame_selected);
 
-    ClassDB::bind_method(D_METHOD("debug_copy"), &ScriptEditorDebugger::debug_copy);
+    MethodBinder::bind_method(D_METHOD("debug_copy"), &ScriptEditorDebugger::debug_copy);
 
-    ClassDB::bind_method(D_METHOD("debug_next"), &ScriptEditorDebugger::debug_next);
-    ClassDB::bind_method(D_METHOD("debug_step"), &ScriptEditorDebugger::debug_step);
-    ClassDB::bind_method(D_METHOD("debug_break"), &ScriptEditorDebugger::debug_break);
-    ClassDB::bind_method(D_METHOD("debug_continue"), &ScriptEditorDebugger::debug_continue);
-    ClassDB::bind_method(D_METHOD("_output_clear"), &ScriptEditorDebugger::_output_clear);
-    ClassDB::bind_method(D_METHOD("_export_csv"), &ScriptEditorDebugger::_export_csv);
-    ClassDB::bind_method(D_METHOD("_performance_draw"), &ScriptEditorDebugger::_performance_draw);
-    ClassDB::bind_method(D_METHOD("_performance_select"), &ScriptEditorDebugger::_performance_select);
-    ClassDB::bind_method(D_METHOD("_scene_tree_request"), &ScriptEditorDebugger::_scene_tree_request);
-    ClassDB::bind_method(D_METHOD("_video_mem_request"), &ScriptEditorDebugger::_video_mem_request);
-    ClassDB::bind_method(D_METHOD("_live_edit_set"), &ScriptEditorDebugger::_live_edit_set);
-    ClassDB::bind_method(D_METHOD("_live_edit_clear"), &ScriptEditorDebugger::_live_edit_clear);
+    MethodBinder::bind_method(D_METHOD("debug_next"), &ScriptEditorDebugger::debug_next);
+    MethodBinder::bind_method(D_METHOD("debug_step"), &ScriptEditorDebugger::debug_step);
+    MethodBinder::bind_method(D_METHOD("debug_break"), &ScriptEditorDebugger::debug_break);
+    MethodBinder::bind_method(D_METHOD("debug_continue"), &ScriptEditorDebugger::debug_continue);
+    MethodBinder::bind_method(D_METHOD("_output_clear"), &ScriptEditorDebugger::_output_clear);
+    MethodBinder::bind_method(D_METHOD("_export_csv"), &ScriptEditorDebugger::_export_csv);
+    MethodBinder::bind_method(D_METHOD("_performance_draw"), &ScriptEditorDebugger::_performance_draw);
+    MethodBinder::bind_method(D_METHOD("_performance_select"), &ScriptEditorDebugger::_performance_select);
+    MethodBinder::bind_method(D_METHOD("_scene_tree_request"), &ScriptEditorDebugger::_scene_tree_request);
+    MethodBinder::bind_method(D_METHOD("_video_mem_request"), &ScriptEditorDebugger::_video_mem_request);
+    MethodBinder::bind_method(D_METHOD("_live_edit_set"), &ScriptEditorDebugger::_live_edit_set);
+    MethodBinder::bind_method(D_METHOD("_live_edit_clear"), &ScriptEditorDebugger::_live_edit_clear);
 
-    ClassDB::bind_method(D_METHOD("_error_selected"), &ScriptEditorDebugger::_error_selected);
-    ClassDB::bind_method(D_METHOD("_error_activated"), &ScriptEditorDebugger::_error_activated);
-    ClassDB::bind_method(D_METHOD("_expand_errors_list"), &ScriptEditorDebugger::_expand_errors_list);
-    ClassDB::bind_method(D_METHOD("_collapse_errors_list"), &ScriptEditorDebugger::_collapse_errors_list);
-    ClassDB::bind_method(D_METHOD("_profiler_activate"), &ScriptEditorDebugger::_profiler_activate);
-    ClassDB::bind_method(D_METHOD("_profiler_seeked"), &ScriptEditorDebugger::_profiler_seeked);
-    ClassDB::bind_method(D_METHOD("_clear_errors_list"), &ScriptEditorDebugger::_clear_errors_list);
+    MethodBinder::bind_method(D_METHOD("_error_selected"), &ScriptEditorDebugger::_error_selected);
+    MethodBinder::bind_method(D_METHOD("_error_activated"), &ScriptEditorDebugger::_error_activated);
+    MethodBinder::bind_method(D_METHOD("_expand_errors_list"), &ScriptEditorDebugger::_expand_errors_list);
+    MethodBinder::bind_method(D_METHOD("_collapse_errors_list"), &ScriptEditorDebugger::_collapse_errors_list);
+    MethodBinder::bind_method(D_METHOD("_profiler_activate"), &ScriptEditorDebugger::_profiler_activate);
+    MethodBinder::bind_method(D_METHOD("_profiler_seeked"), &ScriptEditorDebugger::_profiler_seeked);
+    MethodBinder::bind_method(D_METHOD("_clear_errors_list"), &ScriptEditorDebugger::_clear_errors_list);
 
-    ClassDB::bind_method(D_METHOD("_error_tree_item_rmb_selected"), &ScriptEditorDebugger::_error_tree_item_rmb_selected);
-    ClassDB::bind_method(D_METHOD("_item_menu_id_pressed"), &ScriptEditorDebugger::_item_menu_id_pressed);
+    MethodBinder::bind_method(D_METHOD("_error_tree_item_rmb_selected"), &ScriptEditorDebugger::_error_tree_item_rmb_selected);
+    MethodBinder::bind_method(D_METHOD("_item_menu_id_pressed"), &ScriptEditorDebugger::_item_menu_id_pressed);
 
-    ClassDB::bind_method(D_METHOD("_paused"), &ScriptEditorDebugger::_paused);
+    MethodBinder::bind_method(D_METHOD("_paused"), &ScriptEditorDebugger::_paused);
 
-    ClassDB::bind_method(D_METHOD("_scene_tree_selected"), &ScriptEditorDebugger::_scene_tree_selected);
-    ClassDB::bind_method(D_METHOD("_scene_tree_folded"), &ScriptEditorDebugger::_scene_tree_folded);
-    ClassDB::bind_method(D_METHOD("_scene_tree_rmb_selected"), &ScriptEditorDebugger::_scene_tree_rmb_selected);
-    ClassDB::bind_method(D_METHOD("_file_selected"), &ScriptEditorDebugger::_file_selected);
+    MethodBinder::bind_method(D_METHOD("_scene_tree_selected"), &ScriptEditorDebugger::_scene_tree_selected);
+    MethodBinder::bind_method(D_METHOD("_scene_tree_folded"), &ScriptEditorDebugger::_scene_tree_folded);
+    MethodBinder::bind_method(D_METHOD("_scene_tree_rmb_selected"), &ScriptEditorDebugger::_scene_tree_rmb_selected);
+    MethodBinder::bind_method(D_METHOD("_file_selected"), &ScriptEditorDebugger::_file_selected);
 
-    ClassDB::bind_method(D_METHOD("live_debug_create_node"), &ScriptEditorDebugger::live_debug_create_node);
-    ClassDB::bind_method(D_METHOD("live_debug_instance_node"), &ScriptEditorDebugger::live_debug_instance_node);
-    ClassDB::bind_method(D_METHOD("live_debug_remove_node"), &ScriptEditorDebugger::live_debug_remove_node);
-    ClassDB::bind_method(D_METHOD("live_debug_remove_and_keep_node"), &ScriptEditorDebugger::live_debug_remove_and_keep_node);
-    ClassDB::bind_method(D_METHOD("live_debug_restore_node"), &ScriptEditorDebugger::live_debug_restore_node);
-    ClassDB::bind_method(D_METHOD("live_debug_duplicate_node"), &ScriptEditorDebugger::live_debug_duplicate_node);
-    ClassDB::bind_method(D_METHOD("live_debug_reparent_node"), &ScriptEditorDebugger::live_debug_reparent_node);
-    ClassDB::bind_method(D_METHOD("_scene_tree_property_select_object"), &ScriptEditorDebugger::_scene_tree_property_select_object);
-    ClassDB::bind_method(D_METHOD("_scene_tree_property_value_edited"), &ScriptEditorDebugger::_scene_tree_property_value_edited);
+    MethodBinder::bind_method(D_METHOD("live_debug_create_node"), &ScriptEditorDebugger::live_debug_create_node);
+    MethodBinder::bind_method(D_METHOD("live_debug_instance_node"), &ScriptEditorDebugger::live_debug_instance_node);
+    MethodBinder::bind_method(D_METHOD("live_debug_remove_node"), &ScriptEditorDebugger::live_debug_remove_node);
+    MethodBinder::bind_method(D_METHOD("live_debug_remove_and_keep_node"), &ScriptEditorDebugger::live_debug_remove_and_keep_node);
+    MethodBinder::bind_method(D_METHOD("live_debug_restore_node"), &ScriptEditorDebugger::live_debug_restore_node);
+    MethodBinder::bind_method(D_METHOD("live_debug_duplicate_node"), &ScriptEditorDebugger::live_debug_duplicate_node);
+    MethodBinder::bind_method(D_METHOD("live_debug_reparent_node"), &ScriptEditorDebugger::live_debug_reparent_node);
+    MethodBinder::bind_method(D_METHOD("_scene_tree_property_select_object"), &ScriptEditorDebugger::_scene_tree_property_select_object);
+    MethodBinder::bind_method(D_METHOD("_scene_tree_property_value_edited"), &ScriptEditorDebugger::_scene_tree_property_value_edited);
 
     ADD_SIGNAL(MethodInfo("goto_script_line"));
     ADD_SIGNAL(MethodInfo("set_execution", PropertyInfo("script"), PropertyInfo(Variant::INT, "line")));
@@ -2245,11 +2252,11 @@ ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
 
             String n = Performance::get_singleton()->get_monitor_name(Performance::Monitor(i));
             Performance::MonitorType mtype = Performance::get_singleton()->get_monitor_type(Performance::Monitor(i));
-            String base = n.get_slice("/", 0);
-            String name = n.get_slice("/", 1);
+            String base = StringUtils::get_slice(n,"/", 0);
+            String name = StringUtils::get_slice(n,"/", 1);
             if (!bases.has(base)) {
                 TreeItem *b = perf_monitors->create_item(root);
-                b->set_text(0, base.capitalize());
+                b->set_text(0, StringUtils::capitalize(base));
                 b->set_editable(0, false);
                 b->set_selectable(0, false);
                 b->set_expand_right(0, true);
@@ -2262,7 +2269,7 @@ ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
             it->set_editable(0, true);
             it->set_selectable(0, false);
             it->set_selectable(1, false);
-            it->set_text(0, name.capitalize());
+            it->set_text(0, StringUtils::capitalize(name));
             perf_items.push_back(it);
             perf_max.write[i] = 0;
         }

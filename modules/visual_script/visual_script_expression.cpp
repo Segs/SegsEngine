@@ -29,6 +29,9 @@
 /*************************************************************************/
 
 #include "visual_script_expression.h"
+#include "core/string_formatter.h"
+
+IMPL_GDCLASS(VisualScriptExpression)
 
 bool VisualScriptExpression::_set(const StringName &p_name, const Variant &p_value) {
 
@@ -56,7 +59,7 @@ bool VisualScriptExpression::_set(const StringName &p_name, const Variant &p_val
         int from = inputs.size();
         inputs.resize(int(p_value));
         for (int i = from; i < inputs.size(); i++) {
-            inputs.write[i].name = {'a' + i};
+            inputs.write[i].name = String('a' + i);
             if (from == 0) {
                 inputs.write[i].type = output_type;
             } else {
@@ -69,12 +72,12 @@ bool VisualScriptExpression::_set(const StringName &p_name, const Variant &p_val
         return true;
     }
 
-    if (String(p_name).begins_with("input_")) {
+    if (StringUtils::begins_with(String(p_name),"input_")) {
 
-        int idx = String(p_name).get_slicec('_', 1).get_slicec('/', 0).to_int();
-        ERR_FAIL_INDEX_V(idx, inputs.size(), false);
+        int idx = StringUtils::to_int(StringUtils::get_slice(StringUtils::get_slice(p_name,'_', 1),'/', 0));
+        ERR_FAIL_INDEX_V(idx, inputs.size(), false)
 
-        String what = String(p_name).get_slice("/", 1);
+        String what = StringUtils::get_slice(p_name,"/", 1);
 
         if (what == "type") {
 
@@ -116,12 +119,12 @@ bool VisualScriptExpression::_get(const StringName &p_name, Variant &r_ret) cons
         return true;
     }
 
-    if (String(p_name).begins_with("input_")) {
+    if (StringUtils::begins_with(String(p_name),"input_")) {
 
-        int idx = String(p_name).get_slicec('_', 1).get_slicec('/', 0).to_int();
-        ERR_FAIL_INDEX_V(idx, inputs.size(), false);
+        int idx = StringUtils::to_int(StringUtils::get_slice(StringUtils::get_slice(p_name,'_', 1),'/', 0));
+        ERR_FAIL_INDEX_V(idx, inputs.size(), false)
 
-        String what = String(p_name).get_slice("/", 1);
+        String what = StringUtils::get_slice(p_name,"/", 1);
 
         if (what == "type") {
 
@@ -139,11 +142,8 @@ bool VisualScriptExpression::_get(const StringName &p_name, Variant &r_ret) cons
     return false;
 }
 void VisualScriptExpression::_get_property_list(List<PropertyInfo> *p_list) const {
-
-    String argt = "Any";
-    for (int i = 1; i < Variant::VARIANT_MAX; i++) {
-        argt += "," + Variant::get_type_name(Variant::Type(i));
-    }
+    char argt[7+(longest_variant_type_name+1)*Variant::VARIANT_MAX];
+    fill_with_all_variant_types("Any",argt);
 
     p_list->push_back(PropertyInfo(Variant::STRING, "expression", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
     p_list->push_back(PropertyInfo(Variant::INT, "out_type", PROPERTY_HINT_ENUM, argt));
@@ -182,7 +182,7 @@ int VisualScriptExpression::get_output_value_port_count() const {
 
 PropertyInfo VisualScriptExpression::get_input_value_port_info(int p_idx) const {
 
-    return PropertyInfo(inputs[p_idx].type, inputs[p_idx].name);
+    return PropertyInfo(inputs[p_idx].type, String(inputs[p_idx].name));
 }
 PropertyInfo VisualScriptExpression::get_output_value_port_info(int p_idx) const {
 
@@ -219,47 +219,47 @@ Error VisualScriptExpression::_get_token(Token &r_token) {
 
                 r_token.type = TK_CURLY_BRACKET_OPEN;
                 return OK;
-            };
+            }
             case '}': {
 
                 r_token.type = TK_CURLY_BRACKET_CLOSE;
                 return OK;
-            };
+            }
             case '[': {
 
                 r_token.type = TK_BRACKET_OPEN;
                 return OK;
-            };
+            }
             case ']': {
 
                 r_token.type = TK_BRACKET_CLOSE;
                 return OK;
-            };
+            }
             case '(': {
 
                 r_token.type = TK_PARENTHESIS_OPEN;
                 return OK;
-            };
+            }
             case ')': {
 
                 r_token.type = TK_PARENTHESIS_CLOSE;
                 return OK;
-            };
+            }
             case ',': {
 
                 r_token.type = TK_COMMA;
                 return OK;
-            };
+            }
             case ':': {
 
                 r_token.type = TK_COLON;
                 return OK;
-            };
+            }
             case '.': {
 
                 r_token.type = TK_PERIOD;
                 return OK;
-            };
+            }
             case '=': {
 
                 cchar = GET_CHAR();
@@ -271,7 +271,7 @@ Error VisualScriptExpression::_get_token(Token &r_token) {
                     return ERR_PARSE_ERROR;
                 }
                 return OK;
-            };
+            }
             case '!': {
 
                 if (expression[str_ofs] == '=') {
@@ -281,7 +281,7 @@ Error VisualScriptExpression::_get_token(Token &r_token) {
                     r_token.type = TK_OP_NOT;
                 }
                 return OK;
-            };
+            }
             case '>': {
 
                 if (expression[str_ofs] == '=') {
@@ -294,7 +294,7 @@ Error VisualScriptExpression::_get_token(Token &r_token) {
                     r_token.type = TK_OP_GREATER;
                 }
                 return OK;
-            };
+            }
             case '<': {
 
                 if (expression[str_ofs] == '=') {
@@ -307,27 +307,27 @@ Error VisualScriptExpression::_get_token(Token &r_token) {
                     r_token.type = TK_OP_LESS;
                 }
                 return OK;
-            };
+            }
             case '+': {
                 r_token.type = TK_OP_ADD;
                 return OK;
-            };
+            }
             case '-': {
                 r_token.type = TK_OP_SUB;
                 return OK;
-            };
+            }
             case '/': {
                 r_token.type = TK_OP_DIV;
                 return OK;
-            };
+            }
             case '*': {
                 r_token.type = TK_OP_MUL;
                 return OK;
-            };
+            }
             case '%': {
                 r_token.type = TK_OP_MOD;
                 return OK;
-            };
+            }
             case '&': {
 
                 if (expression[str_ofs] == '&') {
@@ -337,7 +337,7 @@ Error VisualScriptExpression::_get_token(Token &r_token) {
                     r_token.type = TK_OP_BIT_AND;
                 }
                 return OK;
-            };
+            }
             case '|': {
 
                 if (expression[str_ofs] == '|') {
@@ -347,19 +347,19 @@ Error VisualScriptExpression::_get_token(Token &r_token) {
                     r_token.type = TK_OP_BIT_OR;
                 }
                 return OK;
-            };
+            }
             case '^': {
 
                 r_token.type = TK_OP_BIT_XOR;
 
                 return OK;
-            };
+            }
             case '~': {
 
                 r_token.type = TK_OP_BIT_INVERT;
 
                 return OK;
-            };
+            }
             case '"': {
 
                 String str;
@@ -527,9 +527,9 @@ Error VisualScriptExpression::_get_token(Token &r_token) {
                     r_token.type = TK_CONSTANT;
 
                     if (is_float)
-                        r_token.value = num.to_double();
+                        r_token.value = StringUtils::to_double(num);
                     else
-                        r_token.value = num.to_int();
+                        r_token.value = StringUtils::to_int(num);
                     return OK;
 
                 } else if ((cchar >= 'A' && cchar <= 'Z') || (cchar >= 'a' && cchar <= 'z') || cchar == '_') {
@@ -1296,7 +1296,7 @@ public:
                 bool valid;
                 r_ret = base.get(idx, &valid);
                 if (!valid) {
-                    r_error_str = "Invalid index of type " + Variant::get_type_name(idx.get_type()) + " for base of type " + Variant::get_type_name(base.get_type()) + ".";
+                    r_error_str = FormatV("Invalid index of type %s for base of type %s.",Variant::get_type_name(idx.get_type()),Variant::get_type_name(base.get_type()));
                     return true;
                 }
 
@@ -1378,7 +1378,7 @@ public:
                 r_ret = Variant::construct(constructor->data_type, (const Variant **)argp.ptr(), argp.size(), ce);
 
                 if (ce.error != Variant::CallError::CALL_OK) {
-                    r_error_str = "Invalid arguments to construct '" + Variant::get_type_name(constructor->data_type) + "'.";
+                    r_error_str = FormatV("Invalid arguments to construct '%s'.",Variant::get_type_name(constructor->data_type));
                     return true;
                 }
 
@@ -1446,7 +1446,7 @@ public:
         return false;
     }
 
-    virtual int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
 
         if (!expression->root || expression->error_set) {
             r_error_str = expression->error_str;
@@ -1462,7 +1462,8 @@ public:
 #ifdef DEBUG_ENABLED
         if (!error && expression->output_type != Variant::NIL && !Variant::can_convert_strict(p_outputs[0]->get_type(), expression->output_type)) {
 
-            r_error_str += "Can't convert expression result from " + Variant::get_type_name(p_outputs[0]->get_type()) + " to " + Variant::get_type_name(expression->output_type) + ".";
+            r_error_str += FormatV("Can't convert expression result from %s to %s.",
+                    Variant::get_type_name(p_outputs[0]->get_type()), Variant::get_type_name(expression->output_type));
             r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
         }
 #endif

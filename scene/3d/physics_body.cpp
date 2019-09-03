@@ -33,7 +33,7 @@
 #include "core/core_string_names.h"
 #include "core/engine.h"
 #include "core/list.h"
-#include "method_bind_ext.gen.h"
+#include "core/method_bind.h"
 #include "core/object.h"
 #include "core/object_db.h"
 #include "core/rid.h"
@@ -42,6 +42,13 @@
 #ifdef TOOLS_ENABLED
 #include "editor/plugins/spatial_editor_plugin.h"
 #endif
+
+IMPL_GDCLASS(PhysicsBody)
+IMPL_GDCLASS(RigidBody)
+IMPL_GDCLASS(KinematicBody)
+IMPL_GDCLASS(KinematicCollision)
+IMPL_GDCLASS(PhysicalBone)
+IMPL_GDCLASS(StaticBody)
 
 void PhysicsBody::_notification(int p_what) {
 }
@@ -153,20 +160,20 @@ uint32_t PhysicsBody::_get_layers() const {
 }
 
 void PhysicsBody::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("set_collision_layer", "layer"), &PhysicsBody::set_collision_layer);
-    ClassDB::bind_method(D_METHOD("get_collision_layer"), &PhysicsBody::get_collision_layer);
+    MethodBinder::bind_method(D_METHOD("set_collision_layer", "layer"), &PhysicsBody::set_collision_layer);
+    MethodBinder::bind_method(D_METHOD("get_collision_layer"), &PhysicsBody::get_collision_layer);
 
-    ClassDB::bind_method(D_METHOD("set_collision_mask", "mask"), &PhysicsBody::set_collision_mask);
-    ClassDB::bind_method(D_METHOD("get_collision_mask"), &PhysicsBody::get_collision_mask);
+    MethodBinder::bind_method(D_METHOD("set_collision_mask", "mask"), &PhysicsBody::set_collision_mask);
+    MethodBinder::bind_method(D_METHOD("get_collision_mask"), &PhysicsBody::get_collision_mask);
 
-    ClassDB::bind_method(D_METHOD("set_collision_mask_bit", "bit", "value"), &PhysicsBody::set_collision_mask_bit);
-    ClassDB::bind_method(D_METHOD("get_collision_mask_bit", "bit"), &PhysicsBody::get_collision_mask_bit);
+    MethodBinder::bind_method(D_METHOD("set_collision_mask_bit", "bit", "value"), &PhysicsBody::set_collision_mask_bit);
+    MethodBinder::bind_method(D_METHOD("get_collision_mask_bit", "bit"), &PhysicsBody::get_collision_mask_bit);
 
-    ClassDB::bind_method(D_METHOD("set_collision_layer_bit", "bit", "value"), &PhysicsBody::set_collision_layer_bit);
-    ClassDB::bind_method(D_METHOD("get_collision_layer_bit", "bit"), &PhysicsBody::get_collision_layer_bit);
+    MethodBinder::bind_method(D_METHOD("set_collision_layer_bit", "bit", "value"), &PhysicsBody::set_collision_layer_bit);
+    MethodBinder::bind_method(D_METHOD("get_collision_layer_bit", "bit"), &PhysicsBody::get_collision_layer_bit);
 
-    ClassDB::bind_method(D_METHOD("_set_layers", "mask"), &PhysicsBody::_set_layers);
-    ClassDB::bind_method(D_METHOD("_get_layers"), &PhysicsBody::_get_layers);
+    MethodBinder::bind_method(D_METHOD("_set_layers", "mask"), &PhysicsBody::_set_layers);
+    MethodBinder::bind_method(D_METHOD("_get_layers"), &PhysicsBody::_get_layers);
 
     ADD_GROUP("Collision", "collision_");
     ADD_PROPERTY(PropertyInfo(Variant::INT, "collision_layer", PROPERTY_HINT_LAYERS_3D_PHYSICS), "set_collision_layer", "get_collision_layer");
@@ -279,27 +286,27 @@ Vector3 StaticBody::get_constant_angular_velocity() const {
 
 void StaticBody::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_constant_linear_velocity", "vel"), &StaticBody::set_constant_linear_velocity);
-    ClassDB::bind_method(D_METHOD("set_constant_angular_velocity", "vel"), &StaticBody::set_constant_angular_velocity);
-    ClassDB::bind_method(D_METHOD("get_constant_linear_velocity"), &StaticBody::get_constant_linear_velocity);
-    ClassDB::bind_method(D_METHOD("get_constant_angular_velocity"), &StaticBody::get_constant_angular_velocity);
+    MethodBinder::bind_method(D_METHOD("set_constant_linear_velocity", "vel"), &StaticBody::set_constant_linear_velocity);
+    MethodBinder::bind_method(D_METHOD("set_constant_angular_velocity", "vel"), &StaticBody::set_constant_angular_velocity);
+    MethodBinder::bind_method(D_METHOD("get_constant_linear_velocity"), &StaticBody::get_constant_linear_velocity);
+    MethodBinder::bind_method(D_METHOD("get_constant_angular_velocity"), &StaticBody::get_constant_angular_velocity);
 
 #ifndef DISABLE_DEPRECATED
-    ClassDB::bind_method(D_METHOD("set_friction", "friction"), &StaticBody::set_friction);
-    ClassDB::bind_method(D_METHOD("get_friction"), &StaticBody::get_friction);
+    MethodBinder::bind_method(D_METHOD("set_friction", "friction"), &StaticBody::set_friction);
+    MethodBinder::bind_method(D_METHOD("get_friction"), &StaticBody::get_friction);
 
-    ClassDB::bind_method(D_METHOD("set_bounce", "bounce"), &StaticBody::set_bounce);
-    ClassDB::bind_method(D_METHOD("get_bounce"), &StaticBody::get_bounce);
+    MethodBinder::bind_method(D_METHOD("set_bounce", "bounce"), &StaticBody::set_bounce);
+    MethodBinder::bind_method(D_METHOD("get_bounce"), &StaticBody::get_bounce);
 #endif // DISABLE_DEPRECATED
 
-    ClassDB::bind_method(D_METHOD("set_physics_material_override", "physics_material_override"), &StaticBody::set_physics_material_override);
-    ClassDB::bind_method(D_METHOD("get_physics_material_override"), &StaticBody::get_physics_material_override);
+    MethodBinder::bind_method(D_METHOD("set_physics_material_override", "physics_material_override"), &StaticBody::set_physics_material_override);
+    MethodBinder::bind_method(D_METHOD("get_physics_material_override"), &StaticBody::get_physics_material_override);
 
-    ClassDB::bind_method(D_METHOD("_reload_physics_characteristics"), &StaticBody::_reload_physics_characteristics);
+    MethodBinder::bind_method(D_METHOD("_reload_physics_characteristics"), &StaticBody::_reload_physics_characteristics);
 
-    ClassDB::bind_method(D_METHOD("get_collision_exceptions"), &PhysicsBody::get_collision_exceptions);
-    ClassDB::bind_method(D_METHOD("add_collision_exception_with", "body"), &PhysicsBody::add_collision_exception_with);
-    ClassDB::bind_method(D_METHOD("remove_collision_exception_with", "body"), &PhysicsBody::remove_collision_exception_with);
+    MethodBinder::bind_method(D_METHOD("get_collision_exceptions"), &PhysicsBody::get_collision_exceptions);
+    MethodBinder::bind_method(D_METHOD("add_collision_exception_with", "body"), &PhysicsBody::add_collision_exception_with);
+    MethodBinder::bind_method(D_METHOD("remove_collision_exception_with", "body"), &PhysicsBody::remove_collision_exception_with);
 
 #ifndef DISABLE_DEPRECATED
     ADD_PROPERTY(PropertyInfo(Variant::REAL, "friction", PROPERTY_HINT_RANGE, "0,1,0.01", 0), "set_friction", "get_friction");
@@ -928,79 +935,79 @@ String RigidBody::get_configuration_warning() const {
 
 void RigidBody::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_mode", "mode"), &RigidBody::set_mode);
-    ClassDB::bind_method(D_METHOD("get_mode"), &RigidBody::get_mode);
+    MethodBinder::bind_method(D_METHOD("set_mode", "mode"), &RigidBody::set_mode);
+    MethodBinder::bind_method(D_METHOD("get_mode"), &RigidBody::get_mode);
 
-    ClassDB::bind_method(D_METHOD("set_mass", "mass"), &RigidBody::set_mass);
-    ClassDB::bind_method(D_METHOD("get_mass"), &RigidBody::get_mass);
+    MethodBinder::bind_method(D_METHOD("set_mass", "mass"), &RigidBody::set_mass);
+    MethodBinder::bind_method(D_METHOD("get_mass"), &RigidBody::get_mass);
 
-    ClassDB::bind_method(D_METHOD("set_weight", "weight"), &RigidBody::set_weight);
-    ClassDB::bind_method(D_METHOD("get_weight"), &RigidBody::get_weight);
+    MethodBinder::bind_method(D_METHOD("set_weight", "weight"), &RigidBody::set_weight);
+    MethodBinder::bind_method(D_METHOD("get_weight"), &RigidBody::get_weight);
 
 #ifndef DISABLE_DEPRECATED
-    ClassDB::bind_method(D_METHOD("set_friction", "friction"), &RigidBody::set_friction);
-    ClassDB::bind_method(D_METHOD("get_friction"), &RigidBody::get_friction);
+    MethodBinder::bind_method(D_METHOD("set_friction", "friction"), &RigidBody::set_friction);
+    MethodBinder::bind_method(D_METHOD("get_friction"), &RigidBody::get_friction);
 
-    ClassDB::bind_method(D_METHOD("set_bounce", "bounce"), &RigidBody::set_bounce);
-    ClassDB::bind_method(D_METHOD("get_bounce"), &RigidBody::get_bounce);
+    MethodBinder::bind_method(D_METHOD("set_bounce", "bounce"), &RigidBody::set_bounce);
+    MethodBinder::bind_method(D_METHOD("get_bounce"), &RigidBody::get_bounce);
 #endif // DISABLE_DEPRECATED
 
-    ClassDB::bind_method(D_METHOD("set_physics_material_override", "physics_material_override"), &RigidBody::set_physics_material_override);
-    ClassDB::bind_method(D_METHOD("get_physics_material_override"), &RigidBody::get_physics_material_override);
+    MethodBinder::bind_method(D_METHOD("set_physics_material_override", "physics_material_override"), &RigidBody::set_physics_material_override);
+    MethodBinder::bind_method(D_METHOD("get_physics_material_override"), &RigidBody::get_physics_material_override);
 
-    ClassDB::bind_method(D_METHOD("_reload_physics_characteristics"), &RigidBody::_reload_physics_characteristics);
+    MethodBinder::bind_method(D_METHOD("_reload_physics_characteristics"), &RigidBody::_reload_physics_characteristics);
 
-    ClassDB::bind_method(D_METHOD("set_linear_velocity", "linear_velocity"), &RigidBody::set_linear_velocity);
-    ClassDB::bind_method(D_METHOD("get_linear_velocity"), &RigidBody::get_linear_velocity);
+    MethodBinder::bind_method(D_METHOD("set_linear_velocity", "linear_velocity"), &RigidBody::set_linear_velocity);
+    MethodBinder::bind_method(D_METHOD("get_linear_velocity"), &RigidBody::get_linear_velocity);
 
-    ClassDB::bind_method(D_METHOD("set_angular_velocity", "angular_velocity"), &RigidBody::set_angular_velocity);
-    ClassDB::bind_method(D_METHOD("get_angular_velocity"), &RigidBody::get_angular_velocity);
+    MethodBinder::bind_method(D_METHOD("set_angular_velocity", "angular_velocity"), &RigidBody::set_angular_velocity);
+    MethodBinder::bind_method(D_METHOD("get_angular_velocity"), &RigidBody::get_angular_velocity);
 
-    ClassDB::bind_method(D_METHOD("set_gravity_scale", "gravity_scale"), &RigidBody::set_gravity_scale);
-    ClassDB::bind_method(D_METHOD("get_gravity_scale"), &RigidBody::get_gravity_scale);
+    MethodBinder::bind_method(D_METHOD("set_gravity_scale", "gravity_scale"), &RigidBody::set_gravity_scale);
+    MethodBinder::bind_method(D_METHOD("get_gravity_scale"), &RigidBody::get_gravity_scale);
 
-    ClassDB::bind_method(D_METHOD("set_linear_damp", "linear_damp"), &RigidBody::set_linear_damp);
-    ClassDB::bind_method(D_METHOD("get_linear_damp"), &RigidBody::get_linear_damp);
+    MethodBinder::bind_method(D_METHOD("set_linear_damp", "linear_damp"), &RigidBody::set_linear_damp);
+    MethodBinder::bind_method(D_METHOD("get_linear_damp"), &RigidBody::get_linear_damp);
 
-    ClassDB::bind_method(D_METHOD("set_angular_damp", "angular_damp"), &RigidBody::set_angular_damp);
-    ClassDB::bind_method(D_METHOD("get_angular_damp"), &RigidBody::get_angular_damp);
+    MethodBinder::bind_method(D_METHOD("set_angular_damp", "angular_damp"), &RigidBody::set_angular_damp);
+    MethodBinder::bind_method(D_METHOD("get_angular_damp"), &RigidBody::get_angular_damp);
 
-    ClassDB::bind_method(D_METHOD("set_max_contacts_reported", "amount"), &RigidBody::set_max_contacts_reported);
-    ClassDB::bind_method(D_METHOD("get_max_contacts_reported"), &RigidBody::get_max_contacts_reported);
+    MethodBinder::bind_method(D_METHOD("set_max_contacts_reported", "amount"), &RigidBody::set_max_contacts_reported);
+    MethodBinder::bind_method(D_METHOD("get_max_contacts_reported"), &RigidBody::get_max_contacts_reported);
 
-    ClassDB::bind_method(D_METHOD("set_use_custom_integrator", "enable"), &RigidBody::set_use_custom_integrator);
-    ClassDB::bind_method(D_METHOD("is_using_custom_integrator"), &RigidBody::is_using_custom_integrator);
+    MethodBinder::bind_method(D_METHOD("set_use_custom_integrator", "enable"), &RigidBody::set_use_custom_integrator);
+    MethodBinder::bind_method(D_METHOD("is_using_custom_integrator"), &RigidBody::is_using_custom_integrator);
 
-    ClassDB::bind_method(D_METHOD("set_contact_monitor", "enabled"), &RigidBody::set_contact_monitor);
-    ClassDB::bind_method(D_METHOD("is_contact_monitor_enabled"), &RigidBody::is_contact_monitor_enabled);
+    MethodBinder::bind_method(D_METHOD("set_contact_monitor", "enabled"), &RigidBody::set_contact_monitor);
+    MethodBinder::bind_method(D_METHOD("is_contact_monitor_enabled"), &RigidBody::is_contact_monitor_enabled);
 
-    ClassDB::bind_method(D_METHOD("set_use_continuous_collision_detection", "enable"), &RigidBody::set_use_continuous_collision_detection);
-    ClassDB::bind_method(D_METHOD("is_using_continuous_collision_detection"), &RigidBody::is_using_continuous_collision_detection);
+    MethodBinder::bind_method(D_METHOD("set_use_continuous_collision_detection", "enable"), &RigidBody::set_use_continuous_collision_detection);
+    MethodBinder::bind_method(D_METHOD("is_using_continuous_collision_detection"), &RigidBody::is_using_continuous_collision_detection);
 
-    ClassDB::bind_method(D_METHOD("set_axis_velocity", "axis_velocity"), &RigidBody::set_axis_velocity);
+    MethodBinder::bind_method(D_METHOD("set_axis_velocity", "axis_velocity"), &RigidBody::set_axis_velocity);
 
-    ClassDB::bind_method(D_METHOD("add_central_force", "force"), &RigidBody::add_central_force);
-    ClassDB::bind_method(D_METHOD("add_force", "force", "position"), &RigidBody::add_force);
-    ClassDB::bind_method(D_METHOD("add_torque", "torque"), &RigidBody::add_torque);
+    MethodBinder::bind_method(D_METHOD("add_central_force", "force"), &RigidBody::add_central_force);
+    MethodBinder::bind_method(D_METHOD("add_force", "force", "position"), &RigidBody::add_force);
+    MethodBinder::bind_method(D_METHOD("add_torque", "torque"), &RigidBody::add_torque);
 
-    ClassDB::bind_method(D_METHOD("apply_central_impulse", "impulse"), &RigidBody::apply_central_impulse);
-    ClassDB::bind_method(D_METHOD("apply_impulse", "position", "impulse"), &RigidBody::apply_impulse);
-    ClassDB::bind_method(D_METHOD("apply_torque_impulse", "impulse"), &RigidBody::apply_torque_impulse);
+    MethodBinder::bind_method(D_METHOD("apply_central_impulse", "impulse"), &RigidBody::apply_central_impulse);
+    MethodBinder::bind_method(D_METHOD("apply_impulse", "position", "impulse"), &RigidBody::apply_impulse);
+    MethodBinder::bind_method(D_METHOD("apply_torque_impulse", "impulse"), &RigidBody::apply_torque_impulse);
 
-    ClassDB::bind_method(D_METHOD("set_sleeping", "sleeping"), &RigidBody::set_sleeping);
-    ClassDB::bind_method(D_METHOD("is_sleeping"), &RigidBody::is_sleeping);
+    MethodBinder::bind_method(D_METHOD("set_sleeping", "sleeping"), &RigidBody::set_sleeping);
+    MethodBinder::bind_method(D_METHOD("is_sleeping"), &RigidBody::is_sleeping);
 
-    ClassDB::bind_method(D_METHOD("set_can_sleep", "able_to_sleep"), &RigidBody::set_can_sleep);
-    ClassDB::bind_method(D_METHOD("is_able_to_sleep"), &RigidBody::is_able_to_sleep);
+    MethodBinder::bind_method(D_METHOD("set_can_sleep", "able_to_sleep"), &RigidBody::set_can_sleep);
+    MethodBinder::bind_method(D_METHOD("is_able_to_sleep"), &RigidBody::is_able_to_sleep);
 
-    ClassDB::bind_method(D_METHOD("_direct_state_changed"), &RigidBody::_direct_state_changed);
-    ClassDB::bind_method(D_METHOD("_body_enter_tree"), &RigidBody::_body_enter_tree);
-    ClassDB::bind_method(D_METHOD("_body_exit_tree"), &RigidBody::_body_exit_tree);
+    MethodBinder::bind_method(D_METHOD("_direct_state_changed"), &RigidBody::_direct_state_changed);
+    MethodBinder::bind_method(D_METHOD("_body_enter_tree"), &RigidBody::_body_enter_tree);
+    MethodBinder::bind_method(D_METHOD("_body_exit_tree"), &RigidBody::_body_exit_tree);
 
-    ClassDB::bind_method(D_METHOD("set_axis_lock", "axis", "lock"), &RigidBody::set_axis_lock);
-    ClassDB::bind_method(D_METHOD("get_axis_lock", "axis"), &RigidBody::get_axis_lock);
+    MethodBinder::bind_method(D_METHOD("set_axis_lock", "axis", "lock"), &RigidBody::set_axis_lock);
+    MethodBinder::bind_method(D_METHOD("get_axis_lock", "axis"), &RigidBody::get_axis_lock);
 
-    ClassDB::bind_method(D_METHOD("get_colliding_bodies"), &RigidBody::get_colliding_bodies);
+    MethodBinder::bind_method(D_METHOD("get_colliding_bodies"), &RigidBody::get_colliding_bodies);
 
     BIND_VMETHOD(MethodInfo("_integrate_forces", PropertyInfo(Variant::OBJECT, "state", PROPERTY_HINT_RESOURCE_TYPE, "PhysicsDirectBodyState")));
 
@@ -1390,25 +1397,25 @@ Ref<KinematicCollision> KinematicBody::_get_slide_collision(int p_bounce) {
 
 void KinematicBody::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("move_and_collide", "rel_vec", "infinite_inertia", "exclude_raycast_shapes", "test_only"), &KinematicBody::_move, {DEFVAL(true), DEFVAL(true), DEFVAL(false)});
-    ClassDB::bind_method(D_METHOD("move_and_slide", "linear_velocity", "floor_normal", "stop_on_slope", "max_slides", "floor_max_angle", "infinite_inertia"), &KinematicBody::move_and_slide, {DEFVAL(Vector3(0, 0, 0)), DEFVAL(false), DEFVAL(4), DEFVAL(Math::deg2rad((float)45)), DEFVAL(true)});
-    ClassDB::bind_method(D_METHOD("move_and_slide_with_snap", "linear_velocity", "snap", "floor_normal", "stop_on_slope", "max_slides", "floor_max_angle", "infinite_inertia"), &KinematicBody::move_and_slide_with_snap, {DEFVAL(Vector3(0, 0, 0)), DEFVAL(false), DEFVAL(4), DEFVAL(Math::deg2rad((float)45)), DEFVAL(true)});
+    MethodBinder::bind_method(D_METHOD("move_and_collide", "rel_vec", "infinite_inertia", "exclude_raycast_shapes", "test_only"), &KinematicBody::_move, {DEFVAL(true), DEFVAL(true), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("move_and_slide", "linear_velocity", "floor_normal", "stop_on_slope", "max_slides", "floor_max_angle", "infinite_inertia"), &KinematicBody::move_and_slide, {DEFVAL(Vector3(0, 0, 0)), DEFVAL(false), DEFVAL(4), DEFVAL(Math::deg2rad((float)45)), DEFVAL(true)});
+    MethodBinder::bind_method(D_METHOD("move_and_slide_with_snap", "linear_velocity", "snap", "floor_normal", "stop_on_slope", "max_slides", "floor_max_angle", "infinite_inertia"), &KinematicBody::move_and_slide_with_snap, {DEFVAL(Vector3(0, 0, 0)), DEFVAL(false), DEFVAL(4), DEFVAL(Math::deg2rad((float)45)), DEFVAL(true)});
 
-    ClassDB::bind_method(D_METHOD("test_move", "from", "rel_vec", "infinite_inertia"), &KinematicBody::test_move, {DEFVAL(true)});
+    MethodBinder::bind_method(D_METHOD("test_move", "from", "rel_vec", "infinite_inertia"), &KinematicBody::test_move, {DEFVAL(true)});
 
-    ClassDB::bind_method(D_METHOD("is_on_floor"), &KinematicBody::is_on_floor);
-    ClassDB::bind_method(D_METHOD("is_on_ceiling"), &KinematicBody::is_on_ceiling);
-    ClassDB::bind_method(D_METHOD("is_on_wall"), &KinematicBody::is_on_wall);
-    ClassDB::bind_method(D_METHOD("get_floor_velocity"), &KinematicBody::get_floor_velocity);
+    MethodBinder::bind_method(D_METHOD("is_on_floor"), &KinematicBody::is_on_floor);
+    MethodBinder::bind_method(D_METHOD("is_on_ceiling"), &KinematicBody::is_on_ceiling);
+    MethodBinder::bind_method(D_METHOD("is_on_wall"), &KinematicBody::is_on_wall);
+    MethodBinder::bind_method(D_METHOD("get_floor_velocity"), &KinematicBody::get_floor_velocity);
 
-    ClassDB::bind_method(D_METHOD("set_axis_lock", "axis", "lock"), &KinematicBody::set_axis_lock);
-    ClassDB::bind_method(D_METHOD("get_axis_lock", "axis"), &KinematicBody::get_axis_lock);
+    MethodBinder::bind_method(D_METHOD("set_axis_lock", "axis", "lock"), &KinematicBody::set_axis_lock);
+    MethodBinder::bind_method(D_METHOD("get_axis_lock", "axis"), &KinematicBody::get_axis_lock);
 
-    ClassDB::bind_method(D_METHOD("set_safe_margin", "pixels"), &KinematicBody::set_safe_margin);
-    ClassDB::bind_method(D_METHOD("get_safe_margin"), &KinematicBody::get_safe_margin);
+    MethodBinder::bind_method(D_METHOD("set_safe_margin", "pixels"), &KinematicBody::set_safe_margin);
+    MethodBinder::bind_method(D_METHOD("get_safe_margin"), &KinematicBody::get_safe_margin);
 
-    ClassDB::bind_method(D_METHOD("get_slide_count"), &KinematicBody::get_slide_count);
-    ClassDB::bind_method(D_METHOD("get_slide_collision", "slide_idx"), &KinematicBody::_get_slide_collision);
+    MethodBinder::bind_method(D_METHOD("get_slide_count"), &KinematicBody::get_slide_count);
+    MethodBinder::bind_method(D_METHOD("get_slide_collision", "slide_idx"), &KinematicBody::_get_slide_collision);
 
     ADD_PROPERTYI(PropertyInfo(Variant::BOOL, "move_lock_x", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_axis_lock", "get_axis_lock", PhysicsServer::BODY_AXIS_LINEAR_X);
     ADD_PROPERTYI(PropertyInfo(Variant::BOOL, "move_lock_y", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_axis_lock", "get_axis_lock", PhysicsServer::BODY_AXIS_LINEAR_Y);
@@ -1499,17 +1506,17 @@ Variant KinematicCollision::get_collider_metadata() const {
 
 void KinematicCollision::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("get_position"), &KinematicCollision::get_position);
-    ClassDB::bind_method(D_METHOD("get_normal"), &KinematicCollision::get_normal);
-    ClassDB::bind_method(D_METHOD("get_travel"), &KinematicCollision::get_travel);
-    ClassDB::bind_method(D_METHOD("get_remainder"), &KinematicCollision::get_remainder);
-    ClassDB::bind_method(D_METHOD("get_local_shape"), &KinematicCollision::get_local_shape);
-    ClassDB::bind_method(D_METHOD("get_collider"), &KinematicCollision::get_collider);
-    ClassDB::bind_method(D_METHOD("get_collider_id"), &KinematicCollision::get_collider_id);
-    ClassDB::bind_method(D_METHOD("get_collider_shape"), &KinematicCollision::get_collider_shape);
-    ClassDB::bind_method(D_METHOD("get_collider_shape_index"), &KinematicCollision::get_collider_shape_index);
-    ClassDB::bind_method(D_METHOD("get_collider_velocity"), &KinematicCollision::get_collider_velocity);
-    ClassDB::bind_method(D_METHOD("get_collider_metadata"), &KinematicCollision::get_collider_metadata);
+    MethodBinder::bind_method(D_METHOD("get_position"), &KinematicCollision::get_position);
+    MethodBinder::bind_method(D_METHOD("get_normal"), &KinematicCollision::get_normal);
+    MethodBinder::bind_method(D_METHOD("get_travel"), &KinematicCollision::get_travel);
+    MethodBinder::bind_method(D_METHOD("get_remainder"), &KinematicCollision::get_remainder);
+    MethodBinder::bind_method(D_METHOD("get_local_shape"), &KinematicCollision::get_local_shape);
+    MethodBinder::bind_method(D_METHOD("get_collider"), &KinematicCollision::get_collider);
+    MethodBinder::bind_method(D_METHOD("get_collider_id"), &KinematicCollision::get_collider_id);
+    MethodBinder::bind_method(D_METHOD("get_collider_shape"), &KinematicCollision::get_collider_shape);
+    MethodBinder::bind_method(D_METHOD("get_collider_shape_index"), &KinematicCollision::get_collider_shape_index);
+    MethodBinder::bind_method(D_METHOD("get_collider_velocity"), &KinematicCollision::get_collider_velocity);
+    MethodBinder::bind_method(D_METHOD("get_collider_metadata"), &KinematicCollision::get_collider_metadata);
 
     ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "position"), "", "get_position");
     ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "normal"), "", "get_normal");
@@ -1868,7 +1875,7 @@ bool PhysicalBone::SixDOFJointData::_set(const StringName &p_name, const Variant
 
     Vector3::Axis axis;
     {
-        const String axis_s = path.get_slicec('/', 1);
+        const String axis_s = StringUtils::get_slice(path,'/', 1);
         if ("x" == axis_s) {
             axis = Vector3::AXIS_X;
         } else if ("y" == axis_s) {
@@ -1880,7 +1887,7 @@ bool PhysicalBone::SixDOFJointData::_set(const StringName &p_name, const Variant
         }
     }
 
-    String var_name = path.get_slicec('/', 2);
+    String var_name = StringUtils::get_slice(path,'/', 2);
 
     if ("linear_limit_enabled" == var_name) {
         axis_data[axis].linear_limit_enabled = p_value;
@@ -2003,7 +2010,7 @@ bool PhysicalBone::SixDOFJointData::_get(const StringName &p_name, Variant &r_re
 
     int axis;
     {
-        const String axis_s = path.get_slicec('/', 1);
+        const String axis_s = StringUtils::get_slice(path,'/', 1);
         if ("x" == axis_s) {
             axis = 0;
         } else if ("y" == axis_s) {
@@ -2015,7 +2022,7 @@ bool PhysicalBone::SixDOFJointData::_get(const StringName &p_name, Variant &r_re
         }
     }
 
-    String var_name = path.get_slicec('/', 2);
+    String var_name = StringUtils::get_slice(path,'/', 2);
 
     if ("linear_limit_enabled" == var_name) {
         r_ret = axis_data[axis].linear_limit_enabled;
@@ -2206,39 +2213,39 @@ void PhysicalBone::_direct_state_changed(Object *p_state) {
 }
 
 void PhysicalBone::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("_direct_state_changed"), &PhysicalBone::_direct_state_changed);
+    MethodBinder::bind_method(D_METHOD("_direct_state_changed"), &PhysicalBone::_direct_state_changed);
 
-    ClassDB::bind_method(D_METHOD("set_joint_type", "joint_type"), &PhysicalBone::set_joint_type);
-    ClassDB::bind_method(D_METHOD("get_joint_type"), &PhysicalBone::get_joint_type);
+    MethodBinder::bind_method(D_METHOD("set_joint_type", "joint_type"), &PhysicalBone::set_joint_type);
+    MethodBinder::bind_method(D_METHOD("get_joint_type"), &PhysicalBone::get_joint_type);
 
-    ClassDB::bind_method(D_METHOD("set_joint_offset", "offset"), &PhysicalBone::set_joint_offset);
-    ClassDB::bind_method(D_METHOD("get_joint_offset"), &PhysicalBone::get_joint_offset);
+    MethodBinder::bind_method(D_METHOD("set_joint_offset", "offset"), &PhysicalBone::set_joint_offset);
+    MethodBinder::bind_method(D_METHOD("get_joint_offset"), &PhysicalBone::get_joint_offset);
 
-    ClassDB::bind_method(D_METHOD("set_body_offset", "offset"), &PhysicalBone::set_body_offset);
-    ClassDB::bind_method(D_METHOD("get_body_offset"), &PhysicalBone::get_body_offset);
+    MethodBinder::bind_method(D_METHOD("set_body_offset", "offset"), &PhysicalBone::set_body_offset);
+    MethodBinder::bind_method(D_METHOD("get_body_offset"), &PhysicalBone::get_body_offset);
 
-    ClassDB::bind_method(D_METHOD("is_static_body"), &PhysicalBone::is_static_body);
+    MethodBinder::bind_method(D_METHOD("is_static_body"), &PhysicalBone::is_static_body);
 
-    ClassDB::bind_method(D_METHOD("get_simulate_physics"), &PhysicalBone::get_simulate_physics);
+    MethodBinder::bind_method(D_METHOD("get_simulate_physics"), &PhysicalBone::get_simulate_physics);
 
-    ClassDB::bind_method(D_METHOD("is_simulating_physics"), &PhysicalBone::is_simulating_physics);
+    MethodBinder::bind_method(D_METHOD("is_simulating_physics"), &PhysicalBone::is_simulating_physics);
 
-    ClassDB::bind_method(D_METHOD("get_bone_id"), &PhysicalBone::get_bone_id);
+    MethodBinder::bind_method(D_METHOD("get_bone_id"), &PhysicalBone::get_bone_id);
 
-    ClassDB::bind_method(D_METHOD("set_mass", "mass"), &PhysicalBone::set_mass);
-    ClassDB::bind_method(D_METHOD("get_mass"), &PhysicalBone::get_mass);
+    MethodBinder::bind_method(D_METHOD("set_mass", "mass"), &PhysicalBone::set_mass);
+    MethodBinder::bind_method(D_METHOD("get_mass"), &PhysicalBone::get_mass);
 
-    ClassDB::bind_method(D_METHOD("set_weight", "weight"), &PhysicalBone::set_weight);
-    ClassDB::bind_method(D_METHOD("get_weight"), &PhysicalBone::get_weight);
+    MethodBinder::bind_method(D_METHOD("set_weight", "weight"), &PhysicalBone::set_weight);
+    MethodBinder::bind_method(D_METHOD("get_weight"), &PhysicalBone::get_weight);
 
-    ClassDB::bind_method(D_METHOD("set_friction", "friction"), &PhysicalBone::set_friction);
-    ClassDB::bind_method(D_METHOD("get_friction"), &PhysicalBone::get_friction);
+    MethodBinder::bind_method(D_METHOD("set_friction", "friction"), &PhysicalBone::set_friction);
+    MethodBinder::bind_method(D_METHOD("get_friction"), &PhysicalBone::get_friction);
 
-    ClassDB::bind_method(D_METHOD("set_bounce", "bounce"), &PhysicalBone::set_bounce);
-    ClassDB::bind_method(D_METHOD("get_bounce"), &PhysicalBone::get_bounce);
+    MethodBinder::bind_method(D_METHOD("set_bounce", "bounce"), &PhysicalBone::set_bounce);
+    MethodBinder::bind_method(D_METHOD("get_bounce"), &PhysicalBone::get_bounce);
 
-    ClassDB::bind_method(D_METHOD("set_gravity_scale", "gravity_scale"), &PhysicalBone::set_gravity_scale);
-    ClassDB::bind_method(D_METHOD("get_gravity_scale"), &PhysicalBone::get_gravity_scale);
+    MethodBinder::bind_method(D_METHOD("set_gravity_scale", "gravity_scale"), &PhysicalBone::set_gravity_scale);
+    MethodBinder::bind_method(D_METHOD("get_gravity_scale"), &PhysicalBone::get_gravity_scale);
 
     ADD_GROUP("Joint", "joint_");
     ADD_PROPERTY(PropertyInfo(Variant::INT, "joint_type", PROPERTY_HINT_ENUM, "None,PinJoint,ConeJoint,HingeJoint,SliderJoint,6DOFJoint"), "set_joint_type", "get_joint_type");

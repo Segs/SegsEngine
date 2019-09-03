@@ -30,6 +30,7 @@
 
 #include "text_edit.h"
 
+#include "core/method_bind.h"
 #include "core/message_queue.h"
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
@@ -38,9 +39,14 @@
 #include "core/script_language.h"
 #include "scene/main/viewport.h"
 
+#include "scene/resources/style_box.h"
+#include "scene/resources/font.h"
+
 #ifdef TOOLS_ENABLED
 #include "editor/editor_scale.h"
 #endif
+
+IMPL_GDCLASS(TextEdit)
 
 #define TAB_PIXELS
 
@@ -127,7 +133,7 @@ void TextEdit::Text::_update_line_cache(int p_line) const {
     int w = 0;
 
     int len = text[p_line].data.length();
-    const CharType *str = text[p_line].data.constData();
+    const CharType *str = text[p_line].data.cdata();
 
     // Update width.
 
@@ -164,7 +170,7 @@ void TextEdit::Text::_update_line_cache(int p_line) const {
             if (lr == 0 || lr > left)
                 continue;
 
-            const CharType *kc = cr.begin_key.constData();
+            const CharType *kc = cr.begin_key.cdata();
 
             bool match = true;
 
@@ -192,7 +198,7 @@ void TextEdit::Text::_update_line_cache(int p_line) const {
             if (lr == 0 || lr > left)
                 continue;
 
-            kc = cr.end_key.constData();
+            kc = cr.end_key.cdata();
 
             match = true;
 
@@ -594,8 +600,13 @@ void TextEdit::_update_minimap_drag() {
         return;
     }
 
+	int control_height = _get_control_height();
+	int scroll_height = v_scroll->get_max() * (minimap_char_size.y + minimap_line_spacing);
+	if (control_height > scroll_height) {
+		control_height = scroll_height;
+	}
     Point2 mp = get_local_mouse_position();
-    double diff = (mp.y - minimap_scroll_click_pos) / _get_control_height();
+	double diff = (mp.y - minimap_scroll_click_pos) / control_height;
     v_scroll->set_as_ratio(minimap_scroll_ratio + diff);
 }
 void TextEdit::_notification(int p_what) {
@@ -613,8 +624,14 @@ void TextEdit::_notification(int p_what) {
         case NOTIFICATION_RESIZED: {
 
             _update_scrollbars();
-            call_deferred("_update_wrap_at");
+            _update_wrap_at();
         } break;
+		case NOTIFICATION_VISIBILITY_CHANGED: {
+			if (is_visible()) {
+				call_deferred("_update_scrollbars");
+				call_deferred("_update_wrap_at");
+			}
+		} break;
         case NOTIFICATION_THEME_CHANGED: {
 
             _update_caches();
@@ -893,7 +910,7 @@ void TextEdit::_notification(int p_what) {
             String highlighted_text = get_selection_text();
 
             // Check if highlighted words contains only whitespaces (tabs or spaces).
-            bool only_whitespaces_highlighted = highlighted_text.strip_edges() == String();
+            bool only_whitespaces_highlighted =StringUtils::strip_edges( highlighted_text) == String();
 
             String line_num_padding = line_numbers_zero_padded ? "0" : " ";
 
@@ -1613,7 +1630,7 @@ void TextEdit::_notification(int p_what) {
                     ERR_CONTINUE(l < 0 || l >= completion_options.size());
                     Color text_color = cache.completion_font_color;
                     for (int j = 0; j < color_regions.size(); j++) {
-                        if (completion_options[l].insert_text.begins_with(color_regions[j].begin_key)) {
+                        if (StringUtils::begins_with(completion_options[l].insert_text,color_regions[j].begin_key)) {
                             text_color = color_regions[j].color;
                         }
                     }
@@ -1666,16 +1683,16 @@ void TextEdit::_notification(int p_what) {
                 Color font_color = get_color("font_color", "TooltipLabel");
 
                 int max_w = 0;
-                int sc = completion_hint.get_slice_count("\n");
+                int sc = StringUtils::get_slice_count(completion_hint,"\n");
                 int offset = 0;
                 int spacing = 0;
                 for (int i = 0; i < sc; i++) {
 
-                    String l = completion_hint.get_slice("\n", i);
+                    String l = StringUtils::get_slice(completion_hint,"\n", i);
                     int len = font->get_string_size(l).x;
                     max_w = MAX(len, max_w);
                     if (i == 0) {
-                        offset = font->get_string_size(l.substr(0, l.find(String(0xFFFF)))).x;
+                        offset = font->get_string_size(StringUtils::substr(l,0, StringUtils::find(l,String(0xFFFF)))).x;
                     } else {
                         spacing += cache.line_spacing;
                     }
@@ -1702,14 +1719,14 @@ void TextEdit::_notification(int p_what) {
                 for (int i = 0; i < sc; i++) {
                     int begin = 0;
                     int end = 0;
-                    String l = completion_hint.get_slice("\n", i);
+                    String l = StringUtils::get_slice(completion_hint,"\n", i);
                     //TODO: replace construction of Strings here with 'char' search
-                    if (l.find(String(0xFFFF)) != -1) {
-                        begin = font->get_string_size(l.substr(0, l.find(String(0xFFFF)))).x;
-                        end = font->get_string_size(l.substr(0, l.rfind(String(0xFFFF)))).x;
+                    if (StringUtils::find(l,String(0xFFFF)) != -1) {
+                        begin = font->get_string_size(StringUtils::substr(l,0, StringUtils::find(l,String(0xFFFF)))).x;
+                        end = font->get_string_size(StringUtils::substr(l,0, StringUtils::rfind(l,String(0xFFFF)))).x;
                     }
 
-                    draw_string(font, hint_ofs + sb->get_offset() + Vector2(0, font->get_ascent() + font->get_height() * i + spacing), l.replace(String(0xFFFF), ""), font_color);
+                    draw_string(font, hint_ofs + sb->get_offset() + Vector2(0, font->get_ascent() + font->get_height() * i + spacing),StringUtils::replace(l,String(0xFFFF), ""), font_color);
                     if (end > 0) {
                         Vector2 b = hint_ofs + sb->get_offset() + Vector2(begin, font->get_height() + font->get_height() * i + spacing - 1);
                         draw_line(b, b + Vector2(end - begin, 0), font_color);
@@ -1772,7 +1789,7 @@ void TextEdit::_consume_pair_symbol(CharType ch) {
 
         begin_complex_operation();
         _insert_text(get_selection_from_line(), get_selection_from_column(),
-                QChar(ch),
+                String(ch),
                 &new_line, &new_column);
 
         int to_col_offset = 0;
@@ -1974,11 +1991,11 @@ void TextEdit::indent_left() {
     for (int i = start_line; i <= end_line; i++) {
         String line_text = get_line(i);
 
-        if (line_text.begins_with("\t")) {
-            line_text = line_text.substr(1, line_text.length());
+        if (StringUtils::begins_with(line_text,"\t")) {
+            line_text = StringUtils::substr(line_text,1, line_text.length());
             set_line(i, line_text);
             removed_characters = 1;
-        } else if (line_text.begins_with(" ")) {
+        } else if (StringUtils::begins_with(line_text," ")) {
             // When unindenting we aim to remove spaces before line that has selection no matter what is selected,
             // so we start of by finding first non whitespace character of line
             int left = _find_first_non_whitespace_column_of_line(line_text);
@@ -1987,7 +2004,7 @@ void TextEdit::indent_left() {
             // In case where selection begins at the start of indentation_size multiple we remove whole indentation level.
             int spaces_to_remove = _calculate_spaces_till_next_left_indent(left);
 
-            line_text = line_text.substr(spaces_to_remove, line_text.length());
+            line_text = StringUtils::substr(line_text,spaces_to_remove, line_text.length());
             set_line(i, line_text);
             removed_characters = spaces_to_remove;
         }
@@ -2190,12 +2207,6 @@ void TextEdit::_gui_input(const Ref<InputEvent> &p_gui_input) {
                 int row, col;
                 _get_mouse_pos(Point2i(mb->get_position().x, mb->get_position().y), row, col);
 
-                if (mb->get_command() && highlighted_word != String()) {
-
-                    emit_signal("symbol_lookup", highlighted_word, row, col);
-                    return;
-                }
-
                 // Toggle breakpoint on gutter click.
                 if (draw_breakpoint_gutter) {
                     int gutter = cache.style_normal->get_margin(MARGIN_LEFT);
@@ -2364,6 +2375,13 @@ void TextEdit::_gui_input(const Ref<InputEvent> &p_gui_input) {
         } else {
 
             if (mb->get_button_index() == BUTTON_LEFT) {
+				if (mb->get_command() && highlighted_word != String()) {
+					int row, col;
+					_get_mouse_pos(Point2i(mb->get_position().x, mb->get_position().y), row, col);
+
+					emit_signal("symbol_lookup", highlighted_word, row, col);
+					return;
+				}
                 dragging_minimap = false;
                 dragging_selection = false;
                 can_drag_minimap = false;
@@ -2590,7 +2608,7 @@ void TextEdit::_gui_input(const Ref<InputEvent> &p_gui_input) {
                             }
                         }
 
-                        _insert_text_at_cursor(chr);
+                        _insert_text_at_cursor(String(chr));
 
                         if (insert_mode) {
                             end_complex_operation();
@@ -2795,7 +2813,7 @@ void TextEdit::_gui_input(const Ref<InputEvent> &p_gui_input) {
                         // No need to move the brace below if we are not taking the text with us.
                         if (text[cursor.line][cursor.column] == '}' && !k->get_command()) {
                             brace_indent = true;
-                            ins += "\n" + ins.substr(1, ins.length() - 2);
+                            ins += "\n" + StringUtils::substr(ins,1, ins.length() - 2);
                         }
                     }
                 }
@@ -3602,7 +3620,7 @@ void TextEdit::_gui_input(const Ref<InputEvent> &p_gui_input) {
                 if (auto_brace_completion_enabled && _is_pair_symbol(chr)) {
                     _consume_pair_symbol(chr);
                 } else {
-                    _insert_text_at_cursor(chr);
+                    _insert_text_at_cursor(String(chr));
                 }
 
                 if (insert_mode && !had_selection) {
@@ -3749,7 +3767,7 @@ void TextEdit::_base_insert_text(int p_line, int p_char, const String &p_text, i
     ERR_FAIL_COND(p_char < 0)
 
     /* STEP 1: Remove \r from source text and separate in substrings. */
-    String without_slash_r(String(p_text).replace("\r", ""));
+    String without_slash_r(StringUtils::replace(p_text,"\r", ""));
     auto substrings = StringUtils::split(without_slash_r,"\n");
 
     /* STEP 2: Fire breakpoint_toggled signals. */
@@ -3776,8 +3794,8 @@ void TextEdit::_base_insert_text(int p_line, int p_char, const String &p_text, i
 
     /* STEP 4: Separate dest string in pre and post text. */
 
-    String preinsert_text = text[p_line].substr(0, p_char);
-    String postinsert_text = text[p_line].substr(p_char, text[p_line].size());
+    String preinsert_text = StringUtils::substr(text[p_line],0, p_char);
+    String postinsert_text = StringUtils::substr(text[p_line],p_char, text[p_line].size());
 
     for (int j = 0; j < substrings.size(); j++) {
         // Insert the substrings.
@@ -3837,7 +3855,7 @@ String TextEdit::_base_get_text(int p_from_line, int p_from_column, int p_to_lin
 
         if (i > p_from_line)
             ret += "\n";
-        ret += text[i].substr(begin, end - begin);
+        ret += StringUtils::substr(text[i],begin, end - begin);
     }
 
     return ret;
@@ -3852,8 +3870,8 @@ void TextEdit::_base_remove_text(int p_from_line, int p_from_column, int p_to_li
     ERR_FAIL_COND(p_to_line < p_from_line); // 'from > to'.
     ERR_FAIL_COND(p_to_line == p_from_line && p_to_column < p_from_column); // 'from > to'.
 
-    String pre_text = text[p_from_line].substr(0, p_from_column);
-    String post_text = text[p_to_line].substr(p_to_column, text[p_to_line].length());
+    String pre_text = StringUtils::substr(text[p_from_line],0, p_from_column);
+    String post_text = StringUtils::substr(text[p_to_line],p_to_column, text[p_to_line].length());
 
     int lines = p_to_line - p_from_line;
 
@@ -4165,7 +4183,7 @@ void TextEdit::update_cursor_wrap_offset() {
 
 bool TextEdit::line_wraps(int line) const {
 
-    ERR_FAIL_INDEX_V(line, text.size(), 0);
+	ERR_FAIL_INDEX_V(line, text.size(), 0)
     if (!is_wrap_enabled())
         return false;
     return text.get_line_width(line) > wrap_at;
@@ -4173,7 +4191,7 @@ bool TextEdit::line_wraps(int line) const {
 
 int TextEdit::times_line_wraps(int line) const {
 
-    ERR_FAIL_INDEX_V(line, text.size(), 0);
+	ERR_FAIL_INDEX_V(line, text.size(), 0)
     if (!line_wraps(line))
         return 0;
 
@@ -4190,7 +4208,7 @@ int TextEdit::times_line_wraps(int line) const {
 
 Vector<String> TextEdit::get_wrap_rows_text(int p_line) const {
 
-    ERR_FAIL_INDEX_V(p_line, text.size(), Vector<String>());
+	ERR_FAIL_INDEX_V(p_line, text.size(), Vector<String>())
 
     Vector<String> lines;
     if (!line_wraps(p_line)) {
@@ -4606,7 +4624,7 @@ Control::CursorShape TextEdit::get_cursor_shape(const Point2 &p_pos) const {
         return CURSOR_ARROW;
     } else {
         int xmargin_end = get_size().width - cache.style_normal->get_margin(MARGIN_RIGHT);
-        if (p_pos.x > xmargin_end - minimap_width && p_pos.x <= xmargin_end) {
+		if (draw_minimap && p_pos.x > xmargin_end - minimap_width && p_pos.x <= xmargin_end) {
             return CURSOR_ARROW;
         }
         int row, col;
@@ -4670,9 +4688,9 @@ String TextEdit::get_text_for_lookup_completion() {
     for (int i = 0; i < len; i++) {
 
         if (i == row) {
-            longthing += text[i].substr(0, col);
+            longthing += StringUtils::substr(text[i],0, col);
             longthing += String(0xFFFF); // Not unicode, represents the cursor.
-            longthing += text[i].substr(col, text[i].size());
+            longthing += StringUtils::substr(text[i],col, text[i].size());
         } else {
 
             longthing += text[i];
@@ -4692,9 +4710,9 @@ String TextEdit::get_text_for_completion() {
     for (int i = 0; i < len; i++) {
 
         if (i == cursor.line) {
-            longthing += text[i].substr(0, cursor.column);
+            longthing += StringUtils::substr(text[i],0, cursor.column);
             longthing += String(0xFFFF); // Not unicode, represents the cursor.
-            longthing += text[i].substr(cursor.column, text[i].size());
+            longthing += StringUtils::substr(text[i],cursor.column, text[i].size());
         } else {
 
             longthing += text[i];
@@ -5212,7 +5230,7 @@ String TextEdit::get_word_under_cursor() const {
     }
     if (prev_cc == cursor.column || next_cc == cursor.column)
         return "";
-    return text[cursor.line].substr(prev_cc, next_cc - prev_cc);
+    return StringUtils::substr(text[cursor.line],prev_cc, next_cc - prev_cc);
 }
 
 void TextEdit::set_search_text(const String &p_search_text) {
@@ -5248,9 +5266,9 @@ int TextEdit::_get_column_pos_of_word(const String &p_key, const String &p_searc
 
         while (col == -1 && p_from_column <= p_search.length()) {
             if (p_search_flags & SEARCH_MATCH_CASE) {
-                col = p_search.find(p_key, p_from_column);
+                col = StringUtils::find(p_search,p_key, p_from_column);
             } else {
-                col = p_search.findn(p_key, p_from_column);
+                col = StringUtils::findn(p_search,p_key, p_from_column);
             }
 
             // Whole words only.
@@ -5340,15 +5358,18 @@ bool TextEdit::search(const String &p_key, uint32_t p_search_flags, int p_from_l
         while (true) {
 
             if (p_search_flags & SEARCH_BACKWARDS) {
-                while ((last_pos = (p_search_flags & SEARCH_MATCH_CASE) ? text_line.rfind(p_key, pos_from) : text_line.rfindn(p_key, pos_from)) != -1) {
+                while ((last_pos = (p_search_flags & SEARCH_MATCH_CASE) ? StringUtils::rfind(text_line,p_key, pos_from) : StringUtils::rfindn(text_line,p_key, pos_from)) != -1) {
                     if (last_pos <= from_column) {
                         pos = last_pos;
                         break;
                     }
                     pos_from = last_pos - p_key.length();
+					if (pos_from < 0) {
+						break;
+					}
                 }
             } else {
-                while ((last_pos = (p_search_flags & SEARCH_MATCH_CASE) ? text_line.find(p_key, pos_from) : text_line.findn(p_key, pos_from)) != -1) {
+                while ((last_pos = (p_search_flags & SEARCH_MATCH_CASE) ? StringUtils::find(text_line,p_key, pos_from) : StringUtils::findn(text_line,p_key, pos_from)) != -1) {
                     if (last_pos >= from_column) {
                         pos = last_pos;
                         break;
@@ -5699,7 +5720,7 @@ bool TextEdit::can_fold(int p_line) const {
         return false;
     if (p_line + 1 >= text.size())
         return false;
-    if (text[p_line].strip_edges().size() == 0)
+    if (StringUtils::strip_edges(text[p_line]).empty())
         return false;
     if (is_folded(p_line))
         return false;
@@ -5711,7 +5732,7 @@ bool TextEdit::can_fold(int p_line) const {
     int start_indent = get_indent_level(p_line);
 
     for (int i = p_line + 1; i < text.size(); i++) {
-        if (text[i].strip_edges().size() == 0)
+        if (StringUtils::strip_edges(text[i]).empty())
             continue;
         int next_indent = get_indent_level(i);
         if (is_line_comment(i)) {
@@ -5757,7 +5778,7 @@ void TextEdit::fold_line(int p_line) {
     int start_indent = get_indent_level(p_line);
     int last_line = start_indent;
     for (int i = p_line + 1; i < text.size(); i++) {
-        if (text[i].strip_edges().size() != 0) {
+        if (!StringUtils::strip_edges(text[i]).empty()) {
             if (is_line_comment(i)) {
                 continue;
             } else if (get_indent_level(i) > start_indent) {
@@ -5947,7 +5968,7 @@ void TextEdit::clear_undo_history() {
 
     saved_version = 0;
     current_op.type = TextOperation::TYPE_NONE;
-    undo_stack_pos = NULL;
+	undo_stack_pos = nullptr;
     undo_stack.clear();
 }
 
@@ -6299,7 +6320,7 @@ void TextEdit::_update_completion_candidates() {
         cancel = true;
     } else if (inquote && first_quote != -1) {
 
-        s = l.substr(first_quote, cofs - first_quote);
+        s = StringUtils::substr(l,first_quote, cofs - first_quote);
     } else if (cofs > 0 && l[cofs - 1] == ' ') {
         int kofs = cofs - 1;
         String kw;
@@ -6347,24 +6368,24 @@ void TextEdit::_update_completion_candidates() {
     completion_index = 0;
     completion_base = s;
     Vector<float> sim_cache;
-    bool single_quote = s.begins_with("'");
+    bool single_quote = StringUtils::begins_with(s,"'");
     Vector<ScriptCodeCompletionOption> completion_options_casei;
 
     for (List<ScriptCodeCompletionOption>::Element *E = completion_sources.front(); E; E = E->next()) {
         ScriptCodeCompletionOption &option = E->get();
 
         if (single_quote && StringUtils::is_quoted(option.display)) {
-            option.display = option.display.unquote().quote('\'');
+            option.display = StringUtils::quote(StringUtils::unquote(option.display),'\'');
         }
 
         if (inquote && restore_quotes == 1 && !StringUtils::is_quoted(option.display)) {
             CharType quote = single_quote ? '\'' : '\"';
-            option.display = option.display.quote(quote);
+            option.display = StringUtils::quote(option.display,quote);
         }
 
-        if (option.display.begins_with(s)) {
+        if (StringUtils::begins_with(option.display,s)) {
             completion_options.push_back(option);
-        } else if (StringUtils::to_lower(option.display).begins_with(StringUtils::to_lower(s))) {
+        } else if (StringUtils::begins_with(StringUtils::to_lower(option.display),StringUtils::to_lower(s))) {
             completion_options_casei.push_back(option);
         }
     }
@@ -6483,7 +6504,7 @@ String TextEdit::get_word_at_pos(const Vector2 &p_pos) const {
                         inside_quotes = false;
                         selected_quote = '\0';
                         if (col >= qbegin && col <= qend) {
-                            return s.substr(qbegin, qend - qbegin);
+                            return StringUtils::substr(s,qbegin, qend - qbegin);
                         }
                     } else if (!inside_quotes) {
                         qbegin = i + 1;
@@ -6494,7 +6515,7 @@ String TextEdit::get_word_at_pos(const Vector2 &p_pos) const {
             }
         }
 
-        return s.substr(beg, end - beg);
+        return StringUtils::substr(s,beg, end - beg);
     }
 
     return String();
@@ -6513,7 +6534,7 @@ String TextEdit::get_tooltip(const Point2 &p_pos) const {
     int beg, end;
     if (select_word(s, col, beg, end)) {
 
-        String tt = tooltip_obj->call(tooltip_func, s.substr(beg, end - beg), tooltip_ud);
+        String tt = tooltip_obj->call(tooltip_func, StringUtils::substr(s,beg, end - beg), tooltip_ud);
 
         return tt;
     }
@@ -6748,132 +6769,132 @@ PopupMenu *TextEdit::get_menu() const {
 
 void TextEdit::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_gui_input"), &TextEdit::_gui_input);
-    ClassDB::bind_method(D_METHOD("_scroll_moved"), &TextEdit::_scroll_moved);
-    ClassDB::bind_method(D_METHOD("_cursor_changed_emit"), &TextEdit::_cursor_changed_emit);
-    ClassDB::bind_method(D_METHOD("_text_changed_emit"), &TextEdit::_text_changed_emit);
-    ClassDB::bind_method(D_METHOD("_push_current_op"), &TextEdit::_push_current_op);
-    ClassDB::bind_method(D_METHOD("_click_selection_held"), &TextEdit::_click_selection_held);
-    ClassDB::bind_method(D_METHOD("_toggle_draw_caret"), &TextEdit::_toggle_draw_caret);
-    ClassDB::bind_method(D_METHOD("_v_scroll_input"), &TextEdit::_v_scroll_input);
-    ClassDB::bind_method(D_METHOD("_update_wrap_at"), &TextEdit::_update_wrap_at);
+    MethodBinder::bind_method(D_METHOD("_gui_input"), &TextEdit::_gui_input);
+    MethodBinder::bind_method(D_METHOD("_scroll_moved"), &TextEdit::_scroll_moved);
+    MethodBinder::bind_method(D_METHOD("_cursor_changed_emit"), &TextEdit::_cursor_changed_emit);
+    MethodBinder::bind_method(D_METHOD("_text_changed_emit"), &TextEdit::_text_changed_emit);
+    MethodBinder::bind_method(D_METHOD("_push_current_op"), &TextEdit::_push_current_op);
+    MethodBinder::bind_method(D_METHOD("_click_selection_held"), &TextEdit::_click_selection_held);
+    MethodBinder::bind_method(D_METHOD("_toggle_draw_caret"), &TextEdit::_toggle_draw_caret);
+    MethodBinder::bind_method(D_METHOD("_v_scroll_input"), &TextEdit::_v_scroll_input);
+    MethodBinder::bind_method(D_METHOD("_update_wrap_at"), &TextEdit::_update_wrap_at);
 
     BIND_ENUM_CONSTANT(SEARCH_MATCH_CASE);
     BIND_ENUM_CONSTANT(SEARCH_WHOLE_WORDS);
     BIND_ENUM_CONSTANT(SEARCH_BACKWARDS);
 
     /*
-    ClassDB::bind_method(D_METHOD("delete_char"),&TextEdit::delete_char);
-    ClassDB::bind_method(D_METHOD("delete_line"),&TextEdit::delete_line);
+    MethodBinder::bind_method(D_METHOD("delete_char"),&TextEdit::delete_char);
+    MethodBinder::bind_method(D_METHOD("delete_line"),&TextEdit::delete_line);
 */
 
-    ClassDB::bind_method(D_METHOD("set_text", "text"), &TextEdit::set_text);
-    ClassDB::bind_method(D_METHOD("insert_text_at_cursor", "text"), &TextEdit::insert_text_at_cursor);
+    MethodBinder::bind_method(D_METHOD("set_text", "text"), &TextEdit::set_text);
+    MethodBinder::bind_method(D_METHOD("insert_text_at_cursor", "text"), &TextEdit::insert_text_at_cursor);
 
-    ClassDB::bind_method(D_METHOD("get_line_count"), &TextEdit::get_line_count);
-    ClassDB::bind_method(D_METHOD("get_text"), &TextEdit::get_text);
-    ClassDB::bind_method(D_METHOD("get_line", "line"), &TextEdit::get_line);
+    MethodBinder::bind_method(D_METHOD("get_line_count"), &TextEdit::get_line_count);
+    MethodBinder::bind_method(D_METHOD("get_text"), &TextEdit::get_text);
+    MethodBinder::bind_method(D_METHOD("get_line", "line"), &TextEdit::get_line);
 
-    ClassDB::bind_method(D_METHOD("center_viewport_to_cursor"), &TextEdit::center_viewport_to_cursor);
-    ClassDB::bind_method(D_METHOD("cursor_set_column", "column", "adjust_viewport"), &TextEdit::cursor_set_column, {DEFVAL(true)});
-    ClassDB::bind_method(D_METHOD("cursor_set_line", "line", "adjust_viewport", "can_be_hidden", "wrap_index"), &TextEdit::cursor_set_line, {DEFVAL(true), DEFVAL(true), DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("center_viewport_to_cursor"), &TextEdit::center_viewport_to_cursor);
+    MethodBinder::bind_method(D_METHOD("cursor_set_column", "column", "adjust_viewport"), &TextEdit::cursor_set_column, {DEFVAL(true)});
+    MethodBinder::bind_method(D_METHOD("cursor_set_line", "line", "adjust_viewport", "can_be_hidden", "wrap_index"), &TextEdit::cursor_set_line, {DEFVAL(true), DEFVAL(true), DEFVAL(0)});
 
-    ClassDB::bind_method(D_METHOD("cursor_get_column"), &TextEdit::cursor_get_column);
-    ClassDB::bind_method(D_METHOD("cursor_get_line"), &TextEdit::cursor_get_line);
-    ClassDB::bind_method(D_METHOD("cursor_set_blink_enabled", "enable"), &TextEdit::cursor_set_blink_enabled);
-    ClassDB::bind_method(D_METHOD("cursor_get_blink_enabled"), &TextEdit::cursor_get_blink_enabled);
-    ClassDB::bind_method(D_METHOD("cursor_set_blink_speed", "blink_speed"), &TextEdit::cursor_set_blink_speed);
-    ClassDB::bind_method(D_METHOD("cursor_get_blink_speed"), &TextEdit::cursor_get_blink_speed);
-    ClassDB::bind_method(D_METHOD("cursor_set_block_mode", "enable"), &TextEdit::cursor_set_block_mode);
-    ClassDB::bind_method(D_METHOD("cursor_is_block_mode"), &TextEdit::cursor_is_block_mode);
+    MethodBinder::bind_method(D_METHOD("cursor_get_column"), &TextEdit::cursor_get_column);
+    MethodBinder::bind_method(D_METHOD("cursor_get_line"), &TextEdit::cursor_get_line);
+    MethodBinder::bind_method(D_METHOD("cursor_set_blink_enabled", "enable"), &TextEdit::cursor_set_blink_enabled);
+    MethodBinder::bind_method(D_METHOD("cursor_get_blink_enabled"), &TextEdit::cursor_get_blink_enabled);
+    MethodBinder::bind_method(D_METHOD("cursor_set_blink_speed", "blink_speed"), &TextEdit::cursor_set_blink_speed);
+    MethodBinder::bind_method(D_METHOD("cursor_get_blink_speed"), &TextEdit::cursor_get_blink_speed);
+    MethodBinder::bind_method(D_METHOD("cursor_set_block_mode", "enable"), &TextEdit::cursor_set_block_mode);
+    MethodBinder::bind_method(D_METHOD("cursor_is_block_mode"), &TextEdit::cursor_is_block_mode);
 
-    ClassDB::bind_method(D_METHOD("set_right_click_moves_caret", "enable"), &TextEdit::set_right_click_moves_caret);
-    ClassDB::bind_method(D_METHOD("is_right_click_moving_caret"), &TextEdit::is_right_click_moving_caret);
+    MethodBinder::bind_method(D_METHOD("set_right_click_moves_caret", "enable"), &TextEdit::set_right_click_moves_caret);
+    MethodBinder::bind_method(D_METHOD("is_right_click_moving_caret"), &TextEdit::is_right_click_moving_caret);
 
-    ClassDB::bind_method(D_METHOD("set_readonly", "enable"), &TextEdit::set_readonly);
-    ClassDB::bind_method(D_METHOD("is_readonly"), &TextEdit::is_readonly);
+    MethodBinder::bind_method(D_METHOD("set_readonly", "enable"), &TextEdit::set_readonly);
+    MethodBinder::bind_method(D_METHOD("is_readonly"), &TextEdit::is_readonly);
 
-    ClassDB::bind_method(D_METHOD("set_wrap_enabled", "enable"), &TextEdit::set_wrap_enabled);
-    ClassDB::bind_method(D_METHOD("is_wrap_enabled"), &TextEdit::is_wrap_enabled);
-    ClassDB::bind_method(D_METHOD("set_context_menu_enabled", "enable"), &TextEdit::set_context_menu_enabled);
-    ClassDB::bind_method(D_METHOD("is_context_menu_enabled"), &TextEdit::is_context_menu_enabled);
+    MethodBinder::bind_method(D_METHOD("set_wrap_enabled", "enable"), &TextEdit::set_wrap_enabled);
+    MethodBinder::bind_method(D_METHOD("is_wrap_enabled"), &TextEdit::is_wrap_enabled);
+    MethodBinder::bind_method(D_METHOD("set_context_menu_enabled", "enable"), &TextEdit::set_context_menu_enabled);
+    MethodBinder::bind_method(D_METHOD("is_context_menu_enabled"), &TextEdit::is_context_menu_enabled);
 
-    ClassDB::bind_method(D_METHOD("cut"), &TextEdit::cut);
-    ClassDB::bind_method(D_METHOD("copy"), &TextEdit::copy);
-    ClassDB::bind_method(D_METHOD("paste"), &TextEdit::paste);
+    MethodBinder::bind_method(D_METHOD("cut"), &TextEdit::cut);
+    MethodBinder::bind_method(D_METHOD("copy"), &TextEdit::copy);
+    MethodBinder::bind_method(D_METHOD("paste"), &TextEdit::paste);
 
-    ClassDB::bind_method(D_METHOD("select", "from_line", "from_column", "to_line", "to_column"), &TextEdit::select);
-    ClassDB::bind_method(D_METHOD("select_all"), &TextEdit::select_all);
-    ClassDB::bind_method(D_METHOD("deselect"), &TextEdit::deselect);
+    MethodBinder::bind_method(D_METHOD("select", "from_line", "from_column", "to_line", "to_column"), &TextEdit::select);
+    MethodBinder::bind_method(D_METHOD("select_all"), &TextEdit::select_all);
+    MethodBinder::bind_method(D_METHOD("deselect"), &TextEdit::deselect);
 
-    ClassDB::bind_method(D_METHOD("is_selection_active"), &TextEdit::is_selection_active);
-    ClassDB::bind_method(D_METHOD("get_selection_from_line"), &TextEdit::get_selection_from_line);
-    ClassDB::bind_method(D_METHOD("get_selection_from_column"), &TextEdit::get_selection_from_column);
-    ClassDB::bind_method(D_METHOD("get_selection_to_line"), &TextEdit::get_selection_to_line);
-    ClassDB::bind_method(D_METHOD("get_selection_to_column"), &TextEdit::get_selection_to_column);
-    ClassDB::bind_method(D_METHOD("get_selection_text"), &TextEdit::get_selection_text);
-    ClassDB::bind_method(D_METHOD("get_word_under_cursor"), &TextEdit::get_word_under_cursor);
-    ClassDB::bind_method(D_METHOD("search", "key", "flags", "from_line", "from_column"), &TextEdit::_search_bind);
+    MethodBinder::bind_method(D_METHOD("is_selection_active"), &TextEdit::is_selection_active);
+    MethodBinder::bind_method(D_METHOD("get_selection_from_line"), &TextEdit::get_selection_from_line);
+    MethodBinder::bind_method(D_METHOD("get_selection_from_column"), &TextEdit::get_selection_from_column);
+    MethodBinder::bind_method(D_METHOD("get_selection_to_line"), &TextEdit::get_selection_to_line);
+    MethodBinder::bind_method(D_METHOD("get_selection_to_column"), &TextEdit::get_selection_to_column);
+    MethodBinder::bind_method(D_METHOD("get_selection_text"), &TextEdit::get_selection_text);
+    MethodBinder::bind_method(D_METHOD("get_word_under_cursor"), &TextEdit::get_word_under_cursor);
+    MethodBinder::bind_method(D_METHOD("search", "key", "flags", "from_line", "from_column"), &TextEdit::_search_bind);
 
-    ClassDB::bind_method(D_METHOD("undo"), &TextEdit::undo);
-    ClassDB::bind_method(D_METHOD("redo"), &TextEdit::redo);
-    ClassDB::bind_method(D_METHOD("clear_undo_history"), &TextEdit::clear_undo_history);
+    MethodBinder::bind_method(D_METHOD("undo"), &TextEdit::undo);
+    MethodBinder::bind_method(D_METHOD("redo"), &TextEdit::redo);
+    MethodBinder::bind_method(D_METHOD("clear_undo_history"), &TextEdit::clear_undo_history);
 
-    ClassDB::bind_method(D_METHOD("set_show_line_numbers", "enable"), &TextEdit::set_show_line_numbers);
-    ClassDB::bind_method(D_METHOD("is_show_line_numbers_enabled"), &TextEdit::is_show_line_numbers_enabled);
-    ClassDB::bind_method(D_METHOD("set_draw_tabs"), &TextEdit::set_draw_tabs);
-    ClassDB::bind_method(D_METHOD("is_drawing_tabs"), &TextEdit::is_drawing_tabs);
-    ClassDB::bind_method(D_METHOD("set_draw_spaces"), &TextEdit::set_draw_spaces);
-    ClassDB::bind_method(D_METHOD("is_drawing_spaces"), &TextEdit::is_drawing_spaces);
-    ClassDB::bind_method(D_METHOD("set_breakpoint_gutter_enabled", "enable"), &TextEdit::set_breakpoint_gutter_enabled);
-    ClassDB::bind_method(D_METHOD("is_breakpoint_gutter_enabled"), &TextEdit::is_breakpoint_gutter_enabled);
-    ClassDB::bind_method(D_METHOD("set_draw_fold_gutter"), &TextEdit::set_draw_fold_gutter);
-    ClassDB::bind_method(D_METHOD("is_drawing_fold_gutter"), &TextEdit::is_drawing_fold_gutter);
+    MethodBinder::bind_method(D_METHOD("set_show_line_numbers", "enable"), &TextEdit::set_show_line_numbers);
+    MethodBinder::bind_method(D_METHOD("is_show_line_numbers_enabled"), &TextEdit::is_show_line_numbers_enabled);
+    MethodBinder::bind_method(D_METHOD("set_draw_tabs"), &TextEdit::set_draw_tabs);
+    MethodBinder::bind_method(D_METHOD("is_drawing_tabs"), &TextEdit::is_drawing_tabs);
+    MethodBinder::bind_method(D_METHOD("set_draw_spaces"), &TextEdit::set_draw_spaces);
+    MethodBinder::bind_method(D_METHOD("is_drawing_spaces"), &TextEdit::is_drawing_spaces);
+    MethodBinder::bind_method(D_METHOD("set_breakpoint_gutter_enabled", "enable"), &TextEdit::set_breakpoint_gutter_enabled);
+    MethodBinder::bind_method(D_METHOD("is_breakpoint_gutter_enabled"), &TextEdit::is_breakpoint_gutter_enabled);
+    MethodBinder::bind_method(D_METHOD("set_draw_fold_gutter"), &TextEdit::set_draw_fold_gutter);
+    MethodBinder::bind_method(D_METHOD("is_drawing_fold_gutter"), &TextEdit::is_drawing_fold_gutter);
 
-    ClassDB::bind_method(D_METHOD("set_hiding_enabled", "enable"), &TextEdit::set_hiding_enabled);
-    ClassDB::bind_method(D_METHOD("is_hiding_enabled"), &TextEdit::is_hiding_enabled);
-    ClassDB::bind_method(D_METHOD("set_line_as_hidden", "line", "enable"), &TextEdit::set_line_as_hidden);
-    ClassDB::bind_method(D_METHOD("is_line_hidden", "line"), &TextEdit::is_line_hidden);
-    ClassDB::bind_method(D_METHOD("fold_all_lines"), &TextEdit::fold_all_lines);
-    ClassDB::bind_method(D_METHOD("unhide_all_lines"), &TextEdit::unhide_all_lines);
-    ClassDB::bind_method(D_METHOD("fold_line", "line"), &TextEdit::fold_line);
-    ClassDB::bind_method(D_METHOD("unfold_line", "line"), &TextEdit::unfold_line);
-    ClassDB::bind_method(D_METHOD("toggle_fold_line", "line"), &TextEdit::toggle_fold_line);
-    ClassDB::bind_method(D_METHOD("can_fold", "line"), &TextEdit::can_fold);
-    ClassDB::bind_method(D_METHOD("is_folded", "line"), &TextEdit::is_folded);
+    MethodBinder::bind_method(D_METHOD("set_hiding_enabled", "enable"), &TextEdit::set_hiding_enabled);
+    MethodBinder::bind_method(D_METHOD("is_hiding_enabled"), &TextEdit::is_hiding_enabled);
+    MethodBinder::bind_method(D_METHOD("set_line_as_hidden", "line", "enable"), &TextEdit::set_line_as_hidden);
+    MethodBinder::bind_method(D_METHOD("is_line_hidden", "line"), &TextEdit::is_line_hidden);
+    MethodBinder::bind_method(D_METHOD("fold_all_lines"), &TextEdit::fold_all_lines);
+    MethodBinder::bind_method(D_METHOD("unhide_all_lines"), &TextEdit::unhide_all_lines);
+    MethodBinder::bind_method(D_METHOD("fold_line", "line"), &TextEdit::fold_line);
+    MethodBinder::bind_method(D_METHOD("unfold_line", "line"), &TextEdit::unfold_line);
+    MethodBinder::bind_method(D_METHOD("toggle_fold_line", "line"), &TextEdit::toggle_fold_line);
+    MethodBinder::bind_method(D_METHOD("can_fold", "line"), &TextEdit::can_fold);
+    MethodBinder::bind_method(D_METHOD("is_folded", "line"), &TextEdit::is_folded);
 
-    ClassDB::bind_method(D_METHOD("set_highlight_all_occurrences", "enable"), &TextEdit::set_highlight_all_occurrences);
-    ClassDB::bind_method(D_METHOD("is_highlight_all_occurrences_enabled"), &TextEdit::is_highlight_all_occurrences_enabled);
+    MethodBinder::bind_method(D_METHOD("set_highlight_all_occurrences", "enable"), &TextEdit::set_highlight_all_occurrences);
+    MethodBinder::bind_method(D_METHOD("is_highlight_all_occurrences_enabled"), &TextEdit::is_highlight_all_occurrences_enabled);
 
-    ClassDB::bind_method(D_METHOD("set_override_selected_font_color", "override"), &TextEdit::set_override_selected_font_color);
-    ClassDB::bind_method(D_METHOD("is_overriding_selected_font_color"), &TextEdit::is_overriding_selected_font_color);
+    MethodBinder::bind_method(D_METHOD("set_override_selected_font_color", "override"), &TextEdit::set_override_selected_font_color);
+    MethodBinder::bind_method(D_METHOD("is_overriding_selected_font_color"), &TextEdit::is_overriding_selected_font_color);
 
-    ClassDB::bind_method(D_METHOD("set_syntax_coloring", "enable"), &TextEdit::set_syntax_coloring);
-    ClassDB::bind_method(D_METHOD("is_syntax_coloring_enabled"), &TextEdit::is_syntax_coloring_enabled);
+    MethodBinder::bind_method(D_METHOD("set_syntax_coloring", "enable"), &TextEdit::set_syntax_coloring);
+    MethodBinder::bind_method(D_METHOD("is_syntax_coloring_enabled"), &TextEdit::is_syntax_coloring_enabled);
 
-    ClassDB::bind_method(D_METHOD("set_highlight_current_line", "enabled"), &TextEdit::set_highlight_current_line);
-    ClassDB::bind_method(D_METHOD("is_highlight_current_line_enabled"), &TextEdit::is_highlight_current_line_enabled);
+    MethodBinder::bind_method(D_METHOD("set_highlight_current_line", "enabled"), &TextEdit::set_highlight_current_line);
+    MethodBinder::bind_method(D_METHOD("is_highlight_current_line_enabled"), &TextEdit::is_highlight_current_line_enabled);
 
-    ClassDB::bind_method(D_METHOD("set_smooth_scroll_enable", "enable"), &TextEdit::set_smooth_scroll_enabled);
-    ClassDB::bind_method(D_METHOD("is_smooth_scroll_enabled"), &TextEdit::is_smooth_scroll_enabled);
-    ClassDB::bind_method(D_METHOD("set_v_scroll_speed", "speed"), &TextEdit::set_v_scroll_speed);
-    ClassDB::bind_method(D_METHOD("get_v_scroll_speed"), &TextEdit::get_v_scroll_speed);
+    MethodBinder::bind_method(D_METHOD("set_smooth_scroll_enable", "enable"), &TextEdit::set_smooth_scroll_enabled);
+    MethodBinder::bind_method(D_METHOD("is_smooth_scroll_enabled"), &TextEdit::is_smooth_scroll_enabled);
+    MethodBinder::bind_method(D_METHOD("set_v_scroll_speed", "speed"), &TextEdit::set_v_scroll_speed);
+    MethodBinder::bind_method(D_METHOD("get_v_scroll_speed"), &TextEdit::get_v_scroll_speed);
 
-    ClassDB::bind_method(D_METHOD("add_keyword_color", "keyword", "color"), &TextEdit::add_keyword_color);
-    ClassDB::bind_method(D_METHOD("has_keyword_color", "keyword"), &TextEdit::has_keyword_color);
-    ClassDB::bind_method(D_METHOD("get_keyword_color", "keyword"), &TextEdit::get_keyword_color);
-    ClassDB::bind_method(D_METHOD("add_color_region", "begin_key", "end_key", "color", "line_only"), &TextEdit::add_color_region, {DEFVAL(false)});
-    ClassDB::bind_method(D_METHOD("clear_colors"), &TextEdit::clear_colors);
-    ClassDB::bind_method(D_METHOD("menu_option", "option"), &TextEdit::menu_option);
-    ClassDB::bind_method(D_METHOD("get_menu"), &TextEdit::get_menu);
+    MethodBinder::bind_method(D_METHOD("add_keyword_color", "keyword", "color"), &TextEdit::add_keyword_color);
+    MethodBinder::bind_method(D_METHOD("has_keyword_color", "keyword"), &TextEdit::has_keyword_color);
+    MethodBinder::bind_method(D_METHOD("get_keyword_color", "keyword"), &TextEdit::get_keyword_color);
+    MethodBinder::bind_method(D_METHOD("add_color_region", "begin_key", "end_key", "color", "line_only"), &TextEdit::add_color_region, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("clear_colors"), &TextEdit::clear_colors);
+    MethodBinder::bind_method(D_METHOD("menu_option", "option"), &TextEdit::menu_option);
+    MethodBinder::bind_method(D_METHOD("get_menu"), &TextEdit::get_menu);
 
-    ClassDB::bind_method(D_METHOD("get_breakpoints"), &TextEdit::get_breakpoints_array);
-    ClassDB::bind_method(D_METHOD("remove_breakpoints"), &TextEdit::remove_breakpoints);
+    MethodBinder::bind_method(D_METHOD("get_breakpoints"), &TextEdit::get_breakpoints_array);
+    MethodBinder::bind_method(D_METHOD("remove_breakpoints"), &TextEdit::remove_breakpoints);
 
-    ClassDB::bind_method(D_METHOD("draw_minimap", "draw"), &TextEdit::set_draw_minimap);
-    ClassDB::bind_method(D_METHOD("is_drawing_minimap"), &TextEdit::is_drawing_minimap);
-    ClassDB::bind_method(D_METHOD("set_minimap_width", "width"), &TextEdit::set_minimap_width);
-    ClassDB::bind_method(D_METHOD("get_minimap_width"), &TextEdit::get_minimap_width);
+    MethodBinder::bind_method(D_METHOD("draw_minimap", "draw"), &TextEdit::set_draw_minimap);
+    MethodBinder::bind_method(D_METHOD("is_drawing_minimap"), &TextEdit::is_drawing_minimap);
+    MethodBinder::bind_method(D_METHOD("set_minimap_width", "width"), &TextEdit::set_minimap_width);
+    MethodBinder::bind_method(D_METHOD("get_minimap_width"), &TextEdit::get_minimap_width);
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "text", PROPERTY_HINT_MULTILINE_TEXT), "set_text", "get_text");
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "readonly"), "set_readonly", "is_readonly");
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "highlight_current_line"), "set_highlight_current_line", "is_highlight_current_line_enabled");
@@ -6907,14 +6928,14 @@ void TextEdit::_bind_methods() {
     ADD_SIGNAL(MethodInfo("symbol_lookup", PropertyInfo(Variant::STRING, "symbol"), PropertyInfo(Variant::INT, "row"), PropertyInfo(Variant::INT, "column")));
     ADD_SIGNAL(MethodInfo("info_clicked", PropertyInfo(Variant::INT, "row"), PropertyInfo(Variant::STRING, "info")));
 
-    BIND_ENUM_CONSTANT(MENU_CUT);
-    BIND_ENUM_CONSTANT(MENU_COPY);
-    BIND_ENUM_CONSTANT(MENU_PASTE);
-    BIND_ENUM_CONSTANT(MENU_CLEAR);
-    BIND_ENUM_CONSTANT(MENU_SELECT_ALL);
-    BIND_ENUM_CONSTANT(MENU_UNDO);
-    BIND_ENUM_CONSTANT(MENU_REDO);
-    BIND_ENUM_CONSTANT(MENU_MAX);
+	BIND_ENUM_CONSTANT(MENU_CUT)
+	BIND_ENUM_CONSTANT(MENU_COPY)
+	BIND_ENUM_CONSTANT(MENU_PASTE)
+	BIND_ENUM_CONSTANT(MENU_CLEAR)
+	BIND_ENUM_CONSTANT(MENU_SELECT_ALL)
+	BIND_ENUM_CONSTANT(MENU_UNDO)
+	BIND_ENUM_CONSTANT(MENU_REDO)
+	BIND_ENUM_CONSTANT(MENU_MAX)
 
     GLOBAL_DEF("gui/timers/text_edit_idle_detect_sec", 3);
     ProjectSettings::get_singleton()->set_custom_property_info("gui/timers/text_edit_idle_detect_sec", PropertyInfo(Variant::REAL, "gui/timers/text_edit_idle_detect_sec", PROPERTY_HINT_RANGE, "0,10,0.01,or_greater")); // No negative numbers.
@@ -6922,15 +6943,7 @@ void TextEdit::_bind_methods() {
 
 TextEdit::TextEdit() {
 
-    setting_row = false;
-    draw_tabs = false;
-    draw_spaces = false;
-    override_selected_font_color = false;
-    draw_caret = true;
-    max_chars = 0;
     clear();
-    wrap_enabled = false;
-    wrap_right_offset = 10;
     set_focus_mode(FOCUS_ALL);
     syntax_highlighter = nullptr;
     _update_caches();
@@ -7167,8 +7180,8 @@ Map<int, TextEdit::HighlighterInfo> TextEdit::_get_line_syntax_highlighting(int 
             while (to < str.length() && _is_text_char(str[to]))
                 to++;
 
-            uint32_t hash = StringUtils::hash(str.constData()+j, to - j);
-            StrRange range(str.constData()+j, to - j);
+            uint32_t hash = StringUtils::hash(str.cdata()+j, to - j);
+            StrRange range(str.cdata()+j, to - j);
 
             const Color *col = keywords.custom_getptr(range, hash);
 

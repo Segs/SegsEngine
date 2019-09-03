@@ -77,16 +77,16 @@ void Logger::log_error(const char *p_function, const char *p_file, int p_line, c
     else
         err_details = p_code;
 
-    logf_error(FormatV("%s: %s\n", err_type, err_details).constData());
-    logf_error(FormatV("   At: %s:%i:%s() - %s\n", p_file, p_line, p_function, p_code).constData());
+    logf_error(FormatV("%s: %s\n", err_type, err_details).cdata());
+    logf_error(FormatV("   At: %s:%i:%s() - %s\n", p_file, p_line, p_function, p_code).cdata());
 }
 
-void Logger::logf(const QString &p_msg) {
+void Logger::logf(const String &p_msg) {
     if (!should_log(false)) {
         return;
     }
 
-    logv(qPrintable(p_msg), false);
+    logv(qPrintable(p_msg.m_str), false);
 }
 void Logger::logf(const char *p_msg) {
     if (!should_log(false)) {
@@ -119,7 +119,7 @@ void RotatedFileLogger::close_file() {
     }
 }
 
-void RotatedFileLogger::clear_old_backups() {
+void RotatedFileLogger::clear_old_backups() const {
     int max_backups = max_files - 1; // -1 for the current file
 
     String basename =  PathUtils::get_basename(PathUtils::get_file(base_path));
@@ -133,8 +133,8 @@ void RotatedFileLogger::clear_old_backups() {
     da->list_dir_begin();
     String f = da->get_next();
     Set<String> backups;
-    while (f != String()) {
-        if (!da->current_is_dir() && f.begins_with(basename) && PathUtils::get_extension(f) == extension && f != PathUtils::get_file(base_path)) {
+    while (!f.empty()) {
+        if (!da->current_is_dir() && StringUtils::begins_with(f,basename) && PathUtils::get_extension(f) == extension && f != PathUtils::get_file(base_path)) {
             backups.insert(f);
         }
         f = da->get_next();
@@ -164,7 +164,7 @@ void RotatedFileLogger::rotate_file() {
             sprintf(timestamp, "-%04d-%02d-%02d-%02d-%02d-%02d", date.year, date.month, date.day, time.hour, time.min, time.sec);
 
             String backup_name = PathUtils::get_basename(base_path) + timestamp;
-            if (PathUtils::get_extension(base_path) != String()) {
+            if (!PathUtils::get_extension(base_path).empty()) {
                 backup_name += "." + PathUtils::get_extension(base_path);
             }
 
@@ -237,11 +237,13 @@ void StdLogger::logv(const QChar *p_format, bool p_err) {
     if (!should_log(p_err)) {
         return;
     }
-
+    int len=0;
+    while (p_format && !p_format[len++].isNull())
+        ;
     if (p_err) {
-        fprintf(stderr, "%ls", p_format);
+        fprintf(stderr, "%s", QString::fromRawData(p_format,len-1).toUtf8().constData());
     } else {
-        printf("%s", p_format);
+        printf("%s", QString::fromRawData(p_format, len - 1).toUtf8().constData());
 #ifdef DEBUG_ENABLED
         fflush(stdout);
 #endif

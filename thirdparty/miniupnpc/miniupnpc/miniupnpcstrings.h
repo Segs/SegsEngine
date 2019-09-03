@@ -1,10 +1,8 @@
 #ifndef MINIUPNPCSTRINGS_H_INCLUDED
 #define MINIUPNPCSTRINGS_H_INCLUDED
 
-#include "core/version.h"
-
-#define OS_STRING VERSION_NAME "/1.0"
-#define MINIUPNPC_VERSION_STRING "2.1"
+#define OS_STRING ""
+#define MINIUPNPC_VERSION_STRING ""
 
 #if 0
 /* according to "UPnP Device Architecture 1.0" */

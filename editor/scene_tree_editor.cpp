@@ -28,8 +28,10 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
+#include "node_dock.h"
 #include "scene_tree_editor.h"
 
+#include "core/method_bind.h"
 #include "core/message_queue.h"
 #include "core/object_db.h"
 #include "core/print_string.h"
@@ -39,6 +41,9 @@
 #include "scene/gui/label.h"
 #include "scene/main/viewport.h"
 #include "scene/resources/packed_scene.h"
+
+IMPL_GDCLASS(SceneTreeEditor)
+IMPL_GDCLASS(SceneTreeDialog)
 
 Node *SceneTreeEditor::get_scene_node() {
 
@@ -308,7 +313,7 @@ bool SceneTreeEditor::_add_nodes(Node *p_node, TreeItem *p_parent) {
     } else {
         StringName type = EditorNode::get_singleton()->get_object_custom_type_name(p_node);
         if (type == StringName())
-            type = p_node->get_class();
+            type = p_node->get_class_name();
         item->set_tooltip(0, String(p_node->get_name()) + "\n" + TTR("Type:") + " " + type);
     }
 
@@ -400,7 +405,7 @@ bool SceneTreeEditor::_add_nodes(Node *p_node, TreeItem *p_parent) {
     if (valid_types.size()) {
         bool valid = false;
         for (int i = 0; i < valid_types.size(); i++) {
-            if (p_node->is_class(valid_types[i])) {
+            if (p_node->is_class(StringUtils::to_utf8(valid_types[i].asString()))) {
                 valid = true;
                 break;
             }
@@ -753,7 +758,7 @@ void SceneTreeEditor::_renamed() {
     ERR_FAIL_COND(!n);
 
     // Empty node names are not allowed, so resets it to previous text and show warning
-    if (which->get_text(0).strip_edges().empty()) {
+    if (StringUtils::strip_edges(which->get_text(0)).empty()) {
         which->set_text(0, n->get_name());
         EditorNode::get_singleton()->show_warning(TTR("No name provided."));
         return;
@@ -1094,30 +1099,30 @@ void SceneTreeEditor::set_connecting_signal(bool p_enable) {
 
 void SceneTreeEditor::_bind_methods() {
 
-    ClassDB::bind_method("_tree_changed", &SceneTreeEditor::_tree_changed);
-    ClassDB::bind_method("_update_tree", &SceneTreeEditor::_update_tree);
-    ClassDB::bind_method("_node_removed", &SceneTreeEditor::_node_removed);
-    ClassDB::bind_method("_node_renamed", &SceneTreeEditor::_node_renamed);
-    ClassDB::bind_method("_selected_changed", &SceneTreeEditor::_selected_changed);
-    ClassDB::bind_method("_deselect_items", &SceneTreeEditor::_deselect_items);
-    ClassDB::bind_method("_renamed", &SceneTreeEditor::_renamed);
-    ClassDB::bind_method("_rename_node", &SceneTreeEditor::_rename_node);
-    ClassDB::bind_method("_test_update_tree", &SceneTreeEditor::_test_update_tree);
-    ClassDB::bind_method("_cell_multi_selected", &SceneTreeEditor::_cell_multi_selected);
-    ClassDB::bind_method("_selection_changed", &SceneTreeEditor::_selection_changed);
-    ClassDB::bind_method("_cell_button_pressed", &SceneTreeEditor::_cell_button_pressed);
-    ClassDB::bind_method("_cell_collapsed", &SceneTreeEditor::_cell_collapsed);
-    ClassDB::bind_method("_rmb_select", &SceneTreeEditor::_rmb_select);
-    ClassDB::bind_method("_warning_changed", &SceneTreeEditor::_warning_changed);
+    MethodBinder::bind_method("_tree_changed", &SceneTreeEditor::_tree_changed);
+    MethodBinder::bind_method("_update_tree", &SceneTreeEditor::_update_tree);
+    MethodBinder::bind_method("_node_removed", &SceneTreeEditor::_node_removed);
+    MethodBinder::bind_method("_node_renamed", &SceneTreeEditor::_node_renamed);
+    MethodBinder::bind_method("_selected_changed", &SceneTreeEditor::_selected_changed);
+    MethodBinder::bind_method("_deselect_items", &SceneTreeEditor::_deselect_items);
+    MethodBinder::bind_method("_renamed", &SceneTreeEditor::_renamed);
+    MethodBinder::bind_method("_rename_node", &SceneTreeEditor::_rename_node);
+    MethodBinder::bind_method("_test_update_tree", &SceneTreeEditor::_test_update_tree);
+    MethodBinder::bind_method("_cell_multi_selected", &SceneTreeEditor::_cell_multi_selected);
+    MethodBinder::bind_method("_selection_changed", &SceneTreeEditor::_selection_changed);
+    MethodBinder::bind_method("_cell_button_pressed", &SceneTreeEditor::_cell_button_pressed);
+    MethodBinder::bind_method("_cell_collapsed", &SceneTreeEditor::_cell_collapsed);
+    MethodBinder::bind_method("_rmb_select", &SceneTreeEditor::_rmb_select);
+    MethodBinder::bind_method("_warning_changed", &SceneTreeEditor::_warning_changed);
 
-    ClassDB::bind_method("_node_script_changed", &SceneTreeEditor::_node_script_changed);
-    ClassDB::bind_method("_node_visibility_changed", &SceneTreeEditor::_node_visibility_changed);
+    MethodBinder::bind_method("_node_script_changed", &SceneTreeEditor::_node_script_changed);
+    MethodBinder::bind_method("_node_visibility_changed", &SceneTreeEditor::_node_visibility_changed);
 
-    ClassDB::bind_method(D_METHOD("get_drag_data_fw"), &SceneTreeEditor::get_drag_data_fw);
-    ClassDB::bind_method(D_METHOD("can_drop_data_fw"), &SceneTreeEditor::can_drop_data_fw);
-    ClassDB::bind_method(D_METHOD("drop_data_fw"), &SceneTreeEditor::drop_data_fw);
+    MethodBinder::bind_method(D_METHOD("get_drag_data_fw"), &SceneTreeEditor::get_drag_data_fw);
+    MethodBinder::bind_method(D_METHOD("can_drop_data_fw"), &SceneTreeEditor::can_drop_data_fw);
+    MethodBinder::bind_method(D_METHOD("drop_data_fw"), &SceneTreeEditor::drop_data_fw);
 
-    ClassDB::bind_method(D_METHOD("update_tree"), &SceneTreeEditor::update_tree);
+    MethodBinder::bind_method(D_METHOD("update_tree"), &SceneTreeEditor::update_tree);
 
     ADD_SIGNAL(MethodInfo("node_selected"));
     ADD_SIGNAL(MethodInfo("node_renamed"));
@@ -1173,7 +1178,7 @@ SceneTreeEditor::SceneTreeEditor(bool p_label, bool p_can_rename, bool p_can_ope
     }
 
     tree->connect("cell_selected", this, "_selected_changed");
-    tree->connect("item_edited", this, "_renamed", varray(), CONNECT_DEFERRED);
+    tree->connect("item_edited", this, "_renamed", varray(),ObjectNS::CONNECT_DEFERRED);
     tree->connect("multi_selected", this, "_cell_multi_selected");
     tree->connect("button_pressed", this, "_cell_button_pressed");
     tree->connect("nothing_selected", this, "_deselect_items");
@@ -1247,9 +1252,9 @@ void SceneTreeDialog::_filter_changed(const String &p_filter) {
 
 void SceneTreeDialog::_bind_methods() {
 
-    ClassDB::bind_method("_select", &SceneTreeDialog::_select);
-    ClassDB::bind_method("_cancel", &SceneTreeDialog::_cancel);
-    ClassDB::bind_method(D_METHOD("_filter_changed"), &SceneTreeDialog::_filter_changed);
+    MethodBinder::bind_method("_select", &SceneTreeDialog::_select);
+    MethodBinder::bind_method("_cancel", &SceneTreeDialog::_cancel);
+    MethodBinder::bind_method(D_METHOD("_filter_changed"), &SceneTreeDialog::_filter_changed);
 
     ADD_SIGNAL(MethodInfo("selected", PropertyInfo(Variant::NODE_PATH, "path")));
 }

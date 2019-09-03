@@ -36,7 +36,7 @@
 #include "main/main.h"
 
 #ifdef DEBUG_ENABLED
-#define CRASH_HANDLER_ENABLED 1
+//#define CRASH_HANDLER_ENABLED 1
 #endif
 
 #ifdef CRASH_HANDLER_ENABLED
@@ -67,7 +67,7 @@ static void handle_crash(int sig) {
     if (OS::get_singleton()->get_main_loop())
         OS::get_singleton()->get_main_loop()->notification(MainLoop::NOTIFICATION_CRASH);
 
-    fprintf(stderr, "Dumping the backtrace. %ls\n", msg.constData());
+	fprintf(stderr, "Dumping the backtrace. %ss\n", qPrintable(msg.m_str));
     char **strings = backtrace_symbols(bt_buffer, size);
     if (strings) {
         for (size_t i = 1; i < size; i++) {
@@ -105,10 +105,10 @@ static void handle_crash(int sig) {
             int ret;
             Error err = OS::get_singleton()->execute(String("addr2line"), args, true, nullptr, &output, &ret);
             if (err == OK) {
-                output.erase(output.length() - 1, 1);
+                StringUtils::erase(output,output.length() - 1, 1);
             }
 
-            fprintf(stderr, "[%ld] %s (%ls)\n", i, fname, output.constData());
+            fprintf(stderr, "[%ld] %s (%ls)\n", i, fname, output.cdata());
         }
 
         free(strings);

@@ -39,8 +39,9 @@
 
 class MeshLibrary : public Resource {
 
-	GDCLASS(MeshLibrary, Resource);
-	RES_BASE_EXTENSION("meshlib");
+	GDCLASS(MeshLibrary,Resource)
+
+    RES_BASE_EXTENSION("meshlib");
 
 public:
 	struct ShapeData {
@@ -94,7 +95,7 @@ public:
 	int get_last_unused_item_id() const;
 
 	MeshLibrary();
-	~MeshLibrary();
+	~MeshLibrary() override;
 };
 
 #endif // CUBE_GRID_THEME_H

@@ -45,15 +45,15 @@ class MutexPosix : public Mutex {
 	static Mutex *create_func_posix(bool p_recursive);
 
 public:
-	virtual void lock();
-	virtual void unlock();
-	virtual Error try_lock();
+	void lock() override;
+	void unlock() override;
+	Error try_lock() override;
 
 	static void make_default();
 
 	MutexPosix(bool p_recursive);
 
-	~MutexPosix();
+	~MutexPosix() override;
 };
 
 #endif

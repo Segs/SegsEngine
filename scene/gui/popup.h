@@ -28,14 +28,13 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef POPUP_H
-#define POPUP_H
+#pragma once
 
 #include "scene/gui/control.h"
 
 class Popup : public Control {
 
-	GDCLASS(Popup, Control);
+	GDCLASS(Popup,Control)
 
 	bool exclusive;
 	bool popped_up;
@@ -67,15 +66,15 @@ public:
 	void popup_centered_clamped(const Size2 &p_size = Size2(), float p_fallback_ratio = 0.75);
 	virtual void popup(const Rect2 &p_bounds = Rect2());
 
-	virtual String get_configuration_warning() const;
+	String get_configuration_warning() const override;
 
 	Popup();
-	~Popup();
+	~Popup() override;
 };
 
 class PopupPanel : public Popup {
 
-	GDCLASS(PopupPanel, Popup);
+	GDCLASS(PopupPanel,Popup)
 
 protected:
 	void _update_child_rects();
@@ -83,8 +82,6 @@ protected:
 
 public:
 	void set_child_rect(Control *p_child);
-	virtual Size2 get_minimum_size() const;
+	Size2 get_minimum_size() const override;
 	PopupPanel();
 };
-
-#endif

@@ -39,7 +39,7 @@
 /**
 	@author Bastiaan Olij <mux213@gmail.com>
 
-	The ARVR interface is a template class ontop of which we build interface to differt AR, VR and tracking SDKs.
+	The ARVR interface is a template class ontop of which we build interface to different AR, VR and tracking SDKs.
 	The idea is that we subclass this class, implement the logic, and then instantiate a singleton of each interface
 	when Godot starts. These instances do not initialize themselves but register themselves with the AR/VR server.
 
@@ -49,7 +49,8 @@
 */
 
 class ARVRInterface : public Reference {
-	GDCLASS(ARVRInterface, Reference);
+	GDCLASS(ARVRInterface,Reference)
+
 
 public:
 	enum Capabilities { /* purely meta data, provides some info about what this interface supports */
@@ -116,7 +117,7 @@ public:
 	virtual void notification(int p_what) = 0;
 
 	ARVRInterface();
-	~ARVRInterface();
+	~ARVRInterface() override;
 };
 
 VARIANT_ENUM_CAST(ARVRInterface::Capabilities);

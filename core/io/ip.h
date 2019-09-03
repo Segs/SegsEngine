@@ -28,12 +28,14 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef IP_H
-#define IP_H
+#pragma once
 
 #include "core/io/ip_address.h"
 #include "core/os/os.h"
 #include "core/object.h"
+#include "core/method_arg_casters.h"
+#include "core/method_enum_caster.h"
+
 
 struct _IP_ResolverPrivate;
 
@@ -63,7 +65,7 @@ public:
         RESOLVER_INVALID_ID = -1
     };
 
-    typedef int ResolverID;
+    using ResolverID = int;
 
 private:
     _IP_ResolverPrivate *resolver;
@@ -95,16 +97,14 @@ public:
     virtual void get_local_interfaces(Map<String, Interface_Info> *r_interfaces) const = 0;
     void erase_resolve_item(ResolverID p_id);
 
-    void clear_cache(const String &p_hostname = "");
+	void clear_cache(const String &p_hostname = String::null_val);
 
     static IP *get_singleton();
 
     static IP *create();
 
     IP();
-    ~IP();
+    ~IP() override;
 };
 
 VARIANT_ENUM_CAST(IP::Type);
-
-#endif // IP_H

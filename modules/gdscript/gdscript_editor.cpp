@@ -32,6 +32,7 @@
 
 #include "core/engine.h"
 #include "core/global_constants.h"
+#include "core/method_bind_interface.h"
 #include "core/os/file_access.h"
 #include "gdscript_compiler.h"
 
@@ -58,25 +59,25 @@ String GDScriptLanguage::_get_processed_template(const String &p_template, const
 
 #ifdef TOOLS_ENABLED
     if (EDITOR_DEF("text_editor/completion/add_type_hints", false)) {
-        processed_template = processed_template.replace("%INT_TYPE%", ": int");
-        processed_template = processed_template.replace("%STRING_TYPE%", ": String");
-        processed_template = processed_template.replace("%FLOAT_TYPE%", ": float");
-        processed_template = processed_template.replace("%VOID_RETURN%", " -> void");
+        processed_template = StringUtils::replace(processed_template,"%INT_TYPE%", ": int");
+        processed_template = StringUtils::replace(processed_template,"%STRING_TYPE%", ": String");
+        processed_template = StringUtils::replace(processed_template,"%FLOAT_TYPE%", ": float");
+        processed_template = StringUtils::replace(processed_template,"%VOID_RETURN%", " -> void");
     } else {
-        processed_template = processed_template.replace("%INT_TYPE%", "");
-        processed_template = processed_template.replace("%STRING_TYPE%", "");
-        processed_template = processed_template.replace("%FLOAT_TYPE%", "");
-        processed_template = processed_template.replace("%VOID_RETURN%", "");
+        processed_template = StringUtils::replace(processed_template,"%INT_TYPE%", "");
+        processed_template = StringUtils::replace(processed_template,"%STRING_TYPE%", "");
+        processed_template = StringUtils::replace(processed_template,"%FLOAT_TYPE%", "");
+        processed_template = StringUtils::replace(processed_template,"%VOID_RETURN%", "");
     }
 #else
-    processed_template = processed_template.replace("%INT_TYPE%", "");
-    processed_template = processed_template.replace("%STRING_TYPE%", "");
-    processed_template = processed_template.replace("%FLOAT_TYPE%", "");
-    processed_template = processed_template.replace("%VOID_RETURN%", "");
+    processed_template = StringUtils::replace(processed_template,"%INT_TYPE%", "");
+    processed_template = StringUtils::replace(processed_template,"%STRING_TYPE%", "");
+    processed_template = StringUtils::replace(processed_template,"%FLOAT_TYPE%", "");
+    processed_template = StringUtils::replace(processed_template,"%VOID_RETURN%", "");
 #endif
 
-    processed_template = processed_template.replace("%BASE%", p_base_class_name);
-    processed_template = processed_template.replace("%TS%", _get_indentation());
+    processed_template = StringUtils::replace(processed_template,"%BASE%", p_base_class_name);
+    processed_template = StringUtils::replace(processed_template,"%TS%", _get_indentation());
 
     return processed_template;
 }
@@ -464,9 +465,9 @@ String GDScriptLanguage::make_function(const String &p_class, const String &p_na
         for (int i = 0; i < p_args.size(); i++) {
             if (i > 0)
                 s += ", ";
-            s += p_args[i].get_slice(":", 0);
+            s += StringUtils::get_slice(p_args[i],":", 0);
             if (th) {
-                String type = p_args[i].get_slice(":", 1);
+                String type = StringUtils::get_slice(p_args[i],":", 1);
                 if (!type.empty() && type != "var") {
                     s += ": " + type;
                 }
@@ -530,16 +531,16 @@ static String _get_visual_datatype(const PropertyInfo &p_info, bool p_isarg = tr
 
     if (p_info.usage & PROPERTY_USAGE_CLASS_IS_ENUM) {
         String enum_name = p_info.class_name;
-        if (enum_name.find(".") == -1) {
+        if (StringUtils::find(enum_name,".") == -1) {
             return enum_name;
         }
-        return enum_name.get_slice(".", 1);
+        return StringUtils::get_slice(enum_name,".", 1);
     }
 
     String n = p_info.name;
-    int idx = n.find(":");
+    int idx = StringUtils::find(n,":");
     if (idx != -1) {
-        return n.substr(idx + 1, n.length());
+        return StringUtils::substr(n,idx + 1, n.length());
     }
 
     if (p_info.type == Variant::OBJECT) {
@@ -821,8 +822,8 @@ static bool _guess_expression_type(GDScriptCompletionContext &p_context, const G
                                     if (all_is_const && String(id) == "get_node" && ClassDB::is_parent_class(native_type.native_type, "Node") && args.size()) {
 
                                         String arg1 = args[0];
-                                        if (arg1.begins_with("/root/")) {
-                                            String which = arg1.get_slice("/", 2);
+                                        if (StringUtils::begins_with(arg1,"/root/")) {
+                                            String which = StringUtils::get_slice(arg1,"/", 2);
                                             if (which != "") {
                                                 // Try singletons first
                                                 if (GDScriptLanguage::get_singleton()->get_named_globals_map().has(which)) {
@@ -835,22 +836,22 @@ static bool _guess_expression_type(GDScriptCompletionContext &p_context, const G
                                                     for (List<PropertyInfo>::Element *E = props.front(); E; E = E->next()) {
 
                                                         String s = E->get().name;
-                                                        if (!s.begins_with("autoload/")) {
+                                                        if (!StringUtils::begins_with(s,"autoload/")) {
                                                             continue;
                                                         }
-                                                        String name = s.get_slice("/", 1);
+                                                        String name = StringUtils::get_slice(s,"/", 1);
                                                         if (name == which) {
                                                             String script = ProjectSettings::get_singleton()->get(s);
 
-                                                            if (script.begins_with("*")) {
-                                                                script = script.right(1);
+                                                            if (StringUtils::begins_with(script,"*")) {
+                                                                script = StringUtils::right(script,1);
                                                             }
 
-                                                            if (!script.begins_with("res://")) {
+                                                            if (!StringUtils::begins_with(script,"res://")) {
                                                                 script = "res://" + script;
                                                             }
 
-                                                            if (!script.ends_with(".gd")) {
+                                                            if (!StringUtils::ends_with(script,".gd")) {
                                                                 //not a script, try find the script anyway,
                                                                 //may have some success
                                                                 script = PathUtils::get_basename(script) + ".gd";
@@ -1813,7 +1814,7 @@ static String _make_arguments_hint(const GDScriptParser::FunctionNode *p_functio
 
 static void _find_enumeration_candidates(const String p_enum_hint, Map<String, ScriptCodeCompletionOption> &r_result) {
 
-    if (p_enum_hint.find(".") == -1) {
+    if (StringUtils::find(p_enum_hint,".") == -1) {
         // Global constant
         StringName current_enum = p_enum_hint;
         for (int i = 0; i < GlobalConstants::get_global_constant_count(); i++) {
@@ -1823,8 +1824,8 @@ static void _find_enumeration_candidates(const String p_enum_hint, Map<String, S
             }
         }
     } else {
-        String class_name = p_enum_hint.get_slice(".", 0);
-        String enum_name = p_enum_hint.get_slice(".", 1);
+        String class_name = StringUtils::get_slice(p_enum_hint,".", 0);
+        String enum_name = StringUtils::get_slice(p_enum_hint,".", 1);
 
         if (!ClassDB::class_exists(class_name)) {
             return;
@@ -2045,7 +2046,7 @@ static void _find_identifiers_in_base(const GDScriptCompletionContext &p_context
                             if (E->get().usage & (PROPERTY_USAGE_GROUP | PROPERTY_USAGE_CATEGORY)) {
                                 continue;
                             }
-                            if (E->get().name.find("/") != -1) {
+                            if (StringUtils::find(E->get().name,"/") != -1) {
                                 continue;
                             }
                             ScriptCodeCompletionOption option(E->get().name, ScriptCodeCompletionOption::KIND_MEMBER);
@@ -2059,7 +2060,7 @@ static void _find_identifiers_in_base(const GDScriptCompletionContext &p_context
                     bool is_autocompleting_getters = GLOBAL_GET("debug/gdscript/completion/autocomplete_setters_and_getters").booleanize();
                     ClassDB::get_method_list(type, &methods, false, !is_autocompleting_getters);
                     for (List<MethodInfo>::Element *E = methods.front(); E; E = E->next()) {
-                        if (E->get().name.begins_with("_")) {
+                        if (StringUtils::begins_with(E->get().name,"_")) {
                             continue;
                         }
                         ScriptCodeCompletionOption option(E->get().name, ScriptCodeCompletionOption::KIND_FUNCTION);
@@ -2086,7 +2087,7 @@ static void _find_identifiers_in_base(const GDScriptCompletionContext &p_context
                     p_base.value.get_property_list(&members);
 
                     for (List<PropertyInfo>::Element *E = members.front(); E; E = E->next()) {
-                        if (String(E->get().name).find("/") == -1) {
+                        if (!StringUtils::contains(E->get().name,'/')) {
                             ScriptCodeCompletionOption option(E->get().name, ScriptCodeCompletionOption::KIND_MEMBER);
                             r_result.insert(option.display, option);
                         }
@@ -2190,12 +2191,12 @@ static void _find_identifiers(const GDScriptCompletionContext &p_context, bool p
     ProjectSettings::get_singleton()->get_property_list(&props);
     for (List<PropertyInfo>::Element *E = props.front(); E; E = E->next()) {
         String s = E->get().name;
-        if (!s.begins_with("autoload/")) {
+        if (!StringUtils::begins_with(s,"autoload/")) {
             continue;
         }
         String path = ProjectSettings::get_singleton()->get(s);
-        if (path.begins_with("*")) {
-            ScriptCodeCompletionOption option(s.get_slice("/", 1), ScriptCodeCompletionOption::KIND_CONSTANT);
+        if (StringUtils::begins_with(path,"*")) {
+            ScriptCodeCompletionOption option(StringUtils::get_slice(s,"/", 1), ScriptCodeCompletionOption::KIND_CONSTANT);
             r_result.insert(option.display, option);
         }
     }
@@ -2329,26 +2330,26 @@ static void _find_call_arguments(const GDScriptCompletionContext &p_context, con
 
                     for (List<PropertyInfo>::Element *E = props.front(); E; E = E->next()) {
                         String s = E->get().name;
-                        if (!s.begins_with("autoload/")) {
+                        if (!StringUtils::begins_with(s,"autoload/")) {
                             continue;
                         }
-                        String name = s.get_slice("/", 1);
+                        String name = StringUtils::get_slice(s,"/", 1);
                         ScriptCodeCompletionOption option("/root/" + name, ScriptCodeCompletionOption::KIND_NODE_PATH);
                         option.insert_text = quote_style + option.display + quote_style;
                         r_result.insert(option.display, option);
                     }
                 }
 
-                if (p_argidx == 0 && method_args > 0 && ClassDB::is_parent_class(class_name, "InputEvent") && p_method.operator String().find("action") != -1) {
+                if (p_argidx == 0 && method_args > 0 && ClassDB::is_parent_class(class_name, "InputEvent") && StringUtils::contains(p_method,"action")) {
                     // Get input actions
                     List<PropertyInfo> props;
                     ProjectSettings::get_singleton()->get_property_list(&props);
                     for (List<PropertyInfo>::Element *E = props.front(); E; E = E->next()) {
                         String s = E->get().name;
-                        if (!s.begins_with("input/")) {
+                        if (!StringUtils::begins_with(s,"input/")) {
                             continue;
                         }
-                        String name = s.get_slice("/", 1);
+                        String name = StringUtils::get_slice(s,"/", 1);
                         ScriptCodeCompletionOption option(name, ScriptCodeCompletionOption::KIND_CONSTANT);
                         option.insert_text = quote_style + option.display + quote_style;
                         r_result.insert(option.display, option);
@@ -2564,11 +2565,11 @@ Error GDScriptLanguage::complete_code(const String &p_code, const String &p_path
 
                 for (List<String>::Element *E = opts.front(); E; E = E->next()) {
 
-                    String opt = E->get().strip_edges();
+                    String opt = StringUtils::strip_edges(E->get());
                     if (StringUtils::is_quoted(opt)) {
                         r_forced = true;
-                        String idopt = opt.unquote();
-                        if (StringUtils::is_valid_identifier(String(idopt.replace("/", "_")))) {
+                        String idopt = StringUtils::unquote(opt);
+                        if (StringUtils::is_valid_identifier(StringUtils::replace(idopt,"/", "_"))) {
                             ScriptCodeCompletionOption option(idopt, ScriptCodeCompletionOption::KIND_NODE_PATH);
                             options.insert(option.display, option);
                         } else {
@@ -2584,10 +2585,10 @@ Error GDScriptLanguage::complete_code(const String &p_code, const String &p_path
 
                 for (List<PropertyInfo>::Element *E = props.front(); E; E = E->next()) {
                     String s = E->get().name;
-                    if (!s.begins_with("autoload/")) {
+                    if (!StringUtils::begins_with(s,"autoload/")) {
                         continue;
                     }
-                    String name = s.get_slice("/", 1);
+                    String name = StringUtils::get_slice(s,"/", 1);
                     ScriptCodeCompletionOption option(quote_style + "/root/" + name + quote_style, ScriptCodeCompletionOption::KIND_NODE_PATH);
                     options.insert(option.display, option);
                 }
@@ -2674,8 +2675,8 @@ Error GDScriptLanguage::complete_code(const String &p_code, const String &p_path
 
                 MethodInfo &mi = E->get();
                 String method_hint = mi.name;
-                if (method_hint.find(":") != -1) {
-                    method_hint = method_hint.get_slice(":", 0);
+                if (StringUtils::find(method_hint,":") != -1) {
+                    method_hint = StringUtils::get_slice(method_hint,":", 0);
                 }
                 method_hint += "(";
 
@@ -2685,8 +2686,8 @@ Error GDScriptLanguage::complete_code(const String &p_code, const String &p_path
                             method_hint += ", ";
                         }
                         String arg = mi.arguments[i].name;
-                        if (arg.find(":") != -1) {
-                            arg = arg.substr(0, arg.find(":"));
+                        if (StringUtils::find(arg,":") != -1) {
+                            arg = StringUtils::substr(arg,0, StringUtils::find(arg,":"));
                         }
                         method_hint += arg;
                         if (use_type_hint && mi.arguments[i].type != Variant::NIL) {
@@ -2826,14 +2827,24 @@ Error GDScriptLanguage::complete_code(const String &p_code, const String &p_path
                     ScriptCodeCompletionOption option(Variant::get_type_name((Variant::Type)i), ScriptCodeCompletionOption::KIND_CLASS);
                     options.insert(option.display, option);
                 }
+                List<PropertyInfo> props;
+                ProjectSettings::get_singleton()->get_property_list(&props);
+                for (List<PropertyInfo>::Element *E = props.front(); E; E = E->next()) {
+                    String s = E->get().name;
+                    if (!StringUtils::begins_with(s,"autoload/")) {
+                        continue;
+                    }
+                    ScriptCodeCompletionOption option(StringUtils::get_slice(s,'/', 1), ScriptCodeCompletionOption::KIND_CLASS);
+                    options.insert(option.display, option);
+                }
             }
 
             Vector<StringName> native_classes;
             ClassDB::get_class_list(&native_classes);
             for (int i=0,fin=native_classes.size(); i<fin; ++i) {
                 String class_name = native_classes[i].asString();
-                if (class_name.begins_with("_")) {
-                    class_name = class_name.right(1);
+                if (StringUtils::begins_with(class_name,"_")) {
+                    class_name = StringUtils::right(class_name,1);
                 }
                 if (Engine::get_singleton()->has_singleton(class_name)) {
                     continue;
@@ -2859,7 +2870,7 @@ Error GDScriptLanguage::complete_code(const String &p_code, const String &p_path
         case GDScriptParser::COMPLETION_TYPE_HINT_INDEX: {
             GDScriptCompletionIdentifier base;
             String index = parser.get_completion_cursor().operator String();
-            if (!_guess_identifier_type(context, index.get_slice(".", 0), base)) {
+            if (!_guess_identifier_type(context, StringUtils::get_slice(index,".", 0), base)) {
                 break;
             }
 
@@ -2868,16 +2879,16 @@ Error GDScriptLanguage::complete_code(const String &p_code, const String &p_path
             c.function = nullptr;
             c.block = nullptr;
             bool finding = true;
-            index = index.right(index.find(".") + 1);
-            while (index.find(".") != -1) {
-                String id = index.get_slice(".", 0);
+            index = StringUtils::right(index,StringUtils::find(index,".") + 1);
+            while (StringUtils::find(index,".") != -1) {
+                String id = StringUtils::get_slice(index,".", 0);
 
                 GDScriptCompletionIdentifier sub_base;
                 if (!_guess_identifier_type_from_base(c, base, id, sub_base)) {
                     finding = false;
                     break;
                 }
-                index = index.right(index.find(".") + 1);
+                index = StringUtils::right(index,StringUtils::find(index,".") + 1);
                 base = sub_base;
             }
 
@@ -3004,8 +3015,8 @@ void GDScriptLanguage::auto_indent_code(String &p_code, int p_from_line, int p_t
             }
         }
 
-        String st = l.substr(tc, l.length()).strip_edges();
-        if (st == "" || st.begins_with("#"))
+        String st = StringUtils::strip_edges(StringUtils::substr(l,tc, l.length()));
+        if (st == "" || StringUtils::begins_with(st,"#"))
             continue; //ignore!
 
         int ilevel = 0;
@@ -3171,8 +3182,8 @@ static Error _lookup_symbol_from_base(const GDScriptParser::DataType &p_base, co
 
                 StringName parent = ClassDB::get_parent_class(class_name);
                 if (parent != StringName()) {
-                    if (String(parent).begins_with("_")) {
-                        base_type.native_type = String(parent).right(1);
+                    if (StringUtils::begins_with(String(parent),"_")) {
+                        base_type.native_type = StringUtils::right(parent,1);
                     } else {
                         base_type.native_type = parent;
                     }
@@ -3364,16 +3375,16 @@ Error GDScriptLanguage::lookup_code(const String &p_code, const String &p_symbol
                 for (List<PropertyInfo>::Element *E = props.front(); E; E = E->next()) {
 
                     String s = E->get().name;
-                    if (!s.begins_with("autoload/"))
+                    if (!StringUtils::begins_with(s,"autoload/"))
                         continue;
-                    String name = s.get_slice("/", 1);
+                    String name = StringUtils::get_slice(s,"/", 1);
                     if (name == String(p_symbol)) {
 
                         String path = ProjectSettings::get_singleton()->get(s);
-                        if (path.begins_with("*")) {
-                            String script = path.substr(1, path.length());
+                        if (StringUtils::begins_with(path,"*")) {
+                            String script = StringUtils::substr(path,1, path.length());
 
-                            if (!script.ends_with(".gd")) {
+                            if (!StringUtils::ends_with(script,".gd")) {
                                 // Not a script, try find the script anyway,
                                 // may have some success
                                 script = PathUtils::get_basename(script) + ".gd";
@@ -3406,8 +3417,8 @@ Error GDScriptLanguage::lookup_code(const String &p_code, const String &p_symbol
                             }
 
                             // proxy class remove the underscore.
-                            if (r_result.class_name.begins_with("_")) {
-                                r_result.class_name = r_result.class_name.right(1);
+                            if (StringUtils::begins_with(r_result.class_name,"_")) {
+                                r_result.class_name = StringUtils::right(r_result.class_name,1);
                             }
                             return OK;
                         }

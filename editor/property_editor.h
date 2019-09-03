@@ -52,7 +52,7 @@ class PropertySelector;
 
 class EditorResourceConversionPlugin : public Reference {
 
-	GDCLASS(EditorResourceConversionPlugin, Reference);
+	GDCLASS(EditorResourceConversionPlugin,Reference)
 
 protected:
 	static void _bind_methods();
@@ -65,7 +65,7 @@ public:
 
 class CustomPropertyEditor : public Popup {
 
-	GDCLASS(CustomPropertyEditor, Popup);
+	GDCLASS(CustomPropertyEditor,Popup)
 
 	enum {
 		MAX_VALUE_EDITORS = 12,

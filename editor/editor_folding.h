@@ -28,10 +28,15 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef EDITOR_FOLDING_H
-#define EDITOR_FOLDING_H
+#pragma once
 
-#include "scene/main/node.h"
+#include "core/pool_vector.h"
+#include "core/reference.h"
+#include "core/resource.h"
+
+typedef Ref<Resource> RES;
+class Node;
+
 
 class EditorFolding {
 
@@ -56,5 +61,3 @@ public:
 
 	EditorFolding();
 };
-
-#endif // EDITOR_FOLDING_H

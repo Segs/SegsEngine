@@ -32,11 +32,16 @@
 #include "dynamic_font.h"
 #include "core/os/file_access.h"
 #include "core/os/os.h"
+#include "core/method_bind.h"
 
 #include FT_STROKER_H
 
 #define __STDC_LIMIT_MACROS
 #include <stdint.h>
+
+IMPL_GDCLASS(DynamicFontData)
+IMPL_GDCLASS(DynamicFontAtSize)
+IMPL_GDCLASS(DynamicFont)
 
 template<>
 struct Hasher<QChar> {
@@ -89,12 +94,12 @@ void DynamicFontData::set_force_autohinter(bool p_force) {
 }
 
 void DynamicFontData::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("set_antialiased", "antialiased"), &DynamicFontData::set_antialiased);
-    ClassDB::bind_method(D_METHOD("is_antialiased"), &DynamicFontData::is_antialiased);
-    ClassDB::bind_method(D_METHOD("set_font_path", "path"), &DynamicFontData::set_font_path);
-    ClassDB::bind_method(D_METHOD("get_font_path"), &DynamicFontData::get_font_path);
-    ClassDB::bind_method(D_METHOD("set_hinting", "mode"), &DynamicFontData::set_hinting);
-    ClassDB::bind_method(D_METHOD("get_hinting"), &DynamicFontData::get_hinting);
+    MethodBinder::bind_method(D_METHOD("set_antialiased", "antialiased"), &DynamicFontData::set_antialiased);
+    MethodBinder::bind_method(D_METHOD("is_antialiased"), &DynamicFontData::is_antialiased);
+    MethodBinder::bind_method(D_METHOD("set_font_path", "path"), &DynamicFontData::set_font_path);
+    MethodBinder::bind_method(D_METHOD("get_font_path"), &DynamicFontData::get_font_path);
+    MethodBinder::bind_method(D_METHOD("set_hinting", "mode"), &DynamicFontData::set_hinting);
+    MethodBinder::bind_method(D_METHOD("get_hinting"), &DynamicFontData::get_hinting);
 
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "antialiased"), "set_antialiased", "is_antialiased");
     ADD_PROPERTY(PropertyInfo(Variant::INT, "hinting", PROPERTY_HINT_ENUM, "None,Light,Normal"), "set_hinting", "get_hinting");
@@ -927,8 +932,8 @@ void DynamicFont::remove_fallback(int p_idx) {
 bool DynamicFont::_set(const StringName &p_name, const Variant &p_value) {
 
     String str = p_name;
-    if (str.begins_with("fallback/")) {
-        int idx = str.get_slicec('/', 1).to_int();
+    if (StringUtils::begins_with(str,"fallback/")) {
+        int idx = StringUtils::to_int(StringUtils::get_slice(str,'/', 1));
         Ref<DynamicFontData> fd = p_value;
 
         if (fd.is_valid()) {
@@ -953,8 +958,8 @@ bool DynamicFont::_set(const StringName &p_name, const Variant &p_value) {
 bool DynamicFont::_get(const StringName &p_name, Variant &r_ret) const {
 
     String str = p_name;
-    if (str.begins_with("fallback/")) {
-        int idx = str.get_slicec('/', 1).to_int();
+    if (StringUtils::begins_with(str,"fallback/")) {
+        int idx = StringUtils::to_int(StringUtils::get_slice(str,'/', 1));
 
         if (idx == fallbacks.size()) {
             r_ret = Ref<DynamicFontData>();
@@ -978,30 +983,30 @@ void DynamicFont::_get_property_list(List<PropertyInfo> *p_list) const {
 
 void DynamicFont::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_font_data", "data"), &DynamicFont::set_font_data);
-    ClassDB::bind_method(D_METHOD("get_font_data"), &DynamicFont::get_font_data);
+    MethodBinder::bind_method(D_METHOD("set_font_data", "data"), &DynamicFont::set_font_data);
+    MethodBinder::bind_method(D_METHOD("get_font_data"), &DynamicFont::get_font_data);
 
-    ClassDB::bind_method(D_METHOD("set_size", "data"), &DynamicFont::set_size);
-    ClassDB::bind_method(D_METHOD("get_size"), &DynamicFont::get_size);
+    MethodBinder::bind_method(D_METHOD("set_size", "data"), &DynamicFont::set_size);
+    MethodBinder::bind_method(D_METHOD("get_size"), &DynamicFont::get_size);
 
-    ClassDB::bind_method(D_METHOD("set_outline_size", "size"), &DynamicFont::set_outline_size);
-    ClassDB::bind_method(D_METHOD("get_outline_size"), &DynamicFont::get_outline_size);
+    MethodBinder::bind_method(D_METHOD("set_outline_size", "size"), &DynamicFont::set_outline_size);
+    MethodBinder::bind_method(D_METHOD("get_outline_size"), &DynamicFont::get_outline_size);
 
-    ClassDB::bind_method(D_METHOD("set_outline_color", "color"), &DynamicFont::set_outline_color);
-    ClassDB::bind_method(D_METHOD("get_outline_color"), &DynamicFont::get_outline_color);
+    MethodBinder::bind_method(D_METHOD("set_outline_color", "color"), &DynamicFont::set_outline_color);
+    MethodBinder::bind_method(D_METHOD("get_outline_color"), &DynamicFont::get_outline_color);
 
-    ClassDB::bind_method(D_METHOD("set_use_mipmaps", "enable"), &DynamicFont::set_use_mipmaps);
-    ClassDB::bind_method(D_METHOD("get_use_mipmaps"), &DynamicFont::get_use_mipmaps);
-    ClassDB::bind_method(D_METHOD("set_use_filter", "enable"), &DynamicFont::set_use_filter);
-    ClassDB::bind_method(D_METHOD("get_use_filter"), &DynamicFont::get_use_filter);
-    ClassDB::bind_method(D_METHOD("set_spacing", "type", "value"), &DynamicFont::set_spacing);
-    ClassDB::bind_method(D_METHOD("get_spacing", "type"), &DynamicFont::get_spacing);
+    MethodBinder::bind_method(D_METHOD("set_use_mipmaps", "enable"), &DynamicFont::set_use_mipmaps);
+    MethodBinder::bind_method(D_METHOD("get_use_mipmaps"), &DynamicFont::get_use_mipmaps);
+    MethodBinder::bind_method(D_METHOD("set_use_filter", "enable"), &DynamicFont::set_use_filter);
+    MethodBinder::bind_method(D_METHOD("get_use_filter"), &DynamicFont::get_use_filter);
+    MethodBinder::bind_method(D_METHOD("set_spacing", "type", "value"), &DynamicFont::set_spacing);
+    MethodBinder::bind_method(D_METHOD("get_spacing", "type"), &DynamicFont::get_spacing);
 
-    ClassDB::bind_method(D_METHOD("add_fallback", "data"), &DynamicFont::add_fallback);
-    ClassDB::bind_method(D_METHOD("set_fallback", "idx", "data"), &DynamicFont::set_fallback);
-    ClassDB::bind_method(D_METHOD("get_fallback", "idx"), &DynamicFont::get_fallback);
-    ClassDB::bind_method(D_METHOD("remove_fallback", "idx"), &DynamicFont::remove_fallback);
-    ClassDB::bind_method(D_METHOD("get_fallback_count"), &DynamicFont::get_fallback_count);
+    MethodBinder::bind_method(D_METHOD("add_fallback", "data"), &DynamicFont::add_fallback);
+    MethodBinder::bind_method(D_METHOD("set_fallback", "idx", "data"), &DynamicFont::set_fallback);
+    MethodBinder::bind_method(D_METHOD("get_fallback", "idx"), &DynamicFont::get_fallback);
+    MethodBinder::bind_method(D_METHOD("remove_fallback", "idx"), &DynamicFont::remove_fallback);
+    MethodBinder::bind_method(D_METHOD("get_fallback_count"), &DynamicFont::get_fallback_count);
 
     ADD_GROUP("Settings", "");
     ADD_PROPERTY(PropertyInfo(Variant::INT, "size", PROPERTY_HINT_RANGE, "1,255,1"), "set_size", "get_size");

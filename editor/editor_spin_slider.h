@@ -36,7 +36,7 @@
 #include "scene/gui/texture_rect.h"
 
 class EditorSpinSlider : public Range {
-	GDCLASS(EditorSpinSlider, Range);
+	GDCLASS(EditorSpinSlider,Range)
 
 	String label;
 	int updown_offset;
@@ -85,7 +85,7 @@ protected:
 	void _focus_entered();
 
 public:
-	String get_tooltip(const Point2 &p_pos) const;
+	String get_tooltip(const Point2 &p_pos) const override;
 
 	String get_text_value() const;
 	void set_label(const String &p_label);
@@ -105,7 +105,7 @@ public:
 	void setup_and_show() { _focus_entered(); }
 	LineEdit *get_line_edit() { return value_input; }
 
-	virtual Size2 get_minimum_size() const;
+	Size2 get_minimum_size() const override;
 	EditorSpinSlider();
 };
 

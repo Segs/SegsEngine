@@ -38,7 +38,7 @@
 
 class GIProbeEditorPlugin : public EditorPlugin {
 
-	GDCLASS(GIProbeEditorPlugin, EditorPlugin);
+	GDCLASS(GIProbeEditorPlugin,EditorPlugin)
 
 	GIProbe *gi_probe;
 
@@ -56,14 +56,14 @@ protected:
 	static void _bind_methods();
 
 public:
-	virtual String get_name() const { return "GIProbe"; }
-	bool has_main_screen() const { return false; }
-	virtual void edit(Object *p_object);
-	virtual bool handles(Object *p_object) const;
-	virtual void make_visible(bool p_visible);
+	String get_name() const override { return "GIProbe"; }
+	bool has_main_screen() const override { return false; }
+	void edit(Object *p_object) override;
+	bool handles(Object *p_object) const override;
+	void make_visible(bool p_visible) override;
 
 	GIProbeEditorPlugin(EditorNode *p_node);
-	~GIProbeEditorPlugin();
+	~GIProbeEditorPlugin() override;
 };
 
 #endif // GIPROBEEDITORPLUGIN_H

@@ -35,6 +35,8 @@
 #include "core/os/file_access.h"
 #include "core/translation.h"
 
+IMPL_GDCLASS(ResourceImporterCSVTranslation)
+
 String ResourceImporterCSVTranslation::get_importer_name() const {
 
 	return "csv_translation";

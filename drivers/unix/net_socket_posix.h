@@ -73,32 +73,32 @@ public:
 	static void _set_ip_port(struct sockaddr_storage *p_addr, IP_Address &r_ip, uint16_t &r_port);
 	static size_t _set_addr_storage(struct sockaddr_storage *p_addr, const IP_Address &p_ip, uint16_t p_port, IP::Type p_ip_type);
 
-	virtual Error open(Type p_sock_type, IP::Type &ip_type);
-	virtual void close();
-	virtual Error bind(IP_Address p_addr, uint16_t p_port);
-	virtual Error listen(int p_max_pending);
-	virtual Error connect_to_host(IP_Address p_host, uint16_t p_port);
-	virtual Error poll(PollType p_type, int timeout) const;
-	virtual Error recv(uint8_t *p_buffer, int p_len, int &r_read);
-	virtual Error recvfrom(uint8_t *p_buffer, int p_len, int &r_read, IP_Address &r_ip, uint16_t &r_port);
-	virtual Error send(const uint8_t *p_buffer, int p_len, int &r_sent);
-	virtual Error sendto(const uint8_t *p_buffer, int p_len, int &r_sent, IP_Address p_ip, uint16_t p_port);
-	virtual Ref<NetSocket> accept(IP_Address &r_ip, uint16_t &r_port);
+	Error open(Type p_sock_type, IP::Type &ip_type) override;
+	void close() override;
+	Error bind(IP_Address p_addr, uint16_t p_port) override;
+	Error listen(int p_max_pending) override;
+	Error connect_to_host(IP_Address p_host, uint16_t p_port) override;
+	Error poll(PollType p_type, int timeout) const override;
+	Error recv(uint8_t *p_buffer, int p_len, int &r_read) override;
+	Error recvfrom(uint8_t *p_buffer, int p_len, int &r_read, IP_Address &r_ip, uint16_t &r_port) override;
+	Error send(const uint8_t *p_buffer, int p_len, int &r_sent) override;
+	Error sendto(const uint8_t *p_buffer, int p_len, int &r_sent, IP_Address p_ip, uint16_t p_port) override;
+	Ref<NetSocket> accept(IP_Address &r_ip, uint16_t &r_port) override;
 
-	virtual bool is_open() const;
-	virtual int get_available_bytes() const;
+	bool is_open() const override;
+	int get_available_bytes() const override;
 
-	virtual void set_broadcasting_enabled(bool p_enabled);
-	virtual void set_blocking_enabled(bool p_enabled);
-	virtual void set_ipv6_only_enabled(bool p_enabled);
-	virtual void set_tcp_no_delay_enabled(bool p_enabled);
-	virtual void set_reuse_address_enabled(bool p_enabled);
+	void set_broadcasting_enabled(bool p_enabled) override;
+	void set_blocking_enabled(bool p_enabled) override;
+	void set_ipv6_only_enabled(bool p_enabled) override;
+	void set_tcp_no_delay_enabled(bool p_enabled) override;
+	void set_reuse_address_enabled(bool p_enabled) override;
 	virtual void set_reuse_port_enabled(bool p_enabled);
-	virtual Error join_multicast_group(const IP_Address &p_multi_address, String p_if_name);
-	virtual Error leave_multicast_group(const IP_Address &p_multi_address, String p_if_name);
+	Error join_multicast_group(const IP_Address &p_multi_address, String p_if_name) override;
+	Error leave_multicast_group(const IP_Address &p_multi_address, String p_if_name) override;
 
 	NetSocketPosix();
-	~NetSocketPosix();
+	~NetSocketPosix() override;
 };
 
 #endif

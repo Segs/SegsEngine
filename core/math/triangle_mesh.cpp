@@ -32,6 +32,9 @@
 
 #include "core/map.h"
 #include "core/sort_array.h"
+#include "core/property_info.h"
+
+IMPL_GDCLASS(TriangleMesh)
 
 int TriangleMesh::_create_bvh(BVH *p_bvh, BVH **p_bb, int p_from, int p_size, int p_depth, int &max_depth, int &max_alloc) {
 

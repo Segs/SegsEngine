@@ -35,7 +35,7 @@
 
 class ArrayPropertyEdit : public Reference {
 
-	GDCLASS(ArrayPropertyEdit, Reference);
+	GDCLASS(ArrayPropertyEdit,Reference)
 
 	int page;
 	ObjectID obj;

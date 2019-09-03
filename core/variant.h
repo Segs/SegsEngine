@@ -49,6 +49,7 @@
 #include "core/rid.h"
 #include "core/hashfuncs.h"
 
+#include <stdint.h>
 class RefPtr;
 class Object;
 class Node; // helper
@@ -58,13 +59,13 @@ using CharType = class QChar;
 struct PropertyInfo;
 struct MethodInfo;
 
-typedef PoolVector<uint8_t> PoolByteArray;
-typedef PoolVector<int> PoolIntArray;
-typedef PoolVector<real_t> PoolRealArray;
-typedef PoolVector<String> PoolStringArray;
-typedef PoolVector<Vector2> PoolVector2Array;
-typedef PoolVector<Vector3> PoolVector3Array;
-typedef PoolVector<Color> PoolColorArray;
+using PoolByteArray = PoolVector<uint8_t>;
+using PoolIntArray = PoolVector<int>;
+using PoolRealArray = PoolVector<real_t>;
+using PoolStringArray = PoolVector<String>;
+using PoolVector2Array = PoolVector<Vector2>;
+using PoolVector3Array = PoolVector<Vector3>;
+using PoolColorArray = PoolVector<Color>;
 
 // Temporary workaround until c++11 alignas()
 #ifdef __GNUC__
@@ -76,9 +77,9 @@ typedef PoolVector<Color> PoolColorArray;
 class Variant {
 public:
     // If this changes the table in variant_op must be updated
-    enum Type {
+	enum Type {
 
-        NIL,
+        NIL=0,
 
         // atomic types
         BOOL,
@@ -151,8 +152,9 @@ private:
     void clear();
 
 public:
+    static const Variant null_variant;
     _FORCE_INLINE_ Type get_type() const { return type; }
-    static String get_type_name(Variant::Type p_type);
+    static const char *get_type_name(Variant::Type p_type);
     static bool can_convert(Type p_type_from, Type p_type_to);
     static bool can_convert_strict(Type p_type_from, Type p_type_to);
 
@@ -410,8 +412,8 @@ public:
     static bool has_constant(Variant::Type p_type, const StringName &p_value);
     static Variant get_constant_value(Variant::Type p_type, const StringName &p_value, bool *r_valid = nullptr);
 
-    typedef String (*ObjectDeConstruct)(const Variant &p_object, void *ud);
-    typedef void (*ObjectConstruct)(const String &p_text, void *ud, Variant &r_value);
+    using ObjectDeConstruct = String (*)(const Variant &, void *);
+    using ObjectConstruct = void (*)(const String &, void *, Variant &);
 
     String get_construct_string() const;
     static void construct_from_string(const String &p_string, Variant &r_value, ObjectConstruct p_obj_construct = nullptr, void *p_construct_ud = nullptr);
@@ -423,6 +425,9 @@ public:
         if (type != Variant::NIL) clear();
     }
 };
+static constexpr int longest_variant_type_name=16;
+//! Fill correctly sized char buffer with all variant names
+void fill_with_all_variant_types(const char *nillname, char (&s)[7+(longest_variant_type_name+1)*Variant::VARIANT_MAX]);
 
 //typedef Dictionary Dictionary; no
 //typedef Array Array;

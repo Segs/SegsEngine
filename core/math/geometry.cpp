@@ -35,9 +35,10 @@
 #include "thirdparty/misc/clipper.hpp"
 #include "thirdparty/misc/triangulator.h"
 
-#define SCALE_FACTOR 100000.0 // based on CMP_EPSILON
+#define SCALE_FACTOR 100000.0 // Based on CMP_EPSILON.
 
-/* this implementation is very inefficient, commenting unless bugs happen. See the other one.
+// This implementation is very inefficient, commenting unless bugs happen. See the other one.
+/*
 bool Geometry::is_point_in_polygon(const Vector2 &p_point, const Vector<Vector2> &p_polygon) {
 
     Vector<int> indices = Geometry::triangulate_polygon(p_polygon);
@@ -125,8 +126,8 @@ struct _FaceClassify {
 };
 
 static bool _connect_faces(_FaceClassify *p_faces, int len, int p_group) {
-    /* connect faces, error will occur if an edge is shared between more than 2 faces */
-    /* clear connections */
+	// Connect faces, error will occur if an edge is shared between more than 2 faces.
+	// Clear connections.
 
     bool error = false;
 
@@ -196,13 +197,6 @@ static bool _connect_faces(_FaceClassify *p_faces, int len, int p_group) {
             if (p_faces[i].links[j].face == -1)
                 p_faces[i].valid = false;
         }
-        /*printf("face %i is valid: %i, group %i. connected to %i:%i,%i:%i,%i:%i\n",i,p_faces[i].valid,p_faces[i].group,
-            p_faces[i].links[0].face,
-            p_faces[i].links[0].edge,
-            p_faces[i].links[1].face,
-            p_faces[i].links[1].edge,
-            p_faces[i].links[2].face,
-            p_faces[i].links[2].edge);*/
     }
     return error;
 }
@@ -250,10 +244,10 @@ PoolVector<PoolVector<Face3> > Geometry::separate_objects(PoolVector<Face3> p_ar
 
     if (error) {
 
-        ERR_FAIL_COND_V(error, PoolVector<PoolVector<Face3> >()); // invalid geometry
+		ERR_FAIL_COND_V(error, PoolVector<PoolVector<Face3> >()); // Invalid geometry.
     }
 
-    /* group connected faces in separate objects */
+	// Group connected faces in separate objects.
 
     int group = 0;
     for (int i = 0; i < len; i++) {
@@ -265,7 +259,7 @@ PoolVector<PoolVector<Face3> > Geometry::separate_objects(PoolVector<Face3> p_ar
         }
     }
 
-    /* group connected faces in separate objects */
+	// Group connected faces in separate objects.
 
     for (int i = 0; i < len; i++) {
 
@@ -377,7 +371,7 @@ static inline void _plot_face(uint8_t ***p_cell_status, int x, int y, int z, int
 static inline void _mark_outside(uint8_t ***p_cell_status, int x, int y, int z, int len_x, int len_y, int len_z) {
 
     if (p_cell_status[x][y][z] & 3)
-        return; // nothing to do, already used and/or visited
+		return; // Nothing to do, already used and/or visited.
 
     p_cell_status[x][y][z] = _CELL_PREV_FIRST;
 
@@ -385,29 +379,23 @@ static inline void _mark_outside(uint8_t ***p_cell_status, int x, int y, int z, 
 
         uint8_t &c = p_cell_status[x][y][z];
 
-        //printf("at %i,%i,%i\n",x,y,z);
 
         if ((c & _CELL_STEP_MASK) == _CELL_STEP_NONE) {
-            /* Haven't been in here, mark as outside */
+			// Haven't been in here, mark as outside.
             p_cell_status[x][y][z] |= _CELL_EXTERIOR;
-            //printf("not marked as anything, marking exterior\n");
         }
 
-        //printf("cell step is %i\n",(c&_CELL_STEP_MASK));
 
         if ((c & _CELL_STEP_MASK) != _CELL_STEP_DONE) {
-            /* if not done, increase step */
+			// If not done, increase step.
             c += 1 << 2;
-            //printf("incrementing cell step\n");
         }
 
         if ((c & _CELL_STEP_MASK) == _CELL_STEP_DONE) {
-            /* Go back */
-            //printf("done, going back a cell\n");
+			// Go back.
 
             switch (c & _CELL_PREV_MASK) {
                 case _CELL_PREV_FIRST: {
-                    //printf("at end, finished marking\n");
                     return;
                 }
                 case _CELL_PREV_Y_POS: {
@@ -440,8 +428,6 @@ static inline void _mark_outside(uint8_t ***p_cell_status, int x, int y, int z, 
             }
             continue;
         }
-
-        //printf("attempting new cell!\n");
 
         int next_x = x, next_y = y, next_z = z;
         uint8_t prev = 0;
@@ -476,8 +462,6 @@ static inline void _mark_outside(uint8_t ***p_cell_status, int x, int y, int z, 
             default: ERR_FAIL();
         }
 
-        //printf("testing if new cell will be ok...!\n");
-
         if (next_x < 0 || next_x >= len_x)
             continue;
         if (next_y < 0 || next_y >= len_y)
@@ -485,12 +469,8 @@ static inline void _mark_outside(uint8_t ***p_cell_status, int x, int y, int z, 
         if (next_z < 0 || next_z >= len_z)
             continue;
 
-        //printf("testing if new cell is traversable\n");
-
         if (p_cell_status[next_x][next_y][next_z] & 3)
             continue;
-
-        //printf("move to it\n");
 
         x = next_x;
         y = next_y;
@@ -508,17 +488,6 @@ static inline void _build_faces(uint8_t ***p_cell_status, int x, int y, int z, i
     if (p_cell_status[x][y][z] & _CELL_EXTERIOR)
         return;
 
-/*	static const Vector3 vertices[8]={
-        Vector3(0,0,0),
-        Vector3(0,0,1),
-        Vector3(0,1,0),
-        Vector3(0,1,1),
-        Vector3(1,0,0),
-        Vector3(1,0,1),
-        Vector3(1,1,0),
-        Vector3(1,1,1),
-    };
-*/
 #define vert(m_idx) Vector3(((m_idx)&4) >> 2, ((m_idx)&2) >> 1, (m_idx)&1)
 
     static const uint8_t indices[6][4] = {
@@ -530,22 +499,6 @@ static inline void _build_faces(uint8_t ***p_cell_status, int x, int y, int z, i
         { 0, 4, 6, 2 },
 
     };
-    /*
-
-        {0,1,2,3},
-        {0,1,4,5},
-        {0,2,4,6},
-        {4,5,6,7},
-        {2,3,7,6},
-        {1,3,5,7},
-
-        {0,2,3,1},
-        {0,1,5,4},
-        {0,4,6,2},
-        {7,6,4,5},
-        {7,3,2,6},
-        {7,5,1,3},
-*/
 
     for (int i = 0; i < 6; i++) {
 
@@ -608,9 +561,9 @@ constexpr int _MAX_LENGTH = 20;
         }
     }
 
-    global_aabb.grow_by(0.01f); // avoid numerical error
+	global_aabb.grow_by(0.01); // Avoid numerical error.
 
-    // determine amount of cells in grid axis
+	// Determine amount of cells in grid axis.
     int div_x, div_y, div_z;
 
     if (global_aabb.size.x / _MIN_SIZE < _MAX_LENGTH)
@@ -633,7 +586,7 @@ constexpr int _MAX_LENGTH = 20;
     voxelsize.y /= div_y;
     voxelsize.z /= div_z;
 
-    // create and initialize cells to zero
+	// Create and initialize cells to zero.
 
     uint8_t ***cell_status = memnew_arr(uint8_t **, div_x);
     for (int i = 0; i < div_x; i++) {
@@ -651,7 +604,7 @@ constexpr int _MAX_LENGTH = 20;
         }
     }
 
-    // plot faces into cells
+	// Plot faces into cells.
 
     for (int i = 0; i < face_count; i++) {
 
@@ -663,7 +616,7 @@ constexpr int _MAX_LENGTH = 20;
         _plot_face(cell_status, 0, 0, 0, div_x, div_y, div_z, voxelsize, f);
     }
 
-    // determine which cells connect to the outside by traversing the outside and recursively flood-fill marking
+	// Determine which cells connect to the outside by traversing the outside and recursively flood-fill marking.
 
     for (int i = 0; i < div_x; i++) {
 
@@ -692,7 +645,7 @@ constexpr int _MAX_LENGTH = 20;
         }
     }
 
-    // build faces for the inside-outside cell divisors
+	// Build faces for the inside-outside cell divisors.
 
     PoolVector<Face3> wrapped_faces;
 
@@ -707,7 +660,7 @@ constexpr int _MAX_LENGTH = 20;
         }
     }
 
-    // transform face vertices to global coords
+	// Transform face vertices to global coords.
 
     int wrapped_faces_count = wrapped_faces.size();
     PoolVector<Face3>::Write wrapped_facesw = wrapped_faces.write();
@@ -754,7 +707,7 @@ Vector<Vector<Vector2> > Geometry::decompose_polygon_in_convex(Vector<Point2> po
     inp.SetOrientation(TRIANGULATOR_CCW);
     in_poly.push_back(inp);
     TriangulatorPartition tpart;
-    if (tpart.ConvexPartition_HM(&in_poly, &out_poly) == 0) { //failed!
+	if (tpart.ConvexPartition_HM(&in_poly, &out_poly) == 0) { // Failed.
         ERR_PRINT("Convex decomposing failed!");
         return decomp;
     }
@@ -782,7 +735,7 @@ Geometry::MeshData Geometry::build_convex_mesh(const PoolVector<Plane> &p_planes
 
     constexpr float SUBPLANE_SIZE = 1024.0;
 
-    real_t subplane_size = SUBPLANE_SIZE; // should compute this from the actual plane
+    real_t subplane_size = SUBPLANE_SIZE; // Should compute this from the actual plane.
     for (int i = 0; i < p_planes.size(); i++) {
 
         Plane p = p_planes[i];
@@ -790,7 +743,7 @@ Geometry::MeshData Geometry::build_convex_mesh(const PoolVector<Plane> &p_planes
         Vector3 ref = Vector3(0.0, 1.0, 0.0);
 
         if (ABS(p.normal.dot(ref)) > 0.95f)
-            ref = Vector3(0.0, 0.0, 1.0); // change axis
+            ref = Vector3(0.0, 0.0, 1.0); // Change axis.
 
         Vector3 right = p.normal.cross(ref).normalized();
         Vector3 up = p.normal.cross(right).normalized();
@@ -828,12 +781,12 @@ Geometry::MeshData Geometry::build_convex_mesh(const PoolVector<Plane> &p_planes
                 real_t dist0 = clip.distance_to(edge0_A);
                 real_t dist1 = clip.distance_to(edge1_A);
 
-                if (dist0 <= 0) { // behind plane
+                if (dist0 <= 0) { // Behind plane.
 
                     new_vertices.push_back(vertices[k]);
                 }
 
-                // check for different sides and non coplanar
+                // Check for different sides and non coplanar.
                 if ((dist0 * dist1) < 0) {
 
                     // calculate intersection
@@ -841,7 +794,7 @@ Geometry::MeshData Geometry::build_convex_mesh(const PoolVector<Plane> &p_planes
 
                     real_t den = clip.normal.dot(rel);
                     if (Math::is_zero_approx(den))
-                        continue; // point too short
+                        continue; // Point too short.
 
                     real_t dist = -(clip.normal.dot(edge0_A) - clip.d) / den;
                     Vector3 inters = edge0_A + rel * dist;
@@ -855,11 +808,11 @@ Geometry::MeshData Geometry::build_convex_mesh(const PoolVector<Plane> &p_planes
         if (vertices.size() < 3)
             continue;
 
-        //result is a clockwise face
+		// Result is a clockwise face.
 
         MeshData::Face face;
 
-        // add face indices
+		// Add face indices.
         for (int j = 0; j < vertices.size(); j++) {
 
             int idx = -1;
@@ -883,7 +836,7 @@ Geometry::MeshData Geometry::build_convex_mesh(const PoolVector<Plane> &p_planes
         face.plane = p;
         mesh.faces.push_back(face);
 
-        //add edge
+		// Add edge.
 
         for (int j = 0; j < face.indices.size(); j++) {
 
@@ -973,7 +926,7 @@ PoolVector<Plane> Geometry::build_sphere_planes(real_t p_radius, int p_lats, int
 
         for (int j = 1; j <= p_lats; j++) {
 
-            //todo this is stupid, fix
+			// FIXME: This is stupid.
             Vector3 angle = normal.linear_interpolate(axis, j / (real_t)p_lats).normalized();
             Vector3 pos = angle * p_radius;
             planes.push_back(Plane(pos, angle));
@@ -1033,12 +986,12 @@ struct _AtlasWorkRectResult {
 
 void Geometry::make_atlas(const Vector<Size2i> &p_rects, Vector<Point2i> &r_result, Size2i &r_size) {
 
-    //super simple, almost brute force scanline stacking fitter
-    //it's pretty basic for now, but it tries to make sure that the aspect ratio of the
-    //resulting atlas is somehow square. This is necessary because video cards have limits
-    //on texture size (usually 2048 or 4096), so the more square a texture, the more chances
-    //it will work in every hardware.
-    // for example, it will prioritize a 1024x1024 atlas (works everywhere) instead of a
+	// Super simple, almost brute force scanline stacking fitter.
+	// It's pretty basic for now, but it tries to make sure that the aspect ratio of the
+	// resulting atlas is somehow square. This is necessary because video cards have limits.
+	// On texture size (usually 2048 or 4096), so the more square a texture, the more chances.
+	// It will work in every hardware.
+	// For example, it will prioritize a 1024x1024 atlas (works everywhere) instead of a
     // 256x8192 atlas (won't work anywhere).
 
     ERR_FAIL_COND(p_rects.size() == 0);

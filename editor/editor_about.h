@@ -46,7 +46,7 @@
 
 class EditorAbout : public AcceptDialog {
 
-	GDCLASS(EditorAbout, AcceptDialog);
+	GDCLASS(EditorAbout,AcceptDialog)
 
 private:
 	void _license_tree_selected();
@@ -65,7 +65,7 @@ public:
 	TextureRect *get_logo() const;
 
 	EditorAbout();
-	~EditorAbout();
+	~EditorAbout() override;
 };
 
 #endif

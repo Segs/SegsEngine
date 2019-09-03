@@ -38,7 +38,7 @@
 class NavigationMeshEditor : public Control {
 	friend class NavigationMeshEditorPlugin;
 
-	GDCLASS(NavigationMeshEditor, Control);
+	GDCLASS(NavigationMeshEditor,Control)
 
 	AcceptDialog *err_dialog;
 
@@ -60,25 +60,25 @@ protected:
 public:
 	void edit(NavigationMeshInstance *p_nav_mesh_instance);
 	NavigationMeshEditor();
-	~NavigationMeshEditor();
+	~NavigationMeshEditor() override;
 };
 
 class NavigationMeshEditorPlugin : public EditorPlugin {
 
-	GDCLASS(NavigationMeshEditorPlugin, EditorPlugin);
+	GDCLASS(NavigationMeshEditorPlugin,EditorPlugin)
 
 	NavigationMeshEditor *navigation_mesh_editor;
 	EditorNode *editor;
 
 public:
-	virtual String get_name() const { return "NavigationMesh"; }
-	bool has_main_screen() const { return false; }
-	virtual void edit(Object *p_object);
-	virtual bool handles(Object *p_object) const;
-	virtual void make_visible(bool p_visible);
+	String get_name() const override { return "NavigationMesh"; }
+	bool has_main_screen() const override { return false; }
+	void edit(Object *p_object) override;
+	bool handles(Object *p_object) const override;
+	void make_visible(bool p_visible) override;
 
 	NavigationMeshEditorPlugin(EditorNode *p_node);
-	~NavigationMeshEditorPlugin();
+	~NavigationMeshEditorPlugin() override;
 };
 
 #endif // NAVIGATION_MESH_GENERATOR_PLUGIN_H

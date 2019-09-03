@@ -29,6 +29,9 @@
 /*************************************************************************/
 
 #include "packet_peer_gdnative.h"
+#include "core/property_info.h"
+
+IMPL_GDCLASS(PacketPeerGDNative)
 
 PacketPeerGDNative::PacketPeerGDNative() {
 	interface = nullptr;

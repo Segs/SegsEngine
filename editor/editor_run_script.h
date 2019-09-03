@@ -36,7 +36,7 @@
 class EditorNode;
 class EditorScript : public Reference {
 
-	GDCLASS(EditorScript, Reference);
+	GDCLASS(EditorScript,Reference)
 
 	EditorNode *editor;
 

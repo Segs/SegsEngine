@@ -30,10 +30,15 @@
 
 #include "particles_editor_plugin.h"
 
+#include "core/method_bind.h"
 #include "core/io/resource_loader.h"
 #include "editor/plugins/spatial_editor_plugin.h"
 #include "scene/3d/cpu_particles.h"
 #include "scene/resources/particles_material.h"
+
+IMPL_GDCLASS(ParticlesEditorBase)
+IMPL_GDCLASS(ParticlesEditor)
+IMPL_GDCLASS(ParticlesEditorPlugin)
 
 bool ParticlesEditorBase::_generate(PoolVector<Vector3> &points, PoolVector<Vector3> &normals) {
 
@@ -206,8 +211,8 @@ void ParticlesEditorBase::_node_selected(const NodePath &p_path) {
 
 void ParticlesEditorBase::_bind_methods() {
 
-    ClassDB::bind_method("_node_selected", &ParticlesEditorBase::_node_selected);
-    ClassDB::bind_method("_generate_emission_points", &ParticlesEditorBase::_generate_emission_points);
+    MethodBinder::bind_method("_node_selected", &ParticlesEditorBase::_node_selected);
+    MethodBinder::bind_method("_generate_emission_points", &ParticlesEditorBase::_generate_emission_points);
 }
 
 ParticlesEditorBase::ParticlesEditorBase() {
@@ -453,9 +458,9 @@ void ParticlesEditor::_generate_emission_points() {
 
 void ParticlesEditor::_bind_methods() {
 
-    ClassDB::bind_method("_menu_option", &ParticlesEditor::_menu_option);
-    ClassDB::bind_method("_generate_aabb", &ParticlesEditor::_generate_aabb);
-    ClassDB::bind_method("_node_removed", &ParticlesEditor::_node_removed);
+    MethodBinder::bind_method("_menu_option", &ParticlesEditor::_menu_option);
+    MethodBinder::bind_method("_generate_aabb", &ParticlesEditor::_generate_aabb);
+    MethodBinder::bind_method("_node_removed", &ParticlesEditor::_node_removed);
 }
 
 ParticlesEditor::ParticlesEditor() {

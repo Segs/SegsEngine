@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef TEST_ASTAR_H
-#define TEST_ASTAR_H
+#pragma once
 
 #include "core/os/main_loop.h"
 
@@ -38,4 +37,3 @@ namespace TestAStar {
 MainLoop *test();
 }
 
-#endif

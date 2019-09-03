@@ -31,6 +31,9 @@
 #include "stream_peer_ssl.h"
 
 #include "core/engine.h"
+#include "core/method_bind.h"
+
+IMPL_GDCLASS(StreamPeerSSL)
 
 StreamPeerSSL *(*StreamPeerSSL::_create)() = nullptr;
 
@@ -58,21 +61,21 @@ bool StreamPeerSSL::is_blocking_handshake_enabled() const {
 
 void StreamPeerSSL::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("poll"), &StreamPeerSSL::poll);
-	ClassDB::bind_method(D_METHOD("accept_stream", "stream", "private_key", "certificate", "chain"), &StreamPeerSSL::accept_stream, {DEFVAL(Ref<X509Certificate>())});
-	ClassDB::bind_method(D_METHOD("connect_to_stream", "stream", "validate_certs", "for_hostname", "valid_certificate"), &StreamPeerSSL::connect_to_stream, {DEFVAL(false), DEFVAL(String()), DEFVAL(Ref<X509Certificate>())});
-    ClassDB::bind_method(D_METHOD("get_status"), &StreamPeerSSL::get_status);
-    ClassDB::bind_method(D_METHOD("disconnect_from_stream"), &StreamPeerSSL::disconnect_from_stream);
-    ClassDB::bind_method(D_METHOD("set_blocking_handshake_enabled", "enabled"), &StreamPeerSSL::set_blocking_handshake_enabled);
-    ClassDB::bind_method(D_METHOD("is_blocking_handshake_enabled"), &StreamPeerSSL::is_blocking_handshake_enabled);
+    MethodBinder::bind_method(D_METHOD("poll"), &StreamPeerSSL::poll);
+    MethodBinder::bind_method(D_METHOD("accept_stream", "stream", "private_key", "certificate", "chain"), &StreamPeerSSL::accept_stream, {DEFVAL(Ref<X509Certificate>())});
+    MethodBinder::bind_method(D_METHOD("connect_to_stream", "stream", "validate_certs", "for_hostname", "valid_certificate"), &StreamPeerSSL::connect_to_stream, {DEFVAL(false), DEFVAL(String()), DEFVAL(Ref<X509Certificate>())});
+    MethodBinder::bind_method(D_METHOD("get_status"), &StreamPeerSSL::get_status);
+    MethodBinder::bind_method(D_METHOD("disconnect_from_stream"), &StreamPeerSSL::disconnect_from_stream);
+    MethodBinder::bind_method(D_METHOD("set_blocking_handshake_enabled", "enabled"), &StreamPeerSSL::set_blocking_handshake_enabled);
+    MethodBinder::bind_method(D_METHOD("is_blocking_handshake_enabled"), &StreamPeerSSL::is_blocking_handshake_enabled);
 
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "blocking_handshake"), "set_blocking_handshake_enabled", "is_blocking_handshake_enabled");
 
-	BIND_ENUM_CONSTANT(STATUS_DISCONNECTED)
-	BIND_ENUM_CONSTANT(STATUS_HANDSHAKING)
-	BIND_ENUM_CONSTANT(STATUS_CONNECTED)
-	BIND_ENUM_CONSTANT(STATUS_ERROR)
-	BIND_ENUM_CONSTANT(STATUS_ERROR_HOSTNAME_MISMATCH)
+    BIND_ENUM_CONSTANT(STATUS_DISCONNECTED)
+    BIND_ENUM_CONSTANT(STATUS_HANDSHAKING)
+    BIND_ENUM_CONSTANT(STATUS_CONNECTED)
+    BIND_ENUM_CONSTANT(STATUS_ERROR)
+    BIND_ENUM_CONSTANT(STATUS_ERROR_HOSTNAME_MISMATCH)
 }
 
 StreamPeerSSL::StreamPeerSSL() {

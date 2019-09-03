@@ -32,10 +32,17 @@
 
 #include "core/engine.h"
 #include "core/io/resource_loader.h"
+#include "core/method_bind.h"
 #include "core/os/os.h"
+#include "core/string_formatter.h"
 #include "scene/main/node.h"
 #include "scene/main/scene_tree.h"
 #include "visual_script_nodes.h"
+
+IMPL_GDCLASS(VisualScriptFunctionCall)
+IMPL_GDCLASS(VisualScriptPropertySet)
+IMPL_GDCLASS(VisualScriptPropertyGet)
+IMPL_GDCLASS(VisualScriptEmitSignal)
 
 //////////////////////////////////////////
 ////////////////CALL//////////////////////
@@ -117,7 +124,7 @@ StringName VisualScriptFunctionCall::_get_base_type() const {
     else if (call_mode == CALL_MODE_NODE_PATH && get_visual_script().is_valid()) {
         Node *path = _get_base_node();
         if (path)
-            return path->get_class();
+            return path->get_class_name();
     }
 
     return base_type;
@@ -263,7 +270,7 @@ String VisualScriptFunctionCall::get_caption() const {
     if (call_mode == CALL_MODE_SINGLETON)
         return String(singleton) + ":" + String(function) + "()";
     else if (call_mode == CALL_MODE_BASIC_TYPE)
-        return Variant::get_type_name(basic_type) + "." + String(function) + "()";
+        return FormatV("%s.%s()",Variant::get_type_name(basic_type),qPrintable(function.asString().m_str));
     else if (call_mode == CALL_MODE_NODE_PATH)
         return " [" + String(base_path.simplified()) + "]." + String(function) + "()";
     else
@@ -331,7 +338,7 @@ void VisualScriptFunctionCall::set_singleton(const StringName &p_type) {
     singleton = p_type;
     Object *obj = Engine::get_singleton()->get_singleton_object(singleton);
     if (obj) {
-        base_type = obj->get_class();
+        base_type = obj->get_class_name();
     }
 
     _change_notify();
@@ -351,7 +358,7 @@ void VisualScriptFunctionCall::_update_method_cache() {
 
         Node *node = _get_base_node();
         if (node) {
-            type = node->get_class();
+            type = node->get_class_name();
             base_type = type; //cache, too
             script = node->get_script();
         }
@@ -367,7 +374,7 @@ void VisualScriptFunctionCall::_update_method_cache() {
 
         Object *obj = Engine::get_singleton()->get_singleton_object(singleton);
         if (obj) {
-            type = obj->get_class();
+            type = obj->get_class_name();
             script = obj->get_script();
         }
 
@@ -662,38 +669,38 @@ void VisualScriptFunctionCall::_validate_property(PropertyInfo &property) const 
 
 void VisualScriptFunctionCall::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_base_type", "base_type"), &VisualScriptFunctionCall::set_base_type);
-    ClassDB::bind_method(D_METHOD("get_base_type"), &VisualScriptFunctionCall::get_base_type);
+    MethodBinder::bind_method(D_METHOD("set_base_type", "base_type"), &VisualScriptFunctionCall::set_base_type);
+    MethodBinder::bind_method(D_METHOD("get_base_type"), &VisualScriptFunctionCall::get_base_type);
 
-    ClassDB::bind_method(D_METHOD("set_base_script", "base_script"), &VisualScriptFunctionCall::set_base_script);
-    ClassDB::bind_method(D_METHOD("get_base_script"), &VisualScriptFunctionCall::get_base_script);
+    MethodBinder::bind_method(D_METHOD("set_base_script", "base_script"), &VisualScriptFunctionCall::set_base_script);
+    MethodBinder::bind_method(D_METHOD("get_base_script"), &VisualScriptFunctionCall::get_base_script);
 
-    ClassDB::bind_method(D_METHOD("set_basic_type", "basic_type"), &VisualScriptFunctionCall::set_basic_type);
-    ClassDB::bind_method(D_METHOD("get_basic_type"), &VisualScriptFunctionCall::get_basic_type);
+    MethodBinder::bind_method(D_METHOD("set_basic_type", "basic_type"), &VisualScriptFunctionCall::set_basic_type);
+    MethodBinder::bind_method(D_METHOD("get_basic_type"), &VisualScriptFunctionCall::get_basic_type);
 
-    ClassDB::bind_method(D_METHOD("set_singleton", "singleton"), &VisualScriptFunctionCall::set_singleton);
-    ClassDB::bind_method(D_METHOD("get_singleton"), &VisualScriptFunctionCall::get_singleton);
+    MethodBinder::bind_method(D_METHOD("set_singleton", "singleton"), &VisualScriptFunctionCall::set_singleton);
+    MethodBinder::bind_method(D_METHOD("get_singleton"), &VisualScriptFunctionCall::get_singleton);
 
-    ClassDB::bind_method(D_METHOD("set_function", "function"), &VisualScriptFunctionCall::set_function);
-    ClassDB::bind_method(D_METHOD("get_function"), &VisualScriptFunctionCall::get_function);
+    MethodBinder::bind_method(D_METHOD("set_function", "function"), &VisualScriptFunctionCall::set_function);
+    MethodBinder::bind_method(D_METHOD("get_function"), &VisualScriptFunctionCall::get_function);
 
-    ClassDB::bind_method(D_METHOD("set_call_mode", "mode"), &VisualScriptFunctionCall::set_call_mode);
-    ClassDB::bind_method(D_METHOD("get_call_mode"), &VisualScriptFunctionCall::get_call_mode);
+    MethodBinder::bind_method(D_METHOD("set_call_mode", "mode"), &VisualScriptFunctionCall::set_call_mode);
+    MethodBinder::bind_method(D_METHOD("get_call_mode"), &VisualScriptFunctionCall::get_call_mode);
 
-    ClassDB::bind_method(D_METHOD("set_base_path", "base_path"), &VisualScriptFunctionCall::set_base_path);
-    ClassDB::bind_method(D_METHOD("get_base_path"), &VisualScriptFunctionCall::get_base_path);
+    MethodBinder::bind_method(D_METHOD("set_base_path", "base_path"), &VisualScriptFunctionCall::set_base_path);
+    MethodBinder::bind_method(D_METHOD("get_base_path"), &VisualScriptFunctionCall::get_base_path);
 
-    ClassDB::bind_method(D_METHOD("set_use_default_args", "amount"), &VisualScriptFunctionCall::set_use_default_args);
-    ClassDB::bind_method(D_METHOD("get_use_default_args"), &VisualScriptFunctionCall::get_use_default_args);
+    MethodBinder::bind_method(D_METHOD("set_use_default_args", "amount"), &VisualScriptFunctionCall::set_use_default_args);
+    MethodBinder::bind_method(D_METHOD("get_use_default_args"), &VisualScriptFunctionCall::get_use_default_args);
 
-    ClassDB::bind_method(D_METHOD("_set_argument_cache", "argument_cache"), &VisualScriptFunctionCall::_set_argument_cache);
-    ClassDB::bind_method(D_METHOD("_get_argument_cache"), &VisualScriptFunctionCall::_get_argument_cache);
+    MethodBinder::bind_method(D_METHOD("_set_argument_cache", "argument_cache"), &VisualScriptFunctionCall::_set_argument_cache);
+    MethodBinder::bind_method(D_METHOD("_get_argument_cache"), &VisualScriptFunctionCall::_get_argument_cache);
 
-    ClassDB::bind_method(D_METHOD("set_rpc_call_mode", "mode"), &VisualScriptFunctionCall::set_rpc_call_mode);
-    ClassDB::bind_method(D_METHOD("get_rpc_call_mode"), &VisualScriptFunctionCall::get_rpc_call_mode);
+    MethodBinder::bind_method(D_METHOD("set_rpc_call_mode", "mode"), &VisualScriptFunctionCall::set_rpc_call_mode);
+    MethodBinder::bind_method(D_METHOD("get_rpc_call_mode"), &VisualScriptFunctionCall::get_rpc_call_mode);
 
-    ClassDB::bind_method(D_METHOD("set_validate", "enable"), &VisualScriptFunctionCall::set_validate);
-    ClassDB::bind_method(D_METHOD("get_validate"), &VisualScriptFunctionCall::get_validate);
+    MethodBinder::bind_method(D_METHOD("set_validate", "enable"), &VisualScriptFunctionCall::set_validate);
+    MethodBinder::bind_method(D_METHOD("get_validate"), &VisualScriptFunctionCall::get_validate);
 
     String bt;
     for (int i = 0; i < Variant::VARIANT_MAX; i++) {
@@ -786,7 +793,7 @@ public:
         return true;
     }
 
-    virtual int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
 
         switch (call_mode) {
 
@@ -991,7 +998,7 @@ StringName VisualScriptPropertySet::_get_base_type() const {
     else if (call_mode == CALL_MODE_NODE_PATH && get_visual_script().is_valid()) {
         Node *path = _get_base_node();
         if (path)
-            return path->get_class();
+            return path->get_class_name();
     }
 
     return base_type;
@@ -1104,7 +1111,7 @@ void VisualScriptPropertySet::_update_base_type() {
 
         Node *node = _get_base_node();
         if (node) {
-            base_type = node->get_class();
+            base_type = node->get_class_name();
         }
     } else if (call_mode == CALL_MODE_SELF) {
 
@@ -1196,7 +1203,7 @@ void VisualScriptPropertySet::_update_cache() {
 
             node = _get_base_node();
             if (node) {
-                type = node->get_class();
+                type = node->get_class_name();
                 base_type = type; //cache, too
                 script = node->get_script();
             }
@@ -1433,32 +1440,32 @@ void VisualScriptPropertySet::_validate_property(PropertyInfo &property) const {
 
 void VisualScriptPropertySet::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_base_type", "base_type"), &VisualScriptPropertySet::set_base_type);
-    ClassDB::bind_method(D_METHOD("get_base_type"), &VisualScriptPropertySet::get_base_type);
+    MethodBinder::bind_method(D_METHOD("set_base_type", "base_type"), &VisualScriptPropertySet::set_base_type);
+    MethodBinder::bind_method(D_METHOD("get_base_type"), &VisualScriptPropertySet::get_base_type);
 
-    ClassDB::bind_method(D_METHOD("set_base_script", "base_script"), &VisualScriptPropertySet::set_base_script);
-    ClassDB::bind_method(D_METHOD("get_base_script"), &VisualScriptPropertySet::get_base_script);
+    MethodBinder::bind_method(D_METHOD("set_base_script", "base_script"), &VisualScriptPropertySet::set_base_script);
+    MethodBinder::bind_method(D_METHOD("get_base_script"), &VisualScriptPropertySet::get_base_script);
 
-    ClassDB::bind_method(D_METHOD("set_basic_type", "basic_type"), &VisualScriptPropertySet::set_basic_type);
-    ClassDB::bind_method(D_METHOD("get_basic_type"), &VisualScriptPropertySet::get_basic_type);
+    MethodBinder::bind_method(D_METHOD("set_basic_type", "basic_type"), &VisualScriptPropertySet::set_basic_type);
+    MethodBinder::bind_method(D_METHOD("get_basic_type"), &VisualScriptPropertySet::get_basic_type);
 
-    ClassDB::bind_method(D_METHOD("_set_type_cache", "type_cache"), &VisualScriptPropertySet::_set_type_cache);
-    ClassDB::bind_method(D_METHOD("_get_type_cache"), &VisualScriptPropertySet::_get_type_cache);
+    MethodBinder::bind_method(D_METHOD("_set_type_cache", "type_cache"), &VisualScriptPropertySet::_set_type_cache);
+    MethodBinder::bind_method(D_METHOD("_get_type_cache"), &VisualScriptPropertySet::_get_type_cache);
 
-    ClassDB::bind_method(D_METHOD("set_property", "property"), &VisualScriptPropertySet::set_property);
-    ClassDB::bind_method(D_METHOD("get_property"), &VisualScriptPropertySet::get_property);
+    MethodBinder::bind_method(D_METHOD("set_property", "property"), &VisualScriptPropertySet::set_property);
+    MethodBinder::bind_method(D_METHOD("get_property"), &VisualScriptPropertySet::get_property);
 
-    ClassDB::bind_method(D_METHOD("set_call_mode", "mode"), &VisualScriptPropertySet::set_call_mode);
-    ClassDB::bind_method(D_METHOD("get_call_mode"), &VisualScriptPropertySet::get_call_mode);
+    MethodBinder::bind_method(D_METHOD("set_call_mode", "mode"), &VisualScriptPropertySet::set_call_mode);
+    MethodBinder::bind_method(D_METHOD("get_call_mode"), &VisualScriptPropertySet::get_call_mode);
 
-    ClassDB::bind_method(D_METHOD("set_base_path", "base_path"), &VisualScriptPropertySet::set_base_path);
-    ClassDB::bind_method(D_METHOD("get_base_path"), &VisualScriptPropertySet::get_base_path);
+    MethodBinder::bind_method(D_METHOD("set_base_path", "base_path"), &VisualScriptPropertySet::set_base_path);
+    MethodBinder::bind_method(D_METHOD("get_base_path"), &VisualScriptPropertySet::get_base_path);
 
-    ClassDB::bind_method(D_METHOD("set_index", "index"), &VisualScriptPropertySet::set_index);
-    ClassDB::bind_method(D_METHOD("get_index"), &VisualScriptPropertySet::get_index);
+    MethodBinder::bind_method(D_METHOD("set_index", "index"), &VisualScriptPropertySet::set_index);
+    MethodBinder::bind_method(D_METHOD("get_index"), &VisualScriptPropertySet::get_index);
 
-    ClassDB::bind_method(D_METHOD("set_assign_op", "assign_op"), &VisualScriptPropertySet::set_assign_op);
-    ClassDB::bind_method(D_METHOD("get_assign_op"), &VisualScriptPropertySet::get_assign_op);
+    MethodBinder::bind_method(D_METHOD("set_assign_op", "assign_op"), &VisualScriptPropertySet::set_assign_op);
+    MethodBinder::bind_method(D_METHOD("get_assign_op"), &VisualScriptPropertySet::get_assign_op);
 
     String bt;
     for (int i = 0; i < Variant::VARIANT_MAX; i++) {
@@ -1583,7 +1590,7 @@ public:
         }
     }
 
-    virtual int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
 
         switch (call_mode) {
 
@@ -1726,7 +1733,7 @@ void VisualScriptPropertyGet::_update_base_type() {
 
         Node *node = _get_base_node();
         if (node) {
-            base_type = node->get_class();
+            base_type = node->get_class_name();
         }
     } else if (call_mode == CALL_MODE_SELF) {
 
@@ -1778,7 +1785,7 @@ StringName VisualScriptPropertyGet::_get_base_type() const {
     else if (call_mode == CALL_MODE_NODE_PATH && get_visual_script().is_valid()) {
         Node *path = _get_base_node();
         if (path)
-            return path->get_class();
+            return path->get_class_name();
     }
 
     return base_type;
@@ -1905,7 +1912,7 @@ void VisualScriptPropertyGet::_update_cache() {
 
             node = _get_base_node();
             if (node) {
-                type = node->get_class();
+                type = node->get_class_name();
                 base_type = type; //cache, too
                 script = node->get_script();
             }
@@ -2148,31 +2155,31 @@ void VisualScriptPropertyGet::_validate_property(PropertyInfo &property) const {
 
 void VisualScriptPropertyGet::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_base_type", "base_type"), &VisualScriptPropertyGet::set_base_type);
-    ClassDB::bind_method(D_METHOD("get_base_type"), &VisualScriptPropertyGet::get_base_type);
+    MethodBinder::bind_method(D_METHOD("set_base_type", "base_type"), &VisualScriptPropertyGet::set_base_type);
+    MethodBinder::bind_method(D_METHOD("get_base_type"), &VisualScriptPropertyGet::get_base_type);
 
-    ClassDB::bind_method(D_METHOD("set_base_script", "base_script"), &VisualScriptPropertyGet::set_base_script);
-    ClassDB::bind_method(D_METHOD("get_base_script"), &VisualScriptPropertyGet::get_base_script);
+    MethodBinder::bind_method(D_METHOD("set_base_script", "base_script"), &VisualScriptPropertyGet::set_base_script);
+    MethodBinder::bind_method(D_METHOD("get_base_script"), &VisualScriptPropertyGet::get_base_script);
 
-    ClassDB::bind_method(D_METHOD("set_basic_type", "basic_type"), &VisualScriptPropertyGet::set_basic_type);
-    ClassDB::bind_method(D_METHOD("get_basic_type"), &VisualScriptPropertyGet::get_basic_type);
+    MethodBinder::bind_method(D_METHOD("set_basic_type", "basic_type"), &VisualScriptPropertyGet::set_basic_type);
+    MethodBinder::bind_method(D_METHOD("get_basic_type"), &VisualScriptPropertyGet::get_basic_type);
 
-    ClassDB::bind_method(D_METHOD("_set_type_cache", "type_cache"), &VisualScriptPropertyGet::_set_type_cache);
-    ClassDB::bind_method(D_METHOD("_get_type_cache"), &VisualScriptPropertyGet::_get_type_cache);
+    MethodBinder::bind_method(D_METHOD("_set_type_cache", "type_cache"), &VisualScriptPropertyGet::_set_type_cache);
+    MethodBinder::bind_method(D_METHOD("_get_type_cache"), &VisualScriptPropertyGet::_get_type_cache);
 
-    ClassDB::bind_method(D_METHOD("set_property", "property"), &VisualScriptPropertyGet::set_property);
-    ClassDB::bind_method(D_METHOD("get_property"), &VisualScriptPropertyGet::get_property);
+    MethodBinder::bind_method(D_METHOD("set_property", "property"), &VisualScriptPropertyGet::set_property);
+    MethodBinder::bind_method(D_METHOD("get_property"), &VisualScriptPropertyGet::get_property);
 
-    ClassDB::bind_method(D_METHOD("set_call_mode", "mode"), &VisualScriptPropertyGet::set_call_mode);
-    ClassDB::bind_method(D_METHOD("get_call_mode"), &VisualScriptPropertyGet::get_call_mode);
+    MethodBinder::bind_method(D_METHOD("set_call_mode", "mode"), &VisualScriptPropertyGet::set_call_mode);
+    MethodBinder::bind_method(D_METHOD("get_call_mode"), &VisualScriptPropertyGet::get_call_mode);
 
-    ClassDB::bind_method(D_METHOD("set_base_path", "base_path"), &VisualScriptPropertyGet::set_base_path);
-    ClassDB::bind_method(D_METHOD("get_base_path"), &VisualScriptPropertyGet::get_base_path);
+    MethodBinder::bind_method(D_METHOD("set_base_path", "base_path"), &VisualScriptPropertyGet::set_base_path);
+    MethodBinder::bind_method(D_METHOD("get_base_path"), &VisualScriptPropertyGet::get_base_path);
 
-    ClassDB::bind_method(D_METHOD("set_index", "index"), &VisualScriptPropertyGet::set_index);
-    ClassDB::bind_method(D_METHOD("get_index"), &VisualScriptPropertyGet::get_index);
+    MethodBinder::bind_method(D_METHOD("set_index", "index"), &VisualScriptPropertyGet::set_index);
+    MethodBinder::bind_method(D_METHOD("get_index"), &VisualScriptPropertyGet::get_index);
 
-    String bt;
+    CharString bt;
     for (int i = 0; i < Variant::VARIANT_MAX; i++) {
         if (i > 0)
             bt += ",";
@@ -2185,11 +2192,11 @@ void VisualScriptPropertyGet::_bind_methods() {
         ScriptServer::get_language(i)->get_recognized_extensions(&script_extensions);
     }
 
-    String script_ext_hint;
+    CharString script_ext_hint;
     for (List<String>::Element *E = script_extensions.front(); E; E = E->next()) {
-        if (script_ext_hint != String())
+        if (script_ext_hint.isEmpty())
             script_ext_hint += ",";
-        script_ext_hint += "." + E->get();
+        script_ext_hint += "." + StringUtils::to_utf8(E->get());
     }
 
     ADD_PROPERTY(PropertyInfo(Variant::INT, "set_mode", PROPERTY_HINT_ENUM, "Self,Node Path,Instance,Basic Type"), "set_call_mode", "get_call_mode");
@@ -2216,7 +2223,7 @@ public:
     VisualScriptPropertyGet *node;
     VisualScriptInstance *instance;
 
-    virtual int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
 
         switch (call_mode) {
 
@@ -2411,7 +2418,7 @@ void VisualScriptEmitSignal::_validate_property(PropertyInfo &property) const {
         for (int i=0,fin=sigs.size(); i<fin; ++i) {
 
             if (ml != String())
-                ml += QLatin1String(",");
+                ml.m_str += QLatin1String(",");
             ml += sigs[i];
         }
 
@@ -2421,8 +2428,8 @@ void VisualScriptEmitSignal::_validate_property(PropertyInfo &property) const {
 
 void VisualScriptEmitSignal::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_signal", "name"), &VisualScriptEmitSignal::set_signal);
-    ClassDB::bind_method(D_METHOD("get_signal"), &VisualScriptEmitSignal::get_signal);
+    MethodBinder::bind_method(D_METHOD("set_signal", "name"), &VisualScriptEmitSignal::set_signal);
+    MethodBinder::bind_method(D_METHOD("get_signal"), &VisualScriptEmitSignal::get_signal);
 
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "signal"), "set_signal", "get_signal");
 }
@@ -2438,7 +2445,7 @@ public:
     //virtual bool is_output_port_unsequenced(int p_idx) const { return false; }
     //virtual bool get_output_port_unsequenced(int p_idx,Variant* r_value,Variant* p_working_mem,String &r_error) const { return true; }
 
-    virtual int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
 
         Object *obj = instance->get_owner_ptr();
 
@@ -2464,7 +2471,7 @@ VisualScriptEmitSignal::VisualScriptEmitSignal() {
 static Ref<VisualScriptNode> create_basic_type_call_node(const String &p_name) {
 
     Vector<String> path = StringUtils::split(p_name,"/");
-    ERR_FAIL_COND_V(path.size() < 4, Ref<VisualScriptNode>());
+    ERR_FAIL_COND_V(path.size() < 4, Ref<VisualScriptNode>())
     String base_type = path[2];
     String method = path[3];
 
@@ -2481,7 +2488,7 @@ static Ref<VisualScriptNode> create_basic_type_call_node(const String &p_name) {
         }
     }
 
-    ERR_FAIL_COND_V(type == Variant::VARIANT_MAX, Ref<VisualScriptNode>());
+    ERR_FAIL_COND_V(type == Variant::VARIANT_MAX, Ref<VisualScriptNode>())
 
     node->set_call_mode(VisualScriptFunctionCall::CALL_MODE_BASIC_TYPE);
     node->set_basic_type(type);

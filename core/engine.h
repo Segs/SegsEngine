@@ -28,11 +28,9 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef ENGINE_H
-#define ENGINE_H
+#pragma once
 
 #include "core/list.h"
-#include "core/vector.h"
 #include "core/string_name.h"
 #include "core/map.h"
 #include "core/dictionary.h"
@@ -129,4 +127,3 @@ public:
     virtual ~Engine() {}
 };
 
-#endif // ENGINE_H

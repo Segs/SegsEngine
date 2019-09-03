@@ -42,511 +42,511 @@
 
 void FileAccessNetworkClient::lock_mutex() {
 
-	mutex->lock();
-	lockcount++;
+    mutex->lock();
+    lockcount++;
 }
 
 void FileAccessNetworkClient::unlock_mutex() {
 
-	lockcount--;
-	mutex->unlock();
+    lockcount--;
+    mutex->unlock();
 }
 
 void FileAccessNetworkClient::put_32(int p_32) {
 
-	uint8_t buf[4];
-	encode_uint32(p_32, buf);
-	client->put_data(buf, 4);
-	DEBUG_PRINT("put32: " + itos(p_32));
+    uint8_t buf[4];
+    encode_uint32(p_32, buf);
+    client->put_data(buf, 4);
+    DEBUG_PRINT("put32: " + itos(p_32));
 }
 
 void FileAccessNetworkClient::put_64(int64_t p_64) {
 
-	uint8_t buf[8];
-	encode_uint64(p_64, buf);
-	client->put_data(buf, 8);
-	DEBUG_PRINT("put64: " + itos(p_64));
+    uint8_t buf[8];
+    encode_uint64(p_64, buf);
+    client->put_data(buf, 8);
+    DEBUG_PRINT("put64: " + itos(p_64));
 }
 
 int FileAccessNetworkClient::get_32() {
 
-	uint8_t buf[4];
-	client->get_data(buf, 4);
-	return decode_uint32(buf);
+    uint8_t buf[4];
+    client->get_data(buf, 4);
+    return decode_uint32(buf);
 }
 
 int64_t FileAccessNetworkClient::get_64() {
 
-	uint8_t buf[8];
-	client->get_data(buf, 8);
-	return decode_uint64(buf);
+    uint8_t buf[8];
+    client->get_data(buf, 8);
+    return decode_uint64(buf);
 }
 
 void FileAccessNetworkClient::_thread_func() {
 
-	client->set_no_delay(true);
-	while (!quit) {
+    client->set_no_delay(true);
+    while (!quit) {
 
-		DEBUG_PRINT("SEM WAIT - " + itos(sem->get()));
-		Error err = sem->wait();
-		if (err != OK)
-			ERR_PRINT("sem->wait() failed");
-		DEBUG_TIME("sem_unlock");
-		//DEBUG_PRINT("semwait returned "+itos(werr));
-		DEBUG_PRINT("MUTEX LOCK " + itos(lockcount));
-		lock_mutex();
-		DEBUG_PRINT("MUTEX PASS");
+        DEBUG_PRINT("SEM WAIT - " + itos(sem->get()));
+        Error err = sem->wait();
+        if (err != OK)
+            ERR_PRINT("sem->wait() failed");
+        DEBUG_TIME("sem_unlock");
+        //DEBUG_PRINT("semwait returned "+itos(werr));
+        DEBUG_PRINT("MUTEX LOCK " + itos(lockcount));
+        lock_mutex();
+        DEBUG_PRINT("MUTEX PASS");
 
-		blockrequest_mutex->lock();
-		while (!block_requests.empty()) {
-			put_32(block_requests.front()->get().id);
-			put_32(FileAccessNetwork::COMMAND_READ_BLOCK);
-			put_64(block_requests.front()->get().offset);
-			put_32(block_requests.front()->get().size);
-			block_requests.pop_front();
-		}
-		blockrequest_mutex->unlock();
+        blockrequest_mutex->lock();
+        while (!block_requests.empty()) {
+            put_32(block_requests.front()->get().id);
+            put_32(FileAccessNetwork::COMMAND_READ_BLOCK);
+            put_64(block_requests.front()->get().offset);
+            put_32(block_requests.front()->get().size);
+            block_requests.pop_front();
+        }
+        blockrequest_mutex->unlock();
 
-		DEBUG_PRINT("THREAD ITER");
+        DEBUG_PRINT("THREAD ITER");
 
-		DEBUG_TIME("sem_read");
-		int id = get_32();
+        DEBUG_TIME("sem_read");
+        int id = get_32();
 
-		int response = get_32();
-		DEBUG_PRINT("GET RESPONSE: " + itos(response));
+        int response = get_32();
+        DEBUG_PRINT("GET RESPONSE: " + itos(response));
 
-		FileAccessNetwork *fa = nullptr;
+        FileAccessNetwork *fa = nullptr;
 
-		if (response != FileAccessNetwork::RESPONSE_DATA) {
-			if (!accesses.has(id)) {
-				unlock_mutex();
-				ERR_FAIL_COND(!accesses.has(id));
-			}
-		}
+        if (response != FileAccessNetwork::RESPONSE_DATA) {
+            if (!accesses.has(id)) {
+                unlock_mutex();
+                ERR_FAIL_COND(!accesses.has(id));
+            }
+        }
 
-		if (accesses.has(id))
-			fa = accesses[id];
+        if (accesses.has(id))
+            fa = accesses[id];
 
-		switch (response) {
+        switch (response) {
 
-			case FileAccessNetwork::RESPONSE_OPEN: {
+            case FileAccessNetwork::RESPONSE_OPEN: {
 
-				DEBUG_TIME("sem_open");
-				int status = get_32();
-				if (status != OK) {
-					fa->_respond(0, Error(status));
-				} else {
-					uint64_t len = get_64();
-					fa->_respond(len, Error(status));
-				}
+                DEBUG_TIME("sem_open");
+                int status = get_32();
+                if (status != OK) {
+                    fa->_respond(0, Error(status));
+                } else {
+                    uint64_t len = get_64();
+                    fa->_respond(len, Error(status));
+                }
 
-				fa->sem->post();
+                fa->sem->post();
 
-			} break;
-			case FileAccessNetwork::RESPONSE_DATA: {
+            } break;
+            case FileAccessNetwork::RESPONSE_DATA: {
 
-				int64_t offset = get_64();
-				uint32_t len = get_32();
+                int64_t offset = get_64();
+                uint32_t len = get_32();
 
-				Vector<uint8_t> block;
-				block.resize(len);
-				client->get_data(block.ptrw(), len);
+                Vector<uint8_t> block;
+                block.resize(len);
+                client->get_data(block.ptrw(), len);
 
-				if (fa) //may have been queued
-					fa->_set_block(offset, block);
+                if (fa) //may have been queued
+                    fa->_set_block(offset, block);
 
-			} break;
-			case FileAccessNetwork::RESPONSE_FILE_EXISTS: {
+            } break;
+            case FileAccessNetwork::RESPONSE_FILE_EXISTS: {
 
-				int status = get_32();
-				fa->exists_modtime = status != 0;
-				fa->sem->post();
+                int status = get_32();
+                fa->exists_modtime = status != 0;
+                fa->sem->post();
 
-			} break;
-			case FileAccessNetwork::RESPONSE_GET_MODTIME: {
+            } break;
+            case FileAccessNetwork::RESPONSE_GET_MODTIME: {
 
-				uint64_t status = get_64();
-				fa->exists_modtime = status;
-				fa->sem->post();
+                uint64_t status = get_64();
+                fa->exists_modtime = status;
+                fa->sem->post();
 
-			} break;
-		}
+            } break;
+        }
 
-		unlock_mutex();
-	}
+        unlock_mutex();
+    }
 }
 
 void FileAccessNetworkClient::_thread_func(void *s) {
 
-	FileAccessNetworkClient *self = (FileAccessNetworkClient *)s;
+    FileAccessNetworkClient *self = (FileAccessNetworkClient *)s;
 
-	self->_thread_func();
+    self->_thread_func();
 }
 
 Error FileAccessNetworkClient::connect(const String &p_host, int p_port, const String &p_password) {
 
-	IP_Address ip;
+    IP_Address ip;
 
-	if (StringUtils::is_valid_ip_address(p_host)) {
-		ip = p_host;
-	} else {
-		ip = IP::get_singleton()->resolve_hostname(p_host);
-	}
+    if (StringUtils::is_valid_ip_address(p_host)) {
+        ip = p_host;
+    } else {
+        ip = IP::get_singleton()->resolve_hostname(p_host);
+    }
 
-	DEBUG_PRINT("IP: " + String(ip) + " port " + itos(p_port));
-	Error err = client->connect_to_host(ip, p_port);
-	ERR_FAIL_COND_V(err, err);
-	while (client->get_status() == StreamPeerTCP::STATUS_CONNECTING) {
-		//DEBUG_PRINT("trying to connect....");
-		OS::get_singleton()->delay_usec(1000);
-	}
+    DEBUG_PRINT("IP: " + String(ip) + " port " + itos(p_port));
+    Error err = client->connect_to_host(ip, p_port);
+    ERR_FAIL_COND_V(err, err);
+    while (client->get_status() == StreamPeerTCP::STATUS_CONNECTING) {
+        //DEBUG_PRINT("trying to connect....");
+        OS::get_singleton()->delay_usec(1000);
+    }
 
-	if (client->get_status() != StreamPeerTCP::STATUS_CONNECTED) {
-		return ERR_CANT_CONNECT;
-	}
+    if (client->get_status() != StreamPeerTCP::STATUS_CONNECTED) {
+        return ERR_CANT_CONNECT;
+    }
 
-	CharString cs = p_password.utf8();
-	put_32(cs.length());
-	client->put_data((const uint8_t *)cs.data(), cs.length());
+	CharString cs = StringUtils::to_utf8(p_password);
+    put_32(cs.length());
+    client->put_data((const uint8_t *)cs.data(), cs.length());
 
-	int e = get_32();
+    int e = get_32();
 
-	if (e != OK) {
-		return ERR_INVALID_PARAMETER;
-	}
+    if (e != OK) {
+        return ERR_INVALID_PARAMETER;
+    }
 
-	thread = Thread::create(_thread_func, this);
+    thread = Thread::create(_thread_func, this);
 
-	return OK;
+    return OK;
 }
 
 FileAccessNetworkClient *FileAccessNetworkClient::singleton = nullptr;
 
 FileAccessNetworkClient::FileAccessNetworkClient() {
 
-	thread = nullptr;
-	mutex = Mutex::create();
-	blockrequest_mutex = Mutex::create();
-	quit = false;
-	singleton = this;
-	last_id = 0;
-	client.instance();
-	sem = Semaphore::create();
-	lockcount = 0;
+    thread = nullptr;
+    mutex = Mutex::create();
+    blockrequest_mutex = Mutex::create();
+    quit = false;
+    singleton = this;
+    last_id = 0;
+    client.instance();
+    sem = Semaphore::create();
+    lockcount = 0;
 }
 
 FileAccessNetworkClient::~FileAccessNetworkClient() {
 
-	if (thread) {
-		quit = true;
-		sem->post();
-		Thread::wait_to_finish(thread);
-		memdelete(thread);
-	}
+    if (thread) {
+        quit = true;
+        sem->post();
+        Thread::wait_to_finish(thread);
+        memdelete(thread);
+    }
 
-	memdelete(blockrequest_mutex);
-	memdelete(mutex);
-	memdelete(sem);
+    memdelete(blockrequest_mutex);
+    memdelete(mutex);
+    memdelete(sem);
 }
 
 void FileAccessNetwork::_set_block(int p_offset, const Vector<uint8_t> &p_block) {
 
-	int page = p_offset / page_size;
-	ERR_FAIL_INDEX(page, pages.size());
-	if (page < pages.size() - 1) {
-		ERR_FAIL_COND(p_block.size() != page_size);
-	} else {
-		ERR_FAIL_COND((p_block.size() != (int)(total_size % page_size)));
-	}
+    int page = p_offset / page_size;
+    ERR_FAIL_INDEX(page, pages.size());
+    if (page < pages.size() - 1) {
+        ERR_FAIL_COND(p_block.size() != page_size);
+    } else {
+        ERR_FAIL_COND((p_block.size() != (int)(total_size % page_size)));
+    }
 
-	buffer_mutex->lock();
-	pages.write[page].buffer = p_block;
-	pages.write[page].queued = false;
-	buffer_mutex->unlock();
+    buffer_mutex->lock();
+    pages.write[page].buffer = p_block;
+    pages.write[page].queued = false;
+    buffer_mutex->unlock();
 
-	if (waiting_on_page == page) {
-		waiting_on_page = -1;
-		page_sem->post();
-	}
+    if (waiting_on_page == page) {
+        waiting_on_page = -1;
+        page_sem->post();
+    }
 }
 
 void FileAccessNetwork::_respond(size_t p_len, Error p_status) {
 
-	DEBUG_PRINT("GOT RESPONSE - len: " + itos(p_len) + " status: " + itos(p_status));
-	response = p_status;
-	if (response != OK)
-		return;
-	opened = true;
-	total_size = p_len;
-	int pc = ((total_size - 1) / page_size) + 1;
-	pages.resize(pc);
+    DEBUG_PRINT("GOT RESPONSE - len: " + itos(p_len) + " status: " + itos(p_status));
+    response = p_status;
+    if (response != OK)
+        return;
+    opened = true;
+    total_size = p_len;
+    int pc = ((total_size - 1) / page_size) + 1;
+    pages.resize(pc);
 }
 
 Error FileAccessNetwork::_open(const String &p_path, int p_mode_flags) {
 
-	ERR_FAIL_COND_V(p_mode_flags != READ, ERR_UNAVAILABLE);
-	if (opened)
-		close();
-	FileAccessNetworkClient *nc = FileAccessNetworkClient::singleton;
-	DEBUG_PRINT("open: " + p_path);
+    ERR_FAIL_COND_V(p_mode_flags != READ, ERR_UNAVAILABLE);
+    if (opened)
+        close();
+    FileAccessNetworkClient *nc = FileAccessNetworkClient::singleton;
+    DEBUG_PRINT("open: " + p_path);
 
-	DEBUG_TIME("open_begin");
+    DEBUG_TIME("open_begin");
 
-	nc->lock_mutex();
-	nc->put_32(id);
-	nc->accesses[id] = this;
-	nc->put_32(COMMAND_OPEN_FILE);
-	CharString cs = p_path.utf8();
-	nc->put_32(cs.length());
-	nc->client->put_data((const uint8_t *)cs.data(), cs.length());
-	pos = 0;
-	eof_flag = false;
-	last_page = -1;
-	last_page_buff = nullptr;
+    nc->lock_mutex();
+    nc->put_32(id);
+    nc->accesses[id] = this;
+    nc->put_32(COMMAND_OPEN_FILE);
+	CharString cs = StringUtils::to_utf8(p_path);
+    nc->put_32(cs.length());
+    nc->client->put_data((const uint8_t *)cs.data(), cs.length());
+    pos = 0;
+    eof_flag = false;
+    last_page = -1;
+    last_page_buff = nullptr;
 
-	//buffers.clear();
-	nc->unlock_mutex();
-	DEBUG_PRINT("OPEN POST");
-	DEBUG_TIME("open_post");
-	nc->sem->post(); //awaiting answer
-	DEBUG_PRINT("WAIT...");
-	sem->wait();
-	DEBUG_TIME("open_end");
-	DEBUG_PRINT("WAIT ENDED...");
+    //buffers.clear();
+    nc->unlock_mutex();
+    DEBUG_PRINT("OPEN POST");
+    DEBUG_TIME("open_post");
+    nc->sem->post(); //awaiting answer
+    DEBUG_PRINT("WAIT...");
+    sem->wait();
+    DEBUG_TIME("open_end");
+    DEBUG_PRINT("WAIT ENDED...");
 
-	return response;
+    return response;
 }
 
 void FileAccessNetwork::close() {
 
-	if (!opened)
-		return;
+    if (!opened)
+        return;
 
-	FileAccessNetworkClient *nc = FileAccessNetworkClient::singleton;
+    FileAccessNetworkClient *nc = FileAccessNetworkClient::singleton;
 
-	DEBUG_PRINT("CLOSE");
-	nc->lock_mutex();
-	nc->put_32(id);
-	nc->put_32(COMMAND_CLOSE);
-	pages.clear();
-	opened = false;
-	nc->unlock_mutex();
+    DEBUG_PRINT("CLOSE");
+    nc->lock_mutex();
+    nc->put_32(id);
+    nc->put_32(COMMAND_CLOSE);
+    pages.clear();
+    opened = false;
+    nc->unlock_mutex();
 }
 bool FileAccessNetwork::is_open() const {
 
-	return opened;
+    return opened;
 }
 
 void FileAccessNetwork::seek(size_t p_position) {
 
-	ERR_FAIL_COND(!opened);
-	eof_flag = p_position > total_size;
+    ERR_FAIL_COND(!opened);
+    eof_flag = p_position > total_size;
 
-	if (p_position >= total_size) {
-		p_position = total_size;
-	}
+    if (p_position >= total_size) {
+        p_position = total_size;
+    }
 
-	pos = p_position;
+    pos = p_position;
 }
 
 void FileAccessNetwork::seek_end(int64_t p_position) {
 
-	seek(total_size + p_position);
+    seek(total_size + p_position);
 }
 size_t FileAccessNetwork::get_position() const {
 
-	ERR_FAIL_COND_V(!opened, 0);
-	return pos;
+    ERR_FAIL_COND_V(!opened, 0);
+    return pos;
 }
 size_t FileAccessNetwork::get_len() const {
 
-	ERR_FAIL_COND_V(!opened, 0);
-	return total_size;
+    ERR_FAIL_COND_V(!opened, 0);
+    return total_size;
 }
 
 bool FileAccessNetwork::eof_reached() const {
 
-	ERR_FAIL_COND_V(!opened, false);
-	return eof_flag;
+    ERR_FAIL_COND_V(!opened, false);
+    return eof_flag;
 }
 
 uint8_t FileAccessNetwork::get_8() const {
 
-	uint8_t v;
-	get_buffer(&v, 1);
-	return v;
+    uint8_t v;
+    get_buffer(&v, 1);
+    return v;
 }
 
 void FileAccessNetwork::_queue_page(int p_page) const {
 
-	if (p_page >= pages.size())
-		return;
-	if (pages[p_page].buffer.empty() && !pages[p_page].queued) {
+    if (p_page >= pages.size())
+        return;
+    if (pages[p_page].buffer.empty() && !pages[p_page].queued) {
 
-		FileAccessNetworkClient *nc = FileAccessNetworkClient::singleton;
+        FileAccessNetworkClient *nc = FileAccessNetworkClient::singleton;
 
-		nc->blockrequest_mutex->lock();
-		FileAccessNetworkClient::BlockRequest br;
-		br.id = id;
-		br.offset = size_t(p_page) * page_size;
-		br.size = page_size;
-		nc->block_requests.push_back(br);
-		pages.write[p_page].queued = true;
-		nc->blockrequest_mutex->unlock();
-		DEBUG_PRINT("QUEUE PAGE POST");
-		nc->sem->post();
-		DEBUG_PRINT("queued " + itos(p_page));
-	}
+        nc->blockrequest_mutex->lock();
+        FileAccessNetworkClient::BlockRequest br;
+        br.id = id;
+        br.offset = size_t(p_page) * page_size;
+        br.size = page_size;
+        nc->block_requests.push_back(br);
+        pages.write[p_page].queued = true;
+        nc->blockrequest_mutex->unlock();
+        DEBUG_PRINT("QUEUE PAGE POST");
+        nc->sem->post();
+        DEBUG_PRINT("queued " + itos(p_page));
+    }
 }
 
 int FileAccessNetwork::get_buffer(uint8_t *p_dst, int p_length) const {
 
-	//bool eof=false;
-	if (pos + p_length > total_size) {
-		eof_flag = true;
-	}
-	if (pos + p_length >= total_size) {
-		p_length = total_size - pos;
-	}
+    //bool eof=false;
+    if (pos + p_length > total_size) {
+        eof_flag = true;
+    }
+    if (pos + p_length >= total_size) {
+        p_length = total_size - pos;
+    }
 
-	//FileAccessNetworkClient *nc = FileAccessNetworkClient::singleton;
+    //FileAccessNetworkClient *nc = FileAccessNetworkClient::singleton;
 
-	uint8_t *buff = last_page_buff;
+    uint8_t *buff = last_page_buff;
 
-	for (int i = 0; i < p_length; i++) {
+    for (int i = 0; i < p_length; i++) {
 
-		int page = pos / page_size;
+        int page = pos / page_size;
 
-		if (page != last_page) {
-			buffer_mutex->lock();
-			if (pages[page].buffer.empty()) {
-				waiting_on_page = page;
-				for (int j = 0; j < read_ahead; j++) {
+        if (page != last_page) {
+            buffer_mutex->lock();
+            if (pages[page].buffer.empty()) {
+                waiting_on_page = page;
+                for (int j = 0; j < read_ahead; j++) {
 
-					_queue_page(page + j);
-				}
-				buffer_mutex->unlock();
-				DEBUG_PRINT("wait");
-				page_sem->wait();
-				DEBUG_PRINT("done");
-			} else {
+                    _queue_page(page + j);
+                }
+                buffer_mutex->unlock();
+                DEBUG_PRINT("wait");
+                page_sem->wait();
+                DEBUG_PRINT("done");
+            } else {
 
-				for (int j = 0; j < read_ahead; j++) {
+                for (int j = 0; j < read_ahead; j++) {
 
-					_queue_page(page + j);
-				}
-				//queue pages
-				buffer_mutex->unlock();
-			}
+                    _queue_page(page + j);
+                }
+                //queue pages
+                buffer_mutex->unlock();
+            }
 
-			buff = pages.write[page].buffer.ptrw();
-			last_page_buff = buff;
-			last_page = page;
-		}
+            buff = pages.write[page].buffer.ptrw();
+            last_page_buff = buff;
+            last_page = page;
+        }
 
-		p_dst[i] = buff[pos - uint64_t(page) * page_size];
-		pos++;
-	}
+        p_dst[i] = buff[pos - uint64_t(page) * page_size];
+        pos++;
+    }
 
-	return p_length;
+    return p_length;
 }
 
 Error FileAccessNetwork::get_error() const {
 
-	return pos == total_size ? ERR_FILE_EOF : OK;
+    return pos == total_size ? ERR_FILE_EOF : OK;
 }
 
 void FileAccessNetwork::flush() {
-	ERR_FAIL();
+    ERR_FAIL();
 }
 
 void FileAccessNetwork::store_8(uint8_t p_dest) {
 
-	ERR_FAIL();
+    ERR_FAIL();
 }
 
 bool FileAccessNetwork::file_exists(const String &p_path) {
 
-	FileAccessNetworkClient *nc = FileAccessNetworkClient::singleton;
-	nc->lock_mutex();
-	nc->put_32(id);
-	nc->put_32(COMMAND_FILE_EXISTS);
-	CharString cs = p_path.utf8();
-	nc->put_32(cs.length());
-	nc->client->put_data((const uint8_t *)cs.data(), cs.length());
-	nc->unlock_mutex();
-	DEBUG_PRINT("FILE EXISTS POST");
-	nc->sem->post();
-	sem->wait();
+    FileAccessNetworkClient *nc = FileAccessNetworkClient::singleton;
+    nc->lock_mutex();
+    nc->put_32(id);
+    nc->put_32(COMMAND_FILE_EXISTS);
+	CharString cs = StringUtils::to_utf8(p_path);
+    nc->put_32(cs.length());
+    nc->client->put_data((const uint8_t *)cs.data(), cs.length());
+    nc->unlock_mutex();
+    DEBUG_PRINT("FILE EXISTS POST");
+    nc->sem->post();
+    sem->wait();
 
-	return exists_modtime != 0;
+    return exists_modtime != 0;
 }
 
 uint64_t FileAccessNetwork::_get_modified_time(const String &p_file) {
 
-	FileAccessNetworkClient *nc = FileAccessNetworkClient::singleton;
-	nc->lock_mutex();
-	nc->put_32(id);
-	nc->put_32(COMMAND_GET_MODTIME);
-	CharString cs = p_file.utf8();
-	nc->put_32(cs.length());
-	nc->client->put_data((const uint8_t *)cs.data(), cs.length());
-	nc->unlock_mutex();
-	DEBUG_PRINT("MODTIME POST");
-	nc->sem->post();
-	sem->wait();
+    FileAccessNetworkClient *nc = FileAccessNetworkClient::singleton;
+    nc->lock_mutex();
+    nc->put_32(id);
+    nc->put_32(COMMAND_GET_MODTIME);
+	CharString cs = StringUtils::to_utf8(p_file);
+    nc->put_32(cs.length());
+    nc->client->put_data((const uint8_t *)cs.data(), cs.length());
+    nc->unlock_mutex();
+    DEBUG_PRINT("MODTIME POST");
+    nc->sem->post();
+    sem->wait();
 
-	return exists_modtime;
+    return exists_modtime;
 }
 
 uint32_t FileAccessNetwork::_get_unix_permissions(const String &p_file) {
-	ERR_PRINT("Getting UNIX permissions from network drives is not implemented yet");
-	return 0;
+	ERR_PRINT("Getting UNIX permissions from network drives is not implemented yet")
+    return 0;
 }
 
 Error FileAccessNetwork::_set_unix_permissions(const String &p_file, uint32_t p_permissions) {
-	ERR_PRINT("Setting UNIX permissions on network drives is not implemented yet");
-	return ERR_UNAVAILABLE;
+	ERR_PRINT("Setting UNIX permissions on network drives is not implemented yet")
+    return ERR_UNAVAILABLE;
 }
 
 void FileAccessNetwork::configure() {
 
-	GLOBAL_DEF("network/remote_fs/page_size", 65536);
-	ProjectSettings::get_singleton()->set_custom_property_info("network/remote_fs/page_size", PropertyInfo(Variant::INT, "network/remote_fs/page_size", PROPERTY_HINT_RANGE, "1,65536,1,or_greater")); //is used as denominator and can't be zero
-	GLOBAL_DEF("network/remote_fs/page_read_ahead", 4);
-	ProjectSettings::get_singleton()->set_custom_property_info("network/remote_fs/page_read_ahead", PropertyInfo(Variant::INT, "network/remote_fs/page_read_ahead", PROPERTY_HINT_RANGE, "0,8,1,or_greater"));
+    GLOBAL_DEF("network/remote_fs/page_size", 65536);
+    ProjectSettings::get_singleton()->set_custom_property_info("network/remote_fs/page_size", PropertyInfo(Variant::INT, "network/remote_fs/page_size", PROPERTY_HINT_RANGE, "1,65536,1,or_greater")); //is used as denominator and can't be zero
+    GLOBAL_DEF("network/remote_fs/page_read_ahead", 4);
+    ProjectSettings::get_singleton()->set_custom_property_info("network/remote_fs/page_read_ahead", PropertyInfo(Variant::INT, "network/remote_fs/page_read_ahead", PROPERTY_HINT_RANGE, "0,8,1,or_greater"));
 }
 
 FileAccessNetwork::FileAccessNetwork() {
 
-	eof_flag = false;
-	opened = false;
-	pos = 0;
-	sem = Semaphore::create();
-	page_sem = Semaphore::create();
-	buffer_mutex = Mutex::create();
-	FileAccessNetworkClient *nc = FileAccessNetworkClient::singleton;
-	nc->lock_mutex();
-	id = nc->last_id++;
-	nc->accesses[id] = this;
-	nc->unlock_mutex();
-	page_size = GLOBAL_GET("network/remote_fs/page_size");
-	read_ahead = GLOBAL_GET("network/remote_fs/page_read_ahead");
-	last_activity_val = 0;
-	waiting_on_page = -1;
-	last_page = -1;
+    eof_flag = false;
+    opened = false;
+    pos = 0;
+    sem = Semaphore::create();
+    page_sem = Semaphore::create();
+    buffer_mutex = Mutex::create();
+    FileAccessNetworkClient *nc = FileAccessNetworkClient::singleton;
+    nc->lock_mutex();
+    id = nc->last_id++;
+    nc->accesses[id] = this;
+    nc->unlock_mutex();
+    page_size = GLOBAL_GET("network/remote_fs/page_size");
+    read_ahead = GLOBAL_GET("network/remote_fs/page_read_ahead");
+    last_activity_val = 0;
+    waiting_on_page = -1;
+    last_page = -1;
 }
 
 FileAccessNetwork::~FileAccessNetwork() {
 
-	close();
-	memdelete(sem);
-	memdelete(page_sem);
-	memdelete(buffer_mutex);
+    FileAccessNetwork::close();
+    memdelete(sem);
+    memdelete(page_sem);
+    memdelete(buffer_mutex);
 
-	FileAccessNetworkClient *nc = FileAccessNetworkClient::singleton;
-	nc->lock_mutex();
-	id = nc->last_id++;
-	nc->accesses.erase(id);
-	nc->unlock_mutex();
+    FileAccessNetworkClient *nc = FileAccessNetworkClient::singleton;
+    nc->lock_mutex();
+    id = nc->last_id++;
+    nc->accesses.erase(id);
+    nc->unlock_mutex();
 }

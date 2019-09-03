@@ -36,7 +36,7 @@
 #include "scene/3d/visual_instance.h"
 
 class BakedLightmapData : public Resource {
-	GDCLASS(BakedLightmapData, Resource);
+	GDCLASS(BakedLightmapData,Resource)
 
 	RID baked_light;
 	AABB bounds;
@@ -82,13 +82,13 @@ public:
 	int get_user_instance(int p_user) const;
 	void clear_users();
 
-	virtual RID get_rid() const;
+	RID get_rid() const override;
 	BakedLightmapData();
-	~BakedLightmapData();
+	~BakedLightmapData() override;
 };
 
 class BakedLightmap : public VisualInstance {
-	GDCLASS(BakedLightmap, VisualInstance);
+	GDCLASS(BakedLightmap,VisualInstance)
 
 public:
 	enum BakeQuality {
@@ -200,8 +200,8 @@ public:
 	void set_image_path(const String &p_path);
 	String get_image_path() const;
 
-	AABB get_aabb() const;
-	PoolVector<Face3> get_faces(uint32_t p_usage_flags) const;
+	AABB get_aabb() const override;
+	PoolVector<Face3> get_faces(uint32_t p_usage_flags) const override;
 
 	BakeError bake(Node *p_from_node, bool p_create_visual_debug = false);
 	BakedLightmap();

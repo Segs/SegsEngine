@@ -266,7 +266,8 @@ public:
 	(void)__gdmono__scope__exit__domain__unload__;
 
 class _GodotSharp : public Object {
-	GDCLASS(_GodotSharp, Object);
+	GDCLASS(_GodotSharp,Object)
+IMPL_GDCLASS(_GodotSharp)
 
 	friend class GDMono;
 

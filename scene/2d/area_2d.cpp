@@ -33,6 +33,9 @@
 #include "scene/scene_string_names.h"
 #include "servers/audio_server.h"
 #include "servers/physics_2d_server.h"
+#include "core/method_bind.h"
+
+IMPL_GDCLASS(Area2D)
 
 void Area2D::set_space_override_mode(SpaceOverride p_mode) {
 
@@ -586,68 +589,68 @@ void Area2D::_validate_property(PropertyInfo &property) const {
 
 void Area2D::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_body_enter_tree", "id"), &Area2D::_body_enter_tree);
-    ClassDB::bind_method(D_METHOD("_body_exit_tree", "id"), &Area2D::_body_exit_tree);
+    MethodBinder::bind_method(D_METHOD("_body_enter_tree", "id"), &Area2D::_body_enter_tree);
+    MethodBinder::bind_method(D_METHOD("_body_exit_tree", "id"), &Area2D::_body_exit_tree);
 
-    ClassDB::bind_method(D_METHOD("_area_enter_tree", "id"), &Area2D::_area_enter_tree);
-    ClassDB::bind_method(D_METHOD("_area_exit_tree", "id"), &Area2D::_area_exit_tree);
+    MethodBinder::bind_method(D_METHOD("_area_enter_tree", "id"), &Area2D::_area_enter_tree);
+    MethodBinder::bind_method(D_METHOD("_area_exit_tree", "id"), &Area2D::_area_exit_tree);
 
-    ClassDB::bind_method(D_METHOD("set_space_override_mode", "space_override_mode"), &Area2D::set_space_override_mode);
-    ClassDB::bind_method(D_METHOD("get_space_override_mode"), &Area2D::get_space_override_mode);
+    MethodBinder::bind_method(D_METHOD("set_space_override_mode", "space_override_mode"), &Area2D::set_space_override_mode);
+    MethodBinder::bind_method(D_METHOD("get_space_override_mode"), &Area2D::get_space_override_mode);
 
-    ClassDB::bind_method(D_METHOD("set_gravity_is_point", "enable"), &Area2D::set_gravity_is_point);
-    ClassDB::bind_method(D_METHOD("is_gravity_a_point"), &Area2D::is_gravity_a_point);
+    MethodBinder::bind_method(D_METHOD("set_gravity_is_point", "enable"), &Area2D::set_gravity_is_point);
+    MethodBinder::bind_method(D_METHOD("is_gravity_a_point"), &Area2D::is_gravity_a_point);
 
-    ClassDB::bind_method(D_METHOD("set_gravity_distance_scale", "distance_scale"), &Area2D::set_gravity_distance_scale);
-    ClassDB::bind_method(D_METHOD("get_gravity_distance_scale"), &Area2D::get_gravity_distance_scale);
+    MethodBinder::bind_method(D_METHOD("set_gravity_distance_scale", "distance_scale"), &Area2D::set_gravity_distance_scale);
+    MethodBinder::bind_method(D_METHOD("get_gravity_distance_scale"), &Area2D::get_gravity_distance_scale);
 
-    ClassDB::bind_method(D_METHOD("set_gravity_vector", "vector"), &Area2D::set_gravity_vector);
-    ClassDB::bind_method(D_METHOD("get_gravity_vector"), &Area2D::get_gravity_vector);
+    MethodBinder::bind_method(D_METHOD("set_gravity_vector", "vector"), &Area2D::set_gravity_vector);
+    MethodBinder::bind_method(D_METHOD("get_gravity_vector"), &Area2D::get_gravity_vector);
 
-    ClassDB::bind_method(D_METHOD("set_gravity", "gravity"), &Area2D::set_gravity);
-    ClassDB::bind_method(D_METHOD("get_gravity"), &Area2D::get_gravity);
+    MethodBinder::bind_method(D_METHOD("set_gravity", "gravity"), &Area2D::set_gravity);
+    MethodBinder::bind_method(D_METHOD("get_gravity"), &Area2D::get_gravity);
 
-    ClassDB::bind_method(D_METHOD("set_linear_damp", "linear_damp"), &Area2D::set_linear_damp);
-    ClassDB::bind_method(D_METHOD("get_linear_damp"), &Area2D::get_linear_damp);
+    MethodBinder::bind_method(D_METHOD("set_linear_damp", "linear_damp"), &Area2D::set_linear_damp);
+    MethodBinder::bind_method(D_METHOD("get_linear_damp"), &Area2D::get_linear_damp);
 
-    ClassDB::bind_method(D_METHOD("set_angular_damp", "angular_damp"), &Area2D::set_angular_damp);
-    ClassDB::bind_method(D_METHOD("get_angular_damp"), &Area2D::get_angular_damp);
+    MethodBinder::bind_method(D_METHOD("set_angular_damp", "angular_damp"), &Area2D::set_angular_damp);
+    MethodBinder::bind_method(D_METHOD("get_angular_damp"), &Area2D::get_angular_damp);
 
-    ClassDB::bind_method(D_METHOD("set_priority", "priority"), &Area2D::set_priority);
-    ClassDB::bind_method(D_METHOD("get_priority"), &Area2D::get_priority);
+    MethodBinder::bind_method(D_METHOD("set_priority", "priority"), &Area2D::set_priority);
+    MethodBinder::bind_method(D_METHOD("get_priority"), &Area2D::get_priority);
 
-    ClassDB::bind_method(D_METHOD("set_collision_mask", "collision_mask"), &Area2D::set_collision_mask);
-    ClassDB::bind_method(D_METHOD("get_collision_mask"), &Area2D::get_collision_mask);
+    MethodBinder::bind_method(D_METHOD("set_collision_mask", "collision_mask"), &Area2D::set_collision_mask);
+    MethodBinder::bind_method(D_METHOD("get_collision_mask"), &Area2D::get_collision_mask);
 
-    ClassDB::bind_method(D_METHOD("set_collision_layer", "collision_layer"), &Area2D::set_collision_layer);
-    ClassDB::bind_method(D_METHOD("get_collision_layer"), &Area2D::get_collision_layer);
+    MethodBinder::bind_method(D_METHOD("set_collision_layer", "collision_layer"), &Area2D::set_collision_layer);
+    MethodBinder::bind_method(D_METHOD("get_collision_layer"), &Area2D::get_collision_layer);
 
-    ClassDB::bind_method(D_METHOD("set_collision_mask_bit", "bit", "value"), &Area2D::set_collision_mask_bit);
-    ClassDB::bind_method(D_METHOD("get_collision_mask_bit", "bit"), &Area2D::get_collision_mask_bit);
+    MethodBinder::bind_method(D_METHOD("set_collision_mask_bit", "bit", "value"), &Area2D::set_collision_mask_bit);
+    MethodBinder::bind_method(D_METHOD("get_collision_mask_bit", "bit"), &Area2D::get_collision_mask_bit);
 
-    ClassDB::bind_method(D_METHOD("set_collision_layer_bit", "bit", "value"), &Area2D::set_collision_layer_bit);
-    ClassDB::bind_method(D_METHOD("get_collision_layer_bit", "bit"), &Area2D::get_collision_layer_bit);
+    MethodBinder::bind_method(D_METHOD("set_collision_layer_bit", "bit", "value"), &Area2D::set_collision_layer_bit);
+    MethodBinder::bind_method(D_METHOD("get_collision_layer_bit", "bit"), &Area2D::get_collision_layer_bit);
 
-    ClassDB::bind_method(D_METHOD("set_monitoring", "enable"), &Area2D::set_monitoring);
-    ClassDB::bind_method(D_METHOD("is_monitoring"), &Area2D::is_monitoring);
+    MethodBinder::bind_method(D_METHOD("set_monitoring", "enable"), &Area2D::set_monitoring);
+    MethodBinder::bind_method(D_METHOD("is_monitoring"), &Area2D::is_monitoring);
 
-    ClassDB::bind_method(D_METHOD("set_monitorable", "enable"), &Area2D::set_monitorable);
-    ClassDB::bind_method(D_METHOD("is_monitorable"), &Area2D::is_monitorable);
+    MethodBinder::bind_method(D_METHOD("set_monitorable", "enable"), &Area2D::set_monitorable);
+    MethodBinder::bind_method(D_METHOD("is_monitorable"), &Area2D::is_monitorable);
 
-    ClassDB::bind_method(D_METHOD("get_overlapping_bodies"), &Area2D::get_overlapping_bodies);
-    ClassDB::bind_method(D_METHOD("get_overlapping_areas"), &Area2D::get_overlapping_areas);
+    MethodBinder::bind_method(D_METHOD("get_overlapping_bodies"), &Area2D::get_overlapping_bodies);
+    MethodBinder::bind_method(D_METHOD("get_overlapping_areas"), &Area2D::get_overlapping_areas);
 
-    ClassDB::bind_method(D_METHOD("overlaps_body", "body"), &Area2D::overlaps_body);
-    ClassDB::bind_method(D_METHOD("overlaps_area", "area"), &Area2D::overlaps_area);
+    MethodBinder::bind_method(D_METHOD("overlaps_body", "body"), &Area2D::overlaps_body);
+    MethodBinder::bind_method(D_METHOD("overlaps_area", "area"), &Area2D::overlaps_area);
 
-    ClassDB::bind_method(D_METHOD("set_audio_bus_name", "name"), &Area2D::set_audio_bus_name);
-    ClassDB::bind_method(D_METHOD("get_audio_bus_name"), &Area2D::get_audio_bus_name);
+    MethodBinder::bind_method(D_METHOD("set_audio_bus_name", "name"), &Area2D::set_audio_bus_name);
+    MethodBinder::bind_method(D_METHOD("get_audio_bus_name"), &Area2D::get_audio_bus_name);
 
-    ClassDB::bind_method(D_METHOD("set_audio_bus_override", "enable"), &Area2D::set_audio_bus_override);
-    ClassDB::bind_method(D_METHOD("is_overriding_audio_bus"), &Area2D::is_overriding_audio_bus);
+    MethodBinder::bind_method(D_METHOD("set_audio_bus_override", "enable"), &Area2D::set_audio_bus_override);
+    MethodBinder::bind_method(D_METHOD("is_overriding_audio_bus"), &Area2D::is_overriding_audio_bus);
 
-    ClassDB::bind_method(D_METHOD("_body_inout"), &Area2D::_body_inout);
-    ClassDB::bind_method(D_METHOD("_area_inout"), &Area2D::_area_inout);
+    MethodBinder::bind_method(D_METHOD("_body_inout"), &Area2D::_body_inout);
+    MethodBinder::bind_method(D_METHOD("_area_inout"), &Area2D::_area_inout);
 
     ADD_SIGNAL(MethodInfo("body_shape_entered", PropertyInfo(Variant::INT, "body_id"), PropertyInfo(Variant::OBJECT, "body", PROPERTY_HINT_RESOURCE_TYPE, "Node"), PropertyInfo(Variant::INT, "body_shape"), PropertyInfo(Variant::INT, "area_shape")));
     ADD_SIGNAL(MethodInfo("body_shape_exited", PropertyInfo(Variant::INT, "body_id"), PropertyInfo(Variant::OBJECT, "body", PROPERTY_HINT_RESOURCE_TYPE, "Node"), PropertyInfo(Variant::INT, "body_shape"), PropertyInfo(Variant::INT, "area_shape")));

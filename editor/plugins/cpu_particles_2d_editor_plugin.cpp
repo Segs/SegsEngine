@@ -30,11 +30,14 @@
 
 #include "cpu_particles_2d_editor_plugin.h"
 
+#include "core/method_bind.h"
 #include "canvas_item_editor_plugin.h"
 #include "core/io/image_loader.h"
 #include "scene/2d/cpu_particles_2d.h"
 #include "scene/gui/separator.h"
 #include "scene/resources/particles_material.h"
+
+IMPL_GDCLASS(CPUParticles2DEditorPlugin)
 
 void CPUParticles2DEditorPlugin::edit(Object *p_object) {
 
@@ -248,9 +251,9 @@ void CPUParticles2DEditorPlugin::_notification(int p_what) {
 
 void CPUParticles2DEditorPlugin::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_menu_callback"), &CPUParticles2DEditorPlugin::_menu_callback);
-    ClassDB::bind_method(D_METHOD("_file_selected"), &CPUParticles2DEditorPlugin::_file_selected);
-    ClassDB::bind_method(D_METHOD("_generate_emission_mask"), &CPUParticles2DEditorPlugin::_generate_emission_mask);
+    MethodBinder::bind_method(D_METHOD("_menu_callback"), &CPUParticles2DEditorPlugin::_menu_callback);
+    MethodBinder::bind_method(D_METHOD("_file_selected"), &CPUParticles2DEditorPlugin::_file_selected);
+    MethodBinder::bind_method(D_METHOD("_generate_emission_mask"), &CPUParticles2DEditorPlugin::_generate_emission_mask);
 }
 
 CPUParticles2DEditorPlugin::CPUParticles2DEditorPlugin(EditorNode *p_node) {

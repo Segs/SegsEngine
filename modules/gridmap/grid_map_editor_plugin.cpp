@@ -30,6 +30,7 @@
 
 #include "grid_map_editor_plugin.h"
 #include "core/os/input.h"
+#include "core/method_bind.h"
 #include "editor/editor_scale.h"
 #include "editor/editor_settings.h"
 #include "editor/plugins/spatial_editor_plugin.h"
@@ -37,6 +38,9 @@
 
 #include "core/math/geometry.h"
 #include "core/os/keyboard.h"
+
+IMPL_GDCLASS(GridMapEditor)
+IMPL_GDCLASS(GridMapEditorPlugin)
 
 void GridMapEditor::_node_removed(Node *p_node) {
 
@@ -900,7 +904,7 @@ void GridMapEditor::update_palette() {
     }
     il.sort();
 
-    String filter = search_box->get_text().strip_edges();
+    String filter = StringUtils::strip_edges(search_box->get_text());
 
     int item = 0;
 
@@ -1189,17 +1193,17 @@ void GridMapEditor::_floor_mouse_exited() {
 
 void GridMapEditor::_bind_methods() {
 
-    ClassDB::bind_method("_text_changed", &GridMapEditor::_text_changed);
-    ClassDB::bind_method("_sbox_input", &GridMapEditor::_sbox_input);
-    ClassDB::bind_method("_icon_size_changed", &GridMapEditor::_icon_size_changed);
-    ClassDB::bind_method("_menu_option", &GridMapEditor::_menu_option);
-    ClassDB::bind_method("_configure", &GridMapEditor::_configure);
-    ClassDB::bind_method("_item_selected_cbk", &GridMapEditor::_item_selected_cbk);
-    ClassDB::bind_method("_floor_changed", &GridMapEditor::_floor_changed);
-    ClassDB::bind_method("_floor_mouse_exited", &GridMapEditor::_floor_mouse_exited);
-    ClassDB::bind_method("_set_selection", &GridMapEditor::_set_selection);
+    MethodBinder::bind_method("_text_changed", &GridMapEditor::_text_changed);
+    MethodBinder::bind_method("_sbox_input", &GridMapEditor::_sbox_input);
+    MethodBinder::bind_method("_icon_size_changed", &GridMapEditor::_icon_size_changed);
+    MethodBinder::bind_method("_menu_option", &GridMapEditor::_menu_option);
+    MethodBinder::bind_method("_configure", &GridMapEditor::_configure);
+    MethodBinder::bind_method("_item_selected_cbk", &GridMapEditor::_item_selected_cbk);
+    MethodBinder::bind_method("_floor_changed", &GridMapEditor::_floor_changed);
+    MethodBinder::bind_method("_floor_mouse_exited", &GridMapEditor::_floor_mouse_exited);
+    MethodBinder::bind_method("_set_selection", &GridMapEditor::_set_selection);
 
-    ClassDB::bind_method(D_METHOD("_set_display_mode", "mode"), &GridMapEditor::_set_display_mode);
+    MethodBinder::bind_method(D_METHOD("_set_display_mode", "mode"), &GridMapEditor::_set_display_mode);
 }
 
 GridMapEditor::GridMapEditor(EditorNode *p_editor) {

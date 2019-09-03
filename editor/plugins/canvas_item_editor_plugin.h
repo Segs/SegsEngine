@@ -44,7 +44,7 @@ class CanvasItemEditorViewport;
 
 class CanvasItemEditorSelectedItem : public Object {
 
-	GDCLASS(CanvasItemEditorSelectedItem, Object);
+	GDCLASS(CanvasItemEditorSelectedItem,Object)
 
 public:
 	Transform2D prev_xform;
@@ -69,7 +69,7 @@ public:
 
 class CanvasItemEditor : public VBoxContainer {
 
-	GDCLASS(CanvasItemEditor, VBoxContainer);
+	GDCLASS(CanvasItemEditor,VBoxContainer)
 
 public:
 	enum Tool {
@@ -80,6 +80,7 @@ public:
 		TOOL_ROTATE,
 		TOOL_EDIT_PIVOT,
 		TOOL_PAN,
+		TOOL_RULER,
 		TOOL_MAX
 	};
 
@@ -276,6 +277,9 @@ private:
 	bool panning;
 	bool pan_pressed;
 
+	bool ruler_tool_active;
+	Point2 ruler_tool_origin;
+
 	MenuOption last_option;
 
 	struct _SelectResult {
@@ -340,6 +344,8 @@ private:
 	ToolButton *list_select_button;
 	ToolButton *pivot_button;
 	ToolButton *pan_button;
+
+	ToolButton *ruler_button;
 
 	ToolButton *snap_button;
 	MenuButton *snap_config_menu;
@@ -457,6 +463,7 @@ private:
 	void _draw_guides();
 	void _draw_focus();
 	void _draw_grid();
+	void _draw_ruler_tool();
 	void _draw_control_anchors(Control *control);
 	void _draw_control_helpers(Control *control);
 	void _draw_selection();
@@ -476,6 +483,7 @@ private:
 	bool _gui_input_resize(const Ref<InputEvent> &p_event);
 	bool _gui_input_rotate(const Ref<InputEvent> &p_event);
 	bool _gui_input_select(const Ref<InputEvent> &p_event);
+	bool _gui_input_ruler_tool(const Ref<InputEvent> &p_event);
 	bool _gui_input_zoom_or_pan(const Ref<InputEvent> &p_event, bool p_already_accepted);
 	bool _gui_input_rulers_and_guides(const Ref<InputEvent> &p_event);
 	bool _gui_input_hover(const Ref<InputEvent> &p_event);
@@ -625,28 +633,28 @@ public:
 
 class CanvasItemEditorPlugin : public EditorPlugin {
 
-	GDCLASS(CanvasItemEditorPlugin, EditorPlugin);
+	GDCLASS(CanvasItemEditorPlugin,EditorPlugin)
 
 	CanvasItemEditor *canvas_item_editor;
 	EditorNode *editor;
 
 public:
-	virtual String get_name() const { return "2D"; }
-	bool has_main_screen() const { return true; }
-	virtual void edit(Object *p_object);
-	virtual bool handles(Object *p_object) const;
-	virtual void make_visible(bool p_visible);
-	virtual Dictionary get_state() const;
-	virtual void set_state(const Dictionary &p_state);
+	String get_name() const override { return "2D"; }
+	bool has_main_screen() const override { return true; }
+	void edit(Object *p_object) override;
+	bool handles(Object *p_object) const override;
+	void make_visible(bool p_visible) override;
+	Dictionary get_state() const override;
+	void set_state(const Dictionary &p_state) override;
 
 	CanvasItemEditor *get_canvas_item_editor() { return canvas_item_editor; }
 
 	CanvasItemEditorPlugin(EditorNode *p_node);
-	~CanvasItemEditorPlugin();
+	~CanvasItemEditorPlugin() override;
 };
 
 class CanvasItemEditorViewport : public Control {
-	GDCLASS(CanvasItemEditorViewport, Control);
+	GDCLASS(CanvasItemEditorViewport,Control)
 
 	String default_type;
 	Vector<String> types;
@@ -688,11 +696,11 @@ protected:
 	void _notification(int p_what);
 
 public:
-	virtual bool can_drop_data(const Point2 &p_point, const Variant &p_data) const;
-	virtual void drop_data(const Point2 &p_point, const Variant &p_data);
+	bool can_drop_data(const Point2 &p_point, const Variant &p_data) const override;
+	void drop_data(const Point2 &p_point, const Variant &p_data) override;
 
 	CanvasItemEditorViewport(EditorNode *p_node, CanvasItemEditor *p_canvas_item_editor);
-	~CanvasItemEditorViewport();
+	~CanvasItemEditorViewport() override;
 };
 
 #endif

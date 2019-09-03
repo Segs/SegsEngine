@@ -39,15 +39,20 @@
 #include "core/ucaps.h"
 #include "core/variant.h"
 
-#include <wchar.h>
 #include <QString>
 #include <QVector>
-
-#ifndef NO_USE_STDLIB
 #include <QCollator>
+
 #include <stdio.h>
 #include <stdlib.h>
-#endif
+
+
+/*
+    TODO: SEGS: When replacing QString as the underlying string type consider the following helper class from qt
+    QTextBoundaryFinder for grapheme navigation in QChar-like *strings
+    QUtf8 from QtCore/private/qutfcodec_p.h>
+    TODO: SEGS: consider splitting strings into two classes user visible and internal ?
+*/
 
 #if defined(MINGW_ENABLED) || defined(_MSC_VER)
 #define snprintf _snprintf_s
@@ -56,12 +61,13 @@
 #define MAX_DIGITS 6
 namespace
 {
-bool is_enclosed_in(const String &str,const String &p_string) {
+bool is_enclosed_in(const String &str,const CharType p_char) {
 
-    return str.begins_with(p_string) && str.ends_with(p_string);
+    return StringUtils::begins_with(str,p_char) && StringUtils::ends_with(str,p_char);
 }
 
 }
+const String String::null_val {};
 const CharType String::_null = 0;
 
 bool is_symbol(CharType c) {
@@ -105,8 +111,7 @@ bool select_word(const String &p_s, int p_col, int &r_beg, int &r_end) {
 // p_length > 0
 // p_length <= p_char strlen
 void String::copy_from_unchecked(const CharType *p_char, const int p_length) {
-    resize(p_length + 1);
-    set(p_length, 0);
+    m_str.resize(p_length);
 
     CharType *dst = data();
 
@@ -125,7 +130,7 @@ bool String::operator==(const StrRange &p_str_range) const {
         return true;
 
     const CharType *c_str = p_str_range.c_str;
-    const CharType *dst = constData();
+    const CharType *dst = cdata();
 
     /* Compare char by char */
     for (int i = 0; i < len; i++) {
@@ -137,23 +142,23 @@ bool String::operator==(const StrRange &p_str_range) const {
     return true;
 }
 
-void String::erase(int p_pos, int p_chars) {
+void StringUtils::erase(String &str,int p_pos, int p_chars) {
 
-    *this = left(p_pos) + substr(p_pos + p_chars, length() - ((p_pos + p_chars)));
+    str = StringUtils::left(str,p_pos) + StringUtils::substr(str,p_pos + p_chars);
 }
 
-String String::capitalize() const {
+String StringUtils::capitalize(const String &s) {
 
-    String aux = String(camelcase_to_underscore(true).replace("_", " ")).strip_edges();
+    String aux = StringUtils::strip_edges(StringUtils::replace(camelcase_to_underscore(s,true),"_", " "));
     String cap;
-    for (int i = 0; i < aux.get_slice_count(" "); i++) {
+    for (int i = 0; i < StringUtils::get_slice_count(aux,' '); i++) {
 
-        String slice = aux.get_slicec(' ', i);
-        if (slice.length() > 0) {
+        String slice = StringUtils::get_slice(aux,' ', i);
+        if (!slice.empty()) {
 
-            slice[0] = slice[0].toUpper();
+			slice.set(0,StringUtils::char_uppercase(slice[0]));
             if (i > 0)
-                cap += " ";
+                cap += ' ';
             cap += slice;
         }
     }
@@ -161,14 +166,14 @@ String String::capitalize() const {
     return cap;
 }
 
-String String::camelcase_to_underscore(bool lowercase) const {
-    const CharType *cstr = constData();
+String StringUtils::camelcase_to_underscore(const String &s,bool lowercase) {
+    const CharType *cstr = s.cdata();
     String new_string;
     const char A = 'A', Z = 'Z';
     const char a = 'a', z = 'z';
     int start_index = 0;
 
-    for (int i = 1; i < this->size(); i++) {
+    for (int i = 1; i < s.m_str.size(); i++) {
         bool is_upper = cstr[i] >= A && cstr[i] <= Z;
         bool is_number = cstr[i] >= '0' && cstr[i] <= '9';
         bool are_next_2_lower = false;
@@ -177,11 +182,11 @@ String String::camelcase_to_underscore(bool lowercase) const {
         bool was_precedent_upper = cstr[i - 1] >= A && cstr[i - 1] <= Z;
         bool was_precedent_number = cstr[i - 1] >= '0' && cstr[i - 1] <= '9';
 
-        if (i + 2 < this->size()) {
+        if (i + 2 < s.m_str.size()) {
             are_next_2_lower = cstr[i + 1] >= a && cstr[i + 1] <= z && cstr[i + 2] >= a && cstr[i + 2] <= z;
         }
 
-        if (i + 1 < this->size()) {
+        if (i + 1 < s.m_str.size()) {
             is_next_lower = cstr[i + 1] >= a && cstr[i + 1] <= z;
             is_next_number = cstr[i + 1] >= '0' && cstr[i + 1] <= '9';
         }
@@ -194,101 +199,88 @@ String String::camelcase_to_underscore(bool lowercase) const {
 
         bool should_split = cond_a || cond_b || cond_c || can_break_number_letter || can_break_letter_number;
         if (should_split) {
-            new_string += this->substr(start_index, i - start_index) + "_";
+            new_string += StringUtils::substr(s,start_index, i - start_index) + "_";
             start_index = i;
         }
     }
 
-    new_string += this->substr(start_index, this->size() - start_index);
+    new_string += StringUtils::substr(s,start_index);
     return lowercase ? StringUtils::to_lower(new_string) : new_string;
 }
 
-int String::get_slice_count(String p_splitter) const {
+int StringUtils::get_slice_count(const String &str,String p_splitter) {
 
-    if (empty())
-        return 0;
-    if (p_splitter.empty())
-        return 0;
-
-    int pos = 0;
-    int slices = 1;
-
-    while ((pos = find(p_splitter, pos)) >= 0) {
-
-        slices++;
-        pos += p_splitter.length();
-    }
-
-    return slices;
+    auto parts = str.m_str.splitRef(p_splitter.m_str);
+    return parts.size();
 }
+int StringUtils::get_slice_count(const String &str,CharType p_splitter) {
 
-String String::get_slice(String p_splitter, int p_slice) const {
+    auto parts = str.m_str.splitRef(p_splitter);
+    return parts.size();
+}
+String StringUtils::get_slice(const String &str,String p_splitter, int p_slice) {
 
-    if (empty() || p_splitter.empty())
-        return "";
+    if (p_slice<0 || str.empty() || p_splitter.empty())
+        return String();
 
     int pos = 0;
     int prev_pos = 0;
-    //int slices=1;
-    if (p_slice < 0)
-        return "";
-    if (find(p_splitter) == -1)
-        return *this;
+
+    if (StringUtils::find(str,p_splitter) == -1)
+        return str;
 
     int i = 0;
     while (true) {
 
-        pos = find(p_splitter, pos);
+        pos = StringUtils::find(str,p_splitter, pos);
         if (pos == -1)
-            pos = length(); //reached end
+            pos = str.length(); //reached end
 
         int from = prev_pos;
         //int to=pos;
 
         if (p_slice == i) {
 
-            return substr(from, pos - from);
+            return StringUtils::substr(str,from, pos - from);
         }
 
-        if (pos == length()) //reached end and no find
+        if (pos == str.length()) //reached end and no find
             break;
         pos += p_splitter.length();
         prev_pos = pos;
         i++;
     }
 
-    return ""; //no find!
+    return String(); //no find!
 }
 
-String String::get_slicec(CharType p_splitter, int p_slice) const {
+String StringUtils::get_slice(const String &str,CharType p_splitter, int p_slice) {
 
-    if (empty())
+    if (str.empty())
         return String();
 
     if (p_slice < 0)
         return String();
 
-    const CharType *c = this->cdata();
+    const CharType *c = str.cdata();
     int i = 0;
+    int fin=str.size();
     int prev = 0;
     int count = 0;
-    while (true) {
+    for(i=0; i<fin; ++i) {
 
-        if (c[i] == 0 || c[i] == p_splitter) {
-
+        if (c[i] == p_splitter) {
             if (p_slice == count) {
-
-                return substr(prev, i - prev);
-            } else if (c[i] == 0) {
-                return String();
+                return StringUtils::substr(str,prev, i - prev);
             } else {
                 count++;
                 prev = i + 1;
             }
         }
-
-        i++;
     }
+    if (p_slice == count)
+       return StringUtils::substr(str,prev);
+    return String();
 }
 
 Vector<String> StringUtils::split_spaces(const String &str) {
@@ -302,7 +294,7 @@ Vector<String> StringUtils::split_spaces(const String &str) {
 
     bool inside = false;
 
-    while (true) {
+    for(i=0; i<len; ++i) {
 
         bool empty = str[i] < 33;
 
@@ -316,14 +308,11 @@ Vector<String> StringUtils::split_spaces(const String &str) {
 
         if (empty && inside) {
 
-            ret.push_back(str.mid(from, i - from));
+            ret.push_back(StringUtils::substr(str,from, i - from));
             inside = false;
         }
-
-        if (i == len)
-            break;
-        i++;
     }
+    ret.push_back(StringUtils::substr(str,from));
 
     return ret;
 }
@@ -336,22 +325,22 @@ Vector<String> StringUtils::split(const String &str,const String &p_splitter, bo
 
     while (true) {
 
-        int end = str.find(p_splitter, from);
+        int end = StringUtils::find(str,p_splitter, from);
         if (end < 0)
             end = len;
         if (p_allow_empty || (end > from)) {
             if (p_maxsplit <= 0)
-                ret.push_back(str.mid(from, end - from));
+                ret.push_back(StringUtils::substr(str,from, end - from));
             else {
 
                 // Put rest of the string and leave cycle.
                 if (p_maxsplit == ret.size()) {
-                    ret.push_back(str.mid(from));
+                    ret.push_back(StringUtils::substr(str,from));
                     break;
                 }
 
                 // Otherwise, push items until positive limit is reached.
-                ret.push_back(str.mid(from, end - from));
+                ret.push_back(StringUtils::substr(str,from, end - from));
             }
         }
 
@@ -363,7 +352,14 @@ Vector<String> StringUtils::split(const String &str,const String &p_splitter, bo
 
     return ret;
 }
-
+Vector<String> StringUtils::split(const String &str,const CharType p_splitter, bool p_allow_empty) {
+    Vector<String> ret;
+    auto val = str.m_str.splitRef(p_splitter,p_allow_empty ? QString::KeepEmptyParts : QString::SkipEmptyParts);
+    ret.resize(val.size());
+    for(int i=0,fin=val.size(); i<fin; ++i)
+        ret.write[i] = val[i].toString();
+    return ret;
+}
 Vector<String> StringUtils::rsplit(const String &str,const String &p_splitter, bool p_allow_empty, int p_maxsplit) {
 
     Vector<String> ret;
@@ -375,22 +371,22 @@ Vector<String> StringUtils::rsplit(const String &str,const String &p_splitter, b
         if (remaining_len < p_splitter.length() || (p_maxsplit > 0 && p_maxsplit == ret.size())) {
             // no room for another splitter or hit max splits, push what's left and we're done
             if (p_allow_empty || remaining_len > 0) {
-                ret.push_back(str.mid(0, remaining_len));
+                ret.push_back(StringUtils::substr(str,0, remaining_len));
             }
             break;
         }
 
-        int left_edge = str.rfind(p_splitter, remaining_len - p_splitter.length());
+        int left_edge = StringUtils::rfind(str,p_splitter, remaining_len - p_splitter.length());
 
         if (left_edge < 0) {
             // no more splitters, we're done
-            ret.push_back(str.mid(0, remaining_len));
+            ret.push_back(StringUtils::substr(str,0, remaining_len));
             break;
         }
 
         int substr_start = left_edge + p_splitter.length();
         if (p_allow_empty || substr_start < remaining_len) {
-            ret.push_back(str.mid(substr_start, remaining_len - substr_start));
+            ret.push_back(StringUtils::substr(str,substr_start, remaining_len - substr_start));
         }
 
         remaining_len = left_edge;
@@ -408,11 +404,11 @@ Vector<float> StringUtils::split_floats(const String &str,const String &p_splitt
 
     while (true) {
 
-        int end = str.find(p_splitter, from);
+        int end = StringUtils::find(str,p_splitter, from);
         if (end < 0)
             end = len;
         if (p_allow_empty || (end > from))
-            ret.push_back(StringUtils::to_double(str.constData()+from));
+            ret.push_back(StringUtils::to_double(str.cdata()+from));
 
         if (end == len)
             break;
@@ -432,7 +428,7 @@ Vector<float> StringUtils::split_floats_mk(const String &str,const Vector<String
     while (true) {
 
         int idx;
-        int end = str.findmk(p_splitters, from, &idx);
+        int end = StringUtils::findmk(str,p_splitters, from, &idx);
         int spl_len = 1;
         if (end < 0) {
             end = len;
@@ -441,7 +437,7 @@ Vector<float> StringUtils::split_floats_mk(const String &str,const Vector<String
         }
 
         if (p_allow_empty || (end > from)) {
-            ret.push_back(StringUtils::to_double(str.constData()+from));
+            ret.push_back(StringUtils::to_double(str.cdata()+from));
         }
 
         if (end == len)
@@ -461,11 +457,11 @@ Vector<int> StringUtils::split_ints(const String &str,const String &p_splitter, 
 
     while (true) {
 
-        int end = str.find(p_splitter, from);
+        int end = StringUtils::find(str,p_splitter, from);
         if (end < 0)
             end = len;
         if (p_allow_empty || (end > from))
-            ret.push_back(StringUtils::to_int(str.constData()+from, end - from));
+            ret.push_back(StringUtils::to_int(str.cdata()+from, end - from));
 
         if (end == len)
             break;
@@ -485,7 +481,7 @@ Vector<int> StringUtils::split_ints_mk(const String &str,const Vector<String> &p
     while (true) {
 
         int idx;
-        int end = str.findmk(p_splitters, from, &idx);
+        int end = StringUtils::findmk(str,p_splitters, from, &idx);
         int spl_len = 1;
         if (end < 0) {
             end = len;
@@ -494,7 +490,7 @@ Vector<int> StringUtils::split_ints_mk(const String &str,const Vector<String> &p
         }
 
         if (p_allow_empty || (end > from))
-            ret.push_back(StringUtils::to_int(str.constData()+from, end - from));
+            ret.push_back(StringUtils::to_int(str.cdata()+from, end - from));
 
         if (end == len)
             break;
@@ -518,21 +514,21 @@ String StringUtils::join(const String &str,Vector<String> parts) {
 
 CharType StringUtils::char_uppercase(CharType p_char) {
 
-    return p_char.toUpper();
+    return QChar::toUpper(p_char.unicode());
 }
 
 CharType StringUtils::char_lowercase(CharType p_char) {
 
-    return p_char.toLower();
+    return QChar::toLower(p_char.unicode());
 }
 
 String StringUtils::to_upper(const String &str){
 
-    return str.toUpper();
+    return str.m_str.toUpper();
 }
 
 String StringUtils::to_lower(const String &str) {
-    return str.toLower();
+    return str.m_str.toLower();
 }
 
 String StringUtils::md5(const uint8_t *p_md5) {
@@ -543,21 +539,21 @@ String StringUtils::hex_encode_buffer(const uint8_t *p_buffer, int p_len) {
     static const char hex[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
 
     String ret;
+    ret.m_str.reserve(p_len*2);
+
     char v[2] = { 0, 0 };
 
     for (int i = 0; i < p_len; i++) {
         v[0] = hex[p_buffer[i] >> 4];
-        ret += v;
+        ret.m_str += v;
         v[0] = hex[p_buffer[i] & 0xF];
-        ret += v;
+        ret.m_str += v;
     }
 
     return ret;
 }
 
 String StringUtils::num(double p_num, int p_decimals) {
-
-#ifndef NO_USE_STDLIB
 
     if (p_decimals > 16)
         p_decimals = 16;
@@ -625,91 +621,7 @@ String StringUtils::num(double p_num, int p_decimals) {
         }
     }
 
-    return buf;
-#else
-
-    String s;
-    String sd;
-    /* integer part */
-
-    bool neg = p_num < 0;
-    p_num = ABS(p_num);
-    int intn = (int)p_num;
-
-    /* decimal part */
-
-    if (p_decimals > 0 || (p_decimals == -1 && (int)p_num != p_num)) {
-
-        double dec = p_num - (float)((int)p_num);
-
-        int digit = 0;
-        if (p_decimals > MAX_DIGITS)
-            p_decimals = MAX_DIGITS;
-
-        int dec_int = 0;
-        int dec_max = 0;
-
-        while (true) {
-
-            dec *= 10.0;
-            dec_int = dec_int * 10 + (int)dec % 10;
-            dec_max = dec_max * 10 + 9;
-            digit++;
-
-            if (p_decimals == -1) {
-
-                if (digit == MAX_DIGITS) //no point in going to infinite
-                    break;
-
-                if ((dec - (float)((int)dec)) < 1e-6)
-                    break;
-            }
-
-            if (digit == p_decimals)
-                break;
-        }
-        dec *= 10;
-        int last = (int)dec % 10;
-
-        if (last > 5) {
-            if (dec_int == dec_max) {
-
-                dec_int = 0;
-                intn++;
-            } else {
-
-                dec_int++;
-            }
-        }
-
-        String decimal;
-        for (int i = 0; i < digit; i++) {
-
-            char num[2] = { 0, 0 };
-            num[0] = '0' + dec_int % 10;
-            decimal = num + decimal;
-            dec_int /= 10;
-        }
-        sd = '.' + decimal;
-    }
-
-    if (intn == 0)
-
-        s = "0";
-    else {
-        while (intn) {
-
-            CharType num = '0' + (intn % 10);
-            intn /= 10;
-            s = num + s;
-        }
-    }
-
-    s = s + sd;
-    if (neg)
-        s = "-" + s;
-    return s;
-#endif
+    return String(buf);
 }
 
 String StringUtils::num_int64(int64_t p_num, int base, bool capitalize_hex) {
@@ -727,9 +639,9 @@ String StringUtils::num_int64(int64_t p_num, int base, bool capitalize_hex) {
     if (sign)
         chars++;
     String s;
-    s.resize(chars + 1);
+    s.m_str.resize(chars);
     CharType *c = s.data();
-    c[chars] = 0;
+
     n = p_num;
     do {
         int mod = ABS(n % base);
@@ -760,9 +672,8 @@ String StringUtils::num_uint64(uint64_t p_num, int base, bool capitalize_hex) {
     } while (n);
 
     String s;
-    s.resize(chars + 1);
+    s.m_str.resize(chars);
     CharType *c = s.data();
-    c[chars] = 0;
     n = p_num;
     do {
         int mod = n % base;
@@ -861,108 +772,82 @@ String StringUtils::num_real(double p_num) {
 }
 
 String StringUtils::num_scientific(double p_num) {
-
-#ifndef NO_USE_STDLIB
-
-    char buf[256];
-
-#if defined(__GNUC__) || defined(_MSC_VER)
-    snprintf(buf, 256, "%lg", p_num);
-#else
-    sprintf(buf, "%.16lg", p_num);
-#endif
-
-    buf[255] = 0;
-
-    return buf;
-#else
-
-    return String::num(p_num);
-#endif
+    return QString::number(p_num,'g');
 }
 
-CharString String::ascii(bool p_allow_extended) const {
+CharString StringUtils::ascii(const String &str,bool p_allow_extended) {
     if(p_allow_extended)
-        return toLocal8Bit();
+        return str.m_str.toLocal8Bit();
     else
-        return toLatin1();
+        return str.m_str.toLatin1();
 }
 
-String String::utf8(const char *p_utf8, int p_len) {
-
-    String ret;
-    ret.parse_utf8(p_utf8, p_len);
-
-    return ret;
-};
-
-bool String::parse_utf8(const char *p_utf8, int p_len) {
+bool StringUtils::parse_utf8(String &str,const char *p_utf8, int p_len) {
 
     if (!p_utf8)
         return true;
 
-    *this = QString::fromUtf8(p_utf8, p_len);
-    return !isEmpty();
+    str.m_str = QString::fromUtf8(p_utf8, p_len);
+    return !str.empty();
 }
 
-CharString String::utf8() const {
-    return toUtf8();
+CharString StringUtils::utf8(const String &str) {
+    return str.m_str.toUtf8();
 }
 
 String::String(const StrRange &p_range) {
 
     if (!p_range.c_str)
         return;
-    this->append(p_range.c_str, p_range.len);
+    m_str.append(p_range.c_str, p_range.len);
 }
 
-int String::hex_to_int(bool p_with_prefix) const {
+int StringUtils::hex_to_int(const String &s,bool p_with_prefix) {
 
-    if (p_with_prefix && length() < 3)
+    if (p_with_prefix && s.length() < 3)
         return 0;
     QStringRef to_convert;
     if (p_with_prefix) {
-        if (!startsWith("0x"))
+        if (!StringUtils::begins_with(s,"0x"))
             return 0;
-         to_convert = midRef(2);
+         to_convert = s.m_str.midRef(2);
     }
     else
-        to_convert = midRef(0);
+        to_convert = s.m_str.midRef(0);
     return to_convert.toInt(nullptr,16);
 }
 
-int64_t String::hex_to_int64(bool p_with_prefix) const {
+int64_t StringUtils::hex_to_int64(const String &s,bool p_with_prefix) {
 
-    if (p_with_prefix && length() < 3)
+    if (p_with_prefix && s.length() < 3)
         return 0;
     QStringRef to_convert;
     if (p_with_prefix) {
-        if (!startsWith("0x"))
+        if (!s.m_str.startsWith("0x"))
             return 0;
-         to_convert = midRef(2);
+         to_convert = s.m_str.midRef(2);
     }
     else
-        to_convert = midRef(0);
+        to_convert = s.m_str.midRef(0);
     return to_convert.toLongLong(nullptr,16);
 }
+int64_t StringUtils::bin_to_int64(const String &s,bool p_with_prefix) {
 
-int64_t String::bin_to_int64(bool p_with_prefix) const {
-
-    if (p_with_prefix && length() < 3)
+    if (p_with_prefix && s.length() < 3)
         return 0;
     QStringRef to_convert;
     if (p_with_prefix) {
-        if (!startsWith("0b"))
+        if (!s.m_str.startsWith("0b"))
             return 0;
-         to_convert = midRef(2);
+         to_convert = s.m_str.midRef(2);
     }
     else
-        to_convert = midRef(0);
+        to_convert = s.m_str.midRef(0);
     return to_convert.toLongLong(nullptr,2);
 }
 
-int64_t String::to_int64() const {
-    return toLongLong();
+int64_t StringUtils::to_int64(const String &s) {
+    return s.m_str.toLongLong();
 }
 
 int StringUtils::to_int(const char *p_str, int p_len) {
@@ -1209,8 +1094,8 @@ double StringUtils::to_double(const char *p_str) {
     return QByteArray::fromRawData(p_str,qstrlen(p_str)).toDouble();
 }
 
-float String::to_float() const {
-    return toFloat();
+float StringUtils::to_float(const String &s) {
+    return s.m_str.toFloat();
 }
 
 double StringUtils::to_double(const CharType *p_str, const CharType **r_end) {
@@ -1224,8 +1109,8 @@ int64_t StringUtils::to_int(const CharType *p_str, int p_len) {
     return QString::fromRawData(p_str,p_len).toLongLong();
 }
 
-double String::to_double() const {
-    return toDouble();
+double StringUtils::to_double(const String &s) {
+    return s.m_str.toDouble();
 }
 
 String StringUtils::md5_text(const String &str) {
@@ -1291,50 +1176,50 @@ Vector<uint8_t> StringUtils::sha256_buffer(const String &str)  {
     return ret;
 }
 
-String String::insert(int p_at_pos, const String &p_string) const {
-    return String(*this).insert(p_at_pos,p_string.m_contents);
+String StringUtils::insert(const String &s,int p_at_pos, const String &p_string) {
+    String res(s);
+    res.m_str.insert(p_at_pos,p_string.m_str);
+    return res;
 }
-String String::substr(int p_from, int p_chars) const {
+String StringUtils::substr(const String &s,int p_from, int p_chars) {
 
-    if ((p_from + p_chars) > length()) {
+    if(s.empty())
+        return s;
+    if ((p_from + p_chars) > s.length()) {
 
-        p_chars = length() - p_from;
+        p_chars = s.length() - p_from;
     }
-    return m_contents.mid(p_from,p_chars);
+//    if ((p_from + p_chars) == s.length()) {
+//        printf("Simplify me");
+//    }
+    return s.m_str.mid(p_from,p_chars);
 }
 
-int String::find_last(const String &p_str) const {
-
-    int pos = -1;
-    int findfrom = 0;
-    int findres = -1;
-    while ((findres = find(p_str, findfrom)) != -1) {
-
-        pos = findres;
-        findfrom = pos + 1;
-    }
-
-    return pos;
+int StringUtils::find_last(const String &s,const String &p_str) {
+    return s.m_str.lastIndexOf(p_str.m_str);
+}
+int StringUtils::find_last(const String &s,const CharType c) {
+    return s.m_str.lastIndexOf(c);
 }
 
-int String::find(const String &p_str, int p_from) const {
+int StringUtils::find(const String &s,const String &p_str, int p_from) {
     if (p_from < 0)
         return -1;
-    return m_contents.indexOf(p_str.m_contents,p_from);
+    return s.m_str.indexOf(p_str.m_str,p_from);
 }
 
-int String::find(const char *p_str, int p_from) const {
+int StringUtils::find(const String &s,const char *p_str, int p_from) {
 
     if (p_from < 0)
         return -1;
-    return indexOf(QLatin1String(p_str),p_from);
+    return s.m_str.indexOf(QLatin1String(p_str),p_from);
 }
 
-int String::find_char(const CharType &p_char, int p_from) const {
-    return indexOf(p_char, p_from);
+int StringUtils::find_char(const String &s, CharType p_char, int p_from) {
+    return s.m_str.indexOf(p_char, p_from);
 }
 
-int String::findmk(const Vector<String> &p_keys, int p_from, int *r_key) const {
+int StringUtils::findmk(const String &s,const Vector<String> &p_keys, int p_from, int *r_key) {
 
     if (p_from < 0)
         return -1;
@@ -1344,12 +1229,12 @@ int String::findmk(const Vector<String> &p_keys, int p_from, int *r_key) const {
     //int src_len=p_str.length();
     const String *keys = &p_keys[0];
     int key_count = p_keys.size();
-    int len = length();
+    int len = s.length();
 
     if (len == 0)
         return -1; // won't find anything!
 
-    const CharType *src = constData();
+    const CharType *src = s.cdata();
 
     for (int i = p_from; i < len; i++) {
 
@@ -1359,7 +1244,7 @@ int String::findmk(const Vector<String> &p_keys, int p_from, int *r_key) const {
             found = true;
             if (r_key)
                 *r_key = k;
-            const CharType *cmp = keys[k].constData();
+            const CharType *cmp = keys[k].cdata();
             int l = keys[k].length();
 
             for (int j = 0; j < l; j++) {
@@ -1388,26 +1273,26 @@ int String::findmk(const Vector<String> &p_keys, int p_from, int *r_key) const {
     return -1;
 }
 
-int String::findn(const String &p_str, int p_from) const {
+int StringUtils::findn(const String &s,const String &p_str, int p_from) {
 
     if (p_from < 0)
         return -1;
 
     int src_len = p_str.length();
 
-    if (src_len == 0 || length() == 0)
+    if (src_len == 0 || s.length() == 0)
         return -1; // won't find anything!
 
-    const CharType *srcd = constData();
+    const CharType *srcd = s.cdata();
 
-    for (int i = p_from; i <= (length() - src_len); i++) {
+    for (int i = p_from; i <= (s.length() - src_len); i++) {
 
         bool found = true;
         for (int j = 0; j < src_len; j++) {
 
             int read_pos = i + j;
 
-            if (read_pos >= length()) {
+            if (read_pos >= s.length()) {
 
                 ERR_PRINT("read_pos>=length()")
                 return -1;
@@ -1429,48 +1314,50 @@ int String::findn(const String &p_str, int p_from) const {
     return -1;
 }
 
-int String::rfind(const String &p_str, int p_from) const {
-    return lastIndexOf(p_str,p_from);
+int StringUtils::rfind(const String &s,const String &p_str, int p_from) {
+    return s.m_str.lastIndexOf(p_str.m_str,p_from);
 }
-int String::rfindn(const String &p_str, int p_from) const {
-    return lastIndexOf(p_str,p_from,Qt::CaseInsensitive);
-}
-
-bool String::ends_with(const String &p_string) const {
-
-    int pos = find_last(p_string);
-    if (pos == -1)
-        return false;
-    return pos + p_string.length() == length();
+int StringUtils::rfindn(const String &s,const String &p_str, int p_from) {
+    return s.m_str.lastIndexOf(p_str.m_str,p_from,Qt::CaseInsensitive);
 }
 
-bool String::begins_with(const String &p_string) const {
-    return startsWith(p_string);
+bool StringUtils::ends_with(const String &s,const String &p_string) {
+    return s.m_str.endsWith(p_string.m_str);
 }
-bool String::begins_with(const char *p_string) const {
-    return startsWith(p_string);
+bool StringUtils::ends_with(const String &s,CharType p_char) {
+    return s.m_str.endsWith(p_char);
+}
+
+bool StringUtils::begins_with(const String &str,CharType ch) {
+    return str.m_str.startsWith(ch);
+}
+bool StringUtils::begins_with(const String &s,const String &p_string) {
+    return s.m_str.startsWith(p_string.m_str);
+}
+bool StringUtils::begins_with(const String &s,const char *p_string) {
+    return s.m_str.startsWith(p_string);
 }
 
 bool StringUtils::is_subsequence_of(const String &str,const String &p_string) {
 
-    return p_string.startsWith(str,Qt::CaseSensitive);
+    return p_string.m_str.startsWith(str.m_str,Qt::CaseSensitive);
 }
 
 bool StringUtils::is_subsequence_ofi(const String &str,const String &p_string) {
 
-    return p_string.startsWith(str,Qt::CaseInsensitive);
+    return p_string.m_str.startsWith(str.m_str,Qt::CaseInsensitive);
 }
 
 bool StringUtils::is_quoted(const String &str) {
 
-    return is_enclosed_in(str,"\"") || is_enclosed_in(str,"'");
+    return is_enclosed_in(str,'"') || is_enclosed_in(str,'\'');
 }
 
-int String::_count(const String &p_string, int p_from, int p_to, bool p_case_insensitive) const {
+static int str_count(const String &s,const String &p_string, int p_from, int p_to, bool p_case_insensitive)  {
     if (p_string.empty()) {
         return 0;
     }
-    int len = length();
+    int len = s.length();
     int slen = p_string.length();
     if (len < slen) {
         return 0;
@@ -1483,10 +1370,9 @@ int String::_count(const String &p_string, int p_from, int p_to, bool p_case_ins
             return 0;
         }
         if (p_from == 0 && p_to == len) {
-            str = String();
-            str.copy_from_unchecked(&constData()[0], len);
+            str = s.m_str.mid(0,len);
         } else {
-            str = substr(p_from, p_to - p_from);
+            str = s.m_str.mid(p_from, p_to - p_from);
         }
     } else {
         return 0;
@@ -1494,9 +1380,9 @@ int String::_count(const String &p_string, int p_from, int p_to, bool p_case_ins
     int c = 0;
     int idx = -1;
     do {
-        idx = p_case_insensitive ? str.findn(p_string) : str.find(p_string);
+        idx = p_case_insensitive ? StringUtils::findn(str,p_string) : StringUtils::find(str,p_string);
         if (idx != -1) {
-            str = str.substr(idx + slen, str.length() - slen);
+            str = StringUtils::substr(str,idx + slen, str.length() - slen);
             ++c;
         }
     } while (idx != -1);
@@ -1504,12 +1390,13 @@ int String::_count(const String &p_string, int p_from, int p_to, bool p_case_ins
 }
 
 
-int String::count(const String &p_string, int p_from, int p_to) const {
-return _count(p_string, p_from, p_to, false);
+int StringUtils::count(const String &s,const String &p_string, int p_from, int p_to) {
+return str_count(s,p_string, p_from, p_to, false);
 }
 
-int String::countn(const String &p_string, int p_from, int p_to) const {
-    return _count(p_string, p_from, p_to, true);
+int StringUtils::countn(const String &s,const String &p_string, int p_from, int p_to) {
+
+    return str_count(s,p_string, p_from, p_to, true);
 }
 
 Vector<String> StringUtils::bigrams(const String &str) {
@@ -1520,7 +1407,7 @@ Vector<String> StringUtils::bigrams(const String &str) {
     }
     b.resize(n_pairs);
     for (int i = 0; i < n_pairs; i++) {
-        b.write[i] = str.substr(i, 2);
+        b.write[i] = StringUtils::substr(str,i, 2);
     }
     return b;
 }
@@ -1570,30 +1457,28 @@ static bool _wildcard_match(const CharType *p_pattern, const CharType *p_string,
     }
 }
 
-bool String::match(const String &p_wildcard) const {
+bool StringUtils::match(const String &s, const String &p_wildcard, Compare sensitivity)  {
 
-    if (!p_wildcard.length() || !length())
+    if (p_wildcard.empty() || s.empty())
         return false;
-
-    return _wildcard_match(p_wildcard.constData(), constData(), true);
+    assert(sensitivity!=CaseNatural);
+    return _wildcard_match(p_wildcard.cdata(), s.cdata(), sensitivity==CaseSensitive);
 }
 
-bool String::matchn(const String &p_wildcard) const {
-
-    if (!p_wildcard.length() || !length())
-        return false;
-    return _wildcard_match(p_wildcard.constData(), constData(), false);
+bool StringUtils::matchn(const String &s,const String &p_wildcard)  {
+    return match(s,p_wildcard,CaseInsensitive);
 }
 
-String String::format(const Variant &values, const char *placeholder) const {
+String StringUtils::format(const String &fmt, const Variant &values) {
 
-    String new_string = String(this->cdata());
+    static const String quote_char("\"");
+    static const String underscore("_");
+    String new_string = String(fmt);
 
     if (values.get_type() == Variant::ARRAY) {
         Array values_arr = values;
-
         for (int i = 0; i < values_arr.size(); i++) {
-            String i_as_str = StringUtils::num_int64(i);
+            String i_as_str = num_int64(i);
 
             if (values_arr[i].get_type() == Variant::ARRAY) { //Array in Array structure [["name","RobotGuy"],[0,"godot"],["strength",9000.91]]
                 Array value_arr = values_arr[i];
@@ -1601,18 +1486,16 @@ String String::format(const Variant &values, const char *placeholder) const {
                 if (value_arr.size() == 2) {
                     Variant v_key = value_arr[0];
                     String key = v_key.as<String>();
-                    if (key.left(1) == "\"" && key.right(key.length() - 1) == "\"") {
-                        key = key.substr(1, key.length() - 2);
+                    if (left(key,1) == quote_char && right(key,key.length() - 1) == quote_char) {
+                        key = substr(key,1, key.length() - 2);
                     }
 
                     Variant v_val = value_arr[1];
                     String val = v_val.as<String>();
-
-                    if (val.left(1) == "\"" && val.right(val.length() - 1) == "\"") {
-                        val = val.substr(1, val.length() - 2);
+                    if (is_enclosed_in(val,'"')) {
+                        val = substr(val,1, val.length() - 2);
                     }
-
-                    new_string = new_string.replace(String(placeholder).replace("_", key), val);
+                    new_string = StringUtils::replace(new_string,"{"+key+"}", val);
                 } else {
                     ERR_PRINT("STRING.format Inner Array size != 2 ")
                 }
@@ -1620,15 +1503,11 @@ String String::format(const Variant &values, const char *placeholder) const {
                 Variant v_val = values_arr[i];
                 String val = v_val.as<String>();
 
-                if (val.left(1) == "\"" && val.right(val.length() - 1) == "\"") {
-                    val = val.substr(1, val.length() - 2);
+                if (is_enclosed_in(val,'"')) {
+                    val = StringUtils::substr(val,1, val.length() - 2);
                 }
 
-                if (StringUtils::contains(placeholder,"_")) {
-                    new_string = new_string.replace(String(placeholder).replace("_", i_as_str), val);
-                } else {
-                    new_string = new_string.replace_first(placeholder, val);
-                }
+                new_string = replace(new_string,"{"+i_as_str+"}", val);
             }
         }
     } else if (values.get_type() == Variant::DICTIONARY) {
@@ -1640,15 +1519,15 @@ String String::format(const Variant &values, const char *placeholder) const {
             String key = E->get().as<String>();
             String val = d[E->get()].as<String>();
 
-            if (key.left(1) == "\"" && key.right(key.length() - 1) == "\"") {
-                key = key.substr(1, key.length() - 2);
+            if (is_enclosed_in(key,'"')) {
+                key = StringUtils::substr(key,1, key.length() - 2);
             }
 
-            if (val.left(1) == "\"" && val.right(val.length() - 1) == "\"") {
-                val = val.substr(1, val.length() - 2);
+            if (is_enclosed_in(val,'"')) {
+                val = StringUtils::substr(val,1, val.length() - 2);
             }
 
-            new_string = new_string.replace(String(placeholder).replace("_", key), val);
+            new_string = StringUtils::replace(new_string,"{"+key+"}", val);
         }
     } else {
         ERR_PRINT("Invalid type: use Array or Dictionary.")
@@ -1657,52 +1536,67 @@ String String::format(const Variant &values, const char *placeholder) const {
     return new_string;
 }
 
-String String::replace_first(const String &p_key, const String &p_with) const {
+String StringUtils::replace_first(const String &s,const String &p_key, const String &p_with)  {
 
-    int pos = find(p_key);
-    String res=*this;
+    int pos = find(s,p_key);
+    String res=s;
     if(pos<0)
         return res;
-    return res.replace(pos,p_key.length(),p_with);
+    return res.m_str.replace(pos,p_key.length(),p_with.m_str);
 }
-String String::replacen(const String &p_key, const String &p_with) const {
+String StringUtils::replacen(const String &s,const String &p_key, const String &p_with) {
 
 
-    QString new_string=*this;
-    return new_string.replace(p_key,p_with,Qt::CaseInsensitive);
+    QString new_string=s.m_str;
+    return new_string.replace(p_key.m_str,p_with.m_str,Qt::CaseInsensitive);
 }
-
-String String::left(int p_pos) const {
-    return mid(0, p_pos);
+String StringUtils::replace(const String &s,const String &p_key, const String &p_with) {
+    QString new_string=s.m_str;
+    return new_string.replace(p_key.m_str,p_with.m_str,Qt::CaseSensitive);
 }
-
-String String::right(int p_pos) const {
-
-    return mid(p_pos);
+String StringUtils::replace(const String &s,CharType p_key, CharType p_with) {
+    QString new_string=s.m_str;
+    return new_string.replace(p_key,p_with,Qt::CaseSensitive);
 }
-
-CharType String::ord_at(int p_idx) const {
-
-    ERR_FAIL_INDEX_V(p_idx, length(), 0)
-    return operator[](p_idx);
+String StringUtils::replace(const String &str,const char *p_key, const char *p_with) {
+    QString new_string=str.m_str;
+    return new_string.replace(p_key,p_with,Qt::CaseSensitive);
 }
 
-String String::dedent() const {
+void StringUtils::Inplace::replace(String &s,int i,int len, const String &p_after) {
+    s.m_str.replace(i,len,p_after.m_str);
+}
+String StringUtils::left(const String &s,int p_pos) {
+    return s.m_str.mid(0, p_pos);
+}
 
-    QString new_string;
+String StringUtils::right(const String &s,int p_pos){
+
+    return s.m_str.mid(p_pos);
+}
+
+CharType StringUtils::ord_at(const String &str,int p_idx) {
+
+    ERR_FAIL_INDEX_V(p_idx, str.length(), 0)
+    return str[p_idx];
+}
+
+String StringUtils::dedent(const String &str) {
+
+    String new_string;
     String indent;
     bool has_indent = false;
     bool has_text = false;
     int line_start = 0;
     int indent_stop = -1;
 
-    for (int i = 0; i < length(); i++) {
+    for (int i = 0; i < str.length(); i++) {
 
-        CharType c = operator[](i);
+        CharType c = str[i];
         if (c == '\n') {
             if (has_text)
-                new_string += substr(indent_stop, i - indent_stop);
-            new_string += "\n";
+                new_string += StringUtils::substr(str,indent_stop, i - indent_stop);
+            new_string += '\n';
             has_text = false;
             line_start = i + 1;
             indent_stop = -1;
@@ -1711,7 +1605,7 @@ String String::dedent() const {
                 has_text = true;
                 if (!has_indent) {
                     has_indent = true;
-                    indent = substr(line_start, i - line_start);
+                    indent = StringUtils::substr(str,line_start, i - line_start);
                     indent_stop = i;
                 }
             }
@@ -1724,20 +1618,20 @@ String String::dedent() const {
     }
 
     if (has_text)
-        new_string += substr(indent_stop, length() - indent_stop);
+        new_string += StringUtils::substr(str,indent_stop);
 
     return String(new_string);
 }
 
-String String::strip_edges(bool left, bool right) const {
+String StringUtils::strip_edges(const String &str,bool left, bool right)  {
 
-    int len = length();
+    int len = str.length();
     int beg = 0, end = len;
 
     if (left) {
         for (int i = 0; i < len; i++) {
 
-            if (operator[](i) <= 32)
+            if (str[i] <= 32)
                 beg++;
             else
                 break;
@@ -1747,7 +1641,7 @@ String String::strip_edges(bool left, bool right) const {
     if (right) {
         for (int i = (int)(len - 1); i >= 0; i--) {
 
-            if (operator[](i) <= 32)
+            if (str[i] <= 32)
                 end--;
             else
                 break;
@@ -1755,62 +1649,62 @@ String String::strip_edges(bool left, bool right) const {
     }
 
     if (beg == 0 && end == len)
-        return *this;
+        return str;
 
-    return substr(beg, end - beg);
+    return substr(str,beg, end - beg);
 }
 
-String String::strip_escapes() const {
+String StringUtils::strip_escapes(const String &str)  {
 
     QString new_string;
-    for (int i = 0; i < length(); i++) {
+    for (int i = 0; i < str.m_str.length(); i++) {
 
         // Escape characters on first page of the ASCII table, before 32 (Space).
-        if (operator[](i) < 32)
+        if (str[i] < 32)
             continue;
-        new_string += operator[](i);
+        new_string += str[i];
     }
 
     return String(new_string);
 }
 
-String String::lstrip(const String &p_chars) const {
+String StringUtils::lstrip(const String &str,const String &p_chars)  {
 
-    int len = length();
+    int len = str.length();
     int beg;
 
     for (beg = 0; beg < len; beg++) {
 
-        if (p_chars.find_char(get(beg)) == -1)
+        if (find_char(p_chars,str[beg]) == -1)
             break;
     }
 
     if (beg == 0)
-        return *this;
+        return str;
 
-    return substr(beg, len - beg);
+    return substr(str,beg, len - beg);
 }
 
-String String::rstrip(const String &p_chars) const {
+String StringUtils::rstrip(const String &str,const String &p_chars)  {
 
-    int len = length();
+    int len = str.length();
     int end;
 
     for (end = len - 1; end >= 0; end--) {
 
-        if (p_chars.find_char(get(end)) == -1)
+        if (find_char(p_chars,str.m_str[end]) == -1)
             break;
     }
 
     if (end == len - 1)
-        return *this;
+        return str;
 
-    return substr(0, end + 1);
+    return substr(str,0, end + 1);
 }
 
 String PathUtils::simplify_path(const String &str) {
 
-    QString s = str;
+    QString s = str.m_str;
     String drive;
     if (s.startsWith("local://")) {
         drive = "local://";
@@ -1839,13 +1733,13 @@ String PathUtils::simplify_path(const String &str) {
         }
     }
 
-    s = s.replace("\\", "/");
+    s = s.replace('\\', '/');
     while (true) { // in case of using 2 or more slash
-        String compare = s.replace("//", "/");
-        if (s == compare)
+        String compare =StringUtils::replace(s,"//", "/");
+        if (s == compare.m_str)
             break;
         else
-            s = compare;
+            s = compare.m_str;
     }
     auto dirs = s.splitRef("/", QString::SkipEmptyParts);
 
@@ -1868,16 +1762,16 @@ String PathUtils::simplify_path(const String &str) {
         }
     }
 
-    s = "";
+    QString res = "";
 
     for (int i = 0; i < dirs.size(); i++) {
 
         if (i > 0)
-            s += "/";
-        s += dirs[i];
+            res += "/";
+        res += dirs[i];
     }
 
-    return drive + String(s);
+    return String(drive.m_str + res);
 }
 
 static int _humanize_digits(int p_num) {
@@ -1906,12 +1800,12 @@ String PathUtils::humanize_size(size_t p_size) {
     int digits = prefix_idx > 0 ? _humanize_digits(p_size / _div) : 0;
     double divisor = prefix_idx > 0 ? _div : 1;
 
-    return StringUtils::num(p_size / divisor).pad_decimals(digits) + prefix[prefix_idx];
+    return StringUtils::pad_decimals(StringUtils::num(p_size / divisor),digits) + prefix[prefix_idx];
 }
 bool PathUtils::is_abs_path(const String &str) {
 
     if (str.length() > 1)
-        return (str[0] == '/' || str[0] == '\\' || str.contains(":/") || str.contains(":\\"));
+        return (str[0] == '/' || str[0] == '\\' || str.m_str.contains(":/") || str.m_str.contains(":\\"));
     else if (str.length() == 1)
         return (str[0] == '/' || str[0] == '\\');
     else
@@ -1928,7 +1822,7 @@ bool StringUtils::is_valid_identifier(const String &str) {
     for (int i = 0; i < len; i++) {
 
         if (i == 0) {
-            if (str.front() >= '0' && str.front() <= '9')
+            if (str.m_str.front() >= '0' && str.m_str.front() <= '9')
                 return false; // no start with number plz
         }
         QChar c = str[i];
@@ -1947,13 +1841,13 @@ String StringUtils::word_wrap(const String &str,int p_chars_per_line) {
 
     int from = 0;
     int last_space = 0;
-    QString ret;
+    String ret;
     for (int i = 0; i < str.length(); i++) {
         if (i - from >= p_chars_per_line) {
             if (last_space == -1) {
-                ret += str.mid(from, i - from + 1) + "\n";
+                ret += StringUtils::substr(str,from, i - from + 1) + "\n";
             } else {
-                ret += str.mid(from, last_space - from) + "\n";
+                ret += StringUtils::substr(str,from, last_space - from) + "\n";
                 i = last_space; //rewind
             }
             from = i + 1;
@@ -1961,21 +1855,21 @@ String StringUtils::word_wrap(const String &str,int p_chars_per_line) {
         } else if (str[i] == ' ' || str[i] == '\t') {
             last_space = i;
         } else if (str[i] == '\n') {
-            ret += str.mid(from, i - from) + "\n";
+            ret += StringUtils::substr(str,from, i - from) + "\n";
             from = i + 1;
             last_space = -1;
         }
     }
 
     if (from < str.length()) {
-        ret += str.substr(from);
+        ret += StringUtils::substr(str,from);
     }
 
     return String(ret);
 }
 
 String StringUtils::http_escape(const String &s) {
-    const CharString temp = s.toUtf8();
+    const CharString temp = s.m_str.toUtf8();
     QString res;
     for (int i = 0; i < temp.length(); ++i) {
         char ord = temp[i];
@@ -2001,39 +1895,39 @@ String StringUtils::http_escape(const String &s) {
 String StringUtils::http_unescape(const String &str) {
     QString res;
     for (int i = 0; i < str.length(); ++i) {
-        if (str.ord_at(i) == '%' && i + 2 < str.length()) {
-            CharType ord1 = str.ord_at(i + 1);
+        if (str.m_str.at(i) == '%' && i + 2 < str.length()) {
+            CharType ord1 = str.m_str.at(i + 1);
             if ((ord1 >= '0' && ord1 <= '9') || (ord1 >= 'A' && ord1 <= 'Z')) {
-                CharType ord2 = str.ord_at(i + 2);
+                CharType ord2 = str.m_str.at(i + 2);
                 if ((ord2 >= '0' && ord2 <= '9') || (ord2 >= 'A' && ord2 <= 'Z')) {
                     char bytes[3] = { (char)ord1.toLatin1(), (char)ord2.toLatin1(), 0 };
                     res += (char)strtol(bytes, nullptr, 16);
                     i += 2;
                 }
             } else {
-                res += str.ord_at(i);
+                res += str.m_str.at(i);
             }
         } else {
-            res += str.ord_at(i);
+            res += str.m_str.at(i);
         }
     }
-    return String::utf8(String(res).ascii());
+    return StringUtils::from_utf8(StringUtils::ascii(res));
 }
 
 String StringUtils::c_unescape(const String &str) {
 
     String escaped = str;
-    escaped = escaped.replace("\\a", "\a");
-    escaped = escaped.replace("\\b", "\b");
-    escaped = escaped.replace("\\f", "\f");
-    escaped = escaped.replace("\\n", "\n");
-    escaped = escaped.replace("\\r", "\r");
-    escaped = escaped.replace("\\t", "\t");
-    escaped = escaped.replace("\\v", "\v");
-    escaped = escaped.replace("\\'", "\'");
-    escaped = escaped.replace("\\\"", "\"");
-    escaped = escaped.replace("\\?", "\?");
-    escaped = escaped.replace("\\\\", "\\");
+    escaped = StringUtils::replace(escaped,"\\a", "\a");
+    escaped = StringUtils::replace(escaped,"\\b", "\b");
+    escaped = StringUtils::replace(escaped,"\\f", "\f");
+    escaped = StringUtils::replace(escaped,"\\n", "\n");
+    escaped = StringUtils::replace(escaped,"\\r", "\r");
+    escaped = StringUtils::replace(escaped,"\\t", "\t");
+    escaped = StringUtils::replace(escaped,"\\v", "\v");
+    escaped = StringUtils::replace(escaped,"\\'", "\'");
+    escaped = StringUtils::replace(escaped,"\\\"", "\"");
+    escaped = StringUtils::replace(escaped,"\\?", "\?");
+    escaped = StringUtils::replace(escaped,"\\\\", "\\");
 
     return escaped;
 }
@@ -2041,17 +1935,17 @@ String StringUtils::c_unescape(const String &str) {
 String StringUtils::c_escape(const String &e) {
 
     String escaped = e;
-    escaped = escaped.replace("\\", "\\\\");
-    escaped = escaped.replace("\a", "\\a");
-    escaped = escaped.replace("\b", "\\b");
-    escaped = escaped.replace("\f", "\\f");
-    escaped = escaped.replace("\n", "\\n");
-    escaped = escaped.replace("\r", "\\r");
-    escaped = escaped.replace("\t", "\\t");
-    escaped = escaped.replace("\v", "\\v");
-    escaped = escaped.replace("\'", "\\'");
-    escaped = escaped.replace("\?", "\\?");
-    escaped = escaped.replace("\"", "\\\"");
+    escaped = StringUtils::replace(escaped,"\\", "\\\\");
+    escaped = StringUtils::replace(escaped,"\a", "\\a");
+    escaped = StringUtils::replace(escaped,"\b", "\\b");
+    escaped = StringUtils::replace(escaped,"\f", "\\f");
+    escaped = StringUtils::replace(escaped,"\n", "\\n");
+    escaped = StringUtils::replace(escaped,"\r", "\\r");
+    escaped = StringUtils::replace(escaped,"\t", "\\t");
+    escaped = StringUtils::replace(escaped,"\v", "\\v");
+    escaped = StringUtils::replace(escaped,"\'", "\\'");
+    escaped = StringUtils::replace(escaped,"\?", "\\?");
+    escaped = StringUtils::replace(escaped,"\"", "\\\"");
 
     return escaped;
 }
@@ -2059,8 +1953,8 @@ String StringUtils::c_escape(const String &e) {
 String StringUtils::c_escape_multiline(const String &str) {
 
     String escaped = str;
-    escaped = escaped.replace("\\", "\\\\");
-    escaped = escaped.replace("\"", "\\\"");
+    escaped = StringUtils::replace(escaped,"\\", "\\\\");
+    escaped = StringUtils::replace(escaped,"\"", "\\\"");
 
     return escaped;
 }
@@ -2068,14 +1962,14 @@ String StringUtils::c_escape_multiline(const String &str) {
 String StringUtils::json_escape(const String &str) {
 
     String escaped = str;
-    escaped = escaped.replace("\\", "\\\\");
-    escaped = escaped.replace("\b", "\\b");
-    escaped = escaped.replace("\f", "\\f");
-    escaped = escaped.replace("\n", "\\n");
-    escaped = escaped.replace("\r", "\\r");
-    escaped = escaped.replace("\t", "\\t");
-    escaped = escaped.replace("\v", "\\v");
-    escaped = escaped.replace("\"", "\\\"");
+    escaped = StringUtils::replace(escaped,"\\", "\\\\");
+    escaped = StringUtils::replace(escaped,"\b", "\\b");
+    escaped = StringUtils::replace(escaped,"\f", "\\f");
+    escaped = StringUtils::replace(escaped,"\n", "\\n");
+    escaped = StringUtils::replace(escaped,"\r", "\\r");
+    escaped = StringUtils::replace(escaped,"\t", "\\t");
+    escaped = StringUtils::replace(escaped,"\v", "\\v");
+    escaped = StringUtils::replace(escaped,"\"", "\\\"");
 
     return escaped;
 }
@@ -2083,12 +1977,12 @@ String StringUtils::json_escape(const String &str) {
 String StringUtils::xml_escape(const String &arg,bool p_escape_quotes)  {
 
     String str = arg;
-    str = str.replace("&", "&amp;");
-    str = str.replace("<", "&lt;");
-    str = str.replace(">", "&gt;");
+    str = StringUtils::replace(str,"&", "&amp;");
+    str = StringUtils::replace(str,"<", "&lt;");
+    str = StringUtils::replace(str,">", "&gt;");
     if (p_escape_quotes) {
-        str = str.replace("'", "&apos;");
-        str = str.replace("\"", "&quot;");
+        str = StringUtils::replace(str,"'", "&apos;");
+        str = StringUtils::replace(str,"\"", "&quot;");
     }
     return str;
 }
@@ -2186,46 +2080,46 @@ String StringUtils::xml_unescape(const String &arg) {
 
     String str;
     int l = arg.length();
-    int len = _xml_unescape(arg.constData(), l, nullptr);
+    int len = _xml_unescape(arg.cdata(), l, nullptr);
     if (len == 0)
         return String();
-    str.resize(len + 1);
-    _xml_unescape(arg.constData(), l, str.data());
-    str[len] = 0;
+    str.m_str.resize(len);
+    _xml_unescape(arg.cdata(), l, str.data());
+
     return str;
 }
 
-String String::pad_decimals(int p_digits) const {
+String StringUtils::pad_decimals(const String &str,int p_digits) {
 
-    String s = *this;
-    int c = s.indexOf(".");
+    String s = str;
+    int c = s.m_str.indexOf(".");
 
     if (c == -1) {
         if (p_digits <= 0) {
             return s;
         }
-        s += ".";
+        s += '.';
         c = s.length() - 1;
     } else {
         if (p_digits <= 0) {
-            return s.mid(0, c);
+            return StringUtils::substr(s,0, c);
         }
     }
 
     if (s.length() - (c + 1) > p_digits) {
-        s = s.mid(0, c + p_digits + 1);
+        s = StringUtils::substr(s, 0, c + p_digits + 1);
     } else {
         while (s.length() - (c + 1) < p_digits) {
-            s += "0";
+            s += '0';
         }
     }
     return s;
 }
 
-String String::pad_zeros(int p_digits) const {
+String StringUtils::pad_zeros(const String &src,int p_digits) {
 
-    String s = *this;
-    int end = s.find(".");
+    String s = src;
+    int end = StringUtils::find(s,".");
 
     if (end == -1) {
         end = s.length();
@@ -2245,27 +2139,27 @@ String String::pad_zeros(int p_digits) const {
 
     while (end - begin < p_digits) {
 
-        s = s.insert(begin, "0");
+        s = s.m_str.insert(begin, "0");
         end++;
     }
 
     return s;
 }
 
-String String::trim_prefix(const String &p_prefix) const {
+String StringUtils::trim_prefix(const String &src,const String &p_prefix) {
 
-    String s = *this;
-    if (s.begins_with(p_prefix)) {
-        return s.substr(p_prefix.length(), s.length() - p_prefix.length());
+    String s = src;
+    if (begins_with(s,p_prefix)) {
+        return substr(s,p_prefix.length(), s.length() - p_prefix.length());
     }
     return s;
 }
 
-String String::trim_suffix(const String &p_suffix) const {
+String StringUtils::trim_suffix(const String &src,const String &p_suffix) {
 
-    String s = *this;
-    if (s.ends_with(p_suffix)) {
-        return s.substr(0, s.length() - p_suffix.length());
+    String s = src;
+    if (ends_with(s,p_suffix)) {
+        return substr(s,0, s.length() - p_suffix.length());
     }
     return s;
 }
@@ -2278,7 +2172,7 @@ bool StringUtils::is_valid_integer(const String &str) {
         return false;
 
     int from = 0;
-    if (len != 1 && (str.front() == '+' || str.front() == '-'))
+    if (len != 1 && (str.m_str.front() == '+' || str.m_str.front() == '-'))
         from++;
 
     for (int i = from; i < len; i++) {
@@ -2298,7 +2192,7 @@ bool StringUtils::is_valid_hex_number(const String &str,bool p_with_prefix) {
         return false;
 
     int from = 0;
-    if (len != 1 && (str.front() == '+' || str.front() == '-'))
+    if (len != 1 && (str.m_str.front() == '+' || str.m_str.front() == '-'))
         from++;
 
     if (p_with_prefix) {
@@ -2330,7 +2224,7 @@ bool StringUtils::is_valid_float(const String &str) {
         return false;
 
     int from = 0;
-    if (str.front() == '+' || str.front() == '-') {
+    if (str.m_str.front() == '+' || str.m_str.front() == '-') {
         from++;
     }
 
@@ -2363,9 +2257,9 @@ bool StringUtils::is_valid_float(const String &str) {
 
 String PathUtils::path_to_file(const String &base,String p_path) {
 
-    String src = PathUtils::get_base_dir(String(QString(base).replace("\\", "/")));
-    String dst = PathUtils::get_base_dir(String(p_path.replace("\\", "/")));
-    String rel = PathUtils::path_to(src,dst);
+    String src = get_base_dir(PathUtils::from_native_path(base));
+    String dst = get_base_dir(PathUtils::from_native_path(p_path));
+    String rel = path_to(src,dst);
     if (rel == dst) // failed
         return p_path;
 
@@ -2374,8 +2268,8 @@ String PathUtils::path_to_file(const String &base,String p_path) {
 
 String PathUtils::path_to(const String &str,String p_path) {
 
-    QString src = QString(str).replace("\\", "/");
-    QString dst = p_path.replace("\\", "/");
+    QString src = PathUtils::from_native_path(str).m_str;
+    QString dst = PathUtils::from_native_path(p_path).m_str;
     if (!src.endsWith("/"))
         src += "/";
     if (!dst.endsWith("/"))
@@ -2386,22 +2280,22 @@ String PathUtils::path_to(const String &str,String p_path) {
     if (src.startsWith("res://") && dst.startsWith("res://")) {
 
         base = "res:/";
-        src = src.replace("res://", "/");
-        dst = dst.replace("res://", "/");
+        src.replace("res://", "/");
+        dst.replace("res://", "/");
 
     } else if (src.startsWith("user://") && dst.startsWith("user://")) {
 
         base = "user:/";
-        src = src.replace("user://", "/");
-        dst = dst.replace("user://", "/");
+        src.replace("user://", "/");
+        dst.replace("user://", "/");
 
     } else if (src.startsWith("/") && dst.startsWith("/")) {
 
         //nothing
     } else {
         //dos style
-        String src_begin = String(src).get_slicec('/', 0);
-        String dst_begin = String(dst).get_slicec('/', 0);
+        String src_begin = StringUtils::get_slice(src,'/', 0);
+        String dst_begin = StringUtils::get_slice(dst,'/', 0);
 
         if (src_begin != dst_begin)
             return p_path; //impossible to do this
@@ -2454,7 +2348,7 @@ bool StringUtils::is_valid_html_color(const String &str) {
 
 bool StringUtils::is_valid_filename(const String &str) {
 
-    String stripped = str.strip_edges();
+    String stripped =StringUtils::strip_edges( str);
     if (str != stripped) {
         return false;
     }
@@ -2463,39 +2357,41 @@ bool StringUtils::is_valid_filename(const String &str) {
         return false;
     }
     //TODO: SEGS: convert this chain of string scans to something saner.
-    return !(str.contains(":") || str.contains('/')|| str.contains('\\')|| str.contains('?')|| str.contains('*')|| str.contains('\"')|| str.contains('|')|| str.contains('%')|| str.contains('<')|| str.contains('>'));
+    return !(str.m_str.contains(":") || str.m_str.contains('/') || str.m_str.contains('\\') || str.m_str.contains('?') ||
+             str.m_str.contains('*') || str.m_str.contains('\"') || str.m_str.contains('|') || str.m_str.contains('%') || str.m_str.contains('<') ||
+             str.m_str.contains('>'));
 }
 
 bool StringUtils::is_valid_ip_address(const String &str) {
 
-    if (str.find(":") >= 0) {
+    if (StringUtils::contains(str,':')) {
 
-        Vector<String> ip = StringUtils::split(str,":");
+        Vector<String> ip = split(str,':');
         for (int i = 0; i < ip.size(); i++) {
 
             String n = ip[i];
             if (n.empty())
                 continue;
-            if (StringUtils::is_valid_hex_number(n,false)) {
-                int nint = n.hex_to_int(false);
+            if (is_valid_hex_number(n,false)) {
+                int nint = hex_to_int(n,false);
                 if (nint < 0 || nint > 0xffff)
                     return false;
                 continue;
             }
-            if (!StringUtils::is_valid_ip_address(n))
+            if (!is_valid_ip_address(n))
                 return false;
         }
 
     } else {
-        Vector<String> ip = StringUtils::split(str,".");
+        Vector<String> ip = split(str,'.');
         if (ip.size() != 4)
             return false;
         for (int i = 0; i < ip.size(); i++) {
 
             String n = ip[i];
-            if (!StringUtils::is_valid_integer(n))
+            if (!is_valid_integer(n))
                 return false;
-            int val = n.to_int();
+            int val = to_int(n);
             if (val < 0 || val > 255)
                 return false;
         }
@@ -2506,26 +2402,31 @@ bool StringUtils::is_valid_ip_address(const String &str) {
 
 bool PathUtils::is_resource_file(const String &str) {
 
-    return str.begins_with("res://") && !str.contains("::");
+    return StringUtils::begins_with(str,"res://") && !str.m_str.contains("::");
 }
 
 bool PathUtils::is_rel_path(const String &str) {
 
     return !is_abs_path(str);
 }
-
+String PathUtils::trim_trailing_slash(const String &path) {
+    CharType last_char = path.back();
+    if(last_char=='/' || last_char=='\\')
+        return StringUtils::substr(path,0,path.size()-1);
+    return path;
+}
 String PathUtils::get_base_dir(const String &path) {
 
-    int basepos = path.find("://");
+    int basepos = StringUtils::find(path,"://");
     String rs;
     String base;
     if (basepos != -1) {
         int end = basepos + 3;
-        rs = path.substr(end);
-        base = path.substr(0, end);
+        rs = StringUtils::substr(path,end);
+        base = StringUtils::substr(path,0, end);
     } else {
-        if (path.startsWith('/')) {
-            rs = path.substr(1);
+        if (path.m_str.startsWith('/')) {
+            rs = StringUtils::substr(path,1);
             base = "/";
         } else {
 
@@ -2533,35 +2434,35 @@ String PathUtils::get_base_dir(const String &path) {
         }
     }
 
-    int sep = std::max(rs.find_last("/"), rs.find_last("\\"));
+    int sep = std::max(StringUtils::find_last(rs,'/'), StringUtils::find_last(rs,'\\'));
     if (sep == -1)
         return base;
 
-    return base + rs.substr(0, sep);
+    return base + StringUtils::substr(rs,0, sep);
 }
 
 String PathUtils::get_file(const String &path) {
 
-    int sep = MAX(path.lastIndexOf('/'), path.lastIndexOf('\\'));
+    int sep = MAX(path.m_str.lastIndexOf('/'), path.m_str.lastIndexOf('\\'));
     if (sep == -1)
         return path;
 
-    return path.mid(sep + 1);
+    return path.m_str.mid(sep + 1);
 }
 
 String PathUtils::get_extension(const String &path) {
 
-    int pos = path.lastIndexOf(".");
-    if (pos < 0 || pos < MAX(path.lastIndexOf("/"), path.lastIndexOf("\\")))
-        return "";
+    int pos = path.m_str.lastIndexOf(".");
+    if (pos < 0 || pos < MAX(path.m_str.lastIndexOf("/"), path.m_str.lastIndexOf("\\")))
+        return String();
 
-    return path.mid(pos + 1);
+    return StringUtils::substr(path,pos + 1);
 }
 
 String PathUtils::plus_file(const String &bp,const String &p_file) {
-    if (bp.isEmpty())
+    if (bp.empty())
         return p_file;
-    if (bp.back() == '/' || (p_file.size() > 0 && bp.front() == '/'))
+    if (bp.m_str.back() == '/' || StringUtils::begins_with(p_file,'/'))
         return bp + p_file;
     return bp + "/" + p_file;
 }
@@ -2571,18 +2472,16 @@ String StringUtils::percent_encode(const String &str) {
     CharString cs = StringUtils::to_utf8(str);
     String encoded;
     for (int i = 0; i < cs.length(); i++) {
-        uint8_t c = cs[i];
+        char c = cs[i];
         if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '-' || c == '_' || c == '~' || c == '.') {
-
-            char p[2] = { (char)c, 0 };
-            encoded += p;
+            encoded += c;
         } else {
             char p[4] = { '%', 0, 0, 0 };
             static const char hex[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
 
             p[1] = hex[c >> 4];
             p[2] = hex[c & 0xF];
-            encoded += p;
+            encoded.m_str.append(p);
         }
     }
 
@@ -2627,11 +2526,11 @@ String StringUtils::percent_decode(const String &str) {
 
 String PathUtils::get_basename(const String &path) {
 
-    int pos = path.lastIndexOf('.');
-    if (pos < 0 || pos < MAX(path.lastIndexOf("/"), path.lastIndexOf("\\")))
+    int pos = path.m_str.lastIndexOf('.');
+    if (pos < 0 || pos < MAX(path.m_str.lastIndexOf("/"), path.m_str.lastIndexOf("\\")))
         return path;
 
-    return path.mid(0, pos);
+    return StringUtils::substr(path,0, pos);
 }
 
 String itos(int64_t p_val) {
@@ -2650,8 +2549,8 @@ String rtoss(double p_val) {
 }
 
 // Right-pad with a character.
-String String::rpad(int min_length, CharType character) const {
-    String s = *this;
+String StringUtils::rpad(const String &src,int min_length, CharType character)  {
+    String s = src;
     int padding = min_length - s.length();
     if (padding > 0) {
         for (int i = 0; i < padding; i++)
@@ -2661,8 +2560,8 @@ String String::rpad(int min_length, CharType character) const {
     return s;
 }
 // Left-pad with a character.
-String String::lpad(int min_length, CharType character) const {
-    String s = *this;
+String StringUtils::lpad(const String &src,int min_length, CharType character)  {
+    String s = src;
     int padding = min_length - s.length();
     if (padding > 0) {
         for (int i = 0; i < padding; i++)
@@ -2676,9 +2575,9 @@ String String::lpad(int min_length, CharType character) const {
 //   "fish %s pie" % "frog"
 //   "fish %s %d pie" % ["frog", 12]
 // In case of an error, the string returned is the error description and "error" is true.
-String String::sprintf(const Array &values, bool *error) const {
+String StringUtils::sprintf(const String &str,const Array &values, bool *error) {
     String formatted;
-    CharType *self = (CharType *)constData();
+    const CharType *self = (CharType *)str.cdata();
     bool in_format = false;
     int value_index = 0;
     int min_chars = 0;
@@ -2690,7 +2589,7 @@ String String::sprintf(const Array &values, bool *error) const {
 
     *error = true;
 
-    for (; self->isNull(); self++) {
+	for (; !self->isNull(); self++) {
         const CharType c = *self;
 
         if (in_format) { // We have % - lets see what else we get.
@@ -2705,11 +2604,11 @@ String String::sprintf(const Array &values, bool *error) const {
                 case 'x': // Hexadecimal (lowercase)
                 case 'X': { // Hexadecimal (uppercase)
                     if (value_index >= values.size()) {
-                        return "not enough arguments for format string";
+                        return String("not enough arguments for format string");
                     }
 
                     if (!values[value_index].is_num()) {
-                        return "a number is required";
+                        return String("a number is required");
                     }
 
                     int64_t value = values[value_index];
@@ -2731,16 +2630,16 @@ String String::sprintf(const Array &values, bool *error) const {
                     // Padding.
                     CharType pad_char = pad_with_zeroes ? '0' : ' ';
                     if (left_justified) {
-                        str = str.rpad(min_chars, pad_char);
+                        str = StringUtils::rpad(str,min_chars, pad_char);
                     } else {
-                        str = str.lpad(min_chars, pad_char);
+                        str = StringUtils::lpad(str,min_chars, pad_char);
                     }
 
                     // Sign.
                     if (show_sign && value >= 0) {
-                        str = str.insert(pad_with_zeroes ? 0 : str.length() - number_len, "+");
+                        str = str.m_str.insert(pad_with_zeroes ? 0 : str.length() - number_len, "+");
                     } else if (value < 0) {
-                        str = str.insert(pad_with_zeroes ? 0 : str.length() - number_len, "-");
+                        str = str.m_str.insert(pad_with_zeroes ? 0 : str.length() - number_len, "-");
                     }
 
                     formatted += str;
@@ -2751,29 +2650,29 @@ String String::sprintf(const Array &values, bool *error) const {
                 }
                 case 'f': { // Float
                     if (value_index >= values.size()) {
-                        return "not enough arguments for format string";
+                        return String("not enough arguments for format string");
                     }
 
                     if (!values[value_index].is_num()) {
-                        return "a number is required";
+                        return String("a number is required");
                     }
 
                     double value = values[value_index];
                     String str = StringUtils::num(value, min_decimals);
 
                     // Pad decimals out.
-                    str = str.pad_decimals(min_decimals);
+                    str = pad_decimals(str,min_decimals);
 
                     // Show sign
-                    if (show_sign && str.left(1) != "-") {
-                        str = str.insert(0, "+");
+                    if (show_sign && StringUtils::left(str,1) != "-") {
+                        str = str.m_str.insert(0, "+");
                     }
 
                     // Padding
                     if (left_justified) {
-                        str = str.rpad(min_chars);
+                        str = rpad(str,min_chars);
                     } else {
-                        str = str.lpad(min_chars);
+                        str = lpad(str,min_chars);
                     }
 
                     formatted += str;
@@ -2784,15 +2683,15 @@ String String::sprintf(const Array &values, bool *error) const {
                 }
                 case 's': { // String
                     if (value_index >= values.size()) {
-                        return "not enough arguments for format string";
+                        return String("not enough arguments for format string");
                     }
 
                     String str = values[value_index].as<String>();
                     // Padding.
                     if (left_justified) {
-                        str = str.rpad(min_chars);
+                        str = rpad(str,min_chars);
                     } else {
-                        str = str.lpad(min_chars);
+                        str = lpad(str,min_chars);
                     }
 
                     formatted += str;
@@ -2802,7 +2701,7 @@ String String::sprintf(const Array &values, bool *error) const {
                 }
                 case 'c': {
                     if (value_index >= values.size()) {
-                        return "not enough arguments for format string";
+                        return String("not enough arguments for format string");
                     }
 
                     // Convert to character.
@@ -2810,25 +2709,25 @@ String String::sprintf(const Array &values, bool *error) const {
                     if (values[value_index].is_num()) {
                         int value = values[value_index];
                         if (value < 0) {
-                            return "unsigned byte integer is lower than maximum";
+                            return String("unsigned byte integer is lower than maximum");
                         } else if (value > 255) {
-                            return "unsigned byte integer is greater than maximum";
+                            return String("unsigned byte integer is greater than maximum");
                         }
-                        str = values[value_index].as<QChar>();
+                        str = String(values[value_index].as<QChar>());
                     } else if (values[value_index].get_type() == Variant::STRING) {
                         str = values[value_index].as<String>();
                         if (str.length() != 1) {
-                            return "%c requires number or single-character string";
+                            return String("%c requires number or single-character string");
                         }
                     } else {
-                        return "%c requires number or single-character string";
+                        return String("%c requires number or single-character string");
                     }
 
                     // Padding.
                     if (left_justified) {
-                        str = str.rpad(min_chars);
+                        str = rpad(str,min_chars);
                     } else {
-                        str = str.lpad(min_chars);
+                        str = lpad(str,min_chars);
                     }
 
                     formatted += str;
@@ -2870,7 +2769,7 @@ String String::sprintf(const Array &values, bool *error) const {
                 }
                 case '.': { // Float separator.
                     if (in_decimals) {
-                        return "too many decimal points in format";
+                        return String("too many decimal points in format");
                     }
                     in_decimals = true;
                     min_decimals = 0; // We want to add the value manually.
@@ -2879,11 +2778,11 @@ String String::sprintf(const Array &values, bool *error) const {
 
                 case '*': { // Dynamic width, based on value.
                     if (value_index >= values.size()) {
-                        return "not enough arguments for format string";
+                        return String("not enough arguments for format string");
                     }
 
                     if (!values[value_index].is_num()) {
-                        return "* wants number";
+                        return String("* wants number");
                     }
 
                     int size = values[value_index];
@@ -2899,7 +2798,7 @@ String String::sprintf(const Array &values, bool *error) const {
                 }
 
                 default: {
-                    return "unsupported format character";
+                    return String("unsupported format character");
                 }
             }
         } else { // Not in format string.
@@ -2921,27 +2820,27 @@ String String::sprintf(const Array &values, bool *error) const {
     }
 
     if (in_format) {
-        return "incomplete format";
+        return String("incomplete format");
     }
 
     if (value_index != values.size()) {
-        return "not all arguments converted during string formatting";
+        return String("not all arguments converted during string formatting");
     }
 
     *error = false;
     return formatted;
 }
 
-String String::quote(CharType character) const {
-    return character + *this + character;
+String StringUtils::quote(const String &str,CharType character) {
+    return character + str + character;
 }
 
-String String::unquote() const {
-    if (!StringUtils::is_quoted(*this)) {
-        return *this;
+String StringUtils::unquote(const String &str) {
+    if (!StringUtils::is_quoted(str)) {
+        return str;
     }
 
-    return substr(1, length() - 2);
+    return StringUtils::substr(str,1, str.length() - 2);
 }
 
 #ifdef TOOLS_ENABLED
@@ -2974,19 +2873,55 @@ int StringUtils::compare(const String &lhs, const String &rhs, Compare case_sens
 {
     if(case_sensitive==CaseSensitive)
     {
-        return lhs.compare(rhs,Qt::CaseSensitive);
+        return lhs.m_str.compare(rhs.m_str,Qt::CaseSensitive);
     } else if(case_sensitive==CaseInsensitive)
     {
-        return lhs.compare(rhs,Qt::CaseInsensitive);
+        return lhs.m_str.compare(rhs.m_str,Qt::CaseInsensitive);
     }
     QCollator col;
     col.setNumericMode(true);
-    return col.compare(lhs,rhs);
+    return col.compare(lhs.m_str,rhs.m_str);
 }
 
-bool StringUtils::contains(const char *heystack, const char *needle)
+bool StringUtils::contains(const char *heystack, const char *needle, Compare mode)
 {
     std::string_view sv1(heystack);
     std::string_view nd1(needle);
     return sv1.find(nd1)!=std::string_view::npos;
+}
+bool StringUtils::contains(const String &heystack, const String &needle,Compare mode)
+{
+    assert(mode!=Compare::CaseNatural);
+    return heystack.m_str.contains(needle.m_str,mode==CaseSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive);
+}
+bool StringUtils::contains(const String &heystack, CharType c, Compare)
+{
+    return heystack.m_str.contains(c);
+}
+
+bool PathUtils::is_internal_path(const String &path)
+{
+    return StringUtils::contains(path,"local://") || StringUtils::contains(path,"::");
+}
+
+String StringUtils::from_utf8(const char *p_utf8, int p_len)
+{
+    String res;
+    res.m_str = QString::fromUtf8(p_utf8,p_len);
+    return res;
+}
+
+String StringUtils::from_wchar(const wchar_t *p_utf8, int p_len)
+{
+    return String { QString::fromWCharArray(p_utf8,p_len)};
+}
+
+void StringUtils::Inplace::replace(String &str, const char *p_key, const char *p_with)
+{
+    str.m_str.replace(p_key,p_with);
+}
+
+void StringUtils::Inplace::replace(String &str, CharType p_key, CharType p_with)
+{
+    str.m_str.replace(p_key,p_with);
 }

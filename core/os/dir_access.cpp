@@ -59,7 +59,7 @@ int DirAccess::get_current_drive() {
     String path = StringUtils::to_lower(get_current_dir());
     for (int i = 0; i < get_drive_count(); i++) {
         String d = StringUtils::to_lower(get_drive(i));
-        if (path.begins_with(d))
+        if (StringUtils::begins_with(path,d))
             return i;
     }
 
@@ -131,7 +131,7 @@ Error DirAccess::make_dir_recursive(String p_dir) {
 
     if (p_dir.length() < 1) {
         return OK;
-    };
+    }
 
     String full_dir;
 
@@ -143,25 +143,25 @@ Error DirAccess::make_dir_recursive(String p_dir) {
         full_dir = p_dir;
     }
 
-    full_dir = full_dir.replace("\\", "/");
+    full_dir = PathUtils::from_native_path(full_dir);
 
-    //int slices = full_dir.get_slice_count("/");
+    //int slices = StringUtils::get_slice_count(full_dir"/");
 
     String base;
 
-    if (full_dir.begins_with("res://"))
+    if (StringUtils::begins_with(full_dir,"res://"))
         base = "res://";
-    else if (full_dir.begins_with("user://"))
+    else if (StringUtils::begins_with(full_dir,"user://"))
         base = "user://";
-    else if (full_dir.begins_with("/"))
+    else if (StringUtils::begins_with(full_dir,"/"))
         base = "/";
-    else if (full_dir.find(":/") != -1) {
-        base = full_dir.substr(0, full_dir.find(":/") + 2);
+    else if (StringUtils::find(full_dir,":/") != -1) {
+        base = StringUtils::substr(full_dir,0, StringUtils::find(full_dir,":/") + 2);
     } else {
         ERR_FAIL_V(ERR_INVALID_PARAMETER);
     }
 
-    full_dir = PathUtils::simplify_path(full_dir.replace_first(base, ""));
+    full_dir = PathUtils::simplify_path(StringUtils::replace_first(full_dir,base, ""));
 
     Vector<String> subdirs = StringUtils::split(full_dir,"/");
 
@@ -186,28 +186,28 @@ String DirAccess::fix_path(String p_path) const {
         case ACCESS_RESOURCES: {
 
             if (ProjectSettings::get_singleton()) {
-                if (p_path.begins_with("res://")) {
+                if (StringUtils::begins_with(p_path,"res://")) {
 
                     String resource_path = ProjectSettings::get_singleton()->get_resource_path();
                     if (resource_path != "") {
 
-                        return p_path.replace_first("res:/", resource_path);
-                    };
-                    return p_path.replace_first("res://", "");
+                        return StringUtils::replace_first(p_path,"res:/", resource_path);
+                    }
+                    return StringUtils::replace_first(p_path,"res://", "");
                 }
             }
 
         } break;
         case ACCESS_USERDATA: {
 
-            if (p_path.begins_with("user://")) {
+            if (StringUtils::begins_with(p_path,"user://")) {
 
                 String data_dir = OS::get_singleton()->get_user_data_dir();
                 if (data_dir != "") {
 
-                    return p_path.replace_first("user:/", data_dir);
-                };
-                return p_path.replace_first("user://", "");
+                    return StringUtils::replace_first(p_path,"user:/", data_dir);
+                }
+                return StringUtils::replace_first(p_path,"user://", "");
             }
 
         } break;
@@ -226,10 +226,10 @@ DirAccess::CreateFunc DirAccess::create_func[ACCESS_MAX] = { nullptr, nullptr, n
 DirAccess *DirAccess::create_for_path(const String &p_path) {
 
     DirAccess *da = nullptr;
-    if (p_path.begins_with("res://")) {
+    if (StringUtils::begins_with(p_path,"res://")) {
 
         da = create(ACCESS_RESOURCES);
-    } else if (p_path.begins_with("user://")) {
+    } else if (StringUtils::begins_with(p_path,"user://")) {
 
         da = create(ACCESS_USERDATA);
     } else {
@@ -429,7 +429,7 @@ Error DirAccess::copy_dir(String p_from, String p_to, int p_chmod_flags) {
         ERR_FAIL_COND_V(err, err);
     }
 
-    if (!p_to.ends_with("/")) {
+    if (!StringUtils::ends_with(p_to,"/")) {
         p_to = p_to + "/";
     }
 

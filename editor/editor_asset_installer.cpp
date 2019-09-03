@@ -29,11 +29,15 @@
 /*************************************************************************/
 
 #include "editor_asset_installer.h"
+#include "progress_dialog.h"
 
+#include "core/method_bind.h"
 #include "core/io/zip_io.h"
 #include "core/os/dir_access.h"
 #include "core/os/file_access.h"
 #include "editor_node.h"
+
+IMPL_GDCLASS(EditorAssetInstaller)
 
 void EditorAssetInstaller::_update_subitems(TreeItem *p_item, bool p_check, bool p_first) {
 
@@ -87,7 +91,7 @@ void EditorAssetInstaller::open(const String &p_path, int p_depth) {
     FileAccess *src_f = nullptr;
     zlib_filefunc_def io = zipio_create_io_from_file(&src_f);
 
-    unzFile pkg = unzOpen2(qPrintable(p_path), &io);
+	unzFile pkg = unzOpen2(qPrintable(p_path.m_str), &io);
     if (!pkg) {
 
         error->set_text(TTR("Error opening package file, not in ZIP format."));
@@ -141,12 +145,12 @@ void EditorAssetInstaller::open(const String &p_path, int p_depth) {
         int depth = p_depth;
         bool skip = false;
         while (depth > 0) {
-            int pp = path.find("/");
+            int pp = StringUtils::find(path,"/");
             if (pp == -1) {
                 skip = true;
                 break;
             }
-            path = path.substr(pp + 1, path.length());
+            path = StringUtils::substr(path,pp + 1, path.length());
             depth--;
         }
 
@@ -155,19 +159,19 @@ void EditorAssetInstaller::open(const String &p_path, int p_depth) {
 
         bool isdir = false;
 
-        if (path.ends_with("/")) {
+        if (StringUtils::ends_with(path,"/")) {
             //a directory
-            path = path.substr(0, path.length() - 1);
+            path = StringUtils::substr(path,0, path.length() - 1);
             isdir = true;
         }
 
-        int pp = path.find_last("/");
+        int pp = StringUtils::find_last(path,"/");
 
         TreeItem *parent;
         if (pp == -1) {
             parent = root;
         } else {
-            String ppath = path.substr(0, pp);
+            String ppath = StringUtils::substr(path,0, pp);
             ERR_CONTINUE(!dir_map.has(ppath));
             parent = dir_map[ppath];
         }
@@ -214,7 +218,7 @@ void EditorAssetInstaller::ok_pressed() {
     FileAccess *src_f = nullptr;
     zlib_filefunc_def io = zipio_create_io_from_file(&src_f);
 
-    unzFile pkg = unzOpen2(qPrintable(package_path), &io);
+	unzFile pkg = unzOpen2(qPrintable(package_path.m_str), &io);
     if (!pkg) {
 
         error->set_text(TTR("Error opening package file, not in ZIP format."));
@@ -249,8 +253,8 @@ void EditorAssetInstaller::ok_pressed() {
                     t = t->get_parent();
                 }
 
-                if (dirpath.ends_with("/")) {
-                    dirpath = dirpath.substr(0, dirpath.length() - 1);
+                if (StringUtils::ends_with(dirpath,"/")) {
+                    dirpath = StringUtils::substr(dirpath,0, dirpath.length() - 1);
                 }
 
                 DirAccess *da = DirAccess::create(DirAccess::ACCESS_RESOURCES);
@@ -307,7 +311,7 @@ void EditorAssetInstaller::ok_pressed() {
 
 void EditorAssetInstaller::_bind_methods() {
 
-    ClassDB::bind_method("_item_edited", &EditorAssetInstaller::_item_edited);
+    MethodBinder::bind_method("_item_edited", &EditorAssetInstaller::_item_edited);
 }
 
 EditorAssetInstaller::EditorAssetInstaller() {

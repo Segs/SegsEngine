@@ -33,6 +33,13 @@
 #include "core/engine.h"
 //#include "core/io/certs_compressed.gen.h"
 #include "core/io/compression.h"
+#include "core/method_bind.h"
+
+IMPL_GDCLASS(CryptoKey)
+IMPL_GDCLASS(X509Certificate)
+IMPL_GDCLASS(Crypto)
+IMPL_GDCLASS(ResourceFormatLoaderCrypto)
+IMPL_GDCLASS(ResourceFormatSaverCrypto)
 
 /// Resources
 
@@ -44,8 +51,8 @@ CryptoKey *CryptoKey::create() {
 }
 
 void CryptoKey::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("save", "path"), &CryptoKey::save);
-    ClassDB::bind_method(D_METHOD("load", "path"), &CryptoKey::load);
+    MethodBinder::bind_method(D_METHOD("save", "path"), &CryptoKey::save);
+    MethodBinder::bind_method(D_METHOD("load", "path"), &CryptoKey::load);
 }
 
 X509Certificate *(*X509Certificate::_create)() = nullptr;
@@ -56,8 +63,8 @@ X509Certificate *X509Certificate::create() {
 }
 
 void X509Certificate::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("save", "path"), &X509Certificate::save);
-    ClassDB::bind_method(D_METHOD("load", "path"), &X509Certificate::load);
+    MethodBinder::bind_method(D_METHOD("save", "path"), &X509Certificate::save);
+    MethodBinder::bind_method(D_METHOD("load", "path"), &X509Certificate::load);
 }
 
 /// Crypto
@@ -77,9 +84,9 @@ void Crypto::load_default_certificates(String p_path) {
 }
 
 void Crypto::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("generate_random_bytes", "size"), &Crypto::generate_random_bytes);
-    ClassDB::bind_method(D_METHOD("generate_rsa", "size"), &Crypto::generate_rsa);
-    ClassDB::bind_method(D_METHOD("generate_self_signed_certificate", "key", "issuer_name", "not_before", "not_after"),
+    MethodBinder::bind_method(D_METHOD("generate_random_bytes", "size"), &Crypto::generate_random_bytes);
+    MethodBinder::bind_method(D_METHOD("generate_rsa", "size"), &Crypto::generate_rsa);
+    MethodBinder::bind_method(D_METHOD("generate_self_signed_certificate", "key", "issuer_name", "not_before", "not_after"),
             &Crypto::generate_self_signed_certificate,
             { DEFVAL("CN=myserver,O=myorganisation,C=IT"), DEFVAL("20140101000000"), DEFVAL("20340101000000") });
 }

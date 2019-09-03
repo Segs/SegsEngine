@@ -97,10 +97,10 @@ class HingeJointSW : public JointSW {
 	real_t m_appliedImpulse;
 
 public:
-	virtual PhysicsServer::JointType get_type() const { return PhysicsServer::JOINT_HINGE; }
+	PhysicsServer::JointType get_type() const override { return PhysicsServer::JOINT_HINGE; }
 
-	virtual bool setup(real_t p_step);
-	virtual void solve(real_t p_step);
+	bool setup(real_t p_step) override;
+	void solve(real_t p_step) override;
 
 	real_t get_hinge_angle();
 

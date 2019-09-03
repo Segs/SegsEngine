@@ -6,7 +6,7 @@
 
 #include "scene/animation/tween.h"
 
-const real_t pi = 3.1415926535898;
+const real_t pi = 3.1415926535898f;
 
 ///////////////////////////////////////////////////////////////////////////
 // linear

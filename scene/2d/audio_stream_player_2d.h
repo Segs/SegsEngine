@@ -37,7 +37,7 @@
 
 class AudioStreamPlayer2D : public Node2D {
 
-	GDCLASS(AudioStreamPlayer2D, Node2D);
+	GDCLASS(AudioStreamPlayer2D,Node2D)
 
 private:
 	enum {
@@ -91,7 +91,7 @@ private:
 	float attenuation;
 
 protected:
-	void _validate_property(PropertyInfo &property) const;
+	void _validate_property(PropertyInfo &property) const override;
 	void _notification(int p_what);
 	static void _bind_methods();
 
@@ -132,7 +132,7 @@ public:
 	Ref<AudioStreamPlayback> get_stream_playback();
 
 	AudioStreamPlayer2D();
-	~AudioStreamPlayer2D();
+	~AudioStreamPlayer2D() override;
 };
 
 #endif

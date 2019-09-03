@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef WORLD_2D_H
-#define WORLD_2D_H
+#pragma once
 
 #include "core/project_settings.h"
 #include "core/resource.h"
@@ -41,7 +40,7 @@ struct SpatialIndexer2D;
 
 class World2D : public Resource {
 
-	GDCLASS(World2D, Resource);
+	GDCLASS(World2D,Resource)
 
 	RID canvas;
 	RID space;
@@ -72,7 +71,5 @@ public:
 	void get_viewport_list(List<Viewport *> *r_viewports);
 
 	World2D();
-	~World2D();
+	~World2D() override;
 };
-
-#endif // WORLD_2D_H

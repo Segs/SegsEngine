@@ -36,7 +36,7 @@
 
 class TriangleMesh : public Reference {
 
-	GDCLASS(TriangleMesh, Reference)
+	GDCLASS(TriangleMesh,Reference)
 
 	struct Triangle {
 

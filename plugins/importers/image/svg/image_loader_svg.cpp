@@ -33,6 +33,7 @@
 #include "core/os/os.h"
 #include "core/print_string.h"
 #include "core/ustring.h"
+#include "core/string_formatter.h"
 
 #include <nanosvg.h>
 #include <nanosvgrast.h>
@@ -113,13 +114,13 @@ Error ImageLoaderSVG::_create_image(ImageData &p_image, const PoolVector<uint8_t
 
     int w = (int)(svg_image->width * params.p_scale * upscale);
     ERR_FAIL_COND_V_MSG(w > ImageData::MAX_WIDTH, ERR_PARAMETER_RANGE_ERROR,
-            vformat("Can't create image from SVG with scale %s, the resulting image size exceeds max width.",
-                    rtos(params.p_scale)))
+			FormatV("Can't create image from SVG with scale %f, the resulting image size exceeds max width.",
+					params.p_scale))
 
     int h = (int)(svg_image->height * params.p_scale * upscale);
     ERR_FAIL_COND_V_MSG(h > ImageData::MAX_HEIGHT, ERR_PARAMETER_RANGE_ERROR,
-            vformat("Can't create image from SVG with scale %s, the resulting image size exceeds max height.",
-                    rtos(params.p_scale)))
+			FormatV("Can't create image from SVG with scale %f, the resulting image size exceeds max height.",
+					params.p_scale))
 
     p_image.data.resize(w * h * 4);
 
@@ -151,8 +152,8 @@ Error ImageLoaderSVG::load_image(ImageData &p_image, FileAccess *f, LoadParams p
 
 void ImageLoaderSVG::get_recognized_extensions(List<String> *p_extensions) const {
 
-	p_extensions->push_back("svg");
-	p_extensions->push_back("svgz");
+	p_extensions->push_back(String("svg"));
+	p_extensions->push_back(String("svgz"));
 }
 
 ImageLoaderSVG::ImageLoaderSVG() {

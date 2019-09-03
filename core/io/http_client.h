@@ -35,6 +35,7 @@
 #include "core/io/stream_peer.h"
 #include "core/io/stream_peer_tcp.h"
 #include "core/reference.h"
+#include "core/method_enum_caster.h"
 
 class HTTPClient : public Reference {
 
@@ -226,7 +227,7 @@ public:
 	String query_string_from_dict(const Dictionary &p_dict);
 
 	HTTPClient();
-	~HTTPClient();
+	~HTTPClient() override;
 };
 
 VARIANT_ENUM_CAST(HTTPClient::ResponseCode)

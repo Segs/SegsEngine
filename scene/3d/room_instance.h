@@ -46,7 +46,8 @@
 
 class Room : public VisualInstance {
 
-	GDCLASS(Room, VisualInstance);
+	GDCLASS(Room,VisualInstance)
+IMPL_GDCLASS(Room)
 
 public:
 private:

@@ -299,7 +299,7 @@ Error ImageLoaderBMP::load_image(ImageData &p_image, FileAccess *f, LoadParams p
 void ImageLoaderBMP::get_recognized_extensions(
         List<String> *p_extensions) const {
 
-    p_extensions->push_back("bmp");
+	p_extensions->push_back(String("bmp"));
 }
 
 ImageLoaderBMP::ImageLoaderBMP() {}

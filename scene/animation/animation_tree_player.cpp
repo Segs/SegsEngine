@@ -32,6 +32,9 @@
 #include "animation_player.h"
 
 #include "scene/scene_string_names.h"
+#include "core/method_bind.h"
+
+IMPL_GDCLASS(AnimationTreePlayer)
 
 void AnimationTreePlayer::set_animation_process_mode(AnimationProcessMode p_mode) {
 
@@ -1728,100 +1731,100 @@ String AnimationTreePlayer::get_configuration_warning() const {
 
 void AnimationTreePlayer::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("add_node", "type", "id"), &AnimationTreePlayer::add_node);
+    MethodBinder::bind_method(D_METHOD("add_node", "type", "id"), &AnimationTreePlayer::add_node);
 
-    ClassDB::bind_method(D_METHOD("node_exists", "node"), &AnimationTreePlayer::node_exists);
-    ClassDB::bind_method(D_METHOD("node_rename", "node", "new_name"), &AnimationTreePlayer::node_rename);
+    MethodBinder::bind_method(D_METHOD("node_exists", "node"), &AnimationTreePlayer::node_exists);
+    MethodBinder::bind_method(D_METHOD("node_rename", "node", "new_name"), &AnimationTreePlayer::node_rename);
 
-    ClassDB::bind_method(D_METHOD("node_get_type", "id"), &AnimationTreePlayer::node_get_type);
-    ClassDB::bind_method(D_METHOD("node_get_input_count", "id"), &AnimationTreePlayer::node_get_input_count);
-    ClassDB::bind_method(D_METHOD("node_get_input_source", "id", "idx"), &AnimationTreePlayer::node_get_input_source);
+    MethodBinder::bind_method(D_METHOD("node_get_type", "id"), &AnimationTreePlayer::node_get_type);
+    MethodBinder::bind_method(D_METHOD("node_get_input_count", "id"), &AnimationTreePlayer::node_get_input_count);
+    MethodBinder::bind_method(D_METHOD("node_get_input_source", "id", "idx"), &AnimationTreePlayer::node_get_input_source);
 
-    ClassDB::bind_method(D_METHOD("animation_node_set_animation", "id", "animation"), &AnimationTreePlayer::animation_node_set_animation);
-    ClassDB::bind_method(D_METHOD("animation_node_get_animation", "id"), &AnimationTreePlayer::animation_node_get_animation);
+    MethodBinder::bind_method(D_METHOD("animation_node_set_animation", "id", "animation"), &AnimationTreePlayer::animation_node_set_animation);
+    MethodBinder::bind_method(D_METHOD("animation_node_get_animation", "id"), &AnimationTreePlayer::animation_node_get_animation);
 
-    ClassDB::bind_method(D_METHOD("animation_node_set_master_animation", "id", "source"), &AnimationTreePlayer::animation_node_set_master_animation);
-    ClassDB::bind_method(D_METHOD("animation_node_get_master_animation", "id"), &AnimationTreePlayer::animation_node_get_master_animation);
-    ClassDB::bind_method(D_METHOD("animation_node_get_position", "id"), &AnimationTreePlayer::animation_node_get_position);
-    ClassDB::bind_method(D_METHOD("animation_node_set_filter_path", "id", "path", "enable"), &AnimationTreePlayer::animation_node_set_filter_path);
+    MethodBinder::bind_method(D_METHOD("animation_node_set_master_animation", "id", "source"), &AnimationTreePlayer::animation_node_set_master_animation);
+    MethodBinder::bind_method(D_METHOD("animation_node_get_master_animation", "id"), &AnimationTreePlayer::animation_node_get_master_animation);
+    MethodBinder::bind_method(D_METHOD("animation_node_get_position", "id"), &AnimationTreePlayer::animation_node_get_position);
+    MethodBinder::bind_method(D_METHOD("animation_node_set_filter_path", "id", "path", "enable"), &AnimationTreePlayer::animation_node_set_filter_path);
 
-    ClassDB::bind_method(D_METHOD("oneshot_node_set_fadein_time", "id", "time_sec"), &AnimationTreePlayer::oneshot_node_set_fadein_time);
-    ClassDB::bind_method(D_METHOD("oneshot_node_get_fadein_time", "id"), &AnimationTreePlayer::oneshot_node_get_fadein_time);
+    MethodBinder::bind_method(D_METHOD("oneshot_node_set_fadein_time", "id", "time_sec"), &AnimationTreePlayer::oneshot_node_set_fadein_time);
+    MethodBinder::bind_method(D_METHOD("oneshot_node_get_fadein_time", "id"), &AnimationTreePlayer::oneshot_node_get_fadein_time);
 
-    ClassDB::bind_method(D_METHOD("oneshot_node_set_fadeout_time", "id", "time_sec"), &AnimationTreePlayer::oneshot_node_set_fadeout_time);
-    ClassDB::bind_method(D_METHOD("oneshot_node_get_fadeout_time", "id"), &AnimationTreePlayer::oneshot_node_get_fadeout_time);
+    MethodBinder::bind_method(D_METHOD("oneshot_node_set_fadeout_time", "id", "time_sec"), &AnimationTreePlayer::oneshot_node_set_fadeout_time);
+    MethodBinder::bind_method(D_METHOD("oneshot_node_get_fadeout_time", "id"), &AnimationTreePlayer::oneshot_node_get_fadeout_time);
 
-    ClassDB::bind_method(D_METHOD("oneshot_node_set_autorestart", "id", "enable"), &AnimationTreePlayer::oneshot_node_set_autorestart);
-    ClassDB::bind_method(D_METHOD("oneshot_node_set_autorestart_delay", "id", "delay_sec"), &AnimationTreePlayer::oneshot_node_set_autorestart_delay);
-    ClassDB::bind_method(D_METHOD("oneshot_node_set_autorestart_random_delay", "id", "rand_sec"), &AnimationTreePlayer::oneshot_node_set_autorestart_random_delay);
+    MethodBinder::bind_method(D_METHOD("oneshot_node_set_autorestart", "id", "enable"), &AnimationTreePlayer::oneshot_node_set_autorestart);
+    MethodBinder::bind_method(D_METHOD("oneshot_node_set_autorestart_delay", "id", "delay_sec"), &AnimationTreePlayer::oneshot_node_set_autorestart_delay);
+    MethodBinder::bind_method(D_METHOD("oneshot_node_set_autorestart_random_delay", "id", "rand_sec"), &AnimationTreePlayer::oneshot_node_set_autorestart_random_delay);
 
-    ClassDB::bind_method(D_METHOD("oneshot_node_has_autorestart", "id"), &AnimationTreePlayer::oneshot_node_has_autorestart);
-    ClassDB::bind_method(D_METHOD("oneshot_node_get_autorestart_delay", "id"), &AnimationTreePlayer::oneshot_node_get_autorestart_delay);
-    ClassDB::bind_method(D_METHOD("oneshot_node_get_autorestart_random_delay", "id"), &AnimationTreePlayer::oneshot_node_get_autorestart_random_delay);
+    MethodBinder::bind_method(D_METHOD("oneshot_node_has_autorestart", "id"), &AnimationTreePlayer::oneshot_node_has_autorestart);
+    MethodBinder::bind_method(D_METHOD("oneshot_node_get_autorestart_delay", "id"), &AnimationTreePlayer::oneshot_node_get_autorestart_delay);
+    MethodBinder::bind_method(D_METHOD("oneshot_node_get_autorestart_random_delay", "id"), &AnimationTreePlayer::oneshot_node_get_autorestart_random_delay);
 
-    ClassDB::bind_method(D_METHOD("oneshot_node_start", "id"), &AnimationTreePlayer::oneshot_node_start);
-    ClassDB::bind_method(D_METHOD("oneshot_node_stop", "id"), &AnimationTreePlayer::oneshot_node_stop);
-    ClassDB::bind_method(D_METHOD("oneshot_node_is_active", "id"), &AnimationTreePlayer::oneshot_node_is_active);
-    ClassDB::bind_method(D_METHOD("oneshot_node_set_filter_path", "id", "path", "enable"), &AnimationTreePlayer::oneshot_node_set_filter_path);
+    MethodBinder::bind_method(D_METHOD("oneshot_node_start", "id"), &AnimationTreePlayer::oneshot_node_start);
+    MethodBinder::bind_method(D_METHOD("oneshot_node_stop", "id"), &AnimationTreePlayer::oneshot_node_stop);
+    MethodBinder::bind_method(D_METHOD("oneshot_node_is_active", "id"), &AnimationTreePlayer::oneshot_node_is_active);
+    MethodBinder::bind_method(D_METHOD("oneshot_node_set_filter_path", "id", "path", "enable"), &AnimationTreePlayer::oneshot_node_set_filter_path);
 
-    ClassDB::bind_method(D_METHOD("mix_node_set_amount", "id", "ratio"), &AnimationTreePlayer::mix_node_set_amount);
-    ClassDB::bind_method(D_METHOD("mix_node_get_amount", "id"), &AnimationTreePlayer::mix_node_get_amount);
+    MethodBinder::bind_method(D_METHOD("mix_node_set_amount", "id", "ratio"), &AnimationTreePlayer::mix_node_set_amount);
+    MethodBinder::bind_method(D_METHOD("mix_node_get_amount", "id"), &AnimationTreePlayer::mix_node_get_amount);
 
-    ClassDB::bind_method(D_METHOD("blend2_node_set_amount", "id", "blend"), &AnimationTreePlayer::blend2_node_set_amount);
-    ClassDB::bind_method(D_METHOD("blend2_node_get_amount", "id"), &AnimationTreePlayer::blend2_node_get_amount);
-    ClassDB::bind_method(D_METHOD("blend2_node_set_filter_path", "id", "path", "enable"), &AnimationTreePlayer::blend2_node_set_filter_path);
+    MethodBinder::bind_method(D_METHOD("blend2_node_set_amount", "id", "blend"), &AnimationTreePlayer::blend2_node_set_amount);
+    MethodBinder::bind_method(D_METHOD("blend2_node_get_amount", "id"), &AnimationTreePlayer::blend2_node_get_amount);
+    MethodBinder::bind_method(D_METHOD("blend2_node_set_filter_path", "id", "path", "enable"), &AnimationTreePlayer::blend2_node_set_filter_path);
 
-    ClassDB::bind_method(D_METHOD("blend3_node_set_amount", "id", "blend"), &AnimationTreePlayer::blend3_node_set_amount);
-    ClassDB::bind_method(D_METHOD("blend3_node_get_amount", "id"), &AnimationTreePlayer::blend3_node_get_amount);
+    MethodBinder::bind_method(D_METHOD("blend3_node_set_amount", "id", "blend"), &AnimationTreePlayer::blend3_node_set_amount);
+    MethodBinder::bind_method(D_METHOD("blend3_node_get_amount", "id"), &AnimationTreePlayer::blend3_node_get_amount);
 
-    ClassDB::bind_method(D_METHOD("blend4_node_set_amount", "id", "blend"), &AnimationTreePlayer::blend4_node_set_amount);
-    ClassDB::bind_method(D_METHOD("blend4_node_get_amount", "id"), &AnimationTreePlayer::blend4_node_get_amount);
+    MethodBinder::bind_method(D_METHOD("blend4_node_set_amount", "id", "blend"), &AnimationTreePlayer::blend4_node_set_amount);
+    MethodBinder::bind_method(D_METHOD("blend4_node_get_amount", "id"), &AnimationTreePlayer::blend4_node_get_amount);
 
-    ClassDB::bind_method(D_METHOD("timescale_node_set_scale", "id", "scale"), &AnimationTreePlayer::timescale_node_set_scale);
-    ClassDB::bind_method(D_METHOD("timescale_node_get_scale", "id"), &AnimationTreePlayer::timescale_node_get_scale);
+    MethodBinder::bind_method(D_METHOD("timescale_node_set_scale", "id", "scale"), &AnimationTreePlayer::timescale_node_set_scale);
+    MethodBinder::bind_method(D_METHOD("timescale_node_get_scale", "id"), &AnimationTreePlayer::timescale_node_get_scale);
 
-    ClassDB::bind_method(D_METHOD("timeseek_node_seek", "id", "seconds"), &AnimationTreePlayer::timeseek_node_seek);
+    MethodBinder::bind_method(D_METHOD("timeseek_node_seek", "id", "seconds"), &AnimationTreePlayer::timeseek_node_seek);
 
-    ClassDB::bind_method(D_METHOD("transition_node_set_input_count", "id", "count"), &AnimationTreePlayer::transition_node_set_input_count);
-    ClassDB::bind_method(D_METHOD("transition_node_get_input_count", "id"), &AnimationTreePlayer::transition_node_get_input_count);
-    ClassDB::bind_method(D_METHOD("transition_node_delete_input", "id", "input_idx"), &AnimationTreePlayer::transition_node_delete_input);
+    MethodBinder::bind_method(D_METHOD("transition_node_set_input_count", "id", "count"), &AnimationTreePlayer::transition_node_set_input_count);
+    MethodBinder::bind_method(D_METHOD("transition_node_get_input_count", "id"), &AnimationTreePlayer::transition_node_get_input_count);
+    MethodBinder::bind_method(D_METHOD("transition_node_delete_input", "id", "input_idx"), &AnimationTreePlayer::transition_node_delete_input);
 
-    ClassDB::bind_method(D_METHOD("transition_node_set_input_auto_advance", "id", "input_idx", "enable"), &AnimationTreePlayer::transition_node_set_input_auto_advance);
-    ClassDB::bind_method(D_METHOD("transition_node_has_input_auto_advance", "id", "input_idx"), &AnimationTreePlayer::transition_node_has_input_auto_advance);
+    MethodBinder::bind_method(D_METHOD("transition_node_set_input_auto_advance", "id", "input_idx", "enable"), &AnimationTreePlayer::transition_node_set_input_auto_advance);
+    MethodBinder::bind_method(D_METHOD("transition_node_has_input_auto_advance", "id", "input_idx"), &AnimationTreePlayer::transition_node_has_input_auto_advance);
 
-    ClassDB::bind_method(D_METHOD("transition_node_set_xfade_time", "id", "time_sec"), &AnimationTreePlayer::transition_node_set_xfade_time);
-    ClassDB::bind_method(D_METHOD("transition_node_get_xfade_time", "id"), &AnimationTreePlayer::transition_node_get_xfade_time);
+    MethodBinder::bind_method(D_METHOD("transition_node_set_xfade_time", "id", "time_sec"), &AnimationTreePlayer::transition_node_set_xfade_time);
+    MethodBinder::bind_method(D_METHOD("transition_node_get_xfade_time", "id"), &AnimationTreePlayer::transition_node_get_xfade_time);
 
-    ClassDB::bind_method(D_METHOD("transition_node_set_current", "id", "input_idx"), &AnimationTreePlayer::transition_node_set_current);
-    ClassDB::bind_method(D_METHOD("transition_node_get_current", "id"), &AnimationTreePlayer::transition_node_get_current);
+    MethodBinder::bind_method(D_METHOD("transition_node_set_current", "id", "input_idx"), &AnimationTreePlayer::transition_node_set_current);
+    MethodBinder::bind_method(D_METHOD("transition_node_get_current", "id"), &AnimationTreePlayer::transition_node_get_current);
 
-    ClassDB::bind_method(D_METHOD("node_set_position", "id", "screen_position"), &AnimationTreePlayer::node_set_position);
-    ClassDB::bind_method(D_METHOD("node_get_position", "id"), &AnimationTreePlayer::node_get_position);
+    MethodBinder::bind_method(D_METHOD("node_set_position", "id", "screen_position"), &AnimationTreePlayer::node_set_position);
+    MethodBinder::bind_method(D_METHOD("node_get_position", "id"), &AnimationTreePlayer::node_get_position);
 
-    ClassDB::bind_method(D_METHOD("remove_node", "id"), &AnimationTreePlayer::remove_node);
-    ClassDB::bind_method(D_METHOD("connect_nodes", "id", "dst_id", "dst_input_idx"), &AnimationTreePlayer::connect_nodes);
-    ClassDB::bind_method(D_METHOD("are_nodes_connected", "id", "dst_id", "dst_input_idx"), &AnimationTreePlayer::are_nodes_connected);
-    ClassDB::bind_method(D_METHOD("disconnect_nodes", "id", "dst_input_idx"), &AnimationTreePlayer::disconnect_nodes);
+    MethodBinder::bind_method(D_METHOD("remove_node", "id"), &AnimationTreePlayer::remove_node);
+    MethodBinder::bind_method(D_METHOD("connect_nodes", "id", "dst_id", "dst_input_idx"), &AnimationTreePlayer::connect_nodes);
+    MethodBinder::bind_method(D_METHOD("are_nodes_connected", "id", "dst_id", "dst_input_idx"), &AnimationTreePlayer::are_nodes_connected);
+    MethodBinder::bind_method(D_METHOD("disconnect_nodes", "id", "dst_input_idx"), &AnimationTreePlayer::disconnect_nodes);
 
-    ClassDB::bind_method(D_METHOD("set_active", "enabled"), &AnimationTreePlayer::set_active);
-    ClassDB::bind_method(D_METHOD("is_active"), &AnimationTreePlayer::is_active);
+    MethodBinder::bind_method(D_METHOD("set_active", "enabled"), &AnimationTreePlayer::set_active);
+    MethodBinder::bind_method(D_METHOD("is_active"), &AnimationTreePlayer::is_active);
 
-    ClassDB::bind_method(D_METHOD("set_base_path", "path"), &AnimationTreePlayer::set_base_path);
-    ClassDB::bind_method(D_METHOD("get_base_path"), &AnimationTreePlayer::get_base_path);
+    MethodBinder::bind_method(D_METHOD("set_base_path", "path"), &AnimationTreePlayer::set_base_path);
+    MethodBinder::bind_method(D_METHOD("get_base_path"), &AnimationTreePlayer::get_base_path);
 
-    ClassDB::bind_method(D_METHOD("set_master_player", "nodepath"), &AnimationTreePlayer::set_master_player);
-    ClassDB::bind_method(D_METHOD("get_master_player"), &AnimationTreePlayer::get_master_player);
+    MethodBinder::bind_method(D_METHOD("set_master_player", "nodepath"), &AnimationTreePlayer::set_master_player);
+    MethodBinder::bind_method(D_METHOD("get_master_player"), &AnimationTreePlayer::get_master_player);
 
-    ClassDB::bind_method(D_METHOD("get_node_list"), &AnimationTreePlayer::_get_node_list);
+    MethodBinder::bind_method(D_METHOD("get_node_list"), &AnimationTreePlayer::_get_node_list);
 
-    ClassDB::bind_method(D_METHOD("set_animation_process_mode", "mode"), &AnimationTreePlayer::set_animation_process_mode);
-    ClassDB::bind_method(D_METHOD("get_animation_process_mode"), &AnimationTreePlayer::get_animation_process_mode);
+    MethodBinder::bind_method(D_METHOD("set_animation_process_mode", "mode"), &AnimationTreePlayer::set_animation_process_mode);
+    MethodBinder::bind_method(D_METHOD("get_animation_process_mode"), &AnimationTreePlayer::get_animation_process_mode);
 
-    ClassDB::bind_method(D_METHOD("advance", "delta"), &AnimationTreePlayer::advance);
+    MethodBinder::bind_method(D_METHOD("advance", "delta"), &AnimationTreePlayer::advance);
 
-    ClassDB::bind_method(D_METHOD("reset"), &AnimationTreePlayer::reset);
+    MethodBinder::bind_method(D_METHOD("reset"), &AnimationTreePlayer::reset);
 
-    ClassDB::bind_method(D_METHOD("recompute_caches"), &AnimationTreePlayer::recompute_caches);
+    MethodBinder::bind_method(D_METHOD("recompute_caches"), &AnimationTreePlayer::recompute_caches);
 
     ADD_GROUP("Playback", "playback_");
     ADD_PROPERTY(PropertyInfo(Variant::INT, "playback_process_mode", PROPERTY_HINT_ENUM, "Physics,Idle"), "set_animation_process_mode", "get_animation_process_mode");

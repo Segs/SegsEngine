@@ -40,6 +40,8 @@
 #include "scene/animation/animation_player.h"
 #include "scene/resources/surface_tool.h"
 
+IMPL_GDCLASS(EditorSceneImporterGLTF)
+
 uint32_t EditorSceneImporterGLTF::get_import_flags() const {
 
     return IMPORT_SCENE | IMPORT_ANIMATION;
@@ -61,15 +63,14 @@ Error EditorSceneImporterGLTF::_parse_json(const String &p_path, GLTFState &stat
     Vector<uint8_t> array;
     array.resize(f->get_len());
     f->get_buffer(array.ptrw(), array.size());
-    String text;
-    text.parse_utf8((const char *)array.ptr(), array.size());
+    String text = StringUtils::from_utf8((const char *)array.ptr(), array.size());
 
     String err_txt;
     int err_line;
     Variant v;
     err = JSON::parse(text, v, err_txt, err_line);
     if (err != OK) {
-        _err_print_error("", qPrintable(p_path), err_line, err_txt, ERR_HANDLER_SCRIPT);
+        _err_print_error("", qPrintable(p_path.m_str), err_line, err_txt, ERR_HANDLER_SCRIPT);
         return err;
     }
     state.json = v;
@@ -99,15 +100,14 @@ Error EditorSceneImporterGLTF::_parse_glb(const String &p_path, GLTFState &state
     uint32_t len = f->get_buffer(json_data.ptrw(), chunk_length);
     ERR_FAIL_COND_V(len != chunk_length, ERR_FILE_CORRUPT)
 
-    String text;
-    text.parse_utf8((const char *)json_data.ptr(), json_data.size());
+    String text = StringUtils::from_utf8((const char *)json_data.ptr(), json_data.size());
 
     String err_txt;
     int err_line;
     Variant v;
     err = JSON::parse(text, v, err_txt, err_line);
     if (err != OK) {
-        _err_print_error("", qPrintable(p_path), err_line, err_txt, ERR_HANDLER_SCRIPT);
+        _err_print_error("", qPrintable(p_path.m_str), err_line, err_txt, ERR_HANDLER_SCRIPT);
         return err;
     }
 
@@ -270,10 +270,10 @@ Error EditorSceneImporterGLTF::_parse_nodes(GLTFState &state) {
 
 static Vector<uint8_t> _parse_base64_uri(const String &uri) {
 
-    int start = uri.find(",");
-    ERR_FAIL_COND_V(start == -1, Vector<uint8_t>());
+    int start = StringUtils::find(uri,",");
+    ERR_FAIL_COND_V(start == -1, Vector<uint8_t>())
 
-    CharString substr = uri.right(start + 1).ascii();
+    CharString substr = StringUtils::ascii(StringUtils::right(uri,start + 1));
 
     int strlen = substr.length();
 
@@ -281,7 +281,7 @@ static Vector<uint8_t> _parse_base64_uri(const String &uri) {
     buf.resize(strlen / 4 * 3 + 1 + 1);
 
     size_t len = 0;
-    ERR_FAIL_COND_V(CryptoCore::b64_decode(buf.ptrw(), buf.size(), &len, (unsigned char *)substr.constData(), strlen) != OK, Vector<uint8_t>());
+    ERR_FAIL_COND_V(CryptoCore::b64_decode(buf.ptrw(), buf.size(), &len, (unsigned char *)substr.data(), strlen) != OK, Vector<uint8_t>());
 
     buf.resize(len);
 
@@ -306,17 +306,17 @@ Error EditorSceneImporterGLTF::_parse_buffers(GLTFState &state, const String &p_
                 Vector<uint8_t> buffer_data;
                 String uri = buffer["uri"];
 
-                if (uri.findn("data:application/octet-stream;base64") == 0) {
+                if (StringUtils::findn(uri,"data:application/octet-stream;base64") == 0) {
                     //embedded data
                     buffer_data = _parse_base64_uri(uri);
                 } else {
 
-                    uri = PathUtils::plus_file(p_base_path,uri).replace("\\", "/"); //fix for windows
+                    uri = StringUtils::replace(PathUtils::plus_file(p_base_path,uri),"\\", "/"); //fix for windows
                     buffer_data = FileAccess::get_file_as_array(uri);
-                    ERR_FAIL_COND_V(buffer.size() == 0, ERR_PARSE_ERROR);
+                    ERR_FAIL_COND_V(buffer.size() == 0, ERR_PARSE_ERROR)
                 }
 
-                ERR_FAIL_COND_V(!buffer.has("byteLength"), ERR_PARSE_ERROR);
+                ERR_FAIL_COND_V(!buffer.has("byteLength"), ERR_PARSE_ERROR)
                 int byteLength = buffer["byteLength"];
                 ERR_FAIL_COND_V(byteLength < buffer_data.size(), ERR_PARSE_ERROR);
                 state.buffers.push_back(buffer_data);
@@ -1175,15 +1175,15 @@ Error EditorSceneImporterGLTF::_parse_images(GLTFState &state, const String &p_b
         if (d.has("uri")) {
             String uri = d["uri"];
 
-            if (uri.findn("data:application/octet-stream;base64") == 0 ||
-                    uri.findn("data:" + mimetype + ";base64") == 0) {
+            if (StringUtils::findn(uri,"data:application/octet-stream;base64") == 0 ||
+                    StringUtils::findn(uri,"data:" + mimetype + ";base64") == 0) {
                 //embedded data
                 data = _parse_base64_uri(uri);
                 data_ptr = data.ptr();
                 data_size = data.size();
             } else {
 
-                uri = PathUtils::plus_file(p_base_path,uri).replace("\\", "/"); //fix for windows
+                uri = StringUtils::replace(PathUtils::plus_file(p_base_path,uri),"\\", "/"); //fix for windows
                 Ref<Texture> texture = ResourceLoader::load(uri);
                 state.images.push_back(texture);
                 continue;
@@ -1208,7 +1208,7 @@ Error EditorSceneImporterGLTF::_parse_images(GLTFState &state, const String &p_b
 
         ERR_FAIL_COND_V(mimetype == "", ERR_FILE_CORRUPT)
 
-        if (mimetype.findn("png") != -1) {
+        if (StringUtils::findn(mimetype,"png") != -1) {
             //is a png
             ImageData img_data = ImageLoader::load_image("png",data_ptr, data_size);
 
@@ -1224,7 +1224,7 @@ Error EditorSceneImporterGLTF::_parse_images(GLTFState &state, const String &p_b
             continue;
         }
 
-        if (mimetype.findn("jpeg") != -1) {
+        if (StringUtils::findn(mimetype,"jpeg") != -1) {
             //is a jpg
             ImageData img_data = ImageLoader::load_image("jpeg",data_ptr, data_size);
 
@@ -2184,7 +2184,7 @@ Node *EditorSceneImporterGLTF::import_scene(const String &p_path, uint32_t p_fla
 
     GLTFState state;
 
-    if (StringUtils::to_lower(p_path).ends_with("glb")) {
+    if (StringUtils::ends_with(StringUtils::to_lower(p_path),"glb")) {
         //binary file
         //text file
         Error err = _parse_glb(p_path, state);
@@ -2197,16 +2197,16 @@ Node *EditorSceneImporterGLTF::import_scene(const String &p_path, uint32_t p_fla
             return nullptr;
     }
 
-    ERR_FAIL_COND_V(!state.json.has("asset"), nullptr);
+    ERR_FAIL_COND_V(!state.json.has("asset"), nullptr)
 
     Dictionary asset = state.json["asset"];
 
-    ERR_FAIL_COND_V(!asset.has("version"), nullptr);
+    ERR_FAIL_COND_V(!asset.has("version"), nullptr)
 
     String version = asset["version"];
 
-    state.major_version = version.get_slice(".", 0).to_int();
-    state.minor_version = version.get_slice(".", 1).to_int();
+    state.major_version = StringUtils::to_int(StringUtils::get_slice(version,".", 0));
+    state.minor_version = StringUtils::to_int(StringUtils::get_slice(version,".", 1));
 
     /* STEP 0 PARSE SCENE */
     Error err = _parse_scenes(state);

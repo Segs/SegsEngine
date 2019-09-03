@@ -30,8 +30,11 @@
 
 #include "tween.h"
 
-#include "method_bind_ext.gen.h"
 #include "core/object_db.h"
+#include "core/string_formatter.h"
+#include "core/method_bind.h"
+
+IMPL_GDCLASS(Tween)
 
 void Tween::_add_pending_command(StringName p_key, const Variant &p_arg1, const Variant &p_arg2, const Variant &p_arg3, const Variant &p_arg4, const Variant &p_arg5, const Variant &p_arg6, const Variant &p_arg7, const Variant &p_arg8, const Variant &p_arg9, const Variant &p_arg10) {
 
@@ -210,42 +213,42 @@ void Tween::_notification(int p_what) {
 
 void Tween::_bind_methods() {
     // Bind getters and setters
-    ClassDB::bind_method(D_METHOD("is_active"), &Tween::is_active);
-    ClassDB::bind_method(D_METHOD("set_active", "active"), &Tween::set_active);
+    MethodBinder::bind_method(D_METHOD("is_active"), &Tween::is_active);
+    MethodBinder::bind_method(D_METHOD("set_active", "active"), &Tween::set_active);
 
-    ClassDB::bind_method(D_METHOD("is_repeat"), &Tween::is_repeat);
-    ClassDB::bind_method(D_METHOD("set_repeat", "repeat"), &Tween::set_repeat);
+    MethodBinder::bind_method(D_METHOD("is_repeat"), &Tween::is_repeat);
+    MethodBinder::bind_method(D_METHOD("set_repeat", "repeat"), &Tween::set_repeat);
 
-    ClassDB::bind_method(D_METHOD("set_speed_scale", "speed"), &Tween::set_speed_scale);
-    ClassDB::bind_method(D_METHOD("get_speed_scale"), &Tween::get_speed_scale);
+    MethodBinder::bind_method(D_METHOD("set_speed_scale", "speed"), &Tween::set_speed_scale);
+    MethodBinder::bind_method(D_METHOD("get_speed_scale"), &Tween::get_speed_scale);
 
-    ClassDB::bind_method(D_METHOD("set_tween_process_mode", "mode"), &Tween::set_tween_process_mode);
-    ClassDB::bind_method(D_METHOD("get_tween_process_mode"), &Tween::get_tween_process_mode);
+    MethodBinder::bind_method(D_METHOD("set_tween_process_mode", "mode"), &Tween::set_tween_process_mode);
+    MethodBinder::bind_method(D_METHOD("get_tween_process_mode"), &Tween::get_tween_process_mode);
 
     // Bind the various Tween control methods
-    ClassDB::bind_method(D_METHOD("start"), &Tween::start);
-    ClassDB::bind_method(D_METHOD("reset", "object", "key"), &Tween::reset, {DEFVAL("")});
-    ClassDB::bind_method(D_METHOD("reset_all"), &Tween::reset_all);
-    ClassDB::bind_method(D_METHOD("stop", "object", "key"), &Tween::stop, {DEFVAL("")});
-    ClassDB::bind_method(D_METHOD("stop_all"), &Tween::stop_all);
-    ClassDB::bind_method(D_METHOD("resume", "object", "key"), &Tween::resume, {DEFVAL("")});
-    ClassDB::bind_method(D_METHOD("resume_all"), &Tween::resume_all);
-    ClassDB::bind_method(D_METHOD("remove", "object", "key"), &Tween::remove, {DEFVAL("")});
-    ClassDB::bind_method(D_METHOD("_remove_by_uid", "uid"), &Tween::_remove_by_uid);
-    ClassDB::bind_method(D_METHOD("remove_all"), &Tween::remove_all);
-    ClassDB::bind_method(D_METHOD("seek", "time"), &Tween::seek);
-    ClassDB::bind_method(D_METHOD("tell"), &Tween::tell);
-    ClassDB::bind_method(D_METHOD("get_runtime"), &Tween::get_runtime);
+    MethodBinder::bind_method(D_METHOD("start"), &Tween::start);
+    MethodBinder::bind_method(D_METHOD("reset", "object", "key"), &Tween::reset, {DEFVAL("")});
+    MethodBinder::bind_method(D_METHOD("reset_all"), &Tween::reset_all);
+    MethodBinder::bind_method(D_METHOD("stop", "object", "key"), &Tween::stop, {DEFVAL("")});
+    MethodBinder::bind_method(D_METHOD("stop_all"), &Tween::stop_all);
+    MethodBinder::bind_method(D_METHOD("resume", "object", "key"), &Tween::resume, {DEFVAL("")});
+    MethodBinder::bind_method(D_METHOD("resume_all"), &Tween::resume_all);
+    MethodBinder::bind_method(D_METHOD("remove", "object", "key"), &Tween::remove, {DEFVAL("")});
+    MethodBinder::bind_method(D_METHOD("_remove_by_uid", "uid"), &Tween::_remove_by_uid);
+    MethodBinder::bind_method(D_METHOD("remove_all"), &Tween::remove_all);
+    MethodBinder::bind_method(D_METHOD("seek", "time"), &Tween::seek);
+    MethodBinder::bind_method(D_METHOD("tell"), &Tween::tell);
+    MethodBinder::bind_method(D_METHOD("get_runtime"), &Tween::get_runtime);
 
     // Bind interpolation and follow methods
-    ClassDB::bind_method(D_METHOD("interpolate_property", "object", "property", "initial_val", "final_val", "duration", "trans_type", "ease_type", "delay"), &Tween::interpolate_property, {DEFVAL(0)});
-    ClassDB::bind_method(D_METHOD("interpolate_method", "object", "method", "initial_val", "final_val", "duration", "trans_type", "ease_type", "delay"), &Tween::interpolate_method, {DEFVAL(0)});
-    ClassDB::bind_method(D_METHOD("interpolate_callback", "object", "duration", "callback", "arg1", "arg2", "arg3", "arg4", "arg5"), &Tween::interpolate_callback, {DEFVAL(Variant()), DEFVAL(Variant()), DEFVAL(Variant()), DEFVAL(Variant()), DEFVAL(Variant())});
-    ClassDB::bind_method(D_METHOD("interpolate_deferred_callback", "object", "duration", "callback", "arg1", "arg2", "arg3", "arg4", "arg5"), &Tween::interpolate_deferred_callback, {DEFVAL(Variant()), DEFVAL(Variant()), DEFVAL(Variant()), DEFVAL(Variant()), DEFVAL(Variant())});
-    ClassDB::bind_method(D_METHOD("follow_property", "object", "property", "initial_val", "target", "target_property", "duration", "trans_type", "ease_type", "delay"), &Tween::follow_property, {DEFVAL(0)});
-    ClassDB::bind_method(D_METHOD("follow_method", "object", "method", "initial_val", "target", "target_method", "duration", "trans_type", "ease_type", "delay"), &Tween::follow_method, {DEFVAL(0)});
-    ClassDB::bind_method(D_METHOD("targeting_property", "object", "property", "initial", "initial_val", "final_val", "duration", "trans_type", "ease_type", "delay"), &Tween::targeting_property, {DEFVAL(0)});
-    ClassDB::bind_method(D_METHOD("targeting_method", "object", "method", "initial", "initial_method", "final_val", "duration", "trans_type", "ease_type", "delay"), &Tween::targeting_method, {DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("interpolate_property", "object", "property", "initial_val", "final_val", "duration", "trans_type", "ease_type", "delay"), &Tween::interpolate_property, {DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("interpolate_method", "object", "method", "initial_val", "final_val", "duration", "trans_type", "ease_type", "delay"), &Tween::interpolate_method, {DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("interpolate_callback", "object", "duration", "callback", "arg1", "arg2", "arg3", "arg4", "arg5"), &Tween::interpolate_callback, {DEFVAL(Variant()), DEFVAL(Variant()), DEFVAL(Variant()), DEFVAL(Variant()), DEFVAL(Variant())});
+    MethodBinder::bind_method(D_METHOD("interpolate_deferred_callback", "object", "duration", "callback", "arg1", "arg2", "arg3", "arg4", "arg5"), &Tween::interpolate_deferred_callback, {DEFVAL(Variant()), DEFVAL(Variant()), DEFVAL(Variant()), DEFVAL(Variant()), DEFVAL(Variant())});
+    MethodBinder::bind_method(D_METHOD("follow_property", "object", "property", "initial_val", "target", "target_property", "duration", "trans_type", "ease_type", "delay"), &Tween::follow_property, {DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("follow_method", "object", "method", "initial_val", "target", "target_method", "duration", "trans_type", "ease_type", "delay"), &Tween::follow_method, {DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("targeting_property", "object", "property", "initial", "initial_val", "final_val", "duration", "trans_type", "ease_type", "delay"), &Tween::targeting_property, {DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("targeting_method", "object", "method", "initial", "initial_method", "final_val", "duration", "trans_type", "ease_type", "delay"), &Tween::targeting_method, {DEFVAL(0)});
 
     // Add the Tween signals
     ADD_SIGNAL(MethodInfo("tween_started", PropertyInfo(Variant::OBJECT, "object"), PropertyInfo(Variant::NODE_PATH, "key")));
@@ -1186,29 +1189,31 @@ bool Tween::_build_interpolation(InterpolateType p_interpolation_type, Object *p
     // Validate and apply interpolation data
 
     // Give it the object
-    ERR_FAIL_COND_V_MSG(p_object == nullptr, false, "Invalid object provided to Tween.");
-    ERR_FAIL_COND_V_MSG(!ObjectDB::instance_validate(p_object), false, "Invalid object provided to Tween.");
+    ERR_FAIL_COND_V_MSG(p_object == nullptr, false, "Invalid object provided to Tween.")
+    ERR_FAIL_COND_V_MSG(!ObjectDB::instance_validate(p_object), false, "Invalid object provided to Tween.")
     data.id = p_object->get_instance_id();
 
     // Validate the initial and final values
-    ERR_FAIL_COND_V_MSG(p_initial_val.get_type() != p_final_val.get_type(), false, "Initial value type '" + Variant::get_type_name(p_initial_val.get_type()) + "' does not match final value type '" + Variant::get_type_name(p_final_val.get_type()) + "'.");
+    ERR_FAIL_COND_V_MSG(p_initial_val.get_type() != p_final_val.get_type(), false,
+            FormatV("Initial value type '%s' does not match final value type '%s'.",
+                    Variant::get_type_name(p_initial_val.get_type()), Variant::get_type_name(p_final_val.get_type())))
     data.initial_val = p_initial_val;
     data.final_val = p_final_val;
 
     // Check the Duration
-    ERR_FAIL_COND_V_MSG(p_duration < 0, false, "Only non-negative duration values allowed in Tweens.");
+    ERR_FAIL_COND_V_MSG(p_duration < 0, false, "Only non-negative duration values allowed in Tweens.")
     data.duration = p_duration;
 
     // Tween Delay
-    ERR_FAIL_COND_V_MSG(p_delay < 0, false, "Only non-negative delay values allowed in Tweens.");
+    ERR_FAIL_COND_V_MSG(p_delay < 0, false, "Only non-negative delay values allowed in Tweens.")
     data.delay = p_delay;
 
     // Transition type
-    ERR_FAIL_COND_V_MSG(p_trans_type < 0 || p_trans_type >= TRANS_COUNT, false, "Invalid transition type provided to Tween.");
+    ERR_FAIL_COND_V_MSG(p_trans_type < 0 || p_trans_type >= TRANS_COUNT, false, "Invalid transition type provided to Tween.")
     data.trans_type = p_trans_type;
 
     // Easing type
-    ERR_FAIL_COND_V_MSG(p_ease_type < 0 || p_ease_type >= EASE_COUNT, false, "Invalid easing type provided to Tween.");
+    ERR_FAIL_COND_V_MSG(p_ease_type < 0 || p_ease_type >= EASE_COUNT, false, "Invalid easing type provided to Tween.")
     data.ease_type = p_ease_type;
 
     // Is the property defined?
@@ -1216,7 +1221,7 @@ bool Tween::_build_interpolation(InterpolateType p_interpolation_type, Object *p
         // Check that the object actually contains the given property
         bool prop_valid = false;
         p_object->get_indexed(p_property->get_subnames(), &prop_valid);
-        ERR_FAIL_COND_V_MSG(!prop_valid, false, "Tween target object has no property named: " + p_property->get_concatenated_subnames() + ".");
+        ERR_FAIL_COND_V_MSG(!prop_valid, false, "Tween target object has no property named: " + p_property->get_concatenated_subnames() + ".")
 
         data.key = p_property->get_subnames();
         data.concatenated_key = p_property->get_concatenated_subnames();
@@ -1225,7 +1230,7 @@ bool Tween::_build_interpolation(InterpolateType p_interpolation_type, Object *p
     // Is the method defined?
     if (p_method) {
         // Does the object even have the requested method?
-        ERR_FAIL_COND_V_MSG(!p_object->has_method(*p_method), false, "Tween target object has no method named: " + *p_method + ".");
+        ERR_FAIL_COND_V_MSG(!p_object->has_method(*p_method), false, "Tween target object has no method named: " + *p_method + ".")
 
         data.key.push_back(*p_method);
         data.concatenated_key = *p_method;

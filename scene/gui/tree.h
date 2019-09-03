@@ -41,7 +41,7 @@ class Tree;
 
 class TreeItem : public Object {
 
-	GDCLASS(TreeItem, Object);
+	GDCLASS(TreeItem,Object)
 
 public:
 	enum TreeCellMode {
@@ -279,7 +279,7 @@ public:
 	void set_disable_folding(bool p_disable);
 	bool is_folding_disabled() const;
 
-	~TreeItem();
+	~TreeItem() override;
 };
 
 VARIANT_ENUM_CAST(TreeItem::TreeCellMode);
@@ -287,7 +287,7 @@ VARIANT_ENUM_CAST(TreeItem::TextAlign);
 
 class Tree : public Control {
 
-	GDCLASS(Tree, Control);
+	GDCLASS(Tree,Control)
 
 public:
 	enum SelectMode {
@@ -383,7 +383,7 @@ private:
 	void _gui_input(Ref<InputEvent> p_event);
 	void _notification(int p_what);
 
-	Size2 get_minimum_size() const;
+	Size2 get_minimum_size() const override;
 
 	void item_edited(int p_column, TreeItem *p_item, bool p_lmb = true);
 	void item_changed(int p_column, TreeItem *p_item);
@@ -527,7 +527,7 @@ protected:
 	}
 
 public:
-	virtual String get_tooltip(const Point2 &p_pos) const;
+	String get_tooltip(const Point2 &p_pos) const override;
 
 	TreeItem *get_item_at_position(const Point2 &p_pos) const;
 	int get_column_at_position(const Point2 &p_pos) const;
@@ -600,7 +600,7 @@ public:
 	bool get_allow_reselect() const;
 
 	Tree();
-	~Tree();
+	~Tree() override;
 };
 
 VARIANT_ENUM_CAST(Tree::SelectMode);

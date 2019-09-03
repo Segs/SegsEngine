@@ -68,10 +68,10 @@ void PackedData::add_path(const String &pkg_path, const String &path, uint64_t o
 
     if (!exists) {
         //search for dir
-        String p = path.replace_first("res://", "");
+		String p = StringUtils::replace_first(path,"res://", "");
         PackedDir *cd = root;
 
-        if (p.find("/") != -1) { //in a subdir
+		if (StringUtils::contains(p,"/")) { //in a subdir
 
             Vector<String> ds = StringUtils::split(PathUtils::get_base_dir(p),"/");
 
@@ -189,15 +189,14 @@ bool PackedSourcePCK::try_open_pack(const String &p_path) {
         f->get_buffer((uint8_t *)cs.data(), sl);
         cs[sl] = 0;
 
-        String path;
-        path.parse_utf8(cs.data());
+		String path = StringUtils::from_utf8(cs.data());
 
         uint64_t ofs = f->get_64();
         uint64_t size = f->get_64();
         uint8_t md5[16];
         f->get_buffer(md5, 16);
         PackedData::get_singleton()->add_path(p_path, path, ofs, size, md5, this);
-    };
+	}
 
     return true;
 };
@@ -211,7 +210,7 @@ FileAccess *PackedSourcePCK::get_file(const String &p_path, PackedData::PackedFi
 
 Error FileAccessPack::_open(const String &p_path, int p_mode_flags) {
 
-    ERR_FAIL_V(ERR_UNAVAILABLE);
+	ERR_FAIL_V(ERR_UNAVAILABLE)
     return ERR_UNAVAILABLE;
 }
 
@@ -396,19 +395,20 @@ String DirAccessPack::get_drive(int p_drive) {
 
 Error DirAccessPack::change_dir(String p_dir) {
 
-    String nd = p_dir.replace("\\", "/");
+	String nd = PathUtils::from_native_path(p_dir);
     bool absolute = false;
-    if (nd.begins_with("res://")) {
-        nd = nd.replace_first("res://", "");
+	if (StringUtils::begins_with(nd,"res://")) {
+		nd = StringUtils::replace_first(nd,"res://", "");
         absolute = true;
     }
 
     nd = PathUtils::simplify_path(nd);
 
-    if (nd == "") nd = ".";
+	if (nd.empty())
+		nd = ".";
 
-    if (nd.begins_with("/")) {
-        nd = nd.replace_first("/", "");
+	if (StringUtils::begins_with(nd,"/")) {
+		nd = StringUtils::replace_first(nd,"/", "");
         absolute = true;
     }
 

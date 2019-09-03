@@ -59,7 +59,7 @@ RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, const S
 
     while (!is_eof) {
 
-        String l = f->get_line().strip_edges();
+        String l = StringUtils::strip_edges(f->get_line());
         is_eof = f->eof_reached();
 
         // If we reached last line and it's not a content line, break, otherwise let processing that last loop
@@ -73,7 +73,7 @@ RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, const S
             }
         }
 
-        if (l.begins_with("msgid")) {
+        if (StringUtils::begins_with(l,"msgid")) {
 
             if (status == STATUS_READING_ID) {
 
@@ -87,7 +87,7 @@ RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, const S
             } else if (config == "")
                 config = msg_str;
 
-            l = l.substr(5, l.length()).strip_edges();
+            l = StringUtils::strip_edges(StringUtils::substr(l,5, l.length()));
             status = STATUS_READING_ID;
             msg_id = "";
             msg_str = "";
@@ -95,29 +95,29 @@ RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, const S
             skip_next = false;
         }
 
-        if (l.begins_with("msgstr")) {
+        if (StringUtils::begins_with(l,"msgstr")) {
 
             if (status != STATUS_READING_ID) {
 
                 memdelete(f);
-                ERR_FAIL_V_MSG(RES(), p_path + ":" + itos(line) + " Unexpected 'msgstr', was expecting 'msgid' while parsing: ");
+				ERR_FAIL_V_MSG(RES(), p_path + ":" + itos(line) + " Unexpected 'msgstr', was expecting 'msgid' while parsing: ")
             }
 
-            l = l.substr(6, l.length()).strip_edges();
+            l = StringUtils::strip_edges(StringUtils::substr(l,6, l.length()));
             status = STATUS_READING_STRING;
         }
 
-        if (l == "" || l.begins_with("#")) {
-            if (l.find("fuzzy") != -1) {
+		if (l.empty() || StringUtils::begins_with(l,"#")) {
+			if (StringUtils::contains(l,"fuzzy")) {
                 skip_next = true;
             }
             line++;
             continue; //nothing to read or comment
         }
 
-        ERR_FAIL_COND_V_MSG(!l.begins_with("\"") || status == STATUS_NONE, RES(), p_path + ":" + itos(line) + " Invalid line '" + l + "' while parsing: ");
+		ERR_FAIL_COND_V_MSG(!StringUtils::begins_with(l,"\"") || status == STATUS_NONE, RES(), p_path + ":" + itos(line) + " Invalid line '" + l + "' while parsing: ")
 
-        l = l.substr(1, l.length());
+        l = StringUtils::substr(l,1, l.length());
         //find final quote
         int end_pos = -1;
         for (int i = 0; i < l.length(); i++) {
@@ -128,9 +128,9 @@ RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, const S
             }
         }
 
-        ERR_FAIL_COND_V_MSG(end_pos == -1, RES(), p_path + ":" + itos(line) + " Expected '\"' at end of message while parsing file: ");
+		ERR_FAIL_COND_V_MSG(end_pos == -1, RES(), p_path + ":" + itos(line) + " Expected '\"' at end of message while parsing file: ")
 
-        l = l.substr(0, end_pos);
+        l = StringUtils::substr(l,0, end_pos);
         l = StringUtils::c_unescape(l);
 
         if (status == STATUS_READING_ID)
@@ -158,12 +158,12 @@ RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, const S
     Vector<String> configs = StringUtils::split(config,"\n");
     for (int i = 0; i < configs.size(); i++) {
 
-        String c = configs[i].strip_edges();
-        int p = c.find(":");
+        String c =StringUtils::strip_edges( configs[i]);
+        int p = StringUtils::find(c,":");
         if (p == -1)
             continue;
-        String prop = c.substr(0, p).strip_edges();
-        String value = c.substr(p + 1, c.length()).strip_edges();
+        String prop = StringUtils::strip_edges(StringUtils::substr(c,0, p));
+        String value = StringUtils::strip_edges(StringUtils::substr(c,p + 1, c.length()));
 
         if (prop == "X-Language" || prop == "Language") {
             translation->set_locale(value);

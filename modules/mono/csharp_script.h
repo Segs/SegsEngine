@@ -67,7 +67,8 @@ TScriptInstance *cast_script_instance(ScriptInstance *p_inst) {
 
 class CSharpScript : public Script {
 
-    GDCLASS(CSharpScript, Script);
+    GDCLASS(CSharpScript,Script)
+IMPL_GDCLASS(CSharpScript)
 
     friend class CSharpInstance;
     friend class CSharpLanguage;

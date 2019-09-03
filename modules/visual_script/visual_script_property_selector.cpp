@@ -30,6 +30,7 @@
 
 #include "visual_script_property_selector.h"
 
+#include "core/method_bind.h"
 #include "core/object_db.h"
 #include "core/os/keyboard.h"
 #include "editor/editor_node.h"
@@ -42,6 +43,8 @@
 #include "scene/main/node.h"
 #include "scene/main/viewport.h"
 #include <QStringList>
+
+IMPL_GDCLASS(VisualScriptPropertySelector)
 
 void VisualScriptPropertySelector::_text_changed(const String &p_newtext) {
     _update_search();
@@ -133,10 +136,10 @@ void VisualScriptPropertySelector::_update_search() {
             String b = String(E->get());
             category = search_options->create_item(root);
             if (category) {
-                category->set_text(0, b.replace_first("*", ""));
+                category->set_text(0, StringUtils::replace_first(b,"*", ""));
                 category->set_selectable(0, false);
                 Ref<Texture> icon;
-                String rep = b.replace("*", "");
+                String rep = StringUtils::replace(b,"*", "");
                 icon = EditorNode::get_singleton()->get_class_icon(rep);
                 category->set_icon(0, icon);
             }
@@ -161,12 +164,12 @@ void VisualScriptPropertySelector::_update_search() {
 
                 // capitalize() also converts underscore to space, we'll match again both possible styles
                 String get_text_raw = String(vformat(TTR("Get %s"), F->get().name));
-                String get_text = get_text_raw.capitalize();
+                String get_text = StringUtils::capitalize(get_text_raw);
                 String set_text_raw = String(vformat(TTR("Set %s"), F->get().name));
-                String set_text = set_text_raw.capitalize();
-                String input = search_box->get_text().capitalize();
+                String set_text = StringUtils::capitalize(set_text_raw);
+                String input = StringUtils::capitalize(search_box->get_text());
 
-                if (input == String() || get_text_raw.findn(input) != -1 || get_text.findn(input) != -1) {
+                if (input == String() || StringUtils::findn(get_text_raw,input) != -1 || StringUtils::findn(get_text,input) != -1) {
                     TreeItem *item = search_options->create_item(category ? category : root);
                     item->set_text(0, get_text);
                     item->set_metadata(0, F->get().name);
@@ -179,7 +182,7 @@ void VisualScriptPropertySelector::_update_search() {
                     item->set_metadata(2, connecting);
                 }
 
-                if (input == String() || set_text_raw.findn(input) != -1 || set_text.findn(input) != -1) {
+                if (input == String() || StringUtils::findn(set_text_raw,input) != -1 || StringUtils::findn(set_text,input) != -1) {
                     TreeItem *item = search_options->create_item(category ? category : root);
                     item->set_text(0, set_text);
                     item->set_metadata(0, F->get().name);
@@ -206,15 +209,15 @@ void VisualScriptPropertySelector::_update_search() {
                     Object::cast_to<Script>(obj)->get_script_method_list(&methods);
 
                 } else {
-                    methods.push_back(MethodInfo("*" + String(E->get())));
+                    methods.push_back(MethodInfo(CharString("*") + StringUtils::to_utf8(String(E->get()))));
                     ClassDB::get_method_list(E->get(), &methods, true, true);
                 }
             }
         }
         for (List<MethodInfo>::Element *M = methods.front(); M; M = M->next()) {
 
-            String name = M->get().name.get_slice(":", 0);
-            if (name.begins_with("_") && !(M->get().flags & METHOD_FLAG_VIRTUAL))
+            String name = StringUtils::get_slice(M->get().name,":", 0);
+            if (StringUtils::begins_with(name,"_") && !(M->get().flags & METHOD_FLAG_VIRTUAL))
                 continue;
 
             if (virtuals_only && !(M->get().flags & METHOD_FLAG_VIRTUAL))
@@ -234,9 +237,9 @@ void VisualScriptPropertySelector::_update_search() {
                     }
                     if (mi.arguments[i].type == Variant::NIL) {
                         desc_arguments += "var";
-                    } else if (mi.arguments[i].name.find(":") != -1) {
-                        desc_arguments += mi.arguments[i].name.get_slice(":", 1);
-                        mi.arguments[i].name = mi.arguments[i].name.get_slice(":", 0);
+                    } else if (StringUtils::find(mi.arguments[i].name,":") != -1) {
+                        desc_arguments += StringUtils::get_slice(mi.arguments[i].name,":", 1);
+                        mi.arguments[i].name = StringUtils::get_slice(mi.arguments[i].name,":", 0);
                     } else {
                         desc_arguments += Variant::get_type_name(mi.arguments[i].type);
                     }
@@ -244,12 +247,12 @@ void VisualScriptPropertySelector::_update_search() {
                 desc_arguments += ")";
             }
             String desc_raw = mi.name + desc_arguments;
-            String desc = desc_raw.capitalize().replace("( ", "(");
+            String desc = StringUtils::replace(StringUtils::capitalize(desc_raw),"( ", "(");
 
-            if (search_box->get_text() != String() &&
-                    name.findn(search_box->get_text()) == -1 &&
-                    desc.findn(search_box->get_text()) == -1 &&
-                    desc_raw.findn(search_box->get_text()) == -1) {
+            if (not search_box->get_text().empty() &&
+                    StringUtils::findn(name,search_box->get_text()) == -1 &&
+                    StringUtils::findn(desc,search_box->get_text()) == -1 &&
+                    StringUtils::findn(desc_raw,search_box->get_text()) == -1) {
                 continue;
             }
 
@@ -275,7 +278,7 @@ void VisualScriptPropertySelector::_update_search() {
         if (!seq_connect && !visual_script_generic) {
             get_visual_node_names("flow_control/type_cast", Set<String>(), found, root, search_box);
             get_visual_node_names("functions/built_in/print", Set<String>(), found, root, search_box);
-            get_visual_node_names("functions/by_type/" + Variant::get_type_name(type), Set<String>(), found, root, search_box);
+            get_visual_node_names(String("functions/by_type/") + Variant::get_type_name(type), Set<String>(), found, root, search_box);
             get_visual_node_names("operators/compare/", Set<String>(), found, root, search_box);
             if (type == Variant::INT) {
                 get_visual_node_names("operators/bitwise/", Set<String>(), found, root, search_box);
@@ -315,7 +318,7 @@ void VisualScriptPropertySelector::_update_search() {
 }
 
 void VisualScriptPropertySelector::create_visualscript_item(const String &name, TreeItem *const root, const String &search_input, const String &text) {
-    if (search_input == String() || text.findn(search_input) != -1) {
+    if (search_input == String() || StringUtils::findn(text,search_input) != -1) {
         TreeItem *item = search_options->create_item(root);
         item->set_text(0, text);
         item->set_icon(0, get_icon("VisualScript", "EditorIcons"));
@@ -336,13 +339,13 @@ void VisualScriptPropertySelector::get_visual_node_names(const String &root_filt
     VisualScriptLanguage::singleton->get_registered_node_names(&fnodes);
 
     for (List<String>::Element *E = fnodes.front(); E; E = E->next()) {
-        if (!E->get().begins_with(root_filter)) {
+        if (!StringUtils::begins_with(E->get(),root_filter)) {
             continue;
         }
         Vector<String> path = StringUtils::split(E->get(),"/");
         bool is_filter = false;
         for (Set<String>::Element *F = filter.front(); F; F = F->next()) {
-            if (path.size() >= 2 && path[1].findn(F->get()) != -1) {
+            if (path.size() >= 2 && StringUtils::findn(path[1],F->get()) != -1) {
                 is_filter = true;
                 break;
             }
@@ -351,7 +354,7 @@ void VisualScriptPropertySelector::get_visual_node_names(const String &root_filt
             continue;
         }
 
-        if (search_box->get_text() != String() && E->get().findn(search_box->get_text()) == -1) {
+        if (search_box->get_text() != String() && !StringUtils::contains(E->get(),search_box->get_text(),StringUtils::CaseInsensitive) ) {
             continue;
         }
         TreeItem *item = search_options->create_item(root);
@@ -362,23 +365,23 @@ void VisualScriptPropertySelector::get_visual_node_names(const String &root_filt
             if (path.size() >= 2) {
                 type = path[1];
             }
-            type_name = type.capitalize() + " ";
+            type_name = StringUtils::capitalize(type) + " ";
         }
         VisualScriptFunctionCall *vnode_function_call = Object::cast_to<VisualScriptFunctionCall>(*VisualScriptLanguage::singleton->create_node_from_name(E->get()));
         if (vnode_function_call != nullptr) {
             String basic_type = Variant::get_type_name(vnode_function_call->get_basic_type());
-            type_name = basic_type.capitalize() + " ";
+            type_name = StringUtils::capitalize(basic_type) + " ";
         }
         String mod_path = path[path.size() - 1];
-        auto desc = mod_path.replace("(", "( ").replace(")", " )").replace(",", ", ").split(" ");
+        auto desc = StringUtils::split(StringUtils::replace(StringUtils::replace(StringUtils::replace(mod_path,"(", "( "),")", " )"),",", ", ")," ");
         for (int i = 0; i < desc.size(); i++) {
-            desc[i] = String(desc[i]).capitalize();
-            if (desc[i].endsWith(",")) {
-                desc[i].replace(",", ", ");
+            desc.write[i] = StringUtils::capitalize(String(desc[i]));
+            if (StringUtils::ends_with(desc[i],",")) {
+                StringUtils::Inplace::replace(desc.write[i],",", ", ");
             }
         }
 
-        item->set_text(0, type_name + desc.join(""));
+        item->set_text(0, type_name + StringUtils::join("",desc));
         item->set_icon(0, get_icon("VisualScript", "EditorIcons"));
         item->set_selectable(0, true);
         item->set_metadata(0, E->get());
@@ -421,7 +424,7 @@ void VisualScriptPropertySelector::_item_selected() {
 
     String at_class = class_type;
 
-    while (at_class != String()) {
+    while (not at_class.empty()) {
 
         Map<String, DocData::ClassDoc>::Element *E = dd->class_list.find(at_class);
         if (E) {
@@ -482,7 +485,7 @@ void VisualScriptPropertySelector::_item_selected() {
             Map<String, DocData::ClassDoc>::Element *F = dd->class_list.find(builtin_node->get_class_name());
             if (F) {
                 for (int i = 0; i < F->get().constants.size(); i++) {
-                    if (F->get().constants[i].value.to_int() == int(builtin_node->get_func())) {
+                    if (StringUtils::to_int(F->get().constants[i].value) == int(builtin_node->get_func())) {
                         text = F->get().constants[i].description;
                     }
                 }
@@ -549,7 +552,7 @@ void VisualScriptPropertySelector::select_from_base_type(const String &p_base, c
 }
 
 void VisualScriptPropertySelector::select_from_script(const Ref<Script> &p_script, const String &p_current, const bool p_connecting) {
-    ERR_FAIL_COND(p_script.is_null());
+    ERR_FAIL_COND(p_script.is_null())
 
     base_type = p_script->get_instance_base_type();
     selected = p_current;
@@ -570,7 +573,7 @@ void VisualScriptPropertySelector::select_from_script(const Ref<Script> &p_scrip
 }
 
 void VisualScriptPropertySelector::select_from_basic_type(Variant::Type p_type, const String &p_current, const bool p_connecting) {
-    ERR_FAIL_COND(p_type == Variant::NIL);
+    ERR_FAIL_COND(p_type == Variant::NIL)
     base_type = "";
     selected = p_current;
     type = p_type;
@@ -655,10 +658,10 @@ void VisualScriptPropertySelector::show_window(float p_screen_ratio) {
 
 void VisualScriptPropertySelector::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_text_changed"), &VisualScriptPropertySelector::_text_changed);
-    ClassDB::bind_method(D_METHOD("_confirmed"), &VisualScriptPropertySelector::_confirmed);
-    ClassDB::bind_method(D_METHOD("_sbox_input"), &VisualScriptPropertySelector::_sbox_input);
-    ClassDB::bind_method(D_METHOD("_item_selected"), &VisualScriptPropertySelector::_item_selected);
+    MethodBinder::bind_method(D_METHOD("_text_changed"), &VisualScriptPropertySelector::_text_changed);
+    MethodBinder::bind_method(D_METHOD("_confirmed"), &VisualScriptPropertySelector::_confirmed);
+    MethodBinder::bind_method(D_METHOD("_sbox_input"), &VisualScriptPropertySelector::_sbox_input);
+    MethodBinder::bind_method(D_METHOD("_item_selected"), &VisualScriptPropertySelector::_item_selected);
 
     ADD_SIGNAL(MethodInfo("selected", PropertyInfo(Variant::STRING, "name"), PropertyInfo(Variant::STRING, "category"), PropertyInfo(Variant::BOOL, "connecting")));
 }

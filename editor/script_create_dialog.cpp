@@ -30,6 +30,7 @@
 
 #include "script_create_dialog.h"
 
+#include "core/method_bind.h"
 #include "core/io/resource_saver.h"
 #include "core/os/file_access.h"
 #include "core/project_settings.h"
@@ -39,6 +40,8 @@
 #include "editor/editor_node.h"
 #include "editor/editor_scale.h"
 #include "editor_file_system.h"
+
+IMPL_GDCLASS(ScriptCreateDialog)
 
 void ScriptCreateDialog::_notification(int p_what) {
 
@@ -72,7 +75,7 @@ void ScriptCreateDialog::_notification(int p_what) {
 
 void ScriptCreateDialog::_path_hbox_sorted() {
     if (is_visible()) {
-        int filename_start_pos = initial_bp.find_last("/") + 1;
+        int filename_start_pos = StringUtils::find_last(initial_bp,"/") + 1;
         int filename_end_pos = initial_bp.length();
 
         file_path->select(filename_start_pos, filename_end_pos);
@@ -124,7 +127,7 @@ bool ScriptCreateDialog::_validate_parent(const String &p_string) {
         return false;
 
     if (can_inherit_from_file && StringUtils::is_quoted(p_string)) {
-        String p = p_string.substr(1, p_string.length() - 2);
+        String p = StringUtils::substr(p_string,1, p_string.length() - 2);
         if (_validate_path(p, true) == "")
             return true;
     }
@@ -155,13 +158,13 @@ bool ScriptCreateDialog::_validate_class(const String &p_string) {
 
 String ScriptCreateDialog::_validate_path(const String &p_path, bool p_file_must_exist) {
 
-    String p = p_path.strip_edges();
+    String p =StringUtils::strip_edges( p_path);
 
     if (p == "") return TTR("Path is empty.");
     if (PathUtils::get_basename(PathUtils::get_file(p)) == "") return TTR("Filename is empty.");
 
     p = ProjectSettings::get_singleton()->localize_path(p);
-    if (!p.begins_with("res://")) return TTR("Path is not local.");
+    if (!StringUtils::begins_with(p,"res://")) return TTR("Path is not local.");
 
     DirAccess *d = DirAccess::create(DirAccess::ACCESS_RESOURCES);
     if (d->change_dir(PathUtils::get_base_dir(p)) != OK) {
@@ -194,7 +197,7 @@ String ScriptCreateDialog::_validate_path(const String &p_path, bool p_file_must
     bool match = false;
     int index = 0;
     for (List<String>::Element *E = extensions.front(); E; E = E->next()) {
-        if (E->get().compare(extension,Qt::CaseInsensitive) == 0) {
+        if (StringUtils::compare(E->get(),extension,StringUtils::CaseInsensitive) == 0) {
             //FIXME (?) - changing language this way doesn't update controls, needs rework
             //language_menu->select(index); // change Language option by extension
             found = true;
@@ -342,7 +345,7 @@ void ScriptCreateDialog::_lang_changed(int l) {
     String path = file_path->get_text();
     String extension = "";
     if (path != "") {
-        if (path.find(".") != -1) {
+        if (StringUtils::contains(path,'.')) {
             extension = PathUtils::get_extension(path);
         }
 
@@ -402,7 +405,7 @@ void ScriptCreateDialog::_lang_changed(int l) {
 
                 cur_origin = templates[i].origin;
             }
-            String item_name = templates[i].name.capitalize();
+            String item_name = StringUtils::capitalize(templates[i].name);
             template_menu->add_item(item_name);
 
             int new_id = template_menu->get_item_count() - 1;
@@ -542,7 +545,7 @@ void ScriptCreateDialog::_file_selected(const String &p_file) {
         _path_changed(p);
 
         String filename = PathUtils::get_basename(PathUtils::get_file(p));
-        int select_start = p.find_last(filename);
+        int select_start = StringUtils::find_last(p,filename);
         file_path->select(select_start, select_start + filename.length());
         file_path->set_cursor_position(select_start + filename.length());
         file_path->grab_focus();
@@ -567,7 +570,7 @@ void ScriptCreateDialog::_path_changed(const String &p_path) {
     is_new_script_created = true;
 
     String path_error = _validate_path(p_path, false);
-    if (path_error != "") {
+    if (!path_error.empty()) {
         _msg_path_valid(false, path_error);
         _update_dialog();
         return;
@@ -575,7 +578,7 @@ void ScriptCreateDialog::_path_changed(const String &p_path) {
 
     /* Does file already exist */
     DirAccess *f = DirAccess::create(DirAccess::ACCESS_RESOURCES);
-    String p = ProjectSettings::get_singleton()->localize_path(p_path.strip_edges());
+    String p = ProjectSettings::get_singleton()->localize_path(StringUtils::strip_edges(p_path));
     if (f->file_exists(p)) {
         is_new_script_created = false;
         _msg_path_valid(true, TTR("File exists, it will be reused."));
@@ -703,20 +706,20 @@ void ScriptCreateDialog::_update_dialog() {
 
 void ScriptCreateDialog::_bind_methods() {
 
-    ClassDB::bind_method("_path_hbox_sorted", &ScriptCreateDialog::_path_hbox_sorted);
-    ClassDB::bind_method("_class_name_changed", &ScriptCreateDialog::_class_name_changed);
-    ClassDB::bind_method("_parent_name_changed", &ScriptCreateDialog::_parent_name_changed);
-    ClassDB::bind_method("_lang_changed", &ScriptCreateDialog::_lang_changed);
-    ClassDB::bind_method("_built_in_pressed", &ScriptCreateDialog::_built_in_pressed);
-    ClassDB::bind_method("_browse_path", &ScriptCreateDialog::_browse_path);
-    ClassDB::bind_method("_file_selected", &ScriptCreateDialog::_file_selected);
-    ClassDB::bind_method("_path_changed", &ScriptCreateDialog::_path_changed);
-    ClassDB::bind_method("_path_entered", &ScriptCreateDialog::_path_entered);
-    ClassDB::bind_method("_template_changed", &ScriptCreateDialog::_template_changed);
-    ClassDB::bind_method("_create", &ScriptCreateDialog::_create);
-    ClassDB::bind_method("_browse_class_in_tree", &ScriptCreateDialog::_browse_class_in_tree);
+    MethodBinder::bind_method("_path_hbox_sorted", &ScriptCreateDialog::_path_hbox_sorted);
+    MethodBinder::bind_method("_class_name_changed", &ScriptCreateDialog::_class_name_changed);
+    MethodBinder::bind_method("_parent_name_changed", &ScriptCreateDialog::_parent_name_changed);
+    MethodBinder::bind_method("_lang_changed", &ScriptCreateDialog::_lang_changed);
+    MethodBinder::bind_method("_built_in_pressed", &ScriptCreateDialog::_built_in_pressed);
+    MethodBinder::bind_method("_browse_path", &ScriptCreateDialog::_browse_path);
+    MethodBinder::bind_method("_file_selected", &ScriptCreateDialog::_file_selected);
+    MethodBinder::bind_method("_path_changed", &ScriptCreateDialog::_path_changed);
+    MethodBinder::bind_method("_path_entered", &ScriptCreateDialog::_path_entered);
+    MethodBinder::bind_method("_template_changed", &ScriptCreateDialog::_template_changed);
+    MethodBinder::bind_method("_create", &ScriptCreateDialog::_create);
+    MethodBinder::bind_method("_browse_class_in_tree", &ScriptCreateDialog::_browse_class_in_tree);
 
-    ClassDB::bind_method(D_METHOD("config", "inherits", "path", "built_in_enabled"), &ScriptCreateDialog::config, {DEFVAL(true)});
+    MethodBinder::bind_method(D_METHOD("config", "inherits", "path", "built_in_enabled"), &ScriptCreateDialog::config, {DEFVAL(true)});
 
     ADD_SIGNAL(MethodInfo("script_created", PropertyInfo(Variant::OBJECT, "script", PROPERTY_HINT_RESOURCE_TYPE, "Script")));
 }

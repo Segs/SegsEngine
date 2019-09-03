@@ -29,11 +29,12 @@
 /*************************************************************************/
 
 #include "surface_tool.h"
-
-#include "method_bind_ext.gen.h"
+#include "core/method_bind.h"
 
 #define _VERTEX_SNAP 0.0001
 #define EQ_VERTEX_DIST 0.00001
+
+IMPL_GDCLASS(SurfaceTool)
 
 template<>
 struct Hasher<SurfaceTool::Vertex> {
@@ -1067,36 +1068,36 @@ void SurfaceTool::clear() {
 
 void SurfaceTool::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("begin", "primitive"), &SurfaceTool::begin);
+    MethodBinder::bind_method(D_METHOD("begin", "primitive"), &SurfaceTool::begin);
 
-    ClassDB::bind_method(D_METHOD("add_vertex", "vertex"), &SurfaceTool::add_vertex);
-    ClassDB::bind_method(D_METHOD("add_color", "color"), &SurfaceTool::add_color);
-    ClassDB::bind_method(D_METHOD("add_normal", "normal"), &SurfaceTool::add_normal);
-    ClassDB::bind_method(D_METHOD("add_tangent", "tangent"), &SurfaceTool::add_tangent);
-    ClassDB::bind_method(D_METHOD("add_uv", "uv"), &SurfaceTool::add_uv);
-    ClassDB::bind_method(D_METHOD("add_uv2", "uv2"), &SurfaceTool::add_uv2);
-    ClassDB::bind_method(D_METHOD("add_bones", "bones"), &SurfaceTool::add_bones);
-    ClassDB::bind_method(D_METHOD("add_weights", "weights"), &SurfaceTool::add_weights);
-    ClassDB::bind_method(D_METHOD("add_smooth_group", "smooth"), &SurfaceTool::add_smooth_group);
+    MethodBinder::bind_method(D_METHOD("add_vertex", "vertex"), &SurfaceTool::add_vertex);
+    MethodBinder::bind_method(D_METHOD("add_color", "color"), &SurfaceTool::add_color);
+    MethodBinder::bind_method(D_METHOD("add_normal", "normal"), &SurfaceTool::add_normal);
+    MethodBinder::bind_method(D_METHOD("add_tangent", "tangent"), &SurfaceTool::add_tangent);
+    MethodBinder::bind_method(D_METHOD("add_uv", "uv"), &SurfaceTool::add_uv);
+    MethodBinder::bind_method(D_METHOD("add_uv2", "uv2"), &SurfaceTool::add_uv2);
+    MethodBinder::bind_method(D_METHOD("add_bones", "bones"), &SurfaceTool::add_bones);
+    MethodBinder::bind_method(D_METHOD("add_weights", "weights"), &SurfaceTool::add_weights);
+    MethodBinder::bind_method(D_METHOD("add_smooth_group", "smooth"), &SurfaceTool::add_smooth_group);
 
-    ClassDB::bind_method(D_METHOD("add_triangle_fan", "vertices", "uvs", "colors", "uv2s", "normals", "tangents"), &SurfaceTool::add_triangle_fan, {DEFVAL(Vector<Vector2>()), DEFVAL(Vector<Color>()), DEFVAL(Vector<Vector2>()), DEFVAL(Vector<Vector3>()), DEFVAL(Vector<Plane>())});
+    MethodBinder::bind_method(D_METHOD("add_triangle_fan", "vertices", "uvs", "colors", "uv2s", "normals", "tangents"), &SurfaceTool::add_triangle_fan, {DEFVAL(Vector<Vector2>()), DEFVAL(Vector<Color>()), DEFVAL(Vector<Vector2>()), DEFVAL(Vector<Vector3>()), DEFVAL(Vector<Plane>())});
 
-    ClassDB::bind_method(D_METHOD("add_index", "index"), &SurfaceTool::add_index);
+    MethodBinder::bind_method(D_METHOD("add_index", "index"), &SurfaceTool::add_index);
 
-    ClassDB::bind_method(D_METHOD("index"), &SurfaceTool::index);
-    ClassDB::bind_method(D_METHOD("deindex"), &SurfaceTool::deindex);
-    ClassDB::bind_method(D_METHOD("generate_normals", "flip"), &SurfaceTool::generate_normals, {DEFVAL(false)});
-    ClassDB::bind_method(D_METHOD("generate_tangents"), &SurfaceTool::generate_tangents);
+    MethodBinder::bind_method(D_METHOD("index"), &SurfaceTool::index);
+    MethodBinder::bind_method(D_METHOD("deindex"), &SurfaceTool::deindex);
+    MethodBinder::bind_method(D_METHOD("generate_normals", "flip"), &SurfaceTool::generate_normals, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("generate_tangents"), &SurfaceTool::generate_tangents);
 
-    ClassDB::bind_method(D_METHOD("set_material", "material"), &SurfaceTool::set_material);
+    MethodBinder::bind_method(D_METHOD("set_material", "material"), &SurfaceTool::set_material);
 
-    ClassDB::bind_method(D_METHOD("clear"), &SurfaceTool::clear);
+    MethodBinder::bind_method(D_METHOD("clear"), &SurfaceTool::clear);
 
-    ClassDB::bind_method(D_METHOD("create_from", "existing", "surface"), &SurfaceTool::create_from);
-    ClassDB::bind_method(D_METHOD("create_from_blend_shape", "existing", "surface", "blend_shape"), &SurfaceTool::create_from_blend_shape);
-    ClassDB::bind_method(D_METHOD("append_from", "existing", "surface", "transform"), &SurfaceTool::append_from);
-    ClassDB::bind_method(D_METHOD("commit", "existing", "flags"), &SurfaceTool::commit, {DEFVAL(Variant()), DEFVAL(Mesh::ARRAY_COMPRESS_DEFAULT)});
-    ClassDB::bind_method(D_METHOD("commit_to_arrays"), &SurfaceTool::commit_to_arrays);
+    MethodBinder::bind_method(D_METHOD("create_from", "existing", "surface"), &SurfaceTool::create_from);
+    MethodBinder::bind_method(D_METHOD("create_from_blend_shape", "existing", "surface", "blend_shape"), &SurfaceTool::create_from_blend_shape);
+    MethodBinder::bind_method(D_METHOD("append_from", "existing", "surface", "transform"), &SurfaceTool::append_from);
+    MethodBinder::bind_method(D_METHOD("commit", "existing", "flags"), &SurfaceTool::commit, {DEFVAL(Variant()), DEFVAL(Mesh::ARRAY_COMPRESS_DEFAULT)});
+    MethodBinder::bind_method(D_METHOD("commit_to_arrays"), &SurfaceTool::commit_to_arrays);
 }
 
 SurfaceTool::SurfaceTool() {

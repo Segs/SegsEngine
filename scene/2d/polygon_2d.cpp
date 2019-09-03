@@ -31,8 +31,11 @@
 #include "polygon_2d.h"
 
 #include "core/object_db.h"
+#include "core/method_bind.h"
 #include "core/math/geometry.h"
 #include "skeleton_2d.h"
+
+IMPL_GDCLASS(Polygon2D)
 
 Dictionary Polygon2D::_edit_get_state() const {
     Dictionary state = Node2D::_edit_get_state();
@@ -773,67 +776,67 @@ NodePath Polygon2D::get_skeleton() const {
 
 void Polygon2D::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_polygon", "polygon"), &Polygon2D::set_polygon);
-    ClassDB::bind_method(D_METHOD("get_polygon"), &Polygon2D::get_polygon);
+    MethodBinder::bind_method(D_METHOD("set_polygon", "polygon"), &Polygon2D::set_polygon);
+    MethodBinder::bind_method(D_METHOD("get_polygon"), &Polygon2D::get_polygon);
 
-    ClassDB::bind_method(D_METHOD("set_uv", "uv"), &Polygon2D::set_uv);
-    ClassDB::bind_method(D_METHOD("get_uv"), &Polygon2D::get_uv);
+    MethodBinder::bind_method(D_METHOD("set_uv", "uv"), &Polygon2D::set_uv);
+    MethodBinder::bind_method(D_METHOD("get_uv"), &Polygon2D::get_uv);
 
-    ClassDB::bind_method(D_METHOD("set_color", "color"), &Polygon2D::set_color);
-    ClassDB::bind_method(D_METHOD("get_color"), &Polygon2D::get_color);
+    MethodBinder::bind_method(D_METHOD("set_color", "color"), &Polygon2D::set_color);
+    MethodBinder::bind_method(D_METHOD("get_color"), &Polygon2D::get_color);
 
-    ClassDB::bind_method(D_METHOD("set_polygons", "polygons"), &Polygon2D::set_polygons);
-    ClassDB::bind_method(D_METHOD("get_polygons"), &Polygon2D::get_polygons);
+    MethodBinder::bind_method(D_METHOD("set_polygons", "polygons"), &Polygon2D::set_polygons);
+    MethodBinder::bind_method(D_METHOD("get_polygons"), &Polygon2D::get_polygons);
 
-    ClassDB::bind_method(D_METHOD("set_vertex_colors", "vertex_colors"), &Polygon2D::set_vertex_colors);
-    ClassDB::bind_method(D_METHOD("get_vertex_colors"), &Polygon2D::get_vertex_colors);
+    MethodBinder::bind_method(D_METHOD("set_vertex_colors", "vertex_colors"), &Polygon2D::set_vertex_colors);
+    MethodBinder::bind_method(D_METHOD("get_vertex_colors"), &Polygon2D::get_vertex_colors);
 
-    ClassDB::bind_method(D_METHOD("set_texture", "texture"), &Polygon2D::set_texture);
-    ClassDB::bind_method(D_METHOD("get_texture"), &Polygon2D::get_texture);
+    MethodBinder::bind_method(D_METHOD("set_texture", "texture"), &Polygon2D::set_texture);
+    MethodBinder::bind_method(D_METHOD("get_texture"), &Polygon2D::get_texture);
 
-    ClassDB::bind_method(D_METHOD("set_texture_offset", "texture_offset"), &Polygon2D::set_texture_offset);
-    ClassDB::bind_method(D_METHOD("get_texture_offset"), &Polygon2D::get_texture_offset);
+    MethodBinder::bind_method(D_METHOD("set_texture_offset", "texture_offset"), &Polygon2D::set_texture_offset);
+    MethodBinder::bind_method(D_METHOD("get_texture_offset"), &Polygon2D::get_texture_offset);
 
-    ClassDB::bind_method(D_METHOD("set_texture_rotation", "texture_rotation"), &Polygon2D::set_texture_rotation);
-    ClassDB::bind_method(D_METHOD("get_texture_rotation"), &Polygon2D::get_texture_rotation);
+    MethodBinder::bind_method(D_METHOD("set_texture_rotation", "texture_rotation"), &Polygon2D::set_texture_rotation);
+    MethodBinder::bind_method(D_METHOD("get_texture_rotation"), &Polygon2D::get_texture_rotation);
 
-    ClassDB::bind_method(D_METHOD("set_texture_rotation_degrees", "texture_rotation"), &Polygon2D::set_texture_rotation_degrees);
-    ClassDB::bind_method(D_METHOD("get_texture_rotation_degrees"), &Polygon2D::get_texture_rotation_degrees);
+    MethodBinder::bind_method(D_METHOD("set_texture_rotation_degrees", "texture_rotation"), &Polygon2D::set_texture_rotation_degrees);
+    MethodBinder::bind_method(D_METHOD("get_texture_rotation_degrees"), &Polygon2D::get_texture_rotation_degrees);
 
-    ClassDB::bind_method(D_METHOD("set_texture_scale", "texture_scale"), &Polygon2D::set_texture_scale);
-    ClassDB::bind_method(D_METHOD("get_texture_scale"), &Polygon2D::get_texture_scale);
+    MethodBinder::bind_method(D_METHOD("set_texture_scale", "texture_scale"), &Polygon2D::set_texture_scale);
+    MethodBinder::bind_method(D_METHOD("get_texture_scale"), &Polygon2D::get_texture_scale);
 
-    ClassDB::bind_method(D_METHOD("set_invert", "invert"), &Polygon2D::set_invert);
-    ClassDB::bind_method(D_METHOD("get_invert"), &Polygon2D::get_invert);
+    MethodBinder::bind_method(D_METHOD("set_invert", "invert"), &Polygon2D::set_invert);
+    MethodBinder::bind_method(D_METHOD("get_invert"), &Polygon2D::get_invert);
 
-    ClassDB::bind_method(D_METHOD("set_antialiased", "antialiased"), &Polygon2D::set_antialiased);
-    ClassDB::bind_method(D_METHOD("get_antialiased"), &Polygon2D::get_antialiased);
+    MethodBinder::bind_method(D_METHOD("set_antialiased", "antialiased"), &Polygon2D::set_antialiased);
+    MethodBinder::bind_method(D_METHOD("get_antialiased"), &Polygon2D::get_antialiased);
 
-    ClassDB::bind_method(D_METHOD("set_invert_border", "invert_border"), &Polygon2D::set_invert_border);
-    ClassDB::bind_method(D_METHOD("get_invert_border"), &Polygon2D::get_invert_border);
+    MethodBinder::bind_method(D_METHOD("set_invert_border", "invert_border"), &Polygon2D::set_invert_border);
+    MethodBinder::bind_method(D_METHOD("get_invert_border"), &Polygon2D::get_invert_border);
 
-    ClassDB::bind_method(D_METHOD("set_offset", "offset"), &Polygon2D::set_offset);
-    ClassDB::bind_method(D_METHOD("get_offset"), &Polygon2D::get_offset);
+    MethodBinder::bind_method(D_METHOD("set_offset", "offset"), &Polygon2D::set_offset);
+    MethodBinder::bind_method(D_METHOD("get_offset"), &Polygon2D::get_offset);
 
-    ClassDB::bind_method(D_METHOD("add_bone", "path", "weights"), &Polygon2D::add_bone);
-    ClassDB::bind_method(D_METHOD("get_bone_count"), &Polygon2D::get_bone_count);
-    ClassDB::bind_method(D_METHOD("get_bone_path", "index"), &Polygon2D::get_bone_path);
-    ClassDB::bind_method(D_METHOD("get_bone_weights", "index"), &Polygon2D::get_bone_weights);
-    ClassDB::bind_method(D_METHOD("erase_bone", "index"), &Polygon2D::erase_bone);
-    ClassDB::bind_method(D_METHOD("clear_bones"), &Polygon2D::clear_bones);
-    ClassDB::bind_method(D_METHOD("set_bone_path", "index", "path"), &Polygon2D::set_bone_path);
-    ClassDB::bind_method(D_METHOD("set_bone_weights", "index", "weights"), &Polygon2D::set_bone_weights);
+    MethodBinder::bind_method(D_METHOD("add_bone", "path", "weights"), &Polygon2D::add_bone);
+    MethodBinder::bind_method(D_METHOD("get_bone_count"), &Polygon2D::get_bone_count);
+    MethodBinder::bind_method(D_METHOD("get_bone_path", "index"), &Polygon2D::get_bone_path);
+    MethodBinder::bind_method(D_METHOD("get_bone_weights", "index"), &Polygon2D::get_bone_weights);
+    MethodBinder::bind_method(D_METHOD("erase_bone", "index"), &Polygon2D::erase_bone);
+    MethodBinder::bind_method(D_METHOD("clear_bones"), &Polygon2D::clear_bones);
+    MethodBinder::bind_method(D_METHOD("set_bone_path", "index", "path"), &Polygon2D::set_bone_path);
+    MethodBinder::bind_method(D_METHOD("set_bone_weights", "index", "weights"), &Polygon2D::set_bone_weights);
 
-    ClassDB::bind_method(D_METHOD("set_skeleton", "skeleton"), &Polygon2D::set_skeleton);
-    ClassDB::bind_method(D_METHOD("get_skeleton"), &Polygon2D::get_skeleton);
+    MethodBinder::bind_method(D_METHOD("set_skeleton", "skeleton"), &Polygon2D::set_skeleton);
+    MethodBinder::bind_method(D_METHOD("get_skeleton"), &Polygon2D::get_skeleton);
 
-    ClassDB::bind_method(D_METHOD("set_internal_vertex_count", "internal_vertex_count"), &Polygon2D::set_internal_vertex_count);
-    ClassDB::bind_method(D_METHOD("get_internal_vertex_count"), &Polygon2D::get_internal_vertex_count);
+    MethodBinder::bind_method(D_METHOD("set_internal_vertex_count", "internal_vertex_count"), &Polygon2D::set_internal_vertex_count);
+    MethodBinder::bind_method(D_METHOD("get_internal_vertex_count"), &Polygon2D::get_internal_vertex_count);
 
-    ClassDB::bind_method(D_METHOD("_set_bones", "bones"), &Polygon2D::_set_bones);
-    ClassDB::bind_method(D_METHOD("_get_bones"), &Polygon2D::_get_bones);
+    MethodBinder::bind_method(D_METHOD("_set_bones", "bones"), &Polygon2D::_set_bones);
+    MethodBinder::bind_method(D_METHOD("_get_bones"), &Polygon2D::_get_bones);
 
-    ClassDB::bind_method(D_METHOD("_skeleton_bone_setup_changed"), &Polygon2D::_skeleton_bone_setup_changed);
+    MethodBinder::bind_method(D_METHOD("_skeleton_bone_setup_changed"), &Polygon2D::_skeleton_bone_setup_changed);
 
     ADD_PROPERTY(PropertyInfo(Variant::COLOR, "color"), "set_color", "get_color");
     ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "offset"), "set_offset", "get_offset");

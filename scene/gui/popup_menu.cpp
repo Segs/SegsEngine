@@ -34,6 +34,13 @@
 #include "core/os/os.h"
 #include "core/print_string.h"
 #include "core/translation.h"
+#include "core/method_bind.h"
+
+#include "scene/resources/style_box.h"
+#include "scene/resources/font.h"
+#include "scene/main/timer.h"
+
+IMPL_GDCLASS(PopupMenu)
 
 String PopupMenu::_get_accel_text(int p_item) const {
 
@@ -407,7 +414,7 @@ void PopupMenu::_gui_input(const Ref<InputEvent> &p_event) {
             if (i == mouse_over)
                 break;
 
-            if (items[i].text.findn(search_string) == 0) {
+            if (StringUtils::findn(items[i].text,search_string) == 0) {
                 mouse_over = i;
                 emit_signal("id_focused", i);
                 update();
@@ -1379,84 +1386,84 @@ void PopupMenu::clear_autohide_areas() {
 
 void PopupMenu::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_gui_input"), &PopupMenu::_gui_input);
-    ClassDB::bind_method(D_METHOD("add_icon_item", "texture", "label", "id", "accel"), &PopupMenu::add_icon_item, {DEFVAL(-1), DEFVAL(0)});
-    ClassDB::bind_method(D_METHOD("add_item", "label", "id", "accel"), &PopupMenu::add_item, {DEFVAL(-1), DEFVAL(0)});
-    ClassDB::bind_method(D_METHOD("add_icon_check_item", "texture", "label", "id", "accel"), &PopupMenu::add_icon_check_item, {DEFVAL(-1), DEFVAL(0)});
-    ClassDB::bind_method(D_METHOD("add_check_item", "label", "id", "accel"), &PopupMenu::add_check_item, {DEFVAL(-1), DEFVAL(0)});
-    ClassDB::bind_method(D_METHOD("add_radio_check_item", "label", "id", "accel"), &PopupMenu::add_radio_check_item, {DEFVAL(-1), DEFVAL(0)});
-    ClassDB::bind_method(D_METHOD("add_submenu_item", "label", "submenu", "id"), &PopupMenu::add_submenu_item, {DEFVAL(-1)});
+    MethodBinder::bind_method(D_METHOD("_gui_input"), &PopupMenu::_gui_input);
+    MethodBinder::bind_method(D_METHOD("add_icon_item", "texture", "label", "id", "accel"), &PopupMenu::add_icon_item, {DEFVAL(-1), DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("add_item", "label", "id", "accel"), &PopupMenu::add_item, {DEFVAL(-1), DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("add_icon_check_item", "texture", "label", "id", "accel"), &PopupMenu::add_icon_check_item, {DEFVAL(-1), DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("add_check_item", "label", "id", "accel"), &PopupMenu::add_check_item, {DEFVAL(-1), DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("add_radio_check_item", "label", "id", "accel"), &PopupMenu::add_radio_check_item, {DEFVAL(-1), DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("add_submenu_item", "label", "submenu", "id"), &PopupMenu::add_submenu_item, {DEFVAL(-1)});
 
-    ClassDB::bind_method(D_METHOD("add_icon_shortcut", "texture", "shortcut", "id", "global"), &PopupMenu::add_icon_shortcut, {DEFVAL(-1), DEFVAL(false)});
-    ClassDB::bind_method(D_METHOD("add_shortcut", "shortcut", "id", "global"), &PopupMenu::add_shortcut, {DEFVAL(-1), DEFVAL(false)});
-    ClassDB::bind_method(D_METHOD("add_icon_check_shortcut", "texture", "shortcut", "id", "global"), &PopupMenu::add_icon_check_shortcut, {DEFVAL(-1), DEFVAL(false)});
-    ClassDB::bind_method(D_METHOD("add_check_shortcut", "shortcut", "id", "global"), &PopupMenu::add_check_shortcut, {DEFVAL(-1), DEFVAL(false)});
-    ClassDB::bind_method(D_METHOD("add_radio_check_shortcut", "shortcut", "id", "global"), &PopupMenu::add_radio_check_shortcut, {DEFVAL(-1), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("add_icon_shortcut", "texture", "shortcut", "id", "global"), &PopupMenu::add_icon_shortcut, {DEFVAL(-1), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("add_shortcut", "shortcut", "id", "global"), &PopupMenu::add_shortcut, {DEFVAL(-1), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("add_icon_check_shortcut", "texture", "shortcut", "id", "global"), &PopupMenu::add_icon_check_shortcut, {DEFVAL(-1), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("add_check_shortcut", "shortcut", "id", "global"), &PopupMenu::add_check_shortcut, {DEFVAL(-1), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("add_radio_check_shortcut", "shortcut", "id", "global"), &PopupMenu::add_radio_check_shortcut, {DEFVAL(-1), DEFVAL(false)});
 
-    ClassDB::bind_method(D_METHOD("set_item_text", "idx", "text"), &PopupMenu::set_item_text);
-    ClassDB::bind_method(D_METHOD("set_item_icon", "idx", "icon"), &PopupMenu::set_item_icon);
-    ClassDB::bind_method(D_METHOD("set_item_checked", "idx", "checked"), &PopupMenu::set_item_checked);
-    ClassDB::bind_method(D_METHOD("set_item_id", "idx", "id"), &PopupMenu::set_item_id);
-    ClassDB::bind_method(D_METHOD("set_item_accelerator", "idx", "accel"), &PopupMenu::set_item_accelerator);
-    ClassDB::bind_method(D_METHOD("set_item_metadata", "idx", "metadata"), &PopupMenu::set_item_metadata);
-    ClassDB::bind_method(D_METHOD("set_item_disabled", "idx", "disabled"), &PopupMenu::set_item_disabled);
-    ClassDB::bind_method(D_METHOD("set_item_submenu", "idx", "submenu"), &PopupMenu::set_item_submenu);
-    ClassDB::bind_method(D_METHOD("set_item_as_separator", "idx", "enable"), &PopupMenu::set_item_as_separator);
-    ClassDB::bind_method(D_METHOD("set_item_as_checkable", "idx", "enable"), &PopupMenu::set_item_as_checkable);
-    ClassDB::bind_method(D_METHOD("set_item_as_radio_checkable", "idx", "enable"), &PopupMenu::set_item_as_radio_checkable);
-    ClassDB::bind_method(D_METHOD("set_item_tooltip", "idx", "tooltip"), &PopupMenu::set_item_tooltip);
-    ClassDB::bind_method(D_METHOD("set_item_shortcut", "idx", "shortcut", "global"), &PopupMenu::set_item_shortcut, {DEFVAL(false)});
-    ClassDB::bind_method(D_METHOD("set_item_multistate", "idx", "state"), &PopupMenu::set_item_multistate);
-    ClassDB::bind_method(D_METHOD("set_item_shortcut_disabled", "idx", "disabled"), &PopupMenu::set_item_shortcut_disabled);
+    MethodBinder::bind_method(D_METHOD("set_item_text", "idx", "text"), &PopupMenu::set_item_text);
+    MethodBinder::bind_method(D_METHOD("set_item_icon", "idx", "icon"), &PopupMenu::set_item_icon);
+    MethodBinder::bind_method(D_METHOD("set_item_checked", "idx", "checked"), &PopupMenu::set_item_checked);
+    MethodBinder::bind_method(D_METHOD("set_item_id", "idx", "id"), &PopupMenu::set_item_id);
+    MethodBinder::bind_method(D_METHOD("set_item_accelerator", "idx", "accel"), &PopupMenu::set_item_accelerator);
+    MethodBinder::bind_method(D_METHOD("set_item_metadata", "idx", "metadata"), &PopupMenu::set_item_metadata);
+    MethodBinder::bind_method(D_METHOD("set_item_disabled", "idx", "disabled"), &PopupMenu::set_item_disabled);
+    MethodBinder::bind_method(D_METHOD("set_item_submenu", "idx", "submenu"), &PopupMenu::set_item_submenu);
+    MethodBinder::bind_method(D_METHOD("set_item_as_separator", "idx", "enable"), &PopupMenu::set_item_as_separator);
+    MethodBinder::bind_method(D_METHOD("set_item_as_checkable", "idx", "enable"), &PopupMenu::set_item_as_checkable);
+    MethodBinder::bind_method(D_METHOD("set_item_as_radio_checkable", "idx", "enable"), &PopupMenu::set_item_as_radio_checkable);
+    MethodBinder::bind_method(D_METHOD("set_item_tooltip", "idx", "tooltip"), &PopupMenu::set_item_tooltip);
+    MethodBinder::bind_method(D_METHOD("set_item_shortcut", "idx", "shortcut", "global"), &PopupMenu::set_item_shortcut, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("set_item_multistate", "idx", "state"), &PopupMenu::set_item_multistate);
+    MethodBinder::bind_method(D_METHOD("set_item_shortcut_disabled", "idx", "disabled"), &PopupMenu::set_item_shortcut_disabled);
 
-    ClassDB::bind_method(D_METHOD("toggle_item_checked", "idx"), &PopupMenu::toggle_item_checked);
-    ClassDB::bind_method(D_METHOD("toggle_item_multistate", "idx"), &PopupMenu::toggle_item_multistate);
+    MethodBinder::bind_method(D_METHOD("toggle_item_checked", "idx"), &PopupMenu::toggle_item_checked);
+    MethodBinder::bind_method(D_METHOD("toggle_item_multistate", "idx"), &PopupMenu::toggle_item_multistate);
 
-    ClassDB::bind_method(D_METHOD("get_item_text", "idx"), &PopupMenu::get_item_text);
-    ClassDB::bind_method(D_METHOD("get_item_icon", "idx"), &PopupMenu::get_item_icon);
-    ClassDB::bind_method(D_METHOD("is_item_checked", "idx"), &PopupMenu::is_item_checked);
-    ClassDB::bind_method(D_METHOD("get_item_id", "idx"), &PopupMenu::get_item_id);
-    ClassDB::bind_method(D_METHOD("get_item_index", "id"), &PopupMenu::get_item_index);
-    ClassDB::bind_method(D_METHOD("get_item_accelerator", "idx"), &PopupMenu::get_item_accelerator);
-    ClassDB::bind_method(D_METHOD("get_item_metadata", "idx"), &PopupMenu::get_item_metadata);
-    ClassDB::bind_method(D_METHOD("is_item_disabled", "idx"), &PopupMenu::is_item_disabled);
-    ClassDB::bind_method(D_METHOD("get_item_submenu", "idx"), &PopupMenu::get_item_submenu);
-    ClassDB::bind_method(D_METHOD("is_item_separator", "idx"), &PopupMenu::is_item_separator);
-    ClassDB::bind_method(D_METHOD("is_item_checkable", "idx"), &PopupMenu::is_item_checkable);
-    ClassDB::bind_method(D_METHOD("is_item_radio_checkable", "idx"), &PopupMenu::is_item_radio_checkable);
-    ClassDB::bind_method(D_METHOD("is_item_shortcut_disabled", "idx"), &PopupMenu::is_item_shortcut_disabled);
-    ClassDB::bind_method(D_METHOD("get_item_tooltip", "idx"), &PopupMenu::get_item_tooltip);
-    ClassDB::bind_method(D_METHOD("get_item_shortcut", "idx"), &PopupMenu::get_item_shortcut);
+    MethodBinder::bind_method(D_METHOD("get_item_text", "idx"), &PopupMenu::get_item_text);
+    MethodBinder::bind_method(D_METHOD("get_item_icon", "idx"), &PopupMenu::get_item_icon);
+    MethodBinder::bind_method(D_METHOD("is_item_checked", "idx"), &PopupMenu::is_item_checked);
+    MethodBinder::bind_method(D_METHOD("get_item_id", "idx"), &PopupMenu::get_item_id);
+    MethodBinder::bind_method(D_METHOD("get_item_index", "id"), &PopupMenu::get_item_index);
+    MethodBinder::bind_method(D_METHOD("get_item_accelerator", "idx"), &PopupMenu::get_item_accelerator);
+    MethodBinder::bind_method(D_METHOD("get_item_metadata", "idx"), &PopupMenu::get_item_metadata);
+    MethodBinder::bind_method(D_METHOD("is_item_disabled", "idx"), &PopupMenu::is_item_disabled);
+    MethodBinder::bind_method(D_METHOD("get_item_submenu", "idx"), &PopupMenu::get_item_submenu);
+    MethodBinder::bind_method(D_METHOD("is_item_separator", "idx"), &PopupMenu::is_item_separator);
+    MethodBinder::bind_method(D_METHOD("is_item_checkable", "idx"), &PopupMenu::is_item_checkable);
+    MethodBinder::bind_method(D_METHOD("is_item_radio_checkable", "idx"), &PopupMenu::is_item_radio_checkable);
+    MethodBinder::bind_method(D_METHOD("is_item_shortcut_disabled", "idx"), &PopupMenu::is_item_shortcut_disabled);
+    MethodBinder::bind_method(D_METHOD("get_item_tooltip", "idx"), &PopupMenu::get_item_tooltip);
+    MethodBinder::bind_method(D_METHOD("get_item_shortcut", "idx"), &PopupMenu::get_item_shortcut);
 
-    ClassDB::bind_method(D_METHOD("get_item_count"), &PopupMenu::get_item_count);
+    MethodBinder::bind_method(D_METHOD("get_item_count"), &PopupMenu::get_item_count);
 
-    ClassDB::bind_method(D_METHOD("remove_item", "idx"), &PopupMenu::remove_item);
+    MethodBinder::bind_method(D_METHOD("remove_item", "idx"), &PopupMenu::remove_item);
 
-    ClassDB::bind_method(D_METHOD("add_separator", "label"), &PopupMenu::add_separator, {DEFVAL(String())});
-    ClassDB::bind_method(D_METHOD("clear"), &PopupMenu::clear);
+    MethodBinder::bind_method(D_METHOD("add_separator", "label"), &PopupMenu::add_separator, {DEFVAL(String())});
+    MethodBinder::bind_method(D_METHOD("clear"), &PopupMenu::clear);
 
-    ClassDB::bind_method(D_METHOD("_set_items"), &PopupMenu::_set_items);
-    ClassDB::bind_method(D_METHOD("_get_items"), &PopupMenu::_get_items);
+    MethodBinder::bind_method(D_METHOD("_set_items"), &PopupMenu::_set_items);
+    MethodBinder::bind_method(D_METHOD("_get_items"), &PopupMenu::_get_items);
 
-    ClassDB::bind_method(D_METHOD("set_hide_on_item_selection", "enable"), &PopupMenu::set_hide_on_item_selection);
-    ClassDB::bind_method(D_METHOD("is_hide_on_item_selection"), &PopupMenu::is_hide_on_item_selection);
+    MethodBinder::bind_method(D_METHOD("set_hide_on_item_selection", "enable"), &PopupMenu::set_hide_on_item_selection);
+    MethodBinder::bind_method(D_METHOD("is_hide_on_item_selection"), &PopupMenu::is_hide_on_item_selection);
 
-    ClassDB::bind_method(D_METHOD("set_hide_on_checkable_item_selection", "enable"), &PopupMenu::set_hide_on_checkable_item_selection);
-    ClassDB::bind_method(D_METHOD("is_hide_on_checkable_item_selection"), &PopupMenu::is_hide_on_checkable_item_selection);
+    MethodBinder::bind_method(D_METHOD("set_hide_on_checkable_item_selection", "enable"), &PopupMenu::set_hide_on_checkable_item_selection);
+    MethodBinder::bind_method(D_METHOD("is_hide_on_checkable_item_selection"), &PopupMenu::is_hide_on_checkable_item_selection);
 
-    ClassDB::bind_method(D_METHOD("set_hide_on_state_item_selection", "enable"), &PopupMenu::set_hide_on_multistate_item_selection);
-    ClassDB::bind_method(D_METHOD("is_hide_on_state_item_selection"), &PopupMenu::is_hide_on_multistate_item_selection);
+    MethodBinder::bind_method(D_METHOD("set_hide_on_state_item_selection", "enable"), &PopupMenu::set_hide_on_multistate_item_selection);
+    MethodBinder::bind_method(D_METHOD("is_hide_on_state_item_selection"), &PopupMenu::is_hide_on_multistate_item_selection);
 
-    ClassDB::bind_method(D_METHOD("set_submenu_popup_delay", "seconds"), &PopupMenu::set_submenu_popup_delay);
-    ClassDB::bind_method(D_METHOD("get_submenu_popup_delay"), &PopupMenu::get_submenu_popup_delay);
+    MethodBinder::bind_method(D_METHOD("set_submenu_popup_delay", "seconds"), &PopupMenu::set_submenu_popup_delay);
+    MethodBinder::bind_method(D_METHOD("get_submenu_popup_delay"), &PopupMenu::get_submenu_popup_delay);
 
-    ClassDB::bind_method(D_METHOD("set_hide_on_window_lose_focus", "enable"), &PopupMenu::set_hide_on_window_lose_focus);
-    ClassDB::bind_method(D_METHOD("is_hide_on_window_lose_focus"), &PopupMenu::is_hide_on_window_lose_focus);
+    MethodBinder::bind_method(D_METHOD("set_hide_on_window_lose_focus", "enable"), &PopupMenu::set_hide_on_window_lose_focus);
+    MethodBinder::bind_method(D_METHOD("is_hide_on_window_lose_focus"), &PopupMenu::is_hide_on_window_lose_focus);
 
-    ClassDB::bind_method(D_METHOD("set_allow_search", "allow"), &PopupMenu::set_allow_search);
-    ClassDB::bind_method(D_METHOD("get_allow_search"), &PopupMenu::get_allow_search);
+    MethodBinder::bind_method(D_METHOD("set_allow_search", "allow"), &PopupMenu::set_allow_search);
+    MethodBinder::bind_method(D_METHOD("get_allow_search"), &PopupMenu::get_allow_search);
 
-    ClassDB::bind_method(D_METHOD("_submenu_timeout"), &PopupMenu::_submenu_timeout);
+    MethodBinder::bind_method(D_METHOD("_submenu_timeout"), &PopupMenu::_submenu_timeout);
 
     ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "items", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_items", "_get_items");
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "hide_on_item_selection"), "set_hide_on_item_selection", "is_hide_on_item_selection");

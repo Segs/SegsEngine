@@ -100,7 +100,7 @@ static String format_error_message(DWORD id) {
 	size_t size = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
 			nullptr, id, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&messageBuffer, 0, nullptr);
 
-	String msg = "Error " + itos(id) + ": " + String::fromWCharArray(messageBuffer, size);
+	String msg = "Error " + itos(id) + ": " + StringUtils::from_wchar(messageBuffer, size);
 
 	LocalFree(messageBuffer);
 
@@ -1425,7 +1425,7 @@ void OS_Windows::set_clipboard(const String &p_text) {
 
 	// Convert LF line endings to CRLF in clipboard content
 	// Otherwise, line endings won't be visible when pasted in other software
-	String text = String(p_text).replace("\n", "\r\n");
+	String text = StringUtils::replace(p_text,"\n", "\r\n");
 
 	if (!OpenClipboard(hWnd)) {
 		ERR_FAIL_MSG("Unable to open clipboard.");
@@ -1436,18 +1436,18 @@ void OS_Windows::set_clipboard(const String &p_text) {
 	ERR_FAIL_COND_MSG(mem == NULL, "Unable to allocate memory for clipboard contents.");
 
 	LPWSTR lptstrCopy = (LPWSTR)GlobalLock(mem);
-    text.toWCharArray(lptstrCopy);
+    text.m_str.toWCharArray(lptstrCopy);
 	GlobalUnlock(mem);
 
 	SetClipboardData(CF_UNICODETEXT, mem);
 
 	// set the CF_TEXT version (not needed?)
-	CharString utf8 = text.toUtf8();
+    CharString utf8 = text.m_str.toUtf8();
 	mem = GlobalAlloc(GMEM_MOVEABLE, utf8.length() + 1);
 	ERR_FAIL_COND_MSG(mem == NULL, "Unable to allocate memory for clipboard contents.");
 
 	LPTSTR ptr = (LPTSTR)GlobalLock(mem);
-	memcpy(ptr, utf8.constData(), utf8.length());
+	memcpy(ptr, utf8.data(), utf8.length());
 	ptr[utf8.length()] = 0;
 	GlobalUnlock(mem);
 
@@ -1484,7 +1484,7 @@ String OS_Windows::get_clipboard() const {
 			LPTSTR ptr = (LPTSTR)GlobalLock(mem);
 			if (ptr != nullptr) {
 
-				ret.parse_utf8((const char *)ptr);
+				ret = StringUtils::from_utf8((const char *)ptr);
 				GlobalUnlock(mem);
 			};
 		};
@@ -1548,7 +1548,7 @@ void OS_Windows::finalize_core() {
 void OS_Windows::alert(const String &p_alert, const String &p_title) {
 
 	if (!is_no_window_mode_enabled())
-        MessageBoxW(nullptr, qUtf16Printable(p_alert), qUtf16Printable(p_title),
+        MessageBoxW(nullptr, qUtf16Printable(p_alert.m_str), qUtf16Printable(p_title.m_str),
                 MB_OK | MB_ICONEXCLAMATION | MB_TASKMODAL);
 	else
 		print_line("ALERT: " + p_alert);
@@ -1639,7 +1639,7 @@ int OS_Windows::get_mouse_button_state() const {
 
 void OS_Windows::set_window_title(const String &p_title) {
 
-	SetWindowTextW(hWnd, qUtf16Printable(p_title));
+	SetWindowTextW(hWnd, qUtf16Printable(p_title.m_str));
 }
 
 void OS_Windows::set_video_mode(const VideoMode &p_video_mode, int p_screen) {
@@ -2119,10 +2119,10 @@ Error OS_Windows::open_dynamic_library(const String p_path, void *&p_library_han
 	DLL_DIRECTORY_COOKIE cookie = nullptr;
 
 	if (p_also_set_library_path && has_dll_directory_api) {
-        cookie = add_dll_directory(qUtf16Printable(PathUtils::get_base_dir(path)));
+        cookie = add_dll_directory(qUtf16Printable(PathUtils::get_base_dir(path).m_str));
 	}
 
-	p_library_handle = (void *)LoadLibraryExW(qUtf16Printable(path), nullptr,
+	p_library_handle = (void *)LoadLibraryExW(qUtf16Printable(path.m_str), nullptr,
             (p_also_set_library_path && has_dll_directory_api) ? LOAD_LIBRARY_SEARCH_DEFAULT_DIRS : 0);
 	ERR_FAIL_COND_V_MSG(!p_library_handle, ERR_CANT_OPEN, "Can't open dynamic library: " + p_path + ", error: " + format_error_message(GetLastError()) + ".");
 
@@ -2141,10 +2141,10 @@ Error OS_Windows::close_dynamic_library(void *p_library_handle) {
 }
 
 Error OS_Windows::get_dynamic_library_symbol_handle(void *p_library_handle, const String p_name, void *&p_symbol_handle, bool p_optional) {
-	p_symbol_handle = (void *)GetProcAddress((HMODULE)p_library_handle, qUtf8Printable(p_name));
+    p_symbol_handle = (void *)GetProcAddress((HMODULE)p_library_handle, qUtf8Printable(p_name.m_str));
 	if (!p_symbol_handle) {
 		if (!p_optional) {
-			ERR_FAIL_V_MSG(ERR_CANT_RESOLVE, "Can't resolve symbol " + p_name + ", error: " + String::num(GetLastError()) + ".");
+			ERR_FAIL_V_MSG(ERR_CANT_RESOLVE, "Can't resolve symbol " + p_name + ", error: " + StringUtils::num(GetLastError()) + ".");
 		} else {
 			return ERR_CANT_RESOLVE;
 		}
@@ -2556,7 +2556,7 @@ Error OS_Windows::execute(const String &p_path, const List<String> &p_arguments,
 			argss += " 2>&1"; // Read stderr too
 		}
 
-		FILE *f = _wpopen(qUtf16Printable(argss), L"r");
+		FILE *f = _wpopen(qUtf16Printable(argss.m_str), L"r");
 
 		ERR_FAIL_COND_V(!f, ERR_CANT_OPEN);
 
@@ -2641,7 +2641,7 @@ int OS_Windows::get_process_id() const {
 
 Error OS_Windows::set_cwd(const String &p_cwd) {
 
-	if (_wchdir(qUtf16Printable(p_cwd)) != 0)
+	if (_wchdir(qUtf16Printable(p_cwd.m_str)) != 0)
 		return ERR_CANT_OPEN;
 
 	return OK;
@@ -2803,11 +2803,11 @@ void OS_Windows::set_icon(const Ref<Image> &p_icon) {
 bool OS_Windows::has_environment(const String &p_var) const {
 
 #ifdef MINGW_ENABLED
-    return _wgetenv(qUtf16Printable(p_var)) != nullptr;
+    return _wgetenv(qUtf16Printable(p_var.m_str)) != nullptr;
 #else
 	wchar_t *env;
 	size_t len;
-    _wdupenv_s(&env, &len, qUtf16Printable(p_var));
+    _wdupenv_s(&env, &len, qUtf16Printable(p_var.m_str));
 	const bool has_env = env != nullptr;
 	free(env);
 	return has_env;
@@ -2817,16 +2817,16 @@ bool OS_Windows::has_environment(const String &p_var) const {
 String OS_Windows::get_environment(const String &p_var) const {
 
 	wchar_t wval[0x7Fff]; // MSDN says 32767 char is the maximum
-    int wlen = GetEnvironmentVariableW(qUtf16Printable(p_var), wval, 0x7Fff);
+    int wlen = GetEnvironmentVariableW(qUtf16Printable(p_var.m_str), wval, 0x7Fff);
 	if (wlen > 0) {
-		return String::fromWCharArray(wval);
+		return StringUtils::from_wchar(wval);
 	}
 	return "";
 }
 
 bool OS_Windows::set_environment(const String &p_var, const String &p_value) const {
 
-	return (bool)SetEnvironmentVariableW(qUtf16Printable(p_var), qUtf16Printable(p_value));
+	return (bool)SetEnvironmentVariableW(qUtf16Printable(p_var.m_str), qUtf16Printable(p_value.m_str));
 }
 
 String OS_Windows::get_stdin_string(bool p_block) {
@@ -2851,7 +2851,7 @@ void OS_Windows::move_window_to_foreground() {
 
 Error OS_Windows::shell_open(String p_uri) {
 
-	ShellExecuteW(nullptr, L"open", qUtf16Printable(p_uri), nullptr, nullptr, SW_SHOWNORMAL);
+	ShellExecuteW(nullptr, L"open", qUtf16Printable(p_uri.m_str), nullptr, nullptr, SW_SHOWNORMAL);
 	return OK;
 }
 
@@ -3048,7 +3048,7 @@ String OS_Windows::get_cache_path() const {
 // Get properly capitalized engine name for system paths
 String OS_Windows::get_godot_dir_name() const {
 
-	return String(VERSION_SHORT_NAME).capitalize();
+        return StringUtils::capitalize(String(VERSION_SHORT_NAME));
 }
 
 String OS_Windows::get_system_dir(SystemDir p_dir) const {
@@ -3085,7 +3085,7 @@ String OS_Windows::get_system_dir(SystemDir p_dir) const {
 	PWSTR szPath;
 	HRESULT res = SHGetKnownFolderPath(id, 0, nullptr, &szPath);
 	ERR_FAIL_COND_V(res != S_OK, String());
-	String path = String::fromWCharArray(szPath);
+	String path = StringUtils::from_wchar(szPath);
 	CoTaskMemFree(szPath);
 	return path;
 }
@@ -3100,9 +3100,9 @@ String OS_Windows::get_user_data_dir() const {
 			if (custom_dir == "") {
 				custom_dir = appname;
 			}
-                        return PathUtils::plus_file(get_data_path(),custom_dir).replace("\\", "/");
+                        return PathUtils::from_native_path(PathUtils::plus_file(get_data_path(),custom_dir));
 		} else {
-                        return PathUtils::plus_file(PathUtils::plus_file(PathUtils::plus_file(get_data_path(),get_godot_dir_name()),"app_userdata"),appname).replace("\\", "/");
+                        return PathUtils::from_native_path(PathUtils::plus_file(PathUtils::plus_file(PathUtils::plus_file(get_data_path(),get_godot_dir_name()),"app_userdata"),appname));
 		}
 	}
 
@@ -3200,7 +3200,7 @@ void OS_Windows::process_and_drop_events() {
 Error OS_Windows::move_to_trash(const String &p_path) {
 	SHFILEOPSTRUCTW sf;
 	WCHAR *from = new WCHAR[p_path.length() + 2];
-    wcscpy_s(from, p_path.length() + 1, qUtf16Printable(p_path));
+    wcscpy_s(from, p_path.length() + 1, qUtf16Printable(p_path.m_str));
 	from[p_path.length() + 1] = 0;
 
 	sf.hwnd = hWnd;

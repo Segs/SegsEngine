@@ -133,7 +133,7 @@ String realpath(const String &p_path) {
 	::CloseHandle(hFile);
         return PathUtils::simplify_path(buffer);
 #elif UNIX_ENABLED
-	char *resolved_path = ::realpath(p_path.utf8().get_data(), NULL);
+	char *resolved_path = ::realpath(StringUtils::to_utf8(p_path).get_data(), NULL);
 
 	if (!resolved_path)
 		return p_path;

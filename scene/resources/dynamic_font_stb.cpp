@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "dynamic_font_stb.h"
+#include "core/method_bind.h"
 
 #ifndef FREETYPE_ENABLED
 
@@ -383,11 +384,11 @@ DynamicFontAtSize::~DynamicFontAtSize() {
 
 void DynamicFont::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_font_data", "data"), &DynamicFont::set_font_data);
-    ClassDB::bind_method(D_METHOD("get_font_data"), &DynamicFont::get_font_data);
+    MethodBinder::bind_method(D_METHOD("set_font_data", "data"), &DynamicFont::set_font_data);
+    MethodBinder::bind_method(D_METHOD("get_font_data"), &DynamicFont::get_font_data);
 
-    ClassDB::bind_method(D_METHOD("set_size", "data"), &DynamicFont::set_size);
-    ClassDB::bind_method(D_METHOD("get_size"), &DynamicFont::get_size);
+    MethodBinder::bind_method(D_METHOD("set_size", "data"), &DynamicFont::set_size);
+    MethodBinder::bind_method(D_METHOD("get_size"), &DynamicFont::get_size);
 
     ADD_PROPERTY(PropertyInfo(Variant::INT, "font/size"), "set_size", "get_size");
     ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "font/font", PROPERTY_HINT_RESOURCE_TYPE, "DynamicFontData"), "set_font_data", "get_font_data");

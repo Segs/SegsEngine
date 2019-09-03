@@ -35,6 +35,10 @@
 #include "core/os/main_loop.h"
 #include "core/print_string.h"
 #include "core/project_settings.h"
+#include "core/method_bind.h"
+
+IMPL_GDCLASS(Translation)
+IMPL_GDCLASS(TranslationServer)
 
 // ISO 639-1 language codes, with the addition of glibc locales with their
 // regional identifiers. This list must match the language names (in English)
@@ -796,7 +800,7 @@ static const char *locale_renames[][2] = {
 
 static String get_trimmed_locale(const String &p_locale) {
 
-    return p_locale.substr(0, 2);
+    return StringUtils::substr(p_locale,0, 2);
 }
 
 ///////////////////////////////////////////////
@@ -895,15 +899,15 @@ int Translation::get_message_count() const {
 
 void Translation::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_locale", "locale"), &Translation::set_locale);
-    ClassDB::bind_method(D_METHOD("get_locale"), &Translation::get_locale);
-    ClassDB::bind_method(D_METHOD("add_message", "src_message", "xlated_message"), &Translation::add_message);
-    ClassDB::bind_method(D_METHOD("get_message", "src_message"), &Translation::get_message);
-    ClassDB::bind_method(D_METHOD("erase_message", "src_message"), &Translation::erase_message);
-    ClassDB::bind_method(D_METHOD("get_message_list"), &Translation::_get_message_list);
-    ClassDB::bind_method(D_METHOD("get_message_count"), &Translation::get_message_count);
-    ClassDB::bind_method(D_METHOD("_set_messages"), &Translation::_set_messages);
-    ClassDB::bind_method(D_METHOD("_get_messages"), &Translation::_get_messages);
+    MethodBinder::bind_method(D_METHOD("set_locale", "locale"), &Translation::set_locale);
+    MethodBinder::bind_method(D_METHOD("get_locale"), &Translation::get_locale);
+    MethodBinder::bind_method(D_METHOD("add_message", "src_message", "xlated_message"), &Translation::add_message);
+    MethodBinder::bind_method(D_METHOD("get_message", "src_message"), &Translation::get_message);
+    MethodBinder::bind_method(D_METHOD("erase_message", "src_message"), &Translation::erase_message);
+    MethodBinder::bind_method(D_METHOD("get_message_list"), &Translation::_get_message_list);
+    MethodBinder::bind_method(D_METHOD("get_message_count"), &Translation::get_message_count);
+    MethodBinder::bind_method(D_METHOD("_set_messages"), &Translation::_set_messages);
+    MethodBinder::bind_method(D_METHOD("_get_messages"), &Translation::_get_messages);
 
     ADD_PROPERTY(PropertyInfo(Variant::POOL_STRING_ARRAY, "messages", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_messages", "_get_messages");
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "locale"), "set_locale", "get_locale");
@@ -932,7 +936,7 @@ bool TranslationServer::is_locale_valid(const String &p_locale) {
 String TranslationServer::standardize_locale(String p_locale) {
 
     // Replaces '-' with '_' for macOS Sierra-style locales
-    QString univ_locale = p_locale.replace("-", "_");
+    String univ_locale = StringUtils::replace(p_locale,"-", "_");
 
     // Handles known non-ISO locale names used e.g. on Windows
     int idx = 0;
@@ -1017,7 +1021,7 @@ Vector<String> TranslationServer::get_all_locale_names() {
     const char **ptr = locale_names;
 
     while (*ptr) {
-        locales.push_back(String::utf8(*ptr));
+        locales.push_back(StringUtils::from_utf8(*ptr));
         ptr++;
     }
 
@@ -1054,7 +1058,7 @@ StringName TranslationServer::translate(const StringName &p_message) const {
 
     StringName res;
     bool near_match = false;
-    const CharType *lptr = locale.constData();
+    const CharType *lptr = locale.cdata();
 
     for (const Set<Ref<Translation> >::Element *E = translations.front(); E; E = E->next()) {
 
@@ -1082,7 +1086,7 @@ StringName TranslationServer::translate(const StringName &p_message) const {
 
     if (!res && fallback.length() >= 2) {
         // Try again with the fallback locale.
-        const CharType *fptr = fallback.constData();
+        const CharType *fptr = fallback.cdata();
         near_match = false;
         for (const Set<Ref<Translation> >::Element *E = translations.front(); E; E = E->next()) {
 
@@ -1117,7 +1121,7 @@ StringName TranslationServer::translate(const StringName &p_message) const {
 
 TranslationServer *TranslationServer::singleton = nullptr;
 
-bool TranslationServer::_load_translations(const String &p_from) {
+bool TranslationServer::_load_translations(const StringName &p_from) {
 
     if (ProjectSettings::get_singleton()->has_setting(p_from)) {
         PoolVector<String> translations = ProjectSettings::get_singleton()->get(p_from);
@@ -1143,7 +1147,7 @@ bool TranslationServer::_load_translations(const String &p_from) {
 void TranslationServer::setup() {
 
     String test = GLOBAL_DEF("locale/test", "");
-    test = test.strip_edges();
+    test =StringUtils::strip_edges( test);
     if (test != "")
         set_locale(test);
     else
@@ -1160,7 +1164,9 @@ void TranslationServer::setup() {
             options += locale_list[idx];
             idx++;
         }
-        ProjectSettings::get_singleton()->set_custom_property_info("locale/fallback", PropertyInfo(Variant::STRING, "locale/fallback", PROPERTY_HINT_ENUM, options));
+        ProjectSettings::get_singleton()->set_custom_property_info(
+                "locale/fallback", PropertyInfo(Variant::STRING, "locale/fallback", PROPERTY_HINT_ENUM,
+                                           StringUtils::to_utf8(options).data()));
     }
 #endif
     //load translations
@@ -1185,29 +1191,42 @@ StringName TranslationServer::tool_translate(const StringName &p_message) const 
 
 void TranslationServer::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_locale", "locale"), &TranslationServer::set_locale);
-    ClassDB::bind_method(D_METHOD("get_locale"), &TranslationServer::get_locale);
+    MethodBinder::bind_method(D_METHOD("set_locale", "locale"), &TranslationServer::set_locale);
+    MethodBinder::bind_method(D_METHOD("get_locale"), &TranslationServer::get_locale);
 
-    ClassDB::bind_method(D_METHOD("get_locale_name", "locale"), &TranslationServer::get_locale_name);
+    MethodBinder::bind_method(D_METHOD("get_locale_name", "locale"), &TranslationServer::get_locale_name);
 
-    ClassDB::bind_method(D_METHOD("translate", "message"), &TranslationServer::translate);
+    MethodBinder::bind_method(D_METHOD("translate", "message"), &TranslationServer::translate);
 
-    ClassDB::bind_method(D_METHOD("add_translation", "translation"), &TranslationServer::add_translation);
-    ClassDB::bind_method(D_METHOD("remove_translation", "translation"), &TranslationServer::remove_translation);
+    MethodBinder::bind_method(D_METHOD("add_translation", "translation"), &TranslationServer::add_translation);
+    MethodBinder::bind_method(D_METHOD("remove_translation", "translation"), &TranslationServer::remove_translation);
 
-    ClassDB::bind_method(D_METHOD("clear"), &TranslationServer::clear);
+    MethodBinder::bind_method(D_METHOD("clear"), &TranslationServer::clear);
 
-    ClassDB::bind_method(D_METHOD("get_loaded_locales"), &TranslationServer::get_loaded_locales);
+    MethodBinder::bind_method(D_METHOD("get_loaded_locales"), &TranslationServer::get_loaded_locales);
 }
 
 void TranslationServer::load_translations() {
-
+    char buf[32] = {"locale/translations_"};
     String locale = get_locale();
-    _load_translations("locale/translations"); //all
-    _load_translations("locale/translations_" + locale.substr(0, 2));
-
-    if (locale.substr(0, 2) != locale) {
-        _load_translations("locale/translations_" + locale);
+    int cnt = locale.size();
+    _load_translations(buf); //all
+    if(cnt>=2)
+    {
+        // generic locale
+        buf[20]=locale[0].toLatin1();
+        buf[21]=locale[1].toLatin1();
+        _load_translations(buf);
+    }
+    if(cnt>2)
+    {
+        ERR_FAIL_COND((cnt+20)>=sizeof(buf))
+        if(cnt+20<sizeof(buf))
+        {
+            for(int i=0; i<cnt-2; ++i)
+                buf[22+i] = locale[2+i].toLatin1();
+            _load_translations(buf);
+        }
     }
 }
 
@@ -1217,6 +1236,6 @@ TranslationServer::TranslationServer() :
 
     for (int i = 0; locale_list[i]; ++i) {
 
-        locale_name_map.insert(locale_list[i], String::utf8(locale_names[i]));
+        locale_name_map.insert(locale_list[i], StringUtils::from_utf8(locale_names[i]));
     }
 }

@@ -30,6 +30,7 @@
 
 #include "crypto_core.h"
 
+#include "core/ustring.h"
 #include <mbedtls/aes.h>
 #include <mbedtls/base64.h>
 #include <mbedtls/md5.h>

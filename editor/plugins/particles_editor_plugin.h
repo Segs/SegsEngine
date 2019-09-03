@@ -38,7 +38,7 @@
 
 class ParticlesEditorBase : public Control {
 
-	GDCLASS(ParticlesEditorBase, Control);
+	GDCLASS(ParticlesEditorBase,Control)
 
 protected:
 	Spatial *base_node;
@@ -67,7 +67,7 @@ public:
 
 class ParticlesEditor : public ParticlesEditorBase {
 
-	GDCLASS(ParticlesEditor, ParticlesEditorBase);
+	GDCLASS(ParticlesEditor,ParticlesEditorBase)
 
 	ConfirmationDialog *generate_aabb;
 	SpinBox *generate_seconds;
@@ -90,7 +90,7 @@ class ParticlesEditor : public ParticlesEditorBase {
 
 	friend class ParticlesEditorPlugin;
 
-	virtual void _generate_emission_points();
+	void _generate_emission_points() override;
 
 protected:
 	void _notification(int p_notification);
@@ -104,20 +104,20 @@ public:
 
 class ParticlesEditorPlugin : public EditorPlugin {
 
-	GDCLASS(ParticlesEditorPlugin, EditorPlugin);
+	GDCLASS(ParticlesEditorPlugin,EditorPlugin)
 
 	ParticlesEditor *particles_editor;
 	EditorNode *editor;
 
 public:
-	virtual String get_name() const { return "Particles"; }
-	bool has_main_screen() const { return false; }
-	virtual void edit(Object *p_object);
-	virtual bool handles(Object *p_object) const;
-	virtual void make_visible(bool p_visible);
+	String get_name() const override { return "Particles"; }
+	bool has_main_screen() const override { return false; }
+	void edit(Object *p_object) override;
+	bool handles(Object *p_object) const override;
+	void make_visible(bool p_visible) override;
 
 	ParticlesEditorPlugin(EditorNode *p_node);
-	~ParticlesEditorPlugin();
+	~ParticlesEditorPlugin() override;
 };
 
 #endif // PARTICLES_EDITOR_PLUGIN_H

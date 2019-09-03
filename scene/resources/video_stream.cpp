@@ -30,4 +30,6 @@
 
 #include "video_stream.h"
 
+IMPL_GDCLASS(VideoStreamPlayback)
+IMPL_GDCLASS(VideoStream)
 ;

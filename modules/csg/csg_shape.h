@@ -39,7 +39,7 @@
 #include "thirdparty/misc/mikktspace.h"
 
 class CSGShape : public GeometryInstance {
-	GDCLASS(CSGShape, GeometryInstance);
+	GDCLASS(CSGShape,GeometryInstance)
 
 public:
 	enum Operation {
@@ -114,7 +114,7 @@ protected:
 	friend class CSGCombiner;
 	CSGBrush *_get_brush();
 
-	virtual void _validate_property(PropertyInfo &property) const;
+	void _validate_property(PropertyInfo &property) const override;
 
 public:
 	Array get_meshes() const;
@@ -124,8 +124,8 @@ public:
 
 	virtual PoolVector<Vector3> get_brush_faces();
 
-	virtual AABB get_aabb() const;
-	virtual PoolVector<Face3> get_faces(uint32_t p_usage_flags) const;
+	AABB get_aabb() const override;
+	PoolVector<Face3> get_faces(uint32_t p_usage_flags) const override;
 
 	void set_use_collision(bool p_enable);
 	bool is_using_collision() const;
@@ -150,23 +150,23 @@ public:
 
 	bool is_root_shape() const;
 	CSGShape();
-	~CSGShape();
+	~CSGShape() override;
 };
 
 VARIANT_ENUM_CAST(CSGShape::Operation)
 
 class CSGCombiner : public CSGShape {
-	GDCLASS(CSGCombiner, CSGShape);
+	GDCLASS(CSGCombiner,CSGShape)
 
 private:
-	virtual CSGBrush *_build_brush();
+	CSGBrush *_build_brush() override;
 
 public:
 	CSGCombiner();
 };
 
 class CSGPrimitive : public CSGShape {
-	GDCLASS(CSGPrimitive, CSGShape);
+	GDCLASS(CSGPrimitive,CSGShape)
 
 private:
 	bool invert_faces;
@@ -183,9 +183,9 @@ public:
 };
 
 class CSGMesh : public CSGPrimitive {
-	GDCLASS(CSGMesh, CSGPrimitive);
+	GDCLASS(CSGMesh,CSGPrimitive)
 
-	virtual CSGBrush *_build_brush();
+	CSGBrush *_build_brush() override;
 
 	Ref<Mesh> mesh;
 	Ref<Material> material;
@@ -205,8 +205,8 @@ public:
 
 class CSGSphere : public CSGPrimitive {
 
-	GDCLASS(CSGSphere, CSGPrimitive);
-	virtual CSGBrush *_build_brush();
+	GDCLASS(CSGSphere,CSGPrimitive)
+	CSGBrush *_build_brush() override;
 
 	Ref<Material> material;
 	bool smooth_faces;
@@ -238,8 +238,8 @@ public:
 
 class CSGBox : public CSGPrimitive {
 
-	GDCLASS(CSGBox, CSGPrimitive);
-	virtual CSGBrush *_build_brush();
+	GDCLASS(CSGBox,CSGPrimitive)
+	CSGBrush *_build_brush() override;
 
 	Ref<Material> material;
 	float width;
@@ -267,8 +267,9 @@ public:
 
 class CSGCylinder : public CSGPrimitive {
 
-	GDCLASS(CSGCylinder, CSGPrimitive);
-	virtual CSGBrush *_build_brush();
+	GDCLASS(CSGCylinder,CSGPrimitive)
+
+    CSGBrush *_build_brush() override;
 
 	Ref<Material> material;
 	float radius;
@@ -304,8 +305,8 @@ public:
 
 class CSGTorus : public CSGPrimitive {
 
-	GDCLASS(CSGTorus, CSGPrimitive);
-	virtual CSGBrush *_build_brush();
+	GDCLASS(CSGTorus,CSGPrimitive)
+	CSGBrush *_build_brush() override;
 
 	Ref<Material> material;
 	float inner_radius;
@@ -341,7 +342,7 @@ public:
 
 class CSGPolygon : public CSGPrimitive {
 
-	GDCLASS(CSGPolygon, CSGPrimitive);
+	GDCLASS(CSGPolygon,CSGPrimitive)
 
 public:
 	enum Mode {
@@ -357,7 +358,7 @@ public:
 	};
 
 private:
-	virtual CSGBrush *_build_brush();
+	CSGBrush *_build_brush() override;
 
 	Vector<Vector2> polygon;
 	Ref<Material> material;
@@ -388,7 +389,7 @@ private:
 
 protected:
 	static void _bind_methods();
-	virtual void _validate_property(PropertyInfo &property) const;
+	void _validate_property(PropertyInfo &property) const override;
 	void _notification(int p_what);
 
 public:

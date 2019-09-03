@@ -35,175 +35,175 @@ SceneStringNames *SceneStringNames::singleton = nullptr;
 
 SceneStringNames::SceneStringNames() {
 
-	_estimate_cost = StaticCString::create("_estimate_cost");
-	_compute_cost = StaticCString::create("_compute_cost");
+    _estimate_cost = StringName("_estimate_cost");
+    _compute_cost = StringName("_compute_cost");
 
-	resized = StaticCString::create("resized");
-	dot = StaticCString::create(".");
-	doubledot = StaticCString::create("..");
-	draw = StaticCString::create("draw");
-	_draw = StaticCString::create("_draw");
-	hide = StaticCString::create("hide");
-	visibility_changed = StaticCString::create("visibility_changed");
-	input_event = StaticCString::create("input_event");
-	shader = StaticCString::create("shader");
-	shader_unshaded = StaticCString::create("shader/unshaded");
-	shading_mode = StaticCString::create("shader/shading_mode");
-	tree_entered = StaticCString::create("tree_entered");
-	tree_exiting = StaticCString::create("tree_exiting");
-	tree_exited = StaticCString::create("tree_exited");
-	ready = StaticCString::create("ready");
-	item_rect_changed = StaticCString::create("item_rect_changed");
-	size_flags_changed = StaticCString::create("size_flags_changed");
-	minimum_size_changed = StaticCString::create("minimum_size_changed");
-	sleeping_state_changed = StaticCString::create("sleeping_state_changed");
+    resized = StringName("resized");
+    dot = StringName(".");
+    doubledot = StringName("..");
+    draw = StringName("draw");
+    _draw = StringName("_draw");
+    hide = StringName("hide");
+    visibility_changed = StringName("visibility_changed");
+    input_event = StringName("input_event");
+    shader = StringName("shader");
+    shader_unshaded = StringName("shader/unshaded");
+    shading_mode = StringName("shader/shading_mode");
+    tree_entered = StringName("tree_entered");
+    tree_exiting = StringName("tree_exiting");
+    tree_exited = StringName("tree_exited");
+    ready = StringName("ready");
+    item_rect_changed = StringName("item_rect_changed");
+    size_flags_changed = StringName("size_flags_changed");
+    minimum_size_changed = StringName("minimum_size_changed");
+    sleeping_state_changed = StringName("sleeping_state_changed");
 
-	finished = StaticCString::create("finished");
-	emission_finished = StaticCString::create("emission_finished");
-	animation_finished = StaticCString::create("animation_finished");
-	animation_changed = StaticCString::create("animation_changed");
-	animation_started = StaticCString::create("animation_started");
+    finished = StringName("finished");
+    emission_finished = StringName("emission_finished");
+    animation_finished = StringName("animation_finished");
+    animation_changed = StringName("animation_changed");
+    animation_started = StringName("animation_started");
 
-	mouse_entered = StaticCString::create("mouse_entered");
-	mouse_exited = StaticCString::create("mouse_exited");
+    mouse_entered = StringName("mouse_entered");
+    mouse_exited = StringName("mouse_exited");
 
-	focus_entered = StaticCString::create("focus_entered");
-	focus_exited = StaticCString::create("focus_exited");
+    focus_entered = StringName("focus_entered");
+    focus_exited = StringName("focus_exited");
 
-	sort_children = StaticCString::create("sort_children");
+    sort_children = StringName("sort_children");
 
-	body_shape_entered = StaticCString::create("body_shape_entered");
-	body_entered = StaticCString::create("body_entered");
-	body_shape_exited = StaticCString::create("body_shape_exited");
-	body_exited = StaticCString::create("body_exited");
+    body_shape_entered = StringName("body_shape_entered");
+    body_entered = StringName("body_entered");
+    body_shape_exited = StringName("body_shape_exited");
+    body_exited = StringName("body_exited");
 
-	area_shape_entered = StaticCString::create("area_shape_entered");
-	area_shape_exited = StaticCString::create("area_shape_exited");
+    area_shape_entered = StringName("area_shape_entered");
+    area_shape_exited = StringName("area_shape_exited");
 
-	_body_inout = StaticCString::create("_body_inout");
-	_area_inout = StaticCString::create("_area_inout");
+    _body_inout = StringName("_body_inout");
+    _area_inout = StringName("_area_inout");
 
-	idle = StaticCString::create("idle");
-	iteration = StaticCString::create("iteration");
-	update = StaticCString::create("update");
-	updated = StaticCString::create("updated");
+    idle = StringName("idle");
+    iteration = StringName("iteration");
+    update = StringName("update");
+    updated = StringName("updated");
 
-	_get_gizmo_geometry = StaticCString::create("_get_gizmo_geometry");
-	_can_gizmo_scale = StaticCString::create("_can_gizmo_scale");
+    _get_gizmo_geometry = StringName("_get_gizmo_geometry");
+    _can_gizmo_scale = StringName("_can_gizmo_scale");
 
-	_physics_process = StaticCString::create("_physics_process");
-	_process = StaticCString::create("_process");
+    _physics_process = StringName("_physics_process");
+    _process = StringName("_process");
 
-	_enter_tree = StaticCString::create("_enter_tree");
-	_exit_tree = StaticCString::create("_exit_tree");
-	_enter_world = StaticCString::create("_enter_world");
-	_exit_world = StaticCString::create("_exit_world");
-	_ready = StaticCString::create("_ready");
+    _enter_tree = StringName("_enter_tree");
+    _exit_tree = StringName("_exit_tree");
+    _enter_world = StringName("_enter_world");
+    _exit_world = StringName("_exit_world");
+    _ready = StringName("_ready");
 
-	_update_scroll = StaticCString::create("_update_scroll");
-	_update_xform = StaticCString::create("_update_xform");
+    _update_scroll = StringName("_update_scroll");
+    _update_xform = StringName("_update_xform");
 
-	_clips_input = StaticCString::create("_clips_input");
+    _clips_input = StringName("_clips_input");
 
-	_proxgroup_add = StaticCString::create("_proxgroup_add");
-	_proxgroup_remove = StaticCString::create("_proxgroup_remove");
+    _proxgroup_add = StringName("_proxgroup_add");
+    _proxgroup_remove = StringName("_proxgroup_remove");
 
-	grouped = StaticCString::create("grouped");
-	ungrouped = StaticCString::create("ungrouped");
+    grouped = StringName("grouped");
+    ungrouped = StringName("ungrouped");
 
-	screen_entered = StaticCString::create("screen_entered");
-	screen_exited = StaticCString::create("screen_exited");
+    screen_entered = StringName("screen_entered");
+    screen_exited = StringName("screen_exited");
 
-	viewport_entered = StaticCString::create("viewport_entered");
-	viewport_exited = StaticCString::create("viewport_exited");
+    viewport_entered = StringName("viewport_entered");
+    viewport_exited = StringName("viewport_exited");
 
-	camera_entered = StaticCString::create("camera_entered");
-	camera_exited = StaticCString::create("camera_exited");
+    camera_entered = StringName("camera_entered");
+    camera_exited = StringName("camera_exited");
 
-	_body_enter_tree = StaticCString::create("_body_enter_tree");
-	_body_exit_tree = StaticCString::create("_body_exit_tree");
+    _body_enter_tree = StringName("_body_enter_tree");
+    _body_exit_tree = StringName("_body_exit_tree");
 
-	_area_enter_tree = StaticCString::create("_area_enter_tree");
-	_area_exit_tree = StaticCString::create("_area_exit_tree");
+    _area_enter_tree = StringName("_area_enter_tree");
+    _area_exit_tree = StringName("_area_exit_tree");
 
-	_input = StaticCString::create("_input");
-	_input_event = StaticCString::create("_input_event");
+    _input = StringName("_input");
+    _input_event = StringName("_input_event");
 
-	gui_input = StaticCString::create("gui_input");
-	_gui_input = StaticCString::create("_gui_input");
+    gui_input = StringName("gui_input");
+    _gui_input = StringName("_gui_input");
 
-	_unhandled_input = StaticCString::create("_unhandled_input");
-	_unhandled_key_input = StaticCString::create("_unhandled_key_input");
+    _unhandled_input = StringName("_unhandled_input");
+    _unhandled_key_input = StringName("_unhandled_key_input");
 
-	changed = StaticCString::create("changed");
-	_shader_changed = StaticCString::create("_shader_changed");
+    changed = StringName("changed");
+    _shader_changed = StringName("_shader_changed");
 
-	_spatial_editor_group = StaticCString::create("_spatial_editor_group");
-	_request_gizmo = StaticCString::create("_request_gizmo");
+    _spatial_editor_group = StringName("_spatial_editor_group");
+    _request_gizmo = StringName("_request_gizmo");
 
-	offset = StaticCString::create("offset");
-	unit_offset = StaticCString::create("unit_offset");
-	rotation_mode = StaticCString::create("rotation_mode");
-	rotate = StaticCString::create("rotate");
-	h_offset = StaticCString::create("h_offset");
-	v_offset = StaticCString::create("v_offset");
+    offset = StringName("offset");
+    unit_offset = StringName("unit_offset");
+    rotation_mode = StringName("rotation_mode");
+    rotate = StringName("rotate");
+    h_offset = StringName("h_offset");
+    v_offset = StringName("v_offset");
 
-	transform_pos = StaticCString::create("position");
-	transform_rot = StaticCString::create("rotation_degrees");
-	transform_scale = StaticCString::create("scale");
+    transform_pos = StringName("position");
+    transform_rot = StringName("rotation_degrees");
+    transform_scale = StringName("scale");
 
-	_update_remote = StaticCString::create("_update_remote");
-	_update_pairs = StaticCString::create("_update_pairs");
+    _update_remote = StringName("_update_remote");
+    _update_pairs = StringName("_update_pairs");
 
-	_get_minimum_size = StaticCString::create("_get_minimum_size");
+    _get_minimum_size = StringName("_get_minimum_size");
 
-	area_entered = StaticCString::create("area_entered");
-	area_exited = StaticCString::create("area_exited");
+    area_entered = StringName("area_entered");
+    area_exited = StringName("area_exited");
 
-	has_point = StaticCString::create("has_point");
+    has_point = StringName("has_point");
 
-	line_separation = StaticCString::create("line_separation");
+    line_separation = StringName("line_separation");
 
-	get_drag_data = StaticCString::create("get_drag_data");
-	drop_data = StaticCString::create("drop_data");
-	can_drop_data = StaticCString::create("can_drop_data");
+    get_drag_data = StringName("get_drag_data");
+    drop_data = StringName("drop_data");
+    can_drop_data = StringName("can_drop_data");
 
-	_im_update = StaticCString::create("_im_update");
-	_queue_update = StaticCString::create("_queue_update");
+    _im_update = StringName("_im_update");
+    _queue_update = StringName("_queue_update");
 
-	baked_light_changed = StaticCString::create("baked_light_changed");
-	_baked_light_changed = StaticCString::create("_baked_light_changed");
+    baked_light_changed = StringName("baked_light_changed");
+    _baked_light_changed = StringName("_baked_light_changed");
 
-	_mouse_enter = StaticCString::create("_mouse_enter");
-	_mouse_exit = StaticCString::create("_mouse_exit");
+    _mouse_enter = StringName("_mouse_enter");
+    _mouse_exit = StringName("_mouse_exit");
 
-	_pressed = StaticCString::create("_pressed");
-	_toggled = StaticCString::create("_toggled");
+    _pressed = StringName("_pressed");
+    _toggled = StringName("_toggled");
 
-	frame_changed = StaticCString::create("frame_changed");
+    frame_changed = StringName("frame_changed");
 
-	playback_speed = StaticCString::create("playback/speed");
-	playback_active = StaticCString::create("playback/active");
-	autoplay = StaticCString::create("autoplay");
-	blend_times = StaticCString::create("blend_times");
-	speed = StaticCString::create("speed");
+    playback_speed = StringName("playback/speed");
+    playback_active = StringName("playback/active");
+    autoplay = StringName("autoplay");
+    blend_times = StringName("blend_times");
+    speed = StringName("speed");
 
-	node_configuration_warning_changed = StaticCString::create("node_configuration_warning_changed");
+    node_configuration_warning_changed = StringName("node_configuration_warning_changed");
 
-	output = StaticCString::create("output");
+    output = StringName("output");
 
-	path_pp = NodePath("..");
+    path_pp = NodePath("..");
 
-	_default = StaticCString::create("default");
+    _default = StringName("default");
 
-	for (int i = 0; i < MAX_MATERIALS; i++) {
+    for (int i = 0; i < MAX_MATERIALS; i++) {
 
-		mesh_materials[i] = "material/" + itos(i);
-	}
+        mesh_materials[i] = "material/" + itos(i);
+    }
 
-	_mesh_changed = StaticCString::create("_mesh_changed");
+    _mesh_changed = StringName("_mesh_changed");
 
-	parameters_base_path = "parameters/";
+    parameters_base_path = "parameters/";
 
-	tracks_changed = "tracks_changed";
+    tracks_changed = "tracks_changed";
 }

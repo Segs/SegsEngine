@@ -51,7 +51,7 @@ Error EditorRun::run(const String &p_scene, const String &p_custom_args, const L
 
     if (!resource_path.empty()) {
         args.push_back("--path");
-        args.push_back(resource_path.replace(" ", "%20"));
+        args.push_back(StringUtils::replace(resource_path," ", "%20"));
     }
 
     args.push_back("--remote-debug");
@@ -158,7 +158,7 @@ Error EditorRun::run(const String &p_scene, const String &p_custom_args, const L
         String bpoints;
         for (const List<String>::Element *E = p_breakpoints.front(); E; E = E->next()) {
 
-            bpoints += String(E->get()).replace(" ", "%20");
+            bpoints += StringUtils::replace(E->get()," ", "%20");
             if (E->next())
                 bpoints += ",";
         }
@@ -171,7 +171,7 @@ Error EditorRun::run(const String &p_scene, const String &p_custom_args, const L
     }
 
     if (!p_custom_args.empty()) {
-        auto cargs = p_custom_args.splitRef(" ", QString::SkipEmptyParts);
+        auto cargs = p_custom_args.m_str.splitRef(" ", QString::SkipEmptyParts);
         for (int i = 0; i < cargs.size(); i++) {
             args.push_back(cargs[i].toString().replace(" ", "%20"));
         }
@@ -180,10 +180,10 @@ Error EditorRun::run(const String &p_scene, const String &p_custom_args, const L
     String exec = OS::get_singleton()->get_executable_path();
     {
         QDebug msg_log(qDebug());
-        msg_log<<"Running: "<<exec.constData();
+        msg_log<<"Running: "<<exec.cdata();
         for (List<String>::Element *E = args.front(); E; E = E->next()) {
 
-            msg_log<<" "<<E->get().constData();
+            msg_log<<" "<<E->get().cdata();
         }
     }
 

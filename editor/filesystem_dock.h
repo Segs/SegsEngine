@@ -57,7 +57,7 @@
 class EditorNode;
 
 class FileSystemDock : public VBoxContainer {
-	GDCLASS(FileSystemDock, VBoxContainer);
+	GDCLASS(FileSystemDock,VBoxContainer)
 
 public:
 	enum FileListDisplayMode {
@@ -303,7 +303,7 @@ public:
 	FileListDisplayMode get_file_list_display_mode() { return file_list_display_mode; };
 
 	FileSystemDock(EditorNode *p_editor);
-	~FileSystemDock();
+	~FileSystemDock() override;
 };
 
 #endif // SCENES_DOCK_H

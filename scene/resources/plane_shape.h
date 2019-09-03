@@ -35,14 +35,15 @@
 
 class PlaneShape : public Shape {
 
-	GDCLASS(PlaneShape, Shape);
-	Plane plane;
+	GDCLASS(PlaneShape,Shape)
+
+    Plane plane;
 
 protected:
 	static void _bind_methods();
-	virtual void _update_shape();
+	void _update_shape() override;
 
-	virtual Vector<Vector3> _gen_debug_mesh_lines();
+	Vector<Vector3> _gen_debug_mesh_lines() override;
 
 public:
 	void set_plane(Plane p_plane);

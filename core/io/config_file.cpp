@@ -33,6 +33,10 @@
 #include "core/io/file_access_encrypted.h"
 #include "core/os/keyboard.h"
 #include "core/variant_parser.h"
+#include "core/method_bind.h"
+
+
+IMPL_GDCLASS(ConfigFile)
 
 PoolStringArray ConfigFile::_get_sections() const {
 
@@ -283,25 +287,25 @@ Error ConfigFile::_internal_load(const String &p_path, FileAccess *f) {
 
 void ConfigFile::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_value", "section", "key", "value"), &ConfigFile::set_value);
-    ClassDB::bind_method(D_METHOD("get_value", "section", "key", "default"), &ConfigFile::get_value, {DEFVAL(Variant())});
+    MethodBinder::bind_method(D_METHOD("set_value", "section", "key", "value"), &ConfigFile::set_value);
+    MethodBinder::bind_method(D_METHOD("get_value", "section", "key", "default"), &ConfigFile::get_value, {DEFVAL(Variant())});
 
-    ClassDB::bind_method(D_METHOD("has_section", "section"), &ConfigFile::has_section);
-    ClassDB::bind_method(D_METHOD("has_section_key", "section", "key"), &ConfigFile::has_section_key);
+    MethodBinder::bind_method(D_METHOD("has_section", "section"), &ConfigFile::has_section);
+    MethodBinder::bind_method(D_METHOD("has_section_key", "section", "key"), &ConfigFile::has_section_key);
 
-    ClassDB::bind_method(D_METHOD("get_sections"), &ConfigFile::_get_sections);
-    ClassDB::bind_method(D_METHOD("get_section_keys", "section"), &ConfigFile::_get_section_keys);
+    MethodBinder::bind_method(D_METHOD("get_sections"), &ConfigFile::_get_sections);
+    MethodBinder::bind_method(D_METHOD("get_section_keys", "section"), &ConfigFile::_get_section_keys);
 
-    ClassDB::bind_method(D_METHOD("erase_section", "section"), &ConfigFile::erase_section);
+    MethodBinder::bind_method(D_METHOD("erase_section", "section"), &ConfigFile::erase_section);
 
-    ClassDB::bind_method(D_METHOD("load", "path"), &ConfigFile::load);
-    ClassDB::bind_method(D_METHOD("save", "path"), &ConfigFile::save);
+    MethodBinder::bind_method(D_METHOD("load", "path"), &ConfigFile::load);
+    MethodBinder::bind_method(D_METHOD("save", "path"), &ConfigFile::save);
 
-    ClassDB::bind_method(D_METHOD("load_encrypted", "path", "key"), &ConfigFile::load_encrypted);
-    ClassDB::bind_method(D_METHOD("load_encrypted_pass", "path", "pass"), &ConfigFile::load_encrypted_pass);
+    MethodBinder::bind_method(D_METHOD("load_encrypted", "path", "key"), &ConfigFile::load_encrypted);
+    MethodBinder::bind_method(D_METHOD("load_encrypted_pass", "path", "pass"), &ConfigFile::load_encrypted_pass);
 
-    ClassDB::bind_method(D_METHOD("save_encrypted", "path", "key"), &ConfigFile::save_encrypted);
-    ClassDB::bind_method(D_METHOD("save_encrypted_pass", "path", "pass"), &ConfigFile::save_encrypted_pass);
+    MethodBinder::bind_method(D_METHOD("save_encrypted", "path", "key"), &ConfigFile::save_encrypted);
+    MethodBinder::bind_method(D_METHOD("save_encrypted_pass", "path", "pass"), &ConfigFile::save_encrypted_pass);
 }
 
 ConfigFile::ConfigFile() {}

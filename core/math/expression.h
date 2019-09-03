@@ -32,9 +32,10 @@
 #define EXPRESSION_H
 
 #include "core/reference.h"
+#include "core/ustring.h"
 
 class Expression : public Reference {
-	GDCLASS(Expression, Reference);
+    GDCLASS(Expression,Reference)
 
 public:
 	enum BuiltinFunc {

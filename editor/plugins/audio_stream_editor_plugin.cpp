@@ -33,6 +33,12 @@
 #include "core/io/resource_loader.h"
 #include "core/project_settings.h"
 #include "editor/editor_settings.h"
+#include "core/method_bind.h"
+
+#include "audio_stream_preview.h"
+
+IMPL_GDCLASS(AudioStreamEditor)
+IMPL_GDCLASS(AudioStreamEditorPlugin)
 
 void AudioStreamEditor::_notification(int p_what) {
 
@@ -146,7 +152,7 @@ void AudioStreamEditor::_draw_indicator() {
     float ofs_x = _current / len * rect.size.width;
     _indicator->draw_line(Point2(ofs_x, 0), Point2(ofs_x, rect.size.height), get_color("accent_color", "Editor"), 1);
 
-    _current_label->set_text(StringUtils::num(_current, 2).pad_decimals(2) + " /");
+    _current_label->set_text(StringUtils::pad_decimals(StringUtils::num(_current, 2),2) + " /");
 }
 
 void AudioStreamEditor::_on_input_indicator(Ref<InputEvent> p_event) {
@@ -183,7 +189,7 @@ void AudioStreamEditor::edit(Ref<AudioStream> p_stream) {
     stream = p_stream;
     _player->set_stream(stream);
     _current = 0;
-    String text = StringUtils::num(stream->get_length(), 2).pad_decimals(2) + "s";
+    String text = StringUtils::pad_decimals(StringUtils::num(stream->get_length(), 2),2) + "s";
     _duration_label->set_text(text);
 
     if (!stream.is_null()) {
@@ -196,13 +202,13 @@ void AudioStreamEditor::edit(Ref<AudioStream> p_stream) {
 
 void AudioStreamEditor::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_preview_changed"), &AudioStreamEditor::_preview_changed);
-    ClassDB::bind_method(D_METHOD("_play"), &AudioStreamEditor::_play);
-    ClassDB::bind_method(D_METHOD("_stop"), &AudioStreamEditor::_stop);
-    ClassDB::bind_method(D_METHOD("_on_finished"), &AudioStreamEditor::_on_finished);
-    ClassDB::bind_method(D_METHOD("_draw_preview"), &AudioStreamEditor::_draw_preview);
-    ClassDB::bind_method(D_METHOD("_draw_indicator"), &AudioStreamEditor::_draw_indicator);
-    ClassDB::bind_method(D_METHOD("_on_input_indicator"), &AudioStreamEditor::_on_input_indicator);
+    MethodBinder::bind_method(D_METHOD("_preview_changed"), &AudioStreamEditor::_preview_changed);
+    MethodBinder::bind_method(D_METHOD("_play"), &AudioStreamEditor::_play);
+    MethodBinder::bind_method(D_METHOD("_stop"), &AudioStreamEditor::_stop);
+    MethodBinder::bind_method(D_METHOD("_on_finished"), &AudioStreamEditor::_on_finished);
+    MethodBinder::bind_method(D_METHOD("_draw_preview"), &AudioStreamEditor::_draw_preview);
+    MethodBinder::bind_method(D_METHOD("_draw_indicator"), &AudioStreamEditor::_draw_indicator);
+    MethodBinder::bind_method(D_METHOD("_on_input_indicator"), &AudioStreamEditor::_on_input_indicator);
 }
 
 AudioStreamEditor::AudioStreamEditor() {

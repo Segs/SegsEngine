@@ -29,14 +29,19 @@
 /*************************************************************************/
 
 #include "create_dialog.h"
+#include "editor_feature_profile.h"
 
 #include "core/class_db.h"
+#include "core/method_bind.h"
 #include "core/os/keyboard.h"
 #include "core/print_string.h"
 #include "editor_help.h"
 #include "editor_node.h"
 #include "editor_settings.h"
+#include "editor_scale.h"
 #include "scene/gui/box_container.h"
+
+IMPL_GDCLASS(CreateDialog)
 
 void CreateDialog::popup_create(bool p_dont_clear, bool p_replace_mode, const String &p_select_type) {
 
@@ -54,7 +59,7 @@ void CreateDialog::popup_create(bool p_dont_clear, bool p_replace_mode, const St
         TreeItem *root = recent->create_item();
 
         while (!f->eof_reached()) {
-            String l = f->get_line().strip_edges();
+            String l = StringUtils::strip_edges(f->get_line());
             String name = StringUtils::split(l," ")[0];
 
             if (ClassDB::class_exists(name) || ScriptServer::is_global_class(name)) {
@@ -76,7 +81,7 @@ void CreateDialog::popup_create(bool p_dont_clear, bool p_replace_mode, const St
     if (f) {
 
         while (!f->eof_reached()) {
-            String l = f->get_line().strip_edges();
+            String l = StringUtils::strip_edges(f->get_line());
 
             if (l != String()) {
                 favorite_list.push_back(l);
@@ -155,8 +160,8 @@ void CreateDialog::add_type(const String &p_type, HashMap<String, TreeItem *> &p
             return;
 
         String script_path = ScriptServer::get_global_class_path(p_type);
-        if (script_path.find("res://addons/", 0) != -1) {
-            if (!EditorNode::get_singleton()->is_addon_plugin_enabled(script_path.get_slicec('/', 3)))
+        if (StringUtils::find(script_path,"res://addons/", 0) != -1) {
+            if (!EditorNode::get_singleton()->is_addon_plugin_enabled(StringUtils::get_slice(script_path,'/', 3)))
                 return;
         }
     }
@@ -191,19 +196,25 @@ void CreateDialog::add_type(const String &p_type, HashMap<String, TreeItem *> &p
         item->set_custom_color(0, get_color("disabled_font_color", "Editor"));
         item->set_selectable(0, false);
     } else if (!(*to_select && (*to_select)->get_text(0) == search_box->get_text())) {
+        String search_term = StringUtils::to_lower(search_box->get_text());
+
+        // if the node name matches exactly as the search, the node should be selected.
+        // this also fixes when the user clicks on recent nodes.
+        if (StringUtils::to_lower(p_type) == search_term) {
+            *to_select = item;
+        } else {
         bool current_type_prefered = _is_type_prefered(p_type);
         bool selected_type_prefered = *to_select ? _is_type_prefered(StringUtils::split((*to_select)->get_text(0)," ")[0]) : false;
 
-        String search_term = StringUtils::to_lower(search_box->get_text());
         bool is_subsequence_of_type = StringUtils::is_subsequence_ofi(search_box->get_text(),p_type);
-        bool is_substring_of_type = StringUtils::to_lower(p_type).find(search_term) >= 0;
+        bool is_substring_of_type = StringUtils::contains(StringUtils::to_lower(p_type),search_term);
         bool is_substring_of_selected = false;
         bool is_subsequence_of_selected = false;
         bool is_selected_equal = false;
 
         if (*to_select) {
             String name = StringUtils::to_lower(StringUtils::split((*to_select)->get_text(0)," ")[0]);
-            is_substring_of_selected = name.find(search_term) >= 0;
+            is_substring_of_selected = StringUtils::contains(name,search_term);
             is_subsequence_of_selected = StringUtils::is_subsequence_of(search_term,name);
             is_selected_equal = name == search_term;
         }
@@ -222,6 +233,7 @@ void CreateDialog::add_type(const String &p_type, HashMap<String, TreeItem *> &p
                 }
             }
         }
+    }
     }
 
     if (bool(EditorSettings::get_singleton()->get("docks/scene_tree/start_create_dialog_fully_expanded"))) {
@@ -323,7 +335,7 @@ void CreateDialog::_update_search() {
         }
         bool cpp_type = ClassDB::class_exists(type);
 
-        if (base_type == "Node" && type.begins_with("Editor"))
+        if (base_type == "Node" && StringUtils::begins_with(type,"Editor"))
             continue; // do not show editor nodes
 
         if (cpp_type && !ClassDB::can_instance(type))
@@ -606,7 +618,7 @@ void CreateDialog::_history_selected() {
     if (!item)
         return;
 
-    search_box->set_text(item->get_text(0).get_slicec(' ', 0));
+    search_box->set_text(StringUtils::get_slice(item->get_text(0),' ', 0));
     favorites->deselect_all();
     _update_search();
 }
@@ -617,7 +629,7 @@ void CreateDialog::_favorite_selected() {
     if (!item)
         return;
 
-    search_box->set_text(item->get_text(0).get_slicec(' ', 0));
+    search_box->set_text(StringUtils::get_slice(item->get_text(0),' ', 0));
     recent->deselect_all();
     _update_search();
 }
@@ -712,20 +724,20 @@ void CreateDialog::_save_and_update_favorite_list() {
 
 void CreateDialog::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_text_changed"), &CreateDialog::_text_changed);
-    ClassDB::bind_method(D_METHOD("_confirmed"), &CreateDialog::_confirmed);
-    ClassDB::bind_method(D_METHOD("_sbox_input"), &CreateDialog::_sbox_input);
-    ClassDB::bind_method(D_METHOD("_item_selected"), &CreateDialog::_item_selected);
-    ClassDB::bind_method(D_METHOD("_favorite_toggled"), &CreateDialog::_favorite_toggled);
-    ClassDB::bind_method(D_METHOD("_history_selected"), &CreateDialog::_history_selected);
-    ClassDB::bind_method(D_METHOD("_favorite_selected"), &CreateDialog::_favorite_selected);
-    ClassDB::bind_method(D_METHOD("_history_activated"), &CreateDialog::_history_activated);
-    ClassDB::bind_method(D_METHOD("_favorite_activated"), &CreateDialog::_favorite_activated);
-    ClassDB::bind_method(D_METHOD("_save_and_update_favorite_list"), &CreateDialog::_save_and_update_favorite_list);
+    MethodBinder::bind_method(D_METHOD("_text_changed"), &CreateDialog::_text_changed);
+    MethodBinder::bind_method(D_METHOD("_confirmed"), &CreateDialog::_confirmed);
+    MethodBinder::bind_method(D_METHOD("_sbox_input"), &CreateDialog::_sbox_input);
+    MethodBinder::bind_method(D_METHOD("_item_selected"), &CreateDialog::_item_selected);
+    MethodBinder::bind_method(D_METHOD("_favorite_toggled"), &CreateDialog::_favorite_toggled);
+    MethodBinder::bind_method(D_METHOD("_history_selected"), &CreateDialog::_history_selected);
+    MethodBinder::bind_method(D_METHOD("_favorite_selected"), &CreateDialog::_favorite_selected);
+    MethodBinder::bind_method(D_METHOD("_history_activated"), &CreateDialog::_history_activated);
+    MethodBinder::bind_method(D_METHOD("_favorite_activated"), &CreateDialog::_favorite_activated);
+    MethodBinder::bind_method(D_METHOD("_save_and_update_favorite_list"), &CreateDialog::_save_and_update_favorite_list);
 
-    ClassDB::bind_method("get_drag_data_fw", &CreateDialog::get_drag_data_fw);
-    ClassDB::bind_method("can_drop_data_fw", &CreateDialog::can_drop_data_fw);
-    ClassDB::bind_method("drop_data_fw", &CreateDialog::drop_data_fw);
+    MethodBinder::bind_method("get_drag_data_fw", &CreateDialog::get_drag_data_fw);
+    MethodBinder::bind_method("can_drop_data_fw", &CreateDialog::can_drop_data_fw);
+    MethodBinder::bind_method("drop_data_fw", &CreateDialog::drop_data_fw);
 
     ADD_SIGNAL(MethodInfo("create"));
     ADD_SIGNAL(MethodInfo("favorites_updated"));

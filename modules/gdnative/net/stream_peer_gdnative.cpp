@@ -29,6 +29,9 @@
 /*************************************************************************/
 
 #include "stream_peer_gdnative.h"
+#include "core/property_info.h"
+
+IMPL_GDCLASS(StreamPeerGDNative)
 
 StreamPeerGDNative::StreamPeerGDNative() {
 	interface = nullptr;

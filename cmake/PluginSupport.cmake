@@ -90,6 +90,7 @@ endfunction()
 
 function(add_plugins_to_target target)
     SET(plugins)
+
     collect_plugins(${target} plugins)
     #we create a new target that will contain the selected plugins
     generate_static_plugins_list(${target} "${plugins_static}")

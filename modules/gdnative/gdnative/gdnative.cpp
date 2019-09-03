@@ -38,6 +38,8 @@
 #include "core/os/os.h"
 #include "core/variant.h"
 #include "core/print_string.h"
+#include "core/string_formatter.h"
+#include "core/method_bind_interface.h"
 
 #include "modules/gdnative/gdnative.h"
 
@@ -148,15 +150,9 @@ void _gdnative_report_version_mismatch(const godot_object *p_library, const char
 
     message += library->get_current_library_path() + ": Extension \"" + p_ext + "\" can't be loaded.\n";
 
-    Dictionary versions;
-    versions["have_major"] = p_have.major;
-    versions["have_minor"] = p_have.minor;
-    versions["want_major"] = p_want.major;
-    versions["want_minor"] = p_want.minor;
+	message += FormatV("Got version %d.%d but needs %d.%d!",p_have.major,p_have.minor,p_want.major,p_want.minor);
 
-    message += String("Got version {have_major}.{have_minor} but needs {want_major}.{want_minor}!").format(versions);
-
-    _err_print_error("gdnative_init", library->get_current_library_path().utf8().data(), 0, message.utf8().data());
+	_err_print_error("gdnative_init", StringUtils::to_utf8(library->get_current_library_path()).data(), 0, StringUtils::to_utf8(message).data());
 }
 
 void _gdnative_report_loading_error(const godot_object *p_library, const char *p_what) {
@@ -165,7 +161,7 @@ void _gdnative_report_loading_error(const godot_object *p_library, const char *p
 
     message += library->get_current_library_path() + ": " + p_what;
 
-    _err_print_error("gdnative_init", library->get_current_library_path().utf8().data(), 0, message.utf8().data());
+	_err_print_error("gdnative_init", StringUtils::to_utf8(library->get_current_library_path()).data(), 0, StringUtils::to_utf8(message).data());
 }
 
 bool GDAPI godot_is_instance_valid(const godot_object *p_object) {

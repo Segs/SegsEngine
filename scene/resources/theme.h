@@ -40,8 +40,9 @@
 
 class Theme : public Resource {
 
-	GDCLASS(Theme, Resource);
-	RES_BASE_EXTENSION("theme");
+	GDCLASS(Theme,Resource)
+
+    RES_BASE_EXTENSION("theme");
 
 	void _emit_theme_changed();
 
@@ -189,7 +190,7 @@ public:
 	void clear();
 
 	Theme();
-	~Theme();
+	~Theme() override;
 };
 
 #endif

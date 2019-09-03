@@ -523,6 +523,7 @@
         <file alias="Rotate180.svg">icons/icon_rotate_180.svg</file>
         <file alias="Rotate270.svg">icons/icon_rotate_270.svg</file>
         <file alias="Rotate90.svg">icons/icon_rotate_90.svg</file>
+        <file alias="Ruler.svg">icons/icon_ruler.svg</file>
         <file alias="SampleLibrary.svg">icons/icon_sample_library.svg</file>
         <file alias="Save.svg">icons/icon_save.svg</file>
         <file alias="ScriptCreateDialog.svg">icons/icon_script_create_dialog.svg</file>

@@ -34,6 +34,7 @@
 #include "core/os/input_event.h"
 #include "core/os/keyboard.h"
 #include "core/ustring.h"
+#include "core/property_info.h"
 
 CharType VariantParser::StreamFile::get_char() {
 
@@ -205,7 +206,7 @@ Error VariantParser::get_token(Stream *p_stream, Token &r_token, int &line, Stri
 
                     CharType ch = p_stream->get_char();
 
-                    if (ch == 0) {
+                    if (ch == nullptr) {
                         r_err_str = "Unterminated String";
                         r_token.type = TK_ERROR;
                         return ERR_PARSE_ERROR;
@@ -214,7 +215,7 @@ Error VariantParser::get_token(Stream *p_stream, Token &r_token, int &line, Stri
                     } else if (ch == '\\') {
                         //escaped characters...
                         CharType next = p_stream->get_char();
-                        if (next == 0) {
+                        if (next == nullptr) {
                             r_err_str = "Unterminated String";
                             r_token.type = TK_ERROR;
                             return ERR_PARSE_ERROR;
@@ -283,7 +284,7 @@ Error VariantParser::get_token(Stream *p_stream, Token &r_token, int &line, Stri
                 }
 
                 if (p_stream->is_utf8()) {
-                    str.parse_utf8(str.ascii(true).data());
+                    str = StringUtils::from_utf8(StringUtils::ascii(str,true).data());
                 }
                 r_token.type = TK_STRING;
                 r_token.value = str;
@@ -371,9 +372,9 @@ Error VariantParser::get_token(Stream *p_stream, Token &r_token, int &line, Stri
                     r_token.type = TK_NUMBER;
 
                     if (is_float)
-                        r_token.value = tmp_str_buf.to_double();
+                        r_token.value = StringUtils::to_double(tmp_str_buf);
                     else
-                        r_token.value = tmp_str_buf.to_int();
+                        r_token.value = StringUtils::to_int(tmp_str_buf);
                     return OK;
 
                 } else if ((cchar >= 'A' && cchar <= 'Z') || (cchar >= 'a' && cchar <= 'z') || cchar == '_') {
@@ -427,10 +428,10 @@ Error VariantParser::_parse_enginecfg(Stream *p_stream, Vector<String> &strings,
         }
 
         if (c == ',') {
-            strings.push_back(accum.strip_edges());
+            strings.push_back(StringUtils::strip_edges(accum));
             accum = String();
         } else if (c == ')') {
-            strings.push_back(accum.strip_edges());
+            strings.push_back(StringUtils::strip_edges(accum));
             return OK;
         } else if (c == '\n') {
             line++;
@@ -928,13 +929,13 @@ Error VariantParser::parse_value(Token &token, Variant &value, Stream *p_stream,
 
                     String mods = token.value.as<String>();
 
-                    if (mods.findn("C") != -1)
+                    if (StringUtils::findn(mods,"C") != -1)
                         key->set_control(true);
-                    if (mods.findn("A") != -1)
+                    if (StringUtils::findn(mods,"A") != -1)
                         key->set_alt(true);
-                    if (mods.findn("S") != -1)
+                    if (StringUtils::findn(mods,"S") != -1)
                         key->set_shift(true);
-                    if (mods.findn("M") != -1)
+                    if (StringUtils::findn(mods,"M") != -1)
                         key->set_metakey(true);
 
                     get_token(p_stream, token, line, r_err_str);
@@ -1391,7 +1392,7 @@ Error VariantParser::_parse_tag(Token &token, Stream *p_stream, int &line, Strin
             r_tag.name += String(c);
         }
 
-        r_tag.name = r_tag.name.strip_edges();
+        r_tag.name =StringUtils::strip_edges( r_tag.name);
 
         return OK;
     }
@@ -1532,7 +1533,7 @@ Error VariantParser::parse_tag_assign_eof(Stream *p_stream, int &line, String &r
                 what += String(c);
             } else {
                 if (p_stream->is_utf8()) {
-                    what.parse_utf8(what.ascii(true).data());
+                    what = StringUtils::from_utf8(StringUtils::ascii(what,true).data());
                 }
                 r_assign = what;
                 Token token;
@@ -1590,7 +1591,7 @@ Error VariantWriter::write(const Variant &p_variant, StoreStringFunc p_store_str
         case Variant::REAL: {
 
             String s = rtosfix(p_variant.as<float>());
-            if (s.find(".") == -1 && s.find("e") == -1)
+            if (StringUtils::find(s,".") == -1 && StringUtils::find(s,"e") == -1)
                 s += ".0";
             p_store_string_func(p_store_string_ud, s);
         } break;
@@ -1739,7 +1740,7 @@ Error VariantWriter::write(const Variant &p_variant, StoreStringFunc p_store_str
 
             //store as generic object
 
-            p_store_string_func(p_store_string_ud, "Object(" + obj->get_class() + ",");
+			p_store_string_func(p_store_string_ud, "Object(" + String(obj->get_class()) + ",");
 
             List<PropertyInfo> props;
             obj->get_property_list(&props);

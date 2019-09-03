@@ -36,7 +36,7 @@
 class Viewport;
 class VisibilityNotifier2D : public Node2D {
 
-	GDCLASS(VisibilityNotifier2D, Node2D);
+	GDCLASS(VisibilityNotifier2D,Node2D)
 
 	Set<Viewport *> viewports;
 
@@ -55,8 +55,8 @@ protected:
 	static void _bind_methods();
 
 public:
-	virtual Rect2 _edit_get_rect() const;
-	virtual bool _edit_use_rect() const;
+	Rect2 _edit_get_rect() const override;
+	bool _edit_use_rect() const override;
 
 	void set_rect(const Rect2 &p_rect);
 	Rect2 get_rect() const;
@@ -68,7 +68,7 @@ public:
 
 class VisibilityEnabler2D : public VisibilityNotifier2D {
 
-	GDCLASS(VisibilityEnabler2D, VisibilityNotifier2D);
+	GDCLASS(VisibilityEnabler2D,VisibilityNotifier2D)
 
 public:
 	enum Enabler {
@@ -82,8 +82,8 @@ public:
 	};
 
 protected:
-	virtual void _screen_enter();
-	virtual void _screen_exit();
+	void _screen_enter() override;
+	void _screen_exit() override;
 
 	bool visible;
 
@@ -102,7 +102,7 @@ public:
 	void set_enabler(Enabler p_enabler, bool p_enable);
 	bool is_enabler_enabled(Enabler p_enabler) const;
 
-	String get_configuration_warning() const;
+	String get_configuration_warning() const override;
 
 	VisibilityEnabler2D();
 };

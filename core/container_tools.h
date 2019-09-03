@@ -10,6 +10,6 @@ String PoolVector<T>::join(String delimiter) {
     for (int i = 0; i < s; i++) {
         rs += r[i] + delimiter;
     }
-    rs.erase(rs.length() - delimiter.length(), delimiter.length());
+    StringUtils::erase(rs,rs.length() - delimiter.length(), delimiter.length());
     return rs;
 }

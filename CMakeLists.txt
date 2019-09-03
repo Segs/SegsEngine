@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.13)
-project(godot)
+project(SegsEngine)
 
-SET_PROPERTY(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+# NOTE: when running on linux the following commands allow for ccache based build acceleration and build timing
+# respectively
+set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
 #set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "/usr/bin/time -f \"%E,%M,%C,%O\"")
 
 set(CMAKE_CXX_STANDARD 17)
@@ -22,14 +24,9 @@ cmake_policy(SET CMP0079 NEW)
 
 
 set(VD_SRC "${VisualDesigner_SOURCE_DIR}/src/visualdesigner")
-file(GLOB_RECURSE ALL_PROJECT_FILES
-    "*.cpp"
-    "*.h"
-    "*.glsl"
-    "*.xml"
-)
-source_group(TREE ${CMAKE_CURRENT_LIST_DIR} FILES ${ALL_PROJECT_FILES})
 
+add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
+add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
 
 include(LocateQt5)
 find_package(Qt5 COMPONENTS Core REQUIRED)
@@ -189,9 +186,6 @@ endif()
 if(OPTION_DISABLE_3D)
     add_definitions(-D_3D_DISABLED)
 endif()
-if(OPTION_GDSCRIPT)
-    add_definitions(-DGDSCRIPT_ENABLED)
-endif()
 if(OPTION_DISABLE_ADVANCED_GUI)
     add_definitions(-DADVANCED_GUI_DISABLED)
 endif()
@@ -213,6 +207,7 @@ set(doc_class_path "${PROJECT_SOURCE_DIR}/doc/classes")
 file(GLOB module_docs "${PROJECT_SOURCE_DIR}/modules/*/doc_classes" )
 configure_file(doc_paths.cmake ${PROJECT_BINARY_DIR}/doc_paths.txt)
 
+add_subdirectory(thirdparty)
 # # build subdirs, the build order is dependent on link order.
 add_subdirectory(core) # has to be visited first to set the paths to binary dirs that contain generated files
 add_subdirectory(drivers)

@@ -30,7 +30,10 @@
 
 #include "websocket_multiplayer_peer.h"
 
+#include "core/method_bind.h"
 #include "core/os/os.h"
+
+IMPL_GDCLASS(WebSocketMultiplayerPeer)
 
 WebSocketMultiplayerPeer::WebSocketMultiplayerPeer() {
 
@@ -87,8 +90,8 @@ void WebSocketMultiplayerPeer::_clear() {
 
 void WebSocketMultiplayerPeer::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_buffers", "input_buffer_size_kb", "input_max_packets", "output_buffer_size_kb", "output_max_packets"), &WebSocketMultiplayerPeer::set_buffers);
-    ClassDB::bind_method(D_METHOD("get_peer", "peer_id"), &WebSocketMultiplayerPeer::get_peer);
+    MethodBinder::bind_method(D_METHOD("set_buffers", "input_buffer_size_kb", "input_max_packets", "output_buffer_size_kb", "output_max_packets"), &WebSocketMultiplayerPeer::set_buffers);
+    MethodBinder::bind_method(D_METHOD("get_peer", "peer_id"), &WebSocketMultiplayerPeer::get_peer);
 
     ADD_SIGNAL(MethodInfo("peer_packet", PropertyInfo(Variant::INT, "peer_source")));
 }

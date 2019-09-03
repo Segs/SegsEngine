@@ -31,6 +31,9 @@
 #include "packet_peer_udp.h"
 
 #include "core/io/ip.h"
+#include "core/method_bind.h"
+
+IMPL_GDCLASS(PacketPeerUDP)
 
 void PacketPeerUDP::set_blocking_mode(bool p_enable) {
 
@@ -66,7 +69,7 @@ String PacketPeerUDP::_get_packet_ip() const {
 Error PacketPeerUDP::_set_dest_address(const String &p_address, int p_port) {
 
     IP_Address ip;
-	if (StringUtils::is_valid_ip_address(p_address)) {
+    if (StringUtils::is_valid_ip_address(p_address)) {
         ip = p_address;
     } else {
         ip = IP::get_singleton()->resolve_hostname(p_address);
@@ -251,15 +254,15 @@ void PacketPeerUDP::set_dest_address(const IP_Address &p_address, int p_port) {
 
 void PacketPeerUDP::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("listen", "port", "bind_address", "recv_buf_size"), &PacketPeerUDP::listen, {DEFVAL("*"), DEFVAL(65536)});
-    ClassDB::bind_method(D_METHOD("close"), &PacketPeerUDP::close);
-    ClassDB::bind_method(D_METHOD("wait"), &PacketPeerUDP::wait);
-    ClassDB::bind_method(D_METHOD("is_listening"), &PacketPeerUDP::is_listening);
-    ClassDB::bind_method(D_METHOD("get_packet_ip"), &PacketPeerUDP::_get_packet_ip);
-    ClassDB::bind_method(D_METHOD("get_packet_port"), &PacketPeerUDP::get_packet_port);
-    ClassDB::bind_method(D_METHOD("set_dest_address", "host", "port"), &PacketPeerUDP::_set_dest_address);
-    ClassDB::bind_method(D_METHOD("join_multicast_group", "multicast_address", "interface_name"), &PacketPeerUDP::join_multicast_group);
-    ClassDB::bind_method(D_METHOD("leave_multicast_group", "multicast_address", "interface_name"), &PacketPeerUDP::leave_multicast_group);
+    MethodBinder::bind_method(D_METHOD("listen", "port", "bind_address", "recv_buf_size"), &PacketPeerUDP::listen, {DEFVAL("*"), DEFVAL(65536)});
+    MethodBinder::bind_method(D_METHOD("close"), &PacketPeerUDP::close);
+    MethodBinder::bind_method(D_METHOD("wait"), &PacketPeerUDP::wait);
+    MethodBinder::bind_method(D_METHOD("is_listening"), &PacketPeerUDP::is_listening);
+    MethodBinder::bind_method(D_METHOD("get_packet_ip"), &PacketPeerUDP::_get_packet_ip);
+    MethodBinder::bind_method(D_METHOD("get_packet_port"), &PacketPeerUDP::get_packet_port);
+    MethodBinder::bind_method(D_METHOD("set_dest_address", "host", "port"), &PacketPeerUDP::_set_dest_address);
+    MethodBinder::bind_method(D_METHOD("join_multicast_group", "multicast_address", "interface_name"), &PacketPeerUDP::join_multicast_group);
+    MethodBinder::bind_method(D_METHOD("leave_multicast_group", "multicast_address", "interface_name"), &PacketPeerUDP::leave_multicast_group);
 }
 
 PacketPeerUDP::PacketPeerUDP() : _sock(Ref<NetSocket>(NetSocket::create())) {

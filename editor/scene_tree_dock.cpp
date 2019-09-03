@@ -28,14 +28,16 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
+#include "editor_feature_profile.h"
 #include "scene_tree_dock.h"
 
 #include "core/io/resource_saver.h"
+#include "core/method_bind.h"
 #include "core/object_db.h"
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
 #include "core/project_settings.h"
-
+#include "editor/animation_track_editor.h"
 #include "editor/editor_node.h"
 #include "editor/editor_settings.h"
 #include "editor/multi_node_edit.h"
@@ -44,8 +46,11 @@
 #include "editor/plugins/script_editor_plugin.h"
 #include "editor/plugins/spatial_editor_plugin.h"
 #include "editor/script_editor_debugger.h"
+#include "editor/editor_scale.h"
 #include "scene/main/viewport.h"
 #include "scene/resources/packed_scene.h"
+
+IMPL_GDCLASS(SceneTreeDock)
 
 void SceneTreeDock::_nodes_drag_begin() {
 
@@ -845,7 +850,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
         case TOOL_OPEN_DOCUMENTATION: {
             List<Node *> selection = editor_selection->get_selected_node_list();
             for (int i = 0; i < selection.size(); i++) {
-                ScriptEditor::get_singleton()->goto_help("class_name:" + selection[i]->get_class());
+                ScriptEditor::get_singleton()->goto_help(String("class_name:") + selection[i]->get_class());
             }
             EditorNode::get_singleton()->set_visible_editor(EditorNode::EDITOR_SCRIPT);
         } break;
@@ -976,7 +981,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
             Node *new_node = nullptr;
 
             if (TOOL_CREATE_FAVORITE == p_tool) {
-                String name = selected_favorite_root.get_slicec(' ', 0);
+                String name = StringUtils::get_slice(selected_favorite_root,' ', 0);
                 if (ScriptServer::is_global_class(name)) {
                     new_node = Object::cast_to<Node>(ClassDB::instance(ScriptServer::get_global_class_native_base(name)));
                     Ref<Script> script = ResourceLoader::load(ScriptServer::get_global_class_path(name), "Script");
@@ -1589,7 +1594,7 @@ void SceneTreeDock::_do_reparent(Node *p_new_parent, int p_position_in_parent, V
         String new_name = new_parent->validate_child_name(node);
 
         // name was modified, fix the path renames
-        if (old_name.compare(new_name) != 0) {
+        if (old_name!=new_name) {
 
             // Fix the to name to have the new name
             NodePath old_new_name = path_renames[ni].second;
@@ -2063,7 +2068,7 @@ void SceneTreeDock::replace_node(Node *p_node, Node *p_by_node, bool p_keep_prop
     Node *newnode = p_by_node;
 
     if (p_keep_properties) {
-        Node *default_oldnode = Object::cast_to<Node>(ClassDB::instance(n->get_class()));
+        Node *default_oldnode = Object::cast_to<Node>(ClassDB::instance(n->get_class_name()));
         List<PropertyInfo> pinfo;
         n->get_property_list(&pinfo);
 
@@ -2094,9 +2099,9 @@ void SceneTreeDock::replace_node(Node *p_node, Node *p_by_node, bool p_keep_prop
         for (List<Object::Connection>::Element *F = cl.front(); F; F = F->next()) {
 
             Object::Connection &c = F->get();
-            if (!(c.flags & Object::CONNECT_PERSIST))
+            if (!(c.flags & ObjectNS::CONNECT_PERSIST))
                 continue;
-            newnode->connect(c.signal, c.target, c.method, c.binds, Object::CONNECT_PERSIST);
+            newnode->connect(c.signal, c.target, c.method, c.binds, ObjectNS::CONNECT_PERSIST);
         }
     }
 
@@ -2360,7 +2365,7 @@ void SceneTreeDock::_add_children_to_popup(Object *p_obj, int p_depth) {
             menu->add_submenu_item(TTR("Sub-Resources"), "Sub-Resources");
         }
         int index = menu_subresources->get_item_count();
-        menu_subresources->add_icon_item(icon, E->get().name.capitalize(), EDIT_SUBRESOURCE_BASE + subresources.size());
+        menu_subresources->add_icon_item(icon, StringUtils::capitalize(E->get().name), EDIT_SUBRESOURCE_BASE + subresources.size());
         menu_subresources->set_item_h_offset(index, p_depth * 10 * EDSCALE);
         subresources.push_back(obj->get_instance_id());
 
@@ -2615,13 +2620,13 @@ void SceneTreeDock::_update_create_root_dialog() {
         if (f) {
 
             while (!f->eof_reached()) {
-                String l = f->get_line().strip_edges();
+                String l = StringUtils::strip_edges(f->get_line());
 
                 if (l != String()) {
                     Button *button = memnew(Button);
                     favorite_nodes->add_child(button);
                     button->set_text(TTR(l));
-                    String name = l.get_slicec(' ', 0);
+                    String name = StringUtils::get_slice(l,' ', 0);
                     if (ScriptServer::is_global_class(name))
                         name = ScriptServer::get_global_class_native_base(name);
                     button->set_icon(EditorNode::get_singleton()->get_class_icon(name));
@@ -2675,43 +2680,43 @@ void SceneTreeDock::_feature_profile_changed() {
 
 void SceneTreeDock::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_tool_selected"), &SceneTreeDock::_tool_selected, {DEFVAL(false)});
-    ClassDB::bind_method(D_METHOD("_create"), &SceneTreeDock::_create);
-    ClassDB::bind_method(D_METHOD("_node_reparent"), &SceneTreeDock::_node_reparent);
-    ClassDB::bind_method(D_METHOD("_set_owners"), &SceneTreeDock::_set_owners);
-    ClassDB::bind_method(D_METHOD("_node_selected"), &SceneTreeDock::_node_selected);
-    ClassDB::bind_method(D_METHOD("_node_renamed"), &SceneTreeDock::_node_renamed);
-    ClassDB::bind_method(D_METHOD("_script_created"), &SceneTreeDock::_script_created);
-    ClassDB::bind_method(D_METHOD("_script_creation_closed"), &SceneTreeDock::_script_creation_closed);
-    ClassDB::bind_method(D_METHOD("_load_request"), &SceneTreeDock::_load_request);
-    ClassDB::bind_method(D_METHOD("_script_open_request"), &SceneTreeDock::_script_open_request);
-    ClassDB::bind_method(D_METHOD("_unhandled_key_input"), &SceneTreeDock::_unhandled_key_input);
-    ClassDB::bind_method(D_METHOD("_input"), &SceneTreeDock::_input);
-    ClassDB::bind_method(D_METHOD("_nodes_drag_begin"), &SceneTreeDock::_nodes_drag_begin);
-    ClassDB::bind_method(D_METHOD("_delete_confirm"), &SceneTreeDock::_delete_confirm);
-    ClassDB::bind_method(D_METHOD("_toggle_editable_children_from_selection"), &SceneTreeDock::_toggle_editable_children_from_selection);
-    ClassDB::bind_method(D_METHOD("_node_prerenamed"), &SceneTreeDock::_node_prerenamed);
-    ClassDB::bind_method(D_METHOD("_import_subscene"), &SceneTreeDock::_import_subscene);
-    ClassDB::bind_method(D_METHOD("_selection_changed"), &SceneTreeDock::_selection_changed);
-    ClassDB::bind_method(D_METHOD("_node_collapsed"), &SceneTreeDock::_node_collapsed);
-    ClassDB::bind_method(D_METHOD("_new_scene_from"), &SceneTreeDock::_new_scene_from);
-    ClassDB::bind_method(D_METHOD("_nodes_dragged"), &SceneTreeDock::_nodes_dragged);
-    ClassDB::bind_method(D_METHOD("_files_dropped"), &SceneTreeDock::_files_dropped);
-    ClassDB::bind_method(D_METHOD("_quick_open"), &SceneTreeDock::_quick_open);
-    ClassDB::bind_method(D_METHOD("_script_dropped"), &SceneTreeDock::_script_dropped);
-    ClassDB::bind_method(D_METHOD("_tree_rmb"), &SceneTreeDock::_tree_rmb);
-    ClassDB::bind_method(D_METHOD("_filter_changed"), &SceneTreeDock::_filter_changed);
-    ClassDB::bind_method(D_METHOD("_focus_node"), &SceneTreeDock::_focus_node);
-    ClassDB::bind_method(D_METHOD("_remote_tree_selected"), &SceneTreeDock::_remote_tree_selected);
-    ClassDB::bind_method(D_METHOD("_local_tree_selected"), &SceneTreeDock::_local_tree_selected);
-    ClassDB::bind_method(D_METHOD("_update_script_button"), &SceneTreeDock::_update_script_button);
-    ClassDB::bind_method(D_METHOD("_favorite_root_selected"), &SceneTreeDock::_favorite_root_selected);
-    ClassDB::bind_method(D_METHOD("_update_create_root_dialog"), &SceneTreeDock::_update_create_root_dialog);
-    ClassDB::bind_method(D_METHOD("_feature_profile_changed"), &SceneTreeDock::_feature_profile_changed);
+    MethodBinder::bind_method(D_METHOD("_tool_selected"), &SceneTreeDock::_tool_selected, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("_create"), &SceneTreeDock::_create);
+    MethodBinder::bind_method(D_METHOD("_node_reparent"), &SceneTreeDock::_node_reparent);
+    MethodBinder::bind_method(D_METHOD("_set_owners"), &SceneTreeDock::_set_owners);
+    MethodBinder::bind_method(D_METHOD("_node_selected"), &SceneTreeDock::_node_selected);
+    MethodBinder::bind_method(D_METHOD("_node_renamed"), &SceneTreeDock::_node_renamed);
+    MethodBinder::bind_method(D_METHOD("_script_created"), &SceneTreeDock::_script_created);
+    MethodBinder::bind_method(D_METHOD("_script_creation_closed"), &SceneTreeDock::_script_creation_closed);
+    MethodBinder::bind_method(D_METHOD("_load_request"), &SceneTreeDock::_load_request);
+    MethodBinder::bind_method(D_METHOD("_script_open_request"), &SceneTreeDock::_script_open_request);
+    MethodBinder::bind_method(D_METHOD("_unhandled_key_input"), &SceneTreeDock::_unhandled_key_input);
+    MethodBinder::bind_method(D_METHOD("_input"), &SceneTreeDock::_input);
+    MethodBinder::bind_method(D_METHOD("_nodes_drag_begin"), &SceneTreeDock::_nodes_drag_begin);
+    MethodBinder::bind_method(D_METHOD("_delete_confirm"), &SceneTreeDock::_delete_confirm);
+    MethodBinder::bind_method(D_METHOD("_toggle_editable_children_from_selection"), &SceneTreeDock::_toggle_editable_children_from_selection);
+    MethodBinder::bind_method(D_METHOD("_node_prerenamed"), &SceneTreeDock::_node_prerenamed);
+    MethodBinder::bind_method(D_METHOD("_import_subscene"), &SceneTreeDock::_import_subscene);
+    MethodBinder::bind_method(D_METHOD("_selection_changed"), &SceneTreeDock::_selection_changed);
+    MethodBinder::bind_method(D_METHOD("_node_collapsed"), &SceneTreeDock::_node_collapsed);
+    MethodBinder::bind_method(D_METHOD("_new_scene_from"), &SceneTreeDock::_new_scene_from);
+    MethodBinder::bind_method(D_METHOD("_nodes_dragged"), &SceneTreeDock::_nodes_dragged);
+    MethodBinder::bind_method(D_METHOD("_files_dropped"), &SceneTreeDock::_files_dropped);
+    MethodBinder::bind_method(D_METHOD("_quick_open"), &SceneTreeDock::_quick_open);
+    MethodBinder::bind_method(D_METHOD("_script_dropped"), &SceneTreeDock::_script_dropped);
+    MethodBinder::bind_method(D_METHOD("_tree_rmb"), &SceneTreeDock::_tree_rmb);
+    MethodBinder::bind_method(D_METHOD("_filter_changed"), &SceneTreeDock::_filter_changed);
+    MethodBinder::bind_method(D_METHOD("_focus_node"), &SceneTreeDock::_focus_node);
+    MethodBinder::bind_method(D_METHOD("_remote_tree_selected"), &SceneTreeDock::_remote_tree_selected);
+    MethodBinder::bind_method(D_METHOD("_local_tree_selected"), &SceneTreeDock::_local_tree_selected);
+    MethodBinder::bind_method(D_METHOD("_update_script_button"), &SceneTreeDock::_update_script_button);
+    MethodBinder::bind_method(D_METHOD("_favorite_root_selected"), &SceneTreeDock::_favorite_root_selected);
+    MethodBinder::bind_method(D_METHOD("_update_create_root_dialog"), &SceneTreeDock::_update_create_root_dialog);
+    MethodBinder::bind_method(D_METHOD("_feature_profile_changed"), &SceneTreeDock::_feature_profile_changed);
 
-    ClassDB::bind_method(D_METHOD("instance"), &SceneTreeDock::instance);
-    ClassDB::bind_method(D_METHOD("get_tree_editor"), &SceneTreeDock::get_tree_editor);
-    ClassDB::bind_method(D_METHOD("replace_node"), &SceneTreeDock::replace_node);
+    MethodBinder::bind_method(D_METHOD("instance"), &SceneTreeDock::instance);
+    MethodBinder::bind_method(D_METHOD("get_tree_editor"), &SceneTreeDock::get_tree_editor);
+    MethodBinder::bind_method(D_METHOD("replace_node"), &SceneTreeDock::replace_node);
 
     ADD_SIGNAL(MethodInfo("remote_tree_selected"));
 }
@@ -2815,8 +2820,8 @@ SceneTreeDock::SceneTreeDock(EditorNode *p_editor, Node *p_scene_root, EditorSel
     scene_tree->set_v_size_flags(SIZE_EXPAND | SIZE_FILL);
     scene_tree->connect("rmb_pressed", this, "_tree_rmb");
 
-    scene_tree->connect("node_selected", this, "_node_selected", varray(), CONNECT_DEFERRED);
-    scene_tree->connect("node_renamed", this, "_node_renamed", varray(), CONNECT_DEFERRED);
+    scene_tree->connect("node_selected", this, "_node_selected", varray(), ObjectNS::CONNECT_DEFERRED);
+    scene_tree->connect("node_renamed", this, "_node_renamed", varray(), ObjectNS::CONNECT_DEFERRED);
     scene_tree->connect("node_prerename", this, "_node_prerenamed");
     scene_tree->connect("open", this, "_load_request");
     scene_tree->connect("open_script", this, "_script_open_request");

@@ -40,6 +40,7 @@
 #include "core/os/main_loop.h"
 #include "core/os/os.h"
 #include "core/project_settings.h"
+#include "core/method_bind.h"
 
 /**
  *  Time constants borrowed from loc_time.h
@@ -64,6 +65,8 @@ static const unsigned int MONTH_DAYS_TABLE[2][12] = {
 };
 
 _ResourceLoader *_ResourceLoader::singleton = nullptr;
+
+IMPL_GDCLASS(_ResourceLoader);
 
 Ref<ResourceInteractiveLoader> _ResourceLoader::load_interactive(const String &p_path, const String &p_type_hint) {
     return ResourceLoader::load_interactive(p_path, p_type_hint);
@@ -128,15 +131,15 @@ bool _ResourceLoader::exists(const String &p_path, const String &p_type_hint) {
 
 void _ResourceLoader::_bind_methods() {
 
-	ClassDB::bind_method(D_METHOD("load_interactive", "path", "type_hint"), &_ResourceLoader::load_interactive, {DEFVAL("")});
-	ClassDB::bind_method(D_METHOD("load", "path", "type_hint", "no_cache"), &_ResourceLoader::load, {DEFVAL(""), DEFVAL(false)});
-    ClassDB::bind_method(D_METHOD("get_recognized_extensions_for_type", "type"), &_ResourceLoader::get_recognized_extensions_for_type);
-    ClassDB::bind_method(D_METHOD("set_abort_on_missing_resources", "abort"), &_ResourceLoader::set_abort_on_missing_resources);
-    ClassDB::bind_method(D_METHOD("get_dependencies", "path"), &_ResourceLoader::get_dependencies);
-    ClassDB::bind_method(D_METHOD("has_cached", "path"), &_ResourceLoader::has_cached);
-	ClassDB::bind_method(D_METHOD("exists", "path", "type_hint"), &_ResourceLoader::exists, {DEFVAL("")});
+    MethodBinder::bind_method(D_METHOD("load_interactive", "path", "type_hint"), &_ResourceLoader::load_interactive, {DEFVAL("")});
+    MethodBinder::bind_method(D_METHOD("load", "path", "type_hint", "no_cache"), &_ResourceLoader::load, {DEFVAL(""), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("get_recognized_extensions_for_type", "type"), &_ResourceLoader::get_recognized_extensions_for_type);
+    MethodBinder::bind_method(D_METHOD("set_abort_on_missing_resources", "abort"), &_ResourceLoader::set_abort_on_missing_resources);
+    MethodBinder::bind_method(D_METHOD("get_dependencies", "path"), &_ResourceLoader::get_dependencies);
+    MethodBinder::bind_method(D_METHOD("has_cached", "path"), &_ResourceLoader::has_cached);
+    MethodBinder::bind_method(D_METHOD("exists", "path", "type_hint"), &_ResourceLoader::exists, {DEFVAL("")});
 #ifndef DISABLE_DEPRECATED
-    ClassDB::bind_method(D_METHOD("has", "path"), &_ResourceLoader::has);
+    MethodBinder::bind_method(D_METHOD("has", "path"), &_ResourceLoader::has);
 #endif // DISABLE_DEPRECATED
 }
 
@@ -165,10 +168,12 @@ PoolVector<String> _ResourceSaver::get_recognized_extensions(const RES &p_resour
 
 _ResourceSaver *_ResourceSaver::singleton = nullptr;
 
+IMPL_GDCLASS(_ResourceSaver);
+
 void _ResourceSaver::_bind_methods() {
 
-	ClassDB::bind_method(D_METHOD("save", "path", "resource", "flags"), &_ResourceSaver::save, {DEFVAL(0)});
-    ClassDB::bind_method(D_METHOD("get_recognized_extensions", "type"), &_ResourceSaver::get_recognized_extensions);
+    MethodBinder::bind_method(D_METHOD("save", "path", "resource", "flags"), &_ResourceSaver::save, {DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("get_recognized_extensions", "type"), &_ResourceSaver::get_recognized_extensions);
 
     BIND_ENUM_CONSTANT(FLAG_RELATIVE_PATHS)
     BIND_ENUM_CONSTANT(FLAG_BUNDLE_RESOURCES)
@@ -186,10 +191,30 @@ _ResourceSaver::_ResourceSaver() {
 
 /////////////////OS
 
+void _OS::global_menu_add_item(const String &p_menu, const String &p_label, const Variant &p_signal, const Variant &p_meta) {
+
+	OS::get_singleton()->global_menu_add_item(p_menu, p_label, p_signal, p_meta);
+}
+
+void _OS::global_menu_add_separator(const String &p_menu) {
+
+	OS::get_singleton()->global_menu_add_separator(p_menu);
+}
+
+void _OS::global_menu_remove_item(const String &p_menu, int p_idx) {
+
+	OS::get_singleton()->global_menu_remove_item(p_menu, p_idx);
+}
+
+void _OS::global_menu_clear(const String &p_menu) {
+
+	OS::get_singleton()->global_menu_clear(p_menu);
+}
 Point2 _OS::get_mouse_position() const {
 
     return OS::get_singleton()->get_mouse_position();
 }
+
 void _OS::set_window_title(const String &p_title) {
 
     OS::get_singleton()->set_window_title(p_title);
@@ -898,7 +923,7 @@ bool _OS::is_stdout_verbose() const {
 
 void _OS::dump_memory_to_file(const String &p_file) {
 
-	OS::get_singleton()->dump_memory_to_file(p_file.utf8().data());
+	OS::get_singleton()->dump_memory_to_file(StringUtils::to_utf8(p_file).data());
 }
 
 struct _OSCoreBindImg {
@@ -955,15 +980,19 @@ void _OS::print_resources_by_type(const Vector<String> &p_types) {
 
     List<Ref<Resource> > rsrc;
     ResourceCache::get_cached_resources(&rsrc);
-
+	std::vector<QByteArray> converted_typenames;
+	converted_typenames.reserve(p_types.size());
+	for (int i = 0; i < p_types.size(); i++) {
+		converted_typenames.push_back(StringUtils::to_utf8(p_types[i]));
+	}
     for (List<Ref<Resource> >::Element *E = rsrc.front(); E; E = E->next()) {
 
         Ref<Resource> r = E->get();
 
         bool found = false;
 
-        for (int i = 0; i < p_types.size(); i++) {
-            if (r->is_class(p_types[i]))
+		for (int i = 0; i < converted_typenames.size(); i++) {
+			if (r->is_class(converted_typenames[i].data()))
                 found = true;
         }
         if (!found)
@@ -1005,7 +1034,7 @@ void _OS::print_resources_in_use(bool p_short) {
 
 void _OS::dump_resources_to_file(const String &p_file) {
 
-	OS::get_singleton()->dump_resources_to_file(p_file.utf8().data());
+	OS::get_singleton()->dump_resources_to_file(StringUtils::to_utf8(p_file).data());
 }
 
 String _OS::get_user_data_dir() const {
@@ -1109,184 +1138,191 @@ bool _OS::request_permission(const String &p_name) {
     return OS::get_singleton()->request_permission(p_name);
 }
 
+IMPL_GDCLASS(_OS);
+
+
 _OS *_OS::singleton = nullptr;
 
 void _OS::_bind_methods() {
 
-    //ClassDB::bind_method(D_METHOD("get_mouse_position"),&_OS::get_mouse_position);
-    //ClassDB::bind_method(D_METHOD("is_mouse_grab_enabled"),&_OS::is_mouse_grab_enabled);
+    //MethodBinder::bind_method(D_METHOD("get_mouse_position"),&_OS::get_mouse_position);
+    //MethodBinder::bind_method(D_METHOD("is_mouse_grab_enabled"),&_OS::is_mouse_grab_enabled);
 
-    ClassDB::bind_method(D_METHOD("set_clipboard", "clipboard"), &_OS::set_clipboard);
-    ClassDB::bind_method(D_METHOD("get_clipboard"), &_OS::get_clipboard);
+    MethodBinder::bind_method(D_METHOD("set_clipboard", "clipboard"), &_OS::set_clipboard);
+    MethodBinder::bind_method(D_METHOD("get_clipboard"), &_OS::get_clipboard);
 
     //will not delete for now, just unexpose
-	//ClassDB::bind_method(D_METHOD("set_video_mode","size","fullscreen","resizable","screen"),&_OS::set_video_mode,{DEFVAL(0)});
-	//ClassDB::bind_method(D_METHOD("get_video_mode_size","screen"),&_OS::get_video_mode,{DEFVAL(0)});
-	//ClassDB::bind_method(D_METHOD("is_video_mode_fullscreen","screen"),&_OS::is_video_mode_fullscreen,{DEFVAL(0)});
-	//ClassDB::bind_method(D_METHOD("is_video_mode_resizable","screen"),&_OS::is_video_mode_resizable,{DEFVAL(0)});
-	//ClassDB::bind_method(D_METHOD("get_fullscreen_mode_list","screen"),&_OS::get_fullscreen_mode_list,{DEFVAL(0)});
+    //MethodBinder::bind_method(D_METHOD("set_video_mode","size","fullscreen","resizable","screen"),&_OS::set_video_mode,{DEFVAL(0)});
+    //MethodBinder::bind_method(D_METHOD("get_video_mode_size","screen"),&_OS::get_video_mode,{DEFVAL(0)});
+    //MethodBinder::bind_method(D_METHOD("is_video_mode_fullscreen","screen"),&_OS::is_video_mode_fullscreen,{DEFVAL(0)});
+    //MethodBinder::bind_method(D_METHOD("is_video_mode_resizable","screen"),&_OS::is_video_mode_resizable,{DEFVAL(0)});
+    //MethodBinder::bind_method(D_METHOD("get_fullscreen_mode_list","screen"),&_OS::get_fullscreen_mode_list,{DEFVAL(0)});
+	MethodBinder::bind_method(D_METHOD("global_menu_add_item", "menu", "label", "id", "meta"), &_OS::global_menu_add_item);
+	MethodBinder::bind_method(D_METHOD("global_menu_add_separator", "menu"), &_OS::global_menu_add_separator);
+	MethodBinder::bind_method(D_METHOD("global_menu_remove_item", "menu", "idx"), &_OS::global_menu_remove_item);
+	MethodBinder::bind_method(D_METHOD("global_menu_clear", "menu"), &_OS::global_menu_clear);
 
-    ClassDB::bind_method(D_METHOD("get_video_driver_count"), &_OS::get_video_driver_count);
-    ClassDB::bind_method(D_METHOD("get_video_driver_name", "driver"), &_OS::get_video_driver_name);
-    ClassDB::bind_method(D_METHOD("get_current_video_driver"), &_OS::get_current_video_driver);
+    MethodBinder::bind_method(D_METHOD("get_video_driver_count"), &_OS::get_video_driver_count);
+    MethodBinder::bind_method(D_METHOD("get_video_driver_name", "driver"), &_OS::get_video_driver_name);
+    MethodBinder::bind_method(D_METHOD("get_current_video_driver"), &_OS::get_current_video_driver);
 
-    ClassDB::bind_method(D_METHOD("get_audio_driver_count"), &_OS::get_audio_driver_count);
-    ClassDB::bind_method(D_METHOD("get_audio_driver_name", "driver"), &_OS::get_audio_driver_name);
-    ClassDB::bind_method(D_METHOD("get_connected_midi_inputs"), &_OS::get_connected_midi_inputs);
-    ClassDB::bind_method(D_METHOD("open_midi_inputs"), &_OS::open_midi_inputs);
-    ClassDB::bind_method(D_METHOD("close_midi_inputs"), &_OS::close_midi_inputs);
+    MethodBinder::bind_method(D_METHOD("get_audio_driver_count"), &_OS::get_audio_driver_count);
+    MethodBinder::bind_method(D_METHOD("get_audio_driver_name", "driver"), &_OS::get_audio_driver_name);
+    MethodBinder::bind_method(D_METHOD("get_connected_midi_inputs"), &_OS::get_connected_midi_inputs);
+    MethodBinder::bind_method(D_METHOD("open_midi_inputs"), &_OS::open_midi_inputs);
+    MethodBinder::bind_method(D_METHOD("close_midi_inputs"), &_OS::close_midi_inputs);
 
-    ClassDB::bind_method(D_METHOD("get_screen_count"), &_OS::get_screen_count);
-    ClassDB::bind_method(D_METHOD("get_current_screen"), &_OS::get_current_screen);
-    ClassDB::bind_method(D_METHOD("set_current_screen", "screen"), &_OS::set_current_screen);
-	ClassDB::bind_method(D_METHOD("get_screen_position", "screen"), &_OS::get_screen_position, {DEFVAL(-1)});
-	ClassDB::bind_method(D_METHOD("get_screen_size", "screen"), &_OS::get_screen_size, {DEFVAL(-1)});
-	ClassDB::bind_method(D_METHOD("get_screen_dpi", "screen"), &_OS::get_screen_dpi, {DEFVAL(-1)});
-    ClassDB::bind_method(D_METHOD("get_window_position"), &_OS::get_window_position);
-    ClassDB::bind_method(D_METHOD("set_window_position", "position"), &_OS::set_window_position);
-    ClassDB::bind_method(D_METHOD("get_window_size"), &_OS::get_window_size);
-    ClassDB::bind_method(D_METHOD("get_max_window_size"), &_OS::get_max_window_size);
-    ClassDB::bind_method(D_METHOD("get_min_window_size"), &_OS::get_min_window_size);
-    ClassDB::bind_method(D_METHOD("set_max_window_size", "size"), &_OS::set_max_window_size);
-    ClassDB::bind_method(D_METHOD("set_min_window_size", "size"), &_OS::set_min_window_size);
-    ClassDB::bind_method(D_METHOD("set_window_size", "size"), &_OS::set_window_size);
-    ClassDB::bind_method(D_METHOD("get_window_safe_area"), &_OS::get_window_safe_area);
-    ClassDB::bind_method(D_METHOD("set_window_fullscreen", "enabled"), &_OS::set_window_fullscreen);
-    ClassDB::bind_method(D_METHOD("is_window_fullscreen"), &_OS::is_window_fullscreen);
-    ClassDB::bind_method(D_METHOD("set_window_resizable", "enabled"), &_OS::set_window_resizable);
-    ClassDB::bind_method(D_METHOD("is_window_resizable"), &_OS::is_window_resizable);
-    ClassDB::bind_method(D_METHOD("set_window_minimized", "enabled"), &_OS::set_window_minimized);
-    ClassDB::bind_method(D_METHOD("is_window_minimized"), &_OS::is_window_minimized);
-    ClassDB::bind_method(D_METHOD("set_window_maximized", "enabled"), &_OS::set_window_maximized);
-    ClassDB::bind_method(D_METHOD("is_window_maximized"), &_OS::is_window_maximized);
-    ClassDB::bind_method(D_METHOD("set_window_always_on_top", "enabled"), &_OS::set_window_always_on_top);
-    ClassDB::bind_method(D_METHOD("is_window_always_on_top"), &_OS::is_window_always_on_top);
-    ClassDB::bind_method(D_METHOD("request_attention"), &_OS::request_attention);
-    ClassDB::bind_method(D_METHOD("get_real_window_size"), &_OS::get_real_window_size);
-    ClassDB::bind_method(D_METHOD("center_window"), &_OS::center_window);
-    ClassDB::bind_method(D_METHOD("move_window_to_foreground"), &_OS::move_window_to_foreground);
+    MethodBinder::bind_method(D_METHOD("get_screen_count"), &_OS::get_screen_count);
+    MethodBinder::bind_method(D_METHOD("get_current_screen"), &_OS::get_current_screen);
+    MethodBinder::bind_method(D_METHOD("set_current_screen", "screen"), &_OS::set_current_screen);
+    MethodBinder::bind_method(D_METHOD("get_screen_position", "screen"), &_OS::get_screen_position, {DEFVAL(-1)});
+    MethodBinder::bind_method(D_METHOD("get_screen_size", "screen"), &_OS::get_screen_size, {DEFVAL(-1)});
+    MethodBinder::bind_method(D_METHOD("get_screen_dpi", "screen"), &_OS::get_screen_dpi, {DEFVAL(-1)});
+    MethodBinder::bind_method(D_METHOD("get_window_position"), &_OS::get_window_position);
+    MethodBinder::bind_method(D_METHOD("set_window_position", "position"), &_OS::set_window_position);
+    MethodBinder::bind_method(D_METHOD("get_window_size"), &_OS::get_window_size);
+    MethodBinder::bind_method(D_METHOD("get_max_window_size"), &_OS::get_max_window_size);
+    MethodBinder::bind_method(D_METHOD("get_min_window_size"), &_OS::get_min_window_size);
+    MethodBinder::bind_method(D_METHOD("set_max_window_size", "size"), &_OS::set_max_window_size);
+    MethodBinder::bind_method(D_METHOD("set_min_window_size", "size"), &_OS::set_min_window_size);
+    MethodBinder::bind_method(D_METHOD("set_window_size", "size"), &_OS::set_window_size);
+    MethodBinder::bind_method(D_METHOD("get_window_safe_area"), &_OS::get_window_safe_area);
+    MethodBinder::bind_method(D_METHOD("set_window_fullscreen", "enabled"), &_OS::set_window_fullscreen);
+    MethodBinder::bind_method(D_METHOD("is_window_fullscreen"), &_OS::is_window_fullscreen);
+    MethodBinder::bind_method(D_METHOD("set_window_resizable", "enabled"), &_OS::set_window_resizable);
+    MethodBinder::bind_method(D_METHOD("is_window_resizable"), &_OS::is_window_resizable);
+    MethodBinder::bind_method(D_METHOD("set_window_minimized", "enabled"), &_OS::set_window_minimized);
+    MethodBinder::bind_method(D_METHOD("is_window_minimized"), &_OS::is_window_minimized);
+    MethodBinder::bind_method(D_METHOD("set_window_maximized", "enabled"), &_OS::set_window_maximized);
+    MethodBinder::bind_method(D_METHOD("is_window_maximized"), &_OS::is_window_maximized);
+    MethodBinder::bind_method(D_METHOD("set_window_always_on_top", "enabled"), &_OS::set_window_always_on_top);
+    MethodBinder::bind_method(D_METHOD("is_window_always_on_top"), &_OS::is_window_always_on_top);
+    MethodBinder::bind_method(D_METHOD("request_attention"), &_OS::request_attention);
+    MethodBinder::bind_method(D_METHOD("get_real_window_size"), &_OS::get_real_window_size);
+    MethodBinder::bind_method(D_METHOD("center_window"), &_OS::center_window);
+    MethodBinder::bind_method(D_METHOD("move_window_to_foreground"), &_OS::move_window_to_foreground);
 
-    ClassDB::bind_method(D_METHOD("set_borderless_window", "borderless"), &_OS::set_borderless_window);
-    ClassDB::bind_method(D_METHOD("get_borderless_window"), &_OS::get_borderless_window);
+    MethodBinder::bind_method(D_METHOD("set_borderless_window", "borderless"), &_OS::set_borderless_window);
+    MethodBinder::bind_method(D_METHOD("get_borderless_window"), &_OS::get_borderless_window);
 
-    ClassDB::bind_method(D_METHOD("get_window_per_pixel_transparency_enabled"), &_OS::get_window_per_pixel_transparency_enabled);
-    ClassDB::bind_method(D_METHOD("set_window_per_pixel_transparency_enabled", "enabled"), &_OS::set_window_per_pixel_transparency_enabled);
+    MethodBinder::bind_method(D_METHOD("get_window_per_pixel_transparency_enabled"), &_OS::get_window_per_pixel_transparency_enabled);
+    MethodBinder::bind_method(D_METHOD("set_window_per_pixel_transparency_enabled", "enabled"), &_OS::set_window_per_pixel_transparency_enabled);
 
-    ClassDB::bind_method(D_METHOD("set_ime_active", "active"), &_OS::set_ime_active);
-    ClassDB::bind_method(D_METHOD("set_ime_position", "position"), &_OS::set_ime_position);
-    ClassDB::bind_method(D_METHOD("get_ime_selection"), &_OS::get_ime_selection);
-    ClassDB::bind_method(D_METHOD("get_ime_text"), &_OS::get_ime_text);
+    MethodBinder::bind_method(D_METHOD("set_ime_active", "active"), &_OS::set_ime_active);
+    MethodBinder::bind_method(D_METHOD("set_ime_position", "position"), &_OS::set_ime_position);
+    MethodBinder::bind_method(D_METHOD("get_ime_selection"), &_OS::get_ime_selection);
+    MethodBinder::bind_method(D_METHOD("get_ime_text"), &_OS::get_ime_text);
 
-    ClassDB::bind_method(D_METHOD("set_screen_orientation", "orientation"), &_OS::set_screen_orientation);
-    ClassDB::bind_method(D_METHOD("get_screen_orientation"), &_OS::get_screen_orientation);
+    MethodBinder::bind_method(D_METHOD("set_screen_orientation", "orientation"), &_OS::set_screen_orientation);
+    MethodBinder::bind_method(D_METHOD("get_screen_orientation"), &_OS::get_screen_orientation);
 
-    ClassDB::bind_method(D_METHOD("set_keep_screen_on", "enabled"), &_OS::set_keep_screen_on);
-    ClassDB::bind_method(D_METHOD("is_keep_screen_on"), &_OS::is_keep_screen_on);
+    MethodBinder::bind_method(D_METHOD("set_keep_screen_on", "enabled"), &_OS::set_keep_screen_on);
+    MethodBinder::bind_method(D_METHOD("is_keep_screen_on"), &_OS::is_keep_screen_on);
 
-    ClassDB::bind_method(D_METHOD("has_touchscreen_ui_hint"), &_OS::has_touchscreen_ui_hint);
+    MethodBinder::bind_method(D_METHOD("has_touchscreen_ui_hint"), &_OS::has_touchscreen_ui_hint);
 
-    ClassDB::bind_method(D_METHOD("set_window_title", "title"), &_OS::set_window_title);
+    MethodBinder::bind_method(D_METHOD("set_window_title", "title"), &_OS::set_window_title);
 
-    ClassDB::bind_method(D_METHOD("set_low_processor_usage_mode", "enable"), &_OS::set_low_processor_usage_mode);
-    ClassDB::bind_method(D_METHOD("is_in_low_processor_usage_mode"), &_OS::is_in_low_processor_usage_mode);
+    MethodBinder::bind_method(D_METHOD("set_low_processor_usage_mode", "enable"), &_OS::set_low_processor_usage_mode);
+    MethodBinder::bind_method(D_METHOD("is_in_low_processor_usage_mode"), &_OS::is_in_low_processor_usage_mode);
 
-    ClassDB::bind_method(D_METHOD("get_processor_count"), &_OS::get_processor_count);
+    MethodBinder::bind_method(D_METHOD("get_processor_count"), &_OS::get_processor_count);
 
-    ClassDB::bind_method(D_METHOD("get_executable_path"), &_OS::get_executable_path);
-	ClassDB::bind_method(D_METHOD("execute", "path", "arguments", "blocking", "output", "read_stderr"), &_OS::execute, {DEFVAL(Array()), DEFVAL(false)});
-    ClassDB::bind_method(D_METHOD("kill", "pid"), &_OS::kill);
-    ClassDB::bind_method(D_METHOD("shell_open", "uri"), &_OS::shell_open);
-    ClassDB::bind_method(D_METHOD("get_process_id"), &_OS::get_process_id);
+    MethodBinder::bind_method(D_METHOD("get_executable_path"), &_OS::get_executable_path);
+    MethodBinder::bind_method(D_METHOD("execute", "path", "arguments", "blocking", "output", "read_stderr"), &_OS::execute, {DEFVAL(Array()), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("kill", "pid"), &_OS::kill);
+    MethodBinder::bind_method(D_METHOD("shell_open", "uri"), &_OS::shell_open);
+    MethodBinder::bind_method(D_METHOD("get_process_id"), &_OS::get_process_id);
 
-    ClassDB::bind_method(D_METHOD("get_environment", "environment"), &_OS::get_environment);
-    ClassDB::bind_method(D_METHOD("has_environment", "environment"), &_OS::has_environment);
+    MethodBinder::bind_method(D_METHOD("get_environment", "environment"), &_OS::get_environment);
+    MethodBinder::bind_method(D_METHOD("has_environment", "environment"), &_OS::has_environment);
 
-    ClassDB::bind_method(D_METHOD("get_name"), &_OS::get_name);
-    ClassDB::bind_method(D_METHOD("get_cmdline_args"), &_OS::get_cmdline_args);
+    MethodBinder::bind_method(D_METHOD("get_name"), &_OS::get_name);
+    MethodBinder::bind_method(D_METHOD("get_cmdline_args"), &_OS::get_cmdline_args);
 
-	ClassDB::bind_method(D_METHOD("get_datetime", "utc"), &_OS::get_datetime, {DEFVAL(false)});
-	ClassDB::bind_method(D_METHOD("get_date", "utc"), &_OS::get_date, {DEFVAL(false)});
-	ClassDB::bind_method(D_METHOD("get_time", "utc"), &_OS::get_time, {DEFVAL(false)});
-    ClassDB::bind_method(D_METHOD("get_time_zone_info"), &_OS::get_time_zone_info);
-    ClassDB::bind_method(D_METHOD("get_unix_time"), &_OS::get_unix_time);
-    ClassDB::bind_method(D_METHOD("get_datetime_from_unix_time", "unix_time_val"), &_OS::get_datetime_from_unix_time);
-    ClassDB::bind_method(D_METHOD("get_unix_time_from_datetime", "datetime"), &_OS::get_unix_time_from_datetime);
-    ClassDB::bind_method(D_METHOD("get_system_time_secs"), &_OS::get_system_time_secs);
-    ClassDB::bind_method(D_METHOD("get_system_time_msecs"), &_OS::get_system_time_msecs);
+    MethodBinder::bind_method(D_METHOD("get_datetime", "utc"), &_OS::get_datetime, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("get_date", "utc"), &_OS::get_date, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("get_time", "utc"), &_OS::get_time, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("get_time_zone_info"), &_OS::get_time_zone_info);
+    MethodBinder::bind_method(D_METHOD("get_unix_time"), &_OS::get_unix_time);
+    MethodBinder::bind_method(D_METHOD("get_datetime_from_unix_time", "unix_time_val"), &_OS::get_datetime_from_unix_time);
+    MethodBinder::bind_method(D_METHOD("get_unix_time_from_datetime", "datetime"), &_OS::get_unix_time_from_datetime);
+    MethodBinder::bind_method(D_METHOD("get_system_time_secs"), &_OS::get_system_time_secs);
+    MethodBinder::bind_method(D_METHOD("get_system_time_msecs"), &_OS::get_system_time_msecs);
 
-    ClassDB::bind_method(D_METHOD("set_native_icon", "filename"), &_OS::set_native_icon);
-    ClassDB::bind_method(D_METHOD("set_icon", "icon"), &_OS::set_icon);
+    MethodBinder::bind_method(D_METHOD("set_native_icon", "filename"), &_OS::set_native_icon);
+    MethodBinder::bind_method(D_METHOD("set_icon", "icon"), &_OS::set_icon);
 
-    ClassDB::bind_method(D_METHOD("get_exit_code"), &_OS::get_exit_code);
-    ClassDB::bind_method(D_METHOD("set_exit_code", "code"), &_OS::set_exit_code);
+    MethodBinder::bind_method(D_METHOD("get_exit_code"), &_OS::get_exit_code);
+    MethodBinder::bind_method(D_METHOD("set_exit_code", "code"), &_OS::set_exit_code);
 
-    ClassDB::bind_method(D_METHOD("delay_usec", "usec"), &_OS::delay_usec);
-    ClassDB::bind_method(D_METHOD("delay_msec", "msec"), &_OS::delay_msec);
-    ClassDB::bind_method(D_METHOD("get_ticks_msec"), &_OS::get_ticks_msec);
-    ClassDB::bind_method(D_METHOD("get_ticks_usec"), &_OS::get_ticks_usec);
-    ClassDB::bind_method(D_METHOD("get_splash_tick_msec"), &_OS::get_splash_tick_msec);
-    ClassDB::bind_method(D_METHOD("get_locale"), &_OS::get_locale);
-    ClassDB::bind_method(D_METHOD("get_latin_keyboard_variant"), &_OS::get_latin_keyboard_variant);
-    ClassDB::bind_method(D_METHOD("get_model_name"), &_OS::get_model_name);
+    MethodBinder::bind_method(D_METHOD("delay_usec", "usec"), &_OS::delay_usec);
+    MethodBinder::bind_method(D_METHOD("delay_msec", "msec"), &_OS::delay_msec);
+    MethodBinder::bind_method(D_METHOD("get_ticks_msec"), &_OS::get_ticks_msec);
+    MethodBinder::bind_method(D_METHOD("get_ticks_usec"), &_OS::get_ticks_usec);
+    MethodBinder::bind_method(D_METHOD("get_splash_tick_msec"), &_OS::get_splash_tick_msec);
+    MethodBinder::bind_method(D_METHOD("get_locale"), &_OS::get_locale);
+    MethodBinder::bind_method(D_METHOD("get_latin_keyboard_variant"), &_OS::get_latin_keyboard_variant);
+    MethodBinder::bind_method(D_METHOD("get_model_name"), &_OS::get_model_name);
 
-    ClassDB::bind_method(D_METHOD("can_draw"), &_OS::can_draw);
-    ClassDB::bind_method(D_METHOD("is_userfs_persistent"), &_OS::is_userfs_persistent);
-    ClassDB::bind_method(D_METHOD("is_stdout_verbose"), &_OS::is_stdout_verbose);
+    MethodBinder::bind_method(D_METHOD("can_draw"), &_OS::can_draw);
+    MethodBinder::bind_method(D_METHOD("is_userfs_persistent"), &_OS::is_userfs_persistent);
+    MethodBinder::bind_method(D_METHOD("is_stdout_verbose"), &_OS::is_stdout_verbose);
 
-    ClassDB::bind_method(D_METHOD("can_use_threads"), &_OS::can_use_threads);
+    MethodBinder::bind_method(D_METHOD("can_use_threads"), &_OS::can_use_threads);
 
-    ClassDB::bind_method(D_METHOD("is_debug_build"), &_OS::is_debug_build);
+    MethodBinder::bind_method(D_METHOD("is_debug_build"), &_OS::is_debug_build);
 
-    //ClassDB::bind_method(D_METHOD("get_mouse_button_state"),&_OS::get_mouse_button_state);
+    //MethodBinder::bind_method(D_METHOD("get_mouse_button_state"),&_OS::get_mouse_button_state);
 
-    ClassDB::bind_method(D_METHOD("dump_memory_to_file", "file"), &_OS::dump_memory_to_file);
-    ClassDB::bind_method(D_METHOD("dump_resources_to_file", "file"), &_OS::dump_resources_to_file);
-    ClassDB::bind_method(D_METHOD("has_virtual_keyboard"), &_OS::has_virtual_keyboard);
-	ClassDB::bind_method(D_METHOD("show_virtual_keyboard", "existing_text"), &_OS::show_virtual_keyboard, {DEFVAL("")});
-    ClassDB::bind_method(D_METHOD("hide_virtual_keyboard"), &_OS::hide_virtual_keyboard);
-    ClassDB::bind_method(D_METHOD("get_virtual_keyboard_height"), &_OS::get_virtual_keyboard_height);
-	ClassDB::bind_method(D_METHOD("print_resources_in_use", "short"), &_OS::print_resources_in_use, {DEFVAL(false)});
-	ClassDB::bind_method(D_METHOD("print_all_resources", "tofile"), &_OS::print_all_resources, {DEFVAL("")});
+    MethodBinder::bind_method(D_METHOD("dump_memory_to_file", "file"), &_OS::dump_memory_to_file);
+    MethodBinder::bind_method(D_METHOD("dump_resources_to_file", "file"), &_OS::dump_resources_to_file);
+    MethodBinder::bind_method(D_METHOD("has_virtual_keyboard"), &_OS::has_virtual_keyboard);
+    MethodBinder::bind_method(D_METHOD("show_virtual_keyboard", "existing_text"), &_OS::show_virtual_keyboard, {DEFVAL("")});
+    MethodBinder::bind_method(D_METHOD("hide_virtual_keyboard"), &_OS::hide_virtual_keyboard);
+    MethodBinder::bind_method(D_METHOD("get_virtual_keyboard_height"), &_OS::get_virtual_keyboard_height);
+    MethodBinder::bind_method(D_METHOD("print_resources_in_use", "short"), &_OS::print_resources_in_use, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("print_all_resources", "tofile"), &_OS::print_all_resources, {DEFVAL("")});
 
-    ClassDB::bind_method(D_METHOD("get_static_memory_usage"), &_OS::get_static_memory_usage);
-    ClassDB::bind_method(D_METHOD("get_static_memory_peak_usage"), &_OS::get_static_memory_peak_usage);
-    ClassDB::bind_method(D_METHOD("get_dynamic_memory_usage"), &_OS::get_dynamic_memory_usage);
+    MethodBinder::bind_method(D_METHOD("get_static_memory_usage"), &_OS::get_static_memory_usage);
+    MethodBinder::bind_method(D_METHOD("get_static_memory_peak_usage"), &_OS::get_static_memory_peak_usage);
+    MethodBinder::bind_method(D_METHOD("get_dynamic_memory_usage"), &_OS::get_dynamic_memory_usage);
 
-    ClassDB::bind_method(D_METHOD("get_user_data_dir"), &_OS::get_user_data_dir);
-    ClassDB::bind_method(D_METHOD("get_system_dir", "dir"), &_OS::get_system_dir);
-    ClassDB::bind_method(D_METHOD("get_unique_id"), &_OS::get_unique_id);
+    MethodBinder::bind_method(D_METHOD("get_user_data_dir"), &_OS::get_user_data_dir);
+    MethodBinder::bind_method(D_METHOD("get_system_dir", "dir"), &_OS::get_system_dir);
+    MethodBinder::bind_method(D_METHOD("get_unique_id"), &_OS::get_unique_id);
 
-    ClassDB::bind_method(D_METHOD("is_ok_left_and_cancel_right"), &_OS::is_ok_left_and_cancel_right);
+    MethodBinder::bind_method(D_METHOD("is_ok_left_and_cancel_right"), &_OS::is_ok_left_and_cancel_right);
 
-    ClassDB::bind_method(D_METHOD("print_all_textures_by_size"), &_OS::print_all_textures_by_size);
-    ClassDB::bind_method(D_METHOD("print_resources_by_type", "types"), &_OS::print_resources_by_type);
+    MethodBinder::bind_method(D_METHOD("print_all_textures_by_size"), &_OS::print_all_textures_by_size);
+    MethodBinder::bind_method(D_METHOD("print_resources_by_type", "types"), &_OS::print_resources_by_type);
 
-    ClassDB::bind_method(D_METHOD("native_video_play", "path", "volume", "audio_track", "subtitle_track"), &_OS::native_video_play);
-    ClassDB::bind_method(D_METHOD("native_video_is_playing"), &_OS::native_video_is_playing);
-    ClassDB::bind_method(D_METHOD("native_video_stop"), &_OS::native_video_stop);
-    ClassDB::bind_method(D_METHOD("native_video_pause"), &_OS::native_video_pause);
-    ClassDB::bind_method(D_METHOD("native_video_unpause"), &_OS::native_video_unpause);
+    MethodBinder::bind_method(D_METHOD("native_video_play", "path", "volume", "audio_track", "subtitle_track"), &_OS::native_video_play);
+    MethodBinder::bind_method(D_METHOD("native_video_is_playing"), &_OS::native_video_is_playing);
+    MethodBinder::bind_method(D_METHOD("native_video_stop"), &_OS::native_video_stop);
+    MethodBinder::bind_method(D_METHOD("native_video_pause"), &_OS::native_video_pause);
+    MethodBinder::bind_method(D_METHOD("native_video_unpause"), &_OS::native_video_unpause);
 
-    ClassDB::bind_method(D_METHOD("get_scancode_string", "code"), &_OS::get_scancode_string);
-    ClassDB::bind_method(D_METHOD("is_scancode_unicode", "code"), &_OS::is_scancode_unicode);
-    ClassDB::bind_method(D_METHOD("find_scancode_from_string", "string"), &_OS::find_scancode_from_string);
+    MethodBinder::bind_method(D_METHOD("get_scancode_string", "code"), &_OS::get_scancode_string);
+    MethodBinder::bind_method(D_METHOD("is_scancode_unicode", "code"), &_OS::is_scancode_unicode);
+    MethodBinder::bind_method(D_METHOD("find_scancode_from_string", "string"), &_OS::find_scancode_from_string);
 
-    ClassDB::bind_method(D_METHOD("set_use_file_access_save_and_swap", "enabled"), &_OS::set_use_file_access_save_and_swap);
+    MethodBinder::bind_method(D_METHOD("set_use_file_access_save_and_swap", "enabled"), &_OS::set_use_file_access_save_and_swap);
 
-	ClassDB::bind_method(D_METHOD("alert", "text", "title"), &_OS::alert, {DEFVAL("Alert!")});
+    MethodBinder::bind_method(D_METHOD("alert", "text", "title"), &_OS::alert, {DEFVAL("Alert!")});
 
-    ClassDB::bind_method(D_METHOD("set_thread_name", "name"), &_OS::set_thread_name);
+    MethodBinder::bind_method(D_METHOD("set_thread_name", "name"), &_OS::set_thread_name);
 
-    ClassDB::bind_method(D_METHOD("set_use_vsync", "enable"), &_OS::set_use_vsync);
-    ClassDB::bind_method(D_METHOD("is_vsync_enabled"), &_OS::is_vsync_enabled);
+    MethodBinder::bind_method(D_METHOD("set_use_vsync", "enable"), &_OS::set_use_vsync);
+    MethodBinder::bind_method(D_METHOD("is_vsync_enabled"), &_OS::is_vsync_enabled);
 
-    ClassDB::bind_method(D_METHOD("has_feature", "tag_name"), &_OS::has_feature);
+    MethodBinder::bind_method(D_METHOD("has_feature", "tag_name"), &_OS::has_feature);
 
-    ClassDB::bind_method(D_METHOD("get_power_state"), &_OS::get_power_state);
-    ClassDB::bind_method(D_METHOD("get_power_seconds_left"), &_OS::get_power_seconds_left);
-    ClassDB::bind_method(D_METHOD("get_power_percent_left"), &_OS::get_power_percent_left);
+    MethodBinder::bind_method(D_METHOD("get_power_state"), &_OS::get_power_state);
+    MethodBinder::bind_method(D_METHOD("get_power_seconds_left"), &_OS::get_power_seconds_left);
+    MethodBinder::bind_method(D_METHOD("get_power_percent_left"), &_OS::get_power_percent_left);
 
-    ClassDB::bind_method(D_METHOD("request_permission", "name"), &_OS::request_permission);
+    MethodBinder::bind_method(D_METHOD("request_permission", "name"), &_OS::request_permission);
 
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "clipboard"), "set_clipboard", "get_clipboard");
     ADD_PROPERTY(PropertyInfo(Variant::INT, "current_screen"), "set_current_screen", "get_current_screen");
@@ -1327,29 +1363,29 @@ void _OS::_bind_methods() {
     ADD_PROPERTY_DEFAULT("window_position", Vector2());
     ADD_PROPERTY_DEFAULT("window_size", Vector2());
 
-	BIND_ENUM_CONSTANT(VIDEO_DRIVER_GLES2)
-	BIND_ENUM_CONSTANT(VIDEO_DRIVER_GLES3)
+    BIND_ENUM_CONSTANT(VIDEO_DRIVER_GLES2)
+    BIND_ENUM_CONSTANT(VIDEO_DRIVER_GLES3)
 
-	BIND_ENUM_CONSTANT(DAY_SUNDAY)
-	BIND_ENUM_CONSTANT(DAY_MONDAY)
-	BIND_ENUM_CONSTANT(DAY_TUESDAY)
-	BIND_ENUM_CONSTANT(DAY_WEDNESDAY)
-	BIND_ENUM_CONSTANT(DAY_THURSDAY)
-	BIND_ENUM_CONSTANT(DAY_FRIDAY)
-	BIND_ENUM_CONSTANT(DAY_SATURDAY)
+    BIND_ENUM_CONSTANT(DAY_SUNDAY)
+    BIND_ENUM_CONSTANT(DAY_MONDAY)
+    BIND_ENUM_CONSTANT(DAY_TUESDAY)
+    BIND_ENUM_CONSTANT(DAY_WEDNESDAY)
+    BIND_ENUM_CONSTANT(DAY_THURSDAY)
+    BIND_ENUM_CONSTANT(DAY_FRIDAY)
+    BIND_ENUM_CONSTANT(DAY_SATURDAY)
 
-	BIND_ENUM_CONSTANT(MONTH_JANUARY)
-	BIND_ENUM_CONSTANT(MONTH_FEBRUARY)
-	BIND_ENUM_CONSTANT(MONTH_MARCH)
-	BIND_ENUM_CONSTANT(MONTH_APRIL)
-	BIND_ENUM_CONSTANT(MONTH_MAY)
-	BIND_ENUM_CONSTANT(MONTH_JUNE)
-	BIND_ENUM_CONSTANT(MONTH_JULY)
-	BIND_ENUM_CONSTANT(MONTH_AUGUST)
-	BIND_ENUM_CONSTANT(MONTH_SEPTEMBER)
-	BIND_ENUM_CONSTANT(MONTH_OCTOBER)
-	BIND_ENUM_CONSTANT(MONTH_NOVEMBER)
-	BIND_ENUM_CONSTANT(MONTH_DECEMBER)
+    BIND_ENUM_CONSTANT(MONTH_JANUARY)
+    BIND_ENUM_CONSTANT(MONTH_FEBRUARY)
+    BIND_ENUM_CONSTANT(MONTH_MARCH)
+    BIND_ENUM_CONSTANT(MONTH_APRIL)
+    BIND_ENUM_CONSTANT(MONTH_MAY)
+    BIND_ENUM_CONSTANT(MONTH_JUNE)
+    BIND_ENUM_CONSTANT(MONTH_JULY)
+    BIND_ENUM_CONSTANT(MONTH_AUGUST)
+    BIND_ENUM_CONSTANT(MONTH_SEPTEMBER)
+    BIND_ENUM_CONSTANT(MONTH_OCTOBER)
+    BIND_ENUM_CONSTANT(MONTH_NOVEMBER)
+    BIND_ENUM_CONSTANT(MONTH_DECEMBER)
 
     BIND_ENUM_CONSTANT(SCREEN_ORIENTATION_LANDSCAPE);
     BIND_ENUM_CONSTANT(SCREEN_ORIENTATION_PORTRAIT);
@@ -1401,6 +1437,11 @@ PoolVector<Plane> _Geometry::build_cylinder_planes(float p_radius, float p_heigh
 PoolVector<Plane> _Geometry::build_capsule_planes(float p_radius, float p_height, int p_sides, int p_lats, Vector3::Axis p_axis) {
 
     return Geometry::build_capsule_planes(p_radius, p_height, p_sides, p_lats, p_axis);
+}
+
+bool _Geometry::is_point_in_circle(const Vector2 &p_point, const Vector2 &p_circle_pos, real_t p_circle_radius) {
+
+	return Geometry::is_point_in_circle(p_point, p_circle_pos, p_circle_radius);
 }
 
 real_t _Geometry::segment_intersects_circle(const Vector2 &p_from, const Vector2 &p_to, const Vector2 &p_circle_pos, real_t p_circle_radius) {
@@ -1655,11 +1696,6 @@ Array _Geometry::offset_polyline_2d(const Vector<Vector2> &p_polygon, real_t p_d
     return ret;
 }
 
-Vector<Point2> _Geometry::transform_points_2d(const Vector<Point2> &p_points, const Transform2D &p_mat) {
-
-    return Geometry::transform_points_2d(p_points, p_mat);
-}
-
 Dictionary _Geometry::make_atlas(const Vector<Size2> &p_rects) {
 
     Dictionary ret;
@@ -1693,54 +1729,54 @@ int _Geometry::get_uv84_normal_bit(const Vector3 &p_vector) {
     return Geometry::get_uv84_normal_bit(p_vector);
 }
 
+IMPL_GDCLASS(_Geometry);
+
 void _Geometry::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("build_box_planes", "extents"), &_Geometry::build_box_planes);
-	ClassDB::bind_method(D_METHOD("build_cylinder_planes", "radius", "height", "sides", "axis"), &_Geometry::build_cylinder_planes, {DEFVAL(Vector3::AXIS_Z)});
-	ClassDB::bind_method(D_METHOD("build_capsule_planes", "radius", "height", "sides", "lats", "axis"), &_Geometry::build_capsule_planes, {DEFVAL(Vector3::AXIS_Z)});
-    ClassDB::bind_method(D_METHOD("segment_intersects_circle", "segment_from", "segment_to", "circle_position", "circle_radius"), &_Geometry::segment_intersects_circle);
-    ClassDB::bind_method(D_METHOD("segment_intersects_segment_2d", "from_a", "to_a", "from_b", "to_b"), &_Geometry::segment_intersects_segment_2d);
-    ClassDB::bind_method(D_METHOD("line_intersects_line_2d", "from_a", "dir_a", "from_b", "dir_b"), &_Geometry::line_intersects_line_2d);
+    MethodBinder::bind_method(D_METHOD("build_box_planes", "extents"), &_Geometry::build_box_planes);
+    MethodBinder::bind_method(D_METHOD("build_cylinder_planes", "radius", "height", "sides", "axis"), &_Geometry::build_cylinder_planes, {DEFVAL(Vector3::AXIS_Z)});
+    MethodBinder::bind_method(D_METHOD("build_capsule_planes", "radius", "height", "sides", "lats", "axis"), &_Geometry::build_capsule_planes, {DEFVAL(Vector3::AXIS_Z)});
+    MethodBinder::bind_method(D_METHOD("segment_intersects_circle", "segment_from", "segment_to", "circle_position", "circle_radius"), &_Geometry::segment_intersects_circle);
+    MethodBinder::bind_method(D_METHOD("segment_intersects_segment_2d", "from_a", "to_a", "from_b", "to_b"), &_Geometry::segment_intersects_segment_2d);
+    MethodBinder::bind_method(D_METHOD("line_intersects_line_2d", "from_a", "dir_a", "from_b", "dir_b"), &_Geometry::line_intersects_line_2d);
 
-    ClassDB::bind_method(D_METHOD("get_closest_points_between_segments_2d", "p1", "q1", "p2", "q2"), &_Geometry::get_closest_points_between_segments_2d);
-    ClassDB::bind_method(D_METHOD("get_closest_points_between_segments", "p1", "p2", "q1", "q2"), &_Geometry::get_closest_points_between_segments);
+    MethodBinder::bind_method(D_METHOD("get_closest_points_between_segments_2d", "p1", "q1", "p2", "q2"), &_Geometry::get_closest_points_between_segments_2d);
+    MethodBinder::bind_method(D_METHOD("get_closest_points_between_segments", "p1", "p2", "q1", "q2"), &_Geometry::get_closest_points_between_segments);
 
-    ClassDB::bind_method(D_METHOD("get_closest_point_to_segment_2d", "point", "s1", "s2"), &_Geometry::get_closest_point_to_segment_2d);
-    ClassDB::bind_method(D_METHOD("get_closest_point_to_segment", "point", "s1", "s2"), &_Geometry::get_closest_point_to_segment);
+    MethodBinder::bind_method(D_METHOD("get_closest_point_to_segment_2d", "point", "s1", "s2"), &_Geometry::get_closest_point_to_segment_2d);
+    MethodBinder::bind_method(D_METHOD("get_closest_point_to_segment", "point", "s1", "s2"), &_Geometry::get_closest_point_to_segment);
 
-    ClassDB::bind_method(D_METHOD("get_closest_point_to_segment_uncapped_2d", "point", "s1", "s2"), &_Geometry::get_closest_point_to_segment_uncapped_2d);
-    ClassDB::bind_method(D_METHOD("get_closest_point_to_segment_uncapped", "point", "s1", "s2"), &_Geometry::get_closest_point_to_segment_uncapped);
+    MethodBinder::bind_method(D_METHOD("get_closest_point_to_segment_uncapped_2d", "point", "s1", "s2"), &_Geometry::get_closest_point_to_segment_uncapped_2d);
+    MethodBinder::bind_method(D_METHOD("get_closest_point_to_segment_uncapped", "point", "s1", "s2"), &_Geometry::get_closest_point_to_segment_uncapped);
 
-    ClassDB::bind_method(D_METHOD("get_uv84_normal_bit", "normal"), &_Geometry::get_uv84_normal_bit);
+    MethodBinder::bind_method(D_METHOD("get_uv84_normal_bit", "normal"), &_Geometry::get_uv84_normal_bit);
 
-    ClassDB::bind_method(D_METHOD("ray_intersects_triangle", "from", "dir", "a", "b", "c"), &_Geometry::ray_intersects_triangle);
-    ClassDB::bind_method(D_METHOD("segment_intersects_triangle", "from", "to", "a", "b", "c"), &_Geometry::segment_intersects_triangle);
-    ClassDB::bind_method(D_METHOD("segment_intersects_sphere", "from", "to", "sphere_position", "sphere_radius"), &_Geometry::segment_intersects_sphere);
-    ClassDB::bind_method(D_METHOD("segment_intersects_cylinder", "from", "to", "height", "radius"), &_Geometry::segment_intersects_cylinder);
-    ClassDB::bind_method(D_METHOD("segment_intersects_convex", "from", "to", "planes"), &_Geometry::segment_intersects_convex);
-    ClassDB::bind_method(D_METHOD("point_is_inside_triangle", "point", "a", "b", "c"), &_Geometry::point_is_inside_triangle);
+    MethodBinder::bind_method(D_METHOD("ray_intersects_triangle", "from", "dir", "a", "b", "c"), &_Geometry::ray_intersects_triangle);
+    MethodBinder::bind_method(D_METHOD("segment_intersects_triangle", "from", "to", "a", "b", "c"), &_Geometry::segment_intersects_triangle);
+    MethodBinder::bind_method(D_METHOD("segment_intersects_sphere", "from", "to", "sphere_position", "sphere_radius"), &_Geometry::segment_intersects_sphere);
+    MethodBinder::bind_method(D_METHOD("segment_intersects_cylinder", "from", "to", "height", "radius"), &_Geometry::segment_intersects_cylinder);
+    MethodBinder::bind_method(D_METHOD("segment_intersects_convex", "from", "to", "planes"), &_Geometry::segment_intersects_convex);
+    MethodBinder::bind_method(D_METHOD("point_is_inside_triangle", "point", "a", "b", "c"), &_Geometry::point_is_inside_triangle);
 
-    ClassDB::bind_method(D_METHOD("is_polygon_clockwise", "polygon"), &_Geometry::is_polygon_clockwise);
-    ClassDB::bind_method(D_METHOD("is_point_in_polygon", "point", "polygon"), &_Geometry::is_point_in_polygon);
-    ClassDB::bind_method(D_METHOD("triangulate_polygon", "polygon"), &_Geometry::triangulate_polygon);
-    ClassDB::bind_method(D_METHOD("triangulate_delaunay_2d", "points"), &_Geometry::triangulate_delaunay_2d);
-    ClassDB::bind_method(D_METHOD("convex_hull_2d", "points"), &_Geometry::convex_hull_2d);
-    ClassDB::bind_method(D_METHOD("clip_polygon", "points", "plane"), &_Geometry::clip_polygon);
+    MethodBinder::bind_method(D_METHOD("is_polygon_clockwise", "polygon"), &_Geometry::is_polygon_clockwise);
+    MethodBinder::bind_method(D_METHOD("is_point_in_polygon", "point", "polygon"), &_Geometry::is_point_in_polygon);
+    MethodBinder::bind_method(D_METHOD("triangulate_polygon", "polygon"), &_Geometry::triangulate_polygon);
+    MethodBinder::bind_method(D_METHOD("triangulate_delaunay_2d", "points"), &_Geometry::triangulate_delaunay_2d);
+    MethodBinder::bind_method(D_METHOD("convex_hull_2d", "points"), &_Geometry::convex_hull_2d);
+    MethodBinder::bind_method(D_METHOD("clip_polygon", "points", "plane"), &_Geometry::clip_polygon);
 
-    ClassDB::bind_method(D_METHOD("merge_polygons_2d", "polygon_a", "polygon_b"), &_Geometry::merge_polygons_2d);
-    ClassDB::bind_method(D_METHOD("clip_polygons_2d", "polygon_a", "polygon_b"), &_Geometry::clip_polygons_2d);
-    ClassDB::bind_method(D_METHOD("intersect_polygons_2d", "polygon_a", "polygon_b"), &_Geometry::intersect_polygons_2d);
-    ClassDB::bind_method(D_METHOD("exclude_polygons_2d", "polygon_a", "polygon_b"), &_Geometry::exclude_polygons_2d);
+    MethodBinder::bind_method(D_METHOD("merge_polygons_2d", "polygon_a", "polygon_b"), &_Geometry::merge_polygons_2d);
+    MethodBinder::bind_method(D_METHOD("clip_polygons_2d", "polygon_a", "polygon_b"), &_Geometry::clip_polygons_2d);
+    MethodBinder::bind_method(D_METHOD("intersect_polygons_2d", "polygon_a", "polygon_b"), &_Geometry::intersect_polygons_2d);
+    MethodBinder::bind_method(D_METHOD("exclude_polygons_2d", "polygon_a", "polygon_b"), &_Geometry::exclude_polygons_2d);
 
-    ClassDB::bind_method(D_METHOD("clip_polyline_with_polygon_2d", "polyline", "polygon"), &_Geometry::clip_polyline_with_polygon_2d);
-    ClassDB::bind_method(D_METHOD("intersect_polyline_with_polygon_2d", "polyline", "polygon"), &_Geometry::intersect_polyline_with_polygon_2d);
+    MethodBinder::bind_method(D_METHOD("clip_polyline_with_polygon_2d", "polyline", "polygon"), &_Geometry::clip_polyline_with_polygon_2d);
+    MethodBinder::bind_method(D_METHOD("intersect_polyline_with_polygon_2d", "polyline", "polygon"), &_Geometry::intersect_polyline_with_polygon_2d);
 
-	ClassDB::bind_method(D_METHOD("offset_polygon_2d", "polygon", "delta", "join_type"), &_Geometry::offset_polygon_2d, {DEFVAL(JOIN_SQUARE)});
-	ClassDB::bind_method(D_METHOD("offset_polyline_2d", "polyline", "delta", "join_type", "end_type"), &_Geometry::offset_polyline_2d, {DEFVAL(JOIN_SQUARE), DEFVAL(END_SQUARE)});
+    MethodBinder::bind_method(D_METHOD("offset_polygon_2d", "polygon", "delta", "join_type"), &_Geometry::offset_polygon_2d, {DEFVAL(JOIN_SQUARE)});
+    MethodBinder::bind_method(D_METHOD("offset_polyline_2d", "polyline", "delta", "join_type", "end_type"), &_Geometry::offset_polyline_2d, {DEFVAL(JOIN_SQUARE), DEFVAL(END_SQUARE)});
 
-    ClassDB::bind_method(D_METHOD("transform_points_2d", "points", "transform"), &_Geometry::transform_points_2d);
-
-    ClassDB::bind_method(D_METHOD("make_atlas", "sizes"), &_Geometry::make_atlas);
+    MethodBinder::bind_method(D_METHOD("make_atlas", "sizes"), &_Geometry::make_atlas);
 
     BIND_ENUM_CONSTANT(OPERATION_UNION);
     BIND_ENUM_CONSTANT(OPERATION_DIFFERENCE);
@@ -2135,58 +2171,60 @@ uint64_t _File::get_modified_time(const String &p_file) const {
     return FileAccess::get_modified_time(p_file);
 }
 
+IMPL_GDCLASS(_File)
+
 void _File::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("open_encrypted", "path", "mode_flags", "key"), &_File::open_encrypted);
-    ClassDB::bind_method(D_METHOD("open_encrypted_with_pass", "path", "mode_flags", "pass"), &_File::open_encrypted_pass);
-	ClassDB::bind_method(D_METHOD("open_compressed", "path", "mode_flags", "compression_mode"), &_File::open_compressed, {DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("open_encrypted", "path", "mode_flags", "key"), &_File::open_encrypted);
+    MethodBinder::bind_method(D_METHOD("open_encrypted_with_pass", "path", "mode_flags", "pass"), &_File::open_encrypted_pass);
+    MethodBinder::bind_method(D_METHOD("open_compressed", "path", "mode_flags", "compression_mode"), &_File::open_compressed, {DEFVAL(0)});
 
-    ClassDB::bind_method(D_METHOD("open", "path", "flags"), &_File::open);
-    ClassDB::bind_method(D_METHOD("close"), &_File::close);
-    ClassDB::bind_method(D_METHOD("get_path"), &_File::get_path);
-    ClassDB::bind_method(D_METHOD("get_path_absolute"), &_File::get_path_absolute);
-    ClassDB::bind_method(D_METHOD("is_open"), &_File::is_open);
-    ClassDB::bind_method(D_METHOD("seek", "position"), &_File::seek);
-	ClassDB::bind_method(D_METHOD("seek_end", "position"), &_File::seek_end, {DEFVAL(0)});
-    ClassDB::bind_method(D_METHOD("get_position"), &_File::get_position);
-    ClassDB::bind_method(D_METHOD("get_len"), &_File::get_len);
-    ClassDB::bind_method(D_METHOD("eof_reached"), &_File::eof_reached);
-    ClassDB::bind_method(D_METHOD("get_8"), &_File::get_8);
-    ClassDB::bind_method(D_METHOD("get_16"), &_File::get_16);
-    ClassDB::bind_method(D_METHOD("get_32"), &_File::get_32);
-    ClassDB::bind_method(D_METHOD("get_64"), &_File::get_64);
-    ClassDB::bind_method(D_METHOD("get_float"), &_File::get_float);
-    ClassDB::bind_method(D_METHOD("get_double"), &_File::get_double);
-    ClassDB::bind_method(D_METHOD("get_real"), &_File::get_real);
-    ClassDB::bind_method(D_METHOD("get_buffer", "len"), &_File::get_buffer);
-    ClassDB::bind_method(D_METHOD("get_line"), &_File::get_line);
-	//ClassDB::bind_method(D_METHOD("get_csv_line", "delim"), &_File::get_csv_line, {DEFVAL(',')});
-    ClassDB::bind_method(D_METHOD("get_as_text"), &_File::get_as_text);
-    ClassDB::bind_method(D_METHOD("get_md5", "path"), &_File::get_md5);
-    ClassDB::bind_method(D_METHOD("get_sha256", "path"), &_File::get_sha256);
-    ClassDB::bind_method(D_METHOD("get_endian_swap"), &_File::get_endian_swap);
-    ClassDB::bind_method(D_METHOD("set_endian_swap", "enable"), &_File::set_endian_swap);
-    ClassDB::bind_method(D_METHOD("get_error"), &_File::get_error);
-	ClassDB::bind_method(D_METHOD("get_var", "allow_objects"), &_File::get_var, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("open", "path", "flags"), &_File::open);
+    MethodBinder::bind_method(D_METHOD("close"), &_File::close);
+    MethodBinder::bind_method(D_METHOD("get_path"), &_File::get_path);
+    MethodBinder::bind_method(D_METHOD("get_path_absolute"), &_File::get_path_absolute);
+    MethodBinder::bind_method(D_METHOD("is_open"), &_File::is_open);
+    MethodBinder::bind_method(D_METHOD("seek", "position"), &_File::seek);
+    MethodBinder::bind_method(D_METHOD("seek_end", "position"), &_File::seek_end, {DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("get_position"), &_File::get_position);
+    MethodBinder::bind_method(D_METHOD("get_len"), &_File::get_len);
+    MethodBinder::bind_method(D_METHOD("eof_reached"), &_File::eof_reached);
+    MethodBinder::bind_method(D_METHOD("get_8"), &_File::get_8);
+    MethodBinder::bind_method(D_METHOD("get_16"), &_File::get_16);
+    MethodBinder::bind_method(D_METHOD("get_32"), &_File::get_32);
+    MethodBinder::bind_method(D_METHOD("get_64"), &_File::get_64);
+    MethodBinder::bind_method(D_METHOD("get_float"), &_File::get_float);
+    MethodBinder::bind_method(D_METHOD("get_double"), &_File::get_double);
+    MethodBinder::bind_method(D_METHOD("get_real"), &_File::get_real);
+    MethodBinder::bind_method(D_METHOD("get_buffer", "len"), &_File::get_buffer);
+    MethodBinder::bind_method(D_METHOD("get_line"), &_File::get_line);
+    //MethodBinder::bind_method(D_METHOD("get_csv_line", "delim"), &_File::get_csv_line, {DEFVAL(',')});
+    MethodBinder::bind_method(D_METHOD("get_as_text"), &_File::get_as_text);
+    MethodBinder::bind_method(D_METHOD("get_md5", "path"), &_File::get_md5);
+    MethodBinder::bind_method(D_METHOD("get_sha256", "path"), &_File::get_sha256);
+    MethodBinder::bind_method(D_METHOD("get_endian_swap"), &_File::get_endian_swap);
+    MethodBinder::bind_method(D_METHOD("set_endian_swap", "enable"), &_File::set_endian_swap);
+    MethodBinder::bind_method(D_METHOD("get_error"), &_File::get_error);
+    MethodBinder::bind_method(D_METHOD("get_var", "allow_objects"), &_File::get_var, {DEFVAL(false)});
 
-    ClassDB::bind_method(D_METHOD("store_8", "value"), &_File::store_8);
-    ClassDB::bind_method(D_METHOD("store_16", "value"), &_File::store_16);
-    ClassDB::bind_method(D_METHOD("store_32", "value"), &_File::store_32);
-    ClassDB::bind_method(D_METHOD("store_64", "value"), &_File::store_64);
-    ClassDB::bind_method(D_METHOD("store_float", "value"), &_File::store_float);
-    ClassDB::bind_method(D_METHOD("store_double", "value"), &_File::store_double);
-    ClassDB::bind_method(D_METHOD("store_real", "value"), &_File::store_real);
-    ClassDB::bind_method(D_METHOD("store_buffer", "buffer"), &_File::store_buffer);
-    ClassDB::bind_method(D_METHOD("store_line", "line"), &_File::store_line);
-	//ClassDB::bind_method(D_METHOD("store_csv_line", "values", "delim"), &_File::store_csv_line, {DEFVAL(',')});
-    ClassDB::bind_method(D_METHOD("store_string", "string"), &_File::store_string);
-	ClassDB::bind_method(D_METHOD("store_var", "value", "full_objects"), &_File::store_var, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("store_8", "value"), &_File::store_8);
+    MethodBinder::bind_method(D_METHOD("store_16", "value"), &_File::store_16);
+    MethodBinder::bind_method(D_METHOD("store_32", "value"), &_File::store_32);
+    MethodBinder::bind_method(D_METHOD("store_64", "value"), &_File::store_64);
+    MethodBinder::bind_method(D_METHOD("store_float", "value"), &_File::store_float);
+    MethodBinder::bind_method(D_METHOD("store_double", "value"), &_File::store_double);
+    MethodBinder::bind_method(D_METHOD("store_real", "value"), &_File::store_real);
+    MethodBinder::bind_method(D_METHOD("store_buffer", "buffer"), &_File::store_buffer);
+    MethodBinder::bind_method(D_METHOD("store_line", "line"), &_File::store_line);
+    //MethodBinder::bind_method(D_METHOD("store_csv_line", "values", "delim"), &_File::store_csv_line, {DEFVAL(',')});
+    MethodBinder::bind_method(D_METHOD("store_string", "string"), &_File::store_string);
+    MethodBinder::bind_method(D_METHOD("store_var", "value", "full_objects"), &_File::store_var, {DEFVAL(false)});
 
-    ClassDB::bind_method(D_METHOD("store_pascal_string", "string"), &_File::store_pascal_string);
-    ClassDB::bind_method(D_METHOD("get_pascal_string"), &_File::get_pascal_string);
+    MethodBinder::bind_method(D_METHOD("store_pascal_string", "string"), &_File::store_pascal_string);
+    MethodBinder::bind_method(D_METHOD("get_pascal_string"), &_File::get_pascal_string);
 
-    ClassDB::bind_method(D_METHOD("file_exists", "path"), &_File::file_exists);
-    ClassDB::bind_method(D_METHOD("get_modified_time", "file"), &_File::get_modified_time);
+    MethodBinder::bind_method(D_METHOD("file_exists", "path"), &_File::file_exists);
+    MethodBinder::bind_method(D_METHOD("get_modified_time", "file"), &_File::get_modified_time);
 
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "endian_swap"), "set_endian_swap", "get_endian_swap");
 
@@ -2289,7 +2327,7 @@ String _Directory::get_current_dir() {
 Error _Directory::make_dir(String p_dir) {
 
     ERR_FAIL_COND_V(!d, ERR_UNCONFIGURED);
-	if (!PathUtils::is_rel_path(p_dir)) {
+    if (!PathUtils::is_rel_path(p_dir)) {
         DirAccess *d = DirAccess::create_for_path(p_dir);
         Error err = d->make_dir(p_dir);
         memdelete(d);
@@ -2300,7 +2338,7 @@ Error _Directory::make_dir(String p_dir) {
 Error _Directory::make_dir_recursive(String p_dir) {
 
     ERR_FAIL_COND_V(!d, ERR_UNCONFIGURED);
-	if (!PathUtils::is_rel_path(p_dir)) {
+    if (!PathUtils::is_rel_path(p_dir)) {
         DirAccess *d = DirAccess::create_for_path(p_dir);
         Error err = d->make_dir_recursive(p_dir);
         memdelete(d);
@@ -2313,7 +2351,7 @@ bool _Directory::file_exists(String p_file) {
 
     ERR_FAIL_COND_V(!d, false);
 
-	if (!PathUtils::is_rel_path(p_file)) {
+    if (!PathUtils::is_rel_path(p_file)) {
         return FileAccess::exists(p_file);
     }
 
@@ -2322,7 +2360,7 @@ bool _Directory::file_exists(String p_file) {
 
 bool _Directory::dir_exists(String p_dir) {
     ERR_FAIL_COND_V(!d, false);
-	if (!PathUtils::is_rel_path(p_dir)) {
+    if (!PathUtils::is_rel_path(p_dir)) {
 
         DirAccess *d = DirAccess::create_for_path(p_dir);
         bool exists = d->dir_exists(p_dir);
@@ -2348,7 +2386,7 @@ Error _Directory::copy(String p_from, String p_to) {
 Error _Directory::rename(String p_from, String p_to) {
 
     ERR_FAIL_COND_V(!d, ERR_UNCONFIGURED);
-	if (!PathUtils::is_rel_path(p_from)) {
+    if (!PathUtils::is_rel_path(p_from)) {
         DirAccess *d = DirAccess::create_for_path(p_from);
         Error err = d->rename(p_from, p_to);
         memdelete(d);
@@ -2360,7 +2398,7 @@ Error _Directory::rename(String p_from, String p_to) {
 Error _Directory::remove(String p_name) {
 
     ERR_FAIL_COND_V(!d, ERR_UNCONFIGURED);
-	if (!PathUtils::is_rel_path(p_name)) {
+    if (!PathUtils::is_rel_path(p_name)) {
         DirAccess *d = DirAccess::create_for_path(p_name);
         Error err = d->remove(p_name);
         memdelete(d);
@@ -2370,27 +2408,29 @@ Error _Directory::remove(String p_name) {
     return d->remove(p_name);
 }
 
+IMPL_GDCLASS(_Directory)
+
 void _Directory::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("open", "path"), &_Directory::open);
-	ClassDB::bind_method(D_METHOD("list_dir_begin", "skip_navigational", "skip_hidden"), &_Directory::list_dir_begin, {DEFVAL(false), DEFVAL(false)});
-    ClassDB::bind_method(D_METHOD("get_next"), &_Directory::get_next);
-    ClassDB::bind_method(D_METHOD("current_is_dir"), &_Directory::current_is_dir);
-    ClassDB::bind_method(D_METHOD("list_dir_end"), &_Directory::list_dir_end);
-    ClassDB::bind_method(D_METHOD("get_drive_count"), &_Directory::get_drive_count);
-    ClassDB::bind_method(D_METHOD("get_drive", "idx"), &_Directory::get_drive);
-    ClassDB::bind_method(D_METHOD("get_current_drive"), &_Directory::get_current_drive);
-    ClassDB::bind_method(D_METHOD("change_dir", "todir"), &_Directory::change_dir);
-    ClassDB::bind_method(D_METHOD("get_current_dir"), &_Directory::get_current_dir);
-    ClassDB::bind_method(D_METHOD("make_dir", "path"), &_Directory::make_dir);
-    ClassDB::bind_method(D_METHOD("make_dir_recursive", "path"), &_Directory::make_dir_recursive);
-    ClassDB::bind_method(D_METHOD("file_exists", "path"), &_Directory::file_exists);
-    ClassDB::bind_method(D_METHOD("dir_exists", "path"), &_Directory::dir_exists);
-    //ClassDB::bind_method(D_METHOD("get_modified_time","file"),&_Directory::get_modified_time);
-    ClassDB::bind_method(D_METHOD("get_space_left"), &_Directory::get_space_left);
-    ClassDB::bind_method(D_METHOD("copy", "from", "to"), &_Directory::copy);
-    ClassDB::bind_method(D_METHOD("rename", "from", "to"), &_Directory::rename);
-    ClassDB::bind_method(D_METHOD("remove", "path"), &_Directory::remove);
+    MethodBinder::bind_method(D_METHOD("open", "path"), &_Directory::open);
+    MethodBinder::bind_method(D_METHOD("list_dir_begin", "skip_navigational", "skip_hidden"), &_Directory::list_dir_begin, {DEFVAL(false), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("get_next"), &_Directory::get_next);
+    MethodBinder::bind_method(D_METHOD("current_is_dir"), &_Directory::current_is_dir);
+    MethodBinder::bind_method(D_METHOD("list_dir_end"), &_Directory::list_dir_end);
+    MethodBinder::bind_method(D_METHOD("get_drive_count"), &_Directory::get_drive_count);
+    MethodBinder::bind_method(D_METHOD("get_drive", "idx"), &_Directory::get_drive);
+    MethodBinder::bind_method(D_METHOD("get_current_drive"), &_Directory::get_current_drive);
+    MethodBinder::bind_method(D_METHOD("change_dir", "todir"), &_Directory::change_dir);
+    MethodBinder::bind_method(D_METHOD("get_current_dir"), &_Directory::get_current_dir);
+    MethodBinder::bind_method(D_METHOD("make_dir", "path"), &_Directory::make_dir);
+    MethodBinder::bind_method(D_METHOD("make_dir_recursive", "path"), &_Directory::make_dir_recursive);
+    MethodBinder::bind_method(D_METHOD("file_exists", "path"), &_Directory::file_exists);
+    MethodBinder::bind_method(D_METHOD("dir_exists", "path"), &_Directory::dir_exists);
+    //MethodBinder::bind_method(D_METHOD("get_modified_time","file"),&_Directory::get_modified_time);
+    MethodBinder::bind_method(D_METHOD("get_space_left"), &_Directory::get_space_left);
+    MethodBinder::bind_method(D_METHOD("copy", "from", "to"), &_Directory::copy);
+    MethodBinder::bind_method(D_METHOD("rename", "from", "to"), &_Directory::rename);
+    MethodBinder::bind_method(D_METHOD("remove", "path"), &_Directory::remove);
 }
 
 _Directory::_Directory() {
@@ -2431,15 +2471,15 @@ String _Marshalls::variant_to_base64(const Variant &p_var, bool p_full_objects) 
 
 Variant _Marshalls::base64_to_variant(const String &p_str, bool p_allow_objects) {
 
-    int strlen = p_str.length();
-    CharString cstr = p_str.ascii();
+    int strlen = StringUtils::char_length(p_str);
+	CharString cstr = StringUtils::ascii(p_str);
 
     PoolVector<uint8_t> buf;
     buf.resize(strlen / 4 * 3 + 1);
     PoolVector<uint8_t>::Write w = buf.write();
 
     size_t len = 0;
-	ERR_FAIL_COND_V(CryptoCore::b64_decode(&w[0], buf.size(), &len, (unsigned char *)cstr.data(), strlen) != OK, Variant());
+    ERR_FAIL_COND_V(CryptoCore::b64_decode(&w[0], buf.size(), &len, (unsigned char *)cstr.data(), strlen) != OK, Variant());
 
     Variant v;
     Error err = decode_variant(v, &w[0], len, nullptr, p_allow_objects);
@@ -2457,8 +2497,8 @@ String _Marshalls::raw_to_base64(const PoolVector<uint8_t> &p_arr) {
 
 PoolVector<uint8_t> _Marshalls::base64_to_raw(const String &p_str) {
 
-    int strlen = p_str.length();
-    CharString cstr = p_str.ascii();
+    int strlen = StringUtils::char_length(p_str);
+	CharString cstr = StringUtils::ascii(p_str);
 
     size_t arr_len = 0;
     PoolVector<uint8_t> buf;
@@ -2466,7 +2506,7 @@ PoolVector<uint8_t> _Marshalls::base64_to_raw(const String &p_str) {
         buf.resize(strlen / 4 * 3 + 1);
         PoolVector<uint8_t>::Write w = buf.write();
 
-		ERR_FAIL_COND_V(CryptoCore::b64_decode(&w[0], buf.size(), &arr_len, (unsigned char *)cstr.data(), strlen) != OK, PoolVector<uint8_t>());
+        ERR_FAIL_COND_V(CryptoCore::b64_decode(&w[0], buf.size(), &arr_len, (unsigned char *)cstr.data(), strlen) != OK, PoolVector<uint8_t>());
     }
     buf.resize(arr_len);
 
@@ -2475,40 +2515,42 @@ PoolVector<uint8_t> _Marshalls::base64_to_raw(const String &p_str) {
 
 String _Marshalls::utf8_to_base64(const String &p_str) {
 
-    CharString cstr = p_str.utf8();
-	String ret = CryptoCore::b64_encode_str((unsigned char *)cstr.data(), cstr.length());
+	CharString cstr = StringUtils::to_utf8(p_str);
+    String ret = CryptoCore::b64_encode_str((unsigned char *)cstr.data(), cstr.length());
     ERR_FAIL_COND_V(ret.empty(), ret);
     return ret;
 };
 
 String _Marshalls::base64_to_utf8(const String &p_str) {
 
-    int strlen = p_str.length();
-    CharString cstr = p_str.ascii();
+    int strlen = StringUtils::char_length(p_str);
+	CharString cstr = StringUtils::ascii(p_str);
 
     PoolVector<uint8_t> buf;
     buf.resize(strlen / 4 * 3 + 1 + 1);
     PoolVector<uint8_t>::Write w = buf.write();
 
     size_t len = 0;
-	ERR_FAIL_COND_V(CryptoCore::b64_decode(&w[0], buf.size(), &len, (unsigned char *)cstr.data(), strlen) != OK, String());
+    ERR_FAIL_COND_V(CryptoCore::b64_decode(&w[0], buf.size(), &len, (unsigned char *)cstr.data(), strlen) != OK, String());
 
     w[len] = 0;
-    String ret = String::utf8((char *)&w[0]);
+	String ret = StringUtils::from_utf8((const char *)&w[0]);
 
     return ret;
 };
 
+IMPL_GDCLASS(_Marshalls)
+
 void _Marshalls::_bind_methods() {
 
-	ClassDB::bind_method(D_METHOD("variant_to_base64", "variant", "full_objects"), &_Marshalls::variant_to_base64, {DEFVAL(false)});
-	ClassDB::bind_method(D_METHOD("base64_to_variant", "base64_str", "allow_objects"), &_Marshalls::base64_to_variant, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("variant_to_base64", "variant", "full_objects"), &_Marshalls::variant_to_base64, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("base64_to_variant", "base64_str", "allow_objects"), &_Marshalls::base64_to_variant, {DEFVAL(false)});
 
-    ClassDB::bind_method(D_METHOD("raw_to_base64", "array"), &_Marshalls::raw_to_base64);
-    ClassDB::bind_method(D_METHOD("base64_to_raw", "base64_str"), &_Marshalls::base64_to_raw);
+    MethodBinder::bind_method(D_METHOD("raw_to_base64", "array"), &_Marshalls::raw_to_base64);
+    MethodBinder::bind_method(D_METHOD("base64_to_raw", "base64_str"), &_Marshalls::base64_to_raw);
 
-    ClassDB::bind_method(D_METHOD("utf8_to_base64", "utf8_str"), &_Marshalls::utf8_to_base64);
-    ClassDB::bind_method(D_METHOD("base64_to_utf8", "base64_str"), &_Marshalls::base64_to_utf8);
+    MethodBinder::bind_method(D_METHOD("utf8_to_base64", "utf8_str"), &_Marshalls::utf8_to_base64);
+    MethodBinder::bind_method(D_METHOD("base64_to_utf8", "base64_str"), &_Marshalls::base64_to_utf8);
 };
 
 ////////////////
@@ -2523,10 +2565,12 @@ Error _Semaphore::post() {
     return semaphore->post();
 }
 
+IMPL_GDCLASS(_Semaphore)
+
 void _Semaphore::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("wait"), &_Semaphore::wait);
-    ClassDB::bind_method(D_METHOD("post"), &_Semaphore::post);
+    MethodBinder::bind_method(D_METHOD("wait"), &_Semaphore::wait);
+    MethodBinder::bind_method(D_METHOD("post"), &_Semaphore::post);
 }
 
 _Semaphore::_Semaphore() {
@@ -2556,11 +2600,13 @@ void _Mutex::unlock() {
     mutex->unlock();
 }
 
+IMPL_GDCLASS(_Mutex)
+
 void _Mutex::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("lock"), &_Mutex::lock);
-    ClassDB::bind_method(D_METHOD("try_lock"), &_Mutex::try_lock);
-    ClassDB::bind_method(D_METHOD("unlock"), &_Mutex::unlock);
+    MethodBinder::bind_method(D_METHOD("lock"), &_Mutex::lock);
+    MethodBinder::bind_method(D_METHOD("try_lock"), &_Mutex::try_lock);
+    MethodBinder::bind_method(D_METHOD("unlock"), &_Mutex::unlock);
 }
 
 _Mutex::_Mutex() {
@@ -2672,12 +2718,14 @@ Variant _Thread::wait_to_finish() {
     return r;
 }
 
+IMPL_GDCLASS(_Thread)
+
 void _Thread::_bind_methods() {
 
-	ClassDB::bind_method(D_METHOD("start", "instance", "method", "userdata", "priority"), &_Thread::start, {DEFVAL(Variant()), DEFVAL(PRIORITY_NORMAL)});
-    ClassDB::bind_method(D_METHOD("get_id"), &_Thread::get_id);
-    ClassDB::bind_method(D_METHOD("is_active"), &_Thread::is_active);
-    ClassDB::bind_method(D_METHOD("wait_to_finish"), &_Thread::wait_to_finish);
+    MethodBinder::bind_method(D_METHOD("start", "instance", "method", "userdata", "priority"), &_Thread::start, {DEFVAL(Variant()), DEFVAL(PRIORITY_NORMAL)});
+    MethodBinder::bind_method(D_METHOD("get_id"), &_Thread::get_id);
+    MethodBinder::bind_method(D_METHOD("is_active"), &_Thread::is_active);
+    MethodBinder::bind_method(D_METHOD("wait_to_finish"), &_Thread::wait_to_finish);
 
     BIND_ENUM_CONSTANT(PRIORITY_LOW);
     BIND_ENUM_CONSTANT(PRIORITY_NORMAL);
@@ -2872,35 +2920,37 @@ bool _ClassDB::is_class_enabled(StringName p_class) const {
     return ClassDB::is_class_enabled(p_class);
 }
 
+IMPL_GDCLASS(_ClassDB)
+
 void _ClassDB::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("get_class_list"), &_ClassDB::get_class_list);
-    ClassDB::bind_method(D_METHOD("get_inheriters_from_class", "class"), &_ClassDB::get_inheriters_from_class);
-    ClassDB::bind_method(D_METHOD("get_parent_class", "class"), &_ClassDB::get_parent_class);
-    ClassDB::bind_method(D_METHOD("class_exists", "class"), &_ClassDB::class_exists);
-    ClassDB::bind_method(D_METHOD("is_parent_class", "class", "inherits"), &_ClassDB::is_parent_class);
-    ClassDB::bind_method(D_METHOD("can_instance", "class"), &_ClassDB::can_instance);
-    ClassDB::bind_method(D_METHOD("instance", "class"), &_ClassDB::instance);
+    MethodBinder::bind_method(D_METHOD("get_class_list"), &_ClassDB::get_class_list);
+    MethodBinder::bind_method(D_METHOD("get_inheriters_from_class", "class"), &_ClassDB::get_inheriters_from_class);
+    MethodBinder::bind_method(D_METHOD("get_parent_class", "class"), &_ClassDB::get_parent_class);
+    MethodBinder::bind_method(D_METHOD("class_exists", "class"), &_ClassDB::class_exists);
+    MethodBinder::bind_method(D_METHOD("is_parent_class", "class", "inherits"), &_ClassDB::is_parent_class);
+    MethodBinder::bind_method(D_METHOD("can_instance", "class"), &_ClassDB::can_instance);
+    MethodBinder::bind_method(D_METHOD("instance", "class"), &_ClassDB::instance);
 
-    ClassDB::bind_method(D_METHOD("class_has_signal", "class", "signal"), &_ClassDB::has_signal);
-    ClassDB::bind_method(D_METHOD("class_get_signal", "class", "signal"), &_ClassDB::get_signal);
-	ClassDB::bind_method(D_METHOD("class_get_signal_list", "class", "no_inheritance"), &_ClassDB::get_signal_list, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("class_has_signal", "class", "signal"), &_ClassDB::has_signal);
+    MethodBinder::bind_method(D_METHOD("class_get_signal", "class", "signal"), &_ClassDB::get_signal);
+    MethodBinder::bind_method(D_METHOD("class_get_signal_list", "class", "no_inheritance"), &_ClassDB::get_signal_list, {DEFVAL(false)});
 
-	ClassDB::bind_method(D_METHOD("class_get_property_list", "class", "no_inheritance"), &_ClassDB::get_property_list, {DEFVAL(false)});
-    ClassDB::bind_method(D_METHOD("class_get_property", "object", "property"), &_ClassDB::get_property);
-    ClassDB::bind_method(D_METHOD("class_set_property", "object", "property", "value"), &_ClassDB::set_property);
+    MethodBinder::bind_method(D_METHOD("class_get_property_list", "class", "no_inheritance"), &_ClassDB::get_property_list, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("class_get_property", "object", "property"), &_ClassDB::get_property);
+    MethodBinder::bind_method(D_METHOD("class_set_property", "object", "property", "value"), &_ClassDB::set_property);
 
-	ClassDB::bind_method(D_METHOD("class_has_method", "class", "method", "no_inheritance"), &_ClassDB::has_method, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("class_has_method", "class", "method", "no_inheritance"), &_ClassDB::has_method, {DEFVAL(false)});
 
-	ClassDB::bind_method(D_METHOD("class_get_method_list", "class", "no_inheritance"), &_ClassDB::get_method_list, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("class_get_method_list", "class", "no_inheritance"), &_ClassDB::get_method_list, {DEFVAL(false)});
 
-	ClassDB::bind_method(D_METHOD("class_get_integer_constant_list", "class", "no_inheritance"), &_ClassDB::get_integer_constant_list, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("class_get_integer_constant_list", "class", "no_inheritance"), &_ClassDB::get_integer_constant_list, {DEFVAL(false)});
 
-    ClassDB::bind_method(D_METHOD("class_has_integer_constant", "class", "name"), &_ClassDB::has_integer_constant);
-    ClassDB::bind_method(D_METHOD("class_get_integer_constant", "class", "name"), &_ClassDB::get_integer_constant);
+    MethodBinder::bind_method(D_METHOD("class_has_integer_constant", "class", "name"), &_ClassDB::has_integer_constant);
+    MethodBinder::bind_method(D_METHOD("class_get_integer_constant", "class", "name"), &_ClassDB::get_integer_constant);
 
-    ClassDB::bind_method(D_METHOD("class_get_category", "class"), &_ClassDB::get_category);
-    ClassDB::bind_method(D_METHOD("is_class_enabled", "class"), &_ClassDB::is_class_enabled);
+    MethodBinder::bind_method(D_METHOD("class_get_category", "class"), &_ClassDB::get_category);
+    MethodBinder::bind_method(D_METHOD("is_class_enabled", "class"), &_ClassDB::is_class_enabled);
 }
 
 _ClassDB::_ClassDB() {}
@@ -3010,38 +3060,40 @@ bool _Engine::is_editor_hint() const {
     return Engine::get_singleton()->is_editor_hint();
 }
 
+IMPL_GDCLASS(_Engine)
+
 void _Engine::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_iterations_per_second", "iterations_per_second"), &_Engine::set_iterations_per_second);
-    ClassDB::bind_method(D_METHOD("get_iterations_per_second"), &_Engine::get_iterations_per_second);
-    ClassDB::bind_method(D_METHOD("set_physics_jitter_fix", "physics_jitter_fix"), &_Engine::set_physics_jitter_fix);
-    ClassDB::bind_method(D_METHOD("get_physics_jitter_fix"), &_Engine::get_physics_jitter_fix);
-    ClassDB::bind_method(D_METHOD("get_physics_interpolation_fraction"), &_Engine::get_physics_interpolation_fraction);
-    ClassDB::bind_method(D_METHOD("set_target_fps", "target_fps"), &_Engine::set_target_fps);
-    ClassDB::bind_method(D_METHOD("get_target_fps"), &_Engine::get_target_fps);
+    MethodBinder::bind_method(D_METHOD("set_iterations_per_second", "iterations_per_second"), &_Engine::set_iterations_per_second);
+    MethodBinder::bind_method(D_METHOD("get_iterations_per_second"), &_Engine::get_iterations_per_second);
+    MethodBinder::bind_method(D_METHOD("set_physics_jitter_fix", "physics_jitter_fix"), &_Engine::set_physics_jitter_fix);
+    MethodBinder::bind_method(D_METHOD("get_physics_jitter_fix"), &_Engine::get_physics_jitter_fix);
+    MethodBinder::bind_method(D_METHOD("get_physics_interpolation_fraction"), &_Engine::get_physics_interpolation_fraction);
+    MethodBinder::bind_method(D_METHOD("set_target_fps", "target_fps"), &_Engine::set_target_fps);
+    MethodBinder::bind_method(D_METHOD("get_target_fps"), &_Engine::get_target_fps);
 
-    ClassDB::bind_method(D_METHOD("set_time_scale", "time_scale"), &_Engine::set_time_scale);
-    ClassDB::bind_method(D_METHOD("get_time_scale"), &_Engine::get_time_scale);
+    MethodBinder::bind_method(D_METHOD("set_time_scale", "time_scale"), &_Engine::set_time_scale);
+    MethodBinder::bind_method(D_METHOD("get_time_scale"), &_Engine::get_time_scale);
 
-    ClassDB::bind_method(D_METHOD("get_frames_drawn"), &_Engine::get_frames_drawn);
-    ClassDB::bind_method(D_METHOD("get_frames_per_second"), &_Engine::get_frames_per_second);
+    MethodBinder::bind_method(D_METHOD("get_frames_drawn"), &_Engine::get_frames_drawn);
+    MethodBinder::bind_method(D_METHOD("get_frames_per_second"), &_Engine::get_frames_per_second);
 
-    ClassDB::bind_method(D_METHOD("get_main_loop"), &_Engine::get_main_loop);
+    MethodBinder::bind_method(D_METHOD("get_main_loop"), &_Engine::get_main_loop);
 
-    ClassDB::bind_method(D_METHOD("get_version_info"), &_Engine::get_version_info);
-    ClassDB::bind_method(D_METHOD("get_author_info"), &_Engine::get_author_info);
-    ClassDB::bind_method(D_METHOD("get_copyright_info"), &_Engine::get_copyright_info);
-    ClassDB::bind_method(D_METHOD("get_donor_info"), &_Engine::get_donor_info);
-    ClassDB::bind_method(D_METHOD("get_license_info"), &_Engine::get_license_info);
-    ClassDB::bind_method(D_METHOD("get_license_text"), &_Engine::get_license_text);
+    MethodBinder::bind_method(D_METHOD("get_version_info"), &_Engine::get_version_info);
+    MethodBinder::bind_method(D_METHOD("get_author_info"), &_Engine::get_author_info);
+    MethodBinder::bind_method(D_METHOD("get_copyright_info"), &_Engine::get_copyright_info);
+    MethodBinder::bind_method(D_METHOD("get_donor_info"), &_Engine::get_donor_info);
+    MethodBinder::bind_method(D_METHOD("get_license_info"), &_Engine::get_license_info);
+    MethodBinder::bind_method(D_METHOD("get_license_text"), &_Engine::get_license_text);
 
-    ClassDB::bind_method(D_METHOD("is_in_physics_frame"), &_Engine::is_in_physics_frame);
+    MethodBinder::bind_method(D_METHOD("is_in_physics_frame"), &_Engine::is_in_physics_frame);
 
-    ClassDB::bind_method(D_METHOD("has_singleton", "name"), &_Engine::has_singleton);
-    ClassDB::bind_method(D_METHOD("get_singleton", "name"), &_Engine::get_singleton_object);
+    MethodBinder::bind_method(D_METHOD("has_singleton", "name"), &_Engine::has_singleton);
+    MethodBinder::bind_method(D_METHOD("get_singleton", "name"), &_Engine::get_singleton_object);
 
-    ClassDB::bind_method(D_METHOD("set_editor_hint", "enabled"), &_Engine::set_editor_hint);
-    ClassDB::bind_method(D_METHOD("is_editor_hint"), &_Engine::is_editor_hint);
+    MethodBinder::bind_method(D_METHOD("set_editor_hint", "enabled"), &_Engine::set_editor_hint);
+    MethodBinder::bind_method(D_METHOD("is_editor_hint"), &_Engine::is_editor_hint);
 
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "editor_hint"), "set_editor_hint", "is_editor_hint");
     ADD_PROPERTY(PropertyInfo(Variant::INT, "iterations_per_second"), "set_iterations_per_second", "get_iterations_per_second");
@@ -3056,16 +3108,18 @@ _Engine::_Engine() {
     singleton = this;
 }
 
-void JSONParseResult::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("get_error"), &JSONParseResult::get_error);
-    ClassDB::bind_method(D_METHOD("get_error_string"), &JSONParseResult::get_error_string);
-    ClassDB::bind_method(D_METHOD("get_error_line"), &JSONParseResult::get_error_line);
-    ClassDB::bind_method(D_METHOD("get_result"), &JSONParseResult::get_result);
+IMPL_GDCLASS(JSONParseResult)
 
-    ClassDB::bind_method(D_METHOD("set_error", "error"), &JSONParseResult::set_error);
-    ClassDB::bind_method(D_METHOD("set_error_string", "error_string"), &JSONParseResult::set_error_string);
-    ClassDB::bind_method(D_METHOD("set_error_line", "error_line"), &JSONParseResult::set_error_line);
-    ClassDB::bind_method(D_METHOD("set_result", "result"), &JSONParseResult::set_result);
+void JSONParseResult::_bind_methods() {
+    MethodBinder::bind_method(D_METHOD("get_error"), &JSONParseResult::get_error);
+    MethodBinder::bind_method(D_METHOD("get_error_string"), &JSONParseResult::get_error_string);
+    MethodBinder::bind_method(D_METHOD("get_error_line"), &JSONParseResult::get_error_line);
+    MethodBinder::bind_method(D_METHOD("get_result"), &JSONParseResult::get_result);
+
+    MethodBinder::bind_method(D_METHOD("set_error", "error"), &JSONParseResult::set_error);
+    MethodBinder::bind_method(D_METHOD("set_error_string", "error_string"), &JSONParseResult::set_error_string);
+    MethodBinder::bind_method(D_METHOD("set_error_line", "error_line"), &JSONParseResult::set_error_line);
+    MethodBinder::bind_method(D_METHOD("set_result", "result"), &JSONParseResult::set_result);
 
     ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "error", PROPERTY_HINT_NONE, "Error", PROPERTY_USAGE_CLASS_IS_ENUM), "set_error", "get_error");
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "error_string"), "set_error_string", "get_error_string");
@@ -3105,9 +3159,11 @@ Variant JSONParseResult::get_result() const {
     return result;
 }
 
+IMPL_GDCLASS(_JSON)
+
 void _JSON::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("print", "value", "indent", "sort_keys"), &_JSON::print, {DEFVAL(String()), DEFVAL(false)});
-    ClassDB::bind_method(D_METHOD("parse", "json"), &_JSON::parse);
+    MethodBinder::bind_method(D_METHOD("print", "value", "indent", "sort_keys"), &_JSON::print, {DEFVAL(String()), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("parse", "json"), &_JSON::parse);
 }
 
 String _JSON::print(const Variant &p_value, const String &p_indent, bool p_sort_keys) {

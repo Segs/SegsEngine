@@ -35,14 +35,15 @@
 
 class Canvas : public Resource {
 
-	GDCLASS(Canvas, Resource);
+	GDCLASS(Canvas,Resource)
+
 
 	RID canvas;
 
 public:
-	virtual RID get_rid() const;
+	RID get_rid() const override;
 	Canvas();
-	~Canvas();
+	~Canvas() override;
 };
 
 #endif // CANVAS_H

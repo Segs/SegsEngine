@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  ssl_context_mbed_tls.h                                               */
+/*  ssl_context_mbedtls.h                                                */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -67,7 +67,7 @@ public:
 	mbedtls_ssl_context *get_context();
 
 	SSLContextMbedTLS();
-	~SSLContextMbedTLS();
+	~SSLContextMbedTLS() override;
 };
 
 #endif // SSL_CONTEXT_MBED_TLS_H

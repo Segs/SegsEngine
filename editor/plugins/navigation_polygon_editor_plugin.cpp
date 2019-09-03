@@ -30,6 +30,9 @@
 
 #include "navigation_polygon_editor_plugin.h"
 
+IMPL_GDCLASS(NavigationPolygonEditor)
+IMPL_GDCLASS(NavigationPolygonEditorPlugin)
+
 Ref<NavigationPolygon> NavigationPolygonEditor::_ensure_navpoly() const {
 
 	Ref<NavigationPolygon> navpoly = node->get_navigation_polygon();

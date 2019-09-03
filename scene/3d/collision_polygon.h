@@ -37,7 +37,7 @@
 class CollisionObject;
 class CollisionPolygon : public Spatial {
 
-	GDCLASS(CollisionPolygon, Spatial);
+	GDCLASS(CollisionPolygon,Spatial)
 
 protected:
 	float depth;
@@ -71,7 +71,7 @@ public:
 
 	virtual AABB get_item_rect() const;
 
-	String get_configuration_warning() const;
+	String get_configuration_warning() const override;
 
 	CollisionPolygon();
 };

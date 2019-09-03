@@ -35,7 +35,7 @@
 
 class TextEditor : public ScriptEditorBase {
 
-	GDCLASS(TextEditor, ScriptEditorBase);
+	GDCLASS(TextEditor,ScriptEditorBase)
 
 private:
 	CodeTextEditor *code_editor;
@@ -116,47 +116,47 @@ protected:
 	void _bookmark_item_pressed(int p_idx);
 
 public:
-	virtual void add_syntax_highlighter(SyntaxHighlighter *p_highlighter);
-	virtual void set_syntax_highlighter(SyntaxHighlighter *p_highlighter);
+	void add_syntax_highlighter(SyntaxHighlighter *p_highlighter) override;
+	void set_syntax_highlighter(SyntaxHighlighter *p_highlighter) override;
 
-	virtual String get_name();
-	virtual Ref<Texture> get_icon();
-	virtual RES get_edited_resource() const;
-	virtual void set_edited_resource(const RES &p_res);
+	String get_name() override;
+	Ref<Texture> get_icon() override;
+	RES get_edited_resource() const override;
+	void set_edited_resource(const RES &p_res) override;
 	void set_edited_file(const Ref<TextFile> &p_file);
-	virtual void reload_text();
-	virtual void apply_code();
-	virtual bool is_unsaved();
-	virtual Variant get_edit_state();
-	virtual void set_edit_state(const Variant &p_state);
-	virtual Vector<String> get_functions();
-	virtual void get_breakpoints(List<int> *p_breakpoints);
-	virtual void goto_line(int p_line, bool p_with_error = false);
+	void reload_text() override;
+	void apply_code() override;
+	bool is_unsaved() override;
+	Variant get_edit_state() override;
+	void set_edit_state(const Variant &p_state) override;
+	Vector<String> get_functions() override;
+	void get_breakpoints(List<int> *p_breakpoints) override;
+	void goto_line(int p_line, bool p_with_error = false) override;
 	void goto_line_selection(int p_line, int p_begin, int p_end);
-	virtual void set_executing_line(int p_line);
-	virtual void clear_executing_line();
-	virtual void trim_trailing_whitespace();
-	virtual void insert_final_newline();
-	virtual void convert_indent_to_spaces();
-	virtual void convert_indent_to_tabs();
-	virtual void ensure_focus();
-	virtual void tag_saved_version();
-	virtual void update_settings();
-	virtual bool show_members_overview();
-	virtual bool can_lose_focus_on_node_selection() { return true; }
-	virtual void set_debugger_active(bool p_active);
-	virtual void set_tooltip_request_func(String p_method, Object *p_obj);
-	virtual void add_callback(const String &p_function, PoolStringArray p_args);
+	void set_executing_line(int p_line) override;
+	void clear_executing_line() override;
+	void trim_trailing_whitespace() override;
+	void insert_final_newline() override;
+	void convert_indent_to_spaces() override;
+	void convert_indent_to_tabs() override;
+	void ensure_focus() override;
+	void tag_saved_version() override;
+	void update_settings() override;
+	bool show_members_overview() override;
+	bool can_lose_focus_on_node_selection() override { return true; }
+	void set_debugger_active(bool p_active) override;
+	void set_tooltip_request_func(String p_method, Object *p_obj) override;
+	void add_callback(const String &p_function, PoolStringArray p_args) override;
 
-	virtual Control *get_edit_menu();
-	virtual void clear_edit_menu();
+	Control *get_edit_menu() override;
+	void clear_edit_menu() override;
 
-	virtual void validate();
+	void validate() override;
 
 	static void register_editor();
 
 	TextEditor();
-	~TextEditor();
+	~TextEditor() override;
 };
 
 #endif // TEXT_EDITOR_H

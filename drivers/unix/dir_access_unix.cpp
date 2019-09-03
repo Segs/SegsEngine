@@ -60,8 +60,8 @@ Error DirAccessUnix::list_dir_begin() {
 
     //char real_current_dir_name[2048]; //is this enough?!
     //getcwd(real_current_dir_name,2048);
-    //chdir(current_path.utf8().data());
-    dir_stream = opendir(current_dir.utf8().data());
+	//chdir(StringUtils::to_utf8(current_path).data());
+	dir_stream = opendir(StringUtils::to_utf8(current_dir).data());
     //chdir(real_current_dir_name);
     if (!dir_stream)
         return ERR_CANT_OPEN; //error!
@@ -79,7 +79,7 @@ bool DirAccessUnix::file_exists(String p_file) {
     p_file = fix_path(p_file);
 
     struct stat flags;
-    bool success = (stat(p_file.utf8().data(), &flags) == 0);
+	bool success = (stat(StringUtils::to_utf8(p_file).data(), &flags) == 0);
 
     if (success && S_ISDIR(flags.st_mode)) {
         success = false;
@@ -98,7 +98,7 @@ bool DirAccessUnix::dir_exists(String p_dir) {
     p_dir = fix_path(p_dir);
 
     struct stat flags;
-    bool success = (stat(p_dir.utf8().data(), &flags) == 0);
+	bool success = (stat(StringUtils::to_utf8(p_dir).data(), &flags) == 0);
 
     return (success && S_ISDIR(flags.st_mode));
 }
@@ -111,7 +111,7 @@ uint64_t DirAccessUnix::get_modified_time(String p_file) {
     p_file = fix_path(p_file);
 
     struct stat flags;
-    bool success = (stat(p_file.utf8().data(), &flags) == 0);
+	bool success = (stat(StringUtils::to_utf8(p_file).data(), &flags) == 0);
 
     if (success) {
         return flags.st_mtime;
@@ -145,7 +145,7 @@ String DirAccessUnix::get_next() {
         String f = PathUtils::plus_file(current_dir,fname);
 
         struct stat flags;
-        if (stat(f.utf8().data(), &flags) == 0) {
+		if (stat(StringUtils::to_utf8(f).data(), &flags) == 0) {
             _cisdir = S_ISDIR(flags.st_mode);
         } else {
             _cisdir = false;
@@ -154,7 +154,7 @@ String DirAccessUnix::get_next() {
         _cisdir = (entry->d_type == DT_DIR);
     }
 
-    _cishidden = (fname != "." && fname != ".." && fname.begins_with("."));
+    _cishidden = (fname != "." && fname != ".." && StringUtils::begins_with(fname,"."));
 
     return fname;
 }
@@ -237,7 +237,7 @@ static void _get_drives(List<String> *list) {
                 // Parse only file:// links
                 if (strncmp(string, "file://", 7) == 0) {
                     // Strip any unwanted edges on the strings and push_back if it's not a duplicate
-                    String fpath = StringUtils::percent_decode(StringUtils::split_spaces(String(string + 7).strip_edges())[0]);
+                    String fpath = StringUtils::percent_decode(StringUtils::split_spaces(StringUtils::strip_edges(string + 7))[0]);
                     if (!list->find(fpath)) {
                         list->push_back(fpath);
                     }
@@ -264,7 +264,7 @@ String DirAccessUnix::get_drive(int p_drive) {
     List<String> list;
     _get_drives(&list);
 
-    ERR_FAIL_INDEX_V(p_drive, list.size(), "");
+	ERR_FAIL_INDEX_V(p_drive, list.size(), "")
 
     return list[p_drive];
 }
@@ -278,16 +278,16 @@ Error DirAccessUnix::make_dir(String p_dir) {
 
     p_dir = fix_path(p_dir);
 
-    bool success = (mkdir(p_dir.utf8().data(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == 0);
+	bool success = (mkdir(StringUtils::to_utf8(p_dir).data(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == 0);
     int err = errno;
 
     if (success) {
         return OK;
-    };
+	}
 
     if (err == EEXIST) {
         return ERR_ALREADY_EXISTS;
-    };
+	}
 
     return ERR_CANT_CREATE;
 }
@@ -301,8 +301,8 @@ Error DirAccessUnix::change_dir(String p_dir) {
     // prev_dir is the directory we are changing out of
     String prev_dir;
     char real_current_dir_name[2048];
-    ERR_FAIL_COND_V(getcwd(real_current_dir_name, 2048) == nullptr, ERR_BUG);
-    if (prev_dir.parse_utf8(real_current_dir_name))
+	ERR_FAIL_COND_V(getcwd(real_current_dir_name, 2048) == nullptr, ERR_BUG)
+	if (StringUtils::parse_utf8(prev_dir,real_current_dir_name))
         prev_dir = real_current_dir_name; //no utf8, maybe latin?
 
     // try_dir is the directory we are trying to change into
@@ -315,25 +315,24 @@ Error DirAccessUnix::change_dir(String p_dir) {
         try_dir = p_dir;
     }
 
-    bool worked = (chdir(try_dir.utf8().data()) == 0); // we can only give this utf8
+	bool worked = (chdir(StringUtils::to_utf8(try_dir).data()) == 0); // we can only give this utf8
     if (!worked) {
         return ERR_INVALID_PARAMETER;
     }
 
     String base = _get_root_path();
-    if (base != String() && !try_dir.begins_with(base)) {
-        ERR_FAIL_COND_V(getcwd(real_current_dir_name, 2048) == nullptr, ERR_BUG);
-        String new_dir;
-        new_dir.parse_utf8(real_current_dir_name);
+    if (base != String() && !StringUtils::begins_with(try_dir,base)) {
+		ERR_FAIL_COND_V(getcwd(real_current_dir_name, 2048) == nullptr, ERR_BUG)
+		String new_dir = StringUtils::from_utf8(real_current_dir_name);
 
-        if (!new_dir.begins_with(base)) {
+        if (!StringUtils::begins_with(new_dir,base)) {
             try_dir = current_dir; //revert
         }
     }
 
     // the directory exists, so set current_dir to try_dir
     current_dir = try_dir;
-    ERR_FAIL_COND_V(chdir(prev_dir.utf8().data()) != 0, ERR_BUG);
+	ERR_FAIL_COND_V(chdir(StringUtils::to_utf8(prev_dir).data()) != 0, ERR_BUG);
     return OK;
 }
 
@@ -342,9 +341,9 @@ String DirAccessUnix::get_current_dir() {
     String base = _get_root_path();
     if (base != "") {
 
-        String bd = current_dir.replace_first(base, "");
-        if (bd.begins_with("/"))
-            return _get_root_string() + bd.substr(1, bd.length());
+		String bd = StringUtils::replace_first(current_dir,base, "");
+        if (StringUtils::begins_with(bd,"/"))
+            return _get_root_string() + StringUtils::substr(bd,1, bd.length());
         else
             return _get_root_string() + bd;
     }
@@ -363,7 +362,7 @@ Error DirAccessUnix::rename(String p_path, String p_new_path) {
 
     p_new_path = fix_path(p_new_path);
 
-    return ::rename(p_path.utf8().data(), p_new_path.utf8().data()) == 0 ? OK : FAILED;
+	return ::rename(StringUtils::to_utf8(p_path).data(), StringUtils::to_utf8(p_new_path).data()) == 0 ? OK : FAILED;
 }
 
 Error DirAccessUnix::remove(String p_path) {
@@ -374,20 +373,20 @@ Error DirAccessUnix::remove(String p_path) {
     p_path = fix_path(p_path);
 
     struct stat flags;
-    if ((stat(p_path.utf8().data(), &flags) != 0))
+	if ((stat(StringUtils::to_utf8(p_path).data(), &flags) != 0))
         return FAILED;
 
     if (S_ISDIR(flags.st_mode))
-        return ::rmdir(p_path.utf8().data()) == 0 ? OK : FAILED;
+		return ::rmdir(StringUtils::to_utf8(p_path).data()) == 0 ? OK : FAILED;
     else
-        return ::unlink(p_path.utf8().data()) == 0 ? OK : FAILED;
+		return ::unlink(StringUtils::to_utf8(p_path).data()) == 0 ? OK : FAILED;
 }
 
 size_t DirAccessUnix::get_space_left() {
 
 #ifndef NO_STATVFS
     struct statvfs vfs;
-    if (statvfs(current_dir.utf8().data(), &vfs) != 0) {
+	if (statvfs(StringUtils::to_utf8(current_dir).data(), &vfs) != 0) {
 
         return 0;
     };
@@ -412,8 +411,8 @@ DirAccessUnix::DirAccessUnix() {
 
     // set current directory to an absolute path of the current directory
     char real_current_dir_name[2048];
-    ERR_FAIL_COND(getcwd(real_current_dir_name, 2048) == nullptr);
-    if (current_dir.parse_utf8(real_current_dir_name))
+	ERR_FAIL_COND(getcwd(real_current_dir_name, 2048) == nullptr)
+	if (StringUtils::parse_utf8(current_dir,real_current_dir_name))
         current_dir = real_current_dir_name;
 
     change_dir(current_dir);

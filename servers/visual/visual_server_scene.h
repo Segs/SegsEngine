@@ -175,12 +175,12 @@ public:
 
 		InstanceBaseData *base_data;
 
-		virtual void base_removed() {
+		void base_removed() override {
 
 			singleton->instance_set_base(self, RID());
 		}
 
-		virtual void base_changed(bool p_aabb, bool p_materials) {
+		void base_changed(bool p_aabb, bool p_materials) override {
 
 			singleton->_instance_queue_update(this, p_aabb, p_materials);
 		}
@@ -213,7 +213,7 @@ public:
 			custom_aabb = nullptr;
 		}
 
-		~Instance() {
+		~Instance() override {
 
 			if (base_data)
 				memdelete(base_data);

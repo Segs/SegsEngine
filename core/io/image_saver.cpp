@@ -49,13 +49,13 @@ Error ImageSaver::save_image(String p_file, const Ref<Image> &p_image, FileAcces
         }
     }
 
-	String extension = PathUtils::get_extension(p_file);
+    String extension = PathUtils::get_extension(p_file);
 
     for (int i = 0; i < savers.size(); i++) {
 
         if (!savers[i]->can_save(extension))
             continue;
-        ImageData result_data;
+        ImageData result_data = *p_image.ptr();
         Error err = savers[i]->save_image(result_data, f, {p_quality,false});
         if (err != OK) {
             ERR_PRINTS("Error saving image: " + p_file)
@@ -85,7 +85,7 @@ Error ImageSaver::save_image(String ext, const Ref<Image> & p_image, PoolVector<
             continue;
         Error err = savers[i]->save_image(*p_image.ptr(), tgt, {p_quality,false});
         if (err != OK) {
-            ERR_PRINTS("Error loading image from memory")
+            ERR_PRINT("Error loading image from memory")
         }
         if (err != ERR_FILE_UNRECOGNIZED) {
             CRASH_COND(err!=OK)

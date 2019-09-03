@@ -238,20 +238,20 @@ class GDScriptTokenizerText : public GDScriptTokenizer {
 
 public:
 	void set_code(const String &p_code);
-	virtual Token get_token(int p_offset = 0) const;
-	virtual StringName get_token_identifier(int p_offset = 0) const;
-	virtual GDScriptFunctions::Function get_token_built_in_func(int p_offset = 0) const;
-	virtual Variant::Type get_token_type(int p_offset = 0) const;
-	virtual int get_token_line(int p_offset = 0) const;
-	virtual int get_token_column(int p_offset = 0) const;
-	virtual int get_token_line_indent(int p_offset = 0) const;
-	virtual const Variant &get_token_constant(int p_offset = 0) const;
-	virtual String get_token_error(int p_offset = 0) const;
-	virtual void advance(int p_amount = 1);
+	Token get_token(int p_offset = 0) const override;
+	StringName get_token_identifier(int p_offset = 0) const override;
+	GDScriptFunctions::Function get_token_built_in_func(int p_offset = 0) const override;
+	Variant::Type get_token_type(int p_offset = 0) const override;
+	int get_token_line(int p_offset = 0) const override;
+	int get_token_column(int p_offset = 0) const override;
+	int get_token_line_indent(int p_offset = 0) const override;
+	const Variant &get_token_constant(int p_offset = 0) const override;
+	String get_token_error(int p_offset = 0) const override;
+	void advance(int p_amount = 1) override;
 #ifdef DEBUG_ENABLED
-	virtual const Vector<Pair<int, String> > &get_warning_skips() const { return warning_skips; }
-	virtual const Set<String> &get_warning_global_skips() const { return warning_global_skips; }
-	virtual bool is_ignoring_warnings() const { return ignore_warnings; }
+	const Vector<Pair<int, String> > &get_warning_skips() const override { return warning_skips; }
+	const Set<String> &get_warning_global_skips() const override { return warning_global_skips; }
+	bool is_ignoring_warnings() const override { return ignore_warnings; }
 #endif // DEBUG_ENABLED
 };
 
@@ -276,26 +276,26 @@ class GDScriptTokenizerBuffer : public GDScriptTokenizer {
 public:
 	Error set_code_buffer(const Vector<uint8_t> &p_buffer);
 	static Vector<uint8_t> parse_code_string(const String &p_code);
-	virtual Token get_token(int p_offset = 0) const;
-	virtual StringName get_token_identifier(int p_offset = 0) const;
-	virtual GDScriptFunctions::Function get_token_built_in_func(int p_offset = 0) const;
-	virtual Variant::Type get_token_type(int p_offset = 0) const;
-	virtual int get_token_line(int p_offset = 0) const;
-	virtual int get_token_column(int p_offset = 0) const;
-	virtual int get_token_line_indent(int p_offset = 0) const;
-	virtual const Variant &get_token_constant(int p_offset = 0) const;
-	virtual String get_token_error(int p_offset = 0) const;
-	virtual void advance(int p_amount = 1);
+	Token get_token(int p_offset = 0) const override;
+	StringName get_token_identifier(int p_offset = 0) const override;
+	GDScriptFunctions::Function get_token_built_in_func(int p_offset = 0) const override;
+	Variant::Type get_token_type(int p_offset = 0) const override;
+	int get_token_line(int p_offset = 0) const override;
+	int get_token_column(int p_offset = 0) const override;
+	int get_token_line_indent(int p_offset = 0) const override;
+	const Variant &get_token_constant(int p_offset = 0) const override;
+	String get_token_error(int p_offset = 0) const override;
+	void advance(int p_amount = 1) override;
 #ifdef DEBUG_ENABLED
-	virtual const Vector<Pair<int, String> > &get_warning_skips() const {
+	const Vector<Pair<int, String> > &get_warning_skips() const override {
 		static Vector<Pair<int, String> > v;
 		return v;
 	}
-	virtual const Set<String> &get_warning_global_skips() const {
+	const Set<String> &get_warning_global_skips() const override {
 		static Set<String> s;
 		return s;
 	}
-	virtual bool is_ignoring_warnings() const { return true; }
+	bool is_ignoring_warnings() const override { return true; }
 #endif // DEBUG_ENABLED
 	GDScriptTokenizerBuffer();
 };

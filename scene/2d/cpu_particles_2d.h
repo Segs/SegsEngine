@@ -37,7 +37,7 @@
 
 class CPUParticles2D : public Node2D {
 private:
-	GDCLASS(CPUParticles2D, Node2D);
+	GDCLASS(CPUParticles2D,Node2D)
 
 public:
 	enum DrawOrder {
@@ -188,7 +188,7 @@ private:
 protected:
 	static void _bind_methods();
 	void _notification(int p_what);
-	virtual void _validate_property(PropertyInfo &property) const;
+	void _validate_property(PropertyInfo &property) const override;
 
 public:
 	void set_emitting(bool p_emitting);
@@ -281,14 +281,14 @@ public:
 	void set_gravity(const Vector2 &p_gravity);
 	Vector2 get_gravity() const;
 
-	virtual String get_configuration_warning() const;
+	String get_configuration_warning() const override;
 
 	void restart();
 
 	void convert_from_particles(Node *p_particles);
 
 	CPUParticles2D();
-	~CPUParticles2D();
+	~CPUParticles2D() override;
 };
 
 VARIANT_ENUM_CAST(CPUParticles2D::DrawOrder)

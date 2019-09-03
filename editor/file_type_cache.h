@@ -35,7 +35,7 @@
 
 class FileTypeCache : Object {
 
-	GDCLASS(FileTypeCache, Object);
+	GDCLASS(FileTypeCache,Object)
 
 	HashMap<String, String> file_type_map;
 

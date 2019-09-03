@@ -43,7 +43,8 @@ class DynamicFont;
 
 class DynamicFontData : public Resource {
 
-	GDCLASS(DynamicFontData, Resource);
+	GDCLASS(DynamicFontData,Resource)
+IMPL_GDCLASS(DynamicFontData)
 
 	bool valid;
 
@@ -90,7 +91,8 @@ public:
 
 class DynamicFontAtSize : public Reference {
 
-	GDCLASS(DynamicFontAtSize, Reference);
+	GDCLASS(DynamicFontAtSize,Reference)
+IMPL_GDCLASS(DynamicFontAtSize)
 
 	int rect_margin;
 
@@ -146,7 +148,8 @@ public:
 
 class DynamicFont : public Font {
 
-	GDCLASS(DynamicFont, Font);
+	GDCLASS(DynamicFont,Font)
+IMPL_GDCLASS(DynamicFont)
 
 	Ref<DynamicFontData> data;
 	Ref<DynamicFontAtSize> data_at_size;

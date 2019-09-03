@@ -1,11 +1,11 @@
 #pragma once
-#include "Lutefisk3D/Core/Export.h"
+#include "core/godot_export.h"
 
 #ifndef LUTEFISK3D_STATIC_DEFINE
 #  define EASTL_DLL 1
 #endif
 #define EASTL_LF3D_EXTENSIONS 1
-#define EASTL_API LUTEFISK3D_EXPORT
+#define EASTL_API GODOT_EXPORT
 #define EA_PRAGMA_ONCE_SUPPORTED
 #define EA_NOEXCEPT noexcept
 #define EA_NOEXCEPT_IF(predicate) noexcept((predicate))

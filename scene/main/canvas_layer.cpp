@@ -31,6 +31,11 @@
 #include "canvas_layer.h"
 #include "viewport.h"
 #include "core/object_db.h"
+#include "core/method_bind.h"
+#include "core/method_bind.h"
+
+IMPL_GDCLASS(CanvasLayer)
+
 
 void CanvasLayer::set_layer(int p_xform) {
 
@@ -275,34 +280,34 @@ void CanvasLayer::_update_follow_viewport(bool p_force_exit) {
 
 void CanvasLayer::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_layer", "layer"), &CanvasLayer::set_layer);
-    ClassDB::bind_method(D_METHOD("get_layer"), &CanvasLayer::get_layer);
+    MethodBinder::bind_method(D_METHOD("set_layer", "layer"), &CanvasLayer::set_layer);
+    MethodBinder::bind_method(D_METHOD("get_layer"), &CanvasLayer::get_layer);
 
-    ClassDB::bind_method(D_METHOD("set_transform", "transform"), &CanvasLayer::set_transform);
-    ClassDB::bind_method(D_METHOD("get_transform"), &CanvasLayer::get_transform);
+    MethodBinder::bind_method(D_METHOD("set_transform", "transform"), &CanvasLayer::set_transform);
+    MethodBinder::bind_method(D_METHOD("get_transform"), &CanvasLayer::get_transform);
 
-    ClassDB::bind_method(D_METHOD("set_offset", "offset"), &CanvasLayer::set_offset);
-    ClassDB::bind_method(D_METHOD("get_offset"), &CanvasLayer::get_offset);
+    MethodBinder::bind_method(D_METHOD("set_offset", "offset"), &CanvasLayer::set_offset);
+    MethodBinder::bind_method(D_METHOD("get_offset"), &CanvasLayer::get_offset);
 
-    ClassDB::bind_method(D_METHOD("set_rotation", "radians"), &CanvasLayer::set_rotation);
-    ClassDB::bind_method(D_METHOD("get_rotation"), &CanvasLayer::get_rotation);
+    MethodBinder::bind_method(D_METHOD("set_rotation", "radians"), &CanvasLayer::set_rotation);
+    MethodBinder::bind_method(D_METHOD("get_rotation"), &CanvasLayer::get_rotation);
 
-    ClassDB::bind_method(D_METHOD("set_rotation_degrees", "degrees"), &CanvasLayer::set_rotation_degrees);
-    ClassDB::bind_method(D_METHOD("get_rotation_degrees"), &CanvasLayer::get_rotation_degrees);
+    MethodBinder::bind_method(D_METHOD("set_rotation_degrees", "degrees"), &CanvasLayer::set_rotation_degrees);
+    MethodBinder::bind_method(D_METHOD("get_rotation_degrees"), &CanvasLayer::get_rotation_degrees);
 
-    ClassDB::bind_method(D_METHOD("set_scale", "scale"), &CanvasLayer::set_scale);
-    ClassDB::bind_method(D_METHOD("get_scale"), &CanvasLayer::get_scale);
+    MethodBinder::bind_method(D_METHOD("set_scale", "scale"), &CanvasLayer::set_scale);
+    MethodBinder::bind_method(D_METHOD("get_scale"), &CanvasLayer::get_scale);
 
-    ClassDB::bind_method(D_METHOD("set_follow_viewport", "enable"), &CanvasLayer::set_follow_viewport);
-    ClassDB::bind_method(D_METHOD("is_following_viewport"), &CanvasLayer::is_following_viewport);
+    MethodBinder::bind_method(D_METHOD("set_follow_viewport", "enable"), &CanvasLayer::set_follow_viewport);
+    MethodBinder::bind_method(D_METHOD("is_following_viewport"), &CanvasLayer::is_following_viewport);
 
-    ClassDB::bind_method(D_METHOD("set_follow_viewport_scale", "scale"), &CanvasLayer::set_follow_viewport_scale);
-    ClassDB::bind_method(D_METHOD("get_follow_viewport_scale"), &CanvasLayer::get_follow_viewport_scale);
+    MethodBinder::bind_method(D_METHOD("set_follow_viewport_scale", "scale"), &CanvasLayer::set_follow_viewport_scale);
+    MethodBinder::bind_method(D_METHOD("get_follow_viewport_scale"), &CanvasLayer::get_follow_viewport_scale);
 
-    ClassDB::bind_method(D_METHOD("set_custom_viewport", "viewport"), &CanvasLayer::set_custom_viewport);
-    ClassDB::bind_method(D_METHOD("get_custom_viewport"), &CanvasLayer::get_custom_viewport);
+    MethodBinder::bind_method(D_METHOD("set_custom_viewport", "viewport"), &CanvasLayer::set_custom_viewport);
+    MethodBinder::bind_method(D_METHOD("get_custom_viewport"), &CanvasLayer::get_custom_viewport);
 
-    ClassDB::bind_method(D_METHOD("get_canvas"), &CanvasLayer::get_canvas);
+    MethodBinder::bind_method(D_METHOD("get_canvas"), &CanvasLayer::get_canvas);
 
     ADD_GROUP("Layer", "");
     ADD_PROPERTY(PropertyInfo(Variant::INT, "layer", PROPERTY_HINT_RANGE, "-128,128,1"), "set_layer", "get_layer");

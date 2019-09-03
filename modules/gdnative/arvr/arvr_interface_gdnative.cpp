@@ -33,6 +33,8 @@
 #include "servers/arvr/arvr_positional_tracker.h"
 #include "servers/visual/visual_server_globals.h"
 
+IMPL_GDCLASS(ARVRInterfaceGDNative)
+
 void ARVRInterfaceGDNative::_bind_methods() {
 	ADD_PROPERTY_DEFAULT("interface_is_initialized", false);
 	ADD_PROPERTY_DEFAULT("ar_is_anchor_detection_enabled", false);

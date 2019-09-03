@@ -33,6 +33,7 @@
 #include "core/core_string_names.h"
 #include "core/engine.h"
 #include "core/global_constants.h"
+#include "core/method_bind.h"
 #include "core/object_db.h"
 #include "core/io/file_access_encrypted.h"
 #include "core/os/file_access.h"
@@ -40,6 +41,9 @@
 #include "core/print_string.h"
 #include "core/project_settings.h"
 #include "gdscript_compiler.h"
+
+IMPL_GDCLASS(GDScriptNativeClass)
+IMPL_GDCLASS(GDScript)
 
 ///////////////////////////
 
@@ -63,7 +67,7 @@ bool GDScriptNativeClass::_get(const StringName &p_name, Variant &r_ret) const {
 
 void GDScriptNativeClass::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("new"), &GDScriptNativeClass::_new);
+    MethodBinder::bind_method(D_METHOD("new"), &GDScriptNativeClass::_new);
 }
 
 Variant GDScriptNativeClass::_new() {
@@ -562,7 +566,7 @@ Error GDScript::reload(bool p_keep_state) {
     if (basedir != "")
         basedir = PathUtils::get_base_dir(basedir);
 
-    if (source.find("%BASE%") != -1) {
+    if (StringUtils::contains(source,"%BASE%") ) {
         //loading a template, don't parse
         return OK;
     }
@@ -574,7 +578,7 @@ Error GDScript::reload(bool p_keep_state) {
         if (ScriptDebugger::get_singleton()) {
             GDScriptLanguage::get_singleton()->debug_break_parse(get_path(), parser.get_error_line(), "Parser Error: " + parser.get_error());
         }
-        _err_print_error("GDScript::reload", path.empty() ? "built-in" : qPrintable(path),
+        _err_print_error("GDScript::reload", path.empty() ? "built-in" : qPrintable(path.m_str),
                          parser.get_error_line(), ("Parse Error: " + parser.get_error()), ERR_HANDLER_SCRIPT);
         ERR_FAIL_V(ERR_PARSE_ERROR)
     }
@@ -590,7 +594,7 @@ Error GDScript::reload(bool p_keep_state) {
             if (ScriptDebugger::get_singleton()) {
                 GDScriptLanguage::get_singleton()->debug_break_parse(get_path(), compiler.get_error_line(), "Parser Error: " + compiler.get_error());
             }
-            _err_print_error("GDScript::reload", path.empty() ? "built-in" : qPrintable(path), compiler.get_error_line(),
+            _err_print_error("GDScript::reload", path.empty() ? "built-in" : qPrintable(path.m_str), compiler.get_error_line(),
                              ("Compile Error: " + compiler.get_error()), ERR_HANDLER_SCRIPT);
             ERR_FAIL_V(ERR_COMPILATION_FAILED)
         } else {
@@ -714,9 +718,9 @@ void GDScript::_get_property_list(List<PropertyInfo> *p_properties) const {
 
 void GDScript::_bind_methods() {
 
-    ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "new", &GDScript::_new, MethodInfo(Variant::OBJECT, "new"));
+    MethodBinder::bind_vararg_method("new", &GDScript::_new, MethodInfo("new"));
 
-    ClassDB::bind_method(D_METHOD("get_as_byte_code"), &GDScript::get_as_byte_code);
+    MethodBinder::bind_method(D_METHOD("get_as_byte_code"), &GDScript::get_as_byte_code);
 }
 
 Vector<uint8_t> GDScript::get_as_byte_code() const {
@@ -729,7 +733,7 @@ Error GDScript::load_byte_code(const String &p_path) {
 
     Vector<uint8_t> bytecode;
 
-    if (p_path.ends_with("gde")) {
+    if (StringUtils::ends_with(p_path,"gde")) {
 
         FileAccess *fa = FileAccess::open(p_path, FileAccess::READ);
         ERR_FAIL_COND_V(!fa, ERR_CANT_OPEN);
@@ -778,7 +782,7 @@ Error GDScript::load_byte_code(const String &p_path) {
     GDScriptParser parser;
     Error err = parser.parse_bytecode(bytecode, basedir, get_path());
     if (err) {
-        _err_print_error("GDScript::load_byte_code", path.empty() ? "built-in" : qPrintable(path), parser.get_error_line(),
+        _err_print_error("GDScript::load_byte_code", path.empty() ? "built-in" : qPrintable(path.m_str), parser.get_error_line(),
                 ("Parse Error: " + parser.get_error()), ERR_HANDLER_SCRIPT);
         ERR_FAIL_V(ERR_PARSE_ERROR)
     }
@@ -787,7 +791,7 @@ Error GDScript::load_byte_code(const String &p_path) {
     err = compiler.compile(&parser, this);
 
     if (err) {
-        _err_print_error("GDScript::load_byte_code", path.empty() ? "built-in" : qPrintable(path),
+        _err_print_error("GDScript::load_byte_code", path.empty() ? "built-in" : qPrintable(path.m_str),
                 compiler.get_error_line(), ("Compile Error: " + compiler.get_error()), ERR_HANDLER_SCRIPT);
         ERR_FAIL_V(ERR_COMPILATION_FAILED)
     }
@@ -809,7 +813,7 @@ Error GDScript::load_source_code(const String &p_path) {
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ, &err);
     if (err) {
 
-        ERR_FAIL_COND_V(err, err);
+        ERR_FAIL_COND_V(err, err)
     }
 
     int len = f->get_len();
@@ -818,13 +822,13 @@ Error GDScript::load_source_code(const String &p_path) {
     int r = f->get_buffer(w.ptr(), len);
     f->close();
     memdelete(f);
-    ERR_FAIL_COND_V(r != len, ERR_CANT_OPEN);
+    ERR_FAIL_COND_V(r != len, ERR_CANT_OPEN)
     w[len] = 0;
 
-    String s;
-    if (s.parse_utf8((const char *)w.ptr())) {
+    String s=StringUtils::from_utf8((const char *)w.ptr());
+    if (s.empty()) {
 
-        ERR_FAIL_V_MSG(ERR_INVALID_DATA, "Script '" + p_path + "' contains invalid unicode (UTF-8), so it was not loaded. Please ensure that scripts are saved in valid UTF-8 unicode.");
+        ERR_FAIL_V_MSG(ERR_INVALID_DATA, "Script '" + p_path + "' contains invalid unicode (UTF-8), so it was not loaded. Please ensure that scripts are saved in valid UTF-8 unicode.")
     }
 
     source = s;
@@ -1140,7 +1144,7 @@ void GDScriptInstance::get_method_list(List<MethodInfo> *p_list) const {
             mi.name = E->key();
             mi.flags |= METHOD_FLAG_FROM_SCRIPT;
             for (int i = 0; i < E->get()->get_argument_count(); i++)
-                mi.arguments.push_back(PropertyInfo(Variant::NIL, "arg" + itos(i)));
+                mi.arguments.push_back(PropertyInfo(Variant::NIL, StringUtils::to_utf8("arg" + itos(i)).data()));
             p_list->push_back(mi);
         }
         sptr = sptr->_base;
@@ -1387,13 +1391,13 @@ void GDScriptLanguage::init() {
     int gcc = GlobalConstants::get_global_constant_count();
     for (int i = 0; i < gcc; i++) {
 
-        _add_global(StaticCString::create(GlobalConstants::get_global_constant_name(i)), GlobalConstants::get_global_constant_value(i));
+        _add_global(StaticCString(GlobalConstants::get_global_constant_name(i),true), GlobalConstants::get_global_constant_value(i));
     }
 
-    _add_global(StaticCString::create("PI"), Math_PI);
-    _add_global(StaticCString::create("TAU"), Math_TAU);
-    _add_global(StaticCString::create("INF"), Math_INF);
-    _add_global(StaticCString::create("NAN"), Math_NAN);
+    _add_global("PI", Math_PI);
+    _add_global("TAU", Math_TAU);
+    _add_global("INF", Math_INF);
+    _add_global("NAN", Math_NAN);
 
     //populate native classes
 
@@ -1403,8 +1407,8 @@ void GDScriptLanguage::init() {
 
         StringName n = class_list[i];
         String s = String(n);
-        if (s.begins_with("_"))
-            n = s.substr(1, s.length());
+        if (StringUtils::begins_with(s,'_'))
+            n = StringUtils::substr(s,1);
 
         if (globals.has(n))
             continue;
@@ -1993,64 +1997,64 @@ String GDScriptWarning::get_message() const {
         case VARIABLE_CONFLICTS_FUNCTION: {
             CHECK_SYMBOLS(1);
             return "Variable declaration of '" + symbols[0] + "' conflicts with a function of the same name.";
-        } break;
+        }
         case FUNCTION_CONFLICTS_VARIABLE: {
             CHECK_SYMBOLS(1);
             return "Function declaration of '" + symbols[0] + "()' conflicts with a variable of the same name.";
-        } break;
+        }
         case FUNCTION_CONFLICTS_CONSTANT: {
             CHECK_SYMBOLS(1);
             return "Function declaration of '" + symbols[0] + "()' conflicts with a constant of the same name.";
-        } break;
+        }
         case INCOMPATIBLE_TERNARY: {
             return "Values of the ternary conditional are not mutually compatible.";
-        } break;
+        }
         case UNUSED_SIGNAL: {
             CHECK_SYMBOLS(1);
             return "The signal '" + symbols[0] + "' is declared but never emitted.";
-        } break;
+        }
         case RETURN_VALUE_DISCARDED: {
             CHECK_SYMBOLS(1);
             return "The function '" + symbols[0] + "()' returns a value, but this value is never used.";
-        } break;
+        }
         case PROPERTY_USED_AS_FUNCTION: {
             CHECK_SYMBOLS(2);
             return "The method '" + symbols[0] + "()' was not found in base '" + symbols[1] + "' but there's a property with the same name. Did you mean to access it?";
-        } break;
+        }
         case CONSTANT_USED_AS_FUNCTION: {
-            CHECK_SYMBOLS(2);
+            CHECK_SYMBOLS(2)
             return "The method '" + symbols[0] + "()' was not found in base '" + symbols[1] + "' but there's a constant with the same name. Did you mean to access it?";
-        } break;
+        }
         case FUNCTION_USED_AS_PROPERTY: {
-            CHECK_SYMBOLS(2);
+            CHECK_SYMBOLS(2)
             return "The property '" + symbols[0] + "' was not found in base '" + symbols[1] + "' but there's a method with the same name. Did you mean to call it?";
-        } break;
+        }
         case INTEGER_DIVISION: {
             return "Integer division, decimal part will be discarded.";
-        } break;
+        }
         case UNSAFE_PROPERTY_ACCESS: {
-            CHECK_SYMBOLS(2);
+            CHECK_SYMBOLS(2)
             return "The property '" + symbols[0] + "' is not present on the inferred type '" + symbols[1] + "' (but may be present on a subtype).";
-        } break;
+        }
         case UNSAFE_METHOD_ACCESS: {
-            CHECK_SYMBOLS(2);
+            CHECK_SYMBOLS(2)
             return "The method '" + symbols[0] + "' is not present on the inferred type '" + symbols[1] + "' (but may be present on a subtype).";
-        } break;
+        }
         case UNSAFE_CAST: {
-            CHECK_SYMBOLS(1);
+            CHECK_SYMBOLS(1)
             return "The value is cast to '" + symbols[0] + "' but has an unknown type.";
-        } break;
+        }
         case UNSAFE_CALL_ARGUMENT: {
-            CHECK_SYMBOLS(4);
+            CHECK_SYMBOLS(4)
             return "The argument '" + symbols[0] + "' of the function '" + symbols[1] + "' requires a the subtype '" + symbols[2] + "' but the supertype '" + symbols[3] + "' was provided";
-        } break;
+        }
         case DEPRECATED_KEYWORD: {
-            CHECK_SYMBOLS(2);
+            CHECK_SYMBOLS(2)
             return "The '" + symbols[0] + "' keyword is deprecated and will be removed in a future release, please replace its uses by '" + symbols[1] + "'.";
-        } break;
+        }
         case WARNING_MAX: break; // Can't happen, but silences warning
     }
-    ERR_FAIL_V_MSG(String(), "Invalid GDScript warning code: " + get_name_from_code(code) + ".");
+    ERR_FAIL_V_MSG(String(), String("Invalid GDScript warning code: ") + get_name_from_code(code) + ".");
 
 #undef CHECK_SYMBOLS
 }
@@ -2059,8 +2063,8 @@ String GDScriptWarning::get_name() const {
     return get_name_from_code(code);
 }
 
-String GDScriptWarning::get_name_from_code(Code p_code) {
-    ERR_FAIL_COND_V(p_code < 0 || p_code >= WARNING_MAX, String());
+const char *GDScriptWarning::get_name_from_code(Code p_code) {
+    ERR_FAIL_COND_V(p_code < 0 || p_code >= WARNING_MAX, nullptr)
 
     static const char *names[] = {
         "UNASSIGNED_VARIABLE",
@@ -2110,14 +2114,14 @@ GDScriptWarning::Code GDScriptWarning::get_code_from_name(const String &p_name) 
 GDScriptLanguage::GDScriptLanguage() {
 
     calls = 0;
-    ERR_FAIL_COND(singleton);
+    ERR_FAIL_COND(singleton)
     singleton = this;
-    strings._init = StaticCString::create("_init");
-    strings._notification = StaticCString::create("_notification");
-    strings._set = StaticCString::create("_set");
-    strings._get = StaticCString::create("_get");
-    strings._get_property_list = StaticCString::create("_get_property_list");
-    strings._script_source = StaticCString::create("script/source");
+    strings._init = StringName("_init");
+    strings._notification = StringName("_notification");
+    strings._set = StringName("_set");
+    strings._get = StringName("_get");
+    strings._get_property_list = StringName("_get_property_list");
+    strings._script_source = StringName("script/source");
     _debug_parse_err_line = -1;
     _debug_parse_err_file = "";
 
@@ -2150,7 +2154,7 @@ GDScriptLanguage::GDScriptLanguage() {
     GLOBAL_DEF("debug/gdscript/completion/autocomplete_setters_and_getters", false);
     for (int i = 0; i < (int)GDScriptWarning::WARNING_MAX; i++) {
         String warning = StringUtils::to_lower(GDScriptWarning::get_name_from_code((GDScriptWarning::Code)i));
-        GLOBAL_DEF("debug/gdscript/warnings/" + warning, !warning.begins_with("unsafe_"));
+        GLOBAL_DEF("debug/gdscript/warnings/" + warning, !StringUtils::begins_with(warning,"unsafe_"));
     }
 #endif // DEBUG_ENABLED
 }
@@ -2178,7 +2182,7 @@ RES ResourceFormatLoaderGDScript::load(const String &p_path, const String &p_ori
 
     Ref<GDScript> scriptres(script);
 
-    if (p_path.ends_with(".gde") || p_path.ends_with(".gdc")) {
+    if (StringUtils::ends_with(p_path,".gde") || StringUtils::ends_with(p_path,".gdc")) {
 
         script->set_script_path(p_original_path); // script needs this.
         script->set_path(p_original_path);

@@ -410,7 +410,7 @@ public:
 	FUNC2(viewport_set_usage, RID, ViewportUsage)
 
 	//this passes directly to avoid stalling, but it's pretty dangerous, so don't call after freeing a viewport
-	virtual int viewport_get_render_info(RID p_viewport, ViewportRenderInfo p_info) {
+	int viewport_get_render_info(RID p_viewport, ViewportRenderInfo p_info) override {
 		return visual_server->viewport_get_render_info(p_viewport, p_info);
 	}
 
@@ -588,16 +588,16 @@ public:
 
 	FUNC3(request_frame_drawn_callback, Object *, const StringName &, const Variant &)
 
-	virtual void init();
-	virtual void finish();
-	virtual void draw(bool p_swap_buffers, double frame_step);
-	virtual void sync();
+	void init() override;
+	void finish() override;
+	void draw(bool p_swap_buffers, double frame_step) override;
+	void sync() override;
 	FUNC0RC(bool, has_changed)
 
 	/* RENDER INFO */
 
 	//this passes directly to avoid stalling
-	virtual int get_render_info(RenderInfo p_info) {
+	int get_render_info(RenderInfo p_info) override {
 		return visual_server->get_render_info(p_info);
 	}
 
@@ -608,19 +608,19 @@ public:
 
 	FUNC1(set_debug_generate_wireframes, bool)
 
-	virtual bool has_feature(Features p_feature) const { return visual_server->has_feature(p_feature); }
-	virtual bool has_os_feature(const String &p_feature) const { return visual_server->has_os_feature(p_feature); }
+	bool has_feature(Features p_feature) const override { return visual_server->has_feature(p_feature); }
+	bool has_os_feature(const String &p_feature) const override { return visual_server->has_os_feature(p_feature); }
 
 	FUNC1(call_set_use_vsync, bool)
 
 	static void set_use_vsync_callback(bool p_enable);
 
-	virtual bool is_low_end() const {
+	bool is_low_end() const override {
 		return visual_server->is_low_end();
 	}
 
 	VisualServerWrapMT(VisualServer *p_contained, bool p_create_thread);
-	~VisualServerWrapMT();
+	~VisualServerWrapMT() override;
 
 #undef ServerName
 #undef ServerNameWrapMT

@@ -31,6 +31,7 @@
 #include "performance.h"
 
 #include "core/message_queue.h"
+#include "core/method_bind.h"
 #include "core/object_db.h"
 #include "core/os/os.h"
 #include "scene/main/node.h"
@@ -42,9 +43,11 @@
 
 Performance *Performance::singleton = nullptr;
 
+IMPL_GDCLASS(Performance)
+
 void Performance::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("get_monitor", "monitor"), &Performance::get_monitor);
+    MethodBinder::bind_method(D_METHOD("get_monitor", "monitor"), &Performance::get_monitor);
 
     BIND_ENUM_CONSTANT(TIME_FPS);
     BIND_ENUM_CONSTANT(TIME_PROCESS);
@@ -70,11 +73,11 @@ void Performance::_bind_methods() {
     BIND_ENUM_CONSTANT(RENDER_USAGE_VIDEO_MEM_TOTAL);
     BIND_ENUM_CONSTANT(PHYSICS_2D_ACTIVE_OBJECTS);
     BIND_ENUM_CONSTANT(PHYSICS_2D_COLLISION_PAIRS);
-    BIND_ENUM_CONSTANT(PHYSICS_2D_ISLAND_COUNT);
-    BIND_ENUM_CONSTANT(PHYSICS_3D_ACTIVE_OBJECTS);
-    BIND_ENUM_CONSTANT(PHYSICS_3D_COLLISION_PAIRS);
-    BIND_ENUM_CONSTANT(PHYSICS_3D_ISLAND_COUNT);
-    BIND_ENUM_CONSTANT(AUDIO_OUTPUT_LATENCY);
+    BIND_ENUM_CONSTANT(PHYSICS_2D_ISLAND_COUNT)
+    BIND_ENUM_CONSTANT(PHYSICS_3D_ACTIVE_OBJECTS)
+    BIND_ENUM_CONSTANT(PHYSICS_3D_COLLISION_PAIRS)
+    BIND_ENUM_CONSTANT(PHYSICS_3D_ISLAND_COUNT)
+    BIND_ENUM_CONSTANT(AUDIO_OUTPUT_LATENCY)
 
     BIND_ENUM_CONSTANT(MONITOR_MAX);
 }

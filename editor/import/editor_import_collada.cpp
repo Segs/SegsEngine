@@ -44,6 +44,8 @@
 #include "scene/resources/packed_scene.h"
 #include "scene/resources/surface_tool.h"
 
+IMPL_GDCLASS(EditorSceneImporterCollada)
+
 struct ColladaImport {
 
     Collada collada;
@@ -378,8 +380,8 @@ Error ColladaImport::_create_material(const String &p_target) {
         String texfile = effect.get_texture_path(effect.diffuse.texture, collada);
         if (texfile != "") {
 
-            if (texfile.begins_with("/")) {
-                texfile = texfile.replace_first("/", "res://");
+            if (StringUtils::begins_with(texfile,"/")) {
+                texfile = StringUtils::replace_first(texfile,"/", "res://");
             }
             Ref<Texture> texture = ResourceLoader::load(texfile, "Texture");
             if (texture.is_valid()) {
@@ -402,8 +404,8 @@ Error ColladaImport::_create_material(const String &p_target) {
         String texfile = effect.get_texture_path(effect.specular.texture, collada);
         if (texfile != "") {
 
-            if (texfile.begins_with("/")) {
-                texfile = texfile.replace_first("/", "res://");
+            if (StringUtils::begins_with(texfile,"/")) {
+                texfile = StringUtils::replace_first(texfile,"/", "res://");
             }
 
             Ref<Texture> texture = ResourceLoader::load(texfile, "Texture");
@@ -429,8 +431,8 @@ Error ColladaImport::_create_material(const String &p_target) {
         String texfile = effect.get_texture_path(effect.emission.texture, collada);
         if (texfile != "") {
 
-            if (texfile.begins_with("/")) {
-                texfile = texfile.replace_first("/", "res://");
+            if (StringUtils::begins_with(texfile,"/")) {
+                texfile = StringUtils::replace_first(texfile,"/", "res://");
             }
 
             Ref<Texture> texture = ResourceLoader::load(texfile, "Texture");
@@ -459,8 +461,8 @@ Error ColladaImport::_create_material(const String &p_target) {
         String texfile = effect.get_texture_path(effect.bump.texture, collada);
         if (texfile != "") {
 
-            if (texfile.begins_with("/")) {
-                texfile = texfile.replace_first("/", "res://");
+            if (StringUtils::begins_with(texfile,"/")) {
+                texfile = StringUtils::replace_first(texfile,"/", "res://");
             }
 
             Ref<Texture> texture = ResourceLoader::load(texfile, "Texture");
@@ -1810,7 +1812,7 @@ Node *EditorSceneImporterCollada::import_scene(const String &p_path, uint32_t p_
 
             if (p_flags & IMPORT_ANIMATION_DETECT_LOOP) {
 
-                if (name.begins_with("loop") || name.ends_with("loop") || name.begins_with("cycle") || name.ends_with("cycle")) {
+                if (StringUtils::begins_with(name,"loop") || StringUtils::ends_with(name,"loop") || StringUtils::begins_with(name,"cycle") || StringUtils::ends_with(name,"cycle")) {
                     state.animations.write[i]->set_loop(true);
                 }
             }
@@ -1843,7 +1845,7 @@ Ref<Animation> EditorSceneImporterCollada::import_animation(const String &p_path
     String base = StringUtils::to_lower(PathUtils::get_basename(p_path));
     if (p_flags & IMPORT_ANIMATION_DETECT_LOOP) {
 
-        if (base.begins_with("loop") || base.ends_with("loop") || base.begins_with("cycle") || base.ends_with("cycle")) {
+        if (StringUtils::begins_with(base,"loop") || StringUtils::ends_with(base,"loop") || StringUtils::begins_with(base,"cycle") || StringUtils::ends_with(base,"cycle")) {
             anim->set_loop(true);
         }
     }

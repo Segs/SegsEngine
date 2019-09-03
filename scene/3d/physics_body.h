@@ -39,7 +39,7 @@
 
 class PhysicsBody : public CollisionObject {
 
-	GDCLASS(PhysicsBody, CollisionObject);
+	GDCLASS(PhysicsBody,CollisionObject)
 
 	uint32_t collision_layer;
 	uint32_t collision_mask;
@@ -78,7 +78,7 @@ public:
 
 class StaticBody : public PhysicsBody {
 
-	GDCLASS(StaticBody, PhysicsBody);
+	GDCLASS(StaticBody,PhysicsBody)
 
 	Vector3 constant_linear_velocity;
 	Vector3 constant_angular_velocity;
@@ -107,7 +107,7 @@ public:
 	Vector3 get_constant_angular_velocity() const;
 
 	StaticBody();
-	~StaticBody();
+	~StaticBody() override;
 
 private:
 	void _reload_physics_characteristics();
@@ -115,7 +115,7 @@ private:
 
 class RigidBody : public PhysicsBody {
 
-	GDCLASS(RigidBody, PhysicsBody);
+	GDCLASS(RigidBody,PhysicsBody)
 
 public:
 	enum Mode {
@@ -162,6 +162,7 @@ protected:
 		ShapePair(int p_bs, int p_ls) {
 			body_shape = p_bs;
 			local_shape = p_ls;
+			tagged = false;
 		}
 	};
 	struct RigidBody_RemoveAction {
@@ -199,7 +200,7 @@ public:
 	void set_mass(real_t p_mass);
 	real_t get_mass() const;
 
-	virtual float get_inverse_mass() const { return 1.0 / mass; }
+	float get_inverse_mass() const override { return 1.0 / mass; }
 
 	void set_weight(real_t p_weight);
 	real_t get_weight() const;
@@ -216,12 +217,12 @@ public:
 	Ref<PhysicsMaterial> get_physics_material_override() const;
 
 	void set_linear_velocity(const Vector3 &p_velocity);
-	Vector3 get_linear_velocity() const;
+	Vector3 get_linear_velocity() const override;
 
 	void set_axis_velocity(const Vector3 &p_axis);
 
 	void set_angular_velocity(const Vector3 &p_velocity);
-	Vector3 get_angular_velocity() const;
+	Vector3 get_angular_velocity() const override;
 
 	void set_gravity_scale(real_t p_gravity_scale);
 	real_t get_gravity_scale() const;
@@ -263,10 +264,10 @@ public:
 	void apply_impulse(const Vector3 &p_pos, const Vector3 &p_impulse);
 	void apply_torque_impulse(const Vector3 &p_impulse);
 
-	virtual String get_configuration_warning() const;
+	String get_configuration_warning() const override;
 
 	RigidBody();
-	~RigidBody();
+	~RigidBody() override;
 
 private:
 	void _reload_physics_characteristics();
@@ -278,7 +279,7 @@ class KinematicCollision;
 
 class KinematicBody : public PhysicsBody {
 
-	GDCLASS(KinematicBody, PhysicsBody);
+	GDCLASS(KinematicBody,PhysicsBody)
 
 public:
 	struct Collision {
@@ -339,12 +340,12 @@ public:
 	Collision get_slide_collision(int p_bounce) const;
 
 	KinematicBody();
-	~KinematicBody();
+	~KinematicBody() override;
 };
 
 class KinematicCollision : public Reference {
 
-	GDCLASS(KinematicCollision, Reference);
+	GDCLASS(KinematicCollision,Reference)
 
 	KinematicBody *owner;
 	friend class KinematicBody;
@@ -371,7 +372,7 @@ public:
 
 class PhysicalBone : public PhysicsBody {
 
-	GDCLASS(PhysicalBone, PhysicsBody);
+	GDCLASS(PhysicalBone,PhysicsBody)
 
 public:
 	enum JointType {
@@ -395,11 +396,11 @@ public:
 	};
 
 	struct PinJointData : public JointData {
-		virtual JointType get_joint_type() { return JOINT_TYPE_PIN; }
+		JointType get_joint_type() override { return JOINT_TYPE_PIN; }
 
-		virtual bool _set(const StringName &p_name, const Variant &p_value, RID j = RID());
-		virtual bool _get(const StringName &p_name, Variant &r_ret) const;
-		virtual void _get_property_list(List<PropertyInfo> *p_list) const;
+		bool _set(const StringName &p_name, const Variant &p_value, RID j = RID()) override;
+		bool _get(const StringName &p_name, Variant &r_ret) const override;
+		void _get_property_list(List<PropertyInfo> *p_list) const override;
 
 		real_t bias;
 		real_t damping;
@@ -412,11 +413,11 @@ public:
 	};
 
 	struct ConeJointData : public JointData {
-		virtual JointType get_joint_type() { return JOINT_TYPE_CONE; }
+		JointType get_joint_type() override { return JOINT_TYPE_CONE; }
 
-		virtual bool _set(const StringName &p_name, const Variant &p_value, RID j = RID());
-		virtual bool _get(const StringName &p_name, Variant &r_ret) const;
-		virtual void _get_property_list(List<PropertyInfo> *p_list) const;
+		bool _set(const StringName &p_name, const Variant &p_value, RID j = RID()) override;
+		bool _get(const StringName &p_name, Variant &r_ret) const override;
+		void _get_property_list(List<PropertyInfo> *p_list) const override;
 
 		real_t swing_span;
 		real_t twist_span;
@@ -433,11 +434,11 @@ public:
 	};
 
 	struct HingeJointData : public JointData {
-		virtual JointType get_joint_type() { return JOINT_TYPE_HINGE; }
+		JointType get_joint_type() override { return JOINT_TYPE_HINGE; }
 
-		virtual bool _set(const StringName &p_name, const Variant &p_value, RID j = RID());
-		virtual bool _get(const StringName &p_name, Variant &r_ret) const;
-		virtual void _get_property_list(List<PropertyInfo> *p_list) const;
+		bool _set(const StringName &p_name, const Variant &p_value, RID j = RID()) override;
+		bool _get(const StringName &p_name, Variant &r_ret) const override;
+		void _get_property_list(List<PropertyInfo> *p_list) const override;
 
 		bool angular_limit_enabled;
 		real_t angular_limit_upper;
@@ -456,11 +457,11 @@ public:
 	};
 
 	struct SliderJointData : public JointData {
-		virtual JointType get_joint_type() { return JOINT_TYPE_SLIDER; }
+		JointType get_joint_type() override { return JOINT_TYPE_SLIDER; }
 
-		virtual bool _set(const StringName &p_name, const Variant &p_value, RID j = RID());
-		virtual bool _get(const StringName &p_name, Variant &r_ret) const;
-		virtual void _get_property_list(List<PropertyInfo> *p_list) const;
+		bool _set(const StringName &p_name, const Variant &p_value, RID j = RID()) override;
+		bool _get(const StringName &p_name, Variant &r_ret) const override;
+		void _get_property_list(List<PropertyInfo> *p_list) const override;
 
 		real_t linear_limit_upper;
 		real_t linear_limit_lower;
@@ -534,11 +535,11 @@ public:
 					angular_equilibrium_point(0) {}
 		};
 
-		virtual JointType get_joint_type() { return JOINT_TYPE_6DOF; }
+		JointType get_joint_type() override { return JOINT_TYPE_6DOF; }
 
-		virtual bool _set(const StringName &p_name, const Variant &p_value, RID j = RID());
-		virtual bool _get(const StringName &p_name, Variant &r_ret) const;
-		virtual void _get_property_list(List<PropertyInfo> *p_list) const;
+		bool _set(const StringName &p_name, const Variant &p_value, RID j = RID()) override;
+		bool _get(const StringName &p_name, Variant &r_ret) const override;
+		void _get_property_list(List<PropertyInfo> *p_list) const override;
 
 		SixDOFAxisData axis_data[3];
 
@@ -591,8 +592,8 @@ public:
 
 public:
 #ifdef TOOLS_ENABLED
-	virtual Transform get_global_gizmo_transform() const;
-	virtual Transform get_local_gizmo_transform() const;
+	Transform get_global_gizmo_transform() const override;
+	Transform get_local_gizmo_transform() const override;
 #endif
 
 	const JointData *get_joint_data() const;
@@ -635,7 +636,7 @@ public:
 	real_t get_gravity_scale() const;
 
 	PhysicalBone();
-	~PhysicalBone();
+	~PhysicalBone() override;
 
 private:
 	void update_bone_id();

@@ -36,7 +36,7 @@
 
 class Polygon2DEditor : public AbstractPolygon2DEditor {
 
-	GDCLASS(Polygon2DEditor, AbstractPolygon2DEditor);
+	GDCLASS(Polygon2DEditor,AbstractPolygon2DEditor)
 
 	enum Mode {
 		MODE_EDIT_UV = MODE_CONT,
@@ -123,7 +123,7 @@ class Polygon2DEditor : public AbstractPolygon2DEditor {
 	Vector2 snap_offset;
 	Vector2 snap_step;
 
-	virtual void _menu_option(int p_option);
+	void _menu_option(int p_option) override;
 
 	void _cancel_editing();
 	void _update_polygon_editing_state();
@@ -144,16 +144,16 @@ class Polygon2DEditor : public AbstractPolygon2DEditor {
 	void _uv_edit_popup_hide();
 	void _bone_paint_selected(int p_index);
 
-	int _get_polygon_count() const;
+	int _get_polygon_count() const override;
 
 protected:
-	virtual Node2D *_get_node() const;
-	virtual void _set_node(Node *p_polygon);
+	Node2D *_get_node() const override;
+	void _set_node(Node *p_polygon) override;
 
-	virtual Vector2 _get_offset(int p_idx) const;
+	Vector2 _get_offset(int p_idx) const override;
 
-	virtual bool _has_uv() const { return true; };
-	virtual void _commit_action();
+	bool _has_uv() const override { return true; };
+	void _commit_action() override;
 
 	void _notification(int p_what);
 	static void _bind_methods();
@@ -166,7 +166,7 @@ public:
 
 class Polygon2DEditorPlugin : public AbstractPolygon2DEditorPlugin {
 
-	GDCLASS(Polygon2DEditorPlugin, AbstractPolygon2DEditorPlugin);
+	GDCLASS(Polygon2DEditorPlugin,AbstractPolygon2DEditorPlugin)
 
 public:
 	Polygon2DEditorPlugin(EditorNode *p_node);

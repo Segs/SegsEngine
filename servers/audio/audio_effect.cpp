@@ -29,6 +29,10 @@
 /*************************************************************************/
 
 #include "audio_effect.h"
+#include "core/property_info.h"
+
+IMPL_GDCLASS(AudioEffectInstance)
+IMPL_GDCLASS(AudioEffect)
 
 AudioEffect::AudioEffect() {
 }

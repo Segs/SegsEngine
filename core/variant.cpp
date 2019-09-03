@@ -38,59 +38,62 @@
 #include "core/resource.h"
 #include "core/string_formatter.h"
 #include "core/variant_parser.h"
+#include "core/script_language.h"
 #include "scene/gui/control.h"
 #include "scene/main/node.h"
 
-String Variant::get_type_name(Variant::Type p_type) {
+const Variant Variant::null_variant;
+
+const char * Variant::get_type_name(Variant::Type p_type) {
 
     switch (p_type) {
         case NIL: {
 
             return "Nil";
-        } break;
+        }
 
         // atomic types
         case BOOL: {
 
             return "bool";
-        } break;
+        }
         case INT: {
 
             return "int";
 
-        } break;
+        }
         case REAL: {
 
             return "float";
 
-        } break;
+        }
         case STRING: {
 
             return "String";
-        } break;
+        }
 
         // math types
         case VECTOR2: {
 
             return "Vector2";
-        } break;
+        }
         case RECT2: {
 
             return "Rect2";
-        } break;
+        }
         case TRANSFORM2D: {
 
             return "Transform2D";
-        } break;
+        }
         case VECTOR3: {
 
             return "Vector3";
-        } break;
+        }
         case PLANE: {
 
             return "Plane";
 
-        } break;
+        }
         /*
             case QUAT: {
 
@@ -99,17 +102,15 @@ String Variant::get_type_name(Variant::Type p_type) {
         case AABB: {
 
             return "AABB";
-        } break;
+        }
         case QUAT: {
 
             return "Quat";
 
-        } break;
+        }
         case BASIS: {
-
             return "Basis";
-
-        } break;
+        }
         case TRANSFORM: {
 
             return "Transform";
@@ -445,7 +446,7 @@ bool Variant::can_convert_strict(Variant::Type p_type_from, Variant::Type p_type
 
     if (p_type_from == NIL) {
         return (p_type_to == OBJECT);
-    };
+    }
 
     const Type *valid_types = nullptr;
 
@@ -1167,7 +1168,7 @@ Variant::operator signed int() const {
         case BOOL: return _data._bool ? 1 : 0;
         case INT: return _data._int;
         case REAL: return _data._real;
-        case STRING: return as<String>().to_int();
+        case STRING: return StringUtils::to_int(as<String>());
         default: {
 
             return 0;
@@ -1182,7 +1183,7 @@ Variant::operator unsigned int() const {
         case BOOL: return _data._bool ? 1 : 0;
         case INT: return _data._int;
         case REAL: return _data._real;
-        case STRING: return as<String>().to_int();
+        case STRING: return StringUtils::to_int(as<String>());
         default: {
 
             return 0;
@@ -1198,7 +1199,7 @@ Variant::operator int64_t() const {
         case BOOL: return _data._bool ? 1 : 0;
         case INT: return _data._int;
         case REAL: return _data._real;
-        case STRING: return as<String>().to_int64();
+        case STRING: return StringUtils::to_int64(as<String>());
         default: {
 
             return 0;
@@ -1234,7 +1235,7 @@ Variant::operator uint64_t() const {
         case BOOL: return _data._bool ? 1 : 0;
         case INT: return _data._int;
         case REAL: return _data._real;
-        case STRING: return as<String>().to_int();
+        case STRING: return StringUtils::to_int64(as<String>());
         default: {
 
             return 0;
@@ -1288,7 +1289,7 @@ Variant::operator signed short() const {
         case BOOL: return _data._bool ? 1 : 0;
         case INT: return _data._int;
         case REAL: return _data._real;
-        case STRING: return as<String>().to_int();
+        case STRING: return StringUtils::to_int(as<String>());
         default: {
 
             return 0;
@@ -1303,7 +1304,7 @@ Variant::operator unsigned short() const {
         case BOOL: return _data._bool ? 1 : 0;
         case INT: return _data._int;
         case REAL: return _data._real;
-        case STRING: return as<String>().to_int();
+        case STRING: return StringUtils::to_int(as<String>());
         default: {
 
             return 0;
@@ -1318,7 +1319,7 @@ Variant::operator signed char() const {
         case BOOL: return _data._bool ? 1 : 0;
         case INT: return _data._int;
         case REAL: return _data._real;
-        case STRING: return as<String>().to_int();
+        case STRING: return StringUtils::to_int(as<String>());
         default: {
 
             return 0;
@@ -1333,7 +1334,7 @@ Variant::operator unsigned char() const {
         case BOOL: return _data._bool ? 1 : 0;
         case INT: return _data._int;
         case REAL: return _data._real;
-        case STRING: return as<String>().to_int();
+        case STRING: return StringUtils::to_int(as<String>());
         default: {
 
             return 0;
@@ -1355,7 +1356,7 @@ float Variant::as<float>() const {
         case BOOL: return _data._bool ? 1.0 : 0.0;
         case INT: return (float)_data._int;
         case REAL: return _data._real;
-        case STRING: return as<String>().to_double();
+        case STRING: return StringUtils::to_double(as<String>());
         default: {
 
             return 0;
@@ -1370,7 +1371,7 @@ template <> double Variant::as<double>() const {
         case BOOL: return _data._bool ? 1.0 : 0.0;
         case INT: return (double)_data._int;
         case REAL: return _data._real;
-        case STRING: return as<String>().to_double();
+        case STRING: return StringUtils::to_double( as<String>() );
         default: {
 
             return 0;
@@ -1660,7 +1661,7 @@ String Variant::stringify(List<const void *> &stack) const {
 
         } break;
         default: {
-            return "[" + get_type_name(type) + "]";
+            return "[" + String(get_type_name(type)) + "]";
         }
     }
 
@@ -3202,18 +3203,18 @@ Variant Variant::call(const StringName &p_method, VARIANT_ARG_DECLARE) {
         case CallError::CALL_ERROR_INVALID_ARGUMENT: {
 
             String err = "Invalid type for argument #" + itos(error.argument) + ", expected '" + Variant::get_type_name(error.expected) + "'.";
-            ERR_PRINT(err.utf8().data());
+            ERR_PRINT(err)
 
         } break;
         case CallError::CALL_ERROR_INVALID_METHOD: {
 
             String err = "Invalid method '" + p_method + "' for type '" + Variant::get_type_name(type) + "'.";
-            ERR_PRINT(err.utf8().data());
+            ERR_PRINT(err)
         } break;
         case CallError::CALL_ERROR_TOO_MANY_ARGUMENTS: {
 
             String err = "Too many arguments for method '" + p_method + "'";
-            ERR_PRINT(err.utf8().data());
+            ERR_PRINT(err)
         } break;
         default: {
         }
@@ -3296,9 +3297,20 @@ String vformat(const String &p_text, const Variant &p1, const Variant &p2, const
     }
 
     bool error = false;
-    String fmt = p_text.sprintf(args, &error);
+    String fmt = StringUtils::sprintf(p_text,args, &error);
 
-    ERR_FAIL_COND_V(error, String());
+    ERR_FAIL_COND_V(error, String())
 
     return fmt;
+}
+
+void fill_with_all_variant_types(const char *nillname,char (&s)[7+(longest_variant_type_name+1)*Variant::VARIANT_MAX]) {
+
+    assert(strlen(nillname)<=7);
+
+    int write_idx = sprintf(s,"%s",nillname);
+    for (int i = 1; i < Variant::VARIANT_MAX; i++) {
+        write_idx+=sprintf(s+write_idx,",%s",Variant::get_type_name(Variant::Type(i)));
+    }
+
 }

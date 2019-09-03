@@ -37,6 +37,9 @@
 #include "scene/resources/mesh.h"
 #include "scene/resources/surface_tool.h"
 
+IMPL_GDCLASS(EditorOBJImporter)
+IMPL_GDCLASS(ResourceImporterOBJ)
+
 uint32_t EditorOBJImporter::get_import_flags() const {
 
     return IMPORT_SCENE;
@@ -52,64 +55,64 @@ static Error _parse_material_library(const String &p_path, Map<String, Ref<Spati
     String base_path = PathUtils::get_base_dir(p_path);
     while (true) {
 
-        String l = f->get_line().strip_edges();
+        String l = StringUtils::strip_edges(f->get_line());
 
-        if (l.startsWith("newmtl ")) {
+		if (StringUtils::begins_with(l,"newmtl ")) {
             //vertex
 
-            current_name = String(l.replace("newmtl", "")).strip_edges();
+			current_name = StringUtils::strip_edges(StringUtils::replace(l,"newmtl", ""));
             current.instance();
             current->set_name(current_name);
             material_map[current_name] = current;
-        } else if (l.startsWith("Ka ")) {
+		} else if (StringUtils::begins_with(l,"Ka ")) {
             //uv
             WARN_PRINTS("OBJ: Ambient light for material '" + current_name + "' is ignored in PBR")
 
-        } else if (l.startsWith("Kd ")) {
+		} else if (StringUtils::begins_with(l,"Kd ")) {
             //normal
             ERR_FAIL_COND_V(current.is_null(), ERR_FILE_CORRUPT)
             Vector<String> v = StringUtils::split(l," ", false);
             ERR_FAIL_COND_V(v.size() < 4, ERR_INVALID_DATA)
             Color c = current->get_albedo();
-            c.r = v[1].to_float();
-            c.g = v[2].to_float();
-            c.b = v[3].to_float();
+            c.r = StringUtils::to_float(v[1]);
+            c.g = StringUtils::to_float(v[2]);
+            c.b = StringUtils::to_float(v[3]);
             current->set_albedo(c);
-        } else if (l.startsWith("Ks ")) {
+		} else if (StringUtils::begins_with(l,"Ks ")) {
             //normal
             ERR_FAIL_COND_V(current.is_null(), ERR_FILE_CORRUPT)
             Vector<String> v = StringUtils::split(l," ", false);
             ERR_FAIL_COND_V(v.size() < 4, ERR_INVALID_DATA)
-            float r = v[1].to_float();
-            float g = v[2].to_float();
-            float b = v[3].to_float();
+            float r = StringUtils::to_float(v[1]);
+            float g = StringUtils::to_float(v[2]);
+            float b = StringUtils::to_float(v[3]);
             float metalness = MAX(r, MAX(g, b));
             current->set_metallic(metalness);
-        } else if (l.startsWith("Ns ")) {
+		} else if (StringUtils::begins_with(l,"Ns ")) {
             //normal
             ERR_FAIL_COND_V(current.is_null(), ERR_FILE_CORRUPT)
             Vector<String> v = StringUtils::split(l," ", false);
             ERR_FAIL_COND_V(v.size() != 2, ERR_INVALID_DATA)
-            float s = v[1].to_float();
+            float s = StringUtils::to_float(v[1]);
             current->set_metallic((1000.0f - s) / 1000.0f);
-        } else if (l.startsWith("d ")) {
+		} else if (StringUtils::begins_with(l,"d ")) {
             //normal
             ERR_FAIL_COND_V(current.is_null(), ERR_FILE_CORRUPT)
             Vector<String> v = StringUtils::split(l," ", false);
             ERR_FAIL_COND_V(v.size() != 2, ERR_INVALID_DATA)
-            float d = v[1].to_float();
+            float d = StringUtils::to_float(v[1]);
             Color c = current->get_albedo();
             c.a = d;
             current->set_albedo(c);
             if (c.a < 0.99) {
                 current->set_feature(SpatialMaterial::FEATURE_TRANSPARENT, true);
             }
-        } else if (l.startsWith("Tr ")) {
+		} else if (StringUtils::begins_with(l,"Tr ")) {
             //normal
             ERR_FAIL_COND_V(current.is_null(), ERR_FILE_CORRUPT)
             Vector<String> v = StringUtils::split(l," ", false);
             ERR_FAIL_COND_V(v.size() != 2, ERR_INVALID_DATA)
-            float d = v[1].to_float();
+            float d = StringUtils::to_float(v[1]);
             Color c = current->get_albedo();
             c.a = 1.0f - d;
             current->set_albedo(c);
@@ -117,15 +120,15 @@ static Error _parse_material_library(const String &p_path, Map<String, Ref<Spati
                 current->set_feature(SpatialMaterial::FEATURE_TRANSPARENT, true);
             }
 
-        } else if (l.startsWith("map_Ka ")) {
+		} else if (StringUtils::begins_with(l,"map_Ka ")) {
             //uv
             WARN_PRINTS("OBJ: Ambient light texture for material '" + current_name + "' is ignored in PBR")
 
-        } else if (l.startsWith("map_Kd ")) {
+		} else if (StringUtils::begins_with(l,"map_Kd ")) {
             //normal
             ERR_FAIL_COND_V(current.is_null(), ERR_FILE_CORRUPT)
 
-            String p = String(l.replace("map_Kd", "").replace("\\", "/")).strip_edges();
+            String p = StringUtils::strip_edges(StringUtils::replace(StringUtils::replace(l,"map_Kd", ""),"\\", "/"));
             String path;
             if (PathUtils::is_abs_path(p)) {
                 path = p;
@@ -141,11 +144,11 @@ static Error _parse_material_library(const String &p_path, Map<String, Ref<Spati
                 r_missing_deps->push_back(path);
             }
 
-        } else if (l.startsWith("map_Ks ")) {
+		} else if (StringUtils::begins_with(l,"map_Ks ")) {
             //normal
             ERR_FAIL_COND_V(current.is_null(), ERR_FILE_CORRUPT)
 
-            String p = String(l.replace("map_Ks", "").replace("\\", "/")).strip_edges();
+            String p = StringUtils::strip_edges(StringUtils::replace(StringUtils::replace(l,"map_Ks", ""),"\\", "/"));
             String path;
             if (PathUtils::is_abs_path(p)) {
                 path = p;
@@ -161,11 +164,11 @@ static Error _parse_material_library(const String &p_path, Map<String, Ref<Spati
                 r_missing_deps->push_back(path);
             }
 
-        } else if (l.startsWith("map_Ns ")) {
+		} else if (StringUtils::begins_with(l,"map_Ns ")) {
             //normal
             ERR_FAIL_COND_V(current.is_null(), ERR_FILE_CORRUPT)
 
-            String p = String(l.replace("map_Ns", "").replace("\\", "/")).strip_edges();
+            String p = StringUtils::strip_edges(StringUtils::replace(StringUtils::replace(l,"map_Ns", ""),"\\", "/"));
             String path;
             if (PathUtils::is_abs_path(p)) {
                 path = p;
@@ -180,11 +183,11 @@ static Error _parse_material_library(const String &p_path, Map<String, Ref<Spati
             } else if (r_missing_deps) {
                 r_missing_deps->push_back(path);
             }
-        } else if (l.startsWith("map_bump ")) {
+		} else if (StringUtils::begins_with(l,"map_bump ")) {
             //normal
             ERR_FAIL_COND_V(current.is_null(), ERR_FILE_CORRUPT)
 
-            String p = String(String(l).replace("map_bump", "").replace("\\", "/")).strip_edges();
+            String p = StringUtils::strip_edges(StringUtils::replace(StringUtils::replace(l,"map_bump", ""),"\\", "/"));
             String path = PathUtils::plus_file(base_path,p);
 
             Ref<Texture> texture = ResourceLoader::load(path);
@@ -231,43 +234,43 @@ static Error _parse_obj(const String &p_path, List<Ref<Mesh> > &r_meshes, bool p
 
     while (true) {
 
-        String l = f->get_line().strip_edges();
+        String l = StringUtils::strip_edges(f->get_line());
         while (l.length() && l[l.length() - 1] == '\\') {
-            String add = f->get_line().strip_edges();
+            String add = StringUtils::strip_edges(f->get_line());
             l += add;
             if (add == String()) {
                 break;
             }
         }
 
-        if (l.startsWith("v ")) {
+		if (StringUtils::begins_with(l,"v ")) {
             //vertex
             Vector<String> v = StringUtils::split(l," ", false);
             ERR_FAIL_COND_V(v.size() < 4, ERR_FILE_CORRUPT);
             Vector3 vtx;
-            vtx.x = v[1].to_float() * scale_mesh.x;
-            vtx.y = v[2].to_float() * scale_mesh.y;
-            vtx.z = v[3].to_float() * scale_mesh.z;
+            vtx.x = StringUtils::to_float(v[1]) * scale_mesh.x;
+            vtx.y = StringUtils::to_float(v[2]) * scale_mesh.y;
+            vtx.z = StringUtils::to_float(v[3]) * scale_mesh.z;
             vertices.push_back(vtx);
-        } else if (l.startsWith("vt ")) {
+		} else if (StringUtils::begins_with(l,"vt ")) {
             //uv
             Vector<String> v = StringUtils::split(l," ", false);
             ERR_FAIL_COND_V(v.size() < 3, ERR_FILE_CORRUPT);
             Vector2 uv;
-            uv.x = v[1].to_float();
-            uv.y = 1.0 - v[2].to_float();
+            uv.x = StringUtils::to_float(v[1]);
+            uv.y = 1.0 - StringUtils::to_float(v[2]);
             uvs.push_back(uv);
 
-        } else if (l.startsWith("vn ")) {
+		} else if (StringUtils::begins_with(l,"vn ")) {
             //normal
             Vector<String> v = StringUtils::split(l," ", false);
             ERR_FAIL_COND_V(v.size() < 4, ERR_FILE_CORRUPT);
             Vector3 nrm;
-            nrm.x = v[1].to_float();
-            nrm.y = v[2].to_float();
-            nrm.z = v[3].to_float();
+            nrm.x = StringUtils::to_float(v[1]);
+            nrm.y = StringUtils::to_float(v[2]);
+            nrm.z = StringUtils::to_float(v[3]);
             normals.push_back(nrm);
-        } else if (l.startsWith("f ")) {
+		} else if (StringUtils::begins_with(l,"f ")) {
             //vertex
 
             Vector<String> v = StringUtils::split(l," ", false);
@@ -295,7 +298,7 @@ static Error _parse_obj(const String &p_path, List<Ref<Mesh> > &r_meshes, bool p
                     }
 
                     if (face[idx].size() == 3) {
-                        int norm = face[idx][2].to_int() - 1;
+                        int norm = StringUtils::to_int(face[idx][2]) - 1;
                         if (norm < 0)
                             norm += normals.size() + 1;
                         ERR_FAIL_INDEX_V(norm, normals.size(), ERR_FILE_CORRUPT)
@@ -303,14 +306,14 @@ static Error _parse_obj(const String &p_path, List<Ref<Mesh> > &r_meshes, bool p
                     }
 
                     if (face[idx].size() >= 2 && face[idx][1] != String()) {
-                        int uv = face[idx][1].to_int() - 1;
+                        int uv = StringUtils::to_int(face[idx][1]) - 1;
                         if (uv < 0)
                             uv += uvs.size() + 1;
                         ERR_FAIL_INDEX_V(uv, uvs.size(), ERR_FILE_CORRUPT)
                         surf_tool->add_uv(uvs[uv]);
                     }
 
-                    int vtx = face[idx][0].to_int() - 1;
+                    int vtx = StringUtils::to_int(face[idx][0]) - 1;
                     if (vtx < 0)
                         vtx += vertices.size() + 1;
                     ERR_FAIL_INDEX_V(vtx, vertices.size(), ERR_FILE_CORRUPT);
@@ -323,13 +326,13 @@ static Error _parse_obj(const String &p_path, List<Ref<Mesh> > &r_meshes, bool p
 
                 face[1] = face[2];
             }
-        } else if (l.startsWith("s ")) { //smoothing
-            String what = l.substr(2, l.length()).strip_edges();
+		} else if (StringUtils::begins_with(l,"s ")) { //smoothing
+            String what = StringUtils::strip_edges(StringUtils::substr(l,2, l.length()));
             if (what == "off")
                 surf_tool->add_smooth_group(false);
             else
                 surf_tool->add_smooth_group(true);
-        } else if (/*l.startsWith("g ") ||*/ l.startsWith("usemtl ") || (l.startsWith("o ") || f->eof_reached())) { //commit group to mesh
+		} else if (/*StringUtils::begins_with(l,"g ") ||*/ StringUtils::begins_with(l,"usemtl ") || (StringUtils::begins_with(l,"o ") || f->eof_reached())) { //commit group to mesh
             //groups are too annoying
             if (surf_tool->get_vertex_array().size()) {
                 //another group going on, commit it
@@ -363,7 +366,7 @@ static Error _parse_obj(const String &p_path, List<Ref<Mesh> > &r_meshes, bool p
                 surf_tool->begin(Mesh::PRIMITIVE_TRIANGLES);
             }
 
-            if (l.startsWith("o ") || f->eof_reached()) {
+			if (StringUtils::begins_with(l,"o ") || f->eof_reached()) {
 
                 if (!p_single_mesh) {
                     mesh->set_name(name);
@@ -378,23 +381,23 @@ static Error _parse_obj(const String &p_path, List<Ref<Mesh> > &r_meshes, bool p
                 break;
             }
 
-            if (l.startsWith("o ")) {
-                name = l.substr(2, l.length()).strip_edges();
+			if (StringUtils::begins_with(l,"o ")) {
+                name = StringUtils::strip_edges(StringUtils::substr(l,2, l.length()));
             }
 
-            if (l.startsWith("usemtl ")) {
+			if (StringUtils::begins_with(l,"usemtl ")) {
 
-                current_material = String(l.replace("usemtl", "")).strip_edges();
+                current_material = StringUtils::strip_edges(StringUtils::replace(l,"usemtl", ""));
             }
 
-            if (l.startsWith("g ")) {
+			if (StringUtils::begins_with(l,"g ")) {
 
-                current_group = l.substr(2, l.length()).strip_edges();
+                current_group = StringUtils::strip_edges(StringUtils::substr(l,2, l.length()));
             }
 
-        } else if (l.startsWith("mtllib ")) { //parse material
+		} else if (StringUtils::begins_with(l,"mtllib ")) { //parse material
 
-            current_material_library = String(l.replace("mtllib", "")).strip_edges();
+            current_material_library = StringUtils::strip_edges(StringUtils::replace(l,"mtllib", ""));
             if (!material_map.has(current_material_library)) {
                 Map<String, Ref<SpatialMaterial> > lib;
                 Error err = _parse_material_library(current_material_library, lib, r_missing_deps);

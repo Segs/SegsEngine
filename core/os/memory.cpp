@@ -33,8 +33,8 @@
 #include "core/error_macros.h"
 #include "core/safe_refcount.h"
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 void *operator new(size_t p_size, const char *p_description) {
 
@@ -83,7 +83,7 @@ void *Memory::alloc_static(size_t p_bytes, bool p_pad_align) {
 
     void *mem = malloc(p_bytes + (prepad ? PAD_ALIGN : 0));
 
-    ERR_FAIL_COND_V(!mem, nullptr);
+    ERR_FAIL_COND_V(!mem, nullptr)
 
     atomic_increment(&alloc_count);
 

@@ -37,10 +37,12 @@
 #include "scene/3d/light.h"
 #include "scene/3d/mesh_instance.h"
 #include "scene/resources/material.h"
+#include "scene/gui/viewport_container.h"
+
 
 class MeshEditor : public ViewportContainer {
 
-	GDCLASS(MeshEditor, ViewportContainer);
+	GDCLASS(MeshEditor,ViewportContainer)
 
 	float rot_x;
 	float rot_y;
@@ -73,19 +75,19 @@ public:
 };
 
 class EditorInspectorPluginMesh : public EditorInspectorPlugin {
-	GDCLASS(EditorInspectorPluginMesh, EditorInspectorPlugin);
+	GDCLASS(EditorInspectorPluginMesh,EditorInspectorPlugin)
 
 public:
-	virtual bool can_handle(Object *p_object);
-	virtual void parse_begin(Object *p_object);
+	bool can_handle(Object *p_object) override;
+	void parse_begin(Object *p_object) override;
 };
 
 class MeshEditorPlugin : public EditorPlugin {
 
-	GDCLASS(MeshEditorPlugin, EditorPlugin);
+	GDCLASS(MeshEditorPlugin,EditorPlugin)
 
 public:
-	virtual String get_name() const { return "Mesh"; }
+	String get_name() const override { return "Mesh"; }
 
 	MeshEditorPlugin(EditorNode *p_node);
 };

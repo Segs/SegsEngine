@@ -129,8 +129,8 @@ public:
 class PackedSourcePCK : public PackSource {
 
 public:
-    virtual bool try_open_pack(const String &p_path);
-    virtual FileAccess *get_file(const String &p_path, PackedData::PackedFile *p_file);
+    bool try_open_pack(const String &p_path) override;
+    FileAccess *get_file(const String &p_path, PackedData::PackedFile *p_file) override;
 };
 
 class FileAccessPack : public FileAccess {
@@ -141,39 +141,39 @@ class FileAccessPack : public FileAccess {
     mutable bool eof;
 
     FileAccess *f;
-    virtual Error _open(const String &p_path, int p_mode_flags);
-    virtual uint64_t _get_modified_time(const String &p_file) { return 0; }
-    virtual uint32_t _get_unix_permissions(const String &p_file) { return 0; }
-    virtual Error _set_unix_permissions(const String &p_file, uint32_t p_permissions) { return FAILED; }
+    Error _open(const String &p_path, int p_mode_flags) override;
+    uint64_t _get_modified_time(const String &p_file) override { return 0; }
+    uint32_t _get_unix_permissions(const String &p_file) override { return 0; }
+    Error _set_unix_permissions(const String &p_file, uint32_t p_permissions) override { return FAILED; }
 
 public:
-    virtual void close();
-    virtual bool is_open() const;
+    void close() override;
+    bool is_open() const override;
 
-    virtual void seek(size_t p_position);
-    virtual void seek_end(int64_t p_position = 0);
-    virtual size_t get_position() const;
-    virtual size_t get_len() const;
+    void seek(size_t p_position) override;
+    void seek_end(int64_t p_position = 0) override;
+    size_t get_position() const override;
+    size_t get_len() const override;
 
-    virtual bool eof_reached() const;
+    bool eof_reached() const override;
 
-    virtual uint8_t get_8() const;
+    uint8_t get_8() const override;
 
-    virtual int get_buffer(uint8_t *p_dst, int p_length) const;
+    int get_buffer(uint8_t *p_dst, int p_length) const override;
 
-    virtual void set_endian_swap(bool p_swap);
+    void set_endian_swap(bool p_swap) override;
 
-    virtual Error get_error() const;
+    Error get_error() const override;
 
-    virtual void flush();
-    virtual void store_8(uint8_t p_dest);
+    void flush() override;
+    void store_8(uint8_t p_dest) override;
 
-    virtual void store_buffer(const uint8_t *p_src, int p_length);
+    void store_buffer(const uint8_t *p_src, int p_length) override;
 
-    virtual bool file_exists(const String &p_name);
+    bool file_exists(const String &p_name) override;
 
     FileAccessPack(const String &p_path, const PackedData::PackedFile &p_file);
-    ~FileAccessPack();
+    ~FileAccessPack() override;
 };
 
 FileAccess *PackedData::try_open_path(const String &p_path) {
@@ -202,32 +202,32 @@ class DirAccessPack : public DirAccess {
     bool cdir;
 
 public:
-    virtual Error list_dir_begin();
-    virtual String get_next();
-    virtual bool current_is_dir() const;
-    virtual bool current_is_hidden() const;
-    virtual void list_dir_end();
+    Error list_dir_begin() override;
+    String get_next() override;
+    bool current_is_dir() const override;
+    bool current_is_hidden() const override;
+    void list_dir_end() override;
 
-    virtual int get_drive_count();
-    virtual String get_drive(int p_drive);
+    int get_drive_count() override;
+    String get_drive(int p_drive) override;
 
-    virtual Error change_dir(String p_dir);
-    virtual String get_current_dir();
+    Error change_dir(String p_dir) override;
+    String get_current_dir() override;
 
-    virtual bool file_exists(String p_file);
-    virtual bool dir_exists(String p_dir);
+    bool file_exists(String p_file) override;
+    bool dir_exists(String p_dir) override;
 
-    virtual Error make_dir(String p_dir);
+    Error make_dir(String p_dir) override;
 
-    virtual Error rename(String p_from, String p_to);
-    virtual Error remove(String p_name);
+    Error rename(String p_from, String p_to) override;
+    Error remove(String p_name) override;
 
-    size_t get_space_left();
+    size_t get_space_left() override;
 
-    virtual String get_filesystem_type() const;
+    String get_filesystem_type() const override;
 
     DirAccessPack();
-    ~DirAccessPack();
+    ~DirAccessPack() override;
 };
 
 #endif // FILE_ACCESS_PACK_H

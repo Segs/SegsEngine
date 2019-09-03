@@ -32,11 +32,27 @@
 
 #include "core/core_string_names.h"
 #include "core/io/image_loader.h"
-#include "method_bind_ext.gen.h"
 #include "core/os/os.h"
 #include "mesh.h"
 #include "scene/resources/bit_map.h"
 #include "servers/camera/camera_feed.h"
+#include "core/method_bind.h"
+
+IMPL_GDCLASS(Texture)
+IMPL_GDCLASS(ImageTexture)
+IMPL_GDCLASS(StreamTexture)
+IMPL_GDCLASS(AtlasTexture)
+IMPL_GDCLASS(MeshTexture)
+IMPL_GDCLASS(LargeTexture)
+IMPL_GDCLASS(CubeMap)
+IMPL_GDCLASS(TextureLayered)
+IMPL_GDCLASS(Texture3D)
+IMPL_GDCLASS(TextureArray)
+IMPL_GDCLASS(CurveTexture)
+IMPL_GDCLASS(GradientTexture)
+IMPL_GDCLASS(ProxyTexture)
+IMPL_GDCLASS(AnimatedTexture)
+
 
 Size2 Texture::get_size() const {
 
@@ -72,16 +88,16 @@ bool Texture::get_rect_region(const Rect2 &p_rect, const Rect2 &p_src_rect, Rect
 
 void Texture::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("get_width"), &Texture::get_width);
-    ClassDB::bind_method(D_METHOD("get_height"), &Texture::get_height);
-    ClassDB::bind_method(D_METHOD("get_size"), &Texture::get_size);
-    ClassDB::bind_method(D_METHOD("has_alpha"), &Texture::has_alpha);
-    ClassDB::bind_method(D_METHOD("set_flags", "flags"), &Texture::set_flags);
-    ClassDB::bind_method(D_METHOD("get_flags"), &Texture::get_flags);
-    ClassDB::bind_method(D_METHOD("draw", "canvas_item", "position", "modulate", "transpose", "normal_map"), &Texture::draw, {DEFVAL(Color(1, 1, 1)), DEFVAL(false), DEFVAL(Variant())});
-    ClassDB::bind_method(D_METHOD("draw_rect", "canvas_item", "rect", "tile", "modulate", "transpose", "normal_map"), &Texture::draw_rect, {DEFVAL(Color(1, 1, 1)), DEFVAL(false), DEFVAL(Variant())});
-    ClassDB::bind_method(D_METHOD("draw_rect_region", "canvas_item", "rect", "src_rect", "modulate", "transpose", "normal_map", "clip_uv"), &Texture::draw_rect_region, {DEFVAL(Color(1, 1, 1)), DEFVAL(false), DEFVAL(Variant()), DEFVAL(true)});
-    ClassDB::bind_method(D_METHOD("get_data"), &Texture::get_data);
+    MethodBinder::bind_method(D_METHOD("get_width"), &Texture::get_width);
+    MethodBinder::bind_method(D_METHOD("get_height"), &Texture::get_height);
+    MethodBinder::bind_method(D_METHOD("get_size"), &Texture::get_size);
+    MethodBinder::bind_method(D_METHOD("has_alpha"), &Texture::has_alpha);
+    MethodBinder::bind_method(D_METHOD("set_flags", "flags"), &Texture::set_flags);
+    MethodBinder::bind_method(D_METHOD("get_flags"), &Texture::get_flags);
+    MethodBinder::bind_method(D_METHOD("draw", "canvas_item", "position", "modulate", "transpose", "normal_map"), &Texture::draw, {DEFVAL(Color(1, 1, 1)), DEFVAL(false), DEFVAL(Variant())});
+    MethodBinder::bind_method(D_METHOD("draw_rect", "canvas_item", "rect", "tile", "modulate", "transpose", "normal_map"), &Texture::draw_rect, {DEFVAL(Color(1, 1, 1)), DEFVAL(false), DEFVAL(Variant())});
+    MethodBinder::bind_method(D_METHOD("draw_rect_region", "canvas_item", "rect", "src_rect", "modulate", "transpose", "normal_map", "clip_uv"), &Texture::draw_rect_region, {DEFVAL(Color(1, 1, 1)), DEFVAL(false), DEFVAL(Variant()), DEFVAL(true)});
+    MethodBinder::bind_method(D_METHOD("get_data"), &Texture::get_data);
 
     ADD_GROUP("Flags", "");
     ADD_PROPERTY(PropertyInfo(Variant::INT, "flags", PROPERTY_HINT_FLAGS, "Mipmaps,Repeat,Filter,Anisotropic Linear,Convert to Linear,Mirrored Repeat,Video Surface"), "set_flags", "get_flags");
@@ -400,20 +416,20 @@ void ImageTexture::_set_data(Dictionary p_data) {
 
 void ImageTexture::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("create", "width", "height", "format", "flags"), &ImageTexture::create, {DEFVAL(FLAGS_DEFAULT)});
-    ClassDB::bind_method(D_METHOD("create_from_image", "image", "flags"), &ImageTexture::create_from_image, {DEFVAL(FLAGS_DEFAULT)});
-    ClassDB::bind_method(D_METHOD("get_format"), &ImageTexture::get_format);
+    MethodBinder::bind_method(D_METHOD("create", "width", "height", "format", "flags"), &ImageTexture::create, {DEFVAL(FLAGS_DEFAULT)});
+    MethodBinder::bind_method(D_METHOD("create_from_image", "image", "flags"), &ImageTexture::create_from_image, {DEFVAL(FLAGS_DEFAULT)});
+    MethodBinder::bind_method(D_METHOD("get_format"), &ImageTexture::get_format);
 #ifndef DISABLE_DEPRECATED
-    ClassDB::bind_method(D_METHOD("load", "path"), &ImageTexture::load);
+    MethodBinder::bind_method(D_METHOD("load", "path"), &ImageTexture::load);
 #endif
-    ClassDB::bind_method(D_METHOD("set_data", "image"), &ImageTexture::set_data);
-    ClassDB::bind_method(D_METHOD("set_storage", "mode"), &ImageTexture::set_storage);
-    ClassDB::bind_method(D_METHOD("get_storage"), &ImageTexture::get_storage);
-    ClassDB::bind_method(D_METHOD("set_lossy_storage_quality", "quality"), &ImageTexture::set_lossy_storage_quality);
-    ClassDB::bind_method(D_METHOD("get_lossy_storage_quality"), &ImageTexture::get_lossy_storage_quality);
+    MethodBinder::bind_method(D_METHOD("set_data", "image"), &ImageTexture::set_data);
+    MethodBinder::bind_method(D_METHOD("set_storage", "mode"), &ImageTexture::set_storage);
+    MethodBinder::bind_method(D_METHOD("get_storage"), &ImageTexture::get_storage);
+    MethodBinder::bind_method(D_METHOD("set_lossy_storage_quality", "quality"), &ImageTexture::set_lossy_storage_quality);
+    MethodBinder::bind_method(D_METHOD("get_lossy_storage_quality"), &ImageTexture::get_lossy_storage_quality);
 
-    ClassDB::bind_method(D_METHOD("set_size_override", "size"), &ImageTexture::set_size_override);
-    ClassDB::bind_method(D_METHOD("_reload_hook", "rid"), &ImageTexture::_reload_hook);
+    MethodBinder::bind_method(D_METHOD("set_size_override", "size"), &ImageTexture::set_size_override);
+    MethodBinder::bind_method(D_METHOD("_reload_hook", "rid"), &ImageTexture::_reload_hook);
 
     ADD_PROPERTY(PropertyInfo(Variant::INT, "storage", PROPERTY_HINT_ENUM, "Uncompressed,Compress Lossy,Compress Lossless"), "set_storage", "get_storage");
     ADD_PROPERTY(PropertyInfo(Variant::REAL, "lossy_quality", PROPERTY_HINT_RANGE, "0.0,1.0,0.01"), "set_lossy_storage_quality", "get_lossy_storage_quality");
@@ -851,8 +867,8 @@ void StreamTexture::_validate_property(PropertyInfo &property) const {
 
 void StreamTexture::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("load", "path"), &StreamTexture::load);
-    ClassDB::bind_method(D_METHOD("get_load_path"), &StreamTexture::get_load_path);
+    MethodBinder::bind_method(D_METHOD("load", "path"), &StreamTexture::load);
+    MethodBinder::bind_method(D_METHOD("get_load_path"), &StreamTexture::get_load_path);
 
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "load_path", PROPERTY_HINT_FILE, "*.stex"), "load", "get_load_path");
 }
@@ -1007,17 +1023,17 @@ bool AtlasTexture::has_filter_clip() const {
 
 void AtlasTexture::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_atlas", "atlas"), &AtlasTexture::set_atlas);
-    ClassDB::bind_method(D_METHOD("get_atlas"), &AtlasTexture::get_atlas);
+    MethodBinder::bind_method(D_METHOD("set_atlas", "atlas"), &AtlasTexture::set_atlas);
+    MethodBinder::bind_method(D_METHOD("get_atlas"), &AtlasTexture::get_atlas);
 
-    ClassDB::bind_method(D_METHOD("set_region", "region"), &AtlasTexture::set_region);
-    ClassDB::bind_method(D_METHOD("get_region"), &AtlasTexture::get_region);
+    MethodBinder::bind_method(D_METHOD("set_region", "region"), &AtlasTexture::set_region);
+    MethodBinder::bind_method(D_METHOD("get_region"), &AtlasTexture::get_region);
 
-    ClassDB::bind_method(D_METHOD("set_margin", "margin"), &AtlasTexture::set_margin);
-    ClassDB::bind_method(D_METHOD("get_margin"), &AtlasTexture::get_margin);
+    MethodBinder::bind_method(D_METHOD("set_margin", "margin"), &AtlasTexture::set_margin);
+    MethodBinder::bind_method(D_METHOD("get_margin"), &AtlasTexture::get_margin);
 
-    ClassDB::bind_method(D_METHOD("set_filter_clip", "enable"), &AtlasTexture::set_filter_clip);
-    ClassDB::bind_method(D_METHOD("has_filter_clip"), &AtlasTexture::has_filter_clip);
+    MethodBinder::bind_method(D_METHOD("set_filter_clip", "enable"), &AtlasTexture::set_filter_clip);
+    MethodBinder::bind_method(D_METHOD("has_filter_clip"), &AtlasTexture::has_filter_clip);
 
     ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "atlas", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_atlas", "get_atlas");
     ADD_PROPERTY(PropertyInfo(Variant::RECT2, "region"), "set_region", "get_region");
@@ -1251,12 +1267,12 @@ bool MeshTexture::is_pixel_opaque(int p_x, int p_y) const {
 }
 
 void MeshTexture::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("set_mesh", "mesh"), &MeshTexture::set_mesh);
-    ClassDB::bind_method(D_METHOD("get_mesh"), &MeshTexture::get_mesh);
-    ClassDB::bind_method(D_METHOD("set_image_size", "size"), &MeshTexture::set_image_size);
-    ClassDB::bind_method(D_METHOD("get_image_size"), &MeshTexture::get_image_size);
-    ClassDB::bind_method(D_METHOD("set_base_texture", "texture"), &MeshTexture::set_base_texture);
-    ClassDB::bind_method(D_METHOD("get_base_texture"), &MeshTexture::get_base_texture);
+    MethodBinder::bind_method(D_METHOD("set_mesh", "mesh"), &MeshTexture::set_mesh);
+    MethodBinder::bind_method(D_METHOD("get_mesh"), &MeshTexture::get_mesh);
+    MethodBinder::bind_method(D_METHOD("set_image_size", "size"), &MeshTexture::set_image_size);
+    MethodBinder::bind_method(D_METHOD("get_image_size"), &MeshTexture::get_image_size);
+    MethodBinder::bind_method(D_METHOD("set_base_texture", "texture"), &MeshTexture::set_base_texture);
+    MethodBinder::bind_method(D_METHOD("get_base_texture"), &MeshTexture::get_base_texture);
 
     ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "mesh", PROPERTY_HINT_RESOURCE_TYPE, "Mesh"), "set_mesh", "get_mesh");
     ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "base_texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_base_texture", "get_base_texture");
@@ -1389,18 +1405,18 @@ Ref<Image> LargeTexture::to_image() const {
 
 void LargeTexture::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("add_piece", "ofs", "texture"), &LargeTexture::add_piece);
-    ClassDB::bind_method(D_METHOD("set_piece_offset", "idx", "ofs"), &LargeTexture::set_piece_offset);
-    ClassDB::bind_method(D_METHOD("set_piece_texture", "idx", "texture"), &LargeTexture::set_piece_texture);
-    ClassDB::bind_method(D_METHOD("set_size", "size"), &LargeTexture::set_size);
-    ClassDB::bind_method(D_METHOD("clear"), &LargeTexture::clear);
+    MethodBinder::bind_method(D_METHOD("add_piece", "ofs", "texture"), &LargeTexture::add_piece);
+    MethodBinder::bind_method(D_METHOD("set_piece_offset", "idx", "ofs"), &LargeTexture::set_piece_offset);
+    MethodBinder::bind_method(D_METHOD("set_piece_texture", "idx", "texture"), &LargeTexture::set_piece_texture);
+    MethodBinder::bind_method(D_METHOD("set_size", "size"), &LargeTexture::set_size);
+    MethodBinder::bind_method(D_METHOD("clear"), &LargeTexture::clear);
 
-    ClassDB::bind_method(D_METHOD("get_piece_count"), &LargeTexture::get_piece_count);
-    ClassDB::bind_method(D_METHOD("get_piece_offset", "idx"), &LargeTexture::get_piece_offset);
-    ClassDB::bind_method(D_METHOD("get_piece_texture", "idx"), &LargeTexture::get_piece_texture);
+    MethodBinder::bind_method(D_METHOD("get_piece_count"), &LargeTexture::get_piece_count);
+    MethodBinder::bind_method(D_METHOD("get_piece_offset", "idx"), &LargeTexture::get_piece_offset);
+    MethodBinder::bind_method(D_METHOD("get_piece_texture", "idx"), &LargeTexture::get_piece_texture);
 
-    ClassDB::bind_method(D_METHOD("_set_data", "data"), &LargeTexture::_set_data);
-    ClassDB::bind_method(D_METHOD("_get_data"), &LargeTexture::_get_data);
+    MethodBinder::bind_method(D_METHOD("_set_data", "data"), &LargeTexture::_set_data);
+    MethodBinder::bind_method(D_METHOD("_get_data"), &LargeTexture::_get_data);
 
     ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "_data", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_data", "_get_data");
 }
@@ -1617,16 +1633,16 @@ void CubeMap::_get_property_list(List<PropertyInfo> *p_list) const {
 
 void CubeMap::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("get_width"), &CubeMap::get_width);
-    ClassDB::bind_method(D_METHOD("get_height"), &CubeMap::get_height);
-    ClassDB::bind_method(D_METHOD("set_flags", "flags"), &CubeMap::set_flags);
-    ClassDB::bind_method(D_METHOD("get_flags"), &CubeMap::get_flags);
-    ClassDB::bind_method(D_METHOD("set_side", "side", "image"), &CubeMap::set_side);
-    ClassDB::bind_method(D_METHOD("get_side", "side"), &CubeMap::get_side);
-    ClassDB::bind_method(D_METHOD("set_storage", "mode"), &CubeMap::set_storage);
-    ClassDB::bind_method(D_METHOD("get_storage"), &CubeMap::get_storage);
-    ClassDB::bind_method(D_METHOD("set_lossy_storage_quality", "quality"), &CubeMap::set_lossy_storage_quality);
-    ClassDB::bind_method(D_METHOD("get_lossy_storage_quality"), &CubeMap::get_lossy_storage_quality);
+    MethodBinder::bind_method(D_METHOD("get_width"), &CubeMap::get_width);
+    MethodBinder::bind_method(D_METHOD("get_height"), &CubeMap::get_height);
+    MethodBinder::bind_method(D_METHOD("set_flags", "flags"), &CubeMap::set_flags);
+    MethodBinder::bind_method(D_METHOD("get_flags"), &CubeMap::get_flags);
+    MethodBinder::bind_method(D_METHOD("set_side", "side", "image"), &CubeMap::set_side);
+    MethodBinder::bind_method(D_METHOD("get_side", "side"), &CubeMap::get_side);
+    MethodBinder::bind_method(D_METHOD("set_storage", "mode"), &CubeMap::set_storage);
+    MethodBinder::bind_method(D_METHOD("get_storage"), &CubeMap::get_storage);
+    MethodBinder::bind_method(D_METHOD("set_lossy_storage_quality", "quality"), &CubeMap::set_lossy_storage_quality);
+    MethodBinder::bind_method(D_METHOD("get_lossy_storage_quality"), &CubeMap::get_lossy_storage_quality);
 
     ADD_PROPERTY(PropertyInfo(Variant::INT, "flags", PROPERTY_HINT_FLAGS, "Mipmaps,Repeat,Filter"), "set_flags", "get_flags");
     ADD_PROPERTY(PropertyInfo(Variant::INT, "storage_mode", PROPERTY_HINT_ENUM, "Raw,Lossy Compressed,Lossless Compressed"), "set_storage", "get_storage");
@@ -1679,12 +1695,12 @@ CubeMap::~CubeMap() {
 
 void CurveTexture::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_width", "width"), &CurveTexture::set_width);
+    MethodBinder::bind_method(D_METHOD("set_width", "width"), &CurveTexture::set_width);
 
-    ClassDB::bind_method(D_METHOD("set_curve", "curve"), &CurveTexture::set_curve);
-    ClassDB::bind_method(D_METHOD("get_curve"), &CurveTexture::get_curve);
+    MethodBinder::bind_method(D_METHOD("set_curve", "curve"), &CurveTexture::set_curve);
+    MethodBinder::bind_method(D_METHOD("get_curve"), &CurveTexture::get_curve);
 
-    ClassDB::bind_method(D_METHOD("_update"), &CurveTexture::_update);
+    MethodBinder::bind_method(D_METHOD("_update"), &CurveTexture::_update);
 
     ADD_PROPERTY(PropertyInfo(Variant::INT, "width", PROPERTY_HINT_RANGE, "32,4096"), "set_width", "get_width");
     ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "curve", PROPERTY_HINT_RESOURCE_TYPE, "Curve"), "set_curve", "get_curve");
@@ -1798,12 +1814,12 @@ GradientTexture::~GradientTexture() {
 
 void GradientTexture::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_gradient", "gradient"), &GradientTexture::set_gradient);
-    ClassDB::bind_method(D_METHOD("get_gradient"), &GradientTexture::get_gradient);
+    MethodBinder::bind_method(D_METHOD("set_gradient", "gradient"), &GradientTexture::set_gradient);
+    MethodBinder::bind_method(D_METHOD("get_gradient"), &GradientTexture::get_gradient);
 
-    ClassDB::bind_method(D_METHOD("set_width", "width"), &GradientTexture::set_width);
+    MethodBinder::bind_method(D_METHOD("set_width", "width"), &GradientTexture::set_width);
 
-    ClassDB::bind_method(D_METHOD("_update"), &GradientTexture::_update);
+    MethodBinder::bind_method(D_METHOD("_update"), &GradientTexture::_update);
 
     ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "gradient", PROPERTY_HINT_RESOURCE_TYPE, "Gradient"), "set_gradient", "get_gradient");
     ADD_PROPERTY(PropertyInfo(Variant::INT, "width", PROPERTY_HINT_RANGE, "1,2048,1,or_greater"), "set_width", "get_width");
@@ -1887,8 +1903,8 @@ Ref<Image> GradientTexture::get_data() const {
 
 void ProxyTexture::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_base", "base"), &ProxyTexture::set_base);
-    ClassDB::bind_method(D_METHOD("get_base"), &ProxyTexture::get_base);
+    MethodBinder::bind_method(D_METHOD("set_base", "base"), &ProxyTexture::set_base);
+    MethodBinder::bind_method(D_METHOD("get_base"), &ProxyTexture::get_base);
 
     ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "base", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_base", "get_base");
 }
@@ -2121,8 +2137,8 @@ uint32_t AnimatedTexture::get_flags() const {
 void AnimatedTexture::_validate_property(PropertyInfo &property) const {
 
     String prop = property.name;
-    if (prop.begins_with("frame_")) {
-        int frame = prop.get_slicec('/', 0).get_slicec('_', 1).to_int();
+    if (StringUtils::begins_with(prop,"frame_")) {
+        int frame = StringUtils::to_int(StringUtils::get_slice(StringUtils::get_slice(prop,'/', 0),'_', 1));
         if (frame >= frame_count) {
             property.usage = 0;
         }
@@ -2130,19 +2146,19 @@ void AnimatedTexture::_validate_property(PropertyInfo &property) const {
 }
 
 void AnimatedTexture::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("set_frames", "frames"), &AnimatedTexture::set_frames);
-    ClassDB::bind_method(D_METHOD("get_frames"), &AnimatedTexture::get_frames);
+    MethodBinder::bind_method(D_METHOD("set_frames", "frames"), &AnimatedTexture::set_frames);
+    MethodBinder::bind_method(D_METHOD("get_frames"), &AnimatedTexture::get_frames);
 
-    ClassDB::bind_method(D_METHOD("set_fps", "fps"), &AnimatedTexture::set_fps);
-    ClassDB::bind_method(D_METHOD("get_fps"), &AnimatedTexture::get_fps);
+    MethodBinder::bind_method(D_METHOD("set_fps", "fps"), &AnimatedTexture::set_fps);
+    MethodBinder::bind_method(D_METHOD("get_fps"), &AnimatedTexture::get_fps);
 
-    ClassDB::bind_method(D_METHOD("set_frame_texture", "frame", "texture"), &AnimatedTexture::set_frame_texture);
-    ClassDB::bind_method(D_METHOD("get_frame_texture", "frame"), &AnimatedTexture::get_frame_texture);
+    MethodBinder::bind_method(D_METHOD("set_frame_texture", "frame", "texture"), &AnimatedTexture::set_frame_texture);
+    MethodBinder::bind_method(D_METHOD("get_frame_texture", "frame"), &AnimatedTexture::get_frame_texture);
 
-    ClassDB::bind_method(D_METHOD("set_frame_delay", "frame", "delay"), &AnimatedTexture::set_frame_delay);
-    ClassDB::bind_method(D_METHOD("get_frame_delay", "frame"), &AnimatedTexture::get_frame_delay);
+    MethodBinder::bind_method(D_METHOD("set_frame_delay", "frame", "delay"), &AnimatedTexture::set_frame_delay);
+    MethodBinder::bind_method(D_METHOD("get_frame_delay", "frame"), &AnimatedTexture::get_frame_delay);
 
-    ClassDB::bind_method(D_METHOD("_update_proxy"), &AnimatedTexture::_update_proxy);
+    MethodBinder::bind_method(D_METHOD("_update_proxy"), &AnimatedTexture::_update_proxy);
 
     ADD_PROPERTY(PropertyInfo(Variant::INT, "frames", PROPERTY_HINT_RANGE, "1," + itos(MAX_FRAMES), PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_frames", "get_frames");
     ADD_PROPERTY(PropertyInfo(Variant::REAL, "fps", PROPERTY_HINT_RANGE, "0,1024,0.1"), "set_fps", "get_fps");
@@ -2290,22 +2306,22 @@ void TextureLayered::set_path(const String &p_path, bool p_take_over) {
 }
 
 void TextureLayered::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("set_flags", "flags"), &TextureLayered::set_flags);
-    ClassDB::bind_method(D_METHOD("get_flags"), &TextureLayered::get_flags);
+    MethodBinder::bind_method(D_METHOD("set_flags", "flags"), &TextureLayered::set_flags);
+    MethodBinder::bind_method(D_METHOD("get_flags"), &TextureLayered::get_flags);
 
-    ClassDB::bind_method(D_METHOD("get_format"), &TextureLayered::get_format);
+    MethodBinder::bind_method(D_METHOD("get_format"), &TextureLayered::get_format);
 
-    ClassDB::bind_method(D_METHOD("get_width"), &TextureLayered::get_width);
-    ClassDB::bind_method(D_METHOD("get_height"), &TextureLayered::get_height);
-    ClassDB::bind_method(D_METHOD("get_depth"), &TextureLayered::get_depth);
+    MethodBinder::bind_method(D_METHOD("get_width"), &TextureLayered::get_width);
+    MethodBinder::bind_method(D_METHOD("get_height"), &TextureLayered::get_height);
+    MethodBinder::bind_method(D_METHOD("get_depth"), &TextureLayered::get_depth);
 
-    ClassDB::bind_method(D_METHOD("create", "width", "height", "depth", "format", "flags"), &TextureLayered::create, {DEFVAL(FLAGS_DEFAULT)});
-    ClassDB::bind_method(D_METHOD("set_layer_data", "image", "layer"), &TextureLayered::set_layer_data);
-    ClassDB::bind_method(D_METHOD("get_layer_data", "layer"), &TextureLayered::get_layer_data);
-    ClassDB::bind_method(D_METHOD("set_data_partial", "image", "x_offset", "y_offset", "layer", "mipmap"), &TextureLayered::set_data_partial, {DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("create", "width", "height", "depth", "format", "flags"), &TextureLayered::create, {DEFVAL(FLAGS_DEFAULT)});
+    MethodBinder::bind_method(D_METHOD("set_layer_data", "image", "layer"), &TextureLayered::set_layer_data);
+    MethodBinder::bind_method(D_METHOD("get_layer_data", "layer"), &TextureLayered::get_layer_data);
+    MethodBinder::bind_method(D_METHOD("set_data_partial", "image", "x_offset", "y_offset", "layer", "mipmap"), &TextureLayered::set_data_partial, {DEFVAL(0)});
 
-    ClassDB::bind_method(D_METHOD("_set_data", "data"), &TextureLayered::_set_data);
-    ClassDB::bind_method(D_METHOD("_get_data"), &TextureLayered::_get_data);
+    MethodBinder::bind_method(D_METHOD("_set_data", "data"), &TextureLayered::_set_data);
+    MethodBinder::bind_method(D_METHOD("_get_data"), &TextureLayered::_get_data);
 
     ADD_PROPERTY(PropertyInfo(Variant::INT, "flags", PROPERTY_HINT_FLAGS, "Mipmaps,Repeat,Filter"), "set_flags", "get_flags");
     ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "data", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "_set_data", "_get_data");
@@ -2344,10 +2360,10 @@ RES ResourceFormatLoaderTextureLayered::load(const String &p_path, const String 
     Ref<Texture3D> tex3d;
     Ref<TextureArray> texarr;
 
-    if (p_path.ends_with("tex3d")) {
+    if (StringUtils::ends_with(p_path,"tex3d")) {
         tex3d.instance();
         lt = tex3d;
-    } else if (p_path.ends_with("texarr")) {
+    } else if (StringUtils::ends_with(p_path,"texarr")) {
         texarr.instance();
         lt = texarr;
     } else {
@@ -2501,15 +2517,19 @@ String ResourceFormatLoaderTextureLayered::get_resource_type(const String &p_pat
     return "";
 }
 
+#include "camera_texture.h"
+
+IMPL_GDCLASS(CameraTexture)
+
 void CameraTexture::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("set_camera_feed_id", "feed_id"), &CameraTexture::set_camera_feed_id);
-    ClassDB::bind_method(D_METHOD("get_camera_feed_id"), &CameraTexture::get_camera_feed_id);
+    MethodBinder::bind_method(D_METHOD("set_camera_feed_id", "feed_id"), &CameraTexture::set_camera_feed_id);
+    MethodBinder::bind_method(D_METHOD("get_camera_feed_id"), &CameraTexture::get_camera_feed_id);
 
-    ClassDB::bind_method(D_METHOD("set_which_feed", "which_feed"), &CameraTexture::set_which_feed);
-    ClassDB::bind_method(D_METHOD("get_which_feed"), &CameraTexture::get_which_feed);
+    MethodBinder::bind_method(D_METHOD("set_which_feed", "which_feed"), &CameraTexture::set_which_feed);
+    MethodBinder::bind_method(D_METHOD("get_which_feed"), &CameraTexture::get_which_feed);
 
-    ClassDB::bind_method(D_METHOD("set_camera_active", "active"), &CameraTexture::set_camera_active);
-    ClassDB::bind_method(D_METHOD("get_camera_active"), &CameraTexture::get_camera_active);
+    MethodBinder::bind_method(D_METHOD("set_camera_active", "active"), &CameraTexture::set_camera_active);
+    MethodBinder::bind_method(D_METHOD("get_camera_active"), &CameraTexture::get_camera_active);
 
     ADD_PROPERTY(PropertyInfo(Variant::INT, "camera_feed_id"), "set_camera_feed_id", "get_camera_feed_id");
     ADD_PROPERTY(PropertyInfo(Variant::INT, "which_feed"), "set_which_feed", "get_which_feed");

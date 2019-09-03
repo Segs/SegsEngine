@@ -30,8 +30,13 @@
 
 #include "abstract_polygon_2d_editor.h"
 
+#include "core/method_bind.h"
 #include "canvas_item_editor_plugin.h"
 #include "core/os/keyboard.h"
+#include "editor/editor_scale.h"
+
+IMPL_GDCLASS(AbstractPolygon2DEditor)
+IMPL_GDCLASS(AbstractPolygon2DEditorPlugin)
 
 AbstractPolygon2DEditor::Vertex::Vertex() :
         polygon(-1),
@@ -695,9 +700,9 @@ void AbstractPolygon2DEditor::edit(Node *p_polygon) {
 
 void AbstractPolygon2DEditor::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_node_removed"), &AbstractPolygon2DEditor::_node_removed);
-    ClassDB::bind_method(D_METHOD("_menu_option"), &AbstractPolygon2DEditor::_menu_option);
-    ClassDB::bind_method(D_METHOD("_create_resource"), &AbstractPolygon2DEditor::_create_resource);
+    MethodBinder::bind_method(D_METHOD("_node_removed"), &AbstractPolygon2DEditor::_node_removed);
+    MethodBinder::bind_method(D_METHOD("_menu_option"), &AbstractPolygon2DEditor::_menu_option);
+    MethodBinder::bind_method(D_METHOD("_create_resource"), &AbstractPolygon2DEditor::_create_resource);
 }
 
 void AbstractPolygon2DEditor::remove_point(const Vertex &p_vertex) {
@@ -846,7 +851,7 @@ void AbstractPolygon2DEditorPlugin::edit(Object *p_object) {
 
 bool AbstractPolygon2DEditorPlugin::handles(Object *p_object) const {
 
-    return p_object->is_class(klass);
+    return p_object->is_class(StringUtils::to_utf8(klass));
 }
 
 void AbstractPolygon2DEditorPlugin::make_visible(bool p_visible) {

@@ -30,8 +30,12 @@
 
 #include "audio_stream_preview.h"
 
+#include "core/method_bind.h"
 #include "core/object_db.h"
 /////////////////////
+
+IMPL_GDCLASS(AudioStreamPreview)
+IMPL_GDCLASS(AudioStreamPreviewGenerator)
 
 float AudioStreamPreview::get_length() const {
     return length;
@@ -207,8 +211,8 @@ Ref<AudioStreamPreview> AudioStreamPreviewGenerator::generate_preview(const Ref<
 }
 
 void AudioStreamPreviewGenerator::_bind_methods() {
-    ClassDB::bind_method("_update_emit", &AudioStreamPreviewGenerator::_update_emit);
-    ClassDB::bind_method(D_METHOD("generate_preview", "stream"), &AudioStreamPreviewGenerator::generate_preview);
+    MethodBinder::bind_method("_update_emit", &AudioStreamPreviewGenerator::_update_emit);
+    MethodBinder::bind_method(D_METHOD("generate_preview", "stream"), &AudioStreamPreviewGenerator::generate_preview);
 
     ADD_SIGNAL(MethodInfo("preview_updated", PropertyInfo(Variant::INT, "obj_id")));
 }

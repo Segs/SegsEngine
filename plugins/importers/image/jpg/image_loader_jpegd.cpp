@@ -30,9 +30,10 @@
 
 #include "image_loader_jpegd.h"
 
-#include "core/os/os.h"
 #include "core/image_data.h"
 #include "core/print_string.h"
+#include "core/os/file_access.h"
+#include "core/ustring.h"
 
 #include <jpgd.h>
 #include <string.h>
@@ -89,11 +90,11 @@ Error jpeg_load_image_from_buffer(ImageData &p_image, const uint8_t *p_buffer, i
 
     //all good
 
-	ImageData::Format fmt;
+    ImageData::Format fmt;
     if (comps == 1)
-		fmt = ImageData::FORMAT_L8;
+        fmt = ImageData::FORMAT_L8;
     else
-		fmt = ImageData::FORMAT_RGB8;
+        fmt = ImageData::FORMAT_RGB8;
 
     dw.release();
     p_image.width= image_width;
@@ -124,8 +125,8 @@ Error ImageLoaderJPG::load_image(ImageData &p_image, FileAccess *f, LoadParams p
 
 void ImageLoaderJPG::get_recognized_extensions(List<String> *p_extensions) const {
 
-    p_extensions->push_back("jpg");
-    p_extensions->push_back("jpeg");
+    p_extensions->push_back(String("jpg"));
+    p_extensions->push_back(String("jpeg"));
 }
 
 ImageLoaderJPG::ImageLoaderJPG() {

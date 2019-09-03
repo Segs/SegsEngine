@@ -36,6 +36,8 @@
 #include "editor/editor_node.h"
 #include "scene/resources/texture.h"
 
+IMPL_GDCLASS(ResourceImporterTexture)
+
 void ResourceImporterTexture::_texture_reimport_srgb(const Ref<StreamTexture> &p_tex) {
 
     singleton->mutex->lock();

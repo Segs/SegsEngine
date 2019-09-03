@@ -37,8 +37,8 @@ IP_Address::operator Variant() const {
     return operator String();
 }*/
 
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 
 IP_Address::operator String() const {
 
@@ -151,23 +151,23 @@ void IP_Address::_parse_ipv6(const String &p_string) {
             _parse_ipv4(p_string, parts[i], (uint8_t *)&field16[idx]); // should be the last one
         } else {
             _parse_hex(p_string, parts[i], (uint8_t *)&(field16[idx++]));
-        };
-    };
+        }
+    }
 };
 
 void IP_Address::_parse_ipv4(const String &p_string, int p_start, uint8_t *p_ret) {
 
     String ip;
     if (p_start != 0) {
-        ip = p_string.substr(p_start, p_string.length() - p_start);
+        ip = StringUtils::substr(p_string,p_start, p_string.length() - p_start);
     } else {
         ip = p_string;
-    };
+    }
 
-    int slices = ip.get_slice_count(".");
-    ERR_FAIL_COND_MSG(slices != 4, "Invalid IP address string: " + ip + ".");
+    int slices = StringUtils::get_slice_count(ip,".");
+    ERR_FAIL_COND_MSG(slices != 4, "Invalid IP address string: " + ip + ".")
     for (int i = 0; i < 4; i++) {
-        p_ret[i] = ip.get_slicec('.', i).to_int();
+        p_ret[i] = StringUtils::to_int(StringUtils::get_slice(ip,'.', i));
     }
 };
 
@@ -213,19 +213,19 @@ IP_Address::IP_Address(const String &p_string) {
         // Wildcard (not a valid IP)
         wildcard = true;
 
-    } else if (p_string.find(":") >= 0) {
+	} else if (StringUtils::contains(p_string,':') ) {
         // IPv6
         _parse_ipv6(p_string);
         valid = true;
 
-    } else if (p_string.get_slice_count(".") == 4) {
+    } else if (StringUtils::get_slice_count(p_string,".") == 4) {
         // IPv4 (mapped to IPv6 internally)
         field16[5] = 0xffff;
         _parse_ipv4(p_string, 0, &field8[12]);
         valid = true;
 
     } else {
-        ERR_PRINT("Invalid IP address.");
+		ERR_PRINT("Invalid IP address.")
     }
 }
 

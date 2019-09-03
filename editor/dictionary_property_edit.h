@@ -34,7 +34,7 @@
 #include "scene/main/node.h"
 
 class DictionaryPropertyEdit : public Reference {
-	GDCLASS(DictionaryPropertyEdit, Reference);
+	GDCLASS(DictionaryPropertyEdit,Reference)
 
 	ObjectID obj;
 	StringName property;

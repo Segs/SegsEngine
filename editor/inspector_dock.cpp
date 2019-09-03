@@ -30,10 +30,15 @@
 
 #include "inspector_dock.h"
 
+#include "core/method_bind.h"
 #include "editor/editor_node.h"
+#include "editor/editor_path.h"
 #include "editor/editor_settings.h"
+#include "editor/animation_track_editor.h"
 #include "editor/plugins/animation_player_editor_plugin.h"
 #include "core/object_db.h"
+
+IMPL_GDCLASS(InspectorDock)
 
 void InspectorDock::_menu_option(int p_option) {
     switch (p_option) {
@@ -345,28 +350,28 @@ void InspectorDock::_notification(int p_what) {
 }
 
 void InspectorDock::_bind_methods() {
-    ClassDB::bind_method("_menu_option", &InspectorDock::_menu_option);
+    MethodBinder::bind_method("_menu_option", &InspectorDock::_menu_option);
 
-    ClassDB::bind_method("update_keying", &InspectorDock::update_keying);
-    ClassDB::bind_method("_property_keyed", &InspectorDock::_property_keyed);
-    ClassDB::bind_method("_transform_keyed", &InspectorDock::_transform_keyed);
+    MethodBinder::bind_method("update_keying", &InspectorDock::update_keying);
+    MethodBinder::bind_method("_property_keyed", &InspectorDock::_property_keyed);
+    MethodBinder::bind_method("_transform_keyed", &InspectorDock::_transform_keyed);
 
-    ClassDB::bind_method("_new_resource", &InspectorDock::_new_resource);
-    ClassDB::bind_method("_resource_file_selected", &InspectorDock::_resource_file_selected);
-    ClassDB::bind_method("_open_resource_selector", &InspectorDock::_open_resource_selector);
-    ClassDB::bind_method("_unref_resource", &InspectorDock::_unref_resource);
-    ClassDB::bind_method("_paste_resource", &InspectorDock::_paste_resource);
-    ClassDB::bind_method("_copy_resource", &InspectorDock::_copy_resource);
+    MethodBinder::bind_method("_new_resource", &InspectorDock::_new_resource);
+    MethodBinder::bind_method("_resource_file_selected", &InspectorDock::_resource_file_selected);
+    MethodBinder::bind_method("_open_resource_selector", &InspectorDock::_open_resource_selector);
+    MethodBinder::bind_method("_unref_resource", &InspectorDock::_unref_resource);
+    MethodBinder::bind_method("_paste_resource", &InspectorDock::_paste_resource);
+    MethodBinder::bind_method("_copy_resource", &InspectorDock::_copy_resource);
 
-    ClassDB::bind_method("_select_history", &InspectorDock::_select_history);
-    ClassDB::bind_method("_prepare_history", &InspectorDock::_prepare_history);
-    ClassDB::bind_method("_resource_created", &InspectorDock::_resource_created);
-    ClassDB::bind_method("_resource_selected", &InspectorDock::_resource_selected, {DEFVAL("")});
-    ClassDB::bind_method("_menu_collapseall", &InspectorDock::_menu_collapseall);
-    ClassDB::bind_method("_menu_expandall", &InspectorDock::_menu_expandall);
-    ClassDB::bind_method("_warning_pressed", &InspectorDock::_warning_pressed);
-    ClassDB::bind_method("_edit_forward", &InspectorDock::_edit_forward);
-    ClassDB::bind_method("_edit_back", &InspectorDock::_edit_back);
+    MethodBinder::bind_method("_select_history", &InspectorDock::_select_history);
+    MethodBinder::bind_method("_prepare_history", &InspectorDock::_prepare_history);
+    MethodBinder::bind_method("_resource_created", &InspectorDock::_resource_created);
+    MethodBinder::bind_method("_resource_selected", &InspectorDock::_resource_selected, {DEFVAL("")});
+    MethodBinder::bind_method("_menu_collapseall", &InspectorDock::_menu_collapseall);
+    MethodBinder::bind_method("_menu_expandall", &InspectorDock::_menu_expandall);
+    MethodBinder::bind_method("_warning_pressed", &InspectorDock::_warning_pressed);
+    MethodBinder::bind_method("_edit_forward", &InspectorDock::_edit_forward);
+    MethodBinder::bind_method("_edit_back", &InspectorDock::_edit_back);
 
     ADD_SIGNAL(MethodInfo("request_help"));
 }
@@ -462,7 +467,7 @@ void InspectorDock::update(Object *p_object) {
                     p->add_separator();
                     found = true;
                 }
-                p->add_item(I->get().name.capitalize(), OBJECT_METHOD_BASE + i);
+				p->add_item(StringUtils::capitalize(I->get().name), OBJECT_METHOD_BASE + i);
             }
             i++;
             I = I->next();

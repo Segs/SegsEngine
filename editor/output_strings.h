@@ -37,7 +37,7 @@
 
 class OutputStrings : public Control {
 
-	GDCLASS(OutputStrings, Control);
+	GDCLASS(OutputStrings,Control)
 
 public:
 	enum LineType {

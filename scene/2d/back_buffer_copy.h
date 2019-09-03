@@ -34,7 +34,7 @@
 #include "scene/2d/node_2d.h"
 
 class BackBufferCopy : public Node2D {
-	GDCLASS(BackBufferCopy, Node2D);
+	GDCLASS(BackBufferCopy,Node2D)
 
 public:
 	enum CopyMode {
@@ -53,18 +53,18 @@ protected:
 	static void _bind_methods();
 
 public:
-	Rect2 _edit_get_rect() const;
-	virtual bool _edit_use_rect() const;
+	Rect2 _edit_get_rect() const override;
+	bool _edit_use_rect() const override;
 
 	void set_rect(const Rect2 &p_rect);
 	Rect2 get_rect() const;
-	Rect2 get_anchorable_rect() const;
+	Rect2 get_anchorable_rect() const override;
 
 	void set_copy_mode(CopyMode p_mode);
 	CopyMode get_copy_mode() const;
 
 	BackBufferCopy();
-	~BackBufferCopy();
+	~BackBufferCopy() override;
 };
 
 VARIANT_ENUM_CAST(BackBufferCopy::CopyMode);

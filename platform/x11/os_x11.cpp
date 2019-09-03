@@ -741,7 +741,7 @@ String OS_X11::get_unique_id() const {
     if (machine_id.empty()) {
         if (FileAccess *f = FileAccess::open("/etc/machine-id", FileAccess::READ)) {
             while (machine_id.empty() && !f->eof_reached()) {
-                machine_id = f->get_line().strip_edges();
+                machine_id = StringUtils::strip_edges(f->get_line());
             }
             f->close();
             memdelete(f);
@@ -934,11 +934,12 @@ void OS_X11::set_window_per_pixel_transparency_enabled(bool p_enabled) {
 }
 
 void OS_X11::set_window_title(const String &p_title) {
-    XStoreName(x11_display, x11_window, qPrintable(p_title));
+    XStoreName(x11_display, x11_window, qPrintable(p_title.m_str));
 
     Atom _net_wm_name = XInternAtom(x11_display, "_NET_WM_NAME", false);
     Atom utf8_string = XInternAtom(x11_display, "UTF8_STRING", false);
-    XChangeProperty(x11_display, x11_window, _net_wm_name, utf8_string, 8, PropModeReplace, (const uint8_t *)qPrintable(p_title), p_title.utf8().length());
+
+    XChangeProperty(x11_display, x11_window, _net_wm_name, utf8_string, 8, PropModeReplace, (const uint8_t *)qPrintable(p_title.m_str), p_title.length());
 }
 
 void OS_X11::set_video_mode(const VideoMode &p_video_mode, int p_screen) {
@@ -1745,7 +1746,10 @@ void OS_X11::handle_key_event(XKeyEvent *p_event, bool p_echo) {
 
     // XLookupString returns keysyms usable as nice scancodes/
     char str[256 + 1];
-    XLookupString(xkeyevent, str, 256, &keysym_keycode, nullptr);
+	XKeyEvent xkeyevent_no_mod = *xkeyevent;
+	xkeyevent_no_mod.state &= ~ShiftMask;
+	xkeyevent_no_mod.state &= ~ControlMask;
+	XLookupString(&xkeyevent_no_mod, str, 256, &keysym_keycode, nullptr);
 
     // Meanwhile, XLookupString returns keysyms useful for unicode.
 
@@ -1779,8 +1783,7 @@ void OS_X11::handle_key_event(XKeyEvent *p_event, bool p_echo) {
             if (keycode >= 'a' && keycode <= 'z')
                 keycode -= 'a' - 'A';
 
-            String tmp;
-            tmp.parse_utf8(utf8string, utf8bytes);
+            String tmp = StringUtils::from_utf8(utf8string, utf8bytes);
             for (int i = 0; i < tmp.length(); i++) {
                 Ref<InputEventKey> k;
                 k.instance();
@@ -2440,14 +2443,14 @@ void OS_X11::process_xevents() {
                         req->target == XA_STRING ||
                         req->target == XInternAtom(x11_display, "text/plain;charset=utf-8", 0) ||
                         req->target == XInternAtom(x11_display, "text/plain", 0)) {
-                    CharString clip = OS::get_clipboard().utf8();
+                    CharString clip = StringUtils::to_utf8(OS::get_clipboard());
                     XChangeProperty(x11_display,
                             req->requestor,
                             req->property,
                             req->target,
                             8,
                             PropModeReplace,
-                            (const unsigned char *)clip.constData(),
+                            (const unsigned char *)clip.data(),
                             clip.length());
                     respond.xselection.property = req->property;
                 } else if (req->target == XInternAtom(x11_display, "TARGETS", 0)) {
@@ -2497,7 +2500,7 @@ void OS_X11::process_xevents() {
 
                     Vector<String> files = StringUtils::split(String((char *)p.data),"\n", false);
                     for (int i = 0; i < files.size(); i++) {
-                        files.write[i] = StringUtils::http_unescape(String(files[i]).replace("file://", "")).strip_edges();
+                        files.write[i] = StringUtils::strip_edges(StringUtils::http_unescape(StringUtils::replace(files[i],"file://", "")));
                     }
                     main_loop->drop_files(files);
 
@@ -2681,7 +2684,7 @@ static String _get_clipboard_impl(Atom p_source, Window x11_window, ::Display *x
                     AnyPropertyType, &type, &format,
                     &len, &dummy, &data);
             if (result == Success) {
-                ret.parse_utf8((const char *)data);
+                ret = StringUtils::from_utf8((const char *)data);
             } else
                 printf("FAIL\n");
             XFree(data);
@@ -2825,7 +2828,7 @@ String OS_X11::get_system_dir(SystemDir p_dir) const {
     Error err = const_cast<OS_X11 *>(this)->execute("xdg-user-dir", arg, true, nullptr, &pipe);
     if (err != OK)
         return ".";
-    return pipe.strip_edges();
+    return StringUtils::strip_edges( pipe);
 }
 
 void OS_X11::move_window_to_foreground() {
@@ -3021,7 +3024,7 @@ void OS_X11::alert(const String &p_alert, const String &p_title) {
 
     List<String> args;
 
-    if (program.ends_with("zenity")) {
+    if (StringUtils::ends_with(program,"zenity")) {
         args.push_back("--error");
         args.push_back("--width");
         args.push_back("500");
@@ -3031,14 +3034,14 @@ void OS_X11::alert(const String &p_alert, const String &p_title) {
         args.push_back(p_alert);
     }
 
-    if (program.ends_with("kdialog")) {
+    if (StringUtils::ends_with(program,"kdialog")) {
         args.push_back("--error");
         args.push_back(p_alert);
         args.push_back("--title");
         args.push_back(p_title);
     }
 
-    if (program.ends_with("Xdialog")) {
+    if (StringUtils::ends_with(program,"Xdialog")) {
         args.push_back("--title");
         args.push_back(p_title);
         args.push_back("--msgbox");
@@ -3047,7 +3050,7 @@ void OS_X11::alert(const String &p_alert, const String &p_title) {
         args.push_back("0");
     }
 
-    if (program.ends_with("xmessage")) {
+    if (StringUtils::ends_with(program,"xmessage")) {
         args.push_back("-center");
         args.push_back("-title");
         args.push_back(p_title);
@@ -3221,7 +3224,7 @@ void OS_X11::set_context(int p_context) {
             if (config_name.length() == 0) {
                 class_str = "Godot_Engine";
             } else {
-                class_str = config_name.utf8();
+                class_str = StringUtils::to_utf8(config_name);
             }
         } else {
             class_str = "Godot";
@@ -3257,7 +3260,7 @@ bool OS_X11::is_disable_crash_handler() const {
 
 static String get_mountpoint(const String &p_path) {
     struct stat s;
-    if (stat(qPrintable(p_path), &s)) {
+    if (stat(qPrintable(p_path.m_str), &s)) {
         return "";
     }
 
@@ -3291,7 +3294,7 @@ Error OS_X11::move_to_trash(const String &p_path) {
     if (mnt != "") {
         String path(mnt + "/.Trash-" + itos(getuid()) + "/files");
         struct stat s;
-        if (!stat(qPrintable(path), &s)) {
+        if (!stat(qPrintable(path.m_str), &s)) {
             trash_can = path;
         }
     }
@@ -3361,17 +3364,17 @@ OS::LatinKeyboardVariant OS_X11::get_latin_keyboard_variant() const {
     Vector<String> info = StringUtils::split(layout,"+");
     ERR_FAIL_INDEX_V(1, info.size(), LATIN_KEYBOARD_QWERTY)
 
-    if (info[1].find("colemak") != -1) {
+    if (StringUtils::find(info[1],"colemak") != -1) {
         return LATIN_KEYBOARD_COLEMAK;
-    } else if (info[1].find("qwertz") != -1) {
+    } else if (StringUtils::find(info[1],"qwertz") != -1) {
         return LATIN_KEYBOARD_QWERTZ;
-    } else if (info[1].find("azerty") != -1) {
+    } else if (StringUtils::find(info[1],"azerty") != -1) {
         return LATIN_KEYBOARD_AZERTY;
-    } else if (info[1].find("qzerty") != -1) {
+    } else if (StringUtils::find(info[1],"qzerty") != -1) {
         return LATIN_KEYBOARD_QZERTY;
-    } else if (info[1].find("dvorak") != -1) {
+    } else if (StringUtils::find(info[1],"dvorak") != -1) {
         return LATIN_KEYBOARD_DVORAK;
-    } else if (info[1].find("neo") != -1) {
+    } else if (StringUtils::find(info[1],"neo") != -1) {
         return LATIN_KEYBOARD_NEO;
     }
 

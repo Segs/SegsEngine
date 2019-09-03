@@ -111,7 +111,7 @@ void WindowsTerminalLogger::log_error(const char *p_function, const char *p_file
 			}
 
 			SetConsoleTextAttribute(hCon, current_fg | current_bg | FOREGROUND_INTENSITY);
-            logf(Format("%s\n",p_rationale));
+            logf(FormatV("%s\n",p_rationale));
 
 			SetConsoleTextAttribute(hCon, basecol);
 			switch (p_type) {
@@ -122,20 +122,20 @@ void WindowsTerminalLogger::log_error(const char *p_function, const char *p_file
 			}
 
 			SetConsoleTextAttribute(hCon, current_fg | current_bg);
-			logf(Format("%s:%i\n", p_file, p_line));
+            logf(FormatV("%s:%i\n", p_file, p_line));
 
 		} else {
 
 			SetConsoleTextAttribute(hCon, basecol | FOREGROUND_INTENSITY);
 			switch (p_type) {
-				case ERR_ERROR: logf(Format("ERROR: %s: ", p_function)); break;
-				case ERR_WARNING: logf(Format("WARNING: %s: ", p_function)); break;
-				case ERR_SCRIPT: logf(Format("SCRIPT ERROR: %s: ", p_function)); break;
-				case ERR_SHADER: logf(Format("SCRIPT ERROR: %s: ", p_function)); break;
+                case ERR_ERROR: logf(FormatV("ERROR: %s: ", p_function).m_str); break;
+                case ERR_WARNING: logf(FormatV("WARNING: %s: ", p_function)); break;
+                case ERR_SCRIPT: logf(FormatV("SCRIPT ERROR: %s: ", p_function)); break;
+                case ERR_SHADER: logf(FormatV("SCRIPT ERROR: %s: ", p_function)); break;
 			}
 
 			SetConsoleTextAttribute(hCon, current_fg | current_bg | FOREGROUND_INTENSITY);
-			logf(Format("%s\n", p_code));
+            logf(FormatV("%s\n", p_code));
 
 			SetConsoleTextAttribute(hCon, basecol);
 			switch (p_type) {
@@ -146,7 +146,7 @@ void WindowsTerminalLogger::log_error(const char *p_function, const char *p_file
 			}
 
 			SetConsoleTextAttribute(hCon, current_fg | current_bg);
-			logf(Format("%s:%i\n", p_file, p_line));
+            logf(FormatV("%s:%i\n", p_file, p_line));
 		}
 
 		SetConsoleTextAttribute(hCon, sbi.wAttributes);

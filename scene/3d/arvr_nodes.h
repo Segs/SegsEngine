@@ -45,21 +45,21 @@
 */
 class ARVRCamera : public Camera {
 
-	GDCLASS(ARVRCamera, Camera);
+	GDCLASS(ARVRCamera,Camera)
 
 protected:
 	void _notification(int p_what);
 
 public:
-	String get_configuration_warning() const;
+	String get_configuration_warning() const override;
 
-	virtual Vector3 project_local_ray_normal(const Point2 &p_pos) const;
-	virtual Point2 unproject_position(const Vector3 &p_pos) const;
-	virtual Vector3 project_position(const Point2 &p_point, float p_z_depth = 0) const;
-	virtual Vector<Plane> get_frustum() const;
+	Vector3 project_local_ray_normal(const Point2 &p_pos) const override;
+	Point2 unproject_position(const Vector3 &p_pos) const override;
+	Vector3 project_position(const Point2 &p_point, float p_z_depth = 0) const override;
+	Vector<Plane> get_frustum() const override;
 
 	ARVRCamera();
-	~ARVRCamera();
+	~ARVRCamera() override;
 };
 
 /*
@@ -70,7 +70,7 @@ public:
 
 class ARVRController : public Spatial {
 
-	GDCLASS(ARVRController, Spatial);
+	GDCLASS(ARVRController,Spatial)
 
 private:
 	int controller_id;
@@ -99,10 +99,10 @@ public:
 
 	Ref<Mesh> get_mesh() const;
 
-	String get_configuration_warning() const;
+	String get_configuration_warning() const override;
 
 	ARVRController();
-	~ARVRController();
+	~ARVRController() override;
 };
 
 /*
@@ -111,7 +111,7 @@ public:
 */
 
 class ARVRAnchor : public Spatial {
-	GDCLASS(ARVRAnchor, Spatial);
+	GDCLASS(ARVRAnchor,Spatial)
 
 private:
 	int anchor_id;
@@ -135,10 +135,10 @@ public:
 
 	Ref<Mesh> get_mesh() const;
 
-	String get_configuration_warning() const;
+	String get_configuration_warning() const override;
 
 	ARVRAnchor();
-	~ARVRAnchor();
+	~ARVRAnchor() override;
 };
 
 /*
@@ -151,7 +151,7 @@ public:
 */
 class ARVROrigin : public Spatial {
 
-	GDCLASS(ARVROrigin, Spatial);
+	GDCLASS(ARVROrigin,Spatial)
 
 private:
 	ARVRCamera *tracked_camera;
@@ -161,7 +161,7 @@ protected:
 	static void _bind_methods();
 
 public:
-	String get_configuration_warning() const;
+	String get_configuration_warning() const override;
 
 	void set_tracked_camera(ARVRCamera *p_tracked_camera);
 	void clear_tracked_camera_if(ARVRCamera *p_tracked_camera);
@@ -170,7 +170,7 @@ public:
 	void set_world_scale(float p_world_scale);
 
 	ARVROrigin();
-	~ARVROrigin();
+	~ARVROrigin() override;
 };
 
 #endif /* ARVR_NODES_H */

@@ -65,13 +65,13 @@ class TestMainLoop : public MainLoop {
 
 protected:
 public:
-	virtual void input_event(const Ref<InputEvent> &p_event) {
+	void input_event(const Ref<InputEvent> &p_event) override {
 
 		if (p_event->is_pressed())
 			quit = true;
 	}
 
-	virtual void init() {
+	void init() override {
 
 		print_line("INITIALIZING TEST RENDER");
 		VisualServer *vs = VisualServer::get_singleton();
@@ -138,9 +138,9 @@ public:
 
 		List<String> cmdline = OS::get_singleton()->get_cmdline_args();
 		int object_count = OBJECT_COUNT;
-		if (cmdline.size() > 0 && cmdline[cmdline.size() - 1].to_int()) {
-			object_count = cmdline[cmdline.size() - 1].to_int();
-		};
+		if (cmdline.size() > 0 && StringUtils::to_int(cmdline[cmdline.size() - 1])) {
+			object_count = StringUtils::to_int(cmdline[cmdline.size() - 1]);
+		}
 
 		for (int i = 0; i < object_count; i++) {
 
@@ -203,7 +203,7 @@ public:
 		ofs = 0;
 		quit = false;
 	}
-	virtual bool iteration(float p_time) {
+	bool iteration(float p_time) override {
 
 		VisualServer *vs = VisualServer::get_singleton();
 		//Transform t;
@@ -230,11 +230,11 @@ public:
 		return quit;
 	}
 
-	virtual bool idle(float p_time) {
+	bool idle(float p_time) override {
 		return quit;
 	}
 
-	virtual void finish() {
+	void finish() override {
 	}
 };
 

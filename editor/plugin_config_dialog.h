@@ -39,7 +39,7 @@
 
 class PluginConfigDialog : public ConfirmationDialog {
 
-	GDCLASS(PluginConfigDialog, ConfirmationDialog);
+	GDCLASS(PluginConfigDialog,ConfirmationDialog)
 
 	LineEdit *name_edit;
 	LineEdit *subfolder_edit;
@@ -65,7 +65,7 @@ public:
 	void config(const String &p_config_path);
 
 	PluginConfigDialog();
-	~PluginConfigDialog();
+	~PluginConfigDialog() override;
 };
 
 #endif // PLUGIN_CONFIG_DIALOG_H

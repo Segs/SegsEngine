@@ -37,6 +37,7 @@ macro(create_simple_module_target name)
     foreach(tgt ${global_targets})
         add_library(${tgt}_${name} OBJECT ${source_files} ${header_files} ${thirdparty_sources})
         target_link_libraries(${tgt}_${name} PUBLIC ${tgt}_core)
+        string(TOUPPER ${name} upname)
         set_common_target_properties(${tgt}_${name})
     endforeach()
 endmacro()
@@ -54,17 +55,23 @@ detect_modules()
 CMAKE_DEPENDENT_OPTION(MODULE_VORBIS_ENABLE "Enable module 'vorbis'" ON
                        "NOT MODULE_STB_VORBIS_ENABLE" OFF)
 
-set(module_list ${module_list} PARENT_SCOPE)
-
-set(modules_sources)
 list(APPEND module_sources ${CMAKE_CURRENT_BINARY_DIR}/register_module_types.gen.cpp)
 
 foreach(tgt ${global_targets})
     add_library(${tgt}_modules ${module_sources})
-    target_link_libraries(${tgt}_modules PRIVATE ${tgt}_core)
-    foreach(module ${module_list})
-        add_module(${tgt} ${module})
+    foreach(module_dir ${module_list})
+        if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${module_dir}/sources.cmake")
+            #message("WILL INCLUDE SOURCES ${module_dir}")
+            include(${module_dir}/sources.cmake)
+        elseif(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${module_dir}/register_types.h")
+            #message("WILL LINK OBJECT ${module_dir}")
+            add_module(${tgt} ${module_dir})
+        else()
+            #
+        endif()
     endforeach()
+
+    target_link_libraries(${tgt}_modules PRIVATE ${tgt}_core)
     set_common_target_properties(${tgt}_modules)
 endforeach()
 

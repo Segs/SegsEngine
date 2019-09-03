@@ -50,7 +50,7 @@
 
 class ScriptEditorQuickOpen : public ConfirmationDialog {
 
-	GDCLASS(ScriptEditorQuickOpen, ConfirmationDialog);
+	GDCLASS(ScriptEditorQuickOpen,ConfirmationDialog)
 
 	LineEdit *search_box;
 	Tree *search_options;
@@ -77,7 +77,7 @@ class ScriptEditorDebugger;
 
 class ScriptEditorBase : public VBoxContainer {
 
-	GDCLASS(ScriptEditorBase, VBoxContainer);
+	GDCLASS(ScriptEditorBase,VBoxContainer)
 
 protected:
 	static void _bind_methods();
@@ -132,7 +132,7 @@ class FindInFilesPanel;
 
 class ScriptEditor : public PanelContainer {
 
-	GDCLASS(ScriptEditor, PanelContainer);
+	GDCLASS(ScriptEditor,PanelContainer)
 
 	EditorNode *editor;
 	enum {
@@ -458,39 +458,39 @@ public:
 	static void register_create_script_editor_function(CreateScriptEditorFunc p_func);
 
 	ScriptEditor(EditorNode *p_editor);
-	~ScriptEditor();
+	~ScriptEditor() override;
 };
 
 class ScriptEditorPlugin : public EditorPlugin {
 
-	GDCLASS(ScriptEditorPlugin, EditorPlugin);
+	GDCLASS(ScriptEditorPlugin,EditorPlugin)
 
 	ScriptEditor *script_editor;
 	EditorNode *editor;
 
 public:
-	virtual String get_name() const { return "Script"; }
-	bool has_main_screen() const { return true; }
-	virtual void edit(Object *p_object);
-	virtual bool handles(Object *p_object) const;
-	virtual void make_visible(bool p_visible);
-	virtual void selected_notify();
+	String get_name() const override { return "Script"; }
+	bool has_main_screen() const override { return true; }
+	void edit(Object *p_object) override;
+	bool handles(Object *p_object) const override;
+	void make_visible(bool p_visible) override;
+	void selected_notify() override;
 
-	virtual void save_external_data();
-	virtual void apply_changes();
+	void save_external_data() override;
+	void apply_changes() override;
 
-	virtual void restore_global_state();
-	virtual void save_global_state();
+	void restore_global_state() override;
+	void save_global_state() override;
 
-	virtual void set_window_layout(Ref<ConfigFile> p_layout);
-	virtual void get_window_layout(Ref<ConfigFile> p_layout);
+	void set_window_layout(Ref<ConfigFile> p_layout) override;
+	void get_window_layout(Ref<ConfigFile> p_layout) override;
 
-	virtual void get_breakpoints(List<String> *p_breakpoints);
+	void get_breakpoints(List<String> *p_breakpoints) override;
 
-	virtual void edited_scene_changed();
+	void edited_scene_changed() override;
 
 	ScriptEditorPlugin(EditorNode *p_node);
-	~ScriptEditorPlugin();
+	~ScriptEditorPlugin() override;
 };
 
 #endif // SCRIPT_EDITOR_PLUGIN_H

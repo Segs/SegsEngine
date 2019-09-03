@@ -40,7 +40,7 @@ class CanvasItemEditor;
 
 class AbstractPolygon2DEditor : public HBoxContainer {
 
-	GDCLASS(AbstractPolygon2DEditor, HBoxContainer);
+	GDCLASS(AbstractPolygon2DEditor,HBoxContainer)
 
 	ToolButton *button_create;
 	ToolButton *button_edit;
@@ -145,24 +145,24 @@ public:
 
 class AbstractPolygon2DEditorPlugin : public EditorPlugin {
 
-	GDCLASS(AbstractPolygon2DEditorPlugin, EditorPlugin);
+	GDCLASS(AbstractPolygon2DEditorPlugin,EditorPlugin)
 
 	AbstractPolygon2DEditor *polygon_editor;
 	EditorNode *editor;
 	String klass;
 
 public:
-	virtual bool forward_canvas_gui_input(const Ref<InputEvent> &p_event) { return polygon_editor->forward_gui_input(p_event); }
-	virtual void forward_canvas_draw_over_viewport(Control *p_overlay) { polygon_editor->forward_canvas_draw_over_viewport(p_overlay); }
+	bool forward_canvas_gui_input(const Ref<InputEvent> &p_event) override { return polygon_editor->forward_gui_input(p_event); }
+	void forward_canvas_draw_over_viewport(Control *p_overlay) override { polygon_editor->forward_canvas_draw_over_viewport(p_overlay); }
 
-	bool has_main_screen() const { return false; }
-	virtual String get_name() const { return klass; }
-	virtual void edit(Object *p_object);
-	virtual bool handles(Object *p_object) const;
-	virtual void make_visible(bool p_visible);
+	bool has_main_screen() const override { return false; }
+	String get_name() const override { return klass; }
+	void edit(Object *p_object) override;
+	bool handles(Object *p_object) const override;
+	void make_visible(bool p_visible) override;
 
 	AbstractPolygon2DEditorPlugin(EditorNode *p_node, AbstractPolygon2DEditor *p_polygon_editor, String p_class);
-	~AbstractPolygon2DEditorPlugin();
+	~AbstractPolygon2DEditorPlugin() override;
 };
 
 #endif // ABSTRACT_POLYGON_2D_EDITOR_H

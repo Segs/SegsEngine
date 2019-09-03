@@ -41,7 +41,7 @@ class ThreadDummy : public Thread {
 	static Thread *create(ThreadCreateCallback p_callback, void *p_user, const Settings &p_settings = Settings());
 
 public:
-	virtual ID get_id() const { return 0; };
+	ID get_id() const override { return 0; };
 
 	static void make_default();
 };
@@ -51,9 +51,9 @@ class MutexDummy : public Mutex {
 	static Mutex *create(bool p_recursive);
 
 public:
-	virtual void lock(){};
-	virtual void unlock(){};
-	virtual Error try_lock() { return OK; };
+	void lock() override{};
+	void unlock() override{};
+	Error try_lock() override { return OK; };
 
 	static void make_default();
 };
@@ -63,9 +63,9 @@ class SemaphoreDummy : public Semaphore {
 	static Semaphore *create();
 
 public:
-	virtual Error wait() { return OK; };
-	virtual Error post() { return OK; };
-	virtual int get() const { return 0; }; ///< get semaphore value
+	Error wait() override { return OK; };
+	Error post() override { return OK; };
+	int get() const override { return 0; }; ///< get semaphore value
 
 	static void make_default();
 };
@@ -75,13 +75,13 @@ class RWLockDummy : public RWLock {
 	static RWLock *create();
 
 public:
-	virtual void read_lock() {}
-	virtual void read_unlock() {}
-	virtual Error read_try_lock() { return OK; }
+	void read_lock() override {}
+	void read_unlock() override {}
+	Error read_try_lock() override { return OK; }
 
-	virtual void write_lock() {}
-	virtual void write_unlock() {}
-	virtual Error write_try_lock() { return OK; }
+	void write_lock() override {}
+	void write_unlock() override {}
+	Error write_try_lock() override { return OK; }
 
 	static void make_default();
 };

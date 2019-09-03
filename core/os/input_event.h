@@ -168,7 +168,7 @@ enum MidiMessageList {
  */
 
 class InputEvent : public Resource {
-    GDCLASS(InputEvent, Resource);
+    GDCLASS(InputEvent,Resource)
 
     int device;
 
@@ -205,7 +205,7 @@ public:
 };
 
 class InputEventWithModifiers : public InputEvent {
-    GDCLASS(InputEventWithModifiers, InputEvent);
+    GDCLASS(InputEventWithModifiers,InputEvent)
 
     bool shift;
     bool alt;
@@ -251,7 +251,7 @@ public:
 
 class InputEventKey : public InputEventWithModifiers {
 
-    GDCLASS(InputEventKey, InputEventWithModifiers);
+    GDCLASS(InputEventKey,InputEventWithModifiers)
 
     bool pressed; /// otherwise release
 
@@ -265,7 +265,7 @@ protected:
 
 public:
     void set_pressed(bool p_pressed);
-    virtual bool is_pressed() const;
+    bool is_pressed() const override;
 
     void set_scancode(uint32_t p_scancode);
     uint32_t get_scancode() const;
@@ -274,23 +274,23 @@ public:
     uint32_t get_unicode() const;
 
     void set_echo(bool p_enable);
-    virtual bool is_echo() const;
+    bool is_echo() const override;
 
     uint32_t get_scancode_with_modifiers() const;
 
-    virtual bool action_match(const Ref<InputEvent> &p_event, bool *p_pressed, float *p_strength, float p_deadzone) const;
-    virtual bool shortcut_match(const Ref<InputEvent> &p_event) const;
+    bool action_match(const Ref<InputEvent> &p_event, bool *p_pressed, float *p_strength, float p_deadzone) const override;
+    bool shortcut_match(const Ref<InputEvent> &p_event) const override;
 
-    virtual bool is_action_type() const { return true; }
+    bool is_action_type() const override { return true; }
 
-    virtual String as_text() const;
+    String as_text() const override;
 
     InputEventKey();
 };
 
 class InputEventMouse : public InputEventWithModifiers {
 
-    GDCLASS(InputEventMouse, InputEventWithModifiers);
+    GDCLASS(InputEventMouse,InputEventWithModifiers)
 
     int button_mask;
 
@@ -315,7 +315,7 @@ public:
 
 class InputEventMouseButton : public InputEventMouse {
 
-    GDCLASS(InputEventMouseButton, InputEventMouse);
+    GDCLASS(InputEventMouseButton,InputEventMouse)
 
     float factor;
     int button_index;
@@ -333,23 +333,23 @@ public:
     int get_button_index() const;
 
     void set_pressed(bool p_pressed);
-    virtual bool is_pressed() const;
+	bool is_pressed() const override;
 
     void set_doubleclick(bool p_doubleclick);
     bool is_doubleclick() const;
 
-    virtual Ref<InputEvent> xformed_by(const Transform2D &p_xform, const Vector2 &p_local_ofs = Vector2()) const;
-    virtual bool action_match(const Ref<InputEvent> &p_event, bool *p_pressed, float *p_strength, float p_deadzone) const;
+	Ref<InputEvent> xformed_by(const Transform2D &p_xform, const Vector2 &p_local_ofs = Vector2()) const override;
+	bool action_match(const Ref<InputEvent> &p_event, bool *p_pressed, float *p_strength, float p_deadzone) const override;
 
-    virtual bool is_action_type() const { return true; }
-    virtual String as_text() const;
+	bool is_action_type() const override { return true; }
+	String as_text() const override;
 
     InputEventMouseButton();
 };
 
 class InputEventMouseMotion : public InputEventMouse {
 
-    GDCLASS(InputEventMouseMotion, InputEventMouse);
+    GDCLASS(InputEventMouseMotion,InputEventMouse)
     Vector2 relative;
     Vector2 speed;
 
@@ -363,17 +363,18 @@ public:
     void set_speed(const Vector2 &p_speed);
     Vector2 get_speed() const;
 
-    virtual Ref<InputEvent> xformed_by(const Transform2D &p_xform, const Vector2 &p_local_ofs = Vector2()) const;
-    virtual String as_text() const;
+	Ref<InputEvent> xformed_by(const Transform2D &p_xform, const Vector2 &p_local_ofs = Vector2()) const override;
+	String as_text() const override;
 
-    virtual bool accumulate(const Ref<InputEvent> &p_event);
+	bool accumulate(const Ref<InputEvent> &p_event) override;
 
     InputEventMouseMotion() {}
 };
 
 class InputEventJoypadMotion : public InputEvent {
 
-    GDCLASS(InputEventJoypadMotion, InputEvent);
+    GDCLASS(InputEventJoypadMotion,InputEvent)
+
     int axis; ///< Joypad axis
     float axis_value; ///< -1 to 1
 
@@ -387,18 +388,18 @@ public:
     void set_axis_value(float p_value);
     float get_axis_value() const;
 
-    virtual bool is_pressed() const;
+	bool is_pressed() const override;
 
-    virtual bool action_match(const Ref<InputEvent> &p_event, bool *p_pressed, float *p_strength, float p_deadzone) const;
+	bool action_match(const Ref<InputEvent> &p_event, bool *p_pressed, float *p_strength, float p_deadzone) const override;
 
-    virtual bool is_action_type() const { return true; }
-    virtual String as_text() const;
+	bool is_action_type() const override { return true; }
+	String as_text() const override;
 
     InputEventJoypadMotion();
 };
 
 class InputEventJoypadButton : public InputEvent {
-    GDCLASS(InputEventJoypadButton, InputEvent);
+    GDCLASS(InputEventJoypadButton,InputEvent)
 
     int button_index;
     bool pressed;
@@ -411,22 +412,22 @@ public:
     int get_button_index() const;
 
     void set_pressed(bool p_pressed);
-    virtual bool is_pressed() const;
+	bool is_pressed() const override;
 
     void set_pressure(float p_pressure);
     float get_pressure() const;
 
-    virtual bool action_match(const Ref<InputEvent> &p_event, bool *p_pressed, float *p_strength, float p_deadzone) const;
-    virtual bool shortcut_match(const Ref<InputEvent> &p_event) const;
+	bool action_match(const Ref<InputEvent> &p_event, bool *p_pressed, float *p_strength, float p_deadzone) const override;
+	bool shortcut_match(const Ref<InputEvent> &p_event) const override;
 
-    virtual bool is_action_type() const { return true; }
-    virtual String as_text() const;
+	bool is_action_type() const override { return true; }
+	String as_text() const override;
 
     InputEventJoypadButton();
 };
 
 class InputEventScreenTouch : public InputEvent {
-    GDCLASS(InputEventScreenTouch, InputEvent);
+    GDCLASS(InputEventScreenTouch,InputEvent)
     int index;
     Vector2 pos;
     bool pressed;
@@ -442,17 +443,17 @@ public:
     Vector2 get_position() const;
 
     void set_pressed(bool p_pressed);
-    virtual bool is_pressed() const;
+	bool is_pressed() const override;
 
-    virtual Ref<InputEvent> xformed_by(const Transform2D &p_xform, const Vector2 &p_local_ofs = Vector2()) const;
-    virtual String as_text() const;
+	Ref<InputEvent> xformed_by(const Transform2D &p_xform, const Vector2 &p_local_ofs = Vector2()) const override;
+	String as_text() const override;
 
     InputEventScreenTouch();
 };
 
 class InputEventScreenDrag : public InputEvent {
 
-    GDCLASS(InputEventScreenDrag, InputEvent);
+    GDCLASS(InputEventScreenDrag,InputEvent)
     int index;
     Vector2 pos;
     Vector2 relative;
@@ -474,15 +475,15 @@ public:
     void set_speed(const Vector2 &p_speed);
     Vector2 get_speed() const;
 
-    virtual Ref<InputEvent> xformed_by(const Transform2D &p_xform, const Vector2 &p_local_ofs = Vector2()) const;
-    virtual String as_text() const;
+	Ref<InputEvent> xformed_by(const Transform2D &p_xform, const Vector2 &p_local_ofs = Vector2()) const override;
+	String as_text() const override;
 
     InputEventScreenDrag();
 };
 
 class InputEventAction : public InputEvent {
 
-    GDCLASS(InputEventAction, InputEvent);
+    GDCLASS(InputEventAction,InputEvent)
 
     StringName action;
     bool pressed;
@@ -496,25 +497,25 @@ public:
     StringName get_action() const;
 
     void set_pressed(bool p_pressed);
-    virtual bool is_pressed() const;
+	bool is_pressed() const override;
 
     void set_strength(float p_strength);
     float get_strength() const;
 
     virtual bool is_action(const StringName &p_action) const;
 
-    virtual bool action_match(const Ref<InputEvent> &p_event, bool *p_pressed, float *p_strength, float p_deadzone) const;
+	bool action_match(const Ref<InputEvent> &p_event, bool *p_pressed, float *p_strength, float p_deadzone) const override;
 
-    virtual bool shortcut_match(const Ref<InputEvent> &p_event) const;
-    virtual bool is_action_type() const { return true; }
-    virtual String as_text() const;
+	bool shortcut_match(const Ref<InputEvent> &p_event) const override;
+	bool is_action_type() const override { return true; }
+	String as_text() const override;
 
     InputEventAction();
 };
 
 class InputEventGesture : public InputEventWithModifiers {
 
-    GDCLASS(InputEventGesture, InputEventWithModifiers);
+    GDCLASS(InputEventGesture,InputEventWithModifiers)
 
     Vector2 pos;
 
@@ -528,7 +529,7 @@ public:
 
 class InputEventMagnifyGesture : public InputEventGesture {
 
-    GDCLASS(InputEventMagnifyGesture, InputEventGesture);
+    GDCLASS(InputEventMagnifyGesture,InputEventGesture)
     real_t factor;
 
 protected:
@@ -538,15 +539,15 @@ public:
     void set_factor(real_t p_factor);
     real_t get_factor() const;
 
-    virtual Ref<InputEvent> xformed_by(const Transform2D &p_xform, const Vector2 &p_local_ofs = Vector2()) const;
-    virtual String as_text() const;
+	Ref<InputEvent> xformed_by(const Transform2D &p_xform, const Vector2 &p_local_ofs = Vector2()) const override;
+	String as_text() const override;
 
     InputEventMagnifyGesture();
 };
 
 class InputEventPanGesture : public InputEventGesture {
 
-    GDCLASS(InputEventPanGesture, InputEventGesture);
+    GDCLASS(InputEventPanGesture,InputEventGesture)
     Vector2 delta;
 
 protected:
@@ -556,14 +557,14 @@ public:
     void set_delta(const Vector2 &p_delta);
     Vector2 get_delta() const;
 
-    virtual Ref<InputEvent> xformed_by(const Transform2D &p_xform, const Vector2 &p_local_ofs = Vector2()) const;
-    virtual String as_text() const;
+	Ref<InputEvent> xformed_by(const Transform2D &p_xform, const Vector2 &p_local_ofs = Vector2()) const override;
+	String as_text() const override;
 
     InputEventPanGesture();
 };
 
 class InputEventMIDI : public InputEvent {
-    GDCLASS(InputEventMIDI, InputEvent);
+    GDCLASS(InputEventMIDI,InputEvent)
 
     int channel;
     int message;
@@ -602,7 +603,7 @@ public:
     void set_controller_value(const int p_controller_value);
     int get_controller_value() const;
 
-    virtual String as_text() const;
+	String as_text() const override;
 
     InputEventMIDI();
 };

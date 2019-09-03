@@ -36,7 +36,8 @@
 
 class MultiMesh : public Resource {
 
-	GDCLASS(MultiMesh, Resource);
+	GDCLASS(MultiMesh,Resource)
+
 	RES_BASE_EXTENSION("multimesh");
 
 public:
@@ -115,10 +116,10 @@ public:
 
 	virtual AABB get_aabb() const;
 
-	virtual RID get_rid() const;
+	RID get_rid() const override;
 
 	MultiMesh();
-	~MultiMesh();
+	~MultiMesh() override;
 };
 
 VARIANT_ENUM_CAST(MultiMesh::TransformFormat);

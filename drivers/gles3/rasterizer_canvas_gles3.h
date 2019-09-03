@@ -118,12 +118,12 @@ public:
 
     RID_Owner<LightInternal> light_internal_owner;
 
-    virtual RID light_internal_create();
-    virtual void light_internal_update(RID p_rid, Light *p_light);
-    virtual void light_internal_free(RID p_rid);
+    RID light_internal_create() override;
+    void light_internal_update(RID p_rid, Light *p_light) override;
+    void light_internal_free(RID p_rid) override;
 
-    virtual void canvas_begin();
-    virtual void canvas_end();
+    void canvas_begin() override;
+    void canvas_end() override;
 
     _FORCE_INLINE_ void _set_texture_rect_mode(bool p_enable, bool p_ninepatch = false);
     _FORCE_INLINE_ RasterizerStorageGLES3::Texture *_bind_canvas_texture(const RID &p_texture, const RID &p_normal_map, bool p_force = false);
@@ -135,12 +135,12 @@ public:
     _FORCE_INLINE_ void _canvas_item_render_commands(Item *p_item, Item *current_clip, bool &reclip);
     _FORCE_INLINE_ void _copy_texscreen(const Rect2 &p_rect);
 
-    virtual void canvas_render_items(Item *p_item_list, int p_z, const Color &p_modulate, Light *p_light, const Transform2D &p_transform);
-    virtual void canvas_debug_viewport_shadows(Light *p_lights_with_shadow);
+    void canvas_render_items(Item *p_item_list, int p_z, const Color &p_modulate, Light *p_light, const Transform2D &p_transform) override;
+    void canvas_debug_viewport_shadows(Light *p_lights_with_shadow) override;
 
-    virtual void canvas_light_shadow_buffer_update(RID p_buffer, const Transform2D &p_light_xform, int p_light_mask, float p_near, float p_far, LightOccluderInstance *p_occluders, CameraMatrix *p_xform_cache);
+    void canvas_light_shadow_buffer_update(RID p_buffer, const Transform2D &p_light_xform, int p_light_mask, float p_near, float p_far, LightOccluderInstance *p_occluders, CameraMatrix *p_xform_cache) override;
 
-    virtual void reset_canvas();
+    void reset_canvas() override;
 
     void draw_generic_textured_rect(const Rect2 &p_rect, const Rect2 &p_src);
     void draw_lens_distortion_rect(const Rect2 &p_rect, float p_k1, float p_k2, const Vector2 &p_eye_center, float p_oversample);
@@ -148,7 +148,7 @@ public:
     void initialize();
     void finalize();
 
-    virtual void draw_window_margins(int *black_margin, RID *black_image);
+    void draw_window_margins(int *black_margin, RID *black_image) override;
 
 	RasterizerCanvasGLES3() {}
 };

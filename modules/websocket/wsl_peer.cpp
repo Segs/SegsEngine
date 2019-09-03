@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  lws_peer.cpp                                                         */
+/*  wsl_peer.cpp                                                         */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -179,7 +179,7 @@ Error WSLPeer::parse_message(const wslay_event_on_msg_recv_arg *arg) {
         size_t len = arg->msg_length;
         close_reason = "";
         if (len > 2 /* first 2 bytes = close code */) {
-            close_reason.parse_utf8((char *)arg->msg + 2, len - 2);
+			close_reason = StringUtils::from_utf8((char *)arg->msg + 2, len - 2);
         }
         if (!wslay_event_get_close_sent(_data->ctx)) {
             if (_data->is_server) {
@@ -292,7 +292,7 @@ void WSLPeer::close_now() {
 
 void WSLPeer::close(int p_code, String p_reason) {
     if (_data && !wslay_event_get_close_sent(_data->ctx)) {
-        CharString cs = p_reason.utf8();
+		CharString cs = StringUtils::to_utf8(p_reason);
         wslay_event_queue_close(_data->ctx, p_code, (uint8_t *)cs.data(), cs.size());
         wslay_event_send(_data->ctx);
     }

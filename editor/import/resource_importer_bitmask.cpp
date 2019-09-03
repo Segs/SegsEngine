@@ -37,6 +37,8 @@
 #include "scene/resources/bit_map.h"
 #include "scene/resources/texture.h"
 
+IMPL_GDCLASS(ResourceImporterBitMap)
+
 String ResourceImporterBitMap::get_importer_name() const {
 
 	return "bitmap";

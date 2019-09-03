@@ -31,6 +31,10 @@
 #include "audio_stream_ogg_vorbis.h"
 
 #include "core/os/file_access.h"
+#include "core/method_bind.h"
+
+IMPL_GDCLASS(AudioStreamPlaybackOGGVorbis)
+IMPL_GDCLASS(AudioStreamOGGVorbis)
 
 void AudioStreamPlaybackOGGVorbis::_mix_internal(AudioFrame *p_buffer, int p_frames) {
 
@@ -256,14 +260,14 @@ float AudioStreamOGGVorbis::get_length() const {
 
 void AudioStreamOGGVorbis::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_data", "data"), &AudioStreamOGGVorbis::set_data);
-    ClassDB::bind_method(D_METHOD("get_data"), &AudioStreamOGGVorbis::get_data);
+    MethodBinder::bind_method(D_METHOD("set_data", "data"), &AudioStreamOGGVorbis::set_data);
+    MethodBinder::bind_method(D_METHOD("get_data"), &AudioStreamOGGVorbis::get_data);
 
-    ClassDB::bind_method(D_METHOD("set_loop", "enable"), &AudioStreamOGGVorbis::set_loop);
-    ClassDB::bind_method(D_METHOD("has_loop"), &AudioStreamOGGVorbis::has_loop);
+    MethodBinder::bind_method(D_METHOD("set_loop", "enable"), &AudioStreamOGGVorbis::set_loop);
+    MethodBinder::bind_method(D_METHOD("has_loop"), &AudioStreamOGGVorbis::has_loop);
 
-    ClassDB::bind_method(D_METHOD("set_loop_offset", "seconds"), &AudioStreamOGGVorbis::set_loop_offset);
-    ClassDB::bind_method(D_METHOD("get_loop_offset"), &AudioStreamOGGVorbis::get_loop_offset);
+    MethodBinder::bind_method(D_METHOD("set_loop_offset", "seconds"), &AudioStreamOGGVorbis::set_loop_offset);
+    MethodBinder::bind_method(D_METHOD("get_loop_offset"), &AudioStreamOGGVorbis::get_loop_offset);
 
     ADD_PROPERTY(PropertyInfo(Variant::POOL_BYTE_ARRAY, "data", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_data", "get_data");
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "loop", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_loop", "has_loop");

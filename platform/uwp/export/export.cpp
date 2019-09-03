@@ -170,8 +170,8 @@ class AppxPackager {
     }
 
     _FORCE_INLINE_ unsigned int buf_put_string(String p_val, uint8_t *p_buf) {
-        auto v=p_val.toUtf8();
-        memcpy(p_buf,v.constData(),p_val.length());
+		auto v=StringUtils::to_utf8(p_val);
+		memcpy(p_buf,v.data(),p_val.length());
         return p_val.length();
     }
 
@@ -218,7 +218,7 @@ void AppxPackager::make_block_map(const String &p_path) {
         FileMeta file = file_metadata[i];
 
         tmp_file->store_string(
-                "<File Name=\"" + file.name.replace("/", "\\") + "\" Size=\"" + itos(file.uncompressed_size) + "\" LfhSize=\"" + itos(file.lfh_size) + "\">");
+				"<File Name=\"" + PathUtils::to_win_path(file.name) + "\" Size=\"" + itos(file.uncompressed_size) + "\" LfhSize=\"" + itos(file.lfh_size) + "\">");
 
         for (int j = 0; j < file.hashes.size(); j++) {
 
@@ -651,7 +651,7 @@ AppxPackager::~AppxPackager() {}
 
 class EditorExportPlatformUWP : public EditorExportPlatform {
 
-    GDCLASS(EditorExportPlatformUWP, EditorExportPlatform);
+    GDCLASS(EditorExportPlatformUWP,EditorExportPlatform)
 
     Ref<ImageTexture> logo;
 
@@ -664,7 +664,7 @@ class EditorExportPlatformUWP : public EditorExportPlatform {
     bool _valid_resource_name(const String &p_name) const {
 
         if (p_name.empty()) return false;
-        if (p_name.ends_with(".")) return false;
+        if (StringUtils::ends_with(p_name,".")) return false;
 
         static const char *invalid_names[] = {
             "CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7",
@@ -697,7 +697,7 @@ class EditorExportPlatformUWP : public EditorExportPlatform {
     bool _valid_bgcolor(const String &p_color) const {
 
         if (p_color.empty()) return true;
-        if (p_color.begins_with("#") && StringUtils::is_valid_html_color(p_color)) return true;
+        if (StringUtils::begins_with(p_color,"#") && StringUtils::is_valid_html_color(p_color)) return true;
 
         // Colors from https://msdn.microsoft.com/en-us/library/windows/apps/dn934817.aspx
         static const char *valid_colors[] = {
@@ -766,29 +766,29 @@ class EditorExportPlatformUWP : public EditorExportPlatform {
 
     Vector<uint8_t> _fix_manifest(const Ref<EditorExportPreset> &p_preset, const Vector<uint8_t> &p_template, bool p_give_internet) const {
 
-        String result = String::utf8((const char *)p_template.ptr(), p_template.size());
+		String result = StringUtils::from_utf8((const char *)p_template.ptr(), p_template.size());
 
-        result = result.replace("$godot_version$", VERSION_FULL_NAME);
+        result =StringUtils::replace(result,"$godot_version$", VERSION_FULL_NAME);
 
-        result = result.replace("$identity_name$", p_preset->get("package/unique_name"));
-        result = result.replace("$publisher$", p_preset->get("package/publisher"));
+        result =StringUtils::replace(result,"$identity_name$", p_preset->get("package/unique_name"));
+        result =StringUtils::replace(result,"$publisher$", p_preset->get("package/publisher"));
 
-        result = result.replace("$product_guid$", p_preset->get("identity/product_guid"));
-        result = result.replace("$publisher_guid$", p_preset->get("identity/publisher_guid"));
+        result =StringUtils::replace(result,"$product_guid$", p_preset->get("identity/product_guid"));
+        result =StringUtils::replace(result,"$publisher_guid$", p_preset->get("identity/publisher_guid"));
 
         String version = itos(p_preset->get("version/major")) + "." + itos(p_preset->get("version/minor")) + "." + itos(p_preset->get("version/build")) + "." + itos(p_preset->get("version/revision"));
-        result = result.replace("$version_string$", version);
+        result =StringUtils::replace(result,"$version_string$", version);
 
         Platform arch = (Platform)(int)p_preset->get("architecture/target");
         String architecture = arch == ARM ? "arm" : arch == X86 ? "x86" : "x64";
-        result = result.replace("$architecture$", architecture);
+        result =StringUtils::replace(result,"$architecture$", architecture);
 
-        result = result.replace("$display_name$", String(p_preset->get("package/display_name")).empty() ? (String)ProjectSettings::get_singleton()->get("application/config/name") : String(p_preset->get("package/display_name")));
+        result =StringUtils::replace(result,"$display_name$", String(p_preset->get("package/display_name")).empty() ? (String)ProjectSettings::get_singleton()->get("application/config/name") : String(p_preset->get("package/display_name")));
 
-        result = result.replace("$publisher_display_name$", p_preset->get("package/publisher_display_name"));
-        result = result.replace("$app_description$", p_preset->get("package/description"));
-        result = result.replace("$bg_color$", p_preset->get("images/background_color"));
-        result = result.replace("$short_name$", p_preset->get("package/short_name"));
+        result =StringUtils::replace(result,"$publisher_display_name$", p_preset->get("package/publisher_display_name"));
+        result =StringUtils::replace(result,"$app_description$", p_preset->get("package/description"));
+        result =StringUtils::replace(result,"$bg_color$", p_preset->get("images/background_color"));
+        result =StringUtils::replace(result,"$short_name$", p_preset->get("package/short_name"));
 
         String name_on_tiles = "";
         if ((bool)p_preset->get("tiles/show_name_on_square150x150")) {
@@ -806,7 +806,7 @@ class EditorExportPlatformUWP : public EditorExportPlatform {
             show_name_on_tiles = "<uap:ShowNameOnTiles>\n" + name_on_tiles + "        </uap:ShowNameOnTiles>";
         }
 
-        result = result.replace("$name_on_tiles$", name_on_tiles);
+        result =StringUtils::replace(result,"$name_on_tiles$", name_on_tiles);
 
         String rotations = "";
         if ((bool)p_preset->get("orientation/landscape")) {
@@ -827,7 +827,7 @@ class EditorExportPlatformUWP : public EditorExportPlatform {
             rotation_preference = "<uap:InitialRotationPreference>\n" + rotations + "        </uap:InitialRotationPreference>";
         }
 
-        result = result.replace("$rotation_preference$", rotation_preference);
+        result =StringUtils::replace(result,"$rotation_preference$", rotation_preference);
 
         String capabilities_elements = "";
         const char **basic = uwp_capabilities;
@@ -861,11 +861,12 @@ class EditorExportPlatformUWP : public EditorExportPlatform {
             capabilities_string = "<Capabilities>\n" + capabilities_elements + "  </Capabilities>";
         }
 
-        result = result.replace("$capabilities_place$", capabilities_string);
+        result =StringUtils::replace(result,"$capabilities_place$", capabilities_string);
 
         Vector<uint8_t> r_ret;
         r_ret.resize(result.length());
-        memcpy(r_ret.ptrw(),result.toUtf8().constData(),result.length());
+		auto ut = StringUtils::to_utf8(result);
+		memcpy(r_ret.ptrw(),ut.data(),ut.length());
 
         return r_ret;
     }
@@ -875,19 +876,19 @@ class EditorExportPlatformUWP : public EditorExportPlatform {
         Vector<uint8_t> data;
         StreamTexture *image = nullptr;
 
-        if (p_path.find("StoreLogo") != -1) {
+		if (StringUtils::contains(p_path,"StoreLogo")) {
             image = p_preset->get("images/store_logo").is_zero() ? nullptr : Object::cast_to<StreamTexture>(((Object *)p_preset->get("images/store_logo")));
-        } else if (p_path.find("Square44x44Logo") != -1) {
+		} else if (StringUtils::contains(p_path,"Square44x44Logo")) {
             image = p_preset->get("images/square44x44_logo").is_zero() ? nullptr : Object::cast_to<StreamTexture>(((Object *)p_preset->get("images/square44x44_logo")));
-        } else if (p_path.find("Square71x71Logo") != -1) {
+		} else if (StringUtils::contains(p_path,"Square71x71Logo")) {
             image = p_preset->get("images/square71x71_logo").is_zero() ? nullptr : Object::cast_to<StreamTexture>(((Object *)p_preset->get("images/square71x71_logo")));
-        } else if (p_path.find("Square150x150Logo") != -1) {
+		} else if (StringUtils::contains(p_path,"Square150x150Logo")) {
             image = p_preset->get("images/square150x150_logo").is_zero() ? nullptr : Object::cast_to<StreamTexture>(((Object *)p_preset->get("images/square150x150_logo")));
-        } else if (p_path.find("Square310x310Logo") != -1) {
+		} else if (StringUtils::contains(p_path,"Square310x310Logo")) {
             image = p_preset->get("images/square310x310_logo").is_zero() ? nullptr : Object::cast_to<StreamTexture>(((Object *)p_preset->get("images/square310x310_logo")));
-        } else if (p_path.find("Wide310x150Logo") != -1) {
+		} else if (StringUtils::contains(p_path,"Wide310x150Logo")) {
             image = p_preset->get("images/wide310x150_logo").is_zero() ? nullptr : Object::cast_to<StreamTexture>(((Object *)p_preset->get("images/wide310x150_logo")));
-        } else if (p_path.find("SplashScreen") != -1) {
+		} else if (StringUtils::contains(p_path,"SplashScreen")) {
             image = p_preset->get("images/splash_screen").is_zero() ? nullptr : Object::cast_to<StreamTexture>(((Object *)p_preset->get("images/splash_screen")));
         } else {
             ERR_PRINT("Unable to load logo");
@@ -962,7 +963,7 @@ class EditorExportPlatformUWP : public EditorExportPlatform {
         };
 
         for (const char **ext = unconditional_compress_ext; *ext; ++ext) {
-            if (StringUtils::to_lower(p_path).ends_with(String(*ext))) {
+            if (StringUtils::ends_with(StringUtils::to_lower(p_path),String(*ext))) {
                 return false;
             }
         }
@@ -982,30 +983,30 @@ class EditorExportPlatformUWP : public EditorExportPlatform {
     static Error save_appx_file(void *p_userdata, const String &p_path, const Vector<uint8_t> &p_data, int p_file, int p_total) {
 
         AppxPackager *packager = (AppxPackager *)p_userdata;
-        String dst_path = p_path.replace_first("res://", "game/");
+		String dst_path = StringUtils::replace_first(p_path,"res://", "game/");
 
         return packager->add_file(dst_path, p_data.ptr(), p_data.size(), p_file, p_total, _should_compress_asset(p_path, p_data));
     }
 
 public:
-    virtual String get_name() const {
+    String get_name() const override {
         return "Windows Universal";
     }
-    virtual String get_os_name() const {
+    String get_os_name() const override {
         return "UWP";
     }
 
-    virtual List<String> get_binary_extensions(const Ref<EditorExportPreset> &p_preset) const {
+    List<String> get_binary_extensions(const Ref<EditorExportPreset> &p_preset) const override {
         List<String> list;
         list.push_back("appx");
         return list;
     }
 
-    virtual Ref<Texture> get_logo() const {
+    Ref<Texture> get_logo() const override {
         return logo;
     }
 
-    virtual void get_preset_features(const Ref<EditorExportPreset> &p_preset, List<String> *r_features) {
+    void get_preset_features(const Ref<EditorExportPreset> &p_preset, List<String> *r_features) override {
         r_features->push_back("s3tc");
         r_features->push_back("etc");
         switch ((int)p_preset->get("architecture/target")) {
@@ -1021,7 +1022,7 @@ public:
         }
     }
 
-    virtual void get_export_options(List<ExportOption> *r_options) {
+    void get_export_options(List<ExportOption> *r_options) override {
         r_options->push_back(ExportOption(PropertyInfo(Variant::INT, "architecture/target", PROPERTY_HINT_ENUM, "arm,x86,x64"), 1));
 
         r_options->push_back(ExportOption(PropertyInfo(Variant::STRING, "command_line/extra_args"), ""));
@@ -1069,24 +1070,24 @@ public:
         // Capabilities
         const char **basic = uwp_capabilities;
         while (*basic) {
-            r_options->push_back(ExportOption(PropertyInfo(Variant::BOOL, "capabilities/" + String(*basic).camelcase_to_underscore(false)), false));
+            r_options->push_back(ExportOption(PropertyInfo(Variant::BOOL, "capabilities/" + StringUtils::camelcase_to_underscore(String(*basic),false)), false));
             basic++;
         }
 
         const char **uap = uwp_uap_capabilities;
         while (*uap) {
-            r_options->push_back(ExportOption(PropertyInfo(Variant::BOOL, "capabilities/" + String(*uap).camelcase_to_underscore(false)), false));
+            r_options->push_back(ExportOption(PropertyInfo(Variant::BOOL, "capabilities/" + StringUtils::camelcase_to_underscore(*uap,false)), false));
             uap++;
         }
 
         const char **device = uwp_device_capabilities;
         while (*device) {
-            r_options->push_back(ExportOption(PropertyInfo(Variant::BOOL, "capabilities/" + String(*device).camelcase_to_underscore(false)), false));
+            r_options->push_back(ExportOption(PropertyInfo(Variant::BOOL, "capabilities/" + StringUtils::camelcase_to_underscore(*device,false)), false));
             device++;
         }
     }
 
-    virtual bool can_export(const Ref<EditorExportPreset> &p_preset, String &r_error, bool &r_missing_templates) const {
+    bool can_export(const Ref<EditorExportPreset> &p_preset, String &r_error, bool &r_missing_templates) const override {
         String err;
         bool valid = true;
         Platform arch = (Platform)(int)(p_preset->get("architecture/target"));
@@ -1200,7 +1201,7 @@ public:
         return valid;
     }
 
-    virtual Error export_project(const Ref<EditorExportPreset> &p_preset, bool p_debug, const String &p_path, int p_flags = 0) {
+    Error export_project(const Ref<EditorExportPreset> &p_preset, bool p_debug, const String &p_path, int p_flags = 0) override {
 
         String src_appx;
 
@@ -1211,7 +1212,7 @@ public:
         else
             src_appx = p_preset->get("custom_template/release");
 
-        src_appx = src_appx.strip_edges();
+        src_appx =StringUtils::strip_edges( src_appx);
 
         Platform arch = (Platform)(int)p_preset->get("architecture/target");
 
@@ -1258,7 +1259,7 @@ public:
             return ERR_SKIP;
         }
 
-        unzFile pkg = unzOpen2(qPrintable(src_appx), &io);
+		unzFile pkg = unzOpen2(qPrintable(src_appx.m_str), &io);
 
         if (!pkg) {
 
@@ -1287,7 +1288,7 @@ public:
 
             String path = fname;
 
-            if (path.ends_with("/")) {
+            if (StringUtils::ends_with(path,"/")) {
                 // Ignore directories
                 ret = unzGoToNextFile(pkg);
                 continue;
@@ -1296,9 +1297,9 @@ public:
             Vector<uint8_t> data;
             bool do_read = true;
 
-            if (path.begins_with("Assets/")) {
+            if (StringUtils::begins_with(path,"Assets/")) {
 
-                path = path.replace(".scale-100", "");
+                path =StringUtils::replace(path,".scale-100", "");
 
                 data = _get_image_data(p_preset, path);
                 if (data.size() > 0) do_read = false;
@@ -1333,9 +1334,9 @@ public:
             return ERR_SKIP;
         }
 
-        Vector<String> cl = StringUtils::split(((String)p_preset->get("command_line/extra_args")).strip_edges()," ");
+        Vector<String> cl = StringUtils::split(StringUtils::strip_edges((String)p_preset->get("command_line/extra_args"))," ");
         for (int i = 0; i < cl.size(); i++) {
-            if (cl[i].strip_edges().length() == 0) {
+            if (StringUtils::strip_edges(cl[i]).empty()) {
                 cl.remove(i);
                 i--;
             }
@@ -1357,11 +1358,11 @@ public:
 
         for (int i = 0; i < cl.size(); i++) {
 
-            CharString txt = cl[i].utf8();
+			CharString txt = StringUtils::to_utf8(cl[i]);
             int base = clf.size();
             clf.resize(base + 4 + txt.length());
             encode_uint32(txt.length(), &clf.write[base]);
-            memcpy(&clf.write[base + 4], txt.constData(), txt.length());
+			memcpy(&clf.write[base + 4], txt.data(), txt.length());
             print_line(itos(i) + " param: " + cl[i]);
         }
 
@@ -1444,13 +1445,13 @@ public:
         return OK;
     }
 
-    virtual void get_platform_features(List<String> *r_features) {
+    void get_platform_features(List<String> *r_features) override {
 
         r_features->push_back("pc");
         r_features->push_back("UWP");
     }
 
-    virtual void resolve_platform_feature_priorities(const Ref<EditorExportPreset> &p_preset, Set<String> &p_features) {
+    void resolve_platform_feature_priorities(const Ref<EditorExportPreset> &p_preset, Set<String> &p_features) override {
     }
 
     EditorExportPlatformUWP() {
@@ -1459,6 +1460,8 @@ public:
         logo->create_from_image(img);
     }
 };
+
+IMPL_GDCLASS(EditorExportPlatformUWP)
 
 void register_uwp_exporter() {
 

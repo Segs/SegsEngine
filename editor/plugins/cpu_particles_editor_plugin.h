@@ -36,7 +36,7 @@
 
 class CPUParticlesEditor : public ParticlesEditorBase {
 
-	GDCLASS(CPUParticlesEditor, ParticlesEditorBase);
+	GDCLASS(CPUParticlesEditor,ParticlesEditorBase)
 
 	enum Menu {
 
@@ -53,7 +53,7 @@ class CPUParticlesEditor : public ParticlesEditorBase {
 
 	friend class CPUParticlesEditorPlugin;
 
-	virtual void _generate_emission_points();
+	void _generate_emission_points() override;
 
 protected:
 	void _notification(int p_notification);
@@ -67,20 +67,20 @@ public:
 
 class CPUParticlesEditorPlugin : public EditorPlugin {
 
-	GDCLASS(CPUParticlesEditorPlugin, EditorPlugin);
+	GDCLASS(CPUParticlesEditorPlugin,EditorPlugin)
 
 	CPUParticlesEditor *particles_editor;
 	EditorNode *editor;
 
 public:
-	virtual String get_name() const { return "CPUParticles"; }
-	bool has_main_screen() const { return false; }
-	virtual void edit(Object *p_object);
-	virtual bool handles(Object *p_object) const;
-	virtual void make_visible(bool p_visible);
+	String get_name() const override { return "CPUParticles"; }
+	bool has_main_screen() const override { return false; }
+	void edit(Object *p_object) override;
+	bool handles(Object *p_object) const override;
+	void make_visible(bool p_visible) override;
 
 	CPUParticlesEditorPlugin(EditorNode *p_node);
-	~CPUParticlesEditorPlugin();
+	~CPUParticlesEditorPlugin() override;
 };
 
 #endif // CPU_PARTICLES_EDITOR_PLUGIN_H

@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "ip_unix.h"
+#include "core/class_db.h"
 
 #if defined(UNIX_ENABLED) || defined(WINDOWS_ENABLED)
 
@@ -90,6 +91,8 @@ static IP_Address _sockaddr2ip(struct sockaddr *p_addr) {
     return ip;
 };
 
+IMPL_GDCLASS(IP_Unix)
+
 IP_Address IP_Unix::_resolve_hostname(const String &p_hostname, Type p_type) {
 
     struct addrinfo hints;
@@ -107,7 +110,7 @@ IP_Address IP_Unix::_resolve_hostname(const String &p_hostname, Type p_type) {
     };
     hints.ai_flags &= ~AI_NUMERICHOST;
 
-    int s = getaddrinfo(qPrintable(p_hostname), nullptr, &hints, &result);
+	int s = getaddrinfo(qPrintable(p_hostname.m_str), nullptr, &hints, &result);
     if (s != 0) {
         ERR_PRINT("getaddrinfo failed! Cannot resolve hostname.");
         return IP_Address();
@@ -193,8 +196,8 @@ void IP_Unix::get_local_interfaces(Map<String, Interface_Info> *r_interfaces) co
 
         Interface_Info info;
         info.name = adapter->AdapterName;
-        info.name_friendly = String::fromWCharArray(adapter->FriendlyName);
-        info.index = String::num_uint64(adapter->IfIndex);
+        info.name_friendly = StringUtils::from_wchar(adapter->FriendlyName);
+        info.index = adapter->IfIndex;
 
         IP_ADAPTER_UNICAST_ADDRESS *address = adapter->FirstUnicastAddress;
         while (address != nullptr) {

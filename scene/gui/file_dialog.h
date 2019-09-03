@@ -41,7 +41,7 @@
 
 class FileDialog : public ConfirmationDialog {
 
-	GDCLASS(FileDialog, ConfirmationDialog);
+	GDCLASS(FileDialog,ConfirmationDialog)
 
 public:
 	enum Access {
@@ -125,7 +125,7 @@ private:
 
 	bool _is_open_should_be_disabled();
 
-	virtual void _post_popup();
+	void _post_popup() override;
 
 protected:
 	void _notification(int p_what);
@@ -169,12 +169,12 @@ public:
 	void deselect_items();
 
 	FileDialog();
-	~FileDialog();
+	~FileDialog() override;
 };
 
 class LineEditFileChooser : public HBoxContainer {
 
-	GDCLASS(LineEditFileChooser, HBoxContainer);
+	GDCLASS(LineEditFileChooser,HBoxContainer)
 	Button *button;
 	LineEdit *line_edit;
 	FileDialog *dialog;

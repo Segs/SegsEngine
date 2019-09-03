@@ -102,10 +102,10 @@ public:
 	bool m_solveSwingLimit;
 
 public:
-	virtual PhysicsServer::JointType get_type() const { return PhysicsServer::JOINT_CONE_TWIST; }
+	PhysicsServer::JointType get_type() const override { return PhysicsServer::JOINT_CONE_TWIST; }
 
-	virtual bool setup(real_t p_timestep);
-	virtual void solve(real_t p_timestep);
+	bool setup(real_t p_timestep) override;
+	void solve(real_t p_timestep) override;
 
 	ConeTwistJointSW(BodySW *rbA, BodySW *rbB, const Transform &rbAFrame, const Transform &rbBFrame);
 

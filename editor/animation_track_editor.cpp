@@ -31,6 +31,7 @@
 #include "animation_track_editor.h"
 
 #include "animation_track_editor_plugins.h"
+#include "core/method_bind.h"
 #include "core/object_db.h"
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
@@ -41,9 +42,15 @@
 #include "scene/main/viewport.h"
 #include "servers/audio/audio_stream.h"
 
+IMPL_GDCLASS(AnimationTimelineEdit)
+IMPL_GDCLASS(AnimationTrackEdit)
+IMPL_GDCLASS(AnimationTrackEditPlugin)
+IMPL_GDCLASS(AnimationTrackEditGroup)
+IMPL_GDCLASS(AnimationTrackEditor)
+
 class AnimationTrackKeyEdit : public Object {
 
-    GDCLASS(AnimationTrackKeyEdit, Object)
+    GDCLASS(AnimationTrackKeyEdit,Object)
 
 public:
     bool setting;
@@ -58,11 +65,11 @@ public:
 
     static void _bind_methods() {
 
-        ClassDB::bind_method("_update_obj", &AnimationTrackKeyEdit::_update_obj);
-        ClassDB::bind_method("_key_ofs_changed", &AnimationTrackKeyEdit::_key_ofs_changed);
-        ClassDB::bind_method("_hide_script_from_inspector", &AnimationTrackKeyEdit::_hide_script_from_inspector);
-        ClassDB::bind_method("get_root_path", &AnimationTrackKeyEdit::get_root_path);
-        ClassDB::bind_method("_dont_undo_redo", &AnimationTrackKeyEdit::_dont_undo_redo);
+        MethodBinder::bind_method("_update_obj", &AnimationTrackKeyEdit::_update_obj);
+        MethodBinder::bind_method("_key_ofs_changed", &AnimationTrackKeyEdit::_key_ofs_changed);
+        MethodBinder::bind_method("_hide_script_from_inspector", &AnimationTrackKeyEdit::_hide_script_from_inspector);
+        MethodBinder::bind_method("get_root_path", &AnimationTrackKeyEdit::get_root_path);
+        MethodBinder::bind_method("_dont_undo_redo", &AnimationTrackKeyEdit::_dont_undo_redo);
     }
 
     void _fix_node_path(Variant &value) {
@@ -225,13 +232,13 @@ public:
                     args.resize(p_value);
                     d_new["args"] = args;
                     change_notify_deserved = true;
-                } else if (name.begins_with("args/")) {
+                } else if (StringUtils::begins_with(name,"args/")) {
 
                     Vector<Variant> args = d_old["args"];
-                    int idx = name.get_slice("/", 1).to_int();
-                    ERR_FAIL_INDEX_V(idx, args.size(), false);
+                    int idx = StringUtils::to_int(StringUtils::get_slice(name,"/", 1));
+                    ERR_FAIL_INDEX_V(idx, args.size(), false)
 
-                    String what = name.get_slice("/", 2);
+                    String what = StringUtils::get_slice(name,"/", 2);
                     if (what == "type") {
                         Variant::Type t = Variant::Type(int(p_value));
 
@@ -473,12 +480,12 @@ public:
                     return true;
                 }
 
-                if (name.begins_with("args/")) {
+                if (StringUtils::begins_with(name,"args/")) {
 
-                    int idx = name.get_slice("/", 1).to_int();
+                    int idx = StringUtils::to_int(StringUtils::get_slice(name,"/", 1));
                     ERR_FAIL_INDEX_V(idx, args.size(), false);
 
-                    String what = name.get_slice("/", 2);
+                    String what = StringUtils::get_slice(name,"/", 2);
                     if (what == "type") {
                         r_ret = args[idx].get_type();
                         return true;
@@ -699,9 +706,11 @@ public:
     }
 };
 
+IMPL_GDCLASS(AnimationTrackKeyEdit)
+
 class AnimationMultiTrackKeyEdit : public Object {
 
-    GDCLASS(AnimationMultiTrackKeyEdit, Object);
+    GDCLASS(AnimationMultiTrackKeyEdit,Object)
 
 public:
     bool setting;
@@ -716,11 +725,11 @@ public:
 
     static void _bind_methods() {
 
-        ClassDB::bind_method("_update_obj", &AnimationMultiTrackKeyEdit::_update_obj);
-        ClassDB::bind_method("_key_ofs_changed", &AnimationMultiTrackKeyEdit::_key_ofs_changed);
-        ClassDB::bind_method("_hide_script_from_inspector", &AnimationMultiTrackKeyEdit::_hide_script_from_inspector);
-        ClassDB::bind_method("get_root_path", &AnimationMultiTrackKeyEdit::get_root_path);
-        ClassDB::bind_method("_dont_undo_redo", &AnimationMultiTrackKeyEdit::_dont_undo_redo);
+        MethodBinder::bind_method("_update_obj", &AnimationMultiTrackKeyEdit::_update_obj);
+        MethodBinder::bind_method("_key_ofs_changed", &AnimationMultiTrackKeyEdit::_key_ofs_changed);
+        MethodBinder::bind_method("_hide_script_from_inspector", &AnimationMultiTrackKeyEdit::_hide_script_from_inspector);
+        MethodBinder::bind_method("get_root_path", &AnimationMultiTrackKeyEdit::get_root_path);
+        MethodBinder::bind_method("_dont_undo_redo", &AnimationMultiTrackKeyEdit::_dont_undo_redo);
     }
 
     void _fix_node_path(Variant &value, NodePath &base) {
@@ -889,13 +898,13 @@ public:
                             args.resize(p_value);
                             d_new["args"] = args;
                             change_notify_deserved = true;
-                        } else if (name.begins_with("args/")) {
+                        } else if (StringUtils::begins_with(name,"args/")) {
 
                             Vector<Variant> args = d_old["args"];
-                            int idx = name.get_slice("/", 1).to_int();
+                            int idx = StringUtils::to_int(StringUtils::get_slice(name,"/", 1));
                             ERR_FAIL_INDEX_V(idx, args.size(), false);
 
-                            String what = name.get_slice("/", 2);
+                            String what = StringUtils::get_slice(name,"/", 2);
                             if (what == "type") {
                                 Variant::Type t = Variant::Type(int(p_value));
 
@@ -1131,12 +1140,12 @@ public:
                             return true;
                         }
 
-                        if (name.begins_with("args/")) {
+                        if (StringUtils::begins_with(name,"args/")) {
 
-                            int idx = name.get_slice("/", 1).to_int();
+                            int idx = StringUtils::to_int(StringUtils::get_slice(name,"/", 1));
                             ERR_FAIL_INDEX_V(idx, args.size(), false);
 
-                            String what = name.get_slice("/", 2);
+                            String what = StringUtils::get_slice(name,"/", 2);
                             if (what == "type") {
                                 r_ret = args[idx].get_type();
                                 return true;
@@ -1394,6 +1403,8 @@ public:
         root_path = nullptr;
     }
 };
+
+IMPL_GDCLASS(AnimationMultiTrackKeyEdit)
 
 void AnimationTimelineEdit::_zoom_changed(double) {
 
@@ -1802,6 +1813,13 @@ void AnimationTimelineEdit::_gui_input(const Ref<InputEvent> &p_event) {
 
     if (mm.is_valid()) {
 
+        if (hsize_rect.has_point(mm->get_position())) {
+            // Change the cursor to indicate that the track name column's width can be adjusted
+            set_default_cursor_shape(Control::CURSOR_HSIZE);
+        } else {
+            set_default_cursor_shape(Control::CURSOR_ARROW);
+        }
+
         if (dragging_hsize) {
             int ofs = mm->get_position().x - dragging_hsize_from;
             name_limit = dragging_hsize_at + ofs;
@@ -1842,12 +1860,12 @@ void AnimationTimelineEdit::_track_added(int p_track) {
 }
 
 void AnimationTimelineEdit::_bind_methods() {
-    ClassDB::bind_method("_zoom_changed", &AnimationTimelineEdit::_zoom_changed);
-    ClassDB::bind_method("_anim_length_changed", &AnimationTimelineEdit::_anim_length_changed);
-    ClassDB::bind_method("_anim_loop_pressed", &AnimationTimelineEdit::_anim_loop_pressed);
-    ClassDB::bind_method("_play_position_draw", &AnimationTimelineEdit::_play_position_draw);
-    ClassDB::bind_method("_gui_input", &AnimationTimelineEdit::_gui_input);
-    ClassDB::bind_method("_track_added", &AnimationTimelineEdit::_track_added);
+    MethodBinder::bind_method("_zoom_changed", &AnimationTimelineEdit::_zoom_changed);
+    MethodBinder::bind_method("_anim_length_changed", &AnimationTimelineEdit::_anim_length_changed);
+    MethodBinder::bind_method("_anim_loop_pressed", &AnimationTimelineEdit::_anim_loop_pressed);
+    MethodBinder::bind_method("_play_position_draw", &AnimationTimelineEdit::_play_position_draw);
+    MethodBinder::bind_method("_gui_input", &AnimationTimelineEdit::_gui_input);
+    MethodBinder::bind_method("_track_added", &AnimationTimelineEdit::_track_added);
 
     ADD_SIGNAL(MethodInfo("zoom_changed"));
     ADD_SIGNAL(MethodInfo("name_limit_changed"));
@@ -1860,7 +1878,7 @@ AnimationTimelineEdit::AnimationTimelineEdit() {
 
     use_fps = false;
     editing = false;
-    name_limit = 150;
+    name_limit = 150 * EDSCALE;
     zoom = nullptr;
 
     play_position_pos = 0;
@@ -2573,7 +2591,7 @@ String AnimationTrackEdit::get_tooltip(const Point2 &p_pos) const {
                 case Animation::TYPE_VALUE: {
 
                     const Variant &v = animation->track_get_key_value(track, key_idx);
-                    text += "Type: " + Variant::get_type_name(v.get_type()) + "\n";
+                    text += String("Type: ") + Variant::get_type_name(v.get_type()) + "\n";
                     Variant::Type valid_type = Variant::NIL;
                     if (!_is_value_key_valid(v, valid_type)) {
                         text += "Value: " + String(v) + "  (Invalid, expected type: " + Variant::get_type_name(valid_type) + ")\n";
@@ -2899,7 +2917,7 @@ Variant AnimationTrackEdit::get_drag_data(const Point2 &p_point) {
     Dictionary drag_data;
     drag_data["type"] = "animation_track";
     String base_path(animation->track_get_path(track));
-    base_path = base_path.get_slice(":", 0); // Remove sub-path.
+    base_path = StringUtils::get_slice(base_path,":", 0); // Remove sub-path.
     drag_data["group"] = base_path;
     drag_data["index"] = track;
 
@@ -2928,7 +2946,7 @@ bool AnimationTrackEdit::can_drop_data(const Point2 &p_point, const Variant &p_d
     // Don't allow moving tracks outside their groups.
     if (get_editor()->is_grouping_tracks()) {
         String base_path(animation->track_get_path(track));
-        base_path = base_path.get_slice(":", 0); // Remove sub-path.
+        base_path = StringUtils::get_slice(base_path,":", 0); // Remove sub-path.
         if (String(d["group"]) != base_path) {
             return false;
         }
@@ -2960,7 +2978,7 @@ void AnimationTrackEdit::drop_data(const Point2 &p_point, const Variant &p_data)
     // Don't allow moving tracks outside their groups.
     if (get_editor()->is_grouping_tracks()) {
         String base_path(animation->track_get_path(track));
-        base_path = base_path.get_slice(":", 0); // Remove sub-path.
+        base_path = StringUtils::get_slice(base_path,":", 0); // Remove sub-path.
         if (String(d["group"]) != base_path) {
             return;
         }
@@ -3063,11 +3081,11 @@ void AnimationTrackEdit::append_to_selection(const Rect2 &p_box, bool p_deselect
 
 void AnimationTrackEdit::_bind_methods() {
 
-    ClassDB::bind_method("_zoom_changed", &AnimationTrackEdit::_zoom_changed);
-    ClassDB::bind_method("_menu_selected", &AnimationTrackEdit::_menu_selected);
-    ClassDB::bind_method("_gui_input", &AnimationTrackEdit::_gui_input);
-    ClassDB::bind_method("_path_entered", &AnimationTrackEdit::_path_entered);
-    ClassDB::bind_method("_play_position_draw", &AnimationTrackEdit::_play_position_draw);
+    MethodBinder::bind_method("_zoom_changed", &AnimationTrackEdit::_zoom_changed);
+    MethodBinder::bind_method("_menu_selected", &AnimationTrackEdit::_menu_selected);
+    MethodBinder::bind_method("_gui_input", &AnimationTrackEdit::_gui_input);
+    MethodBinder::bind_method("_path_entered", &AnimationTrackEdit::_path_entered);
+    MethodBinder::bind_method("_play_position_draw", &AnimationTrackEdit::_play_position_draw);
 
     ADD_SIGNAL(MethodInfo("timeline_changed", PropertyInfo(Variant::REAL, "position"), PropertyInfo(Variant::BOOL, "drag")));
     ADD_SIGNAL(MethodInfo("remove_request", PropertyInfo(Variant::INT, "track")));
@@ -3228,7 +3246,7 @@ void AnimationTrackEditGroup::_zoom_changed() {
 }
 
 void AnimationTrackEditGroup::_bind_methods() {
-    ClassDB::bind_method("_zoom_changed", &AnimationTrackEditGroup::_zoom_changed);
+    MethodBinder::bind_method("_zoom_changed", &AnimationTrackEditGroup::_zoom_changed);
 }
 
 AnimationTrackEditGroup::AnimationTrackEditGroup() {
@@ -3313,7 +3331,7 @@ void AnimationTrackEditor::set_root(Node *p_root) {
     root = p_root;
 
     if (root) {
-        root->connect("tree_exiting", this, "_root_removed", make_binds(), CONNECT_ONESHOT);
+        root->connect("tree_exiting", this, "_root_removed", make_binds(), ObjectNS::CONNECT_ONESHOT);
     }
 
     _update_tracks();
@@ -3961,7 +3979,7 @@ int AnimationTrackEditor::_confirm_insert(InsertData p_id, int p_last_track, boo
             for (int i = 0; i < subindices.size(); i++) {
                 InsertData id = p_id;
                 id.type = Animation::TYPE_BEZIER;
-                id.value = p_id.value.get(subindices[i].substr(1, subindices[i].length()));
+                id.value = p_id.value.get(StringUtils::substr(subindices[i],1, subindices[i].length()));
                 id.path = NodePath((String)p_id.path + subindices[i]);
                 _confirm_insert(id, p_last_track + i);
             }
@@ -4199,7 +4217,7 @@ void AnimationTrackEditor::_update_tracks() {
 
         if (use_grouping) {
             String base_path(animation->track_get_path(i));
-            base_path = base_path.get_slice(":", 0); // Remove sub-path.
+            base_path = StringUtils::get_slice(base_path,":", 0); // Remove sub-path.
 
             if (!group_sort.has(base_path)) {
                 AnimationTrackEditGroup *g = memnew(AnimationTrackEditGroup);
@@ -4247,21 +4265,21 @@ void AnimationTrackEditor::_update_tracks() {
         }
 
         track_edit->connect("timeline_changed", this, "_timeline_changed");
-        track_edit->connect("remove_request", this, "_track_remove_request", varray(), CONNECT_DEFERRED);
-        track_edit->connect("dropped", this, "_dropped_track", varray(), CONNECT_DEFERRED);
-        track_edit->connect("insert_key", this, "_insert_key_from_track", varray(i), CONNECT_DEFERRED);
-        track_edit->connect("select_key", this, "_key_selected", varray(i), CONNECT_DEFERRED);
-        track_edit->connect("deselect_key", this, "_key_deselected", varray(i), CONNECT_DEFERRED);
-        track_edit->connect("bezier_edit", this, "_bezier_edit", varray(i), CONNECT_DEFERRED);
+        track_edit->connect("remove_request", this, "_track_remove_request", varray(), ObjectNS::CONNECT_DEFERRED);
+        track_edit->connect("dropped", this, "_dropped_track", varray(), ObjectNS::CONNECT_DEFERRED);
+        track_edit->connect("insert_key", this, "_insert_key_from_track", varray(i), ObjectNS::CONNECT_DEFERRED);
+        track_edit->connect("select_key", this, "_key_selected", varray(i), ObjectNS::CONNECT_DEFERRED);
+        track_edit->connect("deselect_key", this, "_key_deselected", varray(i), ObjectNS::CONNECT_DEFERRED);
+        track_edit->connect("bezier_edit", this, "_bezier_edit", varray(i), ObjectNS::CONNECT_DEFERRED);
         track_edit->connect("clear_selection", this, "_clear_selection");
         track_edit->connect("move_selection_begin", this, "_move_selection_begin");
         track_edit->connect("move_selection", this, "_move_selection");
         track_edit->connect("move_selection_commit", this, "_move_selection_commit");
         track_edit->connect("move_selection_cancel", this, "_move_selection_cancel");
 
-        track_edit->connect("duplicate_request", this, "_edit_menu_pressed", varray(EDIT_DUPLICATE_SELECTION), CONNECT_DEFERRED);
-        track_edit->connect("duplicate_transpose_request", this, "_edit_menu_pressed", varray(EDIT_DUPLICATE_TRANSPOSED), CONNECT_DEFERRED);
-        track_edit->connect("delete_request", this, "_edit_menu_pressed", varray(EDIT_DELETE_SELECTION), CONNECT_DEFERRED);
+        track_edit->connect("duplicate_request", this, "_edit_menu_pressed", varray(EDIT_DUPLICATE_SELECTION), ObjectNS::CONNECT_DEFERRED);
+        track_edit->connect("duplicate_transpose_request", this, "_edit_menu_pressed", varray(EDIT_DUPLICATE_TRANSPOSED), ObjectNS::CONNECT_DEFERRED);
+        track_edit->connect("delete_request", this, "_edit_menu_pressed", varray(EDIT_DELETE_SELECTION), ObjectNS::CONNECT_DEFERRED);
     }
 }
 
@@ -4367,7 +4385,7 @@ void AnimationTrackEditor::_notification(int p_what) {
     if (p_what == NOTIFICATION_THEME_CHANGED || p_what == NOTIFICATION_ENTER_TREE) {
         zoom_icon->set_texture(get_icon("Zoom", "EditorIcons"));
         snap->set_icon(get_icon("Snap", "EditorIcons"));
-        view_group->set_icon(get_icon(view_group->is_pressed() ? "AnimationTrackList" : "AnimationTrackGroup", "EditorIcons"));
+        view_group->set_icon(get_icon(view_group->is_pressed() ? StringName("AnimationTrackList") : StringName("AnimationTrackGroup"), "EditorIcons"));
         selected_filter->set_icon(get_icon("AnimationFilter", "EditorIcons"));
         imported_anim_warning->set_icon(get_icon("NodeWarning", "EditorIcons"));
         main_panel->add_style_override("panel", get_stylebox("bg", "Tree"));
@@ -5276,8 +5294,8 @@ void AnimationTrackEditor::_edit_menu_pressed(int p_option) {
                 String text;
                 Ref<Texture> icon = get_icon("Node", "EditorIcons");
                 if (node) {
-                    if (has_icon(node->get_class(), "EditorIcons")) {
-                        icon = get_icon(node->get_class(), "EditorIcons");
+                    if (has_icon(node->get_class_name(), "EditorIcons")) {
+                        icon = get_icon(node->get_class_name(), "EditorIcons");
                     }
 
                     text = node->get_name();
@@ -5290,9 +5308,9 @@ void AnimationTrackEditor::_edit_menu_pressed(int p_option) {
                     path = NodePath(node->get_path().get_names(), path.get_subnames(), true); //store full path instead for copying
                 } else {
                     text = (String)path;
-                    int sep = text.find(":");
+                    int sep = StringUtils::find(text,":");
                     if (sep != -1) {
-                        text = text.substr(sep + 1, text.length());
+                        text = StringUtils::substr(text,sep + 1, text.length());
                     }
                 }
 
@@ -5661,7 +5679,7 @@ void AnimationTrackEditor::_cleanup_animation(Ref<Animation> p_animation) {
 void AnimationTrackEditor::_view_group_toggle() {
 
     _update_tracks();
-    view_group->set_icon(get_icon(view_group->is_pressed() ? "AnimationTrackList" : "AnimationTrackGroup", "EditorIcons"));
+    view_group->set_icon(get_icon(view_group->is_pressed() ? StringName("AnimationTrackList") : StringName("AnimationTrackGroup"), "EditorIcons"));
 }
 
 bool AnimationTrackEditor::is_grouping_tracks() {
@@ -5726,45 +5744,45 @@ void AnimationTrackEditor::_select_all_tracks_for_copy() {
 
 void AnimationTrackEditor::_bind_methods() {
 
-    ClassDB::bind_method("_animation_changed", &AnimationTrackEditor::_animation_changed);
-    ClassDB::bind_method("_animation_update", &AnimationTrackEditor::_animation_update);
-    ClassDB::bind_method("_timeline_changed", &AnimationTrackEditor::_timeline_changed);
-    ClassDB::bind_method("_track_remove_request", &AnimationTrackEditor::_track_remove_request);
-    ClassDB::bind_method("_track_grab_focus", &AnimationTrackEditor::_track_grab_focus);
-    ClassDB::bind_method("_name_limit_changed", &AnimationTrackEditor::_name_limit_changed);
-    ClassDB::bind_method("_update_scroll", &AnimationTrackEditor::_update_scroll);
-    ClassDB::bind_method("_update_tracks", &AnimationTrackEditor::_update_tracks);
-    ClassDB::bind_method("_update_step", &AnimationTrackEditor::_update_step);
-    ClassDB::bind_method("_update_length", &AnimationTrackEditor::_update_length);
-    ClassDB::bind_method("_dropped_track", &AnimationTrackEditor::_dropped_track);
-    ClassDB::bind_method("_add_track", &AnimationTrackEditor::_add_track);
-    ClassDB::bind_method("_new_track_node_selected", &AnimationTrackEditor::_new_track_node_selected);
-    ClassDB::bind_method("_new_track_property_selected", &AnimationTrackEditor::_new_track_property_selected);
-    ClassDB::bind_method("_root_removed", &AnimationTrackEditor::_root_removed);
-    ClassDB::bind_method("_confirm_insert_list", &AnimationTrackEditor::_confirm_insert_list);
-    ClassDB::bind_method("_insert_delay", &AnimationTrackEditor::_insert_delay);
-    ClassDB::bind_method("_timeline_value_changed", &AnimationTrackEditor::_timeline_value_changed);
-    ClassDB::bind_method("_insert_key_from_track", &AnimationTrackEditor::_insert_key_from_track);
-    ClassDB::bind_method("_add_method_key", &AnimationTrackEditor::_add_method_key);
-    ClassDB::bind_method("_key_selected", &AnimationTrackEditor::_key_selected);
-    ClassDB::bind_method("_key_deselected", &AnimationTrackEditor::_key_deselected);
-    ClassDB::bind_method("_clear_selection", &AnimationTrackEditor::_clear_selection);
-    ClassDB::bind_method("_move_selection_begin", &AnimationTrackEditor::_move_selection_begin);
-    ClassDB::bind_method("_move_selection", &AnimationTrackEditor::_move_selection);
-    ClassDB::bind_method("_move_selection_commit", &AnimationTrackEditor::_move_selection_commit);
-    ClassDB::bind_method("_move_selection_cancel", &AnimationTrackEditor::_move_selection_cancel);
-    ClassDB::bind_method("_clear_selection_for_anim", &AnimationTrackEditor::_clear_selection_for_anim);
-    ClassDB::bind_method("_select_at_anim", &AnimationTrackEditor::_select_at_anim);
-    ClassDB::bind_method("_scroll_input", &AnimationTrackEditor::_scroll_input);
-    ClassDB::bind_method("_box_selection_draw", &AnimationTrackEditor::_box_selection_draw);
-    ClassDB::bind_method("_bezier_edit", &AnimationTrackEditor::_bezier_edit);
-    ClassDB::bind_method("_cancel_bezier_edit", &AnimationTrackEditor::_cancel_bezier_edit);
-    ClassDB::bind_method("_edit_menu_pressed", &AnimationTrackEditor::_edit_menu_pressed);
-    ClassDB::bind_method("_view_group_toggle", &AnimationTrackEditor::_view_group_toggle);
-    ClassDB::bind_method("_selection_changed", &AnimationTrackEditor::_selection_changed);
-    ClassDB::bind_method("_snap_mode_changed", &AnimationTrackEditor::_snap_mode_changed);
-    ClassDB::bind_method("_show_imported_anim_warning", &AnimationTrackEditor::_show_imported_anim_warning);
-    ClassDB::bind_method("_select_all_tracks_for_copy", &AnimationTrackEditor::_select_all_tracks_for_copy);
+    MethodBinder::bind_method("_animation_changed", &AnimationTrackEditor::_animation_changed);
+    MethodBinder::bind_method("_animation_update", &AnimationTrackEditor::_animation_update);
+    MethodBinder::bind_method("_timeline_changed", &AnimationTrackEditor::_timeline_changed);
+    MethodBinder::bind_method("_track_remove_request", &AnimationTrackEditor::_track_remove_request);
+    MethodBinder::bind_method("_track_grab_focus", &AnimationTrackEditor::_track_grab_focus);
+    MethodBinder::bind_method("_name_limit_changed", &AnimationTrackEditor::_name_limit_changed);
+    MethodBinder::bind_method("_update_scroll", &AnimationTrackEditor::_update_scroll);
+    MethodBinder::bind_method("_update_tracks", &AnimationTrackEditor::_update_tracks);
+    MethodBinder::bind_method("_update_step", &AnimationTrackEditor::_update_step);
+    MethodBinder::bind_method("_update_length", &AnimationTrackEditor::_update_length);
+    MethodBinder::bind_method("_dropped_track", &AnimationTrackEditor::_dropped_track);
+    MethodBinder::bind_method("_add_track", &AnimationTrackEditor::_add_track);
+    MethodBinder::bind_method("_new_track_node_selected", &AnimationTrackEditor::_new_track_node_selected);
+    MethodBinder::bind_method("_new_track_property_selected", &AnimationTrackEditor::_new_track_property_selected);
+    MethodBinder::bind_method("_root_removed", &AnimationTrackEditor::_root_removed);
+    MethodBinder::bind_method("_confirm_insert_list", &AnimationTrackEditor::_confirm_insert_list);
+    MethodBinder::bind_method("_insert_delay", &AnimationTrackEditor::_insert_delay);
+    MethodBinder::bind_method("_timeline_value_changed", &AnimationTrackEditor::_timeline_value_changed);
+    MethodBinder::bind_method("_insert_key_from_track", &AnimationTrackEditor::_insert_key_from_track);
+    MethodBinder::bind_method("_add_method_key", &AnimationTrackEditor::_add_method_key);
+    MethodBinder::bind_method("_key_selected", &AnimationTrackEditor::_key_selected);
+    MethodBinder::bind_method("_key_deselected", &AnimationTrackEditor::_key_deselected);
+    MethodBinder::bind_method("_clear_selection", &AnimationTrackEditor::_clear_selection);
+    MethodBinder::bind_method("_move_selection_begin", &AnimationTrackEditor::_move_selection_begin);
+    MethodBinder::bind_method("_move_selection", &AnimationTrackEditor::_move_selection);
+    MethodBinder::bind_method("_move_selection_commit", &AnimationTrackEditor::_move_selection_commit);
+    MethodBinder::bind_method("_move_selection_cancel", &AnimationTrackEditor::_move_selection_cancel);
+    MethodBinder::bind_method("_clear_selection_for_anim", &AnimationTrackEditor::_clear_selection_for_anim);
+    MethodBinder::bind_method("_select_at_anim", &AnimationTrackEditor::_select_at_anim);
+    MethodBinder::bind_method("_scroll_input", &AnimationTrackEditor::_scroll_input);
+    MethodBinder::bind_method("_box_selection_draw", &AnimationTrackEditor::_box_selection_draw);
+    MethodBinder::bind_method("_bezier_edit", &AnimationTrackEditor::_bezier_edit);
+    MethodBinder::bind_method("_cancel_bezier_edit", &AnimationTrackEditor::_cancel_bezier_edit);
+    MethodBinder::bind_method("_edit_menu_pressed", &AnimationTrackEditor::_edit_menu_pressed);
+    MethodBinder::bind_method("_view_group_toggle", &AnimationTrackEditor::_view_group_toggle);
+    MethodBinder::bind_method("_selection_changed", &AnimationTrackEditor::_selection_changed);
+    MethodBinder::bind_method("_snap_mode_changed", &AnimationTrackEditor::_snap_mode_changed);
+    MethodBinder::bind_method("_show_imported_anim_warning", &AnimationTrackEditor::_show_imported_anim_warning);
+    MethodBinder::bind_method("_select_all_tracks_for_copy", &AnimationTrackEditor::_select_all_tracks_for_copy);
 
     ADD_SIGNAL(MethodInfo("timeline_changed", PropertyInfo(Variant::REAL, "position"), PropertyInfo(Variant::BOOL, "drag")));
     ADD_SIGNAL(MethodInfo("keying_changed"));

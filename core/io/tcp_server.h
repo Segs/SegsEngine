@@ -38,7 +38,7 @@
 
 class TCP_Server : public Reference {
 
-	GDCLASS(TCP_Server, Reference);
+    GDCLASS(TCP_Server,Reference)
 
 protected:
 	enum {
@@ -57,7 +57,7 @@ public:
 	void stop(); // Stop listening
 
 	TCP_Server();
-	~TCP_Server();
+	~TCP_Server() override;
 };
 
 #endif // TCP_SERVER_H

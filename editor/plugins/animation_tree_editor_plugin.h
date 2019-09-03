@@ -41,7 +41,7 @@
 #include "scene/gui/tree.h"
 
 class AnimationTreeNodeEditorPlugin : public VBoxContainer {
-	GDCLASS(AnimationTreeNodeEditorPlugin, VBoxContainer);
+	GDCLASS(AnimationTreeNodeEditorPlugin,VBoxContainer)
 
 public:
 	virtual bool can_edit(const Ref<AnimationNode> &p_node) = 0;
@@ -50,7 +50,7 @@ public:
 
 class AnimationTreeEditor : public VBoxContainer {
 
-	GDCLASS(AnimationTreeEditor, VBoxContainer);
+	GDCLASS(AnimationTreeEditor,VBoxContainer)
 
 	ScrollContainer *path_edit;
 	HBoxContainer *path_hb;
@@ -96,21 +96,21 @@ public:
 
 class AnimationTreeEditorPlugin : public EditorPlugin {
 
-	GDCLASS(AnimationTreeEditorPlugin, EditorPlugin);
+	GDCLASS(AnimationTreeEditorPlugin,EditorPlugin)
 
 	AnimationTreeEditor *anim_tree_editor;
 	EditorNode *editor;
 	Button *button;
 
 public:
-	virtual String get_name() const { return "AnimationTree"; }
-	bool has_main_screen() const { return false; }
-	virtual void edit(Object *p_object);
-	virtual bool handles(Object *p_object) const;
-	virtual void make_visible(bool p_visible);
+	String get_name() const override { return "AnimationTree"; }
+	bool has_main_screen() const override { return false; }
+	void edit(Object *p_object) override;
+	bool handles(Object *p_object) const override;
+	void make_visible(bool p_visible) override;
 
 	AnimationTreeEditorPlugin(EditorNode *p_node);
-	~AnimationTreeEditorPlugin();
+	~AnimationTreeEditorPlugin() override;
 };
 
 #endif // ANIMATION_TREE_EDITOR_PLUGIN_H

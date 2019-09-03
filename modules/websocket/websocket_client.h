@@ -37,7 +37,8 @@
 
 class WebSocketClient : public WebSocketMultiplayerPeer {
 
-	GDCLASS(WebSocketClient, WebSocketMultiplayerPeer);
+	GDCLASS(WebSocketClient,WebSocketMultiplayerPeer)
+
 	GDCICLASS(WebSocketClient);
 
 protected:
@@ -52,14 +53,14 @@ public:
 	void set_verify_ssl_enabled(bool p_verify_ssl);
 	bool is_verify_ssl_enabled() const;
 
-	virtual void poll() = 0;
+	void poll() override = 0;
 	virtual Error connect_to_host(String p_host, String p_path, uint16_t p_port, bool p_ssl, PoolVector<String> p_protocol = PoolVector<String>()) = 0;
 	virtual void disconnect_from_host(int p_code = 1000, String p_reason = "") = 0;
 	virtual IP_Address get_connected_host() const = 0;
 	virtual uint16_t get_connected_port() const = 0;
 
-	virtual bool is_server() const;
-	virtual ConnectionStatus get_connection_status() const = 0;
+	bool is_server() const override;
+	ConnectionStatus get_connection_status() const override = 0;
 
 	void _on_peer_packet();
 	void _on_connect(String p_protocol);
@@ -67,10 +68,10 @@ public:
 	void _on_disconnect(bool p_was_clean);
 	void _on_error();
 
-	virtual Error set_buffers(int p_in_buffer, int p_in_packets, int p_out_buffer, int p_out_packets) = 0;
+	Error set_buffers(int p_in_buffer, int p_in_packets, int p_out_buffer, int p_out_packets) override = 0;
 
 	WebSocketClient();
-	~WebSocketClient();
+	~WebSocketClient() override;
 };
 
 #endif // WEBSOCKET_CLIENT_H

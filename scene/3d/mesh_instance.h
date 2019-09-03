@@ -36,7 +36,7 @@
 
 class MeshInstance : public GeometryInstance {
 
-	GDCLASS(MeshInstance, GeometryInstance);
+	GDCLASS(MeshInstance,GeometryInstance)
 
 protected:
 	Ref<Mesh> mesh;
@@ -85,11 +85,11 @@ public:
 
 	void create_debug_tangents();
 
-	virtual AABB get_aabb() const;
-	virtual PoolVector<Face3> get_faces(uint32_t p_usage_flags) const;
+	AABB get_aabb() const override;
+	PoolVector<Face3> get_faces(uint32_t p_usage_flags) const override;
 
 	MeshInstance();
-	~MeshInstance();
+	~MeshInstance() override;
 };
 
 #endif

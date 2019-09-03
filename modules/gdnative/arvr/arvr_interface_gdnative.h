@@ -41,7 +41,7 @@
 */
 
 class ARVRInterfaceGDNative : public ARVRInterface {
-	GDCLASS(ARVRInterfaceGDNative, ARVRInterface);
+	GDCLASS(ARVRInterfaceGDNative,ARVRInterface)
 
 	void cleanup();
 
@@ -54,38 +54,38 @@ protected:
 public:
 	/** general interface information **/
 	ARVRInterfaceGDNative();
-	~ARVRInterfaceGDNative();
+	~ARVRInterfaceGDNative() override;
 
 	void set_interface(const godot_arvr_interface_gdnative *p_interface);
 
-	virtual StringName get_name() const;
-	virtual int get_capabilities() const;
+	StringName get_name() const override;
+	int get_capabilities() const override;
 
-	virtual bool is_initialized() const;
-	virtual bool initialize();
-	virtual void uninitialize();
+	bool is_initialized() const override;
+	bool initialize() override;
+	void uninitialize() override;
 
 	/** specific to AR **/
-	virtual bool get_anchor_detection_is_enabled() const;
-	virtual void set_anchor_detection_is_enabled(bool p_enable);
-	virtual int get_camera_feed_id();
+	bool get_anchor_detection_is_enabled() const override;
+	void set_anchor_detection_is_enabled(bool p_enable) override;
+	int get_camera_feed_id() override;
 
 	/** rendering and internal **/
-	virtual Size2 get_render_targetsize();
-	virtual bool is_stereo();
-	virtual Transform get_transform_for_eye(ARVRInterface::Eyes p_eye, const Transform &p_cam_transform);
+	Size2 get_render_targetsize() override;
+	bool is_stereo() override;
+	Transform get_transform_for_eye(ARVRInterface::Eyes p_eye, const Transform &p_cam_transform) override;
 
 	// we expose a PoolVector<float> version of this function to GDNative
 	PoolVector<float> _get_projection_for_eye(ARVRInterface::Eyes p_eye, real_t p_aspect, real_t p_z_near, real_t p_z_far);
 
 	// and a CameraMatrix version to ARVRServer
-	virtual CameraMatrix get_projection_for_eye(ARVRInterface::Eyes p_eye, real_t p_aspect, real_t p_z_near, real_t p_z_far);
+	CameraMatrix get_projection_for_eye(ARVRInterface::Eyes p_eye, real_t p_aspect, real_t p_z_near, real_t p_z_far) override;
 
-	virtual unsigned int get_external_texture_for_eye(ARVRInterface::Eyes p_eye);
-	virtual void commit_for_eye(ARVRInterface::Eyes p_eye, RID p_render_target, const Rect2 &p_screen_rect);
+	unsigned int get_external_texture_for_eye(ARVRInterface::Eyes p_eye) override;
+	void commit_for_eye(ARVRInterface::Eyes p_eye, RID p_render_target, const Rect2 &p_screen_rect) override;
 
-	virtual void process();
-	virtual void notification(int p_what);
+	void process() override;
+	void notification(int p_what) override;
 };
 
 #endif // ARVR_INTERFACE_GDNATIVE_H

@@ -1,5 +1,5 @@
 // modules.cpp - THIS FILE IS GENERATED, DO NOT EDIT!!!!!!!
-#include "register_module_types.h"
+#include "modules/register_module_types.h"
 
 @includes_cpp@
 

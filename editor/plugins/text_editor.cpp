@@ -30,7 +30,11 @@
 
 #include "text_editor.h"
 
+#include "core/string_formatter.h"
+#include "core/method_bind.h"
 #include "editor_node.h"
+
+IMPL_GDCLASS(TextEditor)
 
 void TextEditor::add_syntax_highlighter(SyntaxHighlighter *p_highlighter) {
     highlighters[p_highlighter->get_name()] = p_highlighter;
@@ -148,7 +152,7 @@ void TextEditor::_load_theme_settings() {
 String TextEditor::get_name() {
     String name;
 
-    if (text_file->get_path().find("local://") == -1 && text_file->get_path().find("::") == -1) {
+    if (not PathUtils::is_internal_path(text_file->get_path()) ) {
         name = PathUtils::get_file(text_file->get_path());
         if (is_unsaved()) {
             name += "(*)";
@@ -156,7 +160,7 @@ String TextEditor::get_name() {
     } else if (text_file->get_name() != "") {
         name = text_file->get_name();
     } else {
-        name = text_file->get_class() + "(" + itos(text_file->get_instance_id()) + ")";
+        name = FormatV("%s(%zd)",text_file->get_class(),text_file->get_instance_id());
     }
 
     return name;
@@ -172,7 +176,7 @@ RES TextEditor::get_edited_resource() const {
 }
 
 void TextEditor::set_edited_resource(const RES &p_res) {
-    ERR_FAIL_COND(!text_file.is_null());
+    ERR_FAIL_COND(!text_file.is_null())
 
     text_file = p_res;
 
@@ -195,7 +199,7 @@ void TextEditor::get_breakpoints(List<int> *p_breakpoints) {
 
 void TextEditor::reload_text() {
 
-    ERR_FAIL_COND(text_file.is_null());
+    ERR_FAIL_COND(text_file.is_null())
 
     TextEdit *te = code_editor->get_text_edit();
     int column = te->cursor_get_column();
@@ -236,10 +240,10 @@ void TextEditor::_update_bookmark_list() {
     bookmarks_menu->add_separator();
 
     for (int i = 0; i < bookmark_list.size(); i++) {
-        String line = code_editor->get_text_edit()->get_line(bookmark_list[i]).strip_edges();
+        String line = StringUtils::strip_edges(code_editor->get_text_edit()->get_line(bookmark_list[i]));
         // Limit the size of the line if too big.
         if (line.length() > 50) {
-            line = line.substr(0, 50);
+            line = StringUtils::substr(line,0, 50);
         }
 
         bookmarks_menu->add_item(StringUtils::num((int)bookmark_list[i] + 1) + " - \"" + line + "\"");
@@ -520,13 +524,13 @@ void TextEditor::_convert_case(CodeTextEditor::CaseStyle p_case) {
 
 void TextEditor::_bind_methods() {
 
-    ClassDB::bind_method("_validate_script", &TextEditor::_validate_script);
-    ClassDB::bind_method("_update_bookmark_list", &TextEditor::_update_bookmark_list);
-    ClassDB::bind_method("_bookmark_item_pressed", &TextEditor::_bookmark_item_pressed);
-    ClassDB::bind_method("_load_theme_settings", &TextEditor::_load_theme_settings);
-    ClassDB::bind_method("_edit_option", &TextEditor::_edit_option);
-    ClassDB::bind_method("_change_syntax_highlighter", &TextEditor::_change_syntax_highlighter);
-    ClassDB::bind_method("_text_edit_gui_input", &TextEditor::_text_edit_gui_input);
+    MethodBinder::bind_method("_validate_script", &TextEditor::_validate_script);
+    MethodBinder::bind_method("_update_bookmark_list", &TextEditor::_update_bookmark_list);
+    MethodBinder::bind_method("_bookmark_item_pressed", &TextEditor::_bookmark_item_pressed);
+    MethodBinder::bind_method("_load_theme_settings", &TextEditor::_load_theme_settings);
+    MethodBinder::bind_method("_edit_option", &TextEditor::_edit_option);
+    MethodBinder::bind_method("_change_syntax_highlighter", &TextEditor::_change_syntax_highlighter);
+    MethodBinder::bind_method("_text_edit_gui_input", &TextEditor::_text_edit_gui_input);
 }
 
 static ScriptEditorBase *create_editor(const RES &p_resource) {

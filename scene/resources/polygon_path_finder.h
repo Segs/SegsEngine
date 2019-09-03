@@ -35,7 +35,7 @@
 
 class PolygonPathFinder : public Resource {
 
-	GDCLASS(PolygonPathFinder, Resource);
+	GDCLASS(PolygonPathFinder,Resource)
 
 	struct Point {
 		Vector2 pos;

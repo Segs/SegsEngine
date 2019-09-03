@@ -249,7 +249,7 @@ Error ImageLoaderTinyEXR::load_image(ImageData &p_image, FileAccess *f, LoadPara
 
 void ImageLoaderTinyEXR::get_recognized_extensions(List<String> *p_extensions) const {
 
-    p_extensions->push_back("exr");
+	p_extensions->push_back(String("exr"));
 }
 
 ImageLoaderTinyEXR::ImageLoaderTinyEXR() {

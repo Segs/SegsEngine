@@ -321,7 +321,7 @@ String OS_Server::get_system_dir(SystemDir p_dir) const {
 	Error err = const_cast<OS_Server *>(this)->execute("xdg-user-dir", arg, true, NULL, &pipe);
 	if (err != OK)
 		return ".";
-	return pipe.strip_edges();
+	returnStringUtils::strip_edges( pipe);
 }
 
 void OS_Server::disable_crash_handler() {

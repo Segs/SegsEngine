@@ -64,7 +64,7 @@ Error ImageLoaderPNG::load_image(ImageData &p_image,const uint8_t *p_png, int p_
 }
 void ImageLoaderPNG::get_recognized_extensions(List<String> *p_extensions) const {
 
-    p_extensions->push_back("png");
+    p_extensions->push_back(String("png"));
 }
 
 ImageData ImageLoaderPNG::load_mem_png(const uint8_t *p_png, int p_size) {
@@ -101,7 +101,8 @@ PoolVector<uint8_t> ImageLoaderPNG::lossless_pack_png(const ImageData &p_image) 
 
     Error err = PNGDriverCommon::image_to_png(p_image, out_buffer);
     if (err) {
-        ERR_FAIL_V(PoolVector<uint8_t>())
+        ERR_REPORT_COND("Can't convert image to PNG.")
+        return PoolVector<uint8_t>();
     }
 
     return out_buffer;

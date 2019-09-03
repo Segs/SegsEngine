@@ -87,11 +87,11 @@ class BodyPairSW : public ConstraintSW {
 	SpaceSW *space;
 
 public:
-	bool setup(real_t p_step);
-	void solve(real_t p_step);
+	bool setup(real_t p_step) override;
+	void solve(real_t p_step) override;
 
 	BodyPairSW(BodySW *p_A, int p_shape_A, BodySW *p_B, int p_shape_B);
-	~BodyPairSW();
+	~BodyPairSW() override;
 };
 
 #endif // BODY_PAIR__SW_H

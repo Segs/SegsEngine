@@ -36,8 +36,9 @@ class ArrayMesh;
 
 class Shape : public Resource {
 
-	GDCLASS(Shape, Resource);
-	OBJ_SAVE_TYPE(Shape);
+	GDCLASS(Shape,Resource)
+
+    OBJ_SAVE_TYPE(Shape);
 	RES_BASE_EXTENSION("shape");
 	RID shape;
 	real_t margin;
@@ -54,7 +55,7 @@ protected:
 	virtual void _update_shape();
 
 public:
-	virtual RID get_rid() const { return shape; }
+	RID get_rid() const override { return shape; }
 
 	Ref<ArrayMesh> get_debug_mesh();
 
@@ -64,7 +65,7 @@ public:
 	void set_margin(real_t p_margin);
 
 	Shape();
-	~Shape();
+	~Shape() override;
 };
 
 #endif // SHAPE_H

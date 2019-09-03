@@ -167,13 +167,13 @@ static String _opstr(SL::Operator p_op) {
 static String _mkid(const String &p_id) {
 
     String id = "m_" + p_id;
-    return id.replace("__", "_dus_"); //doubleunderscore is reserved in glsl
+    return StringUtils::replace(id,"__", "_dus_"); //doubleunderscore is reserved in glsl
 }
 
 static String f2sp0(float p_float) {
 
     String num = rtoss(p_float);
-    if (num.find(".") == -1 && num.find("e") == -1) {
+    if (StringUtils::find(num,".") == -1 && StringUtils::find(num,"e") == -1) {
         num += ".0";
     }
     return num;
@@ -329,7 +329,7 @@ String ShaderCompilerGLES3::_dump_node_code(SL::Node *p_node, int p_level, Gener
 
                 if (p_default_actions.render_mode_defines.has(pnode->render_modes[i]) && !used_rmode_defines.has(pnode->render_modes[i])) {
 
-                    r_gen_code.defines.push_back(p_default_actions.render_mode_defines[pnode->render_modes[i]].utf8());
+					r_gen_code.defines.push_back(StringUtils::to_utf8(p_default_actions.render_mode_defines[pnode->render_modes[i]]));
                     used_rmode_defines.insert(pnode->render_modes[i]);
                 }
 
@@ -386,7 +386,7 @@ String ShaderCompilerGLES3::_dump_node_code(SL::Node *p_node, int p_level, Gener
                 } else {
                     if (!uses_uniforms) {
 
-                        r_gen_code.defines.push_back(String("#define USE_MATERIAL\n").ascii());
+						r_gen_code.defines.push_back("#define USE_MATERIAL\n");
                         uses_uniforms = true;
                     }
                     uniform_defines.write[E->get().order] = ucode;
@@ -585,10 +585,10 @@ String ShaderCompilerGLES3::_dump_node_code(SL::Node *p_node, int p_level, Gener
 
             if (p_default_actions.usage_defines.has(vnode->name) && !used_name_defines.has(vnode->name)) {
                 String define = p_default_actions.usage_defines[vnode->name];
-                if (define.begins_with("@")) {
-                    define = p_default_actions.usage_defines[define.substr(1, define.length())];
+                if (StringUtils::begins_with(define,"@")) {
+                    define = p_default_actions.usage_defines[StringUtils::substr(define,1, define.length())];
                 }
-                r_gen_code.defines.push_back(define.utf8());
+                r_gen_code.defines.push_back(StringUtils::to_utf8(define));
                 used_name_defines.insert(vnode->name);
             }
 
@@ -661,10 +661,10 @@ String ShaderCompilerGLES3::_dump_node_code(SL::Node *p_node, int p_level, Gener
 
             if (p_default_actions.usage_defines.has(anode->name) && !used_name_defines.has(anode->name)) {
                 String define = p_default_actions.usage_defines[anode->name];
-                if (define.begins_with("@")) {
-                    define = p_default_actions.usage_defines[define.substr(1, define.length())];
+                if (StringUtils::begins_with(define,"@")) {
+                    define = p_default_actions.usage_defines[StringUtils::substr(define, 1, define.length())];
                 }
-                r_gen_code.defines.push_back(define.utf8());
+                r_gen_code.defines.push_back(StringUtils::to_utf8(define));
                 used_name_defines.insert(anode->name);
             }
 
@@ -801,15 +801,15 @@ String ShaderCompilerGLES3::_dump_node_code(SL::Node *p_node, int p_level, Gener
                     code += _mktab(p_level) + "else\n";
                     code += _dump_node_code(cfnode->blocks[1], p_level + 1, r_gen_code, p_actions, p_default_actions, p_assigning);
                 }
-			} else if (cfnode->flow_op == SL::FLOW_OP_SWITCH) {
-				code += _mktab(p_level) + "switch (" + _dump_node_code(cfnode->expressions[0], p_level, r_gen_code, p_actions, p_default_actions, p_assigning) + ")\n";
-				code += _dump_node_code(cfnode->blocks[0], p_level + 1, r_gen_code, p_actions, p_default_actions, p_assigning);
-			} else if (cfnode->flow_op == SL::FLOW_OP_CASE) {
-				code += _mktab(p_level) + "case " + _dump_node_code(cfnode->expressions[0], p_level, r_gen_code, p_actions, p_default_actions, p_assigning) + ":\n";
-				code += _dump_node_code(cfnode->blocks[0], p_level + 1, r_gen_code, p_actions, p_default_actions, p_assigning);
-			} else if (cfnode->flow_op == SL::FLOW_OP_DEFAULT) {
-				code += _mktab(p_level) + "default:\n";
-				code += _dump_node_code(cfnode->blocks[0], p_level + 1, r_gen_code, p_actions, p_default_actions, p_assigning);
+            } else if (cfnode->flow_op == SL::FLOW_OP_SWITCH) {
+                code += _mktab(p_level) + "switch (" + _dump_node_code(cfnode->expressions[0], p_level, r_gen_code, p_actions, p_default_actions, p_assigning) + ")\n";
+                code += _dump_node_code(cfnode->blocks[0], p_level + 1, r_gen_code, p_actions, p_default_actions, p_assigning);
+            } else if (cfnode->flow_op == SL::FLOW_OP_CASE) {
+                code += _mktab(p_level) + "case " + _dump_node_code(cfnode->expressions[0], p_level, r_gen_code, p_actions, p_default_actions, p_assigning) + ":\n";
+                code += _dump_node_code(cfnode->blocks[0], p_level + 1, r_gen_code, p_actions, p_default_actions, p_assigning);
+            } else if (cfnode->flow_op == SL::FLOW_OP_DEFAULT) {
+                code += _mktab(p_level) + "default:\n";
+                code += _dump_node_code(cfnode->blocks[0], p_level + 1, r_gen_code, p_actions, p_default_actions, p_assigning);
             } else if (cfnode->flow_op == SL::FLOW_OP_DO) {
                 code += _mktab(p_level) + "do";
                 code += _dump_node_code(cfnode->blocks[0], p_level + 1, r_gen_code, p_actions, p_default_actions, p_assigning);
@@ -872,7 +872,7 @@ Error ShaderCompilerGLES3::compile(VS::ShaderMode p_mode, const String &p_code, 
             print_line(itos(i + 1) + " " + shader[i]);
         }
 
-        _err_print_error(nullptr, p_path.utf8().constData(), parser.get_error_line(), parser.get_error_text(), ERR_HANDLER_SHADER);
+		_err_print_error(nullptr, StringUtils::to_utf8(p_path).data(), parser.get_error_line(), parser.get_error_text(), ERR_HANDLER_SHADER);
         return err;
     }
 

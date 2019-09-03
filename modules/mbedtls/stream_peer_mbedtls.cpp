@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  stream_peer_mbed_tls.cpp                                             */
+/*  stream_peer_mbedtls.cpp                                              */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -117,7 +117,7 @@ Error StreamPeerMbedTLS::connect_to_stream(Ref<StreamPeer> p_base, bool p_valida
 	Error err = ssl_ctx->init_client(MBEDTLS_SSL_TRANSPORT_STREAM, authmode, p_ca_certs);
 	ERR_FAIL_COND_V(err != OK, err);
 
-	mbedtls_ssl_set_hostname(ssl_ctx->get_context(), p_for_hostname.utf8().data());
+	mbedtls_ssl_set_hostname(ssl_ctx->get_context(), StringUtils::to_utf8(p_for_hostname));
 	mbedtls_ssl_set_bio(ssl_ctx->get_context(), this, bio_send, bio_recv, nullptr);
 
 	status = STATUS_HANDSHAKING;

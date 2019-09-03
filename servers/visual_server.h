@@ -41,7 +41,7 @@
 
 class VisualServer : public Object {
 
-	GDCLASS(VisualServer, Object);
+	GDCLASS(VisualServer,Object)
 
 	static VisualServer *singleton;
 
@@ -144,7 +144,7 @@ public:
 
 	virtual void texture_set_shrink_all_x2_on_set_data(bool p_enable) = 0;
 
-	typedef void (*TextureDetectCallback)(void *);
+	using TextureDetectCallback = void (*)(void *);
 
 	virtual void texture_set_detect_3d_callback(RID p_texture, TextureDetectCallback p_callback, void *p_userdata) = 0;
 	virtual void texture_set_detect_srgb_callback(RID p_texture, TextureDetectCallback p_callback, void *p_userdata) = 0;

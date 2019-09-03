@@ -31,24 +31,20 @@
 #ifndef INSPECTOR_DOCK_H
 #define INSPECTOR_DOCK_H
 
-#include "editor/animation_track_editor.h"
-#include "editor/connections_dialog.h"
-#include "editor/create_dialog.h"
-#include "editor/editor_data.h"
-#include "editor/editor_inspector.h"
-#include "editor/editor_path.h"
 #include "scene/gui/box_container.h"
-#include "scene/gui/button.h"
-#include "scene/gui/control.h"
-#include "scene/gui/label.h"
-#include "scene/gui/popup_menu.h"
-#include "scene/gui/tool_button.h"
 
 class EditorNode;
+class ToolButton;
+class CreateDialog;
+class MenuButton;
+class LineEdit;
+class EditorPath;
+class Button;
+class AcceptDialog;
 
 class InspectorDock : public VBoxContainer {
 
-	GDCLASS(InspectorDock, VBoxContainer);
+	GDCLASS(InspectorDock,VBoxContainer)
 
 	enum MenuOptions {
 		RESOURCE_LOAD,
@@ -69,16 +65,16 @@ class InspectorDock : public VBoxContainer {
 	};
 
 	EditorNode *editor;
-	EditorData *editor_data;
+	class EditorData *editor_data;
 
-	EditorInspector *inspector;
+	class EditorInspector *inspector;
 
 	Object *current;
 
 	ToolButton *backward_button;
 	ToolButton *forward_button;
 
-	EditorFileDialog *load_resource_dialog;
+	class EditorFileDialog *load_resource_dialog;
 	CreateDialog *new_resource_dialog;
 	ToolButton *resource_new_button;
 	ToolButton *resource_load_button;
@@ -132,7 +128,7 @@ public:
 	EditorInspector *get_inspector() { return inspector; }
 
 	InspectorDock(EditorNode *p_editor, EditorData &p_editor_data);
-	~InspectorDock();
+	~InspectorDock() override;
 };
 
 #endif

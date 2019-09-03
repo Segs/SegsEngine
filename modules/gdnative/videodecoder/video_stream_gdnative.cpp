@@ -30,8 +30,12 @@
 
 #include "video_stream_gdnative.h"
 
+#include "core/method_bind.h"
 #include "core/project_settings.h"
 #include "servers/audio_server.h"
+
+IMPL_GDCLASS(VideoStreamPlaybackGDNative)
+IMPL_GDCLASS(VideoStreamGDNative)
 
 VideoDecoderServer *VideoDecoderServer::instance = nullptr;
 
@@ -340,8 +344,8 @@ String VideoStreamGDNative::get_file() {
 
 void VideoStreamGDNative::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_file", "file"), &VideoStreamGDNative::set_file);
-    ClassDB::bind_method(D_METHOD("get_file"), &VideoStreamGDNative::get_file);
+    MethodBinder::bind_method(D_METHOD("set_file", "file"), &VideoStreamGDNative::set_file);
+    MethodBinder::bind_method(D_METHOD("get_file"), &VideoStreamGDNative::get_file);
 
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "file", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_file", "get_file");
 }

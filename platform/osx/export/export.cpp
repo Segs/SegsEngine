@@ -45,9 +45,10 @@
 #include "string.h"
 #include <sys/stat.h>
 
-class EditorExportPlatformOSX : public EditorExportPlatform {
+class EditorExportPlatformOSX final : public EditorExportPlatform {
 
-    GDCLASS(EditorExportPlatformOSX, EditorExportPlatform);
+    GDCLASS(EditorExportPlatformOSX,EditorExportPlatform)
+
 
     int version_code;
 
@@ -68,15 +69,15 @@ class EditorExportPlatformOSX : public EditorExportPlatform {
 #endif
 
 protected:
-    virtual void get_preset_features(const Ref<EditorExportPreset> &p_preset, List<String> *r_features);
-    virtual void get_export_options(List<ExportOption> *r_options);
+    void get_preset_features(const Ref<EditorExportPreset> &p_preset, List<String> *r_features) override;
+    void get_export_options(List<ExportOption> *r_options) override;
 
 public:
-    virtual String get_name() const { return "Mac OSX"; }
-    virtual String get_os_name() const { return "OSX"; }
-    virtual Ref<Texture> get_logo() const { return logo; }
+    String get_name() const override { return "Mac OSX"; }
+    String get_os_name() const override { return "OSX"; }
+    Ref<Texture> get_logo() const override { return logo; }
 
-    virtual List<String> get_binary_extensions(const Ref<EditorExportPreset> &p_preset) const {
+    List<String> get_binary_extensions(const Ref<EditorExportPreset> &p_preset) const  override {
         List<String> list;
         if (use_dmg()) {
             list.push_back("dmg");
@@ -84,23 +85,25 @@ public:
         list.push_back("zip");
         return list;
     }
-    virtual Error export_project(const Ref<EditorExportPreset> &p_preset, bool p_debug, const String &p_path, int p_flags = 0);
+    Error export_project(const Ref<EditorExportPreset> &p_preset, bool p_debug, const String &p_path, int p_flags = 0) override;
 
-    virtual bool can_export(const Ref<EditorExportPreset> &p_preset, String &r_error, bool &r_missing_templates) const;
+    bool can_export(const Ref<EditorExportPreset> &p_preset, String &r_error, bool &r_missing_templates) const override;
 
-    virtual void get_platform_features(List<String> *r_features) {
+    void get_platform_features(List<String> *r_features) override {
 
         r_features->push_back("pc");
         r_features->push_back("s3tc");
         r_features->push_back("OSX");
     }
 
-    virtual void resolve_platform_feature_priorities(const Ref<EditorExportPreset> &p_preset, Set<String> &p_features) {
+    void resolve_platform_feature_priorities(const Ref<EditorExportPreset> &p_preset, Set<String> &p_features) override {
     }
 
     EditorExportPlatformOSX();
-    ~EditorExportPlatformOSX();
+    ~EditorExportPlatformOSX() override;
 };
+
+IMPL_GDCLASS(EditorExportPlatformOSX)
 
 void EditorExportPlatformOSX::get_preset_features(const Ref<EditorExportPreset> &p_preset, List<String> *r_features) {
     if (p_preset->get("texture_format/s3tc")) {
@@ -315,31 +318,30 @@ void EditorExportPlatformOSX::_make_icon(const Ref<Image> &p_icon, Vector<uint8_
 
 void EditorExportPlatformOSX::_fix_plist(const Ref<EditorExportPreset> &p_preset, Vector<uint8_t> &plist, const String &p_binary) {
 
-    String str;
     String strnew;
-    str.parse_utf8((const char *)plist.ptr(), plist.size());
+	String str = StringUtils::from_utf8((const char *)plist.ptr(), plist.size());
     Vector<String> lines = StringUtils::split(str,"\n");
-    const std::pair<QString,QString> replacements[] = {
-        {QStringLiteral("$binary"), p_binary},
-        {QStringLiteral("$name"), p_binary},
-        {QStringLiteral("$info"), p_preset->get("application/info")},
-        {QStringLiteral("$identifier"), p_preset->get("application/identifier")},
-        {QStringLiteral("$short_version"), p_preset->get("application/short_version")},
-        {QStringLiteral("$version"), p_preset->get("application/version")},
-        {QStringLiteral("$signature"), p_preset->get("application/signature")},
-        {QStringLiteral("$copyright"), p_preset->get("application/copyright")},
-        {QStringLiteral("$highres"), p_preset->get("display/high_res") ? "<true/>" : "<false/>"},
+	const std::pair<const char*,String> replacements[] = {
+		{"$binary", p_binary},
+		{"$name", p_binary},
+		{"$info", p_preset->get("application/info")},
+		{"$identifier", p_preset->get("application/identifier")},
+		{"$short_version", p_preset->get("application/short_version")},
+		{"$version", p_preset->get("application/version")},
+		{"$signature", p_preset->get("application/signature")},
+		{"$copyright", p_preset->get("application/copyright")},
+		{"$highres", p_preset->get("display/high_res") ? "<true/>" : "<false/>"},
     };
     for (int i = 0; i < lines.size(); i++) {
-        QString line(lines[i]);
-        for(const std::pair<const QString,const QString> en : replacements)
+		String line(lines[i]);
+		for(const std::pair<const char *,const String> en : replacements)
         {
-            line.replace(en.first, en.second);
+		   line = StringUtils::replace(line,en.first, en.second);
         }
         strnew += line + "\n";
     }
 
-    CharString cs = strnew.utf8();
+	CharString cs = StringUtils::to_utf8(strnew);
     plist.resize(cs.size() - 1);
     for (int i = 0; i < cs.size() - 1; i++) {
         plist.write[i] = cs[i];
@@ -371,7 +373,7 @@ Error EditorExportPlatformOSX::_code_sign(const Ref<EditorExportPreset> &p_prese
     ERR_FAIL_COND_V(err != OK, err);
 
     print_line("codesign: " + str);
-    if (str.find("no identity found") != -1) {
+	if (StringUtils::contains(str,"no identity found")) {
         EditorNode::add_io_error("codesign: no identity found");
         return FAILED;
     }
@@ -395,11 +397,11 @@ Error EditorExportPlatformOSX::_create_dmg(const String &p_dmg_path, const Strin
 
     String str;
     Error err = OS::get_singleton()->execute("hdiutil", args, true, nullptr, &str, nullptr, true);
-    ERR_FAIL_COND_V(err != OK, err);
+	ERR_FAIL_COND_V(err != OK, err)
 
     print_line("hdiutil returned: " + str);
-    if (str.find("create failed") != -1) {
-        if (str.find("File exists") != -1) {
+	if (StringUtils::contains(str,"create failed")) {
+		if (StringUtils::contains(str,"File exists")) {
             EditorNode::add_io_error("hdiutil: create failed - file exists");
         } else {
             EditorNode::add_io_error("hdiutil: create failed");
@@ -442,7 +444,7 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
         return ERR_SKIP;
     }
 
-    unzFile src_pkg_zip = unzOpen2(qPrintable(src_pkg_name), &io);
+	unzFile src_pkg_zip = unzOpen2(qPrintable(src_pkg_name.m_str), &io);
     if (!src_pkg_zip) {
 
         EditorNode::add_io_error("Could not find template app to export:\n" + src_pkg_name);
@@ -468,7 +470,7 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
     io2.opaque = &dst_f;
     zipFile dst_pkg_zip = nullptr;
 
-    String export_format = use_dmg() && p_path.ends_with("dmg") ? "dmg" : "zip";
+	String export_format = use_dmg() && StringUtils::ends_with(p_path,"dmg") ? "dmg" : "zip";
     if (export_format == "dmg") {
         // We're on OSX so we can export to DMG, but first we create our application bundle
 		tmp_app_path_name = PathUtils::plus_file(EditorSettings::get_singleton()->get_cache_dir(),pkg_name + ".app");
@@ -495,7 +497,7 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
         }
     } else {
         // Open our destination zip file
-        dst_pkg_zip = zipOpen2(qPrintable(p_path), APPEND_STATUS_CREATE, nullptr, &io2);
+		dst_pkg_zip = zipOpen2(qPrintable(p_path.m_str), APPEND_STATUS_CREATE, nullptr, &io2);
         if (!dst_pkg_zip) {
             err = ERR_CANT_CREATE;
         }
@@ -525,13 +527,13 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
 
         //write
 
-        file = file.replace_first("osx_template.app/", "");
+		file =StringUtils::replace_first(file,"osx_template.app/", "");
 
         if (file == "Contents/Info.plist") {
             _fix_plist(p_preset, data, pkg_name);
         }
 
-        if (file.begins_with("Contents/MacOS/godot_")) {
+		if (StringUtils::begins_with(file,"Contents/MacOS/godot_")) {
             if (file != "Contents/MacOS/" + binary_to_use) {
                 ret = unzGoToNextFile(src_pkg_zip);
                 continue; //ignore!
@@ -606,7 +608,7 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
                 fi.external_fa = info.external_fa;
 
                 zipOpenNewFileInZip(dst_pkg_zip,
-                        qPrintable(file),
+						qPrintable(file.m_str),
                         &fi,
                         nullptr,
                         0,
@@ -702,7 +704,7 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
 
             if (err == OK) {
                 zipOpenNewFileInZip(dst_pkg_zip,
-                        qPrintable(pkg_name + ".app/Contents/Resources/" + pkg_name + ".pck"),
+						qPrintable((pkg_name + ".app/Contents/Resources/" + pkg_name + ".pck").m_str),
                         nullptr,
                         nullptr,
                         0,
@@ -739,7 +741,7 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
                     ERR_CONTINUE(file.empty());
 
                     zipOpenNewFileInZip(dst_pkg_zip,
-							qPrintable(PathUtils::plus_file(String(pkg_name + ".app/Contents/Frameworks/"),PathUtils::get_file(shared_objects[i].path))),
+							qPrintable((PathUtils::plus_file(String(pkg_name + ".app/Contents/Frameworks/"),PathUtils::get_file(shared_objects[i].path))).m_str),
                             nullptr,
                             nullptr,
                             0,

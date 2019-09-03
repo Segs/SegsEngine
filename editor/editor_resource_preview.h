@@ -38,7 +38,7 @@
 
 class EditorResourcePreviewGenerator : public Reference {
 
-	GDCLASS(EditorResourcePreviewGenerator, Reference);
+	GDCLASS(EditorResourcePreviewGenerator,Reference)
 
 protected:
 	static void _bind_methods();
@@ -56,7 +56,7 @@ public:
 
 class EditorResourcePreview : public Node {
 
-	GDCLASS(EditorResourcePreview, Node);
+	GDCLASS(EditorResourcePreview,Node)
 
 	static EditorResourcePreview *singleton;
 
@@ -114,7 +114,7 @@ public:
 	void stop();
 
 	EditorResourcePreview();
-	~EditorResourcePreview();
+	~EditorResourcePreview() override;
 };
 
 #endif // EDITORRESOURCEPREVIEW_H

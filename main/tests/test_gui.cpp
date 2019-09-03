@@ -55,6 +55,8 @@
 
 #include "scene/3d/camera.h"
 #include "scene/main/viewport.h"
+#include "scene/resources/theme.h"
+
 
 namespace TestGUI {
 
@@ -65,7 +67,7 @@ public:
 
 		quit();
 	}
-	virtual void init() {
+	void init() override {
 
 		SceneTree::init();
 

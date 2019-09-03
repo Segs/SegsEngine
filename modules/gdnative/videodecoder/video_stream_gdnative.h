@@ -108,7 +108,7 @@ public:
 
 class VideoStreamPlaybackGDNative : public VideoStreamPlayback {
 
-	GDCLASS(VideoStreamPlaybackGDNative, VideoStreamPlayback);
+	GDCLASS(VideoStreamPlaybackGDNative,VideoStreamPlayback)
 
 	Ref<ImageTexture> texture;
 	bool playing;
@@ -141,43 +141,43 @@ protected:
 
 public:
 	VideoStreamPlaybackGDNative();
-	~VideoStreamPlaybackGDNative();
+	~VideoStreamPlaybackGDNative() override;
 
 	void set_interface(const godot_videodecoder_interface_gdnative *p_interface);
 
 	bool open_file(const String &p_file);
 
-	virtual void stop();
-	virtual void play();
+	void stop() override;
+	void play() override;
 
-	virtual bool is_playing() const;
+	bool is_playing() const override;
 
-	virtual void set_paused(bool p_paused);
-	virtual bool is_paused() const;
+	void set_paused(bool p_paused) override;
+	bool is_paused() const override;
 
-	virtual void set_loop(bool p_enable);
-	virtual bool has_loop() const;
+	void set_loop(bool p_enable) override;
+	bool has_loop() const override;
 
-	virtual float get_length() const;
+	float get_length() const override;
 
-	virtual float get_playback_position() const;
-	virtual void seek(float p_time);
+	float get_playback_position() const override;
+	void seek(float p_time) override;
 
-	virtual void set_audio_track(int p_idx);
+	void set_audio_track(int p_idx) override;
 
 	//virtual int mix(int16_t* p_buffer,int p_frames)=0;
 
-	virtual Ref<Texture> get_texture();
-	virtual void update(float p_delta);
+	Ref<Texture> get_texture() override;
+	void update(float p_delta) override;
 
-	virtual void set_mix_callback(AudioMixCallback p_callback, void *p_userdata);
-	virtual int get_channels() const;
-	virtual int get_mix_rate() const;
+	void set_mix_callback(AudioMixCallback p_callback, void *p_userdata) override;
+	int get_channels() const override;
+	int get_mix_rate() const override;
 };
 
 class VideoStreamGDNative : public VideoStream {
 
-	GDCLASS(VideoStreamGDNative, VideoStream);
+	GDCLASS(VideoStreamGDNative,VideoStream)
 
 	String file;
 	int audio_track;
@@ -190,18 +190,18 @@ public:
 	void set_file(const String &p_file);
 	String get_file();
 
-	virtual void set_audio_track(int p_track);
-	virtual Ref<VideoStreamPlayback> instance_playback();
+	void set_audio_track(int p_track) override;
+	Ref<VideoStreamPlayback> instance_playback() override;
 
 	VideoStreamGDNative() {}
 };
 
 class ResourceFormatLoaderVideoStreamGDNative : public ResourceFormatLoader {
 public:
-	virtual RES load(const String &p_path, const String &p_original_path = "", Error *r_error = nullptr);
-	virtual void get_recognized_extensions(List<String> *p_extensions) const;
-	virtual bool handles_type(const String &p_type) const;
-	virtual String get_resource_type(const String &p_path) const;
+	RES load(const String &p_path, const String &p_original_path = "", Error *r_error = nullptr) override;
+	void get_recognized_extensions(List<String> *p_extensions) const override;
+	bool handles_type(const String &p_type) const override;
+	String get_resource_type(const String &p_path) const override;
 };
 
 #endif

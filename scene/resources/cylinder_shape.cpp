@@ -30,88 +30,91 @@
 
 #include "cylinder_shape.h"
 #include "servers/physics_server.h"
+#include "core/method_bind.h"
+
+IMPL_GDCLASS(CylinderShape)
 
 Vector<Vector3> CylinderShape::_gen_debug_mesh_lines() {
 
-	float radius = get_radius();
-	float height = get_height();
+    float radius = get_radius();
+    float height = get_height();
 
-	Vector<Vector3> points;
+    Vector<Vector3> points;
 
-	Vector3 d(0, height * 0.5, 0);
-	for (int i = 0; i < 360; i++) {
+    Vector3 d(0, height * 0.5f, 0);
+    for (int i = 0; i < 360; i++) {
 
-		float ra = Math::deg2rad((float)i);
-		float rb = Math::deg2rad((float)i + 1);
-		Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * radius;
-		Point2 b = Vector2(Math::sin(rb), Math::cos(rb)) * radius;
+        float ra = Math::deg2rad((float)i);
+        float rb = Math::deg2rad((float)i + 1);
+        Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * radius;
+        Point2 b = Vector2(Math::sin(rb), Math::cos(rb)) * radius;
 
-		points.push_back(Vector3(a.x, 0, a.y) + d);
-		points.push_back(Vector3(b.x, 0, b.y) + d);
+        points.push_back(Vector3(a.x, 0, a.y) + d);
+        points.push_back(Vector3(b.x, 0, b.y) + d);
 
-		points.push_back(Vector3(a.x, 0, a.y) - d);
-		points.push_back(Vector3(b.x, 0, b.y) - d);
+        points.push_back(Vector3(a.x, 0, a.y) - d);
+        points.push_back(Vector3(b.x, 0, b.y) - d);
 
-		if (i % 90 == 0) {
+        if (i % 90 == 0) {
 
-			points.push_back(Vector3(a.x, 0, a.y) + d);
-			points.push_back(Vector3(a.x, 0, a.y) - d);
-		}
-	}
+            points.push_back(Vector3(a.x, 0, a.y) + d);
+            points.push_back(Vector3(a.x, 0, a.y) - d);
+        }
+    }
 
-	return points;
+    return points;
 }
 
 void CylinderShape::_update_shape() {
 
-	Dictionary d;
-	d["radius"] = radius;
-	d["height"] = height;
-	PhysicsServer::get_singleton()->shape_set_data(get_shape(), d);
-	Shape::_update_shape();
+    Dictionary d;
+    d["radius"] = radius;
+    d["height"] = height;
+    PhysicsServer::get_singleton()->shape_set_data(get_shape(), d);
+    Shape::_update_shape();
 }
 
 void CylinderShape::set_radius(float p_radius) {
 
-	radius = p_radius;
-	_update_shape();
-	notify_change_to_owners();
-	_change_notify("radius");
+    radius = p_radius;
+    _update_shape();
+    notify_change_to_owners();
+    _change_notify("radius");
 }
 
 float CylinderShape::get_radius() const {
 
-	return radius;
+    return radius;
 }
 
 void CylinderShape::set_height(float p_height) {
 
-	height = p_height;
-	_update_shape();
-	notify_change_to_owners();
-	_change_notify("height");
+    height = p_height;
+    _update_shape();
+    notify_change_to_owners();
+    _change_notify("height");
 }
 
 float CylinderShape::get_height() const {
 
-	return height;
+    return height;
 }
 
 void CylinderShape::_bind_methods() {
 
-	ClassDB::bind_method(D_METHOD("set_radius", "radius"), &CylinderShape::set_radius);
-	ClassDB::bind_method(D_METHOD("get_radius"), &CylinderShape::get_radius);
-	ClassDB::bind_method(D_METHOD("set_height", "height"), &CylinderShape::set_height);
-	ClassDB::bind_method(D_METHOD("get_height"), &CylinderShape::get_height);
+    MethodBinder::bind_method(D_METHOD("set_radius", "radius"), &CylinderShape::set_radius);
+    MethodBinder::bind_method(D_METHOD("get_radius"), &CylinderShape::get_radius);
+    MethodBinder::bind_method(D_METHOD("set_height", "height"), &CylinderShape::set_height);
+    MethodBinder::bind_method(D_METHOD("get_height"), &CylinderShape::get_height);
 
-	ADD_PROPERTY(PropertyInfo(Variant::REAL, "radius", PROPERTY_HINT_RANGE, "0.01,4096,0.01"), "set_radius", "get_radius");
-	ADD_PROPERTY(PropertyInfo(Variant::REAL, "height", PROPERTY_HINT_RANGE, "0.01,4096,0.01"), "set_height", "get_height");
+    ADD_PROPERTY(PropertyInfo(Variant::REAL, "radius", PROPERTY_HINT_RANGE, "0.01,4096,0.01"), "set_radius", "get_radius");
+    ADD_PROPERTY(PropertyInfo(Variant::REAL, "height", PROPERTY_HINT_RANGE, "0.01,4096,0.01"), "set_height", "get_height");
 }
 
 CylinderShape::CylinderShape() :
-		Shape(PhysicsServer::get_singleton()->shape_create(PhysicsServer::SHAPE_CYLINDER)) {
+        Shape(PhysicsServer::get_singleton()->shape_create(PhysicsServer::SHAPE_CYLINDER)) {
 
-	radius = 1.0;
-	height = 2.0;
-	_update_shape();
+    radius = 1.0;
+    height = 2.0;
+    _update_shape();
 }

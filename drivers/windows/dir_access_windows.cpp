@@ -70,7 +70,7 @@ Error DirAccessWindows::list_dir_begin() {
     _cishidden = false;
 
     list_dir_end();
-    p->h = FindFirstFileExW((current_dir + "\\*").toStdWString().c_str(), FindExInfoStandard, &p->fu,
+    p->h = FindFirstFileExW((current_dir + "\\*").m_str.toStdWString().c_str(), FindExInfoStandard, &p->fu,
             FindExSearchNameMatch, nullptr, 0);
 
     return (p->h == INVALID_HANDLE_VALUE) ? ERR_CANT_OPEN : OK;
@@ -82,8 +82,8 @@ String DirAccessWindows::get_next() {
 
     _cisdir = (p->fu.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
     _cishidden = (p->fu.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN);
-
-    String name = String::fromWCharArray(p->fu.cFileName);
+    ;
+    String name = StringUtils::from_wchar(p->fu.cFileName);
 
     if (FindNextFileW(p->h, &p->fu) == 0) {
 
@@ -120,7 +120,7 @@ String DirAccessWindows::get_drive(int p_drive) {
 
     if (p_drive < 0 || p_drive >= drive_count) return "";
 
-    return String::chr(drives[p_drive]) + ":";
+    return String(drives[p_drive]) + ":";
 }
 
 Error DirAccessWindows::change_dir(String p_dir) {
@@ -132,13 +132,13 @@ Error DirAccessWindows::change_dir(String p_dir) {
     wchar_t real_current_dir_name[2048];
     GetCurrentDirectoryW(2048, real_current_dir_name);
     String prev_dir = QDir::currentPath();
-    bool worked = QDir::setCurrent(current_dir);
+    bool worked = QDir::setCurrent(current_dir.m_str);
 
     String base = _get_root_path();
     if (base != "") {
 
         String new_dir = prev_dir;
-        if (!new_dir.begins_with(base)) {
+        if (!StringUtils::begins_with(new_dir,base)) {
             worked = false;
         }
     }
@@ -148,7 +148,7 @@ Error DirAccessWindows::change_dir(String p_dir) {
         current_dir = QDir::currentPath();
     } // else {
     //TODO: what is this doing ?????
-    QDir::setCurrent(prev_dir);
+    QDir::setCurrent(prev_dir.m_str);
     //}
 
     return worked ? OK : ERR_INVALID_PARAMETER;
@@ -159,9 +159,9 @@ Error DirAccessWindows::make_dir(String p_dir) {
     GLOBAL_LOCK_FUNCTION
 
     p_dir = fix_path(p_dir);
-	if (PathUtils::is_rel_path(p_dir)) p_dir = PathUtils::plus_file(current_dir,p_dir);
+    if (PathUtils::is_rel_path(p_dir)) p_dir = PathUtils::plus_file(current_dir,p_dir);
 
-    QDir dir(p_dir);
+    QDir dir(p_dir.m_str);
     if (!dir.exists()) {
         return dir.mkdir(".") ? OK : ERR_CANT_CREATE;
     }
@@ -173,8 +173,8 @@ String DirAccessWindows::get_current_dir() {
     String base = _get_root_path();
     if (base == "") return current_dir;
 
-    String bd = String(String(current_dir).replace("\\", "/")).replace_first(base, "");
-    if (bd.begins_with("/")) return _get_root_string() + bd.substr(1, bd.length());
+    String bd = StringUtils::replace_first(PathUtils::to_win_path(current_dir),base, "");
+    if (StringUtils::begins_with(bd,"/")) return _get_root_string() + StringUtils::substr(bd,1, bd.length());
     return _get_root_string() + bd;
 }
 
@@ -182,12 +182,12 @@ bool DirAccessWindows::file_exists(String p_file) {
 
     GLOBAL_LOCK_FUNCTION
 
-	if (!PathUtils::is_abs_path(p_file)) p_file = PathUtils::plus_file(get_current_dir(),p_file);
+    if (!PathUtils::is_abs_path(p_file)) p_file = PathUtils::plus_file(get_current_dir(),p_file);
 
     p_file = fix_path(p_file);
 
-    // p_file.replace("/","\\");
-    QFileInfo fi(p_file);
+    // StringUtils::replace(p_file,"/","\\");
+    QFileInfo fi(p_file.m_str);
     return fi.exists() && fi.isFile();
 }
 
@@ -195,41 +195,41 @@ bool DirAccessWindows::dir_exists(String p_dir) {
 
     GLOBAL_LOCK_FUNCTION
 
-	if (PathUtils::is_rel_path(p_dir)) p_dir = PathUtils::plus_file(get_current_dir(),p_dir);
+    if (PathUtils::is_rel_path(p_dir)) p_dir = PathUtils::plus_file(get_current_dir(),p_dir);
 
     p_dir = fix_path(p_dir);
 
-    QFileInfo fi(p_dir);
+    QFileInfo fi(p_dir.m_str);
     return fi.exists() && fi.isDir();
 }
 
 Error DirAccessWindows::rename(String p_path, String p_new_path) {
 
-	if (PathUtils::is_rel_path(p_path)) p_path = PathUtils::plus_file(get_current_dir(),p_path);
+    if (PathUtils::is_rel_path(p_path)) p_path = PathUtils::plus_file(get_current_dir(),p_path);
 
     p_path = fix_path(p_path);
 
-	if (PathUtils::is_rel_path(p_new_path)) p_new_path = PathUtils::plus_file(get_current_dir(),p_new_path);
+    if (PathUtils::is_rel_path(p_new_path)) p_new_path = PathUtils::plus_file(get_current_dir(),p_new_path);
 
     p_new_path = fix_path(p_new_path);
-    return QFile::rename(p_path, p_new_path) ? OK : FAILED;
+    return QFile::rename(p_path.m_str, p_new_path.m_str) ? OK : FAILED;
 }
 
 Error DirAccessWindows::remove(String p_path) {
 
-	if (PathUtils::is_rel_path(p_path)) p_path = PathUtils::plus_file(get_current_dir(),p_path);
+    if (PathUtils::is_rel_path(p_path)) p_path = PathUtils::plus_file(get_current_dir(),p_path);
 
     p_path = fix_path(p_path);
 
-    printf("erasing %s\n", qPrintable(p_path));
+    printf("erasing %s\n", qPrintable(p_path.m_str));
 
-    QFileInfo fi(p_path);
+    QFileInfo fi(p_path.m_str);
     if (!fi.exists())
         return FAILED;
     if (fi.isDir()) {
-        return QDir().rmdir(p_path) ? OK : FAILED;
+        return QDir().rmdir(p_path.m_str) ? OK : FAILED;
     }
-    return QFile::remove(p_path) ? OK : FAILED;
+    return QFile::remove(p_path.m_str) ? OK : FAILED;
 }
 /*
 
@@ -270,11 +270,11 @@ size_t DirAccessWindows::get_space_left() {
 
 String DirAccessWindows::get_filesystem_type() const {
     String path = fix_path(const_cast<DirAccessWindows *>(this)->get_current_dir());
-    int unit_end = path.find(":");
+    int unit_end = StringUtils::find(path,":");
     ERR_FAIL_COND_V(unit_end == -1, String());
-    String unit = path.substr(0, unit_end + 1) + "\\";
-    QStorageInfo info(path);
-    return info.fileSystemType();
+    String unit = StringUtils::substr(path,0, unit_end + 1) + "\\";
+    QStorageInfo info(path.m_str);
+    return StringUtils::from_utf8(info.fileSystemType());
 }
 
 DirAccessWindows::DirAccessWindows() {

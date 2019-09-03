@@ -33,6 +33,8 @@
 #include "core/math/math_fieldwise.h"
 #include "editor_node.h"
 
+IMPL_GDCLASS(MultiNodeEdit)
+
 bool MultiNodeEdit::_set(const StringName &p_name, const Variant &p_value) {
 
 	return _set_impl(p_name, p_value, "");

@@ -29,7 +29,9 @@
 /*************************************************************************/
 
 #include "filesystem_dock.h"
-
+#include "editor_resource_preview.h"
+#include "editor_feature_profile.h"
+#include "core/method_bind.h"
 #include "core/io/resource_loader.h"
 #include "core/os/dir_access.h"
 #include "core/os/file_access.h"
@@ -37,9 +39,13 @@
 #include "core/os/os.h"
 #include "core/project_settings.h"
 #include "editor_node.h"
+#include "editor_scale.h"
 #include "editor_settings.h"
+#include "import_dock.h"
 #include "scene/main/viewport.h"
 #include "scene/resources/packed_scene.h"
+
+IMPL_GDCLASS(FileSystemDock)
 
 Ref<Texture> FileSystemDock::_get_tree_item_icon(EditorFileSystemDirectory *p_dir, int p_idx) {
     Ref<Texture> file_icon;
@@ -72,12 +78,12 @@ bool FileSystemDock::_create_tree(TreeItem *p_parent, EditorFileSystemDirectory 
         subdirectory_item->select(0);
     }
 
-    if ((path.begins_with(lpath) && path != lpath)) {
+    if ((StringUtils::begins_with(path,lpath) && path != lpath)) {
         subdirectory_item->set_collapsed(false);
     } else {
         subdirectory_item->set_collapsed(uncollapsed_paths.find(lpath) < 0);
     }
-    if (searched_string.length() > 0 && StringUtils::to_lower(dname).find(searched_string) >= 0) {
+    if (searched_string.length() > 0 && StringUtils::find(StringUtils::to_lower(dname),searched_string) >= 0) {
         parent_should_expand = true;
     }
 
@@ -98,7 +104,7 @@ bool FileSystemDock::_create_tree(TreeItem *p_parent, EditorFileSystemDirectory 
             String file_name = p_dir->get_file(i);
 
             if (searched_string.length() > 0) {
-                if (StringUtils::to_lower(file_name).find(searched_string) < 0) {
+                if (!StringUtils::contains(StringUtils::to_lower(file_name),searched_string)) {
                     // The searched string is not in the file name, we skip it.
                     continue;
                 } else {
@@ -183,7 +189,7 @@ void FileSystemDock::_update_tree(const Vector<String> &p_uncollapsed_paths, boo
     Vector<String> favorite_paths = EditorSettings::get_singleton()->get_favorites();
     for (int i = 0; i < favorite_paths.size(); i++) {
         String fave = favorite_paths[i];
-        if (!fave.begins_with("res://"))
+        if (!StringUtils::begins_with(fave,"res://"))
             continue;
 
         Ref<Texture> folder_icon = get_icon("Folder", "EditorIcons");
@@ -196,8 +202,8 @@ void FileSystemDock::_update_tree(const Vector<String> &p_uncollapsed_paths, boo
             text = "/";
             icon = folder_icon;
             color = folder_color;
-        } else if (fave.ends_with("/")) {
-            text = PathUtils::get_file(fave.substr(0, fave.length() - 1));
+        } else if (StringUtils::ends_with(fave,"/")) {
+            text = PathUtils::get_file(StringUtils::substr(fave,0, fave.length() - 1));
             icon = folder_icon;
             color = folder_color;
         } else {
@@ -212,7 +218,7 @@ void FileSystemDock::_update_tree(const Vector<String> &p_uncollapsed_paths, boo
             color = Color(1, 1, 1);
         }
 
-        if (searched_string.length() == 0 || StringUtils::to_lower(text).find(searched_string) >= 0) {
+        if (searched_string.length() == 0 || StringUtils::contains(StringUtils::to_lower(text),searched_string) ) {
             TreeItem *ti = tree->create_item(favorites);
             ti->set_text(0, text);
             ti->set_icon(0, icon);
@@ -224,7 +230,7 @@ void FileSystemDock::_update_tree(const Vector<String> &p_uncollapsed_paths, boo
                 ti->select(0);
                 ti->set_as_cursor(0);
             }
-            if (!fave.ends_with("/")) {
+            if (!StringUtils::ends_with(fave,"/")) {
                 Array udata;
                 udata.push_back(tree_update_id);
                 udata.push_back(ti);
@@ -405,7 +411,7 @@ void FileSystemDock::_tree_multi_selected(Object *p_item, int p_column, bool p_s
         return;
 
     TreeItem *favorites_item = tree->get_root()->get_children();
-    if (selected->get_parent() == favorites_item && !String(selected->get_metadata(0)).ends_with("/")) {
+    if (selected->get_parent() == favorites_item && !StringUtils::ends_with(String(selected->get_metadata(0)),"/")) {
         // Go to the favorites if we click in the favorites and the path has changed.
         path = "Favorites";
     } else {
@@ -424,7 +430,7 @@ void FileSystemDock::_tree_multi_selected(Object *p_item, int p_column, bool p_s
 }
 
 String FileSystemDock::get_selected_path() const {
-    if (path.ends_with("/"))
+    if (StringUtils::ends_with(path,"/"))
         return path;
     else
         return PathUtils::get_base_dir(path);
@@ -449,8 +455,8 @@ void FileSystemDock::_navigate_to_path(const String &p_path, bool p_select_in_fa
     } else {
         String target_path = p_path;
         // If the path is a file, do not only go to the directory in the tree, also select the file in the file list.
-        if (target_path.ends_with("/")) {
-            target_path = target_path.substr(0, target_path.length() - 1);
+        if (StringUtils::ends_with(target_path,"/")) {
+            target_path = StringUtils::substr(target_path,0, target_path.length() - 1);
         }
         DirAccess *dirAccess = DirAccess::open("res://");
         if (dirAccess->file_exists(p_path)) {
@@ -569,7 +575,7 @@ void FileSystemDock::_search(EditorFileSystemDirectory *p_path, List<FileInfo> *
     for (int i = 0; i < p_path->get_file_count(); i++) {
         String file = p_path->get_file(i);
 
-        if (StringUtils::to_lower(file).find(searched_string) != -1) {
+        if (StringUtils::contains(StringUtils::to_lower(file),searched_string)) {
 
             FileInfo fi;
             fi.name = file;
@@ -658,14 +664,14 @@ void FileSystemDock::_update_file_list(bool p_keep_selection) {
             if (favorite == "res://") {
                 text = "/";
                 icon = folder_icon;
-                if (searched_string.length() == 0 || StringUtils::to_lower(text).find(searched_string) >= 0) {
+                if (searched_string.empty() || StringUtils::contains(StringUtils::to_lower(text),searched_string) ) {
                     files->add_item(text, icon, true);
                     files->set_item_metadata(files->get_item_count() - 1, favorite);
                 }
-            } else if (favorite.ends_with("/")) {
-                text = PathUtils::get_file(favorite.substr(0, favorite.length() - 1));
+            } else if (StringUtils::ends_with(favorite,"/")) {
+                text = PathUtils::get_file(StringUtils::substr(favorite,0, favorite.length() - 1));
                 icon = folder_icon;
-                if (searched_string.length() == 0 || StringUtils::to_lower(text).find(searched_string) >= 0) {
+                if (searched_string.length() == 0 || StringUtils::contains(StringUtils::to_lower(text),searched_string) ) {
                     files->add_item(text, icon, true);
                     files->set_item_metadata(files->get_item_count() - 1, favorite);
                 }
@@ -684,7 +690,7 @@ void FileSystemDock::_update_file_list(bool p_keep_selection) {
                     fi.import_broken = true;
                 }
 
-                if (searched_string.length() == 0 || StringUtils::to_lower(fi.name).find(searched_string) >= 0) {
+                if (searched_string.length() == 0 || StringUtils::contains(StringUtils::to_lower(fi.name),searched_string) ) {
                     filelist.push_back(fi);
                 }
             }
@@ -692,8 +698,8 @@ void FileSystemDock::_update_file_list(bool p_keep_selection) {
     } else {
 
         // Get infos on the directory + file.
-        if (directory.ends_with("/") && directory != "res://") {
-            directory = directory.substr(0, directory.length() - 1);
+        if (StringUtils::ends_with(directory,"/") && directory != "res://") {
+            directory = StringUtils::substr(directory,0, directory.length() - 1);
         }
         EditorFileSystemDirectory *efd = EditorFileSystem::get_singleton()->get_filesystem_path(directory);
         if (!efd) {
@@ -716,7 +722,7 @@ void FileSystemDock::_update_file_list(bool p_keep_selection) {
                     files->add_item("..", folder_icon, true);
 
                     String bd = PathUtils::get_base_dir(directory);
-                    if (bd != "res://" && !bd.ends_with("/"))
+                    if (bd != "res://" && !StringUtils::ends_with(bd,"/"))
                         bd += "/";
 
                     files->set_item_metadata(files->get_item_count() - 1, bd);
@@ -820,9 +826,9 @@ void FileSystemDock::_update_file_list(bool p_keep_selection) {
 
 void FileSystemDock::_select_file(const String &p_path, bool p_select_in_favorites) {
     String fpath = p_path;
-    if (fpath.ends_with("/")) {
+    if (StringUtils::ends_with(fpath,"/")) {
         if (fpath != "res://") {
-            fpath = fpath.substr(0, fpath.length() - 1);
+            fpath = StringUtils::substr(fpath,0, fpath.length() - 1);
         }
     } else if (fpath != "Favorites") {
         if (ResourceLoader::get_resource_type(fpath) == "PackedScene") {
@@ -839,13 +845,13 @@ void FileSystemDock::_tree_activate_file() {
     if (selected) {
         String path = selected->get_metadata(0);
         TreeItem *parent = selected->get_parent();
-        bool is_favorite = parent != NULL && parent->get_metadata(0) == "Favorites";
+        bool is_favorite = parent != nullptr && parent->get_metadata(0) == "Favorites";
 
-        if ((!is_favorite && path.ends_with("/")) || path == "Favorites") {
+        if ((!is_favorite &&StringUtils::ends_with( path,"/")) || path == "Favorites") {
             bool collapsed = selected->is_collapsed();
             selected->set_collapsed(!collapsed);
         } else {
-            _select_file(path, is_favorite && !path.ends_with("/"));
+            _select_file(path, is_favorite && !StringUtils::ends_with(path,"/"));
         }
     }
 }
@@ -985,15 +991,15 @@ void FileSystemDock::_find_remaps(EditorFileSystemDirectory *efsd, const Map<Str
 void FileSystemDock::_try_move_item(const FileOrFolder &p_item, const String &p_new_path,
         Map<String, String> &p_file_renames, Map<String, String> &p_folder_renames) {
     // Ensure folder paths end with "/".
-    String old_path = (p_item.is_file || p_item.path.ends_with("/")) ? p_item.path : (p_item.path + "/");
-    String new_path = (p_item.is_file || p_new_path.ends_with("/")) ? p_new_path : (p_new_path + "/");
+    String old_path = (p_item.is_file || StringUtils::ends_with(p_item.path,"/")) ? p_item.path : (p_item.path + "/");
+    String new_path = (p_item.is_file || StringUtils::ends_with(p_new_path,"/")) ? p_new_path : (p_new_path + "/");
 
     if (new_path == old_path) {
         return;
     } else if (old_path == "res://") {
         EditorNode::get_singleton()->add_io_error(TTR("Cannot move/rename resources root."));
         return;
-    } else if (!p_item.is_file && new_path.begins_with(old_path)) {
+    } else if (!p_item.is_file && StringUtils::begins_with(new_path,old_path)) {
         // This check doesn't erroneously catch renaming to a longer name as folder paths always end with "/".
         EditorNode::get_singleton()->add_io_error(TTR("Cannot move a folder into itself.") + "\n" + old_path + "\n");
         return;
@@ -1024,7 +1030,7 @@ void FileSystemDock::_try_move_item(const FileOrFolder &p_item, const String &p_
 
         // Update scene if it is open.
         for (int i = 0; i < file_changed_paths.size(); ++i) {
-            String new_item_path = p_item.is_file ? new_path : file_changed_paths[i].replace_first(old_path, new_path);
+            String new_item_path = p_item.is_file ? new_path : StringUtils::replace_first(file_changed_paths[i],old_path, new_path);
             if (ResourceLoader::get_resource_type(new_item_path) == "PackedScene" && editor->is_scene_open(file_changed_paths[i])) {
                 EditorData *ed = &editor->get_editor_data();
                 for (int j = 0; j < ed->get_edited_scene_count(); j++) {
@@ -1039,13 +1045,13 @@ void FileSystemDock::_try_move_item(const FileOrFolder &p_item, const String &p_
 
         // Only treat as a changed dependency if it was successfully moved.
         for (int i = 0; i < file_changed_paths.size(); ++i) {
-            p_file_renames[file_changed_paths[i]] = file_changed_paths[i].replace_first(old_path, new_path);
+            p_file_renames[file_changed_paths[i]] = StringUtils::replace_first(file_changed_paths[i],old_path, new_path);
             print_verbose("  Remap: " + file_changed_paths[i] + " -> " + p_file_renames[file_changed_paths[i]]);
             emit_signal("files_moved", file_changed_paths[i], p_file_renames[file_changed_paths[i]]);
         }
         for (int i = 0; i < folder_changed_paths.size(); ++i) {
-            p_folder_renames[folder_changed_paths[i]] = folder_changed_paths[i].replace_first(old_path, new_path);
-            emit_signal("folder_moved", folder_changed_paths[i], p_folder_renames[folder_changed_paths[i]].substr(0, p_folder_renames[folder_changed_paths[i]].length() - 1));
+            p_folder_renames[folder_changed_paths[i]] = StringUtils::replace_first(folder_changed_paths[i],old_path, new_path);
+            emit_signal("folder_moved", folder_changed_paths[i], StringUtils::substr(p_folder_renames[folder_changed_paths[i]],0, p_folder_renames[folder_changed_paths[i]].length() - 1));
         }
     } else {
         EditorNode::get_singleton()->add_io_error(TTR("Error moving:") + "\n" + old_path + "\n");
@@ -1055,15 +1061,15 @@ void FileSystemDock::_try_move_item(const FileOrFolder &p_item, const String &p_
 
 void FileSystemDock::_try_duplicate_item(const FileOrFolder &p_item, const String &p_new_path) const {
     // Ensure folder paths end with "/".
-    String old_path = (p_item.is_file || p_item.path.ends_with("/")) ? p_item.path : (p_item.path + "/");
-    String new_path = (p_item.is_file || p_new_path.ends_with("/")) ? p_new_path : (p_new_path + "/");
+    String old_path = (p_item.is_file || StringUtils::ends_with(p_item.path,"/")) ? p_item.path : (p_item.path + "/");
+    String new_path = (p_item.is_file || StringUtils::ends_with(p_new_path,"/")) ? p_new_path : (p_new_path + "/");
 
     if (new_path == old_path) {
         return;
     } else if (old_path == "res://") {
         EditorNode::get_singleton()->add_io_error(TTR("Cannot move/rename resources root."));
         return;
-    } else if (!p_item.is_file && new_path.begins_with(old_path)) {
+    } else if (!p_item.is_file && StringUtils::begins_with(new_path,old_path)) {
         // This check doesn't erroneously catch renaming to a longer name as folder paths always end with "/".
         EditorNode::get_singleton()->add_io_error(TTR("Cannot move a folder into itself.") + "\n" + old_path + "\n");
         return;
@@ -1098,10 +1104,10 @@ void FileSystemDock::_update_resource_paths_after_move(const Map<String, String>
 
         String base_path = r->get_path();
         String extra_path;
-        int sep_pos = r->get_path().find("::");
+        int sep_pos = StringUtils::find(r->get_path(),"::");
         if (sep_pos >= 0) {
-            extra_path = base_path.substr(sep_pos, base_path.length());
-            base_path = base_path.substr(0, sep_pos);
+            extra_path = StringUtils::substr(base_path,sep_pos, base_path.length());
+            base_path = StringUtils::substr(base_path,0, sep_pos);
         }
 
         if (p_renames.has(base_path)) {
@@ -1175,14 +1181,14 @@ void FileSystemDock::_update_project_settings_after_move(const Map<String, Strin
     List<PropertyInfo> property_list;
     ProjectSettings::get_singleton()->get_property_list(&property_list);
     for (const List<PropertyInfo>::Element *E = property_list.front(); E; E = E->next()) {
-        if (E->get().name.begins_with("autoload/")) {
+        if (StringUtils::begins_with(E->get().name,"autoload/")) {
             // If the autoload resource paths has a leading "*", it indicates that it is a Singleton,
             // so we have to handle both cases when updating.
             String autoload = GLOBAL_GET(E->get().name);
-            String autoload_singleton = autoload.substr(1, autoload.length());
+            String autoload_singleton = StringUtils::substr(autoload,1, autoload.length());
             if (p_renames.has(autoload)) {
                 ProjectSettings::get_singleton()->set_setting(E->get().name, p_renames[autoload]);
-            } else if (autoload.begins_with("*") && p_renames.has(autoload_singleton)) {
+            } else if (StringUtils::begins_with(autoload,"*") && p_renames.has(autoload_singleton)) {
                 ProjectSettings::get_singleton()->set_setting(E->get().name, String("*" + p_renames[autoload_singleton]));
             }
         }
@@ -1225,19 +1231,19 @@ void FileSystemDock::_save_scenes_after_move(const Map<String, String> &p_rename
 }
 
 void FileSystemDock::_make_dir_confirm() {
-    String dir_name = make_dir_dialog_text->get_text().strip_edges();
+    String dir_name = StringUtils::strip_edges(make_dir_dialog_text->get_text());
 
     if (dir_name.length() == 0) {
         EditorNode::get_singleton()->show_warning(TTR("No name provided."));
         return;
-    } else if (dir_name.find("/") != -1 || dir_name.find("\\") != -1 || dir_name.find(":") != -1 || dir_name.find("*") != -1 ||
-               dir_name.find("|") != -1 || dir_name.find(">") != -1 || dir_name.ends_with(".") || dir_name.ends_with(" ")) {
+    } else if (StringUtils::find(dir_name,"/") != -1 || StringUtils::find(dir_name,"\\") != -1 || StringUtils::find(dir_name,":") != -1 || StringUtils::find(dir_name,"*") != -1 ||
+               StringUtils::find(dir_name,"|") != -1 || StringUtils::find(dir_name,">") != -1 || StringUtils::ends_with(dir_name,".") || StringUtils::ends_with(dir_name," ")) {
         EditorNode::get_singleton()->show_warning(TTR("Provided name contains invalid characters."));
         return;
     }
 
     String directory = path;
-    if (!directory.ends_with("/")) {
+    if (!StringUtils::ends_with(directory,"/")) {
         directory = PathUtils::get_base_dir(directory);
     }
     print_verbose("Making folder " + dir_name + " in " + directory);
@@ -1257,7 +1263,7 @@ void FileSystemDock::_make_dir_confirm() {
 }
 
 void FileSystemDock::_make_scene_confirm() {
-    String scene_name = make_scene_dialog_text->get_text().strip_edges();
+    String scene_name = StringUtils::strip_edges(make_scene_dialog_text->get_text());
 
     if (scene_name.length() == 0) {
         EditorNode::get_singleton()->show_warning(TTR("No name provided."));
@@ -1265,7 +1271,7 @@ void FileSystemDock::_make_scene_confirm() {
     }
 
     String directory = path;
-    if (!directory.ends_with("/")) {
+    if (!StringUtils::ends_with(directory,"/")) {
         directory = PathUtils::get_base_dir(directory);
     }
 
@@ -1308,16 +1314,16 @@ void FileSystemDock::_folder_deleted(String p_folder) {
 
 void FileSystemDock::_rename_operation_confirm() {
 
-    String new_name = rename_dialog_text->get_text().strip_edges();
+    String new_name = StringUtils::strip_edges(rename_dialog_text->get_text());
     if (new_name.length() == 0) {
         EditorNode::get_singleton()->show_warning(TTR("No name provided."));
         return;
-    } else if (new_name.find("/") != -1 || new_name.find("\\") != -1 || new_name.find(":") != -1) {
+    } else if (StringUtils::find(new_name,"/") != -1 || StringUtils::find(new_name,"\\") != -1 || StringUtils::find(new_name,":") != -1) {
         EditorNode::get_singleton()->show_warning(TTR("Name contains invalid characters."));
         return;
     }
 
-    String old_path = to_rename.path.ends_with("/") ? to_rename.path.substr(0, to_rename.path.length() - 1) : to_rename.path;
+    String old_path = StringUtils::ends_with(to_rename.path,"/") ? StringUtils::substr(to_rename.path,0, to_rename.path.length() - 1) : to_rename.path;
     String new_path = PathUtils::plus_file(PathUtils::get_base_dir(old_path),new_name);
     if (old_path == new_path) {
         return;
@@ -1363,18 +1369,18 @@ void FileSystemDock::_rename_operation_confirm() {
 
 void FileSystemDock::_duplicate_operation_confirm() {
 
-    String new_name = duplicate_dialog_text->get_text().strip_edges();
+    String new_name = StringUtils::strip_edges(duplicate_dialog_text->get_text());
     if (new_name.length() == 0) {
         EditorNode::get_singleton()->show_warning(TTR("No name provided."));
         return;
-    } else if (new_name.find("/") != -1 || new_name.find("\\") != -1 || new_name.find(":") != -1) {
+    } else if (StringUtils::find(new_name,"/") != -1 || StringUtils::find(new_name,"\\") != -1 || StringUtils::find(new_name,":") != -1) {
         EditorNode::get_singleton()->show_warning(TTR("Name contains invalid characters."));
         return;
     }
 
     String base_dir = PathUtils::get_base_dir(to_duplicate.path);
     // get_base_dir() returns "some/path" if the original path was "some/path/", so work it around.
-    if (to_duplicate.path.ends_with("/")) {
+    if (StringUtils::ends_with(to_duplicate.path,"/")) {
         base_dir = PathUtils::get_base_dir(base_dir);
     }
 
@@ -1403,12 +1409,12 @@ void FileSystemDock::_move_with_overwrite() {
 bool FileSystemDock::_check_existing() {
     String &p_to_path = to_move_path;
     for (int i = 0; i < to_move.size(); i++) {
-        String ol_pth = to_move[i].path.ends_with("/") ? to_move[i].path.substr(0, to_move[i].path.length() - 1) : to_move[i].path;
+        String ol_pth = StringUtils::ends_with(to_move[i].path,"/") ? StringUtils::substr(to_move[i].path,0, to_move[i].path.length() - 1) : to_move[i].path;
         String p_new_path = PathUtils::plus_file(p_to_path,PathUtils::get_file(ol_pth));
         FileOrFolder p_item = to_move[i];
 
-        String old_path = (p_item.is_file || p_item.path.ends_with("/")) ? p_item.path : (p_item.path + "/");
-        String new_path = (p_item.is_file || p_new_path.ends_with("/")) ? p_new_path : (p_new_path + "/");
+        String old_path = (p_item.is_file || StringUtils::ends_with(p_item.path,"/")) ? p_item.path : (p_item.path + "/");
+        String new_path = (p_item.is_file || StringUtils::ends_with(p_new_path,"/")) ? p_new_path : (p_new_path + "/");
 
         if (p_item.is_file && FileAccess::exists(new_path)) {
             return false;
@@ -1445,7 +1451,7 @@ void FileSystemDock::_move_operation_confirm(const String &p_to_path, bool overw
     Map<String, String> folder_renames;
     bool is_moved = false;
     for (int i = 0; i < to_move.size(); i++) {
-        String old_path = to_move[i].path.ends_with("/") ? to_move[i].path.substr(0, to_move[i].path.length() - 1) : to_move[i].path;
+        String old_path = StringUtils::ends_with(to_move[i].path,"/") ? StringUtils::substr(to_move[i].path,0, to_move[i].path.length() - 1) : to_move[i].path;
         String new_path = PathUtils::plus_file(p_to_path,PathUtils::get_file(old_path));
         if (old_path != new_path) {
             _try_move_item(to_move[i], new_path, file_renames, folder_renames);
@@ -1502,11 +1508,11 @@ Vector<String> FileSystemDock::_remove_self_included_paths(Vector<String> select
         selected_strings.sort_custom<NaturalNoCaseComparator>();
         String last_path = "";
         for (int i = 0; i < selected_strings.size(); i++) {
-            if (last_path != "" && selected_strings[i].begins_with(last_path)) {
+            if (last_path != "" && StringUtils::begins_with(selected_strings[i],last_path)) {
                 selected_strings.remove(i);
                 i--;
             }
-            if (selected_strings[i].ends_with("/")) {
+            if (StringUtils::ends_with(selected_strings[i],"/")) {
                 last_path = selected_strings[i];
             }
         }
@@ -1567,7 +1573,7 @@ void FileSystemDock::_file_option(int p_option, const Vector<String> &p_selected
                 fpath = p_selected[0];
             }
 
-            if (!fpath.ends_with("/")) {
+            if (!StringUtils::ends_with(fpath,"/")) {
                 fpath = PathUtils::get_base_dir(fpath);
             }
             String dir = ProjectSettings::get_singleton()->globalize_path(fpath);
@@ -1658,7 +1664,7 @@ void FileSystemDock::_file_option(int p_option, const Vector<String> &p_selected
             for (int i = collapsed_paths.size() - 1; i >= 0; i--) {
                 String fpath = collapsed_paths[i];
                 if (fpath != "res://") {
-                    to_move.push_back(FileOrFolder(fpath, !fpath.ends_with("/")));
+                    to_move.push_back(FileOrFolder(fpath, !StringUtils::ends_with(fpath,"/")));
                 }
             }
             if (to_move.size() > 0) {
@@ -1671,14 +1677,14 @@ void FileSystemDock::_file_option(int p_option, const Vector<String> &p_selected
             if (!p_selected.empty()) {
                 to_rename.path = p_selected[0];
                 if (to_rename.path != "res://") {
-                    to_rename.is_file = !to_rename.path.ends_with("/");
+                    to_rename.is_file = !StringUtils::ends_with(to_rename.path,"/");
                     if (to_rename.is_file) {
                         String name = PathUtils::get_file(to_rename.path);
                         rename_dialog->set_title(TTR("Renaming file:") + " " + name);
                         rename_dialog_text->set_text(name);
-                        rename_dialog_text->select(0, name.find_last("."));
+                        rename_dialog_text->select(0, StringUtils::find_last(name,"."));
                     } else {
-                        String name = PathUtils::get_file(to_rename.path.substr(0, to_rename.path.length() - 1));
+                        String name = PathUtils::get_file(StringUtils::substr(to_rename.path,0, to_rename.path.length() - 1));
                         rename_dialog->set_title(TTR("Renaming folder:") + " " + name);
                         rename_dialog_text->set_text(name);
                         rename_dialog_text->select(0, name.length());
@@ -1698,7 +1704,7 @@ void FileSystemDock::_file_option(int p_option, const Vector<String> &p_selected
             for (int i = 0; i < collapsed_paths.size(); i++) {
                 String fpath = collapsed_paths[i];
                 if (fpath != "res://") {
-                    if (fpath.ends_with("/")) {
+                    if (StringUtils::ends_with(fpath,"/")) {
                         remove_folders.push_back(fpath);
                     } else {
                         remove_files.push_back(fpath);
@@ -1715,14 +1721,14 @@ void FileSystemDock::_file_option(int p_option, const Vector<String> &p_selected
             // Duplicate the selected files.
             for (int i = 0; i < p_selected.size(); i++) {
                 to_duplicate.path = p_selected[i];
-                to_duplicate.is_file = !to_duplicate.path.ends_with("/");
+                to_duplicate.is_file = !StringUtils::ends_with(to_duplicate.path,"/");
                 if (to_duplicate.is_file) {
                     String name = PathUtils::get_file(to_duplicate.path);
                     duplicate_dialog->set_title(TTR("Duplicating file:") + " " + name);
                     duplicate_dialog_text->set_text(name);
-                    duplicate_dialog_text->select(0, name.find_last("."));
+                    duplicate_dialog_text->select(0, StringUtils::find_last(name,"."));
                 } else {
-                    String name = PathUtils::get_file(to_duplicate.path.substr(0, to_duplicate.path.length() - 1));
+                    String name = PathUtils::get_file(StringUtils::substr(to_duplicate.path,0, to_duplicate.path.length() - 1));
                     duplicate_dialog->set_title(TTR("Duplicating folder:") + " " + name);
                     duplicate_dialog_text->set_text(name);
                     duplicate_dialog_text->select(0, name.length());
@@ -1762,7 +1768,7 @@ void FileSystemDock::_file_option(int p_option, const Vector<String> &p_selected
 
         case FILE_NEW_SCRIPT: {
             String fpath = path;
-            if (!fpath.ends_with("/")) {
+            if (!StringUtils::ends_with(fpath,"/")) {
                 fpath = PathUtils::get_base_dir(fpath);
             }
             make_script_dialog_text->config("Node", PathUtils::plus_file(fpath,"new_script.gd"), false);
@@ -1795,7 +1801,7 @@ void FileSystemDock::_resource_created() const {
     RES current_res = RES(r);
 
     String fpath = path;
-    if (!fpath.ends_with("/")) {
+    if (!StringUtils::ends_with(fpath,"/")) {
         fpath = PathUtils::get_base_dir(fpath);
     }
 
@@ -1954,10 +1960,10 @@ bool FileSystemDock::can_drop_data_fw(const Point2 &p_point, const Variant &p_da
 
         // Attempting to move a folder into itself will fail later,
         // rather than bring up a message don't try to do it in the first place
-        to_dir = to_dir.ends_with("/") ? to_dir : (to_dir + "/");
+        to_dir = StringUtils::ends_with(to_dir,"/") ? to_dir : (to_dir + "/");
         Vector<String> fnames = drag_data["files"];
         for (int i = 0; i < fnames.size(); ++i) {
-            if (fnames[i].ends_with("/") && to_dir.begins_with(fnames[i]))
+            if (StringUtils::ends_with(fnames[i],"/") && StringUtils::begins_with(to_dir,fnames[i]))
                 return false;
         }
 
@@ -2052,7 +2058,7 @@ void FileSystemDock::drop_data_fw(const Point2 &p_point, const Variant &p_data, 
             Vector<String> fnames = drag_data["files"];
             to_move.clear();
             for (int i = 0; i < fnames.size(); i++) {
-                to_move.push_back(FileOrFolder(fnames[i], !fnames[i].ends_with("/")));
+                to_move.push_back(FileOrFolder(fnames[i], !StringUtils::ends_with(fnames[i],"/")));
             }
             _move_operation_confirm(to_dir);
         } else if (favorite) {
@@ -2082,7 +2088,7 @@ void FileSystemDock::_get_drag_target_folder(String &target, bool &target_favori
         }
 
         String ltarget = files->get_item_metadata(pos);
-        target = ltarget.ends_with("/") ? ltarget : PathUtils::get_base_dir(path);
+        target = StringUtils::ends_with(ltarget,"/") ? ltarget : PathUtils::get_base_dir(path);
         return;
     }
 
@@ -2101,7 +2107,7 @@ void FileSystemDock::_get_drag_target_folder(String &target, bool &target_favori
             } else {
                 String fpath = ti->get_metadata(0);
                 if (section == 0) {
-                    if (fpath.ends_with("/")) {
+                    if (StringUtils::ends_with(fpath,"/")) {
                         // We drop on a folder.
                         target = fpath;
                         return;
@@ -2111,8 +2117,8 @@ void FileSystemDock::_get_drag_target_folder(String &target, bool &target_favori
                         // Not in the favorite section.
                         if (fpath != "res://") {
                             // We drop between two files
-                            if (fpath.ends_with("/")) {
-                                fpath = fpath.substr(0, fpath.length() - 1);
+                            if (StringUtils::ends_with(fpath,"/")) {
+                                fpath = StringUtils::substr(fpath,0, fpath.length() - 1);
                             }
                             target = PathUtils::get_base_dir(fpath);
                             return;
@@ -2140,7 +2146,7 @@ void FileSystemDock::_file_and_folders_fill_popup(PopupMenu *p_popup, Vector<Str
     bool all_not_favorites = true;
     for (int i = 0; i < p_paths.size(); i++) {
         String fpath = p_paths[i];
-        if (fpath.ends_with("/")) {
+        if (StringUtils::ends_with(fpath,"/")) {
             foldernames.push_back(fpath);
             all_files = false;
         } else {
@@ -2227,7 +2233,7 @@ void FileSystemDock::_file_and_folders_fill_popup(PopupMenu *p_popup, Vector<Str
         }
 
         String fpath = p_paths[0];
-        String item_text = fpath.ends_with("/") ? TTR("Open in File Manager") : TTR("Show in File Manager");
+        String item_text = StringUtils::ends_with(fpath,"/") ? TTR("Open in File Manager") : TTR("Show in File Manager");
         p_popup->add_item(item_text, FILE_SHOW_IN_EXPLORER);
     }
 }
@@ -2237,7 +2243,7 @@ void FileSystemDock::_tree_rmb_select(const Vector2 &p_pos) {
     Vector<String> paths = _tree_get_selected(false);
 
     if (paths.size() == 1) {
-        if (paths[0].ends_with("/")) {
+        if (StringUtils::ends_with(paths[0],"/")) {
             tree_popup->add_item(TTR("Expand All"), FOLDER_EXPAND_ALL);
             tree_popup->add_item(TTR("Collapse All"), FOLDER_COLLAPSE_ALL);
             tree_popup->add_separator();
@@ -2323,7 +2329,7 @@ void FileSystemDock::_file_multi_selected(int p_index, bool p_selected) {
     int current = files->get_current();
     if (current == p_index) {
         String fpath = files->get_item_metadata(current);
-        if (!fpath.ends_with("/")) {
+        if (!StringUtils::ends_with(fpath,"/")) {
             path = fpath;
             if (display_mode == DISPLAY_MODE_SPLIT) {
                 _update_tree(_compute_uncollapsed_paths());
@@ -2401,7 +2407,7 @@ void FileSystemDock::_update_import_dock() {
     for (int i = 0; i < selected.size(); i++) {
         String fpath = selected[i];
 
-        if (fpath.ends_with("/")) {
+        if (StringUtils::ends_with(fpath,"/")) {
             imports.clear();
             break;
         }
@@ -2447,57 +2453,57 @@ void FileSystemDock::_feature_profile_changed() {
 
 void FileSystemDock::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_file_list_gui_input"), &FileSystemDock::_file_list_gui_input);
-    ClassDB::bind_method(D_METHOD("_tree_gui_input"), &FileSystemDock::_tree_gui_input);
+    MethodBinder::bind_method(D_METHOD("_file_list_gui_input"), &FileSystemDock::_file_list_gui_input);
+    MethodBinder::bind_method(D_METHOD("_tree_gui_input"), &FileSystemDock::_tree_gui_input);
 
-    ClassDB::bind_method(D_METHOD("_update_tree"), &FileSystemDock::_update_tree);
-    ClassDB::bind_method(D_METHOD("_rescan"), &FileSystemDock::_rescan);
+    MethodBinder::bind_method(D_METHOD("_update_tree"), &FileSystemDock::_update_tree);
+    MethodBinder::bind_method(D_METHOD("_rescan"), &FileSystemDock::_rescan);
 
-    ClassDB::bind_method(D_METHOD("_toggle_split_mode"), &FileSystemDock::_toggle_split_mode);
+    MethodBinder::bind_method(D_METHOD("_toggle_split_mode"), &FileSystemDock::_toggle_split_mode);
 
-    ClassDB::bind_method(D_METHOD("_tree_rmb_option", "option"), &FileSystemDock::_tree_rmb_option);
-    ClassDB::bind_method(D_METHOD("_tree_rmb_select"), &FileSystemDock::_tree_rmb_select);
-    ClassDB::bind_method(D_METHOD("_tree_empty_selected"), &FileSystemDock::_tree_empty_selected);
+    MethodBinder::bind_method(D_METHOD("_tree_rmb_option", "option"), &FileSystemDock::_tree_rmb_option);
+    MethodBinder::bind_method(D_METHOD("_tree_rmb_select"), &FileSystemDock::_tree_rmb_select);
+    MethodBinder::bind_method(D_METHOD("_tree_empty_selected"), &FileSystemDock::_tree_empty_selected);
 
-    ClassDB::bind_method(D_METHOD("_file_list_rmb_option", "option"), &FileSystemDock::_file_list_rmb_option);
-    ClassDB::bind_method(D_METHOD("_file_list_rmb_select"), &FileSystemDock::_file_list_rmb_select);
-    ClassDB::bind_method(D_METHOD("_file_list_rmb_pressed"), &FileSystemDock::_file_list_rmb_pressed);
-    ClassDB::bind_method(D_METHOD("_tree_rmb_empty"), &FileSystemDock::_tree_rmb_empty);
+    MethodBinder::bind_method(D_METHOD("_file_list_rmb_option", "option"), &FileSystemDock::_file_list_rmb_option);
+    MethodBinder::bind_method(D_METHOD("_file_list_rmb_select"), &FileSystemDock::_file_list_rmb_select);
+    MethodBinder::bind_method(D_METHOD("_file_list_rmb_pressed"), &FileSystemDock::_file_list_rmb_pressed);
+    MethodBinder::bind_method(D_METHOD("_tree_rmb_empty"), &FileSystemDock::_tree_rmb_empty);
 
-    ClassDB::bind_method(D_METHOD("_file_deleted"), &FileSystemDock::_file_deleted);
-    ClassDB::bind_method(D_METHOD("_folder_deleted"), &FileSystemDock::_folder_deleted);
+    MethodBinder::bind_method(D_METHOD("_file_deleted"), &FileSystemDock::_file_deleted);
+    MethodBinder::bind_method(D_METHOD("_folder_deleted"), &FileSystemDock::_folder_deleted);
 
-    ClassDB::bind_method(D_METHOD("_file_list_thumbnail_done"), &FileSystemDock::_file_list_thumbnail_done);
-    ClassDB::bind_method(D_METHOD("_tree_thumbnail_done"), &FileSystemDock::_tree_thumbnail_done);
-    ClassDB::bind_method(D_METHOD("_file_list_activate_file"), &FileSystemDock::_file_list_activate_file);
-    ClassDB::bind_method(D_METHOD("_tree_activate_file"), &FileSystemDock::_tree_activate_file);
-    ClassDB::bind_method(D_METHOD("_select_file"), &FileSystemDock::_select_file);
-    ClassDB::bind_method(D_METHOD("_navigate_to_path"), &FileSystemDock::_navigate_to_path, {DEFVAL(false)});
-    ClassDB::bind_method(D_METHOD("_toggle_file_display"), &FileSystemDock::_toggle_file_display);
-    ClassDB::bind_method(D_METHOD("_fw_history"), &FileSystemDock::_fw_history);
-    ClassDB::bind_method(D_METHOD("_bw_history"), &FileSystemDock::_bw_history);
-    ClassDB::bind_method(D_METHOD("_fs_changed"), &FileSystemDock::_fs_changed);
-    ClassDB::bind_method(D_METHOD("_tree_multi_selected"), &FileSystemDock::_tree_multi_selected);
-    ClassDB::bind_method(D_METHOD("_make_dir_confirm"), &FileSystemDock::_make_dir_confirm);
-    ClassDB::bind_method(D_METHOD("_make_scene_confirm"), &FileSystemDock::_make_scene_confirm);
-    ClassDB::bind_method(D_METHOD("_resource_created"), &FileSystemDock::_resource_created);
-    ClassDB::bind_method(D_METHOD("_move_operation_confirm", "to_path", "overwrite"), &FileSystemDock::_move_operation_confirm, {DEFVAL(false)});
-    ClassDB::bind_method(D_METHOD("_move_with_overwrite"), &FileSystemDock::_move_with_overwrite);
-    ClassDB::bind_method(D_METHOD("_rename_operation_confirm"), &FileSystemDock::_rename_operation_confirm);
-    ClassDB::bind_method(D_METHOD("_duplicate_operation_confirm"), &FileSystemDock::_duplicate_operation_confirm);
+    MethodBinder::bind_method(D_METHOD("_file_list_thumbnail_done"), &FileSystemDock::_file_list_thumbnail_done);
+    MethodBinder::bind_method(D_METHOD("_tree_thumbnail_done"), &FileSystemDock::_tree_thumbnail_done);
+    MethodBinder::bind_method(D_METHOD("_file_list_activate_file"), &FileSystemDock::_file_list_activate_file);
+    MethodBinder::bind_method(D_METHOD("_tree_activate_file"), &FileSystemDock::_tree_activate_file);
+    MethodBinder::bind_method(D_METHOD("_select_file"), &FileSystemDock::_select_file);
+    MethodBinder::bind_method(D_METHOD("_navigate_to_path"), &FileSystemDock::_navigate_to_path, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("_toggle_file_display"), &FileSystemDock::_toggle_file_display);
+    MethodBinder::bind_method(D_METHOD("_fw_history"), &FileSystemDock::_fw_history);
+    MethodBinder::bind_method(D_METHOD("_bw_history"), &FileSystemDock::_bw_history);
+    MethodBinder::bind_method(D_METHOD("_fs_changed"), &FileSystemDock::_fs_changed);
+    MethodBinder::bind_method(D_METHOD("_tree_multi_selected"), &FileSystemDock::_tree_multi_selected);
+    MethodBinder::bind_method(D_METHOD("_make_dir_confirm"), &FileSystemDock::_make_dir_confirm);
+    MethodBinder::bind_method(D_METHOD("_make_scene_confirm"), &FileSystemDock::_make_scene_confirm);
+    MethodBinder::bind_method(D_METHOD("_resource_created"), &FileSystemDock::_resource_created);
+    MethodBinder::bind_method(D_METHOD("_move_operation_confirm", "to_path", "overwrite"), &FileSystemDock::_move_operation_confirm, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("_move_with_overwrite"), &FileSystemDock::_move_with_overwrite);
+    MethodBinder::bind_method(D_METHOD("_rename_operation_confirm"), &FileSystemDock::_rename_operation_confirm);
+    MethodBinder::bind_method(D_METHOD("_duplicate_operation_confirm"), &FileSystemDock::_duplicate_operation_confirm);
 
-    ClassDB::bind_method(D_METHOD("_search_changed"), &FileSystemDock::_search_changed);
+    MethodBinder::bind_method(D_METHOD("_search_changed"), &FileSystemDock::_search_changed);
 
-    ClassDB::bind_method(D_METHOD("get_drag_data_fw"), &FileSystemDock::get_drag_data_fw);
-    ClassDB::bind_method(D_METHOD("can_drop_data_fw"), &FileSystemDock::can_drop_data_fw);
-    ClassDB::bind_method(D_METHOD("drop_data_fw"), &FileSystemDock::drop_data_fw);
-    ClassDB::bind_method(D_METHOD("navigate_to_path"), &FileSystemDock::navigate_to_path);
+    MethodBinder::bind_method(D_METHOD("get_drag_data_fw"), &FileSystemDock::get_drag_data_fw);
+    MethodBinder::bind_method(D_METHOD("can_drop_data_fw"), &FileSystemDock::can_drop_data_fw);
+    MethodBinder::bind_method(D_METHOD("drop_data_fw"), &FileSystemDock::drop_data_fw);
+    MethodBinder::bind_method(D_METHOD("navigate_to_path"), &FileSystemDock::navigate_to_path);
 
-    ClassDB::bind_method(D_METHOD("_preview_invalidated"), &FileSystemDock::_preview_invalidated);
-    ClassDB::bind_method(D_METHOD("_file_multi_selected"), &FileSystemDock::_file_multi_selected);
-    ClassDB::bind_method(D_METHOD("_update_import_dock"), &FileSystemDock::_update_import_dock);
+    MethodBinder::bind_method(D_METHOD("_preview_invalidated"), &FileSystemDock::_preview_invalidated);
+    MethodBinder::bind_method(D_METHOD("_file_multi_selected"), &FileSystemDock::_file_multi_selected);
+    MethodBinder::bind_method(D_METHOD("_update_import_dock"), &FileSystemDock::_update_import_dock);
 
-    ClassDB::bind_method(D_METHOD("_feature_profile_changed"), &FileSystemDock::_feature_profile_changed);
+    MethodBinder::bind_method(D_METHOD("_feature_profile_changed"), &FileSystemDock::_feature_profile_changed);
 
     ADD_SIGNAL(MethodInfo("inherit", PropertyInfo(Variant::STRING, "file")));
     ADD_SIGNAL(MethodInfo("instance", PropertyInfo(Variant::POOL_STRING_ARRAY, "files")));

@@ -56,20 +56,20 @@ class AudioDriverDummy : public AudioDriver {
 	mutable bool exit_thread;
 
 public:
-	const char *get_name() const {
+	const char *get_name() const override {
 		return "Dummy";
 	};
 
-	virtual Error init();
-	virtual void start();
-	virtual int get_mix_rate() const;
-	virtual SpeakerMode get_speaker_mode() const;
-	virtual void lock();
-	virtual void unlock();
-	virtual void finish();
+	Error init() override;
+	void start() override;
+	int get_mix_rate() const override;
+	SpeakerMode get_speaker_mode() const override;
+	void lock() override;
+	void unlock() override;
+	void finish() override;
 
 	AudioDriverDummy();
-	~AudioDriverDummy();
+	~AudioDriverDummy() override;
 };
 
 #endif

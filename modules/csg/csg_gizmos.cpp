@@ -31,6 +31,8 @@
 #include "csg_gizmos.h"
 
 ///////////
+IMPL_GDCLASS(CSGShapeSpatialGizmoPlugin)
+IMPL_GDCLASS(EditorPluginCSG)
 
 CSGShapeSpatialGizmoPlugin::CSGShapeSpatialGizmoPlugin() {
 

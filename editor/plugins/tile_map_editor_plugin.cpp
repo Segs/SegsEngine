@@ -30,6 +30,7 @@
 
 #include "tile_map_editor_plugin.h"
 
+#include "core/method_bind.h"
 #include "canvas_item_editor_plugin.h"
 #include "core/math/math_funcs.h"
 #include "core/os/input.h"
@@ -38,6 +39,9 @@
 #include "editor/editor_scale.h"
 #include "editor/editor_settings.h"
 #include "scene/gui/split_container.h"
+
+IMPL_GDCLASS(TileMapEditor)
+IMPL_GDCLASS(TileMapEditorPlugin)
 
 void TileMapEditor::_notification(int p_what) {
 
@@ -430,7 +434,7 @@ void TileMapEditor::_update_palette() {
     manual_palette->set_fixed_icon_size(Size2(min_size, min_size));
     manual_palette->set_same_column_width(true);
 
-    String filter = search_box->get_text().strip_edges();
+    String filter = StringUtils::strip_edges(search_box->get_text());
 
     Vector<_PaletteEntry> entries;
 
@@ -1808,27 +1812,27 @@ void TileMapEditor::_icon_size_changed(float p_value) {
 
 void TileMapEditor::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_manual_toggled"), &TileMapEditor::_manual_toggled);
-    ClassDB::bind_method(D_METHOD("_priority_toggled"), &TileMapEditor::_priority_toggled);
-    ClassDB::bind_method(D_METHOD("_text_entered"), &TileMapEditor::_text_entered);
-    ClassDB::bind_method(D_METHOD("_text_changed"), &TileMapEditor::_text_changed);
-    ClassDB::bind_method(D_METHOD("_sbox_input"), &TileMapEditor::_sbox_input);
-    ClassDB::bind_method(D_METHOD("_button_tool_select"), &TileMapEditor::_button_tool_select);
-    ClassDB::bind_method(D_METHOD("_menu_option"), &TileMapEditor::_menu_option);
-    ClassDB::bind_method(D_METHOD("_canvas_mouse_enter"), &TileMapEditor::_canvas_mouse_enter);
-    ClassDB::bind_method(D_METHOD("_canvas_mouse_exit"), &TileMapEditor::_canvas_mouse_exit);
-    ClassDB::bind_method(D_METHOD("_tileset_settings_changed"), &TileMapEditor::_tileset_settings_changed);
-    ClassDB::bind_method(D_METHOD("_rotate"), &TileMapEditor::_rotate);
-    ClassDB::bind_method(D_METHOD("_flip_horizontal"), &TileMapEditor::_flip_horizontal);
-    ClassDB::bind_method(D_METHOD("_flip_vertical"), &TileMapEditor::_flip_vertical);
-    ClassDB::bind_method(D_METHOD("_clear_transform"), &TileMapEditor::_clear_transform);
-    ClassDB::bind_method(D_METHOD("_palette_selected"), &TileMapEditor::_palette_selected);
-    ClassDB::bind_method(D_METHOD("_palette_multi_selected"), &TileMapEditor::_palette_multi_selected);
+    MethodBinder::bind_method(D_METHOD("_manual_toggled"), &TileMapEditor::_manual_toggled);
+    MethodBinder::bind_method(D_METHOD("_priority_toggled"), &TileMapEditor::_priority_toggled);
+    MethodBinder::bind_method(D_METHOD("_text_entered"), &TileMapEditor::_text_entered);
+    MethodBinder::bind_method(D_METHOD("_text_changed"), &TileMapEditor::_text_changed);
+    MethodBinder::bind_method(D_METHOD("_sbox_input"), &TileMapEditor::_sbox_input);
+    MethodBinder::bind_method(D_METHOD("_button_tool_select"), &TileMapEditor::_button_tool_select);
+    MethodBinder::bind_method(D_METHOD("_menu_option"), &TileMapEditor::_menu_option);
+    MethodBinder::bind_method(D_METHOD("_canvas_mouse_enter"), &TileMapEditor::_canvas_mouse_enter);
+    MethodBinder::bind_method(D_METHOD("_canvas_mouse_exit"), &TileMapEditor::_canvas_mouse_exit);
+    MethodBinder::bind_method(D_METHOD("_tileset_settings_changed"), &TileMapEditor::_tileset_settings_changed);
+    MethodBinder::bind_method(D_METHOD("_rotate"), &TileMapEditor::_rotate);
+    MethodBinder::bind_method(D_METHOD("_flip_horizontal"), &TileMapEditor::_flip_horizontal);
+    MethodBinder::bind_method(D_METHOD("_flip_vertical"), &TileMapEditor::_flip_vertical);
+    MethodBinder::bind_method(D_METHOD("_clear_transform"), &TileMapEditor::_clear_transform);
+    MethodBinder::bind_method(D_METHOD("_palette_selected"), &TileMapEditor::_palette_selected);
+    MethodBinder::bind_method(D_METHOD("_palette_multi_selected"), &TileMapEditor::_palette_multi_selected);
 
-    ClassDB::bind_method(D_METHOD("_fill_points"), &TileMapEditor::_fill_points);
-    ClassDB::bind_method(D_METHOD("_erase_points"), &TileMapEditor::_erase_points);
+    MethodBinder::bind_method(D_METHOD("_fill_points"), &TileMapEditor::_fill_points);
+    MethodBinder::bind_method(D_METHOD("_erase_points"), &TileMapEditor::_erase_points);
 
-    ClassDB::bind_method(D_METHOD("_icon_size_changed"), &TileMapEditor::_icon_size_changed);
+    MethodBinder::bind_method(D_METHOD("_icon_size_changed"), &TileMapEditor::_icon_size_changed);
 }
 
 TileMapEditor::CellOp TileMapEditor::_get_op_from_cell(const Point2i &p_pos) {

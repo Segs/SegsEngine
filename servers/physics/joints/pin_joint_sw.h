@@ -75,10 +75,10 @@ class PinJointSW : public JointSW {
 	Vector3 m_pivotInB;
 
 public:
-	virtual PhysicsServer::JointType get_type() const { return PhysicsServer::JOINT_PIN; }
+	PhysicsServer::JointType get_type() const override { return PhysicsServer::JOINT_PIN; }
 
-	virtual bool setup(real_t p_step);
-	virtual void solve(real_t p_step);
+	bool setup(real_t p_step) override;
+	void solve(real_t p_step) override;
 
 	void set_param(PhysicsServer::PinJointParam p_param, real_t p_value);
 	real_t get_param(PhysicsServer::PinJointParam p_param) const;
@@ -90,7 +90,7 @@ public:
 	Vector3 get_position_b() { return m_pivotInB; }
 
 	PinJointSW(BodySW *p_body_a, const Vector3 &p_pos_a, BodySW *p_body_b, const Vector3 &p_pos_b);
-	~PinJointSW();
+	~PinJointSW() override;
 };
 
 #endif // PIN_JOINT_SW_H

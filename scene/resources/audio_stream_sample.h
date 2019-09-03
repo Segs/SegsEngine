@@ -37,8 +37,9 @@ class AudioStreamSample;
 
 class AudioStreamPlaybackSample : public AudioStreamPlayback {
 
-	GDCLASS(AudioStreamPlaybackSample, AudioStreamPlayback);
-	enum {
+	GDCLASS(AudioStreamPlaybackSample,AudioStreamPlayback)
+
+    enum {
 		MIX_FRAC_BITS = 13,
 		MIX_FRAC_LEN = (1 << MIX_FRAC_BITS),
 		MIX_FRAC_MASK = MIX_FRAC_LEN - 1,
@@ -66,23 +67,24 @@ class AudioStreamPlaybackSample : public AudioStreamPlayback {
 	void do_resample(const Depth *p_src, AudioFrame *p_dst, int64_t &offset, int32_t &increment, uint32_t amount, IMA_ADPCM_State *ima_adpcm);
 
 public:
-	virtual void start(float p_from_pos = 0.0);
-	virtual void stop();
-	virtual bool is_playing() const;
+	void start(float p_from_pos = 0.0) override;
+	void stop() override;
+	bool is_playing() const override;
 
-	virtual int get_loop_count() const; //times it looped
+	int get_loop_count() const override; //times it looped
 
-	virtual float get_playback_position() const;
-	virtual void seek(float p_time);
+	float get_playback_position() const override;
+	void seek(float p_time) override;
 
-	virtual void mix(AudioFrame *p_buffer, float p_rate_scale, int p_frames);
+	void mix(AudioFrame *p_buffer, float p_rate_scale, int p_frames) override;
 
 	AudioStreamPlaybackSample();
 };
 
 class AudioStreamSample : public AudioStream {
-	GDCLASS(AudioStreamSample, AudioStream);
-	RES_BASE_EXTENSION("sample")
+	GDCLASS(AudioStreamSample,AudioStream)
+
+    RES_BASE_EXTENSION("sample")
 
 public:
 	enum Format {
@@ -136,18 +138,18 @@ public:
 	void set_stereo(bool p_enable);
 	bool is_stereo() const;
 
-	virtual float get_length() const; //if supported, otherwise return 0
+	float get_length() const override; //if supported, otherwise return 0
 
 	void set_data(const PoolVector<uint8_t> &p_data);
 	PoolVector<uint8_t> get_data() const;
 
 	Error save_to_wav(const String &p_path);
 
-	virtual Ref<AudioStreamPlayback> instance_playback();
-	virtual String get_stream_name() const;
+	Ref<AudioStreamPlayback> instance_playback() override;
+	String get_stream_name() const override;
 
 	AudioStreamSample();
-	~AudioStreamSample();
+	~AudioStreamSample() override;
 };
 
 VARIANT_ENUM_CAST(AudioStreamSample::Format)

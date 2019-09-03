@@ -47,7 +47,7 @@ class DynamicFont;
 
 class DynamicFontData : public Resource {
 
-    GDCLASS(DynamicFontData, Resource);
+    GDCLASS(DynamicFontData,Resource)
 
 public:
     struct CacheID {
@@ -104,14 +104,14 @@ public:
     void set_force_autohinter(bool p_force);
 
     DynamicFontData();
-    ~DynamicFontData();
+    ~DynamicFontData() override;
 };
 
 VARIANT_ENUM_CAST(DynamicFontData::Hinting);
 
 class DynamicFontAtSize : public Reference {
 
-    GDCLASS(DynamicFontAtSize, Reference);
+    GDCLASS(DynamicFontAtSize,Reference)
 
     _THREAD_SAFE_CLASS_
 
@@ -199,14 +199,14 @@ public:
     void update_oversampling();
 
     DynamicFontAtSize();
-    ~DynamicFontAtSize();
+    ~DynamicFontAtSize() override;
 };
 
 ///////////////
 
 class DynamicFont : public Font {
 
-    GDCLASS(DynamicFont, Font);
+    GDCLASS(DynamicFont,Font)
 
 public:
     enum SpacingType {
@@ -305,10 +305,10 @@ VARIANT_ENUM_CAST(DynamicFont::SpacingType);
 
 class ResourceFormatLoaderDynamicFont : public ResourceFormatLoader {
 public:
-    virtual RES load(const String &p_path, const String &p_original_path = "", Error *r_error = nullptr);
-    virtual void get_recognized_extensions(List<String> *p_extensions) const;
-    virtual bool handles_type(const String &p_type) const;
-    virtual String get_resource_type(const String &p_path) const;
+    RES load(const String &p_path, const String &p_original_path = "", Error *r_error = nullptr) override;
+    void get_recognized_extensions(List<String> *p_extensions) const override;
+    bool handles_type(const String &p_type) const override;
+    String get_resource_type(const String &p_path) const override;
 };
 
 #endif

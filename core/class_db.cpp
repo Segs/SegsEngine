@@ -31,9 +31,11 @@
 #include "class_db.h"
 
 #include "core/engine.h"
-#include "core/os/mutex.h"
 #include "core/version.h"
 #include "core/hashfuncs.h"
+#include "core/object.h"
+#include "core/method_bind_interface.h"
+#include "core/error_macros.h"
 
 #include <vector>
 #include <algorithm>
@@ -46,201 +48,201 @@
 MethodDefinition D_METHOD(const char *p_name) {
 
     MethodDefinition md;
-    md.name = StaticCString::create(p_name);
+    md.name = StaticCString(p_name,true);
     return md;
 }
 
 MethodDefinition D_METHOD(const char *p_name, const char *p_arg1) {
 
     MethodDefinition md;
-    md.name = StaticCString::create(p_name);
-    md.args.push_back(StaticCString::create(p_arg1));
+    md.name = StaticCString(p_name,true);
+    md.args.push_back(StaticCString(p_arg1,true));
     return md;
 }
 
 MethodDefinition D_METHOD(const char *p_name, const char *p_arg1, const char *p_arg2) {
 
     MethodDefinition md;
-    md.name = StaticCString::create(p_name);
+    md.name = StaticCString(p_name,true);
     md.args.resize(2);
-    md.args.write[0] = StaticCString::create(p_arg1);
-    md.args.write[1] = StaticCString::create(p_arg2);
+    md.args.write[0] = StaticCString(p_arg1,true);
+    md.args.write[1] = StaticCString(p_arg2,true);
     return md;
 }
 
 MethodDefinition D_METHOD(const char *p_name, const char *p_arg1, const char *p_arg2, const char *p_arg3) {
 
     MethodDefinition md;
-    md.name = StaticCString::create(p_name);
+    md.name = StaticCString(p_name,true);
     md.args.resize(3);
-    md.args.write[0] = StaticCString::create(p_arg1);
-    md.args.write[1] = StaticCString::create(p_arg2);
-    md.args.write[2] = StaticCString::create(p_arg3);
+    md.args.write[0] = StaticCString(p_arg1,true);
+    md.args.write[1] = StaticCString(p_arg2,true);
+    md.args.write[2] = StaticCString(p_arg3,true);
     return md;
 }
 
 MethodDefinition D_METHOD(const char *p_name, const char *p_arg1, const char *p_arg2, const char *p_arg3, const char *p_arg4) {
 
     MethodDefinition md;
-    md.name = StaticCString::create(p_name);
+    md.name = StaticCString(p_name,true);
     md.args.resize(4);
-    md.args.write[0] = StaticCString::create(p_arg1);
-    md.args.write[1] = StaticCString::create(p_arg2);
-    md.args.write[2] = StaticCString::create(p_arg3);
-    md.args.write[3] = StaticCString::create(p_arg4);
+    md.args.write[0] = StaticCString(p_arg1,true);
+    md.args.write[1] = StaticCString(p_arg2,true);
+    md.args.write[2] = StaticCString(p_arg3,true);
+    md.args.write[3] = StaticCString(p_arg4,true);
     return md;
 }
 
 MethodDefinition D_METHOD(const char *p_name, const char *p_arg1, const char *p_arg2, const char *p_arg3, const char *p_arg4, const char *p_arg5) {
 
     MethodDefinition md;
-    md.name = StaticCString::create(p_name);
+    md.name = StaticCString(p_name,true);
     md.args.resize(5);
-    md.args.write[0] = StaticCString::create(p_arg1);
-    md.args.write[1] = StaticCString::create(p_arg2);
-    md.args.write[2] = StaticCString::create(p_arg3);
-    md.args.write[3] = StaticCString::create(p_arg4);
-    md.args.write[4] = StaticCString::create(p_arg5);
+    md.args.write[0] = StaticCString(p_arg1,true);
+    md.args.write[1] = StaticCString(p_arg2,true);
+    md.args.write[2] = StaticCString(p_arg3,true);
+    md.args.write[3] = StaticCString(p_arg4,true);
+    md.args.write[4] = StaticCString(p_arg5,true);
     return md;
 }
 
 MethodDefinition D_METHOD(const char *p_name, const char *p_arg1, const char *p_arg2, const char *p_arg3, const char *p_arg4, const char *p_arg5, const char *p_arg6) {
 
     MethodDefinition md;
-    md.name = StaticCString::create(p_name);
+    md.name = StaticCString(p_name,true);
     md.args.resize(6);
-    md.args.write[0] = StaticCString::create(p_arg1);
-    md.args.write[1] = StaticCString::create(p_arg2);
-    md.args.write[2] = StaticCString::create(p_arg3);
-    md.args.write[3] = StaticCString::create(p_arg4);
-    md.args.write[4] = StaticCString::create(p_arg5);
-    md.args.write[5] = StaticCString::create(p_arg6);
+    md.args.write[0] = StaticCString(p_arg1,true);
+    md.args.write[1] = StaticCString(p_arg2,true);
+    md.args.write[2] = StaticCString(p_arg3,true);
+    md.args.write[3] = StaticCString(p_arg4,true);
+    md.args.write[4] = StaticCString(p_arg5,true);
+    md.args.write[5] = StaticCString(p_arg6,true);
     return md;
 }
 
 MethodDefinition D_METHOD(const char *p_name, const char *p_arg1, const char *p_arg2, const char *p_arg3, const char *p_arg4, const char *p_arg5, const char *p_arg6, const char *p_arg7) {
 
     MethodDefinition md;
-    md.name = StaticCString::create(p_name);
+    md.name = StaticCString(p_name,true);
     md.args.resize(7);
-    md.args.write[0] = StaticCString::create(p_arg1);
-    md.args.write[1] = StaticCString::create(p_arg2);
-    md.args.write[2] = StaticCString::create(p_arg3);
-    md.args.write[3] = StaticCString::create(p_arg4);
-    md.args.write[4] = StaticCString::create(p_arg5);
-    md.args.write[5] = StaticCString::create(p_arg6);
-    md.args.write[6] = StaticCString::create(p_arg7);
+    md.args.write[0] = StaticCString(p_arg1,true);
+    md.args.write[1] = StaticCString(p_arg2,true);
+    md.args.write[2] = StaticCString(p_arg3,true);
+    md.args.write[3] = StaticCString(p_arg4,true);
+    md.args.write[4] = StaticCString(p_arg5,true);
+    md.args.write[5] = StaticCString(p_arg6,true);
+    md.args.write[6] = StaticCString(p_arg7,true);
     return md;
 }
 
 MethodDefinition D_METHOD(const char *p_name, const char *p_arg1, const char *p_arg2, const char *p_arg3, const char *p_arg4, const char *p_arg5, const char *p_arg6, const char *p_arg7, const char *p_arg8) {
 
     MethodDefinition md;
-    md.name = StaticCString::create(p_name);
+    md.name = StaticCString(p_name,true);
     md.args.resize(8);
-    md.args.write[0] = StaticCString::create(p_arg1);
-    md.args.write[1] = StaticCString::create(p_arg2);
-    md.args.write[2] = StaticCString::create(p_arg3);
-    md.args.write[3] = StaticCString::create(p_arg4);
-    md.args.write[4] = StaticCString::create(p_arg5);
-    md.args.write[5] = StaticCString::create(p_arg6);
-    md.args.write[6] = StaticCString::create(p_arg7);
-    md.args.write[7] = StaticCString::create(p_arg8);
+    md.args.write[0] = StaticCString(p_arg1,true);
+    md.args.write[1] = StaticCString(p_arg2,true);
+    md.args.write[2] = StaticCString(p_arg3,true);
+    md.args.write[3] = StaticCString(p_arg4,true);
+    md.args.write[4] = StaticCString(p_arg5,true);
+    md.args.write[5] = StaticCString(p_arg6,true);
+    md.args.write[6] = StaticCString(p_arg7,true);
+    md.args.write[7] = StaticCString(p_arg8,true);
     return md;
 }
 
 MethodDefinition D_METHOD(const char *p_name, const char *p_arg1, const char *p_arg2, const char *p_arg3, const char *p_arg4, const char *p_arg5, const char *p_arg6, const char *p_arg7, const char *p_arg8, const char *p_arg9) {
 
     MethodDefinition md;
-    md.name = StaticCString::create(p_name);
+    md.name = StaticCString(p_name,true);
     md.args.resize(9);
-    md.args.write[0] = StaticCString::create(p_arg1);
-    md.args.write[1] = StaticCString::create(p_arg2);
-    md.args.write[2] = StaticCString::create(p_arg3);
-    md.args.write[3] = StaticCString::create(p_arg4);
-    md.args.write[4] = StaticCString::create(p_arg5);
-    md.args.write[5] = StaticCString::create(p_arg6);
-    md.args.write[6] = StaticCString::create(p_arg7);
-    md.args.write[7] = StaticCString::create(p_arg8);
-    md.args.write[8] = StaticCString::create(p_arg9);
+    md.args.write[0] = StaticCString(p_arg1,true);
+    md.args.write[1] = StaticCString(p_arg2,true);
+    md.args.write[2] = StaticCString(p_arg3,true);
+    md.args.write[3] = StaticCString(p_arg4,true);
+    md.args.write[4] = StaticCString(p_arg5,true);
+    md.args.write[5] = StaticCString(p_arg6,true);
+    md.args.write[6] = StaticCString(p_arg7,true);
+    md.args.write[7] = StaticCString(p_arg8,true);
+    md.args.write[8] = StaticCString(p_arg9,true);
     return md;
 }
 
 MethodDefinition D_METHOD(const char *p_name, const char *p_arg1, const char *p_arg2, const char *p_arg3, const char *p_arg4, const char *p_arg5, const char *p_arg6, const char *p_arg7, const char *p_arg8, const char *p_arg9, const char *p_arg10) {
 
     MethodDefinition md;
-    md.name = StaticCString::create(p_name);
+    md.name = StaticCString(p_name,true);
     md.args.resize(10);
-    md.args.write[0] = StaticCString::create(p_arg1);
-    md.args.write[1] = StaticCString::create(p_arg2);
-    md.args.write[2] = StaticCString::create(p_arg3);
-    md.args.write[3] = StaticCString::create(p_arg4);
-    md.args.write[4] = StaticCString::create(p_arg5);
-    md.args.write[5] = StaticCString::create(p_arg6);
-    md.args.write[6] = StaticCString::create(p_arg7);
-    md.args.write[7] = StaticCString::create(p_arg8);
-    md.args.write[8] = StaticCString::create(p_arg9);
-    md.args.write[9] = StaticCString::create(p_arg10);
+    md.args.write[0] = StaticCString(p_arg1,true);
+    md.args.write[1] = StaticCString(p_arg2,true);
+    md.args.write[2] = StaticCString(p_arg3,true);
+    md.args.write[3] = StaticCString(p_arg4,true);
+    md.args.write[4] = StaticCString(p_arg5,true);
+    md.args.write[5] = StaticCString(p_arg6,true);
+    md.args.write[6] = StaticCString(p_arg7,true);
+    md.args.write[7] = StaticCString(p_arg8,true);
+    md.args.write[8] = StaticCString(p_arg9,true);
+    md.args.write[9] = StaticCString(p_arg10,true);
     return md;
 }
 
 MethodDefinition D_METHOD(const char *p_name, const char *p_arg1, const char *p_arg2, const char *p_arg3, const char *p_arg4, const char *p_arg5, const char *p_arg6, const char *p_arg7, const char *p_arg8, const char *p_arg9, const char *p_arg10, const char *p_arg11) {
 
     MethodDefinition md;
-    md.name = StaticCString::create(p_name);
+    md.name = StaticCString(p_name,true);
     md.args.resize(11);
-    md.args.write[0] = StaticCString::create(p_arg1);
-    md.args.write[1] = StaticCString::create(p_arg2);
-    md.args.write[2] = StaticCString::create(p_arg3);
-    md.args.write[3] = StaticCString::create(p_arg4);
-    md.args.write[4] = StaticCString::create(p_arg5);
-    md.args.write[5] = StaticCString::create(p_arg6);
-    md.args.write[6] = StaticCString::create(p_arg7);
-    md.args.write[7] = StaticCString::create(p_arg8);
-    md.args.write[8] = StaticCString::create(p_arg9);
-    md.args.write[9] = StaticCString::create(p_arg10);
-    md.args.write[10] = StaticCString::create(p_arg11);
+    md.args.write[0] = StaticCString(p_arg1,true);
+    md.args.write[1] = StaticCString(p_arg2,true);
+    md.args.write[2] = StaticCString(p_arg3,true);
+    md.args.write[3] = StaticCString(p_arg4,true);
+    md.args.write[4] = StaticCString(p_arg5,true);
+    md.args.write[5] = StaticCString(p_arg6,true);
+    md.args.write[6] = StaticCString(p_arg7,true);
+    md.args.write[7] = StaticCString(p_arg8,true);
+    md.args.write[8] = StaticCString(p_arg9,true);
+    md.args.write[9] = StaticCString(p_arg10,true);
+    md.args.write[10] = StaticCString(p_arg11,true);
     return md;
 }
 
 MethodDefinition D_METHOD(const char *p_name, const char *p_arg1, const char *p_arg2, const char *p_arg3, const char *p_arg4, const char *p_arg5, const char *p_arg6, const char *p_arg7, const char *p_arg8, const char *p_arg9, const char *p_arg10, const char *p_arg11, const char *p_arg12) {
 
     MethodDefinition md;
-    md.name = StaticCString::create(p_name);
+    md.name = StaticCString(p_name,true);
     md.args.resize(12);
-    md.args.write[0] = StaticCString::create(p_arg1);
-    md.args.write[1] = StaticCString::create(p_arg2);
-    md.args.write[2] = StaticCString::create(p_arg3);
-    md.args.write[3] = StaticCString::create(p_arg4);
-    md.args.write[4] = StaticCString::create(p_arg5);
-    md.args.write[5] = StaticCString::create(p_arg6);
-    md.args.write[6] = StaticCString::create(p_arg7);
-    md.args.write[7] = StaticCString::create(p_arg8);
-    md.args.write[8] = StaticCString::create(p_arg9);
-    md.args.write[9] = StaticCString::create(p_arg10);
-    md.args.write[10] = StaticCString::create(p_arg11);
-    md.args.write[11] = StaticCString::create(p_arg12);
+    md.args.write[0] = StaticCString(p_arg1,true);
+    md.args.write[1] = StaticCString(p_arg2,true);
+    md.args.write[2] = StaticCString(p_arg3,true);
+    md.args.write[3] = StaticCString(p_arg4,true);
+    md.args.write[4] = StaticCString(p_arg5,true);
+    md.args.write[5] = StaticCString(p_arg6,true);
+    md.args.write[6] = StaticCString(p_arg7,true);
+    md.args.write[7] = StaticCString(p_arg8,true);
+    md.args.write[8] = StaticCString(p_arg9,true);
+    md.args.write[9] = StaticCString(p_arg10,true);
+    md.args.write[10] = StaticCString(p_arg11,true);
+    md.args.write[11] = StaticCString(p_arg12,true);
     return md;
 }
 
 MethodDefinition D_METHOD(const char *p_name, const char *p_arg1, const char *p_arg2, const char *p_arg3, const char *p_arg4, const char *p_arg5, const char *p_arg6, const char *p_arg7, const char *p_arg8, const char *p_arg9, const char *p_arg10, const char *p_arg11, const char *p_arg12, const char *p_arg13) {
 
     MethodDefinition md;
-    md.name = StaticCString::create(p_name);
+    md.name = StaticCString(p_name,true);
     md.args.resize(13);
-    md.args.write[0] = StaticCString::create(p_arg1);
-    md.args.write[1] = StaticCString::create(p_arg2);
-    md.args.write[2] = StaticCString::create(p_arg3);
-    md.args.write[3] = StaticCString::create(p_arg4);
-    md.args.write[4] = StaticCString::create(p_arg5);
-    md.args.write[5] = StaticCString::create(p_arg6);
-    md.args.write[6] = StaticCString::create(p_arg7);
-    md.args.write[7] = StaticCString::create(p_arg8);
-    md.args.write[8] = StaticCString::create(p_arg9);
-    md.args.write[9] = StaticCString::create(p_arg10);
-    md.args.write[10] = StaticCString::create(p_arg11);
-    md.args.write[11] = StaticCString::create(p_arg12);
-    md.args.write[12] = StaticCString::create(p_arg13);
+    md.args.write[0] = StaticCString(p_arg1,true);
+    md.args.write[1] = StaticCString(p_arg2,true);
+    md.args.write[2] = StaticCString(p_arg3,true);
+    md.args.write[3] = StaticCString(p_arg4,true);
+    md.args.write[4] = StaticCString(p_arg5,true);
+    md.args.write[5] = StaticCString(p_arg6,true);
+    md.args.write[6] = StaticCString(p_arg7,true);
+    md.args.write[7] = StaticCString(p_arg8,true);
+    md.args.write[8] = StaticCString(p_arg9,true);
+    md.args.write[9] = StaticCString(p_arg10,true);
+    md.args.write[10] = StaticCString(p_arg11,true);
+    md.args.write[11] = StaticCString(p_arg12,true);
+    md.args.write[12] = StaticCString(p_arg13,true);
     return md;
 }
 
@@ -561,7 +563,7 @@ void ClassDB::_add_class2(const StringName &p_class, const StringName &p_inherit
 
     const StringName &name = p_class;
 
-    ERR_FAIL_COND(classes.has(name));
+    ERR_FAIL_COND(classes.has(name))
 
     classes[name] = ClassInfo();
     ClassInfo &ti = classes[name];
@@ -684,9 +686,9 @@ void ClassDB::bind_integer_constant(const StringName &p_class, const StringName 
     type->constant_map[p_name] = p_constant;
 
     String enum_name = p_enum;
-    if (enum_name != String()) {
-        if (enum_name.find(".") != -1) {
-            enum_name = enum_name.get_slicec('.', 1);
+    if (!enum_name.empty()) {
+        if (StringUtils::find(enum_name,".") != -1) {
+            enum_name = StringUtils::get_slice(enum_name,'.', 1);
         }
 
         List<StringName> *constants_list = type->enum_map.getptr(enum_name);
@@ -901,11 +903,11 @@ bool ClassDB::get_signal(StringName p_class, StringName p_signal, MethodInfo *r_
     return false;
 }
 
-void ClassDB::add_property_group(StringName p_class, const String &p_name, const String &p_prefix) {
+void ClassDB::add_property_group(StringName p_class, const char *p_name, const char *p_prefix) {
 
-    OBJTYPE_WLOCK;
+    OBJTYPE_WLOCK
     ClassInfo *type = classes.getptr(p_class);
-    ERR_FAIL_COND(!type);
+    ERR_FAIL_COND(!type)
 
     type->property_list.push_back(PropertyInfo(Variant::NIL, p_name, PROPERTY_HINT_NONE, p_prefix, PROPERTY_USAGE_GROUP));
 }
@@ -916,7 +918,7 @@ void ClassDB::add_property(StringName p_class, const PropertyInfo &p_pinfo, cons
     ClassInfo *type = classes.getptr(p_class);
     lock->read_unlock();
 
-    ERR_FAIL_COND(!type);
+    ERR_FAIL_COND(!type)
 
     MethodBind *mb_set = nullptr;
     if (p_setter) {
@@ -1208,41 +1210,41 @@ bool ClassDB::has_method(StringName p_class, StringName p_method, bool p_no_inhe
 }
 
 #ifdef DEBUG_METHODS_ENABLED
-MethodBind *ClassDB::bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const MethodDefinition &method_name, const Variant **p_defs, int p_defcount) {
+MethodBind *ClassDB::bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const MethodDefinition &method_name, std::initializer_list<Variant>  def_vals) {
     StringName mdname = method_name.name;
 #else
-MethodBind *ClassDB::bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const char *method_name, const Variant **p_defs, int p_defcount) {
-    StringName mdname = StaticCString::create(method_name);
+MethodBind *ClassDB::bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const char *method_name, std::initializer_list<Variant> p_defcount) {
+    StringName mdname = StaticCString(method_name,true);
 #endif
 
     OBJTYPE_WLOCK;
-    ERR_FAIL_COND_V(!p_bind, nullptr);
+    ERR_FAIL_COND_V(!p_bind, nullptr)
     p_bind->set_name(mdname);
 
-    String instance_type = p_bind->get_instance_class();
+    const char *instance_type = p_bind->get_instance_class();
 
 #ifdef DEBUG_ENABLED
 
-    ERR_FAIL_COND_V_MSG(has_method(instance_type, mdname), nullptr, "Class " + String(instance_type) + " already has a method " + String(mdname) + ".");
+    ERR_FAIL_COND_V_MSG(has_method(StringName(instance_type), mdname), nullptr, "Class " + String(instance_type) + " already has a method " + String(mdname) + ".")
 #endif
 
-    ClassInfo *type = classes.getptr(instance_type);
+    ClassInfo *type = classes.getptr(StringName(instance_type));
     if (!type) {
         memdelete(p_bind);
-        ERR_FAIL_V_MSG(nullptr, "Couldn't bind method '" + mdname + "' for instance: " + instance_type + ".");
+        ERR_FAIL_V_MSG(nullptr, "Couldn't bind method '" + mdname + "' for instance: " + instance_type + ".")
     }
 
     if (type->method_map.has(mdname)) {
         memdelete(p_bind);
         // overloading not supported
-        ERR_FAIL_V_MSG(nullptr, "Method already bound: " + instance_type + "::" + mdname + ".");
+        ERR_FAIL_V_MSG(nullptr, String("Method already bound: ") + instance_type + "::" + mdname + ".")
     }
 
 #ifdef DEBUG_METHODS_ENABLED
 
     if (method_name.args.size() > p_bind->get_argument_count()) {
         memdelete(p_bind);
-        ERR_FAIL_V_MSG(nullptr, "Method definition provides more arguments than the method actually has: " + instance_type + "::" + mdname + ".");
+        ERR_FAIL_V_MSG(nullptr, String("Method definition provides more arguments than the method actually has: ") + instance_type + "::" + mdname + ".");
     }
 
     p_bind->set_argument_names(method_name.args);
@@ -1254,10 +1256,10 @@ MethodBind *ClassDB::bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const c
 
     Vector<Variant> defvals;
 
-    defvals.resize(p_defcount);
-    for (int i = 0; i < p_defcount; i++) {
+    defvals.resize(def_vals.size());
+    for (int i = 0; i < def_vals.size(); i++) {
 
-        defvals.write[i] = *p_defs[p_defcount - i - 1];
+        defvals.write[i] = def_vals.begin()[def_vals.size() - i - 1];
     }
 
     p_bind->set_default_arguments(defvals);
@@ -1467,3 +1469,24 @@ void ClassDB::cleanup() {
 }
 
 //
+
+bool ClassDB::bind_helper(MethodBind *bind,const char * instance_type,const StringName &p_name) {
+    ClassInfo *type = ClassDB::classes.getptr(StaticCString(bind->get_instance_class(),true));
+    if (!type) {
+        memdelete(bind);
+    }
+    ERR_FAIL_COND_V(!type, false)
+
+            if (type->method_map.has(p_name)) {
+        memdelete(bind);
+        // overloading not supported
+        ERR_FAIL_V_MSG(false, String("Method already bound: ") + instance_type + "::" + p_name + ".")
+    }
+    type->method_map[p_name] = bind;
+#ifdef DEBUG_METHODS_ENABLED
+    // FIXME: <reduz> set_return_type is no longer in MethodBind, so I guess it should be moved to vararg method bind
+    //bind->set_return_type("Variant");
+    type->method_order.push_back(p_name);
+#endif
+    return true;
+}

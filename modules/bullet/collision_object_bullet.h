@@ -137,7 +137,7 @@ protected:
 
 public:
 	CollisionObjectBullet(Type p_type);
-	virtual ~CollisionObjectBullet();
+	~CollisionObjectBullet() override;
 
 	Type getType() { return type; }
 
@@ -219,7 +219,7 @@ protected:
 
 public:
 	RigidCollisionObjectBullet(Type p_type);
-	~RigidCollisionObjectBullet();
+	~RigidCollisionObjectBullet() override;
 
 	_FORCE_INLINE_ const Vector<ShapeWrapper> &get_shapes_wrappers() const { return shapes; }
 
@@ -232,9 +232,9 @@ public:
 	ShapeBullet *get_shape(int p_index) const;
 	btCollisionShape *get_bt_shape(int p_index) const;
 
-	int find_shape(ShapeBullet *p_shape) const;
+	int find_shape(ShapeBullet *p_shape) const override;
 
-	virtual void remove_shape_full(ShapeBullet *p_shape);
+	void remove_shape_full(ShapeBullet *p_shape) override;
 	void remove_shape_full(int p_index);
 	void remove_all_shapes(bool p_permanentlyFromThisBody = false, bool p_force_not_reload = false);
 
@@ -246,11 +246,11 @@ public:
 	void set_shape_disabled(int p_index, bool p_disabled);
 	bool is_shape_disabled(int p_index);
 
-	virtual void shape_changed(int p_shape_index);
-	virtual void reload_shapes();
+	void shape_changed(int p_shape_index) override;
+	void reload_shapes() override;
 
 	virtual void main_shape_changed() = 0;
-	virtual void body_scale_changed();
+	void body_scale_changed() override;
 
 private:
 	void internal_shape_destroy(int p_index, bool p_permanentlyFromThisBody = false);

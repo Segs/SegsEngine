@@ -30,6 +30,7 @@
 
 #include "editor_file_dialog.h"
 
+#include "core/method_bind.h"
 #include "core/os/file_access.h"
 #include "core/os/keyboard.h"
 #include "core/os/os.h"
@@ -41,6 +42,9 @@
 #include "scene/gui/center_container.h"
 #include "scene/gui/label.h"
 #include "scene/gui/margin_container.h"
+
+IMPL_GDCLASS(EditorFileDialog)
+IMPL_GDCLASS(EditorLineEditFileChooser)
 
 EditorFileDialog::GetIconFunc EditorFileDialog::get_icon_func = nullptr;
 EditorFileDialog::GetIconFunc EditorFileDialog::get_large_icon_func = nullptr;
@@ -263,7 +267,7 @@ void EditorFileDialog::_post_popup() {
         bool res = access == ACCESS_RESOURCES;
         Vector<String> recentd = EditorSettings::get_singleton()->get_recent_dirs();
         for (int i = 0; i < recentd.size(); i++) {
-            bool cres = recentd[i].begins_with("res://");
+            bool cres = StringUtils::begins_with(recentd[i],"res://");
             if (cres != res)
                 continue;
             String name = recentd[i];
@@ -365,7 +369,7 @@ void EditorFileDialog::_action_pressed() {
 
         String path = dir_access->get_current_dir();
 
-        path = path.replace("\\", "/");
+        path = PathUtils::from_native_path(path);
 
         for (int i = 0; i < item_list->get_item_count(); i++) {
             if (item_list->is_selected(i)) {
@@ -393,11 +397,11 @@ void EditorFileDialog::_action_pressed() {
             // match all filters
             for (int i = 0; i < filters.size(); i++) {
 
-                String flt = filters[i].get_slice(";", 0);
-                for (int j = 0; j < flt.get_slice_count(","); j++) {
+                String flt = StringUtils::get_slice(filters[i],";", 0);
+                for (int j = 0; j < StringUtils::get_slice_count(flt,","); j++) {
 
-                    String str = flt.get_slice(",", j).strip_edges();
-                    if (f.match(str)) {
+                    String str = StringUtils::strip_edges(StringUtils::get_slice(flt,",", j));
+					if (StringUtils::match(f,str)) {
                         valid = true;
                         break;
                     }
@@ -411,20 +415,20 @@ void EditorFileDialog::_action_pressed() {
                 idx--;
             if (idx >= 0 && idx < filters.size()) {
 
-                String flt = filters[idx].get_slice(";", 0);
-                int filterSliceCount = flt.get_slice_count(",");
+                String flt = StringUtils::get_slice(filters[idx],";", 0);
+                int filterSliceCount = StringUtils::get_slice_count(flt,",");
                 for (int j = 0; j < filterSliceCount; j++) {
 
-                    String str = (flt.get_slice(",", j).strip_edges());
-                    if (f.match(str)) {
+                    String str = StringUtils::strip_edges(StringUtils::get_slice(flt,",", j));
+					if (StringUtils::match(f,str)) {
                         valid = true;
                         break;
                     }
                 }
 
                 if (!valid && filterSliceCount > 0) {
-                    String str = (flt.get_slice(",", 0).strip_edges());
-                    f += str.substr(1, str.length() - 1);
+                    String str = StringUtils::strip_edges(StringUtils::get_slice(flt,",", 0));
+                    f += StringUtils::substr(str,1, str.length() - 1);
                     _request_single_thumbnail(PathUtils::plus_file(get_current_dir(),PathUtils::get_file(f)));
                     file->set_text(PathUtils::get_file(f));
                     valid = true;
@@ -684,9 +688,9 @@ void EditorFileDialog::update_file_name() {
         String base_name = PathUtils::get_basename(file_str);
         Vector<String> filter_substr = StringUtils::split(filter_str,";");
         if (filter_substr.size() >= 2) {
-            file_str = base_name + "." + StringUtils::to_lower(filter_substr[1].strip_edges());
+            file_str = base_name + "." + StringUtils::to_lower(StringUtils::strip_edges(filter_substr[1]));
         } else {
-            file_str = base_name + "." + StringUtils::to_lower(PathUtils::get_extension(filter_str).strip_edges());
+            file_str = base_name + "." + StringUtils::to_lower(StringUtils::strip_edges(PathUtils::get_extension(filter_str)));
         }
         file->set_text(file_str);
     }
@@ -790,10 +794,10 @@ void EditorFileDialog::update_file_list() {
         // match all filters
         for (int i = 0; i < filters.size(); i++) {
 
-            String f = filters[i].get_slice(";", 0);
-            for (int j = 0; j < f.get_slice_count(","); j++) {
+            String f = StringUtils::get_slice(filters[i],";", 0);
+            for (int j = 0; j < StringUtils::get_slice_count(f,","); j++) {
 
-                patterns.push_back(f.get_slice(",", j).strip_edges());
+                patterns.push_back(StringUtils::strip_edges(StringUtils::get_slice(f,",", j)));
             }
         }
     } else {
@@ -803,10 +807,10 @@ void EditorFileDialog::update_file_list() {
 
         if (idx >= 0 && idx < filters.size()) {
 
-            String f = filters[idx].get_slice(";", 0);
-            for (int j = 0; j < f.get_slice_count(","); j++) {
+            String f = StringUtils::get_slice(filters[idx],";", 0);
+            for (int j = 0; j < StringUtils::get_slice_count(f,","); j++) {
 
-                patterns.push_back(f.get_slice(",", j).strip_edges());
+                patterns.push_back(StringUtils::strip_edges(StringUtils::get_slice(f,",", j)));
             }
         }
     }
@@ -817,7 +821,7 @@ void EditorFileDialog::update_file_list() {
 
         for (List<String>::Element *E = patterns.front(); E; E = E->next()) {
 
-            if (files.front()->get().matchn(E->get())) {
+			if (StringUtils::matchn(files.front()->get(),E->get())) {
 
                 match = true;
                 break;
@@ -897,7 +901,7 @@ void EditorFileDialog::update_filters() {
         const int max_filters = 5;
 
         for (int i = 0; i < MIN(max_filters, filters.size()); i++) {
-            String flt = filters[i].get_slice(";", 0);
+            String flt = StringUtils::get_slice(filters[i],";", 0);
             if (i > 0)
                 all_filters += ",";
             all_filters += flt;
@@ -910,8 +914,8 @@ void EditorFileDialog::update_filters() {
     }
     for (int i = 0; i < filters.size(); i++) {
 
-        String flt = filters[i].get_slice(";", 0).strip_edges();
-        String desc = filters[i].get_slice(";", 1).strip_edges();
+        String flt = StringUtils::strip_edges(StringUtils::get_slice(filters[i],";", 0));
+        String desc = StringUtils::strip_edges(StringUtils::get_slice(filters[i],";", 1));
         if (desc.length())
             filter->add_item(desc + " ( " + flt + " )");
         else
@@ -957,7 +961,7 @@ void EditorFileDialog::set_current_file(const String &p_file) {
     file->set_text(p_file);
     update_dir();
     invalidate();
-    int lp = p_file.find_last(".");
+    int lp = StringUtils::find_last(p_file,".");
     if (lp != -1) {
         file->select(0, lp);
         file->grab_focus();
@@ -970,14 +974,14 @@ void EditorFileDialog::set_current_path(const String &p_path) {
 
     if (!p_path.size())
         return;
-    int pos = MAX(p_path.find_last("/"), p_path.find_last("\\"));
+    int pos = MAX(StringUtils::find_last(p_path,"/"), StringUtils::find_last(p_path,"\\"));
     if (pos == -1) {
 
         set_current_file(p_path);
     } else {
 
-        String dir = p_path.substr(0, pos);
-        String file = p_path.substr(pos + 1, p_path.length());
+        String dir = StringUtils::substr(p_path,0, pos);
+        String file = StringUtils::substr(p_path,pos + 1, p_path.length());
         set_current_dir(dir);
         set_current_file(file);
     }
@@ -1211,7 +1215,7 @@ void EditorFileDialog::_update_favorites() {
 
     Vector<String> favorited = EditorSettings::get_singleton()->get_favorites();
     for (int i = 0; i < favorited.size(); i++) {
-        bool cres = favorited[i].begins_with("res://");
+        bool cres = StringUtils::begins_with(favorited[i],"res://");
         if (cres != res)
             continue;
         String name = favorited[i];
@@ -1223,10 +1227,10 @@ void EditorFileDialog::_update_favorites() {
             name = "/";
 
             favorites->add_item(name, folder_icon);
-        } else if (name.ends_with("/")) {
+        } else if (StringUtils::ends_with(name,"/")) {
             if (name == current || name == current + "/")
                 setthis = true;
-            name = name.substr(0, name.length() - 1);
+            name = StringUtils::substr(name,0, name.length() - 1);
             name = PathUtils::get_file(name);
 
             favorites->add_item(name, folder_icon);
@@ -1249,14 +1253,14 @@ void EditorFileDialog::_favorite_pressed() {
     bool res = access == ACCESS_RESOURCES;
 
     String cd = get_current_dir();
-    if (!cd.ends_with("/"))
+    if (!StringUtils::ends_with(cd,"/"))
         cd += "/";
 
     Vector<String> favorited = EditorSettings::get_singleton()->get_favorites();
 
     bool found = false;
     for (int i = 0; i < favorited.size(); i++) {
-        bool cres = favorited[i].begins_with("res://");
+        bool cres = StringUtils::begins_with(favorited[i],"res://");
         if (cres != res)
             continue;
 
@@ -1350,61 +1354,61 @@ EditorFileDialog::DisplayMode EditorFileDialog::get_display_mode() const {
 
 void EditorFileDialog::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_unhandled_input"), &EditorFileDialog::_unhandled_input);
+    MethodBinder::bind_method(D_METHOD("_unhandled_input"), &EditorFileDialog::_unhandled_input);
 
-    ClassDB::bind_method(D_METHOD("_item_selected"), &EditorFileDialog::_item_selected);
-    ClassDB::bind_method(D_METHOD("_multi_selected"), &EditorFileDialog::_multi_selected);
-    ClassDB::bind_method(D_METHOD("_items_clear_selection"), &EditorFileDialog::_items_clear_selection);
-    ClassDB::bind_method(D_METHOD("_item_list_item_rmb_selected"), &EditorFileDialog::_item_list_item_rmb_selected);
-    ClassDB::bind_method(D_METHOD("_item_list_rmb_clicked"), &EditorFileDialog::_item_list_rmb_clicked);
-    ClassDB::bind_method(D_METHOD("_item_menu_id_pressed"), &EditorFileDialog::_item_menu_id_pressed);
-    ClassDB::bind_method(D_METHOD("_item_db_selected"), &EditorFileDialog::_item_dc_selected);
-    ClassDB::bind_method(D_METHOD("_dir_entered"), &EditorFileDialog::_dir_entered);
-    ClassDB::bind_method(D_METHOD("_file_entered"), &EditorFileDialog::_file_entered);
-    ClassDB::bind_method(D_METHOD("_action_pressed"), &EditorFileDialog::_action_pressed);
-    ClassDB::bind_method(D_METHOD("_cancel_pressed"), &EditorFileDialog::_cancel_pressed);
-    ClassDB::bind_method(D_METHOD("_filter_selected"), &EditorFileDialog::_filter_selected);
-    ClassDB::bind_method(D_METHOD("_save_confirm_pressed"), &EditorFileDialog::_save_confirm_pressed);
+    MethodBinder::bind_method(D_METHOD("_item_selected"), &EditorFileDialog::_item_selected);
+    MethodBinder::bind_method(D_METHOD("_multi_selected"), &EditorFileDialog::_multi_selected);
+    MethodBinder::bind_method(D_METHOD("_items_clear_selection"), &EditorFileDialog::_items_clear_selection);
+    MethodBinder::bind_method(D_METHOD("_item_list_item_rmb_selected"), &EditorFileDialog::_item_list_item_rmb_selected);
+    MethodBinder::bind_method(D_METHOD("_item_list_rmb_clicked"), &EditorFileDialog::_item_list_rmb_clicked);
+    MethodBinder::bind_method(D_METHOD("_item_menu_id_pressed"), &EditorFileDialog::_item_menu_id_pressed);
+    MethodBinder::bind_method(D_METHOD("_item_db_selected"), &EditorFileDialog::_item_dc_selected);
+    MethodBinder::bind_method(D_METHOD("_dir_entered"), &EditorFileDialog::_dir_entered);
+    MethodBinder::bind_method(D_METHOD("_file_entered"), &EditorFileDialog::_file_entered);
+    MethodBinder::bind_method(D_METHOD("_action_pressed"), &EditorFileDialog::_action_pressed);
+    MethodBinder::bind_method(D_METHOD("_cancel_pressed"), &EditorFileDialog::_cancel_pressed);
+    MethodBinder::bind_method(D_METHOD("_filter_selected"), &EditorFileDialog::_filter_selected);
+    MethodBinder::bind_method(D_METHOD("_save_confirm_pressed"), &EditorFileDialog::_save_confirm_pressed);
 
-    ClassDB::bind_method(D_METHOD("clear_filters"), &EditorFileDialog::clear_filters);
-    ClassDB::bind_method(D_METHOD("add_filter", "filter"), &EditorFileDialog::add_filter);
-    ClassDB::bind_method(D_METHOD("get_current_dir"), &EditorFileDialog::get_current_dir);
-    ClassDB::bind_method(D_METHOD("get_current_file"), &EditorFileDialog::get_current_file);
-    ClassDB::bind_method(D_METHOD("get_current_path"), &EditorFileDialog::get_current_path);
-    ClassDB::bind_method(D_METHOD("set_current_dir", "dir"), &EditorFileDialog::set_current_dir);
-    ClassDB::bind_method(D_METHOD("set_current_file", "file"), &EditorFileDialog::set_current_file);
-    ClassDB::bind_method(D_METHOD("set_current_path", "path"), &EditorFileDialog::set_current_path);
-    ClassDB::bind_method(D_METHOD("set_mode", "mode"), &EditorFileDialog::set_mode);
-    ClassDB::bind_method(D_METHOD("get_mode"), &EditorFileDialog::get_mode);
-    ClassDB::bind_method(D_METHOD("get_vbox"), &EditorFileDialog::get_vbox);
-    ClassDB::bind_method(D_METHOD("set_access", "access"), &EditorFileDialog::set_access);
-    ClassDB::bind_method(D_METHOD("get_access"), &EditorFileDialog::get_access);
-    ClassDB::bind_method(D_METHOD("set_show_hidden_files", "show"), &EditorFileDialog::set_show_hidden_files);
-    ClassDB::bind_method(D_METHOD("is_showing_hidden_files"), &EditorFileDialog::is_showing_hidden_files);
-    ClassDB::bind_method(D_METHOD("_select_drive"), &EditorFileDialog::_select_drive);
-    ClassDB::bind_method(D_METHOD("_make_dir"), &EditorFileDialog::_make_dir);
-    ClassDB::bind_method(D_METHOD("_make_dir_confirm"), &EditorFileDialog::_make_dir_confirm);
-    ClassDB::bind_method(D_METHOD("_update_file_name"), &EditorFileDialog::update_file_name);
-    ClassDB::bind_method(D_METHOD("_update_file_list"), &EditorFileDialog::update_file_list);
-    ClassDB::bind_method(D_METHOD("_update_dir"), &EditorFileDialog::update_dir);
-    ClassDB::bind_method(D_METHOD("_thumbnail_done"), &EditorFileDialog::_thumbnail_done);
-    ClassDB::bind_method(D_METHOD("set_display_mode", "mode"), &EditorFileDialog::set_display_mode);
-    ClassDB::bind_method(D_METHOD("get_display_mode"), &EditorFileDialog::get_display_mode);
-    ClassDB::bind_method(D_METHOD("_thumbnail_result"), &EditorFileDialog::_thumbnail_result);
-    ClassDB::bind_method(D_METHOD("set_disable_overwrite_warning", "disable"), &EditorFileDialog::set_disable_overwrite_warning);
-    ClassDB::bind_method(D_METHOD("is_overwrite_warning_disabled"), &EditorFileDialog::is_overwrite_warning_disabled);
+    MethodBinder::bind_method(D_METHOD("clear_filters"), &EditorFileDialog::clear_filters);
+    MethodBinder::bind_method(D_METHOD("add_filter", "filter"), &EditorFileDialog::add_filter);
+    MethodBinder::bind_method(D_METHOD("get_current_dir"), &EditorFileDialog::get_current_dir);
+    MethodBinder::bind_method(D_METHOD("get_current_file"), &EditorFileDialog::get_current_file);
+    MethodBinder::bind_method(D_METHOD("get_current_path"), &EditorFileDialog::get_current_path);
+    MethodBinder::bind_method(D_METHOD("set_current_dir", "dir"), &EditorFileDialog::set_current_dir);
+    MethodBinder::bind_method(D_METHOD("set_current_file", "file"), &EditorFileDialog::set_current_file);
+    MethodBinder::bind_method(D_METHOD("set_current_path", "path"), &EditorFileDialog::set_current_path);
+    MethodBinder::bind_method(D_METHOD("set_mode", "mode"), &EditorFileDialog::set_mode);
+    MethodBinder::bind_method(D_METHOD("get_mode"), &EditorFileDialog::get_mode);
+    MethodBinder::bind_method(D_METHOD("get_vbox"), &EditorFileDialog::get_vbox);
+    MethodBinder::bind_method(D_METHOD("set_access", "access"), &EditorFileDialog::set_access);
+    MethodBinder::bind_method(D_METHOD("get_access"), &EditorFileDialog::get_access);
+    MethodBinder::bind_method(D_METHOD("set_show_hidden_files", "show"), &EditorFileDialog::set_show_hidden_files);
+    MethodBinder::bind_method(D_METHOD("is_showing_hidden_files"), &EditorFileDialog::is_showing_hidden_files);
+    MethodBinder::bind_method(D_METHOD("_select_drive"), &EditorFileDialog::_select_drive);
+    MethodBinder::bind_method(D_METHOD("_make_dir"), &EditorFileDialog::_make_dir);
+    MethodBinder::bind_method(D_METHOD("_make_dir_confirm"), &EditorFileDialog::_make_dir_confirm);
+    MethodBinder::bind_method(D_METHOD("_update_file_name"), &EditorFileDialog::update_file_name);
+    MethodBinder::bind_method(D_METHOD("_update_file_list"), &EditorFileDialog::update_file_list);
+    MethodBinder::bind_method(D_METHOD("_update_dir"), &EditorFileDialog::update_dir);
+    MethodBinder::bind_method(D_METHOD("_thumbnail_done"), &EditorFileDialog::_thumbnail_done);
+    MethodBinder::bind_method(D_METHOD("set_display_mode", "mode"), &EditorFileDialog::set_display_mode);
+    MethodBinder::bind_method(D_METHOD("get_display_mode"), &EditorFileDialog::get_display_mode);
+    MethodBinder::bind_method(D_METHOD("_thumbnail_result"), &EditorFileDialog::_thumbnail_result);
+    MethodBinder::bind_method(D_METHOD("set_disable_overwrite_warning", "disable"), &EditorFileDialog::set_disable_overwrite_warning);
+    MethodBinder::bind_method(D_METHOD("is_overwrite_warning_disabled"), &EditorFileDialog::is_overwrite_warning_disabled);
 
-    ClassDB::bind_method(D_METHOD("_recent_selected"), &EditorFileDialog::_recent_selected);
-    ClassDB::bind_method(D_METHOD("_go_back"), &EditorFileDialog::_go_back);
-    ClassDB::bind_method(D_METHOD("_go_forward"), &EditorFileDialog::_go_forward);
-    ClassDB::bind_method(D_METHOD("_go_up"), &EditorFileDialog::_go_up);
+    MethodBinder::bind_method(D_METHOD("_recent_selected"), &EditorFileDialog::_recent_selected);
+    MethodBinder::bind_method(D_METHOD("_go_back"), &EditorFileDialog::_go_back);
+    MethodBinder::bind_method(D_METHOD("_go_forward"), &EditorFileDialog::_go_forward);
+    MethodBinder::bind_method(D_METHOD("_go_up"), &EditorFileDialog::_go_up);
 
-    ClassDB::bind_method(D_METHOD("_favorite_pressed"), &EditorFileDialog::_favorite_pressed);
-    ClassDB::bind_method(D_METHOD("_favorite_selected"), &EditorFileDialog::_favorite_selected);
-    ClassDB::bind_method(D_METHOD("_favorite_move_up"), &EditorFileDialog::_favorite_move_up);
-    ClassDB::bind_method(D_METHOD("_favorite_move_down"), &EditorFileDialog::_favorite_move_down);
+    MethodBinder::bind_method(D_METHOD("_favorite_pressed"), &EditorFileDialog::_favorite_pressed);
+    MethodBinder::bind_method(D_METHOD("_favorite_selected"), &EditorFileDialog::_favorite_selected);
+    MethodBinder::bind_method(D_METHOD("_favorite_move_up"), &EditorFileDialog::_favorite_move_up);
+    MethodBinder::bind_method(D_METHOD("_favorite_move_down"), &EditorFileDialog::_favorite_move_down);
 
-    ClassDB::bind_method(D_METHOD("invalidate"), &EditorFileDialog::invalidate);
+    MethodBinder::bind_method(D_METHOD("invalidate"), &EditorFileDialog::invalidate);
 
     ADD_SIGNAL(MethodInfo("file_selected", PropertyInfo(Variant::STRING, "path")));
     ADD_SIGNAL(MethodInfo("files_selected", PropertyInfo(Variant::POOL_STRING_ARRAY, "paths")));
@@ -1458,10 +1462,10 @@ void EditorFileDialog::_save_to_recent() {
 
     const int max = 20;
     int count = 0;
-    bool res = dir.begins_with("res://");
+    bool res = StringUtils::begins_with(dir,"res://");
 
     for (int i = 0; i < recent.size(); i++) {
-        bool cres = recent[i].begins_with("res://");
+        bool cres = StringUtils::begins_with(recent[i],"res://");
         if (recent[i] == dir || (res == cres && count > max)) {
             recent.remove(i);
             i--;
@@ -1676,8 +1680,8 @@ EditorFileDialog::EditorFileDialog() {
     _update_drives();
 
     connect("confirmed", this, "_action_pressed");
-    item_list->connect("item_selected", this, "_item_selected", varray(), CONNECT_DEFERRED);
-    item_list->connect("multi_selected", this, "_multi_selected", varray(), CONNECT_DEFERRED);
+    item_list->connect("item_selected", this, "_item_selected", varray(), ObjectNS::CONNECT_DEFERRED);
+    item_list->connect("multi_selected", this, "_multi_selected", varray(), ObjectNS::CONNECT_DEFERRED);
     item_list->connect("item_activated", this, "_item_db_selected", varray());
     item_list->connect("nothing_selected", this, "_items_clear_selection");
     dir->connect("text_entered", this, "_dir_entered");
@@ -1740,11 +1744,11 @@ void EditorLineEditFileChooser::_notification(int p_what) {
 
 void EditorLineEditFileChooser::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_browse"), &EditorLineEditFileChooser::_browse);
-    ClassDB::bind_method(D_METHOD("_chosen"), &EditorLineEditFileChooser::_chosen);
-    ClassDB::bind_method(D_METHOD("get_button"), &EditorLineEditFileChooser::get_button);
-    ClassDB::bind_method(D_METHOD("get_line_edit"), &EditorLineEditFileChooser::get_line_edit);
-    ClassDB::bind_method(D_METHOD("get_file_dialog"), &EditorLineEditFileChooser::get_file_dialog);
+    MethodBinder::bind_method(D_METHOD("_browse"), &EditorLineEditFileChooser::_browse);
+    MethodBinder::bind_method(D_METHOD("_chosen"), &EditorLineEditFileChooser::_chosen);
+    MethodBinder::bind_method(D_METHOD("get_button"), &EditorLineEditFileChooser::get_button);
+    MethodBinder::bind_method(D_METHOD("get_line_edit"), &EditorLineEditFileChooser::get_line_edit);
+    MethodBinder::bind_method(D_METHOD("get_file_dialog"), &EditorLineEditFileChooser::get_file_dialog);
 }
 
 void EditorLineEditFileChooser::_chosen(const String &p_text) {

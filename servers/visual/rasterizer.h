@@ -1051,7 +1051,7 @@ public:
 			light_masked = false;
 			update_when_visible = false;
 		}
-		virtual ~Item() {
+		~Item() override {
 			clear();
 			if (copy_back_buffer) memdelete(copy_back_buffer);
 		}

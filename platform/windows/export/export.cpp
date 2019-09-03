@@ -39,8 +39,8 @@ static Error fixup_embedded_pck(const String &p_path, int64_t p_embedded_start, 
 class EditorExportPlatformWindows : public EditorExportPlatformPC {
 
 public:
-	virtual Error export_project(const Ref<EditorExportPreset> &p_preset, bool p_debug, const String &p_path, int p_flags = 0);
-	virtual void get_export_options(List<ExportOption> *r_options);
+	Error export_project(const Ref<EditorExportPreset> &p_preset, bool p_debug, const String &p_path, int p_flags = 0) override;
+	void get_export_options(List<ExportOption> *r_options) override;
 };
 
 Error EditorExportPlatformWindows::export_project(const Ref<EditorExportPreset> &p_preset, bool p_debug, const String &p_path, int p_flags) {

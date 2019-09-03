@@ -53,7 +53,7 @@
 
 class EditorAssetLibraryItem : public PanelContainer {
 
-	GDCLASS(EditorAssetLibraryItem, PanelContainer);
+	GDCLASS(EditorAssetLibraryItem,PanelContainer)
 
 	TextureButton *icon;
 	LinkButton *title;
@@ -84,14 +84,13 @@ public:
 
 class EditorAssetLibraryItemDescription : public ConfirmationDialog {
 
-	GDCLASS(EditorAssetLibraryItemDescription, ConfirmationDialog);
+	GDCLASS(EditorAssetLibraryItemDescription,ConfirmationDialog)
 
 	EditorAssetLibraryItem *item;
 	RichTextLabel *description;
 	ScrollContainer *previews;
 	HBoxContainer *preview_hb;
 	PanelContainer *previews_bg;
-	PanelContainer *desc_bg;
 
 	struct Preview {
 		int id;
@@ -133,7 +132,7 @@ public:
 
 class EditorAssetLibraryItemDownload : public PanelContainer {
 
-	GDCLASS(EditorAssetLibraryItemDownload, PanelContainer);
+	GDCLASS(EditorAssetLibraryItemDownload,PanelContainer)
 
 	TextureRect *icon;
 	Label *title;
@@ -173,7 +172,7 @@ public:
 };
 
 class EditorAssetLibrary : public PanelContainer {
-	GDCLASS(EditorAssetLibrary, PanelContainer);
+	GDCLASS(EditorAssetLibrary,PanelContainer)
 
 	String host;
 
@@ -207,6 +206,7 @@ class EditorAssetLibrary : public PanelContainer {
 	HTTPRequest *request;
 
 	bool templates_only;
+	bool initial_loading;
 
 	enum Support {
 		SUPPORT_OFFICIAL,
@@ -309,23 +309,23 @@ public:
 
 class AssetLibraryEditorPlugin : public EditorPlugin {
 
-	GDCLASS(AssetLibraryEditorPlugin, EditorPlugin);
+	GDCLASS(AssetLibraryEditorPlugin,EditorPlugin)
 
 	EditorAssetLibrary *addon_library;
 	EditorNode *editor;
 
 public:
-	virtual String get_name() const { return "AssetLib"; }
-	bool has_main_screen() const { return true; }
-	virtual void edit(Object *p_object) {}
-	virtual bool handles(Object *p_object) const { return false; }
-	virtual void make_visible(bool p_visible);
+	String get_name() const override { return "AssetLib"; }
+	bool has_main_screen() const override { return true; }
+	void edit(Object *p_object) override {}
+	bool handles(Object *p_object) const override { return false; }
+	void make_visible(bool p_visible) override;
 	//virtual bool get_remove_list(List<Node*> *p_list) { return canvas_item_editor->get_remove_list(p_list); }
 	//virtual Dictionary get_state() const;
 	//virtual void set_state(const Dictionary& p_state);
 
 	AssetLibraryEditorPlugin(EditorNode *p_node);
-	~AssetLibraryEditorPlugin();
+	~AssetLibraryEditorPlugin() override;
 };
 
 #endif // EDITORASSETLIBRARY_H

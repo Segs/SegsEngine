@@ -35,7 +35,7 @@
 
 class ParallaxLayer : public Node2D {
 
-	GDCLASS(ParallaxLayer, Node2D);
+	GDCLASS(ParallaxLayer,Node2D)
 
 	Point2 orig_offset;
 	Point2 orig_scale;
@@ -62,7 +62,7 @@ public:
 
 	void set_base_offset_and_scale(const Point2 &p_offset, float p_scale, const Point2 &p_screen_offset);
 
-	virtual String get_configuration_warning() const;
+	String get_configuration_warning() const override;
 	ParallaxLayer();
 };
 

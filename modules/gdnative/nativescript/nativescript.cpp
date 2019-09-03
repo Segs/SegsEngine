@@ -34,6 +34,7 @@
 
 #include "core/core_string_names.h"
 #include "core/global_constants.h"
+#include "core/method_bind.h"
 #include "core/io/file_access_encrypted.h"
 #include "core/os/file_access.h"
 #include "core/os/os.h"
@@ -56,22 +57,25 @@
 #include "editor/editor_node.h"
 #endif
 
+IMPL_GDCLASS(NativeScript)
+IMPL_GDCLASS(NativeReloadNode)
+
 void NativeScript::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("set_class_name", "class_name"), &NativeScript::set_class_name);
-    ClassDB::bind_method(D_METHOD("get_class_name"), &NativeScript::get_class_name);
+    MethodBinder::bind_method(D_METHOD("set_class_name", "class_name"), &NativeScript::set_class_name);
+    MethodBinder::bind_method(D_METHOD("get_class_name"), &NativeScript::get_class_name);
 
-    ClassDB::bind_method(D_METHOD("set_library", "library"), &NativeScript::set_library);
-    ClassDB::bind_method(D_METHOD("get_library"), &NativeScript::get_library);
+    MethodBinder::bind_method(D_METHOD("set_library", "library"), &NativeScript::set_library);
+    MethodBinder::bind_method(D_METHOD("get_library"), &NativeScript::get_library);
 
-    ClassDB::bind_method(D_METHOD("set_script_class_name", "class_name"), &NativeScript::set_script_class_name);
-    ClassDB::bind_method(D_METHOD("get_script_class_name"), &NativeScript::get_script_class_name);
-    ClassDB::bind_method(D_METHOD("set_script_class_icon_path", "icon_path"), &NativeScript::set_script_class_icon_path);
-    ClassDB::bind_method(D_METHOD("get_script_class_icon_path"), &NativeScript::get_script_class_icon_path);
+    MethodBinder::bind_method(D_METHOD("set_script_class_name", "class_name"), &NativeScript::set_script_class_name);
+    MethodBinder::bind_method(D_METHOD("get_script_class_name"), &NativeScript::get_script_class_name);
+    MethodBinder::bind_method(D_METHOD("set_script_class_icon_path", "icon_path"), &NativeScript::set_script_class_icon_path);
+    MethodBinder::bind_method(D_METHOD("get_script_class_icon_path"), &NativeScript::get_script_class_icon_path);
 
-    ClassDB::bind_method(D_METHOD("get_class_documentation"), &NativeScript::get_class_documentation);
-    ClassDB::bind_method(D_METHOD("get_method_documentation", "method"), &NativeScript::get_method_documentation);
-    ClassDB::bind_method(D_METHOD("get_signal_documentation", "signal_name"), &NativeScript::get_signal_documentation);
-    ClassDB::bind_method(D_METHOD("get_property_documentation", "path"), &NativeScript::get_property_documentation);
+    MethodBinder::bind_method(D_METHOD("get_class_documentation"), &NativeScript::get_class_documentation);
+    MethodBinder::bind_method(D_METHOD("get_method_documentation", "method"), &NativeScript::get_method_documentation);
+    MethodBinder::bind_method(D_METHOD("get_signal_documentation", "signal_name"), &NativeScript::get_signal_documentation);
+    MethodBinder::bind_method(D_METHOD("get_property_documentation", "path"), &NativeScript::get_property_documentation);
 
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "class_name"), "set_class_name", "get_class_name");
     ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "library", PROPERTY_HINT_RESOURCE_TYPE, "GDNativeLibrary"), "set_library", "get_library");
@@ -79,7 +83,7 @@ void NativeScript::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "script_class_name"), "set_script_class_name", "get_script_class_name");
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "script_class_icon_path", PROPERTY_HINT_FILE), "set_script_class_icon_path", "get_script_class_icon_path");
 
-    ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "new", &NativeScript::_new, MethodInfo(Variant::OBJECT, "new"));
+	MethodBinder::bind_vararg_method("new", &NativeScript::_new, MethodInfo("new"));
 }
 
 #define NSL NativeScriptLanguage::get_singleton()
@@ -1623,7 +1627,7 @@ String NativeScriptLanguage::get_global_class_name(const String &p_path, String 
 }
 
 void NativeReloadNode::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("_notification"), &NativeReloadNode::_notification);
+    MethodBinder::bind_method(D_METHOD("_notification"), &NativeReloadNode::_notification);
 }
 
 void NativeReloadNode::_notification(int p_what) {

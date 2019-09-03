@@ -41,7 +41,7 @@ class FileAccess;
 struct EditorProgressBG;
 class EditorFileSystemDirectory : public Object {
 
-	GDCLASS(EditorFileSystemDirectory, Object);
+	GDCLASS(EditorFileSystemDirectory,Object)
 
 	String name;
 	uint64_t modified_time;
@@ -100,12 +100,12 @@ public:
 	int find_dir_index(const String &p_dir) const;
 
 	EditorFileSystemDirectory();
-	~EditorFileSystemDirectory();
+	~EditorFileSystemDirectory() override;
 };
 
 class EditorFileSystem : public Node {
 
-	GDCLASS(EditorFileSystem, Node);
+	GDCLASS(EditorFileSystem,Node)
 
 	_THREAD_SAFE_CLASS_
 
@@ -273,7 +273,7 @@ public:
 	void move_group_file(const String &p_path, const String &p_new_path);
 
 	EditorFileSystem();
-	~EditorFileSystem();
+	~EditorFileSystem() override;
 };
 
 #endif // EDITOR_FILE_SYSTEM_H

@@ -38,6 +38,8 @@
 #include "scene/resources/mesh.h"
 #include "scene/resources/texture.h"
 
+IMPL_GDCLASS(ResourceImporterTextureAtlas)
+
 String ResourceImporterTextureAtlas::get_importer_name() const {
 
 	return "texture_atlas";

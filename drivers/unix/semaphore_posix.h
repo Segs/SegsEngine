@@ -44,14 +44,14 @@ class SemaphorePosix : public Semaphore {
 	static Semaphore *create_semaphore_posix();
 
 public:
-	virtual Error wait();
-	virtual Error post();
-	virtual int get() const;
+	Error wait() override;
+	Error post() override;
+	int get() const override;
 
 	static void make_default();
 	SemaphorePosix();
 
-	~SemaphorePosix();
+	~SemaphorePosix() override;
 };
 
 #endif

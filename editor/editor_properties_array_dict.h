@@ -37,7 +37,7 @@
 
 class EditorPropertyArrayObject : public Reference {
 
-	GDCLASS(EditorPropertyArrayObject, Reference);
+	GDCLASS(EditorPropertyArrayObject,Reference)
 
 	Variant array;
 
@@ -54,7 +54,7 @@ public:
 
 class EditorPropertyDictionaryObject : public Reference {
 
-	GDCLASS(EditorPropertyDictionaryObject, Reference);
+	GDCLASS(EditorPropertyDictionaryObject,Reference)
 
 	Variant new_item_key;
 	Variant new_item_value;
@@ -78,7 +78,7 @@ public:
 };
 
 class EditorPropertyArray : public EditorProperty {
-	GDCLASS(EditorPropertyArray, EditorProperty);
+	GDCLASS(EditorPropertyArray,EditorProperty)
 
 	PopupMenu *change_type;
 	bool updating;
@@ -113,12 +113,12 @@ protected:
 
 public:
 	void setup(Variant::Type p_array_type, const String &p_hint_string = "");
-	virtual void update_property();
+	void update_property() override;
 	EditorPropertyArray();
 };
 
 class EditorPropertyDictionary : public EditorProperty {
-	GDCLASS(EditorPropertyDictionary, EditorProperty);
+	GDCLASS(EditorPropertyDictionary,EditorProperty)
 
 	PopupMenu *change_type;
 	bool updating;
@@ -147,7 +147,7 @@ protected:
 	void _notification(int p_what);
 
 public:
-	virtual void update_property();
+	void update_property() override;
 	EditorPropertyDictionary();
 };
 

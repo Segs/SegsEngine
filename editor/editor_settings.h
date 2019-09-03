@@ -43,7 +43,7 @@ class EditorPlugin;
 
 class EditorSettings : public Resource {
 
-	GDCLASS(EditorSettings, Resource);
+	GDCLASS(EditorSettings,Resource)
 
 private:
 	_THREAD_SAFE_CLASS_
@@ -191,7 +191,7 @@ public:
 	void notify_changes();
 
 	EditorSettings();
-	~EditorSettings();
+	~EditorSettings() override;
 };
 
 //not a macro any longer

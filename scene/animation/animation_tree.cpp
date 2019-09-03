@@ -31,11 +31,16 @@
 #include "animation_tree.h"
 
 #include "animation_blend_tree.h"
+#include "core/method_bind.h"
 #include "core/object_db.h"
 #include "core/engine.h"
-#include "method_bind_ext.gen.h"
+
 #include "scene/scene_string_names.h"
 #include "servers/audio/audio_stream.h"
+
+IMPL_GDCLASS(AnimationNode)
+IMPL_GDCLASS(AnimationRootNode)
+IMPL_GDCLASS(AnimationTree)
 
 void AnimationNode::get_parameter_list(List<PropertyInfo> *r_list) const {
     if (get_script_instance()) {
@@ -319,7 +324,7 @@ void AnimationNode::add_input(const String &p_name) {
     //root nodes can't add inputs
     ERR_FAIL_COND(Object::cast_to<AnimationRootNode>(this) != nullptr);
     Input input;
-    ERR_FAIL_COND(p_name.find(".") != -1 || p_name.find("/") != -1);
+    ERR_FAIL_COND(StringUtils::find(p_name,".") != -1 || StringUtils::find(p_name,"/") != -1);
     input.name = p_name;
     inputs.push_back(input);
     emit_changed();
@@ -327,7 +332,7 @@ void AnimationNode::add_input(const String &p_name) {
 
 void AnimationNode::set_input_name(int p_input, const String &p_name) {
     ERR_FAIL_INDEX(p_input, inputs.size());
-    ERR_FAIL_COND(p_name.find(".") != -1 || p_name.find("/") != -1);
+    ERR_FAIL_COND(StringUtils::find(p_name,".") != -1 || StringUtils::find(p_name,"/") != -1);
     inputs.write[p_input].name = p_name;
     emit_changed();
 }
@@ -405,27 +410,27 @@ Ref<AnimationNode> AnimationNode::get_child_by_name(const StringName &p_name) {
 
 void AnimationNode::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("get_input_count"), &AnimationNode::get_input_count);
-    ClassDB::bind_method(D_METHOD("get_input_name", "input"), &AnimationNode::get_input_name);
+    MethodBinder::bind_method(D_METHOD("get_input_count"), &AnimationNode::get_input_count);
+    MethodBinder::bind_method(D_METHOD("get_input_name", "input"), &AnimationNode::get_input_name);
 
-    ClassDB::bind_method(D_METHOD("add_input", "name"), &AnimationNode::add_input);
-    ClassDB::bind_method(D_METHOD("remove_input", "index"), &AnimationNode::remove_input);
+    MethodBinder::bind_method(D_METHOD("add_input", "name"), &AnimationNode::add_input);
+    MethodBinder::bind_method(D_METHOD("remove_input", "index"), &AnimationNode::remove_input);
 
-    ClassDB::bind_method(D_METHOD("set_filter_path", "path", "enable"), &AnimationNode::set_filter_path);
-    ClassDB::bind_method(D_METHOD("is_path_filtered", "path"), &AnimationNode::is_path_filtered);
+    MethodBinder::bind_method(D_METHOD("set_filter_path", "path", "enable"), &AnimationNode::set_filter_path);
+    MethodBinder::bind_method(D_METHOD("is_path_filtered", "path"), &AnimationNode::is_path_filtered);
 
-    ClassDB::bind_method(D_METHOD("set_filter_enabled", "enable"), &AnimationNode::set_filter_enabled);
-    ClassDB::bind_method(D_METHOD("is_filter_enabled"), &AnimationNode::is_filter_enabled);
+    MethodBinder::bind_method(D_METHOD("set_filter_enabled", "enable"), &AnimationNode::set_filter_enabled);
+    MethodBinder::bind_method(D_METHOD("is_filter_enabled"), &AnimationNode::is_filter_enabled);
 
-    ClassDB::bind_method(D_METHOD("_set_filters", "filters"), &AnimationNode::_set_filters);
-    ClassDB::bind_method(D_METHOD("_get_filters"), &AnimationNode::_get_filters);
+    MethodBinder::bind_method(D_METHOD("_set_filters", "filters"), &AnimationNode::_set_filters);
+    MethodBinder::bind_method(D_METHOD("_get_filters"), &AnimationNode::_get_filters);
 
-    ClassDB::bind_method(D_METHOD("blend_animation", "animation", "time", "delta", "seeked", "blend"), &AnimationNode::blend_animation);
-    ClassDB::bind_method(D_METHOD("blend_node", "name", "node", "time", "seek", "blend", "filter", "optimize"), &AnimationNode::blend_node, {DEFVAL(FILTER_IGNORE), DEFVAL(true)});
-    ClassDB::bind_method(D_METHOD("blend_input", "input_index", "time", "seek", "blend", "filter", "optimize"), &AnimationNode::blend_input, {DEFVAL(FILTER_IGNORE), DEFVAL(true)});
+    MethodBinder::bind_method(D_METHOD("blend_animation", "animation", "time", "delta", "seeked", "blend"), &AnimationNode::blend_animation);
+    MethodBinder::bind_method(D_METHOD("blend_node", "name", "node", "time", "seek", "blend", "filter", "optimize"), &AnimationNode::blend_node, {DEFVAL(FILTER_IGNORE), DEFVAL(true)});
+    MethodBinder::bind_method(D_METHOD("blend_input", "input_index", "time", "seek", "blend", "filter", "optimize"), &AnimationNode::blend_input, {DEFVAL(FILTER_IGNORE), DEFVAL(true)});
 
-    ClassDB::bind_method(D_METHOD("set_parameter", "name", "value"), &AnimationNode::set_parameter);
-    ClassDB::bind_method(D_METHOD("get_parameter", "name"), &AnimationNode::get_parameter);
+    MethodBinder::bind_method(D_METHOD("set_parameter", "name", "value"), &AnimationNode::set_parameter);
+    MethodBinder::bind_method(D_METHOD("get_parameter", "name"), &AnimationNode::get_parameter);
 
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "filter_enabled", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_filter_enabled", "is_filter_enabled");
     ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "filters", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_filters", "_get_filters");
@@ -1413,11 +1418,13 @@ void AnimationTree::_update_properties_for_node(const String &p_base_path, Ref<A
         Vector<Activity> activity;
         for (int i = 0; i < node->get_input_count(); i++) {
             Activity a;
+			a.activity = 0;
             a.last_pass = 0;
             activity.push_back(a);
         }
         input_activity_map[p_base_path] = activity;
-        input_activity_map_get[String(p_base_path).substr(0, String(p_base_path).length() - 1)] = &input_activity_map[p_base_path];
+		//TODO: why is the last character trimmed below, document this or remove the trimming.
+		input_activity_map_get[StringUtils::substr(p_base_path,0, String(p_base_path).length() - 1)] = &input_activity_map[p_base_path];
     }
 
     List<PropertyInfo> plist;
@@ -1472,7 +1479,7 @@ bool AnimationTree::_set(const StringName &p_name, const Variant &p_value) {
     if (property_map.has(p_name)) {
         property_map[p_name] = p_value;
 #ifdef TOOLS_ENABLED
-        _change_notify(qPrintable(p_name));
+		_change_notify(qPrintable(((String)p_name).m_str));
 #endif
         return true;
     }
@@ -1506,8 +1513,8 @@ void AnimationTree::rename_parameter(const String &p_base, const String &p_new_b
 
     //rename values first
     for (const List<PropertyInfo>::Element *E = properties.front(); E; E = E->next()) {
-        if (E->get().name.begins_with(p_base)) {
-            String new_name = E->get().name.replace_first(p_base, p_new_base);
+        if (StringUtils::begins_with(E->get().name,p_base)) {
+			String new_name = StringUtils::replace_first(E->get().name,p_base, p_new_base);
             property_map[new_name] = property_map[E->get().name];
         }
     }
@@ -1536,32 +1543,32 @@ float AnimationTree::get_connection_activity(const StringName &p_path, int p_con
 }
 
 void AnimationTree::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("set_active", "active"), &AnimationTree::set_active);
-    ClassDB::bind_method(D_METHOD("is_active"), &AnimationTree::is_active);
+    MethodBinder::bind_method(D_METHOD("set_active", "active"), &AnimationTree::set_active);
+    MethodBinder::bind_method(D_METHOD("is_active"), &AnimationTree::is_active);
 
-    ClassDB::bind_method(D_METHOD("set_tree_root", "root"), &AnimationTree::set_tree_root);
-    ClassDB::bind_method(D_METHOD("get_tree_root"), &AnimationTree::get_tree_root);
+    MethodBinder::bind_method(D_METHOD("set_tree_root", "root"), &AnimationTree::set_tree_root);
+    MethodBinder::bind_method(D_METHOD("get_tree_root"), &AnimationTree::get_tree_root);
 
-    ClassDB::bind_method(D_METHOD("set_process_mode", "mode"), &AnimationTree::set_process_mode);
-    ClassDB::bind_method(D_METHOD("get_process_mode"), &AnimationTree::get_process_mode);
+    MethodBinder::bind_method(D_METHOD("set_process_mode", "mode"), &AnimationTree::set_process_mode);
+    MethodBinder::bind_method(D_METHOD("get_process_mode"), &AnimationTree::get_process_mode);
 
-    ClassDB::bind_method(D_METHOD("set_animation_player", "root"), &AnimationTree::set_animation_player);
-    ClassDB::bind_method(D_METHOD("get_animation_player"), &AnimationTree::get_animation_player);
+    MethodBinder::bind_method(D_METHOD("set_animation_player", "root"), &AnimationTree::set_animation_player);
+    MethodBinder::bind_method(D_METHOD("get_animation_player"), &AnimationTree::get_animation_player);
 
-    ClassDB::bind_method(D_METHOD("set_root_motion_track", "path"), &AnimationTree::set_root_motion_track);
-    ClassDB::bind_method(D_METHOD("get_root_motion_track"), &AnimationTree::get_root_motion_track);
+    MethodBinder::bind_method(D_METHOD("set_root_motion_track", "path"), &AnimationTree::set_root_motion_track);
+    MethodBinder::bind_method(D_METHOD("get_root_motion_track"), &AnimationTree::get_root_motion_track);
 
-    ClassDB::bind_method(D_METHOD("get_root_motion_transform"), &AnimationTree::get_root_motion_transform);
+    MethodBinder::bind_method(D_METHOD("get_root_motion_transform"), &AnimationTree::get_root_motion_transform);
 
-    ClassDB::bind_method(D_METHOD("_tree_changed"), &AnimationTree::_tree_changed);
-    ClassDB::bind_method(D_METHOD("_update_properties"), &AnimationTree::_update_properties);
+    MethodBinder::bind_method(D_METHOD("_tree_changed"), &AnimationTree::_tree_changed);
+    MethodBinder::bind_method(D_METHOD("_update_properties"), &AnimationTree::_update_properties);
 
-    ClassDB::bind_method(D_METHOD("rename_parameter", "old_name", "new_name"), &AnimationTree::rename_parameter);
+    MethodBinder::bind_method(D_METHOD("rename_parameter", "old_name", "new_name"), &AnimationTree::rename_parameter);
 
-    ClassDB::bind_method(D_METHOD("advance", "delta"), &AnimationTree::advance);
+    MethodBinder::bind_method(D_METHOD("advance", "delta"), &AnimationTree::advance);
 
-    ClassDB::bind_method(D_METHOD("_node_removed"), &AnimationTree::_node_removed);
-    ClassDB::bind_method(D_METHOD("_clear_caches"), &AnimationTree::_clear_caches);
+    MethodBinder::bind_method(D_METHOD("_node_removed"), &AnimationTree::_node_removed);
+    MethodBinder::bind_method(D_METHOD("_clear_caches"), &AnimationTree::_clear_caches);
 
     ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "tree_root", PROPERTY_HINT_RESOURCE_TYPE, "AnimationRootNode"), "set_tree_root", "get_tree_root");
     ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "anim_player", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "AnimationPlayer"), "set_animation_player", "get_animation_player");

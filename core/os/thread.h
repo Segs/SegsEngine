@@ -34,7 +34,7 @@
 #include "core/typedefs.h"
 #include "core/error_list.h"
 
-typedef void (*ThreadCreateCallback)(void *p_userdata);
+using ThreadCreateCallback = void (*)(void *);
 
 class String;
 
@@ -53,7 +53,7 @@ public:
 		Settings() { priority = PRIORITY_NORMAL; }
 	};
 
-	typedef uint64_t ID;
+	using ID = uint64_t;
 
 protected:
 	static Thread *(*create_func)(ThreadCreateCallback p_callback, void *, const Settings &);

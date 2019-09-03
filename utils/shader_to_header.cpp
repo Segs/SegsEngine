@@ -122,7 +122,7 @@ bool include_file_in_legacygl_header(const QString &filename,LegacyGLHeaderStruc
             else
                 texunit = QString::number(texunitstr.toInt());
             QString uline;
-            uline = line.mid(0,line.toLower().indexOf("//"));
+			uline = line.mid(0,line.toLower().indexOf("//"));
             uline.replace("uniform", "");
             uline.replace("highp", "");
             uline.replace(";", "");

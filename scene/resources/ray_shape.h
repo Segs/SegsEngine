@@ -34,14 +34,15 @@
 
 class RayShape : public Shape {
 
-	GDCLASS(RayShape, Shape);
-	float length;
+	GDCLASS(RayShape,Shape)
+
+    float length;
 	bool slips_on_slope;
 
 protected:
 	static void _bind_methods();
-	virtual void _update_shape();
-	virtual Vector<Vector3> _gen_debug_mesh_lines();
+	void _update_shape() override;
+	Vector<Vector3> _gen_debug_mesh_lines() override;
 
 public:
 	void set_length(float p_length);

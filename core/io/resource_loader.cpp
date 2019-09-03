@@ -39,10 +39,15 @@
 #include "core/translation.h"
 #include "core/script_language.h"
 #include "core/variant_parser.h"
+#include "core/method_bind.h"
+#include "core/property_info.h"
 
 Ref<ResourceFormatLoader> ResourceLoader::loader[ResourceLoader::MAX_LOADERS];
 
 int ResourceLoader::loader_count = 0;
+
+IMPL_GDCLASS(ResourceInteractiveLoader);
+IMPL_GDCLASS(ResourceFormatLoader);
 
 Error ResourceInteractiveLoader::wait() {
 
@@ -62,7 +67,7 @@ ResourceInteractiveLoader::~ResourceInteractiveLoader() {
 
 bool ResourceFormatLoader::recognize_path(const String &p_path, const String &p_for_type) const {
 
-	String extension = PathUtils::get_extension(p_path);
+    String extension = PathUtils::get_extension(p_path);
 
     List<String> extensions;
     if (p_for_type == String()) {
@@ -73,7 +78,7 @@ bool ResourceFormatLoader::recognize_path(const String &p_path, const String &p_
 
     for (List<String>::Element *E = extensions.front(); E; E = E->next()) {
 
-		if (E->get().compare(extension,Qt::CaseInsensitive) == 0)
+		if (StringUtils::compare(E->get(),extension,StringUtils::CaseInsensitive) == 0)
             return true;
     }
 
@@ -114,11 +119,11 @@ void ResourceLoader::get_recognized_extensions_for_type(const String &p_type, Li
 
 void ResourceInteractiveLoader::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("get_resource"), &ResourceInteractiveLoader::get_resource);
-    ClassDB::bind_method(D_METHOD("poll"), &ResourceInteractiveLoader::poll);
-    ClassDB::bind_method(D_METHOD("wait"), &ResourceInteractiveLoader::wait);
-    ClassDB::bind_method(D_METHOD("get_stage"), &ResourceInteractiveLoader::get_stage);
-    ClassDB::bind_method(D_METHOD("get_stage_count"), &ResourceInteractiveLoader::get_stage_count);
+    MethodBinder::bind_method(D_METHOD("get_resource"), &ResourceInteractiveLoader::get_resource);
+    MethodBinder::bind_method(D_METHOD("poll"), &ResourceInteractiveLoader::poll);
+    MethodBinder::bind_method(D_METHOD("wait"), &ResourceInteractiveLoader::wait);
+    MethodBinder::bind_method(D_METHOD("get_stage"), &ResourceInteractiveLoader::get_stage);
+    MethodBinder::bind_method(D_METHOD("get_stage_count"), &ResourceInteractiveLoader::get_stage_count);
 }
 
 class ResourceInteractiveLoaderDefault : public ResourceInteractiveLoader {
@@ -139,6 +144,7 @@ public:
 
     ResourceInteractiveLoaderDefault() {}
 };
+IMPL_GDCLASS(ResourceInteractiveLoaderDefault)
 
 Ref<ResourceInteractiveLoader> ResourceFormatLoader::load_interactive(const String &p_path, const String &p_original_path, Error *r_error) {
 
@@ -246,14 +252,14 @@ void ResourceFormatLoader::_bind_methods() {
     {
         MethodInfo info = MethodInfo(Variant::NIL, "load", PropertyInfo(Variant::STRING, "path"), PropertyInfo(Variant::STRING, "original_path"));
         info.return_val.usage |= PROPERTY_USAGE_NIL_IS_VARIANT;
-        ClassDB::add_virtual_method(get_class_static(), info);
+		ClassDB::add_virtual_method(get_class_static_name(), info);
     }
 
-    ClassDB::add_virtual_method(get_class_static(), MethodInfo(Variant::POOL_STRING_ARRAY, "get_recognized_extensions"));
-    ClassDB::add_virtual_method(get_class_static(), MethodInfo(Variant::BOOL, "handles_type", PropertyInfo(Variant::STRING, "typename")));
-    ClassDB::add_virtual_method(get_class_static(), MethodInfo(Variant::STRING, "get_resource_type", PropertyInfo(Variant::STRING, "path")));
-    ClassDB::add_virtual_method(get_class_static(), MethodInfo("get_dependencies", PropertyInfo(Variant::STRING, "path"), PropertyInfo(Variant::STRING, "add_types")));
-    ClassDB::add_virtual_method(get_class_static(), MethodInfo(Variant::INT, "rename_dependencies", PropertyInfo(Variant::STRING, "path"), PropertyInfo(Variant::STRING, "renames")));
+	ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(Variant::POOL_STRING_ARRAY, "get_recognized_extensions"));
+	ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(Variant::BOOL, "handles_type", PropertyInfo(Variant::STRING, "typename")));
+	ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(Variant::STRING, "get_resource_type", PropertyInfo(Variant::STRING, "path")));
+	ClassDB::add_virtual_method(get_class_static_name(), MethodInfo("get_dependencies", PropertyInfo(Variant::STRING, "path"), PropertyInfo(Variant::STRING, "add_types")));
+	ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(Variant::INT, "rename_dependencies", PropertyInfo(Variant::STRING, "path"), PropertyInfo(Variant::STRING, "renames")));
 }
 
 ///////////////////////////////////
@@ -345,7 +351,7 @@ RES ResourceLoader::load(const String &p_path, const String &p_type_hint, bool p
         *r_error = ERR_CANT_OPEN;
 
     String local_path;
-	if (PathUtils::is_rel_path(p_path))
+    if (PathUtils::is_rel_path(p_path))
         local_path = "res://" + p_path;
     else
         local_path = ProjectSettings::get_singleton()->localize_path(p_path);
@@ -433,7 +439,7 @@ RES ResourceLoader::load(const String &p_path, const String &p_type_hint, bool p
 bool ResourceLoader::exists(const String &p_path, const String &p_type_hint) {
 
     String local_path;
-	if (PathUtils::is_rel_path(p_path))
+    if (PathUtils::is_rel_path(p_path))
         local_path = "res://" + p_path;
     else
         local_path = ProjectSettings::get_singleton()->localize_path(p_path);
@@ -466,7 +472,7 @@ Ref<ResourceInteractiveLoader> ResourceLoader::load_interactive(const String &p_
         *r_error = ERR_CANT_OPEN;
 
     String local_path;
-	if (PathUtils::is_rel_path(p_path))
+    if (PathUtils::is_rel_path(p_path))
         local_path = "res://" + p_path;
     else
         local_path = ProjectSettings::get_singleton()->localize_path(p_path);
@@ -572,7 +578,7 @@ int ResourceLoader::get_import_order(const String &p_path) {
     String path = _path_remap(p_path);
 
     String local_path;
-	if (PathUtils::is_rel_path(path))
+    if (PathUtils::is_rel_path(path))
         local_path = "res://" + path;
     else
         local_path = ProjectSettings::get_singleton()->localize_path(path);
@@ -596,7 +602,7 @@ String ResourceLoader::get_import_group_file(const String &p_path) {
     String path = _path_remap(p_path);
 
     String local_path;
-	if (PathUtils::is_rel_path(path))
+    if (PathUtils::is_rel_path(path))
         local_path = "res://" + path;
     else
         local_path = ProjectSettings::get_singleton()->localize_path(path);
@@ -621,7 +627,7 @@ bool ResourceLoader::is_import_valid(const String &p_path) {
     String path = _path_remap(p_path);
 
     String local_path;
-	if (PathUtils::is_rel_path(path))
+    if (PathUtils::is_rel_path(path))
         local_path = "res://" + path;
     else
         local_path = ProjectSettings::get_singleton()->localize_path(path);
@@ -646,7 +652,7 @@ bool ResourceLoader::is_imported(const String &p_path) {
     String path = _path_remap(p_path);
 
     String local_path;
-	if (PathUtils::is_rel_path(path))
+    if (PathUtils::is_rel_path(path))
         local_path = "res://" + path;
     else
         local_path = ProjectSettings::get_singleton()->localize_path(path);
@@ -671,7 +677,7 @@ void ResourceLoader::get_dependencies(const String &p_path, List<String> *p_depe
     String path = _path_remap(p_path);
 
     String local_path;
-	if (PathUtils::is_rel_path(path))
+    if (PathUtils::is_rel_path(path))
         local_path = "res://" + path;
     else
         local_path = ProjectSettings::get_singleton()->localize_path(path);
@@ -694,7 +700,7 @@ Error ResourceLoader::rename_dependencies(const String &p_path, const Map<String
     String path = _path_remap(p_path);
 
     String local_path;
-	if (PathUtils::is_rel_path(path))
+    if (PathUtils::is_rel_path(path))
         local_path = "res://" + path;
     else
         local_path = ProjectSettings::get_singleton()->localize_path(path);
@@ -717,7 +723,7 @@ Error ResourceLoader::rename_dependencies(const String &p_path, const Map<String
 String ResourceLoader::get_resource_type(const String &p_path) {
 
     String local_path;
-	if (PathUtils::is_rel_path(p_path))
+    if (PathUtils::is_rel_path(p_path))
         local_path = "res://" + p_path;
     else
         local_path = ProjectSettings::get_singleton()->localize_path(p_path);
@@ -745,15 +751,15 @@ String ResourceLoader::_path_remap(const String &p_path, bool *r_translation_rem
         }
         for (int i = 0; i < v.size(); i++) {
 
-            int split = v[i].find_last(":");
+            int split = StringUtils::find_last(v[i],":");
             if (split == -1)
                 continue;
-            String l = v[i].right(split + 1).strip_edges();
+            String l = StringUtils::strip_edges(StringUtils::right(v[i],split + 1));
             if (l == String())
                 continue;
 
-            if (l.begins_with(locale)) {
-                new_path = v[i].left(split);
+            if (StringUtils::begins_with(l,locale)) {
+                new_path = StringUtils::left(v[i],split);
                 break;
             }
         }

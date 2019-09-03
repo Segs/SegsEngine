@@ -41,7 +41,7 @@ class EditorFileSystemDirectory;
 class EditorNode;
 
 class DependencyEditor : public AcceptDialog {
-	GDCLASS(DependencyEditor, AcceptDialog);
+	GDCLASS(DependencyEditor,AcceptDialog)
 
 	Tree *tree;
 	Button *fixdeps;
@@ -70,7 +70,7 @@ public:
 };
 
 class DependencyEditorOwners : public AcceptDialog {
-	GDCLASS(DependencyEditorOwners, AcceptDialog);
+	GDCLASS(DependencyEditorOwners,AcceptDialog)
 
 	ItemList *owners;
 	PopupMenu *file_options;
@@ -95,7 +95,7 @@ public:
 };
 
 class DependencyRemoveDialog : public ConfirmationDialog {
-	GDCLASS(DependencyRemoveDialog, ConfirmationDialog);
+	GDCLASS(DependencyRemoveDialog,ConfirmationDialog)
 
 	Label *text;
 	Tree *owners;
@@ -123,7 +123,7 @@ class DependencyRemoveDialog : public ConfirmationDialog {
 	void _find_all_removed_dependencies(EditorFileSystemDirectory *efsd, Vector<RemovedDependency> &p_removed);
 	void _build_removed_dependency_tree(const Vector<RemovedDependency> &p_removed);
 
-	void ok_pressed();
+	void ok_pressed() override;
 
 	static void _bind_methods();
 
@@ -133,7 +133,7 @@ public:
 };
 
 class DependencyErrorDialog : public ConfirmationDialog {
-	GDCLASS(DependencyErrorDialog, ConfirmationDialog);
+	GDCLASS(DependencyErrorDialog,ConfirmationDialog)
 
 public:
 	enum Mode {
@@ -147,8 +147,8 @@ private:
 	Button *fdep;
 	Label *text;
 	Tree *files;
-	void ok_pressed();
-	void custom_action(const String &);
+	void ok_pressed() override;
+	void custom_action(const String &) override;
 
 public:
 	void show(Mode p_mode, const String &p_for_file, const Vector<String> &report);
@@ -156,12 +156,12 @@ public:
 };
 
 class OrphanResourcesDialog : public ConfirmationDialog {
-	GDCLASS(OrphanResourcesDialog, ConfirmationDialog);
+	GDCLASS(OrphanResourcesDialog,ConfirmationDialog)
 
 	DependencyEditor *dep_edit;
 	Tree *files;
 	ConfirmationDialog *delete_confirm;
-	void ok_pressed();
+	void ok_pressed() override;
 
 	bool _fill_owners(EditorFileSystemDirectory *efsd, HashMap<String, int> &refs, TreeItem *p_parent);
 

@@ -31,8 +31,12 @@
 #include "xml_parser.h"
 
 #include "core/print_string.h"
+#include "core/method_bind.h"
+#include "core/method_enum_caster.h"
 
 //#define DEBUG_XML
+
+IMPL_GDCLASS(XMLParser)
 
 VARIANT_ENUM_CAST(XMLParser::NodeType);
 
@@ -44,12 +48,12 @@ static bool _equalsn(const CharType *str1, const CharType *str2, int len) {
 
     // if one (or both) of the strings was smaller then they
     // are only equal if they have the same length
-    return (i == len) || (str1[i] == 0 && str2[i] == 0);
+    return (i == len) || (str1[i] == nullptr && str2[i] == nullptr);
 }
 
 String XMLParser::_replace_special_characters(const String &origstr) {
 
-    int pos = origstr.find("&");
+    int pos = StringUtils::find(origstr,"&");
     int oldPos = 0;
 
     if (pos == -1)
@@ -62,30 +66,30 @@ String XMLParser::_replace_special_characters(const String &origstr) {
 
         int specialChar = -1;
         for (int i = 0; i < (int)special_characters.size(); ++i) {
-            const CharType *p = origstr.constData() + pos + 1;
+            const CharType *p = origstr.cdata() + pos + 1;
 
-            if (_equalsn(special_characters[i].constData()+1, p, special_characters[i].length() - 1)) {
+            if (_equalsn(special_characters[i].cdata()+1, p, special_characters[i].length() - 1)) {
                 specialChar = i;
                 break;
             }
         }
 
         if (specialChar != -1) {
-            newstr += (origstr.substr(oldPos, pos - oldPos));
+            newstr += (StringUtils::substr(origstr,oldPos, pos - oldPos));
             newstr += (special_characters[specialChar][0]);
             pos += special_characters[specialChar].length();
         } else {
-            newstr += (origstr.substr(oldPos, pos - oldPos + 1));
+            newstr += (StringUtils::substr(origstr,oldPos, pos - oldPos + 1));
             pos += 1;
         }
 
         // find next &
         oldPos = pos;
-        pos = origstr.find("&", pos);
+        pos = StringUtils::find(origstr,"&", pos);
     }
 
     if (oldPos < origstr.length() - 1)
-        newstr += (origstr.substr(oldPos, origstr.length() - oldPos));
+        newstr += (StringUtils::substr(origstr,oldPos, origstr.length() - oldPos));
 
     return newstr;
 }
@@ -109,7 +113,7 @@ bool XMLParser::_set_text(char *start, char *end) {
     }
 
     // set current text to the parsed text, and replace xml special characters
-    String s = String::utf8(start, (int)(end - start));
+    String s = StringUtils::from_utf8(start, (int)(end - start));
     node_name = _replace_special_characters(s);
 
     // current XML node type is text
@@ -129,7 +133,7 @@ void XMLParser::_parse_closing_xml_element() {
     while (*P != '>')
         ++P;
 
-    node_name = String::utf8(pBeginClose, (int)(P - pBeginClose));
+    node_name = StringUtils::from_utf8(pBeginClose, (int)(P - pBeginClose));
 #ifdef DEBUG_XML
     print_line("XML CLOSE: " + node_name);
 #endif
@@ -143,7 +147,7 @@ void XMLParser::_ignore_definition() {
     // move until end marked with '>' reached
     while (*P != '>')
         ++P;
-    node_name.parse_utf8(F, P - F);
+    node_name = StringUtils::from_utf8(F, P - F);
     ++P;
 }
 
@@ -179,7 +183,7 @@ bool XMLParser::_parse_cdata() {
     }
 
     if (cDataEnd)
-        node_name = String::utf8(cDataBegin, (int)(cDataEnd - cDataBegin));
+        node_name = StringUtils::from_utf8(cDataBegin, (int)(cDataEnd - cDataBegin));
     else
         node_name = "";
 #ifdef DEBUG_XML
@@ -209,7 +213,7 @@ void XMLParser::_parse_comment() {
     }
 
     P -= 3;
-    node_name = String::utf8(pCommentBegin + 2, (int)(P - pCommentBegin - 2));
+    node_name = StringUtils::from_utf8(pCommentBegin + 2, (int)(P - pCommentBegin - 2));
     P += 3;
 #ifdef DEBUG_XML
     print_line("XML COMMENT: " + node_name);
@@ -271,10 +275,10 @@ void XMLParser::_parse_opening_xml_element() {
                 ++P;
 
                 Attribute attr;
-                attr.name = String::utf8(attributeNameBegin,
+                attr.name = StringUtils::from_utf8(attributeNameBegin,
                         (int)(attributeNameEnd - attributeNameBegin));
 
-                String s = String::utf8(attributeValueBegin,
+                String s = StringUtils::from_utf8(attributeValueBegin,
                         (int)(attributeValueEnd - attributeValueBegin));
 
                 attr.value = _replace_special_characters(s);
@@ -295,7 +299,7 @@ void XMLParser::_parse_opening_xml_element() {
         endName--;
     }
 
-    node_name = String::utf8(startName, (int)(endName - startName));
+    node_name = StringUtils::from_utf8(startName, (int)(endName - startName));
 #ifdef DEBUG_XML
     print_line("XML OPEN: " + node_name);
 #endif
@@ -348,8 +352,8 @@ uint64_t XMLParser::get_node_offset() const {
 
 Error XMLParser::seek(uint64_t p_pos) {
 
-    ERR_FAIL_COND_V(!data, ERR_FILE_EOF);
-    ERR_FAIL_COND_V(p_pos >= length, ERR_FILE_EOF);
+    ERR_FAIL_COND_V(!data, ERR_FILE_EOF)
+    ERR_FAIL_COND_V(p_pos >= length, ERR_FILE_EOF)
 
     P = data + p_pos;
 
@@ -358,31 +362,31 @@ Error XMLParser::seek(uint64_t p_pos) {
 
 void XMLParser::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("read"), &XMLParser::read);
-    ClassDB::bind_method(D_METHOD("get_node_type"), &XMLParser::get_node_type);
-    ClassDB::bind_method(D_METHOD("get_node_name"), &XMLParser::get_node_name);
-    ClassDB::bind_method(D_METHOD("get_node_data"), &XMLParser::get_node_data);
-    ClassDB::bind_method(D_METHOD("get_node_offset"), &XMLParser::get_node_offset);
-    ClassDB::bind_method(D_METHOD("get_attribute_count"), &XMLParser::get_attribute_count);
-    ClassDB::bind_method(D_METHOD("get_attribute_name", "idx"), &XMLParser::get_attribute_name);
-    ClassDB::bind_method(D_METHOD("get_attribute_value", "idx"), (String(XMLParser::*)(int) const) & XMLParser::get_attribute_value);
-    ClassDB::bind_method(D_METHOD("has_attribute", "name"), &XMLParser::has_attribute);
-    ClassDB::bind_method(D_METHOD("get_named_attribute_value", "name"), (String(XMLParser::*)(const String &) const) & XMLParser::get_attribute_value);
-    ClassDB::bind_method(D_METHOD("get_named_attribute_value_safe", "name"), &XMLParser::get_attribute_value_safe);
-    ClassDB::bind_method(D_METHOD("is_empty"), &XMLParser::is_empty);
-    ClassDB::bind_method(D_METHOD("get_current_line"), &XMLParser::get_current_line);
-    ClassDB::bind_method(D_METHOD("skip_section"), &XMLParser::skip_section);
-    ClassDB::bind_method(D_METHOD("seek", "position"), &XMLParser::seek);
-    ClassDB::bind_method(D_METHOD("open", "file"), &XMLParser::open);
-    ClassDB::bind_method(D_METHOD("open_buffer", "buffer"), &XMLParser::open_buffer);
+    MethodBinder::bind_method(D_METHOD("read"), &XMLParser::read);
+    MethodBinder::bind_method(D_METHOD("get_node_type"), &XMLParser::get_node_type);
+    MethodBinder::bind_method(D_METHOD("get_node_name"), &XMLParser::get_node_name);
+    MethodBinder::bind_method(D_METHOD("get_node_data"), &XMLParser::get_node_data);
+    MethodBinder::bind_method(D_METHOD("get_node_offset"), &XMLParser::get_node_offset);
+    MethodBinder::bind_method(D_METHOD("get_attribute_count"), &XMLParser::get_attribute_count);
+    MethodBinder::bind_method(D_METHOD("get_attribute_name", "idx"), &XMLParser::get_attribute_name);
+    MethodBinder::bind_method(D_METHOD("get_attribute_value", "idx"), (String(XMLParser::*)(int) const) & XMLParser::get_attribute_value);
+    MethodBinder::bind_method(D_METHOD("has_attribute", "name"), &XMLParser::has_attribute);
+    MethodBinder::bind_method(D_METHOD("get_named_attribute_value", "name"), (String(XMLParser::*)(const String &) const) & XMLParser::get_attribute_value);
+    MethodBinder::bind_method(D_METHOD("get_named_attribute_value_safe", "name"), &XMLParser::get_attribute_value_safe);
+    MethodBinder::bind_method(D_METHOD("is_empty"), &XMLParser::is_empty);
+    MethodBinder::bind_method(D_METHOD("get_current_line"), &XMLParser::get_current_line);
+    MethodBinder::bind_method(D_METHOD("skip_section"), &XMLParser::skip_section);
+    MethodBinder::bind_method(D_METHOD("seek", "position"), &XMLParser::seek);
+    MethodBinder::bind_method(D_METHOD("open", "file"), &XMLParser::open);
+    MethodBinder::bind_method(D_METHOD("open_buffer", "buffer"), &XMLParser::open_buffer);
 
-    BIND_ENUM_CONSTANT(NODE_NONE);
-    BIND_ENUM_CONSTANT(NODE_ELEMENT);
-    BIND_ENUM_CONSTANT(NODE_ELEMENT_END);
-    BIND_ENUM_CONSTANT(NODE_TEXT);
-    BIND_ENUM_CONSTANT(NODE_COMMENT);
-    BIND_ENUM_CONSTANT(NODE_CDATA);
-    BIND_ENUM_CONSTANT(NODE_UNKNOWN);
+    BIND_ENUM_CONSTANT(NODE_NONE)
+    BIND_ENUM_CONSTANT(NODE_ELEMENT)
+    BIND_ENUM_CONSTANT(NODE_ELEMENT_END)
+    BIND_ENUM_CONSTANT(NODE_TEXT)
+    BIND_ENUM_CONSTANT(NODE_COMMENT)
+    BIND_ENUM_CONSTANT(NODE_CDATA)
+    BIND_ENUM_CONSTANT(NODE_UNKNOWN)
 };
 
 Error XMLParser::read() {
@@ -402,12 +406,12 @@ XMLParser::NodeType XMLParser::get_node_type() {
 }
 String XMLParser::get_node_data() const {
 
-    ERR_FAIL_COND_V(node_type != NODE_TEXT, "");
+    ERR_FAIL_COND_V(node_type != NODE_TEXT, "")
     return node_name;
 }
 
 String XMLParser::get_node_name() const {
-    ERR_FAIL_COND_V(node_type == NODE_TEXT, "");
+    ERR_FAIL_COND_V(node_type == NODE_TEXT, "")
     return node_name;
 }
 int XMLParser::get_attribute_count() const {
@@ -416,12 +420,12 @@ int XMLParser::get_attribute_count() const {
 }
 String XMLParser::get_attribute_name(int p_idx) const {
 
-    ERR_FAIL_INDEX_V(p_idx, attributes.size(), "");
+    ERR_FAIL_INDEX_V(p_idx, attributes.size(), "")
     return attributes[p_idx].name;
 }
 String XMLParser::get_attribute_value(int p_idx) const {
 
-    ERR_FAIL_INDEX_V(p_idx, attributes.size(), "");
+    ERR_FAIL_INDEX_V(p_idx, attributes.size(), "")
     return attributes[p_idx].value;
 }
 bool XMLParser::has_attribute(const String &p_name) const {
@@ -469,7 +473,7 @@ bool XMLParser::is_empty() const {
 
 Error XMLParser::open_buffer(const Vector<uint8_t> &p_buffer) {
 
-    ERR_FAIL_COND_V(p_buffer.size() == 0, ERR_INVALID_DATA);
+    ERR_FAIL_COND_V(p_buffer.size() == 0, ERR_INVALID_DATA)
 
     length = p_buffer.size();
     data = memnew_arr(char, length + 1);
@@ -484,10 +488,10 @@ Error XMLParser::open(const String &p_path) {
     Error err;
     FileAccess *file = FileAccess::open(p_path, FileAccess::READ, &err);
 
-    ERR_FAIL_COND_V(err != OK, err);
+    ERR_FAIL_COND_V(err != OK, err)
 
     length = file->get_len();
-    ERR_FAIL_COND_V(length < 1, ERR_FILE_CORRUPT);
+    ERR_FAIL_COND_V(length < 1, ERR_FILE_CORRUPT)
 
     data = memnew_arr(char, length + 1);
     file->get_buffer((uint8_t *)data, length);

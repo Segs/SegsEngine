@@ -43,11 +43,11 @@ Error ImageLoaderHDR::load_image(ImageData & p_image, FileAccess *f, LoadParams 
     while (true) {
         String line = f->get_line();
         ERR_FAIL_COND_V(f->eof_reached(), ERR_FILE_UNRECOGNIZED)
-        if (line == "") // empty line indicates end of header
+        if (line.empty()) // empty line indicates end of header
             break;
-        if (line.begins_with("FORMAT=")) { // leave option to implement other commands
-            ERR_FAIL_COND_V_MSG(line != "FORMAT=32-bit_rle_rgbe", ERR_FILE_UNRECOGNIZED, "Only 32-bit_rle_rgbe is supported for HDR files.");
-        } else if (!line.begins_with("#")) { // not comment
+        if (StringUtils::begins_with(line,"FORMAT=")) { // leave option to implement other commands
+			ERR_FAIL_COND_V_CMSG(line != "FORMAT=32-bit_rle_rgbe", ERR_FILE_UNRECOGNIZED, "Only 32-bit_rle_rgbe is supported for HDR files.");
+        } else if (!StringUtils::begins_with(line,"#")) { // not comment
             WARN_PRINTS("Ignoring unsupported header information in HDR: " + line + ".")
         }
     }
@@ -56,13 +56,13 @@ Error ImageLoaderHDR::load_image(ImageData & p_image, FileAccess *f, LoadParams 
 
     ERR_FAIL_COND_V(token != "-Y", ERR_FILE_CORRUPT)
 
-    int height = f->get_token().to_int();
+    int height = StringUtils::to_int(f->get_token());
 
     token = f->get_token();
 
     ERR_FAIL_COND_V(token != "+X", ERR_FILE_CORRUPT)
 
-    int width = f->get_line().to_int();
+    int width = StringUtils::to_int(f->get_line());
 
     p_image.data.resize(height * width * sizeof(uint32_t));
 
@@ -98,7 +98,7 @@ Error ImageLoaderHDR::load_image(ImageData & p_image, FileAccess *f, LoadParams 
                 len <<= 8;
                 len |= f->get_8();
 
-                ERR_FAIL_COND_V_MSG(len != width, ERR_FILE_CORRUPT, "Invalid decoded scanline length, corrupt HDR.");
+				ERR_FAIL_COND_V_CMSG(len != width, ERR_FILE_CORRUPT, "Invalid decoded scanline length, corrupt HDR.");
 
                 for (int k = 0; k < 4; ++k) {
                     int i = 0;
@@ -142,14 +142,14 @@ Error ImageLoaderHDR::load_image(ImageData & p_image, FileAccess *f, LoadParams 
     p_image.width = width;
     p_image.height= height;
     p_image.mipmaps= false;
-	p_image.format = ImageData::FORMAT_RGBE9995;
+    p_image.format = ImageData::FORMAT_RGBE9995;
 
     return OK;
 }
 
 void ImageLoaderHDR::get_recognized_extensions(List<String> *p_extensions) const {
 
-    p_extensions->push_back("hdr");
+	p_extensions->push_back(String("hdr"));
 }
 
 ImageLoaderHDR::ImageLoaderHDR() {

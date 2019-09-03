@@ -30,6 +30,7 @@
 
 #include "audio_server.h"
 #include "core/io/resource_loader.h"
+#include "core/method_bind.h"
 #include "core/os/file_access.h"
 #include "core/os/os.h"
 #include "core/project_settings.h"
@@ -47,6 +48,9 @@
 #define MARK_EDITED
 
 #endif
+
+IMPL_GDCLASS(AudioServer)
+IMPL_GDCLASS(AudioBusLayout)
 
 AudioDriver *AudioDriver::singleton = nullptr;
 AudioDriver *AudioDriver::get_singleton() {
@@ -1020,7 +1024,7 @@ void AudioServer::update() {
                 if (!bus->effects[j].enabled)
                     continue;
 
-                values.push_back(String(bus->name + bus->effects[j].effect->get_name()));
+				values.push_back((String)bus->name + bus->effects[j].effect->get_name());
                 values.push_back(USEC_TO_SEC(bus->effects[j].prof_time));
 
                 // Subtract the effect time from the driver and server times
@@ -1345,77 +1349,77 @@ unsigned int AudioServer::get_capture_size() {
 
 void AudioServer::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_bus_count", "amount"), &AudioServer::set_bus_count);
-    ClassDB::bind_method(D_METHOD("get_bus_count"), &AudioServer::get_bus_count);
+    MethodBinder::bind_method(D_METHOD("set_bus_count", "amount"), &AudioServer::set_bus_count);
+    MethodBinder::bind_method(D_METHOD("get_bus_count"), &AudioServer::get_bus_count);
 
-    ClassDB::bind_method(D_METHOD("remove_bus", "index"), &AudioServer::remove_bus);
-    ClassDB::bind_method(D_METHOD("add_bus", "at_position"), &AudioServer::add_bus, {DEFVAL(-1)});
-    ClassDB::bind_method(D_METHOD("move_bus", "index", "to_index"), &AudioServer::move_bus);
+    MethodBinder::bind_method(D_METHOD("remove_bus", "index"), &AudioServer::remove_bus);
+    MethodBinder::bind_method(D_METHOD("add_bus", "at_position"), &AudioServer::add_bus, {DEFVAL(-1)});
+    MethodBinder::bind_method(D_METHOD("move_bus", "index", "to_index"), &AudioServer::move_bus);
 
-    ClassDB::bind_method(D_METHOD("set_bus_name", "bus_idx", "name"), &AudioServer::set_bus_name);
-    ClassDB::bind_method(D_METHOD("get_bus_name", "bus_idx"), &AudioServer::get_bus_name);
-    ClassDB::bind_method(D_METHOD("get_bus_index", "bus_name"), &AudioServer::get_bus_index);
+    MethodBinder::bind_method(D_METHOD("set_bus_name", "bus_idx", "name"), &AudioServer::set_bus_name);
+    MethodBinder::bind_method(D_METHOD("get_bus_name", "bus_idx"), &AudioServer::get_bus_name);
+    MethodBinder::bind_method(D_METHOD("get_bus_index", "bus_name"), &AudioServer::get_bus_index);
 
-    ClassDB::bind_method(D_METHOD("get_bus_channels", "bus_idx"), &AudioServer::get_bus_channels);
+    MethodBinder::bind_method(D_METHOD("get_bus_channels", "bus_idx"), &AudioServer::get_bus_channels);
 
-    ClassDB::bind_method(D_METHOD("set_bus_volume_db", "bus_idx", "volume_db"), &AudioServer::set_bus_volume_db);
-    ClassDB::bind_method(D_METHOD("get_bus_volume_db", "bus_idx"), &AudioServer::get_bus_volume_db);
+    MethodBinder::bind_method(D_METHOD("set_bus_volume_db", "bus_idx", "volume_db"), &AudioServer::set_bus_volume_db);
+    MethodBinder::bind_method(D_METHOD("get_bus_volume_db", "bus_idx"), &AudioServer::get_bus_volume_db);
 
-    ClassDB::bind_method(D_METHOD("set_bus_send", "bus_idx", "send"), &AudioServer::set_bus_send);
-    ClassDB::bind_method(D_METHOD("get_bus_send", "bus_idx"), &AudioServer::get_bus_send);
+    MethodBinder::bind_method(D_METHOD("set_bus_send", "bus_idx", "send"), &AudioServer::set_bus_send);
+    MethodBinder::bind_method(D_METHOD("get_bus_send", "bus_idx"), &AudioServer::get_bus_send);
 
-    ClassDB::bind_method(D_METHOD("set_bus_solo", "bus_idx", "enable"), &AudioServer::set_bus_solo);
-    ClassDB::bind_method(D_METHOD("is_bus_solo", "bus_idx"), &AudioServer::is_bus_solo);
+    MethodBinder::bind_method(D_METHOD("set_bus_solo", "bus_idx", "enable"), &AudioServer::set_bus_solo);
+    MethodBinder::bind_method(D_METHOD("is_bus_solo", "bus_idx"), &AudioServer::is_bus_solo);
 
-    ClassDB::bind_method(D_METHOD("set_bus_mute", "bus_idx", "enable"), &AudioServer::set_bus_mute);
-    ClassDB::bind_method(D_METHOD("is_bus_mute", "bus_idx"), &AudioServer::is_bus_mute);
+    MethodBinder::bind_method(D_METHOD("set_bus_mute", "bus_idx", "enable"), &AudioServer::set_bus_mute);
+    MethodBinder::bind_method(D_METHOD("is_bus_mute", "bus_idx"), &AudioServer::is_bus_mute);
 
-    ClassDB::bind_method(D_METHOD("set_bus_bypass_effects", "bus_idx", "enable"), &AudioServer::set_bus_bypass_effects);
-    ClassDB::bind_method(D_METHOD("is_bus_bypassing_effects", "bus_idx"), &AudioServer::is_bus_bypassing_effects);
+    MethodBinder::bind_method(D_METHOD("set_bus_bypass_effects", "bus_idx", "enable"), &AudioServer::set_bus_bypass_effects);
+    MethodBinder::bind_method(D_METHOD("is_bus_bypassing_effects", "bus_idx"), &AudioServer::is_bus_bypassing_effects);
 
-    ClassDB::bind_method(D_METHOD("add_bus_effect", "bus_idx", "effect", "at_position"), &AudioServer::add_bus_effect, {DEFVAL(-1)});
-    ClassDB::bind_method(D_METHOD("remove_bus_effect", "bus_idx", "effect_idx"), &AudioServer::remove_bus_effect);
+    MethodBinder::bind_method(D_METHOD("add_bus_effect", "bus_idx", "effect", "at_position"), &AudioServer::add_bus_effect, {DEFVAL(-1)});
+    MethodBinder::bind_method(D_METHOD("remove_bus_effect", "bus_idx", "effect_idx"), &AudioServer::remove_bus_effect);
 
-    ClassDB::bind_method(D_METHOD("get_bus_effect_count", "bus_idx"), &AudioServer::get_bus_effect_count);
-    ClassDB::bind_method(D_METHOD("get_bus_effect", "bus_idx", "effect_idx"), &AudioServer::get_bus_effect);
-    ClassDB::bind_method(D_METHOD("get_bus_effect_instance", "bus_idx", "effect_idx", "channel"), &AudioServer::get_bus_effect_instance, {DEFVAL(0)});
-    ClassDB::bind_method(D_METHOD("swap_bus_effects", "bus_idx", "effect_idx", "by_effect_idx"), &AudioServer::swap_bus_effects);
+    MethodBinder::bind_method(D_METHOD("get_bus_effect_count", "bus_idx"), &AudioServer::get_bus_effect_count);
+    MethodBinder::bind_method(D_METHOD("get_bus_effect", "bus_idx", "effect_idx"), &AudioServer::get_bus_effect);
+    MethodBinder::bind_method(D_METHOD("get_bus_effect_instance", "bus_idx", "effect_idx", "channel"), &AudioServer::get_bus_effect_instance, {DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("swap_bus_effects", "bus_idx", "effect_idx", "by_effect_idx"), &AudioServer::swap_bus_effects);
 
-    ClassDB::bind_method(D_METHOD("set_bus_effect_enabled", "bus_idx", "effect_idx", "enabled"), &AudioServer::set_bus_effect_enabled);
-    ClassDB::bind_method(D_METHOD("is_bus_effect_enabled", "bus_idx", "effect_idx"), &AudioServer::is_bus_effect_enabled);
+    MethodBinder::bind_method(D_METHOD("set_bus_effect_enabled", "bus_idx", "effect_idx", "enabled"), &AudioServer::set_bus_effect_enabled);
+    MethodBinder::bind_method(D_METHOD("is_bus_effect_enabled", "bus_idx", "effect_idx"), &AudioServer::is_bus_effect_enabled);
 
-    ClassDB::bind_method(D_METHOD("get_bus_peak_volume_left_db", "bus_idx", "channel"), &AudioServer::get_bus_peak_volume_left_db);
-    ClassDB::bind_method(D_METHOD("get_bus_peak_volume_right_db", "bus_idx", "channel"), &AudioServer::get_bus_peak_volume_right_db);
+    MethodBinder::bind_method(D_METHOD("get_bus_peak_volume_left_db", "bus_idx", "channel"), &AudioServer::get_bus_peak_volume_left_db);
+    MethodBinder::bind_method(D_METHOD("get_bus_peak_volume_right_db", "bus_idx", "channel"), &AudioServer::get_bus_peak_volume_right_db);
 
-    ClassDB::bind_method(D_METHOD("set_global_rate_scale", "scale"), &AudioServer::set_global_rate_scale);
-    ClassDB::bind_method(D_METHOD("get_global_rate_scale"), &AudioServer::get_global_rate_scale);
+    MethodBinder::bind_method(D_METHOD("set_global_rate_scale", "scale"), &AudioServer::set_global_rate_scale);
+    MethodBinder::bind_method(D_METHOD("get_global_rate_scale"), &AudioServer::get_global_rate_scale);
 
-    ClassDB::bind_method(D_METHOD("lock"), &AudioServer::lock);
-    ClassDB::bind_method(D_METHOD("unlock"), &AudioServer::unlock);
+    MethodBinder::bind_method(D_METHOD("lock"), &AudioServer::lock);
+    MethodBinder::bind_method(D_METHOD("unlock"), &AudioServer::unlock);
 
-    ClassDB::bind_method(D_METHOD("get_speaker_mode"), &AudioServer::get_speaker_mode);
-    ClassDB::bind_method(D_METHOD("get_mix_rate"), &AudioServer::get_mix_rate);
-    ClassDB::bind_method(D_METHOD("get_device_list"), &AudioServer::get_device_list);
-    ClassDB::bind_method(D_METHOD("get_device"), &AudioServer::get_device);
-    ClassDB::bind_method(D_METHOD("set_device", "device"), &AudioServer::set_device);
+    MethodBinder::bind_method(D_METHOD("get_speaker_mode"), &AudioServer::get_speaker_mode);
+    MethodBinder::bind_method(D_METHOD("get_mix_rate"), &AudioServer::get_mix_rate);
+    MethodBinder::bind_method(D_METHOD("get_device_list"), &AudioServer::get_device_list);
+    MethodBinder::bind_method(D_METHOD("get_device"), &AudioServer::get_device);
+    MethodBinder::bind_method(D_METHOD("set_device", "device"), &AudioServer::set_device);
 
-    ClassDB::bind_method(D_METHOD("get_time_to_next_mix"), &AudioServer::get_time_to_next_mix);
-    ClassDB::bind_method(D_METHOD("get_time_since_last_mix"), &AudioServer::get_time_since_last_mix);
-    ClassDB::bind_method(D_METHOD("get_output_latency"), &AudioServer::get_output_latency);
+    MethodBinder::bind_method(D_METHOD("get_time_to_next_mix"), &AudioServer::get_time_to_next_mix);
+    MethodBinder::bind_method(D_METHOD("get_time_since_last_mix"), &AudioServer::get_time_since_last_mix);
+    MethodBinder::bind_method(D_METHOD("get_output_latency"), &AudioServer::get_output_latency);
 
-    ClassDB::bind_method(D_METHOD("capture_start"), &AudioServer::capture_start);
-    ClassDB::bind_method(D_METHOD("capture_stop"), &AudioServer::capture_stop);
+    MethodBinder::bind_method(D_METHOD("capture_start"), &AudioServer::capture_start);
+    MethodBinder::bind_method(D_METHOD("capture_stop"), &AudioServer::capture_stop);
 
-    ClassDB::bind_method(D_METHOD("capture_get_device_list"), &AudioServer::capture_get_device_list);
-    ClassDB::bind_method(D_METHOD("capture_get_device"), &AudioServer::capture_get_device);
-    ClassDB::bind_method(D_METHOD("capture_set_device", "name"), &AudioServer::capture_set_device);
+    MethodBinder::bind_method(D_METHOD("capture_get_device_list"), &AudioServer::capture_get_device_list);
+    MethodBinder::bind_method(D_METHOD("capture_get_device"), &AudioServer::capture_get_device);
+    MethodBinder::bind_method(D_METHOD("capture_set_device", "name"), &AudioServer::capture_set_device);
 
-    ClassDB::bind_method(D_METHOD("get_capture_buffer"), &AudioServer::get_capture_buffer);
-    ClassDB::bind_method(D_METHOD("get_capture_position"), &AudioServer::get_capture_position);
-    ClassDB::bind_method(D_METHOD("get_capture_size"), &AudioServer::get_capture_size);
+    MethodBinder::bind_method(D_METHOD("get_capture_buffer"), &AudioServer::get_capture_buffer);
+    MethodBinder::bind_method(D_METHOD("get_capture_position"), &AudioServer::get_capture_position);
+    MethodBinder::bind_method(D_METHOD("get_capture_size"), &AudioServer::get_capture_size);
 
-    ClassDB::bind_method(D_METHOD("set_bus_layout", "bus_layout"), &AudioServer::set_bus_layout);
-    ClassDB::bind_method(D_METHOD("generate_bus_layout"), &AudioServer::generate_bus_layout);
+    MethodBinder::bind_method(D_METHOD("set_bus_layout", "bus_layout"), &AudioServer::set_bus_layout);
+    MethodBinder::bind_method(D_METHOD("generate_bus_layout"), &AudioServer::generate_bus_layout);
 
     ADD_PROPERTY(PropertyInfo(Variant::INT, "bus_count"), "set_bus_count", "get_bus_count");
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "device"), "set_device", "get_device");
@@ -1462,15 +1466,15 @@ AudioServer::~AudioServer() {
 bool AudioBusLayout::_set(const StringName &p_name, const Variant &p_value) {
 
     String s = p_name;
-    if (s.begins_with("bus/")) {
-        int index = s.get_slice("/", 1).to_int();
+    if (StringUtils::begins_with(s,"bus/")) {
+        int index = StringUtils::to_int(StringUtils::get_slice(s,"/", 1));
         if (buses.size() <= index) {
             buses.resize(index + 1);
         }
 
         Bus &bus = buses.write[index];
 
-        String what = s.get_slice("/", 2);
+        String what = StringUtils::get_slice(s,"/", 2);
 
         if (what == "name") {
             bus.name = p_value;
@@ -1485,14 +1489,14 @@ bool AudioBusLayout::_set(const StringName &p_name, const Variant &p_value) {
         } else if (what == "send") {
             bus.send = p_value;
         } else if (what == "effect") {
-            int which = s.get_slice("/", 3).to_int();
+            int which = StringUtils::to_int(StringUtils::get_slice(s,"/", 3));
             if (bus.effects.size() <= which) {
                 bus.effects.resize(which + 1);
             }
 
             Bus::Effect &fx = bus.effects.write[which];
 
-            String fxwhat = s.get_slice("/", 4);
+            String fxwhat = StringUtils::get_slice(s,"/", 4);
             if (fxwhat == "effect") {
                 fx.effect = p_value;
             } else if (fxwhat == "enabled") {
@@ -1515,15 +1519,15 @@ bool AudioBusLayout::_set(const StringName &p_name, const Variant &p_value) {
 bool AudioBusLayout::_get(const StringName &p_name, Variant &r_ret) const {
 
     String s = p_name;
-    if (s.begins_with("bus/")) {
+    if (StringUtils::begins_with(s,"bus/")) {
 
-        int index = s.get_slice("/", 1).to_int();
+        int index = StringUtils::to_int(StringUtils::get_slice(s,"/", 1));
         if (index < 0 || index >= buses.size())
             return false;
 
         const Bus &bus = buses[index];
 
-        String what = s.get_slice("/", 2);
+        String what = StringUtils::get_slice(s,"/", 2);
 
         if (what == "name") {
             r_ret = bus.name;
@@ -1538,14 +1542,14 @@ bool AudioBusLayout::_get(const StringName &p_name, Variant &r_ret) const {
         } else if (what == "send") {
             r_ret = bus.send;
         } else if (what == "effect") {
-            int which = s.get_slice("/", 3).to_int();
+            int which = StringUtils::to_int(StringUtils::get_slice(s,"/", 3));
             if (which < 0 || which >= bus.effects.size()) {
                 return false;
             }
 
             const Bus::Effect &fx = bus.effects[which];
 
-            String fxwhat = s.get_slice("/", 4);
+            String fxwhat = StringUtils::get_slice(s,"/", 4);
             if (fxwhat == "effect") {
                 r_ret = fx.effect;
             } else if (fxwhat == "enabled") {

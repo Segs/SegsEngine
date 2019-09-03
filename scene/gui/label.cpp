@@ -32,6 +32,11 @@
 #include "core/print_string.h"
 #include "core/project_settings.h"
 #include "core/translation.h"
+#include "scene/resources/font.h"
+#include "scene/resources/style_box.h"
+#include "core/method_bind.h"
+
+IMPL_GDCLASS(Label)
 
 void Label::set_autowrap(bool p_autowrap) {
 
@@ -221,7 +226,7 @@ void Label::_notification(int p_what) {
                 int pos = from->char_pos;
                 if (from->char_pos < 0) {
 
-                    ERR_PRINT("BUG");
+                    ERR_PRINT("BUG")
                     return;
                 }
                 if (from->space_count) {
@@ -241,10 +246,10 @@ void Label::_notification(int p_what) {
 
                         if (visible_chars < 0 || chars_total_shadow < visible_chars) {
                             CharType c = xl_text[i + pos];
-                            CharType n = xl_text[i + pos + 1];
+                            CharType n = (i + pos + 1)<xl_text.length() ? xl_text[i + pos + 1] : QChar();
                             if (uppercase) {
-                                c = c.toUpper();
-                                n = n.toUpper();
+                                c = StringUtils::char_uppercase(c);
+                                n = StringUtils::char_uppercase(n);
                             }
 
                             float move = drawer.draw_char(ci, Point2(x_ofs_shadow, y_ofs) + shadow_ofs, c, n, font_color_shadow);
@@ -262,7 +267,7 @@ void Label::_notification(int p_what) {
 
                     if (visible_chars < 0 || chars_total < visible_chars) {
                         CharType c = xl_text[i + pos];
-                        CharType n = xl_text[i + pos + 1];
+                        CharType n = (i + pos + 1)<xl_text.length() ? xl_text[i + pos + 1] : QChar();
                         if (uppercase) {
                             c = StringUtils::char_uppercase(c);
                             n = StringUtils::char_uppercase(n);
@@ -332,8 +337,10 @@ int Label::get_longest_line_width() const {
         } else {
 
             // ceiling to ensure autowrapping does not cut text
-            int char_width = Math::ceil(font->get_char_size(current, xl_text[i + 1]).width);
-            line_width += char_width;
+            if((i+1)<xl_text.size()) {
+                int char_width = Math::ceil(font->get_char_size(current, xl_text[i + 1]).width);
+                line_width += char_width;
+            }
         }
     }
 
@@ -396,7 +403,7 @@ void Label::regenerate_word_cache() {
     for (int i = 0; i <= xl_text.length(); i++) {
 
         CharType current = i < xl_text.length() ? xl_text[i] : QChar(' '); //always a space at the end, so the algo works
-
+        CharType next = (i+1) < xl_text.length() ? xl_text[i+1] : QChar();
         if (uppercase)
             current = StringUtils::char_uppercase(current);
 
@@ -433,7 +440,7 @@ void Label::regenerate_word_cache() {
                 total_char_cache++;
             }
 
-            if (i < xl_text.length() && xl_text[i] == ' ') {
+            if (i < xl_text.length() && current == ' ') {
                 if (line_width > 0 || last == nullptr || last->char_pos != WordCache::CHAR_WRAPLINE) {
                     space_count++;
                     line_width += space_width;
@@ -448,7 +455,7 @@ void Label::regenerate_word_cache() {
                 word_pos = i;
             }
             // ceiling to ensure autowrapping does not cut text
-            char_width = Math::ceil(font->get_char_size(current, xl_text[i + 1]).width);
+            char_width = Math::ceil(font->get_char_size(current, next).width);
             current_word_size += char_width;
             line_width += char_width;
             total_char_cache++;
@@ -628,30 +635,30 @@ int Label::get_total_character_count() const {
 
 void Label::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_align", "align"), &Label::set_align);
-    ClassDB::bind_method(D_METHOD("get_align"), &Label::get_align);
-    ClassDB::bind_method(D_METHOD("set_valign", "valign"), &Label::set_valign);
-    ClassDB::bind_method(D_METHOD("get_valign"), &Label::get_valign);
-    ClassDB::bind_method(D_METHOD("set_text", "text"), &Label::set_text);
-    ClassDB::bind_method(D_METHOD("get_text"), &Label::get_text);
-    ClassDB::bind_method(D_METHOD("set_autowrap", "enable"), &Label::set_autowrap);
-    ClassDB::bind_method(D_METHOD("has_autowrap"), &Label::has_autowrap);
-    ClassDB::bind_method(D_METHOD("set_clip_text", "enable"), &Label::set_clip_text);
-    ClassDB::bind_method(D_METHOD("is_clipping_text"), &Label::is_clipping_text);
-    ClassDB::bind_method(D_METHOD("set_uppercase", "enable"), &Label::set_uppercase);
-    ClassDB::bind_method(D_METHOD("is_uppercase"), &Label::is_uppercase);
-    ClassDB::bind_method(D_METHOD("get_line_height"), &Label::get_line_height);
-    ClassDB::bind_method(D_METHOD("get_line_count"), &Label::get_line_count);
-    ClassDB::bind_method(D_METHOD("get_visible_line_count"), &Label::get_visible_line_count);
-    ClassDB::bind_method(D_METHOD("get_total_character_count"), &Label::get_total_character_count);
-    ClassDB::bind_method(D_METHOD("set_visible_characters", "amount"), &Label::set_visible_characters);
-    ClassDB::bind_method(D_METHOD("get_visible_characters"), &Label::get_visible_characters);
-    ClassDB::bind_method(D_METHOD("set_percent_visible", "percent_visible"), &Label::set_percent_visible);
-    ClassDB::bind_method(D_METHOD("get_percent_visible"), &Label::get_percent_visible);
-    ClassDB::bind_method(D_METHOD("set_lines_skipped", "lines_skipped"), &Label::set_lines_skipped);
-    ClassDB::bind_method(D_METHOD("get_lines_skipped"), &Label::get_lines_skipped);
-    ClassDB::bind_method(D_METHOD("set_max_lines_visible", "lines_visible"), &Label::set_max_lines_visible);
-    ClassDB::bind_method(D_METHOD("get_max_lines_visible"), &Label::get_max_lines_visible);
+    MethodBinder::bind_method(D_METHOD("set_align", "align"), &Label::set_align);
+    MethodBinder::bind_method(D_METHOD("get_align"), &Label::get_align);
+    MethodBinder::bind_method(D_METHOD("set_valign", "valign"), &Label::set_valign);
+    MethodBinder::bind_method(D_METHOD("get_valign"), &Label::get_valign);
+    MethodBinder::bind_method(D_METHOD("set_text", "text"), &Label::set_text);
+    MethodBinder::bind_method(D_METHOD("get_text"), &Label::get_text);
+    MethodBinder::bind_method(D_METHOD("set_autowrap", "enable"), &Label::set_autowrap);
+    MethodBinder::bind_method(D_METHOD("has_autowrap"), &Label::has_autowrap);
+    MethodBinder::bind_method(D_METHOD("set_clip_text", "enable"), &Label::set_clip_text);
+    MethodBinder::bind_method(D_METHOD("is_clipping_text"), &Label::is_clipping_text);
+    MethodBinder::bind_method(D_METHOD("set_uppercase", "enable"), &Label::set_uppercase);
+    MethodBinder::bind_method(D_METHOD("is_uppercase"), &Label::is_uppercase);
+    MethodBinder::bind_method(D_METHOD("get_line_height"), &Label::get_line_height);
+    MethodBinder::bind_method(D_METHOD("get_line_count"), &Label::get_line_count);
+    MethodBinder::bind_method(D_METHOD("get_visible_line_count"), &Label::get_visible_line_count);
+    MethodBinder::bind_method(D_METHOD("get_total_character_count"), &Label::get_total_character_count);
+    MethodBinder::bind_method(D_METHOD("set_visible_characters", "amount"), &Label::set_visible_characters);
+    MethodBinder::bind_method(D_METHOD("get_visible_characters"), &Label::get_visible_characters);
+    MethodBinder::bind_method(D_METHOD("set_percent_visible", "percent_visible"), &Label::set_percent_visible);
+    MethodBinder::bind_method(D_METHOD("get_percent_visible"), &Label::get_percent_visible);
+    MethodBinder::bind_method(D_METHOD("set_lines_skipped", "lines_skipped"), &Label::set_lines_skipped);
+    MethodBinder::bind_method(D_METHOD("get_lines_skipped"), &Label::get_lines_skipped);
+    MethodBinder::bind_method(D_METHOD("set_max_lines_visible", "lines_visible"), &Label::set_max_lines_visible);
+    MethodBinder::bind_method(D_METHOD("get_max_lines_visible"), &Label::get_max_lines_visible);
 
     BIND_ENUM_CONSTANT(ALIGN_LEFT);
     BIND_ENUM_CONSTANT(ALIGN_CENTER);

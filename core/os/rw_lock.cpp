@@ -32,7 +32,7 @@
 
 #include "core/error_macros.h"
 
-#include <stddef.h>
+#include <cstddef>
 
 RWLock *(*RWLock::create_func)() = nullptr;
 

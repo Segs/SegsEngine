@@ -40,7 +40,7 @@
 
 class Particles2DEditorPlugin : public EditorPlugin {
 
-	GDCLASS(Particles2DEditorPlugin, EditorPlugin);
+	GDCLASS(Particles2DEditorPlugin,EditorPlugin)
 
 	enum {
 
@@ -87,14 +87,14 @@ protected:
 	static void _bind_methods();
 
 public:
-	virtual String get_name() const { return "Particles2D"; }
-	bool has_main_screen() const { return false; }
-	virtual void edit(Object *p_object);
-	virtual bool handles(Object *p_object) const;
-	virtual void make_visible(bool p_visible);
+	String get_name() const override { return "Particles2D"; }
+	bool has_main_screen() const override { return false; }
+	void edit(Object *p_object) override;
+	bool handles(Object *p_object) const override;
+	void make_visible(bool p_visible) override;
 
 	Particles2DEditorPlugin(EditorNode *p_node);
-	~Particles2DEditorPlugin();
+	~Particles2DEditorPlugin() override;
 };
 
 #endif // PARTICLES_2D_EDITOR_PLUGIN_H

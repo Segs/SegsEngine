@@ -39,7 +39,7 @@
 class SpatialEditorPlugin;
 
 class GridMapEditor : public VBoxContainer {
-	GDCLASS(GridMapEditor, VBoxContainer);
+	GDCLASS(GridMapEditor,VBoxContainer)
 
 	enum {
 
@@ -243,12 +243,12 @@ public:
 	void edit(GridMap *p_gridmap);
 	GridMapEditor() {}
 	GridMapEditor(EditorNode *p_editor);
-	~GridMapEditor();
+	~GridMapEditor() override;
 };
 
 class GridMapEditorPlugin : public EditorPlugin {
 
-	GDCLASS(GridMapEditorPlugin, EditorPlugin);
+	GDCLASS(GridMapEditorPlugin,EditorPlugin)
 
 	GridMapEditor *grid_map_editor;
 	EditorNode *editor;
@@ -257,15 +257,15 @@ protected:
 	void _notification(int p_what);
 
 public:
-	virtual bool forward_spatial_gui_input(Camera *p_camera, const Ref<InputEvent> &p_event) { return grid_map_editor->forward_spatial_input_event(p_camera, p_event); }
-	virtual String get_name() const { return "GridMap"; }
-	bool has_main_screen() const { return false; }
-	virtual void edit(Object *p_object);
-	virtual bool handles(Object *p_object) const;
-	virtual void make_visible(bool p_visible);
+	bool forward_spatial_gui_input(Camera *p_camera, const Ref<InputEvent> &p_event) override { return grid_map_editor->forward_spatial_input_event(p_camera, p_event); }
+	String get_name() const override { return "GridMap"; }
+	bool has_main_screen() const override { return false; }
+	void edit(Object *p_object) override;
+	bool handles(Object *p_object) const override;
+	void make_visible(bool p_visible) override;
 
 	GridMapEditorPlugin(EditorNode *p_node);
-	~GridMapEditorPlugin();
+	~GridMapEditorPlugin() override;
 };
 
 #endif // CUBE_GRID_MAP_EDITOR_PLUGIN_H

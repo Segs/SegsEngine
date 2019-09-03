@@ -72,20 +72,20 @@ protected:
 	int get_cache_size();
 
 public:
-	virtual size_t get_position() const; ///< get position in the file
-	virtual size_t get_len() const; ///< get size of the file
+	size_t get_position() const override; ///< get position in the file
+	size_t get_len() const override; ///< get size of the file
 
-	virtual void seek(size_t p_position); ///< seek to a given position
-	virtual void seek_end(int64_t p_position = 0); ///< seek from the end of file
+	void seek(size_t p_position) override; ///< seek to a given position
+	void seek_end(int64_t p_position = 0) override; ///< seek from the end of file
 
-	virtual bool eof_reached() const;
+	bool eof_reached() const override;
 
-	virtual uint8_t get_8() const;
-	virtual int get_buffer(uint8_t *p_dest, int p_length) const; ///< get an array of bytes
+	uint8_t get_8() const override;
+	int get_buffer(uint8_t *p_dest, int p_length) const override; ///< get an array of bytes
 
-	virtual bool is_open() const;
+	bool is_open() const override;
 
-	virtual Error get_error() const;
+	Error get_error() const override;
 
 	FileAccessBuffered() {}
 	~FileAccessBuffered() override = default ;

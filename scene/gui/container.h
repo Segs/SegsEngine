@@ -35,7 +35,7 @@
 
 class Container : public Control {
 
-	GDCLASS(Container, Control);
+	GDCLASS(Container,Control)
 
 	bool pending_sort;
 	void _sort_children();
@@ -43,9 +43,9 @@ class Container : public Control {
 
 protected:
 	void queue_sort();
-	virtual void add_child_notify(Node *p_child);
-	virtual void move_child_notify(Node *p_child);
-	virtual void remove_child_notify(Node *p_child);
+	void add_child_notify(Node *p_child) override;
+	void move_child_notify(Node *p_child) override;
+	void remove_child_notify(Node *p_child) override;
 
 	void _notification(int p_what);
 	static void _bind_methods();
@@ -57,7 +57,7 @@ public:
 
 	void fit_child_in_rect(Control *p_child, const Rect2 &p_rect);
 
-	virtual String get_configuration_warning() const;
+	String get_configuration_warning() const override;
 
 	Container();
 };

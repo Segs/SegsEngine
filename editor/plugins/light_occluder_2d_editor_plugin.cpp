@@ -30,6 +30,9 @@
 
 #include "light_occluder_2d_editor_plugin.h"
 
+IMPL_GDCLASS(LightOccluder2DEditor)
+IMPL_GDCLASS(LightOccluder2DEditorPlugin)
+
 Ref<OccluderPolygon2D> LightOccluder2DEditor::_ensure_occluder() const {
 
 	Ref<OccluderPolygon2D> occluder = node->get_occluder_polygon();

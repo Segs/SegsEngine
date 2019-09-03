@@ -35,7 +35,7 @@
 
 class VideoStreamPlayback : public Resource {
 
-    GDCLASS(VideoStreamPlayback, Resource);
+    GDCLASS(VideoStreamPlayback,Resource)
 
 protected:
     static void _bind_methods() {
@@ -76,7 +76,8 @@ public:
 
 class VideoStream : public Resource {
 
-    GDCLASS(VideoStream, Resource);
+    GDCLASS(VideoStream,Resource)
+
     OBJ_SAVE_TYPE(VideoStream); //children are all saved as AudioStream, so they can be exchanged
 
 public:

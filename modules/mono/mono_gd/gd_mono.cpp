@@ -88,7 +88,7 @@ void gdmono_profiler_init() {
 	String profiler_args = GLOBAL_DEF("mono/profiler/args", "log:calls,alloc,sample,output=output.mlpd");
 	bool profiler_enabled = GLOBAL_DEF("mono/profiler/enabled", false);
 	if (profiler_enabled) {
-		mono_profiler_load(profiler_args.utf8());
+		mono_profiler_load(StringUtils::to_utf8(profiler_args));
 	}
 }
 
@@ -317,6 +317,12 @@ void GDMono::initialize() {
 		return;
 #endif
 
+#if !defined(WINDOWS_ENABLED) && !defined(NO_MONO_THREADS_SUSPEND_WORKAROUND)
+	// FIXME: Temporary workaround. See: https://github.com/godotengine/godot/issues/29812
+	if (!OS::get_singleton()->has_environment("MONO_THREADS_SUSPEND")) {
+		OS::get_singleton()->set_environment("MONO_THREADS_SUSPEND", "preemptive");
+	}
+#endif
 	root_domain = mono_jit_init_version("GodotEngine.RootDomain", "v4.0.30319");
 	ERR_FAIL_NULL_MSG(root_domain, "Mono: Failed to initialize runtime.");
 
@@ -450,7 +456,7 @@ bool GDMono::load_assembly(const String &p_name, GDMonoAssembly **r_assembly, bo
 
 	CRASH_COND(!r_assembly);
 
-	MonoAssemblyName *aname = mono_assembly_name_new(p_name.utf8());
+	MonoAssemblyName *aname = mono_assembly_name_new(StringUtils::to_utf8(p_name));
 	bool result = load_assembly(p_name, aname, r_assembly, p_refonly);
 	mono_assembly_name_free(aname);
 	mono_free(aname);

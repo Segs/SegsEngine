@@ -144,7 +144,7 @@ godot_int GDAPI godot_color_to_argb32(const godot_color *p_self) {
 
 godot_real GDAPI godot_color_gray(const godot_color *p_self) {
 	const Color *self = (const Color *)p_self;
-	return self->gray();
+	return self->get_v();
 }
 
 godot_color GDAPI godot_color_inverted(const godot_color *p_self) {

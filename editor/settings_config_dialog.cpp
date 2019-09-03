@@ -28,15 +28,20 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
+#include "editor_log.h"
 #include "settings_config_dialog.h"
 
+#include "core/method_bind.h"
 #include "core/os/keyboard.h"
 #include "core/project_settings.h"
 #include "editor_file_system.h"
 #include "editor_node.h"
+#include "editor/editor_scale.h"
 #include "editor_settings.h"
 #include "scene/gui/margin_container.h"
 #include "script_editor_debugger.h"
+
+IMPL_GDCLASS(EditorSettingsDialog)
 
 void EditorSettingsDialog::ok_pressed() {
 
@@ -58,7 +63,7 @@ void EditorSettingsDialog::_settings_property_edited(const String &p_name) {
 
     if (full_name == "interface/theme/accent_color" || full_name == "interface/theme/base_color" || full_name == "interface/theme/contrast") {
         EditorSettings::get_singleton()->set_manually("interface/theme/preset", "Custom"); // set preset to Custom
-    } else if (full_name.begins_with("text_editor/highlighting")) {
+    } else if (StringUtils::begins_with(full_name,"text_editor/highlighting")) {
         EditorSettings::get_singleton()->set_manually("text_editor/theme/color_theme", "Custom");
     }
 }
@@ -209,7 +214,7 @@ void EditorSettingsDialog::_update_shortcuts() {
 
         Ref<InputEvent> original = sc->get_meta("original");
 
-        String section_name = E->get().get_slice("/", 0);
+        String section_name = StringUtils::get_slice(E->get(),"/", 0);
 
         TreeItem *section;
 
@@ -218,7 +223,7 @@ void EditorSettingsDialog::_update_shortcuts() {
         } else {
             section = shortcuts->create_item(root);
 
-            String item_name = section_name.capitalize();
+            String item_name = StringUtils::capitalize(section_name);
             section->set_text(0, item_name);
 
             if (collapsed.has(item_name)) {
@@ -307,7 +312,7 @@ void EditorSettingsDialog::_wait_for_key(const Ref<InputEvent> &p_event) {
     if (k.is_valid() && k->is_pressed() && k->get_scancode() != 0) {
 
         last_wait_for_key = k;
-        String str = keycode_get_string(k->get_scancode()).capitalize();
+        String str = StringUtils::capitalize(keycode_get_string(k->get_scancode()));
         if (k->get_metakey())
             str = vformat("%s+", find_keycode_name(KEY_META)) + str;
         if (k->get_shift())
@@ -382,20 +387,20 @@ void EditorSettingsDialog::_editor_restart_close() {
 
 void EditorSettingsDialog::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_unhandled_input"), &EditorSettingsDialog::_unhandled_input);
-    ClassDB::bind_method(D_METHOD("_settings_save"), &EditorSettingsDialog::_settings_save);
-    ClassDB::bind_method(D_METHOD("_settings_changed"), &EditorSettingsDialog::_settings_changed);
-    ClassDB::bind_method(D_METHOD("_settings_property_edited"), &EditorSettingsDialog::_settings_property_edited);
-    ClassDB::bind_method(D_METHOD("_shortcut_button_pressed"), &EditorSettingsDialog::_shortcut_button_pressed);
-    ClassDB::bind_method(D_METHOD("_filter_shortcuts"), &EditorSettingsDialog::_filter_shortcuts);
-    ClassDB::bind_method(D_METHOD("_update_shortcuts"), &EditorSettingsDialog::_update_shortcuts);
-    ClassDB::bind_method(D_METHOD("_press_a_key_confirm"), &EditorSettingsDialog::_press_a_key_confirm);
-    ClassDB::bind_method(D_METHOD("_wait_for_key"), &EditorSettingsDialog::_wait_for_key);
-    ClassDB::bind_method(D_METHOD("_tabs_tab_changed"), &EditorSettingsDialog::_tabs_tab_changed);
+    MethodBinder::bind_method(D_METHOD("_unhandled_input"), &EditorSettingsDialog::_unhandled_input);
+    MethodBinder::bind_method(D_METHOD("_settings_save"), &EditorSettingsDialog::_settings_save);
+    MethodBinder::bind_method(D_METHOD("_settings_changed"), &EditorSettingsDialog::_settings_changed);
+    MethodBinder::bind_method(D_METHOD("_settings_property_edited"), &EditorSettingsDialog::_settings_property_edited);
+    MethodBinder::bind_method(D_METHOD("_shortcut_button_pressed"), &EditorSettingsDialog::_shortcut_button_pressed);
+    MethodBinder::bind_method(D_METHOD("_filter_shortcuts"), &EditorSettingsDialog::_filter_shortcuts);
+    MethodBinder::bind_method(D_METHOD("_update_shortcuts"), &EditorSettingsDialog::_update_shortcuts);
+    MethodBinder::bind_method(D_METHOD("_press_a_key_confirm"), &EditorSettingsDialog::_press_a_key_confirm);
+    MethodBinder::bind_method(D_METHOD("_wait_for_key"), &EditorSettingsDialog::_wait_for_key);
+    MethodBinder::bind_method(D_METHOD("_tabs_tab_changed"), &EditorSettingsDialog::_tabs_tab_changed);
 
-    ClassDB::bind_method(D_METHOD("_editor_restart_request"), &EditorSettingsDialog::_editor_restart_request);
-    ClassDB::bind_method(D_METHOD("_editor_restart"), &EditorSettingsDialog::_editor_restart);
-    ClassDB::bind_method(D_METHOD("_editor_restart_close"), &EditorSettingsDialog::_editor_restart_close);
+    MethodBinder::bind_method(D_METHOD("_editor_restart_request"), &EditorSettingsDialog::_editor_restart_request);
+    MethodBinder::bind_method(D_METHOD("_editor_restart"), &EditorSettingsDialog::_editor_restart);
+    MethodBinder::bind_method(D_METHOD("_editor_restart_close"), &EditorSettingsDialog::_editor_restart_close);
 }
 
 EditorSettingsDialog::EditorSettingsDialog() {

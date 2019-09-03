@@ -95,7 +95,7 @@ Error FileAccessUnix::_open(const String &p_path, int p_mode_flags) {
 
     //printf("opening %s as %s\n", p_path.utf8().get_data(), path.utf8().get_data());
     struct stat st;
-    int err = stat(path.utf8().constData(), &st);
+	int err = stat(StringUtils::to_utf8(path).data(), &st);
     if (!err) {
         switch (st.st_mode & S_IFMT) {
             case S_IFLNK:
@@ -111,7 +111,7 @@ Error FileAccessUnix::_open(const String &p_path, int p_mode_flags) {
         path = path + ".tmp";
     }
 
-    f = fopen(qPrintable(path), mode_string);
+	f = fopen(qPrintable(path.m_str), mode_string);
 
     if (f == nullptr) {
         switch (errno) {
@@ -143,14 +143,14 @@ void FileAccessUnix::close() {
     }
 
     if (save_path != "") {
-        int rename_error = rename(qPrintable(save_path + ".tmp"), save_path.utf8().constData());
+		int rename_error = rename(qPrintable((save_path + ".tmp").m_str), StringUtils::to_utf8(save_path).data());
 
         if (rename_error && close_fail_notify) {
             close_fail_notify(save_path);
         }
 
         save_path = "";
-        ERR_FAIL_COND(rename_error != 0);
+		ERR_FAIL_COND(rename_error != 0)
     }
 }
 
@@ -171,7 +171,7 @@ String FileAccessUnix::get_path_absolute() const {
 
 void FileAccessUnix::seek(size_t p_position) {
 
-    ERR_FAIL_COND(!f);
+	ERR_FAIL_COND(!f)
 
     last_error = OK;
     if (fseek(f, p_position, SEEK_SET))
@@ -180,7 +180,7 @@ void FileAccessUnix::seek(size_t p_position) {
 
 void FileAccessUnix::seek_end(int64_t p_position) {
 
-    ERR_FAIL_COND(!f);
+	ERR_FAIL_COND(!f)
 
     if (fseek(f, p_position, SEEK_END))
         check_errors();
@@ -188,26 +188,26 @@ void FileAccessUnix::seek_end(int64_t p_position) {
 
 size_t FileAccessUnix::get_position() const {
 
-    ERR_FAIL_COND_V(!f, 0);
+	ERR_FAIL_COND_V(!f, 0)
 
     long pos = ftell(f);
     if (pos < 0) {
         check_errors();
-        ERR_FAIL_V(0);
+		ERR_FAIL_V(0)
     }
     return pos;
 }
 
 size_t FileAccessUnix::get_len() const {
 
-    ERR_FAIL_COND_V(!f, 0);
+	ERR_FAIL_COND_V(!f, 0)
 
     long pos = ftell(f);
-    ERR_FAIL_COND_V(pos < 0, 0);
-    ERR_FAIL_COND_V(fseek(f, 0, SEEK_END), 0);
+	ERR_FAIL_COND_V(pos < 0, 0)
+	ERR_FAIL_COND_V(fseek(f, 0, SEEK_END), 0)
     long size = ftell(f);
-    ERR_FAIL_COND_V(size < 0, 0);
-    ERR_FAIL_COND_V(fseek(f, pos, SEEK_SET), 0);
+	ERR_FAIL_COND_V(size < 0, 0)
+	ERR_FAIL_COND_V(fseek(f, pos, SEEK_SET), 0)
 
     return size;
 }
@@ -219,7 +219,7 @@ bool FileAccessUnix::eof_reached() const {
 
 uint8_t FileAccessUnix::get_8() const {
 
-    ERR_FAIL_COND_V(!f, 0);
+	ERR_FAIL_COND_V(!f, 0)
     uint8_t b;
     if (fread(&b, 1, 1, f) == 0) {
         check_errors();
@@ -230,7 +230,7 @@ uint8_t FileAccessUnix::get_8() const {
 
 int FileAccessUnix::get_buffer(uint8_t *p_dst, int p_length) const {
 
-    ERR_FAIL_COND_V(!f, -1);
+	ERR_FAIL_COND_V(!f, -1)
     int read = fread(p_dst, 1, p_length, f);
     check_errors();
     return read;
@@ -243,19 +243,19 @@ Error FileAccessUnix::get_error() const {
 
 void FileAccessUnix::flush() {
 
-    ERR_FAIL_COND(!f);
+	ERR_FAIL_COND(!f)
     fflush(f);
 }
 
 void FileAccessUnix::store_8(uint8_t p_dest) {
 
-    ERR_FAIL_COND(!f);
-    ERR_FAIL_COND(fwrite(&p_dest, 1, 1, f) != 1);
+	ERR_FAIL_COND(!f)
+	ERR_FAIL_COND(fwrite(&p_dest, 1, 1, f) != 1)
 }
 
 void FileAccessUnix::store_buffer(const uint8_t *p_src, int p_length) {
-    ERR_FAIL_COND(!f);
-    ERR_FAIL_COND((int)fwrite(p_src, 1, p_length, f) != p_length);
+	ERR_FAIL_COND(!f)
+	ERR_FAIL_COND((int)fwrite(p_src, 1, p_length, f) != p_length)
 }
 
 bool FileAccessUnix::file_exists(const String &p_path) {
@@ -265,16 +265,16 @@ bool FileAccessUnix::file_exists(const String &p_path) {
     String filename = fix_path(p_path);
 
     // Does the name exist at all?
-    err = stat(qPrintable(filename), &st);
+	err = stat(qPrintable(filename.m_str), &st);
     if (err)
         return false;
 
 #ifdef UNIX_ENABLED
     // See if we have access to the file
-    if (access(qPrintable(filename), F_OK))
+	if (access(qPrintable(filename.m_str), F_OK))
         return false;
 #else
-    if (_access(filename.utf8().get_data(), 4) == -1)
+    if (_access(StringUtils::to_utf8(filename).get_data(), 4) == -1)
         return false;
 #endif
 
@@ -292,7 +292,7 @@ uint64_t FileAccessUnix::_get_modified_time(const String &p_file) {
 
     String file = fix_path(p_file);
     struct stat flags;
-    int err = stat(qPrintable(file), &flags);
+	int err = stat(qPrintable(file.m_str), &flags);
 
     if (!err) {
         return flags.st_mtime;
@@ -305,12 +305,12 @@ uint32_t FileAccessUnix::_get_unix_permissions(const String &p_file) {
 
     String file = fix_path(p_file);
     struct stat flags;
-    int err = stat(qPrintable(file), &flags);
+	int err = stat(qPrintable(file.m_str), &flags);
 
     if (!err) {
         return flags.st_mode & 0x7FF; //only permissions
     } else {
-        ERR_FAIL_V_MSG(0, "Failed to get unix permissions for: " + p_file + ".");
+		ERR_FAIL_V_MSG(0, "Failed to get unix permissions for: " + p_file + ".")
     }
 }
 
@@ -318,7 +318,7 @@ Error FileAccessUnix::_set_unix_permissions(const String &p_file, uint32_t p_per
 
     String file = fix_path(p_file);
 
-    int err = chmod(qPrintable(file), p_permissions);
+	int err = chmod(qPrintable(file.m_str), p_permissions);
     if (!err) {
         return OK;
     }

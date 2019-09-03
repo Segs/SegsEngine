@@ -30,10 +30,16 @@
 
 #include "physics_server.h"
 
-#include "method_bind_ext.gen.h"
 #include "core/object_db.h"
+#include "core/method_bind.h"
 #include "core/print_string.h"
 #include "core/project_settings.h"
+
+IMPL_GDCLASS(PhysicsDirectBodyState)
+IMPL_GDCLASS(PhysicsShapeQueryParameters)
+IMPL_GDCLASS(PhysicsDirectSpaceState)
+IMPL_GDCLASS(PhysicsShapeQueryResult)
+IMPL_GDCLASS(PhysicsServer)
 
 PhysicsServer *PhysicsServer::singleton = nullptr;
 
@@ -76,50 +82,50 @@ PhysicsServer *PhysicsServer::get_singleton() {
 
 void PhysicsDirectBodyState::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("get_total_gravity"), &PhysicsDirectBodyState::get_total_gravity);
-    ClassDB::bind_method(D_METHOD("get_total_linear_damp"), &PhysicsDirectBodyState::get_total_linear_damp);
-    ClassDB::bind_method(D_METHOD("get_total_angular_damp"), &PhysicsDirectBodyState::get_total_angular_damp);
+    MethodBinder::bind_method(D_METHOD("get_total_gravity"), &PhysicsDirectBodyState::get_total_gravity);
+    MethodBinder::bind_method(D_METHOD("get_total_linear_damp"), &PhysicsDirectBodyState::get_total_linear_damp);
+    MethodBinder::bind_method(D_METHOD("get_total_angular_damp"), &PhysicsDirectBodyState::get_total_angular_damp);
 
-    ClassDB::bind_method(D_METHOD("get_center_of_mass"), &PhysicsDirectBodyState::get_center_of_mass);
-    ClassDB::bind_method(D_METHOD("get_principal_inertia_axes"), &PhysicsDirectBodyState::get_principal_inertia_axes);
+    MethodBinder::bind_method(D_METHOD("get_center_of_mass"), &PhysicsDirectBodyState::get_center_of_mass);
+    MethodBinder::bind_method(D_METHOD("get_principal_inertia_axes"), &PhysicsDirectBodyState::get_principal_inertia_axes);
 
-    ClassDB::bind_method(D_METHOD("get_inverse_mass"), &PhysicsDirectBodyState::get_inverse_mass);
-    ClassDB::bind_method(D_METHOD("get_inverse_inertia"), &PhysicsDirectBodyState::get_inverse_inertia);
+    MethodBinder::bind_method(D_METHOD("get_inverse_mass"), &PhysicsDirectBodyState::get_inverse_mass);
+    MethodBinder::bind_method(D_METHOD("get_inverse_inertia"), &PhysicsDirectBodyState::get_inverse_inertia);
 
-    ClassDB::bind_method(D_METHOD("set_linear_velocity", "velocity"), &PhysicsDirectBodyState::set_linear_velocity);
-    ClassDB::bind_method(D_METHOD("get_linear_velocity"), &PhysicsDirectBodyState::get_linear_velocity);
+    MethodBinder::bind_method(D_METHOD("set_linear_velocity", "velocity"), &PhysicsDirectBodyState::set_linear_velocity);
+    MethodBinder::bind_method(D_METHOD("get_linear_velocity"), &PhysicsDirectBodyState::get_linear_velocity);
 
-    ClassDB::bind_method(D_METHOD("set_angular_velocity", "velocity"), &PhysicsDirectBodyState::set_angular_velocity);
-    ClassDB::bind_method(D_METHOD("get_angular_velocity"), &PhysicsDirectBodyState::get_angular_velocity);
+    MethodBinder::bind_method(D_METHOD("set_angular_velocity", "velocity"), &PhysicsDirectBodyState::set_angular_velocity);
+    MethodBinder::bind_method(D_METHOD("get_angular_velocity"), &PhysicsDirectBodyState::get_angular_velocity);
 
-    ClassDB::bind_method(D_METHOD("set_transform", "transform"), &PhysicsDirectBodyState::set_transform);
-    ClassDB::bind_method(D_METHOD("get_transform"), &PhysicsDirectBodyState::get_transform);
+    MethodBinder::bind_method(D_METHOD("set_transform", "transform"), &PhysicsDirectBodyState::set_transform);
+    MethodBinder::bind_method(D_METHOD("get_transform"), &PhysicsDirectBodyState::get_transform);
 
-    ClassDB::bind_method(D_METHOD("add_central_force", "force"), &PhysicsDirectBodyState::add_central_force);
-    ClassDB::bind_method(D_METHOD("add_force", "force", "position"), &PhysicsDirectBodyState::add_force);
-    ClassDB::bind_method(D_METHOD("add_torque", "torque"), &PhysicsDirectBodyState::add_torque);
-    ClassDB::bind_method(D_METHOD("apply_central_impulse", "j"), &PhysicsDirectBodyState::apply_central_impulse);
-    ClassDB::bind_method(D_METHOD("apply_impulse", "position", "j"), &PhysicsDirectBodyState::apply_impulse);
-    ClassDB::bind_method(D_METHOD("apply_torque_impulse", "j"), &PhysicsDirectBodyState::apply_torque_impulse);
+    MethodBinder::bind_method(D_METHOD("add_central_force", "force"), &PhysicsDirectBodyState::add_central_force);
+    MethodBinder::bind_method(D_METHOD("add_force", "force", "position"), &PhysicsDirectBodyState::add_force);
+    MethodBinder::bind_method(D_METHOD("add_torque", "torque"), &PhysicsDirectBodyState::add_torque);
+    MethodBinder::bind_method(D_METHOD("apply_central_impulse", "j"), &PhysicsDirectBodyState::apply_central_impulse);
+    MethodBinder::bind_method(D_METHOD("apply_impulse", "position", "j"), &PhysicsDirectBodyState::apply_impulse);
+    MethodBinder::bind_method(D_METHOD("apply_torque_impulse", "j"), &PhysicsDirectBodyState::apply_torque_impulse);
 
-    ClassDB::bind_method(D_METHOD("set_sleep_state", "enabled"), &PhysicsDirectBodyState::set_sleep_state);
-    ClassDB::bind_method(D_METHOD("is_sleeping"), &PhysicsDirectBodyState::is_sleeping);
+    MethodBinder::bind_method(D_METHOD("set_sleep_state", "enabled"), &PhysicsDirectBodyState::set_sleep_state);
+    MethodBinder::bind_method(D_METHOD("is_sleeping"), &PhysicsDirectBodyState::is_sleeping);
 
-    ClassDB::bind_method(D_METHOD("get_contact_count"), &PhysicsDirectBodyState::get_contact_count);
+    MethodBinder::bind_method(D_METHOD("get_contact_count"), &PhysicsDirectBodyState::get_contact_count);
 
-    ClassDB::bind_method(D_METHOD("get_contact_local_position", "contact_idx"), &PhysicsDirectBodyState::get_contact_local_position);
-    ClassDB::bind_method(D_METHOD("get_contact_local_normal", "contact_idx"), &PhysicsDirectBodyState::get_contact_local_normal);
-    ClassDB::bind_method(D_METHOD("get_contact_impulse", "contact_idx"), &PhysicsDirectBodyState::get_contact_impulse);
-    ClassDB::bind_method(D_METHOD("get_contact_local_shape", "contact_idx"), &PhysicsDirectBodyState::get_contact_local_shape);
-    ClassDB::bind_method(D_METHOD("get_contact_collider", "contact_idx"), &PhysicsDirectBodyState::get_contact_collider);
-    ClassDB::bind_method(D_METHOD("get_contact_collider_position", "contact_idx"), &PhysicsDirectBodyState::get_contact_collider_position);
-    ClassDB::bind_method(D_METHOD("get_contact_collider_id", "contact_idx"), &PhysicsDirectBodyState::get_contact_collider_id);
-    ClassDB::bind_method(D_METHOD("get_contact_collider_object", "contact_idx"), &PhysicsDirectBodyState::get_contact_collider_object);
-    ClassDB::bind_method(D_METHOD("get_contact_collider_shape", "contact_idx"), &PhysicsDirectBodyState::get_contact_collider_shape);
-    ClassDB::bind_method(D_METHOD("get_contact_collider_velocity_at_position", "contact_idx"), &PhysicsDirectBodyState::get_contact_collider_velocity_at_position);
-    ClassDB::bind_method(D_METHOD("get_step"), &PhysicsDirectBodyState::get_step);
-    ClassDB::bind_method(D_METHOD("integrate_forces"), &PhysicsDirectBodyState::integrate_forces);
-    ClassDB::bind_method(D_METHOD("get_space_state"), &PhysicsDirectBodyState::get_space_state);
+    MethodBinder::bind_method(D_METHOD("get_contact_local_position", "contact_idx"), &PhysicsDirectBodyState::get_contact_local_position);
+    MethodBinder::bind_method(D_METHOD("get_contact_local_normal", "contact_idx"), &PhysicsDirectBodyState::get_contact_local_normal);
+    MethodBinder::bind_method(D_METHOD("get_contact_impulse", "contact_idx"), &PhysicsDirectBodyState::get_contact_impulse);
+    MethodBinder::bind_method(D_METHOD("get_contact_local_shape", "contact_idx"), &PhysicsDirectBodyState::get_contact_local_shape);
+    MethodBinder::bind_method(D_METHOD("get_contact_collider", "contact_idx"), &PhysicsDirectBodyState::get_contact_collider);
+    MethodBinder::bind_method(D_METHOD("get_contact_collider_position", "contact_idx"), &PhysicsDirectBodyState::get_contact_collider_position);
+    MethodBinder::bind_method(D_METHOD("get_contact_collider_id", "contact_idx"), &PhysicsDirectBodyState::get_contact_collider_id);
+    MethodBinder::bind_method(D_METHOD("get_contact_collider_object", "contact_idx"), &PhysicsDirectBodyState::get_contact_collider_object);
+    MethodBinder::bind_method(D_METHOD("get_contact_collider_shape", "contact_idx"), &PhysicsDirectBodyState::get_contact_collider_shape);
+    MethodBinder::bind_method(D_METHOD("get_contact_collider_velocity_at_position", "contact_idx"), &PhysicsDirectBodyState::get_contact_collider_velocity_at_position);
+    MethodBinder::bind_method(D_METHOD("get_step"), &PhysicsDirectBodyState::get_step);
+    MethodBinder::bind_method(D_METHOD("integrate_forces"), &PhysicsDirectBodyState::integrate_forces);
+    MethodBinder::bind_method(D_METHOD("get_space_state"), &PhysicsDirectBodyState::get_space_state);
 
     ADD_PROPERTY(PropertyInfo(Variant::REAL, "step"), "", "get_step");
     ADD_PROPERTY(PropertyInfo(Variant::REAL, "inverse_mass"), "", "get_inverse_mass");
@@ -219,27 +225,27 @@ bool PhysicsShapeQueryParameters::is_collide_with_areas_enabled() const {
 
 void PhysicsShapeQueryParameters::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_shape", "shape"), &PhysicsShapeQueryParameters::set_shape);
-    ClassDB::bind_method(D_METHOD("set_shape_rid", "shape"), &PhysicsShapeQueryParameters::set_shape_rid);
-    ClassDB::bind_method(D_METHOD("get_shape_rid"), &PhysicsShapeQueryParameters::get_shape_rid);
+    MethodBinder::bind_method(D_METHOD("set_shape", "shape"), &PhysicsShapeQueryParameters::set_shape);
+    MethodBinder::bind_method(D_METHOD("set_shape_rid", "shape"), &PhysicsShapeQueryParameters::set_shape_rid);
+    MethodBinder::bind_method(D_METHOD("get_shape_rid"), &PhysicsShapeQueryParameters::get_shape_rid);
 
-    ClassDB::bind_method(D_METHOD("set_transform", "transform"), &PhysicsShapeQueryParameters::set_transform);
-    ClassDB::bind_method(D_METHOD("get_transform"), &PhysicsShapeQueryParameters::get_transform);
+    MethodBinder::bind_method(D_METHOD("set_transform", "transform"), &PhysicsShapeQueryParameters::set_transform);
+    MethodBinder::bind_method(D_METHOD("get_transform"), &PhysicsShapeQueryParameters::get_transform);
 
-    ClassDB::bind_method(D_METHOD("set_margin", "margin"), &PhysicsShapeQueryParameters::set_margin);
-    ClassDB::bind_method(D_METHOD("get_margin"), &PhysicsShapeQueryParameters::get_margin);
+    MethodBinder::bind_method(D_METHOD("set_margin", "margin"), &PhysicsShapeQueryParameters::set_margin);
+    MethodBinder::bind_method(D_METHOD("get_margin"), &PhysicsShapeQueryParameters::get_margin);
 
-    ClassDB::bind_method(D_METHOD("set_collision_mask", "collision_mask"), &PhysicsShapeQueryParameters::set_collision_mask);
-    ClassDB::bind_method(D_METHOD("get_collision_mask"), &PhysicsShapeQueryParameters::get_collision_mask);
+    MethodBinder::bind_method(D_METHOD("set_collision_mask", "collision_mask"), &PhysicsShapeQueryParameters::set_collision_mask);
+    MethodBinder::bind_method(D_METHOD("get_collision_mask"), &PhysicsShapeQueryParameters::get_collision_mask);
 
-    ClassDB::bind_method(D_METHOD("set_exclude", "exclude"), &PhysicsShapeQueryParameters::set_exclude);
-    ClassDB::bind_method(D_METHOD("get_exclude"), &PhysicsShapeQueryParameters::get_exclude);
+    MethodBinder::bind_method(D_METHOD("set_exclude", "exclude"), &PhysicsShapeQueryParameters::set_exclude);
+    MethodBinder::bind_method(D_METHOD("get_exclude"), &PhysicsShapeQueryParameters::get_exclude);
 
-    ClassDB::bind_method(D_METHOD("set_collide_with_bodies", "enable"), &PhysicsShapeQueryParameters::set_collide_with_bodies);
-    ClassDB::bind_method(D_METHOD("is_collide_with_bodies_enabled"), &PhysicsShapeQueryParameters::is_collide_with_bodies_enabled);
+    MethodBinder::bind_method(D_METHOD("set_collide_with_bodies", "enable"), &PhysicsShapeQueryParameters::set_collide_with_bodies);
+    MethodBinder::bind_method(D_METHOD("is_collide_with_bodies_enabled"), &PhysicsShapeQueryParameters::is_collide_with_bodies_enabled);
 
-    ClassDB::bind_method(D_METHOD("set_collide_with_areas", "enable"), &PhysicsShapeQueryParameters::set_collide_with_areas);
-    ClassDB::bind_method(D_METHOD("is_collide_with_areas_enabled"), &PhysicsShapeQueryParameters::is_collide_with_areas_enabled);
+    MethodBinder::bind_method(D_METHOD("set_collide_with_areas", "enable"), &PhysicsShapeQueryParameters::set_collide_with_areas);
+    MethodBinder::bind_method(D_METHOD("is_collide_with_areas_enabled"), &PhysicsShapeQueryParameters::is_collide_with_areas_enabled);
 
     ADD_PROPERTY(PropertyInfo(Variant::INT, "collision_mask", PROPERTY_HINT_LAYERS_3D_PHYSICS), "set_collision_mask", "get_collision_mask");
     ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "exclude", PROPERTY_HINT_NONE, itos(Variant::_RID) + ":"), "set_exclude", "get_exclude");
@@ -362,11 +368,11 @@ PhysicsDirectSpaceState::PhysicsDirectSpaceState() {
 
 void PhysicsDirectSpaceState::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("intersect_ray", "from", "to", "exclude", "collision_mask", "collide_with_bodies", "collide_with_areas"), &PhysicsDirectSpaceState::_intersect_ray, {DEFVAL(Array()), DEFVAL(0x7FFFFFFF), DEFVAL(true), DEFVAL(false)});
-    ClassDB::bind_method(D_METHOD("intersect_shape", "shape", "max_results"), &PhysicsDirectSpaceState::_intersect_shape, {DEFVAL(32)});
-    ClassDB::bind_method(D_METHOD("cast_motion", "shape", "motion"), &PhysicsDirectSpaceState::_cast_motion);
-    ClassDB::bind_method(D_METHOD("collide_shape", "shape", "max_results"), &PhysicsDirectSpaceState::_collide_shape, {DEFVAL(32)});
-    ClassDB::bind_method(D_METHOD("get_rest_info", "shape"), &PhysicsDirectSpaceState::_get_rest_info);
+    MethodBinder::bind_method(D_METHOD("intersect_ray", "from", "to", "exclude", "collision_mask", "collide_with_bodies", "collide_with_areas"), &PhysicsDirectSpaceState::_intersect_ray, {DEFVAL(Array()), DEFVAL(0x7FFFFFFF), DEFVAL(true), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("intersect_shape", "shape", "max_results"), &PhysicsDirectSpaceState::_intersect_shape, {DEFVAL(32)});
+    MethodBinder::bind_method(D_METHOD("cast_motion", "shape", "motion"), &PhysicsDirectSpaceState::_cast_motion);
+    MethodBinder::bind_method(D_METHOD("collide_shape", "shape", "max_results"), &PhysicsDirectSpaceState::_collide_shape, {DEFVAL(32)});
+    MethodBinder::bind_method(D_METHOD("get_rest_info", "shape"), &PhysicsDirectSpaceState::_get_rest_info);
 }
 
 int PhysicsShapeQueryResult::get_result_count() const {
@@ -395,11 +401,11 @@ PhysicsShapeQueryResult::PhysicsShapeQueryResult() {
 
 void PhysicsShapeQueryResult::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("get_result_count"), &PhysicsShapeQueryResult::get_result_count);
-    ClassDB::bind_method(D_METHOD("get_result_rid", "idx"), &PhysicsShapeQueryResult::get_result_rid);
-    ClassDB::bind_method(D_METHOD("get_result_object_id", "idx"), &PhysicsShapeQueryResult::get_result_object_id);
-    ClassDB::bind_method(D_METHOD("get_result_object", "idx"), &PhysicsShapeQueryResult::get_result_object);
-    ClassDB::bind_method(D_METHOD("get_result_object_shape", "idx"), &PhysicsShapeQueryResult::get_result_object_shape);
+    MethodBinder::bind_method(D_METHOD("get_result_count"), &PhysicsShapeQueryResult::get_result_count);
+    MethodBinder::bind_method(D_METHOD("get_result_rid", "idx"), &PhysicsShapeQueryResult::get_result_rid);
+    MethodBinder::bind_method(D_METHOD("get_result_object_id", "idx"), &PhysicsShapeQueryResult::get_result_object_id);
+    MethodBinder::bind_method(D_METHOD("get_result_object", "idx"), &PhysicsShapeQueryResult::get_result_object);
+    MethodBinder::bind_method(D_METHOD("get_result_object_shape", "idx"), &PhysicsShapeQueryResult::get_result_object_shape);
 }
 
 ///////////////////////////////////////
@@ -408,125 +414,125 @@ void PhysicsServer::_bind_methods() {
 
 #ifndef _3D_DISABLED
 
-    ClassDB::bind_method(D_METHOD("shape_create", "type"), &PhysicsServer::shape_create);
-    ClassDB::bind_method(D_METHOD("shape_set_data", "shape", "data"), &PhysicsServer::shape_set_data);
+    MethodBinder::bind_method(D_METHOD("shape_create", "type"), &PhysicsServer::shape_create);
+    MethodBinder::bind_method(D_METHOD("shape_set_data", "shape", "data"), &PhysicsServer::shape_set_data);
 
-    ClassDB::bind_method(D_METHOD("shape_get_type", "shape"), &PhysicsServer::shape_get_type);
-    ClassDB::bind_method(D_METHOD("shape_get_data", "shape"), &PhysicsServer::shape_get_data);
+    MethodBinder::bind_method(D_METHOD("shape_get_type", "shape"), &PhysicsServer::shape_get_type);
+    MethodBinder::bind_method(D_METHOD("shape_get_data", "shape"), &PhysicsServer::shape_get_data);
 
-    ClassDB::bind_method(D_METHOD("space_create"), &PhysicsServer::space_create);
-    ClassDB::bind_method(D_METHOD("space_set_active", "space", "active"), &PhysicsServer::space_set_active);
-    ClassDB::bind_method(D_METHOD("space_is_active", "space"), &PhysicsServer::space_is_active);
-    ClassDB::bind_method(D_METHOD("space_set_param", "space", "param", "value"), &PhysicsServer::space_set_param);
-    ClassDB::bind_method(D_METHOD("space_get_param", "space", "param"), &PhysicsServer::space_get_param);
-    ClassDB::bind_method(D_METHOD("space_get_direct_state", "space"), &PhysicsServer::space_get_direct_state);
+    MethodBinder::bind_method(D_METHOD("space_create"), &PhysicsServer::space_create);
+    MethodBinder::bind_method(D_METHOD("space_set_active", "space", "active"), &PhysicsServer::space_set_active);
+    MethodBinder::bind_method(D_METHOD("space_is_active", "space"), &PhysicsServer::space_is_active);
+    MethodBinder::bind_method(D_METHOD("space_set_param", "space", "param", "value"), &PhysicsServer::space_set_param);
+    MethodBinder::bind_method(D_METHOD("space_get_param", "space", "param"), &PhysicsServer::space_get_param);
+    MethodBinder::bind_method(D_METHOD("space_get_direct_state", "space"), &PhysicsServer::space_get_direct_state);
 
-    ClassDB::bind_method(D_METHOD("area_create"), &PhysicsServer::area_create);
-    ClassDB::bind_method(D_METHOD("area_set_space", "area", "space"), &PhysicsServer::area_set_space);
-    ClassDB::bind_method(D_METHOD("area_get_space", "area"), &PhysicsServer::area_get_space);
+    MethodBinder::bind_method(D_METHOD("area_create"), &PhysicsServer::area_create);
+    MethodBinder::bind_method(D_METHOD("area_set_space", "area", "space"), &PhysicsServer::area_set_space);
+    MethodBinder::bind_method(D_METHOD("area_get_space", "area"), &PhysicsServer::area_get_space);
 
-    ClassDB::bind_method(D_METHOD("area_set_space_override_mode", "area", "mode"), &PhysicsServer::area_set_space_override_mode);
-    ClassDB::bind_method(D_METHOD("area_get_space_override_mode", "area"), &PhysicsServer::area_get_space_override_mode);
+    MethodBinder::bind_method(D_METHOD("area_set_space_override_mode", "area", "mode"), &PhysicsServer::area_set_space_override_mode);
+    MethodBinder::bind_method(D_METHOD("area_get_space_override_mode", "area"), &PhysicsServer::area_get_space_override_mode);
 
-    ClassDB::bind_method(D_METHOD("area_add_shape", "area", "shape", "transform", "disabled"), &PhysicsServer::area_add_shape, {DEFVAL(Transform()), DEFVAL(false)});
-    ClassDB::bind_method(D_METHOD("area_set_shape", "area", "shape_idx", "shape"), &PhysicsServer::area_set_shape);
-    ClassDB::bind_method(D_METHOD("area_set_shape_transform", "area", "shape_idx", "transform"), &PhysicsServer::area_set_shape_transform);
-    ClassDB::bind_method(D_METHOD("area_set_shape_disabled", "area", "shape_idx", "disabled"), &PhysicsServer::area_set_shape_disabled);
+    MethodBinder::bind_method(D_METHOD("area_add_shape", "area", "shape", "transform", "disabled"), &PhysicsServer::area_add_shape, {DEFVAL(Transform()), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("area_set_shape", "area", "shape_idx", "shape"), &PhysicsServer::area_set_shape);
+    MethodBinder::bind_method(D_METHOD("area_set_shape_transform", "area", "shape_idx", "transform"), &PhysicsServer::area_set_shape_transform);
+    MethodBinder::bind_method(D_METHOD("area_set_shape_disabled", "area", "shape_idx", "disabled"), &PhysicsServer::area_set_shape_disabled);
 
-    ClassDB::bind_method(D_METHOD("area_get_shape_count", "area"), &PhysicsServer::area_get_shape_count);
-    ClassDB::bind_method(D_METHOD("area_get_shape", "area", "shape_idx"), &PhysicsServer::area_get_shape);
-    ClassDB::bind_method(D_METHOD("area_get_shape_transform", "area", "shape_idx"), &PhysicsServer::area_get_shape_transform);
+    MethodBinder::bind_method(D_METHOD("area_get_shape_count", "area"), &PhysicsServer::area_get_shape_count);
+    MethodBinder::bind_method(D_METHOD("area_get_shape", "area", "shape_idx"), &PhysicsServer::area_get_shape);
+    MethodBinder::bind_method(D_METHOD("area_get_shape_transform", "area", "shape_idx"), &PhysicsServer::area_get_shape_transform);
 
-    ClassDB::bind_method(D_METHOD("area_remove_shape", "area", "shape_idx"), &PhysicsServer::area_remove_shape);
-    ClassDB::bind_method(D_METHOD("area_clear_shapes", "area"), &PhysicsServer::area_clear_shapes);
+    MethodBinder::bind_method(D_METHOD("area_remove_shape", "area", "shape_idx"), &PhysicsServer::area_remove_shape);
+    MethodBinder::bind_method(D_METHOD("area_clear_shapes", "area"), &PhysicsServer::area_clear_shapes);
 
-    ClassDB::bind_method(D_METHOD("area_set_collision_layer", "area", "layer"), &PhysicsServer::area_set_collision_layer);
-    ClassDB::bind_method(D_METHOD("area_set_collision_mask", "area", "mask"), &PhysicsServer::area_set_collision_mask);
+    MethodBinder::bind_method(D_METHOD("area_set_collision_layer", "area", "layer"), &PhysicsServer::area_set_collision_layer);
+    MethodBinder::bind_method(D_METHOD("area_set_collision_mask", "area", "mask"), &PhysicsServer::area_set_collision_mask);
 
-    ClassDB::bind_method(D_METHOD("area_set_param", "area", "param", "value"), &PhysicsServer::area_set_param);
-    ClassDB::bind_method(D_METHOD("area_set_transform", "area", "transform"), &PhysicsServer::area_set_transform);
+    MethodBinder::bind_method(D_METHOD("area_set_param", "area", "param", "value"), &PhysicsServer::area_set_param);
+    MethodBinder::bind_method(D_METHOD("area_set_transform", "area", "transform"), &PhysicsServer::area_set_transform);
 
-    ClassDB::bind_method(D_METHOD("area_get_param", "area", "param"), &PhysicsServer::area_get_param);
-    ClassDB::bind_method(D_METHOD("area_get_transform", "area"), &PhysicsServer::area_get_transform);
+    MethodBinder::bind_method(D_METHOD("area_get_param", "area", "param"), &PhysicsServer::area_get_param);
+    MethodBinder::bind_method(D_METHOD("area_get_transform", "area"), &PhysicsServer::area_get_transform);
 
-    ClassDB::bind_method(D_METHOD("area_attach_object_instance_id", "area", "id"), &PhysicsServer::area_attach_object_instance_id);
-    ClassDB::bind_method(D_METHOD("area_get_object_instance_id", "area"), &PhysicsServer::area_get_object_instance_id);
+    MethodBinder::bind_method(D_METHOD("area_attach_object_instance_id", "area", "id"), &PhysicsServer::area_attach_object_instance_id);
+    MethodBinder::bind_method(D_METHOD("area_get_object_instance_id", "area"), &PhysicsServer::area_get_object_instance_id);
 
-    ClassDB::bind_method(D_METHOD("area_set_monitor_callback", "area", "receiver", "method"), &PhysicsServer::area_set_monitor_callback);
-    ClassDB::bind_method(D_METHOD("area_set_area_monitor_callback", "area", "receiver", "method"), &PhysicsServer::area_set_area_monitor_callback);
-    ClassDB::bind_method(D_METHOD("area_set_monitorable", "area", "monitorable"), &PhysicsServer::area_set_monitorable);
+    MethodBinder::bind_method(D_METHOD("area_set_monitor_callback", "area", "receiver", "method"), &PhysicsServer::area_set_monitor_callback);
+    MethodBinder::bind_method(D_METHOD("area_set_area_monitor_callback", "area", "receiver", "method"), &PhysicsServer::area_set_area_monitor_callback);
+    MethodBinder::bind_method(D_METHOD("area_set_monitorable", "area", "monitorable"), &PhysicsServer::area_set_monitorable);
 
-    ClassDB::bind_method(D_METHOD("area_set_ray_pickable", "area", "enable"), &PhysicsServer::area_set_ray_pickable);
-    ClassDB::bind_method(D_METHOD("area_is_ray_pickable", "area"), &PhysicsServer::area_is_ray_pickable);
+    MethodBinder::bind_method(D_METHOD("area_set_ray_pickable", "area", "enable"), &PhysicsServer::area_set_ray_pickable);
+    MethodBinder::bind_method(D_METHOD("area_is_ray_pickable", "area"), &PhysicsServer::area_is_ray_pickable);
 
-    ClassDB::bind_method(D_METHOD("body_create", "mode", "init_sleeping"), &PhysicsServer::body_create, {DEFVAL(BODY_MODE_RIGID), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("body_create", "mode", "init_sleeping"), &PhysicsServer::body_create, {DEFVAL(BODY_MODE_RIGID), DEFVAL(false)});
 
-    ClassDB::bind_method(D_METHOD("body_set_space", "body", "space"), &PhysicsServer::body_set_space);
-    ClassDB::bind_method(D_METHOD("body_get_space", "body"), &PhysicsServer::body_get_space);
+    MethodBinder::bind_method(D_METHOD("body_set_space", "body", "space"), &PhysicsServer::body_set_space);
+    MethodBinder::bind_method(D_METHOD("body_get_space", "body"), &PhysicsServer::body_get_space);
 
-    ClassDB::bind_method(D_METHOD("body_set_mode", "body", "mode"), &PhysicsServer::body_set_mode);
-    ClassDB::bind_method(D_METHOD("body_get_mode", "body"), &PhysicsServer::body_get_mode);
+    MethodBinder::bind_method(D_METHOD("body_set_mode", "body", "mode"), &PhysicsServer::body_set_mode);
+    MethodBinder::bind_method(D_METHOD("body_get_mode", "body"), &PhysicsServer::body_get_mode);
 
-    ClassDB::bind_method(D_METHOD("body_set_collision_layer", "body", "layer"), &PhysicsServer::body_set_collision_layer);
-    ClassDB::bind_method(D_METHOD("body_get_collision_layer", "body"), &PhysicsServer::body_get_collision_layer);
+    MethodBinder::bind_method(D_METHOD("body_set_collision_layer", "body", "layer"), &PhysicsServer::body_set_collision_layer);
+    MethodBinder::bind_method(D_METHOD("body_get_collision_layer", "body"), &PhysicsServer::body_get_collision_layer);
 
-    ClassDB::bind_method(D_METHOD("body_set_collision_mask", "body", "mask"), &PhysicsServer::body_set_collision_mask);
-    ClassDB::bind_method(D_METHOD("body_get_collision_mask", "body"), &PhysicsServer::body_get_collision_mask);
+    MethodBinder::bind_method(D_METHOD("body_set_collision_mask", "body", "mask"), &PhysicsServer::body_set_collision_mask);
+    MethodBinder::bind_method(D_METHOD("body_get_collision_mask", "body"), &PhysicsServer::body_get_collision_mask);
 
-    ClassDB::bind_method(D_METHOD("body_add_shape", "body", "shape", "transform", "disabled"), &PhysicsServer::body_add_shape, {DEFVAL(Transform()), DEFVAL(false)});
-    ClassDB::bind_method(D_METHOD("body_set_shape", "body", "shape_idx", "shape"), &PhysicsServer::body_set_shape);
-    ClassDB::bind_method(D_METHOD("body_set_shape_transform", "body", "shape_idx", "transform"), &PhysicsServer::body_set_shape_transform);
-    ClassDB::bind_method(D_METHOD("body_set_shape_disabled", "body", "shape_idx", "disabled"), &PhysicsServer::body_set_shape_disabled);
+    MethodBinder::bind_method(D_METHOD("body_add_shape", "body", "shape", "transform", "disabled"), &PhysicsServer::body_add_shape, {DEFVAL(Transform()), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("body_set_shape", "body", "shape_idx", "shape"), &PhysicsServer::body_set_shape);
+    MethodBinder::bind_method(D_METHOD("body_set_shape_transform", "body", "shape_idx", "transform"), &PhysicsServer::body_set_shape_transform);
+    MethodBinder::bind_method(D_METHOD("body_set_shape_disabled", "body", "shape_idx", "disabled"), &PhysicsServer::body_set_shape_disabled);
 
-    ClassDB::bind_method(D_METHOD("body_get_shape_count", "body"), &PhysicsServer::body_get_shape_count);
-    ClassDB::bind_method(D_METHOD("body_get_shape", "body", "shape_idx"), &PhysicsServer::body_get_shape);
-    ClassDB::bind_method(D_METHOD("body_get_shape_transform", "body", "shape_idx"), &PhysicsServer::body_get_shape_transform);
+    MethodBinder::bind_method(D_METHOD("body_get_shape_count", "body"), &PhysicsServer::body_get_shape_count);
+    MethodBinder::bind_method(D_METHOD("body_get_shape", "body", "shape_idx"), &PhysicsServer::body_get_shape);
+    MethodBinder::bind_method(D_METHOD("body_get_shape_transform", "body", "shape_idx"), &PhysicsServer::body_get_shape_transform);
 
-    ClassDB::bind_method(D_METHOD("body_remove_shape", "body", "shape_idx"), &PhysicsServer::body_remove_shape);
-    ClassDB::bind_method(D_METHOD("body_clear_shapes", "body"), &PhysicsServer::body_clear_shapes);
+    MethodBinder::bind_method(D_METHOD("body_remove_shape", "body", "shape_idx"), &PhysicsServer::body_remove_shape);
+    MethodBinder::bind_method(D_METHOD("body_clear_shapes", "body"), &PhysicsServer::body_clear_shapes);
 
-    ClassDB::bind_method(D_METHOD("body_attach_object_instance_id", "body", "id"), &PhysicsServer::body_attach_object_instance_id);
-    ClassDB::bind_method(D_METHOD("body_get_object_instance_id", "body"), &PhysicsServer::body_get_object_instance_id);
+    MethodBinder::bind_method(D_METHOD("body_attach_object_instance_id", "body", "id"), &PhysicsServer::body_attach_object_instance_id);
+    MethodBinder::bind_method(D_METHOD("body_get_object_instance_id", "body"), &PhysicsServer::body_get_object_instance_id);
 
-    ClassDB::bind_method(D_METHOD("body_set_enable_continuous_collision_detection", "body", "enable"), &PhysicsServer::body_set_enable_continuous_collision_detection);
-    ClassDB::bind_method(D_METHOD("body_is_continuous_collision_detection_enabled", "body"), &PhysicsServer::body_is_continuous_collision_detection_enabled);
+    MethodBinder::bind_method(D_METHOD("body_set_enable_continuous_collision_detection", "body", "enable"), &PhysicsServer::body_set_enable_continuous_collision_detection);
+    MethodBinder::bind_method(D_METHOD("body_is_continuous_collision_detection_enabled", "body"), &PhysicsServer::body_is_continuous_collision_detection_enabled);
 
-    ClassDB::bind_method(D_METHOD("body_set_param", "body", "param", "value"), &PhysicsServer::body_set_param);
-    ClassDB::bind_method(D_METHOD("body_get_param", "body", "param"), &PhysicsServer::body_get_param);
+    MethodBinder::bind_method(D_METHOD("body_set_param", "body", "param", "value"), &PhysicsServer::body_set_param);
+    MethodBinder::bind_method(D_METHOD("body_get_param", "body", "param"), &PhysicsServer::body_get_param);
 
-    ClassDB::bind_method(D_METHOD("body_set_kinematic_safe_margin", "body", "margin"), &PhysicsServer::body_set_kinematic_safe_margin);
-    ClassDB::bind_method(D_METHOD("body_get_kinematic_safe_margin", "body"), &PhysicsServer::body_get_kinematic_safe_margin);
+    MethodBinder::bind_method(D_METHOD("body_set_kinematic_safe_margin", "body", "margin"), &PhysicsServer::body_set_kinematic_safe_margin);
+    MethodBinder::bind_method(D_METHOD("body_get_kinematic_safe_margin", "body"), &PhysicsServer::body_get_kinematic_safe_margin);
 
-    ClassDB::bind_method(D_METHOD("body_set_state", "body", "state", "value"), &PhysicsServer::body_set_state);
-    ClassDB::bind_method(D_METHOD("body_get_state", "body", "state"), &PhysicsServer::body_get_state);
+    MethodBinder::bind_method(D_METHOD("body_set_state", "body", "state", "value"), &PhysicsServer::body_set_state);
+    MethodBinder::bind_method(D_METHOD("body_get_state", "body", "state"), &PhysicsServer::body_get_state);
 
-    ClassDB::bind_method(D_METHOD("body_add_central_force", "body", "force"), &PhysicsServer::body_add_central_force);
-    ClassDB::bind_method(D_METHOD("body_add_force", "body", "force", "position"), &PhysicsServer::body_add_force);
-    ClassDB::bind_method(D_METHOD("body_add_torque", "body", "torque"), &PhysicsServer::body_add_torque);
+    MethodBinder::bind_method(D_METHOD("body_add_central_force", "body", "force"), &PhysicsServer::body_add_central_force);
+    MethodBinder::bind_method(D_METHOD("body_add_force", "body", "force", "position"), &PhysicsServer::body_add_force);
+    MethodBinder::bind_method(D_METHOD("body_add_torque", "body", "torque"), &PhysicsServer::body_add_torque);
 
-    ClassDB::bind_method(D_METHOD("body_apply_central_impulse", "body", "impulse"), &PhysicsServer::body_apply_central_impulse);
-    ClassDB::bind_method(D_METHOD("body_apply_impulse", "body", "position", "impulse"), &PhysicsServer::body_apply_impulse);
-    ClassDB::bind_method(D_METHOD("body_apply_torque_impulse", "body", "impulse"), &PhysicsServer::body_apply_torque_impulse);
-    ClassDB::bind_method(D_METHOD("body_set_axis_velocity", "body", "axis_velocity"), &PhysicsServer::body_set_axis_velocity);
+    MethodBinder::bind_method(D_METHOD("body_apply_central_impulse", "body", "impulse"), &PhysicsServer::body_apply_central_impulse);
+    MethodBinder::bind_method(D_METHOD("body_apply_impulse", "body", "position", "impulse"), &PhysicsServer::body_apply_impulse);
+    MethodBinder::bind_method(D_METHOD("body_apply_torque_impulse", "body", "impulse"), &PhysicsServer::body_apply_torque_impulse);
+    MethodBinder::bind_method(D_METHOD("body_set_axis_velocity", "body", "axis_velocity"), &PhysicsServer::body_set_axis_velocity);
 
-    ClassDB::bind_method(D_METHOD("body_set_axis_lock", "body", "axis", "lock"), &PhysicsServer::body_set_axis_lock);
-    ClassDB::bind_method(D_METHOD("body_is_axis_locked", "body", "axis"), &PhysicsServer::body_is_axis_locked);
+    MethodBinder::bind_method(D_METHOD("body_set_axis_lock", "body", "axis", "lock"), &PhysicsServer::body_set_axis_lock);
+    MethodBinder::bind_method(D_METHOD("body_is_axis_locked", "body", "axis"), &PhysicsServer::body_is_axis_locked);
 
-    ClassDB::bind_method(D_METHOD("body_add_collision_exception", "body", "excepted_body"), &PhysicsServer::body_add_collision_exception);
-    ClassDB::bind_method(D_METHOD("body_remove_collision_exception", "body", "excepted_body"), &PhysicsServer::body_remove_collision_exception);
+    MethodBinder::bind_method(D_METHOD("body_add_collision_exception", "body", "excepted_body"), &PhysicsServer::body_add_collision_exception);
+    MethodBinder::bind_method(D_METHOD("body_remove_collision_exception", "body", "excepted_body"), &PhysicsServer::body_remove_collision_exception);
 
-    ClassDB::bind_method(D_METHOD("body_set_max_contacts_reported", "body", "amount"), &PhysicsServer::body_set_max_contacts_reported);
-    ClassDB::bind_method(D_METHOD("body_get_max_contacts_reported", "body"), &PhysicsServer::body_get_max_contacts_reported);
+    MethodBinder::bind_method(D_METHOD("body_set_max_contacts_reported", "body", "amount"), &PhysicsServer::body_set_max_contacts_reported);
+    MethodBinder::bind_method(D_METHOD("body_get_max_contacts_reported", "body"), &PhysicsServer::body_get_max_contacts_reported);
 
-    ClassDB::bind_method(D_METHOD("body_set_omit_force_integration", "body", "enable"), &PhysicsServer::body_set_omit_force_integration);
-    ClassDB::bind_method(D_METHOD("body_is_omitting_force_integration", "body"), &PhysicsServer::body_is_omitting_force_integration);
+    MethodBinder::bind_method(D_METHOD("body_set_omit_force_integration", "body", "enable"), &PhysicsServer::body_set_omit_force_integration);
+    MethodBinder::bind_method(D_METHOD("body_is_omitting_force_integration", "body"), &PhysicsServer::body_is_omitting_force_integration);
 
-    ClassDB::bind_method(D_METHOD("body_set_force_integration_callback", "body", "receiver", "method", "userdata"), &PhysicsServer::body_set_force_integration_callback, {DEFVAL(Variant())});
+    MethodBinder::bind_method(D_METHOD("body_set_force_integration_callback", "body", "receiver", "method", "userdata"), &PhysicsServer::body_set_force_integration_callback, {DEFVAL(Variant())});
 
-    ClassDB::bind_method(D_METHOD("body_set_ray_pickable", "body", "enable"), &PhysicsServer::body_set_ray_pickable);
-    ClassDB::bind_method(D_METHOD("body_is_ray_pickable", "body"), &PhysicsServer::body_is_ray_pickable);
+    MethodBinder::bind_method(D_METHOD("body_set_ray_pickable", "body", "enable"), &PhysicsServer::body_set_ray_pickable);
+    MethodBinder::bind_method(D_METHOD("body_is_ray_pickable", "body"), &PhysicsServer::body_is_ray_pickable);
 
-    ClassDB::bind_method(D_METHOD("body_get_direct_state", "body"), &PhysicsServer::body_get_direct_state);
+    MethodBinder::bind_method(D_METHOD("body_get_direct_state", "body"), &PhysicsServer::body_get_direct_state);
 
     /* JOINT API */
 
@@ -536,15 +542,15 @@ void PhysicsServer::_bind_methods() {
     BIND_ENUM_CONSTANT(JOINT_CONE_TWIST);
     BIND_ENUM_CONSTANT(JOINT_6DOF);
 
-    ClassDB::bind_method(D_METHOD("joint_create_pin", "body_A", "local_A", "body_B", "local_B"), &PhysicsServer::joint_create_pin);
-    ClassDB::bind_method(D_METHOD("pin_joint_set_param", "joint", "param", "value"), &PhysicsServer::pin_joint_set_param);
-    ClassDB::bind_method(D_METHOD("pin_joint_get_param", "joint", "param"), &PhysicsServer::pin_joint_get_param);
+    MethodBinder::bind_method(D_METHOD("joint_create_pin", "body_A", "local_A", "body_B", "local_B"), &PhysicsServer::joint_create_pin);
+    MethodBinder::bind_method(D_METHOD("pin_joint_set_param", "joint", "param", "value"), &PhysicsServer::pin_joint_set_param);
+    MethodBinder::bind_method(D_METHOD("pin_joint_get_param", "joint", "param"), &PhysicsServer::pin_joint_get_param);
 
-    ClassDB::bind_method(D_METHOD("pin_joint_set_local_a", "joint", "local_A"), &PhysicsServer::pin_joint_set_local_a);
-    ClassDB::bind_method(D_METHOD("pin_joint_get_local_a", "joint"), &PhysicsServer::pin_joint_get_local_a);
+    MethodBinder::bind_method(D_METHOD("pin_joint_set_local_a", "joint", "local_A"), &PhysicsServer::pin_joint_set_local_a);
+    MethodBinder::bind_method(D_METHOD("pin_joint_get_local_a", "joint"), &PhysicsServer::pin_joint_get_local_a);
 
-    ClassDB::bind_method(D_METHOD("pin_joint_set_local_b", "joint", "local_B"), &PhysicsServer::pin_joint_set_local_b);
-    ClassDB::bind_method(D_METHOD("pin_joint_get_local_b", "joint"), &PhysicsServer::pin_joint_get_local_b);
+    MethodBinder::bind_method(D_METHOD("pin_joint_set_local_b", "joint", "local_B"), &PhysicsServer::pin_joint_set_local_b);
+    MethodBinder::bind_method(D_METHOD("pin_joint_get_local_b", "joint"), &PhysicsServer::pin_joint_get_local_b);
 
     BIND_ENUM_CONSTANT(PIN_JOINT_BIAS);
     BIND_ENUM_CONSTANT(PIN_JOINT_DAMPING);
@@ -562,18 +568,18 @@ void PhysicsServer::_bind_methods() {
     BIND_ENUM_CONSTANT(HINGE_JOINT_FLAG_USE_LIMIT);
     BIND_ENUM_CONSTANT(HINGE_JOINT_FLAG_ENABLE_MOTOR);
 
-    ClassDB::bind_method(D_METHOD("joint_create_hinge", "body_A", "hinge_A", "body_B", "hinge_B"), &PhysicsServer::joint_create_hinge);
+    MethodBinder::bind_method(D_METHOD("joint_create_hinge", "body_A", "hinge_A", "body_B", "hinge_B"), &PhysicsServer::joint_create_hinge);
 
-    ClassDB::bind_method(D_METHOD("hinge_joint_set_param", "joint", "param", "value"), &PhysicsServer::hinge_joint_set_param);
-    ClassDB::bind_method(D_METHOD("hinge_joint_get_param", "joint", "param"), &PhysicsServer::hinge_joint_get_param);
+    MethodBinder::bind_method(D_METHOD("hinge_joint_set_param", "joint", "param", "value"), &PhysicsServer::hinge_joint_set_param);
+    MethodBinder::bind_method(D_METHOD("hinge_joint_get_param", "joint", "param"), &PhysicsServer::hinge_joint_get_param);
 
-    ClassDB::bind_method(D_METHOD("hinge_joint_set_flag", "joint", "flag", "enabled"), &PhysicsServer::hinge_joint_set_flag);
-    ClassDB::bind_method(D_METHOD("hinge_joint_get_flag", "joint", "flag"), &PhysicsServer::hinge_joint_get_flag);
+    MethodBinder::bind_method(D_METHOD("hinge_joint_set_flag", "joint", "flag", "enabled"), &PhysicsServer::hinge_joint_set_flag);
+    MethodBinder::bind_method(D_METHOD("hinge_joint_get_flag", "joint", "flag"), &PhysicsServer::hinge_joint_get_flag);
 
-    ClassDB::bind_method(D_METHOD("joint_create_slider", "body_A", "local_ref_A", "body_B", "local_ref_B"), &PhysicsServer::joint_create_slider);
+    MethodBinder::bind_method(D_METHOD("joint_create_slider", "body_A", "local_ref_A", "body_B", "local_ref_B"), &PhysicsServer::joint_create_slider);
 
-    ClassDB::bind_method(D_METHOD("slider_joint_set_param", "joint", "param", "value"), &PhysicsServer::slider_joint_set_param);
-    ClassDB::bind_method(D_METHOD("slider_joint_get_param", "joint", "param"), &PhysicsServer::slider_joint_get_param);
+    MethodBinder::bind_method(D_METHOD("slider_joint_set_param", "joint", "param", "value"), &PhysicsServer::slider_joint_set_param);
+    MethodBinder::bind_method(D_METHOD("slider_joint_get_param", "joint", "param"), &PhysicsServer::slider_joint_get_param);
 
     BIND_ENUM_CONSTANT(SLIDER_JOINT_LINEAR_LIMIT_UPPER);
     BIND_ENUM_CONSTANT(SLIDER_JOINT_LINEAR_LIMIT_LOWER);
@@ -600,10 +606,10 @@ void PhysicsServer::_bind_methods() {
     BIND_ENUM_CONSTANT(SLIDER_JOINT_ANGULAR_ORTHOGONAL_DAMPING);
     BIND_ENUM_CONSTANT(SLIDER_JOINT_MAX);
 
-    ClassDB::bind_method(D_METHOD("joint_create_cone_twist", "body_A", "local_ref_A", "body_B", "local_ref_B"), &PhysicsServer::joint_create_cone_twist);
+    MethodBinder::bind_method(D_METHOD("joint_create_cone_twist", "body_A", "local_ref_A", "body_B", "local_ref_B"), &PhysicsServer::joint_create_cone_twist);
 
-    ClassDB::bind_method(D_METHOD("cone_twist_joint_set_param", "joint", "param", "value"), &PhysicsServer::cone_twist_joint_set_param);
-    ClassDB::bind_method(D_METHOD("cone_twist_joint_get_param", "joint", "param"), &PhysicsServer::cone_twist_joint_get_param);
+    MethodBinder::bind_method(D_METHOD("cone_twist_joint_set_param", "joint", "param", "value"), &PhysicsServer::cone_twist_joint_set_param);
+    MethodBinder::bind_method(D_METHOD("cone_twist_joint_get_param", "joint", "param"), &PhysicsServer::cone_twist_joint_get_param);
 
     BIND_ENUM_CONSTANT(CONE_TWIST_JOINT_SWING_SPAN);
     BIND_ENUM_CONSTANT(CONE_TWIST_JOINT_TWIST_SPAN);
@@ -633,24 +639,24 @@ void PhysicsServer::_bind_methods() {
     BIND_ENUM_CONSTANT(G6DOF_JOINT_FLAG_ENABLE_MOTOR);
     BIND_ENUM_CONSTANT(G6DOF_JOINT_FLAG_ENABLE_LINEAR_MOTOR);
 
-    ClassDB::bind_method(D_METHOD("joint_get_type", "joint"), &PhysicsServer::joint_get_type);
+    MethodBinder::bind_method(D_METHOD("joint_get_type", "joint"), &PhysicsServer::joint_get_type);
 
-    ClassDB::bind_method(D_METHOD("joint_set_solver_priority", "joint", "priority"), &PhysicsServer::joint_set_solver_priority);
-    ClassDB::bind_method(D_METHOD("joint_get_solver_priority", "joint"), &PhysicsServer::joint_get_solver_priority);
+    MethodBinder::bind_method(D_METHOD("joint_set_solver_priority", "joint", "priority"), &PhysicsServer::joint_set_solver_priority);
+    MethodBinder::bind_method(D_METHOD("joint_get_solver_priority", "joint"), &PhysicsServer::joint_get_solver_priority);
 
-    ClassDB::bind_method(D_METHOD("joint_create_generic_6dof", "body_A", "local_ref_A", "body_B", "local_ref_B"), &PhysicsServer::joint_create_generic_6dof);
+    MethodBinder::bind_method(D_METHOD("joint_create_generic_6dof", "body_A", "local_ref_A", "body_B", "local_ref_B"), &PhysicsServer::joint_create_generic_6dof);
 
-    ClassDB::bind_method(D_METHOD("generic_6dof_joint_set_param", "joint", "axis", "param", "value"), &PhysicsServer::generic_6dof_joint_set_param);
-    ClassDB::bind_method(D_METHOD("generic_6dof_joint_get_param", "joint", "axis", "param"), &PhysicsServer::generic_6dof_joint_get_param);
+    MethodBinder::bind_method(D_METHOD("generic_6dof_joint_set_param", "joint", "axis", "param", "value"), &PhysicsServer::generic_6dof_joint_set_param);
+    MethodBinder::bind_method(D_METHOD("generic_6dof_joint_get_param", "joint", "axis", "param"), &PhysicsServer::generic_6dof_joint_get_param);
 
-    ClassDB::bind_method(D_METHOD("generic_6dof_joint_set_flag", "joint", "axis", "flag", "enable"), &PhysicsServer::generic_6dof_joint_set_flag);
-    ClassDB::bind_method(D_METHOD("generic_6dof_joint_get_flag", "joint", "axis", "flag"), &PhysicsServer::generic_6dof_joint_get_flag);
+    MethodBinder::bind_method(D_METHOD("generic_6dof_joint_set_flag", "joint", "axis", "flag", "enable"), &PhysicsServer::generic_6dof_joint_set_flag);
+    MethodBinder::bind_method(D_METHOD("generic_6dof_joint_get_flag", "joint", "axis", "flag"), &PhysicsServer::generic_6dof_joint_get_flag);
 
-    ClassDB::bind_method(D_METHOD("free_rid", "rid"), &PhysicsServer::free);
+    MethodBinder::bind_method(D_METHOD("free_rid", "rid"), &PhysicsServer::free);
 
-    ClassDB::bind_method(D_METHOD("set_active", "active"), &PhysicsServer::set_active);
+    MethodBinder::bind_method(D_METHOD("set_active", "active"), &PhysicsServer::set_active);
 
-    ClassDB::bind_method(D_METHOD("get_process_info", "process_info"), &PhysicsServer::get_process_info);
+    MethodBinder::bind_method(D_METHOD("get_process_info", "process_info"), &PhysicsServer::get_process_info);
 
     BIND_ENUM_CONSTANT(SHAPE_PLANE);
     BIND_ENUM_CONSTANT(SHAPE_RAY);
@@ -738,7 +744,7 @@ PhysicsServer::~PhysicsServer() {
 Vector<PhysicsServerManager::ClassInfo> PhysicsServerManager::physics_servers;
 int PhysicsServerManager::default_server_id = -1;
 int PhysicsServerManager::default_server_priority = -1;
-const String PhysicsServerManager::setting_property_name("physics/3d/physics_engine");
+const StaticCString PhysicsServerManager::setting_property_name("physics/3d/physics_engine");
 
 void PhysicsServerManager::on_servers_changed() {
 
@@ -746,13 +752,14 @@ void PhysicsServerManager::on_servers_changed() {
     for (int i = get_servers_count() - 1; 0 <= i; --i) {
         physics_servers2 += "," + get_server_name(i);
     }
-    ProjectSettings::get_singleton()->set_custom_property_info(setting_property_name, PropertyInfo(Variant::STRING, setting_property_name, PROPERTY_HINT_ENUM, physics_servers2));
+    ProjectSettings::get_singleton()->set_custom_property_info(setting_property_name,
+            PropertyInfo(Variant::STRING, StringName(setting_property_name), PROPERTY_HINT_ENUM, physics_servers2));
 }
 
 void PhysicsServerManager::register_server(const String &p_name, CreatePhysicsServerCallback p_creat_callback) {
 
-    ERR_FAIL_COND(!p_creat_callback);
-    ERR_FAIL_COND(find_server_id(p_name) != -1);
+    ERR_FAIL_COND(!p_creat_callback)
+    ERR_FAIL_COND(find_server_id(p_name) != -1)
     physics_servers.push_back(ClassInfo(p_name, p_creat_callback));
     on_servers_changed();
 }
@@ -782,12 +789,12 @@ int PhysicsServerManager::get_servers_count() {
 }
 
 String PhysicsServerManager::get_server_name(int p_id) {
-    ERR_FAIL_INDEX_V(p_id, get_servers_count(), "");
+    ERR_FAIL_INDEX_V(p_id, get_servers_count(), String())
     return physics_servers[p_id].name;
 }
 
 PhysicsServer *PhysicsServerManager::new_default_server() {
-    ERR_FAIL_COND_V(default_server_id == -1, nullptr);
+    ERR_FAIL_COND_V(default_server_id == -1, nullptr)
     return physics_servers[default_server_id].create_callback();
 }
 

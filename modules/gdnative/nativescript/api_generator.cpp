@@ -36,6 +36,9 @@
 #include "core/engine.h"
 #include "core/global_constants.h"
 #include "core/os/file_access.h"
+#include "core/property_info.h"
+#include "core/method_info.h"
+#include "core/method_bind_interface.h"
 #include "core/pair.h"
 #include "core/ustring.h"
 // helper stuff
@@ -121,7 +124,7 @@ struct ClassAPI {
 
 static String get_type_name(const PropertyInfo &info) {
     if (info.type == Variant::INT && (info.usage & PROPERTY_USAGE_CLASS_IS_ENUM)) {
-        return String("enum.") + String(info.class_name).replace(".", "::");
+		return String("enum.") + StringUtils::replace(info.class_name,".", "::");
     }
     if (info.class_name != StringName()) {
         return info.class_name;
@@ -203,8 +206,8 @@ List<ClassAPI> generate_c_api_classes() {
         class_api.super_class_name = ClassDB::get_parent_class(class_name);
         {
             String name = class_name;
-            if (name.begins_with("_")) {
-                name.erase(0,1);
+            if (StringUtils::begins_with(name,"_")) {
+				StringUtils::erase(name,0,1);
             }
             class_api.is_singleton = Engine::get_singleton()->has_singleton(name);
         }
@@ -249,9 +252,9 @@ List<ClassAPI> generate_c_api_classes() {
                     String type;
                     String name = argument.name;
 
-                    if (argument.name.find(":") != -1) {
-                        type = argument.name.get_slice(":", 1);
-                        name = argument.name.get_slice(":", 0);
+					if (StringUtils::contains(argument.name,':')) {
+                        type = StringUtils::get_slice(argument.name,":", 1);
+                        name = StringUtils::get_slice(argument.name,":", 0);
                     } else {
                         type = get_type_name(argument);
                     }
@@ -285,9 +288,9 @@ List<ClassAPI> generate_c_api_classes() {
                 property_api.getter = ClassDB::get_property_getter(class_name, p->get().name);
                 property_api.setter = ClassDB::get_property_setter(class_name, p->get().name);
 
-                if (p->get().name.find(":") != -1) {
-                    property_api.type = p->get().name.get_slice(":", 1);
-                    property_api.name = p->get().name.get_slice(":", 0);
+				if( StringUtils::contains(p->get().name,":") ) {
+                    property_api.type = StringUtils::get_slice(p->get().name,":", 1);
+                    property_api.name = StringUtils::get_slice(p->get().name,":", 0);
                 } else {
                     property_api.type = get_type_name(p->get());
                 }
@@ -314,9 +317,9 @@ List<ClassAPI> generate_c_api_classes() {
                 //method name
                 method_api.method_name = method_info.name;
                 //method return type
-                if (method_api.method_name.find(":") != -1) {
-                    method_api.return_type = method_api.method_name.get_slice(":", 1);
-                    method_api.method_name = method_api.method_name.get_slice(":", 0);
+				if( StringUtils::contains(method_api.method_name,":") ) {
+                    method_api.return_type = StringUtils::get_slice(method_api.method_name,":", 1);
+                    method_api.method_name = StringUtils::get_slice(method_api.method_name,":", 0);
                 } else {
                     method_api.return_type = get_type_name(m->get().return_val);
                 }
@@ -347,9 +350,9 @@ List<ClassAPI> generate_c_api_classes() {
 
                     arg_name = arg_info.name;
 
-                    if (arg_info.name.find(":") != -1) {
-                        arg_type = arg_info.name.get_slice(":", 1);
-                        arg_name = arg_info.name.get_slice(":", 0);
+					if (StringUtils::contains(arg_info.name,":") ) {
+                        arg_type = StringUtils::get_slice(arg_info.name,":", 1);
+                        arg_name = StringUtils::get_slice(arg_info.name,":", 0);
                     } else if (arg_info.hint == PROPERTY_HINT_RESOURCE_TYPE) {
                         arg_type = arg_info.hint_string;
                     } else if (arg_info.type == Variant::NIL) {

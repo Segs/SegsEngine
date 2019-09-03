@@ -35,7 +35,7 @@
 
 class CanvasModulate : public Node2D {
 
-	GDCLASS(CanvasModulate, Node2D);
+	GDCLASS(CanvasModulate,Node2D)
 
 	Color color;
 
@@ -47,10 +47,10 @@ public:
 	void set_color(const Color &p_color);
 	Color get_color() const;
 
-	String get_configuration_warning() const;
+	String get_configuration_warning() const override;
 
 	CanvasModulate();
-	~CanvasModulate();
+	~CanvasModulate() override;
 };
 
 #endif // CANVASMODULATE_H

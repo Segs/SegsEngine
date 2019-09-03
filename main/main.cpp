@@ -78,7 +78,7 @@
 #include "editor/editor_node.h"
 #include "editor/editor_settings.h"
 #include "editor/project_manager.h"
-
+#include "editor/progress_dialog.h"
 #endif
 
 /* Static members */
@@ -161,13 +161,13 @@ bool Main::is_project_manager() {
 }
 
 static String unescape_cmdline(String p_str) {
-    return p_str.replace("%20", " ");
+    return StringUtils::replace(p_str,"%20", " ");
 }
 
 static String get_full_version_string() {
     String hash = String(VERSION_HASH);
-    if (hash.length() != 0)
-        hash = "." + hash.left(9);
+    if (!hash.empty())
+        hash = "." + StringUtils::left(hash,9);
     return String(VERSION_FULL_BUILD) + hash;
 }
 
@@ -181,7 +181,7 @@ void initialize_physics() {
         // Physics server not found, Use the default physics
         physics_server = PhysicsServerManager::new_default_server();
     }
-    ERR_FAIL_COND(!physics_server);
+    ERR_FAIL_COND(!physics_server)
     physics_server->init();
 
     /// 2D Physics server
@@ -190,7 +190,7 @@ void initialize_physics() {
         // Physics server not found, Use the default physics
         physics_2d_server = Physics2DServerManager::new_default_server();
     }
-    ERR_FAIL_COND(!physics_2d_server);
+    ERR_FAIL_COND(!physics_2d_server)
     physics_2d_server->init();
 }
 
@@ -363,7 +363,7 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
     ClassDB::register_class<Performance>();
     engine->add_singleton(Engine::Singleton("Performance", performance));
 
-    GLOBAL_DEF("debug/settings/crash_handler/message", String("Please include this when reporting the bug on https://github.com/godotengine/godot/issues"));
+    GLOBAL_DEF(String("debug/settings/crash_handler/message"), String("Please include this when reporting the bug on https://github.com/godotengine/godot/issues"));
 
     MAIN_PRINT("Main: Parse CMDLine");
 
@@ -373,7 +373,7 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 
     for (int i = 0; i < argc; i++) {
 
-        args.push_back(String::utf8(argv[i]));
+        args.push_back(StringUtils::from_utf8(argv[i]));
     }
 
     List<String>::Element *I = args.front();
@@ -382,7 +382,7 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 
     while (I) {
 
-        I->get() = unescape_cmdline(I->get().strip_edges());
+        I->get() = unescape_cmdline(StringUtils::strip_edges(I->get()));
         I = I->next();
     }
 
@@ -488,14 +488,14 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 
                 String vm = I->next()->get();
 
-                if (vm.find("x") == -1) { // invalid parameter format
+                if (not StringUtils::contains(vm,'x')) { // invalid parameter format
 
                     OS::get_singleton()->print("Invalid resolution '"+vm+"', it should be e.g. '1280x720'.\n");
                     goto error;
                 }
 
-                int w = vm.get_slice("x", 0).to_int();
-                int h = vm.get_slice("x", 1).to_int();
+                int w = StringUtils::to_int(StringUtils::get_slice(vm,"x", 0));
+                int h = StringUtils::to_int(StringUtils::get_slice(vm,"x", 1));
 
                 if (w <= 0 || h <= 0) {
 
@@ -518,14 +518,14 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 
                 String vm = I->next()->get();
 
-                if (vm.find(",") == -1) { // invalid parameter format
+                if (not StringUtils::contains(vm,',')) { // invalid parameter format
 
                     OS::get_singleton()->print("Invalid position '"+vm+"', it should be e.g. '80,128'.\n");
                     goto error;
                 }
 
-                int x = vm.get_slice(",", 0).to_int();
-                int y = vm.get_slice(",", 1).to_int();
+                int x = StringUtils::to_int(StringUtils::get_slice(vm,",", 0));
+                int y = StringUtils::to_int(StringUtils::get_slice(vm,",", 1));
 
                 init_custom_pos = Point2(x, y);
                 init_use_custom_pos = true;
@@ -607,12 +607,12 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
             auto_build_solutions = true;
             editor = true;
 #ifdef DEBUG_METHODS_ENABLED
-		} else if (I->get() == "--gdnative-generate-json-api") {
-			// Register as an editor instance to use the GLES2 fallback automatically on hardware that doesn't support the GLES3 backend
-			editor = true;
+        } else if (I->get() == "--gdnative-generate-json-api") {
+            // Register as an editor instance to use the GLES2 fallback automatically on hardware that doesn't support the GLES3 backend
+            editor = true;
 
-			// We still pass it to the main arguments since the argument handling itself is not done in this function
-			main_args.push_back(I->get());
+            // We still pass it to the main arguments since the argument handling itself is not done in this function
+            main_args.push_back(I->get());
 #endif
         } else if (I->get() == "--export" || I->get() == "--export-debug") { // Export project
 
@@ -638,14 +638,14 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
             upwards = true;
         } else if (I->get() == "-q" || I->get() == "--quit") { // Auto quit at the end of the first main loop iteration
             auto_quit = true;
-        } else if (I->get().ends_with("project.godot")) {
+        } else if (StringUtils::ends_with(I->get(),"project.godot")) {
             String path;
             String file = I->get();
-            int sep = MAX(file.find_last("/"), file.find_last("\\"));
+            int sep = MAX(StringUtils::find_last(file,"/"), StringUtils::find_last(file,"\\"));
             if (sep == -1)
                 path = ".";
             else {
-                path = file.substr(0, sep);
+                path = StringUtils::substr(file,0, sep);
             }
             if (OS::get_singleton()->set_cwd(path) == OK) {
                 // path already specified, don't override
@@ -671,7 +671,7 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 
             if (I->next()) {
 
-                frame_delay = I->next()->get().to_int();
+                frame_delay = StringUtils::to_int(I->next()->get());
                 N = I->next()->next();
             } else {
                 OS::get_singleton()->print("Missing frame delay argument, aborting.\n");
@@ -682,7 +682,7 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 
             if (I->next()) {
 
-                Engine::get_singleton()->set_time_scale(I->next()->get().to_double());
+                Engine::get_singleton()->set_time_scale(StringUtils::to_double(I->next()->get()));
                 N = I->next()->next();
             } else {
                 OS::get_singleton()->print("Missing time scale argument, aborting.\n");
@@ -713,7 +713,7 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 
                 debug_mode = "remote";
                 debug_host = I->next()->get();
-                if (debug_host.find(":") == -1) { // wrong address
+                if (not StringUtils::contains(debug_host,':')) { // wrong address
                     OS::get_singleton()->print("Invalid debug host address, it should be of the form <host/IP>:<port>.\n");
                     goto error;
                 }
@@ -725,7 +725,7 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
         } else if (I->get() == "--allow_focus_steal_pid") { // not exposed to user
             if (I->next()) {
 
-                allow_focus_steal_pid = I->next()->get().to_int64();
+                allow_focus_steal_pid = StringUtils::to_int64(I->next()->get());
                 N = I->next()->next();
             } else {
                 OS::get_singleton()->print("Missing editor PID argument, aborting.\n");
@@ -735,7 +735,7 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
             disable_render_loop = true;
         } else if (I->get() == "--fixed-fps") {
             if (I->next()) {
-                fixed_fps = I->next()->get().to_int();
+                fixed_fps = StringUtils::to_int(I->next()->get());
                 N = I->next()->next();
             } else {
                 OS::get_singleton()->print("Missing fixed-fps argument, aborting.\n");
@@ -759,9 +759,9 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 
         file_access_network_client = memnew(FileAccessNetworkClient);
         int port;
-        if (remotefs.find(":") != -1) {
-            port = remotefs.get_slicec(':', 1).to_int();
-            remotefs = remotefs.get_slicec(':', 0);
+        if (StringUtils::contains(remotefs,':')) {
+            port = StringUtils::to_int(StringUtils::get_slice(remotefs,':', 1));
+            remotefs = StringUtils::get_slice(remotefs,':', 0);
         } else {
             port = 6010;
         }
@@ -806,10 +806,10 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 
         ScriptDebuggerRemote *sdr = memnew(ScriptDebuggerRemote);
         uint16_t debug_port = 6007;
-        if (debug_host.find(":") != -1) {
-            int sep_pos = debug_host.find_last(":");
-            debug_port = debug_host.substr(sep_pos + 1, debug_host.length()).to_int();
-            debug_host = debug_host.substr(0, sep_pos);
+        if (StringUtils::contains(debug_host,':')) {
+            int sep_pos = StringUtils::find_last(debug_host,":");
+            debug_port = StringUtils::to_int(StringUtils::substr(debug_host,sep_pos + 1, debug_host.length()));
+            debug_host = StringUtils::substr(debug_host,0, sep_pos);
         }
         Error derr = sdr->connect_to_host(debug_host, debug_port);
 
@@ -830,10 +830,10 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
         for (int i = 0; i < breakpoints.size(); i++) {
 
             String bp = breakpoints[i];
-            int sp = bp.find_last(":");
+            int sp = StringUtils::find_last(bp,":");
             ERR_CONTINUE_MSG(sp == -1, "Invalid breakpoint: '" + bp + "', expected file:line format.");
 
-            script_debugger->insert_breakpoint(bp.substr(sp + 1, bp.length()).to_int(), bp.substr(0, sp));
+            script_debugger->insert_breakpoint(StringUtils::to_int(StringUtils::substr(bp,sp + 1, bp.length())), StringUtils::substr(bp,0, sp));
         }
     }
 
@@ -952,7 +952,7 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
     }
 
 
-    video_mode.use_vsync = GLOBAL_DEF("display/window/vsync/use_vsync", true);
+    video_mode.use_vsync = GLOBAL_DEF_RST("display/window/vsync/use_vsync", true);
     OS::get_singleton()->_use_vsync = video_mode.use_vsync;
 
     OS::get_singleton()->_allow_layered = GLOBAL_DEF("display/window/per_pixel_transparency/allowed", false);
@@ -1141,11 +1141,7 @@ Error Main::setup2(Thread::ID p_main_tid_override) {
 
     MAIN_PRINT("Main: Setup Logo");
 
-#ifdef JAVASCRIPT_ENABLED
-    bool show_logo = false;
-#else
     bool show_logo = true;
-#endif
 
     if (init_screen != -1) {
         OS::get_singleton()->set_current_screen(init_screen);
@@ -1179,7 +1175,7 @@ Error Main::setup2(Thread::ID p_main_tid_override) {
 
         Ref<Image> boot_logo;
 
-        boot_logo_path = boot_logo_path.strip_edges();
+        boot_logo_path =StringUtils::strip_edges( boot_logo_path);
 
         if (boot_logo_path != String()) {
             boot_logo.instance();
@@ -1400,7 +1396,7 @@ bool Main::start() {
         print_line("Loading docs...");
 
         for (int i = 0; i < _doc_data_class_path_count; i++) {
-			String path = PathUtils::plus_file(doc_tool,_doc_data_class_paths[i].path);
+            String path = PathUtils::plus_file(doc_tool,_doc_data_class_paths[i].path);
             String name = _doc_data_class_paths[i].name;
             doc_data_classes[name] = path;
             if (!checked_paths.has(path)) {
@@ -1414,7 +1410,7 @@ bool Main::start() {
             }
         }
 
-		String index_path = PathUtils::plus_file(doc_tool,"doc/classes");
+        String index_path = PathUtils::plus_file(doc_tool,"doc/classes");
         // Create the main documentation directory if it doesn't exist
         DirAccess *da = DirAccess::create_for_path(index_path);
         da->make_dir_recursive(index_path);
@@ -1544,12 +1540,12 @@ bool Main::start() {
                 for (List<PropertyInfo>::Element *E = props.front(); E; E = E->next()) {
 
                     String s = E->get().name;
-                    if (!s.begins_with("autoload/"))
+                    if (!StringUtils::begins_with(s,"autoload/"))
                         continue;
-                    String name = s.get_slicec('/', 1);
+                    String name = StringUtils::get_slice(s,'/', 1);
                     String path = ProjectSettings::get_singleton()->get(s);
                     bool global_var = false;
-                    if (path.begins_with("*")) {
+                    if (StringUtils::begins_with(path,"*")) {
                         global_var = true;
                     }
 
@@ -1565,14 +1561,14 @@ bool Main::start() {
                 for (List<PropertyInfo>::Element *E = props.front(); E; E = E->next()) {
 
                     String s = E->get().name;
-                    if (!s.begins_with("autoload/"))
+                    if (!StringUtils::begins_with(s,"autoload/"))
                         continue;
-                    String name = s.get_slicec('/', 1);
+                    String name = StringUtils::get_slice(s,'/', 1);
                     String path = ProjectSettings::get_singleton()->get(s);
                     bool global_var = false;
-                    if (path.begins_with("*")) {
+                    if (StringUtils::begins_with(path,"*")) {
                         global_var = true;
-                        path = path.substr(1, path.length() - 1);
+                        path = StringUtils::substr(path,1, path.length() - 1);
                     }
 
                     RES res = ResourceLoader::load(path);
@@ -1702,9 +1698,9 @@ bool Main::start() {
         String local_game_path;
         if (game_path != "" && !project_manager) {
 
-            local_game_path = game_path.replace("\\", "/");
+            local_game_path = PathUtils::from_native_path(game_path);
 
-            if (!local_game_path.begins_with("res://")) {
+            if (!StringUtils::begins_with(local_game_path,"res://")) {
                 bool absolute = (local_game_path.size() > 1) && (local_game_path[0] == '/' || local_game_path[1] == ':');
 
                 if (!absolute) {
@@ -1714,17 +1710,17 @@ bool Main::start() {
                         local_game_path = "res://" + local_game_path;
 
                     } else {
-                        int sep = local_game_path.find_last("/");
+                        int sep = StringUtils::find_last(local_game_path,"/");
 
                         if (sep == -1) {
                             DirAccess *da = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
-							local_game_path = PathUtils::plus_file(da->get_current_dir(),local_game_path);
+                            local_game_path = PathUtils::plus_file(da->get_current_dir(),local_game_path);
                             memdelete(da);
                         } else {
 
-                            DirAccess *da = DirAccess::open(local_game_path.substr(0, sep));
+                            DirAccess *da = DirAccess::open(StringUtils::substr(local_game_path,0, sep));
                             if (da) {
-								local_game_path = PathUtils::plus_file(da->get_current_dir(),local_game_path.substr(sep + 1, local_game_path.length()));
+                                local_game_path = PathUtils::plus_file(da->get_current_dir(),StringUtils::substr(local_game_path,sep + 1, local_game_path.length()));
                                 memdelete(da);
                             }
                         }

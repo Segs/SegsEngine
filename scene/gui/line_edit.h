@@ -36,7 +36,7 @@
 
 class LineEdit : public Control {
 
-	GDCLASS(LineEdit, Control);
+	GDCLASS(LineEdit,Control)
 
 public:
 	enum Align {
@@ -156,11 +156,11 @@ public:
 	void set_align(Align p_align);
 	Align get_align() const;
 
-	virtual Variant get_drag_data(const Point2 &p_point);
-	virtual bool can_drop_data(const Point2 &p_point, const Variant &p_data) const;
-	virtual void drop_data(const Point2 &p_point, const Variant &p_data);
+	Variant get_drag_data(const Point2 &p_point) override;
+	bool can_drop_data(const Point2 &p_point, const Variant &p_data) const override;
+	void drop_data(const Point2 &p_point, const Variant &p_data) override;
 
-	virtual CursorShape get_cursor_shape(const Point2 &p_pos) const;
+	CursorShape get_cursor_shape(const Point2 &p_pos) const override;
 
 	void menu_option(int p_option);
 	void set_context_menu_enabled(bool p_enable);
@@ -208,7 +208,7 @@ public:
 	void set_secret_character(const String &p_string);
 	String get_secret_character() const;
 
-	virtual Size2 get_minimum_size() const;
+	Size2 get_minimum_size() const override;
 
 	void set_expand_to_text_length(bool p_enabled);
 	bool get_expand_to_text_length() const;
@@ -218,9 +218,9 @@ public:
 
 	void set_right_icon(const Ref<Texture> &p_icon);
 
-	virtual bool is_text_field() const;
+	bool is_text_field() const override;
 	LineEdit();
-	~LineEdit();
+	~LineEdit() override;
 };
 
 VARIANT_ENUM_CAST(LineEdit::Align);

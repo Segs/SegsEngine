@@ -36,7 +36,7 @@
 
 class Sprite : public Node2D {
 
-	GDCLASS(Sprite, Node2D);
+	GDCLASS(Sprite,Node2D)
 
 	Ref<Texture> texture;
 	Ref<Texture> normal_map;
@@ -62,23 +62,23 @@ protected:
 
 	static void _bind_methods();
 
-	virtual void _validate_property(PropertyInfo &property) const;
+	void _validate_property(PropertyInfo &property) const override;
 
-	virtual void _changed_callback(Object *p_changed, const char *p_prop);
+	void _changed_callback(Object *p_changed, const char *p_prop) override;
 
 public:
-	virtual Dictionary _edit_get_state() const;
-	virtual void _edit_set_state(const Dictionary &p_state);
+	Dictionary _edit_get_state() const override;
+	void _edit_set_state(const Dictionary &p_state) override;
 
-	virtual void _edit_set_pivot(const Point2 &p_pivot);
-	virtual Point2 _edit_get_pivot() const;
-	virtual bool _edit_use_pivot() const;
-	virtual bool _edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const;
+	void _edit_set_pivot(const Point2 &p_pivot) override;
+	Point2 _edit_get_pivot() const override;
+	bool _edit_use_pivot() const override;
+	bool _edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const override;
 
 	bool is_pixel_opaque(const Point2 &p_point) const;
 
-	virtual Rect2 _edit_get_rect() const;
-	virtual bool _edit_use_rect() const;
+	Rect2 _edit_get_rect() const override;
+	bool _edit_use_rect() const override;
 
 	void set_texture(const Ref<Texture> &p_texture);
 	Ref<Texture> get_texture() const;
@@ -120,10 +120,10 @@ public:
 	int get_hframes() const;
 
 	Rect2 get_rect() const;
-	virtual Rect2 get_anchorable_rect() const;
+	Rect2 get_anchorable_rect() const override;
 
 	Sprite();
-	~Sprite();
+	~Sprite() override;
 };
 
 #endif // SPRITE_H

@@ -51,14 +51,14 @@ public:
 	static void make_default() { CryptoKey::_create = create; }
 	static void finalize() { CryptoKey::_create = nullptr; }
 
-	virtual Error load(String p_path);
-	virtual Error save(String p_path);
+	Error load(String p_path) override;
+	Error save(String p_path) override;
 
 	CryptoKeyMbedTLS() {
 		mbedtls_pk_init(&pkey);
 		locks = 0;
 	}
-	~CryptoKeyMbedTLS() {
+	~CryptoKeyMbedTLS() override {
 		mbedtls_pk_free(&pkey);
 	}
 
@@ -80,15 +80,15 @@ public:
 	static void make_default() { X509Certificate::_create = create; }
 	static void finalize() { X509Certificate::_create = nullptr; }
 
-	virtual Error load(String p_path);
-	virtual Error load_from_memory(const uint8_t *p_buffer, int p_len);
-	virtual Error save(String p_path);
+	Error load(String p_path) override;
+	Error load_from_memory(const uint8_t *p_buffer, int p_len) override;
+	Error save(String p_path) override;
 
 	X509CertificateMbedTLS() {
 		mbedtls_x509_crt_init(&cert);
 		locks = 0;
 	}
-	~X509CertificateMbedTLS() {
+	~X509CertificateMbedTLS() override {
 		mbedtls_x509_crt_free(&cert);
 	}
 
@@ -113,12 +113,12 @@ public:
 	static X509CertificateMbedTLS *get_default_certificates();
 	static void load_default_certificates(String p_path);
 
-	virtual PoolByteArray generate_random_bytes(int p_bytes);
-	virtual Ref<CryptoKey> generate_rsa(int p_bytes);
-	virtual Ref<X509Certificate> generate_self_signed_certificate(Ref<CryptoKey> p_key, String p_issuer_name, String p_not_before, String p_not_after);
+	PoolByteArray generate_random_bytes(int p_bytes) override;
+	Ref<CryptoKey> generate_rsa(int p_bytes) override;
+	Ref<X509Certificate> generate_self_signed_certificate(Ref<CryptoKey> p_key, String p_issuer_name, String p_not_before, String p_not_after) override;
 
 	CryptoMbedTLS();
-	~CryptoMbedTLS();
+	~CryptoMbedTLS() override;
 };
 
 #endif // CRYPTO_MBEDTLS_H

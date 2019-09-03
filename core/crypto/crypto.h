@@ -65,7 +65,7 @@ public:
 };
 
 class Crypto : public Reference {
-	GDCLASS(Crypto, Reference);
+    GDCLASS(Crypto, Reference);
 
 protected:
 	static void _bind_methods();
@@ -87,19 +87,19 @@ class ResourceFormatLoaderCrypto : public ResourceFormatLoader {
 	GDCLASS(ResourceFormatLoaderCrypto, ResourceFormatLoader);
 
 public:
-	virtual RES load(const String &p_path, const String &p_original_path = "", Error *r_error = nullptr);
-	virtual void get_recognized_extensions(List<String> *p_extensions) const;
-	virtual bool handles_type(const String &p_type) const;
-	virtual String get_resource_type(const String &p_path) const;
+	RES load(const String &p_path, const String &p_original_path = String::null_val, Error *r_error = nullptr) override;
+	void get_recognized_extensions(List<String> *p_extensions) const override;
+	bool handles_type(const String &p_type) const override;
+	String get_resource_type(const String &p_path) const override;
 };
 
 class ResourceFormatSaverCrypto : public ResourceFormatSaver {
 	GDCLASS(ResourceFormatSaverCrypto, ResourceFormatSaver);
 
 public:
-	virtual Error save(const String &p_path, const RES &p_resource, uint32_t p_flags = 0);
-	virtual void get_recognized_extensions(const RES &p_resource, List<String> *p_extensions) const;
-	virtual bool recognize(const RES &p_resource) const;
+	Error save(const String &p_path, const RES &p_resource, uint32_t p_flags = 0) override;
+	void get_recognized_extensions(const RES &p_resource, List<String> *p_extensions) const override;
+	bool recognize(const RES &p_resource) const override;
 };
 
 #endif // CRYPTO_H

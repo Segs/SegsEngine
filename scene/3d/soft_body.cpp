@@ -30,6 +30,7 @@
 
 #include "soft_body.h"
 #include "core/list.h"
+#include "core/method_bind.h"
 #include "core/object.h"
 #include "core/object_db.h"
 #include "core/os/os.h"
@@ -38,6 +39,8 @@
 #include "scene/3d/physics_body.h"
 #include "scene/3d/skeleton.h"
 #include "servers/physics_server.h"
+
+IMPL_GDCLASS(SoftBody)
 
 SoftBodyVisualServerHandler::SoftBodyVisualServerHandler() {}
 
@@ -122,7 +125,7 @@ void SoftBody::_update_pickable() {
 
 bool SoftBody::_set(const StringName &p_name, const Variant &p_value) {
     String name = p_name;
-    String which = name.get_slicec('/', 0);
+    String which = StringUtils::get_slice(name,'/', 0);
 
     if ("pinned_points" == which) {
 
@@ -130,8 +133,8 @@ bool SoftBody::_set(const StringName &p_name, const Variant &p_value) {
 
     } else if ("attachments" == which) {
 
-        int idx = name.get_slicec('/', 1).to_int();
-        String what = name.get_slicec('/', 2);
+        int idx = StringUtils::to_int(StringUtils::get_slice(name,'/', 1));
+        String what = StringUtils::get_slice(name,'/', 2);
 
         return _set_property_pinned_points_attachment(idx, what, p_value);
     }
@@ -141,7 +144,7 @@ bool SoftBody::_set(const StringName &p_name, const Variant &p_value) {
 
 bool SoftBody::_get(const StringName &p_name, Variant &r_ret) const {
     String name = p_name;
-    String which = name.get_slicec('/', 0);
+    String which = StringUtils::get_slice(name,'/', 0);
 
     if ("pinned_points" == which) {
         Array arr_ret;
@@ -158,8 +161,8 @@ bool SoftBody::_get(const StringName &p_name, Variant &r_ret) const {
 
     } else if ("attachments" == which) {
 
-        int idx = name.get_slicec('/', 1).to_int();
-        String what = name.get_slicec('/', 2);
+        int idx = StringUtils::to_int(StringUtils::get_slice(name,'/', 1));
+        String what = StringUtils::get_slice(name,'/', 2);
 
         return _get_property_pinned_points(idx, what, r_ret);
     }
@@ -331,56 +334,56 @@ void SoftBody::_notification(int p_what) {
 
 void SoftBody::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_draw_soft_mesh"), &SoftBody::_draw_soft_mesh);
+    MethodBinder::bind_method(D_METHOD("_draw_soft_mesh"), &SoftBody::_draw_soft_mesh);
 
-    ClassDB::bind_method(D_METHOD("set_collision_mask", "collision_mask"), &SoftBody::set_collision_mask);
-    ClassDB::bind_method(D_METHOD("get_collision_mask"), &SoftBody::get_collision_mask);
+    MethodBinder::bind_method(D_METHOD("set_collision_mask", "collision_mask"), &SoftBody::set_collision_mask);
+    MethodBinder::bind_method(D_METHOD("get_collision_mask"), &SoftBody::get_collision_mask);
 
-    ClassDB::bind_method(D_METHOD("set_collision_layer", "collision_layer"), &SoftBody::set_collision_layer);
-    ClassDB::bind_method(D_METHOD("get_collision_layer"), &SoftBody::get_collision_layer);
+    MethodBinder::bind_method(D_METHOD("set_collision_layer", "collision_layer"), &SoftBody::set_collision_layer);
+    MethodBinder::bind_method(D_METHOD("get_collision_layer"), &SoftBody::get_collision_layer);
 
-    ClassDB::bind_method(D_METHOD("set_collision_mask_bit", "bit", "value"), &SoftBody::set_collision_mask_bit);
-    ClassDB::bind_method(D_METHOD("get_collision_mask_bit", "bit"), &SoftBody::get_collision_mask_bit);
+    MethodBinder::bind_method(D_METHOD("set_collision_mask_bit", "bit", "value"), &SoftBody::set_collision_mask_bit);
+    MethodBinder::bind_method(D_METHOD("get_collision_mask_bit", "bit"), &SoftBody::get_collision_mask_bit);
 
-    ClassDB::bind_method(D_METHOD("set_collision_layer_bit", "bit", "value"), &SoftBody::set_collision_layer_bit);
-    ClassDB::bind_method(D_METHOD("get_collision_layer_bit", "bit"), &SoftBody::get_collision_layer_bit);
+    MethodBinder::bind_method(D_METHOD("set_collision_layer_bit", "bit", "value"), &SoftBody::set_collision_layer_bit);
+    MethodBinder::bind_method(D_METHOD("get_collision_layer_bit", "bit"), &SoftBody::get_collision_layer_bit);
 
-    ClassDB::bind_method(D_METHOD("set_parent_collision_ignore", "parent_collision_ignore"), &SoftBody::set_parent_collision_ignore);
-    ClassDB::bind_method(D_METHOD("get_parent_collision_ignore"), &SoftBody::get_parent_collision_ignore);
+    MethodBinder::bind_method(D_METHOD("set_parent_collision_ignore", "parent_collision_ignore"), &SoftBody::set_parent_collision_ignore);
+    MethodBinder::bind_method(D_METHOD("get_parent_collision_ignore"), &SoftBody::get_parent_collision_ignore);
 
-    ClassDB::bind_method(D_METHOD("get_collision_exceptions"), &SoftBody::get_collision_exceptions);
-    ClassDB::bind_method(D_METHOD("add_collision_exception_with", "body"), &SoftBody::add_collision_exception_with);
-    ClassDB::bind_method(D_METHOD("remove_collision_exception_with", "body"), &SoftBody::remove_collision_exception_with);
+    MethodBinder::bind_method(D_METHOD("get_collision_exceptions"), &SoftBody::get_collision_exceptions);
+    MethodBinder::bind_method(D_METHOD("add_collision_exception_with", "body"), &SoftBody::add_collision_exception_with);
+    MethodBinder::bind_method(D_METHOD("remove_collision_exception_with", "body"), &SoftBody::remove_collision_exception_with);
 
-    ClassDB::bind_method(D_METHOD("set_simulation_precision", "simulation_precision"), &SoftBody::set_simulation_precision);
-    ClassDB::bind_method(D_METHOD("get_simulation_precision"), &SoftBody::get_simulation_precision);
+    MethodBinder::bind_method(D_METHOD("set_simulation_precision", "simulation_precision"), &SoftBody::set_simulation_precision);
+    MethodBinder::bind_method(D_METHOD("get_simulation_precision"), &SoftBody::get_simulation_precision);
 
-    ClassDB::bind_method(D_METHOD("set_total_mass", "mass"), &SoftBody::set_total_mass);
-    ClassDB::bind_method(D_METHOD("get_total_mass"), &SoftBody::get_total_mass);
+    MethodBinder::bind_method(D_METHOD("set_total_mass", "mass"), &SoftBody::set_total_mass);
+    MethodBinder::bind_method(D_METHOD("get_total_mass"), &SoftBody::get_total_mass);
 
-    ClassDB::bind_method(D_METHOD("set_linear_stiffness", "linear_stiffness"), &SoftBody::set_linear_stiffness);
-    ClassDB::bind_method(D_METHOD("get_linear_stiffness"), &SoftBody::get_linear_stiffness);
+    MethodBinder::bind_method(D_METHOD("set_linear_stiffness", "linear_stiffness"), &SoftBody::set_linear_stiffness);
+    MethodBinder::bind_method(D_METHOD("get_linear_stiffness"), &SoftBody::get_linear_stiffness);
 
-    ClassDB::bind_method(D_METHOD("set_areaAngular_stiffness", "areaAngular_stiffness"), &SoftBody::set_areaAngular_stiffness);
-    ClassDB::bind_method(D_METHOD("get_areaAngular_stiffness"), &SoftBody::get_areaAngular_stiffness);
+    MethodBinder::bind_method(D_METHOD("set_areaAngular_stiffness", "areaAngular_stiffness"), &SoftBody::set_areaAngular_stiffness);
+    MethodBinder::bind_method(D_METHOD("get_areaAngular_stiffness"), &SoftBody::get_areaAngular_stiffness);
 
-    ClassDB::bind_method(D_METHOD("set_volume_stiffness", "volume_stiffness"), &SoftBody::set_volume_stiffness);
-    ClassDB::bind_method(D_METHOD("get_volume_stiffness"), &SoftBody::get_volume_stiffness);
+    MethodBinder::bind_method(D_METHOD("set_volume_stiffness", "volume_stiffness"), &SoftBody::set_volume_stiffness);
+    MethodBinder::bind_method(D_METHOD("get_volume_stiffness"), &SoftBody::get_volume_stiffness);
 
-    ClassDB::bind_method(D_METHOD("set_pressure_coefficient", "pressure_coefficient"), &SoftBody::set_pressure_coefficient);
-    ClassDB::bind_method(D_METHOD("get_pressure_coefficient"), &SoftBody::get_pressure_coefficient);
+    MethodBinder::bind_method(D_METHOD("set_pressure_coefficient", "pressure_coefficient"), &SoftBody::set_pressure_coefficient);
+    MethodBinder::bind_method(D_METHOD("get_pressure_coefficient"), &SoftBody::get_pressure_coefficient);
 
-    ClassDB::bind_method(D_METHOD("set_pose_matching_coefficient", "pose_matching_coefficient"), &SoftBody::set_pose_matching_coefficient);
-    ClassDB::bind_method(D_METHOD("get_pose_matching_coefficient"), &SoftBody::get_pose_matching_coefficient);
+    MethodBinder::bind_method(D_METHOD("set_pose_matching_coefficient", "pose_matching_coefficient"), &SoftBody::set_pose_matching_coefficient);
+    MethodBinder::bind_method(D_METHOD("get_pose_matching_coefficient"), &SoftBody::get_pose_matching_coefficient);
 
-    ClassDB::bind_method(D_METHOD("set_damping_coefficient", "damping_coefficient"), &SoftBody::set_damping_coefficient);
-    ClassDB::bind_method(D_METHOD("get_damping_coefficient"), &SoftBody::get_damping_coefficient);
+    MethodBinder::bind_method(D_METHOD("set_damping_coefficient", "damping_coefficient"), &SoftBody::set_damping_coefficient);
+    MethodBinder::bind_method(D_METHOD("get_damping_coefficient"), &SoftBody::get_damping_coefficient);
 
-    ClassDB::bind_method(D_METHOD("set_drag_coefficient", "drag_coefficient"), &SoftBody::set_drag_coefficient);
-    ClassDB::bind_method(D_METHOD("get_drag_coefficient"), &SoftBody::get_drag_coefficient);
+    MethodBinder::bind_method(D_METHOD("set_drag_coefficient", "drag_coefficient"), &SoftBody::set_drag_coefficient);
+    MethodBinder::bind_method(D_METHOD("get_drag_coefficient"), &SoftBody::get_drag_coefficient);
 
-    ClassDB::bind_method(D_METHOD("set_ray_pickable", "ray_pickable"), &SoftBody::set_ray_pickable);
-    ClassDB::bind_method(D_METHOD("is_ray_pickable"), &SoftBody::is_ray_pickable);
+    MethodBinder::bind_method(D_METHOD("set_ray_pickable", "ray_pickable"), &SoftBody::set_ray_pickable);
+    MethodBinder::bind_method(D_METHOD("is_ray_pickable"), &SoftBody::is_ray_pickable);
 
     ADD_GROUP("Collision", "collision_");
     ADD_PROPERTY(PropertyInfo(Variant::INT, "collision_layer", PROPERTY_HINT_LAYERS_3D_PHYSICS), "set_collision_layer", "get_collision_layer");

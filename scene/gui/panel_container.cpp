@@ -30,6 +30,10 @@
 
 #include "panel_container.h"
 
+#include "scene/resources/style_box.h"
+
+IMPL_GDCLASS(PanelContainer)
+
 Size2 PanelContainer::get_minimum_size() const {
 
 	Ref<StyleBox> style;

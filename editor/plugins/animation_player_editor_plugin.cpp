@@ -30,6 +30,7 @@
 
 #include "animation_player_editor_plugin.h"
 
+#include "core/method_bind.h"
 #include "core/io/resource_loader.h"
 #include "core/io/resource_saver.h"
 #include "core/os/input.h"
@@ -37,12 +38,16 @@
 #include "core/project_settings.h"
 #include "editor/animation_track_editor.h"
 #include "editor/editor_settings.h"
+#include "editor/editor_scale.h"
 
 // For onion skinning
 #include "editor/plugins/canvas_item_editor_plugin.h"
 #include "editor/plugins/spatial_editor_plugin.h"
 #include "scene/main/viewport.h"
 #include "servers/visual_server.h"
+
+IMPL_GDCLASS(AnimationPlayerEditor)
+IMPL_GDCLASS(AnimationPlayerEditorPlugin)
 
 void AnimationPlayerEditor::_node_removed(Node *p_node) {
 
@@ -406,7 +411,7 @@ void AnimationPlayerEditor::_animation_save_as(const Ref<Resource> &p_resource) 
         if (extensions.size()) {
             String ext = StringUtils::to_lower(PathUtils::get_extension(p_resource->get_path()));
             if (extensions.find(ext) == nullptr) {
-                file->set_current_path(p_resource->get_path().replacen("." + ext, "." + extensions.front()->get()));
+                file->set_current_path(StringUtils::replacen(p_resource->get_path(),"." + ext, "." + extensions.front()->get()));
             }
         }
     } else {
@@ -477,12 +482,25 @@ void AnimationPlayerEditor::_select_anim_by_name(const String &p_anim) {
     _animation_selected(idx);
 }
 
+double AnimationPlayerEditor::_get_editor_step() const {
+
+	// Returns the effective snapping value depending on snapping modifiers, or 0 if snapping is disabled.
+	if (track_editor->is_snap_enabled()) {
+		const String current = player->get_assigned_animation();
+		const Ref<Animation> anim = player->get_animation(current);
+		// Use more precise snapping when holding Shift
+		return Input::get_singleton()->is_key_pressed(KEY_SHIFT) ? anim->get_step() * 0.25 : anim->get_step();
+	}
+
+	return 0.0;
+}
+
 void AnimationPlayerEditor::_animation_name_edited() {
 
     player->stop();
 
     String new_name = name->get_text();
-    if (new_name == "" || new_name.find(":") != -1 || new_name.find("/") != -1) {
+    if (new_name == "" || StringUtils::find(new_name,":") != -1 || StringUtils::find(new_name,"/") != -1) {
         error_dialog->set_text(TTR("Invalid animation name!"));
         error_dialog->popup_centered_minsize();
         return;
@@ -723,17 +741,17 @@ void AnimationPlayerEditor::_dialog_action(String p_file) {
             Ref<Resource> res = ResourceLoader::load(p_file, "Animation");
             ERR_FAIL_COND(res.is_null());
             ERR_FAIL_COND(!res->is_class("Animation"));
-            if (p_file.find_last("/") != -1) {
+            if (StringUtils::find_last(p_file,"/") != -1) {
 
-                p_file = p_file.substr(p_file.find_last("/") + 1, p_file.length());
+                p_file = StringUtils::substr(p_file,StringUtils::find_last(p_file,"/") + 1, p_file.length());
             }
-            if (p_file.find_last("\\") != -1) {
+            if (StringUtils::find_last(p_file,"\\") != -1) {
 
-                p_file = p_file.substr(p_file.find_last("\\") + 1, p_file.length());
+                p_file = StringUtils::substr(p_file,StringUtils::find_last(p_file,"\\") + 1, p_file.length());
             }
 
-            if (p_file.find(".") != -1)
-                p_file = p_file.substr(0, p_file.find("."));
+            if (StringUtils::find(p_file,".") != -1)
+                p_file = StringUtils::substr(p_file,0, StringUtils::find(p_file,"."));
 
             undo_redo->create_action(TTR("Load Animation"));
             undo_redo->add_do_method(player, "add_animation", p_file, res);
@@ -764,7 +782,7 @@ void AnimationPlayerEditor::_dialog_action(String p_file) {
 
 void AnimationPlayerEditor::_scale_changed(const String &p_scale) {
 
-    player->set_speed_scale(p_scale.to_double());
+    player->set_speed_scale(StringUtils::to_double(p_scale));
 }
 
 void AnimationPlayerEditor::_update_animation() {
@@ -1017,7 +1035,7 @@ void AnimationPlayerEditor::_seek_value_changed(float p_value, bool p_set) {
 
     float pos = CLAMP(anim->get_length() * (p_value / frame->get_max()), 0, anim->get_length());
     if (track_editor->is_snap_enabled()) {
-        pos = Math::stepify(pos, anim->get_step());
+		pos = Math::stepify(pos, float(_get_editor_step()));
     }
 
     if (player->is_valid() && !p_set) {
@@ -1068,7 +1086,7 @@ void AnimationPlayerEditor::_animation_key_editor_seek(float p_pos, bool p_drag)
     Ref<Animation> anim = player->get_animation(player->get_assigned_animation());
 
     updating = true;
-    frame->set_value(Math::stepify(p_pos, track_editor->is_snap_enabled() ? anim->get_step() : 0));
+	frame->set_value(Math::stepify(p_pos, float(_get_editor_step())));
     updating = false;
     _seek_value_changed(p_pos, !p_drag);
 
@@ -1519,45 +1537,45 @@ void AnimationPlayerEditor::_pin_pressed() {
 
 void AnimationPlayerEditor::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_node_removed"), &AnimationPlayerEditor::_node_removed);
-    ClassDB::bind_method(D_METHOD("_play_pressed"), &AnimationPlayerEditor::_play_pressed);
-    ClassDB::bind_method(D_METHOD("_play_from_pressed"), &AnimationPlayerEditor::_play_from_pressed);
-    ClassDB::bind_method(D_METHOD("_play_bw_pressed"), &AnimationPlayerEditor::_play_bw_pressed);
-    ClassDB::bind_method(D_METHOD("_play_bw_from_pressed"), &AnimationPlayerEditor::_play_bw_from_pressed);
-    ClassDB::bind_method(D_METHOD("_stop_pressed"), &AnimationPlayerEditor::_stop_pressed);
-    ClassDB::bind_method(D_METHOD("_autoplay_pressed"), &AnimationPlayerEditor::_autoplay_pressed);
-    ClassDB::bind_method(D_METHOD("_animation_selected"), &AnimationPlayerEditor::_animation_selected);
-    ClassDB::bind_method(D_METHOD("_animation_name_edited"), &AnimationPlayerEditor::_animation_name_edited);
-    ClassDB::bind_method(D_METHOD("_animation_new"), &AnimationPlayerEditor::_animation_new);
-    ClassDB::bind_method(D_METHOD("_animation_rename"), &AnimationPlayerEditor::_animation_rename);
-    ClassDB::bind_method(D_METHOD("_animation_load"), &AnimationPlayerEditor::_animation_load);
-    ClassDB::bind_method(D_METHOD("_animation_remove"), &AnimationPlayerEditor::_animation_remove);
-    ClassDB::bind_method(D_METHOD("_animation_remove_confirmed"), &AnimationPlayerEditor::_animation_remove_confirmed);
-    ClassDB::bind_method(D_METHOD("_animation_blend"), &AnimationPlayerEditor::_animation_blend);
-    ClassDB::bind_method(D_METHOD("_animation_edit"), &AnimationPlayerEditor::_animation_edit);
-    ClassDB::bind_method(D_METHOD("_animation_resource_edit"), &AnimationPlayerEditor::_animation_resource_edit);
-    ClassDB::bind_method(D_METHOD("_dialog_action"), &AnimationPlayerEditor::_dialog_action);
-    ClassDB::bind_method(D_METHOD("_seek_value_changed"), &AnimationPlayerEditor::_seek_value_changed, {DEFVAL(true)});
-    ClassDB::bind_method(D_METHOD("_animation_player_changed"), &AnimationPlayerEditor::_animation_player_changed);
-    ClassDB::bind_method(D_METHOD("_blend_edited"), &AnimationPlayerEditor::_blend_edited);
-    ClassDB::bind_method(D_METHOD("_scale_changed"), &AnimationPlayerEditor::_scale_changed);
-    ClassDB::bind_method(D_METHOD("_list_changed"), &AnimationPlayerEditor::_list_changed);
-    ClassDB::bind_method(D_METHOD("_animation_key_editor_seek"), &AnimationPlayerEditor::_animation_key_editor_seek);
-    ClassDB::bind_method(D_METHOD("_animation_key_editor_anim_len_changed"), &AnimationPlayerEditor::_animation_key_editor_anim_len_changed);
-    ClassDB::bind_method(D_METHOD("_hide_anim_editors"), &AnimationPlayerEditor::_hide_anim_editors);
-    ClassDB::bind_method(D_METHOD("_animation_duplicate"), &AnimationPlayerEditor::_animation_duplicate);
-    ClassDB::bind_method(D_METHOD("_blend_editor_next_changed"), &AnimationPlayerEditor::_blend_editor_next_changed);
-    ClassDB::bind_method(D_METHOD("_unhandled_key_input"), &AnimationPlayerEditor::_unhandled_key_input);
-    ClassDB::bind_method(D_METHOD("_animation_tool_menu"), &AnimationPlayerEditor::_animation_tool_menu);
+    MethodBinder::bind_method(D_METHOD("_node_removed"), &AnimationPlayerEditor::_node_removed);
+    MethodBinder::bind_method(D_METHOD("_play_pressed"), &AnimationPlayerEditor::_play_pressed);
+    MethodBinder::bind_method(D_METHOD("_play_from_pressed"), &AnimationPlayerEditor::_play_from_pressed);
+    MethodBinder::bind_method(D_METHOD("_play_bw_pressed"), &AnimationPlayerEditor::_play_bw_pressed);
+    MethodBinder::bind_method(D_METHOD("_play_bw_from_pressed"), &AnimationPlayerEditor::_play_bw_from_pressed);
+    MethodBinder::bind_method(D_METHOD("_stop_pressed"), &AnimationPlayerEditor::_stop_pressed);
+    MethodBinder::bind_method(D_METHOD("_autoplay_pressed"), &AnimationPlayerEditor::_autoplay_pressed);
+    MethodBinder::bind_method(D_METHOD("_animation_selected"), &AnimationPlayerEditor::_animation_selected);
+    MethodBinder::bind_method(D_METHOD("_animation_name_edited"), &AnimationPlayerEditor::_animation_name_edited);
+    MethodBinder::bind_method(D_METHOD("_animation_new"), &AnimationPlayerEditor::_animation_new);
+    MethodBinder::bind_method(D_METHOD("_animation_rename"), &AnimationPlayerEditor::_animation_rename);
+    MethodBinder::bind_method(D_METHOD("_animation_load"), &AnimationPlayerEditor::_animation_load);
+    MethodBinder::bind_method(D_METHOD("_animation_remove"), &AnimationPlayerEditor::_animation_remove);
+    MethodBinder::bind_method(D_METHOD("_animation_remove_confirmed"), &AnimationPlayerEditor::_animation_remove_confirmed);
+    MethodBinder::bind_method(D_METHOD("_animation_blend"), &AnimationPlayerEditor::_animation_blend);
+    MethodBinder::bind_method(D_METHOD("_animation_edit"), &AnimationPlayerEditor::_animation_edit);
+    MethodBinder::bind_method(D_METHOD("_animation_resource_edit"), &AnimationPlayerEditor::_animation_resource_edit);
+    MethodBinder::bind_method(D_METHOD("_dialog_action"), &AnimationPlayerEditor::_dialog_action);
+    MethodBinder::bind_method(D_METHOD("_seek_value_changed"), &AnimationPlayerEditor::_seek_value_changed, {DEFVAL(true)});
+    MethodBinder::bind_method(D_METHOD("_animation_player_changed"), &AnimationPlayerEditor::_animation_player_changed);
+    MethodBinder::bind_method(D_METHOD("_blend_edited"), &AnimationPlayerEditor::_blend_edited);
+    MethodBinder::bind_method(D_METHOD("_scale_changed"), &AnimationPlayerEditor::_scale_changed);
+    MethodBinder::bind_method(D_METHOD("_list_changed"), &AnimationPlayerEditor::_list_changed);
+    MethodBinder::bind_method(D_METHOD("_animation_key_editor_seek"), &AnimationPlayerEditor::_animation_key_editor_seek);
+    MethodBinder::bind_method(D_METHOD("_animation_key_editor_anim_len_changed"), &AnimationPlayerEditor::_animation_key_editor_anim_len_changed);
+    MethodBinder::bind_method(D_METHOD("_hide_anim_editors"), &AnimationPlayerEditor::_hide_anim_editors);
+    MethodBinder::bind_method(D_METHOD("_animation_duplicate"), &AnimationPlayerEditor::_animation_duplicate);
+    MethodBinder::bind_method(D_METHOD("_blend_editor_next_changed"), &AnimationPlayerEditor::_blend_editor_next_changed);
+    MethodBinder::bind_method(D_METHOD("_unhandled_key_input"), &AnimationPlayerEditor::_unhandled_key_input);
+    MethodBinder::bind_method(D_METHOD("_animation_tool_menu"), &AnimationPlayerEditor::_animation_tool_menu);
 
-    ClassDB::bind_method(D_METHOD("_onion_skinning_menu"), &AnimationPlayerEditor::_onion_skinning_menu);
-    ClassDB::bind_method(D_METHOD("_editor_visibility_changed"), &AnimationPlayerEditor::_editor_visibility_changed);
-    ClassDB::bind_method(D_METHOD("_prepare_onion_layers_1"), &AnimationPlayerEditor::_prepare_onion_layers_1);
-    ClassDB::bind_method(D_METHOD("_prepare_onion_layers_2"), &AnimationPlayerEditor::_prepare_onion_layers_2);
-    ClassDB::bind_method(D_METHOD("_start_onion_skinning"), &AnimationPlayerEditor::_start_onion_skinning);
-    ClassDB::bind_method(D_METHOD("_stop_onion_skinning"), &AnimationPlayerEditor::_stop_onion_skinning);
+    MethodBinder::bind_method(D_METHOD("_onion_skinning_menu"), &AnimationPlayerEditor::_onion_skinning_menu);
+    MethodBinder::bind_method(D_METHOD("_editor_visibility_changed"), &AnimationPlayerEditor::_editor_visibility_changed);
+    MethodBinder::bind_method(D_METHOD("_prepare_onion_layers_1"), &AnimationPlayerEditor::_prepare_onion_layers_1);
+    MethodBinder::bind_method(D_METHOD("_prepare_onion_layers_2"), &AnimationPlayerEditor::_prepare_onion_layers_2);
+    MethodBinder::bind_method(D_METHOD("_start_onion_skinning"), &AnimationPlayerEditor::_start_onion_skinning);
+    MethodBinder::bind_method(D_METHOD("_stop_onion_skinning"), &AnimationPlayerEditor::_stop_onion_skinning);
 
-    ClassDB::bind_method(D_METHOD("_pin_pressed"), &AnimationPlayerEditor::_pin_pressed);
+    MethodBinder::bind_method(D_METHOD("_pin_pressed"), &AnimationPlayerEditor::_pin_pressed);
 }
 
 AnimationPlayerEditor *AnimationPlayerEditor::singleton = nullptr;

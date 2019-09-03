@@ -75,10 +75,10 @@ String FileAccess::get_path_absolute() const { return ""; };
 FileAccess *FileAccess::create_for_path(const String &p_path) {
 
     FileAccess *ret = nullptr;
-    if (p_path.begins_with("res://")) {
+    if (StringUtils::begins_with(p_path,"res://")) {
 
         ret = create(ACCESS_RESOURCES);
-    } else if (p_path.begins_with("user://")) {
+    } else if (StringUtils::begins_with(p_path,"user://")) {
 
         ret = create(ACCESS_USERDATA);
 
@@ -131,35 +131,35 @@ FileAccess::CreateFunc FileAccess::get_create_func(AccessType p_access) {
 String FileAccess::fix_path(String p_path) const {
     //helper used by file accesses that use a single filesystem
 
-    String r_path = p_path.replace("\\", "/");
+    String r_path = PathUtils::from_native_path(p_path);
 
     switch (_access_type) {
 
         case ACCESS_RESOURCES: {
 
             if (ProjectSettings::get_singleton()) {
-                if (r_path.begins_with("res://")) {
+                if (StringUtils::begins_with(r_path,"res://")) {
 
                     String resource_path = ProjectSettings::get_singleton()->get_resource_path();
                     if (resource_path != "") {
 
-                        return r_path.replace("res:/", resource_path);
+                        return StringUtils::replace(r_path,"res:/", resource_path);
                     };
-                    return r_path.replace("res://", "");
+                    return StringUtils::replace(r_path,"res://", "");
                 }
             }
 
         } break;
         case ACCESS_USERDATA: {
 
-            if (r_path.begins_with("user://")) {
+            if (StringUtils::begins_with(r_path,"user://")) {
 
                 String data_dir = OS::get_singleton()->get_user_data_dir();
                 if (data_dir != "") {
 
-                    return r_path.replace("user:/", data_dir);
+                    return StringUtils::replace(r_path,"user:/", data_dir);
                 }
-                return r_path.replace("user://", "");
+                return StringUtils::replace(r_path,"user://", "");
             }
 
         } break;
@@ -272,7 +272,7 @@ String FileAccess::get_token() const {
         c = get_8();
     }
 
-    return String::utf8(token.data());
+    return StringUtils::from_utf8(token.data());
 }
 
 class CharBuffer {
@@ -337,14 +337,14 @@ String FileAccess::get_line() const {
 
         if (c == '\n' || c == '\0') {
             line.push_back(0);
-            return String::utf8(line.get_data());
+            return StringUtils::from_utf8(line.get_data());
         } else if (c != '\r')
             line.push_back(c);
 
         c = get_8();
     }
     line.push_back(0);
-    return String::utf8(line.get_data());
+    return StringUtils::from_utf8(line.get_data());
 }
 
 Vector<String> FileAccess::get_csv_line(char p_delim) const {
@@ -365,7 +365,7 @@ Vector<String> FileAccess::get_csv_line(char p_delim) const {
 
     } while (qc % 2);
 
-    l = l.substr(0, l.length() - 1);
+    l = StringUtils::substr(l,0, l.length() - 1);
 
     Vector<String> strings;
 
@@ -411,13 +411,10 @@ String FileAccess::get_as_utf8_string() const {
 
     PoolVector<uint8_t>::Write w = sourcef.write();
     int r = get_buffer(w.ptr(), len);
-    ERR_FAIL_COND_V(r != len, String());
+    ERR_FAIL_COND_V(r != len, String())
     w[len] = 0;
 
-    String s;
-    if (s.parse_utf8((const char *)w.ptr())) {
-        return String();
-    }
+    String s = StringUtils::from_utf8((const char *)w.ptr());
     return s;
 }
 
@@ -527,16 +524,16 @@ Error FileAccess::set_unix_permissions(const String &p_file, uint32_t p_permissi
 
 void FileAccess::store_string(const String &p_string) {
 
-    if (p_string.length() == 0)
+    if (p_string.empty())
         return;
 
-    CharString cs = p_string.utf8();
+    CharString cs = StringUtils::to_utf8(p_string);
     store_buffer((const uint8_t *)cs.data(), cs.length());
 }
 
 void FileAccess::store_pascal_string(const String &p_string) {
 
-    CharString cs = p_string.utf8();
+    CharString cs = StringUtils::to_utf8(p_string);
     store_32(cs.length());
     store_buffer((const uint8_t *)cs.data(), cs.length());
 };
@@ -549,8 +546,7 @@ String FileAccess::get_pascal_string() {
     get_buffer((uint8_t *)cs.data(), sl);
     cs[sl] = 0;
 
-    String ret;
-    ret.parse_utf8(cs.data());
+    String ret = StringUtils::from_utf8(cs.data());
 
     return ret;
 };
@@ -568,8 +564,8 @@ void FileAccess::store_csv_line(const Vector<String> &p_values, char p_delim) {
     for (int i = 0; i < size; ++i) {
         String value = p_values[i];
 
-        if (value.find("\"") != -1 || value.contains(p_delim) || value.find("\n") != -1) {
-            value = "\"" + value.replace("\"", "\"\"") + "\"";
+        if (StringUtils::contains(value,"\"") || StringUtils::contains(value,p_delim) || StringUtils::find(value,"\n") != -1) {
+            value = "\"" + StringUtils::replace(value,"\"", "\"\"") + "\"";
         }
         if (i < size - 1) {
             value += p_delim;
@@ -614,11 +610,10 @@ String FileAccess::get_file_as_string(const String &p_path, Error *r_error) {
         if (r_error) {
             return String();
         }
-        ERR_FAIL_V_MSG(String(), "Can't get file as string from path: " + String(p_path) + ".");
+        ERR_FAIL_V_MSG(String(), "Can't get file as string from path: " + String(p_path) + ".")
     }
 
-    String ret;
-    ret.parse_utf8((const char *)array.ptr(), array.size());
+    String ret = StringUtils::from_utf8((const char *)array.ptr(), array.size());
     return ret;
 }
 

@@ -32,6 +32,7 @@
 
 #include "core/message_queue.h"
 #include "core/object_db.h"
+#include "core/method_bind.h"
 #include "core/os/keyboard.h"
 #include "core/os/os.h"
 #include "core/print_string.h"
@@ -47,6 +48,8 @@
 #include "editor/editor_settings.h"
 #include "editor/plugins/canvas_item_editor_plugin.h"
 #endif
+
+IMPL_GDCLASS(Control)
 
 Dictionary Control::_edit_get_state() const {
 
@@ -212,69 +215,69 @@ Transform2D Control::_get_internal_transform() const {
 bool Control::_set(const StringName &p_name, const Variant &p_value) {
 
     String name = p_name;
-    if (!name.begins_with("custom")) {
+    if (!StringUtils::begins_with(name,"custom")) {
         return false;
     }
 
     if (p_value.get_type() == Variant::NIL) {
 
-        if (name.begins_with("custom_icons/")) {
-            String dname = name.get_slicec('/', 1);
+        if (StringUtils::begins_with(name,"custom_icons/")) {
+            String dname = StringUtils::get_slice(name,'/', 1);
             if (data.icon_override.has(dname)) {
                 data.icon_override[dname]->disconnect("changed", this, "_override_changed");
             }
             data.icon_override.erase(dname);
             notification(NOTIFICATION_THEME_CHANGED);
-        } else if (name.begins_with("custom_shaders/")) {
-            String dname = name.get_slicec('/', 1);
+        } else if (StringUtils::begins_with(name,"custom_shaders/")) {
+            String dname = StringUtils::get_slice(name,'/', 1);
             if (data.shader_override.has(dname)) {
                 data.shader_override[dname]->disconnect("changed", this, "_override_changed");
             }
             data.shader_override.erase(dname);
             notification(NOTIFICATION_THEME_CHANGED);
-        } else if (name.begins_with("custom_styles/")) {
-            String dname = name.get_slicec('/', 1);
+        } else if (StringUtils::begins_with(name,"custom_styles/")) {
+            String dname = StringUtils::get_slice(name,'/', 1);
             if (data.style_override.has(dname)) {
                 data.style_override[dname]->disconnect("changed", this, "_override_changed");
             }
             data.style_override.erase(dname);
             notification(NOTIFICATION_THEME_CHANGED);
-        } else if (name.begins_with("custom_fonts/")) {
-            String dname = name.get_slicec('/', 1);
+        } else if (StringUtils::begins_with(name,"custom_fonts/")) {
+            String dname = StringUtils::get_slice(name,'/', 1);
             if (data.font_override.has(dname)) {
                 data.font_override[dname]->disconnect("changed", this, "_override_changed");
             }
             data.font_override.erase(dname);
             notification(NOTIFICATION_THEME_CHANGED);
-        } else if (name.begins_with("custom_colors/")) {
-            String dname = name.get_slicec('/', 1);
+        } else if (StringUtils::begins_with(name,"custom_colors/")) {
+            String dname = StringUtils::get_slice(name,'/', 1);
             data.color_override.erase(dname);
             notification(NOTIFICATION_THEME_CHANGED);
-        } else if (name.begins_with("custom_constants/")) {
-            String dname = name.get_slicec('/', 1);
+        } else if (StringUtils::begins_with(name,"custom_constants/")) {
+            String dname = StringUtils::get_slice(name,'/', 1);
             data.constant_override.erase(dname);
             notification(NOTIFICATION_THEME_CHANGED);
         } else
             return false;
 
     } else {
-        if (name.begins_with("custom_icons/")) {
-            String dname = name.get_slicec('/', 1);
+        if (StringUtils::begins_with(name,"custom_icons/")) {
+            String dname = StringUtils::get_slice(name,'/', 1);
             add_icon_override(dname, p_value);
-        } else if (name.begins_with("custom_shaders/")) {
-            String dname = name.get_slicec('/', 1);
+        } else if (StringUtils::begins_with(name,"custom_shaders/")) {
+            String dname = StringUtils::get_slice(name,'/', 1);
             add_shader_override(dname, p_value);
-        } else if (name.begins_with("custom_styles/")) {
-            String dname = name.get_slicec('/', 1);
+        } else if (StringUtils::begins_with(name,"custom_styles/")) {
+            String dname = StringUtils::get_slice(name,'/', 1);
             add_style_override(dname, p_value);
-        } else if (name.begins_with("custom_fonts/")) {
-            String dname = name.get_slicec('/', 1);
+        } else if (StringUtils::begins_with(name,"custom_fonts/")) {
+            String dname = StringUtils::get_slice(name,'/', 1);
             add_font_override(dname, p_value);
-        } else if (name.begins_with("custom_colors/")) {
-            String dname = name.get_slicec('/', 1);
+        } else if (StringUtils::begins_with(name,"custom_colors/")) {
+            String dname = StringUtils::get_slice(name,'/', 1);
             add_color_override(dname, p_value);
-        } else if (name.begins_with("custom_constants/")) {
-            String dname = name.get_slicec('/', 1);
+        } else if (StringUtils::begins_with(name,"custom_constants/")) {
+            String dname = StringUtils::get_slice(name,'/', 1);
             add_constant_override(dname, p_value);
         } else
             return false;
@@ -305,31 +308,31 @@ bool Control::_get(const StringName &p_name, Variant &r_ret) const {
 
     String sname = p_name;
 
-    if (!sname.begins_with("custom")) {
+    if (!StringUtils::begins_with(sname,"custom")) {
         return false;
     }
 
-    if (sname.begins_with("custom_icons/")) {
-        String name = sname.get_slicec('/', 1);
+    if (StringUtils::begins_with(sname,"custom_icons/")) {
+        String name = StringUtils::get_slice(sname,'/', 1);
 
         r_ret = data.icon_override.has(name) ? Variant(data.icon_override[name]) : Variant();
-    } else if (sname.begins_with("custom_shaders/")) {
-        String name = sname.get_slicec('/', 1);
+    } else if (StringUtils::begins_with(sname,"custom_shaders/")) {
+        String name = StringUtils::get_slice(sname,'/', 1);
 
         r_ret = data.shader_override.has(name) ? Variant(data.shader_override[name]) : Variant();
-    } else if (sname.begins_with("custom_styles/")) {
-        String name = sname.get_slicec('/', 1);
+    } else if (StringUtils::begins_with(sname,"custom_styles/")) {
+        String name = StringUtils::get_slice(sname,'/', 1);
 
         r_ret = data.style_override.has(name) ? Variant(data.style_override[name]) : Variant();
-    } else if (sname.begins_with("custom_fonts/")) {
-        String name = sname.get_slicec('/', 1);
+    } else if (StringUtils::begins_with(sname,"custom_fonts/")) {
+        String name = StringUtils::get_slice(sname,'/', 1);
 
         r_ret = data.font_override.has(name) ? Variant(data.font_override[name]) : Variant();
-    } else if (sname.begins_with("custom_colors/")) {
-        String name = sname.get_slicec('/', 1);
+    } else if (StringUtils::begins_with(sname,"custom_colors/")) {
+        String name = StringUtils::get_slice(sname,'/', 1);
         r_ret = data.color_override.has(name) ? Variant(data.color_override[name]) : Variant();
-    } else if (sname.begins_with("custom_constants/")) {
-        String name = sname.get_slicec('/', 1);
+    } else if (StringUtils::begins_with(sname,"custom_constants/")) {
+        String name = StringUtils::get_slice(sname,'/', 1);
 
         r_ret = data.constant_override.has(name) ? Variant(data.constant_override[name]) : Variant();
     } else
@@ -1880,7 +1883,7 @@ void Control::add_icon_override(const StringName &p_name, const Ref<Texture> &p_
     } else {
         data.icon_override[p_name] = p_icon;
         if (data.icon_override[p_name].is_valid()) {
-            data.icon_override[p_name]->connect("changed", this, "_override_changed", Vector<Variant>(), CONNECT_REFERENCE_COUNTED);
+            data.icon_override[p_name]->connect("changed", this, "_override_changed", Vector<Variant>(), ObjectNS::CONNECT_REFERENCE_COUNTED);
         }
     }
     notification(NOTIFICATION_THEME_CHANGED);
@@ -1898,7 +1901,7 @@ void Control::add_shader_override(const StringName &p_name, const Ref<Shader> &p
     } else {
         data.shader_override[p_name] = p_shader;
         if (data.shader_override[p_name].is_valid()) {
-            data.shader_override[p_name]->connect("changed", this, "_override_changed", Vector<Variant>(), CONNECT_REFERENCE_COUNTED);
+            data.shader_override[p_name]->connect("changed", this, "_override_changed", Vector<Variant>(), ObjectNS::CONNECT_REFERENCE_COUNTED);
         }
     }
     notification(NOTIFICATION_THEME_CHANGED);
@@ -1915,7 +1918,7 @@ void Control::add_style_override(const StringName &p_name, const Ref<StyleBox> &
     } else {
         data.style_override[p_name] = p_style;
         if (data.style_override[p_name].is_valid()) {
-            data.style_override[p_name]->connect("changed", this, "_override_changed", Vector<Variant>(), CONNECT_REFERENCE_COUNTED);
+            data.style_override[p_name]->connect("changed", this, "_override_changed", Vector<Variant>(), ObjectNS::CONNECT_REFERENCE_COUNTED);
         }
     }
     notification(NOTIFICATION_THEME_CHANGED);
@@ -1933,7 +1936,7 @@ void Control::add_font_override(const StringName &p_name, const Ref<Font> &p_fon
     } else {
         data.font_override[p_name] = p_font;
         if (data.font_override[p_name].is_valid()) {
-            data.font_override[p_name]->connect("changed", this, "_override_changed", Vector<Variant>(), CONNECT_REFERENCE_COUNTED);
+            data.font_override[p_name]->connect("changed", this, "_override_changed", Vector<Variant>(), ObjectNS::CONNECT_REFERENCE_COUNTED);
         }
     }
     notification(NOTIFICATION_THEME_CHANGED);
@@ -2721,13 +2724,13 @@ void Control::get_argument_options(const StringName &p_function, int p_idx, List
         List<StringName> sn;
         String pf = p_function;
         if (pf == "add_color_override" || pf == "has_color" || pf == "has_color_override" || pf == "get_color") {
-            Theme::get_default()->get_color_list(get_class(), &sn);
+            Theme::get_default()->get_color_list(get_class_name(), &sn);
         } else if (pf == "add_style_override" || pf == "has_style" || pf == "has_style_override" || pf == "get_style") {
-            Theme::get_default()->get_stylebox_list(get_class(), &sn);
+            Theme::get_default()->get_stylebox_list(get_class_name(), &sn);
         } else if (pf == "add_font_override" || pf == "has_font" || pf == "has_font_override" || pf == "get_font") {
-            Theme::get_default()->get_font_list(get_class(), &sn);
+            Theme::get_default()->get_font_list(get_class_name(), &sn);
         } else if (pf == "add_constant_override" || pf == "has_constant" || pf == "has_constant_override" || pf == "get_constant") {
-            Theme::get_default()->get_constant_list(get_class(), &sn);
+            Theme::get_default()->get_constant_list(get_class_name(), &sn);
         }
 
         sn.sort_custom<WrapAlphaCompare>();
@@ -2784,143 +2787,145 @@ Control::GrowDirection Control::get_v_grow_direction() const {
 
 void Control::_bind_methods() {
 
-    //ClassDB::bind_method(D_METHOD("_window_resize_event"),&Control::_window_resize_event);
-    ClassDB::bind_method(D_METHOD("_size_changed"), &Control::_size_changed);
-    ClassDB::bind_method(D_METHOD("_update_minimum_size"), &Control::_update_minimum_size);
+    //MethodBinder::bind_method(D_METHOD("_window_resize_event"),&Control::_window_resize_event);
+    MethodBinder::bind_method(D_METHOD("_size_changed"), &Control::_size_changed);
+    MethodBinder::bind_method(D_METHOD("_update_minimum_size"), &Control::_update_minimum_size);
 
-    ClassDB::bind_method(D_METHOD("accept_event"), &Control::accept_event);
-    ClassDB::bind_method(D_METHOD("get_minimum_size"), &Control::get_minimum_size);
-    ClassDB::bind_method(D_METHOD("get_combined_minimum_size"), &Control::get_combined_minimum_size);
-    ClassDB::bind_method(D_METHOD("set_anchors_preset", "preset", "keep_margins"), &Control::set_anchors_preset, {DEFVAL(false)});
-    ClassDB::bind_method(D_METHOD("set_margins_preset", "preset", "resize_mode", "margin"), &Control::set_margins_preset, {DEFVAL(PRESET_MODE_MINSIZE), DEFVAL(0)});
-    ClassDB::bind_method(D_METHOD("set_anchors_and_margins_preset", "preset", "resize_mode", "margin"), &Control::set_anchors_and_margins_preset, {DEFVAL(PRESET_MODE_MINSIZE), DEFVAL(0)});
-    ClassDB::bind_method(D_METHOD("_set_anchor", "margin", "anchor"), &Control::_set_anchor);
-    ClassDB::bind_method(D_METHOD("set_anchor", "margin", "anchor", "keep_margin", "push_opposite_anchor"), &Control::set_anchor, {DEFVAL(false), DEFVAL(true)});
-    ClassDB::bind_method(D_METHOD("get_anchor", "margin"), &Control::get_anchor);
-    ClassDB::bind_method(D_METHOD("set_margin", "margin", "offset"), &Control::set_margin);
-    ClassDB::bind_method(D_METHOD("set_anchor_and_margin", "margin", "anchor", "offset", "push_opposite_anchor"), &Control::set_anchor_and_margin, {DEFVAL(false)});
-    ClassDB::bind_method(D_METHOD("set_begin", "position"), &Control::set_begin);
-    ClassDB::bind_method(D_METHOD("set_end", "position"), &Control::set_end);
-    ClassDB::bind_method(D_METHOD("set_position", "position", "keep_margins"), &Control::set_position, {DEFVAL(false)});
-    ClassDB::bind_method(D_METHOD("_set_position", "margin"), &Control::_set_position);
-    ClassDB::bind_method(D_METHOD("set_size", "size", "keep_margins"), &Control::set_size, {DEFVAL(false)});
-    ClassDB::bind_method(D_METHOD("_set_size", "size"), &Control::_set_size);
-    ClassDB::bind_method(D_METHOD("set_custom_minimum_size", "size"), &Control::set_custom_minimum_size);
-    ClassDB::bind_method(D_METHOD("set_global_position", "position", "keep_margins"), &Control::set_global_position, {DEFVAL(false)});
-    ClassDB::bind_method(D_METHOD("_set_global_position", "position"), &Control::_set_global_position);
-    ClassDB::bind_method(D_METHOD("set_rotation", "radians"), &Control::set_rotation);
-    ClassDB::bind_method(D_METHOD("set_rotation_degrees", "degrees"), &Control::set_rotation_degrees);
-    ClassDB::bind_method(D_METHOD("set_scale", "scale"), &Control::set_scale);
-    ClassDB::bind_method(D_METHOD("set_pivot_offset", "pivot_offset"), &Control::set_pivot_offset);
-    ClassDB::bind_method(D_METHOD("get_margin", "margin"), &Control::get_margin);
-    ClassDB::bind_method(D_METHOD("get_begin"), &Control::get_begin);
-    ClassDB::bind_method(D_METHOD("get_end"), &Control::get_end);
-    ClassDB::bind_method(D_METHOD("get_position"), &Control::get_position);
-    ClassDB::bind_method(D_METHOD("get_size"), &Control::get_size);
-    ClassDB::bind_method(D_METHOD("get_rotation"), &Control::get_rotation);
-    ClassDB::bind_method(D_METHOD("get_rotation_degrees"), &Control::get_rotation_degrees);
-    ClassDB::bind_method(D_METHOD("get_scale"), &Control::get_scale);
-    ClassDB::bind_method(D_METHOD("get_pivot_offset"), &Control::get_pivot_offset);
-    ClassDB::bind_method(D_METHOD("get_custom_minimum_size"), &Control::get_custom_minimum_size);
-    ClassDB::bind_method(D_METHOD("get_parent_area_size"), &Control::get_parent_area_size);
-    ClassDB::bind_method(D_METHOD("get_global_position"), &Control::get_global_position);
-    ClassDB::bind_method(D_METHOD("get_rect"), &Control::get_rect);
-    ClassDB::bind_method(D_METHOD("get_global_rect"), &Control::get_global_rect);
-    ClassDB::bind_method(D_METHOD("show_modal", "exclusive"), &Control::show_modal, {DEFVAL(false)});
-    ClassDB::bind_method(D_METHOD("set_focus_mode", "mode"), &Control::set_focus_mode);
-    ClassDB::bind_method(D_METHOD("get_focus_mode"), &Control::get_focus_mode);
-    ClassDB::bind_method(D_METHOD("has_focus"), &Control::has_focus);
-    ClassDB::bind_method(D_METHOD("grab_focus"), &Control::grab_focus);
-    ClassDB::bind_method(D_METHOD("release_focus"), &Control::release_focus);
-    ClassDB::bind_method(D_METHOD("get_focus_owner"), &Control::get_focus_owner);
+    MethodBinder::bind_method(D_METHOD("accept_event"), &Control::accept_event);
+    MethodBinder::bind_method(D_METHOD("get_minimum_size"), &Control::get_minimum_size);
+    MethodBinder::bind_method(D_METHOD("get_combined_minimum_size"), &Control::get_combined_minimum_size);
+    MethodBinder::bind_method(D_METHOD("set_anchors_preset", "preset", "keep_margins"), &Control::set_anchors_preset, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("set_margins_preset", "preset", "resize_mode", "margin"), &Control::set_margins_preset, {DEFVAL(PRESET_MODE_MINSIZE), DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("set_anchors_and_margins_preset", "preset", "resize_mode", "margin"), &Control::set_anchors_and_margins_preset, {DEFVAL(PRESET_MODE_MINSIZE), DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("_set_anchor", "margin", "anchor"), &Control::_set_anchor);
+    MethodBinder::bind_method(D_METHOD("set_anchor", "margin", "anchor", "keep_margin", "push_opposite_anchor"), &Control::set_anchor, {DEFVAL(false), DEFVAL(true)});
+    MethodBinder::bind_method(D_METHOD("get_anchor", "margin"), &Control::get_anchor);
+    MethodBinder::bind_method(D_METHOD("set_margin", "margin", "offset"), &Control::set_margin);
+    MethodBinder::bind_method(D_METHOD("set_anchor_and_margin", "margin", "anchor", "offset", "push_opposite_anchor"), &Control::set_anchor_and_margin, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("set_begin", "position"), &Control::set_begin);
+    MethodBinder::bind_method(D_METHOD("set_end", "position"), &Control::set_end);
+    MethodBinder::bind_method(D_METHOD("set_position", "position", "keep_margins"), &Control::set_position, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("_set_position", "margin"), &Control::_set_position);
+    MethodBinder::bind_method(D_METHOD("set_size", "size", "keep_margins"), &Control::set_size, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("_set_size", "size"), &Control::_set_size);
+    MethodBinder::bind_method(D_METHOD("set_custom_minimum_size", "size"), &Control::set_custom_minimum_size);
+    MethodBinder::bind_method(D_METHOD("set_global_position", "position", "keep_margins"), &Control::set_global_position, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("_set_global_position", "position"), &Control::_set_global_position);
+    MethodBinder::bind_method(D_METHOD("set_rotation", "radians"), &Control::set_rotation);
+    MethodBinder::bind_method(D_METHOD("set_rotation_degrees", "degrees"), &Control::set_rotation_degrees);
+    MethodBinder::bind_method(D_METHOD("set_scale", "scale"), &Control::set_scale);
+    MethodBinder::bind_method(D_METHOD("set_pivot_offset", "pivot_offset"), &Control::set_pivot_offset);
+    MethodBinder::bind_method(D_METHOD("get_margin", "margin"), &Control::get_margin);
+    MethodBinder::bind_method(D_METHOD("get_begin"), &Control::get_begin);
+    MethodBinder::bind_method(D_METHOD("get_end"), &Control::get_end);
+    MethodBinder::bind_method(D_METHOD("get_position"), &Control::get_position);
+    MethodBinder::bind_method(D_METHOD("get_size"), &Control::get_size);
+    MethodBinder::bind_method(D_METHOD("get_rotation"), &Control::get_rotation);
+    MethodBinder::bind_method(D_METHOD("get_rotation_degrees"), &Control::get_rotation_degrees);
+    MethodBinder::bind_method(D_METHOD("get_scale"), &Control::get_scale);
+    MethodBinder::bind_method(D_METHOD("get_pivot_offset"), &Control::get_pivot_offset);
+    MethodBinder::bind_method(D_METHOD("get_custom_minimum_size"), &Control::get_custom_minimum_size);
+    MethodBinder::bind_method(D_METHOD("get_parent_area_size"), &Control::get_parent_area_size);
+    MethodBinder::bind_method(D_METHOD("get_global_position"), &Control::get_global_position);
+    MethodBinder::bind_method(D_METHOD("get_rect"), &Control::get_rect);
+    MethodBinder::bind_method(D_METHOD("get_global_rect"), &Control::get_global_rect);
+    MethodBinder::bind_method(D_METHOD("show_modal", "exclusive"), &Control::show_modal, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("set_focus_mode", "mode"), &Control::set_focus_mode);
+    MethodBinder::bind_method(D_METHOD("get_focus_mode"), &Control::get_focus_mode);
+    MethodBinder::bind_method(D_METHOD("has_focus"), &Control::has_focus);
+    MethodBinder::bind_method(D_METHOD("grab_focus"), &Control::grab_focus);
+    MethodBinder::bind_method(D_METHOD("release_focus"), &Control::release_focus);
+    MethodBinder::bind_method(D_METHOD("get_focus_owner"), &Control::get_focus_owner);
 
-    ClassDB::bind_method(D_METHOD("set_h_size_flags", "flags"), &Control::set_h_size_flags);
-    ClassDB::bind_method(D_METHOD("get_h_size_flags"), &Control::get_h_size_flags);
+    MethodBinder::bind_method(D_METHOD("set_h_size_flags", "flags"), &Control::set_h_size_flags);
+    MethodBinder::bind_method(D_METHOD("get_h_size_flags"), &Control::get_h_size_flags);
 
-    ClassDB::bind_method(D_METHOD("set_stretch_ratio", "ratio"), &Control::set_stretch_ratio);
-    ClassDB::bind_method(D_METHOD("get_stretch_ratio"), &Control::get_stretch_ratio);
+    MethodBinder::bind_method(D_METHOD("set_stretch_ratio", "ratio"), &Control::set_stretch_ratio);
+    MethodBinder::bind_method(D_METHOD("get_stretch_ratio"), &Control::get_stretch_ratio);
 
-    ClassDB::bind_method(D_METHOD("set_v_size_flags", "flags"), &Control::set_v_size_flags);
-    ClassDB::bind_method(D_METHOD("get_v_size_flags"), &Control::get_v_size_flags);
+    MethodBinder::bind_method(D_METHOD("set_v_size_flags", "flags"), &Control::set_v_size_flags);
+    MethodBinder::bind_method(D_METHOD("get_v_size_flags"), &Control::get_v_size_flags);
 
-    ClassDB::bind_method(D_METHOD("set_theme", "theme"), &Control::set_theme);
-    ClassDB::bind_method(D_METHOD("get_theme"), &Control::get_theme);
+    MethodBinder::bind_method(D_METHOD("set_theme", "theme"), &Control::set_theme);
+    MethodBinder::bind_method(D_METHOD("get_theme"), &Control::get_theme);
 
-    ClassDB::bind_method(D_METHOD("add_icon_override", "name", "texture"), &Control::add_icon_override);
-    ClassDB::bind_method(D_METHOD("add_shader_override", "name", "shader"), &Control::add_shader_override);
-    ClassDB::bind_method(D_METHOD("add_stylebox_override", "name", "stylebox"), &Control::add_style_override);
-    ClassDB::bind_method(D_METHOD("add_font_override", "name", "font"), &Control::add_font_override);
-    ClassDB::bind_method(D_METHOD("add_color_override", "name", "color"), &Control::add_color_override);
-    ClassDB::bind_method(D_METHOD("add_constant_override", "name", "constant"), &Control::add_constant_override);
+    MethodBinder::bind_method(D_METHOD("add_icon_override", "name", "texture"), &Control::add_icon_override);
+    MethodBinder::bind_method(D_METHOD("add_shader_override", "name", "shader"), &Control::add_shader_override);
+    MethodBinder::bind_method(D_METHOD("add_stylebox_override", "name", "stylebox"), &Control::add_style_override);
+    MethodBinder::bind_method(D_METHOD("add_font_override", "name", "font"), &Control::add_font_override);
+    MethodBinder::bind_method(D_METHOD("add_color_override", "name", "color"), &Control::add_color_override);
+    MethodBinder::bind_method(D_METHOD("add_constant_override", "name", "constant"), &Control::add_constant_override);
 
-    ClassDB::bind_method(D_METHOD("get_icon", "name", "type"), &Control::get_icon, {DEFVAL("")});
-    ClassDB::bind_method(D_METHOD("get_stylebox", "name", "type"), &Control::get_stylebox, {DEFVAL("")});
-    ClassDB::bind_method(D_METHOD("get_font", "name", "type"), &Control::get_font, {DEFVAL("")});
-    ClassDB::bind_method(D_METHOD("get_color", "name", "type"), &Control::get_color, {DEFVAL("")});
-    ClassDB::bind_method(D_METHOD("get_constant", "name", "type"), &Control::get_constant, {DEFVAL("")});
+    MethodBinder::bind_method(D_METHOD("get_icon", "name", "type"), &Control::get_icon, {DEFVAL("")});
+    MethodBinder::bind_method(D_METHOD("get_stylebox", "name", "type"), &Control::get_stylebox, {DEFVAL("")});
+    MethodBinder::bind_method(D_METHOD("get_font", "name", "type"), &Control::get_font, {DEFVAL("")});
+    MethodBinder::bind_method(D_METHOD("get_color", "name", "type"), &Control::get_color, {DEFVAL("")});
+    MethodBinder::bind_method(D_METHOD("get_constant", "name", "type"), &Control::get_constant, {DEFVAL("")});
 
-    ClassDB::bind_method(D_METHOD("has_icon_override", "name"), &Control::has_icon_override);
-    ClassDB::bind_method(D_METHOD("has_shader_override", "name"), &Control::has_shader_override);
-    ClassDB::bind_method(D_METHOD("has_stylebox_override", "name"), &Control::has_stylebox_override);
-    ClassDB::bind_method(D_METHOD("has_font_override", "name"), &Control::has_font_override);
-    ClassDB::bind_method(D_METHOD("has_color_override", "name"), &Control::has_color_override);
-    ClassDB::bind_method(D_METHOD("has_constant_override", "name"), &Control::has_constant_override);
+    MethodBinder::bind_method(D_METHOD("has_icon_override", "name"), &Control::has_icon_override);
+    MethodBinder::bind_method(D_METHOD("has_shader_override", "name"), &Control::has_shader_override);
+    MethodBinder::bind_method(D_METHOD("has_stylebox_override", "name"), &Control::has_stylebox_override);
+    MethodBinder::bind_method(D_METHOD("has_font_override", "name"), &Control::has_font_override);
+    MethodBinder::bind_method(D_METHOD("has_color_override", "name"), &Control::has_color_override);
+    MethodBinder::bind_method(D_METHOD("has_constant_override", "name"), &Control::has_constant_override);
 
-    ClassDB::bind_method(D_METHOD("has_icon", "name", "type"), &Control::has_icon, {DEFVAL("")});
-    ClassDB::bind_method(D_METHOD("has_stylebox", "name", "type"), &Control::has_stylebox, {DEFVAL("")});
-    ClassDB::bind_method(D_METHOD("has_font", "name", "type"), &Control::has_font, {DEFVAL("")});
-    ClassDB::bind_method(D_METHOD("has_color", "name", "type"), &Control::has_color, {DEFVAL("")});
-    ClassDB::bind_method(D_METHOD("has_constant", "name", "type"), &Control::has_constant, {DEFVAL("")});
+    MethodBinder::bind_method(D_METHOD("has_icon", "name", "type"), &Control::has_icon, {DEFVAL("")});
+    MethodBinder::bind_method(D_METHOD("has_stylebox", "name", "type"), &Control::has_stylebox, {DEFVAL("")});
+    MethodBinder::bind_method(D_METHOD("has_font", "name", "type"), &Control::has_font, {DEFVAL("")});
+    MethodBinder::bind_method(D_METHOD("has_color", "name", "type"), &Control::has_color, {DEFVAL("")});
+    MethodBinder::bind_method(D_METHOD("has_constant", "name", "type"), &Control::has_constant, {DEFVAL("")});
 
-    ClassDB::bind_method(D_METHOD("get_parent_control"), &Control::get_parent_control);
+    MethodBinder::bind_method(D_METHOD("get_parent_control"), &Control::get_parent_control);
 
-    ClassDB::bind_method(D_METHOD("set_h_grow_direction", "direction"), &Control::set_h_grow_direction);
-    ClassDB::bind_method(D_METHOD("get_h_grow_direction"), &Control::get_h_grow_direction);
+    MethodBinder::bind_method(D_METHOD("set_h_grow_direction", "direction"), &Control::set_h_grow_direction);
+    MethodBinder::bind_method(D_METHOD("get_h_grow_direction"), &Control::get_h_grow_direction);
 
-    ClassDB::bind_method(D_METHOD("set_v_grow_direction", "direction"), &Control::set_v_grow_direction);
-    ClassDB::bind_method(D_METHOD("get_v_grow_direction"), &Control::get_v_grow_direction);
+    MethodBinder::bind_method(D_METHOD("set_v_grow_direction", "direction"), &Control::set_v_grow_direction);
+    MethodBinder::bind_method(D_METHOD("get_v_grow_direction"), &Control::get_v_grow_direction);
 
-    ClassDB::bind_method(D_METHOD("set_tooltip", "tooltip"), &Control::set_tooltip);
-    ClassDB::bind_method(D_METHOD("get_tooltip", "at_position"), &Control::get_tooltip, {DEFVAL(Point2())});
-    ClassDB::bind_method(D_METHOD("_get_tooltip"), &Control::_get_tooltip);
+    MethodBinder::bind_method(D_METHOD("set_tooltip", "tooltip"), &Control::set_tooltip);
+    MethodBinder::bind_method(D_METHOD("get_tooltip", "at_position"), &Control::get_tooltip, {DEFVAL(Point2())});
+    MethodBinder::bind_method(D_METHOD("_get_tooltip"), &Control::_get_tooltip);
 
-    ClassDB::bind_method(D_METHOD("set_default_cursor_shape", "shape"), &Control::set_default_cursor_shape);
-    ClassDB::bind_method(D_METHOD("get_default_cursor_shape"), &Control::get_default_cursor_shape);
-    ClassDB::bind_method(D_METHOD("get_cursor_shape", "position"), &Control::get_cursor_shape, {DEFVAL(Point2())});
+    MethodBinder::bind_method(D_METHOD("set_default_cursor_shape", "shape"), &Control::set_default_cursor_shape);
+    MethodBinder::bind_method(D_METHOD("get_default_cursor_shape"), &Control::get_default_cursor_shape);
+    MethodBinder::bind_method(D_METHOD("get_cursor_shape", "position"), &Control::get_cursor_shape, {DEFVAL(Point2())});
 
-    ClassDB::bind_method(D_METHOD("set_focus_neighbour", "margin", "neighbour"), &Control::set_focus_neighbour);
-    ClassDB::bind_method(D_METHOD("get_focus_neighbour", "margin"), &Control::get_focus_neighbour);
+    MethodBinder::bind_method(D_METHOD("set_focus_neighbour", "margin", "neighbour"), &Control::set_focus_neighbour);
+    MethodBinder::bind_method(D_METHOD("get_focus_neighbour", "margin"), &Control::get_focus_neighbour);
 
-    ClassDB::bind_method(D_METHOD("set_focus_next", "next"), &Control::set_focus_next);
-    ClassDB::bind_method(D_METHOD("get_focus_next"), &Control::get_focus_next);
+    MethodBinder::bind_method(D_METHOD("set_focus_next", "next"), &Control::set_focus_next);
+    MethodBinder::bind_method(D_METHOD("get_focus_next"), &Control::get_focus_next);
 
-    ClassDB::bind_method(D_METHOD("set_focus_previous", "previous"), &Control::set_focus_previous);
-    ClassDB::bind_method(D_METHOD("get_focus_previous"), &Control::get_focus_previous);
+    MethodBinder::bind_method(D_METHOD("set_focus_previous", "previous"), &Control::set_focus_previous);
+    MethodBinder::bind_method(D_METHOD("get_focus_previous"), &Control::get_focus_previous);
 
-    ClassDB::bind_method(D_METHOD("force_drag", "data", "preview"), &Control::force_drag);
+    MethodBinder::bind_method(D_METHOD("force_drag", "data", "preview"), &Control::force_drag);
 
-    ClassDB::bind_method(D_METHOD("set_mouse_filter", "filter"), &Control::set_mouse_filter);
-    ClassDB::bind_method(D_METHOD("get_mouse_filter"), &Control::get_mouse_filter);
+    MethodBinder::bind_method(D_METHOD("set_mouse_filter", "filter"), &Control::set_mouse_filter);
+    MethodBinder::bind_method(D_METHOD("get_mouse_filter"), &Control::get_mouse_filter);
 
-    ClassDB::bind_method(D_METHOD("set_clip_contents", "enable"), &Control::set_clip_contents);
-    ClassDB::bind_method(D_METHOD("is_clipping_contents"), &Control::is_clipping_contents);
+    MethodBinder::bind_method(D_METHOD("set_clip_contents", "enable"), &Control::set_clip_contents);
+    MethodBinder::bind_method(D_METHOD("is_clipping_contents"), &Control::is_clipping_contents);
 
-    ClassDB::bind_method(D_METHOD("grab_click_focus"), &Control::grab_click_focus);
+    MethodBinder::bind_method(D_METHOD("grab_click_focus"), &Control::grab_click_focus);
 
-    ClassDB::bind_method(D_METHOD("set_drag_forwarding", "target"), &Control::set_drag_forwarding);
-    ClassDB::bind_method(D_METHOD("set_drag_preview", "control"), &Control::set_drag_preview);
+    MethodBinder::bind_method(D_METHOD("set_drag_forwarding", "target"), &Control::set_drag_forwarding);
+    MethodBinder::bind_method(D_METHOD("set_drag_preview", "control"), &Control::set_drag_preview);
 
-    ClassDB::bind_method(D_METHOD("warp_mouse", "to_position"), &Control::warp_mouse);
+    MethodBinder::bind_method(D_METHOD("warp_mouse", "to_position"), &Control::warp_mouse);
 
-    ClassDB::bind_method(D_METHOD("minimum_size_changed"), &Control::minimum_size_changed);
+    MethodBinder::bind_method(D_METHOD("minimum_size_changed"), &Control::minimum_size_changed);
 
-    ClassDB::bind_method(D_METHOD("_theme_changed"), &Control::_theme_changed);
+    MethodBinder::bind_method(D_METHOD("_theme_changed"), &Control::_theme_changed);
 
-    ClassDB::bind_method(D_METHOD("_override_changed"), &Control::_override_changed);
+    MethodBinder::bind_method(D_METHOD("_override_changed"), &Control::_override_changed);
 
     BIND_VMETHOD(MethodInfo("_gui_input", PropertyInfo(Variant::OBJECT, "event", PROPERTY_HINT_RESOURCE_TYPE, "InputEvent")));
     BIND_VMETHOD(MethodInfo(Variant::VECTOR2, "_get_minimum_size"));
-    BIND_VMETHOD(MethodInfo(Variant::OBJECT, "get_drag_data", PropertyInfo(Variant::VECTOR2, "position")));
+    MethodInfo get_drag_data = MethodInfo("get_drag_data", PropertyInfo(Variant::VECTOR2, "position"));
+    get_drag_data.return_val.usage |= PROPERTY_USAGE_NIL_IS_VARIANT;
+    BIND_VMETHOD(get_drag_data);
     BIND_VMETHOD(MethodInfo(Variant::BOOL, "can_drop_data", PropertyInfo(Variant::VECTOR2, "position"), PropertyInfo(Variant::NIL, "data")));
     BIND_VMETHOD(MethodInfo("drop_data", PropertyInfo(Variant::VECTOR2, "position"), PropertyInfo(Variant::NIL, "data")));
     BIND_VMETHOD(MethodInfo(Variant::OBJECT, "_make_custom_tooltip", PropertyInfo(Variant::STRING, "for_text")));

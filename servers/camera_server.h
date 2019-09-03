@@ -36,59 +36,62 @@
 #include "core/reference.h"
 #include "core/rid.h"
 #include "core/variant.h"
+#include "core/method_arg_casters.h"
+#include "core/method_enum_caster.h"
 
 /**
-	@author Bastiaan Olij <mux213@gmail.com>
+    @author Bastiaan Olij <mux213@gmail.com>
 
-	The camera server is a singleton object that gives access to the various
-	camera feeds that can be used as the background for our environment.
+    The camera server is a singleton object that gives access to the various
+    camera feeds that can be used as the background for our environment.
 **/
 
 class CameraFeed;
 
 class CameraServer : public Object {
-	GDCLASS(CameraServer, Object);
-	_THREAD_SAFE_CLASS_
+    GDCLASS(CameraServer,Object)
+
+    _THREAD_SAFE_CLASS_
 
 public:
-	enum FeedImage {
-		FEED_RGBA_IMAGE = 0,
-		FEED_YCBCR_IMAGE = 0,
-		FEED_Y_IMAGE = 0,
-		FEED_CBCR_IMAGE = 1,
-		FEED_IMAGES = 2
-	};
+    enum FeedImage {
+        FEED_RGBA_IMAGE = 0,
+        FEED_YCBCR_IMAGE = 0,
+        FEED_Y_IMAGE = 0,
+        FEED_CBCR_IMAGE = 1,
+        FEED_IMAGES = 2
+    };
 
 private:
 protected:
-	Vector<Ref<CameraFeed> > feeds;
+    Vector<Ref<CameraFeed> > feeds;
 
-	static CameraServer *singleton;
+    static CameraServer *singleton;
 
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	static CameraServer *get_singleton();
+    static CameraServer *get_singleton();
 
-	// Right now we identify our feed by it's ID when it's used in the background.
-	// May see if we can change this to purely relying on CameraFeed objects or by name.
-	int get_free_id();
-	int get_feed_index(int p_id);
-	Ref<CameraFeed> get_feed_by_id(int p_id);
+    // Right now we identify our feed by it's ID when it's used in the background.
+    // May see if we can change this to purely relying on CameraFeed objects or by name.
+    int get_free_id();
+    int get_feed_index(int p_id);
+    Ref<CameraFeed> get_feed_by_id(int p_id);
 
-	// add and remove feeds
-	void add_feed(const Ref<CameraFeed> &p_feed);
-	void remove_feed(const Ref<CameraFeed> &p_feed);
+    // add and remove feeds
+    void add_feed(const Ref<CameraFeed> &p_feed);
+    void remove_feed(const Ref<CameraFeed> &p_feed);
 
-	// get our feeds
-	Ref<CameraFeed> get_feed(int p_idx);
-	int get_feed_count();
-	Array get_feeds();
+    // get our feeds
+    Ref<CameraFeed> get_feed(int p_idx);
+    int get_feed_count();
+    Array get_feeds();
 
-	RID feed_texture(int p_id, FeedImage p_texture);
+    RID feed_texture(int p_id, FeedImage p_texture);
 
-	CameraServer();
-	~CameraServer() override;
+    CameraServer();
+    ~CameraServer() override;
 };
 
 VARIANT_ENUM_CAST(CameraServer::FeedImage);

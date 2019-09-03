@@ -35,12 +35,12 @@ real_t Triangulate::get_area(const Vector<Vector2> &contour) {
 	int n = contour.size();
 	const Vector2 *c = &contour[0];
 
-	real_t A = 0.0;
+	real_t A = 0.0f;
 
 	for (int p = n - 1, q = 0; q < n; p = q++) {
 		A += c[p].cross(c[q]);
 	}
-	return A * 0.5;
+	return A * 0.5f;
 }
 
 /*

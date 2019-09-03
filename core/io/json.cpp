@@ -179,7 +179,7 @@ Error JSON::_get_token(const CharType *p_str, int &index, int p_len, Token &r_to
                 index++;
                 String str;
                 while (true) {
-                    if (p_str[index] == 0) {
+                    if (p_str[index] == nullptr) {
                         r_err_str = "Unterminated String";
                         return ERR_PARSE_ERROR;
                     } else if (p_str[index] == '"') {
@@ -189,7 +189,7 @@ Error JSON::_get_token(const CharType *p_str, int &index, int p_len, Token &r_to
                         //escaped characters...
                         index++;
                         CharType next = p_str[index];
-                        if (next == 0) {
+                        if (next == nullptr) {
                             r_err_str = "Unterminated String";
                             return ERR_PARSE_ERROR;
                         }
@@ -207,7 +207,7 @@ Error JSON::_get_token(const CharType *p_str, int &index, int p_len, Token &r_to
                                 uint16_t accval=0;
                                 for (int j = 0; j < 4; j++) {
                                     CharType c = p_str[index + j + 1];
-                                    if (c == 0) {
+                                    if (c == nullptr) {
                                         r_err_str = "Unterminated String";
                                         return ERR_PARSE_ERROR;
                                     }

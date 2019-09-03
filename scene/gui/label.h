@@ -28,14 +28,13 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef LABEL_H
-#define LABEL_H
+#pragma once
 
 #include "scene/gui/control.h"
 
 class Label : public Control {
 
-	GDCLASS(Label, Control);
+	GDCLASS(Label,Control)
 
 public:
 	enum Align {
@@ -104,7 +103,7 @@ protected:
 	static void _bind_methods();
 	// bind helpers
 public:
-	virtual Size2 get_minimum_size() const;
+	Size2 get_minimum_size() const override;
 
 	void set_align(Align p_align);
 	Align get_align() const;
@@ -142,10 +141,8 @@ public:
 	int get_visible_line_count() const;
 
 	Label(const String &p_text = String());
-	~Label();
+	~Label() override;
 };
 
 VARIANT_ENUM_CAST(Label::Align);
 VARIANT_ENUM_CAST(Label::VAlign);
-
-#endif

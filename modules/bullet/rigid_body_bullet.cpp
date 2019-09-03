@@ -49,6 +49,8 @@
     @author AndreaCatania
 */
 
+IMPL_GDCLASS(BulletPhysicsDirectBodyState)
+
 BulletPhysicsDirectBodyState *BulletPhysicsDirectBodyState::singleton = nullptr;
 
 Vector3 BulletPhysicsDirectBodyState::get_total_gravity() const {

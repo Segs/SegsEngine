@@ -43,7 +43,7 @@ bool loader_recognizes(const ImageFormatLoader *ldr,const String &p_extension) {
     ldr->get_recognized_extensions(&extensions);
     for (List<String>::Element *E = extensions.front(); E; E = E->next()) {
 
-        if (E->get().compare(p_extension,Qt::CaseInsensitive) == 0)
+		if (StringUtils::compare(E->get(),p_extension,StringUtils::CaseInsensitive) == 0)
             return true;
     }
 

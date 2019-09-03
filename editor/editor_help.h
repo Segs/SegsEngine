@@ -44,7 +44,7 @@
 #include "scene/main/timer.h"
 
 class FindBar : public HBoxContainer {
-	GDCLASS(FindBar, HBoxContainer);
+	GDCLASS(FindBar,HBoxContainer)
 
 	LineEdit *search_text;
 	ToolButton *find_prev;
@@ -89,7 +89,7 @@ public:
 
 class EditorHelp : public VBoxContainer {
 
-	GDCLASS(EditorHelp, VBoxContainer);
+	GDCLASS(EditorHelp,VBoxContainer)
 
 	enum Page {
 
@@ -189,12 +189,12 @@ public:
 	void set_scroll(int p_scroll);
 
 	EditorHelp();
-	~EditorHelp();
+	~EditorHelp() override;
 };
 
 class EditorHelpBit : public PanelContainer {
 
-	GDCLASS(EditorHelpBit, PanelContainer);
+	GDCLASS(EditorHelpBit,PanelContainer)
 
 	RichTextLabel *rich_text;
 	void _go_to_help(String p_what);

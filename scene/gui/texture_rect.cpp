@@ -30,6 +30,9 @@
 
 #include "texture_rect.h"
 #include "servers/visual_server.h"
+#include "core/method_bind.h"
+
+IMPL_GDCLASS(TextureRect)
 
 void TextureRect::_notification(int p_what) {
 
@@ -113,16 +116,16 @@ Size2 TextureRect::get_minimum_size() const {
 }
 void TextureRect::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_texture", "texture"), &TextureRect::set_texture);
-    ClassDB::bind_method(D_METHOD("get_texture"), &TextureRect::get_texture);
-    ClassDB::bind_method(D_METHOD("set_expand", "enable"), &TextureRect::set_expand);
-    ClassDB::bind_method(D_METHOD("has_expand"), &TextureRect::has_expand);
-    ClassDB::bind_method(D_METHOD("set_flip_h", "enable"), &TextureRect::set_flip_h);
-    ClassDB::bind_method(D_METHOD("is_flipped_h"), &TextureRect::is_flipped_h);
-    ClassDB::bind_method(D_METHOD("set_flip_v", "enable"), &TextureRect::set_flip_v);
-    ClassDB::bind_method(D_METHOD("is_flipped_v"), &TextureRect::is_flipped_v);
-    ClassDB::bind_method(D_METHOD("set_stretch_mode", "stretch_mode"), &TextureRect::set_stretch_mode);
-    ClassDB::bind_method(D_METHOD("get_stretch_mode"), &TextureRect::get_stretch_mode);
+    MethodBinder::bind_method(D_METHOD("set_texture", "texture"), &TextureRect::set_texture);
+    MethodBinder::bind_method(D_METHOD("get_texture"), &TextureRect::get_texture);
+    MethodBinder::bind_method(D_METHOD("set_expand", "enable"), &TextureRect::set_expand);
+    MethodBinder::bind_method(D_METHOD("has_expand"), &TextureRect::has_expand);
+    MethodBinder::bind_method(D_METHOD("set_flip_h", "enable"), &TextureRect::set_flip_h);
+    MethodBinder::bind_method(D_METHOD("is_flipped_h"), &TextureRect::is_flipped_h);
+    MethodBinder::bind_method(D_METHOD("set_flip_v", "enable"), &TextureRect::set_flip_v);
+    MethodBinder::bind_method(D_METHOD("is_flipped_v"), &TextureRect::is_flipped_v);
+    MethodBinder::bind_method(D_METHOD("set_stretch_mode", "stretch_mode"), &TextureRect::set_stretch_mode);
+    MethodBinder::bind_method(D_METHOD("get_stretch_mode"), &TextureRect::get_stretch_mode);
 
     ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_texture", "get_texture");
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "expand"), "set_expand", "has_expand");

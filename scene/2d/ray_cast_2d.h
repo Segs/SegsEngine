@@ -35,7 +35,7 @@
 
 class RayCast2D : public Node2D {
 
-	GDCLASS(RayCast2D, Node2D);
+	GDCLASS(RayCast2D,Node2D)
 
 	bool enabled;
 	bool collided;

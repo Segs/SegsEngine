@@ -34,10 +34,13 @@
 #include "core/func_ref.h"
 #include "core/io/marshalls.h"
 #include "core/math/math_funcs.h"
+#include "core/method_bind.h"
 #include "core/os/os.h"
-#include "core/reference.h"
 #include "core/print_string.h"
+#include "core/reference.h"
 #include "core/variant_parser.h"
+
+IMPL_GDCLASS(Expression)
 
 const char *Expression::func_name[Expression::FUNC_MAX] = {
     "sin",
@@ -645,7 +648,7 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
         } break;
         case TYPE_CONVERT: {
 
-            VALIDATE_ARG_NUM(1);
+            VALIDATE_ARG_NUM(1)
             int type = *p_inputs[1];
             if (type < 0 || type >= Variant::VARIANT_MAX) {
 
@@ -662,7 +665,7 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
         } break;
         case TYPE_OF: {
 
-            *r_return = p_inputs[0]->get_type();
+			*r_return = p_inputs[0]->get_type();
 
         } break;
         case TYPE_EXISTS: {
@@ -698,7 +701,7 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
         case TEXT_PRINTRAW: {
 
             String str = *p_inputs[0];
-            OS::get_singleton()->print(str.utf8().data());
+            OS::get_singleton()->print(str);
 
         } break;
         case VAR_TO_STR: {
@@ -982,7 +985,7 @@ Error Expression::_get_token(Token &r_token) {
 
                     CharType ch = GET_CHAR();
 
-                    if (ch == 0) {
+                    if (ch == nullptr) {
                         _set_error("Unterminated String");
                         r_token.type = TK_ERROR;
                         return ERR_PARSE_ERROR;
@@ -1012,7 +1015,7 @@ Error Expression::_get_token(Token &r_token) {
                                 for (int j = 0; j < 4; j++) {
                                     CharType c = GET_CHAR();
 
-                                    if (c == 0) {
+                                    if (c == nullptr) {
                                         _set_error("Unterminated String");
                                         r_token.type = TK_ERROR;
                                         return ERR_PARSE_ERROR;
@@ -1143,9 +1146,9 @@ Error Expression::_get_token(Token &r_token) {
                     r_token.type = TK_CONSTANT;
 
                     if (is_float)
-                        r_token.value = num.to_double();
+                        r_token.value = StringUtils::to_double(num);
                     else
-                        r_token.value = num.to_int();
+                        r_token.value = StringUtils::to_int(num);
                     return OK;
 
                 } else if ((cchar >= 'A' && cchar <= 'Z') || (cchar >= 'a' && cchar <= 'z') || cchar == '_') {
@@ -2186,10 +2189,10 @@ String Expression::get_error_text() const {
 
 void Expression::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("parse", "expression", "input_names"), &Expression::parse, {DEFVAL(Vector<String>())});
-    ClassDB::bind_method(D_METHOD("execute", "inputs", "base_instance", "show_error"), &Expression::execute, {DEFVAL(Array()), DEFVAL(Variant()), DEFVAL(true)});
-    ClassDB::bind_method(D_METHOD("has_execute_failed"), &Expression::has_execute_failed);
-    ClassDB::bind_method(D_METHOD("get_error_text"), &Expression::get_error_text);
+    MethodBinder::bind_method(D_METHOD("parse", "expression", "input_names"), &Expression::parse, {DEFVAL(Vector<String>())});
+    MethodBinder::bind_method(D_METHOD("execute", "inputs", "base_instance", "show_error"), &Expression::execute, {DEFVAL(Array()), DEFVAL(Variant()), DEFVAL(true)});
+    MethodBinder::bind_method(D_METHOD("has_execute_failed"), &Expression::has_execute_failed);
+    MethodBinder::bind_method(D_METHOD("get_error_text"), &Expression::get_error_text);
 }
 
 

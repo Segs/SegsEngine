@@ -34,7 +34,15 @@
 #include "editor_node.h"
 #include "editor_scale.h"
 #include "multi_node_edit.h"
+#include "editor_feature_profile.h"
 #include "scene/resources/packed_scene.h"
+#include "core/method_bind.h"
+
+IMPL_GDCLASS(EditorProperty)
+IMPL_GDCLASS(EditorInspectorPlugin)
+IMPL_GDCLASS(EditorInspectorCategory)
+IMPL_GDCLASS(EditorInspectorSection)
+IMPL_GDCLASS(EditorInspector)
 
 Size2 EditorProperty::get_minimum_size() const {
 
@@ -206,7 +214,7 @@ void EditorProperty::_notification(int p_what) {
         } else {
             color = get_color("property_color", "Editor");
         }
-        if (label.find(".") != -1) {
+        if (StringUtils::find(label,".") != -1) {
             color.a = 0.5; //this should be un-hacked honestly, as it's used for editor overrides
         }
 
@@ -765,8 +773,8 @@ Control *EditorProperty::make_custom_tooltip(const String &p_text) const {
     help_bit->add_style_override("panel", get_stylebox("panel", "TooltipPanel"));
     help_bit->get_rich_text()->set_fixed_size_to_width(360 * EDSCALE);
 
-    String text = TTR("Property:") + " [u][b]" + p_text.get_slice("::", 0) + "[/b][/u]\n";
-    text += p_text.get_slice("::", 1).strip_edges();
+    String text = TTR("Property:") + " [u][b]" + StringUtils::get_slice(p_text,"::", 0) + "[/b][/u]\n";
+    text += StringUtils::strip_edges(StringUtils::get_slice(p_text,"::", 1));
     help_bit->set_text(text);
     help_bit->call_deferred("set_text", text); //hack so it uses proper theme once inside scene
     return help_bit;
@@ -778,36 +786,36 @@ String EditorProperty::get_tooltip_text() const {
 
 void EditorProperty::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_label", "text"), &EditorProperty::set_label);
-    ClassDB::bind_method(D_METHOD("get_label"), &EditorProperty::get_label);
+    MethodBinder::bind_method(D_METHOD("set_label", "text"), &EditorProperty::set_label);
+    MethodBinder::bind_method(D_METHOD("get_label"), &EditorProperty::get_label);
 
-    ClassDB::bind_method(D_METHOD("set_read_only", "read_only"), &EditorProperty::set_read_only);
-    ClassDB::bind_method(D_METHOD("is_read_only"), &EditorProperty::is_read_only);
+    MethodBinder::bind_method(D_METHOD("set_read_only", "read_only"), &EditorProperty::set_read_only);
+    MethodBinder::bind_method(D_METHOD("is_read_only"), &EditorProperty::is_read_only);
 
-    ClassDB::bind_method(D_METHOD("set_checkable", "checkable"), &EditorProperty::set_checkable);
-    ClassDB::bind_method(D_METHOD("is_checkable"), &EditorProperty::is_checkable);
+    MethodBinder::bind_method(D_METHOD("set_checkable", "checkable"), &EditorProperty::set_checkable);
+    MethodBinder::bind_method(D_METHOD("is_checkable"), &EditorProperty::is_checkable);
 
-    ClassDB::bind_method(D_METHOD("set_checked", "checked"), &EditorProperty::set_checked);
-    ClassDB::bind_method(D_METHOD("is_checked"), &EditorProperty::is_checked);
+    MethodBinder::bind_method(D_METHOD("set_checked", "checked"), &EditorProperty::set_checked);
+    MethodBinder::bind_method(D_METHOD("is_checked"), &EditorProperty::is_checked);
 
-    ClassDB::bind_method(D_METHOD("set_draw_red", "draw_red"), &EditorProperty::set_draw_red);
-    ClassDB::bind_method(D_METHOD("is_draw_red"), &EditorProperty::is_draw_red);
+    MethodBinder::bind_method(D_METHOD("set_draw_red", "draw_red"), &EditorProperty::set_draw_red);
+    MethodBinder::bind_method(D_METHOD("is_draw_red"), &EditorProperty::is_draw_red);
 
-    ClassDB::bind_method(D_METHOD("set_keying", "keying"), &EditorProperty::set_keying);
-    ClassDB::bind_method(D_METHOD("is_keying"), &EditorProperty::is_keying);
+    MethodBinder::bind_method(D_METHOD("set_keying", "keying"), &EditorProperty::set_keying);
+    MethodBinder::bind_method(D_METHOD("is_keying"), &EditorProperty::is_keying);
 
-    ClassDB::bind_method(D_METHOD("get_edited_property"), &EditorProperty::get_edited_property);
-    ClassDB::bind_method(D_METHOD("get_edited_object"), &EditorProperty::get_edited_object);
+    MethodBinder::bind_method(D_METHOD("get_edited_property"), &EditorProperty::get_edited_property);
+    MethodBinder::bind_method(D_METHOD("get_edited_object"), &EditorProperty::get_edited_object);
 
-    ClassDB::bind_method(D_METHOD("_gui_input"), &EditorProperty::_gui_input);
-    ClassDB::bind_method(D_METHOD("_focusable_focused"), &EditorProperty::_focusable_focused);
+    MethodBinder::bind_method(D_METHOD("_gui_input"), &EditorProperty::_gui_input);
+    MethodBinder::bind_method(D_METHOD("_focusable_focused"), &EditorProperty::_focusable_focused);
 
-    ClassDB::bind_method(D_METHOD("get_tooltip_text"), &EditorProperty::get_tooltip_text);
+    MethodBinder::bind_method(D_METHOD("get_tooltip_text"), &EditorProperty::get_tooltip_text);
 
-    ClassDB::bind_method(D_METHOD("add_focusable", "control"), &EditorProperty::add_focusable);
-    ClassDB::bind_method(D_METHOD("set_bottom_editor", "editor"), &EditorProperty::set_bottom_editor);
+    MethodBinder::bind_method(D_METHOD("add_focusable", "control"), &EditorProperty::add_focusable);
+    MethodBinder::bind_method(D_METHOD("set_bottom_editor", "editor"), &EditorProperty::set_bottom_editor);
 
-    ClassDB::bind_method(D_METHOD("emit_changed", "property", "value", "field", "changing"), &EditorProperty::emit_changed, {DEFVAL(StringName()), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("emit_changed", "property", "value", "field", "changing"), &EditorProperty::emit_changed, {DEFVAL(StringName()), DEFVAL(false)});
 
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "label"), "set_label", "get_label");
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "read_only"), "set_read_only", "is_read_only");
@@ -926,9 +934,9 @@ void EditorInspectorPlugin::parse_end() {
 
 void EditorInspectorPlugin::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("add_custom_control", "control"), &EditorInspectorPlugin::add_custom_control);
-    ClassDB::bind_method(D_METHOD("add_property_editor", "property", "editor"), &EditorInspectorPlugin::add_property_editor);
-    ClassDB::bind_method(D_METHOD("add_property_editor_for_multiple_properties", "label", "properties", "editor"), &EditorInspectorPlugin::add_property_editor_for_multiple_properties);
+    MethodBinder::bind_method(D_METHOD("add_custom_control", "control"), &EditorInspectorPlugin::add_custom_control);
+    MethodBinder::bind_method(D_METHOD("add_property_editor", "property", "editor"), &EditorInspectorPlugin::add_property_editor);
+    MethodBinder::bind_method(D_METHOD("add_property_editor_for_multiple_properties", "label", "properties", "editor"), &EditorInspectorPlugin::add_property_editor_for_multiple_properties);
 
     MethodInfo vm;
     vm.name = "can_handle";
@@ -992,8 +1000,8 @@ Control *EditorInspectorCategory::make_custom_tooltip(const String &p_text) cons
     help_bit->add_style_override("panel", get_stylebox("panel", "TooltipPanel"));
     help_bit->get_rich_text()->set_fixed_size_to_width(360 * EDSCALE);
 
-    String text = "[u][b]" + p_text.get_slice("::", 0) + "[/b][/u]\n";
-    text += p_text.get_slice("::", 1).strip_edges();
+    String text = "[u][b]" + StringUtils::get_slice(p_text,"::", 0) + "[/b][/u]\n";
+    text += StringUtils::strip_edges(StringUtils::get_slice(p_text,"::", 1));
     help_bit->set_text(text);
     help_bit->call_deferred("set_text", text); //hack so it uses proper theme once inside scene
     return help_bit;
@@ -1015,7 +1023,7 @@ Size2 EditorInspectorCategory::get_minimum_size() const {
 }
 
 void EditorInspectorCategory::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("get_tooltip_text"), &EditorInspectorCategory::get_tooltip_text);
+    MethodBinder::bind_method(D_METHOD("get_tooltip_text"), &EditorInspectorCategory::get_tooltip_text);
 }
 
 String EditorInspectorCategory::get_tooltip_text() const {
@@ -1044,7 +1052,6 @@ void EditorInspectorSection::_notification(int p_what) {
         Ref<Font> font = get_font("font", "Tree");
         Ref<Texture> arrow;
 
-#ifdef TOOLS_ENABLED
         if (foldable) {
             if (object->editor_is_section_unfolded(section)) {
                 arrow = get_icon("arrow_up", "Tree");
@@ -1052,7 +1059,6 @@ void EditorInspectorSection::_notification(int p_what) {
                 arrow = get_icon("arrow", "Tree");
             }
         }
-#endif
 
         Size2 size = get_size();
         Point2 offset;
@@ -1087,7 +1093,6 @@ void EditorInspectorSection::_notification(int p_what) {
 
         Ref<Texture> arrow;
 
-#ifdef TOOLS_ENABLED
         if (foldable) {
             if (object->editor_is_section_unfolded(section)) {
                 arrow = get_icon("arrow_up", "Tree");
@@ -1095,7 +1100,6 @@ void EditorInspectorSection::_notification(int p_what) {
                 arrow = get_icon("arrow", "Tree");
             }
         }
-#endif
 
         Ref<Font> font = get_font("font", "Tree");
 
@@ -1155,7 +1159,6 @@ void EditorInspectorSection::setup(const String &p_section, const String &p_labe
         vbox_added = true;
     }
 
-#ifdef TOOLS_ENABLED
     if (foldable) {
         _test_unfold();
         if (object->editor_is_section_unfolded(section)) {
@@ -1164,7 +1167,6 @@ void EditorInspectorSection::setup(const String &p_section, const String &p_labe
             vbox->hide();
         }
     }
-#endif
 }
 
 void EditorInspectorSection::_gui_input(const Ref<InputEvent> &p_event) {
@@ -1172,7 +1174,6 @@ void EditorInspectorSection::_gui_input(const Ref<InputEvent> &p_event) {
     if (!foldable)
         return;
 
-#ifdef TOOLS_ENABLED
     Ref<InputEventMouseButton> mb = p_event;
     if (mb.is_valid() && mb->is_pressed() && mb->get_button_index() == BUTTON_LEFT) {
 
@@ -1191,7 +1192,6 @@ void EditorInspectorSection::_gui_input(const Ref<InputEvent> &p_event) {
             vbox->hide();
         }
     }
-#endif
 }
 
 VBoxContainer *EditorInspectorSection::get_vbox() {
@@ -1205,11 +1205,9 @@ void EditorInspectorSection::unfold() {
 
     _test_unfold();
 
-#ifdef TOOLS_ENABLED
     object->editor_set_section_unfold(section, true);
     vbox->show();
     update();
-#endif
 }
 
 void EditorInspectorSection::fold() {
@@ -1219,20 +1217,18 @@ void EditorInspectorSection::fold() {
     if (!vbox_added)
         return; //kinda pointless
 
-#ifdef TOOLS_ENABLED
     object->editor_set_section_unfold(section, false);
     vbox->hide();
     update();
-#endif
 }
 
 void EditorInspectorSection::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("setup", "section", "label", "object", "bg_color", "foldable"), &EditorInspectorSection::setup);
-    ClassDB::bind_method(D_METHOD("get_vbox"), &EditorInspectorSection::get_vbox);
-    ClassDB::bind_method(D_METHOD("unfold"), &EditorInspectorSection::unfold);
-    ClassDB::bind_method(D_METHOD("fold"), &EditorInspectorSection::fold);
-    ClassDB::bind_method(D_METHOD("_gui_input"), &EditorInspectorSection::_gui_input);
+    MethodBinder::bind_method(D_METHOD("setup", "section", "label", "object", "bg_color", "foldable"), &EditorInspectorSection::setup);
+    MethodBinder::bind_method(D_METHOD("get_vbox"), &EditorInspectorSection::get_vbox);
+    MethodBinder::bind_method(D_METHOD("unfold"), &EditorInspectorSection::unfold);
+    MethodBinder::bind_method(D_METHOD("fold"), &EditorInspectorSection::fold);
+    MethodBinder::bind_method(D_METHOD("_gui_input"), &EditorInspectorSection::_gui_input);
 }
 
 EditorInspectorSection::EditorInspectorSection() {
@@ -1345,8 +1341,8 @@ void EditorInspector::_parse_added_editors(VBoxContainer *current_vbox, Ref<Edit
             ep->connect("property_checked", this, "_property_checked");
             ep->connect("selected", this, "_property_selected");
             ep->connect("multiple_properties_changed", this, "_multiple_properties_changed");
-            ep->connect("resource_selected", this, "_resource_selected", varray(), CONNECT_DEFERRED);
-            ep->connect("object_id_selected", this, "_object_id_selected", varray(), CONNECT_DEFERRED);
+            ep->connect("resource_selected", this, "_resource_selected", varray(), ObjectNS::CONNECT_DEFERRED);
+            ep->connect("object_id_selected", this, "_object_id_selected", varray(), ObjectNS::CONNECT_DEFERRED);
 
             if (F->get().properties.size()) {
 
@@ -1385,7 +1381,7 @@ bool EditorInspector::_is_property_disabled_by_feature_profile(const StringName 
         return false;
     }
 
-    StringName class_name = object->get_class();
+    StringName class_name = object->get_class_name();
 
     while (class_name != StringName()) {
 
@@ -1558,9 +1554,9 @@ void EditorInspector::update_tree() {
         String basename = p.name;
         if (group != "") {
             if (group_base != "") {
-                if (basename.begins_with(group_base)) {
-                    basename = basename.replace_first(group_base, "");
-                } else if (group_base.begins_with(basename)) {
+                if (StringUtils::begins_with(basename,group_base)) {
+                    basename = StringUtils::replace_first(basename,group_base, "");
+                } else if (StringUtils::begins_with(group_base,basename)) {
                     //keep it, this is used pretty often
                 } else {
                     group = ""; //no longer using group base, clear
@@ -1572,29 +1568,29 @@ void EditorInspector::update_tree() {
             basename = group + "/" + basename;
         }
 
-        String name = (basename.find("/") != -1) ? basename.right(basename.find_last("/") + 1) : basename;
+        String name = (StringUtils::find(basename,"/") != -1) ? StringUtils::right(basename,StringUtils::find_last(basename,"/") + 1) : basename;
 
         if (capitalize_paths) {
-            int dot = name.find(".");
+            int dot = StringUtils::find(name,".");
             if (dot != -1) {
-                String ov = name.right(dot);
-                name = name.substr(0, dot);
-                name = name.camelcase_to_underscore().capitalize();
+                String ov = StringUtils::right(name,dot);
+                name = StringUtils::substr(name,0, dot);
+                name = StringUtils::capitalize(StringUtils::camelcase_to_underscore(name));
                 name += ov;
 
             } else {
-                name = name.camelcase_to_underscore().capitalize();
+                name = StringUtils::capitalize(StringUtils::camelcase_to_underscore(name));
             }
         }
 
-        String path = basename.left(basename.find_last("/"));
+        String path = StringUtils::left(basename,StringUtils::find_last(basename,"/"));
 
         if (use_filter && filter != "") {
 
             String cat = path;
 
             if (capitalize_paths)
-                cat = cat.capitalize();
+                cat = StringUtils::capitalize(cat);
 
             if (!StringUtils::is_subsequence_ofi(filter,cat) && !StringUtils::is_subsequence_of(filter,name))
                 continue;
@@ -1611,8 +1607,8 @@ void EditorInspector::update_tree() {
 
             String acc_path = "";
             int level = 1;
-            for (int i = 0; i < path.get_slice_count("/"); i++) {
-                String path_name = path.get_slice("/", i);
+            for (int i = 0; i < StringUtils::get_slice_count(path,"/"); i++) {
+                String path_name = StringUtils::get_slice(path,"/", i);
                 if (i > 0)
                     acc_path += "/";
                 acc_path += path_name;
@@ -1622,7 +1618,7 @@ void EditorInspector::update_tree() {
                     sections.push_back(section);
 
                     if (capitalize_paths)
-                        path_name = path_name.capitalize();
+                        path_name = StringUtils::capitalize(path_name);
 
                     Color c = sscolor;
                     c.a /= level;
@@ -1661,7 +1657,7 @@ void EditorInspector::update_tree() {
         if (use_doc_hints) {
 
             StringName classname = object->get_class_name();
-            if (object_class != String()) {
+            if ( !object_class.empty() ) {
                 classname = object_class;
             }
             StringName propname = property_prefix + p.name;
@@ -1683,7 +1679,7 @@ void EditorInspector::update_tree() {
                 while (F && descr == String()) {
                     for (int i = 0; i < F->get().properties.size(); i++) {
                         if (F->get().properties[i].name == propname.operator String()) {
-                            descr = F->get().properties[i].description.strip_edges();
+                            descr = StringUtils::strip_edges(F->get().properties[i].description);
                             break;
                         }
                     }
@@ -1753,15 +1749,15 @@ void EditorInspector::update_tree() {
 
                     ep->connect("property_changed", this, "_property_changed");
                     if (p.usage & PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED) {
-                        ep->connect("property_changed", this, "_property_changed_update_all", varray(), CONNECT_DEFERRED);
+                        ep->connect("property_changed", this, "_property_changed_update_all", varray(), ObjectNS::CONNECT_DEFERRED);
                     }
                     ep->connect("property_keyed", this, "_property_keyed");
                     ep->connect("property_keyed_with_value", this, "_property_keyed_with_value");
                     ep->connect("property_checked", this, "_property_checked");
                     ep->connect("selected", this, "_property_selected");
                     ep->connect("multiple_properties_changed", this, "_multiple_properties_changed");
-                    ep->connect("resource_selected", this, "_resource_selected", varray(), CONNECT_DEFERRED);
-                    ep->connect("object_id_selected", this, "_object_id_selected", varray(), CONNECT_DEFERRED);
+                    ep->connect("resource_selected", this, "_resource_selected", varray(), ObjectNS::CONNECT_DEFERRED);
+                    ep->connect("object_id_selected", this, "_object_id_selected", varray(), ObjectNS::CONNECT_DEFERRED);
                     if (doc_hint != String()) {
                         ep->set_tooltip(property_prefix + p.name + "::" + doc_hint);
                     } else {
@@ -1960,7 +1956,7 @@ void EditorInspector::_edit_request_change(Object *p_object, const String &p_pro
     if (changing)
         return;
 
-    if (p_property.isEmpty())
+    if (p_property.empty())
         update_tree_pending = true;
     else {
         pending.insert(p_property);
@@ -2281,23 +2277,23 @@ void EditorInspector::_feature_profile_changed() {
 
 void EditorInspector::_bind_methods() {
 
-    ClassDB::bind_method("_property_changed", &EditorInspector::_property_changed, {DEFVAL(""), DEFVAL(false)});
-    ClassDB::bind_method("_multiple_properties_changed", &EditorInspector::_multiple_properties_changed);
-    ClassDB::bind_method("_property_changed_update_all", &EditorInspector::_property_changed_update_all);
+    MethodBinder::bind_method("_property_changed", &EditorInspector::_property_changed, {DEFVAL(""), DEFVAL(false)});
+    MethodBinder::bind_method("_multiple_properties_changed", &EditorInspector::_multiple_properties_changed);
+    MethodBinder::bind_method("_property_changed_update_all", &EditorInspector::_property_changed_update_all);
 
-    ClassDB::bind_method("_edit_request_change", &EditorInspector::_edit_request_change);
-    ClassDB::bind_method("_node_removed", &EditorInspector::_node_removed);
-    ClassDB::bind_method("_filter_changed", &EditorInspector::_filter_changed);
-    ClassDB::bind_method("_property_keyed", &EditorInspector::_property_keyed);
-    ClassDB::bind_method("_property_keyed_with_value", &EditorInspector::_property_keyed_with_value);
-    ClassDB::bind_method("_property_checked", &EditorInspector::_property_checked);
-    ClassDB::bind_method("_property_selected", &EditorInspector::_property_selected);
-    ClassDB::bind_method("_resource_selected", &EditorInspector::_resource_selected);
-    ClassDB::bind_method("_object_id_selected", &EditorInspector::_object_id_selected);
-    ClassDB::bind_method("_vscroll_changed", &EditorInspector::_vscroll_changed);
-    ClassDB::bind_method("_feature_profile_changed", &EditorInspector::_feature_profile_changed);
+    MethodBinder::bind_method("_edit_request_change", &EditorInspector::_edit_request_change);
+    MethodBinder::bind_method("_node_removed", &EditorInspector::_node_removed);
+    MethodBinder::bind_method("_filter_changed", &EditorInspector::_filter_changed);
+    MethodBinder::bind_method("_property_keyed", &EditorInspector::_property_keyed);
+    MethodBinder::bind_method("_property_keyed_with_value", &EditorInspector::_property_keyed_with_value);
+    MethodBinder::bind_method("_property_checked", &EditorInspector::_property_checked);
+    MethodBinder::bind_method("_property_selected", &EditorInspector::_property_selected);
+    MethodBinder::bind_method("_resource_selected", &EditorInspector::_resource_selected);
+    MethodBinder::bind_method("_object_id_selected", &EditorInspector::_object_id_selected);
+    MethodBinder::bind_method("_vscroll_changed", &EditorInspector::_vscroll_changed);
+    MethodBinder::bind_method("_feature_profile_changed", &EditorInspector::_feature_profile_changed);
 
-    ClassDB::bind_method("refresh", &EditorInspector::refresh);
+    MethodBinder::bind_method("refresh", &EditorInspector::refresh);
 
     ADD_SIGNAL(MethodInfo("property_selected", PropertyInfo(Variant::STRING, "property")));
     ADD_SIGNAL(MethodInfo("property_keyed", PropertyInfo(Variant::STRING, "property")));

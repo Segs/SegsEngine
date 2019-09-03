@@ -36,7 +36,8 @@
 class AudioEffectChorus;
 
 class AudioEffectChorusInstance : public AudioEffectInstance {
-	GDCLASS(AudioEffectChorusInstance, AudioEffectInstance);
+	GDCLASS(AudioEffectChorusInstance,AudioEffectInstance)
+
 	friend class AudioEffectChorus;
 	Ref<AudioEffectChorus> base;
 
@@ -50,11 +51,12 @@ class AudioEffectChorusInstance : public AudioEffectInstance {
 	void _process_chunk(const AudioFrame *p_src_frames, AudioFrame *p_dst_frames, int p_frame_count);
 
 public:
-	virtual void process(const AudioFrame *p_src_frames, AudioFrame *p_dst_frames, int p_frame_count);
+	void process(const AudioFrame *p_src_frames, AudioFrame *p_dst_frames, int p_frame_count) override;
 };
 
 class AudioEffectChorus : public AudioEffect {
-	GDCLASS(AudioEffectChorus, AudioEffect);
+	GDCLASS(AudioEffectChorus,AudioEffect)
+
 
 	friend class AudioEffectChorusInstance;
 
@@ -99,7 +101,7 @@ private:
 	float dry;
 
 protected:
-	void _validate_property(PropertyInfo &property) const;
+	void _validate_property(PropertyInfo &property) const override;
 
 	static void _bind_methods();
 
@@ -131,7 +133,7 @@ public:
 	void set_dry(float amount);
 	float get_dry() const;
 
-	Ref<AudioEffectInstance> instance();
+	Ref<AudioEffectInstance> instance() override;
 
 	AudioEffectChorus();
 };

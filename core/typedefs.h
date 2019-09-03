@@ -31,8 +31,14 @@
 #pragma once
 
 #include "core/godot_export.h"
+#ifdef _MSC_VER
+#include <iso646.h>
+#endif
+#include <cstddef>
 
-#include <stddef.h>
+#ifndef NDEBUG
+#define DEBUG_METHODS_ENABLED
+#endif
 
 #if defined(__clang__)
   #if __has_feature(cxx_rtti)

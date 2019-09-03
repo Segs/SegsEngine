@@ -152,33 +152,33 @@ public:
 		bool operator<(const ResourceUsage &p_img) const { return vram == p_img.vram ? id < p_img.id : vram > p_img.vram; }
 	};
 
-	typedef void (*ResourceUsageFunc)(List<ResourceUsage> *);
+	using ResourceUsageFunc = void (*)(List<ResourceUsage> *);
 
 	static ResourceUsageFunc resource_usage_func;
 
 	Error connect_to_host(const String &p_host, uint16_t p_port);
-	virtual void debug(ScriptLanguage *p_script, bool p_can_continue = true);
-	virtual void idle_poll();
-	virtual void line_poll();
+	void debug(ScriptLanguage *p_script, bool p_can_continue = true) override;
+	void idle_poll() override;
+	void line_poll() override;
 
-	virtual bool is_remote() const { return true; }
-	virtual void request_quit();
+	bool is_remote() const override { return true; }
+	void request_quit() override;
 
-	virtual void send_message(const String &p_message, const Array &p_args);
-	virtual void send_error(const String &p_func, const String &p_file, int p_line, const String &p_err, const String &p_descr, ErrorHandlerType p_type, const Vector<ScriptLanguage::StackInfo> &p_stack_info);
+	void send_message(const String &p_message, const Array &p_args) override;
+	void send_error(const String &p_func, const String &p_file, int p_line, const String &p_err, const String &p_descr, ErrorHandlerType p_type, const Vector<ScriptLanguage::StackInfo> &p_stack_info) override;
 
-	virtual void set_request_scene_tree_message_func(RequestSceneTreeMessageFunc p_func, void *p_udata);
-	virtual void set_live_edit_funcs(LiveEditFuncs *p_funcs);
+	void set_request_scene_tree_message_func(RequestSceneTreeMessageFunc p_func, void *p_udata) override;
+	void set_live_edit_funcs(LiveEditFuncs *p_funcs) override;
 
-	virtual bool is_profiling() const;
-	virtual void add_profiling_frame_data(const StringName &p_name, const Array &p_data);
+	bool is_profiling() const override;
+	void add_profiling_frame_data(const StringName &p_name, const Array &p_data) override;
 
-	virtual void profiling_start();
-	virtual void profiling_end();
-	virtual void profiling_set_frame_times(float p_frame_time, float p_idle_time, float p_physics_time, float p_physics_frame_time);
+	void profiling_start() override;
+	void profiling_end() override;
+	void profiling_set_frame_times(float p_frame_time, float p_idle_time, float p_physics_time, float p_physics_frame_time) override;
 
 	ScriptDebuggerRemote();
-	~ScriptDebuggerRemote();
+	~ScriptDebuggerRemote() override;
 };
 
 #endif // SCRIPT_DEBUGGER_REMOTE_H

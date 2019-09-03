@@ -31,8 +31,11 @@
 #include "theme.h"
 #include "core/os/file_access.h"
 #include "core/print_string.h"
+#include "core/method_bind.h"
 
 #include <cassert>
+
+IMPL_GDCLASS(Theme)
 
 void Theme::_emit_theme_changed() {
 
@@ -43,11 +46,11 @@ bool Theme::_set(const StringName &p_name, const Variant &p_value) {
 
     String sname = p_name;
 
-    if (sname.find("/") != -1) {
+	if (StringUtils::contains(sname,'/') ) {
 
-        String type = sname.get_slicec('/', 1);
-        String node_type = sname.get_slicec('/', 0);
-        String name = sname.get_slicec('/', 2);
+        String type = StringUtils::get_slice(sname,'/', 1);
+        String node_type = StringUtils::get_slice(sname,'/', 0);
+        String name = StringUtils::get_slice(sname,'/', 2);
 
         if (type == "icons") {
 
@@ -77,11 +80,11 @@ bool Theme::_get(const StringName &p_name, Variant &r_ret) const {
 
     String sname = p_name;
 
-    if (sname.find("/") != -1) {
+	if (StringUtils::contains(sname,'/') ) {
 
-        String type = sname.get_slicec('/', 1);
-        String node_type = sname.get_slicec('/', 0);
-        String name = sname.get_slicec('/', 2);
+        String type = StringUtils::get_slice(sname,'/', 1);
+        String node_type = StringUtils::get_slice(sname,'/', 0);
+        String name = StringUtils::get_slice(sname,'/', 2);
 
         if (type == "icons") {
 
@@ -198,7 +201,7 @@ void Theme::set_default_theme_font(const Ref<Font> &p_default_font) {
     default_theme_font = p_default_font;
 
     if (default_theme_font.is_valid()) {
-        default_theme_font->connect("changed", this, "_emit_theme_changed", varray(), CONNECT_REFERENCE_COUNTED);
+        default_theme_font->connect("changed", this, "_emit_theme_changed", varray(), ObjectNS::CONNECT_REFERENCE_COUNTED);
     }
 
     _change_notify();
@@ -262,7 +265,7 @@ void Theme::set_icon(const StringName &p_name, const StringName &p_type, const R
     icon_map[p_type][p_name] = p_icon;
 
     if (p_icon.is_valid()) {
-        icon_map[p_type][p_name]->connect("changed", this, "_emit_theme_changed", varray(), CONNECT_REFERENCE_COUNTED);
+        icon_map[p_type][p_name]->connect("changed", this, "_emit_theme_changed", varray(), ObjectNS::CONNECT_REFERENCE_COUNTED);
     }
 
     if (new_value) {
@@ -370,7 +373,7 @@ void Theme::set_stylebox(const StringName &p_name, const StringName &p_type, con
     style_map[p_type][p_name] = p_style;
 
     if (p_style.is_valid()) {
-        style_map[p_type][p_name]->connect("changed", this, "_emit_theme_changed", varray(), CONNECT_REFERENCE_COUNTED);
+        style_map[p_type][p_name]->connect("changed", this, "_emit_theme_changed", varray(), ObjectNS::CONNECT_REFERENCE_COUNTED);
     }
 
     if (new_value)
@@ -441,7 +444,7 @@ void Theme::set_font(const StringName &p_name, const StringName &p_type, const R
     font_map[p_type][p_name] = p_font;
 
     if (p_font.is_valid()) {
-        font_map[p_type][p_name]->connect("changed", this, "_emit_theme_changed", varray(), CONNECT_REFERENCE_COUNTED);
+        font_map[p_type][p_name]->connect("changed", this, "_emit_theme_changed", varray(), ObjectNS::CONNECT_REFERENCE_COUNTED);
     }
 
     if (new_value) {
@@ -727,48 +730,48 @@ void Theme::get_type_list(List<StringName> *p_list) const {
 
 void Theme::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_icon", "name", "type", "texture"), &Theme::set_icon);
-    ClassDB::bind_method(D_METHOD("get_icon", "name", "type"), &Theme::get_icon);
-    ClassDB::bind_method(D_METHOD("has_icon", "name", "type"), &Theme::has_icon);
-    ClassDB::bind_method(D_METHOD("clear_icon", "name", "type"), &Theme::clear_icon);
-    ClassDB::bind_method(D_METHOD("get_icon_list", "type"), &Theme::_get_icon_list);
+    MethodBinder::bind_method(D_METHOD("set_icon", "name", "type", "texture"), &Theme::set_icon);
+    MethodBinder::bind_method(D_METHOD("get_icon", "name", "type"), &Theme::get_icon);
+    MethodBinder::bind_method(D_METHOD("has_icon", "name", "type"), &Theme::has_icon);
+    MethodBinder::bind_method(D_METHOD("clear_icon", "name", "type"), &Theme::clear_icon);
+    MethodBinder::bind_method(D_METHOD("get_icon_list", "type"), &Theme::_get_icon_list);
 
-    ClassDB::bind_method(D_METHOD("set_stylebox", "name", "type", "texture"), &Theme::set_stylebox);
-    ClassDB::bind_method(D_METHOD("get_stylebox", "name", "type"), &Theme::get_stylebox);
-    ClassDB::bind_method(D_METHOD("has_stylebox", "name", "type"), &Theme::has_stylebox);
-    ClassDB::bind_method(D_METHOD("clear_stylebox", "name", "type"), &Theme::clear_stylebox);
-    ClassDB::bind_method(D_METHOD("get_stylebox_list", "type"), &Theme::_get_stylebox_list);
-    ClassDB::bind_method(D_METHOD("get_stylebox_types"), &Theme::_get_stylebox_types);
+    MethodBinder::bind_method(D_METHOD("set_stylebox", "name", "type", "texture"), &Theme::set_stylebox);
+    MethodBinder::bind_method(D_METHOD("get_stylebox", "name", "type"), &Theme::get_stylebox);
+    MethodBinder::bind_method(D_METHOD("has_stylebox", "name", "type"), &Theme::has_stylebox);
+    MethodBinder::bind_method(D_METHOD("clear_stylebox", "name", "type"), &Theme::clear_stylebox);
+    MethodBinder::bind_method(D_METHOD("get_stylebox_list", "type"), &Theme::_get_stylebox_list);
+    MethodBinder::bind_method(D_METHOD("get_stylebox_types"), &Theme::_get_stylebox_types);
 
-    ClassDB::bind_method(D_METHOD("set_font", "name", "type", "font"), &Theme::set_font);
-    ClassDB::bind_method(D_METHOD("get_font", "name", "type"), &Theme::get_font);
-    ClassDB::bind_method(D_METHOD("has_font", "name", "type"), &Theme::has_font);
-    ClassDB::bind_method(D_METHOD("clear_font", "name", "type"), &Theme::clear_font);
-    ClassDB::bind_method(D_METHOD("get_font_list", "type"), &Theme::_get_font_list);
+    MethodBinder::bind_method(D_METHOD("set_font", "name", "type", "font"), &Theme::set_font);
+    MethodBinder::bind_method(D_METHOD("get_font", "name", "type"), &Theme::get_font);
+    MethodBinder::bind_method(D_METHOD("has_font", "name", "type"), &Theme::has_font);
+    MethodBinder::bind_method(D_METHOD("clear_font", "name", "type"), &Theme::clear_font);
+    MethodBinder::bind_method(D_METHOD("get_font_list", "type"), &Theme::_get_font_list);
 
-    ClassDB::bind_method(D_METHOD("set_color", "name", "type", "color"), &Theme::set_color);
-    ClassDB::bind_method(D_METHOD("get_color", "name", "type"), &Theme::get_color);
-    ClassDB::bind_method(D_METHOD("has_color", "name", "type"), &Theme::has_color);
-    ClassDB::bind_method(D_METHOD("clear_color", "name", "type"), &Theme::clear_color);
-    ClassDB::bind_method(D_METHOD("get_color_list", "type"), &Theme::_get_color_list);
+    MethodBinder::bind_method(D_METHOD("set_color", "name", "type", "color"), &Theme::set_color);
+    MethodBinder::bind_method(D_METHOD("get_color", "name", "type"), &Theme::get_color);
+    MethodBinder::bind_method(D_METHOD("has_color", "name", "type"), &Theme::has_color);
+    MethodBinder::bind_method(D_METHOD("clear_color", "name", "type"), &Theme::clear_color);
+    MethodBinder::bind_method(D_METHOD("get_color_list", "type"), &Theme::_get_color_list);
 
-    ClassDB::bind_method(D_METHOD("set_constant", "name", "type", "constant"), &Theme::set_constant);
-    ClassDB::bind_method(D_METHOD("get_constant", "name", "type"), &Theme::get_constant);
-    ClassDB::bind_method(D_METHOD("has_constant", "name", "type"), &Theme::has_constant);
-    ClassDB::bind_method(D_METHOD("clear_constant", "name", "type"), &Theme::clear_constant);
-    ClassDB::bind_method(D_METHOD("get_constant_list", "type"), &Theme::_get_constant_list);
+    MethodBinder::bind_method(D_METHOD("set_constant", "name", "type", "constant"), &Theme::set_constant);
+    MethodBinder::bind_method(D_METHOD("get_constant", "name", "type"), &Theme::get_constant);
+    MethodBinder::bind_method(D_METHOD("has_constant", "name", "type"), &Theme::has_constant);
+    MethodBinder::bind_method(D_METHOD("clear_constant", "name", "type"), &Theme::clear_constant);
+    MethodBinder::bind_method(D_METHOD("get_constant_list", "type"), &Theme::_get_constant_list);
 
-    ClassDB::bind_method(D_METHOD("clear"), &Theme::clear);
+    MethodBinder::bind_method(D_METHOD("clear"), &Theme::clear);
 
-    ClassDB::bind_method(D_METHOD("set_default_font", "font"), &Theme::set_default_theme_font);
-    ClassDB::bind_method(D_METHOD("get_default_font"), &Theme::get_default_theme_font);
+    MethodBinder::bind_method(D_METHOD("set_default_font", "font"), &Theme::set_default_theme_font);
+    MethodBinder::bind_method(D_METHOD("get_default_font"), &Theme::get_default_theme_font);
 
-    ClassDB::bind_method(D_METHOD("get_type_list", "type"), &Theme::_get_type_list);
+    MethodBinder::bind_method(D_METHOD("get_type_list", "type"), &Theme::_get_type_list);
 
-    ClassDB::bind_method(D_METHOD("_emit_theme_changed"), &Theme::_emit_theme_changed);
+    MethodBinder::bind_method(D_METHOD("_emit_theme_changed"), &Theme::_emit_theme_changed);
 
-    ClassDB::bind_method("copy_default_theme", &Theme::copy_default_theme);
-    ClassDB::bind_method(D_METHOD("copy_theme", "other"), &Theme::copy_theme);
+    MethodBinder::bind_method("copy_default_theme", &Theme::copy_default_theme);
+    MethodBinder::bind_method(D_METHOD("copy_theme", "other"), &Theme::copy_theme);
 
     ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "default_font", PROPERTY_HINT_RESOURCE_TYPE, "Font"), "set_default_font", "get_default_font");
 }

@@ -38,7 +38,7 @@
 
 class Skeleton2DEditor : public Control {
 
-	GDCLASS(Skeleton2DEditor, Control);
+	GDCLASS(Skeleton2DEditor,Control)
 
 	enum Menu {
 		MENU_OPTION_MAKE_REST,
@@ -66,20 +66,20 @@ public:
 
 class Skeleton2DEditorPlugin : public EditorPlugin {
 
-	GDCLASS(Skeleton2DEditorPlugin, EditorPlugin);
+	GDCLASS(Skeleton2DEditorPlugin,EditorPlugin)
 
 	Skeleton2DEditor *sprite_editor;
 	EditorNode *editor;
 
 public:
-	virtual String get_name() const { return "Skeleton2D"; }
-	bool has_main_screen() const { return false; }
-	virtual void edit(Object *p_object);
-	virtual bool handles(Object *p_object) const;
-	virtual void make_visible(bool p_visible);
+	String get_name() const override { return "Skeleton2D"; }
+	bool has_main_screen() const override { return false; }
+	void edit(Object *p_object) override;
+	bool handles(Object *p_object) const override;
+	void make_visible(bool p_visible) override;
 
 	Skeleton2DEditorPlugin(EditorNode *p_node);
-	~Skeleton2DEditorPlugin();
+	~Skeleton2DEditorPlugin() override;
 };
 
 #endif // SKELETON_2D_EDITOR_PLUGIN_H

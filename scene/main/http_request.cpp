@@ -29,6 +29,10 @@
 /*************************************************************************/
 
 #include "http_request.h"
+#include "core/method_bind.h"
+#include "core/method_bind.h"
+
+IMPL_GDCLASS(HTTPRequest)
 
 void HTTPRequest::_redirect_request(const String &p_new_url) {
 }
@@ -53,32 +57,32 @@ Error HTTPRequest::_parse_url(const String &p_url) {
     redirections = 0;
 
     String url_lower = StringUtils::to_lower(url);
-    if (url_lower.begins_with("http://")) {
-        url = url.substr(7, url.length() - 7);
-    } else if (url_lower.begins_with("https://")) {
-        url = url.substr(8, url.length() - 8);
+    if (StringUtils::begins_with(url_lower,"http://")) {
+        url = StringUtils::substr(url,7);
+    } else if (StringUtils::begins_with(url_lower,"https://")) {
+        url = StringUtils::substr(url,8);
         use_ssl = true;
         port = 443;
     } else {
-        ERR_FAIL_V_MSG(ERR_INVALID_PARAMETER, "Malformed URL.");
+        ERR_FAIL_V_MSG(ERR_INVALID_PARAMETER, "Malformed URL: " + url + ".")
     }
 
-    ERR_FAIL_COND_V_MSG(url.length() < 1, ERR_INVALID_PARAMETER, "URL too short.");
+    ERR_FAIL_COND_V_MSG(url.length() < 1, ERR_INVALID_PARAMETER, "URL too short: " + url + ".")
 
-    int slash_pos = url.find("/");
+    int slash_pos = StringUtils::find(url,"/");
 
     if (slash_pos != -1) {
-        request_string = url.substr(slash_pos, url.length());
-        url = url.substr(0, slash_pos);
+        request_string = StringUtils::substr(url,slash_pos);
+        url = StringUtils::substr(url,0, slash_pos);
     } else {
         request_string = "/";
     }
 
-    int colon_pos = url.find(":");
+    int colon_pos = StringUtils::find(url,":");
     if (colon_pos != -1) {
-        port = url.substr(colon_pos + 1, url.length()).to_int();
-        url = url.substr(0, colon_pos);
-        ERR_FAIL_COND_V(port < 1 || port > 65535, ERR_INVALID_PARAMETER);
+        port = StringUtils::to_int(StringUtils::substr(url,colon_pos + 1));
+        url = StringUtils::substr(url,0, colon_pos);
+        ERR_FAIL_COND_V(port < 1 || port > 65535, ERR_INVALID_PARAMETER)
     }
 
     return OK;
@@ -86,7 +90,7 @@ Error HTTPRequest::_parse_url(const String &p_url) {
 
 Error HTTPRequest::request(const String &p_url, const Vector<String> &p_custom_headers, bool p_ssl_validate_domain, HTTPClient::Method p_method, const String &p_request_data) {
 
-    ERR_FAIL_COND_V(!is_inside_tree(), ERR_UNCONFIGURED);
+    ERR_FAIL_COND_V(!is_inside_tree(), ERR_UNCONFIGURED)
     ERR_FAIL_COND_V_MSG(requesting, ERR_BUSY, "HTTPRequest is processing a request. Wait for completion or cancel it before attempting a new one.");
 
     if (timeout > 0) {
@@ -208,17 +212,17 @@ bool HTTPRequest::_handle_response(bool *ret_value) {
         String new_request;
 
         for (List<String>::Element *E = rheaders.front(); E; E = E->next()) {
-            if (E->get().findn("Location: ") != -1) {
-                new_request = E->get().substr(9, E->get().length()).strip_edges();
+            if (StringUtils::contains(E->get(),"Location: ",StringUtils::CaseInsensitive) ) {
+                new_request = StringUtils::strip_edges(StringUtils::substr(E->get(),9));
             }
         }
 
-        if (new_request != "") {
+        if (!new_request.empty()) {
             // Process redirect
             client->close();
             int new_redirs = redirections + 1; // Because _request() will clear it
             Error err;
-            if (new_request.begins_with("http")) {
+            if (StringUtils::begins_with(new_request,"http")) {
                 // New url, request all again
                 _parse_url(new_request);
             } else {
@@ -498,33 +502,33 @@ void HTTPRequest::_timeout() {
 
 void HTTPRequest::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("request", "url", "custom_headers", "ssl_validate_domain", "method", "request_data"), &HTTPRequest::request, {DEFVAL(PoolStringArray()), DEFVAL(true), DEFVAL(HTTPClient::METHOD_GET), DEFVAL(String())});
-    ClassDB::bind_method(D_METHOD("cancel_request"), &HTTPRequest::cancel_request);
+    MethodBinder::bind_method(D_METHOD("request", "url", "custom_headers", "ssl_validate_domain", "method", "request_data"), &HTTPRequest::request, {DEFVAL(PoolStringArray()), DEFVAL(true), DEFVAL(HTTPClient::METHOD_GET), DEFVAL(String())});
+    MethodBinder::bind_method(D_METHOD("cancel_request"), &HTTPRequest::cancel_request);
 
-    ClassDB::bind_method(D_METHOD("get_http_client_status"), &HTTPRequest::get_http_client_status);
+    MethodBinder::bind_method(D_METHOD("get_http_client_status"), &HTTPRequest::get_http_client_status);
 
-    ClassDB::bind_method(D_METHOD("set_use_threads", "enable"), &HTTPRequest::set_use_threads);
-    ClassDB::bind_method(D_METHOD("is_using_threads"), &HTTPRequest::is_using_threads);
+    MethodBinder::bind_method(D_METHOD("set_use_threads", "enable"), &HTTPRequest::set_use_threads);
+    MethodBinder::bind_method(D_METHOD("is_using_threads"), &HTTPRequest::is_using_threads);
 
-    ClassDB::bind_method(D_METHOD("set_body_size_limit", "bytes"), &HTTPRequest::set_body_size_limit);
-    ClassDB::bind_method(D_METHOD("get_body_size_limit"), &HTTPRequest::get_body_size_limit);
+    MethodBinder::bind_method(D_METHOD("set_body_size_limit", "bytes"), &HTTPRequest::set_body_size_limit);
+    MethodBinder::bind_method(D_METHOD("get_body_size_limit"), &HTTPRequest::get_body_size_limit);
 
-    ClassDB::bind_method(D_METHOD("set_max_redirects", "amount"), &HTTPRequest::set_max_redirects);
-    ClassDB::bind_method(D_METHOD("get_max_redirects"), &HTTPRequest::get_max_redirects);
+    MethodBinder::bind_method(D_METHOD("set_max_redirects", "amount"), &HTTPRequest::set_max_redirects);
+    MethodBinder::bind_method(D_METHOD("get_max_redirects"), &HTTPRequest::get_max_redirects);
 
-    ClassDB::bind_method(D_METHOD("set_download_file", "path"), &HTTPRequest::set_download_file);
-    ClassDB::bind_method(D_METHOD("get_download_file"), &HTTPRequest::get_download_file);
+    MethodBinder::bind_method(D_METHOD("set_download_file", "path"), &HTTPRequest::set_download_file);
+    MethodBinder::bind_method(D_METHOD("get_download_file"), &HTTPRequest::get_download_file);
 
-    ClassDB::bind_method(D_METHOD("get_downloaded_bytes"), &HTTPRequest::get_downloaded_bytes);
-    ClassDB::bind_method(D_METHOD("get_body_size"), &HTTPRequest::get_body_size);
+    MethodBinder::bind_method(D_METHOD("get_downloaded_bytes"), &HTTPRequest::get_downloaded_bytes);
+    MethodBinder::bind_method(D_METHOD("get_body_size"), &HTTPRequest::get_body_size);
 
-    ClassDB::bind_method(D_METHOD("_redirect_request"), &HTTPRequest::_redirect_request);
-    ClassDB::bind_method(D_METHOD("_request_done"), &HTTPRequest::_request_done);
+    MethodBinder::bind_method(D_METHOD("_redirect_request"), &HTTPRequest::_redirect_request);
+    MethodBinder::bind_method(D_METHOD("_request_done"), &HTTPRequest::_request_done);
 
-    ClassDB::bind_method(D_METHOD("set_timeout", "timeout"), &HTTPRequest::set_timeout);
-    ClassDB::bind_method(D_METHOD("get_timeout"), &HTTPRequest::get_timeout);
+    MethodBinder::bind_method(D_METHOD("set_timeout", "timeout"), &HTTPRequest::set_timeout);
+    MethodBinder::bind_method(D_METHOD("get_timeout"), &HTTPRequest::get_timeout);
 
-    ClassDB::bind_method(D_METHOD("_timeout"), &HTTPRequest::_timeout);
+    MethodBinder::bind_method(D_METHOD("_timeout"), &HTTPRequest::_timeout);
 
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "download_file", PROPERTY_HINT_FILE), "set_download_file", "get_download_file");
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "use_threads"), "set_use_threads", "is_using_threads");

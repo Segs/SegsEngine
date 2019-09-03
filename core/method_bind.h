@@ -32,101 +32,29 @@
 
 #include "core/list.h"
 #include "core/method_ptrcall.h"
-#include "core/object.h"
-#include "core/variant.h"
-
-#include <stdio.h>
-
-#ifdef DEBUG_ENABLED
-#define DEBUG_METHODS_ENABLED
-#endif
-
+#include "core/method_info.h"
+#include "core/method_bind_interface.h"
+#include "core/method_arg_casters.h"
+#include "core/method_enum_caster.h"
 #include "core/type_info.h"
 
-enum MethodFlags {
+#include <functional>
+#include <cstdio>
 
-    METHOD_FLAG_NORMAL = 1,
-    METHOD_FLAG_EDITOR = 2,
-    METHOD_FLAG_NOSCRIPT = 4,
-    METHOD_FLAG_CONST = 8,
-    METHOD_FLAG_REVERSE = 16, // used for events
-    METHOD_FLAG_VIRTUAL = 32,
-    METHOD_FLAG_FROM_SCRIPT = 64,
-    METHOD_FLAG_VARARG = 128,
-    METHOD_FLAGS_DEFAULT = METHOD_FLAG_NORMAL,
-};
+namespace ObjectNS
+{
+enum ConnectFlags : uint8_t;
+template<class T>
+T* cast_to(::Object *f);
+} // end of ObjectNS declarations
 
-template <class T>
-struct VariantCaster {
-
-    static _FORCE_INLINE_ T cast(const Variant &p_variant) {
-
-        return p_variant.as<T>();
-    }
-};
-
-template <class T>
-struct VariantCaster<T &> {
-
-    static _FORCE_INLINE_ T cast(const Variant &p_variant) {
-
-        return p_variant.as<T>();
-    }
-};
-
-template <class T>
-struct VariantCaster<const T &> {
-
-    static _FORCE_INLINE_ T cast(const Variant &p_variant) {
-
-        return p_variant.as<T>();
-    }
-};
-
-#define _VC(m_idx) \
-    (VariantCaster<P##m_idx>::cast((m_idx - 1) >= p_arg_count ? get_default_argument(m_idx - 1) : *p_args[m_idx - 1]))
-
-#ifdef PTRCALL_ENABLED
-
-#define VARIANT_ENUM_CAST(m_enum)                                            \
-    MAKE_ENUM_TYPE_INFO(m_enum)                                              \
-    template <>                                                              \
-    struct VariantCaster<m_enum> {                                           \
-                                                                             \
-        static _FORCE_INLINE_ m_enum cast(const Variant &p_variant) {        \
-            return (m_enum)p_variant.operator int();                         \
-        }                                                                    \
-    };                                                                       \
-    template <>                                                              \
-    struct PtrToArg<m_enum> {                                                \
-        _FORCE_INLINE_ static m_enum convert(const void *p_ptr) {            \
-            return m_enum(*reinterpret_cast<const int *>(p_ptr));            \
-        }                                                                    \
-        _FORCE_INLINE_ static void encode(m_enum p_val, void *p_ptr) {       \
-            *(int *)p_ptr = p_val;                                           \
-        }                                                                    \
-    };
-
-#else
-
-#define VARIANT_ENUM_CAST(m_enum)                                     \
-    MAKE_ENUM_TYPE_INFO(m_enum)                                       \
-    template <>                                                       \
-    struct VariantCaster<m_enum> {                                    \
-                                                                      \
-        static _FORCE_INLINE_ m_enum cast(const Variant &p_variant) { \
-            return (m_enum)p_variant.operator int();                  \
-        }                                                             \
-    };
-
-#endif
 
 // Object enum casts must go here
-VARIANT_ENUM_CAST(Object::ConnectFlags);
+VARIANT_ENUM_CAST(ObjectNS::ConnectFlags);
 
 template <typename T>
 struct VariantObjectClassChecker {
-    static _FORCE_INLINE_ bool check(const Variant &p_variant) {
+    static _FORCE_INLINE_ bool check(const Variant &) {
         return true;
     }
 };
@@ -148,26 +76,6 @@ struct VariantObjectClassChecker<Control *> {
         return control || !obj;
     }
 };
-
-#define CHECK_ARG(m_arg)                                                            \
-    if ((m_arg - 1) < p_arg_count) {                                                \
-        Variant::Type argtype = get_argument_type(m_arg - 1);                       \
-        if (!Variant::can_convert_strict(p_args[m_arg - 1]->get_type(), argtype) || \
-                !VariantObjectClassChecker<P##m_arg>::check(*p_args[m_arg - 1])) {  \
-            r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;        \
-            r_error.argument = m_arg - 1;                                           \
-            r_error.expected = argtype;                                             \
-            return Variant();                                                       \
-        }                                                                           \
-    }
-
-#define CHECK_NOARG(m_arg)                             \
-    {                                                  \
-        if (p_arg##m_arg.get_type() != Variant::NIL) { \
-            if (r_argerror) *r_argerror = (m_arg - 1); \
-            return CALL_ERROR_EXTRA_ARGUMENT;          \
-        }                                              \
-    }
 
 // some helpers
 
@@ -212,187 +120,6 @@ struct PtrToArg<QChar> {
 };
 #endif
 
-class MethodBind {
-
-    int method_id;
-    uint32_t hint_flags;
-    StringName name;
-    Vector<Variant> default_arguments;
-    int default_argument_count;
-    int argument_count;
-
-    bool _const;
-    bool _returns;
-
-protected:
-#ifdef DEBUG_METHODS_ENABLED
-    Variant::Type *argument_types;
-    Vector<StringName> arg_names;
-#endif
-    void _set_const(bool p_const);
-    void _set_returns(bool p_returns);
-#ifdef DEBUG_METHODS_ENABLED
-    virtual Variant::Type _gen_argument_type(int p_arg) const = 0;
-    virtual PropertyInfo _gen_argument_type_info(int p_arg) const = 0;
-    void _generate_argument_types(int p_count);
-
-#endif
-    void set_argument_count(int p_count) { argument_count = p_count; }
-
-public:
-    Vector<Variant> get_default_arguments() const { return default_arguments; }
-    _FORCE_INLINE_ int get_default_argument_count() const { return default_argument_count; }
-
-    _FORCE_INLINE_ Variant has_default_argument(int p_arg) const {
-
-        int idx = argument_count - p_arg - 1;
-
-        if (idx < 0 || idx >= default_arguments.size())
-            return false;
-        else
-            return true;
-    }
-
-    _FORCE_INLINE_ Variant get_default_argument(int p_arg) const {
-
-        int idx = argument_count - p_arg - 1;
-
-        if (idx < 0 || idx >= default_arguments.size())
-            return Variant();
-        else
-            return default_arguments[idx];
-    }
-
-#ifdef DEBUG_METHODS_ENABLED
-
-    _FORCE_INLINE_ Variant::Type get_argument_type(int p_argument) const {
-
-        ERR_FAIL_COND_V(p_argument < -1 || p_argument > argument_count, Variant::NIL)
-        return argument_types[p_argument + 1];
-    }
-
-    PropertyInfo get_argument_info(int p_argument) const;
-    PropertyInfo get_return_info() const;
-
-    void set_argument_names(const Vector<StringName> &p_names); //set by class, db, can't be inferred otherwise
-    Vector<StringName> get_argument_names() const;
-
-    virtual GodotTypeInfo::Metadata get_argument_meta(int p_arg) const = 0;
-
-#endif
-    void set_hint_flags(uint32_t p_hint) { hint_flags = p_hint; }
-    uint32_t get_hint_flags() const { return hint_flags | (is_const() ? METHOD_FLAG_CONST : 0) | (is_vararg() ? METHOD_FLAG_VARARG : 0); }
-    virtual String get_instance_class() const = 0;
-
-    _FORCE_INLINE_ int get_argument_count() const { return argument_count; }
-
-    virtual Variant call(Object *p_object, const Variant **p_args, int p_arg_count, Variant::CallError &r_error) = 0;
-
-#ifdef PTRCALL_ENABLED
-    virtual void ptrcall(Object *p_object, const void **p_args, void *r_ret) = 0;
-#endif
-
-    StringName get_name() const;
-    void set_name(const StringName &p_name);
-    _FORCE_INLINE_ int get_method_id() const { return method_id; }
-    _FORCE_INLINE_ bool is_const() const { return _const; }
-    _FORCE_INLINE_ bool has_return() const { return _returns; }
-    virtual bool is_vararg() const { return false; }
-
-    void set_default_arguments(const Vector<Variant> &p_defargs);
-
-    MethodBind();
-    virtual ~MethodBind();
-};
-
-template <class T>
-class MethodBindVarArg : public MethodBind {
-public:
-    typedef Variant (T::*NativeCall)(const Variant **, int, Variant::CallError &);
-
-protected:
-    NativeCall call_method;
-#ifdef DEBUG_METHODS_ENABLED
-
-    MethodInfo arguments;
-
-#endif
-public:
-#ifdef DEBUG_METHODS_ENABLED
-
-    virtual PropertyInfo _gen_argument_type_info(int p_arg) const {
-
-        if (p_arg < 0) {
-            return arguments.return_val;
-        } else if (p_arg < arguments.arguments.size()) {
-            return arguments.arguments[p_arg];
-        } else {
-            return PropertyInfo(Variant::NIL, "arg_" + itos(p_arg), PROPERTY_HINT_NONE, String(), PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_NIL_IS_VARIANT);
-        }
-    }
-
-    virtual Variant::Type _gen_argument_type(int p_arg) const {
-        return _gen_argument_type_info(p_arg).type;
-    }
-
-    virtual GodotTypeInfo::Metadata get_argument_meta(int) const {
-        return GodotTypeInfo::METADATA_NONE;
-    }
-
-#else
-
-    virtual Variant::Type _gen_argument_type(int p_arg) const {
-        return Variant::NIL;
-    }
-
-#endif
-    virtual Variant call(Object *p_object, const Variant **p_args, int p_arg_count, Variant::CallError &r_error) {
-
-        T *instance = static_cast<T *>(p_object);
-        return (instance->*call_method)(p_args, p_arg_count, r_error);
-    }
-
-    void set_method_info(const MethodInfo &p_info) {
-
-        set_argument_count(p_info.arguments.size());
-#ifdef DEBUG_METHODS_ENABLED
-        Variant::Type *at = memnew_arr(Variant::Type, p_info.arguments.size() + 1);
-        at[0] = p_info.return_val.type;
-        if (p_info.arguments.size()) {
-
-            Vector<StringName> names;
-            names.resize(p_info.arguments.size());
-            for (int i = 0; i < p_info.arguments.size(); i++) {
-
-                at[i + 1] = p_info.arguments[i].type;
-                names.write[i] = p_info.arguments[i].name;
-            }
-
-            set_argument_names(names);
-        }
-        argument_types = at;
-        arguments = p_info;
-        arguments.return_val.usage |= PROPERTY_USAGE_NIL_IS_VARIANT;
-#endif
-    }
-
-#ifdef PTRCALL_ENABLED
-    virtual void ptrcall(Object * /*p_object*/, const void ** /*p_args*/, void * /*r_ret*/) {
-        ERR_FAIL(); //can't call
-    } //todo
-#endif
-
-    void set_method(NativeCall p_method) { call_method = p_method; }
-    virtual bool is_const() const { return false; }
-    virtual String get_instance_class() const { return T::get_class_static(); }
-
-    virtual bool is_vararg() const { return true; }
-
-    MethodBindVarArg() {
-        call_method = nullptr;
-        _set_returns(true);
-    }
-};
 
 template <class T>
 MethodBind *create_vararg_method_bind(Variant (T::*p_method)(const Variant **, int, Variant::CallError &), const MethodInfo &p_info) {
@@ -403,11 +130,198 @@ MethodBind *create_vararg_method_bind(Variant (T::*p_method)(const Variant **, i
     return a;
 }
 
-/** This amazing hack is based on the FastDelegates theory */
+/*****************************************************************/
+/// Warning Lovecraftian horrors ahead
+/*****************************************************************/
 
-// tale of an amazing hack.. //
+template <size_t I>
+struct visit_impl
+{
+    template <typename TS, typename F>
+    static constexpr typename F::Result visit(int idx,const F &functor)
+    {
+        if (idx == I - 1) // if idx == count-1
+            return functor.template doit<typename std::tuple_element<I - 1,TS>::type,I-1>();
+        if constexpr(I!=1)
+            return visit_impl<I - 1>::template visit<TS,F>(idx,functor);
 
-// if you declare a nonexistent class..
-class __UnexistingClass;
+        return typename F::Result{};
+    }
+};
 
-#include "core/method_bind.gen.h"
+template <>
+struct visit_impl<0>
+{
+    template <typename TS, typename F>
+    static constexpr typename F::Result visit(int,const F & /*functor*/) {
+        assert(false);
+        return typename F::Result{};
+    }
+};
+template <typename F,typename ...Args>
+static constexpr typename F::Result visit_at_ce(int idx,F functor)
+{
+    return visit_impl<sizeof...(Args)>::template visit<std::tuple<Args...>,F>(idx,functor);
+}
+struct ArgumentWrapper {
+    using Result = const Variant *;
+    const Variant **provided_args=nullptr;
+    const int p_arg_count=0;
+    const Vector<Variant> &default_args={};
+
+    template<class TS,int IDX>
+    Result doit() const {
+        if(IDX>=p_arg_count)
+        {
+            int def_idx = default_args.size() - IDX - 1;
+            if (def_idx < 0 || def_idx >= default_args.size())
+                return &Variant::null_variant;
+            else
+                return &default_args[IDX];
+        }
+        return provided_args[IDX];
+    }
+};
+struct GetPropertyType {
+    using Result = PropertyInfo;
+    template<class TS,int IDX>
+    Result static doit() {
+        return GetTypeInfo<TS>::get_class_info();
+    }
+};
+struct VerifierHolder
+{
+    template<class T>
+    static bool check(const Variant &arg) {
+        return VariantObjectClassChecker<T>::check(arg);
+    }
+};
+
+template<class T, class RESULT,typename ...Args>
+class MethodBindVA final : public MethodBind {
+
+    using MethodConst = RESULT (T::*)(Args...) const;
+    using MethodNonconst = RESULT (T::*)(Args...);
+
+    using TFunction = std::conditional_t<
+        std::is_const_v<T>,
+        RESULT (T::*)(Args...) const,
+        RESULT (T::*)(Args...)
+    >;
+
+protected:
+    template<std::size_t... Is>
+    RESULT converting_call(T *instance,const Variant** p_args,int p_arg_count, std::index_sequence<Is...>)
+    {
+
+        if constexpr(sizeof...(Args)==0) {
+            //todo: add assertion p_arg_count==0
+            (void)p_arg_count;
+            (void)p_args;
+            return std::invoke((TFunction)method,instance);
+        }
+        else {
+            ArgumentWrapper wrap {p_args ? p_args : nullptr,p_arg_count,get_default_arguments()};
+            return std::invoke((TFunction)method,instance,VariantCaster<typename std::tuple_element<Is,Params>::type>::cast(*visit_at_ce<ArgumentWrapper,Args...>(Is,wrap)) ...);
+        }
+
+    }
+#ifdef PTRCALL_ENABLED
+    template<std::size_t... Is>
+    RESULT ptr_call(T *instance,const void** p_args, std::index_sequence<Is...>)
+    {
+        if constexpr(sizeof...(Args)==0)
+        {
+            (void)p_args;
+            return std::invoke((TFunction)method,instance);
+        }
+        else
+            return std::invoke((TFunction)method,instance,PtrToArg<typename std::tuple_element<Is,Params>::type>::convert(p_args[Is]) ...);
+    }
+#endif
+    using Params = std::tuple<Args...>;
+    // MethodBind interface
+public:
+    MethodNonconst method;
+    constexpr static bool (*verifiers[sizeof...(Args)])(const Variant &) = {
+        VerifierHolder::check<Args> ...
+    };
+    constexpr static GodotTypeInfo::Metadata s_metadata[sizeof...(Args)+1] = {
+        GetTypeInfo<typename std::conditional<std::is_same_v<void,RESULT>, bool , RESULT>::type >::METADATA,
+        GetTypeInfo<typename std::decay<Args>::type>::METADATA ...
+    };
+#ifdef DEBUG_METHODS_ENABLED
+    GodotTypeInfo::Metadata do_get_argument_meta(int p_arg) const override {
+        return s_metadata[p_arg+1];
+    }
+    PropertyInfo _gen_argument_type_info(int p_arg) const override {
+        if(p_arg==-1) {
+            if constexpr (!std::is_same_v<void,RESULT>) {
+                return GetTypeInfo<RESULT>::get_class_info();
+            }
+            else
+                return {};
+        }
+        if(p_arg<0 || size_t(p_arg)>= sizeof...(Args))
+            return {};
+        return visit_at_ce<GetPropertyType,Args...>(p_arg,GetPropertyType());
+    }
+#endif
+
+public:
+    Variant do_call(Object* p_object,const Variant** p_args,int p_arg_count, Variant::CallError& r_error) override {
+
+        T *instance=ObjectNS::cast_to<T>(p_object);
+        r_error.error=Variant::CallError::CALL_OK;
+#ifdef DEBUG_METHODS_ENABLED
+
+        ERR_FAIL_COND_V(!instance,Variant())
+        if(!checkArgs(p_args,p_arg_count,verifiers,sizeof...(Args),r_error))
+            return Variant();
+
+#endif
+        auto seq = std::index_sequence_for<Args...>();
+        static_assert (seq.size()==sizeof... (Args) );
+        if constexpr(!std::is_same_v<void,RESULT>) {
+            return converting_call(instance,p_args,p_arg_count,seq);
+        }
+        else
+            converting_call(instance,p_args,p_arg_count,seq);
+
+        return Variant();
+    }
+#ifdef PTRCALL_ENABLED
+    void ptrcall(Object*p_object,const void** p_args,void *r_ret) override {
+        T *instance=ObjectNS::cast_to<T>(p_object);
+        if constexpr(!std::is_same_v<void,RESULT>) {
+            PtrToArg<RESULT>::encode( ptr_call(instance,p_args,std::index_sequence_for<Args...>{}) ,r_ret) ;
+        }
+        else
+        {
+            (void)r_ret;
+            ptr_call(instance,p_args,std::index_sequence_for<Args...>{});
+        }
+    }
+#endif
+    MethodBindVA (TFunction f) {
+        method = (MethodNonconst)f; // casting away const-ness of a method
+        instance_class_name = T::get_class_static();
+        set_argument_count(sizeof...(Args));
+#ifdef DEBUG_METHODS_ENABLED
+        _set_const(std::is_const_v<T>);
+
+        Variant::Type *argt = memnew_arr(Variant::Type, sizeof...(Args) + 1);
+        constexpr Variant::Type arg_types[sizeof...(Args)+1] = { // +1 is here because vs2017 requires constexpr array of non-zero size
+            GetTypeInfo<Args>::VARIANT_TYPE...,
+        };
+        memcpy(argt+1,arg_types,(sizeof...(Args))*sizeof(Variant::Type));
+        if constexpr (std::is_same_v<void,RESULT>)
+            argt[0] = Variant::NIL;
+        else
+            argt[0] = GetTypeInfo<RESULT>::VARIANT_TYPE;
+        argument_types = argt;
+#endif
+        _set_returns(!std::is_same_v<void,RESULT>);
+
+    }
+};

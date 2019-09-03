@@ -31,5 +31,7 @@
 #include "position_3d.h"
 #include "scene/resources/mesh.h"
 
+IMPL_GDCLASS(Position3D)
+
 Position3D::Position3D() {
 }

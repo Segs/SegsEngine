@@ -38,6 +38,8 @@
 #include "editor/editor_node.h"
 #include "scene/resources/texture.h"
 
+IMPL_GDCLASS(ResourceImporterLayeredTexture)
+
 String ResourceImporterLayeredTexture::get_importer_name() const {
 
     return is_3d ? "texture_3d" : "texture_array";

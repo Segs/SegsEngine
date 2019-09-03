@@ -41,7 +41,7 @@
 
 class TileSet : public Resource {
 
-	GDCLASS(TileSet, Resource);
+	GDCLASS(TileSet,Resource)
 
 public:
 	struct ShapeData {

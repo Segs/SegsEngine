@@ -37,7 +37,7 @@
 #include <Recast.h>
 
 class EditorNavigationMeshGenerator : public Object {
-	GDCLASS(EditorNavigationMeshGenerator, Object);
+	GDCLASS(EditorNavigationMeshGenerator,Object)
 
 	static EditorNavigationMeshGenerator *singleton;
 
@@ -58,7 +58,7 @@ public:
 	static EditorNavigationMeshGenerator *get_singleton();
 
 	EditorNavigationMeshGenerator();
-	~EditorNavigationMeshGenerator();
+	~EditorNavigationMeshGenerator() override;
 
 	void bake(Ref<NavigationMesh> p_nav_mesh, Node *p_node);
 	void clear(Ref<NavigationMesh> p_nav_mesh);

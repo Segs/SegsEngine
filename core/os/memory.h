@@ -28,13 +28,12 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef MEMORY_H
-#define MEMORY_H
+#pragma once
 
 #include "core/safe_refcount.h"
 #include "core/error_macros.h"
 
-#include <stddef.h>
+#include <cstddef>
 
 #ifndef PAD_ALIGN
 #define PAD_ALIGN 16 //must always be greater than this at much
@@ -49,7 +48,7 @@ class GODOT_EXPORT Memory {
     static uint64_t alloc_count;
 
 public:
-	Memory() = delete;
+    Memory() = delete;
 
     static void *alloc_static(size_t p_bytes, bool p_pad_align = false);
     static void *realloc_static(void *p_memory, size_t p_bytes, bool p_pad_align = false);
@@ -93,6 +92,7 @@ _ALWAYS_INLINE_ T *_post_initialize(T *p_obj) {
 }
 
 #define memnew(m_class) _post_initialize(new (#m_class) m_class)
+#define memnew_args(m_class,...) _post_initialize(new (#m_class) m_class(__VA_ARGS__))
 
 _ALWAYS_INLINE_ void *operator new(size_t p_size, void *p_pointer, size_t check, const char *p_description) {
     //void *failptr=0;
@@ -205,5 +205,3 @@ struct _GlobalNilClass {
 
     static _GlobalNil _nil;
 };
-
-#endif

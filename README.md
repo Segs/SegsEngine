@@ -1,16 +1,20 @@
 [![Godot Engine logo](/logo.png)](https://godotengine.org)
 
 # This is a heavily modified stand-alone fork of the Godot engine
-## Differences & Goals
+
+Synced with upstream up to godotengine/godot@037237f5183c4b8752f8a08d610bb9395ad294ea
+
+## Differences & Goals (incomplete list)
 
 * Codebase is meant to be modernized to a current c++ standard (c++17), but we will be careful with readability ( no `auto`-everything )
 * We use Qt5::Core library to ease some of the common tasks, but no Qt types are meant to be a part of the API
 * Memory allocation is important, reduce the size of COW object pastures :smile:
 * Try to port & clean up most of the internal types to EASTL.
 * Keep things in sync with upstream ( no more than a 1 week between merges )
-* There are 2 types of plugins : infrastructure ( providing new types, extending engine ) and game ( implementing game logic )
-* Dynamic plugins are a thing.
-* Reduced the target surface to desktop-like platforms only ( no js, no mobile )
+* Introduction of 2 types of dynamically/statically loaded plugins : infrastructure ( providing new types, extending engine ) and game ( implementing game logic )
+* Reduce the target surface to desktop-like platforms only ( no js, no mobile )
+* Remove the death-like grip of gdscript on the engine internals, make it more optional.
+* Replace the message/signals with a saner c++ delegates/work queues and expose those to scripting languages.
 
 ## Godot Engine
 

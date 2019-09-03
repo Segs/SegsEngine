@@ -30,9 +30,12 @@
 
 #include "editor_profiler.h"
 
+#include "core/method_bind.h"
 #include "core/os/os.h"
 #include "editor_scale.h"
 #include "editor_settings.h"
+
+IMPL_GDCLASS(EditorProfiler)
 
 void EditorProfiler::_make_metric_ptrs(Metric &m) {
 
@@ -597,17 +600,17 @@ void EditorProfiler::_combo_changed(int) {
 
 void EditorProfiler::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_update_frame"), &EditorProfiler::_update_frame);
-    ClassDB::bind_method(D_METHOD("_update_plot"), &EditorProfiler::_update_plot);
-    ClassDB::bind_method(D_METHOD("_activate_pressed"), &EditorProfiler::_activate_pressed);
-    ClassDB::bind_method(D_METHOD("_clear_pressed"), &EditorProfiler::_clear_pressed);
-    ClassDB::bind_method(D_METHOD("_graph_tex_draw"), &EditorProfiler::_graph_tex_draw);
-    ClassDB::bind_method(D_METHOD("_graph_tex_input"), &EditorProfiler::_graph_tex_input);
-    ClassDB::bind_method(D_METHOD("_graph_tex_mouse_exit"), &EditorProfiler::_graph_tex_mouse_exit);
-    ClassDB::bind_method(D_METHOD("_cursor_metric_changed"), &EditorProfiler::_cursor_metric_changed);
-    ClassDB::bind_method(D_METHOD("_combo_changed"), &EditorProfiler::_combo_changed);
+    MethodBinder::bind_method(D_METHOD("_update_frame"), &EditorProfiler::_update_frame);
+    MethodBinder::bind_method(D_METHOD("_update_plot"), &EditorProfiler::_update_plot);
+    MethodBinder::bind_method(D_METHOD("_activate_pressed"), &EditorProfiler::_activate_pressed);
+    MethodBinder::bind_method(D_METHOD("_clear_pressed"), &EditorProfiler::_clear_pressed);
+    MethodBinder::bind_method(D_METHOD("_graph_tex_draw"), &EditorProfiler::_graph_tex_draw);
+    MethodBinder::bind_method(D_METHOD("_graph_tex_input"), &EditorProfiler::_graph_tex_input);
+    MethodBinder::bind_method(D_METHOD("_graph_tex_mouse_exit"), &EditorProfiler::_graph_tex_mouse_exit);
+    MethodBinder::bind_method(D_METHOD("_cursor_metric_changed"), &EditorProfiler::_cursor_metric_changed);
+    MethodBinder::bind_method(D_METHOD("_combo_changed"), &EditorProfiler::_combo_changed);
 
-    ClassDB::bind_method(D_METHOD("_item_edited"), &EditorProfiler::_item_edited);
+    MethodBinder::bind_method(D_METHOD("_item_edited"), &EditorProfiler::_item_edited);
     ADD_SIGNAL(MethodInfo("enable_profiling", PropertyInfo(Variant::BOOL, "enable")));
     ADD_SIGNAL(MethodInfo("break_request"));
 }

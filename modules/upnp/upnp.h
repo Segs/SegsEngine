@@ -39,7 +39,7 @@
 
 class UPNP : public Reference {
 
-	GDCLASS(UPNP, Reference);
+	GDCLASS(UPNP,Reference)
 
 private:
 	String discover_multicast_if;
@@ -118,7 +118,7 @@ public:
 	bool is_discover_ipv6() const;
 
 	UPNP();
-	~UPNP();
+	~UPNP() override;
 };
 
 VARIANT_ENUM_CAST(UPNP::UPNPResult)

@@ -33,6 +33,10 @@
 #include "core/math/geometry.h"
 #include "core/script_language.h"
 #include "scene/scene_string_names.h"
+#include "core/method_bind.h"
+
+IMPL_GDCLASS(AStar)
+IMPL_GDCLASS(AStar2D);
 
 int AStar::get_available_point_id() const {
 
@@ -240,6 +244,20 @@ void AStar::clear() {
     }
     segments.clear();
     points.clear();
+}
+
+int AStar::get_point_count() const {
+	return points.get_num_elements();
+}
+
+int AStar::get_point_capacity() const {
+	return points.get_capacity();
+}
+
+void AStar::reserve_space(int p_num_nodes) {
+	ERR_FAIL_COND_MSG(p_num_nodes <= 0, "New capacity must be greater than 0, was: " + itos(p_num_nodes) + ".");
+	ERR_FAIL_COND_MSG((uint32_t)p_num_nodes < points.get_capacity(), "New capacity must be greater than current capacity: " + itos(points.get_capacity()) + ", new was: " + itos(p_num_nodes) + ".");
+	points.reserve(p_num_nodes);
 }
 
 int AStar::get_closest_point(const Vector3 &p_point) const {
@@ -503,31 +521,34 @@ bool AStar::is_point_disabled(int p_id) const {
 
 void AStar::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("get_available_point_id"), &AStar::get_available_point_id);
-    ClassDB::bind_method(D_METHOD("add_point", "id", "position", "weight_scale"), &AStar::add_point, {DEFVAL(1.0)});
-    ClassDB::bind_method(D_METHOD("get_point_position", "id"), &AStar::get_point_position);
-    ClassDB::bind_method(D_METHOD("set_point_position", "id", "position"), &AStar::set_point_position);
-    ClassDB::bind_method(D_METHOD("get_point_weight_scale", "id"), &AStar::get_point_weight_scale);
-    ClassDB::bind_method(D_METHOD("set_point_weight_scale", "id", "weight_scale"), &AStar::set_point_weight_scale);
-    ClassDB::bind_method(D_METHOD("remove_point", "id"), &AStar::remove_point);
-    ClassDB::bind_method(D_METHOD("has_point", "id"), &AStar::has_point);
-    ClassDB::bind_method(D_METHOD("get_point_connections", "id"), &AStar::get_point_connections);
-    ClassDB::bind_method(D_METHOD("get_points"), &AStar::get_points);
+    MethodBinder::bind_method(D_METHOD("get_available_point_id"), &AStar::get_available_point_id);
+    MethodBinder::bind_method(D_METHOD("add_point", "id", "position", "weight_scale"), &AStar::add_point, {DEFVAL(1.0)});
+    MethodBinder::bind_method(D_METHOD("get_point_position", "id"), &AStar::get_point_position);
+    MethodBinder::bind_method(D_METHOD("set_point_position", "id", "position"), &AStar::set_point_position);
+    MethodBinder::bind_method(D_METHOD("get_point_weight_scale", "id"), &AStar::get_point_weight_scale);
+    MethodBinder::bind_method(D_METHOD("set_point_weight_scale", "id", "weight_scale"), &AStar::set_point_weight_scale);
+    MethodBinder::bind_method(D_METHOD("remove_point", "id"), &AStar::remove_point);
+    MethodBinder::bind_method(D_METHOD("has_point", "id"), &AStar::has_point);
+    MethodBinder::bind_method(D_METHOD("get_point_connections", "id"), &AStar::get_point_connections);
+    MethodBinder::bind_method(D_METHOD("get_points"), &AStar::get_points);
 
-    ClassDB::bind_method(D_METHOD("set_point_disabled", "id", "disabled"), &AStar::set_point_disabled, {DEFVAL(true)});
-    ClassDB::bind_method(D_METHOD("is_point_disabled", "id"), &AStar::is_point_disabled);
+    MethodBinder::bind_method(D_METHOD("set_point_disabled", "id", "disabled"), &AStar::set_point_disabled, {DEFVAL(true)});
+    MethodBinder::bind_method(D_METHOD("is_point_disabled", "id"), &AStar::is_point_disabled);
 
-    ClassDB::bind_method(D_METHOD("connect_points", "id", "to_id", "bidirectional"), &AStar::connect_points, {DEFVAL(true)});
-    ClassDB::bind_method(D_METHOD("disconnect_points", "id", "to_id"), &AStar::disconnect_points);
-    ClassDB::bind_method(D_METHOD("are_points_connected", "id", "to_id"), &AStar::are_points_connected);
+    MethodBinder::bind_method(D_METHOD("connect_points", "id", "to_id", "bidirectional"), &AStar::connect_points, {DEFVAL(true)});
+    MethodBinder::bind_method(D_METHOD("disconnect_points", "id", "to_id"), &AStar::disconnect_points);
+    MethodBinder::bind_method(D_METHOD("are_points_connected", "id", "to_id"), &AStar::are_points_connected);
 
-    ClassDB::bind_method(D_METHOD("clear"), &AStar::clear);
+	MethodBinder::bind_method(D_METHOD("get_point_count"), &AStar::get_point_count);
+	MethodBinder::bind_method(D_METHOD("get_point_capacity"), &AStar::get_point_capacity);
+	MethodBinder::bind_method(D_METHOD("reserve_space", "num_nodes"), &AStar::reserve_space);
+    MethodBinder::bind_method(D_METHOD("clear"), &AStar::clear);
 
-    ClassDB::bind_method(D_METHOD("get_closest_point", "to_position"), &AStar::get_closest_point);
-    ClassDB::bind_method(D_METHOD("get_closest_position_in_segment", "to_position"), &AStar::get_closest_position_in_segment);
+    MethodBinder::bind_method(D_METHOD("get_closest_point", "to_position"), &AStar::get_closest_point);
+    MethodBinder::bind_method(D_METHOD("get_closest_position_in_segment", "to_position"), &AStar::get_closest_position_in_segment);
 
-    ClassDB::bind_method(D_METHOD("get_point_path", "from_id", "to_id"), &AStar::get_point_path);
-    ClassDB::bind_method(D_METHOD("get_id_path", "from_id", "to_id"), &AStar::get_id_path);
+    MethodBinder::bind_method(D_METHOD("get_point_path", "from_id", "to_id"), &AStar::get_point_path);
+    MethodBinder::bind_method(D_METHOD("get_id_path", "from_id", "to_id"), &AStar::get_id_path);
 
     BIND_VMETHOD(MethodInfo(Variant::REAL, "_estimate_cost", PropertyInfo(Variant::INT, "from_id"), PropertyInfo(Variant::INT, "to_id")));
     BIND_VMETHOD(MethodInfo(Variant::REAL, "_compute_cost", PropertyInfo(Variant::INT, "from_id"), PropertyInfo(Variant::INT, "to_id")));
@@ -606,10 +627,20 @@ bool AStar2D::are_points_connected(int p_id, int p_with_id) const {
     return astar.are_points_connected(p_id, p_with_id);
 }
 
+int AStar2D::get_point_count() const {
+	return astar.get_point_count();
+}
+
+int AStar2D::get_point_capacity() const {
+	return astar.get_point_capacity();
+}
 void AStar2D::clear() {
     astar.clear();
 }
 
+void AStar2D::reserve_space(int p_num_nodes) {
+	astar.reserve_space(p_num_nodes);
+}
 int AStar2D::get_closest_point(const Vector2 &p_point) const {
     return astar.get_closest_point(Vector3(p_point.x, p_point.y, 0));
 }
@@ -642,29 +673,38 @@ PoolVector<int> AStar2D::get_id_path(int p_from_id, int p_to_id) {
 
 void AStar2D::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("get_available_point_id"), &AStar2D::get_available_point_id);
-    ClassDB::bind_method(D_METHOD("add_point", "id", "position", "weight_scale"), &AStar2D::add_point, {DEFVAL(1.0)});
-    ClassDB::bind_method(D_METHOD("get_point_position", "id"), &AStar2D::get_point_position);
-    ClassDB::bind_method(D_METHOD("set_point_position", "id", "position"), &AStar2D::set_point_position);
-    ClassDB::bind_method(D_METHOD("get_point_weight_scale", "id"), &AStar2D::get_point_weight_scale);
-    ClassDB::bind_method(D_METHOD("set_point_weight_scale", "id", "weight_scale"), &AStar2D::set_point_weight_scale);
-    ClassDB::bind_method(D_METHOD("remove_point", "id"), &AStar2D::remove_point);
-    ClassDB::bind_method(D_METHOD("has_point", "id"), &AStar2D::has_point);
-    ClassDB::bind_method(D_METHOD("get_point_connections", "id"), &AStar2D::get_point_connections);
-    ClassDB::bind_method(D_METHOD("get_points"), &AStar2D::get_points);
+    MethodBinder::bind_method(D_METHOD("get_available_point_id"), &AStar2D::get_available_point_id);
+    MethodBinder::bind_method(D_METHOD("add_point", "id", "position", "weight_scale"), &AStar2D::add_point, {DEFVAL(1.0)});
+    MethodBinder::bind_method(D_METHOD("get_point_position", "id"), &AStar2D::get_point_position);
+    MethodBinder::bind_method(D_METHOD("set_point_position", "id", "position"), &AStar2D::set_point_position);
+    MethodBinder::bind_method(D_METHOD("get_point_weight_scale", "id"), &AStar2D::get_point_weight_scale);
+    MethodBinder::bind_method(D_METHOD("set_point_weight_scale", "id", "weight_scale"), &AStar2D::set_point_weight_scale);
+    MethodBinder::bind_method(D_METHOD("remove_point", "id"), &AStar2D::remove_point);
+    MethodBinder::bind_method(D_METHOD("has_point", "id"), &AStar2D::has_point);
+    MethodBinder::bind_method(D_METHOD("get_point_connections", "id"), &AStar2D::get_point_connections);
+    MethodBinder::bind_method(D_METHOD("get_points"), &AStar2D::get_points);
 
-    ClassDB::bind_method(D_METHOD("set_point_disabled", "id", "disabled"), &AStar2D::set_point_disabled, {DEFVAL(true)});
-    ClassDB::bind_method(D_METHOD("is_point_disabled", "id"), &AStar2D::is_point_disabled);
+    MethodBinder::bind_method(D_METHOD("set_point_disabled", "id", "disabled"), &AStar2D::set_point_disabled, {DEFVAL(true)});
+    MethodBinder::bind_method(D_METHOD("is_point_disabled", "id"), &AStar2D::is_point_disabled);
 
-    ClassDB::bind_method(D_METHOD("connect_points", "id", "to_id", "bidirectional"), &AStar2D::connect_points, {DEFVAL(true)});
-    ClassDB::bind_method(D_METHOD("disconnect_points", "id", "to_id"), &AStar2D::disconnect_points);
-    ClassDB::bind_method(D_METHOD("are_points_connected", "id", "to_id"), &AStar2D::are_points_connected);
+    MethodBinder::bind_method(D_METHOD("connect_points", "id", "to_id", "bidirectional"), &AStar2D::connect_points, {DEFVAL(true)});
+    MethodBinder::bind_method(D_METHOD("disconnect_points", "id", "to_id"), &AStar2D::disconnect_points);
+    MethodBinder::bind_method(D_METHOD("are_points_connected", "id", "to_id"), &AStar2D::are_points_connected);
 
-    ClassDB::bind_method(D_METHOD("clear"), &AStar2D::clear);
+	MethodBinder::bind_method(D_METHOD("get_point_count"), &AStar2D::get_point_count);
+	MethodBinder::bind_method(D_METHOD("get_point_capacity"), &AStar2D::get_point_capacity);
+	MethodBinder::bind_method(D_METHOD("reserve_space", "num_nodes"), &AStar2D::reserve_space);
+    MethodBinder::bind_method(D_METHOD("clear"), &AStar2D::clear);
 
-    ClassDB::bind_method(D_METHOD("get_closest_point", "to_position"), &AStar2D::get_closest_point);
-    ClassDB::bind_method(D_METHOD("get_closest_position_in_segment", "to_position"), &AStar2D::get_closest_position_in_segment);
+    MethodBinder::bind_method(D_METHOD("get_closest_point", "to_position"), &AStar2D::get_closest_point);
+    MethodBinder::bind_method(D_METHOD("get_closest_position_in_segment", "to_position"), &AStar2D::get_closest_position_in_segment);
 
-    ClassDB::bind_method(D_METHOD("get_point_path", "from_id", "to_id"), &AStar2D::get_point_path);
-    ClassDB::bind_method(D_METHOD("get_id_path", "from_id", "to_id"), &AStar2D::get_id_path);
+    MethodBinder::bind_method(D_METHOD("get_point_path", "from_id", "to_id"), &AStar2D::get_point_path);
+    MethodBinder::bind_method(D_METHOD("get_id_path", "from_id", "to_id"), &AStar2D::get_id_path);
+}
+
+AStar2D::AStar2D() {
+}
+
+AStar2D::~AStar2D() {
 }

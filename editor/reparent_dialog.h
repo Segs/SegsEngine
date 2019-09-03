@@ -42,7 +42,7 @@
 */
 class ReparentDialog : public ConfirmationDialog {
 
-	GDCLASS(ReparentDialog, ConfirmationDialog);
+	GDCLASS(ReparentDialog,ConfirmationDialog)
 
 	SceneTreeEditor *tree;
 	CheckBox *keep_transform;
@@ -60,7 +60,7 @@ public:
 	String get_selected_type();
 
 	ReparentDialog();
-	~ReparentDialog();
+	~ReparentDialog() override;
 };
 
 #endif

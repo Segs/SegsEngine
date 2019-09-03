@@ -34,7 +34,7 @@
 #include "core/image.h"
 #include "core/io/resource_importer.h"
 class ResourceImporterTextureAtlas : public ResourceImporter {
-	GDCLASS(ResourceImporterTextureAtlas, ResourceImporter);
+	GDCLASS(ResourceImporterTextureAtlas,ResourceImporter)
 
 	struct PackData {
 		Rect2 region;
@@ -50,21 +50,21 @@ public:
 		IMPORT_MODE_2D_MESH
 	};
 
-	virtual String get_importer_name() const;
-	virtual String get_visible_name() const;
-	virtual void get_recognized_extensions(List<String> *p_extensions) const;
-	virtual String get_save_extension() const;
-	virtual String get_resource_type() const;
+	String get_importer_name() const override;
+	String get_visible_name() const override;
+	void get_recognized_extensions(List<String> *p_extensions) const override;
+	String get_save_extension() const override;
+	String get_resource_type() const override;
 
-	virtual int get_preset_count() const;
-	virtual String get_preset_name(int p_idx) const;
+	int get_preset_count() const override;
+	String get_preset_name(int p_idx) const override;
 
-	virtual void get_import_options(List<ImportOption> *r_options, int p_preset = 0) const;
-	virtual bool get_option_visibility(const String &p_option, const Map<StringName, Variant> &p_options) const;
-	virtual String get_option_group_file() const;
+	void get_import_options(List<ImportOption> *r_options, int p_preset = 0) const override;
+	bool get_option_visibility(const String &p_option, const Map<StringName, Variant> &p_options) const override;
+	String get_option_group_file() const override;
 
-	virtual Error import(const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files = nullptr, Variant *r_metadata = nullptr);
-	virtual Error import_group_file(const String &p_group_file, const Map<String, Map<StringName, Variant> > &p_source_file_options, const Map<String, String> &p_base_paths);
+	Error import(const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files = nullptr, Variant *r_metadata = nullptr) override;
+	Error import_group_file(const String &p_group_file, const Map<String, Map<StringName, Variant> > &p_source_file_options, const Map<String, String> &p_base_paths) override;
 
 	ResourceImporterTextureAtlas();
 };

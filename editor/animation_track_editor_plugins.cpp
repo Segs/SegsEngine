@@ -30,6 +30,7 @@
 
 #include "animation_track_editor_plugins.h"
 
+#include "core/method_bind.h"
 #include "core/object_db.h"
 #include "editor/audio_stream_preview.h"
 #include "editor_resource_preview.h"
@@ -39,6 +40,16 @@
 #include "scene/3d/sprite_3d.h"
 #include "scene/animation/animation_player.h"
 #include "servers/audio/audio_stream.h"
+
+IMPL_GDCLASS(AnimationTrackEditBool)
+IMPL_GDCLASS(AnimationTrackEditColor)
+IMPL_GDCLASS(AnimationTrackEditAudio)
+IMPL_GDCLASS(AnimationTrackEditSpriteFrame)
+IMPL_GDCLASS(AnimationTrackEditSubAnim)
+IMPL_GDCLASS(AnimationTrackEditTypeAudio)
+IMPL_GDCLASS(AnimationTrackEditTypeAnimation)
+IMPL_GDCLASS(AnimationTrackEditVolumeDB)
+IMPL_GDCLASS(AnimationTrackEditDefaultPlugin)
 
 /// BOOL ///
 int AnimationTrackEditBool::get_key_height() const {
@@ -59,7 +70,7 @@ bool AnimationTrackEditBool::is_key_selectable_by_distance() const {
 void AnimationTrackEditBool::draw_key(int p_index, float p_pixels_sec, int p_x, bool p_selected, int p_clip_left, int p_clip_right) {
 
     bool checked = get_animation()->track_get_key_value(get_track(), p_index);
-    Ref<Texture> icon = get_icon(checked ? "checked" : "unchecked", "CheckBox");
+    Ref<Texture> icon = get_icon(checked ? StringName("checked") : StringName("unchecked"), "CheckBox");
 
     Vector2 ofs(p_x - icon->get_width() / 2, int(get_size().height - icon->get_height()) / 2);
 
@@ -331,7 +342,7 @@ void AnimationTrackEditAudio::set_node(Object *p_object) {
 }
 
 void AnimationTrackEditAudio::_bind_methods() {
-    ClassDB::bind_method("_preview_changed", &AnimationTrackEditAudio::_preview_changed);
+    MethodBinder::bind_method("_preview_changed", &AnimationTrackEditAudio::_preview_changed);
 }
 
 AnimationTrackEditAudio::AnimationTrackEditAudio() {
@@ -398,7 +409,7 @@ Rect2 AnimationTrackEditSpriteFrame::get_key_rect(int p_index, float p_pixels_se
         } else {
             // Go through other track to find if animation is set
             String animation_path(get_animation()->track_get_path(get_track()));
-            animation_path = animation_path.replace(":frame", ":animation");
+            animation_path = StringUtils::replace(animation_path,":frame", ":animation");
             int animation_track = get_animation()->find_track((NodePath)animation_path);
             float track_time = get_animation()->track_get_key_time(get_track(), p_index);
             int animaiton_index = get_animation()->track_find_key(animation_track, track_time);
@@ -486,7 +497,7 @@ void AnimationTrackEditSpriteFrame::draw_key(int p_index, float p_pixels_sec, in
         } else {
             // Go through other track to find if animation is set
             String animation_path(get_animation()->track_get_path(get_track()));
-            animation_path = animation_path.replace(":frame", ":animation");
+            animation_path = StringUtils::replace(animation_path,":frame", ":animation");
             int animation_track = get_animation()->find_track((NodePath)animation_path);
             float track_time = get_animation()->track_get_key_time(get_track(), p_index);
             int animaiton_index = get_animation()->track_find_key(animation_track, track_time);
@@ -934,7 +945,7 @@ void AnimationTrackEditTypeAudio::draw_key(int p_index, float p_pixels_sec, int 
 }
 
 void AnimationTrackEditTypeAudio::_bind_methods() {
-    ClassDB::bind_method("_preview_changed", &AnimationTrackEditTypeAudio::_preview_changed);
+    MethodBinder::bind_method("_preview_changed", &AnimationTrackEditTypeAudio::_preview_changed);
 }
 
 AnimationTrackEditTypeAudio::AnimationTrackEditTypeAudio() {

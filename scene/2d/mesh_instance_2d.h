@@ -34,7 +34,7 @@
 #include "scene/2d/node_2d.h"
 
 class MeshInstance2D : public Node2D {
-	GDCLASS(MeshInstance2D, Node2D);
+	GDCLASS(MeshInstance2D,Node2D)
 
 	Ref<Mesh> mesh;
 
@@ -55,7 +55,7 @@ public:
 	void set_normal_map(const Ref<Texture> &p_texture);
 	Ref<Texture> get_normal_map() const;
 
-	virtual Rect2 _edit_get_rect() const;
+	Rect2 _edit_get_rect() const override;
 
 	MeshInstance2D();
 };

@@ -23,7 +23,7 @@ if(MINGW)
     ADD_DEFINITIONS(-DWASAPI_ENABLED)
     ADD_DEFINITIONS(-DWINVER=${target_win_version} -D_WIN32_WINNT=${target_win_version})
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG_ENABLED -DDEBUG_MEMORY_ENABLED -DD3D_DEBUG_INFO")
-    set(LIBRARIES mingw32 opengl32 dsound ole32 d3d9 winmm gdi32 iphlpapi shlwapi wsock32 ws2_32 kernel32 oleaut32 dinput8 dxguid ksuser imm32 bcrypt)
+    set(LIBRARIES mingw32 opengl32 dsound ole32 d3d9 winmm gdi32 iphlpapi shlwapi wsock32 ws2_32 kernel32 oleaut32 dinput8 dxguid ksuser imm32 bcrypt Avrt)
 
     ADD_DEFINITIONS(-DMINGW_ENABLED)
 	list(APPEND platform_list windows)

@@ -56,7 +56,7 @@
 class EditorNode;
 
 class ProjectExportDialog : public ConfirmationDialog {
-	GDCLASS(ProjectExportDialog, ConfirmationDialog);
+	GDCLASS(ProjectExportDialog,ConfirmationDialog)
 
 private:
 	TabContainer *sections;
@@ -179,7 +179,7 @@ public:
 	Ref<EditorExportPreset> get_current_preset() const;
 
 	ProjectExportDialog();
-	~ProjectExportDialog();
+	~ProjectExportDialog() override;
 };
 
 #endif // PROJECT_EXPORT_SETTINGS_H

@@ -38,42 +38,43 @@
 #include "core/safe_refcount.h"
 #include "core/self_list.h"
 #include "core/map.h"
+#include "core/ustring.h"
 
 #define RES_BASE_EXTENSION(m_ext)                                                                                   \
 public:                                                                                                             \
-    static void register_custom_data_to_otdb() { ClassDB::add_resource_base_extension(m_ext, get_class_static()); } \
-    virtual String get_base_extension() const { return m_ext; }                                                     \
+    static void register_custom_data_to_otdb() { ClassDB::add_resource_base_extension(StringName(m_ext), get_class_static_name()); } \
+	String get_base_extension() const override { return String(m_ext); }											\
                                                                                                                     \
 private:
 
 class Resource : public Reference {
 
-    GDCLASS(Resource, Reference)
+    GDCLASS(Resource,Reference)
     OBJ_CATEGORY("Resources")
-    RES_BASE_EXTENSION("res")
+public:
+	static void register_custom_data_to_otdb() { ClassDB::add_resource_base_extension(StringName("res"), get_class_static_name()); }
+	virtual String get_base_extension() const { return String("res"); }
+private:
 
     Set<ObjectID> owners;
 
     friend class ResBase;
     friend class ResourceCache;
+	friend class SceneState;
 
     String name;
     String path_cache;
+	Node *local_scene;
+	SelfList<Resource> remapped_list;
     int subindex;
-
-    virtual bool _use_builtin_script() const { return true; }
+	bool local_to_scene;
 
 #ifdef TOOLS_ENABLED
-    uint64_t last_modified_time;
-    uint64_t import_last_modified_time;
-    String import_path;
+	uint64_t last_modified_time;
+	uint64_t import_last_modified_time;
+	String import_path;
 #endif
-
-    bool local_to_scene;
-    friend class SceneState;
-    Node *local_scene;
-
-    SelfList<Resource> remapped_list;
+    virtual bool _use_builtin_script() const { return true; }
 
 protected:
     void emit_changed();
@@ -146,7 +147,7 @@ public:
     ~Resource() override;
 };
 
-typedef Ref<Resource> RES;
+using RES = Ref<Resource>;
 
 class ResourceCache {
     friend class Resource;

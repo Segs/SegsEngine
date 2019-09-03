@@ -33,6 +33,7 @@
 #include "core/io/file_access_memory.h"
 #include "core/io/resource_loader.h"
 #include "core/os/os.h"
+#include "core/method_bind.h"
 #include "editor/editor_node.h"
 #include "editor/editor_scale.h"
 #include "editor/editor_settings.h"
@@ -40,6 +41,15 @@
 #include "scene/resources/dynamic_font.h"
 #include "scene/resources/material.h"
 #include "scene/resources/mesh.h"
+
+#include "servers/audio/audio_stream.h"
+
+IMPL_GDCLASS(EditorTexturePreviewPlugin)
+IMPL_GDCLASS(EditorImagePreviewPlugin)
+IMPL_GDCLASS(EditorBitmapPreviewPlugin)
+IMPL_GDCLASS(EditorMaterialPreviewPlugin)
+IMPL_GDCLASS(EditorMeshPreviewPlugin)
+IMPL_GDCLASS(EditorFontPreviewPlugin)
 
 void post_process_preview(Ref<Image> p_image) {
 
@@ -309,7 +319,7 @@ void EditorMaterialPreviewPlugin::_preview_done(const Variant &p_udata) {
 
 void EditorMaterialPreviewPlugin::_bind_methods() {
 
-    ClassDB::bind_method("_preview_done", &EditorMaterialPreviewPlugin::_preview_done);
+    MethodBinder::bind_method("_preview_done", &EditorMaterialPreviewPlugin::_preview_done);
 }
 
 bool EditorMaterialPreviewPlugin::handles(const String &p_type) const {
@@ -493,7 +503,7 @@ Ref<Texture> EditorScriptPreviewPlugin::generate(const RES &p_from, const Size2 
     if (scr.is_null())
         return Ref<Texture>();
 
-    String code = scr->get_source_code().strip_edges();
+    String code = StringUtils::strip_edges(scr->get_source_code());
     if (code == "")
         return Ref<Texture>();
 
@@ -555,7 +565,7 @@ Ref<Texture> EditorScriptPreviewPlugin::generate(const RES &p_from, const Size2 
                     while (_is_text_char(code[pos])) {
                         pos++;
                     }
-                    String word = code.substr(i, pos - i);
+                    String word = StringUtils::substr(code,i, pos - i);
                     if (keywords.has(word))
                         in_keyword = true;
 
@@ -624,6 +634,7 @@ Ref<Texture> EditorAudioStreamPreviewPlugin::generate(const RES &p_from, const S
     uint8_t *imgw = imgdata.ptr();
 
     Ref<AudioStreamPlayback> playback = stream->instance_playback();
+	ERR_FAIL_COND_V(playback.is_null(), Ref<Texture>());
 
     float len_s = stream->get_length();
     if (len_s == 0) {
@@ -699,7 +710,7 @@ void EditorMeshPreviewPlugin::_preview_done(const Variant &p_udata) {
 
 void EditorMeshPreviewPlugin::_bind_methods() {
 
-    ClassDB::bind_method("_preview_done", &EditorMeshPreviewPlugin::_preview_done);
+    MethodBinder::bind_method("_preview_done", &EditorMeshPreviewPlugin::_preview_done);
 }
 bool EditorMeshPreviewPlugin::handles(const String &p_type) const {
 
@@ -819,7 +830,7 @@ void EditorFontPreviewPlugin::_preview_done(const Variant &p_udata) {
 
 void EditorFontPreviewPlugin::_bind_methods() {
 
-    ClassDB::bind_method("_preview_done", &EditorFontPreviewPlugin::_preview_done);
+    MethodBinder::bind_method("_preview_done", &EditorFontPreviewPlugin::_preview_done);
 }
 
 bool EditorFontPreviewPlugin::handles(const String &p_type) const {

@@ -56,7 +56,7 @@ Error GodotSharpExport::get_assembly_dependencies(GDMonoAssembly *p_assembly, co
 
 		GDMonoAssembly *ref_assembly = NULL;
 		String path;
-		bool has_extension = ref_name.ends_with(".dll") || ref_name.ends_with(".exe");
+                bool has_extension = StringUtils::ends_with(ref_name,".dll") || StringUtils::ends_with(ref_name,".exe");
 
 		for (int j = 0; j < p_search_dirs.size(); j++) {
 			const String &search_dir = p_search_dirs[j];

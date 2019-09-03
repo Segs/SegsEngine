@@ -249,8 +249,8 @@ Ref<X509Certificate> CryptoMbedTLS::generate_self_signed_certificate(Ref<CryptoK
 
 	mbedtls_x509write_crt_set_subject_key(&crt, &(key->pkey));
 	mbedtls_x509write_crt_set_issuer_key(&crt, &(key->pkey));
-	mbedtls_x509write_crt_set_subject_name(&crt, p_issuer_name.utf8().data());
-	mbedtls_x509write_crt_set_issuer_name(&crt, p_issuer_name.utf8().data());
+	mbedtls_x509write_crt_set_subject_name(&crt, StringUtils::to_utf8(p_issuer_name).data());
+	mbedtls_x509write_crt_set_issuer_name(&crt, StringUtils::to_utf8(p_issuer_name).data());
 	mbedtls_x509write_crt_set_version(&crt, MBEDTLS_X509_CRT_VERSION_3);
 	mbedtls_x509write_crt_set_md_alg(&crt, MBEDTLS_MD_SHA256);
 
@@ -261,7 +261,7 @@ Ref<X509Certificate> CryptoMbedTLS::generate_self_signed_certificate(Ref<CryptoK
 	ERR_FAIL_COND_V(mbedtls_mpi_read_binary(&serial, rand_serial, 20), nullptr);
 	mbedtls_x509write_crt_set_serial(&crt, &serial);
 
-	mbedtls_x509write_crt_set_validity(&crt, p_not_before.utf8().data(), p_not_after.utf8().data());
+	mbedtls_x509write_crt_set_validity(&crt, StringUtils::to_utf8(p_not_before).data(), StringUtils::to_utf8(p_not_after).data());
 	mbedtls_x509write_crt_set_basic_constraints(&crt, 1, -1);
 	mbedtls_x509write_crt_set_basic_constraints(&crt, 1, 0);
 

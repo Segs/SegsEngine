@@ -33,6 +33,8 @@
 #include "space_sw.h"
 #include "core/object_db.h"
 
+IMPL_GDCLASS(PhysicsDirectBodyStateSW)
+
 void BodySW::_update_inertia() {
 
     if (get_space() && !inertia_update_list.in_list())

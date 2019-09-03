@@ -202,7 +202,7 @@ public:
 	bool free(RID p_rid);
 
 	VisualServerViewport() {}
-	~VisualServerViewport() {}
+	virtual ~VisualServerViewport() {}
 };
 
 #endif // VISUALSERVERVIEWPORT_H

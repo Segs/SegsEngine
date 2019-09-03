@@ -36,7 +36,7 @@
 class Camera;
 class VisibilityNotifier : public Spatial {
 
-	GDCLASS(VisibilityNotifier, Spatial);
+	GDCLASS(VisibilityNotifier,Spatial)
 
 	Set<Camera *> cameras;
 
@@ -63,7 +63,7 @@ public:
 
 class VisibilityEnabler : public VisibilityNotifier {
 
-	GDCLASS(VisibilityEnabler, VisibilityNotifier);
+	GDCLASS(VisibilityEnabler,VisibilityNotifier)
 
 public:
 	enum Enabler {
@@ -73,8 +73,8 @@ public:
 	};
 
 protected:
-	virtual void _screen_enter();
-	virtual void _screen_exit();
+	void _screen_enter() override;
+	void _screen_exit() override;
 
 	bool visible;
 

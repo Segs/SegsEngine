@@ -39,7 +39,7 @@
 
 class BackgroundProgress : public HBoxContainer {
 
-	GDCLASS(BackgroundProgress, HBoxContainer);
+	GDCLASS(BackgroundProgress,HBoxContainer)
 
 	_THREAD_SAFE_CLASS_
 
@@ -70,8 +70,9 @@ public:
 
 class ProgressDialog : public Popup {
 
-	GDCLASS(ProgressDialog, Popup);
-	struct Task {
+	GDCLASS(ProgressDialog,Popup)
+
+    struct Task {
 
 		String task;
 		VBoxContainer *vb;

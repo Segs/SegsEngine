@@ -36,7 +36,7 @@
 
 class VisualScriptExpression : public VisualScriptNode {
 
-	GDCLASS(VisualScriptExpression, VisualScriptNode);
+	GDCLASS(VisualScriptExpression,VisualScriptNode)
 	friend class VisualScriptNodeInstanceExpression;
 
 	struct Input {
@@ -267,25 +267,25 @@ protected:
 	void _get_property_list(List<PropertyInfo> *p_list) const;
 
 public:
-	virtual int get_output_sequence_port_count() const;
-	virtual bool has_input_sequence_port() const;
+	int get_output_sequence_port_count() const override;
+	bool has_input_sequence_port() const override;
 
-	virtual String get_output_sequence_port_text(int p_port) const;
+	String get_output_sequence_port_text(int p_port) const override;
 
-	virtual int get_input_value_port_count() const;
-	virtual int get_output_value_port_count() const;
+	int get_input_value_port_count() const override;
+	int get_output_value_port_count() const override;
 
-	virtual PropertyInfo get_input_value_port_info(int p_idx) const;
-	virtual PropertyInfo get_output_value_port_info(int p_idx) const;
+	PropertyInfo get_input_value_port_info(int p_idx) const override;
+	PropertyInfo get_output_value_port_info(int p_idx) const override;
 
-	virtual String get_caption() const;
-	virtual String get_text() const;
-	virtual String get_category() const { return "operators"; }
+	String get_caption() const override;
+	String get_text() const override;
+	String get_category() const override { return "operators"; }
 
-	virtual VisualScriptNodeInstance *instance(VisualScriptInstance *p_instance);
+	VisualScriptNodeInstance *instance(VisualScriptInstance *p_instance) override;
 
 	VisualScriptExpression();
-	~VisualScriptExpression();
+	~VisualScriptExpression() override;
 };
 
 void register_visual_script_expression_node();

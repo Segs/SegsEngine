@@ -318,7 +318,7 @@ public:
         Operator op=OP_EQUAL;
         Vector<Node *> arguments;
 
-        virtual DataType get_datatype() const { return return_cache; }
+        DataType get_datatype() const override { return return_cache; }
 
         OperatorNode() :
                 Node(TYPE_OPERATOR) {}
@@ -329,7 +329,7 @@ public:
         StringName name;
         bool is_const = false;
 
-        virtual DataType get_datatype() const { return datatype_cache; }
+        DataType get_datatype() const override { return datatype_cache; }
 
         VariableNode() : Node(TYPE_VARIABLE) {}
     };
@@ -345,7 +345,7 @@ public:
         };
 
         Vector<Declaration> declarations;
-        virtual DataType get_datatype() const { return datatype; }
+        DataType get_datatype() const override { return datatype; }
 
         VariableDeclarationNode() :
                 Node(TYPE_VARIABLE_DECLARATION) {}
@@ -358,7 +358,7 @@ public:
         Node *call_expression=nullptr;
         bool is_const=false;
 
-        virtual DataType get_datatype() const { return datatype_cache; }
+        DataType get_datatype() const override { return datatype_cache; }
 
         ArrayNode() :
                 Node(TYPE_ARRAY) {}
@@ -376,7 +376,7 @@ public:
         };
 
         Vector<Declaration> declarations;
-        virtual DataType get_datatype() const { return datatype; }
+        DataType get_datatype() const override { return datatype; }
 
         ArrayDeclarationNode() :
                 Node(TYPE_ARRAY_DECLARATION) {}
@@ -442,7 +442,7 @@ public:
         StringName name;
         Node *owner = nullptr;
 
-        virtual DataType get_datatype() const { return datatype; }
+        DataType get_datatype() const override { return datatype; }
 
         MemberNode() : Node(TYPE_MEMBER) {}
     };
@@ -715,6 +715,8 @@ private:
     Error _parse_block(BlockNode *p_block, const Map<StringName, BuiltInInfo> &p_builtin_types, bool p_just_one = false, bool p_can_break = false, bool p_can_continue = false);
     Error _parse_shader(const Map<StringName, FunctionInfo> &p_functions, const Vector<StringName> &p_render_modes, const Set<String> &p_shader_types);
 
+	Error _find_last_flow_op_in_block(BlockNode *p_block, FlowOperation p_op);
+	Error _find_last_flow_op_in_op(ControlFlowNode *p_flow, FlowOperation p_op);
 public:
     //static void get_keyword_list(ShaderType p_type,List<String> *p_keywords);
 

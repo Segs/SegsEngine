@@ -36,7 +36,7 @@
 
 class Area : public CollisionObject {
 
-	GDCLASS(Area, CollisionObject);
+	GDCLASS(Area,CollisionObject)
 
 public:
 	enum SpaceOverride {
@@ -135,7 +135,7 @@ private:
 	float reverb_amount;
 	float reverb_uniformity;
 
-	void _validate_property(PropertyInfo &property) const;
+	void _validate_property(PropertyInfo &property) const override;
 
 protected:
 	void _notification(int p_what);
@@ -209,7 +209,7 @@ public:
 	float get_reverb_uniformity() const;
 
 	Area();
-	~Area();
+	~Area() override;
 };
 
 VARIANT_ENUM_CAST(Area::SpaceOverride);

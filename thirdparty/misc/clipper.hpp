@@ -45,9 +45,9 @@
 
 //use_lines: Enables line clipping. Adds a very minor cost to performance.
 #define use_lines
-  
+
 //use_deprecated: Enables temporary support for the obsolete functions
-//#define use_deprecated  
+//#define use_deprecated
 
 #include <vector>
 #include <list>
@@ -94,11 +94,11 @@ struct IntPoint {
 
   friend inline bool operator== (const IntPoint& a, const IntPoint& b)
   {
-    return a.X == b.X && a.Y == b.Y;
+	return a.X == b.X && a.Y == b.Y;
   }
   friend inline bool operator!= (const IntPoint& a, const IntPoint& b)
   {
-    return a.X != b.X  || a.Y != b.Y; 
+	return a.X != b.X  || a.Y != b.Y;
   }
 };
 //------------------------------------------------------------------------------
@@ -133,41 +133,41 @@ enum EndType {etClosedPolygon, etClosedLine, etOpenButt, etOpenSquare, etOpenRou
 class PolyNode;
 typedef std::vector< PolyNode* > PolyNodes;
 
-class PolyNode 
-{ 
+class PolyNode
+{
 public:
-    PolyNode();
-    virtual ~PolyNode(){};
-    Path Contour;
-    PolyNodes Childs;
-    PolyNode* Parent;
-    PolyNode* GetNext() const;
-    bool IsHole() const;
-    bool IsOpen() const;
-    int ChildCount() const;
+	PolyNode();
+	virtual ~PolyNode(){};
+	Path Contour;
+	PolyNodes Childs;
+	PolyNode* Parent;
+	PolyNode* GetNext() const;
+	bool IsHole() const;
+	bool IsOpen() const;
+	int ChildCount() const;
 private:
-    //PolyNode& operator =(PolyNode& other); 
-    unsigned Index; //node index in Parent.Childs
-    bool m_IsOpen;
-    JoinType m_jointype;
-    EndType m_endtype;
-    PolyNode* GetNextSiblingUp() const;
-    void AddChild(PolyNode& child);
-    friend class Clipper; //to access Index
-    friend class ClipperOffset; 
+	//PolyNode& operator =(PolyNode& other);
+	unsigned Index; //node index in Parent.Childs
+	bool m_IsOpen;
+	JoinType m_jointype;
+	EndType m_endtype;
+	PolyNode* GetNextSiblingUp() const;
+	void AddChild(PolyNode& child);
+	friend class Clipper; //to access Index
+	friend class ClipperOffset;
 };
 
 class PolyTree: public PolyNode
-{ 
+{
 public:
-    ~PolyTree(){ Clear(); };
-    PolyNode* GetFirst() const;
-    void Clear();
-    int Total() const;
+	~PolyTree(){ Clear(); };
+	PolyNode* GetFirst() const;
+	void Clear();
+	int Total() const;
 private:
   //PolyTree& operator =(PolyTree& other);
   PolyNodes AllNodes;
-    friend class Clipper; //to access AllNodes
+	friend class Clipper; //to access AllNodes
 };
 
 bool Orientation(const Path &poly);
@@ -265,19 +265,19 @@ class Clipper : public virtual ClipperBase
 public:
   Clipper(int initOptions = 0);
   bool Execute(ClipType clipType,
-      Paths &solution,
-      PolyFillType fillType = pftEvenOdd);
+	  Paths &solution,
+	  PolyFillType fillType = pftEvenOdd);
   bool Execute(ClipType clipType,
-      Paths &solution,
-      PolyFillType subjFillType,
-      PolyFillType clipFillType);
+	  Paths &solution,
+	  PolyFillType subjFillType,
+	  PolyFillType clipFillType);
   bool Execute(ClipType clipType,
-      PolyTree &polytree,
-      PolyFillType fillType = pftEvenOdd);
+	  PolyTree &polytree,
+	  PolyFillType fillType = pftEvenOdd);
   bool Execute(ClipType clipType,
-      PolyTree &polytree,
-      PolyFillType subjFillType,
-      PolyFillType clipFillType);
+	  PolyTree &polytree,
+	  PolyFillType subjFillType,
+	  PolyFillType clipFillType);
   bool ReverseSolution() { return m_ReverseOutput; };
   void ReverseSolution(bool value) {m_ReverseOutput = value;};
   bool StrictlySimple() {return m_StrictSimple;};
@@ -300,10 +300,10 @@ private:
   PolyFillType     m_ClipFillType;
   PolyFillType     m_SubjFillType;
   bool             m_ReverseOutput;
-  bool             m_UsingPolyTree; 
+  bool             m_UsingPolyTree;
   bool             m_StrictSimple;
 #ifdef use_xyz
-  ZFillCallback   m_ZFill; //custom callback 
+  ZFillCallback   m_ZFill; //custom callback
 #endif
   void SetWindingCount(TEdge& edge);
   bool IsEvenOddFillType(const TEdge& edge) const;
@@ -357,7 +357,7 @@ private:
 };
 //------------------------------------------------------------------------------
 
-class ClipperOffset 
+class ClipperOffset
 {
 public:
   ClipperOffset(double miterLimit = 2.0, double roundPrecision = 0.25);
@@ -391,11 +391,11 @@ private:
 class clipperException : public std::exception
 {
   public:
-    clipperException(const char* description): m_descr(description) {}
-    virtual ~clipperException() noexcept {}
-    virtual const char* what() const noexcept {return m_descr.c_str();}
+	clipperException(const char* description): m_descr(description) {}
+	virtual ~clipperException() noexcept {}
+	virtual const char* what() const noexcept {return m_descr.c_str();}
   private:
-    std::string m_descr;
+	std::string m_descr;
 };
 //------------------------------------------------------------------------------
 

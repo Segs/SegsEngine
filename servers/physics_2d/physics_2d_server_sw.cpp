@@ -36,6 +36,8 @@
 #include "core/project_settings.h"
 #include "core/script_language.h"
 
+IMPL_GDCLASS(Physics2DServerSW)
+
 #define FLUSH_QUERY_CHECK(m_object) \
 	ERR_FAIL_COND_MSG(m_object->get_space() && flushing_queries, "Can't change this state while flushing queries. Use call_deferred() or set_deferred() to change monitoring state instead.");
 

@@ -30,6 +30,7 @@
 
 #include "broad_phase_2d_hash_grid.h"
 #include "core/project_settings.h"
+#include "core/property_info.h"
 
 #define LARGE_ELEMENT_FI 1.01239812
 

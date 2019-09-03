@@ -37,7 +37,8 @@
 #include "webrtc_data_channel.h"
 
 class WebRTCDataChannelGDNative : public WebRTCDataChannel {
-	GDCLASS(WebRTCDataChannelGDNative, WebRTCDataChannel);
+	GDCLASS(WebRTCDataChannelGDNative,WebRTCDataChannel)
+IMPL_GDCLASS(WebRTCDataChannelGDNative)
 
 protected:
 	static void _bind_methods();

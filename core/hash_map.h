@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef HASH_MAP_H
-#define HASH_MAP_H
+#pragma once
 
 #include "core/error_macros.h"
 
@@ -603,5 +602,3 @@ public:
         clear();
     }
 };
-
-#endif

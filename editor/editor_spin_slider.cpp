@@ -29,9 +29,14 @@
 /*************************************************************************/
 
 #include "editor_spin_slider.h"
+#include "core/method_bind.h"
 #include "core/math/expression.h"
 #include "core/os/input.h"
+#include "scene/resources/style_box.h"
+#include "scene/resources/font.h"
 #include "editor_scale.h"
+
+IMPL_GDCLASS(EditorSpinSlider)
 
 String EditorSpinSlider::get_tooltip(const Point2 &p_pos) const {
     return rtos(get_value());
@@ -420,22 +425,22 @@ void EditorSpinSlider::_focus_entered() {
 }
 
 void EditorSpinSlider::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("set_label", "label"), &EditorSpinSlider::set_label);
-    ClassDB::bind_method(D_METHOD("get_label"), &EditorSpinSlider::get_label);
+    MethodBinder::bind_method(D_METHOD("set_label", "label"), &EditorSpinSlider::set_label);
+    MethodBinder::bind_method(D_METHOD("get_label"), &EditorSpinSlider::get_label);
 
-    ClassDB::bind_method(D_METHOD("set_read_only", "read_only"), &EditorSpinSlider::set_read_only);
-    ClassDB::bind_method(D_METHOD("is_read_only"), &EditorSpinSlider::is_read_only);
+    MethodBinder::bind_method(D_METHOD("set_read_only", "read_only"), &EditorSpinSlider::set_read_only);
+    MethodBinder::bind_method(D_METHOD("is_read_only"), &EditorSpinSlider::is_read_only);
 
-    ClassDB::bind_method(D_METHOD("set_flat", "flat"), &EditorSpinSlider::set_flat);
-    ClassDB::bind_method(D_METHOD("is_flat"), &EditorSpinSlider::is_flat);
+    MethodBinder::bind_method(D_METHOD("set_flat", "flat"), &EditorSpinSlider::set_flat);
+    MethodBinder::bind_method(D_METHOD("is_flat"), &EditorSpinSlider::is_flat);
 
-    ClassDB::bind_method(D_METHOD("_gui_input"), &EditorSpinSlider::_gui_input);
-    ClassDB::bind_method(D_METHOD("_grabber_mouse_entered"), &EditorSpinSlider::_grabber_mouse_entered);
-    ClassDB::bind_method(D_METHOD("_grabber_mouse_exited"), &EditorSpinSlider::_grabber_mouse_exited);
-    ClassDB::bind_method(D_METHOD("_grabber_gui_input"), &EditorSpinSlider::_grabber_gui_input);
-    ClassDB::bind_method(D_METHOD("_value_input_closed"), &EditorSpinSlider::_value_input_closed);
-    ClassDB::bind_method(D_METHOD("_value_input_entered"), &EditorSpinSlider::_value_input_entered);
-    ClassDB::bind_method(D_METHOD("_value_focus_exited"), &EditorSpinSlider::_value_focus_exited);
+    MethodBinder::bind_method(D_METHOD("_gui_input"), &EditorSpinSlider::_gui_input);
+    MethodBinder::bind_method(D_METHOD("_grabber_mouse_entered"), &EditorSpinSlider::_grabber_mouse_entered);
+    MethodBinder::bind_method(D_METHOD("_grabber_mouse_exited"), &EditorSpinSlider::_grabber_mouse_exited);
+    MethodBinder::bind_method(D_METHOD("_grabber_gui_input"), &EditorSpinSlider::_grabber_gui_input);
+    MethodBinder::bind_method(D_METHOD("_value_input_closed"), &EditorSpinSlider::_value_input_closed);
+    MethodBinder::bind_method(D_METHOD("_value_input_entered"), &EditorSpinSlider::_value_input_entered);
+    MethodBinder::bind_method(D_METHOD("_value_focus_exited"), &EditorSpinSlider::_value_focus_exited);
 
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "label"), "set_label", "get_label");
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "read_only"), "set_read_only", "is_read_only");

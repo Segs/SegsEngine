@@ -292,7 +292,7 @@ class CommandQueueMT {
 
 		SyncSemaphore *sync_sem;
 
-		virtual void post() {
+		void post() override {
 			sync_sem->sem->post();
 		}
 	};

@@ -36,11 +36,17 @@
 #include "core/print_string.h"
 #include "core/translation.h"
 #include "label.h"
+#include "scene/resources/style_box.h"
+#include "scene/resources/font.h"
+#include "scene/main/timer.h"
+#include "core/method_bind.h"
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_scale.h"
 #include "editor/editor_settings.h"
 #endif
+
+IMPL_GDCLASS(LineEdit)
 
 static bool _is_text_char(CharType c) {
 
@@ -239,7 +245,7 @@ void LineEdit::_gui_input(Ref<InputEvent> p_event) {
                     if (editable) {
 
                         deselect();
-                        text = text.substr(cursor_pos, text.length() - cursor_pos);
+                        text = StringUtils::substr(text,cursor_pos, text.length() - cursor_pos);
 
                         Ref<Font> font = get_font("font");
 
@@ -268,7 +274,7 @@ void LineEdit::_gui_input(Ref<InputEvent> p_event) {
                     if (editable) {
 
                         deselect();
-                        text = text.substr(0, cursor_pos);
+                        text = StringUtils::substr(text,0, cursor_pos);
                         _text_changed();
                     }
 
@@ -577,7 +583,7 @@ LineEdit::Align LineEdit::get_align() const {
 Variant LineEdit::get_drag_data(const Point2 &p_point) {
 
     if (selection.drag_attempt && selection.enabled) {
-        String t = text.substr(selection.begin, selection.end - selection.begin);
+        String t = StringUtils::substr(text,selection.begin, selection.end - selection.begin);
         Label *l = memnew(Label);
         l->set_text(t);
         set_drag_preview(l);
@@ -602,7 +608,7 @@ void LineEdit::drop_data(const Point2 &p_point, const Variant &p_data) {
                 cached_width -= font->get_char_size(text[i]).width;
         }
 
-        text.erase(selection.begin, selected);
+        StringUtils::erase(text,selection.begin, selected);
 
         append_at_cursor(p_data);
         selection.begin = cursor_pos - selected;
@@ -759,6 +765,7 @@ void LineEdit::_notification(int p_what) {
 
             int caret_height = font->get_height() > y_area ? y_area : font->get_height();
             FontDrawer drawer(font, Color(1, 1, 1));
+            const bool hide_chars = pass && !text.empty();
             while (true) {
 
                 //end of string, break!
@@ -772,8 +779,8 @@ void LineEdit::_notification(int p_what) {
                             if (ofs >= ime_text.length())
                                 break;
 
-                            CharType cchar = (pass && !text.empty()) ? secret_character[0] : ime_text[ofs];
-                            CharType next = (pass && !text.empty()) ? secret_character[0] : ime_text[ofs + 1];
+                            CharType cchar = (hide_chars) ? secret_character[0] : ime_text[ofs];
+                            CharType next = (hide_chars) ? secret_character[0] : ime_text[ofs + 1];
                             int im_char_width = font->get_char_size(cchar, next).width;
 
                             if ((x_ofs + im_char_width) > ofs_max)
@@ -793,9 +800,8 @@ void LineEdit::_notification(int p_what) {
                         }
                     }
                 }
-
-                CharType cchar = (pass && !text.empty()) ? secret_character[0] : t[char_ofs];
-                CharType next = (pass && !text.empty()) ? secret_character[0] : t[char_ofs + 1];
+                CharType cchar = (hide_chars) ? secret_character[0] : t[char_ofs];
+                CharType next = (hide_chars) ? secret_character[0] : t[char_ofs + 1];
                 int char_width = font->get_char_size(cchar, next).width;
 
                 // end of widget, break!
@@ -908,14 +914,14 @@ void LineEdit::_notification(int p_what) {
 void LineEdit::copy_text() {
 
     if (selection.enabled && !pass) {
-        OS::get_singleton()->set_clipboard(text.substr(selection.begin, selection.end - selection.begin));
+        OS::get_singleton()->set_clipboard(StringUtils::substr(text,selection.begin, selection.end - selection.begin));
     }
 }
 
 void LineEdit::cut_text() {
 
     if (selection.enabled && !pass) {
-        OS::get_singleton()->set_clipboard(text.substr(selection.begin, selection.end - selection.begin));
+        OS::get_singleton()->set_clipboard(StringUtils::substr(text,selection.begin, selection.end - selection.begin));
         selection_delete();
     }
 }
@@ -923,9 +929,9 @@ void LineEdit::cut_text() {
 void LineEdit::paste_text() {
 
     // Strip escape characters like \n and \t as they can't be displayed on LineEdit.
-    String paste_buffer = OS::get_singleton()->get_clipboard().strip_escapes();
+    String paste_buffer = StringUtils::strip_escapes(OS::get_singleton()->get_clipboard());
 
-    if (paste_buffer != "") {
+    if (!paste_buffer.empty()) {
 
         if (selection.enabled) selection_delete();
         append_at_cursor(paste_buffer);
@@ -1094,7 +1100,7 @@ void LineEdit::delete_char() {
         cached_width -= font->get_char_size(text[cursor_pos - 1]).width;
     }
 
-    text.erase(cursor_pos - 1, 1);
+    StringUtils::erase(text,cursor_pos - 1, 1);
 
     set_cursor_position(get_cursor_position() - 1);
 
@@ -1113,7 +1119,7 @@ void LineEdit::delete_text(int p_from_column, int p_to_column) {
         cached_width = 0;
     }
 
-    text.erase(p_from_column, p_to_column - p_from_column);
+    StringUtils::erase(text,p_from_column, p_to_column - p_from_column);
     cursor_pos -= CLAMP(cursor_pos - p_from_column, 0, p_to_column - p_from_column);
 
     if (cursor_pos >= text.length()) {
@@ -1260,8 +1266,8 @@ void LineEdit::append_at_cursor(String p_text) {
             cached_width = 0;
         }
 
-        String pre = text.substr(0, cursor_pos);
-        String post = text.substr(cursor_pos, text.length() - cursor_pos);
+        String pre = StringUtils::substr(text,0, cursor_pos);
+        String post = StringUtils::substr(text,cursor_pos, text.length() - cursor_pos);
         text = pre + p_text + post;
         set_cursor_position(cursor_pos + p_text.length());
     }
@@ -1597,48 +1603,48 @@ void LineEdit::_create_undo_state() {
 
 void LineEdit::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_text_changed"), &LineEdit::_text_changed);
-    ClassDB::bind_method(D_METHOD("_toggle_draw_caret"), &LineEdit::_toggle_draw_caret);
+    MethodBinder::bind_method(D_METHOD("_text_changed"), &LineEdit::_text_changed);
+    MethodBinder::bind_method(D_METHOD("_toggle_draw_caret"), &LineEdit::_toggle_draw_caret);
 
-    ClassDB::bind_method("_editor_settings_changed", &LineEdit::_editor_settings_changed);
+    MethodBinder::bind_method("_editor_settings_changed", &LineEdit::_editor_settings_changed);
 
-    ClassDB::bind_method(D_METHOD("set_align", "align"), &LineEdit::set_align);
-    ClassDB::bind_method(D_METHOD("get_align"), &LineEdit::get_align);
+    MethodBinder::bind_method(D_METHOD("set_align", "align"), &LineEdit::set_align);
+    MethodBinder::bind_method(D_METHOD("get_align"), &LineEdit::get_align);
 
-    ClassDB::bind_method(D_METHOD("_gui_input"), &LineEdit::_gui_input);
-    ClassDB::bind_method(D_METHOD("clear"), &LineEdit::clear);
-    ClassDB::bind_method(D_METHOD("select", "from", "to"), &LineEdit::select, {DEFVAL(0), DEFVAL(-1)});
-    ClassDB::bind_method(D_METHOD("select_all"), &LineEdit::select_all);
-    ClassDB::bind_method(D_METHOD("deselect"), &LineEdit::deselect);
-    ClassDB::bind_method(D_METHOD("set_text", "text"), &LineEdit::set_text);
-    ClassDB::bind_method(D_METHOD("get_text"), &LineEdit::get_text);
-    ClassDB::bind_method(D_METHOD("set_placeholder", "text"), &LineEdit::set_placeholder);
-    ClassDB::bind_method(D_METHOD("get_placeholder"), &LineEdit::get_placeholder);
-    ClassDB::bind_method(D_METHOD("set_placeholder_alpha", "alpha"), &LineEdit::set_placeholder_alpha);
-    ClassDB::bind_method(D_METHOD("get_placeholder_alpha"), &LineEdit::get_placeholder_alpha);
-    ClassDB::bind_method(D_METHOD("set_cursor_position", "position"), &LineEdit::set_cursor_position);
-    ClassDB::bind_method(D_METHOD("get_cursor_position"), &LineEdit::get_cursor_position);
-    ClassDB::bind_method(D_METHOD("set_expand_to_text_length", "enabled"), &LineEdit::set_expand_to_text_length);
-    ClassDB::bind_method(D_METHOD("get_expand_to_text_length"), &LineEdit::get_expand_to_text_length);
-    ClassDB::bind_method(D_METHOD("cursor_set_blink_enabled", "enabled"), &LineEdit::cursor_set_blink_enabled);
-    ClassDB::bind_method(D_METHOD("cursor_get_blink_enabled"), &LineEdit::cursor_get_blink_enabled);
-    ClassDB::bind_method(D_METHOD("cursor_set_blink_speed", "blink_speed"), &LineEdit::cursor_set_blink_speed);
-    ClassDB::bind_method(D_METHOD("cursor_get_blink_speed"), &LineEdit::cursor_get_blink_speed);
-    ClassDB::bind_method(D_METHOD("set_max_length", "chars"), &LineEdit::set_max_length);
-    ClassDB::bind_method(D_METHOD("get_max_length"), &LineEdit::get_max_length);
-    ClassDB::bind_method(D_METHOD("append_at_cursor", "text"), &LineEdit::append_at_cursor);
-    ClassDB::bind_method(D_METHOD("set_editable", "enabled"), &LineEdit::set_editable);
-    ClassDB::bind_method(D_METHOD("is_editable"), &LineEdit::is_editable);
-    ClassDB::bind_method(D_METHOD("set_secret", "enabled"), &LineEdit::set_secret);
-    ClassDB::bind_method(D_METHOD("is_secret"), &LineEdit::is_secret);
-    ClassDB::bind_method(D_METHOD("set_secret_character", "character"), &LineEdit::set_secret_character);
-    ClassDB::bind_method(D_METHOD("get_secret_character"), &LineEdit::get_secret_character);
-    ClassDB::bind_method(D_METHOD("menu_option", "option"), &LineEdit::menu_option);
-    ClassDB::bind_method(D_METHOD("get_menu"), &LineEdit::get_menu);
-    ClassDB::bind_method(D_METHOD("set_context_menu_enabled", "enable"), &LineEdit::set_context_menu_enabled);
-    ClassDB::bind_method(D_METHOD("is_context_menu_enabled"), &LineEdit::is_context_menu_enabled);
-    ClassDB::bind_method(D_METHOD("set_clear_button_enabled", "enable"), &LineEdit::set_clear_button_enabled);
-    ClassDB::bind_method(D_METHOD("is_clear_button_enabled"), &LineEdit::is_clear_button_enabled);
+    MethodBinder::bind_method(D_METHOD("_gui_input"), &LineEdit::_gui_input);
+    MethodBinder::bind_method(D_METHOD("clear"), &LineEdit::clear);
+    MethodBinder::bind_method(D_METHOD("select", "from", "to"), &LineEdit::select, {DEFVAL(0), DEFVAL(-1)});
+    MethodBinder::bind_method(D_METHOD("select_all"), &LineEdit::select_all);
+    MethodBinder::bind_method(D_METHOD("deselect"), &LineEdit::deselect);
+    MethodBinder::bind_method(D_METHOD("set_text", "text"), &LineEdit::set_text);
+    MethodBinder::bind_method(D_METHOD("get_text"), &LineEdit::get_text);
+    MethodBinder::bind_method(D_METHOD("set_placeholder", "text"), &LineEdit::set_placeholder);
+    MethodBinder::bind_method(D_METHOD("get_placeholder"), &LineEdit::get_placeholder);
+    MethodBinder::bind_method(D_METHOD("set_placeholder_alpha", "alpha"), &LineEdit::set_placeholder_alpha);
+    MethodBinder::bind_method(D_METHOD("get_placeholder_alpha"), &LineEdit::get_placeholder_alpha);
+    MethodBinder::bind_method(D_METHOD("set_cursor_position", "position"), &LineEdit::set_cursor_position);
+    MethodBinder::bind_method(D_METHOD("get_cursor_position"), &LineEdit::get_cursor_position);
+    MethodBinder::bind_method(D_METHOD("set_expand_to_text_length", "enabled"), &LineEdit::set_expand_to_text_length);
+    MethodBinder::bind_method(D_METHOD("get_expand_to_text_length"), &LineEdit::get_expand_to_text_length);
+    MethodBinder::bind_method(D_METHOD("cursor_set_blink_enabled", "enabled"), &LineEdit::cursor_set_blink_enabled);
+    MethodBinder::bind_method(D_METHOD("cursor_get_blink_enabled"), &LineEdit::cursor_get_blink_enabled);
+    MethodBinder::bind_method(D_METHOD("cursor_set_blink_speed", "blink_speed"), &LineEdit::cursor_set_blink_speed);
+    MethodBinder::bind_method(D_METHOD("cursor_get_blink_speed"), &LineEdit::cursor_get_blink_speed);
+    MethodBinder::bind_method(D_METHOD("set_max_length", "chars"), &LineEdit::set_max_length);
+    MethodBinder::bind_method(D_METHOD("get_max_length"), &LineEdit::get_max_length);
+    MethodBinder::bind_method(D_METHOD("append_at_cursor", "text"), &LineEdit::append_at_cursor);
+    MethodBinder::bind_method(D_METHOD("set_editable", "enabled"), &LineEdit::set_editable);
+    MethodBinder::bind_method(D_METHOD("is_editable"), &LineEdit::is_editable);
+    MethodBinder::bind_method(D_METHOD("set_secret", "enabled"), &LineEdit::set_secret);
+    MethodBinder::bind_method(D_METHOD("is_secret"), &LineEdit::is_secret);
+    MethodBinder::bind_method(D_METHOD("set_secret_character", "character"), &LineEdit::set_secret_character);
+    MethodBinder::bind_method(D_METHOD("get_secret_character"), &LineEdit::get_secret_character);
+    MethodBinder::bind_method(D_METHOD("menu_option", "option"), &LineEdit::menu_option);
+    MethodBinder::bind_method(D_METHOD("get_menu"), &LineEdit::get_menu);
+    MethodBinder::bind_method(D_METHOD("set_context_menu_enabled", "enable"), &LineEdit::set_context_menu_enabled);
+    MethodBinder::bind_method(D_METHOD("is_context_menu_enabled"), &LineEdit::is_context_menu_enabled);
+    MethodBinder::bind_method(D_METHOD("set_clear_button_enabled", "enable"), &LineEdit::set_clear_button_enabled);
+    MethodBinder::bind_method(D_METHOD("is_clear_button_enabled"), &LineEdit::is_clear_button_enabled);
 
     ADD_SIGNAL(MethodInfo("text_changed", PropertyInfo(Variant::STRING, "new_text")));
     ADD_SIGNAL(MethodInfo("text_entered", PropertyInfo(Variant::STRING, "new_text")));

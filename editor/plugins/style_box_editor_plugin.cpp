@@ -29,62 +29,68 @@
 /*************************************************************************/
 
 #include "style_box_editor_plugin.h"
+#include "editor/editor_scale.h"
+#include "core/method_bind.h"
+
+IMPL_GDCLASS(StyleBoxPreview)
+IMPL_GDCLASS(EditorInspectorPluginStyleBox)
+IMPL_GDCLASS(StyleBoxEditorPlugin)
 
 bool EditorInspectorPluginStyleBox::can_handle(Object *p_object) {
 
-	return Object::cast_to<StyleBox>(p_object) != nullptr;
+    return Object::cast_to<StyleBox>(p_object) != nullptr;
 }
 
 void EditorInspectorPluginStyleBox::parse_begin(Object *p_object) {
 
-	Ref<StyleBox> sb = Ref<StyleBox>(Object::cast_to<StyleBox>(p_object));
+    Ref<StyleBox> sb = Ref<StyleBox>(Object::cast_to<StyleBox>(p_object));
 
-	StyleBoxPreview *preview = memnew(StyleBoxPreview);
-	preview->edit(sb);
-	add_custom_control(preview);
+    StyleBoxPreview *preview = memnew(StyleBoxPreview);
+    preview->edit(sb);
+    add_custom_control(preview);
 }
 bool EditorInspectorPluginStyleBox::parse_property(Object *p_object, Variant::Type p_type, const String &p_path, PropertyHint p_hint, const String &p_hint_text, int p_usage) {
-	return false; //do not want
+    return false; //do not want
 }
 void EditorInspectorPluginStyleBox::parse_end() {
 }
 
 void StyleBoxPreview::edit(const Ref<StyleBox> &p_stylebox) {
 
-	if (stylebox.is_valid())
-		stylebox->disconnect("changed", this, "_sb_changed");
-	stylebox = p_stylebox;
-	if (p_stylebox.is_valid()) {
-		preview->add_style_override("panel", stylebox);
-		stylebox->connect("changed", this, "_sb_changed");
-	}
-	_sb_changed();
+    if (stylebox.is_valid())
+        stylebox->disconnect("changed", this, "_sb_changed");
+    stylebox = p_stylebox;
+    if (p_stylebox.is_valid()) {
+        preview->add_style_override("panel", stylebox);
+        stylebox->connect("changed", this, "_sb_changed");
+    }
+    _sb_changed();
 }
 
 void StyleBoxPreview::_sb_changed() {
 
-	preview->update();
-	if (stylebox.is_valid()) {
-		Size2 ms = stylebox->get_minimum_size() * 4 / 3;
-		ms.height = MAX(ms.height, 150 * EDSCALE);
-		preview->set_custom_minimum_size(ms);
-	}
+    preview->update();
+    if (stylebox.is_valid()) {
+        Size2 ms = stylebox->get_minimum_size() * 4 / 3;
+        ms.height = MAX(ms.height, 150 * EDSCALE);
+        preview->set_custom_minimum_size(ms);
+    }
 }
 
 void StyleBoxPreview::_bind_methods() {
 
-	ClassDB::bind_method("_sb_changed", &StyleBoxPreview::_sb_changed);
+    MethodBinder::bind_method("_sb_changed", &StyleBoxPreview::_sb_changed);
 }
 
 StyleBoxPreview::StyleBoxPreview() {
 
-	preview = memnew(Panel);
-	add_margin_child(TTR("Preview:"), preview);
+    preview = memnew(Panel);
+    add_margin_child(TTR("Preview:"), preview);
 }
 
 StyleBoxEditorPlugin::StyleBoxEditorPlugin(EditorNode *p_node) {
 
-	Ref<EditorInspectorPluginStyleBox> inspector_plugin;
-	inspector_plugin.instance();
-	add_inspector_plugin(inspector_plugin);
+    Ref<EditorInspectorPluginStyleBox> inspector_plugin;
+    inspector_plugin.instance();
+    add_inspector_plugin(inspector_plugin);
 }

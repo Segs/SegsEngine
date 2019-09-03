@@ -28,9 +28,11 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
+#include "filesystem_dock.h"
 #include "property_editor.h"
 
 #include "core/class_db.h"
+#include "core/method_bind.h"
 #include "core/io/image_loader.h"
 #include "core/io/marshalls.h"
 #include "core/io/resource_loader.h"
@@ -48,6 +50,7 @@
 #include "editor/editor_file_system.h"
 #include "editor/editor_help.h"
 #include "editor/editor_node.h"
+#include "editor/editor_scale.h"
 #include "editor/editor_settings.h"
 #include "editor/multi_node_edit.h"
 #include "editor/property_selector.h"
@@ -56,6 +59,9 @@
 #include "scene/resources/font.h"
 #include "scene/resources/packed_scene.h"
 #include "scene/scene_string_names.h"
+
+IMPL_GDCLASS(EditorResourceConversionPlugin)
+IMPL_GDCLASS(CustomPropertyEditor)
 
 void EditorResourceConversionPlugin::_bind_methods() {
 
@@ -141,7 +147,7 @@ void CustomPropertyEditor::_menu_option(int p_which) {
 
             if (hint == PROPERTY_HINT_ENUM) {
 
-                v = hint_text.get_slice(",", p_which);
+                v = StringUtils::get_slice(hint_text,",", p_which);
                 emit_signal("variant_changed");
             }
         } break;
@@ -154,9 +160,9 @@ void CustomPropertyEditor::_menu_option(int p_which) {
                     String type = (hint == PROPERTY_HINT_RESOURCE_TYPE) ? hint_text : String();
 
                     List<String> extensions;
-                    for (int i = 0; i < type.get_slice_count(","); i++) {
+                    for (int i = 0; i < StringUtils::get_slice_count(type,","); i++) {
 
-                        ResourceLoader::get_recognized_extensions_for_type(type.get_slice(",", i), &extensions);
+                        ResourceLoader::get_recognized_extensions_for_type(StringUtils::get_slice(type,",", i), &extensions);
                     }
 
                     Set<String> valid_extensions;
@@ -391,26 +397,26 @@ bool CustomPropertyEditor::edit(Object *p_owner, const String &p_name, Variant::
 
             if (hint == PROPERTY_HINT_RANGE) {
 
-                int c = hint_text.get_slice_count(",");
-                float min = 0, max = 100, step = type == Variant::REAL ? .01 : 1;
+                int c = StringUtils::get_slice_count(hint_text,",");
+                float min = 0, max = 100, step = type == Variant::REAL ? .01f : 1;
                 if (c >= 1) {
 
-                    if (!hint_text.get_slice(",", 0).empty())
-                        min = hint_text.get_slice(",", 0).to_double();
+                    if (!StringUtils::get_slice(hint_text,",", 0).empty())
+                        min = StringUtils::to_double(StringUtils::get_slice(hint_text,",", 0));
                 }
                 if (c >= 2) {
 
-                    if (!hint_text.get_slice(",", 1).empty())
-                        max = hint_text.get_slice(",", 1).to_double();
+                    if (!StringUtils::get_slice(hint_text,",", 1).empty())
+                        max = StringUtils::to_double(StringUtils::get_slice(hint_text,",", 1));
                 }
 
                 if (c >= 3) {
 
-                    if (!hint_text.get_slice(",", 2).empty())
-                        step = hint_text.get_slice(",", 2).to_double();
+                    if (!StringUtils::get_slice(hint_text,",", 2).empty())
+                        step = StringUtils::to_double(StringUtils::get_slice(hint_text,",", 2));
                 }
 
-                if (c >= 4 && hint_text.get_slice(",", 3) == "slider") {
+                if (c >= 4 && StringUtils::get_slice(hint_text,",", 3) == "slider") {
                     slider->set_min(min);
                     slider->set_max(max);
                     slider->set_step(step);
@@ -433,7 +439,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, const String &p_name, Variant::
                 for (int i = 0; i < options.size(); i++) {
                     Vector<String> text_split = StringUtils::split(options[i],":");
                     if (text_split.size() != 1)
-                        current_val = text_split[1].to_int();
+                        current_val = StringUtils::to_int(text_split[1]);
                     menu->add_item(text_split[0]);
                     menu->set_item_metadata(i, current_val);
                     current_val += 1;
@@ -632,7 +638,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, const String &p_name, Variant::
 
                 MAKE_PROPSELECT
 
-                Object *instance = ObjectDB::get_instance(hint_text.to_int64());
+                Object *instance = ObjectDB::get_instance(StringUtils::to_int64(hint_text));
                 if (instance)
                     property_select->select_method_from_instance(instance, v);
                 updating = false;
@@ -641,7 +647,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, const String &p_name, Variant::
             } else if (hint == PROPERTY_HINT_METHOD_OF_SCRIPT) {
                 MAKE_PROPSELECT
 
-                Object *obj = ObjectDB::get_instance(hint_text.to_int64());
+                Object *obj = ObjectDB::get_instance(StringUtils::to_int64(hint_text));
                 if (Object::cast_to<Script>(obj)) {
                     property_select->select_method_from_script(Object::cast_to<Script>(obj), v);
                 }
@@ -654,8 +660,8 @@ bool CustomPropertyEditor::edit(Object *p_owner, const String &p_name, Variant::
                 MAKE_PROPSELECT
                 Variant::Type type = Variant::NIL;
                 String tname = hint_text;
-                if (tname.find(".") != -1)
-                    tname = tname.get_slice(".", 0);
+                if (StringUtils::contains(tname,'.'))
+                    tname = StringUtils::get_slice(tname,".", 0);
                 for (int i = 0; i < Variant::VARIANT_MAX; i++) {
                     if (tname == Variant::get_type_name(Variant::Type(i))) {
                         type = Variant::Type(Variant::Type(i));
@@ -681,7 +687,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, const String &p_name, Variant::
 
                 MAKE_PROPSELECT
 
-                Object *instance = ObjectDB::get_instance(hint_text.to_int64());
+                Object *instance = ObjectDB::get_instance(StringUtils::to_int64(hint_text));
                 if (instance)
                     property_select->select_property_from_instance(instance, v);
 
@@ -691,7 +697,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, const String &p_name, Variant::
             } else if (hint == PROPERTY_HINT_PROPERTY_OF_SCRIPT) {
                 MAKE_PROPSELECT
 
-                Object *obj = ObjectDB::get_instance(hint_text.to_int64());
+                Object *obj = ObjectDB::get_instance(StringUtils::to_int64(hint_text));
                 if (Object::cast_to<Script>(obj)) {
                     property_select->select_property_from_script(Object::cast_to<Script>(obj), v);
                 }
@@ -898,14 +904,14 @@ bool CustomPropertyEditor::edit(Object *p_owner, const String &p_name, Variant::
                     custom_resources = EditorNode::get_editor_data().get_custom_types()["Resource"];
                 }
 
-                for (int i = 0; i < hint_text.get_slice_count(","); i++) {
+                for (int i = 0; i <StringUtils::get_slice_count( hint_text,","); i++) {
 
-                    String base = hint_text.get_slice(",", i);
+                    String base = StringUtils::get_slice(hint_text,",", i);
 
                     Set<String> valid_inheritors;
                     valid_inheritors.insert(base);
                     List<StringName> inheritors;
-                    ClassDB::get_inheriters_from_class(base.strip_edges(), &inheritors);
+                    ClassDB::get_inheriters_from_class(StringUtils::strip_edges(base), &inheritors);
 
                     for (int j = 0; j < custom_resources.size(); j++) {
                         inheritors.push_back(custom_resources[j].name);
@@ -980,8 +986,8 @@ bool CustomPropertyEditor::edit(Object *p_owner, const String &p_name, Variant::
                 if (hint_text == "")
                     paste_valid = true;
                 else
-                    for (int i = 0; i < hint_text.get_slice_count(","); i++)
-                        if (ClassDB::is_parent_class(cb->get_class(), hint_text.get_slice(",", i))) {
+                    for (int i = 0; i < StringUtils::get_slice_count(hint_text,","); i++)
+                        if (ClassDB::is_parent_class(cb->get_class_name(), StringUtils::get_slice(hint_text,",", i))) {
                             paste_valid = true;
                             break;
                         }
@@ -1273,9 +1279,9 @@ void CustomPropertyEditor::_action_pressed(int p_which) {
                         for (int i = 0; i < extensions.size(); i++) {
 
                             String filter = extensions[i];
-                            if (filter.begins_with("."))
+                            if (StringUtils::begins_with(filter,"."))
                                 filter = "*" + extensions[i];
-                            else if (!filter.begins_with("*"))
+                            else if (!StringUtils::begins_with(filter,"*"))
                                 filter = "*." + extensions[i];
 
                             file->add_filter(filter + " ; " + StringUtils::to_upper(extensions[i]));
@@ -1418,7 +1424,7 @@ void CustomPropertyEditor::_action_pressed(int p_which) {
                     propvalues.push_back(p);
                 }
 
-                Ref<Resource> res = Ref<Resource>(ClassDB::instance(res_orig->get_class()));
+                Ref<Resource> res = Ref<Resource>(ClassDB::instance(res_orig->get_class_name()));
 
                 ERR_FAIL_COND(res.is_null());
 
@@ -1543,7 +1549,7 @@ void CustomPropertyEditor::_modified(String p_string) {
             expr.instance();
             Error err = expr->parse(text);
             if (err != OK) {
-                v = value_editor[0]->get_text().to_int();
+                v = StringUtils::to_int(value_editor[0]->get_text());
                 return;
             } else {
                 v = expr->execute(Array(), nullptr, false);
@@ -1716,7 +1722,7 @@ real_t CustomPropertyEditor::_parse_real_expression(String text) {
     Error err = expr->parse(text);
     real_t out;
     if (err != OK) {
-        out = value_editor[0]->get_text().to_double();
+        out = StringUtils::to_double(value_editor[0]->get_text());
     } else {
         out = expr->execute(Array(), nullptr, false);
     }
@@ -1856,21 +1862,21 @@ void CustomPropertyEditor::config_value_editors(int p_amount, int p_columns, int
 
 void CustomPropertyEditor::_bind_methods() {
 
-    ClassDB::bind_method("_focus_enter", &CustomPropertyEditor::_focus_enter);
-    ClassDB::bind_method("_focus_exit", &CustomPropertyEditor::_focus_exit);
-    ClassDB::bind_method("_modified", &CustomPropertyEditor::_modified);
-    ClassDB::bind_method("_range_modified", &CustomPropertyEditor::_range_modified);
-    ClassDB::bind_method("_action_pressed", &CustomPropertyEditor::_action_pressed);
-    ClassDB::bind_method("_file_selected", &CustomPropertyEditor::_file_selected);
-    ClassDB::bind_method("_type_create_selected", &CustomPropertyEditor::_type_create_selected);
-    ClassDB::bind_method("_node_path_selected", &CustomPropertyEditor::_node_path_selected);
-    ClassDB::bind_method("_color_changed", &CustomPropertyEditor::_color_changed);
-    ClassDB::bind_method("_draw_easing", &CustomPropertyEditor::_draw_easing);
-    ClassDB::bind_method("_drag_easing", &CustomPropertyEditor::_drag_easing);
-    ClassDB::bind_method("_text_edit_changed", &CustomPropertyEditor::_text_edit_changed);
-    ClassDB::bind_method("_menu_option", &CustomPropertyEditor::_menu_option);
-    ClassDB::bind_method("_create_dialog_callback", &CustomPropertyEditor::_create_dialog_callback);
-    ClassDB::bind_method("_create_selected_property", &CustomPropertyEditor::_create_selected_property);
+    MethodBinder::bind_method("_focus_enter", &CustomPropertyEditor::_focus_enter);
+    MethodBinder::bind_method("_focus_exit", &CustomPropertyEditor::_focus_exit);
+    MethodBinder::bind_method("_modified", &CustomPropertyEditor::_modified);
+    MethodBinder::bind_method("_range_modified", &CustomPropertyEditor::_range_modified);
+    MethodBinder::bind_method("_action_pressed", &CustomPropertyEditor::_action_pressed);
+    MethodBinder::bind_method("_file_selected", &CustomPropertyEditor::_file_selected);
+    MethodBinder::bind_method("_type_create_selected", &CustomPropertyEditor::_type_create_selected);
+    MethodBinder::bind_method("_node_path_selected", &CustomPropertyEditor::_node_path_selected);
+    MethodBinder::bind_method("_color_changed", &CustomPropertyEditor::_color_changed);
+    MethodBinder::bind_method("_draw_easing", &CustomPropertyEditor::_draw_easing);
+    MethodBinder::bind_method("_drag_easing", &CustomPropertyEditor::_drag_easing);
+    MethodBinder::bind_method("_text_edit_changed", &CustomPropertyEditor::_text_edit_changed);
+    MethodBinder::bind_method("_menu_option", &CustomPropertyEditor::_menu_option);
+    MethodBinder::bind_method("_create_dialog_callback", &CustomPropertyEditor::_create_dialog_callback);
+    MethodBinder::bind_method("_create_selected_property", &CustomPropertyEditor::_create_selected_property);
 
     ADD_SIGNAL(MethodInfo("variant_changed"));
     ADD_SIGNAL(MethodInfo("variant_field_changed", PropertyInfo(Variant::STRING, "field")));

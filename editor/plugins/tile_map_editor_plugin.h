@@ -43,7 +43,7 @@
 
 class TileMapEditor : public VBoxContainer {
 
-	GDCLASS(TileMapEditor, VBoxContainer);
+	GDCLASS(TileMapEditor,VBoxContainer)
 
 	enum Tool {
 
@@ -223,12 +223,12 @@ public:
 	void edit(Node *p_tile_map);
 
 	TileMapEditor(EditorNode *p_editor);
-	~TileMapEditor();
+	~TileMapEditor() override;
 };
 
 class TileMapEditorPlugin : public EditorPlugin {
 
-	GDCLASS(TileMapEditorPlugin, EditorPlugin);
+	GDCLASS(TileMapEditorPlugin,EditorPlugin)
 
 	TileMapEditor *tile_map_editor;
 
@@ -236,17 +236,17 @@ protected:
 	void _notification(int p_what);
 
 public:
-	virtual bool forward_canvas_gui_input(const Ref<InputEvent> &p_event) { return tile_map_editor->forward_gui_input(p_event); }
-	virtual void forward_canvas_draw_over_viewport(Control *p_overlay) { tile_map_editor->forward_canvas_draw_over_viewport(p_overlay); }
+	bool forward_canvas_gui_input(const Ref<InputEvent> &p_event) override { return tile_map_editor->forward_gui_input(p_event); }
+	void forward_canvas_draw_over_viewport(Control *p_overlay) override { tile_map_editor->forward_canvas_draw_over_viewport(p_overlay); }
 
-	virtual String get_name() const { return "TileMap"; }
-	bool has_main_screen() const { return false; }
-	virtual void edit(Object *p_object);
-	virtual bool handles(Object *p_object) const;
-	virtual void make_visible(bool p_visible);
+	String get_name() const override { return "TileMap"; }
+	bool has_main_screen() const override { return false; }
+	void edit(Object *p_object) override;
+	bool handles(Object *p_object) const override;
+	void make_visible(bool p_visible) override;
 
 	TileMapEditorPlugin(EditorNode *p_node);
-	~TileMapEditorPlugin();
+	~TileMapEditorPlugin() override;
 };
 
 #endif // TILE_MAP_EDITOR_PLUGIN_H

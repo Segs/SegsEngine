@@ -35,7 +35,7 @@
 
 class SplitContainer : public Container {
 
-	GDCLASS(SplitContainer, Container);
+	GDCLASS(SplitContainer,Container)
 
 public:
 	enum DraggerVisibility {
@@ -76,9 +76,9 @@ public:
 	void set_dragger_visibility(DraggerVisibility p_visibility);
 	DraggerVisibility get_dragger_visibility() const;
 
-	virtual CursorShape get_cursor_shape(const Point2 &p_pos = Point2i()) const;
+	CursorShape get_cursor_shape(const Point2 &p_pos = Point2i()) const override;
 
-	virtual Size2 get_minimum_size() const;
+	Size2 get_minimum_size() const override;
 
 	SplitContainer(bool p_vertical = false);
 };
@@ -87,7 +87,7 @@ VARIANT_ENUM_CAST(SplitContainer::DraggerVisibility);
 
 class HSplitContainer : public SplitContainer {
 
-	GDCLASS(HSplitContainer, SplitContainer);
+	GDCLASS(HSplitContainer,SplitContainer)
 
 public:
 	HSplitContainer() :
@@ -96,7 +96,7 @@ public:
 
 class VSplitContainer : public SplitContainer {
 
-	GDCLASS(VSplitContainer, SplitContainer);
+	GDCLASS(VSplitContainer,SplitContainer)
 
 public:
 	VSplitContainer() :

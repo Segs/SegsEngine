@@ -221,8 +221,8 @@ public:
 		Vector<int> arguments_usage;
 #endif // DEBUG_ENABLED
 
-		virtual DataType get_datatype() const { return return_type; }
-		virtual void set_datatype(const DataType &p_datatype) { return_type = p_datatype; }
+		DataType get_datatype() const override { return return_type; }
+		void set_datatype(const DataType &p_datatype) override { return_type = p_datatype; }
 		int get_required_argument_count() { return arguments.size() - default_values.size(); }
 
 		FunctionNode() {
@@ -272,8 +272,8 @@ public:
 		StringName name;
 		BlockNode *declared_block; // Simplify lookup by checking if it is declared locally
 		DataType datatype;
-		virtual DataType get_datatype() const { return datatype; }
-		virtual void set_datatype(const DataType &p_datatype) { datatype = p_datatype; }
+		DataType get_datatype() const override { return datatype; }
+		void set_datatype(const DataType &p_datatype) override { datatype = p_datatype; }
 		IdentifierNode() {
 			type = TYPE_IDENTIFIER;
 			declared_block = nullptr;
@@ -288,8 +288,8 @@ public:
 		int assignments;
 		int usages;
 		DataType datatype;
-		virtual DataType get_datatype() const { return datatype; }
-		virtual void set_datatype(const DataType &p_datatype) { datatype = p_datatype; }
+		DataType get_datatype() const override { return datatype; }
+		void set_datatype(const DataType &p_datatype) override { datatype = p_datatype; }
 		LocalVarNode() {
 			type = TYPE_LOCAL_VAR;
 			assign = nullptr;
@@ -302,8 +302,8 @@ public:
 	struct ConstantNode : public Node {
 		Variant value;
 		DataType datatype;
-		virtual DataType get_datatype() const { return datatype; }
-		virtual void set_datatype(const DataType &p_datatype) { datatype = p_datatype; }
+		DataType get_datatype() const override { return datatype; }
+		void set_datatype(const DataType &p_datatype) override { datatype = p_datatype; }
 		ConstantNode() { type = TYPE_CONSTANT; }
 	};
 
@@ -311,8 +311,8 @@ public:
 
 		Vector<Node *> elements;
 		DataType datatype;
-		virtual DataType get_datatype() const { return datatype; }
-		virtual void set_datatype(const DataType &p_datatype) { datatype = p_datatype; }
+		DataType get_datatype() const override { return datatype; }
+		void set_datatype(const DataType &p_datatype) override { datatype = p_datatype; }
 		ArrayNode() {
 			type = TYPE_ARRAY;
 			datatype.has_type = true;
@@ -331,8 +331,8 @@ public:
 
 		Vector<Pair> elements;
 		DataType datatype;
-		virtual DataType get_datatype() const { return datatype; }
-		virtual void set_datatype(const DataType &p_datatype) { datatype = p_datatype; }
+		DataType get_datatype() const override { return datatype; }
+		void set_datatype(const DataType &p_datatype) override { datatype = p_datatype; }
 		DictionaryNode() {
 			type = TYPE_DICTIONARY;
 			datatype.has_type = true;
@@ -402,8 +402,8 @@ public:
 
 		Vector<Node *> arguments;
 		DataType datatype;
-		virtual DataType get_datatype() const { return datatype; }
-		virtual void set_datatype(const DataType &p_datatype) { datatype = p_datatype; }
+		DataType get_datatype() const override { return datatype; }
+		void set_datatype(const DataType &p_datatype) override { datatype = p_datatype; }
 		OperatorNode() { type = TYPE_OPERATOR; }
 	};
 
@@ -474,8 +474,8 @@ public:
 		Node *source_node;
 		DataType cast_type;
 		DataType return_type;
-		virtual DataType get_datatype() const { return return_type; }
-		virtual void set_datatype(const DataType &p_datatype) { return_type = p_datatype; }
+		DataType get_datatype() const override { return return_type; }
+		void set_datatype(const DataType &p_datatype) override { return_type = p_datatype; }
 		CastNode() { type = TYPE_CAST; }
 	};
 
@@ -632,6 +632,7 @@ private:
 	Error _parse(const String &p_base_path);
 
 public:
+	bool has_error() const;
 	String get_error() const;
 	int get_error_line() const;
 	int get_error_column() const;

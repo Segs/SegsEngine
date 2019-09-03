@@ -49,17 +49,17 @@ private:
 	const godot_pluginscript_instance_desc *_desc;
 
 public:
-	_FORCE_INLINE_ Object *get_owner() { return _owner; }
+	_FORCE_INLINE_ Object *get_owner() override { return _owner; }
 
-	virtual bool set(const StringName &p_name, const Variant &p_value);
-	virtual bool get(const StringName &p_name, Variant &r_ret) const;
-	virtual void get_property_list(List<PropertyInfo> *p_properties) const;
-	virtual Variant::Type get_property_type(const StringName &p_name, bool *r_is_valid = nullptr) const;
+	bool set(const StringName &p_name, const Variant &p_value) override;
+	bool get(const StringName &p_name, Variant &r_ret) const override;
+	void get_property_list(List<PropertyInfo> *p_properties) const override;
+	Variant::Type get_property_type(const StringName &p_name, bool *r_is_valid = nullptr) const override;
 
-	virtual void get_method_list(List<MethodInfo> *p_list) const;
-	virtual bool has_method(const StringName &p_method) const;
+	void get_method_list(List<MethodInfo> *p_list) const override;
+	bool has_method(const StringName &p_method) const override;
 
-	virtual Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error);
+	Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error) override;
 #if 0
     // Rely on default implementations provided by ScriptInstance for the moment.
     // Note that multilevel call could be removed in 3.0 release, so stay tuned
@@ -68,23 +68,23 @@ public:
     virtual void call_multilevel_reversed(const StringName& p_method,const Variant** p_args,int p_argcount);
 #endif
 
-	virtual void notification(int p_notification);
+	void notification(int p_notification) override;
 
-	virtual Ref<Script> get_script() const;
+	Ref<Script> get_script() const override;
 
-	virtual ScriptLanguage *get_language();
+	ScriptLanguage *get_language() override;
 
 	void set_path(const String &p_path);
 
-	virtual MultiplayerAPI::RPCMode get_rpc_mode(const StringName &p_method) const;
-	virtual MultiplayerAPI::RPCMode get_rset_mode(const StringName &p_variable) const;
+	MultiplayerAPI::RPCMode get_rpc_mode(const StringName &p_method) const override;
+	MultiplayerAPI::RPCMode get_rset_mode(const StringName &p_variable) const override;
 
-	virtual void refcount_incremented();
-	virtual bool refcount_decremented();
+	void refcount_incremented() override;
+	bool refcount_decremented() override;
 
 	PluginScriptInstance();
 	bool init(PluginScript *p_script, Object *p_owner);
-	virtual ~PluginScriptInstance();
+	~PluginScriptInstance() override;
 };
 
 #endif // PLUGINSCRIPT_INSTANCE_H

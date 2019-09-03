@@ -36,7 +36,7 @@
 
 class EditorPath : public MenuButton {
 
-	GDCLASS(EditorPath, MenuButton);
+	GDCLASS(EditorPath,MenuButton)
 
 	EditorHistory *history;
 

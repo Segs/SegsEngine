@@ -38,8 +38,9 @@
 
 class VisualInstance : public Spatial {
 
-	GDCLASS(VisualInstance, Spatial);
-	OBJ_CATEGORY("3D Visual Nodes");
+	GDCLASS(VisualInstance,Spatial)
+
+    OBJ_CATEGORY("3D Visual Nodes");
 
 	RID base;
 	RID instance;
@@ -77,12 +78,12 @@ public:
 	bool get_layer_mask_bit(int p_layer) const;
 
 	VisualInstance();
-	~VisualInstance();
+	~VisualInstance() override;
 };
 
 class GeometryInstance : public VisualInstance {
 
-	GDCLASS(GeometryInstance, VisualInstance);
+	GDCLASS(GeometryInstance,VisualInstance)
 
 public:
 	enum Flags {

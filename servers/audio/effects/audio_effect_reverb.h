@@ -37,7 +37,7 @@
 class AudioEffectReverb;
 
 class AudioEffectReverbInstance : public AudioEffectInstance {
-	GDCLASS(AudioEffectReverbInstance, AudioEffectInstance);
+	GDCLASS(AudioEffectReverbInstance,AudioEffectInstance)
 
 	Ref<AudioEffectReverb> base;
 
@@ -49,12 +49,12 @@ class AudioEffectReverbInstance : public AudioEffectInstance {
 	Reverb reverb[2];
 
 public:
-	virtual void process(const AudioFrame *p_src_frames, AudioFrame *p_dst_frames, int p_frame_count);
+	void process(const AudioFrame *p_src_frames, AudioFrame *p_dst_frames, int p_frame_count) override;
 	AudioEffectReverbInstance();
 };
 
 class AudioEffectReverb : public AudioEffect {
-	GDCLASS(AudioEffectReverb, AudioEffect);
+	GDCLASS(AudioEffectReverb,AudioEffect)
 
 	friend class AudioEffectReverbInstance;
 
@@ -89,7 +89,7 @@ public:
 	float get_wet() const;
 	float get_hpf() const;
 
-	Ref<AudioEffectInstance> instance();
+	Ref<AudioEffectInstance> instance() override;
 	void set_volume_db(float p_volume);
 	float get_volume_db() const;
 

@@ -36,8 +36,9 @@
 class AudioEffectPhaser;
 
 class AudioEffectPhaserInstance : public AudioEffectInstance {
-	GDCLASS(AudioEffectPhaserInstance, AudioEffectInstance);
-	friend class AudioEffectPhaser;
+	GDCLASS(AudioEffectPhaserInstance,AudioEffectInstance)
+
+    friend class AudioEffectPhaser;
 	Ref<AudioEffectPhaser> base;
 
 	float phase;
@@ -66,11 +67,11 @@ class AudioEffectPhaserInstance : public AudioEffectInstance {
 	AllpassDelay allpass[2][6];
 
 public:
-	virtual void process(const AudioFrame *p_src_frames, AudioFrame *p_dst_frames, int p_frame_count);
+	void process(const AudioFrame *p_src_frames, AudioFrame *p_dst_frames, int p_frame_count) override;
 };
 
 class AudioEffectPhaser : public AudioEffect {
-	GDCLASS(AudioEffectPhaser, AudioEffect);
+	GDCLASS(AudioEffectPhaser,AudioEffect)
 
 	friend class AudioEffectPhaserInstance;
 	float range_min;
@@ -83,7 +84,7 @@ protected:
 	static void _bind_methods();
 
 public:
-	Ref<AudioEffectInstance> instance();
+	Ref<AudioEffectInstance> instance() override;
 
 	void set_range_min_hz(float p_hz);
 	float get_range_min_hz() const;

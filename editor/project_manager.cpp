@@ -30,6 +30,7 @@
 
 #include "project_manager.h"
 
+#include "core/method_bind.h"
 #include "core/io/config_file.h"
 #include "core/io/resource_saver.h"
 #include "core/io/stream_peer_ssl.h"
@@ -53,12 +54,14 @@
 #include "scene/gui/tool_button.h"
 
 static inline String get_project_key_from_path(String dir) {
-    return dir.replace("/", "::");
+    return StringUtils::replace(dir,"/", "::");
 }
+IMPL_GDCLASS(ProjectManager)
+IMPL_GDCLASS(ProjectListFilter)
 
 class ProjectDialog : public ConfirmationDialog {
 
-    GDCLASS(ProjectDialog, ConfirmationDialog)
+    GDCLASS(ProjectDialog,ConfirmationDialog)
 
 public:
     enum Mode {
@@ -150,15 +153,15 @@ private:
         String valid_path, valid_install_path;
         if (d->change_dir(project_path->get_text()) == OK) {
             valid_path = project_path->get_text();
-        } else if (d->change_dir(project_path->get_text().strip_edges()) == OK) {
-            valid_path = project_path->get_text().strip_edges();
-        } else if (project_path->get_text().ends_with(".zip")) {
+        } else if (d->change_dir(StringUtils::strip_edges(project_path->get_text())) == OK) {
+            valid_path = StringUtils::strip_edges(project_path->get_text());
+        } else if (StringUtils::ends_with(project_path->get_text(),".zip")) {
             if (d->file_exists(project_path->get_text())) {
                 valid_path = project_path->get_text();
             }
-        } else if (project_path->get_text().strip_edges().ends_with(".zip")) {
-            if (d->file_exists(project_path->get_text().strip_edges())) {
-                valid_path = project_path->get_text().strip_edges();
+        } else if (StringUtils::ends_with(StringUtils::strip_edges(project_path->get_text()),".zip")) {
+            if (d->file_exists(StringUtils::strip_edges(project_path->get_text()))) {
+                valid_path = StringUtils::strip_edges(project_path->get_text());
             }
         }
 
@@ -169,11 +172,11 @@ private:
             return "";
         }
 
-        if (mode == MODE_IMPORT && valid_path.ends_with(".zip")) {
+        if (mode == MODE_IMPORT && StringUtils::ends_with(valid_path,".zip")) {
             if (d->change_dir(install_path->get_text()) == OK) {
                 valid_install_path = install_path->get_text();
-            } else if (d->change_dir(install_path->get_text().strip_edges()) == OK) {
-                valid_install_path = install_path->get_text().strip_edges();
+            } else if (d->change_dir(StringUtils::strip_edges(install_path->get_text())) == OK) {
+                valid_install_path = StringUtils::strip_edges(install_path->get_text());
             }
 
             if (valid_install_path == "") {
@@ -188,11 +191,11 @@ private:
 
             if (valid_path != "" && !d->file_exists("project.godot")) {
 
-                if (valid_path.ends_with(".zip")) {
+                if (StringUtils::ends_with(valid_path,".zip")) {
                     FileAccess *src_f = nullptr;
                     zlib_filefunc_def io = zipio_create_io_from_file(&src_f);
 
-                    unzFile pkg = unzOpen2(qPrintable(valid_path), &io);
+                    unzFile pkg = unzOpen2(qPrintable(valid_path.m_str), &io);
                     if (!pkg) {
 
                         set_message(TTR("Error opening package file, not in ZIP format."), MESSAGE_ERROR);
@@ -208,7 +211,7 @@ private:
                         char fname[16384];
                         ret = unzGetCurrentFileInfo(pkg, &info, fname, 16384, nullptr, 0, nullptr, 0);
 
-                        if (String(fname).ends_with("project.godot")) {
+                        if (StringUtils::ends_with(String(fname),"project.godot")) {
                             break;
                         }
 
@@ -254,7 +257,7 @@ private:
                     return "";
                 }
 
-            } else if (valid_path.ends_with("zip")) {
+            } else if (StringUtils::ends_with(valid_path,"zip")) {
 
                 set_message(TTR("Directory already contains a Godot project."), MESSAGE_ERROR, INSTALL_PATH);
                 memdelete(d);
@@ -300,11 +303,11 @@ private:
 
             // If the project name is empty or default, infer the project name from the selected folder name
             if (project_name->get_text() == "" || project_name->get_text() == TTR("New Game Project")) {
-                sp = sp.replace("\\", "/");
-                int lidx = sp.find_last("/");
+                sp = PathUtils::from_native_path(sp);
+                int lidx = StringUtils::find_last(sp,"/");
 
                 if (lidx != -1) {
-                    sp = sp.substr(lidx + 1, sp.length()).capitalize();
+                    sp = StringUtils::capitalize(StringUtils::substr(sp,lidx + 1, sp.length()));
                 }
                 if (sp == "" && mode == MODE_IMPORT)
                     sp = TTR("Imported Project");
@@ -323,11 +326,11 @@ private:
 
         String p = p_path;
         if (mode == MODE_IMPORT) {
-            if (p.ends_with("project.godot")) {
+            if (StringUtils::ends_with(p,"project.godot")) {
                 p = PathUtils::get_base_dir(p);
                 install_path_container->hide();
                 get_ok()->set_disabled(false);
-            } else if (p.ends_with(".zip")) {
+            } else if (StringUtils::ends_with(p,".zip")) {
                 install_path->set_text(PathUtils::get_base_dir(p));
                 install_path_container->show();
                 get_ok()->set_disabled(false);
@@ -340,7 +343,7 @@ private:
         String sp = PathUtils::simplify_path(p);
         project_path->set_text(sp);
         _path_text_changed(sp);
-        if (p.ends_with(".zip")) {
+        if (StringUtils::ends_with(p,".zip")) {
             install_path->call_deferred("grab_focus");
         } else {
             get_ok()->call_deferred("grab_focus");
@@ -388,7 +391,7 @@ private:
 
     void _create_folder() {
 
-        if (project_name->get_text() == "" || created_folder_path != "" || project_name->get_text().ends_with(".") || project_name->get_text().ends_with(" ")) {
+        if (project_name->get_text() == "" || created_folder_path != "" || StringUtils::ends_with(project_name->get_text(),".") || StringUtils::ends_with(project_name->get_text()," ")) {
             set_message(TTR("Invalid Project Name."), MESSAGE_WARNING);
             return;
         }
@@ -432,7 +435,7 @@ private:
             set_message(TTR("It would be a good idea to name your project."), MESSAGE_WARNING);
     }
 
-    void ok_pressed() {
+    void ok_pressed() override {
 
         String dir = project_path->get_text();
 
@@ -465,7 +468,7 @@ private:
 
             if (mode == MODE_IMPORT) {
 
-                if (project_path->get_text().ends_with(".zip")) {
+                if (StringUtils::ends_with(project_path->get_text(),".zip")) {
 
                     mode = MODE_INSTALL;
                     ok_pressed();
@@ -508,7 +511,7 @@ private:
 
                 } else if (mode == MODE_INSTALL) {
 
-                    if (project_path->get_text().ends_with(".zip")) {
+                    if (StringUtils::ends_with(project_path->get_text(),".zip")) {
                         dir = install_path->get_text();
                         zip_path = project_path->get_text();
                     }
@@ -516,7 +519,7 @@ private:
                     FileAccess *src_f = nullptr;
                     zlib_filefunc_def io = zipio_create_io_from_file(&src_f);
 
-                    unzFile pkg = unzOpen2(qPrintable(zip_path), &io);
+                    unzFile pkg = unzOpen2(qPrintable(zip_path.m_str), &io);
                     if (!pkg) {
 
                         dialog_error->set_text(TTR("Error opening package file, not in ZIP format."));
@@ -541,20 +544,20 @@ private:
                         int depth = 1; //stuff from github comes with tag
                         bool skip = false;
                         while (depth > 0) {
-                            int pp = path.find("/");
+                            int pp = StringUtils::find(path,"/");
                             if (pp == -1) {
                                 skip = true;
                                 break;
                             }
-                            path = path.substr(pp + 1, path.length());
+                            path = StringUtils::substr(path,pp + 1, path.length());
                             depth--;
                         }
 
                         if (skip || path == String()) {
                             //
-                        } else if (path.ends_with("/")) { // a dir
+                        } else if (StringUtils::ends_with(path,"/")) { // a dir
 
-                            path = path.substr(0, path.length() - 1);
+                            path = StringUtils::substr(path,0, path.length() - 1);
 
                             DirAccess *da = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
                             da->make_dir(PathUtils::plus_file(dir,path));
@@ -600,16 +603,16 @@ private:
                         dialog_error->set_text(msg);
                         dialog_error->popup_centered_minsize();
 
-                    } else if (!project_path->get_text().ends_with(".zip")) {
+                    } else if (!StringUtils::ends_with(project_path->get_text(),".zip")) {
                         dialog_error->set_text(TTR("Package installed successfully!"));
                         dialog_error->popup_centered_minsize();
                     }
                 }
             }
 
-            dir = dir.replace("\\", "/");
-            if (dir.ends_with("/"))
-                dir = dir.substr(0, dir.length() - 1);
+            dir = PathUtils::from_native_path(dir);
+            if (StringUtils::ends_with(dir,"/"))
+                dir = StringUtils::substr(dir,0, dir.length() - 1);
             String proj = get_project_key_from_path(dir);
             EditorSettings::get_singleton()->set("projects/" + proj, dir);
             EditorSettings::get_singleton()->save();
@@ -631,7 +634,7 @@ private:
         }
     }
 
-    void cancel_pressed() {
+    void cancel_pressed() override {
 
         _remove_created_folder();
 
@@ -656,14 +659,14 @@ private:
 protected:
     static void _bind_methods() {
 
-        ClassDB::bind_method("_browse_path", &ProjectDialog::_browse_path);
-        ClassDB::bind_method("_create_folder", &ProjectDialog::_create_folder);
-        ClassDB::bind_method("_text_changed", &ProjectDialog::_text_changed);
-        ClassDB::bind_method("_path_text_changed", &ProjectDialog::_path_text_changed);
-        ClassDB::bind_method("_path_selected", &ProjectDialog::_path_selected);
-        ClassDB::bind_method("_file_selected", &ProjectDialog::_file_selected);
-        ClassDB::bind_method("_install_path_selected", &ProjectDialog::_install_path_selected);
-        ClassDB::bind_method("_browse_install_path", &ProjectDialog::_browse_install_path);
+        MethodBinder::bind_method("_browse_path", &ProjectDialog::_browse_path);
+        MethodBinder::bind_method("_create_folder", &ProjectDialog::_create_folder);
+        MethodBinder::bind_method("_text_changed", &ProjectDialog::_text_changed);
+        MethodBinder::bind_method("_path_text_changed", &ProjectDialog::_path_text_changed);
+        MethodBinder::bind_method("_path_selected", &ProjectDialog::_path_selected);
+        MethodBinder::bind_method("_file_selected", &ProjectDialog::_file_selected);
+        MethodBinder::bind_method("_install_path_selected", &ProjectDialog::_install_path_selected);
+        MethodBinder::bind_method("_browse_install_path", &ProjectDialog::_browse_install_path);
         ADD_SIGNAL(MethodInfo("project_created"));
         ADD_SIGNAL(MethodInfo("projects_updated"));
     }
@@ -922,8 +925,10 @@ public:
     }
 };
 
+IMPL_GDCLASS(ProjectDialog)
+
 class ProjectListItemControl : public HBoxContainer {
-    GDCLASS(ProjectListItemControl, HBoxContainer)
+    GDCLASS(ProjectListItemControl,HBoxContainer)
 public:
     TextureButton *favorite_button;
     TextureRect *icon;
@@ -940,16 +945,23 @@ public:
     }
 };
 
+IMPL_GDCLASS(ProjectListItemControl)
+
 class ProjectList : public ScrollContainer {
-    GDCLASS(ProjectList, ScrollContainer)
+    GDCLASS(ProjectList,ScrollContainer)
 public:
     static const char *SIGNAL_SELECTION_CHANGED;
     static const char *SIGNAL_PROJECT_ASK_OPEN;
 
+    enum MenuOptions {
+        GLOBAL_NEW_WINDOW,
+        GLOBAL_OPEN_PROJECT
+    };
     // Can often be passed by copy
     struct Item {
         String project_key;
         String project_name;
+        String description;
         String path;
         String icon;
         String main_scene;
@@ -965,6 +977,7 @@ public:
 
         Item(const String &p_project,
                 const String &p_name,
+                const String &p_description,
                 const String &p_path,
                 const String &p_icon,
                 const String &p_main_scene,
@@ -976,6 +989,7 @@ public:
 
             project_key = p_project;
             project_name = p_name;
+            description = p_description;
             path = p_path;
             icon = p_icon;
             main_scene = p_main_scene;
@@ -993,7 +1007,7 @@ public:
     };
 
     ProjectList();
-    ~ProjectList();
+    ~ProjectList() override;
 
     void load_projects();
     void set_search_term(String p_search_term);
@@ -1037,6 +1051,8 @@ private:
 
     Vector<Item> _projects;
 };
+
+IMPL_GDCLASS(ProjectList)
 
 struct ProjectListComparator {
     ProjectListFilter::FilterOption order_option;
@@ -1102,7 +1118,7 @@ void ProjectList::load_project_icon(int p_index) {
     if (item.icon != "") {
         Ref<Image> img;
         img.instance();
-        Error err = img->load(item.icon.replace_first("res://", item.path + "/"));
+        Error err = img->load(StringUtils::replace_first(item.icon,"res://", item.path + "/"));
         if (err == OK) {
 
             img->resize(default_icon->get_width(), default_icon->get_height(), Image::INTERPOLATE_LANCZOS);
@@ -1143,6 +1159,7 @@ void ProjectList::load_project_data(const String &p_property_key, Item &p_item, 
         grayed = true;
     }
 
+    String description = cf->get_value("application", "config/description", "");
     String icon = cf->get_value("application", "config/icon", "");
     String main_scene = cf->get_value("application", "run/main_scene", "");
 
@@ -1162,9 +1179,9 @@ void ProjectList::load_project_data(const String &p_property_key, Item &p_item, 
         print_line("Project is missing: " + conf);
     }
 
-    String project_key = p_property_key.get_slice("/", 1);
+    String project_key = StringUtils::get_slice(p_property_key,"/", 1);
 
-    p_item = Item(project_key, project_name, path, icon, main_scene, last_modified, p_favorite, grayed, missing, config_version);
+    p_item = Item(project_key, project_name, description, path, icon, main_scene, last_modified, p_favorite, grayed, missing, config_version);
 }
 
 void ProjectList::load_projects() {
@@ -1180,6 +1197,7 @@ void ProjectList::load_projects() {
     _projects.clear();
     _last_clicked = "";
     _selected_project_keys.clear();
+    OS::get_singleton()->global_menu_clear("_dock");
 
     // Load data
     // TODO Would be nice to change how projects and favourites are stored... it complicates things a bit.
@@ -1192,7 +1210,7 @@ void ProjectList::load_projects() {
     // Find favourites...
     for (List<PropertyInfo>::Element *E = properties.front(); E; E = E->next()) {
         String property_key = E->get().name;
-        if (property_key.begins_with("favorite_projects/")) {
+        if (StringUtils::begins_with(property_key,"favorite_projects/")) {
             favorites.insert(property_key);
         }
     }
@@ -1200,10 +1218,10 @@ void ProjectList::load_projects() {
     for (List<PropertyInfo>::Element *E = properties.front(); E; E = E->next()) {
         // This is actually something like "projects/C:::Documents::Godot::Projects::MyGame"
         String property_key = E->get().name;
-        if (!property_key.begins_with("projects/"))
+        if (!StringUtils::begins_with(property_key,"projects/"))
             continue;
 
-        String project_key = property_key.get_slice("/", 1);
+        String project_key = StringUtils::get_slice(property_key,"/", 1);
         bool favorite = favorites.has("favorite_projects/" + project_key);
 
         Item item;
@@ -1216,6 +1234,9 @@ void ProjectList::load_projects() {
     for (int i = 0; i < _projects.size(); ++i) {
         create_project_item_control(i);
     }
+
+    OS::get_singleton()->global_menu_add_separator("_dock");
+    OS::get_singleton()->global_menu_add_item("_dock", TTR("New Window"), GLOBAL_NEW_WINDOW, Variant());
 
     sort_projects();
 
@@ -1239,6 +1260,7 @@ void ProjectList::create_project_item_control(int p_index) {
     hb->connect("draw", this, "_panel_draw", varray(hb));
     hb->connect("gui_input", this, "_panel_input", varray(hb));
     hb->add_constant_override("separation", 10 * EDSCALE);
+    hb->set_tooltip(item.description);
 
     VBoxContainer *favorite_box = memnew(VBoxContainer);
     favorite_box->set_name("FavoriteBox");
@@ -1281,7 +1303,7 @@ void ProjectList::create_project_item_control(int p_index) {
 
     Button *show = memnew(Button);
     // Display a folder icon if the project directory can be opened, or a "broken file" icon if it can't
-    show->set_icon(get_icon(!item.missing ? "Load" : "FileBroken", "EditorIcons"));
+    show->set_icon(get_icon(!item.missing ? StringName("Load") : StringName("FileBroken"), "EditorIcons"));
     show->set_flat(true);
     if (!item.grayed) {
         // Don't make the icon less prominent if the parent is already grayed out
@@ -1303,6 +1325,8 @@ void ProjectList::create_project_item_control(int p_index) {
     fpath->set_clip_text(true);
 
     _scroll_children->add_child(hb);
+    OS::get_singleton()->global_menu_add_item("_dock", item.project_name + " ( " + item.path + " )", GLOBAL_OPEN_PROJECT,
+            Variant(PathUtils::plus_file(item.path,"project.godot")));
     item.control = hb;
 }
 
@@ -1331,7 +1355,7 @@ void ProjectList::sort_projects() {
         if (_search_term != "") {
 
             String search_path;
-            if (_search_term.find("/") != -1) {
+            if (StringUtils::find(_search_term,"/") != -1) {
                 // Search path will match the whole path
                 search_path = item.path;
             } else {
@@ -1340,7 +1364,7 @@ void ProjectList::sort_projects() {
             }
 
             // When searching, display projects whose name or path contain the search term
-            visible = item.project_name.findn(_search_term) != -1 || search_path.findn(_search_term) != -1;
+            visible = StringUtils::findn(item.project_name,_search_term) != -1 || StringUtils::findn(search_path,_search_term) != -1;
         }
 
         item.control->set_visible(visible);
@@ -1648,10 +1672,10 @@ void ProjectList::_panel_input(const Ref<InputEvent> &p_ev, Node *p_hb) {
             select_project(clicked_index);
         }
 
-        emit_signal(SIGNAL_SELECTION_CHANGED);
+        emit_signal(StaticCString(SIGNAL_SELECTION_CHANGED,true));
 
         if (mb->is_doubleclick()) {
-            emit_signal(SIGNAL_PROJECT_ASK_OPEN);
+            emit_signal(StaticCString(SIGNAL_PROJECT_ASK_OPEN,true));
         }
     }
 }
@@ -1698,10 +1722,10 @@ const char *ProjectList::SIGNAL_PROJECT_ASK_OPEN = "project_ask_open";
 
 void ProjectList::_bind_methods() {
 
-    ClassDB::bind_method("_panel_draw", &ProjectList::_panel_draw);
-    ClassDB::bind_method("_panel_input", &ProjectList::_panel_input);
-    ClassDB::bind_method("_favorite_pressed", &ProjectList::_favorite_pressed);
-    ClassDB::bind_method("_show_project", &ProjectList::_show_project);
+    MethodBinder::bind_method("_panel_draw", &ProjectList::_panel_draw);
+    MethodBinder::bind_method("_panel_input", &ProjectList::_panel_input);
+    MethodBinder::bind_method("_favorite_pressed", &ProjectList::_favorite_pressed);
+    MethodBinder::bind_method("_show_project", &ProjectList::_show_project);
 
     ADD_SIGNAL(MethodInfo(SIGNAL_SELECTION_CHANGED));
     ADD_SIGNAL(MethodInfo(SIGNAL_PROJECT_ASK_OPEN));
@@ -1737,7 +1761,7 @@ void ProjectManager::_dim_window() {
 
     // Dim the project manager window while it's quitting to make it clearer that it's busy.
     // No transition is applied, as the effect needs to be visible immediately
-    float c = 0.4f;
+	float c = 0.5f;
     Color dim_color = Color(c, c, c);
     gui_base->set_modulate(dim_color);
 }
@@ -1819,7 +1843,7 @@ void ProjectManager::_unhandled_input(const Ref<InputEvent> &p_ev) {
                     break;
 
                 int index = _project_list->get_single_selected_index();
-                if (index - 1 > 0) {
+                if (index > 0) {
                     _project_list->select_project(index - 1);
                     _project_list->ensure_project_visible(index - 1);
                     _update_project_buttons();
@@ -1889,6 +1913,29 @@ void ProjectManager::_on_project_created(const String &dir) {
 
 void ProjectManager::_confirm_update_settings() {
     _open_selected_projects();
+}
+
+void ProjectManager::_global_menu_action(const Variant &p_id, const Variant &p_meta) {
+
+    int id = (int)p_id;
+    if (id == ProjectList::GLOBAL_NEW_WINDOW) {
+        List<String> args;
+        String exec = OS::get_singleton()->get_executable_path();
+
+        OS::ProcessID pid = 0;
+        OS::get_singleton()->execute(exec, args, false, &pid);
+    } else if (id == ProjectList::GLOBAL_OPEN_PROJECT) {
+        String conf = (String)p_meta;
+
+        if (conf != String()) {
+            List<String> args;
+            args.push_back(conf);
+            String exec = OS::get_singleton()->get_executable_path();
+
+            OS::ProcessID pid = 0;
+            OS::get_singleton()->execute(exec, args, false, &pid);
+        }
+    }
 }
 
 void ProjectManager::_open_selected_projects() {
@@ -2040,7 +2087,7 @@ void ProjectManager::_scan_dir(const String &path, List<String> *r_projects) {
     da->list_dir_begin();
     String n = da->get_next();
     while (n != String()) {
-        if (da->current_is_dir() && !n.begins_with(".")) {
+        if (da->current_is_dir() && !StringUtils::begins_with(n,".")) {
             _scan_dir(PathUtils::plus_file(da->get_current_dir(),n), r_projects);
         } else if (n == "project.godot") {
             r_projects->push_back(da->get_current_dir());
@@ -2192,7 +2239,7 @@ void ProjectManager::_files_dropped(PoolStringArray p_files, int p_screen) {
                 dir->list_dir_begin();
                 String file = dir->get_next();
                 while (confirm && file != String()) {
-                    if (!dir->current_is_dir() && file.ends_with("project.godot")) {
+                    if (!dir->current_is_dir() && StringUtils::ends_with(file,"project.godot")) {
                         confirm = false;
                     }
                     file = dir->get_next();
@@ -2231,33 +2278,34 @@ void ProjectManager::_on_filter_option_changed() {
 
 void ProjectManager::_bind_methods() {
 
-    ClassDB::bind_method("_open_selected_projects_ask", &ProjectManager::_open_selected_projects_ask);
-    ClassDB::bind_method("_open_selected_projects", &ProjectManager::_open_selected_projects);
-    ClassDB::bind_method("_run_project", &ProjectManager::_run_project);
-    ClassDB::bind_method("_run_project_confirm", &ProjectManager::_run_project_confirm);
-    ClassDB::bind_method("_scan_projects", &ProjectManager::_scan_projects);
-    ClassDB::bind_method("_scan_begin", &ProjectManager::_scan_begin);
-    ClassDB::bind_method("_import_project", &ProjectManager::_import_project);
-    ClassDB::bind_method("_new_project", &ProjectManager::_new_project);
-    ClassDB::bind_method("_rename_project", &ProjectManager::_rename_project);
-    ClassDB::bind_method("_erase_project", &ProjectManager::_erase_project);
-    ClassDB::bind_method("_erase_missing_projects", &ProjectManager::_erase_missing_projects);
-    ClassDB::bind_method("_erase_project_confirm", &ProjectManager::_erase_project_confirm);
-    ClassDB::bind_method("_erase_missing_projects_confirm", &ProjectManager::_erase_missing_projects_confirm);
-    ClassDB::bind_method("_language_selected", &ProjectManager::_language_selected);
-    ClassDB::bind_method("_restart_confirm", &ProjectManager::_restart_confirm);
-    ClassDB::bind_method("_exit_dialog", &ProjectManager::_exit_dialog);
-    ClassDB::bind_method("_on_order_option_changed", &ProjectManager::_on_order_option_changed);
-    ClassDB::bind_method("_on_filter_option_changed", &ProjectManager::_on_filter_option_changed);
-    ClassDB::bind_method("_on_projects_updated", &ProjectManager::_on_projects_updated);
-    ClassDB::bind_method("_on_project_created", &ProjectManager::_on_project_created);
-    ClassDB::bind_method("_unhandled_input", &ProjectManager::_unhandled_input);
-    ClassDB::bind_method("_install_project", &ProjectManager::_install_project);
-    ClassDB::bind_method("_files_dropped", &ProjectManager::_files_dropped);
-    ClassDB::bind_method("_open_asset_library", &ProjectManager::_open_asset_library);
-    ClassDB::bind_method("_confirm_update_settings", &ProjectManager::_confirm_update_settings);
-    ClassDB::bind_method("_update_project_buttons", &ProjectManager::_update_project_buttons);
-    ClassDB::bind_method(D_METHOD("_scan_multiple_folders", "files"), &ProjectManager::_scan_multiple_folders);
+    MethodBinder::bind_method("_open_selected_projects_ask", &ProjectManager::_open_selected_projects_ask);
+    MethodBinder::bind_method("_open_selected_projects", &ProjectManager::_open_selected_projects);
+    MethodBinder::bind_method(D_METHOD("_global_menu_action"), &ProjectManager::_global_menu_action, {DEFVAL(Variant())});
+    MethodBinder::bind_method("_run_project", &ProjectManager::_run_project);
+    MethodBinder::bind_method("_run_project_confirm", &ProjectManager::_run_project_confirm);
+    MethodBinder::bind_method("_scan_projects", &ProjectManager::_scan_projects);
+    MethodBinder::bind_method("_scan_begin", &ProjectManager::_scan_begin);
+    MethodBinder::bind_method("_import_project", &ProjectManager::_import_project);
+    MethodBinder::bind_method("_new_project", &ProjectManager::_new_project);
+    MethodBinder::bind_method("_rename_project", &ProjectManager::_rename_project);
+    MethodBinder::bind_method("_erase_project", &ProjectManager::_erase_project);
+    MethodBinder::bind_method("_erase_missing_projects", &ProjectManager::_erase_missing_projects);
+    MethodBinder::bind_method("_erase_project_confirm", &ProjectManager::_erase_project_confirm);
+    MethodBinder::bind_method("_erase_missing_projects_confirm", &ProjectManager::_erase_missing_projects_confirm);
+    MethodBinder::bind_method("_language_selected", &ProjectManager::_language_selected);
+    MethodBinder::bind_method("_restart_confirm", &ProjectManager::_restart_confirm);
+    MethodBinder::bind_method("_exit_dialog", &ProjectManager::_exit_dialog);
+    MethodBinder::bind_method("_on_order_option_changed", &ProjectManager::_on_order_option_changed);
+    MethodBinder::bind_method("_on_filter_option_changed", &ProjectManager::_on_filter_option_changed);
+    MethodBinder::bind_method("_on_projects_updated", &ProjectManager::_on_projects_updated);
+    MethodBinder::bind_method("_on_project_created", &ProjectManager::_on_project_created);
+    MethodBinder::bind_method("_unhandled_input", &ProjectManager::_unhandled_input);
+    MethodBinder::bind_method("_install_project", &ProjectManager::_install_project);
+    MethodBinder::bind_method("_files_dropped", &ProjectManager::_files_dropped);
+    MethodBinder::bind_method("_open_asset_library", &ProjectManager::_open_asset_library);
+    MethodBinder::bind_method("_confirm_update_settings", &ProjectManager::_confirm_update_settings);
+    MethodBinder::bind_method("_update_project_buttons", &ProjectManager::_update_project_buttons);
+    MethodBinder::bind_method(D_METHOD("_scan_multiple_folders", "files"), &ProjectManager::_scan_multiple_folders);
 }
 
 void ProjectManager::_open_asset_library() {
@@ -2383,8 +2431,8 @@ ProjectManager::ProjectManager() {
     pc->set_v_size_flags(SIZE_EXPAND_FILL);
 
     _project_list = memnew(ProjectList);
-    _project_list->connect(ProjectList::SIGNAL_SELECTION_CHANGED, this, "_update_project_buttons");
-    _project_list->connect(ProjectList::SIGNAL_PROJECT_ASK_OPEN, this, "_open_selected_projects_ask");
+    _project_list->connect(StaticCString(ProjectList::SIGNAL_SELECTION_CHANGED,true), this, "_update_project_buttons");
+    _project_list->connect(StaticCString(ProjectList::SIGNAL_PROJECT_ASK_OPEN,true), this, "_open_selected_projects_ask");
     pc->add_child(_project_list);
     _project_list->set_enable_h_scroll(false);
 
@@ -2466,7 +2514,7 @@ ProjectManager::ProjectManager() {
     Label *version_label = memnew(Label);
     String hash = String(VERSION_HASH);
     if (hash.length() != 0) {
-        hash = "." + hash.left(9);
+        hash = "." + StringUtils::left(hash,9);
     }
     version_label->set_text("v" VERSION_FULL_BUILD "" + hash);
     // Fade out the version label to be less prominent, but still readable
@@ -2484,7 +2532,7 @@ ProjectManager::ProjectManager() {
     for (List<PropertyInfo>::Element *E = editor_settings_properties.front(); E; E = E->next()) {
         PropertyInfo &pi = E->get();
         if (pi.name == "interface/editor/editor_language") {
-            editor_languages = StringUtils::split(pi.hint_string,",");
+            editor_languages = StringUtils::split(pi.hint_string,',');
         }
     }
     String current_lang = EditorSettings::get_singleton()->get("interface/editor/editor_language");
@@ -2557,6 +2605,7 @@ ProjectManager::ProjectManager() {
     }
 
     SceneTree::get_singleton()->connect("files_dropped", this, "_files_dropped");
+    SceneTree::get_singleton()->connect("global_menu_action", this, "_global_menu_action");
 
     run_error_diag = memnew(AcceptDialog);
     gui_base->add_child(run_error_diag);
@@ -2590,7 +2639,7 @@ void ProjectListFilter::_search_text_changed(const String &p_newtext) {
 }
 
 String ProjectListFilter::get_search_term() {
-    return search_box->get_text().strip_edges();
+    return StringUtils::strip_edges(search_box->get_text());
 }
 
 ProjectListFilter::FilterOption ProjectListFilter::get_filter_option() {
@@ -2620,8 +2669,8 @@ void ProjectListFilter::_notification(int p_what) {
 
 void ProjectListFilter::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_search_text_changed"), &ProjectListFilter::_search_text_changed);
-    ClassDB::bind_method(D_METHOD("_filter_option_selected"), &ProjectListFilter::_filter_option_selected);
+    MethodBinder::bind_method(D_METHOD("_search_text_changed"), &ProjectListFilter::_search_text_changed);
+    MethodBinder::bind_method(D_METHOD("_filter_option_selected"), &ProjectListFilter::_filter_option_selected);
 
     ADD_SIGNAL(MethodInfo("filter_changed"));
 }

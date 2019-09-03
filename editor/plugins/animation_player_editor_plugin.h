@@ -44,7 +44,7 @@ class AnimationPlayerEditorPlugin;
 
 class AnimationPlayerEditor : public VBoxContainer {
 
-	GDCLASS(AnimationPlayerEditor, VBoxContainer);
+	GDCLASS(AnimationPlayerEditor,VBoxContainer)
 
 	EditorNode *editor;
 	AnimationPlayerEditorPlugin *plugin;
@@ -161,6 +161,7 @@ class AnimationPlayerEditor : public VBoxContainer {
 	} onion;
 
 	void _select_anim_by_name(const String &p_anim);
+	double _get_editor_step() const;
 	void _play_pressed();
 	void _play_from_pressed();
 	void _play_bw_pressed();
@@ -218,7 +219,7 @@ class AnimationPlayerEditor : public VBoxContainer {
 	void _pin_pressed();
 
 	AnimationPlayerEditor();
-	~AnimationPlayerEditor();
+	~AnimationPlayerEditor() override;
 
 protected:
 	void _notification(int p_what);
@@ -246,7 +247,7 @@ public:
 
 class AnimationPlayerEditorPlugin : public EditorPlugin {
 
-	GDCLASS(AnimationPlayerEditorPlugin, EditorPlugin);
+	GDCLASS(AnimationPlayerEditorPlugin,EditorPlugin)
 
 	AnimationPlayerEditor *anim_editor;
 	EditorNode *editor;
@@ -255,19 +256,19 @@ protected:
 	void _notification(int p_what);
 
 public:
-	virtual Dictionary get_state() const { return anim_editor->get_state(); }
-	virtual void set_state(const Dictionary &p_state) { anim_editor->set_state(p_state); }
+	Dictionary get_state() const override { return anim_editor->get_state(); }
+	void set_state(const Dictionary &p_state) override { anim_editor->set_state(p_state); }
 
-	virtual String get_name() const { return "Anim"; }
-	bool has_main_screen() const { return false; }
-	virtual void edit(Object *p_object);
-	virtual bool handles(Object *p_object) const;
-	virtual void make_visible(bool p_visible);
+	String get_name() const override { return "Anim"; }
+	bool has_main_screen() const override { return false; }
+	void edit(Object *p_object) override;
+	bool handles(Object *p_object) const override;
+	void make_visible(bool p_visible) override;
 
-	virtual void forward_canvas_force_draw_over_viewport(Control *p_overlay) { anim_editor->forward_canvas_force_draw_over_viewport(p_overlay); }
+	void forward_canvas_force_draw_over_viewport(Control *p_overlay) override { anim_editor->forward_canvas_force_draw_over_viewport(p_overlay); }
 
 	AnimationPlayerEditorPlugin(EditorNode *p_node);
-	~AnimationPlayerEditorPlugin();
+	~AnimationPlayerEditorPlugin() override;
 };
 
 #endif // ANIMATION_PLAYER_EDITOR_PLUGIN_H

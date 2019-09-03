@@ -80,8 +80,8 @@ protected:
     static void _bind_methods();
 
 public:
-    virtual Ref<ResourceInteractiveLoader> load_interactive(const String &p_path, const String &p_original_path = "", Error *r_error = nullptr);
-    virtual Ref<Resource> load(const String &p_path, const String &p_original_path = "", Error *r_error = nullptr);
+	virtual Ref<ResourceInteractiveLoader> load_interactive(const String &p_path, const String &p_original_path = String::null_val, Error *r_error = nullptr);
+	virtual Ref<Resource> load(const String &p_path, const String &p_original_path = String::null_val, Error *r_error = nullptr);
     virtual bool exists(const String &p_path) const;
     virtual void get_recognized_extensions(List<String> *p_extensions) const;
     virtual void get_recognized_extensions_for_type(const String &p_type, List<String> *p_extensions) const;
@@ -93,16 +93,16 @@ public:
     virtual bool is_import_valid(const String & /*p_path*/) const { return true; }
     virtual bool is_imported(const String & /*p_path*/) const { return false; }
     virtual int get_import_order(const String & /*p_path*/) const { return 0; }
-    virtual String get_import_group_file(const String & /*p_path*/) const { return ""; } //no group
+	virtual String get_import_group_file(const String & /*p_path*/) const { return String::null_val; } //no group
 
     ~ResourceFormatLoader() override = default;
 };
 
-typedef void (*ResourceLoadErrorNotify)(void *p_ud, const String &p_text);
-typedef void (*DependencyErrorNotify)(void *p_ud, const String &p_loading, const String &p_which, const String &p_type);
+using ResourceLoadErrorNotify = void (*)(void *, const String &);
+using DependencyErrorNotify = void (*)(void *, const String &, const String &, const String &);
 
-typedef Error (*ResourceLoaderImport)(const String &p_path);
-typedef void (*ResourceLoadedCallback)(RES p_resource, const String &p_path);
+using ResourceLoaderImport = Error (*)(const String &);
+using ResourceLoadedCallback = void (*)(RES, const String &);
 
 class ResourceLoader {
 
@@ -144,9 +144,9 @@ class ResourceLoader {
     static void _remove_from_loading_map_and_thread(const String &p_path, Thread::ID p_thread);
 
 public:
-    static Ref<ResourceInteractiveLoader> load_interactive(const String &p_path, const String &p_type_hint = "", bool p_no_cache = false, Error *r_error = nullptr);
-    static RES load(const String &p_path, const String &p_type_hint = "", bool p_no_cache = false, Error *r_error = nullptr);
-    static bool exists(const String &p_path, const String &p_type_hint = "");
+	static Ref<ResourceInteractiveLoader> load_interactive(const String &p_path, const String &p_type_hint = String::null_val, bool p_no_cache = false, Error *r_error = nullptr);
+	static RES load(const String &p_path, const String &p_type_hint = String::null_val, bool p_no_cache = false, Error *r_error = nullptr);
+	static bool exists(const String &p_path, const String &p_type_hint = String::null_val);
 
     static void get_recognized_extensions_for_type(const String &p_type, List<String> *p_extensions);
     static void add_resource_format_loader(Ref<ResourceFormatLoader> p_format_loader, bool p_at_front = false);

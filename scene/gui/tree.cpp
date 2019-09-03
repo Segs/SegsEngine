@@ -31,19 +31,26 @@
 #include "tree.h"
 
 #include "core/math/math_funcs.h"
+#include "core/method_bind.h"
 #include "core/object_db.h"
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
 #include "core/os/os.h"
 #include "core/print_string.h"
 #include "core/project_settings.h"
+#include "scene/main/timer.h"
 #include "scene/main/viewport.h"
+#include "scene/resources/style_box.h"
+#include "scene/resources/font.h"
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_scale.h"
 #endif
 
 #include <limits.h>
+
+IMPL_GDCLASS(TreeItem)
+IMPL_GDCLASS(Tree)
 
 void TreeItem::move_to_top() {
 
@@ -168,8 +175,8 @@ void TreeItem::set_text(int p_column, String p_text) {
         cells.write[p_column].max = INT_MIN;
         for (int i = 0; i < strings.size(); i++) {
             int value = i;
-            if (!strings[i].get_slicec(':', 1).empty()) {
-                value = strings[i].get_slicec(':', 1).to_int();
+            if (!StringUtils::get_slice(strings[i],':', 1).empty()) {
+                value = StringUtils::to_int(StringUtils::get_slice(strings[i],':', 1));
             }
             cells.write[p_column].min = MIN(cells[p_column].min, value);
             cells.write[p_column].max = MAX(cells[p_column].max, value);
@@ -727,93 +734,93 @@ bool TreeItem::is_folding_disabled() const {
 
 void TreeItem::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_cell_mode", "column", "mode"), &TreeItem::set_cell_mode);
-    ClassDB::bind_method(D_METHOD("get_cell_mode", "column"), &TreeItem::get_cell_mode);
+    MethodBinder::bind_method(D_METHOD("set_cell_mode", "column", "mode"), &TreeItem::set_cell_mode);
+    MethodBinder::bind_method(D_METHOD("get_cell_mode", "column"), &TreeItem::get_cell_mode);
 
-    ClassDB::bind_method(D_METHOD("set_checked", "column", "checked"), &TreeItem::set_checked);
-    ClassDB::bind_method(D_METHOD("is_checked", "column"), &TreeItem::is_checked);
+    MethodBinder::bind_method(D_METHOD("set_checked", "column", "checked"), &TreeItem::set_checked);
+    MethodBinder::bind_method(D_METHOD("is_checked", "column"), &TreeItem::is_checked);
 
-    ClassDB::bind_method(D_METHOD("set_text", "column", "text"), &TreeItem::set_text);
-    ClassDB::bind_method(D_METHOD("get_text", "column"), &TreeItem::get_text);
+    MethodBinder::bind_method(D_METHOD("set_text", "column", "text"), &TreeItem::set_text);
+    MethodBinder::bind_method(D_METHOD("get_text", "column"), &TreeItem::get_text);
 
-    ClassDB::bind_method(D_METHOD("set_icon", "column", "texture"), &TreeItem::set_icon);
-    ClassDB::bind_method(D_METHOD("get_icon", "column"), &TreeItem::get_icon);
+    MethodBinder::bind_method(D_METHOD("set_icon", "column", "texture"), &TreeItem::set_icon);
+    MethodBinder::bind_method(D_METHOD("get_icon", "column"), &TreeItem::get_icon);
 
-    ClassDB::bind_method(D_METHOD("set_icon_region", "column", "region"), &TreeItem::set_icon_region);
-    ClassDB::bind_method(D_METHOD("get_icon_region", "column"), &TreeItem::get_icon_region);
+    MethodBinder::bind_method(D_METHOD("set_icon_region", "column", "region"), &TreeItem::set_icon_region);
+    MethodBinder::bind_method(D_METHOD("get_icon_region", "column"), &TreeItem::get_icon_region);
 
-    ClassDB::bind_method(D_METHOD("set_icon_max_width", "column", "width"), &TreeItem::set_icon_max_width);
-    ClassDB::bind_method(D_METHOD("get_icon_max_width", "column"), &TreeItem::get_icon_max_width);
+    MethodBinder::bind_method(D_METHOD("set_icon_max_width", "column", "width"), &TreeItem::set_icon_max_width);
+    MethodBinder::bind_method(D_METHOD("get_icon_max_width", "column"), &TreeItem::get_icon_max_width);
 
-    ClassDB::bind_method(D_METHOD("set_icon_modulate", "column", "modulate"), &TreeItem::set_icon_modulate);
-    ClassDB::bind_method(D_METHOD("get_icon_modulate", "column"), &TreeItem::get_icon_modulate);
+    MethodBinder::bind_method(D_METHOD("set_icon_modulate", "column", "modulate"), &TreeItem::set_icon_modulate);
+    MethodBinder::bind_method(D_METHOD("get_icon_modulate", "column"), &TreeItem::get_icon_modulate);
 
-    ClassDB::bind_method(D_METHOD("set_range", "column", "value"), &TreeItem::set_range);
-    ClassDB::bind_method(D_METHOD("get_range", "column"), &TreeItem::get_range);
-    ClassDB::bind_method(D_METHOD("set_range_config", "column", "min", "max", "step", "expr"), &TreeItem::set_range_config, {DEFVAL(false)});
-    ClassDB::bind_method(D_METHOD("get_range_config", "column"), &TreeItem::_get_range_config);
+    MethodBinder::bind_method(D_METHOD("set_range", "column", "value"), &TreeItem::set_range);
+    MethodBinder::bind_method(D_METHOD("get_range", "column"), &TreeItem::get_range);
+    MethodBinder::bind_method(D_METHOD("set_range_config", "column", "min", "max", "step", "expr"), &TreeItem::set_range_config, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("get_range_config", "column"), &TreeItem::_get_range_config);
 
-    ClassDB::bind_method(D_METHOD("set_metadata", "column", "meta"), &TreeItem::set_metadata);
-    ClassDB::bind_method(D_METHOD("get_metadata", "column"), &TreeItem::get_metadata);
+    MethodBinder::bind_method(D_METHOD("set_metadata", "column", "meta"), &TreeItem::set_metadata);
+    MethodBinder::bind_method(D_METHOD("get_metadata", "column"), &TreeItem::get_metadata);
 
-    ClassDB::bind_method(D_METHOD("set_custom_draw", "column", "object", "callback"), &TreeItem::set_custom_draw);
+    MethodBinder::bind_method(D_METHOD("set_custom_draw", "column", "object", "callback"), &TreeItem::set_custom_draw);
 
-    ClassDB::bind_method(D_METHOD("set_collapsed", "enable"), &TreeItem::set_collapsed);
-    ClassDB::bind_method(D_METHOD("is_collapsed"), &TreeItem::is_collapsed);
+    MethodBinder::bind_method(D_METHOD("set_collapsed", "enable"), &TreeItem::set_collapsed);
+    MethodBinder::bind_method(D_METHOD("is_collapsed"), &TreeItem::is_collapsed);
 
-    ClassDB::bind_method(D_METHOD("set_custom_minimum_height", "height"), &TreeItem::set_custom_minimum_height);
-    ClassDB::bind_method(D_METHOD("get_custom_minimum_height"), &TreeItem::get_custom_minimum_height);
+    MethodBinder::bind_method(D_METHOD("set_custom_minimum_height", "height"), &TreeItem::set_custom_minimum_height);
+    MethodBinder::bind_method(D_METHOD("get_custom_minimum_height"), &TreeItem::get_custom_minimum_height);
 
-    ClassDB::bind_method(D_METHOD("get_next"), &TreeItem::get_next);
-    ClassDB::bind_method(D_METHOD("get_prev"), &TreeItem::get_prev);
-    ClassDB::bind_method(D_METHOD("get_parent"), &TreeItem::get_parent);
-    ClassDB::bind_method(D_METHOD("get_children"), &TreeItem::get_children);
+    MethodBinder::bind_method(D_METHOD("get_next"), &TreeItem::get_next);
+    MethodBinder::bind_method(D_METHOD("get_prev"), &TreeItem::get_prev);
+    MethodBinder::bind_method(D_METHOD("get_parent"), &TreeItem::get_parent);
+    MethodBinder::bind_method(D_METHOD("get_children"), &TreeItem::get_children);
 
-    ClassDB::bind_method(D_METHOD("get_next_visible", "wrap"), &TreeItem::get_next_visible, {DEFVAL(false)});
-    ClassDB::bind_method(D_METHOD("get_prev_visible", "wrap"), &TreeItem::get_prev_visible, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("get_next_visible", "wrap"), &TreeItem::get_next_visible, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("get_prev_visible", "wrap"), &TreeItem::get_prev_visible, {DEFVAL(false)});
 
-    ClassDB::bind_method(D_METHOD("remove_child", "child"), &TreeItem::_remove_child);
+    MethodBinder::bind_method(D_METHOD("remove_child", "child"), &TreeItem::_remove_child);
 
-    ClassDB::bind_method(D_METHOD("set_selectable", "column", "selectable"), &TreeItem::set_selectable);
-    ClassDB::bind_method(D_METHOD("is_selectable", "column"), &TreeItem::is_selectable);
+    MethodBinder::bind_method(D_METHOD("set_selectable", "column", "selectable"), &TreeItem::set_selectable);
+    MethodBinder::bind_method(D_METHOD("is_selectable", "column"), &TreeItem::is_selectable);
 
-    ClassDB::bind_method(D_METHOD("is_selected", "column"), &TreeItem::is_selected);
-    ClassDB::bind_method(D_METHOD("select", "column"), &TreeItem::select);
-    ClassDB::bind_method(D_METHOD("deselect", "column"), &TreeItem::deselect);
+    MethodBinder::bind_method(D_METHOD("is_selected", "column"), &TreeItem::is_selected);
+    MethodBinder::bind_method(D_METHOD("select", "column"), &TreeItem::select);
+    MethodBinder::bind_method(D_METHOD("deselect", "column"), &TreeItem::deselect);
 
-    ClassDB::bind_method(D_METHOD("set_editable", "column", "enabled"), &TreeItem::set_editable);
-    ClassDB::bind_method(D_METHOD("is_editable", "column"), &TreeItem::is_editable);
+    MethodBinder::bind_method(D_METHOD("set_editable", "column", "enabled"), &TreeItem::set_editable);
+    MethodBinder::bind_method(D_METHOD("is_editable", "column"), &TreeItem::is_editable);
 
-    ClassDB::bind_method(D_METHOD("set_custom_color", "column", "color"), &TreeItem::set_custom_color);
-    ClassDB::bind_method(D_METHOD("clear_custom_color", "column"), &TreeItem::clear_custom_color);
+    MethodBinder::bind_method(D_METHOD("set_custom_color", "column", "color"), &TreeItem::set_custom_color);
+    MethodBinder::bind_method(D_METHOD("clear_custom_color", "column"), &TreeItem::clear_custom_color);
 
-    ClassDB::bind_method(D_METHOD("set_custom_bg_color", "column", "color", "just_outline"), &TreeItem::set_custom_bg_color, {DEFVAL(false)});
-    ClassDB::bind_method(D_METHOD("clear_custom_bg_color", "column"), &TreeItem::clear_custom_bg_color);
-    ClassDB::bind_method(D_METHOD("get_custom_bg_color", "column"), &TreeItem::get_custom_bg_color);
+    MethodBinder::bind_method(D_METHOD("set_custom_bg_color", "column", "color", "just_outline"), &TreeItem::set_custom_bg_color, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("clear_custom_bg_color", "column"), &TreeItem::clear_custom_bg_color);
+    MethodBinder::bind_method(D_METHOD("get_custom_bg_color", "column"), &TreeItem::get_custom_bg_color);
 
-    ClassDB::bind_method(D_METHOD("set_custom_as_button", "column", "enable"), &TreeItem::set_custom_as_button);
-    ClassDB::bind_method(D_METHOD("is_custom_set_as_button", "column"), &TreeItem::is_custom_set_as_button);
+    MethodBinder::bind_method(D_METHOD("set_custom_as_button", "column", "enable"), &TreeItem::set_custom_as_button);
+    MethodBinder::bind_method(D_METHOD("is_custom_set_as_button", "column"), &TreeItem::is_custom_set_as_button);
 
-    ClassDB::bind_method(D_METHOD("add_button", "column", "button", "button_idx", "disabled", "tooltip"), &TreeItem::add_button, {DEFVAL(-1), DEFVAL(false), DEFVAL("")});
-    ClassDB::bind_method(D_METHOD("get_button_count", "column"), &TreeItem::get_button_count);
-    ClassDB::bind_method(D_METHOD("get_button", "column", "button_idx"), &TreeItem::get_button);
-    ClassDB::bind_method(D_METHOD("set_button", "column", "button_idx", "button"), &TreeItem::set_button);
-    ClassDB::bind_method(D_METHOD("erase_button", "column", "button_idx"), &TreeItem::erase_button);
-    ClassDB::bind_method(D_METHOD("set_button_disabled", "column", "button_idx", "disabled"), &TreeItem::set_button_disabled);
-    ClassDB::bind_method(D_METHOD("is_button_disabled", "column", "button_idx"), &TreeItem::is_button_disabled);
+    MethodBinder::bind_method(D_METHOD("add_button", "column", "button", "button_idx", "disabled", "tooltip"), &TreeItem::add_button, {DEFVAL(-1), DEFVAL(false), DEFVAL("")});
+    MethodBinder::bind_method(D_METHOD("get_button_count", "column"), &TreeItem::get_button_count);
+    MethodBinder::bind_method(D_METHOD("get_button", "column", "button_idx"), &TreeItem::get_button);
+    MethodBinder::bind_method(D_METHOD("set_button", "column", "button_idx", "button"), &TreeItem::set_button);
+    MethodBinder::bind_method(D_METHOD("erase_button", "column", "button_idx"), &TreeItem::erase_button);
+    MethodBinder::bind_method(D_METHOD("set_button_disabled", "column", "button_idx", "disabled"), &TreeItem::set_button_disabled);
+    MethodBinder::bind_method(D_METHOD("is_button_disabled", "column", "button_idx"), &TreeItem::is_button_disabled);
 
-    ClassDB::bind_method(D_METHOD("set_expand_right", "column", "enable"), &TreeItem::set_expand_right);
-    ClassDB::bind_method(D_METHOD("get_expand_right", "column"), &TreeItem::get_expand_right);
+    MethodBinder::bind_method(D_METHOD("set_expand_right", "column", "enable"), &TreeItem::set_expand_right);
+    MethodBinder::bind_method(D_METHOD("get_expand_right", "column"), &TreeItem::get_expand_right);
 
-    ClassDB::bind_method(D_METHOD("set_tooltip", "column", "tooltip"), &TreeItem::set_tooltip);
-    ClassDB::bind_method(D_METHOD("get_tooltip", "column"), &TreeItem::get_tooltip);
-    ClassDB::bind_method(D_METHOD("set_text_align", "column", "text_align"), &TreeItem::set_text_align);
-    ClassDB::bind_method(D_METHOD("get_text_align", "column"), &TreeItem::get_text_align);
-    ClassDB::bind_method(D_METHOD("move_to_top"), &TreeItem::move_to_top);
-    ClassDB::bind_method(D_METHOD("move_to_bottom"), &TreeItem::move_to_bottom);
+    MethodBinder::bind_method(D_METHOD("set_tooltip", "column", "tooltip"), &TreeItem::set_tooltip);
+    MethodBinder::bind_method(D_METHOD("get_tooltip", "column"), &TreeItem::get_tooltip);
+    MethodBinder::bind_method(D_METHOD("set_text_align", "column", "text_align"), &TreeItem::set_text_align);
+    MethodBinder::bind_method(D_METHOD("get_text_align", "column"), &TreeItem::get_text_align);
+    MethodBinder::bind_method(D_METHOD("move_to_top"), &TreeItem::move_to_top);
+    MethodBinder::bind_method(D_METHOD("move_to_bottom"), &TreeItem::move_to_bottom);
 
-    ClassDB::bind_method(D_METHOD("set_disable_folding", "disable"), &TreeItem::set_disable_folding);
-    ClassDB::bind_method(D_METHOD("is_folding_disabled"), &TreeItem::is_folding_disabled);
+    MethodBinder::bind_method(D_METHOD("set_disable_folding", "disable"), &TreeItem::set_disable_folding);
+    MethodBinder::bind_method(D_METHOD("is_folding_disabled"), &TreeItem::is_folding_disabled);
 
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "collapsed"), "set_collapsed", "is_collapsed");
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "disable_folding"), "set_disable_folding", "is_folding_disabled");
@@ -1243,7 +1250,9 @@ int Tree::draw_item(const Point2i &p_pos, const Point2 &p_draw_ofs, const Size2 
                 }
             }
 
-            Color col = p_item->cells[i].custom_color ? p_item->cells[i].color : get_color(p_item->cells[i].selected ? "font_color_selected" : "font_color");
+            Color col = p_item->cells[i].custom_color ?
+                                p_item->cells[i].color :
+                                get_color(p_item->cells[i].selected ? StringName("font_color_selected") : StringName("font_color"));
             Color icon_col = p_item->cells[i].icon_color;
 
             Point2i text_pos = item_rect.position;
@@ -1291,11 +1300,11 @@ int Tree::draw_item(const Point2i &p_pos, const Point2 &p_draw_ofs, const Size2 
                         Vector<String> strings = StringUtils::split(p_item->cells[i].text,",");
                         for (int j = 0; j < strings.size(); j++) {
                             int value = j;
-                            if (!strings[j].get_slicec(':', 1).empty()) {
-                                value = strings[j].get_slicec(':', 1).to_int();
+                            if (!StringUtils::get_slice(strings[j],':', 1).empty()) {
+                                value = StringUtils::to_int(StringUtils::get_slice(strings[j],':', 1));
                             }
                             if (option == value) {
-                                s = strings[j].get_slicec(':', 0);
+                                s = StringUtils::get_slice(strings[j],':', 0);
                                 break;
                             }
                         }
@@ -1861,10 +1870,10 @@ int Tree::propagate_mouse_event(const Point2i &p_pos, int x_ofs, int y_ofs, bool
                     //if (x >= (get_column_width(col)-item_h/2)) {
 
                     popup_menu->clear();
-                    for (int i = 0; i < c.text.get_slice_count(","); i++) {
+                    for (int i = 0; i < StringUtils::get_slice_count(c.text,","); i++) {
 
-                        String s = c.text.get_slicec(',', i);
-                        popup_menu->add_item(s.get_slicec(':', 0), s.get_slicec(':', 1).empty() ? i : s.get_slicec(':', 1).to_int());
+                        String s = StringUtils::get_slice(c.text,',', i);
+                        popup_menu->add_item(StringUtils::get_slice(s,':', 0), StringUtils::get_slice(s,':', 1).empty() ? i : StringUtils::to_int(StringUtils::get_slice(s,':', 1)));
                     }
 
                     popup_menu->set_size(Size2(col_width, 0));
@@ -2034,7 +2043,7 @@ void Tree::text_editor_enter(String p_text) {
         } break;
         case TreeItem::CELL_MODE_RANGE: {
 
-            c.val = p_text.to_double();
+            c.val = StringUtils::to_double(p_text);
             if (c.step > 0)
                 c.val = Math::stepify(c.val, c.step);
             if (c.val < c.min)
@@ -2726,10 +2735,10 @@ bool Tree::edit_selected() {
     } else if (c.mode == TreeItem::CELL_MODE_RANGE && c.text != "") {
 
         popup_menu->clear();
-        for (int i = 0; i < c.text.get_slice_count(","); i++) {
+        for (int i = 0; i < StringUtils::get_slice_count(c.text,","); i++) {
 
-            String s2 = c.text.get_slicec(',', i);
-            popup_menu->add_item(s2.get_slicec(':', 0), s2.get_slicec(':', 1).empty() ? i : s2.get_slicec(':', 1).to_int());
+            String s2 = StringUtils::get_slice(c.text,',', i);
+            popup_menu->add_item(StringUtils::get_slice(s2,':', 0), StringUtils::get_slice(s2,':', 1).empty() ? i : StringUtils::to_int(StringUtils::get_slice(s2,':', 1)));
         }
 
         popup_menu->set_size(Size2(rect.size.width, 0));
@@ -3508,7 +3517,7 @@ TreeItem *Tree::_search_item_text(TreeItem *p_at, const String &p_find, int *r_c
     while (p_at) {
 
         for (int i = 0; i < columns.size(); i++) {
-            if (p_at->get_text(i).findn(p_find) == 0 && (!p_selectable || p_at->is_selectable(i))) {
+            if (StringUtils::findn(p_at->get_text(i),p_find) == 0 && (!p_selectable || p_at->is_selectable(i))) {
                 if (r_col)
                     *r_col = i;
                 return p_at;
@@ -3812,62 +3821,62 @@ bool Tree::get_allow_reselect() const {
 
 void Tree::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_range_click_timeout"), &Tree::_range_click_timeout);
-    ClassDB::bind_method(D_METHOD("_gui_input"), &Tree::_gui_input);
-    ClassDB::bind_method(D_METHOD("_popup_select"), &Tree::popup_select);
-    ClassDB::bind_method(D_METHOD("_text_editor_enter"), &Tree::text_editor_enter);
-    ClassDB::bind_method(D_METHOD("_text_editor_modal_close"), &Tree::_text_editor_modal_close);
-    ClassDB::bind_method(D_METHOD("_value_editor_changed"), &Tree::value_editor_changed);
-    ClassDB::bind_method(D_METHOD("_scroll_moved"), &Tree::_scroll_moved);
+    MethodBinder::bind_method(D_METHOD("_range_click_timeout"), &Tree::_range_click_timeout);
+    MethodBinder::bind_method(D_METHOD("_gui_input"), &Tree::_gui_input);
+    MethodBinder::bind_method(D_METHOD("_popup_select"), &Tree::popup_select);
+    MethodBinder::bind_method(D_METHOD("_text_editor_enter"), &Tree::text_editor_enter);
+    MethodBinder::bind_method(D_METHOD("_text_editor_modal_close"), &Tree::_text_editor_modal_close);
+    MethodBinder::bind_method(D_METHOD("_value_editor_changed"), &Tree::value_editor_changed);
+    MethodBinder::bind_method(D_METHOD("_scroll_moved"), &Tree::_scroll_moved);
 
-    ClassDB::bind_method(D_METHOD("clear"), &Tree::clear);
-    ClassDB::bind_method(D_METHOD("create_item", "parent", "idx"), &Tree::_create_item, {DEFVAL(Variant()), DEFVAL(-1)});
+    MethodBinder::bind_method(D_METHOD("clear"), &Tree::clear);
+    MethodBinder::bind_method(D_METHOD("create_item", "parent", "idx"), &Tree::_create_item, {DEFVAL(Variant()), DEFVAL(-1)});
 
-    ClassDB::bind_method(D_METHOD("get_root"), &Tree::get_root);
-    ClassDB::bind_method(D_METHOD("set_column_min_width", "column", "min_width"), &Tree::set_column_min_width);
-    ClassDB::bind_method(D_METHOD("set_column_expand", "column", "expand"), &Tree::set_column_expand);
-    ClassDB::bind_method(D_METHOD("get_column_width", "column"), &Tree::get_column_width);
+    MethodBinder::bind_method(D_METHOD("get_root"), &Tree::get_root);
+    MethodBinder::bind_method(D_METHOD("set_column_min_width", "column", "min_width"), &Tree::set_column_min_width);
+    MethodBinder::bind_method(D_METHOD("set_column_expand", "column", "expand"), &Tree::set_column_expand);
+    MethodBinder::bind_method(D_METHOD("get_column_width", "column"), &Tree::get_column_width);
 
-    ClassDB::bind_method(D_METHOD("set_hide_root", "enable"), &Tree::set_hide_root);
-    ClassDB::bind_method(D_METHOD("is_root_hidden"), &Tree::is_root_hidden);
-    ClassDB::bind_method(D_METHOD("get_next_selected", "from"), &Tree::_get_next_selected);
-    ClassDB::bind_method(D_METHOD("get_selected"), &Tree::get_selected);
-    ClassDB::bind_method(D_METHOD("get_selected_column"), &Tree::get_selected_column);
-    ClassDB::bind_method(D_METHOD("get_pressed_button"), &Tree::get_pressed_button);
-    ClassDB::bind_method(D_METHOD("set_select_mode", "mode"), &Tree::set_select_mode);
-    ClassDB::bind_method(D_METHOD("get_select_mode"), &Tree::get_select_mode);
+    MethodBinder::bind_method(D_METHOD("set_hide_root", "enable"), &Tree::set_hide_root);
+    MethodBinder::bind_method(D_METHOD("is_root_hidden"), &Tree::is_root_hidden);
+    MethodBinder::bind_method(D_METHOD("get_next_selected", "from"), &Tree::_get_next_selected);
+    MethodBinder::bind_method(D_METHOD("get_selected"), &Tree::get_selected);
+    MethodBinder::bind_method(D_METHOD("get_selected_column"), &Tree::get_selected_column);
+    MethodBinder::bind_method(D_METHOD("get_pressed_button"), &Tree::get_pressed_button);
+    MethodBinder::bind_method(D_METHOD("set_select_mode", "mode"), &Tree::set_select_mode);
+    MethodBinder::bind_method(D_METHOD("get_select_mode"), &Tree::get_select_mode);
 
-    ClassDB::bind_method(D_METHOD("set_columns", "amount"), &Tree::set_columns);
-    ClassDB::bind_method(D_METHOD("get_columns"), &Tree::get_columns);
+    MethodBinder::bind_method(D_METHOD("set_columns", "amount"), &Tree::set_columns);
+    MethodBinder::bind_method(D_METHOD("get_columns"), &Tree::get_columns);
 
-    ClassDB::bind_method(D_METHOD("get_edited"), &Tree::get_edited);
-    ClassDB::bind_method(D_METHOD("get_edited_column"), &Tree::get_edited_column);
-    ClassDB::bind_method(D_METHOD("get_custom_popup_rect"), &Tree::get_custom_popup_rect);
-    ClassDB::bind_method(D_METHOD("get_item_area_rect", "item", "column"), &Tree::_get_item_rect, {DEFVAL(-1)});
-    ClassDB::bind_method(D_METHOD("get_item_at_position", "position"), &Tree::get_item_at_position);
-    ClassDB::bind_method(D_METHOD("get_column_at_position", "position"), &Tree::get_column_at_position);
-    ClassDB::bind_method(D_METHOD("get_drop_section_at_position", "position"), &Tree::get_drop_section_at_position);
+    MethodBinder::bind_method(D_METHOD("get_edited"), &Tree::get_edited);
+    MethodBinder::bind_method(D_METHOD("get_edited_column"), &Tree::get_edited_column);
+    MethodBinder::bind_method(D_METHOD("get_custom_popup_rect"), &Tree::get_custom_popup_rect);
+    MethodBinder::bind_method(D_METHOD("get_item_area_rect", "item", "column"), &Tree::_get_item_rect, {DEFVAL(-1)});
+    MethodBinder::bind_method(D_METHOD("get_item_at_position", "position"), &Tree::get_item_at_position);
+    MethodBinder::bind_method(D_METHOD("get_column_at_position", "position"), &Tree::get_column_at_position);
+    MethodBinder::bind_method(D_METHOD("get_drop_section_at_position", "position"), &Tree::get_drop_section_at_position);
 
-    ClassDB::bind_method(D_METHOD("ensure_cursor_is_visible"), &Tree::ensure_cursor_is_visible);
+    MethodBinder::bind_method(D_METHOD("ensure_cursor_is_visible"), &Tree::ensure_cursor_is_visible);
 
-    ClassDB::bind_method(D_METHOD("set_column_titles_visible", "visible"), &Tree::set_column_titles_visible);
-    ClassDB::bind_method(D_METHOD("are_column_titles_visible"), &Tree::are_column_titles_visible);
+    MethodBinder::bind_method(D_METHOD("set_column_titles_visible", "visible"), &Tree::set_column_titles_visible);
+    MethodBinder::bind_method(D_METHOD("are_column_titles_visible"), &Tree::are_column_titles_visible);
 
-    ClassDB::bind_method(D_METHOD("set_column_title", "column", "title"), &Tree::set_column_title);
-    ClassDB::bind_method(D_METHOD("get_column_title", "column"), &Tree::get_column_title);
-    ClassDB::bind_method(D_METHOD("get_scroll"), &Tree::get_scroll);
+    MethodBinder::bind_method(D_METHOD("set_column_title", "column", "title"), &Tree::set_column_title);
+    MethodBinder::bind_method(D_METHOD("get_column_title", "column"), &Tree::get_column_title);
+    MethodBinder::bind_method(D_METHOD("get_scroll"), &Tree::get_scroll);
 
-    ClassDB::bind_method(D_METHOD("set_hide_folding", "hide"), &Tree::set_hide_folding);
-    ClassDB::bind_method(D_METHOD("is_folding_hidden"), &Tree::is_folding_hidden);
+    MethodBinder::bind_method(D_METHOD("set_hide_folding", "hide"), &Tree::set_hide_folding);
+    MethodBinder::bind_method(D_METHOD("is_folding_hidden"), &Tree::is_folding_hidden);
 
-    ClassDB::bind_method(D_METHOD("set_drop_mode_flags", "flags"), &Tree::set_drop_mode_flags);
-    ClassDB::bind_method(D_METHOD("get_drop_mode_flags"), &Tree::get_drop_mode_flags);
+    MethodBinder::bind_method(D_METHOD("set_drop_mode_flags", "flags"), &Tree::set_drop_mode_flags);
+    MethodBinder::bind_method(D_METHOD("get_drop_mode_flags"), &Tree::get_drop_mode_flags);
 
-    ClassDB::bind_method(D_METHOD("set_allow_rmb_select", "allow"), &Tree::set_allow_rmb_select);
-    ClassDB::bind_method(D_METHOD("get_allow_rmb_select"), &Tree::get_allow_rmb_select);
+    MethodBinder::bind_method(D_METHOD("set_allow_rmb_select", "allow"), &Tree::set_allow_rmb_select);
+    MethodBinder::bind_method(D_METHOD("get_allow_rmb_select"), &Tree::get_allow_rmb_select);
 
-    ClassDB::bind_method(D_METHOD("set_allow_reselect", "allow"), &Tree::set_allow_reselect);
-    ClassDB::bind_method(D_METHOD("get_allow_reselect"), &Tree::get_allow_reselect);
+    MethodBinder::bind_method(D_METHOD("set_allow_reselect", "allow"), &Tree::set_allow_reselect);
+    MethodBinder::bind_method(D_METHOD("get_allow_reselect"), &Tree::get_allow_reselect);
 
     ADD_PROPERTY(PropertyInfo(Variant::INT, "columns"), "set_columns", "get_columns");
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "allow_reselect"), "set_allow_reselect", "get_allow_reselect");

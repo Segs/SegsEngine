@@ -35,7 +35,12 @@
 #include "core/project_settings.h"
 #include "scene/main/node.h"
 #include "core/object_db.h"
+#include "core/method_bind.h"
 #include "visual_script_nodes.h"
+
+IMPL_GDCLASS(VisualScript)
+IMPL_GDCLASS(VisualScriptNode)
+IMPL_GDCLASS(VisualScriptFunctionState)
 
 //used by editor, this is not really saved
 void VisualScriptNode::set_breakpoint(bool p_breakpoint) {
@@ -114,12 +119,12 @@ String VisualScriptNode::get_text() const {
 
 void VisualScriptNode::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("get_visual_script"), &VisualScriptNode::get_visual_script);
-    ClassDB::bind_method(D_METHOD("set_default_input_value", "port_idx", "value"), &VisualScriptNode::set_default_input_value);
-    ClassDB::bind_method(D_METHOD("get_default_input_value", "port_idx"), &VisualScriptNode::get_default_input_value);
-    ClassDB::bind_method(D_METHOD("ports_changed_notify"), &VisualScriptNode::ports_changed_notify);
-    ClassDB::bind_method(D_METHOD("_set_default_input_values", "values"), &VisualScriptNode::_set_default_input_values);
-    ClassDB::bind_method(D_METHOD("_get_default_input_values"), &VisualScriptNode::_get_default_input_values);
+    MethodBinder::bind_method(D_METHOD("get_visual_script"), &VisualScriptNode::get_visual_script);
+    MethodBinder::bind_method(D_METHOD("set_default_input_value", "port_idx", "value"), &VisualScriptNode::set_default_input_value);
+    MethodBinder::bind_method(D_METHOD("get_default_input_value", "port_idx"), &VisualScriptNode::get_default_input_value);
+    MethodBinder::bind_method(D_METHOD("ports_changed_notify"), &VisualScriptNode::ports_changed_notify);
+    MethodBinder::bind_method(D_METHOD("_set_default_input_values", "values"), &VisualScriptNode::_set_default_input_values);
+    MethodBinder::bind_method(D_METHOD("_get_default_input_values"), &VisualScriptNode::_get_default_input_values);
 
     ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "_default_input_values", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_default_input_values", "_get_default_input_values");
     ADD_SIGNAL(MethodInfo("ports_changed"));
@@ -178,9 +183,9 @@ VisualScriptNodeInstance::~VisualScriptNodeInstance() {
 
 void VisualScript::add_function(const StringName &p_name) {
 
-	ERR_FAIL_COND(instances.size())
-	ERR_FAIL_COND(!StringUtils::is_valid_identifier(String(p_name)))
-	ERR_FAIL_COND(functions.has(p_name))
+    ERR_FAIL_COND(instances.size())
+    ERR_FAIL_COND(!StringUtils::is_valid_identifier(String(p_name)))
+    ERR_FAIL_COND(functions.has(p_name))
 
     functions[p_name] = Function();
     functions[p_name].scroll = Vector2(-50, -100);
@@ -192,8 +197,8 @@ bool VisualScript::has_function(const StringName &p_name) const {
 }
 void VisualScript::remove_function(const StringName &p_name) {
 
-	ERR_FAIL_COND(instances.size())
-	ERR_FAIL_COND(!functions.has(p_name))
+    ERR_FAIL_COND(instances.size())
+    ERR_FAIL_COND(!functions.has(p_name))
 
     for (Map<int, Function::NodeData>::Element *E = functions[p_name].nodes.front(); E; E = E->next()) {
 
@@ -206,16 +211,16 @@ void VisualScript::remove_function(const StringName &p_name) {
 
 void VisualScript::rename_function(const StringName &p_name, const StringName &p_new_name) {
 
-	ERR_FAIL_COND(instances.size())
-	ERR_FAIL_COND(!functions.has(p_name))
+    ERR_FAIL_COND(instances.size())
+    ERR_FAIL_COND(!functions.has(p_name))
     if (p_new_name == p_name)
         return;
 
-	ERR_FAIL_COND(!StringUtils::is_valid_identifier(String(p_new_name)))
+    ERR_FAIL_COND(!StringUtils::is_valid_identifier(String(p_new_name)))
 
-	ERR_FAIL_COND(functions.has(p_new_name))
-	ERR_FAIL_COND(variables.has(p_new_name))
-	ERR_FAIL_COND(custom_signals.has(p_new_name))
+    ERR_FAIL_COND(functions.has(p_new_name))
+    ERR_FAIL_COND(variables.has(p_new_name))
+    ERR_FAIL_COND(custom_signals.has(p_new_name))
 
     functions[p_new_name] = functions[p_name];
     functions.erase(p_name);
@@ -580,9 +585,9 @@ void VisualScript::get_data_connection_list(const StringName &p_func, List<DataC
 
 void VisualScript::add_variable(const StringName &p_name, const Variant &p_default_value, bool p_export) {
 
-	ERR_FAIL_COND(instances.size())
-	ERR_FAIL_COND(!StringUtils::is_valid_identifier(String(p_name)))
-	ERR_FAIL_COND(variables.has(p_name))
+    ERR_FAIL_COND(instances.size())
+    ERR_FAIL_COND(!StringUtils::is_valid_identifier(String(p_name)))
+    ERR_FAIL_COND(variables.has(p_name))
 
     Variable v;
     v.default_value = p_default_value;
@@ -682,7 +687,7 @@ Dictionary VisualScript::_get_variable_info(const StringName &p_name) const {
 
     PropertyInfo pinfo = get_variable_info(p_name);
     Dictionary d;
-    d["type"] = pinfo.type;
+	d["type"] = pinfo.type;
     d["name"] = pinfo.name;
     d["hint"] = pinfo.hint;
     d["hint_string"] = pinfo.hint_string;
@@ -701,22 +706,22 @@ void VisualScript::get_variable_list(Vector<StringName> *r_variables) const {
 
 void VisualScript::set_instance_base_type(const StringName &p_type) {
 
-    ERR_FAIL_COND(instances.size());
+	ERR_FAIL_COND(instances.size())
     base_type = p_type;
 }
 
 void VisualScript::rename_variable(const StringName &p_name, const StringName &p_new_name) {
 
-    ERR_FAIL_COND(instances.size());
-    ERR_FAIL_COND(!variables.has(p_name));
+	ERR_FAIL_COND(instances.size())
+	ERR_FAIL_COND(!variables.has(p_name))
     if (p_new_name == p_name)
         return;
 
-	ERR_FAIL_COND(!StringUtils::is_valid_identifier(String(p_new_name)))
+    ERR_FAIL_COND(!StringUtils::is_valid_identifier(String(p_new_name)))
 
-	ERR_FAIL_COND(functions.has(p_new_name))
-	ERR_FAIL_COND(variables.has(p_new_name))
-	ERR_FAIL_COND(custom_signals.has(p_new_name))
+    ERR_FAIL_COND(functions.has(p_new_name))
+    ERR_FAIL_COND(variables.has(p_new_name))
+    ERR_FAIL_COND(custom_signals.has(p_new_name))
 
     variables[p_new_name] = variables[p_name];
     variables.erase(p_name);
@@ -724,9 +729,9 @@ void VisualScript::rename_variable(const StringName &p_name, const StringName &p
 
 void VisualScript::add_custom_signal(const StringName &p_name) {
 
-	ERR_FAIL_COND(instances.size())
-	ERR_FAIL_COND(!StringUtils::is_valid_identifier(String(p_name)))
-	ERR_FAIL_COND(custom_signals.has(p_name))
+    ERR_FAIL_COND(instances.size())
+    ERR_FAIL_COND(!StringUtils::is_valid_identifier(String(p_name)))
+    ERR_FAIL_COND(custom_signals.has(p_name))
 
     custom_signals[p_name] = Vector<Argument>();
 }
@@ -737,8 +742,8 @@ bool VisualScript::has_custom_signal(const StringName &p_name) const {
 }
 void VisualScript::custom_signal_add_argument(const StringName &p_func, Variant::Type p_type, const String &p_name, int p_index) {
 
-    ERR_FAIL_COND(instances.size());
-    ERR_FAIL_COND(!custom_signals.has(p_func));
+	ERR_FAIL_COND(instances.size())
+	ERR_FAIL_COND(!custom_signals.has(p_func))
     Argument arg;
     arg.type = p_type;
     arg.name = p_name;
@@ -749,34 +754,34 @@ void VisualScript::custom_signal_add_argument(const StringName &p_func, Variant:
 }
 void VisualScript::custom_signal_set_argument_type(const StringName &p_func, int p_argidx, Variant::Type p_type) {
 
-    ERR_FAIL_COND(instances.size());
-    ERR_FAIL_COND(!custom_signals.has(p_func));
-    ERR_FAIL_INDEX(p_argidx, custom_signals[p_func].size());
+	ERR_FAIL_COND(instances.size())
+	ERR_FAIL_COND(!custom_signals.has(p_func))
+	ERR_FAIL_INDEX(p_argidx, custom_signals[p_func].size())
     custom_signals[p_func].write[p_argidx].type = p_type;
 }
 Variant::Type VisualScript::custom_signal_get_argument_type(const StringName &p_func, int p_argidx) const {
 
-    ERR_FAIL_COND_V(!custom_signals.has(p_func), Variant::NIL);
-    ERR_FAIL_INDEX_V(p_argidx, custom_signals[p_func].size(), Variant::NIL);
+	ERR_FAIL_COND_V(!custom_signals.has(p_func), Variant::NIL)
+	ERR_FAIL_INDEX_V(p_argidx, custom_signals[p_func].size(), Variant::NIL)
     return custom_signals[p_func][p_argidx].type;
 }
 void VisualScript::custom_signal_set_argument_name(const StringName &p_func, int p_argidx, const String &p_name) {
-    ERR_FAIL_COND(instances.size());
-    ERR_FAIL_COND(!custom_signals.has(p_func));
-    ERR_FAIL_INDEX(p_argidx, custom_signals[p_func].size());
+	ERR_FAIL_COND(instances.size())
+	ERR_FAIL_COND(!custom_signals.has(p_func))
+	ERR_FAIL_INDEX(p_argidx, custom_signals[p_func].size())
     custom_signals[p_func].write[p_argidx].name = p_name;
 }
 String VisualScript::custom_signal_get_argument_name(const StringName &p_func, int p_argidx) const {
 
-    ERR_FAIL_COND_V(!custom_signals.has(p_func), String());
-    ERR_FAIL_INDEX_V(p_argidx, custom_signals[p_func].size(), String());
+	ERR_FAIL_COND_V(!custom_signals.has(p_func), String())
+	ERR_FAIL_INDEX_V(p_argidx, custom_signals[p_func].size(), String())
     return custom_signals[p_func][p_argidx].name;
 }
 void VisualScript::custom_signal_remove_argument(const StringName &p_func, int p_argidx) {
 
-    ERR_FAIL_COND(instances.size());
-    ERR_FAIL_COND(!custom_signals.has(p_func));
-    ERR_FAIL_INDEX(p_argidx, custom_signals[p_func].size());
+	ERR_FAIL_COND(instances.size())
+	ERR_FAIL_COND(!custom_signals.has(p_func))
+	ERR_FAIL_INDEX(p_argidx, custom_signals[p_func].size())
     custom_signals[p_func].remove(p_argidx);
 }
 
@@ -808,7 +813,7 @@ void VisualScript::rename_custom_signal(const StringName &p_name, const StringNa
     if (p_new_name == p_name)
         return;
 
-	ERR_FAIL_COND(!StringUtils::is_valid_identifier(p_new_name));
+    ERR_FAIL_COND(!StringUtils::is_valid_identifier(p_new_name));
 
     ERR_FAIL_COND(functions.has(p_new_name));
     ERR_FAIL_COND(variables.has(p_new_name));
@@ -1249,63 +1254,63 @@ Dictionary VisualScript::_get_data() const {
 
 void VisualScript::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_node_ports_changed"), &VisualScript::_node_ports_changed);
+    MethodBinder::bind_method(D_METHOD("_node_ports_changed"), &VisualScript::_node_ports_changed);
 
-    ClassDB::bind_method(D_METHOD("add_function", "name"), &VisualScript::add_function);
-    ClassDB::bind_method(D_METHOD("has_function", "name"), &VisualScript::has_function);
-    ClassDB::bind_method(D_METHOD("remove_function", "name"), &VisualScript::remove_function);
-    ClassDB::bind_method(D_METHOD("rename_function", "name", "new_name"), &VisualScript::rename_function);
-    ClassDB::bind_method(D_METHOD("set_function_scroll", "name", "ofs"), &VisualScript::set_function_scroll);
-    ClassDB::bind_method(D_METHOD("get_function_scroll", "name"), &VisualScript::get_function_scroll);
+    MethodBinder::bind_method(D_METHOD("add_function", "name"), &VisualScript::add_function);
+    MethodBinder::bind_method(D_METHOD("has_function", "name"), &VisualScript::has_function);
+    MethodBinder::bind_method(D_METHOD("remove_function", "name"), &VisualScript::remove_function);
+    MethodBinder::bind_method(D_METHOD("rename_function", "name", "new_name"), &VisualScript::rename_function);
+    MethodBinder::bind_method(D_METHOD("set_function_scroll", "name", "ofs"), &VisualScript::set_function_scroll);
+    MethodBinder::bind_method(D_METHOD("get_function_scroll", "name"), &VisualScript::get_function_scroll);
 
-    ClassDB::bind_method(D_METHOD("add_node", "func", "id", "node", "position"), &VisualScript::add_node, {DEFVAL(Point2())});
-    ClassDB::bind_method(D_METHOD("remove_node", "func", "id"), &VisualScript::remove_node);
-    ClassDB::bind_method(D_METHOD("get_function_node_id", "name"), &VisualScript::get_function_node_id);
+    MethodBinder::bind_method(D_METHOD("add_node", "func", "id", "node", "position"), &VisualScript::add_node, {DEFVAL(Point2())});
+    MethodBinder::bind_method(D_METHOD("remove_node", "func", "id"), &VisualScript::remove_node);
+    MethodBinder::bind_method(D_METHOD("get_function_node_id", "name"), &VisualScript::get_function_node_id);
 
-    ClassDB::bind_method(D_METHOD("get_node", "func", "id"), &VisualScript::get_node);
-    ClassDB::bind_method(D_METHOD("has_node", "func", "id"), &VisualScript::has_node);
-    ClassDB::bind_method(D_METHOD("set_node_position", "func", "id", "position"), &VisualScript::set_node_position);
-    ClassDB::bind_method(D_METHOD("get_node_position", "func", "id"), &VisualScript::get_node_position);
+    MethodBinder::bind_method(D_METHOD("get_node", "func", "id"), &VisualScript::get_node);
+    MethodBinder::bind_method(D_METHOD("has_node", "func", "id"), &VisualScript::has_node);
+    MethodBinder::bind_method(D_METHOD("set_node_position", "func", "id", "position"), &VisualScript::set_node_position);
+    MethodBinder::bind_method(D_METHOD("get_node_position", "func", "id"), &VisualScript::get_node_position);
 
-    ClassDB::bind_method(D_METHOD("sequence_connect", "func", "from_node", "from_output", "to_node"), &VisualScript::sequence_connect);
-    ClassDB::bind_method(D_METHOD("sequence_disconnect", "func", "from_node", "from_output", "to_node"), &VisualScript::sequence_disconnect);
-    ClassDB::bind_method(D_METHOD("has_sequence_connection", "func", "from_node", "from_output", "to_node"), &VisualScript::has_sequence_connection);
+    MethodBinder::bind_method(D_METHOD("sequence_connect", "func", "from_node", "from_output", "to_node"), &VisualScript::sequence_connect);
+    MethodBinder::bind_method(D_METHOD("sequence_disconnect", "func", "from_node", "from_output", "to_node"), &VisualScript::sequence_disconnect);
+    MethodBinder::bind_method(D_METHOD("has_sequence_connection", "func", "from_node", "from_output", "to_node"), &VisualScript::has_sequence_connection);
 
-    ClassDB::bind_method(D_METHOD("data_connect", "func", "from_node", "from_port", "to_node", "to_port"), &VisualScript::data_connect);
-    ClassDB::bind_method(D_METHOD("data_disconnect", "func", "from_node", "from_port", "to_node", "to_port"), &VisualScript::data_disconnect);
-    ClassDB::bind_method(D_METHOD("has_data_connection", "func", "from_node", "from_port", "to_node", "to_port"), &VisualScript::has_data_connection);
+    MethodBinder::bind_method(D_METHOD("data_connect", "func", "from_node", "from_port", "to_node", "to_port"), &VisualScript::data_connect);
+    MethodBinder::bind_method(D_METHOD("data_disconnect", "func", "from_node", "from_port", "to_node", "to_port"), &VisualScript::data_disconnect);
+    MethodBinder::bind_method(D_METHOD("has_data_connection", "func", "from_node", "from_port", "to_node", "to_port"), &VisualScript::has_data_connection);
 
-    ClassDB::bind_method(D_METHOD("add_variable", "name", "default_value", "export"), &VisualScript::add_variable, {DEFVAL(Variant()), DEFVAL(false)});
-    ClassDB::bind_method(D_METHOD("has_variable", "name"), &VisualScript::has_variable);
-    ClassDB::bind_method(D_METHOD("remove_variable", "name"), &VisualScript::remove_variable);
-    ClassDB::bind_method(D_METHOD("set_variable_default_value", "name", "value"), &VisualScript::set_variable_default_value);
-    ClassDB::bind_method(D_METHOD("get_variable_default_value", "name"), &VisualScript::get_variable_default_value);
-    ClassDB::bind_method(D_METHOD("set_variable_info", "name", "value"), &VisualScript::_set_variable_info);
-    ClassDB::bind_method(D_METHOD("get_variable_info", "name"), &VisualScript::_get_variable_info);
-    ClassDB::bind_method(D_METHOD("set_variable_export", "name", "enable"), &VisualScript::set_variable_export);
-    ClassDB::bind_method(D_METHOD("get_variable_export", "name"), &VisualScript::get_variable_export);
-    ClassDB::bind_method(D_METHOD("rename_variable", "name", "new_name"), &VisualScript::rename_variable);
+    MethodBinder::bind_method(D_METHOD("add_variable", "name", "default_value", "export"), &VisualScript::add_variable, {DEFVAL(Variant()), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("has_variable", "name"), &VisualScript::has_variable);
+    MethodBinder::bind_method(D_METHOD("remove_variable", "name"), &VisualScript::remove_variable);
+    MethodBinder::bind_method(D_METHOD("set_variable_default_value", "name", "value"), &VisualScript::set_variable_default_value);
+    MethodBinder::bind_method(D_METHOD("get_variable_default_value", "name"), &VisualScript::get_variable_default_value);
+    MethodBinder::bind_method(D_METHOD("set_variable_info", "name", "value"), &VisualScript::_set_variable_info);
+    MethodBinder::bind_method(D_METHOD("get_variable_info", "name"), &VisualScript::_get_variable_info);
+    MethodBinder::bind_method(D_METHOD("set_variable_export", "name", "enable"), &VisualScript::set_variable_export);
+    MethodBinder::bind_method(D_METHOD("get_variable_export", "name"), &VisualScript::get_variable_export);
+    MethodBinder::bind_method(D_METHOD("rename_variable", "name", "new_name"), &VisualScript::rename_variable);
 
-    ClassDB::bind_method(D_METHOD("add_custom_signal", "name"), &VisualScript::add_custom_signal);
-    ClassDB::bind_method(D_METHOD("has_custom_signal", "name"), &VisualScript::has_custom_signal);
-    ClassDB::bind_method(D_METHOD("custom_signal_add_argument", "name", "type", "argname", "index"), &VisualScript::custom_signal_add_argument, {DEFVAL(-1)});
-    ClassDB::bind_method(D_METHOD("custom_signal_set_argument_type", "name", "argidx", "type"), &VisualScript::custom_signal_set_argument_type);
-    ClassDB::bind_method(D_METHOD("custom_signal_get_argument_type", "name", "argidx"), &VisualScript::custom_signal_get_argument_type);
-    ClassDB::bind_method(D_METHOD("custom_signal_set_argument_name", "name", "argidx", "argname"), &VisualScript::custom_signal_set_argument_name);
-    ClassDB::bind_method(D_METHOD("custom_signal_get_argument_name", "name", "argidx"), &VisualScript::custom_signal_get_argument_name);
-    ClassDB::bind_method(D_METHOD("custom_signal_remove_argument", "name", "argidx"), &VisualScript::custom_signal_remove_argument);
-    ClassDB::bind_method(D_METHOD("custom_signal_get_argument_count", "name"), &VisualScript::custom_signal_get_argument_count);
-    ClassDB::bind_method(D_METHOD("custom_signal_swap_argument", "name", "argidx", "withidx"), &VisualScript::custom_signal_swap_argument);
-    ClassDB::bind_method(D_METHOD("remove_custom_signal", "name"), &VisualScript::remove_custom_signal);
-    ClassDB::bind_method(D_METHOD("rename_custom_signal", "name", "new_name"), &VisualScript::rename_custom_signal);
+    MethodBinder::bind_method(D_METHOD("add_custom_signal", "name"), &VisualScript::add_custom_signal);
+    MethodBinder::bind_method(D_METHOD("has_custom_signal", "name"), &VisualScript::has_custom_signal);
+    MethodBinder::bind_method(D_METHOD("custom_signal_add_argument", "name", "type", "argname", "index"), &VisualScript::custom_signal_add_argument, {DEFVAL(-1)});
+    MethodBinder::bind_method(D_METHOD("custom_signal_set_argument_type", "name", "argidx", "type"), &VisualScript::custom_signal_set_argument_type);
+    MethodBinder::bind_method(D_METHOD("custom_signal_get_argument_type", "name", "argidx"), &VisualScript::custom_signal_get_argument_type);
+    MethodBinder::bind_method(D_METHOD("custom_signal_set_argument_name", "name", "argidx", "argname"), &VisualScript::custom_signal_set_argument_name);
+    MethodBinder::bind_method(D_METHOD("custom_signal_get_argument_name", "name", "argidx"), &VisualScript::custom_signal_get_argument_name);
+    MethodBinder::bind_method(D_METHOD("custom_signal_remove_argument", "name", "argidx"), &VisualScript::custom_signal_remove_argument);
+    MethodBinder::bind_method(D_METHOD("custom_signal_get_argument_count", "name"), &VisualScript::custom_signal_get_argument_count);
+    MethodBinder::bind_method(D_METHOD("custom_signal_swap_argument", "name", "argidx", "withidx"), &VisualScript::custom_signal_swap_argument);
+    MethodBinder::bind_method(D_METHOD("remove_custom_signal", "name"), &VisualScript::remove_custom_signal);
+    MethodBinder::bind_method(D_METHOD("rename_custom_signal", "name", "new_name"), &VisualScript::rename_custom_signal);
 
-    //ClassDB::bind_method(D_METHOD("set_variable_info","name","info"),&VScript::set_variable_info);
-    //ClassDB::bind_method(D_METHOD("get_variable_info","name"),&VScript::set_variable_info);
+    //MethodBinder::bind_method(D_METHOD("set_variable_info","name","info"),&VScript::set_variable_info);
+    //MethodBinder::bind_method(D_METHOD("get_variable_info","name"),&VScript::set_variable_info);
 
-    ClassDB::bind_method(D_METHOD("set_instance_base_type", "type"), &VisualScript::set_instance_base_type);
+    MethodBinder::bind_method(D_METHOD("set_instance_base_type", "type"), &VisualScript::set_instance_base_type);
 
-    ClassDB::bind_method(D_METHOD("_set_data", "data"), &VisualScript::_set_data);
-    ClassDB::bind_method(D_METHOD("_get_data"), &VisualScript::_get_data);
+    MethodBinder::bind_method(D_METHOD("_set_data", "data"), &VisualScript::_set_data);
+    MethodBinder::bind_method(D_METHOD("_get_data"), &VisualScript::_get_data);
 
     ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "data", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_data", "_get_data");
 
@@ -1841,7 +1846,7 @@ Variant VisualScriptInstance::_call_internal(const StringName &p_method, void *p
 
         if (!VisualScriptLanguage::singleton->debug_break(error_str, false)) {
 
-            _err_print_error(err_func.utf8().data(), err_file.utf8().data(), err_line, error_str.utf8().data(), ERR_HANDLER_SCRIPT);
+			_err_print_error(StringUtils::to_utf8(err_func).data(), StringUtils::to_utf8(err_file).data(), err_line, StringUtils::to_utf8(error_str).data(), ERR_HANDLER_SCRIPT);
         }
 
         //}
@@ -2122,9 +2127,9 @@ void VisualScriptInstance::create(const Ref<VisualScript> &p_script, Object *p_o
                 StringName var_name;
 
                 if (Object::cast_to<VisualScriptLocalVar>(*node))
-                    var_name = String(Object::cast_to<VisualScriptLocalVar>(*node)->get_var_name()).strip_edges();
+                    var_name = StringUtils::strip_edges(Object::cast_to<VisualScriptLocalVar>(*node)->get_var_name());
                 else
-                    var_name = String(Object::cast_to<VisualScriptLocalVarSet>(*node)->get_var_name()).strip_edges();
+                    var_name = StringUtils::strip_edges(Object::cast_to<VisualScriptLocalVarSet>(*node)->get_var_name());
 
                 if (!local_var_indices.has(var_name)) {
                     local_var_indices[var_name] = function.max_stack;
@@ -2307,7 +2312,7 @@ void VisualScriptFunctionState::connect_to_signal(Object *p_obj, const String &p
         binds.push_back(p_binds[i]);
     }
     binds.push_back(Ref<VisualScriptFunctionState>(this)); //add myself on the back to avoid dying from unreferencing
-    p_obj->connect(p_signal, this, "_signal_callback", binds, CONNECT_ONESHOT);
+    p_obj->connect(p_signal, this, "_signal_callback", binds, ObjectNS::CONNECT_ONESHOT);
 }
 
 bool VisualScriptFunctionState::is_valid() const {
@@ -2339,10 +2344,10 @@ Variant VisualScriptFunctionState::resume(Array p_args) {
 
 void VisualScriptFunctionState::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("connect_to_signal", "obj", "signals", "args"), &VisualScriptFunctionState::connect_to_signal);
-    ClassDB::bind_method(D_METHOD("resume", "args"), &VisualScriptFunctionState::resume, {DEFVAL(Variant())});
-    ClassDB::bind_method(D_METHOD("is_valid"), &VisualScriptFunctionState::is_valid);
-    ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "_signal_callback", &VisualScriptFunctionState::_signal_callback, MethodInfo("_signal_callback"));
+    MethodBinder::bind_method(D_METHOD("connect_to_signal", "obj", "signals", "args"), &VisualScriptFunctionState::connect_to_signal);
+    MethodBinder::bind_method(D_METHOD("resume", "args"), &VisualScriptFunctionState::resume, {DEFVAL(Variant())});
+    MethodBinder::bind_method(D_METHOD("is_valid"), &VisualScriptFunctionState::is_valid);
+    MethodBinder::bind_vararg_method("_signal_callback", &VisualScriptFunctionState::_signal_callback, MethodInfo("_signal_callback"));
 }
 
 VisualScriptFunctionState::VisualScriptFunctionState() {

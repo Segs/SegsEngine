@@ -46,6 +46,9 @@
 
 #include <string.h>
 
+IMPL_GDCLASS(VideoStreamPlaybackWebm)
+IMPL_GDCLASS(VideoStreamWebm)
+
 class MkvReader : public mkvparser::IMkvReader {
 
 public:

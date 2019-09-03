@@ -32,33 +32,35 @@
 #define HASHING_CONTEXT_H
 
 #include "core/reference.h"
+#include "core/method_arg_casters.h"
+#include "core/method_enum_caster.h"
 
 class HashingContext : public Reference {
-	GDCLASS(HashingContext, Reference);
+    GDCLASS(HashingContext, Reference);
 
 public:
-	enum HashType {
-		HASH_MD5,
-		HASH_SHA1,
-		HASH_SHA256
-	};
+    enum HashType {
+        HASH_MD5,
+        HASH_SHA1,
+        HASH_SHA256
+    };
 
 private:
-	void *ctx;
-	HashType type;
+    void *ctx;
+    HashType type;
 
 protected:
-	static void _bind_methods();
-	void _create_ctx(HashType p_type);
-	void _delete_ctx();
+    static void _bind_methods();
+    void _create_ctx(HashType p_type);
+    void _delete_ctx();
 
 public:
-	Error start(HashType p_type);
-	Error update(PoolByteArray p_chunk);
-	PoolByteArray finish();
+    Error start(HashType p_type);
+    Error update(PoolByteArray p_chunk);
+    PoolByteArray finish();
 
-	HashingContext();
-	~HashingContext();
+    HashingContext();
+    ~HashingContext() override;
 };
 
 VARIANT_ENUM_CAST(HashingContext::HashType);

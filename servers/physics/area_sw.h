@@ -103,7 +103,7 @@ class AreaSW : public CollisionObjectSW {
 
 	Set<ConstraintSW *> constraints;
 
-	virtual void _shapes_changed();
+	void _shapes_changed() override;
 	void _queue_monitor_update();
 
 public:
@@ -162,12 +162,12 @@ public:
 
 	void set_transform(const Transform &p_transform);
 
-	void set_space(SpaceSW *p_space);
+	void set_space(SpaceSW *p_space) override;
 
 	void call_queries();
 
 	AreaSW();
-	~AreaSW();
+	~AreaSW() override;
 };
 
 void AreaSW::add_body_to_query(BodySW *p_body, uint32_t p_body_shape, uint32_t p_area_shape) {

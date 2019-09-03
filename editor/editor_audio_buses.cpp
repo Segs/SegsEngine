@@ -30,12 +30,20 @@
 
 #include "editor_audio_buses.h"
 
+#include "core/method_bind.h"
 #include "core/io/resource_saver.h"
 #include "core/os/keyboard.h"
 #include "editor_node.h"
+#include "editor_scale.h"
 #include "filesystem_dock.h"
 #include "scene/resources/font.h"
 #include "servers/audio_server.h"
+
+IMPL_GDCLASS(EditorAudioBus)
+IMPL_GDCLASS(EditorAudioBusDrop)
+IMPL_GDCLASS(EditorAudioBuses)
+IMPL_GDCLASS(EditorAudioMeterNotches)
+IMPL_GDCLASS(AudioBusesEditorPlugin)
 
 void EditorAudioBus::_update_visible_channels() {
 
@@ -737,27 +745,27 @@ void EditorAudioBus::_effect_rmb(const Vector2 &p_pos) {
 
 void EditorAudioBus::_bind_methods() {
 
-    ClassDB::bind_method("update_bus", &EditorAudioBus::update_bus);
-    ClassDB::bind_method("update_send", &EditorAudioBus::update_send);
-    ClassDB::bind_method("_name_changed", &EditorAudioBus::_name_changed);
-    ClassDB::bind_method("_volume_changed", &EditorAudioBus::_volume_changed);
-    ClassDB::bind_method("_show_value", &EditorAudioBus::_show_value);
-    ClassDB::bind_method("_hide_value_preview", &EditorAudioBus::_hide_value_preview);
-    ClassDB::bind_method("_solo_toggled", &EditorAudioBus::_solo_toggled);
-    ClassDB::bind_method("_mute_toggled", &EditorAudioBus::_mute_toggled);
-    ClassDB::bind_method("_bypass_toggled", &EditorAudioBus::_bypass_toggled);
-    ClassDB::bind_method("_name_focus_exit", &EditorAudioBus::_name_focus_exit);
-    ClassDB::bind_method("_send_selected", &EditorAudioBus::_send_selected);
-    ClassDB::bind_method("_effect_edited", &EditorAudioBus::_effect_edited);
-    ClassDB::bind_method("_effect_selected", &EditorAudioBus::_effect_selected);
-    ClassDB::bind_method("_effect_add", &EditorAudioBus::_effect_add);
-    ClassDB::bind_method("_gui_input", &EditorAudioBus::_gui_input);
-    ClassDB::bind_method("_bus_popup_pressed", &EditorAudioBus::_bus_popup_pressed);
-    ClassDB::bind_method("get_drag_data_fw", &EditorAudioBus::get_drag_data_fw);
-    ClassDB::bind_method("can_drop_data_fw", &EditorAudioBus::can_drop_data_fw);
-    ClassDB::bind_method("drop_data_fw", &EditorAudioBus::drop_data_fw);
-    ClassDB::bind_method("_delete_effect_pressed", &EditorAudioBus::_delete_effect_pressed);
-    ClassDB::bind_method("_effect_rmb", &EditorAudioBus::_effect_rmb);
+    MethodBinder::bind_method("update_bus", &EditorAudioBus::update_bus);
+    MethodBinder::bind_method("update_send", &EditorAudioBus::update_send);
+    MethodBinder::bind_method("_name_changed", &EditorAudioBus::_name_changed);
+    MethodBinder::bind_method("_volume_changed", &EditorAudioBus::_volume_changed);
+    MethodBinder::bind_method("_show_value", &EditorAudioBus::_show_value);
+    MethodBinder::bind_method("_hide_value_preview", &EditorAudioBus::_hide_value_preview);
+    MethodBinder::bind_method("_solo_toggled", &EditorAudioBus::_solo_toggled);
+    MethodBinder::bind_method("_mute_toggled", &EditorAudioBus::_mute_toggled);
+    MethodBinder::bind_method("_bypass_toggled", &EditorAudioBus::_bypass_toggled);
+    MethodBinder::bind_method("_name_focus_exit", &EditorAudioBus::_name_focus_exit);
+    MethodBinder::bind_method("_send_selected", &EditorAudioBus::_send_selected);
+    MethodBinder::bind_method("_effect_edited", &EditorAudioBus::_effect_edited);
+    MethodBinder::bind_method("_effect_selected", &EditorAudioBus::_effect_selected);
+    MethodBinder::bind_method("_effect_add", &EditorAudioBus::_effect_add);
+    MethodBinder::bind_method("_gui_input", &EditorAudioBus::_gui_input);
+    MethodBinder::bind_method("_bus_popup_pressed", &EditorAudioBus::_bus_popup_pressed);
+    MethodBinder::bind_method("get_drag_data_fw", &EditorAudioBus::get_drag_data_fw);
+    MethodBinder::bind_method("can_drop_data_fw", &EditorAudioBus::can_drop_data_fw);
+    MethodBinder::bind_method("drop_data_fw", &EditorAudioBus::drop_data_fw);
+    MethodBinder::bind_method("_delete_effect_pressed", &EditorAudioBus::_delete_effect_pressed);
+    MethodBinder::bind_method("_effect_rmb", &EditorAudioBus::_effect_rmb);
 
     ADD_SIGNAL(MethodInfo("duplicate_request"));
     ADD_SIGNAL(MethodInfo("delete_request"));
@@ -928,7 +936,7 @@ EditorAudioBus::EditorAudioBus(EditorAudioBuses *p_buses, bool p_is_master) {
             continue;
 
         Ref<Texture> icon = EditorNode::get_singleton()->get_class_icon(E->get());
-        String name = E->get().operator String().replace("AudioEffect", "");
+        String name = StringUtils::replace(E->get(),"AudioEffect", "");
         effect_options->add_item(name);
         effect_options->set_item_metadata(effect_options->get_item_count() - 1, E->get());
         effect_options->set_item_icon(effect_options->get_item_count() - 1, icon);
@@ -955,7 +963,7 @@ void EditorAudioBusDrop::_notification(int p_what) {
 
             if (hovering_drop) {
                 Color accent = get_color("accent_color", "Editor");
-                accent.a *= 0.7;
+                accent.a *= 0.7f;
                 draw_rect(Rect2(Point2(), get_size()), accent, false);
             }
         } break;
@@ -1012,11 +1020,11 @@ void EditorAudioBuses::_update_buses() {
         bool is_master = (i == 0);
         EditorAudioBus *audio_bus = memnew(EditorAudioBus(this, is_master));
         bus_hb->add_child(audio_bus);
-        audio_bus->connect("delete_request", this, "_delete_bus", varray(audio_bus), CONNECT_DEFERRED);
-        audio_bus->connect("duplicate_request", this, "_duplicate_bus", varray(), CONNECT_DEFERRED);
-        audio_bus->connect("vol_reset_request", this, "_reset_bus_volume", varray(audio_bus), CONNECT_DEFERRED);
+        audio_bus->connect("delete_request", this, "_delete_bus", varray(audio_bus), ObjectNS::CONNECT_DEFERRED);
+        audio_bus->connect("duplicate_request", this, "_duplicate_bus", varray(), ObjectNS::CONNECT_DEFERRED);
+        audio_bus->connect("vol_reset_request", this, "_reset_bus_volume", varray(audio_bus), ObjectNS::CONNECT_DEFERRED);
         audio_bus->connect("drop_end_request", this, "_request_drop_end");
-        audio_bus->connect("dropped", this, "_drop_at_index", varray(), CONNECT_DEFERRED);
+        audio_bus->connect("dropped", this, "_drop_at_index", varray(), ObjectNS::CONNECT_DEFERRED);
     }
 }
 
@@ -1170,7 +1178,7 @@ void EditorAudioBuses::_request_drop_end() {
 
         bus_hb->add_child(drop_end);
         drop_end->set_custom_minimum_size(Object::cast_to<Control>(bus_hb->get_child(0))->get_size());
-        drop_end->connect("dropped", this, "_drop_at_index", varray(), CONNECT_DEFERRED);
+        drop_end->connect("dropped", this, "_drop_at_index", varray(), ObjectNS::CONNECT_DEFERRED);
     }
 }
 
@@ -1286,23 +1294,23 @@ void EditorAudioBuses::_file_dialog_callback(const String &p_string) {
 
 void EditorAudioBuses::_bind_methods() {
 
-    ClassDB::bind_method("_add_bus", &EditorAudioBuses::_add_bus);
-    ClassDB::bind_method("_update_buses", &EditorAudioBuses::_update_buses);
-    ClassDB::bind_method("_update_bus", &EditorAudioBuses::_update_bus);
-    ClassDB::bind_method("_update_sends", &EditorAudioBuses::_update_sends);
-    ClassDB::bind_method("_delete_bus", &EditorAudioBuses::_delete_bus);
-    ClassDB::bind_method("_request_drop_end", &EditorAudioBuses::_request_drop_end);
-    ClassDB::bind_method("_drop_at_index", &EditorAudioBuses::_drop_at_index);
-    ClassDB::bind_method("_server_save", &EditorAudioBuses::_server_save);
-    ClassDB::bind_method("_select_layout", &EditorAudioBuses::_select_layout);
-    ClassDB::bind_method("_save_as_layout", &EditorAudioBuses::_save_as_layout);
-    ClassDB::bind_method("_load_layout", &EditorAudioBuses::_load_layout);
-    ClassDB::bind_method("_load_default_layout", &EditorAudioBuses::_load_default_layout);
-    ClassDB::bind_method("_new_layout", &EditorAudioBuses::_new_layout);
-    ClassDB::bind_method("_duplicate_bus", &EditorAudioBuses::_duplicate_bus);
-    ClassDB::bind_method("_reset_bus_volume", &EditorAudioBuses::_reset_bus_volume);
+    MethodBinder::bind_method("_add_bus", &EditorAudioBuses::_add_bus);
+    MethodBinder::bind_method("_update_buses", &EditorAudioBuses::_update_buses);
+    MethodBinder::bind_method("_update_bus", &EditorAudioBuses::_update_bus);
+    MethodBinder::bind_method("_update_sends", &EditorAudioBuses::_update_sends);
+    MethodBinder::bind_method("_delete_bus", &EditorAudioBuses::_delete_bus);
+    MethodBinder::bind_method("_request_drop_end", &EditorAudioBuses::_request_drop_end);
+    MethodBinder::bind_method("_drop_at_index", &EditorAudioBuses::_drop_at_index);
+    MethodBinder::bind_method("_server_save", &EditorAudioBuses::_server_save);
+    MethodBinder::bind_method("_select_layout", &EditorAudioBuses::_select_layout);
+    MethodBinder::bind_method("_save_as_layout", &EditorAudioBuses::_save_as_layout);
+    MethodBinder::bind_method("_load_layout", &EditorAudioBuses::_load_layout);
+    MethodBinder::bind_method("_load_default_layout", &EditorAudioBuses::_load_default_layout);
+    MethodBinder::bind_method("_new_layout", &EditorAudioBuses::_new_layout);
+    MethodBinder::bind_method("_duplicate_bus", &EditorAudioBuses::_duplicate_bus);
+    MethodBinder::bind_method("_reset_bus_volume", &EditorAudioBuses::_reset_bus_volume);
 
-    ClassDB::bind_method("_file_dialog_callback", &EditorAudioBuses::_file_dialog_callback);
+    MethodBinder::bind_method("_file_dialog_callback", &EditorAudioBuses::_file_dialog_callback);
 }
 
 EditorAudioBuses::EditorAudioBuses() {
@@ -1452,8 +1460,8 @@ Size2 EditorAudioMeterNotches::get_minimum_size() const {
 
 void EditorAudioMeterNotches::_bind_methods() {
 
-    ClassDB::bind_method("add_notch", &EditorAudioMeterNotches::add_notch);
-    ClassDB::bind_method("_draw_audio_notches", &EditorAudioMeterNotches::_draw_audio_notches);
+    MethodBinder::bind_method("add_notch", &EditorAudioMeterNotches::add_notch);
+    MethodBinder::bind_method("_draw_audio_notches", &EditorAudioMeterNotches::_draw_audio_notches);
 }
 
 void EditorAudioMeterNotches::_notification(int p_what) {

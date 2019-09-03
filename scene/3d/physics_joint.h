@@ -36,7 +36,7 @@
 
 class Joint : public Spatial {
 
-	GDCLASS(Joint, Spatial);
+	GDCLASS(Joint,Spatial)
 
 	RID ba, bb;
 
@@ -78,7 +78,7 @@ public:
 
 class PinJoint : public Joint {
 
-	GDCLASS(PinJoint, Joint);
+	GDCLASS(PinJoint,Joint)
 
 public:
 	enum Param {
@@ -89,7 +89,7 @@ public:
 
 protected:
 	float params[3];
-	virtual RID _configure_joint(PhysicsBody *body_a, PhysicsBody *body_b);
+	RID _configure_joint(PhysicsBody *body_a, PhysicsBody *body_b) override;
 	static void _bind_methods();
 
 public:
@@ -103,7 +103,7 @@ VARIANT_ENUM_CAST(PinJoint::Param);
 
 class HingeJoint : public Joint {
 
-	GDCLASS(HingeJoint, Joint);
+	GDCLASS(HingeJoint,Joint)
 
 public:
 	enum Param {
@@ -127,7 +127,7 @@ public:
 protected:
 	float params[PARAM_MAX];
 	bool flags[FLAG_MAX];
-	virtual RID _configure_joint(PhysicsBody *body_a, PhysicsBody *body_b);
+	RID _configure_joint(PhysicsBody *body_a, PhysicsBody *body_b) override;
 	static void _bind_methods();
 
 	void _set_upper_limit(float p_limit);
@@ -151,7 +151,7 @@ VARIANT_ENUM_CAST(HingeJoint::Flag);
 
 class SliderJoint : public Joint {
 
-	GDCLASS(SliderJoint, Joint);
+	GDCLASS(SliderJoint,Joint)
 
 public:
 	enum Param {
@@ -190,7 +190,7 @@ protected:
 	float _get_lower_limit_angular() const;
 
 	float params[PARAM_MAX];
-	virtual RID _configure_joint(PhysicsBody *body_a, PhysicsBody *body_b);
+	RID _configure_joint(PhysicsBody *body_a, PhysicsBody *body_b) override;
 	static void _bind_methods();
 
 public:
@@ -204,7 +204,7 @@ VARIANT_ENUM_CAST(SliderJoint::Param);
 
 class ConeTwistJoint : public Joint {
 
-	GDCLASS(ConeTwistJoint, Joint);
+	GDCLASS(ConeTwistJoint,Joint)
 
 public:
 	enum Param {
@@ -225,7 +225,7 @@ protected:
 	float _get_twist_span() const;
 
 	float params[PARAM_MAX];
-	virtual RID _configure_joint(PhysicsBody *body_a, PhysicsBody *body_b);
+	RID _configure_joint(PhysicsBody *body_a, PhysicsBody *body_b) override;
 	static void _bind_methods();
 
 public:
@@ -239,7 +239,7 @@ VARIANT_ENUM_CAST(ConeTwistJoint::Param);
 
 class Generic6DOFJoint : public Joint {
 
-	GDCLASS(Generic6DOFJoint, Joint);
+	GDCLASS(Generic6DOFJoint,Joint)
 
 public:
 	enum Param {
@@ -307,7 +307,7 @@ protected:
 
 	int precision;
 
-	virtual RID _configure_joint(PhysicsBody *body_a, PhysicsBody *body_b);
+	RID _configure_joint(PhysicsBody *body_a, PhysicsBody *body_b) override;
 	static void _bind_methods();
 
 public:

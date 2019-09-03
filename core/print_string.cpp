@@ -34,7 +34,7 @@
 #include "core/string_formatter.h"
 #include "core/os/os.h"
 
-#include <stdio.h>
+#include <cstdio>
 
 static PrintHandlerList *print_handler_list = nullptr;
 bool _print_line_enabled = true;

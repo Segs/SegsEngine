@@ -30,7 +30,10 @@
 
 #include "quick_open.h"
 
+#include "core/method_bind.h"
 #include "core/os/keyboard.h"
+
+IMPL_GDCLASS(EditorQuickOpen)
 
 void EditorQuickOpen::popup_dialog(const StringName &p_base, bool p_enable_multi, bool p_add_dirs, bool p_dontclear) {
 
@@ -116,7 +119,7 @@ float EditorQuickOpen::_path_cmp(String search, String path) const {
     if (search == path) {
         return 1.2f;
     }
-    if (path.findn(search) != -1) {
+    if (StringUtils::findn(path,search) != -1) {
         return 1.1f;
     }
     return StringUtils::similarity(StringUtils::to_lower(path),StringUtils::to_lower(search));
@@ -135,10 +138,10 @@ void EditorQuickOpen::_parse_fs(EditorFileSystemDirectory *efsd, Vector<Pair<Str
 
     if (add_directories) {
         String path = efsd->get_path();
-        if (!path.ends_with("/"))
+        if (!StringUtils::ends_with(path,"/"))
             path += "/";
         if (path != "res://") {
-            path = path.substr(6, path.length());
+            path = StringUtils::substr(path,6, path.length());
             if (StringUtils::is_subsequence_ofi(search_text,path)) {
                 Pair<String, Ref<Texture> > pair;
                 pair.first = path;
@@ -166,7 +169,7 @@ void EditorQuickOpen::_parse_fs(EditorFileSystemDirectory *efsd, Vector<Pair<Str
     for (int i = 0; i < efsd->get_file_count(); i++) {
 
         String file = efsd->get_file_path(i);
-        file = file.substr(6, file.length());
+        file = StringUtils::substr(file,6, file.length());
 
         if (ClassDB::is_parent_class(efsd->get_file_type(i), base_type) && (StringUtils::is_subsequence_ofi(search_text,file))) {
             Pair<String, Ref<Texture> > pair;
@@ -278,9 +281,9 @@ StringName EditorQuickOpen::get_base_type() const {
 
 void EditorQuickOpen::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_text_changed"), &EditorQuickOpen::_text_changed);
-    ClassDB::bind_method(D_METHOD("_confirmed"), &EditorQuickOpen::_confirmed);
-    ClassDB::bind_method(D_METHOD("_sbox_input"), &EditorQuickOpen::_sbox_input);
+    MethodBinder::bind_method(D_METHOD("_text_changed"), &EditorQuickOpen::_text_changed);
+    MethodBinder::bind_method(D_METHOD("_confirmed"), &EditorQuickOpen::_confirmed);
+    MethodBinder::bind_method(D_METHOD("_sbox_input"), &EditorQuickOpen::_sbox_input);
 
     ADD_SIGNAL(MethodInfo("quick_open"));
 }

@@ -58,7 +58,7 @@ bool WSLServer::PendingPeer::_parse_request(const PoolStringArray p_protocols) {
         Vector<String> header = StringUtils::split(psa[i],":", false, 1);
         ERR_FAIL_COND_V_MSG(header.size() != 2, false, "Invalid header -> " + psa[i]);
         String name = StringUtils::to_lower(header[0]);
-        String value = header[1].strip_edges();
+        String value =StringUtils::strip_edges( header[1]);
         if (headers.has(name))
             headers[name] += "," + value;
         else
@@ -123,7 +123,7 @@ Error WSLServer::PendingPeer::do_handshake(PoolStringArray p_protocols) {
                 if (protocol != "")
                     s += "Sec-WebSocket-Protocol: " + protocol + "\r\n";
                 s += "\r\n";
-                response = s.utf8();
+				response = StringUtils::to_utf8(s);
                 has_request = true;
                 break;
             }

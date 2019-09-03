@@ -35,7 +35,7 @@
 #include "core/vector.h"
 
 class QChar;
-#include <stdarg.h>
+#include <cstdarg>
 
 class Logger {
 protected:
@@ -54,7 +54,7 @@ public:
 
 	virtual void log_error(const char *p_function, const char *p_file, int p_line, const char *p_code, const char *p_rationale, ErrorType p_type = ERR_ERROR);
 
-	void logf(const QString &p_msg);
+	void logf(const String &p_msg);
     void logf(const char *p_msg);
 
 	void logf_error(const QChar *p_msg);
@@ -72,7 +72,7 @@ public:
 	void logv(const QChar *p_msg, bool p_err) override;
 	void logv(const char *p_msg, bool p_err) override;
 
-	virtual ~StdLogger();
+	~StdLogger() override;
 };
 
 class CompositeLogger : public Logger {
@@ -83,11 +83,11 @@ public:
 
 	void logv(const QChar *p_msg, bool p_err) override;
 	void logv(const char *p_msg, bool p_err) override;
-	virtual void log_error(const char *p_function, const char *p_file, int p_line, const char *p_code, const char *p_rationale, ErrorType p_type = ERR_ERROR);
+	void log_error(const char *p_function, const char *p_file, int p_line, const char *p_code, const char *p_rationale, ErrorType p_type = ERR_ERROR) override;
 
 	void add_logger(Logger *p_logger);
 
-	virtual ~CompositeLogger();
+	~CompositeLogger() override;
 };
 
 #endif

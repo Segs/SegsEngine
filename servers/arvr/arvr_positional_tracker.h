@@ -44,7 +44,8 @@
 */
 
 class ARVRPositionalTracker : public Object {
-	GDCLASS(ARVRPositionalTracker, Object);
+	GDCLASS(ARVRPositionalTracker,Object)
+
 	_THREAD_SAFE_CLASS_
 
 public:
@@ -96,7 +97,7 @@ public:
 	Transform get_transform(bool p_adjust_by_reference_frame) const;
 
 	ARVRPositionalTracker();
-	~ARVRPositionalTracker();
+	~ARVRPositionalTracker() override;
 };
 
 VARIANT_ENUM_CAST(ARVRPositionalTracker::TrackerHand);

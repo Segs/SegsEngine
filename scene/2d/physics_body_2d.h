@@ -40,7 +40,7 @@ class KinematicCollision2D;
 
 class PhysicsBody2D : public CollisionObject2D {
 
-	GDCLASS(PhysicsBody2D, CollisionObject2D);
+	GDCLASS(PhysicsBody2D,CollisionObject2D)
 
 	uint32_t collision_layer;
 	uint32_t collision_mask;
@@ -76,7 +76,7 @@ public:
 
 class StaticBody2D : public PhysicsBody2D {
 
-	GDCLASS(StaticBody2D, PhysicsBody2D);
+	GDCLASS(StaticBody2D,PhysicsBody2D)
 
 	Vector2 constant_linear_velocity;
 	real_t constant_angular_velocity;
@@ -104,7 +104,7 @@ public:
 	real_t get_constant_angular_velocity() const;
 
 	StaticBody2D();
-	~StaticBody2D();
+	~StaticBody2D() override;
 
 private:
 	void _reload_physics_characteristics();
@@ -112,7 +112,7 @@ private:
 
 class RigidBody2D : public PhysicsBody2D {
 
-	GDCLASS(RigidBody2D, PhysicsBody2D);
+	GDCLASS(RigidBody2D,PhysicsBody2D)
 
 public:
 	enum Mode {
@@ -273,10 +273,10 @@ public:
 
 	Array get_colliding_bodies() const; //function for script
 
-	virtual String get_configuration_warning() const;
+	String get_configuration_warning() const override;
 
 	RigidBody2D();
-	~RigidBody2D();
+	~RigidBody2D() override;
 
 private:
 	void _reload_physics_characteristics();
@@ -287,7 +287,7 @@ VARIANT_ENUM_CAST(RigidBody2D::CCDMode);
 
 class KinematicBody2D : public PhysicsBody2D {
 
-	GDCLASS(KinematicBody2D, PhysicsBody2D);
+	GDCLASS(KinematicBody2D,PhysicsBody2D)
 
 public:
 	struct Collision {
@@ -353,12 +353,12 @@ public:
 	bool is_sync_to_physics_enabled() const;
 
 	KinematicBody2D();
-	~KinematicBody2D();
+	~KinematicBody2D() override;
 };
 
 class KinematicCollision2D : public Reference {
 
-	GDCLASS(KinematicCollision2D, Reference);
+	GDCLASS(KinematicCollision2D,Reference)
 
 	KinematicBody2D *owner;
 	friend class KinematicBody2D;

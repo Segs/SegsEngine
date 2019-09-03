@@ -185,7 +185,7 @@ public:
 #endif
     }
 
-    void get_owned_list(List<RID> *p_owned) {
+    void get_owned_list(List<RID> *p_owned) override {
 
 #ifdef DEBUG_ENABLED
 

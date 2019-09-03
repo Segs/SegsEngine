@@ -44,11 +44,11 @@ class AreaPairSW : public ConstraintSW {
 	bool colliding;
 
 public:
-	bool setup(real_t p_step);
-	void solve(real_t p_step);
+	bool setup(real_t p_step) override;
+	void solve(real_t p_step) override;
 
 	AreaPairSW(BodySW *p_body, int p_body_shape, AreaSW *p_area, int p_area_shape);
-	~AreaPairSW();
+	~AreaPairSW() override;
 };
 
 class Area2PairSW : public ConstraintSW {
@@ -60,11 +60,11 @@ class Area2PairSW : public ConstraintSW {
 	bool colliding;
 
 public:
-	bool setup(real_t p_step);
-	void solve(real_t p_step);
+	bool setup(real_t p_step) override;
+	void solve(real_t p_step) override;
 
 	Area2PairSW(AreaSW *p_area_a, int p_shape_a, AreaSW *p_area_b, int p_shape_b);
-	~Area2PairSW();
+	~Area2PairSW() override;
 };
 
 #endif // AREA_PAIR__SW_H

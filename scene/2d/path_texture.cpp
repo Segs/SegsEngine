@@ -30,6 +30,8 @@
 
 #include "path_texture.h"
 
+IMPL_GDCLASS(PathTexture)
+
 void PathTexture::set_begin_texture(const Ref<Texture> &p_texture) {
 
 	begin = p_texture;

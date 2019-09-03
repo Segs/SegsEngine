@@ -41,8 +41,9 @@ class VisibilityNotifier;
 struct SpatialIndexer;
 
 class World : public Resource {
-	GDCLASS(World, Resource)
-	RES_BASE_EXTENSION("world")
+	GDCLASS(World,Resource)
+
+    RES_BASE_EXTENSION("world")
 
 private:
 	RID space;

@@ -33,6 +33,9 @@
 #include "editor_node.h"
 #include "editor_scale.h"
 #include "core/object_db.h"
+#include "core/method_bind.h"
+
+IMPL_GDCLASS(EditorPath)
 
 void EditorPath::_add_children_to_popup(Object *p_obj, int p_depth) {
 
@@ -58,7 +61,7 @@ void EditorPath::_add_children_to_popup(Object *p_obj, int p_depth) {
         Ref<Texture> icon = EditorNode::get_singleton()->get_object_icon(obj);
 
         int index = get_popup()->get_item_count();
-        get_popup()->add_icon_item(icon, E->get().name.capitalize(), objects.size());
+		get_popup()->add_icon_item(icon, StringUtils::capitalize(E->get().name), objects.size());
         get_popup()->set_item_h_offset(index, p_depth * 10 * EDSCALE);
         objects.push_back(obj->get_instance_id());
 
@@ -98,8 +101,8 @@ void EditorPath::update_path() {
             if (Object::cast_to<Resource>(obj)) {
 
                 Resource *r = Object::cast_to<Resource>(obj);
-				if (PathUtils::is_resource_file(r->get_path()))
-					name = PathUtils::get_file(r->get_path());
+                if (PathUtils::is_resource_file(r->get_path()))
+                    name = PathUtils::get_file(r->get_path());
                 else
                     name = r->get_name();
 
@@ -133,8 +136,8 @@ void EditorPath::_id_pressed(int p_idx) {
 
 void EditorPath::_bind_methods() {
 
-    ClassDB::bind_method("_about_to_show", &EditorPath::_about_to_show);
-    ClassDB::bind_method("_id_pressed", &EditorPath::_id_pressed);
+    MethodBinder::bind_method("_about_to_show", &EditorPath::_about_to_show);
+    MethodBinder::bind_method("_id_pressed", &EditorPath::_id_pressed);
 }
 
 EditorPath::EditorPath(EditorHistory *p_history) {

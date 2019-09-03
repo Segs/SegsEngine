@@ -32,6 +32,7 @@
 
 #include "core/io/logger.h"
 #include "os/os.h"
+#include "core/string_formatter.h"
 
 bool _err_error_exists = false;
 
@@ -79,8 +80,8 @@ void remove_error_handler(ErrorHandlerList *p_handler) {
 
     _global_unlock();
 }
-void _err_print_error(const char *p_function, const char *p_file, int p_line, const QString &p_error, ErrorHandlerType p_type) {
-    _err_print_error(p_function, p_file, p_line, qPrintable(p_error), p_type);
+void _err_print_error(const char *p_function, const char *p_file, int p_line, const String &p_error, ErrorHandlerType p_type) {
+    _err_print_error(p_function, p_file, p_line, qPrintable(p_error.m_str), p_type);
 }
 void _err_print_error(const char *p_function, const char *p_file, int p_line, const char *p_error, ErrorHandlerType p_type) {
 
@@ -104,7 +105,7 @@ void _err_print_error(const char *p_function, const char *p_file, int p_line, co
 
 void _err_print_index_error(const char *p_function, const char *p_file, int p_line, int64_t p_index, int64_t p_size, const char *p_index_str, const char *p_size_str, bool fatal) {
 
-    String fstr(fatal ? "FATAL: " : "");
-    String err = QString("%1Index %2=%3 out of size (%4=%5)").arg(fstr,p_index_str).arg(p_index).arg(p_size_str).arg(p_size);
-    _err_print_error(p_function, p_file, p_line, qPrintable(err));
+    const char *fstr(fatal ? "FATAL: " : "");
+    String err = FormatV("%sIndex %s=%zd out of size (%s=%zd)",fstr,p_index_str,p_index,p_size_str,p_size);
+    _err_print_error(p_function, p_file, p_line, err);
 }

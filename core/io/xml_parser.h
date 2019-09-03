@@ -42,7 +42,7 @@
 
 class XMLParser : public Reference {
 
-	GDCLASS(XMLParser, Reference);
+    GDCLASS(XMLParser,Reference)
 
 public:
 	//! Enumeration of all supported source text file formats
@@ -118,7 +118,7 @@ public:
 	void close();
 
 	XMLParser();
-	~XMLParser();
+	~XMLParser() override;
 };
 
 #endif

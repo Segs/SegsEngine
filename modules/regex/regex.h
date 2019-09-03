@@ -40,7 +40,7 @@
 
 class RegExMatch : public Reference {
 
-	GDCLASS(RegExMatch, Reference)
+	GDCLASS(RegExMatch,Reference)
 
 	struct Range {
 		int start;
@@ -71,7 +71,7 @@ public:
 
 class RegEx : public Reference {
 
-	GDCLASS(RegEx, Reference)
+	GDCLASS(RegEx,Reference)
 
 	void *general_ctx;
 	void *code;

@@ -28,14 +28,13 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef SCENARIO_FX_H
-#define SCENARIO_FX_H
+#pragma once
 
 #include "scene/3d/spatial.h"
 
 class WorldEnvironment : public Node {
 
-	GDCLASS(WorldEnvironment, Node);
+	GDCLASS(WorldEnvironment,Node)
 
 	Ref<Environment> environment;
 
@@ -47,9 +46,7 @@ public:
 	void set_environment(const Ref<Environment> &p_environment);
 	Ref<Environment> get_environment() const;
 
-	String get_configuration_warning() const;
+	String get_configuration_warning() const override;
 
 	WorldEnvironment();
 };
-
-#endif

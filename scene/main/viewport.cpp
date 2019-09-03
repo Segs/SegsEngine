@@ -30,6 +30,7 @@
 
 #include "viewport.h"
 
+#include "core/method_bind.h"
 #include "core/object_db.h"
 #include "core/os/input.h"
 #include "core/os/os.h"
@@ -46,11 +47,15 @@
 #include "scene/gui/panel.h"
 #include "scene/gui/panel_container.h"
 #include "scene/gui/popup_menu.h"
+#include "scene/resources/style_box.h"
 #include "scene/main/canvas_layer.h"
 #include "scene/main/timer.h"
 #include "scene/resources/mesh.h"
 #include "scene/scene_string_names.h"
 #include "servers/physics_2d_server.h"
+
+IMPL_GDCLASS(ViewportTexture)
+IMPL_GDCLASS(Viewport)
 
 void ViewportTexture::setup_local_to_scene() {
 
@@ -144,8 +149,8 @@ uint32_t ViewportTexture::get_flags() const {
 
 void ViewportTexture::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_viewport_path_in_scene", "path"), &ViewportTexture::set_viewport_path_in_scene);
-    ClassDB::bind_method(D_METHOD("get_viewport_path_in_scene"), &ViewportTexture::get_viewport_path_in_scene);
+    MethodBinder::bind_method(D_METHOD("set_viewport_path_in_scene", "path"), &ViewportTexture::set_viewport_path_in_scene);
+    MethodBinder::bind_method(D_METHOD("get_viewport_path_in_scene"), &ViewportTexture::get_viewport_path_in_scene);
 
     ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "viewport_path", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Viewport", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_NODE_PATH_FROM_SCENE_ROOT), "set_viewport_path_in_scene", "get_viewport_path_in_scene");
 }
@@ -171,19 +176,21 @@ ViewportTexture::~ViewportTexture() {
 
 class TooltipPanel : public PanelContainer {
 
-    GDCLASS(TooltipPanel, PanelContainer);
+    GDCLASS(TooltipPanel,PanelContainer)
+
 
 public:
-    TooltipPanel(){};
+    TooltipPanel(){}
 };
-
+IMPL_GDCLASS(TooltipPanel)
 class TooltipLabel : public Label {
 
-    GDCLASS(TooltipLabel, Label);
-
+    GDCLASS(TooltipLabel,Label)
 public:
-    TooltipLabel(){};
+    TooltipLabel(){}
+
 };
+IMPL_GDCLASS(TooltipLabel)
 
 Viewport::GUI::GUI() {
 
@@ -1430,7 +1437,7 @@ void Viewport::_gui_show_tooltip() {
 
     Control *which = nullptr;
     String tooltip = _gui_get_tooltip(gui.tooltip, gui.tooltip->get_global_transform().xform_inv(gui.tooltip_pos), &which);
-    tooltip = tooltip.strip_edges();
+    tooltip =StringUtils::strip_edges( tooltip);
     if (tooltip.length() == 0)
         return; // bye
 
@@ -2940,125 +2947,125 @@ void Viewport::_validate_property(PropertyInfo &property) const {
 
 void Viewport::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_use_arvr", "use"), &Viewport::set_use_arvr);
-    ClassDB::bind_method(D_METHOD("use_arvr"), &Viewport::use_arvr);
+    MethodBinder::bind_method(D_METHOD("set_use_arvr", "use"), &Viewport::set_use_arvr);
+    MethodBinder::bind_method(D_METHOD("use_arvr"), &Viewport::use_arvr);
 
-    ClassDB::bind_method(D_METHOD("set_size", "size"), &Viewport::set_size);
-    ClassDB::bind_method(D_METHOD("get_size"), &Viewport::get_size);
-    ClassDB::bind_method(D_METHOD("set_world_2d", "world_2d"), &Viewport::set_world_2d);
-    ClassDB::bind_method(D_METHOD("get_world_2d"), &Viewport::get_world_2d);
-    ClassDB::bind_method(D_METHOD("find_world_2d"), &Viewport::find_world_2d);
-    ClassDB::bind_method(D_METHOD("set_world", "world"), &Viewport::set_world);
-    ClassDB::bind_method(D_METHOD("get_world"), &Viewport::get_world);
-    ClassDB::bind_method(D_METHOD("find_world"), &Viewport::find_world);
+    MethodBinder::bind_method(D_METHOD("set_size", "size"), &Viewport::set_size);
+    MethodBinder::bind_method(D_METHOD("get_size"), &Viewport::get_size);
+    MethodBinder::bind_method(D_METHOD("set_world_2d", "world_2d"), &Viewport::set_world_2d);
+    MethodBinder::bind_method(D_METHOD("get_world_2d"), &Viewport::get_world_2d);
+    MethodBinder::bind_method(D_METHOD("find_world_2d"), &Viewport::find_world_2d);
+    MethodBinder::bind_method(D_METHOD("set_world", "world"), &Viewport::set_world);
+    MethodBinder::bind_method(D_METHOD("get_world"), &Viewport::get_world);
+    MethodBinder::bind_method(D_METHOD("find_world"), &Viewport::find_world);
 
-    ClassDB::bind_method(D_METHOD("set_canvas_transform", "xform"), &Viewport::set_canvas_transform);
-    ClassDB::bind_method(D_METHOD("get_canvas_transform"), &Viewport::get_canvas_transform);
+    MethodBinder::bind_method(D_METHOD("set_canvas_transform", "xform"), &Viewport::set_canvas_transform);
+    MethodBinder::bind_method(D_METHOD("get_canvas_transform"), &Viewport::get_canvas_transform);
 
-    ClassDB::bind_method(D_METHOD("set_global_canvas_transform", "xform"), &Viewport::set_global_canvas_transform);
-    ClassDB::bind_method(D_METHOD("get_global_canvas_transform"), &Viewport::get_global_canvas_transform);
-    ClassDB::bind_method(D_METHOD("get_final_transform"), &Viewport::get_final_transform);
+    MethodBinder::bind_method(D_METHOD("set_global_canvas_transform", "xform"), &Viewport::set_global_canvas_transform);
+    MethodBinder::bind_method(D_METHOD("get_global_canvas_transform"), &Viewport::get_global_canvas_transform);
+    MethodBinder::bind_method(D_METHOD("get_final_transform"), &Viewport::get_final_transform);
 
-    ClassDB::bind_method(D_METHOD("get_visible_rect"), &Viewport::get_visible_rect);
-    ClassDB::bind_method(D_METHOD("set_transparent_background", "enable"), &Viewport::set_transparent_background);
-    ClassDB::bind_method(D_METHOD("has_transparent_background"), &Viewport::has_transparent_background);
+    MethodBinder::bind_method(D_METHOD("get_visible_rect"), &Viewport::get_visible_rect);
+    MethodBinder::bind_method(D_METHOD("set_transparent_background", "enable"), &Viewport::set_transparent_background);
+    MethodBinder::bind_method(D_METHOD("has_transparent_background"), &Viewport::has_transparent_background);
 
-    ClassDB::bind_method(D_METHOD("_vp_input"), &Viewport::_vp_input);
-    ClassDB::bind_method(D_METHOD("_vp_input_text", "text"), &Viewport::_vp_input_text);
-    ClassDB::bind_method(D_METHOD("_vp_unhandled_input"), &Viewport::_vp_unhandled_input);
+    MethodBinder::bind_method(D_METHOD("_vp_input"), &Viewport::_vp_input);
+    MethodBinder::bind_method(D_METHOD("_vp_input_text", "text"), &Viewport::_vp_input_text);
+    MethodBinder::bind_method(D_METHOD("_vp_unhandled_input"), &Viewport::_vp_unhandled_input);
 
-    ClassDB::bind_method(D_METHOD("set_size_override", "enable", "size", "margin"), &Viewport::set_size_override, {DEFVAL(Size2(-1, -1)), DEFVAL(Size2(0, 0))});
-    ClassDB::bind_method(D_METHOD("get_size_override"), &Viewport::get_size_override);
-    ClassDB::bind_method(D_METHOD("is_size_override_enabled"), &Viewport::is_size_override_enabled);
-    ClassDB::bind_method(D_METHOD("set_size_override_stretch", "enabled"), &Viewport::set_size_override_stretch);
-    ClassDB::bind_method(D_METHOD("is_size_override_stretch_enabled"), &Viewport::is_size_override_stretch_enabled);
+    MethodBinder::bind_method(D_METHOD("set_size_override", "enable", "size", "margin"), &Viewport::set_size_override, {DEFVAL(Size2(-1, -1)), DEFVAL(Size2(0, 0))});
+    MethodBinder::bind_method(D_METHOD("get_size_override"), &Viewport::get_size_override);
+    MethodBinder::bind_method(D_METHOD("is_size_override_enabled"), &Viewport::is_size_override_enabled);
+    MethodBinder::bind_method(D_METHOD("set_size_override_stretch", "enabled"), &Viewport::set_size_override_stretch);
+    MethodBinder::bind_method(D_METHOD("is_size_override_stretch_enabled"), &Viewport::is_size_override_stretch_enabled);
 
-    ClassDB::bind_method(D_METHOD("set_vflip", "enable"), &Viewport::set_vflip);
-    ClassDB::bind_method(D_METHOD("get_vflip"), &Viewport::get_vflip);
+    MethodBinder::bind_method(D_METHOD("set_vflip", "enable"), &Viewport::set_vflip);
+    MethodBinder::bind_method(D_METHOD("get_vflip"), &Viewport::get_vflip);
 
-    ClassDB::bind_method(D_METHOD("set_clear_mode", "mode"), &Viewport::set_clear_mode);
-    ClassDB::bind_method(D_METHOD("get_clear_mode"), &Viewport::get_clear_mode);
+    MethodBinder::bind_method(D_METHOD("set_clear_mode", "mode"), &Viewport::set_clear_mode);
+    MethodBinder::bind_method(D_METHOD("get_clear_mode"), &Viewport::get_clear_mode);
 
-    ClassDB::bind_method(D_METHOD("set_update_mode", "mode"), &Viewport::set_update_mode);
-    ClassDB::bind_method(D_METHOD("get_update_mode"), &Viewport::get_update_mode);
+    MethodBinder::bind_method(D_METHOD("set_update_mode", "mode"), &Viewport::set_update_mode);
+    MethodBinder::bind_method(D_METHOD("get_update_mode"), &Viewport::get_update_mode);
 
-    ClassDB::bind_method(D_METHOD("set_msaa", "msaa"), &Viewport::set_msaa);
-    ClassDB::bind_method(D_METHOD("get_msaa"), &Viewport::get_msaa);
+    MethodBinder::bind_method(D_METHOD("set_msaa", "msaa"), &Viewport::set_msaa);
+    MethodBinder::bind_method(D_METHOD("get_msaa"), &Viewport::get_msaa);
 
-    ClassDB::bind_method(D_METHOD("set_hdr", "enable"), &Viewport::set_hdr);
-    ClassDB::bind_method(D_METHOD("get_hdr"), &Viewport::get_hdr);
+    MethodBinder::bind_method(D_METHOD("set_hdr", "enable"), &Viewport::set_hdr);
+    MethodBinder::bind_method(D_METHOD("get_hdr"), &Viewport::get_hdr);
 
-    ClassDB::bind_method(D_METHOD("set_usage", "usage"), &Viewport::set_usage);
-    ClassDB::bind_method(D_METHOD("get_usage"), &Viewport::get_usage);
+    MethodBinder::bind_method(D_METHOD("set_usage", "usage"), &Viewport::set_usage);
+    MethodBinder::bind_method(D_METHOD("get_usage"), &Viewport::get_usage);
 
-    ClassDB::bind_method(D_METHOD("set_debug_draw", "debug_draw"), &Viewport::set_debug_draw);
-    ClassDB::bind_method(D_METHOD("get_debug_draw"), &Viewport::get_debug_draw);
+    MethodBinder::bind_method(D_METHOD("set_debug_draw", "debug_draw"), &Viewport::set_debug_draw);
+    MethodBinder::bind_method(D_METHOD("get_debug_draw"), &Viewport::get_debug_draw);
 
-    ClassDB::bind_method(D_METHOD("get_render_info", "info"), &Viewport::get_render_info);
+    MethodBinder::bind_method(D_METHOD("get_render_info", "info"), &Viewport::get_render_info);
 
-    ClassDB::bind_method(D_METHOD("get_texture"), &Viewport::get_texture);
+    MethodBinder::bind_method(D_METHOD("get_texture"), &Viewport::get_texture);
 
-    ClassDB::bind_method(D_METHOD("set_physics_object_picking", "enable"), &Viewport::set_physics_object_picking);
-    ClassDB::bind_method(D_METHOD("get_physics_object_picking"), &Viewport::get_physics_object_picking);
+    MethodBinder::bind_method(D_METHOD("set_physics_object_picking", "enable"), &Viewport::set_physics_object_picking);
+    MethodBinder::bind_method(D_METHOD("get_physics_object_picking"), &Viewport::get_physics_object_picking);
 
-    ClassDB::bind_method(D_METHOD("get_viewport_rid"), &Viewport::get_viewport_rid);
-    ClassDB::bind_method(D_METHOD("input", "local_event"), &Viewport::input);
-    ClassDB::bind_method(D_METHOD("unhandled_input", "local_event"), &Viewport::unhandled_input);
+    MethodBinder::bind_method(D_METHOD("get_viewport_rid"), &Viewport::get_viewport_rid);
+    MethodBinder::bind_method(D_METHOD("input", "local_event"), &Viewport::input);
+    MethodBinder::bind_method(D_METHOD("unhandled_input", "local_event"), &Viewport::unhandled_input);
 
-    ClassDB::bind_method(D_METHOD("update_worlds"), &Viewport::update_worlds);
+    MethodBinder::bind_method(D_METHOD("update_worlds"), &Viewport::update_worlds);
 
-    ClassDB::bind_method(D_METHOD("set_use_own_world", "enable"), &Viewport::set_use_own_world);
-    ClassDB::bind_method(D_METHOD("is_using_own_world"), &Viewport::is_using_own_world);
+    MethodBinder::bind_method(D_METHOD("set_use_own_world", "enable"), &Viewport::set_use_own_world);
+    MethodBinder::bind_method(D_METHOD("is_using_own_world"), &Viewport::is_using_own_world);
 
-    ClassDB::bind_method(D_METHOD("get_camera"), &Viewport::get_camera);
+    MethodBinder::bind_method(D_METHOD("get_camera"), &Viewport::get_camera);
 
-    ClassDB::bind_method(D_METHOD("set_as_audio_listener", "enable"), &Viewport::set_as_audio_listener);
-    ClassDB::bind_method(D_METHOD("is_audio_listener"), &Viewport::is_audio_listener);
+    MethodBinder::bind_method(D_METHOD("set_as_audio_listener", "enable"), &Viewport::set_as_audio_listener);
+    MethodBinder::bind_method(D_METHOD("is_audio_listener"), &Viewport::is_audio_listener);
 
-    ClassDB::bind_method(D_METHOD("set_as_audio_listener_2d", "enable"), &Viewport::set_as_audio_listener_2d);
-    ClassDB::bind_method(D_METHOD("is_audio_listener_2d"), &Viewport::is_audio_listener_2d);
-    ClassDB::bind_method(D_METHOD("set_attach_to_screen_rect", "rect"), &Viewport::set_attach_to_screen_rect);
-    ClassDB::bind_method(D_METHOD("set_use_render_direct_to_screen", "enable"), &Viewport::set_use_render_direct_to_screen);
-    ClassDB::bind_method(D_METHOD("is_using_render_direct_to_screen"), &Viewport::is_using_render_direct_to_screen);
+    MethodBinder::bind_method(D_METHOD("set_as_audio_listener_2d", "enable"), &Viewport::set_as_audio_listener_2d);
+    MethodBinder::bind_method(D_METHOD("is_audio_listener_2d"), &Viewport::is_audio_listener_2d);
+    MethodBinder::bind_method(D_METHOD("set_attach_to_screen_rect", "rect"), &Viewport::set_attach_to_screen_rect);
+    MethodBinder::bind_method(D_METHOD("set_use_render_direct_to_screen", "enable"), &Viewport::set_use_render_direct_to_screen);
+    MethodBinder::bind_method(D_METHOD("is_using_render_direct_to_screen"), &Viewport::is_using_render_direct_to_screen);
 
-    ClassDB::bind_method(D_METHOD("get_mouse_position"), &Viewport::get_mouse_position);
-    ClassDB::bind_method(D_METHOD("warp_mouse", "to_position"), &Viewport::warp_mouse);
+    MethodBinder::bind_method(D_METHOD("get_mouse_position"), &Viewport::get_mouse_position);
+    MethodBinder::bind_method(D_METHOD("warp_mouse", "to_position"), &Viewport::warp_mouse);
 
-    ClassDB::bind_method(D_METHOD("gui_has_modal_stack"), &Viewport::gui_has_modal_stack);
-    ClassDB::bind_method(D_METHOD("gui_get_drag_data"), &Viewport::gui_get_drag_data);
-    ClassDB::bind_method(D_METHOD("gui_is_dragging"), &Viewport::gui_is_dragging);
+    MethodBinder::bind_method(D_METHOD("gui_has_modal_stack"), &Viewport::gui_has_modal_stack);
+    MethodBinder::bind_method(D_METHOD("gui_get_drag_data"), &Viewport::gui_get_drag_data);
+    MethodBinder::bind_method(D_METHOD("gui_is_dragging"), &Viewport::gui_is_dragging);
 
-    ClassDB::bind_method(D_METHOD("get_modal_stack_top"), &Viewport::get_modal_stack_top);
+    MethodBinder::bind_method(D_METHOD("get_modal_stack_top"), &Viewport::get_modal_stack_top);
 
-    ClassDB::bind_method(D_METHOD("set_disable_input", "disable"), &Viewport::set_disable_input);
-    ClassDB::bind_method(D_METHOD("is_input_disabled"), &Viewport::is_input_disabled);
+    MethodBinder::bind_method(D_METHOD("set_disable_input", "disable"), &Viewport::set_disable_input);
+    MethodBinder::bind_method(D_METHOD("is_input_disabled"), &Viewport::is_input_disabled);
 
-    ClassDB::bind_method(D_METHOD("set_disable_3d", "disable"), &Viewport::set_disable_3d);
-    ClassDB::bind_method(D_METHOD("is_3d_disabled"), &Viewport::is_3d_disabled);
+    MethodBinder::bind_method(D_METHOD("set_disable_3d", "disable"), &Viewport::set_disable_3d);
+    MethodBinder::bind_method(D_METHOD("is_3d_disabled"), &Viewport::is_3d_disabled);
 
-    ClassDB::bind_method(D_METHOD("set_keep_3d_linear", "keep_3d_linear"), &Viewport::set_keep_3d_linear);
-    ClassDB::bind_method(D_METHOD("get_keep_3d_linear"), &Viewport::get_keep_3d_linear);
+    MethodBinder::bind_method(D_METHOD("set_keep_3d_linear", "keep_3d_linear"), &Viewport::set_keep_3d_linear);
+    MethodBinder::bind_method(D_METHOD("get_keep_3d_linear"), &Viewport::get_keep_3d_linear);
 
-    ClassDB::bind_method(D_METHOD("_gui_show_tooltip"), &Viewport::_gui_show_tooltip);
-    ClassDB::bind_method(D_METHOD("_gui_remove_focus"), &Viewport::_gui_remove_focus);
-    ClassDB::bind_method(D_METHOD("_post_gui_grab_click_focus"), &Viewport::_post_gui_grab_click_focus);
+    MethodBinder::bind_method(D_METHOD("_gui_show_tooltip"), &Viewport::_gui_show_tooltip);
+    MethodBinder::bind_method(D_METHOD("_gui_remove_focus"), &Viewport::_gui_remove_focus);
+    MethodBinder::bind_method(D_METHOD("_post_gui_grab_click_focus"), &Viewport::_post_gui_grab_click_focus);
 
-    ClassDB::bind_method(D_METHOD("set_shadow_atlas_size", "size"), &Viewport::set_shadow_atlas_size);
-    ClassDB::bind_method(D_METHOD("get_shadow_atlas_size"), &Viewport::get_shadow_atlas_size);
+    MethodBinder::bind_method(D_METHOD("set_shadow_atlas_size", "size"), &Viewport::set_shadow_atlas_size);
+    MethodBinder::bind_method(D_METHOD("get_shadow_atlas_size"), &Viewport::get_shadow_atlas_size);
 
-    ClassDB::bind_method(D_METHOD("set_snap_controls_to_pixels", "enabled"), &Viewport::set_snap_controls_to_pixels);
-    ClassDB::bind_method(D_METHOD("is_snap_controls_to_pixels_enabled"), &Viewport::is_snap_controls_to_pixels_enabled);
+    MethodBinder::bind_method(D_METHOD("set_snap_controls_to_pixels", "enabled"), &Viewport::set_snap_controls_to_pixels);
+    MethodBinder::bind_method(D_METHOD("is_snap_controls_to_pixels_enabled"), &Viewport::is_snap_controls_to_pixels_enabled);
 
-    ClassDB::bind_method(D_METHOD("set_shadow_atlas_quadrant_subdiv", "quadrant", "subdiv"), &Viewport::set_shadow_atlas_quadrant_subdiv);
-    ClassDB::bind_method(D_METHOD("get_shadow_atlas_quadrant_subdiv", "quadrant"), &Viewport::get_shadow_atlas_quadrant_subdiv);
+    MethodBinder::bind_method(D_METHOD("set_shadow_atlas_quadrant_subdiv", "quadrant", "subdiv"), &Viewport::set_shadow_atlas_quadrant_subdiv);
+    MethodBinder::bind_method(D_METHOD("get_shadow_atlas_quadrant_subdiv", "quadrant"), &Viewport::get_shadow_atlas_quadrant_subdiv);
 
-    ClassDB::bind_method(D_METHOD("set_input_as_handled"), &Viewport::set_input_as_handled);
-    ClassDB::bind_method(D_METHOD("is_input_handled"), &Viewport::is_input_handled);
+    MethodBinder::bind_method(D_METHOD("set_input_as_handled"), &Viewport::set_input_as_handled);
+    MethodBinder::bind_method(D_METHOD("is_input_handled"), &Viewport::is_input_handled);
 
-    ClassDB::bind_method(D_METHOD("set_handle_input_locally", "enable"), &Viewport::set_handle_input_locally);
-    ClassDB::bind_method(D_METHOD("is_handling_input_locally"), &Viewport::is_handling_input_locally);
+    MethodBinder::bind_method(D_METHOD("set_handle_input_locally", "enable"), &Viewport::set_handle_input_locally);
+    MethodBinder::bind_method(D_METHOD("is_handling_input_locally"), &Viewport::is_handling_input_locally);
 
-    ClassDB::bind_method(D_METHOD("_subwindow_visibility_changed"), &Viewport::_subwindow_visibility_changed);
+    MethodBinder::bind_method(D_METHOD("_subwindow_visibility_changed"), &Viewport::_subwindow_visibility_changed);
 
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "arvr"), "set_use_arvr", "use_arvr");
 

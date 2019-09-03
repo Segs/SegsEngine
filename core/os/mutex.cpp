@@ -32,7 +32,7 @@
 
 #include "core/error_macros.h"
 
-#include <stddef.h>
+#include <cstddef>
 
 Mutex *(*Mutex::create_func)(bool) = nullptr;
 

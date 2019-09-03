@@ -30,6 +30,7 @@
 
 #include "rename_dialog.h"
 
+#include "core/method_bind.h"
 #include "core/print_string.h"
 #include "editor_node.h"
 #include "editor_settings.h"
@@ -39,6 +40,8 @@
 #include "scene/gui/control.h"
 #include "scene/gui/label.h"
 #include "scene/gui/tab_container.h"
+
+IMPL_GDCLASS(RenameDialog)
 
 RenameDialog::RenameDialog(SceneTreeEditor *p_scene_tree_editor, UndoRedo *p_undo_redo) {
 
@@ -355,13 +358,13 @@ RenameDialog::RenameDialog(SceneTreeEditor *p_scene_tree_editor, UndoRedo *p_und
 
 void RenameDialog::_bind_methods() {
 
-    ClassDB::bind_method("_features_toggled", &RenameDialog::_features_toggled);
-    ClassDB::bind_method("_update_preview", &RenameDialog::_update_preview);
-    ClassDB::bind_method("_update_preview_int", &RenameDialog::_update_preview_int);
-    ClassDB::bind_method("_insert_text", &RenameDialog::_insert_text);
-    ClassDB::bind_method("_update_substitute", &RenameDialog::_update_substitute);
-    ClassDB::bind_method("reset", &RenameDialog::reset);
-    ClassDB::bind_method("rename", &RenameDialog::rename);
+    MethodBinder::bind_method("_features_toggled", &RenameDialog::_features_toggled);
+    MethodBinder::bind_method("_update_preview", &RenameDialog::_update_preview);
+    MethodBinder::bind_method("_update_preview_int", &RenameDialog::_update_preview_int);
+    MethodBinder::bind_method("_insert_text", &RenameDialog::_insert_text);
+    MethodBinder::bind_method("_update_substitute", &RenameDialog::_update_substitute);
+    MethodBinder::bind_method("reset", &RenameDialog::reset);
+    MethodBinder::bind_method("rename", &RenameDialog::rename);
 }
 
 void RenameDialog::_update_substitute() {
@@ -447,7 +450,7 @@ String RenameDialog::_apply_rename(const Node *node, int count) {
 
         new_name = _regex(search, new_name, replace);
     } else {
-        new_name = new_name.replace(search, replace);
+        new_name = StringUtils::replace(new_name,search, replace);
     }
 
     new_name = prefix + new_name + suffix;
@@ -461,28 +464,28 @@ String RenameDialog::_apply_rename(const Node *node, int count) {
 
 String RenameDialog::_substitute(const String &subject, const Node *node, int count) {
 
-    String result = String(subject).replace("${COUNTER}", vformat("%0" + itos(spn_count_padding->get_value()) + "d", count));
+    String result = StringUtils::replace(subject,"${COUNTER}", vformat("%0" + itos(spn_count_padding->get_value()) + "d", count));
 
     if (node) {
-        result = result.replace("${NAME}", node->get_name());
-        result = result.replace("${TYPE}", node->get_class());
+        result = StringUtils::replace(result,"${NAME}", node->get_name());
+        result = StringUtils::replace(result,"${TYPE}", node->get_class());
     }
 
     int current = EditorNode::get_singleton()->get_editor_data().get_edited_scene();
-    result = result.replace("${SCENE}", EditorNode::get_singleton()->get_editor_data().get_scene_title(current));
+    result = StringUtils::replace(result,"${SCENE}", EditorNode::get_singleton()->get_editor_data().get_scene_title(current));
 
     Node *root_node = SceneTree::get_singleton()->get_edited_scene_root();
     if (root_node) {
-        result = result.replace("${ROOT}", root_node->get_name());
+        result = StringUtils::replace(result,"${ROOT}", root_node->get_name());
     }
     if (node) {
         Node *parent_node = node->get_parent();
         if (parent_node) {
             if (node == root_node) {
                 // Can not substitute parent of root.
-                result = result.replace("${PARENT}", "");
+                result = StringUtils::replace(result,"${PARENT}", "");
             } else {
-                result = result.replace("${PARENT}", parent_node->get_name());
+                result = StringUtils::replace(result,"${PARENT}", parent_node->get_name());
             }
         }
     }
@@ -495,7 +498,7 @@ void RenameDialog::_error_handler(void *p_self, const char *p_func, const char *
     String source_file(p_file);
 
     // Only show first error that is related to "regex"
-    if (self->has_errors || source_file.find("regex") < 0)
+    if (self->has_errors || StringUtils::find(source_file,"regex") < 0)
         return;
 
     String err_str;
@@ -527,7 +530,7 @@ String RenameDialog::_postprocess(const String &subject) {
     if (style_id == 1) {
 
         // CamelCase to Under_Line
-        result = result.camelcase_to_underscore(true);
+        result = StringUtils::camelcase_to_underscore(result,true);
         result = _regex("_+", result, "_");
 
     } else if (style_id == 2) {
@@ -543,12 +546,12 @@ String RenameDialog::_postprocess(const String &subject) {
             int end = 0;
             for (int i = 0; i < matches.size(); ++i) {
                 start = ((Ref<RegExMatch>)matches[i])->get_start(1);
-                buffer += result.substr(end, start - end - 1);
-                buffer += StringUtils::to_upper(result.substr(start, 1));
+                buffer += StringUtils::substr(result,end, start - end - 1);
+                buffer += StringUtils::to_upper(StringUtils::substr(result,start, 1));
                 end = start + 1;
             }
-            buffer += result.substr(end, result.size() - (end + 1));
-            result = String(String(buffer).replace("_", "")).capitalize();
+            buffer += StringUtils::substr(result,end, result.size() - (end + 1));
+            result = StringUtils::capitalize(StringUtils::replace(buffer,"_", ""));
         }
     }
 

@@ -34,7 +34,7 @@
 #include "scene/3d/spatial.h"
 
 class SpringArm : public Spatial {
-	GDCLASS(SpringArm, Spatial);
+	GDCLASS(SpringArm,Spatial)
 
 	Ref<Shape> shape;
 	Set<RID> excluded_objects;

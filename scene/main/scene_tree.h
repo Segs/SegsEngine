@@ -46,7 +46,7 @@ class Material;
 class Mesh;
 
 class SceneTreeTimer : public Reference {
-    GDCLASS(SceneTreeTimer, Reference);
+    GDCLASS(SceneTreeTimer,Reference)
 
     float time_left;
     bool process_pause;
@@ -68,10 +68,10 @@ class SceneTree : public MainLoop {
 
     _THREAD_SAFE_CLASS_
 
-    GDCLASS(SceneTree, MainLoop);
+    GDCLASS(SceneTree,MainLoop)
 
 public:
-    typedef void (*IdleCallback)();
+    using IdleCallback = void (*)();
 
     enum StretchMode {
 
@@ -407,6 +407,8 @@ public:
     static SceneTree *get_singleton() { return singleton; }
 
     void drop_files(const Vector<String> &p_files, int p_from_screen = 0) override;
+	void global_menu_action(const Variant &p_id, const Variant &p_meta) override;
+	void get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const override;
 
     //network API
 

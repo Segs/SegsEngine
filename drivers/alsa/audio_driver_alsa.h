@@ -72,16 +72,16 @@ public:
         return "ALSA";
     }
 
-    virtual Error init();
-    virtual void start();
-    virtual int get_mix_rate() const;
-    virtual SpeakerMode get_speaker_mode() const;
-    virtual Array get_device_list();
-    virtual String get_device();
-    virtual void set_device(String device);
-    virtual void lock();
-    virtual void unlock();
-    virtual void finish();
+    Error init() override;
+    void start() override;
+    int get_mix_rate() const override;
+    SpeakerMode get_speaker_mode() const override;
+    Array get_device_list() override;
+    String get_device() override;
+    void set_device(String device) override;
+    void lock() override;
+    void unlock() override;
+    void finish() override;
 
     AudioDriverALSA();
     ~AudioDriverALSA() override;

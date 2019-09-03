@@ -30,6 +30,8 @@
 
 #include "multiplayer_peer_gdnative.h"
 
+IMPL_GDCLASS(MultiplayerPeerGDNative)
+
 MultiplayerPeerGDNative::MultiplayerPeerGDNative() {
 	interface = nullptr;
 }

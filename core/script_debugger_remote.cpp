@@ -444,7 +444,7 @@ void ScriptDebuggerRemote::_err_handler(void *ud, const char *p_func, const char
 bool ScriptDebuggerRemote::_parse_live_edit(const Array &p_command) {
 
     String cmdstr = p_command[0];
-    if (!live_edit_funcs || !cmdstr.begins_with("live_"))
+    if (!live_edit_funcs || !StringUtils::begins_with(cmdstr,"live_"))
         return false;
 
     //print_line(Variant(cmd).get_construct_string());
@@ -545,7 +545,7 @@ void ScriptDebuggerRemote::_send_object_id(ObjectID p_id) {
     if (!obj)
         return;
 
-    typedef Pair<PropertyInfo, Variant> PropertyDesc;
+    using PropertyDesc = Pair<PropertyInfo, Variant>;
     List<PropertyDesc> properties;
 
     if (ScriptInstance *si = obj->get_script_instance()) {
@@ -579,7 +579,7 @@ void ScriptDebuggerRemote::_send_object_id(ObjectID p_id) {
                     Variant m;
                     if (si->get(E->get(), m)) {
                         String script_path = sm->key() == si->get_script().ptr() ? "" : PathUtils::get_file(sm->key()->get_path()) + "/";
-                        PropertyInfo pi(m.get_type(), "Members/" + script_path + E->get());
+                        PropertyInfo pi(m.get_type(), StringUtils::to_utf8("Members/" + script_path + E->get()).data());
                         properties.push_back(PropertyDesc(pi, m));
                     }
                 }
@@ -590,10 +590,10 @@ void ScriptDebuggerRemote::_send_object_id(ObjectID p_id) {
                     String script_path = sc->key() == si->get_script().ptr() ? "" : PathUtils::get_file(sc->key()->get_path()) + "/";
                     if (E->value().get_type() == Variant::OBJECT) {
                         Variant id = ((Object *)E->value())->get_instance_id();
-                        PropertyInfo pi(id.get_type(), "Constants/" + E->key(), PROPERTY_HINT_OBJECT_ID, "Object");
+                        PropertyInfo pi(id.get_type(), StringUtils::to_utf8("Constants/" + E->key()).data(), PROPERTY_HINT_OBJECT_ID, "Object");
                         properties.push_back(PropertyDesc(pi, id));
                     } else {
-                        PropertyInfo pi(E->value().get_type(), "Constants/" + script_path + E->key());
+                        PropertyInfo pi(E->value().get_type(), StringUtils::to_utf8("Constants/" + script_path + E->key()).data());
                         properties.push_back(PropertyDesc(pi, E->value()));
                     }
                 }
@@ -606,10 +606,10 @@ void ScriptDebuggerRemote::_send_object_id(ObjectID p_id) {
         // for instance where it created as variable and not yet added to tree
         // in such cases we can't ask for it's path
         if (node->is_inside_tree()) {
-            PropertyInfo pi(Variant::NODE_PATH, String("Node/path"));
+            PropertyInfo pi(Variant::NODE_PATH, "Node/path");
             properties.push_front(PropertyDesc(pi, node->get_path()));
         } else {
-            PropertyInfo pi(Variant::STRING, String("Node/path"));
+            PropertyInfo pi(Variant::STRING, "Node/path");
             properties.push_front(PropertyDesc(pi, "[Orphan]"));
         }
 
@@ -620,10 +620,10 @@ void ScriptDebuggerRemote::_send_object_id(ObjectID p_id) {
             for (Map<StringName, Variant>::Element *E = constants.front(); E; E = E->next()) {
                 if (E->value().get_type() == Variant::OBJECT) {
                     Variant id = ((Object *)E->value())->get_instance_id();
-                    PropertyInfo pi(id.get_type(), "Constants/" + E->key(), PROPERTY_HINT_OBJECT_ID, "Object");
+                    PropertyInfo pi(id.get_type(), StringUtils::to_utf8("Constants/" + E->key()).data(), PROPERTY_HINT_OBJECT_ID, "Object");
                     properties.push_front(PropertyDesc(pi, E->value()));
                 } else {
-                    PropertyInfo pi(E->value().get_type(), String("Constants/") + E->key());
+                    PropertyInfo pi(E->value().get_type(), StringUtils::to_utf8("Constants/" + E->key()).data());
                     properties.push_front(PropertyDesc(pi, E->value()));
                 }
             }
@@ -690,7 +690,7 @@ void ScriptDebuggerRemote::_set_object_property(ObjectID p_id, const String &p_p
         return;
 
     String prop_name = p_property;
-    if (p_property.begins_with("Members/")) {
+    if (StringUtils::begins_with(p_property,"Members/")) {
         Vector<String> ss = StringUtils::split(p_property,"/");
         prop_name = ss[ss.size() - 1];
     }
@@ -712,13 +712,13 @@ void ScriptDebuggerRemote::_poll_events() {
         Variant var;
         Error err = packet_peer_stream->get_var(var);
 
-        ERR_CONTINUE(err != OK);
-        ERR_CONTINUE(var.get_type() != Variant::ARRAY);
+        ERR_CONTINUE(err != OK)
+        ERR_CONTINUE(var.get_type() != Variant::ARRAY)
 
         Array cmd = var;
 
-        ERR_CONTINUE(cmd.size() == 0);
-        ERR_CONTINUE(cmd[0].get_type() != Variant::STRING);
+        ERR_CONTINUE(cmd.size() == 0)
+        ERR_CONTINUE(cmd[0].get_type() != Variant::STRING)
 
         String command = cmd[0];
         //cmd.remove(0);
@@ -891,11 +891,11 @@ void ScriptDebuggerRemote::idle_poll() {
         if (pt - last_perf_time > 1000) {
 
             last_perf_time = pt;
-            int max = performance->get("MONITOR_MAX");
+            int max = performance->get(StaticCString("MONITOR_MAX"));
             Array arr;
             arr.resize(max);
             for (int i = 0; i < max; i++) {
-                arr[i] = performance->call("get_monitor", i);
+                arr[i] = performance->call(StaticCString("get_monitor"), i);
             }
             packet_peer_stream->put_var("performance");
             packet_peer_stream->put_var(1);
@@ -1026,7 +1026,7 @@ void ScriptDebuggerRemote::_print_handler(void *p_this, const String &p_string, 
         return;
 
     if (allowed_chars < s.length()) {
-        s = s.substr(0, allowed_chars);
+        s = StringUtils::substr(s,0, allowed_chars);
     }
 
     sdr->char_count += allowed_chars;

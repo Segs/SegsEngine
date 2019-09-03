@@ -34,6 +34,7 @@
 #include "core/global_constants.h"
 #include "core/io/compression.h"
 #include "core/io/marshalls.h"
+#include "core/method_bind_interface.h"
 #include "core/os/dir_access.h"
 #include "core/project_settings.h"
 #include "core/script_language.h"
@@ -168,8 +169,8 @@ static void return_doc_from_retinfo(DocData::MethodDoc &p_method, const Property
 
     if (p_retinfo.type == Variant::INT && p_retinfo.usage & PROPERTY_USAGE_CLASS_IS_ENUM) {
         p_method.return_enum = p_retinfo.class_name;
-        if (p_method.return_enum.begins_with("_")) //proxy class
-            p_method.return_enum = p_method.return_enum.substr(1, p_method.return_enum.length());
+        if (StringUtils::begins_with(p_method.return_enum,"_")) //proxy class
+            p_method.return_enum = StringUtils::substr(p_method.return_enum,1, p_method.return_enum.length());
         p_method.return_type = "int";
     } else if (p_retinfo.class_name != StringName()) {
         p_method.return_type = p_retinfo.class_name;
@@ -190,8 +191,8 @@ static void argument_doc_from_arginfo(DocData::ArgumentDoc &p_argument, const Pr
 
     if (p_arginfo.type == Variant::INT && p_arginfo.usage & PROPERTY_USAGE_CLASS_IS_ENUM) {
         p_argument.enumeration = p_arginfo.class_name;
-        if (p_argument.enumeration.begins_with("_")) //proxy class
-            p_argument.enumeration = p_argument.enumeration.substr(1, p_argument.enumeration.length());
+        if (StringUtils::begins_with(p_argument.enumeration,"_")) //proxy class
+            p_argument.enumeration = StringUtils::substr(p_argument.enumeration,1, p_argument.enumeration.length());
         p_argument.type = "int";
     } else if (p_arginfo.class_name != StringName()) {
         p_argument.type = p_arginfo.class_name;
@@ -219,8 +220,8 @@ void DocData::generate(bool p_basic_types) {
 
         String name = classes[i];
         String cname = name;
-        if (cname.begins_with("_")) //proxy class
-            cname = cname.substr(1, name.length());
+        if (StringUtils::begins_with(cname,"_")) //proxy class
+            cname = StringUtils::substr(cname,1, name.length());
 
         class_list[cname] = ClassDoc();
         ClassDoc &c = class_list[cname];
@@ -267,7 +268,7 @@ void DocData::generate(bool p_basic_types) {
             }
 
             if (default_value_valid && default_value.get_type() != Variant::OBJECT) {
-                prop.default_value = default_value.get_construct_string().replace("\n", "");
+                prop.default_value = StringUtils::replace(default_value.get_construct_string(),"\n", "");
             }
 
             bool found_type = false;
@@ -596,8 +597,8 @@ void DocData::generate(bool p_basic_types) {
             pd.type = s.ptr->get_class();
             while (String(ClassDB::get_parent_class(pd.type)) != "Object")
                 pd.type = ClassDB::get_parent_class(pd.type);
-            if (pd.type.begins_with("_"))
-                pd.type = pd.type.substr(1, pd.type.length());
+            if (StringUtils::begins_with(pd.type,"_"))
+                pd.type = StringUtils::substr(pd.type,1, pd.type.length());
             c.properties.push_back(pd);
         }
     }
@@ -667,7 +668,7 @@ void DocData::generate(bool p_basic_types) {
 static Error _parse_methods(Ref<XMLParser> &parser, Vector<DocData::MethodDoc> &methods) {
 
     String section = parser->get_node_name();
-    String element = section.substr(0, section.length() - 1);
+    String element = StringUtils::substr(section,0, section.length() - 1);
 
     while (parser->read() == OK) {
 
@@ -742,9 +743,9 @@ Error DocData::load_classes(const String &p_dir) {
     String path;
     path = da->get_next();
     while (path != String()) {
-        if (!da->current_is_dir() && path.ends_with("xml")) {
+        if (!da->current_is_dir() && StringUtils::ends_with(path,"xml")) {
             Ref<XMLParser> parser = memnew(XMLParser);
-			Error err2 = parser->open(PathUtils::plus_file(p_dir,path));
+            Error err2 = parser->open(PathUtils::plus_file(p_dir,path));
             if (err2)
                 return err2;
 
@@ -771,7 +772,7 @@ Error DocData::erase_classes(const String &p_dir) {
     String path;
     path = da->get_next();
     while (path != String()) {
-        if (!da->current_is_dir() && path.ends_with("xml")) {
+        if (!da->current_is_dir() && StringUtils::ends_with(path,"xml")) {
             to_erase.push_back(path);
         }
         path = da->get_next();
@@ -838,7 +839,7 @@ Error DocData::_load(Ref<XMLParser> parser) {
 
                                 parser->read();
                                 if (parser->get_node_type() == XMLParser::NODE_TEXT)
-                                    c.tutorials.push_back(parser->get_node_data().strip_edges());
+                                    c.tutorials.push_back(StringUtils::strip_edges(parser->get_node_data()));
                             } else {
                                 ERR_FAIL_V_MSG(ERR_FILE_CORRUPT, "Invalid tag in doc file: " + name3 + ".");
                             }
@@ -983,7 +984,7 @@ Error DocData::save_classes(const String &p_default_path, const Map<String, Stri
         }
 
         Error err;
-		String save_file = PathUtils::plus_file(save_path,c.name + ".xml");
+        String save_file = PathUtils::plus_file(save_path,c.name + ".xml");
         FileAccessRef f = FileAccess::open(save_file, FileAccess::WRITE, &err);
 
         ERR_CONTINUE_MSG(err != OK, "Can't write doc file: " + save_file + ".");
@@ -1002,15 +1003,15 @@ Error DocData::save_classes(const String &p_default_path, const Map<String, Stri
         header += ">";
         _write_string(f, 0, header);
         _write_string(f, 1, "<brief_description>");
-		_write_string(f, 2, StringUtils::xml_escape(c.brief_description.strip_edges()));
+        _write_string(f, 2, StringUtils::xml_escape(StringUtils::strip_edges(c.brief_description)));
         _write_string(f, 1, "</brief_description>");
         _write_string(f, 1, "<description>");
-		_write_string(f, 2, StringUtils::xml_escape(c.description.strip_edges()));
+        _write_string(f, 2, StringUtils::xml_escape(StringUtils::strip_edges(c.description)));
         _write_string(f, 1, "</description>");
         _write_string(f, 1, "<tutorials>");
         for (int i = 0; i < c.tutorials.size(); i++) {
-			_write_string(f, 2, "<link>" + StringUtils::xml_escape(c.tutorials.get(i)) + "</link>");
-		}
+            _write_string(f, 2, "<link>" + StringUtils::xml_escape(c.tutorials.get(i)) + "</link>");
+        }
         _write_string(f, 1, "</tutorials>");
         _write_string(f, 1, "<methods>");
 
@@ -1022,7 +1023,7 @@ Error DocData::save_classes(const String &p_default_path, const Map<String, Stri
 
             String qualifiers;
             if (m.qualifiers != "")
-				qualifiers += " qualifiers=\"" + StringUtils::xml_escape(m.qualifiers) + "\"";
+                qualifiers += " qualifiers=\"" + StringUtils::xml_escape(m.qualifiers) + "\"";
 
             _write_string(f, 2, "<method name=\"" + m.name + "\"" + qualifiers + ">");
 
@@ -1046,20 +1047,20 @@ Error DocData::save_classes(const String &p_default_path, const Map<String, Stri
                 }
 
                 if (a.default_value != "")
-					_write_string(f, 3,
-							"<argument index=\"" + itos(j) + "\" name=\"" + StringUtils::xml_escape(a.name) +
-									"\" type=\"" + StringUtils::xml_escape(a.type) + "\"" + enum_text + " default=\"" +
-									StringUtils::xml_escape(a.default_value, true) + "\">");
+                    _write_string(f, 3,
+                            "<argument index=\"" + itos(j) + "\" name=\"" + StringUtils::xml_escape(a.name) +
+                                    "\" type=\"" + StringUtils::xml_escape(a.type) + "\"" + enum_text + " default=\"" +
+                                    StringUtils::xml_escape(a.default_value, true) + "\">");
                 else
-					_write_string(f, 3,
-							"<argument index=\"" + itos(j) + "\" name=\"" + StringUtils::xml_escape(a.name) +
-									"\" type=\"" + StringUtils::xml_escape(a.type) + "\"" + enum_text + ">");
+                    _write_string(f, 3,
+                            "<argument index=\"" + itos(j) + "\" name=\"" + StringUtils::xml_escape(a.name) +
+                                    "\" type=\"" + StringUtils::xml_escape(a.type) + "\"" + enum_text + ">");
 
                 _write_string(f, 3, "</argument>");
             }
 
             _write_string(f, 3, "<description>");
-			_write_string(f, 4, StringUtils::xml_escape(m.description.strip_edges()));
+            _write_string(f, 4, StringUtils::xml_escape(StringUtils::strip_edges(m.description)));
             _write_string(f, 3, "</description>");
 
             _write_string(f, 2, "</method>");
@@ -1079,11 +1080,11 @@ Error DocData::save_classes(const String &p_default_path, const Map<String, Stri
                     additional_attributes += " enum=\"" + c.properties[i].enumeration + "\"";
                 }
                 if (c.properties[i].default_value != String()) {
-					additional_attributes += " default=\"" + StringUtils::xml_escape(c.properties[i].default_value,true) + "\"";
+                    additional_attributes += " default=\"" + StringUtils::xml_escape(c.properties[i].default_value,true) + "\"";
                 }
                 const PropertyDoc &p = c.properties[i];
                 _write_string(f, 2, "<member name=\"" + p.name + "\" type=\"" + p.type + "\" setter=\"" + p.setter + "\" getter=\"" + p.getter + "\"" + additional_attributes + ">");
-				_write_string(f, 3, StringUtils::xml_escape(p.description.strip_edges()));
+                _write_string(f, 3, StringUtils::xml_escape(StringUtils::strip_edges(p.description)));
                 _write_string(f, 2, "</member>");
             }
             _write_string(f, 1, "</members>");
@@ -1101,12 +1102,12 @@ Error DocData::save_classes(const String &p_default_path, const Map<String, Stri
                 for (int j = 0; j < m.arguments.size(); j++) {
 
                     const ArgumentDoc &a = m.arguments[j];
-					_write_string(f, 3, "<argument index=\"" + itos(j) + "\" name=\"" + StringUtils::xml_escape(a.name) + "\" type=\"" + StringUtils::xml_escape(a.type) + "\">");
+                    _write_string(f, 3, "<argument index=\"" + itos(j) + "\" name=\"" + StringUtils::xml_escape(a.name) + "\" type=\"" + StringUtils::xml_escape(a.type) + "\">");
                     _write_string(f, 3, "</argument>");
                 }
 
                 _write_string(f, 3, "<description>");
-				_write_string(f, 4, StringUtils::xml_escape(m.description.strip_edges()));
+                _write_string(f, 4, StringUtils::xml_escape(StringUtils::strip_edges(m.description)));
                 _write_string(f, 3, "</description>");
 
                 _write_string(f, 2, "</signal>");
@@ -1125,7 +1126,7 @@ Error DocData::save_classes(const String &p_default_path, const Map<String, Stri
             } else {
                 _write_string(f, 2, "<constant name=\"" + k.name + "\" value=\"" + k.value + "\">");
             }
-			_write_string(f, 3, StringUtils::xml_escape(k.description.strip_edges()));
+            _write_string(f, 3, StringUtils::xml_escape(StringUtils::strip_edges(k.description)));
             _write_string(f, 2, "</constant>");
         }
 
@@ -1141,11 +1142,11 @@ Error DocData::save_classes(const String &p_default_path, const Map<String, Stri
                 const PropertyDoc &p = c.theme_properties[i];
 
                 if (p.default_value != "")
-					_write_string(f, 2, "<theme_item name=\"" + p.name + "\" type=\"" + p.type + "\" default=\"" + StringUtils::xml_escape(p.default_value,true) + "\">");
+                    _write_string(f, 2, "<theme_item name=\"" + p.name + "\" type=\"" + p.type + "\" default=\"" + StringUtils::xml_escape(p.default_value,true) + "\">");
                 else
                     _write_string(f, 2, "<theme_item name=\"" + p.name + "\" type=\"" + p.type + "\">");
 
-				_write_string(f, 3, StringUtils::xml_escape(p.description.strip_edges()));
+                _write_string(f, 3, StringUtils::xml_escape(StringUtils::strip_edges(p.description)));
 
                 _write_string(f, 2, "</theme_item>");
             }

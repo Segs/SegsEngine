@@ -35,6 +35,9 @@
 #include "core/object_db.h"
 #include "mesh_instance.h"
 #include "servers/physics_server.h"
+#include "core/method_bind.h"
+
+IMPL_GDCLASS(RayCast)
 
 void RayCast::set_cast_to(const Vector3 &p_point) {
 
@@ -284,42 +287,42 @@ bool RayCast::is_collide_with_bodies_enabled() const {
 
 void RayCast::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_enabled", "enabled"), &RayCast::set_enabled);
-    ClassDB::bind_method(D_METHOD("is_enabled"), &RayCast::is_enabled);
+    MethodBinder::bind_method(D_METHOD("set_enabled", "enabled"), &RayCast::set_enabled);
+    MethodBinder::bind_method(D_METHOD("is_enabled"), &RayCast::is_enabled);
 
-    ClassDB::bind_method(D_METHOD("set_cast_to", "local_point"), &RayCast::set_cast_to);
-    ClassDB::bind_method(D_METHOD("get_cast_to"), &RayCast::get_cast_to);
+    MethodBinder::bind_method(D_METHOD("set_cast_to", "local_point"), &RayCast::set_cast_to);
+    MethodBinder::bind_method(D_METHOD("get_cast_to"), &RayCast::get_cast_to);
 
-    ClassDB::bind_method(D_METHOD("is_colliding"), &RayCast::is_colliding);
-    ClassDB::bind_method(D_METHOD("force_raycast_update"), &RayCast::force_raycast_update);
+    MethodBinder::bind_method(D_METHOD("is_colliding"), &RayCast::is_colliding);
+    MethodBinder::bind_method(D_METHOD("force_raycast_update"), &RayCast::force_raycast_update);
 
-    ClassDB::bind_method(D_METHOD("get_collider"), &RayCast::get_collider);
-    ClassDB::bind_method(D_METHOD("get_collider_shape"), &RayCast::get_collider_shape);
-    ClassDB::bind_method(D_METHOD("get_collision_point"), &RayCast::get_collision_point);
-    ClassDB::bind_method(D_METHOD("get_collision_normal"), &RayCast::get_collision_normal);
+    MethodBinder::bind_method(D_METHOD("get_collider"), &RayCast::get_collider);
+    MethodBinder::bind_method(D_METHOD("get_collider_shape"), &RayCast::get_collider_shape);
+    MethodBinder::bind_method(D_METHOD("get_collision_point"), &RayCast::get_collision_point);
+    MethodBinder::bind_method(D_METHOD("get_collision_normal"), &RayCast::get_collision_normal);
 
-    ClassDB::bind_method(D_METHOD("add_exception_rid", "rid"), &RayCast::add_exception_rid);
-    ClassDB::bind_method(D_METHOD("add_exception", "node"), &RayCast::add_exception);
+    MethodBinder::bind_method(D_METHOD("add_exception_rid", "rid"), &RayCast::add_exception_rid);
+    MethodBinder::bind_method(D_METHOD("add_exception", "node"), &RayCast::add_exception);
 
-    ClassDB::bind_method(D_METHOD("remove_exception_rid", "rid"), &RayCast::remove_exception_rid);
-    ClassDB::bind_method(D_METHOD("remove_exception", "node"), &RayCast::remove_exception);
+    MethodBinder::bind_method(D_METHOD("remove_exception_rid", "rid"), &RayCast::remove_exception_rid);
+    MethodBinder::bind_method(D_METHOD("remove_exception", "node"), &RayCast::remove_exception);
 
-    ClassDB::bind_method(D_METHOD("clear_exceptions"), &RayCast::clear_exceptions);
+    MethodBinder::bind_method(D_METHOD("clear_exceptions"), &RayCast::clear_exceptions);
 
-    ClassDB::bind_method(D_METHOD("set_collision_mask", "mask"), &RayCast::set_collision_mask);
-    ClassDB::bind_method(D_METHOD("get_collision_mask"), &RayCast::get_collision_mask);
+    MethodBinder::bind_method(D_METHOD("set_collision_mask", "mask"), &RayCast::set_collision_mask);
+    MethodBinder::bind_method(D_METHOD("get_collision_mask"), &RayCast::get_collision_mask);
 
-    ClassDB::bind_method(D_METHOD("set_collision_mask_bit", "bit", "value"), &RayCast::set_collision_mask_bit);
-    ClassDB::bind_method(D_METHOD("get_collision_mask_bit", "bit"), &RayCast::get_collision_mask_bit);
+    MethodBinder::bind_method(D_METHOD("set_collision_mask_bit", "bit", "value"), &RayCast::set_collision_mask_bit);
+    MethodBinder::bind_method(D_METHOD("get_collision_mask_bit", "bit"), &RayCast::get_collision_mask_bit);
 
-    ClassDB::bind_method(D_METHOD("set_exclude_parent_body", "mask"), &RayCast::set_exclude_parent_body);
-    ClassDB::bind_method(D_METHOD("get_exclude_parent_body"), &RayCast::get_exclude_parent_body);
+    MethodBinder::bind_method(D_METHOD("set_exclude_parent_body", "mask"), &RayCast::set_exclude_parent_body);
+    MethodBinder::bind_method(D_METHOD("get_exclude_parent_body"), &RayCast::get_exclude_parent_body);
 
-    ClassDB::bind_method(D_METHOD("set_collide_with_areas", "enable"), &RayCast::set_collide_with_areas);
-    ClassDB::bind_method(D_METHOD("is_collide_with_areas_enabled"), &RayCast::is_collide_with_areas_enabled);
+    MethodBinder::bind_method(D_METHOD("set_collide_with_areas", "enable"), &RayCast::set_collide_with_areas);
+    MethodBinder::bind_method(D_METHOD("is_collide_with_areas_enabled"), &RayCast::is_collide_with_areas_enabled);
 
-    ClassDB::bind_method(D_METHOD("set_collide_with_bodies", "enable"), &RayCast::set_collide_with_bodies);
-    ClassDB::bind_method(D_METHOD("is_collide_with_bodies_enabled"), &RayCast::is_collide_with_bodies_enabled);
+    MethodBinder::bind_method(D_METHOD("set_collide_with_bodies", "enable"), &RayCast::set_collide_with_bodies);
+    MethodBinder::bind_method(D_METHOD("is_collide_with_bodies_enabled"), &RayCast::is_collide_with_bodies_enabled);
 
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "enabled"), "set_enabled", "is_enabled");
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "exclude_parent"), "set_exclude_parent_body", "get_exclude_parent_body");

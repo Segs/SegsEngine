@@ -35,7 +35,7 @@
 
 class Timer : public Node {
 
-	GDCLASS(Timer, Node);
+	GDCLASS(Timer,Node)
 
 	float wait_time;
 	bool one_shot;

@@ -30,7 +30,9 @@
 
 #include "engine.h"
 
-#include "core/os/main_loop.h"
+#include "core/dictionary.h"
+#include "core/variant.h"
+#include "core/ustring.h"
 #include "authors.gen.h"
 #include "donors.gen.h"
 #include "license.gen.h"
@@ -105,7 +107,7 @@ Dictionary Engine::get_version_info() const {
     dict["build"] = VERSION_BUILD;
     dict["year"] = VERSION_YEAR;
 
-    String hash = VERSION_HASH;
+    String hash(VERSION_HASH);
     dict["hash"] = hash.length() == 0 ? String("unknown") : hash;
 
     String stringver = dict["major"].as<String>() + "." + dict["minor"].as<String>();
@@ -244,17 +246,17 @@ public:
     {
         delete d;
     }
-    void reportError(const String &msg, const char *retval, const char *funcstr,const char *file, int line)
+    void reportError(const String &msg, const char *retval, const char *funcstr,const char *file, int line) override
     {
         if(!msg.empty())
         {
-            _err_set_last_error(String(msg).utf8().data());
+            _err_set_last_error(StringUtils::utf8(msg).data());
             _err_error_exists = true;
         }
-        _err_print_error(funcstr, file, line, (String("Method/Function Failed, returning: ")+ retval));
+        _err_print_error(funcstr, file, line, String("Method/Function Failed, returning: ")+ retval);
         _err_error_exists = false;
     }
-    void clearLastError()
+    void clearLastError() override
     {
         _err_error_exists = false;
     }

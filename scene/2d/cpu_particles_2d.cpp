@@ -32,8 +32,11 @@
 
 #include "scene/2d/canvas_item.h"
 #include "scene/2d/particles_2d.h"
+#include "core/method_bind.h"
 #include "scene/resources/particles_material.h"
 #include "servers/visual_server.h"
+
+IMPL_GDCLASS(CPUParticles2D)
 
 void CPUParticles2D::set_emitting(bool p_emitting) {
 
@@ -1197,43 +1200,43 @@ void CPUParticles2D::convert_from_particles(Node *p_particles) {
 
 void CPUParticles2D::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_emitting", "emitting"), &CPUParticles2D::set_emitting);
-    ClassDB::bind_method(D_METHOD("set_amount", "amount"), &CPUParticles2D::set_amount);
-    ClassDB::bind_method(D_METHOD("set_lifetime", "secs"), &CPUParticles2D::set_lifetime);
-    ClassDB::bind_method(D_METHOD("set_one_shot", "enable"), &CPUParticles2D::set_one_shot);
-    ClassDB::bind_method(D_METHOD("set_pre_process_time", "secs"), &CPUParticles2D::set_pre_process_time);
-    ClassDB::bind_method(D_METHOD("set_explosiveness_ratio", "ratio"), &CPUParticles2D::set_explosiveness_ratio);
-    ClassDB::bind_method(D_METHOD("set_randomness_ratio", "ratio"), &CPUParticles2D::set_randomness_ratio);
-    ClassDB::bind_method(D_METHOD("set_lifetime_randomness", "random"), &CPUParticles2D::set_lifetime_randomness);
-    ClassDB::bind_method(D_METHOD("set_use_local_coordinates", "enable"), &CPUParticles2D::set_use_local_coordinates);
-    ClassDB::bind_method(D_METHOD("set_fixed_fps", "fps"), &CPUParticles2D::set_fixed_fps);
-    ClassDB::bind_method(D_METHOD("set_fractional_delta", "enable"), &CPUParticles2D::set_fractional_delta);
-    ClassDB::bind_method(D_METHOD("set_speed_scale", "scale"), &CPUParticles2D::set_speed_scale);
+    MethodBinder::bind_method(D_METHOD("set_emitting", "emitting"), &CPUParticles2D::set_emitting);
+    MethodBinder::bind_method(D_METHOD("set_amount", "amount"), &CPUParticles2D::set_amount);
+    MethodBinder::bind_method(D_METHOD("set_lifetime", "secs"), &CPUParticles2D::set_lifetime);
+    MethodBinder::bind_method(D_METHOD("set_one_shot", "enable"), &CPUParticles2D::set_one_shot);
+    MethodBinder::bind_method(D_METHOD("set_pre_process_time", "secs"), &CPUParticles2D::set_pre_process_time);
+    MethodBinder::bind_method(D_METHOD("set_explosiveness_ratio", "ratio"), &CPUParticles2D::set_explosiveness_ratio);
+    MethodBinder::bind_method(D_METHOD("set_randomness_ratio", "ratio"), &CPUParticles2D::set_randomness_ratio);
+    MethodBinder::bind_method(D_METHOD("set_lifetime_randomness", "random"), &CPUParticles2D::set_lifetime_randomness);
+    MethodBinder::bind_method(D_METHOD("set_use_local_coordinates", "enable"), &CPUParticles2D::set_use_local_coordinates);
+    MethodBinder::bind_method(D_METHOD("set_fixed_fps", "fps"), &CPUParticles2D::set_fixed_fps);
+    MethodBinder::bind_method(D_METHOD("set_fractional_delta", "enable"), &CPUParticles2D::set_fractional_delta);
+    MethodBinder::bind_method(D_METHOD("set_speed_scale", "scale"), &CPUParticles2D::set_speed_scale);
 
-    ClassDB::bind_method(D_METHOD("is_emitting"), &CPUParticles2D::is_emitting);
-    ClassDB::bind_method(D_METHOD("get_amount"), &CPUParticles2D::get_amount);
-    ClassDB::bind_method(D_METHOD("get_lifetime"), &CPUParticles2D::get_lifetime);
-    ClassDB::bind_method(D_METHOD("get_one_shot"), &CPUParticles2D::get_one_shot);
-    ClassDB::bind_method(D_METHOD("get_pre_process_time"), &CPUParticles2D::get_pre_process_time);
-    ClassDB::bind_method(D_METHOD("get_explosiveness_ratio"), &CPUParticles2D::get_explosiveness_ratio);
-    ClassDB::bind_method(D_METHOD("get_randomness_ratio"), &CPUParticles2D::get_randomness_ratio);
-    ClassDB::bind_method(D_METHOD("get_lifetime_randomness"), &CPUParticles2D::get_lifetime_randomness);
-    ClassDB::bind_method(D_METHOD("get_use_local_coordinates"), &CPUParticles2D::get_use_local_coordinates);
-    ClassDB::bind_method(D_METHOD("get_fixed_fps"), &CPUParticles2D::get_fixed_fps);
-    ClassDB::bind_method(D_METHOD("get_fractional_delta"), &CPUParticles2D::get_fractional_delta);
-    ClassDB::bind_method(D_METHOD("get_speed_scale"), &CPUParticles2D::get_speed_scale);
+    MethodBinder::bind_method(D_METHOD("is_emitting"), &CPUParticles2D::is_emitting);
+    MethodBinder::bind_method(D_METHOD("get_amount"), &CPUParticles2D::get_amount);
+    MethodBinder::bind_method(D_METHOD("get_lifetime"), &CPUParticles2D::get_lifetime);
+    MethodBinder::bind_method(D_METHOD("get_one_shot"), &CPUParticles2D::get_one_shot);
+    MethodBinder::bind_method(D_METHOD("get_pre_process_time"), &CPUParticles2D::get_pre_process_time);
+    MethodBinder::bind_method(D_METHOD("get_explosiveness_ratio"), &CPUParticles2D::get_explosiveness_ratio);
+    MethodBinder::bind_method(D_METHOD("get_randomness_ratio"), &CPUParticles2D::get_randomness_ratio);
+    MethodBinder::bind_method(D_METHOD("get_lifetime_randomness"), &CPUParticles2D::get_lifetime_randomness);
+    MethodBinder::bind_method(D_METHOD("get_use_local_coordinates"), &CPUParticles2D::get_use_local_coordinates);
+    MethodBinder::bind_method(D_METHOD("get_fixed_fps"), &CPUParticles2D::get_fixed_fps);
+    MethodBinder::bind_method(D_METHOD("get_fractional_delta"), &CPUParticles2D::get_fractional_delta);
+    MethodBinder::bind_method(D_METHOD("get_speed_scale"), &CPUParticles2D::get_speed_scale);
 
-    ClassDB::bind_method(D_METHOD("set_draw_order", "order"), &CPUParticles2D::set_draw_order);
+    MethodBinder::bind_method(D_METHOD("set_draw_order", "order"), &CPUParticles2D::set_draw_order);
 
-    ClassDB::bind_method(D_METHOD("get_draw_order"), &CPUParticles2D::get_draw_order);
+    MethodBinder::bind_method(D_METHOD("get_draw_order"), &CPUParticles2D::get_draw_order);
 
-    ClassDB::bind_method(D_METHOD("set_texture", "texture"), &CPUParticles2D::set_texture);
-    ClassDB::bind_method(D_METHOD("get_texture"), &CPUParticles2D::get_texture);
+    MethodBinder::bind_method(D_METHOD("set_texture", "texture"), &CPUParticles2D::set_texture);
+    MethodBinder::bind_method(D_METHOD("get_texture"), &CPUParticles2D::get_texture);
 
-    ClassDB::bind_method(D_METHOD("set_normalmap", "normalmap"), &CPUParticles2D::set_normalmap);
-    ClassDB::bind_method(D_METHOD("get_normalmap"), &CPUParticles2D::get_normalmap);
+    MethodBinder::bind_method(D_METHOD("set_normalmap", "normalmap"), &CPUParticles2D::set_normalmap);
+    MethodBinder::bind_method(D_METHOD("get_normalmap"), &CPUParticles2D::get_normalmap);
 
-    ClassDB::bind_method(D_METHOD("restart"), &CPUParticles2D::restart);
+    MethodBinder::bind_method(D_METHOD("restart"), &CPUParticles2D::restart);
 
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "emitting"), "set_emitting", "is_emitting");
     ADD_PROPERTY(PropertyInfo(Variant::INT, "amount", PROPERTY_HINT_EXP_RANGE, "1,1000000,1"), "set_amount", "get_amount");
@@ -1259,57 +1262,57 @@ void CPUParticles2D::_bind_methods() {
 
     ////////////////////////////////
 
-    ClassDB::bind_method(D_METHOD("set_direction", "direction"), &CPUParticles2D::set_direction);
-    ClassDB::bind_method(D_METHOD("get_direction"), &CPUParticles2D::get_direction);
+    MethodBinder::bind_method(D_METHOD("set_direction", "direction"), &CPUParticles2D::set_direction);
+    MethodBinder::bind_method(D_METHOD("get_direction"), &CPUParticles2D::get_direction);
 
-    ClassDB::bind_method(D_METHOD("set_spread", "degrees"), &CPUParticles2D::set_spread);
-    ClassDB::bind_method(D_METHOD("get_spread"), &CPUParticles2D::get_spread);
+    MethodBinder::bind_method(D_METHOD("set_spread", "degrees"), &CPUParticles2D::set_spread);
+    MethodBinder::bind_method(D_METHOD("get_spread"), &CPUParticles2D::get_spread);
 
-    ClassDB::bind_method(D_METHOD("set_flatness", "amount"), &CPUParticles2D::set_flatness);
-    ClassDB::bind_method(D_METHOD("get_flatness"), &CPUParticles2D::get_flatness);
+    MethodBinder::bind_method(D_METHOD("set_flatness", "amount"), &CPUParticles2D::set_flatness);
+    MethodBinder::bind_method(D_METHOD("get_flatness"), &CPUParticles2D::get_flatness);
 
-    ClassDB::bind_method(D_METHOD("set_param", "param", "value"), &CPUParticles2D::set_param);
-    ClassDB::bind_method(D_METHOD("get_param", "param"), &CPUParticles2D::get_param);
+    MethodBinder::bind_method(D_METHOD("set_param", "param", "value"), &CPUParticles2D::set_param);
+    MethodBinder::bind_method(D_METHOD("get_param", "param"), &CPUParticles2D::get_param);
 
-    ClassDB::bind_method(D_METHOD("set_param_randomness", "param", "randomness"), &CPUParticles2D::set_param_randomness);
-    ClassDB::bind_method(D_METHOD("get_param_randomness", "param"), &CPUParticles2D::get_param_randomness);
+    MethodBinder::bind_method(D_METHOD("set_param_randomness", "param", "randomness"), &CPUParticles2D::set_param_randomness);
+    MethodBinder::bind_method(D_METHOD("get_param_randomness", "param"), &CPUParticles2D::get_param_randomness);
 
-    ClassDB::bind_method(D_METHOD("set_param_curve", "param", "curve"), &CPUParticles2D::set_param_curve);
-    ClassDB::bind_method(D_METHOD("get_param_curve", "param"), &CPUParticles2D::get_param_curve);
+    MethodBinder::bind_method(D_METHOD("set_param_curve", "param", "curve"), &CPUParticles2D::set_param_curve);
+    MethodBinder::bind_method(D_METHOD("get_param_curve", "param"), &CPUParticles2D::get_param_curve);
 
-    ClassDB::bind_method(D_METHOD("set_color", "color"), &CPUParticles2D::set_color);
-    ClassDB::bind_method(D_METHOD("get_color"), &CPUParticles2D::get_color);
+    MethodBinder::bind_method(D_METHOD("set_color", "color"), &CPUParticles2D::set_color);
+    MethodBinder::bind_method(D_METHOD("get_color"), &CPUParticles2D::get_color);
 
-    ClassDB::bind_method(D_METHOD("set_color_ramp", "ramp"), &CPUParticles2D::set_color_ramp);
-    ClassDB::bind_method(D_METHOD("get_color_ramp"), &CPUParticles2D::get_color_ramp);
+    MethodBinder::bind_method(D_METHOD("set_color_ramp", "ramp"), &CPUParticles2D::set_color_ramp);
+    MethodBinder::bind_method(D_METHOD("get_color_ramp"), &CPUParticles2D::get_color_ramp);
 
-    ClassDB::bind_method(D_METHOD("set_particle_flag", "flag", "enable"), &CPUParticles2D::set_particle_flag);
-    ClassDB::bind_method(D_METHOD("get_particle_flag", "flag"), &CPUParticles2D::get_particle_flag);
+    MethodBinder::bind_method(D_METHOD("set_particle_flag", "flag", "enable"), &CPUParticles2D::set_particle_flag);
+    MethodBinder::bind_method(D_METHOD("get_particle_flag", "flag"), &CPUParticles2D::get_particle_flag);
 
-    ClassDB::bind_method(D_METHOD("set_emission_shape", "shape"), &CPUParticles2D::set_emission_shape);
-    ClassDB::bind_method(D_METHOD("get_emission_shape"), &CPUParticles2D::get_emission_shape);
+    MethodBinder::bind_method(D_METHOD("set_emission_shape", "shape"), &CPUParticles2D::set_emission_shape);
+    MethodBinder::bind_method(D_METHOD("get_emission_shape"), &CPUParticles2D::get_emission_shape);
 
-    ClassDB::bind_method(D_METHOD("set_emission_sphere_radius", "radius"), &CPUParticles2D::set_emission_sphere_radius);
-    ClassDB::bind_method(D_METHOD("get_emission_sphere_radius"), &CPUParticles2D::get_emission_sphere_radius);
+    MethodBinder::bind_method(D_METHOD("set_emission_sphere_radius", "radius"), &CPUParticles2D::set_emission_sphere_radius);
+    MethodBinder::bind_method(D_METHOD("get_emission_sphere_radius"), &CPUParticles2D::get_emission_sphere_radius);
 
-    ClassDB::bind_method(D_METHOD("set_emission_rect_extents", "extents"), &CPUParticles2D::set_emission_rect_extents);
-    ClassDB::bind_method(D_METHOD("get_emission_rect_extents"), &CPUParticles2D::get_emission_rect_extents);
+    MethodBinder::bind_method(D_METHOD("set_emission_rect_extents", "extents"), &CPUParticles2D::set_emission_rect_extents);
+    MethodBinder::bind_method(D_METHOD("get_emission_rect_extents"), &CPUParticles2D::get_emission_rect_extents);
 
-    ClassDB::bind_method(D_METHOD("set_emission_points", "array"), &CPUParticles2D::set_emission_points);
-    ClassDB::bind_method(D_METHOD("get_emission_points"), &CPUParticles2D::get_emission_points);
+    MethodBinder::bind_method(D_METHOD("set_emission_points", "array"), &CPUParticles2D::set_emission_points);
+    MethodBinder::bind_method(D_METHOD("get_emission_points"), &CPUParticles2D::get_emission_points);
 
-    ClassDB::bind_method(D_METHOD("set_emission_normals", "array"), &CPUParticles2D::set_emission_normals);
-    ClassDB::bind_method(D_METHOD("get_emission_normals"), &CPUParticles2D::get_emission_normals);
+    MethodBinder::bind_method(D_METHOD("set_emission_normals", "array"), &CPUParticles2D::set_emission_normals);
+    MethodBinder::bind_method(D_METHOD("get_emission_normals"), &CPUParticles2D::get_emission_normals);
 
-    ClassDB::bind_method(D_METHOD("set_emission_colors", "array"), &CPUParticles2D::set_emission_colors);
-    ClassDB::bind_method(D_METHOD("get_emission_colors"), &CPUParticles2D::get_emission_colors);
+    MethodBinder::bind_method(D_METHOD("set_emission_colors", "array"), &CPUParticles2D::set_emission_colors);
+    MethodBinder::bind_method(D_METHOD("get_emission_colors"), &CPUParticles2D::get_emission_colors);
 
-    ClassDB::bind_method(D_METHOD("get_gravity"), &CPUParticles2D::get_gravity);
-    ClassDB::bind_method(D_METHOD("set_gravity", "accel_vec"), &CPUParticles2D::set_gravity);
+    MethodBinder::bind_method(D_METHOD("get_gravity"), &CPUParticles2D::get_gravity);
+    MethodBinder::bind_method(D_METHOD("set_gravity", "accel_vec"), &CPUParticles2D::set_gravity);
 
-    ClassDB::bind_method(D_METHOD("convert_from_particles", "particles"), &CPUParticles2D::convert_from_particles);
+    MethodBinder::bind_method(D_METHOD("convert_from_particles", "particles"), &CPUParticles2D::convert_from_particles);
 
-    ClassDB::bind_method(D_METHOD("_update_render_thread"), &CPUParticles2D::_update_render_thread);
+    MethodBinder::bind_method(D_METHOD("_update_render_thread"), &CPUParticles2D::_update_render_thread);
 
     ADD_GROUP("Emission Shape", "emission_");
     ADD_PROPERTY(PropertyInfo(Variant::INT, "emission_shape", PROPERTY_HINT_ENUM, "Point,Sphere,Box,Points,Directed Points"), "set_emission_shape", "get_emission_shape");

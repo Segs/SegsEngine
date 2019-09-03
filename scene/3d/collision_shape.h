@@ -36,8 +36,9 @@
 class CollisionObject;
 class CollisionShape : public Spatial {
 
-	GDCLASS(CollisionShape, Spatial);
-	OBJ_CATEGORY("3D Physics Nodes");
+	GDCLASS(CollisionShape,Spatial)
+
+    OBJ_CATEGORY("3D Physics Nodes");
 
 	Ref<Shape> shape;
 
@@ -69,10 +70,10 @@ public:
 	void set_disabled(bool p_disabled);
 	bool is_disabled() const;
 
-	String get_configuration_warning() const;
+	String get_configuration_warning() const override;
 
 	CollisionShape();
-	~CollisionShape();
+	~CollisionShape() override;
 };
 
 #endif // BODY_VOLUME_H

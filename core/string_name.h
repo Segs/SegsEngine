@@ -28,11 +28,12 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef STRING_NAME_H
-#define STRING_NAME_H
+#pragma once
 
 #include "core/os/mutex.h"
 #include "core/safe_refcount.h"
+#include "core/error_macros.h"
+#include <cstddef>
 
 class QString;
 class String;
@@ -40,7 +41,9 @@ class QChar;
 struct StaticCString {
 
     const char *ptr;
-    static StaticCString create(const char *p_ptr);
+    template<std::size_t N>
+    constexpr explicit StaticCString(char const (&s)[N]) : ptr(s) {}
+    StaticCString(const char *v,bool /*force*/) : ptr(v) {}
 };
 
 class GODOT_EXPORT StringName {
@@ -54,26 +57,22 @@ class GODOT_EXPORT StringName {
 
     struct _Data;
 
-    static _Data *_table[STRING_TABLE_LEN];
+	static _Data *_table[STRING_TABLE_LEN];
+	static Mutex *lock;
+	static void setup();
+	static void cleanup();
+	static bool configured;
 
     _Data *_data;
-
-    union _HashUnion {
-
-        _Data *ptr;
-        uint32_t hash;
-    };
 
     void unref();
     friend void register_core_types();
     friend void unregister_core_types();
 
-    static Mutex *lock;
-    static void setup();
-    static void cleanup();
-    static bool configured;
 
-    StringName(_Data *p_data) { _data = p_data; }
+
+	void setupFromCString(const StaticCString &p_static_string);
+    explicit StringName(_Data *p_data) { _data = p_data; }
 
 public:
     operator const void *() const;
@@ -97,6 +96,8 @@ public:
     }
     bool operator!=(const StringName &p_name) const;
 
+	StringName& operator=(StringName &&p_name);
+    StringName& operator=(const StringName &p_name);
     operator String() const;
     String asString() const;
 
@@ -106,13 +107,41 @@ public:
 
     static bool AlphCompare(const StringName &l, const StringName &r);
 
-    void operator=(const StringName &p_name);
-    StringName(const char *p_name);
+    //Marked as explicit since it *will* allocate String instance
+    explicit StringName(const char *p_name);
+
+
     StringName(const StringName &p_name);
-    StringName(const QString &p_name);
-    StringName(const StaticCString &p_static_string);
-    StringName();
-    ~StringName();
+	StringName(StringName &&p_name);
+    //TODO: mark StringName(const String &p_name) explicit, it allocates some memory, even if COW'ed
+    StringName(const String &p_name);
+	StringName(const StaticCString &p_static_string) {
+		_data = nullptr;
+
+		ERR_FAIL_COND(!configured)
+
+		if (unlikely(!p_static_string.ptr || !p_static_string.ptr[0])) {
+			ERR_REPORT_COND(!p_static_string.ptr || !p_static_string.ptr[0])
+			return;
+		}
+		ERR_RESET()
+		setupFromCString(p_static_string);
+	}
+
+	constexpr StringName() : _data(nullptr) {}
+
+    template<std::size_t N>
+	StringName(char const (&s)[N]) {
+		_data = nullptr;
+
+		if constexpr (N<=1) // static zero-terminated string of length 1 is just \000
+			return;
+		//TODO: consider compile-time hash and index generation
+		ERR_FAIL_COND(!configured)
+		setupFromCString(StaticCString(s));
+	}
+
+	~StringName();
 };
 struct WrapAlphaCompare
 {
@@ -120,6 +149,4 @@ struct WrapAlphaCompare
         return StringName::AlphCompare(a,b);
     }
 };
-StringName _scs_create(const char *p_chr);
 
-#endif // STRING_NAME_H

@@ -61,7 +61,7 @@ class ThreadPosix : public Thread {
 	ThreadPosix() {}
 
 public:
-	virtual ID get_id() const override;
+	ID get_id() const override;
 
 	static void make_default();
 

@@ -34,6 +34,7 @@
 #include "core/io/networked_multiplayer_peer.h"
 #include "core/reference.h"
 #include "core/map.h"
+#include "core/method_enum_caster.h"
 
 class MultiplayerAPI : public Reference {
 
@@ -132,7 +133,7 @@ public:
     bool is_object_decoding_allowed() const;
 
     MultiplayerAPI();
-    ~MultiplayerAPI();
+    ~MultiplayerAPI() override;
 };
 
 VARIANT_ENUM_CAST(MultiplayerAPI::RPCMode);

@@ -35,15 +35,16 @@
 
 class CylinderShape : public Shape {
 
-	GDCLASS(CylinderShape, Shape);
-	float radius;
+	GDCLASS(CylinderShape,Shape)
+
+    float radius;
 	float height;
 
 protected:
 	static void _bind_methods();
-	virtual void _update_shape();
+	void _update_shape() override;
 
-	virtual Vector<Vector3> _gen_debug_mesh_lines();
+	Vector<Vector3> _gen_debug_mesh_lines() override;
 
 public:
 	void set_radius(float p_radius);

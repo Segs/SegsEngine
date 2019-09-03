@@ -54,7 +54,7 @@ class BulletPhysicsDirectBodyState;
 /// created by BulletPhysicsServer and is held by the "singleton" variable of this class
 /// Each time something require it, the body must be set again.
 class BulletPhysicsDirectBodyState : public PhysicsDirectBodyState {
-	GDCLASS(BulletPhysicsDirectBodyState, PhysicsDirectBodyState);
+	GDCLASS(BulletPhysicsDirectBodyState,PhysicsDirectBodyState)
 
 	static BulletPhysicsDirectBodyState *singleton;
 
@@ -88,57 +88,57 @@ private:
 	BulletPhysicsDirectBodyState() {}
 
 public:
-	virtual Vector3 get_total_gravity() const;
-	virtual float get_total_angular_damp() const;
-	virtual float get_total_linear_damp() const;
+	Vector3 get_total_gravity() const override;
+	float get_total_angular_damp() const override;
+	float get_total_linear_damp() const override;
 
-	virtual Vector3 get_center_of_mass() const;
-	virtual Basis get_principal_inertia_axes() const;
+	Vector3 get_center_of_mass() const override;
+	Basis get_principal_inertia_axes() const override;
 	// get the mass
-	virtual float get_inverse_mass() const;
+	float get_inverse_mass() const override;
 	// get density of this body space
-	virtual Vector3 get_inverse_inertia() const;
+	Vector3 get_inverse_inertia() const override;
 	// get density of this body space
-	virtual Basis get_inverse_inertia_tensor() const;
+	Basis get_inverse_inertia_tensor() const override;
 
-	virtual void set_linear_velocity(const Vector3 &p_velocity);
-	virtual Vector3 get_linear_velocity() const;
+	void set_linear_velocity(const Vector3 &p_velocity) override;
+	Vector3 get_linear_velocity() const override;
 
-	virtual void set_angular_velocity(const Vector3 &p_velocity);
-	virtual Vector3 get_angular_velocity() const;
+	void set_angular_velocity(const Vector3 &p_velocity) override;
+	Vector3 get_angular_velocity() const override;
 
-	virtual void set_transform(const Transform &p_transform);
-	virtual Transform get_transform() const;
+	void set_transform(const Transform &p_transform) override;
+	Transform get_transform() const override;
 
-	virtual void add_central_force(const Vector3 &p_force);
-	virtual void add_force(const Vector3 &p_force, const Vector3 &p_pos);
-	virtual void add_torque(const Vector3 &p_torque);
-	virtual void apply_central_impulse(const Vector3 &p_impulse);
-	virtual void apply_impulse(const Vector3 &p_pos, const Vector3 &p_j);
-	virtual void apply_torque_impulse(const Vector3 &p_j);
+	void add_central_force(const Vector3 &p_force) override;
+	void add_force(const Vector3 &p_force, const Vector3 &p_pos) override;
+	void add_torque(const Vector3 &p_torque) override;
+	void apply_central_impulse(const Vector3 &p_impulse) override;
+	void apply_impulse(const Vector3 &p_pos, const Vector3 &p_j) override;
+	void apply_torque_impulse(const Vector3 &p_j) override;
 
-	virtual void set_sleep_state(bool p_enable);
-	virtual bool is_sleeping() const;
+	void set_sleep_state(bool p_enable) override;
+	bool is_sleeping() const override;
 
-	virtual int get_contact_count() const;
+	int get_contact_count() const override;
 
-	virtual Vector3 get_contact_local_position(int p_contact_idx) const;
-	virtual Vector3 get_contact_local_normal(int p_contact_idx) const;
-	virtual float get_contact_impulse(int p_contact_idx) const;
-	virtual int get_contact_local_shape(int p_contact_idx) const;
+	Vector3 get_contact_local_position(int p_contact_idx) const override;
+	Vector3 get_contact_local_normal(int p_contact_idx) const override;
+	float get_contact_impulse(int p_contact_idx) const override;
+	int get_contact_local_shape(int p_contact_idx) const override;
 
-	virtual RID get_contact_collider(int p_contact_idx) const;
-	virtual Vector3 get_contact_collider_position(int p_contact_idx) const;
-	virtual ObjectID get_contact_collider_id(int p_contact_idx) const;
-	virtual int get_contact_collider_shape(int p_contact_idx) const;
-	virtual Vector3 get_contact_collider_velocity_at_position(int p_contact_idx) const;
+	RID get_contact_collider(int p_contact_idx) const override;
+	Vector3 get_contact_collider_position(int p_contact_idx) const override;
+	ObjectID get_contact_collider_id(int p_contact_idx) const override;
+	int get_contact_collider_shape(int p_contact_idx) const override;
+	Vector3 get_contact_collider_velocity_at_position(int p_contact_idx) const override;
 
-	virtual real_t get_step() const { return deltaTime; }
-	virtual void integrate_forces() {
+	real_t get_step() const override { return deltaTime; }
+	void integrate_forces() override {
 		// Skip the execution of this function
 	}
 
-	virtual PhysicsDirectSpaceState *get_space_state();
+	PhysicsDirectSpaceState *get_space_state() override;
 };
 
 class RigidBodyBullet : public RigidCollisionObjectBullet {
@@ -229,7 +229,7 @@ private:
 
 public:
 	RigidBodyBullet();
-	~RigidBodyBullet();
+	~RigidBodyBullet() override;
 
 	void init_kinematic_utilities();
 	void destroy_kinematic_utilities();
@@ -237,17 +237,17 @@ public:
 
 	_FORCE_INLINE_ btRigidBody *get_bt_rigid_body() { return btBody; }
 
-	virtual void main_shape_changed();
-	virtual void reload_body();
-	virtual void set_space(SpaceBullet *p_space);
+	void main_shape_changed() override;
+	void reload_body() override;
+	void set_space(SpaceBullet *p_space) override;
 
-	virtual void dispatch_callbacks();
+	void dispatch_callbacks() override;
 	void set_force_integration_callback(ObjectID p_id, const StringName &p_method, const Variant &p_udata = Variant());
 	void scratch_space_override_modificator();
 
-	virtual void on_collision_filters_change();
-	virtual void on_collision_checker_start();
-	virtual void on_collision_checker_end();
+	void on_collision_filters_change() override;
+	void on_collision_checker_start() override;
+	void on_collision_checker_end() override;
 
 	void set_max_collisions_detection(int p_maxCollisionsDetection) {
 
@@ -315,19 +315,19 @@ public:
 	void set_angular_velocity(const Vector3 &p_velocity);
 	Vector3 get_angular_velocity() const;
 
-	virtual void set_transform__bullet(const btTransform &p_global_transform);
-	virtual const btTransform &get_transform__bullet() const;
+	void set_transform__bullet(const btTransform &p_global_transform) override;
+	const btTransform &get_transform__bullet() const override;
 
-	virtual void reload_shapes();
+	void reload_shapes() override;
 
-	virtual void on_enter_area(AreaBullet *p_area);
-	virtual void on_exit_area(AreaBullet *p_area);
+	void on_enter_area(AreaBullet *p_area) override;
+	void on_exit_area(AreaBullet *p_area) override;
 	void reload_space_override_modificator();
 
 	/// Kinematic
 	void reload_kinematic_shapes();
 
-	virtual void notify_transform_changed();
+	void notify_transform_changed() override;
 
 private:
 	void _internal_set_mass(real_t p_mass);

@@ -246,8 +246,8 @@ class GetClassAndNamespace {
                     if (code[idx] == '-' || (code[idx] >= '0' && code[idx] <= '9')) {
                         //a number
                         const CharType *rptr;
-                        double number = StringUtils::to_double(code.constData()+idx, &rptr);
-                        idx += (rptr - (code.constData()+idx));
+						double number = StringUtils::to_double(code.cdata()+idx, &rptr);
+						idx += (rptr - (code.cdata()+idx));
                         value = number;
                         return TK_NUMBER;
 
@@ -494,7 +494,7 @@ MainLoop *test() {
     }
 
     FileAccess *fa = FileAccess::open(test, FileAccess::READ);
-    ERR_FAIL_COND_V_MSG(!fa, nullptr, "Could not open file: " + test);
+	ERR_FAIL_COND_V_MSG(!fa, nullptr, "Could not open file: " + test)
 
     Vector<uint8_t> buf;
     int flen = fa->get_len();
@@ -502,8 +502,7 @@ MainLoop *test() {
     fa->get_buffer(buf.ptrw(), flen);
     buf.write[flen] = 0;
 
-    String code;
-    code.parse_utf8((const char *)&buf[0]);
+	String code = StringUtils::from_utf8((const char *)&buf[0]);
 
     GetClassAndNamespace getclass;
     if (getclass.parse(code)) {

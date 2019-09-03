@@ -32,8 +32,11 @@
 #include "core/os/file_access.h"
 #include "scene/scene_string_names.h"
 #include "servers/visual/shader_language.h"
+#include "core/method_bind.h"
 #include "servers/visual_server.h"
 #include "texture.h"
+
+IMPL_GDCLASS(Shader)
 
 Shader::Mode Shader::get_mode() const {
 
@@ -141,17 +144,17 @@ void Shader::_update_shader() const {
 
 void Shader::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("get_mode"), &Shader::get_mode);
+    MethodBinder::bind_method(D_METHOD("get_mode"), &Shader::get_mode);
 
-    ClassDB::bind_method(D_METHOD("set_code", "code"), &Shader::set_code);
-    ClassDB::bind_method(D_METHOD("get_code"), &Shader::get_code);
+    MethodBinder::bind_method(D_METHOD("set_code", "code"), &Shader::set_code);
+    MethodBinder::bind_method(D_METHOD("get_code"), &Shader::get_code);
 
-    ClassDB::bind_method(D_METHOD("set_default_texture_param", "param", "texture"), &Shader::set_default_texture_param);
-    ClassDB::bind_method(D_METHOD("get_default_texture_param", "param"), &Shader::get_default_texture_param);
+    MethodBinder::bind_method(D_METHOD("set_default_texture_param", "param", "texture"), &Shader::set_default_texture_param);
+    MethodBinder::bind_method(D_METHOD("get_default_texture_param", "param"), &Shader::get_default_texture_param);
 
-    ClassDB::bind_method(D_METHOD("has_param", "name"), &Shader::has_param);
+    MethodBinder::bind_method(D_METHOD("has_param", "name"), &Shader::has_param);
 
-    //ClassDB::bind_method(D_METHOD("get_param_list"),&Shader::get_fragment_code);
+    //MethodBinder::bind_method(D_METHOD("get_param_list"),&Shader::get_fragment_code);
 
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "code", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_code", "get_code");
 
@@ -183,8 +186,7 @@ RES ResourceFormatLoaderShader::load(const String &p_path, const String &p_origi
 
     Vector<uint8_t> buffer = FileAccess::get_file_as_array(p_path);
 
-    String str;
-    str.parse_utf8((const char *)buffer.ptr(), buffer.size());
+	String str = StringUtils::from_utf8((const char *)buffer.ptr(), buffer.size());
 
     shader->set_code(str);
 

@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef SORT_ARRAY_H
-#define SORT_ARRAY_H
+#pragma once
 
 #include "core/typedefs.h"
 #include "core/error_macros.h"
@@ -63,24 +62,23 @@ class SortArray {
 public:
 	Comparator compare;
 
-	inline const T &median_of_3(const T &a, const T &b, const T &c) const {
+	const T &median_of_3(const T &a, const T &b, const T &c) const {
 
-		if (compare(a, b))
-			if (compare(b, c))
-				return b;
-			else if (compare(a, c))
-				return c;
-			else
-				return a;
-		else if (compare(a, c))
-			return a;
-		else if (compare(b, c))
-			return c;
-		else
-			return b;
-	}
+		if (compare(a, b)) {
+            if (compare(b, c))
+                return b;
+            if (compare(a, c))
+                return c;
+            return a;
+        }
+        if (compare(a, c))
+            return a;
+        if (compare(b, c))
+            return c;
+        return b;
+    }
 
-	inline int bitlog(int n) const {
+	int bitlog(int n) const {
 		int k;
 		for (k = 0; n != 1; n >>= 1)
 			++k;
@@ -89,7 +87,7 @@ public:
 
 	/* Heap / Heapsort functions */
 
-	inline void push_heap(int p_first, int p_hole_idx, int p_top_index, T p_value, T *p_array) const {
+	void push_heap(int p_first, int p_hole_idx, int p_top_index, T p_value, T *p_array) const {
 
 		int parent = (p_hole_idx - 1) / 2;
 		while (p_hole_idx > p_top_index && compare(p_array[p_first + parent], p_value)) {
@@ -327,5 +325,3 @@ public:
 		introselect(p_first, p_nth, p_last, p_array, bitlog(p_last - p_first) * 2);
 	}
 };
-
-#endif // SORT_ARRAY_H

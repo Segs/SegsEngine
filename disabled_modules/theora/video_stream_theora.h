@@ -46,7 +46,7 @@
 
 class VideoStreamPlaybackTheora : public VideoStreamPlayback {
 
-	GDCLASS(VideoStreamPlaybackTheora, VideoStreamPlayback);
+	GDCLASS(VideoStreamPlaybackTheora,VideoStreamPlayback)
 
 	enum {
 		MAX_FRAMES = 4,
@@ -162,7 +162,7 @@ public:
 
 class VideoStreamTheora : public VideoStream {
 
-	GDCLASS(VideoStreamTheora, VideoStream);
+	GDCLASS(VideoStreamTheora,VideoStream)
 
 	String file;
 	int audio_track;

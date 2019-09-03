@@ -78,7 +78,7 @@ private:
 
         uint32_t original_pos = p_hash % capacity;
 
-        return p_pos - original_pos;
+		return (p_pos - original_pos) % capacity;
     }
 
     _FORCE_INLINE_ void _construct(uint32_t p_pos, uint32_t p_hash, const TKey &p_key, const TValue &p_value) {
@@ -150,15 +150,15 @@ private:
             distance++;
         }
     }
-    void _resize_and_rehash() {
+	void _resize_and_rehash(uint32_t p_new_capacity) {
+
+		uint32_t old_capacity = capacity;
+		capacity = p_new_capacity;
 
         TKey *old_keys = keys;
         TValue *old_values = values;
         uint32_t *old_hashes = hashes;
 
-        uint32_t old_capacity = capacity;
-
-        capacity = old_capacity * 2;
         num_elements = 0;
 
         keys = memnew_arr(TKey, capacity);
@@ -185,6 +185,9 @@ private:
         memdelete_arr(old_hashes);
     }
 
+	void _resize_and_rehash() {
+		_resize_and_rehash(capacity * 2);
+	}
 public:
     _FORCE_INLINE_ uint32_t get_capacity() const { return capacity; }
     _FORCE_INLINE_ uint32_t get_num_elements() const { return num_elements; }
@@ -196,12 +199,15 @@ public:
     void clear() {
 
         for (uint32_t i = 0; i < capacity; i++) {
+			if (hashes[i] == EMPTY_HASH) {
+				continue;
+			}
 
             if (hashes[i] & DELETED_HASH_BIT) {
                 continue;
             }
 
-            hashes[i] |= DELETED_HASH_BIT;
+			hashes[i] = EMPTY_HASH;
             values[i].~TValue();
             keys[i].~TKey();
         }
@@ -268,6 +274,16 @@ public:
         values[pos].~TValue();
         keys[pos].~TKey();
         num_elements--;
+	}
+
+	/**
+	 * reserves space for a number of elements, useful to avoid many resizes and rehashes
+	 *  if adding a known (possibly large) number of elements at once, must be larger than old
+	 *  capacity.
+	 **/
+	void reserve(uint32_t p_new_capacity) {
+		ERR_FAIL_COND(p_new_capacity < capacity);
+		_resize_and_rehash(p_new_capacity);
     }
 
     struct Iterator {
@@ -334,7 +350,7 @@ public:
         hashes = memnew_arr(uint32_t, p_initial_capacity);
 
         for (uint32_t i = 0; i < p_initial_capacity; i++) {
-            hashes[i] = 0;
+			hashes[i] = EMPTY_HASH;
         }
     }
 

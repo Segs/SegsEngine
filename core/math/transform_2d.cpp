@@ -258,11 +258,11 @@ Transform2D Transform2D::interpolate_with(const Transform2D &p_transform, real_t
 
     real_t dot = v1.dot(v2);
 
-    dot = (dot < -1.0) ? -1.0 : ((dot > 1.0) ? 1.0 : dot); //clamp dot to [-1,1]
+	dot = (dot < -1.0f) ? -1.0 : ((dot > 1.0f) ? 1.0 : dot); //clamp dot to [-1,1]
 
     Vector2 v;
 
-    if (dot > 0.9995) {
+	if (dot > 0.9995f) {
         v = Vector2::linear_interpolate(v1, v2, p_c).normalized(); //linearly interpolate to avoid numerical precision issues
     } else {
         real_t angle = p_c * Math::acos(dot);
@@ -278,5 +278,5 @@ Transform2D Transform2D::interpolate_with(const Transform2D &p_transform, real_t
 
 Transform2D::operator String() const {
 
-    return QString("%1, %2, %3").arg(elements[0],elements[1],elements[2]);
+	return FormatV("%s, %s, %s",qPrintable(((String)elements[0]).m_str),qPrintable(((String)elements[1]).m_str),qPrintable(((String)elements[2]).m_str));
 }

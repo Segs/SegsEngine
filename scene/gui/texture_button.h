@@ -35,7 +35,7 @@
 #include "scene/resources/bit_map.h"
 class TextureButton : public BaseButton {
 
-	GDCLASS(TextureButton, BaseButton);
+	GDCLASS(TextureButton,BaseButton)
 
 public:
 	enum StretchMode {
@@ -63,8 +63,8 @@ private:
 	bool _tile;
 
 protected:
-	virtual Size2 get_minimum_size() const;
-	virtual bool has_point(const Point2 &p_point) const;
+	Size2 get_minimum_size() const override;
+	bool has_point(const Point2 &p_point) const override;
 	void _notification(int p_what);
 	static void _bind_methods();
 

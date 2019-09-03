@@ -35,7 +35,7 @@
 
 class Node2D : public CanvasItem {
 
-	GDCLASS(Node2D, CanvasItem);
+	GDCLASS(Node2D,CanvasItem)
 
 	Point2 pos;
 	float angle;
@@ -55,20 +55,20 @@ protected:
 	static void _bind_methods();
 
 public:
-	virtual Dictionary _edit_get_state() const;
-	virtual void _edit_set_state(const Dictionary &p_state);
+	Dictionary _edit_get_state() const override;
+	void _edit_set_state(const Dictionary &p_state) override;
 
-	virtual void _edit_set_position(const Point2 &p_position);
-	virtual Point2 _edit_get_position() const;
+	void _edit_set_position(const Point2 &p_position) override;
+	Point2 _edit_get_position() const override;
 
-	virtual void _edit_set_scale(const Size2 &p_scale);
-	virtual Size2 _edit_get_scale() const;
+	void _edit_set_scale(const Size2 &p_scale) override;
+	Size2 _edit_get_scale() const override;
 
-	virtual void _edit_set_rotation(float p_rotation);
-	virtual float _edit_get_rotation() const;
-	virtual bool _edit_use_rotation() const;
+	void _edit_set_rotation(float p_rotation) override;
+	float _edit_get_rotation() const override;
+	bool _edit_use_rotation() const override;
 
-	virtual void _edit_set_rect(const Rect2 &p_edit_rect);
+	void _edit_set_rect(const Rect2 &p_edit_rect) override;
 
 	void set_position(const Point2 &p_pos);
 	void set_rotation(float p_radians);
@@ -113,7 +113,7 @@ public:
 
 	Transform2D get_relative_transform_to_parent(const Node *p_parent) const;
 
-	Transform2D get_transform() const;
+	Transform2D get_transform() const override;
 
 	Node2D();
 };

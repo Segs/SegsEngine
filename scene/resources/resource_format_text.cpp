@@ -41,7 +41,7 @@
 #include "core/os/dir_access.h"
 #include "core/version.h"
 
-#define _printerr() ERR_PRINT(res_path + ":" + itos(lines) + " - Parse Error: " + error_text);
+#define _printerr() ERR_PRINT(res_path + ":" + itos(lines) + " - Parse Error: " + error_text)
 
 ///
 
@@ -164,7 +164,7 @@ Error ResourceInteractiveLoaderText::_parse_ext_resource(VariantParser::Stream *
         String path = ext_resources[id].path;
         String type = ext_resources[id].type;
 
-        if (path.find("://") == -1 && PathUtils::is_rel_path(path)) {
+        if (!StringUtils::contains(path,"://") && PathUtils::is_rel_path(path)) {
             // path is relative to file being loaded, so convert to a resource path
             path = ProjectSettings::get_singleton()->localize_path(PathUtils::plus_file(PathUtils::get_base_dir(res_path),path));
         }
@@ -321,7 +321,7 @@ Ref<PackedScene> ResourceInteractiveLoaderText::_parse_node_tag(VariantParser::R
             NodePath to = next_tag.fields["to"];
             StringName method = next_tag.fields["method"];
             StringName signal = next_tag.fields["signal"];
-            int flags = CONNECT_PERSIST;
+            int flags = ObjectNS::CONNECT_PERSIST;
             Array binds;
 
             if (next_tag.fields.has("flags")) {
@@ -421,7 +421,7 @@ Error ResourceInteractiveLoaderText::poll() {
         String type = next_tag.fields["type"];
         int index = next_tag.fields["id"];
 
-        if (path.find("://") == -1 && PathUtils::is_rel_path(path)) {
+        if (!StringUtils::contains(path,"://") && PathUtils::is_rel_path(path)) {
             // path is relative to file being loaded, so convert to a resource path
             path = ProjectSettings::get_singleton()->localize_path(PathUtils::plus_file(PathUtils::get_base_dir(local_path),path));
         }
@@ -698,7 +698,7 @@ void ResourceInteractiveLoaderText::get_dependencies(FileAccess *p_f, List<Strin
         String path = next_tag.fields["path"];
         String type = next_tag.fields["type"];
 
-        if (path.find("://") == -1 && PathUtils::is_rel_path(path)) {
+        if (!StringUtils::contains(path,"://") && PathUtils::is_rel_path(path)) {
             // path is relative to file being loaded, so convert to a resource path
             path = ProjectSettings::get_singleton()->localize_path(PathUtils::plus_file(PathUtils::get_base_dir(local_path),path));
         }
@@ -776,7 +776,7 @@ Error ResourceInteractiveLoaderText::rename_dependencies(FileAccess *p_f, const 
             String type = next_tag.fields["type"];
 
             bool relative = false;
-            if (!path.begins_with("res://")) {
+            if (!StringUtils::begins_with(path,"res://")) {
                 path = PathUtils::simplify_path(PathUtils::plus_file(base_path,path));
                 relative = true;
             }
@@ -886,7 +886,7 @@ void ResourceInteractiveLoaderText::open(FileAccess *p_f, bool p_skip_first_tag)
 
         if (err) {
             error_text = "Unexpected end of file";
-            _printerr();
+            _printerr()
             error = ERR_FILE_CORRUPT;
         }
     }
@@ -899,13 +899,13 @@ void ResourceInteractiveLoaderText::open(FileAccess *p_f, bool p_skip_first_tag)
 
 static void bs_save_unicode_string(FileAccess *f, const String &p_string, bool p_bit_on_len = false) {
 
-    CharString utf8 = p_string.utf8();
+    CharString utf8 = StringUtils::to_utf8(p_string);
     if (p_bit_on_len) {
         f->store_32((utf8.length() + 1) | 0x80000000);
     } else {
         f->store_32(utf8.length() + 1);
     }
-    f->store_buffer((const uint8_t *)utf8.constData(), utf8.length() + 1);
+    f->store_buffer((const uint8_t *)utf8.data(), utf8.length() + 1);
 }
 
 Error ResourceInteractiveLoaderText::save_as_binary(FileAccess *p_f, const String &p_path) {
@@ -1358,7 +1358,7 @@ String ResourceFormatSaverTextInstance::_write_resource(const RES &res) {
 
         if (internal_resources.has(res)) {
             return "SubResource( " + itos(internal_resources[res]) + " )";
-        } else if (res->get_path().length() && res->get_path().find("::") == -1) {
+        } else if (res->get_path().length() && !StringUtils::contains(res->get_path(),"::") ) {
             if (res->get_path() == local_path) { //circular reference attempt
                 return "null";
             }
@@ -1366,7 +1366,7 @@ String ResourceFormatSaverTextInstance::_write_resource(const RES &res) {
             String path = relative_paths ? PathUtils::path_to_file(local_path,res->get_path()) : res->get_path();
             return "Resource( \"" + path + "\" )";
         } else {
-            ERR_FAIL_V_MSG("null", "Resource was not pre cached for the resource section, bug?");
+            ERR_FAIL_V_MSG("null", "Resource was not pre cached for the resource section, bug?")
             //internal resource
         }
     }
@@ -1382,9 +1382,9 @@ void ResourceFormatSaverTextInstance::_find_resources(const Variant &p_variant, 
             if (res.is_null() || external_resources.has(res))
                 return;
 
-            if (!p_main && (!bundle_resources) && res->get_path().length() && res->get_path().find("::") == -1) {
+            if (!p_main && (!bundle_resources) && res->get_path().length() && !StringUtils::contains(res->get_path(),"::") ) {
                 if (res->get_path() == local_path) {
-                    ERR_PRINTS("Circular reference to resource being saved found: '" + local_path + "' will be null next time it's loaded.");
+                    ERR_PRINTS("Circular reference to resource being saved found: '" + local_path + "' will be null next time it's loaded.")
                     return;
                 }
                 int index = external_resources.size();
@@ -1463,7 +1463,7 @@ static String _valprop(const String &p_name) {
 
     // Escape and quote strings with extended ASCII or further Unicode characters
     // as well as '"', '=' or ' ' (32)
-    const CharType *cstr = p_name.constData();
+    const CharType *cstr = p_name.cdata();
     for (int i = 0; !cstr[i].isNull(); i++) {
         if (cstr[i] == '=' || cstr[i] == '"' || cstr[i] < 33 || cstr[i] > 126) {
             return "\"" + StringUtils::c_escape_multiline(p_name) + "\"";
@@ -1475,7 +1475,7 @@ static String _valprop(const String &p_name) {
 
 Error ResourceFormatSaverTextInstance::save(const String &p_path, const RES &p_resource, uint32_t p_flags) {
 
-    if (p_path.ends_with(".tscn")) {
+    if (StringUtils::ends_with(p_path,".tscn")) {
         packed_scene = p_resource;
     }
 
@@ -1490,7 +1490,7 @@ Error ResourceFormatSaverTextInstance::save(const String &p_path, const RES &p_r
     skip_editor = p_flags & ResourceSaver::FLAG_OMIT_EDITOR_PROPERTIES;
     bundle_resources = p_flags & ResourceSaver::FLAG_BUNDLE_RESOURCES;
     takeover_paths = p_flags & ResourceSaver::FLAG_REPLACE_SUBRESOURCE_PATHS;
-    if (!p_path.begins_with("res://")) {
+    if (!StringUtils::begins_with(p_path,"res://")) {
         takeover_paths = false;
     }
 
@@ -1514,7 +1514,7 @@ Error ResourceFormatSaverTextInstance::save(const String &p_path, const RES &p_r
     {
         String title = packed_scene.is_valid() ? "[gd_scene " : "[gd_resource ";
         if (packed_scene.is_null())
-            title += "type=\"" + p_resource->get_class() + "\" ";
+            title += String("type=\"") + p_resource->get_class() + "\" ";
         int load_steps = saved_resources.size() + external_resources.size();
         /*
         if (packed_scene.is_valid()) {
@@ -1594,7 +1594,7 @@ Error ResourceFormatSaverTextInstance::save(const String &p_path, const RES &p_r
     for (List<RES>::Element *E = saved_resources.front(); E; E = E->next()) {
 
         RES res = E->get();
-        if (E->next() && (res->get_path() == "" || res->get_path().find("::") != -1)) {
+        if (E->next() && (res->get_path() == "" || StringUtils::contains(res->get_path(),"::") )) {
 
             if (res->get_subindex() != 0) {
                 if (used_indices.has(res->get_subindex())) {
@@ -1630,7 +1630,7 @@ Error ResourceFormatSaverTextInstance::save(const String &p_path, const RES &p_r
             }
 
             int idx = res->get_subindex();
-            line += "type=\"" + res->get_class() + "\" id=" + itos(idx);
+            line += String("type=\"") + res->get_class() + "\" id=" + itos(idx);
             f->store_line(line + "]");
             if (takeover_paths) {
                 res->set_path(p_path + "::" + itos(idx), true);
@@ -1647,7 +1647,7 @@ Error ResourceFormatSaverTextInstance::save(const String &p_path, const RES &p_r
         //property_list.sort();
         for (List<PropertyInfo>::Element *PE = property_list.front(); PE; PE = PE->next()) {
 
-            if (skip_editor && PE->get().name.begins_with("__editor"))
+            if (skip_editor && StringUtils::begins_with(PE->get().name,"__editor"))
                 continue;
 
             if (PE->get().usage & PROPERTY_USAGE_STORAGE) {
@@ -1664,7 +1664,7 @@ Error ResourceFormatSaverTextInstance::save(const String &p_path, const RES &p_r
                 } else {
                     value = res->get(name);
                 }
-                Variant default_value = ClassDB::class_get_default_property_value(res->get_class(), name);
+                Variant default_value = ClassDB::class_get_default_property_value(res->get_class_name(), name);
 
                 if (default_value.get_type() != Variant::NIL && bool(Variant::evaluate(Variant::OP_EQUAL, value, default_value))) {
                     continue;
@@ -1761,7 +1761,7 @@ Error ResourceFormatSaverTextInstance::save(const String &p_path, const RES &p_r
             connstr += " to=\"" + String(state->get_connection_target(i).simplified()) + "\"";
             connstr += " method=\"" + String(state->get_connection_method(i)) + "\"";
             int flags = state->get_connection_flags(i);
-            if (flags != Object::CONNECT_PERSIST) {
+            if (flags != ObjectNS::CONNECT_PERSIST) {
                 connstr += " flags=" + itos(flags);
             }
 
@@ -1795,7 +1795,7 @@ Error ResourceFormatSaverTextInstance::save(const String &p_path, const RES &p_r
 
 Error ResourceFormatSaverText::save(const String &p_path, const RES &p_resource, uint32_t p_flags) {
 
-    if (p_path.ends_with(".sct") && p_resource->get_class() != "PackedScene") {
+    if (StringUtils::ends_with(p_path,".sct") && 0!=strcmp(p_resource->get_class(),"PackedScene") ) {
         return ERR_FILE_UNRECOGNIZED;
     }
 
@@ -1809,7 +1809,7 @@ bool ResourceFormatSaverText::recognize(const RES &p_resource) const {
 }
 void ResourceFormatSaverText::get_recognized_extensions(const RES &p_resource, List<String> *p_extensions) const {
 
-    if (p_resource->get_class() == "PackedScene")
+    if (0==strcmp(p_resource->get_class(),"PackedScene"))
         p_extensions->push_back("tscn"); //text scene
     else
         p_extensions->push_back("tres"); //text resource

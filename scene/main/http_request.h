@@ -39,7 +39,7 @@
 
 class HTTPRequest : public Node {
 
-	GDCLASS(HTTPRequest, Node);
+	GDCLASS(HTTPRequest,Node)
 
 public:
 	enum Result {
@@ -143,7 +143,7 @@ public:
 	int get_body_size() const;
 
 	HTTPRequest();
-	~HTTPRequest();
+	~HTTPRequest() override;
 };
 
 VARIANT_ENUM_CAST(HTTPRequest::Result);

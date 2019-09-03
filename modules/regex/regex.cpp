@@ -29,11 +29,16 @@
 /*************************************************************************/
 
 #include "regex.h"
+
+#include "core/method_bind.h"
 #include "core/os/memory.h"
 
 extern "C" {
 #include <pcre2.h>
 }
+
+IMPL_GDCLASS(RegExMatch)
+IMPL_GDCLASS(RegEx)
 
 static void *_regex_malloc(PCRE2_SIZE size, void *user) {
 
@@ -104,7 +109,7 @@ Array RegExMatch::get_strings() const {
 
         int length = data[i].end - start;
 
-        result.append(subject.substr(start, length));
+        result.append(StringUtils::substr(subject,start, length));
     }
 
     return result;
@@ -124,7 +129,7 @@ String RegExMatch::get_string(const Variant &p_name) const {
 
     int length = data[id].end - start;
 
-    return subject.substr(start, length);
+    return StringUtils::substr(subject,start, length);
 }
 
 int RegExMatch::get_start(const Variant &p_name) const {
@@ -149,13 +154,13 @@ int RegExMatch::get_end(const Variant &p_name) const {
 
 void RegExMatch::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("get_subject"), &RegExMatch::get_subject);
-    ClassDB::bind_method(D_METHOD("get_group_count"), &RegExMatch::get_group_count);
-    ClassDB::bind_method(D_METHOD("get_names"), &RegExMatch::get_names);
-    ClassDB::bind_method(D_METHOD("get_strings"), &RegExMatch::get_strings);
-    ClassDB::bind_method(D_METHOD("get_string", "name"), &RegExMatch::get_string, {DEFVAL(0)});
-    ClassDB::bind_method(D_METHOD("get_start", "name"), &RegExMatch::get_start, {DEFVAL(0)});
-    ClassDB::bind_method(D_METHOD("get_end", "name"), &RegExMatch::get_end, {DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("get_subject"), &RegExMatch::get_subject);
+    MethodBinder::bind_method(D_METHOD("get_group_count"), &RegExMatch::get_group_count);
+    MethodBinder::bind_method(D_METHOD("get_names"), &RegExMatch::get_names);
+    MethodBinder::bind_method(D_METHOD("get_strings"), &RegExMatch::get_strings);
+    MethodBinder::bind_method(D_METHOD("get_string", "name"), &RegExMatch::get_string, {DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("get_start", "name"), &RegExMatch::get_start, {DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("get_end", "name"), &RegExMatch::get_end, {DEFVAL(0)});
 
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "subject"), "", "get_subject");
     ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "names"), "", "get_names");
@@ -206,7 +211,7 @@ Error RegEx::compile(const String &p_pattern) {
 
         pcre2_general_context_16 *gctx = (pcre2_general_context_16 *)general_ctx;
         pcre2_compile_context_16 *cctx = pcre2_compile_context_create_16(gctx);
-        PCRE2_SPTR16 p = (PCRE2_SPTR16)pattern.constData();
+		PCRE2_SPTR16 p = (PCRE2_SPTR16)pattern.cdata();
 
         code = pcre2_compile_16(p, pattern.length(), flags, &err, &offset, cctx);
 
@@ -224,7 +229,7 @@ Error RegEx::compile(const String &p_pattern) {
 
         pcre2_general_context_32 *gctx = (pcre2_general_context_32 *)general_ctx;
         pcre2_compile_context_32 *cctx = pcre2_compile_context_create_32(gctx);
-        PCRE2_SPTR32 p = (PCRE2_SPTR32)pattern.constData();
+		PCRE2_SPTR32 p = (PCRE2_SPTR32)pattern.cdata();
 
         code = pcre2_compile_32(p, pattern.length(), flags, &err, &offset, cctx);
 
@@ -256,7 +261,7 @@ Ref<RegExMatch> RegEx::search(const String &p_subject, int p_offset, int p_end) 
         pcre2_code_16 *c = (pcre2_code_16 *)code;
         pcre2_general_context_16 *gctx = (pcre2_general_context_16 *)general_ctx;
         pcre2_match_context_16 *mctx = pcre2_match_context_create_16(gctx);
-        PCRE2_SPTR16 s = (PCRE2_SPTR16)p_subject.constData();
+		PCRE2_SPTR16 s = (PCRE2_SPTR16)p_subject.cdata();
 
         pcre2_match_data_16 *match = pcre2_match_data_create_from_pattern_16(c, gctx);
 
@@ -286,7 +291,7 @@ Ref<RegExMatch> RegEx::search(const String &p_subject, int p_offset, int p_end) 
         pcre2_code_32 *c = (pcre2_code_32 *)code;
         pcre2_general_context_32 *gctx = (pcre2_general_context_32 *)general_ctx;
         pcre2_match_context_32 *mctx = pcre2_match_context_create_32(gctx);
-        PCRE2_SPTR32 s = (PCRE2_SPTR32)p_subject.constData();
+		PCRE2_SPTR32 s = (PCRE2_SPTR32)p_subject.cdata();
 
         pcre2_match_data_32 *match = pcre2_match_data_create_from_pattern_32(c, gctx);
 
@@ -381,8 +386,8 @@ String RegEx::sub(const String &p_subject, const String &p_replacement, bool p_a
         pcre2_code_16 *c = (pcre2_code_16 *)code;
         pcre2_general_context_16 *gctx = (pcre2_general_context_16 *)general_ctx;
         pcre2_match_context_16 *mctx = pcre2_match_context_create_16(gctx);
-        PCRE2_SPTR16 s = (PCRE2_SPTR16)p_subject.constData();
-        PCRE2_SPTR16 r = (PCRE2_SPTR16)p_replacement.constData();
+		PCRE2_SPTR16 s = (PCRE2_SPTR16)p_subject.cdata();
+		PCRE2_SPTR16 r = (PCRE2_SPTR16)p_replacement.cdata();
         PCRE2_UCHAR16 *o = (PCRE2_UCHAR16 *)output.ptrw();
 
         pcre2_match_data_16 *match = pcre2_match_data_create_from_pattern_16(c, gctx);
@@ -406,8 +411,8 @@ String RegEx::sub(const String &p_subject, const String &p_replacement, bool p_a
         pcre2_code_32 *c = (pcre2_code_32 *)code;
         pcre2_general_context_32 *gctx = (pcre2_general_context_32 *)general_ctx;
         pcre2_match_context_32 *mctx = pcre2_match_context_create_32(gctx);
-        PCRE2_SPTR32 s = (PCRE2_SPTR32)p_subject.constData();
-        PCRE2_SPTR32 r = (PCRE2_SPTR32)p_replacement.constData();
+		PCRE2_SPTR32 s = (PCRE2_SPTR32)p_subject.cdata();
+		PCRE2_SPTR32 r = (PCRE2_SPTR32)p_replacement.cdata();
         PCRE2_UCHAR32 *o = (PCRE2_UCHAR32 *)output.ptrw();
 
         pcre2_match_data_32 *match = pcre2_match_data_create_from_pattern_32(c, gctx);
@@ -521,13 +526,13 @@ RegEx::~RegEx() {
 
 void RegEx::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("clear"), &RegEx::clear);
-    ClassDB::bind_method(D_METHOD("compile", "pattern"), &RegEx::compile);
-    ClassDB::bind_method(D_METHOD("search", "subject", "offset", "end"), &RegEx::search, {DEFVAL(0), DEFVAL(-1)});
-    ClassDB::bind_method(D_METHOD("search_all", "subject", "offset", "end"), &RegEx::search_all, {DEFVAL(0), DEFVAL(-1)});
-    ClassDB::bind_method(D_METHOD("sub", "subject", "replacement", "all", "offset", "end"), &RegEx::sub, {DEFVAL(false), DEFVAL(0), DEFVAL(-1)});
-    ClassDB::bind_method(D_METHOD("is_valid"), &RegEx::is_valid);
-    ClassDB::bind_method(D_METHOD("get_pattern"), &RegEx::get_pattern);
-    ClassDB::bind_method(D_METHOD("get_group_count"), &RegEx::get_group_count);
-    ClassDB::bind_method(D_METHOD("get_names"), &RegEx::get_names);
+    MethodBinder::bind_method(D_METHOD("clear"), &RegEx::clear);
+    MethodBinder::bind_method(D_METHOD("compile", "pattern"), &RegEx::compile);
+    MethodBinder::bind_method(D_METHOD("search", "subject", "offset", "end"), &RegEx::search, {DEFVAL(0), DEFVAL(-1)});
+    MethodBinder::bind_method(D_METHOD("search_all", "subject", "offset", "end"), &RegEx::search_all, {DEFVAL(0), DEFVAL(-1)});
+    MethodBinder::bind_method(D_METHOD("sub", "subject", "replacement", "all", "offset", "end"), &RegEx::sub, {DEFVAL(false), DEFVAL(0), DEFVAL(-1)});
+    MethodBinder::bind_method(D_METHOD("is_valid"), &RegEx::is_valid);
+    MethodBinder::bind_method(D_METHOD("get_pattern"), &RegEx::get_pattern);
+    MethodBinder::bind_method(D_METHOD("get_group_count"), &RegEx::get_group_count);
+    MethodBinder::bind_method(D_METHOD("get_names"), &RegEx::get_names);
 }

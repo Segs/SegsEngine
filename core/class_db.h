@@ -30,13 +30,14 @@
 
 #pragma once
 
-#include "core/method_bind.h"
-#include "core/object.h"
+//#include "core/method_bind.h"
+#include "core/hash_map.h"
+#include "core/string_name.h"
+#include "core/variant.h"
 
+#include <initializer_list>
 
-/**	To bind more then 6 parameters include this:
- *  #include "method_bind_ext.gen.inc"
- */
+class MethodBind;
 
 #define DEFVAL(m_defval) (m_defval)
 
@@ -147,9 +148,9 @@ public:
     static HashMap<StringName, StringName> compat_classes;
 
 #ifdef DEBUG_METHODS_ENABLED
-    static MethodBind *bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const MethodDefinition &method_name, const Variant **p_defs, int p_defcount);
+    static MethodBind *bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const MethodDefinition &method_name, std::initializer_list<Variant> def_vals);
 #else
-    static MethodBind *bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const char *method_name, const Variant **p_defs, int p_defcount);
+    static MethodBind *bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const char *method_name, std::initializer_list<Variant> p_defs);
 #endif
 
     static APIType current_api;
@@ -161,19 +162,23 @@ public:
 
 public:
     // DO NOT USE THIS!!!!!! NEEDS TO BE PUBLIC BUT DO NOT USE NO MATTER WHAT!!!
-    template <class T>
+    template <class T,class PARENT>
     static void _add_class() {
-
-        _add_class2(T::get_class_static(), T::get_parent_class_static());
+        if constexpr(std::is_same_v<PARENT,void>)
+        {
+            _add_class2(T::get_class_static_name(), StringName());
+        }
+        else
+            _add_class2(T::get_class_static_name(), PARENT::get_class_static_name());
     }
 
     template <class T>
     static void register_class() {
 
-        GLOBAL_LOCK_FUNCTION;
+        GLOBAL_LOCK_FUNCTION
         T::initialize_class();
-        ClassInfo *t = classes.getptr(T::get_class_static());
-		ERR_FAIL_COND(!t)
+        ClassInfo *t = classes.getptr(T::get_class_static_name());
+        ERR_FAIL_COND(!t)
         t->creation_func = &creator<T>;
         t->exposed = true;
         T::register_custom_data_to_otdb();
@@ -182,10 +187,10 @@ public:
     template <class T>
     static void register_virtual_class() {
 
-        GLOBAL_LOCK_FUNCTION;
+        GLOBAL_LOCK_FUNCTION
         T::initialize_class();
-        ClassInfo *t = classes.getptr(T::get_class_static());
-		ERR_FAIL_COND(!t)
+        ClassInfo *t = classes.getptr(T::get_class_static_name());
+        ERR_FAIL_COND(!t)
         t->exposed = true;
         //nothing
     }
@@ -199,14 +204,15 @@ public:
     template <class T>
     static void register_custom_instance_class() {
 
-        GLOBAL_LOCK_FUNCTION;
+        GLOBAL_LOCK_FUNCTION
         T::initialize_class();
-        ClassInfo *t = classes.getptr(T::get_class_static());
-		ERR_FAIL_COND(!t)
+        ClassInfo *t = classes.getptr(T::get_class_static_name());
+        ERR_FAIL_COND(!t)
         t->creation_func = &_create_ptr_func<T>;
         t->exposed = true;
         T::register_custom_data_to_otdb();
     }
+    static bool bind_helper(MethodBind *bind,const char * instance_type,const StringName &p_name);
 
     static void get_class_list(Vector<StringName> *p_classes);
     static void get_inheriters_from_class(const StringName &p_class, List<StringName> *p_classes);
@@ -221,62 +227,12 @@ public:
 
     static uint64_t get_api_hash(APIType p_api);
 
-    template <class N, class M>
-    static MethodBind *bind_method(N p_method_name, M p_method) {
-
-        MethodBind *bind = create_method_bind(p_method);
-
-        return bind_methodfi(METHOD_FLAGS_DEFAULT, bind, p_method_name, nullptr, 0); //use static function, much smaller binary usage
-    }
-
-    template <class N, class M>
-    static MethodBind *bind_method(N p_method_name, M p_method, const std::initializer_list<Variant> args) {
-
-        MethodBind *bind = create_method_bind(p_method);
-        const Variant *elem = args.begin();
-        return bind_methodfi(METHOD_FLAGS_DEFAULT, bind, p_method_name, &elem, args.size());
-    }
-
-    template <class M>
-    static MethodBind *bind_vararg_method(uint32_t p_flags, StringName p_name, M p_method, const MethodInfo &p_info = MethodInfo(), const Vector<Variant> &p_default_args = Vector<Variant>()) {
-
-        GLOBAL_LOCK_FUNCTION
-
-        MethodBind *bind = create_vararg_method_bind(p_method, p_info);
-        ERR_FAIL_COND_V(!bind, nullptr);
-
-        bind->set_name(p_name);
-        bind->set_default_arguments(p_default_args);
-
-        String instance_type = bind->get_instance_class();
-
-        ClassInfo *type = classes.getptr(instance_type);
-        if (!type) {
-            memdelete(bind);
-			ERR_FAIL_COND_V(!type, nullptr)
-        }
-
-        if (type->method_map.has(p_name)) {
-            memdelete(bind);
-            // overloading not supported
-            ERR_FAIL_V_MSG(nullptr, "Method already bound: " + instance_type + "::" + p_name + ".");
-        }
-        type->method_map[p_name] = bind;
-#ifdef DEBUG_METHODS_ENABLED
-        // FIXME: <reduz> set_return_type is no longer in MethodBind, so I guess it should be moved to vararg method bind
-        //bind->set_return_type("Variant");
-        type->method_order.push_back(p_name);
-#endif
-
-        return bind;
-    }
-
     static void add_signal(StringName p_class, const MethodInfo &p_signal);
     static bool has_signal(StringName p_class, StringName p_signal);
     static bool get_signal(StringName p_class, StringName p_signal, MethodInfo *r_signal);
     static void get_signal_list(StringName p_class, List<MethodInfo> *p_signals, bool p_no_inheritance = false);
 
-    static void add_property_group(StringName p_class, const String &p_name, const String &p_prefix = "");
+    static void add_property_group(StringName p_class, const char *p_name, const char *p_prefix = nullptr);
     static void add_property(StringName p_class, const PropertyInfo &p_pinfo, const StringName &p_setter, const StringName &p_getter, int p_index = -1);
     static void set_property_default_value(StringName p_class, const StringName &p_name, const Variant &p_default);
     static void get_property_list(StringName p_class, List<PropertyInfo> *p_list, bool p_no_inheritance = false, const Object *p_validator = nullptr);
@@ -324,16 +280,16 @@ public:
     static void set_current_api(APIType p_api);
     static APIType get_current_api();
     static void cleanup_defaults();
-    static void cleanup();
+    static void cleanup();   
 };
 
 #ifdef DEBUG_METHODS_ENABLED
 
 #define BIND_CONSTANT(m_constant) \
-    ClassDB::bind_integer_constant(get_class_static(), StringName(), #m_constant, m_constant);
+    ClassDB::bind_integer_constant(get_class_static_name(), StringName(), #m_constant, m_constant);
 
 #define BIND_ENUM_CONSTANT(m_constant) \
-    ClassDB::bind_integer_constant(get_class_static(), __constant_get_enum_name(m_constant, #m_constant), #m_constant, m_constant);
+    ClassDB::bind_integer_constant(get_class_static_name(), __constant_get_enum_name(m_constant, #m_constant), #m_constant, m_constant);
 
 #else
 
@@ -348,7 +304,7 @@ public:
 #ifdef TOOLS_ENABLED
 
 #define BIND_VMETHOD(m_method) \
-    ClassDB::add_virtual_method(get_class_static(), m_method);
+    ClassDB::add_virtual_method(get_class_static_name(), m_method);
 
 #else
 

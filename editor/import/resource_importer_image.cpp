@@ -35,6 +35,8 @@
 #include "core/os/file_access.h"
 #include "scene/resources/texture.h"
 
+IMPL_GDCLASS(ResourceImporterImage)
+
 String ResourceImporterImage::get_importer_name() const {
 
     return "image";

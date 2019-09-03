@@ -36,18 +36,18 @@
 
 class Line2DEditor : public AbstractPolygon2DEditor {
 
-	GDCLASS(Line2DEditor, AbstractPolygon2DEditor);
+	GDCLASS(Line2DEditor,AbstractPolygon2DEditor)
 
 	Line2D *node;
 
 protected:
-	virtual Node2D *_get_node() const;
-	virtual void _set_node(Node *p_line);
+	Node2D *_get_node() const override;
+	void _set_node(Node *p_line) override;
 
-	virtual bool _is_line() const;
-	virtual Variant _get_polygon(int p_idx) const;
-	virtual void _set_polygon(int p_idx, const Variant &p_polygon) const;
-	virtual void _action_set_polygon(int p_idx, const Variant &p_previous, const Variant &p_polygon);
+	bool _is_line() const override;
+	Variant _get_polygon(int p_idx) const override;
+	void _set_polygon(int p_idx, const Variant &p_polygon) const override;
+	void _action_set_polygon(int p_idx, const Variant &p_previous, const Variant &p_polygon) override;
 
 public:
 	Line2DEditor(EditorNode *p_editor);
@@ -55,7 +55,7 @@ public:
 
 class Line2DEditorPlugin : public AbstractPolygon2DEditorPlugin {
 
-	GDCLASS(Line2DEditorPlugin, AbstractPolygon2DEditorPlugin);
+	GDCLASS(Line2DEditorPlugin,AbstractPolygon2DEditorPlugin)
 
 public:
 	Line2DEditorPlugin(EditorNode *p_node);

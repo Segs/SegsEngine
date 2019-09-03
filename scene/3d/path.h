@@ -36,7 +36,7 @@
 
 class Path : public Spatial {
 
-	GDCLASS(Path, Spatial);
+	GDCLASS(Path,Spatial)
 
 	Ref<Curve3D> curve;
 
@@ -55,7 +55,7 @@ public:
 
 class PathFollow : public Spatial {
 
-	GDCLASS(PathFollow, Spatial);
+	GDCLASS(PathFollow,Spatial)
 
 public:
 	enum RotationMode {
@@ -80,7 +80,7 @@ private:
 	void _update_transform();
 
 protected:
-	virtual void _validate_property(PropertyInfo &property) const;
+	void _validate_property(PropertyInfo &property) const override;
 
 	void _notification(int p_what);
 	static void _bind_methods();
@@ -107,7 +107,7 @@ public:
 	void set_cubic_interpolation(bool p_enable);
 	bool get_cubic_interpolation() const;
 
-	String get_configuration_warning() const;
+	String get_configuration_warning() const override;
 
 	PathFollow();
 };

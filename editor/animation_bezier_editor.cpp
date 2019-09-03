@@ -31,6 +31,9 @@
 #include "animation_bezier_editor.h"
 
 #include "editor/editor_node.h"
+#include "core/method_bind.h"
+
+IMPL_GDCLASS(AnimationBezierTrackEdit)
 
 float AnimationBezierTrackEdit::_bezier_h_to_pixel(float p_h) {
     float h = p_h;
@@ -265,9 +268,9 @@ void AnimationBezierTrackEdit::_notification(int p_what) {
         draw_texture(close_icon, close_icon_rect.position);
 
         String base_path(animation->track_get_path(track));
-        int end = base_path.find(":");
+        int end = StringUtils::find(base_path,":");
         if (end != -1) {
-            base_path = base_path.substr(0, end + 1);
+            base_path = StringUtils::substr(base_path,0, end + 1);
         }
 
         // NAMES AND ICON
@@ -319,9 +322,9 @@ void AnimationBezierTrackEdit::_notification(int p_what) {
             if (animation->track_get_type(i) != Animation::TYPE_BEZIER)
                 continue;
             String path(animation->track_get_path(i));
-            if (!path.begins_with(base_path))
+            if (!StringUtils::begins_with(path,base_path))
                 continue; //another node
-            path = path.replace_first(base_path, "");
+			path = StringUtils::replace_first(path,base_path, "");
 
             Color cc = color;
             Rect2 rect = Rect2(margin, vofs, limit - margin - hsep, font->get_height() + vsep);
@@ -524,8 +527,8 @@ void AnimationBezierTrackEdit::set_animation_and_track(const Ref<Animation> &p_a
         disconnect("select_key", editor, "_key_selected");
     if (is_connected("deselect_key", editor, "_key_deselected"))
         disconnect("deselect_key", editor, "_key_deselected");
-    connect("select_key", editor, "_key_selected", varray(p_track), CONNECT_DEFERRED);
-    connect("deselect_key", editor, "_key_deselected", varray(p_track), CONNECT_DEFERRED);
+    connect("select_key", editor, "_key_selected", varray(p_track), ObjectNS::CONNECT_DEFERRED);
+    connect("deselect_key", editor, "_key_deselected", varray(p_track), ObjectNS::CONNECT_DEFERRED);
     update();
 }
 
@@ -1162,14 +1165,14 @@ void AnimationBezierTrackEdit::set_block_animation_update_ptr(bool *p_block_ptr)
 
 void AnimationBezierTrackEdit::_bind_methods() {
 
-    ClassDB::bind_method("_zoom_changed", &AnimationBezierTrackEdit::_zoom_changed);
-    ClassDB::bind_method("_menu_selected", &AnimationBezierTrackEdit::_menu_selected);
-    ClassDB::bind_method("_gui_input", &AnimationBezierTrackEdit::_gui_input);
-    ClassDB::bind_method("_play_position_draw", &AnimationBezierTrackEdit::_play_position_draw);
+    MethodBinder::bind_method("_zoom_changed", &AnimationBezierTrackEdit::_zoom_changed);
+    MethodBinder::bind_method("_menu_selected", &AnimationBezierTrackEdit::_menu_selected);
+    MethodBinder::bind_method("_gui_input", &AnimationBezierTrackEdit::_gui_input);
+    MethodBinder::bind_method("_play_position_draw", &AnimationBezierTrackEdit::_play_position_draw);
 
-    ClassDB::bind_method("_clear_selection", &AnimationBezierTrackEdit::_clear_selection);
-    ClassDB::bind_method("_clear_selection_for_anim", &AnimationBezierTrackEdit::_clear_selection_for_anim);
-    ClassDB::bind_method("_select_at_anim", &AnimationBezierTrackEdit::_select_at_anim);
+    MethodBinder::bind_method("_clear_selection", &AnimationBezierTrackEdit::_clear_selection);
+    MethodBinder::bind_method("_clear_selection_for_anim", &AnimationBezierTrackEdit::_clear_selection_for_anim);
+    MethodBinder::bind_method("_select_at_anim", &AnimationBezierTrackEdit::_select_at_anim);
 
     ADD_SIGNAL(MethodInfo("timeline_changed", PropertyInfo(Variant::REAL, "position"), PropertyInfo(Variant::BOOL, "drag")));
     ADD_SIGNAL(MethodInfo("remove_request", PropertyInfo(Variant::INT, "track")));

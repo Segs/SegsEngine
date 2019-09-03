@@ -28,15 +28,14 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef COLLISION_OBJECT_2D_H
-#define COLLISION_OBJECT_2D_H
+#pragma once
 
 #include "scene/2d/node_2d.h"
 #include "scene/resources/shape_2d.h"
 
 class CollisionObject2D : public Node2D {
 
-	GDCLASS(CollisionObject2D, Node2D);
+	GDCLASS(CollisionObject2D,Node2D)
 
 	bool area;
 	RID rid;
@@ -116,12 +115,10 @@ public:
 	void set_pickable(bool p_enabled);
 	bool is_pickable() const;
 
-	String get_configuration_warning() const;
+	String get_configuration_warning() const override;
 
 	_FORCE_INLINE_ RID get_rid() const { return rid; }
 
 	CollisionObject2D();
-	~CollisionObject2D();
+	~CollisionObject2D() override;
 };
-
-#endif // COLLISION_OBJECT_2D_H

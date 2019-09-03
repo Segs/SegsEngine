@@ -37,7 +37,7 @@
 
 class ScrollContainer : public Container {
 
-	GDCLASS(ScrollContainer, Container);
+	GDCLASS(ScrollContainer,Container)
 
 	HScrollBar *h_scroll;
 	VScrollBar *v_scroll;
@@ -66,7 +66,7 @@ class ScrollContainer : public Container {
 	void _cancel_drag();
 
 protected:
-	Size2 get_minimum_size() const;
+	Size2 get_minimum_size() const override;
 
 	void _gui_input(const Ref<InputEvent> &p_gui_input);
 	void _notification(int p_what);
@@ -95,9 +95,9 @@ public:
 	HScrollBar *get_h_scrollbar();
 	VScrollBar *get_v_scrollbar();
 
-	virtual bool clips_input() const;
+	bool clips_input() const override;
 
-	virtual String get_configuration_warning() const;
+	String get_configuration_warning() const override;
 
 	ScrollContainer();
 };

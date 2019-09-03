@@ -35,9 +35,13 @@
 #include "core/object_db.h"
 #include "core/os/file_access.h"
 #include "core/script_language.h"
+//TODO: SEGS consider removing 'scene/main/node.h' include from core module
 #include "scene/main/node.h" //only so casting works
+#include "core/method_bind.h"
 
-#include <stdio.h>
+#include <cstdio>
+
+IMPL_GDCLASS(Resource)
 
 void Resource::emit_changed() {
 
@@ -69,14 +73,14 @@ void Resource::set_path(const String &p_path, bool p_take_over) {
         if (p_take_over) {
 
             ResourceCache::lock->write_lock();
-            ResourceCache::resources.get(p_path)->set_name("");
+            ResourceCache::resources.get(p_path)->set_name(String::null_val);
             ResourceCache::lock->write_unlock();
         } else {
             ResourceCache::lock->read_lock();
             bool exists = ResourceCache::resources.has(p_path);
             ResourceCache::lock->read_unlock();
 
-            ERR_FAIL_COND_MSG(exists, "Another resource is loaded from path: " + p_path + " (possible cyclic resource inclusion).");
+            ERR_FAIL_COND_MSG(exists, "Another resource is loaded from path: " + p_path + " (possible cyclic resource inclusion).")
         }
     }
     path_cache = p_path;
@@ -125,7 +129,7 @@ bool Resource::editor_can_reload_from_file() {
 void Resource::reload_from_file() {
 
     String path = get_path();
-	if (!PathUtils::is_resource_file(path))
+    if (!PathUtils::is_resource_file(path))
         return;
 
     Ref<Resource> s = ResourceLoader::load(ResourceLoader::path_remap(path), get_class(), true);
@@ -152,8 +156,8 @@ Ref<Resource> Resource::duplicate_for_local_scene(Node *p_for_scene, Map<Ref<Res
     List<PropertyInfo> plist;
     get_property_list(&plist);
 
-    Resource *r = Object::cast_to<Resource>(ClassDB::instance(get_class()));
-    ERR_FAIL_COND_V(!r, Ref<Resource>());
+    Resource *r = Object::cast_to<Resource>(ClassDB::instance(get_class_name()));
+    ERR_FAIL_COND_V(!r, Ref<Resource>())
 
     r->local_scene = p_for_scene;
 
@@ -221,8 +225,8 @@ Ref<Resource> Resource::duplicate(bool p_subresources) const {
     List<PropertyInfo> plist;
     get_property_list(&plist);
 
-    Resource *r = (Resource *)ClassDB::instance(get_class());
-    ERR_FAIL_COND_V(!r, Ref<Resource>());
+    Resource *r = (Resource *)ClassDB::instance(get_class_name());
+    ERR_FAIL_COND_V(!r, Ref<Resource>())
 
     for (List<PropertyInfo>::Element *E = plist.front(); E; E = E->next()) {
 
@@ -277,7 +281,7 @@ void Resource::notify_change_to_owners() {
     for (Set<ObjectID>::Element *E = owners.front(); E; E = E->next()) {
 
         Object *obj = ObjectDB::get_instance(E->get());
-        ERR_CONTINUE_MSG(!obj, "Object was deleted, while still owning a resource."); //wtf
+        ERR_CONTINUE_MSG(!obj, "Object was deleted, while still owning a resource.") //wtf
         //TODO store string
         obj->call("resource_changed", RES(this));
     }
@@ -332,7 +336,7 @@ Node *Resource::get_local_scene() const {
 void Resource::setup_local_to_scene() {
 
     if (get_script_instance())
-        get_script_instance()->call("_setup_local_to_scene");
+        get_script_instance()->call(StaticCString("_setup_local_to_scene"));
 }
 
 Node *(*Resource::_get_local_scene_func)() = nullptr;
@@ -381,28 +385,31 @@ int Resource::get_id_for_path(const String &p_path) const {
     }
 }
 #endif
+String Resource::_get_category_wrap() {
+    return String(_get_category());
+}
 
 void Resource::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_path", "path"), &Resource::_set_path);
-    ClassDB::bind_method(D_METHOD("take_over_path", "path"), &Resource::_take_over_path);
-    ClassDB::bind_method(D_METHOD("get_path"), &Resource::get_path);
-    ClassDB::bind_method(D_METHOD("set_name", "name"), &Resource::set_name);
-    ClassDB::bind_method(D_METHOD("get_name"), &Resource::get_name);
-    ClassDB::bind_method(D_METHOD("get_rid"), &Resource::get_rid);
-    ClassDB::bind_method(D_METHOD("set_local_to_scene", "enable"), &Resource::set_local_to_scene);
-    ClassDB::bind_method(D_METHOD("is_local_to_scene"), &Resource::is_local_to_scene);
-    ClassDB::bind_method(D_METHOD("get_local_scene"), &Resource::get_local_scene);
-    ClassDB::bind_method(D_METHOD("setup_local_to_scene"), &Resource::setup_local_to_scene);
+    MethodBinder::bind_method(D_METHOD("set_path", "path"), &Resource::_set_path);
+    MethodBinder::bind_method(D_METHOD("take_over_path", "path"), &Resource::_take_over_path);
+    MethodBinder::bind_method(D_METHOD("get_path"), &Resource::get_path);
+    MethodBinder::bind_method(D_METHOD("set_name", "name"), &Resource::set_name);
+    MethodBinder::bind_method(D_METHOD("get_name"), &Resource::get_name);
+    MethodBinder::bind_method(D_METHOD("get_rid"), &Resource::get_rid);
+    MethodBinder::bind_method(D_METHOD("set_local_to_scene", "enable"), &Resource::set_local_to_scene);
+    MethodBinder::bind_method(D_METHOD("is_local_to_scene"), &Resource::is_local_to_scene);
+    MethodBinder::bind_method(D_METHOD("get_local_scene"), &Resource::get_local_scene);
+    MethodBinder::bind_method(D_METHOD("setup_local_to_scene"), &Resource::setup_local_to_scene);
 
-    ClassDB::bind_method(D_METHOD("duplicate", "subresources"), &Resource::duplicate, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("duplicate", "subresources"), &Resource::duplicate, {DEFVAL(false)});
     ADD_SIGNAL(MethodInfo("changed"));
     ADD_GROUP("Resource", "resource_");
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "resource_local_to_scene"), "set_local_to_scene", "is_local_to_scene");
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "resource_path", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR), "set_path", "get_path");
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "resource_name"), "set_name", "get_name");
 
-    BIND_VMETHOD(MethodInfo("_setup_local_to_scene"));
+    BIND_VMETHOD(MethodInfo("_setup_local_to_scene"))
 }
 
 Resource::Resource() :
@@ -426,7 +433,7 @@ Resource::~Resource() {
         ResourceCache::lock->write_unlock();
     }
     if (owners.size()) {
-        WARN_PRINT("Resource is still owned.");
+        WARN_PRINT("Resource is still owned.")
     }
 }
 
@@ -441,7 +448,7 @@ void ResourceCache::setup() {
 
 void ResourceCache::clear() {
     if (resources.size())
-        ERR_PRINT("Resources Still in use at Exit!");
+        ERR_PRINT("Resources Still in use at Exit!")
 
     resources.clear();
     memdelete(lock);
@@ -510,7 +517,7 @@ void ResourceCache::dump(const char *p_file, bool p_short) {
     FileAccess *f = nullptr;
     if (p_file) {
         f = FileAccess::open(p_file, FileAccess::WRITE);
-        ERR_FAIL_COND(!f);
+        ERR_FAIL_COND(!f)
     }
 
     const String *K = nullptr;
@@ -526,7 +533,7 @@ void ResourceCache::dump(const char *p_file, bool p_short) {
 
         if (!p_short) {
             if (f)
-                f->store_line(r->get_class() + ": " + r->get_path());
+                f->store_line(String(r->get_class()) + ": " + r->get_path());
         }
     }
 

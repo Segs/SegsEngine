@@ -42,14 +42,14 @@
 
 class GotoLineDialog : public ConfirmationDialog {
 
-	GDCLASS(GotoLineDialog, ConfirmationDialog);
+	GDCLASS(GotoLineDialog,ConfirmationDialog)
 
 	Label *line_label;
 	LineEdit *line;
 
 	TextEdit *text_editor;
 
-	virtual void ok_pressed();
+	void ok_pressed() override;
 
 public:
 	void popup_find_line(TextEdit *p_edit);
@@ -61,7 +61,7 @@ public:
 
 class FindReplaceBar : public HBoxContainer {
 
-	GDCLASS(FindReplaceBar, HBoxContainer);
+	GDCLASS(FindReplaceBar,HBoxContainer)
 
 	LineEdit *search_text;
 	Label *matches_label;
@@ -139,7 +139,7 @@ typedef void (*CodeTextEditorCodeCompleteFunc)(void *p_ud, const String &p_code,
 
 class CodeTextEditor : public VBoxContainer {
 
-	GDCLASS(CodeTextEditor, VBoxContainer);
+	GDCLASS(CodeTextEditor,VBoxContainer)
 
 	TextEdit *text_editor;
 	FindReplaceBar *find_replace_bar;

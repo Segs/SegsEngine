@@ -37,7 +37,8 @@
 
 class MonoGCHandle : public Reference {
 
-	GDCLASS(MonoGCHandle, Reference);
+	GDCLASS(MonoGCHandle,Reference)
+IMPL_GDCLASS(MonoGCHandle)
 
 	bool released;
 	bool weak;

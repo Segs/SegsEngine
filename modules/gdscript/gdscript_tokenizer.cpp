@@ -324,13 +324,13 @@ StringName GDScriptTokenizer::get_token_literal(int p_offset) const {
 
             while (_type_list[idx].text) {
                 if (type == _type_list[idx].type) {
-                    return _type_list[idx].text;
+					return StringName(_type_list[idx].text);
                 }
                 idx++;
             }
         } break; // Shouldn't get here, stuff happens
         case TK_BUILT_IN_FUNC:
-            return GDScriptFunctions::get_func_name(get_token_built_in_func(p_offset));
+			return StringName(GDScriptFunctions::get_func_name(get_token_built_in_func(p_offset)));
         case TK_CONSTANT: {
             const Variant value = get_token_constant(p_offset);
 
@@ -338,7 +338,7 @@ StringName GDScriptTokenizer::get_token_literal(int p_offset) const {
                 case Variant::NIL:
                     return "null";
                 case Variant::BOOL:
-                    return value ? "true" : "false";
+					return value ? StringName("true") : StringName("false");
                 default: {
                 }
             }
@@ -351,13 +351,13 @@ StringName GDScriptTokenizer::get_token_literal(int p_offset) const {
 
             while (_keyword_list[idx].text) {
                 if (token == _keyword_list[idx].token) {
-                    return _keyword_list[idx].text;
+					return StringName(_keyword_list[idx].text);
                 }
                 idx++;
             }
         }
     }
-    ERR_FAIL_V_MSG("", "Failed to get token literal.");
+	ERR_FAIL_V_CMSG("", "Failed to get token literal.")
 }
 
 static bool _is_text_char(CharType c) {
@@ -554,14 +554,14 @@ void GDScriptTokenizerText::_advance() {
                     }
                 }
 #ifdef DEBUG_ENABLED
-                String comment_content = comment.trim_prefix("#").trim_prefix(" ");
-                if (comment_content.begins_with("warning-ignore:")) {
-                    String code = comment_content.get_slice(":", 1);
-                    warning_skips.push_back(Pair<int, String>(line, StringUtils::to_lower(code.strip_edges())));
-                } else if (comment_content.begins_with("warning-ignore-all:")) {
-                    String code = comment_content.get_slice(":", 1);
-                    warning_global_skips.insert(StringUtils::to_lower(code.strip_edges()));
-                } else if (comment_content.strip_edges() == "warnings-disable") {
+				String comment_content = StringUtils::trim_prefix(StringUtils::trim_prefix(comment,"#")," ");
+                if (StringUtils::begins_with(comment_content,"warning-ignore:")) {
+                    String code = StringUtils::get_slice(comment_content,":", 1);
+                    warning_skips.push_back(Pair<int, String>(line, StringUtils::to_lower(StringUtils::strip_edges(code))));
+                } else if (StringUtils::begins_with(comment_content,"warning-ignore-all:")) {
+                    String code = StringUtils::get_slice(comment_content,":", 1);
+                    warning_global_skips.insert(StringUtils::to_lower(StringUtils::strip_edges(code)));
+                } else if (StringUtils::strip_edges(comment_content) == "warnings-disable") {
                     ignore_warnings = true;
                 }
 #endif // DEBUG_ENABLED
@@ -980,16 +980,16 @@ void GDScriptTokenizerText::_advance() {
 
                     INCPOS(i);
                     if (hexa_found) {
-                        int64_t val = str.hex_to_int64();
+                        int64_t val = StringUtils::hex_to_int64(str);
                         _make_constant(val);
                     } else if (bin_found) {
-                        int64_t val = str.bin_to_int64();
+                        int64_t val = StringUtils::bin_to_int64(str);
                         _make_constant(val);
                     } else if (period_found || exponent_found) {
-                        double val = str.to_double();
+                        double val = StringUtils::to_double(str);
                         _make_constant(val);
                     } else {
-                        int64_t val = str.to_int64();
+                        int64_t val = StringUtils::to_int64(str);
                         _make_constant(val);
                     }
 
@@ -1101,7 +1101,7 @@ void GDScriptTokenizerText::set_code(const String &p_code) {
     code = p_code;
     len = p_code.length();
     if (len) {
-        _code = code.constData();
+		_code = code.cdata();
     } else {
         _code = nullptr;
     }
@@ -1243,8 +1243,7 @@ Error GDScriptTokenizerBuffer::set_code_buffer(const Vector<uint8_t> &p_buffer) 
         }
 
         cs.write[cs.size() - 1] = 0;
-        String s;
-        s.parse_utf8((const char *)cs.ptr());
+		String s = StringUtils::from_utf8((const char *)cs.ptr());
         b += len;
         total_len -= len + 4;
         identifiers.write[i] = s;
@@ -1403,7 +1402,7 @@ Vector<uint8_t> GDScriptTokenizerBuffer::parse_code_string(const String &p_code)
 
     for (Map<int, StringName>::Element *E = rev_identifier_map.front(); E; E = E->next()) {
 
-        CharString cs = String(E->get()).utf8();
+		CharString cs = StringUtils::to_utf8(E->get());
         int len = cs.length() + 1;
         int extra = 4 - (len % 4);
         if (extra == 4)

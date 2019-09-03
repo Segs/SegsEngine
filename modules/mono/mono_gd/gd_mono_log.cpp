@@ -112,7 +112,7 @@ void GDMonoLog::_delete_old_log_files(const String &p_logs_dir) {
 	while ((current = da->get_next()).length()) {
 		if (da->current_is_dir())
 			continue;
-		if (!current.ends_with(".txt"))
+                if (!StringUtils::ends_with(current,".txt"))
 			continue;
 
                 uint64_t modified_time = FileAccess::get_modified_time(PathUtils::plus_file(da->get_current_dir(),current));

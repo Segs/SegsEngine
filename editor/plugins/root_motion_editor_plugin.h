@@ -37,7 +37,7 @@
 #include "scene/animation/animation_tree.h"
 
 class EditorPropertyRootMotion : public EditorProperty {
-	GDCLASS(EditorPropertyRootMotion, EditorProperty);
+	GDCLASS(EditorPropertyRootMotion,EditorProperty)
 	Button *assign;
 	Button *clear;
 	NodePath base_hint;
@@ -54,19 +54,19 @@ protected:
 	void _notification(int p_what);
 
 public:
-	virtual void update_property();
+	void update_property() override;
 	void setup(const NodePath &p_base_hint);
 	EditorPropertyRootMotion();
 };
 
 class EditorInspectorRootMotionPlugin : public EditorInspectorPlugin {
-	GDCLASS(EditorInspectorRootMotionPlugin, EditorInspectorPlugin);
+	GDCLASS(EditorInspectorRootMotionPlugin,EditorInspectorPlugin)
 
 public:
-	virtual bool can_handle(Object *p_object);
-	virtual void parse_begin(Object *p_object);
-	virtual bool parse_property(Object *p_object, Variant::Type p_type, const String &p_path, PropertyHint p_hint, const String &p_hint_text, int p_usage);
-	virtual void parse_end();
+	bool can_handle(Object *p_object) override;
+	void parse_begin(Object *p_object) override;
+	bool parse_property(Object *p_object, Variant::Type p_type, const String &p_path, PropertyHint p_hint, const String &p_hint_text, int p_usage) override;
+	void parse_end() override;
 };
 
 #endif // ROOT_MOTION_EDITOR_PLUGIN_H

@@ -45,7 +45,7 @@
 
 class EditorLog : public VBoxContainer {
 
-	GDCLASS(EditorLog, VBoxContainer);
+	GDCLASS(EditorLog,VBoxContainer)
 
 	Button *clearbutton;
 	Button *copybutton;
@@ -84,7 +84,7 @@ public:
 	void clear();
 	void copy();
 	EditorLog();
-	~EditorLog();
+	~EditorLog() override;
 };
 
 #endif // EDITOR_LOG_H

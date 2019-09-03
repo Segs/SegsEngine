@@ -34,7 +34,7 @@
 #include "scene/3d/visual_instance.h"
 
 class RootMotionView : public VisualInstance {
-	GDCLASS(RootMotionView, VisualInstance);
+	GDCLASS(RootMotionView,VisualInstance)
 
 public:
 	RID immediate;
@@ -68,11 +68,11 @@ public:
 	void set_zero_y(bool p_zero_y);
 	bool get_zero_y() const;
 
-	virtual AABB get_aabb() const;
-	virtual PoolVector<Face3> get_faces(uint32_t p_usage_flags) const;
+	AABB get_aabb() const override;
+	PoolVector<Face3> get_faces(uint32_t p_usage_flags) const override;
 
 	RootMotionView();
-	~RootMotionView();
+	~RootMotionView() override;
 };
 
 #endif // ROOT_MOTION_VIEW_H

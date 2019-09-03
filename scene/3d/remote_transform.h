@@ -34,7 +34,8 @@
 #include "scene/3d/spatial.h"
 
 class RemoteTransform : public Spatial {
-	GDCLASS(RemoteTransform, Spatial);
+	GDCLASS(RemoteTransform,Spatial)
+
 
 	NodePath remote_node;
 
@@ -70,7 +71,7 @@ public:
 
 	void force_update_cache();
 
-	virtual String get_configuration_warning() const;
+	String get_configuration_warning() const override;
 
 	RemoteTransform();
 };

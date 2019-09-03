@@ -43,7 +43,8 @@
 class AudioEffectRecord;
 
 class AudioEffectRecordInstance : public AudioEffectInstance {
-	GDCLASS(AudioEffectRecordInstance, AudioEffectInstance);
+	GDCLASS(AudioEffectRecordInstance,AudioEffectInstance)
+
 	friend class AudioEffectRecord;
 	Ref<AudioEffectRecord> base;
 
@@ -68,16 +69,16 @@ class AudioEffectRecordInstance : public AudioEffectInstance {
 public:
 	void init();
 	void finish();
-	virtual void process(const AudioFrame *p_src_frames, AudioFrame *p_dst_frames, int p_frame_count);
-	virtual bool process_silence() const;
+	void process(const AudioFrame *p_src_frames, AudioFrame *p_dst_frames, int p_frame_count) override;
+	bool process_silence() const override;
 
 	AudioEffectRecordInstance() :
 			thread_active(false) {}
-	~AudioEffectRecordInstance();
+	~AudioEffectRecordInstance() override;
 };
 
 class AudioEffectRecord : public AudioEffect {
-	GDCLASS(AudioEffectRecord, AudioEffect);
+	GDCLASS(AudioEffectRecord,AudioEffect)
 
 	friend class AudioEffectRecordInstance;
 
@@ -97,7 +98,7 @@ protected:
 	static void debug(uint64_t time_diff, int p_frame_count);
 
 public:
-	Ref<AudioEffectInstance> instance();
+	Ref<AudioEffectInstance> instance() override;
 	void set_recording_active(bool p_record);
 	bool is_recording_active() const;
 	void set_format(AudioStreamSample::Format p_format);

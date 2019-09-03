@@ -32,6 +32,10 @@
 
 #include "core/script_language.h"
 #include "core/object_db.h"
+#include "core/method_bind.h"
+
+IMPL_GDCLASS(Reference)
+IMPL_GDCLASS(WeakRef)
 
 bool Reference::init_ref() {
 
@@ -55,9 +59,9 @@ bool Reference::init_ref() {
 
 void Reference::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("init_ref"), &Reference::init_ref);
-    ClassDB::bind_method(D_METHOD("reference"), &Reference::reference);
-    ClassDB::bind_method(D_METHOD("unreference"), &Reference::unreference);
+    MethodBinder::bind_method(D_METHOD("init_ref"), &Reference::init_ref);
+    MethodBinder::bind_method(D_METHOD("reference"), &Reference::reference);
+    MethodBinder::bind_method(D_METHOD("unreference"), &Reference::unreference);
 }
 
 int Reference::reference_get_count() const {
@@ -141,5 +145,5 @@ void WeakRef::set_ref(const REF &p_ref) {
 
 void WeakRef::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("get_ref"), &WeakRef::get_ref);
+    MethodBinder::bind_method(D_METHOD("get_ref"), &WeakRef::get_ref);
 }

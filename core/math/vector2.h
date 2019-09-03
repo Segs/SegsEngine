@@ -262,8 +262,8 @@ Vector2 Vector2::linear_interpolate(const Vector2 &p_a, const Vector2 &p_b, real
     return res;
 }
 
-typedef Vector2 Size2;
-typedef Vector2 Point2;
+using Size2 = Vector2;
+using Point2 = Vector2;
 
 /* INTEGER STUFF */
 
@@ -330,7 +330,7 @@ struct Vector2i {
     }
 };
 
-typedef Vector2i Size2i;
-typedef Vector2i Point2i;
+using Size2i = Vector2i;
+using Point2i = Vector2i;
 
 #endif // VECTOR2_H

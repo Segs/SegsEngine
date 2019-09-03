@@ -31,6 +31,9 @@
 #include "remote_transform_2d.h"
 #include "scene/scene_string_names.h"
 #include "core/object_db.h"
+#include "core/method_bind.h"
+
+IMPL_GDCLASS(RemoteTransform2D)
 
 void RemoteTransform2D::_update_cache() {
 
@@ -196,19 +199,19 @@ String RemoteTransform2D::get_configuration_warning() const {
 
 void RemoteTransform2D::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_remote_node", "path"), &RemoteTransform2D::set_remote_node);
-    ClassDB::bind_method(D_METHOD("get_remote_node"), &RemoteTransform2D::get_remote_node);
-    ClassDB::bind_method(D_METHOD("force_update_cache"), &RemoteTransform2D::force_update_cache);
+    MethodBinder::bind_method(D_METHOD("set_remote_node", "path"), &RemoteTransform2D::set_remote_node);
+    MethodBinder::bind_method(D_METHOD("get_remote_node"), &RemoteTransform2D::get_remote_node);
+    MethodBinder::bind_method(D_METHOD("force_update_cache"), &RemoteTransform2D::force_update_cache);
 
-    ClassDB::bind_method(D_METHOD("set_use_global_coordinates", "use_global_coordinates"), &RemoteTransform2D::set_use_global_coordinates);
-    ClassDB::bind_method(D_METHOD("get_use_global_coordinates"), &RemoteTransform2D::get_use_global_coordinates);
+    MethodBinder::bind_method(D_METHOD("set_use_global_coordinates", "use_global_coordinates"), &RemoteTransform2D::set_use_global_coordinates);
+    MethodBinder::bind_method(D_METHOD("get_use_global_coordinates"), &RemoteTransform2D::get_use_global_coordinates);
 
-    ClassDB::bind_method(D_METHOD("set_update_position", "update_remote_position"), &RemoteTransform2D::set_update_position);
-    ClassDB::bind_method(D_METHOD("get_update_position"), &RemoteTransform2D::get_update_position);
-    ClassDB::bind_method(D_METHOD("set_update_rotation", "update_remote_rotation"), &RemoteTransform2D::set_update_rotation);
-    ClassDB::bind_method(D_METHOD("get_update_rotation"), &RemoteTransform2D::get_update_rotation);
-    ClassDB::bind_method(D_METHOD("set_update_scale", "update_remote_scale"), &RemoteTransform2D::set_update_scale);
-    ClassDB::bind_method(D_METHOD("get_update_scale"), &RemoteTransform2D::get_update_scale);
+    MethodBinder::bind_method(D_METHOD("set_update_position", "update_remote_position"), &RemoteTransform2D::set_update_position);
+    MethodBinder::bind_method(D_METHOD("get_update_position"), &RemoteTransform2D::get_update_position);
+    MethodBinder::bind_method(D_METHOD("set_update_rotation", "update_remote_rotation"), &RemoteTransform2D::set_update_rotation);
+    MethodBinder::bind_method(D_METHOD("get_update_rotation"), &RemoteTransform2D::get_update_rotation);
+    MethodBinder::bind_method(D_METHOD("set_update_scale", "update_remote_scale"), &RemoteTransform2D::set_update_scale);
+    MethodBinder::bind_method(D_METHOD("get_update_scale"), &RemoteTransform2D::get_update_scale);
 
     ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "remote_path", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Node2D"), "set_remote_node", "get_remote_node");
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "use_global_coordinates"), "set_use_global_coordinates", "get_use_global_coordinates");

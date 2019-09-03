@@ -278,7 +278,7 @@ Error save_exr(const String &p_path, const ImageData &p_img, bool p_grayscale) {
         return res;
 
     const char *err;
-    CharString utf8_filename = p_path.utf8();
+    CharString utf8_filename = StringUtils::utf8(p_path);
     int ret = SaveEXRImageToFile(&image, &header, utf8_filename.data(), &err);
     if (ret != TINYEXR_SUCCESS) {
         //TODO: use OsInterface if the reporting is needed.

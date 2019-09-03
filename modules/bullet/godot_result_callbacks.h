@@ -50,7 +50,7 @@ struct GodotFilterCallback : public btOverlapFilterCallback {
 	static bool test_collision_filters(uint32_t body0_collision_layer, uint32_t body0_collision_mask, uint32_t body1_collision_layer, uint32_t body1_collision_mask);
 
 	// return true when pairs need collision
-	virtual bool needBroadphaseCollision(btBroadphaseProxy *proxy0, btBroadphaseProxy *proxy1) const;
+	bool needBroadphaseCollision(btBroadphaseProxy *proxy0, btBroadphaseProxy *proxy1) const override;
 };
 
 /// It performs an additional check allow exclusions.
@@ -71,9 +71,9 @@ public:
 			collide_with_bodies(p_collide_with_bodies),
 			collide_with_areas(p_collide_with_areas) {}
 
-	virtual bool needsCollision(btBroadphaseProxy *proxy0) const;
+	bool needsCollision(btBroadphaseProxy *proxy0) const override;
 
-	virtual btScalar addSingleResult(btCollisionWorld::LocalRayResult &rayResult, bool normalInWorldSpace) {
+	btScalar addSingleResult(btCollisionWorld::LocalRayResult &rayResult, bool normalInWorldSpace) override {
 		if (rayResult.m_localShapeInfo)
 			m_shapeId = rayResult.m_localShapeInfo->m_triangleIndex; // "m_triangleIndex" Is a odd name but contains the compound shape ID
 		else
@@ -96,9 +96,9 @@ public:
 			m_exclude(p_exclude),
 			count(0) {}
 
-	virtual bool needsCollision(btBroadphaseProxy *proxy0) const;
+	bool needsCollision(btBroadphaseProxy *proxy0) const override;
 
-	virtual btScalar addSingleResult(btCollisionWorld::LocalConvexResult &convexResult, bool normalInWorldSpace);
+	btScalar addSingleResult(btCollisionWorld::LocalConvexResult &convexResult, bool normalInWorldSpace) override;
 };
 
 struct GodotKinClosestConvexResultCallback : public btCollisionWorld::ClosestConvexResultCallback {
@@ -111,7 +111,7 @@ public:
 			m_self_object(p_self_object),
 			m_infinite_inertia(p_infinite_inertia) {}
 
-	virtual bool needsCollision(btBroadphaseProxy *proxy0) const;
+	bool needsCollision(btBroadphaseProxy *proxy0) const override;
 };
 
 struct GodotClosestConvexResultCallback : public btCollisionWorld::ClosestConvexResultCallback {
@@ -129,9 +129,9 @@ public:
 			collide_with_bodies(p_collide_with_bodies),
 			collide_with_areas(p_collide_with_areas) {}
 
-	virtual bool needsCollision(btBroadphaseProxy *proxy0) const;
+	bool needsCollision(btBroadphaseProxy *proxy0) const override;
 
-	virtual btScalar addSingleResult(btCollisionWorld::LocalConvexResult &convexResult, bool normalInWorldSpace);
+	btScalar addSingleResult(btCollisionWorld::LocalConvexResult &convexResult, bool normalInWorldSpace) override;
 };
 
 struct GodotAllContactResultCallback : public btCollisionWorld::ContactResultCallback {
@@ -154,9 +154,9 @@ public:
 			collide_with_bodies(p_collide_with_bodies),
 			collide_with_areas(p_collide_with_areas) {}
 
-	virtual bool needsCollision(btBroadphaseProxy *proxy0) const;
+	bool needsCollision(btBroadphaseProxy *proxy0) const override;
 
-	virtual btScalar addSingleResult(btManifoldPoint &cp, const btCollisionObjectWrapper *colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper *colObj1Wrap, int partId1, int index1);
+	btScalar addSingleResult(btManifoldPoint &cp, const btCollisionObjectWrapper *colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper *colObj1Wrap, int partId1, int index1) override;
 };
 
 /// Returns the list of contacts pairs in this order: Local contact, other body contact
@@ -180,9 +180,9 @@ public:
 			collide_with_bodies(p_collide_with_bodies),
 			collide_with_areas(p_collide_with_areas) {}
 
-	virtual bool needsCollision(btBroadphaseProxy *proxy0) const;
+	bool needsCollision(btBroadphaseProxy *proxy0) const override;
 
-	virtual btScalar addSingleResult(btManifoldPoint &cp, const btCollisionObjectWrapper *colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper *colObj1Wrap, int partId1, int index1);
+	btScalar addSingleResult(btManifoldPoint &cp, const btCollisionObjectWrapper *colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper *colObj1Wrap, int partId1, int index1) override;
 };
 
 struct GodotRestInfoContactResultCallback : public btCollisionWorld::ContactResultCallback {
@@ -206,9 +206,9 @@ public:
 			collide_with_bodies(p_collide_with_bodies),
 			collide_with_areas(p_collide_with_areas) {}
 
-	virtual bool needsCollision(btBroadphaseProxy *proxy0) const;
+	bool needsCollision(btBroadphaseProxy *proxy0) const override;
 
-	virtual btScalar addSingleResult(btManifoldPoint &cp, const btCollisionObjectWrapper *colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper *colObj1Wrap, int partId1, int index1);
+	btScalar addSingleResult(btManifoldPoint &cp, const btCollisionObjectWrapper *colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper *colObj1Wrap, int partId1, int index1) override;
 };
 
 struct GodotDeepPenetrationContactResultCallback : public btManifoldResult {
@@ -230,6 +230,6 @@ struct GodotDeepPenetrationContactResultCallback : public btManifoldResult {
 		return m_penetration_distance < 0;
 	}
 
-	virtual void addContactPoint(const btVector3 &normalOnBInWorld, const btVector3 &pointInWorldOnB, btScalar depth);
+	void addContactPoint(const btVector3 &normalOnBInWorld, const btVector3 &pointInWorldOnB, btScalar depth) override;
 };
 #endif // GODOT_RESULT_CALLBACKS_H

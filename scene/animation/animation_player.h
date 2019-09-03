@@ -55,8 +55,9 @@ public:
 #endif
 
 class AnimationPlayer : public Node {
-	GDCLASS(AnimationPlayer, Node);
-	OBJ_CATEGORY("Animation Nodes");
+	GDCLASS(AnimationPlayer,Node)
+
+    OBJ_CATEGORY("Animation Nodes");
 
 public:
 	enum AnimationProcessMode {
@@ -290,7 +291,7 @@ private:
 protected:
 	bool _set(const StringName &p_name, const Variant &p_value);
 	bool _get(const StringName &p_name, Variant &r_ret) const;
-	virtual void _validate_property(PropertyInfo &property) const;
+	void _validate_property(PropertyInfo &property) const override;
 	void _get_property_list(List<PropertyInfo> *p_list) const;
 	void _notification(int p_what);
 
@@ -356,7 +357,7 @@ public:
 
 	void clear_caches(); ///< must be called by hand if an animation was modified after added
 
-	void get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const;
+	void get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const override;
 
 #ifdef TOOLS_ENABLED
 	// These may be interesting for games, but are too dangerous for general use
@@ -365,7 +366,7 @@ public:
 #endif
 
 	AnimationPlayer();
-	~AnimationPlayer();
+	~AnimationPlayer() override;
 };
 
 VARIANT_ENUM_CAST(AnimationPlayer::AnimationProcessMode);

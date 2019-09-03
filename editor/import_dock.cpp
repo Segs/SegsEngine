@@ -30,9 +30,13 @@
 
 #include "import_dock.h"
 #include "editor_node.h"
+#include "editor_resource_preview.h"
+#include "core/method_bind.h"
+
+IMPL_GDCLASS(ImportDock)
 
 class ImportDockParameters : public Object {
-    GDCLASS(ImportDockParameters, Object);
+    GDCLASS(ImportDockParameters,Object)
 
 public:
     Map<StringName, Variant> values;
@@ -48,7 +52,7 @@ public:
             values[p_name] = p_value;
             if (checking) {
                 checked.insert(p_name);
-                _change_notify(qPrintable(p_name));
+				_change_notify(qPrintable((String(p_name)).m_str));
             }
             return true;
         }
@@ -90,6 +94,8 @@ public:
     }
 };
 
+IMPL_GDCLASS(ImportDockParameters)
+
 void ImportDock::set_edit_path(const String &p_path) {
 
     Ref<ConfigFile> config;
@@ -109,7 +115,7 @@ void ImportDock::set_edit_path(const String &p_path) {
     _update_options(config);
 
     List<Ref<ResourceImporter> > importers;
-	ResourceFormatImporter::get_singleton()->get_importers_for_extension(PathUtils::get_extension(p_path), &importers);
+    ResourceFormatImporter::get_singleton()->get_importers_for_extension(PathUtils::get_extension(p_path), &importers);
     List<Pair<String, String> > importer_names;
 
     for (List<Ref<ResourceImporter> >::Element *E = importers.front(); E; E = E->next()) {
@@ -133,7 +139,7 @@ void ImportDock::set_edit_path(const String &p_path) {
     import->set_disabled(false);
     import_as->set_disabled(false);
 
-	imported->set_text(PathUtils::get_file(p_path));
+    imported->set_text(PathUtils::get_file(p_path));
 }
 
 void ImportDock::_update_options(const Ref<ConfigFile> &p_config) {
@@ -255,7 +261,7 @@ void ImportDock::set_edit_multiple_paths(const Vector<String> &p_paths) {
     params->update();
 
     List<Ref<ResourceImporter> > importers;
-	ResourceFormatImporter::get_singleton()->get_importers_for_extension(PathUtils::get_extension(p_paths[0]), &importers);
+    ResourceFormatImporter::get_singleton()->get_importers_for_extension(PathUtils::get_extension(p_paths[0]), &importers);
     List<Pair<String, String> > importer_names;
 
     for (List<Ref<ResourceImporter> >::Element *E = importers.front(); E; E = E->next()) {
@@ -503,12 +509,12 @@ void ImportDock::_property_toggled(const StringName &p_prop, bool p_checked) {
 }
 void ImportDock::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_reimport"), &ImportDock::_reimport);
-    ClassDB::bind_method(D_METHOD("_preset_selected"), &ImportDock::_preset_selected);
-    ClassDB::bind_method(D_METHOD("_importer_selected"), &ImportDock::_importer_selected);
-    ClassDB::bind_method(D_METHOD("_property_toggled"), &ImportDock::_property_toggled);
-    ClassDB::bind_method(D_METHOD("_reimport_and_restart"), &ImportDock::_reimport_and_restart);
-    ClassDB::bind_method(D_METHOD("_reimport_attempt"), &ImportDock::_reimport_attempt);
+    MethodBinder::bind_method(D_METHOD("_reimport"), &ImportDock::_reimport);
+    MethodBinder::bind_method(D_METHOD("_preset_selected"), &ImportDock::_preset_selected);
+    MethodBinder::bind_method(D_METHOD("_importer_selected"), &ImportDock::_importer_selected);
+    MethodBinder::bind_method(D_METHOD("_property_toggled"), &ImportDock::_property_toggled);
+    MethodBinder::bind_method(D_METHOD("_reimport_and_restart"), &ImportDock::_reimport_and_restart);
+    MethodBinder::bind_method(D_METHOD("_reimport_attempt"), &ImportDock::_reimport_attempt);
 }
 
 void ImportDock::initialize_import_options() const {

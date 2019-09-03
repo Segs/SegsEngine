@@ -33,8 +33,11 @@
 #include "core/object_db.h"
 #include "core/io/marshalls.h"
 #include "editor_node.h"
+#include "core/method_bind.h"
 
 #define ITEMS_PER_PAGE 100
+
+IMPL_GDCLASS(ArrayPropertyEdit)
 
 Variant ArrayPropertyEdit::get_array() const {
 
@@ -54,7 +57,7 @@ void ArrayPropertyEdit::_notif_change() {
 }
 void ArrayPropertyEdit::_notif_changev(const String &p_v) {
 
-    _change_notify(qPrintable(p_v));
+	_change_notify(qPrintable(p_v.m_str));
 }
 
 void ArrayPropertyEdit::_set_size(int p_size) {
@@ -83,7 +86,7 @@ bool ArrayPropertyEdit::_set(const StringName &p_name, const Variant &p_value) {
 
     String pn = p_name;
 
-    if (pn.begins_with("array/")) {
+    if (StringUtils::begins_with(pn,"array/")) {
 
         if (pn == "array/size") {
 
@@ -128,11 +131,11 @@ bool ArrayPropertyEdit::_set(const StringName &p_name, const Variant &p_value) {
             return true;
         }
 
-    } else if (pn.begins_with("indices")) {
+    } else if (StringUtils::begins_with(pn,"indices")) {
 
-        if (pn.find("_") != -1) {
+        if (StringUtils::find(pn,"_") != -1) {
             //type
-            int idx = pn.get_slicec('/', 1).get_slicec('_', 0).to_int();
+            int idx = StringUtils::to_int(StringUtils::get_slice(StringUtils::get_slice(pn,'/', 1),'_', 0));
 
             int type = p_value;
 
@@ -154,7 +157,7 @@ bool ArrayPropertyEdit::_set(const StringName &p_name, const Variant &p_value) {
             return true;
 
         } else {
-            int idx = pn.get_slicec('/', 1).to_int();
+            int idx = StringUtils::to_int(StringUtils::get_slice(pn,'/', 1));
             Variant arr = get_array();
 
             Variant value = arr.get(idx);
@@ -179,7 +182,7 @@ bool ArrayPropertyEdit::_get(const StringName &p_name, Variant &r_ret) const {
     //int size = arr.call("size");
 
     String pn = p_name;
-    if (pn.begins_with("array/")) {
+    if (StringUtils::begins_with(pn,"array/")) {
 
         if (pn == "array/size") {
             r_ret = arr.call("size");
@@ -189,11 +192,11 @@ bool ArrayPropertyEdit::_get(const StringName &p_name, Variant &r_ret) const {
             r_ret = page;
             return true;
         }
-    } else if (pn.begins_with("indices")) {
+    } else if (StringUtils::begins_with(pn,"indices")) {
 
-        if (pn.find("_") != -1) {
+        if (StringUtils::find(pn,"_") != -1) {
             //type
-            int idx = pn.get_slicec('/', 1).get_slicec('_', 0).to_int();
+            int idx = StringUtils::to_int(StringUtils::get_slice(StringUtils::get_slice(pn,'/', 1),'_', 0));
             bool valid;
             r_ret = arr.get(idx, &valid);
             if (valid)
@@ -201,7 +204,7 @@ bool ArrayPropertyEdit::_get(const StringName &p_name, Variant &r_ret) const {
             return valid;
 
         } else {
-            int idx = pn.get_slicec('/', 1).to_int();
+            int idx = StringUtils::to_int(StringUtils::get_slice(pn,'/', 1));
             bool valid;
             r_ret = arr.get(idx, &valid);
 
@@ -268,18 +271,18 @@ void ArrayPropertyEdit::edit(Object *p_obj, const StringName &p_prop, const Stri
     default_type = p_deftype;
 
     if (!p_hint_string.empty()) {
-        int hint_subtype_seperator = p_hint_string.find(":");
+        int hint_subtype_seperator = StringUtils::find(p_hint_string,":");
         if (hint_subtype_seperator >= 0) {
-            String subtype_string = p_hint_string.substr(0, hint_subtype_seperator);
+            String subtype_string = StringUtils::substr(p_hint_string,0, hint_subtype_seperator);
 
-            int slash_pos = subtype_string.find("/");
+            int slash_pos = StringUtils::find(subtype_string,"/");
             if (slash_pos >= 0) {
-                subtype_hint = PropertyHint(subtype_string.substr(slash_pos + 1, subtype_string.size() - slash_pos - 1).to_int());
-                subtype_string = subtype_string.substr(0, slash_pos);
+                subtype_hint = PropertyHint(StringUtils::to_int(StringUtils::substr(subtype_string,slash_pos + 1, subtype_string.size() - slash_pos - 1)));
+                subtype_string = StringUtils::substr(subtype_string,0, slash_pos);
             }
 
-            subtype_hint_string = p_hint_string.substr(hint_subtype_seperator + 1, p_hint_string.size() - hint_subtype_seperator - 1);
-            subtype = Variant::Type(subtype_string.to_int());
+            subtype_hint_string = StringUtils::substr(p_hint_string,hint_subtype_seperator + 1, p_hint_string.size() - hint_subtype_seperator - 1);
+            subtype = Variant::Type(StringUtils::to_int(subtype_string));
         }
     }
 }
@@ -295,11 +298,11 @@ bool ArrayPropertyEdit::_dont_undo_redo() {
 
 void ArrayPropertyEdit::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_set_size"), &ArrayPropertyEdit::_set_size);
-    ClassDB::bind_method(D_METHOD("_set_value"), &ArrayPropertyEdit::_set_value);
-    ClassDB::bind_method(D_METHOD("_notif_change"), &ArrayPropertyEdit::_notif_change);
-    ClassDB::bind_method(D_METHOD("_notif_changev"), &ArrayPropertyEdit::_notif_changev);
-    ClassDB::bind_method(D_METHOD("_dont_undo_redo"), &ArrayPropertyEdit::_dont_undo_redo);
+    MethodBinder::bind_method(D_METHOD("_set_size"), &ArrayPropertyEdit::_set_size);
+    MethodBinder::bind_method(D_METHOD("_set_value"), &ArrayPropertyEdit::_set_value);
+    MethodBinder::bind_method(D_METHOD("_notif_change"), &ArrayPropertyEdit::_notif_change);
+    MethodBinder::bind_method(D_METHOD("_notif_changev"), &ArrayPropertyEdit::_notif_changev);
+    MethodBinder::bind_method(D_METHOD("_dont_undo_redo"), &ArrayPropertyEdit::_dont_undo_redo);
 }
 
 ArrayPropertyEdit::ArrayPropertyEdit() {

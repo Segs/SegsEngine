@@ -35,6 +35,8 @@
 #include "core/project_settings.h"
 #include "physics_server_sw.h"
 
+IMPL_GDCLASS(PhysicsDirectSpaceStateSW)
+
 _FORCE_INLINE_ static bool _can_collide_with(CollisionObjectSW *p_object, uint32_t p_collision_mask, bool p_collide_with_bodies, bool p_collide_with_areas) {
 
     if (!(p_object->get_collision_layer() & p_collision_mask)) {

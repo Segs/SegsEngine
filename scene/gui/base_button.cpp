@@ -30,9 +30,13 @@
 
 #include "base_button.h"
 
+#include "core/method_bind.h"
 #include "core/os/keyboard.h"
 #include "scene/main/viewport.h"
 #include "scene/scene_string_names.h"
+
+IMPL_GDCLASS(BaseButton)
+IMPL_GDCLASS(ButtonGroup)
 
 void BaseButton::_unpress_group() {
 
@@ -391,32 +395,32 @@ Ref<ButtonGroup> BaseButton::get_button_group() const {
 
 void BaseButton::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_gui_input"), &BaseButton::_gui_input);
-    ClassDB::bind_method(D_METHOD("_unhandled_input"), &BaseButton::_unhandled_input);
-    ClassDB::bind_method(D_METHOD("set_pressed", "pressed"), &BaseButton::set_pressed);
-    ClassDB::bind_method(D_METHOD("is_pressed"), &BaseButton::is_pressed);
-    ClassDB::bind_method(D_METHOD("is_hovered"), &BaseButton::is_hovered);
-    ClassDB::bind_method(D_METHOD("set_toggle_mode", "enabled"), &BaseButton::set_toggle_mode);
-    ClassDB::bind_method(D_METHOD("is_toggle_mode"), &BaseButton::is_toggle_mode);
-    ClassDB::bind_method(D_METHOD("set_shortcut_in_tooltip", "enabled"), &BaseButton::set_shortcut_in_tooltip);
-    ClassDB::bind_method(D_METHOD("is_shortcut_in_tooltip_enabled"), &BaseButton::is_shortcut_in_tooltip_enabled);
-    ClassDB::bind_method(D_METHOD("set_disabled", "disabled"), &BaseButton::set_disabled);
-    ClassDB::bind_method(D_METHOD("is_disabled"), &BaseButton::is_disabled);
-    ClassDB::bind_method(D_METHOD("set_action_mode", "mode"), &BaseButton::set_action_mode);
-    ClassDB::bind_method(D_METHOD("get_action_mode"), &BaseButton::get_action_mode);
-    ClassDB::bind_method(D_METHOD("set_button_mask", "mask"), &BaseButton::set_button_mask);
-    ClassDB::bind_method(D_METHOD("get_button_mask"), &BaseButton::get_button_mask);
-    ClassDB::bind_method(D_METHOD("get_draw_mode"), &BaseButton::get_draw_mode);
-    ClassDB::bind_method(D_METHOD("set_enabled_focus_mode", "mode"), &BaseButton::set_enabled_focus_mode);
-    ClassDB::bind_method(D_METHOD("get_enabled_focus_mode"), &BaseButton::get_enabled_focus_mode);
-    ClassDB::bind_method(D_METHOD("set_keep_pressed_outside", "enabled"), &BaseButton::set_keep_pressed_outside);
-    ClassDB::bind_method(D_METHOD("is_keep_pressed_outside"), &BaseButton::is_keep_pressed_outside);
+    MethodBinder::bind_method(D_METHOD("_gui_input"), &BaseButton::_gui_input);
+    MethodBinder::bind_method(D_METHOD("_unhandled_input"), &BaseButton::_unhandled_input);
+    MethodBinder::bind_method(D_METHOD("set_pressed", "pressed"), &BaseButton::set_pressed);
+    MethodBinder::bind_method(D_METHOD("is_pressed"), &BaseButton::is_pressed);
+    MethodBinder::bind_method(D_METHOD("is_hovered"), &BaseButton::is_hovered);
+    MethodBinder::bind_method(D_METHOD("set_toggle_mode", "enabled"), &BaseButton::set_toggle_mode);
+    MethodBinder::bind_method(D_METHOD("is_toggle_mode"), &BaseButton::is_toggle_mode);
+    MethodBinder::bind_method(D_METHOD("set_shortcut_in_tooltip", "enabled"), &BaseButton::set_shortcut_in_tooltip);
+    MethodBinder::bind_method(D_METHOD("is_shortcut_in_tooltip_enabled"), &BaseButton::is_shortcut_in_tooltip_enabled);
+    MethodBinder::bind_method(D_METHOD("set_disabled", "disabled"), &BaseButton::set_disabled);
+    MethodBinder::bind_method(D_METHOD("is_disabled"), &BaseButton::is_disabled);
+    MethodBinder::bind_method(D_METHOD("set_action_mode", "mode"), &BaseButton::set_action_mode);
+    MethodBinder::bind_method(D_METHOD("get_action_mode"), &BaseButton::get_action_mode);
+    MethodBinder::bind_method(D_METHOD("set_button_mask", "mask"), &BaseButton::set_button_mask);
+    MethodBinder::bind_method(D_METHOD("get_button_mask"), &BaseButton::get_button_mask);
+    MethodBinder::bind_method(D_METHOD("get_draw_mode"), &BaseButton::get_draw_mode);
+    MethodBinder::bind_method(D_METHOD("set_enabled_focus_mode", "mode"), &BaseButton::set_enabled_focus_mode);
+    MethodBinder::bind_method(D_METHOD("get_enabled_focus_mode"), &BaseButton::get_enabled_focus_mode);
+    MethodBinder::bind_method(D_METHOD("set_keep_pressed_outside", "enabled"), &BaseButton::set_keep_pressed_outside);
+    MethodBinder::bind_method(D_METHOD("is_keep_pressed_outside"), &BaseButton::is_keep_pressed_outside);
 
-    ClassDB::bind_method(D_METHOD("set_shortcut", "shortcut"), &BaseButton::set_shortcut);
-    ClassDB::bind_method(D_METHOD("get_shortcut"), &BaseButton::get_shortcut);
+    MethodBinder::bind_method(D_METHOD("set_shortcut", "shortcut"), &BaseButton::set_shortcut);
+    MethodBinder::bind_method(D_METHOD("get_shortcut"), &BaseButton::get_shortcut);
 
-    ClassDB::bind_method(D_METHOD("set_button_group", "button_group"), &BaseButton::set_button_group);
-    ClassDB::bind_method(D_METHOD("get_button_group"), &BaseButton::get_button_group);
+    MethodBinder::bind_method(D_METHOD("set_button_group", "button_group"), &BaseButton::set_button_group);
+    MethodBinder::bind_method(D_METHOD("get_button_group"), &BaseButton::get_button_group);
 
     BIND_VMETHOD(MethodInfo("_pressed"));
     BIND_VMETHOD(MethodInfo("_toggled", PropertyInfo(Variant::BOOL, "button_pressed")));
@@ -498,8 +502,8 @@ BaseButton *ButtonGroup::get_pressed_button() {
 
 void ButtonGroup::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("get_pressed_button"), &ButtonGroup::get_pressed_button);
-    ClassDB::bind_method(D_METHOD("get_buttons"), &ButtonGroup::_get_buttons);
+    MethodBinder::bind_method(D_METHOD("get_pressed_button"), &ButtonGroup::get_pressed_button);
+    MethodBinder::bind_method(D_METHOD("get_buttons"), &ButtonGroup::_get_buttons);
 }
 
 ButtonGroup::ButtonGroup() {

@@ -35,6 +35,9 @@
 
 #include "thirdparty/misc/yuv2rgb.h"
 
+IMPL_GDCLASS(VideoStreamPlaybackTheora)
+IMPL_GDCLASS(VideoStreamTheora)
+
 int VideoStreamPlaybackTheora::buffer_data() {
 
 	char *buffer = ogg_sync_buffer(&oy, 4096);

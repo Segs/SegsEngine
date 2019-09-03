@@ -28,14 +28,13 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef BUTTON_H
-#define BUTTON_H
+#pragma once
 
 #include "scene/gui/base_button.h"
 
 class Button : public BaseButton {
 
-	GDCLASS(Button, BaseButton);
+	GDCLASS(Button,BaseButton)
 
 public:
 	enum TextAlign {
@@ -61,7 +60,7 @@ protected:
 public:
 	//
 
-	virtual Size2 get_minimum_size() const;
+	Size2 get_minimum_size() const override;
 
 	void set_text(const String &p_text);
 	String get_text() const;
@@ -79,9 +78,7 @@ public:
 	TextAlign get_text_align() const;
 
 	Button(const String &p_text = String());
-	~Button();
+	~Button() override;
 };
 
 VARIANT_ENUM_CAST(Button::TextAlign);
-
-#endif

@@ -41,7 +41,7 @@ class AnimationPlayer;
 class AnimationTree;
 
 class AnimationNode : public Resource {
-	GDCLASS(AnimationNode, Resource);
+	GDCLASS(AnimationNode,Resource)
 
 public:
 	enum FilterAction {
@@ -111,7 +111,7 @@ protected:
 
 	static void _bind_methods();
 
-	void _validate_property(PropertyInfo &property) const;
+	void _validate_property(PropertyInfo &property) const override;
 
 	void _set_parent(Object *p_parent);
 
@@ -156,14 +156,14 @@ VARIANT_ENUM_CAST(AnimationNode::FilterAction)
 
 //root node does not allow inputs
 class AnimationRootNode : public AnimationNode {
-	GDCLASS(AnimationRootNode, AnimationNode);
+	GDCLASS(AnimationRootNode,AnimationNode)
 
 public:
 	AnimationRootNode() {}
 };
 
 class AnimationTree : public Node {
-	GDCLASS(AnimationTree, Node);
+	GDCLASS(AnimationTree,Node)
 
 public:
 	enum AnimationProcessMode {
@@ -322,7 +322,7 @@ public:
 	void set_animation_player(const NodePath &p_player);
 	NodePath get_animation_player() const;
 
-	virtual String get_configuration_warning() const;
+	String get_configuration_warning() const override;
 
 	bool is_state_invalid() const;
 	String get_invalid_state_reason() const;
@@ -339,7 +339,7 @@ public:
 
 	uint64_t get_last_process_pass() const;
 	AnimationTree();
-	~AnimationTree();
+	~AnimationTree() override;
 };
 
 VARIANT_ENUM_CAST(AnimationTree::AnimationProcessMode)

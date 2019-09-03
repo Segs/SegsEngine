@@ -39,7 +39,7 @@
 #include "core/vector.h"
 #include "core/variant.h"
 
-#include <stdarg.h>
+#include <cstdarg>
 
 class Mutex;
 class Image;
@@ -79,8 +79,8 @@ protected:
     void _set_logger(CompositeLogger *p_logger);
 
 public:
-    typedef void (*ImeCallback)(void *p_inp, String p_text, Point2 p_selection);
-    typedef bool (*HasServerFeatureCallback)(const String &p_feature);
+    using ImeCallback = void (*)(void *, String, Point2);
+    using HasServerFeatureCallback = bool (*)(const String &);
 
     enum PowerState {
         POWERSTATE_UNKNOWN, /**< cannot determine power status */
@@ -144,9 +144,14 @@ protected:
     virtual bool _check_internal_feature_support(const String &p_feature) = 0;
 
 public:
-    typedef int64_t ProcessID;
+    using ProcessID = int64_t;
 
     static OS *get_singleton();
+
+    virtual void global_menu_add_item(const String &p_menu, const String &p_label, const Variant &p_signal, const Variant &p_meta){}
+    virtual void global_menu_add_separator(const String &p_menu){}
+    virtual void global_menu_remove_item(const String &p_menu, int p_idx){}
+    virtual void global_menu_clear(const String &p_menu){}
 
     void print_error(const char *p_function, const char *p_file, int p_line, const char *p_code, const char *p_rationale, Logger::ErrorType p_type = Logger::ERR_ERROR);
     void print(const char *p_msg);
@@ -154,7 +159,7 @@ public:
     void printerr(const char *p_msg);
     void printerr(const String &p_msg);
 
-    virtual void alert(const String &p_alert, const String &p_title = "ALERT!") = 0;
+    virtual void alert(const String &p_alert, const String &p_title = String("ALERT!")) = 0;
     virtual String get_stdin_string(bool p_block = true) = 0;
 
     virtual void set_last_error(const char *p_error);
@@ -243,7 +248,7 @@ public:
     }
 
     virtual void set_borderless_window(bool p_borderless) {}
-    virtual bool get_borderless_window() { return 0; }
+    virtual bool get_borderless_window() { return false; }
 
     virtual bool get_window_per_pixel_transparency_enabled() const { return false; }
     virtual void set_window_per_pixel_transparency_enabled(bool p_enabled) {}
@@ -396,7 +401,7 @@ public:
     virtual void dump_memory_to_file(const char *p_file);
     virtual void dump_resources_to_file(const char *p_file);
     virtual void print_resources_in_use(bool p_short = false);
-    virtual void print_all_resources(String p_to_file = "");
+    virtual void print_all_resources(const String &p_to_file = String::null_val);
 
     virtual uint64_t get_static_memory_usage() const;
     virtual uint64_t get_static_memory_peak_usage() const;
@@ -506,7 +511,7 @@ public:
 
     //amazing hack because OpenGL needs this to be set on a separate thread..
     //also core can't access servers, so a callback must be used
-    typedef void (*SwitchVSyncCallbackInThread)(bool);
+    using SwitchVSyncCallbackInThread = void (*)(bool);
 
     static SwitchVSyncCallbackInThread switch_vsync_function;
     void set_use_vsync(bool p_enable);

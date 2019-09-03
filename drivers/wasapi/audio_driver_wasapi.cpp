@@ -183,7 +183,7 @@ Error AudioDriverWASAPI::audio_device_init(AudioDeviceWASAPI *p_device, bool p_c
 			hr = props->GetValue(PKEY_Device_FriendlyName, &propvar);
 			ERR_BREAK(hr != S_OK);
 
-			if (p_device->device_name == String::fromWCharArray(propvar.pwszVal)) {
+			if (p_device->device_name == StringUtils::from_wchar(propvar.pwszVal)) {
 				hr = tmp_device->GetId(&strId);
 				ERR_BREAK(hr != S_OK);
 
@@ -297,7 +297,7 @@ Error AudioDriverWASAPI::audio_device_init(AudioDeviceWASAPI *p_device, bool p_c
 	}
 
 	hr = p_device->audio_client->Initialize(AUDCLNT_SHAREMODE_SHARED, streamflags, p_capture ? REFTIMES_PER_SEC : 0, 0, pwfex, nullptr);
-	ERR_FAIL_COND_V_MSG(hr != S_OK, ERR_CANT_OPEN, "WASAPI: Initialize failed with error 0x" + String::num_uint64(hr, 16) + ".");
+	ERR_FAIL_COND_V_MSG(hr != S_OK, ERR_CANT_OPEN, "WASAPI: Initialize failed with error 0x" + StringUtils::num_uint64(hr, 16) + ".");
 
 	if (p_capture) {
 		hr = p_device->audio_client->GetService(IID_IAudioCaptureClient, (void **)&p_device->capture_client);
@@ -459,7 +459,7 @@ Array AudioDriverWASAPI::audio_device_get_list(bool p_capture) {
 		hr = props->GetValue(PKEY_Device_FriendlyName, &propvar);
 		ERR_BREAK(hr != S_OK);
 
-		list.push_back(String(String::fromWCharArray(propvar.pwszVal)));
+		list.push_back(StringUtils::from_wchar(propvar.pwszVal));
 
 		PropVariantClear(&propvar);
 		props->Release();

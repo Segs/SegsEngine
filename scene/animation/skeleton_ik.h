@@ -142,7 +142,7 @@ public:
 };
 
 class SkeletonIK : public Node {
-	GDCLASS(SkeletonIK, Node);
+	GDCLASS(SkeletonIK,Node)
 
 	StringName root_bone;
 	StringName tip_bone;
@@ -161,15 +161,15 @@ class SkeletonIK : public Node {
 	FabrikInverseKinematic::Task *task;
 
 protected:
-	virtual void
-	_validate_property(PropertyInfo &property) const;
+	void
+	_validate_property(PropertyInfo &property) const override;
 
 	static void _bind_methods();
 	virtual void _notification(int p_what);
 
 public:
 	SkeletonIK();
-	virtual ~SkeletonIK();
+	~SkeletonIK() override;
 
 	void set_root_bone(const StringName &p_root_bone);
 	StringName get_root_bone() const;

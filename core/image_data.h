@@ -4,9 +4,9 @@
 
 struct ImageData
 {
-    enum Format {
+    enum Format  {
 
-        FORMAT_L8, //luminance
+        FORMAT_L8=0, //luminance
         FORMAT_LA8, //luminance-alpha
         FORMAT_R8,
         FORMAT_RG8,

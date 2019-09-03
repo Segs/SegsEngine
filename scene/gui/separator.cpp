@@ -29,6 +29,11 @@
 /*************************************************************************/
 
 #include "separator.h"
+#include "scene/resources/style_box.h"
+
+IMPL_GDCLASS(Separator)
+IMPL_GDCLASS(VSeparator)
+IMPL_GDCLASS(HSeparator)
 
 Size2 Separator::get_minimum_size() const {
 

@@ -5,7 +5,7 @@
 #include "core/os/rw_lock.h"
 
 class Object;
-typedef uint64_t ObjectID;
+using ObjectID = uint64_t;
 
 template<>
 struct Hasher<Object *> {
@@ -37,7 +37,7 @@ class ObjectDB {
     static void setup();
 
 public:
-    typedef void (*DebugFunc)(Object *p_obj);
+    using DebugFunc = void (*)(Object *);
 
     static Object *get_instance(ObjectID p_instance_id);
     static void debug_objects(DebugFunc p_func);

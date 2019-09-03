@@ -2247,7 +2247,7 @@ void RasterizerStorageGLES3::shader_get_param_list(RID p_shader, List<PropertyIn
                 pi.type = Variant::INT;
                 if (u.hint == ShaderLanguage::ShaderNode::Uniform::HINT_RANGE) {
                     pi.hint = PROPERTY_HINT_RANGE;
-					pi.hint_string = rtos(u.hint_range[0]) + "," + rtos(u.hint_range[1]) + "," + rtos(u.hint_range[2]);
+                    pi.hint_string = rtos(u.hint_range[0]) + "," + rtos(u.hint_range[1]) + "," + rtos(u.hint_range[2]);
                 }
 
             } break;
@@ -8182,11 +8182,11 @@ void RasterizerStorageGLES3::initialize() {
         String vendors = GLOBAL_GET("rendering/quality/depth_prepass/disable_for_vendors");
         Vector<String> vendor_match = StringUtils::split(vendors,",");
         for (int i = 0; i < vendor_match.size(); i++) {
-            String v = vendor_match[i].strip_edges();
+            String v =StringUtils::strip_edges( vendor_match[i]);
             if (v == String())
                 continue;
 
-            if (renderer.findn(v) != -1) {
+            if (StringUtils::findn(renderer,v) != -1) {
                 config.use_depth_prepass = false;
             }
         }

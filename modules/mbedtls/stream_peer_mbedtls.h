@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  stream_peer_mbed_tls.h                                               */
+/*  stream_peer_mbedtls.h                                                */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -55,26 +55,26 @@ protected:
 	Error _do_handshake();
 
 public:
-	virtual void poll();
-	virtual Error accept_stream(Ref<StreamPeer> p_base, Ref<CryptoKey> p_key, Ref<X509Certificate> p_cert, Ref<X509Certificate> p_ca_chain = Ref<X509Certificate>());
-	virtual Error connect_to_stream(Ref<StreamPeer> p_base, bool p_validate_certs = false, const String &p_for_hostname = String(), Ref<X509Certificate> p_valid_cert = Ref<X509Certificate>());
-	virtual Status get_status() const;
+	void poll() override;
+	Error accept_stream(Ref<StreamPeer> p_base, Ref<CryptoKey> p_key, Ref<X509Certificate> p_cert, Ref<X509Certificate> p_ca_chain = Ref<X509Certificate>()) override;
+	Error connect_to_stream(Ref<StreamPeer> p_base, bool p_validate_certs = false, const String &p_for_hostname = String(), Ref<X509Certificate> p_valid_cert = Ref<X509Certificate>()) override;
+	Status get_status() const override;
 
-	virtual void disconnect_from_stream();
+	void disconnect_from_stream() override;
 
-	virtual Error put_data(const uint8_t *p_data, int p_bytes);
-	virtual Error put_partial_data(const uint8_t *p_data, int p_bytes, int &r_sent);
+	Error put_data(const uint8_t *p_data, int p_bytes) override;
+	Error put_partial_data(const uint8_t *p_data, int p_bytes, int &r_sent) override;
 
-	virtual Error get_data(uint8_t *p_buffer, int p_bytes);
-	virtual Error get_partial_data(uint8_t *p_buffer, int p_bytes, int &r_received);
+	Error get_data(uint8_t *p_buffer, int p_bytes) override;
+	Error get_partial_data(uint8_t *p_buffer, int p_bytes, int &r_received) override;
 
-	virtual int get_available_bytes() const;
+	int get_available_bytes() const override;
 
 	static void initialize_ssl();
 	static void finalize_ssl();
 
 	StreamPeerMbedTLS();
-	~StreamPeerMbedTLS();
+	~StreamPeerMbedTLS() override;
 };
 
 #endif // STREAM_PEER_SSL_H

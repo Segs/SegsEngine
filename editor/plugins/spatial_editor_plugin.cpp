@@ -30,25 +30,29 @@
 
 #include "spatial_editor_plugin.h"
 
+#include "core/method_bind.h"
 #include "core/math/camera_matrix.h"
 #include "core/object_db.h"
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
 #include "core/print_string.h"
 #include "core/project_settings.h"
-#include "core/string_formatter.h"
 #include "core/sort_array.h"
+#include "core/string_formatter.h"
 #include "editor/editor_node.h"
+#include "editor/editor_scale.h"
 #include "editor/editor_settings.h"
 #include "editor/plugins/animation_player_editor_plugin.h"
 #include "editor/plugins/script_editor_plugin.h"
 #include "editor/script_editor_debugger.h"
 #include "editor/spatial_editor_gizmos.h"
+#include "editor/animation_track_editor.h"
 #include "scene/3d/camera.h"
 #include "scene/3d/collision_shape.h"
 #include "scene/3d/mesh_instance.h"
 #include "scene/3d/physics_body.h"
 #include "scene/3d/visual_instance.h"
+#include "scene/gui/viewport_container.h"
 #include "scene/resources/packed_scene.h"
 #include "scene/resources/surface_tool.h"
 
@@ -76,13 +80,14 @@
 #define MIN_FOV 0.01f
 #define MAX_FOV 179
 
-#ifdef TOOLS_ENABLED
-#define get_global_gizmo_transform get_global_gizmo_transform
-#define get_local_gizmo_transform get_local_gizmo_transform
-#else
-#define get_global_gizmo_transform get_global_transform
-#define get_local_gizmo_transform get_transform
-#endif
+IMPL_GDCLASS(EditorSpatialGizmo)
+IMPL_GDCLASS(EditorSpatialGizmoPlugin)
+IMPL_GDCLASS(SpatialEditorViewport)
+IMPL_GDCLASS(SpatialEditorSelectedItem)
+IMPL_GDCLASS(SpatialEditorViewportContainer)
+IMPL_GDCLASS(SpatialEditor)
+IMPL_GDCLASS(SpatialEditorPlugin)
+
 
 void SpatialEditorViewport::_update_camera(float p_interp_delta) {
 
@@ -2257,9 +2262,9 @@ void SpatialEditorViewport::_notification(int p_what) {
 
         if (show_info) {
             String text;
-            text += "X: " + rtos(current_camera->get_translation().x).pad_decimals(1) + "\n";
-            text += "Y: " + rtos(current_camera->get_translation().y).pad_decimals(1) + "\n";
-            text += "Z: " + rtos(current_camera->get_translation().z).pad_decimals(1) + "\n";
+			text += FormatV("X: %.1f\n",current_camera->get_translation().x);
+			text += FormatV("Y: %.1f\n",current_camera->get_translation().y);
+			text += FormatV("Z: %.1f\n",current_camera->get_translation().z);
             text += TTR("Pitch") + ": " + itos(Math::round(current_camera->get_rotation_degrees().x)) + "\n";
             text += TTR("Yaw") + ": " + itos(Math::round(current_camera->get_rotation_degrees().y)) + "\n\n";
             text += TTR("Objects Drawn") + ": " + itos(viewport->get_render_info(Viewport::RENDER_INFO_OBJECTS_IN_FRAME)) + "\n";
@@ -3090,21 +3095,21 @@ Dictionary SpatialEditorViewport::get_state() const {
 
 void SpatialEditorViewport::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_draw"), &SpatialEditorViewport::_draw);
+    MethodBinder::bind_method(D_METHOD("_draw"), &SpatialEditorViewport::_draw);
 
-    ClassDB::bind_method(D_METHOD("_surface_mouse_enter"), &SpatialEditorViewport::_surface_mouse_enter);
-    ClassDB::bind_method(D_METHOD("_surface_mouse_exit"), &SpatialEditorViewport::_surface_mouse_exit);
-    ClassDB::bind_method(D_METHOD("_surface_focus_enter"), &SpatialEditorViewport::_surface_focus_enter);
-    ClassDB::bind_method(D_METHOD("_surface_focus_exit"), &SpatialEditorViewport::_surface_focus_exit);
-    ClassDB::bind_method(D_METHOD("_sinput"), &SpatialEditorViewport::_sinput);
-    ClassDB::bind_method(D_METHOD("_menu_option"), &SpatialEditorViewport::_menu_option);
-    ClassDB::bind_method(D_METHOD("_toggle_camera_preview"), &SpatialEditorViewport::_toggle_camera_preview);
-    ClassDB::bind_method(D_METHOD("_preview_exited_scene"), &SpatialEditorViewport::_preview_exited_scene);
-    ClassDB::bind_method(D_METHOD("update_transform_gizmo_view"), &SpatialEditorViewport::update_transform_gizmo_view);
-    ClassDB::bind_method(D_METHOD("_selection_result_pressed"), &SpatialEditorViewport::_selection_result_pressed);
-    ClassDB::bind_method(D_METHOD("_selection_menu_hide"), &SpatialEditorViewport::_selection_menu_hide);
-    ClassDB::bind_method(D_METHOD("can_drop_data_fw"), &SpatialEditorViewport::can_drop_data_fw);
-    ClassDB::bind_method(D_METHOD("drop_data_fw"), &SpatialEditorViewport::drop_data_fw);
+    MethodBinder::bind_method(D_METHOD("_surface_mouse_enter"), &SpatialEditorViewport::_surface_mouse_enter);
+    MethodBinder::bind_method(D_METHOD("_surface_mouse_exit"), &SpatialEditorViewport::_surface_mouse_exit);
+    MethodBinder::bind_method(D_METHOD("_surface_focus_enter"), &SpatialEditorViewport::_surface_focus_enter);
+    MethodBinder::bind_method(D_METHOD("_surface_focus_exit"), &SpatialEditorViewport::_surface_focus_exit);
+    MethodBinder::bind_method(D_METHOD("_sinput"), &SpatialEditorViewport::_sinput);
+    MethodBinder::bind_method(D_METHOD("_menu_option"), &SpatialEditorViewport::_menu_option);
+    MethodBinder::bind_method(D_METHOD("_toggle_camera_preview"), &SpatialEditorViewport::_toggle_camera_preview);
+    MethodBinder::bind_method(D_METHOD("_preview_exited_scene"), &SpatialEditorViewport::_preview_exited_scene);
+    MethodBinder::bind_method(D_METHOD("update_transform_gizmo_view"), &SpatialEditorViewport::update_transform_gizmo_view);
+    MethodBinder::bind_method(D_METHOD("_selection_result_pressed"), &SpatialEditorViewport::_selection_result_pressed);
+    MethodBinder::bind_method(D_METHOD("_selection_menu_hide"), &SpatialEditorViewport::_selection_menu_hide);
+    MethodBinder::bind_method(D_METHOD("can_drop_data_fw"), &SpatialEditorViewport::can_drop_data_fw);
+    MethodBinder::bind_method(D_METHOD("drop_data_fw"), &SpatialEditorViewport::drop_data_fw);
 
     ADD_SIGNAL(MethodInfo("toggle_maximize_view", PropertyInfo(Variant::OBJECT, "viewport")));
 }
@@ -3377,8 +3382,8 @@ void SpatialEditorViewport::_perform_drop_data() {
         for (int i = 0; i < error_files.size(); i++) {
             files_str += PathUtils::get_basename(PathUtils::get_file(error_files[i])) + ",";
         }
-        files_str = files_str.substr(0, files_str.length() - 1);
-        accept->set_text(vformat(TTR("Error instancing scene from %s"), files_str.constData()));
+        files_str = StringUtils::substr(files_str,0, files_str.length() - 1);
+        accept->set_text(vformat(TTR("Error instancing scene from %s"), files_str.cdata()));
         accept->popup_centered_minsize();
     }
 }
@@ -3977,7 +3982,7 @@ SpatialEditorViewportContainer::View SpatialEditorViewportContainer::get_view() 
 
 void SpatialEditorViewportContainer::_bind_methods() {
 
-    ClassDB::bind_method("_gui_input", &SpatialEditorViewportContainer::_gui_input);
+    MethodBinder::bind_method("_gui_input", &SpatialEditorViewportContainer::_gui_input);
 }
 
 SpatialEditorViewportContainer::SpatialEditorViewportContainer() {
@@ -4324,9 +4329,9 @@ void SpatialEditor::_xform_dialog_action() {
     Vector3 translate;
 
     for (int i = 0; i < 3; i++) {
-        translate[i] = xform_translate[i]->get_text().to_double();
-        rotate[i] = Math::deg2rad(xform_rotate[i]->get_text().to_double());
-        scale[i] = xform_scale[i]->get_text().to_double();
+        translate[i] = StringUtils::to_double(xform_translate[i]->get_text());
+        rotate[i] = Math::deg2rad(StringUtils::to_double(xform_rotate[i]->get_text()));
+        scale[i] = StringUtils::to_double(xform_scale[i]->get_text());
     }
 
     t.basis.scale(scale);
@@ -5300,6 +5305,10 @@ void SpatialEditor::_notification(int p_what) {
         tool_button[SpatialEditor::TOOL_MODE_ROTATE]->set_icon(get_icon("ToolRotate", "EditorIcons"));
         tool_button[SpatialEditor::TOOL_MODE_SCALE]->set_icon(get_icon("ToolScale", "EditorIcons"));
         tool_button[SpatialEditor::TOOL_MODE_LIST_SELECT]->set_icon(get_icon("ListSelect", "EditorIcons"));
+		tool_button[SpatialEditor::TOOL_LOCK_SELECTED]->set_icon(get_icon("Lock", "EditorIcons"));
+		tool_button[SpatialEditor::TOOL_UNLOCK_SELECTED]->set_icon(get_icon("Unlock", "EditorIcons"));
+		tool_button[SpatialEditor::TOOL_GROUP_SELECTED]->set_icon(get_icon("Group", "EditorIcons"));
+		tool_button[SpatialEditor::TOOL_UNGROUP_SELECTED]->set_icon(get_icon("Ungroup", "EditorIcons"));
 
         tool_option_button[SpatialEditor::TOOL_OPT_LOCAL_COORDS]->set_icon(get_icon("Object", "EditorIcons"));
         tool_option_button[SpatialEditor::TOOL_OPT_USE_SNAP]->set_icon(get_icon("Snap", "EditorIcons"));
@@ -5448,16 +5457,16 @@ void SpatialEditor::_register_all_gizmos() {
 
 void SpatialEditor::_bind_methods() {
 
-    ClassDB::bind_method("_unhandled_key_input", &SpatialEditor::_unhandled_key_input);
-    ClassDB::bind_method("_node_removed", &SpatialEditor::_node_removed);
-    ClassDB::bind_method("_menu_item_pressed", &SpatialEditor::_menu_item_pressed);
-    ClassDB::bind_method("_menu_gizmo_toggled", &SpatialEditor::_menu_gizmo_toggled);
-    ClassDB::bind_method("_menu_item_toggled", &SpatialEditor::_menu_item_toggled);
-    ClassDB::bind_method("_xform_dialog_action", &SpatialEditor::_xform_dialog_action);
-    ClassDB::bind_method("_get_editor_data", &SpatialEditor::_get_editor_data);
-    ClassDB::bind_method("_request_gizmo", &SpatialEditor::_request_gizmo);
-    ClassDB::bind_method("_toggle_maximize_view", &SpatialEditor::_toggle_maximize_view);
-    ClassDB::bind_method("_refresh_menu_icons", &SpatialEditor::_refresh_menu_icons);
+    MethodBinder::bind_method("_unhandled_key_input", &SpatialEditor::_unhandled_key_input);
+    MethodBinder::bind_method("_node_removed", &SpatialEditor::_node_removed);
+    MethodBinder::bind_method("_menu_item_pressed", &SpatialEditor::_menu_item_pressed);
+    MethodBinder::bind_method("_menu_gizmo_toggled", &SpatialEditor::_menu_gizmo_toggled);
+    MethodBinder::bind_method("_menu_item_toggled", &SpatialEditor::_menu_item_toggled);
+    MethodBinder::bind_method("_xform_dialog_action", &SpatialEditor::_xform_dialog_action);
+    MethodBinder::bind_method("_get_editor_data", &SpatialEditor::_get_editor_data);
+    MethodBinder::bind_method("_request_gizmo", &SpatialEditor::_request_gizmo);
+    MethodBinder::bind_method("_toggle_maximize_view", &SpatialEditor::_toggle_maximize_view);
+    MethodBinder::bind_method("_refresh_menu_icons", &SpatialEditor::_refresh_menu_icons);
 
     ADD_SIGNAL(MethodInfo("transform_key_request"));
     ADD_SIGNAL(MethodInfo("item_lock_status_changed"));
@@ -5880,9 +5889,9 @@ Vector3 SpatialEditor::snap_point(Vector3 p_target, Vector3 p_start) const {
 float SpatialEditor::get_translate_snap() const {
     float snap_value;
     if (Input::get_singleton()->is_key_pressed(KEY_SHIFT)) {
-        snap_value = snap_translate->get_text().to_double() / 10.0;
+        snap_value = StringUtils::to_double(snap_translate->get_text()) / 10.0;
     } else {
-        snap_value = snap_translate->get_text().to_double();
+        snap_value = StringUtils::to_double(snap_translate->get_text());
     }
 
     return snap_value;
@@ -5891,9 +5900,9 @@ float SpatialEditor::get_translate_snap() const {
 float SpatialEditor::get_rotate_snap() const {
     float snap_value;
     if (Input::get_singleton()->is_key_pressed(KEY_SHIFT)) {
-        snap_value = snap_rotate->get_text().to_double() / 3.0;
+        snap_value = StringUtils::to_double(snap_rotate->get_text()) / 3.0;
     } else {
-        snap_value = snap_rotate->get_text().to_double();
+        snap_value = StringUtils::to_double(snap_rotate->get_text());
     }
 
     return snap_value;
@@ -5902,9 +5911,9 @@ float SpatialEditor::get_rotate_snap() const {
 float SpatialEditor::get_scale_snap() const {
     float snap_value;
     if (Input::get_singleton()->is_key_pressed(KEY_SHIFT)) {
-        snap_value = snap_scale->get_text().to_double() / 2.0;
+        snap_value = StringUtils::to_double(snap_scale->get_text()) / 2.0;
     } else {
-        snap_value = snap_scale->get_text().to_double();
+        snap_value = StringUtils::to_double(snap_scale->get_text());
     }
 
     return snap_value;
@@ -5912,7 +5921,7 @@ float SpatialEditor::get_scale_snap() const {
 
 void SpatialEditorPlugin::_bind_methods() {
 
-    ClassDB::bind_method("snap_cursor_to_plane", &SpatialEditorPlugin::snap_cursor_to_plane);
+    MethodBinder::bind_method("snap_cursor_to_plane", &SpatialEditorPlugin::snap_cursor_to_plane);
 }
 
 void SpatialEditorPlugin::snap_cursor_to_plane(const Plane &p_plane) {
@@ -6135,12 +6144,12 @@ void EditorSpatialGizmoPlugin::_bind_methods() {
     BIND_VMETHOD(MethodInfo(Variant::BOOL, "has_gizmo", PropertyInfo(Variant::OBJECT, "spatial", PROPERTY_HINT_RESOURCE_TYPE, "Spatial")));
     BIND_VMETHOD(MethodInfo(GIZMO_REF, "create_gizmo", PropertyInfo(Variant::OBJECT, "spatial", PROPERTY_HINT_RESOURCE_TYPE, "Spatial")));
 
-    ClassDB::bind_method(D_METHOD("create_material", "name", "color", "billboard", "on_top", "use_vertex_color"), &EditorSpatialGizmoPlugin::create_material, {DEFVAL(false), DEFVAL(false), DEFVAL(false)});
-    ClassDB::bind_method(D_METHOD("create_icon_material", "name", "texture", "on_top", "color"), &EditorSpatialGizmoPlugin::create_icon_material, {DEFVAL(false), DEFVAL(Color(1, 1, 1, 1))});
-    ClassDB::bind_method(D_METHOD("create_handle_material", "name", "billboard"), &EditorSpatialGizmoPlugin::create_handle_material, {DEFVAL(false)});
-    ClassDB::bind_method(D_METHOD("add_material", "name", "material"), &EditorSpatialGizmoPlugin::add_material);
+    MethodBinder::bind_method(D_METHOD("create_material", "name", "color", "billboard", "on_top", "use_vertex_color"), &EditorSpatialGizmoPlugin::create_material, {DEFVAL(false), DEFVAL(false), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("create_icon_material", "name", "texture", "on_top", "color"), &EditorSpatialGizmoPlugin::create_icon_material, {DEFVAL(false), DEFVAL(Color(1, 1, 1, 1))});
+    MethodBinder::bind_method(D_METHOD("create_handle_material", "name", "billboard"), &EditorSpatialGizmoPlugin::create_handle_material, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("add_material", "name", "material"), &EditorSpatialGizmoPlugin::add_material);
 
-    ClassDB::bind_method(D_METHOD("get_material", "name", "gizmo"), &EditorSpatialGizmoPlugin::get_material); //, {DEFVAL(Ref<EditorSpatialGizmo>())});
+    MethodBinder::bind_method(D_METHOD("get_material", "name", "gizmo"), &EditorSpatialGizmoPlugin::get_material); //, {DEFVAL(Ref<EditorSpatialGizmo>())});
 
     BIND_VMETHOD(MethodInfo(Variant::STRING, "get_name"));
     BIND_VMETHOD(MethodInfo(Variant::STRING, "get_priority"));

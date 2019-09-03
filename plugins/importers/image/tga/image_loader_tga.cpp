@@ -312,7 +312,7 @@ Error ImageLoaderTGA::load_image(ImageData &tgt_image, FileAccess *f, LoadParams
 
 void ImageLoaderTGA::get_recognized_extensions(List<String> *p_extensions) const {
 
-    p_extensions->push_back("tga");
+	p_extensions->push_back(String("tga"));
 }
 static int ccount=0;
 ImageLoaderTGA::ImageLoaderTGA()

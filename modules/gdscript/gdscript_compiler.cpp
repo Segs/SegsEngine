@@ -1784,7 +1784,7 @@ Error GDScriptCompiler::_parse_function(GDScript *p_script, const GDScriptParser
 #ifdef DEBUG_ENABLED
 
     {
-        gdfunc->func_cname = (String(source) + " - " + String(func_name)).toUtf8();
+		gdfunc->func_cname = StringUtils::to_utf8(String(source) + " - " + String(func_name));
         gdfunc->_func_cname = gdfunc->func_cname.data();
     }
 

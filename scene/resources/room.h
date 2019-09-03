@@ -39,7 +39,8 @@
 
 class RoomBounds : public Resource {
 
-	GDCLASS(RoomBounds, Resource);
+	GDCLASS(RoomBounds,Resource)
+IMPL_GDCLASS(RoomBounds)
 	RES_BASE_EXTENSION("room");
 
 	RID area;

@@ -35,7 +35,8 @@
 
 class ProximityGroup : public Spatial {
 
-	GDCLASS(ProximityGroup, Spatial);
+	GDCLASS(ProximityGroup,Spatial)
+
 	OBJ_CATEGORY("3D");
 
 public:
@@ -79,7 +80,7 @@ public:
 	void broadcast(String p_name, Variant p_params);
 
 	ProximityGroup();
-	~ProximityGroup();
+	~ProximityGroup() override;
 };
 
 VARIANT_ENUM_CAST(ProximityGroup::DispatchMode);

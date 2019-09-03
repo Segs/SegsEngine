@@ -38,7 +38,7 @@
 
 class BakedLightmapEditorPlugin : public EditorPlugin {
 
-	GDCLASS(BakedLightmapEditorPlugin, EditorPlugin);
+	GDCLASS(BakedLightmapEditorPlugin,EditorPlugin)
 
 	BakedLightmap *lightmap;
 
@@ -56,14 +56,14 @@ protected:
 	static void _bind_methods();
 
 public:
-	virtual String get_name() const { return "BakedLightmap"; }
-	bool has_main_screen() const { return false; }
-	virtual void edit(Object *p_object);
-	virtual bool handles(Object *p_object) const;
-	virtual void make_visible(bool p_visible);
+	String get_name() const override { return "BakedLightmap"; }
+	bool has_main_screen() const override { return false; }
+	void edit(Object *p_object) override;
+	bool handles(Object *p_object) const override;
+	void make_visible(bool p_visible) override;
 
 	BakedLightmapEditorPlugin(EditorNode *p_node);
-	~BakedLightmapEditorPlugin();
+	~BakedLightmapEditorPlugin() override;
 };
 
 #endif // BAKED_LIGHTMAP_EDITOR_PLUGIN_H

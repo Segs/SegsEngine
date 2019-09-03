@@ -32,6 +32,9 @@
 
 #include "core/os/os.h"
 #include "core/object_db.h"
+#include "core/method_bind.h"
+
+IMPL_GDCLASS(UndoRedo)
 
 void UndoRedo::_discard_redo() {
 
@@ -510,10 +513,10 @@ Variant UndoRedo::_add_undo_method(const Variant **p_args, int p_argcount, Varia
 
 void UndoRedo::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("create_action", "name", "merge_mode"), &UndoRedo::create_action, {DEFVAL(MERGE_DISABLE)});
-    ClassDB::bind_method(D_METHOD("commit_action"), &UndoRedo::commit_action);
+    MethodBinder::bind_method(D_METHOD("create_action", "name", "merge_mode"), &UndoRedo::create_action, {DEFVAL(MERGE_DISABLE)});
+    MethodBinder::bind_method(D_METHOD("commit_action"), &UndoRedo::commit_action);
     // FIXME: Typo in "commiting", fix in 4.0 when breaking compat.
-    ClassDB::bind_method(D_METHOD("is_commiting_action"), &UndoRedo::is_committing_action);
+    MethodBinder::bind_method(D_METHOD("is_commiting_action"), &UndoRedo::is_committing_action);
 
     {
         MethodInfo mi;
@@ -521,7 +524,7 @@ void UndoRedo::_bind_methods() {
         mi.arguments.push_back(PropertyInfo(Variant::OBJECT, "object"));
         mi.arguments.push_back(PropertyInfo(Variant::STRING, "method"));
 
-        ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "add_do_method", &UndoRedo::_add_do_method, mi);
+        MethodBinder::bind_vararg_method("add_do_method", &UndoRedo::_add_do_method, mi);
     }
 
     {
@@ -530,20 +533,20 @@ void UndoRedo::_bind_methods() {
         mi.arguments.push_back(PropertyInfo(Variant::OBJECT, "object"));
         mi.arguments.push_back(PropertyInfo(Variant::STRING, "method"));
 
-        ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "add_undo_method", &UndoRedo::_add_undo_method, mi);
+        MethodBinder::bind_vararg_method("add_undo_method", &UndoRedo::_add_undo_method, mi);
     }
 
-    ClassDB::bind_method(D_METHOD("add_do_property", "object", "property", "value"), &UndoRedo::add_do_property);
-    ClassDB::bind_method(D_METHOD("add_undo_property", "object", "property", "value"), &UndoRedo::add_undo_property);
-    ClassDB::bind_method(D_METHOD("add_do_reference", "object"), &UndoRedo::add_do_reference);
-    ClassDB::bind_method(D_METHOD("add_undo_reference", "object"), &UndoRedo::add_undo_reference);
-    ClassDB::bind_method(D_METHOD("clear_history", "increase_version"), &UndoRedo::clear_history, {DEFVAL(true)});
-    ClassDB::bind_method(D_METHOD("get_current_action_name"), &UndoRedo::get_current_action_name);
-    ClassDB::bind_method(D_METHOD("has_undo"), &UndoRedo::has_undo);
-    ClassDB::bind_method(D_METHOD("has_redo"), &UndoRedo::has_redo);
-    ClassDB::bind_method(D_METHOD("get_version"), &UndoRedo::get_version);
-    ClassDB::bind_method(D_METHOD("redo"), &UndoRedo::redo);
-    ClassDB::bind_method(D_METHOD("undo"), &UndoRedo::undo);
+    MethodBinder::bind_method(D_METHOD("add_do_property", "object", "property", "value"), &UndoRedo::add_do_property);
+    MethodBinder::bind_method(D_METHOD("add_undo_property", "object", "property", "value"), &UndoRedo::add_undo_property);
+    MethodBinder::bind_method(D_METHOD("add_do_reference", "object"), &UndoRedo::add_do_reference);
+    MethodBinder::bind_method(D_METHOD("add_undo_reference", "object"), &UndoRedo::add_undo_reference);
+    MethodBinder::bind_method(D_METHOD("clear_history", "increase_version"), &UndoRedo::clear_history, {DEFVAL(true)});
+    MethodBinder::bind_method(D_METHOD("get_current_action_name"), &UndoRedo::get_current_action_name);
+    MethodBinder::bind_method(D_METHOD("has_undo"), &UndoRedo::has_undo);
+    MethodBinder::bind_method(D_METHOD("has_redo"), &UndoRedo::has_redo);
+    MethodBinder::bind_method(D_METHOD("get_version"), &UndoRedo::get_version);
+    MethodBinder::bind_method(D_METHOD("redo"), &UndoRedo::redo);
+    MethodBinder::bind_method(D_METHOD("undo"), &UndoRedo::undo);
 
     ADD_SIGNAL(MethodInfo("version_changed"));
 

@@ -28,16 +28,14 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef PNG_DRIVER_COMMON_H
-#define PNG_DRIVER_COMMON_H
+#pragma once
 
 #include <stdint.h>
 #include <stdlib.h>
 
-template <class T>
-class Ref;
-template <class T>
-class PoolVector;
+struct ImageData;
+template <class T> class PoolVector;
+
 enum Error : int;
 struct ImageData;
 
@@ -51,5 +49,3 @@ Error png_to_image(const uint8_t *p_source, size_t p_size, ImageData &p_image);
 Error image_to_png(const ImageData &p_image, PoolVector<uint8_t> &p_buffer);
 
 } // namespace PNGDriverCommon
-
-#endif

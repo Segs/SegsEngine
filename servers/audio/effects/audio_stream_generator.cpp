@@ -29,6 +29,10 @@
 /*************************************************************************/
 
 #include "audio_stream_generator.h"
+#include "core/method_bind.h"
+
+IMPL_GDCLASS(AudioStreamGenerator)
+IMPL_GDCLASS(AudioStreamGeneratorPlayback)
 
 void AudioStreamGenerator::set_mix_rate(float p_mix_rate) {
     mix_rate = p_mix_rate;
@@ -68,11 +72,11 @@ float AudioStreamGenerator::get_length() const {
 }
 
 void AudioStreamGenerator::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("set_mix_rate", "hz"), &AudioStreamGenerator::set_mix_rate);
-    ClassDB::bind_method(D_METHOD("get_mix_rate"), &AudioStreamGenerator::get_mix_rate);
+    MethodBinder::bind_method(D_METHOD("set_mix_rate", "hz"), &AudioStreamGenerator::set_mix_rate);
+    MethodBinder::bind_method(D_METHOD("get_mix_rate"), &AudioStreamGenerator::get_mix_rate);
 
-    ClassDB::bind_method(D_METHOD("set_buffer_length", "seconds"), &AudioStreamGenerator::set_buffer_length);
-    ClassDB::bind_method(D_METHOD("get_buffer_length"), &AudioStreamGenerator::get_buffer_length);
+    MethodBinder::bind_method(D_METHOD("set_buffer_length", "seconds"), &AudioStreamGenerator::set_buffer_length);
+    MethodBinder::bind_method(D_METHOD("get_buffer_length"), &AudioStreamGenerator::get_buffer_length);
 
     ADD_PROPERTY(PropertyInfo(Variant::REAL, "mix_rate", PROPERTY_HINT_RANGE, "20,192000,1"), "set_mix_rate", "get_mix_rate");
     ADD_PROPERTY(PropertyInfo(Variant::REAL, "buffer_length", PROPERTY_HINT_RANGE, "0.01,10,0.01"), "set_buffer_length", "get_buffer_length");
@@ -196,12 +200,12 @@ void AudioStreamGeneratorPlayback::seek(float p_time) {
 }
 
 void AudioStreamGeneratorPlayback::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("push_frame", "frame"), &AudioStreamGeneratorPlayback::push_frame);
-    ClassDB::bind_method(D_METHOD("can_push_buffer", "amount"), &AudioStreamGeneratorPlayback::can_push_buffer);
-    ClassDB::bind_method(D_METHOD("push_buffer", "frames"), &AudioStreamGeneratorPlayback::push_buffer);
-    ClassDB::bind_method(D_METHOD("get_frames_available"), &AudioStreamGeneratorPlayback::get_frames_available);
-    ClassDB::bind_method(D_METHOD("get_skips"), &AudioStreamGeneratorPlayback::get_skips);
-    ClassDB::bind_method(D_METHOD("clear_buffer"), &AudioStreamGeneratorPlayback::clear_buffer);
+    MethodBinder::bind_method(D_METHOD("push_frame", "frame"), &AudioStreamGeneratorPlayback::push_frame);
+    MethodBinder::bind_method(D_METHOD("can_push_buffer", "amount"), &AudioStreamGeneratorPlayback::can_push_buffer);
+    MethodBinder::bind_method(D_METHOD("push_buffer", "frames"), &AudioStreamGeneratorPlayback::push_buffer);
+    MethodBinder::bind_method(D_METHOD("get_frames_available"), &AudioStreamGeneratorPlayback::get_frames_available);
+    MethodBinder::bind_method(D_METHOD("get_skips"), &AudioStreamGeneratorPlayback::get_skips);
+    MethodBinder::bind_method(D_METHOD("clear_buffer"), &AudioStreamGeneratorPlayback::clear_buffer);
 }
 
 AudioStreamGeneratorPlayback::AudioStreamGeneratorPlayback() {

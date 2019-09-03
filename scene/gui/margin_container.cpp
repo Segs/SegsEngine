@@ -30,6 +30,8 @@
 
 #include "margin_container.h"
 
+IMPL_GDCLASS(MarginContainer)
+
 Size2 MarginContainer::get_minimum_size() const {
 
 	int margin_left = get_constant("margin_left");

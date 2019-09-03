@@ -37,36 +37,36 @@
 
 class TextureEditor : public Control {
 
-	GDCLASS(TextureEditor, Control);
+	GDCLASS(TextureEditor,Control)
 
 	Ref<Texture> texture;
 
 protected:
 	void _notification(int p_what);
 	void _gui_input(Ref<InputEvent> p_event);
-	void _changed_callback(Object *p_changed, const char *p_prop);
+	void _changed_callback(Object *p_changed, const char *p_prop) override;
 	static void _bind_methods();
 
 public:
 	void edit(Ref<Texture> p_texture);
 	TextureEditor();
-	~TextureEditor();
+	~TextureEditor() override;
 };
 
 class EditorInspectorPluginTexture : public EditorInspectorPlugin {
-	GDCLASS(EditorInspectorPluginTexture, EditorInspectorPlugin);
+	GDCLASS(EditorInspectorPluginTexture,EditorInspectorPlugin)
 
 public:
-	virtual bool can_handle(Object *p_object);
-	virtual void parse_begin(Object *p_object);
+	bool can_handle(Object *p_object) override;
+	void parse_begin(Object *p_object) override;
 };
 
 class TextureEditorPlugin : public EditorPlugin {
 
-	GDCLASS(TextureEditorPlugin, EditorPlugin);
+	GDCLASS(TextureEditorPlugin,EditorPlugin)
 
 public:
-	virtual String get_name() const { return "Texture"; }
+	String get_name() const override { return "Texture"; }
 
 	TextureEditorPlugin(EditorNode *p_node);
 };

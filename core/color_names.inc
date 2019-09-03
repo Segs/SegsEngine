@@ -1,7 +1,7 @@
 // Names from https://en.wikipedia.org/wiki/List_of_colors (through https://raw.githubusercontent.com/SuperUserNameMan/color_to_name/616a7cddafefda91478b7bc26167de97fb5badb1/godot_version.gd), slightly edited and normalized
 #include "core/map.h"
 #include "core/ustring.h"
-static Map<String, Color> _named_colors;
+static Map<const char *, Color> _named_colors;
 static void _populate_named_colors() {
     if (!_named_colors.empty()) return;
     _named_colors.insert("aliceblue", Color(0.94f, 0.97, 1.00));

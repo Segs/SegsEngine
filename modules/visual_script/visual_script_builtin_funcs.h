@@ -35,7 +35,7 @@
 
 class VisualScriptBuiltinFunc : public VisualScriptNode {
 
-	GDCLASS(VisualScriptBuiltinFunc, VisualScriptNode);
+	GDCLASS(VisualScriptBuiltinFunc,VisualScriptNode)
 
 public:
 	enum BuiltinFunc {
@@ -122,25 +122,25 @@ protected:
 	static void _bind_methods();
 
 public:
-	virtual int get_output_sequence_port_count() const;
-	virtual bool has_input_sequence_port() const;
+	int get_output_sequence_port_count() const override;
+	bool has_input_sequence_port() const override;
 
-	virtual String get_output_sequence_port_text(int p_port) const;
+	String get_output_sequence_port_text(int p_port) const override;
 
-	virtual int get_input_value_port_count() const;
-	virtual int get_output_value_port_count() const;
+	int get_input_value_port_count() const override;
+	int get_output_value_port_count() const override;
 
-	virtual PropertyInfo get_input_value_port_info(int p_idx) const;
-	virtual PropertyInfo get_output_value_port_info(int p_idx) const;
+	PropertyInfo get_input_value_port_info(int p_idx) const override;
+	PropertyInfo get_output_value_port_info(int p_idx) const override;
 
-	virtual String get_caption() const;
+	String get_caption() const override;
 	//virtual String get_text() const;
-	virtual String get_category() const { return "functions"; }
+	String get_category() const override { return "functions"; }
 
 	void set_func(BuiltinFunc p_which);
 	BuiltinFunc get_func();
 
-	virtual VisualScriptNodeInstance *instance(VisualScriptInstance *p_instance);
+	VisualScriptNodeInstance *instance(VisualScriptInstance *p_instance) override;
 
 	VisualScriptBuiltinFunc(VisualScriptBuiltinFunc::BuiltinFunc func);
 	VisualScriptBuiltinFunc();

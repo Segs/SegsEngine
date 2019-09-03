@@ -31,7 +31,7 @@
 #ifndef IP_ADDRESS_H
 #define IP_ADDRESS_H
 
-#include <stdint.h>
+#include <cstdint>
 
 class String;
 struct IP_Address {

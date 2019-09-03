@@ -35,7 +35,7 @@
 
 class RayCast : public Spatial {
 
-	GDCLASS(RayCast, Spatial);
+	GDCLASS(RayCast,Spatial)
 
 	bool enabled;
 	bool collided;

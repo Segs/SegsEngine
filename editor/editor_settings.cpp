@@ -30,6 +30,7 @@
 
 #include "editor_settings.h"
 
+#include "core/method_bind.h"
 #include "core/container_utils.h"
 #include "core/io/compression.h"
 #include "core/io/config_file.h"
@@ -37,6 +38,7 @@
 #include "core/io/resource_loader.h"
 #include "core/io/resource_saver.h"
 #include "core/io/translation_loader_po.h"
+#include "core/io/ip.h"
 #include "core/os/dir_access.h"
 #include "core/os/file_access.h"
 #include "core/os/keyboard.h"
@@ -52,6 +54,9 @@
 #include <QtCore/QResource>
 
 #define _SYSTEM_CERTS_PATH ""
+
+IMPL_GDCLASS(EditorSettings)
+
 // PRIVATE METHODS
 
 Ref<EditorSettings> EditorSettings::singleton = nullptr;
@@ -210,13 +215,13 @@ void EditorSettings::_get_property_list(List<PropertyInfo> *p_list) const {
             pinfo |= PROPERTY_USAGE_STORAGE;
         }
 
-        if (!E->get().name.begins_with("_") && !E->get().name.begins_with("projects/")) {
+        if (!StringUtils::begins_with(E->get().name,"_") && !StringUtils::begins_with(E->get().name,"projects/")) {
             pinfo |= PROPERTY_USAGE_EDITOR;
         } else {
             pinfo |= PROPERTY_USAGE_STORAGE; //hiddens must always be saved
         }
 
-        PropertyInfo pi(E->get().type, E->get().name);
+        PropertyInfo pi(E->get().type, String(E->get().name));
         pi.usage = pinfo;
         if (hints.has(E->get().name))
             pi = hints[E->get().name];
@@ -271,7 +276,7 @@ void EditorSettings::_load_defaults(Ref<ConfigFile> p_extra_config) {
         // Some locales are not properly supported currently in Godot due to lack of font shaping
         // (e.g. Arabic or Hindi), so even though we have work in progress translations for them,
         // we skip them as they don't render properly. (GH-28577)
-        const std::array<String,10> locales_to_skip = {"ar","bn","fa","he","hi","ml","si","ta","te","ur"};
+        const String locales_to_skip[10] = {"ar","bn","fa","he","hi","ml","si","ta","te","ur"};
 
         String best;
 
@@ -282,7 +287,7 @@ void EditorSettings::_load_defaults(Ref<ConfigFile> p_extra_config) {
             const String &locale = etl->lang;
             // Skip locales which we can't render properly (see above comment).
             // Test against language code without regional variants (e.g. ur_PK).
-            String lang_code = locale.get_slice("_", 0);
+            String lang_code = StringUtils::get_slice(locale,"_", 0);
             if (ContainerUtils::contains(locales_to_skip,lang_code)) {
                 etl++;
                 continue;
@@ -294,7 +299,7 @@ void EditorSettings::_load_defaults(Ref<ConfigFile> p_extra_config) {
                 best = locale;
             }
 
-            if (best == String() && host_lang.begins_with(locale)) {
+            if (best == String() && StringUtils::begins_with(host_lang,locale)) {
                 best = locale;
             }
 
@@ -442,25 +447,27 @@ void EditorSettings::_load_defaults(Ref<ConfigFile> p_extra_config) {
     _initial_set("text_editor/indent/draw_tabs", true);
     _initial_set("text_editor/indent/draw_spaces", false);
 
-    // Line numbers
-    _initial_set("text_editor/line_numbers/show_line_numbers", true);
-    _initial_set("text_editor/line_numbers/line_numbers_zero_padded", false);
-    _initial_set("text_editor/line_numbers/show_bookmark_gutter", true);
-    _initial_set("text_editor/line_numbers/show_breakpoint_gutter", true);
-    _initial_set("text_editor/line_numbers/show_info_gutter", true);
-    _initial_set("text_editor/line_numbers/code_folding", true);
-    _initial_set("text_editor/line_numbers/word_wrap", false);
-    _initial_set("text_editor/line_numbers/draw_minimap", true);
-    _initial_set("text_editor/line_numbers/minimap_width", 80);
-    hints["text_editor/line_numbers/minimap_width"] = PropertyInfo(Variant::INT, "text_editor/line_numbers/minimap_width", PROPERTY_HINT_RANGE, "50,250,1");
-    _initial_set("text_editor/line_numbers/show_line_length_guideline", false);
-    _initial_set("text_editor/line_numbers/line_length_guideline_column", 80);
-    hints["text_editor/line_numbers/line_length_guideline_column"] = PropertyInfo(Variant::INT, "text_editor/line_numbers/line_length_guideline_column", PROPERTY_HINT_RANGE, "20, 160, 1");
+	// Navigation
+	_initial_set("text_editor/navigation/smooth_scrolling", true);
+	_initial_set("text_editor/navigation/v_scroll_speed", 80);
+	_initial_set("text_editor/navigation/show_minimap", true);
+	_initial_set("text_editor/navigation/minimap_width", 80);
+	hints["text_editor/navigation/minimap_width"] = PropertyInfo(Variant::INT, "text_editor/navigation/minimap_width", PROPERTY_HINT_RANGE, "50,250,1");
 
-    // Open scripts
-    _initial_set("text_editor/open_scripts/smooth_scrolling", true);
-    _initial_set("text_editor/open_scripts/v_scroll_speed", 80);
-    _initial_set("text_editor/open_scripts/show_members_overview", true);
+	// Appearance
+	_initial_set("text_editor/appearance/show_line_numbers", true);
+	_initial_set("text_editor/appearance/line_numbers_zero_padded", false);
+	_initial_set("text_editor/appearance/show_bookmark_gutter", true);
+	_initial_set("text_editor/appearance/show_breakpoint_gutter", true);
+	_initial_set("text_editor/appearance/show_info_gutter", true);
+	_initial_set("text_editor/appearance/code_folding", true);
+	_initial_set("text_editor/appearance/word_wrap", false);
+	_initial_set("text_editor/appearance/show_line_length_guideline", false);
+	_initial_set("text_editor/appearance/line_length_guideline_column", 80);
+	hints["text_editor/appearance/line_length_guideline_column"] = PropertyInfo(Variant::INT, "text_editor/appearance/line_length_guideline_column", PROPERTY_HINT_RANGE, "20, 160, 1");
+
+	// Script list
+	_initial_set("text_editor/script_list/show_members_overview", true);
 
     // Files
     _initial_set("text_editor/files/trim_trailing_whitespace_on_save", false);
@@ -641,7 +648,7 @@ void EditorSettings::_load_defaults(Ref<ConfigFile> p_extra_config) {
             for (int i = 0; i < list.size(); i++) {
 
                 String name = list[i];
-                set("projects/" + name.replace("/", "::"), list[i]);
+                set("projects/" + StringUtils::replace(name,"/", "::"), list[i]);
             }
         }
 
@@ -709,8 +716,8 @@ bool EditorSettings::_save_text_editor_theme(String p_file) {
 
     for (const List<String>::Element *E = keys.front(); E; E = E->next()) {
         String key = E->get();
-        if (key.begins_with("text_editor/highlighting/") && key.find("color") >= 0) {
-            cf->set_value(theme_section, key.replace("text_editor/highlighting/", ""), ((Color)props[key].variant).to_html());
+        if (StringUtils::begins_with(key,"text_editor/highlighting/") && StringUtils::find(key,"color") >= 0) {
+            cf->set_value(theme_section, StringUtils::replace(key,"text_editor/highlighting/", ""), ((Color)props[key].variant).to_html());
         }
     }
 
@@ -908,8 +915,8 @@ void EditorSettings::create() {
 
         dir->change_dir("projects");
         String project_config_dir = ProjectSettings::get_singleton()->get_resource_path();
-        if (project_config_dir.ends_with("/"))
-            project_config_dir = config_path.substr(0, project_config_dir.size() - 1);
+        if (StringUtils::ends_with(project_config_dir,"/"))
+            project_config_dir = StringUtils::substr(config_path,0, project_config_dir.size() - 1);
         project_config_dir = PathUtils::get_file(project_config_dir) + "-" + StringUtils::md5_text(project_config_dir);
 
         if (dir->change_dir(project_config_dir) != OK) {
@@ -1023,10 +1030,10 @@ void EditorSettings::setup_network() {
         String ip = E->get();
 
         // link-local IPv6 addresses don't work, skipping them
-        if (ip.begins_with("fe80:0:0:0:")) // fe80::/64
+        if (StringUtils::begins_with(ip,"fe80:0:0:0:")) // fe80::/64
             continue;
         // Same goes for IPv4 link-local (APIPA) addresses.
-        if (ip.begins_with("169.254.")) // 169.254.0.0/16
+        if (StringUtils::begins_with(ip,"169.254.")) // 169.254.0.0/16
             continue;
     // Select current IP (found)
         if (ip == current)
@@ -1150,7 +1157,7 @@ Variant _EDITOR_DEF(const String &p_setting, const Variant &p_default, bool p_re
 
 Variant _EDITOR_GET(const String &p_setting) {
 
-    ERR_FAIL_COND_V(!EditorSettings::get_singleton()->has_setting(p_setting), Variant());
+    ERR_FAIL_COND_V(!EditorSettings::get_singleton()->has_setting(p_setting), Variant())
     return EditorSettings::get_singleton()->get(p_setting);
 }
 
@@ -1290,20 +1297,20 @@ void EditorSettings::load_favorites() {
 
     FileAccess *f = FileAccess::open(PathUtils::plus_file(get_project_settings_dir(),"favorites"), FileAccess::READ);
     if (f) {
-        String line = f->get_line().strip_edges();
+        String line = StringUtils::strip_edges(f->get_line());
         while (line != "") {
             favorites.push_back(line);
-            line = f->get_line().strip_edges();
+            line = StringUtils::strip_edges(f->get_line());
         }
         memdelete(f);
     }
 
     f = FileAccess::open(PathUtils::plus_file(get_project_settings_dir(),"recent_dirs"), FileAccess::READ);
     if (f) {
-        String line = f->get_line().strip_edges();
+        String line = StringUtils::strip_edges(f->get_line());
         while (line != "") {
             recent_dirs.push_back(line);
-            line = f->get_line().strip_edges();
+            line = StringUtils::strip_edges(f->get_line());
         }
         memdelete(f);
     }
@@ -1370,7 +1377,7 @@ void EditorSettings::load_text_editor_theme() {
         if (has_setting("text_editor/highlighting/" + key)) {
 
             // make sure it is actually a color
-            if (StringUtils::is_valid_html_color(val) && key.find("color") >= 0) {
+            if (StringUtils::is_valid_html_color(val) && StringUtils::find(key,"color") >= 0) {
                 props["text_editor/highlighting/" + key].variant = Color::html(val); // change manually to prevent "Settings changed" console spam
             }
         }
@@ -1381,7 +1388,7 @@ void EditorSettings::load_text_editor_theme() {
 
 bool EditorSettings::import_text_editor_theme(String p_file) {
 
-    if (!p_file.ends_with(".tet")) {
+    if (!StringUtils::ends_with(p_file,".tet")) {
         return false;
     } else {
         if (StringUtils::to_lower(PathUtils::get_file(p_file)) == "default.tet") {
@@ -1410,18 +1417,18 @@ bool EditorSettings::save_text_editor_theme() {
 }
 
 bool EditorSettings::save_text_editor_theme_as(String p_file) {
-    if (!p_file.ends_with(".tet")) {
+    if (!StringUtils::ends_with(p_file,".tet")) {
         p_file += ".tet";
     }
 
-    if (_is_default_text_editor_theme(StringUtils::to_lower(PathUtils::get_file(p_file)).trim_suffix(".tet"))) {
+    if (_is_default_text_editor_theme(StringUtils::trim_suffix(StringUtils::to_lower(PathUtils::get_file(p_file)),".tet"))) {
         return false;
     }
     if (_save_text_editor_theme(p_file)) {
 
         // switch to theme is saved in the theme directory
         list_text_editor_themes();
-        String theme_name = PathUtils::get_file(p_file.substr(0, p_file.length() - 4));
+        String theme_name = PathUtils::get_file(StringUtils::substr(p_file,0, p_file.length() - 4));
 
         if (PathUtils::get_base_dir(p_file) == get_text_editor_themes_dir()) {
             _initial_set("text_editor/theme/color_theme", theme_name);
@@ -1580,25 +1587,25 @@ void EditorSettings::notify_changes() {
 
 void EditorSettings::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("has_setting", "name"), &EditorSettings::has_setting);
-    ClassDB::bind_method(D_METHOD("set_setting", "name", "value"), &EditorSettings::set_setting);
-    ClassDB::bind_method(D_METHOD("get_setting", "name"), &EditorSettings::get_setting);
-    ClassDB::bind_method(D_METHOD("erase", "property"), &EditorSettings::erase);
-    ClassDB::bind_method(D_METHOD("set_initial_value", "name", "value", "update_current"), &EditorSettings::set_initial_value);
-    ClassDB::bind_method(D_METHOD("property_can_revert", "name"), &EditorSettings::property_can_revert);
-    ClassDB::bind_method(D_METHOD("property_get_revert", "name"), &EditorSettings::property_get_revert);
-    ClassDB::bind_method(D_METHOD("add_property_info", "info"), &EditorSettings::_add_property_info_bind);
+    MethodBinder::bind_method(D_METHOD("has_setting", "name"), &EditorSettings::has_setting);
+    MethodBinder::bind_method(D_METHOD("set_setting", "name", "value"), &EditorSettings::set_setting);
+    MethodBinder::bind_method(D_METHOD("get_setting", "name"), &EditorSettings::get_setting);
+    MethodBinder::bind_method(D_METHOD("erase", "property"), &EditorSettings::erase);
+    MethodBinder::bind_method(D_METHOD("set_initial_value", "name", "value", "update_current"), &EditorSettings::set_initial_value);
+    MethodBinder::bind_method(D_METHOD("property_can_revert", "name"), &EditorSettings::property_can_revert);
+    MethodBinder::bind_method(D_METHOD("property_get_revert", "name"), &EditorSettings::property_get_revert);
+    MethodBinder::bind_method(D_METHOD("add_property_info", "info"), &EditorSettings::_add_property_info_bind);
 
-    ClassDB::bind_method(D_METHOD("get_settings_dir"), &EditorSettings::get_settings_dir);
-    ClassDB::bind_method(D_METHOD("get_project_settings_dir"), &EditorSettings::get_project_settings_dir);
+    MethodBinder::bind_method(D_METHOD("get_settings_dir"), &EditorSettings::get_settings_dir);
+    MethodBinder::bind_method(D_METHOD("get_project_settings_dir"), &EditorSettings::get_project_settings_dir);
 
-    ClassDB::bind_method(D_METHOD("set_project_metadata", "section", "key", "data"), &EditorSettings::set_project_metadata);
-    ClassDB::bind_method(D_METHOD("get_project_metadata", "section", "key", "default"), &EditorSettings::get_project_metadata, {DEFVAL(Variant())});
+    MethodBinder::bind_method(D_METHOD("set_project_metadata", "section", "key", "data"), &EditorSettings::set_project_metadata);
+    MethodBinder::bind_method(D_METHOD("get_project_metadata", "section", "key", "default"), &EditorSettings::get_project_metadata, {DEFVAL(Variant())});
 
-    ClassDB::bind_method(D_METHOD("set_favorites", "dirs"), &EditorSettings::set_favorites);
-    ClassDB::bind_method(D_METHOD("get_favorites"), &EditorSettings::get_favorites);
-    ClassDB::bind_method(D_METHOD("set_recent_dirs", "dirs"), &EditorSettings::set_recent_dirs);
-    ClassDB::bind_method(D_METHOD("get_recent_dirs"), &EditorSettings::get_recent_dirs);
+    MethodBinder::bind_method(D_METHOD("set_favorites", "dirs"), &EditorSettings::set_favorites);
+    MethodBinder::bind_method(D_METHOD("get_favorites"), &EditorSettings::get_favorites);
+    MethodBinder::bind_method(D_METHOD("set_recent_dirs", "dirs"), &EditorSettings::set_recent_dirs);
+    MethodBinder::bind_method(D_METHOD("get_recent_dirs"), &EditorSettings::get_recent_dirs);
 
     ADD_SIGNAL(MethodInfo("settings_changed"));
     BIND_CONSTANT(NOTIFICATION_EDITOR_SETTINGS_CHANGED);

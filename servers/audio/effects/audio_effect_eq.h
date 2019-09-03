@@ -37,7 +37,7 @@
 class AudioEffectEQ;
 
 class AudioEffectEQInstance : public AudioEffectInstance {
-	GDCLASS(AudioEffectEQInstance, AudioEffectInstance);
+	GDCLASS(AudioEffectEQInstance,AudioEffectInstance)
 	friend class AudioEffectEQ;
 	Ref<AudioEffectEQ> base;
 
@@ -45,11 +45,11 @@ class AudioEffectEQInstance : public AudioEffectInstance {
 	Vector<float> gains;
 
 public:
-	virtual void process(const AudioFrame *p_src_frames, AudioFrame *p_dst_frames, int p_frame_count);
+	void process(const AudioFrame *p_src_frames, AudioFrame *p_dst_frames, int p_frame_count) override;
 };
 
 class AudioEffectEQ : public AudioEffect {
-	GDCLASS(AudioEffectEQ, AudioEffect);
+	GDCLASS(AudioEffectEQ,AudioEffect)
 
 	friend class AudioEffectEQInstance;
 
@@ -66,7 +66,7 @@ protected:
 	static void _bind_methods();
 
 public:
-	Ref<AudioEffectInstance> instance();
+	Ref<AudioEffectInstance> instance() override;
 	void set_band_gain_db(int p_band, float p_volume);
 	float get_band_gain_db(int p_band) const;
 	int get_band_count() const;
@@ -75,7 +75,7 @@ public:
 };
 
 class AudioEffectEQ6 : public AudioEffectEQ {
-	GDCLASS(AudioEffectEQ6, AudioEffectEQ);
+	GDCLASS(AudioEffectEQ6,AudioEffectEQ)
 
 public:
 	AudioEffectEQ6() :
@@ -83,7 +83,7 @@ public:
 };
 
 class AudioEffectEQ10 : public AudioEffectEQ {
-	GDCLASS(AudioEffectEQ10, AudioEffectEQ);
+	GDCLASS(AudioEffectEQ10,AudioEffectEQ)
 
 public:
 	AudioEffectEQ10() :
@@ -91,7 +91,7 @@ public:
 };
 
 class AudioEffectEQ21 : public AudioEffectEQ {
-	GDCLASS(AudioEffectEQ21, AudioEffectEQ);
+	GDCLASS(AudioEffectEQ21,AudioEffectEQ)
 
 public:
 	AudioEffectEQ21() :

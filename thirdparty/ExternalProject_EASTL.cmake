@@ -1,5 +1,5 @@
-configure_file(EASTL/godot_eastl_config.h.cmake
-    ${CMAKE_CURRENT_SOURCE_DIR}/EASTL/godot_eastl_config.h
+configure_file(EASTL/SegsEngine_config.h.cmake
+    ${CMAKE_CURRENT_SOURCE_DIR}/EASTL/SegsEngine_config.h
 )
 set(SOURCE
 EASTL/source/allocator_eastl.cpp
@@ -11,7 +11,7 @@ EASTL/source/numeric_limits.cpp
 EASTL/source/red_black_tree.cpp
 EASTL/source/string.cpp
 EASTL/source/thread_support.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/EASTL/godot_eastl_config.h
+${CMAKE_CURRENT_SOURCE_DIR}/EASTL/SegsEngine_config.h
 ${INC}
 )
 add_library(EASTL OBJECT ${SOURCE})
@@ -22,11 +22,11 @@ target_include_directories(EASTL PUBLIC
     $<INSTALL_INTERFACE:include>
 )
 target_compile_definitions(EASTL PUBLIC
-    $<BUILD_INTERFACE:EASTL_USER_CONFIG_HEADER=\"${CMAKE_CURRENT_SOURCE_DIR}/EASTL/godot_eastl_config.h\">
-    $<INSTALL_INTERFACE:EASTL_USER_CONFIG_HEADER=\"include/godot_eastl_config.h\">
+    $<BUILD_INTERFACE:EASTL_USER_CONFIG_HEADER=\"${CMAKE_CURRENT_SOURCE_DIR}/EASTL/SegsEngine_config.h\">
+    $<INSTALL_INTERFACE:EASTL_USER_CONFIG_HEADER=\"include/SegsEngine_config.h\">
 )
 
 target_compile_definitions(EASTL PRIVATE
-	LUTEFISK3D_EXPORTS
+	GODOT_EXPORTS
 )
 install(TARGETS EASTL EXPORT Lutefisk3D ARCHIVE DESTINATION ${DEST_ARCHIVE_DIR})

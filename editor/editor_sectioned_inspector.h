@@ -39,7 +39,7 @@ class SectionedInspectorFilter;
 
 class SectionedInspector : public HSplitContainer {
 
-	GDCLASS(SectionedInspector, HSplitContainer);
+	GDCLASS(SectionedInspector,HSplitContainer)
 
 	ObjectID obj;
 
@@ -69,6 +69,6 @@ public:
 	void update_category_list();
 
 	SectionedInspector();
-	~SectionedInspector();
+	~SectionedInspector() override;
 };
 #endif // EDITOR_SECTIONED_INSPECTOR_H

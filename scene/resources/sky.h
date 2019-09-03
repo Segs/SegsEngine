@@ -35,7 +35,7 @@
 #include "scene/resources/texture.h"
 
 class Sky : public Resource {
-	GDCLASS(Sky, Resource);
+	GDCLASS(Sky,Resource)
 
 public:
 	enum RadianceSize {
@@ -65,7 +65,7 @@ public:
 VARIANT_ENUM_CAST(Sky::RadianceSize)
 
 class PanoramaSky : public Sky {
-	GDCLASS(PanoramaSky, Sky);
+	GDCLASS(PanoramaSky,Sky)
 
 private:
 	RID sky;
@@ -73,20 +73,20 @@ private:
 
 protected:
 	static void _bind_methods();
-	virtual void _radiance_changed();
+	void _radiance_changed() override;
 
 public:
 	void set_panorama(const Ref<Texture> &p_panorama);
 	Ref<Texture> get_panorama() const;
 
-	virtual RID get_rid() const;
+	RID get_rid() const override;
 
 	PanoramaSky();
-	~PanoramaSky();
+	~PanoramaSky() override;
 };
 
 class ProceduralSky : public Sky {
-	GDCLASS(ProceduralSky, Sky);
+	GDCLASS(ProceduralSky,Sky)
 
 public:
 	enum TextureSize {
@@ -133,7 +133,7 @@ private:
 
 protected:
 	static void _bind_methods();
-	virtual void _radiance_changed();
+	void _radiance_changed() override;
 
 	Ref<Image> _generate_sky();
 	void _update_sky();
@@ -189,10 +189,10 @@ public:
 	void set_texture_size(TextureSize p_size);
 	TextureSize get_texture_size() const;
 
-	virtual RID get_rid() const;
+	RID get_rid() const override;
 
 	ProceduralSky(bool p_desaturate=false);
-	~ProceduralSky();
+	~ProceduralSky() override;
 };
 
 VARIANT_ENUM_CAST(ProceduralSky::TextureSize)

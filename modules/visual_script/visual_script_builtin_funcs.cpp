@@ -34,10 +34,13 @@
 #include "core/func_ref.h"
 #include "core/io/marshalls.h"
 #include "core/math/math_funcs.h"
+#include "core/method_bind.h"
 #include "core/os/os.h"
 #include "core/print_string.h"
 #include "core/reference.h"
 #include "core/variant_parser.h"
+
+IMPL_GDCLASS(VisualScriptBuiltinFunc)
 
 const char *VisualScriptBuiltinFunc::func_name[VisualScriptBuiltinFunc::FUNC_MAX] = {
     "sin",
@@ -1154,7 +1157,7 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_in
         case VisualScriptBuiltinFunc::TEXT_PRINTRAW: {
 
             String str = *p_inputs[0];
-            OS::get_singleton()->print(str.utf8().data());
+            OS::get_singleton()->print(StringUtils::to_utf8(str).data());
 
         } break;
         case VisualScriptBuiltinFunc::VAR_TO_STR: {
@@ -1275,7 +1278,7 @@ public:
     //virtual bool is_output_port_unsequenced(int p_idx) const { return false; }
     //virtual bool get_output_port_unsequenced(int p_idx,Variant* r_value,Variant* p_working_mem,String &r_error) const { return true; }
 
-    virtual int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
 
         VisualScriptBuiltinFunc::exec_func(func, p_inputs, p_outputs[0], r_error, r_error_str);
         return 0;
@@ -1293,10 +1296,10 @@ VisualScriptNodeInstance *VisualScriptBuiltinFunc::instance(VisualScriptInstance
 
 void VisualScriptBuiltinFunc::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_func", "which"), &VisualScriptBuiltinFunc::set_func);
-    ClassDB::bind_method(D_METHOD("get_func"), &VisualScriptBuiltinFunc::get_func);
+    MethodBinder::bind_method(D_METHOD("set_func", "which"), &VisualScriptBuiltinFunc::set_func);
+    MethodBinder::bind_method(D_METHOD("get_func"), &VisualScriptBuiltinFunc::get_func);
 
-    String cc;
+	CharString cc;
 
     for (int i = 0; i < FUNC_MAX; i++) {
 
@@ -1306,23 +1309,23 @@ void VisualScriptBuiltinFunc::_bind_methods() {
     }
     ADD_PROPERTY(PropertyInfo(Variant::INT, "function", PROPERTY_HINT_ENUM, cc), "set_func", "get_func");
 
-    BIND_ENUM_CONSTANT(MATH_SIN);
-    BIND_ENUM_CONSTANT(MATH_COS);
-    BIND_ENUM_CONSTANT(MATH_TAN);
-    BIND_ENUM_CONSTANT(MATH_SINH);
-    BIND_ENUM_CONSTANT(MATH_COSH);
-    BIND_ENUM_CONSTANT(MATH_TANH);
-    BIND_ENUM_CONSTANT(MATH_ASIN);
-    BIND_ENUM_CONSTANT(MATH_ACOS);
-    BIND_ENUM_CONSTANT(MATH_ATAN);
-    BIND_ENUM_CONSTANT(MATH_ATAN2);
-    BIND_ENUM_CONSTANT(MATH_SQRT);
-    BIND_ENUM_CONSTANT(MATH_FMOD);
-    BIND_ENUM_CONSTANT(MATH_FPOSMOD);
-    BIND_ENUM_CONSTANT(MATH_FLOOR);
-    BIND_ENUM_CONSTANT(MATH_CEIL);
-    BIND_ENUM_CONSTANT(MATH_ROUND);
-    BIND_ENUM_CONSTANT(MATH_ABS);
+	BIND_ENUM_CONSTANT(MATH_SIN)
+	BIND_ENUM_CONSTANT(MATH_COS)
+	BIND_ENUM_CONSTANT(MATH_TAN)
+	BIND_ENUM_CONSTANT(MATH_SINH)
+	BIND_ENUM_CONSTANT(MATH_COSH)
+	BIND_ENUM_CONSTANT(MATH_TANH)
+	BIND_ENUM_CONSTANT(MATH_ASIN)
+	BIND_ENUM_CONSTANT(MATH_ACOS)
+	BIND_ENUM_CONSTANT(MATH_ATAN)
+	BIND_ENUM_CONSTANT(MATH_ATAN2)
+	BIND_ENUM_CONSTANT(MATH_SQRT)
+	BIND_ENUM_CONSTANT(MATH_FMOD)
+	BIND_ENUM_CONSTANT(MATH_FPOSMOD)
+	BIND_ENUM_CONSTANT(MATH_FLOOR)
+	BIND_ENUM_CONSTANT(MATH_CEIL)
+	BIND_ENUM_CONSTANT(MATH_ROUND)
+	BIND_ENUM_CONSTANT(MATH_ABS)
     BIND_ENUM_CONSTANT(MATH_SIGN);
     BIND_ENUM_CONSTANT(MATH_POW);
     BIND_ENUM_CONSTANT(MATH_LOG);

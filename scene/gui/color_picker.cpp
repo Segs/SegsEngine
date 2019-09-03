@@ -34,12 +34,17 @@
 #include "core/os/keyboard.h"
 #include "core/os/os.h"
 #include "core/string_formatter.h"
+#include "scene/resources/style_box.h"
+#include "core/method_bind.h"
 
 #ifdef TOOLS_ENABLED
 #include "editor_scale.h"
 #include "editor_settings.h"
 #endif
 #include "scene/main/viewport.h"
+
+IMPL_GDCLASS(ColorPicker)
+IMPL_GDCLASS(ColorPickerButton)
 
 void ColorPicker::_notification(int p_what) {
 
@@ -673,38 +678,38 @@ bool ColorPicker::are_presets_visible() const {
 
 void ColorPicker::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_pick_color", "color"), &ColorPicker::set_pick_color);
-    ClassDB::bind_method(D_METHOD("get_pick_color"), &ColorPicker::get_pick_color);
-    ClassDB::bind_method(D_METHOD("set_hsv_mode", "mode"), &ColorPicker::set_hsv_mode);
-    ClassDB::bind_method(D_METHOD("is_hsv_mode"), &ColorPicker::is_hsv_mode);
-    ClassDB::bind_method(D_METHOD("set_raw_mode", "mode"), &ColorPicker::set_raw_mode);
-    ClassDB::bind_method(D_METHOD("is_raw_mode"), &ColorPicker::is_raw_mode);
-    ClassDB::bind_method(D_METHOD("set_deferred_mode", "mode"), &ColorPicker::set_deferred_mode);
-    ClassDB::bind_method(D_METHOD("is_deferred_mode"), &ColorPicker::is_deferred_mode);
-    ClassDB::bind_method(D_METHOD("set_edit_alpha", "show"), &ColorPicker::set_edit_alpha);
-    ClassDB::bind_method(D_METHOD("is_editing_alpha"), &ColorPicker::is_editing_alpha);
-    ClassDB::bind_method(D_METHOD("set_presets_enabled", "enabled"), &ColorPicker::set_presets_enabled);
-    ClassDB::bind_method(D_METHOD("are_presets_enabled"), &ColorPicker::are_presets_enabled);
-    ClassDB::bind_method(D_METHOD("set_presets_visible", "visible"), &ColorPicker::set_presets_visible);
-    ClassDB::bind_method(D_METHOD("are_presets_visible"), &ColorPicker::are_presets_visible);
-    ClassDB::bind_method(D_METHOD("add_preset", "color"), &ColorPicker::add_preset);
-    ClassDB::bind_method(D_METHOD("erase_preset", "color"), &ColorPicker::erase_preset);
-    ClassDB::bind_method(D_METHOD("get_presets"), &ColorPicker::get_presets);
-    ClassDB::bind_method(D_METHOD("_value_changed"), &ColorPicker::_value_changed);
-    ClassDB::bind_method(D_METHOD("_html_entered"), &ColorPicker::_html_entered);
-    ClassDB::bind_method(D_METHOD("_text_type_toggled"), &ColorPicker::_text_type_toggled);
-    ClassDB::bind_method(D_METHOD("_add_preset_pressed"), &ColorPicker::_add_preset_pressed);
-    ClassDB::bind_method(D_METHOD("_screen_pick_pressed"), &ColorPicker::_screen_pick_pressed);
-    ClassDB::bind_method(D_METHOD("_sample_draw"), &ColorPicker::_sample_draw);
-    ClassDB::bind_method(D_METHOD("_update_presets"), &ColorPicker::_update_presets);
-    ClassDB::bind_method(D_METHOD("_hsv_draw"), &ColorPicker::_hsv_draw);
-    ClassDB::bind_method(D_METHOD("_uv_input"), &ColorPicker::_uv_input);
-    ClassDB::bind_method(D_METHOD("_w_input"), &ColorPicker::_w_input);
-    ClassDB::bind_method(D_METHOD("_preset_input"), &ColorPicker::_preset_input);
-    ClassDB::bind_method(D_METHOD("_screen_input"), &ColorPicker::_screen_input);
-    ClassDB::bind_method(D_METHOD("_focus_enter"), &ColorPicker::_focus_enter);
-    ClassDB::bind_method(D_METHOD("_focus_exit"), &ColorPicker::_focus_exit);
-    ClassDB::bind_method(D_METHOD("_html_focus_exit"), &ColorPicker::_html_focus_exit);
+    MethodBinder::bind_method(D_METHOD("set_pick_color", "color"), &ColorPicker::set_pick_color);
+    MethodBinder::bind_method(D_METHOD("get_pick_color"), &ColorPicker::get_pick_color);
+    MethodBinder::bind_method(D_METHOD("set_hsv_mode", "mode"), &ColorPicker::set_hsv_mode);
+    MethodBinder::bind_method(D_METHOD("is_hsv_mode"), &ColorPicker::is_hsv_mode);
+    MethodBinder::bind_method(D_METHOD("set_raw_mode", "mode"), &ColorPicker::set_raw_mode);
+    MethodBinder::bind_method(D_METHOD("is_raw_mode"), &ColorPicker::is_raw_mode);
+    MethodBinder::bind_method(D_METHOD("set_deferred_mode", "mode"), &ColorPicker::set_deferred_mode);
+    MethodBinder::bind_method(D_METHOD("is_deferred_mode"), &ColorPicker::is_deferred_mode);
+    MethodBinder::bind_method(D_METHOD("set_edit_alpha", "show"), &ColorPicker::set_edit_alpha);
+    MethodBinder::bind_method(D_METHOD("is_editing_alpha"), &ColorPicker::is_editing_alpha);
+    MethodBinder::bind_method(D_METHOD("set_presets_enabled", "enabled"), &ColorPicker::set_presets_enabled);
+    MethodBinder::bind_method(D_METHOD("are_presets_enabled"), &ColorPicker::are_presets_enabled);
+    MethodBinder::bind_method(D_METHOD("set_presets_visible", "visible"), &ColorPicker::set_presets_visible);
+    MethodBinder::bind_method(D_METHOD("are_presets_visible"), &ColorPicker::are_presets_visible);
+    MethodBinder::bind_method(D_METHOD("add_preset", "color"), &ColorPicker::add_preset);
+    MethodBinder::bind_method(D_METHOD("erase_preset", "color"), &ColorPicker::erase_preset);
+    MethodBinder::bind_method(D_METHOD("get_presets"), &ColorPicker::get_presets);
+    MethodBinder::bind_method(D_METHOD("_value_changed"), &ColorPicker::_value_changed);
+    MethodBinder::bind_method(D_METHOD("_html_entered"), &ColorPicker::_html_entered);
+    MethodBinder::bind_method(D_METHOD("_text_type_toggled"), &ColorPicker::_text_type_toggled);
+    MethodBinder::bind_method(D_METHOD("_add_preset_pressed"), &ColorPicker::_add_preset_pressed);
+    MethodBinder::bind_method(D_METHOD("_screen_pick_pressed"), &ColorPicker::_screen_pick_pressed);
+    MethodBinder::bind_method(D_METHOD("_sample_draw"), &ColorPicker::_sample_draw);
+    MethodBinder::bind_method(D_METHOD("_update_presets"), &ColorPicker::_update_presets);
+    MethodBinder::bind_method(D_METHOD("_hsv_draw"), &ColorPicker::_hsv_draw);
+    MethodBinder::bind_method(D_METHOD("_uv_input"), &ColorPicker::_uv_input);
+    MethodBinder::bind_method(D_METHOD("_w_input"), &ColorPicker::_w_input);
+    MethodBinder::bind_method(D_METHOD("_preset_input"), &ColorPicker::_preset_input);
+    MethodBinder::bind_method(D_METHOD("_screen_input"), &ColorPicker::_screen_input);
+    MethodBinder::bind_method(D_METHOD("_focus_enter"), &ColorPicker::_focus_enter);
+    MethodBinder::bind_method(D_METHOD("_focus_exit"), &ColorPicker::_focus_exit);
+    MethodBinder::bind_method(D_METHOD("_html_focus_exit"), &ColorPicker::_html_focus_exit);
 
     ADD_PROPERTY(PropertyInfo(Variant::COLOR, "color"), "set_pick_color", "get_pick_color");
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "edit_alpha"), "set_edit_alpha", "is_editing_alpha");
@@ -972,14 +977,14 @@ void ColorPickerButton::_update_picker() {
 
 void ColorPickerButton::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_pick_color", "color"), &ColorPickerButton::set_pick_color);
-    ClassDB::bind_method(D_METHOD("get_pick_color"), &ColorPickerButton::get_pick_color);
-    ClassDB::bind_method(D_METHOD("get_picker"), &ColorPickerButton::get_picker);
-    ClassDB::bind_method(D_METHOD("get_popup"), &ColorPickerButton::get_popup);
-    ClassDB::bind_method(D_METHOD("set_edit_alpha", "show"), &ColorPickerButton::set_edit_alpha);
-    ClassDB::bind_method(D_METHOD("is_editing_alpha"), &ColorPickerButton::is_editing_alpha);
-    ClassDB::bind_method(D_METHOD("_color_changed"), &ColorPickerButton::_color_changed);
-    ClassDB::bind_method(D_METHOD("_modal_closed"), &ColorPickerButton::_modal_closed);
+    MethodBinder::bind_method(D_METHOD("set_pick_color", "color"), &ColorPickerButton::set_pick_color);
+    MethodBinder::bind_method(D_METHOD("get_pick_color"), &ColorPickerButton::get_pick_color);
+    MethodBinder::bind_method(D_METHOD("get_picker"), &ColorPickerButton::get_picker);
+    MethodBinder::bind_method(D_METHOD("get_popup"), &ColorPickerButton::get_popup);
+    MethodBinder::bind_method(D_METHOD("set_edit_alpha", "show"), &ColorPickerButton::set_edit_alpha);
+    MethodBinder::bind_method(D_METHOD("is_editing_alpha"), &ColorPickerButton::is_editing_alpha);
+    MethodBinder::bind_method(D_METHOD("_color_changed"), &ColorPickerButton::_color_changed);
+    MethodBinder::bind_method(D_METHOD("_modal_closed"), &ColorPickerButton::_modal_closed);
 
     ADD_SIGNAL(MethodInfo("color_changed", PropertyInfo(Variant::COLOR, "color")));
     ADD_SIGNAL(MethodInfo("popup_closed"));

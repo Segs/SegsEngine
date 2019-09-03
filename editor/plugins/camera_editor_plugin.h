@@ -37,7 +37,7 @@
 
 class CameraEditor : public Control {
 
-	GDCLASS(CameraEditor, Control);
+	GDCLASS(CameraEditor,Control)
 
 	Panel *panel;
 	Button *preview;
@@ -56,20 +56,20 @@ public:
 
 class CameraEditorPlugin : public EditorPlugin {
 
-	GDCLASS(CameraEditorPlugin, EditorPlugin);
+	GDCLASS(CameraEditorPlugin,EditorPlugin)
 
 	//CameraEditor *camera_editor;
 	EditorNode *editor;
 
 public:
-	virtual String get_name() const { return "Camera"; }
-	bool has_main_screen() const { return false; }
-	virtual void edit(Object *p_object);
-	virtual bool handles(Object *p_object) const;
-	virtual void make_visible(bool p_visible);
+	String get_name() const override { return "Camera"; }
+	bool has_main_screen() const override { return false; }
+	void edit(Object *p_object) override;
+	bool handles(Object *p_object) const override;
+	void make_visible(bool p_visible) override;
 
 	CameraEditorPlugin(EditorNode *p_node);
-	~CameraEditorPlugin();
+	~CameraEditorPlugin() override;
 };
 
 #endif // CAMERA_EDITOR_PLUGIN_H

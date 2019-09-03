@@ -31,7 +31,11 @@
 #include "multiplayer_api.h"
 
 #include "core/io/marshalls.h"
+#include "core/method_bind.h"
 #include "scene/main/node.h"
+
+IMPL_GDCLASS(MultiplayerAPI)
+
 namespace {
 _FORCE_INLINE_ bool _should_call_local(MultiplayerAPI::RPCMode mode, bool is_master, bool &r_skip_rpc) {
 
@@ -200,7 +204,7 @@ void MultiplayerAPI::_process_packet(int p_from, const uint8_t *p_packet, int p_
 
             ERR_FAIL_COND_MSG(len_end >= p_packet_len, "Invalid packet received. Size too small.")
 
-            StringName name = String::utf8((const char *)&p_packet[5]);
+			StringName name = StringUtils::from_utf8((const char *)&p_packet[5]);
 
             if (packet_type == NETWORK_COMMAND_REMOTE_CALL) {
 
@@ -232,8 +236,7 @@ Node *MultiplayerAPI::_process_get_node(int p_from, const uint8_t *p_packet, int
 
         ERR_FAIL_COND_V_MSG(ofs >= p_packet_len, nullptr, "Invalid packet received. Size smaller than declared.")
 
-        String paths;
-        paths.parse_utf8((const char *)&p_packet[ofs], p_packet_len - ofs);
+		String paths = StringUtils::from_utf8((const char *)&p_packet[ofs], p_packet_len - ofs);
 
         NodePath np = (NodePath)paths;
 
@@ -344,8 +347,7 @@ void MultiplayerAPI::_process_simplify_path(int p_from, const uint8_t *p_packet,
     ERR_FAIL_COND_MSG(p_packet_len < 5, "Invalid packet received. Size too small.")
     int id = decode_uint32(&p_packet[1]);
 
-    String paths;
-    paths.parse_utf8((const char *)&p_packet[5], p_packet_len - 5);
+	String paths = StringUtils::from_utf8((const char *)&p_packet[5], p_packet_len - 5);
 
     NodePath path(paths);
 
@@ -360,7 +362,7 @@ void MultiplayerAPI::_process_simplify_path(int p_from, const uint8_t *p_packet,
     path_get_cache[p_from].nodes[id] = ni;
 
     // Encode path to send ack.
-    CharString pname = String(path).utf8();
+	CharString pname = StringUtils::to_utf8((String)path);
     int len = encode_cstring(pname.data(), nullptr);
 
     Vector<uint8_t> packet;
@@ -378,8 +380,7 @@ void MultiplayerAPI::_process_confirm_path(int p_from, const uint8_t *p_packet, 
 
     ERR_FAIL_COND_MSG(p_packet_len < 2, "Invalid packet received. Size too small.")
 
-    String paths;
-    paths.parse_utf8((const char *)&p_packet[1], p_packet_len - 1);
+	String paths = StringUtils::from_utf8((const char *)&p_packet[1], p_packet_len - 1);
 
     NodePath path(paths);
 
@@ -421,7 +422,7 @@ bool MultiplayerAPI::_send_confirm_path(NodePath p_path, PathSentCache *psc, int
     for (List<int>::Element *E = peers_to_add.front(); E; E = E->next()) {
 
         // Encode function name.
-        CharString pname = String(p_path).utf8();
+		CharString pname = StringUtils::to_utf8((String)p_path);
         int len = encode_cstring(pname.data(), nullptr);
 
         Vector<uint8_t> packet;
@@ -487,7 +488,7 @@ void MultiplayerAPI::_send_rpc(Node *p_from, int p_to, bool p_unreliable, bool p
     ofs += 4;
 
     // Encode function name.
-    CharString name = String(p_name).utf8();
+	CharString name = StringUtils::to_utf8(String(p_name));
     int len = encode_cstring(name.data(), nullptr);
     MAKE_ROOM(ofs + len)
     encode_cstring(name.data(), &(packet_cache.write[ofs]));
@@ -496,7 +497,7 @@ void MultiplayerAPI::_send_rpc(Node *p_from, int p_to, bool p_unreliable, bool p
     if (p_set) {
         // Set argument.
         Error err = encode_variant(*p_arg[0], nullptr, len, allow_object_decoding || network_peer->is_object_decoding_allowed());
-        ERR_FAIL_COND_MSG(err != OK, "Unable to encode RSET value. THIS IS LIKELY A BUG IN THE ENGINE!");
+		ERR_FAIL_COND_MSG(err != OK, "Unable to encode RSET value. THIS IS LIKELY A BUG IN THE ENGINE!")
         MAKE_ROOM(ofs + len)
         encode_variant(*p_arg[0], &(packet_cache.write[ofs]), len, allow_object_decoding || network_peer->is_object_decoding_allowed());
         ofs += len;
@@ -530,7 +531,7 @@ void MultiplayerAPI::_send_rpc(Node *p_from, int p_to, bool p_unreliable, bool p
         // Not all verified path, so send one by one.
 
         // Append path at the end, since we will need it for some packets.
-        CharString pname = String(from_path).utf8();
+		CharString pname = StringUtils::to_utf8(String(from_path));
         int path_len = encode_cstring(pname.data(), nullptr);
         MAKE_ROOM(ofs + path_len)
         encode_cstring(pname.data(), &(packet_cache.write[ofs]));
@@ -796,27 +797,27 @@ bool MultiplayerAPI::is_object_decoding_allowed() const {
 }
 
 void MultiplayerAPI::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("set_root_node", "node"), &MultiplayerAPI::set_root_node);
-    ClassDB::bind_method(D_METHOD("send_bytes", "bytes", "id", "mode"), &MultiplayerAPI::send_bytes, {DEFVAL(NetworkedMultiplayerPeer::TARGET_PEER_BROADCAST), DEFVAL(NetworkedMultiplayerPeer::TRANSFER_MODE_RELIABLE)});
-    ClassDB::bind_method(D_METHOD("has_network_peer"), &MultiplayerAPI::has_network_peer);
-    ClassDB::bind_method(D_METHOD("get_network_peer"), &MultiplayerAPI::get_network_peer);
-    ClassDB::bind_method(D_METHOD("get_network_unique_id"), &MultiplayerAPI::get_network_unique_id);
-    ClassDB::bind_method(D_METHOD("is_network_server"), &MultiplayerAPI::is_network_server);
-    ClassDB::bind_method(D_METHOD("get_rpc_sender_id"), &MultiplayerAPI::get_rpc_sender_id);
-    ClassDB::bind_method(D_METHOD("_add_peer", "id"), &MultiplayerAPI::_add_peer);
-    ClassDB::bind_method(D_METHOD("_del_peer", "id"), &MultiplayerAPI::_del_peer);
-    ClassDB::bind_method(D_METHOD("set_network_peer", "peer"), &MultiplayerAPI::set_network_peer);
-    ClassDB::bind_method(D_METHOD("poll"), &MultiplayerAPI::poll);
-    ClassDB::bind_method(D_METHOD("clear"), &MultiplayerAPI::clear);
+    MethodBinder::bind_method(D_METHOD("set_root_node", "node"), &MultiplayerAPI::set_root_node);
+    MethodBinder::bind_method(D_METHOD("send_bytes", "bytes", "id", "mode"), &MultiplayerAPI::send_bytes, {DEFVAL(NetworkedMultiplayerPeer::TARGET_PEER_BROADCAST), DEFVAL(NetworkedMultiplayerPeer::TRANSFER_MODE_RELIABLE)});
+    MethodBinder::bind_method(D_METHOD("has_network_peer"), &MultiplayerAPI::has_network_peer);
+    MethodBinder::bind_method(D_METHOD("get_network_peer"), &MultiplayerAPI::get_network_peer);
+    MethodBinder::bind_method(D_METHOD("get_network_unique_id"), &MultiplayerAPI::get_network_unique_id);
+    MethodBinder::bind_method(D_METHOD("is_network_server"), &MultiplayerAPI::is_network_server);
+    MethodBinder::bind_method(D_METHOD("get_rpc_sender_id"), &MultiplayerAPI::get_rpc_sender_id);
+    MethodBinder::bind_method(D_METHOD("_add_peer", "id"), &MultiplayerAPI::_add_peer);
+    MethodBinder::bind_method(D_METHOD("_del_peer", "id"), &MultiplayerAPI::_del_peer);
+    MethodBinder::bind_method(D_METHOD("set_network_peer", "peer"), &MultiplayerAPI::set_network_peer);
+    MethodBinder::bind_method(D_METHOD("poll"), &MultiplayerAPI::poll);
+    MethodBinder::bind_method(D_METHOD("clear"), &MultiplayerAPI::clear);
 
-    ClassDB::bind_method(D_METHOD("_connected_to_server"), &MultiplayerAPI::_connected_to_server);
-    ClassDB::bind_method(D_METHOD("_connection_failed"), &MultiplayerAPI::_connection_failed);
-    ClassDB::bind_method(D_METHOD("_server_disconnected"), &MultiplayerAPI::_server_disconnected);
-    ClassDB::bind_method(D_METHOD("get_network_connected_peers"), &MultiplayerAPI::get_network_connected_peers);
-    ClassDB::bind_method(D_METHOD("set_refuse_new_network_connections", "refuse"), &MultiplayerAPI::set_refuse_new_network_connections);
-    ClassDB::bind_method(D_METHOD("is_refusing_new_network_connections"), &MultiplayerAPI::is_refusing_new_network_connections);
-    ClassDB::bind_method(D_METHOD("set_allow_object_decoding", "enable"), &MultiplayerAPI::set_allow_object_decoding);
-    ClassDB::bind_method(D_METHOD("is_object_decoding_allowed"), &MultiplayerAPI::is_object_decoding_allowed);
+    MethodBinder::bind_method(D_METHOD("_connected_to_server"), &MultiplayerAPI::_connected_to_server);
+    MethodBinder::bind_method(D_METHOD("_connection_failed"), &MultiplayerAPI::_connection_failed);
+    MethodBinder::bind_method(D_METHOD("_server_disconnected"), &MultiplayerAPI::_server_disconnected);
+    MethodBinder::bind_method(D_METHOD("get_network_connected_peers"), &MultiplayerAPI::get_network_connected_peers);
+    MethodBinder::bind_method(D_METHOD("set_refuse_new_network_connections", "refuse"), &MultiplayerAPI::set_refuse_new_network_connections);
+    MethodBinder::bind_method(D_METHOD("is_refusing_new_network_connections"), &MultiplayerAPI::is_refusing_new_network_connections);
+    MethodBinder::bind_method(D_METHOD("set_allow_object_decoding", "enable"), &MultiplayerAPI::set_allow_object_decoding);
+    MethodBinder::bind_method(D_METHOD("is_object_decoding_allowed"), &MultiplayerAPI::is_object_decoding_allowed);
 
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "allow_object_decoding"), "set_allow_object_decoding", "is_object_decoding_allowed");
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "refuse_new_network_connections"), "set_refuse_new_network_connections", "is_refusing_new_network_connections");

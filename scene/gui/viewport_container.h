@@ -35,7 +35,7 @@
 
 class ViewportContainer : public Container {
 
-	GDCLASS(ViewportContainer, Container);
+	GDCLASS(ViewportContainer,Container)
 
 	bool stretch;
 	int shrink;
@@ -53,7 +53,7 @@ public:
 	void set_stretch_shrink(int p_shrink);
 	int get_stretch_shrink() const;
 
-	virtual Size2 get_minimum_size() const;
+	Size2 get_minimum_size() const override;
 
 	ViewportContainer();
 };

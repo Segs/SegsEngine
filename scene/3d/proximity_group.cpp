@@ -31,182 +31,185 @@
 #include "proximity_group.h"
 
 #include "core/math/math_funcs.h"
+#include "core/method_bind.h"
+
+IMPL_GDCLASS(ProximityGroup)
 
 void ProximityGroup::clear_groups() {
 
-	Map<StringName, uint32_t>::Element *E;
+    Map<StringName, uint32_t>::Element *E;
 
-	{
-		const int size = 16;
-		StringName remove_list[size];
-		E = groups.front();
-		int num = 0;
-		while (E && num < size) {
+    {
+        const int size = 16;
+        StringName remove_list[size];
+        E = groups.front();
+        int num = 0;
+        while (E && num < size) {
 
-			if (E->get() != group_version) {
-				remove_list[num++] = E->key();
-			};
+            if (E->get() != group_version) {
+                remove_list[num++] = E->key();
+            };
 
-			E = E->next();
-		};
-		for (int i = 0; i < num; i++) {
+            E = E->next();
+        };
+        for (int i = 0; i < num; i++) {
 
-			groups.erase(remove_list[i]);
-		};
-	};
+            groups.erase(remove_list[i]);
+        };
+    };
 
-	if (E) {
-		clear_groups(); // call until we go through the whole list
-	};
+    if (E) {
+        clear_groups(); // call until we go through the whole list
+    };
 };
 
 void ProximityGroup::update_groups() {
 
-	if (grid_radius == Vector3(0, 0, 0))
-		return;
+    if (grid_radius == Vector3(0, 0, 0))
+        return;
 
-	++group_version;
+    ++group_version;
 
-	Vector3 pos = get_global_transform().get_origin();
-	Vector3 vcell = pos / cell_size;
-	int cell[3] = { Math::fast_ftoi(vcell.x), Math::fast_ftoi(vcell.y), Math::fast_ftoi(vcell.z) };
+    Vector3 pos = get_global_transform().get_origin();
+    Vector3 vcell = pos / cell_size;
+    int cell[3] = { Math::fast_ftoi(vcell.x), Math::fast_ftoi(vcell.y), Math::fast_ftoi(vcell.z) };
 
-	add_groups(cell, group_name, 0);
+    add_groups(cell, group_name, 0);
 
-	clear_groups();
+    clear_groups();
 };
 
 void ProximityGroup::add_groups(int *p_cell, String p_base, int p_depth) {
 
-	p_base = p_base + "|";
-	if (grid_radius[p_depth] == 0) {
+    p_base = p_base + "|";
+    if (grid_radius[p_depth] == 0) {
 
-		if (p_depth == 2) {
-			_new_group(p_base);
-		} else {
-			add_groups(p_cell, p_base, p_depth + 1);
-		};
-	};
+        if (p_depth == 2) {
+            _new_group(p_base);
+        } else {
+            add_groups(p_cell, p_base, p_depth + 1);
+        };
+    };
 
-	int start = p_cell[p_depth] - grid_radius[p_depth];
-	int end = p_cell[p_depth] + grid_radius[p_depth];
+    int start = p_cell[p_depth] - grid_radius[p_depth];
+    int end = p_cell[p_depth] + grid_radius[p_depth];
 
-	for (int i = start; i <= end; i++) {
+    for (int i = start; i <= end; i++) {
 
-		String gname = p_base + itos(i);
-		if (p_depth == 2) {
-			_new_group(gname);
-		} else {
-			add_groups(p_cell, gname, p_depth + 1);
-		};
-	};
+        String gname = p_base + itos(i);
+        if (p_depth == 2) {
+            _new_group(gname);
+        } else {
+            add_groups(p_cell, gname, p_depth + 1);
+        };
+    };
 };
 
 void ProximityGroup::_new_group(StringName p_name) {
 
-	const Map<StringName, uint32_t>::Element *E = groups.find(p_name);
-	if (!E) {
-		add_to_group(p_name);
-	};
+    const Map<StringName, uint32_t>::Element *E = groups.find(p_name);
+    if (!E) {
+        add_to_group(p_name);
+    };
 
-	groups[p_name] = group_version;
+    groups[p_name] = group_version;
 };
 
 void ProximityGroup::_notification(int p_what) {
 
-	switch (p_what) {
+    switch (p_what) {
 
-		case NOTIFICATION_EXIT_TREE:
-			++group_version;
-			clear_groups();
-			break;
-		case NOTIFICATION_TRANSFORM_CHANGED:
-			update_groups();
-			break;
-	};
+        case NOTIFICATION_EXIT_TREE:
+            ++group_version;
+            clear_groups();
+            break;
+        case NOTIFICATION_TRANSFORM_CHANGED:
+            update_groups();
+            break;
+    };
 };
 
 void ProximityGroup::broadcast(String p_name, Variant p_params) {
 
-	Map<StringName, uint32_t>::Element *E;
-	E = groups.front();
-	while (E) {
+    Map<StringName, uint32_t>::Element *E;
+    E = groups.front();
+    while (E) {
 
-		get_tree()->call_group_flags(SceneTree::GROUP_CALL_DEFAULT, E->key(), "_proximity_group_broadcast", p_name, p_params);
-		E = E->next();
-	};
+        get_tree()->call_group_flags(SceneTree::GROUP_CALL_DEFAULT, E->key(), "_proximity_group_broadcast", p_name, p_params);
+        E = E->next();
+    };
 };
 
 void ProximityGroup::_proximity_group_broadcast(String p_name, Variant p_params) {
 
-	if (dispatch_mode == MODE_PROXY) {
+    if (dispatch_mode == MODE_PROXY) {
 
-		get_parent()->call(p_name, p_params);
-	} else {
+        get_parent()->call(p_name, p_params);
+    } else {
 
-		emit_signal("broadcast", p_name, p_params);
-	};
+        emit_signal("broadcast", p_name, p_params);
+    };
 };
 
 void ProximityGroup::set_group_name(const String &p_group_name) {
 
-	group_name = p_group_name;
+    group_name = p_group_name;
 };
 
 String ProximityGroup::get_group_name() const {
 
-	return group_name;
+    return group_name;
 };
 
 void ProximityGroup::set_dispatch_mode(DispatchMode p_mode) {
 
-	dispatch_mode = p_mode;
+    dispatch_mode = p_mode;
 };
 
 ProximityGroup::DispatchMode ProximityGroup::get_dispatch_mode() const {
 
-	return dispatch_mode;
+    return dispatch_mode;
 };
 
 void ProximityGroup::set_grid_radius(const Vector3 &p_radius) {
 
-	grid_radius = p_radius;
+    grid_radius = p_radius;
 };
 
 Vector3 ProximityGroup::get_grid_radius() const {
 
-	return grid_radius;
+    return grid_radius;
 };
 
 void ProximityGroup::_bind_methods() {
 
-	ClassDB::bind_method(D_METHOD("set_group_name", "name"), &ProximityGroup::set_group_name);
-	ClassDB::bind_method(D_METHOD("get_group_name"), &ProximityGroup::get_group_name);
-	ClassDB::bind_method(D_METHOD("set_dispatch_mode", "mode"), &ProximityGroup::set_dispatch_mode);
-	ClassDB::bind_method(D_METHOD("get_dispatch_mode"), &ProximityGroup::get_dispatch_mode);
-	ClassDB::bind_method(D_METHOD("set_grid_radius", "radius"), &ProximityGroup::set_grid_radius);
-	ClassDB::bind_method(D_METHOD("get_grid_radius"), &ProximityGroup::get_grid_radius);
-	ClassDB::bind_method(D_METHOD("broadcast", "name", "parameters"), &ProximityGroup::broadcast);
-	ClassDB::bind_method(D_METHOD("_proximity_group_broadcast", "name", "params"), &ProximityGroup::_proximity_group_broadcast);
+    MethodBinder::bind_method(D_METHOD("set_group_name", "name"), &ProximityGroup::set_group_name);
+    MethodBinder::bind_method(D_METHOD("get_group_name"), &ProximityGroup::get_group_name);
+    MethodBinder::bind_method(D_METHOD("set_dispatch_mode", "mode"), &ProximityGroup::set_dispatch_mode);
+    MethodBinder::bind_method(D_METHOD("get_dispatch_mode"), &ProximityGroup::get_dispatch_mode);
+    MethodBinder::bind_method(D_METHOD("set_grid_radius", "radius"), &ProximityGroup::set_grid_radius);
+    MethodBinder::bind_method(D_METHOD("get_grid_radius"), &ProximityGroup::get_grid_radius);
+    MethodBinder::bind_method(D_METHOD("broadcast", "name", "parameters"), &ProximityGroup::broadcast);
+    MethodBinder::bind_method(D_METHOD("_proximity_group_broadcast", "name", "params"), &ProximityGroup::_proximity_group_broadcast);
 
-	ADD_PROPERTY(PropertyInfo(Variant::STRING, "group_name"), "set_group_name", "get_group_name");
-	ADD_PROPERTY(PropertyInfo(Variant::INT, "dispatch_mode", PROPERTY_HINT_ENUM, "Proxy,Signal"), "set_dispatch_mode", "get_dispatch_mode");
-	ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "grid_radius"), "set_grid_radius", "get_grid_radius");
+    ADD_PROPERTY(PropertyInfo(Variant::STRING, "group_name"), "set_group_name", "get_group_name");
+    ADD_PROPERTY(PropertyInfo(Variant::INT, "dispatch_mode", PROPERTY_HINT_ENUM, "Proxy,Signal"), "set_dispatch_mode", "get_dispatch_mode");
+    ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "grid_radius"), "set_grid_radius", "get_grid_radius");
 
-	ADD_SIGNAL(MethodInfo("broadcast", PropertyInfo(Variant::STRING, "group_name"), PropertyInfo(Variant::ARRAY, "parameters")));
+    ADD_SIGNAL(MethodInfo("broadcast", PropertyInfo(Variant::STRING, "group_name"), PropertyInfo(Variant::ARRAY, "parameters")));
 
-	BIND_ENUM_CONSTANT(MODE_PROXY);
-	BIND_ENUM_CONSTANT(MODE_SIGNAL);
+    BIND_ENUM_CONSTANT(MODE_PROXY);
+    BIND_ENUM_CONSTANT(MODE_SIGNAL);
 };
 
 ProximityGroup::ProximityGroup() {
 
-	group_version = 0;
-	dispatch_mode = MODE_PROXY;
+    group_version = 0;
+    dispatch_mode = MODE_PROXY;
 
-	cell_size = 1.0;
-	grid_radius = Vector3(1, 1, 1);
-	set_notify_transform(true);
+    cell_size = 1.0;
+    grid_radius = Vector3(1, 1, 1);
+    set_notify_transform(true);
 };
 
 ProximityGroup::~ProximityGroup(){

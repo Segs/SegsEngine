@@ -37,7 +37,8 @@
 #include "webrtc_peer_connection.h"
 
 class WebRTCPeerConnectionGDNative : public WebRTCPeerConnection {
-	GDCLASS(WebRTCPeerConnectionGDNative, WebRTCPeerConnection);
+	GDCLASS(WebRTCPeerConnectionGDNative,WebRTCPeerConnection)
+IMPL_GDCLASS(WebRTCPeerConnectionGDNative)
 
 protected:
 	static void _bind_methods();

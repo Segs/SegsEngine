@@ -35,7 +35,7 @@
 
 class RichTextLabel : public Control {
 
-	GDCLASS(RichTextLabel, Control);
+	GDCLASS(RichTextLabel,Control)
 
 public:
 	enum Align {
@@ -356,7 +356,7 @@ public:
 
 	VScrollBar *get_v_scroll() { return vscroll; }
 
-	virtual CursorShape get_cursor_shape(const Point2 &p_pos) const;
+	CursorShape get_cursor_shape(const Point2 &p_pos) const override;
 
 	void set_selection_enabled(bool p_enabled);
 	bool is_selection_enabled() const;
@@ -381,10 +381,10 @@ public:
 	float get_percent_visible() const;
 
 	void set_fixed_size_to_width(int p_width);
-	virtual Size2 get_minimum_size() const;
+	Size2 get_minimum_size() const override;
 
 	RichTextLabel();
-	~RichTextLabel();
+	~RichTextLabel() override;
 };
 
 VARIANT_ENUM_CAST(RichTextLabel::Align);

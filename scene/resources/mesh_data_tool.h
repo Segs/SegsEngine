@@ -35,7 +35,7 @@
 
 class MeshDataTool : public Reference {
 
-	GDCLASS(MeshDataTool, Reference);
+	GDCLASS(MeshDataTool,Reference)
 
 	int format;
 	struct Vertex {

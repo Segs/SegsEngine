@@ -361,7 +361,7 @@ public:
     void set_base_material_tex_index(int p_idx);
 
     void add_custom_define(const String &p_define) {
-        custom_defines.push_back(p_define.utf8());
+        custom_defines.push_back(StringUtils::to_utf8(p_define));
     }
 
     virtual ~ShaderGLES3();

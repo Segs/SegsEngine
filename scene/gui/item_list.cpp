@@ -31,6 +31,11 @@
 #include "item_list.h"
 #include "core/os/os.h"
 #include "core/project_settings.h"
+#include "scene/resources/font.h"
+#include "scene/resources/style_box.h"
+#include "core/method_bind.h"
+
+IMPL_GDCLASS(ItemList)
 
 void ItemList::add_item(const String &p_item, const Ref<Texture> &p_texture, bool p_selectable) {
 
@@ -602,7 +607,7 @@ void ItemList::_gui_input(const Ref<InputEvent> &p_event) {
 
                     for (int i = current - 1; i >= 0; i--) {
 
-                        if (items[i].text.begins_with(search_string)) {
+                        if (StringUtils::begins_with(items[i].text,search_string)) {
 
                             set_current(i);
                             ensure_current_is_visible();
@@ -637,7 +642,7 @@ void ItemList::_gui_input(const Ref<InputEvent> &p_event) {
 
                     for (int i = current + 1; i < items.size(); i++) {
 
-                        if (items[i].text.begins_with(search_string)) {
+                        if (StringUtils::begins_with(items[i].text,search_string)) {
 
                             set_current(i);
                             ensure_current_is_visible();
@@ -749,7 +754,7 @@ void ItemList::_gui_input(const Ref<InputEvent> &p_event) {
                     search_string = "";
                 }
 
-                if (!search_string.startsWith(k->get_unicode()))
+				if (!StringUtils::begins_with(search_string,k->get_unicode()))
                     search_string += k->get_unicode();
 
                 for (int i = current + 1; i <= items.size(); i++) {
@@ -763,7 +768,7 @@ void ItemList::_gui_input(const Ref<InputEvent> &p_event) {
                     if (i == current)
                         break;
 
-                    if (items[i].text.findn(search_string) == 0) {
+                    if (StringUtils::findn(items[i].text,search_string) == 0) {
                         set_current(i);
                         ensure_current_is_visible();
                         if (select_mode == SELECT_SINGLE) {
@@ -1445,106 +1450,106 @@ bool ItemList::has_auto_height() const {
 
 void ItemList::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("add_item", "text", "icon", "selectable"), &ItemList::add_item, {DEFVAL(Variant()), DEFVAL(true)});
-    ClassDB::bind_method(D_METHOD("add_icon_item", "icon", "selectable"), &ItemList::add_icon_item, {DEFVAL(true)});
+    MethodBinder::bind_method(D_METHOD("add_item", "text", "icon", "selectable"), &ItemList::add_item, {DEFVAL(Variant()), DEFVAL(true)});
+    MethodBinder::bind_method(D_METHOD("add_icon_item", "icon", "selectable"), &ItemList::add_icon_item, {DEFVAL(true)});
 
-    ClassDB::bind_method(D_METHOD("set_item_text", "idx", "text"), &ItemList::set_item_text);
-    ClassDB::bind_method(D_METHOD("get_item_text", "idx"), &ItemList::get_item_text);
+    MethodBinder::bind_method(D_METHOD("set_item_text", "idx", "text"), &ItemList::set_item_text);
+    MethodBinder::bind_method(D_METHOD("get_item_text", "idx"), &ItemList::get_item_text);
 
-    ClassDB::bind_method(D_METHOD("set_item_icon", "idx", "icon"), &ItemList::set_item_icon);
-    ClassDB::bind_method(D_METHOD("get_item_icon", "idx"), &ItemList::get_item_icon);
+    MethodBinder::bind_method(D_METHOD("set_item_icon", "idx", "icon"), &ItemList::set_item_icon);
+    MethodBinder::bind_method(D_METHOD("get_item_icon", "idx"), &ItemList::get_item_icon);
 
-    ClassDB::bind_method(D_METHOD("set_item_icon_transposed", "idx", "rect"), &ItemList::set_item_icon_transposed);
-    ClassDB::bind_method(D_METHOD("is_item_icon_transposed", "idx"), &ItemList::is_item_icon_transposed);
+    MethodBinder::bind_method(D_METHOD("set_item_icon_transposed", "idx", "rect"), &ItemList::set_item_icon_transposed);
+    MethodBinder::bind_method(D_METHOD("is_item_icon_transposed", "idx"), &ItemList::is_item_icon_transposed);
 
-    ClassDB::bind_method(D_METHOD("set_item_icon_region", "idx", "rect"), &ItemList::set_item_icon_region);
-    ClassDB::bind_method(D_METHOD("get_item_icon_region", "idx"), &ItemList::get_item_icon_region);
+    MethodBinder::bind_method(D_METHOD("set_item_icon_region", "idx", "rect"), &ItemList::set_item_icon_region);
+    MethodBinder::bind_method(D_METHOD("get_item_icon_region", "idx"), &ItemList::get_item_icon_region);
 
-    ClassDB::bind_method(D_METHOD("set_item_icon_modulate", "idx", "modulate"), &ItemList::set_item_icon_modulate);
-    ClassDB::bind_method(D_METHOD("get_item_icon_modulate", "idx"), &ItemList::get_item_icon_modulate);
+    MethodBinder::bind_method(D_METHOD("set_item_icon_modulate", "idx", "modulate"), &ItemList::set_item_icon_modulate);
+    MethodBinder::bind_method(D_METHOD("get_item_icon_modulate", "idx"), &ItemList::get_item_icon_modulate);
 
-    ClassDB::bind_method(D_METHOD("set_item_selectable", "idx", "selectable"), &ItemList::set_item_selectable);
-    ClassDB::bind_method(D_METHOD("is_item_selectable", "idx"), &ItemList::is_item_selectable);
+    MethodBinder::bind_method(D_METHOD("set_item_selectable", "idx", "selectable"), &ItemList::set_item_selectable);
+    MethodBinder::bind_method(D_METHOD("is_item_selectable", "idx"), &ItemList::is_item_selectable);
 
-    ClassDB::bind_method(D_METHOD("set_item_disabled", "idx", "disabled"), &ItemList::set_item_disabled);
-    ClassDB::bind_method(D_METHOD("is_item_disabled", "idx"), &ItemList::is_item_disabled);
+    MethodBinder::bind_method(D_METHOD("set_item_disabled", "idx", "disabled"), &ItemList::set_item_disabled);
+    MethodBinder::bind_method(D_METHOD("is_item_disabled", "idx"), &ItemList::is_item_disabled);
 
-    ClassDB::bind_method(D_METHOD("set_item_metadata", "idx", "metadata"), &ItemList::set_item_metadata);
-    ClassDB::bind_method(D_METHOD("get_item_metadata", "idx"), &ItemList::get_item_metadata);
+    MethodBinder::bind_method(D_METHOD("set_item_metadata", "idx", "metadata"), &ItemList::set_item_metadata);
+    MethodBinder::bind_method(D_METHOD("get_item_metadata", "idx"), &ItemList::get_item_metadata);
 
-    ClassDB::bind_method(D_METHOD("set_item_custom_bg_color", "idx", "custom_bg_color"), &ItemList::set_item_custom_bg_color);
-    ClassDB::bind_method(D_METHOD("get_item_custom_bg_color", "idx"), &ItemList::get_item_custom_bg_color);
+    MethodBinder::bind_method(D_METHOD("set_item_custom_bg_color", "idx", "custom_bg_color"), &ItemList::set_item_custom_bg_color);
+    MethodBinder::bind_method(D_METHOD("get_item_custom_bg_color", "idx"), &ItemList::get_item_custom_bg_color);
 
-    ClassDB::bind_method(D_METHOD("set_item_custom_fg_color", "idx", "custom_fg_color"), &ItemList::set_item_custom_fg_color);
-    ClassDB::bind_method(D_METHOD("get_item_custom_fg_color", "idx"), &ItemList::get_item_custom_fg_color);
+    MethodBinder::bind_method(D_METHOD("set_item_custom_fg_color", "idx", "custom_fg_color"), &ItemList::set_item_custom_fg_color);
+    MethodBinder::bind_method(D_METHOD("get_item_custom_fg_color", "idx"), &ItemList::get_item_custom_fg_color);
 
-    ClassDB::bind_method(D_METHOD("set_item_tooltip_enabled", "idx", "enable"), &ItemList::set_item_tooltip_enabled);
-    ClassDB::bind_method(D_METHOD("is_item_tooltip_enabled", "idx"), &ItemList::is_item_tooltip_enabled);
+    MethodBinder::bind_method(D_METHOD("set_item_tooltip_enabled", "idx", "enable"), &ItemList::set_item_tooltip_enabled);
+    MethodBinder::bind_method(D_METHOD("is_item_tooltip_enabled", "idx"), &ItemList::is_item_tooltip_enabled);
 
-    ClassDB::bind_method(D_METHOD("set_item_tooltip", "idx", "tooltip"), &ItemList::set_item_tooltip);
-    ClassDB::bind_method(D_METHOD("get_item_tooltip", "idx"), &ItemList::get_item_tooltip);
+    MethodBinder::bind_method(D_METHOD("set_item_tooltip", "idx", "tooltip"), &ItemList::set_item_tooltip);
+    MethodBinder::bind_method(D_METHOD("get_item_tooltip", "idx"), &ItemList::get_item_tooltip);
 
-    ClassDB::bind_method(D_METHOD("select", "idx", "single"), &ItemList::select, {DEFVAL(true)});
-    ClassDB::bind_method(D_METHOD("unselect", "idx"), &ItemList::unselect);
-    ClassDB::bind_method(D_METHOD("unselect_all"), &ItemList::unselect_all);
+    MethodBinder::bind_method(D_METHOD("select", "idx", "single"), &ItemList::select, {DEFVAL(true)});
+    MethodBinder::bind_method(D_METHOD("unselect", "idx"), &ItemList::unselect);
+    MethodBinder::bind_method(D_METHOD("unselect_all"), &ItemList::unselect_all);
 
-    ClassDB::bind_method(D_METHOD("is_selected", "idx"), &ItemList::is_selected);
-    ClassDB::bind_method(D_METHOD("get_selected_items"), &ItemList::get_selected_items);
+    MethodBinder::bind_method(D_METHOD("is_selected", "idx"), &ItemList::is_selected);
+    MethodBinder::bind_method(D_METHOD("get_selected_items"), &ItemList::get_selected_items);
 
-    ClassDB::bind_method(D_METHOD("move_item", "from_idx", "to_idx"), &ItemList::move_item);
+    MethodBinder::bind_method(D_METHOD("move_item", "from_idx", "to_idx"), &ItemList::move_item);
 
-    ClassDB::bind_method(D_METHOD("get_item_count"), &ItemList::get_item_count);
-    ClassDB::bind_method(D_METHOD("remove_item", "idx"), &ItemList::remove_item);
+    MethodBinder::bind_method(D_METHOD("get_item_count"), &ItemList::get_item_count);
+    MethodBinder::bind_method(D_METHOD("remove_item", "idx"), &ItemList::remove_item);
 
-    ClassDB::bind_method(D_METHOD("clear"), &ItemList::clear);
-    ClassDB::bind_method(D_METHOD("sort_items_by_text"), &ItemList::sort_items_by_text);
+    MethodBinder::bind_method(D_METHOD("clear"), &ItemList::clear);
+    MethodBinder::bind_method(D_METHOD("sort_items_by_text"), &ItemList::sort_items_by_text);
 
-    ClassDB::bind_method(D_METHOD("set_fixed_column_width", "width"), &ItemList::set_fixed_column_width);
-    ClassDB::bind_method(D_METHOD("get_fixed_column_width"), &ItemList::get_fixed_column_width);
+    MethodBinder::bind_method(D_METHOD("set_fixed_column_width", "width"), &ItemList::set_fixed_column_width);
+    MethodBinder::bind_method(D_METHOD("get_fixed_column_width"), &ItemList::get_fixed_column_width);
 
-    ClassDB::bind_method(D_METHOD("set_same_column_width", "enable"), &ItemList::set_same_column_width);
-    ClassDB::bind_method(D_METHOD("is_same_column_width"), &ItemList::is_same_column_width);
+    MethodBinder::bind_method(D_METHOD("set_same_column_width", "enable"), &ItemList::set_same_column_width);
+    MethodBinder::bind_method(D_METHOD("is_same_column_width"), &ItemList::is_same_column_width);
 
-    ClassDB::bind_method(D_METHOD("set_max_text_lines", "lines"), &ItemList::set_max_text_lines);
-    ClassDB::bind_method(D_METHOD("get_max_text_lines"), &ItemList::get_max_text_lines);
+    MethodBinder::bind_method(D_METHOD("set_max_text_lines", "lines"), &ItemList::set_max_text_lines);
+    MethodBinder::bind_method(D_METHOD("get_max_text_lines"), &ItemList::get_max_text_lines);
 
-    ClassDB::bind_method(D_METHOD("set_max_columns", "amount"), &ItemList::set_max_columns);
-    ClassDB::bind_method(D_METHOD("get_max_columns"), &ItemList::get_max_columns);
+    MethodBinder::bind_method(D_METHOD("set_max_columns", "amount"), &ItemList::set_max_columns);
+    MethodBinder::bind_method(D_METHOD("get_max_columns"), &ItemList::get_max_columns);
 
-    ClassDB::bind_method(D_METHOD("set_select_mode", "mode"), &ItemList::set_select_mode);
-    ClassDB::bind_method(D_METHOD("get_select_mode"), &ItemList::get_select_mode);
+    MethodBinder::bind_method(D_METHOD("set_select_mode", "mode"), &ItemList::set_select_mode);
+    MethodBinder::bind_method(D_METHOD("get_select_mode"), &ItemList::get_select_mode);
 
-    ClassDB::bind_method(D_METHOD("set_icon_mode", "mode"), &ItemList::set_icon_mode);
-    ClassDB::bind_method(D_METHOD("get_icon_mode"), &ItemList::get_icon_mode);
+    MethodBinder::bind_method(D_METHOD("set_icon_mode", "mode"), &ItemList::set_icon_mode);
+    MethodBinder::bind_method(D_METHOD("get_icon_mode"), &ItemList::get_icon_mode);
 
-    ClassDB::bind_method(D_METHOD("set_fixed_icon_size", "size"), &ItemList::set_fixed_icon_size);
-    ClassDB::bind_method(D_METHOD("get_fixed_icon_size"), &ItemList::get_fixed_icon_size);
+    MethodBinder::bind_method(D_METHOD("set_fixed_icon_size", "size"), &ItemList::set_fixed_icon_size);
+    MethodBinder::bind_method(D_METHOD("get_fixed_icon_size"), &ItemList::get_fixed_icon_size);
 
-    ClassDB::bind_method(D_METHOD("set_icon_scale", "scale"), &ItemList::set_icon_scale);
-    ClassDB::bind_method(D_METHOD("get_icon_scale"), &ItemList::get_icon_scale);
+    MethodBinder::bind_method(D_METHOD("set_icon_scale", "scale"), &ItemList::set_icon_scale);
+    MethodBinder::bind_method(D_METHOD("get_icon_scale"), &ItemList::get_icon_scale);
 
-    ClassDB::bind_method(D_METHOD("set_allow_rmb_select", "allow"), &ItemList::set_allow_rmb_select);
-    ClassDB::bind_method(D_METHOD("get_allow_rmb_select"), &ItemList::get_allow_rmb_select);
+    MethodBinder::bind_method(D_METHOD("set_allow_rmb_select", "allow"), &ItemList::set_allow_rmb_select);
+    MethodBinder::bind_method(D_METHOD("get_allow_rmb_select"), &ItemList::get_allow_rmb_select);
 
-    ClassDB::bind_method(D_METHOD("set_allow_reselect", "allow"), &ItemList::set_allow_reselect);
-    ClassDB::bind_method(D_METHOD("get_allow_reselect"), &ItemList::get_allow_reselect);
+    MethodBinder::bind_method(D_METHOD("set_allow_reselect", "allow"), &ItemList::set_allow_reselect);
+    MethodBinder::bind_method(D_METHOD("get_allow_reselect"), &ItemList::get_allow_reselect);
 
-    ClassDB::bind_method(D_METHOD("set_auto_height", "enable"), &ItemList::set_auto_height);
-    ClassDB::bind_method(D_METHOD("has_auto_height"), &ItemList::has_auto_height);
+    MethodBinder::bind_method(D_METHOD("set_auto_height", "enable"), &ItemList::set_auto_height);
+    MethodBinder::bind_method(D_METHOD("has_auto_height"), &ItemList::has_auto_height);
 
-    ClassDB::bind_method(D_METHOD("is_anything_selected"), &ItemList::is_anything_selected);
+    MethodBinder::bind_method(D_METHOD("is_anything_selected"), &ItemList::is_anything_selected);
 
-    ClassDB::bind_method(D_METHOD("get_item_at_position", "position", "exact"), &ItemList::get_item_at_position, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("get_item_at_position", "position", "exact"), &ItemList::get_item_at_position, {DEFVAL(false)});
 
-    ClassDB::bind_method(D_METHOD("ensure_current_is_visible"), &ItemList::ensure_current_is_visible);
+    MethodBinder::bind_method(D_METHOD("ensure_current_is_visible"), &ItemList::ensure_current_is_visible);
 
-    ClassDB::bind_method(D_METHOD("get_v_scroll"), &ItemList::get_v_scroll);
+    MethodBinder::bind_method(D_METHOD("get_v_scroll"), &ItemList::get_v_scroll);
 
-    ClassDB::bind_method(D_METHOD("_scroll_changed"), &ItemList::_scroll_changed);
-    ClassDB::bind_method(D_METHOD("_gui_input"), &ItemList::_gui_input);
+    MethodBinder::bind_method(D_METHOD("_scroll_changed"), &ItemList::_scroll_changed);
+    MethodBinder::bind_method(D_METHOD("_gui_input"), &ItemList::_gui_input);
 
-    ClassDB::bind_method(D_METHOD("_set_items"), &ItemList::_set_items);
-    ClassDB::bind_method(D_METHOD("_get_items"), &ItemList::_get_items);
+    MethodBinder::bind_method(D_METHOD("_set_items"), &ItemList::_set_items);
+    MethodBinder::bind_method(D_METHOD("_get_items"), &ItemList::_get_items);
 
     ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "items", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_items", "_get_items");
 

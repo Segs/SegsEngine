@@ -30,6 +30,9 @@
 
 #include "func_ref.h"
 #include "object_db.h"
+#include "core/method_bind.h"
+
+IMPL_GDCLASS(FuncRef)
 
 Variant FuncRef::call_func(const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
 
@@ -49,18 +52,18 @@ Variant FuncRef::call_func(const Variant **p_args, int p_argcount, Variant::Call
 
 Variant FuncRef::call_funcv(const Array &p_args) {
 
-    ERR_FAIL_COND_V(id == 0, Variant());
+    ERR_FAIL_COND_V(id == 0, Variant())
 
     Object *obj = ObjectDB::get_instance(id);
 
-    ERR_FAIL_COND_V(!obj, Variant());
+    ERR_FAIL_COND_V(!obj, Variant())
 
     return obj->callv(function, p_args);
 }
 
 void FuncRef::set_instance(Object *p_obj) {
 
-    ERR_FAIL_NULL(p_obj);
+    ERR_FAIL_NULL(p_obj)
     id = p_obj->get_instance_id();
 }
 
@@ -80,19 +83,24 @@ bool FuncRef::is_valid() const {
     return obj->has_method(function);
 }
 
+FuncRef::~FuncRef()
+{
+
+}
+
 void FuncRef::_bind_methods() {
 
     {
         MethodInfo mi;
         mi.name = "call_func";
         Vector<Variant> defargs;
-        ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "call_func", &FuncRef::call_func, mi, defargs);
+		MethodBinder::bind_vararg_method(StaticCString("call_func"), &FuncRef::call_func, mi, defargs);
     }
 
-    ClassDB::bind_method(D_METHOD("call_funcv", "arg_array"), &FuncRef::call_funcv);
+    MethodBinder::bind_method(D_METHOD("call_funcv", "arg_array"), &FuncRef::call_funcv);
 
-    ClassDB::bind_method(D_METHOD("set_instance", "instance"), &FuncRef::set_instance);
-    ClassDB::bind_method(D_METHOD("set_function", "name"), &FuncRef::set_function);
-    ClassDB::bind_method(D_METHOD("is_valid"), &FuncRef::is_valid);
+    MethodBinder::bind_method(D_METHOD("set_instance", "instance"), &FuncRef::set_instance);
+    MethodBinder::bind_method(D_METHOD("set_function", "name"), &FuncRef::set_function);
+    MethodBinder::bind_method(D_METHOD("is_valid"), &FuncRef::is_valid);
 }
 

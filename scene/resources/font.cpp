@@ -31,8 +31,11 @@
 #include "font.h"
 
 #include "core/io/resource_loader.h"
-#include "method_bind_ext.gen.h"
 #include "core/os/file_access.h"
+#include "core/method_bind.h"
+
+IMPL_GDCLASS(Font)
+IMPL_GDCLASS(BitmapFont)
 
 template<>
 struct Hasher<QChar> {
@@ -74,18 +77,19 @@ void Font::draw(RID p_canvas_item, const Point2 &p_pos, const String &p_text, co
     for (int i = 0; i < p_text.length(); i++) {
 
         int width = get_char_size(p_text[i]).width;
-
+        CharType next = (i+1)<p_text.size() ? p_text[i + 1] : '0';
         if (p_clip_w >= 0 && (ofs.x + width) > p_clip_w)
             break; //clip
 
-        ofs.x += draw_char(p_canvas_item, p_pos + ofs, p_text[i], p_text[i + 1], with_outline ? p_outline_modulate : p_modulate, with_outline);
+        ofs.x += draw_char(p_canvas_item, p_pos + ofs, p_text[i], next, with_outline ? p_outline_modulate : p_modulate, with_outline);
         ++chars_drawn;
     }
 
     if (has_outline()) {
         ofs = Vector2(0, 0);
         for (int i = 0; i < chars_drawn; i++) {
-            ofs.x += draw_char(p_canvas_item, p_pos + ofs, p_text[i], p_text[i + 1], p_modulate, false);
+            CharType next = (i+1)<p_text.size() ? p_text[i + 1] : '0';
+            ofs.x += draw_char(p_canvas_item, p_pos + ofs, p_text[i], next, p_modulate, false);
         }
     }
 }
@@ -97,16 +101,16 @@ void Font::update_changes() {
 
 void Font::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("draw", "canvas_item", "position", "string", "modulate", "clip_w", "outline_modulate"), &Font::draw, {DEFVAL(Color(1, 1, 1)), DEFVAL(-1), DEFVAL(Color(1, 1, 1))});
-    ClassDB::bind_method(D_METHOD("get_ascent"), &Font::get_ascent);
-    ClassDB::bind_method(D_METHOD("get_descent"), &Font::get_descent);
-    ClassDB::bind_method(D_METHOD("get_height"), &Font::get_height);
-    ClassDB::bind_method(D_METHOD("is_distance_field_hint"), &Font::is_distance_field_hint);
-    ClassDB::bind_method(D_METHOD("get_string_size", "string"), &Font::get_string_size);
-    ClassDB::bind_method(D_METHOD("get_wordwrap_string_size", "string", "p_width"), &Font::get_wordwrap_string_size);
-    ClassDB::bind_method(D_METHOD("has_outline"), &Font::has_outline);
-    ClassDB::bind_method(D_METHOD("draw_char", "canvas_item", "position", "char", "next", "modulate", "outline"), &Font::draw_char, {DEFVAL(-1), DEFVAL(Color(1, 1, 1)), DEFVAL(false)});
-    ClassDB::bind_method(D_METHOD("update_changes"), &Font::update_changes);
+    MethodBinder::bind_method(D_METHOD("draw", "canvas_item", "position", "string", "modulate", "clip_w", "outline_modulate"), &Font::draw, {DEFVAL(Color(1, 1, 1)), DEFVAL(-1), DEFVAL(Color(1, 1, 1))});
+    MethodBinder::bind_method(D_METHOD("get_ascent"), &Font::get_ascent);
+    MethodBinder::bind_method(D_METHOD("get_descent"), &Font::get_descent);
+    MethodBinder::bind_method(D_METHOD("get_height"), &Font::get_height);
+    MethodBinder::bind_method(D_METHOD("is_distance_field_hint"), &Font::is_distance_field_hint);
+    MethodBinder::bind_method(D_METHOD("get_string_size", "string"), &Font::get_string_size);
+    MethodBinder::bind_method(D_METHOD("get_wordwrap_string_size", "string", "p_width"), &Font::get_wordwrap_string_size);
+    MethodBinder::bind_method(D_METHOD("has_outline"), &Font::has_outline);
+    MethodBinder::bind_method(D_METHOD("draw_char", "canvas_item", "position", "char", "next", "modulate", "outline"), &Font::draw_char, {DEFVAL(-1), DEFVAL(Color(1, 1, 1)), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("update_changes"), &Font::update_changes);
 }
 
 Font::Font() {
@@ -217,8 +221,8 @@ Error BitmapFont::create_from_fnt(const String &p_file) {
 
         String line = f->get_line();
 
-        int delimiter = line.find(" ");
-        String type = line.substr(0, delimiter);
+        int delimiter = StringUtils::find(line," ");
+        String type = StringUtils::substr(line,0, delimiter);
         int pos = delimiter + 1;
         Map<String, String> keys;
 
@@ -227,24 +231,24 @@ Error BitmapFont::create_from_fnt(const String &p_file) {
 
         while (pos < line.size()) {
 
-            int eq = line.find("=", pos);
+            int eq = StringUtils::find(line,"=", pos);
             if (eq == -1)
                 break;
-            String key = line.substr(pos, eq - pos);
+            String key = StringUtils::substr(line,pos, eq - pos);
             int end = -1;
             String value;
             if (line[eq + 1] == '"') {
-                end = line.find("\"", eq + 2);
+                end = StringUtils::find(line,"\"", eq + 2);
                 if (end == -1)
                     break;
-                value = line.substr(eq + 2, end - 1 - eq - 1);
+                value = StringUtils::substr(line,eq + 2, end - 1 - eq - 1);
                 pos = end + 1;
             } else {
-                end = line.find(" ", eq + 1);
+                end = StringUtils::find(line," ", eq + 1);
                 if (end == -1)
                     end = line.size();
 
-                value = line.substr(eq + 1, end - eq);
+                value = StringUtils::substr(line,eq + 1, end - eq);
 
                 pos = end;
             }
@@ -261,15 +265,15 @@ Error BitmapFont::create_from_fnt(const String &p_file) {
                 set_name(keys["face"]);
             /*
             if (keys.has("size"))
-                font->set_height(keys["size"].to_int());
+                font->set_height(StringUtils::to_int(keys["size"]));
             */
 
         } else if (type == "common") {
 
             if (keys.has("lineHeight"))
-                set_height(keys["lineHeight"].to_int());
+                set_height(StringUtils::to_int(keys["lineHeight"]));
             if (keys.has("base"))
-                set_ascent(keys["base"].to_int());
+                set_ascent(StringUtils::to_int(keys["base"]));
 
         } else if (type == "page") {
 
@@ -279,7 +283,7 @@ Error BitmapFont::create_from_fnt(const String &p_file) {
                 String file = PathUtils::plus_file(base_dir,keys["file"]);
                 Ref<Texture> tex = ResourceLoader::load(file);
                 if (tex.is_null()) {
-                    ERR_PRINT("Can't load font texture!");
+                    ERR_PRINT("Can't load font texture!")
                 } else {
                     add_texture(tex);
                 }
@@ -288,32 +292,32 @@ Error BitmapFont::create_from_fnt(const String &p_file) {
 
             CharType idx = 0;
             if (keys.has("id"))
-                idx = keys["id"].to_int();
+                idx = StringUtils::to_int(keys["id"]);
 
             Rect2 rect;
 
             if (keys.has("x"))
-                rect.position.x = keys["x"].to_int();
+                rect.position.x = StringUtils::to_int(keys["x"]);
             if (keys.has("y"))
-                rect.position.y = keys["y"].to_int();
+                rect.position.y = StringUtils::to_int(keys["y"]);
             if (keys.has("width"))
-                rect.size.width = keys["width"].to_int();
+                rect.size.width = StringUtils::to_int(keys["width"]);
             if (keys.has("height"))
-                rect.size.height = keys["height"].to_int();
+                rect.size.height = StringUtils::to_int(keys["height"]);
 
             Point2 ofs;
 
             if (keys.has("xoffset"))
-                ofs.x = keys["xoffset"].to_int();
+                ofs.x = StringUtils::to_int(keys["xoffset"]);
             if (keys.has("yoffset"))
-                ofs.y = keys["yoffset"].to_int();
+                ofs.y = StringUtils::to_int(keys["yoffset"]);
 
             int texture = 0;
             if (keys.has("page"))
-                texture = keys["page"].to_int();
+                texture = StringUtils::to_int(keys["page"]);
             int advance = -1;
             if (keys.has("xadvance"))
-                advance = keys["xadvance"].to_int();
+                advance = StringUtils::to_int(keys["xadvance"]);
 
             add_char(idx, texture, rect, ofs, advance);
 
@@ -323,11 +327,11 @@ Error BitmapFont::create_from_fnt(const String &p_file) {
             int k = 0;
 
             if (keys.has("first"))
-                first = keys["first"].to_int();
+                first = StringUtils::to_int(keys["first"]);
             if (keys.has("second"))
-                second = keys["second"].to_int();
+                second = StringUtils::to_int(keys["second"]);
             if (keys.has("amount"))
-                k = keys["amount"].to_int();
+                k = StringUtils::to_int(keys["amount"]);
 
             add_kerning_pair(first, second, -k);
         }
@@ -492,7 +496,7 @@ Size2 Font::get_string_size(const String &p_string) const {
     int l = p_string.length();
     if (l == 0)
         return Size2(0, get_height());
-    const CharType *sptr = p_string.constData();
+    const CharType *sptr = p_string.cdata();
 
     for (int i = 0; i < l; i++) {
 
@@ -599,37 +603,37 @@ Size2 BitmapFont::get_char_size(CharType p_char, CharType p_next) const {
 
 void BitmapFont::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("create_from_fnt", "path"), &BitmapFont::create_from_fnt);
-    ClassDB::bind_method(D_METHOD("set_height", "px"), &BitmapFont::set_height);
+    MethodBinder::bind_method(D_METHOD("create_from_fnt", "path"), &BitmapFont::create_from_fnt);
+    MethodBinder::bind_method(D_METHOD("set_height", "px"), &BitmapFont::set_height);
 
-    ClassDB::bind_method(D_METHOD("set_ascent", "px"), &BitmapFont::set_ascent);
+    MethodBinder::bind_method(D_METHOD("set_ascent", "px"), &BitmapFont::set_ascent);
 
-    ClassDB::bind_method(D_METHOD("add_kerning_pair", "char_a", "char_b", "kerning"), &BitmapFont::add_kerning_pair);
-    ClassDB::bind_method(D_METHOD("get_kerning_pair", "char_a", "char_b"), &BitmapFont::get_kerning_pair);
+    MethodBinder::bind_method(D_METHOD("add_kerning_pair", "char_a", "char_b", "kerning"), &BitmapFont::add_kerning_pair);
+    MethodBinder::bind_method(D_METHOD("get_kerning_pair", "char_a", "char_b"), &BitmapFont::get_kerning_pair);
 
-    ClassDB::bind_method(D_METHOD("add_texture", "texture"), &BitmapFont::add_texture);
-    ClassDB::bind_method(D_METHOD("add_char", "character", "texture", "rect", "align", "advance"), &BitmapFont::add_char, {DEFVAL(Point2()), DEFVAL(-1)});
+    MethodBinder::bind_method(D_METHOD("add_texture", "texture"), &BitmapFont::add_texture);
+    MethodBinder::bind_method(D_METHOD("add_char", "character", "texture", "rect", "align", "advance"), &BitmapFont::add_char, {DEFVAL(Point2()), DEFVAL(-1)});
 
-    ClassDB::bind_method(D_METHOD("get_texture_count"), &BitmapFont::get_texture_count);
-    ClassDB::bind_method(D_METHOD("get_texture", "idx"), &BitmapFont::get_texture);
+    MethodBinder::bind_method(D_METHOD("get_texture_count"), &BitmapFont::get_texture_count);
+    MethodBinder::bind_method(D_METHOD("get_texture", "idx"), &BitmapFont::get_texture);
 
-    ClassDB::bind_method(D_METHOD("get_char_size", "char", "next"), &BitmapFont::get_char_size, {DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("get_char_size", "char", "next"), &BitmapFont::get_char_size, {DEFVAL(0)});
 
-    ClassDB::bind_method(D_METHOD("set_distance_field_hint", "enable"), &BitmapFont::set_distance_field_hint);
+    MethodBinder::bind_method(D_METHOD("set_distance_field_hint", "enable"), &BitmapFont::set_distance_field_hint);
 
-    ClassDB::bind_method(D_METHOD("clear"), &BitmapFont::clear);
+    MethodBinder::bind_method(D_METHOD("clear"), &BitmapFont::clear);
 
-    ClassDB::bind_method(D_METHOD("_set_chars"), &BitmapFont::_set_chars);
-    ClassDB::bind_method(D_METHOD("_get_chars"), &BitmapFont::_get_chars);
+    MethodBinder::bind_method(D_METHOD("_set_chars"), &BitmapFont::_set_chars);
+    MethodBinder::bind_method(D_METHOD("_get_chars"), &BitmapFont::_get_chars);
 
-    ClassDB::bind_method(D_METHOD("_set_kernings"), &BitmapFont::_set_kernings);
-    ClassDB::bind_method(D_METHOD("_get_kernings"), &BitmapFont::_get_kernings);
+    MethodBinder::bind_method(D_METHOD("_set_kernings"), &BitmapFont::_set_kernings);
+    MethodBinder::bind_method(D_METHOD("_get_kernings"), &BitmapFont::_get_kernings);
 
-    ClassDB::bind_method(D_METHOD("_set_textures"), &BitmapFont::_set_textures);
-    ClassDB::bind_method(D_METHOD("_get_textures"), &BitmapFont::_get_textures);
+    MethodBinder::bind_method(D_METHOD("_set_textures"), &BitmapFont::_set_textures);
+    MethodBinder::bind_method(D_METHOD("_get_textures"), &BitmapFont::_get_textures);
 
-    ClassDB::bind_method(D_METHOD("set_fallback", "fallback"), &BitmapFont::set_fallback);
-    ClassDB::bind_method(D_METHOD("get_fallback"), &BitmapFont::get_fallback);
+    MethodBinder::bind_method(D_METHOD("set_fallback", "fallback"), &BitmapFont::set_fallback);
+    MethodBinder::bind_method(D_METHOD("get_fallback"), &BitmapFont::get_fallback);
 
     ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "textures", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_textures", "_get_textures");
     ADD_PROPERTY(PropertyInfo(Variant::POOL_INT_ARRAY, "chars", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_chars", "_get_chars");

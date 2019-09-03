@@ -47,14 +47,16 @@
 #include "core/project_settings.h"
 
 #ifdef TOOLS_ENABLED
+#include "editor/editor_export.h"
 #include "editor/editor_node.h"
 #include "gdnative_library_editor_plugin.h"
 #include "gdnative_library_singleton_editor.h"
 
+
 class GDNativeExportPlugin : public EditorExportPlugin {
 
 protected:
-    virtual void _export_file(const String &p_path, const String &p_type, const Set<String> &p_features);
+    void _export_file(const String &p_path, const String &p_type, const Set<String> &p_features) override;
 };
 
 struct LibrarySymbol {
@@ -100,7 +102,7 @@ void GDNativeExportPlugin::_export_file(const String &p_path, const String &p_ty
             }
 
             String entry_lib_path = config->get_value("entry", key);
-            if (!entry_lib_path.begins_with("res://")) {
+            if (!StringUtils::begins_with(entry_lib_path,"res://")) {
                 print_line("Skipping export of out-of-project library " + entry_lib_path);
                 continue;
             }
@@ -134,7 +136,7 @@ void GDNativeExportPlugin::_export_file(const String &p_path, const String &p_ty
 
             Vector<String> dependency_paths = config->get_value("dependencies", key);
             for (int i = 0; i < dependency_paths.size(); i++) {
-                if (!dependency_paths[i].begins_with("res://")) {
+                if (!StringUtils::begins_with(dependency_paths[i],"res://")) {
                     print_line("Skipping export of out-of-project library " + dependency_paths[i]);
                     continue;
                 }
@@ -160,8 +162,8 @@ void GDNativeExportPlugin::_export_file(const String &p_path, const String &p_ty
         String linker_flags = "";
         for (unsigned int i = 0; i < sizeof(expected_symbols) / sizeof(expected_symbols[0]); ++i) {
             String full_name = lib->get_symbol_prefix() + expected_symbols[i].name;
-            String code = declare_pattern.replace("$name", full_name);
-            code = code.replace("$weak", expected_symbols[i].is_required ? "" : " __attribute__((weak))");
+            String code = StringUtils::replace(declare_pattern,"$name", full_name);
+            code = StringUtils::replace(code,"$weak", expected_symbols[i].is_required ? "" : " __attribute__((weak))");
             additional_code += code;
 
             if (!expected_symbols[i].is_required) {
@@ -172,15 +174,15 @@ void GDNativeExportPlugin::_export_file(const String &p_path, const String &p_ty
             }
         }
 
-        additional_code += String("void $prefixinit() {\n").replace("$prefix", lib->get_symbol_prefix());
+        additional_code += StringUtils::replace("void $prefixinit() {\n","$prefix", lib->get_symbol_prefix());
         String register_pattern = "  if (&$name) register_dynamic_symbol((char *)\"$name\", (void *)$name);\n";
         for (unsigned int i = 0; i < sizeof(expected_symbols) / sizeof(expected_symbols[0]); ++i) {
             String full_name = lib->get_symbol_prefix() + expected_symbols[i].name;
-            additional_code += register_pattern.replace("$name", full_name);
+            additional_code += StringUtils::replace(register_pattern,"$name", full_name);
         }
         additional_code += "}\n";
-        additional_code += String("struct $prefixstruct {$prefixstruct() {add_ios_init_callback($prefixinit);}};\n").replace("$prefix", lib->get_symbol_prefix());
-        additional_code += String("$prefixstruct $prefixstruct_instance;\n").replace("$prefix", lib->get_symbol_prefix());
+        additional_code += StringUtils::replace("struct $prefixstruct {$prefixstruct() {add_ios_init_callback($prefixinit);}};\n","$prefix", lib->get_symbol_prefix());
+        additional_code += StringUtils::replace("$prefixstruct $prefixstruct_instance;\n","$prefix", lib->get_symbol_prefix());
 
         add_ios_cpp_code(additional_code);
         add_ios_linker_flags(linker_flags);
@@ -277,7 +279,7 @@ void register_gdnative_types() {
                 proc_ptr);
 
         if (err != OK) {
-            ERR_PRINT(String("No godot_gdnative_singleton in \"" + singleton->get_library()->get_current_library_path() + "\" found").utf8().data())
+			ERR_PRINT(StringUtils::to_utf8("No godot_gdnative_singleton in \"" + singleton->get_library()->get_current_library_path() + "\" found").data())
         } else {
             singleton_gdnatives.push_back(singleton);
             ((void (*)())proc_ptr)();

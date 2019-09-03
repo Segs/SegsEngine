@@ -32,6 +32,9 @@
 
 #include "core/os/os.h"
 #include "core/variant_parser.h"
+#include "core/property_info.h"
+
+IMPL_GDCLASS(ResourceImporter)
 
 bool ResourceFormatImporter::SortImporterByName::operator()(const Ref<ResourceImporter> &p_a, const Ref<ResourceImporter> &p_b) const {
     return p_a->get_importer_name() < p_b->get_importer_name();
@@ -80,8 +83,8 @@ Error ResourceFormatImporter::_get_path_and_type(const String &p_path, PathAndTy
         }
 
         if (assign != String()) {
-            if (!path_found && assign.begins_with("path.") && r_path_and_type.path == String()) {
-                String feature = assign.get_slicec('.', 1);
+            if (!path_found && StringUtils::begins_with(assign,"path.") && r_path_and_type.path == String()) {
+                String feature = StringUtils::get_slice(assign,'.', 1);
                 if (OS::get_singleton()->has_feature(feature)) {
                     r_path_and_type.path = value;
                     path_found = true; //first match must have priority
@@ -285,7 +288,7 @@ void ResourceFormatImporter::get_internal_resource_path_list(const String &p_pat
         }
 
         if (assign != String()) {
-            if (assign.begins_with("path.")) {
+            if (StringUtils::begins_with(assign,"path.")) {
                 r_paths->push_back(value);
             } else if (assign == "path") {
                 r_paths->push_back(value);

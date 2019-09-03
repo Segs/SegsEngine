@@ -74,33 +74,33 @@ Error AudioDriverALSA::init_device() {
         status = snd_pcm_open(&pcm_handle, "default", SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK);
     } else {
         String device = device_name;
-        int pos = device.find(";");
+        int pos = StringUtils::find(device,";");
         if (pos != -1) {
-            device = device.substr(0, pos);
+            device = StringUtils::substr(device,0, pos);
         }
-        status = snd_pcm_open(&pcm_handle, device.utf8().data(), SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK);
+		status = snd_pcm_open(&pcm_handle, StringUtils::to_utf8(device).data(), SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK);
     }
 
-    ERR_FAIL_COND_V(status < 0, ERR_CANT_OPEN);
+	ERR_FAIL_COND_V(status < 0, ERR_CANT_OPEN)
 
     snd_pcm_hw_params_alloca(&hwparams);
 
     status = snd_pcm_hw_params_any(pcm_handle, hwparams);
-    CHECK_FAIL(status < 0);
+	CHECK_FAIL(status < 0)
 
     status = snd_pcm_hw_params_set_access(pcm_handle, hwparams, SND_PCM_ACCESS_RW_INTERLEAVED);
-    CHECK_FAIL(status < 0);
+	CHECK_FAIL(status < 0)
 
     //not interested in anything else
     status = snd_pcm_hw_params_set_format(pcm_handle, hwparams, SND_PCM_FORMAT_S16_LE);
-    CHECK_FAIL(status < 0);
+	CHECK_FAIL(status < 0)
 
     //todo: support 4 and 6
     status = snd_pcm_hw_params_set_channels(pcm_handle, hwparams, 2);
-    CHECK_FAIL(status < 0);
+	CHECK_FAIL(status < 0)
 
     status = snd_pcm_hw_params_set_rate_near(pcm_handle, hwparams, &mix_rate, nullptr);
-    CHECK_FAIL(status < 0);
+	CHECK_FAIL(status < 0)
 
     // In ALSA the period size seems to be the one that will determine the actual latency
     // Ref: https://www.alsa-project.org/main/index.php/FramesPeriods

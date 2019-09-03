@@ -39,7 +39,7 @@ class VisualShaderNodeUniform;
 class VisualShaderNode;
 
 class VisualShader : public Shader {
-	GDCLASS(VisualShader, Shader);
+	GDCLASS(VisualShader,Shader)
 
 public:
 	enum Type {
@@ -109,7 +109,7 @@ private:
 	void _input_type_changed(Type p_type, int p_id);
 
 protected:
-	virtual void _update_shader() const;
+	void _update_shader() const override;
 	static void _bind_methods();
 
 	bool _set(const StringName &p_name, const Variant &p_value);
@@ -145,9 +145,9 @@ public:
 	void get_node_connections(Type p_type, List<Connection> *r_connections) const;
 
 	void set_mode(Mode p_mode);
-	virtual Mode get_mode() const;
+	Mode get_mode() const override;
 
-	virtual bool is_text_shader() const;
+	bool is_text_shader() const override;
 
 	void set_graph_offset(const Vector2 &p_offset);
 	Vector2 get_graph_offset() const;
@@ -166,7 +166,7 @@ VARIANT_ENUM_CAST(VisualShader::Type)
 ///
 
 class VisualShaderNode : public Resource {
-	GDCLASS(VisualShaderNode, Resource);
+	GDCLASS(VisualShaderNode,Resource)
 
 	int port_preview;
 
@@ -221,7 +221,7 @@ public:
 VARIANT_ENUM_CAST(VisualShaderNode::PortType)
 
 class VisualShaderNodeCustom : public VisualShaderNode {
-	GDCLASS(VisualShaderNodeCustom, VisualShaderNode);
+	GDCLASS(VisualShaderNodeCustom,VisualShaderNode)
 
 	struct Port {
 		String name;
@@ -234,19 +234,19 @@ class VisualShaderNodeCustom : public VisualShaderNode {
 	friend class VisualShaderEditor;
 
 protected:
-	virtual String get_caption() const;
+	String get_caption() const override;
 
-	virtual int get_input_port_count() const;
-	virtual PortType get_input_port_type(int p_port) const;
-	virtual String get_input_port_name(int p_port) const;
+	int get_input_port_count() const override;
+	PortType get_input_port_type(int p_port) const override;
+	String get_input_port_name(int p_port) const override;
 
-	virtual int get_output_port_count() const;
-	virtual PortType get_output_port_type(int p_port) const;
-	virtual String get_output_port_name(int p_port) const;
+	int get_output_port_count() const override;
+	PortType get_output_port_type(int p_port) const override;
+	String get_output_port_name(int p_port) const override;
 
 protected:
-	virtual String generate_code(Shader::Mode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const;
-	virtual String generate_global_per_node(Shader::Mode p_mode, VisualShader::Type p_type, int p_id) const;
+	String generate_code(Shader::Mode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override;
+	String generate_global_per_node(Shader::Mode p_mode, VisualShader::Type p_type, int p_id) const override;
 
 	static void _bind_methods();
 
@@ -258,7 +258,7 @@ public:
 /////
 
 class VisualShaderNodeInput : public VisualShaderNode {
-	GDCLASS(VisualShaderNodeInput, VisualShaderNode);
+	GDCLASS(VisualShaderNodeInput,VisualShaderNode)
 
 	friend class VisualShader;
 	VisualShader::Type shader_type;
@@ -279,20 +279,20 @@ class VisualShaderNodeInput : public VisualShaderNode {
 
 protected:
 	static void _bind_methods();
-	void _validate_property(PropertyInfo &property) const;
+	void _validate_property(PropertyInfo &property) const override;
 
 public:
-	virtual int get_input_port_count() const;
-	virtual PortType get_input_port_type(int p_port) const;
-	virtual String get_input_port_name(int p_port) const;
+	int get_input_port_count() const override;
+	PortType get_input_port_type(int p_port) const override;
+	String get_input_port_name(int p_port) const override;
 
-	virtual int get_output_port_count() const;
-	virtual PortType get_output_port_type(int p_port) const;
-	virtual String get_output_port_name(int p_port) const;
+	int get_output_port_count() const override;
+	PortType get_output_port_type(int p_port) const override;
+	String get_output_port_name(int p_port) const override;
 
-	virtual String get_caption() const;
+	String get_caption() const override;
 
-	virtual String generate_code(Shader::Mode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const;
+	String generate_code(Shader::Mode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override;
 
 	void set_input_name(String p_name);
 	String get_input_name() const;
@@ -303,7 +303,7 @@ public:
 
 	PortType get_input_type_by_name(String p_name) const;
 
-	virtual Vector<StringName> get_editable_properties() const;
+	Vector<StringName> get_editable_properties() const override;
 
 	VisualShaderNodeInput();
 };
@@ -311,7 +311,7 @@ public:
 ///
 
 class VisualShaderNodeOutput : public VisualShaderNode {
-	GDCLASS(VisualShaderNodeOutput, VisualShaderNode);
+	GDCLASS(VisualShaderNodeOutput,VisualShaderNode)
 
 public:
 	friend class VisualShader;
@@ -329,26 +329,26 @@ public:
 	static const Port ports[];
 
 public:
-	virtual int get_input_port_count() const;
-	virtual PortType get_input_port_type(int p_port) const;
-	virtual String get_input_port_name(int p_port) const;
+	int get_input_port_count() const override;
+	PortType get_input_port_type(int p_port) const override;
+	String get_input_port_name(int p_port) const override;
 	Variant get_input_port_default_value(int p_port) const;
 
-	virtual int get_output_port_count() const;
-	virtual PortType get_output_port_type(int p_port) const;
-	virtual String get_output_port_name(int p_port) const;
+	int get_output_port_count() const override;
+	PortType get_output_port_type(int p_port) const override;
+	String get_output_port_name(int p_port) const override;
 
-	virtual bool is_port_separator(int p_index) const;
+	bool is_port_separator(int p_index) const override;
 
-	virtual String get_caption() const;
+	String get_caption() const override;
 
-	virtual String generate_code(Shader::Mode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const;
+	String generate_code(Shader::Mode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override;
 
 	VisualShaderNodeOutput();
 };
 
 class VisualShaderNodeUniform : public VisualShaderNode {
-	GDCLASS(VisualShaderNodeUniform, VisualShaderNode);
+	GDCLASS(VisualShaderNodeUniform,VisualShaderNode)
 
 	String uniform_name;
 
@@ -363,7 +363,7 @@ public:
 };
 
 class VisualShaderNodeGroupBase : public VisualShaderNode {
-	GDCLASS(VisualShaderNodeGroupBase, VisualShaderNode);
+	GDCLASS(VisualShaderNodeGroupBase,VisualShaderNode)
 
 private:
 	void _apply_port_changes();
@@ -387,7 +387,7 @@ protected:
 	static void _bind_methods();
 
 public:
-	virtual String get_caption() const;
+	String get_caption() const override;
 
 	void set_size(const Vector2 &p_size);
 	Vector2 get_size() const;
@@ -402,25 +402,25 @@ public:
 
 	void add_input_port(int p_id, int p_type, const String &p_name);
 	void remove_input_port(int p_id);
-	virtual int get_input_port_count() const;
+	int get_input_port_count() const override;
 	bool has_input_port(int p_id) const;
 	void clear_input_ports();
 
 	void add_output_port(int p_id, int p_type, const String &p_name);
 	void remove_output_port(int p_id);
-	virtual int get_output_port_count() const;
+	int get_output_port_count() const override;
 	bool has_output_port(int p_id) const;
 	void clear_output_ports();
 
 	void set_input_port_type(int p_id, int p_type);
-	virtual PortType get_input_port_type(int p_id) const;
+	PortType get_input_port_type(int p_id) const override;
 	void set_input_port_name(int p_id, const String &p_name);
-	virtual String get_input_port_name(int p_id) const;
+	String get_input_port_name(int p_id) const override;
 
 	void set_output_port_type(int p_id, int p_type);
-	virtual PortType get_output_port_type(int p_id) const;
+	PortType get_output_port_type(int p_id) const override;
 	void set_output_port_name(int p_id, const String &p_name);
-	virtual String get_output_port_name(int p_id) const;
+	String get_output_port_name(int p_id) const override;
 
 	int get_free_input_port_id() const;
 	int get_free_output_port_id() const;
@@ -431,13 +431,13 @@ public:
 	void set_editable(bool p_enabled);
 	bool is_editable() const;
 
-	virtual String generate_code(Shader::Mode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const;
+	String generate_code(Shader::Mode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override;
 
 	VisualShaderNodeGroupBase();
 };
 
 class VisualShaderNodeExpression : public VisualShaderNodeGroupBase {
-	GDCLASS(VisualShaderNodeExpression, VisualShaderNodeGroupBase);
+	GDCLASS(VisualShaderNodeExpression,VisualShaderNodeGroupBase)
 
 protected:
 	String expression;
@@ -445,25 +445,25 @@ protected:
 	static void _bind_methods();
 
 public:
-	virtual String get_caption() const;
+	String get_caption() const override;
 
 	void set_expression(const String &p_expression);
 	String get_expression() const;
 
 	void build();
 
-	virtual String generate_code(Shader::Mode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const;
+	String generate_code(Shader::Mode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override;
 
 	VisualShaderNodeExpression();
 };
 
 class VisualShaderNodeGlobalExpression : public VisualShaderNodeExpression {
-	GDCLASS(VisualShaderNodeGlobalExpression, VisualShaderNodeExpression);
+	GDCLASS(VisualShaderNodeGlobalExpression,VisualShaderNodeExpression)
 
 public:
-	virtual String get_caption() const;
+	String get_caption() const override;
 
-	virtual String generate_global(Shader::Mode p_mode, VisualShader::Type p_type, int p_id) const;
+	String generate_global(Shader::Mode p_mode, VisualShader::Type p_type, int p_id) const override;
 
 	VisualShaderNodeGlobalExpression();
 };

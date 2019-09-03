@@ -41,7 +41,7 @@
 
 class ItemListPlugin : public Object {
 
-	GDCLASS(ItemListPlugin, Object);
+	GDCLASS(ItemListPlugin,Object)
 
 protected:
 	bool _set(const StringName &p_name, const Variant &p_value);
@@ -97,71 +97,71 @@ public:
 
 class ItemListOptionButtonPlugin : public ItemListPlugin {
 
-	GDCLASS(ItemListOptionButtonPlugin, ItemListPlugin);
+	GDCLASS(ItemListOptionButtonPlugin,ItemListPlugin)
 
 	OptionButton *ob;
 
 public:
-	virtual void set_object(Object *p_object);
-	virtual bool handles(Object *p_object) const;
-	virtual int get_flags() const;
+	void set_object(Object *p_object) override;
+	bool handles(Object *p_object) const override;
+	int get_flags() const override;
 
-	virtual void set_item_text(int p_idx, const String &p_text) { ob->set_item_text(p_idx, p_text); }
-	virtual String get_item_text(int p_idx) const { return ob->get_item_text(p_idx); }
+	void set_item_text(int p_idx, const String &p_text) override { ob->set_item_text(p_idx, p_text); }
+	String get_item_text(int p_idx) const override { return ob->get_item_text(p_idx); }
 
-	virtual void set_item_icon(int p_idx, const Ref<Texture> &p_tex) { ob->set_item_icon(p_idx, p_tex); }
-	virtual Ref<Texture> get_item_icon(int p_idx) const { return ob->get_item_icon(p_idx); }
+	void set_item_icon(int p_idx, const Ref<Texture> &p_tex) override { ob->set_item_icon(p_idx, p_tex); }
+	Ref<Texture> get_item_icon(int p_idx) const override { return ob->get_item_icon(p_idx); }
 
-	virtual void set_item_enabled(int p_idx, int p_enabled) { ob->set_item_disabled(p_idx, !p_enabled); }
-	virtual bool is_item_enabled(int p_idx) const { return !ob->is_item_disabled(p_idx); }
+	void set_item_enabled(int p_idx, int p_enabled) override { ob->set_item_disabled(p_idx, !p_enabled); }
+	bool is_item_enabled(int p_idx) const override { return !ob->is_item_disabled(p_idx); }
 
-	virtual void set_item_id(int p_idx, int p_id) { ob->set_item_id(p_idx, p_id); }
-	virtual int get_item_id(int p_idx) const { return ob->get_item_id(p_idx); }
+	void set_item_id(int p_idx, int p_id) override { ob->set_item_id(p_idx, p_id); }
+	int get_item_id(int p_idx) const override { return ob->get_item_id(p_idx); }
 
-	virtual void add_item();
-	virtual int get_item_count() const;
-	virtual void erase(int p_idx);
+	void add_item() override;
+	int get_item_count() const override;
+	void erase(int p_idx) override;
 
 	ItemListOptionButtonPlugin();
 };
 
 class ItemListPopupMenuPlugin : public ItemListPlugin {
 
-	GDCLASS(ItemListPopupMenuPlugin, ItemListPlugin);
+	GDCLASS(ItemListPopupMenuPlugin,ItemListPlugin)
 
 	PopupMenu *pp;
 
 public:
-	virtual void set_object(Object *p_object);
-	virtual bool handles(Object *p_object) const;
-	virtual int get_flags() const;
+	void set_object(Object *p_object) override;
+	bool handles(Object *p_object) const override;
+	int get_flags() const override;
 
-	virtual void set_item_text(int p_idx, const String &p_text) { pp->set_item_text(p_idx, p_text); }
-	virtual String get_item_text(int p_idx) const { return pp->get_item_text(p_idx); }
+	void set_item_text(int p_idx, const String &p_text) override { pp->set_item_text(p_idx, p_text); }
+	String get_item_text(int p_idx) const override { return pp->get_item_text(p_idx); }
 
-	virtual void set_item_icon(int p_idx, const Ref<Texture> &p_tex) { pp->set_item_icon(p_idx, p_tex); }
-	virtual Ref<Texture> get_item_icon(int p_idx) const { return pp->get_item_icon(p_idx); }
+	void set_item_icon(int p_idx, const Ref<Texture> &p_tex) override { pp->set_item_icon(p_idx, p_tex); }
+	Ref<Texture> get_item_icon(int p_idx) const override { return pp->get_item_icon(p_idx); }
 
-	virtual void set_item_checkable(int p_idx, bool p_check) { pp->set_item_as_checkable(p_idx, p_check); }
-	virtual void set_item_radio_checkable(int p_idx, bool p_check) { pp->set_item_as_radio_checkable(p_idx, p_check); }
-	virtual bool is_item_checkable(int p_idx) const { return pp->is_item_checkable(p_idx); }
-	virtual bool is_item_radio_checkable(int p_idx) const { return pp->is_item_radio_checkable(p_idx); }
+	void set_item_checkable(int p_idx, bool p_check) override { pp->set_item_as_checkable(p_idx, p_check); }
+	void set_item_radio_checkable(int p_idx, bool p_check) override { pp->set_item_as_radio_checkable(p_idx, p_check); }
+	bool is_item_checkable(int p_idx) const override { return pp->is_item_checkable(p_idx); }
+	bool is_item_radio_checkable(int p_idx) const override { return pp->is_item_radio_checkable(p_idx); }
 
-	virtual void set_item_checked(int p_idx, bool p_checked) { pp->set_item_checked(p_idx, p_checked); }
-	virtual bool is_item_checked(int p_idx) const { return pp->is_item_checked(p_idx); }
+	void set_item_checked(int p_idx, bool p_checked) override { pp->set_item_checked(p_idx, p_checked); }
+	bool is_item_checked(int p_idx) const override { return pp->is_item_checked(p_idx); }
 
-	virtual void set_item_enabled(int p_idx, int p_enabled) { pp->set_item_disabled(p_idx, !p_enabled); }
-	virtual bool is_item_enabled(int p_idx) const { return !pp->is_item_disabled(p_idx); }
+	void set_item_enabled(int p_idx, int p_enabled) override { pp->set_item_disabled(p_idx, !p_enabled); }
+	bool is_item_enabled(int p_idx) const override { return !pp->is_item_disabled(p_idx); }
 
-	virtual void set_item_id(int p_idx, int p_id) { pp->set_item_id(p_idx, p_id); }
-	virtual int get_item_id(int p_idx) const { return pp->get_item_id(p_idx); }
+	void set_item_id(int p_idx, int p_id) override { pp->set_item_id(p_idx, p_id); }
+	int get_item_id(int p_idx) const override { return pp->get_item_id(p_idx); }
 
-	virtual void set_item_separator(int p_idx, bool p_separator) { pp->set_item_as_separator(p_idx, p_separator); }
-	virtual bool is_item_separator(int p_idx) const { return pp->is_item_separator(p_idx); }
+	void set_item_separator(int p_idx, bool p_separator) override { pp->set_item_as_separator(p_idx, p_separator); }
+	bool is_item_separator(int p_idx) const override { return pp->is_item_separator(p_idx); }
 
-	virtual void add_item();
-	virtual int get_item_count() const;
-	virtual void erase(int p_idx);
+	void add_item() override;
+	int get_item_count() const override;
+	void erase(int p_idx) override;
 
 	ItemListPopupMenuPlugin();
 };
@@ -170,27 +170,27 @@ public:
 
 class ItemListItemListPlugin : public ItemListPlugin {
 
-	GDCLASS(ItemListItemListPlugin, ItemListPlugin);
+	GDCLASS(ItemListItemListPlugin,ItemListPlugin)
 
 	ItemList *pp;
 
 public:
-	virtual void set_object(Object *p_object);
-	virtual bool handles(Object *p_object) const;
-	virtual int get_flags() const;
+	void set_object(Object *p_object) override;
+	bool handles(Object *p_object) const override;
+	int get_flags() const override;
 
-	virtual void set_item_text(int p_idx, const String &p_text) { pp->set_item_text(p_idx, p_text); }
-	virtual String get_item_text(int p_idx) const { return pp->get_item_text(p_idx); }
+	void set_item_text(int p_idx, const String &p_text) override { pp->set_item_text(p_idx, p_text); }
+	String get_item_text(int p_idx) const override { return pp->get_item_text(p_idx); }
 
-	virtual void set_item_icon(int p_idx, const Ref<Texture> &p_tex) { pp->set_item_icon(p_idx, p_tex); }
-	virtual Ref<Texture> get_item_icon(int p_idx) const { return pp->get_item_icon(p_idx); }
+	void set_item_icon(int p_idx, const Ref<Texture> &p_tex) override { pp->set_item_icon(p_idx, p_tex); }
+	Ref<Texture> get_item_icon(int p_idx) const override { return pp->get_item_icon(p_idx); }
 
-	virtual void set_item_enabled(int p_idx, int p_enabled) { pp->set_item_disabled(p_idx, !p_enabled); }
-	virtual bool is_item_enabled(int p_idx) const { return !pp->is_item_disabled(p_idx); }
+	void set_item_enabled(int p_idx, int p_enabled) override { pp->set_item_disabled(p_idx, !p_enabled); }
+	bool is_item_enabled(int p_idx) const override { return !pp->is_item_disabled(p_idx); }
 
-	virtual void add_item();
-	virtual int get_item_count() const;
-	virtual void erase(int p_idx);
+	void add_item() override;
+	int get_item_count() const override;
+	void erase(int p_idx) override;
 
 	ItemListItemListPlugin();
 };
@@ -199,7 +199,7 @@ public:
 
 class ItemListEditor : public HBoxContainer {
 
-	GDCLASS(ItemListEditor, HBoxContainer);
+	GDCLASS(ItemListEditor,HBoxContainer)
 
 	Node *item_list;
 
@@ -231,25 +231,25 @@ public:
 	bool handles(Object *p_object) const;
 	void add_plugin(ItemListPlugin *p_plugin) { item_plugins.push_back(p_plugin); }
 	ItemListEditor();
-	~ItemListEditor();
+	~ItemListEditor() override;
 };
 
 class ItemListEditorPlugin : public EditorPlugin {
 
-	GDCLASS(ItemListEditorPlugin, EditorPlugin);
+	GDCLASS(ItemListEditorPlugin,EditorPlugin)
 
 	ItemListEditor *item_list_editor;
 	EditorNode *editor;
 
 public:
-	virtual String get_name() const { return "ItemList"; }
-	bool has_main_screen() const { return false; }
-	virtual void edit(Object *p_object);
-	virtual bool handles(Object *p_object) const;
-	virtual void make_visible(bool p_visible);
+	String get_name() const override { return "ItemList"; }
+	bool has_main_screen() const override { return false; }
+	void edit(Object *p_object) override;
+	bool handles(Object *p_object) const override;
+	void make_visible(bool p_visible) override;
 
 	ItemListEditorPlugin(EditorNode *p_node);
-	~ItemListEditorPlugin();
+	~ItemListEditorPlugin() override;
 };
 
 #endif // ITEM_LIST_EDITOR_PLUGIN_H

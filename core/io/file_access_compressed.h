@@ -79,12 +79,12 @@ public:
 	size_t get_position() const override; ///< get position in the file
 	size_t get_len() const override; ///< get size of the file
 
-	virtual bool eof_reached() const; ///< reading passed EOF
+	bool eof_reached() const override; ///< reading passed EOF
 
 	uint8_t get_8() const override; ///< get a byte
 	int get_buffer(uint8_t *p_dst, int p_length) const override;
 
-	virtual Error get_error() const; ///< get last error
+	Error get_error() const override; ///< get last error
 
 	void flush() override;
 	void store_8(uint8_t p_dest) override; ///< store a byte

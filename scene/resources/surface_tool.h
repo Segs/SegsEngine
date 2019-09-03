@@ -37,7 +37,7 @@
 
 class SurfaceTool : public Reference {
 
-    GDCLASS(SurfaceTool, Reference);
+    GDCLASS(SurfaceTool,Reference)
 
 public:
     struct Vertex {

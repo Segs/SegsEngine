@@ -28,15 +28,14 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef LISTENER_H
-#define LISTENER_H
+#pragma once
 
 #include "scene/3d/spatial.h"
 #include "scene/main/viewport.h"
 
 class Listener : public Spatial {
 
-	GDCLASS(Listener, Spatial);
+	GDCLASS(Listener,Spatial)
 
 private:
 	bool force_change;
@@ -72,7 +71,5 @@ public:
 	uint32_t get_visible_layers() const;
 
 	Listener();
-	~Listener();
+	~Listener() override;
 };
-
-#endif

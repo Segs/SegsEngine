@@ -27,16 +27,15 @@
 /* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
+#pragma once
 
 #include "core/rid.h"
 #include "scene/resources/material.h"
 
-#ifndef PARTICLES_MATERIAL_H
-#define PARTICLES_MATERIAL_H
 
 class ParticlesMaterial : public Material {
 
-	GDCLASS(ParticlesMaterial, Material);
+	GDCLASS(ParticlesMaterial,Material)
 
 public:
 	enum Parameter {
@@ -233,7 +232,7 @@ private:
 
 protected:
 	static void _bind_methods();
-	virtual void _validate_property(PropertyInfo &property) const;
+	void _validate_property(PropertyInfo &property) const override;
 
 public:
 	void set_direction(Vector3 p_direction);
@@ -300,14 +299,12 @@ public:
 
 	RID get_shader_rid() const;
 
-	virtual Shader::Mode get_shader_mode() const;
+	Shader::Mode get_shader_mode() const override;
 
 	ParticlesMaterial();
-	~ParticlesMaterial();
+	~ParticlesMaterial() override;
 };
 
 VARIANT_ENUM_CAST(ParticlesMaterial::Parameter)
 VARIANT_ENUM_CAST(ParticlesMaterial::Flags)
 VARIANT_ENUM_CAST(ParticlesMaterial::EmissionShape)
-
-#endif // PARTICLES_MATERIAL_H

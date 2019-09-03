@@ -32,10 +32,13 @@
 
 #include "core/io/marshalls.h"
 #include "core/project_settings.h"
+#include "core/method_bind.h"
 
 /* helpers / binders */
 
 
+IMPL_GDCLASS(PacketPeer);
+IMPL_GDCLASS(PacketPeerStream);
 
 void PacketPeer::set_allow_object_decoding(bool p_enable) {
 
@@ -130,15 +133,15 @@ Error PacketPeer::_get_packet_error() const {
 
 void PacketPeer::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("get_var", "allow_objects"), &PacketPeer::_bnd_get_var, {DEFVAL(false)});
-    ClassDB::bind_method(D_METHOD("put_var", "var", "full_objects"), &PacketPeer::put_var, {DEFVAL(false)});
-    ClassDB::bind_method(D_METHOD("get_packet"), &PacketPeer::_get_packet);
-    ClassDB::bind_method(D_METHOD("put_packet", "buffer"), &PacketPeer::_put_packet);
-    ClassDB::bind_method(D_METHOD("get_packet_error"), &PacketPeer::_get_packet_error);
-    ClassDB::bind_method(D_METHOD("get_available_packet_count"), &PacketPeer::get_available_packet_count);
+    MethodBinder::bind_method(D_METHOD("get_var", "allow_objects"), &PacketPeer::_bnd_get_var, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("put_var", "var", "full_objects"), &PacketPeer::put_var, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("get_packet"), &PacketPeer::_get_packet);
+    MethodBinder::bind_method(D_METHOD("put_packet", "buffer"), &PacketPeer::_put_packet);
+    MethodBinder::bind_method(D_METHOD("get_packet_error"), &PacketPeer::_get_packet_error);
+    MethodBinder::bind_method(D_METHOD("get_available_packet_count"), &PacketPeer::get_available_packet_count);
 
-    ClassDB::bind_method(D_METHOD("set_allow_object_decoding", "enable"), &PacketPeer::set_allow_object_decoding);
-    ClassDB::bind_method(D_METHOD("is_object_decoding_allowed"), &PacketPeer::is_object_decoding_allowed);
+    MethodBinder::bind_method(D_METHOD("set_allow_object_decoding", "enable"), &PacketPeer::set_allow_object_decoding);
+    MethodBinder::bind_method(D_METHOD("is_object_decoding_allowed"), &PacketPeer::is_object_decoding_allowed);
 
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "allow_object_decoding"), "set_allow_object_decoding", "is_object_decoding_allowed");
 };
@@ -153,12 +156,12 @@ void PacketPeerStream::_set_stream_peer(REF p_peer) {
 
 void PacketPeerStream::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("set_stream_peer", "peer"), &PacketPeerStream::set_stream_peer);
-    ClassDB::bind_method(D_METHOD("get_stream_peer"), &PacketPeerStream::get_stream_peer);
-    ClassDB::bind_method(D_METHOD("set_input_buffer_max_size", "max_size_bytes"), &PacketPeerStream::set_input_buffer_max_size);
-    ClassDB::bind_method(D_METHOD("set_output_buffer_max_size", "max_size_bytes"), &PacketPeerStream::set_output_buffer_max_size);
-    ClassDB::bind_method(D_METHOD("get_input_buffer_max_size"), &PacketPeerStream::get_input_buffer_max_size);
-    ClassDB::bind_method(D_METHOD("get_output_buffer_max_size"), &PacketPeerStream::get_output_buffer_max_size);
+    MethodBinder::bind_method(D_METHOD("set_stream_peer", "peer"), &PacketPeerStream::set_stream_peer);
+    MethodBinder::bind_method(D_METHOD("get_stream_peer"), &PacketPeerStream::get_stream_peer);
+    MethodBinder::bind_method(D_METHOD("set_input_buffer_max_size", "max_size_bytes"), &PacketPeerStream::set_input_buffer_max_size);
+    MethodBinder::bind_method(D_METHOD("set_output_buffer_max_size", "max_size_bytes"), &PacketPeerStream::set_output_buffer_max_size);
+    MethodBinder::bind_method(D_METHOD("get_input_buffer_max_size"), &PacketPeerStream::get_input_buffer_max_size);
+    MethodBinder::bind_method(D_METHOD("get_output_buffer_max_size"), &PacketPeerStream::get_output_buffer_max_size);
 
     ADD_PROPERTY(PropertyInfo(Variant::INT, "input_buffer_max_size"), "set_input_buffer_max_size", "get_input_buffer_max_size");
     ADD_PROPERTY(PropertyInfo(Variant::INT, "output_buffer_max_size"), "set_output_buffer_max_size", "get_output_buffer_max_size");

@@ -35,7 +35,7 @@
 
 class PackedDataContainer : public Resource {
 
-	GDCLASS(PackedDataContainer, Resource);
+	GDCLASS(PackedDataContainer,Resource)
 
 	enum {
 		TYPE_DICT = 0xFFFFFFFF,
@@ -73,7 +73,7 @@ protected:
 	static void _bind_methods();
 
 public:
-	virtual Variant getvar(const Variant &p_key, bool *r_valid = nullptr) const;
+	Variant getvar(const Variant &p_key, bool *r_valid = nullptr) const override;
 	Error pack(const Variant &p_data);
 
 	int size() const;
@@ -82,7 +82,7 @@ public:
 };
 
 class PackedDataContainerRef : public Reference {
-	GDCLASS(PackedDataContainerRef, Reference)
+	GDCLASS(PackedDataContainerRef,Reference)
 
 	friend class PackedDataContainer;
 	uint32_t offset;
@@ -98,7 +98,7 @@ public:
 	bool _is_dictionary() const;
 
 	int size() const;
-	virtual Variant getvar(const Variant &p_key, bool *r_valid = nullptr) const;
+	Variant getvar(const Variant &p_key, bool *r_valid = nullptr) const override;
 
 	PackedDataContainerRef() {}
 };

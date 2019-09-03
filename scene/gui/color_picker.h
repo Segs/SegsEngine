@@ -45,7 +45,7 @@
 
 class ColorPicker : public BoxContainer {
 
-	GDCLASS(ColorPicker, BoxContainer);
+	GDCLASS(ColorPicker,BoxContainer)
 
 private:
 	Control *screen;
@@ -140,7 +140,7 @@ public:
 
 class ColorPickerButton : public Button {
 
-	GDCLASS(ColorPickerButton, Button);
+	GDCLASS(ColorPickerButton,Button)
 
 	PopupPanel *popup;
 	ColorPicker *picker;
@@ -150,7 +150,7 @@ class ColorPickerButton : public Button {
 	void _color_changed(const Color &p_color);
 	void _modal_closed();
 
-	virtual void pressed();
+	void pressed() override;
 
 	void _update_picker();
 

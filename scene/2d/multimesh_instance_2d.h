@@ -35,7 +35,7 @@
 #include "scene/resources/multimesh.h"
 
 class MultiMeshInstance2D : public Node2D {
-	GDCLASS(MultiMeshInstance2D, Node2D);
+	GDCLASS(MultiMeshInstance2D,Node2D)
 
 	Ref<MultiMesh> multimesh;
 
@@ -56,10 +56,10 @@ public:
 	void set_normal_map(const Ref<Texture> &p_texture);
 	Ref<Texture> get_normal_map() const;
 
-	virtual Rect2 _edit_get_rect() const;
+	Rect2 _edit_get_rect() const override;
 
 	MultiMeshInstance2D();
-	~MultiMeshInstance2D();
+	~MultiMeshInstance2D() override;
 };
 
 #endif // MULTIMESH_INSTANCE_2D_H

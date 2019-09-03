@@ -52,37 +52,37 @@ class DirAccessUnix : public DirAccess {
     bool _cishidden;
 
 protected:
-    virtual String fix_unicode_name(const char *p_name) const { return String::utf8(p_name); }
+	virtual String fix_unicode_name(const char *p_name) const { return StringUtils::from_utf8(p_name); }
 
 public:
-    virtual Error list_dir_begin(); ///< This starts dir listing
-    virtual String get_next();
-    virtual bool current_is_dir() const;
-    virtual bool current_is_hidden() const;
+    Error list_dir_begin() override; ///< This starts dir listing
+    String get_next() override;
+    bool current_is_dir() const override;
+    bool current_is_hidden() const override;
 
-    virtual void list_dir_end(); ///<
+    void list_dir_end() override; ///<
 
-    virtual int get_drive_count();
-    virtual String get_drive(int p_drive);
+    int get_drive_count() override;
+    String get_drive(int p_drive) override;
 
-    virtual Error change_dir(String p_dir); ///< can be relative or absolute, return false on success
-    virtual String get_current_dir(); ///< return current dir location
-    virtual Error make_dir(String p_dir);
+    Error change_dir(String p_dir) override; ///< can be relative or absolute, return false on success
+    String get_current_dir() override; ///< return current dir location
+    Error make_dir(String p_dir) override;
 
-    virtual bool file_exists(String p_file);
-    virtual bool dir_exists(String p_dir);
+    bool file_exists(String p_file) override;
+    bool dir_exists(String p_dir) override;
 
     virtual uint64_t get_modified_time(String p_file);
 
-    virtual Error rename(String p_path, String p_new_path);
-    virtual Error remove(String p_path);
+    Error rename(String p_path, String p_new_path) override;
+    Error remove(String p_path) override;
 
-    virtual size_t get_space_left();
+    size_t get_space_left() override;
 
-    virtual String get_filesystem_type() const;
+    String get_filesystem_type() const override;
 
     DirAccessUnix();
-    ~DirAccessUnix();
+    ~DirAccessUnix() override;
 };
 
 #endif //UNIX ENABLED

@@ -34,6 +34,8 @@
 #include "core/os/file_access.h"
 #include "scene/resources/texture.h"
 
+IMPL_GDCLASS(ResourceImporterOGGVorbis)
+
 String ResourceImporterOGGVorbis::get_importer_name() const {
 
 	return "ogg_vorbis";

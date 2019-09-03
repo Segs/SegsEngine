@@ -5020,15 +5020,6 @@
         ]
       },
       {
-        "name": "godot_string_format_with_custom_placeholder",
-        "return_type": "godot_string",
-        "arguments": [
-          ["const godot_string *", "p_self"],
-          ["const godot_variant *", "p_values"],
-          ["const char *", "p_placeholder"]
-        ]
-      },
-      {
         "name": "godot_string_hex_encode_buffer",
         "return_type": "godot_string",
         "arguments": [

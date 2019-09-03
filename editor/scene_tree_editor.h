@@ -40,7 +40,7 @@
 
 class SceneTreeEditor : public Control {
 
-	GDCLASS(SceneTreeEditor, Control);
+	GDCLASS(SceneTreeEditor,Control)
 
 	EditorSelection *editor_selection;
 
@@ -159,12 +159,12 @@ public:
 	Tree *get_scene_tree() { return tree; }
 
 	SceneTreeEditor(bool p_label = true, bool p_can_rename = false, bool p_can_open_instance = false);
-	~SceneTreeEditor();
+	~SceneTreeEditor() override;
 };
 
 class SceneTreeDialog : public ConfirmationDialog {
 
-	GDCLASS(SceneTreeDialog, ConfirmationDialog);
+	GDCLASS(SceneTreeDialog,ConfirmationDialog)
 
 	SceneTreeEditor *tree;
 	//Button *select;
@@ -183,7 +183,7 @@ protected:
 public:
 	SceneTreeEditor *get_scene_tree() { return tree; }
 	SceneTreeDialog();
-	~SceneTreeDialog();
+	~SceneTreeDialog() override;
 };
 
 #endif

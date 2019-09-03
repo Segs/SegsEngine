@@ -33,19 +33,22 @@
 #include "core/message_queue.h"
 
 #include "core/object_db.h"
+#include "core/method_bind.h"
 #include "core/project_settings.h"
 #include "scene/3d/physics_body.h"
 #include "scene/resources/surface_tool.h"
+
+IMPL_GDCLASS(Skeleton)
 
 bool Skeleton::_set(const StringName &p_path, const Variant &p_value) {
 
     String path = p_path;
 
-    if (!path.begins_with("bones/"))
+    if (!StringUtils::begins_with(path,"bones/"))
         return false;
 
-    int which = path.get_slicec('/', 1).to_int();
-    String what = path.get_slicec('/', 2);
+    int which = StringUtils::to_int(StringUtils::get_slice(path,'/', 1));
+    String what = StringUtils::get_slice(path,'/', 2);
 
     if (which == bones.size() && what == "name") {
 
@@ -89,11 +92,11 @@ bool Skeleton::_get(const StringName &p_path, Variant &r_ret) const {
 
     String path = p_path;
 
-    if (!path.begins_with("bones/"))
+    if (!StringUtils::begins_with(path,"bones/"))
         return false;
 
-    int which = path.get_slicec('/', 1).to_int();
-    String what = path.get_slicec('/', 2);
+    int which = StringUtils::to_int(StringUtils::get_slice(path,'/', 1));
+    String what = StringUtils::get_slice(path,'/', 2);
 
     ERR_FAIL_INDEX_V(which, bones.size(), false);
 
@@ -352,7 +355,7 @@ RID Skeleton::get_skeleton() const {
 // skeleton creation api
 void Skeleton::add_bone(const String &p_name) {
 
-    ERR_FAIL_COND(p_name == "" || p_name.find(":") != -1 || p_name.find("/") != -1);
+    ERR_FAIL_COND(p_name == "" || StringUtils::find(p_name,":") != -1 || StringUtils::find(p_name,"/") != -1);
 
     for (int i = 0; i < bones.size(); i++) {
 
@@ -760,55 +763,55 @@ bool Skeleton::is_using_bones_in_world_transform() const {
 
 void Skeleton::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("add_bone", "name"), &Skeleton::add_bone);
-    ClassDB::bind_method(D_METHOD("find_bone", "name"), &Skeleton::find_bone);
-    ClassDB::bind_method(D_METHOD("get_bone_name", "bone_idx"), &Skeleton::get_bone_name);
+    MethodBinder::bind_method(D_METHOD("add_bone", "name"), &Skeleton::add_bone);
+    MethodBinder::bind_method(D_METHOD("find_bone", "name"), &Skeleton::find_bone);
+    MethodBinder::bind_method(D_METHOD("get_bone_name", "bone_idx"), &Skeleton::get_bone_name);
 
-    ClassDB::bind_method(D_METHOD("get_bone_parent", "bone_idx"), &Skeleton::get_bone_parent);
-    ClassDB::bind_method(D_METHOD("set_bone_parent", "bone_idx", "parent_idx"), &Skeleton::set_bone_parent);
+    MethodBinder::bind_method(D_METHOD("get_bone_parent", "bone_idx"), &Skeleton::get_bone_parent);
+    MethodBinder::bind_method(D_METHOD("set_bone_parent", "bone_idx", "parent_idx"), &Skeleton::set_bone_parent);
 
-    ClassDB::bind_method(D_METHOD("get_bone_count"), &Skeleton::get_bone_count);
+    MethodBinder::bind_method(D_METHOD("get_bone_count"), &Skeleton::get_bone_count);
 
-    ClassDB::bind_method(D_METHOD("unparent_bone_and_rest", "bone_idx"), &Skeleton::unparent_bone_and_rest);
+    MethodBinder::bind_method(D_METHOD("unparent_bone_and_rest", "bone_idx"), &Skeleton::unparent_bone_and_rest);
 
-    ClassDB::bind_method(D_METHOD("get_bone_rest", "bone_idx"), &Skeleton::get_bone_rest);
-    ClassDB::bind_method(D_METHOD("set_bone_rest", "bone_idx", "rest"), &Skeleton::set_bone_rest);
+    MethodBinder::bind_method(D_METHOD("get_bone_rest", "bone_idx"), &Skeleton::get_bone_rest);
+    MethodBinder::bind_method(D_METHOD("set_bone_rest", "bone_idx", "rest"), &Skeleton::set_bone_rest);
 
-    ClassDB::bind_method(D_METHOD("localize_rests"), &Skeleton::localize_rests);
+    MethodBinder::bind_method(D_METHOD("localize_rests"), &Skeleton::localize_rests);
 
-    ClassDB::bind_method(D_METHOD("set_bone_disable_rest", "bone_idx", "disable"), &Skeleton::set_bone_disable_rest);
-    ClassDB::bind_method(D_METHOD("is_bone_rest_disabled", "bone_idx"), &Skeleton::is_bone_rest_disabled);
+    MethodBinder::bind_method(D_METHOD("set_bone_disable_rest", "bone_idx", "disable"), &Skeleton::set_bone_disable_rest);
+    MethodBinder::bind_method(D_METHOD("is_bone_rest_disabled", "bone_idx"), &Skeleton::is_bone_rest_disabled);
 
-    ClassDB::bind_method(D_METHOD("bind_child_node_to_bone", "bone_idx", "node"), &Skeleton::bind_child_node_to_bone);
-    ClassDB::bind_method(D_METHOD("unbind_child_node_from_bone", "bone_idx", "node"), &Skeleton::unbind_child_node_from_bone);
-    ClassDB::bind_method(D_METHOD("get_bound_child_nodes_to_bone", "bone_idx"), &Skeleton::_get_bound_child_nodes_to_bone);
+    MethodBinder::bind_method(D_METHOD("bind_child_node_to_bone", "bone_idx", "node"), &Skeleton::bind_child_node_to_bone);
+    MethodBinder::bind_method(D_METHOD("unbind_child_node_from_bone", "bone_idx", "node"), &Skeleton::unbind_child_node_from_bone);
+    MethodBinder::bind_method(D_METHOD("get_bound_child_nodes_to_bone", "bone_idx"), &Skeleton::_get_bound_child_nodes_to_bone);
 
-    ClassDB::bind_method(D_METHOD("clear_bones"), &Skeleton::clear_bones);
+    MethodBinder::bind_method(D_METHOD("clear_bones"), &Skeleton::clear_bones);
 
-    ClassDB::bind_method(D_METHOD("get_bone_pose", "bone_idx"), &Skeleton::get_bone_pose);
-    ClassDB::bind_method(D_METHOD("set_bone_pose", "bone_idx", "pose"), &Skeleton::set_bone_pose);
+    MethodBinder::bind_method(D_METHOD("get_bone_pose", "bone_idx"), &Skeleton::get_bone_pose);
+    MethodBinder::bind_method(D_METHOD("set_bone_pose", "bone_idx", "pose"), &Skeleton::set_bone_pose);
 
-    ClassDB::bind_method(D_METHOD("set_bone_global_pose", "bone_idx", "pose"), &Skeleton::set_bone_global_pose);
-    ClassDB::bind_method(D_METHOD("get_bone_global_pose", "bone_idx"), &Skeleton::get_bone_global_pose);
+    MethodBinder::bind_method(D_METHOD("set_bone_global_pose", "bone_idx", "pose"), &Skeleton::set_bone_global_pose);
+    MethodBinder::bind_method(D_METHOD("get_bone_global_pose", "bone_idx"), &Skeleton::get_bone_global_pose);
 
-    ClassDB::bind_method(D_METHOD("get_bone_custom_pose", "bone_idx"), &Skeleton::get_bone_custom_pose);
-    ClassDB::bind_method(D_METHOD("set_bone_custom_pose", "bone_idx", "custom_pose"), &Skeleton::set_bone_custom_pose);
+    MethodBinder::bind_method(D_METHOD("get_bone_custom_pose", "bone_idx"), &Skeleton::get_bone_custom_pose);
+    MethodBinder::bind_method(D_METHOD("set_bone_custom_pose", "bone_idx", "custom_pose"), &Skeleton::set_bone_custom_pose);
 
-    ClassDB::bind_method(D_METHOD("get_bone_transform", "bone_idx"), &Skeleton::get_bone_transform);
+    MethodBinder::bind_method(D_METHOD("get_bone_transform", "bone_idx"), &Skeleton::get_bone_transform);
 
-    ClassDB::bind_method(D_METHOD("set_use_bones_in_world_transform", "enable"), &Skeleton::set_use_bones_in_world_transform);
-    ClassDB::bind_method(D_METHOD("is_using_bones_in_world_transform"), &Skeleton::is_using_bones_in_world_transform);
+    MethodBinder::bind_method(D_METHOD("set_use_bones_in_world_transform", "enable"), &Skeleton::set_use_bones_in_world_transform);
+    MethodBinder::bind_method(D_METHOD("is_using_bones_in_world_transform"), &Skeleton::is_using_bones_in_world_transform);
 
 #ifndef _3D_DISABLED
 
-    ClassDB::bind_method(D_METHOD("physical_bones_stop_simulation"), &Skeleton::physical_bones_stop_simulation);
-    ClassDB::bind_method(D_METHOD("physical_bones_start_simulation", "bones"), &Skeleton::physical_bones_start_simulation_on, {DEFVAL(Array())});
-    ClassDB::bind_method(D_METHOD("physical_bones_add_collision_exception", "exception"), &Skeleton::physical_bones_add_collision_exception);
-    ClassDB::bind_method(D_METHOD("physical_bones_remove_collision_exception", "exception"), &Skeleton::physical_bones_remove_collision_exception);
+    MethodBinder::bind_method(D_METHOD("physical_bones_stop_simulation"), &Skeleton::physical_bones_stop_simulation);
+    MethodBinder::bind_method(D_METHOD("physical_bones_start_simulation", "bones"), &Skeleton::physical_bones_start_simulation_on, {DEFVAL(Array())});
+    MethodBinder::bind_method(D_METHOD("physical_bones_add_collision_exception", "exception"), &Skeleton::physical_bones_add_collision_exception);
+    MethodBinder::bind_method(D_METHOD("physical_bones_remove_collision_exception", "exception"), &Skeleton::physical_bones_remove_collision_exception);
 
 #endif // _3D_DISABLED
 
-    ClassDB::bind_method(D_METHOD("set_bone_ignore_animation", "bone", "ignore"), &Skeleton::set_bone_ignore_animation);
+    MethodBinder::bind_method(D_METHOD("set_bone_ignore_animation", "bone", "ignore"), &Skeleton::set_bone_ignore_animation);
 
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "bones_in_world_transform"), "set_use_bones_in_world_transform", "is_using_bones_in_world_transform");
     BIND_CONSTANT(NOTIFICATION_UPDATE_SKELETON);

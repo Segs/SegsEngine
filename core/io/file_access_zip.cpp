@@ -147,7 +147,7 @@ unzFile ZipArchive::get_file_handle(String p_file) const {
     io.alloc_mem = godot_alloc;
     io.free_mem = godot_free;
 
-    unzFile pkg = unzOpen2(packages[file.package].filename.utf8().data(), &io);
+	unzFile pkg = unzOpen2(StringUtils::to_utf8(packages[file.package].filename), &io);
     ERR_FAIL_COND_V(!pkg, nullptr)
     int unz_err = unzGoToFilePos(pkg, &file.file_pos);
     if (unz_err != UNZ_OK || unzOpenCurrentFile(pkg) != UNZ_OK) {
@@ -161,9 +161,9 @@ unzFile ZipArchive::get_file_handle(String p_file) const {
 
 bool ZipArchive::try_open_pack(const String &p_path) {
 
-    String ext = PathUtils::get_extension(p_path).toLower(); // for case insensitive compare
+	String ext = StringUtils::to_lower(PathUtils::get_extension(p_path)); // for case insensitive compare
     //printf("opening zip pack %ls, %i, %i\n", p_name.c_str(), StringUtils::compare(p_name.extension(),"zip",false), p_name.extension().nocasecmp_to("pcz"));
-    if (ext.compare("zip") != 0 && ext.compare("pcz") != 0)
+	if (StringUtils::compare(ext,"zip") != 0 && StringUtils::compare(ext,"pcz") != 0)
         return false;
 
     zlib_filefunc_def io;
@@ -181,7 +181,7 @@ bool ZipArchive::try_open_pack(const String &p_path) {
     io.zclose_file = godot_close;
     io.zerror_file = godot_testerror;
 
-    unzFile zfile = unzOpen2(p_path.utf8().data(), &io);
+	unzFile zfile = unzOpen2(StringUtils::to_utf8(p_path), &io);
     ERR_FAIL_COND_V(!zfile, false)
 
     unz_global_info64 gi;

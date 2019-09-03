@@ -28,21 +28,22 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef GLOBAL_CONFIG_H
-#define GLOBAL_CONFIG_H
+#pragma once
 
 #include "core/object.h"
 #include "core/os/thread_safe.h"
 #include "core/set.h"
 #include "core/map.h"
+#include "core/ustring.h"
 
 class ProjectSettings : public Object {
 
-    GDCLASS(ProjectSettings, Object)
+    GDCLASS(ProjectSettings,Object)
+
     _THREAD_SAFE_CLASS_
 
 public:
-    typedef Map<String, Variant> CustomMap;
+    using CustomMap = Map<String, Variant>;
 
     enum {
         //properties that are not for built in values begin from this value, so builtin ones are displayed first
@@ -112,12 +113,12 @@ public:
     void set_setting(const String &p_setting, const Variant &p_value);
     Variant get_setting(const String &p_setting) const;
 
-    bool has_setting(String p_var) const;
+    bool has_setting(const StringName &p_var) const;
     String localize_path(String p_path) const;
     String globalize_path(String p_path) const;
 
-    void set_initial_value(const String &p_name, const Variant &p_value);
-    void set_restart_if_changed(const String &p_name, bool p_restart);
+    void set_initial_value(const StringName &p_name, const Variant &p_value);
+    void set_restart_if_changed(const StringName &p_name, bool p_restart);
     bool property_can_revert(const String &p_name);
     Variant property_get_revert(const String &p_name);
 
@@ -128,13 +129,13 @@ public:
     void clear(const String &p_name);
     int get_order(const String &p_name) const;
     void set_order(const String &p_name, int p_order);
-    void set_builtin_order(const String &p_name);
+    void set_builtin_order(const StringName &p_name);
 
     Error setup(const String &p_path, const String &p_main_pack, bool p_upwards = false);
 
-    Error save_custom(const String &p_path = "", const CustomMap &p_custom = CustomMap(), const Vector<String> &p_custom_features = Vector<String>(), bool p_merge_with_current = true);
+    Error save_custom(const String &p_path = String::null_val, const CustomMap &p_custom = CustomMap(), const Vector<String> &p_custom_features = Vector<String>(), bool p_merge_with_current = true);
     Error save();
-    void set_custom_property_info(const String &p_prop, const PropertyInfo &p_info);
+    void set_custom_property_info(const StringName &p_prop, const PropertyInfo &p_info);
     const Map<StringName, PropertyInfo> &get_custom_property_info() const;
 
     Vector<String> get_optimizer_presets() const;
@@ -150,13 +151,11 @@ public:
     bool has_custom_feature(const String &p_feature) const;
 
     ProjectSettings();
-    ~ProjectSettings();
+    ~ProjectSettings() override;
 };
 
 //not a macro any longer
-Variant _GLOBAL_DEF(const String &p_var, const Variant &p_default, bool p_restart_if_changed = false);
+Variant _GLOBAL_DEF(const StringName &p_var, const Variant &p_default, bool p_restart_if_changed = false);
 #define GLOBAL_DEF(m_var, m_value) _GLOBAL_DEF(m_var, m_value)
 #define GLOBAL_DEF_RST(m_var, m_value) _GLOBAL_DEF(m_var, m_value, true)
 #define GLOBAL_GET(m_var) ProjectSettings::get_singleton()->get(m_var)
-
-#endif

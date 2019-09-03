@@ -32,49 +32,52 @@
 #define NETWORKED_MULTIPLAYER_PEER_H
 
 #include "core/io/packet_peer.h"
+#include "core/method_arg_casters.h"
+#include "core/method_enum_caster.h"
+#include "core/type_info.h"
 
 class NetworkedMultiplayerPeer : public PacketPeer {
 
-	GDCLASS(NetworkedMultiplayerPeer, PacketPeer);
+    GDCLASS(NetworkedMultiplayerPeer, PacketPeer);
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	enum {
-		TARGET_PEER_BROADCAST = 0,
-		TARGET_PEER_SERVER = 1
-	};
-	enum TransferMode {
-		TRANSFER_MODE_UNRELIABLE,
-		TRANSFER_MODE_UNRELIABLE_ORDERED,
-		TRANSFER_MODE_RELIABLE,
-	};
+    enum {
+        TARGET_PEER_BROADCAST = 0,
+        TARGET_PEER_SERVER = 1
+    };
+    enum TransferMode {
+        TRANSFER_MODE_UNRELIABLE,
+        TRANSFER_MODE_UNRELIABLE_ORDERED,
+        TRANSFER_MODE_RELIABLE,
+    };
 
-	enum ConnectionStatus {
-		CONNECTION_DISCONNECTED,
-		CONNECTION_CONNECTING,
-		CONNECTION_CONNECTED,
-	};
+    enum ConnectionStatus {
+        CONNECTION_DISCONNECTED,
+        CONNECTION_CONNECTING,
+        CONNECTION_CONNECTED,
+    };
 
-	virtual void set_transfer_mode(TransferMode p_mode) = 0;
-	virtual TransferMode get_transfer_mode() const = 0;
-	virtual void set_target_peer(int p_peer_id) = 0;
+    virtual void set_transfer_mode(TransferMode p_mode) = 0;
+    virtual TransferMode get_transfer_mode() const = 0;
+    virtual void set_target_peer(int p_peer_id) = 0;
 
-	virtual int get_packet_peer() const = 0;
+    virtual int get_packet_peer() const = 0;
 
-	virtual bool is_server() const = 0;
+    virtual bool is_server() const = 0;
 
-	virtual void poll() = 0;
+    virtual void poll() = 0;
 
-	virtual int get_unique_id() const = 0;
+    virtual int get_unique_id() const = 0;
 
-	virtual void set_refuse_new_connections(bool p_enable) = 0;
-	virtual bool is_refusing_new_connections() const = 0;
+    virtual void set_refuse_new_connections(bool p_enable) = 0;
+    virtual bool is_refusing_new_connections() const = 0;
 
-	virtual ConnectionStatus get_connection_status() const = 0;
+    virtual ConnectionStatus get_connection_status() const = 0;
 
-	NetworkedMultiplayerPeer() {}
+    NetworkedMultiplayerPeer() {}
 };
 
 VARIANT_ENUM_CAST(NetworkedMultiplayerPeer::TransferMode)

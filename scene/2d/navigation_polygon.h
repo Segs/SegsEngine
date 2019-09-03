@@ -35,7 +35,7 @@
 
 class NavigationPolygon : public Resource {
 
-	GDCLASS(NavigationPolygon, Resource);
+	GDCLASS(NavigationPolygon,Resource)
 
 	PoolVector<Vector2> vertices;
 	struct Polygon {
@@ -86,7 +86,7 @@ class Navigation2D;
 
 class NavigationPolygonInstance : public Node2D {
 
-	GDCLASS(NavigationPolygonInstance, Node2D);
+	GDCLASS(NavigationPolygonInstance,Node2D)
 
 	bool enabled;
 	int nav_id;
@@ -100,8 +100,8 @@ protected:
 	static void _bind_methods();
 
 public:
-	virtual Rect2 _edit_get_rect() const;
-	virtual bool _edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const;
+	Rect2 _edit_get_rect() const override;
+	bool _edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const override;
 
 	void set_enabled(bool p_enabled);
 	bool is_enabled() const;
@@ -109,7 +109,7 @@ public:
 	void set_navigation_polygon(const Ref<NavigationPolygon> &p_navpoly);
 	Ref<NavigationPolygon> get_navigation_polygon() const;
 
-	String get_configuration_warning() const;
+	String get_configuration_warning() const override;
 
 	NavigationPolygonInstance();
 };

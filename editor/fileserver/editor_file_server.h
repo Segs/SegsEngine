@@ -39,7 +39,7 @@
 
 class EditorFileServer : public Object {
 
-	GDCLASS(EditorFileServer, Object);
+	GDCLASS(EditorFileServer,Object)
 
 	enum Command {
 		CMD_NONE,
@@ -79,7 +79,7 @@ public:
 	bool is_active() const;
 
 	EditorFileServer();
-	~EditorFileServer();
+	~EditorFileServer() override;
 };
 
 #endif // EDITOR_FILE_SERVER_H

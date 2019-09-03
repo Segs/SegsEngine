@@ -39,7 +39,7 @@
 
 class EditorPluginSettings : public VBoxContainer {
 
-	GDCLASS(EditorPluginSettings, VBoxContainer);
+	GDCLASS(EditorPluginSettings,VBoxContainer)
 
 	enum {
 		BUTTON_PLUGIN_EDIT

@@ -35,7 +35,7 @@
 #include "core/os/os.h"
 #include "core/print_string.h"
 
-#include <assert.h>
+#include <cassert>
 
 #define COMPACT_CHUNK(m_entry, m_to_pos)                      \
     do {                                                      \
@@ -204,7 +204,7 @@ PoolAllocator::ID PoolAllocator::alloc(int p_size) {
 
         if (!find_hole(&new_entry_indices_pos, size_to_alloc)) {
             mt_unlock();
-            ERR_FAIL_V_MSG(POOL_ALLOCATOR_INVALID_ID, "Memory can't be compacted further.");
+			ERR_FAIL_V_CMSG(POOL_ALLOCATOR_INVALID_ID, "Memory can't be compacted further.");
         }
     }
 
@@ -214,7 +214,7 @@ PoolAllocator::ID PoolAllocator::alloc(int p_size) {
 
     if (!found_free_entry) {
         mt_unlock();
-        ERR_FAIL_V_MSG(POOL_ALLOCATOR_INVALID_ID, "No free entry found in PoolAllocator.");
+		ERR_FAIL_V_CMSG(POOL_ALLOCATOR_INVALID_ID, "No free entry found in PoolAllocator.");
     }
 
     /* move all entry indices up, make room for this one */

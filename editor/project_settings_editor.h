@@ -41,7 +41,7 @@
 
 class ProjectSettingsEditor : public AcceptDialog {
 
-	GDCLASS(ProjectSettingsEditor, AcceptDialog);
+	GDCLASS(ProjectSettingsEditor,AcceptDialog)
 
 	enum InputType {
 		INPUT_KEY,

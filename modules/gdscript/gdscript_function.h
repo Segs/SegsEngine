@@ -340,8 +340,9 @@ public:
 
 class GDScriptFunctionState : public Reference {
 
-	GDCLASS(GDScriptFunctionState, Reference);
-	friend class GDScriptFunction;
+	GDCLASS(GDScriptFunctionState,Reference)
+
+    friend class GDScriptFunction;
 	GDScriptFunction *function;
 	GDScriptFunction::CallState state;
 	Variant _signal_callback(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
@@ -354,7 +355,7 @@ public:
 	bool is_valid(bool p_extended_check = false) const;
 	Variant resume(const Variant &p_arg = Variant());
 	GDScriptFunctionState();
-	~GDScriptFunctionState();
+	~GDScriptFunctionState() override;
 };
 
 #endif // GDSCRIPT_FUNCTION_H

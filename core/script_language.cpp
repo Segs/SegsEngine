@@ -32,9 +32,12 @@
 
 #include "core/core_string_names.h"
 #include "core/project_settings.h"
+#include "core/method_bind.h"
 
 #include <vector>
 #include <algorithm>
+
+IMPL_GDCLASS(Script)
 
 ScriptLanguage *ScriptServer::_languages[MAX_LANGUAGES];
 int ScriptServer::_language_count = 0;
@@ -55,19 +58,19 @@ void Script::_notification(int p_what) {
 
 void Script::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("can_instance"), &Script::can_instance);
-    //ClassDB::bind_method(D_METHOD("instance_create","base_object"),&Script::instance_create);
-    ClassDB::bind_method(D_METHOD("instance_has", "base_object"), &Script::instance_has);
-    ClassDB::bind_method(D_METHOD("has_source_code"), &Script::has_source_code);
-    ClassDB::bind_method(D_METHOD("get_source_code"), &Script::get_source_code);
-    ClassDB::bind_method(D_METHOD("set_source_code", "source"), &Script::set_source_code);
-    ClassDB::bind_method(D_METHOD("reload", "keep_state"), &Script::reload, {DEFVAL(false)});
-    ClassDB::bind_method(D_METHOD("get_base_script"), &Script::get_base_script);
-    ClassDB::bind_method(D_METHOD("get_instance_base_type"), &Script::get_instance_base_type);
+    MethodBinder::bind_method(D_METHOD("can_instance"), &Script::can_instance);
+    //MethodBinder::bind_method(D_METHOD("instance_create","base_object"),&Script::instance_create);
+    MethodBinder::bind_method(D_METHOD("instance_has", "base_object"), &Script::instance_has);
+    MethodBinder::bind_method(D_METHOD("has_source_code"), &Script::has_source_code);
+    MethodBinder::bind_method(D_METHOD("get_source_code"), &Script::get_source_code);
+    MethodBinder::bind_method(D_METHOD("set_source_code", "source"), &Script::set_source_code);
+    MethodBinder::bind_method(D_METHOD("reload", "keep_state"), &Script::reload, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("get_base_script"), &Script::get_base_script);
+    MethodBinder::bind_method(D_METHOD("get_instance_base_type"), &Script::get_instance_base_type);
 
-    ClassDB::bind_method(D_METHOD("has_script_signal", "signal_name"), &Script::has_script_signal);
+    MethodBinder::bind_method(D_METHOD("has_script_signal", "signal_name"), &Script::has_script_signal);
 
-    ClassDB::bind_method(D_METHOD("is_tool"), &Script::is_tool);
+    MethodBinder::bind_method(D_METHOD("is_tool"), &Script::is_tool);
 
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "source_code", PROPERTY_HINT_NONE, "", 0), "set_source_code", "get_source_code");
 }
@@ -113,7 +116,7 @@ void ScriptServer::init_languages() {
     { //load global classes
         global_classes_clear();
         if (ProjectSettings::get_singleton()->has_setting("_global_script_classes")) {
-            Array script_classes = ProjectSettings::get_singleton()->get("_global_script_classes");
+			Array script_classes = ProjectSettings::get_singleton()->get(StaticCString("_global_script_classes"));
 
             for (int i = 0; i < script_classes.size(); i++) {
                 Dictionary c = script_classes[i];
@@ -226,7 +229,7 @@ void ScriptServer::save_global_classes() {
         gcarr.push_back(d);
     }
 
-    ProjectSettings::get_singleton()->set("_global_script_classes", gcarr);
+	ProjectSettings::get_singleton()->set(StaticCString("_global_script_classes"), gcarr);
     ProjectSettings::get_singleton()->save();
 }
 
@@ -558,7 +561,8 @@ void PlaceHolderScriptInstance::property_set_fallback(const StringName &p_name, 
             }
         }
         if (!found) {
-            properties.push_back(PropertyInfo(p_value.get_type(), p_name, PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_SCRIPT_VARIABLE));
+			properties.push_back(PropertyInfo(p_value.get_type(), StringUtils::utf8(p_name).data(), PROPERTY_HINT_NONE,
+					nullptr, PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_SCRIPT_VARIABLE));
         }
     }
 

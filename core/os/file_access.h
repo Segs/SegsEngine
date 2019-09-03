@@ -54,9 +54,9 @@ public:
         ACCESS_MAX
     };
 
-    typedef void (*FileCloseFailNotify)(const String &);
+    using FileCloseFailNotify = void (*)(const String &);
 
-    typedef FileAccess *(*CreateFunc)();
+    using CreateFunc = FileAccess *(*)();
     bool endian_swap;
     bool real_is_double;
 

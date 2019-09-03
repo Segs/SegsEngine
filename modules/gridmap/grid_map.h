@@ -41,7 +41,7 @@
 
 class GridMap : public Spatial {
 
-    GDCLASS(GridMap, Spatial)
+    GDCLASS(GridMap,Spatial)
 
     enum {
         MAP_DIRTY_TRANSFORMS = 1,
@@ -273,7 +273,7 @@ public:
     RID get_bake_mesh_instance(int p_idx);
 
     GridMap();
-    ~GridMap();
+    ~GridMap() override;
 };
 
 #endif // GRID_MAP_H

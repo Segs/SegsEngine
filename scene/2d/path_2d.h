@@ -36,7 +36,7 @@
 
 class Path2D : public Node2D {
 
-	GDCLASS(Path2D, Node2D);
+	GDCLASS(Path2D,Node2D)
 
 	Ref<Curve2D> curve;
 
@@ -47,9 +47,9 @@ protected:
 	static void _bind_methods();
 
 public:
-	virtual Rect2 _edit_get_rect() const;
-	virtual bool _edit_use_rect() const;
-	virtual bool _edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const;
+	Rect2 _edit_get_rect() const override;
+	bool _edit_use_rect() const override;
+	bool _edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const override;
 
 	void set_curve(const Ref<Curve2D> &p_curve);
 	Ref<Curve2D> get_curve() const;
@@ -59,7 +59,7 @@ public:
 
 class PathFollow2D : public Node2D {
 
-	GDCLASS(PathFollow2D, Node2D);
+	GDCLASS(PathFollow2D,Node2D)
 
 public:
 private:
@@ -75,7 +75,7 @@ private:
 	void _update_transform();
 
 protected:
-	virtual void _validate_property(PropertyInfo &property) const;
+	void _validate_property(PropertyInfo &property) const override;
 
 	void _notification(int p_what);
 	static void _bind_methods();
@@ -105,7 +105,7 @@ public:
 	void set_cubic_interpolation(bool p_enable);
 	bool get_cubic_interpolation() const;
 
-	String get_configuration_warning() const;
+    String get_configuration_warning() const override;
 
 	PathFollow2D();
 };

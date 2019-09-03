@@ -28,46 +28,48 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef WEBSOCKETPEER_H
-#define WEBSOCKETPEER_H
+#pragma once
 
 #include "core/error_list.h"
 #include "core/io/packet_peer.h"
+#include "core/method_arg_casters.h"
+#include "core/method_enum_caster.h"
+
 #include "websocket_macros.h"
 
 class WebSocketPeer : public PacketPeer {
 
-	GDCLASS(WebSocketPeer, PacketPeer);
-	GDCICLASS(WebSocketPeer);
+    GDCLASS(WebSocketPeer,PacketPeer)
+
+    GDCICLASS(WebSocketPeer)
 
 public:
-	enum WriteMode {
-		WRITE_MODE_TEXT,
-		WRITE_MODE_BINARY,
-	};
+    enum WriteMode {
+        WRITE_MODE_TEXT,
+        WRITE_MODE_BINARY,
+    };
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	virtual int get_available_packet_count() const = 0;
-	virtual Error get_packet(const uint8_t **r_buffer, int &r_buffer_size) = 0;
-	virtual Error put_packet(const uint8_t *p_buffer, int p_buffer_size) = 0;
-	virtual int get_max_packet_size() const = 0;
+    int get_available_packet_count() const override = 0;
+    Error get_packet(const uint8_t **r_buffer, int &r_buffer_size) override = 0;
+    Error put_packet(const uint8_t *p_buffer, int p_buffer_size) override = 0;
+    int get_max_packet_size() const override = 0;
 
-	virtual WriteMode get_write_mode() const = 0;
-	virtual void set_write_mode(WriteMode p_mode) = 0;
+    virtual WriteMode get_write_mode() const = 0;
+    virtual void set_write_mode(WriteMode p_mode) = 0;
 
-	virtual void close(int p_code = 1000, String p_reason = "") = 0;
+    virtual void close(int p_code = 1000, String p_reason = "") = 0;
 
-	virtual bool is_connected_to_host() const = 0;
-	virtual IP_Address get_connected_host() const = 0;
-	virtual uint16_t get_connected_port() const = 0;
-	virtual bool was_string_packet() const = 0;
+    virtual bool is_connected_to_host() const = 0;
+    virtual IP_Address get_connected_host() const = 0;
+    virtual uint16_t get_connected_port() const = 0;
+    virtual bool was_string_packet() const = 0;
 
-	WebSocketPeer();
-	~WebSocketPeer();
+    WebSocketPeer();
+    ~WebSocketPeer() override;
 };
 
 VARIANT_ENUM_CAST(WebSocketPeer::WriteMode);
-#endif // WEBSOCKETPEER_H

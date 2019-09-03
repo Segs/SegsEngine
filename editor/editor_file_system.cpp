@@ -30,6 +30,7 @@
 
 #include "editor_file_system.h"
 
+#include "core/method_bind.h"
 #include "core/io/resource_importer.h"
 #include "core/io/resource_loader.h"
 #include "core/io/resource_saver.h"
@@ -40,6 +41,9 @@
 #include "editor_node.h"
 #include "editor_resource_preview.h"
 #include "editor_settings.h"
+
+IMPL_GDCLASS(EditorFileSystemDirectory)
+IMPL_GDCLASS(EditorFileSystem)
 
 EditorFileSystem *EditorFileSystem::singleton = nullptr;
 //the name is the version, to keep compatibility with different versions of Godot
@@ -157,20 +161,20 @@ EditorFileSystemDirectory *EditorFileSystemDirectory::get_parent() {
 
 void EditorFileSystemDirectory::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("get_subdir_count"), &EditorFileSystemDirectory::get_subdir_count);
-    ClassDB::bind_method(D_METHOD("get_subdir", "idx"), &EditorFileSystemDirectory::get_subdir);
-    ClassDB::bind_method(D_METHOD("get_file_count"), &EditorFileSystemDirectory::get_file_count);
-    ClassDB::bind_method(D_METHOD("get_file", "idx"), &EditorFileSystemDirectory::get_file);
-    ClassDB::bind_method(D_METHOD("get_file_path", "idx"), &EditorFileSystemDirectory::get_file_path);
-    ClassDB::bind_method(D_METHOD("get_file_type", "idx"), &EditorFileSystemDirectory::get_file_type);
-    ClassDB::bind_method(D_METHOD("get_file_script_class_name", "idx"), &EditorFileSystemDirectory::get_file_script_class_name);
-    ClassDB::bind_method(D_METHOD("get_file_script_class_extends", "idx"), &EditorFileSystemDirectory::get_file_script_class_extends);
-    ClassDB::bind_method(D_METHOD("get_file_import_is_valid", "idx"), &EditorFileSystemDirectory::get_file_import_is_valid);
-    ClassDB::bind_method(D_METHOD("get_name"), &EditorFileSystemDirectory::get_name);
-    ClassDB::bind_method(D_METHOD("get_path"), &EditorFileSystemDirectory::get_path);
-    ClassDB::bind_method(D_METHOD("get_parent"), &EditorFileSystemDirectory::get_parent);
-    ClassDB::bind_method(D_METHOD("find_file_index", "name"), &EditorFileSystemDirectory::find_file_index);
-    ClassDB::bind_method(D_METHOD("find_dir_index", "name"), &EditorFileSystemDirectory::find_dir_index);
+    MethodBinder::bind_method(D_METHOD("get_subdir_count"), &EditorFileSystemDirectory::get_subdir_count);
+    MethodBinder::bind_method(D_METHOD("get_subdir", "idx"), &EditorFileSystemDirectory::get_subdir);
+    MethodBinder::bind_method(D_METHOD("get_file_count"), &EditorFileSystemDirectory::get_file_count);
+    MethodBinder::bind_method(D_METHOD("get_file", "idx"), &EditorFileSystemDirectory::get_file);
+    MethodBinder::bind_method(D_METHOD("get_file_path", "idx"), &EditorFileSystemDirectory::get_file_path);
+    MethodBinder::bind_method(D_METHOD("get_file_type", "idx"), &EditorFileSystemDirectory::get_file_type);
+    MethodBinder::bind_method(D_METHOD("get_file_script_class_name", "idx"), &EditorFileSystemDirectory::get_file_script_class_name);
+    MethodBinder::bind_method(D_METHOD("get_file_script_class_extends", "idx"), &EditorFileSystemDirectory::get_file_script_class_extends);
+    MethodBinder::bind_method(D_METHOD("get_file_import_is_valid", "idx"), &EditorFileSystemDirectory::get_file_import_is_valid);
+    MethodBinder::bind_method(D_METHOD("get_name"), &EditorFileSystemDirectory::get_name);
+    MethodBinder::bind_method(D_METHOD("get_path"), &EditorFileSystemDirectory::get_path);
+    MethodBinder::bind_method(D_METHOD("get_parent"), &EditorFileSystemDirectory::get_parent);
+    MethodBinder::bind_method(D_METHOD("find_file_index", "name"), &EditorFileSystemDirectory::find_file_index);
+    MethodBinder::bind_method(D_METHOD("find_dir_index", "name"), &EditorFileSystemDirectory::find_dir_index);
 }
 
 EditorFileSystemDirectory::EditorFileSystemDirectory() {
@@ -213,7 +217,7 @@ void EditorFileSystem::_scan_filesystem() {
         //read the disk cache
         while (!f->eof_reached()) {
 
-            String l = f->get_line().strip_edges();
+            String l = StringUtils::strip_edges(f->get_line());
             if (first) {
                 if (first_scan) {
                     // only use this on first scan, afterwards it gets ignored
@@ -221,7 +225,7 @@ void EditorFileSystem::_scan_filesystem() {
                     // we don't care until editor restart. This is for usability mainly so
                     // your workflow is not killed after changing a setting by forceful reimporting
                     // everything there is.
-                    filesystem_settings_version_for_import = l.strip_edges();
+                    filesystem_settings_version_for_import =StringUtils::strip_edges( l);
                     if (filesystem_settings_version_for_import != ResourceFormatImporter::get_singleton()->get_import_settings_hash()) {
                         revalidate_import_files = true;
                     }
@@ -232,16 +236,16 @@ void EditorFileSystem::_scan_filesystem() {
             if (l == String())
                 continue;
 
-            if (l.begins_with("::")) {
+            if (StringUtils::begins_with(l,"::")) {
                 Vector<String> split = StringUtils::split(l,"::");
-                ERR_CONTINUE(split.size() != 3);
+                ERR_CONTINUE(split.size() != 3)
                 String name = split[1];
 
                 cpath = name;
 
             } else {
                 Vector<String> split = StringUtils::split(l,"::");
-                ERR_CONTINUE(split.size() != 8);
+                ERR_CONTINUE(split.size() != 8)
                 String name = split[0];
                 String file;
 
@@ -250,15 +254,15 @@ void EditorFileSystem::_scan_filesystem() {
 
                 FileCache fc;
                 fc.type = split[1];
-                fc.modification_time = split[2].to_int64();
-                fc.import_modification_time = split[3].to_int64();
-                fc.import_valid = split[4].to_int64() != 0;
-                fc.import_group_file = split[5].strip_edges();
-                fc.script_class_name = split[6].get_slice("<>", 0);
-                fc.script_class_extends = split[6].get_slice("<>", 1);
-                fc.script_class_icon_path = split[6].get_slice("<>", 2);
+                fc.modification_time = StringUtils::to_int64(split[2]);
+                fc.import_modification_time = StringUtils::to_int64(split[3]);
+                fc.import_valid = StringUtils::to_int64(split[4]) != 0;
+                fc.import_group_file =StringUtils::strip_edges( split[5]);
+                fc.script_class_name = StringUtils::get_slice(split[6],"<>", 0);
+                fc.script_class_extends = StringUtils::get_slice(split[6],"<>", 1);
+                fc.script_class_icon_path = StringUtils::get_slice(split[6],"<>", 2);
 
-                String deps = split[7].strip_edges();
+                String deps =StringUtils::strip_edges( split[7]);
                 if (deps.length()) {
                     Vector<String> dp = StringUtils::split(deps,"<>");
                     for (int i = 0; i < dp.size(); i++) {
@@ -280,11 +284,11 @@ void EditorFileSystem::_scan_filesystem() {
     if (FileAccess::exists(update_cache)) {
         {
             FileAccessRef f2 = FileAccess::open(update_cache, FileAccess::READ);
-            String l = f2->get_line().strip_edges();
+            String l = StringUtils::strip_edges(f2->get_line());
             while (l != String()) {
 
                 file_cache.erase(l); //erase cache for this, so it gets updated
-                l = f2->get_line().strip_edges();
+                l = StringUtils::strip_edges(f2->get_line());
             }
         }
 
@@ -395,7 +399,7 @@ bool EditorFileSystem::_test_for_reimport(const String &p_path, bool p_only_impo
         }
 
         if (assign != String()) {
-            if (assign.begins_with("path")) {
+            if (StringUtils::begins_with(assign,"path")) {
                 to_check.push_back(value);
             } else if (assign == "files") {
                 Array fa = value;
@@ -679,7 +683,7 @@ void EditorFileSystem::_scan_new_dir(EditorFileSystemDirectory *p_dir, DirAccess
 
         if (da->current_is_dir()) {
 
-            if (f.begins_with(".")) //ignore hidden and . / ..
+            if (StringUtils::begins_with(f,".")) //ignore hidden and . / ..
                 continue;
 
             if (FileAccess::exists(PathUtils::plus_file(PathUtils::plus_file(cd,f),"project.godot"))) // skip if another project inside this
@@ -709,7 +713,7 @@ void EditorFileSystem::_scan_new_dir(EditorFileSystemDirectory *p_dir, DirAccess
 
             String d = da->get_current_dir();
 
-            if (d == cd || !d.begins_with(cd)) {
+            if (d == cd || !StringUtils::begins_with(d,cd)) {
                 da->change_dir(cd); //avoid recursion
             } else {
 
@@ -875,7 +879,7 @@ void EditorFileSystem::_scan_fs_changes(EditorFileSystemDirectory *p_dir, const 
 
             if (da->current_is_dir()) {
 
-                if (f.begins_with(".")) //ignore hidden and . / ..
+                if (StringUtils::begins_with(f,".")) //ignore hidden and . / ..
                     continue;
 
                 int idx = p_dir->find_dir_index(f);
@@ -1222,10 +1226,10 @@ bool EditorFileSystem::_find_file(const String &p_file, EditorFileSystemDirector
 
     String f = ProjectSettings::get_singleton()->localize_path(p_file);
 
-    if (!f.begins_with("res://"))
+    if (!StringUtils::begins_with(f,"res://"))
         return false;
-    f = f.substr(6, f.length());
-    f = f.replace("\\", "/");
+    f = StringUtils::substr(f,6, f.length());
+    f = PathUtils::from_native_path(f);
 
     Vector<String> path = StringUtils::split(f,"/");
 
@@ -1238,7 +1242,7 @@ bool EditorFileSystem::_find_file(const String &p_file, EditorFileSystemDirector
 
     for (int i = 0; i < path.size(); i++) {
 
-        if (path[i].begins_with("."))
+        if (StringUtils::begins_with(path[i],"."))
             return false;
 
         int idx = -1;
@@ -1329,16 +1333,16 @@ EditorFileSystemDirectory *EditorFileSystem::get_filesystem_path(const String &p
 
     String f = ProjectSettings::get_singleton()->localize_path(p_path);
 
-    if (!f.begins_with("res://"))
+    if (!StringUtils::begins_with(f,"res://"))
         return nullptr;
 
-    f = f.substr(6, f.length());
-    f = f.replace("\\", "/");
+    f = StringUtils::substr(f,6, f.length());
+    f = PathUtils::from_native_path(f);
     if (f == String())
         return filesystem;
 
-    if (f.ends_with("/"))
-        f = f.substr(0, f.length() - 1);
+    if (StringUtils::ends_with(f,"/"))
+        f = StringUtils::substr(f,0, f.length() - 1);
 
     Vector<String> path = StringUtils::split(f,"/");
 
@@ -2071,15 +2075,15 @@ void EditorFileSystem::move_group_file(const String &p_path, const String &p_new
 
 void EditorFileSystem::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("get_filesystem"), &EditorFileSystem::get_filesystem);
-    ClassDB::bind_method(D_METHOD("is_scanning"), &EditorFileSystem::is_scanning);
-    ClassDB::bind_method(D_METHOD("get_scanning_progress"), &EditorFileSystem::get_scanning_progress);
-    ClassDB::bind_method(D_METHOD("scan"), &EditorFileSystem::scan);
-    ClassDB::bind_method(D_METHOD("scan_sources"), &EditorFileSystem::scan_changes);
-    ClassDB::bind_method(D_METHOD("update_file", "path"), &EditorFileSystem::update_file);
-    ClassDB::bind_method(D_METHOD("get_filesystem_path", "path"), &EditorFileSystem::get_filesystem_path);
-    ClassDB::bind_method(D_METHOD("get_file_type", "path"), &EditorFileSystem::get_file_type);
-    ClassDB::bind_method(D_METHOD("update_script_classes"), &EditorFileSystem::update_script_classes);
+    MethodBinder::bind_method(D_METHOD("get_filesystem"), &EditorFileSystem::get_filesystem);
+    MethodBinder::bind_method(D_METHOD("is_scanning"), &EditorFileSystem::is_scanning);
+    MethodBinder::bind_method(D_METHOD("get_scanning_progress"), &EditorFileSystem::get_scanning_progress);
+    MethodBinder::bind_method(D_METHOD("scan"), &EditorFileSystem::scan);
+    MethodBinder::bind_method(D_METHOD("scan_sources"), &EditorFileSystem::scan_changes);
+    MethodBinder::bind_method(D_METHOD("update_file", "path"), &EditorFileSystem::update_file);
+    MethodBinder::bind_method(D_METHOD("get_filesystem_path", "path"), &EditorFileSystem::get_filesystem_path);
+    MethodBinder::bind_method(D_METHOD("get_file_type", "path"), &EditorFileSystem::get_file_type);
+    MethodBinder::bind_method(D_METHOD("update_script_classes"), &EditorFileSystem::update_script_classes);
 
     ADD_SIGNAL(MethodInfo("filesystem_changed"));
     ADD_SIGNAL(MethodInfo("sources_changed", PropertyInfo(Variant::BOOL, "exist")));

@@ -37,7 +37,7 @@
 
 class Particles : public GeometryInstance {
 private:
-	GDCLASS(Particles, GeometryInstance);
+	GDCLASS(Particles,GeometryInstance)
 
 public:
 	enum DrawOrder {
@@ -74,11 +74,11 @@ private:
 protected:
 	static void _bind_methods();
 	void _notification(int p_what);
-	virtual void _validate_property(PropertyInfo &property) const;
+	void _validate_property(PropertyInfo &property) const override;
 
 public:
-	AABB get_aabb() const;
-	PoolVector<Face3> get_faces(uint32_t p_usage_flags) const;
+	AABB get_aabb() const override;
+	PoolVector<Face3> get_faces(uint32_t p_usage_flags) const override;
 
 	void set_emitting(bool p_emitting);
 	void set_amount(int p_amount);
@@ -119,13 +119,13 @@ public:
 	void set_draw_pass_mesh(int p_pass, const Ref<Mesh> &p_mesh);
 	Ref<Mesh> get_draw_pass_mesh(int p_pass) const;
 
-	virtual String get_configuration_warning() const;
+	String get_configuration_warning() const override;
 
 	void restart();
 
 	AABB capture_aabb() const;
 	Particles();
-	~Particles();
+	~Particles() override;
 };
 
 VARIANT_ENUM_CAST(Particles::DrawOrder)

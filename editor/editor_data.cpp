@@ -30,6 +30,7 @@
 
 #include "editor_data.h"
 
+#include "core/method_bind.h"
 #include "core/io/resource_loader.h"
 #include "core/object_db.h"
 #include "core/os/dir_access.h"
@@ -38,6 +39,8 @@
 #include "editor_node.h"
 #include "editor_settings.h"
 #include "scene/resources/packed_scene.h"
+
+IMPL_GDCLASS(EditorSelection)
 
 void EditorHistory::cleanup_history() {
 
@@ -773,9 +776,9 @@ String EditorData::get_scene_title(int p_idx) const {
     if (edited_scene[p_idx].root->get_filename() == "")
         return TTR("[unsaved]");
     bool show_ext = EDITOR_DEF("interface/scene_tabs/show_extension", false);
-	String name = PathUtils::get_file(edited_scene[p_idx].root->get_filename());
+    String name = PathUtils::get_file(edited_scene[p_idx].root->get_filename());
     if (!show_ext) {
-		name = PathUtils::get_basename(name);
+        name = PathUtils::get_basename(name);
     }
     return name;
 }
@@ -1004,8 +1007,8 @@ void EditorSelection::_node_removed(Node *p_node) {
 
 void EditorSelection::add_node(Node *p_node) {
 
-    ERR_FAIL_NULL(p_node);
-    ERR_FAIL_COND(!p_node->is_inside_tree());
+    ERR_FAIL_NULL(p_node)
+    ERR_FAIL_COND(!p_node->is_inside_tree())
     if (selection.has(p_node))
         return;
 
@@ -1021,14 +1024,14 @@ void EditorSelection::add_node(Node *p_node) {
     }
     selection[p_node] = meta;
 
-    p_node->connect("tree_exiting", this, "_node_removed", varray(p_node), CONNECT_ONESHOT);
+    p_node->connect("tree_exiting", this, "_node_removed", varray(p_node), ObjectNS::CONNECT_ONESHOT);
 
     //emit_signal("selection_changed");
 }
 
 void EditorSelection::remove_node(Node *p_node) {
 
-    ERR_FAIL_NULL(p_node);
+    ERR_FAIL_NULL(p_node)
 
     if (!selection.has(p_node))
         return;
@@ -1073,13 +1076,13 @@ Array EditorSelection::get_selected_nodes() {
 
 void EditorSelection::_bind_methods() {
 
-    ClassDB::bind_method(D_METHOD("_node_removed"), &EditorSelection::_node_removed);
-    ClassDB::bind_method(D_METHOD("clear"), &EditorSelection::clear);
-    ClassDB::bind_method(D_METHOD("add_node", "node"), &EditorSelection::add_node);
-    ClassDB::bind_method(D_METHOD("remove_node", "node"), &EditorSelection::remove_node);
-    ClassDB::bind_method(D_METHOD("get_selected_nodes"), &EditorSelection::get_selected_nodes);
-    ClassDB::bind_method(D_METHOD("get_transformable_selected_nodes"), &EditorSelection::_get_transformable_selected_nodes);
-    ClassDB::bind_method(D_METHOD("_emit_change"), &EditorSelection::_emit_change);
+    MethodBinder::bind_method(D_METHOD("_node_removed"), &EditorSelection::_node_removed);
+    MethodBinder::bind_method(D_METHOD("clear"), &EditorSelection::clear);
+    MethodBinder::bind_method(D_METHOD("add_node", "node"), &EditorSelection::add_node);
+    MethodBinder::bind_method(D_METHOD("remove_node", "node"), &EditorSelection::remove_node);
+    MethodBinder::bind_method(D_METHOD("get_selected_nodes"), &EditorSelection::get_selected_nodes);
+    MethodBinder::bind_method(D_METHOD("get_transformable_selected_nodes"), &EditorSelection::_get_transformable_selected_nodes);
+    MethodBinder::bind_method(D_METHOD("_emit_change"), &EditorSelection::_emit_change);
     ADD_SIGNAL(MethodInfo("selection_changed"));
 }
 
