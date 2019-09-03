@@ -36,7 +36,7 @@
 #include "main/main.h"
 
 #ifdef DEBUG_ENABLED
-//#define CRASH_HANDLER_ENABLED 1
+#define CRASH_HANDLER_ENABLED 1
 #endif
 
 #ifdef CRASH_HANDLER_ENABLED
@@ -67,7 +67,7 @@ static void handle_crash(int sig) {
     if (OS::get_singleton()->get_main_loop())
         OS::get_singleton()->get_main_loop()->notification(MainLoop::NOTIFICATION_CRASH);
 
-	fprintf(stderr, "Dumping the backtrace. %ss\n", qPrintable(msg.m_str));
+    fprintf(stderr, "Dumping the backtrace. %ss\n", qPrintable(msg.m_str));
     char **strings = backtrace_symbols(bt_buffer, size);
     if (strings) {
         for (size_t i = 1; i < size; i++) {

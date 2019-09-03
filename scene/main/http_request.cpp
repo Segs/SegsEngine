@@ -34,7 +34,7 @@
 
 IMPL_GDCLASS(HTTPRequest)
 
-void HTTPRequest::_redirect_request(const String &p_new_url) {
+void HTTPRequest::_redirect_request(const String & /*p_new_url*/) {
 }
 
 Error HTTPRequest::_request() {
@@ -252,28 +252,28 @@ bool HTTPRequest::_update_connection() {
         case HTTPClient::STATUS_DISCONNECTED: {
             call_deferred("_request_done", RESULT_CANT_CONNECT, 0, PoolStringArray(), PoolByteArray());
             return true; // End it, since it's doing something
-        } break;
+        }
         case HTTPClient::STATUS_RESOLVING: {
             client->poll();
             // Must wait
             return false;
-        } break;
+        }
         case HTTPClient::STATUS_CANT_RESOLVE: {
             call_deferred("_request_done", RESULT_CANT_RESOLVE, 0, PoolStringArray(), PoolByteArray());
             return true;
 
-        } break;
+        }
         case HTTPClient::STATUS_CONNECTING: {
             client->poll();
             // Must wait
             return false;
-        } break; // Connecting to IP
+        } // Connecting to IP
         case HTTPClient::STATUS_CANT_CONNECT: {
 
             call_deferred("_request_done", RESULT_CANT_CONNECT, 0, PoolStringArray(), PoolByteArray());
             return true;
 
-        } break;
+        }
         case HTTPClient::STATUS_CONNECTED: {
 
             if (request_sent) {
@@ -311,13 +311,13 @@ bool HTTPRequest::_update_connection() {
                 request_sent = true;
                 return false;
             }
-        } break; // Connected: break requests only accepted here
+        } // Connected: break requests only accepted here
         case HTTPClient::STATUS_REQUESTING: {
             // Must wait, still requesting
             client->poll();
             return false;
 
-        } break; // Request in progress
+        } // Request in progress
         case HTTPClient::STATUS_BODY: {
 
             if (!got_response) {
@@ -386,18 +386,18 @@ bool HTTPRequest::_update_connection() {
 
             return false;
 
-        } break; // Request resulted in body: break which must be read
+        } // Request resulted in body: break which must be read
         case HTTPClient::STATUS_CONNECTION_ERROR: {
             call_deferred("_request_done", RESULT_CONNECTION_ERROR, 0, PoolStringArray(), PoolByteArray());
             return true;
-        } break;
+        }
         case HTTPClient::STATUS_SSL_HANDSHAKE_ERROR: {
             call_deferred("_request_done", RESULT_SSL_HANDSHAKE_ERROR, 0, PoolStringArray(), PoolByteArray());
             return true;
-        } break;
+        }
     }
 
-    ERR_FAIL_V(false);
+    ERR_FAIL_V(false)
 }
 
 void HTTPRequest::_request_done(int p_status, int p_code, const PoolStringArray &headers, const PoolByteArray &p_data) {
@@ -485,7 +485,7 @@ int HTTPRequest::get_body_size() const {
 
 void HTTPRequest::set_timeout(int p_timeout) {
 
-    ERR_FAIL_COND(p_timeout < 0);
+    ERR_FAIL_COND(p_timeout < 0)
     timeout = p_timeout;
 }
 
