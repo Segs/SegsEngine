@@ -32,7 +32,7 @@
 
 #include "core/version.h"
 
-#include <stdio.h>
+#include <cstdio>
 
 #define PACK_VERSION 1
 

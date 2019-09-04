@@ -42,7 +42,7 @@ protected:
     }
 
 public:
-    typedef int (*AudioMixCallback)(void *p_udata, const float *p_data, int p_frames);
+    using AudioMixCallback = int (*)(void *, const float *, int);
 
     virtual void stop() = 0;
     virtual void play() = 0;

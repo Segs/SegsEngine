@@ -34,7 +34,7 @@
 #include "core/os/dir_access.h"
 #include "core/print_string.h"
 #include "drivers/gles3/rasterizer_gles3.h"
-#include "errno.h"
+#include <cerrno>
 #include "key_mapping_x11.h"
 #include "servers/visual/visual_server_raster.h"
 #include "servers/visual/visual_server_wrap_mt.h"
@@ -43,9 +43,9 @@
 #include <mntent.h>
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 #include "X11/Xutil.h"
 
@@ -1787,7 +1787,7 @@ void OS_X11::handle_key_event(XKeyEvent *p_event, bool p_echo) {
             for (int i = 0; i < tmp.length(); i++) {
                 Ref<InputEventKey> k;
                 k.instance();
-                if (keycode == 0 && tmp[i] == 0) {
+                if (keycode == 0 && tmp[i] == nullptr) {
                     continue;
                 }
 

@@ -38,7 +38,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include <errno.h>
+#include <cerrno>
 
 #if defined(UNIX_ENABLED)
 #include <unistd.h>

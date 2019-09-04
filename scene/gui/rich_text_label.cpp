@@ -378,7 +378,7 @@ int RichTextLabel::_process_line(ItemFrame *p_frame, const Vector2 &p_ofs, int &
                         line_ascent = line < l.ascent_caches.size() ? l.ascent_caches[line] : 1;
                         line_descent = line < l.descent_caches.size() ? l.descent_caches[line] : 1;
                     }
-                    while (c[end] != 0 && !(end && c[end - 1] == ' ' && c[end] != ' ')) {
+                    while (c[end] != nullptr && !(end && c[end - 1] == ' ' && c[end] != ' ')) {
 
                         int cw = font->get_char_size(c[end], c[end + 1]).width;
                         if (c[end] == '\t') {
@@ -1012,7 +1012,7 @@ void RichTextLabel::_gui_input(Ref<InputEvent> p_event) {
 
                 if (!b->is_doubleclick() && !scroll_updated) {
                     int line = 0;
-                    Item *item = NULL;
+                    Item *item = nullptr;
 
                     bool outside;
                     _find_click(main, b->get_position(), &item, &line, &outside);

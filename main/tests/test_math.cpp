@@ -128,7 +128,7 @@ class GetClassAndNamespace {
                 };
                 case '#': {
                     //compiler directive
-                    while (code[idx] != '\n' && code[idx] != 0) {
+                    while (code[idx] != '\n' && code[idx] != nullptr) {
                         idx++;
                     }
                     continue;
@@ -140,7 +140,7 @@ class GetClassAndNamespace {
 
                             idx += 2;
                             while (true) {
-                                if (code[idx] == 0) {
+                                if (code[idx] == nullptr) {
                                     error_str = "Unterminated comment";
                                     error = true;
                                     return TK_ERROR;
@@ -158,7 +158,7 @@ class GetClassAndNamespace {
                         } break;
                         case '/': { // line comment skip
 
-                            while (code[idx] != '\n' && code[idx] != 0) {
+                            while (code[idx] != '\n' && code[idx] != nullptr) {
                                 idx++;
                             }
 
@@ -179,7 +179,7 @@ class GetClassAndNamespace {
                     idx++;
                     String tk_string = String();
                     while (true) {
-                        if (code[idx] == 0) {
+                        if (code[idx] == nullptr) {
                             error_str = "Unterminated String";
                             error = true;
                             return TK_ERROR;
@@ -190,7 +190,7 @@ class GetClassAndNamespace {
                             //escaped characters...
                             idx++;
                             CharType next = code[idx];
-                            if (next == 0) {
+                            if (next == nullptr) {
                                 error_str = "Unterminated String";
                                 error = true;
                                 return TK_ERROR;

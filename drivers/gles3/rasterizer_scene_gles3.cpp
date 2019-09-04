@@ -2056,7 +2056,7 @@ void RasterizerSceneGLES3::_render_list(RenderList::Element **p_elements, int p_
 
 	RasterizerStorageGLES3::Material *prev_material = nullptr;
 	RasterizerStorageGLES3::Geometry *prev_geometry = nullptr;
-	RasterizerStorageGLES3::GeometryOwner *prev_owner = NULL;
+	RasterizerStorageGLES3::GeometryOwner *prev_owner = nullptr;
 	VS::InstanceType prev_base_type = VS::INSTANCE_MAX;
 
 	int current_blend_mode = -1;

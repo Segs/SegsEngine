@@ -906,7 +906,7 @@ GDScript::GDScript() :
     subclass_count = 0;
     initializer = nullptr;
     _base = nullptr;
-    _owner = NULL;
+    _owner = nullptr;
     tool = false;
 #ifdef TOOLS_ENABLED
     source_changed_cache = false;

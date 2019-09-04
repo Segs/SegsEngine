@@ -2745,7 +2745,7 @@ String Control::get_configuration_warning() const {
         if (warning != String()) {
             warning += "\n\n";
         }
-        warning += TTR("The Hint Tooltip won't be displayed as the control's Mouse Filter is set to \"Ignore\". To solve this, set the Mouse Filter to \"Stop\" or \"Pass\".");
+        warning += TTR(R"(The Hint Tooltip won't be displayed as the control's Mouse Filter is set to "Ignore". To solve this, set the Mouse Filter to "Stop" or "Pass".)");
     }
 
     return warning;

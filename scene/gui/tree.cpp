@@ -3922,7 +3922,7 @@ Tree::Tree() {
 
     hide_root = false;
     select_mode = SELECT_SINGLE;
-    root = 0;
+    root = nullptr;
     popup_menu = nullptr;
     popup_edited_item = nullptr;
     text_editor = nullptr;

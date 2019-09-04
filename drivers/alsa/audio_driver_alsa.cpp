@@ -36,7 +36,7 @@
 #include "core/project_settings.h"
 #include "core/print_string.h"
 
-#include <errno.h>
+#include <cerrno>
 
 Error AudioDriverALSA::init_device() {
     mix_rate = GLOBAL_DEF("audio/mix_rate", DEFAULT_MIX_RATE);

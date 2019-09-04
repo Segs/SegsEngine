@@ -34,7 +34,7 @@
 #include "core/image_data.h"
 
 #include <png.h>
-#include <string.h>
+#include <cstring>
 
 namespace PNGDriverCommon {
 
@@ -117,7 +117,7 @@ Error png_to_image(const uint8_t *p_source, size_t p_size, ImageData &p_image) {
 
 	p_image.width = png_img.width;
 	p_image.height = png_img.height;
-	p_image.mipmaps = 0;
+	p_image.mipmaps = false;
 	p_image.format = dest_format;
 
     return OK;

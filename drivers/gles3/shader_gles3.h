@@ -45,7 +45,7 @@
 #include GLES3_INCLUDE_H
 #endif
 
-#include <stdio.h>
+#include <cstdio>
 
 union ShaderVersionKey {
 

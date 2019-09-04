@@ -34,7 +34,7 @@
 #include "core/os/os.h"
 #include "core/print_string.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <webp/decode.h>
 #include <webp/encode.h>
 
@@ -94,7 +94,7 @@ Error webp_load_image_from_buffer(ImageData &p_image, const uint8_t *p_buffer, i
 
     p_image.width=features.width;
     p_image.height=features.height;
-    p_image.mipmaps=0;
+    p_image.mipmaps=false;
     p_image.format = features.has_alpha ? ImageData::FORMAT_RGBA8 : ImageData::FORMAT_RGB8;
 
     return OK;

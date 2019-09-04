@@ -43,7 +43,7 @@
 #include <BulletDynamics/Dynamics/btRigidBody.h>
 #include <btBulletCollisionCommon.h>
 
-#include <assert.h>
+#include <cassert>
 
 /**
     @author AndreaCatania

@@ -55,14 +55,14 @@
 #include <sys/sysctl.h>
 #endif
 
-#include <assert.h>
+#include <cassert>
 #include <dlfcn.h>
-#include <errno.h>
+#include <cerrno>
 #include <poll.h>
-#include <signal.h>
-#include <stdarg.h>
-#include <stdlib.h>
-#include <string.h>
+#include <csignal>
+#include <cstdarg>
+#include <cstdlib>
+#include <cstring>
 #include <sys/time.h>
 #include <sys/wait.h>
 #include <unistd.h>

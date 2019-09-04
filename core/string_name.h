@@ -69,8 +69,6 @@ class GODOT_EXPORT StringName {
     friend void register_core_types();
     friend void unregister_core_types();
 
-
-
 	void setupFromCString(const StaticCString &p_static_string);
     explicit StringName(_Data *p_data) { _data = p_data; }
 
@@ -100,14 +98,15 @@ public:
     StringName& operator=(const StringName &p_name);
     operator String() const;
     String asString() const;
+    const char *asCString() const;
 
     static StringName search(const char *p_name);
-    static StringName search(const QChar *p_name);
+
     static StringName search(const String &p_name);
 
     static bool AlphCompare(const StringName &l, const StringName &r);
 
-    //Marked as explicit since it *will* allocate String instance
+    //Marked as explicit since it *will* allocate memory
     explicit StringName(const char *p_name);
 
 

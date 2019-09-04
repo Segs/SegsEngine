@@ -55,7 +55,7 @@ Adapted from corresponding SDL 2.0 code.
 
 #include "power_x11.h"
 
-#include <stdio.h>
+#include <cstdio>
 #include <unistd.h>
 
 #include "core/error_macros.h"

@@ -49,7 +49,7 @@
 #include "core/rid.h"
 #include "core/hashfuncs.h"
 
-#include <stdint.h>
+#include <cstdint>
 class RefPtr;
 class Object;
 class Node; // helper

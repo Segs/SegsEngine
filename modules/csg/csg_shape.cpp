@@ -1834,7 +1834,7 @@ CSGBrush *CSGPolygon::_build_brush() {
             if (path_cache) {
                 path_cache->disconnect("tree_exited", this, "_path_exited");
                 path_cache->disconnect("curve_changed", this, "_path_changed");
-                path_cache = NULL;
+                path_cache = nullptr;
             }
 
             path_cache = path;

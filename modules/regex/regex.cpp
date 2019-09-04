@@ -498,7 +498,7 @@ RegEx::RegEx(const String &p_pattern) {
 
     if constexpr (sizeof(CharType) == 2) {
 
-        general_ctx = pcre2_general_context_create_16(&_regex_malloc, &_regex_free, NULL);
+        general_ctx = pcre2_general_context_create_16(&_regex_malloc, &_regex_free, nullptr);
 
     } else {
 

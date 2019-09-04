@@ -198,7 +198,7 @@ bool Variant::can_convert(Variant::Type p_type_from, Variant::Type p_type_to) {
 
     if (p_type_from == NIL) {
         return (p_type_to == OBJECT);
-    };
+	}
 
     const Type *valid_types = nullptr;
     const Type *invalid_types = nullptr;

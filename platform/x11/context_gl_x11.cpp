@@ -32,8 +32,8 @@
 
 #ifdef X11_ENABLED
 #if defined(OPENGL_ENABLED)
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <unistd.h>
 
 #define GLX_GLXEXT_PROTOTYPES
@@ -43,7 +43,7 @@
 #define GLX_CONTEXT_MAJOR_VERSION_ARB 0x2091
 #define GLX_CONTEXT_MINOR_VERSION_ARB 0x2092
 
-typedef GLXContext (*GLXCREATECONTEXTATTRIBSARBPROC)(Display *, GLXFBConfig, GLXContext, Bool, const int *);
+using GLXCREATECONTEXTATTRIBSARBPROC = GLXContext (*)(Display *, GLXFBConfig, GLXContext, int, const int *);
 
 struct ContextGL_X11_Private {
 

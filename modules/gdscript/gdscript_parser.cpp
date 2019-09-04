@@ -537,7 +537,7 @@ GDScriptParser::Node *GDScriptParser::_parse_expression(Node *p_parent, bool p_s
 
             tokenizer->advance();
             if (tokenizer->get_token() != GDScriptTokenizer::TK_PARENTHESIS_OPEN) {
-                _set_error("Expected \"(\" after \"yield\".");
+                _set_error(R"(Expected "(" after "yield".)");
                 return nullptr;
             }
 
@@ -563,7 +563,7 @@ GDScriptParser::Node *GDScriptParser::_parse_expression(Node *p_parent, bool p_s
                 yield->arguments.push_back(object);
 
                 if (tokenizer->get_token() != GDScriptTokenizer::TK_COMMA) {
-                    _set_error("Expected \",\" after the first argument of \"yield\".");
+                    _set_error(R"(Expected "," after the first argument of "yield".)");
                     return nullptr;
                 }
 
@@ -3512,7 +3512,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                 }
                 if (tokenizer->get_token(1) != GDScriptTokenizer::TK_IDENTIFIER) {
 
-                    _set_error("\"class_name\" syntax: \"class_name <UniqueName>\"");
+                    _set_error(R"("class_name" syntax: "class_name <UniqueName>")");
                     return;
                 }
                 if (p_class->classname_used) {
@@ -3586,7 +3586,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
 
                 if (tokenizer->get_token(1) != GDScriptTokenizer::TK_IDENTIFIER) {
 
-                    _set_error("\"class\" syntax: \"class <Name>:\" or \"class <Name> extends <BaseClass>:\"");
+                    _set_error(R"("class" syntax: "class <Name>:" or "class <Name> extends <BaseClass>:")");
                     return;
                 }
                 name = tokenizer->get_token_identifier(1);
@@ -3678,7 +3678,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
 
                 if (name == StringName()) {
 
-                    _set_error("Expected an identifier after \"func\" (syntax: \"func <identifier>([arguments]):\").");
+                    _set_error(R"(Expected an identifier after "func" (syntax: "func <identifier>([arguments]):").)");
                     return;
                 }
 
@@ -3711,7 +3711,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
 
                 if (tokenizer->get_token() != GDScriptTokenizer::TK_PARENTHESIS_OPEN) {
 
-                    _set_error("Expected \"(\" after the identifier (syntax: \"func <identifier>([arguments]):\" ).");
+                    _set_error(R"(Expected "(" after the identifier (syntax: "func <identifier>([arguments]):" ).)");
                     return;
                 }
 
@@ -4522,7 +4522,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                 if (tokenizer->get_token() != GDScriptTokenizer::TK_PR_VAR && tokenizer->get_token() != GDScriptTokenizer::TK_PR_ONREADY && tokenizer->get_token() != GDScriptTokenizer::TK_PR_REMOTE && tokenizer->get_token() != GDScriptTokenizer::TK_PR_MASTER && tokenizer->get_token() != GDScriptTokenizer::TK_PR_PUPPET && tokenizer->get_token() != GDScriptTokenizer::TK_PR_SYNC && tokenizer->get_token() != GDScriptTokenizer::TK_PR_REMOTESYNC && tokenizer->get_token() != GDScriptTokenizer::TK_PR_MASTERSYNC && tokenizer->get_token() != GDScriptTokenizer::TK_PR_PUPPETSYNC && tokenizer->get_token() != GDScriptTokenizer::TK_PR_SLAVE) {
 
                     current_export = PropertyInfo();
-                    _set_error("Expected \"var\", \"onready\", \"remote\", \"master\", \"puppet\", \"sync\", \"remotesync\", \"mastersync\", \"puppetsync\".");
+                    _set_error(R"(Expected "var", "onready", "remote", "master", "puppet", "sync", "remotesync", "mastersync", "puppetsync".)");
                     return;
                 }
 
@@ -4551,7 +4551,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
 
                 } else {
                     if (tokenizer->get_token() != GDScriptTokenizer::TK_PR_VAR && tokenizer->get_token() != GDScriptTokenizer::TK_PR_FUNCTION) {
-                        _set_error("Expected \"var\" or \"func\".");
+                        _set_error(R"(Expected "var" or "func".)");
                         return;
                     }
                 }
@@ -4571,7 +4571,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
 
                 } else {
                     if (tokenizer->get_token() != GDScriptTokenizer::TK_PR_VAR && tokenizer->get_token() != GDScriptTokenizer::TK_PR_FUNCTION) {
-                        _set_error("Expected \"var\" or \"func\".");
+                        _set_error(R"(Expected "var" or "func".)");
                         return;
                     }
                 }
@@ -4596,7 +4596,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
 
                 } else {
                     if (tokenizer->get_token() != GDScriptTokenizer::TK_PR_VAR && tokenizer->get_token() != GDScriptTokenizer::TK_PR_FUNCTION) {
-                        _set_error("Expected \"var\" or \"func\".");
+                        _set_error(R"(Expected "var" or "func".)");
                         return;
                     }
                 }
@@ -4613,7 +4613,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                     if (current_export.type)
                         _set_error("Expected \"var\".");
                     else
-                        _set_error("Expected \"var\" or \"func\".");
+                        _set_error(R"(Expected "var" or "func".)");
                     return;
                 }
 
@@ -4628,7 +4628,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                     if (current_export.type)
                         _set_error("Expected \"var\".");
                     else
-                        _set_error("Expected \"var\" or \"func\".");
+                        _set_error(R"(Expected "var" or "func".)");
                     return;
                 }
 
@@ -4643,7 +4643,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                     if (current_export.type)
                         _set_error("Expected \"var\".");
                     else
-                        _set_error("Expected \"var\" or \"func\".");
+                        _set_error(R"(Expected "var" or "func".)");
                     return;
                 }
 

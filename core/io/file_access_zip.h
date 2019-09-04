@@ -27,18 +27,17 @@
 /* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
+#pragma once
 
 #ifdef MINIZIP_ENABLED
 
-#ifndef FILE_ACCESS_ZIP_H
-#define FILE_ACCESS_ZIP_H
 
 #include "core/io/file_access_pack.h"
 #include "core/map.h"
 
 #include "thirdparty/minizip/unzip.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 
 class ZipArchive : public PackSource {
 
@@ -50,7 +49,7 @@ public:
 		File() {
 
 			package = -1;
-		};
+		}
 	};
 
 private:
@@ -111,14 +110,11 @@ public:
 	void store_8(uint8_t p_dest) override; ///< store a byte
 	bool file_exists(const String &p_name) override; ///< return true if a file exists
 
-	uint64_t _get_modified_time(const String &p_file) override { return 0; } // todo
-	uint32_t _get_unix_permissions(const String &p_file) override { return 0; }
-	Error _set_unix_permissions(const String &p_file, uint32_t p_permissions) override { return FAILED; }
+	uint64_t _get_modified_time(const String &/*p_file*/) override { return 0; } // todo
+	uint32_t _get_unix_permissions(const String &/*p_file*/) override { return 0; }
+	Error _set_unix_permissions(const String &/*p_file*/, uint32_t /*p_permissions*/) override { return FAILED; }
 
 	FileAccessZip(const String &p_path, const PackedData::PackedFile &p_file);
 	~FileAccessZip() override;
 };
-
-#endif // FILE_ACCESS_ZIP_H
-
 #endif // MINIZIP_ENABLED

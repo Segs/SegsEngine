@@ -948,7 +948,7 @@ MainLoop *test(TestType p_type) {
 
     for (int i = 0; i <= code.length(); i++) {
 
-        if (code[i] == '\n' || code[i] == 0) {
+        if (code[i] == '\n' || code[i] == nullptr) {
 
             lines.push_back(StringUtils::substr(code,last, i - last));
             last = i + 1;

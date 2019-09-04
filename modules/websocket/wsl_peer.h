@@ -66,7 +66,7 @@ public:
 			id = 1;
 			ctx = nullptr;
 			obj = nullptr;
-			peer = NULL;
+			peer = nullptr;
 		}
 	};
 

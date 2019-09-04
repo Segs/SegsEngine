@@ -30,8 +30,8 @@
 
 #pragma once
 
-#include <stdint.h>
-#include <stdlib.h>
+#include <cstdint>
+#include <cstdlib>
 
 struct ImageData;
 template <class T> class PoolVector;

@@ -40,7 +40,7 @@ String Range::get_configuration_warning() const {
         if (warning != String()) {
             warning += "\n\n";
         }
-        warning += TTR("If \"Exp Edit\" is enabled, \"Min Value\" must be greater than 0.");
+        warning += TTR(R"(If "Exp Edit" is enabled, "Min Value" must be greater than 0.)");
     }
 
     return warning;

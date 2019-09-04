@@ -236,7 +236,7 @@ void DocDump::dump(const String &p_file) {
                     default: {
                     }
                         //case PROPERTY_HINT_RESOURCE_TYPE: hint="Type: "+arginfo.hint_string; break;
-                };
+                }
                 if (hint != "")
                     _write_string(f, 4, hint);
 

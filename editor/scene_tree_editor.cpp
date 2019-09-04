@@ -422,7 +422,7 @@ bool SceneTreeEditor::_add_nodes(Node *p_node, TreeItem *p_parent) {
     if (valid_types.size()) {
         bool valid = false;
         for (int i = 0; i < valid_types.size(); i++) {
-            if (p_node->is_class(StringUtils::to_utf8(valid_types[i].asString()))) {
+            if (p_node->is_class(valid_types[i].asCString())) {
                 valid = true;
                 break;
             }

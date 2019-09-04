@@ -124,15 +124,9 @@ static void GLAPIENTRY _gl_debug_print(GLenum source, GLenum type, GLuint id, GL
 }
 #endif // GLAD_ENABLED
 
-typedef void (*DEBUGPROCARB)(GLenum source,
-		GLenum type,
-		GLuint id,
-		GLenum severity,
-		GLsizei length,
-		const char *message,
-		const void *userParam);
+using DEBUGPROCARB = void (*)(GLenum, GLenum, GLuint, GLenum, GLsizei, const char *, const void *);
 
-typedef void (*DebugMessageCallbackARB)(DEBUGPROCARB callback, const void *userParam);
+using DebugMessageCallbackARB = void (*)(DEBUGPROCARB, const void *);
 
 Error RasterizerGLES3::is_viable() {
 

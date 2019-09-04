@@ -35,7 +35,7 @@
 #include "core/print_string.h"
 #include "png_driver_common.h"
 
-#include <string.h>
+#include <cstring>
 
 Error ImageLoaderPNG::load_image(ImageData &p_image, FileAccess *f, LoadParams params) {
 

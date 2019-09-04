@@ -32,7 +32,7 @@
 #include "core/os/os.h"
 #include "core/os/threaded_array_processor.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #define FINDMINMAX(x0, x1, x2, min, max) \
     min = max = x0;                      \

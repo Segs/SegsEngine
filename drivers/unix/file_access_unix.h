@@ -33,13 +33,13 @@
 
 #include "core/os/file_access.h"
 #include "core/os/memory.h"
-#include <stdio.h>
+#include <cstdio>
 
 #if defined(UNIX_ENABLED) || defined(LIBC_FILEIO_ENABLED)
 
 #include "core/ustring.h"
 
-typedef void (*CloseNotificationFunc)(const String &p_file, int p_flags);
+using CloseNotificationFunc = void (*)(const String &, int);
 
 class FileAccessUnix : public FileAccess {
 

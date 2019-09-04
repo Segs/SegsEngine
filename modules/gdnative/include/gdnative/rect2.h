@@ -35,7 +35,7 @@
 extern "C" {
 #endif
 
-#include <stdint.h>
+#include <cstdint>
 
 #ifndef GODOT_CORE_API_GODOT_RECT2_TYPE_DEFINED
 #define GODOT_CORE_API_GODOT_RECT2_TYPE_DEFINED

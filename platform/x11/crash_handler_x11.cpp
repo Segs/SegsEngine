@@ -43,8 +43,8 @@
 #include <cxxabi.h>
 #include <dlfcn.h>
 #include <execinfo.h>
-#include <signal.h>
-#include <stdlib.h>
+#include <csignal>
+#include <cstdlib>
 
 static void handle_crash(int sig) {
     if (OS::get_singleton() == nullptr) {

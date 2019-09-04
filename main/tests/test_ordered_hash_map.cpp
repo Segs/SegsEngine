@@ -130,7 +130,7 @@ bool test_const_iteration() {
 	return test_const_iteration(map);
 }
 
-typedef bool (*TestFunc)();
+using TestFunc = bool (*)();
 
 TestFunc test_funcs[] = {
 

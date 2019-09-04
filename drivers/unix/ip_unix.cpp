@@ -33,7 +33,7 @@
 
 #if defined(UNIX_ENABLED) || defined(WINDOWS_ENABLED)
 
-#include <string.h>
+#include <cstring>
 
 #ifdef WINDOWS_ENABLED
 #include <stdio.h>

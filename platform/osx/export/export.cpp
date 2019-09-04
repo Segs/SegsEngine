@@ -42,7 +42,7 @@
 #include "editor/editor_node.h"
 #include "editor/editor_settings.h"
 #include "platform/osx/logo.gen.h"
-#include "string.h"
+#include <cstring>
 #include <sys/stat.h>
 
 class EditorExportPlatformOSX final : public EditorExportPlatform {

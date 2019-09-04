@@ -50,7 +50,7 @@ void GDScriptLanguage::get_string_delimiters(List<String> *p_delimiters) const {
 
     p_delimiters->push_back("\" \"");
     p_delimiters->push_back("' '");
-    p_delimiters->push_back("\"\"\" \"\"\"");
+    p_delimiters->push_back(R"(""" """)");
 }
 
 String GDScriptLanguage::_get_processed_template(const String &p_template, const String &p_base_class_name) const {
@@ -1908,7 +1908,7 @@ static void _find_identifiers_in_class(const GDScriptCompletionContext &p_contex
 
     GDScriptCompletionContext c = p_context;
     c.block = nullptr;
-    c.function = NULL;
+    c.function = nullptr;
 
     _find_identifiers_in_base(c, base_type, p_only_functions, r_result);
 }
@@ -2915,7 +2915,7 @@ Error GDScriptLanguage::complete_code(const String &p_code, const String &p_path
                                 GDScriptCompletionContext c2 = context;
                                 c2._class = base_type.class_type;
                                 c2.function = nullptr;
-                                c2.block = NULL;
+                                c2.block = nullptr;
                                 c2.line = E->value().expression->line;
                                 if (_guess_expression_type(c2, E->value().expression, constant)) {
                                     if (constant.type.has_type && constant.type.is_meta_type) {

@@ -210,8 +210,8 @@ void AppxPackager::make_block_map(const String &p_path) {
 
     FileAccess *tmp_file = FileAccess::open(p_path, FileAccess::WRITE);
 
-    tmp_file->store_string("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>");
-    tmp_file->store_string("<BlockMap xmlns=\"http://schemas.microsoft.com/appx/2010/blockmap\" HashMethod=\"http://www.w3.org/2001/04/xmlenc#sha256\">");
+    tmp_file->store_string(R"(<?xml version="1.0" encoding="UTF-8" standalone="no"?>)");
+    tmp_file->store_string(R"(<BlockMap xmlns="http://schemas.microsoft.com/appx/2010/blockmap" HashMethod="http://www.w3.org/2001/04/xmlenc#sha256">)");
 
     for (int i = 0; i < file_metadata.size(); i++) {
 
@@ -255,7 +255,7 @@ void AppxPackager::make_content_types(const String &p_path) {
 
     FileAccess *tmp_file = FileAccess::open(p_path, FileAccess::WRITE);
 
-    tmp_file->store_string("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+    tmp_file->store_string(R"(<?xml version="1.0" encoding="UTF-8"?>)");
     tmp_file->store_string("<Types xmlns=\"http://schemas.openxmlformats.org/package/2006/content-types\">");
 
     Map<String, String> types;
@@ -272,13 +272,13 @@ void AppxPackager::make_content_types(const String &p_path) {
     }
 
     // Appx signature file
-    tmp_file->store_string("<Default Extension=\"p7x\" ContentType=\"application/octet-stream\" />");
+    tmp_file->store_string(R"(<Default Extension="p7x" ContentType="application/octet-stream" />)");
 
     // Override for package files
-    tmp_file->store_string("<Override PartName=\"/AppxManifest.xml\" ContentType=\"application/vnd.ms-appx.manifest+xml\" />");
-    tmp_file->store_string("<Override PartName=\"/AppxBlockMap.xml\" ContentType=\"application/vnd.ms-appx.blockmap+xml\" />");
-    tmp_file->store_string("<Override PartName=\"/AppxSignature.p7x\" ContentType=\"application/vnd.ms-appx.signature\" />");
-    tmp_file->store_string("<Override PartName=\"/AppxMetadata/CodeIntegrity.cat\" ContentType=\"application/vnd.ms-pkiseccat\" />");
+    tmp_file->store_string(R"(<Override PartName="/AppxManifest.xml" ContentType="application/vnd.ms-appx.manifest+xml" />)");
+    tmp_file->store_string(R"(<Override PartName="/AppxBlockMap.xml" ContentType="application/vnd.ms-appx.blockmap+xml" />)");
+    tmp_file->store_string(R"(<Override PartName="/AppxSignature.p7x" ContentType="application/vnd.ms-appx.signature" />)");
+    tmp_file->store_string(R"(<Override PartName="/AppxMetadata/CodeIntegrity.cat" ContentType="application/vnd.ms-pkiseccat" />)");
 
     tmp_file->store_string("</Types>");
 

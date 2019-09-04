@@ -460,7 +460,7 @@ void AnimationNode::_bind_methods() {
 AnimationNode::AnimationNode() {
 
     state = nullptr;
-    parent = NULL;
+    parent = nullptr;
     filter_enabled = false;
 }
 

@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef OUTPUT_STRINGS_H
-#define OUTPUT_STRINGS_H
+#pragma once
 
 #include "core/map.h"
 #include "scene/gui/control.h"
@@ -60,8 +59,8 @@ private:
 	int size_height;
 
 	Size2 margin;
-	typedef Map<int, Line> LineMap;
-	Map<int, Line> line_map;
+    using LineMap = Map<int, Line>;
+    LineMap line_map;
 
 	VScrollBar *v_scroll;
 	HScrollBar *h_scroll;
@@ -83,5 +82,3 @@ public:
 
 	OutputStrings();
 };
-
-#endif // OUTPUT_STRINGS_H

@@ -297,7 +297,7 @@ void AnimationPlayer::_ensure_node_caches(AnimationData *p_anim) {
                     if (p_anim->node_cache[i]->bone_idx < 0) {
                         // broken track (nonexistent bone)
                         p_anim->node_cache[i]->skeleton = nullptr;
-                        p_anim->node_cache[i]->spatial = NULL;
+                        p_anim->node_cache[i]->spatial = nullptr;
                         ERR_CONTINUE(p_anim->node_cache[i]->bone_idx < 0);
                     }
                 } else {

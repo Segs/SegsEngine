@@ -33,7 +33,7 @@
 #include "joypad_linux.h"
 #include "core/print_string.h"
 
-#include <errno.h>
+#include <cerrno>
 #include <fcntl.h>
 #include <linux/input.h>
 #include <unistd.h>

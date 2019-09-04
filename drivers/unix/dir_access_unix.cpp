@@ -36,10 +36,10 @@
 #include "core/os/memory.h"
 #include "core/print_string.h"
 
-#include <errno.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cerrno>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 #ifndef ANDROID_ENABLED
 #include <sys/statvfs.h>

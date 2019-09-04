@@ -36,7 +36,7 @@
 #include "core/ustring.h"
 
 #include <jpgd.h>
-#include <string.h>
+#include <cstring>
 
 Error jpeg_load_image_from_buffer(ImageData &p_image, const uint8_t *p_buffer, int p_buffer_len) {
 
@@ -99,7 +99,7 @@ Error jpeg_load_image_from_buffer(ImageData &p_image, const uint8_t *p_buffer, i
     dw.release();
     p_image.width= image_width;
     p_image.height = image_height;
-    p_image.mipmaps = 0;
+    p_image.mipmaps = false;
     p_image.format = fmt;
 
     return OK;
