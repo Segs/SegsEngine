@@ -394,6 +394,7 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
     bool upwards = false;
     String debug_mode;
     String debug_host;
+	bool skip_breakpoints = false;
     String main_pack;
     bool quiet_stdout = false;
     int rtm = -1;
@@ -745,6 +746,8 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
             print_fps = true;
         } else if (I->get() == "--disable-crash-handler") {
             OS::get_singleton()->disable_crash_handler();
+		} else if (I->get() == "--skip-breakpoints") {
+			skip_breakpoints = true;
         } else {
             main_args.push_back(I->get());
         }
@@ -812,6 +815,8 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
             debug_host = StringUtils::substr(debug_host,0, sep_pos);
         }
         Error derr = sdr->connect_to_host(debug_host, debug_port);
+
+		sdr->set_skip_breakpoints(skip_breakpoints);
 
         if (derr != OK) {
             memdelete(sdr);

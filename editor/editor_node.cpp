@@ -82,6 +82,7 @@
 #include "editor/import/editor_import_collada.h"
 #include "editor/import/editor_scene_importer_gltf.h"
 #include "editor/import/resource_importer_bitmask.h"
+#include "editor/import/resource_importer_csv.h"
 #include "editor/import/resource_importer_csv_translation.h"
 #include "editor/import/resource_importer_image.h"
 #include "editor/import/resource_importer_layered_texture.h"
@@ -144,6 +145,7 @@
 #include "editor/plugins/theme_editor_plugin.h"
 #include "editor/plugins/tile_map_editor_plugin.h"
 #include "editor/plugins/tile_set_editor_plugin.h"
+#include "editor/plugins/version_control_editor_plugin.h"
 #include "editor/plugins/visual_shader_editor_plugin.h"
 #include "editor/pvrtc_compress.h"
 #include "editor/register_exporters.h"
@@ -206,6 +208,20 @@ void EditorNode::_update_scene_tabs() {
             last_tab = scene_tabs->get_tab_rect(scene_tabs->get_tab_count() - 1);
         scene_tab_add->set_position(Point2(last_tab.get_position().x + last_tab.get_size().x + 3, last_tab.get_position().y));
     }
+}
+
+void EditorNode::_version_control_menu_option(int p_idx) {
+
+	switch (vcs_actions_menu->get_item_id(p_idx)) {
+		case RUN_VCS_SETTINGS: {
+
+			VersionControlEditorPlugin::get_singleton()->popup_vcs_set_up_dialog(gui_base);
+		} break;
+		case RUN_VCS_SHUT_DOWN: {
+
+			VersionControlEditorPlugin::get_singleton()->shut_down();
+		} break;
+	}
 }
 
 void EditorNode::_update_title() {
@@ -1861,6 +1877,7 @@ void EditorNode::_run(bool p_current, const String &p_custom) {
     String main_scene;
     String run_filename;
     String args;
+	bool skip_breakpoints;
 
     if (p_current || (editor_data.get_edited_scene_root() && p_custom == editor_data.get_edited_scene_root()->get_filename())) {
 
@@ -1926,8 +1943,9 @@ void EditorNode::_run(bool p_current, const String &p_custom) {
     editor_data.get_editor_breakpoints(&breakpoints);
 
     args = ProjectSettings::get_singleton()->get("editor/main_run_args");
+	skip_breakpoints = ScriptEditor::get_singleton()->get_debugger()->is_skip_breakpoints();
 
-    Error error = editor_run.run(run_filename, args, breakpoints);
+	Error error = editor_run.run(run_filename, args, breakpoints, skip_breakpoints);
 
     if (error != OK) {
 
@@ -3549,6 +3567,7 @@ void EditorNode::register_editor_types() {
     ClassDB::register_class<EditorResourcePreviewGenerator>();
     ClassDB::register_virtual_class<EditorFileSystem>();
     ClassDB::register_class<EditorFileSystemDirectory>();
+	ClassDB::register_class<EditorVCSInterface>();
     ClassDB::register_virtual_class<ScriptEditor>();
     ClassDB::register_virtual_class<EditorInterface>();
     ClassDB::register_class<EditorExportPlugin>();
@@ -5338,6 +5357,7 @@ void EditorNode::_bind_methods() {
     MethodBinder::bind_method("_dropped_files", &EditorNode::_dropped_files);
     MethodBinder::bind_method(D_METHOD("_global_menu_action"), &EditorNode::_global_menu_action, {DEFVAL(Variant())});
     MethodBinder::bind_method("_toggle_distraction_free_mode", &EditorNode::_toggle_distraction_free_mode);
+	MethodBinder::bind_method("_version_control_menu_option", &EditorNode::_version_control_menu_option);
     MethodBinder::bind_method("edit_item_resource", &EditorNode::edit_item_resource);
 
     MethodBinder::bind_method(D_METHOD("get_gui_base"), &EditorNode::get_gui_base);
@@ -5564,6 +5584,10 @@ EditorNode::EditorNode() {
         Ref<ResourceImporterCSVTranslation> import_csv_translation;
         import_csv_translation.instance();
         ResourceFormatImporter::get_singleton()->add_importer(import_csv_translation);
+
+		Ref<ResourceImporterCSV> import_csv;
+		import_csv.instance();
+		ResourceFormatImporter::get_singleton()->add_importer(import_csv);
 
         Ref<ResourceImporterWAV> import_wav;
         import_wav.instance();
@@ -6023,6 +6047,15 @@ EditorNode::EditorNode() {
     p->add_shortcut(ED_SHORTCUT("editor/project_settings", TTR("Project Settings...")), RUN_SETTINGS);
     p->connect("id_pressed", this, "_menu_option");
 
+	vcs_actions_menu = VersionControlEditorPlugin::get_singleton()->get_version_control_actions_panel();
+	vcs_actions_menu->set_name("Version Control");
+	vcs_actions_menu->connect("index_pressed", this, "_version_control_menu_option");
+	p->add_separator();
+	p->add_child(vcs_actions_menu);
+	p->add_submenu_item(TTR("Version Control"), "Version Control");
+	vcs_actions_menu->add_item(TTR("Set Up Version Control"), RUN_VCS_SETTINGS);
+	vcs_actions_menu->add_item(TTR("Shut Down Version Control"), RUN_VCS_SHUT_DOWN);
+
     p->add_separator();
     p->add_shortcut(ED_SHORTCUT("editor/export", TTR("Export...")), FILE_EXPORT_PROJECT);
     p->add_item(TTR("Install Android Build Template..."), FILE_INSTALL_ANDROID_SOURCE);
@@ -6032,7 +6065,6 @@ EditorNode::EditorNode() {
     plugin_config_dialog->connect("plugin_ready", this, "_on_plugin_ready");
     gui_base->add_child(plugin_config_dialog);
 
-    p->add_separator();
     tool_menu = memnew(PopupMenu);
     tool_menu->set_name("Tools");
     tool_menu->connect("index_pressed", this, "_tool_menu_option");
@@ -6497,6 +6529,7 @@ EditorNode::EditorNode() {
     //more visually meaningful to have this later
     raise_bottom_panel_item(AnimationPlayerEditor::singleton);
 
+	add_editor_plugin(VersionControlEditorPlugin::get_singleton());
     add_editor_plugin(memnew(ShaderEditorPlugin(this)));
     add_editor_plugin(memnew(VisualShaderEditorPlugin(this)));
 

@@ -168,10 +168,13 @@ static inline uint64_t make_uint64_t(T p_in) {
     _u.t = p_in;
     return _u._u64;
 }
-
 template <class T> struct Hasher {
     _FORCE_INLINE_ uint32_t operator()(const T &val) { return val.hash(); }
 };
+template <typename Key>
+using HashType = typename std::conditional<std::is_enum<Key>::value, Hasher<typename std::underlying_type<Key>::type>,
+        Hasher<Key>>::type;
+
 template <> struct Hasher<const char *> {
     _FORCE_INLINE_ uint32_t operator()(const char *p_cstr) { return hash_djb2(p_cstr); }
 };
@@ -222,11 +225,11 @@ struct HashMapComparatorDefault {
         return p_lhs == p_rhs;
     }
 
-    bool compare(float p_lhs, float p_rhs) {
+    static bool compare(float p_lhs, float p_rhs) {
         return (p_lhs == p_rhs) || (Math::is_nan(p_lhs) && Math::is_nan(p_rhs));
     }
 
-    bool compare(double p_lhs, double p_rhs) {
+    static bool compare(double p_lhs, double p_rhs) {
         return (p_lhs == p_rhs) || (Math::is_nan(p_lhs) && Math::is_nan(p_rhs));
     }
 };

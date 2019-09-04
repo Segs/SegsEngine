@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  editor_run.h                                                         */
+/*  resource_importer_csv.cpp                                            */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,42 +28,55 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef EDITOR_RUN_H
-#define EDITOR_RUN_H
+#include "resource_importer_csv.h"
 
-#include "core/os/os.h"
+#include "core/io/resource_saver.h"
+#include "core/os/file_access.h"
 
-class EditorRun {
-public:
-	enum Status {
+IMPL_GDCLASS(ResourceImporterCSV)
 
-		STATUS_PLAY,
-		STATUS_PAUSED,
-		STATUS_STOP
-	};
+String ResourceImporterCSV::get_importer_name() const {
 
-	OS::ProcessID pid;
+    return "csv";
+}
 
-private:
-	bool debug_collisions;
-	bool debug_navigation;
-	Status status;
+String ResourceImporterCSV::get_visible_name() const {
 
-public:
-	Status get_status() const;
-	Error run(const String &p_scene, const String &p_custom_args, const List<String> &p_breakpoints, const bool &p_skip_breakpoints = false);
-	void run_native_notify() { status = STATUS_PLAY; }
-	void stop();
+    return "CSV";
+}
+void ResourceImporterCSV::get_recognized_extensions(List<String> *p_extensions) const {
 
-	OS::ProcessID get_pid() const { return pid; }
+    p_extensions->push_back("csv");
+}
 
-	void set_debug_collisions(bool p_debug);
-	bool get_debug_collisions() const;
+String ResourceImporterCSV::get_save_extension() const {
+    return ""; //does not save a single resource
+}
 
-	void set_debug_navigation(bool p_debug);
-	bool get_debug_navigation() const;
+String ResourceImporterCSV::get_resource_type() const {
 
-	EditorRun();
-};
+    return "TextFile";
+}
 
-#endif // EDITOR_RUN_H
+bool ResourceImporterCSV::get_option_visibility(const String &p_option, const Map<StringName, Variant> &p_options) const {
+
+    return true;
+}
+
+int ResourceImporterCSV::get_preset_count() const {
+    return 0;
+}
+String ResourceImporterCSV::get_preset_name(int p_idx) const {
+
+    return "";
+}
+
+void ResourceImporterCSV::get_import_options(List<ImportOption> *r_options, int p_preset) const {
+}
+
+Error ResourceImporterCSV::import(const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata) {
+    return OK;
+}
+
+ResourceImporterCSV::ResourceImporterCSV() {
+}

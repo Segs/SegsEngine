@@ -156,7 +156,7 @@ String StringUtils::capitalize(const String &s) {
         String slice = StringUtils::get_slice(aux,' ', i);
         if (!slice.empty()) {
 
-			slice.set(0,StringUtils::char_uppercase(slice[0]));
+            slice.set(0,StringUtils::char_uppercase(slice[0]));
             if (i > 0)
                 cap += ' ';
             cap += slice;
@@ -2589,7 +2589,7 @@ String StringUtils::sprintf(const String &str,const Array &values, bool *error) 
 
     *error = true;
 
-	for (; !self->isNull(); self++) {
+    for (; !self->isNull(); self++) {
         const CharType c = *self;
 
         if (in_format) { // We have % - lets see what else we get.
@@ -2924,4 +2924,9 @@ void StringUtils::Inplace::replace(String &str, const char *p_key, const char *p
 void StringUtils::Inplace::replace(String &str, CharType p_key, CharType p_with)
 {
     str.m_str.replace(p_key,p_with);
+}
+
+void StringUtils::Inplace::replace(String &str, const String &p_key, const String &p_with)
+{
+    str.m_str.replace(p_key.m_str,p_with.m_str);
 }

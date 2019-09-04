@@ -1410,6 +1410,7 @@ const VisualShaderNodeInput::Port VisualShaderNodeInput::ports[] = {
     { Shader::MODE_SPATIAL, VisualShader::TYPE_VERTEX, VisualShaderNode::PORT_TYPE_TRANSFORM, "inv_projection", "INV_PROJECTION_MATRIX" },
     { Shader::MODE_SPATIAL, VisualShader::TYPE_VERTEX, VisualShaderNode::PORT_TYPE_SCALAR, "time", "TIME" },
     { Shader::MODE_SPATIAL, VisualShader::TYPE_VERTEX, VisualShaderNode::PORT_TYPE_VECTOR, "viewport_size", "vec3(VIEWPORT_SIZE, 0)" },
+	{ Shader::MODE_SPATIAL, VisualShader::TYPE_VERTEX, VisualShaderNode::PORT_TYPE_BOOLEAN, "output_is_srgb", "OUTPUT_IS_SRGB" },
 
     // Spatial, Fragment
     { Shader::MODE_SPATIAL, VisualShader::TYPE_FRAGMENT, VisualShaderNode::PORT_TYPE_VECTOR, "fragcoord", "FRAGCOORD.xyz" },
@@ -1434,6 +1435,8 @@ const VisualShaderNodeInput::Port VisualShaderNodeInput::ports[] = {
     { Shader::MODE_SPATIAL, VisualShader::TYPE_FRAGMENT, VisualShaderNode::PORT_TYPE_TRANSFORM, "inv_projection", "INV_PROJECTION_MATRIX" },
     { Shader::MODE_SPATIAL, VisualShader::TYPE_FRAGMENT, VisualShaderNode::PORT_TYPE_SCALAR, "time", "TIME" },
     { Shader::MODE_SPATIAL, VisualShader::TYPE_FRAGMENT, VisualShaderNode::PORT_TYPE_VECTOR, "viewport_size", "vec3(VIEWPORT_SIZE, 0.0)" },
+	{ Shader::MODE_SPATIAL, VisualShader::TYPE_FRAGMENT, VisualShaderNode::PORT_TYPE_BOOLEAN, "output_is_srgb", "OUTPUT_IS_SRGB" },
+	{ Shader::MODE_SPATIAL, VisualShader::TYPE_FRAGMENT, VisualShaderNode::PORT_TYPE_BOOLEAN, "front_facing", "FRONT_FACING" },
 
     // Spatial, Light
     { Shader::MODE_SPATIAL, VisualShader::TYPE_LIGHT, VisualShaderNode::PORT_TYPE_VECTOR, "fragcoord", "FRAGCOORD.xyz" },
@@ -1455,6 +1458,7 @@ const VisualShaderNodeInput::Port VisualShaderNodeInput::ports[] = {
     { Shader::MODE_SPATIAL, VisualShader::TYPE_LIGHT, VisualShaderNode::PORT_TYPE_TRANSFORM, "inv_projection", "INV_PROJECTION_MATRIX" },
     { Shader::MODE_SPATIAL, VisualShader::TYPE_LIGHT, VisualShaderNode::PORT_TYPE_SCALAR, "time", "TIME" },
     { Shader::MODE_SPATIAL, VisualShader::TYPE_LIGHT, VisualShaderNode::PORT_TYPE_VECTOR, "viewport_size", "vec3(VIEWPORT_SIZE, 0.0)" },
+	{ Shader::MODE_SPATIAL, VisualShader::TYPE_LIGHT, VisualShaderNode::PORT_TYPE_BOOLEAN, "output_is_srgb", "OUTPUT_IS_SRGB" },
     // Canvas Item, Vertex
     { Shader::MODE_CANVAS_ITEM, VisualShader::TYPE_VERTEX, VisualShaderNode::PORT_TYPE_VECTOR, "vertex", "vec3(VERTEX,0.0)" },
     { Shader::MODE_CANVAS_ITEM, VisualShader::TYPE_VERTEX, VisualShaderNode::PORT_TYPE_VECTOR, "uv", "vec3(UV,0.0)" },
@@ -2477,6 +2481,7 @@ String VisualShaderNodeExpression::generate_code(Shader::Mode p_mode, VisualShad
 		pre_symbols.push_back(";");
         pre_symbols.push_back("{");
         pre_symbols.push_back("[");
+		pre_symbols.push_back("]");
         pre_symbols.push_back("(");
         pre_symbols.push_back(" ");
         pre_symbols.push_back("-");
@@ -2496,6 +2501,7 @@ String VisualShaderNodeExpression::generate_code(Shader::Mode p_mode, VisualShad
 		post_symbols.push_back(",");
         post_symbols.push_back(";");
         post_symbols.push_back("}");
+		post_symbols.push_back("[");
         post_symbols.push_back("]");
         post_symbols.push_back(")");
         post_symbols.push_back(" ");
@@ -2513,14 +2519,14 @@ String VisualShaderNodeExpression::generate_code(Shader::Mode p_mode, VisualShad
     for (int i = 0; i < get_input_port_count(); i++) {
         for (int j = 0; j < pre_symbols.size(); j++) {
             for (int k = 0; k < post_symbols.size(); k++) {
-				_expression =StringUtils::replace(_expression,pre_symbols[j] + get_input_port_name(i) + post_symbols[k], pre_symbols[j] + p_input_vars[i] + post_symbols[k]);
+				StringUtils::Inplace::replace(_expression,pre_symbols[j] + get_input_port_name(i) + post_symbols[k], pre_symbols[j] + p_input_vars[i] + post_symbols[k]);
             }
         }
     }
     for (int i = 0; i < get_output_port_count(); i++) {
         for (int j = 0; j < pre_symbols.size(); j++) {
             for (int k = 0; k < post_symbols.size(); k++) {
-				_expression =StringUtils::replace(_expression,pre_symbols[j] + get_output_port_name(i) + post_symbols[k], pre_symbols[j] + p_output_vars[i] + post_symbols[k]);
+				StringUtils::Inplace::replace(_expression,pre_symbols[j] + get_output_port_name(i) + post_symbols[k], pre_symbols[j] + p_output_vars[i] + post_symbols[k]);
             }
         }
     }

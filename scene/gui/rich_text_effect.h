@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  editor_run.h                                                         */
+/*  rich_text_effect.h                                                   */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,42 +28,60 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef EDITOR_RUN_H
-#define EDITOR_RUN_H
+#ifndef RICH_TEXT_EFFECT_H
+#define RICH_TEXT_EFFECT_H
 
-#include "core/os/os.h"
+#include "core/resource.h"
 
-class EditorRun {
-public:
-	enum Status {
+class RichTextEffect : public Resource {
+    GDCLASS(RichTextEffect, Resource);
+    OBJ_SAVE_TYPE(RichTextEffect);
 
-		STATUS_PLAY,
-		STATUS_PAUSED,
-		STATUS_STOP
-	};
-
-	OS::ProcessID pid;
-
-private:
-	bool debug_collisions;
-	bool debug_navigation;
-	Status status;
+protected:
+    static void _bind_methods();
 
 public:
-	Status get_status() const;
-	Error run(const String &p_scene, const String &p_custom_args, const List<String> &p_breakpoints, const bool &p_skip_breakpoints = false);
-	void run_native_notify() { status = STATUS_PLAY; }
-	void stop();
+    Variant get_bbcode() const;
+    bool _process_effect_impl(Ref<class CharFXTransform> p_cfx);
 
-	OS::ProcessID get_pid() const { return pid; }
-
-	void set_debug_collisions(bool p_debug);
-	bool get_debug_collisions() const;
-
-	void set_debug_navigation(bool p_debug);
-	bool get_debug_navigation() const;
-
-	EditorRun();
+    RichTextEffect();
 };
 
-#endif // EDITOR_RUN_H
+class CharFXTransform : public Reference {
+    GDCLASS(CharFXTransform, Reference);
+
+protected:
+    static void _bind_methods();
+
+public:
+    uint64_t relative_index;
+    uint64_t absolute_index;
+    bool visibility;
+    Point2 offset;
+    Color color;
+    CharType character;
+    float elapsed_time;
+    Dictionary environment;
+
+    CharFXTransform();
+    uint64_t get_relative_index() { return relative_index; }
+    void set_relative_index(uint64_t p_index) { relative_index = p_index; }
+    uint64_t get_absolute_index() { return absolute_index; }
+    void set_absolute_index(uint64_t p_index) { absolute_index = p_index; }
+    float get_elapsed_time() { return elapsed_time; }
+    void set_elapsed_time(float p_elapsed_time) { elapsed_time = p_elapsed_time; }
+    bool is_visible() { return visibility; }
+    void set_visibility(bool p_vis) { visibility = p_vis; }
+    Point2 get_offset() { return offset; }
+    void set_offset(Point2 p_offset) { offset = p_offset; }
+    Color get_color() { return color; }
+    void set_color(Color p_color) { color = p_color; }
+    int get_character() { return (int)character.unicode(); }
+    void set_character(int p_char) { character = (CharType)p_char; }
+    Dictionary get_environment() { return environment; }
+    void set_environment(Dictionary p_environment) { environment = p_environment; }
+
+    Variant get_value_or(String p_key, Variant p_default_value);
+};
+
+#endif // RICH_TEXT_EFFECT_H

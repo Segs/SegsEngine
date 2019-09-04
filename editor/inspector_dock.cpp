@@ -414,6 +414,10 @@ void InspectorDock::update(Object *p_object) {
         warning->hide();
         search->set_editable(false);
 
+		editor_path->set_text("");
+		editor_path->set_tooltip("");
+		editor_path->set_icon(nullptr);
+
         return;
     }
 

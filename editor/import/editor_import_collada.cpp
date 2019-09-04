@@ -1598,14 +1598,14 @@ void ColladaImport::create_animation(int p_clip, bool p_make_tracks_in_all_bones
                 }
 
                 Vector<float> data = at.get_value_at_time(snapshots[i]);
-                ERR_CONTINUE(data.empty());
+                ERR_CONTINUE(data.empty())
 
                 Collada::Node::XForm &xf = cn->xform_list.write[xform_idx];
 
                 if (at.component == "ANGLE") {
-                    ERR_CONTINUE(data.size() != 1);
-                    ERR_CONTINUE(xf.op != Collada::Node::XForm::OP_ROTATE);
-                    ERR_CONTINUE(xf.data.size() < 4);
+                    ERR_CONTINUE(data.size() != 1)
+                    ERR_CONTINUE(xf.op != Collada::Node::XForm::OP_ROTATE)
+                    ERR_CONTINUE(xf.data.size() < 4)
                     xf.data.write[3] = data[0];
                 } else if (at.component == "X" || at.component == "Y" || at.component == "Z") {
                     int cn2 = at.component[0].toLatin1() - 'X';
@@ -1664,14 +1664,14 @@ void ColladaImport::create_animation(int p_clip, bool p_make_tracks_in_all_bones
 
             NodeMap &nm = node_map[E->key()];
             String path(scene->get_path_to(nm.node));
-            ERR_CONTINUE(nm.bone < 0);
+            ERR_CONTINUE(nm.bone < 0)
             Skeleton *sk = static_cast<Skeleton *>(nm.node);
             String name = sk->get_bone_name(nm.bone);
             path = path + ":" + name;
 
             Collada::Node *cn = collada.state.scene_map[E->key()];
             if (cn->ignore_anim) {
-                WARN_PRINTS("Collada: Ignoring animation on node: " + path);
+                WARN_PRINTS("Collada: Ignoring animation on node: " + path)
                 continue;
             }
 
@@ -1738,9 +1738,9 @@ void ColladaImport::create_animation(int p_clip, bool p_make_tracks_in_all_bones
 
                 } else if (data.size() == 16) {
                     //matrix
-                    WARN_PRINT("Collada: Value keys for matrices not supported.");
+                    WARN_PRINT("Collada: Value keys for matrices not supported.")
                 } else {
-                    WARN_PRINTS("Collada: Unexpected amount of value keys: " + itos(data.size()));
+                    WARN_PRINTS("Collada: Unexpected amount of value keys: " + itos(data.size()))
                 }
 
                 animation->track_insert_key(track, time, value);
@@ -1780,7 +1780,7 @@ Node *EditorSceneImporterCollada::import_scene(const String &p_path, uint32_t p_
 
     Error err = state.load(p_path, flags, p_flags & EditorSceneImporter::IMPORT_GENERATE_TANGENT_ARRAYS, p_flags & EditorSceneImporter::IMPORT_USE_COMPRESSION);
 
-    ERR_FAIL_COND_V(err != OK, nullptr);
+    ERR_FAIL_COND_V(err != OK, nullptr)
 
     if (state.missing_textures.size()) {
 
@@ -1833,7 +1833,7 @@ Ref<Animation> EditorSceneImporterCollada::import_animation(const String &p_path
     state.use_mesh_builtin_materials = false;
 
     Error err = state.load(p_path, Collada::IMPORT_FLAG_ANIMATION, p_flags & EditorSceneImporter::IMPORT_GENERATE_TANGENT_ARRAYS);
-    ERR_FAIL_COND_V(err != OK, RES());
+    ERR_FAIL_COND_V(err != OK, RES())
 
     state.create_animations(p_flags & EditorSceneImporter::IMPORT_ANIMATION_FORCE_ALL_TRACKS_IN_ALL_CLIPS, p_flags & EditorSceneImporter::IMPORT_ANIMATION_KEEP_VALUE_TRACKS);
     if (state.scene)

@@ -131,10 +131,13 @@ void ScriptDebuggerRemote::_save_node(ObjectID id, const String &p_path) {
     ResourceSaver::save(p_path, ps);
 }
 
-void ScriptDebuggerRemote::debug(ScriptLanguage *p_script, bool p_can_continue) {
+void ScriptDebuggerRemote::debug(ScriptLanguage *p_script, bool p_can_continue, bool p_is_error_breakpoint) {
 
     //this function is called when there is a debugger break (bug on script)
     //or when execution is paused from editor
+
+	if (skip_breakpoints && !p_is_error_breakpoint)
+		return;
 
     ERR_FAIL_COND_MSG(!tcp_client->is_connected_to_host(), "Script Debugger failed to connect, but being used anyway.");
 
@@ -1102,6 +1105,10 @@ void ScriptDebuggerRemote::profiling_set_frame_times(float p_frame_time, float p
     idle_time = p_idle_time;
     physics_time = p_physics_time;
     physics_frame_time = p_physics_frame_time;
+}
+
+void ScriptDebuggerRemote::set_skip_breakpoints(bool p_skip_breakpoints) {
+	skip_breakpoints = p_skip_breakpoints;
 }
 
 ScriptDebuggerRemote::ResourceUsageFunc ScriptDebuggerRemote::resource_usage_func = nullptr;

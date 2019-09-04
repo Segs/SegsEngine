@@ -35,7 +35,7 @@
 //TODO: SEGS consider removing 'scene/main/scene_tree.h' include from core module, or moving script_debugger_local to it's own module depending on core and scene modules.
 #include "scene/main/scene_tree.h"
 
-void ScriptDebuggerLocal::debug(ScriptLanguage *p_script, bool p_can_continue) {
+void ScriptDebuggerLocal::debug(ScriptLanguage *p_script, bool p_can_continue, bool p_is_error_breakpoint) {
 
     if (!target_function.empty()) {
         String current_function = p_script->debug_get_stack_level_function(0);

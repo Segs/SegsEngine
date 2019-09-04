@@ -210,6 +210,21 @@ void ScriptEditorDebugger::debug_copy() {
     OS::get_singleton()->set_clipboard(msg);
 }
 
+void ScriptEditorDebugger::debug_skip_breakpoints() {
+	skip_breakpoints_value = !skip_breakpoints_value;
+	if (skip_breakpoints_value)
+		skip_breakpoints->set_icon(get_icon("DebugSkipBreakpointsOn", "EditorIcons"));
+	else
+		skip_breakpoints->set_icon(get_icon("DebugSkipBreakpointsOff", "EditorIcons"));
+
+	if (connection.is_valid()) {
+		Array msg;
+		msg.push_back("set_skip_breakpoints");
+		msg.push_back(skip_breakpoints_value);
+		ppeer->put_var(msg);
+	}
+}
+
 void ScriptEditorDebugger::debug_next() {
 
     ERR_FAIL_COND(!breaked);
@@ -1091,7 +1106,7 @@ void ScriptEditorDebugger::_notification(int p_what) {
         case NOTIFICATION_ENTER_TREE: {
 
             inspector->edit(variables);
-
+			skip_breakpoints->set_icon(get_icon("DebugSkipBreakpointsOff", "EditorIcons"));
             copy->set_icon(get_icon("ActionCopy", "EditorIcons"));
 
             step->set_icon(get_icon("DebugStep", "EditorIcons"));
@@ -1793,6 +1808,10 @@ void ScriptEditorDebugger::reload_scripts() {
     }
 }
 
+bool ScriptEditorDebugger::is_skip_breakpoints() {
+	return skip_breakpoints_value;
+}
+
 void ScriptEditorDebugger::_error_activated() {
     TreeItem *selected = error_tree->get_selected();
 
@@ -1988,6 +2007,7 @@ void ScriptEditorDebugger::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_stack_dump_frame_selected"), &ScriptEditorDebugger::_stack_dump_frame_selected);
 
+    MethodBinder::bind_method(D_METHOD("debug_skip_breakpoints"), &ScriptEditorDebugger::debug_skip_breakpoints);
     MethodBinder::bind_method(D_METHOD("debug_copy"), &ScriptEditorDebugger::debug_copy);
 
     MethodBinder::bind_method(D_METHOD("debug_next"), &ScriptEditorDebugger::debug_next);
@@ -2074,6 +2094,13 @@ ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
         reason->set_mouse_filter(Control::MOUSE_FILTER_PASS);
 
         hbc->add_child(memnew(VSeparator));
+
+		skip_breakpoints = memnew(ToolButton);
+		hbc->add_child(skip_breakpoints);
+		skip_breakpoints->set_tooltip(TTR("Skip Breakpoints"));
+		skip_breakpoints->connect("pressed", this, "debug_skip_breakpoints");
+
+		hbc->add_child(memnew(VSeparator));
 
         copy = memnew(ToolButton);
         hbc->add_child(copy);

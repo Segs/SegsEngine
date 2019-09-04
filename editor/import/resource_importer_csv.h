@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  editor_run.h                                                         */
+/*  resource_importer_csv.h                                              */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,42 +28,30 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef EDITOR_RUN_H
-#define EDITOR_RUN_H
+#ifndef RESOURCEIMPORTERCSV_H
+#define RESOURCEIMPORTERCSV_H
 
-#include "core/os/os.h"
+#include "core/io/resource_importer.h"
 
-class EditorRun {
-public:
-	enum Status {
-
-		STATUS_PLAY,
-		STATUS_PAUSED,
-		STATUS_STOP
-	};
-
-	OS::ProcessID pid;
-
-private:
-	bool debug_collisions;
-	bool debug_navigation;
-	Status status;
+class ResourceImporterCSV : public ResourceImporter {
+	GDCLASS(ResourceImporterCSV, ResourceImporter);
 
 public:
-	Status get_status() const;
-	Error run(const String &p_scene, const String &p_custom_args, const List<String> &p_breakpoints, const bool &p_skip_breakpoints = false);
-	void run_native_notify() { status = STATUS_PLAY; }
-	void stop();
+	virtual String get_importer_name() const;
+	virtual String get_visible_name() const;
+	virtual void get_recognized_extensions(List<String> *p_extensions) const;
+	virtual String get_save_extension() const;
+	virtual String get_resource_type() const;
 
-	OS::ProcessID get_pid() const { return pid; }
+	virtual int get_preset_count() const;
+	virtual String get_preset_name(int p_idx) const;
 
-	void set_debug_collisions(bool p_debug);
-	bool get_debug_collisions() const;
+	virtual void get_import_options(List<ImportOption> *r_options, int p_preset = 0) const;
+	virtual bool get_option_visibility(const String &p_option, const Map<StringName, Variant> &p_options) const;
 
-	void set_debug_navigation(bool p_debug);
-	bool get_debug_navigation() const;
+	virtual Error import(const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files = NULL, Variant *r_metadata = NULL);
 
-	EditorRun();
+	ResourceImporterCSV();
 };
 
-#endif // EDITOR_RUN_H
+#endif // RESOURCEIMPORTERCSV_H
