@@ -31,7 +31,7 @@
 #ifndef IMAGE_LOADER_TGA_H
 #define IMAGE_LOADER_TGA_H
 
-#include "core/plugin_interfaces/ImageLoaderInterface.h"
+#include "core/plugin_interfaces/PluginDeclarations.h"
 /**
     @author SaracenOne
 */

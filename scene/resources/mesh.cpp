@@ -36,7 +36,7 @@
 #include "surface_tool.h"
 #include "core/method_bind.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 
 IMPL_GDCLASS(Mesh)
 IMPL_GDCLASS(ArrayMesh)

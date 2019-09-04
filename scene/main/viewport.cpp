@@ -3233,7 +3233,7 @@ Viewport::Viewport() {
     gui.canvas_sort_index = 0;
     gui.roots_order_dirty = false;
     gui.mouse_focus = nullptr;
-    gui.last_mouse_focus = NULL;
+    gui.last_mouse_focus = nullptr;
 
     msaa = MSAA_DISABLED;
     hdr = true;

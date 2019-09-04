@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef EDITOR_SCENE_IMPORTER_ASSIMP_H
-#define EDITOR_SCENE_IMPORTER_ASSIMP_H
+#pragma once
 
 #ifdef TOOLS_ENABLED
 #include "core/bind/core_bind.h"
@@ -152,5 +151,4 @@ public:
     Node *import_scene(const String &p_path, uint32_t p_flags, int p_bake_fps, List<String> *r_missing_deps, Error *r_err = nullptr) override;
     Ref<Image> load_image(ImportState &state, const aiScene *p_scene, String p_path);
 };
-#endif
 #endif

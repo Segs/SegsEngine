@@ -51,7 +51,7 @@
 #include "servers/physics_server.h"
 #include "viewport.h"
 
-#include <stdio.h>
+#include <cstdio>
 
 IMPL_GDCLASS(SceneTreeTimer)
 IMPL_GDCLASS(SceneTree)

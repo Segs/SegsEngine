@@ -30,7 +30,7 @@
 
 #pragma once
 
-#include "core/plugin_interfaces/ImageLoaderInterface.h"
+#include "core/plugin_interfaces/PluginDeclarations.h"
 
 class ImageLoaderPNG : public QObject, public ImageFormatLoader, public ImageFormatSaver {
     Q_PLUGIN_METADATA(IID "org.godot.ImageLoaderPNG")

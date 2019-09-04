@@ -37,9 +37,6 @@ public:
 public:
 	virtual ~ImageFormatLoader() {}
 };
-#define ImageFormatLoader_iid "org.godot.ImageFormatLoader"
-
-Q_DECLARE_INTERFACE(ImageFormatLoader, ImageFormatLoader_iid)
 
 class ImageFormatSaver {
     friend class ImageSaver;
@@ -51,6 +48,3 @@ public:
 public:
 	virtual ~ImageFormatSaver() {}
 };
-#define ImageFormatSaver_iid "org.godot.ImageFormatSaver"
-
-Q_DECLARE_INTERFACE(ImageFormatSaver, ImageFormatSaver_iid)

@@ -31,7 +31,8 @@ target_include_directories(assimp_lib PRIVATE
     ${PROJECT_SOURCE_DIR}/thirdparty/assimp/contrib/openddlparser/include
     ${PROJECT_SOURCE_DIR}/thirdparty/assimp/contrib/rapidjson/include
 )
-target_include_directories(assimp_lib INTERFACE
+# using SYSTEM to reduce amount of warnings from assimp code.
+target_include_directories(assimp_lib SYSTEM INTERFACE
     ${PROJECT_SOURCE_DIR}/thirdparty/assimp
     ${PROJECT_SOURCE_DIR}/thirdparty/assimp/include
 )

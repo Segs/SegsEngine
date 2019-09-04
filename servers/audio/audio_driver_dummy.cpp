@@ -128,7 +128,7 @@ void AudioDriverDummy::finish() {
 AudioDriverDummy::AudioDriverDummy() {
 
 	mutex = nullptr;
-	thread = NULL;
+	thread = nullptr;
 };
 
 AudioDriverDummy::~AudioDriverDummy(){

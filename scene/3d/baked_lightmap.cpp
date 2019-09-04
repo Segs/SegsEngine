@@ -343,21 +343,20 @@ BakedLightmap::BakeError BakedLightmap::bake(Node *p_from_node, bool p_create_vi
 
     String save_path;
 
-	if (StringUtils::begins_with(image_path, "res://")) {
+    if (StringUtils::begins_with(image_path, "res://")) {
         save_path = image_path;
     } else {
         if (get_filename() != "") {
             save_path = PathUtils::get_base_dir(get_filename());
-		} else if (get_owner() && !get_owner()->get_filename().empty()) {
+        } else if (get_owner() && !get_owner()->get_filename().empty()) {
             save_path = PathUtils::get_base_dir(get_owner()->get_filename());
         }
 
-        if (save_path == "") {
+        if (save_path.empty()) {
             return BAKE_ERROR_NO_SAVE_PATH;
         }
-		if (!image_path.empty()) {
-			// TODO: result unused!!
-			PathUtils::plus_file(save_path, image_path);
+        if (!image_path.empty()) {
+            save_path = PathUtils::plus_file(save_path, image_path);
         }
     }
     {

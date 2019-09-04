@@ -31,7 +31,7 @@
 #ifndef IMAGE_LOADER_WEBP_H
 #define IMAGE_LOADER_WEBP_H
 
-#include "core/plugin_interfaces/ImageLoaderInterface.h"
+#include "core/plugin_interfaces/PluginDeclarations.h"
 
 class ImageLoaderWEBP : public QObject, public ImageFormatLoader,public ImageFormatSaver {
     Q_PLUGIN_METADATA(IID "org.godot.ImageLoaderWEBP")

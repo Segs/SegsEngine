@@ -112,7 +112,7 @@ class ConcaveShapeSW : public ShapeSW {
 
 public:
 	bool is_concave() const override { return true; }
-	typedef void (*Callback)(void *p_userdata, ShapeSW *p_convex);
+	using Callback = void (*)(void *, ShapeSW *);
 	void get_supports(const Vector3 &p_normal, int p_max, Vector3 *r_supports, int &r_amount) const override { r_amount = 0; }
 
 	virtual void cull(const AABB &p_local_aabb, Callback p_callback, void *p_userdata) const = 0;

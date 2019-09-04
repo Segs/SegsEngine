@@ -35,7 +35,7 @@
 
 class CollisionSolverSW {
 public:
-	typedef void (*CallbackResult)(const Vector3 &p_point_A, const Vector3 &p_point_B, void *p_userdata);
+	using CallbackResult = void (*)(const Vector3 &, const Vector3 &, void *);
 
 private:
 	static void concave_callback(void *p_userdata, ShapeSW *p_convex);

@@ -5,6 +5,8 @@ if(NOT OPTION_TOOLS)
     return()
 endif()
 
+add_subdirectory(plugin_interfaces)
+
 # Register exporters
 set(reg_exporters_inc "#include \"register_exporters.h\"\n")
 set(reg_exporters "void register_exporters() {\n")

@@ -94,7 +94,7 @@ public:
     }
     bool operator!=(const StringName &p_name) const;
 
-	StringName& operator=(StringName &&p_name);
+    StringName& operator=(StringName &&p_name);
     StringName& operator=(const StringName &p_name);
     operator String() const;
     String asString() const;
@@ -111,7 +111,7 @@ public:
 
 
     StringName(const StringName &p_name);
-	StringName(StringName &&p_name);
+    StringName(StringName &&p_name) noexcept;
     //TODO: mark StringName(const String &p_name) explicit, it allocates some memory, even if COW'ed
     StringName(const String &p_name);
 	StringName(const StaticCString &p_static_string) {

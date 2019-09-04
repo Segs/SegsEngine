@@ -97,8 +97,8 @@ struct sResults	{
 };
 
 // Shorthands
-typedef unsigned int	U;
-typedef unsigned char	U1;
+using U = unsigned int;
+using U1 = unsigned char;
 
 // MinkowskiDiff
 struct	MinkowskiDiff {
@@ -130,7 +130,7 @@ struct	MinkowskiDiff {
 	}
 };
 
-typedef	MinkowskiDiff tShape;
+using tShape = MinkowskiDiff;
 
 
 // GJK
@@ -499,7 +499,7 @@ struct	GJK
 	struct	EPA
 	{
 		/* Types		*/
-		typedef	GJK::sSV	sSV;
+		using sSV = GJK::sSV;
 		struct	sFace
 		{
 			Vector3	n;

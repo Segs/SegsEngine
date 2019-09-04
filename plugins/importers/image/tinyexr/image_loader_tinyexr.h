@@ -31,7 +31,7 @@
 #ifndef IMAGE_LOADER_TINYEXR_H
 #define IMAGE_LOADER_TINYEXR_H
 
-#include "core/plugin_interfaces/ImageLoaderInterface.h"
+#include "core/plugin_interfaces/PluginDeclarations.h"
 
 class ImageLoaderTinyEXR : public QObject, public ImageFormatLoader, public ImageFormatSaver {
     Q_PLUGIN_METADATA(IID "org.godot.ImageLoaderTinyEXR")

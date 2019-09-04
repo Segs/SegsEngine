@@ -31,7 +31,7 @@
 #ifndef IMAGE_LOADER_HDR_H
 #define IMAGE_LOADER_HDR_H
 
-#include "core/plugin_interfaces/ImageLoaderInterface.h"
+#include "core/plugin_interfaces/PluginDeclarations.h"
 
 class ImageLoaderHDR : public QObject, public ImageFormatLoader {
     Q_PLUGIN_METADATA(IID "org.godot.ImageLoaderHDR")

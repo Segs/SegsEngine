@@ -32,7 +32,7 @@
 #define IMAGE_LOADER_SVG_H
 
 
-#include "core/plugin_interfaces/ImageLoaderInterface.h"
+#include "core/plugin_interfaces/PluginDeclarations.h"
 
 
 class String;

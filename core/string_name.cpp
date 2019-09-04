@@ -59,9 +59,9 @@ _FORCE_INLINE_ bool is_str_less(const L *l_ptr, const R *r_ptr) {
 } // end of anonymous namespace
 
 struct StringName::_Data {
-    //TODO: if LSBit in the pointer is set to 1 then char * array was allocated dynamically.
     _Data *prev;
     _Data *next;
+    //! if LSBit in the cname pointer is set to 1 then underlying char * array was allocated dynamically.
     const char *cname;
     SafeRefCount refcount;
     int idx;
@@ -69,7 +69,7 @@ struct StringName::_Data {
 
     const char *get_name() const { return (const char *)(intptr_t(cname) & ~intptr_t(1)); }
     void set_static_name(const char *s) {
-        assert((intptr_t(s)&1)==0);
+        assert((intptr_t(s)&1)==0); // When this assertion fails, the 'dynamic' bit will have to be moved to another field ? maybe idx can lose 1 bit without trouble?
         cname = s;
     }
     void set_dynamic_name(const String &s) {
@@ -262,7 +262,7 @@ StringName::StringName(const StringName &p_name) {
     }
 }
 
-StringName::StringName(StringName &&p_name)
+StringName::StringName(StringName &&p_name) noexcept
 {
     _data = p_name._data;
     p_name._data = nullptr;

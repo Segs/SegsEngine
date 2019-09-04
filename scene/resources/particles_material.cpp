@@ -115,7 +115,7 @@ void ParticlesMaterial::finish_shaders() {
 #endif
 
     memdelete(dirty_materials);
-    dirty_materials = NULL;
+    dirty_materials = nullptr;
 
     memdelete(shader_names);
 }

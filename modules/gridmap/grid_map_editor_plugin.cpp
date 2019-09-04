@@ -1399,7 +1399,7 @@ GridMapEditor::GridMapEditor(EditorNode *p_editor) {
             for (int j = 0; j < 4; j++) {
 
                 static const bool orderx[4] = { false, true, true, false };
-                static const bool ordery[4] = { false, 0, 1, true };
+                static const bool ordery[4] = { false, false, true, true };
 
                 Vector3 sp;
                 if (orderx[j]) {

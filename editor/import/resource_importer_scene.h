@@ -31,13 +31,14 @@
 #pragma once
 
 #include "core/io/resource_importer.h"
+#include "editor/plugin_interfaces/EditorSceneImporterInterface.h"
 #include "scene/resources/animation.h"
 #include "scene/resources/mesh.h"
 #include "scene/resources/shape.h"
 
 class Material;
 
-class EditorSceneImporter : public Reference {
+class EditorSceneImporter : public EditorSceneImporterInterface,public Reference {
 
 	GDCLASS(EditorSceneImporter,Reference)
 
@@ -62,10 +63,10 @@ public:
 
 	};
 
-	virtual uint32_t get_import_flags() const;
-	virtual void get_extensions(List<String> *r_extensions) const;
-	virtual Node *import_scene(const String &p_path, uint32_t p_flags, int p_bake_fps, List<String> *r_missing_deps, Error *r_err = nullptr);
-	virtual Ref<Animation> import_animation(const String &p_path, uint32_t p_flags, int p_bake_fps);
+    uint32_t get_import_flags() const override;
+    void get_extensions(List<String> *r_extensions) const override;
+    Node *import_scene(const String &p_path, uint32_t p_flags, int p_bake_fps, List<String> *r_missing_deps, Error *r_err = nullptr) override;
+    Ref<Animation> import_animation(const String &p_path, uint32_t p_flags, int p_bake_fps) override;
 
 	EditorSceneImporter() {}
 };

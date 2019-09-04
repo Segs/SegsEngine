@@ -306,7 +306,7 @@ public:
 
 	void soft_body_remove_all_pinned_points(RID p_body) override {}
 	void soft_body_pin_point(RID p_body, int p_point_index, bool p_pin) override {}
-	bool soft_body_is_point_pinned(RID p_body, int p_point_index) override { return 0; }
+	bool soft_body_is_point_pinned(RID p_body, int p_point_index) override { return false; }
 
 	/* JOINT API */
 

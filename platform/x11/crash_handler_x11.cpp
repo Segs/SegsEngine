@@ -108,7 +108,7 @@ static void handle_crash(int sig) {
                 StringUtils::erase(output,output.length() - 1, 1);
             }
 
-            fprintf(stderr, "[%ld] %s (%ls)\n", i, fname, output.cdata());
+            fprintf(stderr, "[%ld] %s (%ls)\n", i, fname, qUtf16Printable(output.m_str));
         }
 
         free(strings);

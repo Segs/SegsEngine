@@ -4,7 +4,7 @@
 #include "core/io/image_saver.h"
 #include "core/os/os.h"
 #include "core/io/resource_saver.h"
-#include "core/plugin_interfaces/ImageLoaderInterface.h"
+#include "core/plugin_interfaces/PluginDeclarations.h"
 #include "core/print_string.h"
 
 #include "static_plugin_registry.inc"
@@ -86,7 +86,7 @@ static void load_image_loader_plugins() {
 	auto z = QFileInfo(exepath.m_str).path();
     QDir plugins_dir(z+"/plugins");
     QCoreApplication::addLibraryPath( z+"/plugins" );
-    for (QString filename : plugins_dir.entryList(QDir::Files)) {
+    for (const QString &filename : plugins_dir.entryList(QDir::Files)) {
         qDebug() << "Filename: " << filename;
 
         if (!filename.contains("plugin",Qt::CaseInsensitive))

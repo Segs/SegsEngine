@@ -488,7 +488,7 @@ class ConcaveShape2DSW : public Shape2DSW {
 
 public:
 	bool is_concave() const override { return true; }
-	typedef void (*Callback)(void *p_userdata, Shape2DSW *p_convex);
+	using Callback = void (*)(void *, Shape2DSW *);
 
 	virtual void cull(const Rect2 &p_local_aabb, Callback p_callback, void *p_userdata) const = 0;
 };

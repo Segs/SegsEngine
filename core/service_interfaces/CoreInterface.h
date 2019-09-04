@@ -5,8 +5,9 @@
 
 class FileAccess;
 class String;
+
 /** This interface is used by the infrastructure plugins to interact with the engine core
- * Main usages revolve around error/progress reporting and image memory allocations
+ * For now main usages revolve around error/progress reporting and image memory allocations
 */
 class GODOT_EXPORT CoreInterface 
 {
