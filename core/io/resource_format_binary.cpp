@@ -1962,7 +1962,7 @@ bool ResourceFormatSaverBinary::recognize(const RES &p_resource) const {
     return true; //all recognized
 }
 
-void ResourceFormatSaverBinary::get_recognized_extensions(const RES &p_resource, List<String> *p_extensions) const {
+void ResourceFormatSaverBinary::get_recognized_extensions(const RES &p_resource, Vector<String> *p_extensions) const {
 
     String base = StringUtils::to_lower(p_resource->get_base_extension());
     p_extensions->push_back(base);

@@ -58,9 +58,7 @@
 #include <assimp/Logger.hpp>
 #include <string>
 
-IMPL_GDCLASS(EditorSceneImporterAssimp)
-
-void EditorSceneImporterAssimp::get_extensions(List<String> *r_extensions) const {
+void EditorSceneImporterAssimp::get_extensions(Vector<String> *r_extensions) const {
 
     const String import_setting_string = "filesystem/import/open_asset_import/";
 
@@ -82,7 +80,7 @@ void EditorSceneImporterAssimp::get_extensions(List<String> *r_extensions) const
     }
 }
 
-void EditorSceneImporterAssimp::_register_project_setting_import(const String generic, const String import_setting_string, const Vector<String> &exts, List<String> *r_extensions, const bool p_enabled) const {
+void EditorSceneImporterAssimp::_register_project_setting_import(const String generic, const String import_setting_string, const Vector<String> &exts, Vector<String> *r_extensions, const bool p_enabled) const {
     const String use_generic = "use_" + generic;
     _GLOBAL_DEF(import_setting_string + use_generic, p_enabled, true);
     if (ProjectSettings::get_singleton()->get(import_setting_string + use_generic)) {
@@ -99,7 +97,7 @@ uint32_t EditorSceneImporterAssimp::get_import_flags() const {
 void EditorSceneImporterAssimp::_bind_methods() {
 }
 
-Node *EditorSceneImporterAssimp::import_scene(const String &p_path, uint32_t p_flags, int p_bake_fps, List<String> *r_missing_deps, Error *r_err) {
+Node *EditorSceneImporterAssimp::import_scene(const String &p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err) {
     Assimp::Importer importer;
     std::string s_path = qPrintable(ProjectSettings::get_singleton()->globalize_path(p_path).m_str);
     importer.SetPropertyBool(AI_CONFIG_PP_FD_REMOVE, true);
@@ -143,6 +141,12 @@ Node *EditorSceneImporterAssimp::import_scene(const String &p_path, uint32_t p_f
     ERR_EXPLAIN(String("Open Asset Import failed to open: ") + String(importer.GetErrorString()))
     ERR_FAIL_COND_V(scene == nullptr, nullptr);
     return _generate_scene(p_path, scene, p_flags, p_bake_fps, max_bone_weights);
+}
+
+Ref<Animation> EditorSceneImporterAssimp::import_animation(const String &p_path, uint32_t p_flags, int p_bake_fps)
+{
+    //TODO: SEGS allow importing animation-only files ?
+    return Ref<Animation>();
 }
 
 template <class T>

@@ -74,10 +74,10 @@ using PoolColorArray = PoolVector<Color>;
 #define GCC_ALIGNED_8
 #endif
 
-class Variant {
+class GODOT_EXPORT Variant {
 public:
     // If this changes the table in variant_op must be updated
-	enum Type {
+    enum Type {
 
         NIL=0,
 
@@ -180,7 +180,8 @@ public:
     operator unsigned long() const;
 #endif
 
-    template <typename T> T as() const {
+    template <typename T>
+    [[nodiscard]] T as() const {
         return (T)*this;
     }
     // Not a recursive loop, as<String>,as<float>,as<StringName> are specialized.
@@ -428,9 +429,6 @@ public:
 static constexpr int longest_variant_type_name=16;
 //! Fill correctly sized char buffer with all variant names
 void fill_with_all_variant_types(const char *nillname, char (&s)[7+(longest_variant_type_name+1)*Variant::VARIANT_MAX]);
-
-//typedef Dictionary Dictionary; no
-//typedef Array Array;
 
 Vector<Variant> varray();
 Vector<Variant> varray(const Variant &p_arg1);

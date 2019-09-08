@@ -1,6 +1,8 @@
 set(src
     EditorSceneImporterInterface.h
     EditorSceneImporterInterface.cpp
+    PluginDeclarations.h
+
 )
 add_library(editor_plugin_interfaces STATIC ${src})
 target_link_libraries(editor_plugin_interfaces PUBLIC Qt5::Core) # access to embedded resources

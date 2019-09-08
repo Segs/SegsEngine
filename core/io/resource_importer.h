@@ -33,99 +33,91 @@
 #include "core/io/resource_loader.h"
 #include "core/property_info.h"
 
+#include "core/plugin_interfaces/ResourceImporterInterface.h"
+
 class ResourceImporter;
 
-class ResourceFormatImporter : public ResourceFormatLoader {
+class GODOT_EXPORT ResourceFormatImporter : public ResourceFormatLoader {
 
-	struct PathAndType {
-		String path;
-		String type;
-		String importer;
-		String group_file;
-		Variant metadata;
-	};
+    struct PathAndType {
+        String path;
+        String type;
+        String importer;
+        String group_file;
+        Variant metadata;
+    };
 
-	Error _get_path_and_type(const String &p_path, PathAndType &r_path_and_type, bool *r_valid = nullptr) const;
+    Error _get_path_and_type(const String &p_path, PathAndType &r_path_and_type, bool *r_valid = nullptr) const;
 
-	static ResourceFormatImporter *singleton;
+    static ResourceFormatImporter *singleton;
 
-	//need them to stay in order to compute the settings hash
-	struct SortImporterByName {
-		bool operator()(const Ref<ResourceImporter> &p_a, const Ref<ResourceImporter> &p_b) const;
-	};
+    //need them to stay in order to compute the settings hash
+    struct SortImporterByName {
+        bool operator()(const ResourceImporterInterface *p_a, const ResourceImporterInterface *p_b) const;
+    };
 
-	Vector<Ref<ResourceImporter> > importers;
-
+    Vector<ResourceImporterInterface *> importers; // Importers provided by plugins, not owned by this class
+    Vector<Ref<ResourceImporter>> owned_importers; // Importers provided by scripts, co-owned by this class
 public:
-	static ResourceFormatImporter *get_singleton() { return singleton; }
-	RES load(const String &p_path, const String &p_original_path = "", Error *r_error = nullptr) override;
-	void get_recognized_extensions(List<String> *p_extensions) const override;
-	void get_recognized_extensions_for_type(const String &p_type, List<String> *p_extensions) const override;
-	bool recognize_path(const String &p_path, const String &p_for_type = String()) const override;
-	bool handles_type(const String &p_type) const override;
-	String get_resource_type(const String &p_path) const override;
-	virtual Variant get_resource_metadata(const String &p_path) const;
-	bool is_import_valid(const String &p_path) const override;
-	void get_dependencies(const String &p_path, List<String> *p_dependencies, bool p_add_types = false) override;
-	bool is_imported(const String &p_path) const override { return recognize_path(p_path); }
-	String get_import_group_file(const String &p_path) const override;
-	bool exists(const String &p_path) const override;
+    static ResourceFormatImporter *get_singleton() { return singleton; }
+    RES load(const String &p_path, const String &p_original_path = "", Error *r_error = nullptr) override;
+    void get_recognized_extensions(List<String> *p_extensions) const override;
+    void get_recognized_extensions_for_type(const String &p_type, List<String> *p_extensions) const override;
+    bool recognize_path(const String &p_path, const String &p_for_type = String()) const override;
+    bool handles_type(const String &p_type) const override;
+    String get_resource_type(const String &p_path) const override;
+    virtual Variant get_resource_metadata(const String &p_path) const;
+    bool is_import_valid(const String &p_path) const override;
+    void get_dependencies(const String &p_path, List<String> *p_dependencies, bool p_add_types = false) override;
+    bool is_imported(const String &p_path) const override { return recognize_path(p_path); }
+    String get_import_group_file(const String &p_path) const override;
+    bool exists(const String &p_path) const override;
 
-	virtual bool can_be_imported(const String &p_path) const;
-	int get_import_order(const String &p_path) const override;
+    virtual bool can_be_imported(const String &p_path) const;
+    int get_import_order(const String &p_path) const override;
 
-	String get_internal_resource_path(const String &p_path) const;
-	void get_internal_resource_path_list(const String &p_path, List<String> *r_paths);
+    String get_internal_resource_path(const String &p_path) const;
+    void get_internal_resource_path_list(const String &p_path, List<String> *r_paths);
 
-	void add_importer(const Ref<ResourceImporter> &p_importer) {
-		importers.push_back(p_importer);
-	}
-	void remove_importer(const Ref<ResourceImporter> &p_importer) { importers.erase(p_importer); }
-	Ref<ResourceImporter> get_importer_by_name(const String &p_name) const;
-	Ref<ResourceImporter> get_importer_by_extension(const String &p_extension) const;
-	void get_importers_for_extension(const String &p_extension, List<Ref<ResourceImporter> > *r_importers);
+    void add_importer(ResourceImporterInterface *p_importer) {
+        importers.push_back(p_importer);
+    }
+    void add_importer(const Ref<ResourceImporter> &p_importer) {
+        owned_importers.push_back(p_importer);
+    }
+    void remove_importer(const Ref<ResourceImporter> &p_importer) { owned_importers.erase(p_importer); }
+    void remove_importer(ResourceImporterInterface *p_importer) { importers.erase(p_importer); }
 
-	bool are_import_settings_valid(const String &p_path) const;
-	String get_import_settings_hash() const;
+    ResourceImporterInterface * get_importer_by_name(const String &p_name) const;
+    ResourceImporterInterface * get_importer_by_extension(const String &p_extension) const;
 
-	String get_import_base_path(const String &p_for_file) const;
-	ResourceFormatImporter();
+    void get_importers_for_extension(const String &p_extension, Vector<ResourceImporterInterface *> *r_importers);
+
+    bool are_import_settings_valid(const String &p_path) const;
+    String get_import_settings_hash() const;
+
+    String get_import_base_path(const String &p_for_file) const;
+    ResourceFormatImporter();
 };
 
-class ResourceImporter : public Reference {
+class ResourceImporter : public ResourceImporterInterface, public Reference {
 
-	GDCLASS(ResourceImporter, Reference);
+    GDCLASS(ResourceImporter, Reference)
 
 public:
-	virtual String get_importer_name() const = 0;
-	virtual String get_visible_name() const = 0;
-	virtual void get_recognized_extensions(List<String> *p_extensions) const = 0;
-	virtual String get_save_extension() const = 0;
-	virtual String get_resource_type() const = 0;
-	virtual float get_priority() const { return 1.0; }
-	virtual int get_import_order() const { return 0; }
-
-	struct ImportOption {
-		PropertyInfo option;
-		Variant default_value;
-
-		ImportOption(const PropertyInfo &p_info, const Variant &p_default) :
-				option(p_info),
-				default_value(p_default) {
-		}
-		ImportOption() {}
-	};
-
-	virtual int get_preset_count() const { return 0; }
-	virtual String get_preset_name(int p_idx) const { return String(); }
-
-	virtual void get_import_options(List<ImportOption> *r_options, int p_preset = 0) const = 0;
-	virtual bool get_option_visibility(const String &p_option, const Map<StringName, Variant> &p_options) const = 0;
-	virtual String get_option_group_file() const { return String(); }
-
-	virtual Error import(const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files = nullptr, Variant *r_metadata = nullptr) = 0;
-
-	virtual Error import_group_file(const String &p_group_file, const Map<String, Map<StringName, Variant> > &p_source_file_options, const Map<String, String> &p_base_paths) { return ERR_UNAVAILABLE; }
-	virtual bool are_import_settings_valid(const String &p_path) const { return true; }
-	virtual String get_import_settings_string() const { return String(); }
+    float get_priority() const override { return 1.0; }
+    int get_import_order() const override { return 0; }
+    int get_preset_count() const override { return 0; }
+    String get_preset_name(int /*p_idx*/) const override { return String(); }
+    String get_option_group_file() const override { return String(); }
+    Error import(const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options,
+            List<String> *r_platform_variants, List<String> *r_gen_files = nullptr,
+            Variant *r_metadata = nullptr) override = 0;
+    Error import_group_file(const String & /*p_group_file*/,
+            const Map<String, Map<StringName, Variant>> & /*p_source_file_options*/,
+            const Map<String, String> & /*p_base_paths*/) override {
+        return ERR_UNAVAILABLE;
+    }
+    bool are_import_settings_valid(const String & /*p_path*/) const override { return true; }
+    String get_import_settings_string() const override { return String(); }
 };

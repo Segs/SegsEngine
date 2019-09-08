@@ -156,12 +156,12 @@ Error _ResourceSaver::save(const String &p_path, const RES &p_resource, SaverFla
 PoolVector<String> _ResourceSaver::get_recognized_extensions(const RES &p_resource) {
 
     ERR_FAIL_COND_V(p_resource.is_null(), PoolVector<String>())
-    List<String> exts;
+    Vector<String> exts;
     ResourceSaver::get_recognized_extensions(p_resource, &exts);
     PoolVector<String> ret;
-    for (List<String>::Element *E = exts.front(); E; E = E->next()) {
+    for (int i=0,fin=exts.size(); i<fin; ++i) {
 
-        ret.push_back(E->get());
+        ret.push_back(exts[i]);
     }
     return ret;
 }
@@ -1778,20 +1778,20 @@ void _Geometry::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("make_atlas", "sizes"), &_Geometry::make_atlas);
 
-    BIND_ENUM_CONSTANT(OPERATION_UNION);
-    BIND_ENUM_CONSTANT(OPERATION_DIFFERENCE);
-    BIND_ENUM_CONSTANT(OPERATION_INTERSECTION);
-    BIND_ENUM_CONSTANT(OPERATION_XOR);
+    BIND_ENUM_CONSTANT(OPERATION_UNION)
+    BIND_ENUM_CONSTANT(OPERATION_DIFFERENCE)
+    BIND_ENUM_CONSTANT(OPERATION_INTERSECTION)
+    BIND_ENUM_CONSTANT(OPERATION_XOR)
 
-    BIND_ENUM_CONSTANT(JOIN_SQUARE);
-    BIND_ENUM_CONSTANT(JOIN_ROUND);
-    BIND_ENUM_CONSTANT(JOIN_MITER);
+    BIND_ENUM_CONSTANT(JOIN_SQUARE)
+    BIND_ENUM_CONSTANT(JOIN_ROUND)
+    BIND_ENUM_CONSTANT(JOIN_MITER)
 
-    BIND_ENUM_CONSTANT(END_POLYGON);
-    BIND_ENUM_CONSTANT(END_JOINED);
-    BIND_ENUM_CONSTANT(END_BUTT);
-    BIND_ENUM_CONSTANT(END_SQUARE);
-    BIND_ENUM_CONSTANT(END_ROUND);
+    BIND_ENUM_CONSTANT(END_POLYGON)
+    BIND_ENUM_CONSTANT(END_JOINED)
+    BIND_ENUM_CONSTANT(END_BUTT)
+    BIND_ENUM_CONSTANT(END_SQUARE)
+    BIND_ENUM_CONSTANT(END_ROUND)
 }
 
 _Geometry::_Geometry() {

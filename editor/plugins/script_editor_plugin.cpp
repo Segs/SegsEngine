@@ -30,14 +30,13 @@
 
 #include "script_editor_plugin.h"
 
-#include "core/method_bind.h"
 #include "core/io/resource_loader.h"
+#include "core/method_bind.h"
 #include "core/os/file_access.h"
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
 #include "core/os/os.h"
 #include "core/project_settings.h"
-#include "editor_run_script.h"
 #include "editor/editor_node.h"
 #include "editor/editor_scale.h"
 #include "editor/editor_settings.h"
@@ -45,7 +44,9 @@
 #include "editor/node_dock.h"
 #include "editor/plugins/shader_editor_plugin.h"
 #include "editor/script_editor_debugger.h"
+#include "editor_run_script.h"
 #include "scene/main/viewport.h"
+#include "scene/resources/style_box.h"
 #include "script_text_editor.h"
 #include "text_editor.h"
 
@@ -546,8 +547,12 @@ void ScriptEditor::_open_recent_script(int p_idx) {
             return;
         }
         // if it's a path then it's most likely a deleted file not help
-    } else if (StringUtils::find(path,"::") != -1) {
+    } else if (StringUtils::contains(path,"::")) {
         // built-in script
+        String scene_path = StringUtils::get_slice(path,"::", 0);
+        if (!EditorNode::get_singleton()->is_scene_open(scene_path)) {
+            EditorNode::get_singleton()->load_scene(scene_path);
+        }
         Ref<Script> script = ResourceLoader::load(path);
         if (script.is_valid()) {
             edit(script, true);
@@ -1752,10 +1757,10 @@ void ScriptEditor::_update_help_overview() {
 
 void ScriptEditor::_update_script_colors() {
 
-	bool script_temperature_enabled = EditorSettings::get_singleton()->get("text_editor/script_list/script_temperature_enabled");
-	bool highlight_current = EditorSettings::get_singleton()->get("text_editor/script_list/highlight_current_script");
+    bool script_temperature_enabled = EditorSettings::get_singleton()->get("text_editor/script_list/script_temperature_enabled");
+    bool highlight_current = EditorSettings::get_singleton()->get("text_editor/script_list/highlight_current_script");
 
-	int hist_size = EditorSettings::get_singleton()->get("text_editor/script_list/script_temperature_history_size");
+    int hist_size = EditorSettings::get_singleton()->get("text_editor/script_list/script_temperature_history_size");
     Color hot_color = get_color("accent_color", "Editor");
     Color cold_color = get_color("font_color", "Editor");
 
@@ -1770,7 +1775,7 @@ void ScriptEditor::_update_script_colors() {
 
         bool current = tab_container->get_current_tab() == c;
         if (current && highlight_current) {
-			script_list->set_item_custom_bg_color(i, EditorSettings::get_singleton()->get("text_editor/script_list/current_script_background_color"));
+            script_list->set_item_custom_bg_color(i, EditorSettings::get_singleton()->get("text_editor/script_list/current_script_background_color"));
 
         } else if (script_temperature_enabled) {
 
@@ -1803,9 +1808,9 @@ void ScriptEditor::_update_script_names() {
     }
 
     script_list->clear();
-	bool split_script_help = EditorSettings::get_singleton()->get("text_editor/script_list/group_help_pages");
-	ScriptSortBy sort_by = (ScriptSortBy)(int)EditorSettings::get_singleton()->get("text_editor/script_list/sort_scripts_by");
-	ScriptListName display_as = (ScriptListName)(int)EditorSettings::get_singleton()->get("text_editor/script_list/list_script_names_as");
+    bool split_script_help = EditorSettings::get_singleton()->get("text_editor/script_list/group_help_pages");
+    ScriptSortBy sort_by = (ScriptSortBy)(int)EditorSettings::get_singleton()->get("text_editor/script_list/sort_scripts_by");
+    ScriptListName display_as = (ScriptListName)(int)EditorSettings::get_singleton()->get("text_editor/script_list/list_script_names_as");
 
     Vector<_ScriptEditorItemData> sedata;
 
@@ -2329,7 +2334,7 @@ void ScriptEditor::_editor_settings_changed() {
     convert_indent_on_save = EditorSettings::get_singleton()->get("text_editor/indent/convert_indent_on_save");
     use_space_indentation = EditorSettings::get_singleton()->get("text_editor/indent/type");
 
-	members_overview_enabled = EditorSettings::get_singleton()->get("text_editor/script_list/show_members_overview");
+    members_overview_enabled = EditorSettings::get_singleton()->get("text_editor/script_list/show_members_overview");
     help_overview_enabled = EditorSettings::get_singleton()->get("text_editor/help/show_help_index");
     _update_members_overview_visibility();
     _update_help_overview_visibility();
@@ -3140,7 +3145,7 @@ ScriptEditor::ScriptEditor(EditorNode *p_editor) {
     waiting_update_names = false;
     pending_auto_reload = false;
     auto_reload_running_scripts = true;
-	members_overview_enabled = EditorSettings::get_singleton()->get("text_editor/script_list/show_members_overview");
+    members_overview_enabled = EditorSettings::get_singleton()->get("text_editor/script_list/show_members_overview");
     help_overview_enabled = EditorSettings::get_singleton()->get("text_editor/help/show_help_index");
     editor = p_editor;
 
@@ -3565,15 +3570,15 @@ ScriptEditorPlugin::ScriptEditorPlugin(EditorNode *p_node) {
     EDITOR_DEF("text_editor/files/open_dominant_script_on_scene_change", true);
     EDITOR_DEF("text_editor/external/use_external_editor", false);
     EDITOR_DEF("text_editor/external/exec_path", "");
-	EDITOR_DEF("text_editor/script_list/script_temperature_enabled", true);
-	EDITOR_DEF("text_editor/script_list/highlight_current_script", true);
-	EDITOR_DEF("text_editor/script_list/script_temperature_history_size", 15);
-	EDITOR_DEF("text_editor/script_list/current_script_background_color", Color(1, 1, 1, 0.3));
-	EDITOR_DEF("text_editor/script_list/group_help_pages", true);
-	EditorSettings::get_singleton()->add_property_hint(PropertyInfo(Variant::INT, "text_editor/script_list/sort_scripts_by", PROPERTY_HINT_ENUM, "Name,Path,None"));
-	EDITOR_DEF("text_editor/script_list/sort_scripts_by", 0);
-	EditorSettings::get_singleton()->add_property_hint(PropertyInfo(Variant::INT, "text_editor/script_list/list_script_names_as", PROPERTY_HINT_ENUM, "Name,Parent Directory And Name,Full Path"));
-	EDITOR_DEF("text_editor/script_list/list_script_names_as", 0);
+    EDITOR_DEF("text_editor/script_list/script_temperature_enabled", true);
+    EDITOR_DEF("text_editor/script_list/highlight_current_script", true);
+    EDITOR_DEF("text_editor/script_list/script_temperature_history_size", 15);
+    EDITOR_DEF("text_editor/script_list/current_script_background_color", Color(1, 1, 1, 0.3));
+    EDITOR_DEF("text_editor/script_list/group_help_pages", true);
+    EditorSettings::get_singleton()->add_property_hint(PropertyInfo(Variant::INT, "text_editor/script_list/sort_scripts_by", PROPERTY_HINT_ENUM, "Name,Path,None"));
+    EDITOR_DEF("text_editor/script_list/sort_scripts_by", 0);
+    EditorSettings::get_singleton()->add_property_hint(PropertyInfo(Variant::INT, "text_editor/script_list/list_script_names_as", PROPERTY_HINT_ENUM, "Name,Parent Directory And Name,Full Path"));
+    EDITOR_DEF("text_editor/script_list/list_script_names_as", 0);
     EditorSettings::get_singleton()->add_property_hint(PropertyInfo(Variant::STRING, "text_editor/external/exec_path", PROPERTY_HINT_GLOBAL_FILE));
     EDITOR_DEF("text_editor/external/exec_flags", "{file}");
     EditorSettings::get_singleton()->add_property_hint(PropertyInfo(Variant::STRING, "text_editor/external/exec_flags", PROPERTY_HINT_PLACEHOLDER_TEXT, "Call flags with placeholders: {project}, {file}, {col}, {line}."));

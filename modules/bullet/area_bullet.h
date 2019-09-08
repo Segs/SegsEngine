@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef AREABULLET_H
-#define AREABULLET_H
+#pragma once
 
 #include "collision_object_bullet.h"
 #include "core/vector.h"
@@ -172,5 +171,3 @@ public:
 	void on_enter_area(AreaBullet *p_area) override;
 	void on_exit_area(AreaBullet *p_area) override;
 };
-
-#endif

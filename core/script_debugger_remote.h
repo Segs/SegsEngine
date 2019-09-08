@@ -55,11 +55,13 @@ class ScriptDebuggerRemote : public ScriptDebugger {
 
     Vector<ScriptLanguage::ProfilingInfo> profile_info;
     Vector<ScriptLanguage::ProfilingInfo *> profile_info_ptrs;
+	Vector<MultiplayerAPI::ProfilingInfo> network_profile_info;
 
     Map<StringName, int> profiler_function_signature_map;
     float frame_time, idle_time, physics_time, physics_frame_time;
 
-    bool profiling = false;
+	bool profiling;
+	bool profiling_network;
     int max_frame_functions;
     bool skip_profile_frame;
     bool reload_all_scripts;
@@ -68,6 +70,8 @@ class ScriptDebuggerRemote : public ScriptDebugger {
     Ref<PacketPeerStream> packet_peer_stream;
 
     uint64_t last_perf_time;
+	uint64_t last_net_prof_time;
+	uint64_t last_net_bandwidth_time;
     Object *performance;
     bool requested_quit;
     Mutex *mutex;
@@ -124,10 +128,14 @@ class ScriptDebuggerRemote : public ScriptDebugger {
     void _send_video_memory();
     LiveEditFuncs *live_edit_funcs;
 
+	Ref<MultiplayerAPI> multiplayer;
+
     ErrorHandlerList eh;
     static void _err_handler(void *, const char *, const char *, int p_line, const char *, const char *, ErrorHandlerType p_type);
 
     void _send_profiling_data(bool p_for_frame);
+	void _send_network_profiling_data();
+	void _send_network_bandwidth_usage();
 
     struct FrameData {
 
@@ -170,6 +178,7 @@ public:
 
     void set_request_scene_tree_message_func(RequestSceneTreeMessageFunc p_func, void *p_udata) override;
     void set_live_edit_funcs(LiveEditFuncs *p_funcs) override;
+    void set_multiplayer(Ref<MultiplayerAPI> p_multiplayer) override;
 
     bool is_profiling() const override;
     void add_profiling_frame_data(const StringName &p_name, const Array &p_data) override;

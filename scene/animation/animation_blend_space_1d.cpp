@@ -323,7 +323,7 @@ AnimationNodeBlendSpace1D::AnimationNodeBlendSpace1D() {
     max_space = 1;
     min_space = -1;
 
-    snap = 0.1;
+    snap = 0.1f;
     value_label = "value";
 
     blend_position = "blend_position";

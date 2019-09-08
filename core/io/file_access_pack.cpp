@@ -43,20 +43,20 @@ Error PackedData::add_pack(const String &p_path) {
         if (sources[i]->try_open_pack(p_path)) {
 
             return OK;
-        };
-    };
+        }
+    }
 
     return ERR_FILE_UNRECOGNIZED;
 };
 
-void PackedData::add_path(const String &pkg_path, const String &path, uint64_t ofs, uint64_t size, const uint8_t *p_md5, PackSource *p_src) {
+void PackedData::add_path(const String &pkg_path, const String &path, uint64_t ofs, uint64_t size, const uint8_t *p_md5, PackSourceInterface *p_src) {
 
     PathMD5 pmd5(StringUtils::md5_buffer(path));
     //printf("adding path %ls, %lli, %lli\n", path.c_str(), pmd5.a, pmd5.b);
 
     bool exists = files.has(pmd5);
 
-    PackedFile pf;
+    PackedDataFile pf;
     pf.pack = pkg_path;
     pf.offset = ofs;
     pf.size = size;
@@ -97,11 +97,22 @@ void PackedData::add_path(const String &pkg_path, const String &path, uint64_t o
     }
 }
 
-void PackedData::add_pack_source(PackSource *p_source) {
+void PackedData::add_pack_source(PackSourceInterface *p_source) {
 
     if (p_source != nullptr) {
         sources.push_back(p_source);
     }
+}
+/**
+ * @brief PackedData::remove_pack_source will remove a source of pack files from available list.
+ * @param p_source will be removed from the internal list, but will not be freed.
+ */
+void PackedData::remove_pack_source(PackSourceInterface *p_source)
+{
+    if (p_source != nullptr) {
+        sources.erase(p_source);
+    }
+
 };
 
 PackedData *PackedData::singleton = nullptr;
@@ -171,8 +182,8 @@ bool PackedSourcePCK::try_open_pack(const String &p_path) {
     uint32_t ver_minor = f->get_32();
     f->get_32(); // ver_rev
 
-    ERR_FAIL_COND_V_MSG(version != PACK_VERSION, false, "Pack version unsupported: " + itos(version) + ".");
-    ERR_FAIL_COND_V_MSG(ver_major > VERSION_MAJOR || (ver_major == VERSION_MAJOR && ver_minor > VERSION_MINOR), false, "Pack created with a newer version of the engine: " + itos(ver_major) + "." + itos(ver_minor) + ".");
+    ERR_FAIL_COND_V_MSG(version != PACK_VERSION, false, "Pack version unsupported: " + itos(version) + ".")
+    ERR_FAIL_COND_V_MSG(ver_major > VERSION_MAJOR || (ver_major == VERSION_MAJOR && ver_minor > VERSION_MINOR), false, "Pack created with a newer version of the engine: " + itos(ver_major) + "." + itos(ver_minor) + ".")
 
     for (int i = 0; i < 16; i++) {
         //reserved
@@ -201,7 +212,7 @@ bool PackedSourcePCK::try_open_pack(const String &p_path) {
     return true;
 };
 
-FileAccess *PackedSourcePCK::get_file(const String &p_path, PackedData::PackedFile *p_file) {
+FileAccess *PackedSourcePCK::get_file(const String &p_path, PackedDataFile *p_file) {
 
     return memnew(FileAccessPack(p_path, *p_file));
 };
@@ -298,17 +309,17 @@ Error FileAccessPack::get_error() const {
 
 void FileAccessPack::flush() {
 
-    ERR_FAIL();
+    ERR_FAIL()
 }
 
 void FileAccessPack::store_8(uint8_t p_dest) {
 
-    ERR_FAIL();
+    ERR_FAIL()
 }
 
 void FileAccessPack::store_buffer(const uint8_t *p_src, int p_length) {
 
-    ERR_FAIL();
+    ERR_FAIL()
 }
 
 bool FileAccessPack::file_exists(const String &p_name) {
@@ -316,7 +327,7 @@ bool FileAccessPack::file_exists(const String &p_name) {
     return false;
 }
 
-FileAccessPack::FileAccessPack(const String &p_path, const PackedData::PackedFile &p_file) :
+FileAccessPack::FileAccessPack(const String &p_path, const PackedDataFile &p_file) :
         pf(p_file),
         f(FileAccess::open(pf.pack, FileAccess::READ)) {
 

@@ -7,5 +7,5 @@ foreach(tgt ${global_targets})
     target_link_libraries(${tgt}_vhacd PUBLIC ${tgt}_core)
     target_link_libraries(${tgt}_vhacd PRIVATE vhacd)
 
-    set_common_target_properties(${tgt}_vhacd)
+    set_module_properties(${tgt} vhacd)
 endforeach()

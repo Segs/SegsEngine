@@ -1572,6 +1572,17 @@ public:
 	VisualShaderNodeSwitch();
 };
 
+class VisualShaderNodeScalarSwitch : public VisualShaderNodeSwitch {
+	GDCLASS(VisualShaderNodeScalarSwitch, VisualShaderNodeSwitch);
+
+public:
+	String get_caption() const override;
+
+	PortType get_input_port_type(int p_port) const override;
+	PortType get_output_port_type(int p_port) const override;
+
+	VisualShaderNodeScalarSwitch();
+};
 ///////////////////////////////////////
 /// FRESNEL
 ///////////////////////////////////////

@@ -45,7 +45,7 @@ String ResourceImporterOGGVorbis::get_visible_name() const {
 
 	return "OGGVorbis";
 }
-void ResourceImporterOGGVorbis::get_recognized_extensions(List<String> *p_extensions) const {
+void ResourceImporterOGGVorbis::get_recognized_extensions(Vector<String> *p_extensions) const {
 
 	p_extensions->push_back("ogg");
 }

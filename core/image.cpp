@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "image.h"
+#include "core/image_enum_casters.h"
 
 #include "core/hash_map.h"
 #include "core/io/image_loader.h"

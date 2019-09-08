@@ -38,6 +38,7 @@
 #include "filesystem_dock.h"
 #include "scene/resources/font.h"
 #include "servers/audio_server.h"
+#include "scene/resources/style_box.h"
 
 IMPL_GDCLASS(EditorAudioBus)
 IMPL_GDCLASS(EditorAudioBusDrop)

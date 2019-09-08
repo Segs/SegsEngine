@@ -30,6 +30,10 @@
 
 #include "texture.h"
 
+#include "textures_enum_casters.h"
+#include "curve_texture.h"
+
+#include "core/image_enum_casters.h"
 #include "core/core_string_names.h"
 #include "core/io/image_loader.h"
 #include "core/os/os.h"
@@ -266,7 +270,7 @@ void ImageTexture::set_data(const Ref<Image> &p_image) {
     VisualServer::get_singleton()->texture_set_data(texture, p_image);
 
     _change_notify();
-    alpha_cache.unref();
+    alpha_cache.reset(); //TODO: memory de-allocation
     image_stored = true;
 }
 
@@ -328,7 +332,7 @@ void ImageTexture::draw_rect_region(RID p_canvas_item, const Rect2 &p_rect, cons
 
 bool ImageTexture::is_pixel_opaque(int p_x, int p_y) const {
 
-    if (!alpha_cache.is_valid()) {
+    if (nullptr==alpha_cache) {
         Ref<Image> img = get_data();
         if (img.is_valid()) {
             if (img->is_compressed()) { //must decompress, if compressed
@@ -336,12 +340,12 @@ bool ImageTexture::is_pixel_opaque(int p_x, int p_y) const {
                 decom->decompress();
                 img = decom;
             }
-            alpha_cache.instance();
+            alpha_cache = eastl::make_unique<BitMap>();
             alpha_cache->create_from_image_alpha(img);
         }
     }
 
-    if (alpha_cache.is_valid()) {
+    if (nullptr!=alpha_cache) {
 
         int aw = int(alpha_cache->get_size().width);
         int ah = int(alpha_cache->get_size().height);
@@ -470,8 +474,8 @@ void StreamTexture::_requested_3d(void *p_ud) {
 
     StreamTexture *st = (StreamTexture *)p_ud;
     Ref<StreamTexture> stex(st);
-    ERR_FAIL_COND(!request_3d_callback);
-    request_3d_callback(stex);
+    ERR_FAIL_COND(!request_3d_callback)
+    request_3d_callback(stex->get_path());
 }
 
 void StreamTexture::_requested_srgb(void *p_ud) {
@@ -479,7 +483,7 @@ void StreamTexture::_requested_srgb(void *p_ud) {
     StreamTexture *st = (StreamTexture *)p_ud;
     Ref<StreamTexture> stex(st);
     ERR_FAIL_COND(!request_srgb_callback)
-    request_srgb_callback(stex);
+    request_srgb_callback(stex->get_path());
 }
 
 void StreamTexture::_requested_normal(void *p_ud) {
@@ -487,7 +491,7 @@ void StreamTexture::_requested_normal(void *p_ud) {
     StreamTexture *st = (StreamTexture *)p_ud;
     Ref<StreamTexture> stex(st);
     ERR_FAIL_COND(!request_normal_callback)
-    request_normal_callback(stex);
+    request_normal_callback(stex->get_path());
 }
 
 StreamTexture::TextureFormatRequestCallback StreamTexture::request_3d_callback = nullptr;
@@ -505,7 +509,7 @@ Image::Format StreamTexture::get_format() const {
 
 Error StreamTexture::_load_data(const String &p_path, int &tw, int &th, int &tw_custom, int &th_custom, int &flags, Ref<Image> &image, int p_size_limit) {
 
-    alpha_cache.unref();
+    alpha_cache.reset(nullptr); // TODO: memory de-allocation, check if actually needed ?
 
     ERR_FAIL_COND_V(image.is_null(), ERR_INVALID_PARAMETER);
 
@@ -806,7 +810,7 @@ Ref<Image> StreamTexture::get_data() const {
 
 bool StreamTexture::is_pixel_opaque(int p_x, int p_y) const {
 
-    if (!alpha_cache.is_valid()) {
+    if (nullptr==alpha_cache) {
         Ref<Image> img = get_data();
         if (img.is_valid()) {
             if (img->is_compressed()) { //must decompress, if compressed
@@ -815,12 +819,12 @@ bool StreamTexture::is_pixel_opaque(int p_x, int p_y) const {
                 img = decom;
             }
 
-            alpha_cache.instance();
+            alpha_cache = eastl::make_unique<BitMap>();
             alpha_cache->create_from_image_alpha(img);
         }
     }
 
-    if (alpha_cache.is_valid()) {
+    if (nullptr!=alpha_cache) {
 
         int aw = int(alpha_cache->get_size().width);
         int ah = int(alpha_cache->get_size().height);

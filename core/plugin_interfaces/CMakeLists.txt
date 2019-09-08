@@ -1,5 +1,7 @@
 set(src
     ImageLoaderInterface.h
+    ResourceImporterInterface.h
+    PluginDeclarations.h
     load_params.h
 )
 add_library(core_plugin_interfaces STATIC ${src})

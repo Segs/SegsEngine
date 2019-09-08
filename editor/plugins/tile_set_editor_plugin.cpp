@@ -37,6 +37,8 @@
 #include "scene/2d/physics_body_2d.h"
 #include "scene/2d/sprite.h"
 #include "editor/editor_scale.h"
+#include "editor/editor_file_system.h"
+#include "scene/resources/style_box.h"
 
 IMPL_GDCLASS(TileSetEditor)
 IMPL_GDCLASS(TilesetEditorContext)

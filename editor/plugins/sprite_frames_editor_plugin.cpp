@@ -30,14 +30,16 @@
 
 #include "sprite_frames_editor_plugin.h"
 
-#include "core/method_bind.h"
 #include "core/io/resource_loader.h"
+#include "core/method_bind.h"
 #include "core/project_settings.h"
-#include "editor/editor_settings.h"
 #include "editor/editor_scale.h"
+#include "editor/editor_settings.h"
 #include "scene/3d/sprite_3d.h"
-
 #include "scene/gui/center_container.h"
+#include "scene/gui/spin_box.h"
+#include "editor/editor_file_system.h"
+#include "scene/resources/style_box.h"
 
 IMPL_GDCLASS(SpriteFramesEditor)
 IMPL_GDCLASS(SpriteFramesEditorPlugin)

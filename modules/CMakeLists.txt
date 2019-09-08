@@ -1,5 +1,10 @@
 include(CMakeDependentOption)
 set(module_list)
+
+macro(set_module_properties tgt name)
+    set_common_target_properties(${tgt}_${name})
+    set_target_properties (${tgt}_${name} PROPERTIES FOLDER ${tgt}/modules/ )
+endmacro()
 # Visit each subdirectory, see if it has CMakeLists.txt
 # For each global target add an option to enable located module.
 macro(detect_modules)
@@ -39,6 +44,10 @@ macro(create_simple_module_target name)
         target_link_libraries(${tgt}_${name} PUBLIC ${tgt}_core)
         string(TOUPPER ${name} upname)
         set_common_target_properties(${tgt}_${name})
+        set_target_properties (${tgt}_${name} PROPERTIES
+            FOLDER ${tgt}/modules/
+        )
+
     endforeach()
 endmacro()
 
@@ -61,10 +70,10 @@ foreach(tgt ${global_targets})
     add_library(${tgt}_modules ${module_sources})
     foreach(module_dir ${module_list})
         if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${module_dir}/sources.cmake")
-            #message("WILL INCLUDE SOURCES ${module_dir}")
+            message("WILL INCLUDE SOURCES ${module_dir}")
             include(${module_dir}/sources.cmake)
         elseif(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${module_dir}/register_types.h")
-            #message("WILL LINK OBJECT ${module_dir}")
+            message("WILL LINK OBJECT ${module_dir}")
             add_module(${tgt} ${module_dir})
         else()
             #

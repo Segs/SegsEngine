@@ -206,23 +206,23 @@ public:
         return value;
     }
 
-    static _ALWAYS_INLINE_ double deg2rad(double p_y) { return p_y * Math_PI / 180.0; }
-    static _ALWAYS_INLINE_ float deg2rad(float p_y) { return p_y * float(Math_PI) / 180.0f; }
+    static _ALWAYS_INLINE_ double deg2rad(double p_y) { return p_y * MathConsts<double>::PI / 180.0; }
+    static _ALWAYS_INLINE_ float deg2rad(float p_y) { return p_y * Math_PI / 180.0f; }
 
-    static _ALWAYS_INLINE_ double rad2deg(double p_y) { return p_y * 180.0 / Math_PI; }
-    static _ALWAYS_INLINE_ float rad2deg(float p_y) { return p_y * 180.0f / float(Math_PI); }
+    static _ALWAYS_INLINE_ double rad2deg(double p_y) { return p_y * 180.0 / MathConsts<double>::PI; }
+    static _ALWAYS_INLINE_ float rad2deg(float p_y) { return p_y * 180.0f / Math_PI; }
 
     static _ALWAYS_INLINE_ double lerp(double p_from, double p_to, double p_weight) { return p_from + (p_to - p_from) * p_weight; }
     static _ALWAYS_INLINE_ float lerp(float p_from, float p_to, float p_weight) { return p_from + (p_to - p_from) * p_weight; }
 
     static _ALWAYS_INLINE_ double lerp_angle(double p_from, double p_to, double p_weight) {
-        double difference = fmod(p_to - p_from, Math_TAU);
-        double distance = fmod(2.0 * difference, Math_TAU) - difference;
+        double difference = fmod(p_to - p_from, MathConsts<double>::TAU);
+        double distance = fmod(2.0 * difference, MathConsts<double>::TAU) - difference;
         return p_from + distance * p_weight;
     }
     static _ALWAYS_INLINE_ float lerp_angle(float p_from, float p_to, float p_weight) {
-        float difference = fmod(p_to - p_from, (float)Math_TAU);
-        float distance = fmod(2.0f * difference, (float)Math_TAU) - difference;
+        float difference = fmod(p_to - p_from, Math_TAU);
+        float distance = fmod(2.0f * difference, Math_TAU) - difference;
         return p_from + distance * p_weight;
     }
 

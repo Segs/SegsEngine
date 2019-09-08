@@ -790,7 +790,7 @@ void EditorFileSystem::_scan_new_dir(EditorFileSystemDirectory *p_dir, DirAccess
                     scan_actions.push_back(ia);
                 }
 
-                if (fc->type == String()) {
+                if (fc->type.empty()) {
                     fi->type = ResourceLoader::get_resource_type(path);
                     fi->import_group_file = ResourceLoader::get_import_group_file(path);
                     //there is also the chance that file type changed due to reimport, must probably check this somehow here (or kind of note it for next time in another file?)
@@ -1553,22 +1553,22 @@ Error EditorFileSystem::_reimport_group(const String &p_group_file, const Vector
         Ref<ConfigFile> config;
         config.instance();
         Error err = config->load(p_files[i] + ".import");
-        ERR_CONTINUE(err != OK);
+        ERR_CONTINUE(err != OK)
         ERR_CONTINUE(!config->has_section_key("remap", "importer"));
         String file_importer_name = config->get_value("remap", "importer");
-        ERR_CONTINUE(file_importer_name == String());
+        ERR_CONTINUE(file_importer_name.empty())
 
         if (importer_name != String() && importer_name != file_importer_name) {
             print_line("one importer: " + importer_name + " the other: " + file_importer_name);
             EditorNode::get_singleton()->show_warning(vformat(TTR("There are multiple importers for different types pointing to file %s, import aborted"), p_group_file));
-            ERR_FAIL_V(ERR_FILE_CORRUPT);
+            ERR_FAIL_V(ERR_FILE_CORRUPT)
         }
 
         source_file_options[p_files[i]] = Map<StringName, Variant>();
         importer_name = file_importer_name;
 
-        Ref<ResourceImporter> importer = ResourceFormatImporter::get_singleton()->get_importer_by_name(importer_name);
-        ERR_FAIL_COND_V(!importer.is_valid(), ERR_FILE_CORRUPT);
+        ResourceImporterInterface *importer = ResourceFormatImporter::get_singleton()->get_importer_by_name(importer_name);
+        ERR_FAIL_COND_V(importer==nullptr, ERR_FILE_CORRUPT)
         List<ResourceImporter::ImportOption> options;
         importer->get_import_options(&options);
         //set default values
@@ -1591,9 +1591,9 @@ Error EditorFileSystem::_reimport_group(const String &p_group_file, const Vector
         base_paths[p_files[i]] = ResourceFormatImporter::get_singleton()->get_import_base_path(p_files[i]);
     }
 
-    ERR_FAIL_COND_V(importer_name == String(), ERR_UNCONFIGURED);
+    ERR_FAIL_COND_V(importer_name.empty(), ERR_UNCONFIGURED)
 
-    Ref<ResourceImporter> importer = ResourceFormatImporter::get_singleton()->get_importer_by_name(importer_name);
+    ResourceImporterInterface *importer = ResourceFormatImporter::get_singleton()->get_importer_by_name(importer_name);
 
     Error err = importer->import_group_file(p_group_file, source_file_options, base_paths);
 
@@ -1603,7 +1603,7 @@ Error EditorFileSystem::_reimport_group(const String &p_group_file, const Vector
         const String &file = E->key();
         String base_path = ResourceFormatImporter::get_singleton()->get_import_base_path(file);
         FileAccessRef f = FileAccess::open(file + ".import", FileAccess::WRITE);
-        ERR_FAIL_COND_V(!f, ERR_FILE_CANT_OPEN);
+        ERR_FAIL_COND_V(!f, ERR_FILE_CANT_OPEN)
 
         //write manually, as order matters ([remap] has to go first for performance).
         f->store_line("[remap]");
@@ -1675,7 +1675,7 @@ Error EditorFileSystem::_reimport_group(const String &p_group_file, const Vector
         EditorFileSystemDirectory *fs = nullptr;
         int cpos = -1;
         bool found = _find_file(file, &fs, cpos);
-        ERR_FAIL_COND_V(!found, ERR_UNCONFIGURED);
+        ERR_FAIL_COND_V(!found, ERR_UNCONFIGURED)
 
         //update modified times, to avoid reimport
         fs->files[cpos]->modified_time = FileAccess::get_modified_time(file);

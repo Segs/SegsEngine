@@ -15,6 +15,17 @@ set(thirdparty_sources
     zutil.c
 )
 add_library(zlib STATIC ${thirdparty_sources})
+# interface library target is for the usage of zlib in plugins etc.
+add_library(zlib_interface INTERFACE)
 target_include_directories(zlib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} )
+target_include_directories(zlib_interface INTERFACE ${CMAKE_CURRENT_SOURCE_DIR} )
+# tell zlib to export it's symbols, that way plugins will not have to carry their own zlib.
+target_compile_definitions(zlib PUBLIC ZLIB_DLL )
+target_compile_definitions(zlib PUBLIC ZLIB_INTERNAL)
+target_compile_definitions(zlib_interface INTERFACE ZLIB_DLL )
 
+if(NOT MSVC)
+    target_compile_definitions(zlib PUBLIC HAVE_HIDDEN )
+    target_compile_definitions(zlib_interface INTERFACE HAVE_HIDDEN )
+endif()
 #set_common_target_properties(zlib)

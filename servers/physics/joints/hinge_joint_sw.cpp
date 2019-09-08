@@ -91,7 +91,7 @@ HingeJointSW::HingeJointSW(BodySW *rbA, BodySW *rbB, const Transform &frameA, co
 	m_limitSoftness = 0.9f;
 	m_solveLimit = false;
 
-	tau = 0.3;
+	tau = 0.3f;
 
 	m_angularOnly = false;
 	m_enableAngularMotor = false;

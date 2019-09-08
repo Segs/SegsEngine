@@ -122,7 +122,7 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
     x11_display = XOpenDisplay(nullptr);
 
     if (!x11_display) {
-        ERR_PRINT("X11 Display is not available");
+        ERR_PRINT("X11 Display is not available")
         return ERR_UNAVAILABLE;
     }
 
@@ -143,10 +143,10 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
 
     if (modifiers == nullptr) {
         if (is_stdout_verbose()) {
-            WARN_PRINT("IME is disabled");
+            WARN_PRINT("IME is disabled")
         }
         XSetLocaleModifiers("@im=none");
-        WARN_PRINT("Error setting locale modifiers");
+        WARN_PRINT("Error setting locale modifiers")
     }
 
     const char *err;
@@ -188,7 +188,7 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
     xim = XOpenIM(x11_display, nullptr, nullptr, nullptr);
 
     if (xim == nullptr) {
-        WARN_PRINT("XOpenIM failed");
+        WARN_PRINT("XOpenIM failed")
         xim_style = 0L;
     } else {
         ::XIMCallback im_destroy_callback;
@@ -196,7 +196,7 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
         im_destroy_callback.callback = (::XIMProc)(xim_destroy_callback);
         if (XSetIMValues(xim, XNDestroyCallback, &im_destroy_callback,
                     NULL) != nullptr) {
-            WARN_PRINT("Error setting XIM destroy callback");
+            WARN_PRINT("Error setting XIM destroy callback")
         }
 
         ::XIMStyles *xim_styles = nullptr;
@@ -390,8 +390,8 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
         set_window_always_on_top(true);
     }
 
-    ERR_FAIL_COND_V(!visual_server, ERR_UNAVAILABLE);
-    ERR_FAIL_COND_V(x11_window == 0, ERR_UNAVAILABLE);
+    ERR_FAIL_COND_V(!visual_server, ERR_UNAVAILABLE)
+    ERR_FAIL_COND_V(x11_window == 0, ERR_UNAVAILABLE)
 
     XSetWindowAttributes new_attr;
 
@@ -460,19 +460,19 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
 
         xic = XCreateIC(xim, XNInputStyle, xim_style, XNClientWindow, x11_window, XNFocusWindow, x11_window, (char *)nullptr);
         if (XGetICValues(xic, XNFilterEvents, &im_event_mask, NULL) != nullptr) {
-            WARN_PRINT("XGetICValues couldn't obtain XNFilterEvents value");
+            WARN_PRINT("XGetICValues couldn't obtain XNFilterEvents value")
             XDestroyIC(xic);
             xic = nullptr;
         }
         if (xic) {
             XUnsetICFocus(xic);
         } else {
-            WARN_PRINT("XCreateIC couldn't create xic");
+            WARN_PRINT("XCreateIC couldn't create xic")
         }
     } else {
 
         xic = nullptr;
-        WARN_PRINT("XCreateIC couldn't create xic");
+        WARN_PRINT("XCreateIC couldn't create xic")
     }
 
     cursor_size = XcursorGetDefaultSize(x11_display);
@@ -1746,10 +1746,10 @@ void OS_X11::handle_key_event(XKeyEvent *p_event, bool p_echo) {
 
     // XLookupString returns keysyms usable as nice scancodes/
     char str[256 + 1];
-	XKeyEvent xkeyevent_no_mod = *xkeyevent;
-	xkeyevent_no_mod.state &= ~ShiftMask;
-	xkeyevent_no_mod.state &= ~ControlMask;
-	XLookupString(&xkeyevent_no_mod, str, 256, &keysym_keycode, nullptr);
+    XKeyEvent xkeyevent_no_mod = *xkeyevent;
+    xkeyevent_no_mod.state &= ~ShiftMask;
+    xkeyevent_no_mod.state &= ~ControlMask;
+    XLookupString(&xkeyevent_no_mod, str, 256, &keysym_keycode, nullptr);
 
     // Meanwhile, XLookupString returns keysyms useful for unicode.
 
@@ -3171,7 +3171,7 @@ void OS_X11::run() {
 #endif
         if (Main::iteration())
             break;
-    };
+    }
 
     main_loop->finish();
 }

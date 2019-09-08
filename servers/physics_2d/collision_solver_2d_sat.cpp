@@ -369,7 +369,7 @@ public:
 
 		margin_A = p_margin_A;
 		margin_B = p_margin_B;
-		best_depth = 1e15;
+		best_depth = 1e15f;
 		shape_A = p_shape_A;
 		shape_B = p_shape_B;
 		transform_A = &p_transform_a;

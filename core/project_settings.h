@@ -32,11 +32,12 @@
 
 #include "core/object.h"
 #include "core/os/thread_safe.h"
+#include "core/property_info.h"
 #include "core/set.h"
 #include "core/map.h"
 #include "core/ustring.h"
 
-class ProjectSettings : public Object {
+class GODOT_EXPORT ProjectSettings : public Object {
 
     GDCLASS(ProjectSettings,Object)
 

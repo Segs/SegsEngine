@@ -15,13 +15,24 @@ ${CMAKE_CURRENT_SOURCE_DIR}/EASTL/SegsEngine_config.h
 ${INC}
 )
 add_library(EASTL OBJECT ${SOURCE})
+add_library(EASTL_Import INTERFACE)
+
 set_property(TARGET EASTL PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 target_include_directories(EASTL PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/EASTL/include>
     $<INSTALL_INTERFACE:include>
 )
+target_include_directories(EASTL_Import INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/EASTL/include>
+    $<INSTALL_INTERFACE:include>
+)
+
 target_compile_definitions(EASTL PUBLIC
+    $<BUILD_INTERFACE:EASTL_USER_CONFIG_HEADER=\"${CMAKE_CURRENT_SOURCE_DIR}/EASTL/SegsEngine_config.h\">
+    $<INSTALL_INTERFACE:EASTL_USER_CONFIG_HEADER=\"include/SegsEngine_config.h\">
+)
+target_compile_definitions(EASTL_Import INTERFACE
     $<BUILD_INTERFACE:EASTL_USER_CONFIG_HEADER=\"${CMAKE_CURRENT_SOURCE_DIR}/EASTL/SegsEngine_config.h\">
     $<INSTALL_INTERFACE:EASTL_USER_CONFIG_HEADER=\"include/SegsEngine_config.h\">
 )
@@ -29,4 +40,4 @@ target_compile_definitions(EASTL PUBLIC
 target_compile_definitions(EASTL PRIVATE
 	GODOT_EXPORTS
 )
-install(TARGETS EASTL EXPORT Lutefisk3D ARCHIVE DESTINATION ${DEST_ARCHIVE_DIR})
+install(TARGETS EASTL EXPORT SegsEngine ARCHIVE DESTINATION ${DEST_ARCHIVE_DIR})

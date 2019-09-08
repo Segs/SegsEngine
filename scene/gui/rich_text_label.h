@@ -310,7 +310,7 @@ private:
             type = ITEM_CUSTOMFX;
         }
 
-        virtual ~ItemCustomFX() {
+        ~ItemCustomFX() override {
             _clear_children();
             environment.clear();
         }
@@ -395,7 +395,7 @@ private:
     template <typename T>
     T *_fetch_by_type(Item *p_item, ItemType p_type) {
         Item *item = p_item;
-        T *result = NULL;
+        T *result = nullptr;
         while (item) {
             if (item->type == p_type) {
                 result = dynamic_cast<T *>(item);

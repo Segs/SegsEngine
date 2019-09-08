@@ -372,8 +372,8 @@ AnimationNodeOneShot::AnimationNodeOneShot() {
     add_input("in");
     add_input("shot");
 
-    fade_in = 0.1;
-    fade_out = 0.1;
+    fade_in = 0.1f;
+    fade_out = 0.1f;
     autorestart = false;
     autorestart_delay = 1;
     autorestart_random_delay = 0;

@@ -33,10 +33,13 @@
 #include "core/translation.h"
 #include "line_edit.h"
 #include "core/method_bind.h"
+#include "scene/resources/style_box.h"
+
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_node.h"
 #include "editor/editor_scale.h"
+
 #endif
 
 IMPL_GDCLASS(WindowDialog)
@@ -66,6 +69,7 @@ void WindowDialog::_fix_size() {
     float left = 0;
     float bottom = 0;
     float right = 0;
+
     // Check validity, because the theme could contain a different type of StyleBox
     if (0==strcmp(panel->get_class(),"StyleBoxTexture")) {
         Ref<StyleBoxTexture> panel_texture = Object::cast_to<StyleBoxTexture>(*panel);

@@ -4,7 +4,7 @@
 set(target_win_version 0x0601 CACHE STRING "Targeted Windows version, >= 0x0601 (Windows 7)" FORCE)
 set(name Windows)
 if(MSVC)
-	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG_ENABLED -DDEBUG_MEMORY_ENABLED -DD3D_DEBUG_INFO")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG_ENABLED")
     add_definitions(-DWINDOWS_ENABLED -DOPENGL_ENABLED -DRTAUDIO_ENABLED -DWASAPI_ENABLED -DTYPED_METHOD_BIND -DWIN32 -DMSVC -DWINVER=${target_win_version} -D_WIN32_WINNT=${target_win_version})
     set(LIBRARIES winmm opengl32 dsound kernel32 ole32 oleaut32
             user32 gdi32 IPHLPAPI Shlwapi wsock32 Ws2_32
@@ -22,7 +22,7 @@ if(MINGW)
     ADD_DEFINITIONS(-DRTAUDIO_ENABLED)
     ADD_DEFINITIONS(-DWASAPI_ENABLED)
     ADD_DEFINITIONS(-DWINVER=${target_win_version} -D_WIN32_WINNT=${target_win_version})
-	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG_ENABLED -DDEBUG_MEMORY_ENABLED -DD3D_DEBUG_INFO")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG_ENABLED")
     set(LIBRARIES mingw32 opengl32 dsound ole32 d3d9 winmm gdi32 iphlpapi shlwapi wsock32 ws2_32 kernel32 oleaut32 dinput8 dxguid ksuser imm32 bcrypt Avrt)
 
     ADD_DEFINITIONS(-DMINGW_ENABLED)

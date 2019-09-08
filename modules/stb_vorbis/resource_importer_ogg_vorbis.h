@@ -39,7 +39,7 @@ class ResourceImporterOGGVorbis : public ResourceImporter {
 public:
     String get_importer_name() const override;
     String get_visible_name() const override;
-    void get_recognized_extensions(List<String> *p_extensions) const override;
+    void get_recognized_extensions(Vector<String> *p_extensions) const override;
     String get_save_extension() const override;
     String get_resource_type() const override;
 

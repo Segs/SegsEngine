@@ -39,6 +39,7 @@
 #include "editor/animation_track_editor.h"
 #include "editor/editor_settings.h"
 #include "editor/editor_scale.h"
+#include "scene/resources/style_box.h"
 
 // For onion skinning
 #include "editor/plugins/canvas_item_editor_plugin.h"
@@ -397,7 +398,7 @@ void AnimationPlayerEditor::_animation_save_as(const Ref<Resource> &p_resource) 
 
     file->set_mode(EditorFileDialog::MODE_SAVE_FILE);
 
-    List<String> extensions;
+    Vector<String> extensions;
     ResourceSaver::get_recognized_extensions(p_resource, &extensions);
     file->clear_filters();
     for (int i = 0; i < extensions.size(); i++) {
@@ -408,20 +409,20 @@ void AnimationPlayerEditor::_animation_save_as(const Ref<Resource> &p_resource) 
     //file->set_current_path(current_path);
     if (p_resource->get_path() != "") {
         file->set_current_path(p_resource->get_path());
-        if (extensions.size()) {
+        if (!extensions.empty()) {
             String ext = StringUtils::to_lower(PathUtils::get_extension(p_resource->get_path()));
-            if (extensions.find(ext) == nullptr) {
-                file->set_current_path(StringUtils::replacen(p_resource->get_path(),"." + ext, "." + extensions.front()->get()));
+            if (extensions.find(ext) == -1) {
+                file->set_current_path(StringUtils::replacen(p_resource->get_path(),"." + ext, "." + extensions[0]));
             }
         }
     } else {
 
         String existing;
-        if (extensions.size()) {
+        if (!extensions.empty()) {
             if (p_resource->get_name() != "") {
-                existing = p_resource->get_name() + "." + StringUtils::to_lower(extensions.front()->get());
+                existing = p_resource->get_name() + "." + StringUtils::to_lower(extensions[0]);
             } else {
-                existing = "new_" + StringUtils::to_lower(p_resource->get_class()) + "." + StringUtils::to_lower(extensions.front()->get());
+                existing = "new_" + StringUtils::to_lower(p_resource->get_class()) + "." + StringUtils::to_lower(extensions[0]);
             }
         }
         file->set_current_path(existing);
@@ -475,7 +476,7 @@ void AnimationPlayerEditor::_select_anim_by_name(const String &p_anim) {
         }
     }
 
-    ERR_FAIL_COND(idx == -1);
+    ERR_FAIL_COND(idx == -1)
 
     animation->select(idx);
 
@@ -484,15 +485,15 @@ void AnimationPlayerEditor::_select_anim_by_name(const String &p_anim) {
 
 double AnimationPlayerEditor::_get_editor_step() const {
 
-	// Returns the effective snapping value depending on snapping modifiers, or 0 if snapping is disabled.
-	if (track_editor->is_snap_enabled()) {
-		const String current = player->get_assigned_animation();
-		const Ref<Animation> anim = player->get_animation(current);
-		// Use more precise snapping when holding Shift
-		return Input::get_singleton()->is_key_pressed(KEY_SHIFT) ? anim->get_step() * 0.25 : anim->get_step();
-	}
+    // Returns the effective snapping value depending on snapping modifiers, or 0 if snapping is disabled.
+    if (track_editor->is_snap_enabled()) {
+        const String current = player->get_assigned_animation();
+        const Ref<Animation> anim = player->get_animation(current);
+        // Use more precise snapping when holding Shift
+        return Input::get_singleton()->is_key_pressed(KEY_SHIFT) ? anim->get_step() * 0.25 : anim->get_step();
+    }
 
-	return 0.0;
+    return 0.0;
 }
 
 void AnimationPlayerEditor::_animation_name_edited() {
@@ -1035,7 +1036,7 @@ void AnimationPlayerEditor::_seek_value_changed(float p_value, bool p_set) {
 
     float pos = CLAMP(anim->get_length() * (p_value / frame->get_max()), 0, anim->get_length());
     if (track_editor->is_snap_enabled()) {
-		pos = Math::stepify(pos, float(_get_editor_step()));
+        pos = Math::stepify(pos, float(_get_editor_step()));
     }
 
     if (player->is_valid() && !p_set) {
@@ -1086,7 +1087,7 @@ void AnimationPlayerEditor::_animation_key_editor_seek(float p_pos, bool p_drag)
     Ref<Animation> anim = player->get_animation(player->get_assigned_animation());
 
     updating = true;
-	frame->set_value(Math::stepify(p_pos, float(_get_editor_step())));
+    frame->set_value(Math::stepify(p_pos, float(_get_editor_step())));
     updating = false;
     _seek_value_changed(p_pos, !p_drag);
 

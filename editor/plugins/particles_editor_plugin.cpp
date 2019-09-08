@@ -35,6 +35,7 @@
 #include "editor/plugins/spatial_editor_plugin.h"
 #include "scene/3d/cpu_particles.h"
 #include "scene/resources/particles_material.h"
+#include "editor/scene_tree_editor.h"
 
 IMPL_GDCLASS(ParticlesEditorBase)
 IMPL_GDCLASS(ParticlesEditor)

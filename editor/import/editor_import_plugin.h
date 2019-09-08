@@ -43,7 +43,7 @@ public:
 	EditorImportPlugin();
 	String get_importer_name() const override;
 	String get_visible_name() const override;
-	void get_recognized_extensions(List<String> *p_extensions) const override;
+    void get_recognized_extensions(Vector<String> *p_extensions) const override;
 	String get_preset_name(int p_idx) const override;
 	int get_preset_count() const override;
 	String get_save_extension() const override;

@@ -79,17 +79,16 @@
 #include "editor/editor_settings.h"
 #include "editor/editor_themes.h"
 #include "editor/filesystem_dock.h"
-#include "editor/import/editor_import_collada.h"
-#include "editor/import/editor_scene_importer_gltf.h"
-#include "editor/import/resource_importer_bitmask.h"
-#include "editor/import/resource_importer_csv.h"
-#include "editor/import/resource_importer_csv_translation.h"
-#include "editor/import/resource_importer_image.h"
-#include "editor/import/resource_importer_layered_texture.h"
-#include "editor/import/resource_importer_obj.h"
+
+
+
+
+
+
+
 #include "editor/import/resource_importer_scene.h"
-#include "editor/import/resource_importer_texture.h"
-#include "editor/import/resource_importer_texture_atlas.h"
+
+
 #include "editor/import/resource_importer_wav.h"
 #include "editor/plugins/animation_blend_space_1d_editor.h"
 #include "editor/plugins/animation_blend_space_2d_editor.h"
@@ -148,6 +147,7 @@
 #include "editor/plugins/version_control_editor_plugin.h"
 #include "editor/plugins/visual_shader_editor_plugin.h"
 #include "editor/pvrtc_compress.h"
+#include "editor/quick_open.h"
 #include "editor/register_exporters.h"
 #include "editor/script_editor_debugger.h"
 #include "scene/gui/tabs.h"
@@ -212,16 +212,16 @@ void EditorNode::_update_scene_tabs() {
 
 void EditorNode::_version_control_menu_option(int p_idx) {
 
-	switch (vcs_actions_menu->get_item_id(p_idx)) {
-		case RUN_VCS_SETTINGS: {
+    switch (vcs_actions_menu->get_item_id(p_idx)) {
+        case RUN_VCS_SETTINGS: {
 
-			VersionControlEditorPlugin::get_singleton()->popup_vcs_set_up_dialog(gui_base);
-		} break;
-		case RUN_VCS_SHUT_DOWN: {
+            VersionControlEditorPlugin::get_singleton()->popup_vcs_set_up_dialog(gui_base);
+        } break;
+        case RUN_VCS_SHUT_DOWN: {
 
-			VersionControlEditorPlugin::get_singleton()->shut_down();
-		} break;
-	}
+            VersionControlEditorPlugin::get_singleton()->shut_down();
+        } break;
+    }
 }
 
 void EditorNode::_update_title() {
@@ -282,7 +282,18 @@ void EditorNode::_unhandled_input(const Ref<InputEvent> &p_event) {
         }
     }
 }
-
+static void update_reconfigured_resources()
+{
+    if (!EditorFileSystem::get_singleton()->is_scanning() && !EditorFileSystem::get_singleton()->is_importing())
+    {
+        ResourceImporterInterface *tex=ResourceFormatImporter::get_singleton()->get_importer_by_name("texture");
+        Vector<String> to_reimport;
+        tex->build_reconfigured_list(to_reimport);
+        if (!to_reimport.empty()) {
+            EditorFileSystem::get_singleton()->reimport_files(to_reimport);
+        }
+    }
+}
 void EditorNode::_notification(int p_what) {
 
     switch (p_what) {
@@ -322,9 +333,9 @@ void EditorNode::_notification(int p_what) {
 
             editor_selection->update();
 
-            scene_root->set_size_override(true, Size2(ProjectSettings::get_singleton()->get("display/window/size/width"), ProjectSettings::get_singleton()->get("display/window/size/height")));
-
-            ResourceImporterTexture::get_singleton()->update_imports();
+            scene_root->set_size_override(true, Size2(ProjectSettings::get_singleton()->get("display/window/size/width"),
+                                                      ProjectSettings::get_singleton()->get("display/window/size/height")));
+            update_reconfigured_resources();
         } break;
 
         case NOTIFICATION_ENTER_TREE: {
@@ -555,12 +566,12 @@ void EditorNode::_fs_changed() {
         }
         if (preset.is_null()) {
             String errstr = "Unknown export preset: " + export_defer.preset;
-            ERR_PRINTS(errstr);
+            ERR_PRINTS(errstr)
         } else {
             Ref<EditorExportPlatform> platform = preset->get_platform();
             if (platform.is_null()) {
                 String errstr = "Preset \"" + export_defer.preset + "\" doesn't have a platform.";
-                ERR_PRINTS(errstr);
+                ERR_PRINTS(errstr)
             } else {
                 // ensures export_project does not loop infinitely, because notifications may
                 // come during the export
@@ -576,7 +587,7 @@ void EditorNode::_fs_changed() {
                     err = platform->export_project(preset, export_defer.debug, export_defer.path);
                 }
                 if (err != OK) {
-                    ERR_PRINTS(vformat(TTR("Project export failed with error code %d."), (int)err));
+                    ERR_PRINTS(vformat(TTR("Project export failed with error code %d."), (int)err))
                 }
             }
         }
@@ -677,7 +688,7 @@ Error EditorNode::load_resource(const String &p_resource, bool p_ignore_broken_d
 
     Error err;
     RES res = ResourceLoader::load(p_resource, "", false, &err);
-    ERR_FAIL_COND_V(!res.is_valid(), ERR_CANT_OPEN);
+    ERR_FAIL_COND_V(!res.is_valid(), ERR_CANT_OPEN)
 
     if (!p_ignore_broken_deps && dependency_errors.has(p_resource)) {
 
@@ -753,7 +764,7 @@ void EditorNode::save_resource_as(const Ref<Resource> &p_resource, const String 
     saving_resource = p_resource;
 
     current_option = RESOURCE_SAVE_AS;
-    List<String> extensions;
+    Vector<String> extensions;
     Ref<PackedScene> sd = memnew(PackedScene);
     ResourceSaver::get_recognized_extensions(p_resource, &extensions);
     file->clear_filters();
@@ -786,8 +797,8 @@ void EditorNode::save_resource_as(const Ref<Resource> &p_resource, const String 
         file->set_current_path(p_resource->get_path());
         if (extensions.size()) {
             String ext = StringUtils::to_lower(PathUtils::get_extension(p_resource->get_path()));
-            if (extensions.find(ext) == nullptr) {
-                file->set_current_path(StringUtils::replacen(p_resource->get_path(),"." + ext, "." + extensions.front()->get()));
+            if (extensions.find(ext) == -1) {
+                file->set_current_path(StringUtils::replacen(p_resource->get_path(),"." + ext, "." + extensions[0]));
             }
         }
     } else if (preferred.size()) {
@@ -929,7 +940,7 @@ void EditorNode::_set_scene_metadata(const String &p_file, int p_idx) {
     }
 
     Error err = cf->save(path);
-    ERR_FAIL_COND(err != OK);
+    ERR_FAIL_COND(err != OK)
 }
 
 bool EditorNode::_find_and_save_resource(RES p_res, Map<RES, bool> &processed, int32_t flags) {
@@ -1478,12 +1489,12 @@ void EditorNode::_dialog_action(String p_file) {
         case RESOURCE_SAVE:
         case RESOURCE_SAVE_AS: {
 
-            ERR_FAIL_COND(saving_resource.is_null());
+            ERR_FAIL_COND(saving_resource.is_null())
             save_resource_in_path(saving_resource, p_file);
             saving_resource = Ref<Resource>();
             ObjectID current = editor_history.get_current();
             Object *current_obj = current > 0 ? ObjectDB::get_instance(current) : nullptr;
-            ERR_FAIL_COND(!current_obj);
+            ERR_FAIL_COND(!current_obj)
             current_obj->_change_notify();
         } break;
         case SETTINGS_LAYOUT_SAVE: {
@@ -1877,7 +1888,7 @@ void EditorNode::_run(bool p_current, const String &p_custom) {
     String main_scene;
     String run_filename;
     String args;
-	bool skip_breakpoints;
+    bool skip_breakpoints;
 
     if (p_current || (editor_data.get_edited_scene_root() && p_custom == editor_data.get_edited_scene_root()->get_filename())) {
 
@@ -1943,9 +1954,9 @@ void EditorNode::_run(bool p_current, const String &p_custom) {
     editor_data.get_editor_breakpoints(&breakpoints);
 
     args = ProjectSettings::get_singleton()->get("editor/main_run_args");
-	skip_breakpoints = ScriptEditor::get_singleton()->get_debugger()->is_skip_breakpoints();
+    skip_breakpoints = ScriptEditor::get_singleton()->get_debugger()->is_skip_breakpoints();
 
-	Error error = editor_run.run(run_filename, args, breakpoints, skip_breakpoints);
+    Error error = editor_run.run(run_filename, args, breakpoints, skip_breakpoints);
 
     if (error != OK) {
 
@@ -2110,7 +2121,7 @@ void EditorNode::_menu_option_confirm(int p_option, bool p_confirmed) {
 
             file->set_mode(EditorFileDialog::MODE_SAVE_FILE);
 
-            List<String> extensions;
+            Vector<String> extensions;
             Ref<PackedScene> sd = memnew(PackedScene);
             ResourceSaver::get_recognized_extensions(sd, &extensions);
             file->clear_filters();
@@ -2121,18 +2132,18 @@ void EditorNode::_menu_option_confirm(int p_option, bool p_confirmed) {
 
             if (scene->get_filename() != "") {
                 file->set_current_path(scene->get_filename());
-                if (extensions.size()) {
+                if (!extensions.empty()) {
                     String ext = StringUtils::to_lower(PathUtils::get_extension(scene->get_filename()));
-                    if (extensions.find(ext) == nullptr) {
-                        file->set_current_path(StringUtils::replacen(scene->get_filename(),"." + ext, "." + extensions.front()->get()));
+                    if (extensions.find(ext) == -1) {
+                        file->set_current_path(StringUtils::replacen(scene->get_filename(),"." + ext, "." + extensions[0]));
                     }
                 }
             } else {
 
                 String existing;
-                if (extensions.size()) {
+                if (!extensions.empty()) {
                     String root_name(scene->get_name());
-                    existing = root_name + "." + StringUtils::to_lower(extensions.front()->get());
+                    existing = root_name + "." + StringUtils::to_lower(extensions[0]);
                 }
                 file->set_current_path(existing);
             }
@@ -2171,12 +2182,12 @@ void EditorNode::_menu_option_confirm(int p_option, bool p_confirmed) {
                 break;
             }
 
-            List<String> extensions;
+            Vector<String> extensions;
             Ref<MeshLibrary> ml(memnew(MeshLibrary));
             ResourceSaver::get_recognized_extensions(ml, &extensions);
             file_export_lib->clear_filters();
-            for (List<String>::Element *E = extensions.front(); E; E = E->next()) {
-                file_export_lib->add_filter("*." + E->get());
+            for(int i=0,fin=extensions.size(); i<fin; ++i) {
+                file_export_lib->add_filter("*." + extensions[i]);
             }
 
             file_export_lib->popup_centered_ratio();
@@ -2191,12 +2202,12 @@ void EditorNode::_menu_option_confirm(int p_option, bool p_confirmed) {
                 break;
             }
 
-            List<String> extensions;
+            Vector<String> extensions;
             Ref<TileSet> ml(memnew(TileSet));
             ResourceSaver::get_recognized_extensions(ml, &extensions);
             file_export_lib->clear_filters();
-            for (List<String>::Element *E = extensions.front(); E; E = E->next()) {
-                file_export_lib->add_filter("*." + E->get());
+            for(int i=0,fin=extensions.size(); i<fin; ++i) {
+                file_export_lib->add_filter("*." + extensions[i]);
             }
 
             file_export_lib->popup_centered_ratio();
@@ -2676,8 +2687,8 @@ void EditorNode::_exit_editor() {
     resource_preview->stop(); //stop early to avoid crashes
     _save_docks();
 
-	// Dim the editor window while it's quitting to make it clearer that it's busy
-	dim_editor(true, true);
+    // Dim the editor window while it's quitting to make it clearer that it's busy
+    dim_editor(true, true);
 
     get_tree()->quit();
 }
@@ -3567,7 +3578,7 @@ void EditorNode::register_editor_types() {
     ClassDB::register_class<EditorResourcePreviewGenerator>();
     ClassDB::register_virtual_class<EditorFileSystem>();
     ClassDB::register_class<EditorFileSystemDirectory>();
-	ClassDB::register_class<EditorVCSInterface>();
+    ClassDB::register_class<EditorVCSInterface>();
     ClassDB::register_virtual_class<ScriptEditor>();
     ClassDB::register_virtual_class<EditorInterface>();
     ClassDB::register_class<EditorExportPlugin>();
@@ -5177,11 +5188,11 @@ void EditorNode::_open_imported() {
 }
 
 void EditorNode::dim_editor(bool p_dimming, bool p_force_dim) {
-	// Dimming can be forced regardless of the editor setting, which is useful when quitting the editor
-	if ((p_force_dim || EditorSettings::get_singleton()->get("interface/editor/dim_editor_on_dialog_popup")) && p_dimming) {
-		gui_base->set_modulate(Color(0.5, 0.5, 0.5));
+    // Dimming can be forced regardless of the editor setting, which is useful when quitting the editor
+    if ((p_force_dim || EditorSettings::get_singleton()->get("interface/editor/dim_editor_on_dialog_popup")) && p_dimming) {
+        gui_base->set_modulate(Color(0.5, 0.5, 0.5));
     } else {
-		gui_base->set_modulate(Color(1, 1, 1));
+        gui_base->set_modulate(Color(1, 1, 1));
     }
 }
 
@@ -5357,7 +5368,7 @@ void EditorNode::_bind_methods() {
     MethodBinder::bind_method("_dropped_files", &EditorNode::_dropped_files);
     MethodBinder::bind_method(D_METHOD("_global_menu_action"), &EditorNode::_global_menu_action, {DEFVAL(Variant())});
     MethodBinder::bind_method("_toggle_distraction_free_mode", &EditorNode::_toggle_distraction_free_mode);
-	MethodBinder::bind_method("_version_control_menu_option", &EditorNode::_version_control_menu_option);
+    MethodBinder::bind_method("_version_control_menu_option", &EditorNode::_version_control_menu_option);
     MethodBinder::bind_method("edit_item_resource", &EditorNode::edit_item_resource);
 
     MethodBinder::bind_method(D_METHOD("get_gui_base"), &EditorNode::get_gui_base);
@@ -5461,8 +5472,61 @@ int EditorNode::execute_and_show_output(const String &p_title, const String &p_p
 
     return eta.exitcode;
 }
+#include "plugins/plugin_registry_interface.h"
+#include "editor/plugin_interfaces/PluginDeclarations.h"
+#include "core/plugin_interfaces/PluginDeclarations.h"
+#include "service_interfaces/EditorServiceInterface.h"
+#include <QObject>
+namespace {
+//TODO: split this into resourceimporter resolver and editorplugin resolver
+struct EditorPluginResolver : public ResolverInterface
+{
+    ResourceImporterScene *m_parent_importer;
+    EditorPluginResolver(ResourceImporterScene *parent) : m_parent_importer(parent) {}
 
+    bool new_plugin_detected(QObject * ob) override {
+        bool res=false;
+        assert(m_parent_importer);
+        auto loader_interface = qobject_cast<EditorSceneImporterInterface *>(ob);
+        if (loader_interface) {
+            print_line(String("Adding scene loader:")+ob->metaObject()->className());
+            m_parent_importer->add_importer(loader_interface);
+            res=true;
+        }
+        return res;
+    }
+    void plugin_removed(QObject * ob)  override  {
+        auto loader_interface = qobject_cast<EditorSceneImporterInterface *>(ob);
+        if(loader_interface) {
+            print_line(String("Removing scene loader:")+ob->metaObject()->className());
+            m_parent_importer->remove_importer(loader_interface);
+        }
+    }
+};
+struct ResourcePluginResolver : public ResolverInterface
+{
+    bool new_plugin_detected(QObject * ob) override {
+        bool res=false;
+        auto resource_interface = qobject_cast<ResourceImporterInterface *>(ob);
+        if(resource_interface) {
+            resource_interface->set_editor_interface(getEditorInterface());
+            print_line(String("Adding resource importer:")+ob->metaObject()->className());
+            ResourceFormatImporter::get_singleton()->add_importer(resource_interface);
+        }
+        return res;
+    }
+    void plugin_removed(QObject * ob)  override  {
+        auto loader_interface = qobject_cast<ResourceImporterInterface *>(ob);
+        if(loader_interface) {
+            print_line(String("Removing resource importer:")+ob->metaObject()->className());
+            ResourceFormatImporter::get_singleton()->remove_importer(loader_interface);
+        }
+    }
+};
+
+} // end anonymous namespace
 EditorNode::EditorNode() {
+
 
     Input::get_singleton()->set_use_accumulated_input(true);
     Resource::_get_local_scene_func = _resource_get_edited_scene;
@@ -5559,69 +5623,38 @@ EditorNode::EditorNode() {
     ResourceLoader::set_dependency_error_notify_func(this, _dependency_error_report);
 
     { //register importers at the beginning, so dialogs are created with the right extensions
-        Ref<ResourceImporterTexture> import_texture;
-        import_texture.instance();
-        ResourceFormatImporter::get_singleton()->add_importer(import_texture);
-
-        Ref<ResourceImporterLayeredTexture> import_3d;
-        import_3d.instance();
-        import_3d->set_3d(true);
-        ResourceFormatImporter::get_singleton()->add_importer(import_3d);
-
-        Ref<ResourceImporterLayeredTexture> import_array;
-        import_array.instance();
-        import_array->set_3d(false);
-        ResourceFormatImporter::get_singleton()->add_importer(import_array);
-
-        Ref<ResourceImporterImage> import_image;
-        import_image.instance();
-        ResourceFormatImporter::get_singleton()->add_importer(import_image);
-
-        Ref<ResourceImporterTextureAtlas> import_texture_atlas;
-        import_texture_atlas.instance();
-        ResourceFormatImporter::get_singleton()->add_importer(import_texture_atlas);
-
-        Ref<ResourceImporterCSVTranslation> import_csv_translation;
-        import_csv_translation.instance();
-        ResourceFormatImporter::get_singleton()->add_importer(import_csv_translation);
-
-		Ref<ResourceImporterCSV> import_csv;
-		import_csv.instance();
-		ResourceFormatImporter::get_singleton()->add_importer(import_csv);
+        static bool resource_importers_registered=false;
+        if(!resource_importers_registered) {
+            print_line("Resolving resource import plugins");
+            add_plugin_resolver(new ResourcePluginResolver);
+            resource_importers_registered = true;
+        }
+        else
+            WARN_PRINT("Attempted to register resource importer resolver again.")
 
         Ref<ResourceImporterWAV> import_wav;
         import_wav.instance();
         ResourceFormatImporter::get_singleton()->add_importer(import_wav);
 
-        Ref<ResourceImporterOBJ> import_obj;
-        import_obj.instance();
-        ResourceFormatImporter::get_singleton()->add_importer(import_obj);
-
         Ref<ResourceImporterScene> import_scene;
         import_scene.instance();
         ResourceFormatImporter::get_singleton()->add_importer(import_scene);
 
+        // Load higher level 'scene' importer plugins
         {
-            Ref<EditorSceneImporterCollada> import_collada;
-            import_collada.instance();
-            import_scene->add_importer(import_collada);
+            //TODO: convert all of those into scene importer plugins.
+            static bool registered=false;
+            if(!registered) {
+                print_line("Resolving editor plugins");
+                add_plugin_resolver(new EditorPluginResolver(import_scene.ptr()));
+                registered = true;
+            }
+            else
+                WARN_PRINT("Attempted to register resource loader again.")
 
-            Ref<EditorOBJImporter> import_obj2;
-            import_obj2.instance();
-            import_scene->add_importer(import_obj2);
-
-            Ref<EditorSceneImporterGLTF> import_gltf;
-            import_gltf.instance();
-            import_scene->add_importer(import_gltf);
-
-            Ref<EditorSceneImporterESCN> import_escn;
-            import_escn.instance();
-            import_scene->add_importer(import_escn);
+            static EditorSceneImporterESCN import_escn;
+            import_scene->add_importer(&import_escn);
         }
-
-        Ref<ResourceImporterBitMap> import_bitmap;
-        import_bitmap.instance();
-        ResourceFormatImporter::get_singleton()->add_importer(import_bitmap);
     }
 
     {
@@ -5686,8 +5719,8 @@ EditorNode::EditorNode() {
     EDITOR_DEF("interface/inspector/horizontal_vector_types_editing", true);
     EDITOR_DEF("interface/inspector/open_resources_in_current_inspector", true);
     EDITOR_DEF("interface/inspector/resources_to_open_in_new_inspector", "SpatialMaterial,Script,MeshLibrary,TileSet");
-	EDITOR_DEF("interface/inspector/default_color_picker_mode", 0);
-	EditorSettings::get_singleton()->add_property_hint(PropertyInfo(Variant::INT, "interface/inspector/default_color_picker_mode", PROPERTY_HINT_ENUM, "RGB,HSV,RAW", PROPERTY_USAGE_DEFAULT));
+    EDITOR_DEF("interface/inspector/default_color_picker_mode", 0);
+    EditorSettings::get_singleton()->add_property_hint(PropertyInfo(Variant::INT, "interface/inspector/default_color_picker_mode", PROPERTY_HINT_ENUM, "RGB,HSV,RAW", PROPERTY_USAGE_DEFAULT));
     EDITOR_DEF("run/auto_save/save_before_running", true);
 
     theme_base = memnew(Control);
@@ -5831,7 +5864,7 @@ EditorNode::EditorNode() {
         dock_slot[i]->set_drag_to_rearrange_enabled(true);
         dock_slot[i]->set_tabs_rearrange_group(1);
         dock_slot[i]->connect("tab_changed", this, "_dock_tab_changed");
-		dock_slot[i]->set_use_hidden_tabs_for_min_size(true);
+        dock_slot[i]->set_use_hidden_tabs_for_min_size(true);
     }
 
     dock_drag_timer = memnew(Timer);
@@ -6047,14 +6080,14 @@ EditorNode::EditorNode() {
     p->add_shortcut(ED_SHORTCUT("editor/project_settings", TTR("Project Settings...")), RUN_SETTINGS);
     p->connect("id_pressed", this, "_menu_option");
 
-	vcs_actions_menu = VersionControlEditorPlugin::get_singleton()->get_version_control_actions_panel();
-	vcs_actions_menu->set_name("Version Control");
-	vcs_actions_menu->connect("index_pressed", this, "_version_control_menu_option");
-	p->add_separator();
-	p->add_child(vcs_actions_menu);
-	p->add_submenu_item(TTR("Version Control"), "Version Control");
-	vcs_actions_menu->add_item(TTR("Set Up Version Control"), RUN_VCS_SETTINGS);
-	vcs_actions_menu->add_item(TTR("Shut Down Version Control"), RUN_VCS_SHUT_DOWN);
+    vcs_actions_menu = VersionControlEditorPlugin::get_singleton()->get_version_control_actions_panel();
+    vcs_actions_menu->set_name("Version Control");
+    vcs_actions_menu->connect("index_pressed", this, "_version_control_menu_option");
+    p->add_separator();
+    p->add_child(vcs_actions_menu);
+    p->add_submenu_item(TTR("Version Control"), "Version Control");
+    vcs_actions_menu->add_item(TTR("Set Up Version Control"), RUN_VCS_SETTINGS);
+    vcs_actions_menu->add_item(TTR("Shut Down Version Control"), RUN_VCS_SHUT_DOWN);
 
     p->add_separator();
     p->add_shortcut(ED_SHORTCUT("editor/export", TTR("Export...")), FILE_EXPORT_PROJECT);
@@ -6433,13 +6466,13 @@ EditorNode::EditorNode() {
     gui_base->add_child(custom_build_manage_templates);
 
     install_android_build_template = memnew(ConfirmationDialog);
-	install_android_build_template->set_text(TTR("This will set up your project for custom Android builds by installing the source template to \"res://android/build\".\nYou can then apply modifications and build your own custom APK on export (adding modules, changing the AndroidManifest.xml, etc.).\nNote that in order to make custom builds instead of using pre-built APKs, the \"Use Custom Build\" option should be enabled in the Android export preset."));
+    install_android_build_template->set_text(TTR("This will set up your project for custom Android builds by installing the source template to \"res://android/build\".\nYou can then apply modifications and build your own custom APK on export (adding modules, changing the AndroidManifest.xml, etc.).\nNote that in order to make custom builds instead of using pre-built APKs, the \"Use Custom Build\" option should be enabled in the Android export preset."));
     install_android_build_template->get_ok()->set_text(TTR("Install"));
     install_android_build_template->connect("confirmed", this, "_menu_confirm_current");
     gui_base->add_child(install_android_build_template);
 
     remove_android_build_template = memnew(ConfirmationDialog);
-	remove_android_build_template->set_text(TTR("The Android build template is already installed in this project and it won't be overwritten.\nRemove the \"res://android/build\" directory manually before attempting this operation again."));
+    remove_android_build_template->set_text(TTR("The Android build template is already installed in this project and it won't be overwritten.\nRemove the \"res://android/build\" directory manually before attempting this operation again."));
     remove_android_build_template->get_ok()->set_text(TTR("Show in File Manager"));
     remove_android_build_template->connect("confirmed", this, "_menu_option", varray(FILE_EXPLORE_ANDROID_BUILD_TEMPLATES));
     gui_base->add_child(remove_android_build_template);
@@ -6529,7 +6562,7 @@ EditorNode::EditorNode() {
     //more visually meaningful to have this later
     raise_bottom_panel_item(AnimationPlayerEditor::singleton);
 
-	add_editor_plugin(VersionControlEditorPlugin::get_singleton());
+    add_editor_plugin(VersionControlEditorPlugin::get_singleton());
     add_editor_plugin(memnew(ShaderEditorPlugin(this)));
     add_editor_plugin(memnew(VisualShaderEditorPlugin(this)));
 

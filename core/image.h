@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef IMAGE_H
-#define IMAGE_H
+#pragma once
 
 #include "core/color.h"
 #include "core/image_data.h"
@@ -55,7 +54,7 @@ using ImageMemLoadFunc = ImageData (*)(const uint8_t *, int);
 
 using SaveEXRFunc = Error (*)(const String &, const Ref<Image> &, bool);
 
-class Image : public Resource, public ImageData {
+class GODOT_EXPORT Image : public Resource, public ImageData {
     GDCLASS(Image, Resource)
 
 public:
@@ -325,11 +324,3 @@ public:
     ~Image() override;
 };
 Ref<Image> prepareForPngStorage(const Ref<Image> &img);
-
-VARIANT_ENUM_CAST(Image::Format)
-VARIANT_ENUM_CAST(Image::Interpolation)
-VARIANT_ENUM_CAST(Image::CompressMode)
-VARIANT_ENUM_CAST(Image::CompressSource)
-VARIANT_ENUM_CAST(Image::AlphaMode)
-
-#endif

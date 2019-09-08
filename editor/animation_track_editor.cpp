@@ -40,6 +40,7 @@
 #include "editor_node.h"
 #include "editor_scale.h"
 #include "scene/main/viewport.h"
+#include "scene/resources/style_box.h"
 #include "servers/audio/audio_stream.h"
 
 IMPL_GDCLASS(AnimationTimelineEdit)

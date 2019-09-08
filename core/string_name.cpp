@@ -61,28 +61,32 @@ _FORCE_INLINE_ bool is_str_less(const L *l_ptr, const R *r_ptr) {
 struct StringName::_Data {
     _Data *prev;
     _Data *next;
-    //! if LSBit in the cname pointer is set to 1 then underlying char * array was allocated dynamically.
     const char *cname;
     SafeRefCount refcount;
-    int idx;
+    uint32_t idx:31;
+    //! if set to 1 then underlying char * array was allocated dynamically.
+    uint32_t mark:1;
     uint32_t hash;
 
-    const char *get_name() const { return (const char *)(intptr_t(cname) & ~intptr_t(1)); }
+    const char *get_name() const { return cname; }
     void set_static_name(const char *s) {
-        assert((intptr_t(s)&1)==0); // When this assertion fails, the 'dynamic' bit will have to be moved to another field ? maybe idx can lose 1 bit without trouble?
+        mark = 0;
         cname = s;
     }
     void set_dynamic_name(const String &s) {
 
-        char *data = (char *)Memory::alloc_static(s.size());
+        char *data = (char *)Memory::alloc_static(s.size()+1);
         memcpy(data,qPrintable(s.m_str),s.size());
-        cname = (const char *) ( intptr_t(data) | 1);
+        data[s.size()]=0;
+        cname =data;
+        mark = 1;
     }
     void set_dynamic_name(const char *s) {
 
         char *data = (char *)Memory::alloc_static(strlen(s)+1);
         memcpy(data,s,strlen(s)+1);
-        cname = (const char *) ( intptr_t(data) | 1);
+        cname = data;
+        mark = 1;
     }
     _Data() {
         cname = nullptr;
@@ -91,7 +95,7 @@ struct StringName::_Data {
         hash = 0;
     }
     ~_Data() {
-       if(intptr_t(cname) & 1)  // dynamic memory
+       if(mark)  // dynamic memory
        {
            Memory::free_static((void *)get_name());
        }
@@ -189,7 +193,7 @@ bool StringName::operator==(const char *p_name) const {
         return (p_name[0] == 0);
     }
 
-    return (_data->get_name() == p_name);
+    return 0==strcmp(_data->get_name() , p_name);
 }
 
 bool StringName::operator!=(const QString &p_name) const {
@@ -288,7 +292,7 @@ StringName::StringName(const char *p_name) {
     while (_data) {
 
         // compare hash first
-        if (_data->hash == hash && _data->get_name() == p_name)
+        if (_data->hash == hash && 0==strcmp(_data->get_name(),p_name))
             break;
         _data = _data->next;
     }
@@ -326,7 +330,7 @@ void StringName::setupFromCString(const StaticCString &p_static_string) {
     while (_data) {
 
         // compare hash first
-        if (_data->hash == hash && _data->get_name() == p_static_string.ptr)
+        if (_data->hash == hash && 0==strcmp(_data->get_name(),p_static_string.ptr))
             break;
         _data = _data->next;
     }
@@ -415,7 +419,7 @@ StringName StringName::search(const char *p_name) {
     while (_data) {
 
         // compare hash first
-        if (_data->hash == hash && strcmp(_data->get_name(),p_name)==0)
+        if (_data->hash == hash && 0==strcmp(_data->get_name(),p_name))
             break;
         _data = _data->next;
     }

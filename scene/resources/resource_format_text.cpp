@@ -1807,7 +1807,7 @@ bool ResourceFormatSaverText::recognize(const RES &p_resource) const {
 
     return true; // all recognized!
 }
-void ResourceFormatSaverText::get_recognized_extensions(const RES &p_resource, List<String> *p_extensions) const {
+void ResourceFormatSaverText::get_recognized_extensions(const RES &p_resource, Vector<String> *p_extensions) const {
 
     if (0==strcmp(p_resource->get_class(),"PackedScene"))
         p_extensions->push_back("tscn"); //text scene

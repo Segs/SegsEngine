@@ -30,9 +30,10 @@
 
 #include "cpu_particles_2d.h"
 
+#include "core/method_bind.h"
 #include "scene/2d/canvas_item.h"
 #include "scene/2d/particles_2d.h"
-#include "core/method_bind.h"
+#include "scene/resources/curve_texture.h"
 #include "scene/resources/particles_material.h"
 #include "servers/visual_server.h"
 

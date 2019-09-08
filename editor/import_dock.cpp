@@ -32,6 +32,7 @@
 #include "editor_node.h"
 #include "editor_resource_preview.h"
 #include "core/method_bind.h"
+#include "scene/resources/style_box.h"
 
 IMPL_GDCLASS(ImportDock)
 
@@ -52,7 +53,7 @@ public:
             values[p_name] = p_value;
             if (checking) {
                 checked.insert(p_name);
-				_change_notify(qPrintable((String(p_name)).m_str));
+                _change_notify(qPrintable((String(p_name)).m_str));
             }
             return true;
         }
@@ -114,12 +115,12 @@ void ImportDock::set_edit_path(const String &p_path) {
 
     _update_options(config);
 
-    List<Ref<ResourceImporter> > importers;
+    Vector<ResourceImporterInterface *> importers;
     ResourceFormatImporter::get_singleton()->get_importers_for_extension(PathUtils::get_extension(p_path), &importers);
     List<Pair<String, String> > importer_names;
 
-    for (List<Ref<ResourceImporter> >::Element *E = importers.front(); E; E = E->next()) {
-        importer_names.push_back(Pair<String, String>(E->get()->get_visible_name(), E->get()->get_importer_name()));
+    for (int i=0,fin=importers.size(); i<fin; ++i) {
+        importer_names.push_back(Pair<String, String>(importers[i]->get_visible_name(), importers[i]->get_importer_name()));
     }
 
     importer_names.sort_custom<PairSort<String, String> >();
@@ -195,7 +196,7 @@ void ImportDock::set_edit_multiple_paths(const Vector<String> &p_paths) {
         Ref<ConfigFile> config;
         config.instance();
         Error err = config->load(p_paths[i] + ".import");
-        ERR_CONTINUE(err != OK);
+        ERR_CONTINUE(err != OK)
 
         if (i == 0) {
             params->importer = ResourceFormatImporter::get_singleton()->get_importer_by_name(config->get_value("remap", "importer"));
@@ -224,7 +225,7 @@ void ImportDock::set_edit_multiple_paths(const Vector<String> &p_paths) {
         }
     }
 
-    ERR_FAIL_COND(params->importer.is_null());
+    ERR_FAIL_COND(params->importer.is_null())
 
     List<ResourceImporter::ImportOption> options;
     params->importer->get_import_options(&options);
@@ -260,12 +261,12 @@ void ImportDock::set_edit_multiple_paths(const Vector<String> &p_paths) {
 
     params->update();
 
-    List<Ref<ResourceImporter> > importers;
+    Vector<ResourceImporterInterface * > importers;
     ResourceFormatImporter::get_singleton()->get_importers_for_extension(PathUtils::get_extension(p_paths[0]), &importers);
     List<Pair<String, String> > importer_names;
 
-    for (List<Ref<ResourceImporter> >::Element *E = importers.front(); E; E = E->next()) {
-        importer_names.push_back(Pair<String, String>(E->get()->get_visible_name(), E->get()->get_importer_name()));
+    for (int i=0,fin=importers.size(); i<fin; ++i) {
+        importer_names.push_back(Pair<String, String>(importers[i]->get_visible_name(), importers[i]->get_importer_name()));
     }
 
     importer_names.sort_custom<PairSort<String, String> >();
@@ -299,8 +300,8 @@ void ImportDock::set_edit_multiple_paths(const Vector<String> &p_paths) {
 
 void ImportDock::_importer_selected(int i_idx) {
     String name = import_as->get_selected_metadata();
-    Ref<ResourceImporter> importer = ResourceFormatImporter::get_singleton()->get_importer_by_name(name);
-    ERR_FAIL_COND(importer.is_null());
+    ResourceImporterInterface * importer = ResourceFormatImporter::get_singleton()->get_importer_by_name(name);
+    ERR_FAIL_COND(importer==nullptr)
 
     params->importer = importer;
 
@@ -465,12 +466,12 @@ void ImportDock::_reimport() {
         }
 
         //handle group file
-        Ref<ResourceImporter> importer = ResourceFormatImporter::get_singleton()->get_importer_by_name(importer_name);
-        ERR_CONTINUE(!importer.is_valid());
+        ResourceImporterInterface *importer = ResourceFormatImporter::get_singleton()->get_importer_by_name(importer_name);
+        ERR_CONTINUE(importer==nullptr)
         String group_file_property = importer->get_option_group_file();
         if (group_file_property != String()) {
             //can import from a group (as in, atlas)
-            ERR_CONTINUE(!params->values.has(group_file_property));
+            ERR_CONTINUE(!params->values.has(group_file_property))
             String group_file = params->values[group_file_property];
             config->set_value("remap", "group_file", group_file);
         } else {
@@ -519,7 +520,7 @@ void ImportDock::_bind_methods() {
 
 void ImportDock::initialize_import_options() const {
 
-    ERR_FAIL_COND(!import_opts || !params);
+    ERR_FAIL_COND(!import_opts || !params)
 
     import_opts->edit(params);
 }

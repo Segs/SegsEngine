@@ -28,18 +28,15 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef ANIMATION_H
-#define ANIMATION_H
+#pragma once
 
 #include "core/resource.h"
-#include "core/method_arg_casters.h"
-#include "core/method_enum_caster.h"
 
 class Animation : public Resource {
 
     GDCLASS(Animation,Resource)
 
-    RES_BASE_EXTENSION("anim");
+    RES_BASE_EXTENSION("anim")
 
 public:
     enum TrackType {
@@ -271,7 +268,7 @@ private:
     }
 
     bool _transform_track_optimize_key(const TKey<TransformKey> &t0, const TKey<TransformKey> &t1, const TKey<TransformKey> &t2, float p_alowed_linear_err, float p_alowed_angular_err, float p_max_optimizable_angle, const Vector3 &p_norm);
-    void _transform_track_optimize(int p_idx, float p_allowed_linear_err = 0.05, float p_allowed_angular_err = 0.01, float p_max_optimizable_angle = Math_PI * 0.125);
+    void _transform_track_optimize(int p_idx, float p_allowed_linear_err = 0.05f, float p_allowed_angular_err = 0.01f, float p_max_optimizable_angle = Math_PI * 0.125);
 
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
@@ -371,14 +368,9 @@ public:
 
     void clear();
 
-    void optimize(float p_allowed_linear_err = 0.05, float p_allowed_angular_err = 0.01, float p_max_optimizable_angle = Math_PI * 0.125);
+    void optimize(float p_allowed_linear_err = 0.05f, float p_allowed_angular_err = 0.01f, float p_max_optimizable_angle = Math_PI * 0.125);
 
     Animation();
     ~Animation() override;
 };
 
-VARIANT_ENUM_CAST(Animation::TrackType);
-VARIANT_ENUM_CAST(Animation::InterpolationType);
-VARIANT_ENUM_CAST(Animation::UpdateMode);
-
-#endif

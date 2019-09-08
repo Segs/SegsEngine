@@ -41,6 +41,8 @@
 #include "scene/gui/panel.h"
 #include "scene/main/canvas_layer.h"
 #include "scene/main/viewport.h"
+#include "scene/resources/style_box.h"
+#include "scene/resources/theme.h"
 #include "scene/scene_string_names.h"
 #include "servers/visual_server.h"
 

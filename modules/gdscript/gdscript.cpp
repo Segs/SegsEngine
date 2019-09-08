@@ -2274,7 +2274,7 @@ Error ResourceFormatSaverGDScript::save(const String &p_path, const RES &p_resou
     return OK;
 }
 
-void ResourceFormatSaverGDScript::get_recognized_extensions(const RES &p_resource, List<String> *p_extensions) const {
+void ResourceFormatSaverGDScript::get_recognized_extensions(const RES &p_resource, Vector<String> *p_extensions) const {
 
     if (Object::cast_to<GDScript>(*p_resource)) {
         p_extensions->push_back("gd");

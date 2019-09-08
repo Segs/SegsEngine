@@ -41,6 +41,7 @@
 #include "editor/editor_scale.h"
 #include "scene/gui/margin_container.h"
 #include "scene/gui/tab_container.h"
+#include "scene/resources/style_box.h"
 
 
 IMPL_GDCLASS(ProjectSettingsEditor)
@@ -1680,7 +1681,7 @@ ProjectSettingsEditor::ProjectSettingsEditor(EditorData *p_data) {
 
     tab_container = memnew(TabContainer);
     tab_container->set_tab_align(TabContainer::ALIGN_LEFT);
-	tab_container->set_use_hidden_tabs_for_min_size(true);
+    tab_container->set_use_hidden_tabs_for_min_size(true);
     add_child(tab_container);
 
     VBoxContainer *props_base = memnew(VBoxContainer);

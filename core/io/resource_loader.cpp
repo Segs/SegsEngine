@@ -78,7 +78,7 @@ bool ResourceFormatLoader::recognize_path(const String &p_path, const String &p_
 
     for (List<String>::Element *E = extensions.front(); E; E = E->next()) {
 
-		if (StringUtils::compare(E->get(),extension,StringUtils::CaseInsensitive) == 0)
+        if (StringUtils::compare(E->get(),extension,StringUtils::CaseInsensitive) == 0)
             return true;
     }
 
@@ -252,14 +252,14 @@ void ResourceFormatLoader::_bind_methods() {
     {
         MethodInfo info = MethodInfo(Variant::NIL, "load", PropertyInfo(Variant::STRING, "path"), PropertyInfo(Variant::STRING, "original_path"));
         info.return_val.usage |= PROPERTY_USAGE_NIL_IS_VARIANT;
-		ClassDB::add_virtual_method(get_class_static_name(), info);
+        ClassDB::add_virtual_method(get_class_static_name(), info);
     }
 
-	ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(Variant::POOL_STRING_ARRAY, "get_recognized_extensions"));
-	ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(Variant::BOOL, "handles_type", PropertyInfo(Variant::STRING, "typename")));
-	ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(Variant::STRING, "get_resource_type", PropertyInfo(Variant::STRING, "path")));
-	ClassDB::add_virtual_method(get_class_static_name(), MethodInfo("get_dependencies", PropertyInfo(Variant::STRING, "path"), PropertyInfo(Variant::STRING, "add_types")));
-	ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(Variant::INT, "rename_dependencies", PropertyInfo(Variant::STRING, "path"), PropertyInfo(Variant::STRING, "renames")));
+    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(Variant::POOL_STRING_ARRAY, "get_recognized_extensions"));
+    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(Variant::BOOL, "handles_type", PropertyInfo(Variant::STRING, "typename")));
+    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(Variant::STRING, "get_resource_type", PropertyInfo(Variant::STRING, "path")));
+    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo("get_dependencies", PropertyInfo(Variant::STRING, "path"), PropertyInfo(Variant::STRING, "add_types")));
+    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(Variant::INT, "rename_dependencies", PropertyInfo(Variant::STRING, "path"), PropertyInfo(Variant::STRING, "renames")));
 }
 
 ///////////////////////////////////
@@ -731,7 +731,7 @@ String ResourceLoader::get_resource_type(const String &p_path) {
     for (int i = 0; i < loader_count; i++) {
 
         String result = loader[i]->get_resource_type(local_path);
-        if (result != "")
+        if (not result.empty())
             return result;
     }
 
@@ -984,6 +984,7 @@ Mutex *ResourceLoader::loading_map_mutex = nullptr;
 HashMap<LoadingMapKey, int,Hasher<LoadingMapKey> > ResourceLoader::loading_map;
 
 void ResourceLoader::initialize() {
+
 #ifndef NO_THREADS
     loading_map_mutex = Mutex::create();
 #endif

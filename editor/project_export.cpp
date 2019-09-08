@@ -47,6 +47,7 @@
 #include "scene/gui/margin_container.h"
 #include "scene/gui/scroll_container.h"
 #include "scene/gui/tab_container.h"
+#include "scene/resources/style_box.h"
 
 IMPL_GDCLASS(ProjectExportDialog)
 
@@ -1121,7 +1122,7 @@ ProjectExportDialog::ProjectExportDialog() {
 
     sections = memnew(TabContainer);
     sections->set_tab_align(TabContainer::ALIGN_LEFT);
-	sections->set_use_hidden_tabs_for_min_size(true);
+    sections->set_use_hidden_tabs_for_min_size(true);
     settings_vb->add_child(sections);
     sections->set_v_size_flags(SIZE_EXPAND_FILL);
 

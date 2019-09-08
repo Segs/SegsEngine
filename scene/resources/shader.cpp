@@ -29,12 +29,15 @@
 /*************************************************************************/
 
 #include "shader.h"
+
+#include "texture.h"
+#include "shader_enum_casters.h"
+
+#include "core/method_bind.h"
 #include "core/os/file_access.h"
 #include "scene/scene_string_names.h"
 #include "servers/visual/shader_language.h"
-#include "core/method_bind.h"
 #include "servers/visual_server.h"
-#include "texture.h"
 
 IMPL_GDCLASS(Shader)
 
@@ -186,7 +189,7 @@ RES ResourceFormatLoaderShader::load(const String &p_path, const String &p_origi
 
     Vector<uint8_t> buffer = FileAccess::get_file_as_array(p_path);
 
-	String str = StringUtils::from_utf8((const char *)buffer.ptr(), buffer.size());
+    String str = StringUtils::from_utf8((const char *)buffer.ptr(), buffer.size());
 
     shader->set_code(str);
 
@@ -240,7 +243,7 @@ Error ResourceFormatSaverShader::save(const String &p_path, const RES &p_resourc
     return OK;
 }
 
-void ResourceFormatSaverShader::get_recognized_extensions(const RES &p_resource, List<String> *p_extensions) const {
+void ResourceFormatSaverShader::get_recognized_extensions(const RES &p_resource, Vector<String> *p_extensions) const {
 
     if (const Shader *shader = Object::cast_to<Shader>(*p_resource)) {
         if (shader->is_text_shader()) {

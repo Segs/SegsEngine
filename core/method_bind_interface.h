@@ -22,7 +22,7 @@ protected:
     bool _is_vararg=false;
 
 #ifdef DEBUG_METHODS_ENABLED
-    Variant::Type *argument_types;
+    Variant::Type *argument_types=nullptr;
     Vector<StringName> arg_names;
 #endif
 #ifdef DEBUG_METHODS_ENABLED

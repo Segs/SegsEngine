@@ -40,7 +40,6 @@ class EditorPath : public MenuButton {
     EditorHistory *history;
 
     Vector<ObjectID> objects;
-    EditorPath() = delete;
 
     void _id_pressed(int p_idx);
     void _about_to_show();
@@ -52,5 +51,6 @@ protected:
 public:
     void update_path();
 
+    EditorPath() = delete;
     EditorPath(EditorHistory *p_history);
 };

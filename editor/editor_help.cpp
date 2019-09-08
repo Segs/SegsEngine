@@ -37,6 +37,7 @@
 #include "editor_settings.h"
 #include "editor_scale.h"
 #include "core/method_bind.h"
+#include "scene/resources/style_box.h"
 
 IMPL_GDCLASS(FindBar)
 IMPL_GDCLASS(EditorHelp)
@@ -60,7 +61,7 @@ void EditorHelp::_init_colors() {
     qualifier_color = text_color * Color(1, 1, 1, 0.8f);
     type_color = get_color("accent_color", "Editor").linear_interpolate(text_color, 0.5);
     class_desc->add_color_override("selection_color", get_color("accent_color", "Editor") * Color(1, 1, 1, 0.4f));
-	class_desc->add_constant_override("line_separation", Math::round(5 * EDSCALE));
+    class_desc->add_constant_override("line_separation", Math::round(5 * EDSCALE));
 }
 
 void EditorHelp::_unhandled_key_input(const Ref<InputEvent> &p_ev) {

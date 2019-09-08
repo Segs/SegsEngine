@@ -44,12 +44,13 @@
 #include "visual_script_flow_control.h"
 #include "visual_script_func_nodes.h"
 #include "visual_script_nodes.h"
-
+#include "scene/resources/theme.h"
 IMPL_GDCLASS(VisualScriptEditor)
 IMPL_GDCLASS(_VisualScriptEditor)
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_scale.h"
+#include "scene/resources/style_box.h"
 
 
 class VisualScriptEditorSignalEdit : public Object {
@@ -332,7 +333,12 @@ protected:
         p_list->push_back(PropertyInfo(script->get_variable_info(var).type, "value", script->get_variable_info(var).hint,
                 StringUtils::to_utf8(script->get_variable_info(var).hint_string).data(), PROPERTY_USAGE_DEFAULT));
         // Update this when PropertyHint changes
-        p_list->push_back(PropertyInfo(Variant::INT, "hint", PROPERTY_HINT_ENUM, "None,Range,ExpRange,Enum,ExpEasing,Length,SpriteFrame,KeyAccel,Flags,Layers2dRender,Layers2dPhysics,Layer3dRender,Layer3dPhysics,File,Dir,GlobalFile,GlobalDir,ResourceType,MultilineText,PlaceholderText,ColorNoAlpha,ImageCompressLossy,ImageCompressLossLess,ObjectId,String,NodePathToEditedNode,MethodOfVariantType,MethodOfBaseType,MethodOfInstance,MethodOfScript,PropertyOfVariantType,PropertyOfBaseType,PropertyOfInstance,PropertyOfScript,ObjectTooBig,NodePathValidTypes"));
+        p_list->push_back(PropertyInfo(Variant::INT, "hint", PROPERTY_HINT_ENUM,
+                "None,Range,ExpRange,Enum,ExpEasing,Length,SpriteFrame,KeyAccel,Flags,Layers2dRender,Layers2dPhysics,"
+                "Layer3dRender,Layer3dPhysics,File,Dir,GlobalFile,GlobalDir,ResourceType,MultilineText,PlaceholderText,"
+                "ColorNoAlpha,ImageCompressLossy,ImageCompressLossLess,ObjectId,String,NodePathToEditedNode,"
+                "MethodOfVariantType,MethodOfBaseType,MethodOfInstance,MethodOfScript,PropertyOfVariantType,PropertyOfBaseType,"
+                "PropertyOfInstance,PropertyOfScript,ObjectTooBig,NodePathValidTypes"));
         p_list->push_back(PropertyInfo(Variant::STRING, "hint_string"));
         p_list->push_back(PropertyInfo(Variant::BOOL, "export"));
     }
@@ -359,70 +365,70 @@ static Color _color_from_type(Variant::Type p_type, bool dark_theme = true) {
             case Variant::REAL: color = Color(0.38f, 0.85f, 0.96f); break;
             case Variant::STRING: color = Color(0.42f, 0.65f, 0.93f); break;
 
-            case Variant::VECTOR2: color = Color(0.74f, 0.57, 0.95); break;
-            case Variant::RECT2: color = Color(0.95f, 0.57, 0.65); break;
-            case Variant::VECTOR3: color = Color(0.84f, 0.49, 0.93); break;
-            case Variant::TRANSFORM2D: color = Color(0.77, 0.93, 0.41); break;
-            case Variant::PLANE: color = Color(0.97f, 0.44, 0.44); break;
-            case Variant::QUAT: color = Color(0.93f, 0.41, 0.64); break;
-            case Variant::AABB: color = Color(0.93f, 0.47, 0.57); break;
-            case Variant::BASIS: color = Color(0.89f, 0.93, 0.41); break;
-            case Variant::TRANSFORM: color = Color(0.96f, 0.66, 0.43); break;
+            case Variant::VECTOR2: color = Color(0.74f, 0.57f, 0.95f); break;
+            case Variant::RECT2: color = Color(0.95f, 0.57f, 0.65f); break;
+            case Variant::VECTOR3: color = Color(0.84f, 0.49f, 0.93f); break;
+            case Variant::TRANSFORM2D: color = Color(0.77f, 0.93f, 0.41f); break;
+            case Variant::PLANE: color = Color(0.97f, 0.44f, 0.44f); break;
+            case Variant::QUAT: color = Color(0.93f, 0.41f, 0.64f); break;
+            case Variant::AABB: color = Color(0.93f, 0.47f, 0.57f); break;
+            case Variant::BASIS: color = Color(0.89f, 0.93f, 0.41f); break;
+            case Variant::TRANSFORM: color = Color(0.96f, 0.66f, 0.43f); break;
 
-            case Variant::COLOR: color = Color(0.62, 1.0, 0.44); break;
-            case Variant::NODE_PATH: color = Color(0.41, 0.58, 0.93); break;
-            case Variant::_RID: color = Color(0.41, 0.93, 0.6); break;
-            case Variant::OBJECT: color = Color(0.47, 0.95, 0.91); break;
-            case Variant::DICTIONARY: color = Color(0.47, 0.93, 0.69); break;
+            case Variant::COLOR: color = Color(0.62f, 1.0, 0.44f); break;
+            case Variant::NODE_PATH: color = Color(0.41f, 0.58f, 0.93f); break;
+            case Variant::_RID: color = Color(0.41f, 0.93f, 0.6f); break;
+            case Variant::OBJECT: color = Color(0.47f, 0.95f, 0.91f); break;
+            case Variant::DICTIONARY: color = Color(0.47f, 0.93f, 0.69f); break;
 
-            case Variant::ARRAY: color = Color(0.88, 0.88, 0.88); break;
-            case Variant::POOL_BYTE_ARRAY: color = Color(0.67, 0.96, 0.78); break;
-            case Variant::POOL_INT_ARRAY: color = Color(0.69, 0.86, 0.96); break;
-            case Variant::POOL_REAL_ARRAY: color = Color(0.59, 0.91, 0.97); break;
-            case Variant::POOL_STRING_ARRAY: color = Color(0.62, 0.77, 0.95); break;
-            case Variant::POOL_VECTOR2_ARRAY: color = Color(0.82, 0.7, 0.96); break;
-            case Variant::POOL_VECTOR3_ARRAY: color = Color(0.87, 0.61, 0.95); break;
-            case Variant::POOL_COLOR_ARRAY: color = Color(0.91, 1.0, 0.59); break;
+            case Variant::ARRAY: color = Color(0.88f, 0.88f, 0.88f); break;
+            case Variant::POOL_BYTE_ARRAY: color = Color(0.67f, 0.96f, 0.78f); break;
+            case Variant::POOL_INT_ARRAY: color = Color(0.69f, 0.86f, 0.96f); break;
+            case Variant::POOL_REAL_ARRAY: color = Color(0.59f, 0.91f, 0.97f); break;
+            case Variant::POOL_STRING_ARRAY: color = Color(0.62f, 0.77f, 0.95f); break;
+            case Variant::POOL_VECTOR2_ARRAY: color = Color(0.82f, 0.7f, 0.96f); break;
+            case Variant::POOL_VECTOR3_ARRAY: color = Color(0.87f, 0.61f, 0.95f); break;
+            case Variant::POOL_COLOR_ARRAY: color = Color(0.91f, 1.0f, 0.59f); break;
 
             default:
-                color.set_hsv(p_type / float(Variant::VARIANT_MAX), 0.7, 0.7);
+                color.set_hsv(p_type / float(Variant::VARIANT_MAX), 0.7f, 0.7f);
         }
     else
         switch (p_type) {
-            case Variant::NIL: color = Color(0.15, 0.89, 0.63); break;
+            case Variant::NIL: color = Color(0.15f, 0.89f, 0.63f); break;
 
-            case Variant::BOOL: color = Color(0.43, 0.56, 0.92); break;
-            case Variant::INT: color = Color(0.31, 0.7, 0.91); break;
-            case Variant::REAL: color = Color(0.15, 0.8, 0.94); break;
-            case Variant::STRING: color = Color(0.27, 0.56, 0.91); break;
+            case Variant::BOOL: color = Color(0.43f, 0.56f, 0.92f); break;
+            case Variant::INT: color = Color(0.31f, 0.7f, 0.91f); break;
+            case Variant::REAL: color = Color(0.15f, 0.8f, 0.94f); break;
+            case Variant::STRING: color = Color(0.27f, 0.56f, 0.91f); break;
 
-            case Variant::VECTOR2: color = Color(0.68, 0.46, 0.93); break;
-            case Variant::RECT2: color = Color(0.93, 0.46, 0.56); break;
-            case Variant::VECTOR3: color = Color(0.86, 0.42, 0.93); break;
-            case Variant::TRANSFORM2D: color = Color(0.59, 0.81, 0.1); break;
-            case Variant::PLANE: color = Color(0.97, 0.44, 0.44); break;
-            case Variant::QUAT: color = Color(0.93, 0.41, 0.64); break;
-            case Variant::AABB: color = Color(0.93, 0.47, 0.57); break;
-            case Variant::BASIS: color = Color(0.7, 0.73, 0.1); break;
-            case Variant::TRANSFORM: color = Color(0.96, 0.56, 0.28); break;
+            case Variant::VECTOR2: color = Color(0.68f, 0.46f, 0.93f); break;
+            case Variant::RECT2: color = Color(0.93f, 0.46f, 0.56f); break;
+            case Variant::VECTOR3: color = Color(0.86f, 0.42f, 0.93f); break;
+            case Variant::TRANSFORM2D: color = Color(0.59f, 0.81f, 0.1f); break;
+            case Variant::PLANE: color = Color(0.97f, 0.44f, 0.44f); break;
+            case Variant::QUAT: color = Color(0.93f, 0.41f, 0.64f); break;
+            case Variant::AABB: color = Color(0.93f, 0.47f, 0.57f); break;
+            case Variant::BASIS: color = Color(0.7f, 0.73f, 0.1f); break;
+            case Variant::TRANSFORM: color = Color(0.96f, 0.56f, 0.28f); break;
 
-            case Variant::COLOR: color = Color(0.24, 0.75, 0.0); break;
-            case Variant::NODE_PATH: color = Color(0.41, 0.58, 0.93); break;
-            case Variant::_RID: color = Color(0.17, 0.9, 0.45); break;
-            case Variant::OBJECT: color = Color(0.07, 0.84, 0.76); break;
-            case Variant::DICTIONARY: color = Color(0.34, 0.91, 0.62); break;
+            case Variant::COLOR: color = Color(0.24f, 0.75f, 0.0); break;
+            case Variant::NODE_PATH: color = Color(0.41f, 0.58f, 0.93f); break;
+            case Variant::_RID: color = Color(0.17f, 0.9f, 0.45f); break;
+            case Variant::OBJECT: color = Color(0.07f, 0.84f, 0.76f); break;
+            case Variant::DICTIONARY: color = Color(0.34f, 0.91f, 0.62f); break;
 
-            case Variant::ARRAY: color = Color(0.45, 0.45, 0.45); break;
-            case Variant::POOL_BYTE_ARRAY: color = Color(0.38, 0.92, 0.6); break;
-            case Variant::POOL_INT_ARRAY: color = Color(0.38, 0.73, 0.92); break;
-            case Variant::POOL_REAL_ARRAY: color = Color(0.25, 0.83, 0.95); break;
-            case Variant::POOL_STRING_ARRAY: color = Color(0.38, 0.62, 0.92); break;
-            case Variant::POOL_VECTOR2_ARRAY: color = Color(0.62, 0.36, 0.92); break;
-            case Variant::POOL_VECTOR3_ARRAY: color = Color(0.79, 0.35, 0.92); break;
-            case Variant::POOL_COLOR_ARRAY: color = Color(0.57, 0.73, 0.0); break;
+            case Variant::ARRAY: color = Color(0.45f, 0.45f, 0.45f); break;
+            case Variant::POOL_BYTE_ARRAY: color = Color(0.38f, 0.92f, 0.6f); break;
+            case Variant::POOL_INT_ARRAY: color = Color(0.38f, 0.73f, 0.92f); break;
+            case Variant::POOL_REAL_ARRAY: color = Color(0.25f, 0.83f, 0.95f); break;
+            case Variant::POOL_STRING_ARRAY: color = Color(0.38f, 0.62f, 0.92f); break;
+            case Variant::POOL_VECTOR2_ARRAY: color = Color(0.62f, 0.36f, 0.92f); break;
+            case Variant::POOL_VECTOR3_ARRAY: color = Color(0.79f, 0.35f, 0.92f); break;
+            case Variant::POOL_COLOR_ARRAY: color = Color(0.57f, 0.73f, 0.0); break;
 
             default:
-                color.set_hsv(p_type / float(Variant::VARIANT_MAX), 0.3, 0.3);
+                color.set_hsv(p_type / float(Variant::VARIANT_MAX), 0.3f, 0.3f);
         }
 
     return color;
@@ -594,15 +600,15 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
             Color c = sbf->get_border_color();
             c.a = 1;
             if (EditorSettings::get_singleton()->get("interface/theme/use_graph_node_headers")) {
-                Color mono_color = ((c.r + c.g + c.b) / 3) < 0.7 ? Color(1.0, 1.0, 1.0) : Color(0.0, 0.0, 0.0);
-                mono_color.a = 0.85;
+                Color mono_color = ((c.r + c.g + c.b) / 3) < 0.7f ? Color(1.0f, 1.0f, 1.0) : Color(0.0f, 0.0f, 0.0);
+                mono_color.a = 0.85f;
                 c = mono_color;
             }
 
             gnode->add_color_override("title_color", c);
-            c.a = 0.7;
+            c.a = 0.7f;
             gnode->add_color_override("close_color", c);
-			gnode->add_color_override("resizer_color", c);
+            gnode->add_color_override("resizer_color", c);
             gnode->add_style_override("frame", sbf);
         }
 
@@ -778,7 +784,7 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
 }
 
 void VisualScriptEditor::_update_members() {
-    ERR_FAIL_COND(!script.is_valid());
+    ERR_FAIL_COND(!script.is_valid())
 
     updating_members = true;
 
@@ -893,7 +899,7 @@ void VisualScriptEditor::_member_selected() {
         return;
 
     TreeItem *ti = members->get_selected();
-    ERR_FAIL_COND(!ti);
+    ERR_FAIL_COND(!ti)
 
     selected = ti->get_metadata(0);
 
@@ -917,7 +923,7 @@ void VisualScriptEditor::_member_edited() {
         return;
 
     TreeItem *ti = members->get_edited();
-    ERR_FAIL_COND(!ti);
+    ERR_FAIL_COND(!ti)
 
     String name = ti->get_metadata(0);
     String new_name = ti->get_text(0);
@@ -2911,7 +2917,7 @@ void VisualScriptEditor::_selected_new_virtual_method(const String &p_text, cons
             }
         }
 
-        ERR_FAIL_COND(!found);
+        ERR_FAIL_COND(!found)
     }
 
     selected = name;

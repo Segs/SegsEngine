@@ -30,8 +30,8 @@
 
 #include "spatial_editor_plugin.h"
 
-#include "core/method_bind.h"
 #include "core/math/camera_matrix.h"
+#include "core/method_bind.h"
 #include "core/object_db.h"
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
@@ -39,6 +39,7 @@
 #include "core/project_settings.h"
 #include "core/sort_array.h"
 #include "core/string_formatter.h"
+#include "editor/animation_track_editor.h"
 #include "editor/editor_node.h"
 #include "editor/editor_scale.h"
 #include "editor/editor_settings.h"
@@ -46,7 +47,6 @@
 #include "editor/plugins/script_editor_plugin.h"
 #include "editor/script_editor_debugger.h"
 #include "editor/spatial_editor_gizmos.h"
-#include "editor/animation_track_editor.h"
 #include "scene/3d/camera.h"
 #include "scene/3d/collision_shape.h"
 #include "scene/3d/mesh_instance.h"
@@ -54,6 +54,7 @@
 #include "scene/3d/visual_instance.h"
 #include "scene/gui/viewport_container.h"
 #include "scene/resources/packed_scene.h"
+#include "scene/resources/style_box.h"
 #include "scene/resources/surface_tool.h"
 
 #define DISTANCE_DEFAULT 4
@@ -2262,9 +2263,9 @@ void SpatialEditorViewport::_notification(int p_what) {
 
         if (show_info) {
             String text;
-			text += FormatV("X: %.1f\n",current_camera->get_translation().x);
-			text += FormatV("Y: %.1f\n",current_camera->get_translation().y);
-			text += FormatV("Z: %.1f\n",current_camera->get_translation().z);
+            text += FormatV("X: %.1f\n",current_camera->get_translation().x);
+            text += FormatV("Y: %.1f\n",current_camera->get_translation().y);
+            text += FormatV("Z: %.1f\n",current_camera->get_translation().z);
             text += TTR("Pitch") + ": " + itos(Math::round(current_camera->get_rotation_degrees().x)) + "\n";
             text += TTR("Yaw") + ": " + itos(Math::round(current_camera->get_rotation_degrees().y)) + "\n\n";
             text += TTR("Objects Drawn") + ": " + itos(viewport->get_render_info(Viewport::RENDER_INFO_OBJECTS_IN_FRAME)) + "\n";
@@ -5305,10 +5306,10 @@ void SpatialEditor::_notification(int p_what) {
         tool_button[SpatialEditor::TOOL_MODE_ROTATE]->set_icon(get_icon("ToolRotate", "EditorIcons"));
         tool_button[SpatialEditor::TOOL_MODE_SCALE]->set_icon(get_icon("ToolScale", "EditorIcons"));
         tool_button[SpatialEditor::TOOL_MODE_LIST_SELECT]->set_icon(get_icon("ListSelect", "EditorIcons"));
-		tool_button[SpatialEditor::TOOL_LOCK_SELECTED]->set_icon(get_icon("Lock", "EditorIcons"));
-		tool_button[SpatialEditor::TOOL_UNLOCK_SELECTED]->set_icon(get_icon("Unlock", "EditorIcons"));
-		tool_button[SpatialEditor::TOOL_GROUP_SELECTED]->set_icon(get_icon("Group", "EditorIcons"));
-		tool_button[SpatialEditor::TOOL_UNGROUP_SELECTED]->set_icon(get_icon("Ungroup", "EditorIcons"));
+        tool_button[SpatialEditor::TOOL_LOCK_SELECTED]->set_icon(get_icon("Lock", "EditorIcons"));
+        tool_button[SpatialEditor::TOOL_UNLOCK_SELECTED]->set_icon(get_icon("Unlock", "EditorIcons"));
+        tool_button[SpatialEditor::TOOL_GROUP_SELECTED]->set_icon(get_icon("Group", "EditorIcons"));
+        tool_button[SpatialEditor::TOOL_UNGROUP_SELECTED]->set_icon(get_icon("Ungroup", "EditorIcons"));
 
         tool_option_button[SpatialEditor::TOOL_OPT_LOCAL_COORDS]->set_icon(get_icon("Object", "EditorIcons"));
         tool_option_button[SpatialEditor::TOOL_OPT_USE_SNAP]->set_icon(get_icon("Snap", "EditorIcons"));

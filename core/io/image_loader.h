@@ -39,7 +39,6 @@
 #include "core/plugin_interfaces/load_params.h"
 
 
-class ImageLoader;
 class ImageFormatLoader;
 struct LoadParams;
 template <class T>
@@ -50,16 +49,18 @@ class Image;
 class String;
 struct ImageData;
 
-class ImageLoader {
+//TODO: SEGS - convert ImageLoader to singelton, so we can have a single initialization point at which to register plugin resolver
+class GODOT_EXPORT ImageLoader {
 
     static Vector<ImageFormatLoader *> loader;
     friend class ResourceFormatLoaderImage;
 
 protected:
 public:
+    static void register_plugin_resolver();
     static Error load_image(String p_file, Ref<Image> p_image, FileAccess *p_custom = nullptr, const LoadParams &params={});
     static ImageData load_image(const String &ext, const uint8_t *data, int sz, const LoadParams &params={});
-    static void get_recognized_extensions(List<String> *p_extensions);
+    static void get_recognized_extensions(Vector<String> *p_extensions);
     static ImageFormatLoader *recognize(const String &p_extension);
 
     static void add_image_format_loader(ImageFormatLoader *p_loader);
@@ -72,7 +73,7 @@ public:
 
 class ResourceFormatLoaderImage : public ResourceFormatLoader {
 public:
-	RES load(const String &p_path, const String &p_original_path = String::null_val, Error *r_error = nullptr) override;
+    RES load(const String &p_path, const String &p_original_path = String::null_val, Error *r_error = nullptr) override;
     void get_recognized_extensions(List<String> *p_extensions) const override;
     bool handles_type(const String &p_type) const override;
     String get_resource_type(const String &p_path) const override;

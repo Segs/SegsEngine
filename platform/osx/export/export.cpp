@@ -334,7 +334,7 @@ void EditorExportPlatformOSX::_fix_plist(const Ref<EditorExportPreset> &p_preset
     };
     for (int i = 0; i < lines.size(); i++) {
 		String line(lines[i]);
-        for(const std::pair<const char *,const String> &en : replacements)
+        for(const std::pair<const char *,String > &en : replacements)
         {
 		   line = StringUtils::replace(line,en.first, en.second);
         }

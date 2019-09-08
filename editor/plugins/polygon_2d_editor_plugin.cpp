@@ -38,6 +38,7 @@
 #include "editor/editor_settings.h"
 #include "scene/2d/skeleton_2d.h"
 #include "editor/editor_scale.h"
+#include "scene/resources/style_box.h"
 
 IMPL_GDCLASS(Polygon2DEditor)
 IMPL_GDCLASS(Polygon2DEditorPlugin)

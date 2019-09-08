@@ -34,6 +34,7 @@
 #include "core/os/keyboard.h"
 #include "scene/animation/animation_blend_tree.h"
 #include "editor/editor_scale.h"
+#include "scene/resources/style_box.h"
 
 IMPL_GDCLASS(AnimationNodeBlendSpace1DEditor)
 

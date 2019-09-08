@@ -552,7 +552,7 @@ bool GDNativeLibraryResourceSaver::recognize(const RES &p_resource) const {
     return Object::cast_to<GDNativeLibrary>(*p_resource) != nullptr;
 }
 
-void GDNativeLibraryResourceSaver::get_recognized_extensions(const RES &p_resource, List<String> *p_extensions) const {
+void GDNativeLibraryResourceSaver::get_recognized_extensions(const RES &p_resource, Vector<String> *p_extensions) const {
     if (Object::cast_to<GDNativeLibrary>(*p_resource) != nullptr) {
         p_extensions->push_back("gdnlib");
     }

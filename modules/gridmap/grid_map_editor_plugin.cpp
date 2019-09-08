@@ -125,14 +125,14 @@ void GridMapEditor::_menu_option(int p_option) {
             if (input_action == INPUT_PASTE) {
 
                 r.set_orthogonal_index(paste_indicator.orientation);
-                r.rotate(Vector3(0, 1, 0), -Math_PI / 2.0);
+                r.rotate(Vector3(0, 1, 0), -MathConsts<float>::PI / 2.0f);
                 paste_indicator.orientation = r.get_orthogonal_index();
                 _update_paste_indicator();
                 break;
             }
 
             r.set_orthogonal_index(cursor_rot);
-            r.rotate(Vector3(0, 1, 0), -Math_PI / 2.0);
+            r.rotate(Vector3(0, 1, 0), -MathConsts<float>::PI / 2.0f);
             cursor_rot = r.get_orthogonal_index();
             _update_cursor_transform();
         } break;
@@ -142,14 +142,14 @@ void GridMapEditor::_menu_option(int p_option) {
             if (input_action == INPUT_PASTE) {
 
                 r.set_orthogonal_index(paste_indicator.orientation);
-                r.rotate(Vector3(1, 0, 0), -Math_PI / 2.0);
+                r.rotate(Vector3(1, 0, 0), -MathConsts<float>::PI / 2.0f);
                 paste_indicator.orientation = r.get_orthogonal_index();
                 _update_paste_indicator();
                 break;
             }
 
             r.set_orthogonal_index(cursor_rot);
-            r.rotate(Vector3(1, 0, 0), -Math_PI / 2.0);
+            r.rotate(Vector3(1, 0, 0), -MathConsts<float>::PI / 2.0f);
             cursor_rot = r.get_orthogonal_index();
             _update_cursor_transform();
         } break;
@@ -159,14 +159,14 @@ void GridMapEditor::_menu_option(int p_option) {
             if (input_action == INPUT_PASTE) {
 
                 r.set_orthogonal_index(paste_indicator.orientation);
-                r.rotate(Vector3(0, 0, 1), -Math_PI / 2.0);
+                r.rotate(Vector3(0, 0, 1), -MathConsts<float>::PI / 2.0f);
                 paste_indicator.orientation = r.get_orthogonal_index();
                 _update_paste_indicator();
                 break;
             }
 
             r.set_orthogonal_index(cursor_rot);
-            r.rotate(Vector3(0, 0, 1), -Math_PI / 2.0);
+            r.rotate(Vector3(0, 0, 1), -MathConsts<float>::PI / 2.0f);
             cursor_rot = r.get_orthogonal_index();
             _update_cursor_transform();
         } break;
@@ -176,14 +176,14 @@ void GridMapEditor::_menu_option(int p_option) {
             if (input_action == INPUT_PASTE) {
 
                 r.set_orthogonal_index(paste_indicator.orientation);
-                r.rotate(Vector3(0, 1, 0), Math_PI / 2.0);
+                r.rotate(Vector3(0, 1, 0), MathConsts<float>::PI / 2.0f);
                 paste_indicator.orientation = r.get_orthogonal_index();
                 _update_paste_indicator();
                 break;
             }
 
             r.set_orthogonal_index(cursor_rot);
-            r.rotate(Vector3(0, 1, 0), Math_PI / 2.0);
+            r.rotate(Vector3(0, 1, 0), MathConsts<float>::PI / 2.0f);
             cursor_rot = r.get_orthogonal_index();
             _update_cursor_transform();
         } break;
@@ -193,14 +193,14 @@ void GridMapEditor::_menu_option(int p_option) {
             if (input_action == INPUT_PASTE) {
 
                 r.set_orthogonal_index(paste_indicator.orientation);
-                r.rotate(Vector3(1, 0, 0), Math_PI / 2.0);
+                r.rotate(Vector3(1, 0, 0), MathConsts<float>::PI / 2.0f);
                 paste_indicator.orientation = r.get_orthogonal_index();
                 _update_paste_indicator();
                 break;
             }
 
             r.set_orthogonal_index(cursor_rot);
-            r.rotate(Vector3(1, 0, 0), Math_PI / 2.0);
+            r.rotate(Vector3(1, 0, 0), MathConsts<float>::PI / 2.0f);
             cursor_rot = r.get_orthogonal_index();
             _update_cursor_transform();
         } break;
@@ -210,14 +210,14 @@ void GridMapEditor::_menu_option(int p_option) {
             if (input_action == INPUT_PASTE) {
 
                 r.set_orthogonal_index(paste_indicator.orientation);
-                r.rotate(Vector3(0, 0, 1), Math_PI / 2.0);
+                r.rotate(Vector3(0, 0, 1), MathConsts<float>::PI / 2.0f);
                 paste_indicator.orientation = r.get_orthogonal_index();
                 _update_paste_indicator();
                 break;
             }
 
             r.set_orthogonal_index(cursor_rot);
-            r.rotate(Vector3(0, 0, 1), Math_PI / 2.0);
+            r.rotate(Vector3(0, 0, 1), MathConsts<float>::PI / 2.0f);
             cursor_rot = r.get_orthogonal_index();
             _update_cursor_transform();
         } break;
@@ -985,7 +985,7 @@ void GridMapEditor::edit(GridMap *p_gridmap) {
         indicator_mat->set_feature(SpatialMaterial::FEATURE_TRANSPARENT, true);
         indicator_mat->set_flag(SpatialMaterial::FLAG_SRGB_VERTEX_COLOR, true);
         indicator_mat->set_flag(SpatialMaterial::FLAG_ALBEDO_FROM_VERTEX_COLOR, true);
-        indicator_mat->set_albedo(Color(0.8, 0.5, 0.1));
+        indicator_mat->set_albedo(Color(0.8f, 0.5f, 0.1f));
 
         Vector<Vector3> grid_points[3];
         Vector<Color> grid_colors[3];
@@ -1415,7 +1415,7 @@ GridMapEditor::GridMapEditor(EditorNode *p_editor) {
             for (int j = 0; j < 4; j++) {
 
                 Vector3 ofs;
-                ofs[i] += 0.01;
+                ofs[i] += 0.01f;
                 square[i].push_back(points[j] - ofs);
                 square[i].push_back(points[(j + 1) % 4] - ofs);
                 square[i].push_back(points[j] + ofs);
@@ -1427,7 +1427,7 @@ GridMapEditor::GridMapEditor(EditorNode *p_editor) {
         d.resize(VS::ARRAY_MAX);
 
         inner_mat.instance();
-        inner_mat->set_albedo(Color(0.7, 0.7, 1.0, 0.2));
+        inner_mat->set_albedo(Color(0.7f, 0.7f, 1.0f, 0.2f));
         //inner_mat->set_flag(SpatialMaterial::FLAG_ONTOP, true);
         inner_mat->set_flag(SpatialMaterial::FLAG_UNSHADED, true);
         inner_mat->set_feature(SpatialMaterial::FEATURE_TRANSPARENT, true);
@@ -1437,14 +1437,14 @@ GridMapEditor::GridMapEditor(EditorNode *p_editor) {
         VisualServer::get_singleton()->mesh_surface_set_material(selection_mesh, 0, inner_mat->get_rid());
 
         outer_mat.instance();
-        outer_mat->set_albedo(Color(0.7, 0.7, 1.0, 0.8));
+        outer_mat->set_albedo(Color(0.7f, 0.7f, 1.0f, 0.8f));
         outer_mat->set_on_top_of_alpha();
         outer_mat->set_flag(SpatialMaterial::FLAG_UNSHADED, true);
         outer_mat->set_line_width(3.0);
         outer_mat->set_feature(SpatialMaterial::FEATURE_TRANSPARENT, true);
 
         selection_floor_mat.instance();
-        selection_floor_mat->set_albedo(Color(0.80, 0.80, 1.0, 1));
+        selection_floor_mat->set_albedo(Color(0.8f, 0.8f, 1.0f, 1));
         selection_floor_mat->set_on_top_of_alpha();
         selection_floor_mat->set_flag(SpatialMaterial::FLAG_UNSHADED, true);
         selection_floor_mat->set_line_width(3.0);

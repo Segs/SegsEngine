@@ -101,6 +101,7 @@
 #include "scene/gui/popup_menu.h"
 #include "scene/gui/progress_bar.h"
 #include "scene/gui/reference_rect.h"
+#include "scene/gui/rich_text_effect.h"
 #include "scene/gui/rich_text_label.h"
 #include "scene/gui/scroll_bar.h"
 #include "scene/gui/scroll_container.h"
@@ -161,6 +162,7 @@
 #include "scene/resources/surface_tool.h"
 #include "scene/resources/text_file.h"
 #include "scene/resources/texture.h"
+#include "scene/resources/curve_texture.h"
 #include "scene/resources/tile_set.h"
 #include "scene/resources/video_stream.h"
 #include "scene/resources/visual_shader.h"
@@ -306,7 +308,7 @@ void register_scene_types() {
     ClassDB::register_class<TextureRect>();
     ClassDB::register_class<ColorRect>();
     ClassDB::register_class<NinePatchRect>();
-	ClassDB::register_class<ReferenceRect>();
+    ClassDB::register_class<ReferenceRect>();
     ClassDB::register_class<TabContainer>();
     ClassDB::register_class<Tabs>();
     ClassDB::register_virtual_class<Separator>();
@@ -345,7 +347,8 @@ void register_scene_types() {
     ClassDB::register_class<ColorPicker>();
     ClassDB::register_class<ColorPickerButton>();
     ClassDB::register_class<RichTextLabel>();
-	ClassDB::register_class<RichTextEffect>();
+    ClassDB::register_class<RichTextEffect>();
+	ClassDB::register_class<CharFXTransform>();
     ClassDB::register_class<PopupDialog>();
     ClassDB::register_class<WindowDialog>();
     ClassDB::register_class<AcceptDialog>();
@@ -531,6 +534,7 @@ void register_scene_types() {
     ClassDB::register_class<VisualShaderNodeCubeMapUniform>();
     ClassDB::register_class<VisualShaderNodeIf>();
     ClassDB::register_class<VisualShaderNodeSwitch>();
+	ClassDB::register_class<VisualShaderNodeScalarSwitch>();
     ClassDB::register_class<VisualShaderNodeFresnel>();
     ClassDB::register_class<VisualShaderNodeExpression>();
     ClassDB::register_class<VisualShaderNodeGlobalExpression>();

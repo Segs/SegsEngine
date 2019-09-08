@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef CONTROL_H
-#define CONTROL_H
+#pragma once
 
 #include "core/math/transform_2d.h"
 #include "core/rid.h"
@@ -140,17 +139,31 @@ private:
 	};
 
 	struct Data {
+        HashMap<StringName, Ref<Texture> > icon_override;
+        HashMap<StringName, Ref<Shader> > shader_override;
+        HashMap<StringName, Ref<StyleBox> > style_override;
+        HashMap<StringName, Ref<Font> > font_override;
+        HashMap<StringName, Color> color_override;
+        HashMap<StringName, int> constant_override;
+        NodePath focus_neighbour[4];
+        NodePath focus_next;
+        NodePath focus_prev;
+        float margin[4];
+        float anchor[4];
+        String tooltip;
+        List<Control *>::Element *MI; //modal item
+        List<Control *>::Element *SI;
+        List<Control *>::Element *RI;
+        CanvasItem *parent_canvas_item;
+
+        Control *parent;
+        Control *theme_owner;
 
 		Point2 pos_cache;
 		Size2 size_cache;
 		Size2 minimum_size_cache;
-		bool minimum_size_valid;
-
 		Size2 last_minimum_size;
-		bool updating_last_minimum_size;
 
-		float margin[4];
-		float anchor[4];
 		FocusMode focus_mode;
 		GrowDirection h_grow;
 		GrowDirection v_grow;
@@ -159,50 +172,27 @@ private:
 		Vector2 scale;
 		Vector2 pivot_offset;
 
-		bool pending_resize;
 
 		int h_size_flags;
 		int v_size_flags;
 		float expand;
 		Point2 custom_minimum_size;
-
-		bool pass_on_modal_close_click;
-
 		MouseFilter mouse_filter;
-
-		bool clip_contents;
-
-		bool block_minimum_size_adjust;
-		bool disable_visibility_clip;
-
-		Control *parent;
 		ObjectID drag_owner;
-		bool modal_exclusive;
+        ObjectID modal_prev_focus_owner;
 		uint64_t modal_frame; //frame used to put something as modal
 		Ref<Theme> theme;
-		Control *theme_owner;
-		String tooltip;
 		CursorShape default_cursor;
 
-		List<Control *>::Element *MI; //modal item
-		List<Control *>::Element *SI;
-		List<Control *>::Element *RI;
 
-		CanvasItem *parent_canvas_item;
-
-		ObjectID modal_prev_focus_owner;
-
-		NodePath focus_neighbour[4];
-		NodePath focus_next;
-		NodePath focus_prev;
-
-		HashMap<StringName, Ref<Texture> > icon_override;
-		HashMap<StringName, Ref<Shader> > shader_override;
-		HashMap<StringName, Ref<StyleBox> > style_override;
-		HashMap<StringName, Ref<Font> > font_override;
-		HashMap<StringName, Color> color_override;
-		HashMap<StringName, int> constant_override;
-
+        uint8_t minimum_size_valid : 1;
+        uint8_t updating_last_minimum_size : 1;
+        uint8_t pending_resize : 1;
+        uint8_t pass_on_modal_close_click : 1;
+        uint8_t clip_contents : 1;
+        uint8_t block_minimum_size_adjust : 1;
+        uint8_t disable_visibility_clip : 1;
+        uint8_t modal_exclusive : 1;
 	} data;
 
 	// used internally
@@ -495,5 +485,3 @@ VARIANT_ENUM_CAST(Control::LayoutPresetMode);
 VARIANT_ENUM_CAST(Control::MouseFilter);
 VARIANT_ENUM_CAST(Control::GrowDirection);
 VARIANT_ENUM_CAST(Control::Anchor);
-
-#endif

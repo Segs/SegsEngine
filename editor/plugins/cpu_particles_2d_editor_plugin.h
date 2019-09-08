@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef CPU_PARTICLES_2D_EDITOR_PLUGIN_H
-#define CPU_PARTICLES_2D_EDITOR_PLUGIN_H
+#pragma once
 
 #include "editor/editor_node.h"
 #include "editor/editor_plugin.h"
@@ -38,56 +37,56 @@
 #include "scene/gui/box_container.h"
 #include "scene/gui/file_dialog.h"
 
+class SpinBox;
+
 class CPUParticles2DEditorPlugin : public EditorPlugin {
 
-	GDCLASS(CPUParticles2DEditorPlugin,EditorPlugin)
+    GDCLASS(CPUParticles2DEditorPlugin,EditorPlugin)
 
-	enum {
-		MENU_LOAD_EMISSION_MASK,
-		MENU_CLEAR_EMISSION_MASK,
-		MENU_RESTART
-	};
+    enum {
+        MENU_LOAD_EMISSION_MASK,
+        MENU_CLEAR_EMISSION_MASK,
+        MENU_RESTART
+    };
 
-	enum EmissionMode {
-		EMISSION_MODE_SOLID,
-		EMISSION_MODE_BORDER,
-		EMISSION_MODE_BORDER_DIRECTED
-	};
+    enum EmissionMode {
+        EMISSION_MODE_SOLID,
+        EMISSION_MODE_BORDER,
+        EMISSION_MODE_BORDER_DIRECTED
+    };
 
-	CPUParticles2D *particles;
+    CPUParticles2D *particles;
 
-	EditorFileDialog *file;
-	EditorNode *editor;
+    EditorFileDialog *file;
+    EditorNode *editor;
 
-	HBoxContainer *toolbar;
-	MenuButton *menu;
+    HBoxContainer *toolbar;
+    MenuButton *menu;
 
-	SpinBox *epoints;
+    SpinBox *epoints;
 
-	ConfirmationDialog *emission_mask;
-	OptionButton *emission_mask_mode;
-	CheckBox *emission_colors;
+    ConfirmationDialog *emission_mask;
+    OptionButton *emission_mask_mode;
+    CheckBox *emission_colors;
 
-	String source_emission_file;
+    String source_emission_file;
 
-	UndoRedo *undo_redo;
-	void _file_selected(const String &p_file);
-	void _menu_callback(int p_idx);
-	void _generate_emission_mask();
+    UndoRedo *undo_redo;
+    void _file_selected(const String &p_file);
+    void _menu_callback(int p_idx);
+    void _generate_emission_mask();
 
 protected:
-	void _notification(int p_what);
-	static void _bind_methods();
+    void _notification(int p_what);
+    static void _bind_methods();
 
 public:
-	String get_name() const override { return "CPUParticles2D"; }
-	bool has_main_screen() const override { return false; }
-	void edit(Object *p_object) override;
-	bool handles(Object *p_object) const override;
-	void make_visible(bool p_visible) override;
+    String get_name() const override { return "CPUParticles2D"; }
+    bool has_main_screen() const override { return false; }
+    void edit(Object *p_object) override;
+    bool handles(Object *p_object) const override;
+    void make_visible(bool p_visible) override;
 
-	CPUParticles2DEditorPlugin(EditorNode *p_node);
-	~CPUParticles2DEditorPlugin() override;
+    CPUParticles2DEditorPlugin(EditorNode *p_node);
+    ~CPUParticles2DEditorPlugin() override;
 };
-
-#endif // CPU_PARTICLES_2D_EDITOR_PLUGIN_H

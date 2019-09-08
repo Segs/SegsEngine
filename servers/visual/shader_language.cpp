@@ -367,13 +367,13 @@ ShaderLanguage::Token ShaderLanguage::_get_token() {
                         char_idx++;
                         return _make_token(TK_OP_ASSIGN_DIV);
 
-                    } break;
+                    }
                     default:
                         return _make_token(TK_OP_DIV);
                 }
 
                 continue; //a comment, continue to next token
-            } break;
+            }
             case '=': {
 
                 if (GETCHAR(0) == '=') {

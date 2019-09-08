@@ -32,18 +32,41 @@
 
 #include "core/image.h"
 #include "core/print_string.h"
-#include "core/plugin_interfaces/ImageLoaderInterface.h"
+#include "core/plugin_interfaces/PluginDeclarations.h"
+#include "plugins/plugin_registry_interface.h"
+
 
 namespace
 {
+struct ImagePluginResolver : public ResolverInterface
+{
+    bool new_plugin_detected(QObject * ob) override {
+        bool res=false;
+        auto image_loader_interface = qobject_cast<ImageFormatLoader *>(ob);
+        if (image_loader_interface) {
+            print_line(String("Adding image loader:")+ob->metaObject()->className());
+            ImageLoader::add_image_format_loader(image_loader_interface);
+            res=true;
+        }
+        return res;
+    }
+    void plugin_removed(QObject * ob)  override  {
+        auto image_loader_interface = qobject_cast<ImageFormatLoader *>(ob);
+        if(image_loader_interface) {
+            print_line(String("Removing image loader:")+ob->metaObject()->className());
+            ImageLoader::remove_image_format_loader(image_loader_interface);
+        }
+    }
+
+};
 
 bool loader_recognizes(const ImageFormatLoader *ldr,const String &p_extension) {
 
-    List<String> extensions;
+    Vector<String> extensions;
     ldr->get_recognized_extensions(&extensions);
-    for (List<String>::Element *E = extensions.front(); E; E = E->next()) {
+    for (int i=0,fin=extensions.size(); i<fin; ++i) {
 
-		if (StringUtils::compare(E->get(),p_extension,StringUtils::CaseInsensitive) == 0)
+        if (StringUtils::compare(extensions[i],p_extension,StringUtils::CaseInsensitive) == 0)
             return true;
     }
 
@@ -51,8 +74,19 @@ bool loader_recognizes(const ImageFormatLoader *ldr,const String &p_extension) {
 }
 }
 
+void ImageLoader::register_plugin_resolver()
+{
+    static bool registered=false;
+    if(!registered) {
+        add_plugin_resolver(new ImagePluginResolver);
+        registered = true;
+    }
+}
+
 Error ImageLoader::load_image(String p_file, Ref<Image> p_image, FileAccess *p_custom, const LoadParams &params) {
     ERR_FAIL_COND_V(p_image.is_null(), ERR_INVALID_PARAMETER)
+
+    register_plugin_resolver();
 
     FileAccess *f = p_custom;
     if (!f) {
@@ -94,15 +128,18 @@ Error ImageLoader::load_image(String p_file, Ref<Image> p_image, FileAccess *p_c
 
 ImageData ImageLoader::load_image(const String &extension, const uint8_t *data, int sz, const LoadParams &params)
 {
-    ImageData result_data;
+    register_plugin_resolver();
 
+    ImageData result_data;
+    bool loader_found=false;
     for (int i = 0; i < loader.size(); i++) {
 
         if (!loader_recognizes(loader[i],extension))
             continue;
+        loader_found = true;
         Error err = loader[i]->load_image(result_data, data,sz, params);
         if (err != OK) {
-            ERR_PRINTS("Error loading image from memory")
+            ERR_PRINT("Error loading image from memory")
         }
         else
             return result_data;
@@ -112,10 +149,13 @@ ImageData ImageLoader::load_image(const String &extension, const uint8_t *data, 
         }
 
     }
+    if(!loader_found)
+        ERR_PRINTS("No loader found for file with extension:"+extension)
     return result_data;
 }
 
-void ImageLoader::get_recognized_extensions(List<String> *p_extensions) {
+void ImageLoader::get_recognized_extensions(Vector<String> *p_extensions) {
+    register_plugin_resolver();
 
     for (int i = 0; i < loader.size(); i++) {
 
@@ -124,6 +164,7 @@ void ImageLoader::get_recognized_extensions(List<String> *p_extensions) {
 }
 
 ImageFormatLoader *ImageLoader::recognize(const String &p_extension) {
+    register_plugin_resolver();
 
     for (int i = 0; i < loader.size(); i++) {
 
@@ -147,13 +188,14 @@ void ImageLoader::remove_image_format_loader(ImageFormatLoader *p_loader) {
 }
 
 const Vector<ImageFormatLoader *> &ImageLoader::get_image_format_loaders() {
+    register_plugin_resolver();
 
     return loader;
 }
 
 void ImageLoader::cleanup() {
 
-    while (loader.size()) {
+    while (!loader.empty()) {
         remove_image_format_loader(loader[0]);
     }
 }
@@ -201,11 +243,8 @@ RES ResourceFormatLoaderImage::load(const String &p_path, const String &p_origin
         ERR_FAIL_V(RES())
     }
 
-    Ref<Image> image;
-    image.instance();
     ImageData resdata;
     Error err = ImageLoader::loader[idx]->load_image(resdata, f);
-    image->create(std::move(resdata));
     memdelete(f);
 
     if (err != OK) {
@@ -218,6 +257,10 @@ RES ResourceFormatLoaderImage::load(const String &p_path, const String &p_origin
     if (r_error) {
         *r_error = OK;
     }
+
+    Ref<Image> image;
+    image.instance();
+    image->create(std::move(resdata));
 
     return image;
 }

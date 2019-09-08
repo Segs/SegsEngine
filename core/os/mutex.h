@@ -29,7 +29,7 @@
 /*************************************************************************/
 
 #pragma once
-
+#include "core/godot_export.h"
 #include "core/error_list.h"
 
 /**
@@ -41,31 +41,31 @@
  * Lockp( mutex );
  */
 
-class Mutex {
+class GODOT_EXPORT Mutex {
 protected:
-	static Mutex *(*create_func)(bool);
+    static Mutex *(*create_func)(bool);
 
 public:
-	virtual void lock() = 0; ///< Lock the mutex, block if locked by someone else
-	virtual void unlock() = 0; ///< Unlock the mutex, let other threads continue
-	virtual Error try_lock() = 0; ///< Attempt to lock the mutex, OK on success, ERROR means it can't lock.
+    virtual void lock() = 0; ///< Lock the mutex, block if locked by someone else
+    virtual void unlock() = 0; ///< Unlock the mutex, let other threads continue
+    virtual Error try_lock() = 0; ///< Attempt to lock the mutex, OK on success, ERROR means it can't lock.
 
-	static Mutex *create(bool p_recursive = true); ///< Create a mutex
+    static Mutex *create(bool p_recursive = true); ///< Create a mutex
 
-	virtual ~Mutex() {}
+    virtual ~Mutex() {}
 };
 
-class MutexLock {
+class GODOT_EXPORT MutexLock {
 
-	Mutex *mutex;
+    Mutex *mutex;
 
 public:
-	MutexLock(Mutex *p_mutex) {
-		mutex = p_mutex;
-		if (mutex) mutex->lock();
-	}
-	~MutexLock() {
-		if (mutex) mutex->unlock();
-	}
+    MutexLock(Mutex *p_mutex) {
+        mutex = p_mutex;
+        if (mutex) mutex->lock();
+    }
+    ~MutexLock() {
+        if (mutex) mutex->unlock();
+    }
 };
 

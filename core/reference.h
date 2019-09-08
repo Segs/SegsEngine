@@ -39,7 +39,7 @@
 template <class T, typename>
 struct GetTypeInfo;
 
-class Reference : public Object {
+class GODOT_EXPORT Reference : public Object {
 
     GDCLASS(Reference,Object)
 

@@ -211,11 +211,11 @@ add_subdirectory(thirdparty)
 add_subdirectory(core) # has to be visited first to set the paths to binary dirs that contain generated files
 add_subdirectory(drivers)
 add_subdirectory(modules)
-add_subdirectory(plugins)
 add_subdirectory(servers)
 add_subdirectory(scene)
 add_subdirectory(editor)
 add_subdirectory(platform)
+add_subdirectory(plugins)
 add_subdirectory(main)
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")

@@ -351,7 +351,7 @@ int RichTextLabel::_process_line(ItemFrame *p_frame, const Vector2 &p_ofs, int &
                 Color font_color_shadow;
                 bool underline = false;
                 bool strikethrough = false;
-                ItemFade *fade = NULL;
+                ItemFade *fade = nullptr;
                 int it_char_start = p_char_count;
 
                 Vector<ItemFX *> fx_stack = Vector<ItemFX *>();
@@ -2750,7 +2750,7 @@ Dictionary RichTextLabel::parse_expressions_for_values(Vector<String> p_expressi
         RegEx boolean = RegEx();
         boolean.compile("^(true|false)$");
         RegEx decimal = RegEx();
-        decimal.compile("^-?^.?\\d+(\\.\\d+?)?$");
+        decimal.compile(R"(^-?^.?\d+(\.\d+?)?$)");
         RegEx numerical = RegEx();
         numerical.compile("^\\d+$");
 

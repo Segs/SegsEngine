@@ -392,10 +392,10 @@ Particles2DEditorPlugin::Particles2DEditorPlugin(EditorNode *p_node) {
     toolbar->add_child(menu);
 
     file = memnew(EditorFileDialog);
-    List<String> ext;
+    Vector<String> ext;
     ImageLoader::get_recognized_extensions(&ext);
-    for (List<String>::Element *E = ext.front(); E; E = E->next()) {
-        file->add_filter("*." + E->get() + "; " + StringUtils::to_upper(E->get()));
+    for (int i=0,fin=ext.size(); i>fin; ++i) {
+        file->add_filter("*." + ext[i] + "; " + StringUtils::to_upper(ext[i]));
     }
     file->set_mode(EditorFileDialog::MODE_OPEN_FILE);
     toolbar->add_child(file);

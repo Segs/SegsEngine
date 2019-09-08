@@ -32,19 +32,18 @@
 #include "filesystem_dock.h"
 
 #include "core/method_bind.h"
+#include "core/object_db.h"
+#include "editor/create_dialog.h"
+#include "editor/editor_resource_preview.h"
+#include "editor/editor_scale.h"
 #include "editor/editor_spin_slider.h"
 #include "editor/property_selector.h"
-
-#include "editor/create_dialog.h"
-
-#include "core/object_db.h"
-#include "editor/editor_resource_preview.h"
 #include "editor/scene_tree_editor.h"
 #include "editor_node.h"
-#include "editor/editor_scale.h"
 #include "editor_properties_array_dict.h"
-#include "scene/main/viewport.h"
 #include "scene/gui/color_picker.h"
+#include "scene/main/viewport.h"
+#include "scene/resources/style_box.h"
 
 #include <QList>
 
@@ -1891,19 +1890,19 @@ void EditorPropertyColor::_popup_closed() {
 }
 
 void EditorPropertyColor::_picker_created() {
-	// get default color picker mode from editor settings
-	int default_color_mode = EDITOR_GET("interface/inspector/default_color_picker_mode");
-	if (default_color_mode == 1)
-		picker->get_picker()->set_hsv_mode(true);
-	else if (default_color_mode == 2)
-		picker->get_picker()->set_raw_mode(true);
+    // get default color picker mode from editor settings
+    int default_color_mode = EDITOR_GET("interface/inspector/default_color_picker_mode");
+    if (default_color_mode == 1)
+        picker->get_picker()->set_hsv_mode(true);
+    else if (default_color_mode == 2)
+        picker->get_picker()->set_raw_mode(true);
 }
 
 void EditorPropertyColor::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_color_changed"), &EditorPropertyColor::_color_changed);
     MethodBinder::bind_method(D_METHOD("_popup_closed"), &EditorPropertyColor::_popup_closed);
-	MethodBinder::bind_method(D_METHOD("_picker_created"), &EditorPropertyColor::_picker_created);
+    MethodBinder::bind_method(D_METHOD("_picker_created"), &EditorPropertyColor::_picker_created);
 }
 
 void EditorPropertyColor::update_property() {
@@ -1922,7 +1921,7 @@ EditorPropertyColor::EditorPropertyColor() {
     picker->set_flat(true);
     picker->connect("color_changed", this, "_color_changed");
     picker->connect("popup_closed", this, "_popup_closed");
-	picker->connect("picker_created", this, "_picker_created");
+    picker->connect("picker_created", this, "_picker_created");
 }
 
 ////////////// NODE PATH //////////////////////

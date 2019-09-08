@@ -49,7 +49,7 @@ String ResourceImporterWAV::get_visible_name() const {
 
 	return "Microsoft WAV";
 }
-void ResourceImporterWAV::get_recognized_extensions(List<String> *p_extensions) const {
+void ResourceImporterWAV::get_recognized_extensions(Vector<String> *p_extensions) const {
 
 	p_extensions->push_back("wav");
 }

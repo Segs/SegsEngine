@@ -38,7 +38,7 @@
 
 #include "core/rid.h"
 
-class RefPtr {
+class GODOT_EXPORT RefPtr {
 
 	enum {
 

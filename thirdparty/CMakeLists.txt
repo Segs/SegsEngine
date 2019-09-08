@@ -369,3 +369,21 @@ target_include_directories(freetype PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/free
 target_compile_definitions(freetype PRIVATE FT2_BUILD_LIBRARY)
 target_compile_definitions(freetype PUBLIC FREETYPE_ENABLED FT_CONFIG_OPTION_USE_PNG)
 target_link_libraries(freetype PUBLIC png)
+
+
+set(recast_source_files
+    ${PROJECT_SOURCE_DIR}/thirdparty/recastnavigation/Recast/Source/Recast.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/recastnavigation/Recast/Source/RecastAlloc.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/recastnavigation/Recast/Source/RecastArea.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/recastnavigation/Recast/Source/RecastAssert.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/recastnavigation/Recast/Source/RecastContour.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/recastnavigation/Recast/Source/RecastFilter.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/recastnavigation/Recast/Source/RecastLayers.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/recastnavigation/Recast/Source/RecastMesh.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/recastnavigation/Recast/Source/RecastMeshDetail.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/recastnavigation/Recast/Source/RecastRasterization.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/recastnavigation/Recast/Source/RecastRegion.cpp
+
+)
+add_library(recast STATIC ${recast_source_files})
+target_include_directories(recast PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/recastnavigation/Recast/Include)

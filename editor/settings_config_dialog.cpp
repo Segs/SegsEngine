@@ -30,6 +30,7 @@
 
 #include "editor_log.h"
 #include "settings_config_dialog.h"
+#include "script_editor_debugger.h"
 
 #include "core/method_bind.h"
 #include "core/os/keyboard.h"
@@ -39,7 +40,7 @@
 #include "editor/editor_scale.h"
 #include "editor_settings.h"
 #include "scene/gui/margin_container.h"
-#include "script_editor_debugger.h"
+#include "scene/resources/style_box.h"
 
 IMPL_GDCLASS(EditorSettingsDialog)
 

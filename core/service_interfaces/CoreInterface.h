@@ -34,7 +34,7 @@ GODOT_EXPORT CoreInterface *getCoreInterface();
 #define PLUG_FAIL_COND_V(m_cond, m_retval)                                                                                            \
 	{                                                                                                                                \
 		if (unlikely(m_cond)) {                                                                                                      \
-			_err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' " _STR(m_cond) " ' is true. returned: " _STR(m_retval)); \
+			getCoreInterface()->reportError("Condition ' " _STR(m_cond) " ' is true ",_STR(m_retval),FUNCTION_STR, __FILE__, __LINE__); \
 			return m_retval;                                                                                                         \
 		}                                                                                                                            \
 		getCoreInterface()->clearLastError();                                                                                        \
@@ -44,7 +44,7 @@ GODOT_EXPORT CoreInterface *getCoreInterface();
 	{                                                                                                                                \
 		if (unlikely(m_cond)) {                                                                                                      \
 			ERR_EXPLAIN(m_msg);                                                                                                      \
-			_err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' " _STR(m_cond) " ' is true. returned: " _STR(m_retval)); \
+			getCoreInterface()->reportError("Condition ' " _STR(m_cond) " ' is true.",_STR(m_retval),FUNCTION_STR, __FILE__, __LINE__); \
 			return m_retval;                                                                                                         \
 		}                                                                                                                            \
 		getCoreInterface()->clearLastError();                                                                                        \

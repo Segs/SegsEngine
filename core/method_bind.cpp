@@ -120,9 +120,6 @@ MethodBind::MethodBind() {
     hint_flags = METHOD_FLAGS_DEFAULT;
     argument_count = 0;
     default_argument_count = 0;
-#ifdef DEBUG_METHODS_ENABLED
-    argument_types = nullptr;
-#endif
     _const = false;
     _returns = false;
 }
@@ -131,5 +128,6 @@ MethodBind::~MethodBind() {
 #ifdef DEBUG_METHODS_ENABLED
     if (argument_types)
         memdelete_arr(argument_types);
+    argument_types = nullptr;
 #endif
 }

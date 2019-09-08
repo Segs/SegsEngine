@@ -1,3 +1,11 @@
 #include <QPluginLoader>
+#include "plugins/plugin_registry.h"
 
 @importers@
+
+
+void get_static_plugins(PluginRegistry &reg) {
+    for (QObject *ob : QPluginLoader::staticInstances()) {
+        reg.add_static_plugin(ob);
+    }
+}

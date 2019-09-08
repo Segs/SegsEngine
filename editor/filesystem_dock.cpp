@@ -1276,13 +1276,13 @@ void FileSystemDock::_make_scene_confirm() {
     }
 
     String extension = PathUtils::get_extension(scene_name);
-    List<String> extensions;
+    Vector<String> extensions;
     Ref<PackedScene> sd = memnew(PackedScene);
     ResourceSaver::get_recognized_extensions(sd, &extensions);
 
     bool extension_correct = false;
-    for (List<String>::Element *E = extensions.front(); E; E = E->next()) {
-        if (E->get() == extension) {
+    for (int i=0,fin=extensions.size(); i<fin; ++i) {
+        if (extensions[i] == extension) {
             extension_correct = true;
             break;
         }
@@ -2130,9 +2130,10 @@ void FileSystemDock::_get_drag_target_folder(String &target, bool &target_favori
     }
 }
 
-void FileSystemDock::_file_and_folders_fill_popup(PopupMenu *p_popup, Vector<String> p_paths, bool p_display_path_dependent_options) {
+void FileSystemDock::_file_and_folders_fill_popup(
+        PopupMenu *p_popup, Vector<String> p_paths, bool p_display_path_dependent_options) {
     // Add options for files and folders.
-    ERR_FAIL_COND(p_paths.empty());
+    ERR_FAIL_COND(p_paths.empty())
 
     Vector<String> filenames;
     Vector<String> foldernames;
@@ -2146,7 +2147,7 @@ void FileSystemDock::_file_and_folders_fill_popup(PopupMenu *p_popup, Vector<Str
     bool all_not_favorites = true;
     for (int i = 0; i < p_paths.size(); i++) {
         String fpath = p_paths[i];
-        if (StringUtils::ends_with(fpath,"/")) {
+        if (StringUtils::ends_with(fpath, "/")) {
             foldernames.push_back(fpath);
             all_files = false;
         } else {
@@ -2212,14 +2213,14 @@ void FileSystemDock::_file_and_folders_fill_popup(PopupMenu *p_popup, Vector<Str
     if (p_paths.size() == 1) {
         p_popup->add_item(TTR("Copy Path"), FILE_COPY_PATH);
         if (p_paths[0] != "res://") {
-        p_popup->add_item(TTR("Rename..."), FILE_RENAME);
-        p_popup->add_item(TTR("Duplicate..."), FILE_DUPLICATE);
-    }
+            p_popup->add_item(TTR("Rename..."), FILE_RENAME);
+            p_popup->add_item(TTR("Duplicate..."), FILE_DUPLICATE);
+        }
     }
 
     if (p_paths.size() > 1 || p_paths[0] != "res://") {
-    p_popup->add_item(TTR("Move To..."), FILE_MOVE);
-    p_popup->add_item(TTR("Delete"), FILE_REMOVE);
+        p_popup->add_item(TTR("Move To..."), FILE_MOVE);
+        p_popup->add_item(TTR("Delete"), FILE_REMOVE);
     }
 
     if (p_paths.size() == 1) {
@@ -2233,7 +2234,8 @@ void FileSystemDock::_file_and_folders_fill_popup(PopupMenu *p_popup, Vector<Str
         }
 
         String fpath = p_paths[0];
-        String item_text = StringUtils::ends_with(fpath,"/") ? TTR("Open in File Manager") : TTR("Show in File Manager");
+        String item_text =
+                StringUtils::ends_with(fpath, "/") ? TTR("Open in File Manager") : TTR("Show in File Manager");
         p_popup->add_item(item_text, FILE_SHOW_IN_EXPLORER);
     }
 }
