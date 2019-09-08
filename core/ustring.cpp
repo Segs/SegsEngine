@@ -1789,7 +1789,7 @@ static int _humanize_digits(int p_num) {
 String PathUtils::humanize_size(size_t p_size) {
 
     uint64_t _div = 1;
-    static const char *prefix[] = { " Bytes", " KB", " MB", " GB", " TB", " PB", " EB", "" };
+    static const char *prefix[] = { " B", " KiB", " MiB", " GiB", " TiB", " PiB", " EiB", "" };
     int prefix_idx = 0;
 
     while (p_size > (_div * 1024) && prefix[prefix_idx][0]) {
@@ -1800,7 +1800,7 @@ String PathUtils::humanize_size(size_t p_size) {
     int digits = prefix_idx > 0 ? _humanize_digits(p_size / _div) : 0;
     double divisor = prefix_idx > 0 ? _div : 1;
 
-    return StringUtils::pad_decimals(StringUtils::num(p_size / divisor),digits) + prefix[prefix_idx];
+    return StringUtils::pad_decimals(StringUtils::num(p_size / divisor),digits) + RTR(prefix[prefix_idx]);
 }
 bool PathUtils::is_abs_path(const String &str) {
 
