@@ -59,7 +59,7 @@ bool ParticlesEditorBase::_generate(PoolVector<Vector3> &points, PoolVector<Vect
             area_accum += area;
         }
 
-        if (!triangle_area_map.size() || area_accum == 0.0f) {
+        if (triangle_area_map.empty() || area_accum == 0.0f) {
 
             EditorNode::get_singleton()->show_warning(TTR("The geometry's faces don't contain any area."));
             return false;

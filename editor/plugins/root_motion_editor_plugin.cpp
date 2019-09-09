@@ -96,7 +96,7 @@ void EditorPropertyRootMotion::_node_assign() {
         String accum;
         for (int i = 0; i < path.get_name_count(); i++) {
             String name = path.get_name(i);
-            if (accum != String()) {
+            if (!accum.empty()) {
                 accum += "/";
             }
             accum += name;
@@ -301,7 +301,7 @@ bool EditorInspectorRootMotionPlugin::parse_property(Object *p_object, Variant::
 
     if (p_path == "root_motion_track" && p_object->is_class("AnimationTree") && p_type == Variant::NODE_PATH) {
         EditorPropertyRootMotion *editor = memnew(EditorPropertyRootMotion);
-        if (p_hint == PROPERTY_HINT_NODE_PATH_TO_EDITED_NODE && p_hint_text != String()) {
+        if (p_hint == PROPERTY_HINT_NODE_PATH_TO_EDITED_NODE && !p_hint_text.empty()) {
             editor->setup(NodePath(p_hint_text));
         }
         add_property_editor(p_path, editor);

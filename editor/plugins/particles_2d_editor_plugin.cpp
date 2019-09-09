@@ -267,11 +267,11 @@ void Particles2DEditorPlugin::_generate_emission_mask() {
     }
 
     valid_positions.resize(vpc);
-    if (valid_normals.size()) {
+    if (!valid_normals.empty()) {
         valid_normals.resize(vpc);
     }
 
-    ERR_FAIL_COND_MSG(valid_positions.size() == 0, "No pixels with transparency > 128 in image...");
+    ERR_FAIL_COND_MSG(valid_positions.empty(), "No pixels with transparency > 128 in image...");
 
     PoolVector<uint8_t> texdata;
 
@@ -321,7 +321,7 @@ void Particles2DEditorPlugin::_generate_emission_mask() {
         pm->set_emission_color_texture(imgt);
     }
 
-    if (valid_normals.size()) {
+    if (!valid_normals.empty()) {
         pm->set_emission_shape(ParticlesMaterial::EMISSION_SHAPE_DIRECTED_POINTS);
 
         PoolVector<uint8_t> normdata;

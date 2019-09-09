@@ -427,7 +427,7 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
     XISetMask(xi.all_master_event_mask.mask, XI_RawMotion);
 
 #ifdef TOUCH_ENABLED
-    if (xi.touch_devices.size()) {
+    if (!xi.touch_devices.empty()) {
         XISetMask(xi.all_event_mask.mask, XI_TouchBegin);
         XISetMask(xi.all_event_mask.mask, XI_TouchUpdate);
         XISetMask(xi.all_event_mask.mask, XI_TouchEnd);
@@ -688,7 +688,7 @@ bool OS_X11::refresh_device_info() {
 
     XIFreeDeviceInfo(info);
 #ifdef TOUCH_ENABLED
-    if (!xi.touch_devices.size()) {
+    if (xi.touch_devices.empty()) {
         print_verbose("XInput: No touch devices found.");
     }
 #endif
@@ -2347,7 +2347,7 @@ void OS_X11::process_xevents() {
                 // Avoidance of spurious mouse motion (see handling of touch)
                 bool filter = false;
                 // Adding some tolerance to match better Point2i to Vector2
-                if (xi.state.size() && Vector2(pos).distance_squared_to(xi.mouse_pos_to_filter) < 2) {
+                if (!xi.state.empty() && Vector2(pos).distance_squared_to(xi.mouse_pos_to_filter) < 2) {
                     filter = true;
                 }
                 // Invalidate to avoid filtering a possible legitimate similar event coming later
@@ -2700,7 +2700,7 @@ static String _get_clipboard(Atom p_source, Window x11_window, ::Display *x11_di
     if (utf8_atom != None) {
         ret = _get_clipboard_impl(p_source, x11_window, x11_display, p_internal_clipboard, utf8_atom);
     }
-    if (ret == "") {
+    if (ret.empty()) {
         ret = _get_clipboard_impl(p_source, x11_window, x11_display, p_internal_clipboard, XA_STRING);
     }
     return ret;
@@ -2711,7 +2711,7 @@ String OS_X11::get_clipboard() const {
     String ret;
     ret = _get_clipboard(XInternAtom(x11_display, "CLIPBOARD", 0), x11_window, x11_display, OS::get_clipboard());
 
-    if (ret == "") {
+    if (ret.empty()) {
         ret = _get_clipboard(XA_PRIMARY, x11_window, x11_display, OS::get_clipboard());
     };
 
@@ -3291,7 +3291,7 @@ Error OS_X11::move_to_trash(const String &p_path) {
     String mnt = get_mountpoint(p_path);
 
     // If there is a directory "[Mountpoint]/.Trash-[UID]/files", use it as the trash can.
-    if (mnt != "") {
+    if (!mnt.empty()) {
         String path(mnt + "/.Trash-" + itos(getuid()) + "/files");
         struct stat s;
         if (!stat(qPrintable(path.m_str), &s)) {
@@ -3300,7 +3300,7 @@ Error OS_X11::move_to_trash(const String &p_path) {
     }
 
     // Otherwise, if ${XDG_DATA_HOME} is defined, use "${XDG_DATA_HOME}/Trash/files" as the trash can.
-    if (trash_can == "") {
+    if (trash_can.empty()) {
         char *dhome = getenv("XDG_DATA_HOME");
         if (dhome) {
             trash_can = String(dhome) + "/Trash/files";
@@ -3308,7 +3308,7 @@ Error OS_X11::move_to_trash(const String &p_path) {
     }
 
     // Otherwise, if ${HOME} is defined, use "${HOME}/.local/share/Trash/files" as the trash can.
-    if (trash_can == "") {
+    if (trash_can.empty()) {
         char *home = getenv("HOME");
         if (home) {
             trash_can = String(home) + "/.local/share/Trash/files";
@@ -3316,7 +3316,7 @@ Error OS_X11::move_to_trash(const String &p_path) {
     }
 
     // Issue an error if none of the previous locations is appropriate for the trash can.
-    if (trash_can == "") {
+    if (trash_can.empty()) {
         ERR_PRINTS("move_to_trash: Could not determine the trash can location");
         return FAILED;
     }

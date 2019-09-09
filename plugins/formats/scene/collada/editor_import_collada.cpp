@@ -332,7 +332,7 @@ Error ColladaImport::_create_scene(Collada::Node *p_node, Spatial *p_parent) {
         } break;
     }
 
-    if (p_node->name != "")
+    if (!p_node->name.empty())
         node->set_name(p_node->name);
     NodeMap nm;
     nm.node = node;
@@ -345,7 +345,7 @@ Error ColladaImport::_create_scene(Collada::Node *p_node, Spatial *p_parent) {
     p_parent->add_child(node);
     node->set_owner(scene);
 
-    if (p_node->empty_draw_type != "") {
+    if (!p_node->empty_draw_type.empty()) {
         node->set_meta("empty_draw_type", Variant(p_node->empty_draw_type));
     }
 
@@ -368,17 +368,17 @@ Error ColladaImport::_create_material(const String &p_target) {
 
     Ref<SpatialMaterial> material = memnew(SpatialMaterial);
 
-    if (src_mat.name != "")
+    if (!src_mat.name.empty())
         material->set_name(src_mat.name);
-    else if (effect.name != "")
+    else if (!effect.name.empty())
         material->set_name(effect.name);
 
     // DIFFUSE
 
-    if (effect.diffuse.texture != "") {
+    if (!effect.diffuse.texture.empty()) {
 
         String texfile = effect.get_texture_path(effect.diffuse.texture, collada);
-        if (texfile != "") {
+        if (!texfile.empty()) {
 
             if (StringUtils::begins_with(texfile,"/")) {
                 texfile = StringUtils::replace_first(texfile,"/", "res://");
@@ -399,10 +399,10 @@ Error ColladaImport::_create_material(const String &p_target) {
 
     // SPECULAR
 
-    if (effect.specular.texture != "") {
+    if (!effect.specular.texture.empty()) {
 
         String texfile = effect.get_texture_path(effect.specular.texture, collada);
-        if (texfile != "") {
+        if (!texfile.empty()) {
 
             if (StringUtils::begins_with(texfile,"/")) {
                 texfile = StringUtils::replace_first(texfile,"/", "res://");
@@ -426,10 +426,10 @@ Error ColladaImport::_create_material(const String &p_target) {
 
     // EMISSION
 
-    if (effect.emission.texture != "") {
+    if (!effect.emission.texture.empty()) {
 
         String texfile = effect.get_texture_path(effect.emission.texture, collada);
-        if (texfile != "") {
+        if (!texfile.empty()) {
 
             if (StringUtils::begins_with(texfile,"/")) {
                 texfile = StringUtils::replace_first(texfile,"/", "res://");
@@ -459,7 +459,7 @@ Error ColladaImport::_create_material(const String &p_target) {
     if (!effect.bump.texture.empty()) {
 
         String texfile = effect.get_texture_path(effect.bump.texture, collada);
-        if (texfile != "") {
+        if (!texfile.empty()) {
 
             if (StringUtils::begins_with(texfile,"/")) {
                 texfile = StringUtils::replace_first(texfile,"/", "res://");
@@ -683,7 +683,7 @@ Error ColladaImport::_create_mesh_surfaces(bool p_optimize, Ref<ArrayMesh> &p_me
                     for (int i = 0; i < weights.size(); i++)
                         weights.write[i].weight /= total;
 
-                if (weights.size() == 0 || total == 0) { //if nothing, add a weight to bone 0
+                if (weights.empty() || total == 0) { //if nothing, add a weight to bone 0
                     //no weights assigned
                     Collada::Vertex::Weight w;
                     w.bone_idx = 0;
@@ -718,7 +718,7 @@ Error ColladaImport::_create_mesh_surfaces(bool p_optimize, Ref<ArrayMesh> &p_me
         for (int p_j = 0; p_j < p.count; p_j++) {
 
             int amount;
-            if (p.polygons.size()) {
+            if (!p.polygons.empty()) {
 
                 ERR_FAIL_INDEX_V(p_j, p.polygons.size(), ERR_INVALID_DATA);
                 amount = p.polygons[p_j];
@@ -894,7 +894,7 @@ Error ColladaImport::_create_mesh_surfaces(bool p_optimize, Ref<ArrayMesh> &p_me
                     } else
                         material = material_cache[target];
 
-                } else if (p.material != "") {
+                } else if (!p.material.empty()) {
                     WARN_PRINTS("Collada: Unreferenced material in geometry instance: " + p.material);
                 }
             }
@@ -1193,7 +1193,7 @@ Error ColladaImport::_create_resources(Collada::Node *p_node, bool p_use_compres
                     }
                 }
 
-                ERR_FAIL_COND_V_MSG(ngsource != "", ERR_INVALID_DATA, "Controller instance source '" + ngsource + "' is neither skin or morph!")
+                ERR_FAIL_COND_V_MSG(!ngsource.empty(), ERR_INVALID_DATA, "Controller instance source '" + ngsource + "' is neither skin or morph!")
 
             } else {
                 meshid = ng2->source;
@@ -1210,7 +1210,7 @@ Error ColladaImport::_create_resources(Collada::Node *p_node, bool p_use_compres
                     mesh = Ref<ArrayMesh>(memnew(ArrayMesh));
                     const Collada::MeshData &meshdata = collada.state.mesh_data_map[meshid];
                     mesh->set_name(meshdata.name);
-                    Error err = _create_mesh_surfaces(morphs.size() == 0, mesh, ng2->material_map, meshdata, apply_xform, bone_remap, skin, morph, morphs, p_use_compression, use_mesh_builtin_materials);
+                    Error err = _create_mesh_surfaces(morphs.empty(), mesh, ng2->material_map, meshdata, apply_xform, bone_remap, skin, morph, morphs, p_use_compression, use_mesh_builtin_materials);
                     ERR_FAIL_COND_V(err, err)
 
                     mesh_cache[meshid] = mesh;
@@ -1242,7 +1242,7 @@ Error ColladaImport::_create_resources(Collada::Node *p_node, bool p_use_compres
                                 material = material_cache[target];
 
                             mi->set_surface_material(i, material);
-                        } else if (matname != "") {
+                        } else if (!matname.empty()) {
                             WARN_PRINTS("Collada: Unreferenced material in geometry instance: " + matname);
                         }
                     }
@@ -1336,7 +1336,7 @@ void ColladaImport::_fix_param_animation_tracks() {
                 // test source(s)
                 String source = ng->source;
 
-                while (source != "") {
+                while (!source.empty()) {
 
                     if (collada.state.skin_controller_data_map.has(source)) {
 
@@ -1783,7 +1783,7 @@ Node *EditorSceneImporterCollada::import_scene(const String &p_path, uint32_t p_
 
     ERR_FAIL_COND_V(err != OK, nullptr)
 
-    if (state.missing_textures.size()) {
+    if (!state.missing_textures.empty()) {
 
         /*
         for(int i=0;i<state.missing_textures.size();i++) {
@@ -1806,7 +1806,7 @@ Node *EditorSceneImporterCollada::import_scene(const String &p_path, uint32_t p_
         AnimationPlayer *ap = memnew(AnimationPlayer);
         for (int i = 0; i < state.animations.size(); i++) {
             String name;
-            if (state.animations[i]->get_name() == "")
+            if (state.animations[i]->get_name().empty())
                 name = "default";
             else
                 name = state.animations[i]->get_name();
@@ -1840,7 +1840,7 @@ Ref<Animation> EditorSceneImporterCollada::import_animation(const String &p_path
     if (state.scene)
         memdelete(state.scene);
 
-    if (state.animations.size() == 0)
+    if (state.animations.empty())
         return Ref<Animation>();
     Ref<Animation> anim = state.animations[0];
     String base = StringUtils::to_lower(PathUtils::get_basename(p_path));

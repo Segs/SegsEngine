@@ -828,7 +828,7 @@ void ResourceInteractiveLoaderBinary::get_dependencies(FileAccess *p_f, List<Str
 
         String dep = external_resources[i].path;
 
-        if (p_add_types && external_resources[i].type != String()) {
+        if (p_add_types && !external_resources[i].type.empty()) {
             dep += "::" + external_resources[i].type;
         }
 
@@ -987,7 +987,7 @@ Ref<ResourceInteractiveLoader> ResourceFormatLoaderBinary::load_interactive(cons
     ERR_FAIL_COND_V(err != OK, Ref<ResourceInteractiveLoader>());
 
     Ref<ResourceInteractiveLoaderBinary> ria = memnew(ResourceInteractiveLoaderBinary);
-    String path = p_original_path != "" ? p_original_path : p_path;
+    String path = !p_original_path.empty() ? p_original_path : p_path;
     ria->local_path = ProjectSettings::get_singleton()->localize_path(path);
     ria->res_path = ria->local_path;
     //ria->set_local_path( Globals::get_singleton()->localize_path(p_path) );
@@ -998,7 +998,7 @@ Ref<ResourceInteractiveLoader> ResourceFormatLoaderBinary::load_interactive(cons
 
 void ResourceFormatLoaderBinary::get_recognized_extensions_for_type(const String &p_type, List<String> *p_extensions) const {
 
-    if (p_type == "") {
+    if (p_type.empty()) {
         get_recognized_extensions(p_extensions);
         return;
     }
@@ -1870,7 +1870,7 @@ Error ResourceFormatSaverBinaryInstance::save(const String &p_path, const RES &p
     for (List<RES>::Element *E = saved_resources.front(); E; E = E->next()) {
 
         RES r = E->get();
-		if (r->get_path() == "" || StringUtils::contains(r->get_path(),"::") ) {
+		if (r->get_path().empty() || StringUtils::contains(r->get_path(),"::") ) {
 
             if (r->get_subindex() != 0) {
                 if (used_indices.has(r->get_subindex())) {
@@ -1885,10 +1885,10 @@ Error ResourceFormatSaverBinaryInstance::save(const String &p_path, const RES &p
     for (List<RES>::Element *E = saved_resources.front(); E; E = E->next()) {
 
         RES r = E->get();
-		if (r->get_path() == "" || StringUtils::contains(r->get_path(),"::") ) {
+		if (r->get_path().empty() || StringUtils::contains(r->get_path(),"::") ) {
             if (r->get_subindex() == 0) {
                 int new_subindex = 1;
-                if (used_indices.size()) {
+                if (!used_indices.empty()) {
                     new_subindex = used_indices.back()->get() + 1;
                 }
 

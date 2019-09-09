@@ -458,7 +458,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
             }
         }
 
-        if (feedback.size()) {
+        if (!feedback.empty()) {
             glTransformFeedbackVaryings(v.id, feedback.size(), feedback.ptr(), GL_INTERLEAVED_ATTRIBS);
         }
     }

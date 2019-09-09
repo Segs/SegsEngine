@@ -745,16 +745,16 @@ struct ImportWrapper : public EditorSceneImporterInterface {
 
     // EditorSceneImporterInterface interface
 public:
-    uint32_t get_import_flags() const {
+    uint32_t get_import_flags() const override {
         return wrapped->get_import_flags();
     }
-    void get_extensions(Vector<String> *p_extensions) const {
+    void get_extensions(Vector<String> *p_extensions) const override {
         wrapped->get_extensions(p_extensions);
     }
-    Node *import_scene(const String &p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err) {
+    Node *import_scene(const String &p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err) override {
         return wrapped->import_scene(p_path,p_flags,p_bake_fps,r_missing_deps,r_err);
     }
-    Ref<Animation> import_animation(const String &p_path, uint32_t p_flags, int p_bake_fps) {
+    Ref<Animation> import_animation(const String &p_path, uint32_t p_flags, int p_bake_fps) override {
         return wrapped->import_animation(p_path,p_flags,p_bake_fps);
     }
 };

@@ -424,10 +424,10 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
     else
         src_pkg_name = p_preset->get("custom_package/release");
 
-    if (src_pkg_name == "") {
+    if (src_pkg_name.empty()) {
         String err;
         src_pkg_name = find_export_template("osx.zip", &err);
-        if (src_pkg_name == "") {
+        if (src_pkg_name.empty()) {
             EditorNode::add_io_error(err);
             return ERR_FILE_NOT_FOUND;
         }
@@ -458,7 +458,7 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
     String pkg_name;
     if (p_preset->get("application/name") != "")
         pkg_name = p_preset->get("application/name"); // app_name
-    else if (String(ProjectSettings::get_singleton()->get("application/config/name")) != "")
+    else if (!String(ProjectSettings::get_singleton()->get("application/config/name")).empty())
         pkg_name = String(ProjectSettings::get_singleton()->get("application/config/name"));
     else
         pkg_name = "Unnamed";
@@ -551,7 +551,7 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
             else
                 iconpath = ProjectSettings::get_singleton()->get("application/config/icon");
 
-            if (iconpath != "") {
+            if (!iconpath.empty()) {
 				if (PathUtils::get_extension(iconpath) == "icns") {
                     FileAccess *icon = FileAccess::open(iconpath, FileAccess::READ);
                     if (icon) {
@@ -571,7 +571,7 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
             }
         }
 
-        if (data.size() > 0) {
+        if (!data.empty()) {
             print_line("ADDING: " + file + " size: " + itos(data.size()));
             total_size += data.size();
 
@@ -651,14 +651,14 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
                 DirAccess *da = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
                 for (int i = 0; i < shared_objects.size(); i++) {
 					err = da->copy(shared_objects[i].path, tmp_app_path_name + "/Contents/Frameworks/" + PathUtils::get_file(shared_objects[i].path));
-                    if (err == OK && identity != "") {
+                    if (err == OK && !identity.empty()) {
 						err = _code_sign(p_preset, tmp_app_path_name + "/Contents/Frameworks/" + PathUtils::get_file(shared_objects[i].path));
                     }
                 }
                 memdelete(da);
             }
 
-            if (err == OK && identity != "") {
+            if (err == OK && !identity.empty()) {
                 if (ep.step("Code signing bundle", 2)) {
                     return ERR_SKIP;
                 }
@@ -671,16 +671,16 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
                 ///@TODO we should check the contents of /Contents/Frameworks for frameworks to sign
             }
 
-            if (err == OK && identity != "") {
+            if (err == OK && !identity.empty()) {
                 // we should probably loop through all resources and sign them?
                 err = _code_sign(p_preset, tmp_app_path_name + "/Contents/Resources/icon.icns");
             }
 
-            if (err == OK && identity != "") {
+            if (err == OK && !identity.empty()) {
                 err = _code_sign(p_preset, pack_path);
             }
 
-            if (err == OK && identity != "") {
+            if (err == OK && !identity.empty()) {
                 err = _code_sign(p_preset, tmp_app_path_name + "/Contents/Info.plist");
             }
 

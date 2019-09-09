@@ -321,7 +321,7 @@ Error DirAccessUnix::change_dir(String p_dir) {
     }
 
     String base = _get_root_path();
-    if (base != String() && !StringUtils::begins_with(try_dir,base)) {
+    if (!base.empty() && !StringUtils::begins_with(try_dir,base)) {
 		ERR_FAIL_COND_V(getcwd(real_current_dir_name, 2048) == nullptr, ERR_BUG)
 		String new_dir = StringUtils::from_utf8(real_current_dir_name);
 
@@ -339,7 +339,7 @@ Error DirAccessUnix::change_dir(String p_dir) {
 String DirAccessUnix::get_current_dir() {
 
     String base = _get_root_path();
-    if (base != "") {
+    if (!base.empty()) {
 
 		String bd = StringUtils::replace_first(current_dir,base, "");
         if (StringUtils::begins_with(bd,"/"))

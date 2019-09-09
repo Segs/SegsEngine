@@ -208,7 +208,7 @@ String StringUtils::camelcase_to_underscore(const String &s,bool lowercase) {
     return lowercase ? StringUtils::to_lower(new_string) : new_string;
 }
 
-int StringUtils::get_slice_count(const String &str,String p_splitter) {
+int StringUtils::get_slice_count(const String &str,const String &p_splitter) {
 
     auto parts = str.m_str.splitRef(p_splitter.m_str);
     return parts.size();
@@ -218,7 +218,7 @@ int StringUtils::get_slice_count(const String &str,CharType p_splitter) {
     auto parts = str.m_str.splitRef(p_splitter);
     return parts.size();
 }
-String StringUtils::get_slice(const String &str,String p_splitter, int p_slice) {
+String StringUtils::get_slice(const String &str,const String &p_splitter, int p_slice) {
 
     if (p_slice<0 || str.empty() || p_splitter.empty())
         return String();
@@ -501,7 +501,7 @@ Vector<int> StringUtils::split_ints_mk(const String &str,const Vector<String> &p
     return ret;
 }
 
-String StringUtils::join(const String &str,Vector<String> parts) {
+String StringUtils::join(const String &str,const Vector<String> &parts) {
     String ret;
     for (int i = 0; i < parts.size(); ++i) {
         if (i > 0) {

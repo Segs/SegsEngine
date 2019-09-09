@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef BSP_TREE_H
-#define BSP_TREE_H
+#pragma once
 
 #include "core/math/aabb.h"
 #include "core/math/face3.h"
@@ -72,7 +71,7 @@ private:
 	bool _test_convex(const Node *p_nodes, const Plane *p_planes, int p_current, const T &p_convex) const;
 
 public:
-	bool is_empty() const { return nodes.size() == 0; }
+	bool is_empty() const { return nodes.empty(); }
 	Vector<Node> get_nodes() const;
 	Vector<Plane> get_planes() const;
 	AABB get_aabb() const;
@@ -156,4 +155,3 @@ struct PtrToArg<const BSP_Tree &> {
 
 #endif
 
-#endif

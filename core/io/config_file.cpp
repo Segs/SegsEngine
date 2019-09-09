@@ -87,10 +87,10 @@ void ConfigFile::set_value(const String &p_section, const String &p_key, const V
         values[p_section][p_key] = p_value;
     }
 }
-Variant ConfigFile::get_value(const String &p_section, const String &p_key, Variant p_default) const {
+Variant ConfigFile::get_value(const String &p_section, const String &p_key, const Variant& p_default) const {
 
     if (!values.has(p_section) || !values[p_section].has(p_key)) {
-        ERR_FAIL_COND_V_MSG(p_default.get_type() == Variant::NIL, p_default, "Couldn't find the given section/key and no default was given.");
+        ERR_FAIL_COND_V_CMSG(p_default.get_type() == Variant::NIL, p_default, "Couldn't find the given section/key and no default was given.")
         return p_default;
     }
     return values[p_section][p_key];
@@ -277,9 +277,9 @@ Error ConfigFile::_internal_load(const String &p_path, FileAccess *f) {
             return err;
         }
 
-        if (assign != String()) {
+        if (!assign.empty()) {
             set_value(section, assign, value);
-        } else if (next_tag.name != String()) {
+        } else if (!next_tag.name.empty()) {
             section = next_tag.name;
         }
     }

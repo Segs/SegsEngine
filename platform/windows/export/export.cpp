@@ -52,7 +52,7 @@ Error EditorExportPlatformWindows::export_project(const Ref<EditorExportPreset> 
 
 	String rcedit_path = EditorSettings::get_singleton()->get("export/windows/rcedit");
 
-	if (rcedit_path == String()) {
+	if (rcedit_path.empty()) {
 		return OK;
 	}
 
@@ -65,12 +65,12 @@ Error EditorExportPlatformWindows::export_project(const Ref<EditorExportPreset> 
 	// On non-Windows we need WINE to run rcedit
 	String wine_path = EditorSettings::get_singleton()->get("export/windows/wine");
 
-	if (wine_path != String() && !FileAccess::exists(wine_path)) {
+	if (!wine_path.empty() && !FileAccess::exists(wine_path)) {
 		ERR_PRINTS("Could not find wine executable at " + wine_path + ", aborting.");
 		return ERR_FILE_NOT_FOUND;
 	}
 
-	if (wine_path == String()) {
+	if (wine_path.empty()) {
 		wine_path = "wine"; // try to run wine from PATH
 	}
 #endif
@@ -87,11 +87,11 @@ Error EditorExportPlatformWindows::export_project(const Ref<EditorExportPreset> 
 
 	List<String> args;
 	args.push_back(p_path);
-	if (icon_path != String()) {
+	if (!icon_path.empty()) {
 		args.push_back("--set-icon");
 		args.push_back(icon_path);
 	}
-	if (file_verion != String()) {
+	if (!file_verion.empty()) {
 		args.push_back("--set-file-version");
 		args.push_back(file_verion);
 	}
@@ -99,27 +99,27 @@ Error EditorExportPlatformWindows::export_project(const Ref<EditorExportPreset> 
 		args.push_back("--set-product-version");
 		args.push_back(product_version);
 	}
-	if (company_name != String()) {
+	if (!company_name.empty()) {
 		args.push_back("--set-version-string");
 		args.push_back("CompanyName");
 		args.push_back(company_name);
 	}
-	if (product_name != String()) {
+	if (!product_name.empty()) {
 		args.push_back("--set-version-string");
 		args.push_back("ProductName");
 		args.push_back(product_name);
 	}
-	if (file_description != String()) {
+	if (!file_description.empty()) {
 		args.push_back("--set-version-string");
 		args.push_back("FileDescription");
 		args.push_back(file_description);
 	}
-	if (copyright != String()) {
+	if (!copyright.empty()) {
 		args.push_back("--set-version-string");
 		args.push_back("LegalCopyright");
 		args.push_back(copyright);
 	}
-	if (trademarks != String()) {
+	if (!trademarks.empty()) {
 		args.push_back("--set-version-string");
 		args.push_back("LegalTrademarks");
 		args.push_back(trademarks);

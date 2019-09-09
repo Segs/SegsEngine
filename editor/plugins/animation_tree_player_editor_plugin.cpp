@@ -581,7 +581,7 @@ void AnimationTreePlayerEditor::_draw_node(const StringName &p_node) {
 
             Ref<Animation> anim = anim_tree->animation_node_get_animation(p_node);
             String text;
-            if (anim_tree->animation_node_get_master_animation(p_node) != "")
+            if (!anim_tree->animation_node_get_master_animation(p_node).empty())
                 text = anim_tree->animation_node_get_master_animation(p_node);
             else if (anim.is_null())
                 text = "load...";

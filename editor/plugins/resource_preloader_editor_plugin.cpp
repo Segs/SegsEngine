@@ -120,7 +120,7 @@ void ResourcePreloaderEditor::_item_edited() {
         if (old_name == new_name)
             return;
 
-        if (new_name == "" || StringUtils::find(new_name,"\\") != -1 || StringUtils::find(new_name,"/") != -1 || preloader->has_resource(new_name)) {
+        if (new_name.empty() || StringUtils::find(new_name,"\\") != -1 || StringUtils::find(new_name,"/") != -1 || preloader->has_resource(new_name)) {
 
             s->set_text(0, old_name);
             return;
@@ -160,9 +160,9 @@ void ResourcePreloaderEditor::_paste_pressed() {
     }
 
     String name = r->get_name();
-    if (name == "")
+    if (name.empty())
         name = PathUtils::get_file(r->get_path());
-    if (name == "")
+    if (name.empty())
         name = r->get_class();
 
     String basename = name;
@@ -294,7 +294,7 @@ bool ResourcePreloaderEditor::can_drop_data_fw(const Point2 &p_point, const Vari
 
         Vector<String> files = d["files"];
 
-        return files.size() != 0;
+        return !files.empty();
     }
     return false;
 }
@@ -315,7 +315,7 @@ void ResourcePreloaderEditor::drop_data_fw(const Point2 &p_point, const Variant 
         if (r.is_valid()) {
 
             String basename;
-            if (r->get_name() != "") {
+            if (!r->get_name().empty()) {
                 basename = r->get_name();
             } else if (PathUtils::is_resource_file(r->get_path())) {
                 basename = PathUtils::get_basename(r->get_path());

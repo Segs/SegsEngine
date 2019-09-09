@@ -305,7 +305,7 @@ void AnimationNodeBlendTreeEditor::_add_node(int p_idx) {
         anode = EditorSettings::get_singleton()->get_resource_clipboard();
         ERR_FAIL_COND(!anode.is_valid());
         base_name = anode->get_class();
-    } else if (add_options[p_idx].type != String()) {
+    } else if (!add_options[p_idx].type.empty()) {
         AnimationNode *an = Object::cast_to<AnimationNode>(ClassDB::instance(add_options[p_idx].type));
         ERR_FAIL_COND(!an);
         anode = Ref<AnimationNode>(an);
@@ -566,7 +566,7 @@ bool AnimationNodeBlendTreeEditor::_update_filters(const Ref<AnimationNode> &ano
         String accum;
         for (int i = 0; i < path.get_name_count(); i++) {
             String name = path.get_name(i);
-            if (accum != String()) {
+            if (!accum.empty()) {
                 accum += "/";
             }
             accum += name;
@@ -708,7 +708,7 @@ void AnimationNodeBlendTreeEditor::_notification(int p_what) {
 
         if (error != error_label->get_text()) {
             error_label->set_text(error);
-            if (error != String()) {
+            if (!error.empty()) {
                 error_panel->show();
             } else {
                 error_panel->hide();
@@ -805,7 +805,7 @@ void AnimationNodeBlendTreeEditor::_node_renamed(const String &p_text, Ref<Anima
 
     const String &new_name = p_text;
 
-    ERR_FAIL_COND(new_name == "" || StringUtils::find(new_name,".") != -1 || StringUtils::find(new_name,"/") != -1);
+    ERR_FAIL_COND(new_name.empty() || StringUtils::find(new_name,".") != -1 || StringUtils::find(new_name,"/") != -1);
 
     if (new_name == prev_name) {
         return; //nothing to do

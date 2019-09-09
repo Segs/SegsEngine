@@ -393,11 +393,7 @@ bool Color::html_is_valid(const String &p_color) {
         return false;
     }
     int b = _parse_col(color, from + 4);
-    if (b < 0) {
-        return false;
-    }
-
-    return true;
+    return b >= 0;
 }
 
 Color Color::named(const String &p_name) {

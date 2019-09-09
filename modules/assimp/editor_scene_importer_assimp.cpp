@@ -383,15 +383,15 @@ void EditorSceneImporterAssimp::_insert_animation_track(ImportState &scene, cons
         Quat rot;
         Vector3 scale(1, 1, 1);
 
-        if (pos_values.size()) {
+        if (!pos_values.empty()) {
             pos = _interpolate_track<Vector3>(pos_times, pos_values, time, AssetImportAnimation::INTERP_LINEAR);
         }
 
-        if (rot_values.size()) {
+        if (!rot_values.empty()) {
             rot = _interpolate_track<Quat>(rot_times, rot_values, time, AssetImportAnimation::INTERP_LINEAR).normalized();
         }
 
-        if (scale_values.size()) {
+        if (!scale_values.empty()) {
             scale = _interpolate_track<Vector3>(scale_times, scale_values, time, AssetImportAnimation::INTERP_LINEAR);
         }
 
@@ -429,7 +429,7 @@ void EditorSceneImporterAssimp::_import_animation(ImportState &state, int p_anim
 
     const aiAnimation *anim = state.assimp_scene->mAnimations[p_animation_index];
     String name = AssimpUtils::get_anim_string_from_assimp(anim->mName);
-    if (name == String()) {
+    if (name.empty()) {
         name = "Animation " + itos(p_animation_index + 1);
     }
 

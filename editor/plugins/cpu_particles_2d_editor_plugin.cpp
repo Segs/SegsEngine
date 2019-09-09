@@ -194,11 +194,11 @@ void CPUParticles2DEditorPlugin::_generate_emission_mask() {
     }
 
     valid_positions.resize(vpc);
-    if (valid_normals.size()) {
+    if (!valid_normals.empty()) {
         valid_normals.resize(vpc);
     }
 
-    ERR_FAIL_COND_MSG(valid_positions.size() == 0, "No pixels with transparency > 128 in image...");
+    ERR_FAIL_COND_MSG(valid_positions.empty(), "No pixels with transparency > 128 in image...");
 
     if (capture_colors) {
         PoolColorArray pca;
@@ -215,7 +215,7 @@ void CPUParticles2DEditorPlugin::_generate_emission_mask() {
         particles->set_emission_colors(pca);
     }
 
-    if (valid_normals.size()) {
+    if (!valid_normals.empty()) {
         particles->set_emission_shape(CPUParticles2D::EMISSION_SHAPE_DIRECTED_POINTS);
         PoolVector2Array norms;
         norms.resize(valid_normals.size());

@@ -241,7 +241,7 @@ struct MethodBinder {
     }
 
     template <class M>
-    static MethodBind *bind_vararg_method(StringName p_name, M p_method, const MethodInfo &p_info = MethodInfo(), const Vector<Variant> &p_default_args = Vector<Variant>()) {
+    static MethodBind *bind_vararg_method(const StringName &p_name, M p_method, const MethodInfo &p_info = MethodInfo(), const Vector<Variant> &p_default_args = Vector<Variant>()) {
 
         GLOBAL_LOCK_FUNCTION
 

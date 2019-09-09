@@ -871,7 +871,7 @@ void CanvasItemEditor::_restore_canvas_item_ik_chain(CanvasItem *p_canvas_item, 
     }
 }
 
-void CanvasItemEditor::_restore_canvas_item_state(List<CanvasItem *> p_canvas_items, bool restore_bones) {
+void CanvasItemEditor::_restore_canvas_item_state(const List<CanvasItem *>& p_canvas_items, bool restore_bones) {
     for (List<CanvasItem *>::Element *E = drag_selection.front(); E; E = E->next()) {
         CanvasItem *canvas_item = E->get();
         CanvasItemEditorSelectedItem *se = editor_selection->get_node_editor_data<CanvasItemEditorSelectedItem>(canvas_item);
@@ -882,7 +882,7 @@ void CanvasItemEditor::_restore_canvas_item_state(List<CanvasItem *> p_canvas_it
     }
 }
 
-void CanvasItemEditor::_commit_canvas_item_state(List<CanvasItem *> p_canvas_items, String action_name, bool commit_bones) {
+void CanvasItemEditor::_commit_canvas_item_state(List<CanvasItem *> p_canvas_items, const String& action_name, bool commit_bones) {
     undo_redo->create_action(action_name);
     for (List<CanvasItem *>::Element *E = p_canvas_items.front(); E; E = E->next()) {
         CanvasItem *canvas_item = E->get();
@@ -2443,7 +2443,7 @@ void CanvasItemEditor::_gui_input_viewport(const Ref<InputEvent> &p_event) {
     }
 }
 
-void CanvasItemEditor::_draw_text_at_position(Point2 p_position, String p_string, Margin p_side) {
+void CanvasItemEditor::_draw_text_at_position(Point2 p_position, const String& p_string, Margin p_side) {
     Color color = get_color("font_color", "Editor");
     color.a = 0.8;
     Ref<Font> font = get_font("font", "Label");

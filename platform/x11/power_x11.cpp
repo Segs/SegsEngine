@@ -264,7 +264,7 @@ bool PowerX11::GetPowerInfo_Linux_proc_acpi() {
         return false; /* can't use this interface. */
     } else {
         node = dirp->get_next();
-        while (node != "") {
+        while (!node.empty()) {
             check_proc_acpi_battery(qPrintable(node.m_str), &have_battery, &charging /*, seconds, percent*/);
             node = dirp->get_next();
         }
@@ -275,7 +275,7 @@ bool PowerX11::GetPowerInfo_Linux_proc_acpi() {
         return false; /* can't use this interface. */
     } else {
         node = dirp->get_next();
-        while (node != "") {
+        while (!node.empty()) {
             check_proc_acpi_ac_adapter(qPrintable(node.m_str), &have_ac);
             node = dirp->get_next();
         }
@@ -452,7 +452,7 @@ bool PowerX11::GetPowerInfo_Linux_sys_class_power_supply(/*PowerState *state, in
 
     name = dirp->get_next();
 
-    while (name != "") {
+    while (!name.empty()) {
         bool choose = false;
         char str[64];
         OS::PowerState st;

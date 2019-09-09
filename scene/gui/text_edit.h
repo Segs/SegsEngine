@@ -59,7 +59,7 @@ public:
 			begin_key = p_begin_key;
 			end_key = p_end_key;
 			color = p_color;
-			line_only = p_line_only || p_end_key == "";
+			line_only = p_line_only || p_end_key.empty();
 			eq = begin_key == end_key;
 		}
 	};

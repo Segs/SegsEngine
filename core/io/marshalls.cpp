@@ -408,7 +408,7 @@ Error decode_variant(Variant &r_variant, const uint8_t *p_buffer, int p_len, int
                 if (err)
                     return err;
 
-                if (str == String()) {
+                if (str.empty()) {
                     r_variant = (Object *)nullptr;
                 } else {
 

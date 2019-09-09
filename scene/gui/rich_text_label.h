@@ -113,7 +113,7 @@ private:
         int line;
 
         void _clear_children() {
-            while (subitems.size()) {
+            while (!subitems.empty()) {
                 memdelete(subitems.front()->get());
                 subitems.pop_front();
             }

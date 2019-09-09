@@ -48,7 +48,7 @@ struct PtrToArg {
 		_FORCE_INLINE_ static m_type convert(const void *p_ptr) {      \
 			return *reinterpret_cast<const m_type *>(p_ptr);           \
 		}                                                              \
-		_FORCE_INLINE_ static void encode(m_type p_val, void *p_ptr) { \
+        _FORCE_INLINE_ static void encode(m_type p_val, void *p_ptr) { \
 			*((m_type *)p_ptr) = p_val;                                \
 		}                                                              \
 	};                                                                 \
@@ -68,7 +68,7 @@ struct PtrToArg {
 		_FORCE_INLINE_ static m_type convert(const void *p_ptr) {                 \
 			return static_cast<m_type>(*reinterpret_cast<const m_conv *>(p_ptr)); \
 		}                                                                         \
-		_FORCE_INLINE_ static void encode(m_type p_val, void *p_ptr) {            \
+        _FORCE_INLINE_ static void encode(m_type p_val, void *p_ptr) {            \
 			*((m_conv *)p_ptr) = static_cast<m_conv>(p_val);                      \
 		}                                                                         \
 	};                                                                            \
@@ -77,7 +77,7 @@ struct PtrToArg {
 		_FORCE_INLINE_ static m_type convert(const void *p_ptr) {                 \
 			return static_cast<m_type>(*reinterpret_cast<const m_conv *>(p_ptr)); \
 		}                                                                         \
-		_FORCE_INLINE_ static void encode(m_type p_val, void *p_ptr) {            \
+        _FORCE_INLINE_ static void encode(m_type p_val, void *p_ptr) {            \
 			*((m_conv *)p_ptr) = static_cast<m_conv>(p_val);                      \
 		}                                                                         \
 	}
@@ -118,24 +118,24 @@ MAKE_PTRARG(String);
 MAKE_PTRARG(Vector2);
 MAKE_PTRARG(Rect2);
 MAKE_PTRARG_BY_REFERENCE(Vector3);
-MAKE_PTRARG(Transform2D);
+MAKE_PTRARG_BY_REFERENCE(Transform2D);
 MAKE_PTRARG_BY_REFERENCE(Plane);
 MAKE_PTRARG(Quat);
 MAKE_PTRARG_BY_REFERENCE(AABB);
 MAKE_PTRARG_BY_REFERENCE(Basis);
 MAKE_PTRARG_BY_REFERENCE(Transform);
 MAKE_PTRARG_BY_REFERENCE(Color);
-MAKE_PTRARG(NodePath);
+MAKE_PTRARG_BY_REFERENCE(NodePath);
 MAKE_PTRARG(RID);
-MAKE_PTRARG(Dictionary);
-MAKE_PTRARG(Array);
-MAKE_PTRARG(PoolByteArray);
-MAKE_PTRARG(PoolIntArray);
-MAKE_PTRARG(PoolRealArray);
-MAKE_PTRARG(PoolStringArray);
-MAKE_PTRARG(PoolVector2Array);
-MAKE_PTRARG(PoolVector3Array);
-MAKE_PTRARG(PoolColorArray);
+MAKE_PTRARG_BY_REFERENCE(Dictionary);
+MAKE_PTRARG_BY_REFERENCE(Array);
+MAKE_PTRARG_BY_REFERENCE(PoolByteArray);
+MAKE_PTRARG_BY_REFERENCE(PoolIntArray);
+MAKE_PTRARG_BY_REFERENCE(PoolRealArray);
+MAKE_PTRARG_BY_REFERENCE(PoolStringArray);
+MAKE_PTRARG_BY_REFERENCE(PoolVector2Array);
+MAKE_PTRARG_BY_REFERENCE(PoolVector3Array);
+MAKE_PTRARG_BY_REFERENCE(PoolColorArray);
 MAKE_PTRARG_BY_REFERENCE(Variant);
 
 //this is for Object
@@ -186,7 +186,7 @@ struct PtrToArg<const T *> {
 			}                                                                                    \
 			return ret;                                                                          \
 		}                                                                                        \
-		_FORCE_INLINE_ static void encode(Vector<m_type> p_vec, void *p_ptr) {                   \
+        _FORCE_INLINE_ static void encode(const Vector<m_type> &p_vec, void *p_ptr) {            \
 			PoolVector<m_type> *dv = reinterpret_cast<PoolVector<m_type> *>(p_ptr);              \
 			int len = p_vec.size();                                                              \
 			dv->resize(len);                                                                     \
@@ -231,7 +231,7 @@ struct PtrToArg<const T *> {
 			}                                                                                    \
 			return ret;                                                                          \
 		}                                                                                        \
-		_FORCE_INLINE_ static void encode(Vector<m_type_alt> p_vec, void *p_ptr) {               \
+        _FORCE_INLINE_ static void encode(const Vector<m_type_alt> &p_vec, void *p_ptr) {        \
 			PoolVector<m_type> *dv = reinterpret_cast<PoolVector<m_type> *>(p_ptr);              \
 			int len = p_vec.size();                                                              \
 			dv->resize(len);                                                                     \
@@ -282,7 +282,7 @@ MAKE_VECARG_ALT(String, StringName);
 			}                                                                  \
 			return ret;                                                        \
 		}                                                                      \
-		_FORCE_INLINE_ static void encode(Vector<m_type> p_vec, void *p_ptr) { \
+        _FORCE_INLINE_ static void encode(const Vector<m_type> &p_vec, void *p_ptr) { \
 			Array *arr = reinterpret_cast<Array *>(p_ptr);                     \
 			int len = p_vec.size();                                            \
 			arr->resize(len);                                                  \
@@ -325,7 +325,7 @@ MAKE_VECARR(Plane);
 			}                                                                      \
 			return ret;                                                            \
 		}                                                                          \
-		_FORCE_INLINE_ static void encode(PoolVector<m_type> p_vec, void *p_ptr) { \
+        _FORCE_INLINE_ static void encode(const PoolVector<m_type> &p_vec, void *p_ptr) { \
 			Array *arr = reinterpret_cast<Array *>(p_ptr);                         \
 			int len = p_vec.size();                                                \
 			arr->resize(len);                                                      \

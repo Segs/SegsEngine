@@ -74,7 +74,7 @@ protected:
 	static void _bind_methods();
 
 public:
-	void edit(Ref<Material> p_material, const Ref<Environment> &p_env);
+	void edit(const Ref<Material>& p_material, const Ref<Environment> &p_env);
 	MaterialEditor();
 };
 

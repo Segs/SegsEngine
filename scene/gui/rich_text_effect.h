@@ -34,8 +34,8 @@
 #include "core/resource.h"
 
 class RichTextEffect : public Resource {
-    GDCLASS(RichTextEffect, Resource);
-    OBJ_SAVE_TYPE(RichTextEffect);
+    GDCLASS(RichTextEffect, Resource)
+    OBJ_SAVE_TYPE(RichTextEffect)
 
 protected:
     static void _bind_methods();
@@ -48,20 +48,20 @@ public:
 };
 
 class CharFXTransform : public Reference {
-    GDCLASS(CharFXTransform, Reference);
+    GDCLASS(CharFXTransform, Reference)
 
 protected:
     static void _bind_methods();
 
 public:
-    uint64_t relative_index;
-    uint64_t absolute_index;
-    bool visibility;
+    Dictionary environment;
     Point2 offset;
     Color color;
-    CharType character;
+    uint64_t relative_index;
+    uint64_t absolute_index;
     float elapsed_time;
-    Dictionary environment;
+    CharType character;
+    bool visibility;
 
     CharFXTransform();
     uint64_t get_relative_index() { return relative_index; }
@@ -79,7 +79,7 @@ public:
     int get_character() { return (int)character.unicode(); }
     void set_character(int p_char) { character = (CharType)p_char; }
     Dictionary get_environment() { return environment; }
-    void set_environment(Dictionary p_environment) { environment = p_environment; }
+    void set_environment(const Dictionary &p_environment) { environment = p_environment; }
 
     Variant get_value_or(String p_key, Variant p_default_value);
 };

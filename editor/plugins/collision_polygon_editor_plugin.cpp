@@ -471,7 +471,7 @@ void Polygon3DEditor::_polygon_draw() {
         m->surface_remove(0);
     }
 
-    if (poly.size() == 0)
+    if (poly.empty())
         return;
 
     Array a;
@@ -501,7 +501,7 @@ void Polygon3DEditor::edit(Node *p_collision_polygon) {
 
         node = Object::cast_to<Spatial>(p_collision_polygon);
         //Enable the pencil tool if the polygon is empty
-        if (Vector<Vector2>(node->call("get_polygon")).size() == 0) {
+        if (Vector<Vector2>(node->call("get_polygon")).empty()) {
             _menu_option(MODE_CREATE);
         }
         wip.clear();

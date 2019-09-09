@@ -72,7 +72,7 @@ CurveEditor::CurveEditor() {
     _context_menu->add_child(_presets_menu);
 }
 
-void CurveEditor::set_curve(Ref<Curve> curve) {
+void CurveEditor::set_curve(const Ref<Curve>& curve) {
 
     if (curve == _curve_ref)
         return;

@@ -367,12 +367,12 @@ Error DirAccessPack::list_dir_begin() {
 
 String DirAccessPack::get_next() {
 
-    if (list_dirs.size()) {
+    if (!list_dirs.empty()) {
         cdir = true;
         String d = list_dirs.front()->get();
         list_dirs.pop_front();
         return d;
-    } else if (list_files.size()) {
+    } else if (!list_files.empty()) {
         cdir = false;
         String f = list_files.front()->get();
         list_files.pop_front();

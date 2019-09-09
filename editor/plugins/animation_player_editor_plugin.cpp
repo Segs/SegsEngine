@@ -187,7 +187,7 @@ void AnimationPlayerEditor::_play_pressed() {
         current = animation->get_item_text(animation->get_selected());
     }
 
-    if (current != "") {
+    if (!current.empty()) {
 
         if (current == player->get_assigned_animation())
             player->stop(); //so it won't blend with itself
@@ -206,7 +206,7 @@ void AnimationPlayerEditor::_play_from_pressed() {
         current = animation->get_item_text(animation->get_selected());
     }
 
-    if (current != "") {
+    if (!current.empty()) {
 
         float time = player->get_current_animation_position();
 
@@ -231,7 +231,7 @@ void AnimationPlayerEditor::_play_bw_pressed() {
         current = animation->get_item_text(animation->get_selected());
     }
 
-    if (current != "") {
+    if (!current.empty()) {
 
         if (current == player->get_assigned_animation())
             player->stop(); //so it won't blend with itself
@@ -250,7 +250,7 @@ void AnimationPlayerEditor::_play_bw_from_pressed() {
         current = animation->get_item_text(animation->get_selected());
     }
 
-    if (current != "") {
+    if (!current.empty()) {
 
         float time = player->get_current_animation_position();
         if (current == player->get_assigned_animation())
@@ -286,7 +286,7 @@ void AnimationPlayerEditor::_animation_selected(int p_which) {
         current = animation->get_item_text(animation->get_selected());
     }
 
-    if (current != "") {
+    if (!current.empty()) {
 
         player->set_assigned_animation(current);
 
@@ -407,7 +407,7 @@ void AnimationPlayerEditor::_animation_save_as(const Ref<Resource> &p_resource) 
     }
 
     //file->set_current_path(current_path);
-    if (p_resource->get_path() != "") {
+    if (!p_resource->get_path().empty()) {
         file->set_current_path(p_resource->get_path());
         if (!extensions.empty()) {
             String ext = StringUtils::to_lower(PathUtils::get_extension(p_resource->get_path()));
@@ -419,7 +419,7 @@ void AnimationPlayerEditor::_animation_save_as(const Ref<Resource> &p_resource) 
 
         String existing;
         if (!extensions.empty()) {
-            if (p_resource->get_name() != "") {
+            if (!p_resource->get_name().empty()) {
                 existing = p_resource->get_name() + "." + StringUtils::to_lower(extensions[0]);
             } else {
                 existing = "new_" + StringUtils::to_lower(p_resource->get_class()) + "." + StringUtils::to_lower(extensions[0]);
@@ -501,7 +501,7 @@ void AnimationPlayerEditor::_animation_name_edited() {
     player->stop();
 
     String new_name = name->get_text();
-    if (new_name == "" || StringUtils::find(new_name,":") != -1 || StringUtils::find(new_name,"/") != -1) {
+    if (new_name.empty() || StringUtils::find(new_name,":") != -1 || StringUtils::find(new_name,"/") != -1) {
         error_dialog->set_text(TTR("Invalid animation name!"));
         error_dialog->popup_centered_minsize();
         return;
@@ -768,7 +768,7 @@ void AnimationPlayerEditor::_dialog_action(String p_file) {
         case RESOURCE_SAVE: {
 
             String current = animation->get_item_text(animation->get_selected());
-            if (current != "") {
+            if (!current.empty()) {
                 Ref<Animation> anim = player->get_animation(current);
 
                 ERR_FAIL_COND(!Object::cast_to<Resource>(*anim));
@@ -829,25 +829,25 @@ void AnimationPlayerEditor::_update_player() {
 
 #define ITEM_DISABLED(m_item, m_disabled) tool_anim->get_popup()->set_item_disabled(tool_anim->get_popup()->get_item_index(m_item), m_disabled)
 
-    ITEM_DISABLED(TOOL_SAVE_ANIM, animlist.size() == 0);
-    ITEM_DISABLED(TOOL_SAVE_AS_ANIM, animlist.size() == 0);
-    ITEM_DISABLED(TOOL_DUPLICATE_ANIM, animlist.size() == 0);
-    ITEM_DISABLED(TOOL_RENAME_ANIM, animlist.size() == 0);
-    ITEM_DISABLED(TOOL_EDIT_TRANSITIONS, animlist.size() == 0);
+    ITEM_DISABLED(TOOL_SAVE_ANIM, animlist.empty());
+    ITEM_DISABLED(TOOL_SAVE_AS_ANIM, animlist.empty());
+    ITEM_DISABLED(TOOL_DUPLICATE_ANIM, animlist.empty());
+    ITEM_DISABLED(TOOL_RENAME_ANIM, animlist.empty());
+    ITEM_DISABLED(TOOL_EDIT_TRANSITIONS, animlist.empty());
     ITEM_DISABLED(TOOL_COPY_ANIM, animlist.size() == 0);
     ITEM_DISABLED(TOOL_REMOVE_ANIM, animlist.size() == 0);
 
-    stop->set_disabled(animlist.size() == 0);
-    play->set_disabled(animlist.size() == 0);
+    stop->set_disabled(animlist.empty());
+    play->set_disabled(animlist.empty());
     play_bw->set_disabled(animlist.size() == 0);
-    play_bw_from->set_disabled(animlist.size() == 0);
+    play_bw_from->set_disabled(animlist.empty());
     play_from->set_disabled(animlist.size() == 0);
-    frame->set_editable(animlist.size() != 0);
-    animation->set_disabled(animlist.size() == 0);
+    frame->set_editable(!animlist.empty());
+    animation->set_disabled(animlist.empty());
     autoplay->set_disabled(animlist.size() == 0);
     tool_anim->set_disabled(player == nullptr);
-    onion_toggle->set_disabled(animlist.size() == 0);
-    onion_skinning->set_disabled(animlist.size() == 0);
+    onion_toggle->set_disabled(animlist.empty());
+    onion_skinning->set_disabled(animlist.empty());
     pin->set_disabled(player == nullptr);
 
     if (!player) {
@@ -1025,7 +1025,7 @@ void AnimationPlayerEditor::_seek_value_changed(float p_value, bool p_set) {
 
     updating = true;
     String current = player->get_assigned_animation();
-    if (current == "" || !player->has_animation(current)) {
+    if (current.empty() || !player->has_animation(current)) {
         updating = false;
         current = "";
         return;
@@ -1116,7 +1116,7 @@ void AnimationPlayerEditor::_animation_tool_menu(int p_option) {
     }
 
     Ref<Animation> anim;
-    if (current != String()) {
+    if (!current.empty()) {
         anim = player->get_animation(current);
     }
 
@@ -1180,7 +1180,7 @@ void AnimationPlayerEditor::_animation_tool_menu(int p_option) {
             }
 
             String name = anim2->get_name();
-            if (name == "") {
+            if (name.empty()) {
                 name = TTR("Pasted Animation");
             }
 

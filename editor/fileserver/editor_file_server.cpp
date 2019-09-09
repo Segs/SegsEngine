@@ -48,7 +48,7 @@ void EditorFileServer::_close_client(ClientData *cd) {
     cd->efs->wait_mutex->lock();
     cd->efs->to_wait.insert(cd->thread);
     cd->efs->wait_mutex->unlock();
-    while (cd->files.size()) {
+    while (!cd->files.empty()) {
         memdelete(cd->files.front()->get());
         cd->files.erase(cd->files.front());
     }
@@ -93,7 +93,7 @@ void EditorFileServer::_subthread_start(void *s) {
             ERR_FAIL();
         }
     } else {
-        if (cd->efs->password != "") {
+        if (!cd->efs->password.empty()) {
             encode_uint32(ERR_INVALID_DATA, buf4);
             cd->connection->put_data(buf4, 4);
             OS::get_singleton()->delay_usec(1000000);
@@ -297,7 +297,7 @@ void EditorFileServer::_thread_start(void *s) {
         }
 
         self->wait_mutex->lock();
-        while (self->to_wait.size()) {
+        while (!self->to_wait.empty()) {
             Thread *w = self->to_wait.front()->get();
             self->to_wait.erase(w);
             self->wait_mutex->unlock();

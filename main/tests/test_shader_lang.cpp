@@ -114,7 +114,7 @@ static String dump_node_code(SL::Node *p_node, int p_level) {
 				ucode += _typestr(E->get().type);
 				ucode += " " + String(E->key());
 
-				if (E->get().default_value.size()) {
+				if (!E->get().default_value.empty()) {
 					ucode += " = " + get_constant_text(E->get().type, E->get().default_value);
 				}
 
@@ -270,7 +270,7 @@ static String dump_node_code(SL::Node *p_node, int p_level) {
 
 			} else if (cfnode->flow_op == SL::FLOW_OP_RETURN) {
 
-				if (cfnode->blocks.size()) {
+				if (!cfnode->blocks.empty()) {
 					code = "return " + dump_node_code(cfnode->blocks[0], p_level);
 				} else {
 					code = "return";

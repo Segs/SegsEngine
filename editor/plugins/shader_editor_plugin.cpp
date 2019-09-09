@@ -207,7 +207,7 @@ void ShaderTextEditor::_code_complete_script(const String &p_code, List<ScriptCo
     if (err != OK)
         ERR_PRINT("Shaderlang complete failed");
 
-    if (calltip != "") {
+    if (!calltip.empty()) {
         get_text_edit()->set_code_hint(calltip);
     }
 }
@@ -543,7 +543,7 @@ void ShaderEditor::_update_bookmark_list() {
     bookmarks_menu->add_shortcut(ED_GET_SHORTCUT("script_text_editor/goto_previous_bookmark"), BOOKMARK_GOTO_PREV);
 
     Array bookmark_list = shader_editor->get_text_edit()->get_bookmarks_array();
-    if (bookmark_list.size() == 0) {
+    if (bookmark_list.empty()) {
         return;
     }
 

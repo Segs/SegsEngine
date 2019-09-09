@@ -227,8 +227,8 @@ bool NetSocketPosix::_can_use_ip(const IP_Address &p_ip, const bool p_for_bind) 
 
 _FORCE_INLINE_ Error NetSocketPosix::_change_multicast_group(IP_Address p_ip, String p_if_name, bool p_add) {
 
-    ERR_FAIL_COND_V(!is_open(), ERR_UNCONFIGURED);
-    ERR_FAIL_COND_V(!_can_use_ip(p_ip, false), ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(!is_open(), ERR_UNCONFIGURED)
+    ERR_FAIL_COND_V(!_can_use_ip(p_ip, false), ERR_INVALID_PARAMETER)
 
     // Need to force level and af_family to IP(v4) when using dual stacking and provided multicast group is IPv4
     IP::Type type = _ip_type == IP::TYPE_ANY && p_ip.is_ipv4() ? IP::TYPE_IPV4 : _ip_type;
