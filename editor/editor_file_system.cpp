@@ -46,6 +46,7 @@ IMPL_GDCLASS(EditorFileSystemDirectory)
 IMPL_GDCLASS(EditorFileSystem)
 
 EditorFileSystem *EditorFileSystem::singleton = nullptr;
+
 //the name is the version, to keep compatibility with different versions of Godot
 #define CACHE_FILE_NAME "filesystem_cache6"
 
@@ -79,7 +80,7 @@ int EditorFileSystemDirectory::get_subdir_count() const {
 
 EditorFileSystemDirectory *EditorFileSystemDirectory::get_subdir(int p_idx) {
 
-    ERR_FAIL_INDEX_V(p_idx, subdirs.size(), nullptr);
+    ERR_FAIL_INDEX_V(p_idx, subdirs.size(), nullptr)
     return subdirs[p_idx];
 }
 
@@ -90,7 +91,7 @@ int EditorFileSystemDirectory::get_file_count() const {
 
 String EditorFileSystemDirectory::get_file(int p_idx) const {
 
-    ERR_FAIL_INDEX_V(p_idx, files.size(), "");
+    ERR_FAIL_INDEX_V(p_idx, files.size(), "")
 
     return files[p_idx]->file;
 }
@@ -121,13 +122,13 @@ String EditorFileSystemDirectory::get_file_path(int p_idx) const {
 
 Vector<String> EditorFileSystemDirectory::get_file_deps(int p_idx) const {
 
-    ERR_FAIL_INDEX_V(p_idx, files.size(), Vector<String>());
+    ERR_FAIL_INDEX_V(p_idx, files.size(), Vector<String>())
     return files[p_idx]->deps;
 }
 
 bool EditorFileSystemDirectory::get_file_import_is_valid(int p_idx) const {
 
-    ERR_FAIL_INDEX_V(p_idx, files.size(), false);
+    ERR_FAIL_INDEX_V(p_idx, files.size(), false)
     return files[p_idx]->import_valid;
 }
 
@@ -145,7 +146,7 @@ String EditorFileSystemDirectory::get_file_script_class_icon_path(int p_idx) con
 
 StringName EditorFileSystemDirectory::get_file_type(int p_idx) const {
 
-    ERR_FAIL_INDEX_V(p_idx, files.size(), "");
+    ERR_FAIL_INDEX_V(p_idx, files.size(), "")
     return files[p_idx]->type;
 }
 
@@ -199,9 +200,9 @@ EditorFileSystemDirectory::~EditorFileSystemDirectory() {
 
 void EditorFileSystem::_scan_filesystem() {
 
-    ERR_FAIL_COND(!scanning || new_filesystem);
+    ERR_FAIL_COND(!scanning || new_filesystem)
 
-    //read .fscache
+    // read .fscache
     String cpath;
 
     sources_changed.clear();
@@ -209,12 +210,12 @@ void EditorFileSystem::_scan_filesystem() {
 
     String project = ProjectSettings::get_singleton()->get_resource_path();
 
-    String fscache = PathUtils::plus_file(EditorSettings::get_singleton()->get_project_settings_dir(),CACHE_FILE_NAME);
+    String fscache = PathUtils::plus_file(EditorSettings::get_singleton()->get_project_settings_dir(), CACHE_FILE_NAME);
     FileAccess *f = FileAccess::open(fscache, FileAccess::READ);
 
     bool first = true;
     if (f) {
-        //read the disk cache
+        // read the disk cache
         while (!f->eof_reached()) {
 
             String l = StringUtils::strip_edges(f->get_line());
@@ -225,46 +226,46 @@ void EditorFileSystem::_scan_filesystem() {
                     // we don't care until editor restart. This is for usability mainly so
                     // your workflow is not killed after changing a setting by forceful reimporting
                     // everything there is.
-                    filesystem_settings_version_for_import =StringUtils::strip_edges( l);
-                    if (filesystem_settings_version_for_import != ResourceFormatImporter::get_singleton()->get_import_settings_hash()) {
+                    filesystem_settings_version_for_import = StringUtils::strip_edges(l);
+                    if (filesystem_settings_version_for_import !=
+                            ResourceFormatImporter::get_singleton()->get_import_settings_hash()) {
                         revalidate_import_files = true;
                     }
                 }
                 first = false;
                 continue;
             }
-            if (l == String())
-                continue;
+            if (l == String()) continue;
 
-            if (StringUtils::begins_with(l,"::")) {
-                Vector<String> split = StringUtils::split(l,"::");
+            if (StringUtils::begins_with(l, "::")) {
+                Vector<String> split = StringUtils::split(l, "::");
                 ERR_CONTINUE(split.size() != 3)
                 String name = split[1];
 
                 cpath = name;
 
             } else {
-                Vector<String> split = StringUtils::split(l,"::");
+                Vector<String> split = StringUtils::split(l, "::");
                 ERR_CONTINUE(split.size() != 8)
                 String name = split[0];
                 String file;
 
                 file = name;
-                name = PathUtils::plus_file(cpath,name);
+                name = PathUtils::plus_file(cpath, name);
 
                 FileCache fc;
                 fc.type = split[1];
                 fc.modification_time = StringUtils::to_int64(split[2]);
                 fc.import_modification_time = StringUtils::to_int64(split[3]);
                 fc.import_valid = StringUtils::to_int64(split[4]) != 0;
-                fc.import_group_file =StringUtils::strip_edges( split[5]);
-                fc.script_class_name = StringUtils::get_slice(split[6],"<>", 0);
-                fc.script_class_extends = StringUtils::get_slice(split[6],"<>", 1);
-                fc.script_class_icon_path = StringUtils::get_slice(split[6],"<>", 2);
+                fc.import_group_file = StringUtils::strip_edges(split[5]);
+                fc.script_class_name = StringUtils::get_slice(split[6], "<>", 0);
+                fc.script_class_extends = StringUtils::get_slice(split[6], "<>", 1);
+                fc.script_class_icon_path = StringUtils::get_slice(split[6], "<>", 2);
 
-                String deps =StringUtils::strip_edges( split[7]);
+                String deps = StringUtils::strip_edges(split[7]);
                 if (deps.length()) {
-                    Vector<String> dp = StringUtils::split(deps,"<>");
+                    Vector<String> dp = StringUtils::split(deps, "<>");
                     for (int i = 0; i < dp.size(); i++) {
                         String path = dp[i];
                         fc.deps.push_back(path);
@@ -279,7 +280,8 @@ void EditorFileSystem::_scan_filesystem() {
         memdelete(f);
     }
 
-    String update_cache = PathUtils::plus_file(EditorSettings::get_singleton()->get_project_settings_dir(),"filesystem_update4");
+    String update_cache =
+            PathUtils::plus_file(EditorSettings::get_singleton()->get_project_settings_dir(), "filesystem_update4");
 
     if (FileAccess::exists(update_cache)) {
         {
@@ -287,13 +289,13 @@ void EditorFileSystem::_scan_filesystem() {
             String l = StringUtils::strip_edges(f2->get_line());
             while (l != String()) {
 
-                file_cache.erase(l); //erase cache for this, so it gets updated
+                file_cache.erase(l); // erase cache for this, so it gets updated
                 l = StringUtils::strip_edges(f2->get_line());
             }
         }
 
         DirAccessRef d = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
-        d->remove(update_cache); //bye bye update cache
+        d->remove(update_cache); // bye bye update cache
     }
 
     EditorProgressBG scan_progress("efs", "ScanFS", 1000);
@@ -310,12 +312,12 @@ void EditorFileSystem::_scan_filesystem() {
     d->change_dir("res://");
     _scan_new_dir(new_filesystem, d, sp);
 
-    file_cache.clear(); //clear caches, no longer needed
+    file_cache.clear(); // clear caches, no longer needed
 
     memdelete(d);
 
     if (!first_scan) {
-        //on the first scan this is done from the main thread after re-importing
+        // on the first scan this is done from the main thread after re-importing
         _save_filesystem_cache();
     }
 
@@ -330,7 +332,7 @@ void EditorFileSystem::_save_filesystem_cache() {
 
     FileAccess *f = FileAccess::open(fscache, FileAccess::WRITE);
     if (f == nullptr) {
-        ERR_PRINTS("Error writing fscache: " + fscache);
+        ERR_PRINTS("Error writing fscache: " + fscache)
     } else {
         f->store_line(filesystem_settings_version_for_import);
         _save_filesystem_cache(filesystem, f);
@@ -393,7 +395,7 @@ bool EditorFileSystem::_test_for_reimport(const String &p_path, bool p_only_impo
         if (err == ERR_FILE_EOF) {
             break;
         } else if (err != OK) {
-            ERR_PRINTS("ResourceFormatImporter::load - " + p_path + ".import:" + itos(lines) + " error: " + error_text);
+            ERR_PRINTS("ResourceFormatImporter::load - " + p_path + ".import:" + itos(lines) + " error: " + error_text)
             memdelete(f);
             return false; //parse error, try reimport manually (Avoid reimport loop on broken file)
         }
@@ -527,7 +529,7 @@ bool EditorFileSystem::_update_scan_actions() {
             } break;
             case ItemAction::ACTION_DIR_REMOVE: {
 
-                ERR_CONTINUE(!ia.dir->parent);
+                ERR_CONTINUE(!ia.dir->parent)
                 ia.dir->parent->subdirs.erase(ia.dir);
                 memdelete(ia.dir);
                 fs_changed = true;
@@ -553,7 +555,7 @@ bool EditorFileSystem::_update_scan_actions() {
             case ItemAction::ACTION_FILE_REMOVE: {
 
                 int idx = ia.dir->find_file_index(ia.file);
-                ERR_CONTINUE(idx == -1);
+                ERR_CONTINUE(idx == -1)
                 _delete_internal_files(ia.dir->files[idx]->file);
                 memdelete(ia.dir->files[idx]);
                 ia.dir->files.remove(idx);
@@ -564,7 +566,7 @@ bool EditorFileSystem::_update_scan_actions() {
             case ItemAction::ACTION_FILE_TEST_REIMPORT: {
 
                 int idx = ia.dir->find_file_index(ia.file);
-                ERR_CONTINUE(idx == -1);
+                ERR_CONTINUE(idx == -1)
                 String full_path = ia.dir->get_file_path(idx);
                 if (_test_for_reimport(full_path, false)) {
                     //must reimport
@@ -581,7 +583,7 @@ bool EditorFileSystem::_update_scan_actions() {
             case ItemAction::ACTION_FILE_RELOAD: {
 
                 int idx = ia.dir->find_file_index(ia.file);
-                ERR_CONTINUE(idx == -1);
+                ERR_CONTINUE(idx == -1)
                 String full_path = ia.dir->get_file_path(idx);
 
                 reloads.push_back(full_path);
@@ -637,7 +639,7 @@ void EditorFileSystem::scan() {
         first_scan = false;
     } else {
 
-        ERR_FAIL_COND(thread);
+        ERR_FAIL_COND(thread)
         set_process(true);
         Thread::Settings s;
         scanning = true;
@@ -667,8 +669,8 @@ EditorFileSystem::ScanProgress EditorFileSystem::ScanProgress::get_sub(int p_cur
 
 void EditorFileSystem::_scan_new_dir(EditorFileSystemDirectory *p_dir, DirAccess *da, const ScanProgress &p_progress) {
 
-    List<String> dirs;
-    List<String> files;
+    Vector<String> dirs;
+    Vector<String> files;
 
     String cd = da->get_current_dir();
 
@@ -678,7 +680,7 @@ void EditorFileSystem::_scan_new_dir(EditorFileSystemDirectory *p_dir, DirAccess
     while (true) {
 
         String f = da->get_next();
-        if (f == "")
+        if (f.empty())
             break;
 
         if (da->current_is_dir()) {
@@ -707,9 +709,9 @@ void EditorFileSystem::_scan_new_dir(EditorFileSystemDirectory *p_dir, DirAccess
     int total = dirs.size() + files.size();
     int idx = 0;
 
-    for (List<String>::Element *E = dirs.front(); E; E = E->next(), idx++) {
-
-        if (da->change_dir(E->get()) == OK) {
+    for (int i=0,fin=dirs.size(); i<fin; ++i,++idx) {
+        const String &entry(dirs[i]);
+        if (da->change_dir(entry) == OK) {
 
             String d = da->get_current_dir();
 
@@ -720,14 +722,14 @@ void EditorFileSystem::_scan_new_dir(EditorFileSystemDirectory *p_dir, DirAccess
                 EditorFileSystemDirectory *efd = memnew(EditorFileSystemDirectory);
 
                 efd->parent = p_dir;
-                efd->name = E->get();
+                efd->name = entry;
 
                 _scan_new_dir(efd, da, p_progress.get_sub(idx, total));
 
                 int idx2 = 0;
-                for (int i = 0; i < p_dir->subdirs.size(); i++) {
+                for (int j = 0; j < p_dir->subdirs.size(); j++) {
 
-                    if (efd->name < p_dir->subdirs[i]->name)
+                    if (efd->name < p_dir->subdirs[j]->name)
                         break;
                     idx2++;
                 }
@@ -740,21 +742,22 @@ void EditorFileSystem::_scan_new_dir(EditorFileSystemDirectory *p_dir, DirAccess
                 da->change_dir("..");
             }
         } else {
-            ERR_PRINTS("Cannot go into subdir: " + E->get());
+            ERR_PRINTS("Cannot go into subdir: " + entry)
         }
 
         p_progress.update(idx, total);
     }
 
-    for (List<String>::Element *E = files.front(); E; E = E->next(), idx++) {
+    for (int i=0,fin=files.size(); i<fin; ++i, ++idx) {
+        const String &fname(files[i]);
 
-        String ext = StringUtils::to_lower(PathUtils::get_extension(E->get()));
+        String ext = StringUtils::to_lower(PathUtils::get_extension(fname));
         if (!valid_extensions.has(ext)) {
             continue; //invalid
         }
 
         EditorFileSystemDirectory::FileInfo *fi = memnew(EditorFileSystemDirectory::FileInfo);
-        fi->file = E->get();
+        fi->file = fname;
 
         String path = PathUtils::plus_file(cd,fi->file);
 
@@ -786,7 +789,7 @@ void EditorFileSystem::_scan_new_dir(EditorFileSystemDirectory *p_dir, DirAccess
                     ItemAction ia;
                     ia.action = ItemAction::ACTION_FILE_TEST_REIMPORT;
                     ia.dir = p_dir;
-                    ia.file = E->get();
+                    ia.file = fname;
                     scan_actions.push_back(ia);
                 }
 
@@ -809,7 +812,7 @@ void EditorFileSystem::_scan_new_dir(EditorFileSystemDirectory *p_dir, DirAccess
                 ItemAction ia;
                 ia.action = ItemAction::ACTION_FILE_TEST_REIMPORT;
                 ia.dir = p_dir;
-                ia.file = E->get();
+                ia.file = fname;
                 scan_actions.push_back(ia);
             }
         } else {
@@ -874,7 +877,7 @@ void EditorFileSystem::_scan_fs_changes(EditorFileSystemDirectory *p_dir, const 
         while (true) {
 
             String f = da->get_next();
-            if (f == "")
+            if (f.empty())
                 break;
 
             if (da->current_is_dir()) {
@@ -1092,7 +1095,7 @@ void EditorFileSystem::scan_changes() {
         emit_signal("sources_changed", sources_changed.size() > 0);
     } else {
 
-        ERR_FAIL_COND(thread_sources);
+        ERR_FAIL_COND(thread_sources)
         set_process(true);
         scan_total = 0;
         Thread::Settings s;
@@ -1120,7 +1123,7 @@ void EditorFileSystem::_notification(int p_what) {
                 Thread::wait_to_finish(thread);
                 memdelete(thread);
                 thread = nullptr;
-                WARN_PRINTS("Scan thread aborted...");
+                WARN_PRINTS("Scan thread aborted...")
                 set_process(false);
             }
 
@@ -1200,7 +1203,10 @@ void EditorFileSystem::_save_filesystem_cache(EditorFileSystemDirectory *p_dir, 
         if (p_dir->files[i]->import_group_file != String()) {
             group_file_cache.insert(p_dir->files[i]->import_group_file);
         }
-        String s = p_dir->files[i]->file + "::" + p_dir->files[i]->type + "::" + itos(p_dir->files[i]->modified_time) + "::" + itos(p_dir->files[i]->import_modified_time) + "::" + itos(p_dir->files[i]->import_valid) + "::" + p_dir->files[i]->import_group_file + "::" + p_dir->files[i]->script_class_name + "<>" + p_dir->files[i]->script_class_extends + "<>" + p_dir->files[i]->script_class_icon_path;
+        String s = p_dir->files[i]->file + "::" + p_dir->files[i]->type + "::" + itos(p_dir->files[i]->modified_time) +
+                   "::" + itos(p_dir->files[i]->import_modified_time) + "::" + itos(p_dir->files[i]->import_valid) +
+                   "::" + p_dir->files[i]->import_group_file + "::" + p_dir->files[i]->script_class_name + "<>" +
+                   p_dir->files[i]->script_class_extends + "<>" + p_dir->files[i]->script_class_icon_path;
         s += "::";
         for (int j = 0; j < p_dir->files[i]->deps.size(); j++) {
 
@@ -1554,7 +1560,7 @@ Error EditorFileSystem::_reimport_group(const String &p_group_file, const Vector
         config.instance();
         Error err = config->load(p_files[i] + ".import");
         ERR_CONTINUE(err != OK)
-        ERR_CONTINUE(!config->has_section_key("remap", "importer"));
+        ERR_CONTINUE(!config->has_section_key("remap", "importer"))
         String file_importer_name = config->get_value("remap", "importer");
         ERR_CONTINUE(file_importer_name.empty())
 
@@ -1664,7 +1670,7 @@ Error EditorFileSystem::_reimport_group(const String &p_group_file, const Vector
 
         // Store the md5's of the various files. These are stored separately so that the .import files can be version controlled.
         FileAccessRef md5s = FileAccess::open(base_path + ".md5", FileAccess::WRITE);
-        ERR_FAIL_COND_V(!md5s, ERR_FILE_CANT_OPEN);
+        ERR_FAIL_COND_V(!md5s, ERR_FILE_CANT_OPEN)
 
         md5s->store_line("source_md5=\"" + FileAccess::get_md5(file) + "\"");
         if (dest_paths.size()) {
@@ -1709,7 +1715,7 @@ void EditorFileSystem::_reimport_file(const String &p_file) {
     EditorFileSystemDirectory *fs = nullptr;
     int cpos = -1;
     bool found = _find_file(p_file, &fs, cpos);
-    ERR_FAIL_COND(!found);
+    ERR_FAIL_COND(!found)
 
     //try to obtain existing params
 
@@ -1750,8 +1756,8 @@ void EditorFileSystem::_reimport_file(const String &p_file) {
         importer = ResourceFormatImporter::get_singleton()->get_importer_by_extension(PathUtils::get_extension(p_file));
         load_default = true;
         if (importer.is_null()) {
-            ERR_PRINT("BUG: File queued for import, but can't be imported!");
-            ERR_FAIL();
+            ERR_PRINT("BUG: File queued for import, but can't be imported!")
+            ERR_FAIL()
         }
     }
 
@@ -1785,13 +1791,13 @@ void EditorFileSystem::_reimport_file(const String &p_file) {
     Error err = importer->import(p_file, base_path, params, &import_variants, &gen_files, &metadata);
 
     if (err != OK) {
-        ERR_PRINTS("Error importing: " + p_file);
+        ERR_PRINTS("Error importing: " + p_file)
     }
 
     //as import is complete, save the .import file
 
     FileAccess *f = FileAccess::open(p_file + ".import", FileAccess::WRITE);
-    ERR_FAIL_COND(!f);
+    ERR_FAIL_COND(!f)
 
     //write manually, as order matters ([remap] has to go first for performance).
     f->store_line("[remap]");
@@ -1876,7 +1882,7 @@ void EditorFileSystem::_reimport_file(const String &p_file) {
 
     // Store the md5's of the various files. These are stored separately so that the .import files can be version controlled.
     FileAccess *md5s = FileAccess::open(base_path + ".md5", FileAccess::WRITE);
-    ERR_FAIL_COND(!md5s);
+    ERR_FAIL_COND(!md5s)
     md5s->store_line("source_md5=\"" + FileAccess::get_md5(p_file) + "\"");
     if (dest_paths.size()) {
         md5s->store_line("dest_md5=\"" + FileAccess::get_multiple_md5(dest_paths) + "\"\n");
@@ -1934,7 +1940,7 @@ void EditorFileSystem::reimport_files(const Vector<String> &p_files) {
             Error err = da->make_dir(".import");
             if (err) {
                 memdelete(da);
-                ERR_FAIL_MSG("Failed to create 'res://.import' folder.");
+                ERR_FAIL_MSG("Failed to create 'res://.import' folder.")
             }
         }
         memdelete(da);

@@ -103,17 +103,8 @@ public:
     static String get_full_path(const String &p_path, AccessType p_access);
     static DirAccess *create_for_path(const String &p_path);
 
-    /*
-    enum DirType {
-
-        FILE_TYPE_INVALID,
-        FILE_TYPE_FILE,
-        FILE_TYPE_DIR,
-    };
-
-    //virtual DirType get_file_type() const=0;
-*/
     static DirAccess *create(AccessType p_access);
+    static DirAccess *create(const char *custom_access_type);
 
     template <class T>
     static void make_default(AccessType p_access) {
