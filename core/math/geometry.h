@@ -703,15 +703,15 @@ public:
 			LOC_BOUNDARY = 0,
 			LOC_OUTSIDE = -1
 		};
-
-		if (polygon.size() == 0)
+        int poly_count = polygon.size();
+		if (poly_count == 0)
 			return polygon;
 
-		int *location_cache = (int *)alloca(sizeof(int) * polygon.size());
+		int *location_cache = (int *)alloca(sizeof(int) * poly_count);
 		int inside_count = 0;
 		int outside_count = 0;
 
-		for (int a = 0; a < polygon.size(); a++) {
+		for (int a = 0; a < poly_count; a++) {
 			real_t dist = p_plane.distance_to(polygon[a]);
 			if (dist < -CMP_POINT_IN_PLANE_EPSILON) {
 				location_cache[a] = LOC_INSIDE;

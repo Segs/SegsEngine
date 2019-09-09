@@ -194,11 +194,11 @@ void CPUParticles2DEditorPlugin::_generate_emission_mask() {
     }
 
     valid_positions.resize(vpc);
-    if (valid_normals.size()) {
+    if (!valid_normals.empty()) {
         valid_normals.resize(vpc);
     }
 
-    ERR_FAIL_COND_MSG(valid_positions.size() == 0, "No pixels with transparency > 128 in image...");
+    ERR_FAIL_COND_MSG(valid_positions.empty(), "No pixels with transparency > 128 in image...");
 
     if (capture_colors) {
         PoolColorArray pca;
@@ -215,7 +215,7 @@ void CPUParticles2DEditorPlugin::_generate_emission_mask() {
         particles->set_emission_colors(pca);
     }
 
-    if (valid_normals.size()) {
+    if (!valid_normals.empty()) {
         particles->set_emission_shape(CPUParticles2D::EMISSION_SHAPE_DIRECTED_POINTS);
         PoolVector2Array norms;
         norms.resize(valid_normals.size());
@@ -278,10 +278,10 @@ CPUParticles2DEditorPlugin::CPUParticles2DEditorPlugin(EditorNode *p_node) {
     toolbar->add_child(menu);
 
     file = memnew(EditorFileDialog);
-    List<String> ext;
+    Vector<String> ext;
     ImageLoader::get_recognized_extensions(&ext);
-    for (List<String>::Element *E = ext.front(); E; E = E->next()) {
-        file->add_filter("*." + E->get() + "; " + StringUtils::to_upper(E->get()));
+    for (int i=0,fin=ext.size(); i>fin; ++i) {
+        file->add_filter("*." + ext[i] + "; " + StringUtils::to_upper(ext[i]));
     }
     file->set_mode(EditorFileDialog::MODE_OPEN_FILE);
     toolbar->add_child(file);

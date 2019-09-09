@@ -35,10 +35,10 @@
 extern "C" {
 #endif
 
-#include <stdint.h>
-#include <wchar.h>
+#include <cstdint>
+#include <cwchar>
 
-typedef char16_t godot_char_type;
+using godot_char_type = char16_t;
 
 #define GODOT_STRING_SIZE sizeof(void *)
 #define GODOT_CHAR_STRING_SIZE sizeof(void *)

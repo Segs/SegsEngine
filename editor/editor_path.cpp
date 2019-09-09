@@ -61,7 +61,7 @@ void EditorPath::_add_children_to_popup(Object *p_obj, int p_depth) {
         Ref<Texture> icon = EditorNode::get_singleton()->get_object_icon(obj);
 
         int index = get_popup()->get_item_count();
-		get_popup()->add_icon_item(icon, StringUtils::capitalize(E->get().name), objects.size());
+        get_popup()->add_icon_item(icon, StringUtils::capitalize(E->get().name), objects.size());
         get_popup()->set_item_h_offset(index, p_depth * 10 * EDSCALE);
         objects.push_back(obj->get_instance_id());
 
@@ -82,9 +82,6 @@ void EditorPath::_about_to_show() {
 }
 
 void EditorPath::update_path() {
-    set_text("");
-    set_tooltip("");
-    set_icon(NULL);
 
     for (int i = 0; i < history->get_path_size(); i++) {
 
@@ -125,7 +122,7 @@ void EditorPath::update_path() {
 
 void EditorPath::_id_pressed(int p_idx) {
 
-    ERR_FAIL_INDEX(p_idx, objects.size());
+    ERR_FAIL_INDEX(p_idx, objects.size())
 
     Object *obj = ObjectDB::get_instance(objects[p_idx]);
     if (!obj)

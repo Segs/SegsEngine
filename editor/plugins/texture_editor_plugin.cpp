@@ -30,6 +30,8 @@
 
 #include "texture_editor_plugin.h"
 
+#include "scene/resources/curve_texture.h"
+
 #include "core/method_bind.h"
 #include "core/io/resource_loader.h"
 #include "core/project_settings.h"

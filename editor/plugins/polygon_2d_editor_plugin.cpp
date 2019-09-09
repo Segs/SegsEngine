@@ -38,6 +38,7 @@
 #include "editor/editor_settings.h"
 #include "scene/2d/skeleton_2d.h"
 #include "editor/editor_scale.h"
+#include "scene/resources/style_box.h"
 
 IMPL_GDCLASS(Polygon2DEditor)
 IMPL_GDCLASS(Polygon2DEditorPlugin)
@@ -181,7 +182,7 @@ void Polygon2DEditor::_update_bone_list() {
         if (np.get_name_count()) {
             name = np.get_name(np.get_name_count() - 1);
         }
-        if (name == String()) {
+        if (name.empty()) {
             name = "Bone " + itos(i);
         }
         cb->set_text(name);
@@ -680,7 +681,7 @@ void Polygon2DEditor::_uv_input(const Ref<InputEvent> &p_input) {
                     }
 
                     if (closest != -1) {
-                        if (polygon_create.size() && closest == polygon_create[0]) {
+                        if (!polygon_create.empty() && closest == polygon_create[0]) {
                             //close
                             if (polygon_create.size() < 3) {
                                 error->set_text(TTR("Invalid Polygon (need 3 different vertices)"));
@@ -942,7 +943,7 @@ void Polygon2DEditor::_uv_input(const Ref<InputEvent> &p_input) {
 
             uv_edit_draw->update();
             CanvasItemEditor::get_singleton()->update_viewport();
-        } else if (polygon_create.size()) {
+        } else if (!polygon_create.empty()) {
             uv_create_to = mtx.affine_inverse().xform(Vector2(mm->get_position().x, mm->get_position().y));
             uv_edit_draw->update();
         } else if (uv_mode == UV_MODE_PAINT_WEIGHT || uv_mode == UV_MODE_CLEAR_WEIGHT) {
@@ -1054,7 +1055,7 @@ void Polygon2DEditor::_uv_draw() {
     Ref<Texture> handle = get_icon("EditorPathSharpHandle", "EditorIcons");
 
     Color poly_line_color = Color(0.9f, 0.5, 0.5);
-    if (polygons.size() || polygon_create.size()) {
+    if (!polygons.empty() || !polygon_create.empty()) {
         poly_line_color.a *= 0.25f;
     }
     Color polygon_line_color = Color(0.5, 0.5, 0.9f);
@@ -1131,7 +1132,7 @@ void Polygon2DEditor::_uv_draw() {
         }
     }
 
-    if (polygon_create.size()) {
+    if (!polygon_create.empty()) {
         for (int i = 0; i < polygon_create.size(); i++) {
             Vector2 from = uvs[polygon_create[i]];
             Vector2 to = (i + 1) < polygon_create.size() ? uvs[polygon_create[i + 1]] : uv_create_to;

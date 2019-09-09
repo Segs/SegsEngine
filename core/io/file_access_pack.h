@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef FILE_ACCESS_PACK_H
-#define FILE_ACCESS_PACK_H
+#pragma once
 
 #include "core/list.h"
 #include "core/map.h"
@@ -37,23 +36,25 @@
 #include "core/os/file_access.h"
 #include "core/print_string.h"
 #include "core/ustring.h"
+#include "core/plugin_interfaces/PackSourceInterface.h"
 
-class PackSource;
+class PackSourceInterface;
+
+struct PackedDataFile {
+
+    String pack;
+    uint64_t offset; //if offset is ZERO, the file was ERASED
+    uint64_t size;
+    uint8_t md5[16];
+    PackSourceInterface *src;
+};
 
 class PackedData {
     friend class FileAccessPack;
     friend class DirAccessPack;
-    friend class PackSource;
+    friend class PackSourceInterface;
 
 public:
-    struct PackedFile {
-
-        String pack;
-        uint64_t offset; //if offset is ZERO, the file was ERASED
-        uint64_t size;
-        uint8_t md5[16];
-        PackSource *src;
-    };
 
 private:
     struct PackedDir {
@@ -66,32 +67,32 @@ private:
     struct PathMD5 {
         uint64_t a;
         uint64_t b;
-        bool operator<(const PathMD5 &p_md5) const {
+        bool operator<(PathMD5 p_md5) const {
 
             if (p_md5.a == a) {
                 return b < p_md5.b;
-            } else {
-                return a < p_md5.a;
             }
+            return a < p_md5.a;
         }
 
-        bool operator==(const PathMD5 &p_md5) const {
+        bool operator==(PathMD5 p_md5) const {
             return a == p_md5.a && b == p_md5.b;
-        };
+        }
 
         PathMD5() {
             a = b = 0;
-        };
+        }
 
-        PathMD5(const Vector<uint8_t> p_buf) {
+        PathMD5(const Vector<uint8_t> &p_buf) {
+            assert(p_buf.size()>=16);
             a = *((uint64_t *)&p_buf[0]);
             b = *((uint64_t *)&p_buf[8]);
-        };
+        }
     };
 
-    Map<PathMD5, PackedFile> files;
+    Map<PathMD5, PackedDataFile> files;
 
-    Vector<PackSource *> sources;
+    Vector<PackSourceInterface *> sources;
 
     PackedDir *root;
     //Map<String,PackedDir*> dirs;
@@ -102,8 +103,9 @@ private:
     void _free_packed_dirs(PackedDir *p_dir);
 
 public:
-    void add_pack_source(PackSource *p_source);
-    void add_path(const String &pkg_path, const String &path, uint64_t ofs, uint64_t size, const uint8_t *p_md5, PackSource *p_src); // for PackSource
+    void add_pack_source(PackSourceInterface *p_source);
+    void remove_pack_source(PackSourceInterface *p_source);
+    void add_path(const String &pkg_path, const String &path, uint64_t ofs, uint64_t size, const uint8_t *p_md5, PackSourceInterface *p_src); // for PackSource
 
     void set_disabled(bool p_disabled) { disabled = p_disabled; }
     _FORCE_INLINE_ bool is_disabled() const { return disabled; }
@@ -118,24 +120,16 @@ public:
     ~PackedData();
 };
 
-class PackSource {
-
-public:
-    virtual bool try_open_pack(const String &p_path) = 0;
-    virtual FileAccess *get_file(const String &p_path, PackedData::PackedFile *p_file) = 0;
-    virtual ~PackSource() {}
-};
-
-class PackedSourcePCK : public PackSource {
+class PackedSourcePCK : public PackSourceInterface {
 
 public:
     bool try_open_pack(const String &p_path) override;
-    FileAccess *get_file(const String &p_path, PackedData::PackedFile *p_file) override;
+    FileAccess *get_file(const String &p_path, PackedDataFile *p_file) override;
 };
 
 class FileAccessPack : public FileAccess {
 
-    PackedData::PackedFile pf;
+    PackedDataFile pf;
 
     mutable size_t pos;
     mutable bool eof;
@@ -172,14 +166,14 @@ public:
 
     bool file_exists(const String &p_name) override;
 
-    FileAccessPack(const String &p_path, const PackedData::PackedFile &p_file);
+    FileAccessPack(const String &p_path, const PackedDataFile &p_file);
     ~FileAccessPack() override;
 };
 
 FileAccess *PackedData::try_open_path(const String &p_path) {
 
     PathMD5 pmd5(StringUtils::md5_buffer(p_path));
-    Map<PathMD5, PackedFile>::Element *E = files.find(pmd5);
+    Map<PathMD5, PackedDataFile>::Element *E = files.find(pmd5);
     if (!E)
         return nullptr; //not found
     if (E->get().offset == 0)
@@ -229,5 +223,3 @@ public:
     DirAccessPack();
     ~DirAccessPack() override;
 };
-
-#endif // FILE_ACCESS_PACK_H

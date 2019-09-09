@@ -547,7 +547,7 @@ void GDScriptTokenizerText::_advance() {
                     comment += GETCHAR(0);
 #endif // DEBUG_ENABLED
                     code_pos++;
-                    if (GETCHAR(0) == 0) { //end of file
+                    if (GETCHAR(0) == nullptr) { //end of file
                         //_make_error("Unterminated Comment");
                         _make_token(TK_EOF);
                         return;
@@ -796,7 +796,7 @@ void GDScriptTokenizerText::_advance() {
 
                 String str;
                 while (true) {
-                    if (CharType(GETCHAR(i)) == 0) {
+                    if (CharType(GETCHAR(i)) == nullptr) {
 
                         _make_error("Unterminated String");
                         return;
@@ -818,7 +818,7 @@ void GDScriptTokenizerText::_advance() {
                         //escaped characters...
                         i++;
                         CharType next = GETCHAR(i);
-                        if (next == 0) {
+                        if (next == nullptr) {
                             _make_error("Unterminated String");
                             return;
                         }
@@ -846,7 +846,7 @@ void GDScriptTokenizerText::_advance() {
                                 uint16_t accval=0;
                                 for (int j = 0; j < 4; j++) {
                                     CharType c = GETCHAR(i + j);
-                                    if (c == 0) {
+                                    if (c == nullptr) {
                                         _make_error("Unterminated String");
                                         return;
                                     }

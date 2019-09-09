@@ -59,20 +59,46 @@ _FORCE_INLINE_ bool is_str_less(const L *l_ptr, const R *r_ptr) {
 } // end of anonymous namespace
 
 struct StringName::_Data {
-    SafeRefCount refcount;
-    const char *cname;
-    String name;
-
-    String get_name() const { return cname ? String(cname) : name; }
-    int idx;
-    uint32_t hash;
     _Data *prev;
     _Data *next;
+    const char *cname;
+    SafeRefCount refcount;
+    uint32_t idx:31;
+    //! if set to 1 then underlying char * array was allocated dynamically.
+    uint32_t mark:1;
+    uint32_t hash;
+
+    const char *get_name() const { return cname; }
+    void set_static_name(const char *s) {
+        mark = 0;
+        cname = s;
+    }
+    void set_dynamic_name(const String &s) {
+
+        char *data = (char *)Memory::alloc_static(s.size()+1);
+        memcpy(data,qPrintable(s.m_str),s.size());
+        data[s.size()]=0;
+        cname =data;
+        mark = 1;
+    }
+    void set_dynamic_name(const char *s) {
+
+        char *data = (char *)Memory::alloc_static(strlen(s)+1);
+        memcpy(data,s,strlen(s)+1);
+        cname = data;
+        mark = 1;
+    }
     _Data() {
         cname = nullptr;
         next = prev = nullptr;
         idx = 0;
         hash = 0;
+    }
+    ~_Data() {
+       if(mark)  // dynamic memory
+       {
+           Memory::free_static((void *)get_name());
+       }
     }
 };
 
@@ -95,31 +121,28 @@ void StringName::setup() {
 
 void StringName::cleanup() {
 
-    lock->lock();
+    { // this block is done under lock, exiting the block will release the block automatically.
+        MutexLock mlocker(lock);
 
-    int lost_strings = 0;
-    for (int i = 0; i < STRING_TABLE_LEN; i++) {
+        int lost_strings = 0;
+        for (int i = 0; i < STRING_TABLE_LEN; i++) {
 
-        while (_table[i]) {
+            while (_table[i]) {
 
-            _Data *d = _table[i];
-            lost_strings++;
-            if (OS::get_singleton()->is_stdout_verbose()) {
-                if (d->cname) {
-                    print_line("Orphan StringName: " + String(d->cname));
-                } else {
-                    print_line("Orphan StringName: " + String(d->name));
+                _Data *d = _table[i];
+                lost_strings++;
+                if (OS::get_singleton()->is_stdout_verbose()) {
+                    print_line("Orphan StringName: " + String(d->get_name()));
                 }
-            }
 
-            _table[i] = _table[i]->next;
-            delete d;
+                _table[i] = _table[i]->next;
+                delete d;
+            }
+        }
+        if (lost_strings) {
+            print_verbose("StringName: " + itos(lost_strings) + " unclaimed string names at exit.");
         }
     }
-    if (lost_strings) {
-        print_verbose("StringName: " + itos(lost_strings) + " unclaimed string names at exit.");
-    }
-    lock->unlock();
 
     memdelete(lock);
 }
@@ -129,8 +152,7 @@ void StringName::unref() {
     ERR_FAIL_COND(!configured)
 
     if (_data && _data->refcount.unref()) {
-
-        lock->lock();
+        MutexLock mlocker(lock);
 
         if (_data->prev) {
             _data->prev->next = _data->next;
@@ -145,14 +167,13 @@ void StringName::unref() {
             _data->next->prev = _data->prev;
         }
         delete _data;
-        lock->unlock();
     }
 
     _data = nullptr;
 }
 
 StringName::operator const void*() const {
-    return (_data && (_data->cname || !_data->name.empty())) ? (void *)1 : nullptr;
+    return (_data && _data->cname) ? (void *)1 : nullptr;
 }
 
 bool StringName::operator==(const QString &p_name) const {
@@ -172,7 +193,7 @@ bool StringName::operator==(const char *p_name) const {
         return (p_name[0] == 0);
     }
 
-    return (_data->get_name() == p_name);
+    return 0==strcmp(_data->get_name() , p_name);
 }
 
 bool StringName::operator!=(const QString &p_name) const {
@@ -204,17 +225,21 @@ StringName &StringName::operator=(StringName &&p_name)
 
 StringName::operator String() const {
 
-    if (!_data)
+    if (!_data||!_data->cname)
         return String();
 
-    if (_data->cname)
-        return String(_data->cname);
-
-    return _data->name;
-
+    return String(_data->get_name());
 }
 
 String StringName::asString() const { return (String)*this; }
+
+const char *StringName::asCString() const
+{
+    if (!_data||!_data->cname)
+        return nullptr;
+
+    return _data->get_name();
+}
 
 StringName &StringName::operator=(const StringName &p_name) {
 
@@ -241,7 +266,7 @@ StringName::StringName(const StringName &p_name) {
     }
 }
 
-StringName::StringName(StringName &&p_name)
+StringName::StringName(StringName &&p_name) noexcept
 {
     _data = p_name._data;
     p_name._data = nullptr;
@@ -256,7 +281,7 @@ StringName::StringName(const char *p_name) {
     if (!p_name || p_name[0] == 0)
         return; //empty, ignore
 
-    lock->lock();
+    MutexLock mlocker(lock);
 
     uint32_t hash = StringUtils::hash(p_name);
 
@@ -267,7 +292,7 @@ StringName::StringName(const char *p_name) {
     while (_data) {
 
         // compare hash first
-        if (_data->hash == hash && _data->get_name() == p_name)
+        if (_data->hash == hash && 0==strcmp(_data->get_name(),p_name))
             break;
         _data = _data->next;
     }
@@ -275,15 +300,13 @@ StringName::StringName(const char *p_name) {
     if (_data) {
         if (_data->refcount.ref()) {
             // exists
-            lock->unlock();
             return;
         }
     }
 
     _data = new _Data;
     _data->refcount.init();
-    _data->cname = nullptr;
-    _data->name = p_name;
+    _data->set_dynamic_name(p_name);
     _data->idx = idx;
     _data->hash = hash;
     _data->next = _table[idx];
@@ -292,11 +315,11 @@ StringName::StringName(const char *p_name) {
         _table[idx]->prev = _data;
     _table[idx] = _data;
 
-    lock->unlock();
 }
 
 void StringName::setupFromCString(const StaticCString &p_static_string) {
-    lock->lock();
+
+    MutexLock mlocker(lock);
 
     uint32_t hash = StringUtils::hash(p_static_string.ptr);
 
@@ -307,7 +330,7 @@ void StringName::setupFromCString(const StaticCString &p_static_string) {
     while (_data) {
 
         // compare hash first
-        if (_data->hash == hash && _data->get_name() == p_static_string.ptr)
+        if (_data->hash == hash && 0==strcmp(_data->get_name(),p_static_string.ptr))
             break;
         _data = _data->next;
     }
@@ -315,7 +338,6 @@ void StringName::setupFromCString(const StaticCString &p_static_string) {
     if (_data) {
         if (_data->refcount.ref()) {
             // exists
-            lock->unlock();
             return;
         }
     }
@@ -323,7 +345,7 @@ void StringName::setupFromCString(const StaticCString &p_static_string) {
     _data = new _Data;
 
     _data->refcount.init();
-    _data->cname = p_static_string.ptr;
+    _data->set_static_name(p_static_string.ptr);
     _data->idx = idx;
     _data->hash = hash;
     _data->next = _table[idx];
@@ -332,7 +354,6 @@ void StringName::setupFromCString(const StaticCString &p_static_string) {
         _table[idx]->prev = _data;
     _table[idx] = _data;
 
-    lock->unlock();
 }
 
 StringName::StringName(const String &p_name) {
@@ -344,7 +365,7 @@ StringName::StringName(const String &p_name) {
     if (p_name.empty())
         return;
 
-    lock->lock();
+    MutexLock mlocker(lock);
 
     uint32_t hash = StringUtils::hash(p_name);
 
@@ -362,24 +383,21 @@ StringName::StringName(const String &p_name) {
     if (_data) {
         if (_data->refcount.ref()) {
             // exists
-            lock->unlock();
             return;
         }
     }
 
     _data = new _Data;
-    _data->name = p_name;
+    _data->set_dynamic_name(p_name);
     _data->refcount.init();
     _data->hash = hash;
     _data->idx = idx;
-    _data->cname = nullptr;
     _data->next = _table[idx];
     _data->prev = nullptr;
     if (_table[idx])
         _table[idx]->prev = _data;
     _table[idx] = _data;
 
-    lock->unlock();
 }
 
 StringName StringName::search(const char *p_name) {
@@ -390,7 +408,7 @@ StringName StringName::search(const char *p_name) {
     if (!p_name[0])
         return StringName();
 
-    lock->lock();
+    MutexLock mlocker(lock);
 
     uint32_t hash = StringUtils::hash(p_name);
 
@@ -401,58 +419,23 @@ StringName StringName::search(const char *p_name) {
     while (_data) {
 
         // compare hash first
-        if (_data->hash == hash && _data->get_name() == p_name)
+        if (_data->hash == hash && 0==strcmp(_data->get_name(),p_name))
             break;
         _data = _data->next;
     }
 
     if (_data && _data->refcount.ref()) {
-        lock->unlock();
-
         return StringName(_data);
     }
 
-    lock->unlock();
     return StringName(); //does not exist
 }
 
-StringName StringName::search(const CharType *p_name) {
-
-    ERR_FAIL_COND_V(!configured, StringName())
-
-    ERR_FAIL_COND_V(!p_name, StringName())
-    if (QChar(0)==p_name[0])
-        return StringName();
-
-    lock->lock();
-
-    uint32_t hash = StringUtils::hash(p_name);
-
-    uint32_t idx = hash & STRING_TABLE_MASK;
-
-    _Data *_data = _table[idx];
-
-    while (_data) {
-
-        // compare hash first
-        if (_data->hash == hash && _data->get_name() == p_name)
-            break;
-        _data = _data->next;
-    }
-
-    if (_data && _data->refcount.ref()) {
-        lock->unlock();
-        return StringName(_data);
-    }
-
-    lock->unlock();
-    return StringName(); //does not exist
-}
 StringName StringName::search(const String &p_name) {
 
-    ERR_FAIL_COND_V(p_name == "", StringName())
+    ERR_FAIL_COND_V(p_name.empty(), StringName())
 
-    lock->lock();
+    MutexLock mlocker(lock);
 
     uint32_t hash = StringUtils::hash(p_name);
 
@@ -469,15 +452,11 @@ StringName StringName::search(const String &p_name) {
     }
 
     if (_data && _data->refcount.ref()) {
-        lock->unlock();
         return StringName(_data);
     }
 
-    lock->unlock();
     return StringName(); //does not exist
 }
-
-
 
 StringName::~StringName() {
 
@@ -486,20 +465,8 @@ StringName::~StringName() {
 
 bool StringName::AlphCompare(const StringName &l, const StringName &r) {
 
-    const char *l_cname = l._data ? l._data->cname : "";
-    const char *r_cname = r._data ? r._data->cname : "";
+    const char *l_cname = l._data ? l._data->get_name() : "";
+    const char *r_cname = r._data ? r._data->get_name() : "";
 
-    if (l_cname) {
-
-        if (r_cname)
-            return is_str_less(l_cname, r_cname);
-        else
-            return is_str_less(l_cname, r._data->name.cdata());
-    } else {
-
-        if (r_cname)
-            return is_str_less(l._data->name.cdata(), r_cname);
-        else
-            return is_str_less(l._data->name.cdata(), r._data->name.cdata());
-    }
+    return is_str_less(l_cname, r_cname);
 }

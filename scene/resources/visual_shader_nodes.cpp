@@ -64,6 +64,7 @@ IMPL_GDCLASS(VisualShaderNodeVectorScalarSmoothStep)
 IMPL_GDCLASS(VisualShaderNodeVectorDistance)
 IMPL_GDCLASS(VisualShaderNodeVectorRefract)
 IMPL_GDCLASS(VisualShaderNodeScalarInterp)
+IMPL_GDCLASS(VisualShaderNodeScalarSwitch)
 IMPL_GDCLASS(VisualShaderNodeVectorInterp)
 IMPL_GDCLASS(VisualShaderNodeVectorScalarMix)
 IMPL_GDCLASS(VisualShaderNodeVectorCompose)
@@ -83,7 +84,6 @@ IMPL_GDCLASS(VisualShaderNodeSwitch)
 IMPL_GDCLASS(VisualShaderNodeFresnel)
 IMPL_GDCLASS(VisualShaderNodeIs)
 IMPL_GDCLASS(VisualShaderNodeCompare)
-
 ////////////// Scalar
 
 String VisualShaderNodeScalarConstant::get_caption() const {
@@ -3282,7 +3282,7 @@ VisualShaderNodeIf::VisualShaderNodeIf() {
 ////////////// Switch
 
 String VisualShaderNodeSwitch::get_caption() const {
-    return "Switch";
+	return "VectorSwitch";
 }
 
 int VisualShaderNodeSwitch::get_input_port_count() const {
@@ -3337,8 +3337,31 @@ String VisualShaderNodeSwitch::generate_code(Shader::Mode p_mode, VisualShader::
 
 VisualShaderNodeSwitch::VisualShaderNodeSwitch() {
     set_input_port_default_value(0, false);
-    set_input_port_default_value(1, Vector3(0.0, 0.0, 0.0));
+	set_input_port_default_value(1, Vector3(1.0, 1.0, 1.0));
     set_input_port_default_value(2, Vector3(0.0, 0.0, 0.0));
+}
+
+////////////// Switch(scalar)
+
+String VisualShaderNodeScalarSwitch::get_caption() const {
+	return "ScalarSwitch";
+}
+
+VisualShaderNodeScalarSwitch::PortType VisualShaderNodeScalarSwitch::get_input_port_type(int p_port) const {
+	if (p_port == 0) {
+		return PORT_TYPE_BOOLEAN;
+	}
+	return PORT_TYPE_SCALAR;
+}
+
+VisualShaderNodeScalarSwitch::PortType VisualShaderNodeScalarSwitch::get_output_port_type(int p_port) const {
+	return PORT_TYPE_SCALAR;
+}
+
+VisualShaderNodeScalarSwitch::VisualShaderNodeScalarSwitch() {
+	set_input_port_default_value(0, false);
+	set_input_port_default_value(1, 1.0);
+	set_input_port_default_value(2, 0.0);
 }
 
 ////////////// Fresnel

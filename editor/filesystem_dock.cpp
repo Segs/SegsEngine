@@ -65,7 +65,7 @@ bool FileSystemDock::_create_tree(TreeItem *p_parent, EditorFileSystemDirectory 
     // Create a tree item for the subdirectory.
     TreeItem *subdirectory_item = tree->create_item(p_parent);
     String dname = p_dir->get_name();
-    if (dname == "")
+    if (dname.empty())
         dname = "res://";
 
     subdirectory_item->set_text(0, dname);
@@ -155,7 +155,7 @@ Vector<String> FileSystemDock::_compute_uncollapsed_paths() {
             Vector<TreeItem *> needs_check;
             needs_check.push_back(resTree);
 
-            while (needs_check.size()) {
+            while (!needs_check.empty()) {
                 if (!needs_check[0]->is_collapsed()) {
                     uncollapsed_paths.push_back(needs_check[0]->get_metadata(0));
                     TreeItem *child = needs_check[0]->get_children();
@@ -809,13 +809,13 @@ void FileSystemDock::_update_file_list(bool p_keep_selection) {
         if (cselection.has(fname))
             files->select(item_index, false);
 
-        if (!p_keep_selection && file != "" && fname == file) {
+        if (!p_keep_selection && !file.empty() && fname == file) {
             files->select(item_index, true);
             files->ensure_current_is_visible();
         }
 
         // Tooltip.
-        if (finfo->sources.size()) {
+        if (!finfo->sources.empty()) {
             for (int j = 0; j < finfo->sources.size(); j++) {
                 tooltip += "\nSource: " + finfo->sources[j];
             }
@@ -1276,13 +1276,13 @@ void FileSystemDock::_make_scene_confirm() {
     }
 
     String extension = PathUtils::get_extension(scene_name);
-    List<String> extensions;
+    Vector<String> extensions;
     Ref<PackedScene> sd = memnew(PackedScene);
     ResourceSaver::get_recognized_extensions(sd, &extensions);
 
     bool extension_correct = false;
-    for (List<String>::Element *E = extensions.front(); E; E = E->next()) {
-        if (E->get() == extension) {
+    for (int i=0,fin=extensions.size(); i<fin; ++i) {
+        if (extensions[i] == extension) {
             extension_correct = true;
             break;
         }
@@ -1508,7 +1508,7 @@ Vector<String> FileSystemDock::_remove_self_included_paths(Vector<String> select
         selected_strings.sort_custom<NaturalNoCaseComparator>();
         String last_path = "";
         for (int i = 0; i < selected_strings.size(); i++) {
-            if (last_path != "" && StringUtils::begins_with(selected_strings[i],last_path)) {
+            if (!last_path.empty() && StringUtils::begins_with(selected_strings[i],last_path)) {
                 selected_strings.remove(i);
                 i--;
             }
@@ -1534,7 +1534,7 @@ void FileSystemDock::_tree_rmb_option(int p_option) {
                 Vector<TreeItem *> needs_check;
                 needs_check.push_back(tree->get_selected());
 
-                while (needs_check.size()) {
+                while (!needs_check.empty()) {
                     needs_check[0]->set_collapsed(is_collapsed);
 
                     TreeItem *child = needs_check[0]->get_children();
@@ -1667,7 +1667,7 @@ void FileSystemDock::_file_option(int p_option, const Vector<String> &p_selected
                     to_move.push_back(FileOrFolder(fpath, !StringUtils::ends_with(fpath,"/")));
                 }
             }
-            if (to_move.size() > 0) {
+            if (!to_move.empty()) {
                 move_dialog->popup_centered_ratio();
             }
         } break;
@@ -1749,7 +1749,7 @@ void FileSystemDock::_file_option(int p_option, const Vector<String> &p_selected
                 reimport.push_back(p_selected[i]);
             }
 
-            ERR_FAIL_COND(reimport.size() == 0);
+            ERR_FAIL_COND(reimport.empty());
         } break;
 
         case FILE_NEW_FOLDER: {
@@ -2130,9 +2130,10 @@ void FileSystemDock::_get_drag_target_folder(String &target, bool &target_favori
     }
 }
 
-void FileSystemDock::_file_and_folders_fill_popup(PopupMenu *p_popup, Vector<String> p_paths, bool p_display_path_dependent_options) {
+void FileSystemDock::_file_and_folders_fill_popup(
+        PopupMenu *p_popup, Vector<String> p_paths, bool p_display_path_dependent_options) {
     // Add options for files and folders.
-    ERR_FAIL_COND(p_paths.empty());
+    ERR_FAIL_COND(p_paths.empty())
 
     Vector<String> filenames;
     Vector<String> foldernames;
@@ -2146,7 +2147,7 @@ void FileSystemDock::_file_and_folders_fill_popup(PopupMenu *p_popup, Vector<Str
     bool all_not_favorites = true;
     for (int i = 0; i < p_paths.size(); i++) {
         String fpath = p_paths[i];
-        if (StringUtils::ends_with(fpath,"/")) {
+        if (StringUtils::ends_with(fpath, "/")) {
             foldernames.push_back(fpath);
             all_files = false;
         } else {
@@ -2187,7 +2188,7 @@ void FileSystemDock::_file_and_folders_fill_popup(PopupMenu *p_popup, Vector<Str
         }
     }
 
-    if (p_paths.size() >= 1) {
+    if (!p_paths.empty()) {
         if (!all_favorites) {
             p_popup->add_item(TTR("Add to Favorites"), FILE_ADD_FAVORITE);
         }
@@ -2204,7 +2205,7 @@ void FileSystemDock::_file_and_folders_fill_popup(PopupMenu *p_popup, Vector<Str
             p_popup->add_separator();
         }
 
-    } else if (all_folders && foldernames.size() > 0) {
+    } else if (all_folders && !foldernames.empty()) {
         p_popup->add_item(TTR("Open"), FILE_OPEN);
         p_popup->add_separator();
     }
@@ -2212,14 +2213,14 @@ void FileSystemDock::_file_and_folders_fill_popup(PopupMenu *p_popup, Vector<Str
     if (p_paths.size() == 1) {
         p_popup->add_item(TTR("Copy Path"), FILE_COPY_PATH);
         if (p_paths[0] != "res://") {
-        p_popup->add_item(TTR("Rename..."), FILE_RENAME);
-        p_popup->add_item(TTR("Duplicate..."), FILE_DUPLICATE);
-    }
+            p_popup->add_item(TTR("Rename..."), FILE_RENAME);
+            p_popup->add_item(TTR("Duplicate..."), FILE_DUPLICATE);
+        }
     }
 
     if (p_paths.size() > 1 || p_paths[0] != "res://") {
-    p_popup->add_item(TTR("Move To..."), FILE_MOVE);
-    p_popup->add_item(TTR("Delete"), FILE_REMOVE);
+        p_popup->add_item(TTR("Move To..."), FILE_MOVE);
+        p_popup->add_item(TTR("Delete"), FILE_REMOVE);
     }
 
     if (p_paths.size() == 1) {
@@ -2233,7 +2234,8 @@ void FileSystemDock::_file_and_folders_fill_popup(PopupMenu *p_popup, Vector<Str
         }
 
         String fpath = p_paths[0];
-        String item_text = StringUtils::ends_with(fpath,"/") ? TTR("Open in File Manager") : TTR("Show in File Manager");
+        String item_text =
+                StringUtils::ends_with(fpath, "/") ? TTR("Open in File Manager") : TTR("Show in File Manager");
         p_popup->add_item(item_text, FILE_SHOW_IN_EXPLORER);
     }
 }
@@ -2425,7 +2427,7 @@ void FileSystemDock::_update_import_dock() {
         }
 
         String type = cf->get_value("remap", "type");
-        if (import_type == "") {
+        if (import_type.empty()) {
             import_type = type;
         } else if (import_type != type) {
             // All should be the same type.
@@ -2435,7 +2437,7 @@ void FileSystemDock::_update_import_dock() {
         imports.push_back(fpath);
     }
 
-    if (imports.size() == 0) {
+    if (imports.empty()) {
         EditorNode::get_singleton()->get_import_dock()->clear();
     } else if (imports.size() == 1) {
         EditorNode::get_singleton()->get_import_dock()->set_edit_path(imports[0]);

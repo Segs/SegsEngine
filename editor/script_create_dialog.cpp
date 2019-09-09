@@ -30,16 +30,17 @@
 
 #include "script_create_dialog.h"
 
-#include "core/method_bind.h"
 #include "core/io/resource_saver.h"
+#include "core/method_bind.h"
 #include "core/os/file_access.h"
 #include "core/project_settings.h"
 #include "core/script_language.h"
 #include "core/string_builder.h"
 #include "editor/create_dialog.h"
+#include "editor/editor_file_system.h"
 #include "editor/editor_node.h"
 #include "editor/editor_scale.h"
-#include "editor_file_system.h"
+#include "scene/resources/style_box.h"
 
 IMPL_GDCLASS(ScriptCreateDialog)
 

@@ -84,7 +84,7 @@ void DocDump::dump(const String &p_file) {
 
     FileAccess *f = FileAccess::open(p_file, FileAccess::WRITE);
 
-    _write_string(f, 0, "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
+    _write_string(f, 0, R"(<?xml version="1.0" encoding="UTF-8" ?>)");
     _write_string(f, 0, String("<doc version=\"") + VERSION_NUMBER + "\" name=\"Engine Types\">");
 
     for(int i=0,fin=class_list.size(); i<fin; ++i) {
@@ -112,7 +112,7 @@ void DocDump::dump(const String &p_file) {
         method_list.sort();
 
         for (List<MethodInfo>::Element *E = method_list.front(); E; E = E->next()) {
-            if (E->get().name == "" || E->get().name[0] == '_')
+            if (E->get().name.empty() || E->get().name[0] == '_')
                 continue; //hidden
 
             MethodBind *m = ClassDB::get_method(name, E->get().name);
@@ -236,8 +236,8 @@ void DocDump::dump(const String &p_file) {
                     default: {
                     }
                         //case PROPERTY_HINT_RESOURCE_TYPE: hint="Type: "+arginfo.hint_string; break;
-                };
-                if (hint != "")
+                }
+                if (!hint.empty())
                     _write_string(f, 4, hint);
 
                 _write_string(f, 3, (i == -1) ? "</return>" : "</argument>");
@@ -254,7 +254,7 @@ void DocDump::dump(const String &p_file) {
         List<MethodInfo> signal_list;
         ClassDB::get_signal_list(name, &signal_list, true);
 
-        if (signal_list.size()) {
+        if (!signal_list.empty()) {
 
             _write_string(f, 1, "<signals>");
             for (List<MethodInfo>::Element *EV = signal_list.front(); EV; EV = EV->next()) {

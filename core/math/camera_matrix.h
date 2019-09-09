@@ -64,7 +64,7 @@ struct CameraMatrix {
 
     static real_t get_fovy(real_t p_fovx, real_t p_aspect) {
 
-        return Math::rad2deg(Math::atan(p_aspect * Math::tan(Math::deg2rad(p_fovx) * 0.5)) * 2.0);
+        return Math::rad2deg(Math::atan(p_aspect * Math::tan(Math::deg2rad(p_fovx) * 0.5f)) * 2.0f);
     }
 
     real_t get_z_far() const;

@@ -37,18 +37,35 @@
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
 #include "core/project_settings.h"
+#include "editor/editor_data.h"
+#include "editor/editor_sub_scene.h"
+#include "editor/groups_editor.h"
+#include "editor/connections_dialog.h"
 #include "editor/animation_track_editor.h"
+#include "editor/create_dialog.h"
+#include "editor/quick_open.h"
 #include "editor/editor_node.h"
 #include "editor/editor_settings.h"
 #include "editor/multi_node_edit.h"
+#include "editor/rename_dialog.h"
+#include "editor/reparent_dialog.h"
+#include "editor/script_create_dialog.h"
 #include "editor/plugins/animation_player_editor_plugin.h"
 #include "editor/plugins/canvas_item_editor_plugin.h"
 #include "editor/plugins/script_editor_plugin.h"
 #include "editor/plugins/spatial_editor_plugin.h"
 #include "editor/script_editor_debugger.h"
 #include "editor/editor_scale.h"
+#include "scene/animation/animation_player.h"
 #include "scene/main/viewport.h"
+#include "scene/gui/button.h"
+#include "scene/gui/control.h"
+#include "scene/gui/label.h"
+#include "scene/gui/popup_menu.h"
+#include "scene/gui/tool_button.h"
+#include "scene/gui/tree.h"
 #include "scene/resources/packed_scene.h"
+#include "scene_tree_editor.h"
 
 IMPL_GDCLASS(SceneTreeDock)
 
@@ -765,7 +782,16 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
                 _delete_confirm();
 
             } else {
-                delete_dialog->set_text(TTR("Delete Node(s)?"));
+                if (remove_list.size() > 1) {
+                    delete_dialog->set_text(vformat(TTR("Delete %d nodes?"), remove_list.size()));
+                } else {
+                    delete_dialog->set_text(vformat(TTR("Delete node \"%s\"?"), remove_list[0]->get_name()));
+                }
+
+                // Resize the dialog to its minimum size.
+                // This prevents the dialog from being too wide after displaying
+                // a deletion confirmation for a node with a long name.
+                delete_dialog->set_size(Size2());
                 delete_dialog->popup_centered_minsize();
             }
 
@@ -816,7 +842,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
 
             new_scene_from_dialog->set_mode(EditorFileDialog::MODE_SAVE_FILE);
 
-            List<String> extensions;
+            Vector<String> extensions;
             Ref<PackedScene> sd = memnew(PackedScene);
             ResourceSaver::get_recognized_extensions(sd, &extensions);
             new_scene_from_dialog->clear_filters();
@@ -825,9 +851,9 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
             }
 
             String existing;
-            if (extensions.size()) {
+            if (!extensions.empty()) {
                 String root_name(tocopy->get_name());
-                existing = root_name + "." + StringUtils::to_lower(extensions.front()->get());
+                existing = root_name + "." + StringUtils::to_lower(extensions[0]);
             }
             new_scene_from_dialog->set_current_path(existing);
 

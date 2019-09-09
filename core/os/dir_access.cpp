@@ -73,7 +73,7 @@ static Error _erase_recursive(DirAccess *da) {
 
     da->list_dir_begin();
     String n = da->get_next();
-    while (n != String()) {
+    while (!n.empty()) {
 
         if (n != "." && n != "..") {
 

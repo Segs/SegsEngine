@@ -300,9 +300,9 @@ Error PluginScript::reload(bool p_keep_state) {
             _methods_rpc_mode[mi.name] = MultiplayerAPI::RPCMode(int(var));
         }
     }
-    Array *signals = (Array *)&manifest.signals;
-    for (int i = 0; i < signals->size(); ++i) {
-        Variant v = (*signals)[i];
+    Array *manifest_signals = (Array *)&manifest.manifest_signals;
+    for (int i = 0; i < manifest_signals->size(); ++i) {
+        Variant v = (*manifest_signals)[i];
         MethodInfo mi = MethodInfo::from_dict(v);
         _signals_info[mi.name] = mi;
     }
@@ -325,7 +325,7 @@ Error PluginScript::reload(bool p_keep_state) {
     godot_string_name_destroy(&manifest.base);
     godot_dictionary_destroy(&manifest.member_lines);
     godot_array_destroy(&manifest.methods);
-    godot_array_destroy(&manifest.signals);
+    godot_array_destroy(&manifest.manifest_signals);
     godot_array_destroy(&manifest.properties);
 
 #ifdef TOOLS_ENABLED

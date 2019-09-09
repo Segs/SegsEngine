@@ -37,6 +37,7 @@
 #include "core/print_string.h"
 #include "editor/plugins/animation_player_editor_plugin.h"
 #include "editor/plugins/canvas_item_editor_plugin.h"
+#include "editor/editor_file_system.h"
 #include "editor_node.h"
 #include "scene/gui/label.h"
 #include "scene/main/viewport.h"
@@ -47,7 +48,7 @@ IMPL_GDCLASS(SceneTreeDialog)
 
 Node *SceneTreeEditor::get_scene_node() {
 
-    ERR_FAIL_COND_V(!is_inside_tree(), nullptr);
+    ERR_FAIL_COND_V(!is_inside_tree(), nullptr)
 
     return get_tree()->get_edited_scene_root();
 }
@@ -59,12 +60,12 @@ void SceneTreeEditor::_cell_button_pressed(Object *p_item, int p_column, int p_i
     }
 
     TreeItem *item = Object::cast_to<TreeItem>(p_item);
-    ERR_FAIL_COND(!item);
+    ERR_FAIL_COND(!item)
 
     NodePath np = item->get_metadata(0);
 
     Node *n = get_node(np);
-    ERR_FAIL_COND(!n);
+    ERR_FAIL_COND(!n)
 
     if (p_id == BUTTON_SUBSCENE) {
         if (n == get_scene_node()) {
@@ -87,7 +88,7 @@ void SceneTreeEditor::_cell_button_pressed(Object *p_item, int p_column, int p_i
         if (selection.size() > 1 && selection.find(n) != nullptr) {
             for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
                 Node *nv = E->get();
-                ERR_FAIL_COND(!nv);
+                ERR_FAIL_COND(!nv)
                 if (nv == n) {
                     continue;
                 }
@@ -231,7 +232,7 @@ bool SceneTreeEditor::_add_nodes(Node *p_node, TreeItem *p_parent) {
                 item->set_button_disabled(0, item->get_button_count(0) - 1, true);
             }
 
-            accent.a *= 0.7;
+            accent.a *= 0.7f;
         }
 
         if (marked.has(p_node)) {
@@ -422,7 +423,7 @@ bool SceneTreeEditor::_add_nodes(Node *p_node, TreeItem *p_parent) {
     if (valid_types.size()) {
         bool valid = false;
         for (int i = 0; i < valid_types.size(); i++) {
-            if (p_node->is_class(StringUtils::to_utf8(valid_types[i].asString()))) {
+            if (p_node->is_class(valid_types[i].asCString())) {
                 valid = true;
                 break;
             }
@@ -487,7 +488,7 @@ void SceneTreeEditor::_update_visibility_color(Node *p_node, TreeItem *p_item) {
         Color color(1, 1, 1, 1);
         bool visible_on_screen = p_node->call("is_visible_in_tree");
         if (!visible_on_screen) {
-            color.a = 0.6;
+            color.a = 0.6f;
         }
         int idx = p_item->get_button_by_id(0, BUTTON_VISIBILITY);
         p_item->set_button_color(0, idx, color);

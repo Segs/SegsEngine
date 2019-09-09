@@ -994,7 +994,7 @@ void Geometry::make_atlas(const Vector<Size2i> &p_rects, Vector<Point2i> &r_resu
 	// For example, it will prioritize a 1024x1024 atlas (works everywhere) instead of a
     // 256x8192 atlas (won't work anywhere).
 
-    ERR_FAIL_COND(p_rects.size() == 0);
+    ERR_FAIL_COND(p_rects.empty());
 
     Vector<_AtlasWorkRect> wrects;
     wrects.resize(p_rects.size());

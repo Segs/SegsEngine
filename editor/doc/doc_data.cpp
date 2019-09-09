@@ -323,14 +323,14 @@ void DocData::generate(bool p_basic_types) {
 
         for (List<MethodInfo>::Element *E = method_list.front(); E; E = E->next()) {
 
-            if (E->get().name == "" || (E->get().name[0] == '_' && !(E->get().flags & METHOD_FLAG_VIRTUAL)))
+            if (E->get().name.empty() || (E->get().name[0] == '_' && !(E->get().flags & METHOD_FLAG_VIRTUAL)))
                 continue; //hidden, don't count
 
             if (skip_setter_getter_methods && setters_getters.has(E->get().name)) {
                 // Don't skip parametric setters and getters, i.e. method which require
                 // one or more parameters to define what property should be set or retrieved.
                 // E.g. CPUParticles::set_param(Parameter param, float value).
-                if (E->get().arguments.size() == 0 /* getter */ || (E->get().arguments.size() == 1 && E->get().return_val.type == Variant::NIL /* setter */)) {
+                if (E->get().arguments.empty() /* getter */ || (E->get().arguments.size() == 1 && E->get().return_val.type == Variant::NIL /* setter */)) {
                     continue;
                 }
             }
@@ -343,11 +343,11 @@ void DocData::generate(bool p_basic_types) {
                 method.qualifiers = "virtual";
 
             if (E->get().flags & METHOD_FLAG_CONST) {
-                if (method.qualifiers != "")
+                if (!method.qualifiers.empty())
                     method.qualifiers += " ";
                 method.qualifiers += "const";
             } else if (E->get().flags & METHOD_FLAG_VARARG) {
-                if (method.qualifiers != "")
+                if (!method.qualifiers.empty())
                     method.qualifiers += " ";
                 method.qualifiers += "vararg";
             }
@@ -383,7 +383,7 @@ void DocData::generate(bool p_basic_types) {
         List<MethodInfo> signal_list;
         ClassDB::get_signal_list(name, &signal_list, true);
 
-        if (signal_list.size()) {
+        if (!signal_list.empty()) {
 
             for (List<MethodInfo>::Element *EV = signal_list.front(); EV; EV = EV->next()) {
 
@@ -529,7 +529,7 @@ void DocData::generate(bool p_basic_types) {
             }
 
             if (mi.return_val.type == Variant::NIL) {
-                if (mi.return_val.name != "")
+                if (!mi.return_val.name.empty())
                     method.return_type = "Variant";
             } else {
                 method.return_type = Variant::get_type_name(mi.return_val.type);
@@ -626,7 +626,7 @@ void DocData::generate(bool p_basic_types) {
                 md.name = mi.name;
 
                 if (mi.flags & METHOD_FLAG_VARARG) {
-                    if (md.qualifiers != "")
+                    if (!md.qualifiers.empty())
                         md.qualifiers += " ";
                     md.qualifiers += "vararg";
                 }
@@ -742,7 +742,7 @@ Error DocData::load_classes(const String &p_dir) {
     da->list_dir_begin();
     String path;
     path = da->get_next();
-    while (path != String()) {
+    while (!path.empty()) {
         if (!da->current_is_dir() && StringUtils::ends_with(path,"xml")) {
             Ref<XMLParser> parser = memnew(XMLParser);
             Error err2 = parser->open(PathUtils::plus_file(p_dir,path));
@@ -771,7 +771,7 @@ Error DocData::erase_classes(const String &p_dir) {
     da->list_dir_begin();
     String path;
     path = da->get_next();
-    while (path != String()) {
+    while (!path.empty()) {
         if (!da->current_is_dir() && StringUtils::ends_with(path,"xml")) {
             to_erase.push_back(path);
         }
@@ -779,7 +779,7 @@ Error DocData::erase_classes(const String &p_dir) {
     }
     da->list_dir_end();
 
-    while (to_erase.size()) {
+    while (!to_erase.empty()) {
         da->remove(to_erase.front()->get());
         to_erase.pop_front();
     }
@@ -962,7 +962,7 @@ Error DocData::_load(Ref<XMLParser> parser) {
 
 static void _write_string(FileAccess *f, int p_tablevel, const String &p_string) {
 
-    if (p_string == "")
+    if (p_string.empty())
         return;
     String tab;
     for (int i = 0; i < p_tablevel; i++)
@@ -989,14 +989,14 @@ Error DocData::save_classes(const String &p_default_path, const Map<String, Stri
 
         ERR_CONTINUE_MSG(err != OK, "Can't write doc file: " + save_file + ".");
 
-        _write_string(f, 0, "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
+        _write_string(f, 0, R"(<?xml version="1.0" encoding="UTF-8" ?>)");
 
         String header = "<class name=\"" + c.name + "\"";
-        if (c.inherits != "")
+        if (!c.inherits.empty())
             header += " inherits=\"" + c.inherits + "\"";
 
         String category = c.category;
-        if (c.category == "")
+        if (c.category.empty())
             category = "Core";
         header += " category=\"" + category + "\"";
         header += String(" version=\"") + VERSION_NUMBER + "\"";
@@ -1022,15 +1022,15 @@ Error DocData::save_classes(const String &p_default_path, const Map<String, Stri
             const MethodDoc &m = c.methods[i];
 
             String qualifiers;
-            if (m.qualifiers != "")
+            if (!m.qualifiers.empty())
                 qualifiers += " qualifiers=\"" + StringUtils::xml_escape(m.qualifiers) + "\"";
 
             _write_string(f, 2, "<method name=\"" + m.name + "\"" + qualifiers + ">");
 
-            if (m.return_type != "") {
+            if (!m.return_type.empty()) {
 
                 String enum_text;
-                if (m.return_enum != String()) {
+                if (!m.return_enum.empty()) {
                     enum_text = " enum=\"" + m.return_enum + "\"";
                 }
                 _write_string(f, 3, "<return type=\"" + m.return_type + "\"" + enum_text + ">");
@@ -1042,11 +1042,11 @@ Error DocData::save_classes(const String &p_default_path, const Map<String, Stri
                 const ArgumentDoc &a = m.arguments[j];
 
                 String enum_text;
-                if (a.enumeration != String()) {
+                if (!a.enumeration.empty()) {
                     enum_text = " enum=\"" + a.enumeration + "\"";
                 }
 
-                if (a.default_value != "")
+                if (!a.default_value.empty())
                     _write_string(f, 3,
                             "<argument index=\"" + itos(j) + "\" name=\"" + StringUtils::xml_escape(a.name) +
                                     "\" type=\"" + StringUtils::xml_escape(a.type) + "\"" + enum_text + " default=\"" +

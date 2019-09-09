@@ -33,8 +33,8 @@
 #if defined(UNIX_ENABLED) || defined(PTHREAD_ENABLED)
 
 #include "core/os/memory.h"
-#include <errno.h>
-#include <stdio.h>
+#include <cerrno>
+#include <cstdio>
 
 Error SemaphorePosix::wait() {
 

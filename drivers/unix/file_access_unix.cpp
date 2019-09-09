@@ -38,7 +38,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include <errno.h>
+#include <cerrno>
 
 #if defined(UNIX_ENABLED)
 #include <unistd.h>
@@ -142,7 +142,7 @@ void FileAccessUnix::close() {
         close_notification_func(path, flags);
     }
 
-    if (save_path != "") {
+    if (!save_path.empty()) {
 		int rename_error = rename(qPrintable((save_path + ".tmp").m_str), StringUtils::to_utf8(save_path).data());
 
         if (rename_error && close_fail_notify) {

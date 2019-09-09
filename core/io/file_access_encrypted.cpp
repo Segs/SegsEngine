@@ -35,7 +35,7 @@
 #include "core/variant.h"
 #include "core/ustring.h"
 
-#include <stdio.h>
+#include <cstdio>
 
 #define COMP_MAGIC 0x43454447
 

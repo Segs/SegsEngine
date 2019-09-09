@@ -34,7 +34,7 @@
 #include "core/os/os.h"
 #include "core/string_formatter.h"
 
-#include <stdio.h>
+#include <cstdio>
 
 namespace TestAStar {
 
@@ -88,7 +88,7 @@ bool test_abcx() {
 	return ok;
 }
 
-typedef bool (*TestFunc)();
+using TestFunc = bool (*)();
 
 TestFunc test_funcs[] = {
 	test_abc,

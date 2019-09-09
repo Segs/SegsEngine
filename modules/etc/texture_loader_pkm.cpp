@@ -31,7 +31,7 @@
 #include "texture_loader_pkm.h"
 
 #include "core/os/file_access.h"
-#include <string.h>
+#include <cstring>
 
 struct ETC1Header {
     char tag[6]; // "PKM 10"

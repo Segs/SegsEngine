@@ -739,13 +739,36 @@ void EditorPlugin::add_inspector_plugin(const Ref<EditorInspectorPlugin> &p_plug
 void EditorPlugin::remove_inspector_plugin(const Ref<EditorInspectorPlugin> &p_plugin) {
     EditorInspector::remove_inspector_plugin(p_plugin);
 }
+struct ImportWrapper : public EditorSceneImporterInterface {
+    Ref<EditorSceneImporter> wrapped;
+    ImportWrapper(Ref<EditorSceneImporter> w) : wrapped(w) {}
+
+    // EditorSceneImporterInterface interface
+public:
+    uint32_t get_import_flags() const override {
+        return wrapped->get_import_flags();
+    }
+    void get_extensions(Vector<String> *p_extensions) const override {
+        wrapped->get_extensions(p_extensions);
+    }
+    Node *import_scene(const String &p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err) override {
+        return wrapped->import_scene(p_path,p_flags,p_bake_fps,r_missing_deps,r_err);
+    }
+    Ref<Animation> import_animation(const String &p_path, uint32_t p_flags, int p_bake_fps) override {
+        return wrapped->import_animation(p_path,p_flags,p_bake_fps);
+    }
+};
 
 void EditorPlugin::add_scene_import_plugin(const Ref<EditorSceneImporter> &p_importer) {
-    ResourceImporterScene::get_singleton()->add_importer(p_importer);
+    //TODO: resolve issues with Plugin wrapping for script-side importers
+    assert(false);
+    ResourceImporterScene::get_singleton()->add_importer(new ImportWrapper(p_importer));
 }
 
 void EditorPlugin::remove_scene_import_plugin(const Ref<EditorSceneImporter> &p_importer) {
-    ResourceImporterScene::get_singleton()->remove_importer(p_importer);
+    //TODO: resolve issues with Plugin wrapping for script-side importers
+    assert(false);
+    ResourceImporterScene::get_singleton()->remove_importer(new ImportWrapper(p_importer));
 }
 
 int find(const PoolStringArray &a, const String &v) {

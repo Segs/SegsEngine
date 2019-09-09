@@ -138,7 +138,7 @@ public:
 
 		List<String> cmdline = OS::get_singleton()->get_cmdline_args();
 		int object_count = OBJECT_COUNT;
-		if (cmdline.size() > 0 && StringUtils::to_int(cmdline[cmdline.size() - 1])) {
+		if (!cmdline.empty() && StringUtils::to_int(cmdline[cmdline.size() - 1])) {
 			object_count = StringUtils::to_int(cmdline[cmdline.size() - 1]);
 		}
 

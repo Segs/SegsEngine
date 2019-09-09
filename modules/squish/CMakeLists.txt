@@ -8,5 +8,5 @@ foreach(tgt ${global_targets})
     target_link_libraries(${tgt}_squish PUBLIC ${tgt}_core)
     target_link_libraries(${tgt}_squish PRIVATE squish)
 
-    set_common_target_properties(${tgt}_squish)
+    set_module_properties(${tgt} squish)
 endforeach()

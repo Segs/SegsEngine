@@ -353,9 +353,9 @@ void EditorSettings::_load_defaults(Ref<ConfigFile> p_extra_config) {
     hints["interface/theme/preset"] = PropertyInfo(Variant::STRING, "interface/theme/preset", PROPERTY_HINT_ENUM, "Default,Alien,Arc,Godot 2,Grey,Light,Solarized (Dark),Solarized (Light),Custom", PROPERTY_USAGE_DEFAULT);
     _initial_set("interface/theme/icon_and_font_color", 0);
     hints["interface/theme/icon_and_font_color"] = PropertyInfo(Variant::INT, "interface/theme/icon_and_font_color", PROPERTY_HINT_ENUM, "Auto,Dark,Light", PROPERTY_USAGE_DEFAULT);
-    _initial_set("interface/theme/base_color", Color(0.2, 0.23, 0.31));
+    _initial_set("interface/theme/base_color", Color(0.2f, 0.23f, 0.31f));
     hints["interface/theme/base_color"] = PropertyInfo(Variant::COLOR, "interface/theme/base_color", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT);
-    _initial_set("interface/theme/accent_color", Color(0.41, 0.61, 0.91));
+    _initial_set("interface/theme/accent_color", Color(0.41f, 0.61f, 0.91f));
     hints["interface/theme/accent_color"] = PropertyInfo(Variant::COLOR, "interface/theme/accent_color", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT);
     _initial_set("interface/theme/contrast", 0.25);
     hints["interface/theme/contrast"] = PropertyInfo(Variant::REAL, "interface/theme/contrast", PROPERTY_HINT_RANGE, "0.01, 1, 0.01");
@@ -513,10 +513,10 @@ void EditorSettings::_load_defaults(Ref<ConfigFile> p_extra_config) {
     _initial_set("editors/grid_map/pick_distance", 5000.0);
 
     // 3D
-    _initial_set("editors/3d/primary_grid_color", Color(0.56, 0.56, 0.56));
+    _initial_set("editors/3d/primary_grid_color", Color(0.56f, 0.56f, 0.56f));
     hints["editors/3d/primary_grid_color"] = PropertyInfo(Variant::COLOR, "editors/3d/primary_grid_color", PROPERTY_HINT_COLOR_NO_ALPHA, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_RESTART_IF_CHANGED);
 
-    _initial_set("editors/3d/secondary_grid_color", Color(0.38, 0.38, 0.38));
+    _initial_set("editors/3d/secondary_grid_color", Color(0.38f, 0.38f, 0.38f));
     hints["editors/3d/secondary_grid_color"] = PropertyInfo(Variant::COLOR, "editors/3d/secondary_grid_color", PROPERTY_HINT_COLOR_NO_ALPHA, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_RESTART_IF_CHANGED);
 
     _initial_set("editors/3d/grid_size", 50);
@@ -782,8 +782,6 @@ void EditorSettings::create() {
     if (singleton.ptr())
         return; //pointless
 
-    DirAccess *dir = nullptr;
-
     String data_path;
     String data_dir;
     String config_path;
@@ -842,11 +840,11 @@ void EditorSettings::create() {
 
     String config_file_path;
 
-    if (data_path != "" && config_path != "" && cache_path != "") {
+    if (!data_path.empty() && config_path != "" && cache_path != "") {
 
         // Validate/create data dir and subdirectories
 
-        dir = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
+        DirAccess *dir = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
 
         if (dir->change_dir(data_dir) != OK) {
             dir->make_dir_recursive(data_dir);

@@ -34,7 +34,7 @@
 
 #include "core/error_macros.h"
 #include "core/os/memory.h"
-#include <stdio.h>
+#include <cstdio>
 
 void RWLockPosix::read_lock() {
 

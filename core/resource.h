@@ -28,14 +28,10 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef RESOURCE_H
-#define RESOURCE_H
+#pragma once
 
-//#include "core/class_db.h"
 #include "core/object.h"
-#include "core/ref_ptr.h"
 #include "core/reference.h"
-#include "core/safe_refcount.h"
 #include "core/self_list.h"
 #include "core/map.h"
 #include "core/ustring.h"
@@ -43,36 +39,36 @@
 #define RES_BASE_EXTENSION(m_ext)                                                                                   \
 public:                                                                                                             \
     static void register_custom_data_to_otdb() { ClassDB::add_resource_base_extension(StringName(m_ext), get_class_static_name()); } \
-	String get_base_extension() const override { return String(m_ext); }											\
+    String get_base_extension() const override { return String(m_ext); }											\
                                                                                                                     \
 private:
 
-class Resource : public Reference {
+class GODOT_EXPORT Resource : public Reference {
 
     GDCLASS(Resource,Reference)
     OBJ_CATEGORY("Resources")
 public:
-	static void register_custom_data_to_otdb() { ClassDB::add_resource_base_extension(StringName("res"), get_class_static_name()); }
-	virtual String get_base_extension() const { return String("res"); }
+    static void register_custom_data_to_otdb() { ClassDB::add_resource_base_extension(StringName("res"), get_class_static_name()); }
+    virtual String get_base_extension() const { return String("res"); }
 private:
 
     Set<ObjectID> owners;
 
     friend class ResBase;
     friend class ResourceCache;
-	friend class SceneState;
+    friend class SceneState;
 
     String name;
     String path_cache;
-	Node *local_scene;
-	SelfList<Resource> remapped_list;
+    Node *local_scene;
+    SelfList<Resource> remapped_list;
     int subindex;
-	bool local_to_scene;
+    bool local_to_scene;
 
 #ifdef TOOLS_ENABLED
-	uint64_t last_modified_time;
-	uint64_t import_last_modified_time;
-	String import_path;
+    uint64_t last_modified_time;
+    uint64_t import_last_modified_time;
+    String import_path;
 #endif
     virtual bool _use_builtin_script() const { return true; }
 
@@ -167,5 +163,3 @@ public:
     static void get_cached_resources(List<Ref<Resource> > *p_resources);
     static int get_cached_resource_count();
 };
-
-#endif

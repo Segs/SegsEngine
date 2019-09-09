@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef DELAUNAY_H
-#define DELAUNAY_H
+#pragma once
 
 #include "core/math/rect2.h"
 #include "core/vector.h"
@@ -173,4 +172,3 @@ public:
 	}
 };
 
-#endif // DELAUNAY_H

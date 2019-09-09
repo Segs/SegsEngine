@@ -43,7 +43,7 @@
 
 #include <LinearMath/btVector3.h>
 
-#include <assert.h>
+#include <cassert>
 
 /**
 	@author AndreaCatania

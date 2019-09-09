@@ -272,7 +272,7 @@ private:
 		List<StringName> animations;
 		get_animation_list(&animations);
 		PoolVector<String> ret;
-		while (animations.size()) {
+		while (!animations.empty()) {
 
 			ret.push_back(animations.front()->get());
 			animations.pop_front();

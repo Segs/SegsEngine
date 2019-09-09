@@ -50,7 +50,7 @@ void GDScriptLanguage::get_string_delimiters(List<String> *p_delimiters) const {
 
     p_delimiters->push_back("\" \"");
     p_delimiters->push_back("' '");
-    p_delimiters->push_back("\"\"\" \"\"\"");
+    p_delimiters->push_back(R"(""" """)");
 }
 
 String GDScriptLanguage::_get_processed_template(const String &p_template, const String &p_base_class_name) const {
@@ -224,7 +224,7 @@ bool GDScriptLanguage::debug_break_parse(const String &p_file, int p_line, const
         _debug_parse_err_line = p_line;
         _debug_parse_err_file = p_file;
         _debug_error = p_error;
-        ScriptDebugger::get_singleton()->debug(this, false);
+		ScriptDebugger::get_singleton()->debug(this, false, true);
         return true;
     } else {
         return false;
@@ -238,7 +238,8 @@ bool GDScriptLanguage::debug_break(const String &p_error, bool p_allow_continue)
         _debug_parse_err_line = -1;
         _debug_parse_err_file = "";
         _debug_error = p_error;
-        ScriptDebugger::get_singleton()->debug(this, p_allow_continue);
+		bool is_error_breakpoint = p_error != "Breakpoint";
+		ScriptDebugger::get_singleton()->debug(this, p_allow_continue, is_error_breakpoint);
         return true;
     } else {
         return false;
@@ -1908,7 +1909,7 @@ static void _find_identifiers_in_class(const GDScriptCompletionContext &p_contex
 
     GDScriptCompletionContext c = p_context;
     c.block = nullptr;
-    c.function = NULL;
+    c.function = nullptr;
 
     _find_identifiers_in_base(c, base_type, p_only_functions, r_result);
 }
@@ -2915,7 +2916,7 @@ Error GDScriptLanguage::complete_code(const String &p_code, const String &p_path
                                 GDScriptCompletionContext c2 = context;
                                 c2._class = base_type.class_type;
                                 c2.function = nullptr;
-                                c2.block = NULL;
+                                c2.block = nullptr;
                                 c2.line = E->value().expression->line;
                                 if (_guess_expression_type(c2, E->value().expression, constant)) {
                                     if (constant.type.has_type && constant.type.is_meta_type) {

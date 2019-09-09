@@ -15,7 +15,7 @@ set(common_win
 foreach(tgt ${global_targets})
     find_package(OpenGL REQUIRED)
     add_executable(godot_${tgt} ${common_win})
-    target_link_libraries(godot_${tgt} ${tgt}_main editor ${tgt}_scene ${tgt}_servers)
+    target_link_libraries(godot_${tgt} ${tgt}_main edit_tools ${tgt}_scene ${tgt}_servers)
     target_link_libraries(godot_${tgt} ${LIBRARIES} ${OPENGL_LIBRARIES})
     set_target_properties(godot_${tgt} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
     set_target_properties(godot_${tgt} PROPERTIES ENABLE_EXPORTS ON)

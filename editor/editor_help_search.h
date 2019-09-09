@@ -106,7 +106,7 @@ class EditorHelpSearch::Runner : public Reference {
         Vector<DocData::PropertyDoc *> theme_properties;
 
         bool required() {
-            return name || methods.size() || defined_signals.size() || constants.size() || properties.size() || theme_properties.size();
+            return name || !methods.empty() || !defined_signals.empty() || !constants.empty() || !properties.empty() || !theme_properties.empty();
         }
     };
 

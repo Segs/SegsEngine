@@ -34,7 +34,7 @@
 #include "core/os/dir_access.h"
 #include "core/print_string.h"
 #include "drivers/gles3/rasterizer_gles3.h"
-#include "errno.h"
+#include <cerrno>
 #include "key_mapping_x11.h"
 #include "servers/visual/visual_server_raster.h"
 #include "servers/visual/visual_server_wrap_mt.h"
@@ -43,9 +43,9 @@
 #include <mntent.h>
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 #include "X11/Xutil.h"
 
@@ -122,7 +122,7 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
     x11_display = XOpenDisplay(nullptr);
 
     if (!x11_display) {
-        ERR_PRINT("X11 Display is not available");
+        ERR_PRINT("X11 Display is not available")
         return ERR_UNAVAILABLE;
     }
 
@@ -143,10 +143,10 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
 
     if (modifiers == nullptr) {
         if (is_stdout_verbose()) {
-            WARN_PRINT("IME is disabled");
+            WARN_PRINT("IME is disabled")
         }
         XSetLocaleModifiers("@im=none");
-        WARN_PRINT("Error setting locale modifiers");
+        WARN_PRINT("Error setting locale modifiers")
     }
 
     const char *err;
@@ -188,7 +188,7 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
     xim = XOpenIM(x11_display, nullptr, nullptr, nullptr);
 
     if (xim == nullptr) {
-        WARN_PRINT("XOpenIM failed");
+        WARN_PRINT("XOpenIM failed")
         xim_style = 0L;
     } else {
         ::XIMCallback im_destroy_callback;
@@ -196,7 +196,7 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
         im_destroy_callback.callback = (::XIMProc)(xim_destroy_callback);
         if (XSetIMValues(xim, XNDestroyCallback, &im_destroy_callback,
                     NULL) != nullptr) {
-            WARN_PRINT("Error setting XIM destroy callback");
+            WARN_PRINT("Error setting XIM destroy callback")
         }
 
         ::XIMStyles *xim_styles = nullptr;
@@ -390,8 +390,8 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
         set_window_always_on_top(true);
     }
 
-    ERR_FAIL_COND_V(!visual_server, ERR_UNAVAILABLE);
-    ERR_FAIL_COND_V(x11_window == 0, ERR_UNAVAILABLE);
+    ERR_FAIL_COND_V(!visual_server, ERR_UNAVAILABLE)
+    ERR_FAIL_COND_V(x11_window == 0, ERR_UNAVAILABLE)
 
     XSetWindowAttributes new_attr;
 
@@ -427,7 +427,7 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
     XISetMask(xi.all_master_event_mask.mask, XI_RawMotion);
 
 #ifdef TOUCH_ENABLED
-    if (xi.touch_devices.size()) {
+    if (!xi.touch_devices.empty()) {
         XISetMask(xi.all_event_mask.mask, XI_TouchBegin);
         XISetMask(xi.all_event_mask.mask, XI_TouchUpdate);
         XISetMask(xi.all_event_mask.mask, XI_TouchEnd);
@@ -460,19 +460,19 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
 
         xic = XCreateIC(xim, XNInputStyle, xim_style, XNClientWindow, x11_window, XNFocusWindow, x11_window, (char *)nullptr);
         if (XGetICValues(xic, XNFilterEvents, &im_event_mask, NULL) != nullptr) {
-            WARN_PRINT("XGetICValues couldn't obtain XNFilterEvents value");
+            WARN_PRINT("XGetICValues couldn't obtain XNFilterEvents value")
             XDestroyIC(xic);
             xic = nullptr;
         }
         if (xic) {
             XUnsetICFocus(xic);
         } else {
-            WARN_PRINT("XCreateIC couldn't create xic");
+            WARN_PRINT("XCreateIC couldn't create xic")
         }
     } else {
 
         xic = nullptr;
-        WARN_PRINT("XCreateIC couldn't create xic");
+        WARN_PRINT("XCreateIC couldn't create xic")
     }
 
     cursor_size = XcursorGetDefaultSize(x11_display);
@@ -688,7 +688,7 @@ bool OS_X11::refresh_device_info() {
 
     XIFreeDeviceInfo(info);
 #ifdef TOUCH_ENABLED
-    if (!xi.touch_devices.size()) {
+    if (xi.touch_devices.empty()) {
         print_verbose("XInput: No touch devices found.");
     }
 #endif
@@ -1746,10 +1746,10 @@ void OS_X11::handle_key_event(XKeyEvent *p_event, bool p_echo) {
 
     // XLookupString returns keysyms usable as nice scancodes/
     char str[256 + 1];
-	XKeyEvent xkeyevent_no_mod = *xkeyevent;
-	xkeyevent_no_mod.state &= ~ShiftMask;
-	xkeyevent_no_mod.state &= ~ControlMask;
-	XLookupString(&xkeyevent_no_mod, str, 256, &keysym_keycode, nullptr);
+    XKeyEvent xkeyevent_no_mod = *xkeyevent;
+    xkeyevent_no_mod.state &= ~ShiftMask;
+    xkeyevent_no_mod.state &= ~ControlMask;
+    XLookupString(&xkeyevent_no_mod, str, 256, &keysym_keycode, nullptr);
 
     // Meanwhile, XLookupString returns keysyms useful for unicode.
 
@@ -1787,7 +1787,7 @@ void OS_X11::handle_key_event(XKeyEvent *p_event, bool p_echo) {
             for (int i = 0; i < tmp.length(); i++) {
                 Ref<InputEventKey> k;
                 k.instance();
-                if (keycode == 0 && tmp[i] == 0) {
+                if (keycode == 0 && tmp[i] == nullptr) {
                     continue;
                 }
 
@@ -2347,7 +2347,7 @@ void OS_X11::process_xevents() {
                 // Avoidance of spurious mouse motion (see handling of touch)
                 bool filter = false;
                 // Adding some tolerance to match better Point2i to Vector2
-                if (xi.state.size() && Vector2(pos).distance_squared_to(xi.mouse_pos_to_filter) < 2) {
+                if (!xi.state.empty() && Vector2(pos).distance_squared_to(xi.mouse_pos_to_filter) < 2) {
                     filter = true;
                 }
                 // Invalidate to avoid filtering a possible legitimate similar event coming later
@@ -2700,7 +2700,7 @@ static String _get_clipboard(Atom p_source, Window x11_window, ::Display *x11_di
     if (utf8_atom != None) {
         ret = _get_clipboard_impl(p_source, x11_window, x11_display, p_internal_clipboard, utf8_atom);
     }
-    if (ret == "") {
+    if (ret.empty()) {
         ret = _get_clipboard_impl(p_source, x11_window, x11_display, p_internal_clipboard, XA_STRING);
     }
     return ret;
@@ -2711,7 +2711,7 @@ String OS_X11::get_clipboard() const {
     String ret;
     ret = _get_clipboard(XInternAtom(x11_display, "CLIPBOARD", 0), x11_window, x11_display, OS::get_clipboard());
 
-    if (ret == "") {
+    if (ret.empty()) {
         ret = _get_clipboard(XA_PRIMARY, x11_window, x11_display, OS::get_clipboard());
     };
 
@@ -3171,7 +3171,7 @@ void OS_X11::run() {
 #endif
         if (Main::iteration())
             break;
-    };
+    }
 
     main_loop->finish();
 }
@@ -3291,7 +3291,7 @@ Error OS_X11::move_to_trash(const String &p_path) {
     String mnt = get_mountpoint(p_path);
 
     // If there is a directory "[Mountpoint]/.Trash-[UID]/files", use it as the trash can.
-    if (mnt != "") {
+    if (!mnt.empty()) {
         String path(mnt + "/.Trash-" + itos(getuid()) + "/files");
         struct stat s;
         if (!stat(qPrintable(path.m_str), &s)) {
@@ -3300,7 +3300,7 @@ Error OS_X11::move_to_trash(const String &p_path) {
     }
 
     // Otherwise, if ${XDG_DATA_HOME} is defined, use "${XDG_DATA_HOME}/Trash/files" as the trash can.
-    if (trash_can == "") {
+    if (trash_can.empty()) {
         char *dhome = getenv("XDG_DATA_HOME");
         if (dhome) {
             trash_can = String(dhome) + "/Trash/files";
@@ -3308,7 +3308,7 @@ Error OS_X11::move_to_trash(const String &p_path) {
     }
 
     // Otherwise, if ${HOME} is defined, use "${HOME}/.local/share/Trash/files" as the trash can.
-    if (trash_can == "") {
+    if (trash_can.empty()) {
         char *home = getenv("HOME");
         if (home) {
             trash_can = String(home) + "/.local/share/Trash/files";
@@ -3316,7 +3316,7 @@ Error OS_X11::move_to_trash(const String &p_path) {
     }
 
     // Issue an error if none of the previous locations is appropriate for the trash can.
-    if (trash_can == "") {
+    if (trash_can.empty()) {
         ERR_PRINTS("move_to_trash: Could not determine the trash can location");
         return FAILED;
     }

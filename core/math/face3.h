@@ -116,25 +116,22 @@ bool Face3::intersects_aabb2(const AABB &p_aabb) const {
 	if (dist_a * dist_b > 0)
 		return false; //does not intersect the plane
 
-#define TEST_AXIS(m_ax)                                            \
-	{                                                              \
-		real_t aabb_min = p_aabb.position.m_ax;                    \
-		real_t aabb_max = p_aabb.position.m_ax + p_aabb.size.m_ax; \
-		real_t tri_min, tri_max;                                   \
-		for (int i = 0; i < 3; i++) {                              \
-			if (i == 0 || vertex[i].m_ax > tri_max)                \
-				tri_max = vertex[i].m_ax;                          \
-			if (i == 0 || vertex[i].m_ax < tri_min)                \
-				tri_min = vertex[i].m_ax;                          \
-		}                                                          \
-                                                                   \
-		if (tri_max < aabb_min || aabb_max < tri_min)              \
-			return false;                                          \
+#define TEST_AXIS(m_ax)                                                                                                \
+	{                                                                                                                  \
+		real_t aabb_min = p_aabb.position.m_ax;                                                                        \
+		real_t aabb_max = p_aabb.position.m_ax + p_aabb.size.m_ax;                                                     \
+		real_t tri_min = vertex[0].m_ax, tri_max = vertex[0].m_ax;                                                     \
+		for (int i = 1; i < 3; i++) {                                                                                  \
+			if (vertex[i].m_ax > tri_max) tri_max = vertex[i].m_ax;                                                    \
+			if (vertex[i].m_ax < tri_min) tri_min = vertex[i].m_ax;                                                    \
+		}                                                                                                              \
+																													   \
+		if (tri_max < aabb_min || aabb_max < tri_min) return false;                                                    \
 	}
 
-	TEST_AXIS(x);
-	TEST_AXIS(y);
-	TEST_AXIS(z);
+	TEST_AXIS(x)
+	TEST_AXIS(y)
+	TEST_AXIS(z)
 
 #undef TEST_AXIS
 
@@ -223,7 +220,7 @@ bool Face3::intersects_aabb2(const AABB &p_aabb) const {
 
 			Vector3 axis = vec3_cross(e1, e2);
 
-			if (axis.length_squared() < 0.0001)
+			if (axis.length_squared() < 0.0001f)
 				continue; // coplanar
 			//axis.normalize();
 

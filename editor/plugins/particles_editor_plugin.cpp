@@ -35,6 +35,7 @@
 #include "editor/plugins/spatial_editor_plugin.h"
 #include "scene/3d/cpu_particles.h"
 #include "scene/resources/particles_material.h"
+#include "editor/scene_tree_editor.h"
 
 IMPL_GDCLASS(ParticlesEditorBase)
 IMPL_GDCLASS(ParticlesEditor)
@@ -58,7 +59,7 @@ bool ParticlesEditorBase::_generate(PoolVector<Vector3> &points, PoolVector<Vect
             area_accum += area;
         }
 
-        if (!triangle_area_map.size() || area_accum == 0.0f) {
+        if (triangle_area_map.empty() || area_accum == 0.0f) {
 
             EditorNode::get_singleton()->show_warning(TTR("The geometry's faces don't contain any area."));
             return false;

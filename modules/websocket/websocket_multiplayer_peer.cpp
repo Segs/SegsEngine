@@ -281,14 +281,13 @@ void WebSocketMultiplayerPeer::_process_multiplayer(Ref<WebSocketPeer> p_peer, u
 
     const uint8_t *in_buffer;
     int size = 0;
-    int data_size = 0;
 
     Error err = p_peer->get_packet(&in_buffer, size);
 
     ERR_FAIL_COND(err != OK);
     ERR_FAIL_COND(size < PROTO_SIZE);
 
-    data_size = size - PROTO_SIZE;
+    int data_size = size - PROTO_SIZE;
 
     uint8_t type = 0;
     uint32_t from = 0;

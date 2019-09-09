@@ -191,7 +191,7 @@ void memdelete_arr(T *p_class) {
     Memory::free_static(ptr, true);
 }
 
-struct _GlobalNil {
+struct GODOT_EXPORT _GlobalNil {
 
     int color;
     _GlobalNil *right;
@@ -201,7 +201,7 @@ struct _GlobalNil {
     _GlobalNil();
 };
 
-struct _GlobalNilClass {
+struct GODOT_EXPORT _GlobalNilClass {
 
     static _GlobalNil _nil;
 };

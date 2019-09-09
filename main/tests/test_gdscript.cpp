@@ -59,9 +59,9 @@ static void _print_indent(int p_ident, const String &p_text) {
 static String _parser_extends(const GDScriptParser::ClassNode *p_class) {
 
     String txt = "extends ";
-    if (String(p_class->extends_file) != "") {
+    if (!String(p_class->extends_file).empty()) {
         txt += "\"" + p_class->extends_file + "\"";
-        if (p_class->extends_class.size())
+        if (!p_class->extends_class.empty())
             txt += ".";
     }
 
@@ -133,7 +133,7 @@ static String _parser_expr(const GDScriptParser::Node *p_expr) {
                     FALLTHROUGH;
                 case GDScriptParser::OperatorNode::OP_CALL: {
 
-                    ERR_FAIL_COND_V(c_node->arguments.size() < 1, "");
+                    ERR_FAIL_COND_V(c_node->arguments.empty(), "");
                     String func_name;
                     const GDScriptParser::Node *nfunc = c_node->arguments[0];
                     int arg_ofs = 0;
@@ -377,7 +377,7 @@ static void _parser_show_block(const GDScriptParser::BlockNode *p_block, int p_i
                     } break;
                     case GDScriptParser::ControlFlowNode::CF_RETURN: {
 
-                        if (cf_node->arguments.size())
+                        if (!cf_node->arguments.empty())
                             _print_indent(p_indent, "return " + _parser_expr(cf_node->arguments[0]));
                         else
                             _print_indent(p_indent, "return ");
@@ -436,7 +436,7 @@ static void _parser_show_function(const GDScriptParser::FunctionNode *p_func, in
 
 static void _parser_show_class(const GDScriptParser::ClassNode *p_class, int p_indent, const Vector<String> &p_code) {
 
-    if (p_indent == 0 && (String(p_class->extends_file) != "" || p_class->extends_class.size())) {
+    if (p_indent == 0 && (!String(p_class->extends_file).empty() || !p_class->extends_class.empty())) {
 
         _print_indent(p_indent, _parser_extends(p_class));
         print_line("\n");
@@ -446,7 +446,7 @@ static void _parser_show_class(const GDScriptParser::ClassNode *p_class, int p_i
 
         const GDScriptParser::ClassNode *subclass = p_class->subclasses[i];
         String line = "class " + subclass->name;
-        if (String(subclass->extends_file) != "" || subclass->extends_class.size())
+        if (!String(subclass->extends_file).empty() || !subclass->extends_class.empty())
             line += " " + _parser_extends(subclass);
         line += ":";
         _print_indent(p_indent, line);
@@ -912,7 +912,7 @@ static void _disassemble_class(const Ref<GDScript> &p_class, const Vector<String
             }
 
             ip += incr;
-            if (txt != "")
+            if (!txt.empty())
                 print_line(txt);
         }
     }
@@ -948,7 +948,7 @@ MainLoop *test(TestType p_type) {
 
     for (int i = 0; i <= code.length(); i++) {
 
-        if (code[i] == '\n' || code[i] == 0) {
+        if (code[i] == '\n' || code[i] == nullptr) {
 
             lines.push_back(StringUtils::substr(code,last, i - last));
             last = i + 1;

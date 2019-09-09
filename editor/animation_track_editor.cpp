@@ -40,6 +40,7 @@
 #include "editor_node.h"
 #include "editor_scale.h"
 #include "scene/main/viewport.h"
+#include "scene/resources/style_box.h"
 #include "servers/audio/audio_stream.h"
 
 IMPL_GDCLASS(AnimationTimelineEdit)
@@ -5973,7 +5974,7 @@ AnimationTrackEditor::AnimationTrackEditor() {
     insert_confirm_bezier->set_text(TTR("Use Bezier Curves"));
     icvb->add_child(insert_confirm_bezier);
     keying = false;
-    moving_selection = 0;
+    moving_selection = false;
     key_edit = nullptr;
 
     box_selection = memnew(Control);

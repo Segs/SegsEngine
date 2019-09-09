@@ -35,7 +35,7 @@
 extern "C" {
 #endif
 
-#include <stdint.h>
+#include <cstdint>
 
 #define GODOT_VARIANT_SIZE (16 + sizeof(void *))
 

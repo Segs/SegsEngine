@@ -5,8 +5,9 @@
 
 class FileAccess;
 class String;
+
 /** This interface is used by the infrastructure plugins to interact with the engine core
- * Main usages revolve around error/progress reporting and image memory allocations
+ * For now main usages revolve around error/progress reporting and image memory allocations
 */
 class GODOT_EXPORT CoreInterface 
 {
@@ -33,7 +34,7 @@ GODOT_EXPORT CoreInterface *getCoreInterface();
 #define PLUG_FAIL_COND_V(m_cond, m_retval)                                                                                            \
 	{                                                                                                                                \
 		if (unlikely(m_cond)) {                                                                                                      \
-			_err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' " _STR(m_cond) " ' is true. returned: " _STR(m_retval)); \
+			getCoreInterface()->reportError("Condition ' " _STR(m_cond) " ' is true ",_STR(m_retval),FUNCTION_STR, __FILE__, __LINE__); \
 			return m_retval;                                                                                                         \
 		}                                                                                                                            \
 		getCoreInterface()->clearLastError();                                                                                        \
@@ -43,7 +44,7 @@ GODOT_EXPORT CoreInterface *getCoreInterface();
 	{                                                                                                                                \
 		if (unlikely(m_cond)) {                                                                                                      \
 			ERR_EXPLAIN(m_msg);                                                                                                      \
-			_err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' " _STR(m_cond) " ' is true. returned: " _STR(m_retval)); \
+			getCoreInterface()->reportError("Condition ' " _STR(m_cond) " ' is true.",_STR(m_retval),FUNCTION_STR, __FILE__, __LINE__); \
 			return m_retval;                                                                                                         \
 		}                                                                                                                            \
 		getCoreInterface()->clearLastError();                                                                                        \

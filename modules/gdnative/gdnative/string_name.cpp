@@ -33,7 +33,7 @@
 #include "core/string_name.h"
 #include "core/ustring.h"
 
-#include <string.h>
+#include <cstring>
 
 #ifdef __cplusplus
 extern "C" {

@@ -110,6 +110,7 @@ const char *VisualScriptBuiltinFunc::func_name[VisualScriptBuiltinFunc::FUNC_MAX
     "smoothstep",
     "posmod",
     "lerp_angle",
+    "ord",
 };
 
 VisualScriptBuiltinFunc::BuiltinFunc VisualScriptBuiltinFunc::find_function(const String &p_string) {
@@ -185,6 +186,7 @@ int VisualScriptBuiltinFunc::get_func_argument_count(BuiltinFunc p_func) {
         case OBJ_WEAKREF:
         case TYPE_OF:
         case TEXT_CHAR:
+        case TEXT_ORD:
         case TEXT_STR:
         case TEXT_PRINT:
         case TEXT_PRINTERR:
@@ -442,6 +444,9 @@ PropertyInfo VisualScriptBuiltinFunc::get_input_value_port_info(int p_idx) const
         case TYPE_EXISTS: {
             return PropertyInfo(Variant::STRING, "type");
         } break;
+        case TEXT_ORD: {
+            return PropertyInfo(Variant::STRING, "character");
+        } break;
         case TEXT_CHAR: {
             return PropertyInfo(Variant::INT, "ascii");
         } break;
@@ -598,6 +603,7 @@ PropertyInfo VisualScriptBuiltinFunc::get_output_value_port_info(int p_idx) cons
         case TYPE_CONVERT: {
 
         } break;
+        case TEXT_ORD:
         case TYPE_OF: {
             t = Variant::INT;
 
@@ -1131,7 +1137,31 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_in
         } break;
         case VisualScriptBuiltinFunc::TEXT_CHAR: {
 
-            *r_return = String(p_inputs[0]->as<QChar>());
+            *r_return = String(QChar(p_inputs[0]->as<unsigned int>()));
+
+        } break;
+        case VisualScriptBuiltinFunc::TEXT_ORD: {
+
+            if (p_inputs[0]->get_type() != Variant::STRING) {
+                r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+                r_error.argument = 0;
+                r_error.expected = Variant::STRING;
+
+                return;
+            }
+
+            String str = p_inputs[0]->operator String();
+
+            if (str.length() != 1) {
+                r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+                r_error.argument = 0;
+                r_error.expected = Variant::STRING;
+                *r_return = "Expected a string of length 1 (a character).";
+
+                return;
+            }
+
+            *r_return = str[0];
 
         } break;
         case VisualScriptBuiltinFunc::TEXT_STR: {
@@ -1299,7 +1329,7 @@ void VisualScriptBuiltinFunc::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_func", "which"), &VisualScriptBuiltinFunc::set_func);
     MethodBinder::bind_method(D_METHOD("get_func"), &VisualScriptBuiltinFunc::get_func);
 
-	CharString cc;
+    CharString cc;
 
     for (int i = 0; i < FUNC_MAX; i++) {
 
@@ -1309,23 +1339,23 @@ void VisualScriptBuiltinFunc::_bind_methods() {
     }
     ADD_PROPERTY(PropertyInfo(Variant::INT, "function", PROPERTY_HINT_ENUM, cc), "set_func", "get_func");
 
-	BIND_ENUM_CONSTANT(MATH_SIN)
-	BIND_ENUM_CONSTANT(MATH_COS)
-	BIND_ENUM_CONSTANT(MATH_TAN)
-	BIND_ENUM_CONSTANT(MATH_SINH)
-	BIND_ENUM_CONSTANT(MATH_COSH)
-	BIND_ENUM_CONSTANT(MATH_TANH)
-	BIND_ENUM_CONSTANT(MATH_ASIN)
-	BIND_ENUM_CONSTANT(MATH_ACOS)
-	BIND_ENUM_CONSTANT(MATH_ATAN)
-	BIND_ENUM_CONSTANT(MATH_ATAN2)
-	BIND_ENUM_CONSTANT(MATH_SQRT)
-	BIND_ENUM_CONSTANT(MATH_FMOD)
-	BIND_ENUM_CONSTANT(MATH_FPOSMOD)
-	BIND_ENUM_CONSTANT(MATH_FLOOR)
-	BIND_ENUM_CONSTANT(MATH_CEIL)
-	BIND_ENUM_CONSTANT(MATH_ROUND)
-	BIND_ENUM_CONSTANT(MATH_ABS)
+    BIND_ENUM_CONSTANT(MATH_SIN)
+    BIND_ENUM_CONSTANT(MATH_COS)
+    BIND_ENUM_CONSTANT(MATH_TAN)
+    BIND_ENUM_CONSTANT(MATH_SINH)
+    BIND_ENUM_CONSTANT(MATH_COSH)
+    BIND_ENUM_CONSTANT(MATH_TANH)
+    BIND_ENUM_CONSTANT(MATH_ASIN)
+    BIND_ENUM_CONSTANT(MATH_ACOS)
+    BIND_ENUM_CONSTANT(MATH_ATAN)
+    BIND_ENUM_CONSTANT(MATH_ATAN2)
+    BIND_ENUM_CONSTANT(MATH_SQRT)
+    BIND_ENUM_CONSTANT(MATH_FMOD)
+    BIND_ENUM_CONSTANT(MATH_FPOSMOD)
+    BIND_ENUM_CONSTANT(MATH_FLOOR)
+    BIND_ENUM_CONSTANT(MATH_CEIL)
+    BIND_ENUM_CONSTANT(MATH_ROUND)
+    BIND_ENUM_CONSTANT(MATH_ABS)
     BIND_ENUM_CONSTANT(MATH_SIGN);
     BIND_ENUM_CONSTANT(MATH_POW);
     BIND_ENUM_CONSTANT(MATH_LOG);
@@ -1376,6 +1406,7 @@ void VisualScriptBuiltinFunc::_bind_methods() {
     BIND_ENUM_CONSTANT(MATH_SMOOTHSTEP);
     BIND_ENUM_CONSTANT(MATH_POSMOD);
     BIND_ENUM_CONSTANT(MATH_LERP_ANGLE);
+    BIND_ENUM_CONSTANT(TEXT_ORD);
     BIND_ENUM_CONSTANT(FUNC_MAX);
 }
 
@@ -1462,6 +1493,7 @@ void register_visual_script_builtin_func_node() {
     VisualScriptLanguage::singleton->add_register_func("functions/built_in/typeof", create_builtin_func_node<VisualScriptBuiltinFunc::TYPE_OF>);
     VisualScriptLanguage::singleton->add_register_func("functions/built_in/type_exists", create_builtin_func_node<VisualScriptBuiltinFunc::TYPE_EXISTS>);
     VisualScriptLanguage::singleton->add_register_func("functions/built_in/char", create_builtin_func_node<VisualScriptBuiltinFunc::TEXT_CHAR>);
+    VisualScriptLanguage::singleton->add_register_func("functions/built_in/ord", create_builtin_func_node<VisualScriptBuiltinFunc::TEXT_ORD>);
     VisualScriptLanguage::singleton->add_register_func("functions/built_in/str", create_builtin_func_node<VisualScriptBuiltinFunc::TEXT_STR>);
     VisualScriptLanguage::singleton->add_register_func("functions/built_in/print", create_builtin_func_node<VisualScriptBuiltinFunc::TEXT_PRINT>);
     VisualScriptLanguage::singleton->add_register_func("functions/built_in/printerr", create_builtin_func_node<VisualScriptBuiltinFunc::TEXT_PRINTERR>);

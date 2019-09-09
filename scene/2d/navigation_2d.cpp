@@ -243,8 +243,8 @@ Vector<Vector2> Navigation2D::get_simple_path(const Vector2 &p_start, const Vect
     Polygon *end_poly = nullptr;
     Vector2 begin_point;
     Vector2 end_point;
-    float begin_d = 1e20;
-    float end_d = 1e20;
+    float begin_d = 1e20f;
+    float end_d = 1e20f;
 
     //look for point inside triangle
 
@@ -382,7 +382,7 @@ Vector<Vector2> Navigation2D::get_simple_path(const Vector2 &p_start, const Vect
         //check open list
 
         List<Polygon *>::Element *least_cost_poly = nullptr;
-        float least_cost = 1e30;
+        float least_cost = 1e30f;
 
         //this could be faster (cache previous results)
         for (List<Polygon *>::Element *E = open_list.front(); E; E = E->next()) {
@@ -394,7 +394,7 @@ Vector<Vector2> Navigation2D::get_simple_path(const Vector2 &p_start, const Vect
 #ifdef USE_ENTRY_POINT
             int es = p->edges.size();
 
-            float shortest_distance = 1e30;
+            float shortest_distance = 1e30f;
 
             for (int i = 0; i < es; i++) {
                 Polygon::Edge &e = p->edges.write[i];

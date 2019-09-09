@@ -682,5 +682,5 @@ bool Generic6DOFJointSW::get_flag(Vector3::Axis p_axis, PhysicsServer::G6DOFJoin
 		case PhysicsServer::G6DOF_JOINT_FLAG_MAX: break; // Can't happen, but silences warning
 	}
 
-	return 0;
+	return false;
 }

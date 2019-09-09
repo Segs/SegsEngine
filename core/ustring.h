@@ -229,7 +229,7 @@ double to_double(const CharType *p_str, const CharType **r_end = nullptr);
 [[nodiscard]] Vector<float> split_floats_mk(const String &str,const Vector<String> &p_splitters, bool p_allow_empty = true);
 [[nodiscard]] Vector<int> split_ints(const String &str,const String &p_splitter, bool p_allow_empty = true);
 [[nodiscard]] Vector<int> split_ints_mk(const String &str,const Vector<String> &p_splitters, bool p_allow_empty = true);
-[[nodiscard]] String join(const String &str,Vector<String> parts);
+[[nodiscard]] String join(const String &str, const Vector<String> &parts);
 
 [[nodiscard]] String quote(const String &str,CharType character = '\"');
 [[nodiscard]] String unquote(const String &str);
@@ -272,10 +272,10 @@ static inline uint64_t hash64(const String &s) {
 [[nodiscard]] int count(const String &heystack,const String &p_string, int p_from = 0, int p_to = 0);
 [[nodiscard]] int countn(const String &heystack,const String &p_string, int p_from = 0, int p_to = 0);
 
-[[nodiscard]] int get_slice_count(const String &str,String p_splitter);
+[[nodiscard]] int get_slice_count(const String &str, const String &p_splitter);
 [[nodiscard]] int get_slice_count(const String &str,CharType p_splitter);
 
-[[nodiscard]] String get_slice(const String &str,String p_splitter, int p_slice);
+[[nodiscard]] String get_slice(const String &str, const String &p_splitter, int p_slice);
 [[nodiscard]] String get_slice(const String &str,CharType p_splitter, int p_slice);
 
 [[nodiscard]] String left(const String &str,int p_pos);

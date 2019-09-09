@@ -30,6 +30,7 @@
 
 #include "particles_material.h"
 #include "core/method_bind.h"
+#include "scene/resources/curve_texture.h"
 
 Mutex *ParticlesMaterial::material_mutex = nullptr;
 SelfList<ParticlesMaterial>::List *ParticlesMaterial::dirty_materials = nullptr;
@@ -115,7 +116,7 @@ void ParticlesMaterial::finish_shaders() {
 #endif
 
     memdelete(dirty_materials);
-    dirty_materials = NULL;
+    dirty_materials = nullptr;
 
     memdelete(shader_names);
 }
@@ -1071,7 +1072,7 @@ void ParticlesMaterial::_validate_property(PropertyInfo &property) const {
         property.usage = 0;
     }
 
-	if (StringUtils::begins_with(property.name,"orbit_") && !flags[FLAG_DISABLE_Z]) {
+    if (StringUtils::begins_with(property.name,"orbit_") && !flags[FLAG_DISABLE_Z]) {
         property.usage = 0;
     }
 }

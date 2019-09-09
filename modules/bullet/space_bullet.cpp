@@ -52,7 +52,7 @@
 #include <BulletSoftBody/btSoftRigidDynamicsWorld.h>
 #include <btBulletDynamicsCommon.h>
 
-#include <assert.h>
+#include <cassert>
 
 /**
     @author AndreaCatania
@@ -148,7 +148,7 @@ int BulletPhysicsDirectSpaceState::intersect_shape(const RID &p_shape, const Tra
     btQuery.m_closestDistanceThreshold = 0;
     space->dynamicsWorld->contactTest(&collision_object, btQuery);
 
-    bulletdelete(btConvex);
+	bulletdelete(btConvex)
 
     return btQuery.m_count;
 }
@@ -158,7 +158,7 @@ bool BulletPhysicsDirectSpaceState::cast_motion(const RID &p_shape, const Transf
 
     btCollisionShape *btShape = shape->create_bt_shape(p_xform.basis.get_scale(), p_margin);
     if (!btShape->isConvex()) {
-        bulletdelete(btShape);
+		bulletdelete(btShape)
         ERR_PRINTS("The shape is not a convex shape, then is not supported: shape type: " + itos(shape->get_type()));
         return false;
     }
@@ -200,22 +200,22 @@ bool BulletPhysicsDirectSpaceState::cast_motion(const RID &p_shape, const Transf
         }
     }
 
-    bulletdelete(bt_convex_shape);
+	bulletdelete(bt_convex_shape)
     return true; // Mean success
 }
 
 /// Returns the list of contacts pairs in this order: Local contact, other body contact
 bool BulletPhysicsDirectSpaceState::collide_shape(RID p_shape, const Transform &p_shape_xform, float p_margin, Vector3 *r_results, int p_result_max, int &r_result_count, const Set<RID> &p_exclude, uint32_t p_collision_mask, bool p_collide_with_bodies, bool p_collide_with_areas) {
     if (p_result_max <= 0)
-        return 0;
+        return false;
 
     ShapeBullet *shape = space->get_physics_server()->get_shape_owner()->get(p_shape);
 
     btCollisionShape *btShape = shape->create_bt_shape(p_shape_xform.basis.get_scale_abs(), p_margin);
     if (!btShape->isConvex()) {
-        bulletdelete(btShape);
-        ERR_PRINTS("The shape is not a convex shape, then is not supported: shape type: " + itos(shape->get_type()));
-        return 0;
+		bulletdelete(btShape)
+		ERR_PRINTS("The shape is not a convex shape, then is not supported: shape type: " + itos(shape->get_type()))
+        return false;
     }
     btConvexShape *btConvex = static_cast<btConvexShape *>(btShape);
 
@@ -247,7 +247,7 @@ bool BulletPhysicsDirectSpaceState::rest_info(RID p_shape, const Transform &p_sh
     if (!btShape->isConvex()) {
         bulletdelete(btShape);
         ERR_PRINTS("The shape is not a convex shape, then is not supported: shape type: " + itos(shape->get_type()));
-        return 0;
+        return false;
     }
     btConvexShape *btConvex = static_cast<btConvexShape *>(btShape);
 

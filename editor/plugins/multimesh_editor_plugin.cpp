@@ -31,6 +31,7 @@
 #include "multimesh_editor_plugin.h"
 
 #include "core/method_bind.h"
+#include "editor/scene_tree_editor.h"
 #include "scene/3d/mesh_instance.h"
 #include "scene/gui/box_container.h"
 #include "spatial_editor_plugin.h"
@@ -53,7 +54,7 @@ void MultiMeshEditor::_populate() {
 
     Ref<Mesh> mesh;
 
-    if (mesh_source->get_text() == "") {
+    if (mesh_source->get_text().empty()) {
 
         Ref<MultiMesh> multimesh;
         multimesh = node->get_multimesh();
@@ -101,7 +102,7 @@ void MultiMeshEditor::_populate() {
         }
     }
 
-    if (surface_source->get_text() == "") {
+    if (surface_source->get_text().empty()) {
 
         err_dialog->set_text(TTR("No surface source specified."));
         err_dialog->popup_centered_minsize();
@@ -167,7 +168,7 @@ void MultiMeshEditor::_populate() {
         area_accum += area;
     }
 
-    ERR_FAIL_COND_MSG(triangle_area_map.size() == 0, "Couldn't map area.");
+    ERR_FAIL_COND_MSG(triangle_area_map.empty(), "Couldn't map area.");
     ERR_FAIL_COND_MSG(area_accum == 0, "Couldn't map area.");
 
     Ref<MultiMesh> multimesh = memnew(MultiMesh);

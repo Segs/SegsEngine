@@ -87,6 +87,6 @@ int PathTexture::get_overlap() const {
 
 PathTexture::PathTexture() {
 
-	overlap = 0;
+	overlap = false;
 	subdivs = 1;
 }

@@ -90,7 +90,7 @@ typedef struct {
 	// }
 	godot_array methods;
 	// Same format than for methods
-	godot_array signals;
+    godot_array manifest_signals;
 	// Property info dictionary format
 	// {
 	//  name: <string>

@@ -31,7 +31,7 @@
 #include "texture_button.h"
 #include "core/typedefs.h"
 #include "core/method_bind.h"
-#include <stdlib.h>
+#include <cstdlib>
 
 IMPL_GDCLASS(TextureButton)
 

@@ -207,10 +207,10 @@ void RayCast2D::_notification(int p_what) {
 
 void RayCast2D::_update_raycast_state() {
     Ref<World2D> w2d = get_world_2d();
-    ERR_FAIL_COND(w2d.is_null());
+    ERR_FAIL_COND(w2d.is_null())
 
     Physics2DDirectSpaceState *dss = Physics2DServer::get_singleton()->space_get_direct_state(w2d->get_space());
-    ERR_FAIL_COND(!dss);
+    ERR_FAIL_COND(!dss)
 
     Transform2D gt = get_global_transform();
 
@@ -245,7 +245,7 @@ void RayCast2D::add_exception_rid(const RID &p_rid) {
 
 void RayCast2D::add_exception(const Object *p_object) {
 
-    ERR_FAIL_NULL(p_object);
+    ERR_FAIL_NULL(p_object)
     const CollisionObject2D *co = Object::cast_to<CollisionObject2D>(p_object);
     if (!co)
         return;
@@ -259,7 +259,7 @@ void RayCast2D::remove_exception_rid(const RID &p_rid) {
 
 void RayCast2D::remove_exception(const Object *p_object) {
 
-    ERR_FAIL_NULL(p_object);
+    ERR_FAIL_NULL(p_object)
     const CollisionObject2D *co = Object::cast_to<CollisionObject2D>(p_object);
     if (!co)
         return;

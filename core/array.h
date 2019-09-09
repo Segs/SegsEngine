@@ -38,7 +38,7 @@ class ArrayPrivate;
 class Object;
 class StringName;
 
-class Array {
+class GODOT_EXPORT Array {
 
     mutable ArrayPrivate *_p;
     void _ref(const Array &p_from) const;

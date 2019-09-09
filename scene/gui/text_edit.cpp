@@ -782,7 +782,7 @@ void TextEdit::_notification(int p_what) {
                         closec = ')';
                     }
 
-                    if (closec != 0) {
+                    if (closec != nullptr) {
 
                         int stack = 1;
 
@@ -848,7 +848,7 @@ void TextEdit::_notification(int p_what) {
                         closec = '(';
                     }
 
-                    if (closec != 0) {
+                    if (closec != nullptr) {
 
                         int stack = 1;
 
@@ -1743,7 +1743,9 @@ void TextEdit::_notification(int p_what) {
         } break;
         case NOTIFICATION_FOCUS_ENTER: {
 
-            if (!caret_blink_enabled) {
+			if (caret_blink_enabled) {
+				caret_blink_timer->start();
+			} else {
                 draw_caret = true;
             }
 
@@ -1755,6 +1757,9 @@ void TextEdit::_notification(int p_what) {
                 OS::get_singleton()->show_virtual_keyboard(get_text(), get_global_rect());
         } break;
         case NOTIFICATION_FOCUS_EXIT: {
+			if (caret_blink_enabled) {
+				caret_blink_timer->stop();
+			}
 
             OS::get_singleton()->set_ime_position(Point2());
             OS::get_singleton()->set_ime_active(false);
@@ -3821,7 +3826,7 @@ void TextEdit::_base_insert_text(int p_line, int p_char, const String &p_text, i
 
         text.set_breakpoint(p_line, false);
         text.set_hidden(p_line, false);
-        text.set_info_icon(p_line, NULL, "");
+        text.set_info_icon(p_line, nullptr, "");
     }
 
     text.set_line_wrap_amount(p_line, -1);
@@ -4396,11 +4401,13 @@ bool TextEdit::cursor_get_blink_enabled() const {
 void TextEdit::cursor_set_blink_enabled(const bool p_enabled) {
     caret_blink_enabled = p_enabled;
 
+	if (has_focus()) {
     if (p_enabled) {
         caret_blink_timer->start();
     } else {
         caret_blink_timer->stop();
     }
+	}
     draw_caret = true;
 }
 
@@ -4816,10 +4823,12 @@ int TextEdit::get_max_chars() const {
 
 void TextEdit::_reset_caret_blink_timer() {
     if (caret_blink_enabled) {
+		draw_caret = true;
+		if (has_focus()) {
         caret_blink_timer->stop();
         caret_blink_timer->start();
-        draw_caret = true;
         update();
+		}
     }
 }
 
@@ -5540,7 +5549,7 @@ void TextEdit::set_line_info_icon(int p_line, Ref<Texture> p_icon, String p_info
 
 void TextEdit::clear_info_icons() {
     for (int i = 0; i < text.size(); i++) {
-        text.set_info_icon(i, NULL, "");
+        text.set_info_icon(i, nullptr, "");
     }
     update();
 }
@@ -5874,7 +5883,7 @@ void TextEdit::_do_text_op(const TextOperation &p_op, bool p_reverse) {
 
 void TextEdit::_clear_redo() {
 
-    if (undo_stack_pos == NULL)
+    if (undo_stack_pos == nullptr)
         return; // Nothing to clear.
 
     _push_current_op();
@@ -5890,7 +5899,7 @@ void TextEdit::undo() {
 
     _push_current_op();
 
-    if (undo_stack_pos == NULL) {
+    if (undo_stack_pos == nullptr) {
 
         if (!undo_stack.size())
             return; // Nothing to undo.
@@ -5938,7 +5947,7 @@ void TextEdit::redo() {
 
     _push_current_op();
 
-    if (undo_stack_pos == NULL)
+    if (undo_stack_pos == nullptr)
         return; // Nothing to do.
 
     deselect();
@@ -6442,7 +6451,7 @@ void TextEdit::query_code_comple() {
     bool ignored = completion_active && !completion_options.empty();
     if (ignored) {
         ScriptCodeCompletionOption::Kind kind = ScriptCodeCompletionOption::KIND_PLAIN_TEXT;
-        const ScriptCodeCompletionOption *previous_option = NULL;
+        const ScriptCodeCompletionOption *previous_option = nullptr;
         for (int i = 0; i < completion_options.size(); i++) {
             const ScriptCodeCompletionOption &current_option = completion_options[i];
             if (!previous_option) {
@@ -7077,7 +7086,7 @@ Map<int, TextEdit::HighlighterInfo> TextEdit::_get_line_syntax_highlighting(int 
         return syntax_highlighting_cache[p_line];
     }
 
-    if (syntax_highlighter != NULL) {
+    if (syntax_highlighter != nullptr) {
         Map<int, HighlighterInfo> color_map = syntax_highlighter->_get_line_syntax_highlighting(p_line);
         syntax_highlighting_cache[p_line] = color_map;
         return color_map;

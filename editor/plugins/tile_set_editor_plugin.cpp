@@ -37,6 +37,8 @@
 #include "scene/2d/physics_body_2d.h"
 #include "scene/2d/sprite.h"
 #include "editor/editor_scale.h"
+#include "editor/editor_file_system.h"
+#include "scene/resources/style_box.h"
 
 IMPL_GDCLASS(TileSetEditor)
 IMPL_GDCLASS(TilesetEditorContext)
@@ -895,10 +897,10 @@ void TileSetEditor::_on_workspace_draw() {
     if (tileset.is_null() || !get_current_texture().is_valid())
         return;
 
-    const Color COLOR_AUTOTILE = Color(0.3, 0.6, 1);
-    const Color COLOR_SINGLE = Color(1, 1, 0.3);
-    const Color COLOR_ATLAS = Color(0.8, 0.8, 0.8);
-    const Color COLOR_SUBDIVISION = Color(0.3, 0.7, 0.6);
+    const Color COLOR_AUTOTILE = Color(0.3f, 0.6f, 1);
+    const Color COLOR_SINGLE = Color(1, 1, 0.3f);
+    const Color COLOR_ATLAS = Color(0.8f, 0.8f, 0.8f);
+    const Color COLOR_SUBDIVISION = Color(0.3f, 0.7f, 0.6f);
 
     draw_handles = false;
 

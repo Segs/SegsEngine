@@ -172,6 +172,8 @@
         <file alias="DampedSpringJoint2d.svg">icons/icon_damped_spring_joint_2d.svg</file>
         <file alias="DebugContinue.svg">icons/icon_debug_continue.svg</file>
         <file alias="DebugNext.svg">icons/icon_debug_next.svg</file>
+        <file alias="DebugSkipBreakpointsOff.svg">icons/icon_debug_skip_breakpoints_off.svg</file>
+        <file alias="DebugSkipBreakpointsOn.svg">icons/icon_debug_skip_breakpoints_on.svg</file>
         <file alias="DebugStep.svg">icons/icon_debug_step.svg</file>
         <file alias="Debug.svg">icons/icon_debug.svg</file>
         <file alias="DefaultProjectIcon.svg">icons/icon_default_project_icon.svg</file>

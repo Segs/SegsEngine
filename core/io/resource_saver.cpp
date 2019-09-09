@@ -72,7 +72,7 @@ bool ResourceFormatSaver::recognize(const Ref<Resource> &p_resource) const {
     return false;
 }
 
-void ResourceFormatSaver::get_recognized_extensions(const Ref<Resource> &p_resource, List<String> *p_extensions) const {
+void ResourceFormatSaver::get_recognized_extensions(const Ref<Resource> &p_resource, Vector<String> *p_extensions) const {
 
     if (get_script_instance() && get_script_instance()->has_method("get_recognized_extensions")) {
         PoolStringArray exts = get_script_instance()->call("get_recognized_extensions", p_resource);
@@ -114,13 +114,13 @@ Error ResourceSaver::save(const String &p_path, const RES &p_resource, uint32_t 
         if (!saver[i]->recognize(p_resource))
             continue;
 
-        List<String> extensions;
+        Vector<String> extensions;
         bool recognized = false;
         saver[i]->get_recognized_extensions(p_resource, &extensions);
 
-        for (List<String>::Element *E = extensions.front(); E; E = E->next()) {
+        for (int i=0,fin=extensions.size(); i<fin; ++i) {
 
-			if (StringUtils::compare(E->get(),extension,StringUtils::CaseInsensitive) == 0)
+            if (StringUtils::compare(extensions[i],extension,StringUtils::CaseInsensitive) == 0)
                 recognized = true;
         }
 
@@ -167,7 +167,7 @@ void ResourceSaver::set_save_callback(ResourceSavedCallback p_callback) {
     save_callback = p_callback;
 }
 
-void ResourceSaver::get_recognized_extensions(const RES &p_resource, List<String> *p_extensions) {
+void ResourceSaver::get_recognized_extensions(const RES &p_resource, Vector<String> *p_extensions) {
 
     for (int i = 0; i < saver_count; i++) {
 
@@ -177,8 +177,8 @@ void ResourceSaver::get_recognized_extensions(const RES &p_resource, List<String
 
 void ResourceSaver::add_resource_format_saver(Ref<ResourceFormatSaver> p_format_saver, bool p_at_front) {
 
-    ERR_FAIL_COND(p_format_saver.is_null());
-    ERR_FAIL_COND(saver_count >= MAX_SAVERS);
+    ERR_FAIL_COND(p_format_saver.is_null())
+    ERR_FAIL_COND(saver_count >= MAX_SAVERS)
 
     if (p_at_front) {
         for (int i = saver_count; i > 0; i--) {
@@ -193,7 +193,7 @@ void ResourceSaver::add_resource_format_saver(Ref<ResourceFormatSaver> p_format_
 
 void ResourceSaver::remove_resource_format_saver(Ref<ResourceFormatSaver> p_format_saver) {
 
-    ERR_FAIL_COND(p_format_saver.is_null());
+    ERR_FAIL_COND(p_format_saver.is_null())
 
     // Find saver
     int i = 0;
@@ -202,7 +202,7 @@ void ResourceSaver::remove_resource_format_saver(Ref<ResourceFormatSaver> p_form
             break;
     }
 
-    ERR_FAIL_COND(i >= saver_count); // Not found
+    ERR_FAIL_COND(i >= saver_count) // Not found
 
     // Shift next savers up
     for (; i < saver_count - 1; ++i) {
@@ -227,8 +227,8 @@ bool ResourceSaver::add_custom_resource_format_saver(String script_path) {
         return false;
 
     Ref<Resource> res = ResourceLoader::load(script_path);
-    ERR_FAIL_COND_V(res.is_null(), false);
-    ERR_FAIL_COND_V(!res->is_class("Script"), false);
+    ERR_FAIL_COND_V(res.is_null(), false)
+    ERR_FAIL_COND_V(!res->is_class("Script"), false)
 
     Ref<Script> s = res;
     StringName ibt = s->get_instance_base_type();

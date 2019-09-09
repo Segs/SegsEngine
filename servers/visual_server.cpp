@@ -29,7 +29,9 @@
 /*************************************************************************/
 
 #include "visual_server.h"
+#include "visual_server_enum_casters.h"
 
+#include "core/image_enum_casters.h"
 #include "core/method_bind.h"
 #include "core/project_settings.h"
 

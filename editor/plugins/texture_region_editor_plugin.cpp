@@ -825,6 +825,7 @@ void TextureRegionEditor::_changed_callback(Object *p_changed, const char *p_pro
 
     if (!is_visible())
         return;
+    //TODO: SEGS - the code below does not make much sense, StringName is constructed with a static string, then it is converted to String, and then compared....
     if (p_prop == StringName("atlas").asString() || p_prop == StringName("texture").asString())
         _edit_region();
 }

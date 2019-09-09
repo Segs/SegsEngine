@@ -1360,7 +1360,7 @@ void RasterizerSceneGLES3::_setup_geometry(RenderList::Element *e, const Transfo
 
 			RasterizerStorageGLES3::Surface *s = static_cast<RasterizerStorageGLES3::Surface *>(e->geometry);
 
-			if (s->blend_shapes.size() && e->instance->blend_values.size()) {
+			if (!s->blend_shapes.empty() && !e->instance->blend_values.empty()) {
 				//blend shapes, use transform feedback
 				storage->mesh_render_blend_shapes(s, e->instance->blend_values.ptr());
 				//rebind shader
@@ -2056,7 +2056,7 @@ void RasterizerSceneGLES3::_render_list(RenderList::Element **p_elements, int p_
 
 	RasterizerStorageGLES3::Material *prev_material = nullptr;
 	RasterizerStorageGLES3::Geometry *prev_geometry = nullptr;
-	RasterizerStorageGLES3::GeometryOwner *prev_owner = NULL;
+	RasterizerStorageGLES3::GeometryOwner *prev_owner = nullptr;
 	VS::InstanceType prev_base_type = VS::INSTANCE_MAX;
 
 	int current_blend_mode = -1;
@@ -2119,9 +2119,9 @@ void RasterizerSceneGLES3::_render_list(RenderList::Element **p_elements, int p_
 					//state.scene_shader.set_conditional(SceneShaderGLES3::SHADELESS,true);
 				} else {
 
-					state.scene_shader.set_conditional(SceneShaderGLES3::USE_GI_PROBES, e->instance->gi_probe_instances.size() > 0);
-					state.scene_shader.set_conditional(SceneShaderGLES3::USE_LIGHTMAP, e->instance->lightmap.is_valid() && e->instance->gi_probe_instances.size() == 0);
-					state.scene_shader.set_conditional(SceneShaderGLES3::USE_LIGHTMAP_CAPTURE, !e->instance->lightmap_capture_data.empty() && !e->instance->lightmap.is_valid() && e->instance->gi_probe_instances.size() == 0);
+					state.scene_shader.set_conditional(SceneShaderGLES3::USE_GI_PROBES, !e->instance->gi_probe_instances.empty());
+					state.scene_shader.set_conditional(SceneShaderGLES3::USE_LIGHTMAP, e->instance->lightmap.is_valid() && e->instance->gi_probe_instances.empty());
+					state.scene_shader.set_conditional(SceneShaderGLES3::USE_LIGHTMAP_CAPTURE, !e->instance->lightmap_capture_data.empty() && !e->instance->lightmap.is_valid() && e->instance->gi_probe_instances.empty());
 
 					state.scene_shader.set_conditional(SceneShaderGLES3::SHADELESS, false);
 
@@ -2424,7 +2424,7 @@ void RasterizerSceneGLES3::_add_geometry_with_material(RasterizerStorageGLES3::G
 
 	if (!p_depth_pass) {
 
-		if (e->instance->gi_probe_instances.size()) {
+		if (!e->instance->gi_probe_instances.empty()) {
 			e->sort_key |= SORT_KEY_GI_PROBES_FLAG;
 		}
 

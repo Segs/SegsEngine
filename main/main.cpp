@@ -34,10 +34,10 @@
 #include "core/input_map.h"
 #include "core/io/file_access_network.h"
 #include "core/io/file_access_pack.h"
-#include "core/io/file_access_zip.h"
+
 #include "core/io/image_loader.h"
 #include "core/io/ip.h"
-#include "plugins/plugin_registry.h"
+#include "plugins/plugin_registry_interface.h"
 #include "core/io/resource_loader.h"
 #include "core/message_queue.h"
 #include "core/os/dir_access.h"
@@ -94,9 +94,6 @@ static TranslationServer *translation_server = nullptr;
 static Performance *performance = nullptr;
 
 static PackedData *packed_data = nullptr;
-#ifdef MINIZIP_ENABLED
-static ZipArchive *zip_packed_data = nullptr;
-#endif
 static FileAccessNetworkClient *file_access_network_client = nullptr;
 static ScriptDebugger *script_debugger = nullptr;
 static MessageQueue *message_queue = nullptr;
@@ -309,6 +306,30 @@ void Main::print_help(const char *p_binary) {
     OS::get_singleton()->print(").\n");
 #endif
 }
+#include "core/plugin_interfaces/PluginDeclarations.h"
+struct ArchivePluginResolver : public ResolverInterface
+{
+    PackedData *pack_data;
+    ArchivePluginResolver(PackedData *pd) : pack_data(pd) {}
+
+    bool new_plugin_detected(QObject * ob) override {
+        bool res=false;
+        auto interface = qobject_cast<PackSourceInterface *>(ob);
+        if(interface) {
+            print_line(String("Adding archive plugin:")+ob->metaObject()->className());
+            pack_data->add_pack_source(interface);
+            res=true;
+        }
+        return res;
+    }
+    void plugin_removed(QObject * ob)  override  {
+        auto interface = qobject_cast<PackSourceInterface *>(ob);
+        if(interface) {
+            print_line(String("Removing archive plugin:")+ob->metaObject()->className());
+            pack_data->remove_pack_source(interface);
+        }
+    }
+};
 
 /* Engine initialization
  *
@@ -394,6 +415,7 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
     bool upwards = false;
     String debug_mode;
     String debug_host;
+    bool skip_breakpoints = false;
     String main_pack;
     bool quiet_stdout = false;
     int rtm = -1;
@@ -412,17 +434,7 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
     if (!packed_data)
         packed_data = memnew(PackedData);
 
-#ifdef MINIZIP_ENABLED
-
-    //XXX: always get_singleton() == 0x0
-    zip_packed_data = ZipArchive::get_singleton();
-    //TODO: remove this temporary fix
-    if (!zip_packed_data) {
-        zip_packed_data = memnew(ZipArchive);
-    }
-
-    packed_data->add_pack_source(zip_packed_data);
-#endif
+    add_plugin_resolver(new ArchivePluginResolver(packed_data));
 
     I = args.front();
     while (I) {
@@ -745,6 +757,8 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
             print_fps = true;
         } else if (I->get() == "--disable-crash-handler") {
             OS::get_singleton()->disable_crash_handler();
+        } else if (I->get() == "--skip-breakpoints") {
+            skip_breakpoints = true;
         } else {
             main_args.push_back(I->get());
         }
@@ -812,6 +826,8 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
             debug_host = StringUtils::substr(debug_host,0, sep_pos);
         }
         Error derr = sdr->connect_to_host(debug_host, debug_port);
+
+        sdr->set_skip_breakpoints(skip_breakpoints);
 
         if (derr != OK) {
             memdelete(sdr);
@@ -1313,7 +1329,7 @@ static MainTimerSync main_timer_sync;
 
 bool Main::start() {
 
-    ERR_FAIL_COND_V(!_start_success, false);
+    ERR_FAIL_COND_V(!_start_success, false)
 
     bool hasicon = false;
     String doc_tool;
@@ -1385,7 +1401,7 @@ bool Main::start() {
         Engine::get_singleton()->set_editor_hint(true); // Needed to instance editor-only classes for their default values
         {
             DirAccessRef da = DirAccess::open(doc_tool);
-            ERR_FAIL_COND_V_MSG(!da, false, "Argument supplied to --doctool must be a base Godot build directory.");
+            ERR_FAIL_COND_V_CMSG(!da, false, "Argument supplied to --doctool must be a base Godot build directory.")
         }
         DocData doc;
         doc.generate(doc_base);
@@ -1480,7 +1496,7 @@ bool Main::start() {
             if (!script_loop) {
                 if (obj)
                     memdelete(obj);
-                ERR_FAIL_V_MSG(false, "Can't load script '" + script + "', it does not inherit from a MainLoop type.");
+                ERR_FAIL_V_MSG(false, "Can't load script '" + script + "', it does not inherit from a MainLoop type.")
             }
 
             script_loop->set_init_script(script_res);
@@ -1504,13 +1520,13 @@ bool Main::start() {
         } else {
 
             Object *ml = ClassDB::instance(main_loop_type);
-            ERR_FAIL_COND_V_MSG(!ml, false, "Can't instance MainLoop type.");
+            ERR_FAIL_COND_V_CMSG(!ml, false, "Can't instance MainLoop type.")
 
             main_loop = Object::cast_to<MainLoop>(ml);
             if (!main_loop) {
 
                 memdelete(ml);
-                ERR_FAIL_V_MSG(false, "Invalid MainLoop type.");
+                ERR_FAIL_V_CMSG(false, "Invalid MainLoop type.")
             }
         }
     }
@@ -1572,7 +1588,7 @@ bool Main::start() {
                     }
 
                     RES res = ResourceLoader::load(path);
-                    ERR_CONTINUE_MSG(res.is_null(), "Can't autoload: " + path);
+                    ERR_CONTINUE_MSG(res.is_null(), "Can't autoload: " + path)
                     Node *n = nullptr;
                     if (res->is_class("PackedScene")) {
                         Ref<PackedScene> ps = res;
@@ -1581,17 +1597,17 @@ bool Main::start() {
                         Ref<Script> script_res = res;
                         StringName ibt = script_res->get_instance_base_type();
                         bool valid_type = ClassDB::is_parent_class(ibt, "Node");
-                        ERR_CONTINUE_MSG(!valid_type, "Script does not inherit a Node: " + path);
+                        ERR_CONTINUE_MSG(!valid_type, "Script does not inherit a Node: " + path)
 
                         Object *obj = ClassDB::instance(ibt);
 
-                        ERR_CONTINUE_MSG(obj == nullptr, "Cannot instance script for autoload, expected 'Node' inheritance, got: " + String(ibt));
+                        ERR_CONTINUE_MSG(obj == nullptr, "Cannot instance script for autoload, expected 'Node' inheritance, got: " + String(ibt))
 
                         n = Object::cast_to<Node>(obj);
                         n->set_script(script_res.get_ref_ptr());
                     }
 
-                    ERR_CONTINUE_MSG(!n, "Path in autoload not a node or script: " + path);
+                    ERR_CONTINUE_MSG(!n, "Path in autoload not a node or script: " + path)
                     n->set_name(name);
 
                     //defer so references are all valid on _ready()

@@ -30,14 +30,15 @@
 
 #include "shader_editor_plugin.h"
 
-#include "core/method_bind.h"
 #include "core/io/resource_loader.h"
 #include "core/io/resource_saver.h"
+#include "core/method_bind.h"
 #include "core/os/keyboard.h"
 #include "core/os/os.h"
 #include "editor/editor_node.h"
 #include "editor/editor_settings.h"
 #include "editor/property_editor.h"
+#include "scene/resources/style_box.h"
 #include "servers/visual/shader_types.h"
 
 /*** SHADER SCRIPT EDITOR ****/
@@ -59,7 +60,7 @@ void ShaderTextEditor::set_edited_shader(const Ref<Shader> &p_shader) {
     _load_theme_settings();
 
     get_text_edit()->set_text(p_shader->get_code());
-	get_text_edit()->clear_undo_history();
+    get_text_edit()->clear_undo_history();
 
     _validate_script();
     _line_col_changed();
@@ -206,7 +207,7 @@ void ShaderTextEditor::_code_complete_script(const String &p_code, List<ScriptCo
     if (err != OK)
         ERR_PRINT("Shaderlang complete failed");
 
-    if (calltip != "") {
+    if (!calltip.empty()) {
         get_text_edit()->set_code_hint(calltip);
     }
 }
@@ -376,7 +377,7 @@ void ShaderEditor::_editor_settings_changed() {
     shader_editor->get_text_edit()->set_indent_using_spaces(EditorSettings::get_singleton()->get("text_editor/indent/type"));
     shader_editor->get_text_edit()->set_auto_indent(EditorSettings::get_singleton()->get("text_editor/indent/auto_indent"));
     shader_editor->get_text_edit()->set_draw_tabs(EditorSettings::get_singleton()->get("text_editor/indent/draw_tabs"));
-	shader_editor->get_text_edit()->set_show_line_numbers(EditorSettings::get_singleton()->get("text_editor/appearance/show_line_numbers"));
+    shader_editor->get_text_edit()->set_show_line_numbers(EditorSettings::get_singleton()->get("text_editor/appearance/show_line_numbers"));
     shader_editor->get_text_edit()->set_syntax_coloring(EditorSettings::get_singleton()->get("text_editor/highlighting/syntax_highlighting"));
     shader_editor->get_text_edit()->set_highlight_all_occurrences(EditorSettings::get_singleton()->get("text_editor/highlighting/highlight_all_occurrences"));
     shader_editor->get_text_edit()->set_highlight_current_line(EditorSettings::get_singleton()->get("text_editor/highlighting/highlight_current_line"));
@@ -384,8 +385,8 @@ void ShaderEditor::_editor_settings_changed() {
     shader_editor->get_text_edit()->cursor_set_blink_speed(EditorSettings::get_singleton()->get("text_editor/cursor/caret_blink_speed"));
     shader_editor->get_text_edit()->add_constant_override("line_spacing", EditorSettings::get_singleton()->get("text_editor/theme/line_spacing"));
     shader_editor->get_text_edit()->cursor_set_block_mode(EditorSettings::get_singleton()->get("text_editor/cursor/block_caret"));
-	shader_editor->get_text_edit()->set_smooth_scroll_enabled(EditorSettings::get_singleton()->get("text_editor/navigation/smooth_scrolling"));
-	shader_editor->get_text_edit()->set_v_scroll_speed(EditorSettings::get_singleton()->get("text_editor/navigation/v_scroll_speed"));
+    shader_editor->get_text_edit()->set_smooth_scroll_enabled(EditorSettings::get_singleton()->get("text_editor/navigation/smooth_scrolling"));
+    shader_editor->get_text_edit()->set_v_scroll_speed(EditorSettings::get_singleton()->get("text_editor/navigation/v_scroll_speed"));
 }
 
 void ShaderEditor::_bind_methods() {
@@ -542,7 +543,7 @@ void ShaderEditor::_update_bookmark_list() {
     bookmarks_menu->add_shortcut(ED_GET_SHORTCUT("script_text_editor/goto_previous_bookmark"), BOOKMARK_GOTO_PREV);
 
     Array bookmark_list = shader_editor->get_text_edit()->get_bookmarks_array();
-    if (bookmark_list.size() == 0) {
+    if (bookmark_list.empty()) {
         return;
     }
 

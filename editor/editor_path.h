@@ -28,32 +28,29 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef EDITOR_PATH_H
-#define EDITOR_PATH_H
+#pragma once
 
 #include "editor_data.h"
 #include "scene/gui/menu_button.h"
 
 class EditorPath : public MenuButton {
 
-	GDCLASS(EditorPath,MenuButton)
+    GDCLASS(EditorPath, MenuButton)
 
-	EditorHistory *history;
+    EditorHistory *history;
 
-	Vector<ObjectID> objects;
-	EditorPath();
+    Vector<ObjectID> objects;
 
-	void _id_pressed(int p_idx);
-	void _about_to_show();
-	void _add_children_to_popup(Object *p_obj, int p_depth = 0);
+    void _id_pressed(int p_idx);
+    void _about_to_show();
+    void _add_children_to_popup(Object *p_obj, int p_depth = 0);
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	void update_path();
+    void update_path();
 
-	EditorPath(EditorHistory *p_history);
+    EditorPath() = delete;
+    EditorPath(EditorHistory *p_history);
 };
-
-#endif // EDITOR_PATH_H

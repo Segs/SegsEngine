@@ -34,7 +34,7 @@
 #include "core/reference.h"
 #include "core/resource.h"
 
-typedef Ref<Resource> RES;
+using RES = Ref<Resource>;
 class Node;
 
 

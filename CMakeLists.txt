@@ -3,7 +3,7 @@ project(SegsEngine)
 
 # NOTE: when running on linux the following commands allow for ccache based build acceleration and build timing
 # respectively
-set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+#set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
 #set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "/usr/bin/time -f \"%E,%M,%C,%O\"")
 
 set(CMAKE_CXX_STANDARD 17)
@@ -211,11 +211,11 @@ add_subdirectory(thirdparty)
 add_subdirectory(core) # has to be visited first to set the paths to binary dirs that contain generated files
 add_subdirectory(drivers)
 add_subdirectory(modules)
-add_subdirectory(plugins)
 add_subdirectory(servers)
 add_subdirectory(scene)
 add_subdirectory(editor)
 add_subdirectory(platform)
+add_subdirectory(plugins)
 add_subdirectory(main)
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")

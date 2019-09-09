@@ -37,7 +37,7 @@
 #include FT_STROKER_H
 
 #define __STDC_LIMIT_MACROS
-#include <stdint.h>
+#include <cstdint>
 
 IMPL_GDCLASS(DynamicFontData)
 IMPL_GDCLASS(DynamicFontAtSize)

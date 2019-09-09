@@ -33,7 +33,7 @@
 
 
 #include "core/os/keyboard.h"
-typedef unsigned long KeySym;
+using KeySym = unsigned long;
 class KeyMappingX11 {
     KeyMappingX11(){};
 

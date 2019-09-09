@@ -34,6 +34,7 @@
 #include "core/os/keyboard.h"
 #include "scene/animation/animation_blend_tree.h"
 #include "editor/editor_scale.h"
+#include "scene/resources/style_box.h"
 
 IMPL_GDCLASS(AnimationNodeBlendSpace1DEditor)
 
@@ -557,7 +558,7 @@ void AnimationNodeBlendSpace1DEditor::_notification(int p_what) {
 
         if (error != error_label->get_text()) {
             error_label->set_text(error);
-            if (error != String()) {
+            if (!error.empty()) {
                 error_panel->show();
             } else {
                 error_panel->hide();

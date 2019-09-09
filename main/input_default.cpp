@@ -200,7 +200,7 @@ void InputDefault::joy_connection_changed(int p_idx, bool p_connected, String p_
     if (p_connected) {
 
         String uidname = p_guid;
-        if (p_guid == "") {
+        if (p_guid.empty()) {
             int uidlen = MIN(p_name.length(), 16);
             for (int i = 0; i < uidlen; i++) {
                 uidname = uidname + _hex_str(p_name[i].toLatin1());
@@ -730,11 +730,11 @@ InputDefault::InputDefault() {
     fallback_mapping = -1;
 
     String env_mapping = OS::get_singleton()->get_environment("SDL_GAMECONTROLLERCONFIG");
-    if (env_mapping != "") {
+    if (!env_mapping.empty()) {
 
         Vector<String> entries = StringUtils::split(env_mapping,"\n");
         for (int i = 0; i < entries.size(); i++) {
-            if (entries[i] == "")
+            if (entries[i].empty())
                 continue;
             parse_mapping(entries[i]);
         }
@@ -1014,7 +1014,7 @@ void InputDefault::parse_mapping(String p_mapping) {
     int idx = 1;
     while (++idx < entry.size()) {
 
-        if (entry[idx] == "")
+        if (entry[idx].empty())
             continue;
 
         String from = StringUtils::replace(StringUtils::get_slice(entry[idx],":", 1)," ", "");

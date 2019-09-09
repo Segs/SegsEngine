@@ -518,7 +518,7 @@ float AnimationNodeBlendSpace2D::process(float p_time, bool p_seek) {
     } else {
 
         int new_closest = -1;
-        float new_closest_dist = 1e20;
+        float new_closest_dist = 1e20f;
 
         for (int i = 0; i < blend_points_used; i++) {
 

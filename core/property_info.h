@@ -3,8 +3,7 @@
 #include "core/ustring.h"
 #include "typesystem_decls.h"
 
-struct PropertyInfo {
-private:
+struct GODOT_EXPORT PropertyInfo {
 public:
     String name;
     String hint_string;

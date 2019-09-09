@@ -259,8 +259,8 @@ void OS::set_custom_mouse_cursor(const RES &p_cursor, CursorShape p_shape, const
 
 void OS::print_all_resources(const String &p_to_file) {
 
-    ERR_FAIL_COND(p_to_file != "" && _OSPRF);
-    if (p_to_file != "") {
+    ERR_FAIL_COND(!p_to_file.empty() && _OSPRF);
+    if (!p_to_file.empty()) {
 
         Error err;
         _OSPRF = FileAccess::open(p_to_file, FileAccess::WRITE, &err);
@@ -272,7 +272,7 @@ void OS::print_all_resources(const String &p_to_file) {
 
     ObjectDB::debug_objects(_OS_printres);
 
-    if (p_to_file != "") {
+    if (!p_to_file.empty()) {
 
         if (_OSPRF)
             memdelete(_OSPRF);
@@ -406,7 +406,7 @@ Error OS::dialog_show(String p_title, String p_description, Vector<String> p_but
         int n = to_int(res);
         if (n < 0 || n >= p_buttons.size())
             continue;
-        if (p_obj && p_callback != "")
+        if (p_obj && !p_callback.empty())
             p_obj->call_deferred(p_callback, n);
         break;
     }
@@ -416,12 +416,12 @@ Error OS::dialog_show(String p_title, String p_description, Vector<String> p_but
 Error OS::dialog_input_text(String p_title, String p_description, String p_partial, Object *p_obj, String p_callback) {
 
     ERR_FAIL_COND_V(!p_obj, FAILED)
-    ERR_FAIL_COND_V(p_callback == "", FAILED)
+    ERR_FAIL_COND_V(p_callback.empty(), FAILED)
 	print(FormatV("%s\n---------\n%s\n[%s]:\n",qPrintable(p_title.m_str), qPrintable(p_description.m_str), qPrintable(p_partial.m_str)));
 
     String res = StringUtils::strip_edges(get_stdin_string());
     bool success = true;
-    if (res == "") {
+    if (res.empty()) {
         res = p_partial;
     }
 

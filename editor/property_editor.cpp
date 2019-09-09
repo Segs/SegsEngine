@@ -32,11 +32,11 @@
 #include "property_editor.h"
 
 #include "core/class_db.h"
-#include "core/method_bind.h"
 #include "core/io/image_loader.h"
 #include "core/io/marshalls.h"
 #include "core/io/resource_loader.h"
 #include "core/math/expression.h"
+#include "core/method_bind.h"
 #include "core/object_db.h"
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
@@ -58,6 +58,7 @@
 #include "scene/main/viewport.h"
 #include "scene/resources/font.h"
 #include "scene/resources/packed_scene.h"
+#include "scene/resources/style_box.h"
 #include "scene/scene_string_names.h"
 
 IMPL_GDCLASS(EditorResourceConversionPlugin)
@@ -867,12 +868,12 @@ bool CustomPropertyEditor::edit(Object *p_owner, const String &p_name, Variant::
                 color_picker->hide();
                 color_picker->connect("color_changed", this, "_color_changed");
 
-				// get default color picker mode from editor settings
-				int default_color_mode = EDITOR_GET("interface/inspector/default_color_picker_mode");
-				if (default_color_mode == 1)
-					color_picker->set_hsv_mode(true);
-				else if (default_color_mode == 2)
-					color_picker->set_raw_mode(true);
+                // get default color picker mode from editor settings
+                int default_color_mode = EDITOR_GET("interface/inspector/default_color_picker_mode");
+                if (default_color_mode == 1)
+                    color_picker->set_hsv_mode(true);
+                else if (default_color_mode == 2)
+                    color_picker->set_raw_mode(true);
             }
 
             color_picker->show();

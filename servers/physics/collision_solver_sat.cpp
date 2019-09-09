@@ -51,7 +51,7 @@ struct _CollectorCallback {
 	}
 };
 
-typedef void (*GenerateContactsFunc)(const Vector3 *, int, const Vector3 *, int, _CollectorCallback *);
+using GenerateContactsFunc = void (*)(const Vector3 *, int, const Vector3 *, int, _CollectorCallback *);
 
 static void _generate_contacts_point_point(const Vector3 *p_points_A, int p_point_count_A, const Vector3 *p_points_B, int p_point_count_B, _CollectorCallback *p_callback) {
 
@@ -413,7 +413,7 @@ public:
 	}
 
 	_FORCE_INLINE_ SeparatorAxisTest(const ShapeA *p_shape_A, const Transform &p_transform_A, const ShapeB *p_shape_B, const Transform &p_transform_B, _CollectorCallback *p_callback, real_t p_margin_A = 0, real_t p_margin_B = 0) {
-		best_depth = 1e15;
+		best_depth = 1e15f;
 		shape_A = p_shape_A;
 		shape_B = p_shape_B;
 		transform_A = &p_transform_A;
@@ -426,7 +426,7 @@ public:
 
 /****** SAT TESTS *******/
 
-typedef void (*CollisionFunc)(const ShapeSW *, const Transform &, const ShapeSW *, const Transform &, _CollectorCallback *p_callback, real_t, real_t);
+using CollisionFunc = void (*)(const ShapeSW *, const Transform &, const ShapeSW *, const Transform &, _CollectorCallback *, real_t, real_t);
 
 template <bool withMargin>
 static void _collision_sphere_sphere(const ShapeSW *p_a, const Transform &p_transform_a, const ShapeSW *p_b, const Transform &p_transform_b, _CollectorCallback *p_collector, real_t p_margin_a, real_t p_margin_b) {

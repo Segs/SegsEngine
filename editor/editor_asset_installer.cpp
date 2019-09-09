@@ -36,6 +36,7 @@
 #include "core/os/dir_access.h"
 #include "core/os/file_access.h"
 #include "editor_node.h"
+#include "editor/editor_file_system.h"
 
 IMPL_GDCLASS(EditorAssetInstaller)
 
@@ -91,7 +92,7 @@ void EditorAssetInstaller::open(const String &p_path, int p_depth) {
     FileAccess *src_f = nullptr;
     zlib_filefunc_def io = zipio_create_io_from_file(&src_f);
 
-	unzFile pkg = unzOpen2(qPrintable(p_path.m_str), &io);
+    unzFile pkg = unzOpen2(qPrintable(p_path.m_str), &io);
     if (!pkg) {
 
         error->set_text(TTR("Error opening package file, not in ZIP format."));
@@ -218,7 +219,7 @@ void EditorAssetInstaller::ok_pressed() {
     FileAccess *src_f = nullptr;
     zlib_filefunc_def io = zipio_create_io_from_file(&src_f);
 
-	unzFile pkg = unzOpen2(qPrintable(package_path.m_str), &io);
+    unzFile pkg = unzOpen2(qPrintable(package_path.m_str), &io);
     if (!pkg) {
 
         error->set_text(TTR("Error opening package file, not in ZIP format."));

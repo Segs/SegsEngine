@@ -472,7 +472,7 @@ public:
 	~VisualScriptFunctionState() override;
 };
 
-typedef Ref<VisualScriptNode> (*VisualScriptNodeRegisterFunc)(const String &p_type);
+using VisualScriptNodeRegisterFunc = Ref<VisualScriptNode> (*)(const String &);
 
 class VisualScriptLanguage : public ScriptLanguage {
 

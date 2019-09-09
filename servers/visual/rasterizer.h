@@ -913,7 +913,7 @@ public:
 					case Item::Command::TYPE_POLYLINE: {
 
 						const Item::CommandPolyLine *pline = static_cast<const Item::CommandPolyLine *>(c);
-						if (pline->triangles.size()) {
+						if (!pline->triangles.empty()) {
 							for (int j = 0; j < pline->triangles.size(); j++) {
 
 								if (j == 0) {

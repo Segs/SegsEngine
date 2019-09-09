@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef SHAPE_2D_2DSW_H
-#define SHAPE_2D_2DSW_H
+#pragma once
 
 #include "servers/physics_2d_server.h"
 #define _SEGMENT_IS_VALID_SUPPORT_THRESHOLD 0.99998
@@ -333,8 +332,8 @@ public:
 
 	_FORCE_INLINE_ void project_range(const Vector2 &p_normal, const Transform2D &p_transform, real_t &r_min, real_t &r_max) const {
 		// no matter the angle, the box is mirrored anyway
-		r_max = -1e20;
-		r_min = 1e20;
+		r_max = -1e20f;
+		r_min = 1e20f;
 		for (int i = 0; i < 4; i++) {
 
 			real_t d = p_normal.dot(p_transform.xform(Vector2(((i & 1) * 2 - 1) * half_extents.x, ((i >> 1) * 2 - 1) * half_extents.y)));
@@ -413,7 +412,7 @@ public:
 		real_t h = (n.y > 0) ? height : -height;
 
 		n *= radius;
-		n.y += h * 0.5;
+		n.y += h * 0.5f;
 
 		r_max = p_normal.dot(p_transform.xform(n));
 		r_min = p_normal.dot(p_transform.xform(-n));
@@ -488,7 +487,7 @@ class ConcaveShape2DSW : public Shape2DSW {
 
 public:
 	bool is_concave() const override { return true; }
-	typedef void (*Callback)(void *p_userdata, Shape2DSW *p_convex);
+	using Callback = void (*)(void *, Shape2DSW *);
 
 	virtual void cull(const Rect2 &p_local_aabb, Callback p_callback, void *p_userdata) const = 0;
 };
@@ -553,5 +552,3 @@ public:
 };
 
 #undef DEFAULT_PROJECT_RANGE_CAST
-
-#endif // SHAPE_2D_2DSW_H

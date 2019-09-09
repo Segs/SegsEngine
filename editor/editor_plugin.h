@@ -247,7 +247,7 @@ public:
 VARIANT_ENUM_CAST(EditorPlugin::CustomControlContainer);
 VARIANT_ENUM_CAST(EditorPlugin::DockSlot);
 
-typedef EditorPlugin *(*EditorPluginCreateFunc)(EditorNode *);
+using EditorPluginCreateFunc = EditorPlugin *(*)(EditorNode *);
 
 class EditorPlugins {
 

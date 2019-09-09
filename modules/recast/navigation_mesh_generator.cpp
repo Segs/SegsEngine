@@ -417,9 +417,9 @@ void EditorNavigationMeshGenerator::_build_recast_navigation_mesh(Ref<Navigation
     _convert_detail_mesh_to_native_navigation_mesh(detail_mesh, p_nav_mesh);
 
     rcFreePolyMesh(poly_mesh);
-    poly_mesh = 0;
+    poly_mesh = nullptr;
     rcFreePolyMeshDetail(detail_mesh);
-    detail_mesh = 0;
+    detail_mesh = nullptr;
 }
 
 EditorNavigationMeshGenerator *EditorNavigationMeshGenerator::get_singleton() {
@@ -465,7 +465,7 @@ void EditorNavigationMeshGenerator::bake(Ref<NavigationMesh> p_nav_mesh, Node *p
         cset = nullptr;
 
         rcFreePolyMesh(poly_mesh);
-        poly_mesh = 0;
+        poly_mesh = nullptr;
 
         rcFreePolyMeshDetail(detail_mesh);
         detail_mesh = nullptr;

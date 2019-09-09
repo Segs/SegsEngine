@@ -1,5 +1,5 @@
 foreach(tgt ${global_targets})
-    add_library(${tgt}_freetype OBJECT ${source_files} register_types.cpp register_types.h)
+    add_library(${tgt}_freetype OBJECT register_types.cpp register_types.h)
     target_link_libraries(${tgt}_freetype PUBLIC ${tgt}_core freetype)
-    set_common_target_properties(${tgt}_freetype)
+    set_module_properties(${tgt} freetype)
 endforeach()

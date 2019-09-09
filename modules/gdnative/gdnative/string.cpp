@@ -34,7 +34,7 @@
 #include "core/ustring.h"
 #include "core/variant.h"
 
-#include <string.h>
+#include <cstring>
 
 #ifdef __cplusplus
 extern "C" {

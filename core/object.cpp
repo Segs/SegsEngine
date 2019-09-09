@@ -40,8 +40,11 @@
 #include "core/script_language.h"
 #include "core/string_formatter.h"
 #include "core/translation.h"
+#include "core/hash_map.h"
 #include "core/vmap.h"
 #include "core/method_bind.h"
+
+
 
 struct Object::Signal  {
 
@@ -70,6 +73,47 @@ struct Object::Signal  {
     int lock;
     Signal() { lock = 0; }
 };
+struct Object::ObjectPrivate {
+    HashMap<StringName, Signal> signal_map;
+    Set<Object *> change_receptors;
+    List<Connection> connections;
+
+#ifdef TOOLS_ENABLED
+    bool _edited;
+    uint32_t _edited_version;
+    Set<String> editor_section_folding;
+#endif
+
+    ~ObjectPrivate() {
+        const StringName *S = nullptr;
+
+        while ((S = signal_map.next(nullptr))) {
+
+            Signal *s = &signal_map[*S];
+
+            ERR_CONTINUE_CMSG(s->lock > 0, "Attempt to delete an object in the middle of a signal emission from it.")
+
+            //brute force disconnect for performance
+            const VMap<Signal::Target, Signal::Slot>::Pair *slot_list = s->slot_map.get_array();
+
+            for (int i = 0; i < s->slot_map.size(); i++) {
+                const VMap<Signal::Target, Signal::Slot>::Pair &entry(slot_list[i]);
+                if(entry.value.conn.target && entry.value.conn.target->private_data) {
+                    entry.value.conn.target->private_data->connections.erase(entry.value.cE);
+                }
+            }
+
+            signal_map.erase(*S);
+        }
+        //signals from nodes that connect to this node
+        while (!connections.empty()) {
+            Connection c = connections.front()->get();
+            c.source->_disconnect(c.signal, c.target, c.method, true);
+        }
+
+    }
+};
+
 #ifdef DEBUG_ENABLED
 
 struct _ObjectDebugLock {
@@ -98,7 +142,7 @@ PropertyInfo::operator Dictionary() const {
     Dictionary d;
     d["name"] = name;
     d["class_name"] = class_name;
-	d["type"] = type;
+    d["type"] = type;
     d["hint"] = hint;
     d["hint_string"] = hint_string;
     d["usage"] = usage;
@@ -110,7 +154,7 @@ PropertyInfo PropertyInfo::from_dict(const Dictionary &p_dict) {
     PropertyInfo pi;
 
     if (p_dict.has("type"))
-		pi.type = Variant::Type(int(p_dict["type"]));
+        pi.type = Variant::Type(int(p_dict["type"]));
 
     if (p_dict.has("name"))
         pi.name = p_dict["name"].as<String>();
@@ -423,7 +467,7 @@ void Object::set(const StringName &p_name, const Variant &p_value, bool *r_valid
 
 #ifdef TOOLS_ENABLED
 
-    _edited = true;
+    private_data->_edited = true;
 #endif
 
     if (script_instance) {
@@ -969,12 +1013,12 @@ void Object::_changed_callback(Object * /*p_changed*/, const char * /*p_prop*/) 
 
 void Object::add_change_receptor(Object *p_receptor) {
 
-    change_receptors.insert(p_receptor);
+    private_data->change_receptors.insert(p_receptor);
 }
 
 void Object::remove_change_receptor(Object *p_receptor) {
 
-    change_receptors.erase(p_receptor);
+    private_data->change_receptors.erase(p_receptor);
 }
 
 void Object::get_inheritance_list_static(List<String> *p_inheritance_list) {
@@ -1129,17 +1173,17 @@ void Object::add_user_signal(const MethodInfo &p_signal) {
 
     ERR_FAIL_COND(p_signal.name == "")
     ERR_FAIL_COND(ClassDB::has_signal(get_class_name(), p_signal.name))
-    ERR_FAIL_COND(signal_map.has(p_signal.name))
+    ERR_FAIL_COND(private_data->signal_map.has(p_signal.name))
     Signal s;
     s.user = p_signal;
-    signal_map[p_signal.name] = s;
+    private_data->signal_map[p_signal.name] = s;
 }
 
 bool Object::_has_user_signal(const StringName &p_name) const {
 
-    if (!signal_map.has(p_name))
+    if (!private_data->signal_map.has(p_name))
         return false;
-    return signal_map[p_name].user.name.length() > 0;
+    return private_data->signal_map[p_name].user.name.length() > 0;
 }
 
 struct _ObjectSignalDisconnectData {
@@ -1182,7 +1226,7 @@ Error Object::emit_signal(const StringName &p_name, const Variant **p_args, int 
     if (_block_signals)
         return ERR_CANT_ACQUIRE_RESOURCE; //no emit, signals blocked
 
-    Signal *s = signal_map.getptr(p_name);
+    Signal *s = private_data->signal_map.getptr(p_name);
     if (!s) {
 #ifdef DEBUG_ENABLED
         bool signal_is_valid = ClassDB::has_signal(get_class_name(), p_name);
@@ -1370,12 +1414,12 @@ Array Object::_get_signal_connection_list(const String &p_signal) const {
 Array Object::_get_incoming_connections() const {
 
     Array ret;
-    int connections_amount = connections.size();
+    int connections_amount = private_data->connections.size();
     for (int idx_conn = 0; idx_conn < connections_amount; idx_conn++) {
         Dictionary conn_data;
-        conn_data["source"] = connections[idx_conn].source;
-        conn_data["signal_name"] = connections[idx_conn].signal;
-        conn_data["method_name"] = connections[idx_conn].method;
+        conn_data["source"] = private_data->connections[idx_conn].source;
+        conn_data["signal_name"] = private_data->connections[idx_conn].signal;
+        conn_data["method_name"] = private_data->connections[idx_conn].method;
         ret.push_back(conn_data);
     }
 
@@ -1395,11 +1439,11 @@ void Object::get_signal_list(List<MethodInfo> *p_signals) const {
     //find maybe usersignals?
     const StringName *S = nullptr;
 
-    while ((S = signal_map.next(S))) {
+    while ((S = private_data->signal_map.next(S))) {
 
-        if (signal_map[*S].user.name != "") {
+        if (private_data->signal_map[*S].user.name != "") {
             //user signal
-            p_signals->push_back(signal_map[*S].user);
+            p_signals->push_back(private_data->signal_map[*S].user);
         }
     }
 }
@@ -1408,9 +1452,9 @@ void Object::get_all_signal_connections(List<Connection> *p_connections) const {
 
     const StringName *S = nullptr;
 
-    while ((S = signal_map.next(S))) {
+    while ((S = private_data->signal_map.next(S))) {
 
-        const Signal *s = &signal_map[*S];
+        const Signal *s = &private_data->signal_map[*S];
 
         for (int i = 0; i < s->slot_map.size(); i++) {
 
@@ -1421,7 +1465,7 @@ void Object::get_all_signal_connections(List<Connection> *p_connections) const {
 
 void Object::get_signal_connection_list(const StringName &p_signal, List<Connection> *p_connections) const {
 
-    const Signal *s = signal_map.getptr(p_signal);
+    const Signal *s = private_data->signal_map.getptr(p_signal);
     if (!s)
         return; //nothing
 
@@ -1434,9 +1478,9 @@ int Object::get_persistent_signal_connection_count() const {
     int count = 0;
     const StringName *S = nullptr;
 
-    while ((S = signal_map.next(S))) {
+    while ((S = private_data->signal_map.next(S))) {
 
-        const Signal *s = &signal_map[*S];
+        const Signal *s = &private_data->signal_map[*S];
 
         for (int i = 0; i < s->slot_map.size(); i++) {
 
@@ -1451,7 +1495,7 @@ int Object::get_persistent_signal_connection_count() const {
 
 void Object::get_signals_connected_to_this(List<Connection> *p_connections) const {
 
-    for (const List<Connection>::Element *E = connections.front(); E; E = E->next()) {
+    for (const List<Connection>::Element *E = private_data->connections.front(); E; E = E->next()) {
         p_connections->push_back(E->get());
     }
 }
@@ -1460,7 +1504,7 @@ Error Object::connect(const StringName &p_signal, Object *p_to_object, const Str
 
     ERR_FAIL_NULL_V(p_to_object, ERR_INVALID_PARAMETER)
 
-    Signal *s = signal_map.getptr(p_signal);
+    Signal *s = private_data->signal_map.getptr(p_signal);
     if (!s) {
         bool signal_is_valid = ClassDB::has_signal(get_class_name(), p_signal);
         //check in script
@@ -1483,8 +1527,8 @@ Error Object::connect(const StringName &p_signal, Object *p_to_object, const Str
                 "In Object of type '" + String(get_class()) + "': Attempt to connect nonexistent signal '" + p_signal +
                         "' to method '" + p_to_object->get_class() + "." + p_to_method + "'.")
 
-        signal_map[p_signal] = Signal();
-        s = &signal_map[p_signal];
+        private_data->signal_map[p_signal] = Signal();
+        s = &private_data->signal_map[p_signal];
     }
 
     Signal::Target target(p_to_object->get_instance_id(), p_to_method);
@@ -1508,7 +1552,7 @@ Error Object::connect(const StringName &p_signal, Object *p_to_object, const Str
     conn.flags = p_flags;
     conn.binds = p_binds;
     slot.conn = conn;
-    slot.cE = p_to_object->connections.push_back(conn);
+    slot.cE = p_to_object->private_data->connections.push_back(conn);
     if (p_flags & ObjectNS::CONNECT_REFERENCE_COUNTED) {
         slot.reference_count = 1;
     }
@@ -1521,7 +1565,7 @@ Error Object::connect(const StringName &p_signal, Object *p_to_object, const Str
 bool Object::is_connected(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method) const {
 
     ERR_FAIL_NULL_V(p_to_object, false)
-    const Signal *s = signal_map.getptr(p_signal);
+    const Signal *s = private_data->signal_map.getptr(p_signal);
     if (!s) {
         bool signal_is_valid = ClassDB::has_signal(get_class_name(), p_signal);
         if (signal_is_valid)
@@ -1547,7 +1591,7 @@ void Object::disconnect(const StringName &p_signal, Object *p_to_object, const S
 void Object::_disconnect(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method, bool p_force) {
 
     ERR_FAIL_NULL(p_to_object)
-    Signal *s = signal_map.getptr(p_signal);
+    Signal *s = private_data->signal_map.getptr(p_signal);
     ERR_FAIL_COND_MSG(!s, "Nonexistent signal: " + p_signal + ".")
 
     ERR_FAIL_COND_MSG(s->lock > 0, "Attempt to disconnect signal '" + p_signal + "' while emitting (locks: " + itos(s->lock) + ").")
@@ -1566,12 +1610,12 @@ void Object::_disconnect(const StringName &p_signal, Object *p_to_object, const 
         }
     }
 
-    p_to_object->connections.erase(slot->cE);
+    p_to_object->private_data->connections.erase(slot->cE);
     s->slot_map.erase(target);
 
     if (s->slot_map.empty() && ClassDB::has_signal(get_class_name(), p_signal)) {
         //not user signal, delete
-        signal_map.erase(p_signal);
+        private_data->signal_map.erase(p_signal);
     }
 }
 
@@ -1604,7 +1648,13 @@ void Object::initialize_class() {
     _bind_methods();
     initialized = true;
 }
-
+#ifdef TOOLS_ENABLED
+void Object::_change_notify(const char *p_property) {
+    private_data->_edited = true;
+    for (Set<Object *>::Element *E = private_data->change_receptors.front(); E; E = E->next())
+        ((Object *)(E->get()))->_changed_callback(this, p_property);
+}
+#endif
 StringName Object::tr(const StringName &p_message) const {
 
     if (!_can_translate || !TranslationServer::get_singleton())
@@ -1663,17 +1713,19 @@ void Object::editor_set_section_unfold(const String &p_section, bool p_unfolded)
 
     set_edited(true);
     if (p_unfolded)
-        editor_section_folding.insert(p_section);
+        private_data->editor_section_folding.insert(p_section);
     else
-        editor_section_folding.erase(p_section);
+        private_data->editor_section_folding.erase(p_section);
 }
 
 bool Object::editor_is_section_unfolded(const String &p_section) {
 
-    return editor_section_folding.has(p_section);
+    return private_data->editor_section_folding.has(p_section);
 }
 
-void Object::editor_clear_section_folding() { editor_section_folding.clear(); }
+const Set<String> &Object::editor_get_section_folding() const { return private_data->editor_section_folding; }
+
+void Object::editor_clear_section_folding() { private_data->editor_section_folding.clear(); }
 
 #endif
 
@@ -1901,18 +1953,18 @@ bool Object::is_queued_for_deletion() const {
 #ifdef TOOLS_ENABLED
 void Object::set_edited(bool p_edited) {
 
-    _edited = p_edited;
-    _edited_version++;
+    private_data->_edited = p_edited;
+    private_data->_edited_version++;
 }
 
 bool Object::is_edited() const {
 
-    return _edited;
+    return private_data->_edited;
 }
 
 uint32_t Object::get_edited_version() const {
 
-    return _edited_version;
+    return private_data->_edited_version;
 }
 #endif
 
@@ -1950,7 +2002,7 @@ void Object::set_script_instance_binding(int p_script_language_index, void *p_da
 }
 
 Object::Object() {
-
+    private_data = memnew(ObjectPrivate);
     _class_ptr = nullptr;
     _block_signals = false;
     _predelete_ok = 0;
@@ -1963,8 +2015,8 @@ Object::Object() {
     script_instance = nullptr;
 #ifdef TOOLS_ENABLED
 
-    _edited = false;
-    _edited_version = 0;
+    private_data->_edited = false;
+    private_data->_edited_version = 0;
 #endif
 
 #ifdef DEBUG_ENABLED
@@ -1977,33 +2029,10 @@ Object::~Object() {
     if (script_instance)
         memdelete(script_instance);
     script_instance = nullptr;
+    if(private_data)
+        memdelete(private_data);
 
-    const StringName *S = nullptr;
 
-    while ((S = signal_map.next(nullptr))) {
-
-        Signal *s = &signal_map[*S];
-
-        ERR_CONTINUE_CMSG(s->lock > 0, "Attempt to delete an object in the middle of a signal emission from it.")
-
-        //brute force disconnect for performance
-        int slot_count = s->slot_map.size();
-        const VMap<Signal::Target, Signal::Slot>::Pair *slot_list = s->slot_map.get_array();
-
-        for (int i = 0; i < slot_count; i++) {
-
-            slot_list[i].value.conn.target->connections.erase(slot_list[i].value.cE);
-        }
-
-        signal_map.erase(*S);
-    }
-
-    //signals from nodes that connect to this node
-    while (connections.size()) {
-
-        Connection c = connections.front()->get();
-        c.source->_disconnect(c.signal, c.target, c.method, true);
-    }
 
     ObjectDB::remove_instance(this);
     _instance_id = 0;

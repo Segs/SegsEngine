@@ -68,8 +68,8 @@ public:
 		MODE_SAVE_FILE
 	};
 
-	typedef Ref<Texture> (*GetIconFunc)(const String &);
-	typedef void (*RegisterFunc)(EditorFileDialog *);
+	using GetIconFunc = Ref<Texture> (*)(const String &);
+	using RegisterFunc = void (*)(EditorFileDialog *);
 
 	static GetIconFunc get_icon_func;
 	static GetIconFunc get_large_icon_func;

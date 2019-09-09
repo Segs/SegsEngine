@@ -231,7 +231,7 @@ public:
     static Transform _get_global_assimp_node_transform(const aiNode *p_current_node) {
         aiNode const *current_node = p_current_node;
         Transform xform;
-        while (current_node != NULL) {
+        while (current_node != nullptr) {
             xform = assimp_matrix_transform(current_node->mTransformation) * xform;
             current_node = current_node->mParent;
         }
@@ -291,7 +291,7 @@ public:
         using namespace PathUtils;
 
         _Directory dir;
-        List<String> exts;
+        Vector<String> exts;
         ImageLoader::get_recognized_extensions(&exts);
 
         Vector<String> split_path = StringUtils::split(get_basename(r_path),'*');
@@ -321,8 +321,8 @@ public:
       * Helper to check the mapping mode of the texture (repeat, clamp and mirror)
       */
     static void set_texture_mapping_mode(aiTextureMapMode *map_mode, Ref<ImageTexture> texture) {
-        ERR_FAIL_COND(texture.is_null());
-        ERR_FAIL_COND(map_mode == NULL);
+        ERR_FAIL_COND(texture.is_null())
+        ERR_FAIL_COND(map_mode == nullptr)
         aiTextureMapMode tex_mode = aiTextureMapMode::aiTextureMapMode_Wrap;
 
         tex_mode = map_mode[0];

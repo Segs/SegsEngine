@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef PACKET_BUFFER_H
-#define PACKET_BUFFER_H
+#pragma once
 
 #include "core/ring_buffer.h"
 
@@ -37,10 +36,10 @@ template <class T>
 class PacketBuffer {
 
 private:
-    typedef struct {
+	struct _Packet {
         uint32_t size;
         T info;
-    } _Packet;
+	} ;
 
     RingBuffer<_Packet> _packets;
     RingBuffer<uint8_t> _payload;
@@ -117,5 +116,3 @@ public:
         clear();
     }
 };
-
-#endif // PACKET_BUFFER_H

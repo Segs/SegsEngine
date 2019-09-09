@@ -30,10 +30,9 @@
 
 #pragma once
 
-#include "core/hash_map.h"
 #include "core/list.h"
 #include "core/variant.h"
-//#include "core/ustring.h"
+
 
 #define VARIANT_ARG_LIST const Variant &p_arg1 = Variant(), const Variant &p_arg2 = Variant(), const Variant &p_arg3 = Variant(), const Variant &p_arg4 = Variant(), const Variant &p_arg5 = Variant()
 #define VARIANT_ARG_PASS p_arg1, p_arg2, p_arg3, p_arg4, p_arg5
@@ -217,17 +216,17 @@ private:
 class ScriptInstance;
 using ObjectID = uint64_t;
 
-class Object {
+class GODOT_EXPORT Object {
 public:
 
     struct Connection {
 
-        Object *source;
-        StringName signal;
-        Object *target;
-        StringName method;
-        uint32_t flags;
         Vector<Variant> binds;
+        StringName signal;
+        StringName method;
+        Object *source;
+        Object *target;
+        uint32_t flags;
         bool operator<(const Connection &p_conn) const;
 
         operator Variant() const;
@@ -251,27 +250,24 @@ private:
     friend void postinitialize_handler(Object *);
 
     struct Signal;
+    struct ObjectPrivate;
+    Dictionary metadata;
+    ObjectPrivate *private_data;
+    void *_script_instance_bindings[MAX_SCRIPT_INSTANCE_BINDINGS];
+    ScriptInstance *script_instance;
+    RefPtr script;
+    ObjectID _instance_id;
+    mutable StringName _class_name;
+    mutable const StringName *_class_ptr;
 
-    HashMap<StringName, Signal> signal_map;
-    List<Connection> connections;
 #ifdef DEBUG_ENABLED
     SafeRefCount _lock_index;
 #endif
-    bool _block_signals;
+    uint32_t instance_binding_count;
     int _predelete_ok;
-    Set<Object *> change_receptors;
-    ObjectID _instance_id;
+    bool _block_signals;
     bool _can_translate;
-#ifdef TOOLS_ENABLED
-    bool _edited;
-    uint32_t _edited_version;
-    Set<String> editor_section_folding;
-#endif
-    ScriptInstance *script_instance;
-    RefPtr script;
-    Dictionary metadata;
-    mutable StringName _class_name;
-    mutable const StringName *_class_ptr;
+
 
     bool _predelete();
     void _postinitialize();
@@ -290,9 +286,6 @@ private:
     void property_list_changed_notify();
 
     friend class Reference;
-    uint32_t instance_binding_count;
-    void *_script_instance_bindings[MAX_SCRIPT_INSTANCE_BINDINGS];
-
 protected:
     virtual void _initialize_classv() { initialize_class(); }
     virtual bool _setv(const StringName & /*p_name*/, const Variant & /*p_property*/) { return false; }
@@ -353,11 +346,7 @@ public: //should be protected, but bug in clang++
 
 public:
 #ifdef TOOLS_ENABLED
-    _FORCE_INLINE_ void _change_notify(const char *p_property = "") {
-        _edited = true;
-        for (Set<Object *>::Element *E = change_receptors.front(); E; E = E->next())
-            ((Object *)(E->get()))->_changed_callback(this, p_property);
-    }
+    void _change_notify(const char *p_property = "");
 #else
     _FORCE_INLINE_ void _change_notify(const char *p_what = "") {}
 #endif
@@ -483,7 +472,7 @@ public:
 
     void editor_set_section_unfold(const String &p_section, bool p_unfolded);
     bool editor_is_section_unfolded(const String &p_section);
-    const Set<String> &editor_get_section_folding() const { return editor_section_folding; }
+    const Set<String> &editor_get_section_folding() const;
     void editor_clear_section_folding();
 
 #endif
@@ -554,6 +543,3 @@ namespace ObjectNS
 
 bool predelete_handler(Object *p_object);
 void postinitialize_handler(Object *p_object);
-
-//needed by macros
-//#include "core/class_db.h"

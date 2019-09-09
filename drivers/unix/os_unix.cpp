@@ -55,14 +55,14 @@
 #include <sys/sysctl.h>
 #endif
 
-#include <assert.h>
+#include <cassert>
 #include <dlfcn.h>
-#include <errno.h>
+#include <cerrno>
 #include <poll.h>
-#include <signal.h>
-#include <stdarg.h>
-#include <stdlib.h>
-#include <string.h>
+#include <csignal>
+#include <cstdarg>
+#include <cstdlib>
+#include <cstring>
 #include <sys/time.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -474,11 +474,11 @@ int OS_Unix::get_processor_count() const {
 String OS_Unix::get_user_data_dir() const {
 
     String appname = get_safe_dir_name(ProjectSettings::get_singleton()->get("application/config/name"));
-    if (appname != "") {
+    if (!appname.empty()) {
         bool use_custom_dir = ProjectSettings::get_singleton()->get("application/config/use_custom_user_dir");
         if (use_custom_dir) {
             String custom_dir = get_safe_dir_name(ProjectSettings::get_singleton()->get("application/config/custom_user_dir_name"), true);
-            if (custom_dir == "") {
+            if (custom_dir.empty()) {
                 custom_dir = appname;
             }
             return PathUtils::plus_file(get_data_path(),custom_dir);
@@ -501,7 +501,7 @@ String OS_Unix::get_executable_path() const {
     if (len > 0) {
         StringUtils::parse_utf8(b,buf, len);
     }
-    if (b == "") {
+    if (b.empty()) {
         WARN_PRINT("Couldn't get executable path from /proc/self/exe, using argv[0]")
         return OS::get_executable_path();
     }

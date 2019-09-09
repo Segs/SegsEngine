@@ -35,8 +35,8 @@
 extern "C" {
 #endif
 
-#include <stdint.h>
-#include <wchar.h>
+#include <cstdint>
+#include <cwchar>
 
 #define GODOT_STRING_NAME_SIZE sizeof(void *)
 

@@ -75,7 +75,7 @@ void MaterialEditor::_notification(int p_what) {
     }
 }
 
-void MaterialEditor::edit(Ref<Material> p_material, const Ref<Environment> &p_env) {
+void MaterialEditor::edit(const Ref<Material>& p_material, const Ref<Environment> &p_env) {
 
     material = p_material;
     camera->set_environment(p_env);

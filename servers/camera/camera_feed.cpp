@@ -30,6 +30,8 @@
 
 #include "camera_feed.h"
 #include "servers/visual_server.h"
+#include "servers/visual_server_enum_casters.h"
+#include "core/image_enum_casters.h"
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(CameraFeed)
@@ -61,14 +63,14 @@ void CameraFeed::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "feed_is_active"), "set_active", "is_active");
     ADD_PROPERTY(PropertyInfo(Variant::TRANSFORM2D, "feed_transform"), "set_transform", "get_transform");
 
-    BIND_ENUM_CONSTANT(FEED_NOIMAGE);
-    BIND_ENUM_CONSTANT(FEED_RGB);
-    BIND_ENUM_CONSTANT(FEED_YCBCR);
-    BIND_ENUM_CONSTANT(FEED_YCBCR_SEP);
+    BIND_ENUM_CONSTANT(FEED_NOIMAGE)
+    BIND_ENUM_CONSTANT(FEED_RGB)
+    BIND_ENUM_CONSTANT(FEED_YCBCR)
+    BIND_ENUM_CONSTANT(FEED_YCBCR_SEP)
 
-    BIND_ENUM_CONSTANT(FEED_UNSPECIFIED);
-    BIND_ENUM_CONSTANT(FEED_FRONT);
-    BIND_ENUM_CONSTANT(FEED_BACK);
+    BIND_ENUM_CONSTANT(FEED_UNSPECIFIED)
+    BIND_ENUM_CONSTANT(FEED_FRONT)
+    BIND_ENUM_CONSTANT(FEED_BACK)
 }
 
 int CameraFeed::get_id() const {

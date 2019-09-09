@@ -38,6 +38,7 @@
 #include "plugins/script_editor_plugin.h"
 #include "scene/gui/label.h"
 #include "scene/gui/popup_menu.h"
+#include "scene/resources/style_box.h"
 
 IMPL_GDCLASS(ConnectDialog)
 IMPL_GDCLASS(ConnectionsDock)
@@ -685,7 +686,7 @@ void ConnectionsDock::_open_connection_dialog(TreeItem &item) {
                 continue;
             }
         }
-		midname.set(i,c);
+        midname.set(i,c);
     }
 
     Node *dst_node = selectedNode->get_owner() ? selectedNode->get_owner() : selectedNode;

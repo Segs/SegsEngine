@@ -282,10 +282,10 @@ void PathSpatialGizmo::redraw() {
         if (v3p.size() > 1) {
             add_lines(v3p, path_thin_material);
         }
-        if (handles.size()) {
+        if (!handles.empty()) {
             add_handles(handles, handles_material);
         }
-        if (sec_handles.size()) {
+        if (!sec_handles.empty()) {
             add_handles(sec_handles, handles_material, false, true);
         }
     }

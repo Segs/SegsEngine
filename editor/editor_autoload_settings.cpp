@@ -449,7 +449,7 @@ void EditorAutoloadSettings::update_autoload() {
 
         if (info.node) {
             info.node->queue_delete();
-            info.node = NULL;
+            info.node = nullptr;
         }
     }
 

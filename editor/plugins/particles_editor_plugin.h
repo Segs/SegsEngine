@@ -36,88 +36,90 @@
 #include "scene/3d/particles.h"
 #include "scene/gui/spin_box.h"
 
+class SceneTreeDialog;
+
 class ParticlesEditorBase : public Control {
 
-	GDCLASS(ParticlesEditorBase,Control)
+    GDCLASS(ParticlesEditorBase,Control)
 
 protected:
-	Spatial *base_node;
-	Panel *panel;
-	MenuButton *options;
-	HBoxContainer *particles_editor_hb;
+    Spatial *base_node;
+    Panel *panel;
+    MenuButton *options;
+    HBoxContainer *particles_editor_hb;
 
-	EditorFileDialog *emission_file_dialog;
-	SceneTreeDialog *emission_tree_dialog;
+    EditorFileDialog *emission_file_dialog;
+    SceneTreeDialog *emission_tree_dialog;
 
-	ConfirmationDialog *emission_dialog;
-	SpinBox *emission_amount;
-	OptionButton *emission_fill;
+    ConfirmationDialog *emission_dialog;
+    SpinBox *emission_amount;
+    OptionButton *emission_fill;
 
-	PoolVector<Face3> geometry;
+    PoolVector<Face3> geometry;
 
-	bool _generate(PoolVector<Vector3> &points, PoolVector<Vector3> &normals);
-	virtual void _generate_emission_points() = 0;
-	void _node_selected(const NodePath &p_path);
+    bool _generate(PoolVector<Vector3> &points, PoolVector<Vector3> &normals);
+    virtual void _generate_emission_points() = 0;
+    void _node_selected(const NodePath &p_path);
 
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	ParticlesEditorBase();
+    ParticlesEditorBase();
 };
 
 class ParticlesEditor : public ParticlesEditorBase {
 
-	GDCLASS(ParticlesEditor,ParticlesEditorBase)
+    GDCLASS(ParticlesEditor,ParticlesEditorBase)
 
-	ConfirmationDialog *generate_aabb;
-	SpinBox *generate_seconds;
-	Particles *node;
+    ConfirmationDialog *generate_aabb;
+    SpinBox *generate_seconds;
+    Particles *node;
 
-	enum Menu {
+    enum Menu {
 
-		MENU_OPTION_GENERATE_AABB,
-		MENU_OPTION_CREATE_EMISSION_VOLUME_FROM_NODE,
-		MENU_OPTION_CREATE_EMISSION_VOLUME_FROM_MESH,
-		MENU_OPTION_CLEAR_EMISSION_VOLUME,
-		MENU_OPTION_CONVERT_TO_CPU_PARTICLES,
-		MENU_OPTION_RESTART,
+        MENU_OPTION_GENERATE_AABB,
+        MENU_OPTION_CREATE_EMISSION_VOLUME_FROM_NODE,
+        MENU_OPTION_CREATE_EMISSION_VOLUME_FROM_MESH,
+        MENU_OPTION_CLEAR_EMISSION_VOLUME,
+        MENU_OPTION_CONVERT_TO_CPU_PARTICLES,
+        MENU_OPTION_RESTART,
 
-	};
+    };
 
-	void _generate_aabb();
+    void _generate_aabb();
 
-	void _menu_option(int);
+    void _menu_option(int);
 
-	friend class ParticlesEditorPlugin;
+    friend class ParticlesEditorPlugin;
 
-	void _generate_emission_points() override;
+    void _generate_emission_points() override;
 
 protected:
-	void _notification(int p_notification);
-	void _node_removed(Node *p_node);
-	static void _bind_methods();
+    void _notification(int p_notification);
+    void _node_removed(Node *p_node);
+    static void _bind_methods();
 
 public:
-	void edit(Particles *p_particles);
-	ParticlesEditor();
+    void edit(Particles *p_particles);
+    ParticlesEditor();
 };
 
 class ParticlesEditorPlugin : public EditorPlugin {
 
-	GDCLASS(ParticlesEditorPlugin,EditorPlugin)
+    GDCLASS(ParticlesEditorPlugin,EditorPlugin)
 
-	ParticlesEditor *particles_editor;
-	EditorNode *editor;
+    ParticlesEditor *particles_editor;
+    EditorNode *editor;
 
 public:
-	String get_name() const override { return "Particles"; }
-	bool has_main_screen() const override { return false; }
-	void edit(Object *p_object) override;
-	bool handles(Object *p_object) const override;
-	void make_visible(bool p_visible) override;
+    String get_name() const override { return "Particles"; }
+    bool has_main_screen() const override { return false; }
+    void edit(Object *p_object) override;
+    bool handles(Object *p_object) const override;
+    void make_visible(bool p_visible) override;
 
-	ParticlesEditorPlugin(EditorNode *p_node);
-	~ParticlesEditorPlugin() override;
+    ParticlesEditorPlugin(EditorNode *p_node);
+    ~ParticlesEditorPlugin() override;
 };
 
 #endif // PARTICLES_EDITOR_PLUGIN_H

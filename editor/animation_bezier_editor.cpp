@@ -44,7 +44,7 @@ float AnimationBezierTrackEdit::_bezier_h_to_pixel(float p_h) {
 
 static _FORCE_INLINE_ Vector2 _bezier_interp(real_t t, const Vector2 &start, const Vector2 &control_1, const Vector2 &control_2, const Vector2 &end) {
     /* Formula from Wikipedia article on Bezier curves. */
-    real_t omt = (1.0 - t);
+	real_t omt = (1.0f - t);
     real_t omt2 = omt * omt;
     real_t omt3 = omt2 * omt;
     real_t t2 = t * t;
@@ -463,19 +463,19 @@ void AnimationBezierTrackEdit::_notification(int p_what) {
                     } else {
                         draw_texture(bezier_icon, ep.point_rect.position);
                     }
-                    ep.point_rect = ep.point_rect.grow(ep.point_rect.size.width * 0.5);
+					ep.point_rect = ep.point_rect.grow(ep.point_rect.size.width * 0.5f);
                 }
                 if (pos_in.x >= limit && pos_in.x <= right_limit) {
                     ep.in_rect.position = (pos_in - bezier_handle_icon->get_size() / 2).floor();
                     ep.in_rect.size = bezier_handle_icon->get_size();
                     draw_texture(bezier_handle_icon, ep.in_rect.position);
-                    ep.in_rect = ep.in_rect.grow(ep.in_rect.size.width * 0.5);
+					ep.in_rect = ep.in_rect.grow(ep.in_rect.size.width * 0.5f);
                 }
                 if (pos_out.x >= limit && pos_out.x <= right_limit) {
                     ep.out_rect.position = (pos_out - bezier_handle_icon->get_size() / 2).floor();
                     ep.out_rect.size = bezier_handle_icon->get_size();
                     draw_texture(bezier_handle_icon, ep.out_rect.position);
-                    ep.out_rect = ep.out_rect.grow(ep.out_rect.size.width * 0.5);
+					ep.out_rect = ep.out_rect.grow(ep.out_rect.size.width * 0.5f);
                 }
                 edit_points.push_back(ep);
             }
@@ -483,7 +483,7 @@ void AnimationBezierTrackEdit::_notification(int p_what) {
 
         if (box_selecting) {
             Color bs = accent;
-            bs.a *= 0.5;
+			bs.a *= 0.5f;
             Vector2 bs_from = box_selection_from;
             Vector2 bs_to = box_selection_to;
             if (bs_from.x > bs_to.x) {
@@ -610,7 +610,7 @@ void AnimationBezierTrackEdit::_select_at_anim(const Ref<Animation> &p_anim, int
         return;
 
     int idx = animation->track_find_key(p_track, p_pos, true);
-    ERR_FAIL_COND(idx < 0);
+	ERR_FAIL_COND(idx < 0)
 
     selection.insert(idx);
     emit_signal("select_key", idx, true);

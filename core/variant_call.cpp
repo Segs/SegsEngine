@@ -1067,7 +1067,7 @@ struct _VariantCall {
 
     static ConstantData *constant_data;
 
-    static void add_constant(int p_type, StringName p_constant_name, int p_constant_value) {
+    static void add_constant(int p_type, const StringName &p_constant_name, int p_constant_value) {
 
         constant_data[p_type].value[p_constant_name] = p_constant_value;
 #ifdef DEBUG_ENABLED
@@ -1075,7 +1075,7 @@ struct _VariantCall {
 #endif
     }
 
-    static void add_variant_constant(int p_type, StringName p_constant_name, const Variant &p_constant_value) {
+    static void add_variant_constant(int p_type, const StringName &p_constant_name, const Variant &p_constant_value) {
 
         constant_data[p_type].variant_value[p_constant_name] = p_constant_value;
     }

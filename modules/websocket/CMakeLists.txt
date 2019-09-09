@@ -6,5 +6,5 @@ foreach(tgt ${global_targets})
 
     target_link_libraries(${tgt}_websocket PUBLIC ${tgt}_core)
     target_link_libraries(${tgt}_websocket PRIVATE wslay)
-    set_common_target_properties(${tgt}_websocket)
+    set_module_properties(${tgt} websocket)
 endforeach()

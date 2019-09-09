@@ -54,6 +54,8 @@
 #include "scene/main/canvas_layer.h"
 #include "scene/main/viewport.h"
 #include "scene/resources/packed_scene.h"
+#include "scene/resources/style_box.h"
+#include "scene/resources/theme.h"
 
 #include "animation_track_editor.h"
 
@@ -869,7 +871,7 @@ void CanvasItemEditor::_restore_canvas_item_ik_chain(CanvasItem *p_canvas_item, 
     }
 }
 
-void CanvasItemEditor::_restore_canvas_item_state(List<CanvasItem *> p_canvas_items, bool restore_bones) {
+void CanvasItemEditor::_restore_canvas_item_state(const List<CanvasItem *>& p_canvas_items, bool restore_bones) {
     for (List<CanvasItem *>::Element *E = drag_selection.front(); E; E = E->next()) {
         CanvasItem *canvas_item = E->get();
         CanvasItemEditorSelectedItem *se = editor_selection->get_node_editor_data<CanvasItemEditorSelectedItem>(canvas_item);
@@ -880,7 +882,7 @@ void CanvasItemEditor::_restore_canvas_item_state(List<CanvasItem *> p_canvas_it
     }
 }
 
-void CanvasItemEditor::_commit_canvas_item_state(List<CanvasItem *> p_canvas_items, String action_name, bool commit_bones) {
+void CanvasItemEditor::_commit_canvas_item_state(List<CanvasItem *> p_canvas_items, const String& action_name, bool commit_bones) {
     undo_redo->create_action(action_name);
     for (List<CanvasItem *>::Element *E = p_canvas_items.front(); E; E = E->next()) {
         CanvasItem *canvas_item = E->get();
@@ -1276,7 +1278,7 @@ bool CanvasItemEditor::_gui_input_pivot(const Ref<InputEvent> &p_event) {
                 if (drag_selection.size() == 1) {
                     new_pos = snap_point(drag_from, SNAP_NODE_SIDES | SNAP_NODE_CENTER | SNAP_NODE_ANCHORS | SNAP_OTHER_NODES | SNAP_GRID | SNAP_PIXEL, 0, drag_selection[0]);
                 } else {
-                    new_pos = snap_point(drag_from, SNAP_OTHER_NODES | SNAP_GRID | SNAP_PIXEL, 0, NULL, drag_selection);
+                    new_pos = snap_point(drag_from, SNAP_OTHER_NODES | SNAP_GRID | SNAP_PIXEL, 0, nullptr, drag_selection);
                 }
                 for (List<CanvasItem *>::Element *E = drag_selection.front(); E; E = E->next()) {
                     CanvasItem *canvas_item = E->get();
@@ -1935,7 +1937,7 @@ bool CanvasItemEditor::_gui_input_move(const Ref<InputEvent> &p_event) {
             } else {
                 previous_pos = _get_encompassing_rect_from_list(drag_selection).position;
             }
-            Point2 new_pos = snap_point(previous_pos + (drag_to - drag_from), SNAP_GRID | SNAP_GUIDES | SNAP_PIXEL | SNAP_NODE_PARENT | SNAP_NODE_ANCHORS | SNAP_OTHER_NODES, 0, NULL, drag_selection);
+            Point2 new_pos = snap_point(previous_pos + (drag_to - drag_from), SNAP_GRID | SNAP_GUIDES | SNAP_PIXEL | SNAP_NODE_PARENT | SNAP_NODE_ANCHORS | SNAP_OTHER_NODES, 0, nullptr, drag_selection);
             bool single_axis = m->get_shift();
             if (single_axis) {
                 if (ABS(new_pos.x - previous_pos.x) > ABS(new_pos.y - previous_pos.y)) {
@@ -2257,36 +2259,36 @@ bool CanvasItemEditor::_gui_input_select(const Ref<InputEvent> &p_event) {
 
 bool CanvasItemEditor::_gui_input_ruler_tool(const Ref<InputEvent> &p_event) {
 
-	if (tool != TOOL_RULER)
-		return false;
+    if (tool != TOOL_RULER)
+        return false;
 
-	Ref<InputEventMouseButton> b = p_event;
-	Ref<InputEventMouseMotion> m = p_event;
+    Ref<InputEventMouseButton> b = p_event;
+    Ref<InputEventMouseMotion> m = p_event;
 
-	Point2 previous_origin = ruler_tool_origin;
-	if (!ruler_tool_active)
-		ruler_tool_origin = snap_point(viewport->get_local_mouse_position() / zoom + view_offset) * zoom;
+    Point2 previous_origin = ruler_tool_origin;
+    if (!ruler_tool_active)
+        ruler_tool_origin = snap_point(viewport->get_local_mouse_position() / zoom + view_offset) * zoom;
 
-	if (b.is_valid() && b->get_button_index() == BUTTON_LEFT) {
-		if (b->is_pressed()) {
-			ruler_tool_active = true;
-		} else {
-			ruler_tool_active = false;
-		}
+    if (b.is_valid() && b->get_button_index() == BUTTON_LEFT) {
+        if (b->is_pressed()) {
+            ruler_tool_active = true;
+        } else {
+            ruler_tool_active = false;
+        }
 
-		viewport->update();
-		return true;
-	}
+        viewport->update();
+        return true;
+    }
 
-	bool is_snap_active = snap_active ^ Input::get_singleton()->is_key_pressed(KEY_CONTROL);
+    bool is_snap_active = snap_active ^ Input::get_singleton()->is_key_pressed(KEY_CONTROL);
 
-	if (m.is_valid() && (ruler_tool_active || (is_snap_active && previous_origin != ruler_tool_origin))) {
+    if (m.is_valid() && (ruler_tool_active || (is_snap_active && previous_origin != ruler_tool_origin))) {
 
-		viewport->update();
-		return true;
-	}
+        viewport->update();
+        return true;
+    }
 
-	return false;
+    return false;
 }
 
 bool CanvasItemEditor::_gui_input_hover(const Ref<InputEvent> &p_event) {
@@ -2366,8 +2368,8 @@ void CanvasItemEditor::_gui_input_viewport(const Ref<InputEvent> &p_event) {
             //printf("Anchors\n");
         } else if ((accepted = _gui_input_select(p_event))) {
             //printf("Selection\n");
-		} else if ((accepted = _gui_input_ruler_tool(p_event))) {
-			//printf("Measure\n");
+        } else if ((accepted = _gui_input_ruler_tool(p_event))) {
+            //printf("Measure\n");
         } else {
             //printf("Not accepted\n");
         }
@@ -2395,9 +2397,9 @@ void CanvasItemEditor::_gui_input_viewport(const Ref<InputEvent> &p_event) {
                 case TOOL_PAN:
                     c = CURSOR_DRAG;
                     break;
-				case TOOL_RULER:
-					c = CURSOR_CROSS;
-					break;
+                case TOOL_RULER:
+                    c = CURSOR_CROSS;
+                    break;
                 default:
                     break;
             }
@@ -2441,7 +2443,7 @@ void CanvasItemEditor::_gui_input_viewport(const Ref<InputEvent> &p_event) {
     }
 }
 
-void CanvasItemEditor::_draw_text_at_position(Point2 p_position, String p_string, Margin p_side) {
+void CanvasItemEditor::_draw_text_at_position(Point2 p_position, const String& p_string, Margin p_side) {
     Color color = get_color("font_color", "Editor");
     color.a = 0.8;
     Ref<Font> font = get_font("font", "Label");
@@ -2674,79 +2676,79 @@ void CanvasItemEditor::_draw_grid() {
 
 void CanvasItemEditor::_draw_ruler_tool() {
 
-	if (tool != TOOL_RULER)
-		return;
+    if (tool != TOOL_RULER)
+        return;
 
-	bool is_snap_active = snap_active ^ Input::get_singleton()->is_key_pressed(KEY_CONTROL);
+    bool is_snap_active = snap_active ^ Input::get_singleton()->is_key_pressed(KEY_CONTROL);
 
-	if (ruler_tool_active) {
-		Color ruler_primary_color = get_color("accent_color", "Editor");
-		Color ruler_secondary_color = ruler_primary_color;
-		ruler_secondary_color.a = 0.5;
+    if (ruler_tool_active) {
+        Color ruler_primary_color = get_color("accent_color", "Editor");
+        Color ruler_secondary_color = ruler_primary_color;
+        ruler_secondary_color.a = 0.5;
 
-		Point2 begin = ruler_tool_origin - view_offset * zoom;
-		Point2 end = snap_point(viewport->get_local_mouse_position() / zoom + view_offset) * zoom - view_offset * zoom;
-		Point2 corner = Point2(begin.x, end.y);
-		Vector2 length_vector = (begin - end).abs() / zoom;
+        Point2 begin = ruler_tool_origin - view_offset * zoom;
+        Point2 end = snap_point(viewport->get_local_mouse_position() / zoom + view_offset) * zoom - view_offset * zoom;
+        Point2 corner = Point2(begin.x, end.y);
+        Vector2 length_vector = (begin - end).abs() / zoom;
 
-		bool draw_secondary_lines = (begin.y != corner.y && end.x != corner.x);
+        bool draw_secondary_lines = (begin.y != corner.y && end.x != corner.x);
 
-		viewport->draw_line(begin, end, ruler_primary_color, Math::round(EDSCALE * 3), true);
-		if (draw_secondary_lines) {
-			viewport->draw_line(begin, corner, ruler_secondary_color, Math::round(EDSCALE));
-			viewport->draw_line(corner, end, ruler_secondary_color, Math::round(EDSCALE));
-		}
+        viewport->draw_line(begin, end, ruler_primary_color, Math::round(EDSCALE * 3), true);
+        if (draw_secondary_lines) {
+            viewport->draw_line(begin, corner, ruler_secondary_color, Math::round(EDSCALE));
+            viewport->draw_line(corner, end, ruler_secondary_color, Math::round(EDSCALE));
+        }
 
-		Ref<Font> font = get_font("bold", "EditorFonts");
-		Color font_color = get_color("font_color", "Editor");
-		Color font_secondary_color = font_color;
-		font_secondary_color.a = 0.5;
-		float text_height = font->get_height();
-		const float text_width = 76;
+        Ref<Font> font = get_font("bold", "EditorFonts");
+        Color font_color = get_color("font_color", "Editor");
+        Color font_secondary_color = font_color;
+        font_secondary_color.a = 0.5;
+        float text_height = font->get_height();
+        const float text_width = 76;
 
-		Point2 text_pos = (begin + end) / 2 - Vector2(text_width / 2, text_height / 2);
-		text_pos.x = CLAMP(text_pos.x, text_width / 2, viewport->get_rect().size.x - text_width * 1.5);
-		text_pos.y = CLAMP(text_pos.y, text_height * 1.5, viewport->get_rect().size.y - text_height * 1.5);
-		viewport->draw_string(font, text_pos, vformat("%.2f px", length_vector.length()), font_color);
+        Point2 text_pos = (begin + end) / 2 - Vector2(text_width / 2, text_height / 2);
+        text_pos.x = CLAMP(text_pos.x, text_width / 2, viewport->get_rect().size.x - text_width * 1.5);
+        text_pos.y = CLAMP(text_pos.y, text_height * 1.5, viewport->get_rect().size.y - text_height * 1.5);
+        viewport->draw_string(font, text_pos, vformat("%.2f px", length_vector.length()), font_color);
 
-		if (draw_secondary_lines) {
+        if (draw_secondary_lines) {
 
-			Point2 text_pos2 = text_pos;
-			text_pos2.x = begin.x < text_pos.x ? MIN(text_pos.x - text_width, begin.x - text_width / 2) : MAX(text_pos.x + text_width, begin.x - text_width / 2);
-			viewport->draw_string(font, text_pos2, vformat("%.2f px", length_vector.y), font_secondary_color);
+            Point2 text_pos2 = text_pos;
+            text_pos2.x = begin.x < text_pos.x ? MIN(text_pos.x - text_width, begin.x - text_width / 2) : MAX(text_pos.x + text_width, begin.x - text_width / 2);
+            viewport->draw_string(font, text_pos2, vformat("%.2f px", length_vector.y), font_secondary_color);
 
-			text_pos2 = text_pos;
-			text_pos2.y = end.y < text_pos.y ? MIN(text_pos.y - text_height * 2, end.y - text_height / 2) : MAX(text_pos.y + text_height * 2, end.y - text_height / 2);
-			viewport->draw_string(font, text_pos2, vformat("%.2f px", length_vector.x), font_secondary_color);
-		}
+            text_pos2 = text_pos;
+            text_pos2.y = end.y < text_pos.y ? MIN(text_pos.y - text_height * 2, end.y - text_height / 2) : MAX(text_pos.y + text_height * 2, end.y - text_height / 2);
+            viewport->draw_string(font, text_pos2, vformat("%.2f px", length_vector.x), font_secondary_color);
+        }
 
-		if (is_snap_active) {
+        if (is_snap_active) {
 
-			text_pos = (begin + end) / 2 + Vector2(-text_width / 2, text_height / 2);
-			text_pos.x = CLAMP(text_pos.x, text_width / 2, viewport->get_rect().size.x - text_width * 1.5);
-			text_pos.y = CLAMP(text_pos.y, text_height * 2.5, viewport->get_rect().size.y - text_height / 2);
+            text_pos = (begin + end) / 2 + Vector2(-text_width / 2, text_height / 2);
+            text_pos.x = CLAMP(text_pos.x, text_width / 2, viewport->get_rect().size.x - text_width * 1.5);
+            text_pos.y = CLAMP(text_pos.y, text_height * 2.5, viewport->get_rect().size.y - text_height / 2);
 
-			if (draw_secondary_lines) {
-				viewport->draw_string(font, text_pos, vformat("%.2f units", (length_vector / grid_step).length()), font_color);
+            if (draw_secondary_lines) {
+                viewport->draw_string(font, text_pos, vformat("%.2f units", (length_vector / grid_step).length()), font_color);
 
-				Point2 text_pos2 = text_pos;
-				text_pos2.x = begin.x < text_pos.x ? MIN(text_pos.x - text_width, begin.x - text_width / 2) : MAX(text_pos.x + text_width, begin.x - text_width / 2);
-				viewport->draw_string(font, text_pos2, vformat("%d units", (int)(length_vector.y / grid_step.y)), font_secondary_color);
+                Point2 text_pos2 = text_pos;
+                text_pos2.x = begin.x < text_pos.x ? MIN(text_pos.x - text_width, begin.x - text_width / 2) : MAX(text_pos.x + text_width, begin.x - text_width / 2);
+                viewport->draw_string(font, text_pos2, vformat("%d units", (int)(length_vector.y / grid_step.y)), font_secondary_color);
 
-				text_pos2 = text_pos;
-				text_pos2.y = end.y < text_pos.y ? MIN(text_pos.y - text_height * 2, end.y + text_height / 2) : MAX(text_pos.y + text_height * 2, end.y + text_height / 2);
-				viewport->draw_string(font, text_pos2, vformat("%d units", (int)(length_vector.x / grid_step.x)), font_secondary_color);
-			} else {
-				viewport->draw_string(font, text_pos, vformat("%d units", roundf((length_vector / grid_step).length())), font_color);
-			}
-		}
-	} else {
+                text_pos2 = text_pos;
+                text_pos2.y = end.y < text_pos.y ? MIN(text_pos.y - text_height * 2, end.y + text_height / 2) : MAX(text_pos.y + text_height * 2, end.y + text_height / 2);
+                viewport->draw_string(font, text_pos2, vformat("%d units", (int)(length_vector.x / grid_step.x)), font_secondary_color);
+            } else {
+                viewport->draw_string(font, text_pos, vformat("%d units", roundf((length_vector / grid_step).length())), font_color);
+            }
+        }
+    } else {
 
-		if (is_snap_active) {
-			Ref<Texture> position_icon = get_icon("EditorPosition", "EditorIcons");
-			viewport->draw_texture(get_icon("EditorPosition", "EditorIcons"), ruler_tool_origin - view_offset * zoom - position_icon->get_size() / 2);
-		}
-	}
+        if (is_snap_active) {
+            Ref<Texture> position_icon = get_icon("EditorPosition", "EditorIcons");
+            viewport->draw_texture(get_icon("EditorPosition", "EditorIcons"), ruler_tool_origin - view_offset * zoom - position_icon->get_size() / 2);
+        }
+    }
 }
 
 void CanvasItemEditor::_draw_control_anchors(Control *control) {
@@ -3481,7 +3483,7 @@ void CanvasItemEditor::_draw_viewport() {
     info_overlay->set_margin(MARGIN_LEFT, (show_rulers ? RULER_WIDTH : 0) + 10);
 
     _draw_grid();
-	_draw_ruler_tool();
+    _draw_ruler_tool();
     _draw_selection();
     _draw_axis();
     if (editor->get_edited_scene()) {
@@ -3670,7 +3672,7 @@ void CanvasItemEditor::_notification(int p_what) {
         snap_config_menu->set_icon(get_icon("GuiMiniTabMenu", "EditorIcons"));
         skeleton_menu->set_icon(get_icon("Bone", "EditorIcons"));
         pan_button->set_icon(get_icon("ToolPan", "EditorIcons"));
-		ruler_button->set_icon(get_icon("Ruler", "EditorIcons"));
+        ruler_button->set_icon(get_icon("Ruler", "EditorIcons"));
         pivot_button->set_icon(get_icon("EditPivot", "EditorIcons"));
         select_handle = get_icon("EditorHandle", "EditorIcons");
         anchor_handle = get_icon("EditorControlAnchor", "EditorIcons");
@@ -4065,12 +4067,12 @@ void CanvasItemEditor::_button_toggle_snap(bool p_status) {
 
 void CanvasItemEditor::_button_tool_select(int p_index) {
 
-	ToolButton *tb[TOOL_MAX] = { select_button, list_select_button, move_button, scale_button, rotate_button, pivot_button, pan_button, ruler_button };
+    ToolButton *tb[TOOL_MAX] = { select_button, list_select_button, move_button, scale_button, rotate_button, pivot_button, pan_button, ruler_button };
     for (int i = 0; i < TOOL_MAX; i++) {
         tb[i]->set_pressed(i == p_index);
     }
 
-	tool = (Tool)p_index;
+    tool = (Tool)p_index;
     viewport->update();
 }
 
@@ -5051,8 +5053,8 @@ CanvasItemEditor::CanvasItemEditor(EditorNode *p_editor) {
     panning = false;
     pan_pressed = false;
 
-	ruler_tool_active = false;
-	ruler_tool_origin = Point2();
+    ruler_tool_active = false;
+    ruler_tool_origin = Point2();
 
     bone_last_frame = 0;
 
@@ -5207,12 +5209,12 @@ CanvasItemEditor::CanvasItemEditor(EditorNode *p_editor) {
     pan_button->connect("pressed", this, "_button_tool_select", make_binds(TOOL_PAN));
     pan_button->set_tooltip(TTR("Pan Mode"));
 
-	ruler_button = memnew(ToolButton);
-	hb->add_child(ruler_button);
-	ruler_button->set_toggle_mode(true);
-	ruler_button->connect("pressed", this, "_button_tool_select", make_binds(TOOL_RULER));
-	ruler_button->set_shortcut(ED_SHORTCUT("canvas_item_editor/ruler_mode", TTR("Ruler Mode"), KEY_R));
-	ruler_button->set_tooltip(TTR("Ruler Mode"));
+    ruler_button = memnew(ToolButton);
+    hb->add_child(ruler_button);
+    ruler_button->set_toggle_mode(true);
+    ruler_button->connect("pressed", this, "_button_tool_select", make_binds(TOOL_RULER));
+    ruler_button->set_shortcut(ED_SHORTCUT("canvas_item_editor/ruler_mode", TTR("Ruler Mode"), KEY_R));
+    ruler_button->set_tooltip(TTR("Ruler Mode"));
 
     hb->add_child(memnew(VSeparator));
 
@@ -5306,7 +5308,7 @@ CanvasItemEditor::CanvasItemEditor(EditorNode *p_editor) {
     p->set_hide_on_checkable_item_selection(false);
     p->add_check_shortcut(ED_SHORTCUT("canvas_item_editor/show_grid", TTR("Show Grid"), KEY_G), SHOW_GRID);
     p->add_check_shortcut(ED_SHORTCUT("canvas_item_editor/show_helpers", TTR("Show Helpers"), KEY_H), SHOW_HELPERS);
-	p->add_check_shortcut(ED_SHORTCUT("canvas_item_editor/show_rulers", TTR("Show Rulers"), KEY_MASK_CMD | KEY_R), SHOW_RULERS);
+    p->add_check_shortcut(ED_SHORTCUT("canvas_item_editor/show_rulers", TTR("Show Rulers"), KEY_MASK_CMD | KEY_R), SHOW_RULERS);
     p->add_check_shortcut(ED_SHORTCUT("canvas_item_editor/show_guides", TTR("Show Guides"), KEY_Y), SHOW_GUIDES);
     p->add_check_shortcut(ED_SHORTCUT("canvas_item_editor/show_origin", TTR("Show Origin")), SHOW_ORIGIN);
     p->add_check_shortcut(ED_SHORTCUT("canvas_item_editor/show_viewport", TTR("Show Viewport")), SHOW_VIEWPORT);

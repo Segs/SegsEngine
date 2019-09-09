@@ -33,6 +33,7 @@
 #include "scene/3d/camera.h"
 #include "scene/3d/particles.h"
 #include "scene/resources/particles_material.h"
+#include "scene/resources/curve_texture.h"
 #include "servers/visual_server.h"
 #include "core/method_bind.h"
 
@@ -485,7 +486,7 @@ void CPUParticles::_validate_property(PropertyInfo &property) const {
         property.usage = 0;
     }
 
-	if (StringUtils::begins_with(property.name,"orbit_") && !flags[FLAG_DISABLE_Z]) {
+    if (StringUtils::begins_with(property.name,"orbit_") && !flags[FLAG_DISABLE_Z]) {
         property.usage = 0;
     }
 }

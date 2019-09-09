@@ -35,6 +35,7 @@
 #include "core/os/file_access.h"
 #include "editor_node.h"
 #include "scene/gui/margin_container.h"
+#include "editor/editor_file_system.h"
 
 IMPL_GDCLASS(DependencyEditor)
 IMPL_GDCLASS(DependencyEditorOwners)
@@ -92,9 +93,9 @@ void DependencyEditor::_fix_and_find(EditorFileSystemDirectory *efsd, Map<String
             }
 
             //must match the best, using subdirs
-			String existing = StringUtils::replace_first(E->get(),"res://", "");
-			String current = StringUtils::replace_first(path,"res://", "");
-			String lost = StringUtils::replace_first(E->key(),"res://", "");
+            String existing = StringUtils::replace_first(E->get(),"res://", "");
+            String current = StringUtils::replace_first(path,"res://", "");
+            String lost = StringUtils::replace_first(E->key(),"res://", "");
 
             Vector<String> existingv = StringUtils::split(existing,"/");
             existingv.invert();
@@ -193,7 +194,7 @@ void DependencyEditor::_update_list() {
         String path;
         String type;
 
-		if (StringUtils::contains(n,"::") ) {
+        if (StringUtils::contains(n,"::") ) {
             path = StringUtils::get_slice(n,"::", 0);
             type = StringUtils::get_slice(n,"::", 1);
         } else {
@@ -209,7 +210,7 @@ void DependencyEditor::_update_list() {
         item->set_text(1, path);
 
         if (!FileAccess::exists(path)) {
-			item->set_custom_color(1, Color(1, 0.4f, 0.3f));
+            item->set_custom_color(1, Color(1, 0.4f, 0.3f));
             missing.push_back(path);
             broken = true;
         }
@@ -528,7 +529,7 @@ void DependencyRemoveDialog::ok_pressed() {
             ProjectSettings::get_singleton()->set("audio/default_bus_layout", "");
         }
 
-		String path = OS::get_singleton()->get_resource_dir() + StringUtils::replace_first(file,"res://", "/");
+        String path = OS::get_singleton()->get_resource_dir() + StringUtils::replace_first(file,"res://", "/");
         print_verbose("Moving to trash: " + path);
         Error err = OS::get_singleton()->move_to_trash(path);
         if (err != OK) {
@@ -545,7 +546,7 @@ void DependencyRemoveDialog::ok_pressed() {
     } else {
 
         for (int i = 0; i < dirs_to_delete.size(); ++i) {
-			String path = OS::get_singleton()->get_resource_dir() + StringUtils::replace_first(dirs_to_delete[i],"res://", "/");
+            String path = OS::get_singleton()->get_resource_dir() + StringUtils::replace_first(dirs_to_delete[i],"res://", "/");
             print_verbose("Moving to trash: " + path);
             Error err = OS::get_singleton()->move_to_trash(path);
             if (err != OK) {

@@ -30,6 +30,7 @@
 
 #include "inspector_dock.h"
 
+#include "create_dialog.h"
 #include "core/method_bind.h"
 #include "editor/editor_node.h"
 #include "editor/editor_path.h"
@@ -37,6 +38,8 @@
 #include "editor/animation_track_editor.h"
 #include "editor/plugins/animation_player_editor_plugin.h"
 #include "core/object_db.h"
+#include "scene/resources/style_box.h"
+#include "scene/resources/theme.h"
 
 IMPL_GDCLASS(InspectorDock)
 
@@ -414,6 +417,10 @@ void InspectorDock::update(Object *p_object) {
         warning->hide();
         search->set_editable(false);
 
+        editor_path->set_text("");
+        editor_path->set_tooltip("");
+        editor_path->set_icon(nullptr);
+
         return;
     }
 
@@ -467,7 +474,7 @@ void InspectorDock::update(Object *p_object) {
                     p->add_separator();
                     found = true;
                 }
-				p->add_item(StringUtils::capitalize(I->get().name), OBJECT_METHOD_BASE + i);
+                p->add_item(StringUtils::capitalize(I->get().name), OBJECT_METHOD_BASE + i);
             }
             i++;
             I = I->next();

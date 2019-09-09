@@ -129,7 +129,7 @@ uint32_t CollisionObject2D::create_shape_owner(Object *p_owner) {
 
 void CollisionObject2D::remove_shape_owner(uint32_t owner) {
 
-    ERR_FAIL_COND(!shapes.has(owner));
+    ERR_FAIL_COND(!shapes.has(owner))
 
     shape_owner_clear_shapes(owner);
 
@@ -137,7 +137,7 @@ void CollisionObject2D::remove_shape_owner(uint32_t owner) {
 }
 
 void CollisionObject2D::shape_owner_set_disabled(uint32_t p_owner, bool p_disabled) {
-    ERR_FAIL_COND(!shapes.has(p_owner));
+    ERR_FAIL_COND(!shapes.has(p_owner))
 
     ShapeData &sd = shapes[p_owner];
     sd.disabled = p_disabled;
@@ -379,11 +379,11 @@ void CollisionObject2D::set_only_update_transform_changes(bool p_enable) {
 void CollisionObject2D::_update_pickable() {
     if (!is_inside_tree())
         return;
-	bool is_pickable = pickable && is_visible_in_tree();
+    bool is_pickable = pickable && is_visible_in_tree();
     if (area)
-		Physics2DServer::get_singleton()->area_set_pickable(rid, is_pickable);
+        Physics2DServer::get_singleton()->area_set_pickable(rid, is_pickable);
     else
-		Physics2DServer::get_singleton()->body_set_pickable(rid, is_pickable);
+        Physics2DServer::get_singleton()->body_set_pickable(rid, is_pickable);
 }
 
 String CollisionObject2D::get_configuration_warning() const {

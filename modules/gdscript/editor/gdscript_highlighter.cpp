@@ -370,8 +370,8 @@ void GDScriptSyntaxHighlighter::_update_cache() {
     bool default_theme = text_editor_color_theme == "Default";
     bool dark_theme = settings->is_dark_theme();
 
-    function_definition_color = default_theme ? Color(0.0, 0.88, 1.0) : dark_theme ? Color(0.0, 0.88, 1.0) : Color(0.0, 0.65, 0.73);
-    node_path_color = default_theme ? Color(0.39, 0.76, 0.35) : dark_theme ? Color(0.39, 0.76, 0.35) : Color(0.32, 0.55, 0.29);
+    function_definition_color = default_theme ? Color(0.0f, 0.88f, 1.0f) : dark_theme ? Color(0.0, 0.88f, 1.0f) : Color(0.0f, 0.65f, 0.73f);
+    node_path_color = default_theme ? Color(0.39f, 0.76f, 0.35f) : dark_theme ? Color(0.39f, 0.76f, 0.35f) : Color(0.32f, 0.55f, 0.29f);
 
     EDITOR_DEF("text_editor/highlighting/gdscript/function_definition_color", function_definition_color);
     EDITOR_DEF("text_editor/highlighting/gdscript/node_path_color", node_path_color);

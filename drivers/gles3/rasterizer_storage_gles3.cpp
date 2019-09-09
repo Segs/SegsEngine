@@ -2065,7 +2065,7 @@ void RasterizerStorageGLES3::_update_shader(Shader *p_shader) const {
 
     p_shader->uniforms.clear();
 
-    if (p_shader->code == String()) {
+    if (p_shader->code.empty()) {
         return; //just invalid, but no error
     }
 
@@ -3067,7 +3067,7 @@ void RasterizerStorageGLES3::_update_material(Material *material) {
                 //user provided
                 _fill_std140_variant_ubo_value(E->get().type, V->get(), data, material->shader->mode == VS::SHADER_SPATIAL);
 
-            } else if (E->get().default_value.size()) {
+            } else if (!E->get().default_value.empty()) {
                 //default value
                 _fill_std140_ubo_value(E->get().type, E->get().default_value, data);
                 //value=E->get().default_value;
@@ -3654,7 +3654,7 @@ void RasterizerStorageGLES3::mesh_set_blend_shape_count(RID p_mesh, int p_amount
     Mesh *mesh = mesh_owner.getornull(p_mesh);
     ERR_FAIL_COND(!mesh);
 
-    ERR_FAIL_COND(mesh->surfaces.size() != 0);
+    ERR_FAIL_COND(!mesh->surfaces.empty());
     ERR_FAIL_COND(p_amount < 0);
 
     mesh->blend_shape_count = p_amount;
@@ -3968,7 +3968,7 @@ AABB RasterizerStorageGLES3::mesh_get_aabb(RID p_mesh, RID p_skeleton) const {
         for (int i = 0; i < mesh->surfaces.size(); i++) {
 
             AABB laabb;
-            if ((mesh->surfaces[i]->format & VS::ARRAY_FORMAT_BONES) && mesh->surfaces[i]->skeleton_bone_aabb.size()) {
+            if ((mesh->surfaces[i]->format & VS::ARRAY_FORMAT_BONES) && !mesh->surfaces[i]->skeleton_bone_aabb.empty()) {
 
                 int bs = mesh->surfaces[i]->skeleton_bone_aabb.size();
                 const AABB *skbones = mesh->surfaces[i]->skeleton_bone_aabb.ptr();
@@ -4069,7 +4069,7 @@ void RasterizerStorageGLES3::mesh_clear(RID p_mesh) {
     Mesh *mesh = mesh_owner.getornull(p_mesh);
     ERR_FAIL_COND(!mesh);
 
-    while (mesh->surfaces.size()) {
+    while (!mesh->surfaces.empty()) {
         mesh_remove_surface(p_mesh, 0);
     }
 }
@@ -5206,18 +5206,18 @@ RID RasterizerStorageGLES3::light_create(VS::LightType p_type) {
     Light *light = memnew(Light);
     light->type = p_type;
 
-    light->param[VS::LIGHT_PARAM_ENERGY] = 1.0;
-    light->param[VS::LIGHT_PARAM_INDIRECT_ENERGY] = 1.0;
-    light->param[VS::LIGHT_PARAM_SPECULAR] = 0.5;
-    light->param[VS::LIGHT_PARAM_RANGE] = 1.0;
+    light->param[VS::LIGHT_PARAM_ENERGY] = 1.0f;
+    light->param[VS::LIGHT_PARAM_INDIRECT_ENERGY] = 1.0f;
+    light->param[VS::LIGHT_PARAM_SPECULAR] = 0.5f;
+    light->param[VS::LIGHT_PARAM_RANGE] = 1.0f;
     light->param[VS::LIGHT_PARAM_SPOT_ANGLE] = 45;
     light->param[VS::LIGHT_PARAM_CONTACT_SHADOW_SIZE] = 45;
     light->param[VS::LIGHT_PARAM_SHADOW_MAX_DISTANCE] = 0;
-    light->param[VS::LIGHT_PARAM_SHADOW_SPLIT_1_OFFSET] = 0.1;
-    light->param[VS::LIGHT_PARAM_SHADOW_SPLIT_2_OFFSET] = 0.3;
-    light->param[VS::LIGHT_PARAM_SHADOW_SPLIT_3_OFFSET] = 0.6;
-    light->param[VS::LIGHT_PARAM_SHADOW_NORMAL_BIAS] = 0.1;
-    light->param[VS::LIGHT_PARAM_SHADOW_BIAS_SPLIT_SCALE] = 0.1;
+    light->param[VS::LIGHT_PARAM_SHADOW_SPLIT_1_OFFSET] = 0.1f;
+    light->param[VS::LIGHT_PARAM_SHADOW_SPLIT_2_OFFSET] = 0.3f;
+    light->param[VS::LIGHT_PARAM_SHADOW_SPLIT_3_OFFSET] = 0.6f;
+    light->param[VS::LIGHT_PARAM_SHADOW_NORMAL_BIAS] = 0.1f;
+    light->param[VS::LIGHT_PARAM_SHADOW_BIAS_SPLIT_SCALE] = 0.1f;
 
     light->color = Color(1, 1, 1, 1);
     light->shadow = false;
@@ -8183,7 +8183,7 @@ void RasterizerStorageGLES3::initialize() {
         Vector<String> vendor_match = StringUtils::split(vendors,",");
         for (int i = 0; i < vendor_match.size(); i++) {
             String v =StringUtils::strip_edges( vendor_match[i]);
-            if (v == String())
+            if (v.empty())
                 continue;
 
             if (StringUtils::findn(renderer,v) != -1) {

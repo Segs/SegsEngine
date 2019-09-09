@@ -33,6 +33,7 @@
 
 #include "core/method_bind.h"
 #include "core/core_string_names.h"
+#include "scene/resources/curve.h"
 
 IMPL_GDCLASS(Line2D)
 

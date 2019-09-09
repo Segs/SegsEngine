@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef EDITOR_SCENE_IMPORTER_ASSIMP_H
-#define EDITOR_SCENE_IMPORTER_ASSIMP_H
+#pragma once
 
 #ifdef TOOLS_ENABLED
 #include "core/bind/core_bind.h"
@@ -70,9 +69,9 @@ public:
 };
 
 
-class EditorSceneImporterAssimp : public EditorSceneImporter {
+class EditorSceneImporterAssimp : public EditorSceneImporterInterface {
 private:
-    GDCLASS(EditorSceneImporterAssimp,EditorSceneImporter)
+
     const String ASSIMP_FBX_KEY = "_$AssimpFbx$";
 
     struct AssetImportAnimation {
@@ -101,7 +100,7 @@ private:
     void _calc_tangent_from_mesh(const aiMesh *ai_mesh, int i, int tri_index, int index, PoolColorArray::Write &w);
     void _set_texture_mapping_mode(aiTextureMapMode *map_mode, Ref<Texture> texture);
 
-    Ref<Mesh> _generate_mesh_from_surface_indices(ImportState &state, const Vector<int> &p_surface_indices, const aiNode *assimp_node, Skeleton *p_skeleton = NULL);
+    Ref<Mesh> _generate_mesh_from_surface_indices(ImportState &state, const Vector<int> &p_surface_indices, const aiNode *assimp_node, Skeleton *p_skeleton = nullptr);
 
     // utility for node creation
     void attach_new_node(ImportState &state, Spatial *new_node, const aiNode *node, Node *parent_node, String Name, Transform &transform);
@@ -127,7 +126,7 @@ private:
     float _get_fbx_fps(int32_t time_mode, const aiScene *p_scene);
     template <class T>
     T _interpolate_track(const Vector<float> &p_times, const Vector<T> &p_values, float p_time, AssetImportAnimation::Interpolation p_interp);
-    void _register_project_setting_import(const String generic, const String import_setting_string, const Vector<String> &exts, List<String> *r_extensions, const bool p_enabled) const;
+    void _register_project_setting_import(const String generic, const String import_setting_string, const Vector<String> &exts, Vector<String> *r_extensions, const bool p_enabled) const;
 
     struct ImportFormat {
         Vector<String> extensions;
@@ -147,10 +146,13 @@ public:
         Assimp::DefaultLogger::kill();
     }
 
-    void get_extensions(List<String> *r_extensions) const override;
+    void get_extensions(Vector<String> *r_extensions) const override;
     uint32_t get_import_flags() const override;
-    Node *import_scene(const String &p_path, uint32_t p_flags, int p_bake_fps, List<String> *r_missing_deps, Error *r_err = nullptr) override;
+    Node *import_scene(const String &p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err = nullptr) override;
     Ref<Image> load_image(ImportState &state, const aiScene *p_scene, String p_path);
+
+    // EditorSceneImporterInterface interface
+
+    Ref<Animation> import_animation(const String &p_path, uint32_t p_flags, int p_bake_fps) override;
 };
-#endif
 #endif

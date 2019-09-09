@@ -204,7 +204,7 @@ Error VisualScriptExpression::_get_token(Token &r_token) {
 #define GET_CHAR() (str_ofs >= expression.length() ? QChar(0) : expression[str_ofs++])
 
         CharType cchar = GET_CHAR();
-        if (cchar == 0) {
+        if (cchar == nullptr) {
             r_token.type = TK_EOF;
             return OK;
         }
@@ -367,7 +367,7 @@ Error VisualScriptExpression::_get_token(Token &r_token) {
 
                     CharType ch = GET_CHAR();
 
-                    if (ch == 0) {
+                    if (ch == nullptr) {
                         _set_error("Unterminated String");
                         r_token.type = TK_ERROR;
                         return ERR_PARSE_ERROR;
@@ -377,7 +377,7 @@ Error VisualScriptExpression::_get_token(Token &r_token) {
                         //escaped characters...
 
                         CharType next = GET_CHAR();
-                        if (next == 0) {
+                        if (next == nullptr) {
                             _set_error("Unterminated String");
                             r_token.type = TK_ERROR;
                             return ERR_PARSE_ERROR;
@@ -397,7 +397,7 @@ Error VisualScriptExpression::_get_token(Token &r_token) {
                                 for (int j = 0; j < 4; j++) {
                                     CharType c = GET_CHAR();
 
-                                    if (c == 0) {
+                                    if (c == nullptr) {
                                         _set_error("Unterminated String");
                                         r_token.type = TK_ERROR;
                                         return ERR_PARSE_ERROR;
@@ -1206,7 +1206,7 @@ bool VisualScriptExpression::_compile_expression() {
     if (nodes) {
         memdelete(nodes);
         nodes = nullptr;
-        root = NULL;
+        root = nullptr;
     }
 
     error_str = String();

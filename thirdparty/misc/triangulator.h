@@ -18,8 +18,8 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //THE SOFTWARE.
 
-#ifndef TRIANGULATOR_H
-#define TRIANGULATOR_H
+#pragma once
+
 
 #include "core/list.h"
 #include "core/math/vector2.h"
@@ -301,6 +301,3 @@ public:
 	//returns 1 on success, 0 on failure
 	int ConvexPartition_OPT(TriangulatorPoly *poly, List<TriangulatorPoly> *parts);
 };
-
-
-#endif

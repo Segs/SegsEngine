@@ -1,7 +1,5 @@
 #pragma once
 
-#pragma once
-
 #if _WIN32
 /* We are building this library */
 #define EXPORT_PREFIX __declspec(dllexport)
@@ -10,7 +8,7 @@
 #endif
 
 #ifdef _MSC_VER
-#define GODOT_EXPORT_TEMPLATE_A 
+#define GODOT_EXPORT_TEMPLATE_A
 #define GODOT_EXPORT_TEMPLATE_B __declspec(dllexport)
 #else
 #define GODOT_EXPORT_TEMPLATE_A __attribute__((visibility("default")))

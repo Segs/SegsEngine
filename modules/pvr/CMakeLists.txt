@@ -7,5 +7,5 @@ foreach(tgt ${global_targets})
 
     target_link_libraries(${tgt}_pvr PRIVATE pvr_lib)
     target_link_libraries(${tgt}_pvr PUBLIC ${tgt}_core)
-    set_common_target_properties(${tgt}_pvr)
+    set_module_properties(${tgt} pvr)
 endforeach()

@@ -37,6 +37,7 @@
 #include "editor_settings.h"
 #include "editor_scale.h"
 #include "core/method_bind.h"
+#include "scene/resources/style_box.h"
 
 IMPL_GDCLASS(FindBar)
 IMPL_GDCLASS(EditorHelp)
@@ -60,7 +61,7 @@ void EditorHelp::_init_colors() {
     qualifier_color = text_color * Color(1, 1, 1, 0.8f);
     type_color = get_color("accent_color", "Editor").linear_interpolate(text_color, 0.5);
     class_desc->add_color_override("selection_color", get_color("accent_color", "Editor") * Color(1, 1, 1, 0.4f));
-	class_desc->add_constant_override("line_separation", Math::round(5 * EDSCALE));
+    class_desc->add_constant_override("line_separation", Math::round(5 * EDSCALE));
 }
 
 void EditorHelp::_unhandled_key_input(const Ref<InputEvent> &p_ev) {
@@ -467,7 +468,7 @@ void EditorHelp::_update_doc() {
         class_desc->push_font(doc_code_font);
         class_desc->push_indent(1);
         class_desc->push_table(2);
-        class_desc->set_table_column_expand(1, 1);
+        class_desc->set_table_column_expand(1, true);
 
         for (int i = 0; i < cd.properties.size(); i++) {
             property_line[cd.properties[i].name] = class_desc->get_line_count() - 2; //gets overridden if description
@@ -563,7 +564,7 @@ void EditorHelp::_update_doc() {
         class_desc->push_font(doc_code_font);
         class_desc->push_indent(1);
         class_desc->push_table(2);
-        class_desc->set_table_column_expand(1, 1);
+        class_desc->set_table_column_expand(1, true);
 
         bool any_previous = false;
         for (int pass = 0; pass < 2; pass++) {
@@ -632,7 +633,7 @@ void EditorHelp::_update_doc() {
 
         class_desc->push_indent(1);
         class_desc->push_table(2);
-        class_desc->set_table_column_expand(1, 1);
+        class_desc->set_table_column_expand(1, true);
 
         for (int i = 0; i < cd.theme_properties.size(); i++) {
 
@@ -1005,7 +1006,7 @@ void EditorHelp::_update_doc() {
             property_line[cd.properties[i].name] = class_desc->get_line_count() - 2;
 
             class_desc->push_table(2);
-            class_desc->set_table_column_expand(1, 1);
+            class_desc->set_table_column_expand(1, true);
 
             class_desc->push_cell();
             class_desc->push_font(doc_code_font);
@@ -1537,7 +1538,7 @@ EditorHelp::EditorHelp() {
     class_desc = memnew(RichTextLabel);
     add_child(class_desc);
     class_desc->set_v_size_flags(SIZE_EXPAND_FILL);
-    class_desc->add_color_override("selection_color", get_color("accent_color", "Editor") * Color(1, 1, 1, 0.4));
+    class_desc->add_color_override("selection_color", get_color("accent_color", "Editor") * Color(1, 1, 1, 0.4f));
     class_desc->connect("meta_clicked", this, "_class_desc_select");
     class_desc->connect("gui_input", this, "_class_desc_input");
     class_desc->connect("resized", this, "_class_desc_resized");

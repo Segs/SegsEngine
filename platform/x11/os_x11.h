@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef OS_X11_H
-#define OS_X11_H
+#pragma once
 
 #include "context_gl_x11.h"
 #include "core/os/input.h"
@@ -199,8 +198,8 @@ class OS_X11 : public OS_Unix {
 	void set_wm_fullscreen(bool p_enabled);
 	void set_wm_above(bool p_enabled);
 
-	typedef xrr_monitor_info *(*xrr_get_monitors_t)(Display *dpy, Window window, Bool get_active, int *nmonitors);
-	typedef void (*xrr_free_monitors_t)(xrr_monitor_info *monitors);
+	using xrr_get_monitors_t = xrr_monitor_info *(*)(Display *, Window, int, int *);
+	using xrr_free_monitors_t = void (*)(xrr_monitor_info *);
 	xrr_get_monitors_t xrr_get_monitors;
 	xrr_free_monitors_t xrr_free_monitors;
 	void *xrandr_handle;
@@ -327,5 +326,3 @@ public:
 	void update_real_mouse_position();
 	OS_X11();
 };
-
-#endif

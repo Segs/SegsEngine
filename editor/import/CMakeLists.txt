@@ -1,4 +1,5 @@
 file(GLOB source_files "*.cpp")
-list(APPEND editor_sources ${source_files})
-set(editor_sources ${editor_sources} PARENT_SCOPE)
+file(GLOB header_files "*.h")
+target_sources(edit_tools PRIVATE ${source_files} ${header_files})
 
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${source_files} ${header_files})

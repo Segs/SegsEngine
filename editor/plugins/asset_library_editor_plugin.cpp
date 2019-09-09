@@ -38,6 +38,7 @@
 #include "editor_node.h"
 #include "editor_settings.h"
 #include "editor/editor_scale.h"
+#include "scene/resources/style_box.h"
 
 #include "project_settings_editor.h"
 
@@ -113,7 +114,7 @@ EditorAssetLibraryItem::EditorAssetLibraryItem() {
     add_style_override("panel", border);
 
     HBoxContainer *hb = memnew(HBoxContainer);
-	// Add some spacing to visually separate the icon from the asset details.
+    // Add some spacing to visually separate the icon from the asset details.
     hb->add_constant_override("separation", 15 * EDSCALE);
     add_child(hb);
 
@@ -287,7 +288,7 @@ EditorAssetLibraryItemDescription::EditorAssetLibraryItemDescription() {
 
 
     HBoxContainer *hbox = memnew(HBoxContainer);
-	add_child(hbox);
+    add_child(hbox);
     VBoxContainer *desc_vbox = memnew(VBoxContainer);
     hbox->add_child(desc_vbox);
     hbox->add_constant_override("separation", 15 * EDSCALE);
@@ -295,23 +296,23 @@ EditorAssetLibraryItemDescription::EditorAssetLibraryItemDescription() {
     item = memnew(EditorAssetLibraryItem);
 
     desc_vbox->add_child(item);
-	desc_vbox->set_custom_minimum_size(Size2(440 * EDSCALE, 0));
+    desc_vbox->set_custom_minimum_size(Size2(440 * EDSCALE, 0));
 
     description = memnew(RichTextLabel);
-	desc_vbox->add_child(description);
-	description->set_v_size_flags(SIZE_EXPAND_FILL);
+    desc_vbox->add_child(description);
+    description->set_v_size_flags(SIZE_EXPAND_FILL);
     description->connect("meta_clicked", this, "_link_click");
-	description->add_constant_override("line_separation", Math::round(5 * EDSCALE));
+    description->add_constant_override("line_separation", Math::round(5 * EDSCALE));
 
     VBoxContainer *previews_vbox = memnew(VBoxContainer);
     hbox->add_child(previews_vbox);
     previews_vbox->add_constant_override("separation", 15 * EDSCALE);
-	previews_vbox->set_v_size_flags(SIZE_EXPAND_FILL);
+    previews_vbox->set_v_size_flags(SIZE_EXPAND_FILL);
 
     preview = memnew(TextureRect);
-	previews_vbox->add_child(preview);
-	preview->set_expand(true);
-	preview->set_stretch_mode(TextureRect::STRETCH_KEEP_ASPECT_CENTERED);
+    previews_vbox->add_child(preview);
+    preview->set_expand(true);
+    preview->set_stretch_mode(TextureRect::STRETCH_KEEP_ASPECT_CENTERED);
     preview->set_custom_minimum_size(Size2(640 * EDSCALE, 345 * EDSCALE));
 
     previews_bg = memnew(PanelContainer);
@@ -377,7 +378,7 @@ void EditorAssetLibraryItemDownload::_http_download_completed(int p_status, int 
             if (p_code != 200) {
                 error_text = TTR("Request failed, return code:") + " " + itos(p_code);
                 status->set_text(TTR("Failed:") + " " + itos(p_code));
-            } else if (sha256 != "") {
+            } else if (!sha256.empty()) {
                 String download_sha256 = FileAccess::get_sha256(download->get_download_file());
                 if (sha256 != download_sha256) {
                     error_text = TTR("Bad download hash, assuming file has been tampered with.") + "\n";
@@ -388,7 +389,7 @@ void EditorAssetLibraryItemDownload::_http_download_completed(int p_status, int 
         } break;
     }
 
-    if (error_text != String()) {
+    if (!error_text.empty()) {
         download_error->set_text(TTR("Asset Download Error:") + "\n" + error_text);
         download_error->popup_centered_minsize();
         return;
@@ -396,7 +397,7 @@ void EditorAssetLibraryItemDownload::_http_download_completed(int p_status, int 
 
     install->set_disabled(false);
     status->set_text(TTR("Success!"));
-	// Make the progress bar invisible but don't reflow other Controls around it.
+    // Make the progress bar invisible but don't reflow other Controls around it.
     progress->set_modulate(Color(0, 0, 0, 0));
 
     set_process(false);
@@ -408,7 +409,7 @@ void EditorAssetLibraryItemDownload::configure(const String &p_title, int p_asse
     icon->set_texture(p_preview);
     asset_id = p_asset_id;
     if (!p_preview.is_valid())
-		icon->set_texture(get_icon("FileBrokenBigThumb", "EditorIcons"));
+        icon->set_texture(get_icon("FileBrokenBigThumb", "EditorIcons"));
     host = p_download_url;
     sha256 = p_sha256_hash;
     _make_request();
@@ -589,7 +590,6 @@ void EditorAssetLibrary::_notification(int p_what) {
         case NOTIFICATION_READY: {
 
             error_tr->set_texture(get_icon("Error", "EditorIcons"));
-            reverse->set_icon(get_icon("Sort", "EditorIcons"));
             filter->set_right_icon(get_icon("Search", "EditorIcons"));
             filter->set_clear_button_enabled(true);
 
@@ -597,7 +597,7 @@ void EditorAssetLibrary::_notification(int p_what) {
         } break;
         case NOTIFICATION_VISIBILITY_CHANGED: {
 
-			if (is_visible() && initial_loading) {
+            if (is_visible() && initial_loading) {
                 _repository_changed(0); // Update when shown for the first time.
             }
         } break;
@@ -623,7 +623,6 @@ void EditorAssetLibrary::_notification(int p_what) {
             library_scroll_bg->add_style_override("panel", get_stylebox("bg", "Tree"));
             downloads_scroll->add_style_override("bg", get_stylebox("bg", "Tree"));
             error_tr->set_texture(get_icon("Error", "EditorIcons"));
-            reverse->set_icon(get_icon("Sort", "EditorIcons"));
             filter->set_right_icon(get_icon("Search", "EditorIcons"));
             filter->set_clear_button_enabled(true);
         } break;
@@ -656,28 +655,32 @@ void EditorAssetLibrary::_install_asset() {
 }
 
 const char *EditorAssetLibrary::sort_key[SORT_MAX] = {
-    "downloads",
+    "updated",
+    "updated",
+    "name",
     "name",
     "cost",
-    "updated"
+    "cost",
 };
 
 const char *EditorAssetLibrary::sort_text[SORT_MAX] = {
-    "Downloads",
-    "Name",
-	"License", // "cost" stores the SPDX license name in the Godot Asset Library.
-    "Updated"
+    "Recently Updated",
+    "Least Recently Updated",
+    "Name (A-Z)",
+    "Name (Z-A)",
+    "License (A-Z)", // "cost" stores the SPDX license name in the Godot Asset Library.
+    "License (Z-A)", // "cost" stores the SPDX license name in the Godot Asset Library.
 };
 
 const char *EditorAssetLibrary::support_key[SUPPORT_MAX] = {
     "official",
     "community",
-    "testing"
+    "testing",
 };
 
 void EditorAssetLibrary::_select_author(int p_id) {
 
-	// Open author window.
+    // Open author window.
 }
 
 void EditorAssetLibrary::_select_category(int p_id) {
@@ -774,7 +777,7 @@ void EditorAssetLibrary::_image_update(bool use_cache, bool final, const PoolByt
         }
 
         if (!image_set && final) {
-			obj->call("set_image", image_queue[p_queue_id].image_type, image_queue[p_queue_id].image_index, get_icon("FileBrokenBigThumb", "EditorIcons"));
+            obj->call("set_image", image_queue[p_queue_id].image_type, image_queue[p_queue_id].image_index, get_icon("FileBrokenBigThumb", "EditorIcons"));
         }
     }
 }
@@ -819,7 +822,7 @@ void EditorAssetLibrary::_image_request_completed(int p_status, int p_code, cons
         WARN_PRINTS("Error getting image file from URL: " + image_queue[p_queue_id].image_url);
         Object *obj = ObjectDB::get_instance(image_queue[p_queue_id].target);
         if (obj) {
-			obj->call("set_image", image_queue[p_queue_id].image_type, image_queue[p_queue_id].image_index, get_icon("FileBrokenBigThumb", "EditorIcons"));
+            obj->call("set_image", image_queue[p_queue_id].image_type, image_queue[p_queue_id].image_index, get_icon("FileBrokenBigThumb", "EditorIcons"));
         }
     }
 
@@ -831,7 +834,7 @@ void EditorAssetLibrary::_image_request_completed(int p_status, int p_code, cons
 
 void EditorAssetLibrary::_update_image_queue() {
 
-	const int max_images = 6;
+    const int max_images = 6;
     int current_images = 0;
 
     List<int> to_delete;
@@ -862,7 +865,7 @@ void EditorAssetLibrary::_update_image_queue() {
         }
     }
 
-    while (to_delete.size()) {
+    while (!to_delete.empty()) {
         image_queue[to_delete.front()->get()].request->queue_delete();
         image_queue.erase(to_delete.front()->get());
         to_delete.pop_front();
@@ -930,7 +933,7 @@ void EditorAssetLibrary::_search(int p_page) {
             support_list += String(support_key[i]) + "+";
         }
     }
-    if (support_list != String()) {
+    if (!support_list.empty()) {
         args += "&support=" + StringUtils::substr(support_list,0, support_list.length() - 1);
     }
 
@@ -939,12 +942,12 @@ void EditorAssetLibrary::_search(int p_page) {
         args += "&category=" + itos(categories->get_item_metadata(categories->get_selected()));
     }
 
-    if (reverse->is_pressed()) {
-
+    // Sorting options with an odd index are always the reverse of the previous one
+    if (sort->get_selected() % 2 == 1) {
         args += "&reverse=true";
     }
 
-    if (filter->get_text() != String()) {
+    if (!filter->get_text().empty()) {
         args += "&filter=" + StringUtils::http_escape(filter->get_text());
     }
 
@@ -1144,7 +1147,7 @@ void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const
         } break;
         case REQUESTING_SEARCH: {
 
-			initial_loading = false;
+            initial_loading = false;
             // The loading text only needs to be displayed before the first page is loaded
             library_loading->hide();
 
@@ -1340,7 +1343,7 @@ EditorAssetLibrary::EditorAssetLibrary(bool p_templates_only) {
 
     requesting = REQUESTING_NONE;
     templates_only = p_templates_only;
-	initial_loading = true;
+    initial_loading = true;
 
     VBoxContainer *library_main = memnew(VBoxContainer);
 
@@ -1363,12 +1366,12 @@ EditorAssetLibrary::EditorAssetLibrary(bool p_templates_only) {
         search_hb->add_child(memnew(VSeparator));
 
     Button *open_asset = memnew(Button);
-	open_asset->set_text(TTR("Import..."));
+    open_asset->set_text(TTR("Import..."));
     search_hb->add_child(open_asset);
     open_asset->connect("pressed", this, "_asset_open");
 
     Button *plugins = memnew(Button);
-	plugins->set_text(TTR("Plugins..."));
+    plugins->set_text(TTR("Plugins..."));
     search_hb->add_child(plugins);
     plugins->connect("pressed", this, "_manage_plugins");
 
@@ -1390,12 +1393,6 @@ EditorAssetLibrary::EditorAssetLibrary(bool p_templates_only) {
 
     sort->set_h_size_flags(SIZE_EXPAND_FILL);
     sort->connect("item_selected", this, "_rerun_search");
-
-    reverse = memnew(ToolButton);
-    reverse->set_toggle_mode(true);
-    reverse->connect("toggled", this, "_rerun_search");
-    reverse->set_tooltip(TTR("Reverse sorting."));
-    search_hb2->add_child(reverse);
 
     search_hb2->add_child(memnew(VSeparator));
 
@@ -1425,7 +1422,7 @@ EditorAssetLibrary::EditorAssetLibrary(bool p_templates_only) {
 
     support = memnew(MenuButton);
     search_hb2->add_child(support);
-	support->set_text(TTR("Support"));
+    support->set_text(TTR("Support"));
     support->get_popup()->add_check_item(TTR("Official"), SUPPORT_OFFICIAL);
     support->get_popup()->add_check_item(TTR("Community"), SUPPORT_COMMUNITY);
     support->get_popup()->add_check_item(TTR("Testing"), SUPPORT_TESTING);

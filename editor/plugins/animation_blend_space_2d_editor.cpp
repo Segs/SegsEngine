@@ -42,6 +42,7 @@
 #include "scene/gui/menu_button.h"
 #include "scene/gui/panel.h"
 #include "scene/main/viewport.h"
+#include "scene/resources/style_box.h"
 
 IMPL_GDCLASS(AnimationNodeBlendSpace2DEditor)
 
@@ -271,11 +272,11 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_gui_input(const Ref<InputEven
         _update_edited_point_pos();
     }
 
-    if (mm.is_valid() && tool_triangle->is_pressed() && making_triangle.size()) {
+    if (mm.is_valid() && tool_triangle->is_pressed() && !making_triangle.empty()) {
         blend_space_draw->update();
     }
 
-    if (mm.is_valid() && !tool_triangle->is_pressed() && making_triangle.size()) {
+    if (mm.is_valid() && !tool_triangle->is_pressed() && !making_triangle.empty()) {
         making_triangle.clear();
         blend_space_draw->update();
     }
@@ -545,7 +546,7 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_draw() {
         }
     }
 
-    if (making_triangle.size()) {
+    if (!making_triangle.empty()) {
         Vector<Vector2> points;
         for (int i = 0; i < making_triangle.size(); i++) {
             Vector2 point = blend_space->get_blend_point_position(making_triangle[i]);
@@ -790,7 +791,7 @@ void AnimationNodeBlendSpace2DEditor::_notification(int p_what) {
 
         if (error != error_label->get_text()) {
             error_label->set_text(error);
-            if (error != String()) {
+            if (!error.empty()) {
                 error_panel->show();
             } else {
                 error_panel->hide();

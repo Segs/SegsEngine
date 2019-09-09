@@ -155,7 +155,7 @@ bool ARVRInterfaceGDNative::initialize() {
 		// if we successfully initialize our interface and we don't have a primary interface yet, this becomes our primary interface
 
 		ARVRServer *arvr_server = ARVRServer::get_singleton();
-		if ((arvr_server != NULL) && (arvr_server->get_primary_interface() == nullptr)) {
+		if ((arvr_server != nullptr) && (arvr_server->get_primary_interface() == nullptr)) {
 			arvr_server->set_primary_interface(this);
 		};
 	};

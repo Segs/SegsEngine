@@ -51,16 +51,16 @@ struct Color {
     bool operator==(const Color &p_color) const { return (r == p_color.r && g == p_color.g && b == p_color.b && a == p_color.a); }
     bool operator!=(const Color &p_color) const { return (r != p_color.r || g != p_color.g || b != p_color.b || a != p_color.a); }
 
-    uint32_t to_rgba32() const;
-    uint32_t to_argb32() const;
-    uint32_t to_abgr32() const;
-    uint64_t to_rgba64() const;
-    uint64_t to_argb64() const;
-    uint64_t to_abgr64() const;
+    [[nodiscard]] uint32_t to_rgba32() const;
+    [[nodiscard]] uint32_t to_argb32() const;
+    [[nodiscard]] uint32_t to_abgr32() const;
+    [[nodiscard]] uint64_t to_rgba64() const;
+    [[nodiscard]] uint64_t to_argb64() const;
+    [[nodiscard]] uint64_t to_abgr64() const;
 
-    float get_h() const;
-    float get_s() const;
-    float get_v() const;
+    [[nodiscard]] float get_h() const;
+    [[nodiscard]] float get_s() const;
+    [[nodiscard]] float get_v() const;
     void set_hsv(float p_h, float p_s, float p_v, float p_alpha = 1.0);
 
     _FORCE_INLINE_ float &operator[](int idx) {
@@ -89,10 +89,10 @@ struct Color {
 
     void invert();
     void contrast();
-    Color inverted() const;
-    Color contrasted() const;
+    [[nodiscard]] Color inverted() const;
+    [[nodiscard]] Color contrasted() const;
 
-    _FORCE_INLINE_ Color linear_interpolate(const Color &p_b, float p_t) const {
+    [[nodiscard]] _FORCE_INLINE_ Color linear_interpolate(const Color &p_b, float p_t) const {
 
         Color res = *this;
 
@@ -104,7 +104,7 @@ struct Color {
         return res;
     }
 
-    _FORCE_INLINE_ Color darkened(float p_amount) const {
+    [[nodiscard]] _FORCE_INLINE_ Color darkened(float p_amount) const {
 
         Color res = *this;
         res.r = res.r * (1.0f - p_amount);
@@ -113,7 +113,7 @@ struct Color {
         return res;
     }
 
-    _FORCE_INLINE_ Color lightened(float p_amount) const {
+    [[nodiscard]] _FORCE_INLINE_ Color lightened(float p_amount) const {
 
         Color res = *this;
         res.r = res.r + (1.0f - res.r) * p_amount;
@@ -122,7 +122,7 @@ struct Color {
         return res;
     }
 
-    _FORCE_INLINE_ uint32_t to_rgbe9995() const {
+    [[nodiscard]] _FORCE_INLINE_ uint32_t to_rgbe9995() const {
 
         const float pow2to9 = 512.0f;
         const float B = 15.0f;
@@ -156,7 +156,7 @@ struct Color {
         return (uint32_t(Math::fast_ftoi(sRed)) & 0x1FF) | ((uint32_t(Math::fast_ftoi(sGreen)) & 0x1FF) << 9) | ((uint32_t(Math::fast_ftoi(sBlue)) & 0x1FF) << 18) | ((uint32_t(Math::fast_ftoi(exps)) & 0x1F) << 27);
     }
 
-    _FORCE_INLINE_ Color blend(const Color &p_over) const {
+    [[nodiscard]] _FORCE_INLINE_ Color blend(const Color &p_over) const {
 
         Color res;
         float sa = 1.0f - p_over.a;
@@ -171,7 +171,7 @@ struct Color {
         return res;
     }
 
-    _FORCE_INLINE_ Color to_linear() const {
+    [[nodiscard]] _FORCE_INLINE_ Color to_linear() const {
 
         return Color(
                 r < 0.04045f ? r * (1.0f / 12.92f) : Math::pow((r + 0.055f) * (1.0f / (1 + 0.055f)), 2.4f),
@@ -179,7 +179,7 @@ struct Color {
                 b < 0.04045f ? b * (1.0f / 12.92f) : Math::pow((b + 0.055f) * (1.0f / (1 + 0.055f)), 2.4f),
                 a);
     }
-    _FORCE_INLINE_ Color to_srgb() const {
+    [[nodiscard]] _FORCE_INLINE_ Color to_srgb() const {
 
         return Color(
                 r < 0.0031308f ? 12.92f * r : (1.0f + 0.055f) * Math::pow(r, 1.0f / 2.4f) - 0.055f,
@@ -192,8 +192,8 @@ struct Color {
     static Color html(const String &p_color);
     static bool html_is_valid(const String &p_color);
     static Color named(const String &p_name);
-    String to_html(bool p_alpha = true) const;
-    Color from_hsv(float p_h, float p_s, float p_v, float p_a) const;
+    [[nodiscard]] String to_html(bool p_alpha = true) const;
+    [[nodiscard]] Color from_hsv(float p_h, float p_s, float p_v, float p_a) const;
     static Color from_rgbe9995(uint32_t p_rgbe);
 
     _FORCE_INLINE_ bool operator<(const Color &p_color) const; //used in set keys

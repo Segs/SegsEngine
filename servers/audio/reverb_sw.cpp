@@ -32,7 +32,7 @@
 
 #include "core/print_string.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #define SETMIN(x, y) (x) = MIN((x), (y))
 

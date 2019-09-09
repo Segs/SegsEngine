@@ -36,6 +36,8 @@
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
 #include "editor/editor_scale.h"
+#include "scene/gui/spin_box.h"
+#include "scene/resources/style_box.h"
 
 IMPL_GDCLASS(CurveEditor)
 IMPL_GDCLASS(EditorInspectorPluginCurve)
@@ -70,7 +72,7 @@ CurveEditor::CurveEditor() {
     _context_menu->add_child(_presets_menu);
 }
 
-void CurveEditor::set_curve(Ref<Curve> curve) {
+void CurveEditor::set_curve(const Ref<Curve>& curve) {
 
     if (curve == _curve_ref)
         return;
@@ -174,20 +176,20 @@ void CurveEditor::on_gui_input(const Ref<InputEvent> &p_event) {
                     _has_undo_data = true;
                 }
 
-				const float curve_amplitude = curve.get_max_value() - curve.get_min_value();
-				// Snap to "round" coordinates when holding Ctrl.
-				// Be more precise when holding Shift as well.
-				float snap_threshold;
-				if (mm.get_control()) {
-					snap_threshold = mm.get_shift() ? 0.025 : 0.1;
-				} else {
-					snap_threshold = 0.0;
-				}
+                const float curve_amplitude = curve.get_max_value() - curve.get_min_value();
+                // Snap to "round" coordinates when holding Ctrl.
+                // Be more precise when holding Shift as well.
+                float snap_threshold;
+                if (mm.get_control()) {
+                    snap_threshold = mm.get_shift() ? 0.025 : 0.1;
+                } else {
+                    snap_threshold = 0.0;
+                }
 
                 if (_selected_tangent == TANGENT_NONE) {
                     // Drag point
 
-					Vector2 point_pos = get_world_pos(mpos).snapped(Vector2(snap_threshold, snap_threshold * curve_amplitude));
+                    Vector2 point_pos = get_world_pos(mpos).snapped(Vector2(snap_threshold, snap_threshold * curve_amplitude));
 
                     int i = curve.set_point_offset(_selected_point, point_pos.x);
                     // The index may change if the point is dragged across another one
@@ -205,8 +207,8 @@ void CurveEditor::on_gui_input(const Ref<InputEvent> &p_event) {
                 } else {
                     // Drag tangent
 
-					const Vector2 point_pos = curve.get_point_position(_selected_point);
-					const Vector2 control_pos = get_world_pos(mpos).snapped(Vector2(snap_threshold, snap_threshold * curve_amplitude));
+                    const Vector2 point_pos = curve.get_point_position(_selected_point);
+                    const Vector2 control_pos = get_world_pos(mpos).snapped(Vector2(snap_threshold, snap_threshold * curve_amplitude));
 
                     Vector2 dir = (control_pos - point_pos).normalized();
 
@@ -796,7 +798,7 @@ Ref<Texture> CurvePreviewGenerator::generate(const Ref<Resource> &p_from, const 
     img_ref.instance();
     Image &im = **img_ref;
 
-    im.create(thumbnail_size, thumbnail_size / 2, 0, Image::FORMAT_RGBA8);
+    im.create(thumbnail_size, thumbnail_size / 2, false, Image::FORMAT_RGBA8);
 
     im.lock();
 

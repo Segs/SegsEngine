@@ -29,6 +29,8 @@
 /*************************************************************************/
 
 #include "animation.h"
+#include "animation_enum_casters.h"
+
 #include "scene/scene_string_names.h"
 #include "core/method_bind.h"
 

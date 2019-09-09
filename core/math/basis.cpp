@@ -751,8 +751,8 @@ void Basis::get_axis_angle(Vector3 &r_axis, real_t &r_angle) const {
         if ((xx > yy) && (xx > zz)) { // elements[0][0] is the largest diagonal term
             if (xx < epsilon) {
                 x = 0;
-                y = 0.7071;
-                z = 0.7071;
+                y = 0.7071f;
+                z = 0.7071f;
             } else {
                 x = Math::sqrt(xx);
                 y = xy / x;
@@ -760,9 +760,9 @@ void Basis::get_axis_angle(Vector3 &r_axis, real_t &r_angle) const {
             }
         } else if (yy > zz) { // elements[1][1] is the largest diagonal term
             if (yy < epsilon) {
-                x = 0.7071;
+                x = 0.7071f;
                 y = 0;
-                z = 0.7071;
+                z = 0.7071f;
             } else {
                 y = Math::sqrt(yy);
                 x = xy / y;
@@ -770,8 +770,8 @@ void Basis::get_axis_angle(Vector3 &r_axis, real_t &r_angle) const {
             }
         } else { // elements[2][2] is the largest diagonal term so base result on this
             if (zz < epsilon) {
-                x = 0.7071;
-                y = 0.7071;
+                x = 0.7071f;
+                y = 0.7071f;
                 z = 0;
             } else {
                 z = Math::sqrt(zz);
@@ -804,9 +804,9 @@ void Basis::set_quat(const Quat &p_quat) {
     real_t wx = p_quat.w * xs, wy = p_quat.w * ys, wz = p_quat.w * zs;
     real_t xx = p_quat.x * xs, xy = p_quat.x * ys, xz = p_quat.x * zs;
     real_t yy = p_quat.y * ys, yz = p_quat.y * zs, zz = p_quat.z * zs;
-    set(1.0 - (yy + zz), xy - wz, xz + wy,
-            xy + wz, 1.0 - (xx + zz), yz - wx,
-            xz - wy, yz + wx, 1.0 - (xx + yy));
+    set(1.0f - (yy + zz), xy - wz           , xz + wy,
+        xy + wz         , 1.0f - (xx + zz)  , yz - wx,
+        xz - wy         , yz + wx           , 1.0f - (xx + yy));
 }
 
 void Basis::set_axis_angle(const Vector3 &p_axis, real_t p_phi) {

@@ -35,12 +35,13 @@
 #include "core/method_bind.h"
 #include "core/object_db.h"
 #include "core/project_settings.h"
-#include "core/ustring.h"
 #include "core/string_formatter.h"
+#include "core/ustring.h"
+#include "editor/editor_scale.h"
+#include "editor_network_profiler.h"
 #include "editor_node.h"
 #include "editor_profiler.h"
 #include "editor_settings.h"
-#include "editor/editor_scale.h"
 #include "main/performance.h"
 #include "property_editor.h"
 #include "scene/gui/dialogs.h"
@@ -54,6 +55,7 @@
 #include "scene/gui/texture_button.h"
 #include "scene/gui/tree.h"
 #include "scene/resources/packed_scene.h"
+#include "scene/resources/style_box.h"
 
 IMPL_GDCLASS(ScriptEditorDebugger)
 
@@ -208,6 +210,21 @@ void ScriptEditorDebugger::debug_copy() {
     String msg = reason->get_text();
     if (msg == "") return;
     OS::get_singleton()->set_clipboard(msg);
+}
+
+void ScriptEditorDebugger::debug_skip_breakpoints() {
+    skip_breakpoints_value = !skip_breakpoints_value;
+    if (skip_breakpoints_value)
+        skip_breakpoints->set_icon(get_icon("DebugSkipBreakpointsOn", "EditorIcons"));
+    else
+        skip_breakpoints->set_icon(get_icon("DebugSkipBreakpointsOff", "EditorIcons"));
+
+    if (connection.is_valid()) {
+        Array msg;
+        msg.push_back("set_skip_breakpoints");
+        msg.push_back(skip_breakpoints_value);
+        ppeer->put_var(msg);
+    }
 }
 
 void ScriptEditorDebugger::debug_next() {
@@ -986,6 +1003,20 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
         else
             profiler->add_frame_metric(metric, true);
 
+    } else if (p_msg == "network_profile") {
+        int frame_size = 6;
+        for (int i = 0; i < p_data.size(); i += frame_size) {
+            MultiplayerAPI::ProfilingInfo pi;
+            pi.node = p_data[i + 0];
+            pi.node_path = p_data[i + 1];
+            pi.incoming_rpc = p_data[i + 2];
+            pi.incoming_rset = p_data[i + 3];
+            pi.outgoing_rpc = p_data[i + 4];
+            pi.outgoing_rset = p_data[i + 5];
+            network_profiler->add_node_frame_data(pi);
+        }
+    } else if (p_msg == "network_bandwidth") {
+        network_profiler->set_bandwidth(p_data[0], p_data[1]);
     } else if (p_msg == "kill_me") {
 
         editor->call_deferred("stop_child_process");
@@ -1091,7 +1122,7 @@ void ScriptEditorDebugger::_notification(int p_what) {
         case NOTIFICATION_ENTER_TREE: {
 
             inspector->edit(variables);
-
+            skip_breakpoints->set_icon(get_icon("DebugSkipBreakpointsOff", "EditorIcons"));
             copy->set_icon(get_icon("ActionCopy", "EditorIcons"));
 
             step->set_icon(get_icon("DebugStep", "EditorIcons"));
@@ -1200,6 +1231,9 @@ void ScriptEditorDebugger::_notification(int p_what) {
                     update_live_edit_root();
                     if (profiler->is_profiling()) {
                         _profiler_activate(true);
+                    }
+                    if (network_profiler->is_profiling()) {
+                        _network_profiler_activate(true);
                     }
                 }
             }
@@ -1384,7 +1418,7 @@ void ScriptEditorDebugger::stop() {
     profiler->set_enabled(true);
 
     inspect_scene_tree->clear();
-    EditorNode::get_singleton()->edit_current();
+    inspector->edit(nullptr);
     EditorNode::get_singleton()->get_pause_button()->set_pressed(false);
     EditorNode::get_singleton()->get_pause_button()->set_disabled(true);
     EditorNode::get_singleton()->get_scene_tree_dock()->hide_remote_tree();
@@ -1420,6 +1454,24 @@ void ScriptEditorDebugger::_profiler_activate(bool p_enable) {
     }
 }
 
+void ScriptEditorDebugger::_network_profiler_activate(bool p_enable) {
+
+    if (!connection.is_valid())
+        return;
+
+    if (p_enable) {
+        Array msg;
+        msg.push_back("start_network_profiling");
+        ppeer->put_var(msg);
+        print_verbose("Starting network profiling.");
+
+    } else {
+        Array msg;
+        msg.push_back("stop_network_profiling");
+        ppeer->put_var(msg);
+        print_verbose("Ending network profiling.");
+    }
+}
 void ScriptEditorDebugger::_profiler_seeked() {
 
     if (!connection.is_valid() || !connection->is_connected_to_host())
@@ -1793,6 +1845,10 @@ void ScriptEditorDebugger::reload_scripts() {
     }
 }
 
+bool ScriptEditorDebugger::is_skip_breakpoints() {
+    return skip_breakpoints_value;
+}
+
 void ScriptEditorDebugger::_error_activated() {
     TreeItem *selected = error_tree->get_selected();
 
@@ -1953,7 +2009,7 @@ void ScriptEditorDebugger::_item_menu_id_pressed(int p_option) {
             file_dialog->set_mode(EditorFileDialog::MODE_SAVE_FILE);
             file_dialog_mode = SAVE_NODE;
 
-            List<String> extensions;
+            Vector<String> extensions;
             Ref<PackedScene> sd = memnew(PackedScene);
             ResourceSaver::get_recognized_extensions(sd, &extensions);
             file_dialog->clear_filters();
@@ -1988,6 +2044,7 @@ void ScriptEditorDebugger::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_stack_dump_frame_selected"), &ScriptEditorDebugger::_stack_dump_frame_selected);
 
+    MethodBinder::bind_method(D_METHOD("debug_skip_breakpoints"), &ScriptEditorDebugger::debug_skip_breakpoints);
     MethodBinder::bind_method(D_METHOD("debug_copy"), &ScriptEditorDebugger::debug_copy);
 
     MethodBinder::bind_method(D_METHOD("debug_next"), &ScriptEditorDebugger::debug_next);
@@ -2072,6 +2129,13 @@ ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
         reason->set_autowrap(true);
         reason->set_max_lines_visible(3);
         reason->set_mouse_filter(Control::MOUSE_FILTER_PASS);
+
+        hbc->add_child(memnew(VSeparator));
+
+        skip_breakpoints = memnew(ToolButton);
+        hbc->add_child(skip_breakpoints);
+        skip_breakpoints->set_tooltip(TTR("Skip Breakpoints"));
+        skip_breakpoints->connect("pressed", this, "debug_skip_breakpoints");
 
         hbc->add_child(memnew(VSeparator));
 
@@ -2224,6 +2288,13 @@ ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
         tabs->add_child(profiler);
         profiler->connect("enable_profiling", this, "_profiler_activate");
         profiler->connect("break_request", this, "_profiler_seeked");
+    }
+
+    { //network profiler
+        network_profiler = memnew(EditorNetworkProfiler);
+        network_profiler->set_name(TTR("Network Profiler"));
+        tabs->add_child(network_profiler);
+        network_profiler->connect("enable_profiling", this, "_network_profiler_activate");
     }
 
     { //monitors

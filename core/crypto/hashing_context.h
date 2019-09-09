@@ -56,7 +56,7 @@ protected:
 
 public:
     Error start(HashType p_type);
-    Error update(PoolByteArray p_chunk);
+    Error update(const PoolByteArray& p_chunk);
     PoolByteArray finish();
 
     HashingContext();

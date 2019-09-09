@@ -829,7 +829,7 @@ String ShaderCompilerGLES3::_dump_node_code(SL::Node *p_node, int p_level, Gener
 
             } else if (cfnode->flow_op == SL::FLOW_OP_RETURN) {
 
-                if (cfnode->expressions.size()) {
+                if (!cfnode->expressions.empty()) {
                     code = "return " + _dump_node_code(cfnode->expressions[0], p_level, r_gen_code, p_actions, p_default_actions, p_assigning) + ";";
                 } else {
                     code = "return;";

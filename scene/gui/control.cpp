@@ -41,6 +41,8 @@
 #include "scene/gui/panel.h"
 #include "scene/main/canvas_layer.h"
 #include "scene/main/viewport.h"
+#include "scene/resources/style_box.h"
+#include "scene/resources/theme.h"
 #include "scene/scene_string_names.h"
 #include "servers/visual_server.h"
 
@@ -2745,7 +2747,7 @@ String Control::get_configuration_warning() const {
         if (warning != String()) {
             warning += "\n\n";
         }
-        warning += TTR("The Hint Tooltip won't be displayed as the control's Mouse Filter is set to \"Ignore\". To solve this, set the Mouse Filter to \"Stop\" or \"Pass\".");
+        warning += TTR(R"(The Hint Tooltip won't be displayed as the control's Mouse Filter is set to "Ignore". To solve this, set the Mouse Filter to "Stop" or "Pass".)");
     }
 
     return warning;

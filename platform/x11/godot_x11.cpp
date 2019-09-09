@@ -28,9 +28,9 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include <limits.h>
-#include <locale.h>
-#include <stdlib.h>
+#include <climits>
+#include <clocale>
+#include <cstdlib>
 #include <unistd.h>
 
 #include "main/main.h"

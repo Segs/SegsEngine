@@ -6,6 +6,6 @@ foreach(tgt ${global_targets})
     target_link_libraries(${tgt}_assimp PUBLIC ${tgt}_core)
     target_link_libraries(${tgt}_assimp PRIVATE assimp_lib)
 
-    set_common_target_properties(${tgt}_assimp)
+    set_module_properties(${tgt} assimp)
 endforeach()
 

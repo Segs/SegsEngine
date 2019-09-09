@@ -39,7 +39,7 @@ void SyslogLogger::logv(const QChar *p_format, bool p_err) {
 		return;
 	}
 
-	syslog(p_err ? LOG_ERR : LOG_INFO, "%s",p_format);
+	syslog(p_err ? LOG_ERR : LOG_INFO, "%ls",(const char16_t *)p_format);
 }
 
 void SyslogLogger::logv(const char *p_format, bool p_err) {

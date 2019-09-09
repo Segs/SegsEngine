@@ -1769,7 +1769,7 @@ bool ResourceFormatSaverNativeScript::recognize(const RES &p_resource) const {
     return Object::cast_to<NativeScript>(*p_resource) != nullptr;
 }
 
-void ResourceFormatSaverNativeScript::get_recognized_extensions(const RES &p_resource, List<String> *p_extensions) const {
+void ResourceFormatSaverNativeScript::get_recognized_extensions(const RES &p_resource, Vector<String> *p_extensions) const {
     if (Object::cast_to<NativeScript>(*p_resource)) {
         p_extensions->push_back("gdns");
     }

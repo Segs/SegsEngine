@@ -27,11 +27,10 @@
 /* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
+#pragma once
 
 #ifdef JAVASCRIPT_ENABLED
 
-#ifndef WEBRTC_DATA_CHANNEL_JS_H
-#define WEBRTC_DATA_CHANNEL_JS_H
 
 #include "webrtc_data_channel.h"
 
@@ -88,7 +87,5 @@ public:
 	WebRTCDataChannelJS(int js_id);
 	~WebRTCDataChannelJS();
 };
-
-#endif // WEBRTC_DATA_CHANNEL_JS_H
 
 #endif // JAVASCRIPT_ENABLED

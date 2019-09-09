@@ -33,46 +33,48 @@
 
 #include "editor/editor_node.h"
 
+class PhysicalBone;
+
 class PhysicalBoneEditor : public Object {
-	GDCLASS(PhysicalBoneEditor,Object)
+    GDCLASS(PhysicalBoneEditor,Object)
 
-	EditorNode *editor;
-	HBoxContainer *spatial_editor_hb;
-	ToolButton *button_transform_joint;
+    EditorNode *editor;
+    HBoxContainer *spatial_editor_hb;
+    ToolButton *button_transform_joint;
 
-	PhysicalBone *selected;
+    PhysicalBone *selected;
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 private:
-	void _on_toggle_button_transform_joint(bool p_is_pressed);
-	void _set_move_joint();
+    void _on_toggle_button_transform_joint(bool p_is_pressed);
+    void _set_move_joint();
 
 public:
-	PhysicalBoneEditor(EditorNode *p_editor);
-	~PhysicalBoneEditor() override;
+    PhysicalBoneEditor(EditorNode *p_editor);
+    ~PhysicalBoneEditor() override;
 
-	void set_selected(PhysicalBone *p_pb);
+    void set_selected(PhysicalBone *p_pb);
 
-	void hide();
-	void show();
+    void hide();
+    void show();
 };
 
 class PhysicalBonePlugin : public EditorPlugin {
-	GDCLASS(PhysicalBonePlugin,EditorPlugin)
+    GDCLASS(PhysicalBonePlugin,EditorPlugin)
 
-	EditorNode *editor;
-	PhysicalBone *selected;
-	PhysicalBoneEditor physical_bone_editor;
+    EditorNode *editor;
+    PhysicalBone *selected;
+    PhysicalBoneEditor physical_bone_editor;
 
 public:
-	String get_name() const override { return "PhysicalBone"; }
-	bool handles(Object *p_object) const override { return p_object->is_class("PhysicalBone"); }
-	void make_visible(bool p_visible) override;
-	void edit(Object *p_node) override;
+    String get_name() const override { return "PhysicalBone"; }
+    bool handles(Object *p_object) const override { return p_object->is_class("PhysicalBone"); }
+    void make_visible(bool p_visible) override;
+    void edit(Object *p_node) override;
 
-	PhysicalBonePlugin(EditorNode *p_editor);
+    PhysicalBonePlugin(EditorNode *p_editor);
 };
 
 #endif

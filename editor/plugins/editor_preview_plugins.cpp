@@ -234,7 +234,7 @@ Ref<Texture> EditorBitmapPreviewPlugin::generate(const RES &p_from, const Size2 
 
     Ref<Image> img;
     img.instance();
-    img->create(bm->get_size().width, bm->get_size().height, 0, Image::FORMAT_L8, data);
+    img->create(bm->get_size().width, bm->get_size().height, false, Image::FORMAT_L8, data);
 
     if (img->is_compressed()) {
         if (img->decompress() != OK)
@@ -522,7 +522,7 @@ Ref<Texture> EditorScriptPreviewPlugin::generate(const RES &p_from, const Size2 
     Ref<Image> img;
     img.instance();
     int thumbnail_size = MAX(p_size.x, p_size.y);
-    img->create(thumbnail_size, thumbnail_size, 0, Image::FORMAT_RGBA8);
+    img->create(thumbnail_size, thumbnail_size, false, Image::FORMAT_RGBA8);
 
     Color bg_color = EditorSettings::get_singleton()->get("text_editor/highlighting/background_color");
     Color keyword_color = EditorSettings::get_singleton()->get("text_editor/highlighting/keyword_color");
@@ -634,7 +634,7 @@ Ref<Texture> EditorAudioStreamPreviewPlugin::generate(const RES &p_from, const S
     uint8_t *imgw = imgdata.ptr();
 
     Ref<AudioStreamPlayback> playback = stream->instance_playback();
-	ERR_FAIL_COND_V(playback.is_null(), Ref<Texture>());
+    ERR_FAIL_COND_V(playback.is_null(), Ref<Texture>());
 
     float len_s = stream->get_length();
     if (len_s == 0) {

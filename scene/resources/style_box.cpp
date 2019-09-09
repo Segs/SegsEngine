@@ -32,7 +32,7 @@
 #include "scene/2d/canvas_item.h"
 #include "core/method_bind.h"
 
-#include <limits.h>
+#include <climits>
 
 IMPL_GDCLASS(StyleBox)
 IMPL_GDCLASS(StyleBoxEmpty)

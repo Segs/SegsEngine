@@ -132,12 +132,12 @@ void Array::erase(const Variant &p_value) {
 }
 
 Variant Array::front() const {
-    ERR_FAIL_COND_V_CMSG(_p->array.size() == 0, Variant(), "Can't take value from empty array.")
+    ERR_FAIL_COND_V_CMSG(_p->array.empty(), Variant(), "Can't take value from empty array.")
     return operator[](0);
 }
 
 Variant Array::back() const {
-    ERR_FAIL_COND_V_CMSG(_p->array.size() == 0, Variant(), "Can't take value from empty array.")
+    ERR_FAIL_COND_V_CMSG(_p->array.empty(), Variant(), "Can't take value from empty array.")
     return operator[](_p->array.size() - 1);
 }
 
@@ -148,7 +148,7 @@ int Array::find(const Variant &p_value, int p_from) const {
 
 int Array::rfind(const Variant &p_value, int p_from) const {
 
-    if (_p->array.size() == 0)
+    if (_p->array.empty())
         return -1;
 
     if (p_from < 0) {
@@ -177,7 +177,7 @@ int Array::find_last(const Variant &p_value) const {
 
 int Array::count(const Variant &p_value) const {
 
-    if (_p->array.size() == 0)
+    if (_p->array.empty())
         return 0;
 
     int amount = 0;

@@ -62,7 +62,7 @@ StringName NodePath::get_sname() const {
 
 void NodePath::prepend_period() {
 
-    if (data->path.size() && data->path[0].operator String() != ".") {
+    if (!data->path.empty() && data->path[0].operator String() != ".") {
         data->path.insert(0, StaticCString("."));
         data->hash_cache_valid = false;
     }
@@ -271,7 +271,7 @@ NodePath NodePath::rel_path_to(const NodePath &p_np) const {
         relpath.push_back(dst_dirs[i]);
     }
 
-    if (relpath.size() == 0)
+    if (relpath.empty())
         relpath.push_back(StaticCString("."));
 
     return NodePath(relpath, p_np.get_subnames(), false);
@@ -279,7 +279,7 @@ NodePath NodePath::rel_path_to(const NodePath &p_np) const {
 
 NodePath NodePath::get_as_property_path() const {
 
-    if (!data->path.size()) {
+    if (data->path.empty()) {
         return *this;
     } else {
         Vector<StringName> new_path = data->subpath;
@@ -299,7 +299,7 @@ NodePath::NodePath(const Vector<StringName> &p_path, bool p_absolute) {
 
     data = nullptr;
 
-    if (p_path.size() == 0)
+    if (p_path.empty())
         return;
 
     data = memnew(Data);
@@ -314,7 +314,7 @@ NodePath::NodePath(const Vector<StringName> &p_path, const Vector<StringName> &p
 
     data = nullptr;
 
-    if (p_path.size() == 0 && p_subpath.size() == 0)
+    if (p_path.empty() && p_subpath.empty())
         return;
 
     data = memnew(Data);
@@ -341,7 +341,7 @@ void NodePath::simplify() {
             data->path.remove(i - 1);
             data->path.remove(i - 1);
             i -= 2;
-            if (data->path.size() == 0) {
+            if (data->path.empty()) {
                 data->path.push_back(StaticCString("."));
                 break;
             }
@@ -411,7 +411,7 @@ NodePath::NodePath(const String &p_path) {
         }
     }
 
-    if (slices == 0 && !absolute && !subpath.size())
+    if (slices == 0 && !absolute && subpath.empty())
         return;
 
     data = memnew(Data);

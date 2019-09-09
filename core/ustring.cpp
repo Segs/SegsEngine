@@ -43,8 +43,8 @@
 #include <QVector>
 #include <QCollator>
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 
 /*
@@ -156,7 +156,7 @@ String StringUtils::capitalize(const String &s) {
         String slice = StringUtils::get_slice(aux,' ', i);
         if (!slice.empty()) {
 
-			slice.set(0,StringUtils::char_uppercase(slice[0]));
+            slice.set(0,StringUtils::char_uppercase(slice[0]));
             if (i > 0)
                 cap += ' ';
             cap += slice;
@@ -208,7 +208,7 @@ String StringUtils::camelcase_to_underscore(const String &s,bool lowercase) {
     return lowercase ? StringUtils::to_lower(new_string) : new_string;
 }
 
-int StringUtils::get_slice_count(const String &str,String p_splitter) {
+int StringUtils::get_slice_count(const String &str,const String &p_splitter) {
 
     auto parts = str.m_str.splitRef(p_splitter.m_str);
     return parts.size();
@@ -218,7 +218,7 @@ int StringUtils::get_slice_count(const String &str,CharType p_splitter) {
     auto parts = str.m_str.splitRef(p_splitter);
     return parts.size();
 }
-String StringUtils::get_slice(const String &str,String p_splitter, int p_slice) {
+String StringUtils::get_slice(const String &str,const String &p_splitter, int p_slice) {
 
     if (p_slice<0 || str.empty() || p_splitter.empty())
         return String();
@@ -501,7 +501,7 @@ Vector<int> StringUtils::split_ints_mk(const String &str,const Vector<String> &p
     return ret;
 }
 
-String StringUtils::join(const String &str,Vector<String> parts) {
+String StringUtils::join(const String &str,const Vector<String> &parts) {
     String ret;
     for (int i = 0; i < parts.size(); ++i) {
         if (i > 0) {
@@ -1789,7 +1789,7 @@ static int _humanize_digits(int p_num) {
 String PathUtils::humanize_size(size_t p_size) {
 
     uint64_t _div = 1;
-    static const char *prefix[] = { " Bytes", " KB", " MB", " GB", " TB", " PB", " EB", "" };
+    static const char *prefix[] = { " B", " KiB", " MiB", " GiB", " TiB", " PiB", " EiB", "" };
     int prefix_idx = 0;
 
     while (p_size > (_div * 1024) && prefix[prefix_idx][0]) {
@@ -1800,7 +1800,7 @@ String PathUtils::humanize_size(size_t p_size) {
     int digits = prefix_idx > 0 ? _humanize_digits(p_size / _div) : 0;
     double divisor = prefix_idx > 0 ? _div : 1;
 
-    return StringUtils::pad_decimals(StringUtils::num(p_size / divisor),digits) + prefix[prefix_idx];
+    return StringUtils::pad_decimals(StringUtils::num(p_size / divisor),digits) + RTR(prefix[prefix_idx]);
 }
 bool PathUtils::is_abs_path(const String &str) {
 
@@ -2589,7 +2589,7 @@ String StringUtils::sprintf(const String &str,const Array &values, bool *error) 
 
     *error = true;
 
-	for (; !self->isNull(); self++) {
+    for (; !self->isNull(); self++) {
         const CharType c = *self;
 
         if (in_format) { // We have % - lets see what else we get.
@@ -2924,4 +2924,9 @@ void StringUtils::Inplace::replace(String &str, const char *p_key, const char *p
 void StringUtils::Inplace::replace(String &str, CharType p_key, CharType p_with)
 {
     str.m_str.replace(p_key,p_with);
+}
+
+void StringUtils::Inplace::replace(String &str, const String &p_key, const String &p_with)
+{
+    str.m_str.replace(p_key.m_str,p_with.m_str);
 }

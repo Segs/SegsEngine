@@ -50,7 +50,7 @@ Error HashingContext::start(HashType p_type) {
     return ERR_UNAVAILABLE;
 }
 
-Error HashingContext::update(PoolByteArray p_chunk) {
+Error HashingContext::update(const PoolByteArray& p_chunk) {
     ERR_FAIL_COND_V(ctx == nullptr, ERR_UNCONFIGURED);
     size_t len = p_chunk.size();
     PoolByteArray::Read r = p_chunk.read();
