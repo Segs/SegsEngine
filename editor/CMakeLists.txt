@@ -5,7 +5,7 @@ if(NOT OPTION_TOOLS)
     return()
 endif()
 
-add_library(editor STATIC)
+add_library(edit_tools STATIC)
 add_library(editor_interface INTERFACE)
 
 add_subdirectory(plugin_interfaces)
@@ -56,7 +56,7 @@ list(APPEND editor_sources ${source_files} editor.qrc ${header_files})
 
 #list(APPEND editor_sources register_exporters.gen.cpp)
 
-target_sources(editor PRIVATE ${editor_sources} ${exporter_sources}
+target_sources(edit_tools PRIVATE ${editor_sources} ${exporter_sources}
 
     ${CMAKE_CURRENT_BINARY_DIR}/register_exporters.gen.cpp
     ${PROJECT_SOURCE_DIR}/thirdparty/misc/clipper.cpp
@@ -65,24 +65,24 @@ target_sources(editor PRIVATE ${editor_sources} ${exporter_sources}
     ${CMAKE_CURRENT_BINARY_DIR}/translations.gen.h
 )
 
-target_include_directories(editor PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(edit_tools PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 target_include_directories(editor_interface INTERFACE ${CMAKE_CURRENT_BINARY_DIR})
 # make sure users of editor_interface are linked after editor
-target_compile_options(editor PRIVATE
+target_compile_options(edit_tools PRIVATE
         $<$<CXX_COMPILER_ID:MSVC>:/W3>
         $<$<CXX_COMPILER_ID:Clang>:-Wall -Wextra -Wno-unused-parameter>
         $<$<CXX_COMPILER_ID:GNU>:-Wall -Wextra -Wno-unused-parameter>
 )
-set_target_properties(editor PROPERTIES AUTORCC_OPTIONS "--compress;7;--verbose")
-set_target_properties(editor PROPERTIES AUTORCC ON)
-#target_link_libraries(editor PUBLIC drivers scene)
+set_target_properties(edit_tools PROPERTIES AUTORCC_OPTIONS "--compress;7;--verbose")
+set_target_properties(edit_tools PROPERTIES AUTORCC ON)
+#target_link_libraries(edit_tools PUBLIC drivers scene)
 
-target_link_libraries(editor PUBLIC Qt5::Core)
+target_link_libraries(edit_tools PUBLIC Qt5::Core)
 
 foreach(tgt ${global_targets})
-    target_link_libraries(editor PUBLIC ${tgt}_core ${tgt}_scene ${tgt}_modules)
-    target_link_libraries(editor PUBLIC ${tgt}_plug_registry)
+    target_link_libraries(edit_tools PUBLIC ${tgt}_core ${tgt}_scene ${tgt}_modules)
+    target_link_libraries(edit_tools PUBLIC ${tgt}_plug_registry)
 endforeach()
-set_common_target_properties(editor)
+set_common_target_properties(edit_tools)
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${editor_sources})

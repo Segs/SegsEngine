@@ -248,6 +248,9 @@ protected:
     void _notification(int p_what);
     static void _bind_methods();
 
+    void _scan_from_cache();
+    void _scan_mark_updates();
+
 public:
     static EditorFileSystem *get_singleton() { return singleton; }
 

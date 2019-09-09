@@ -34,7 +34,7 @@
 #include "core/class_db.h"
 #include "core/method_bind.h"
 #include "core/os/keyboard.h"
-#include "core/print_string.h"
+
 #include "editor_help.h"
 #include "editor_node.h"
 #include "editor_settings.h"

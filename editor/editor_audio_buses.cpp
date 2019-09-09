@@ -85,9 +85,9 @@ void EditorAudioBus::_notification(int p_what) {
 
             disabled_vu = get_icon("BusVuFrozen", "EditorIcons");
 
-            Color solo_color = EditorSettings::get_singleton()->is_dark_theme() ? Color(1.0, 0.89, 0.22) : Color(1.0, 0.92, 0.44);
-            Color mute_color = EditorSettings::get_singleton()->is_dark_theme() ? Color(1.0, 0.16, 0.16) : Color(1.0, 0.44, 0.44);
-            Color bypass_color = EditorSettings::get_singleton()->is_dark_theme() ? Color(0.13, 0.8, 1.0) : Color(0.44, 0.87, 1.0);
+            Color solo_color = EditorSettings::get_singleton()->is_dark_theme() ? Color(1.0, 0.89f, 0.22f) : Color(1.0, 0.92f, 0.44f);
+            Color mute_color = EditorSettings::get_singleton()->is_dark_theme() ? Color(1.0, 0.16f, 0.16f) : Color(1.0, 0.44f, 0.44f);
+            Color bypass_color = EditorSettings::get_singleton()->is_dark_theme() ? Color(0.13f, 0.8f, 1.0) : Color(0.44f, 0.87f, 1.0);
 
             solo->set_icon(get_icon("AudioBusSolo", "EditorIcons"));
             solo->add_color_override("icon_color_pressed", solo_color);
@@ -137,13 +137,13 @@ void EditorAudioBus::_notification(int p_what) {
                 if (real_peak[0] > channel[i].peak_l) {
                     channel[i].peak_l = real_peak[0];
                 } else {
-                    channel[i].peak_l -= get_process_delta_time() * 60.0;
+                    channel[i].peak_l -= get_process_delta_time() * 60.0f;
                 }
 
                 if (real_peak[1] > channel[i].peak_r) {
                     channel[i].peak_r = real_peak[1];
                 } else {
-                    channel[i].peak_r -= get_process_delta_time() * 60.0;
+                    channel[i].peak_r -= get_process_delta_time() * 60.0f;
                 }
 
                 channel[i].vu_l->set_value(channel[i].peak_l);
@@ -358,7 +358,7 @@ float EditorAudioBus::_normalized_volume_to_scaled_db(float normalized) {
     } else if (normalized < 0.05f) {
         return 830.72 * normalized - 80.0f;
     } else {
-        return 45.0f * Math::pow(normalized - 1.0, 3);
+        return 45.0f * Math::pow(normalized - 1.0f, 3);
     }
 }
 

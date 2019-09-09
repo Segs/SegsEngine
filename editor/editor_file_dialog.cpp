@@ -83,7 +83,7 @@ void EditorFileDialog::_notification(int p_what) {
                     preview_wheel_index = 0;
                 Ref<Texture> frame = get_icon("Progress" + itos(preview_wheel_index + 1), "EditorIcons");
                 preview->set_texture(frame);
-                preview_wheel_timeout = 0.1;
+                preview_wheel_timeout = 0.1f;
             }
         }
     } else if (p_what == NOTIFICATION_POPUP_HIDE) {

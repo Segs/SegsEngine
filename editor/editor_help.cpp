@@ -1538,7 +1538,7 @@ EditorHelp::EditorHelp() {
     class_desc = memnew(RichTextLabel);
     add_child(class_desc);
     class_desc->set_v_size_flags(SIZE_EXPAND_FILL);
-    class_desc->add_color_override("selection_color", get_color("accent_color", "Editor") * Color(1, 1, 1, 0.4));
+    class_desc->add_color_override("selection_color", get_color("accent_color", "Editor") * Color(1, 1, 1, 0.4f));
     class_desc->connect("meta_clicked", this, "_class_desc_select");
     class_desc->connect("gui_input", this, "_class_desc_input");
     class_desc->connect("resized", this, "_class_desc_resized");

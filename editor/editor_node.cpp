@@ -243,43 +243,43 @@ void EditorNode::_unhandled_input(const Ref<InputEvent> &p_event) {
         return; //ignore because of modal window
 
     Ref<InputEventKey> k = p_event;
-    if (k.is_valid() && k->is_pressed() && !k->is_echo() && !gui_base->get_viewport()->gui_has_modal_stack()) {
+    if (!k.is_valid() || !k->is_pressed() || k->is_echo() || gui_base->get_viewport()->gui_has_modal_stack())
+        return;
 
-        EditorPlugin *old_editor = editor_plugin_screen;
+    EditorPlugin *old_editor = editor_plugin_screen;
 
-        if (ED_IS_SHORTCUT("editor/next_tab", p_event)) {
-            int next_tab = editor_data.get_edited_scene() + 1;
-            next_tab %= editor_data.get_edited_scene_count();
-            _scene_tab_changed(next_tab);
-        }
-        if (ED_IS_SHORTCUT("editor/prev_tab", p_event)) {
-            int next_tab = editor_data.get_edited_scene() - 1;
-            next_tab = next_tab >= 0 ? next_tab : editor_data.get_edited_scene_count() - 1;
-            _scene_tab_changed(next_tab);
-        }
-        if (ED_IS_SHORTCUT("editor/filter_files", p_event)) {
-            filesystem_dock->focus_on_filter();
-        }
+    if (ED_IS_SHORTCUT("editor/next_tab", p_event)) {
+        int next_tab = editor_data.get_edited_scene() + 1;
+        next_tab %= editor_data.get_edited_scene_count();
+        _scene_tab_changed(next_tab);
+    }
+    if (ED_IS_SHORTCUT("editor/prev_tab", p_event)) {
+        int next_tab = editor_data.get_edited_scene() - 1;
+        next_tab = next_tab >= 0 ? next_tab : editor_data.get_edited_scene_count() - 1;
+        _scene_tab_changed(next_tab);
+    }
+    if (ED_IS_SHORTCUT("editor/filter_files", p_event)) {
+        filesystem_dock->focus_on_filter();
+    }
 
-        if (ED_IS_SHORTCUT("editor/editor_2d", p_event)) {
-            _editor_select(EDITOR_2D);
-        } else if (ED_IS_SHORTCUT("editor/editor_3d", p_event)) {
-            _editor_select(EDITOR_3D);
-        } else if (ED_IS_SHORTCUT("editor/editor_script", p_event)) {
-            _editor_select(EDITOR_SCRIPT);
-        } else if (ED_IS_SHORTCUT("editor/editor_help", p_event)) {
-            emit_signal("request_help_search", "");
-        } else if (ED_IS_SHORTCUT("editor/editor_assetlib", p_event) && StreamPeerSSL::is_available()) {
-            _editor_select(EDITOR_ASSETLIB);
-        } else if (ED_IS_SHORTCUT("editor/editor_next", p_event)) {
-            _editor_select_next();
-        } else if (ED_IS_SHORTCUT("editor/editor_prev", p_event)) {
-            _editor_select_prev();
-        }
+    if (ED_IS_SHORTCUT("editor/editor_2d", p_event)) {
+        _editor_select(EDITOR_2D);
+    } else if (ED_IS_SHORTCUT("editor/editor_3d", p_event)) {
+        _editor_select(EDITOR_3D);
+    } else if (ED_IS_SHORTCUT("editor/editor_script", p_event)) {
+        _editor_select(EDITOR_SCRIPT);
+    } else if (ED_IS_SHORTCUT("editor/editor_help", p_event)) {
+        emit_signal("request_help_search", "");
+    } else if (ED_IS_SHORTCUT("editor/editor_assetlib", p_event) && StreamPeerSSL::is_available()) {
+        _editor_select(EDITOR_ASSETLIB);
+    } else if (ED_IS_SHORTCUT("editor/editor_next", p_event)) {
+        _editor_select_next();
+    } else if (ED_IS_SHORTCUT("editor/editor_prev", p_event)) {
+        _editor_select_prev();
+    }
 
-        if (old_editor != editor_plugin_screen) {
-            get_tree()->set_input_as_handled();
-        }
+    if (old_editor != editor_plugin_screen) {
+        get_tree()->set_input_as_handled();
     }
 }
 static void update_reconfigured_resources()
@@ -628,18 +628,19 @@ void EditorNode::_resources_reimported(const Vector<String> &p_resources) {
 
 void EditorNode::_sources_changed(bool p_exist) {
 
-    if (waiting_for_first_scan) {
-        waiting_for_first_scan = false;
+    if (!waiting_for_first_scan)
+        return;
 
-        EditorResourcePreview::get_singleton()->start(); //start previes now that it's safe
+    waiting_for_first_scan = false;
 
-        _load_docks();
+    EditorResourcePreview::get_singleton()->start(); //start previes now that it's safe
 
-        if (defer_load_scene != "") {
+    _load_docks();
 
-            load_scene(defer_load_scene);
-            defer_load_scene = "";
-        }
+    if (!defer_load_scene.empty()) {
+
+        load_scene(defer_load_scene);
+        defer_load_scene.clear();
     }
 }
 
@@ -3906,63 +3907,63 @@ void EditorNode::_dock_select_input(const Ref<InputEvent> &p_input) {
 
     Ref<InputEventMouse> me = p_input;
 
-    if (me.is_valid()) {
+    if (!me.is_valid())
+        return;
 
-        Vector2 point = me->get_position();
+    Vector2 point = me->get_position();
 
-        int nrect = -1;
-        for (int i = 0; i < DOCK_SLOT_MAX; i++) {
-            if (dock_select_rect[i].has_point(point)) {
-                nrect = i;
-                break;
-            }
+    int nrect = -1;
+    for (int i = 0; i < DOCK_SLOT_MAX; i++) {
+        if (dock_select_rect[i].has_point(point)) {
+            nrect = i;
+            break;
+        }
+    }
+
+    if (nrect != dock_select_rect_over) {
+        dock_select->update();
+        dock_select_rect_over = nrect;
+    }
+
+    if (nrect == -1)
+        return;
+
+    Ref<InputEventMouseButton> mb = me;
+
+    if (mb.is_valid() && mb->get_button_index() == 1 && mb->is_pressed() && dock_popup_selected != nrect) {
+        Control *dock = dock_slot[dock_popup_selected]->get_current_tab_control();
+        if (dock) {
+            dock_slot[dock_popup_selected]->remove_child(dock);
+        }
+        if (dock_slot[dock_popup_selected]->get_tab_count() == 0) {
+            dock_slot[dock_popup_selected]->hide();
+
+        } else {
+
+            dock_slot[dock_popup_selected]->set_current_tab(0);
         }
 
-        if (nrect != dock_select_rect_over) {
-            dock_select->update();
-            dock_select_rect_over = nrect;
-        }
+        dock_slot[nrect]->add_child(dock);
+        dock_popup_selected = nrect;
+        dock_slot[nrect]->set_current_tab(dock_slot[nrect]->get_tab_count() - 1);
+        dock_slot[nrect]->show();
+        dock_select->update();
 
-        if (nrect == -1)
-            return;
-
-        Ref<InputEventMouseButton> mb = me;
-
-        if (mb.is_valid() && mb->get_button_index() == 1 && mb->is_pressed() && dock_popup_selected != nrect) {
-            Control *dock = dock_slot[dock_popup_selected]->get_current_tab_control();
-            if (dock) {
-                dock_slot[dock_popup_selected]->remove_child(dock);
-            }
-            if (dock_slot[dock_popup_selected]->get_tab_count() == 0) {
-                dock_slot[dock_popup_selected]->hide();
-
-            } else {
-
-                dock_slot[dock_popup_selected]->set_current_tab(0);
-            }
-
-            dock_slot[nrect]->add_child(dock);
-            dock_popup_selected = nrect;
-            dock_slot[nrect]->set_current_tab(dock_slot[nrect]->get_tab_count() - 1);
-            dock_slot[nrect]->show();
-            dock_select->update();
-
-            for (int i = 0; i < vsplits.size(); i++) {
-                bool in_use = dock_slot[i * 2 + 0]->get_tab_count() || dock_slot[i * 2 + 1]->get_tab_count();
-                if (in_use)
-                    vsplits[i]->show();
-                else
-                    vsplits[i]->hide();
-            }
-
-            if (right_l_vsplit->is_visible() || right_r_vsplit->is_visible())
-                right_hsplit->show();
+        for (int i = 0; i < vsplits.size(); i++) {
+            bool in_use = dock_slot[i * 2 + 0]->get_tab_count() || dock_slot[i * 2 + 1]->get_tab_count();
+            if (in_use)
+                vsplits[i]->show();
             else
-                right_hsplit->hide();
-
-            _edit_current();
-            _save_docks();
+                vsplits[i]->hide();
         }
+
+        if (right_l_vsplit->is_visible() || right_r_vsplit->is_visible())
+            right_hsplit->show();
+        else
+            right_hsplit->hide();
+
+        _edit_current();
+        _save_docks();
     }
 }
 
@@ -4411,7 +4412,7 @@ bool EditorNode::ensure_main_scene(bool p_from_native) {
     pick_main_scene->set_meta("from_native", p_from_native); //whether from play button or native run
     String main_scene = GLOBAL_DEF("application/run/main_scene", "");
 
-    if (main_scene == "") {
+    if (main_scene.empty()) {
 
         current_option = -1;
         pick_main_scene->set_text(TTR("No main scene has ever been defined, select one?\nYou can change it later in \"Project Settings\" under the 'application' category."));
@@ -4583,51 +4584,51 @@ void EditorNode::_scene_tab_exit() {
 void EditorNode::_scene_tab_input(const Ref<InputEvent> &p_input) {
     Ref<InputEventMouseButton> mb = p_input;
 
-    if (mb.is_valid()) {
+    if (!mb.is_valid())
+        return;
 
+    if (scene_tabs->get_hovered_tab() >= 0) {
+        if (mb->get_button_index() == BUTTON_MIDDLE && mb->is_pressed()) {
+            _scene_tab_closed(scene_tabs->get_hovered_tab());
+        }
+    } else {
+        if ((mb->get_button_index() == BUTTON_LEFT && mb->is_doubleclick()) || (mb->get_button_index() == BUTTON_MIDDLE && mb->is_pressed())) {
+            _menu_option_confirm(FILE_NEW_SCENE, true);
+        }
+    }
+    if (mb->get_button_index() == BUTTON_RIGHT && mb->is_pressed()) {
+
+        // context menu
+        scene_tabs_context_menu->clear();
+        scene_tabs_context_menu->set_size(Size2(1, 1));
+
+        scene_tabs_context_menu->add_shortcut(ED_GET_SHORTCUT("editor/new_scene"), FILE_NEW_SCENE);
         if (scene_tabs->get_hovered_tab() >= 0) {
-            if (mb->get_button_index() == BUTTON_MIDDLE && mb->is_pressed()) {
-                _scene_tab_closed(scene_tabs->get_hovered_tab());
-            }
-        } else {
-            if ((mb->get_button_index() == BUTTON_LEFT && mb->is_doubleclick()) || (mb->get_button_index() == BUTTON_MIDDLE && mb->is_pressed())) {
-                _menu_option_confirm(FILE_NEW_SCENE, true);
-            }
+            scene_tabs_context_menu->add_shortcut(ED_GET_SHORTCUT("editor/save_scene"), FILE_SAVE_SCENE);
+            scene_tabs_context_menu->add_shortcut(ED_GET_SHORTCUT("editor/save_scene_as"), FILE_SAVE_AS_SCENE);
         }
-        if (mb->get_button_index() == BUTTON_RIGHT && mb->is_pressed()) {
+        scene_tabs_context_menu->add_shortcut(ED_GET_SHORTCUT("editor/save_all_scenes"), FILE_SAVE_ALL_SCENES);
+        if (scene_tabs->get_hovered_tab() >= 0) {
+            scene_tabs_context_menu->add_separator();
+            scene_tabs_context_menu->add_item(TTR("Show in FileSystem"), FILE_SHOW_IN_FILESYSTEM);
+            scene_tabs_context_menu->add_item(TTR("Play This Scene"), RUN_PLAY_SCENE);
 
-            // context menu
-            scene_tabs_context_menu->clear();
-            scene_tabs_context_menu->set_size(Size2(1, 1));
-
-            scene_tabs_context_menu->add_shortcut(ED_GET_SHORTCUT("editor/new_scene"), FILE_NEW_SCENE);
-            if (scene_tabs->get_hovered_tab() >= 0) {
-                scene_tabs_context_menu->add_shortcut(ED_GET_SHORTCUT("editor/save_scene"), FILE_SAVE_SCENE);
-                scene_tabs_context_menu->add_shortcut(ED_GET_SHORTCUT("editor/save_scene_as"), FILE_SAVE_AS_SCENE);
+            scene_tabs_context_menu->add_separator();
+            Ref<ShortCut> close_tab_sc = ED_GET_SHORTCUT("editor/close_scene");
+            close_tab_sc->set_name(TTR("Close Tab"));
+            scene_tabs_context_menu->add_shortcut(close_tab_sc, FILE_CLOSE);
+            Ref<ShortCut> undo_close_tab_sc = ED_GET_SHORTCUT("editor/reopen_closed_scene");
+            undo_close_tab_sc->set_name(TTR("Undo Close Tab"));
+            scene_tabs_context_menu->add_shortcut(undo_close_tab_sc, FILE_OPEN_PREV);
+            if (previous_scenes.empty()) {
+                scene_tabs_context_menu->set_item_disabled(scene_tabs_context_menu->get_item_index(FILE_OPEN_PREV), true);
             }
-            scene_tabs_context_menu->add_shortcut(ED_GET_SHORTCUT("editor/save_all_scenes"), FILE_SAVE_ALL_SCENES);
-            if (scene_tabs->get_hovered_tab() >= 0) {
-                scene_tabs_context_menu->add_separator();
-                scene_tabs_context_menu->add_item(TTR("Show in FileSystem"), FILE_SHOW_IN_FILESYSTEM);
-                scene_tabs_context_menu->add_item(TTR("Play This Scene"), RUN_PLAY_SCENE);
-
-                scene_tabs_context_menu->add_separator();
-                Ref<ShortCut> close_tab_sc = ED_GET_SHORTCUT("editor/close_scene");
-                close_tab_sc->set_name(TTR("Close Tab"));
-                scene_tabs_context_menu->add_shortcut(close_tab_sc, FILE_CLOSE);
-                Ref<ShortCut> undo_close_tab_sc = ED_GET_SHORTCUT("editor/reopen_closed_scene");
-                undo_close_tab_sc->set_name(TTR("Undo Close Tab"));
-                scene_tabs_context_menu->add_shortcut(undo_close_tab_sc, FILE_OPEN_PREV);
-                if (previous_scenes.empty()) {
-                    scene_tabs_context_menu->set_item_disabled(scene_tabs_context_menu->get_item_index(FILE_OPEN_PREV), true);
-                }
-                scene_tabs_context_menu->add_item(TTR("Close Other Tabs"), FILE_CLOSE_OTHERS);
-                scene_tabs_context_menu->add_item(TTR("Close Tabs to the Right"), FILE_CLOSE_RIGHT);
-                scene_tabs_context_menu->add_item(TTR("Close All Tabs"), FILE_CLOSE_ALL);
-            }
-            scene_tabs_context_menu->set_position(mb->get_global_position());
-            scene_tabs_context_menu->popup();
+            scene_tabs_context_menu->add_item(TTR("Close Other Tabs"), FILE_CLOSE_OTHERS);
+            scene_tabs_context_menu->add_item(TTR("Close Tabs to the Right"), FILE_CLOSE_RIGHT);
+            scene_tabs_context_menu->add_item(TTR("Close All Tabs"), FILE_CLOSE_ALL);
         }
+        scene_tabs_context_menu->set_position(mb->get_global_position());
+        scene_tabs_context_menu->popup();
     }
 }
 
@@ -4914,6 +4915,7 @@ Variant EditorNode::drag_resource(const Ref<Resource> &p_res, Control *p_from) {
 }
 
 Variant EditorNode::drag_files_and_dirs(const Vector<String> &p_paths, Control *p_from) {
+
     bool has_folder = false;
     bool has_file = false;
     for (int i = 0; i < p_paths.size(); i++) {

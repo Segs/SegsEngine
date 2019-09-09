@@ -3,7 +3,7 @@ project(SegsEngine)
 
 # NOTE: when running on linux the following commands allow for ccache based build acceleration and build timing
 # respectively
-set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+#set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
 #set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "/usr/bin/time -f \"%E,%M,%C,%O\"")
 
 set(CMAKE_CXX_STANDARD 17)
