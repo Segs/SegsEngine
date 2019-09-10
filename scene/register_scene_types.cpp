@@ -749,7 +749,7 @@ void register_scene_types() {
     ProjectSettings::get_singleton()->set_custom_property_info("gui/theme/custom_font", PropertyInfo(Variant::STRING, "gui/theme/custom_font", PROPERTY_HINT_FILE, "*.tres,*.res,*.font", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_RESTART_IF_CHANGED));
 
     Ref<Font> font;
-    if (font_path != String()) {
+    if (!font_path.empty()) {
         font = ResourceLoader::load(font_path);
         if (!font.is_valid()) {
             ERR_PRINTS("Error loading custom font '" + font_path + "'");
@@ -759,7 +759,7 @@ void register_scene_types() {
     // Always make the default theme to avoid invalid default font/icon/style in the given theme
     make_default_theme(default_theme_hidpi, font);
 
-    if (theme_path != String()) {
+    if (!theme_path.empty()) {
         Ref<Theme> theme = ResourceLoader::load(theme_path);
         if (theme.is_valid()) {
             Theme::set_project_default(theme);

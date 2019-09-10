@@ -30,6 +30,7 @@
 
 #include "audio_effect.h"
 #include "core/property_info.h"
+#include "core/class_db.h"
 
 IMPL_GDCLASS(AudioEffectInstance)
 IMPL_GDCLASS(AudioEffect)

@@ -96,7 +96,7 @@ bool AbstractPolygon2DEditor::_is_empty() const {
 
         Vector<Vector2> vertices = _get_polygon(i);
 
-        if (vertices.size() != 0)
+        if (!vertices.empty())
             return false;
     }
 

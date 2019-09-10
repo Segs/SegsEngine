@@ -31,7 +31,7 @@
 #include "file_access_memory.h"
 
 #include "core/map.h"
-#include "core/os/dir_access.h"
+
 #include "core/project_settings.h"
 
 static Map<String, Vector<uint8_t> > *files = nullptr;

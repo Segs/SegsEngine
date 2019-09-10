@@ -44,11 +44,11 @@ void CollisionPolygon::_build_polygon() {
 
     parent->shape_owner_clear_shapes(owner_id);
 
-    if (polygon.size() == 0)
+    if (polygon.empty())
         return;
 
     Vector<Vector<Vector2> > decomp = Geometry::decompose_polygon(polygon);
-    if (decomp.size() == 0)
+    if (decomp.empty())
         return;
 
     //here comes the sun, lalalala

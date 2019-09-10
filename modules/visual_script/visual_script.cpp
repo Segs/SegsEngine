@@ -42,6 +42,7 @@ IMPL_GDCLASS(VisualScript)
 IMPL_GDCLASS(VisualScriptNode)
 IMPL_GDCLASS(VisualScriptFunctionState)
 
+RES_BASE_EXTENSION_IMPL(VisualScript,"vs")
 //used by editor, this is not really saved
 void VisualScriptNode::set_breakpoint(bool p_breakpoint) {
     breakpoint = p_breakpoint;
@@ -146,7 +147,7 @@ VisualScriptNode::TypeGuess VisualScriptNode::guess_output_type(TypeGuess *p_inp
 
 Ref<VisualScript> VisualScriptNode::get_visual_script() const {
 
-    if (scripts_used.size())
+    if (!scripts_used.empty())
         return Ref<VisualScript>(scripts_used.front()->get());
 
     return Ref<VisualScript>();
@@ -288,7 +289,7 @@ void VisualScript::_node_ports_changed(int p_id) {
             }
         }
 
-        while (to_remove.size()) {
+        while (!to_remove.empty()) {
             func.sequence_connections.erase(to_remove.front()->get());
             to_remove.pop_front();
         }
@@ -307,7 +308,7 @@ void VisualScript::_node_ports_changed(int p_id) {
             }
         }
 
-        while (to_remove.size()) {
+        while (!to_remove.empty()) {
             func.data_connections.erase(to_remove.front()->get());
             to_remove.pop_front();
         }
@@ -366,7 +367,7 @@ void VisualScript::remove_node(const StringName &p_func, int p_id) {
             }
         }
 
-        while (to_remove.size()) {
+        while (!to_remove.empty()) {
             func.sequence_connections.erase(to_remove.front()->get());
             to_remove.pop_front();
         }
@@ -382,7 +383,7 @@ void VisualScript::remove_node(const StringName &p_func, int p_id) {
             }
         }
 
-        while (to_remove.size()) {
+        while (!to_remove.empty()) {
             func.data_connections.erase(to_remove.front()->get());
             to_remove.pop_front();
         }
@@ -869,7 +870,7 @@ void VisualScript::_placeholder_erased(PlaceHolderScriptInstance *p_placeholder)
 
 void VisualScript::_update_placeholders() {
 
-    if (placeholders.size() == 0)
+    if (placeholders.empty())
         return; //no bother if no placeholders
     List<PropertyInfo> pinfo;
     Map<StringName, Variant> values;
@@ -1821,9 +1822,9 @@ Variant VisualScriptInstance::_call_internal(const StringName &p_method, void *p
         String err_func = p_method;
         int err_line = current_node_id; //not a line but it works as one
 
-        if (node && (r_error.error != Variant::CallError::CALL_ERROR_INVALID_METHOD || error_str == String())) {
+        if (node && (r_error.error != Variant::CallError::CALL_ERROR_INVALID_METHOD || error_str.empty())) {
 
-            if (error_str != String()) {
+            if (!error_str.empty()) {
                 error_str += " ";
             }
 
@@ -2536,7 +2537,7 @@ void VisualScriptLanguage::debug_get_stack_level_locals(int p_level, List<String
 
     for (int i = 0; i < node->input_port_count; i++) {
         String name = node->get_base_node()->get_input_value_port_info(i).name;
-        if (name == String()) {
+        if (name.empty()) {
             name = "in_" + itos(i);
         }
 
@@ -2557,7 +2558,7 @@ void VisualScriptLanguage::debug_get_stack_level_locals(int p_level, List<String
     for (int i = 0; i < node->output_port_count; i++) {
 
         String name = node->get_base_node()->get_output_value_port_info(i).name;
-        if (name == String()) {
+        if (name.empty()) {
             name = "out_" + itos(i);
         }
 

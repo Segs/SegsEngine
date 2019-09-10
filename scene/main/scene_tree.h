@@ -31,7 +31,6 @@
 #ifndef SCENE_MAIN_LOOP_H
 #define SCENE_MAIN_LOOP_H
 
-#include "core/io/multiplayer_api.h"
 #include "core/os/main_loop.h"
 #include "core/os/thread_safe.h"
 #include "core/self_list.h"

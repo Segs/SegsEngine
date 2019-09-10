@@ -75,7 +75,7 @@ bool Skeleton::_set(const StringName &p_path, const Variant &p_value) {
             for (int i = 0; i < children.size(); i++) {
 
                 NodePath npath = children[i];
-                ERR_CONTINUE(npath.operator String() == "");
+                ERR_CONTINUE(npath.operator String().empty());
                 Node *node = get_node(npath);
                 ERR_CONTINUE(!node);
                 bind_child_node_to_bone(which, node);
@@ -355,7 +355,7 @@ RID Skeleton::get_skeleton() const {
 // skeleton creation api
 void Skeleton::add_bone(const String &p_name) {
 
-    ERR_FAIL_COND(p_name == "" || StringUtils::find(p_name,":") != -1 || StringUtils::find(p_name,"/") != -1);
+    ERR_FAIL_COND(p_name.empty() || StringUtils::find(p_name,":") != -1 || StringUtils::find(p_name,"/") != -1);
 
     for (int i = 0; i < bones.size(); i++) {
 
@@ -707,7 +707,7 @@ void _pb_start_simulation(const Skeleton *p_skeleton, Node *p_node, const Vector
 void Skeleton::physical_bones_start_simulation_on(const Array &p_bones) {
 
     Vector<int> sim_bones;
-    if (p_bones.size() <= 0) {
+    if (p_bones.empty()) {
         sim_bones.push_back(0); // if no bones is specified, activate ragdoll on full body
     } else {
         sim_bones.resize(p_bones.size());

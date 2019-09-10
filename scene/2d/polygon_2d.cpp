@@ -138,7 +138,7 @@ void Polygon2D::_notification(int p_what) {
             Vector<float> weights;
 
             int len = polygon.size();
-            if ((invert || polygons.size() == 0) && internal_vertices > 0) {
+            if ((invert || polygons.empty()) && internal_vertices > 0) {
                 //if no polygons are around, internal vertices must not be drawn, else let them be
                 len -= internal_vertices;
             }
@@ -232,7 +232,7 @@ void Polygon2D::_notification(int p_what) {
                 }
             }
 
-            if (skeleton_node && !invert && bone_weights.size()) {
+            if (skeleton_node && !invert && !bone_weights.empty()) {
                 //a skeleton is set! fill indices and weights
                 int vc = len;
                 bones.resize(vc * 4);
@@ -309,9 +309,9 @@ void Polygon2D::_notification(int p_what) {
             //			Vector<int> indices = Geometry::triangulate_polygon(points);
             //			VS::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(), indices, points, colors, uvs, texture.is_valid() ? texture->get_rid() : RID());
 
-            if (invert || polygons.size() == 0) {
+            if (invert || polygons.empty()) {
                 Vector<int> indices = Geometry::triangulate_polygon(points);
-                if (indices.size()) {
+                if (!indices.empty()) {
                     VS::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(), indices, points, colors, uvs, bones, weights, texture.is_valid() ? texture->get_rid() : RID());
                 }
             } else {
@@ -345,7 +345,7 @@ void Polygon2D::_notification(int p_what) {
                     }
                 }
 
-                if (total_indices.size()) {
+                if (!total_indices.empty()) {
                     VS::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(), total_indices, points, colors, uvs, bones, weights, texture.is_valid() ? texture->get_rid() : RID());
                 }
 

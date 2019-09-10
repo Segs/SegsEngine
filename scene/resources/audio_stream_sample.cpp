@@ -35,6 +35,7 @@
 
 IMPL_GDCLASS(AudioStreamPlaybackSample)
 IMPL_GDCLASS(AudioStreamSample)
+RES_BASE_EXTENSION_IMPL(AudioStreamSample,"sample")
 
 void AudioStreamPlaybackSample::start(float p_from_pos) {
 

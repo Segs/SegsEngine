@@ -40,6 +40,7 @@
 
 IMPL_GDCLASS(Mesh)
 IMPL_GDCLASS(ArrayMesh)
+RES_BASE_EXTENSION_IMPL(ArrayMesh,"mesh")
 
 Mesh::ConvexDecompositionFunc Mesh::convex_composition_function = nullptr;
 
@@ -112,7 +113,7 @@ Ref<TriangleMesh> Mesh::generate_triangle_mesh() const {
 
 void Mesh::generate_debug_mesh_lines(Vector<Vector3> &r_lines) {
 
-    if (debug_lines.size() > 0) {
+    if (!debug_lines.empty()) {
         r_lines = debug_lines;
         return;
     }
@@ -775,7 +776,7 @@ bool ArrayMesh::_get(const StringName &p_name, Variant &r_ret) const {
     if (m.is_valid())
         d["material"] = m;
     String n = surface_get_name(idx);
-    if (n != "")
+    if (!n.empty())
         d["name"] = n;
 
     r_ret = d;
@@ -788,7 +789,7 @@ void ArrayMesh::_get_property_list(List<PropertyInfo> *p_list) const {
     if (_is_generated())
         return;
 
-    if (blend_shapes.size()) {
+    if (!blend_shapes.empty()) {
         p_list->push_back(PropertyInfo(Variant::POOL_STRING_ARRAY, "blend_shape/names", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
         p_list->push_back(PropertyInfo(Variant::INT, "blend_shape/mode", PROPERTY_HINT_ENUM, "Normalized,Relative"));
     }
@@ -1038,7 +1039,7 @@ void ArrayMesh::add_surface_from_mesh_data(const Geometry::MeshData &p_mesh_data
 
     Surface s;
     s.aabb = aabb;
-    if (surfaces.size() == 0)
+    if (surfaces.empty())
         aabb = s.aabb;
     else
         aabb.merge_with(s.aabb);
@@ -1107,7 +1108,7 @@ struct ArrayMeshLightmapSurface {
 Error ArrayMesh::lightmap_unwrap(const Transform &p_base_transform, float p_texel_size) {
 
     ERR_FAIL_COND_V(!array_mesh_lightmap_unwrap_callback, ERR_UNCONFIGURED);
-    ERR_FAIL_COND_V_MSG(blend_shapes.size() != 0, ERR_UNAVAILABLE, "Can't unwrap mesh with blend shapes.");
+    ERR_FAIL_COND_V_MSG(!blend_shapes.empty(), ERR_UNAVAILABLE, "Can't unwrap mesh with blend shapes.");
 
     Vector<float> vertices;
     Vector<float> normals;

@@ -847,7 +847,7 @@ void VisualScriptVariableGet::_validate_property(PropertyInfo &property) const {
 
         String vhint;
         for (int i=0,fin=vars.size(); i<fin; ++i) {
-            if (vhint != String())
+            if (!vhint.empty())
                 vhint += ",";
 
             vhint += vars[i].asString();
@@ -967,7 +967,7 @@ void VisualScriptVariableSet::_validate_property(PropertyInfo &property) const {
 
         String vhint;
         for (int i=0,fin=vars.size(); i<fin; ++i) {
-            if (vhint != String())
+            if (!vhint.empty())
                 vhint += ",";
 
             vhint += vars[i].asString();
@@ -1183,7 +1183,7 @@ PropertyInfo VisualScriptPreload::get_output_value_port_info(int p_idx) const {
         pinfo.hint_string = preload->get_class();
         if (PathUtils::is_resource_file(preload->get_path())) {
             pinfo.name = preload->get_path();
-        } else if (preload->get_name() != String()) {
+        } else if (!preload->get_name().empty()) {
             pinfo.name = preload->get_name();
         } else {
             pinfo.name = preload->get_class();
@@ -1585,7 +1585,7 @@ void VisualScriptClassConstant::_validate_property(PropertyInfo &property) const
 
         property.hint_string = "";
         for (List<String>::Element *E = constants.front(); E; E = E->next()) {
-            if (property.hint_string != String()) {
+            if (!property.hint_string.empty()) {
                 property.hint_string += ",";
             }
             property.hint_string += E->get();
@@ -1712,13 +1712,13 @@ void VisualScriptBasicTypeConstant::_validate_property(PropertyInfo &property) c
         List<StringName> constants;
         Variant::get_constants_for_type(type, &constants);
 
-        if (constants.size() == 0) {
+        if (constants.empty()) {
             property.usage = 0;
             return;
         }
         property.hint_string = "";
         for (List<StringName>::Element *E = constants.front(); E; E = E->next()) {
-            if (property.hint_string != String()) {
+            if (!property.hint_string.empty()) {
                 property.hint_string += ",";
             }
             property.hint_string += String(E->get());
@@ -1975,7 +1975,7 @@ void VisualScriptEngineSingleton::_bind_methods() {
         if (E->get().name == "VS" || E->get().name == "PS" || E->get().name == "PS2D" || E->get().name == "AS" || E->get().name == "TS" || E->get().name == "SS" || E->get().name == "SS2D")
             continue; //skip these, too simple named
 
-        if (cc != String())
+        if (!cc.empty())
             cc += ",";
         cc += E->get().name;
     }
@@ -2754,7 +2754,7 @@ String VisualScriptSubCall::get_text() const {
 
     Ref<Script> script = get_script();
     if (script.is_valid()) {
-        if (script->get_name() != String())
+        if (!script->get_name().empty())
             return script->get_name();
         if (PathUtils::is_resource_file(script->get_path()))
             return PathUtils::get_file(script->get_path());
@@ -3460,7 +3460,7 @@ void VisualScriptInputAction::_validate_property(PropertyInfo &property) const {
         al.sort();
 
         for (int i = 0; i < al.size(); i++) {
-            if (actions != String())
+            if (!actions.empty())
                 actions += ",";
             actions += al[i];
         }
@@ -3720,7 +3720,7 @@ void register_visual_script_nodes() {
 
         for (List<MethodInfo>::Element *E = constructors.front(); E; E = E->next()) {
 
-            if (E->get().arguments.size() > 0) {
+            if (!E->get().arguments.empty()) {
                 String name = FormatV("functions/constructors/%s(",Variant::get_type_name(Variant::Type(i)));
                 for (int j = 0; j < E->get().arguments.size(); j++) {
                     if (j > 0) {

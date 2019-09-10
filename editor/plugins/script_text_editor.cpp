@@ -340,7 +340,7 @@ void ScriptTextEditor::_set_theme_for_script() {
         String beg = StringUtils::get_slice(comment," ", 0);
         String end = StringUtils::get_slice_count(comment," ") > 1 ? StringUtils::get_slice(comment," ", 1) : String();
 
-        text_edit->add_color_region(beg, end, colors_cache.comment_color, end == "");
+        text_edit->add_color_region(beg, end, colors_cache.comment_color, end.empty());
     }
 
     //colorize strings
@@ -351,7 +351,7 @@ void ScriptTextEditor::_set_theme_for_script() {
         String string = E->get();
         String beg = StringUtils::get_slice(string," ", 0);
         String end = StringUtils::get_slice_count(string," ") > 1 ? StringUtils::get_slice(string," ", 1) : String();
-        text_edit->add_color_region(beg, end, colors_cache.string_color, end == "");
+        text_edit->add_color_region(beg, end, colors_cache.string_color, end.empty());
     }
 }
 
@@ -519,7 +519,7 @@ String ScriptTextEditor::get_name() {
         if (is_unsaved()) {
             name += "(*)";
         }
-    } else if (script->get_name() != "")
+    } else if (!script->get_name().empty())
         name = script->get_name();
     else
         name = String(script->get_class()) + "(" + itos(script->get_instance_id()) + ")";
@@ -574,7 +574,7 @@ void ScriptTextEditor::_validate_script() {
     // Add missing connections.
     if (GLOBAL_GET("debug/gdscript/warnings/enable").booleanize()) {
         Node *base = get_tree()->get_edited_scene_root();
-        if (base && missing_connections.size() > 0) {
+        if (base && !missing_connections.empty()) {
             warnings_panel->push_table(1);
             for (List<Connection>::Element *E = missing_connections.front(); E; E = E->next()) {
                 Connection connection = E->get();
@@ -661,7 +661,7 @@ void ScriptTextEditor::_update_bookmark_list() {
     bookmarks_menu->add_shortcut(ED_GET_SHORTCUT("script_text_editor/goto_previous_bookmark"), BOOKMARK_GOTO_PREV);
 
     Array bookmark_list = code_editor->get_text_edit()->get_bookmarks_array();
-    if (bookmark_list.size() == 0) {
+    if (bookmark_list.empty()) {
         return;
     }
 
@@ -794,7 +794,7 @@ void ScriptTextEditor::_code_complete_script(const String &p_code, List<ScriptCo
     }
     String hint;
     Error err = script->get_language()->complete_code(p_code, script->get_path(), base, r_options, r_force, hint);
-    if (err == OK && hint != "") {
+    if (err == OK && !hint.empty()) {
         code_editor->get_text_edit()->set_code_hint(hint);
     }
 }
@@ -810,7 +810,7 @@ void ScriptTextEditor::_update_breakpoint_list() {
     breakpoints_menu->add_shortcut(ED_GET_SHORTCUT("script_text_editor/goto_previous_breakpoint"), DEBUG_GOTO_PREV_BREAKPOINT);
 
     Array breakpoint_list = code_editor->get_text_edit()->get_breakpoints_array();
-    if (breakpoint_list.size() == 0) {
+    if (breakpoint_list.empty()) {
         return;
     }
 
@@ -1165,7 +1165,7 @@ void ScriptTextEditor::_edit_option(int p_op) {
 
                 if (expression.parse(line) == OK) {
                     Variant result = expression.execute(Array(), Variant(), false);
-                    if (expression.get_error_text() == "") {
+                    if (expression.get_error_text().empty()) {
                         results.append(whitespace + (String)result);
                     } else {
                         results.append(line);
@@ -1251,7 +1251,7 @@ void ScriptTextEditor::_edit_option(int p_op) {
 
             List<int> bpoints;
             tx->get_breakpoints(&bpoints);
-            if (bpoints.size() <= 0) {
+            if (bpoints.empty()) {
                 return;
             }
 
@@ -1277,7 +1277,7 @@ void ScriptTextEditor::_edit_option(int p_op) {
 
             List<int> bpoints;
             tx->get_breakpoints(&bpoints);
-            if (bpoints.size() <= 0) {
+            if (bpoints.empty()) {
                 return;
             }
 
@@ -1301,18 +1301,18 @@ void ScriptTextEditor::_edit_option(int p_op) {
         case HELP_CONTEXTUAL: {
 
             String text = tx->get_selection_text();
-            if (text == "")
+            if (text.empty())
                 text = tx->get_word_under_cursor();
-            if (text != "") {
+            if (!text.empty()) {
                 emit_signal("request_help", text);
             }
         } break;
         case LOOKUP_SYMBOL: {
 
             String text = tx->get_word_under_cursor();
-            if (text == "")
+            if (text.empty())
                 text = tx->get_selection_text();
-            if (text != "") {
+            if (!text.empty()) {
                 _lookup_symbol(text, tx->cursor_get_line(), tx->cursor_get_column());
             }
         } break;
@@ -1568,9 +1568,9 @@ void ScriptTextEditor::_text_edit_gui_input(const Ref<InputEvent> &ev) {
             }
 
             String word_at_mouse = tx->get_word_at_pos(mpos);
-            if (word_at_mouse == "")
+            if (word_at_mouse.empty())
                 word_at_mouse = tx->get_word_under_cursor();
-            if (word_at_mouse == "")
+            if (word_at_mouse.empty())
                 word_at_mouse = tx->get_selection_text();
 
             bool has_color = (word_at_mouse == "Color");

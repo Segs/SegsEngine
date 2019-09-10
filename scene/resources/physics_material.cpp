@@ -32,6 +32,7 @@
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(PhysicsMaterial)
+RES_BASE_EXTENSION_IMPL(PhysicsMaterial,"phymat")
 
 void PhysicsMaterial::_bind_methods() {
 

@@ -33,6 +33,8 @@
 #include "scene/resources/style_box.h"
 #include "scene/resources/font.h"
 #include "core/method_bind.h"
+#include "core/os/input_event.h"
+
 
 IMPL_GDCLASS(GraphNode)
 

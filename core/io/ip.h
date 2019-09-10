@@ -31,17 +31,17 @@
 #pragma once
 
 #include "core/io/ip_address.h"
-#include "core/os/os.h"
-#include "core/object.h"
+#include "core/list.h"
+#include "core/map.h"
 #include "core/method_arg_casters.h"
 #include "core/method_enum_caster.h"
-
+#include "core/object.h"
 
 struct _IP_ResolverPrivate;
 
 class IP : public Object {
-    GDCLASS(IP, Object);
-    OBJ_CATEGORY("Networking");
+    GDCLASS(IP, Object)
+    OBJ_CATEGORY("Networking")
 
 public:
     enum ResolverStatus {

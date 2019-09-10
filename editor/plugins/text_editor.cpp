@@ -157,7 +157,7 @@ String TextEditor::get_name() {
         if (is_unsaved()) {
             name += "(*)";
         }
-    } else if (text_file->get_name() != "") {
+    } else if (!text_file->get_name().empty()) {
         name = text_file->get_name();
     } else {
         name = FormatV("%s(%zd)",text_file->get_class(),text_file->get_instance_id());
@@ -233,7 +233,7 @@ void TextEditor::_update_bookmark_list() {
     bookmarks_menu->add_shortcut(ED_GET_SHORTCUT("script_text_editor/goto_previous_bookmark"), BOOKMARK_GOTO_PREV);
 
     Array bookmark_list = code_editor->get_text_edit()->get_bookmarks_array();
-    if (bookmark_list.size() == 0) {
+    if (bookmark_list.empty()) {
         return;
     }
 

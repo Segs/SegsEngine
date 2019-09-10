@@ -95,7 +95,7 @@ void GridContainer::_notification(int p_what) {
             remaining_space.width -= hsep * MAX(max_col - 1, 0);
 
             bool can_fit = false;
-            while (!can_fit && col_expanded.size() > 0) {
+            while (!can_fit && !col_expanded.empty()) {
                 // Check if all minwidth constraints are ok if we use the remaining space
                 can_fit = true;
                 int max_index = col_expanded.front()->get();
@@ -116,7 +116,7 @@ void GridContainer::_notification(int p_what) {
             }
 
             can_fit = false;
-            while (!can_fit && row_expanded.size() > 0) {
+            while (!can_fit && !row_expanded.empty()) {
                 // Check if all minwidth constraints are ok if we use the remaining space
                 can_fit = true;
                 int max_index = row_expanded.front()->get();
@@ -137,8 +137,8 @@ void GridContainer::_notification(int p_what) {
             }
 
             // Finally, fit the nodes
-            int col_expand = col_expanded.size() > 0 ? remaining_space.width / col_expanded.size() : 0;
-            int row_expand = row_expanded.size() > 0 ? remaining_space.height / row_expanded.size() : 0;
+            int col_expand = !col_expanded.empty() ? remaining_space.width / col_expanded.size() : 0;
+            int row_expand = !row_expanded.empty() ? remaining_space.height / row_expanded.size() : 0;
 
             int col_ofs = 0;
             int row_ofs = 0;

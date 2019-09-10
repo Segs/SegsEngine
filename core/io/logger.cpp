@@ -31,6 +31,7 @@
 #include "logger.h"
 #include "rotated_file_loger.h"
 
+#include "core/os/file_access.h"
 #include "core/os/dir_access.h"
 #include "core/os/os.h"
 #include "core/print_string.h"

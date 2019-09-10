@@ -324,7 +324,7 @@ Error LayeredTextureImpl::import(const String &p_source_file, const String &p_sa
     if (r_metadata) {
         Dictionary metadata;
         metadata["vram_texture"] = compress_mode == COMPRESS_VIDEO_RAM;
-        if (formats_imported.size()) {
+        if (!formats_imported.empty()) {
             metadata["imported_formats"] = formats_imported;
         }
         *r_metadata = metadata;

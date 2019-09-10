@@ -37,12 +37,13 @@
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(Shape)
+RES_BASE_EXTENSION_IMPL(Shape,"shape")
 
 void Shape::add_vertices_to_array(PoolVector<Vector3> &array, const Transform &p_xform) {
 
     Vector<Vector3> toadd = _gen_debug_mesh_lines();
 
-    if (toadd.size()) {
+    if (!toadd.empty()) {
 
         int base = array.size();
         array.resize(base + toadd.size());

@@ -36,6 +36,7 @@
 #include "bullet_utilities.h"
 #include "godot_motion_state.h"
 #include "joint_bullet.h"
+#include "core/class_db.h"
 #include "core/object_db.h"
 
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>
@@ -203,7 +204,7 @@ PhysicsDirectSpaceState *BulletPhysicsDirectBodyState::get_space_state() {
 
 RigidBodyBullet::KinematicUtilities::KinematicUtilities(RigidBodyBullet *p_owner) :
         owner(p_owner),
-        safe_margin(0.001) {
+        safe_margin(0.001f) {
 }
 
 RigidBodyBullet::KinematicUtilities::~KinematicUtilities() {

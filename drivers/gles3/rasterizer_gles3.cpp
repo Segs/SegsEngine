@@ -30,6 +30,9 @@
 
 #include "rasterizer_gles3.h"
 
+#include "rasterizer_canvas_gles3.h"
+#include "rasterizer_scene_gles3.h"
+#include "rasterizer_storage_gles3.h"
 #include "core/os/os.h"
 #include "core/project_settings.h"
 

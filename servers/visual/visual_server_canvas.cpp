@@ -503,7 +503,7 @@ void VisualServerCanvas::canvas_item_add_polyline(RID p_item, const Vector<Point
 	if (p_width <= 1) {
 		pline->lines = p_points;
 		pline->line_colors = p_colors;
-		if (pline->line_colors.size() == 0) {
+		if (pline->line_colors.empty()) {
 			pline->line_colors.push_back(Color(1, 1, 1, 1));
 		} else if (pline->line_colors.size() > 1 && pline->line_colors.size() != pline->lines.size()) {
 			pline->line_colors.resize(1);
@@ -516,7 +516,7 @@ void VisualServerCanvas::canvas_item_add_polyline(RID p_item, const Vector<Point
 			pline->lines.resize(p_points.size() * 2);
 		}
 
-		if (p_colors.size() == 0) {
+		if (p_colors.empty()) {
 			pline->triangle_colors.push_back(Color(1, 1, 1, 1));
 			if (p_antialiased) {
 				pline->line_colors.push_back(Color(1, 1, 1, 1));
@@ -587,7 +587,7 @@ void VisualServerCanvas::canvas_item_add_multiline(RID p_item, const Vector<Poin
 
 	pline->lines = p_points;
 	pline->line_colors = p_colors;
-	if (pline->line_colors.size() == 0) {
+	if (pline->line_colors.empty()) {
 		pline->line_colors.push_back(Color(1, 1, 1, 1));
 	} else if (pline->line_colors.size() > 1 && pline->line_colors.size() != pline->lines.size()) {
 		pline->line_colors.resize(1);
@@ -1324,7 +1324,7 @@ bool VisualServerCanvas::free(RID p_rid) {
 		Canvas *canvas = canvas_owner.get(p_rid);
 		ERR_FAIL_COND_V(!canvas, false);
 
-		while (canvas->viewports.size()) {
+		while (!canvas->viewports.empty()) {
 
 			VisualServerViewport::Viewport *vp = VSG::viewport->viewport_owner.get(canvas->viewports.front()->get());
 			ERR_FAIL_COND_V(!vp, true);
@@ -1437,7 +1437,7 @@ bool VisualServerCanvas::free(RID p_rid) {
 		ERR_FAIL_COND_V(!occluder_poly, true);
 		VSG::storage->free(occluder_poly->occluder);
 
-		while (occluder_poly->owners.size()) {
+		while (!occluder_poly->owners.empty()) {
 
 			occluder_poly->owners.front()->get()->polygon = RID();
 			occluder_poly->owners.erase(occluder_poly->owners.front());

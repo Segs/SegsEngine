@@ -39,6 +39,7 @@
 
 IMPL_GDCLASS(Translation)
 IMPL_GDCLASS(TranslationServer)
+RES_BASE_EXTENSION_IMPL(Translation,"translation")
 
 // ISO 639-1 language codes, with the addition of glibc locales with their
 // regional identifiers. This list must match the language names (in English)

@@ -30,6 +30,7 @@
 
 #include "input_default.h"
 
+#include "core/class_db.h"
 #include "core/input_map.h"
 #include "core/os/os.h"
 #include "main/default_controller_mappings.h"

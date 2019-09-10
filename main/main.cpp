@@ -30,6 +30,7 @@
 
 #include "main.h"
 
+#include "core/class_db.h"
 #include "core/crypto/crypto.h"
 #include "core/input_map.h"
 #include "core/io/file_access_network.h"
@@ -710,7 +711,7 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
             } else {
                 OS::get_singleton()->print("Missing path to main pack file, aborting.\n");
                 goto error;
-            };
+            }
 
         } else if (I->get() == "-d" || I->get() == "--debug") {
             debug_mode = "local";
@@ -769,7 +770,7 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
     // Network file system needs to be configured before globals, since globals are based on the
     // 'project.godot' file which will only be available through the network if this is enabled
     FileAccessNetwork::configure();
-    if (remotefs != "") {
+    if (!remotefs.empty()) {
 
         file_access_network_client = memnew(FileAccessNetworkClient);
         int port;
@@ -883,11 +884,11 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 
     if (!project_manager) {
         // Determine if the project manager should be requested
-        project_manager = main_args.size() == 0 && !found_project;
+        project_manager = main_args.empty() && !found_project;
     }
 #endif
 
-    if (main_args.size() == 0 && String(GLOBAL_DEF("application/run/main_scene", "")) == "") {
+    if (main_args.empty() && String(GLOBAL_DEF("application/run/main_scene", "")).empty()) {
 #ifdef TOOLS_ENABLED
         if (!editor && !project_manager) {
 #endif
@@ -920,7 +921,7 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 
     GLOBAL_DEF("rendering/quality/driver/driver_name", "GLES3");
     ProjectSettings::get_singleton()->set_custom_property_info("rendering/quality/driver/driver_name", PropertyInfo(Variant::STRING, "rendering/quality/driver/driver_name", PROPERTY_HINT_ENUM, "GLES2,GLES3"));
-    if (video_driver == "") {
+    if (video_driver.empty()) {
         video_driver = GLOBAL_GET("rendering/quality/driver/driver_name");
     }
 
@@ -1014,7 +1015,7 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
         //goto error;
     }
 
-    if (audio_driver == "") { // specified in project.godot
+    if (audio_driver.empty()) { // specified in project.godot
         audio_driver = GLOBAL_DEF_RST("audio/driver", OS::get_singleton()->get_audio_driver_name(0));
     }
 
@@ -1193,7 +1194,7 @@ Error Main::setup2(Thread::ID p_main_tid_override) {
 
         boot_logo_path =StringUtils::strip_edges( boot_logo_path);
 
-        if (boot_logo_path != String()) {
+        if (!boot_logo_path.empty()) {
             boot_logo.instance();
             Error load_err = ImageLoader::load_image(boot_logo_path, boot_logo);
             if (load_err)
@@ -1265,7 +1266,7 @@ Error Main::setup2(Thread::ID p_main_tid_override) {
     GLOBAL_DEF("display/mouse_cursor/tooltip_position_offset", Point2(10, 10));
     ProjectSettings::get_singleton()->set_custom_property_info("display/mouse_cursor/custom_image", PropertyInfo(Variant::STRING, "display/mouse_cursor/custom_image", PROPERTY_HINT_FILE, "*.png,*.webp"));
 
-    if (String(ProjectSettings::get_singleton()->get("display/mouse_cursor/custom_image")) != String()) {
+    if (!String(ProjectSettings::get_singleton()->get("display/mouse_cursor/custom_image")).empty()) {
 
         Ref<Texture> cursor = ResourceLoader::load(ProjectSettings::get_singleton()->get("display/mouse_cursor/custom_image"));
         if (cursor.is_valid()) {
@@ -1297,7 +1298,7 @@ Error Main::setup2(Thread::ID p_main_tid_override) {
     MAIN_PRINT("Main: Load Translations");
 
     translation_server->setup(); //register translations, load them, etc.
-    if (locale != "") {
+    if (!locale.empty()) {
 
         translation_server->set_locale(locale);
     }
@@ -1359,7 +1360,7 @@ bool Main::start() {
         } else if (args[i] == "-p" || args[i] == "--project-manager") {
             project_manager = true;
 #endif
-        } else if (args[i].length() && args[i][0] != '-' && game_path == "") {
+        } else if (args[i].length() && args[i][0] != '-' && game_path.empty()) {
             game_path = args[i];
         }
         //parameters that have an argument to the right
@@ -1396,7 +1397,7 @@ bool Main::start() {
 
     String main_loop_type;
 #ifdef TOOLS_ENABLED
-    if (doc_tool != "") {
+    if (!doc_tool.empty()) {
 
         Engine::get_singleton()->set_editor_hint(true); // Needed to instance editor-only classes for their default values
         {
@@ -1450,8 +1451,8 @@ bool Main::start() {
 
 #endif
 
-    if (_export_preset != "") {
-        if (game_path == "") {
+    if (!_export_preset.empty()) {
+        if (game_path.empty()) {
             String err = "Command line param ";
             err += export_debug ? "--export-debug" : "--export";
             err += " passed but no destination path given.\n";
@@ -1461,7 +1462,7 @@ bool Main::start() {
         }
     }
 
-    if (script == "" && game_path == "" && String(GLOBAL_DEF("application/run/main_scene", "")) != "") {
+    if (script.empty() && game_path.empty() && !String(GLOBAL_DEF("application/run/main_scene", "")).empty()) {
         game_path = GLOBAL_DEF("application/run/main_scene", "");
     }
 
@@ -1470,7 +1471,7 @@ bool Main::start() {
         main_loop = memnew(SceneTree);
     }
 
-    if (test != "") {
+    if (!test.empty()) {
 #ifdef DEBUG_ENABLED
         main_loop = test_main(test, args);
 
@@ -1479,7 +1480,7 @@ bool Main::start() {
 
 #endif
 
-    } else if (script != "") {
+    } else if (!script.empty()) {
 
         Ref<Script> script_res = ResourceLoader::load(script);
         ERR_FAIL_COND_V_MSG(script_res.is_null(), false, "Can't load script: " + script)
@@ -1510,7 +1511,7 @@ bool Main::start() {
         main_loop_type = GLOBAL_DEF("application/run/main_loop_type", "");
     }
 
-    if (!main_loop && main_loop_type == "")
+    if (!main_loop && main_loop_type.empty())
         main_loop_type = "SceneTree";
 
     if (!main_loop) {
@@ -1547,7 +1548,7 @@ bool Main::start() {
         ResourceLoader::add_custom_loaders();
         ResourceSaver::add_custom_savers();
         if (!project_manager && !editor) { // game
-            if (game_path != "" || script != "") {
+            if (!game_path.empty() || !script.empty()) {
                 //autoload
                 List<PropertyInfo> props;
                 ProjectSettings::get_singleton()->get_property_list(&props);
@@ -1638,7 +1639,7 @@ bool Main::start() {
             //root_node->set_editor(editor);
             //startup editor
 
-            if (_export_preset != "") {
+            if (!_export_preset.empty()) {
 
                 editor_node->export_preset(_export_preset, game_path, export_debug, "", true);
                 game_path = ""; //no load anything
@@ -1712,7 +1713,7 @@ bool Main::start() {
         }
 
         String local_game_path;
-        if (game_path != "" && !project_manager) {
+        if (!game_path.empty() && !project_manager) {
 
             local_game_path = PathUtils::from_native_path(game_path);
 
@@ -1765,7 +1766,7 @@ bool Main::start() {
         if (!project_manager && !editor) { // game
             // Load SSL Certificates from Project Settings (or builtin).
         Crypto::load_default_certificates(GLOBAL_DEF("network/ssl/certificates", ""));
-            if (game_path != "") {
+            if (!game_path.empty()) {
                 Node *scene = nullptr;
                 Ref<PackedScene> scenedata = ResourceLoader::load(local_game_path);
                 if (scenedata.is_valid())
@@ -1790,7 +1791,7 @@ bool Main::start() {
 #endif
 
                 String iconpath = GLOBAL_DEF("application/config/icon", "Variant()");
-                if ((iconpath != "") && (!hasicon)) {
+                if ((!iconpath.empty()) && (!hasicon)) {
                     Ref<Image> icon;
                     icon.instance();
                     if (ImageLoader::load_image(iconpath, icon) == OK) {
@@ -1802,7 +1803,7 @@ bool Main::start() {
         }
 
 #ifdef TOOLS_ENABLED
-        if (project_manager || (script == "" && test == "" && game_path == "" && !editor)) {
+        if (project_manager || (script.empty() && test.empty() && game_path.empty() && !editor)) {
 
             Engine::get_singleton()->set_editor_hint(true);
             ProjectManager *pmanager = memnew(ProjectManager);
@@ -1872,7 +1873,7 @@ bool Main::iteration() {
     uint64_t ticks_elapsed = ticks - last_ticks;
 
     int physics_fps = Engine::get_singleton()->get_iterations_per_second();
-    float frame_slice = 1.0 / physics_fps;
+    float frame_slice = 1.0f / physics_fps;
 
     float time_scale = Engine::get_singleton()->get_time_scale();
     MainFrameTime advance = main_timer_sync.advance(frame_slice, physics_fps);
@@ -2021,7 +2022,7 @@ bool Main::iteration() {
     if (auto_build_solutions) {
         auto_build_solutions = false;
         if (!EditorNode::get_singleton()->call_build()) {
-            ERR_FAIL_V(true);
+            ERR_FAIL_V(true)
         }
     }
 #endif

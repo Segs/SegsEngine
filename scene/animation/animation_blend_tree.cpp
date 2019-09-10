@@ -70,7 +70,7 @@ void AnimationNodeAnimation::_validate_property(PropertyInfo &property) const {
             }
             anims += String(names[i]);
         }
-        if (anims != String()) {
+        if (!anims.empty()) {
             property.hint = PROPERTY_HINT_ENUM;
             property.hint_string = anims;
         }

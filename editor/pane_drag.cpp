@@ -30,6 +30,9 @@
 
 #include "pane_drag.h"
 #include "core/method_bind.h"
+#include "core/os/input_event.h"
+#include "core/class_db.h"
+
 
 IMPL_GDCLASS(PaneDrag)
 

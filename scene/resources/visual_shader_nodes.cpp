@@ -458,11 +458,11 @@ String VisualShaderNodeTexture::generate_code(Shader::Mode p_mode, VisualShader:
     if (source == SOURCE_TEXTURE) {
         String id = make_unique_id(p_type, p_id, "tex");
         String code;
-        if (p_input_vars[0] == String()) { //none bound, do nothing
+        if (p_input_vars[0].empty()) { //none bound, do nothing
 
             code += "\tvec4 " + id + "_read = vec4(0.0);\n";
 
-        } else if (p_input_vars[1] == String()) {
+        } else if (p_input_vars[1].empty()) {
             //no lod
             code += "\tvec4 " + id + "_read = texture( " + id + " , " + p_input_vars[0] + ".xy );\n";
         } else {
@@ -477,11 +477,11 @@ String VisualShaderNodeTexture::generate_code(Shader::Mode p_mode, VisualShader:
     if (source == SOURCE_SCREEN && (p_mode == Shader::MODE_SPATIAL || p_mode == Shader::MODE_CANVAS_ITEM) && p_type == VisualShader::TYPE_FRAGMENT) {
 
         String code = "\t{\n";
-        if (p_input_vars[0] == String() || p_for_preview) { //none bound, do nothing
+        if (p_input_vars[0].empty() || p_for_preview) { //none bound, do nothing
 
             code += "\t\tvec4 _tex_read = vec4(0.0);\n";
 
-        } else if (p_input_vars[1] == String()) {
+        } else if (p_input_vars[1].empty()) {
             //no lod
             code += "\t\tvec4 _tex_read = textureLod( SCREEN_TEXTURE , " + p_input_vars[0] + ".xy, 0.0 );\n";
         } else {
@@ -497,11 +497,11 @@ String VisualShaderNodeTexture::generate_code(Shader::Mode p_mode, VisualShader:
     if (source == SOURCE_2D_TEXTURE && p_mode == Shader::MODE_CANVAS_ITEM && p_type == VisualShader::TYPE_FRAGMENT) {
 
         String code = "\t{\n";
-        if (p_input_vars[0] == String()) { //none bound, do nothing
+        if (p_input_vars[0].empty()) { //none bound, do nothing
 
             code += "\t\tvec4 _tex_read = vec4(0.0);\n";
 
-        } else if (p_input_vars[1] == String()) {
+        } else if (p_input_vars[1].empty()) {
             //no lod
             code += "\t\tvec4 _tex_read = texture( TEXTURE , " + p_input_vars[0] + ".xy );\n";
         } else {
@@ -517,11 +517,11 @@ String VisualShaderNodeTexture::generate_code(Shader::Mode p_mode, VisualShader:
     if (source == SOURCE_2D_NORMAL && p_mode == Shader::MODE_CANVAS_ITEM && p_type == VisualShader::TYPE_FRAGMENT) {
 
         String code = "\t{\n";
-        if (p_input_vars[0] == String()) { //none bound, do nothing
+        if (p_input_vars[0].empty()) { //none bound, do nothing
 
             code += "\t\tvec4 _tex_read = vec4(0.0);\n";
 
-        } else if (p_input_vars[1] == String()) {
+        } else if (p_input_vars[1].empty()) {
             //no lod
             code += "\t\tvec4 _tex_read = texture( NORMAL_TEXTURE , " + p_input_vars[0] + ".xy );\n";
         } else {
@@ -547,11 +547,11 @@ String VisualShaderNodeTexture::generate_code(Shader::Mode p_mode, VisualShader:
     if (source == SOURCE_DEPTH && p_mode == Shader::MODE_SPATIAL && p_type == VisualShader::TYPE_FRAGMENT) {
 
         String code = "\t{\n";
-        if (p_input_vars[0] == String()) { //none bound, do nothing
+        if (p_input_vars[0].empty()) { //none bound, do nothing
 
             code += "\t\tfloat _depth = 0.0;\n";
 
-        } else if (p_input_vars[1] == String()) {
+        } else if (p_input_vars[1].empty()) {
             //no lod
             code += "\t\tfloat _depth = texture( DEPTH_TEXTURE , " + p_input_vars[0] + ".xy ).r;\n";
         } else {
@@ -728,11 +728,11 @@ String VisualShaderNodeCubeMap::generate_code(Shader::Mode p_mode, VisualShader:
 
     String id = make_unique_id(p_type, p_id, "cube");
     String code;
-    if (p_input_vars[0] == String()) { //none bound, do nothing
+    if (p_input_vars[0].empty()) { //none bound, do nothing
 
         code += "\tvec4 " + id + "_read = vec4(0.0);\n";
 
-    } else if (p_input_vars[1] == String()) {
+    } else if (p_input_vars[1].empty()) {
         //no lod
         code += "\tvec4 " + id + "_read = texture( " + id + " , " + p_input_vars[0] + " );\n";
     } else {
@@ -3014,10 +3014,10 @@ String VisualShaderNodeTextureUniform::generate_code(Shader::Mode p_mode, Visual
 
     String id = get_uniform_name();
     String code = "\t{\n";
-    if (p_input_vars[0] == String()) { //none bound, do nothing
+    if (p_input_vars[0].empty()) { //none bound, do nothing
 
         code += "\t\tvec4 n_tex_read = vec4(0.0);\n";
-    } else if (p_input_vars[1] == String()) {
+    } else if (p_input_vars[1].empty()) {
         //no lod
         code += "\t\tvec4 n_tex_read = texture( " + id + " , " + p_input_vars[0] + ".xy );\n";
     } else {
@@ -3151,11 +3151,11 @@ String VisualShaderNodeTextureUniformTriplanar::generate_code(Shader::Mode p_mod
     String id = get_uniform_name();
     String code = "\t{\n";
 
-    if (p_input_vars[0] == String() && p_input_vars[1] == String()) {
+    if (p_input_vars[0].empty() && p_input_vars[1].empty()) {
         code += "\t\tvec4 n_tex_read = triplanar_texture( " + id + ", triplanar_power_normal, triplanar_pos );\n";
-    } else if (p_input_vars[0] != String() && p_input_vars[1] == String()) {
+    } else if (!p_input_vars[0].empty() && p_input_vars[1].empty()) {
         code += "\t\tvec4 n_tex_read = triplanar_texture( " + id + ", " + p_input_vars[0] + ", triplanar_pos );\n";
-    } else if (p_input_vars[0] == String() && p_input_vars[1] != String()) {
+    } else if (p_input_vars[0].empty() && !p_input_vars[1].empty()) {
         code += "\t\tvec4 n_tex_read = triplanar_texture( " + id + ", triplanar_power_normal," + p_input_vars[1] + " );\n";
     } else {
         code += "\t\tvec4 n_tex_read = triplanar_texture( " + id + ", " + p_input_vars[0] + ", " + p_input_vars[1] + " );\n";

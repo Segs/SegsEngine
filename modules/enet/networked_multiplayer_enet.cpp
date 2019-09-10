@@ -53,7 +53,7 @@ void NetworkedMultiplayerENet::set_target_peer(int p_peer) {
 int NetworkedMultiplayerENet::get_packet_peer() const {
 
     ERR_FAIL_COND_V(!active, 1);
-    ERR_FAIL_COND_V(incoming_packets.size() == 0, 1);
+    ERR_FAIL_COND_V(incoming_packets.empty(), 1);
 
     return incoming_packets.front()->get().from;
 }
@@ -61,7 +61,7 @@ int NetworkedMultiplayerENet::get_packet_peer() const {
 int NetworkedMultiplayerENet::get_packet_channel() const {
 
     ERR_FAIL_COND_V(!active, -1);
-    ERR_FAIL_COND_V(incoming_packets.size() == 0, -1);
+    ERR_FAIL_COND_V(incoming_packets.empty(), -1);
 
     return incoming_packets.front()->get().channel;
 }
@@ -499,7 +499,7 @@ int NetworkedMultiplayerENet::get_available_packet_count() const {
 
 Error NetworkedMultiplayerENet::get_packet(const uint8_t **r_buffer, int &r_buffer_size) {
 
-    ERR_FAIL_COND_V(incoming_packets.size() == 0, ERR_UNAVAILABLE);
+    ERR_FAIL_COND_V(incoming_packets.empty(), ERR_UNAVAILABLE);
 
     _pop_current_packet();
 

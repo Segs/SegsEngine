@@ -28,12 +28,17 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef INPUT_H
-#define INPUT_H
+#pragma once
 
 #include "core/object.h"
 #include "core/os/main_loop.h"
 #include "core/os/thread_safe.h"
+#include "core/method_arg_casters.h"
+#include "core/method_enum_caster.h"
+
+class Resource;
+using RES = Ref<Resource>;
+class InputEventMouseMotion;
 
 class Input : public Object {
 
@@ -142,5 +147,3 @@ public:
 
 VARIANT_ENUM_CAST(Input::MouseMode);
 VARIANT_ENUM_CAST(Input::CursorShape);
-
-#endif // INPUT_H

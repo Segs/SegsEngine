@@ -189,7 +189,7 @@ void ScriptEditorQuickOpen::_update_search() {
     for (int i = 0; i < functions.size(); i++) {
 
         String file = functions[i];
-        if ((search_box->get_text() == "" || StringUtils::findn(file,search_box->get_text()) != -1)) {
+        if ((search_box->get_text().empty() || StringUtils::findn(file,search_box->get_text()) != -1)) {
 
             TreeItem *ti = search_options->create_item(root);
             ti->set_text(0, file);
@@ -268,7 +268,7 @@ ScriptEditor *ScriptEditor::script_editor = nullptr;
 String ScriptEditor::_get_debug_tooltip(const String &p_text, Node *_se) {
 
     String val = debugger->get_var_value(p_text);
-    if (val != String()) {
+    if (!val.empty()) {
         return p_text + ": " + val;
     } else {
 
@@ -1550,7 +1550,7 @@ void ScriptEditor::get_breakpoints(List<String> *p_breakpoints) {
         se->get_breakpoints(&bpoints);
         String base = script->get_path();
         //TODO replace below with PathUtils::is_internal_path ?
-        ERR_CONTINUE(StringUtils::begins_with(base,"local://") || base == "")
+        ERR_CONTINUE(StringUtils::begins_with(base,"local://") || base.empty())
 
         for (List<int>::Element *E = bpoints.front(); E; E = E->next()) {
 
@@ -1697,7 +1697,7 @@ void ScriptEditor::_update_members_overview() {
     for (int i = 0; i < functions.size(); i++) {
         String filter = filter_methods->get_text();
         String name = StringUtils::get_slice(functions[i],":", 0);
-        if (filter == "" || StringUtils::is_subsequence_ofi(filter,name)) {
+        if (filter.empty() || StringUtils::is_subsequence_ofi(filter,name)) {
             members_overview->add_item(name);
             members_overview->set_item_metadata(members_overview->get_item_count() - 1, StringUtils::to_int(StringUtils::get_slice(functions[i],":", 1)) - 1);
         }
@@ -1828,7 +1828,7 @@ void ScriptEditor::_update_script_names() {
 
                 name = PathUtils::get_file(path);
                 String resource_name = se->get_edited_resource()->get_name();
-                if (resource_name != "") {
+                if (!resource_name.empty()) {
                     name = StringUtils::substr(name,0, StringUtils::find(name,"::", 0) + 2) + resource_name;
                 }
             } else {
@@ -1922,7 +1922,7 @@ void ScriptEditor::_update_script_names() {
     Vector<_ScriptEditorItemData> sedata_filtered;
     for (int i = 0; i < sedata.size(); i++) {
         String filter = filter_scripts->get_text();
-        if (filter == "" || StringUtils::is_subsequence_ofi(filter,sedata[i].name)) {
+        if (filter.empty() || StringUtils::is_subsequence_ofi(filter,sedata[i].name)) {
             sedata_filtered.push_back(sedata[i]);
         }
     }
@@ -2059,7 +2059,7 @@ bool ScriptEditor::edit(const RES &p_resource, int p_line, int p_col, bool p_gra
         bool has_file_flag = false;
         String script_path = ProjectSettings::get_singleton()->globalize_path(p_resource->get_path());
 
-        if (flags.size()) {
+        if (!flags.empty()) {
             String project_path = ProjectSettings::get_singleton()->get_resource_path();
 
             flags = StringUtils::replacen(flags,"{line}", itos(p_line > 0 ? p_line : 0));
@@ -2347,7 +2347,7 @@ void ScriptEditor::_editor_settings_changed() {
         autosave_timer->stop();
     }
 
-    if (current_theme == "") {
+    if (current_theme.empty()) {
         current_theme = EditorSettings::get_singleton()->get("text_editor/theme/color_theme");
     } else if (current_theme != EditorSettings::get_singleton()->getT<String>("text_editor/theme/color_theme")) {
         current_theme = EditorSettings::get_singleton()->get("text_editor/theme/color_theme");
@@ -2449,7 +2449,7 @@ bool ScriptEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_data
     if (String(d["type"]) == "nodes") {
 
         Array nodes = d["nodes"];
-        if (nodes.size() == 0)
+        if (nodes.empty())
             return false;
         Node *node = get_node((nodes[0]));
 
@@ -2467,12 +2467,12 @@ bool ScriptEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_data
 
         Vector<String> files = d["files"];
 
-        if (files.size() == 0)
+        if (files.empty())
             return false; //weird
 
         for (int i = 0; i < files.size(); i++) {
             String file = files[i];
-            if (file == "" || !FileAccess::exists(file))
+            if (file.empty() || !FileAccess::exists(file))
                 continue;
             Ref<Script> scr = ResourceLoader::load(file);
             if (scr.is_valid()) {
@@ -2511,7 +2511,7 @@ void ScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data, Co
     if (String(d["type"]) == "nodes") {
 
         Array nodes = d["nodes"];
-        if (nodes.size() == 0)
+        if (nodes.empty())
             return;
         Node *node = get_node(nodes[0]);
 
@@ -2533,7 +2533,7 @@ void ScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data, Co
         int num_tabs_before = tab_container->get_child_count();
         for (int i = 0; i < files.size(); i++) {
             String file = files[i];
-            if (file == "" || !FileAccess::exists(file))
+            if (file.empty() || !FileAccess::exists(file))
                 continue;
             Ref<Script> scr = ResourceLoader::load(file);
             if (scr.is_valid()) {
@@ -2699,7 +2699,7 @@ void ScriptEditor::set_window_layout(Ref<ConfigFile> p_layout) {
     for (int i = 0; i < helps.size(); i++) {
 
         String path = helps[i];
-        if (path == "") { // invalid, skip
+        if (path.empty()) { // invalid, skip
             continue;
         }
         _help_class_open(path);
@@ -2754,7 +2754,7 @@ void ScriptEditor::get_window_layout(Ref<ConfigFile> p_layout) {
 
 void ScriptEditor::_help_class_open(const String &p_class) {
 
-    if (p_class == "")
+    if (p_class.empty())
         return;
 
     for (int i = 0; i < tab_container->get_child_count(); i++) {

@@ -1,6 +1,9 @@
 #pragma once
 #include "core/ustring.h"
 #include "core/vector.h"
+#include "core/io/logger.h"
+
+class FileAccess;
 /**
  * Writes messages to the specified file. If the file already exists, creates a copy (backup)
  * of it with timestamp appended to the file name. Maximum number of backups is configurable.

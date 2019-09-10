@@ -31,6 +31,7 @@
 #include "space_2d_sw.h"
 
 #include "collision_solver_2d_sw.h"
+#include "core/class_db.h"
 #include "core/object_db.h"
 #include "core/os/os.h"
 #include "core/pair.h"

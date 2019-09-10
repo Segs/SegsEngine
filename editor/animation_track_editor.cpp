@@ -650,7 +650,7 @@ public:
                         List<StringName> anims;
                         ap->get_animation_list(&anims);
                         for (List<StringName>::Element *E = anims.front(); E; E = E->next()) {
-                            if (animations != String()) {
+                            if (!animations.empty()) {
                                 animations += ",";
                             }
 
@@ -659,7 +659,7 @@ public:
                     }
                 }
 
-                if (animations != String()) {
+                if (!animations.empty()) {
                     animations += ",";
                 }
                 animations += "[stop]";
@@ -1352,7 +1352,7 @@ public:
                             List<StringName> anims;
                             ap->get_animation_list(&anims);
                             for (List<StringName>::Element *G = anims.front(); G; G = G->next()) {
-                                if (animations != String()) {
+                                if (!animations.empty()) {
                                     animations += ",";
                                 }
 
@@ -1361,7 +1361,7 @@ public:
                         }
                     }
 
-                    if (animations != String()) {
+                    if (!animations.empty()) {
                         animations += ",";
                     }
                     animations += "[stop]";
@@ -2636,7 +2636,7 @@ String AnimationTrackEdit::get_tooltip(const Point2 &p_pos) const {
                     if (stream.is_valid()) {
                         if (PathUtils::is_resource_file(stream->get_path())) {
                             stream_name = PathUtils::get_file(stream->get_path());
-                        } else if (stream->get_name() != "") {
+                        } else if (!stream->get_name().empty()) {
                             stream_name = stream->get_name();
                         } else {
                             stream_name = stream->get_class();
@@ -3543,7 +3543,7 @@ void AnimationTrackEditor::_insert_delay() {
 
     int last_track = animation->get_track_count();
     bool advance = false;
-    while (insert_data.size()) {
+    while (!insert_data.empty()) {
 
         if (insert_data.front()->get().advance)
             advance = true;
@@ -3579,7 +3579,7 @@ void AnimationTrackEditor::insert_transform_key(Spatial *p_node, const String &p
     ERR_FAIL_COND(!root);
     //let's build a node path
     String path(root->get_path_to(p_node));
-    if (p_sub != "")
+    if (!p_sub.empty())
         path += ":" + p_sub;
 
     NodePath np = (NodePath)path;
@@ -3669,7 +3669,7 @@ void AnimationTrackEditor::insert_node_value_key(Node *p_node, const String &p_p
     for (int i = 1; i < history->get_path_size(); i++) {
 
         String prop = history->get_path_property(i);
-        ERR_FAIL_COND(prop == "");
+        ERR_FAIL_COND(prop.empty());
         path += ":" + prop;
     }
 
@@ -3764,7 +3764,7 @@ void AnimationTrackEditor::insert_value_key(const String &p_property, const Vari
     for (int i = 1; i < history->get_path_size(); i++) {
 
         String prop = history->get_path_property(i);
-        ERR_FAIL_COND(prop == "");
+        ERR_FAIL_COND(prop.empty());
         path += ":" + prop;
     }
 
@@ -3838,7 +3838,7 @@ void AnimationTrackEditor::_confirm_insert_list() {
     undo_redo->create_action(TTR("Anim Create & Insert"));
 
     int last_track = animation->get_track_count();
-    while (insert_data.size()) {
+    while (!insert_data.empty()) {
 
         last_track = _confirm_insert(insert_data.front()->get(), last_track, insert_confirm_bezier->is_pressed());
         insert_data.pop_front();
@@ -4106,7 +4106,7 @@ bool AnimationTrackEditor::is_key_selected(int p_track, int p_key) const {
 }
 
 bool AnimationTrackEditor::is_selection_active() const {
-    return selection.size();
+    return !selection.empty();
 }
 
 bool AnimationTrackEditor::is_snap_enabled() const {
@@ -5113,7 +5113,7 @@ void AnimationTrackEditor::_scroll_input(const Ref<InputEvent> &p_event) {
                     track_edits[i]->append_to_selection(local_rect, mb->get_command());
                 }
 
-                if (_get_track_selected() == -1 && track_edits.size() > 0) { //minimal hack to make shortcuts work
+                if (_get_track_selected() == -1 && !track_edits.empty()) { //minimal hack to make shortcuts work
                     track_edits[track_edits.size() - 1]->grab_focus();
                 }
             } else {
@@ -5191,7 +5191,7 @@ void AnimationTrackEditor::_bezier_edit(int p_for_track) {
 
 void AnimationTrackEditor::_anim_duplicate_keys(bool transpose) {
     //duplicait!
-    if (selection.size() && animation.is_valid() && (!transpose || (_get_track_selected() >= 0 && _get_track_selected() < animation->get_track_count()))) {
+    if (!selection.empty() && animation.is_valid() && (!transpose || (_get_track_selected() >= 0 && _get_track_selected() < animation->get_track_count()))) {
 
         int top_track = 0x7FFFFFFF;
         float top_time = 1e10;
@@ -5374,7 +5374,7 @@ void AnimationTrackEditor::_edit_menu_pressed(int p_option) {
         } break;
         case EDIT_PASTE_TRACKS: {
 
-            if (track_clipboard.size() == 0) {
+            if (track_clipboard.empty()) {
                 EditorNode::get_singleton()->show_warning(TTR("Clipboard is empty"));
                 break;
             }
@@ -5547,7 +5547,7 @@ void AnimationTrackEditor::_edit_menu_pressed(int p_option) {
                 break;
             }
 
-            if (selection.size()) {
+            if (!selection.empty()) {
                 undo_redo->create_action(TTR("Anim Delete Keys"));
 
                 for (Map<SelectedKey, KeyInfo>::Element *E = selection.back(); E; E = E->prev()) {

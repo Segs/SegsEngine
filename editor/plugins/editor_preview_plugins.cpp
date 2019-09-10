@@ -504,7 +504,7 @@ Ref<Texture> EditorScriptPreviewPlugin::generate(const RES &p_from, const Size2 
         return Ref<Texture>();
 
     String code = StringUtils::strip_edges(scr->get_source_code());
-    if (code == "")
+    if (code.empty())
         return Ref<Texture>();
 
     List<String> kwors;

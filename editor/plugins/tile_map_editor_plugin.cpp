@@ -49,7 +49,7 @@ void TileMapEditor::_notification(int p_what) {
 
         case NOTIFICATION_PROCESS: {
 
-            if (bucket_queue.size()) {
+            if (!bucket_queue.empty()) {
                 CanvasItemEditor::get_singleton()->update_viewport();
             }
 
@@ -219,7 +219,7 @@ Vector<int> TileMapEditor::get_selected_tiles() const {
 
     Vector<int> items = palette->get_selected_items();
 
-    if (items.size() == 0) {
+    if (items.empty()) {
         items.push_back(TileMap::INVALID_CELL);
         return items;
     }
@@ -275,7 +275,7 @@ void TileMapEditor::_start_undo(const String &p_action) {
 
 void TileMapEditor::_finish_undo() {
 
-    if (undo_data.size()) {
+    if (!undo_data.empty()) {
         for (Map<Point2i, CellOp>::Element *E = undo_data.front(); E; E = E->next()) {
             _create_set_cell_undo_redo(E->key(), E->get(), _get_op_from_cell(E->key()));
         }
@@ -290,7 +290,7 @@ void TileMapEditor::_set_cell(const Point2i &p_pos, Vector<int> p_values, bool p
 
     ERR_FAIL_COND(!node);
 
-    if (p_values.size() == 0)
+    if (p_values.empty())
         return;
 
     int p_value = p_values[Math::rand() % p_values.size()];
@@ -442,7 +442,7 @@ void TileMapEditor::_update_palette() {
 
         String name = tileset->tile_get_name(E->get());
 
-        if (name != "") {
+        if (!name.empty()) {
             if (show_tile_ids) {
                 if (sort_by_name) {
                     name = name + " - " + itos(E->get());
@@ -454,7 +454,7 @@ void TileMapEditor::_update_palette() {
             name = "#" + itos(E->get());
         }
 
-        if (filter != "" && !StringUtils::is_subsequence_ofi(filter,name))
+        if (!filter.empty() && !StringUtils::is_subsequence_ofi(filter,name))
             continue;
 
         const _PaletteEntry entry = { E->get(), name };
@@ -583,7 +583,7 @@ void TileMapEditor::_pick_tile(const Point2 &p_pos) {
     if (id == TileMap::INVALID_CELL)
         return;
 
-    if (search_box->get_text() != "") {
+    if (!search_box->get_text().empty()) {
         search_box->set_text("");
         _update_palette();
     }
@@ -613,7 +613,7 @@ PoolVector<Vector2> TileMapEditor::_bucket_fill(const Point2i &p_start, bool era
     if (!erase) {
         ids = get_selected_tiles();
 
-        if (ids.size() == 0 || ids[0] == TileMap::INVALID_CELL)
+        if (ids.empty() || ids[0] == TileMap::INVALID_CELL)
             return PoolVector<Vector2>();
     } else if (prev_id == TileMap::INVALID_CELL) {
         return PoolVector<Vector2>();
@@ -666,7 +666,7 @@ PoolVector<Vector2> TileMapEditor::_bucket_fill(const Point2i &p_start, bool era
 
     bucket_queue.push_back(p_start);
 
-    while (bucket_queue.size()) {
+    while (!bucket_queue.empty()) {
 
         Point2i n = bucket_queue.front()->get();
         bucket_queue.pop_front();
@@ -1025,7 +1025,7 @@ bool TileMapEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
 
                     Vector<int> ids = get_selected_tiles();
 
-                    if (ids.size() > 0 && ids[0] != TileMap::INVALID_CELL) {
+                    if (!ids.empty() && ids[0] != TileMap::INVALID_CELL) {
 
                         tool = TOOL_PAINTING;
 
@@ -1051,7 +1051,7 @@ bool TileMapEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
 
                         Vector<int> ids = get_selected_tiles();
 
-                        if (ids.size() > 0 && ids[0] != TileMap::INVALID_CELL) {
+                        if (!ids.empty() && ids[0] != TileMap::INVALID_CELL) {
 
                             _set_cell(over_tile, ids, flip_h, flip_v, transpose);
                             _finish_undo();
@@ -1062,7 +1062,7 @@ bool TileMapEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
 
                         Vector<int> ids = get_selected_tiles();
 
-                        if (ids.size() > 0 && ids[0] != TileMap::INVALID_CELL) {
+                        if (!ids.empty() && ids[0] != TileMap::INVALID_CELL) {
 
                             _start_undo(TTR("Line Draw"));
                             for (Map<Point2i, CellOp>::Element *E = paint_undo.front(); E; E = E->next()) {
@@ -1079,7 +1079,7 @@ bool TileMapEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
 
                         Vector<int> ids = get_selected_tiles();
 
-                        if (ids.size() > 0 && ids[0] != TileMap::INVALID_CELL) {
+                        if (!ids.empty() && ids[0] != TileMap::INVALID_CELL) {
 
                             _start_undo(TTR("Rectangle Paint"));
                             for (int i = rectangle.position.y; i <= rectangle.position.y + rectangle.size.y; i++) {
@@ -1311,7 +1311,7 @@ bool TileMapEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
             bool erasing = (tool == TOOL_LINE_ERASE);
 
             tmp_cell.push_back(0);
-            if (erasing && paint_undo.size()) {
+            if (erasing && !paint_undo.empty()) {
 
                 for (Map<Point2i, CellOp>::Element *E = paint_undo.front(); E; E = E->next()) {
 
@@ -1322,7 +1322,7 @@ bool TileMapEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
 
             paint_undo.clear();
 
-            if (ids.size() > 0 && ids[0] != TileMap::INVALID_CELL) {
+            if (!ids.empty() && ids[0] != TileMap::INVALID_CELL) {
 
                 Vector<Point2i> points = line(rectangle_begin.x, over_tile.x, rectangle_begin.y, over_tile.y);
 
@@ -1348,7 +1348,7 @@ bool TileMapEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
 
             if (tool == TOOL_RECTANGLE_ERASE) {
 
-                if (paint_undo.size()) {
+                if (!paint_undo.empty()) {
 
                     for (Map<Point2i, CellOp>::Element *E = paint_undo.front(); E; E = E->next()) {
 

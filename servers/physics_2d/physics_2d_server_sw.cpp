@@ -35,6 +35,7 @@
 #include "core/os/os.h"
 #include "core/project_settings.h"
 #include "core/script_language.h"
+#include "core/class_db.h"
 
 IMPL_GDCLASS(Physics2DServerSW)
 
@@ -1239,7 +1240,7 @@ void Physics2DServerSW::free(RID p_rid) {
 
 		Shape2DSW *shape = shape_owner.get(p_rid);
 
-		while (shape->get_owners().size()) {
+		while (!shape->get_owners().empty()) {
 			ShapeOwner2DSW *so = shape->get_owners().front()->key();
 			so->remove_shape(shape);
 		}
@@ -1290,7 +1291,7 @@ void Physics2DServerSW::free(RID p_rid) {
 
 		Space2DSW *space = space_owner.get(p_rid);
 
-		while (space->get_objects().size()) {
+		while (!space->get_objects().empty()) {
 			CollisionObject2DSW *co = (CollisionObject2DSW *)space->get_objects().front()->get();
 			co->set_space(nullptr);
 		}

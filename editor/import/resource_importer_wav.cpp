@@ -30,6 +30,7 @@
 
 #include "resource_importer_wav.h"
 
+#include "core/class_db.h"
 #include "core/io/marshalls.h"
 #include "core/io/resource_saver.h"
 #include "core/os/file_access.h"
@@ -98,7 +99,7 @@ Error ResourceImporterWAV::import(const String &p_source_file, const String &p_s
 	Error err;
 	FileAccess *file = FileAccess::open(p_source_file, FileAccess::READ, &err);
 
-	ERR_FAIL_COND_V(err != OK, ERR_CANT_OPEN);
+    ERR_FAIL_COND_V(err != OK, ERR_CANT_OPEN)
 
 	/* CHECK RIFF */
 	char riff[5];
@@ -109,7 +110,7 @@ Error ResourceImporterWAV::import(const String &p_source_file, const String &p_s
 
 		file->close();
 		memdelete(file);
-		ERR_FAIL_V(ERR_FILE_UNRECOGNIZED);
+        ERR_FAIL_V(ERR_FILE_UNRECOGNIZED)
 	}
 
 	/* GET FILESIZE */
@@ -125,7 +126,7 @@ Error ResourceImporterWAV::import(const String &p_source_file, const String &p_s
 
 		file->close();
 		memdelete(file);
-		ERR_FAIL_V_MSG(ERR_FILE_UNRECOGNIZED, "Not a WAV file (no WAVE RIFF header).");
+        ERR_FAIL_V_CMSG(ERR_FILE_UNRECOGNIZED, "Not a WAV file (no WAVE RIFF header).")
 	}
 
 	int format_bits = 0;
@@ -167,14 +168,14 @@ Error ResourceImporterWAV::import(const String &p_source_file, const String &p_s
 			if (compression_code != 1 && compression_code != 3) {
 				file->close();
 				memdelete(file);
-				ERR_FAIL_V_MSG(ERR_INVALID_DATA, "Format not supported for WAVE file (not PCM). Save WAVE files as uncompressed PCM instead.");
+                ERR_FAIL_V_CMSG(ERR_INVALID_DATA, "Format not supported for WAVE file (not PCM). Save WAVE files as uncompressed PCM instead.")
 			}
 
 			format_channels = file->get_16();
 			if (format_channels != 1 && format_channels != 2) {
 				file->close();
 				memdelete(file);
-				ERR_FAIL_V_MSG(ERR_INVALID_DATA, "Format not supported for WAVE file (not stereo or mono).");
+                ERR_FAIL_V_CMSG(ERR_INVALID_DATA, "Format not supported for WAVE file (not stereo or mono).")
 			}
 
 			format_freq = file->get_32(); //sampling rate
@@ -186,7 +187,7 @@ Error ResourceImporterWAV::import(const String &p_source_file, const String &p_s
 			if (format_bits % 8 || format_bits == 0) {
 				file->close();
 				memdelete(file);
-				ERR_FAIL_V_MSG(ERR_INVALID_DATA, "Invalid amount of bits in the sample (should be one of 8, 16, 24 or 32).");
+                ERR_FAIL_V_CMSG(ERR_INVALID_DATA, "Invalid amount of bits in the sample (should be one of 8, 16, 24 or 32).")
 			}
 
 			/* Don't need anything else, continue */
@@ -198,7 +199,7 @@ Error ResourceImporterWAV::import(const String &p_source_file, const String &p_s
 			data_found = true;
 
 			if (!format_found) {
-				ERR_PRINT("'data' chunk before 'format' chunk found.");
+                ERR_PRINT("'data' chunk before 'format' chunk found.")
 				break;
 			}
 
@@ -207,7 +208,7 @@ Error ResourceImporterWAV::import(const String &p_source_file, const String &p_s
 			if (format_channels == 0) {
 				file->close();
 				memdelete(file);
-				ERR_FAIL_COND_V(format_channels == 0, ERR_INVALID_DATA);
+                ERR_FAIL_COND_V(format_channels == 0, ERR_INVALID_DATA)
 			}
 			frames /= format_channels;
 			frames /= (format_bits >> 3);
@@ -256,7 +257,7 @@ Error ResourceImporterWAV::import(const String &p_source_file, const String &p_s
 			if (file->eof_reached()) {
 				file->close();
 				memdelete(file);
-				ERR_FAIL_V_MSG(ERR_FILE_CORRUPT, "Premature end of file.");
+                ERR_FAIL_V_CMSG(ERR_FILE_CORRUPT, "Premature end of file.")
 			}
 		}
 

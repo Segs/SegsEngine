@@ -616,7 +616,7 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
 
         int slot_idx = 0;
 
-        bool single_seq_output = node->get_output_sequence_port_count() == 1 && node->get_output_sequence_port_text(0) == String();
+        bool single_seq_output = node->get_output_sequence_port_count() == 1 && node->get_output_sequence_port_text(0).empty();
         if ((node->has_input_sequence_port() || single_seq_output) || has_gnode_text) {
             // IF has_gnode_text is true BUT we have no sequence ports to draw (in here),
             // we still draw the disabled default ones to shift up the slots by one,
@@ -1126,7 +1126,7 @@ void VisualScriptEditor::_available_node_doubleclicked() {
         return;
 
     String which = item->get_metadata(0);
-    if (which == String())
+    if (which.empty())
         return;
     Vector2 ofs = graph->get_scroll_ofs() + graph->get_size() * 0.5;
 
@@ -1189,7 +1189,7 @@ void VisualScriptEditor::_update_available_nodes() {
 
         Vector<String> path = StringUtils::split(E->get(),"/");
 
-        if (not filter.empty() && path.size() && StringUtils::findn(path[path.size() - 1],filter) == -1)
+        if (not filter.empty() && !path.empty() && StringUtils::findn(path[path.size() - 1],filter) == -1)
             continue;
 
         String sp;
@@ -1206,7 +1206,7 @@ void VisualScriptEditor::_update_available_nodes() {
                 pathn->set_text(0, StringUtils::capitalize(path[i]));
                 path_cache[sp] = pathn;
                 parent = pathn;
-                if (filter == String()) {
+                if (filter.empty()) {
                     pathn->set_collapsed(true); //should remember state
                 }
             } else {
@@ -1336,7 +1336,7 @@ void VisualScriptEditor::_on_nodes_duplicate() {
         }
     }
 
-    if (to_select.size()) {
+    if (!to_select.empty()) {
         EditorNode::get_singleton()->push_item(script->get_node(edited_func, to_select.front()->get()).ptr());
     }
 }
@@ -1392,7 +1392,7 @@ Variant VisualScriptEditor::get_drag_data_fw(const Point2 &p_point, Control *p_f
         if (!it)
             return Variant();
         String type = it->get_metadata(0);
-        if (type == String())
+        if (type.empty())
             return Variant();
 
         Dictionary dd;
@@ -1413,7 +1413,7 @@ Variant VisualScriptEditor::get_drag_data_fw(const Point2 &p_point, Control *p_f
 
         String type = it->get_metadata(0);
 
-        if (type == String())
+        if (type.empty())
             return Variant();
 
         Dictionary dd;
@@ -1423,7 +1423,7 @@ Variant VisualScriptEditor::get_drag_data_fw(const Point2 &p_point, Control *p_f
 
             dd["type"] = "visual_script_function_drag";
             dd["function"] = type;
-            if (revert_on_drag != String()) {
+            if (!revert_on_drag.empty()) {
                 edited_func = revert_on_drag; //revert so function does not change
                 revert_on_drag = String();
                 _update_graph();
@@ -1717,7 +1717,7 @@ void VisualScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
         List<int> new_ids;
         int new_id = script->get_available_id();
 
-        if (files.size()) {
+        if (!files.empty()) {
             undo_redo->create_action(TTR("Add Preload Node"));
 
             for (int i = 0; i < files.size(); i++) {
@@ -2024,7 +2024,7 @@ String VisualScriptEditor::get_name() {
         if (is_unsaved()) {
             name += "(*)";
         }
-    } else if (script->get_name() != "")
+    } else if (!script->get_name().empty())
         name = script->get_name();
     else
         name = String(script->get_class()) + "(" + itos(script->get_instance_id()) + ")";
@@ -2253,7 +2253,7 @@ void VisualScriptEditor::_change_base_type_callback() {
 
     String bt = select_base_type->get_selected_type();
 
-    ERR_FAIL_COND(bt == String());
+    ERR_FAIL_COND(bt.empty());
     undo_redo->create_action(TTR("Change Base Type"));
     undo_redo->add_do_method(script.ptr(), "set_instance_base_type", bt);
     undo_redo->add_undo_method(script.ptr(), "set_instance_base_type", script->get_instance_base_type());
@@ -2571,7 +2571,7 @@ void VisualScriptEditor::_port_action_menu(int p_option) {
             if (tg.type == Variant::OBJECT) {
                 if (tg.script.is_valid()) {
                     new_connect_node_select->select_from_script(tg.script, "");
-                } else if (type_string != String()) {
+                } else if (!type_string.empty()) {
                     new_connect_node_select->select_from_base_type(type_string);
                 } else {
                     new_connect_node_select->select_from_base_type(n->get_base_type());
@@ -2586,7 +2586,7 @@ void VisualScriptEditor::_port_action_menu(int p_option) {
             VisualScriptNode::TypeGuess tg = _guess_output_type(port_action_node, port_action_output, vn);
             PropertyInfo property_info = script->get_node(edited_func, port_action_node)->get_output_value_port_info(port_action_output);
             if (tg.type == Variant::OBJECT) {
-                if (property_info.type == Variant::OBJECT && property_info.hint_string != String()) {
+                if (property_info.type == Variant::OBJECT && !property_info.hint_string.empty()) {
                     new_connect_node_select->select_from_action(property_info.hint_string);
                 } else {
                     new_connect_node_select->select_from_action("");
@@ -2762,7 +2762,7 @@ void VisualScriptEditor::_selected_connect_node(const String &p_text, const Stri
                     PropertyHint hint = script->get_node(edited_func, port_action_node)->get_output_value_port_info(port_action_output).hint;
                     String base_type = script->get_node(edited_func, port_action_node)->get_output_value_port_info(port_action_output).hint_string;
 
-                    if (base_type != String() && hint == PROPERTY_HINT_TYPE_STRING) {
+                    if (!base_type.empty() && hint == PROPERTY_HINT_TYPE_STRING) {
                         vsfc->set_base_type(base_type);
                     }
                     if (p_text == "call" || p_text == "call_deferred") {
@@ -2798,7 +2798,7 @@ void VisualScriptEditor::_selected_connect_node(const String &p_text, const Stri
                     PropertyHint hint = script->get_node(edited_func, port_action_node)->get_output_value_port_info(port_action_output).hint;
                     String base_type = script->get_node(edited_func, port_action_node)->get_output_value_port_info(port_action_output).hint_string;
 
-                    if (base_type != String() && hint == PROPERTY_HINT_TYPE_STRING) {
+                    if (!base_type.empty() && hint == PROPERTY_HINT_TYPE_STRING) {
                         vsp->set_base_type(base_type);
                     }
                 }
@@ -2827,7 +2827,7 @@ void VisualScriptEditor::_selected_connect_node(const String &p_text, const Stri
                 } else if (script->get_node(edited_func, port_action_node).is_valid()) {
                     PropertyHint hint = script->get_node(edited_func, port_action_node)->get_output_value_port_info(port_action_output).hint;
                     String base_type = script->get_node(edited_func, port_action_node)->get_output_value_port_info(port_action_output).hint_string;
-                    if (base_type != String() && hint == PROPERTY_HINT_TYPE_STRING) {
+                    if (!base_type.empty() && hint == PROPERTY_HINT_TYPE_STRING) {
                         vsp->set_base_type(base_type);
                     }
                 }

@@ -33,6 +33,8 @@
 #include "core/engine.h"
 #include "scene/main/viewport.h"
 #include "core/method_bind.h"
+#include "core/os/input_event.h"
+
 
 IMPL_GDCLASS(ViewportContainer)
 

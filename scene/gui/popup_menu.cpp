@@ -98,7 +98,7 @@ Size2 PopupMenu::get_minimum_size() const {
             accel_max_w = MAX(accel_w, accel_max_w);
         }
 
-        if (items[i].submenu != "")
+        if (!items[i].submenu.empty())
             size.width += get_icon("submenu")->get_width();
 
         max_w = MAX(max_w, size.width);
@@ -267,7 +267,7 @@ void PopupMenu::_gui_input(const Ref<InputEvent> &p_event) {
         }
     } else if (p_event->is_action("ui_right") && p_event->is_pressed()) {
 
-        if (mouse_over >= 0 && mouse_over < items.size() && !items[mouse_over].separator && items[mouse_over].submenu != "" && submenu_over != mouse_over) {
+        if (mouse_over >= 0 && mouse_over < items.size() && !items[mouse_over].separator && !items[mouse_over].submenu.empty() && submenu_over != mouse_over) {
             _activate_submenu(mouse_over);
             accept_event();
         }
@@ -275,7 +275,7 @@ void PopupMenu::_gui_input(const Ref<InputEvent> &p_event) {
 
         if (mouse_over >= 0 && mouse_over < items.size() && !items[mouse_over].separator) {
 
-            if (items[mouse_over].submenu != "" && submenu_over != mouse_over) {
+            if (!items[mouse_over].submenu.empty() && submenu_over != mouse_over) {
                 _activate_submenu(mouse_over);
             } else {
                 activate_item(mouse_over);
@@ -329,7 +329,7 @@ void PopupMenu::_gui_input(const Ref<InputEvent> &p_event) {
                     if (items[over].separator || items[over].disabled)
                         break;
 
-                    if (items[over].submenu != "") {
+                    if (!items[over].submenu.empty()) {
 
                         _activate_submenu(over);
                         return;
@@ -369,7 +369,7 @@ void PopupMenu::_gui_input(const Ref<InputEvent> &p_event) {
             return;
         }
 
-        if (items[over].submenu != "" && submenu_over != over) {
+        if (!items[over].submenu.empty() && submenu_over != over) {
             submenu_over = over;
             submenu_timer->start();
         }
@@ -532,7 +532,7 @@ void PopupMenu::_notification(int p_what) {
                 if (items[i].separator) {
 
                     int sep_h = separator->get_center_size().height + separator->get_minimum_size().height;
-                    if (text != String()) {
+                    if (!text.empty()) {
                         int ss = font->get_string_size(text).width;
                         int center = (get_size().width) / 2;
                         int l = center - ss / 2;
@@ -559,14 +559,14 @@ void PopupMenu::_notification(int p_what) {
                     items[i].icon->draw(ci, item_ofs + Size2(check_ofs, 0) + Point2(0, Math::floor((h - icon_size.height) / 2.0)), icon_color);
                 }
 
-                if (items[i].submenu != "") {
+                if (!items[i].submenu.empty()) {
                     submenu->draw(ci, Point2(size.width - style->get_margin(MARGIN_RIGHT) - submenu->get_width(), item_ofs.y + Math::floor(h - submenu->get_height()) / 2), icon_color);
                 }
 
                 item_ofs.y += font->get_ascent();
                 if (items[i].separator) {
 
-                    if (text != String()) {
+                    if (!text.empty()) {
                         int center = (get_size().width - font->get_string_size(text).width) / 2;
                         font->draw(ci, Point2(center, item_ofs.y + Math::floor((h - font_h) / 2.0)), text, font_color_disabled);
                     }
@@ -599,7 +599,7 @@ void PopupMenu::_notification(int p_what) {
         } break;
         case NOTIFICATION_MOUSE_EXIT: {
 
-            if (mouse_over >= 0 && (items[mouse_over].submenu == "" || submenu_over != -1)) {
+            if (mouse_over >= 0 && (items[mouse_over].submenu.empty() || submenu_over != -1)) {
                 mouse_over = -1;
                 update();
             }
@@ -617,7 +617,7 @@ void PopupMenu::_notification(int p_what) {
             }
 
             for (int i = 0; i < items.size(); i++) {
-                if (items[i].submenu == "")
+                if (items[i].submenu.empty())
                     continue;
 
                 Node *n = get_node((NodePath)items[i].submenu);
@@ -1099,7 +1099,7 @@ bool PopupMenu::activate_item_by_event(const Ref<InputEvent> &p_event, bool p_fo
             return true;
         }
 
-        if (items[i].submenu != "") {
+        if (!items[i].submenu.empty()) {
             Node *n = get_node((NodePath)items[i].submenu);
             if (!n)
                 continue;
@@ -1183,7 +1183,7 @@ void PopupMenu::add_separator(const String &p_text) {
     Item sep;
     sep.separator = true;
     sep.id = -1;
-    if (p_text != String()) {
+    if (!p_text.empty()) {
         sep.text = p_text;
         sep.xl_text = tr(p_text);
     }
@@ -1369,7 +1369,7 @@ void PopupMenu::get_translatable_strings(List<String> *p_strings) const {
 
     for (int i = 0; i < items.size(); i++) {
 
-        if (items[i].xl_text != "")
+        if (!items[i].xl_text.empty())
             p_strings->push_back(items[i].xl_text);
     }
 }

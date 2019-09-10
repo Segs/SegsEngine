@@ -306,7 +306,7 @@ void ImportDock::_importer_selected(int i_idx) {
     params->importer = importer;
 
     Ref<ConfigFile> config;
-    if (params->paths.size()) {
+    if (!params->paths.empty()) {
         config.instance();
         Error err = config->load(params->paths[0] + ".import");
         if (err != OK) {
@@ -469,7 +469,7 @@ void ImportDock::_reimport() {
         ResourceImporterInterface *importer = ResourceFormatImporter::get_singleton()->get_importer_by_name(importer_name);
         ERR_CONTINUE(importer==nullptr)
         String group_file_property = importer->get_option_group_file();
-        if (group_file_property != String()) {
+        if (!group_file_property.empty()) {
             //can import from a group (as in, atlas)
             ERR_CONTINUE(!params->values.has(group_file_property))
             String group_file = params->values[group_file_property];

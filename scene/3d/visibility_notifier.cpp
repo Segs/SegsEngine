@@ -58,7 +58,7 @@ void VisibilityNotifier::_exit_camera(Camera *p_camera) {
     cameras.erase(p_camera);
 
     emit_signal(SceneStringNames::get_singleton()->camera_exited, p_camera);
-    if (cameras.size() == 0) {
+    if (cameras.empty()) {
         emit_signal(SceneStringNames::get_singleton()->screen_exited);
 
         _screen_exit();
@@ -104,7 +104,7 @@ void VisibilityNotifier::_notification(int p_what) {
 
 bool VisibilityNotifier::is_on_screen() const {
 
-    return cameras.size() != 0;
+    return !cameras.empty();
 }
 
 void VisibilityNotifier::_bind_methods() {
@@ -181,7 +181,7 @@ void VisibilityEnabler::_find_nodes(Node *p_node) {
 
     for (int i = 0; i < p_node->get_child_count(); i++) {
         Node *c = p_node->get_child(i);
-        if (c->get_filename() != String())
+        if (!c->get_filename().empty())
             continue; //skip, instance
 
         _find_nodes(c);
@@ -197,7 +197,7 @@ void VisibilityEnabler::_notification(int p_what) {
 
         Node *from = this;
         //find where current scene starts
-        while (from->get_parent() && from->get_filename() == String())
+        while (from->get_parent() && from->get_filename().empty())
             from = from->get_parent();
 
         _find_nodes(from);

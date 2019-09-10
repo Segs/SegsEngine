@@ -52,7 +52,7 @@ void EditorDirDialog::_update_dir(TreeItem *p_item, EditorFileSystemDirectory *p
         p_item->set_text(0, "res://");
     } else {
 
-		if (!opened_paths.has(path) && (p_select_path == String() || !StringUtils::begins_with(p_select_path,path))) {
+		if (!opened_paths.has(path) && (p_select_path.empty() || !StringUtils::begins_with(p_select_path,path))) {
             p_item->set_collapsed(true);
         }
 

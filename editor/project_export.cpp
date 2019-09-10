@@ -177,7 +177,7 @@ void ProjectExportDialog::_update_export_all() {
         Ref<EditorExportPreset> preset = EditorExport::get_singleton()->get_export_preset(i);
         bool needs_templates;
         String error;
-        if (preset->get_export_path() == "" || !preset->get_platform()->can_export(preset, error, needs_templates)) {
+        if (preset->get_export_path().empty() || !preset->get_platform()->can_export(preset, error, needs_templates)) {
             can_export = false;
             break;
         }
@@ -257,7 +257,7 @@ void ProjectExportDialog::_edit_preset(int p_index) {
 
     TreeItem *patch_add = patches->create_item(patch_root);
     patch_add->set_metadata(0, patchlist.size());
-    if (patchlist.size() == 0)
+    if (patchlist.empty())
         patch_add->set_text(0, "Add initial export...");
     else
         patch_add->set_text(0, "Add previous patches...");
@@ -270,7 +270,7 @@ void ProjectExportDialog::_edit_preset(int p_index) {
     String error;
     if (!current->get_platform()->can_export(current, error, needs_templates)) {
 
-        if (error != String()) {
+        if (!error.empty()) {
 
             Vector<String> items = StringUtils::split(error,"\n", false);
             error = "";
@@ -342,7 +342,7 @@ void ProjectExportDialog::_update_feature_list() {
     Vector<String> custom_list = StringUtils::split(custom,",");
     for (int i = 0; i < custom_list.size(); i++) {
         String f =StringUtils::strip_edges( custom_list[i]);
-        if (f != String()) {
+        if (!f.empty()) {
             features.push_back(f);
         }
     }
@@ -905,7 +905,7 @@ void ProjectExportDialog::_open_export_template_manager() {
 
 void ProjectExportDialog::_validate_export_path(const String &p_path) {
     // Disable export via OK button or Enter key if LineEdit has an empty filename
-    bool invalid_path = (PathUtils::get_basename(PathUtils::get_file(p_path)) == "");
+    bool invalid_path = (PathUtils::get_basename(PathUtils::get_file(p_path)).empty());
 
     // Check if state change before needlessly messing with signals
     if (invalid_path && export_project->get_ok()->is_disabled())
@@ -937,10 +937,10 @@ void ProjectExportDialog::_export_project() {
         export_project->add_filter("*." + extension_list[i] + " ; " + platform->get_name() + " Export");
     }
 
-    if (current->get_export_path() != "") {
+    if (!current->get_export_path().empty()) {
         export_project->set_current_path(current->get_export_path());
     } else {
-        if (extension_list.size() >= 1) {
+        if (!extension_list.empty()) {
             export_project->set_current_file(default_filename + "." + extension_list[0]);
         } else {
             export_project->set_current_file(default_filename);
@@ -1321,10 +1321,10 @@ ProjectExportDialog::ProjectExportDialog() {
 
     default_filename = EditorSettings::get_singleton()->get_project_metadata("export_options", "default_filename", "");
     // If no default set, use project name
-    if (default_filename == "") {
+    if (default_filename.empty()) {
         // If no project name defined, use a sane default
         default_filename = ProjectSettings::get_singleton()->get("application/config/name");
-        if (default_filename == "") {
+        if (default_filename.empty()) {
             default_filename = "UnnamedProject";
         }
     }

@@ -83,7 +83,7 @@ void CreateDialog::popup_create(bool p_dont_clear, bool p_replace_mode, const St
         while (!f->eof_reached()) {
             String l = StringUtils::strip_edges(f->get_line());
 
-            if (l != String()) {
+            if (!l.empty()) {
                 favorite_list.push_back(l);
             }
         }
@@ -240,7 +240,7 @@ void CreateDialog::add_type(const String &p_type, HashMap<String, TreeItem *> &p
         item->set_collapsed(false);
     } else {
         // don't collapse search results
-        bool collapse = (search_box->get_text() == "");
+        bool collapse = (search_box->get_text().empty());
         // don't collapse the root node
         collapse &= (item != p_root);
         // don't collapse abstract nodes on the first tree level
@@ -352,13 +352,13 @@ void CreateDialog::_update_search() {
                 continue;
         }
 
-        if (search_box->get_text() == "") {
+        if (search_box->get_text().empty()) {
             add_type(type, search_options_types, root, &to_select);
         } else {
 
             bool found = false;
             String type2 = type_list[i];
-            while (type2 != "" && (cpp_type ? ClassDB::is_parent_class(type2, base_type) : ed.script_class_is_parent(type2, base_type)) && type2 != base_type) {
+            while (!type2.empty() && (cpp_type ? ClassDB::is_parent_class(type2, base_type) : ed.script_class_is_parent(type2, base_type)) && type2 != base_type) {
                 if (StringUtils::is_subsequence_ofi(search_box->get_text(),type2)) {
 
                     found = true;
@@ -406,7 +406,7 @@ void CreateDialog::_update_search() {
         }
     }
 
-    if (search_box->get_text() == "") {
+    if (search_box->get_text().empty()) {
         to_select = root;
     }
 
@@ -524,7 +524,7 @@ Object *CreateDialog::instance_selected() {
         if (md.get_type() != Variant::NIL)
             custom = md;
 
-        if (custom != String()) {
+        if (!custom.empty()) {
             if (ScriptServer::is_global_class(custom)) {
                 Object *obj = EditorNode::get_editor_data().script_class_instance(custom);
                 Node *n = Object::cast_to<Node>(obj);

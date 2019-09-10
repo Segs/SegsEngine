@@ -77,7 +77,7 @@ void BroadPhaseBasic::remove(ID p_id) {
 			to_erase.push_back(F->key());
 		}
 	}
-	while (to_erase.size()) {
+	while (!to_erase.empty()) {
 
 		pair_map.erase(to_erase.front()->get());
 		to_erase.pop_front();

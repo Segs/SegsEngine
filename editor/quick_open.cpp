@@ -147,7 +147,7 @@ void EditorQuickOpen::_parse_fs(EditorFileSystemDirectory *efsd, Vector<Pair<Str
                 pair.first = path;
                 pair.second = get_icon("folder", "FileDialog");
 
-                if (search_text != String() && list.size() > 0) {
+                if (!search_text.empty() && !list.empty()) {
 
                     float this_sim = _path_cmp(search_text, path);
                     float other_sim = _path_cmp(list[0].first, path);
@@ -192,7 +192,7 @@ Vector<Pair<String, Ref<Texture> > > EditorQuickOpen::_sort_fs(Vector<Pair<Strin
     String search_text = search_box->get_text();
     Vector<Pair<String, Ref<Texture> > > sorted_list;
 
-    if (search_text == String() || list.size() == 0)
+    if (search_text.empty() || list.empty())
         return list;
 
     Vector<float> scores;
@@ -200,7 +200,7 @@ Vector<Pair<String, Ref<Texture> > > EditorQuickOpen::_sort_fs(Vector<Pair<Strin
     for (int i = 0; i < list.size(); i++)
         scores.write[i] = _path_cmp(search_text, list[i].first);
 
-    while (list.size() > 0) {
+    while (!list.empty()) {
 
         float best_score = 0.0f;
         int best_idx = 0;

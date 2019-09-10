@@ -29,12 +29,14 @@
 /*************************************************************************/
 
 #include "baked_lightmap.h"
+#include "voxel_light_baker.h"
+
 #include "core/io/config_file.h"
 #include "core/io/resource_saver.h"
-#include "core/os/dir_access.h"
-#include "core/os/os.h"
-#include "voxel_light_baker.h"
 #include "core/method_bind.h"
+#include "core/os/dir_access.h"
+#include "core/os/file_access.h"
+#include "core/os/os.h"
 
 IMPL_GDCLASS(BakedLightmapData)
 IMPL_GDCLASS(BakedLightmap)
@@ -276,7 +278,7 @@ void BakedLightmap::_find_meshes_and_lights(Node *p_at_node, List<PlotMesh> &plo
 
     if (!mi && s) {
         Array meshes = p_at_node->call("get_bake_meshes");
-        if (meshes.size() && (meshes.size() & 1) == 0) {
+        if (!meshes.empty() && (meshes.size() & 1) == 0) {
             Transform xf = get_global_transform().affine_inverse() * s->get_global_transform();
             for (int i = 0; i < meshes.size(); i += 2) {
                 PlotMesh pm;
@@ -346,7 +348,7 @@ BakedLightmap::BakeError BakedLightmap::bake(Node *p_from_node, bool p_create_vi
     if (StringUtils::begins_with(image_path, "res://")) {
         save_path = image_path;
     } else {
-        if (get_filename() != "") {
+        if (!get_filename().empty()) {
             save_path = PathUtils::get_base_dir(get_filename());
         } else if (get_owner() && !get_owner()->get_filename().empty()) {
             save_path = PathUtils::get_base_dir(get_owner()->get_filename());
@@ -464,7 +466,7 @@ BakedLightmap::BakeError BakedLightmap::bake(Node *p_from_node, bool p_create_vi
     for (List<PlotMesh>::Element *E = mesh_list.front(); E; E = E->next()) {
 
         String mesh_name = E->get().mesh->get_name();
-		if (mesh_name == "" || StringUtils::find(mesh_name, ":") != -1 || StringUtils::find(mesh_name, "/") != -1) {
+		if (mesh_name.empty() || StringUtils::find(mesh_name, ":") != -1 || StringUtils::find(mesh_name, "/") != -1) {
             mesh_name = "LightMap";
         }
 

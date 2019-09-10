@@ -352,7 +352,7 @@ void EditorNavigationMeshGenerator::_build_recast_navigation_mesh(Ref<Navigation
         Vector<unsigned char> tri_areas;
         tri_areas.resize(ntris);
 
-        ERR_FAIL_COND(tri_areas.size() == 0);
+        ERR_FAIL_COND(tri_areas.empty());
 
         memset(tri_areas.ptrw(), 0, ntris * sizeof(unsigned char));
         rcMarkWalkableTriangles(&ctx, cfg.walkableSlopeAngle, verts, nverts, tris, ntris, tri_areas.ptrw());
@@ -445,7 +445,7 @@ void EditorNavigationMeshGenerator::bake(Ref<NavigationMesh> p_nav_mesh, Node *p
 
     _parse_geometry(Object::cast_to<Spatial>(p_node)->get_transform().affine_inverse(), p_node, vertices, indices, p_nav_mesh->get_parsed_geometry_type(), p_nav_mesh->get_collision_mask());
 
-    if (vertices.size() > 0 && indices.size() > 0) {
+    if (!vertices.empty() && !indices.empty()) {
 
         rcHeightfield *hf = nullptr;
         rcCompactHeightfield *chf = nullptr;

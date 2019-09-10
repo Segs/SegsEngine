@@ -31,6 +31,7 @@
 #include "register_types.h"
 
 #include "audio_stream_ogg_vorbis.h"
+#include "core/class_db.h"
 
 #ifdef TOOLS_ENABLED
 #include "core/engine.h"

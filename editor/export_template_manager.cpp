@@ -62,7 +62,7 @@ void ExportTemplateManager::_update_template_list() {
     if (err == OK) {
 
         String c = d->get_next();
-        while (c != String()) {
+        while (!c.empty()) {
             if (d->current_is_dir() && !StringUtils::begins_with(c,".")) {
                 templates.insert(c);
             }
@@ -172,7 +172,7 @@ void ExportTemplateManager::_uninstall_template_confirm() {
     Vector<String> files;
     d->list_dir_begin();
     String c = d->get_next();
-    while (c != String()) {
+    while (!c.empty()) {
         if (!d->current_is_dir()) {
             files.push_back(c);
         }
@@ -247,7 +247,7 @@ bool ExportTemplateManager::_install_from_file(const String &p_file, bool p_use_
         ret = unzGoToNextFile(pkg);
     }
 
-    if (version == String()) {
+    if (version.empty()) {
         EditorNode::get_singleton()->show_warning(TTR("No version.txt found inside templates."));
         unzClose(pkg);
         return false;
@@ -285,7 +285,7 @@ bool ExportTemplateManager::_install_from_file(const String &p_file, bool p_use_
 
         String file = PathUtils::get_file(file_path);
 
-        if (file.size() == 0) {
+        if (file.empty()) {
             ret = unzGoToNextFile(pkg);
             continue;
         }

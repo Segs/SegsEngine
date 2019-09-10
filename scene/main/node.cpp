@@ -163,7 +163,7 @@ void Node::_notification(int p_notification) {
 
             set_owner(nullptr);
 
-            while (data.owned.size()) {
+            while (!data.owned.empty()) {
 
                 data.owned.front()->get()->set_owner(nullptr);
             }
@@ -174,7 +174,7 @@ void Node::_notification(int p_notification) {
             }
 
             // kill children as cleanly as possible
-            while (data.children.size()) {
+            while (!data.children.empty()) {
 
                 Node *child = data.children[data.children.size() - 1]; //begin from the end because its faster and more consistent with creation
                 remove_child(child);
@@ -249,7 +249,7 @@ void Node::_propagate_enter_tree() {
 
 #ifdef DEBUG_ENABLED
 
-    if (ScriptDebugger::get_singleton() && data.filename != String()) {
+    if (ScriptDebugger::get_singleton() && !data.filename.empty()) {
         //used for live edit
         data.tree->live_scene_edit_cache[data.filename].insert(this);
     }
@@ -273,12 +273,12 @@ void Node::_propagate_exit_tree() {
 
 #ifdef DEBUG_ENABLED
 
-    if (ScriptDebugger::get_singleton() && data.filename != String()) {
+    if (ScriptDebugger::get_singleton() && !data.filename.empty()) {
         //used for live edit
         Map<String, Set<Node *> >::Element *E = data.tree->live_scene_edit_cache.find(data.filename);
         if (E) {
             E->get().erase(this);
-            if (E->get().size() == 0) {
+            if (E->get().empty()) {
                 data.tree->live_scene_edit_cache.erase(E);
             }
         }
@@ -939,7 +939,7 @@ void Node::set_name(const String &p_name) {
     String name = p_name;
     _validate_node_name(name);
 
-    ERR_FAIL_COND(name == "")
+    ERR_FAIL_COND(name.empty())
     data.name = name;
 
     if (data.parent) {
@@ -1968,7 +1968,7 @@ Node *Node::_duplicate(int p_flags, Map<const Node *, Node *> *r_duplimap) const
         nip->set_instance_path(ip->get_instance_path());
         node = nip;
 
-    } else if ((p_flags & DUPLICATE_USE_INSTANCING) && get_filename() != String()) {
+    } else if ((p_flags & DUPLICATE_USE_INSTANCING) && !get_filename().empty()) {
 
         Ref<PackedScene> res = ResourceLoader::load(get_filename());
         ERR_FAIL_COND_V(res.is_null(), nullptr)
@@ -1992,7 +1992,7 @@ Node *Node::_duplicate(int p_flags, Map<const Node *, Node *> *r_duplimap) const
         ERR_FAIL_COND_V(!node, nullptr)
     }
 
-    if (get_filename() != "") { //an instance
+    if (!get_filename().empty()) { //an instance
         node->set_filename(get_filename());
     }
 
@@ -2166,7 +2166,7 @@ void Node::_duplicate_and_reown(Node *p_new_parent, const Map<Node *, Node *> &p
 
     Node *node = nullptr;
 
-    if (get_filename() != "") {
+    if (!get_filename().empty()) {
 
         Ref<PackedScene> res = ResourceLoader::load(get_filename());
         ERR_FAIL_COND(res.is_null());
@@ -2274,7 +2274,7 @@ void Node::_duplicate_signals(const Node *p_original, Node *p_copy) const {
 
 Node *Node::duplicate_and_reown(const Map<Node *, Node *> &p_reown_map) const {
 
-    ERR_FAIL_COND_V(get_filename() != "", nullptr)
+    ERR_FAIL_COND_V(!get_filename().empty(), nullptr)
 
     Object *obj = ClassDB::instance(get_class_name());
     ERR_FAIL_COND_V_MSG(!obj, nullptr, "Node: Could not duplicate: " + String(get_class()) + ".");

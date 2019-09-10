@@ -59,7 +59,7 @@ void AnimationCache::_animation_changed() {
 
 void AnimationCache::_clear_cache() {
 
-    while (connected_nodes.size()) {
+    while (!connected_nodes.empty()) {
 
         connected_nodes.front()->get()->disconnect("tree_exiting", this, "_node_exit_tree");
         connected_nodes.erase(connected_nodes.front());
@@ -166,10 +166,10 @@ void AnimationCache::_update_cache() {
 
         } else if (animation->track_get_type(i) == Animation::TYPE_METHOD) {
 
-            if (path.subpath.size() != 0) { // Trying to call a method of a non-resource
+            if (!path.subpath.empty()) { // Trying to call a method of a non-resource
 
                 path_cache.push_back(Path());
-                ERR_CONTINUE_MSG(path.subpath.size() != 0, "Method Track has property: " + (String)np + ".");
+                ERR_CONTINUE_MSG(!path.subpath.empty(), "Method Track has property: " + (String)np + ".");
             }
         }
 
@@ -290,7 +290,7 @@ void AnimationCache::set_all(float p_time, float p_delta) {
                     StringName name = animation->method_track_get_name(i, E->get());
                     Variant::CallError err;
 
-                    if (!args.size()) {
+                    if (args.empty()) {
 
                         call_track(i, name, nullptr, 0, err);
                     } else {

@@ -172,7 +172,7 @@ void MeshInstanceEditor::_menu_option(int p_option) {
 
             Vector<Ref<Shape> > shapes = mesh->convex_decompose();
 
-            if (!shapes.size()) {
+            if (shapes.empty()) {
                 err_dialog->set_text(TTR("Failed creating shapes!"));
                 err_dialog->popup_centered_minsize();
                 return;
@@ -352,7 +352,7 @@ void MeshInstanceEditor::_create_uv_lines(int p_layer) {
 
 void MeshInstanceEditor::_debug_uv_draw() {
 
-    if (uv_lines.size() == 0)
+    if (uv_lines.empty())
         return;
 
     debug_uv->set_clip_contents(true);

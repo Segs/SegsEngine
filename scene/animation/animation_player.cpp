@@ -329,7 +329,7 @@ void AnimationPlayer::_ensure_node_caches(AnimationData *p_anim) {
             }
         }
 
-        if (a->track_get_type(i) == Animation::TYPE_BEZIER && leftover_path.size()) {
+        if (a->track_get_type(i) == Animation::TYPE_BEZIER && !leftover_path.empty()) {
 
             if (!p_anim->node_cache[i]->bezier_anim.has(a->track_get_path(i).get_concatenated_subnames())) {
 
@@ -654,7 +654,7 @@ void AnimationPlayer::_animation_process_animation(AnimationData *p_anim, float 
                     //find stuff to play
                     List<int> to_play;
                     a->track_get_key_indices_in_range(i, p_time, p_delta, &to_play);
-                    if (to_play.size()) {
+                    if (!to_play.empty()) {
                         int idx = to_play.back()->get();
 
                         Ref<AudioStream> stream = a->audio_track_get_key_stream(i, idx);
@@ -747,7 +747,7 @@ void AnimationPlayer::_animation_process_animation(AnimationData *p_anim, float 
                     //find stuff to play
                     List<int> to_play;
                     a->track_get_key_indices_in_range(i, p_time, p_delta, &to_play);
-                    if (to_play.size()) {
+                    if (!to_play.empty()) {
                         int idx = to_play.back()->get();
 
                         StringName anim_name = a->animation_track_get_key_animation(i, idx);
@@ -948,7 +948,7 @@ void AnimationPlayer::_animation_process(float p_delta) {
 
         _animation_update_transforms();
         if (end_reached) {
-            if (queued.size()) {
+            if (!queued.empty()) {
                 String old = playback.assigned;
                 play(queued.front()->get());
                 String new_name = playback.assigned;
@@ -1054,13 +1054,13 @@ void AnimationPlayer::rename_animation(const StringName &p_name, const StringNam
         }
     }
 
-    while (to_erase.size()) {
+    while (!to_erase.empty()) {
 
         blend_times.erase(to_erase.front()->get());
         to_erase.pop_front();
     }
 
-    while (to_insert.size()) {
+    while (!to_insert.empty()) {
         blend_times[to_insert.front()->key()] = to_insert.front()->get();
         to_insert.erase(to_insert.front());
     }
@@ -1156,7 +1156,7 @@ void AnimationPlayer::play(const StringName &p_name, float p_custom_blend, float
 
     StringName name = p_name;
 
-    if (String(name) == "")
+    if (String(name).empty())
         name = playback.assigned;
 
     ERR_FAIL_COND_MSG(!animation_set.has(name), "Animation not found: " + name + ".");
@@ -1264,7 +1264,7 @@ bool AnimationPlayer::is_playing() const {
 
 void AnimationPlayer::set_current_animation(const String &p_anim) {
 
-    if (p_anim == "[stop]" || p_anim == "") {
+    if (p_anim == "[stop]" || p_anim.empty()) {
         stop();
     } else if (!is_playing() || playback.assigned != p_anim) {
         play(p_anim);

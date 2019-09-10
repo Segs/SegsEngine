@@ -160,7 +160,7 @@ void VersionControlEditorPlugin::_initialize_vcs() {
 void VersionControlEditorPlugin::_send_commit_msg() {
 
     String msg = commit_message->get_text();
-    if (msg == "") {
+    if (msg.empty()) {
 
         commit_status->set_text(TTR("No commit message was provided"));
         return;
@@ -329,7 +329,7 @@ void VersionControlEditorPlugin::_display_file_diff(String p_file_path) {
 void VersionControlEditorPlugin::_refresh_file_diff() {
 
     String open_file = diff_file_name->get_text();
-    if (open_file != "") {
+    if (!open_file.empty()) {
 
         _display_file_diff(diff_file_name->get_text());
     }

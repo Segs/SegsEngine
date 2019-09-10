@@ -28,17 +28,18 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef MAIN_LOOP_H
-#define MAIN_LOOP_H
+#pragma once
 
-#include "core/os/input_event.h"
+#include "core/object.h"
 #include "core/reference.h"
-#include "core/script_language.h"
+
+class Script;
+class InputEvent;
 
 class MainLoop : public Object {
 
 	GDCLASS(MainLoop,Object)
-	OBJ_CATEGORY("Main Loop");
+    OBJ_CATEGORY("Main Loop")
 
 	Ref<Script> init_script;
 
@@ -75,8 +76,6 @@ public:
 
 	void set_init_script(const Ref<Script> &p_init_script);
 
-	MainLoop() {}
-	~MainLoop() override = default;
+    MainLoop();
+    ~MainLoop() override;
 };
-
-#endif

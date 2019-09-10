@@ -119,7 +119,7 @@ Signal automatically called by parent dialog.
 */
 void ConnectDialog::ok_pressed() {
 
-    if (dst_method->get_text() == "") {
+    if (dst_method->get_text().empty()) {
         error->set_text(TTR("Method in target node must be specified."));
         error->popup_centered_minsize();
         return;
@@ -196,7 +196,7 @@ Remove parameter bind from connection.
 void ConnectDialog::_remove_bind() {
 
     String st = bind_editor->get_selected_path();
-    if (st == "")
+    if (st.empty())
         return;
     int idx = StringUtils::to_int(StringUtils::get_slice(st,"/", 1)) - 1;
 
@@ -900,7 +900,7 @@ void ConnectionsDock::update_tree() {
 
         TreeItem *pitem = nullptr;
 
-        if (node_signals2.size()) {
+        if (!node_signals2.empty()) {
             pitem = tree->create_item(root);
             pitem->set_text(0, name);
             pitem->set_icon(0, icon);
@@ -917,7 +917,7 @@ void ConnectionsDock::update_tree() {
             StringName signal_name = mi.name;
             String signaldesc = "(";
             PoolStringArray argnames;
-            if (mi.arguments.size()) {
+            if (!mi.arguments.empty()) {
                 signaldesc += " ";
                 for (int i = 0; i < mi.arguments.size(); i++) {
 
@@ -931,7 +931,7 @@ void ConnectionsDock::update_tree() {
                     } else if (pi.type != Variant::NIL) {
                         tname = Variant::get_type_name(pi.type);
                     }
-                    signaldesc += tname + " " + (pi.name == "" ? String("arg " + itos(i)) : pi.name);
+                    signaldesc += tname + " " + (pi.name.empty() ? String("arg " + itos(i)) : pi.name);
                     argnames.push_back(pi.name + ":" + tname);
                 }
                 signaldesc += " ";
@@ -963,7 +963,7 @@ void ConnectionsDock::update_tree() {
                 if (!found) {
                     DocData *dd = EditorHelp::get_doc_data();
                     Map<String, DocData::ClassDoc>::Element *F = dd->class_list.find(base);
-                    while (F && descr == String()) {
+                    while (F && descr.empty()) {
                         for (int i = 0; i < F->get().defined_signals.size(); i++) {
                             if (F->get().defined_signals[i].name == signal_name.operator String()) {
                                 descr = StringUtils::strip_edges(F->get().defined_signals[i].description);
@@ -1002,7 +1002,7 @@ void ConnectionsDock::update_tree() {
                     path += " (deferred)";
                 if (c.flags & ObjectNS::CONNECT_ONESHOT)
                     path += " (oneshot)";
-                if (c.binds.size()) {
+                if (!c.binds.empty()) {
 
                     path += " binds( ";
                     for (int i = 0; i < c.binds.size(); i++) {

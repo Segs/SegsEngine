@@ -68,7 +68,7 @@ bool WebRTCMultiplayer::is_server() const {
 }
 
 void WebRTCMultiplayer::poll() {
-    if (peer_map.size() == 0)
+    if (peer_map.empty())
         return;
 
     List<int> remove;

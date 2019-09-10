@@ -31,6 +31,7 @@
 #include "resource_importer.h"
 
 #include "core/os/os.h"
+#include "core/class_db.h"
 #include "core/variant_parser.h"
 #include "core/property_info.h"
 

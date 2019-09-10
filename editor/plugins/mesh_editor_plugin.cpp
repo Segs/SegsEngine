@@ -83,16 +83,16 @@ void MeshEditor::edit(Ref<Mesh> p_mesh) {
     mesh = p_mesh;
     mesh_instance->set_mesh(mesh);
 
-    rot_x = Math::deg2rad(-15.0);
-    rot_y = Math::deg2rad(30.0);
+    rot_x = Math::deg2rad(-15.0f);
+    rot_y = Math::deg2rad(30.0f);
     _update_rotation();
 
     AABB aabb = mesh->get_aabb();
     Vector3 ofs = aabb.position + aabb.size * 0.5;
     float m = aabb.get_longest_axis_size();
-    if (m != 0) {
-        m = 1.0 / m;
-        m *= 0.5;
+    if (m != 0.0f) {
+        m = 1.0f / m;
+        m *= 0.5f;
         Transform xform;
         xform.basis.scale(Vector3(m, m, m));
         xform.origin = -xform.basis.xform(ofs); //-ofs*m;

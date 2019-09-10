@@ -576,7 +576,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 #ifdef DEBUG_ENABLED
                 if (!valid) {
                     String v = index->operator String();
-                    if (v != "") {
+                    if (!v.empty()) {
                         v = "'" + v + "'";
                     } else {
                         v = "of type '" + _get_var_type(index) + "'";
@@ -608,7 +608,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 #ifdef DEBUG_ENABLED
                 if (!valid) {
                     String v = index->operator String();
-                    if (v != "") {
+                    if (!v.empty()) {
                         v = "'" + v + "'";
                     } else {
                         v = "of type '" + _get_var_type(index) + "'";
@@ -1560,17 +1560,17 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
         //error
         // function, file, line, error, explanation
         String err_file;
-        if (p_instance && p_instance->script->is_valid() && p_instance->script->path != "")
+        if (p_instance && p_instance->script->is_valid() && !p_instance->script->path.empty())
             err_file = p_instance->script->path;
         else if (script)
             err_file = script->path;
-        if (err_file == "")
+        if (err_file.empty())
             err_file = "<built-in>";
         String err_func = name;
-        if (p_instance && p_instance->script->is_valid() && p_instance->script->name != "")
+        if (p_instance && p_instance->script->is_valid() && !p_instance->script->name.empty())
             err_func = p_instance->script->name + "." + err_func;
         int err_line = line;
-        if (err_text == "") {
+        if (err_text.empty()) {
             err_text = "Internal Script Error! - opcode #" + itos(last_opcode) + " (report please).";
         }
 
@@ -1906,4 +1906,61 @@ GDScriptFunctionState::~GDScriptFunctionState() {
             v->~Variant();
         }
     }
+}
+
+bool GDScriptDataType::is_type(const Variant &p_variant, bool p_allow_implicit_conversion) const {
+    if (!has_type) return true; // Can't type check
+
+    switch (kind) {
+    case UNINITIALIZED:
+        break;
+    case BUILTIN: {
+        Variant::Type var_type = p_variant.get_type();
+        bool valid = builtin_type == var_type;
+        if (!valid && p_allow_implicit_conversion) {
+            valid = Variant::can_convert_strict(var_type, builtin_type);
+        }
+        return valid;
+    } break;
+    case NATIVE: {
+        if (p_variant.get_type() == Variant::NIL) {
+            return true;
+        }
+        if (p_variant.get_type() != Variant::OBJECT) {
+            return false;
+        }
+        Object *obj = p_variant.operator Object *();
+        if (obj) {
+            if (!ClassDB::is_parent_class(obj->get_class_name(), native_type)) {
+                // Try with underscore prefix
+                StringName underscore_native_type = "_" + native_type;
+                if (!ClassDB::is_parent_class(obj->get_class_name(), underscore_native_type)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    } break;
+    case SCRIPT:
+    case GDSCRIPT: {
+        if (p_variant.get_type() == Variant::NIL) {
+            return true;
+        }
+        if (p_variant.get_type() != Variant::OBJECT) {
+            return false;
+        }
+        Object *obj = p_variant.operator Object *();
+        Ref<Script> base = obj && obj->get_script_instance() ? obj->get_script_instance()->get_script() : nullptr;
+        bool valid = false;
+        while (base.is_valid()) {
+            if (base == script_type) {
+                valid = true;
+                break;
+            }
+            base = base->get_base_script();
+        }
+        return valid;
+    } break;
+    }
+    return false;
 }

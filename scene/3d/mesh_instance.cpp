@@ -300,10 +300,10 @@ void MeshInstance::create_debug_tangents() {
         Array arrays = mesh->surface_get_arrays(i);
         Vector<Vector3> verts = arrays[Mesh::ARRAY_VERTEX];
         Vector<Vector3> norms = arrays[Mesh::ARRAY_NORMAL];
-        if (norms.size() == 0)
+        if (norms.empty())
             continue;
         Vector<float> tangents = arrays[Mesh::ARRAY_TANGENT];
-        if (tangents.size() == 0)
+        if (tangents.empty())
             continue;
 
         for (int j = 0; j < verts.size(); j++) {
@@ -329,7 +329,7 @@ void MeshInstance::create_debug_tangents() {
         }
     }
 
-    if (lines.size()) {
+    if (!lines.empty()) {
 
         Ref<SpatialMaterial> sm;
         sm.instance();

@@ -31,6 +31,7 @@
 #include "space_sw.h"
 
 #include "collision_solver_sw.h"
+#include "core/class_db.h"
 #include "core/object_db.h"
 #include "core/project_settings.h"
 #include "physics_server_sw.h"
@@ -54,7 +55,7 @@ _FORCE_INLINE_ static bool _can_collide_with(CollisionObjectSW *p_object, uint32
 
 int PhysicsDirectSpaceStateSW::intersect_point(const Vector3 &p_point, ShapeResult *r_results, int p_result_max, const Set<RID> &p_exclude, uint32_t p_collision_mask, bool p_collide_with_bodies, bool p_collide_with_areas) {
 
-    ERR_FAIL_COND_V(space->locked, false);
+    ERR_FAIL_COND_V(space->locked, false)
     int amount = space->broadphase->cull_point(p_point, space->intersection_query_results, SpaceSW::INTERSECTION_QUERY_MAX, space->intersection_query_subindex_results);
     int cc = 0;
 

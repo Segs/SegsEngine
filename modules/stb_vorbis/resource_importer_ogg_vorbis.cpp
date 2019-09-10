@@ -30,6 +30,7 @@
 
 #include "resource_importer_ogg_vorbis.h"
 
+#include "core/class_db.h"
 #include "core/io/resource_saver.h"
 #include "core/os/file_access.h"
 #include "scene/resources/texture.h"

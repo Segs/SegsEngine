@@ -910,7 +910,7 @@ void TextEdit::_notification(int p_what) {
             String highlighted_text = get_selection_text();
 
             // Check if highlighted words contains only whitespaces (tabs or spaces).
-            bool only_whitespaces_highlighted =StringUtils::strip_edges( highlighted_text) == String();
+            bool only_whitespaces_highlighted =StringUtils::strip_edges( highlighted_text).empty();
 
             String line_num_padding = line_numbers_zero_padded ? "0" : " ";
 
@@ -1664,7 +1664,7 @@ void TextEdit::_notification(int p_what) {
 
             // Check to see if the hint should be drawn.
             bool show_hint = false;
-            if (completion_hint != "") {
+            if (!completion_hint.empty()) {
                 if (completion_active) {
                     if (completion_below && !callhint_below) {
                         show_hint = true;
@@ -2380,7 +2380,7 @@ void TextEdit::_gui_input(const Ref<InputEvent> &p_gui_input) {
         } else {
 
             if (mb->get_button_index() == BUTTON_LEFT) {
-				if (mb->get_command() && highlighted_word != String()) {
+				if (mb->get_command() && !highlighted_word.empty()) {
 					int row, col;
 					_get_mouse_pos(Point2i(mb->get_position().x, mb->get_position().y), row, col);
 
@@ -2427,7 +2427,7 @@ void TextEdit::_gui_input(const Ref<InputEvent> &p_gui_input) {
                     update();
                 }
             } else {
-                if (highlighted_word != String()) {
+                if (!highlighted_word.empty()) {
                     highlighted_word = String();
                     update();
                 }
@@ -2849,7 +2849,7 @@ void TextEdit::_gui_input(const Ref<InputEvent> &p_gui_input) {
                 end_complex_operation();
             } break;
             case KEY_ESCAPE: {
-                if (completion_hint != "") {
+                if (!completion_hint.empty()) {
                     completion_hint = "";
                     update();
                 } else {
@@ -3619,7 +3619,7 @@ void TextEdit::_gui_input(const Ref<InputEvent> &p_gui_input) {
 
                 const CharType chr = (CharType)k->get_unicode();
 
-                if (completion_hint != "" && k->get_unicode() == ')') {
+                if (!completion_hint.empty() && k->get_unicode() == ')') {
                     completion_hint = "";
                 }
                 if (auto_brace_completion_enabled && _is_pair_symbol(chr)) {
@@ -4023,7 +4023,7 @@ void TextEdit::_line_edited_from(int p_line) {
         color_region_cache.erase(i);
     }
 
-    if (syntax_highlighting_cache.size() > 0) {
+    if (!syntax_highlighting_cache.empty()) {
         cache_size = syntax_highlighting_cache.back()->key();
         for (int i = p_line - 1; i <= cache_size; i++) {
             if (syntax_highlighting_cache.has(i)) {
@@ -4593,7 +4593,7 @@ void TextEdit::insert_text_at_cursor(const String &p_text) {
 }
 
 Control::CursorShape TextEdit::get_cursor_shape(const Point2 &p_pos) const {
-    if (highlighted_word != String())
+    if (!highlighted_word.empty())
         return CURSOR_POINTING_HAND;
 
     int gutter = cache.style_normal->get_margin(MARGIN_LEFT) + cache.line_number_w + cache.breakpoint_gutter_width + cache.fold_gutter_width + cache.info_gutter_width;
@@ -5901,7 +5901,7 @@ void TextEdit::undo() {
 
     if (undo_stack_pos == nullptr) {
 
-        if (!undo_stack.size())
+        if (undo_stack.empty())
             return; // Nothing to undo.
 
         undo_stack_pos = undo_stack.back();
@@ -5989,7 +5989,7 @@ void TextEdit::begin_complex_operation() {
 void TextEdit::end_complex_operation() {
 
     _push_current_op();
-    ERR_FAIL_COND(undo_stack.size() == 0);
+    ERR_FAIL_COND(undo_stack.empty());
 
     if (undo_stack.back()->get().chain_forward) {
         undo_stack.back()->get().chain_forward = false;
@@ -6367,7 +6367,7 @@ void TextEdit::_update_completion_candidates() {
     if (cofs > 1 && l[cofs - 1] == ' ' && completion_prefixes.has(String(l[cofs - 2])))
         prev_is_prefix = true;
 
-    if (cancel || (!pre_keyword && s == "" && (cofs == 0 || !prev_is_prefix))) {
+    if (cancel || (!pre_keyword && s.empty() && (cofs == 0 || !prev_is_prefix))) {
         // None to complete, cancel.
         _cancel_completion();
         return;
@@ -6401,7 +6401,7 @@ void TextEdit::_update_completion_candidates() {
 
     completion_options.append_array(completion_options_casei);
 
-    if (completion_options.size() == 0) {
+    if (completion_options.empty()) {
         for (int i = 0; i < completion_sources.size(); i++) {
             if (StringUtils::is_subsequence_of(s,completion_sources[i].display)) {
                 completion_options.push_back(completion_sources[i]);
@@ -6409,7 +6409,7 @@ void TextEdit::_update_completion_candidates() {
         }
     }
 
-    if (completion_options.size() == 0) {
+    if (completion_options.empty()) {
         for (int i = 0; i < completion_sources.size(); i++) {
             if (StringUtils::is_subsequence_ofi(s,completion_sources[i].display)) {
                 completion_options.push_back(completion_sources[i]);
@@ -6417,7 +6417,7 @@ void TextEdit::_update_completion_candidates() {
         }
     }
 
-    if (completion_options.size() == 0) {
+    if (completion_options.empty()) {
         // No options to complete, cancel.
         _cancel_completion();
         return;

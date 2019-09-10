@@ -272,7 +272,7 @@ bool AnimationTreePlayer::_get(const StringName &p_name, Variant &r_ret) const {
             } break;
             case NODE_ANIMATION: {
                 AnimationNode *an = static_cast<AnimationNode *>(n);
-                if (master != NodePath() && an->from != "") {
+                if (master != NodePath() && !an->from.empty()) {
                     node["from"] = an->from;
                 } else {
                     node["animation"] = an->animation;
@@ -905,7 +905,7 @@ void AnimationTreePlayer::_process_animation(float p_delta) {
         if (t.skip || !t.object)
             continue;
 
-        if (t.subpath.size()) { // value track
+        if (!t.subpath.empty()) { // value track
             t.object->set_indexed(t.subpath, t.value);
             continue;
         }
@@ -1684,7 +1684,7 @@ void AnimationTreePlayer::_update_sources() {
 
             AnimationNode *an = static_cast<AnimationNode *>(E->get());
 
-            if (an->from != "") {
+            if (!an->from.empty()) {
 
                 an->animation = ap->get_animation(an->from);
             }
@@ -1866,7 +1866,7 @@ AnimationTreePlayer::AnimationTreePlayer() {
 
 AnimationTreePlayer::~AnimationTreePlayer() {
 
-    while (node_map.size()) {
+    while (!node_map.empty()) {
         memdelete(node_map.front()->get());
         node_map.erase(node_map.front());
     }

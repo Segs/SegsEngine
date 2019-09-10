@@ -31,6 +31,7 @@
 #include "register_types.h"
 
 #include "navigation_mesh_editor_plugin.h"
+#include "core/class_db.h"
 
 #ifdef TOOLS_ENABLED
 EditorNavigationMeshGenerator *_nav_mesh_generator = nullptr;

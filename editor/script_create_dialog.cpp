@@ -101,7 +101,7 @@ void ScriptCreateDialog::config(const String &p_base_name, const String &p_base_
     parent_name->set_text(p_base_name);
     parent_name->deselect();
 
-    if (p_base_path != "") {
+    if (!p_base_path.empty()) {
         initial_bp = PathUtils::get_basename(p_base_path);
         file_path->set_text(initial_bp + "." + ScriptServer::get_language(language_menu->get_selected())->get_extension());
     } else {
@@ -129,7 +129,7 @@ bool ScriptCreateDialog::_validate_parent(const String &p_string) {
 
     if (can_inherit_from_file && StringUtils::is_quoted(p_string)) {
         String p = StringUtils::substr(p_string,1, p_string.length() - 2);
-        if (_validate_path(p, true) == "")
+        if (_validate_path(p, true).empty())
             return true;
     }
 
@@ -161,8 +161,8 @@ String ScriptCreateDialog::_validate_path(const String &p_path, bool p_file_must
 
     String p =StringUtils::strip_edges( p_path);
 
-    if (p == "") return TTR("Path is empty.");
-    if (PathUtils::get_basename(PathUtils::get_file(p)) == "") return TTR("Filename is empty.");
+    if (p.empty()) return TTR("Path is empty.");
+    if (PathUtils::get_basename(PathUtils::get_file(p)).empty()) return TTR("Filename is empty.");
 
     p = ProjectSettings::get_singleton()->localize_path(p);
     if (!StringUtils::begins_with(p,"res://")) return TTR("Path is not local.");
@@ -215,7 +215,7 @@ String ScriptCreateDialog::_validate_path(const String &p_path, bool p_file_must
 
     /* Let ScriptLanguage do custom validation */
     String path_error = ScriptServer::get_language(language_menu->get_selected())->validate_path(p);
-    if (path_error != "") return path_error;
+    if (!path_error.empty()) return path_error;
 
     /* All checks passed */
     return "";
@@ -284,7 +284,7 @@ void ScriptCreateDialog::_create_new() {
     }
 
     Ref<Script> scr;
-    if (script_template != "") {
+    if (!script_template.empty()) {
         scr = ResourceLoader::load(script_template);
         if (scr.is_null()) {
             alert->set_text(vformat(TTR("Error loading template '%s'"), script_template));
@@ -345,7 +345,7 @@ void ScriptCreateDialog::_lang_changed(int l) {
     String selected_ext = "." + language->get_extension();
     String path = file_path->get_text();
     String extension = "";
-    if (path != "") {
+    if (!path.empty()) {
         if (StringUtils::contains(path,'.')) {
             extension = PathUtils::get_extension(path);
         }
@@ -798,7 +798,7 @@ ScriptCreateDialog::ScriptCreateDialog() {
     }
 
     String last_selected_language = EditorSettings::get_singleton()->get_project_metadata("script_setup", "last_selected_language", "");
-    if (last_selected_language != "") {
+    if (!last_selected_language.empty()) {
         for (int i = 0; i < language_menu->get_item_count(); i++) {
             if (language_menu->get_item_text(i) == last_selected_language) {
                 language_menu->select(i);

@@ -214,7 +214,7 @@ bool TileSetEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_dat
 
         Vector<String> files = d["files"];
 
-        if (files.size() == 0)
+        if (files.empty())
             return false;
 
         for (int i = 0; i < files.size(); i++) {
@@ -2005,7 +2005,7 @@ void TileSetEditor::_update_toggle_shape_button() {
 
 void TileSetEditor::_select_next_tile() {
     Array tiles = _get_tiles_in_current_texture(true);
-    if (tiles.size() == 0) {
+    if (tiles.empty()) {
         set_current_tile(-1);
     } else if (get_current_tile() == -1) {
         set_current_tile(tiles[0]);
@@ -2041,7 +2041,7 @@ void TileSetEditor::_select_next_tile() {
 
 void TileSetEditor::_select_previous_tile() {
     Array tiles = _get_tiles_in_current_texture(true);
-    if (tiles.size() == 0) {
+    if (tiles.empty()) {
         set_current_tile(-1);
     } else if (get_current_tile() == -1) {
         set_current_tile(tiles[tiles.size() - 1]);
@@ -2174,7 +2174,7 @@ void TileSetEditor::_select_next_shape() {
             edited_coord = Vector2i(edited_shape_coord);
         }
         SubtileData data = current_tile_data[edited_coord];
-        if (data.collisions.size() == 0) {
+        if (data.collisions.empty()) {
             _select_next_subtile();
         } else {
             int index = data.collisions.find(edited_collision_shape);
@@ -2227,7 +2227,7 @@ void TileSetEditor::_select_previous_shape() {
             edited_coord = Vector2i(edited_shape_coord);
         }
         SubtileData data = current_tile_data[edited_coord];
-        if (data.collisions.size() == 0) {
+        if (data.collisions.empty()) {
             _select_previous_subtile();
             data = current_tile_data[Vector2i(edited_shape_coord)];
             if (data.collisions.size() > 1) {
@@ -3096,7 +3096,7 @@ void TileSetEditor::update_texture_list() {
 
     if (texture_list->get_item_count() > 0 && selected_texture.is_valid()) {
         texture_list->select(texture_list->find_metadata(selected_texture->get_rid()));
-        if (texture_list->get_selected_items().size() > 0)
+        if (!texture_list->get_selected_items().empty())
             _on_texture_list_selected(texture_list->get_selected_items()[0]);
     } else if (get_current_texture().is_valid()) {
         _on_texture_list_selected(texture_list->find_metadata(get_current_texture()->get_rid()));
@@ -3262,7 +3262,7 @@ void TileSetEditor::set_current_tile(int p_id) {
 }
 
 Ref<Texture> TileSetEditor::get_current_texture() {
-    if (texture_list->get_selected_items().size() == 0)
+    if (texture_list->get_selected_items().empty())
         return Ref<Texture>();
     else
         return texture_map[texture_list->get_item_metadata(texture_list->get_selected_items()[0])];

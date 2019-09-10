@@ -33,6 +33,7 @@
 #include "scene/scene_string_names.h"
 #include "servers/physics_server.h"
 #include "core/method_bind.h"
+#include "core/os/input_event.h"
 
 IMPL_GDCLASS(CollisionObject)
 
@@ -164,7 +165,7 @@ uint32_t CollisionObject::create_shape_owner(Object *p_owner) {
     ShapeData sd;
     uint32_t id;
 
-    if (shapes.size() == 0) {
+    if (shapes.empty()) {
         id = 0;
     } else {
         id = shapes.back()->key() + 1;

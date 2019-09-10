@@ -32,6 +32,7 @@
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(MeshLibrary)
+RES_BASE_EXTENSION_IMPL(MeshLibrary,"meshlib")
 
 bool MeshLibrary::_set(const StringName &p_name, const Variant &p_value) {
 
@@ -254,7 +255,7 @@ int MeshLibrary::find_item_by_name(const String &p_name) const {
 
 int MeshLibrary::get_last_unused_item_id() const {
 
-    if (!item_map.size())
+    if (item_map.empty())
         return 0;
     else
         return item_map.back()->key() + 1;

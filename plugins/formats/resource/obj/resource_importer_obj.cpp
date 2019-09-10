@@ -239,7 +239,7 @@ static Error _parse_obj(const String &p_path, List<Ref<Mesh> > &r_meshes, bool p
         while (l.length() && l[l.length() - 1] == '\\') {
             String add = StringUtils::strip_edges(f->get_line());
             l += add;
-            if (add == String()) {
+            if (add.empty()) {
                 break;
             }
         }
@@ -282,7 +282,7 @@ static Error _parse_obj(const String &p_path, List<Ref<Mesh> > &r_meshes, bool p
             Vector<String> face[3];
             face[0] = StringUtils::split(v[1],"/");
             face[1] = StringUtils::split(v[2],"/");
-            ERR_FAIL_COND_V(face[0].size() == 0, ERR_FILE_CORRUPT)
+            ERR_FAIL_COND_V(face[0].empty(), ERR_FILE_CORRUPT)
 
             ERR_FAIL_COND_V(face[0].size() != face[1].size(), ERR_FILE_CORRUPT)
             for (int i = 2; i < v.size() - 1; i++) {
@@ -306,7 +306,7 @@ static Error _parse_obj(const String &p_path, List<Ref<Mesh> > &r_meshes, bool p
                         surf_tool->add_normal(normals[norm]);
                     }
 
-                    if (face[idx].size() >= 2 && face[idx][1] != String()) {
+                    if (face[idx].size() >= 2 && !face[idx][1].empty()) {
                         int uv = StringUtils::to_int(face[idx][1]) - 1;
                         if (uv < 0)
                             uv += uvs.size() + 1;
@@ -335,13 +335,13 @@ static Error _parse_obj(const String &p_path, List<Ref<Mesh> > &r_meshes, bool p
                 surf_tool->add_smooth_group(true);
 		} else if (/*StringUtils::begins_with(l,"g ") ||*/ StringUtils::begins_with(l,"usemtl ") || (StringUtils::begins_with(l,"o ") || f->eof_reached())) { //commit group to mesh
             //groups are too annoying
-            if (surf_tool->get_vertex_array().size()) {
+            if (!surf_tool->get_vertex_array().empty()) {
                 //another group going on, commit it
-                if (normals.size() == 0) {
+                if (normals.empty()) {
                     surf_tool->generate_normals();
                 }
 
-                if (generate_tangents && uvs.size()) {
+                if (generate_tangents && !uvs.empty()) {
                     surf_tool->generate_tangents();
                 }
 
@@ -356,9 +356,9 @@ static Error _parse_obj(const String &p_path, List<Ref<Mesh> > &r_meshes, bool p
 
                 mesh = surf_tool->commit(mesh, mesh_flags);
 
-                if (current_material != String()) {
+                if (!current_material.empty()) {
                     mesh->surface_set_name(mesh->get_surface_count() - 1, PathUtils::get_basename(current_material));
-                } else if (current_group != String()) {
+                } else if (!current_group.empty()) {
                     mesh->surface_set_name(mesh->get_surface_count() - 1, current_group);
                 }
 

@@ -38,6 +38,7 @@
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(World)
+RES_BASE_EXTENSION_IMPL(World,"world")
 
 struct SpatialIndexer {
 
@@ -69,7 +70,7 @@ struct SpatialIndexer {
 
     void _notifier_add(VisibilityNotifier *p_notifier, const AABB &p_rect) {
 
-        ERR_FAIL_COND(notifiers.has(p_notifier));
+        ERR_FAIL_COND(notifiers.has(p_notifier))
         notifiers[p_notifier].aabb = p_rect;
         notifiers[p_notifier].id = octree.create(p_notifier, p_rect);
         changed = true;
@@ -78,7 +79,7 @@ struct SpatialIndexer {
     void _notifier_update(VisibilityNotifier *p_notifier, const AABB &p_rect) {
 
         Map<VisibilityNotifier *, NotifierData>::Element *E = notifiers.find(p_notifier);
-        ERR_FAIL_COND(!E);
+        ERR_FAIL_COND(!E)
         if (E->get().aabb == p_rect)
             return;
 
@@ -90,7 +91,7 @@ struct SpatialIndexer {
     void _notifier_remove(VisibilityNotifier *p_notifier) {
 
         Map<VisibilityNotifier *, NotifierData>::Element *E = notifiers.find(p_notifier);
-        ERR_FAIL_COND(!E);
+        ERR_FAIL_COND(!E)
 
         octree.erase(E->get().id);
         notifiers.erase(p_notifier);
@@ -126,12 +127,12 @@ struct SpatialIndexer {
     void _update_camera(Camera *p_camera) {
 
         Map<Camera *, CameraData>::Element *E = cameras.find(p_camera);
-        ERR_FAIL_COND(!E);
+        ERR_FAIL_COND(!E)
         changed = true;
     }
 
     void _remove_camera(Camera *p_camera) {
-        ERR_FAIL_COND(!cameras.has(p_camera));
+        ERR_FAIL_COND(!cameras.has(p_camera))
         List<VisibilityNotifier *> removed;
         for (Map<VisibilityNotifier *, uint64_t>::Element *E = cameras[p_camera].notifiers.front(); E; E = E->next()) {
 

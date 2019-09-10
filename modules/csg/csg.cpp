@@ -620,7 +620,7 @@ void CSGBrushOperation::_add_poly_points(const BuildPoly &p_poly, int p_edge, in
 	}
 
 	//attempt to empty the stack.
-	while (edge_stack.size()) {
+	while (!edge_stack.empty()) {
 
 		EdgeSort e = edge_stack.front()->get();
 		edge_stack.pop_front();
@@ -863,11 +863,11 @@ void CSGBrushOperation::_merge_poly(MeshMerge &mesh, int p_face_idx, const Build
 	//get rid of holes, not the most optiomal way, but also not a common case at all to be inoptimal
 	for (int i = 0; i < polys.size(); i++) {
 
-		if (!polys[i].holes.size())
+		if (polys[i].holes.empty())
 			continue;
 
 		//repeat until no more holes are left to be merged
-		while (polys[i].holes.size()) {
+		while (!polys[i].holes.empty()) {
 
 			//try to merge a hole with the outline
 			bool added_hole = false;

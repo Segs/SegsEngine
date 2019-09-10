@@ -30,6 +30,8 @@
 
 #include "editor_export.h"
 
+#include <utility>
+
 #include "core/method_bind.h"
 #include "core/crypto/crypto_core.h"
 #include "core/io/config_file.h"
@@ -281,7 +283,7 @@ void EditorExportPlatform::gen_debug_flags(Vector<String> &r_flags, int p_flags)
         String passwd = EditorSettings::get_singleton()->get("filesystem/file_server/password");
         r_flags.push_back("--remote-fs");
         r_flags.push_back(host + ":" + itos(port));
-        if (passwd != "") {
+        if (!passwd.empty()) {
             r_flags.push_back("--remote-fs-password");
             r_flags.push_back(passwd);
         }
@@ -296,7 +298,7 @@ void EditorExportPlatform::gen_debug_flags(Vector<String> &r_flags, int p_flags)
         List<String> breakpoints;
         ScriptEditor::get_singleton()->get_breakpoints(&breakpoints);
 
-        if (breakpoints.size()) {
+        if (!breakpoints.empty()) {
 
             r_flags.push_back("--breakpoints");
             String bpoints;
@@ -384,7 +386,7 @@ Error EditorExportPlatform::_save_zip_file(void *p_userdata, const String &p_pat
     return OK;
 }
 
-String EditorExportPlatform::find_export_template(String template_file_name, String *err) const {
+String EditorExportPlatform::find_export_template(const String& template_file_name, String *err) const {
 
     String current_version = VERSION_FULL_CONFIG;
     String template_path = PathUtils::plus_file(PathUtils::plus_file(EditorSettings::get_singleton()->get_templates_dir(),current_version),template_file_name);
@@ -401,7 +403,7 @@ String EditorExportPlatform::find_export_template(String template_file_name, Str
 }
 
 bool EditorExportPlatform::exists_export_template(String template_file_name, String *err) const {
-    return find_export_template(template_file_name, err) != "";
+    return !find_export_template(std::move(template_file_name), err).empty();
 }
 
 Ref<EditorExportPreset> EditorExportPlatform::create_preset() {
@@ -464,7 +466,7 @@ void EditorExportPlatform::_edit_files_with_filter(DirAccess *da, const Vector<S
 
     Vector<String> dirs;
     String f;
-    while ((f = da->get_next()) != "") {
+    while (!(f = da->get_next()).empty()) {
         if (da->current_is_dir())
             dirs.push_back(f);
         else {
@@ -498,7 +500,7 @@ void EditorExportPlatform::_edit_files_with_filter(DirAccess *da, const Vector<S
 
 void EditorExportPlatform::_edit_filter_list(Set<String> &r_list, const String &p_filter, bool exclude) {
 
-    if (p_filter == "")
+    if (p_filter.empty())
         return;
     Vector<String> split = StringUtils::split(p_filter,",");
     Vector<String> filters;
@@ -648,13 +650,13 @@ EditorExportPlatform::FeatureContainers EditorExportPlatform::get_feature_contai
         result.features_pv.push_back(E->get());
     }
 
-    if (p_preset->get_custom_features() != String()) {
+    if (!p_preset->get_custom_features().empty()) {
 
         Vector<String> tmp_custom_list = StringUtils::split(p_preset->get_custom_features(),",");
 
         for (int i = 0; i < tmp_custom_list.size(); i++) {
             String f =StringUtils::strip_edges( tmp_custom_list[i]);
-            if (f != String()) {
+            if (!f.empty()) {
                 result.features.insert(f);
                 result.features_pv.push_back(f);
             }
@@ -850,20 +852,20 @@ Error EditorExportPlatform::export_project_files(const Ref<EditorExportPreset> &
 
     Vector<String> custom_list;
 
-    if (p_preset->get_custom_features() != String()) {
+    if (!p_preset->get_custom_features().empty()) {
 
         Vector<String> tmp_custom_list = StringUtils::split(p_preset->get_custom_features(),",");
 
         for (int i = 0; i < tmp_custom_list.size(); i++) {
             String f =StringUtils::strip_edges( tmp_custom_list[i]);
-            if (f != String()) {
+            if (!f.empty()) {
                 custom_list.push_back(f);
             }
         }
     }
 
     ProjectSettings::CustomMap custom_map;
-    if (path_remaps.size()) {
+    if (!path_remaps.empty()) {
         if (true) { //new remap mode, use always as it's friendlier with multiple .pck exports
             for (int i = 0; i < path_remaps.size(); i += 2) {
                 String from = path_remaps[i];
@@ -887,11 +889,11 @@ Error EditorExportPlatform::export_project_files(const Ref<EditorExportPreset> &
     // Store icon and splash images directly, they need to bypass the import system and be loaded as images
     String icon = ProjectSettings::get_singleton()->get("application/config/icon");
     String splash = ProjectSettings::get_singleton()->get("application/boot_splash/image");
-    if (icon != String() && FileAccess::exists(icon)) {
+    if (!icon.empty() && FileAccess::exists(icon)) {
         Vector<uint8_t> array = FileAccess::get_file_as_array(icon);
         p_func(p_udata, icon, array, idx, total);
     }
-    if (splash != String() && FileAccess::exists(splash) && icon != splash) {
+    if (!splash.empty() && FileAccess::exists(splash) && icon != splash) {
         Vector<uint8_t> array = FileAccess::get_file_as_array(splash);
         p_func(p_udata, splash, array, idx, total);
     }
@@ -1109,7 +1111,7 @@ void EditorExportPlatform::gen_export_flags(Vector<String> &r_flags, int p_flags
         String passwd = EditorSettings::get_singleton()->get("filesystem/file_server/password");
         r_flags.push_back("--remote-fs");
         r_flags.push_back(host + ":" + itos(port));
-        if (passwd != "") {
+        if (!passwd.empty()) {
             r_flags.push_back("--remote-fs-password");
             r_flags.push_back(passwd);
         }
@@ -1124,7 +1126,7 @@ void EditorExportPlatform::gen_export_flags(Vector<String> &r_flags, int p_flags
         List<String> breakpoints;
         ScriptEditor::get_singleton()->get_breakpoints(&breakpoints);
 
-        if (breakpoints.size()) {
+        if (!breakpoints.empty()) {
 
             r_flags.push_back("--breakpoints");
             String bpoints;
@@ -1258,7 +1260,7 @@ String EditorExportPlatform::test_etc2() const {
             err += TTR("Target platform requires 'ETC2' texture compression for GLES3. Enable 'Import Etc 2' in Project Settings.");
         }
         if (driver_fallback && !etc_supported) {
-            if (err != String())
+            if (!err.empty())
                 err += "\n";
             err += TTR("Target platform requires 'ETC' texture compression for the driver fallback to GLES2.\nEnable 'Import Etc' in Project Settings, or disable 'Driver Fallback Enabled'.");
         }
@@ -1500,7 +1502,7 @@ bool EditorExportPlatformPC::can_export(const Ref<EditorExportPreset> &p_preset,
     String custom_debug_binary = p_preset->get("custom_template/debug");
     String custom_release_binary = p_preset->get("custom_template/release");
 
-    if (custom_debug_binary == "" && custom_release_binary == "") {
+    if (custom_debug_binary.empty() && custom_release_binary.empty()) {
         if (!err.empty())
             r_error = err;
         r_missing_templates = !valid;
@@ -1558,7 +1560,7 @@ Error EditorExportPlatformPC::export_project(const Ref<EditorExportPreset> &p_pr
 
     template_path =StringUtils::strip_edges( template_path);
 
-    if (template_path == String()) {
+    if (template_path.empty()) {
 
         if (p_preset->get("binary_format/64_bits")) {
             if (p_debug) {
@@ -1575,7 +1577,7 @@ Error EditorExportPlatformPC::export_project(const Ref<EditorExportPreset> &p_pr
         }
     }
 
-    if (template_path != String() && !FileAccess::exists(template_path)) {
+    if (!template_path.empty() && !FileAccess::exists(template_path)) {
         EditorNode::get_singleton()->show_warning(TTR("Template file not found:") + "\n" + template_path);
         return ERR_FILE_NOT_FOUND;
     }
@@ -1725,7 +1727,7 @@ void EditorExportTextSceneToBinaryPlugin::_export_file(const String &p_path, con
         ERR_FAIL();
     }
     Vector<uint8_t> data = FileAccess::get_file_as_array(tmp_path);
-    if (data.size() == 0) {
+    if (data.empty()) {
         DirAccess::remove_file_or_error(tmp_path);
         ERR_FAIL();
     }

@@ -132,7 +132,7 @@ void SceneTreeEditor::_cell_button_pressed(Object *p_item, int p_column, int p_i
     } else if (p_id == BUTTON_WARNING) {
 
         String config_err = n->get_configuration_warning();
-        if (config_err == String())
+        if (config_err.empty())
             return;
         config_err = StringUtils::word_wrap(config_err,80);
         warning->set_text(config_err);
@@ -245,7 +245,7 @@ bool SceneTreeEditor::_add_nodes(Node *p_node, TreeItem *p_parent) {
         }
     } else if (part_of_subscene) {
 
-        if (valid_types.size() == 0) {
+        if (valid_types.empty()) {
             item->set_custom_color(0, get_color("disabled_font_color", "Editor"));
         }
     } else if (marked.has(p_node)) {
@@ -273,7 +273,7 @@ bool SceneTreeEditor::_add_nodes(Node *p_node, TreeItem *p_parent) {
     if (can_rename) { //should be can edit..
 
         String warning = p_node->get_configuration_warning();
-        if (warning != String()) {
+        if (!warning.empty()) {
             item->add_button(0, get_icon("NodeWarning", "EditorIcons"), BUTTON_WARNING, false, TTR("Node configuration warning:") + "\n" + p_node->get_configuration_warning());
         }
 
@@ -307,16 +307,16 @@ bool SceneTreeEditor::_add_nodes(Node *p_node, TreeItem *p_parent) {
     if (p_node == get_scene_node() && p_node->get_scene_inherited_state().is_valid()) {
         item->add_button(0, get_icon("InstanceOptions", "EditorIcons"), BUTTON_SUBSCENE, false, TTR("Open in Editor"));
         String tooltip = TTR("Inherits:") + " " + p_node->get_scene_inherited_state()->get_path() + "\n" + TTR("Type:") + " " + p_node->get_class();
-        if (p_node->get_editor_description() != String()) {
+        if (!p_node->get_editor_description().empty()) {
             tooltip += "\n\n" + p_node->get_editor_description();
         }
 
         item->set_tooltip(0, tooltip);
-    } else if (p_node != get_scene_node() && p_node->get_filename() != "" && can_open_instance) {
+    } else if (p_node != get_scene_node() && !p_node->get_filename().empty() && can_open_instance) {
         item->add_button(0, get_icon("InstanceOptions", "EditorIcons"), BUTTON_SUBSCENE, false, TTR("Open in Editor"));
 
         String tooltip = TTR("Instance:") + " " + p_node->get_filename() + "\n" + TTR("Type:") + " " + p_node->get_class();
-        if (p_node->get_editor_description() != String()) {
+        if (!p_node->get_editor_description().empty()) {
             tooltip += "\n\n" + p_node->get_editor_description();
         }
 
@@ -328,7 +328,7 @@ bool SceneTreeEditor::_add_nodes(Node *p_node, TreeItem *p_parent) {
         }
 
         String tooltip = TTR("Type:") + " " + type;
-        if (p_node->get_editor_description() != String()) {
+        if (!p_node->get_editor_description().empty()) {
             tooltip += "\n\n" + p_node->get_editor_description();
         }
 
@@ -420,7 +420,7 @@ bool SceneTreeEditor::_add_nodes(Node *p_node, TreeItem *p_parent) {
         keep = keep || child_keep;
     }
 
-    if (valid_types.size()) {
+    if (!valid_types.empty()) {
         bool valid = false;
         for (int i = 0; i < valid_types.size(); i++) {
             if (p_node->is_class(valid_types[i].asCString())) {
@@ -943,7 +943,7 @@ Variant SceneTreeEditor::get_drag_data_fw(const Point2 &p_point, Control *p_from
         Node *n = get_node(np);
         if (n) {
             // Only allow selection if not part of an instanced scene.
-            if (!n->get_owner() || n->get_owner() == get_scene_node() || n->get_owner()->get_filename() == String()) {
+            if (!n->get_owner() || n->get_owner() == get_scene_node() || n->get_owner()->get_filename().empty()) {
                 selected.push_back(n);
                 icons.push_back(next->get_icon(0));
             }
@@ -995,7 +995,7 @@ bool SceneTreeEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_d
 
     if (!can_rename)
         return false; //not editable tree
-    if (filter != String())
+    if (!filter.empty())
         return false; //can't rearrange tree with filter turned on
 
     Dictionary d = p_data;
@@ -1014,7 +1014,7 @@ bool SceneTreeEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_d
 
         Vector<String> files = d["files"];
 
-        if (files.size() == 0)
+        if (files.empty())
             return false; //weird
 
         if (_is_script_type(EditorFileSystem::get_singleton()->get_file_type(files[0]))) {

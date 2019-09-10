@@ -70,7 +70,7 @@ int Curve::add_point(Vector2 p_pos, real_t left_tangent, real_t right_tangent, T
 
     int ret = -1;
 
-    if (_points.size() == 0) {
+    if (_points.empty()) {
         _points.push_back(Point(p_pos, left_tangent, right_tangent, left_mode, right_mode));
         ret = 0;
 
@@ -310,7 +310,7 @@ void Curve::set_max_value(float p_max) {
 }
 
 real_t Curve::interpolate(real_t offset) const {
-    if (_points.size() == 0)
+    if (_points.empty())
         return 0;
     if (_points.size() == 1)
         return _points[0].pos.y;
@@ -439,7 +439,7 @@ void Curve::bake() {
         _baked_cache.write[i] = y;
     }
 
-    if (_points.size() != 0) {
+    if (!_points.empty()) {
         _baked_cache.write[0] = _points[0].pos.y;
         _baked_cache.write[_baked_cache.size() - 1] = _points[_points.size() - 1].pos.y;
     }
@@ -461,8 +461,8 @@ real_t Curve::interpolate_baked(real_t offset) {
     }
 
     // Special cases if the cache is too small
-    if (_baked_cache.size() == 0) {
-        if (_points.size() == 0)
+    if (_baked_cache.empty()) {
+        if (_points.empty())
             return 0;
         return _points[0].pos.y;
     } else if (_baked_cache.size() == 1) {
@@ -490,7 +490,7 @@ real_t Curve::interpolate_baked(real_t offset) {
 }
 
 void Curve::ensure_default_setup(float p_min, float p_max) {
-    if (_points.size() == 0 && _min_value == 0 && _max_value == 1) {
+    if (_points.empty() && _min_value == 0 && _max_value == 1) {
 
         add_point(Vector2(0, 1));
         add_point(Vector2(1, 1));
@@ -677,7 +677,7 @@ void Curve2D::_bake() const {
     baked_max_ofs = 0;
     baked_cache_dirty = false;
 
-    if (points.size() == 0) {
+    if (points.empty()) {
         baked_point_cache.resize(0);
         return;
     }
@@ -945,7 +945,7 @@ PoolVector2Array Curve2D::tessellate(int p_max_stages, float p_tolerance) const 
 
     PoolVector2Array tess;
 
-    if (points.size() == 0) {
+    if (points.empty()) {
         return tess;
     }
     Vector<Map<float, Vector2> > midpoints;
@@ -1179,7 +1179,7 @@ void Curve3D::_bake() const {
     baked_max_ofs = 0;
     baked_cache_dirty = false;
 
-    if (points.size() == 0) {
+    if (points.empty()) {
         baked_point_cache.resize(0);
         baked_tilt_cache.resize(0);
         baked_up_vector_cache.resize(0);
@@ -1624,7 +1624,7 @@ PoolVector3Array Curve3D::tessellate(int p_max_stages, float p_tolerance) const 
 
     PoolVector3Array tess;
 
-    if (points.size() == 0) {
+    if (points.empty()) {
         return tess;
     }
     Vector<Map<float, Vector3> > midpoints;

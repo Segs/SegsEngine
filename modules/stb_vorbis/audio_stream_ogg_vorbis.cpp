@@ -35,6 +35,7 @@
 
 IMPL_GDCLASS(AudioStreamPlaybackOGGVorbis)
 IMPL_GDCLASS(AudioStreamOGGVorbis)
+RES_BASE_EXTENSION_IMPL(AudioStreamOGGVorbis,"oggstr")
 
 void AudioStreamPlaybackOGGVorbis::_mix_internal(AudioFrame *p_buffer, int p_frames) {
 

@@ -87,10 +87,10 @@ bool WSLServer::PendingPeer::_parse_request(const PoolStringArray p_protocols) {
                 break;
             }
             // Found a protocol
-            if (protocol != "")
+            if (!protocol.empty())
                 break;
         }
-        if (protocol == "") // Invalid protocol(s) requested
+        if (protocol.empty()) // Invalid protocol(s) requested
             return false;
     } else if (p_protocols.size() > 0) // No protocol requested, but we need one
         return false;
@@ -120,7 +120,7 @@ Error WSLServer::PendingPeer::do_handshake(PoolStringArray p_protocols) {
                 s += "Upgrade: websocket\r\n";
                 s += "Connection: Upgrade\r\n";
                 s += "Sec-WebSocket-Accept: " + WSLPeer::compute_key_response(key) + "\r\n";
-                if (protocol != "")
+                if (!protocol.empty())
                     s += "Sec-WebSocket-Protocol: " + protocol + "\r\n";
                 s += "\r\n";
 				response = StringUtils::to_utf8(s);

@@ -37,7 +37,7 @@ String Range::get_configuration_warning() const {
     String warning = Control::get_configuration_warning();
 
     if (shared->exp_ratio && shared->min <= 0) {
-        if (warning != String()) {
+        if (!warning.empty()) {
             warning += "\n\n";
         }
         warning += TTR(R"(If "Exp Edit" is enabled, "Min Value" must be greater than 0.)");
@@ -236,7 +236,7 @@ void Range::_unref_shared() {
 
     if (shared) {
         shared->owners.erase(this);
-        if (shared->owners.size() == 0) {
+        if (shared->owners.empty()) {
             memdelete(shared);
             shared = nullptr;
         }

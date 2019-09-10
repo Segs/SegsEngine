@@ -177,7 +177,7 @@ String Container::get_configuration_warning() const {
     String warning = Control::get_configuration_warning();
 
     if (strcmp(get_class(),"Container")==0 && get_script().is_null()) {
-        if (warning != String()) {
+        if (!warning.empty()) {
             warning += "\n\n";
         }
         warning += TTR("Container by itself serves no purpose unless a script configures its children placement behavior.\nIf "

@@ -32,6 +32,7 @@
 
 #include "csg_gizmos.h"
 #include "csg_shape.h"
+#include "core/class_db.h"
 
 void register_csg_types() {
 

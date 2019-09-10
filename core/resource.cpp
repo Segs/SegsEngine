@@ -33,6 +33,7 @@
 #include "core/core_string_names.h"
 #include "core/io/resource_loader.h"
 #include "core/object_db.h"
+#include "core/class_db.h"
 #include "core/os/file_access.h"
 #include "core/script_language.h"
 //TODO: SEGS consider removing 'scene/main/node.h' include from core module
@@ -42,6 +43,7 @@
 #include <cstdio>
 
 IMPL_GDCLASS(Resource)
+RES_BASE_EXTENSION_IMPL(Resource,"res")
 
 void Resource::emit_changed() {
 

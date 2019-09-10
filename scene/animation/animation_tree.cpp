@@ -145,7 +145,7 @@ float AnimationNode::_pre_process(const StringName &p_base_path, AnimationNode *
 void AnimationNode::make_invalid(const String &p_reason) {
     ERR_FAIL_COND(!state);
     state->valid = false;
-    if (state->invalid_reasons != String()) {
+    if (!state->invalid_reasons.empty()) {
         state->invalid_reasons += "\n";
     }
     state->invalid_reasons += "- " + p_reason;
@@ -1101,7 +1101,7 @@ void AnimationTree::_process_graph(float p_delta) {
                             //find stuff to play
                             List<int> to_play;
                             a->track_get_key_indices_in_range(i, time, delta, &to_play);
-                            if (to_play.size()) {
+                            if (!to_play.empty()) {
                                 int idx = to_play.back()->get();
 
                                 Ref<AudioStream> stream = a->audio_track_get_key_stream(i, idx);
@@ -1203,7 +1203,7 @@ void AnimationTree::_process_graph(float p_delta) {
                             //find stuff to play
                             List<int> to_play;
                             a->track_get_key_indices_in_range(i, time, delta, &to_play);
-                            if (to_play.size()) {
+                            if (!to_play.empty()) {
                                 int idx = to_play.back()->get();
 
                                 StringName anim_name = a->animation_track_get_key_animation(i, idx);
@@ -1347,7 +1347,7 @@ String AnimationTree::get_configuration_warning() const {
     String warning = Node::get_configuration_warning();
 
     if (!root.is_valid()) {
-        if (warning != String()) {
+        if (!warning.empty()) {
             warning += "\n\n";
         }
         warning += TTR("No root AnimationNode for the graph is set.");
@@ -1355,7 +1355,7 @@ String AnimationTree::get_configuration_warning() const {
 
     if (!has_node(animation_player)) {
 
-        if (warning != String()) {
+        if (!warning.empty()) {
             warning += "\n\n";
         }
 
@@ -1366,7 +1366,7 @@ String AnimationTree::get_configuration_warning() const {
     AnimationPlayer *player = Object::cast_to<AnimationPlayer>(get_node(animation_player));
 
     if (!player) {
-        if (warning != String()) {
+        if (!warning.empty()) {
             warning += "\n\n";
         }
 
@@ -1375,7 +1375,7 @@ String AnimationTree::get_configuration_warning() const {
     }
 
     if (!player->has_node(player->get_root())) {
-        if (warning != String()) {
+        if (!warning.empty()) {
             warning += "\n\n";
         }
 

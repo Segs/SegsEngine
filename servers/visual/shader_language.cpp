@@ -2434,7 +2434,7 @@ bool ShaderLanguage::is_sampler_type(DataType p_type) {
 }
 
 Variant ShaderLanguage::constant_value_to_variant(const Vector<ShaderLanguage::ConstantNode::Value> &p_value, DataType p_type, ShaderLanguage::ShaderNode::Uniform::Hint p_hint) {
-    if (p_value.size() > 0) {
+    if (!p_value.empty()) {
         Variant value;
         switch (p_type) {
             case ShaderLanguage::TYPE_BOOL:
@@ -4602,7 +4602,7 @@ Error ShaderLanguage::_parse_shader(const Map<StringName, FunctionInfo> &p_funct
 
         String valid;
         for (Set<String>::Element *E = p_shader_types.front(); E; E = E->next()) {
-            if (valid != String()) {
+            if (!valid.empty()) {
                 valid += ", ";
             }
             valid += "'" + E->get() + "'";
@@ -5116,7 +5116,7 @@ Error ShaderLanguage::_parse_shader(const Map<StringName, FunctionInfo> &p_funct
 
                 if (p_functions.has(name)) {
                     //if one of the core functions, make sure they are of the correct form
-                    if (func_node->arguments.size() > 0) {
+                    if (!func_node->arguments.empty()) {
                         _set_error("Function '" + String(name) + "' expects no arguments.");
                         return ERR_PARSE_ERROR;
                     }
@@ -5264,7 +5264,7 @@ String ShaderLanguage::get_shader_type(const String &p_code) {
             break;
 
         } else if (p_code[i] <= 32) {
-            if (cur_identifier != String()) {
+            if (!cur_identifier.empty()) {
                 if (!reading_type) {
                     if (cur_identifier != "shader_type") {
                         return String();
@@ -5459,7 +5459,7 @@ Error ShaderLanguage::complete(const String &p_code, const Map<StringName, Funct
                         }
                     }
 
-                    if (shader->functions[i].function->arguments.size())
+                    if (!shader->functions[i].function->arguments.empty())
                         calltip += " ";
                     calltip += ")";
 

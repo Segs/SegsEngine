@@ -409,14 +409,14 @@ void Polygon3DEditor::_polygon_draw() {
         Vector3 point = Vector3(p.x, p.y, depth);
         Vector3 next_point = Vector3(p2.x, p2.y, depth);
 
-        imgeom->set_color(Color(1, 0.3, 0.1, 0.8));
+        imgeom->set_color(Color(1, 0.3f, 0.1f, 0.8f));
         imgeom->add_vertex(point);
-        imgeom->set_color(Color(1, 0.3, 0.1, 0.8));
+        imgeom->set_color(Color(1, 0.3f, 0.1f, 0.8f));
         imgeom->add_vertex(next_point);
 
-        //Color col=Color(1,0.3,0.1,0.8);
+        //Color col=Color(1,0.3f,0.1f,0.8f);
         //vpc->draw_line(point,next_point,col,2);
-        //vpc->draw_texture(handle,point-handle->get_size()*0.5);
+        //vpc->draw_texture(handle,point-handle->get_size()*0.5f);
     }
 
     rect = rect.grow(1);
@@ -429,41 +429,41 @@ void Polygon3DEditor::_polygon_draw() {
     r.size.y = rect.size.y;
     r.size.z = 0;
 
-    imgeom->set_color(Color(0.8, 0.8, 0.8, 0.2));
+    imgeom->set_color(Color(0.8f, 0.8f, 0.8f, 0.2f));
     imgeom->add_vertex(r.position);
-    imgeom->set_color(Color(0.8, 0.8, 0.8, 0.2));
-    imgeom->add_vertex(r.position + Vector3(0.3, 0, 0));
-    imgeom->set_color(Color(0.8, 0.8, 0.8, 0.2));
+    imgeom->set_color(Color(0.8f, 0.8f, 0.8f, 0.2f));
+    imgeom->add_vertex(r.position + Vector3(0.3f, 0, 0));
+    imgeom->set_color(Color(0.8f, 0.8f, 0.8f, 0.2f));
     imgeom->add_vertex(r.position);
-    imgeom->set_color(Color(0.8, 0.8, 0.8, 0.2));
-    imgeom->add_vertex(r.position + Vector3(0.0, 0.3, 0));
+    imgeom->set_color(Color(0.8f, 0.8f, 0.8f, 0.2f));
+    imgeom->add_vertex(r.position + Vector3(0.0f, 0.3f, 0));
 
-    imgeom->set_color(Color(0.8, 0.8, 0.8, 0.2));
+    imgeom->set_color(Color(0.8f, 0.8f, 0.8f, 0.2f));
     imgeom->add_vertex(r.position + Vector3(r.size.x, 0, 0));
-    imgeom->set_color(Color(0.8, 0.8, 0.8, 0.2));
-    imgeom->add_vertex(r.position + Vector3(r.size.x, 0, 0) - Vector3(0.3, 0, 0));
-    imgeom->set_color(Color(0.8, 0.8, 0.8, 0.2));
+    imgeom->set_color(Color(0.8f, 0.8f, 0.8f, 0.2f));
+    imgeom->add_vertex(r.position + Vector3(r.size.x, 0, 0) - Vector3(0.3f, 0, 0));
+    imgeom->set_color(Color(0.8f, 0.8f, 0.8f, 0.2f));
     imgeom->add_vertex(r.position + Vector3(r.size.x, 0, 0));
-    imgeom->set_color(Color(0.8, 0.8, 0.8, 0.2));
-    imgeom->add_vertex(r.position + Vector3(r.size.x, 0, 0) + Vector3(0, 0.3, 0));
+    imgeom->set_color(Color(0.8f, 0.8f, 0.8f, 0.2f));
+    imgeom->add_vertex(r.position + Vector3(r.size.x, 0, 0) + Vector3(0, 0.3f, 0));
 
-    imgeom->set_color(Color(0.8, 0.8, 0.8, 0.2));
+    imgeom->set_color(Color(0.8f, 0.8f, 0.8f, 0.2f));
     imgeom->add_vertex(r.position + Vector3(0, r.size.y, 0));
-    imgeom->set_color(Color(0.8, 0.8, 0.8, 0.2));
-    imgeom->add_vertex(r.position + Vector3(0, r.size.y, 0) - Vector3(0, 0.3, 0));
-    imgeom->set_color(Color(0.8, 0.8, 0.8, 0.2));
+    imgeom->set_color(Color(0.8f, 0.8f, 0.8f, 0.2f));
+    imgeom->add_vertex(r.position + Vector3(0, r.size.y, 0) - Vector3(0, 0.3f, 0));
+    imgeom->set_color(Color(0.8f, 0.8f, 0.8f, 0.2f));
     imgeom->add_vertex(r.position + Vector3(0, r.size.y, 0));
-    imgeom->set_color(Color(0.8, 0.8, 0.8, 0.2));
-    imgeom->add_vertex(r.position + Vector3(0, r.size.y, 0) + Vector3(0.3, 0, 0));
+    imgeom->set_color(Color(0.8f, 0.8f, 0.8f, 0.2f));
+    imgeom->add_vertex(r.position + Vector3(0, r.size.y, 0) + Vector3(0.3f, 0, 0));
 
-    imgeom->set_color(Color(0.8, 0.8, 0.8, 0.2));
+    imgeom->set_color(Color(0.8f, 0.8f, 0.8f, 0.2f));
     imgeom->add_vertex(r.position + r.size);
-    imgeom->set_color(Color(0.8, 0.8, 0.8, 0.2));
-    imgeom->add_vertex(r.position + r.size - Vector3(0.3, 0, 0));
-    imgeom->set_color(Color(0.8, 0.8, 0.8, 0.2));
+    imgeom->set_color(Color(0.8f, 0.8f, 0.8f, 0.2f));
+    imgeom->add_vertex(r.position + r.size - Vector3(0.3f, 0, 0));
+    imgeom->set_color(Color(0.8f, 0.8f, 0.8f, 0.2f));
     imgeom->add_vertex(r.position + r.size);
-    imgeom->set_color(Color(0.8, 0.8, 0.8, 0.2));
-    imgeom->add_vertex(r.position + r.size - Vector3(0.0, 0.3, 0));
+    imgeom->set_color(Color(0.8f, 0.8f, 0.8f, 0.2f));
+    imgeom->add_vertex(r.position + r.size - Vector3(0.0f, 0.3f, 0));
 
     imgeom->end();
 
@@ -549,11 +549,11 @@ Polygon3DEditor::Polygon3DEditor(EditorNode *p_editor) {
     mode = MODE_EDIT;
     wip_active = false;
     imgeom = memnew(ImmediateGeometry);
-    imgeom->set_transform(Transform(Basis(), Vector3(0, 0, 0.00001)));
+    imgeom->set_transform(Transform(Basis(), Vector3(0, 0, 0.00001f)));
 
     line_material = Ref<SpatialMaterial>(memnew(SpatialMaterial));
     line_material->set_flag(SpatialMaterial::FLAG_UNSHADED, true);
-    line_material->set_line_width(3.0);
+    line_material->set_line_width(3.0f);
     line_material->set_feature(SpatialMaterial::FEATURE_TRANSPARENT, true);
     line_material->set_flag(SpatialMaterial::FLAG_ALBEDO_FROM_VERTEX_COLOR, true);
     line_material->set_flag(SpatialMaterial::FLAG_SRGB_VERTEX_COLOR, true);
@@ -573,7 +573,7 @@ Polygon3DEditor::Polygon3DEditor(EditorNode *p_editor) {
     imgeom->add_child(pointsm);
     m.instance();
     pointsm->set_mesh(m);
-    pointsm->set_transform(Transform(Basis(), Vector3(0, 0, 0.00001)));
+    pointsm->set_transform(Transform(Basis(), Vector3(0, 0, 0.00001f)));
 
     snap_ignore = false;
 }

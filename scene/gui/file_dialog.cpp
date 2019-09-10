@@ -411,7 +411,7 @@ void FileDialog::update_file_list() {
     bool is_hidden;
     String item;
 
-    while ((item = dir_access->get_next()) != "") {
+    while (!(item = dir_access->get_next()).empty()) {
 
         if (item == "." || item == "..")
             continue;

@@ -328,7 +328,7 @@ Map<int, TextEdit::HighlighterInfo> GDScriptSyntaxHighlighter::_get_line_syntax_
                     previous_column = j;
 
                     // ignore if just whitespace
-                    if (text != "") {
+                    if (!text.empty()) {
                         previous_text = text;
                     }
                 }

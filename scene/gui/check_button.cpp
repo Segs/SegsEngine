@@ -30,6 +30,7 @@
 
 #include "check_button.h"
 
+#include "core/class_db.h"
 #include "core/print_string.h"
 #include "servers/visual_server.h"
 #include "scene/resources/style_box.h"

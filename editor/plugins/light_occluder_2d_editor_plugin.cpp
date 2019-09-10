@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "light_occluder_2d_editor_plugin.h"
+#include "core/class_db.h"
 
 IMPL_GDCLASS(LightOccluder2DEditor)
 IMPL_GDCLASS(LightOccluder2DEditorPlugin)

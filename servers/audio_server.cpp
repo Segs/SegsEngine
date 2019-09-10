@@ -1221,7 +1221,7 @@ void AudioServer::remove_update_callback(AudioCallback p_callback, void *p_userd
 
 void AudioServer::set_bus_layout(const Ref<AudioBusLayout> &p_bus_layout) {
 
-    ERR_FAIL_COND(p_bus_layout.is_null() || p_bus_layout->buses.size() == 0);
+    ERR_FAIL_COND(p_bus_layout.is_null() || p_bus_layout->buses.empty());
 
     lock();
     for (int i = 0; i < buses.size(); i++) {

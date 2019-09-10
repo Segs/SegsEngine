@@ -39,6 +39,7 @@ IMPL_GDCLASS(StyleBoxEmpty)
 IMPL_GDCLASS(StyleBoxTexture)
 IMPL_GDCLASS(StyleBoxFlat)
 IMPL_GDCLASS(StyleBoxLine)
+RES_BASE_EXTENSION_IMPL(StyleBox,"stylebox")
 
 bool StyleBox::test_mask(const Point2 &p_point, const Rect2 &p_rect) const {
 

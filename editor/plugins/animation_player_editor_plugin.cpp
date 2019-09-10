@@ -834,17 +834,17 @@ void AnimationPlayerEditor::_update_player() {
     ITEM_DISABLED(TOOL_DUPLICATE_ANIM, animlist.empty());
     ITEM_DISABLED(TOOL_RENAME_ANIM, animlist.empty());
     ITEM_DISABLED(TOOL_EDIT_TRANSITIONS, animlist.empty());
-    ITEM_DISABLED(TOOL_COPY_ANIM, animlist.size() == 0);
-    ITEM_DISABLED(TOOL_REMOVE_ANIM, animlist.size() == 0);
+    ITEM_DISABLED(TOOL_COPY_ANIM, animlist.empty());
+    ITEM_DISABLED(TOOL_REMOVE_ANIM, animlist.empty());
 
     stop->set_disabled(animlist.empty());
     play->set_disabled(animlist.empty());
-    play_bw->set_disabled(animlist.size() == 0);
+    play_bw->set_disabled(animlist.empty());
     play_bw_from->set_disabled(animlist.empty());
-    play_from->set_disabled(animlist.size() == 0);
+    play_from->set_disabled(animlist.empty());
     frame->set_editable(!animlist.empty());
     animation->set_disabled(animlist.empty());
-    autoplay->set_disabled(animlist.size() == 0);
+    autoplay->set_disabled(animlist.empty());
     tool_anim->set_disabled(player == nullptr);
     onion_toggle->set_disabled(animlist.empty());
     onion_skinning->set_disabled(animlist.empty());

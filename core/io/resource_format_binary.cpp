@@ -30,6 +30,7 @@
 
 #include "resource_format_binary.h"
 
+#include "core/class_db.h"
 #include "core/image.h"
 #include "core/io/file_access_compressed.h"
 #include "core/io/marshalls.h"

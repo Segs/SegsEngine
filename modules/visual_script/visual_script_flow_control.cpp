@@ -781,7 +781,7 @@ String VisualScriptTypeCast::get_caption() const {
 
 String VisualScriptTypeCast::get_text() const {
 
-    if (script != String())
+    if (!script.empty())
         return "Is " + PathUtils::get_file(script) + "?";
     else
         return "Is " + base_type + "?";
@@ -820,7 +820,7 @@ VisualScriptTypeCast::TypeGuess VisualScriptTypeCast::guess_output_type(TypeGues
 
     TypeGuess tg;
     tg.type = Variant::OBJECT;
-    if (script != String()) {
+    if (!script.empty()) {
         tg.script = ResourceLoader::load(script);
     }
     //if (!tg.script.is_valid()) {
@@ -852,7 +852,7 @@ public:
             return 0;
         }
 
-        if (script != String()) {
+        if (!script.empty()) {
 
             Ref<Script> obj_script = obj->get_script();
             if (!obj_script.is_valid()) {

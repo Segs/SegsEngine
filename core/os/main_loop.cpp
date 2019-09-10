@@ -32,6 +32,7 @@
 
 #include "core/script_language.h"
 #include "core/method_bind.h"
+#include "core/os/input_event.h"
 
 IMPL_GDCLASS(MainLoop)
 
@@ -71,6 +72,13 @@ void MainLoop::_bind_methods() {
 void MainLoop::set_init_script(const Ref<Script> &p_init_script) {
 
     init_script = p_init_script;
+}
+
+MainLoop::MainLoop() {}
+
+MainLoop::~MainLoop()
+{
+
 }
 
 void MainLoop::input_text(const String &p_text) {

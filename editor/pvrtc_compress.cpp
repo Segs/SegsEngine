@@ -45,7 +45,7 @@ static void _compress_image(Image::CompressMode p_mode, Image *p_image) {
 
     String ttpath = EditorSettings::get_singleton()->get("filesystem/import/pvrtc_texture_tool");
 
-    if (StringUtils::strip_edges(ttpath) == "" || !FileAccess::exists(ttpath)) {
+    if (StringUtils::strip_edges(ttpath).empty() || !FileAccess::exists(ttpath)) {
         switch (p_mode) {
 
             case Image::COMPRESS_PVRTC2:

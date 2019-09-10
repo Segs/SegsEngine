@@ -71,7 +71,7 @@ void EditorAssetInstaller::_item_edited() {
     String path = item->get_metadata(0);
 
     updating = true;
-    if (path == String()) { //a dir
+    if (path.empty()) { //a dir
         _update_subitems(item, item->is_checked(0), true);
     }
 
@@ -155,7 +155,7 @@ void EditorAssetInstaller::open(const String &p_path, int p_depth) {
             depth--;
         }
 
-        if (skip || path == String())
+        if (skip || path.empty())
             continue;
 
         bool isdir = false;
@@ -245,7 +245,7 @@ void EditorAssetInstaller::ok_pressed() {
         if (status_map.has(name) && status_map[name]->is_checked(0)) {
 
             String path = status_map[name]->get_metadata(0);
-            if (path == String()) { // a dir
+            if (path.empty()) { // a dir
 
                 String dirpath;
                 TreeItem *t = status_map[name];
@@ -291,7 +291,7 @@ void EditorAssetInstaller::ok_pressed() {
     ProgressDialog::get_singleton()->end_task("uncompress");
     unzClose(pkg);
 
-    if (failed_files.size()) {
+    if (!failed_files.empty()) {
         String msg = "The following files failed extraction from package:\n\n";
         for (int i = 0; i < failed_files.size(); i++) {
 

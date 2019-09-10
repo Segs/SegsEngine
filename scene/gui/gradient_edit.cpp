@@ -194,7 +194,7 @@ void GradientEdit::_gui_input(const Ref<InputEvent> &p_event) {
 
             prev.color = Color(0, 0, 0);
             prev.offset = 0;
-            if (points.size()) {
+            if (!points.empty()) {
                 next = points[0];
             } else {
                 next.color = Color(1, 1, 1);
@@ -325,7 +325,7 @@ void GradientEdit::_notification(int p_what) {
         //Draw color ramp
         Gradient::Point prev;
         prev.offset = 0;
-        if (points.size() == 0)
+        if (points.empty())
             prev.color = Color(0, 0, 0); //Draw black rectangle if we have no points
         else
             prev.color = points[0].color; //Extend color of first point to the beginning.
@@ -335,7 +335,7 @@ void GradientEdit::_notification(int p_what) {
             Gradient::Point next;
             //If there is no next point
             if (i + 1 == points.size()) {
-                if (points.size() == 0)
+                if (points.empty())
                     next.color = Color(0, 0, 0); //Draw black rectangle if we have no points
                 else
                     next.color = points[i].color; //Extend color of last point to the end.

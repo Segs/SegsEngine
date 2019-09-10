@@ -37,6 +37,8 @@
 #include "scene/resources/style_box.h"
 #include "scene/resources/font.h"
 #include "core/method_bind.h"
+#include "core/os/input_event.h"
+
 
 IMPL_GDCLASS(Tabs)
 
@@ -54,7 +56,7 @@ Size2 Tabs::get_minimum_size() const {
         Ref<Texture> tex = tabs[i].icon;
         if (tex.is_valid()) {
             ms.height = MAX(ms.height, tex->get_size().height);
-            if (tabs[i].text != "")
+            if (!tabs[i].text.empty())
                 ms.width += get_constant("hseparation");
         }
 
@@ -325,7 +327,7 @@ void Tabs::_notification(int p_what) {
                 if (icon.is_valid()) {
 
                     icon->draw(ci, Point2i(w, sb->get_margin(MARGIN_TOP) + ((sb_rect.size.y - sb_ms.y) - icon->get_height()) / 2));
-                    if (tabs[i].text != "")
+                    if (!tabs[i].text.empty())
                         w += icon->get_width() + get_constant("hseparation");
                 }
 
@@ -806,7 +808,7 @@ int Tabs::get_tab_width(int p_idx) const {
     Ref<Texture> tex = tabs[p_idx].icon;
     if (tex.is_valid()) {
         x += tex->get_width();
-        if (tabs[p_idx].text != "")
+        if (!tabs[p_idx].text.empty())
             x += get_constant("hseparation");
     }
 
@@ -869,7 +871,7 @@ void Tabs::ensure_tab_visible(int p_idx) {
     if (!is_inside_tree())
         return;
 
-    if (tabs.size() == 0) return;
+    if (tabs.empty()) return;
     ERR_FAIL_INDEX(p_idx, tabs.size());
 
     if (p_idx == offset) {

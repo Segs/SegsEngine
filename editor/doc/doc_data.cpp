@@ -1068,7 +1068,7 @@ Error DocData::save_classes(const String &p_default_path, const Map<String, Stri
 
         _write_string(f, 1, "</methods>");
 
-        if (c.properties.size()) {
+        if (!c.properties.empty()) {
             _write_string(f, 1, "<members>");
 
             c.properties.sort();
@@ -1076,10 +1076,10 @@ Error DocData::save_classes(const String &p_default_path, const Map<String, Stri
             for (int i = 0; i < c.properties.size(); i++) {
 
                 String additional_attributes;
-                if (c.properties[i].enumeration != String()) {
+                if (!c.properties[i].enumeration.empty()) {
                     additional_attributes += " enum=\"" + c.properties[i].enumeration + "\"";
                 }
-                if (c.properties[i].default_value != String()) {
+                if (!c.properties[i].default_value.empty()) {
                     additional_attributes += " default=\"" + StringUtils::xml_escape(c.properties[i].default_value,true) + "\"";
                 }
                 const PropertyDoc &p = c.properties[i];
@@ -1090,7 +1090,7 @@ Error DocData::save_classes(const String &p_default_path, const Map<String, Stri
             _write_string(f, 1, "</members>");
         }
 
-        if (c.defined_signals.size()) {
+        if (!c.defined_signals.empty()) {
 
             c.defined_signals.sort();
 
@@ -1121,7 +1121,7 @@ Error DocData::save_classes(const String &p_default_path, const Map<String, Stri
         for (int i = 0; i < c.constants.size(); i++) {
 
             const ConstantDoc &k = c.constants[i];
-            if (k.enumeration != String()) {
+            if (!k.enumeration.empty()) {
                 _write_string(f, 2, "<constant name=\"" + k.name + "\" value=\"" + k.value + "\" enum=\"" + k.enumeration + "\">");
             } else {
                 _write_string(f, 2, "<constant name=\"" + k.name + "\" value=\"" + k.value + "\">");
@@ -1132,7 +1132,7 @@ Error DocData::save_classes(const String &p_default_path, const Map<String, Stri
 
         _write_string(f, 1, "</constants>");
 
-        if (c.theme_properties.size()) {
+        if (!c.theme_properties.empty()) {
 
             c.theme_properties.sort();
 
@@ -1141,7 +1141,7 @@ Error DocData::save_classes(const String &p_default_path, const Map<String, Stri
 
                 const PropertyDoc &p = c.theme_properties[i];
 
-                if (p.default_value != "")
+                if (!p.default_value.empty())
                     _write_string(f, 2, "<theme_item name=\"" + p.name + "\" type=\"" + p.type + "\" default=\"" + StringUtils::xml_escape(p.default_value,true) + "\">");
                 else
                     _write_string(f, 2, "<theme_item name=\"" + p.name + "\" type=\"" + p.type + "\">");

@@ -354,7 +354,7 @@ Vector<int> VisualShader::get_node_list(Type p_type) const {
 int VisualShader::get_valid_node_id(Type p_type) const {
     ERR_FAIL_INDEX_V(p_type, TYPE_MAX, NODE_ID_INVALID);
     const Graph *g = &graph[p_type];
-    return g->nodes.size() ? MAX(2, g->nodes.back()->key() + 1) : 2;
+    return !g->nodes.empty() ? MAX(2, g->nodes.back()->key() + 1) : 2;
 }
 
 int VisualShader::find_node_id(Type p_type, const Ref<VisualShaderNode> &p_node) const {
@@ -695,7 +695,7 @@ String VisualShader::validate_port_name(const String &p_name, const List<String>
         name = StringUtils::substr(name,1, name.length() - 1);
     }
 
-    if (name != String()) {
+    if (!name.empty()) {
 
         String valid_name;
 
@@ -757,7 +757,7 @@ String VisualShader::validate_uniform_name(const String &p_name, const Ref<Visua
         name = valid_name;
     }
 
-    if (name == String()) {
+    if (name.empty()) {
         name = p_uniform->get_caption();
     }
 
@@ -1202,7 +1202,7 @@ void VisualShader::_update_shader() const {
                         String mode = ShaderTypes::get_singleton()->get_modes(VisualServer::ShaderMode(shader_mode))[i];
                         if (StringUtils::begins_with(mode,render_mode_enums[idx].string)) {
                             if (count == which) {
-                                if (render_mode != String()) {
+                                if (!render_mode.empty()) {
                                     render_mode += ", ";
                                 }
                                 render_mode += mode;
@@ -1221,7 +1221,7 @@ void VisualShader::_update_shader() const {
 
             String mode = ShaderTypes::get_singleton()->get_modes(VisualServer::ShaderMode(shader_mode))[i];
             if (flags.has(mode)) {
-                if (render_mode != String()) {
+                if (!render_mode.empty()) {
                     render_mode += ", ";
                 }
                 render_mode += mode;
@@ -1229,7 +1229,7 @@ void VisualShader::_update_shader() const {
         }
     }
 
-    if (render_mode != String()) {
+    if (!render_mode.empty()) {
 
         global_code += "render_mode " + render_mode + ";\n\n";
     }
@@ -1613,7 +1613,7 @@ String VisualShaderNodeInput::generate_code(Shader::Mode p_mode, VisualShader::T
             idx++;
         }
 
-        if (code == String()) {
+        if (code.empty()) {
             switch (get_output_port_type(0)) {
                 case PORT_TYPE_SCALAR: {
                     code = "\t" + p_output_vars[0] + " = 0.0;\n";
@@ -1647,7 +1647,7 @@ String VisualShaderNodeInput::generate_code(Shader::Mode p_mode, VisualShader::T
             idx++;
         }
 
-        if (code == String()) {
+        if (code.empty()) {
             code = "\t" + p_output_vars[0] + " = 0.0;\n"; //default (none found) is scalar
         }
 
@@ -1739,7 +1739,7 @@ void VisualShaderNodeInput::_validate_property(PropertyInfo &property) const {
 
         while (ports[idx].mode != Shader::MODE_MAX) {
             if (ports[idx].mode == shader_mode && ports[idx].shader_type == shader_type) {
-                if (port_list != String()) {
+                if (!port_list.empty()) {
                     port_list += ",";
                 }
                 port_list += ports[idx].name;
@@ -1747,7 +1747,7 @@ void VisualShaderNodeInput::_validate_property(PropertyInfo &property) const {
             idx++;
         }
 
-        if (port_list == "") {
+        if (port_list.empty()) {
             port_list = TTR("None");
         }
         property.hint_string = port_list;
@@ -1929,7 +1929,7 @@ String VisualShaderNodeOutput::generate_code(Shader::Mode p_mode, VisualShader::
     while (ports[idx].mode != Shader::MODE_MAX) {
         if (ports[idx].mode == shader_mode && ports[idx].shader_type == shader_type) {
 
-            if (p_input_vars[count] != String()) {
+            if (!p_input_vars[count].empty()) {
                 String s = ports[idx].string;
                 if (StringUtils::contains(s,':')) {
                     code += "\t" + StringUtils::get_slice(s,':', 0) + " = " + p_input_vars[count] + "." + StringUtils::get_slice(s,':', 1) + ";\n";

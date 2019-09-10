@@ -81,7 +81,7 @@ bool EditorSettings::_set_only(const StringName &p_name, const Variant &p_value)
     if (p_name.operator String() == "shortcuts") {
 
         Array arr = p_value;
-        ERR_FAIL_COND_V(arr.size() && arr.size() & 1, true);
+        ERR_FAIL_COND_V(!arr.empty() && arr.size() & 1, true);
         for (int i = 0; i < arr.size(); i += 2) {
 
             String name = arr[i];
@@ -299,14 +299,14 @@ void EditorSettings::_load_defaults(Ref<ConfigFile> p_extra_config) {
                 best = locale;
             }
 
-            if (best == String() && StringUtils::begins_with(host_lang,locale)) {
+            if (best.empty() && StringUtils::begins_with(host_lang,locale)) {
                 best = locale;
             }
 
             etl++;
         }
 
-        if (best == String()) {
+        if (best.empty()) {
             best = "en";
         }
 
@@ -840,7 +840,7 @@ void EditorSettings::create() {
 
     String config_file_path;
 
-    if (!data_path.empty() && config_path != "" && cache_path != "") {
+    if (!data_path.empty() && !config_path.empty() && !cache_path.empty()) {
 
         // Validate/create data dir and subdirectories
 
@@ -1036,7 +1036,7 @@ void EditorSettings::setup_network() {
     // Select current IP (found)
         if (ip == current)
         selected = ip;
-        if (hint != "")
+        if (!hint.empty())
             hint += ",";
         hint += ip;
     }
@@ -1055,7 +1055,7 @@ void EditorSettings::save() {
     if (!singleton.ptr())
         return;
 
-    if (singleton->config_file_path == "") {
+    if (singleton->config_file_path.empty()) {
         ERR_PRINT("Cannot save EditorSettings config, no valid path");
         return;
     }
@@ -1296,7 +1296,7 @@ void EditorSettings::load_favorites() {
     FileAccess *f = FileAccess::open(PathUtils::plus_file(get_project_settings_dir(),"favorites"), FileAccess::READ);
     if (f) {
         String line = StringUtils::strip_edges(f->get_line());
-        while (line != "") {
+        while (!line.empty()) {
             favorites.push_back(line);
             line = StringUtils::strip_edges(f->get_line());
         }
@@ -1306,7 +1306,7 @@ void EditorSettings::load_favorites() {
     f = FileAccess::open(PathUtils::plus_file(get_project_settings_dir(),"recent_dirs"), FileAccess::READ);
     if (f) {
         String line = StringUtils::strip_edges(f->get_line());
-        while (line != "") {
+        while (!line.empty()) {
             recent_dirs.push_back(line);
             line = StringUtils::strip_edges(f->get_line());
         }
@@ -1329,7 +1329,7 @@ void EditorSettings::list_text_editor_themes() {
         List<String> custom_themes;
         d->list_dir_begin();
         String file = d->get_next();
-        while (file != String()) {
+        while (!file.empty()) {
             if (PathUtils::get_extension(file) == "tet" && !_is_default_text_editor_theme(StringUtils::to_lower(PathUtils::get_basename(file)))) {
                 custom_themes.push_back(PathUtils::get_basename(file));
             }
@@ -1452,7 +1452,7 @@ Vector<String> EditorSettings::get_script_templates(const String &p_extension, c
     if (d) {
         d->list_dir_begin();
         String file = d->get_next();
-        while (file != String()) {
+        while (!file.empty()) {
             if (PathUtils::get_extension(file) == p_extension) {
                 templates.push_back(PathUtils::get_basename(file));
             }

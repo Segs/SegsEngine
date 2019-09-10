@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "collision_polygon_2d_editor_plugin.h"
+#include "core/class_db.h"
 
 IMPL_GDCLASS(CollisionPolygon2DEditor)
 IMPL_GDCLASS(CollisionPolygon2DEditorPlugin)

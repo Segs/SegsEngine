@@ -31,6 +31,7 @@
 #pragma once
 
 #include "core/os/input.h"
+#include "core/os/input_event.h"
 
 class InputDefault : public Input {
 

@@ -36,6 +36,7 @@
 #include <cassert>
 
 IMPL_GDCLASS(Theme)
+RES_BASE_EXTENSION_IMPL(Theme,"theme")
 
 void Theme::_emit_theme_changed() {
 

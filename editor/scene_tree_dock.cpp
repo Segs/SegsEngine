@@ -210,7 +210,7 @@ void SceneTreeDock::_perform_instance_scenes(const Vector<String> &p_files, Node
             break;
         }
 
-        if (edited_scene->get_filename() != "") {
+        if (!edited_scene->get_filename().empty()) {
 
             if (_cyclical_dependency_exists(edited_scene->get_filename(), instanced_scene)) {
 
@@ -446,9 +446,9 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
             Ref<Script> existing = selected->get_script();
 
             String path = selected->get_filename();
-            if (path == "") {
+            if (path.empty()) {
                 String root_path = editor_data->get_edited_scene_root()->get_filename();
-                if (root_path == "") {
+                if (root_path.empty()) {
                     path = PathUtils::plus_file("res://",selected->get_name());
                 } else {
                     path = PathUtils::plus_file(PathUtils::get_base_dir(root_path),selected->get_name());
@@ -593,7 +593,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
                 break;
 
             List<Node *> selection = editor_selection->get_selected_node_list();
-            if (selection.size() == 0)
+            if (selection.empty())
                 break;
 
             editor_data->get_undo_redo().create_action(TTR("Duplicate Node(s)"));
@@ -714,7 +714,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
                 return;
             }
 
-            if (node->get_filename() != String()) {
+            if (!node->get_filename().empty()) {
                 accept->set_text(TTR("Instantiated scenes can't become root"));
                 accept->popup_centered_minsize();
                 return;
@@ -834,7 +834,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
                 break;
             }
 
-            if (tocopy != editor_data->get_edited_scene_root() && tocopy->get_filename() != "") {
+            if (tocopy != editor_data->get_edited_scene_root() && !tocopy->get_filename().empty()) {
                 accept->set_text(TTR("This operation can't be done on instanced scenes."));
                 accept->popup_centered_minsize();
                 break;
@@ -943,7 +943,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
                     if (!root)
                         break;
 
-                    ERR_FAIL_COND(node->get_filename() == String());
+                    ERR_FAIL_COND(node->get_filename().empty());
                     undo_redo->create_action(TTR("Make Local"));
                     undo_redo->add_do_method(node, "set_filename", "");
                     undo_redo->add_undo_method(node, "set_filename", node->get_filename());
@@ -1275,12 +1275,12 @@ void SceneTreeDock::_set_owners(Node *p_owner, const Array &p_nodes) {
 void SceneTreeDock::_fill_path_renames(Vector<StringName> base_path, Vector<StringName> new_base_path, Node *p_node, List<Pair<NodePath, NodePath> > *p_renames) {
 
     base_path.push_back(p_node->get_name());
-    if (new_base_path.size())
+    if (!new_base_path.empty())
         new_base_path.push_back(p_node->get_name());
 
     NodePath from(base_path, true);
     NodePath to;
-    if (new_base_path.size())
+    if (!new_base_path.empty())
         to = NodePath(new_base_path, true);
 
     Pair<NodePath, NodePath> npp;
@@ -1575,7 +1575,7 @@ void SceneTreeDock::_do_reparent(Node *p_new_parent, int p_position_in_parent, V
     }
     //ok all valid
 
-    if (p_nodes.size() == 0)
+    if (p_nodes.empty())
         return; //nothing to reparent
 
     //sort by tree order, so re-adding is easy
@@ -1888,7 +1888,7 @@ void SceneTreeDock::_update_script_button() {
 
         button_create_script->hide();
         button_clear_script->hide();
-    } else if (EditorNode::get_singleton()->get_editor_selection()->get_selection().size() == 0) {
+    } else if (EditorNode::get_singleton()->get_editor_selection()->get_selection().empty()) {
         button_create_script->hide();
         button_clear_script->hide();
     } else if (EditorNode::get_singleton()->get_editor_selection()->get_selection().size() == 1) {
@@ -2015,7 +2015,7 @@ void SceneTreeDock::_create() {
 
     } else if (current_option == TOOL_REPLACE) {
         List<Node *> selection = editor_selection->get_selected_node_list();
-        ERR_FAIL_COND(selection.size() <= 0);
+        ERR_FAIL_COND(selection.empty());
 
         UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
         ur->create_action(TTR("Change type of node(s)"));
@@ -2039,7 +2039,7 @@ void SceneTreeDock::_create() {
         ur->commit_action();
     } else if (current_option == TOOL_REPARENT_TO_NEW_NODE) {
         List<Node *> selection = editor_selection->get_selected_node_list();
-        ERR_FAIL_COND(selection.size() <= 0);
+        ERR_FAIL_COND(selection.empty());
 
         // Find top level node in selection
         bool only_one_top_node = true;
@@ -2417,7 +2417,7 @@ void SceneTreeDock::_tree_rmb(const Vector2 &p_menu_pos) {
 
     List<Node *> selection = editor_selection->get_selected_node_list();
 
-    if (selection.size() == 0)
+    if (selection.empty())
         return;
 
     menu->clear();
@@ -2490,7 +2490,7 @@ void SceneTreeDock::_tree_rmb(const Vector2 &p_menu_pos) {
         }
         menu->add_icon_shortcut(get_icon("CopyNodePath", "EditorIcons"), ED_GET_SHORTCUT("scene_tree/copy_node_path"), TOOL_COPY_NODE_PATH);
 
-        bool is_external = (selection[0]->get_filename() != "");
+        bool is_external = (!selection[0]->get_filename().empty());
         if (is_external) {
             bool is_inherited = selection[0]->get_scene_inherited_state() != nullptr;
             bool is_top_level = selection[0]->get_owner() == nullptr;
@@ -2648,7 +2648,7 @@ void SceneTreeDock::_update_create_root_dialog() {
             while (!f->eof_reached()) {
                 String l = StringUtils::strip_edges(f->get_line());
 
-                if (l != String()) {
+                if (!l.empty()) {
                     Button *button = memnew(Button);
                     favorite_nodes->add_child(button);
                     button->set_text(TTR(l));

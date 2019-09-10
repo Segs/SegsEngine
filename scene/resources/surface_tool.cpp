@@ -229,7 +229,7 @@ void SurfaceTool::add_weights(const Vector<float> &p_weights) {
 void SurfaceTool::add_smooth_group(bool p_smooth) {
 
     ERR_FAIL_COND(!begun);
-    if (index_array.size()) {
+    if (!index_array.empty()) {
         smooth_groups[index_array.size()] = p_smooth;
     } else {
 
@@ -427,7 +427,7 @@ Array SurfaceTool::commit_to_arrays() {
             } break;
             case Mesh::ARRAY_INDEX: {
 
-                ERR_CONTINUE(index_array.size() == 0);
+                ERR_CONTINUE(index_array.empty());
 
                 PoolVector<int> array;
                 array.resize(index_array.size());
@@ -479,7 +479,7 @@ Ref<ArrayMesh> SurfaceTool::commit(const Ref<ArrayMesh> &p_existing, uint32_t p_
 
 void SurfaceTool::index() {
 
-    if (index_array.size())
+    if (!index_array.empty())
         return; //already indexed
 
     HashMap<Vertex, int> indices;
@@ -508,7 +508,7 @@ void SurfaceTool::index() {
 
 void SurfaceTool::deindex() {
 
-    if (index_array.size() == 0)
+    if (index_array.empty())
         return; //nothing to deindex
     Vector<Vertex> varr;
     varr.resize(vertex_array.size());
@@ -794,7 +794,7 @@ void SurfaceTool::create_from_blend_shape(const Ref<Mesh> &p_existing, int p_sur
 
 void SurfaceTool::append_from(const Ref<Mesh> &p_existing, int p_surface, const Transform &p_xform) {
 
-    if (vertex_array.size() == 0) {
+    if (vertex_array.empty()) {
         primitive = p_existing->surface_get_primitive_type(p_surface);
         format = 0;
     }
@@ -843,7 +843,7 @@ int SurfaceTool::mikktGetNumFaces(const SMikkTSpaceContext *pContext) {
 
     TangentGenerationContextUserData &triangle_data = *reinterpret_cast<TangentGenerationContextUserData *>(pContext->m_pUserData);
 
-    if (triangle_data.indices.size() > 0) {
+    if (!triangle_data.indices.empty()) {
         return triangle_data.indices.size() / 3;
     } else {
         return triangle_data.vertices.size() / 3;
@@ -857,7 +857,7 @@ void SurfaceTool::mikktGetPosition(const SMikkTSpaceContext *pContext, float fvP
 
     TangentGenerationContextUserData &triangle_data = *reinterpret_cast<TangentGenerationContextUserData *>(pContext->m_pUserData);
     Vector3 v;
-    if (triangle_data.indices.size() > 0) {
+    if (!triangle_data.indices.empty()) {
         int index = triangle_data.indices[iFace * 3 + iVert]->get();
         if (index < triangle_data.vertices.size()) {
             v = triangle_data.vertices[index]->get().vertex;
@@ -875,7 +875,7 @@ void SurfaceTool::mikktGetNormal(const SMikkTSpaceContext *pContext, float fvNor
 
     TangentGenerationContextUserData &triangle_data = *reinterpret_cast<TangentGenerationContextUserData *>(pContext->m_pUserData);
     Vector3 v;
-    if (triangle_data.indices.size() > 0) {
+    if (!triangle_data.indices.empty()) {
         int index = triangle_data.indices[iFace * 3 + iVert]->get();
         if (index < triangle_data.vertices.size()) {
             v = triangle_data.vertices[index]->get().normal;
@@ -892,7 +892,7 @@ void SurfaceTool::mikktGetTexCoord(const SMikkTSpaceContext *pContext, float fvT
 
     TangentGenerationContextUserData &triangle_data = *reinterpret_cast<TangentGenerationContextUserData *>(pContext->m_pUserData);
     Vector2 v;
-    if (triangle_data.indices.size() > 0) {
+    if (!triangle_data.indices.empty()) {
         int index = triangle_data.indices[iFace * 3 + iVert]->get();
         if (index < triangle_data.vertices.size()) {
             v = triangle_data.vertices[index]->get().uv;
@@ -910,7 +910,7 @@ void SurfaceTool::mikktSetTSpaceDefault(const SMikkTSpaceContext *pContext, cons
 
     TangentGenerationContextUserData &triangle_data = *reinterpret_cast<TangentGenerationContextUserData *>(pContext->m_pUserData);
     Vertex *vtx = nullptr;
-    if (triangle_data.indices.size() > 0) {
+    if (!triangle_data.indices.empty()) {
         int index = triangle_data.indices[iFace * 3 + iVert]->get();
         if (index < triangle_data.vertices.size()) {
             vtx = &triangle_data.vertices[index]->get();
@@ -967,7 +967,7 @@ void SurfaceTool::generate_normals(bool p_flip) {
 
     ERR_FAIL_COND(primitive != Mesh::PRIMITIVE_TRIANGLES);
 
-    bool was_indexed = index_array.size();
+    bool was_indexed = !index_array.empty();
 
     deindex();
 
@@ -1017,7 +1017,7 @@ void SurfaceTool::generate_normals(bool p_flip) {
 
         if (smooth_groups.has(count) || !E) {
 
-            if (vertex_hash.size()) {
+            if (!vertex_hash.empty()) {
 
                 while (B != E) {
 

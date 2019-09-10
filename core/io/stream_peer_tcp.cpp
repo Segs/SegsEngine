@@ -30,6 +30,7 @@
 
 #include "stream_peer_tcp.h"
 
+#include "core/os/os.h"
 #include "core/project_settings.h"
 #include "core/method_bind.h"
 
@@ -37,7 +38,7 @@ IMPL_GDCLASS(StreamPeerTCP);
 
 Error StreamPeerTCP::_poll_connection() {
 
-    ERR_FAIL_COND_V(status != STATUS_CONNECTING || !_sock.is_valid() || !_sock->is_open(), FAILED);
+    ERR_FAIL_COND_V(status != STATUS_CONNECTING || !_sock.is_valid() || !_sock->is_open(), FAILED)
 
     Error err = _sock->connect_to_host(peer_host, peer_port);
 
@@ -74,9 +75,9 @@ void StreamPeerTCP::accept_socket(Ref<NetSocket> p_sock, IP_Address p_host, uint
 
 Error StreamPeerTCP::connect_to_host(const IP_Address &p_host, uint16_t p_port) {
 
-    ERR_FAIL_COND_V(!_sock.is_valid(), ERR_UNAVAILABLE);
-    ERR_FAIL_COND_V(_sock->is_open(), ERR_ALREADY_IN_USE);
-    ERR_FAIL_COND_V(!p_host.is_valid(), ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(!_sock.is_valid(), ERR_UNAVAILABLE)
+    ERR_FAIL_COND_V(_sock->is_open(), ERR_ALREADY_IN_USE)
+    ERR_FAIL_COND_V(!p_host.is_valid(), ERR_INVALID_PARAMETER)
 
     Error err;
     IP::Type ip_type = p_host.is_ipv4() ? IP::TYPE_IPV4 : IP::TYPE_IPV6;
@@ -94,7 +95,7 @@ Error StreamPeerTCP::connect_to_host(const IP_Address &p_host, uint16_t p_port) 
     } else if (err == ERR_BUSY) {
         status = STATUS_CONNECTING;
     } else {
-        ERR_PRINT("Connection to remote host failed!");
+        ERR_PRINT("Connection to remote host failed!")
         disconnect_from_host();
         return FAILED;
     }
@@ -245,7 +246,7 @@ Error StreamPeerTCP::read(uint8_t *p_buffer, int p_bytes, int &r_received, bool 
 
 void StreamPeerTCP::set_no_delay(bool p_enabled) {
 
-    ERR_FAIL_COND(!is_connected_to_host());
+    ERR_FAIL_COND(!is_connected_to_host())
     _sock->set_tcp_no_delay_enabled(p_enabled);
 }
 
@@ -324,7 +325,7 @@ Error StreamPeerTCP::get_partial_data(uint8_t *p_buffer, int p_bytes, int &r_rec
 
 int StreamPeerTCP::get_available_bytes() const {
 
-    ERR_FAIL_COND_V(!_sock.is_valid(), -1);
+    ERR_FAIL_COND_V(!_sock.is_valid(), -1)
     return _sock->get_available_bytes();
 }
 

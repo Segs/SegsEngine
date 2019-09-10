@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef EDITOR_EXPORT_H
-#define EDITOR_EXPORT_H
+#pragma once
 
 #include "core/os/dir_access.h"
 #include "core/resource.h"
@@ -212,7 +211,7 @@ protected:
 	FeatureContainers get_feature_containers(const Ref<EditorExportPreset> &p_preset);
 
 	bool exists_export_template(String template_file_name, String *err) const;
-	String find_export_template(String template_file_name, String *err = nullptr) const;
+	String find_export_template(const String& template_file_name, String *err = nullptr) const;
 	void gen_export_flags(Vector<String> &r_flags, int p_flags);
 
 public:
@@ -456,5 +455,3 @@ public:
 	void _export_file(const String &p_path, const String &p_type, const Set<String> &p_features) override;
 	EditorExportTextSceneToBinaryPlugin();
 };
-
-#endif // EDITOR_IMPORT_EXPORT_H

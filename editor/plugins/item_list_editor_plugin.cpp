@@ -295,7 +295,7 @@ void ItemListEditor::_delete_pressed() {
 
     String current_selected = (String)property_editor->get_selected_path();
 
-    if (current_selected == "")
+    if (current_selected.empty())
         return;
 
     // FIXME: Currently relying on selecting a *property* to derive what item to delete

@@ -34,6 +34,7 @@
 #include "core/os/dir_access.h"
 #include "core/project_settings.h"
 #include "core/version.h"
+#include "core/class_db.h"
 
 //version 2: changed names for basis, aabb, poolvectors, etc.
 #define FORMAT_VERSION 2
@@ -282,12 +283,12 @@ Ref<PackedScene> ResourceInteractiveLoaderText::_parse_node_tag(VariantParser::R
                     }
                 }
 
-                if (assign != String()) {
+                if (!assign.empty()) {
                     int nameidx = packed_scene->get_state()->add_name(assign);
                     int valueidx = packed_scene->get_state()->add_value(value);
                     packed_scene->get_state()->add_node_property(node_id, nameidx, valueidx);
                     //it's assignment
-                } else if (next_tag.name != String()) {
+                } else if (!next_tag.name.empty()) {
                     break;
                 }
             }
@@ -529,12 +530,12 @@ Error ResourceInteractiveLoaderText::poll() {
                 return error;
             }
 
-            if (assign != String()) {
+            if (!assign.empty()) {
                 if (res.is_valid()) {
                     res->set(assign, value);
                 }
                 //it's assignment
-            } else if (next_tag.name != String()) {
+            } else if (!next_tag.name.empty()) {
 
                 error = OK;
                 break;
@@ -599,10 +600,10 @@ Error ResourceInteractiveLoaderText::poll() {
                 return error;
             }
 
-            if (assign != String()) {
+            if (!assign.empty()) {
                 resource->set(assign, value);
                 //it's assignment
-            } else if (next_tag.name != String()) {
+            } else if (!next_tag.name.empty()) {
 
                 error = ERR_FILE_CORRUPT;
                 error_text = "Extra tag found when parsing main resource file";
@@ -1070,14 +1071,14 @@ Error ResourceInteractiveLoaderText::save_as_binary(FileAccess *p_f, const Strin
                 return error;
             }
 
-            if (assign != String()) {
+            if (!assign.empty()) {
 
                 Map<StringName, int> empty_string_map; //unused
                 bs_save_unicode_string(wf2, assign, true);
                 ResourceFormatSaverBinaryInstance::write_variant(wf2, value, dummy_read.resource_set, dummy_read.external_resources, empty_string_map);
                 prop_count++;
 
-            } else if (next_tag.name != String()) {
+            } else if (!next_tag.name.empty()) {
 
                 error = OK;
                 break;
@@ -1228,7 +1229,7 @@ Ref<ResourceInteractiveLoader> ResourceFormatLoaderText::load_interactive(const 
     ERR_FAIL_COND_V(err != OK, Ref<ResourceInteractiveLoader>());
 
     Ref<ResourceInteractiveLoaderText> ria = memnew(ResourceInteractiveLoaderText);
-    String path = p_original_path != "" ? p_original_path : p_path;
+    String path = !p_original_path.empty() ? p_original_path : p_path;
     ria->local_path = ProjectSettings::get_singleton()->localize_path(path);
     ria->res_path = ria->local_path;
     //ria->set_local_path( ProjectSettings::get_singleton()->localize_path(p_path) );
@@ -1239,7 +1240,7 @@ Ref<ResourceInteractiveLoader> ResourceFormatLoaderText::load_interactive(const 
 
 void ResourceFormatLoaderText::get_recognized_extensions_for_type(const String &p_type, List<String> *p_extensions) const {
 
-    if (p_type == "") {
+    if (p_type.empty()) {
         get_recognized_extensions(p_extensions);
         return;
     }
@@ -1586,7 +1587,7 @@ Error ResourceFormatSaverTextInstance::save(const String &p_path, const RES &p_r
         f->store_string("[ext_resource path=\"" + p + "\" type=\"" + sorted_er[i].resource->get_save_class() + "\" id=" + itos(sorted_er[i].index) + "]\n"); //bundled
     }
 
-    if (external_resources.size())
+    if (!external_resources.empty())
         f->store_line(String()); //separate
 
     Set<int> used_indices;
@@ -1594,7 +1595,7 @@ Error ResourceFormatSaverTextInstance::save(const String &p_path, const RES &p_r
     for (List<RES>::Element *E = saved_resources.front(); E; E = E->next()) {
 
         RES res = E->get();
-        if (E->next() && (res->get_path() == "" || StringUtils::contains(res->get_path(),"::") )) {
+        if (E->next() && (res->get_path().empty() || StringUtils::contains(res->get_path(),"::") )) {
 
             if (res->get_subindex() != 0) {
                 if (used_indices.has(res->get_subindex())) {
@@ -1621,7 +1622,7 @@ Error ResourceFormatSaverTextInstance::save(const String &p_path, const RES &p_r
             String line = "[sub_resource ";
             if (res->get_subindex() == 0) {
                 int new_subindex = 1;
-                if (used_indices.size()) {
+                if (!used_indices.empty()) {
                     new_subindex = used_indices.back()->get() + 1;
                 }
 
@@ -1712,7 +1713,7 @@ Error ResourceFormatSaverTextInstance::save(const String &p_path, const RES &p_r
                 header += " index=\"" + itos(index) + "\"";
             }
 
-            if (groups.size()) {
+            if (!groups.empty()) {
                 String sgroups = " groups=[\n";
                 for (int j = 0; j < groups.size(); j++) {
                     sgroups += "\"" + StringUtils::c_escape(groups[j]) + "\",\n";
@@ -1723,7 +1724,7 @@ Error ResourceFormatSaverTextInstance::save(const String &p_path, const RES &p_r
 
             f->store_string(header);
 
-            if (instance_placeholder != String()) {
+            if (!instance_placeholder.empty()) {
 
                 String vars;
                 f->store_string(" instance_placeholder=");
@@ -1767,7 +1768,7 @@ Error ResourceFormatSaverTextInstance::save(const String &p_path, const RES &p_r
 
             Array binds = state->get_connection_binds(i);
             f->store_string(connstr);
-            if (binds.size()) {
+            if (!binds.empty()) {
                 String vars;
                 VariantWriter::write_to_string(binds, vars, _write_resources, this);
                 f->store_string(" binds= " + vars);

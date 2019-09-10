@@ -137,7 +137,7 @@ bool GridMap::_get(const StringName &p_name, Variant &r_ret) const {
 
 void GridMap::_get_property_list(List<PropertyInfo> *p_list) const {
 
-    if (baked_meshes.size()) {
+    if (!baked_meshes.empty()) {
         p_list->push_back(PropertyInfo(Variant::ARRAY, "baked_meshes", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_STORAGE));
     }
 
@@ -283,7 +283,7 @@ bool GridMap::get_center_z() const {
 
 void GridMap::set_cell_item(int p_x, int p_y, int p_z, int p_item, int p_rot) {
 
-    if (baked_meshes.size() && !recreating_octants) {
+    if (!baked_meshes.empty() && !recreating_octants) {
         //if you set a cell item, baked meshes go good bye
         clear_baked_meshes();
         _recreate_octant_data();
@@ -453,7 +453,7 @@ bool GridMap::_octant_update(const OctantKey &p_key) {
     }
     g.multimesh_instances.clear();
 
-    if (g.cells.size() == 0) {
+    if (g.cells.empty()) {
         //octant no longer needed
         _octant_clean_up(p_key);
         return true;
@@ -485,7 +485,7 @@ bool GridMap::_octant_update(const OctantKey &p_key) {
         xform.basis.set_orthogonal_index(c.rot);
         xform.set_origin(cellpos * cell_size + ofs);
         xform.basis.scale(Vector3(cell_scale, cell_scale, cell_scale));
-        if (baked_meshes.size() == 0) {
+        if (baked_meshes.empty()) {
             if (mesh_library->get_item_mesh(c.item).is_valid()) {
                 if (!multimesh_items.has(c.item)) {
                     multimesh_items[c.item] = List<Pair<Transform, IndexKey> >();
@@ -526,7 +526,7 @@ bool GridMap::_octant_update(const OctantKey &p_key) {
     }
 
     //update multimeshes, only if not baked
-    if (baked_meshes.size() == 0) {
+    if (baked_meshes.empty()) {
 
         for (Map<int, List<Pair<Transform, IndexKey> > >::Element *E = multimesh_items.front(); E; E = E->next()) {
             Octant::MultimeshInstance mmi;
@@ -1092,7 +1092,7 @@ void GridMap::make_baked_meshes(bool p_gen_lightmap_uv, float p_lightmap_uv_texe
 
 Array GridMap::get_bake_meshes() {
 
-    if (!baked_meshes.size()) {
+    if (baked_meshes.empty()) {
         make_baked_meshes(true);
     }
 

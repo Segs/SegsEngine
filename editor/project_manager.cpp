@@ -165,7 +165,7 @@ private:
             }
         }
 
-        if (valid_path == "") {
+        if (valid_path.empty()) {
             set_message(TTR("The path does not exist."), MESSAGE_ERROR);
             memdelete(d);
             get_ok()->set_disabled(true);
@@ -179,7 +179,7 @@ private:
                 valid_install_path = StringUtils::strip_edges(install_path->get_text());
             }
 
-            if (valid_install_path == "") {
+            if (valid_install_path.empty()) {
                 set_message(TTR("The path does not exist."), MESSAGE_ERROR, INSTALL_PATH);
                 memdelete(d);
                 get_ok()->set_disabled(true);
@@ -189,7 +189,7 @@ private:
 
         if (mode == MODE_IMPORT || mode == MODE_RENAME) {
 
-            if (valid_path != "" && !d->file_exists("project.godot")) {
+            if (!valid_path.empty() && !d->file_exists("project.godot")) {
 
                 if (StringUtils::ends_with(valid_path,".zip")) {
                     FileAccess *src_f = nullptr;
@@ -232,7 +232,7 @@ private:
                     d->list_dir_begin();
                     bool is_empty = true;
                     String n = d->get_next();
-                    while (n != String()) {
+                    while (!n.empty()) {
                         if (n != "." && n != "..") {
                             is_empty = false;
                             break;
@@ -271,7 +271,7 @@ private:
             d->list_dir_begin();
             bool is_empty = true;
             String n = d->get_next();
-            while (n != String()) {
+            while (!n.empty()) {
                 if (n != "." && n != "..") { // i don't know if this is enough to guarantee an empty dir
                     is_empty = false;
                     break;
@@ -299,17 +299,17 @@ private:
     void _path_text_changed(const String &p_path) {
 
         String sp = _test_path();
-        if (sp != "") {
+        if (!sp.empty()) {
 
             // If the project name is empty or default, infer the project name from the selected folder name
-            if (project_name->get_text() == "" || project_name->get_text() == TTR("New Game Project")) {
+            if (project_name->get_text().empty() || project_name->get_text() == TTR("New Game Project")) {
                 sp = PathUtils::from_native_path(sp);
                 int lidx = StringUtils::find_last(sp,"/");
 
                 if (lidx != -1) {
                     sp = StringUtils::capitalize(StringUtils::substr(sp,lidx + 1, sp.length()));
                 }
-                if (sp == "" && mode == MODE_IMPORT)
+                if (sp.empty() && mode == MODE_IMPORT)
                     sp = TTR("Imported Project");
 
                 project_name->set_text(sp);
@@ -317,7 +317,7 @@ private:
             }
         }
 
-        if (created_folder_path != "" && created_folder_path != p_path) {
+        if (!created_folder_path.empty() && created_folder_path != p_path) {
             _remove_created_folder();
         }
     }
@@ -391,7 +391,7 @@ private:
 
     void _create_folder() {
 
-        if (project_name->get_text() == "" || created_folder_path != "" || StringUtils::ends_with(project_name->get_text(),".") || StringUtils::ends_with(project_name->get_text()," ")) {
+        if (project_name->get_text().empty() || !created_folder_path.empty() || StringUtils::ends_with(project_name->get_text(),".") || StringUtils::ends_with(project_name->get_text()," ")) {
             set_message(TTR("Invalid Project Name."), MESSAGE_WARNING);
             return;
         }
@@ -431,7 +431,7 @@ private:
 
         _test_path();
 
-        if (p_text == "")
+        if (p_text.empty())
             set_message(TTR("It would be a good idea to name your project."), MESSAGE_WARNING);
     }
 
@@ -442,7 +442,7 @@ private:
         if (mode == MODE_RENAME) {
 
             String dir2 = _test_path();
-            if (dir2 == "") {
+            if (dir2.empty()) {
                 set_message(TTR("Invalid project path (changed anything?)."), MESSAGE_ERROR);
                 return;
             }
@@ -553,7 +553,7 @@ private:
                             depth--;
                         }
 
-                        if (skip || path == String()) {
+                        if (skip || path.empty()) {
                             //
                         } else if (StringUtils::ends_with(path,"/")) { // a dir
 
@@ -589,7 +589,7 @@ private:
 
                     unzClose(pkg);
 
-                    if (failed_files.size()) {
+                    if (!failed_files.empty()) {
                         String msg = TTR("The following files failed extraction from package:") + "\n\n";
                         for (int i = 0; i < failed_files.size(); i++) {
 
@@ -624,7 +624,7 @@ private:
 
     void _remove_created_folder() {
 
-        if (created_folder_path != "") {
+        if (!created_folder_path.empty()) {
             DirAccess *d = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
             d->remove(created_folder_path);
             memdelete(d);
@@ -727,7 +727,7 @@ public:
         } else {
 
             fav_dir = EditorSettings::get_singleton()->get("filesystem/directories/default_project_path");
-            if (fav_dir != "") {
+            if (!fav_dir.empty()) {
                 project_path->set_text(fav_dir);
                 fdialog->set_current_dir(fav_dir);
             } else {
@@ -1115,7 +1115,7 @@ void ProjectList::load_project_icon(int p_index) {
 
     Ref<Texture> default_icon = get_icon("DefaultProjectIcon", "EditorIcons");
     Ref<Texture> icon;
-    if (item.icon != "") {
+    if (!item.icon.empty()) {
         Ref<Image> img;
         img.instance();
         Error err = img->load(StringUtils::replace_first(item.icon,"res://", item.path + "/"));
@@ -1149,7 +1149,7 @@ void ProjectList::load_project_data(const String &p_property_key, Item &p_item, 
     String project_name = TTR("Unnamed Project");
     if (cf_err == OK) {
         String cf_project_name = static_cast<String>(cf->get_value("application", "config/name", ""));
-        if (cf_project_name != "")
+        if (!cf_project_name.empty())
             project_name = StringUtils::xml_unescape(cf_project_name);
         config_version = (int)cf->get_value("", "config_version", 0);
     }
@@ -1352,7 +1352,7 @@ void ProjectList::sort_projects() {
         Item &item = _projects.write[i];
 
         bool visible = true;
-        if (_search_term != "") {
+        if (!_search_term.empty()) {
 
             String search_path;
             if (StringUtils::find(_search_term,"/") != -1) {
@@ -1388,7 +1388,7 @@ const Set<String> &ProjectList::get_selected_project_keys() const {
 
 Vector<ProjectList::Item> ProjectList::get_selected_projects() const {
     Vector<Item> items;
-    if (_selected_project_keys.size() == 0) {
+    if (_selected_project_keys.empty()) {
         return items;
     }
     items.resize(_selected_project_keys.size());
@@ -1418,7 +1418,7 @@ void ProjectList::ensure_project_visible(int p_index) {
 }
 
 int ProjectList::get_single_selected_index() const {
-    if (_selected_project_keys.size() == 0) {
+    if (_selected_project_keys.empty()) {
         // Default selection
         return 0;
     }
@@ -1606,7 +1606,7 @@ void ProjectList::toggle_select(int p_index) {
 
 void ProjectList::erase_selected_projects() {
 
-    if (_selected_project_keys.size() == 0) {
+    if (_selected_project_keys.empty()) {
         return;
     }
 
@@ -1651,7 +1651,7 @@ void ProjectList::_panel_input(const Ref<InputEvent> &p_ev, Node *p_hb) {
 
     if (mb.is_valid() && mb->is_pressed() && mb->get_button_index() == BUTTON_LEFT) {
 
-        if (mb->get_shift() && _selected_project_keys.size() > 0 && _last_clicked != "" && clicked_project.project_key != _last_clicked) {
+        if (mb->get_shift() && !_selected_project_keys.empty() && !_last_clicked.empty() && clicked_project.project_key != _last_clicked) {
 
             int anchor_index = -1;
             for (int i = 0; i < _projects.size(); ++i) {
@@ -1927,7 +1927,7 @@ void ProjectManager::_global_menu_action(const Variant &p_id, const Variant &p_m
     } else if (id == ProjectList::GLOBAL_OPEN_PROJECT) {
         String conf = (String)p_meta;
 
-        if (conf != String()) {
+        if (!conf.empty()) {
             List<String> args;
             args.push_back(conf);
             String exec = OS::get_singleton()->get_executable_path();
@@ -1981,7 +1981,7 @@ void ProjectManager::_open_selected_projects_ask() {
 
     const Set<String> &selected_list = _project_list->get_selected_project_keys();
 
-    if (selected_list.size() < 1) {
+    if (selected_list.empty()) {
         return;
     }
 
@@ -2030,7 +2030,7 @@ void ProjectManager::_run_project_confirm() {
     for (int i = 0; i < selected_list.size(); ++i) {
 
         const String &selected_main = selected_list[i].main_scene;
-        if (selected_main == "") {
+        if (selected_main.empty()) {
             run_error_diag->set_text(TTR("Can't run project: no main scene defined.\nPlease edit the project and set the main scene in the Project Settings under the \"Application\" category."));
             run_error_diag->popup_centered();
             return;
@@ -2069,7 +2069,7 @@ void ProjectManager::_run_project() {
 
     const Set<String> &selected_list = _project_list->get_selected_project_keys();
 
-    if (selected_list.size() < 1) {
+    if (selected_list.empty()) {
         return;
     }
 
@@ -2086,7 +2086,7 @@ void ProjectManager::_scan_dir(const String &path, List<String> *r_projects) {
     da->change_dir(path);
     da->list_dir_begin();
     String n = da->get_next();
-    while (n != String()) {
+    while (!n.empty()) {
         if (da->current_is_dir() && !StringUtils::begins_with(n,".")) {
             _scan_dir(PathUtils::plus_file(da->get_current_dir(),n), r_projects);
         } else if (n == "project.godot") {
@@ -2134,7 +2134,7 @@ void ProjectManager::_rename_project() {
 
     const Set<String> &selected_list = _project_list->get_selected_project_keys();
 
-    if (selected_list.size() == 0) {
+    if (selected_list.empty()) {
         return;
     }
 
@@ -2161,7 +2161,7 @@ void ProjectManager::_erase_project() {
 
     const Set<String> &selected_list = _project_list->get_selected_project_keys();
 
-    if (selected_list.size() == 0)
+    if (selected_list.empty())
         return;
 
     String confirm_message;
@@ -2226,7 +2226,7 @@ void ProjectManager::_files_dropped(PoolStringArray p_files, int p_screen) {
         folders_set.insert(da->dir_exists(file) ? file : PathUtils::get_base_dir(file));
     }
     memdelete(da);
-    if (folders_set.size() > 0) {
+    if (!folders_set.empty()) {
         PoolStringArray folders;
         for (Set<String>::Element *E = folders_set.front(); E; E = E->next()) {
             folders.append(E->get());
@@ -2238,7 +2238,7 @@ void ProjectManager::_files_dropped(PoolStringArray p_files, int p_screen) {
             if (dir->change_dir(folders[0]) == OK) {
                 dir->list_dir_begin();
                 String file = dir->get_next();
-                while (confirm && file != String()) {
+                while (confirm && !file.empty()) {
                     if (!dir->current_is_dir() && StringUtils::ends_with(file,"project.godot")) {
                         confirm = false;
                     }

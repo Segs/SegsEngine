@@ -44,7 +44,7 @@ void CollisionPolygon2D::_build_polygon() {
 
     parent->shape_owner_clear_shapes(owner_id);
 
-    if (polygon.size() == 0)
+    if (polygon.empty())
         return;
 
     bool solids = build_mode == BUILD_SOLIDS;

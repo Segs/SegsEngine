@@ -377,11 +377,11 @@ ARVRServer::ARVRServer() {
 ARVRServer::~ARVRServer() {
     primary_interface.unref();
 
-    while (interfaces.size() > 0) {
+    while (!interfaces.empty()) {
         interfaces.remove(0);
     }
 
-    while (trackers.size() > 0) {
+    while (!trackers.empty()) {
         trackers.remove(0);
     }
 

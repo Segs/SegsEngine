@@ -173,7 +173,7 @@ public:
 #ifdef DEBUG_METHODS_ENABLED
         Variant::Type *at = memnew_arr(Variant::Type, p_info.arguments.size() + 1);
         at[0] = p_info.return_val.type;
-        if (p_info.arguments.size()) {
+        if (!p_info.arguments.empty()) {
 
             Vector<StringName> names;
             names.resize(p_info.arguments.size());

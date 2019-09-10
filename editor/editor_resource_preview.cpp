@@ -146,7 +146,7 @@ void EditorResourcePreview::_generate_preview(Ref<ImageTexture> &r_texture, Ref<
     else
         type = ResourceLoader::get_resource_type(p_item.path);
 
-    if (type == "") {
+    if (type.empty()) {
         r_texture = Ref<ImageTexture>();
         r_small_texture = Ref<ImageTexture>();
         return; //could not guess type
@@ -224,7 +224,7 @@ void EditorResourcePreview::_thread() {
         preview_sem->wait();
         preview_mutex->lock();
 
-        if (queue.size()) {
+        if (!queue.empty()) {
 
             QueueItem item = queue.front()->get();
             queue.pop_front();

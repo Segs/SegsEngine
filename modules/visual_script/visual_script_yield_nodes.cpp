@@ -458,7 +458,7 @@ void VisualScriptYieldSignal::_validate_property(PropertyInfo &property) const {
         String ml;
         for (List<String>::Element *E = mstring.front(); E; E = E->next()) {
 
-            if (ml != String())
+            if (!ml.empty())
                 ml += ",";
             ml += E->get();
         }

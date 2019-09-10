@@ -31,6 +31,7 @@
 #include "panel_container.h"
 
 #include "scene/resources/style_box.h"
+#include "core/class_db.h"
 
 IMPL_GDCLASS(PanelContainer)
 

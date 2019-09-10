@@ -37,6 +37,7 @@
 #include "core/math/geometry.h"
 
 IMPL_GDCLASS(Animation)
+RES_BASE_EXTENSION_IMPL(Animation,"anim")
 
 #define ANIM_MIN_LENGTH 0.001
 

@@ -348,7 +348,7 @@ Vector2 AnimationNodeBlendSpace2D::get_closest_point(const Vector2 &p_point) {
 
     _update_triangles();
 
-    if (triangles.size() == 0)
+    if (triangles.empty())
         return Vector2();
 
     Vector2 best_point;
@@ -438,7 +438,7 @@ float AnimationNodeBlendSpace2D::process(float p_time, bool p_seek) {
 
     if (blend_mode == BLEND_MODE_INTERPOLATED) {
 
-        if (triangles.size() == 0)
+        if (triangles.empty())
             return 0;
 
         Vector2 best_point;

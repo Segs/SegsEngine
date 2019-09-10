@@ -30,6 +30,7 @@
 
 #include "stream_peer_gdnative.h"
 #include "core/property_info.h"
+#include "core/class_db.h"
 
 IMPL_GDCLASS(StreamPeerGDNative)
 

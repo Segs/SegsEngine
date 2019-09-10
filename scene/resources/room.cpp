@@ -35,6 +35,8 @@
 
 // FIXME: Left for reference for reimplementation using Area
 #if 0
+RES_BASE_EXTENSION_IMPL(RoomBounds,"room")
+
 RID RoomBounds::get_rid() const {
 
     return area;

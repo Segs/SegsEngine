@@ -1257,7 +1257,7 @@ EditorProperty *EditorInspector::instantiate_property_editor(Object *p_object, V
     for (int i = inspector_plugin_count - 1; i >= 0; i--) {
 
         inspector_plugins[i]->parse_property(p_object, p_type, p_path, p_hint, p_hint_text, p_usage);
-        if (inspector_plugins[i]->added_editors.size()) {
+        if (!inspector_plugins[i]->added_editors.empty()) {
             for (int j = 1; j < inspector_plugins[i]->added_editors.size(); j++) { //only keep first one
                 memdelete(inspector_plugins[i]->added_editors[j].property_editor);
             }
@@ -1345,7 +1345,7 @@ void EditorInspector::_parse_added_editors(VBoxContainer *current_vbox, Ref<Edit
             ep->connect("resource_selected", this, "_resource_selected", varray(), ObjectNS::CONNECT_DEFERRED);
             ep->connect("object_id_selected", this, "_object_id_selected", varray(), ObjectNS::CONNECT_DEFERRED);
 
-            if (F->get().properties.size()) {
+            if (!F->get().properties.empty()) {
 
                 if (F->get().properties.size() == 1) {
                     //since it's one, associate:
@@ -1353,7 +1353,7 @@ void EditorInspector::_parse_added_editors(VBoxContainer *current_vbox, Ref<Edit
                     ep->property_usage = 0;
                 }
 
-                if (F->get().label != String()) {
+                if (!F->get().label.empty()) {
                     ep->set_label(F->get().label);
                 }
 
@@ -1531,7 +1531,7 @@ void EditorInspector::update_tree() {
                     class_descr_cache[type2] = descr;
                 }
 
-                category->set_tooltip(p.name + "::" + (class_descr_cache[type2] == "" ? "" : class_descr_cache[type2]));
+                category->set_tooltip(p.name + "::" + (class_descr_cache[type2].empty() ? "" : class_descr_cache[type2]));
             }
 
             for (List<Ref<EditorInspectorPlugin> >::Element *E = valid_plugins.front(); E; E = E->next()) {
@@ -1553,8 +1553,8 @@ void EditorInspector::update_tree() {
         }
 
         String basename = p.name;
-        if (group != "") {
-            if (group_base != "") {
+        if (!group.empty()) {
+            if (!group_base.empty()) {
                 if (StringUtils::begins_with(basename,group_base)) {
                     basename = StringUtils::replace_first(basename,group_base, "");
                 } else if (StringUtils::begins_with(group_base,basename)) {
@@ -1565,7 +1565,7 @@ void EditorInspector::update_tree() {
             }
         }
 
-        if (group != "") {
+        if (!group.empty()) {
             basename = group + "/" + basename;
         }
 
@@ -1586,7 +1586,7 @@ void EditorInspector::update_tree() {
 
         String path = StringUtils::left(basename,StringUtils::find_last(basename,"/"));
 
-        if (use_filter && filter != "") {
+        if (use_filter && !filter.empty()) {
 
             String cat = path;
 
@@ -1677,7 +1677,7 @@ void EditorInspector::update_tree() {
             if (!found) {
                 DocData *dd = EditorHelp::get_doc_data();
                 Map<String, DocData::ClassDoc>::Element *F = dd->class_list.find(classname);
-                while (F && descr == String()) {
+                while (F && descr.empty()) {
                     for (int i = 0; i < F->get().properties.size(); i++) {
                         if (F->get().properties[i].name == propname.operator String()) {
                             descr = StringUtils::strip_edges(F->get().properties[i].description);
@@ -1711,7 +1711,7 @@ void EditorInspector::update_tree() {
                     //set all this before the control gets the ENTER_TREE notification
                     ep->object = object;
 
-                    if (F->get().properties.size()) {
+                    if (!F->get().properties.empty()) {
 
                         if (F->get().properties.size() == 1) {
                             //since it's one, associate:
@@ -1720,7 +1720,7 @@ void EditorInspector::update_tree() {
                             //and set label?
                         }
 
-                        if (F->get().label != String()) {
+                        if (!F->get().label.empty()) {
                             ep->set_label(F->get().label);
                         } else {
                             //use existin one
@@ -1759,7 +1759,7 @@ void EditorInspector::update_tree() {
                     ep->connect("multiple_properties_changed", this, "_multiple_properties_changed");
                     ep->connect("resource_selected", this, "_resource_selected", varray(), ObjectNS::CONNECT_DEFERRED);
                     ep->connect("object_id_selected", this, "_object_id_selected", varray(), ObjectNS::CONNECT_DEFERRED);
-                    if (doc_hint != String()) {
+                    if (!doc_hint.empty()) {
                         ep->set_tooltip(property_prefix + p.name + "::" + doc_hint);
                     } else {
                         ep->set_tooltip(property_prefix + p.name);
@@ -2053,7 +2053,7 @@ void EditorInspector::_property_changed_update_all(const String &p_path, const V
 
 void EditorInspector::_multiple_properties_changed(Vector<String> p_paths, Array p_values) {
 
-    ERR_FAIL_COND(p_paths.size() == 0 || p_values.size() == 0);
+    ERR_FAIL_COND(p_paths.empty() || p_values.empty());
     ERR_FAIL_COND(p_paths.size() != p_values.size());
     String names;
     for (int i = 0; i < p_paths.size(); i++) {
@@ -2213,7 +2213,7 @@ void EditorInspector::_notification(int p_what) {
 
         } else {
 
-            while (pending.size()) {
+            while (!pending.empty()) {
                 StringName prop = pending.front()->get();
                 if (editor_property_map.has(prop)) {
                     for (List<EditorProperty *>::Element *E = editor_property_map[prop].front(); E; E = E->next()) {

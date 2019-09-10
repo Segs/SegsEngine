@@ -171,7 +171,7 @@ void ProjectSettingsEditor::_action_edited() {
         if (new_name == old_name)
             return;
 
-        if (new_name == "" || !_validate_action_name(new_name)) {
+        if (new_name.empty() || !_validate_action_name(new_name)) {
 
             ti->set_text(0, old_name);
             add_at = "input/" + old_name;
@@ -691,7 +691,7 @@ void ProjectSettingsEditor::_update_actions() {
             continue;
 
         String name = StringUtils::get_slice(pi.name,"/", 1);
-        if (name == "")
+        if (name.empty())
             continue;
 
         Dictionary action = ProjectSettings::get_singleton()->get(pi.name);
@@ -816,7 +816,7 @@ void ProjectSettingsEditor::update_plugins() {
 void ProjectSettingsEditor::_item_selected(const String &p_path) {
 
     const String &selected_path = p_path;
-    if (selected_path == String())
+    if (selected_path.empty())
         return;
     category->set_text(globals_editor->get_current_section());
     property->set_text(selected_path);
@@ -877,7 +877,7 @@ void ProjectSettingsEditor::_item_add() {
 void ProjectSettingsEditor::_item_del() {
 
     String path = globals_editor->get_inspector()->get_selected_path();
-    if (path == String()) {
+    if (path.empty()) {
         EditorNode::get_singleton()->show_warning(TTR("Select a setting item first!"));
         return;
     }
@@ -914,7 +914,7 @@ void ProjectSettingsEditor::_item_del() {
 
 void ProjectSettingsEditor::_action_check(String p_action) {
 
-    if (p_action == "") {
+    if (p_action.empty()) {
 
         action_add->set_disabled(true);
     } else {
@@ -1037,7 +1037,7 @@ void ProjectSettingsEditor::_copy_to_platform_about_to_show() {
         Vector<String> custom_list = StringUtils::split(custom,",");
         for (int j = 0; j < custom_list.size(); j++) {
             String f =StringUtils::strip_edges( custom_list[j]);
-            if (f != String()) {
+            if (!f.empty()) {
                 presets.insert(f);
             }
         }
@@ -1053,7 +1053,7 @@ void ProjectSettingsEditor::_copy_to_platform_about_to_show() {
 void ProjectSettingsEditor::_copy_to_platform(int p_which) {
 
     String path = globals_editor->get_inspector()->get_selected_path();
-    if (path == String()) {
+    if (path.empty()) {
         EditorNode::get_singleton()->show_warning(TTR("Select a setting item first!"));
         return;
     }
@@ -1234,7 +1234,7 @@ void ProjectSettingsEditor::_translation_res_option_changed() {
     ERR_FAIL_COND(!remaps.has(key));
     PoolStringArray r = remaps[key];
     ERR_FAIL_INDEX(idx, r.size());
-    if (translation_locales_idxs_remap.size() > 0) {
+    if (!translation_locales_idxs_remap.empty()) {
         r.set(idx, path + ":" + langs[translation_locales_idxs_remap[which]]);
     } else {
         r.set(idx, path + ":" + langs[which]);
@@ -1501,7 +1501,7 @@ void ProjectSettingsEditor::_update_translations() {
     for (int i = 0; i < names.size(); i++) {
 
         if (filter_mode == SHOW_ONLY_SELECTED_LOCALES && fl_idx_count != 0) {
-            if (l_filter.size() > 0) {
+            if (!l_filter.empty()) {
 
                 if (l_filter.find(langs[i]) != -1) {
                     if (langnames.length() > 0)

@@ -207,7 +207,7 @@ void CryptoMbedTLS::load_default_certificates(String p_path) {
 
 	String certs_path = GLOBAL_DEF("network/ssl/certificates", "");
 
-	if (p_path != "") {
+	if (!p_path.empty()) {
 		// Use certs defined in project settings.
 		default_certs->load(p_path);
 	}

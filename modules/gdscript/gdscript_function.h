@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef GDSCRIPT_FUNCTION_H
-#define GDSCRIPT_FUNCTION_H
+#pragma once
 
 #include "core/os/thread.h"
 #include "core/pair.h"
@@ -55,62 +54,7 @@ struct GDScriptDataType {
 	StringName native_type;
 	Ref<Script> script_type;
 
-	bool is_type(const Variant &p_variant, bool p_allow_implicit_conversion = false) const {
-		if (!has_type) return true; // Can't type check
-
-		switch (kind) {
-			case UNINITIALIZED:
-				break;
-			case BUILTIN: {
-				Variant::Type var_type = p_variant.get_type();
-				bool valid = builtin_type == var_type;
-				if (!valid && p_allow_implicit_conversion) {
-					valid = Variant::can_convert_strict(var_type, builtin_type);
-				}
-				return valid;
-			} break;
-			case NATIVE: {
-				if (p_variant.get_type() == Variant::NIL) {
-					return true;
-				}
-				if (p_variant.get_type() != Variant::OBJECT) {
-					return false;
-				}
-				Object *obj = p_variant.operator Object *();
-				if (obj) {
-					if (!ClassDB::is_parent_class(obj->get_class_name(), native_type)) {
-						// Try with underscore prefix
-						StringName underscore_native_type = "_" + native_type;
-						if (!ClassDB::is_parent_class(obj->get_class_name(), underscore_native_type)) {
-							return false;
-						}
-					}
-				}
-				return true;
-			} break;
-			case SCRIPT:
-			case GDSCRIPT: {
-				if (p_variant.get_type() == Variant::NIL) {
-					return true;
-				}
-				if (p_variant.get_type() != Variant::OBJECT) {
-					return false;
-				}
-				Object *obj = p_variant.operator Object *();
-				Ref<Script> base = obj && obj->get_script_instance() ? obj->get_script_instance()->get_script() : nullptr;
-				bool valid = false;
-				while (base.is_valid()) {
-					if (base == script_type) {
-						valid = true;
-						break;
-					}
-					base = base->get_base_script();
-				}
-				return valid;
-			} break;
-		}
-		return false;
-	}
+    bool is_type(const Variant &p_variant, bool p_allow_implicit_conversion = false) const;
 
 	operator PropertyInfo() const {
 		PropertyInfo info;
@@ -357,5 +301,3 @@ public:
 	GDScriptFunctionState();
 	~GDScriptFunctionState() override;
 };
-
-#endif // GDSCRIPT_FUNCTION_H

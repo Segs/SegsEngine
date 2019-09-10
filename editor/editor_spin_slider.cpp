@@ -226,7 +226,7 @@ void EditorSpinSlider::_notification(int p_what) {
             lc = fc;
         }
 
-        if (flat && label != String()) {
+        if (flat && !label.empty()) {
             Color label_bg_color = get_color("dark_color_3", "Editor");
             draw_rect(Rect2(Vector2(), Vector2(sb->get_offset().x * 2 + string_width, get_size().height)), label_bg_color);
         }

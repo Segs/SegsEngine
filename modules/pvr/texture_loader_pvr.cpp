@@ -31,7 +31,10 @@
 #include "texture_loader_pvr.h"
 #include "PvrTcEncoder.h"
 #include "RgbaBitmap.h"
+
 #include "core/os/file_access.h"
+#include "core/class_db.h"
+
 #include <cstring>
 #include <new>
 

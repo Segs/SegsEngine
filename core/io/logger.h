@@ -28,14 +28,13 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef LOGGER_H
-#define LOGGER_H
+#pragma once
 
-#include "core/os/file_access.h"
 #include "core/vector.h"
 
-class QChar;
 #include <cstdarg>
+
+class QChar;
 
 class Logger {
 protected:
@@ -89,5 +88,3 @@ public:
 
 	~CompositeLogger() override;
 };
-
-#endif

@@ -95,7 +95,7 @@ Error EditorExportPlatformWindows::export_project(const Ref<EditorExportPreset> 
 		args.push_back("--set-file-version");
 		args.push_back(file_verion);
 	}
-	if (product_version != String()) {
+	if (!product_version.empty()) {
 		args.push_back("--set-product-version");
 		args.push_back(product_version);
 	}

@@ -231,7 +231,7 @@ void VisualShaderEditor::_update_custom_nodes() {
             if (ref->has_method("_get_category")) {
                 category = (String)ref->call("_get_category");
             }
-            if (category == "") {
+            if (category.empty()) {
                 category = "Custom";
             }
 
@@ -319,7 +319,7 @@ void VisualShaderEditor::_update_options_menu() {
                     category->set_collapsed(true);
             }
 
-            if (add_options[i].sub_category != "") {
+            if (!add_options[i].sub_category.empty()) {
                 if (prev_sub_category != add_options[i].sub_category) {
                     if (category != nullptr) {
                         if (sub_category != nullptr && item_count2 == 0) {
@@ -527,7 +527,7 @@ void VisualShaderEditor::_update_graph() {
             uniform_name->connect("text_entered", this, "_line_edit_changed", varray(uniform_name, nodes[n_i]));
             uniform_name->connect("focus_exited", this, "_line_edit_focus_out", varray(uniform_name, nodes[n_i]));
 
-            if (vsnode->get_input_port_count() == 0 && vsnode->get_output_port_count() == 1 && vsnode->get_output_port_name(0) == "") {
+            if (vsnode->get_input_port_count() == 0 && vsnode->get_output_port_count() == 1 && vsnode->get_output_port_name(0).empty()) {
                 //shortcut
                 VisualShaderNode::PortType port_right = vsnode->get_output_port_type(0);
                 node->set_slot(0, false, VisualShaderNode::PORT_TYPE_SCALAR, Color(), true, port_right, type_color[port_right]);
@@ -543,7 +543,7 @@ void VisualShaderEditor::_update_graph() {
             }
         }
 
-        if (custom_editor && vsnode->get_output_port_count() > 0 && vsnode->get_output_port_name(0) == "" && (vsnode->get_input_port_count() == 0 || vsnode->get_input_port_name(0) == "")) {
+        if (custom_editor && vsnode->get_output_port_count() > 0 && vsnode->get_output_port_name(0).empty() && (vsnode->get_input_port_count() == 0 || vsnode->get_input_port_name(0).empty())) {
             //will be embedded in first port
         } else if (custom_editor) {
             port_offset++;
@@ -762,7 +762,7 @@ void VisualShaderEditor::_update_graph() {
         node->add_child(offset);
 
         String error = vsnode->get_warning(visual_shader->get_mode(), type);
-        if (error != String()) {
+        if (!error.empty()) {
             Label *error_label = memnew(Label);
             error_label->add_color_override("font_color", get_color("error_color", "Editor"));
             error_label->set_text(error);
@@ -1178,7 +1178,7 @@ void VisualShaderEditor::_port_name_focus_out(Object *line_edit, int p_node_id, 
     }
 
     String validated_name = visual_shader->validate_port_name(text, input_names, output_names);
-    if (validated_name == "") {
+    if (validated_name.empty()) {
         if (!p_output) {
             Object::cast_to<LineEdit>(line_edit)->set_text(node->get_input_port_name(p_port_id));
         } else {
@@ -1236,7 +1236,7 @@ void VisualShaderEditor::_add_node(int p_idx, int p_op_idx) {
 
     bool is_custom = add_options[p_idx].is_custom;
 
-    if (!is_custom && add_options[p_idx].type != String()) {
+    if (!is_custom && !add_options[p_idx].type.empty()) {
         VisualShaderNode *vsn = Object::cast_to<VisualShaderNode>(ClassDB::instance(add_options[p_idx].type));
         ERR_FAIL_COND(!vsn);
 
@@ -2905,7 +2905,7 @@ Control *VisualShaderNodePluginDefault::create_editor(const Ref<Resource> &p_par
     }
 
     Vector<StringName> properties = p_node->get_editable_properties();
-    if (properties.size() == 0) {
+    if (properties.empty()) {
         return nullptr;
     }
 
@@ -2923,7 +2923,7 @@ Control *VisualShaderNodePluginDefault::create_editor(const Ref<Resource> &p_par
         }
     }
 
-    if (pinfo.size() == 0)
+    if (pinfo.empty())
         return nullptr;
 
     properties.clear();

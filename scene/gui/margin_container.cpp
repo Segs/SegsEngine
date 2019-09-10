@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "margin_container.h"
+#include "core/class_db.h"
 
 IMPL_GDCLASS(MarginContainer)
 

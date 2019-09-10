@@ -30,6 +30,7 @@
 
 #include "editor_import_plugin.h"
 #include "core/script_language.h"
+#include "core/class_db.h"
 
 IMPL_GDCLASS(EditorImportPlugin)
 

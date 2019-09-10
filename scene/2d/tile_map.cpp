@@ -871,7 +871,7 @@ void TileMap::set_cell(int p_x, int p_y, int p_tile, bool p_flip_x, bool p_flip_
         ERR_FAIL_COND(!Q);
         Quadrant &q = Q->get();
         q.cells.erase(pk);
-        if (q.cells.size() == 0)
+        if (q.cells.empty())
             _erase_quadrant(Q);
         else
             _make_quadrant_dirty(Q);
@@ -1044,7 +1044,7 @@ void TileMap::update_cell_bitmask(int p_x, int p_y) {
 
 void TileMap::update_dirty_bitmask() {
 
-    while (dirty_bitmask.size() > 0) {
+    while (!dirty_bitmask.empty()) {
         update_cell_bitmask(dirty_bitmask[0].x, dirty_bitmask[0].y);
         dirty_bitmask.pop_front();
     }
@@ -1162,7 +1162,7 @@ void TileMap::_recreate_quadrants() {
 
 void TileMap::_clear_quadrants() {
 
-    while (quadrant_map.size()) {
+    while (!quadrant_map.empty()) {
         _erase_quadrant(quadrant_map.front());
     }
 }
@@ -1716,7 +1716,7 @@ Array TileMap::get_used_cells_by_id(int p_id) const {
 Rect2 TileMap::get_used_rect() { // Not const because of cache
 
     if (used_size_cache_dirty) {
-        if (tile_map.size() > 0) {
+        if (!tile_map.empty()) {
             used_size_cache = Rect2(tile_map.front()->key().x, tile_map.front()->key().y, 0, 0);
 
             for (Map<PosKey, Cell>::Element *E = tile_map.front(); E; E = E->next()) {

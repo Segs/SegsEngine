@@ -321,7 +321,7 @@ Vector<Vector2> PolygonPathFinder::find_path(const Vector2 &p_from, const Vector
 
     while (true) {
 
-        if (open_list.size() == 0) {
+        if (open_list.empty()) {
             printf("open list empty\n");
             break;
         }
@@ -422,7 +422,7 @@ void PolygonPathFinder::_set_data(const Dictionary &p_data) {
     Array c = p_data["connections"];
 
     ERR_FAIL_COND(c.size() != p.size());
-    if (c.size())
+    if (!c.empty())
         return;
 
     int pc = p.size();

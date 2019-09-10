@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef DYNAMICFONT_STB_H
-#define DYNAMICFONT_STB_H
+#pragma once
 
 #ifndef FREETYPE_ENABLED
 
@@ -191,4 +190,3 @@ public:
 };
 
 #endif
-#endif // DYNAMICFONT_H

@@ -256,7 +256,7 @@ void EditorFileDialog::_post_popup() {
     else
         item_list->grab_focus();
 
-    if (is_visible_in_tree() && get_current_file() != "")
+    if (is_visible_in_tree() && !get_current_file().empty())
         _request_single_thumbnail(PathUtils::plus_file(get_current_dir(),get_current_file()));
 
     if (is_visible_in_tree()) {
@@ -528,7 +528,7 @@ void EditorFileDialog::_push_history() {
 
     local_history.resize(local_history_pos + 1);
     String new_path = dir_access->get_current_dir();
-    if (local_history.size() == 0 || new_path != local_history[local_history_pos]) {
+    if (local_history.empty() || new_path != local_history[local_history_pos]) {
         local_history.push_back(new_path);
         local_history_pos++;
         dir_prev->set_disabled(local_history_pos == 0);
@@ -643,7 +643,7 @@ void EditorFileDialog::_item_menu_id_pressed(int p_option) {
         case ITEM_MENU_SHOW_IN_EXPLORER: {
             String path;
             int idx = item_list->get_current();
-            if (idx == -1 || item_list->get_selected_items().size() == 0) {
+            if (idx == -1 || item_list->get_selected_items().empty()) {
                 // Folder background was clicked. Open this folder.
                 path = ProjectSettings::get_singleton()->globalize_path(dir_access->get_current_dir());
             } else {
@@ -665,7 +665,7 @@ bool EditorFileDialog::_is_open_should_be_disabled() {
         return false;
 
     Vector<int> items = item_list->get_selected_items();
-    if (items.size() == 0)
+    if (items.empty())
         return mode != MODE_OPEN_DIR; // In "Open folder" mode, having nothing selected picks the current folder.
 
     for (int i = 0; i < items.size(); i++) {
@@ -746,7 +746,7 @@ void EditorFileDialog::update_file_list() {
 
     String item;
 
-    while ((item = dir_access->get_next()) != "") {
+    while (!(item = dir_access->get_next()).empty()) {
 
         if (item == "." || item == "..")
             continue;
@@ -972,7 +972,7 @@ void EditorFileDialog::set_current_file(const String &p_file) {
 }
 void EditorFileDialog::set_current_path(const String &p_path) {
 
-    if (!p_path.size())
+    if (p_path.empty())
         return;
     int pos = MAX(StringUtils::find_last(p_path,"/"), StringUtils::find_last(p_path,"\\"));
     if (pos == -1) {

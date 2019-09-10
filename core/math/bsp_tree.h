@@ -139,7 +139,7 @@ struct PtrToArg<BSP_Tree> {
 		BSP_Tree s(Variant(*reinterpret_cast<const Dictionary *>(p_ptr)));
 		return s;
 	}
-	_FORCE_INLINE_ static void encode(BSP_Tree p_val, void *p_ptr) {
+    _FORCE_INLINE_ static void encode(const BSP_Tree &p_val, void *p_ptr) {
 		Dictionary *d = reinterpret_cast<Dictionary *>(p_ptr);
 		*d = Variant(p_val);
 	}

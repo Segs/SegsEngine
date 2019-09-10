@@ -678,7 +678,7 @@ void AnimationBezierTrackEdit::_gui_input(const Ref<InputEvent> &p_event) {
 
             menu->clear();
             menu->add_icon_item(bezier_icon, TTR("Insert Key Here"), MENU_KEY_INSERT);
-            if (selection.size()) {
+            if (!selection.empty()) {
                 menu->add_separator();
                 menu->add_icon_item(get_icon("Duplicate", "EditorIcons"), TTR("Duplicate Selected Key(s)"), MENU_KEY_DUPLICATE);
                 menu->add_separator();
@@ -1093,7 +1093,7 @@ void AnimationBezierTrackEdit::_menu_selected(int p_index) {
 
 void AnimationBezierTrackEdit::duplicate_selection() {
 
-    if (selection.size() == 0)
+    if (selection.empty())
         return;
 
     float top_time = 1e10;
@@ -1150,7 +1150,7 @@ void AnimationBezierTrackEdit::duplicate_selection() {
 }
 
 void AnimationBezierTrackEdit::delete_selection() {
-    if (selection.size()) {
+    if (!selection.empty()) {
         undo_redo->create_action(TTR("Anim Delete Keys"));
 
         for (Set<int>::Element *E = selection.back(); E; E = E->prev()) {

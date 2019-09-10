@@ -201,7 +201,7 @@ void GroupDialog::_add_group(String p_name) {
     }
 
     String name = StringUtils::strip_edges(p_name);
-    if (name == "" || groups->search_item_text(name)) {
+    if (name.empty() || groups->search_item_text(name)) {
         return;
     }
 
@@ -229,7 +229,7 @@ void GroupDialog::_group_renamed() {
         }
     }
 
-    if (name == "") {
+    if (name.empty()) {
         renamed_group->set_text(0, selected_group);
         error->set_text(TTR("Invalid group name."));
         error->popup_centered();
@@ -554,7 +554,7 @@ void GroupsEditor::_add_group(const String &p_group) {
         return;
 
     String name = group_name->get_text();
-    if (StringUtils::strip_edges(name) == "")
+    if (StringUtils::strip_edges(name).empty())
         return;
 
     if (node->is_in_group(name))

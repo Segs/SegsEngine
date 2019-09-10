@@ -30,11 +30,11 @@
 
 #include "register_types.h"
 
-#include "core/io/resource_loader.h"
-#include "core/io/resource_saver.h"
-
 #include "nativescript.h"
 
+#include "core/io/resource_loader.h"
+#include "core/io/resource_saver.h"
+#include "core/class_db.h"
 #include "core/os/os.h"
 
 NativeScriptLanguage *native_script_language;

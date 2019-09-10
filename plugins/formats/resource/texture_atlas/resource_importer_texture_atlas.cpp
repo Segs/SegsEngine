@@ -196,7 +196,7 @@ static void _plot_triangle(Vector2 *vertices, const Vector2 &p_offset, bool p_tr
 
 Error ResourceImporterTextureAtlas::import_group_file(const String &p_group_file, const Map<String, Map<StringName, Variant> > &p_source_file_options, const Map<String, String> &p_base_paths) {
 
-    ERR_FAIL_COND_V(p_source_file_options.size() == 0, ERR_BUG); //should never happen
+    ERR_FAIL_COND_V(p_source_file_options.empty(), ERR_BUG); //should never happen
 
     Vector<EditorAtlasPacker::Chart> charts;
     Vector<PackData> pack_data_files;

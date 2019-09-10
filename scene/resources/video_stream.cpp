@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "video_stream.h"
+#include "core/class_db.h"
 
 IMPL_GDCLASS(VideoStreamPlayback)
 IMPL_GDCLASS(VideoStream)

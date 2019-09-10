@@ -67,7 +67,7 @@ void VisibilityNotifier2D::_exit_viewport(Viewport *p_viewport) {
         return;
 
     emit_signal(SceneStringNames::get_singleton()->viewport_exited, p_viewport);
-    if (viewports.size() == 0) {
+    if (viewports.empty()) {
         emit_signal(SceneStringNames::get_singleton()->screen_exited);
 
         _screen_exit();
@@ -131,7 +131,7 @@ void VisibilityNotifier2D::_notification(int p_what) {
 
 bool VisibilityNotifier2D::is_on_screen() const {
 
-    return viewports.size() > 0;
+    return !viewports.empty();
 }
 
 void VisibilityNotifier2D::_bind_methods() {
@@ -234,7 +234,7 @@ void VisibilityEnabler2D::_find_nodes(Node *p_node) {
 
     for (int i = 0; i < p_node->get_child_count(); i++) {
         Node *c = p_node->get_child(i);
-        if (c->get_filename() != String())
+        if (!c->get_filename().empty())
             continue; //skip, instance
 
         _find_nodes(c);
@@ -250,7 +250,7 @@ void VisibilityEnabler2D::_notification(int p_what) {
 
         Node *from = this;
         //find where current scene starts
-        while (from->get_parent() && from->get_filename() == String())
+        while (from->get_parent() && from->get_filename().empty())
             from = from->get_parent();
 
         _find_nodes(from);
@@ -330,7 +330,7 @@ void VisibilityEnabler2D::_node_removed(Node *p_node) {
 
 String VisibilityEnabler2D::get_configuration_warning() const {
 #ifdef TOOLS_ENABLED
-    if (is_inside_tree() && get_parent() && (get_parent()->get_filename() == String() && get_parent() != get_tree()->get_edited_scene_root())) {
+    if (is_inside_tree() && get_parent() && (get_parent()->get_filename().empty() && get_parent() != get_tree()->get_edited_scene_root())) {
         return TTR("VisibilityEnabler2D works best when used with the edited scene root directly as parent.");
     }
 #endif

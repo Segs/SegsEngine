@@ -30,6 +30,7 @@
 
 #include "export.h"
 
+#include "core/class_db.h"
 #include "core/io/marshalls.h"
 #include "core/io/resource_saver.h"
 #include "core/io/zip_io.h"

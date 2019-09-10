@@ -49,16 +49,16 @@
 		return 0;                                                                          \
 	}                                                                                      \
 	void m_type##_free_cached_ids() {                                                      \
-		while (m_type##_id_pool.size()) {                                                  \
+        while (!m_type##_id_pool.empty()) {                                                \
 			server_name->free(m_type##_id_pool.front()->get());                            \
 			m_type##_id_pool.pop_front();                                                  \
 		}                                                                                  \
 	}                                                                                      \
-	RID m_type##_create() override {                                                        \
+    RID m_type##_create() override {                                                       \
 		if (Thread::get_caller_id() != server_thread) {                                    \
 			RID rid;                                                                       \
 			alloc_mutex->lock();                                                           \
-			if (m_type##_id_pool.size() == 0) {                                            \
+            if (m_type##_id_pool.empty()) {                                                \
 				int ret;                                                                   \
 				command_queue.push_and_ret(this, &ServerNameWrapMT::m_type##allocn, &ret); \
 				SYNC_DEBUG                                                                 \
@@ -80,7 +80,7 @@
 		return 0;                                                                              \
 	}                                                                                          \
 	void m_type##_free_cached_ids() {                                                          \
-		while (m_type##_id_pool.size()) {                                                      \
+        while (!m_type##_id_pool.empty()) {                                                    \
 			free(m_type##_id_pool.front()->get());                                             \
 			m_type##_id_pool.pop_front();                                                      \
 		}                                                                                      \
@@ -89,7 +89,7 @@
 		if (Thread::get_caller_id() != server_thread) {                                        \
 			RID rid;                                                                           \
 			alloc_mutex->lock();                                                               \
-			if (m_type##_id_pool.size() == 0) {                                                \
+            if (m_type##_id_pool.empty()) {                                                    \
 				int ret;                                                                       \
 				command_queue.push_and_ret(this, &ServerNameWrapMT::m_type##allocn, p1, &ret); \
 				SYNC_DEBUG                                                                     \
@@ -120,7 +120,7 @@
 		if (Thread::get_caller_id() != server_thread) {                                            \
 			RID rid;                                                                               \
 			alloc_mutex->lock();                                                                   \
-			if (m_type##_id_pool.size() == 0) {                                                    \
+            if (m_type##_id_pool.empty()) {                                                    \
 				int ret;                                                                           \
 				command_queue.push_and_ret(this, &ServerNameWrapMT::m_type##allocn, p1, p2, &ret); \
 				SYNC_DEBUG                                                                         \
@@ -151,7 +151,7 @@
 		if (Thread::get_caller_id() != server_thread) {                                                \
 			RID rid;                                                                                   \
 			alloc_mutex->lock();                                                                       \
-			if (m_type##_id_pool.size() == 0) {                                                        \
+            if (m_type##_id_pool.empty()) {                                                        \
 				int ret;                                                                               \
 				command_queue.push_and_ret(this, &ServerNameWrapMT::m_type##allocn, p1, p2, p3, &ret); \
 				SYNC_DEBUG                                                                             \
@@ -182,7 +182,7 @@
 		if (Thread::get_caller_id() != server_thread) {                                                    \
 			RID rid;                                                                                       \
 			alloc_mutex->lock();                                                                           \
-			if (m_type##_id_pool.size() == 0) {                                                            \
+            if (m_type##_id_pool.empty()) {                                                            \
 				int ret;                                                                                   \
 				command_queue.push_and_ret(this, &ServerNameWrapMT::m_type##allocn, p1, p2, p3, p4, &ret); \
 				SYNC_DEBUG                                                                                 \
@@ -214,7 +214,7 @@
 		if (Thread::get_caller_id() != server_thread) {                                                        \
 			RID rid;                                                                                           \
 			alloc_mutex->lock();                                                                               \
-			if (m_type##_id_pool.size() == 0) {                                                                \
+            if (m_type##_id_pool.empty()) {                                                                \
 				int ret;                                                                                       \
 				command_queue.push_and_ret(this, &ServerNameWrapMT::m_type##allocn, p1, p2, p3, p4, p5, &ret); \
 				SYNC_DEBUG                                                                                     \

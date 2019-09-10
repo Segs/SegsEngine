@@ -161,7 +161,7 @@ void WebSocketMultiplayerPeer::set_target_peer(int p_target_peer) {
 int WebSocketMultiplayerPeer::get_packet_peer() const {
 
     ERR_FAIL_COND_V_MSG(!_is_multiplayer, 1, "This function is not available when not using the MultiplayerAPI.");
-    ERR_FAIL_COND_V(_incoming_packets.size() == 0, 1);
+    ERR_FAIL_COND_V(_incoming_packets.empty(), 1);
 
     return _incoming_packets.front()->get().source;
 }

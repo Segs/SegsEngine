@@ -84,7 +84,7 @@ bool TileSet::_set(const StringName &p_name, const Variant &p_value) {
             if (p_value.is_array()) {
                 Array p = p_value;
                 Vector2 last_coord;
-                while (p.size() > 0) {
+                while (!p.empty()) {
                     if (p[0].get_type() == Variant::VECTOR2) {
                         last_coord = p[0];
                     } else if (p[0].get_type() == Variant::INT) {
@@ -97,7 +97,7 @@ bool TileSet::_set(const StringName &p_name, const Variant &p_value) {
             tile_map[id].autotile_data.occluder_map.clear();
             Array p = p_value;
             Vector2 last_coord;
-            while (p.size() > 0) {
+            while (!p.empty()) {
                 if (p[0].get_type() == Variant::VECTOR2) {
                     last_coord = p[0];
                 } else if (p[0].get_type() == Variant::OBJECT) {
@@ -109,7 +109,7 @@ bool TileSet::_set(const StringName &p_name, const Variant &p_value) {
             tile_map[id].autotile_data.navpoly_map.clear();
             Array p = p_value;
             Vector2 last_coord;
-            while (p.size() > 0) {
+            while (!p.empty()) {
                 if (p[0].get_type() == Variant::VECTOR2) {
                     last_coord = p[0];
                 } else if (p[0].get_type() == Variant::OBJECT) {
@@ -123,7 +123,7 @@ bool TileSet::_set(const StringName &p_name, const Variant &p_value) {
             Vector3 val;
             Vector2 v;
             int priority;
-            while (p.size() > 0) {
+            while (!p.empty()) {
                 val = p[0];
                 if (val.z > 1) {
                     v.x = val.x;
@@ -139,7 +139,7 @@ bool TileSet::_set(const StringName &p_name, const Variant &p_value) {
             Vector3 val;
             Vector2 v;
             int z_index;
-            while (p.size() > 0) {
+            while (!p.empty()) {
                 val = p[0];
                 if (val.z != 0) {
                     v.x = val.x;
@@ -631,7 +631,7 @@ Vector2 TileSet::autotile_get_subtile_for_bitmask(int p_id, uint16_t p_bitmask, 
         }
     }
 
-    if (coords.size() == 0) {
+    if (coords.empty()) {
         return autotile_get_icon_coordinate(p_id);
     } else {
         uint32_t picked_value = Math::rand() % priority_sum;
@@ -678,7 +678,7 @@ Vector2 TileSet::atlastile_get_subtile_by_priority(int p_id, const Node *p_tilem
             }
         }
     }
-    if (coords.size() == 0) {
+    if (coords.empty()) {
         return autotile_get_icon_coordinate(p_id);
     } else {
         return coords[Math::random(0, (int)coords.size())];
@@ -1106,7 +1106,7 @@ void TileSet::remove_tile(int p_id) {
 
 int TileSet::get_last_unused_tile_id() const {
 
-    if (tile_map.size())
+    if (!tile_map.empty())
         return tile_map.back()->key() + 1;
     else
         return 0;

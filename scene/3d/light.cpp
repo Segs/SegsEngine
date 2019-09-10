@@ -477,7 +477,7 @@ String SpotLight::get_configuration_warning() const {
     String warning = Light::get_configuration_warning();
 
     if (has_shadow() && get_param(PARAM_SPOT_ANGLE) >= 90.0) {
-        if (warning != String()) {
+        if (!warning.empty()) {
             warning += "\n\n";
         }
 

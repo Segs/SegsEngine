@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "register_server_types.h"
+#include "core/class_db.h"
 #include "core/engine.h"
 #include "core/project_settings.h"
 

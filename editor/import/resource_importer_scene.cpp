@@ -60,7 +60,7 @@ uint32_t EditorSceneImporter::get_import_flags() const {
         return get_script_instance()->call("_get_import_flags");
     }
 
-    ERR_FAIL_V(0);
+    ERR_FAIL_V(0)
 }
 void EditorSceneImporter::get_extensions(Vector<String> *r_extensions) const {
 
@@ -110,26 +110,26 @@ void EditorSceneImporter::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("import_scene_from_other_importer", "path", "flags", "bake_fps"), &EditorSceneImporter::import_scene_from_other_importer);
     MethodBinder::bind_method(D_METHOD("import_animation_from_other_importer", "path", "flags", "bake_fps"), &EditorSceneImporter::import_animation_from_other_importer);
 
-    BIND_VMETHOD(MethodInfo(Variant::INT, "_get_import_flags"));
-    BIND_VMETHOD(MethodInfo(Variant::ARRAY, "_get_extensions"));
+    BIND_VMETHOD(MethodInfo(Variant::INT, "_get_import_flags"))
+    BIND_VMETHOD(MethodInfo(Variant::ARRAY, "_get_extensions"))
 
     MethodInfo mi = MethodInfo(Variant::OBJECT, "_import_scene", PropertyInfo(Variant::STRING, "path"), PropertyInfo(Variant::INT, "flags"), PropertyInfo(Variant::INT, "bake_fps"));
     mi.return_val.class_name = "Node";
-    BIND_VMETHOD(mi);
+    BIND_VMETHOD(mi)
     mi = MethodInfo(Variant::OBJECT, "_import_animation", PropertyInfo(Variant::STRING, "path"), PropertyInfo(Variant::INT, "flags"), PropertyInfo(Variant::INT, "bake_fps"));
     mi.return_val.class_name = "Animation";
-    BIND_VMETHOD(mi);
+    BIND_VMETHOD(mi)
 
-    BIND_CONSTANT(IMPORT_SCENE);
-    BIND_CONSTANT(IMPORT_ANIMATION);
-    BIND_CONSTANT(IMPORT_ANIMATION_DETECT_LOOP);
-    BIND_CONSTANT(IMPORT_ANIMATION_OPTIMIZE);
-    BIND_CONSTANT(IMPORT_ANIMATION_FORCE_ALL_TRACKS_IN_ALL_CLIPS);
-    BIND_CONSTANT(IMPORT_ANIMATION_KEEP_VALUE_TRACKS);
-    BIND_CONSTANT(IMPORT_GENERATE_TANGENT_ARRAYS);
-    BIND_CONSTANT(IMPORT_FAIL_ON_MISSING_DEPENDENCIES);
-    BIND_CONSTANT(IMPORT_MATERIALS_IN_INSTANCES);
-    BIND_CONSTANT(IMPORT_USE_COMPRESSION);
+    BIND_CONSTANT(IMPORT_SCENE)
+    BIND_CONSTANT(IMPORT_ANIMATION)
+    BIND_CONSTANT(IMPORT_ANIMATION_DETECT_LOOP)
+    BIND_CONSTANT(IMPORT_ANIMATION_OPTIMIZE)
+    BIND_CONSTANT(IMPORT_ANIMATION_FORCE_ALL_TRACKS_IN_ALL_CLIPS)
+    BIND_CONSTANT(IMPORT_ANIMATION_KEEP_VALUE_TRACKS)
+    BIND_CONSTANT(IMPORT_GENERATE_TANGENT_ARRAYS)
+    BIND_CONSTANT(IMPORT_FAIL_ON_MISSING_DEPENDENCIES)
+    BIND_CONSTANT(IMPORT_MATERIALS_IN_INSTANCES)
+    BIND_CONSTANT(IMPORT_USE_COMPRESSION)
 }
 
 /////////////////////////////////
@@ -365,7 +365,7 @@ Node *ResourceImporterScene::_fix_node(Node *p_node, Node *p_root, Map<Ref<Mesh>
         for (List<StringName>::Element *E = anims.front(); E; E = E->next()) {
 
             Ref<Animation> anim = ap->get_animation(E->get());
-            ERR_CONTINUE(anim.is_null());
+            ERR_CONTINUE(anim.is_null())
             for (int i = 0; i < anim->get_track_count(); i++) {
                 NodePath path = anim->track_get_path(i);
 
@@ -408,7 +408,7 @@ Node *ResourceImporterScene::_fix_node(Node *p_node, Node *p_root, Map<Ref<Mesh>
                     fixed_name = _fixstr(name, "convcolonly");
                 }
 
-                ERR_FAIL_COND_V(fixed_name.empty(), nullptr);
+                ERR_FAIL_COND_V(fixed_name.empty(), nullptr)
 
                 if (!shapes.empty()) {
 
@@ -566,7 +566,7 @@ Node *ResourceImporterScene::_fix_node(Node *p_node, Node *p_root, Map<Ref<Mesh>
         MeshInstance *mi = Object::cast_to<MeshInstance>(p_node);
 
         Ref<ArrayMesh> mesh = mi->get_mesh();
-        ERR_FAIL_COND_V(mesh.is_null(), nullptr);
+        ERR_FAIL_COND_V(mesh.is_null(), nullptr)
         NavigationMeshInstance *nmi = memnew(NavigationMeshInstance);
 
         nmi->set_name(_fixstr(name, "navmesh"));
@@ -669,9 +669,9 @@ void ResourceImporterScene::_create_clips(Node *scene, const Array &p_clips, boo
         return;
 
     Node *n = scene->get_node(NodePath("AnimationPlayer"));
-    ERR_FAIL_COND(!n);
+    ERR_FAIL_COND(!n)
     AnimationPlayer *anim = Object::cast_to<AnimationPlayer>(n);
-    ERR_FAIL_COND(!anim);
+    ERR_FAIL_COND(!anim)
 
     if (!anim->has_animation("default"))
         return;
@@ -784,7 +784,7 @@ void ResourceImporterScene::_create_clips(Node *scene, const Array &p_clips, boo
 void ResourceImporterScene::_filter_anim_tracks(Ref<Animation> anim, Set<String> &keep) {
 
     Ref<Animation> a = anim;
-    ERR_FAIL_COND(!a.is_valid());
+    ERR_FAIL_COND(!a.is_valid())
 
     for (int j = 0; j < a->get_track_count(); j++) {
 
@@ -802,9 +802,9 @@ void ResourceImporterScene::_filter_tracks(Node *scene, const String &p_text) {
     if (!scene->has_node(NodePath("AnimationPlayer")))
         return;
     Node *n = scene->get_node(NodePath("AnimationPlayer"));
-    ERR_FAIL_COND(!n);
+    ERR_FAIL_COND(!n)
     AnimationPlayer *anim = Object::cast_to<AnimationPlayer>(n);
-    ERR_FAIL_COND(!anim);
+    ERR_FAIL_COND(!anim)
 
     Vector<String> strings = StringUtils::split(p_text,"\n");
     for (int i = 0; i < strings.size(); i++) {
@@ -908,9 +908,9 @@ void ResourceImporterScene::_optimize_animations(Node *scene, float p_max_lin_er
     if (!scene->has_node(NodePath("AnimationPlayer")))
         return;
     Node *n = scene->get_node(NodePath("AnimationPlayer"));
-    ERR_FAIL_COND(!n);
+    ERR_FAIL_COND(!n)
     AnimationPlayer *anim = Object::cast_to<AnimationPlayer>(n);
-    ERR_FAIL_COND(!anim);
+    ERR_FAIL_COND(!anim)
 
     List<StringName> anim_names;
     anim->get_animation_list(&anim_names);
@@ -1545,7 +1545,7 @@ uint32_t EditorSceneImporterESCN::get_import_flags() const {
 void EditorSceneImporterESCN::get_extensions(Vector<String> *r_extensions) const {
     r_extensions->push_back("escn");
 }
-Node *EditorSceneImporterESCN::import_scene(const String &p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err) {
+Node *EditorSceneImporterESCN::import_scene(const String &p_path, uint32_t /*p_flags*/, int /*p_bake_fps*/, Vector<String> * /*r_missing_deps*/, Error * /*r_err*/) {
 
     Error error;
     Ref<PackedScene> ps = ResourceFormatLoaderText::singleton->load(p_path, p_path, &error);

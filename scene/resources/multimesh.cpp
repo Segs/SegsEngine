@@ -33,6 +33,7 @@
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(MultiMesh)
+RES_BASE_EXTENSION_IMPL(MultiMesh,"multimesh")
 
 void MultiMesh::_set_transform_array(const PoolVector<Vector3> &p_array) {
     if (transform_format != TRANSFORM_3D)

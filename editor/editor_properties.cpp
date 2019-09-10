@@ -281,7 +281,7 @@ void EditorPropertyPath::_path_pressed() {
         dialog->set_mode(save_mode ? EditorFileDialog::MODE_SAVE_FILE : EditorFileDialog::MODE_OPEN_FILE);
         for (int i = 0; i < extensions.size(); i++) {
             String e =StringUtils::strip_edges( extensions[i]);
-            if (e != String()) {
+            if (!e.empty()) {
                 dialog->add_filter(StringUtils::strip_edges(extensions[i]));
             }
         }
@@ -613,7 +613,7 @@ void EditorPropertyFlags::setup(const Vector<String> &p_options) {
     bool first = true;
     for (int i = 0; i < p_options.size(); i++) {
         String option =StringUtils::strip_edges( p_options[i]);
-        if (option != "") {
+        if (!option.empty()) {
             CheckBox *cb = memnew(CheckBox);
             cb->set_text(option);
             cb->set_clip_text(true);
@@ -778,7 +778,7 @@ void EditorPropertyLayers::setup(LayerType p_layer_type) {
             name = ProjectSettings::get_singleton()->get(basename + "/layer_" + itos(i + 1));
         }
 
-        if (name == "") {
+        if (name.empty()) {
             name = TTR("Layer") + " " + itos(i + 1);
         }
 
@@ -894,7 +894,7 @@ void EditorPropertyObjectID::_edit_pressed() {
 
 void EditorPropertyObjectID::update_property() {
     String type = base_type;
-    if (type == "")
+    if (type.empty())
         type = "Object";
 
     ObjectID id = get_edited_object()->get(get_edited_property());
@@ -2313,7 +2313,7 @@ void EditorPropertyResource::_menu_option(int p_which) {
             ERR_BREAK(!obj);
             Resource *resp = Object::cast_to<Resource>(obj);
             ERR_BREAK(!resp);
-            if (get_edited_object() && base_type != String() && base_type == "Script") {
+            if (get_edited_object() && !base_type.empty() && base_type == "Script") {
                 //make visual script the right type
                 resp->call("set_instance_base_type", get_edited_object()->get_class());
             }
@@ -2364,7 +2364,7 @@ void EditorPropertyResource::_update_menu_items() {
     if (get_edited_property() == "script" && base_type == "Script" && Object::cast_to<Node>(get_edited_object())) {
         menu->add_icon_item(get_icon("Script", "EditorIcons"), TTR("New Script"), OBJ_MENU_NEW_SCRIPT);
         menu->add_separator();
-    } else if (base_type != "") {
+    } else if (!base_type.empty()) {
         int idx = 0;
 
         Vector<EditorData::CustomType> custom_resources;
@@ -2461,7 +2461,7 @@ void EditorPropertyResource::_update_menu_items() {
     RES cb = EditorSettings::get_singleton()->get_resource_clipboard();
     bool paste_valid = false;
     if (cb.is_valid()) {
-        if (base_type == "")
+        if (base_type.empty())
             paste_valid = true;
         else
             for (int i = 0; i <StringUtils::get_slice_count( base_type,","); i++)
@@ -2488,7 +2488,7 @@ void EditorPropertyResource::_update_menu_items() {
     if (!res.is_null()) {
 
         Vector<Ref<EditorResourceConversionPlugin> > conversions = EditorNode::get_singleton()->find_resource_conversion_plugin(res);
-        if (conversions.size()) {
+        if (!conversions.empty()) {
             menu->add_separator();
         }
         for (int i = 0; i < conversions.size(); i++) {
@@ -2674,7 +2674,7 @@ void EditorPropertyResource::update_property() {
 
         assign->set_icon(EditorNode::get_singleton()->get_object_icon(res.operator->(), "Node"));
 
-        if (res->get_name() != String()) {
+        if (!res->get_name().empty()) {
             assign->set_text(res->get_name());
         } else if (PathUtils::is_resource_file(res->get_path())) {
             assign->set_text(PathUtils::get_file(res->get_path()));
@@ -2813,7 +2813,7 @@ bool EditorPropertyResource::_is_drop_valid(const Dictionary &p_drag_data) const
             String file = files[0];
             String ftype = EditorFileSystem::get_singleton()->get_file_type(file);
 
-            if (ftype != "") {
+            if (!ftype.empty()) {
 
                 for (int i = 0; i <StringUtils::get_slice_count( allowed_type,","); i++) {
                     String at = StringUtils::strip_edges(StringUtils::get_slice(allowed_type,",", i));
@@ -3315,10 +3315,10 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, Variant::Typ
         case Variant::NODE_PATH: {
 
             EditorPropertyNodePath *editor = memnew(EditorPropertyNodePath);
-            if (p_hint == PROPERTY_HINT_NODE_PATH_TO_EDITED_NODE && p_hint_text != String()) {
+            if (p_hint == PROPERTY_HINT_NODE_PATH_TO_EDITED_NODE && !p_hint_text.empty()) {
                 editor->setup((NodePath)p_hint_text, Vector<StringName>(), (p_usage & PROPERTY_USAGE_NODE_PATH_FROM_SCENE_ROOT));
             }
-            if (p_hint == PROPERTY_HINT_NODE_PATH_VALID_TYPES && p_hint_text != String()) {
+            if (p_hint == PROPERTY_HINT_NODE_PATH_VALID_TYPES && !p_hint_text.empty()) {
                 Vector<String> types = StringUtils::split(p_hint_text,",", false);
                 Vector<StringName> sn = Variant(types); //convert via variant
                 editor->setup(NodePath(), sn, (p_usage & PROPERTY_USAGE_NODE_PATH_FROM_SCENE_ROOT));

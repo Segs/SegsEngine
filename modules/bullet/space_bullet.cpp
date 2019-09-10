@@ -34,6 +34,7 @@
 #include "bullet_types_converter.h"
 #include "bullet_utilities.h"
 #include "constraint_bullet.h"
+#include "core/class_db.h"
 #include "core/object_db.h"
 #include "core/project_settings.h"
 #include "core/ustring.h"

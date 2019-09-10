@@ -30,17 +30,24 @@
 
 #pragma once
 
-#include "core/object.h"
+
 #include "core/reference.h"
 #include "core/self_list.h"
+#include "core/hash_map.h"
 #include "core/map.h"
 #include "core/ustring.h"
 
+#define RES_BASE_EXTENSION_IMPL(m_class,m_ext)                                                                      \
+                                                                                                                    \
+void m_class::register_custom_data_to_otdb() {                                                                      \
+    ClassDB::add_resource_base_extension(StringName(m_ext), get_class_static_name());                               \
+}
+
 #define RES_BASE_EXTENSION(m_ext)                                                                                   \
 public:                                                                                                             \
-    static void register_custom_data_to_otdb() { ClassDB::add_resource_base_extension(StringName(m_ext), get_class_static_name()); } \
-    String get_base_extension() const override { return String(m_ext); }											\
+    StringName get_base_extension() const override { return String(m_ext); }                                        \
                                                                                                                     \
+    static void register_custom_data_to_otdb();                                                                     \
 private:
 
 class GODOT_EXPORT Resource : public Reference {
@@ -48,8 +55,8 @@ class GODOT_EXPORT Resource : public Reference {
     GDCLASS(Resource,Reference)
     OBJ_CATEGORY("Resources")
 public:
-    static void register_custom_data_to_otdb() { ClassDB::add_resource_base_extension(StringName("res"), get_class_static_name()); }
-    virtual String get_base_extension() const { return String("res"); }
+    virtual StringName get_base_extension() const { return StringName("res"); }
+    static void register_custom_data_to_otdb();
 private:
 
     Set<ObjectID> owners;

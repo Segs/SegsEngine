@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef DYNAMIC_FONT_H
-#define DYNAMIC_FONT_H
+#pragma once
 
 #ifdef FREETYPE_ENABLED
 #include "core/hashfuncs.h"
@@ -310,7 +309,5 @@ public:
     bool handles_type(const String &p_type) const override;
     String get_resource_type(const String &p_path) const override;
 };
-
-#endif
 
 #endif

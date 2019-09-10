@@ -30,6 +30,7 @@
 
 #include "canvas.h"
 #include "servers/visual_server.h"
+#include "core/class_db.h"
 
 IMPL_GDCLASS(Canvas)
 

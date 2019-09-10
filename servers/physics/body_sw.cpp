@@ -32,6 +32,7 @@
 #include "area_sw.h"
 #include "space_sw.h"
 #include "core/object_db.h"
+#include "core/class_db.h"
 
 IMPL_GDCLASS(PhysicsDirectBodyStateSW)
 
@@ -251,7 +252,7 @@ void BodySW::set_mode(PhysicsServer::BodyMode p_mode) {
             _inv_mass = 0;
             _set_static(p_mode == PhysicsServer::BODY_MODE_STATIC);
             //set_active(p_mode==PhysicsServer::BODY_MODE_KINEMATIC);
-            set_active(p_mode == PhysicsServer::BODY_MODE_KINEMATIC && contacts.size());
+            set_active(p_mode == PhysicsServer::BODY_MODE_KINEMATIC && !contacts.empty());
             linear_velocity = Vector3();
             angular_velocity = Vector3();
             if (mode == PhysicsServer::BODY_MODE_KINEMATIC && prev != mode) {
@@ -602,7 +603,7 @@ void BodySW::integrate_velocities(real_t p_step) {
 
         _set_transform(new_transform, false);
         _set_inv_transform(new_transform.affine_inverse());
-        if (contacts.size() == 0 && linear_velocity == Vector3() && angular_velocity == Vector3())
+        if (contacts.empty() && linear_velocity == Vector3() && angular_velocity == Vector3())
             set_active(false); //stopped moving, deactivate
 
         return;

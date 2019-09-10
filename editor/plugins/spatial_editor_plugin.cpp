@@ -559,7 +559,7 @@ void SpatialEditorViewport::_update_name() {
 
     String view_mode = orthogonal ? TTR("Orthogonal") : TTR("Perspective");
 
-    if (name != "")
+    if (!name.empty())
         view_menu->set_text(name + " " + view_mode);
     else
         view_menu->set_text(view_mode);
@@ -3320,7 +3320,7 @@ bool SpatialEditorViewport::_create_instance(Node *parent, String &path, const P
         return false;
     }
 
-    if (editor->get_edited_scene()->get_filename() != "") { // cyclical instancing
+    if (!editor->get_edited_scene()->get_filename().empty()) { // cyclical instancing
         if (_cyclical_dependency_exists(editor->get_edited_scene()->get_filename(), instanced_scene)) {
             memdelete(instanced_scene);
             return false;
@@ -3378,7 +3378,7 @@ void SpatialEditorViewport::_perform_drop_data() {
 
     editor_data->get_undo_redo().commit_action();
 
-    if (error_files.size() > 0) {
+    if (!error_files.empty()) {
         String files_str;
         for (int i = 0; i < error_files.size(); i++) {
             files_str += PathUtils::get_basename(PathUtils::get_file(error_files[i])) + ",";
@@ -3459,7 +3459,7 @@ void SpatialEditorViewport::drop_data_fw(const Point2 &p_point, const Variant &p
     }
 
     List<Node *> list = editor->get_editor_selection()->get_selected_node_list();
-    if (list.size() == 0) {
+    if (list.empty()) {
         Node *root_node = editor->get_edited_scene();
         if (root_node) {
             list.push_back(root_node);
@@ -5161,7 +5161,7 @@ void SpatialEditor::snap_selected_nodes_to_floor() {
             Set<VisualInstance *> vi = _get_child_nodes<VisualInstance>(sp);
             Set<CollisionShape *> cs = _get_child_nodes<CollisionShape>(sp);
 
-            if (cs.size()) {
+            if (!cs.empty()) {
                 AABB aabb = sp->get_global_transform().xform(cs.front()->get()->get_shape()->get_debug_mesh()->get_aabb());
                 for (Set<CollisionShape *>::Element *I = cs.front(); I; I = I->next()) {
                     aabb.merge_with(sp->get_global_transform().xform(I->get()->get_shape()->get_debug_mesh()->get_aabb()));
@@ -5169,7 +5169,7 @@ void SpatialEditor::snap_selected_nodes_to_floor() {
                 Vector3 size = aabb.size * Vector3(0.5, 0.0, 0.5);
                 from = aabb.position + size;
                 position_offset.y = from.y - sp->get_global_transform().origin.y;
-            } else if (vi.size()) {
+            } else if (!vi.empty()) {
                 AABB aabb = vi.front()->get()->get_transformed_aabb();
                 for (Set<VisualInstance *>::Element *I = vi.front(); I; I = I->next()) {
                     aabb.merge_with(I->get()->get_transformed_aabb());
@@ -5205,7 +5205,7 @@ void SpatialEditor::snap_selected_nodes_to_floor() {
     // Will be set to `true` if at least one node from the selection was sucessfully snapped
     bool snapped_to_floor = false;
 
-    if (keys.size()) {
+    if (!keys.empty()) {
         // For snapping to be performed, there must be solid geometry under at least one of the selected nodes.
         // We need to check this before snapping to register the undo/redo action only if needed.
         for (int i = 0; i < keys.size(); i++) {
@@ -6090,7 +6090,7 @@ void EditorSpatialGizmoPlugin::add_material(const String &p_name, Ref<SpatialMat
 
 Ref<SpatialMaterial> EditorSpatialGizmoPlugin::get_material(const String &p_name, const Ref<EditorSpatialGizmo> &p_gizmo) {
     ERR_FAIL_COND_V(!materials.has(p_name), Ref<SpatialMaterial>());
-    ERR_FAIL_COND_V(materials[p_name].size() == 0, Ref<SpatialMaterial>());
+    ERR_FAIL_COND_V(materials[p_name].empty(), Ref<SpatialMaterial>());
 
     if (p_gizmo.is_null() || materials[p_name].size() == 1) return materials[p_name][0];
 

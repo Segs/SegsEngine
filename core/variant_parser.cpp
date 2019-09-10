@@ -34,6 +34,7 @@
 #include "core/os/input_event.h"
 #include "core/os/keyboard.h"
 #include "core/ustring.h"
+#include "core/class_db.h"
 #include "core/property_info.h"
 
 CharType VariantParser::StreamFile::get_char() {

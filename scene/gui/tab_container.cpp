@@ -31,12 +31,13 @@
 #include "tab_container.h"
 
 #include "core/message_queue.h"
+#include "core/method_bind.h"
+#include "core/os/input_event.h"
 #include "scene/gui/box_container.h"
 #include "scene/gui/label.h"
 #include "scene/gui/texture_rect.h"
-#include "scene/resources/style_box.h"
 #include "scene/resources/font.h"
-#include "core/method_bind.h"
+#include "scene/resources/style_box.h"
 
 IMPL_GDCLASS(TabContainer)
 
@@ -260,7 +261,7 @@ void TabContainer::_notification(int p_what) {
                     continue;
                 }
                 int tab_width = _get_tab_width(i);
-                if (all_tabs_width + tab_width > header_width && tab_widths.size() > 0)
+                if (all_tabs_width + tab_width > header_width && !tab_widths.empty())
                     break;
                 all_tabs_width += tab_width;
                 tab_widths.push_back(tab_width);
@@ -320,7 +321,7 @@ void TabContainer::_notification(int p_what) {
                     if (icon.is_valid()) {
                         int y = y_center - (icon->get_height() / 2);
                         icon->draw(canvas, Point2i(x_content, y));
-                        if (text != "")
+                        if (!text.empty())
                             x_content += icon->get_width() + icon_text_distance;
                     }
                 }
@@ -389,7 +390,7 @@ int TabContainer::_get_tab_width(int p_index) const {
         Ref<Texture> icon = control->get_meta("_tab_icon");
         if (icon.is_valid()) {
             width += icon->get_width();
-            if (text != "")
+            if (!text.empty())
                 width += get_constant("hseparation");
         }
     }
@@ -831,7 +832,7 @@ void TabContainer::get_translatable_strings(List<String> *p_strings) const {
 
         String name = c->get_meta("_tab_name");
 
-        if (name != "")
+        if (!name.empty())
             p_strings->push_back(name);
     }
 }

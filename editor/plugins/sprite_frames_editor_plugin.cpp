@@ -82,7 +82,7 @@ void SpriteFramesEditor::_sheet_preview_draw() {
         }
     }
 
-    if (frames_selected.size() == 0) {
+    if (frames_selected.empty()) {
         split_sheet_dialog->get_ok()->set_disabled(true);
         split_sheet_dialog->get_ok()->set_text(TTR("No Frames Selected"));
         return;
@@ -723,7 +723,7 @@ void SpriteFramesEditor::edit(SpriteFrames *p_frames) {
             List<StringName> anim_names;
             frames->get_animation_list(&anim_names);
             anim_names.sort_custom<WrapAlphaCompare>();
-            if (anim_names.size()) {
+            if (!anim_names.empty()) {
                 edited_anim = anim_names.front()->get();
             } else {
                 edited_anim = StringName();
@@ -780,7 +780,7 @@ bool SpriteFramesEditor::can_drop_data_fw(const Point2 &p_point, const Variant &
 
         Vector<String> files = d["files"];
 
-        if (files.size() == 0)
+        if (files.empty())
             return false;
 
         for (int i = 0; i < files.size(); i++) {

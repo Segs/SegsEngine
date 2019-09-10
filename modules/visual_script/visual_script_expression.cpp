@@ -30,6 +30,7 @@
 
 #include "visual_script_expression.h"
 #include "core/string_formatter.h"
+#include "core/class_db.h"
 
 IMPL_GDCLASS(VisualScriptExpression)
 

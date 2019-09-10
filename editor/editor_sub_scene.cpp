@@ -52,7 +52,7 @@ void EditorSubScene::_path_changed(const String &p_path) {
         scene = nullptr;
     }
 
-    if (p_path == "")
+    if (p_path.empty())
         return;
 
     Ref<PackedScene> ps = ResourceLoader::load(p_path, "PackedScene");
@@ -140,7 +140,7 @@ void EditorSubScene::_remove_selection_child(Node *p_node) {
 }
 
 void EditorSubScene::ok_pressed() {
-    if (selection.size() <= 0) {
+    if (selection.empty()) {
         return;
     }
     for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
@@ -174,7 +174,7 @@ void EditorSubScene::move(Node *p_new_parent, Node *p_new_owner) {
         return;
     }
 
-    if (selection.size() <= 0) {
+    if (selection.empty()) {
         return;
     }
 

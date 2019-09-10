@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "multiplayer_peer_gdnative.h"
+#include "core/class_db.h"
 
 IMPL_GDCLASS(MultiplayerPeerGDNative)
 

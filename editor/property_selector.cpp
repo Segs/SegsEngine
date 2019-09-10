@@ -179,7 +179,7 @@ void PropertySelector::_update_search() {
             if (!search_box->get_text().empty() && StringUtils::find(E->get().name,search_box->get_text()) == -1)
                 continue;
 
-            if (type_filter.size() && type_filter.find(E->get().type) == -1)
+            if (!type_filter.empty() && type_filter.find(E->get().type) == -1)
                 continue;
 
             TreeItem *item = search_options->create_item(category ? category : root);
@@ -372,7 +372,7 @@ void PropertySelector::_item_selected() {
 
         String at_class = class_type;
 
-        while (at_class != String()) {
+        while (!at_class.empty()) {
 
             Map<String, DocData::ClassDoc>::Element *E = dd->class_list.find(at_class);
             if (E) {
@@ -387,7 +387,7 @@ void PropertySelector::_item_selected() {
         }
     }
 
-    if (text == String())
+    if (text.empty())
         return;
 
     help_bit->set_text(text);

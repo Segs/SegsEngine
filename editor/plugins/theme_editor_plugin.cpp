@@ -134,7 +134,7 @@ struct _TECategory {
     Set<Item<int> > constant_items;
 };
 
-void ThemeEditor::_save_template_cbk(String fname) {
+void ThemeEditor::_save_template_cbk(const String &fname) {
 
     String filename = file_dialog->get_current_path();
 
@@ -278,7 +278,7 @@ void ThemeEditor::_save_template_cbk(String fname) {
         file->store_line("; " + E->key());
         file->store_line(underline);
 
-        if (tc.stylebox_items.size())
+        if (!tc.stylebox_items.empty())
             file->store_line("\n; StyleBox Items:\n");
 
         for (Set<_TECategory::RefItem<StyleBox> >::Element *F = tc.stylebox_items.front(); F; F = F->next()) {
@@ -286,7 +286,7 @@ void ThemeEditor::_save_template_cbk(String fname) {
             file->store_line(E->key() + "." + F->get().name + " = default");
         }
 
-        if (tc.font_items.size())
+        if (!tc.font_items.empty())
             file->store_line("\n; Font Items:\n");
 
         for (Set<_TECategory::RefItem<Font> >::Element *F = tc.font_items.front(); F; F = F->next()) {
@@ -294,7 +294,7 @@ void ThemeEditor::_save_template_cbk(String fname) {
             file->store_line(E->key() + "." + F->get().name + " = default");
         }
 
-        if (tc.icon_items.size())
+        if (!tc.icon_items.empty())
             file->store_line("\n; Icon Items:\n");
 
         for (Set<_TECategory::RefItem<Texture> >::Element *F = tc.icon_items.front(); F; F = F->next()) {
@@ -302,7 +302,7 @@ void ThemeEditor::_save_template_cbk(String fname) {
             file->store_line(E->key() + "." + F->get().name + " = default");
         }
 
-        if (tc.color_items.size())
+        if (!tc.color_items.empty())
             file->store_line("\n; Color Items:\n");
 
         for (Set<_TECategory::Item<Color> >::Element *F = tc.color_items.front(); F; F = F->next()) {
@@ -310,7 +310,7 @@ void ThemeEditor::_save_template_cbk(String fname) {
             file->store_line(E->key() + "." + F->get().name + " = default");
         }
 
-        if (tc.constant_items.size())
+        if (!tc.constant_items.empty())
             file->store_line("\n; Constant Items:\n");
 
         for (Set<_TECategory::Item<int> >::Element *F = tc.constant_items.front(); F; F = F->next()) {

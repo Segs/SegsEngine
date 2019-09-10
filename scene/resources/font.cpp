@@ -36,6 +36,7 @@
 
 IMPL_GDCLASS(Font)
 IMPL_GDCLASS(BitmapFont)
+RES_BASE_EXTENSION_IMPL(Font,"font")
 
 template<>
 struct Hasher<QChar> {

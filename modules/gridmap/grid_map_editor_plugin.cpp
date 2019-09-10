@@ -710,7 +710,7 @@ bool GridMapEditor::forward_spatial_input_event(Camera *p_camera, const Ref<Inpu
                     (mb->get_button_index() == BUTTON_RIGHT && input_action == INPUT_ERASE) ||
                     (mb->get_button_index() == BUTTON_LEFT && input_action == INPUT_PAINT)) {
 
-                if (set_items.size()) {
+                if (!set_items.empty()) {
                     undo_redo->create_action(TTR("GridMap Paint"));
                     for (List<SetItem>::Element *E = set_items.front(); E; E = E->next()) {
 
@@ -727,7 +727,7 @@ bool GridMapEditor::forward_spatial_input_event(Camera *p_camera, const Ref<Inpu
                 }
                 set_items.clear();
                 input_action = INPUT_NONE;
-                return set_items.size() > 0;
+                return !set_items.empty();
             }
 
             if (mb->get_button_index() == BUTTON_LEFT && input_action == INPUT_SELECT) {
@@ -913,11 +913,11 @@ void GridMapEditor::update_palette() {
         String name = mesh_library->get_item_name(id);
         Ref<Texture> preview = mesh_library->get_item_preview(id);
 
-        if (name == "") {
+        if (name.empty()) {
             name = "#" + itos(id);
         }
 
-        if (filter != "" && !StringUtils::is_subsequence_ofi(filter,name))
+        if (!filter.empty() && !StringUtils::is_subsequence_ofi(filter,name))
             continue;
 
         mesh_library_palette->add_item("");

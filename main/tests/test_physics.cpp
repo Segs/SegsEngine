@@ -34,11 +34,13 @@
 #include "core/method_bind.h"
 #include "core/math/math_funcs.h"
 #include "core/math/quick_hull.h"
+#include "core/os/input_event.h"
 #include "core/os/main_loop.h"
 #include "core/os/os.h"
 #include "core/print_string.h"
 #include "servers/physics_server.h"
 #include "servers/visual_server.h"
+
 
 class TestPhysicsMainLoop : public MainLoop {
 

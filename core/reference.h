@@ -31,7 +31,6 @@
 #pragma once
 
 #include "core/object.h"
-#include "core/class_db.h"
 #include "core/ref_ptr.h"
 #include "core/safe_refcount.h"
 #include "core/typesystem_decls.h"

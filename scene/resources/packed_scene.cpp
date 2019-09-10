@@ -44,10 +44,11 @@
 
 IMPL_GDCLASS(SceneState)
 IMPL_GDCLASS(PackedScene)
+RES_BASE_EXTENSION_IMPL(PackedScene,"scn")
 
 bool SceneState::can_instance() const {
 
-    return nodes.size() > 0;
+    return !nodes.empty();
 }
 
 Node *SceneState::instance(GenEditState p_edit_state) const {
@@ -329,7 +330,7 @@ Node *SceneState::instance(GenEditState p_edit_state) const {
             continue;
 
         Vector<Variant> binds;
-        if (c.binds.size()) {
+        if (!c.binds.empty()) {
             binds.resize(c.binds.size());
             for (int j = 0; j < c.binds.size(); j++)
                 binds.write[j] = props[c.binds[j]];
@@ -341,7 +342,7 @@ Node *SceneState::instance(GenEditState p_edit_state) const {
     //Node *s = ret_nodes[0];
 
     //remove nodes that could not be added, likely as a result that
-    while (stray_instances.size()) {
+    while (!stray_instances.empty()) {
         memdelete(stray_instances.front()->get());
         stray_instances.pop_front();
     }
@@ -389,7 +390,7 @@ Error SceneState::_parse_node(Node *p_owner, Node *p_node, int p_parent_idx, Map
 
     // save the child instanced scenes that are chosen as editable, so they can be restored
     // upon load back
-    if (p_node != p_owner && p_node->get_filename() != String() && p_owner->is_editable_instance(p_node))
+    if (p_node != p_owner && !p_node->get_filename().empty() && p_owner->is_editable_instance(p_node))
         editable_instances.push_back(p_owner->get_path_to(p_node));
 
     NodeData nd;
@@ -435,7 +436,7 @@ Error SceneState::_parse_node(Node *p_owner, Node *p_node, int p_parent_idx, Map
                     }
                 }
 
-                if (p_node->get_filename() != String() && p_node->get_owner() == p_owner && instanced_by_owner) {
+                if (!p_node->get_filename().empty() && p_node->get_owner() == p_owner && instanced_by_owner) {
 
                     if (p_node->get_scene_instance_load_placeholder()) {
                         //it's a placeholder, use the placeholder path
@@ -453,7 +454,7 @@ Error SceneState::_parse_node(Node *p_owner, Node *p_node, int p_parent_idx, Map
                 }
                 n = nullptr;
             } else {
-                if (n->get_filename() != String()) {
+                if (!n->get_filename().empty()) {
                     //is an instance
                     Ref<SceneState> state = n->get_scene_instance_state();
                     if (state.is_valid()) {
@@ -505,7 +506,7 @@ Error SceneState::_parse_node(Node *p_owner, Node *p_node, int p_parent_idx, Map
         // 	isdefault = true; //is script default value
         // }
 
-        if (pack_state_stack.size()) {
+        if (!pack_state_stack.empty()) {
             // we are on part of an instanced subscene
             // or part of instanced scene.
             // only save what has been changed
@@ -630,7 +631,7 @@ Error SceneState::_parse_node(Node *p_owner, Node *p_node, int p_parent_idx, Map
     // below condition is true for all nodes of the scene being saved, and ones in subscenes
     // that hold changes
 
-    bool save_node = nd.properties.size() || nd.groups.size(); // some local properties or groups exist
+    bool save_node = !nd.properties.empty() || !nd.groups.empty(); // some local properties or groups exist
     save_node = save_node || p_node == p_owner; // owner is always saved
     save_node = save_node || (p_node->get_owner() == p_owner && instanced_by_owner); //part of scene and not instanced
 
@@ -714,7 +715,7 @@ Error SceneState::_parse_connections(Node *p_owner, Node *p_node, Map<StringName
 
             ERR_CONTINUE(!common_parent);
 
-            if (common_parent != p_owner && common_parent->get_filename() == String()) {
+            if (common_parent != p_owner && common_parent->get_filename().empty()) {
                 common_parent = common_parent->get_owner();
             }
 
@@ -776,7 +777,7 @@ Error SceneState::_parse_connections(Node *p_owner, Node *p_node, Map<StringName
 
                         nl = nullptr;
                     } else {
-                        if (nl->get_filename() != String()) {
+                        if (!nl->get_filename().empty()) {
                             //is an instance
                             Ref<SceneState> state = nl->get_scene_instance_state();
                             if (state.is_valid()) {
@@ -1110,7 +1111,7 @@ void SceneState::set_bundled_scene(const Dictionary &p_dictionary) {
 
     Array svariants = p_dictionary["variants"];
 
-    if (svariants.size()) {
+    if (!svariants.empty()) {
         int varcount = svariants.size();
         variants.resize(varcount);
         for (int i = 0; i < varcount; i++) {
@@ -1207,7 +1208,7 @@ Dictionary SceneState::get_bundled_scene() const {
     PoolVector<String> rnames;
     rnames.resize(names.size());
 
-    if (names.size()) {
+    if (!names.empty()) {
 
         PoolVector<String>::Write r = rnames.write();
 
@@ -1701,7 +1702,7 @@ Node *PackedScene::instance(GenEditState p_edit_state) const {
         s->set_scene_instance_state(state);
     }
 
-    if (get_path() != "" && !StringUtils::contains(get_path(),"::"))
+    if (!get_path().empty() && !StringUtils::contains(get_path(),"::"))
         s->set_filename(get_path());
 
     s->notification(Node::NOTIFICATION_INSTANCED);

@@ -263,7 +263,7 @@ EditorInspector *EditorInterface::get_inspector() const {
 Error EditorInterface::save_scene() {
     if (!get_edited_scene_root())
         return ERR_CANT_CREATE;
-    if (get_edited_scene_root()->get_filename() == String())
+    if (get_edited_scene_root()->get_filename().empty())
         return ERR_CANT_CREATE;
 
     save_scene_as(get_edited_scene_root()->get_filename());

@@ -159,7 +159,7 @@ void VisualScriptPropertySelector::_update_search() {
                 if (!(F->get().usage & PROPERTY_USAGE_EDITOR) && !(F->get().usage & PROPERTY_USAGE_SCRIPT_VARIABLE))
                     continue;
 
-                if (type_filter.size() && type_filter.find(F->get().type) == -1)
+                if (!type_filter.empty() && type_filter.find(F->get().type) == -1)
                     continue;
 
                 // capitalize() also converts underscore to space, we'll match again both possible styles
@@ -169,7 +169,7 @@ void VisualScriptPropertySelector::_update_search() {
                 String set_text = StringUtils::capitalize(set_text_raw);
                 String input = StringUtils::capitalize(search_box->get_text());
 
-                if (input == String() || StringUtils::findn(get_text_raw,input) != -1 || StringUtils::findn(get_text,input) != -1) {
+                if (input.empty() || StringUtils::findn(get_text_raw,input) != -1 || StringUtils::findn(get_text,input) != -1) {
                     TreeItem *item = search_options->create_item(category ? category : root);
                     item->set_text(0, get_text);
                     item->set_metadata(0, F->get().name);
@@ -182,7 +182,7 @@ void VisualScriptPropertySelector::_update_search() {
                     item->set_metadata(2, connecting);
                 }
 
-                if (input == String() || StringUtils::findn(set_text_raw,input) != -1 || StringUtils::findn(set_text,input) != -1) {
+                if (input.empty() || StringUtils::findn(set_text_raw,input) != -1 || StringUtils::findn(set_text,input) != -1) {
                     TreeItem *item = search_options->create_item(category ? category : root);
                     item->set_text(0, set_text);
                     item->set_metadata(0, F->get().name);
@@ -228,7 +228,7 @@ void VisualScriptPropertySelector::_update_search() {
 
             MethodInfo mi = M->get();
             String desc_arguments;
-            if (mi.arguments.size() > 0) {
+            if (!mi.arguments.empty()) {
                 desc_arguments = "(";
                 for (int i = 0; i < mi.arguments.size(); i++) {
 
@@ -318,7 +318,7 @@ void VisualScriptPropertySelector::_update_search() {
 }
 
 void VisualScriptPropertySelector::create_visualscript_item(const String &name, TreeItem *const root, const String &search_input, const String &text) {
-    if (search_input == String() || StringUtils::findn(text,search_input) != -1) {
+    if (search_input.empty() || StringUtils::findn(text,search_input) != -1) {
         TreeItem *item = search_options->create_item(root);
         item->set_text(0, text);
         item->set_icon(0, get_icon("VisualScript", "EditorIcons"));
@@ -354,7 +354,7 @@ void VisualScriptPropertySelector::get_visual_node_names(const String &root_filt
             continue;
         }
 
-        if (search_box->get_text() != String() && !StringUtils::contains(E->get(),search_box->get_text(),StringUtils::CaseInsensitive) ) {
+        if (!search_box->get_text().empty() && !StringUtils::contains(E->get(),search_box->get_text(),StringUtils::CaseInsensitive) ) {
             continue;
         }
         TreeItem *item = search_options->create_item(root);
@@ -439,7 +439,7 @@ void VisualScriptPropertySelector::_item_selected() {
     }
     at_class = class_type;
 
-    while (at_class != String()) {
+    while (!at_class.empty()) {
 
         Map<String, DocData::ClassDoc>::Element *C = dd->class_list.find(at_class);
         if (C) {
@@ -495,7 +495,7 @@ void VisualScriptPropertySelector::_item_selected() {
 
     memdelete(names);
 
-    if (text == String())
+    if (text.empty())
         return;
 
     help_bit->set_text(text);

@@ -32,6 +32,7 @@
 #include "main/input_default.h"
 #include "servers/arvr/arvr_positional_tracker.h"
 #include "servers/visual/visual_server_globals.h"
+#include "core/class_db.h"
 
 IMPL_GDCLASS(ARVRInterfaceGDNative)
 

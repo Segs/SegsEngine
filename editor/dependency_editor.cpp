@@ -87,7 +87,7 @@ void DependencyEditor::_fix_and_find(EditorFileSystemDirectory *efsd, Map<String
 
         for (Map<String, String>::Element *E = candidates[file].front(); E; E = E->next()) {
 
-            if (E->get() == String()) {
+            if (E->get().empty()) {
                 E->get() = path;
                 continue;
             }
@@ -152,13 +152,13 @@ void DependencyEditor::_fix_all() {
 
         for (Map<String, String>::Element *F = E->get().front(); F; F = F->next()) {
 
-            if (F->get() != String()) {
+            if (!F->get().empty()) {
                 remaps[F->key()] = F->get();
             }
         }
     }
 
-    if (remaps.size()) {
+    if (!remaps.empty()) {
 
         ResourceLoader::rename_dependencies(editing, remaps);
 
@@ -539,7 +539,7 @@ void DependencyRemoveDialog::ok_pressed() {
         }
     }
 
-    if (dirs_to_delete.size() == 0) {
+    if (dirs_to_delete.empty()) {
         // If we only deleted files we should only need to tell the file system about the files we touched.
         for (int i = 0; i < files_to_delete.size(); ++i)
             EditorFileSystem::get_singleton()->update_file(files_to_delete[i]);

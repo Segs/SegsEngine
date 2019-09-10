@@ -90,8 +90,13 @@ static _FORCE_INLINE_ const char *D_METHOD(const char *m_name, ...) {
 #endif
 
 #endif
+// Function that has to be specialized and visible at the point register_class or register_custom_instance_class is called
+template<class T>
+void register_custom_data_to_otdb() {
+    //NOTE: remember to override this when needed
+}
 
-class ClassDB {
+class GODOT_EXPORT ClassDB {
 public:
     enum APIType {
         API_CORE,

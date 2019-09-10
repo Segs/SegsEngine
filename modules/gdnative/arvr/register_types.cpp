@@ -30,6 +30,7 @@
 
 #include "register_types.h"
 #include "arvr_interface_gdnative.h"
+#include "core/class_db.h"
 
 void register_arvr_types() {
 	ClassDB::register_class<ARVRInterfaceGDNative>();

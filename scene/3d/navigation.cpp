@@ -181,7 +181,7 @@ void Navigation::_navmesh_unlink(int p_id) {
                 C->get().B = nullptr;
                 C->get().B_edge = -1;
 
-                if (C->get().pending.size()) {
+                if (!C->get().pending.empty()) {
                     //reconnect if something is pending
                     ConnectionPending cp = C->get().pending.front()->get();
                     C->get().pending.pop_front();
@@ -354,7 +354,7 @@ Vector<Vector3> Navigation::get_simple_path(const Vector3 &p_start, const Vector
 
     while (!found_route) {
 
-        if (open_list.size() == 0) {
+        if (open_list.empty()) {
             break;
         }
         //check open list

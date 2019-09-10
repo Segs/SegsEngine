@@ -28,17 +28,17 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef MULTIPLAYER_PROTOCOL_H
-#define MULTIPLAYER_PROTOCOL_H
+#pragma once
 
 #include "core/io/networked_multiplayer_peer.h"
 #include "core/reference.h"
 #include "core/map.h"
+#include "core/hash_map.h"
 #include "core/method_enum_caster.h"
 
 class MultiplayerAPI : public Reference {
 
-    GDCLASS(MultiplayerAPI, Reference);
+    GDCLASS(MultiplayerAPI, Reference)
 
 public:
 	struct ProfilingInfo {
@@ -169,5 +169,3 @@ public:
 };
 
 VARIANT_ENUM_CAST(MultiplayerAPI::RPCMode);
-
-#endif // MULTIPLAYER_PROTOCOL_H

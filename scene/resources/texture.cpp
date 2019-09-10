@@ -57,6 +57,13 @@ IMPL_GDCLASS(GradientTexture)
 IMPL_GDCLASS(ProxyTexture)
 IMPL_GDCLASS(AnimatedTexture)
 
+RES_BASE_EXTENSION_IMPL(ImageTexture,"tex")
+RES_BASE_EXTENSION_IMPL(AtlasTexture,"atlastex")
+RES_BASE_EXTENSION_IMPL(MeshTexture,"meshtex")
+RES_BASE_EXTENSION_IMPL(LargeTexture,"largetex")
+RES_BASE_EXTENSION_IMPL(CubeMap,"cubemap")
+RES_BASE_EXTENSION_IMPL(CurveTexture,"curvetex")
+
 
 Size2 Texture::get_size() const {
 
@@ -738,7 +745,7 @@ Error StreamTexture::load(const String &p_path) {
     if (err)
         return err;
 
-    if (get_path() == String()) {
+    if (get_path().empty()) {
         //temporarily set path if no path set for resource, helps find errors
         VisualServer::get_singleton()->texture_set_path(texture, p_path);
     }
@@ -1320,7 +1327,7 @@ void LargeTexture::set_flags(uint32_t p_flags) {
 
 uint32_t LargeTexture::get_flags() const {
 
-    if (pieces.size())
+    if (!pieces.empty())
         return pieces[0].texture->get_flags();
 
     return 0;
@@ -1372,7 +1379,7 @@ Array LargeTexture::_get_data() const {
 }
 void LargeTexture::_set_data(const Array &p_array) {
 
-    ERR_FAIL_COND(p_array.size() < 1);
+    ERR_FAIL_COND(p_array.empty());
     ERR_FAIL_COND(!(p_array.size() & 1));
     clear();
     for (int i = 0; i < p_array.size() - 1; i += 2) {

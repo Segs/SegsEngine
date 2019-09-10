@@ -529,7 +529,7 @@ Button *AcceptDialog::add_button(const String &p_text, bool p_right, const Strin
         hbc->add_spacer(true);
     }
 
-    if (p_action != "") {
+    if (!p_action.empty()) {
         button->connect("pressed", this, "_custom_action", varray(p_action));
     }
 
@@ -539,7 +539,7 @@ Button *AcceptDialog::add_button(const String &p_text, bool p_right, const Strin
 Button *AcceptDialog::add_cancel(const String &p_cancel) {
 
     String c = p_cancel;
-    if (p_cancel == "")
+    if (p_cancel.empty())
         c = RTR("Cancel");
     Button *b = swap_ok_cancel ? add_button(c, true) : add_button(c);
     b->connect("pressed", this, "_closed");

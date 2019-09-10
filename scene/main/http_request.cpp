@@ -29,7 +29,8 @@
 /*************************************************************************/
 
 #include "http_request.h"
-#include "core/method_bind.h"
+
+#include "core/os/os.h"
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(HTTPRequest)
@@ -342,7 +343,7 @@ bool HTTPRequest::_update_connection() {
                     return true;
                 }
 
-                if (download_to_file != String()) {
+                if (!download_to_file.empty()) {
                     file = FileAccess::open(download_to_file, FileAccess::WRITE);
                     if (!file) {
 

@@ -55,7 +55,7 @@ Size2 Button::get_minimum_size() const {
 
             minsize.height = MAX(minsize.height, _icon->get_height());
             minsize.width += _icon->get_width();
-            if (xl_text != "") minsize.width += get_constant("hseparation");
+            if (!xl_text.empty()) minsize.width += get_constant("hseparation");
         }
     }
 

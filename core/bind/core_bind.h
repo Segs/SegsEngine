@@ -28,19 +28,22 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef CORE_BIND_H
-#define CORE_BIND_H
+#pragma once
 
-#include "core/image.h"
+#include "core/reference.h"
 #include "core/io/compression.h"
-#include "core/io/resource_loader.h"
-#include "core/io/resource_saver.h"
-#include "core/os/dir_access.h"
-#include "core/os/file_access.h"
-#include "core/os/os.h"
-#include "core/os/semaphore.h"
-#include "core/os/thread.h"
 #include "core/method_enum_caster.h"
+#include "core/method_arg_casters.h"
+
+class ResourceInteractiveLoader;
+class Resource;
+class Image;
+class FileAccess;
+class DirAccess;
+class Thread;
+class Semaphore;
+
+using RES = Ref<Resource>;
 
 class _ResourceLoader : public Object {
 	GDCLASS(_ResourceLoader, Object);
@@ -810,5 +813,3 @@ public:
 
 	_JSON();
 };
-
-#endif // CORE_BIND_H

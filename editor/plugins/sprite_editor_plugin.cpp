@@ -543,10 +543,10 @@ void SpriteEditor::_debug_uv_draw() {
 
     Color color = Color(1.0, 0.8, 0.7);
 
-    if (selected_menu_item == MENU_OPTION_CONVERT_TO_MESH_2D && uv_lines.size() > 0) {
+    if (selected_menu_item == MENU_OPTION_CONVERT_TO_MESH_2D && !uv_lines.empty()) {
         debug_uv->draw_multiline(uv_lines, color);
 
-    } else if ((selected_menu_item == MENU_OPTION_CONVERT_TO_POLYGON_2D || selected_menu_item == MENU_OPTION_CREATE_COLLISION_POLY_2D || selected_menu_item == MENU_OPTION_CREATE_LIGHT_OCCLUDER_2D) && outline_lines.size() > 0) {
+    } else if ((selected_menu_item == MENU_OPTION_CONVERT_TO_POLYGON_2D || selected_menu_item == MENU_OPTION_CREATE_COLLISION_POLY_2D || selected_menu_item == MENU_OPTION_CREATE_LIGHT_OCCLUDER_2D) && !outline_lines.empty()) {
         for (int i = 0; i < outline_lines.size(); i++) {
             Vector<Vector2> outline = outline_lines[i];
 

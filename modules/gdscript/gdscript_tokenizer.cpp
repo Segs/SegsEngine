@@ -32,6 +32,8 @@
 
 #include "core/io/marshalls.h"
 #include "core/map.h"
+#include "core/hash_map.h"
+#include "core/variant.h"
 #include "core/print_string.h"
 #include "gdscript_functions.h"
 

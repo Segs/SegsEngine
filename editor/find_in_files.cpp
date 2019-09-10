@@ -170,7 +170,7 @@ void FindInFiles::_process() {
 
 void FindInFiles::_iterate() {
 
-    if (_folders_stack.size() != 0) {
+    if (!_folders_stack.empty()) {
 
         // Scan folders first so we can build a list of files and have progress info later
 
@@ -195,13 +195,13 @@ void FindInFiles::_iterate() {
             pop_back(_folders_stack);
             _current_dir = PathUtils::get_base_dir(_current_dir);
 
-            if (_folders_stack.size() == 0) {
+            if (_folders_stack.empty()) {
                 // All folders scanned
                 _initial_files_count = _files_to_scan.size();
             }
         }
 
-    } else if (_files_to_scan.size() != 0) {
+    } else if (!_files_to_scan.empty()) {
 
         // Then scan files
 
@@ -238,7 +238,7 @@ void FindInFiles::_scan_dir(String path, PoolStringArray &out_folders) {
     for (int i = 0; i < 1000; ++i) {
         String file = dir->get_next();
 
-        if (file == "")
+        if (file.empty())
             break;
 
         // Ignore special dirs and hidden dirs (such as .git and .import)
@@ -780,7 +780,7 @@ void FindInFilesPanel::_on_replace_all_clicked() {
             locations.push_back(F->value());
         }
 
-        if (locations.size() != 0) {
+        if (!locations.empty()) {
             // Results are sorted by file, so we can batch replaces
             apply_replaces_in_file(fpath, locations, replace_text);
             modified_files.append(fpath);

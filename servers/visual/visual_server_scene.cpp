@@ -937,7 +937,7 @@ void VisualServerScene::_update_instance(Instance *p_instance) {
             }
         }
 
-        if (!p_instance->lightmap_capture && geom->lightmap_captures.size()) {
+        if (!p_instance->lightmap_capture && !geom->lightmap_captures.empty()) {
             //affected by lightmap captures, must update capture info!
             _update_instance_lightmap_captures(p_instance);
         } else {

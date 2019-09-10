@@ -30,17 +30,19 @@
 
 #include "rich_text_label.h"
 
-#include "core/os/keyboard.h"
-#include "core/object.h"
-#include "core/os/os.h"
-#include "scene/scene_string_names.h"
-#include "scene/resources/style_box.h"
-#include "scene/resources/font.h"
 #include "core/method_bind.h"
+#include "core/object.h"
+#include "core/os/input_event.h"
+#include "core/os/keyboard.h"
+#include "core/os/os.h"
 #include "modules/regex/regex.h"
+#include "scene/resources/font.h"
+#include "scene/resources/style_box.h"
+#include "scene/scene_string_names.h"
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_scale.h"
+
 
 #endif
 
@@ -50,7 +52,7 @@ RichTextLabel::Item *RichTextLabel::_get_next_item(Item *p_item, bool p_free) {
 
     if (p_free) {
 
-        if (p_item->subitems.size()) {
+        if (!p_item->subitems.empty()) {
 
             return p_item->subitems.front()->get();
         } else if (!p_item->parent) {
@@ -71,7 +73,7 @@ RichTextLabel::Item *RichTextLabel::_get_next_item(Item *p_item, bool p_free) {
         }
 
     } else {
-        if (p_item->subitems.size() && p_item->type != ITEM_TABLE) {
+        if (!p_item->subitems.empty() && p_item->type != ITEM_TABLE) {
 
             return p_item->subitems.front()->get();
         } else if (p_item->type == ITEM_FRAME) {
@@ -98,7 +100,7 @@ RichTextLabel::Item *RichTextLabel::_get_next_item(Item *p_item, bool p_free) {
 RichTextLabel::Item *RichTextLabel::_get_prev_item(Item *p_item, bool p_free) {
     if (p_free) {
 
-        if (p_item->subitems.size()) {
+        if (!p_item->subitems.empty()) {
 
             return p_item->subitems.back()->get();
         } else if (!p_item->parent) {
@@ -119,7 +121,7 @@ RichTextLabel::Item *RichTextLabel::_get_prev_item(Item *p_item, bool p_free) {
         }
 
     } else {
-        if (p_item->subitems.size() && p_item->type != ITEM_TABLE) {
+        if (!p_item->subitems.empty() && p_item->type != ITEM_TABLE) {
 
             return p_item->subitems.back()->get();
         } else if (p_item->type == ITEM_FRAME) {
@@ -924,7 +926,7 @@ void RichTextLabel::_notification(int p_what) {
         } break;
         case NOTIFICATION_ENTER_TREE: {
 
-            if (bbcode != "")
+            if (!bbcode.empty())
                 set_bbcode(bbcode);
 
             main->first_invalid_line = 0; //invalidate ALL
@@ -1486,7 +1488,7 @@ void RichTextLabel::_validate_line_caches(ItemFrame *p_frame) {
     }
 
     int total_height = 0;
-    if (p_frame->lines.size())
+    if (!p_frame->lines.empty())
         total_height = p_frame->lines[p_frame->lines.size() - 1].height_accum_cache + get_stylebox("normal")->get_minimum_size().height;
 
     main->first_invalid_line = p_frame->lines.size();
@@ -1536,7 +1538,7 @@ void RichTextLabel::add_text(const String &p_text) {
 
         if (line.length() > 0) {
 
-            if (current->subitems.size() && current->subitems.back()->get()->type == ITEM_TEXT) {
+            if (!current->subitems.empty() && current->subitems.back()->get()->type == ITEM_TEXT) {
                 //append text condition!
                 ItemText *ti = static_cast<ItemText *>(current->subitems.back()->get());
                 ti->text += line;
@@ -1655,7 +1657,7 @@ bool RichTextLabel::remove_line(const int p_line) {
         current_frame->lines.remove(p_line);
     }
 
-    if (p_line == 0 && current->subitems.size() > 0)
+    if (p_line == 0 && !current->subitems.empty())
         main->lines.write[0].from = main;
 
     main->first_invalid_line = 0;
@@ -1965,9 +1967,9 @@ Error RichTextLabel::append_bbcode(const String &p_bbcode) {
 
         String tag = StringUtils::substr(p_bbcode,brk_pos + 1, brk_end - brk_pos - 1);
 
-        if (StringUtils::begins_with(tag,'/') && tag_stack.size()) {
+        if (StringUtils::begins_with(tag,'/') && !tag_stack.empty()) {
 
-            bool tag_ok = tag_stack.size() && tag_stack.front()->get() == StringUtils::substr(tag,1, tag.length());
+            bool tag_ok = !tag_stack.empty() && tag_stack.front()->get() == StringUtils::substr(tag,1, tag.length());
 
             if (tag_stack.front()->get() == "b")
                 in_bold = false;
@@ -2291,7 +2293,7 @@ Error RichTextLabel::append_bbcode(const String &p_bbcode) {
             set_process_internal(true);
         } else {
             Vector<String> expr = split(tag, " ", false);
-            if (expr.size() < 1) {
+            if (expr.empty()) {
                 add_text("[");
                 pos = brk_pos + 1;
             } else {
@@ -2440,7 +2442,7 @@ void RichTextLabel::selection_copy() {
         item = _get_next_item(item, true);
     }
 
-    if (text != "") {
+    if (!text.empty()) {
         OS::get_singleton()->set_clipboard(text);
     }
 }
@@ -2547,7 +2549,7 @@ void RichTextLabel::install_effect(const Variant effect) {
 }
 int RichTextLabel::get_content_height() {
     int total_height = 0;
-    if (main->lines.size())
+    if (!main->lines.empty())
         total_height = main->lines[main->lines.size() - 1].height_accum_cache + get_stylebox("normal")->get_minimum_size().height;
     return total_height;
 }

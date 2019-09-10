@@ -726,7 +726,7 @@ void VoxelLightBaker::begin_bake_light(BakeQuality p_quality, BakeMode p_bake_mo
 }
 
 void VoxelLightBaker::_check_init_light() {
-    if (bake_light.size() == 0) {
+    if (bake_light.empty()) {
 
         direct_lights_baked = false;
         leaf_voxel_count = 0;
@@ -1238,7 +1238,7 @@ void VoxelLightBaker::_fixup_plot(int p_idx, int p_level) {
         bake_cells.write[p_idx].albedo[0] = 0;
         bake_cells.write[p_idx].albedo[1] = 0;
         bake_cells.write[p_idx].albedo[2] = 0;
-        if (bake_light.size()) {
+        if (!bake_light.empty()) {
             for (int j = 0; j < 6; j++) {
                 bake_light.write[p_idx].accum[j][0] = 0;
                 bake_light.write[p_idx].accum[j][1] = 0;
@@ -1259,7 +1259,7 @@ void VoxelLightBaker::_fixup_plot(int p_idx, int p_level) {
             _fixup_plot(child, p_level + 1);
             alpha_average += bake_cells[child].alpha;
 
-            if (bake_light.size() > 0) {
+            if (!bake_light.empty()) {
                 for (int j = 0; j < 6; j++) {
                     bake_light.write[p_idx].accum[j][0] += bake_light[child].accum[j][0];
                     bake_light.write[p_idx].accum[j][1] += bake_light[child].accum[j][1];
@@ -1274,7 +1274,7 @@ void VoxelLightBaker::_fixup_plot(int p_idx, int p_level) {
         }
 
         bake_cells.write[p_idx].alpha = alpha_average / 8.0;
-        if (bake_light.size() && children_found) {
+        if (!bake_light.empty() && children_found) {
             float divisor = Math::lerp(8, children_found, propagation);
             for (int j = 0; j < 6; j++) {
                 bake_light.write[p_idx].accum[j][0] /= divisor;
@@ -2335,7 +2335,7 @@ Ref<MultiMesh> VoxelLightBaker::create_debug_multimesh(DebugMode p_mode) {
 
     Ref<MultiMesh> mm;
 
-    ERR_FAIL_COND_V(p_mode == DEBUG_LIGHT && bake_light.size() == 0, mm);
+    ERR_FAIL_COND_V(p_mode == DEBUG_LIGHT && bake_light.empty(), mm);
     mm.instance();
 
     mm->set_transform_format(MultiMesh::TRANSFORM_3D);

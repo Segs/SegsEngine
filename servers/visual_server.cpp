@@ -746,7 +746,7 @@ Error VisualServer::_surface_set_data(Array p_arrays, uint32_t p_format, uint32_
         //create AABBs for each detected bone
         int total_bones = max_bone + 1;
 
-        bool first = r_bone_aabb.size() == 0;
+        bool first = r_bone_aabb.empty();
 
         r_bone_aabb.resize(total_bones);
 
@@ -978,7 +978,7 @@ void VisualServer::mesh_add_surface_from_arrays(RID p_mesh, PrimitiveType p_prim
 
     ERR_FAIL_COND((format & VS::ARRAY_FORMAT_VERTEX) == 0); // mandatory
 
-    if (p_blend_shapes.size()) {
+    if (!p_blend_shapes.empty()) {
         //validate format for morphs
         for (int i = 0; i < p_blend_shapes.size(); i++) {
 
@@ -1613,7 +1613,7 @@ Array VisualServer::mesh_surface_get_arrays(RID p_mesh, int p_surface) const {
 Array VisualServer::mesh_surface_get_blend_shape_arrays(RID p_mesh, int p_surface) const {
 
     Vector<PoolVector<uint8_t> > blend_shape_data = mesh_surface_get_blend_shapes(p_mesh, p_surface);
-    if (blend_shape_data.size() > 0) {
+    if (!blend_shape_data.empty()) {
         int vertex_len = mesh_surface_get_array_len(p_mesh, p_surface);
 
         PoolVector<uint8_t> index_data = mesh_surface_get_index_array(p_mesh, p_surface);

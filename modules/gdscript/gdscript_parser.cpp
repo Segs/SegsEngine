@@ -347,7 +347,7 @@ GDScriptParser::Node *GDScriptParser::_parse_expression(Node *p_parent, bool p_s
                 }
             }
 
-            if (path == "") {
+            if (path.empty()) {
                 _set_error("Path expected after $.");
                 return nullptr;
             }
@@ -473,7 +473,7 @@ GDScriptParser::Node *GDScriptParser::_parse_expression(Node *p_parent, bool p_s
                 return nullptr;
             }
 
-            if (!PathUtils::is_abs_path(path) && base_path != "")
+            if (!PathUtils::is_abs_path(path) && !base_path.empty())
                 path = PathUtils::plus_file(base_path,path);
             path = PathUtils::simplify_path(String(StringUtils::replace(path,"///", "//")));
             if (path == self_path) {
@@ -1135,7 +1135,7 @@ GDScriptParser::Node *GDScriptParser::_parse_expression(Node *p_parent, bool p_s
 
             expr = op;
 
-        } else if (tokenizer->get_token() == GDScriptTokenizer::TK_BUILT_IN_TYPE && expression.size() > 0 && expression[expression.size() - 1].is_op && expression[expression.size() - 1].op == OperatorNode::OP_IS) {
+        } else if (tokenizer->get_token() == GDScriptTokenizer::TK_BUILT_IN_TYPE && !expression.empty() && expression[expression.size() - 1].is_op && expression[expression.size() - 1].op == OperatorNode::OP_IS) {
             Expression e = expression[expression.size() - 1];
             e.op = OperatorNode::OP_IS_BUILTIN;
             expression.write[expression.size() - 1] = e;
@@ -2375,7 +2375,7 @@ void GDScriptParser::_generate_pattern(PatternNode *p_pattern, Node *p_node_to_m
 
             bool open_ended = false;
 
-            if (p_pattern->array.size() > 0) {
+            if (!p_pattern->array.empty()) {
                 if (p_pattern->array[p_pattern->array.size() - 1]->pt_type == PatternNode::PT_IGNORE_REST) {
                     open_ended = true;
                 }
@@ -2470,7 +2470,7 @@ void GDScriptParser::_generate_pattern(PatternNode *p_pattern, Node *p_node_to_m
 
             bool open_ended = false;
 
-            if (p_pattern->array.size() > 0) {
+            if (!p_pattern->array.empty()) {
                 open_ended = true;
             }
 
@@ -3105,7 +3105,7 @@ void GDScriptParser::_parse_block(BlockNode *p_block, bool p_static) {
                             }
                         }
 
-                        if (args.size() > 0 && args.size() < 4) {
+                        if (!args.empty() && args.size() < 4) {
 
                             if (constant) {
 
@@ -3524,7 +3524,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
 
                 p_class->name = tokenizer->get_token_identifier(1);
 
-                if (self_path != String() && ScriptServer::is_global_class(p_class->name) && ScriptServer::get_global_class_path(p_class->name) != self_path) {
+                if (!self_path.empty() && ScriptServer::is_global_class(p_class->name) && ScriptServer::get_global_class_path(p_class->name) != self_path) {
                     _set_error("Unique global class \"" + p_class->name + "\" already exists at path: " + ScriptServer::get_global_class_path(p_class->name));
                     return;
                 }
@@ -5111,7 +5111,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                             return;
                         }
 
-                        if (enum_name != "") {
+                        if (!enum_name.empty()) {
                             enum_dict[const_id] = enum_value_expr->value;
                         } else {
                             if (current_class->constant_expressions.has(const_id)) {
@@ -5145,7 +5145,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                     }
                 }
 
-                if (enum_name != "") {
+                if (!enum_name.empty()) {
                     ClassNode::Constant enum_constant;
                     ConstantNode *cn = alloc_node<ConstantNode>();
                     cn->value = enum_dict;
@@ -5195,14 +5195,14 @@ void GDScriptParser::_determine_inheritance(ClassNode *p_class, bool p_recursive
         StringName native;
         ClassNode *base_class = nullptr;
 
-        if (path != "") {
+        if (!path.empty()) {
             //path (and optionally subclasses)
 
             if (PathUtils::is_rel_path(path)) {
 
                 String base = base_path;
 
-                if (base == "" || PathUtils::is_rel_path(base)) {
+                if (base.empty() || PathUtils::is_rel_path(base)) {
                     _set_error("Could not resolve relative path for parent class: " + path, p_class->line);
                     return;
                 }
@@ -5219,7 +5219,7 @@ void GDScriptParser::_determine_inheritance(ClassNode *p_class, bool p_recursive
                 return;
             }
 
-            if (p_class->extends_class.size()) {
+            if (!p_class->extends_class.empty()) {
 
                 for (int i = 0; i < p_class->extends_class.size(); i++) {
 
@@ -5238,7 +5238,7 @@ void GDScriptParser::_determine_inheritance(ClassNode *p_class, bool p_recursive
 
         } else {
 
-            if (p_class->extends_class.size() == 0) {
+            if (p_class->extends_class.empty()) {
                 _set_error("Parser bug: undecidable inheritance.", p_class->line);
                 ERR_FAIL();
             }
@@ -5442,11 +5442,11 @@ String GDScriptParser::DataType::to_string() const {
                 return script_type->get_class_name().operator String();
             }
             String name = script_type->get_name();
-            if (name != String()) {
+            if (!name.empty()) {
                 return name;
             }
             name = PathUtils::get_file(script_type->get_path());
-            if (name != String()) {
+            if (!name.empty()) {
                 return name;
             }
             return native_type.operator String();
@@ -6839,7 +6839,7 @@ bool GDScriptParser::_get_function_signature(DataType &p_base_type, const String
 }
 
 GDScriptParser::DataType GDScriptParser::_reduce_function_call_type(const OperatorNode *p_call) {
-    if (p_call->arguments.size() < 1) {
+    if (p_call->arguments.empty()) {
         _set_error("Parser bug: function call without enough arguments.", p_call->line);
 		ERR_FAIL_V(DataType())
     }
@@ -7653,7 +7653,7 @@ void GDScriptParser::_check_class_level_types(ClassNode *p_class) {
                 FunctionNode *setter = p_class->functions[j];
 
                 if (setter->get_required_argument_count() != 1 &&
-                        !(setter->get_required_argument_count() == 0 && setter->default_values.size() > 0)) {
+                        !(setter->get_required_argument_count() == 0 && !setter->default_values.empty())) {
                     _set_error("The setter function needs to receive exactly 1 argument. See \"" + setter->name +
                                        "()\" definition at line " + itos(setter->line) + ".",
                             v.line);
@@ -7802,7 +7802,7 @@ void GDScriptParser::_check_function_types(FunctionNode *p_function) {
                     parent_signature = "void";
                 }
                 parent_signature += " " + p_function->name + "(";
-                if (arg_types.size()) {
+                if (!arg_types.empty()) {
                     int j = 0;
                     for (List<DataType>::Element *E = arg_types.front(); E; E = E->next()) {
                         if (E != arg_types.front()) {
@@ -8170,7 +8170,7 @@ void GDScriptParser::_check_block_types(BlockNode *p_block) {
                         DataType function_type = current_function->get_datatype();
 
                         DataType ret_type;
-                        if (cf->arguments.size() > 0) {
+                        if (!cf->arguments.empty()) {
                             ret_type = _reduce_node_type(cf->arguments[0]);
                             if (error_set) {
                                 return;
@@ -8181,13 +8181,13 @@ void GDScriptParser::_check_block_types(BlockNode *p_block) {
 
                         if (function_type.kind == DataType::BUILTIN && function_type.builtin_type == Variant::NIL) {
                             // Return void, should not have arguments
-                            if (cf->arguments.size() > 0) {
+                            if (!cf->arguments.empty()) {
                                 _set_error("A void function cannot return a value.", cf->line, cf->column);
                                 return;
                             }
                         } else {
                             // Return something, cannot be empty
-                            if (cf->arguments.size() == 0) {
+                            if (cf->arguments.empty()) {
                                 _set_error("A non-void function must return a value.", cf->line, cf->column);
                                 return;
                             }

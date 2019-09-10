@@ -33,6 +33,7 @@
 #include "physics_2d_server_sw.h"
 #include "space_2d_sw.h"
 #include "core/object_db.h"
+#include "core/class_db.h"
 
 IMPL_GDCLASS(Physics2DDirectBodyStateSW)
 
@@ -51,7 +52,7 @@ void Body2DSW::update_inertias() {
         case Physics2DServer::BODY_MODE_RIGID: {
 
             if (user_inertia) {
-                _inv_inertia = inertia > 0 ? (1.0 / inertia) : 0;
+                _inv_inertia = inertia > 0 ? (1.0f / inertia) : 0;
                 break;
             }
 
@@ -82,10 +83,10 @@ void Body2DSW::update_inertias() {
                 inertia += shape->get_moment_of_inertia(mass, scale) + mass * mtx.get_origin().length_squared();
             }
 
-            _inv_inertia = inertia > 0 ? (1.0 / inertia) : 0;
+            _inv_inertia = inertia > 0 ? (1.0f / inertia) : 0;
 
             if (mass)
-                _inv_mass = 1.0 / mass;
+                _inv_mass = 1.0f / mass;
             else
                 _inv_mass = 0;
 
@@ -99,7 +100,7 @@ void Body2DSW::update_inertias() {
         case Physics2DServer::BODY_MODE_CHARACTER: {
 
             _inv_inertia = 0;
-            _inv_mass = 1.0 / mass;
+            _inv_mass = 1.0f / mass;
 
         } break;
     }
@@ -230,7 +231,7 @@ void Body2DSW::set_mode(Physics2DServer::BodyMode p_mode) {
             _inv_mass = 0;
             _inv_inertia = 0;
             _set_static(p_mode == Physics2DServer::BODY_MODE_STATIC);
-            set_active(p_mode == Physics2DServer::BODY_MODE_KINEMATIC && contacts.size());
+            set_active(p_mode == Physics2DServer::BODY_MODE_KINEMATIC && !contacts.empty());
             linear_velocity = Vector2();
             angular_velocity = 0;
             if (mode == Physics2DServer::BODY_MODE_KINEMATIC && prev != mode) {
@@ -558,7 +559,7 @@ void Body2DSW::integrate_velocities(real_t p_step) {
 
         _set_transform(new_transform, false);
         _set_inv_transform(new_transform.affine_inverse());
-        if (contacts.size() == 0 && linear_velocity == Vector2() && angular_velocity == 0)
+        if (contacts.empty() && linear_velocity == Vector2() && angular_velocity == 0)
             set_active(false); //stopped moving, deactivate
         return;
     }

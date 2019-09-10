@@ -133,7 +133,7 @@ Error DynamicFontAtSize::_load() {
     ERR_FAIL_COND_V_MSG(error != 0, ERR_CANT_CREATE, "Error initializing FreeType.");
 
     // FT_OPEN_STREAM is extremely slow only on Android.
-    if (OS::get_singleton()->get_name() == "Android" && font->font_mem == nullptr && font->font_path != String()) {
+    if (OS::get_singleton()->get_name() == "Android" && font->font_mem == nullptr && !font->font_path.empty()) {
         // cache font only once for each font->font_path
         if (_fontdata.has(font->font_path)) {
 
@@ -154,7 +154,7 @@ Error DynamicFontAtSize::_load() {
         }
     }
 
-    if (font->font_mem == nullptr && font->font_path != String()) {
+    if (font->font_mem == nullptr && !font->font_path.empty()) {
 
         FileAccess *f = FileAccess::open(font->font_path, FileAccess::READ);
         ERR_FAIL_COND_V(!f, ERR_CANT_OPEN);

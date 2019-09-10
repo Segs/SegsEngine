@@ -461,7 +461,7 @@ bool EditorSpatialGizmo::intersect_frustum(const Camera *p_camera, const Vector<
         return !any_out;
     }
 
-    if (collision_segments.size()) {
+    if (!collision_segments.empty()) {
 
         const Plane *p = p_frustum.ptr();
         int fc = p_frustum.size();
@@ -622,7 +622,7 @@ bool EditorSpatialGizmo::intersect_ray(Camera *p_camera, const Point2 &p_point, 
         return false;
     }
 
-    if (collision_segments.size()) {
+    if (!collision_segments.empty()) {
 
         Plane camp(p_camera->get_transform().origin, (-p_camera->get_transform().basis.get_axis(2)).normalized());
 
@@ -2250,7 +2250,7 @@ void SoftBodySpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
 
     soft_body->get_mesh()->generate_debug_mesh_lines(lines);
 
-    if (!lines.size()) {
+    if (lines.empty()) {
         return;
     }
 
@@ -3916,7 +3916,7 @@ void NavigationMeshSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
     Ref<TriangleMesh> tmesh = memnew(TriangleMesh);
     tmesh->create(tmeshfaces);
 
-    if (lines.size())
+    if (!lines.empty())
         p_gizmo->add_lines(lines, navmesh->is_enabled() ? edge_material : edge_material_disabled);
     p_gizmo->add_collision_triangles(tmesh);
     Ref<ArrayMesh> m = memnew(ArrayMesh);

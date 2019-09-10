@@ -118,7 +118,7 @@ void EditorFolding::_fill_folds(const Node *p_root, const Node *p_node, Array &p
         if (E->get().usage & PROPERTY_USAGE_EDITOR) {
             if (E->get().type == Variant::OBJECT) {
                 RES res = p_node->get(E->get().name);
-                if (res.is_valid() && !resources.has(res) && res->get_path() != String() && !PathUtils::is_resource_file(res->get_path())) {
+                if (res.is_valid() && !resources.has(res) && !res->get_path().empty() && !PathUtils::is_resource_file(res->get_path())) {
 
                     PoolVector<String> res_unfolds = _get_unfolds(res.ptr());
                     resource_folds.push_back(res->get_path());
@@ -247,8 +247,8 @@ void EditorFolding::_do_object_unfolds(Object *p_object, Set<RES> &resources) {
         //can unfold
         if (E->get().usage & PROPERTY_USAGE_EDITOR) {
 
-            if (group != "") { //group
-                if (group_base == String() || StringUtils::begins_with(E->get().name,group_base)) {
+            if (!group.empty()) { //group
+                if (group_base.empty() || StringUtils::begins_with(E->get().name,group_base)) {
                     bool can_revert = EditorPropertyRevert::can_property_revert(p_object, E->get().name);
                     if (can_revert) {
                         unfold_group.insert(group);

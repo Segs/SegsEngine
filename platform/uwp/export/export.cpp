@@ -30,6 +30,7 @@
 
 #include "export.h"
 #include "core/bind/core_bind.h"
+#include "core/class_db.h"
 #include "core/crypto/crypto_core.h"
 #include "core/io/marshalls.h"
 #include "core/io/zip_io.h"
@@ -1114,7 +1115,7 @@ public:
             r_missing_templates = true;
         }
 
-        if (!valid && custom_debug_binary == "" && custom_release_binary == "") {
+        if (!valid && custom_debug_binary.empty() && custom_release_binary.empty()) {
             if (!err.empty()) {
                 r_error = err;
             }
@@ -1216,7 +1217,7 @@ public:
 
         Platform arch = (Platform)(int)p_preset->get("architecture/target");
 
-        if (src_appx == "") {
+        if (src_appx.empty()) {
             String err, infix;
             switch (arch) {
                 case ARM: {
@@ -1234,7 +1235,7 @@ public:
             } else {
                 src_appx = find_export_template("uwp" + infix + "release.zip", &err);
             }
-            if (src_appx == "") {
+            if (src_appx.empty()) {
                 EditorNode::add_io_error(err);
                 return ERR_FILE_NOT_FOUND;
             }
@@ -1302,7 +1303,7 @@ public:
                 path =StringUtils::replace(path,".scale-100", "");
 
                 data = _get_image_data(p_preset, path);
-                if (data.size() > 0) do_read = false;
+                if (!data.empty()) do_read = false;
             }
 
             //read

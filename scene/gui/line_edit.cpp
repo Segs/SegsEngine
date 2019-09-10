@@ -1118,7 +1118,7 @@ void LineEdit::delete_char() {
 
 void LineEdit::delete_text(int p_from_column, int p_to_column) {
 
-    if (text.size() > 0) {
+    if (!text.empty()) {
         Ref<Font> font = get_font("font");
         if (font != nullptr) {
             for (int i = p_from_column; i < p_to_column; i++)

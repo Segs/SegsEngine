@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "resource_saver.h"
+#include "core/class_db.h"
 #include "core/io/resource_loader.h"
 #include "core/io/image_saver.h"
 #include "core/plugin_interfaces/ImageLoaderInterface.h"

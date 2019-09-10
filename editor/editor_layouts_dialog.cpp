@@ -80,7 +80,7 @@ void EditorLayoutsDialog::ok_pressed() {
 
             emit_signal("name_confirmed", layout_names->get_item_text(selected_items[i]));
         }
-    } else if (name->is_visible() && name->get_text() != "") {
+    } else if (name->is_visible() && !name->get_text().empty()) {
 
         emit_signal("name_confirmed", name->get_text());
     }

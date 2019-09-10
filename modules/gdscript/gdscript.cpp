@@ -30,12 +30,13 @@
 
 #include "gdscript.h"
 
+#include "core/class_db.h"
 #include "core/core_string_names.h"
 #include "core/engine.h"
 #include "core/global_constants.h"
+#include "core/io/file_access_encrypted.h"
 #include "core/method_bind.h"
 #include "core/object_db.h"
-#include "core/io/file_access_encrypted.h"
 #include "core/os/file_access.h"
 #include "core/os/os.h"
 #include "core/print_string.h"
@@ -363,7 +364,7 @@ bool GDScript::instance_has(const Object *p_this) const {
 
 bool GDScript::has_source_code() const {
 
-    return source != "";
+    return !source.empty();
 }
 String GDScript::get_source_code() const {
 
@@ -408,10 +409,10 @@ bool GDScript::_update_exports() {
 
         String basedir = path;
 
-        if (basedir == "")
+        if (basedir.empty())
             basedir = get_path();
 
-        if (basedir != "")
+        if (!basedir.empty())
             basedir = PathUtils::get_base_dir(basedir);
 
         GDScriptParser parser;
@@ -431,26 +432,26 @@ bool GDScript::_update_exports() {
 
             if (c->extends_used) {
                 String path = "";
-                if (String(c->extends_file) != "" && String(c->extends_file) != get_path()) {
+                if (!String(c->extends_file).empty() && String(c->extends_file) != get_path()) {
                     path = c->extends_file;
                     if (PathUtils::is_rel_path(path)) {
 
                         String base = get_path();
-                        if (base == "" || PathUtils::is_rel_path(base)) {
+                        if (base.empty() || PathUtils::is_rel_path(base)) {
 
                             ERR_PRINT("Could not resolve relative path for parent class: " + path)
                         } else {
                             path = PathUtils::plus_file(PathUtils::get_base_dir(base),path);
                         }
                     }
-                } else if (c->extends_class.size() != 0) {
+                } else if (!c->extends_class.empty()) {
                     String base = c->extends_class[0];
 
                     if (ScriptServer::is_global_class(base))
                         path = ScriptServer::get_global_class_path(base);
                 }
 
-                if (path != "") {
+                if (!path.empty()) {
                     if (path != get_path()) {
 
                         Ref<GDScript> bf = ResourceLoader::load(path);
@@ -498,7 +499,7 @@ bool GDScript::_update_exports() {
         }
     }
 
-    if (placeholders.size()) { //hm :(
+    if (!placeholders.empty()) { //hm :(
 
         // update placeholders if any
         Map<StringName, Variant> values;
@@ -550,7 +551,7 @@ Error GDScript::reload(bool p_keep_state) {
 #ifndef NO_THREADS
     GDScriptLanguage::singleton->lock->lock();
 #endif
-    bool has_instances = instances.size();
+    bool has_instances = !instances.empty();
 
 #ifndef NO_THREADS
     GDScriptLanguage::singleton->lock->unlock();
@@ -560,10 +561,10 @@ Error GDScript::reload(bool p_keep_state) {
 
     String basedir = path;
 
-    if (basedir == "")
+    if (basedir.empty())
         basedir = get_path();
 
-    if (basedir != "")
+    if (!basedir.empty())
         basedir = PathUtils::get_base_dir(basedir);
 
     if (StringUtils::contains(source,"%BASE%") ) {
@@ -767,15 +768,15 @@ Error GDScript::load_byte_code(const String &p_path) {
         bytecode = FileAccess::get_file_as_array(p_path);
     }
 
-    ERR_FAIL_COND_V(bytecode.size() == 0, ERR_PARSE_ERROR);
+    ERR_FAIL_COND_V(bytecode.empty(), ERR_PARSE_ERROR);
     path = p_path;
 
     String basedir = path;
 
-    if (basedir == "")
+    if (basedir.empty())
         basedir = get_path();
 
-    if (basedir != "")
+    if (!basedir.empty())
         basedir = PathUtils::get_base_dir(basedir);
 
     valid = false;
@@ -1092,7 +1093,7 @@ void GDScriptInstance::get_property_list(List<PropertyInfo> *p_properties) const
                     pinfo.type = Variant::Type(d["type"].operator int());
                     ERR_CONTINUE(pinfo.type < 0 || pinfo.type >= Variant::VARIANT_MAX);
                     pinfo.name = d["name"];
-                    ERR_CONTINUE(pinfo.name == "");
+                    ERR_CONTINUE(pinfo.name.empty());
                     if (d.has("hint"))
                         pinfo.hint = PropertyHint(d["hint"].operator int());
                     if (d.has("hint_string"))
@@ -1664,7 +1665,7 @@ void GDScriptLanguage::reload_tool_script(const Ref<Script> &p_script, bool p_so
 //same thing for placeholders
 #ifdef TOOLS_ENABLED
 
-            while (E->get()->placeholders.size()) {
+            while (!E->get()->placeholders.empty()) {
                 Object *obj = E->get()->placeholders.front()->get()->get_owner();
 
                 //save instance info
@@ -1881,7 +1882,7 @@ String GDScriptLanguage::get_global_class_name(const String &p_path, String *r_b
             while (subclass) {
                 if (subclass->extends_used) {
                     if (subclass->extends_file) {
-                        if (subclass->extends_class.size() == 0) {
+                        if (subclass->extends_class.empty()) {
                             get_global_class_name(subclass->extends_file, r_base_type);
                             subclass = nullptr;
                             break;
@@ -1911,7 +1912,7 @@ String GDScriptLanguage::get_global_class_name(const String &p_path, String *r_b
                             }
                             subclass = static_cast<const GDScriptParser::ClassNode *>(subparser.get_parse_tree());
 
-                            while (extend_classes.size() > 0) {
+                            while (!extend_classes.empty()) {
                                 bool found = false;
                                 for (int i = 0; i < subclass->subclasses.size(); i++) {
                                     const GDScriptParser::ClassNode *inner_class = subclass->subclasses[i];

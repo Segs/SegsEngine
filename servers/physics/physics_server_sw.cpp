@@ -39,6 +39,7 @@
 #include "joints/hinge_joint_sw.h"
 #include "joints/pin_joint_sw.h"
 #include "joints/slider_joint_sw.h"
+#include "core/class_db.h"
 
 IMPL_GDCLASS(PhysicsServerSW)
 
@@ -1324,7 +1325,7 @@ void PhysicsServerSW::free(RID p_rid) {
 
 		ShapeSW *shape = shape_owner.get(p_rid);
 
-		while (shape->get_owners().size()) {
+		while (!shape->get_owners().empty()) {
 			ShapeOwnerSW *so = shape->get_owners().front()->key();
 			so->remove_shape(shape);
 		}
@@ -1375,7 +1376,7 @@ void PhysicsServerSW::free(RID p_rid) {
 
 		SpaceSW *space = space_owner.get(p_rid);
 
-		while (space->get_objects().size()) {
+		while (!space->get_objects().empty()) {
 			CollisionObjectSW *co = (CollisionObjectSW *)space->get_objects().front()->get();
 			co->set_space(nullptr);
 		}

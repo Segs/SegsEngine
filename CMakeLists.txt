@@ -5,6 +5,8 @@ project(SegsEngine)
 # respectively
 #set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
 #set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "/usr/bin/time -f \"%E,%M,%C,%O\"")
+#set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE /usr/bin/include-what-you-use)
+#set(CMAKE_C_INCLUDE_WHAT_YOU_USE /usr/bin/include-what-you-use)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

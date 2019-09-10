@@ -303,7 +303,7 @@ void Viewport::_notification(int p_what) {
         } break;
         case NOTIFICATION_READY: {
 #ifndef _3D_DISABLED
-            if (listeners.size() && !listener) {
+            if (!listeners.empty() && !listener) {
                 Listener *first = nullptr;
                 for (Set<Listener *>::Element *E = listeners.front(); E; E = E->next()) {
 
@@ -316,7 +316,7 @@ void Viewport::_notification(int p_what) {
                     first->make_current();
             }
 
-            if (cameras.size() && !camera) {
+            if (!cameras.empty() && !camera) {
                 //there are cameras but no current camera, pick first in tree and make it current
                 Camera *first = nullptr;
                 for (Set<Camera *>::Element *E = cameras.front(); E; E = E->next()) {
@@ -434,7 +434,7 @@ void Viewport::_notification(int p_what) {
                     }
                 }
 
-                while (physics_picking_events.size()) {
+                while (!physics_picking_events.empty()) {
 
                     Ref<InputEvent> ev = physics_picking_events.front()->get();
                     physics_picking_events.pop_front();
@@ -574,7 +574,7 @@ void Viewport::_notification(int p_what) {
                                 }
                             }
 
-                            while (to_erase.size()) {
+                            while (!to_erase.empty()) {
                                 physics_2d_mouseover.erase(to_erase.front()->get());
                                 to_erase.pop_front();
                             }
@@ -856,7 +856,7 @@ void Viewport::_listener_remove(Listener *p_listener) {
 #ifndef _3D_DISABLED
 void Viewport::_listener_make_next_current(Listener *p_exclude) {
 
-    if (listeners.size() > 0) {
+    if (!listeners.empty()) {
         for (Set<Listener *>::Element *E = listeners.front(); E; E = E->next()) {
 
             if (p_exclude == E->get())
@@ -1414,7 +1414,7 @@ String Viewport::_gui_get_tooltip(Control *p_control, const Vector2 &p_pos, Cont
             *r_which = p_control;
         }
 
-        if (tooltip != String())
+        if (!tooltip.empty())
             break;
         pos = p_control->get_transform().xform(pos);
 
@@ -2512,7 +2512,7 @@ void Viewport::_gui_remove_focus() {
 
 bool Viewport::_gui_is_modal_on_top(const Control *p_control) {
 
-    return (gui.modal_stack.size() && gui.modal_stack.back()->get() == p_control);
+    return (!gui.modal_stack.empty() && gui.modal_stack.back()->get() == p_control);
 }
 
 bool Viewport::_gui_control_has_focus(const Control *p_control) {
@@ -2563,7 +2563,7 @@ void Viewport::_drop_physics_mouseover() {
 
     physics_has_last_mousepos = false;
 
-    while (physics_2d_mouseover.size()) {
+    while (!physics_2d_mouseover.empty()) {
         Object *o = ObjectDB::get_instance(physics_2d_mouseover.front()->key());
         if (o) {
             CollisionObject2D *co = Object::cast_to<CollisionObject2D>(o);
@@ -2788,7 +2788,7 @@ Vector2 Viewport::get_camera_rect_size() const {
 
 bool Viewport::gui_has_modal_stack() const {
 
-    return gui.modal_stack.size();
+    return !gui.modal_stack.empty();
 }
 
 void Viewport::set_disable_input(bool p_disable) {
@@ -2825,7 +2825,7 @@ Variant Viewport::gui_get_drag_data() const {
 }
 
 Control *Viewport::get_modal_stack_top() const {
-    return gui.modal_stack.size() ? gui.modal_stack.back()->get() : NULL;
+    return !gui.modal_stack.empty() ? gui.modal_stack.back()->get() : NULL;
 }
 
 String Viewport::get_configuration_warning() const {

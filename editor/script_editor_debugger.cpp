@@ -208,7 +208,7 @@ IMPL_GDCLASS(ScriptEditorDebuggerInspectedObject)
 
 void ScriptEditorDebugger::debug_copy() {
     String msg = reason->get_text();
-    if (msg == "") return;
+    if (msg.empty()) return;
     OS::get_singleton()->set_clipboard(msg);
 }
 
@@ -512,7 +512,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
         docontinue->set_disabled(false);
         emit_signal("breaked", true, can_continue);
         OS::get_singleton()->move_window_to_foreground();
-        if (error != "") {
+        if (!error.empty()) {
             tabs->set_current_tab(0);
         }
         profiler->set_enabled(false);
@@ -1596,7 +1596,7 @@ void ScriptEditorDebugger::_method_changed(Object *p_base, const StringName &p_n
 
     Resource *res = Object::cast_to<Resource>(p_base);
 
-    if (res && res->get_path() != String()) {
+    if (res && !res->get_path().empty()) {
 
         String respath = res->get_path();
         int pathid = _get_res_path_cache(respath);
@@ -1629,7 +1629,7 @@ void ScriptEditorDebugger::_property_changed(Object *p_base, const StringName &p
 
         if (p_value.is_ref()) {
             Ref<Resource> res = p_value;
-            if (res.is_valid() && res->get_path() != String()) {
+            if (res.is_valid() && !res->get_path().empty()) {
 
                 Array msg;
                 msg.push_back("live_node_prop_res");
@@ -1653,14 +1653,14 @@ void ScriptEditorDebugger::_property_changed(Object *p_base, const StringName &p
 
     Resource *res = Object::cast_to<Resource>(p_base);
 
-    if (res && res->get_path() != String()) {
+    if (res && !res->get_path().empty()) {
 
         String respath = res->get_path();
         int pathid = _get_res_path_cache(respath);
 
         if (p_value.is_ref()) {
             Ref<Resource> res2 = p_value;
-            if (res2.is_valid() && res2->get_path() != String()) {
+            if (res2.is_valid() && !res2->get_path().empty()) {
 
                 Array msg;
                 msg.push_back("live_res_prop_res");
@@ -1863,7 +1863,7 @@ void ScriptEditorDebugger::_error_selected() {
 
     Array meta = selected->get_metadata(0);
 
-    if (meta.size() == 0) {
+    if (meta.empty()) {
         return;
     }
 

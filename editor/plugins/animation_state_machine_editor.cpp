@@ -455,7 +455,7 @@ void AnimationNodeStateMachineEditor::_add_menu_type(int p_index) {
         return;
     }
 
-    if (base_name == String()) {
+    if (base_name.empty()) {
 
         base_name = StringUtils::replace_first(node->get_class(),"AnimationNode", "");
     }
@@ -736,7 +736,7 @@ void AnimationNodeStateMachineEditor::_state_machine_draw() {
             travel = true;
         }
 
-        if (travel_path.size()) {
+        if (!travel_path.empty()) {
 
             if (current == tl.from_node && travel_path[0] == tl.to_node) {
                 travel = true;
@@ -962,7 +962,7 @@ void AnimationNodeStateMachineEditor::_notification(int p_what) {
 
         if (error != error_label->get_text()) {
             error_label->set_text(error);
-            if (error != String()) {
+            if (!error.empty()) {
                 error_panel->show();
             } else {
                 error_panel->hide();
@@ -1101,7 +1101,7 @@ void AnimationNodeStateMachineEditor::_name_edited(const String &p_text) {
 
     const String &new_name = p_text;
 
-    ERR_FAIL_COND(new_name == "" || StringUtils::find(new_name,".") != -1 || StringUtils::find(new_name,"/") != -1);
+    ERR_FAIL_COND(new_name.empty() || StringUtils::find(new_name,".") != -1 || StringUtils::find(new_name,"/") != -1);
 
     if (new_name == prev_name) {
         return; // Nothing to do.

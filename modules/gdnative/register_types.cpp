@@ -40,6 +40,7 @@
 #include "pluginscript/register_types.h"
 #include "videodecoder/register_types.h"
 
+#include "core/class_db.h"
 #include "core/engine.h"
 #include "core/io/resource_loader.h"
 #include "core/io/resource_saver.h"

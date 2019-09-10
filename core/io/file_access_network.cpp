@@ -32,7 +32,10 @@
 
 #include "core/io/ip.h"
 #include "core/io/marshalls.h"
+#include "core/io/stream_peer_tcp.h"
 #include "core/os/os.h"
+#include "core/os/semaphore.h"
+#include "core/os/thread.h"
 #include "core/project_settings.h"
 
 //#define DEBUG_PRINT(m_p) print_line(m_p)
@@ -195,7 +198,7 @@ Error FileAccessNetworkClient::connect(const String &p_host, int p_port, const S
 
     DEBUG_PRINT("IP: " + String(ip) + " port " + itos(p_port));
     Error err = client->connect_to_host(ip, p_port);
-    ERR_FAIL_COND_V(err, err);
+    ERR_FAIL_COND_V(err, err)
     while (client->get_status() == StreamPeerTCP::STATUS_CONNECTING) {
         //DEBUG_PRINT("trying to connect....");
         OS::get_singleton()->delay_usec(1000);

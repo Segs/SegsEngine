@@ -238,7 +238,7 @@ String Particles2D::get_configuration_warning() const {
     String warnings;
 
     if (process_material.is_null()) {
-        if (warnings != String())
+        if (!warnings.empty())
             warnings += "\n";
         warnings += "- " + TTR("A material to process the particles is not assigned, so no behavior is imprinted.");
     } else {
@@ -250,7 +250,7 @@ String Particles2D::get_configuration_warning() const {
             if (process &&
                     (process->get_param(ParticlesMaterial::PARAM_ANIM_SPEED) != 0.0 || process->get_param(ParticlesMaterial::PARAM_ANIM_OFFSET) != 0.0 ||
                             process->get_param_texture(ParticlesMaterial::PARAM_ANIM_SPEED).is_valid() || process->get_param_texture(ParticlesMaterial::PARAM_ANIM_OFFSET).is_valid())) {
-                if (warnings != String())
+                if (!warnings.empty())
                     warnings += "\n";
                 warnings += "- " + TTR("Particles2D animation requires the usage of a CanvasItemMaterial with \"Particles Animation\" enabled.");
             }
