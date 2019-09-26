@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef SCRIPT_LANGUAGE_H
-#define SCRIPT_LANGUAGE_H
+#pragma once
 
 #include "core/io/multiplayer_api.h"
 #include "core/map.h"
@@ -99,7 +98,7 @@ class PlaceHolderScriptInstance;
 class Script : public Resource {
 
     GDCLASS(Script,Resource)
-    OBJ_SAVE_TYPE(Script);
+    OBJ_SAVE_TYPE(Script)
 
 protected:
     bool editor_can_reload_from_file() override { return false; } // this is handled by editor better
@@ -109,11 +108,11 @@ protected:
     friend class PlaceHolderScriptInstance;
     virtual void _placeholder_erased(PlaceHolderScriptInstance * /*p_placeholder*/) {}
 
-	Variant _get_property_default_value(const StringName &p_property);
-	Array _get_script_property_list();
-	Array _get_script_method_list();
-	Array _get_script_signal_list();
-	Dictionary _get_script_constant_map();
+    Variant _get_property_default_value(const StringName &p_property);
+    Array _get_script_property_list();
+    Array _get_script_method_list();
+    Array _get_script_signal_list();
+    Dictionary _get_script_constant_map();
 
 public:
     virtual bool can_instance() const = 0;
@@ -139,13 +138,13 @@ public:
     virtual ScriptLanguage *get_language() const = 0;
 
     virtual bool has_script_signal(const StringName &p_signal) const = 0;
-    virtual void get_script_signal_list(List<MethodInfo> *r_signals) const = 0;
+    virtual void get_script_signal_list(ListPOD<MethodInfo> *r_signals) const = 0;
 
     virtual bool get_property_default_value(const StringName &p_property, Variant &r_value) const = 0;
 
     virtual void update_exports() {} //editor tool
-    virtual void get_script_method_list(List<MethodInfo> *p_list) const = 0;
-    virtual void get_script_property_list(List<PropertyInfo> *p_list) const = 0;
+    virtual void get_script_method_list(PODVector<MethodInfo> *p_list) const = 0;
+    virtual void get_script_property_list(ListPOD<PropertyInfo> *p_list) const = 0;
 
     virtual int get_member_line(const StringName & /*p_member*/) const { return -1; }
 
@@ -161,14 +160,14 @@ class ScriptInstance {
 public:
     virtual bool set(const StringName &p_name, const Variant &p_value) = 0;
     virtual bool get(const StringName &p_name, Variant &r_ret) const = 0;
-    virtual void get_property_list(List<PropertyInfo> *p_properties) const = 0;
-    virtual Variant::Type get_property_type(const StringName &p_name, bool *r_is_valid = nullptr) const = 0;
+    virtual void get_property_list(ListPOD<PropertyInfo> *p_properties) const = 0;
+    virtual VariantType get_property_type(const StringName &p_name, bool *r_is_valid = nullptr) const = 0;
 
     virtual Object *get_owner() { return nullptr; }
     virtual void get_property_state(List<Pair<StringName, Variant> > &state);
 
-    virtual void get_method_list(List<MethodInfo> *p_list) const = 0;
-    virtual bool has_method(const StringName &p_method) const = 0;
+    virtual void get_method_list(PODVector<MethodInfo> *p_list) const = 0;
+    [[nodiscard]] virtual bool has_method(const StringName &p_method) const = 0;
     virtual Variant call(const StringName &p_method, VARIANT_ARG_LIST);
     virtual Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error) = 0;
     virtual void call_multilevel(const StringName &p_method, VARIANT_ARG_LIST);
@@ -188,15 +187,15 @@ public:
     virtual void refcount_incremented() {}
     virtual bool refcount_decremented() { return true; } //return true if it can die
 
-    virtual Ref<Script> get_script() const = 0;
+    [[nodiscard]] virtual Ref<Script> get_script() const = 0;
 
-    virtual bool is_placeholder() const { return false; }
+    [[nodiscard]] virtual bool is_placeholder() const { return false; }
 
     virtual void property_set_fallback(const StringName &p_name, const Variant &p_value, bool *r_valid);
     virtual Variant property_get_fallback(const StringName &p_name, bool *r_valid);
 
-    virtual MultiplayerAPI::RPCMode get_rpc_mode(const StringName &p_method) const = 0;
-    virtual MultiplayerAPI::RPCMode get_rset_mode(const StringName &p_variable) const = 0;
+    [[nodiscard]] virtual MultiplayerAPI::RPCMode get_rpc_mode(const StringName &p_method) const = 0;
+    [[nodiscard]] virtual MultiplayerAPI::RPCMode get_rset_mode(const StringName &p_variable) const = 0;
 
     virtual ScriptLanguage *get_language() = 0;
     virtual ~ScriptInstance() {}
@@ -373,7 +372,7 @@ extern uint8_t script_encryption_key[32];
 class PlaceHolderScriptInstance : public ScriptInstance {
 
     Object *owner;
-    List<PropertyInfo> properties;
+    ListPOD<PropertyInfo> properties;
     Map<StringName, Variant> values;
     Map<StringName, Variant> constants;
     ScriptLanguage *language;
@@ -382,10 +381,10 @@ class PlaceHolderScriptInstance : public ScriptInstance {
 public:
     bool set(const StringName &p_name, const Variant &p_value) override;
     bool get(const StringName &p_name, Variant &r_ret) const override;
-    void get_property_list(List<PropertyInfo> *p_properties) const override;
-    Variant::Type get_property_type(const StringName &p_name, bool *r_is_valid = nullptr) const override;
+    void get_property_list(ListPOD<PropertyInfo> *p_properties) const override;
+    VariantType get_property_type(const StringName &p_name, bool *r_is_valid = nullptr) const override;
 
-    void get_method_list(List<MethodInfo> *p_list) const override;
+    void get_method_list(PODVector<MethodInfo> *p_list) const override;
     bool has_method(const StringName &p_method) const override;
     Variant call(const StringName & /*p_method*/, VARIANT_ARG_LIST) override { return Variant(); }
     Variant call(const StringName & /*p_method*/, const Variant ** /*p_args*/, int /*p_argcount*/, Variant::CallError &r_error) override {
@@ -402,7 +401,7 @@ public:
 
     Object *get_owner() override { return owner; }
 
-    void update(const List<PropertyInfo> &p_properties, const Map<StringName, Variant> &p_values); //likely changed in editor
+    void update(const ListPOD<PropertyInfo> &p_properties, const Map<StringName, Variant> &p_values); //likely changed in editor
 
     bool is_placeholder() const override { return true; }
 
@@ -412,7 +411,11 @@ public:
     MultiplayerAPI::RPCMode get_rpc_mode(const StringName &p_method) const override { return MultiplayerAPI::RPC_MODE_DISABLED; }
     MultiplayerAPI::RPCMode get_rset_mode(const StringName &p_variable) const override { return MultiplayerAPI::RPC_MODE_DISABLED; }
 
-    PlaceHolderScriptInstance(ScriptLanguage *p_language, Ref<Script> p_script, Object *p_owner);
+    PlaceHolderScriptInstance(ScriptLanguage *p_language, Ref<Script> p_script, Object *p_owner) :
+        owner(p_owner),
+        language(p_language),
+        script(std::move(p_script)) {
+    }
     ~PlaceHolderScriptInstance() override;
 };
 
@@ -467,7 +470,7 @@ public:
     void clear_breakpoints();
     const Map<int, Set<StringName> > &get_breakpoints() const { return breakpoints; }
 
-	virtual void debug(ScriptLanguage *p_script, bool p_can_continue = true, bool p_is_error_breakpoint = false) = 0;
+    virtual void debug(ScriptLanguage *p_script, bool p_can_continue = true, bool p_is_error_breakpoint = false) = 0;
     virtual void idle_poll();
     virtual void line_poll();
 
@@ -482,7 +485,7 @@ public:
 
     virtual void set_request_scene_tree_message_func(RequestSceneTreeMessageFunc p_func, void *p_udata) {}
     virtual void set_live_edit_funcs(LiveEditFuncs *p_funcs) {}
-	virtual void set_multiplayer(Ref<MultiplayerAPI> p_multiplayer) {}
+    virtual void set_multiplayer(const Ref<MultiplayerAPI> &p_multiplayer) {}
 
     virtual bool is_profiling() const = 0;
     virtual void add_profiling_frame_data(const StringName &p_name, const Array &p_data) = 0;
@@ -493,5 +496,3 @@ public:
     ScriptDebugger();
     virtual ~ScriptDebugger() { singleton = nullptr; }
 };
-
-#endif

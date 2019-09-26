@@ -30,6 +30,8 @@
 
 #include "resource_loader.h"
 
+#include <utility>
+
 #include "core/io/resource_importer.h"
 #include "core/os/file_access.h"
 #include "core/os/os.h"
@@ -69,16 +71,16 @@ bool ResourceFormatLoader::recognize_path(const String &p_path, const String &p_
 
     String extension = PathUtils::get_extension(p_path);
 
-    List<String> extensions;
-    if (p_for_type == String()) {
+    ListPOD<String> extensions;
+    if (p_for_type.empty()) {
         get_recognized_extensions(&extensions);
     } else {
         get_recognized_extensions_for_type(p_for_type, &extensions);
     }
 
-    for (List<String>::Element *E = extensions.front(); E; E = E->next()) {
+    for(const String &E : extensions ) {
 
-        if (StringUtils::compare(E->get(),extension,StringUtils::CaseInsensitive) == 0)
+        if (StringUtils::compare(E,extension,StringUtils::CaseInsensitive) == 0)
             return true;
     }
 
@@ -89,7 +91,7 @@ bool ResourceFormatLoader::handles_type(const String &p_type) const {
 
     if (get_script_instance() && get_script_instance()->has_method("handles_type")) {
         // I guess custom loaders for custom resources should use "Resource"
-        return get_script_instance()->call("handles_type", p_type);
+        return get_script_instance()->call("handles_type", p_type).as<bool>();
     }
 
     return false;
@@ -104,13 +106,13 @@ String ResourceFormatLoader::get_resource_type(const String &p_path) const {
     return "";
 }
 
-void ResourceFormatLoader::get_recognized_extensions_for_type(const String &p_type, List<String> *p_extensions) const {
+void ResourceFormatLoader::get_recognized_extensions_for_type(const String &p_type, ListPOD<String> *p_extensions) const {
 
-    if (p_type == "" || handles_type(p_type))
+    if (p_type.empty() || handles_type(p_type))
         get_recognized_extensions(p_extensions);
 }
 
-void ResourceLoader::get_recognized_extensions_for_type(const String &p_type, List<String> *p_extensions) {
+void ResourceLoader::get_recognized_extensions_for_type(const String &p_type, ListPOD<String> *p_extensions) {
 
     for (int i = 0; i < loader_count; i++) {
         loader[i]->get_recognized_extensions_for_type(p_type, p_extensions);
@@ -150,10 +152,10 @@ Ref<ResourceInteractiveLoader> ResourceFormatLoader::load_interactive(const Stri
 
     //either this
     Ref<Resource> res = load(p_path, p_original_path, r_error);
-    if (res.is_null())
+    if (not res)
         return Ref<ResourceInteractiveLoader>();
 
-    Ref<ResourceInteractiveLoaderDefault> ril = Ref<ResourceInteractiveLoaderDefault>(memnew(ResourceInteractiveLoaderDefault));
+    Ref<ResourceInteractiveLoaderDefault> ril(make_ref_counted<ResourceInteractiveLoaderDefault>());
     ril->resource = res;
     return ril;
 }
@@ -162,7 +164,7 @@ bool ResourceFormatLoader::exists(const String &p_path) const {
     return FileAccess::exists(p_path); //by default just check file
 }
 
-void ResourceFormatLoader::get_recognized_extensions(List<String> *p_extensions) const {
+void ResourceFormatLoader::get_recognized_extensions(ListPOD<String> *p_extensions) const {
 
     if (get_script_instance() && get_script_instance()->has_method("get_recognized_extensions")) {
         PoolStringArray exts = get_script_instance()->call("get_recognized_extensions");
@@ -181,7 +183,7 @@ RES ResourceFormatLoader::load(const String &p_path, const String &p_original_pa
     if (get_script_instance() && get_script_instance()->has_method("load")) {
         Variant res = get_script_instance()->call("load", p_path, p_original_path);
 
-        if (res.get_type() == Variant::INT) {
+        if (res.get_type() == VariantType::INT) {
 
             if (r_error)
                 *r_error = (Error)res.operator int64_t();
@@ -190,13 +192,13 @@ RES ResourceFormatLoader::load(const String &p_path, const String &p_original_pa
 
             if (r_error)
                 *r_error = OK;
-            return res;
+            return refFromVariant<Resource>(res);
         }
     }
 
     //or this must be implemented
     Ref<ResourceInteractiveLoader> ril = load_interactive(p_path, p_original_path, r_error);
-    if (!ril.is_valid())
+    if (not ril)
         return RES();
     ril->set_local_path(p_original_path);
 
@@ -213,11 +215,11 @@ RES ResourceFormatLoader::load(const String &p_path, const String &p_original_pa
         if (r_error)
             *r_error = err;
 
-        ERR_FAIL_COND_V(err != OK, RES());
+        ERR_FAIL_COND_V(err != OK, RES())
     }
 }
 
-void ResourceFormatLoader::get_dependencies(const String &p_path, List<String> *p_dependencies, bool p_add_types) {
+void ResourceFormatLoader::get_dependencies(const String &p_path, ListPOD<String> *p_dependencies, bool p_add_types) {
 
     if (get_script_instance() && get_script_instance()->has_method("get_dependencies")) {
         PoolStringArray deps = get_script_instance()->call("get_dependencies", p_path, p_add_types);
@@ -236,8 +238,8 @@ Error ResourceFormatLoader::rename_dependencies(const String &p_path, const Map<
     if (get_script_instance() && get_script_instance()->has_method("rename_dependencies")) {
 
         Dictionary deps_dict;
-        for (Map<String, String>::Element *E = p_map.front(); E; E = E->next()) {
-            deps_dict[E->key()] = E->value();
+        for (const eastl::pair<const String,String> &E : p_map) {
+            deps_dict[E.first] = E.second;
         }
 
         int64_t res = get_script_instance()->call("rename_dependencies", deps_dict);
@@ -250,16 +252,16 @@ Error ResourceFormatLoader::rename_dependencies(const String &p_path, const Map<
 void ResourceFormatLoader::_bind_methods() {
 
     {
-        MethodInfo info = MethodInfo(Variant::NIL, "load", PropertyInfo(Variant::STRING, "path"), PropertyInfo(Variant::STRING, "original_path"));
+        MethodInfo info = MethodInfo(VariantType::NIL, "load", PropertyInfo(VariantType::STRING, "path"), PropertyInfo(VariantType::STRING, "original_path"));
         info.return_val.usage |= PROPERTY_USAGE_NIL_IS_VARIANT;
         ClassDB::add_virtual_method(get_class_static_name(), info);
     }
 
-    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(Variant::POOL_STRING_ARRAY, "get_recognized_extensions"));
-    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(Variant::BOOL, "handles_type", PropertyInfo(Variant::STRING, "typename")));
-    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(Variant::STRING, "get_resource_type", PropertyInfo(Variant::STRING, "path")));
-    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo("get_dependencies", PropertyInfo(Variant::STRING, "path"), PropertyInfo(Variant::STRING, "add_types")));
-    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(Variant::INT, "rename_dependencies", PropertyInfo(Variant::STRING, "path"), PropertyInfo(Variant::STRING, "renames")));
+    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::POOL_STRING_ARRAY, "get_recognized_extensions"));
+    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::BOOL, "handles_type", PropertyInfo(VariantType::STRING, "typename")));
+    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::STRING, "get_resource_type", PropertyInfo(VariantType::STRING, "path")));
+    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo("get_dependencies", PropertyInfo(VariantType::STRING, "path"), PropertyInfo(VariantType::STRING, "add_types")));
+    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::INT, "rename_dependencies", PropertyInfo(VariantType::STRING, "path"), PropertyInfo(VariantType::STRING, "renames")));
 }
 
 ///////////////////////////////////
@@ -275,8 +277,8 @@ RES ResourceLoader::_load(const String &p_path, const String &p_original_path, c
             continue;
         }
         found = true;
-        RES res = loader[i]->load(p_path, p_original_path != String() ? p_original_path : p_path, r_error);
-        if (res.is_null()) {
+        RES res(loader[i]->load(p_path, !p_original_path.empty() ? p_original_path : p_path, r_error));
+        if (not res) {
             continue;
         }
 
@@ -299,7 +301,7 @@ bool ResourceLoader::_add_to_loading_map(const String &p_path) {
     key.path = p_path;
     key.thread = Thread::get_caller_id();
 
-    if (loading_map.has(key)) {
+    if (loading_map.contains(key)) {
         success = false;
     } else {
         loading_map[key] = true;
@@ -369,12 +371,12 @@ RES ResourceLoader::load(const String &p_path, const String &p_type_hint, bool p
         }
 
         //get ptr
-        Resource **rptr = ResourceCache::resources.getptr(local_path);
+        Resource *rptr = ResourceCache::get_unguarded(local_path);
 
         if (rptr) {
-            RES res(*rptr);
+            RES res(rptr);
             //it is possible this resource was just freed in a thread. If so, this referencing will not work and resource is considered not cached
-            if (res.is_valid()) {
+            if (res) {
                 //referencing is fine
                 if (r_error)
                     *r_error = OK;
@@ -393,7 +395,7 @@ RES ResourceLoader::load(const String &p_path, const String &p_type_hint, bool p
     bool xl_remapped = false;
     String path = _path_remap(local_path, &xl_remapped);
 
-    if (path == "") {
+    if (path.empty()) {
         if (!p_no_cache) {
             _remove_from_loading_map(local_path);
         }
@@ -401,9 +403,9 @@ RES ResourceLoader::load(const String &p_path, const String &p_type_hint, bool p
     }
 
     print_verbose("Loading resource: " + path);
-    RES res = _load(path, local_path, p_type_hint, p_no_cache, r_error);
+    RES res(_load(path, local_path, p_type_hint, p_no_cache, r_error));
 
-    if (res.is_null()) {
+    if (not res) {
         if (!p_no_cache) {
             _remove_from_loading_map(local_path);
         }
@@ -480,13 +482,13 @@ Ref<ResourceInteractiveLoader> ResourceLoader::load_interactive(const String &p_
     if (!p_no_cache) {
 
         bool success = _add_to_loading_map(local_path);
-        ERR_FAIL_COND_V_MSG(!success, RES(), "Resource: '" + local_path + "' is already being loaded. Cyclic reference?")
+        ERR_FAIL_COND_V_MSG(!success, Ref<ResourceInteractiveLoader>(), "Resource: '" + local_path + "' is already being loaded. Cyclic reference?")
 
         if (ResourceCache::has(local_path)) {
 
             print_verbose("Loading resource: " + local_path + " (cached)");
-            Ref<Resource> res_cached = ResourceCache::get(local_path);
-            Ref<ResourceInteractiveLoaderDefault> ril = Ref<ResourceInteractiveLoaderDefault>(memnew(ResourceInteractiveLoaderDefault));
+            Ref<Resource> res_cached(ResourceCache::get(local_path));
+            Ref<ResourceInteractiveLoaderDefault> ril(make_ref_counted<ResourceInteractiveLoaderDefault>());
 
             ril->resource = res_cached;
             ril->path_loading = local_path;
@@ -497,11 +499,11 @@ Ref<ResourceInteractiveLoader> ResourceLoader::load_interactive(const String &p_
 
     bool xl_remapped = false;
     String path = _path_remap(local_path, &xl_remapped);
-    if (path == "") {
+    if (path.empty()) {
         if (!p_no_cache) {
             _remove_from_loading_map(local_path);
         }
-        ERR_FAIL_V_MSG(RES(), "Remapping '" + local_path + "' failed.")
+        ERR_FAIL_V_MSG(Ref<ResourceInteractiveLoader>(), "Remapping '" + local_path + "' failed.")
     }
 
     print_verbose("Loading resource: " + path);
@@ -513,7 +515,7 @@ Ref<ResourceInteractiveLoader> ResourceLoader::load_interactive(const String &p_
             continue;
         found = true;
         Ref<ResourceInteractiveLoader> ril = loader[i]->load_interactive(path, local_path, r_error);
-        if (ril.is_null())
+        if (not ril)
             continue;
         if (!p_no_cache) {
             ril->set_local_path(local_path);
@@ -536,9 +538,9 @@ Ref<ResourceInteractiveLoader> ResourceLoader::load_interactive(const String &p_
     ERR_FAIL_V_MSG(Ref<ResourceInteractiveLoader>(), "No loader found for resource: " + path + ".")
 }
 
-void ResourceLoader::add_resource_format_loader(Ref<ResourceFormatLoader> p_format_loader, bool p_at_front) {
+void ResourceLoader::add_resource_format_loader(const Ref<ResourceFormatLoader>& p_format_loader, bool p_at_front) {
 
-    ERR_FAIL_COND(p_format_loader.is_null())
+    ERR_FAIL_COND(not p_format_loader)
     ERR_FAIL_COND(loader_count >= MAX_LOADERS)
 
     if (p_at_front) {
@@ -552,9 +554,9 @@ void ResourceLoader::add_resource_format_loader(Ref<ResourceFormatLoader> p_form
     }
 }
 
-void ResourceLoader::remove_resource_format_loader(Ref<ResourceFormatLoader> p_format_loader) {
+void ResourceLoader::remove_resource_format_loader(const Ref<ResourceFormatLoader>& p_format_loader) {
 
-    ERR_FAIL_COND(p_format_loader.is_null())
+    ERR_FAIL_COND(not p_format_loader)
 
     // Find loader
     int i = 0;
@@ -672,7 +674,7 @@ bool ResourceLoader::is_imported(const String &p_path) {
     return false; //not found
 }
 
-void ResourceLoader::get_dependencies(const String &p_path, List<String> *p_dependencies, bool p_add_types) {
+void ResourceLoader::get_dependencies(const String &p_path, ListPOD<String> *p_dependencies, bool p_add_types) {
 
     String path = _path_remap(p_path);
 
@@ -742,7 +744,7 @@ String ResourceLoader::_path_remap(const String &p_path, bool *r_translation_rem
 
     String new_path = p_path;
 
-    if (translation_remaps.has(new_path)) {
+    if (translation_remaps.contains(new_path)) {
 
         Vector<String> &v = *translation_remaps.getptr(new_path);
         String locale = TranslationServer::get_singleton()->get_locale();
@@ -755,7 +757,7 @@ String ResourceLoader::_path_remap(const String &p_path, bool *r_translation_rem
             if (split == -1)
                 continue;
             String l = StringUtils::strip_edges(StringUtils::right(v[i],split + 1));
-            if (l == String())
+            if (l.empty())
                 continue;
 
             if (StringUtils::begins_with(l,locale)) {
@@ -765,7 +767,7 @@ String ResourceLoader::_path_remap(const String &p_path, bool *r_translation_rem
         }
     }
 
-    if (path_remaps.has(new_path)) {
+    if (path_remaps.contains(new_path)) {
         new_path = path_remaps[new_path];
     }
 
@@ -776,8 +778,7 @@ String ResourceLoader::_path_remap(const String &p_path, bool *r_translation_rem
 
         if (f) {
 
-            VariantParser::StreamFile stream;
-            stream.f = f;
+            VariantParser::Stream *stream=VariantParser::get_file_stream(f);
 
             String assign;
             Variant value;
@@ -791,7 +792,7 @@ String ResourceLoader::_path_remap(const String &p_path, bool *r_translation_rem
                 next_tag.fields.clear();
                 next_tag.name = String();
 
-                err = VariantParser::parse_tag_assign_eof(&stream, lines, error_text, next_tag, assign, value, nullptr, true);
+                err = VariantParser::parse_tag_assign_eof(stream, lines, error_text, next_tag, assign, value, nullptr, true);
                 if (err == ERR_FILE_EOF) {
                     break;
                 } else if (err != OK) {
@@ -806,7 +807,7 @@ String ResourceLoader::_path_remap(const String &p_path, bool *r_translation_rem
                     break;
                 }
             }
-
+            VariantParser::release_stream(stream);
             memdelete(f);
         }
     }
@@ -848,7 +849,7 @@ void ResourceLoader::reload_translation_remaps() {
 
     //now just make sure to not delete any of these resources while changing locale..
     while (to_reload.front()) {
-        to_reload.front()->get()->reload_from_file();
+        to_reload.front()->deref()->reload_from_file();
         to_reload.pop_front();
     }
 }
@@ -859,18 +860,18 @@ void ResourceLoader::load_translation_remaps() {
         return;
 
     Dictionary remaps = ProjectSettings::get_singleton()->get("locale/translation_remaps");
-    List<Variant> keys;
+    ListPOD<Variant> keys;
     remaps.get_key_list(&keys);
-    for (List<Variant>::Element *E = keys.front(); E; E = E->next()) {
+    for(const Variant &E : keys ) {
 
-        Array langs = remaps[E->get()];
+        Array langs = remaps[E];
         Vector<String> lang_remaps;
         lang_remaps.resize(langs.size());
         for (int i = 0; i < langs.size(); i++) {
             lang_remaps.write[i] = langs[i];
         }
 
-        translation_remaps[String(E->get())] = lang_remaps;
+        translation_remaps[String(E)] = lang_remaps;
     }
 }
 
@@ -885,7 +886,7 @@ void ResourceLoader::load_path_remaps() {
 
     PoolVector<String> remaps = ProjectSettings::get_singleton()->get("path_remap/remapped_paths");
     int rc = remaps.size();
-    ERR_FAIL_COND(rc & 1); //must be even
+    ERR_FAIL_COND(rc & 1) //must be even
     PoolVector<String>::Read r = remaps.read();
 
     for (int i = 0; i < rc; i += 2) {
@@ -905,7 +906,7 @@ void ResourceLoader::set_load_callback(ResourceLoadedCallback p_callback) {
 
 ResourceLoadedCallback ResourceLoader::_loaded_callback = nullptr;
 
-Ref<ResourceFormatLoader> ResourceLoader::_find_custom_resource_format_loader(String path) {
+Ref<ResourceFormatLoader> ResourceLoader::_find_custom_resource_format_loader(const String& path) {
     for (int i = 0; i < loader_count; ++i) {
         if (loader[i]->get_script_instance() && loader[i]->get_script_instance()->get_script()->get_path() == path) {
             return loader[i];
@@ -914,35 +915,35 @@ Ref<ResourceFormatLoader> ResourceLoader::_find_custom_resource_format_loader(St
     return Ref<ResourceFormatLoader>();
 }
 
-bool ResourceLoader::add_custom_resource_format_loader(String script_path) {
+bool ResourceLoader::add_custom_resource_format_loader(const String& script_path) {
 
-    if (_find_custom_resource_format_loader(script_path).is_valid())
+    if (_find_custom_resource_format_loader(script_path))
         return false;
 
     Ref<Resource> res = ResourceLoader::load(script_path);
-    ERR_FAIL_COND_V(res.is_null(), false)
+    ERR_FAIL_COND_V(not res, false)
     ERR_FAIL_COND_V(!res->is_class("Script"), false)
 
-    Ref<Script> s = res;
+    Ref<Script> s(dynamic_ref_cast<Script>(res));
     StringName ibt = s->get_instance_base_type();
     bool valid_type = ClassDB::is_parent_class(ibt, "ResourceFormatLoader");
     ERR_FAIL_COND_V_MSG(!valid_type, false, "Script does not inherit a CustomResourceLoader: " + script_path + ".")
 
     Object *obj = ClassDB::instance(ibt);
 
-    ERR_FAIL_COND_V_MSG(obj == nullptr, false, "Cannot instance script as custom resource loader, expected 'ResourceFormatLoader' inheritance, got: " + String(ibt) + ".");
+    ERR_FAIL_COND_V_MSG(obj == nullptr, false, "Cannot instance script as custom resource loader, expected 'ResourceFormatLoader' inheritance, got: " + String(ibt) + ".")
 
     ResourceFormatLoader *crl = Object::cast_to<ResourceFormatLoader>(obj);
     crl->set_script(s.get_ref_ptr());
-    ResourceLoader::add_resource_format_loader(crl);
+    ResourceLoader::add_resource_format_loader(Ref<ResourceFormatLoader>(crl));
 
     return true;
 }
 
-void ResourceLoader::remove_custom_resource_format_loader(String script_path) {
+void ResourceLoader::remove_custom_resource_format_loader(const String& script_path) {
 
     Ref<ResourceFormatLoader> custom_loader = _find_custom_resource_format_loader(script_path);
-    if (custom_loader.is_valid())
+    if (custom_loader)
         remove_resource_format_loader(custom_loader);
 }
 

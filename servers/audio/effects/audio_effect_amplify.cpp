@@ -50,8 +50,7 @@ void AudioEffectAmplifyInstance::process(const AudioFrame *p_src_frames, AudioFr
 }
 
 Ref<AudioEffectInstance> AudioEffectAmplify::instance() {
-    Ref<AudioEffectAmplifyInstance> ins;
-    ins.instance();
+    Ref<AudioEffectAmplifyInstance> ins(make_ref_counted<AudioEffectAmplifyInstance>());
     ins->base = Ref<AudioEffectAmplify>(this);
     ins->mix_volume_db = volume_db;
     return ins;
@@ -68,10 +67,10 @@ float AudioEffectAmplify::get_volume_db() const {
 
 void AudioEffectAmplify::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_volume_db", "volume"), &AudioEffectAmplify::set_volume_db);
+    MethodBinder::bind_method(D_METHOD("set_volume_db", {"volume"}), &AudioEffectAmplify::set_volume_db);
     MethodBinder::bind_method(D_METHOD("get_volume_db"), &AudioEffectAmplify::get_volume_db);
 
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "volume_db", PROPERTY_HINT_RANGE, "-80,24,0.01"), "set_volume_db", "get_volume_db");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "volume_db", PROPERTY_HINT_RANGE, "-80,24,0.01"), "set_volume_db", "get_volume_db");
 }
 
 AudioEffectAmplify::AudioEffectAmplify() {

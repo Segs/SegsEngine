@@ -45,7 +45,7 @@ static void _compress_image(Image::CompressMode p_mode, Image *p_image) {
 
     String ttpath = EditorSettings::get_singleton()->get("filesystem/import/pvrtc_texture_tool");
 
-    if (StringUtils::strip_edges(ttpath) == "" || !FileAccess::exists(ttpath)) {
+    if (StringUtils::strip_edges(ttpath).empty() || !FileAccess::exists(ttpath)) {
         switch (p_mode) {
 
             case Image::COMPRESS_PVRTC2:
@@ -59,7 +59,7 @@ static void _compress_image(Image::CompressMode p_mode, Image *p_image) {
                     _base_image_compress_pvrtc4_func(p_image);
                 break;
             default:
-                ERR_FAIL_MSG("Unsupported Image compress mode used in PVRTC module.");
+                ERR_FAIL_CMSG("Unsupported Image compress mode used in PVRTC module.")
         }
         return;
     }
@@ -68,7 +68,7 @@ static void _compress_image(Image::CompressMode p_mode, Image *p_image) {
     String src_img = PathUtils::plus_file(tmppath,"_tmp_src_img.png");
     String dst_img = PathUtils::plus_file(tmppath,"_tmp_dst_img.pvr");
 
-    List<String> args;
+    ListPOD<String> args;
     args.push_back("-i");
     args.push_back(src_img);
     args.push_back("-o");
@@ -86,7 +86,7 @@ static void _compress_image(Image::CompressMode p_mode, Image *p_image) {
             args.push_back("ETC");
             break;
         default:
-            ERR_FAIL_MSG("Unsupported Image compress mode used in PVRTC module.");
+            ERR_FAIL_CMSG("Unsupported Image compress mode used in PVRTC module.")
     }
 
     if (EditorSettings::get_singleton()->get("filesystem/import/pvrtc_fast_conversion").operator bool()) {
@@ -97,7 +97,7 @@ static void _compress_image(Image::CompressMode p_mode, Image *p_image) {
     }
 
     // Save source PNG.
-    Ref<ImageTexture> t = memnew(ImageTexture);
+    Ref<ImageTexture> t(make_ref_counted<ImageTexture>());
     t->create_from_image(Ref<Image>(p_image), 0);
     ResourceSaver::save(src_img, t);
 
@@ -106,15 +106,15 @@ static void _compress_image(Image::CompressMode p_mode, Image *p_image) {
         // Clean up generated files.
         DirAccess::remove_file_or_error(src_img);
         DirAccess::remove_file_or_error(dst_img);
-        ERR_FAIL_MSG("Could not execute PVRTC tool: " + ttpath);
+        ERR_FAIL_MSG("Could not execute PVRTC tool: " + ttpath)
     }
 
-    t = ResourceLoader::load(dst_img, "Texture");
-    if (t.is_null()) {
+    t = dynamic_ref_cast<ImageTexture>(ResourceLoader::load(dst_img, "Texture"));
+    if (not t) {
         // Clean up generated files.
         DirAccess::remove_file_or_error(src_img);
         DirAccess::remove_file_or_error(dst_img);
-        ERR_FAIL_MSG("Can't load back converted image using PVRTC tool.");
+        ERR_FAIL_CMSG("Can't load back converted image using PVRTC tool.")
     }
 
     p_image->copy_internals_from(t->get_data());

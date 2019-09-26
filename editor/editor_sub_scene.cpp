@@ -52,12 +52,12 @@ void EditorSubScene::_path_changed(const String &p_path) {
         scene = nullptr;
     }
 
-    if (p_path == "")
+    if (p_path.empty())
         return;
 
-    Ref<PackedScene> ps = ResourceLoader::load(p_path, "PackedScene");
+    Ref<PackedScene> ps = dynamic_ref_cast<PackedScene>(ResourceLoader::load(p_path, "PackedScene"));
 
-    if (ps.is_null())
+    if (not ps)
         return;
 
     scene = ps->instance();
@@ -84,7 +84,7 @@ void EditorSubScene::_notification(int p_what) {
 void EditorSubScene::_fill_tree(Node *p_node, TreeItem *p_parent) {
 
     TreeItem *it = tree->create_item(p_parent);
-    it->set_metadata(0, p_node);
+    it->set_metadata(0, Variant(p_node));
     it->set_text(0, p_node->get_name());
     it->set_editable(0, false);
     it->set_selectable(0, true);
@@ -107,7 +107,7 @@ void EditorSubScene::_selected_changed() {
 void EditorSubScene::_item_multi_selected(Object *p_object, int p_cell, bool p_selected) {
     if (!is_root) {
         TreeItem *item = Object::cast_to<TreeItem>(p_object);
-        ERR_FAIL_COND(!item);
+        ERR_FAIL_COND(!item)
 
         Node *n = item->get_metadata(0);
 
@@ -140,11 +140,11 @@ void EditorSubScene::_remove_selection_child(Node *p_node) {
 }
 
 void EditorSubScene::ok_pressed() {
-    if (selection.size() <= 0) {
+    if (selection.empty()) {
         return;
     }
     for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
-        Node *c = E->get();
+        Node *c = E->deref();
         _remove_selection_child(c);
     }
     emit_signal("subscene_selected");
@@ -174,12 +174,12 @@ void EditorSubScene::move(Node *p_new_parent, Node *p_new_owner) {
         return;
     }
 
-    if (selection.size() <= 0) {
+    if (selection.empty()) {
         return;
     }
 
     for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
-        Node *selnode = E->get();
+        Node *selnode = E->deref();
         if (!selnode) {
             return;
         }
@@ -191,7 +191,7 @@ void EditorSubScene::move(Node *p_new_parent, Node *p_new_owner) {
 
         p_new_parent->add_child(selnode);
         for (List<Node *>::Element *F = to_reown.front(); F; F = F->next()) {
-            F->get()->set_owner(p_new_owner);
+            F->deref()->set_owner(p_new_owner);
         }
     }
     if (!is_root) {
@@ -251,12 +251,12 @@ EditorSubScene::EditorSubScene() {
     tree->connect("item_activated", this, "_ok", make_binds(), ObjectNS::CONNECT_DEFERRED);
 
     file_dialog = memnew(EditorFileDialog);
-    List<String> extensions;
+    ListPOD<String> extensions;
     ResourceLoader::get_recognized_extensions_for_type("PackedScene", &extensions);
 
-    for (List<String>::Element *E = extensions.front(); E; E = E->next()) {
+    for (const String &E : extensions) {
 
-        file_dialog->add_filter("*." + E->get());
+        file_dialog->add_filter("*." + E);
     }
 
     file_dialog->set_mode(EditorFileDialog::MODE_OPEN_FILE);

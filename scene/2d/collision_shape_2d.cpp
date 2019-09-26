@@ -67,7 +67,7 @@ void CollisionShape2D::_notification(int p_what) {
             parent = Object::cast_to<CollisionObject2D>(get_parent());
             if (parent) {
                 owner_id = parent->create_shape_owner(this);
-                if (shape.is_valid()) {
+                if (shape) {
                     parent->shape_owner_add_shape(owner_id, shape);
                 }
                 _update_in_shape_owner();
@@ -108,7 +108,7 @@ void CollisionShape2D::_notification(int p_what) {
                 break;
             }
 
-            if (!shape.is_valid()) {
+            if (not shape) {
                 break;
             }
 
@@ -151,18 +151,18 @@ void CollisionShape2D::_notification(int p_what) {
 
 void CollisionShape2D::set_shape(const Ref<Shape2D> &p_shape) {
 
-    if (shape.is_valid())
+    if (shape)
         shape->disconnect("changed", this, "_shape_changed");
     shape = p_shape;
     update();
     if (parent) {
         parent->shape_owner_clear_shapes(owner_id);
-        if (shape.is_valid()) {
+        if (shape) {
             parent->shape_owner_add_shape(owner_id, shape);
         }
     }
 
-    if (shape.is_valid())
+    if (shape)
         shape->connect("changed", this, "_shape_changed");
 
     update_configuration_warning();
@@ -175,7 +175,7 @@ Ref<Shape2D> CollisionShape2D::get_shape() const {
 
 bool CollisionShape2D::_edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const {
 
-    if (!shape.is_valid())
+    if (not shape)
         return false;
 
     return shape->_edit_is_selected_on_click(p_point, p_tolerance);
@@ -187,7 +187,7 @@ String CollisionShape2D::get_configuration_warning() const {
         return TTR("CollisionShape2D only serves to provide a collision shape to a CollisionObject2D derived node. Please only use it as a child of Area2D, StaticBody2D, RigidBody2D, KinematicBody2D, etc. to give them a shape.");
     }
 
-    if (!shape.is_valid()) {
+    if (not shape) {
         return TTR("A shape must be provided for CollisionShape2D to function. Please create a shape resource for it!");
     }
 
@@ -232,20 +232,20 @@ float CollisionShape2D::get_one_way_collision_margin() const {
 
 void CollisionShape2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_shape", "shape"), &CollisionShape2D::set_shape);
+    MethodBinder::bind_method(D_METHOD("set_shape", {"shape"}), &CollisionShape2D::set_shape);
     MethodBinder::bind_method(D_METHOD("get_shape"), &CollisionShape2D::get_shape);
-    MethodBinder::bind_method(D_METHOD("set_disabled", "disabled"), &CollisionShape2D::set_disabled);
+    MethodBinder::bind_method(D_METHOD("set_disabled", {"disabled"}), &CollisionShape2D::set_disabled);
     MethodBinder::bind_method(D_METHOD("is_disabled"), &CollisionShape2D::is_disabled);
-    MethodBinder::bind_method(D_METHOD("set_one_way_collision", "enabled"), &CollisionShape2D::set_one_way_collision);
+    MethodBinder::bind_method(D_METHOD("set_one_way_collision", {"enabled"}), &CollisionShape2D::set_one_way_collision);
     MethodBinder::bind_method(D_METHOD("is_one_way_collision_enabled"), &CollisionShape2D::is_one_way_collision_enabled);
-    MethodBinder::bind_method(D_METHOD("set_one_way_collision_margin", "margin"), &CollisionShape2D::set_one_way_collision_margin);
+    MethodBinder::bind_method(D_METHOD("set_one_way_collision_margin", {"margin"}), &CollisionShape2D::set_one_way_collision_margin);
     MethodBinder::bind_method(D_METHOD("get_one_way_collision_margin"), &CollisionShape2D::get_one_way_collision_margin);
     MethodBinder::bind_method(D_METHOD("_shape_changed"), &CollisionShape2D::_shape_changed);
 
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "shape", PROPERTY_HINT_RESOURCE_TYPE, "Shape2D"), "set_shape", "get_shape");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "disabled"), "set_disabled", "is_disabled");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "one_way_collision"), "set_one_way_collision", "is_one_way_collision_enabled");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "one_way_collision_margin", PROPERTY_HINT_RANGE, "0,128,0.1"), "set_one_way_collision_margin", "get_one_way_collision_margin");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "shape", PROPERTY_HINT_RESOURCE_TYPE, "Shape2D"), "set_shape", "get_shape");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "disabled"), "set_disabled", "is_disabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "one_way_collision"), "set_one_way_collision", "is_one_way_collision_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "one_way_collision_margin", PROPERTY_HINT_RANGE, "0,128,0.1"), "set_one_way_collision_margin", "get_one_way_collision_margin");
 }
 
 CollisionShape2D::CollisionShape2D() {

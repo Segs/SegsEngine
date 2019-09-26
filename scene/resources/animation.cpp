@@ -37,6 +37,7 @@
 #include "core/math/geometry.h"
 
 IMPL_GDCLASS(Animation)
+RES_BASE_EXTENSION_IMPL(Animation,"anim")
 
 #define ANIM_MIN_LENGTH 0.001
 
@@ -98,7 +99,7 @@ bool Animation::_set(const StringName &p_name, const Variant &p_value) {
                 TransformTrack *tt = static_cast<TransformTrack *>(tracks[track]);
                 PoolVector<float> values = p_value;
                 int vcount = values.size();
-                ERR_FAIL_COND_V(vcount % 12, false); // should be multiple of 11
+                ERR_FAIL_COND_V(vcount % 12, false) // should be multiple of 11
 
                 PoolVector<float>::Read r = values.read();
 
@@ -129,8 +130,8 @@ bool Animation::_set(const StringName &p_name, const Variant &p_value) {
 
                 ValueTrack *vt = static_cast<ValueTrack *>(tracks[track]);
                 Dictionary d = p_value;
-                ERR_FAIL_COND_V(!d.has("times"), false);
-                ERR_FAIL_COND_V(!d.has("values"), false);
+                ERR_FAIL_COND_V(!d.has("times"), false)
+                ERR_FAIL_COND_V(!d.has("values"), false)
                 if (d.has("cont")) {
                     bool v = d["cont"];
                     vt->update_mode = v ? UPDATE_CONTINUOUS : UPDATE_DISCRETE;
@@ -148,7 +149,7 @@ bool Animation::_set(const StringName &p_name, const Variant &p_value) {
                 PoolVector<float> times = d["times"];
                 Array values = d["values"];
 
-                ERR_FAIL_COND_V(times.size() != values.size(), false);
+                ERR_FAIL_COND_V(times.size() != values.size(), false)
 
                 if (times.size()) {
 
@@ -167,7 +168,7 @@ bool Animation::_set(const StringName &p_name, const Variant &p_value) {
                     if (d.has("transitions")) {
 
                         PoolVector<float> transitions = d["transitions"];
-                        ERR_FAIL_COND_V(transitions.size() != valcount, false);
+                        ERR_FAIL_COND_V(transitions.size() != valcount, false)
 
                         PoolVector<float>::Read rtr = transitions.read();
 
@@ -186,13 +187,13 @@ bool Animation::_set(const StringName &p_name, const Variant &p_value) {
                     track_remove_key(track, 0); //well shouldn't be set anyway
 
                 Dictionary d = p_value;
-                ERR_FAIL_COND_V(!d.has("times"), false);
-                ERR_FAIL_COND_V(!d.has("values"), false);
+                ERR_FAIL_COND_V(!d.has("times"), false)
+                ERR_FAIL_COND_V(!d.has("values"), false)
 
                 PoolVector<float> times = d["times"];
                 Array values = d["values"];
 
-                ERR_FAIL_COND_V(times.size() != values.size(), false);
+                ERR_FAIL_COND_V(times.size() != values.size(), false)
 
                 if (times.size()) {
 
@@ -208,7 +209,7 @@ bool Animation::_set(const StringName &p_name, const Variant &p_value) {
                     if (d.has("transitions")) {
 
                         PoolVector<float> transitions = d["transitions"];
-                        ERR_FAIL_COND_V(transitions.size() != valcount, false);
+                        ERR_FAIL_COND_V(transitions.size() != valcount, false)
 
                         PoolVector<float>::Read rtr = transitions.read();
 
@@ -222,13 +223,13 @@ bool Animation::_set(const StringName &p_name, const Variant &p_value) {
 
                 BezierTrack *bt = static_cast<BezierTrack *>(tracks[track]);
                 Dictionary d = p_value;
-                ERR_FAIL_COND_V(!d.has("times"), false);
-                ERR_FAIL_COND_V(!d.has("points"), false);
+                ERR_FAIL_COND_V(!d.has("times"), false)
+                ERR_FAIL_COND_V(!d.has("points"), false)
 
                 PoolVector<float> times = d["times"];
                 PoolRealArray values = d["points"];
 
-                ERR_FAIL_COND_V(times.size() * 5 != values.size(), false);
+                ERR_FAIL_COND_V(times.size() * 5 != values.size(), false)
 
                 if (times.size()) {
 
@@ -256,13 +257,13 @@ bool Animation::_set(const StringName &p_name, const Variant &p_value) {
 
                 AudioTrack *ad = static_cast<AudioTrack *>(tracks[track]);
                 Dictionary d = p_value;
-                ERR_FAIL_COND_V(!d.has("times"), false);
-                ERR_FAIL_COND_V(!d.has("clips"), false);
+                ERR_FAIL_COND_V(!d.has("times"), false)
+                ERR_FAIL_COND_V(!d.has("clips"), false)
 
                 PoolVector<float> times = d["times"];
                 Array clips = d["clips"];
 
-                ERR_FAIL_COND_V(clips.size() != times.size(), false);
+                ERR_FAIL_COND_V(clips.size() != times.size(), false)
 
                 if (times.size()) {
 
@@ -286,7 +287,7 @@ bool Animation::_set(const StringName &p_name, const Variant &p_value) {
                         ak.time = rt[i];
                         ak.value.start_offset = d2["start_offset"];
                         ak.value.end_offset = d2["end_offset"];
-                        ak.value.stream = d2["stream"];
+                        ak.value.stream = refFromVariant<Resource>(d2["stream"]);
 
                         ad->values.push_back(ak);
                     }
@@ -297,13 +298,13 @@ bool Animation::_set(const StringName &p_name, const Variant &p_value) {
 
                 AnimationTrack *an = static_cast<AnimationTrack *>(tracks[track]);
                 Dictionary d = p_value;
-                ERR_FAIL_COND_V(!d.has("times"), false);
-                ERR_FAIL_COND_V(!d.has("clips"), false);
+                ERR_FAIL_COND_V(!d.has("times"), false)
+                ERR_FAIL_COND_V(!d.has("clips"), false)
 
                 PoolVector<float> times = d["times"];
                 PoolVector<String> clips = d["clips"];
 
-                ERR_FAIL_COND_V(clips.size() != times.size(), false);
+                ERR_FAIL_COND_V(clips.size() != times.size(), false)
 
                 if (times.size()) {
 
@@ -618,16 +619,16 @@ bool Animation::_get(const StringName &p_name, Variant &r_ret) const {
     return true;
 }
 
-void Animation::_get_property_list(List<PropertyInfo> *p_list) const {
+void Animation::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
     for (int i = 0; i < tracks.size(); i++) {
 
-        p_list->push_back(PropertyInfo(Variant::STRING, "tracks/" + itos(i) + "/type", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-        p_list->push_back(PropertyInfo(Variant::NODE_PATH, "tracks/" + itos(i) + "/path", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-        p_list->push_back(PropertyInfo(Variant::INT, "tracks/" + itos(i) + "/interp", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-        p_list->push_back(PropertyInfo(Variant::BOOL, "tracks/" + itos(i) + "/loop_wrap", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-        p_list->push_back(PropertyInfo(Variant::BOOL, "tracks/" + itos(i) + "/imported", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-        p_list->push_back(PropertyInfo(Variant::BOOL, "tracks/" + itos(i) + "/enabled", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-        p_list->push_back(PropertyInfo(Variant::ARRAY, "tracks/" + itos(i) + "/keys", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+        p_list->push_back(PropertyInfo(VariantType::STRING, "tracks/" + itos(i) + "/type", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+        p_list->push_back(PropertyInfo(VariantType::NODE_PATH, "tracks/" + itos(i) + "/path", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+        p_list->push_back(PropertyInfo(VariantType::INT, "tracks/" + itos(i) + "/interp", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+        p_list->push_back(PropertyInfo(VariantType::BOOL, "tracks/" + itos(i) + "/loop_wrap", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+        p_list->push_back(PropertyInfo(VariantType::BOOL, "tracks/" + itos(i) + "/imported", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+        p_list->push_back(PropertyInfo(VariantType::BOOL, "tracks/" + itos(i) + "/enabled", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+        p_list->push_back(PropertyInfo(VariantType::ARRAY, "tracks/" + itos(i) + "/keys", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
     }
 }
 
@@ -855,7 +856,7 @@ Error Animation::transform_track_get_key(int p_track, int p_key, Vector3 *r_loc,
     Track *t = tracks[p_track];
 
     TransformTrack *tt = static_cast<TransformTrack *>(t);
-    ERR_FAIL_COND_V(t->type != TYPE_TRANSFORM, ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(t->type != TYPE_TRANSFORM, ERR_INVALID_PARAMETER)
     ERR_FAIL_INDEX_V(p_key, tt->transforms.size(), ERR_INVALID_PARAMETER);
 
     if (r_loc)
@@ -872,7 +873,7 @@ int Animation::transform_track_insert_key(int p_track, float p_time, const Vecto
 
     ERR_FAIL_INDEX_V(p_track, tracks.size(), -1);
     Track *t = tracks[p_track];
-    ERR_FAIL_COND_V(t->type != TYPE_TRANSFORM, -1);
+    ERR_FAIL_COND_V(t->type != TYPE_TRANSFORM, -1)
 
     TransformTrack *tt = static_cast<TransformTrack *>(t);
 
@@ -890,7 +891,7 @@ int Animation::transform_track_insert_key(int p_track, float p_time, const Vecto
 void Animation::track_remove_key_at_position(int p_track, float p_pos) {
 
     int idx = track_find_key(p_track, p_pos, true);
-    ERR_FAIL_COND(idx < 0);
+    ERR_FAIL_COND(idx < 0)
     track_remove_key(p_track, idx);
 }
 
@@ -1065,11 +1066,11 @@ void Animation::track_insert_key(int p_track, float p_time, const Variant &p_key
 
             MethodTrack *mt = static_cast<MethodTrack *>(t);
 
-            ERR_FAIL_COND(p_key.get_type() != Variant::DICTIONARY);
+            ERR_FAIL_COND(p_key.get_type() != VariantType::DICTIONARY)
 
             Dictionary d = p_key;
-            ERR_FAIL_COND(!d.has("method") || d["method"].get_type() != Variant::STRING);
-            ERR_FAIL_COND(!d.has("args") || !d["args"].is_array());
+            ERR_FAIL_COND(!d.has("method") || d["method"].get_type() != VariantType::STRING)
+            ERR_FAIL_COND(!d.has("args") || !d["args"].is_array())
 
             MethodKey k;
 
@@ -1086,7 +1087,7 @@ void Animation::track_insert_key(int p_track, float p_time, const Variant &p_key
             BezierTrack *bt = static_cast<BezierTrack *>(t);
 
             Array arr = p_key;
-            ERR_FAIL_COND(arr.size() != 5);
+            ERR_FAIL_COND(arr.size() != 5)
 
             TKey<BezierKey> k;
             k.time = p_time;
@@ -1103,15 +1104,15 @@ void Animation::track_insert_key(int p_track, float p_time, const Variant &p_key
             AudioTrack *at = static_cast<AudioTrack *>(t);
 
             Dictionary k = p_key;
-            ERR_FAIL_COND(!k.has("start_offset"));
-            ERR_FAIL_COND(!k.has("end_offset"));
-            ERR_FAIL_COND(!k.has("stream"));
+            ERR_FAIL_COND(!k.has("start_offset"))
+            ERR_FAIL_COND(!k.has("end_offset"))
+            ERR_FAIL_COND(!k.has("stream"))
 
             TKey<AudioKey> ak;
             ak.time = p_time;
             ak.value.start_offset = k["start_offset"];
             ak.value.end_offset = k["end_offset"];
-            ak.value.stream = k["stream"];
+            ak.value.stream = refFromVariant<Resource>(k["stream"]);
             _insert(p_time, at->values, ak);
 
         } break;
@@ -1468,7 +1469,7 @@ void Animation::track_set_key_value(int p_track, int p_key_idx, const Variant &p
             ERR_FAIL_INDEX(p_key_idx, bt->values.size());
 
             Array arr = p_value;
-            ERR_FAIL_COND(arr.size() != 5);
+            ERR_FAIL_COND(arr.size() != 5)
 
             bt->values.write[p_key_idx].value.value = arr[0];
             bt->values.write[p_key_idx].value.in_handle.x = arr[1];
@@ -1483,13 +1484,13 @@ void Animation::track_set_key_value(int p_track, int p_key_idx, const Variant &p
             ERR_FAIL_INDEX(p_key_idx, at->values.size());
 
             Dictionary k = p_value;
-            ERR_FAIL_COND(!k.has("start_offset"));
-            ERR_FAIL_COND(!k.has("end_offset"));
-            ERR_FAIL_COND(!k.has("stream"));
+            ERR_FAIL_COND(!k.has("start_offset"))
+            ERR_FAIL_COND(!k.has("end_offset"))
+            ERR_FAIL_COND(!k.has("stream"))
 
             at->values.write[p_key_idx].value.start_offset = k["start_offset"];
             at->values.write[p_key_idx].value.end_offset = k["end_offset"];
-            at->values.write[p_key_idx].value.stream = k["stream"];
+            at->values.write[p_key_idx].value.stream = refFromVariant<Resource>(k["stream"]);
 
         } break;
         case TYPE_ANIMATION: {
@@ -1628,19 +1629,19 @@ Quat Animation::_cubic_interpolate(const Quat &p_pre_a, const Quat &p_a, const Q
 }
 Variant Animation::_cubic_interpolate(const Variant &p_pre_a, const Variant &p_a, const Variant &p_b, const Variant &p_post_b, float p_c) const {
 
-    Variant::Type type_a = p_a.get_type();
-    Variant::Type type_b = p_b.get_type();
-    Variant::Type type_pa = p_pre_a.get_type();
-    Variant::Type type_pb = p_post_b.get_type();
+    VariantType type_a = p_a.get_type();
+    VariantType type_b = p_b.get_type();
+    VariantType type_pa = p_pre_a.get_type();
+    VariantType type_pb = p_post_b.get_type();
 
     //make int and real play along
 
-    uint32_t vformat = 1 << type_a;
-    vformat |= 1 << type_b;
-    vformat |= 1 << type_pa;
-    vformat |= 1 << type_pb;
+    uint32_t vformat = 1 << (int8_t)type_a;
+    vformat |= 1 << (int8_t)type_b;
+    vformat |= 1 << (int8_t)type_pa;
+    vformat |= 1 << (int8_t)type_pb;
 
-    if (vformat == ((1 << Variant::INT) | (1 << Variant::REAL)) || vformat == (1 << Variant::REAL)) {
+    if (vformat == ((1 << (int8_t)VariantType::INT) | (1 << (int8_t)VariantType::REAL)) || vformat == (1 << (int8_t)VariantType::REAL)) {
         //mix of real and int
 
         real_t p0 = p_pre_a;
@@ -1664,7 +1665,7 @@ Variant Animation::_cubic_interpolate(const Variant &p_pre_a, const Variant &p_a
 
     switch (type_a) {
 
-        case Variant::VECTOR2: {
+        case VariantType::VECTOR2: {
 
             Vector2 a = p_a;
             Vector2 b = p_b;
@@ -1673,7 +1674,7 @@ Variant Animation::_cubic_interpolate(const Variant &p_pre_a, const Variant &p_a
 
             return a.cubic_interpolate(b, pa, pb, p_c);
         }
-        case Variant::RECT2: {
+        case VariantType::RECT2: {
 
             Rect2 a = p_a;
             Rect2 b = p_b;
@@ -1684,7 +1685,7 @@ Variant Animation::_cubic_interpolate(const Variant &p_pre_a, const Variant &p_a
                     a.position.cubic_interpolate(b.position, pa.position, pb.position, p_c),
                     a.size.cubic_interpolate(b.size, pa.size, pb.size, p_c));
         }
-        case Variant::VECTOR3: {
+        case VariantType::VECTOR3: {
 
             Vector3 a = p_a;
             Vector3 b = p_b;
@@ -1693,7 +1694,7 @@ Variant Animation::_cubic_interpolate(const Variant &p_pre_a, const Variant &p_a
 
             return a.cubic_interpolate(b, pa, pb, p_c);
         }
-        case Variant::QUAT: {
+        case VariantType::QUAT: {
 
             Quat a = p_a;
             Quat b = p_b;
@@ -1702,7 +1703,7 @@ Variant Animation::_cubic_interpolate(const Variant &p_pre_a, const Variant &p_a
 
             return a.cubic_slerp(b, pa, pb, p_c);
         }
-        case Variant::AABB: {
+        case VariantType::AABB: {
 
             AABB a = p_a;
             AABB b = p_b;
@@ -1722,6 +1723,32 @@ Variant Animation::_cubic_interpolate(const Variant &p_pre_a, const Variant &p_a
 float Animation::_cubic_interpolate(const float &p_pre_a, const float &p_a, const float &p_b, const float &p_post_b, float p_c) const {
 
     return _interpolate(p_a, p_b, p_c);
+}
+
+PoolVector<int> Animation::_value_track_get_key_indices(int p_track, float p_time, float p_delta) const {
+
+    List<int> idxs;
+    value_track_get_key_indices(p_track, p_time, p_delta, &idxs);
+    PoolVector<int> idxr;
+
+    for (List<int>::Element *E = idxs.front(); E; E = E->next()) {
+
+        idxr.push_back(E->deref());
+    }
+    return idxr;
+}
+
+PoolVector<int> Animation::_method_track_get_key_indices(int p_track, float p_time, float p_delta) const {
+
+    List<int> idxs;
+    method_track_get_key_indices(p_track, p_time, p_delta, &idxs);
+    PoolVector<int> idxr;
+
+    for (List<int>::Element *E = idxs.front(); E; E = E->next()) {
+
+        idxr.push_back(E->deref());
+    }
+    return idxr;
 }
 
 template <class T>
@@ -1744,7 +1771,7 @@ T Animation::_interpolate(const Vector<TKey<T> > &p_keys, float p_time, Interpol
 
     int idx = _find(p_keys, p_time);
 
-    ERR_FAIL_COND_V(idx == -2, T());
+    ERR_FAIL_COND_V(idx == -2, T())
 
     bool result = true;
     int next = 0;
@@ -1872,7 +1899,7 @@ Error Animation::transform_track_interpolate(int p_track, float p_time, Vector3 
 
     ERR_FAIL_INDEX_V(p_track, tracks.size(), ERR_INVALID_PARAMETER);
     Track *t = tracks[p_track];
-    ERR_FAIL_COND_V(t->type != TYPE_TRANSFORM, ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(t->type != TYPE_TRANSFORM, ERR_INVALID_PARAMETER)
 
     TransformTrack *tt = static_cast<TransformTrack *>(t);
 
@@ -1899,7 +1926,7 @@ Variant Animation::value_track_interpolate(int p_track, float p_time) const {
 
     ERR_FAIL_INDEX_V(p_track, tracks.size(), 0);
     Track *t = tracks[p_track];
-    ERR_FAIL_COND_V(t->type != TYPE_VALUE, Variant());
+    ERR_FAIL_COND_V(t->type != TYPE_VALUE, Variant())
     ValueTrack *vt = static_cast<ValueTrack *>(t);
 
     bool ok = false;
@@ -1953,7 +1980,7 @@ void Animation::value_track_get_key_indices(int p_track, float p_time, float p_d
 
     ERR_FAIL_INDEX(p_track, tracks.size());
     Track *t = tracks[p_track];
-    ERR_FAIL_COND(t->type != TYPE_VALUE);
+    ERR_FAIL_COND(t->type != TYPE_VALUE)
 
     ValueTrack *vt = static_cast<ValueTrack *>(t);
 
@@ -1994,7 +2021,7 @@ void Animation::value_track_set_update_mode(int p_track, UpdateMode p_mode) {
 
     ERR_FAIL_INDEX(p_track, tracks.size());
     Track *t = tracks[p_track];
-    ERR_FAIL_COND(t->type != TYPE_VALUE);
+    ERR_FAIL_COND(t->type != TYPE_VALUE)
     ERR_FAIL_INDEX((int)p_mode, 4);
 
     ValueTrack *vt = static_cast<ValueTrack *>(t);
@@ -2005,7 +2032,7 @@ Animation::UpdateMode Animation::value_track_get_update_mode(int p_track) const 
 
     ERR_FAIL_INDEX_V(p_track, tracks.size(), UPDATE_CONTINUOUS);
     Track *t = tracks[p_track];
-    ERR_FAIL_COND_V(t->type != TYPE_VALUE, UPDATE_CONTINUOUS);
+    ERR_FAIL_COND_V(t->type != TYPE_VALUE, UPDATE_CONTINUOUS)
 
     ValueTrack *vt = static_cast<ValueTrack *>(t);
     return vt->update_mode;
@@ -2201,7 +2228,7 @@ void Animation::method_track_get_key_indices(int p_track, float p_time, float p_
 
     ERR_FAIL_INDEX(p_track, tracks.size());
     Track *t = tracks[p_track];
-    ERR_FAIL_COND(t->type != TYPE_METHOD);
+    ERR_FAIL_COND(t->type != TYPE_METHOD)
 
     MethodTrack *mt = static_cast<MethodTrack *>(t);
 
@@ -2298,7 +2325,7 @@ void Animation::bezier_track_set_key_value(int p_track, int p_index, float p_val
 
     ERR_FAIL_INDEX(p_track, tracks.size());
     Track *t = tracks[p_track];
-    ERR_FAIL_COND(t->type != TYPE_BEZIER);
+    ERR_FAIL_COND(t->type != TYPE_BEZIER)
 
     BezierTrack *bt = static_cast<BezierTrack *>(t);
 
@@ -2312,7 +2339,7 @@ void Animation::bezier_track_set_key_in_handle(int p_track, int p_index, const V
 
     ERR_FAIL_INDEX(p_track, tracks.size());
     Track *t = tracks[p_track];
-    ERR_FAIL_COND(t->type != TYPE_BEZIER);
+    ERR_FAIL_COND(t->type != TYPE_BEZIER)
 
     BezierTrack *bt = static_cast<BezierTrack *>(t);
 
@@ -2328,7 +2355,7 @@ void Animation::bezier_track_set_key_out_handle(int p_track, int p_index, const 
 
     ERR_FAIL_INDEX(p_track, tracks.size());
     Track *t = tracks[p_track];
-    ERR_FAIL_COND(t->type != TYPE_BEZIER);
+    ERR_FAIL_COND(t->type != TYPE_BEZIER)
 
     BezierTrack *bt = static_cast<BezierTrack *>(t);
 
@@ -2344,7 +2371,7 @@ float Animation::bezier_track_get_key_value(int p_track, int p_index) const {
 
     ERR_FAIL_INDEX_V(p_track, tracks.size(), 0);
     Track *t = tracks[p_track];
-    ERR_FAIL_COND_V(t->type != TYPE_BEZIER, 0);
+    ERR_FAIL_COND_V(t->type != TYPE_BEZIER, 0)
 
     BezierTrack *bt = static_cast<BezierTrack *>(t);
 
@@ -2356,7 +2383,7 @@ Vector2 Animation::bezier_track_get_key_in_handle(int p_track, int p_index) cons
 
     ERR_FAIL_INDEX_V(p_track, tracks.size(), Vector2());
     Track *t = tracks[p_track];
-    ERR_FAIL_COND_V(t->type != TYPE_BEZIER, Vector2());
+    ERR_FAIL_COND_V(t->type != TYPE_BEZIER, Vector2())
 
     BezierTrack *bt = static_cast<BezierTrack *>(t);
 
@@ -2368,7 +2395,7 @@ Vector2 Animation::bezier_track_get_key_out_handle(int p_track, int p_index) con
 
     ERR_FAIL_INDEX_V(p_track, tracks.size(), Vector2());
     Track *t = tracks[p_track];
-    ERR_FAIL_COND_V(t->type != TYPE_BEZIER, Vector2());
+    ERR_FAIL_COND_V(t->type != TYPE_BEZIER, Vector2())
 
     BezierTrack *bt = static_cast<BezierTrack *>(t);
 
@@ -2392,7 +2419,7 @@ float Animation::bezier_track_interpolate(int p_track, float p_time) const {
     //this uses a different interpolation scheme
     ERR_FAIL_INDEX_V(p_track, tracks.size(), 0);
     Track *track = tracks[p_track];
-    ERR_FAIL_COND_V(track->type != TYPE_BEZIER, 0);
+    ERR_FAIL_COND_V(track->type != TYPE_BEZIER, 0)
 
     BezierTrack *bt = static_cast<BezierTrack *>(track);
 
@@ -2407,7 +2434,7 @@ float Animation::bezier_track_interpolate(int p_track, float p_time) const {
 
     int idx = _find(bt->values, p_time);
 
-    ERR_FAIL_COND_V(idx == -2, 0);
+    ERR_FAIL_COND_V(idx == -2, 0)
 
     //there really is no looping interpolation on bezier
 
@@ -2459,7 +2486,7 @@ int Animation::audio_track_insert_key(int p_track, float p_time, const RES &p_st
 
     ERR_FAIL_INDEX_V(p_track, tracks.size(), -1);
     Track *t = tracks[p_track];
-    ERR_FAIL_COND_V(t->type != TYPE_AUDIO, -1);
+    ERR_FAIL_COND_V(t->type != TYPE_AUDIO, -1)
 
     AudioTrack *at = static_cast<AudioTrack *>(t);
 
@@ -2484,7 +2511,7 @@ void Animation::audio_track_set_key_stream(int p_track, int p_key, const RES &p_
 
     ERR_FAIL_INDEX(p_track, tracks.size());
     Track *t = tracks[p_track];
-    ERR_FAIL_COND(t->type != TYPE_AUDIO);
+    ERR_FAIL_COND(t->type != TYPE_AUDIO)
 
     AudioTrack *at = static_cast<AudioTrack *>(t);
 
@@ -2499,7 +2526,7 @@ void Animation::audio_track_set_key_start_offset(int p_track, int p_key, float p
 
     ERR_FAIL_INDEX(p_track, tracks.size());
     Track *t = tracks[p_track];
-    ERR_FAIL_COND(t->type != TYPE_AUDIO);
+    ERR_FAIL_COND(t->type != TYPE_AUDIO)
 
     AudioTrack *at = static_cast<AudioTrack *>(t);
 
@@ -2517,7 +2544,7 @@ void Animation::audio_track_set_key_end_offset(int p_track, int p_key, float p_o
 
     ERR_FAIL_INDEX(p_track, tracks.size());
     Track *t = tracks[p_track];
-    ERR_FAIL_COND(t->type != TYPE_AUDIO);
+    ERR_FAIL_COND(t->type != TYPE_AUDIO)
 
     AudioTrack *at = static_cast<AudioTrack *>(t);
 
@@ -2535,7 +2562,7 @@ RES Animation::audio_track_get_key_stream(int p_track, int p_key) const {
 
     ERR_FAIL_INDEX_V(p_track, tracks.size(), RES());
     const Track *t = tracks[p_track];
-    ERR_FAIL_COND_V(t->type != TYPE_AUDIO, RES());
+    ERR_FAIL_COND_V(t->type != TYPE_AUDIO, RES())
 
     const AudioTrack *at = static_cast<const AudioTrack *>(t);
 
@@ -2547,7 +2574,7 @@ float Animation::audio_track_get_key_start_offset(int p_track, int p_key) const 
 
     ERR_FAIL_INDEX_V(p_track, tracks.size(), 0);
     const Track *t = tracks[p_track];
-    ERR_FAIL_COND_V(t->type != TYPE_AUDIO, 0);
+    ERR_FAIL_COND_V(t->type != TYPE_AUDIO, 0)
 
     const AudioTrack *at = static_cast<const AudioTrack *>(t);
 
@@ -2559,7 +2586,7 @@ float Animation::audio_track_get_key_end_offset(int p_track, int p_key) const {
 
     ERR_FAIL_INDEX_V(p_track, tracks.size(), 0);
     const Track *t = tracks[p_track];
-    ERR_FAIL_COND_V(t->type != TYPE_AUDIO, 0);
+    ERR_FAIL_COND_V(t->type != TYPE_AUDIO, 0)
 
     const AudioTrack *at = static_cast<const AudioTrack *>(t);
 
@@ -2574,7 +2601,7 @@ int Animation::animation_track_insert_key(int p_track, float p_time, const Strin
 
     ERR_FAIL_INDEX_V(p_track, tracks.size(), -1);
     Track *t = tracks[p_track];
-    ERR_FAIL_COND_V(t->type != TYPE_ANIMATION, -1);
+    ERR_FAIL_COND_V(t->type != TYPE_ANIMATION, -1)
 
     AnimationTrack *at = static_cast<AnimationTrack *>(t);
 
@@ -2593,7 +2620,7 @@ void Animation::animation_track_set_key_animation(int p_track, int p_key, const 
 
     ERR_FAIL_INDEX(p_track, tracks.size());
     Track *t = tracks[p_track];
-    ERR_FAIL_COND(t->type != TYPE_ANIMATION);
+    ERR_FAIL_COND(t->type != TYPE_ANIMATION)
 
     AnimationTrack *at = static_cast<AnimationTrack *>(t);
 
@@ -2608,7 +2635,7 @@ StringName Animation::animation_track_get_key_animation(int p_track, int p_key) 
 
     ERR_FAIL_INDEX_V(p_track, tracks.size(), StringName());
     const Track *t = tracks[p_track];
-    ERR_FAIL_COND_V(t->type != TYPE_ANIMATION, StringName());
+    ERR_FAIL_COND_V(t->type != TYPE_ANIMATION, StringName())
 
     const AnimationTrack *at = static_cast<const AnimationTrack *>(t);
 
@@ -2727,7 +2754,7 @@ float Animation::get_step() const {
 }
 
 void Animation::copy_track(int p_track, Ref<Animation> p_to_animation) {
-    ERR_FAIL_COND(p_to_animation.is_null());
+    ERR_FAIL_COND(not p_to_animation)
     ERR_FAIL_INDEX(p_track, get_track_count());
     int dst_track = p_to_animation->get_track_count();
     p_to_animation->add_track(track_get_type(p_track));
@@ -2745,112 +2772,112 @@ void Animation::copy_track(int p_track, Ref<Animation> p_to_animation) {
 
 void Animation::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("add_track", "type", "at_position"), &Animation::add_track, {DEFVAL(-1)});
-    MethodBinder::bind_method(D_METHOD("remove_track", "idx"), &Animation::remove_track);
+    MethodBinder::bind_method(D_METHOD("add_track", {"type", "at_position"}), &Animation::add_track, {DEFVAL(-1)});
+    MethodBinder::bind_method(D_METHOD("remove_track", {"idx"}), &Animation::remove_track);
     MethodBinder::bind_method(D_METHOD("get_track_count"), &Animation::get_track_count);
-    MethodBinder::bind_method(D_METHOD("track_get_type", "idx"), &Animation::track_get_type);
-    MethodBinder::bind_method(D_METHOD("track_get_path", "idx"), &Animation::track_get_path);
-    MethodBinder::bind_method(D_METHOD("track_set_path", "idx", "path"), &Animation::track_set_path);
-    MethodBinder::bind_method(D_METHOD("find_track", "path"), &Animation::find_track);
+    MethodBinder::bind_method(D_METHOD("track_get_type", {"idx"}), &Animation::track_get_type);
+    MethodBinder::bind_method(D_METHOD("track_get_path", {"idx"}), &Animation::track_get_path);
+    MethodBinder::bind_method(D_METHOD("track_set_path", {"idx", "path"}), &Animation::track_set_path);
+    MethodBinder::bind_method(D_METHOD("find_track", {"path"}), &Animation::find_track);
 
-    MethodBinder::bind_method(D_METHOD("track_move_up", "idx"), &Animation::track_move_up);
-    MethodBinder::bind_method(D_METHOD("track_move_down", "idx"), &Animation::track_move_down);
-    MethodBinder::bind_method(D_METHOD("track_move_to", "idx", "to_idx"), &Animation::track_move_to);
-    MethodBinder::bind_method(D_METHOD("track_swap", "idx", "with_idx"), &Animation::track_swap);
+    MethodBinder::bind_method(D_METHOD("track_move_up", {"idx"}), &Animation::track_move_up);
+    MethodBinder::bind_method(D_METHOD("track_move_down", {"idx"}), &Animation::track_move_down);
+    MethodBinder::bind_method(D_METHOD("track_move_to", {"idx", "to_idx"}), &Animation::track_move_to);
+    MethodBinder::bind_method(D_METHOD("track_swap", {"idx", "with_idx"}), &Animation::track_swap);
 
-    MethodBinder::bind_method(D_METHOD("track_set_imported", "idx", "imported"), &Animation::track_set_imported);
-    MethodBinder::bind_method(D_METHOD("track_is_imported", "idx"), &Animation::track_is_imported);
+    MethodBinder::bind_method(D_METHOD("track_set_imported", {"idx", "imported"}), &Animation::track_set_imported);
+    MethodBinder::bind_method(D_METHOD("track_is_imported", {"idx"}), &Animation::track_is_imported);
 
-    MethodBinder::bind_method(D_METHOD("track_set_enabled", "idx", "enabled"), &Animation::track_set_enabled);
-    MethodBinder::bind_method(D_METHOD("track_is_enabled", "idx"), &Animation::track_is_enabled);
+    MethodBinder::bind_method(D_METHOD("track_set_enabled", {"idx", "enabled"}), &Animation::track_set_enabled);
+    MethodBinder::bind_method(D_METHOD("track_is_enabled", {"idx"}), &Animation::track_is_enabled);
 
-    MethodBinder::bind_method(D_METHOD("transform_track_insert_key", "idx", "time", "location", "rotation", "scale"), &Animation::transform_track_insert_key);
-    MethodBinder::bind_method(D_METHOD("track_insert_key", "idx", "time", "key", "transition"), &Animation::track_insert_key, {DEFVAL(1)});
-    MethodBinder::bind_method(D_METHOD("track_remove_key", "idx", "key_idx"), &Animation::track_remove_key);
-    MethodBinder::bind_method(D_METHOD("track_remove_key_at_position", "idx", "position"), &Animation::track_remove_key_at_position);
-    MethodBinder::bind_method(D_METHOD("track_set_key_value", "idx", "key", "value"), &Animation::track_set_key_value);
-    MethodBinder::bind_method(D_METHOD("track_set_key_transition", "idx", "key_idx", "transition"), &Animation::track_set_key_transition);
-    MethodBinder::bind_method(D_METHOD("track_set_key_time", "idx", "key_idx", "time"), &Animation::track_set_key_time);
-    MethodBinder::bind_method(D_METHOD("track_get_key_transition", "idx", "key_idx"), &Animation::track_get_key_transition);
+    MethodBinder::bind_method(D_METHOD("transform_track_insert_key", {"idx", "time", "location", "rotation", "scale"}), &Animation::transform_track_insert_key);
+    MethodBinder::bind_method(D_METHOD("track_insert_key", {"idx", "time", "key", "transition"}), &Animation::track_insert_key, {DEFVAL(1)});
+    MethodBinder::bind_method(D_METHOD("track_remove_key", {"idx", "key_idx"}), &Animation::track_remove_key);
+    MethodBinder::bind_method(D_METHOD("track_remove_key_at_position", {"idx", "position"}), &Animation::track_remove_key_at_position);
+    MethodBinder::bind_method(D_METHOD("track_set_key_value", {"idx", "key", "value"}), &Animation::track_set_key_value);
+    MethodBinder::bind_method(D_METHOD("track_set_key_transition", {"idx", "key_idx", "transition"}), &Animation::track_set_key_transition);
+    MethodBinder::bind_method(D_METHOD("track_set_key_time", {"idx", "key_idx", "time"}), &Animation::track_set_key_time);
+    MethodBinder::bind_method(D_METHOD("track_get_key_transition", {"idx", "key_idx"}), &Animation::track_get_key_transition);
 
-    MethodBinder::bind_method(D_METHOD("track_get_key_count", "idx"), &Animation::track_get_key_count);
-    MethodBinder::bind_method(D_METHOD("track_get_key_value", "idx", "key_idx"), &Animation::track_get_key_value);
-    MethodBinder::bind_method(D_METHOD("track_get_key_time", "idx", "key_idx"), &Animation::track_get_key_time);
-    MethodBinder::bind_method(D_METHOD("track_find_key", "idx", "time", "exact"), &Animation::track_find_key, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("track_get_key_count", {"idx"}), &Animation::track_get_key_count);
+    MethodBinder::bind_method(D_METHOD("track_get_key_value", {"idx", "key_idx"}), &Animation::track_get_key_value);
+    MethodBinder::bind_method(D_METHOD("track_get_key_time", {"idx", "key_idx"}), &Animation::track_get_key_time);
+    MethodBinder::bind_method(D_METHOD("track_find_key", {"idx", "time", "exact"}), &Animation::track_find_key, {DEFVAL(false)});
 
-    MethodBinder::bind_method(D_METHOD("track_set_interpolation_type", "idx", "interpolation"), &Animation::track_set_interpolation_type);
-    MethodBinder::bind_method(D_METHOD("track_get_interpolation_type", "idx"), &Animation::track_get_interpolation_type);
+    MethodBinder::bind_method(D_METHOD("track_set_interpolation_type", {"idx", "interpolation"}), &Animation::track_set_interpolation_type);
+    MethodBinder::bind_method(D_METHOD("track_get_interpolation_type", {"idx"}), &Animation::track_get_interpolation_type);
 
-    MethodBinder::bind_method(D_METHOD("track_set_interpolation_loop_wrap", "idx", "interpolation"), &Animation::track_set_interpolation_loop_wrap);
-    MethodBinder::bind_method(D_METHOD("track_get_interpolation_loop_wrap", "idx"), &Animation::track_get_interpolation_loop_wrap);
+    MethodBinder::bind_method(D_METHOD("track_set_interpolation_loop_wrap", {"idx", "interpolation"}), &Animation::track_set_interpolation_loop_wrap);
+    MethodBinder::bind_method(D_METHOD("track_get_interpolation_loop_wrap", {"idx"}), &Animation::track_get_interpolation_loop_wrap);
 
-    MethodBinder::bind_method(D_METHOD("transform_track_interpolate", "idx", "time_sec"), &Animation::_transform_track_interpolate);
-    MethodBinder::bind_method(D_METHOD("value_track_set_update_mode", "idx", "mode"), &Animation::value_track_set_update_mode);
-    MethodBinder::bind_method(D_METHOD("value_track_get_update_mode", "idx"), &Animation::value_track_get_update_mode);
+    MethodBinder::bind_method(D_METHOD("transform_track_interpolate", {"idx", "time_sec"}), &Animation::_transform_track_interpolate);
+    MethodBinder::bind_method(D_METHOD("value_track_set_update_mode", {"idx", "mode"}), &Animation::value_track_set_update_mode);
+    MethodBinder::bind_method(D_METHOD("value_track_get_update_mode", {"idx"}), &Animation::value_track_get_update_mode);
 
-    MethodBinder::bind_method(D_METHOD("value_track_get_key_indices", "idx", "time_sec", "delta"), &Animation::_value_track_get_key_indices);
+    MethodBinder::bind_method(D_METHOD("value_track_get_key_indices", {"idx", "time_sec", "delta"}), &Animation::_value_track_get_key_indices);
 
-    MethodBinder::bind_method(D_METHOD("method_track_get_key_indices", "idx", "time_sec", "delta"), &Animation::_method_track_get_key_indices);
-    MethodBinder::bind_method(D_METHOD("method_track_get_name", "idx", "key_idx"), &Animation::method_track_get_name);
-    MethodBinder::bind_method(D_METHOD("method_track_get_params", "idx", "key_idx"), &Animation::method_track_get_params);
+    MethodBinder::bind_method(D_METHOD("method_track_get_key_indices", {"idx", "time_sec", "delta"}), &Animation::_method_track_get_key_indices);
+    MethodBinder::bind_method(D_METHOD("method_track_get_name", {"idx", "key_idx"}), &Animation::method_track_get_name);
+    MethodBinder::bind_method(D_METHOD("method_track_get_params", {"idx", "key_idx"}), &Animation::method_track_get_params);
 
-    MethodBinder::bind_method(D_METHOD("bezier_track_insert_key", "track", "time", "value", "in_handle", "out_handle"), &Animation::bezier_track_insert_key, {DEFVAL(Vector2()), DEFVAL(Vector2())});
+    MethodBinder::bind_method(D_METHOD("bezier_track_insert_key", {"track", "time", "value", "in_handle", "out_handle"}), &Animation::bezier_track_insert_key, {DEFVAL(Vector2()), DEFVAL(Vector2())});
 
-    MethodBinder::bind_method(D_METHOD("bezier_track_set_key_value", "idx", "key_idx", "value"), &Animation::bezier_track_set_key_value);
-    MethodBinder::bind_method(D_METHOD("bezier_track_set_key_in_handle", "idx", "key_idx", "in_handle"), &Animation::bezier_track_set_key_in_handle);
-    MethodBinder::bind_method(D_METHOD("bezier_track_set_key_out_handle", "idx", "key_idx", "out_handle"), &Animation::bezier_track_set_key_out_handle);
+    MethodBinder::bind_method(D_METHOD("bezier_track_set_key_value", {"idx", "key_idx", "value"}), &Animation::bezier_track_set_key_value);
+    MethodBinder::bind_method(D_METHOD("bezier_track_set_key_in_handle", {"idx", "key_idx", "in_handle"}), &Animation::bezier_track_set_key_in_handle);
+    MethodBinder::bind_method(D_METHOD("bezier_track_set_key_out_handle", {"idx", "key_idx", "out_handle"}), &Animation::bezier_track_set_key_out_handle);
 
-    MethodBinder::bind_method(D_METHOD("bezier_track_get_key_value", "idx", "key_idx"), &Animation::bezier_track_get_key_value);
-    MethodBinder::bind_method(D_METHOD("bezier_track_get_key_in_handle", "idx", "key_idx"), &Animation::bezier_track_get_key_in_handle);
-    MethodBinder::bind_method(D_METHOD("bezier_track_get_key_out_handle", "idx", "key_idx"), &Animation::bezier_track_get_key_out_handle);
+    MethodBinder::bind_method(D_METHOD("bezier_track_get_key_value", {"idx", "key_idx"}), &Animation::bezier_track_get_key_value);
+    MethodBinder::bind_method(D_METHOD("bezier_track_get_key_in_handle", {"idx", "key_idx"}), &Animation::bezier_track_get_key_in_handle);
+    MethodBinder::bind_method(D_METHOD("bezier_track_get_key_out_handle", {"idx", "key_idx"}), &Animation::bezier_track_get_key_out_handle);
 
-    MethodBinder::bind_method(D_METHOD("bezier_track_interpolate", "track", "time"), &Animation::bezier_track_interpolate);
+    MethodBinder::bind_method(D_METHOD("bezier_track_interpolate", {"track", "time"}), &Animation::bezier_track_interpolate);
 
-    MethodBinder::bind_method(D_METHOD("audio_track_insert_key", "track", "time", "stream", "start_offset", "end_offset"), &Animation::audio_track_insert_key, {DEFVAL(0), DEFVAL(0)});
-    MethodBinder::bind_method(D_METHOD("audio_track_set_key_stream", "idx", "key_idx", "stream"), &Animation::audio_track_set_key_stream);
-    MethodBinder::bind_method(D_METHOD("audio_track_set_key_start_offset", "idx", "key_idx", "offset"), &Animation::audio_track_set_key_start_offset);
-    MethodBinder::bind_method(D_METHOD("audio_track_set_key_end_offset", "idx", "key_idx", "offset"), &Animation::audio_track_set_key_end_offset);
-    MethodBinder::bind_method(D_METHOD("audio_track_get_key_stream", "idx", "key_idx"), &Animation::audio_track_get_key_stream);
-    MethodBinder::bind_method(D_METHOD("audio_track_get_key_start_offset", "idx", "key_idx"), &Animation::audio_track_get_key_start_offset);
-    MethodBinder::bind_method(D_METHOD("audio_track_get_key_end_offset", "idx", "key_idx"), &Animation::audio_track_get_key_end_offset);
+    MethodBinder::bind_method(D_METHOD("audio_track_insert_key", {"track", "time", "stream", "start_offset", "end_offset"}), &Animation::audio_track_insert_key, {DEFVAL(0), DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("audio_track_set_key_stream", {"idx", "key_idx", "stream"}), &Animation::audio_track_set_key_stream);
+    MethodBinder::bind_method(D_METHOD("audio_track_set_key_start_offset", {"idx", "key_idx", "offset"}), &Animation::audio_track_set_key_start_offset);
+    MethodBinder::bind_method(D_METHOD("audio_track_set_key_end_offset", {"idx", "key_idx", "offset"}), &Animation::audio_track_set_key_end_offset);
+    MethodBinder::bind_method(D_METHOD("audio_track_get_key_stream", {"idx", "key_idx"}), &Animation::audio_track_get_key_stream);
+    MethodBinder::bind_method(D_METHOD("audio_track_get_key_start_offset", {"idx", "key_idx"}), &Animation::audio_track_get_key_start_offset);
+    MethodBinder::bind_method(D_METHOD("audio_track_get_key_end_offset", {"idx", "key_idx"}), &Animation::audio_track_get_key_end_offset);
 
-    MethodBinder::bind_method(D_METHOD("animation_track_insert_key", "track", "time", "animation"), &Animation::animation_track_insert_key);
-    MethodBinder::bind_method(D_METHOD("animation_track_set_key_animation", "idx", "key_idx", "animation"), &Animation::animation_track_set_key_animation);
-    MethodBinder::bind_method(D_METHOD("animation_track_get_key_animation", "idx", "key_idx"), &Animation::animation_track_get_key_animation);
+    MethodBinder::bind_method(D_METHOD("animation_track_insert_key", {"track", "time", "animation"}), &Animation::animation_track_insert_key);
+    MethodBinder::bind_method(D_METHOD("animation_track_set_key_animation", {"idx", "key_idx", "animation"}), &Animation::animation_track_set_key_animation);
+    MethodBinder::bind_method(D_METHOD("animation_track_get_key_animation", {"idx", "key_idx"}), &Animation::animation_track_get_key_animation);
 
-    MethodBinder::bind_method(D_METHOD("set_length", "time_sec"), &Animation::set_length);
+    MethodBinder::bind_method(D_METHOD("set_length", {"time_sec"}), &Animation::set_length);
     MethodBinder::bind_method(D_METHOD("get_length"), &Animation::get_length);
 
-    MethodBinder::bind_method(D_METHOD("set_loop", "enabled"), &Animation::set_loop);
+    MethodBinder::bind_method(D_METHOD("set_loop", {"enabled"}), &Animation::set_loop);
     MethodBinder::bind_method(D_METHOD("has_loop"), &Animation::has_loop);
 
-    MethodBinder::bind_method(D_METHOD("set_step", "size_sec"), &Animation::set_step);
+    MethodBinder::bind_method(D_METHOD("set_step", {"size_sec"}), &Animation::set_step);
     MethodBinder::bind_method(D_METHOD("get_step"), &Animation::get_step);
 
     MethodBinder::bind_method(D_METHOD("clear"), &Animation::clear);
-    MethodBinder::bind_method(D_METHOD("copy_track", "track", "to_animation"), &Animation::copy_track);
+    MethodBinder::bind_method(D_METHOD("copy_track", {"track", "to_animation"}), &Animation::copy_track);
 
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "length", PROPERTY_HINT_RANGE, "0.001,99999,0.001"), "set_length", "get_length");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "loop"), "set_loop", "has_loop");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "step", PROPERTY_HINT_RANGE, "0,4096,0.001"), "set_step", "get_step");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "length", PROPERTY_HINT_RANGE, "0.001,99999,0.001"), "set_length", "get_length");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "loop"), "set_loop", "has_loop");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "step", PROPERTY_HINT_RANGE, "0,4096,0.001"), "set_step", "get_step");
 
     ADD_SIGNAL(MethodInfo("tracks_changed"));
 
-    BIND_ENUM_CONSTANT(TYPE_VALUE);
-    BIND_ENUM_CONSTANT(TYPE_TRANSFORM);
-    BIND_ENUM_CONSTANT(TYPE_METHOD);
-    BIND_ENUM_CONSTANT(TYPE_BEZIER);
-    BIND_ENUM_CONSTANT(TYPE_AUDIO);
-    BIND_ENUM_CONSTANT(TYPE_ANIMATION);
+    BIND_ENUM_CONSTANT(TYPE_VALUE)
+    BIND_ENUM_CONSTANT(TYPE_TRANSFORM)
+    BIND_ENUM_CONSTANT(TYPE_METHOD)
+    BIND_ENUM_CONSTANT(TYPE_BEZIER)
+    BIND_ENUM_CONSTANT(TYPE_AUDIO)
+    BIND_ENUM_CONSTANT(TYPE_ANIMATION)
 
-    BIND_ENUM_CONSTANT(INTERPOLATION_NEAREST);
-    BIND_ENUM_CONSTANT(INTERPOLATION_LINEAR);
-    BIND_ENUM_CONSTANT(INTERPOLATION_CUBIC);
+    BIND_ENUM_CONSTANT(INTERPOLATION_NEAREST)
+    BIND_ENUM_CONSTANT(INTERPOLATION_LINEAR)
+    BIND_ENUM_CONSTANT(INTERPOLATION_CUBIC)
 
-    BIND_ENUM_CONSTANT(UPDATE_CONTINUOUS);
-    BIND_ENUM_CONSTANT(UPDATE_DISCRETE);
-    BIND_ENUM_CONSTANT(UPDATE_TRIGGER);
-    BIND_ENUM_CONSTANT(UPDATE_CAPTURE);
+    BIND_ENUM_CONSTANT(UPDATE_CONTINUOUS)
+    BIND_ENUM_CONSTANT(UPDATE_DISCRETE)
+    BIND_ENUM_CONSTANT(UPDATE_TRIGGER)
+    BIND_ENUM_CONSTANT(UPDATE_CAPTURE)
 }
 
 void Animation::clear() {
@@ -3018,7 +3045,7 @@ bool Animation::_transform_track_optimize_key(const TKey<TransformKey> &t0, cons
             }
         }
 
-        ERR_FAIL_COND_V(lt == -1, false);
+        ERR_FAIL_COND_V(lt == -1, false)
 
         if (erase) {
 
@@ -3037,7 +3064,7 @@ bool Animation::_transform_track_optimize_key(const TKey<TransformKey> &t0, cons
 void Animation::_transform_track_optimize(int p_idx, float p_allowed_linear_err, float p_allowed_angular_err, float p_max_optimizable_angle) {
 
     ERR_FAIL_INDEX(p_idx, tracks.size());
-    ERR_FAIL_COND(tracks[p_idx]->type != TYPE_TRANSFORM);
+    ERR_FAIL_COND(tracks[p_idx]->type != TYPE_TRANSFORM)
     TransformTrack *tt = static_cast<TransformTrack *>(tracks[p_idx]);
     bool prev_erased = false;
     TKey<TransformKey> first_erased;

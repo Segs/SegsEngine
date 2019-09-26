@@ -31,6 +31,7 @@
 #include "resource_importer_obj.h"
 
 #include "core/io/resource_saver.h"
+#include "core/io/resource_loader.h"
 #include "core/os/file_access.h"
 #include "scene/3d/mesh_instance.h"
 #include "scene/3d/spatial.h"
@@ -58,20 +59,20 @@ static Error _parse_material_library(const String &p_path, Map<String, Ref<Spati
 
         String l = StringUtils::strip_edges(f->get_line());
 
-		if (StringUtils::begins_with(l,"newmtl ")) {
+        if (StringUtils::begins_with(l,"newmtl ")) {
             //vertex
 
-			current_name = StringUtils::strip_edges(StringUtils::replace(l,"newmtl", ""));
-            current.instance();
+            current_name = StringUtils::strip_edges(StringUtils::replace(l,"newmtl", ""));
+            current = make_ref_counted<SpatialMaterial>();
             current->set_name(current_name);
             material_map[current_name] = current;
-		} else if (StringUtils::begins_with(l,"Ka ")) {
+        } else if (StringUtils::begins_with(l,"Ka ")) {
             //uv
             WARN_PRINTS("OBJ: Ambient light for material '" + current_name + "' is ignored in PBR")
 
-		} else if (StringUtils::begins_with(l,"Kd ")) {
+        } else if (StringUtils::begins_with(l,"Kd ")) {
             //normal
-            ERR_FAIL_COND_V(current.is_null(), ERR_FILE_CORRUPT)
+            ERR_FAIL_COND_V(not current, ERR_FILE_CORRUPT)
             Vector<String> v = StringUtils::split(l," ", false);
             ERR_FAIL_COND_V(v.size() < 4, ERR_INVALID_DATA)
             Color c = current->get_albedo();
@@ -79,9 +80,9 @@ static Error _parse_material_library(const String &p_path, Map<String, Ref<Spati
             c.g = StringUtils::to_float(v[2]);
             c.b = StringUtils::to_float(v[3]);
             current->set_albedo(c);
-		} else if (StringUtils::begins_with(l,"Ks ")) {
+        } else if (StringUtils::begins_with(l,"Ks ")) {
             //normal
-            ERR_FAIL_COND_V(current.is_null(), ERR_FILE_CORRUPT)
+            ERR_FAIL_COND_V(not current, ERR_FILE_CORRUPT)
             Vector<String> v = StringUtils::split(l," ", false);
             ERR_FAIL_COND_V(v.size() < 4, ERR_INVALID_DATA)
             float r = StringUtils::to_float(v[1]);
@@ -89,16 +90,16 @@ static Error _parse_material_library(const String &p_path, Map<String, Ref<Spati
             float b = StringUtils::to_float(v[3]);
             float metalness = MAX(r, MAX(g, b));
             current->set_metallic(metalness);
-		} else if (StringUtils::begins_with(l,"Ns ")) {
+        } else if (StringUtils::begins_with(l,"Ns ")) {
             //normal
-            ERR_FAIL_COND_V(current.is_null(), ERR_FILE_CORRUPT)
+            ERR_FAIL_COND_V(not current, ERR_FILE_CORRUPT)
             Vector<String> v = StringUtils::split(l," ", false);
             ERR_FAIL_COND_V(v.size() != 2, ERR_INVALID_DATA)
             float s = StringUtils::to_float(v[1]);
             current->set_metallic((1000.0f - s) / 1000.0f);
-		} else if (StringUtils::begins_with(l,"d ")) {
+        } else if (StringUtils::begins_with(l,"d ")) {
             //normal
-            ERR_FAIL_COND_V(current.is_null(), ERR_FILE_CORRUPT)
+            ERR_FAIL_COND_V(not current, ERR_FILE_CORRUPT)
             Vector<String> v = StringUtils::split(l," ", false);
             ERR_FAIL_COND_V(v.size() != 2, ERR_INVALID_DATA)
             float d = StringUtils::to_float(v[1]);
@@ -108,9 +109,9 @@ static Error _parse_material_library(const String &p_path, Map<String, Ref<Spati
             if (c.a < 0.99) {
                 current->set_feature(SpatialMaterial::FEATURE_TRANSPARENT, true);
             }
-		} else if (StringUtils::begins_with(l,"Tr ")) {
+        } else if (StringUtils::begins_with(l,"Tr ")) {
             //normal
-            ERR_FAIL_COND_V(current.is_null(), ERR_FILE_CORRUPT)
+            ERR_FAIL_COND_V(not current, ERR_FILE_CORRUPT)
             Vector<String> v = StringUtils::split(l," ", false);
             ERR_FAIL_COND_V(v.size() != 2, ERR_INVALID_DATA)
             float d = StringUtils::to_float(v[1]);
@@ -121,13 +122,13 @@ static Error _parse_material_library(const String &p_path, Map<String, Ref<Spati
                 current->set_feature(SpatialMaterial::FEATURE_TRANSPARENT, true);
             }
 
-		} else if (StringUtils::begins_with(l,"map_Ka ")) {
+        } else if (StringUtils::begins_with(l,"map_Ka ")) {
             //uv
             WARN_PRINTS("OBJ: Ambient light texture for material '" + current_name + "' is ignored in PBR")
 
-		} else if (StringUtils::begins_with(l,"map_Kd ")) {
+        } else if (StringUtils::begins_with(l,"map_Kd ")) {
             //normal
-            ERR_FAIL_COND_V(current.is_null(), ERR_FILE_CORRUPT)
+            ERR_FAIL_COND_V(not current, ERR_FILE_CORRUPT)
 
             String p = StringUtils::strip_edges(StringUtils::replace(StringUtils::replace(l,"map_Kd", ""),"\\", "/"));
             String path;
@@ -137,17 +138,17 @@ static Error _parse_material_library(const String &p_path, Map<String, Ref<Spati
                 path = PathUtils::plus_file(base_path,p);
             }
 
-            Ref<Texture> texture = ResourceLoader::load(path);
+            Ref<Texture> texture(dynamic_ref_cast<Texture>(ResourceLoader::load(path)));
 
-            if (texture.is_valid()) {
+            if (texture) {
                 current->set_texture(SpatialMaterial::TEXTURE_ALBEDO, texture);
             } else if (r_missing_deps) {
                 r_missing_deps->push_back(path);
             }
 
-		} else if (StringUtils::begins_with(l,"map_Ks ")) {
+        } else if (StringUtils::begins_with(l,"map_Ks ")) {
             //normal
-            ERR_FAIL_COND_V(current.is_null(), ERR_FILE_CORRUPT)
+            ERR_FAIL_COND_V(not current, ERR_FILE_CORRUPT)
 
             String p = StringUtils::strip_edges(StringUtils::replace(StringUtils::replace(l,"map_Ks", ""),"\\", "/"));
             String path;
@@ -157,17 +158,17 @@ static Error _parse_material_library(const String &p_path, Map<String, Ref<Spati
                 path = PathUtils::plus_file(base_path,p);
             }
 
-            Ref<Texture> texture = ResourceLoader::load(path);
+            Ref<Texture> texture = dynamic_ref_cast<Texture>(ResourceLoader::load(path));
 
-            if (texture.is_valid()) {
+            if (texture) {
                 current->set_texture(SpatialMaterial::TEXTURE_METALLIC, texture);
             } else if (r_missing_deps) {
                 r_missing_deps->push_back(path);
             }
 
-		} else if (StringUtils::begins_with(l,"map_Ns ")) {
+        } else if (StringUtils::begins_with(l,"map_Ns ")) {
             //normal
-            ERR_FAIL_COND_V(current.is_null(), ERR_FILE_CORRUPT)
+            ERR_FAIL_COND_V(not current, ERR_FILE_CORRUPT)
 
             String p = StringUtils::strip_edges(StringUtils::replace(StringUtils::replace(l,"map_Ns", ""),"\\", "/"));
             String path;
@@ -177,23 +178,23 @@ static Error _parse_material_library(const String &p_path, Map<String, Ref<Spati
                 path = PathUtils::plus_file(base_path,p);
             }
 
-            Ref<Texture> texture = ResourceLoader::load(path);
+            Ref<Texture> texture(dynamic_ref_cast<Texture>(ResourceLoader::load(path)));
 
-            if (texture.is_valid()) {
+            if (texture) {
                 current->set_texture(SpatialMaterial::TEXTURE_ROUGHNESS, texture);
             } else if (r_missing_deps) {
                 r_missing_deps->push_back(path);
             }
-		} else if (StringUtils::begins_with(l,"map_bump ")) {
+        } else if (StringUtils::begins_with(l,"map_bump ")) {
             //normal
-            ERR_FAIL_COND_V(current.is_null(), ERR_FILE_CORRUPT)
+            ERR_FAIL_COND_V(not current, ERR_FILE_CORRUPT)
 
             String p = StringUtils::strip_edges(StringUtils::replace(StringUtils::replace(l,"map_bump", ""),"\\", "/"));
             String path = PathUtils::plus_file(base_path,p);
 
-            Ref<Texture> texture = ResourceLoader::load(path);
+            Ref<Texture> texture(dynamic_ref_cast<Texture>(ResourceLoader::load(path)));
 
-            if (texture.is_valid()) {
+            if (texture) {
                 current->set_feature(SpatialMaterial::FEATURE_NORMAL_MAPPING, true);
                 current->set_texture(SpatialMaterial::TEXTURE_NORMAL, texture);
             } else if (r_missing_deps) {
@@ -212,8 +213,7 @@ static Error _parse_obj(const String &p_path, List<Ref<Mesh> > &r_meshes, bool p
     FileAccessRef f = FileAccess::open(p_path, FileAccess::READ);
     ERR_FAIL_COND_V_MSG(!f, ERR_CANT_OPEN, vformat("Couldn't open OBJ file '%s', it may not exist or not be readable.", p_path))
 
-    Ref<ArrayMesh> mesh;
-    mesh.instance();
+    Ref<ArrayMesh> mesh(make_ref_counted<ArrayMesh>());
 
     bool generate_tangents = p_generate_tangents;
     Vector3 scale_mesh = p_scale_mesh;
@@ -226,7 +226,7 @@ static Error _parse_obj(const String &p_path, List<Ref<Mesh> > &r_meshes, bool p
 
     Map<String, Map<String, Ref<SpatialMaterial> > > material_map;
 
-    Ref<SurfaceTool> surf_tool = memnew(SurfaceTool);
+    Ref<SurfaceTool> surf_tool(make_ref_counted<SurfaceTool>());
     surf_tool->begin(Mesh::PRIMITIVE_TRIANGLES);
 
     String current_material_library;
@@ -239,12 +239,12 @@ static Error _parse_obj(const String &p_path, List<Ref<Mesh> > &r_meshes, bool p
         while (l.length() && l[l.length() - 1] == '\\') {
             String add = StringUtils::strip_edges(f->get_line());
             l += add;
-            if (add == String()) {
+            if (add.empty()) {
                 break;
             }
         }
 
-		if (StringUtils::begins_with(l,"v ")) {
+        if (StringUtils::begins_with(l,"v ")) {
             //vertex
             Vector<String> v = StringUtils::split(l," ", false);
             ERR_FAIL_COND_V(v.size() < 4, ERR_FILE_CORRUPT)
@@ -253,7 +253,7 @@ static Error _parse_obj(const String &p_path, List<Ref<Mesh> > &r_meshes, bool p
             vtx.y = StringUtils::to_float(v[2]) * scale_mesh.y;
             vtx.z = StringUtils::to_float(v[3]) * scale_mesh.z;
             vertices.push_back(vtx);
-		} else if (StringUtils::begins_with(l,"vt ")) {
+        } else if (StringUtils::begins_with(l,"vt ")) {
             //uv
             Vector<String> v = StringUtils::split(l," ", false);
             ERR_FAIL_COND_V(v.size() < 3, ERR_FILE_CORRUPT)
@@ -262,7 +262,7 @@ static Error _parse_obj(const String &p_path, List<Ref<Mesh> > &r_meshes, bool p
             uv.y = 1.0 - StringUtils::to_float(v[2]);
             uvs.push_back(uv);
 
-		} else if (StringUtils::begins_with(l,"vn ")) {
+        } else if (StringUtils::begins_with(l,"vn ")) {
             //normal
             Vector<String> v = StringUtils::split(l," ", false);
             ERR_FAIL_COND_V(v.size() < 4, ERR_FILE_CORRUPT)
@@ -271,7 +271,7 @@ static Error _parse_obj(const String &p_path, List<Ref<Mesh> > &r_meshes, bool p
             nrm.y = StringUtils::to_float(v[2]);
             nrm.z = StringUtils::to_float(v[3]);
             normals.push_back(nrm);
-		} else if (StringUtils::begins_with(l,"f ")) {
+        } else if (StringUtils::begins_with(l,"f ")) {
             //vertex
 
             Vector<String> v = StringUtils::split(l," ", false);
@@ -282,7 +282,7 @@ static Error _parse_obj(const String &p_path, List<Ref<Mesh> > &r_meshes, bool p
             Vector<String> face[3];
             face[0] = StringUtils::split(v[1],"/");
             face[1] = StringUtils::split(v[2],"/");
-            ERR_FAIL_COND_V(face[0].size() == 0, ERR_FILE_CORRUPT)
+            ERR_FAIL_COND_V(face[0].empty(), ERR_FILE_CORRUPT)
 
             ERR_FAIL_COND_V(face[0].size() != face[1].size(), ERR_FILE_CORRUPT)
             for (int i = 2; i < v.size() - 1; i++) {
@@ -306,7 +306,7 @@ static Error _parse_obj(const String &p_path, List<Ref<Mesh> > &r_meshes, bool p
                         surf_tool->add_normal(normals[norm]);
                     }
 
-                    if (face[idx].size() >= 2 && face[idx][1] != String()) {
+                    if (face[idx].size() >= 2 && !face[idx][1].empty()) {
                         int uv = StringUtils::to_int(face[idx][1]) - 1;
                         if (uv < 0)
                             uv += uvs.size() + 1;
@@ -327,38 +327,38 @@ static Error _parse_obj(const String &p_path, List<Ref<Mesh> > &r_meshes, bool p
 
                 face[1] = face[2];
             }
-		} else if (StringUtils::begins_with(l,"s ")) { //smoothing
+        } else if (StringUtils::begins_with(l,"s ")) { //smoothing
             String what = StringUtils::strip_edges(StringUtils::substr(l,2, l.length()));
             if (what == "off")
                 surf_tool->add_smooth_group(false);
             else
                 surf_tool->add_smooth_group(true);
-		} else if (/*StringUtils::begins_with(l,"g ") ||*/ StringUtils::begins_with(l,"usemtl ") || (StringUtils::begins_with(l,"o ") || f->eof_reached())) { //commit group to mesh
+        } else if (/*StringUtils::begins_with(l,"g ") ||*/ StringUtils::begins_with(l,"usemtl ") || (StringUtils::begins_with(l,"o ") || f->eof_reached())) { //commit group to mesh
             //groups are too annoying
-            if (surf_tool->get_vertex_array().size()) {
+            if (!surf_tool->get_vertex_array().empty()) {
                 //another group going on, commit it
-                if (normals.size() == 0) {
+                if (normals.empty()) {
                     surf_tool->generate_normals();
                 }
 
-                if (generate_tangents && uvs.size()) {
+                if (generate_tangents && !uvs.empty()) {
                     surf_tool->generate_tangents();
                 }
 
                 surf_tool->index();
 
-                print_verbose("OBJ: Current material library " + current_material_library + " has " + itos(material_map.has(current_material_library)));
-                print_verbose("OBJ: Current material " + current_material + " has " + itos(material_map.has(current_material_library) && material_map[current_material_library].has(current_material)));
+                print_verbose("OBJ: Current material library " + current_material_library + " has " + itos(material_map.contains(current_material_library)));
+                print_verbose("OBJ: Current material " + current_material + " has " + itos(material_map.contains(current_material_library) && material_map[current_material_library].contains(current_material)));
 
-                if (material_map.has(current_material_library) && material_map[current_material_library].has(current_material)) {
+                if (material_map.contains(current_material_library) && material_map[current_material_library].contains(current_material)) {
                     surf_tool->set_material(material_map[current_material_library][current_material]);
                 }
 
                 mesh = surf_tool->commit(mesh, mesh_flags);
 
-                if (current_material != String()) {
+                if (!current_material.empty()) {
                     mesh->surface_set_name(mesh->get_surface_count() - 1, PathUtils::get_basename(current_material));
-                } else if (current_group != String()) {
+                } else if (!current_group.empty()) {
                     mesh->surface_set_name(mesh->get_surface_count() - 1, current_group);
                 }
 
@@ -367,12 +367,12 @@ static Error _parse_obj(const String &p_path, List<Ref<Mesh> > &r_meshes, bool p
                 surf_tool->begin(Mesh::PRIMITIVE_TRIANGLES);
             }
 
-			if (StringUtils::begins_with(l,"o ") || f->eof_reached()) {
+            if (StringUtils::begins_with(l,"o ") || f->eof_reached()) {
 
                 if (!p_single_mesh) {
                     mesh->set_name(name);
                     r_meshes.push_back(mesh);
-                    mesh.instance();
+                    mesh = (make_ref_counted<ArrayMesh>());
                     current_group = "";
                     current_material = "";
                 }
@@ -382,24 +382,24 @@ static Error _parse_obj(const String &p_path, List<Ref<Mesh> > &r_meshes, bool p
                 break;
             }
 
-			if (StringUtils::begins_with(l,"o ")) {
+            if (StringUtils::begins_with(l,"o ")) {
                 name = StringUtils::strip_edges(StringUtils::substr(l,2, l.length()));
             }
 
-			if (StringUtils::begins_with(l,"usemtl ")) {
+            if (StringUtils::begins_with(l,"usemtl ")) {
 
                 current_material = StringUtils::strip_edges(StringUtils::replace(l,"usemtl", ""));
             }
 
-			if (StringUtils::begins_with(l,"g ")) {
+            if (StringUtils::begins_with(l,"g ")) {
 
                 current_group = StringUtils::strip_edges(StringUtils::substr(l,2, l.length()));
             }
 
-		} else if (StringUtils::begins_with(l,"mtllib ")) { //parse material
+        } else if (StringUtils::begins_with(l,"mtllib ")) { //parse material
 
             current_material_library = StringUtils::strip_edges(StringUtils::replace(l,"mtllib", ""));
-            if (!material_map.has(current_material_library)) {
+            if (!material_map.contains(current_material_library)) {
                 Map<String, Ref<SpatialMaterial> > lib;
                 Error err = _parse_material_library(current_material_library, lib, r_missing_deps);
                 if (err == ERR_CANT_OPEN) {
@@ -439,8 +439,8 @@ Node *ResourceImporterOBJ::import_scene(const String &p_path, uint32_t p_flags, 
     for (List<Ref<Mesh> >::Element *E = meshes.front(); E; E = E->next()) {
 
         MeshInstance *mi = memnew(MeshInstance);
-        mi->set_mesh(E->get());
-        mi->set_name(E->get()->get_name());
+        mi->set_mesh(E->deref());
+        mi->set_name(E->deref()->get_name());
         scene->add_child(mi);
         mi->set_owner(scene);
     }
@@ -489,11 +489,11 @@ String ResourceImporterOBJ::get_preset_name(int /*p_idx*/) const {
     return "";
 }
 
-void ResourceImporterOBJ::get_import_options(List<ImportOption> *r_options, int p_preset) const {
+void ResourceImporterOBJ::get_import_options(ListPOD<ImportOption> *r_options, int p_preset) const {
 
-    r_options->push_back(ImportOption(PropertyInfo(Variant::BOOL, "generate_tangents"), true));
-    r_options->push_back(ImportOption(PropertyInfo(Variant::VECTOR3, "scale_mesh"), Vector3(1, 1, 1)));
-    r_options->push_back(ImportOption(PropertyInfo(Variant::BOOL, "optimize_mesh"), true));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "generate_tangents"), true));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::VECTOR3, "scale_mesh"), Vector3(1, 1, 1)));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "optimize_mesh"), true));
 }
 bool ResourceImporterOBJ::get_option_visibility(const String &p_option, const Map<StringName, Variant> &p_options) const {
 
@@ -504,14 +504,15 @@ Error ResourceImporterOBJ::import(const String &p_source_file, const String &p_s
 
     List<Ref<Mesh> > meshes;
 
-    Error err = _parse_obj(p_source_file, meshes, true, p_options["generate_tangents"], p_options["optimize_mesh"], p_options["scale_mesh"], nullptr);
+    Error err = _parse_obj(p_source_file, meshes, true, p_options.at("generate_tangents").as<bool>(),
+            p_options.at("optimize_mesh").as<bool>(), p_options.at("scale_mesh"), nullptr);
 
     ERR_FAIL_COND_V(err != OK, err)
     ERR_FAIL_COND_V(meshes.size() != 1, ERR_BUG)
 
     String save_path = p_save_path + ".mesh";
 
-    err = ResourceSaver::save(save_path, meshes.front()->get());
+    err = ResourceSaver::save(save_path, meshes.front()->deref());
 
     ERR_FAIL_COND_V(err != OK, err)
 

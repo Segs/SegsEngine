@@ -47,7 +47,7 @@ Variant CollisionShape2DEditor::get_handle_value(int idx) const {
 
     switch (shape_type) {
         case CAPSULE_SHAPE: {
-            Ref<CapsuleShape2D> capsule = node->get_shape();
+            Ref<CapsuleShape2D> capsule = dynamic_ref_cast<CapsuleShape2D>(node->get_shape());
 
             if (idx == 0) {
                 return capsule->get_radius();
@@ -58,7 +58,7 @@ Variant CollisionShape2DEditor::get_handle_value(int idx) const {
         } break;
 
         case CIRCLE_SHAPE: {
-            Ref<CircleShape2D> circle = node->get_shape();
+            Ref<CircleShape2D> circle = dynamic_ref_cast<CircleShape2D>(node->get_shape());
 
             if (idx == 0) {
                 return circle->get_radius();
@@ -75,7 +75,7 @@ Variant CollisionShape2DEditor::get_handle_value(int idx) const {
         } break;
 
         case LINE_SHAPE: {
-            Ref<LineShape2D> line = node->get_shape();
+            Ref<LineShape2D> line = dynamic_ref_cast<LineShape2D>(node->get_shape());
 
             if (idx == 0) {
                 return line->get_d();
@@ -86,7 +86,7 @@ Variant CollisionShape2DEditor::get_handle_value(int idx) const {
         } break;
 
         case RAY_SHAPE: {
-            Ref<RayShape2D> ray = node->get_shape();
+            Ref<RayShape2D> ray = dynamic_ref_cast<RayShape2D>(node->get_shape());
 
             if (idx == 0) {
                 return ray->get_length();
@@ -95,7 +95,7 @@ Variant CollisionShape2DEditor::get_handle_value(int idx) const {
         } break;
 
         case RECTANGLE_SHAPE: {
-            Ref<RectangleShape2D> rect = node->get_shape();
+            Ref<RectangleShape2D> rect = dynamic_ref_cast<RectangleShape2D>(node->get_shape());
 
             if (idx < 3) {
                 return rect->get_extents().abs();
@@ -104,7 +104,7 @@ Variant CollisionShape2DEditor::get_handle_value(int idx) const {
         } break;
 
         case SEGMENT_SHAPE: {
-            Ref<SegmentShape2D> seg = node->get_shape();
+            Ref<SegmentShape2D> seg = dynamic_ref_cast<SegmentShape2D>(node->get_shape());
 
             if (idx == 0) {
                 return seg->get_a();
@@ -123,7 +123,7 @@ void CollisionShape2DEditor::set_handle(int idx, Point2 &p_point) {
     switch (shape_type) {
         case CAPSULE_SHAPE: {
             if (idx < 2) {
-                Ref<CapsuleShape2D> capsule = node->get_shape();
+                Ref<CapsuleShape2D> capsule = dynamic_ref_cast<CapsuleShape2D>(node->get_shape());
 
                 real_t parameter = Math::abs(p_point[idx]);
 
@@ -139,7 +139,7 @@ void CollisionShape2DEditor::set_handle(int idx, Point2 &p_point) {
         } break;
 
         case CIRCLE_SHAPE: {
-            Ref<CircleShape2D> circle = node->get_shape();
+            Ref<CircleShape2D> circle = dynamic_ref_cast<CircleShape2D>(node->get_shape());
             circle->set_radius(p_point.length());
 
             canvas_item_editor->update_viewport();
@@ -156,7 +156,7 @@ void CollisionShape2DEditor::set_handle(int idx, Point2 &p_point) {
 
         case LINE_SHAPE: {
             if (idx < 2) {
-                Ref<LineShape2D> line = node->get_shape();
+                Ref<LineShape2D> line = dynamic_ref_cast<LineShape2D>(node->get_shape());
 
                 if (idx == 0) {
                     line->set_d(p_point.length());
@@ -170,7 +170,7 @@ void CollisionShape2DEditor::set_handle(int idx, Point2 &p_point) {
         } break;
 
         case RAY_SHAPE: {
-            Ref<RayShape2D> ray = node->get_shape();
+            Ref<RayShape2D> ray = dynamic_ref_cast<RayShape2D>(node->get_shape());
 
             ray->set_length(Math::abs(p_point.y));
 
@@ -180,7 +180,7 @@ void CollisionShape2DEditor::set_handle(int idx, Point2 &p_point) {
 
         case RECTANGLE_SHAPE: {
             if (idx < 3) {
-                Ref<RectangleShape2D> rect = node->get_shape();
+                Ref<RectangleShape2D> rect = dynamic_ref_cast<RectangleShape2D>(node->get_shape());
 
                 Vector2 extents = rect->get_extents();
                 if (idx == 2) {
@@ -197,7 +197,7 @@ void CollisionShape2DEditor::set_handle(int idx, Point2 &p_point) {
 
         case SEGMENT_SHAPE: {
             if (edit_handle < 2) {
-                Ref<SegmentShape2D> seg = node->get_shape();
+                Ref<SegmentShape2D> seg = dynamic_ref_cast<SegmentShape2D>(node->get_shape());
 
                 if (idx == 0) {
                     seg->set_a(p_point);
@@ -219,28 +219,28 @@ void CollisionShape2DEditor::commit_handle(int idx, Variant &p_org) {
 
     switch (shape_type) {
         case CAPSULE_SHAPE: {
-            Ref<CapsuleShape2D> capsule = node->get_shape();
+            Ref<CapsuleShape2D> capsule = dynamic_ref_cast<CapsuleShape2D>(node->get_shape());
 
             if (idx == 0) {
-                undo_redo->add_do_method(capsule.ptr(), "set_radius", capsule->get_radius());
+                undo_redo->add_do_method(capsule.get(), "set_radius", capsule->get_radius());
                 undo_redo->add_do_method(canvas_item_editor, "update_viewport");
-                undo_redo->add_undo_method(capsule.ptr(), "set_radius", p_org);
+                undo_redo->add_undo_method(capsule.get(), "set_radius", p_org);
                 undo_redo->add_do_method(canvas_item_editor, "update_viewport");
             } else if (idx == 1) {
-                undo_redo->add_do_method(capsule.ptr(), "set_height", capsule->get_height());
+                undo_redo->add_do_method(capsule.get(), "set_height", capsule->get_height());
                 undo_redo->add_do_method(canvas_item_editor, "update_viewport");
-                undo_redo->add_undo_method(capsule.ptr(), "set_height", p_org);
+                undo_redo->add_undo_method(capsule.get(), "set_height", p_org);
                 undo_redo->add_undo_method(canvas_item_editor, "update_viewport");
             }
 
         } break;
 
         case CIRCLE_SHAPE: {
-            Ref<CircleShape2D> circle = node->get_shape();
+            Ref<CircleShape2D> circle = dynamic_ref_cast<CircleShape2D>(node->get_shape());
 
-            undo_redo->add_do_method(circle.ptr(), "set_radius", circle->get_radius());
+            undo_redo->add_do_method(circle.get(), "set_radius", circle->get_radius());
             undo_redo->add_do_method(canvas_item_editor, "update_viewport");
-            undo_redo->add_undo_method(circle.ptr(), "set_radius", p_org);
+            undo_redo->add_undo_method(circle.get(), "set_radius", p_org);
             undo_redo->add_undo_method(canvas_item_editor, "update_viewport");
 
         } break;
@@ -254,53 +254,53 @@ void CollisionShape2DEditor::commit_handle(int idx, Variant &p_org) {
         } break;
 
         case LINE_SHAPE: {
-            Ref<LineShape2D> line = node->get_shape();
+            Ref<LineShape2D> line = dynamic_ref_cast<LineShape2D>(node->get_shape());
 
             if (idx == 0) {
-                undo_redo->add_do_method(line.ptr(), "set_d", line->get_d());
+                undo_redo->add_do_method(line.get(), "set_d", line->get_d());
                 undo_redo->add_do_method(canvas_item_editor, "update_viewport");
-                undo_redo->add_undo_method(line.ptr(), "set_d", p_org);
+                undo_redo->add_undo_method(line.get(), "set_d", p_org);
                 undo_redo->add_undo_method(canvas_item_editor, "update_viewport");
             } else {
-                undo_redo->add_do_method(line.ptr(), "set_normal", line->get_normal());
+                undo_redo->add_do_method(line.get(), "set_normal", line->get_normal());
                 undo_redo->add_do_method(canvas_item_editor, "update_viewport");
-                undo_redo->add_undo_method(line.ptr(), "set_normal", p_org);
+                undo_redo->add_undo_method(line.get(), "set_normal", p_org);
                 undo_redo->add_undo_method(canvas_item_editor, "update_viewport");
             }
 
         } break;
 
         case RAY_SHAPE: {
-            Ref<RayShape2D> ray = node->get_shape();
+            Ref<RayShape2D> ray = dynamic_ref_cast<RayShape2D>(node->get_shape());
 
-            undo_redo->add_do_method(ray.ptr(), "set_length", ray->get_length());
+            undo_redo->add_do_method(ray.get(), "set_length", ray->get_length());
             undo_redo->add_do_method(canvas_item_editor, "update_viewport");
-            undo_redo->add_undo_method(ray.ptr(), "set_length", p_org);
+            undo_redo->add_undo_method(ray.get(), "set_length", p_org);
             undo_redo->add_undo_method(canvas_item_editor, "update_viewport");
 
         } break;
 
         case RECTANGLE_SHAPE: {
-            Ref<RectangleShape2D> rect = node->get_shape();
+            Ref<RectangleShape2D> rect = dynamic_ref_cast<RectangleShape2D>(node->get_shape());
 
-            undo_redo->add_do_method(rect.ptr(), "set_extents", rect->get_extents());
+            undo_redo->add_do_method(rect.get(), "set_extents", rect->get_extents());
             undo_redo->add_do_method(canvas_item_editor, "update_viewport");
-            undo_redo->add_undo_method(rect.ptr(), "set_extents", p_org);
+            undo_redo->add_undo_method(rect.get(), "set_extents", p_org);
             undo_redo->add_undo_method(canvas_item_editor, "update_viewport");
 
         } break;
 
         case SEGMENT_SHAPE: {
-            Ref<SegmentShape2D> seg = node->get_shape();
+            Ref<SegmentShape2D> seg = dynamic_ref_cast<SegmentShape2D>(node->get_shape());
             if (idx == 0) {
-                undo_redo->add_do_method(seg.ptr(), "set_a", seg->get_a());
+                undo_redo->add_do_method(seg.get(), "set_a", seg->get_a());
                 undo_redo->add_do_method(canvas_item_editor, "update_viewport");
-                undo_redo->add_undo_method(seg.ptr(), "set_a", p_org);
+                undo_redo->add_undo_method(seg.get(), "set_a", p_org);
                 undo_redo->add_undo_method(canvas_item_editor, "update_viewport");
             } else if (idx == 1) {
-                undo_redo->add_do_method(seg.ptr(), "set_b", seg->get_b());
+                undo_redo->add_do_method(seg.get(), "set_b", seg->get_b());
                 undo_redo->add_do_method(canvas_item_editor, "update_viewport");
-                undo_redo->add_undo_method(seg.ptr(), "set_b", p_org);
+                undo_redo->add_undo_method(seg.get(), "set_b", p_org);
                 undo_redo->add_undo_method(canvas_item_editor, "update_viewport");
             }
 
@@ -316,7 +316,7 @@ bool CollisionShape2DEditor::forward_canvas_gui_input(const Ref<InputEvent> &p_e
         return false;
     }
 
-    if (!node->get_shape().is_valid()) {
+    if (!node->get_shape()) {
         return false;
     }
 
@@ -324,10 +324,10 @@ bool CollisionShape2DEditor::forward_canvas_gui_input(const Ref<InputEvent> &p_e
         return false;
     }
 
-    Ref<InputEventMouseButton> mb = p_event;
+    Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_event);
     Transform2D xform = canvas_item_editor->get_canvas_transform() * node->get_global_transform();
 
-    if (mb.is_valid()) {
+    if (mb) {
 
         Vector2 gpoint = mb->get_position();
 
@@ -367,9 +367,9 @@ bool CollisionShape2DEditor::forward_canvas_gui_input(const Ref<InputEvent> &p_e
         return false;
     }
 
-    Ref<InputEventMouseMotion> mm = p_event;
+    Ref<InputEventMouseMotion> mm = dynamic_ref_cast<InputEventMouseMotion>(p_event);
 
-    if (mm.is_valid()) {
+    if (mm) {
 
         if (edit_handle == -1 || !pressed) {
             return false;
@@ -394,25 +394,25 @@ void CollisionShape2DEditor::_get_current_shape_type() {
 
     Ref<Shape2D> s = node->get_shape();
 
-    if (!s.is_valid()) {
+    if (not s) {
         return;
     }
 
-    if (Object::cast_to<CapsuleShape2D>(*s)) {
+    if (dynamic_ref_cast<CapsuleShape2D>(s)) {
         shape_type = CAPSULE_SHAPE;
-    } else if (Object::cast_to<CircleShape2D>(*s)) {
+    } else if (dynamic_ref_cast<CircleShape2D>(s)) {
         shape_type = CIRCLE_SHAPE;
-    } else if (Object::cast_to<ConcavePolygonShape2D>(*s)) {
+    } else if (dynamic_ref_cast<ConcavePolygonShape2D>(s)) {
         shape_type = CONCAVE_POLYGON_SHAPE;
-    } else if (Object::cast_to<ConvexPolygonShape2D>(*s)) {
+    } else if (dynamic_ref_cast<ConvexPolygonShape2D>(s)) {
         shape_type = CONVEX_POLYGON_SHAPE;
-    } else if (Object::cast_to<LineShape2D>(*s)) {
+    } else if (dynamic_ref_cast<LineShape2D>(s)) {
         shape_type = LINE_SHAPE;
-    } else if (Object::cast_to<RayShape2D>(*s)) {
+    } else if (dynamic_ref_cast<RayShape2D>(s)) {
         shape_type = RAY_SHAPE;
-    } else if (Object::cast_to<RectangleShape2D>(*s)) {
+    } else if (dynamic_ref_cast<RectangleShape2D>(s)) {
         shape_type = RECTANGLE_SHAPE;
-    } else if (Object::cast_to<SegmentShape2D>(*s)) {
+    } else if (dynamic_ref_cast<SegmentShape2D>(s)) {
         shape_type = SEGMENT_SHAPE;
     } else {
         shape_type = -1;
@@ -427,7 +427,7 @@ void CollisionShape2DEditor::forward_canvas_draw_over_viewport(Control *p_overla
         return;
     }
 
-    if (!node->get_shape().is_valid()) {
+    if (not node->get_shape()) {
         return;
     }
 
@@ -446,7 +446,7 @@ void CollisionShape2DEditor::forward_canvas_draw_over_viewport(Control *p_overla
 
     switch (shape_type) {
         case CAPSULE_SHAPE: {
-            Ref<CapsuleShape2D> shape = node->get_shape();
+            Ref<CapsuleShape2D> shape = dynamic_ref_cast<CapsuleShape2D>(node->get_shape());
 
             handles.resize(2);
             float radius = shape->get_radius();
@@ -461,7 +461,7 @@ void CollisionShape2DEditor::forward_canvas_draw_over_viewport(Control *p_overla
         } break;
 
         case CIRCLE_SHAPE: {
-            Ref<CircleShape2D> shape = node->get_shape();
+            Ref<CircleShape2D> shape = dynamic_ref_cast<CircleShape2D>(node->get_shape());
 
             handles.resize(1);
             handles.write[0] = Point2(shape->get_radius(), 0);
@@ -479,7 +479,7 @@ void CollisionShape2DEditor::forward_canvas_draw_over_viewport(Control *p_overla
         } break;
 
         case LINE_SHAPE: {
-            Ref<LineShape2D> shape = node->get_shape();
+            Ref<LineShape2D> shape = dynamic_ref_cast<LineShape2D>(node->get_shape());
 
             handles.resize(2);
             handles.write[0] = shape->get_normal() * shape->get_d();
@@ -491,7 +491,7 @@ void CollisionShape2DEditor::forward_canvas_draw_over_viewport(Control *p_overla
         } break;
 
         case RAY_SHAPE: {
-            Ref<RayShape2D> shape = node->get_shape();
+            Ref<RayShape2D> shape = dynamic_ref_cast<RayShape2D>(node->get_shape());
 
             handles.resize(1);
             handles.write[0] = Point2(0, shape->get_length());
@@ -501,7 +501,7 @@ void CollisionShape2DEditor::forward_canvas_draw_over_viewport(Control *p_overla
         } break;
 
         case RECTANGLE_SHAPE: {
-            Ref<RectangleShape2D> shape = node->get_shape();
+            Ref<RectangleShape2D> shape = dynamic_ref_cast<RectangleShape2D>(node->get_shape());
 
             handles.resize(3);
             Vector2 ext = shape->get_extents();
@@ -516,7 +516,7 @@ void CollisionShape2DEditor::forward_canvas_draw_over_viewport(Control *p_overla
         } break;
 
         case SEGMENT_SHAPE: {
-            Ref<SegmentShape2D> shape = node->get_shape();
+            Ref<SegmentShape2D> shape = dynamic_ref_cast<SegmentShape2D>(node->get_shape());
 
             handles.resize(2);
             handles.write[0] = shape->get_a();

@@ -62,7 +62,7 @@ void ExportTemplateManager::_update_template_list() {
     if (err == OK) {
 
         String c = d->get_next();
-        while (c != String()) {
+        while (!c.empty()) {
             if (d->current_is_dir() && !StringUtils::begins_with(c,".")) {
                 templates.insert(c);
             }
@@ -82,7 +82,7 @@ void ExportTemplateManager::_update_template_list() {
     current->set_h_size_flags(SIZE_EXPAND_FILL);
     current_hb->add_child(current);
 
-    if (templates.has(current_version)) {
+    if (templates.contains(current_version)) {
         current->add_color_override("font_color", get_color("success_color", "Editor"));
 
         // Only display a redownload button if it can be downloaded in the first place
@@ -114,12 +114,12 @@ void ExportTemplateManager::_update_template_list() {
         current->set_text(current_version + " " + TTR("(Missing)"));
     }
 
-    for (Set<String>::Element *E = templates.back(); E; E = E->prev()) {
+    for (auto E = templates.rbegin(); E!=templates.rend(); ++E) {
 
         HBoxContainer *hbc = memnew(HBoxContainer);
         Label *version = memnew(Label);
         version->set_modulate(get_color("disabled_font_color", "Editor"));
-        String text = E->get();
+        String text = *E;
         if (text == current_version) {
             text += " " + TTR("(Current)");
         }
@@ -131,7 +131,7 @@ void ExportTemplateManager::_update_template_list() {
 
         uninstall->set_text(TTR("Uninstall"));
         hbc->add_child(uninstall);
-        uninstall->connect("pressed", this, "_uninstall_template", varray(E->get()));
+        uninstall->connect("pressed", this, "_uninstall_template", varray(*E));
 
         installed_vb->add_child(hbc);
     }
@@ -163,16 +163,16 @@ void ExportTemplateManager::_uninstall_template_confirm() {
     DirAccess *d = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
     Error err = d->change_dir(EditorSettings::get_singleton()->get_templates_dir());
 
-    ERR_FAIL_COND(err != OK);
+    ERR_FAIL_COND(err != OK)
 
     err = d->change_dir(to_remove);
 
-    ERR_FAIL_COND(err != OK);
+    ERR_FAIL_COND(err != OK)
 
     Vector<String> files;
     d->list_dir_begin();
     String c = d->get_next();
-    while (c != String()) {
+    while (!c.empty()) {
         if (!d->current_is_dir()) {
             files.push_back(c);
         }
@@ -247,7 +247,7 @@ bool ExportTemplateManager::_install_from_file(const String &p_file, bool p_use_
         ret = unzGoToNextFile(pkg);
     }
 
-    if (version == String()) {
+    if (version.empty()) {
         EditorNode::get_singleton()->show_warning(TTR("No version.txt found inside templates."));
         unzClose(pkg);
         return false;
@@ -285,7 +285,7 @@ bool ExportTemplateManager::_install_from_file(const String &p_file, bool p_use_
 
         String file = PathUtils::get_file(file_path);
 
-        if (file.size() == 0) {
+        if (file.empty()) {
             ret = unzGoToNextFile(pkg);
             continue;
         }
@@ -570,7 +570,7 @@ Error ExportTemplateManager::install_android_template() {
     // and android_debug.apk, to place them in the libs folder.
 
     DirAccessRef da = DirAccess::open("res://");
-    ERR_FAIL_COND_V(!da, ERR_CANT_CREATE);
+    ERR_FAIL_COND_V(!da, ERR_CANT_CREATE)
 
     // Make res://android dir (if it does not exist).
     da->make_dir("android");
@@ -634,7 +634,7 @@ Error ExportTemplateManager::install_android_template() {
             unzReadCurrentFile(pkg, data.ptrw(), data.size());
             unzCloseCurrentFile(pkg);
 
-            if (!dirs_tested.has(base_dir)) {
+            if (!dirs_tested.contains(base_dir)) {
                 da->make_dir_recursive(PathUtils::plus_file("android/build",base_dir));
                 dirs_tested.insert(base_dir);
             }
@@ -663,9 +663,9 @@ Error ExportTemplateManager::install_android_template() {
 
     // Extract libs from pre-built APKs.
     err = _extract_libs_from_apk("release");
-    ERR_FAIL_COND_V_MSG(err != OK, err, "Can't extract Android libs from android_release.apk.");
+    ERR_FAIL_COND_V_MSG(err != OK, err, "Can't extract Android libs from android_release.apk.")
     err = _extract_libs_from_apk("debug");
-    ERR_FAIL_COND_V_MSG(err != OK, err, "Can't extract Android libs from android_debug.apk.");
+    ERR_FAIL_COND_V_MSG(err != OK, err, "Can't extract Android libs from android_debug.apk.")
 
     return OK;
 }
@@ -718,7 +718,7 @@ Error ExportTemplateManager::_extract_libs_from_apk(const String &p_target_name)
         // We have a "lib" folder in the APK, but it should be "libs/{release,debug}" in the source dir.
         String target_base_dir = replace_first(base_dir,"lib", plus_file("libs",p_target_name));
 
-        if (!dirs_tested.has(base_dir)) {
+        if (!dirs_tested.contains(base_dir)) {
             da->make_dir_recursive(plus_file("android/build",target_base_dir));
             dirs_tested.insert(base_dir);
         }

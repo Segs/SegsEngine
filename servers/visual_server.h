@@ -48,7 +48,7 @@ class VisualServer : public Object {
 
     void _camera_set_orthogonal(RID p_camera, float p_size, float p_z_near, float p_z_far);
     void _canvas_item_add_style_box(RID p_item, const Rect2 &p_rect, const Rect2 &p_source, RID p_texture, const Vector<float> &p_margins, const Color &p_modulate = Color(1, 1, 1));
-    Array _get_array_from_surface(uint32_t p_format, PoolVector<uint8_t> p_vertex_data, int p_vertex_len, PoolVector<uint8_t> p_index_data, int p_index_len) const;
+    Array _get_array_from_surface(uint32_t p_format, const PoolVector<uint8_t>& p_vertex_data, int p_vertex_len, const PoolVector<uint8_t>& p_index_data, int p_index_len) const;
 
 protected:
     RID _make_test_cube();
@@ -159,7 +159,7 @@ public:
         String path;
     };
 
-    virtual void texture_debug_usage(List<TextureInfo> *r_info) = 0;
+    virtual void texture_debug_usage(DefList<TextureInfo> *r_info) = 0;
     Array _texture_debug_usage_bind();
 
     virtual void textures_keep_original(bool p_enable) = 0;
@@ -186,7 +186,7 @@ public:
 
     virtual void shader_set_code(RID p_shader, const String &p_code) = 0;
     virtual String shader_get_code(RID p_shader) const = 0;
-    virtual void shader_get_param_list(RID p_shader, List<PropertyInfo> *p_param_list) const = 0;
+    virtual void shader_get_param_list(RID p_shader, ListPOD<PropertyInfo> *p_param_list) const = 0;
     Array _shader_get_param_list_bind(RID p_shader) const;
 
     virtual void shader_set_default_texture_param(RID p_shader, const StringName &p_name, RID p_texture) = 0;
@@ -390,7 +390,6 @@ public:
     virtual void skeleton_bone_set_transform_2d(RID p_skeleton, int p_bone, const Transform2D &p_transform) = 0;
     virtual Transform2D skeleton_bone_get_transform_2d(RID p_skeleton, int p_bone) const = 0;
     virtual void skeleton_set_base_transform_2d(RID p_skeleton, const Transform2D &p_base_transform) = 0;
-    virtual void skeleton_set_world_transform(RID p_skeleton, bool p_enable, const Transform &p_base_transform) = 0;
 
     /* Light API */
 

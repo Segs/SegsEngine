@@ -48,20 +48,20 @@ bool InstancePlaceholder::_set(const StringName &p_name, const Variant &p_value)
 bool InstancePlaceholder::_get(const StringName &p_name, Variant &r_ret) const {
 
     for (const List<PropSet>::Element *E = stored_values.front(); E; E = E->next()) {
-        if (E->get().name == p_name) {
-            r_ret = E->get().value;
+        if (E->deref().name == p_name) {
+            r_ret = E->deref().value;
             return true;
         }
     }
     return false;
 }
 
-void InstancePlaceholder::_get_property_list(List<PropertyInfo> *p_list) const {
+void InstancePlaceholder::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
     for (const List<PropSet>::Element *E = stored_values.front(); E; E = E->next()) {
         PropertyInfo pi;
-        pi.name = E->get().name;
-        pi.type = E->get().value.get_type();
+        pi.name = E->deref().name;
+        pi.type = E->deref().value.get_type();
         pi.usage = PROPERTY_USAGE_STORAGE;
 
         p_list->push_back(pi);
@@ -80,19 +80,19 @@ String InstancePlaceholder::get_instance_path() const {
 
 Node *InstancePlaceholder::create_instance(bool p_replace, const Ref<PackedScene> &p_custom_scene) {
 
-    ERR_FAIL_COND_V(!is_inside_tree(), nullptr);
+    ERR_FAIL_COND_V(!is_inside_tree(), nullptr)
 
     Node *base = get_parent();
     if (!base)
         return nullptr;
 
     Ref<PackedScene> ps;
-    if (p_custom_scene.is_valid())
+    if (p_custom_scene)
         ps = p_custom_scene;
     else
-        ps = ResourceLoader::load(path, "PackedScene");
+        ps = dynamic_ref_cast<PackedScene>(ResourceLoader::load(path, "PackedScene"));
 
-    if (!ps.is_valid())
+    if (!ps)
         return nullptr;
     Node *scene = ps->instance();
     if (!scene)
@@ -101,7 +101,7 @@ Node *InstancePlaceholder::create_instance(bool p_replace, const Ref<PackedScene
     int pos = get_position_in_parent();
 
     for (List<PropSet>::Element *E = stored_values.front(); E; E = E->next()) {
-        scene->set(E->get().name, E->get().value);
+        scene->set(E->deref().name, E->deref().value);
     }
 
     if (p_replace) {
@@ -126,9 +126,9 @@ Dictionary InstancePlaceholder::get_stored_values(bool p_with_order) {
     PoolStringArray order;
 
     for (List<PropSet>::Element *E = stored_values.front(); E; E = E->next()) {
-        ret[E->get().name] = E->get().value;
+        ret[E->deref().name] = E->deref().value;
         if (p_with_order)
-            order.push_back(E->get().name);
+            order.push_back(E->deref().name);
     };
 
     if (p_with_order)
@@ -139,9 +139,9 @@ Dictionary InstancePlaceholder::get_stored_values(bool p_with_order) {
 
 void InstancePlaceholder::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("get_stored_values", "with_order"), &InstancePlaceholder::get_stored_values, {DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("create_instance", "replace", "custom_scene"), &InstancePlaceholder::create_instance, {DEFVAL(false), DEFVAL(Variant())});
-    MethodBinder::bind_method(D_METHOD("replace_by_instance", "custom_scene"), &InstancePlaceholder::replace_by_instance, {DEFVAL(Variant())});
+    MethodBinder::bind_method(D_METHOD("get_stored_values", {"with_order"}), &InstancePlaceholder::get_stored_values, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("create_instance", {"replace", "custom_scene"}), &InstancePlaceholder::create_instance, {DEFVAL(false), DEFVAL(Variant())});
+    MethodBinder::bind_method(D_METHOD("replace_by_instance", {"custom_scene"}), &InstancePlaceholder::replace_by_instance, {DEFVAL(Variant())});
     MethodBinder::bind_method(D_METHOD("get_instance_path"), &InstancePlaceholder::get_instance_path);
 }
 

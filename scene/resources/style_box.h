@@ -115,10 +115,10 @@ public:
     void set_region_rect(const Rect2 &p_region_rect);
     Rect2 get_region_rect() const;
 
-    void set_texture(Ref<Texture> p_texture);
+    void set_texture(const Ref<Texture>& p_texture);
     Ref<Texture> get_texture() const;
 
-    void set_normal_map(Ref<Texture> p_normal_map);
+    void set_normal_map(const Ref<Texture>& p_normal_map);
     Ref<Texture> get_normal_map() const;
 
     void set_draw_center(bool p_enabled);
@@ -140,7 +140,6 @@ public:
 	~StyleBoxTexture() override;
 };
 
-VARIANT_ENUM_CAST(StyleBoxTexture::AxisStretchMode)
 
 class StyleBoxFlat : public StyleBox {
 

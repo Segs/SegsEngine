@@ -153,7 +153,7 @@ public:
     EditorPlugin *get_editor(Object *p_object);
     EditorPlugin *get_subeditor(Object *p_object);
     Vector<EditorPlugin *> get_subeditors(Object *p_object);
-    EditorPlugin *get_editor(String p_name);
+    EditorPlugin *get_editor(const String& p_name);
 
     void copy_object_params(Object *p_object);
     void paste_object_params(Object *p_object);
@@ -206,8 +206,8 @@ public:
     void move_edited_scene_to_index(int p_idx);
     bool call_build();
 
-    void set_plugin_window_layout(Ref<ConfigFile> p_layout);
-    void get_plugin_window_layout(Ref<ConfigFile> p_layout);
+    void set_plugin_window_layout(const Ref<ConfigFile>& p_layout);
+    void get_plugin_window_layout(const Ref<ConfigFile>& p_layout);
 
     void save_edited_scene_state(EditorSelection *p_selection, EditorHistory *p_history, const Dictionary &p_custom);
     Dictionary restore_edited_scene_state(EditorSelection *p_selection, EditorHistory *p_history);
@@ -261,7 +261,7 @@ public:
 
     template <class T>
     T *get_node_editor_data(Node *p_node) {
-        if (!selection.has(p_node))
+        if (!selection.contains(p_node))
             return nullptr;
         return Object::cast_to<T>(selection[p_node]);
     }

@@ -71,18 +71,19 @@ String ResourceImporterBitMap::get_preset_name(int p_idx) const {
     return String();
 }
 
-void ResourceImporterBitMap::get_import_options(List<ImportOption> *r_options, int p_preset) const {
+void ResourceImporterBitMap::get_import_options(ListPOD<ImportOption> *r_options, int p_preset) const {
 
-    r_options->push_back(ImportOption(PropertyInfo(Variant::INT, "create_from", PROPERTY_HINT_ENUM, "Black & White,Alpha"), 0));
-    r_options->push_back(ImportOption(PropertyInfo(Variant::REAL, "threshold", PROPERTY_HINT_RANGE, "0,1,0.01"), 0.5));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "create_from", PROPERTY_HINT_ENUM, "Black & White,Alpha"), 0));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::REAL, "threshold", PROPERTY_HINT_RANGE, "0,1,0.01"), 0.5));
 }
 
-Error ResourceImporterBitMap::import(const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata) {
+Error ResourceImporterBitMap::import(const String &p_source_file, const String &p_save_path,
+        const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files,
+        Variant *r_metadata) {
 
-    int create_from = p_options["create_from"];
-    float threshold = p_options["threshold"];
-    Ref<Image> image;
-    image.instance();
+    int create_from = p_options.at("create_from");
+    float threshold = p_options.at("threshold");
+    Ref<Image> image(make_ref_counted<Image>());
     Error err = ImageLoader::load_image(p_source_file, image);
     if (err != OK)
         return err;
@@ -90,8 +91,8 @@ Error ResourceImporterBitMap::import(const String &p_source_file, const String &
     int w = image->get_width();
     int h = image->get_height();
 
-    Ref<BitMap> bitmap;
-    bitmap.instance();
+    Ref<BitMap> bitmap(make_ref_counted<BitMap>());
+
     bitmap->create(Size2(w, h));
     image->lock();
 

@@ -35,9 +35,9 @@
 IMPL_GDCLASS(AnimationNodeBlendSpace2D)
 
 void AnimationNodeBlendSpace2D::get_parameter_list(List<PropertyInfo> *r_list) const {
-    r_list->push_back(PropertyInfo(Variant::VECTOR2, blend_position));
-    r_list->push_back(PropertyInfo(Variant::INT, closest, PROPERTY_HINT_NONE, "", 0));
-    r_list->push_back(PropertyInfo(Variant::REAL, length_internal, PROPERTY_HINT_NONE, "", 0));
+    r_list->push_back(PropertyInfo(VariantType::VECTOR2, blend_position));
+    r_list->push_back(PropertyInfo(VariantType::INT, closest, PROPERTY_HINT_NONE, "", 0));
+    r_list->push_back(PropertyInfo(VariantType::REAL, length_internal, PROPERTY_HINT_NONE, "", 0));
 }
 Variant AnimationNodeBlendSpace2D::get_parameter_default_value(const StringName &p_parameter) const {
     if (p_parameter == closest) {
@@ -59,9 +59,9 @@ void AnimationNodeBlendSpace2D::get_child_nodes(List<ChildNode> *r_child_nodes) 
 }
 
 void AnimationNodeBlendSpace2D::add_blend_point(const Ref<AnimationRootNode> &p_node, const Vector2 &p_position, int p_at_index) {
-    ERR_FAIL_COND(blend_points_used >= MAX_BLEND_POINTS);
-    ERR_FAIL_COND(p_node.is_null());
-    ERR_FAIL_COND(p_at_index < -1 || p_at_index > blend_points_used);
+    ERR_FAIL_COND(blend_points_used >= MAX_BLEND_POINTS)
+    ERR_FAIL_COND(not p_node)
+    ERR_FAIL_COND(p_at_index < -1 || p_at_index > blend_points_used)
 
     if (p_at_index == -1 || p_at_index == blend_points_used) {
         p_at_index = blend_points_used;
@@ -95,9 +95,9 @@ void AnimationNodeBlendSpace2D::set_blend_point_position(int p_point, const Vect
 }
 void AnimationNodeBlendSpace2D::set_blend_point_node(int p_point, const Ref<AnimationRootNode> &p_node) {
     ERR_FAIL_INDEX(p_point, blend_points_used);
-    ERR_FAIL_COND(p_node.is_null());
+    ERR_FAIL_COND(not p_node)
 
-    if (blend_points[p_point].node.is_valid()) {
+    if (blend_points[p_point].node) {
         blend_points[p_point].node->disconnect("tree_changed", this, "_tree_changed");
     }
     blend_points[p_point].node = p_node;
@@ -200,7 +200,7 @@ void AnimationNodeBlendSpace2D::add_triangle(int p_x, int p_y, int p_z, int p_at
                 break;
             }
         }
-        ERR_FAIL_COND(all_equal);
+        ERR_FAIL_COND(all_equal)
     }
 
     if (p_at_index == -1 || p_at_index == triangles.size()) {
@@ -288,7 +288,7 @@ void AnimationNodeBlendSpace2D::_set_triangles(const Vector<int> &p_triangles) {
 
     if (auto_triangles)
         return;
-    ERR_FAIL_COND(p_triangles.size() % 3 != 0);
+    ERR_FAIL_COND(p_triangles.size() % 3 != 0)
     for (int i = 0; i < p_triangles.size(); i += 3) {
         add_triangle(p_triangles[i + 0], p_triangles[i + 1], p_triangles[i + 2]);
     }
@@ -348,7 +348,7 @@ Vector2 AnimationNodeBlendSpace2D::get_closest_point(const Vector2 &p_point) {
 
     _update_triangles();
 
-    if (triangles.size() == 0)
+    if (triangles.empty())
         return Vector2();
 
     Vector2 best_point;
@@ -438,7 +438,7 @@ float AnimationNodeBlendSpace2D::process(float p_time, bool p_seek) {
 
     if (blend_mode == BLEND_MODE_INTERPOLATED) {
 
-        if (triangles.size() == 0)
+        if (triangles.empty())
             return 0;
 
         Vector2 best_point;
@@ -485,7 +485,7 @@ float AnimationNodeBlendSpace2D::process(float p_time, bool p_seek) {
             }
         }
 
-        ERR_FAIL_COND_V(blend_triangle == -1, 0); //should never reach here
+        ERR_FAIL_COND_V(blend_triangle == -1, 0) //should never reach here
 
         int triangle_points[3];
         for (int j = 0; j < 3; j++) {
@@ -603,68 +603,68 @@ AnimationNodeBlendSpace2D::BlendMode AnimationNodeBlendSpace2D::get_blend_mode()
 
 void AnimationNodeBlendSpace2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("add_blend_point", "node", "pos", "at_index"), &AnimationNodeBlendSpace2D::add_blend_point, {DEFVAL(-1)});
-    MethodBinder::bind_method(D_METHOD("set_blend_point_position", "point", "pos"), &AnimationNodeBlendSpace2D::set_blend_point_position);
-    MethodBinder::bind_method(D_METHOD("get_blend_point_position", "point"), &AnimationNodeBlendSpace2D::get_blend_point_position);
-    MethodBinder::bind_method(D_METHOD("set_blend_point_node", "point", "node"), &AnimationNodeBlendSpace2D::set_blend_point_node);
-    MethodBinder::bind_method(D_METHOD("get_blend_point_node", "point"), &AnimationNodeBlendSpace2D::get_blend_point_node);
-    MethodBinder::bind_method(D_METHOD("remove_blend_point", "point"), &AnimationNodeBlendSpace2D::remove_blend_point);
+    MethodBinder::bind_method(D_METHOD("add_blend_point", {"node", "pos", "at_index"}), &AnimationNodeBlendSpace2D::add_blend_point, {DEFVAL(-1)});
+    MethodBinder::bind_method(D_METHOD("set_blend_point_position", {"point", "pos"}), &AnimationNodeBlendSpace2D::set_blend_point_position);
+    MethodBinder::bind_method(D_METHOD("get_blend_point_position", {"point"}), &AnimationNodeBlendSpace2D::get_blend_point_position);
+    MethodBinder::bind_method(D_METHOD("set_blend_point_node", {"point", "node"}), &AnimationNodeBlendSpace2D::set_blend_point_node);
+    MethodBinder::bind_method(D_METHOD("get_blend_point_node", {"point"}), &AnimationNodeBlendSpace2D::get_blend_point_node);
+    MethodBinder::bind_method(D_METHOD("remove_blend_point", {"point"}), &AnimationNodeBlendSpace2D::remove_blend_point);
     MethodBinder::bind_method(D_METHOD("get_blend_point_count"), &AnimationNodeBlendSpace2D::get_blend_point_count);
 
-    MethodBinder::bind_method(D_METHOD("add_triangle", "x", "y", "z", "at_index"), &AnimationNodeBlendSpace2D::add_triangle, {DEFVAL(-1)});
-    MethodBinder::bind_method(D_METHOD("get_triangle_point", "triangle", "point"), &AnimationNodeBlendSpace2D::get_triangle_point);
-    MethodBinder::bind_method(D_METHOD("remove_triangle", "triangle"), &AnimationNodeBlendSpace2D::remove_triangle);
+    MethodBinder::bind_method(D_METHOD("add_triangle", {"x", "y", "z", "at_index"}), &AnimationNodeBlendSpace2D::add_triangle, {DEFVAL(-1)});
+    MethodBinder::bind_method(D_METHOD("get_triangle_point", {"triangle", "point"}), &AnimationNodeBlendSpace2D::get_triangle_point);
+    MethodBinder::bind_method(D_METHOD("remove_triangle", {"triangle"}), &AnimationNodeBlendSpace2D::remove_triangle);
     MethodBinder::bind_method(D_METHOD("get_triangle_count"), &AnimationNodeBlendSpace2D::get_triangle_count);
 
-    MethodBinder::bind_method(D_METHOD("set_min_space", "min_space"), &AnimationNodeBlendSpace2D::set_min_space);
+    MethodBinder::bind_method(D_METHOD("set_min_space", {"min_space"}), &AnimationNodeBlendSpace2D::set_min_space);
     MethodBinder::bind_method(D_METHOD("get_min_space"), &AnimationNodeBlendSpace2D::get_min_space);
 
-    MethodBinder::bind_method(D_METHOD("set_max_space", "max_space"), &AnimationNodeBlendSpace2D::set_max_space);
+    MethodBinder::bind_method(D_METHOD("set_max_space", {"max_space"}), &AnimationNodeBlendSpace2D::set_max_space);
     MethodBinder::bind_method(D_METHOD("get_max_space"), &AnimationNodeBlendSpace2D::get_max_space);
 
-    MethodBinder::bind_method(D_METHOD("set_snap", "snap"), &AnimationNodeBlendSpace2D::set_snap);
+    MethodBinder::bind_method(D_METHOD("set_snap", {"snap"}), &AnimationNodeBlendSpace2D::set_snap);
     MethodBinder::bind_method(D_METHOD("get_snap"), &AnimationNodeBlendSpace2D::get_snap);
 
-    MethodBinder::bind_method(D_METHOD("set_x_label", "text"), &AnimationNodeBlendSpace2D::set_x_label);
+    MethodBinder::bind_method(D_METHOD("set_x_label", {"text"}), &AnimationNodeBlendSpace2D::set_x_label);
     MethodBinder::bind_method(D_METHOD("get_x_label"), &AnimationNodeBlendSpace2D::get_x_label);
 
-    MethodBinder::bind_method(D_METHOD("set_y_label", "text"), &AnimationNodeBlendSpace2D::set_y_label);
+    MethodBinder::bind_method(D_METHOD("set_y_label", {"text"}), &AnimationNodeBlendSpace2D::set_y_label);
     MethodBinder::bind_method(D_METHOD("get_y_label"), &AnimationNodeBlendSpace2D::get_y_label);
 
-    MethodBinder::bind_method(D_METHOD("_add_blend_point", "index", "node"), &AnimationNodeBlendSpace2D::_add_blend_point);
+    MethodBinder::bind_method(D_METHOD("_add_blend_point", {"index", "node"}), &AnimationNodeBlendSpace2D::_add_blend_point);
 
-    MethodBinder::bind_method(D_METHOD("_set_triangles", "triangles"), &AnimationNodeBlendSpace2D::_set_triangles);
+    MethodBinder::bind_method(D_METHOD("_set_triangles", {"triangles"}), &AnimationNodeBlendSpace2D::_set_triangles);
     MethodBinder::bind_method(D_METHOD("_get_triangles"), &AnimationNodeBlendSpace2D::_get_triangles);
 
-    MethodBinder::bind_method(D_METHOD("set_auto_triangles", "enable"), &AnimationNodeBlendSpace2D::set_auto_triangles);
+    MethodBinder::bind_method(D_METHOD("set_auto_triangles", {"enable"}), &AnimationNodeBlendSpace2D::set_auto_triangles);
     MethodBinder::bind_method(D_METHOD("get_auto_triangles"), &AnimationNodeBlendSpace2D::get_auto_triangles);
 
-    MethodBinder::bind_method(D_METHOD("set_blend_mode", "mode"), &AnimationNodeBlendSpace2D::set_blend_mode);
+    MethodBinder::bind_method(D_METHOD("set_blend_mode", {"mode"}), &AnimationNodeBlendSpace2D::set_blend_mode);
     MethodBinder::bind_method(D_METHOD("get_blend_mode"), &AnimationNodeBlendSpace2D::get_blend_mode);
 
     MethodBinder::bind_method(D_METHOD("_tree_changed"), &AnimationNodeBlendSpace2D::_tree_changed);
     MethodBinder::bind_method(D_METHOD("_update_triangles"), &AnimationNodeBlendSpace2D::_update_triangles);
 
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "auto_triangles", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_auto_triangles", "get_auto_triangles");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "auto_triangles", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_auto_triangles", "get_auto_triangles");
 
     for (int i = 0; i < MAX_BLEND_POINTS; i++) {
-        ADD_PROPERTYI(PropertyInfo(Variant::OBJECT, "blend_point_" + itos(i) + "/node", PROPERTY_HINT_RESOURCE_TYPE, "AnimationRootNode", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_add_blend_point", "get_blend_point_node", i);
-        ADD_PROPERTYI(PropertyInfo(Variant::VECTOR2, "blend_point_" + itos(i) + "/pos", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_blend_point_position", "get_blend_point_position", i);
+        ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "blend_point_" + itos(i) + "/node", PROPERTY_HINT_RESOURCE_TYPE, "AnimationRootNode", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_add_blend_point", "get_blend_point_node", i);
+        ADD_PROPERTYI(PropertyInfo(VariantType::VECTOR2, "blend_point_" + itos(i) + "/pos", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_blend_point_position", "get_blend_point_position", i);
     }
 
-    ADD_PROPERTY(PropertyInfo(Variant::POOL_INT_ARRAY, "triangles", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_triangles", "_get_triangles");
+    ADD_PROPERTY(PropertyInfo(VariantType::POOL_INT_ARRAY, "triangles", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_triangles", "_get_triangles");
 
-    ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "min_space", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_min_space", "get_min_space");
-    ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "max_space", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_max_space", "get_max_space");
-    ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "snap", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_snap", "get_snap");
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "x_label", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_x_label", "get_x_label");
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "y_label", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_y_label", "get_y_label");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "blend_mode", PROPERTY_HINT_ENUM, "Interpolated,Discrete,Carry", PROPERTY_USAGE_NOEDITOR), "set_blend_mode", "get_blend_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "min_space", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_min_space", "get_min_space");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "max_space", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_max_space", "get_max_space");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "snap", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_snap", "get_snap");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "x_label", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_x_label", "get_x_label");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "y_label", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_y_label", "get_y_label");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "blend_mode", PROPERTY_HINT_ENUM, "Interpolated,Discrete,Carry", PROPERTY_USAGE_NOEDITOR), "set_blend_mode", "get_blend_mode");
 
     ADD_SIGNAL(MethodInfo("triangles_updated"));
-    BIND_ENUM_CONSTANT(BLEND_MODE_INTERPOLATED);
-    BIND_ENUM_CONSTANT(BLEND_MODE_DISCRETE);
-    BIND_ENUM_CONSTANT(BLEND_MODE_DISCRETE_CARRY);
+    BIND_ENUM_CONSTANT(BLEND_MODE_INTERPOLATED)
+    BIND_ENUM_CONSTANT(BLEND_MODE_DISCRETE)
+    BIND_ENUM_CONSTANT(BLEND_MODE_DISCRETE_CARRY)
 }
 
 AnimationNodeBlendSpace2D::AnimationNodeBlendSpace2D() {

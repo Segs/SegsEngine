@@ -114,10 +114,9 @@ void AudioStream::_bind_methods() {
 ////////////////////////////////
 
 Ref<AudioStreamPlayback> AudioStreamMicrophone::instance_playback() {
-    Ref<AudioStreamPlaybackMicrophone> playback;
-    playback.instance();
+    Ref<AudioStreamPlaybackMicrophone> playback(make_ref_counted<AudioStreamPlaybackMicrophone>());
 
-    playbacks.insert(playback.ptr());
+    playbacks.insert(playback.get());
 
     playback->microphone = Ref<AudioStreamMicrophone>((AudioStreamMicrophone *)this);
     playback->active = false;
@@ -251,9 +250,9 @@ AudioStreamPlaybackMicrophone::AudioStreamPlaybackMicrophone() {
 void AudioStreamRandomPitch::set_audio_stream(const Ref<AudioStream> &p_audio_stream) {
 
     audio_stream = p_audio_stream;
-    if (audio_stream.is_valid()) {
-        for (Set<AudioStreamPlaybackRandomPitch *>::Element *E = playbacks.front(); E; E = E->next()) {
-            E->get()->playback = audio_stream->instance_playback();
+    if (audio_stream) {
+        for (AudioStreamPlaybackRandomPitch * E : playbacks) {
+            E->playback = audio_stream->instance_playback();
         }
     }
 }
@@ -275,26 +274,25 @@ float AudioStreamRandomPitch::get_random_pitch() const {
 }
 
 Ref<AudioStreamPlayback> AudioStreamRandomPitch::instance_playback() {
-    Ref<AudioStreamPlaybackRandomPitch> playback;
-    playback.instance();
-    if (audio_stream.is_valid())
+    Ref<AudioStreamPlaybackRandomPitch> playback(make_ref_counted<AudioStreamPlaybackRandomPitch>());
+    if (audio_stream)
         playback->playback = audio_stream->instance_playback();
 
-    playbacks.insert(playback.ptr());
+    playbacks.insert(playback.get());
     playback->random_pitch = Ref<AudioStreamRandomPitch>((AudioStreamRandomPitch *)this);
     return playback;
 }
 
 String AudioStreamRandomPitch::get_stream_name() const {
 
-    if (audio_stream.is_valid()) {
+    if (audio_stream) {
         return "Random: " + audio_stream->get_name();
     }
     return "RandomPitch";
 }
 
 float AudioStreamRandomPitch::get_length() const {
-    if (audio_stream.is_valid()) {
+    if (audio_stream) {
         return audio_stream->get_length();
     }
 
@@ -303,14 +301,14 @@ float AudioStreamRandomPitch::get_length() const {
 
 void AudioStreamRandomPitch::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_audio_stream", "stream"), &AudioStreamRandomPitch::set_audio_stream);
+    MethodBinder::bind_method(D_METHOD("set_audio_stream", {"stream"}), &AudioStreamRandomPitch::set_audio_stream);
     MethodBinder::bind_method(D_METHOD("get_audio_stream"), &AudioStreamRandomPitch::get_audio_stream);
 
-    MethodBinder::bind_method(D_METHOD("set_random_pitch", "scale"), &AudioStreamRandomPitch::set_random_pitch);
+    MethodBinder::bind_method(D_METHOD("set_random_pitch", {"scale"}), &AudioStreamRandomPitch::set_random_pitch);
     MethodBinder::bind_method(D_METHOD("get_random_pitch"), &AudioStreamRandomPitch::get_random_pitch);
 
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "audio_stream", PROPERTY_HINT_RESOURCE_TYPE, "AudioStream"), "set_audio_stream", "get_audio_stream");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "random_pitch", PROPERTY_HINT_RANGE, "1,16,0.01"), "set_random_pitch", "get_random_pitch");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "audio_stream", PROPERTY_HINT_RESOURCE_TYPE, "AudioStream"), "set_audio_stream", "get_audio_stream");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "random_pitch", PROPERTY_HINT_RANGE, "1,16,0.01"), "set_random_pitch", "get_random_pitch");
 }
 
 AudioStreamRandomPitch::AudioStreamRandomPitch() {
@@ -324,19 +322,19 @@ void AudioStreamPlaybackRandomPitch::start(float p_from_pos) {
 
     pitch_scale = range_from + Math::randf() * (range_to - range_from);
 
-    if (playing.is_valid()) {
+    if (playing) {
         playing->start(p_from_pos);
     }
 }
 
 void AudioStreamPlaybackRandomPitch::stop() {
-    if (playing.is_valid()) {
+    if (playing) {
         playing->stop();
         ;
     }
 }
 bool AudioStreamPlaybackRandomPitch::is_playing() const {
-    if (playing.is_valid()) {
+    if (playing) {
         return playing->is_playing();
     }
 
@@ -344,7 +342,7 @@ bool AudioStreamPlaybackRandomPitch::is_playing() const {
 }
 
 int AudioStreamPlaybackRandomPitch::get_loop_count() const {
-    if (playing.is_valid()) {
+    if (playing) {
         return playing->get_loop_count();
     }
 
@@ -352,20 +350,20 @@ int AudioStreamPlaybackRandomPitch::get_loop_count() const {
 }
 
 float AudioStreamPlaybackRandomPitch::get_playback_position() const {
-    if (playing.is_valid()) {
+    if (playing) {
         return playing->get_playback_position();
     }
 
     return 0;
 }
 void AudioStreamPlaybackRandomPitch::seek(float p_time) {
-    if (playing.is_valid()) {
+    if (playing) {
         playing->seek(p_time);
     }
 }
 
 void AudioStreamPlaybackRandomPitch::mix(AudioFrame *p_buffer, float p_rate_scale, int p_frames) {
-    if (playing.is_valid()) {
+    if (playing) {
         playing->mix(p_buffer, p_rate_scale * pitch_scale, p_frames);
     } else {
         for (int i = 0; i < p_frames; i++) {

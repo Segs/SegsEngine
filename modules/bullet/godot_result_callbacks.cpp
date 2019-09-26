@@ -74,7 +74,7 @@ bool GodotClosestRayResultCallback::needsCollision(btBroadphaseProxy *proxy0) co
             return false;
         }
 
-        if (m_exclude->has(gObj->get_self())) {
+        if (m_exclude->contains(gObj->get_self())) {
             return false;
         }
 
@@ -92,11 +92,7 @@ bool GodotAllConvexResultCallback::needsCollision(btBroadphaseProxy *proxy0) con
     if (needs) {
         btCollisionObject *btObj = static_cast<btCollisionObject *>(proxy0->m_clientObject);
         CollisionObjectBullet *gObj = static_cast<CollisionObjectBullet *>(btObj->getUserPointer());
-        if (m_exclude->has(gObj->get_self())) {
-            return false;
-        }
-
-        return true;
+        return not m_exclude->contains(gObj->get_self());
     } else {
         return false;
     }
@@ -158,7 +154,7 @@ bool GodotClosestConvexResultCallback::needsCollision(btBroadphaseProxy *proxy0)
                 return false;
         }
 
-        if (m_exclude->has(gObj->get_self())) {
+        if (m_exclude->contains(gObj->get_self())) {
             return false;
         }
         return true;
@@ -192,7 +188,7 @@ bool GodotAllContactResultCallback::needsCollision(btBroadphaseProxy *proxy0) co
                 return false;
         }
 
-        if (m_exclude->has(gObj->get_self())) {
+        if (m_exclude->contains(gObj->get_self())) {
             return false;
         }
         return true;
@@ -246,7 +242,7 @@ bool GodotContactPairContactResultCallback::needsCollision(btBroadphaseProxy *pr
                 return false;
         }
 
-        if (m_exclude->has(gObj->get_self())) {
+        if (m_exclude->contains(gObj->get_self())) {
             return false;
         }
         return true;
@@ -286,7 +282,7 @@ bool GodotRestInfoContactResultCallback::needsCollision(btBroadphaseProxy *proxy
                 return false;
         }
 
-        if (m_exclude->has(gObj->get_self())) {
+        if (m_exclude->contains(gObj->get_self())) {
             return false;
         }
         return true;

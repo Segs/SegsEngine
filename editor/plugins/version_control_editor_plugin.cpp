@@ -63,14 +63,6 @@ void VersionControlEditorPlugin::_selected_a_vcs(int p_id) {
 
     Vector<StringName> available_addons = get_available_vcs_names();
     const StringName selected_vcs = set_up_choice->get_item_text(p_id);
-
-    if (available_addons.find(selected_vcs) != 0) {
-
-        set_up_init_button->set_disabled(false);
-    } else {
-
-        set_up_init_button->set_disabled(true);
-    }
 }
 
 void VersionControlEditorPlugin::_populate_available_vcs_names() {
@@ -79,9 +71,6 @@ void VersionControlEditorPlugin::_populate_available_vcs_names() {
 
     if (!called) {
 
-        set_up_choice->add_item("Select an available VCS");
-
-        fetch_available_vcs_addon_names();
         Vector<StringName> available_addons = get_available_vcs_names();
         for (int i = 0; i < available_addons.size(); i++) {
 
@@ -99,19 +88,21 @@ VersionControlEditorPlugin *VersionControlEditorPlugin::get_singleton() {
 
 void VersionControlEditorPlugin::popup_vcs_set_up_dialog(const Control *p_gui_base) {
 
+    fetch_available_vcs_addon_names();
+    Vector<StringName> available_addons = get_available_vcs_names();
+    if (available_addons.size() >= 1) {
     Size2 popup_size = Size2(400, 100);
     Size2 window_size = p_gui_base->get_viewport_rect().size;
-    popup_size.x = MIN(window_size.x * 0.5f, popup_size.x);
-    popup_size.y = MIN(window_size.y * 0.5f, popup_size.y);
-
-    if (get_is_vcs_intialized()) {
-
-        set_up_init_button->set_disabled(true);
-    }
+    popup_size.x = MIN(window_size.x * 0.5, popup_size.x);
+    popup_size.y = MIN(window_size.y * 0.5, popup_size.y);
 
     _populate_available_vcs_names();
 
     set_up_dialog->popup_centered_clamped(popup_size * EDSCALE);
+    } else {
+
+        EditorNode::get_singleton()->show_warning(TTR("No VCS addons are available."), TTR("Error"));
+    }
 }
 
 void VersionControlEditorPlugin::_initialize_vcs() {
@@ -124,12 +115,12 @@ void VersionControlEditorPlugin::_initialize_vcs() {
         return;
     }
 
-    int id = set_up_choice->get_selected_id();
+    const int id = set_up_choice->get_selected_id();
     String selected_addon = set_up_choice->get_item_text(id);
 
     String path = ScriptServer::get_global_class_path(selected_addon);
-    Ref<Script> script = ResourceLoader::load(path);
-    if (!script.is_valid()) {
+    Ref<Script> script = dynamic_ref_cast<Script>(ResourceLoader::load(path));
+    if (not script) {
 
         ERR_EXPLAIN("VCS Addon path is invalid")
     }
@@ -160,7 +151,7 @@ void VersionControlEditorPlugin::_initialize_vcs() {
 void VersionControlEditorPlugin::_send_commit_msg() {
 
     String msg = commit_message->get_text();
-    if (msg == "") {
+    if (msg.empty()) {
 
         commit_status->set_text(TTR("No commit message was provided"));
         return;
@@ -329,7 +320,7 @@ void VersionControlEditorPlugin::_display_file_diff(String p_file_path) {
 void VersionControlEditorPlugin::_refresh_file_diff() {
 
     String open_file = diff_file_name->get_text();
-    if (open_file != "") {
+    if (!open_file.empty()) {
 
         _display_file_diff(diff_file_name->get_text());
     }
@@ -384,7 +375,19 @@ void VersionControlEditorPlugin::register_editor() {
 
 void VersionControlEditorPlugin::fetch_available_vcs_addon_names() {
 
-    ScriptServer::get_global_class_list(&available_addons);
+    Vector<StringName> global_classes;
+    ScriptServer::get_global_class_list(&global_classes);
+
+    for (int i = 0; i != global_classes.size(); i++) {
+
+        String path = ScriptServer::get_global_class_path(global_classes[i]);
+        Ref<Script> script = dynamic_ref_cast<Script>(ResourceLoader::load(path));
+
+        if (script->get_instance_base_type() == "EditorVCSInterface") {
+
+            available_addons.push_back(global_classes[i]);
+        }
+    }
 }
 
 void VersionControlEditorPlugin::clear_stage_area() {
@@ -430,7 +433,6 @@ VersionControlEditorPlugin::VersionControlEditorPlugin() {
     version_control_actions->add_child(set_up_dialog);
 
     set_up_ok_button = set_up_dialog->get_ok();
-    set_up_ok_button->set_disabled(false);
     set_up_ok_button->set_text(TTR("Close"));
 
     set_up_vbc = memnew(VBoxContainer);
@@ -457,7 +459,6 @@ VersionControlEditorPlugin::VersionControlEditorPlugin() {
     set_up_init_settings = nullptr;
 
     set_up_init_button = memnew(Button);
-    set_up_init_button->set_disabled(true);
     set_up_init_button->set_text(TTR("Initialize"));
     set_up_init_button->connect("pressed", this, "_initialize_vcs");
     set_up_vbc->add_child(set_up_init_button);
@@ -567,7 +568,7 @@ VersionControlEditorPlugin::VersionControlEditorPlugin() {
 
     diff_heading = memnew(Label);
     diff_heading->set_text(TTR("Status"));
-    diff_heading->set_tooltip(TTR("View file diffs before commiting them to the latest version"));
+    diff_heading->set_tooltip(TTR("View file diffs before committing them to the latest version"));
     diff_hbc->add_child(diff_heading);
 
     diff_file_name = memnew(Label);

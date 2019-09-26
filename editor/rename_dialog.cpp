@@ -394,7 +394,7 @@ void RenameDialog::_post_popup() {
     preview_node = nullptr;
 
     Array selected_node_list = editor_selection->get_selected_nodes();
-    ERR_FAIL_COND(selected_node_list.size() == 0);
+    ERR_FAIL_COND(selected_node_list.empty())
 
     preview_node = selected_node_list[0];
 
@@ -406,7 +406,7 @@ void RenameDialog::_update_preview_int(int new_value) {
     _update_preview();
 }
 
-void RenameDialog::_update_preview(String new_text) {
+void RenameDialog::_update_preview(const String& new_text) {
 
     if (lock_preview_update || preview_node == nullptr)
         return;
@@ -540,7 +540,7 @@ String RenameDialog::_postprocess(const String &subject) {
         Array matches = pattern.search_all(result);
 
         // _ name would become empty. Ignore
-        if (matches.size() && result != "_") {
+        if (!matches.empty() && result != "_") {
             String buffer;
             int start = 0;
             int end = 0;
@@ -573,7 +573,7 @@ void RenameDialog::_iterate_scene(const Node *node, const Array &selection, int 
     if (!node)
         return;
 
-    if (selection.has(node)) {
+    if (selection.contains(Variant(node))) {
 
         String new_name = _apply_rename(node, *counter);
 
@@ -629,7 +629,7 @@ void RenameDialog::rename() {
                 continue;
             }
 
-            scene_tree_editor->emit_signal("node_prerename", n, new_name);
+            scene_tree_editor->emit_signal("node_prerename", Variant(n), new_name);
             undo_redo->add_do_method(scene_tree_editor, "_rename_node", n->get_instance_id(), new_name);
             undo_redo->add_undo_method(scene_tree_editor, "_rename_node", n->get_instance_id(), n->get_name());
         }
@@ -669,7 +669,7 @@ bool RenameDialog::_is_main_field(LineEdit *line_edit) {
            (line_edit == lne_search || line_edit == lne_replace || line_edit == lne_prefix || line_edit == lne_suffix);
 }
 
-void RenameDialog::_insert_text(String text) {
+void RenameDialog::_insert_text(const String& text) {
 
     LineEdit *focus_owner = Object::cast_to<LineEdit>(get_focus_owner());
 

@@ -147,7 +147,6 @@ public:
 	VisualScriptBuiltinFunc();
 };
 
-VARIANT_ENUM_CAST(VisualScriptBuiltinFunc::BuiltinFunc)
 
 void register_visual_script_builtin_func_node();
 

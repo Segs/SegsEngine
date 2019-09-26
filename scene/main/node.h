@@ -30,12 +30,9 @@
 
 #pragma once
 
-#include "core/class_db.h"
 #include "core/map.h"
 #include "core/node_path.h"
 #include "core/object.h"
-#include "core/project_settings.h"
-#include "core/script_language.h"
 #include "scene/main/scene_tree.h"
 
 class Viewport;
@@ -80,9 +77,9 @@ public:
 private:
     struct GroupData {
 
-        bool persistent;
+        bool persistent = false;
         SceneTree::Group *group;
-        GroupData() { persistent = false; }
+        GroupData() {}
     };
 
     struct Data {
@@ -250,7 +247,9 @@ public:
         NOTIFICATION_TRANSLATION_CHANGED = MainLoop::NOTIFICATION_TRANSLATION_CHANGED,
         NOTIFICATION_WM_ABOUT = MainLoop::NOTIFICATION_WM_ABOUT,
         NOTIFICATION_CRASH = MainLoop::NOTIFICATION_CRASH,
-        NOTIFICATION_OS_IME_UPDATE = MainLoop::NOTIFICATION_OS_IME_UPDATE
+        NOTIFICATION_OS_IME_UPDATE = MainLoop::NOTIFICATION_OS_IME_UPDATE,
+        NOTIFICATION_APP_RESUMED = MainLoop::NOTIFICATION_APP_RESUMED,
+        NOTIFICATION_APP_PAUSED = MainLoop::NOTIFICATION_APP_PAUSED
 
     };
 
@@ -276,7 +275,7 @@ public:
     Node *find_parent(const String &p_mask) const;
 
     _FORCE_INLINE_ SceneTree *get_tree() const {
-        ERR_FAIL_COND_V(!data.tree, nullptr);
+        ERR_FAIL_COND_V(!data.tree, nullptr)
         return data.tree;
     }
 
@@ -318,8 +317,8 @@ public:
     void set_filename(const String &p_filename);
     String get_filename() const;
 
-	void set_editor_description(const String &p_editor_description);
-	String get_editor_description() const;
+    void set_editor_description(const String &p_editor_description);
+    String get_editor_description() const;
 
     void set_editable_instance(Node *p_node, bool p_editable);
     bool is_editable_instance(const Node *p_node) const;
@@ -406,7 +405,7 @@ public:
 
     bool is_owned_by_parent() const;
 
-    void get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const override;
+    void get_argument_options(const StringName &p_function, int p_idx, ListPOD<String> *r_options) const override;
 
     void clear_internal_tree_resource_paths();
 
@@ -443,8 +442,8 @@ public:
     Ref<MultiplayerAPI> get_multiplayer() const;
     Ref<MultiplayerAPI> get_custom_multiplayer() const;
     void set_custom_multiplayer(Ref<MultiplayerAPI> p_multiplayer);
-    const Map<StringName, MultiplayerAPI::RPCMode>::Element *get_node_rpc_mode(const StringName &p_method);
-    const Map<StringName, MultiplayerAPI::RPCMode>::Element *get_node_rset_mode(const StringName &p_property);
+    const MultiplayerAPI::RPCMode *get_node_rpc_mode(const StringName &p_method);
+    const MultiplayerAPI::RPCMode *get_node_rset_mode(const StringName &p_property);
 
     Node();
     ~Node() override;

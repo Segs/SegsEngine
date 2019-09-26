@@ -38,6 +38,7 @@
 #include "core/crypto/hashing_context.h"
 #include "core/engine.h"
 #include "core/func_ref.h"
+#include "core/image.h"
 #include "core/input_map.h"
 #include "core/io/config_file.h"
 #include "core/io/http_client.h"
@@ -50,6 +51,7 @@
 #include "core/io/pck_packer.h"
 #include "core/io/resource_format_binary.h"
 #include "core/io/resource_importer.h"
+#include "core/io/resource_loader.h"
 #include "core/io/stream_peer_ssl.h"
 #include "core/io/tcp_server.h"
 #include "core/io/translation_loader_po.h"
@@ -62,9 +64,12 @@
 #include "core/object_db.h"
 #include "core/os/input.h"
 #include "core/os/main_loop.h"
+#include "core/os/semaphore.h"
+#include "core/os/thread.h"
 #include "core/packed_data_container.h"
 #include "core/path_remap.h"
 #include "core/project_settings.h"
+#include "core/script_language.h"
 #include "core/translation.h"
 #include "core/undo_redo.h"
 
@@ -111,18 +116,25 @@ void register_core_types() {
 
     CoreStringNames::create();
 
-    resource_format_po.instance();
+    TranslationLoaderPO::initialize_class();
+    ResourceFormatSaverBinary::initialize_class();
+    ResourceFormatLoaderBinary::initialize_class();
+    ResourceFormatImporter::initialize_class();
+    ResourceFormatLoaderImage::initialize_class();
+
+    resource_format_po = make_ref_counted<TranslationLoaderPO>();
     ResourceLoader::add_resource_format_loader(resource_format_po);
 
-    resource_saver_binary.instance();
+    resource_saver_binary = make_ref_counted<ResourceFormatSaverBinary>();
     ResourceSaver::add_resource_format_saver(resource_saver_binary);
-    resource_loader_binary.instance();
+
+    resource_loader_binary = make_ref_counted<ResourceFormatLoaderBinary>();
     ResourceLoader::add_resource_format_loader(resource_loader_binary);
 
-    resource_format_importer.instance();
+    resource_format_importer = make_ref_counted<ResourceFormatImporter>();
     ResourceLoader::add_resource_format_loader(resource_format_importer);
 
-    resource_format_image.instance();
+    resource_format_image = make_ref_counted<ResourceFormatLoaderImage>();
     ResourceLoader::add_resource_format_loader(resource_format_image);
 
     ClassDB::register_class<Object>();
@@ -164,9 +176,12 @@ void register_core_types() {
     ClassDB::register_custom_instance_class<Crypto>();
     ClassDB::register_custom_instance_class<StreamPeerSSL>();
 
-    resource_format_saver_crypto.instance();
+    ResourceFormatSaverCrypto::initialize_class();
+    ResourceFormatLoaderCrypto::initialize_class();
+
+    resource_format_saver_crypto = make_ref_counted<ResourceFormatSaverCrypto>();
     ResourceSaver::add_resource_format_saver(resource_format_saver_crypto);
-    resource_format_loader_crypto.instance();
+    resource_format_loader_crypto = make_ref_counted<ResourceFormatLoaderCrypto>();
     ResourceLoader::add_resource_format_loader(resource_format_loader_crypto);
 
     ClassDB::register_virtual_class<IP>();
@@ -210,6 +225,14 @@ void register_core_types() {
     ClassDB::register_virtual_class<ResourceImporter>();
 
     ip = IP::create();
+    _Geometry::initialize_class();
+    _ResourceLoader::initialize_class();
+    _ResourceSaver::initialize_class();
+    _OS::initialize_class();
+    _Engine::initialize_class();
+    _ClassDB::initialize_class();
+    _Marshalls::initialize_class();
+    _JSON::initialize_class();
 
     _geometry = memnew(_Geometry);
 
@@ -225,12 +248,12 @@ void register_core_types() {
 void register_core_settings() {
     //since in register core types, globals may not e present
     GLOBAL_DEF("network/limits/tcp/connect_timeout_seconds", (30));
-    ProjectSettings::get_singleton()->set_custom_property_info("network/limits/tcp/connect_timeout_seconds", PropertyInfo(Variant::INT, "network/limits/tcp/connect_timeout_seconds", PROPERTY_HINT_RANGE, "1,1800,1"));
+    ProjectSettings::get_singleton()->set_custom_property_info("network/limits/tcp/connect_timeout_seconds", PropertyInfo(VariantType::INT, "network/limits/tcp/connect_timeout_seconds", PROPERTY_HINT_RANGE, "1,1800,1"));
     GLOBAL_DEF_RST("network/limits/packet_peer_stream/max_buffer_po2", (16));
-    ProjectSettings::get_singleton()->set_custom_property_info("network/limits/packet_peer_stream/max_buffer_po2", PropertyInfo(Variant::INT, "network/limits/packet_peer_stream/max_buffer_po2", PROPERTY_HINT_RANGE, "0,64,1,or_greater"));
+    ProjectSettings::get_singleton()->set_custom_property_info("network/limits/packet_peer_stream/max_buffer_po2", PropertyInfo(VariantType::INT, "network/limits/packet_peer_stream/max_buffer_po2", PROPERTY_HINT_RANGE, "0,64,1,or_greater"));
 
     GLOBAL_DEF("network/ssl/certificates", "");
-    ProjectSettings::get_singleton()->set_custom_property_info("network/ssl/certificates", PropertyInfo(Variant::STRING, "network/ssl/certificates", PROPERTY_HINT_FILE, "*.crt"));
+    ProjectSettings::get_singleton()->set_custom_property_info("network/ssl/certificates", PropertyInfo(VariantType::STRING, "network/ssl/certificates", PROPERTY_HINT_FILE, "*.crt"));
 }
 
 void register_core_singletons() {
@@ -249,20 +272,20 @@ void register_core_singletons() {
     ClassDB::register_class<InputMap>();
     ClassDB::register_class<_JSON>();
     ClassDB::register_class<Expression>();
-	Engine *en =Engine::get_singleton();
-	en->add_singleton(Engine::Singleton(StaticCString("ProjectSettings"), ProjectSettings::get_singleton()));
-	en->add_singleton(Engine::Singleton(StaticCString("IP"), IP::get_singleton()));
-	en->add_singleton(Engine::Singleton(StaticCString("Geometry"), _Geometry::get_singleton()));
-	en->add_singleton(Engine::Singleton(StaticCString("ResourceLoader"), _ResourceLoader::get_singleton()));
-	en->add_singleton(Engine::Singleton(StaticCString("ResourceSaver"), _ResourceSaver::get_singleton()));
-	en->add_singleton(Engine::Singleton(StaticCString("OS"), _OS::get_singleton()));
-	en->add_singleton(Engine::Singleton(StaticCString("Engine"), _Engine::get_singleton()));
-	en->add_singleton(Engine::Singleton(StaticCString("ClassDB"), _classdb));
-	en->add_singleton(Engine::Singleton(StaticCString("Marshalls"), _Marshalls::get_singleton()));
-	en->add_singleton(Engine::Singleton(StaticCString("TranslationServer"), TranslationServer::get_singleton()));
-	en->add_singleton(Engine::Singleton(StaticCString("Input"), Input::get_singleton()));
-	en->add_singleton(Engine::Singleton(StaticCString("InputMap"), InputMap::get_singleton()));
-	en->add_singleton(Engine::Singleton(StaticCString("JSON"), _JSON::get_singleton()));
+    Engine *en =Engine::get_singleton();
+    en->add_singleton(Engine::Singleton(StaticCString("ProjectSettings"), ProjectSettings::get_singleton()));
+    en->add_singleton(Engine::Singleton(StaticCString("IP"), IP::get_singleton()));
+    en->add_singleton(Engine::Singleton(StaticCString("Geometry"), _Geometry::get_singleton()));
+    en->add_singleton(Engine::Singleton(StaticCString("ResourceLoader"), _ResourceLoader::get_singleton()));
+    en->add_singleton(Engine::Singleton(StaticCString("ResourceSaver"), _ResourceSaver::get_singleton()));
+    en->add_singleton(Engine::Singleton(StaticCString("OS"), _OS::get_singleton()));
+    en->add_singleton(Engine::Singleton(StaticCString("Engine"), _Engine::get_singleton()));
+    en->add_singleton(Engine::Singleton(StaticCString("ClassDB"), _classdb));
+    en->add_singleton(Engine::Singleton(StaticCString("Marshalls"), _Marshalls::get_singleton()));
+    en->add_singleton(Engine::Singleton(StaticCString("TranslationServer"), TranslationServer::get_singleton()));
+    en->add_singleton(Engine::Singleton(StaticCString("Input"), Input::get_singleton()));
+    en->add_singleton(Engine::Singleton(StaticCString("InputMap"), InputMap::get_singleton()));
+    en->add_singleton(Engine::Singleton(StaticCString("JSON"), _JSON::get_singleton()));
 }
 
 void unregister_core_types() {

@@ -30,11 +30,13 @@
 
 #include "memory.h"
 
-#include "core/error_macros.h"
+//#include "core/error_macros.h"
 #include "core/safe_refcount.h"
 
 #include <cstdio>
 #include <cstdlib>
+#include <cassert>
+#include "error_macros.h"
 
 void *operator new(size_t p_size, const char *p_description) {
 
@@ -83,7 +85,7 @@ void *Memory::alloc_static(size_t p_bytes, bool p_pad_align) {
 
     void *mem = malloc(p_bytes + (prepad ? PAD_ALIGN : 0));
 
-    ERR_FAIL_COND_V(!mem, nullptr)
+    assert(mem);
 
     atomic_increment(&alloc_count);
 
@@ -137,7 +139,9 @@ void *Memory::realloc_static(void *p_memory, size_t p_bytes, bool p_pad_align) {
             *s = p_bytes;
 
             mem = (uint8_t *)realloc(mem, p_bytes + PAD_ALIGN);
-            ERR_FAIL_COND_V(!mem, nullptr);
+            assert(mem);
+            if(unlikely(!mem))
+                return nullptr;
 
             s = (uint64_t *)mem;
 
@@ -148,8 +152,9 @@ void *Memory::realloc_static(void *p_memory, size_t p_bytes, bool p_pad_align) {
     } else {
 
         mem = (uint8_t *)realloc(mem, p_bytes);
-
-        ERR_FAIL_COND_V(mem == nullptr && p_bytes > 0, nullptr);
+        assert(mem != nullptr || p_bytes == 0);
+        if(unlikely(mem == nullptr && p_bytes > 0))
+            return nullptr;
 
         return mem;
     }
@@ -157,7 +162,9 @@ void *Memory::realloc_static(void *p_memory, size_t p_bytes, bool p_pad_align) {
 
 void Memory::free_static(void *p_ptr, bool p_pad_align) {
 
-    ERR_FAIL_COND(p_ptr == nullptr);
+    assert(p_ptr);
+    if(unlikely(p_ptr == nullptr))
+        return;
 
     uint8_t *mem = (uint8_t *)p_ptr;
 

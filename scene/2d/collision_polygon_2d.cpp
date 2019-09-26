@@ -44,7 +44,7 @@ void CollisionPolygon2D::_build_polygon() {
 
     parent->shape_owner_clear_shapes(owner_id);
 
-    if (polygon.size() == 0)
+    if (polygon.empty())
         return;
 
     bool solids = build_mode == BUILD_SOLIDS;
@@ -55,14 +55,14 @@ void CollisionPolygon2D::_build_polygon() {
         //decompose concave into multiple convex polygons and add them
         Vector<Vector<Vector2> > decomp = _decompose_in_convex();
         for (int i = 0; i < decomp.size(); i++) {
-            Ref<ConvexPolygonShape2D> convex = memnew(ConvexPolygonShape2D);
+            Ref<ConvexPolygonShape2D> convex(make_ref_counted<ConvexPolygonShape2D>());
             convex->set_points(decomp[i]);
             parent->shape_owner_add_shape(owner_id, convex);
         }
 
     } else {
 
-        Ref<ConcavePolygonShape2D> concave = memnew(ConcavePolygonShape2D);
+        Ref<ConcavePolygonShape2D> concave(make_ref_counted<ConcavePolygonShape2D>());
 
         PoolVector<Vector2> segments;
         segments.resize(polygon.size() * 2);
@@ -147,14 +147,14 @@ void CollisionPolygon2D::_notification(int p_what) {
                 Vector2 p = polygon[i];
                 Vector2 n = polygon[(i + 1) % polygon.size()];
                 // draw line with width <= 1, so it does not scale with zoom and break pixel exact editing
-                draw_line(p, n, Color(0.9, 0.2, 0.0, 0.8), 1);
+                draw_line(p, n, Color(0.9f, 0.2f, 0.0, 0.8f), 1);
             }
 #define DEBUG_DECOMPOSE
 #if defined(TOOLS_ENABLED) && defined(DEBUG_DECOMPOSE)
 
             Vector<Vector<Vector2> > decomp = _decompose_in_convex();
 
-            Color c(0.4f, 0.9f, 0.1);
+            Color c(0.4f, 0.9f, 0.1f);
             for (int i = 0; i < decomp.size(); i++) {
 
                 c.set_hsv(Math::fmod(c.get_h() + 0.738f, 1), c.get_s(), c.get_v(), 0.5);
@@ -199,8 +199,8 @@ void CollisionPolygon2D::set_polygon(const Vector<Point2> &p_polygon) {
 
             aabb = Rect2(-10, -10, 20, 20);
         } else {
-            aabb.position -= aabb.size * 0.3;
-            aabb.size += aabb.size * 0.6;
+            aabb.position -= aabb.size * 0.3f;
+            aabb.size += aabb.size * 0.6f;
         }
     }
 
@@ -218,7 +218,7 @@ Vector<Point2> CollisionPolygon2D::get_polygon() const {
 
 void CollisionPolygon2D::set_build_mode(BuildMode p_mode) {
 
-    ERR_FAIL_INDEX((int)p_mode, 2);
+    ERR_FAIL_INDEX((int)p_mode, 2)
     build_mode = p_mode;
     if (parent) {
         _build_polygon();
@@ -294,26 +294,26 @@ float CollisionPolygon2D::get_one_way_collision_margin() const {
 }
 void CollisionPolygon2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_polygon", "polygon"), &CollisionPolygon2D::set_polygon);
+    MethodBinder::bind_method(D_METHOD("set_polygon", {"polygon"}), &CollisionPolygon2D::set_polygon);
     MethodBinder::bind_method(D_METHOD("get_polygon"), &CollisionPolygon2D::get_polygon);
 
-    MethodBinder::bind_method(D_METHOD("set_build_mode", "build_mode"), &CollisionPolygon2D::set_build_mode);
+    MethodBinder::bind_method(D_METHOD("set_build_mode", {"build_mode"}), &CollisionPolygon2D::set_build_mode);
     MethodBinder::bind_method(D_METHOD("get_build_mode"), &CollisionPolygon2D::get_build_mode);
-    MethodBinder::bind_method(D_METHOD("set_disabled", "disabled"), &CollisionPolygon2D::set_disabled);
+    MethodBinder::bind_method(D_METHOD("set_disabled", {"disabled"}), &CollisionPolygon2D::set_disabled);
     MethodBinder::bind_method(D_METHOD("is_disabled"), &CollisionPolygon2D::is_disabled);
-    MethodBinder::bind_method(D_METHOD("set_one_way_collision", "enabled"), &CollisionPolygon2D::set_one_way_collision);
+    MethodBinder::bind_method(D_METHOD("set_one_way_collision", {"enabled"}), &CollisionPolygon2D::set_one_way_collision);
     MethodBinder::bind_method(D_METHOD("is_one_way_collision_enabled"), &CollisionPolygon2D::is_one_way_collision_enabled);
-    MethodBinder::bind_method(D_METHOD("set_one_way_collision_margin", "margin"), &CollisionPolygon2D::set_one_way_collision_margin);
+    MethodBinder::bind_method(D_METHOD("set_one_way_collision_margin", {"margin"}), &CollisionPolygon2D::set_one_way_collision_margin);
     MethodBinder::bind_method(D_METHOD("get_one_way_collision_margin"), &CollisionPolygon2D::get_one_way_collision_margin);
 
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "build_mode", PROPERTY_HINT_ENUM, "Solids,Segments"), "set_build_mode", "get_build_mode");
-    ADD_PROPERTY(PropertyInfo(Variant::POOL_VECTOR2_ARRAY, "polygon"), "set_polygon", "get_polygon");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "disabled"), "set_disabled", "is_disabled");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "one_way_collision"), "set_one_way_collision", "is_one_way_collision_enabled");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "one_way_collision_margin", PROPERTY_HINT_RANGE, "0,128,0.1"), "set_one_way_collision_margin", "get_one_way_collision_margin");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "build_mode", PROPERTY_HINT_ENUM, "Solids,Segments"), "set_build_mode", "get_build_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR2_ARRAY, "polygon"), "set_polygon", "get_polygon");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "disabled"), "set_disabled", "is_disabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "one_way_collision"), "set_one_way_collision", "is_one_way_collision_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "one_way_collision_margin", PROPERTY_HINT_RANGE, "0,128,0.1"), "set_one_way_collision_margin", "get_one_way_collision_margin");
 
-    BIND_ENUM_CONSTANT(BUILD_SOLIDS);
-    BIND_ENUM_CONSTANT(BUILD_SEGMENTS);
+    BIND_ENUM_CONSTANT(BUILD_SOLIDS)
+    BIND_ENUM_CONSTANT(BUILD_SEGMENTS)
 }
 
 CollisionPolygon2D::CollisionPolygon2D() {

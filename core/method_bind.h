@@ -38,8 +38,10 @@
 #include "core/method_enum_caster.h"
 #include "core/type_info.h"
 
-#include <functional>
+
 #include <cstdio>
+#include <type_traits>
+#include <functional>
 
 namespace ObjectNS
 {
@@ -62,8 +64,8 @@ struct VariantObjectClassChecker {
 template <>
 struct VariantObjectClassChecker<Node *> {
     static _FORCE_INLINE_ bool check(const Variant &p_variant) {
-        Object *obj = p_variant;
-        Node *node = p_variant;
+        Object *obj = (Object *)p_variant;
+        Node *node = (Node *)p_variant;
         return node || !obj;
     }
 };
@@ -90,7 +92,8 @@ VARIANT_ENUM_CAST(VAlign)
 VARIANT_ENUM_CAST(PropertyHint)
 VARIANT_ENUM_CAST(PropertyUsageFlags)
 VARIANT_ENUM_CAST(MethodFlags)
-VARIANT_ENUM_CAST(Variant::Type)
+VARIANT_ENUM_CAST(VariantType)
+
 VARIANT_ENUM_CAST(Variant::Operator)
 
 template <>
@@ -100,15 +103,6 @@ struct VariantCaster<char16_t> {
     }
 };
 #ifdef PTRCALL_ENABLED
-template <>
-struct PtrToArg<char16_t> {
-    _FORCE_INLINE_ static char16_t convert(const void *p_ptr) {
-        return char16_t(*reinterpret_cast<const int *>(p_ptr));
-    }
-    _FORCE_INLINE_ static void encode(char16_t p_val, const void *p_ptr) {
-        *(int *)p_ptr = p_val;
-    }
-};
 template <>
 struct PtrToArg<QChar> {
     _FORCE_INLINE_ static QChar convert(const void *p_ptr) {
@@ -131,7 +125,7 @@ MethodBind *create_vararg_method_bind(Variant (T::*p_method)(const Variant **, i
 }
 
 /*****************************************************************/
-/// Warning Lovecraftian horrors ahead
+/// Warning - Lovecraftian horrors ahead
 /*****************************************************************/
 
 template <size_t I>
@@ -182,18 +176,12 @@ struct ArgumentWrapper {
         return provided_args[IDX];
     }
 };
+
 struct GetPropertyType {
     using Result = PropertyInfo;
     template<class TS,int IDX>
     Result static doit() {
-        return GetTypeInfo<TS>::get_class_info();
-    }
-};
-struct VerifierHolder
-{
-    template<class T>
-    static bool check(const Variant &arg) {
-        return VariantObjectClassChecker<T>::check(arg);
+        return GetTypeInfo<typename std::remove_cv<typename std::remove_reference<TS>::type>::type>::get_class_info();
     }
 };
 
@@ -210,21 +198,20 @@ class MethodBindVA final : public MethodBind {
     >;
 
 protected:
-    template<std::size_t... Is>
-    RESULT converting_call(T *instance,const Variant** p_args,int p_arg_count, std::index_sequence<Is...>)
-    {
+    template <std::size_t... Is>
+    RESULT converting_call(T *instance, const Variant **p_args, int p_arg_count, std::index_sequence<Is...>) {
 
-        if constexpr(sizeof...(Args)==0) {
-            //todo: add assertion p_arg_count==0
+        if constexpr (sizeof...(Args) == 0) {
+            // TODO: SEGS: add assertion p_arg_count==0
             (void)p_arg_count;
             (void)p_args;
-            return std::invoke((TFunction)method,instance);
+            return std::invoke((TFunction)method, instance);
+        } else {
+            ArgumentWrapper wrap{ p_args ? p_args : nullptr, p_arg_count, default_arguments };
+            return std::invoke((TFunction)method, instance,
+                    VariantCaster<typename std::tuple_element<Is, Params>::type>::cast(
+                            *visit_at_ce<ArgumentWrapper, Args...>(Is, wrap))...);
         }
-        else {
-            ArgumentWrapper wrap {p_args ? p_args : nullptr,p_arg_count,get_default_arguments()};
-            return std::invoke((TFunction)method,instance,VariantCaster<typename std::tuple_element<Is,Params>::type>::cast(*visit_at_ce<ArgumentWrapper,Args...>(Is,wrap)) ...);
-        }
-
     }
 #ifdef PTRCALL_ENABLED
     template<std::size_t... Is>
@@ -244,7 +231,7 @@ protected:
 public:
     MethodNonconst method;
     constexpr static bool (*verifiers[sizeof...(Args)])(const Variant &) = {
-        VerifierHolder::check<Args> ...
+        VariantObjectClassChecker<Args>::check ...
     };
     constexpr static GodotTypeInfo::Metadata s_metadata[sizeof...(Args)+1] = {
         GetTypeInfo<typename std::conditional<std::is_same_v<void,RESULT>, bool , RESULT>::type >::METADATA,
@@ -277,18 +264,18 @@ public:
 
         ERR_FAIL_COND_V(!instance,Variant())
         if(!checkArgs(p_args,p_arg_count,verifiers,sizeof...(Args),r_error))
-            return Variant();
+            return Variant::null_variant;
 
 #endif
         auto seq = std::index_sequence_for<Args...>();
         static_assert (seq.size()==sizeof... (Args) );
         if constexpr(!std::is_same_v<void,RESULT>) {
-            return converting_call(instance,p_args,p_arg_count,seq);
+            return Variant(converting_call(instance,p_args,p_arg_count,seq));
         }
         else
             converting_call(instance,p_args,p_arg_count,seq);
 
-        return Variant();
+        return Variant::null_variant;
     }
 #ifdef PTRCALL_ENABLED
     void ptrcall(Object*p_object,const void** p_args,void *r_ret) override {
@@ -310,13 +297,13 @@ public:
 #ifdef DEBUG_METHODS_ENABLED
         _set_const(std::is_const_v<T>);
 
-        Variant::Type *argt = memnew_arr(Variant::Type, sizeof...(Args) + 1);
-        constexpr Variant::Type arg_types[sizeof...(Args)+1] = { // +1 is here because vs2017 requires constexpr array of non-zero size
+        VariantType *argt = memnew_arr(VariantType, sizeof...(Args) + 1);
+        constexpr VariantType arg_types[sizeof...(Args)+1] = { // +1 is here because vs2017 requires constexpr array of non-zero size
             GetTypeInfo<Args>::VARIANT_TYPE...,
         };
-        memcpy(argt+1,arg_types,(sizeof...(Args))*sizeof(Variant::Type));
+        memcpy(argt+1,arg_types,(sizeof...(Args))*sizeof(VariantType));
         if constexpr (std::is_same_v<void,RESULT>)
-            argt[0] = Variant::NIL;
+            argt[0] = VariantType::NIL;
         else
             argt[0] = GetTypeInfo<RESULT>::VARIANT_TYPE;
         argument_types = argt;

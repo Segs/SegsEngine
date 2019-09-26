@@ -32,159 +32,160 @@
 
 #include "core/math/math_fieldwise.h"
 #include "editor_node.h"
+#include "core/class_db.h"
 
 IMPL_GDCLASS(MultiNodeEdit)
 
 bool MultiNodeEdit::_set(const StringName &p_name, const Variant &p_value) {
 
-	return _set_impl(p_name, p_value, "");
+    return _set_impl(p_name, p_value, "");
 }
 
 bool MultiNodeEdit::_set_impl(const StringName &p_name, const Variant &p_value, const String &p_field) {
 
-	Node *es = EditorNode::get_singleton()->get_edited_scene();
-	if (!es)
-		return false;
+    Node *es = EditorNode::get_singleton()->get_edited_scene();
+    if (!es)
+        return false;
 
-	String name = p_name;
+    String name = p_name;
 
-	if (name == "scripts") { // script set is intercepted at object level (check Variant Object::get() ) ,so use a different name
-		name = "script";
-	}
+    if (name == "scripts") { // script set is intercepted at object level (check Variant Object::get() ) ,so use a different name
+        name = "script";
+    }
 
-	UndoRedo *ur = EditorNode::get_undo_redo();
+    UndoRedo *ur = EditorNode::get_undo_redo();
 
-	ur->create_action(TTR("MultiNode Set") + " " + String(name), UndoRedo::MERGE_ENDS);
-	for (const List<NodePath>::Element *E = nodes.front(); E; E = E->next()) {
+    ur->create_action(TTR("MultiNode Set") + " " + String(name), UndoRedo::MERGE_ENDS);
+    for (const List<NodePath>::Element *E = nodes.front(); E; E = E->next()) {
 
-		if (!es->has_node(E->get()))
-			continue;
+        if (!es->has_node(E->deref()))
+            continue;
 
-		Node *n = es->get_node(E->get());
-		if (!n)
-			continue;
+        Node *n = es->get_node(E->deref());
+        if (!n)
+            continue;
 
-		if (p_value.get_type() == Variant::NODE_PATH) {
-			Node *tonode = n->get_node(p_value);
-			NodePath p_path = n->get_path_to(tonode);
-			ur->add_do_property(n, name, p_path);
-		} else {
-			Variant new_value;
-			if (p_field == "") {
-				// whole value
-				new_value = p_value;
-			} else {
-				// only one field
-				new_value = fieldwise_assign(n->get(name), p_value, p_field);
-			}
-			ur->add_do_property(n, name, new_value);
-		}
+        if (p_value.get_type() == VariantType::NODE_PATH) {
+            Node *tonode = n->get_node(p_value);
+            NodePath p_path = n->get_path_to(tonode);
+            ur->add_do_property(n, name, p_path);
+        } else {
+            Variant new_value;
+            if (p_field.empty()) {
+                // whole value
+                new_value = p_value;
+            } else {
+                // only one field
+                new_value = fieldwise_assign(n->get(name), p_value, p_field);
+            }
+            ur->add_do_property(n, name, new_value);
+        }
 
-		ur->add_undo_property(n, name, n->get(name));
-	}
-	ur->add_do_method(EditorNode::get_singleton()->get_inspector(), "refresh");
-	ur->add_undo_method(EditorNode::get_singleton()->get_inspector(), "refresh");
+        ur->add_undo_property(n, name, n->get(name));
+    }
+    ur->add_do_method(EditorNode::get_singleton()->get_inspector(), "refresh");
+    ur->add_undo_method(EditorNode::get_singleton()->get_inspector(), "refresh");
 
-	ur->commit_action();
-	return true;
+    ur->commit_action();
+    return true;
 }
 
 bool MultiNodeEdit::_get(const StringName &p_name, Variant &r_ret) const {
 
-	Node *es = EditorNode::get_singleton()->get_edited_scene();
-	if (!es)
-		return false;
+    Node *es = EditorNode::get_singleton()->get_edited_scene();
+    if (!es)
+        return false;
 
-	String name = p_name;
-	if (name == "scripts") { // script set is intercepted at object level (check Variant Object::get() ) ,so use a different name
-		name = "script";
-	}
+    String name = p_name;
+    if (name == "scripts") { // script set is intercepted at object level (check Variant Object::get() ) ,so use a different name
+        name = "script";
+    }
 
-	for (const List<NodePath>::Element *E = nodes.front(); E; E = E->next()) {
+    for (const List<NodePath>::Element *E = nodes.front(); E; E = E->next()) {
 
-		if (!es->has_node(E->get()))
-			continue;
+        if (!es->has_node(E->deref()))
+            continue;
 
-		const Node *n = es->get_node(E->get());
-		if (!n)
-			continue;
+        const Node *n = es->get_node(E->deref());
+        if (!n)
+            continue;
 
-		bool found;
-		r_ret = n->get(name, &found);
-		if (found)
-			return true;
-	}
+        bool found;
+        r_ret = n->get(name, &found);
+        if (found)
+            return true;
+    }
 
-	return false;
+    return false;
 }
 
-void MultiNodeEdit::_get_property_list(List<PropertyInfo> *p_list) const {
+void MultiNodeEdit::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
-	HashMap<String, PLData> usage;
+    HashMap<String, PLData> usage;
 
-	Node *es = EditorNode::get_singleton()->get_edited_scene();
-	if (!es)
-		return;
+    Node *es = EditorNode::get_singleton()->get_edited_scene();
+    if (!es)
+        return;
 
-	int nc = 0;
+    int nc = 0;
 
-	List<PLData *> datas;
+    List<PLData *> datas;
 
-	for (const List<NodePath>::Element *E = nodes.front(); E; E = E->next()) {
+    for (const List<NodePath>::Element *E = nodes.front(); E; E = E->next()) {
 
-		if (!es->has_node(E->get()))
-			continue;
+        if (!es->has_node(E->deref()))
+            continue;
 
-		Node *n = es->get_node(E->get());
-		if (!n)
-			continue;
+        Node *n = es->get_node(E->deref());
+        if (!n)
+            continue;
 
-		List<PropertyInfo> plist;
-		n->get_property_list(&plist, true);
+        ListPOD<PropertyInfo> plist;
+        n->get_property_list(&plist, true);
 
-		for (List<PropertyInfo>::Element *F = plist.front(); F; F = F->next()) {
+        for (const PropertyInfo &F : plist) {
 
-			if (F->get().name == "script")
-				continue; //added later manually, since this is intercepted before being set (check Variant Object::get() )
-			if (!usage.has(F->get().name)) {
-				PLData pld;
-				pld.uses = 0;
-				pld.info = F->get();
-				usage[F->get().name] = pld;
-				datas.push_back(usage.getptr(F->get().name));
-			}
+            if (F.name == "script")
+                continue; //added later manually, since this is intercepted before being set (check Variant Object::get() )
+            if (!usage.contains(F.name)) {
+                PLData pld;
+                pld.uses = 0;
+                pld.info = F;
+                usage[F.name] = pld;
+                datas.push_back(usage.getptr(F.name));
+            }
 
-			// Make sure only properties with the same exact PropertyInfo data will appear
-			if (usage[F->get().name].info == F->get())
-				usage[F->get().name].uses++;
-		}
+            // Make sure only properties with the same exact PropertyInfo data will appear
+            if (usage[F.name].info == F)
+                usage[F.name].uses++;
+        }
 
-		nc++;
-	}
+        nc++;
+    }
 
-	for (List<PLData *>::Element *E = datas.front(); E; E = E->next()) {
+    for (List<PLData *>::Element *E = datas.front(); E; E = E->next()) {
 
-		if (nc == E->get()->uses) {
-			p_list->push_back(E->get()->info);
-		}
-	}
+        if (nc == E->deref()->uses) {
+            p_list->push_back(E->deref()->info);
+        }
+    }
 
-	p_list->push_back(PropertyInfo(Variant::OBJECT, "scripts", PROPERTY_HINT_RESOURCE_TYPE, "Script"));
+    p_list->push_back(PropertyInfo(VariantType::OBJECT, "scripts", PROPERTY_HINT_RESOURCE_TYPE, "Script"));
 }
 
 void MultiNodeEdit::clear_nodes() {
 
-	nodes.clear();
+    nodes.clear();
 }
 
 void MultiNodeEdit::add_node(const NodePath &p_node) {
 
-	nodes.push_back(p_node);
+    nodes.push_back(p_node);
 }
 
 void MultiNodeEdit::set_property_field(const StringName &p_property, const Variant &p_value, const String &p_field) {
 
-	_set_impl(p_property, p_value, p_field);
+    _set_impl(p_property, p_value, p_field);
 }
 
 MultiNodeEdit::MultiNodeEdit() {

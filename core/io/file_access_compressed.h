@@ -28,12 +28,12 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef FILE_ACCESS_COMPRESSED_H
-#define FILE_ACCESS_COMPRESSED_H
+#pragma once
 
 #include "core/io/compression.h"
 #include "core/os/file_access.h"
 #include "core/ustring.h"
+#include "core/vector.h"
 
 class FileAccessCompressed : public FileAccess {
 
@@ -98,5 +98,3 @@ public:
 	FileAccessCompressed();
 	~FileAccessCompressed() override;
 };
-
-#endif // FILE_ACCESS_COMPRESSED_H

@@ -118,8 +118,7 @@ void AudioEffectCompressorInstance::process(const AudioFrame *p_src_frames, Audi
 }
 
 Ref<AudioEffectInstance> AudioEffectCompressor::instance() {
-    Ref<AudioEffectCompressorInstance> ins;
-    ins.instance();
+    Ref<AudioEffectCompressorInstance> ins(make_ref_counted<AudioEffectCompressorInstance>());
     ins->base = Ref<AudioEffectCompressor>(this);
     ins->rundb = 0;
     ins->runratio = 0;
@@ -214,34 +213,34 @@ void AudioEffectCompressor::_validate_property(PropertyInfo &property) const {
 
 void AudioEffectCompressor::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_threshold", "threshold"), &AudioEffectCompressor::set_threshold);
+    MethodBinder::bind_method(D_METHOD("set_threshold", {"threshold"}), &AudioEffectCompressor::set_threshold);
     MethodBinder::bind_method(D_METHOD("get_threshold"), &AudioEffectCompressor::get_threshold);
 
-    MethodBinder::bind_method(D_METHOD("set_ratio", "ratio"), &AudioEffectCompressor::set_ratio);
+    MethodBinder::bind_method(D_METHOD("set_ratio", {"ratio"}), &AudioEffectCompressor::set_ratio);
     MethodBinder::bind_method(D_METHOD("get_ratio"), &AudioEffectCompressor::get_ratio);
 
-    MethodBinder::bind_method(D_METHOD("set_gain", "gain"), &AudioEffectCompressor::set_gain);
+    MethodBinder::bind_method(D_METHOD("set_gain", {"gain"}), &AudioEffectCompressor::set_gain);
     MethodBinder::bind_method(D_METHOD("get_gain"), &AudioEffectCompressor::get_gain);
 
-    MethodBinder::bind_method(D_METHOD("set_attack_us", "attack_us"), &AudioEffectCompressor::set_attack_us);
+    MethodBinder::bind_method(D_METHOD("set_attack_us", {"attack_us"}), &AudioEffectCompressor::set_attack_us);
     MethodBinder::bind_method(D_METHOD("get_attack_us"), &AudioEffectCompressor::get_attack_us);
 
-    MethodBinder::bind_method(D_METHOD("set_release_ms", "release_ms"), &AudioEffectCompressor::set_release_ms);
+    MethodBinder::bind_method(D_METHOD("set_release_ms", {"release_ms"}), &AudioEffectCompressor::set_release_ms);
     MethodBinder::bind_method(D_METHOD("get_release_ms"), &AudioEffectCompressor::get_release_ms);
 
-    MethodBinder::bind_method(D_METHOD("set_mix", "mix"), &AudioEffectCompressor::set_mix);
+    MethodBinder::bind_method(D_METHOD("set_mix", {"mix"}), &AudioEffectCompressor::set_mix);
     MethodBinder::bind_method(D_METHOD("get_mix"), &AudioEffectCompressor::get_mix);
 
-    MethodBinder::bind_method(D_METHOD("set_sidechain", "sidechain"), &AudioEffectCompressor::set_sidechain);
+    MethodBinder::bind_method(D_METHOD("set_sidechain", {"sidechain"}), &AudioEffectCompressor::set_sidechain);
     MethodBinder::bind_method(D_METHOD("get_sidechain"), &AudioEffectCompressor::get_sidechain);
 
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "threshold", PROPERTY_HINT_RANGE, "-60,0,0.1"), "set_threshold", "get_threshold");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "ratio", PROPERTY_HINT_RANGE, "1,48,0.1"), "set_ratio", "get_ratio");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "gain", PROPERTY_HINT_RANGE, "-20,20,0.1"), "set_gain", "get_gain");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "attack_us", PROPERTY_HINT_RANGE, "20,2000,1"), "set_attack_us", "get_attack_us");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "release_ms", PROPERTY_HINT_RANGE, "20,2000,1"), "set_release_ms", "get_release_ms");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "mix", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_mix", "get_mix");
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "sidechain", PROPERTY_HINT_ENUM), "set_sidechain", "get_sidechain");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "threshold", PROPERTY_HINT_RANGE, "-60,0,0.1"), "set_threshold", "get_threshold");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "ratio", PROPERTY_HINT_RANGE, "1,48,0.1"), "set_ratio", "get_ratio");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "gain", PROPERTY_HINT_RANGE, "-20,20,0.1"), "set_gain", "get_gain");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "attack_us", PROPERTY_HINT_RANGE, "20,2000,1"), "set_attack_us", "get_attack_us");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "release_ms", PROPERTY_HINT_RANGE, "20,2000,1"), "set_release_ms", "get_release_ms");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "mix", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_mix", "get_mix");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "sidechain", PROPERTY_HINT_ENUM), "set_sidechain", "get_sidechain");
 }
 
 AudioEffectCompressor::AudioEffectCompressor() {

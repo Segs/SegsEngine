@@ -38,9 +38,9 @@ void TextureRect::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_DRAW) {
 
-        if (texture.is_null())
+        if (not texture)
             return;
-
+        assert(0!=strcmp(texture->get_class(),"Object"));
         Size2 size;
         Point2 offset;
         Rect2 region;
@@ -101,37 +101,39 @@ void TextureRect::_notification(int p_what) {
 
         if (region.has_no_area()) {
             draw_texture_rect(texture, Rect2(offset, size), tile);
+            assert(0!=strcmp(texture->get_class(),"Object"));
         } else {
             draw_texture_rect_region(texture, Rect2(offset, size), region);
+            assert(0!=strcmp(texture->get_class(),"Object"));
         }
     }
 }
 
 Size2 TextureRect::get_minimum_size() const {
 
-    if (!expand && !texture.is_null())
+    if (!expand && texture)
         return texture->get_size();
     else
         return Size2();
 }
 void TextureRect::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_texture", "texture"), &TextureRect::set_texture);
+    MethodBinder::bind_method(D_METHOD("set_texture", {"texture"}), &TextureRect::set_texture);
     MethodBinder::bind_method(D_METHOD("get_texture"), &TextureRect::get_texture);
-    MethodBinder::bind_method(D_METHOD("set_expand", "enable"), &TextureRect::set_expand);
+    MethodBinder::bind_method(D_METHOD("set_expand", {"enable"}), &TextureRect::set_expand);
     MethodBinder::bind_method(D_METHOD("has_expand"), &TextureRect::has_expand);
-    MethodBinder::bind_method(D_METHOD("set_flip_h", "enable"), &TextureRect::set_flip_h);
+    MethodBinder::bind_method(D_METHOD("set_flip_h", {"enable"}), &TextureRect::set_flip_h);
     MethodBinder::bind_method(D_METHOD("is_flipped_h"), &TextureRect::is_flipped_h);
-    MethodBinder::bind_method(D_METHOD("set_flip_v", "enable"), &TextureRect::set_flip_v);
+    MethodBinder::bind_method(D_METHOD("set_flip_v", {"enable"}), &TextureRect::set_flip_v);
     MethodBinder::bind_method(D_METHOD("is_flipped_v"), &TextureRect::is_flipped_v);
-    MethodBinder::bind_method(D_METHOD("set_stretch_mode", "stretch_mode"), &TextureRect::set_stretch_mode);
+    MethodBinder::bind_method(D_METHOD("set_stretch_mode", {"stretch_mode"}), &TextureRect::set_stretch_mode);
     MethodBinder::bind_method(D_METHOD("get_stretch_mode"), &TextureRect::get_stretch_mode);
 
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_texture", "get_texture");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "expand"), "set_expand", "has_expand");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "stretch_mode", PROPERTY_HINT_ENUM, "Scale On Expand (Compat),Scale,Tile,Keep,Keep Centered,Keep Aspect,Keep Aspect Centered,Keep Aspect Covered"), "set_stretch_mode", "get_stretch_mode");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "flip_h"), "set_flip_h", "is_flipped_h");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "flip_v"), "set_flip_v", "is_flipped_v");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_texture", "get_texture");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "expand"), "set_expand", "has_expand");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "stretch_mode", PROPERTY_HINT_ENUM, "Scale On Expand (Compat),Scale,Tile,Keep,Keep Centered,Keep Aspect,Keep Aspect Centered,Keep Aspect Covered"), "set_stretch_mode", "get_stretch_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "flip_h"), "set_flip_h", "is_flipped_h");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "flip_v"), "set_flip_v", "is_flipped_v");
 
     BIND_ENUM_CONSTANT(STRETCH_SCALE_ON_EXPAND)
     BIND_ENUM_CONSTANT(STRETCH_SCALE)
@@ -146,6 +148,10 @@ void TextureRect::_bind_methods() {
 void TextureRect::set_texture(const Ref<Texture> &p_tex) {
 
     texture = p_tex;
+    if(not p_tex)
+    {
+        //NOTE: this is potential break-point location for finding missing textures :)
+    }
     update();
     /*
     if (texture.is_valid())

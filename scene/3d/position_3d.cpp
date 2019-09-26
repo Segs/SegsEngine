@@ -30,6 +30,7 @@
 
 #include "position_3d.h"
 #include "scene/resources/mesh.h"
+#include "core/class_db.h"
 
 IMPL_GDCLASS(Position3D)
 

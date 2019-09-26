@@ -28,14 +28,14 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef HTTP_CLIENT_H
-#define HTTP_CLIENT_H
+#pragma once
 
 #include "core/io/ip.h"
-#include "core/io/stream_peer.h"
-#include "core/io/stream_peer_tcp.h"
 #include "core/reference.h"
 #include "core/method_enum_caster.h"
+
+class StreamPeer;
+class StreamPeerTCP;
 
 class HTTPClient : public Reference {
 
@@ -230,8 +230,3 @@ public:
 	~HTTPClient() override;
 };
 
-VARIANT_ENUM_CAST(HTTPClient::ResponseCode)
-VARIANT_ENUM_CAST(HTTPClient::Method);
-VARIANT_ENUM_CAST(HTTPClient::Status);
-
-#endif // HTTP_CLIENT_H

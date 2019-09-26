@@ -35,6 +35,7 @@
 
 IMPL_GDCLASS(AudioStreamPlaybackSample)
 IMPL_GDCLASS(AudioStreamSample)
+RES_BASE_EXTENSION_IMPL(AudioStreamSample,"sample")
 
 void AudioStreamPlaybackSample::start(float p_from_pos) {
 
@@ -550,7 +551,7 @@ Error AudioStreamSample::save_to_wav(const String &p_path) {
 
     FileAccessRef file = FileAccess::open(file_path, FileAccess::WRITE); //Overrides existing file if present
 
-    ERR_FAIL_COND_V(!file, ERR_FILE_CANT_WRITE);
+    ERR_FAIL_COND_V(!file, ERR_FILE_CANT_WRITE)
 
     // Create WAV Header
     file->store_string("RIFF"); //ChunkID
@@ -595,8 +596,7 @@ Error AudioStreamSample::save_to_wav(const String &p_path) {
 
 Ref<AudioStreamPlayback> AudioStreamSample::instance_playback() {
 
-    Ref<AudioStreamPlaybackSample> sample;
-    sample.instance();
+    Ref<AudioStreamPlaybackSample> sample(make_ref_counted<AudioStreamPlaybackSample>());
     sample->base = Ref<AudioStreamSample>(this);
     return sample;
 }
@@ -608,36 +608,36 @@ String AudioStreamSample::get_stream_name() const {
 
 void AudioStreamSample::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_data", "data"), &AudioStreamSample::set_data);
+    MethodBinder::bind_method(D_METHOD("set_data", {"data"}), &AudioStreamSample::set_data);
     MethodBinder::bind_method(D_METHOD("get_data"), &AudioStreamSample::get_data);
 
-    MethodBinder::bind_method(D_METHOD("set_format", "format"), &AudioStreamSample::set_format);
+    MethodBinder::bind_method(D_METHOD("set_format", {"format"}), &AudioStreamSample::set_format);
     MethodBinder::bind_method(D_METHOD("get_format"), &AudioStreamSample::get_format);
 
-    MethodBinder::bind_method(D_METHOD("set_loop_mode", "loop_mode"), &AudioStreamSample::set_loop_mode);
+    MethodBinder::bind_method(D_METHOD("set_loop_mode", {"loop_mode"}), &AudioStreamSample::set_loop_mode);
     MethodBinder::bind_method(D_METHOD("get_loop_mode"), &AudioStreamSample::get_loop_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_loop_begin", "loop_begin"), &AudioStreamSample::set_loop_begin);
+    MethodBinder::bind_method(D_METHOD("set_loop_begin", {"loop_begin"}), &AudioStreamSample::set_loop_begin);
     MethodBinder::bind_method(D_METHOD("get_loop_begin"), &AudioStreamSample::get_loop_begin);
 
-    MethodBinder::bind_method(D_METHOD("set_loop_end", "loop_end"), &AudioStreamSample::set_loop_end);
+    MethodBinder::bind_method(D_METHOD("set_loop_end", {"loop_end"}), &AudioStreamSample::set_loop_end);
     MethodBinder::bind_method(D_METHOD("get_loop_end"), &AudioStreamSample::get_loop_end);
 
-    MethodBinder::bind_method(D_METHOD("set_mix_rate", "mix_rate"), &AudioStreamSample::set_mix_rate);
+    MethodBinder::bind_method(D_METHOD("set_mix_rate", {"mix_rate"}), &AudioStreamSample::set_mix_rate);
     MethodBinder::bind_method(D_METHOD("get_mix_rate"), &AudioStreamSample::get_mix_rate);
 
-    MethodBinder::bind_method(D_METHOD("set_stereo", "stereo"), &AudioStreamSample::set_stereo);
+    MethodBinder::bind_method(D_METHOD("set_stereo", {"stereo"}), &AudioStreamSample::set_stereo);
     MethodBinder::bind_method(D_METHOD("is_stereo"), &AudioStreamSample::is_stereo);
 
-    MethodBinder::bind_method(D_METHOD("save_to_wav", "path"), &AudioStreamSample::save_to_wav);
+    MethodBinder::bind_method(D_METHOD("save_to_wav", {"path"}), &AudioStreamSample::save_to_wav);
 
-    ADD_PROPERTY(PropertyInfo(Variant::POOL_BYTE_ARRAY, "data", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_data", "get_data");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "format", PROPERTY_HINT_ENUM, "8-Bit,16-Bit,IMA-ADPCM"), "set_format", "get_format");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "loop_mode", PROPERTY_HINT_ENUM, "Disabled,Forward,Ping-Pong,Backward"), "set_loop_mode", "get_loop_mode");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "loop_begin"), "set_loop_begin", "get_loop_begin");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "loop_end"), "set_loop_end", "get_loop_end");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "mix_rate"), "set_mix_rate", "get_mix_rate");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "stereo"), "set_stereo", "is_stereo");
+    ADD_PROPERTY(PropertyInfo(VariantType::POOL_BYTE_ARRAY, "data", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_data", "get_data");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "format", PROPERTY_HINT_ENUM, "8-Bit,16-Bit,IMA-ADPCM"), "set_format", "get_format");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "loop_mode", PROPERTY_HINT_ENUM, "Disabled,Forward,Ping-Pong,Backward"), "set_loop_mode", "get_loop_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "loop_begin"), "set_loop_begin", "get_loop_begin");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "loop_end"), "set_loop_end", "get_loop_end");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "mix_rate"), "set_mix_rate", "get_mix_rate");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "stereo"), "set_stereo", "is_stereo");
 
     BIND_ENUM_CONSTANT(FORMAT_8_BITS)
     BIND_ENUM_CONSTANT(FORMAT_16_BITS)

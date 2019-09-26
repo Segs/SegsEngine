@@ -241,7 +241,7 @@ public:
     /**
       * Find hardcoded textures from assimp which could be in many different directories
       */
-    static void find_texture_path(const String &p_path, _Directory &dir, String &path, bool &found, String extension) {
+    static void find_texture_path(const String &p_path, _Directory &dir, String &path, bool &found, const String& extension) {
         Vector<String> paths;
         using namespace PathUtils;
         paths.push_back(get_basename(path) + extension);
@@ -321,7 +321,7 @@ public:
       * Helper to check the mapping mode of the texture (repeat, clamp and mirror)
       */
     static void set_texture_mapping_mode(aiTextureMapMode *map_mode, Ref<ImageTexture> texture) {
-        ERR_FAIL_COND(texture.is_null())
+        ERR_FAIL_COND(not texture)
         ERR_FAIL_COND(map_mode == nullptr)
         aiTextureMapMode tex_mode = aiTextureMapMode::aiTextureMapMode_Wrap;
 
@@ -341,37 +341,35 @@ public:
     /**
       * Load or load from cache image :)
       */
-    static Ref<Image> load_image(ImportState &state, const aiScene *p_scene, String p_path) {
+    static Ref<Image> load_image(ImportState &state, const aiScene *p_scene, const String& p_path) {
         using namespace PathUtils;
-        Map<String, Ref<Image> >::Element *match = state.path_to_image_cache.find(p_path);
+        Map<String, Ref<Image> >::iterator match = state.path_to_image_cache.find(p_path);
 
         // if our cache contains this image then don't bother
-        if (match) {
-            return match->get();
+        if (match!=state.path_to_image_cache.end()) {
+            return match->second;
         }
 
         Vector<String> split_path = StringUtils::split(get_basename(p_path),'*');
         if (split_path.size() == 2) {
             size_t texture_idx = StringUtils::to_int(split_path[1]);
-            ERR_FAIL_COND_V(texture_idx >= p_scene->mNumTextures, Ref<Image>());
+            ERR_FAIL_COND_V(texture_idx >= p_scene->mNumTextures, Ref<Image>())
             aiTexture *tex = p_scene->mTextures[texture_idx];
             String filename = AssimpUtils::get_raw_string_from_assimp(tex->mFilename);
             filename = get_file(filename);
             print_verbose("Open Asset Import: Loading embedded texture " + filename);
             if (tex->mHeight == 0) {
-                Ref<Image> img;
-                img.instance();
+                Ref<Image> img(make_ref_counted<Image>());
                 Error e=img->load_from_buffer((uint8_t *)tex->pcData, tex->mWidth,tex->achFormatHint);
                 ERR_FAIL_COND_V(e!=OK, Ref<Image>())
-                state.path_to_image_cache.insert(p_path, img);
+                state.path_to_image_cache.emplace(p_path, img);
             } else {
-                Ref<Image> img;
-                img.instance();
+                Ref<Image> img(make_ref_counted<Image>());
                 PoolByteArray arr;
                 uint32_t size = tex->mWidth * tex->mHeight;
                 arr.resize(size);
                 memcpy(arr.write().ptr(), tex->pcData, size);
-                ERR_FAIL_COND_V(arr.size() % 4 != 0, Ref<Image>());
+                ERR_FAIL_COND_V(arr.size() % 4 != 0, Ref<Image>())
                 //ARGB8888 to RGBA8888
                 for (int32_t i = 0; i < arr.size() / 4; i++) {
                     arr.write().ptr()[(4 * i) + 3] = arr[(4 * i) + 0];
@@ -380,15 +378,15 @@ public:
                     arr.write().ptr()[(4 * i) + 2] = arr[(4 * i) + 3];
                 }
                 img->create(tex->mWidth, tex->mHeight, true, Image::FORMAT_RGBA8, arr);
-                ERR_FAIL_COND_V(img.is_null(), Ref<Image>());
-                state.path_to_image_cache.insert(p_path, img);
+                ERR_FAIL_COND_V(not img, Ref<Image>())
+                state.path_to_image_cache.emplace(p_path, img);
                 return img;
             }
             return Ref<Image>();
         } else {
-            Ref<Texture> texture = ResourceLoader::load(p_path);
+            Ref<Texture> texture(dynamic_ref_cast<Texture>(ResourceLoader::load(p_path)));
             Ref<Image> image = texture->get_data();
-            state.path_to_image_cache.insert(p_path, image);
+            state.path_to_image_cache.emplace(p_path, image);
             return image;
         }
 
@@ -398,7 +396,7 @@ public:
     /* create texture from assimp data, if found in path */
     static bool CreateAssimpTexture(
             AssimpImporter::ImportState &state,
-            aiString texture_path,
+            const aiString& texture_path,
             String &filename,
             String &path,
             AssimpImageData &image_state) {
@@ -409,8 +407,8 @@ public:
         find_texture_path(state.path, path, found);
         if (found) {
             image_state.raw_image = AssimpUtils::load_image(state, state.assimp_scene, path);
-            if (image_state.raw_image.is_valid()) {
-                image_state.texture.instance();
+            if (image_state.raw_image) {
+                image_state.texture=make_ref_counted<ImageTexture>();
                 image_state.texture->create_from_image(image_state.raw_image);
                 image_state.texture->set_storage(ImageTexture::STORAGE_COMPRESS_LOSSY);
                 return true;

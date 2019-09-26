@@ -45,30 +45,30 @@ WSLServer::PendingPeer::PendingPeer() {
 bool WSLServer::PendingPeer::_parse_request(const PoolStringArray p_protocols) {
     Vector<String> psa = StringUtils::split(String((const char *)req_buf),"\r\n");
     int len = psa.size();
-    ERR_FAIL_COND_V_MSG(len < 4, false, "Not enough response headers, got: " + itos(len) + ", expected >= 4.");
+    ERR_FAIL_COND_V_MSG(len < 4, false, "Not enough response headers, got: " + itos(len) + ", expected >= 4.")
 
     Vector<String> req = StringUtils::split(psa[0]," ", false);
-    ERR_FAIL_COND_V_MSG(req.size() < 2, false, "Invalid protocol or status code.");
+    ERR_FAIL_COND_V_MSG(req.size() < 2, false, "Invalid protocol or status code.")
 
     // Wrong protocol
-    ERR_FAIL_COND_V_MSG(req[0] != "GET" || req[2] != "HTTP/1.1", false, "Invalid method or HTTP version.");
+    ERR_FAIL_COND_V_MSG(req[0] != "GET" || req[2] != "HTTP/1.1", false, "Invalid method or HTTP version.")
 
     Map<String, String> headers;
     for (int i = 1; i < len; i++) {
         Vector<String> header = StringUtils::split(psa[i],":", false, 1);
-        ERR_FAIL_COND_V_MSG(header.size() != 2, false, "Invalid header -> " + psa[i]);
+        ERR_FAIL_COND_V_MSG(header.size() != 2, false, "Invalid header -> " + psa[i])
         String name = StringUtils::to_lower(header[0]);
         String value =StringUtils::strip_edges( header[1]);
-        if (headers.has(name))
+        if (headers.contains(name))
             headers[name] += "," + value;
         else
             headers[name] = value;
     }
 #define _WSL_CHECK(NAME, VALUE)                                                         \
-    ERR_FAIL_COND_V_MSG(!headers.has(NAME) || StringUtils::to_lower(headers[NAME]) != VALUE, false, \
+    ERR_FAIL_COND_V_MSG(!headers.contains(NAME) || StringUtils::to_lower(headers[NAME]) != VALUE, false, \
             "Missing or invalid header '" + String(NAME) + "'. Expected value '" + VALUE + "'.");
 #define _WSL_CHECK_EX(NAME) \
-    ERR_FAIL_COND_V_MSG(!headers.has(NAME), false, "Missing header '" + String(NAME) + "'.");
+    ERR_FAIL_COND_V_MSG(!headers.contains(NAME), false, "Missing header '" + String(NAME) + "'.")
     _WSL_CHECK("upgrade", "websocket");
     _WSL_CHECK("sec-websocket-version", "13");
     _WSL_CHECK_EX("sec-websocket-key");
@@ -76,7 +76,7 @@ bool WSLServer::PendingPeer::_parse_request(const PoolStringArray p_protocols) {
 #undef _WSL_CHECK_EX
 #undef _WSL_CHECK
     key = headers["sec-websocket-key"];
-    if (headers.has("sec-websocket-protocol")) {
+    if (headers.contains("sec-websocket-protocol")) {
         Vector<String> protos = StringUtils::split(headers["sec-websocket-protocol"],",");
         for (int i = 0; i < protos.size(); i++) {
             // Check if we have the given protocol
@@ -87,10 +87,10 @@ bool WSLServer::PendingPeer::_parse_request(const PoolStringArray p_protocols) {
                 break;
             }
             // Found a protocol
-            if (protocol != "")
+            if (!protocol.empty())
                 break;
         }
-        if (protocol == "") // Invalid protocol(s) requested
+        if (protocol.empty()) // Invalid protocol(s) requested
             return false;
     } else if (p_protocols.size() > 0) // No protocol requested, but we need one
         return false;
@@ -103,7 +103,7 @@ Error WSLServer::PendingPeer::do_handshake(PoolStringArray p_protocols) {
     if (!has_request) {
         int read = 0;
         while (true) {
-            ERR_FAIL_COND_V_MSG(req_pos >= WSL_MAX_HEADER_SIZE, ERR_OUT_OF_MEMORY, "Response headers too big.");
+            ERR_FAIL_COND_V_MSG(req_pos >= WSL_MAX_HEADER_SIZE, ERR_OUT_OF_MEMORY, "Response headers too big.")
             Error err = connection->get_partial_data(&req_buf[req_pos], 1, read);
             if (err != OK) // Got an error
                 return FAILED;
@@ -120,10 +120,10 @@ Error WSLServer::PendingPeer::do_handshake(PoolStringArray p_protocols) {
                 s += "Upgrade: websocket\r\n";
                 s += "Connection: Upgrade\r\n";
                 s += "Sec-WebSocket-Accept: " + WSLPeer::compute_key_response(key) + "\r\n";
-                if (protocol != "")
+                if (!protocol.empty())
                     s += "Sec-WebSocket-Protocol: " + protocol + "\r\n";
                 s += "\r\n";
-				response = StringUtils::to_utf8(s);
+                response = StringUtils::to_utf8(s);
                 has_request = true;
                 break;
             }
@@ -144,7 +144,7 @@ Error WSLServer::PendingPeer::do_handshake(PoolStringArray p_protocols) {
 }
 
 Error WSLServer::listen(int p_port, PoolVector<String> p_protocols, bool gd_mp_api) {
-    ERR_FAIL_COND_V(is_listening(), ERR_ALREADY_IN_USE);
+    ERR_FAIL_COND_V(is_listening(), ERR_ALREADY_IN_USE)
 
     _is_multiplayer = gd_mp_api;
     _protocols = p_protocols;
@@ -156,22 +156,22 @@ Error WSLServer::listen(int p_port, PoolVector<String> p_protocols, bool gd_mp_a
 void WSLServer::poll() {
 
     List<int> remove_ids;
-    for (Map<int, Ref<WebSocketPeer> >::Element *E = _peer_map.front(); E; E = E->next()) {
-        Ref<WSLPeer> peer = (WSLPeer *)E->get().ptr();
+    for (eastl::pair<const int,Ref<WebSocketPeer> > &E : _peer_map) {
+        Ref<WSLPeer> peer((WSLPeer *)E.second.get());
         peer->poll();
         if (!peer->is_connected_to_host()) {
-            _on_disconnect(E->key(), peer->close_code != -1);
-            remove_ids.push_back(E->key());
+            _on_disconnect(E.first, peer->close_code != -1);
+            remove_ids.push_back(E.first);
         }
     }
     for (List<int>::Element *E = remove_ids.front(); E; E = E->next()) {
-        _peer_map.erase(E->get());
+        _peer_map.erase(E->deref());
     }
     remove_ids.clear();
 
     List<Ref<PendingPeer> > remove_peers;
     for (List<Ref<PendingPeer> >::Element *E = _pending.front(); E; E = E->next()) {
-        Ref<PendingPeer> ppeer = E->get();
+        Ref<PendingPeer> ppeer = E->deref();
         Error err = ppeer->do_handshake(_protocols);
         if (err == ERR_BUSY) {
             continue;
@@ -188,7 +188,7 @@ void WSLServer::poll() {
         data->is_server = true;
         data->id = id;
 
-        Ref<WSLPeer> ws_peer = memnew(WSLPeer);
+        Ref<WSLPeer> ws_peer(make_ref_counted<WSLPeer>());
         ws_peer->make_context(data, _in_buf_size, _in_pkt_size, _out_buf_size, _out_pkt_size);
 
         _peer_map[id] = ws_peer;
@@ -196,7 +196,7 @@ void WSLServer::poll() {
         _on_connect(id, ppeer->protocol);
     }
     for (List<Ref<PendingPeer> >::Element *E = remove_peers.front(); E; E = E->next()) {
-        _pending.erase(E->get());
+        _pending.erase(E->deref());
     }
     remove_peers.clear();
 
@@ -208,7 +208,7 @@ void WSLServer::poll() {
         if (is_refusing_new_connections())
             continue; // Conn will go out-of-scope and be closed.
 
-        Ref<PendingPeer> peer = memnew(PendingPeer);
+        Ref<PendingPeer> peer(make_ref_counted<PendingPeer>());
         peer->connection = conn;
         peer->time = OS::get_singleton()->get_ticks_msec();
         _pending.push_back(peer);
@@ -225,8 +225,8 @@ int WSLServer::get_max_packet_size() const {
 
 void WSLServer::stop() {
     _server->stop();
-    for (Map<int, Ref<WebSocketPeer> >::Element *E = _peer_map.front(); E; E = E->next()) {
-        Ref<WSLPeer> peer = (WSLPeer *)E->get().ptr();
+    for (eastl::pair<const int,Ref<WebSocketPeer> > &E : _peer_map) {
+        Ref<WSLPeer> peer((WSLPeer *)E.second.get());
         peer->close_now();
     }
     _pending.clear();
@@ -234,34 +234,34 @@ void WSLServer::stop() {
 }
 
 bool WSLServer::has_peer(int p_id) const {
-    return _peer_map.has(p_id);
+    return _peer_map.contains(p_id);
 }
 
 Ref<WebSocketPeer> WSLServer::get_peer(int p_id) const {
-    ERR_FAIL_COND_V(!has_peer(p_id), nullptr);
-    return _peer_map[p_id];
+    ERR_FAIL_COND_V(!has_peer(p_id), Ref<WebSocketPeer>())
+    return _peer_map.at(p_id);
 }
 
 IP_Address WSLServer::get_peer_address(int p_peer_id) const {
-    ERR_FAIL_COND_V(!has_peer(p_peer_id), IP_Address());
+    ERR_FAIL_COND_V(!has_peer(p_peer_id), IP_Address())
 
-    return _peer_map[p_peer_id]->get_connected_host();
+    return _peer_map.at(p_peer_id)->get_connected_host();
 }
 
 int WSLServer::get_peer_port(int p_peer_id) const {
-    ERR_FAIL_COND_V(!has_peer(p_peer_id), 0);
+    ERR_FAIL_COND_V(!has_peer(p_peer_id), 0)
 
-    return _peer_map[p_peer_id]->get_connected_port();
+    return _peer_map.at(p_peer_id)->get_connected_port();
 }
 
 void WSLServer::disconnect_peer(int p_peer_id, int p_code, String p_reason) {
-    ERR_FAIL_COND(!has_peer(p_peer_id));
+    ERR_FAIL_COND(!has_peer(p_peer_id))
 
     get_peer(p_peer_id)->close(p_code, p_reason);
 }
 
 Error WSLServer::set_buffers(int p_in_buffer, int p_in_packets, int p_out_buffer, int p_out_packets) {
-    ERR_FAIL_COND_V_MSG(_server->is_listening(), FAILED, "Buffers sizes can only be set before listening or connecting.");
+    ERR_FAIL_COND_V_MSG(_server->is_listening(), FAILED, "Buffers sizes can only be set before listening or connecting.")
 
     _in_buf_size = nearest_shift(p_in_buffer - 1) + 10;
     _in_pkt_size = nearest_shift(p_in_packets - 1);
@@ -275,7 +275,7 @@ WSLServer::WSLServer() {
     _in_pkt_size = nearest_shift((int)GLOBAL_GET(WSS_IN_PKT) - 1);
     _out_buf_size = nearest_shift((int)GLOBAL_GET(WSS_OUT_BUF) - 1) + 10;
     _out_pkt_size = nearest_shift((int)GLOBAL_GET(WSS_OUT_PKT) - 1);
-    _server.instance();
+    _server = make_ref_counted<TCP_Server>();
 }
 
 WSLServer::~WSLServer() {

@@ -109,13 +109,13 @@ float CapsuleShape::get_height() const {
 
 void CapsuleShape::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_radius", "radius"), &CapsuleShape::set_radius);
+    MethodBinder::bind_method(D_METHOD("set_radius", {"radius"}), &CapsuleShape::set_radius);
     MethodBinder::bind_method(D_METHOD("get_radius"), &CapsuleShape::get_radius);
-    MethodBinder::bind_method(D_METHOD("set_height", "height"), &CapsuleShape::set_height);
+    MethodBinder::bind_method(D_METHOD("set_height", {"height"}), &CapsuleShape::set_height);
     MethodBinder::bind_method(D_METHOD("get_height"), &CapsuleShape::get_height);
 
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "radius", PROPERTY_HINT_RANGE, "0.01,4096,0.01"), "set_radius", "get_radius");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "height", PROPERTY_HINT_RANGE, "0.01,4096,0.01"), "set_height", "get_height");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "radius", PROPERTY_HINT_RANGE, "0.01,4096,0.01"), "set_radius", "get_radius");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "height", PROPERTY_HINT_RANGE, "0.01,4096,0.01"), "set_height", "get_height");
 }
 
 CapsuleShape::CapsuleShape() :

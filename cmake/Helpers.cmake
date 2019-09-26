@@ -150,14 +150,14 @@ function(update_version module_version_string)
 
     include(../version.cmake)
     string(TIMESTAMP VERSION_YEAR "%Y")
-    configure_file(version_generated.h.cmake version_generated.gen.h)
+    configure_file(version_generated.h.cmake ${CMAKE_CURRENT_LIST_DIR}/version_generated.gen.h)
     set(VERSION_HASH "")
     set(VERSION_WEBSITE "https://godotengine.org")
     if(GIT_FOUND)
-	# defines SEGS_REVISION
-	execute_process(WORKING_DIRECTORY ${PROJECT_SOURCE_DIR} COMMAND ${GIT_EXECUTABLE} rev-parse HEAD
-	    OUTPUT_VARIABLE SEGS_REVISION
-	    OUTPUT_STRIP_TRAILING_WHITESPACE)
+    # defines SEGS_REVISION
+    execute_process(WORKING_DIRECTORY ${PROJECT_SOURCE_DIR} COMMAND ${GIT_EXECUTABLE} rev-parse HEAD
+        OUTPUT_VARIABLE SEGS_REVISION
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
         set(VERSION_HASH ${SEGS_REVISION})
     endif()
     configure_file(version_hash.h.cmake version_hash.gen.h)

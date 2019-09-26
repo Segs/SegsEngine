@@ -33,6 +33,7 @@
 #include "physics_2d_server_sw.h"
 #include "space_2d_sw.h"
 #include "core/object_db.h"
+#include "core/class_db.h"
 
 IMPL_GDCLASS(Physics2DDirectBodyStateSW)
 
@@ -51,7 +52,7 @@ void Body2DSW::update_inertias() {
         case Physics2DServer::BODY_MODE_RIGID: {
 
             if (user_inertia) {
-                _inv_inertia = inertia > 0 ? (1.0 / inertia) : 0;
+                _inv_inertia = inertia > 0 ? (1.0f / inertia) : 0;
                 break;
             }
 
@@ -82,10 +83,10 @@ void Body2DSW::update_inertias() {
                 inertia += shape->get_moment_of_inertia(mass, scale) + mass * mtx.get_origin().length_squared();
             }
 
-            _inv_inertia = inertia > 0 ? (1.0 / inertia) : 0;
+            _inv_inertia = inertia > 0 ? (1.0f / inertia) : 0;
 
             if (mass)
-                _inv_mass = 1.0 / mass;
+                _inv_mass = 1.0f / mass;
             else
                 _inv_mass = 0;
 
@@ -99,7 +100,7 @@ void Body2DSW::update_inertias() {
         case Physics2DServer::BODY_MODE_CHARACTER: {
 
             _inv_inertia = 0;
-            _inv_mass = 1.0 / mass;
+            _inv_mass = 1.0f / mass;
 
         } break;
     }
@@ -150,7 +151,7 @@ void Body2DSW::set_param(Physics2DServer::BodyParameter p_param, real_t p_value)
             friction = p_value;
         } break;
         case Physics2DServer::BODY_PARAM_MASS: {
-            ERR_FAIL_COND(p_value <= 0);
+            ERR_FAIL_COND(p_value <= 0)
             mass = p_value;
             _update_inertia();
 
@@ -230,7 +231,7 @@ void Body2DSW::set_mode(Physics2DServer::BodyMode p_mode) {
             _inv_mass = 0;
             _inv_inertia = 0;
             _set_static(p_mode == Physics2DServer::BODY_MODE_STATIC);
-            set_active(p_mode == Physics2DServer::BODY_MODE_KINEMATIC && contacts.size());
+            set_active(p_mode == Physics2DServer::BODY_MODE_KINEMATIC && !contacts.empty());
             linear_velocity = Vector2();
             angular_velocity = 0;
             if (mode == Physics2DServer::BODY_MODE_KINEMATIC && prev != mode) {
@@ -426,7 +427,7 @@ void Body2DSW::integrate_forces(real_t p_step) {
 
     Area2DSW *def_area = get_space()->get_default_area();
     // Area2DSW *damp_area = def_area;
-    ERR_FAIL_COND(!def_area);
+    ERR_FAIL_COND(!def_area)
 
     int ac = areas.size();
     bool stopped = false;
@@ -558,7 +559,7 @@ void Body2DSW::integrate_velocities(real_t p_step) {
 
         _set_transform(new_transform, false);
         _set_inv_transform(new_transform.affine_inverse());
-        if (contacts.size() == 0 && linear_velocity == Vector2() && angular_velocity == 0)
+        if (contacts.empty() && linear_velocity == Vector2() && angular_velocity == 0)
             set_active(false); //stopped moving, deactivate
         return;
     }
@@ -580,15 +581,15 @@ void Body2DSW::integrate_velocities(real_t p_step) {
 
 void Body2DSW::wakeup_neighbours() {
 
-    for (Map<Constraint2DSW *, int>::Element *E = constraint_map.front(); E; E = E->next()) {
+    for (const eastl::pair<Constraint2DSW * const,int> &E : constraint_map) {
 
-        const Constraint2DSW *c = E->key();
+        const Constraint2DSW *c = E.first;
         Body2DSW **n = c->get_body_ptr();
         int bc = c->get_body_count();
 
         for (int i = 0; i < bc; i++) {
 
-            if (i == E->get())
+            if (i == E.second)
                 continue;
             Body2DSW *b = n[i];
             if (b->mode != Physics2DServer::BODY_MODE_RIGID)
@@ -607,7 +608,7 @@ void Body2DSW::call_queries() {
         Physics2DDirectBodyStateSW *dbs = Physics2DDirectBodyStateSW::singleton;
         dbs->body = this;
 
-        Variant v = dbs;
+        Variant v(dbs);
         const Variant *vp[2] = { &v, &fi_callback->callback_udata };
 
         Object *obj = ObjectDB::get_instance(fi_callback->id);
@@ -616,7 +617,7 @@ void Body2DSW::call_queries() {
             set_force_integration_callback(0, StringName());
         } else {
             Variant::CallError ce;
-            if (fi_callback->callback_udata.get_type() != Variant::NIL) {
+            if (fi_callback->callback_udata.get_type() != VariantType::NIL) {
 
                 obj->call(fi_callback->method, vp, 2, ce);
 

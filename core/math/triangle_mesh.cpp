@@ -31,6 +31,7 @@
 #include "triangle_mesh.h"
 
 #include "core/map.h"
+#include "core/class_db.h"
 #include "core/sort_array.h"
 #include "core/property_info.h"
 
@@ -118,7 +119,7 @@ void TriangleMesh::create(const PoolVector<Vector3> &p_faces) {
     valid = false;
 
     int fc = p_faces.size();
-    ERR_FAIL_COND(!fc || ((fc % 3) != 0));
+    ERR_FAIL_COND(!fc || ((fc % 3) != 0))
     fc /= 3;
     triangles.resize(fc);
 
@@ -143,10 +144,10 @@ void TriangleMesh::create(const PoolVector<Vector3> &p_faces) {
             for (int j = 0; j < 3; j++) {
 
                 int vidx = -1;
-                Vector3 vs = v[j].snapped(Vector3(0.0001, 0.0001, 0.0001));
-                Map<Vector3, int>::Element *E = db.find(vs);
-                if (E) {
-                    vidx = E->get();
+                Vector3 vs = v[j].snapped(Vector3(0.0001f, 0.0001f, 0.0001f));
+                Map<Vector3, int>::iterator E = db.find(vs);
+                if (E!=db.end()) {
+                    vidx = E->second;
                 } else {
                     vidx = db.size();
                     db[vs] = vidx;
@@ -169,8 +170,8 @@ void TriangleMesh::create(const PoolVector<Vector3> &p_faces) {
 
         vertices.resize(db.size());
         PoolVector<Vector3>::Write vw = vertices.write();
-        for (Map<Vector3, int>::Element *E = db.front(); E; E = E->next()) {
-            vw[E->get()] = E->key();
+        for (const eastl::pair<const Vector3,int> &E : db) {
+            vw[E.second] = E.first;
         }
     }
 

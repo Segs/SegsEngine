@@ -98,7 +98,7 @@ void AudioStreamEditor::_draw_preview() {
 
 void AudioStreamEditor::_preview_changed(ObjectID p_which) {
 
-    if (stream.is_valid() && stream->get_instance_id() == p_which) {
+    if (stream && stream->get_instance_id() == p_which) {
         _preview->update();
     }
 }
@@ -143,7 +143,7 @@ void AudioStreamEditor::_on_finished() {
 
 void AudioStreamEditor::_draw_indicator() {
 
-    if (!stream.is_valid()) {
+    if (not stream) {
         return;
     }
 
@@ -155,19 +155,19 @@ void AudioStreamEditor::_draw_indicator() {
     _current_label->set_text(StringUtils::pad_decimals(StringUtils::num(_current, 2),2) + " /");
 }
 
-void AudioStreamEditor::_on_input_indicator(Ref<InputEvent> p_event) {
-    Ref<InputEventMouseButton> mb = p_event;
+void AudioStreamEditor::_on_input_indicator(const Ref<InputEvent>& p_event) {
+    Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_event);
 
-    if (mb.is_valid()) {
+    if (mb) {
         if (mb->is_pressed()) {
             _seek_to(mb->get_position().x);
         }
         _dragging = mb->is_pressed();
     }
 
-    Ref<InputEventMouseMotion> mm = p_event;
+    Ref<InputEventMouseMotion> mm = dynamic_ref_cast<InputEventMouseMotion>(p_event);
 
-    if (mm.is_valid()) {
+    if (mm) {
         if (_dragging) {
             _seek_to(mm->get_position().x);
         }
@@ -181,9 +181,9 @@ void AudioStreamEditor::_seek_to(real_t p_x) {
     _indicator->update();
 }
 
-void AudioStreamEditor::edit(Ref<AudioStream> p_stream) {
+void AudioStreamEditor::edit(const Ref<AudioStream>& p_stream) {
 
-    if (!stream.is_null())
+    if (stream)
         stream->remove_change_receptor(this);
 
     stream = p_stream;
@@ -192,7 +192,7 @@ void AudioStreamEditor::edit(Ref<AudioStream> p_stream) {
     String text = StringUtils::pad_decimals(StringUtils::num(stream->get_length(), 2),2) + "s";
     _duration_label->set_text(text);
 
-    if (!stream.is_null()) {
+    if (stream) {
         stream->add_change_receptor(this);
         update();
     } else {

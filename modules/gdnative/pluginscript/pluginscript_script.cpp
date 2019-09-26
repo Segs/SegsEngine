@@ -39,11 +39,11 @@
 #define __ASSERT_SCRIPT_REASON "Cannot retrieve PluginScript class for this script, is your code correct?"
 #define ASSERT_SCRIPT_VALID()                                       \
     {                                                               \
-        ERR_FAIL_COND_MSG(!can_instance(), __ASSERT_SCRIPT_REASON); \
+        ERR_FAIL_COND_MSG(!can_instance(), __ASSERT_SCRIPT_REASON) \
     }
 #define ASSERT_SCRIPT_VALID_V(ret)                                         \
     {                                                                      \
-        ERR_FAIL_COND_V_MSG(!can_instance(), ret, __ASSERT_SCRIPT_REASON); \
+        ERR_FAIL_COND_V_MSG(!can_instance(), ret, __ASSERT_SCRIPT_REASON) \
     }
 #else
 #define ASSERT_SCRIPT_VALID()
@@ -53,7 +53,7 @@
 IMPL_GDCLASS(PluginScript)
 
 void PluginScript::_bind_methods() {
-	MethodBinder::bind_vararg_method("new", &PluginScript::_new, MethodInfo("new"));
+    MethodBinder::bind_vararg_method("new", &PluginScript::_new, MethodInfo("new"));
 }
 
 PluginScriptInstance *PluginScript::_create_instance(const Variant **p_args, int p_argcount, Object *p_owner, Variant::CallError &r_error) {
@@ -115,16 +115,16 @@ Variant PluginScript::_new(const Variant **p_args, int p_argcount, Variant::Call
     PluginScriptInstance *instance = _create_instance(p_args, p_argcount, owner, r_error);
 
     if (!instance) {
-        if (ref.is_null()) {
+        if (not ref) {
             memdelete(owner); //no owner, sorry
         }
         return Variant();
     }
 
-    if (ref.is_valid()) {
+    if (ref) {
         return ref;
     } else {
-        return owner;
+        return Variant(owner);
     }
 }
 
@@ -142,8 +142,9 @@ bool PluginScript::can_instance() const {
 }
 
 Ref<Script> PluginScript::get_base_script() const {
-    if (_ref_base_parent.is_valid()) {
-        return Ref<PluginScript>(_ref_base_parent);
+    if (_ref_base_parent) {
+        //TODO: SEGS: is base script only allowed to be pluginscript ?
+        return dynamic_ref_cast<PluginScript>(_ref_base_parent);
     } else {
         return Ref<Script>();
     }
@@ -152,7 +153,7 @@ Ref<Script> PluginScript::get_base_script() const {
 StringName PluginScript::get_instance_base_type() const {
     if (_native_parent)
         return _native_parent;
-    if (_ref_base_parent.is_valid())
+    if (_ref_base_parent)
         return _ref_base_parent->get_instance_base_type();
     return StringName();
 }
@@ -164,11 +165,11 @@ void PluginScript::update_exports() {
 
         //update placeholders if any
         Map<StringName, Variant> propdefvalues;
-        List<PropertyInfo> propinfos;
+        ListPOD<PropertyInfo> propinfos;
 
         get_script_property_list(&propinfos);
-        for (Set<PlaceHolderScriptInstance *>::Element *E = placeholders.front(); E; E = E->next()) {
-            E->get()->update(propinfos, _properties_default_values);
+        for (PlaceHolderScriptInstance *E : placeholders) {
+            E->update(propinfos, _properties_default_values);
         }
     }
 #endif
@@ -208,7 +209,7 @@ ScriptInstance *PluginScript::instance_create(Object *p_this) {
 
 bool PluginScript::instance_has(const Object *p_this) const {
     _language->lock();
-    bool hasit = _instances.has((Object *)p_this);
+    bool hasit = _instances.contains((Object *)p_this);
     _language->unlock();
     return hasit;
 }
@@ -229,10 +230,10 @@ void PluginScript::set_source_code(const String &p_code) {
 }
 
 Error PluginScript::reload(bool p_keep_state) {
-    ERR_FAIL_COND_V(!_language, ERR_UNCONFIGURED);
+    ERR_FAIL_COND_V(!_language, ERR_UNCONFIGURED)
 
     _language->lock();
-    ERR_FAIL_COND_V(!p_keep_state && _instances.size(), ERR_ALREADY_IN_USE);
+    ERR_FAIL_COND_V(!p_keep_state && _instances.size(), ERR_ALREADY_IN_USE)
     _language->unlock();
 
     _valid = false;
@@ -267,8 +268,8 @@ Error PluginScript::reload(bool p_keep_state) {
         if (ClassDB::class_exists(*base_name)) {
             _native_parent = *base_name;
         } else {
-            Ref<Script> res = ResourceLoader::load(*base_name);
-            if (res.is_valid()) {
+            Ref<Script> res = dynamic_ref_cast<Script>(ResourceLoader::load(*base_name));
+            if (res) {
                 _ref_base_parent = res;
             } else {
                 String name = *(StringName *)&manifest.name;
@@ -329,64 +330,59 @@ Error PluginScript::reload(bool p_keep_state) {
     godot_array_destroy(&manifest.properties);
 
 #ifdef TOOLS_ENABLED
-/*for (Set<PlaceHolderScriptInstance*>::Element *E=placeholders.front();E;E=E->next()) {
+/*for (PlaceHolderScriptInstance* E : placeholders) {
 
-        _update_placeholder(E->get());
+        _update_placeholder(E);
     }*/
 #endif
     return OK;
 }
 
-void PluginScript::get_script_method_list(List<MethodInfo> *r_methods) const {
-    ASSERT_SCRIPT_VALID();
-    for (Map<StringName, MethodInfo>::Element *e = _methods_info.front(); e != nullptr; e = e->next()) {
-        r_methods->push_back(e->get());
+void PluginScript::get_script_method_list(PODVector<MethodInfo> *r_methods) const {
+    ASSERT_SCRIPT_VALID()
+    for (auto &e : _methods_info) {
+        r_methods->push_back(e.second);
     }
 }
 
-void PluginScript::get_script_property_list(List<PropertyInfo> *r_properties) const {
-    ASSERT_SCRIPT_VALID();
-    for (Map<StringName, PropertyInfo>::Element *e = _properties_info.front(); e != nullptr; e = e->next()) {
-        r_properties->push_back(e->get());
+void PluginScript::get_script_property_list(ListPOD<PropertyInfo> *r_properties) const {
+    ASSERT_SCRIPT_VALID()
+    for (auto &e : _properties_info) {
+        r_properties->push_back(e.second);
     }
 }
 
 bool PluginScript::has_method(const StringName &p_method) const {
-    ASSERT_SCRIPT_VALID_V(false);
-    return _methods_info.has(p_method);
+    ASSERT_SCRIPT_VALID_V(false)
+    return _methods_info.contains(p_method);
 }
 
 MethodInfo PluginScript::get_method_info(const StringName &p_method) const {
-    ASSERT_SCRIPT_VALID_V(MethodInfo());
-    const Map<StringName, MethodInfo>::Element *e = _methods_info.find(p_method);
-    if (e != nullptr) {
-        return e->get();
+    ASSERT_SCRIPT_VALID_V(MethodInfo())
+    const Map<StringName, MethodInfo>::const_iterator e = _methods_info.find(p_method);
+    if (e != _methods_info.end()) {
+        return e->second;
     } else {
         return MethodInfo();
     }
 }
 
 bool PluginScript::has_property(const StringName &p_method) const {
-    ASSERT_SCRIPT_VALID_V(false);
-    return _properties_info.has(p_method);
+    ASSERT_SCRIPT_VALID_V(false)
+    return _properties_info.contains(p_method);
 }
 
 PropertyInfo PluginScript::get_property_info(const StringName &p_property) const {
-    ASSERT_SCRIPT_VALID_V(PropertyInfo());
-    const Map<StringName, PropertyInfo>::Element *e = _properties_info.find(p_property);
-    if (e != nullptr) {
-        return e->get();
-    } else {
-        return PropertyInfo();
-    }
+    ASSERT_SCRIPT_VALID_V(PropertyInfo())
+    return _properties_info.at(p_property,PropertyInfo());
 }
 
 bool PluginScript::get_property_default_value(const StringName &p_property, Variant &r_value) const {
-    ASSERT_SCRIPT_VALID_V(false);
+    ASSERT_SCRIPT_VALID_V(false)
 #ifdef TOOLS_ENABLED
-    const Map<StringName, Variant>::Element *e = _properties_default_values.find(p_property);
-    if (e != nullptr) {
-        r_value = e->get();
+    const Map<StringName, Variant>::const_iterator e = _properties_default_values.find(p_property);
+    if (e != _properties_default_values.end()) {
+        r_value = e->second;
         return true;
     } else {
         return false;
@@ -405,7 +401,7 @@ Error PluginScript::load_source_code(const String &p_path) {
     Error err;
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ, &err);
     if (err) {
-        ERR_FAIL_COND_V(err, err);
+        ERR_FAIL_COND_V(err, err)
     }
 
     int len = f->get_len();
@@ -414,12 +410,12 @@ Error PluginScript::load_source_code(const String &p_path) {
     int r = f->get_buffer(w.ptr(), len);
     f->close();
     memdelete(f);
-	ERR_FAIL_COND_V(r != len, ERR_CANT_OPEN)
+    ERR_FAIL_COND_V(r != len, ERR_CANT_OPEN)
     w[len] = 0;
 
-	String s=StringUtils::from_utf8((const char *)w.ptr());
-	if (s.empty()) {
-		ERR_FAIL_V_MSG(ERR_INVALID_DATA, "Script '" + p_path + "' contains invalid unicode (UTF-8), so it was not loaded. Please ensure that scripts are saved in valid UTF-8 unicode.")
+    String s=StringUtils::from_utf8((const char *)w.ptr());
+    if (s.empty()) {
+        ERR_FAIL_V_MSG(ERR_INVALID_DATA, "Script '" + p_path + "' contains invalid unicode (UTF-8), so it was not loaded. Please ensure that scripts are saved in valid UTF-8 unicode.")
     }
 
     _source = s;
@@ -431,44 +427,33 @@ Error PluginScript::load_source_code(const String &p_path) {
 }
 
 bool PluginScript::has_script_signal(const StringName &p_signal) const {
-    ASSERT_SCRIPT_VALID_V(false);
-    return _signals_info.has(p_signal);
+    ASSERT_SCRIPT_VALID_V(false)
+    return _signals_info.contains(p_signal);
 }
 
-void PluginScript::get_script_signal_list(List<MethodInfo> *r_signals) const {
-    ASSERT_SCRIPT_VALID();
-    for (Map<StringName, MethodInfo>::Element *e = _signals_info.front(); e != nullptr; e = e->next()) {
-        r_signals->push_back(e->get());
+void PluginScript::get_script_signal_list(ListPOD<MethodInfo> *r_signals) const {
+    ASSERT_SCRIPT_VALID()
+    for (auto &e : _signals_info) {
+        r_signals->push_back(e.second);
     }
 }
 
 int PluginScript::get_member_line(const StringName &p_member) const {
 #ifdef TOOLS_ENABLED
-    if (_member_lines.has(p_member))
-        return _member_lines[p_member];
-    else
+    return _member_lines.at(p_member,-1);
+#else
+    return -1;
 #endif
-        return -1;
 }
 
 MultiplayerAPI::RPCMode PluginScript::get_rpc_mode(const StringName &p_method) const {
-    ASSERT_SCRIPT_VALID_V(MultiplayerAPI::RPC_MODE_DISABLED);
-    const Map<StringName, MultiplayerAPI::RPCMode>::Element *e = _methods_rpc_mode.find(p_method);
-    if (e != nullptr) {
-        return e->get();
-    } else {
-        return MultiplayerAPI::RPC_MODE_DISABLED;
-    }
+    ASSERT_SCRIPT_VALID_V(MultiplayerAPI::RPC_MODE_DISABLED)
+    return _methods_rpc_mode.at(p_method,MultiplayerAPI::RPC_MODE_DISABLED);
 }
 
 MultiplayerAPI::RPCMode PluginScript::get_rset_mode(const StringName &p_variable) const {
-    ASSERT_SCRIPT_VALID_V(MultiplayerAPI::RPC_MODE_DISABLED);
-    const Map<StringName, MultiplayerAPI::RPCMode>::Element *e = _variables_rset_mode.find(p_variable);
-    if (e != nullptr) {
-        return e->get();
-    } else {
-        return MultiplayerAPI::RPC_MODE_DISABLED;
-    }
+    ASSERT_SCRIPT_VALID_V(MultiplayerAPI::RPC_MODE_DISABLED)
+    return _variables_rset_mode.at(p_variable,MultiplayerAPI::RPC_MODE_DISABLED);
 }
 
 PluginScript::PluginScript() :

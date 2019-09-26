@@ -30,11 +30,11 @@
 
 #include "file_access_compressed.h"
 
-#include "core/print_string.h"
+#include "core/vector.h"
 
 void FileAccessCompressed::configure(const String &p_magic, Compression::Mode p_mode, int p_block_size) {
 
-	magic = StringUtils::ascii(p_magic).data();
+    magic = StringUtils::ascii(p_magic).data();
     if (magic.length() > 4)
         magic = StringUtils::substr(magic,0, 4);
     else {
@@ -95,7 +95,7 @@ Error FileAccessCompressed::open_after_magic(FileAccess *p_base) {
 
 Error FileAccessCompressed::_open(const String &p_path, int p_mode_flags) {
 
-    ERR_FAIL_COND_V(p_mode_flags == READ_WRITE, ERR_UNAVAILABLE);
+    ERR_FAIL_COND_V(p_mode_flags == READ_WRITE, ERR_UNAVAILABLE)
 
     if (f)
         close();
@@ -144,7 +144,7 @@ void FileAccessCompressed::close() {
     if (writing) {
         //save block table and all compressed blocks
 
-		CharString mgc = StringUtils::to_utf8(magic);
+        CharString mgc = StringUtils::to_utf8(magic);
         f->store_buffer((const uint8_t *)mgc.data(), mgc.length()); //write header 4
         f->store_32(cmode); //write compression mode 4
         f->store_32(block_size); //write block size 4
@@ -195,16 +195,16 @@ bool FileAccessCompressed::is_open() const {
 
 void FileAccessCompressed::seek(size_t p_position) {
 
-    ERR_FAIL_COND(!f);
+    ERR_FAIL_COND(!f)
     if (writing) {
 
-        ERR_FAIL_COND(p_position > write_max);
+        ERR_FAIL_COND(p_position > write_max)
 
         write_pos = p_position;
 
     } else {
 
-        ERR_FAIL_COND(p_position > read_total);
+        ERR_FAIL_COND(p_position > read_total)
         if (p_position == read_total) {
             at_end = true;
         } else {
@@ -227,7 +227,7 @@ void FileAccessCompressed::seek(size_t p_position) {
 
 void FileAccessCompressed::seek_end(int64_t p_position) {
 
-    ERR_FAIL_COND(!f);
+    ERR_FAIL_COND(!f)
     if (writing) {
 
         seek(write_max + p_position);
@@ -238,7 +238,7 @@ void FileAccessCompressed::seek_end(int64_t p_position) {
 }
 size_t FileAccessCompressed::get_position() const {
 
-    ERR_FAIL_COND_V(!f, 0);
+    ERR_FAIL_COND_V(!f, 0)
     if (writing) {
 
         return write_pos;
@@ -249,7 +249,7 @@ size_t FileAccessCompressed::get_position() const {
 }
 size_t FileAccessCompressed::get_len() const {
 
-    ERR_FAIL_COND_V(!f, 0);
+    ERR_FAIL_COND_V(!f, 0)
     if (writing) {
 
         return write_max;
@@ -260,7 +260,7 @@ size_t FileAccessCompressed::get_len() const {
 
 bool FileAccessCompressed::eof_reached() const {
 
-    ERR_FAIL_COND_V(!f, false);
+    ERR_FAIL_COND_V(!f, false)
     if (writing) {
         return false;
     } else {
@@ -270,8 +270,8 @@ bool FileAccessCompressed::eof_reached() const {
 
 uint8_t FileAccessCompressed::get_8() const {
 
-    ERR_FAIL_COND_V(writing, 0);
-    ERR_FAIL_COND_V(!f, 0);
+    ERR_FAIL_COND_V(writing, 0)
+    ERR_FAIL_COND_V(!f, 0)
 
     if (at_end) {
         read_eof = true;
@@ -301,8 +301,8 @@ uint8_t FileAccessCompressed::get_8() const {
 }
 int FileAccessCompressed::get_buffer(uint8_t *p_dst, int p_length) const {
 
-    ERR_FAIL_COND_V(writing, 0);
-    ERR_FAIL_COND_V(!f, 0);
+    ERR_FAIL_COND_V(writing, 0)
+    ERR_FAIL_COND_V(!f, 0)
 
     if (at_end) {
         read_eof = true;
@@ -342,8 +342,8 @@ Error FileAccessCompressed::get_error() const {
 }
 
 void FileAccessCompressed::flush() {
-    ERR_FAIL_COND(!f);
-    ERR_FAIL_COND(!writing);
+    ERR_FAIL_COND(!f)
+    ERR_FAIL_COND(!writing)
 
     // compressed files keep data in memory till close()
 }

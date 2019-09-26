@@ -104,7 +104,7 @@ void AudioStreamPlayer::_mix_audio() {
         use_fadeout = false;
     }
 
-    if (!stream_playback.is_valid() || !active ||
+    if (not stream_playback || !active ||
             (stream_paused && !stream_paused_fade)) {
         return;
     }
@@ -180,7 +180,7 @@ void AudioStreamPlayer::set_stream(Ref<AudioStream> p_stream) {
 
     AudioServer::get_singleton()->lock();
 
-    if (active && stream_playback.is_valid() && !stream_paused) {
+    if (active && stream_playback && !stream_paused) {
         //changing streams out of the blue is not a great idea, but at least
         //lets try to somehow avoid a click
 
@@ -204,7 +204,7 @@ void AudioStreamPlayer::set_stream(Ref<AudioStream> p_stream) {
 
     mix_buffer.resize(AudioServer::get_singleton()->thread_get_mix_buffer_size());
 
-    if (stream_playback.is_valid()) {
+    if (stream_playback) {
         stream_playback.unref();
         stream.unref();
         active = false;
@@ -212,14 +212,14 @@ void AudioStreamPlayer::set_stream(Ref<AudioStream> p_stream) {
         setstop = false;
     }
 
-    if (p_stream.is_valid()) {
+    if (p_stream) {
         stream = p_stream;
         stream_playback = p_stream->instance_playback();
     }
 
     AudioServer::get_singleton()->unlock();
 
-    if (p_stream.is_valid() && stream_playback.is_null()) {
+    if (p_stream && not stream_playback) {
         stream.unref();
     }
 }
@@ -239,7 +239,7 @@ float AudioStreamPlayer::get_volume_db() const {
 }
 
 void AudioStreamPlayer::set_pitch_scale(float p_pitch_scale) {
-    ERR_FAIL_COND(p_pitch_scale <= 0.0);
+    ERR_FAIL_COND(p_pitch_scale <= 0.0)
     pitch_scale = p_pitch_scale;
 }
 float AudioStreamPlayer::get_pitch_scale() const {
@@ -248,7 +248,7 @@ float AudioStreamPlayer::get_pitch_scale() const {
 
 void AudioStreamPlayer::play(float p_from_pos) {
 
-    if (stream_playback.is_valid()) {
+    if (stream_playback) {
         //mix_volume_db = volume_db; do not reset volume ramp here, can cause clicks
         setseek = p_from_pos;
         stop_has_priority = false;
@@ -259,14 +259,14 @@ void AudioStreamPlayer::play(float p_from_pos) {
 
 void AudioStreamPlayer::seek(float p_seconds) {
 
-    if (stream_playback.is_valid()) {
+    if (stream_playback) {
         setseek = p_seconds;
     }
 }
 
 void AudioStreamPlayer::stop() {
 
-    if (stream_playback.is_valid() && active) {
+    if (stream_playback && active) {
         setstop = true;
         stop_has_priority = true;
     }
@@ -274,7 +274,7 @@ void AudioStreamPlayer::stop() {
 
 bool AudioStreamPlayer::is_playing() const {
 
-    if (stream_playback.is_valid()) {
+    if (stream_playback) {
         return active && !setstop; //&& stream_playback->is_playing();
     }
 
@@ -283,7 +283,7 @@ bool AudioStreamPlayer::is_playing() const {
 
 float AudioStreamPlayer::get_playback_position() {
 
-    if (stream_playback.is_valid()) {
+    if (stream_playback) {
         return stream_playback->get_playback_position();
     }
 
@@ -378,55 +378,55 @@ Ref<AudioStreamPlayback> AudioStreamPlayer::get_stream_playback() {
 
 void AudioStreamPlayer::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_stream", "stream"), &AudioStreamPlayer::set_stream);
+    MethodBinder::bind_method(D_METHOD("set_stream", {"stream"}), &AudioStreamPlayer::set_stream);
     MethodBinder::bind_method(D_METHOD("get_stream"), &AudioStreamPlayer::get_stream);
 
-    MethodBinder::bind_method(D_METHOD("set_volume_db", "volume_db"), &AudioStreamPlayer::set_volume_db);
+    MethodBinder::bind_method(D_METHOD("set_volume_db", {"volume_db"}), &AudioStreamPlayer::set_volume_db);
     MethodBinder::bind_method(D_METHOD("get_volume_db"), &AudioStreamPlayer::get_volume_db);
 
-    MethodBinder::bind_method(D_METHOD("set_pitch_scale", "pitch_scale"), &AudioStreamPlayer::set_pitch_scale);
+    MethodBinder::bind_method(D_METHOD("set_pitch_scale", {"pitch_scale"}), &AudioStreamPlayer::set_pitch_scale);
     MethodBinder::bind_method(D_METHOD("get_pitch_scale"), &AudioStreamPlayer::get_pitch_scale);
 
-    MethodBinder::bind_method(D_METHOD("play", "from_position"), &AudioStreamPlayer::play, {DEFVAL(0.0)});
-    MethodBinder::bind_method(D_METHOD("seek", "to_position"), &AudioStreamPlayer::seek);
+    MethodBinder::bind_method(D_METHOD("play", {"from_position"}), &AudioStreamPlayer::play, {DEFVAL(0.0)});
+    MethodBinder::bind_method(D_METHOD("seek", {"to_position"}), &AudioStreamPlayer::seek);
     MethodBinder::bind_method(D_METHOD("stop"), &AudioStreamPlayer::stop);
 
     MethodBinder::bind_method(D_METHOD("is_playing"), &AudioStreamPlayer::is_playing);
     MethodBinder::bind_method(D_METHOD("get_playback_position"), &AudioStreamPlayer::get_playback_position);
 
-    MethodBinder::bind_method(D_METHOD("set_bus", "bus"), &AudioStreamPlayer::set_bus);
+    MethodBinder::bind_method(D_METHOD("set_bus", {"bus"}), &AudioStreamPlayer::set_bus);
     MethodBinder::bind_method(D_METHOD("get_bus"), &AudioStreamPlayer::get_bus);
 
-    MethodBinder::bind_method(D_METHOD("set_autoplay", "enable"), &AudioStreamPlayer::set_autoplay);
+    MethodBinder::bind_method(D_METHOD("set_autoplay", {"enable"}), &AudioStreamPlayer::set_autoplay);
     MethodBinder::bind_method(D_METHOD("is_autoplay_enabled"), &AudioStreamPlayer::is_autoplay_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_mix_target", "mix_target"), &AudioStreamPlayer::set_mix_target);
+    MethodBinder::bind_method(D_METHOD("set_mix_target", {"mix_target"}), &AudioStreamPlayer::set_mix_target);
     MethodBinder::bind_method(D_METHOD("get_mix_target"), &AudioStreamPlayer::get_mix_target);
 
-    MethodBinder::bind_method(D_METHOD("_set_playing", "enable"), &AudioStreamPlayer::_set_playing);
+    MethodBinder::bind_method(D_METHOD("_set_playing", {"enable"}), &AudioStreamPlayer::_set_playing);
     MethodBinder::bind_method(D_METHOD("_is_active"), &AudioStreamPlayer::_is_active);
 
     MethodBinder::bind_method(D_METHOD("_bus_layout_changed"), &AudioStreamPlayer::_bus_layout_changed);
 
-    MethodBinder::bind_method(D_METHOD("set_stream_paused", "pause"), &AudioStreamPlayer::set_stream_paused);
+    MethodBinder::bind_method(D_METHOD("set_stream_paused", {"pause"}), &AudioStreamPlayer::set_stream_paused);
     MethodBinder::bind_method(D_METHOD("get_stream_paused"), &AudioStreamPlayer::get_stream_paused);
 
     MethodBinder::bind_method(D_METHOD("get_stream_playback"), &AudioStreamPlayer::get_stream_playback);
 
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "stream", PROPERTY_HINT_RESOURCE_TYPE, "AudioStream"), "set_stream", "get_stream");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "volume_db", PROPERTY_HINT_RANGE, "-80,24"), "set_volume_db", "get_volume_db");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "pitch_scale", PROPERTY_HINT_RANGE, "0.01,32,0.01"), "set_pitch_scale", "get_pitch_scale");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "playing", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR), "_set_playing", "is_playing");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "autoplay"), "set_autoplay", "is_autoplay_enabled");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "stream_paused", PROPERTY_HINT_NONE, ""), "set_stream_paused", "get_stream_paused");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "mix_target", PROPERTY_HINT_ENUM, "Stereo,Surround,Center"), "set_mix_target", "get_mix_target");
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "bus", PROPERTY_HINT_ENUM, ""), "set_bus", "get_bus");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "stream", PROPERTY_HINT_RESOURCE_TYPE, "AudioStream"), "set_stream", "get_stream");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "volume_db", PROPERTY_HINT_RANGE, "-80,24"), "set_volume_db", "get_volume_db");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "pitch_scale", PROPERTY_HINT_RANGE, "0.01,32,0.01"), "set_pitch_scale", "get_pitch_scale");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "playing", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR), "_set_playing", "is_playing");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "autoplay"), "set_autoplay", "is_autoplay_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "stream_paused", PROPERTY_HINT_NONE, ""), "set_stream_paused", "get_stream_paused");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "mix_target", PROPERTY_HINT_ENUM, "Stereo,Surround,Center"), "set_mix_target", "get_mix_target");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "bus", PROPERTY_HINT_ENUM, ""), "set_bus", "get_bus");
 
     ADD_SIGNAL(MethodInfo("finished"));
 
-    BIND_ENUM_CONSTANT(MIX_TARGET_STEREO);
-    BIND_ENUM_CONSTANT(MIX_TARGET_SURROUND);
-    BIND_ENUM_CONSTANT(MIX_TARGET_CENTER);
+    BIND_ENUM_CONSTANT(MIX_TARGET_STEREO)
+    BIND_ENUM_CONSTANT(MIX_TARGET_SURROUND)
+    BIND_ENUM_CONSTANT(MIX_TARGET_CENTER)
 }
 
 AudioStreamPlayer::AudioStreamPlayer() {

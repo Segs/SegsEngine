@@ -30,6 +30,7 @@
 
 #include "register_types.h"
 
+#include "core/class_db.h"
 #include "core/engine.h"
 #include "core/io/resource_loader.h"
 #include "visual_script.h"

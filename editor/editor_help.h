@@ -197,8 +197,8 @@ class EditorHelpBit : public PanelContainer {
 	GDCLASS(EditorHelpBit,PanelContainer)
 
 	RichTextLabel *rich_text;
-	void _go_to_help(String p_what);
-	void _meta_clicked(String p_select);
+	void _go_to_help(const String& p_what);
+	void _meta_clicked(const String& p_select);
 
 protected:
 	static void _bind_methods();

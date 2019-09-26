@@ -42,8 +42,8 @@
 #include <QResource>
 #include <ctime>
 
-static Ref<StyleBoxTexture> make_stylebox(Ref<Texture> p_texture, float p_left, float p_top, float p_right, float p_botton, float p_margin_left = -1, float p_margin_top = -1, float p_margin_right = -1, float p_margin_botton = -1, bool p_draw_center = true) {
-    Ref<StyleBoxTexture> style(memnew(StyleBoxTexture));
+static Ref<StyleBoxTexture> make_stylebox(const Ref<Texture>& p_texture, float p_left, float p_top, float p_right, float p_botton, float p_margin_left = -1, float p_margin_top = -1, float p_margin_right = -1, float p_margin_botton = -1, bool p_draw_center = true) {
+    Ref<StyleBoxTexture> style(make_ref_counted<StyleBoxTexture>());
     style->set_texture(p_texture);
     style->set_margin_size(MARGIN_LEFT, p_left * EDSCALE);
     style->set_margin_size(MARGIN_RIGHT, p_right * EDSCALE);
@@ -58,7 +58,7 @@ static Ref<StyleBoxTexture> make_stylebox(Ref<Texture> p_texture, float p_left, 
 }
 
 static Ref<StyleBoxEmpty> make_empty_stylebox(float p_margin_left = -1, float p_margin_top = -1, float p_margin_right = -1, float p_margin_bottom = -1) {
-    Ref<StyleBoxEmpty> style(memnew(StyleBoxEmpty));
+    Ref<StyleBoxEmpty> style(make_ref_counted<StyleBoxEmpty>());
     style->set_default_margin(MARGIN_LEFT, p_margin_left * EDSCALE);
     style->set_default_margin(MARGIN_RIGHT, p_margin_right * EDSCALE);
     style->set_default_margin(MARGIN_BOTTOM, p_margin_bottom * EDSCALE);
@@ -67,7 +67,7 @@ static Ref<StyleBoxEmpty> make_empty_stylebox(float p_margin_left = -1, float p_
 }
 
 static Ref<StyleBoxFlat> make_flat_stylebox(Color p_color, float p_margin_left = -1, float p_margin_top = -1, float p_margin_right = -1, float p_margin_bottom = -1) {
-    Ref<StyleBoxFlat> style(memnew(StyleBoxFlat));
+    Ref<StyleBoxFlat> style(make_ref_counted<StyleBoxFlat>());
     style->set_bg_color(p_color);
     style->set_default_margin(MARGIN_LEFT, p_margin_left * EDSCALE);
     style->set_default_margin(MARGIN_RIGHT, p_margin_right * EDSCALE);
@@ -77,7 +77,7 @@ static Ref<StyleBoxFlat> make_flat_stylebox(Color p_color, float p_margin_left =
 }
 
 static Ref<StyleBoxLine> make_line_stylebox(Color p_color, int p_thickness = 1, float p_grow_begin = 1, float p_grow_end = 1, bool p_vertical = false) {
-    Ref<StyleBoxLine> style(memnew(StyleBoxLine));
+    Ref<StyleBoxLine> style(make_ref_counted<StyleBoxLine>());
     style->set_color(p_color);
     style->set_grow_begin(p_grow_begin);
     style->set_grow_end(p_grow_end);
@@ -88,12 +88,12 @@ static Ref<StyleBoxLine> make_line_stylebox(Color p_color, int p_thickness = 1, 
 
 Ref<ImageTexture> editor_generate_icon(const QString &resource_path,bool p_convert_color, float p_scale = EDSCALE, bool p_force_filter = false) {
 
-    Ref<ImageTexture> icon = memnew(ImageTexture);
-    Ref<Image> img = memnew(Image);
+    Ref<ImageTexture> icon(make_ref_counted<ImageTexture>());
+    Ref<Image> img(make_ref_counted<Image>());
     QFile resource_file(resource_path);
     bool openened = resource_file.open(QFile::ReadOnly);
     if(!openened)
-        return nullptr;
+        return Ref<ImageTexture>();
     // dumb gizmo check
     bool is_gizmo = QFileInfo(resource_path).baseName().startsWith("Gizmo");
     QByteArray resource_data = resource_file.readAll();
@@ -262,9 +262,9 @@ void editor_register_and_generate_icons(Ref<Theme> p_theme, bool p_dark_theme = 
 #endif
 }
 
-Ref<Theme> create_editor_theme(const Ref<Theme> p_theme) {
+Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
 
-    Ref<Theme> theme = Ref<Theme>(memnew(Theme));
+    Ref<Theme> theme(make_ref_counted<Theme>());
 
     const float default_contrast = 0.25;
 
@@ -288,16 +288,16 @@ Ref<Theme> create_editor_theme(const Ref<Theme> p_theme) {
     // Please, use alphabet order if you've added new theme here(After "Default" and "Custom")
 
     if (preset == "Default") {
-        preset_accent_color = Color(0.41, 0.61, 0.91);
-        preset_base_color = Color(0.2, 0.23, 0.31);
+        preset_accent_color = Color(0.41f, 0.61f, 0.91f);
+        preset_base_color = Color(0.2f, 0.23f, 0.31f);
             preset_contrast = default_contrast;
     } else if (preset == "Custom") {
         accent_color = EDITOR_GET("interface/theme/accent_color");
         base_color = EDITOR_GET("interface/theme/base_color");
         contrast = EDITOR_GET("interface/theme/contrast");
     } else if (preset == "Alien") {
-        preset_accent_color = Color(0.11, 1.0, 0.6);
-        preset_base_color = Color(0.18, 0.22, 0.25);
+        preset_accent_color = Color(0.11f, 1.0, 0.6f);
+        preset_base_color = Color(0.18f, 0.22f, 0.25);
             preset_contrast = 0.25;
     } else if (preset == "Arc") {
         preset_accent_color = Color(0.32, 0.58, 0.89);
@@ -451,7 +451,7 @@ Ref<Theme> create_editor_theme(const Ref<Theme> p_theme) {
     // Button and widgets
     const float extra_spacing = EDITOR_GET("interface/theme/additional_spacing");
 
-    Ref<StyleBoxFlat> style_widget = style_default->duplicate();
+    Ref<StyleBoxFlat> style_widget = dynamic_ref_cast<StyleBoxFlat>(style_default->duplicate());
     style_widget->set_default_margin(MARGIN_LEFT, (extra_spacing + 6) * EDSCALE);
     style_widget->set_default_margin(MARGIN_TOP, (extra_spacing + default_margin_size) * EDSCALE);
     style_widget->set_default_margin(MARGIN_RIGHT, (extra_spacing + 6) * EDSCALE);
@@ -459,21 +459,21 @@ Ref<Theme> create_editor_theme(const Ref<Theme> p_theme) {
     style_widget->set_bg_color(dark_color_1);
     style_widget->set_border_color(dark_color_2);
 
-    Ref<StyleBoxFlat> style_widget_disabled = style_widget->duplicate();
+    Ref<StyleBoxFlat> style_widget_disabled = dynamic_ref_cast<StyleBoxFlat>(style_widget->duplicate());
     style_widget_disabled->set_border_color(color_disabled);
     style_widget_disabled->set_bg_color(color_disabled_bg);
 
-    Ref<StyleBoxFlat> style_widget_focus = style_widget->duplicate();
+    Ref<StyleBoxFlat> style_widget_focus = dynamic_ref_cast<StyleBoxFlat>(style_widget->duplicate());
     style_widget_focus->set_border_color(accent_color);
 
-    Ref<StyleBoxFlat> style_widget_pressed = style_widget->duplicate();
+    Ref<StyleBoxFlat> style_widget_pressed = dynamic_ref_cast<StyleBoxFlat>(style_widget->duplicate());
     style_widget_pressed->set_border_color(accent_color);
 
-    Ref<StyleBoxFlat> style_widget_hover = style_widget->duplicate();
+    Ref<StyleBoxFlat> style_widget_hover = dynamic_ref_cast<StyleBoxFlat>(style_widget->duplicate());
     style_widget_hover->set_border_color(contrast_color_1);
 
     // style for windows, popups, etc..
-    Ref<StyleBoxFlat> style_popup = style_default->duplicate();
+    Ref<StyleBoxFlat> style_popup = dynamic_ref_cast<StyleBoxFlat>(style_default->duplicate());
     const int popup_margin_size = default_margin_size * EDSCALE * 2;
     style_popup->set_default_margin(MARGIN_LEFT, popup_margin_size);
     style_popup->set_default_margin(MARGIN_TOP, popup_margin_size);
@@ -481,22 +481,22 @@ Ref<Theme> create_editor_theme(const Ref<Theme> p_theme) {
     style_popup->set_default_margin(MARGIN_BOTTOM, popup_margin_size);
     style_popup->set_border_color(contrast_color_1);
     style_popup->set_border_width_all(MAX(EDSCALE, border_width));
-    const Color shadow_color = Color(0, 0, 0, dark_theme ? 0.3 : 0.1);
+    const Color shadow_color = Color(0, 0, 0, dark_theme ? 0.3f : 0.1f);
     style_popup->set_shadow_color(shadow_color);
     style_popup->set_shadow_size(4 * EDSCALE);
 
-    Ref<StyleBoxLine> style_popup_separator(memnew(StyleBoxLine));
+    Ref<StyleBoxLine> style_popup_separator(make_ref_counted<StyleBoxLine>());
     style_popup_separator->set_color(separator_color);
     style_popup_separator->set_grow_begin(popup_margin_size - MAX(EDSCALE, border_width));
     style_popup_separator->set_grow_end(popup_margin_size - MAX(EDSCALE, border_width));
     style_popup_separator->set_thickness(MAX(EDSCALE, border_width));
 
-    Ref<StyleBoxLine> style_popup_labeled_separator_left(memnew(StyleBoxLine));
+    Ref<StyleBoxLine> style_popup_labeled_separator_left(make_ref_counted<StyleBoxLine>());
     style_popup_labeled_separator_left->set_grow_begin(popup_margin_size - MAX(EDSCALE, border_width));
     style_popup_labeled_separator_left->set_color(separator_color);
     style_popup_labeled_separator_left->set_thickness(MAX(EDSCALE, border_width));
 
-    Ref<StyleBoxLine> style_popup_labeled_separator_right(memnew(StyleBoxLine));
+    Ref<StyleBoxLine> style_popup_labeled_separator_right(make_ref_counted<StyleBoxLine>());
     style_popup_labeled_separator_right->set_grow_end(popup_margin_size - MAX(EDSCALE, border_width));
     style_popup_labeled_separator_right->set_color(separator_color);
     style_popup_labeled_separator_right->set_thickness(MAX(EDSCALE, border_width));
@@ -507,7 +507,7 @@ Ref<Theme> create_editor_theme(const Ref<Theme> p_theme) {
     const int tab_default_margin_side = 10 * EDSCALE + extra_spacing * EDSCALE;
     const int tab_default_margin_vertical = 5 * EDSCALE + extra_spacing * EDSCALE;
 
-    Ref<StyleBoxFlat> style_tab_selected = style_widget->duplicate();
+    Ref<StyleBoxFlat> style_tab_selected = dynamic_ref_cast<StyleBoxFlat>(style_widget->duplicate());
 
     style_tab_selected->set_border_width_all(border_width);
     style_tab_selected->set_border_width(MARGIN_BOTTOM, 0);
@@ -519,11 +519,11 @@ Ref<Theme> create_editor_theme(const Ref<Theme> p_theme) {
     style_tab_selected->set_default_margin(MARGIN_TOP, tab_default_margin_vertical);
     style_tab_selected->set_bg_color(tab_color);
 
-    Ref<StyleBoxFlat> style_tab_unselected = style_tab_selected->duplicate();
+    Ref<StyleBoxFlat> style_tab_unselected = dynamic_ref_cast<StyleBoxFlat>(style_tab_selected->duplicate());
     style_tab_unselected->set_bg_color(dark_color_1);
     style_tab_unselected->set_border_color(dark_color_2);
 
-    Ref<StyleBoxFlat> style_tab_disabled = style_tab_selected->duplicate();
+    Ref<StyleBoxFlat> style_tab_disabled = dynamic_ref_cast<StyleBoxFlat>(style_tab_selected->duplicate());
     style_tab_disabled->set_bg_color(color_disabled_bg);
     style_tab_disabled->set_border_color(color_disabled);
 
@@ -531,13 +531,13 @@ Ref<Theme> create_editor_theme(const Ref<Theme> p_theme) {
     theme->set_stylebox("Background", "EditorStyles", make_flat_stylebox(background_color, default_margin_size, default_margin_size, default_margin_size, default_margin_size));
 
     // Focus
-    Ref<StyleBoxFlat> style_focus = style_default->duplicate();
+    Ref<StyleBoxFlat> style_focus = dynamic_ref_cast<StyleBoxFlat>(style_default->duplicate());
     style_focus->set_draw_center(false);
     style_focus->set_border_color(contrast_color_2);
     theme->set_stylebox("Focus", "EditorStyles", style_focus);
 
     // Menu
-    Ref<StyleBoxFlat> style_menu = style_widget->duplicate();
+    Ref<StyleBoxFlat> style_menu = dynamic_ref_cast<StyleBoxFlat>(style_widget->duplicate());
     style_menu->set_draw_center(false);
     style_menu->set_border_width_all(0);
     theme->set_stylebox("panel", "PanelContainer", style_menu);
@@ -551,13 +551,13 @@ Ref<Theme> create_editor_theme(const Ref<Theme> p_theme) {
     theme->set_stylebox("PlayButtonPanel", "EditorStyles", style_empty);
 
     //MenuButton
-    Ref<StyleBoxFlat> style_menu_hover_border = style_widget->duplicate();
+    Ref<StyleBoxFlat> style_menu_hover_border = dynamic_ref_cast<StyleBoxFlat>(style_widget->duplicate());
     style_menu_hover_border->set_draw_center(false);
     style_menu_hover_border->set_border_width_all(0);
     style_menu_hover_border->set_border_width(MARGIN_BOTTOM, border_width);
     style_menu_hover_border->set_border_color(accent_color);
 
-    Ref<StyleBoxFlat> style_menu_hover_bg = style_widget->duplicate();
+    Ref<StyleBoxFlat> style_menu_hover_bg = dynamic_ref_cast<StyleBoxFlat>(style_widget->duplicate());
     style_menu_hover_bg->set_border_width_all(0);
     style_menu_hover_bg->set_bg_color(dark_color_1);
 
@@ -639,7 +639,7 @@ Ref<Theme> create_editor_theme(const Ref<Theme> p_theme) {
     theme->set_constant("check_vadjust", "CheckButton", 0 * EDSCALE);
 
     // Checkbox
-    Ref<StyleBoxFlat> sb_checkbox = style_menu->duplicate();
+    Ref<StyleBoxFlat> sb_checkbox = dynamic_ref_cast<StyleBoxFlat>(style_menu->duplicate());
     sb_checkbox->set_default_margin(MARGIN_LEFT, default_margin_size * EDSCALE);
     sb_checkbox->set_default_margin(MARGIN_RIGHT, default_margin_size * EDSCALE);
     sb_checkbox->set_default_margin(MARGIN_TOP, default_margin_size * EDSCALE);
@@ -694,7 +694,7 @@ Ref<Theme> create_editor_theme(const Ref<Theme> p_theme) {
     theme->set_constant("inspector_margin", "Editor", 8 * EDSCALE);
 
     // Tree & ItemList background
-    Ref<StyleBoxFlat> style_tree_bg = style_default->duplicate();
+    Ref<StyleBoxFlat> style_tree_bg = dynamic_ref_cast<StyleBoxFlat>(style_default->duplicate());
     style_tree_bg->set_bg_color(dark_color_1);
     style_tree_bg->set_border_color(dark_color_3);
     theme->set_stylebox("bg", "Tree", style_tree_bg);
@@ -704,12 +704,10 @@ Ref<Theme> create_editor_theme(const Ref<Theme> p_theme) {
     // Tree
     theme->set_icon("checked", "Tree", theme->get_icon("GuiChecked", "EditorIcons"));
     theme->set_icon("unchecked", "Tree", theme->get_icon("GuiUnchecked", "EditorIcons"));
-    theme->set_icon("arrow_up", "Tree", theme->get_icon("GuiTreeArrowUp", "EditorIcons"));
     theme->set_icon("arrow", "Tree", theme->get_icon("GuiTreeArrowDown", "EditorIcons"));
     theme->set_icon("arrow_collapsed", "Tree", theme->get_icon("GuiTreeArrowRight", "EditorIcons"));
     theme->set_icon("updown", "Tree", theme->get_icon("GuiTreeUpdown", "EditorIcons"));
     theme->set_icon("select_arrow", "Tree", theme->get_icon("GuiDropdown", "EditorIcons"));
-    theme->set_icon("select_option", "Tree", theme->get_icon("GuiTreeOption", "EditorIcons"));
     theme->set_stylebox("bg_focus", "Tree", style_focus);
     theme->set_stylebox("custom_button", "Tree", make_empty_stylebox());
     theme->set_stylebox("custom_button_pressed", "Tree", make_empty_stylebox());
@@ -723,7 +721,6 @@ Ref<Theme> create_editor_theme(const Ref<Theme> p_theme) {
     theme->set_color("drop_position_color", "Tree", accent_color);
     theme->set_constant("vseparation", "Tree", (extra_spacing + default_margin_size) * EDSCALE);
     theme->set_constant("hseparation", "Tree", (extra_spacing + default_margin_size) * EDSCALE);
-    theme->set_constant("guide_width", "Tree", border_width);
     theme->set_constant("item_margin", "Tree", 3 * default_margin_size * EDSCALE);
     theme->set_constant("button_margin", "Tree", default_margin_size * EDSCALE);
     theme->set_constant("draw_relationship_lines", "Tree", relationship_line_opacity >= 0.01);
@@ -731,25 +728,30 @@ Ref<Theme> create_editor_theme(const Ref<Theme> p_theme) {
     theme->set_constant("scroll_border", "Tree", 40 * EDSCALE);
     theme->set_constant("scroll_speed", "Tree", 12);
 
-    Ref<StyleBoxFlat> style_tree_btn = style_default->duplicate();
+    Ref<StyleBoxFlat> style_tree_btn = dynamic_ref_cast<StyleBoxFlat>(style_default->duplicate());
     style_tree_btn->set_bg_color(contrast_color_1);
     style_tree_btn->set_border_width_all(0);
     theme->set_stylebox("button_pressed", "Tree", style_tree_btn);
 
-    Ref<StyleBoxFlat> style_tree_focus = style_default->duplicate();
+    Ref<StyleBoxFlat> style_tree_hover = dynamic_ref_cast<StyleBoxFlat>(style_default->duplicate());
+    style_tree_hover->set_bg_color(highlight_color * Color(1, 1, 1, 0.4f));
+    style_tree_hover->set_border_width_all(0);
+    theme->set_stylebox("hover", "Tree", style_tree_hover);
+
+    Ref<StyleBoxFlat> style_tree_focus = dynamic_ref_cast<StyleBoxFlat>(style_default->duplicate());
     style_tree_focus->set_bg_color(highlight_color);
     style_tree_focus->set_border_width_all(0);
     theme->set_stylebox("selected_focus", "Tree", style_tree_focus);
 
-    Ref<StyleBoxFlat> style_tree_selected = style_tree_focus->duplicate();
+    Ref<StyleBoxFlat> style_tree_selected = dynamic_ref_cast<StyleBoxFlat>(style_tree_focus->duplicate());
     theme->set_stylebox("selected", "Tree", style_tree_selected);
 
-    Ref<StyleBoxFlat> style_tree_cursor = style_default->duplicate();
+    Ref<StyleBoxFlat> style_tree_cursor = dynamic_ref_cast<StyleBoxFlat>(style_default->duplicate());
     style_tree_cursor->set_draw_center(false);
     style_tree_cursor->set_border_width_all(border_width);
     style_tree_cursor->set_border_color(contrast_color_1);
 
-    Ref<StyleBoxFlat> style_tree_title = style_default->duplicate();
+    Ref<StyleBoxFlat> style_tree_title = dynamic_ref_cast<StyleBoxFlat>(style_default->duplicate());
     style_tree_title->set_bg_color(dark_color_3);
     style_tree_title->set_border_width_all(0);
     theme->set_stylebox("cursor", "Tree", style_tree_cursor);
@@ -767,12 +769,12 @@ Ref<Theme> create_editor_theme(const Ref<Theme> p_theme) {
     theme->set_color("drop_position_color", "Tree", accent_color);
 
     // ItemList
-    Ref<StyleBoxFlat> style_itemlist_bg = style_default->duplicate();
+    Ref<StyleBoxFlat> style_itemlist_bg = dynamic_ref_cast<StyleBoxFlat>(style_default->duplicate());
     style_itemlist_bg->set_bg_color(dark_color_1);
     style_itemlist_bg->set_border_width_all(border_width);
     style_itemlist_bg->set_border_color(dark_color_3);
 
-    Ref<StyleBoxFlat> style_itemlist_cursor = style_default->duplicate();
+    Ref<StyleBoxFlat> style_itemlist_cursor = dynamic_ref_cast<StyleBoxFlat>(style_default->duplicate());
     style_itemlist_cursor->set_draw_center(false);
     style_itemlist_cursor->set_border_width_all(border_width);
     style_itemlist_cursor->set_border_color(highlight_color);
@@ -819,7 +821,7 @@ Ref<Theme> create_editor_theme(const Ref<Theme> p_theme) {
     theme->set_constant("hseparation", "Tabs", 4 * EDSCALE);
 
     // Content of each tab
-    Ref<StyleBoxFlat> style_content_panel = style_default->duplicate();
+    Ref<StyleBoxFlat> style_content_panel = dynamic_ref_cast<StyleBoxFlat>(style_default->duplicate());
     style_content_panel->set_border_color(dark_color_3);
     style_content_panel->set_border_width_all(border_width);
     // compensate the border
@@ -829,7 +831,7 @@ Ref<Theme> create_editor_theme(const Ref<Theme> p_theme) {
     style_content_panel->set_default_margin(MARGIN_LEFT, margin_size_extra * EDSCALE);
 
     // this is the stylebox used in 3d and 2d viewports (no borders)
-    Ref<StyleBoxFlat> style_content_panel_vp = style_content_panel->duplicate();
+    Ref<StyleBoxFlat> style_content_panel_vp = dynamic_ref_cast<StyleBoxFlat>(style_content_panel->duplicate());
     style_content_panel_vp->set_default_margin(MARGIN_LEFT, border_width * 2);
     style_content_panel_vp->set_default_margin(MARGIN_TOP, default_margin_size * EDSCALE);
     style_content_panel_vp->set_default_margin(MARGIN_RIGHT, border_width * 2);
@@ -843,13 +845,13 @@ Ref<Theme> create_editor_theme(const Ref<Theme> p_theme) {
 
     // Debugger
 
-    Ref<StyleBoxFlat> style_panel_debugger = style_content_panel->duplicate();
+    Ref<StyleBoxFlat> style_panel_debugger = dynamic_ref_cast<StyleBoxFlat>(style_content_panel->duplicate());
     style_panel_debugger->set_border_width(MARGIN_BOTTOM, 0);
     theme->set_stylebox("DebuggerPanel", "EditorStyles", style_panel_debugger);
     theme->set_stylebox("DebuggerTabFG", "EditorStyles", style_tab_selected);
     theme->set_stylebox("DebuggerTabBG", "EditorStyles", style_tab_unselected);
 
-    Ref<StyleBoxFlat> style_panel_invisible_top = style_content_panel->duplicate();
+    Ref<StyleBoxFlat> style_panel_invisible_top = dynamic_ref_cast<StyleBoxFlat>(style_content_panel->duplicate());
     int stylebox_offset = theme->get_font("tab_fg", "TabContainer")->get_height() + theme->get_stylebox("tab_fg", "TabContainer")->get_minimum_size().height + theme->get_stylebox("panel", "TabContainer")->get_default_margin(MARGIN_TOP);
     style_panel_invisible_top->set_expand_margin_size(MARGIN_TOP, -stylebox_offset);
     theme->set_stylebox("BottomPanelDebuggerOverride", "EditorStyles", style_panel_invisible_top);
@@ -901,7 +903,7 @@ Ref<Theme> create_editor_theme(const Ref<Theme> p_theme) {
     theme->set_constant("vseparation", "GridContainer", default_margin_size * EDSCALE);
 
     // WindowDialog
-    Ref<StyleBoxFlat> style_window = style_popup->duplicate();
+    Ref<StyleBoxFlat> style_window = dynamic_ref_cast<StyleBoxFlat>(style_popup->duplicate());
     style_window->set_border_color(tab_color);
     style_window->set_border_width(MARGIN_TOP, 24 * EDSCALE);
     style_window->set_expand_margin_size(MARGIN_TOP, 24 * EDSCALE);
@@ -915,7 +917,7 @@ Ref<Theme> create_editor_theme(const Ref<Theme> p_theme) {
     theme->set_font("title_font", "WindowDialog", theme->get_font("title", "EditorFonts"));
 
     // complex window, for now only Editor settings and Project settings
-    Ref<StyleBoxFlat> style_complex_window = style_window->duplicate();
+    Ref<StyleBoxFlat> style_complex_window = dynamic_ref_cast<StyleBoxFlat>(style_window->duplicate());
     style_complex_window->set_bg_color(dark_color_2);
     style_complex_window->set_border_color(highlight_tabs ? tab_color : dark_color_2);
     theme->set_stylebox("panel", "EditorSettingsDialog", style_complex_window);
@@ -923,7 +925,7 @@ Ref<Theme> create_editor_theme(const Ref<Theme> p_theme) {
     theme->set_stylebox("panel", "EditorAbout", style_complex_window);
 
     // HScrollBar
-    Ref<Texture> empty_icon = memnew(ImageTexture);
+    Ref<Texture> empty_icon(make_ref_counted<ImageTexture>());
 
     theme->set_stylebox("scroll", "HScrollBar", make_stylebox(theme->get_icon("GuiScrollBg", "EditorIcons"), 5, 5, 5, 5, 0, 0, 0, 0));
     theme->set_stylebox("scroll_focus", "HScrollBar", make_stylebox(theme->get_icon("GuiScrollBg", "EditorIcons"), 5, 5, 5, 5, 0, 0, 0, 0));
@@ -988,7 +990,7 @@ Ref<Theme> create_editor_theme(const Ref<Theme> p_theme) {
     theme->set_color("font_color", "LinkButton", font_color);
 
     // TooltipPanel
-    Ref<StyleBoxFlat> style_tooltip = style_popup->duplicate();
+    Ref<StyleBoxFlat> style_tooltip = dynamic_ref_cast<StyleBoxFlat>(style_popup->duplicate());
     float v = MAX(border_size * EDSCALE, 1.0);
     style_tooltip->set_default_margin(MARGIN_LEFT, v);
     style_tooltip->set_default_margin(MARGIN_TOP, v);
@@ -1032,27 +1034,27 @@ Ref<Theme> create_editor_theme(const Ref<Theme> p_theme) {
     // GraphNode
 
     const float mv = dark_theme ? 0.0 : 1.0;
-    const float mv2 = 1.0 - mv;
+    const float mv2 = 1.0f - mv;
     const int gn_margin_side = 28;
-    Ref<StyleBoxFlat> graphsb = make_flat_stylebox(Color(mv, mv, mv, 0.7), gn_margin_side, 24, gn_margin_side, 5);
+    Ref<StyleBoxFlat> graphsb = make_flat_stylebox(Color(mv, mv, mv, 0.7f), gn_margin_side, 24, gn_margin_side, 5);
     graphsb->set_border_width_all(border_width);
-    graphsb->set_border_color(Color(mv2, mv2, mv2, 0.9));
-    Ref<StyleBoxFlat> graphsbselected = make_flat_stylebox(Color(mv, mv, mv, 0.9), gn_margin_side, 24, gn_margin_side, 5);
+    graphsb->set_border_color(Color(mv2, mv2, mv2, 0.9f));
+    Ref<StyleBoxFlat> graphsbselected = make_flat_stylebox(Color(mv, mv, mv, 0.9f), gn_margin_side, 24, gn_margin_side, 5);
     graphsbselected->set_border_width_all(border_width);
-    graphsbselected->set_border_color(Color(accent_color.r, accent_color.g, accent_color.b, 0.9));
+    graphsbselected->set_border_color(Color(accent_color.r, accent_color.g, accent_color.b, 0.9f));
     graphsbselected->set_shadow_size(8 * EDSCALE);
     graphsbselected->set_shadow_color(shadow_color);
-    Ref<StyleBoxFlat> graphsbcomment = make_flat_stylebox(Color(mv, mv, mv, 0.3), gn_margin_side, 24, gn_margin_side, 5);
+    Ref<StyleBoxFlat> graphsbcomment = make_flat_stylebox(Color(mv, mv, mv, 0.3f), gn_margin_side, 24, gn_margin_side, 5);
     graphsbcomment->set_border_width_all(border_width);
-    graphsbcomment->set_border_color(Color(mv2, mv2, mv2, 0.9));
-    Ref<StyleBoxFlat> graphsbcommentselected = make_flat_stylebox(Color(mv, mv, mv, 0.4), gn_margin_side, 24, gn_margin_side, 5);
+    graphsbcomment->set_border_color(Color(mv2, mv2, mv2, 0.9f));
+    Ref<StyleBoxFlat> graphsbcommentselected = make_flat_stylebox(Color(mv, mv, mv, 0.4f), gn_margin_side, 24, gn_margin_side, 5);
     graphsbcommentselected->set_border_width_all(border_width);
-    graphsbcommentselected->set_border_color(Color(mv2, mv2, mv2, 0.9));
-    Ref<StyleBoxFlat> graphsbbreakpoint = graphsbselected->duplicate();
+    graphsbcommentselected->set_border_color(Color(mv2, mv2, mv2, 0.9f));
+    Ref<StyleBoxFlat> graphsbbreakpoint = dynamic_ref_cast<StyleBoxFlat>(graphsbselected->duplicate());
     graphsbbreakpoint->set_draw_center(false);
     graphsbbreakpoint->set_border_color(warning_color);
-    graphsbbreakpoint->set_shadow_color(warning_color * Color(1.0, 1.0, 1.0, 0.1));
-    Ref<StyleBoxFlat> graphsbposition = graphsbselected->duplicate();
+    graphsbbreakpoint->set_shadow_color(warning_color * Color(1.0, 1.0, 1.0, 0.1f));
+    Ref<StyleBoxFlat> graphsbposition = dynamic_ref_cast<StyleBoxFlat>(graphsbselected->duplicate());
     graphsbposition->set_draw_center(false);
     graphsbposition->set_border_color(error_color);
     graphsbposition->set_shadow_color(error_color * Color(1.0, 1.0, 1.0, 0.2));
@@ -1121,7 +1123,7 @@ Ref<Theme> create_editor_theme(const Ref<Theme> p_theme) {
     theme->set_icon("bg", "ColorPickerButton", theme->get_icon("GuiMiniCheckerboard", "EditorIcons"));
 
     // Information on 3D viewport
-    Ref<StyleBoxFlat> style_info_3d_viewport = style_default->duplicate();
+    Ref<StyleBoxFlat> style_info_3d_viewport = dynamic_ref_cast<StyleBoxFlat>(style_default->duplicate());
     style_info_3d_viewport->set_bg_color(style_info_3d_viewport->get_bg_color() * Color(1, 1, 1, 0.5));
     style_info_3d_viewport->set_border_width_all(0);
     theme->set_stylebox("Information3dViewport", "EditorStyles", style_info_3d_viewport);
@@ -1216,15 +1218,15 @@ Ref<Theme> create_editor_theme(const Ref<Theme> p_theme) {
     return theme;
 }
 
-Ref<Theme> create_custom_theme(const Ref<Theme> p_theme) {
+Ref<Theme> create_custom_theme(const Ref<Theme>& p_theme) {
     Ref<Theme> theme;
 
     String custom_theme = EditorSettings::get_singleton()->get("interface/theme/custom_theme");
-    if (custom_theme != "") {
-        theme = ResourceLoader::load(custom_theme);
+    if (!custom_theme.empty()) {
+        theme = dynamic_ref_cast<Theme>(ResourceLoader::load(custom_theme));
     }
 
-    if (!theme.is_valid()) {
+    if (not theme) {
         theme = create_editor_theme(p_theme);
     }
 

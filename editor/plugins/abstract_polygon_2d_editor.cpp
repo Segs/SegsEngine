@@ -30,6 +30,8 @@
 
 #include "abstract_polygon_2d_editor.h"
 
+#include <utility>
+
 #include "core/method_bind.h"
 #include "canvas_item_editor_plugin.h"
 #include "core/os/keyboard.h"
@@ -96,7 +98,7 @@ bool AbstractPolygon2DEditor::_is_empty() const {
 
         Vector<Vector2> vertices = _get_polygon(i);
 
-        if (vertices.size() != 0)
+        if (!vertices.empty())
             return false;
     }
 
@@ -154,7 +156,7 @@ void AbstractPolygon2DEditor::_action_add_polygon(const Variant &p_polygon) {
 
 void AbstractPolygon2DEditor::_action_remove_polygon(int p_idx) {
 
-    _action_set_polygon(p_idx, _get_polygon(p_idx), PoolVector<Vector2>());
+    _action_set_polygon(p_idx, _get_polygon(p_idx), Variant(PoolVector<Vector2>()));
 }
 
 void AbstractPolygon2DEditor::_action_set_polygon(int p_idx, const Variant &p_polygon) {
@@ -260,7 +262,7 @@ void AbstractPolygon2DEditor::_wip_close() {
         undo_redo->create_action(TTR("Create Polygon"));
         _action_add_polygon(wip);
         if (_has_uv()) {
-            undo_redo->add_do_method(_get_node(), "set_uv", PoolVector<Vector2>());
+            undo_redo->add_do_method(_get_node(), "set_uv", Variant(PoolVector<Vector2>()));
             undo_redo->add_undo_method(_get_node(), "set_uv", _get_node()->get("uv"));
         }
         _commit_action();
@@ -282,7 +284,7 @@ void AbstractPolygon2DEditor::_wip_close() {
     selected_point = Vertex();
 }
 
-void AbstractPolygon2DEditor::disable_polygon_editing(bool p_disable, String p_reason) {
+void AbstractPolygon2DEditor::disable_polygon_editing(bool p_disable, const String& p_reason) {
 
     _polygon_editing_enabled = !p_disable;
 
@@ -308,22 +310,22 @@ bool AbstractPolygon2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) 
     if (!_get_node() || !_polygon_editing_enabled)
         return false;
 
-    Ref<InputEventMouseButton> mb = p_event;
+    Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_event);
 
     if (!_has_resource()) {
 
-        if (mb.is_valid() && mb->get_button_index() == 1 && mb->is_pressed()) {
+        if (mb && mb->get_button_index() == 1 && mb->is_pressed()) {
             create_resource->set_text(String("No polygon resource on this node.\nCreate and assign one?"));
             create_resource->popup_centered_minsize();
         }
-        return (mb.is_valid() && mb->get_button_index() == 1);
+        return (mb && mb->get_button_index() == 1);
     }
 
     CanvasItemEditor::Tool tool = CanvasItemEditor::get_singleton()->get_current_tool();
     if (tool != CanvasItemEditor::TOOL_SELECT)
         return false;
 
-    if (mb.is_valid()) {
+    if (mb) {
 
         Transform2D xform = canvas_item_editor->get_canvas_transform() * _get_node()->get_global_transform();
 
@@ -475,9 +477,9 @@ bool AbstractPolygon2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) 
         }
     }
 
-    Ref<InputEventMouseMotion> mm = p_event;
+    Ref<InputEventMouseMotion> mm = dynamic_ref_cast<InputEventMouseMotion>(p_event);
 
-    if (mm.is_valid()) {
+    if (mm) {
 
         Vector2 gpoint = mm->get_position();
 
@@ -533,9 +535,9 @@ bool AbstractPolygon2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) 
         }
     }
 
-    Ref<InputEventKey> k = p_event;
+    Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(p_event);
 
-    if (k.is_valid() && k->is_pressed()) {
+    if (k && k->is_pressed()) {
 
         if (k->get_scancode() == KEY_DELETE || k->get_scancode() == KEY_BACKSPACE) {
 
@@ -714,7 +716,7 @@ void AbstractPolygon2DEditor::remove_point(const Vertex &p_vertex) {
         vertices.remove(p_vertex.vertex);
 
         undo_redo->create_action(TTR("Edit Polygon (Remove Point)"));
-        _action_set_polygon(p_vertex.polygon, vertices);
+        _action_set_polygon(p_vertex.polygon, Variant(vertices));
         _commit_action();
     } else {
 
@@ -869,7 +871,7 @@ void AbstractPolygon2DEditorPlugin::make_visible(bool p_visible) {
 AbstractPolygon2DEditorPlugin::AbstractPolygon2DEditorPlugin(EditorNode *p_node, AbstractPolygon2DEditor *p_polygon_editor, String p_class) :
         polygon_editor(p_polygon_editor),
         editor(p_node),
-        klass(p_class) {
+        klass(std::move(p_class)) {
     CanvasItemEditor::get_singleton()->add_control_to_menu_panel(polygon_editor);
     polygon_editor->hide();
 }

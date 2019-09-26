@@ -56,7 +56,7 @@ public:
 
 		file = FileAccess::open(p_file, FileAccess::READ);
 
-		ERR_FAIL_COND_MSG(!file, "Failed loading resource: '" + p_file + "'.");
+		ERR_FAIL_COND_MSG(!file, "Failed loading resource: '" + p_file + "'.")
 	}
 	~MkvReader() {
 
@@ -285,7 +285,7 @@ void VideoStreamPlaybackWebm::update(float p_delta) {
 		if (video_frames_pos >= video_frames_capacity) {
 
 			WebMFrame **video_frames_new = (WebMFrame **)memrealloc(video_frames, ++video_frames_capacity * sizeof(void *));
-			ERR_FAIL_COND(!video_frames_new); //Out of memory
+			ERR_FAIL_COND(!video_frames_new) //Out of memory
 			(video_frames = video_frames_new)[video_frames_capacity - 1] = memnew(WebMFrame);
 		}
 		video_frame = video_frames[video_frames_pos];
@@ -455,7 +455,7 @@ String VideoStreamWebm::get_file() {
 
 void VideoStreamWebm::_bind_methods() {
 
-	ClassDB::bind_method(D_METHOD("set_file", "file"), &VideoStreamWebm::set_file);
+	ClassDB::bind_method(D_METHOD("set_file", {"file"}), &VideoStreamWebm::set_file);
 	ClassDB::bind_method(D_METHOD("get_file"), &VideoStreamWebm::get_file);
 
 	ADD_PROPERTY(PropertyInfo(Variant::STRING, "file", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_file", "get_file");

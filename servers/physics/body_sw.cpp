@@ -32,6 +32,7 @@
 #include "area_sw.h"
 #include "space_sw.h"
 #include "core/object_db.h"
+#include "core/class_db.h"
 
 IMPL_GDCLASS(PhysicsDirectBodyStateSW)
 
@@ -183,7 +184,7 @@ void BodySW::set_param(PhysicsServer::BodyParameter p_param, real_t p_value) {
             friction = p_value;
         } break;
         case PhysicsServer::BODY_PARAM_MASS: {
-            ERR_FAIL_COND(p_value <= 0);
+            ERR_FAIL_COND(p_value <= 0)
             mass = p_value;
             _update_inertia();
 
@@ -251,7 +252,7 @@ void BodySW::set_mode(PhysicsServer::BodyMode p_mode) {
             _inv_mass = 0;
             _set_static(p_mode == PhysicsServer::BODY_MODE_STATIC);
             //set_active(p_mode==PhysicsServer::BODY_MODE_KINEMATIC);
-            set_active(p_mode == PhysicsServer::BODY_MODE_KINEMATIC && contacts.size());
+            set_active(p_mode == PhysicsServer::BODY_MODE_KINEMATIC && !contacts.empty());
             linear_velocity = Vector3();
             angular_velocity = Vector3();
             if (mode == PhysicsServer::BODY_MODE_KINEMATIC && prev != mode) {
@@ -452,7 +453,7 @@ void BodySW::integrate_forces(real_t p_step) {
     AreaSW *def_area = get_space()->get_default_area();
     // AreaSW *damp_area = def_area;
 
-    ERR_FAIL_COND(!def_area);
+    ERR_FAIL_COND(!def_area)
 
     int ac = areas.size();
     bool stopped = false;
@@ -602,7 +603,7 @@ void BodySW::integrate_velocities(real_t p_step) {
 
         _set_transform(new_transform, false);
         _set_inv_transform(new_transform.affine_inverse());
-        if (contacts.size() == 0 && linear_velocity == Vector3() && angular_velocity == Vector3())
+        if (contacts.empty() && linear_velocity == Vector3() && angular_velocity == Vector3())
             set_active(false); //stopped moving, deactivate
 
         return;
@@ -678,15 +679,15 @@ void BodySW::simulate_motion(const Transform& p_xform,real_t p_step) {
 
 void BodySW::wakeup_neighbours() {
 
-    for (Map<ConstraintSW *, int>::Element *E = constraint_map.front(); E; E = E->next()) {
+    for (const eastl::pair<ConstraintSW *const,int> &E : constraint_map) {
 
-        const ConstraintSW *c = E->key();
+        ConstraintSW *const c = E.first;
         BodySW **n = c->get_body_ptr();
         int bc = c->get_body_count();
 
         for (int i = 0; i < bc; i++) {
 
-            if (i == E->get())
+            if (i == E.second)
                 continue;
             BodySW *b = n[i];
             if (b->mode != PhysicsServer::BODY_MODE_RIGID)
@@ -705,7 +706,7 @@ void BodySW::call_queries() {
         PhysicsDirectBodyStateSW *dbs = PhysicsDirectBodyStateSW::singleton;
         dbs->body = this;
 
-        Variant v = dbs;
+        Variant v(dbs);
 
         Object *obj = ObjectDB::get_instance(fi_callback->id);
         if (!obj) {
@@ -715,7 +716,7 @@ void BodySW::call_queries() {
             const Variant *vp[2] = { &v, &fi_callback->udata };
 
             Variant::CallError ce;
-            int argc = (fi_callback->udata.get_type() == Variant::NIL) ? 1 : 2;
+            int argc = (fi_callback->udata.get_type() == VariantType::NIL) ? 1 : 2;
             obj->call(fi_callback->method, vp, argc, ce);
         }
     }

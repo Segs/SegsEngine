@@ -58,7 +58,7 @@ bool AnimationNodeStateMachineTransition::has_auto_advance() const {
 
 void AnimationNodeStateMachineTransition::set_advance_condition(const StringName &p_condition) {
     String cs = p_condition;
-    ERR_FAIL_COND(StringUtils::find(cs,"/") != -1 || StringUtils::find(cs,":") != -1);
+    ERR_FAIL_COND(StringUtils::find(cs,"/") != -1 || StringUtils::find(cs,":") != -1)
     advance_condition = p_condition;
     if (not cs.empty()) {
         advance_condition_name = "conditions/" + cs;
@@ -78,7 +78,7 @@ StringName AnimationNodeStateMachineTransition::get_advance_condition_name() con
 
 void AnimationNodeStateMachineTransition::set_xfade_time(float p_xfade) {
 
-    ERR_FAIL_COND(p_xfade < 0);
+    ERR_FAIL_COND(p_xfade < 0)
     xfade = p_xfade;
     emit_changed();
 }
@@ -106,34 +106,34 @@ int AnimationNodeStateMachineTransition::get_priority() const {
 }
 
 void AnimationNodeStateMachineTransition::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("set_switch_mode", "mode"), &AnimationNodeStateMachineTransition::set_switch_mode);
+    MethodBinder::bind_method(D_METHOD("set_switch_mode", {"mode"}), &AnimationNodeStateMachineTransition::set_switch_mode);
     MethodBinder::bind_method(D_METHOD("get_switch_mode"), &AnimationNodeStateMachineTransition::get_switch_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_auto_advance", "auto_advance"), &AnimationNodeStateMachineTransition::set_auto_advance);
+    MethodBinder::bind_method(D_METHOD("set_auto_advance", {"auto_advance"}), &AnimationNodeStateMachineTransition::set_auto_advance);
     MethodBinder::bind_method(D_METHOD("has_auto_advance"), &AnimationNodeStateMachineTransition::has_auto_advance);
 
-    MethodBinder::bind_method(D_METHOD("set_advance_condition", "name"), &AnimationNodeStateMachineTransition::set_advance_condition);
+    MethodBinder::bind_method(D_METHOD("set_advance_condition", {"name"}), &AnimationNodeStateMachineTransition::set_advance_condition);
     MethodBinder::bind_method(D_METHOD("get_advance_condition"), &AnimationNodeStateMachineTransition::get_advance_condition);
 
-    MethodBinder::bind_method(D_METHOD("set_xfade_time", "secs"), &AnimationNodeStateMachineTransition::set_xfade_time);
+    MethodBinder::bind_method(D_METHOD("set_xfade_time", {"secs"}), &AnimationNodeStateMachineTransition::set_xfade_time);
     MethodBinder::bind_method(D_METHOD("get_xfade_time"), &AnimationNodeStateMachineTransition::get_xfade_time);
 
-    MethodBinder::bind_method(D_METHOD("set_disabled", "disabled"), &AnimationNodeStateMachineTransition::set_disabled);
+    MethodBinder::bind_method(D_METHOD("set_disabled", {"disabled"}), &AnimationNodeStateMachineTransition::set_disabled);
     MethodBinder::bind_method(D_METHOD("is_disabled"), &AnimationNodeStateMachineTransition::is_disabled);
 
-    MethodBinder::bind_method(D_METHOD("set_priority", "priority"), &AnimationNodeStateMachineTransition::set_priority);
+    MethodBinder::bind_method(D_METHOD("set_priority", {"priority"}), &AnimationNodeStateMachineTransition::set_priority);
     MethodBinder::bind_method(D_METHOD("get_priority"), &AnimationNodeStateMachineTransition::get_priority);
 
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "switch_mode", PROPERTY_HINT_ENUM, "Immediate,Sync,AtEnd"), "set_switch_mode", "get_switch_mode");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "auto_advance"), "set_auto_advance", "has_auto_advance");
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "advance_condition"), "set_advance_condition", "get_advance_condition");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "xfade_time", PROPERTY_HINT_RANGE, "0,240,0.01"), "set_xfade_time", "get_xfade_time");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "priority", PROPERTY_HINT_RANGE, "0,32,1"), "set_priority", "get_priority");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "disabled"), "set_disabled", "is_disabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "switch_mode", PROPERTY_HINT_ENUM, "Immediate,Sync,AtEnd"), "set_switch_mode", "get_switch_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "auto_advance"), "set_auto_advance", "has_auto_advance");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "advance_condition"), "set_advance_condition", "get_advance_condition");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "xfade_time", PROPERTY_HINT_RANGE, "0,240,0.01"), "set_xfade_time", "get_xfade_time");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "priority", PROPERTY_HINT_RANGE, "0,32,1"), "set_priority", "get_priority");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "disabled"), "set_disabled", "is_disabled");
 
-    BIND_ENUM_CONSTANT(SWITCH_MODE_IMMEDIATE);
-    BIND_ENUM_CONSTANT(SWITCH_MODE_SYNC);
-    BIND_ENUM_CONSTANT(SWITCH_MODE_AT_END);
+    BIND_ENUM_CONSTANT(SWITCH_MODE_IMMEDIATE)
+    BIND_ENUM_CONSTANT(SWITCH_MODE_SYNC)
+    BIND_ENUM_CONSTANT(SWITCH_MODE_AT_END)
 
     ADD_SIGNAL(MethodInfo("advance_condition_changed"));
 }
@@ -186,9 +186,9 @@ float AnimationNodeStateMachinePlayback::get_current_length() const {
 
 bool AnimationNodeStateMachinePlayback::_travel(AnimationNodeStateMachine *p_state_machine, const StringName &p_travel) {
 
-    ERR_FAIL_COND_V(!playing, false);
-    ERR_FAIL_COND_V(!p_state_machine->states.has(p_travel), false);
-    ERR_FAIL_COND_V(!p_state_machine->states.has(current), false);
+    ERR_FAIL_COND_V(!playing, false)
+    ERR_FAIL_COND_V(!p_state_machine->states.contains(p_travel), false)
+    ERR_FAIL_COND_V(!p_state_machine->states.contains(current), false)
 
     path.clear(); //a new one will be needed
 
@@ -236,8 +236,8 @@ bool AnimationNodeStateMachinePlayback::_travel(AnimationNodeStateMachine *p_sta
 
         for (List<int>::Element *E = open_list.front(); E; E = E->next()) {
 
-            float cost = cost_map[p_state_machine->transitions[E->get()].to].distance;
-            cost += p_state_machine->states[p_state_machine->transitions[E->get()].to].position.distance_to(target_pos);
+            float cost = cost_map[p_state_machine->transitions[E->deref()].to].distance;
+            cost += p_state_machine->states[p_state_machine->transitions[E->deref()].to].position.distance_to(target_pos);
 
             if (cost < least_cost) {
                 least_cost_transition = E;
@@ -245,8 +245,8 @@ bool AnimationNodeStateMachinePlayback::_travel(AnimationNodeStateMachine *p_sta
             }
         }
 
-        StringName transition_prev = p_state_machine->transitions[least_cost_transition->get()].from;
-        StringName transition = p_state_machine->transitions[least_cost_transition->get()].to;
+        StringName transition_prev = p_state_machine->transitions[least_cost_transition->deref()].from;
+        StringName transition = p_state_machine->transitions[least_cost_transition->deref()].to;
 
         for (int i = 0; i < p_state_machine->transitions.size(); i++) {
             if (p_state_machine->transitions[i].from != transition || p_state_machine->transitions[i].to == transition_prev) {
@@ -257,7 +257,7 @@ bool AnimationNodeStateMachinePlayback::_travel(AnimationNodeStateMachine *p_sta
             distance *= p_state_machine->transitions[i].transition->get_priority();
             distance += cost_map[p_state_machine->transitions[i].from].distance;
 
-            if (cost_map.has(p_state_machine->transitions[i].to)) {
+            if (cost_map.contains(p_state_machine->transitions[i].to)) {
                 //oh this was visited already, can we win the cost?
                 if (distance < cost_map[p_state_machine->transitions[i].to].distance) {
                     cost_map[p_state_machine->transitions[i].to].distance = distance;
@@ -354,7 +354,7 @@ float AnimationNodeStateMachinePlayback::process(AnimationNodeStateMachine *p_st
         loops_current = 0;
     }
 
-    if (!p_state_machine->states.has(current)) {
+    if (!p_state_machine->states.contains(current)) {
         playing = false; //current does not exist
         current = StringName();
         return 0;
@@ -363,7 +363,7 @@ float AnimationNodeStateMachinePlayback::process(AnimationNodeStateMachine *p_st
 
     if (fading_from != StringName()) {
 
-        if (!p_state_machine->states.has(fading_from)) {
+        if (!p_state_machine->states.contains(fading_from)) {
             fading_from = StringName();
         } else {
             if (!p_seek) {
@@ -498,8 +498,8 @@ float AnimationNodeStateMachinePlayback::process(AnimationNodeStateMachine *p_st
 
 void AnimationNodeStateMachinePlayback::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("travel", "to_node"), &AnimationNodeStateMachinePlayback::travel);
-    MethodBinder::bind_method(D_METHOD("start", "node"), &AnimationNodeStateMachinePlayback::start);
+    MethodBinder::bind_method(D_METHOD("travel", {"to_node"}), &AnimationNodeStateMachinePlayback::travel);
+    MethodBinder::bind_method(D_METHOD("start", {"node"}), &AnimationNodeStateMachinePlayback::start);
     MethodBinder::bind_method(D_METHOD("stop"), &AnimationNodeStateMachinePlayback::stop);
     MethodBinder::bind_method(D_METHOD("is_playing"), &AnimationNodeStateMachinePlayback::is_playing);
     MethodBinder::bind_method(D_METHOD("get_current_node"), &AnimationNodeStateMachinePlayback::get_current_node);
@@ -518,7 +518,7 @@ AnimationNodeStateMachinePlayback::AnimationNodeStateMachinePlayback() {
 ///////////////////////////////////////////////////////
 
 void AnimationNodeStateMachine::get_parameter_list(List<PropertyInfo> *r_list) const {
-    r_list->push_back(PropertyInfo(Variant::OBJECT, playback, PROPERTY_HINT_RESOURCE_TYPE, "AnimationNodeStateMachinePlayback", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_DO_NOT_SHARE_ON_DUPLICATE));
+    r_list->push_back(PropertyInfo(VariantType::OBJECT, playback, PROPERTY_HINT_RESOURCE_TYPE, "AnimationNodeStateMachinePlayback", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_DO_NOT_SHARE_ON_DUPLICATE));
     List<StringName> advance_conditions;
     for (int i = 0; i < transitions.size(); i++) {
         StringName ac = transitions[i].transition->get_advance_condition_name();
@@ -529,15 +529,14 @@ void AnimationNodeStateMachine::get_parameter_list(List<PropertyInfo> *r_list) c
 
     advance_conditions.sort_custom<WrapAlphaCompare>();
     for (List<StringName>::Element *E = advance_conditions.front(); E; E = E->next()) {
-        r_list->push_back(PropertyInfo(Variant::BOOL, E->get()));
+        r_list->push_back(PropertyInfo(VariantType::BOOL, E->deref()));
     }
 }
 
 Variant AnimationNodeStateMachine::get_parameter_default_value(const StringName &p_parameter) const {
 
     if (p_parameter == playback) {
-        Ref<AnimationNodeStateMachinePlayback> p;
-        p.instance();
+        Ref<AnimationNodeStateMachinePlayback> p(make_ref_counted<AnimationNodeStateMachinePlayback>());
         return p;
     } else {
         return false; //advance condition
@@ -546,12 +545,12 @@ Variant AnimationNodeStateMachine::get_parameter_default_value(const StringName 
 
 void AnimationNodeStateMachine::add_node(const StringName &p_name, Ref<AnimationNode> p_node, const Vector2 &p_position) {
 
-    ERR_FAIL_COND(states.has(p_name))
-    ERR_FAIL_COND(p_node.is_null())
-	ERR_FAIL_COND(StringUtils::contains(p_name,'/'))
+    ERR_FAIL_COND(states.contains(p_name))
+    ERR_FAIL_COND(not p_node)
+    ERR_FAIL_COND(StringUtils::contains(p_name,'/'))
 
     State state;
-    state.node = p_node;
+    state.node = dynamic_ref_cast<AnimationRootNode>(p_node);
     state.position = p_position;
 
     states[p_name] = state;
@@ -564,15 +563,15 @@ void AnimationNodeStateMachine::add_node(const StringName &p_name, Ref<Animation
 
 Ref<AnimationNode> AnimationNodeStateMachine::get_node(const StringName &p_name) const {
 
-    ERR_FAIL_COND_V(!states.has(p_name), Ref<AnimationNode>())
+    ERR_FAIL_COND_V(!states.contains(p_name), Ref<AnimationNode>())
 
-    return states[p_name].node;
+    return states.at(p_name).node;
 }
 
 StringName AnimationNodeStateMachine::get_node_name(const Ref<AnimationNode> &p_node) const {
-    for (Map<StringName, State>::Element *E = states.front(); E; E = E->next()) {
-        if (E->get().node == p_node) {
-            return E->key();
+    for (const eastl::pair<const StringName,State> &E : states) {
+        if (Ref<AnimationNode>(E.second.node) == p_node) {
+            return E.first;
         }
     }
 
@@ -582,8 +581,8 @@ StringName AnimationNodeStateMachine::get_node_name(const Ref<AnimationNode> &p_
 void AnimationNodeStateMachine::get_child_nodes(List<ChildNode> *r_child_nodes) {
     Vector<StringName> nodes;
 
-    for (Map<StringName, State>::Element *E = states.front(); E; E = E->next()) {
-        nodes.push_back(E->key());
+    for (eastl::pair<const StringName,State> &E : states) {
+        nodes.push_back(E.first);
     }
 
     nodes.sort_custom<WrapAlphaCompare>();
@@ -597,16 +596,16 @@ void AnimationNodeStateMachine::get_child_nodes(List<ChildNode> *r_child_nodes) 
 }
 
 bool AnimationNodeStateMachine::has_node(const StringName &p_name) const {
-    return states.has(p_name);
+    return states.contains(p_name);
 }
 void AnimationNodeStateMachine::remove_node(const StringName &p_name) {
 
-    ERR_FAIL_COND(!states.has(p_name));
+    ERR_FAIL_COND(!states.contains(p_name))
 
     {
         Ref<AnimationNode> node = states[p_name].node;
 
-        ERR_FAIL_COND(node.is_null());
+        ERR_FAIL_COND(not node)
 
         node->disconnect("tree_changed", this, "_tree_changed");
     }
@@ -640,8 +639,8 @@ void AnimationNodeStateMachine::remove_node(const StringName &p_name) {
 
 void AnimationNodeStateMachine::rename_node(const StringName &p_name, const StringName &p_new_name) {
 
-    ERR_FAIL_COND(!states.has(p_name))
-    ERR_FAIL_COND(states.has(p_new_name))
+    ERR_FAIL_COND(!states.contains(p_name))
+    ERR_FAIL_COND(states.contains(p_new_name))
 
     states[p_new_name] = states[p_name];
     states.erase(p_name);
@@ -675,13 +674,13 @@ void AnimationNodeStateMachine::rename_node(const StringName &p_name, const Stri
 void AnimationNodeStateMachine::get_node_list(List<StringName> *r_nodes) const {
 
     List<StringName> nodes;
-    for (Map<StringName, State>::Element *E = states.front(); E; E = E->next()) {
-        nodes.push_back(E->key());
+    for (const eastl::pair<const StringName,State> &E : states) {
+        nodes.push_back(E.first);
     }
     nodes.sort_custom<WrapAlphaCompare>();
 
     for (List<StringName>::Element *E = nodes.front(); E; E = E->next()) {
-        r_nodes->push_back(E->get());
+        r_nodes->push_back(E->deref());
     }
 }
 
@@ -706,9 +705,9 @@ int AnimationNodeStateMachine::find_transition(const StringName &p_from, const S
 void AnimationNodeStateMachine::add_transition(const StringName &p_from, const StringName &p_to, const Ref<AnimationNodeStateMachineTransition> &p_transition) {
 
     ERR_FAIL_COND(p_from == p_to)
-    ERR_FAIL_COND(!states.has(p_from))
-    ERR_FAIL_COND(!states.has(p_to))
-    ERR_FAIL_COND(p_transition.is_null())
+    ERR_FAIL_COND(!states.contains(p_from))
+    ERR_FAIL_COND(!states.contains(p_to))
+    ERR_FAIL_COND(not p_transition)
 
     for (int i = 0; i < transitions.size(); i++) {
         ERR_FAIL_COND(transitions[i].from == p_from && transitions[i].to == p_to)
@@ -770,7 +769,7 @@ void AnimationNodeStateMachine::remove_transition_by_index(int p_transition) {
 
 void AnimationNodeStateMachine::set_start_node(const StringName &p_node) {
 
-    ERR_FAIL_COND(p_node != StringName() && !states.has(p_node));
+    ERR_FAIL_COND(p_node != StringName() && !states.contains(p_node))
     start_node = p_node;
 }
 
@@ -781,7 +780,7 @@ String AnimationNodeStateMachine::get_start_node() const {
 
 void AnimationNodeStateMachine::set_end_node(const StringName &p_node) {
 
-    ERR_FAIL_COND(p_node != StringName() && !states.has(p_node));
+    ERR_FAIL_COND(p_node != StringName() && !states.contains(p_node))
     end_node = p_node;
 }
 
@@ -800,8 +799,8 @@ Vector2 AnimationNodeStateMachine::get_graph_offset() const {
 
 float AnimationNodeStateMachine::process(float p_time, bool p_seek) {
 
-    Ref<AnimationNodeStateMachinePlayback> playback = get_parameter(this->playback);
-    ERR_FAIL_COND_V(playback.is_null(), 0.0);
+    Ref<AnimationNodeStateMachinePlayback> playback = refFromRefPtr<AnimationNodeStateMachinePlayback>(get_parameter(this->playback));
+    ERR_FAIL_COND_V(not playback, 0.0)
 
     return playback->process(this, p_time, p_seek);
 }
@@ -825,16 +824,16 @@ bool AnimationNodeStateMachine::_set(const StringName &p_name, const Variant &p_
         String what = StringUtils::get_slice(name,'/', 2);
 
         if (what == "node") {
-            Ref<AnimationNode> anode = p_value;
-            if (anode.is_valid()) {
-                add_node(node_name, p_value);
+            Ref<AnimationNode> anode = refFromRefPtr<AnimationNode>(p_value);
+            if (anode) {
+                add_node(node_name, anode);
             }
             return true;
         }
 
         if (what == "position") {
 
-            if (states.has(node_name)) {
+            if (states.contains(node_name)) {
                 states[node_name].position = p_value;
             }
             return true;
@@ -842,10 +841,10 @@ bool AnimationNodeStateMachine::_set(const StringName &p_name, const Variant &p_
     } else if (name == "transitions") {
 
         Array trans = p_value;
-        ERR_FAIL_COND_V(trans.size() % 3 != 0, false);
+        ERR_FAIL_COND_V(trans.size() % 3 != 0, false)
 
         for (int i = 0; i < trans.size(); i += 3) {
-            add_transition(trans[i], trans[i + 1], trans[i + 2]);
+            add_transition(trans[i], trans[i + 1], refFromRefPtr<AnimationNodeStateMachineTransition>(trans[i + 2]));
         }
         return true;
     } else if (name == "start_node") {
@@ -870,16 +869,16 @@ bool AnimationNodeStateMachine::_get(const StringName &p_name, Variant &r_ret) c
         String what = StringUtils::get_slice(name,'/', 2);
 
         if (what == "node") {
-            if (states.has(node_name)) {
-                r_ret = states[node_name].node;
+            if (states.contains(node_name)) {
+                r_ret = states.at(node_name).node;
                 return true;
             }
         }
 
         if (what == "position") {
 
-            if (states.has(node_name)) {
-                r_ret = states[node_name].position;
+            if (states.contains(node_name)) {
+                r_ret = states.at(node_name).position;
                 return true;
             }
         }
@@ -908,35 +907,35 @@ bool AnimationNodeStateMachine::_get(const StringName &p_name, Variant &r_ret) c
 
     return false;
 }
-void AnimationNodeStateMachine::_get_property_list(List<PropertyInfo> *p_list) const {
+void AnimationNodeStateMachine::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
     List<StringName> names;
-    for (Map<StringName, State>::Element *E = states.front(); E; E = E->next()) {
-        names.push_back(E->key());
+    for (const eastl::pair<const StringName,State> &E : states) {
+        names.push_back(E.first);
     }
     names.sort_custom<WrapAlphaCompare>();
 
     for (List<StringName>::Element *E = names.front(); E; E = E->next()) {
-        String name = E->get();
-        p_list->push_back(PropertyInfo(Variant::OBJECT, "states/" + name + "/node", PROPERTY_HINT_RESOURCE_TYPE, "AnimationNode", PROPERTY_USAGE_NOEDITOR));
-        p_list->push_back(PropertyInfo(Variant::VECTOR2, "states/" + name + "/position", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
+        String name = E->deref();
+        p_list->push_back(PropertyInfo(VariantType::OBJECT, "states/" + name + "/node", PROPERTY_HINT_RESOURCE_TYPE, "AnimationNode", PROPERTY_USAGE_NOEDITOR));
+        p_list->push_back(PropertyInfo(VariantType::VECTOR2, "states/" + name + "/position", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
     }
 
-    p_list->push_back(PropertyInfo(Variant::ARRAY, "transitions", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
-    p_list->push_back(PropertyInfo(Variant::STRING, "start_node", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
-    p_list->push_back(PropertyInfo(Variant::STRING, "end_node", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
-    p_list->push_back(PropertyInfo(Variant::VECTOR2, "graph_offset", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
+    p_list->push_back(PropertyInfo(VariantType::ARRAY, "transitions", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
+    p_list->push_back(PropertyInfo(VariantType::STRING, "start_node", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
+    p_list->push_back(PropertyInfo(VariantType::STRING, "end_node", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
+    p_list->push_back(PropertyInfo(VariantType::VECTOR2, "graph_offset", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
 }
 
 void AnimationNodeStateMachine::set_node_position(const StringName &p_name, const Vector2 &p_position) {
-    ERR_FAIL_COND(!states.has(p_name));
+    ERR_FAIL_COND(!states.contains(p_name))
     states[p_name].position = p_position;
 }
 
 Vector2 AnimationNodeStateMachine::get_node_position(const StringName &p_name) const {
 
-    ERR_FAIL_COND_V(!states.has(p_name), Vector2());
-    return states[p_name].position;
+    ERR_FAIL_COND_V(!states.contains(p_name), Vector2())
+    return states.at(p_name).position;
 }
 
 void AnimationNodeStateMachine::_tree_changed() {
@@ -945,32 +944,32 @@ void AnimationNodeStateMachine::_tree_changed() {
 
 void AnimationNodeStateMachine::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("add_node", "name", "node", "position"), &AnimationNodeStateMachine::add_node, {DEFVAL(Vector2())});
-    MethodBinder::bind_method(D_METHOD("get_node", "name"), &AnimationNodeStateMachine::get_node);
-    MethodBinder::bind_method(D_METHOD("remove_node", "name"), &AnimationNodeStateMachine::remove_node);
-    MethodBinder::bind_method(D_METHOD("rename_node", "name", "new_name"), &AnimationNodeStateMachine::rename_node);
-    MethodBinder::bind_method(D_METHOD("has_node", "name"), &AnimationNodeStateMachine::has_node);
-    MethodBinder::bind_method(D_METHOD("get_node_name", "node"), &AnimationNodeStateMachine::get_node_name);
+    MethodBinder::bind_method(D_METHOD("add_node", {"name", "node", "position"}), &AnimationNodeStateMachine::add_node, {DEFVAL(Vector2())});
+    MethodBinder::bind_method(D_METHOD("get_node", {"name"}), &AnimationNodeStateMachine::get_node);
+    MethodBinder::bind_method(D_METHOD("remove_node", {"name"}), &AnimationNodeStateMachine::remove_node);
+    MethodBinder::bind_method(D_METHOD("rename_node", {"name", "new_name"}), &AnimationNodeStateMachine::rename_node);
+    MethodBinder::bind_method(D_METHOD("has_node", {"name"}), &AnimationNodeStateMachine::has_node);
+    MethodBinder::bind_method(D_METHOD("get_node_name", {"node"}), &AnimationNodeStateMachine::get_node_name);
 
-    MethodBinder::bind_method(D_METHOD("set_node_position", "name", "position"), &AnimationNodeStateMachine::set_node_position);
-    MethodBinder::bind_method(D_METHOD("get_node_position", "name"), &AnimationNodeStateMachine::get_node_position);
+    MethodBinder::bind_method(D_METHOD("set_node_position", {"name", "position"}), &AnimationNodeStateMachine::set_node_position);
+    MethodBinder::bind_method(D_METHOD("get_node_position", {"name"}), &AnimationNodeStateMachine::get_node_position);
 
-    MethodBinder::bind_method(D_METHOD("has_transition", "from", "to"), &AnimationNodeStateMachine::has_transition);
-    MethodBinder::bind_method(D_METHOD("add_transition", "from", "to", "transition"), &AnimationNodeStateMachine::add_transition);
-    MethodBinder::bind_method(D_METHOD("get_transition", "idx"), &AnimationNodeStateMachine::get_transition);
-    MethodBinder::bind_method(D_METHOD("get_transition_from", "idx"), &AnimationNodeStateMachine::get_transition_from);
-    MethodBinder::bind_method(D_METHOD("get_transition_to", "idx"), &AnimationNodeStateMachine::get_transition_to);
+    MethodBinder::bind_method(D_METHOD("has_transition", {"from", "to"}), &AnimationNodeStateMachine::has_transition);
+    MethodBinder::bind_method(D_METHOD("add_transition", {"from", "to", "transition"}), &AnimationNodeStateMachine::add_transition);
+    MethodBinder::bind_method(D_METHOD("get_transition", {"idx"}), &AnimationNodeStateMachine::get_transition);
+    MethodBinder::bind_method(D_METHOD("get_transition_from", {"idx"}), &AnimationNodeStateMachine::get_transition_from);
+    MethodBinder::bind_method(D_METHOD("get_transition_to", {"idx"}), &AnimationNodeStateMachine::get_transition_to);
     MethodBinder::bind_method(D_METHOD("get_transition_count"), &AnimationNodeStateMachine::get_transition_count);
-    MethodBinder::bind_method(D_METHOD("remove_transition_by_index", "idx"), &AnimationNodeStateMachine::remove_transition_by_index);
-    MethodBinder::bind_method(D_METHOD("remove_transition", "from", "to"), &AnimationNodeStateMachine::remove_transition);
+    MethodBinder::bind_method(D_METHOD("remove_transition_by_index", {"idx"}), &AnimationNodeStateMachine::remove_transition_by_index);
+    MethodBinder::bind_method(D_METHOD("remove_transition", {"from", "to"}), &AnimationNodeStateMachine::remove_transition);
 
-    MethodBinder::bind_method(D_METHOD("set_start_node", "name"), &AnimationNodeStateMachine::set_start_node);
+    MethodBinder::bind_method(D_METHOD("set_start_node", {"name"}), &AnimationNodeStateMachine::set_start_node);
     MethodBinder::bind_method(D_METHOD("get_start_node"), &AnimationNodeStateMachine::get_start_node);
 
-    MethodBinder::bind_method(D_METHOD("set_end_node", "name"), &AnimationNodeStateMachine::set_end_node);
+    MethodBinder::bind_method(D_METHOD("set_end_node", {"name"}), &AnimationNodeStateMachine::set_end_node);
     MethodBinder::bind_method(D_METHOD("get_end_node"), &AnimationNodeStateMachine::get_end_node);
 
-    MethodBinder::bind_method(D_METHOD("set_graph_offset", "offset"), &AnimationNodeStateMachine::set_graph_offset);
+    MethodBinder::bind_method(D_METHOD("set_graph_offset", {"offset"}), &AnimationNodeStateMachine::set_graph_offset);
     MethodBinder::bind_method(D_METHOD("get_graph_offset"), &AnimationNodeStateMachine::get_graph_offset);
 
     MethodBinder::bind_method(D_METHOD("_tree_changed"), &AnimationNodeStateMachine::_tree_changed);

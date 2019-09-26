@@ -36,7 +36,9 @@
 #include "core/set.h"
 #include "core/map.h"
 #include "core/ustring.h"
+#include "core/list.h"
 
+struct PropertyInfo;
 class GODOT_EXPORT ProjectSettings : public Object {
 
     GDCLASS(ProjectSettings,Object)
@@ -77,14 +79,14 @@ protected:
     Map<StringName, PropertyInfo> custom_prop_info;
     bool disable_feature_overrides;
     bool using_datapack;
-    List<String> input_presets;
+    ListPOD<String> input_presets;
 
     Set<String> custom_features;
     Map<StringName, StringName> feature_overrides;
 
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(List<PropertyInfo> *p_list) const;
+    void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
 
     static ProjectSettings *singleton;
 
@@ -92,8 +94,8 @@ protected:
     Error _load_settings_binary(const String &p_path);
     Error _load_settings_text_or_binary(const String &p_text_path, const String &p_bin_path);
 
-    Error _save_settings_text(const String &p_file, const Map<String, List<String> > &props, const CustomMap &p_custom = CustomMap(), const String &p_custom_features = String());
-    Error _save_settings_binary(const String &p_file, const Map<String, List<String> > &props, const CustomMap &p_custom = CustomMap(), const String &p_custom_features = String());
+    Error _save_settings_text(const String &p_file, const Map<String, ListPOD<String> > &props, const CustomMap &p_custom = CustomMap(), const String &p_custom_features = String());
+    Error _save_settings_binary(const String &p_file, const Map<String, ListPOD<String> > &props, const CustomMap &p_custom = CustomMap(), const String &p_custom_features = String());
 
     Error _save_custom_bnd(const String &p_file);
 
@@ -141,7 +143,7 @@ public:
 
     Vector<String> get_optimizer_presets() const;
 
-    List<String> get_input_presets() const { return input_presets; }
+    const ListPOD<String> &get_input_presets() const { return input_presets; }
 
     void set_disable_feature_overrides(bool p_disable);
 

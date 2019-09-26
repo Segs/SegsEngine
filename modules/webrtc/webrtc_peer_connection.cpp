@@ -37,7 +37,7 @@ WebRTCPeerConnection *(*WebRTCPeerConnection::_create)() = nullptr;
 
 Ref<WebRTCPeerConnection> WebRTCPeerConnection::create_ref() {
 
-    return create();
+    return Ref<WebRTCPeerConnection>(create());
 }
 
 WebRTCPeerConnection *WebRTCPeerConnection::create() {
@@ -48,27 +48,27 @@ WebRTCPeerConnection *WebRTCPeerConnection::create() {
 }
 
 void WebRTCPeerConnection::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("initialize", "configuration"), &WebRTCPeerConnection::initialize, {DEFVAL(Dictionary())});
-    MethodBinder::bind_method(D_METHOD("create_data_channel", "label", "options"), &WebRTCPeerConnection::create_data_channel, {DEFVAL(Dictionary())});
+    MethodBinder::bind_method(D_METHOD("initialize", {"configuration"}), &WebRTCPeerConnection::initialize, {DEFVAL(Dictionary())});
+    MethodBinder::bind_method(D_METHOD("create_data_channel", {"label", "options"}), &WebRTCPeerConnection::create_data_channel, {DEFVAL(Dictionary())});
     MethodBinder::bind_method(D_METHOD("create_offer"), &WebRTCPeerConnection::create_offer);
-    MethodBinder::bind_method(D_METHOD("set_local_description", "type", "sdp"), &WebRTCPeerConnection::set_local_description);
-    MethodBinder::bind_method(D_METHOD("set_remote_description", "type", "sdp"), &WebRTCPeerConnection::set_remote_description);
-    MethodBinder::bind_method(D_METHOD("add_ice_candidate", "media", "index", "name"), &WebRTCPeerConnection::add_ice_candidate);
+    MethodBinder::bind_method(D_METHOD("set_local_description", {"type", "sdp"}), &WebRTCPeerConnection::set_local_description);
+    MethodBinder::bind_method(D_METHOD("set_remote_description", {"type", "sdp"}), &WebRTCPeerConnection::set_remote_description);
+    MethodBinder::bind_method(D_METHOD("add_ice_candidate", {"media", "index", "name"}), &WebRTCPeerConnection::add_ice_candidate);
     MethodBinder::bind_method(D_METHOD("poll"), &WebRTCPeerConnection::poll);
     MethodBinder::bind_method(D_METHOD("close"), &WebRTCPeerConnection::close);
 
     MethodBinder::bind_method(D_METHOD("get_connection_state"), &WebRTCPeerConnection::get_connection_state);
 
-    ADD_SIGNAL(MethodInfo("session_description_created", PropertyInfo(Variant::STRING, "type"), PropertyInfo(Variant::STRING, "sdp")));
-    ADD_SIGNAL(MethodInfo("ice_candidate_created", PropertyInfo(Variant::STRING, "media"), PropertyInfo(Variant::INT, "index"), PropertyInfo(Variant::STRING, "name")));
-    ADD_SIGNAL(MethodInfo("data_channel_received", PropertyInfo(Variant::OBJECT, "channel")));
+    ADD_SIGNAL(MethodInfo("session_description_created", PropertyInfo(VariantType::STRING, "type"), PropertyInfo(VariantType::STRING, "sdp")));
+    ADD_SIGNAL(MethodInfo("ice_candidate_created", PropertyInfo(VariantType::STRING, "media"), PropertyInfo(VariantType::INT, "index"), PropertyInfo(VariantType::STRING, "name")));
+    ADD_SIGNAL(MethodInfo("data_channel_received", PropertyInfo(VariantType::OBJECT, "channel")));
 
-    BIND_ENUM_CONSTANT(STATE_NEW);
-    BIND_ENUM_CONSTANT(STATE_CONNECTING);
-    BIND_ENUM_CONSTANT(STATE_CONNECTED);
-    BIND_ENUM_CONSTANT(STATE_DISCONNECTED);
-    BIND_ENUM_CONSTANT(STATE_FAILED);
-    BIND_ENUM_CONSTANT(STATE_CLOSED);
+    BIND_ENUM_CONSTANT(STATE_NEW)
+    BIND_ENUM_CONSTANT(STATE_CONNECTING)
+    BIND_ENUM_CONSTANT(STATE_CONNECTED)
+    BIND_ENUM_CONSTANT(STATE_DISCONNECTED)
+    BIND_ENUM_CONSTANT(STATE_FAILED)
+    BIND_ENUM_CONSTANT(STATE_CLOSED)
 }
 
 WebRTCPeerConnection::WebRTCPeerConnection() {

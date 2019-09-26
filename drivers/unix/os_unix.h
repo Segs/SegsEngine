@@ -39,74 +39,74 @@
 class OS_Unix : public OS {
 
 protected:
-	// UNIX only handles the core functions.
-	// inheriting platforms under unix (eg. X11) should handle the rest
+    // UNIX only handles the core functions.
+    // inheriting platforms under unix (eg. X11) should handle the rest
 
-	void initialize_core() override;
-	virtual int unix_initialize_audio(int p_audio_driver);
-	//virtual Error initialize(int p_video_driver,int p_audio_driver);
+    void initialize_core() override;
+    virtual int unix_initialize_audio(int p_audio_driver);
+    //virtual Error initialize(int p_video_driver,int p_audio_driver);
 
-	void finalize_core() override;
+    void finalize_core() override;
 
-	String stdin_buf;
+    String stdin_buf;
 
 public:
-	OS_Unix();
+    OS_Unix();
 
-	void alert(const String &p_alert, const String &p_title = "ALERT!") override;
-	String get_stdin_string(bool p_block) override;
+    void alert(const String &p_alert, const String &p_title = "ALERT!") override;
+    String get_stdin_string(bool p_block) override;
 
-	//virtual void set_mouse_show(bool p_show);
-	//virtual void set_mouse_grab(bool p_grab);
-	//virtual bool is_mouse_grab_enabled() const = 0;
-	//virtual void get_mouse_position(int &x, int &y) const;
-	//virtual void set_window_title(const String& p_title);
+    //virtual void set_mouse_show(bool p_show);
+    //virtual void set_mouse_grab(bool p_grab);
+    //virtual bool is_mouse_grab_enabled() const = 0;
+    //virtual void get_mouse_position(int &x, int &y) const;
+    //virtual void set_window_title(const String& p_title);
 
-	//virtual void set_video_mode(const VideoMode& p_video_mode);
-	//virtual VideoMode get_video_mode() const;
-	//virtual void get_fullscreen_mode_list(List<VideoMode> *p_list) const;
+    //virtual void set_video_mode(const VideoMode& p_video_mode);
+    //virtual VideoMode get_video_mode() const;
+    //virtual void get_fullscreen_mode_list(List<VideoMode> *p_list) const;
 
-	Error open_dynamic_library(const String p_path, void *&p_library_handle, bool p_also_set_library_path = false) override;
-	Error close_dynamic_library(void *p_library_handle) override;
-	Error get_dynamic_library_symbol_handle(void *p_library_handle, const String p_name, void *&p_symbol_handle, bool p_optional = false) override;
+    Error open_dynamic_library(const String &p_path, void *&p_library_handle, bool p_also_set_library_path = false) override;
+    Error close_dynamic_library(void *p_library_handle) override;
+    Error get_dynamic_library_symbol_handle(void *p_library_handle, const String p_name, void *&p_symbol_handle, bool p_optional = false) override;
 
-	Error set_cwd(const String &p_cwd) override;
+    Error set_cwd(const String &p_cwd) override;
 
-	String get_name() const override;
+    String get_name() const override;
 
-	Date get_date(bool utc) const override;
-	Time get_time(bool utc) const override;
-	TimeZoneInfo get_time_zone_info() const override;
+    Date get_date(bool utc) const override;
+    Time get_time(bool utc) const override;
+    TimeZoneInfo get_time_zone_info() const override;
 
-	uint64_t get_unix_time() const override;
-	uint64_t get_system_time_secs() const override;
-	uint64_t get_system_time_msecs() const override;
+    uint64_t get_unix_time() const override;
+    uint64_t get_system_time_secs() const override;
+    uint64_t get_system_time_msecs() const override;
 
-	void delay_usec(uint32_t p_usec) const override;
-	uint64_t get_ticks_usec() const override;
+    void delay_usec(uint32_t p_usec) const override;
+    uint64_t get_ticks_usec() const override;
 
-	Error execute(const String &p_path, const List<String> &p_arguments, bool p_blocking, ProcessID *r_child_id = nullptr, String *r_pipe = nullptr, int *r_exitcode = nullptr, bool read_stderr = false, Mutex *p_pipe_mutex = nullptr) override;
-	Error kill(const ProcessID &p_pid) override;
-	int get_process_id() const override;
+    Error execute(const String &p_path, const ListPOD<String> &p_arguments, bool p_blocking, ProcessID *r_child_id = nullptr, String *r_pipe = nullptr, int *r_exitcode = nullptr, bool read_stderr = false, Mutex *p_pipe_mutex = nullptr) override;
+    Error kill(const ProcessID &p_pid) override;
+    int get_process_id() const override;
 
-	bool has_environment(const String &p_var) const override;
-	String get_environment(const String &p_var) const override;
-	bool set_environment(const String &p_var, const String &p_value) const override;
-	String get_locale() const override;
+    bool has_environment(const String &p_var) const override;
+    String get_environment(const String &p_var) const override;
+    bool set_environment(const String &p_var, const String &p_value) const override;
+    String get_locale() const override;
 
-	int get_processor_count() const override;
+    int get_processor_count() const override;
 
-	void debug_break() override;
-	void initialize_debugging() override;
+    void debug_break() override;
+    void initialize_debugging() override;
 
-	String get_executable_path() const override;
-	String get_user_data_dir() const override;
+    String get_executable_path() const override;
+    String get_user_data_dir() const override;
 };
 
 class UnixTerminalLogger : public StdLogger {
 public:
-	void log_error(const char *p_function, const char *p_file, int p_line, const char *p_code, const char *p_rationale, ErrorType p_type = ERR_ERROR) override;
-	~UnixTerminalLogger() override;
+    void log_error(const char *p_function, const char *p_file, int p_line, const char *p_code, const char *p_rationale, ErrorType p_type = ERR_ERROR) override;
+    ~UnixTerminalLogger() override;
 };
 
 #endif

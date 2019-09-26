@@ -111,20 +111,20 @@ struct SpatialIndexer2D {
                 CellKey ck;
                 ck.x = i;
                 ck.y = j;
-                Map<CellKey, CellData>::Element *E = cells.find(ck);
+                Map<CellKey, CellData>::iterator E = cells.find(ck);
 
                 if (p_add) {
 
-                    if (!E)
-                        E = cells.insert(ck, CellData());
-                    E->get().notifiers[p_notifier].inc();
+                    if (E==cells.end())
+                        E = cells.emplace(ck, CellData()).first;
+                    E->second.notifiers[p_notifier].inc();
                 } else {
 
-                    ERR_CONTINUE(!E);
-                    if (E->get().notifiers[p_notifier].dec() == 0) {
+                    ERR_CONTINUE(E==cells.end())
+                    if (E->second.notifiers[p_notifier].dec() == 0) {
 
-                        E->get().notifiers.erase(p_notifier);
-                        if (E->get().notifiers.empty()) {
+                        E->second.notifiers.erase(p_notifier);
+                        if (E->second.notifiers.empty()) {
                             cells.erase(E);
                         }
                     }
@@ -135,7 +135,7 @@ struct SpatialIndexer2D {
 
     void _notifier_add(VisibilityNotifier2D *p_notifier, const Rect2 &p_rect) {
 
-        ERR_FAIL_COND(notifiers.has(p_notifier));
+        ERR_FAIL_COND(notifiers.contains(p_notifier))
         notifiers[p_notifier] = p_rect;
         _notifier_update_cells(p_notifier, p_rect, true);
         changed = true;
@@ -143,38 +143,38 @@ struct SpatialIndexer2D {
 
     void _notifier_update(VisibilityNotifier2D *p_notifier, const Rect2 &p_rect) {
 
-        Map<VisibilityNotifier2D *, Rect2>::Element *E = notifiers.find(p_notifier);
-        ERR_FAIL_COND(!E);
-        if (E->get() == p_rect)
+        Map<VisibilityNotifier2D *, Rect2>::iterator E = notifiers.find(p_notifier);
+        ERR_FAIL_COND(E==notifiers.end())
+        if (E->second == p_rect)
             return;
 
         _notifier_update_cells(p_notifier, p_rect, true);
-        _notifier_update_cells(p_notifier, E->get(), false);
-        E->get() = p_rect;
+        _notifier_update_cells(p_notifier, E->second, false);
+        E->second = p_rect;
         changed = true;
     }
 
     void _notifier_remove(VisibilityNotifier2D *p_notifier) {
 
-        Map<VisibilityNotifier2D *, Rect2>::Element *E = notifiers.find(p_notifier);
-        ERR_FAIL_COND(!E);
-        _notifier_update_cells(p_notifier, E->get(), false);
+        Map<VisibilityNotifier2D *, Rect2>::iterator E = notifiers.find(p_notifier);
+        ERR_FAIL_COND(E==notifiers.end())
+        _notifier_update_cells(p_notifier, E->second, false);
         notifiers.erase(p_notifier);
 
         List<Viewport *> removed;
-        for (Map<Viewport *, ViewportData>::Element *F = viewports.front(); F; F = F->next()) {
+        for (eastl::pair<Viewport *const ,ViewportData> &F : viewports) {
 
-            Map<VisibilityNotifier2D *, uint64_t>::Element *G = F->get().notifiers.find(p_notifier);
+            Map<VisibilityNotifier2D *, uint64_t>::const_iterator G = F.second.notifiers.find(p_notifier);
 
-            if (G) {
-                F->get().notifiers.erase(G);
-                removed.push_back(F->key());
+            if (G!=F.second.notifiers.end()) {
+                F.second.notifiers.erase(G);
+                removed.push_back(F.first);
             }
         }
 
         while (!removed.empty()) {
 
-            p_notifier->_exit_viewport(removed.front()->get());
+            p_notifier->_exit_viewport(removed.front()->deref());
             removed.pop_front();
         }
 
@@ -183,7 +183,7 @@ struct SpatialIndexer2D {
 
     void _add_viewport(Viewport *p_viewport, const Rect2 &p_rect) {
 
-        ERR_FAIL_COND(viewports.has(p_viewport));
+        ERR_FAIL_COND(viewports.contains(p_viewport))
         ViewportData vd;
         vd.rect = p_rect;
         viewports[p_viewport] = vd;
@@ -192,24 +192,24 @@ struct SpatialIndexer2D {
 
     void _update_viewport(Viewport *p_viewport, const Rect2 &p_rect) {
 
-        Map<Viewport *, ViewportData>::Element *E = viewports.find(p_viewport);
-        ERR_FAIL_COND(!E);
-        if (E->get().rect == p_rect)
+        Map<Viewport *, ViewportData>::iterator E = viewports.find(p_viewport);
+        ERR_FAIL_COND(E==viewports.end())
+        if (E->second.rect == p_rect)
             return;
-        E->get().rect = p_rect;
+        E->second.rect = p_rect;
         changed = true;
     }
 
     void _remove_viewport(Viewport *p_viewport) {
-        ERR_FAIL_COND(!viewports.has(p_viewport));
+        ERR_FAIL_COND(!viewports.contains(p_viewport))
         List<VisibilityNotifier2D *> removed;
-        for (Map<VisibilityNotifier2D *, uint64_t>::Element *E = viewports[p_viewport].notifiers.front(); E; E = E->next()) {
+        for (auto &E : viewports[p_viewport].notifiers) {
 
-            removed.push_back(E->key());
+            removed.push_back(E.first);
         }
 
         while (!removed.empty()) {
-            removed.front()->get()->_exit_viewport(p_viewport);
+            removed.front()->deref()->_exit_viewport(p_viewport);
             removed.pop_front();
         }
 
@@ -221,11 +221,11 @@ struct SpatialIndexer2D {
         if (!changed)
             return;
 
-        for (Map<Viewport *, ViewportData>::Element *E = viewports.front(); E; E = E->next()) {
+        for (eastl::pair<Viewport *const,ViewportData> &E : viewports) {
 
-            Point2i begin = E->get().rect.position;
+            Point2i begin = E.second.rect.position;
             begin /= cell_size;
-            Point2i end = E->get().rect.position + E->get().rect.size;
+            Point2i end = E.second.rect.position + E.second.rect.size;
             end /= cell_size;
             pass++;
             List<VisibilityNotifier2D *> added;
@@ -237,9 +237,9 @@ struct SpatialIndexer2D {
 
                 //well you zoomed out a lot, it's your problem. To avoid freezing in the for loops below, we'll manually check cell by cell
 
-                for (Map<CellKey, CellData>::Element *F = cells.front(); F; F = F->next()) {
+                for (eastl::pair<const CellKey,CellData> &F : cells) {
 
-                    const CellKey &ck = F->key();
+                    const CellKey &ck = F.first;
 
                     if (ck.x < begin.x || ck.x > end.x)
                         continue;
@@ -247,15 +247,15 @@ struct SpatialIndexer2D {
                         continue;
 
                     //notifiers in cell
-                    for (Map<VisibilityNotifier2D *, CellRef>::Element *G = F->get().notifiers.front(); G; G = G->next()) {
+                    for (auto &G : F.second.notifiers) {
 
-                        Map<VisibilityNotifier2D *, uint64_t>::Element *H = E->get().notifiers.find(G->key());
-                        if (!H) {
+                        Map<VisibilityNotifier2D *, uint64_t>::iterator H = E.second.notifiers.find(G.first);
+                        if (H==E.second.notifiers.end()) {
 
-                            H = E->get().notifiers.insert(G->key(), pass);
-                            added.push_back(G->key());
+                            H = E.second.notifiers.emplace(G.first, pass).first;
+                            added.push_back(G.first);
                         } else {
-                            H->get() = pass;
+                            H->second = pass;
                         }
                     }
                 }
@@ -271,41 +271,41 @@ struct SpatialIndexer2D {
                         ck.x = i;
                         ck.y = j;
 
-                        Map<CellKey, CellData>::Element *F = cells.find(ck);
-                        if (!F) {
+                        Map<CellKey, CellData>::iterator F = cells.find(ck);
+                        if (F==cells.end()) {
                             continue;
                         }
 
                         //notifiers in cell
-                        for (Map<VisibilityNotifier2D *, CellRef>::Element *G = F->get().notifiers.front(); G; G = G->next()) {
+                        for (auto & G : F->second.notifiers) {
 
-                            Map<VisibilityNotifier2D *, uint64_t>::Element *H = E->get().notifiers.find(G->key());
-                            if (!H) {
+                            auto H = E.second.notifiers.find(G.first);
+                            if (H==E.second.notifiers.end()) {
 
-                                H = E->get().notifiers.insert(G->key(), pass);
-                                added.push_back(G->key());
+                                H = E.second.notifiers.emplace(G.first, pass).first;
+                                added.push_back(G.first);
                             } else {
-                                H->get() = pass;
+                                H->second = pass;
                             }
                         }
                     }
                 }
             }
 
-            for (Map<VisibilityNotifier2D *, uint64_t>::Element *F = E->get().notifiers.front(); F; F = F->next()) {
+            for (auto &F : E.second.notifiers) {
 
-                if (F->get() != pass)
-                    removed.push_back(F->key());
+                if (F.second != pass)
+                    removed.push_back(F.first);
             }
 
             while (!added.empty()) {
-                added.front()->get()->_enter_viewport(E->key());
+                added.front()->deref()->_enter_viewport(E.first);
                 added.pop_front();
             }
 
             while (!removed.empty()) {
-                E->get().notifiers.erase(removed.front()->get());
-                removed.front()->get()->_exit_viewport(E->key());
+                E.second.notifiers.erase(removed.front()->deref());
+                removed.front()->deref()->_exit_viewport(E.first);
                 removed.pop_front();
             }
         }
@@ -365,8 +365,8 @@ RID World2D::get_space() {
 
 void World2D::get_viewport_list(List<Viewport *> *r_viewports) {
 
-    for (Map<Viewport *, SpatialIndexer2D::ViewportData>::Element *E = indexer->viewports.front(); E; E = E->next()) {
-        r_viewports->push_back(E->key());
+    for (const eastl::pair<Viewport *const ,SpatialIndexer2D::ViewportData> &E : indexer->viewports) {
+        r_viewports->push_back(E.first);
     }
 }
 
@@ -377,9 +377,9 @@ void World2D::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("get_direct_space_state"), &World2D::get_direct_space_state);
 
-    ADD_PROPERTY(PropertyInfo(Variant::_RID, "canvas", PROPERTY_HINT_NONE, "", 0), "", "get_canvas");
-    ADD_PROPERTY(PropertyInfo(Variant::_RID, "space", PROPERTY_HINT_NONE, "", 0), "", "get_space");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "direct_space_state", PROPERTY_HINT_RESOURCE_TYPE, "Physics2DDirectSpaceState", 0), "", "get_direct_space_state");
+    ADD_PROPERTY(PropertyInfo(VariantType::_RID, "canvas", PROPERTY_HINT_NONE, "", 0), "", "get_canvas");
+    ADD_PROPERTY(PropertyInfo(VariantType::_RID, "space", PROPERTY_HINT_NONE, "", 0), "", "get_space");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "direct_space_state", PROPERTY_HINT_RESOURCE_TYPE, "Physics2DDirectSpaceState", 0), "", "get_direct_space_state");
 }
 
 Physics2DDirectSpaceState *World2D::get_direct_space_state() {

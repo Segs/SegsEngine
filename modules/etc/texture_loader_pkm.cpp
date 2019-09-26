@@ -30,7 +30,9 @@
 
 #include "texture_loader_pkm.h"
 
+#include "core/class_db.h"
 #include "core/os/file_access.h"
+
 #include <cstring>
 
 struct ETC1Header {
@@ -56,14 +58,14 @@ RES ResourceFormatPKM::load(const String &p_path, const String &p_original_path,
     if (r_error)
         *r_error = ERR_FILE_CORRUPT;
 
-    ERR_FAIL_COND_V_MSG(err != OK, RES(), "Unable to open PKM texture file: " + p_path + ".");
+    ERR_FAIL_COND_V_MSG(err != OK, RES(), "Unable to open PKM texture file: " + p_path + ".")
 
     // big endian
     f->set_endian_swap(true);
 
     ETC1Header h;
     f->get_buffer((uint8_t *)&h.tag, sizeof(h.tag));
-    ERR_FAIL_COND_V_MSG(strncmp(h.tag, "PKM 10", sizeof(h.tag)), RES(), "Invalid or unsupported PKM texture file: " + p_path + ".");
+    ERR_FAIL_COND_V_MSG(strncmp(h.tag, "PKM 10", sizeof(h.tag)), RES(), "Invalid or unsupported PKM texture file: " + p_path + ".")
 
     h.format = f->get_16();
     h.texWidth = f->get_16();
@@ -83,9 +85,9 @@ RES ResourceFormatPKM::load(const String &p_path, const String &p_original_path,
     int width = h.origWidth;
     int height = h.origHeight;
 
-    Ref<Image> img = memnew(Image(width, height, mipmaps, Image::FORMAT_ETC, src_data));
+    Ref<Image> img(make_ref_counted<Image>(width, height, mipmaps, Image::FORMAT_ETC, src_data));
 
-    Ref<ImageTexture> texture = memnew(ImageTexture);
+    Ref<ImageTexture> texture(make_ref_counted<ImageTexture>());
     texture->create_from_image(img);
 
     if (r_error)
@@ -94,7 +96,7 @@ RES ResourceFormatPKM::load(const String &p_path, const String &p_original_path,
     return texture;
 }
 
-void ResourceFormatPKM::get_recognized_extensions(List<String> *p_extensions) const {
+void ResourceFormatPKM::get_recognized_extensions(ListPOD<String> *p_extensions) const {
 
     p_extensions->push_back("pkm");
 }

@@ -138,7 +138,7 @@ private:
 	void _init_light_plot(int p_idx, int p_level, int p_x, int p_y, int p_z, uint32_t p_parent);
 
 	Vector<Color> _get_bake_texture(Ref<Image> p_image, const Color &p_color_mul, const Color &p_color_add);
-	MaterialCache _get_material_cache(Ref<Material> p_material);
+	MaterialCache _get_material_cache(const Ref<Material>& p_material);
 
 	void _plot_face(int p_idx, int p_level, int p_x, int p_y, int p_z, const Vector3 *p_vtx, const Vector3 *p_normal, const Vector2 *p_uv, const MaterialCache &p_material, const AABB &p_aabb);
 	void _fixup_plot(int p_idx, int p_level);

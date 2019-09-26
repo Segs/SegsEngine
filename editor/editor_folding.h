@@ -50,7 +50,7 @@ class EditorFolding {
 
 public:
 	void save_resource_folding(const RES &p_resource, const String &p_path);
-	void load_resource_folding(RES p_resource, const String &p_path);
+	void load_resource_folding(const RES& p_resource, const String &p_path);
 
 	void save_scene_folding(const Node *p_scene, const String &p_path);
 	void load_scene_folding(Node *p_scene, const String &p_path);

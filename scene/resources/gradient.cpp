@@ -57,27 +57,27 @@ Gradient::~Gradient() {
 
 void Gradient::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("add_point", "offset", "color"), &Gradient::add_point);
-    MethodBinder::bind_method(D_METHOD("remove_point", "offset"), &Gradient::remove_point);
+    MethodBinder::bind_method(D_METHOD("add_point", {"offset", "color"}), &Gradient::add_point);
+    MethodBinder::bind_method(D_METHOD("remove_point", {"offset"}), &Gradient::remove_point);
 
-    MethodBinder::bind_method(D_METHOD("set_offset", "point", "offset"), &Gradient::set_offset);
-    MethodBinder::bind_method(D_METHOD("get_offset", "point"), &Gradient::get_offset);
+    MethodBinder::bind_method(D_METHOD("set_offset", {"point", "offset"}), &Gradient::set_offset);
+    MethodBinder::bind_method(D_METHOD("get_offset", {"point"}), &Gradient::get_offset);
 
-    MethodBinder::bind_method(D_METHOD("set_color", "point", "color"), &Gradient::set_color);
-    MethodBinder::bind_method(D_METHOD("get_color", "point"), &Gradient::get_color);
+    MethodBinder::bind_method(D_METHOD("set_color", {"point", "color"}), &Gradient::set_color);
+    MethodBinder::bind_method(D_METHOD("get_color", {"point"}), &Gradient::get_color);
 
-    MethodBinder::bind_method(D_METHOD("interpolate", "offset"), &Gradient::get_color_at_offset);
+    MethodBinder::bind_method(D_METHOD("interpolate", {"offset"}), &Gradient::get_color_at_offset);
 
     MethodBinder::bind_method(D_METHOD("get_point_count"), &Gradient::get_points_count);
 
-    MethodBinder::bind_method(D_METHOD(COLOR_RAMP_SET_OFFSETS, "offsets"), &Gradient::set_offsets);
+    MethodBinder::bind_method(D_METHOD(COLOR_RAMP_SET_OFFSETS, {"offsets"}), &Gradient::set_offsets);
     MethodBinder::bind_method(D_METHOD(COLOR_RAMP_GET_OFFSETS), &Gradient::get_offsets);
 
-    MethodBinder::bind_method(D_METHOD(COLOR_RAMP_SET_COLORS, "colors"), &Gradient::set_colors);
+    MethodBinder::bind_method(D_METHOD(COLOR_RAMP_SET_COLORS, {"colors"}), &Gradient::set_colors);
     MethodBinder::bind_method(D_METHOD(COLOR_RAMP_GET_COLORS), &Gradient::get_colors);
 
-    ADD_PROPERTY(PropertyInfo(Variant::POOL_REAL_ARRAY, "offsets"), COLOR_RAMP_SET_OFFSETS, COLOR_RAMP_GET_OFFSETS);
-    ADD_PROPERTY(PropertyInfo(Variant::POOL_COLOR_ARRAY, "colors"), COLOR_RAMP_SET_COLORS, COLOR_RAMP_GET_COLORS);
+    ADD_PROPERTY(PropertyInfo(VariantType::POOL_REAL_ARRAY, "offsets"), COLOR_RAMP_SET_OFFSETS, COLOR_RAMP_GET_OFFSETS);
+    ADD_PROPERTY(PropertyInfo(VariantType::POOL_COLOR_ARRAY, "colors"), COLOR_RAMP_SET_COLORS, COLOR_RAMP_GET_COLORS);
 }
 
 Vector<float> Gradient::get_offsets() const {
@@ -134,8 +134,8 @@ void Gradient::add_point(float p_offset, const Color &p_color) {
 
 void Gradient::remove_point(int p_index) {
 
-    ERR_FAIL_INDEX(p_index, points.size());
-    ERR_FAIL_COND(points.size() <= 2);
+    ERR_FAIL_INDEX(p_index, points.size())
+    ERR_FAIL_COND(points.size() <= 2)
     points.remove(p_index);
     emit_signal(CoreStringNames::get_singleton()->changed);
 }
@@ -148,7 +148,7 @@ void Gradient::set_points(Vector<Gradient::Point> &p_points) {
 
 void Gradient::set_offset(int pos, const float offset) {
 
-    ERR_FAIL_COND(pos < 0);
+    ERR_FAIL_COND(pos < 0)
     if (points.size() <= pos)
         points.resize(pos + 1);
     points.write[pos].offset = offset;
@@ -157,12 +157,12 @@ void Gradient::set_offset(int pos, const float offset) {
 }
 
 float Gradient::get_offset(int pos) const {
-    ERR_FAIL_INDEX_V(pos, points.size(), 0.0);
+    ERR_FAIL_INDEX_V(pos, points.size(), 0.0)
     return points[pos].offset;
 }
 
 void Gradient::set_color(int pos, const Color &color) {
-    ERR_FAIL_COND(pos < 0);
+    ERR_FAIL_COND(pos < 0)
     if (points.size() <= pos) {
         points.resize(pos + 1);
         is_sorted = false;

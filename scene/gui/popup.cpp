@@ -38,7 +38,7 @@
 IMPL_GDCLASS(Popup)
 IMPL_GDCLASS(PopupPanel)
 
-void Popup::_gui_input(Ref<InputEvent> p_event) {
+void Popup::_gui_input(const Ref<InputEvent>& p_event) {
 }
 
 void Popup::_notification(int p_what) {
@@ -213,17 +213,17 @@ bool Popup::is_exclusive() const {
 void Popup::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_as_minsize"), &Popup::set_as_minsize);
-    MethodBinder::bind_method(D_METHOD("popup_centered", "size"), &Popup::popup_centered, {DEFVAL(Size2())});
-    MethodBinder::bind_method(D_METHOD("popup_centered_ratio", "ratio"), &Popup::popup_centered_ratio, {DEFVAL(0.75)});
-    MethodBinder::bind_method(D_METHOD("popup_centered_minsize", "minsize"), &Popup::popup_centered_minsize, {DEFVAL(Size2())});
-    MethodBinder::bind_method(D_METHOD("popup_centered_clamped", "size", "fallback_ratio"), &Popup::popup_centered_clamped, {DEFVAL(Size2()), DEFVAL(0.75)});
-    MethodBinder::bind_method(D_METHOD("popup", "bounds"), &Popup::popup, {DEFVAL(Rect2())});
-    MethodBinder::bind_method(D_METHOD("set_exclusive", "enable"), &Popup::set_exclusive);
+    MethodBinder::bind_method(D_METHOD("popup_centered", {"size"}), &Popup::popup_centered, {DEFVAL(Size2())});
+    MethodBinder::bind_method(D_METHOD("popup_centered_ratio", {"ratio"}), &Popup::popup_centered_ratio, {DEFVAL(0.75)});
+    MethodBinder::bind_method(D_METHOD("popup_centered_minsize", {"minsize"}), &Popup::popup_centered_minsize, {DEFVAL(Size2())});
+    MethodBinder::bind_method(D_METHOD("popup_centered_clamped", {"size", "fallback_ratio"}), &Popup::popup_centered_clamped, {DEFVAL(Size2()), DEFVAL(0.75)});
+    MethodBinder::bind_method(D_METHOD("popup", {"bounds"}), &Popup::popup, {DEFVAL(Rect2())});
+    MethodBinder::bind_method(D_METHOD("set_exclusive", {"enable"}), &Popup::set_exclusive);
     MethodBinder::bind_method(D_METHOD("is_exclusive"), &Popup::is_exclusive);
     ADD_SIGNAL(MethodInfo("about_to_show"));
     ADD_SIGNAL(MethodInfo("popup_hide"));
     ADD_GROUP("Popup", "popup_");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "popup_exclusive"), "set_exclusive", "is_exclusive");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "popup_exclusive"), "set_exclusive", "is_exclusive");
 
     BIND_CONSTANT(NOTIFICATION_POST_POPUP);
     BIND_CONSTANT(NOTIFICATION_POPUP_HIDE);

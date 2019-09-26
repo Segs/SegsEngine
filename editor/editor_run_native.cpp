@@ -44,18 +44,17 @@ void EditorRunNative::_notification(int p_what) {
         for (int i = 0; i < EditorExport::get_singleton()->get_export_platform_count(); i++) {
 
             Ref<EditorExportPlatform> eep = EditorExport::get_singleton()->get_export_platform(i);
-            if (eep.is_null())
+            if (not eep)
                 continue;
-            Ref<ImageTexture> icon = eep->get_run_icon();
-            if (!icon.is_null()) {
+            Ref<ImageTexture> icon = dynamic_ref_cast<ImageTexture>(eep->get_run_icon());
+            if (icon) {
                 Ref<Image> im = icon->get_data();
-                im = im->duplicate();
+                im = dynamic_ref_cast<Image>(im->duplicate());
                 im->clear_mipmaps();
                 if (!im->empty()) {
 
                     im->resize(16 * EDSCALE, 16 * EDSCALE);
-                    Ref<ImageTexture> small_icon;
-                    small_icon.instance();
+                    Ref<ImageTexture> small_icon(make_ref_counted<ImageTexture>());
                     small_icon->create_from_image(im, 0);
                     MenuButton *mb = memnew(MenuButton);
                     mb->get_popup()->connect("id_pressed", this, "_run_native", varray(i));
@@ -74,10 +73,10 @@ void EditorRunNative::_notification(int p_what) {
 
         if (changed) {
 
-            for (Map<int, MenuButton *>::Element *E = menus.front(); E; E = E->next()) {
+            for (eastl::pair<const int,MenuButton *> &E : menus) {
 
-                Ref<EditorExportPlatform> eep = EditorExport::get_singleton()->get_export_platform(E->key());
-                MenuButton *mb = E->get();
+                Ref<EditorExportPlatform> eep = EditorExport::get_singleton()->get_export_platform(E.first);
+                MenuButton *mb = E.second;
                 int dc = eep->get_device_count();
 
                 if (dc == 0) {
@@ -111,7 +110,7 @@ void EditorRunNative::_run_native(int p_idx, int p_platform) {
     }
 
     Ref<EditorExportPlatform> eep = EditorExport::get_singleton()->get_export_platform(p_platform);
-    ERR_FAIL_COND(eep.is_null());
+    ERR_FAIL_COND(not eep)
 
     if (p_idx == -1) {
         if (eep->get_device_count() == 1) {
@@ -133,7 +132,7 @@ void EditorRunNative::_run_native(int p_idx, int p_platform) {
         }
     }
 
-    if (preset.is_null()) {
+    if (not preset) {
         EditorNode::get_singleton()->show_warning(TTR("No runnable export preset found for this platform.\nPlease add a runnable preset in the export menu."));
         return;
     }

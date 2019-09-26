@@ -64,7 +64,7 @@ void CSGShape::set_use_collision(bool p_enable) {
         return;
 
     if (use_collision) {
-        root_collision_shape.instance();
+        root_collision_shape = make_ref_counted<ConcavePolygonShape>();
         root_collision_instance = PhysicsServer::get_singleton()->body_create(PhysicsServer::BODY_MODE_STATIC);
         PhysicsServer::get_singleton()->body_set_state(root_collision_instance, PhysicsServer::BODY_STATE_TRANSFORM, get_global_transform());
         PhysicsServer::get_singleton()->body_add_shape(root_collision_instance, root_collision_shape->get_rid());
@@ -304,7 +304,7 @@ void CSGShape::_update_shape() {
     root_mesh.unref(); //byebye root mesh
 
     CSGBrush *n = _get_brush();
-    ERR_FAIL_COND(!n);
+    ERR_FAIL_COND(!n)
 
     OAHashMap<Vector3, Vector3> vec_map;
 
@@ -367,7 +367,7 @@ void CSGShape::_update_shape() {
     //fill arrays
     PoolVector<Vector3> physics_faces;
     bool fill_physics_faces = false;
-    if (root_collision_shape.is_valid()) {
+    if (root_collision_shape) {
         physics_faces.resize(n->faces.size() * 3);
         fill_physics_faces = true;
     }
@@ -435,7 +435,7 @@ void CSGShape::_update_shape() {
         }
     }
 
-    root_mesh.instance();
+    root_mesh = make_ref_counted<ArrayMesh>();
     //create surfaces
 
     for (int i = 0; i < surfaces.size(); i++) {
@@ -472,7 +472,7 @@ void CSGShape::_update_shape() {
 
         array[Mesh::ARRAY_VERTEX] = surfaces[i].vertices;
         array[Mesh::ARRAY_NORMAL] = surfaces[i].normals;
-        array[Mesh::ARRAY_TEX_UV] = surfaces[i].uvs;
+        array[Mesh::ARRAY_TEX_UV] = Variant(surfaces[i].uvs);
         if (have_tangents) {
             array[Mesh::ARRAY_TANGENT] = surfaces[i].tans;
         }
@@ -482,7 +482,7 @@ void CSGShape::_update_shape() {
         root_mesh->surface_set_material(idx, surfaces[i].material);
     }
 
-    if (root_collision_shape.is_valid()) {
+    if (root_collision_shape) {
         root_collision_shape->set_faces(physics_faces);
     }
 
@@ -493,7 +493,7 @@ AABB CSGShape::get_aabb() const {
 }
 
 PoolVector<Vector3> CSGShape::get_brush_faces() {
-    ERR_FAIL_COND_V(!is_inside_tree(), PoolVector<Vector3>());
+    ERR_FAIL_COND_V(!is_inside_tree(), PoolVector<Vector3>())
     CSGBrush *b = _get_brush();
     if (!b) {
         return PoolVector<Vector3>();
@@ -533,7 +533,7 @@ void CSGShape::_notification(int p_what) {
         }
 
         if (use_collision && is_root_shape()) {
-            root_collision_shape.instance();
+            root_collision_shape = make_ref_counted<ConcavePolygonShape>();
             root_collision_instance = PhysicsServer::get_singleton()->body_create(PhysicsServer::BODY_MODE_STATIC);
             PhysicsServer::get_singleton()->body_set_state(root_collision_instance, PhysicsServer::BODY_STATE_TRANSFORM, get_global_transform());
             PhysicsServer::get_singleton()->body_add_shape(root_collision_instance, root_collision_shape->get_rid());
@@ -596,8 +596,8 @@ bool CSGShape::is_calculating_tangents() const {
 }
 
 void CSGShape::_validate_property(PropertyInfo &property) const {
-	bool is_collision_prefixed = StringUtils::begins_with(property.name,"collision_");
-	if ((is_collision_prefixed || StringUtils::begins_with(property.name,"use_collision")) && is_inside_tree() && !is_root_shape()) {
+    bool is_collision_prefixed = StringUtils::begins_with(property.name,"collision_");
+    if ((is_collision_prefixed || StringUtils::begins_with(property.name,"use_collision")) && is_inside_tree() && !is_root_shape()) {
         //hide collision if not root
         property.usage = PROPERTY_USAGE_NOEDITOR;
     } else if (is_collision_prefixed && !bool(get("use_collision"))) {
@@ -607,7 +607,7 @@ void CSGShape::_validate_property(PropertyInfo &property) const {
 
 Array CSGShape::get_meshes() const {
 
-    if (root_mesh.is_valid()) {
+    if (root_mesh) {
         Array arr;
         arr.resize(2);
         arr[0] = Transform();
@@ -622,44 +622,44 @@ void CSGShape::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_update_shape"), &CSGShape::_update_shape);
     MethodBinder::bind_method(D_METHOD("is_root_shape"), &CSGShape::is_root_shape);
 
-    MethodBinder::bind_method(D_METHOD("set_operation", "operation"), &CSGShape::set_operation);
+    MethodBinder::bind_method(D_METHOD("set_operation", {"operation"}), &CSGShape::set_operation);
     MethodBinder::bind_method(D_METHOD("get_operation"), &CSGShape::get_operation);
 
-    MethodBinder::bind_method(D_METHOD("set_snap", "snap"), &CSGShape::set_snap);
+    MethodBinder::bind_method(D_METHOD("set_snap", {"snap"}), &CSGShape::set_snap);
     MethodBinder::bind_method(D_METHOD("get_snap"), &CSGShape::get_snap);
 
-    MethodBinder::bind_method(D_METHOD("set_use_collision", "operation"), &CSGShape::set_use_collision);
+    MethodBinder::bind_method(D_METHOD("set_use_collision", {"operation"}), &CSGShape::set_use_collision);
     MethodBinder::bind_method(D_METHOD("is_using_collision"), &CSGShape::is_using_collision);
 
-    MethodBinder::bind_method(D_METHOD("set_collision_layer", "layer"), &CSGShape::set_collision_layer);
+    MethodBinder::bind_method(D_METHOD("set_collision_layer", {"layer"}), &CSGShape::set_collision_layer);
     MethodBinder::bind_method(D_METHOD("get_collision_layer"), &CSGShape::get_collision_layer);
 
-    MethodBinder::bind_method(D_METHOD("set_collision_mask", "mask"), &CSGShape::set_collision_mask);
+    MethodBinder::bind_method(D_METHOD("set_collision_mask", {"mask"}), &CSGShape::set_collision_mask);
     MethodBinder::bind_method(D_METHOD("get_collision_mask"), &CSGShape::get_collision_mask);
 
-    MethodBinder::bind_method(D_METHOD("set_collision_mask_bit", "bit", "value"), &CSGShape::set_collision_mask_bit);
-    MethodBinder::bind_method(D_METHOD("get_collision_mask_bit", "bit"), &CSGShape::get_collision_mask_bit);
+    MethodBinder::bind_method(D_METHOD("set_collision_mask_bit", {"bit", "value"}), &CSGShape::set_collision_mask_bit);
+    MethodBinder::bind_method(D_METHOD("get_collision_mask_bit", {"bit"}), &CSGShape::get_collision_mask_bit);
 
-    MethodBinder::bind_method(D_METHOD("set_collision_layer_bit", "bit", "value"), &CSGShape::set_collision_layer_bit);
-    MethodBinder::bind_method(D_METHOD("get_collision_layer_bit", "bit"), &CSGShape::get_collision_layer_bit);
+    MethodBinder::bind_method(D_METHOD("set_collision_layer_bit", {"bit", "value"}), &CSGShape::set_collision_layer_bit);
+    MethodBinder::bind_method(D_METHOD("get_collision_layer_bit", {"bit"}), &CSGShape::get_collision_layer_bit);
 
-    MethodBinder::bind_method(D_METHOD("set_calculate_tangents", "enabled"), &CSGShape::set_calculate_tangents);
+    MethodBinder::bind_method(D_METHOD("set_calculate_tangents", {"enabled"}), &CSGShape::set_calculate_tangents);
     MethodBinder::bind_method(D_METHOD("is_calculating_tangents"), &CSGShape::is_calculating_tangents);
 
     MethodBinder::bind_method(D_METHOD("get_meshes"), &CSGShape::get_meshes);
 
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "operation", PROPERTY_HINT_ENUM, "Union,Intersection,Subtraction"), "set_operation", "get_operation");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "snap", PROPERTY_HINT_RANGE, "0.0001,1,0.001"), "set_snap", "get_snap");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "calculate_tangents"), "set_calculate_tangents", "is_calculating_tangents");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "operation", PROPERTY_HINT_ENUM, "Union,Intersection,Subtraction"), "set_operation", "get_operation");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "snap", PROPERTY_HINT_RANGE, "0.0001,1,0.001"), "set_snap", "get_snap");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "calculate_tangents"), "set_calculate_tangents", "is_calculating_tangents");
 
     ADD_GROUP("Collision", "collision_");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "use_collision"), "set_use_collision", "is_using_collision");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "collision_layer", PROPERTY_HINT_LAYERS_3D_PHYSICS), "set_collision_layer", "get_collision_layer");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "collision_mask", PROPERTY_HINT_LAYERS_3D_PHYSICS), "set_collision_mask", "get_collision_mask");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "use_collision"), "set_use_collision", "is_using_collision");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_layer", PROPERTY_HINT_LAYERS_3D_PHYSICS), "set_collision_layer", "get_collision_layer");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_mask", PROPERTY_HINT_LAYERS_3D_PHYSICS), "set_collision_mask", "get_collision_mask");
 
-    BIND_ENUM_CONSTANT(OPERATION_UNION);
-    BIND_ENUM_CONSTANT(OPERATION_INTERSECTION);
-    BIND_ENUM_CONSTANT(OPERATION_SUBTRACTION);
+    BIND_ENUM_CONSTANT(OPERATION_UNION)
+    BIND_ENUM_CONSTANT(OPERATION_INTERSECTION)
+    BIND_ENUM_CONSTANT(OPERATION_SUBTRACTION)
 }
 
 CSGShape::CSGShape() {
@@ -713,10 +713,10 @@ CSGBrush *CSGPrimitive::_create_brush_from_arrays(const PoolVector<Vector3> &p_v
 
 void CSGPrimitive::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_invert_faces", "invert_faces"), &CSGPrimitive::set_invert_faces);
+    MethodBinder::bind_method(D_METHOD("set_invert_faces", {"invert_faces"}), &CSGPrimitive::set_invert_faces);
     MethodBinder::bind_method(D_METHOD("is_inverting_faces"), &CSGPrimitive::is_inverting_faces);
 
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "invert_faces"), "set_invert_faces", "is_inverting_faces");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "invert_faces"), "set_invert_faces", "is_inverting_faces");
 }
 
 void CSGPrimitive::set_invert_faces(bool p_invert) {
@@ -740,7 +740,7 @@ CSGPrimitive::CSGPrimitive() {
 
 CSGBrush *CSGMesh::_build_brush() {
 
-    if (!mesh.is_valid())
+    if (not mesh)
         return nullptr;
 
     PoolVector<Vector3> vertices;
@@ -757,9 +757,9 @@ CSGBrush *CSGMesh::_build_brush() {
 
         Array arrays = mesh->surface_get_arrays(i);
 
-        if (arrays.size() == 0) {
+        if (arrays.empty()) {
             _make_dirty();
-            ERR_FAIL_COND_V(arrays.size() == 0, nullptr);
+            ERR_FAIL_COND_V(arrays.empty(), nullptr)
         }
 
         PoolVector<Vector3> avertices = arrays[Mesh::ARRAY_VERTEX];
@@ -785,7 +785,7 @@ CSGBrush *CSGMesh::_build_brush() {
         }
 
         Ref<Material> mat;
-        if (material.is_valid()) {
+        if (material) {
             mat = material;
         } else {
             mat = mesh->surface_get_material(i);
@@ -909,28 +909,28 @@ Ref<Material> CSGMesh::get_material() const {
 
 void CSGMesh::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_mesh", "mesh"), &CSGMesh::set_mesh);
+    MethodBinder::bind_method(D_METHOD("set_mesh", {"mesh"}), &CSGMesh::set_mesh);
     MethodBinder::bind_method(D_METHOD("get_mesh"), &CSGMesh::get_mesh);
 
     MethodBinder::bind_method(D_METHOD("_mesh_changed"), &CSGMesh::_mesh_changed);
 
-    MethodBinder::bind_method(D_METHOD("set_material", "material"), &CSGMesh::set_material);
+    MethodBinder::bind_method(D_METHOD("set_material", {"material"}), &CSGMesh::set_material);
     MethodBinder::bind_method(D_METHOD("get_material"), &CSGMesh::get_material);
 
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "mesh", PROPERTY_HINT_RESOURCE_TYPE, "Mesh"), "set_mesh", "get_mesh");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "material", PROPERTY_HINT_RESOURCE_TYPE, "SpatialMaterial,ShaderMaterial"), "set_material", "get_material");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "mesh", PROPERTY_HINT_RESOURCE_TYPE, "Mesh"), "set_mesh", "get_mesh");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "material", PROPERTY_HINT_RESOURCE_TYPE, "SpatialMaterial,ShaderMaterial"), "set_material", "get_material");
 }
 
 void CSGMesh::set_mesh(const Ref<Mesh> &p_mesh) {
 
     if (mesh == p_mesh)
         return;
-    if (mesh.is_valid()) {
+    if (mesh) {
         mesh->disconnect("changed", this, "_mesh_changed");
     }
     mesh = p_mesh;
 
-    if (mesh.is_valid()) {
+    if (mesh) {
         mesh->connect("changed", this, "_mesh_changed");
     }
 
@@ -1063,29 +1063,29 @@ CSGBrush *CSGSphere::_build_brush() {
 }
 
 void CSGSphere::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("set_radius", "radius"), &CSGSphere::set_radius);
+    MethodBinder::bind_method(D_METHOD("set_radius", {"radius"}), &CSGSphere::set_radius);
     MethodBinder::bind_method(D_METHOD("get_radius"), &CSGSphere::get_radius);
 
-    MethodBinder::bind_method(D_METHOD("set_radial_segments", "radial_segments"), &CSGSphere::set_radial_segments);
+    MethodBinder::bind_method(D_METHOD("set_radial_segments", {"radial_segments"}), &CSGSphere::set_radial_segments);
     MethodBinder::bind_method(D_METHOD("get_radial_segments"), &CSGSphere::get_radial_segments);
-    MethodBinder::bind_method(D_METHOD("set_rings", "rings"), &CSGSphere::set_rings);
+    MethodBinder::bind_method(D_METHOD("set_rings", {"rings"}), &CSGSphere::set_rings);
     MethodBinder::bind_method(D_METHOD("get_rings"), &CSGSphere::get_rings);
 
-    MethodBinder::bind_method(D_METHOD("set_smooth_faces", "smooth_faces"), &CSGSphere::set_smooth_faces);
+    MethodBinder::bind_method(D_METHOD("set_smooth_faces", {"smooth_faces"}), &CSGSphere::set_smooth_faces);
     MethodBinder::bind_method(D_METHOD("get_smooth_faces"), &CSGSphere::get_smooth_faces);
 
-    MethodBinder::bind_method(D_METHOD("set_material", "material"), &CSGSphere::set_material);
+    MethodBinder::bind_method(D_METHOD("set_material", {"material"}), &CSGSphere::set_material);
     MethodBinder::bind_method(D_METHOD("get_material"), &CSGSphere::get_material);
 
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "radius", PROPERTY_HINT_RANGE, "0.001,100.0,0.001"), "set_radius", "get_radius");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "radial_segments", PROPERTY_HINT_RANGE, "1,100,1"), "set_radial_segments", "get_radial_segments");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "rings", PROPERTY_HINT_RANGE, "1,100,1"), "set_rings", "get_rings");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "smooth_faces"), "set_smooth_faces", "get_smooth_faces");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "material", PROPERTY_HINT_RESOURCE_TYPE, "SpatialMaterial,ShaderMaterial"), "set_material", "get_material");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "radius", PROPERTY_HINT_RANGE, "0.001,100.0,0.001"), "set_radius", "get_radius");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "radial_segments", PROPERTY_HINT_RANGE, "1,100,1"), "set_radial_segments", "get_radial_segments");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "rings", PROPERTY_HINT_RANGE, "1,100,1"), "set_rings", "get_rings");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "smooth_faces"), "set_smooth_faces", "get_smooth_faces");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "material", PROPERTY_HINT_RESOURCE_TYPE, "SpatialMaterial,ShaderMaterial"), "set_material", "get_material");
 }
 
 void CSGSphere::set_radius(const float p_radius) {
-    ERR_FAIL_COND(p_radius <= 0);
+    ERR_FAIL_COND(p_radius <= 0)
     radius = p_radius;
     _make_dirty();
     update_gizmo();
@@ -1251,22 +1251,22 @@ CSGBrush *CSGBox::_build_brush() {
 }
 
 void CSGBox::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("set_width", "width"), &CSGBox::set_width);
+    MethodBinder::bind_method(D_METHOD("set_width", {"width"}), &CSGBox::set_width);
     MethodBinder::bind_method(D_METHOD("get_width"), &CSGBox::get_width);
 
-    MethodBinder::bind_method(D_METHOD("set_height", "height"), &CSGBox::set_height);
+    MethodBinder::bind_method(D_METHOD("set_height", {"height"}), &CSGBox::set_height);
     MethodBinder::bind_method(D_METHOD("get_height"), &CSGBox::get_height);
 
-    MethodBinder::bind_method(D_METHOD("set_depth", "depth"), &CSGBox::set_depth);
+    MethodBinder::bind_method(D_METHOD("set_depth", {"depth"}), &CSGBox::set_depth);
     MethodBinder::bind_method(D_METHOD("get_depth"), &CSGBox::get_depth);
 
-    MethodBinder::bind_method(D_METHOD("set_material", "material"), &CSGBox::set_material);
+    MethodBinder::bind_method(D_METHOD("set_material", {"material"}), &CSGBox::set_material);
     MethodBinder::bind_method(D_METHOD("get_material"), &CSGBox::get_material);
 
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "width", PROPERTY_HINT_EXP_RANGE, "0.001,1000.0,0.001,or_greater"), "set_width", "get_width");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "height", PROPERTY_HINT_EXP_RANGE, "0.001,1000.0,0.001,or_greater"), "set_height", "get_height");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "depth", PROPERTY_HINT_EXP_RANGE, "0.001,1000.0,0.001,or_greater"), "set_depth", "get_depth");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "material", PROPERTY_HINT_RESOURCE_TYPE, "SpatialMaterial,ShaderMaterial"), "set_material", "get_material");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "width", PROPERTY_HINT_EXP_RANGE, "0.001,1000.0,0.001,or_greater"), "set_width", "get_width");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "height", PROPERTY_HINT_EXP_RANGE, "0.001,1000.0,0.001,or_greater"), "set_height", "get_height");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "depth", PROPERTY_HINT_EXP_RANGE, "0.001,1000.0,0.001,or_greater"), "set_depth", "get_depth");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "material", PROPERTY_HINT_RESOURCE_TYPE, "SpatialMaterial,ShaderMaterial"), "set_material", "get_material");
 }
 
 void CSGBox::set_width(const float p_width) {
@@ -1457,30 +1457,30 @@ CSGBrush *CSGCylinder::_build_brush() {
 }
 
 void CSGCylinder::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("set_radius", "radius"), &CSGCylinder::set_radius);
+    MethodBinder::bind_method(D_METHOD("set_radius", {"radius"}), &CSGCylinder::set_radius);
     MethodBinder::bind_method(D_METHOD("get_radius"), &CSGCylinder::get_radius);
 
-    MethodBinder::bind_method(D_METHOD("set_height", "height"), &CSGCylinder::set_height);
+    MethodBinder::bind_method(D_METHOD("set_height", {"height"}), &CSGCylinder::set_height);
     MethodBinder::bind_method(D_METHOD("get_height"), &CSGCylinder::get_height);
 
-    MethodBinder::bind_method(D_METHOD("set_sides", "sides"), &CSGCylinder::set_sides);
+    MethodBinder::bind_method(D_METHOD("set_sides", {"sides"}), &CSGCylinder::set_sides);
     MethodBinder::bind_method(D_METHOD("get_sides"), &CSGCylinder::get_sides);
 
-    MethodBinder::bind_method(D_METHOD("set_cone", "cone"), &CSGCylinder::set_cone);
+    MethodBinder::bind_method(D_METHOD("set_cone", {"cone"}), &CSGCylinder::set_cone);
     MethodBinder::bind_method(D_METHOD("is_cone"), &CSGCylinder::is_cone);
 
-    MethodBinder::bind_method(D_METHOD("set_material", "material"), &CSGCylinder::set_material);
+    MethodBinder::bind_method(D_METHOD("set_material", {"material"}), &CSGCylinder::set_material);
     MethodBinder::bind_method(D_METHOD("get_material"), &CSGCylinder::get_material);
 
-    MethodBinder::bind_method(D_METHOD("set_smooth_faces", "smooth_faces"), &CSGCylinder::set_smooth_faces);
+    MethodBinder::bind_method(D_METHOD("set_smooth_faces", {"smooth_faces"}), &CSGCylinder::set_smooth_faces);
     MethodBinder::bind_method(D_METHOD("get_smooth_faces"), &CSGCylinder::get_smooth_faces);
 
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "radius", PROPERTY_HINT_EXP_RANGE, "0.001,1000.0,0.001,or_greater"), "set_radius", "get_radius");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "height", PROPERTY_HINT_EXP_RANGE, "0.001,1000.0,0.001,or_greater"), "set_height", "get_height");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "sides", PROPERTY_HINT_RANGE, "3,64,1"), "set_sides", "get_sides");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "cone"), "set_cone", "is_cone");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "smooth_faces"), "set_smooth_faces", "get_smooth_faces");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "material", PROPERTY_HINT_RESOURCE_TYPE, "SpatialMaterial,ShaderMaterial"), "set_material", "get_material");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "radius", PROPERTY_HINT_EXP_RANGE, "0.001,1000.0,0.001,or_greater"), "set_radius", "get_radius");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "height", PROPERTY_HINT_EXP_RANGE, "0.001,1000.0,0.001,or_greater"), "set_height", "get_height");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "sides", PROPERTY_HINT_RANGE, "3,64,1"), "set_sides", "get_sides");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "cone"), "set_cone", "is_cone");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "smooth_faces"), "set_smooth_faces", "get_smooth_faces");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "material", PROPERTY_HINT_RESOURCE_TYPE, "SpatialMaterial,ShaderMaterial"), "set_material", "get_material");
 }
 
 void CSGCylinder::set_radius(const float p_radius) {
@@ -1504,7 +1504,7 @@ float CSGCylinder::get_height() const {
 }
 
 void CSGCylinder::set_sides(const int p_sides) {
-    ERR_FAIL_COND(p_sides < 3);
+    ERR_FAIL_COND(p_sides < 3)
     sides = p_sides;
     _make_dirty();
     update_gizmo();
@@ -1682,30 +1682,30 @@ CSGBrush *CSGTorus::_build_brush() {
 }
 
 void CSGTorus::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("set_inner_radius", "radius"), &CSGTorus::set_inner_radius);
+    MethodBinder::bind_method(D_METHOD("set_inner_radius", {"radius"}), &CSGTorus::set_inner_radius);
     MethodBinder::bind_method(D_METHOD("get_inner_radius"), &CSGTorus::get_inner_radius);
 
-    MethodBinder::bind_method(D_METHOD("set_outer_radius", "radius"), &CSGTorus::set_outer_radius);
+    MethodBinder::bind_method(D_METHOD("set_outer_radius", {"radius"}), &CSGTorus::set_outer_radius);
     MethodBinder::bind_method(D_METHOD("get_outer_radius"), &CSGTorus::get_outer_radius);
 
-    MethodBinder::bind_method(D_METHOD("set_sides", "sides"), &CSGTorus::set_sides);
+    MethodBinder::bind_method(D_METHOD("set_sides", {"sides"}), &CSGTorus::set_sides);
     MethodBinder::bind_method(D_METHOD("get_sides"), &CSGTorus::get_sides);
 
-    MethodBinder::bind_method(D_METHOD("set_ring_sides", "sides"), &CSGTorus::set_ring_sides);
+    MethodBinder::bind_method(D_METHOD("set_ring_sides", {"sides"}), &CSGTorus::set_ring_sides);
     MethodBinder::bind_method(D_METHOD("get_ring_sides"), &CSGTorus::get_ring_sides);
 
-    MethodBinder::bind_method(D_METHOD("set_material", "material"), &CSGTorus::set_material);
+    MethodBinder::bind_method(D_METHOD("set_material", {"material"}), &CSGTorus::set_material);
     MethodBinder::bind_method(D_METHOD("get_material"), &CSGTorus::get_material);
 
-    MethodBinder::bind_method(D_METHOD("set_smooth_faces", "smooth_faces"), &CSGTorus::set_smooth_faces);
+    MethodBinder::bind_method(D_METHOD("set_smooth_faces", {"smooth_faces"}), &CSGTorus::set_smooth_faces);
     MethodBinder::bind_method(D_METHOD("get_smooth_faces"), &CSGTorus::get_smooth_faces);
 
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "inner_radius", PROPERTY_HINT_EXP_RANGE, "0.001,1000.0,0.001,or_greater"), "set_inner_radius", "get_inner_radius");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "outer_radius", PROPERTY_HINT_EXP_RANGE, "0.001,1000.0,0.001,or_greater"), "set_outer_radius", "get_outer_radius");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "sides", PROPERTY_HINT_RANGE, "3,64,1"), "set_sides", "get_sides");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "ring_sides", PROPERTY_HINT_RANGE, "3,64,1"), "set_ring_sides", "get_ring_sides");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "smooth_faces"), "set_smooth_faces", "get_smooth_faces");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "material", PROPERTY_HINT_RESOURCE_TYPE, "SpatialMaterial,ShaderMaterial"), "set_material", "get_material");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "inner_radius", PROPERTY_HINT_EXP_RANGE, "0.001,1000.0,0.001,or_greater"), "set_inner_radius", "get_inner_radius");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "outer_radius", PROPERTY_HINT_EXP_RANGE, "0.001,1000.0,0.001,or_greater"), "set_outer_radius", "get_outer_radius");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "sides", PROPERTY_HINT_RANGE, "3,64,1"), "set_sides", "get_sides");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "ring_sides", PROPERTY_HINT_RANGE, "3,64,1"), "set_ring_sides", "get_ring_sides");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "smooth_faces"), "set_smooth_faces", "get_smooth_faces");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "material", PROPERTY_HINT_RESOURCE_TYPE, "SpatialMaterial,ShaderMaterial"), "set_material", "get_material");
 }
 
 void CSGTorus::set_inner_radius(const float p_inner_radius) {
@@ -1729,7 +1729,7 @@ float CSGTorus::get_outer_radius() const {
 }
 
 void CSGTorus::set_sides(const int p_sides) {
-    ERR_FAIL_COND(p_sides < 3);
+    ERR_FAIL_COND(p_sides < 3)
     sides = p_sides;
     _make_dirty();
     update_gizmo();
@@ -1740,7 +1740,7 @@ int CSGTorus::get_sides() const {
 }
 
 void CSGTorus::set_ring_sides(const int p_ring_sides) {
-    ERR_FAIL_COND(p_ring_sides < 3);
+    ERR_FAIL_COND(p_ring_sides < 3)
     ring_sides = p_ring_sides;
     _make_dirty();
     update_gizmo();
@@ -1844,7 +1844,7 @@ CSGBrush *CSGPolygon::_build_brush() {
             path_cache = nullptr;
         }
         curve = path->get_curve();
-        if (curve.is_null())
+        if (not curve)
             return nullptr;
         if (curve->get_baked_length() <= 0)
             return nullptr;
@@ -2264,10 +2264,10 @@ void CSGPolygon::_notification(int p_what) {
 }
 
 void CSGPolygon::_validate_property(PropertyInfo &property) const {
-	if (StringUtils::begins_with(property.name,"spin") && mode != MODE_SPIN) {
+    if (StringUtils::begins_with(property.name,"spin") && mode != MODE_SPIN) {
         property.usage = 0;
     }
-	if (StringUtils::begins_with(property.name,"path") && mode != MODE_PATH) {
+    if (StringUtils::begins_with(property.name,"path") && mode != MODE_PATH) {
         property.usage = 0;
     }
     if (property.name == "depth" && mode != MODE_DEPTH) {
@@ -2287,43 +2287,43 @@ void CSGPolygon::_path_exited() {
 }
 
 void CSGPolygon::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("set_polygon", "polygon"), &CSGPolygon::set_polygon);
+    MethodBinder::bind_method(D_METHOD("set_polygon", {"polygon"}), &CSGPolygon::set_polygon);
     MethodBinder::bind_method(D_METHOD("get_polygon"), &CSGPolygon::get_polygon);
 
-    MethodBinder::bind_method(D_METHOD("set_mode", "mode"), &CSGPolygon::set_mode);
+    MethodBinder::bind_method(D_METHOD("set_mode", {"mode"}), &CSGPolygon::set_mode);
     MethodBinder::bind_method(D_METHOD("get_mode"), &CSGPolygon::get_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_depth", "depth"), &CSGPolygon::set_depth);
+    MethodBinder::bind_method(D_METHOD("set_depth", {"depth"}), &CSGPolygon::set_depth);
     MethodBinder::bind_method(D_METHOD("get_depth"), &CSGPolygon::get_depth);
 
-    MethodBinder::bind_method(D_METHOD("set_spin_degrees", "degrees"), &CSGPolygon::set_spin_degrees);
+    MethodBinder::bind_method(D_METHOD("set_spin_degrees", {"degrees"}), &CSGPolygon::set_spin_degrees);
     MethodBinder::bind_method(D_METHOD("get_spin_degrees"), &CSGPolygon::get_spin_degrees);
 
-    MethodBinder::bind_method(D_METHOD("set_spin_sides", "spin_sides"), &CSGPolygon::set_spin_sides);
+    MethodBinder::bind_method(D_METHOD("set_spin_sides", {"spin_sides"}), &CSGPolygon::set_spin_sides);
     MethodBinder::bind_method(D_METHOD("get_spin_sides"), &CSGPolygon::get_spin_sides);
 
-    MethodBinder::bind_method(D_METHOD("set_path_node", "path"), &CSGPolygon::set_path_node);
+    MethodBinder::bind_method(D_METHOD("set_path_node", {"path"}), &CSGPolygon::set_path_node);
     MethodBinder::bind_method(D_METHOD("get_path_node"), &CSGPolygon::get_path_node);
 
-    MethodBinder::bind_method(D_METHOD("set_path_interval", "distance"), &CSGPolygon::set_path_interval);
+    MethodBinder::bind_method(D_METHOD("set_path_interval", {"distance"}), &CSGPolygon::set_path_interval);
     MethodBinder::bind_method(D_METHOD("get_path_interval"), &CSGPolygon::get_path_interval);
 
-    MethodBinder::bind_method(D_METHOD("set_path_rotation", "mode"), &CSGPolygon::set_path_rotation);
+    MethodBinder::bind_method(D_METHOD("set_path_rotation", {"mode"}), &CSGPolygon::set_path_rotation);
     MethodBinder::bind_method(D_METHOD("get_path_rotation"), &CSGPolygon::get_path_rotation);
 
-    MethodBinder::bind_method(D_METHOD("set_path_local", "enable"), &CSGPolygon::set_path_local);
+    MethodBinder::bind_method(D_METHOD("set_path_local", {"enable"}), &CSGPolygon::set_path_local);
     MethodBinder::bind_method(D_METHOD("is_path_local"), &CSGPolygon::is_path_local);
 
-    MethodBinder::bind_method(D_METHOD("set_path_continuous_u", "enable"), &CSGPolygon::set_path_continuous_u);
+    MethodBinder::bind_method(D_METHOD("set_path_continuous_u", {"enable"}), &CSGPolygon::set_path_continuous_u);
     MethodBinder::bind_method(D_METHOD("is_path_continuous_u"), &CSGPolygon::is_path_continuous_u);
 
-    MethodBinder::bind_method(D_METHOD("set_path_joined", "enable"), &CSGPolygon::set_path_joined);
+    MethodBinder::bind_method(D_METHOD("set_path_joined", {"enable"}), &CSGPolygon::set_path_joined);
     MethodBinder::bind_method(D_METHOD("is_path_joined"), &CSGPolygon::is_path_joined);
 
-    MethodBinder::bind_method(D_METHOD("set_material", "material"), &CSGPolygon::set_material);
+    MethodBinder::bind_method(D_METHOD("set_material", {"material"}), &CSGPolygon::set_material);
     MethodBinder::bind_method(D_METHOD("get_material"), &CSGPolygon::get_material);
 
-    MethodBinder::bind_method(D_METHOD("set_smooth_faces", "smooth_faces"), &CSGPolygon::set_smooth_faces);
+    MethodBinder::bind_method(D_METHOD("set_smooth_faces", {"smooth_faces"}), &CSGPolygon::set_smooth_faces);
     MethodBinder::bind_method(D_METHOD("get_smooth_faces"), &CSGPolygon::get_smooth_faces);
 
     MethodBinder::bind_method(D_METHOD("_is_editable_3d_polygon"), &CSGPolygon::_is_editable_3d_polygon);
@@ -2332,27 +2332,27 @@ void CSGPolygon::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_path_exited"), &CSGPolygon::_path_exited);
     MethodBinder::bind_method(D_METHOD("_path_changed"), &CSGPolygon::_path_changed);
 
-    ADD_PROPERTY(PropertyInfo(Variant::POOL_VECTOR2_ARRAY, "polygon"), "set_polygon", "get_polygon");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "mode", PROPERTY_HINT_ENUM, "Depth,Spin,Path"), "set_mode", "get_mode");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "depth", PROPERTY_HINT_EXP_RANGE, "0.001,1000.0,0.001,or_greater"), "set_depth", "get_depth");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "spin_degrees", PROPERTY_HINT_RANGE, "1,360,0.1"), "set_spin_degrees", "get_spin_degrees");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "spin_sides", PROPERTY_HINT_RANGE, "3,64,1"), "set_spin_sides", "get_spin_sides");
-    ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "path_node", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Path"), "set_path_node", "get_path_node");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "path_interval", PROPERTY_HINT_EXP_RANGE, "0.001,1000.0,0.001,or_greater"), "set_path_interval", "get_path_interval");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "path_rotation", PROPERTY_HINT_ENUM, "Polygon,Path,PathFollow"), "set_path_rotation", "get_path_rotation");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "path_local"), "set_path_local", "is_path_local");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "path_continuous_u"), "set_path_continuous_u", "is_path_continuous_u");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "path_joined"), "set_path_joined", "is_path_joined");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "smooth_faces"), "set_smooth_faces", "get_smooth_faces");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "material", PROPERTY_HINT_RESOURCE_TYPE, "SpatialMaterial,ShaderMaterial"), "set_material", "get_material");
+    ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR2_ARRAY, "polygon"), "set_polygon", "get_polygon");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "mode", PROPERTY_HINT_ENUM, "Depth,Spin,Path"), "set_mode", "get_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "depth", PROPERTY_HINT_EXP_RANGE, "0.001,1000.0,0.001,or_greater"), "set_depth", "get_depth");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "spin_degrees", PROPERTY_HINT_RANGE, "1,360,0.1"), "set_spin_degrees", "get_spin_degrees");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "spin_sides", PROPERTY_HINT_RANGE, "3,64,1"), "set_spin_sides", "get_spin_sides");
+    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "path_node", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Path"), "set_path_node", "get_path_node");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "path_interval", PROPERTY_HINT_EXP_RANGE, "0.001,1000.0,0.001,or_greater"), "set_path_interval", "get_path_interval");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "path_rotation", PROPERTY_HINT_ENUM, "Polygon,Path,PathFollow"), "set_path_rotation", "get_path_rotation");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "path_local"), "set_path_local", "is_path_local");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "path_continuous_u"), "set_path_continuous_u", "is_path_continuous_u");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "path_joined"), "set_path_joined", "is_path_joined");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "smooth_faces"), "set_smooth_faces", "get_smooth_faces");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "material", PROPERTY_HINT_RESOURCE_TYPE, "SpatialMaterial,ShaderMaterial"), "set_material", "get_material");
 
-    BIND_ENUM_CONSTANT(MODE_DEPTH);
-    BIND_ENUM_CONSTANT(MODE_SPIN);
-    BIND_ENUM_CONSTANT(MODE_PATH);
+    BIND_ENUM_CONSTANT(MODE_DEPTH)
+    BIND_ENUM_CONSTANT(MODE_SPIN)
+    BIND_ENUM_CONSTANT(MODE_PATH)
 
-    BIND_ENUM_CONSTANT(PATH_ROTATION_POLYGON);
-    BIND_ENUM_CONSTANT(PATH_ROTATION_PATH);
-    BIND_ENUM_CONSTANT(PATH_ROTATION_PATH_FOLLOW);
+    BIND_ENUM_CONSTANT(PATH_ROTATION_POLYGON)
+    BIND_ENUM_CONSTANT(PATH_ROTATION_PATH)
+    BIND_ENUM_CONSTANT(PATH_ROTATION_PATH_FOLLOW)
 }
 
 void CSGPolygon::set_polygon(const Vector<Vector2> &p_polygon) {
@@ -2377,7 +2377,7 @@ CSGPolygon::Mode CSGPolygon::get_mode() const {
 }
 
 void CSGPolygon::set_depth(const float p_depth) {
-    ERR_FAIL_COND(p_depth < 0.001);
+    ERR_FAIL_COND(p_depth < 0.001)
     depth = p_depth;
     _make_dirty();
     update_gizmo();
@@ -2397,7 +2397,7 @@ bool CSGPolygon::is_path_continuous_u() const {
 }
 
 void CSGPolygon::set_spin_degrees(const float p_spin_degrees) {
-    ERR_FAIL_COND(p_spin_degrees < 0.01 || p_spin_degrees > 360);
+    ERR_FAIL_COND(p_spin_degrees < 0.01 || p_spin_degrees > 360)
     spin_degrees = p_spin_degrees;
     _make_dirty();
     update_gizmo();
@@ -2408,7 +2408,7 @@ float CSGPolygon::get_spin_degrees() const {
 }
 
 void CSGPolygon::set_spin_sides(const int p_spin_sides) {
-    ERR_FAIL_COND(p_spin_sides < 3);
+    ERR_FAIL_COND(p_spin_sides < 3)
     spin_sides = p_spin_sides;
     _make_dirty();
     update_gizmo();
@@ -2429,7 +2429,7 @@ NodePath CSGPolygon::get_path_node() const {
 }
 
 void CSGPolygon::set_path_interval(float p_interval) {
-    ERR_FAIL_COND(p_interval < 0.001);
+    ERR_FAIL_COND(p_interval < 0.001)
     path_interval = p_interval;
     _make_dirty();
     update_gizmo();

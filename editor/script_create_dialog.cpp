@@ -52,7 +52,7 @@ void ScriptCreateDialog::_notification(int p_what) {
             for (int i = 0; i < ScriptServer::get_language_count(); i++) {
                 String lang = ScriptServer::get_language(i)->get_name();
                 Ref<Texture> lang_icon = get_icon(lang, "EditorIcons");
-                if (lang_icon.is_valid()) {
+                if (lang_icon) {
                     language_menu->set_item_icon(i, lang_icon);
                 }
             }
@@ -63,7 +63,7 @@ void ScriptCreateDialog::_notification(int p_what) {
             } else {
                 last_lang_icon = language_menu->get_item_icon(default_language);
             }
-            if (last_lang_icon.is_valid()) {
+            if (last_lang_icon) {
                 language_menu->set_icon(last_lang_icon);
             }
             path_button->set_icon(get_icon("Folder", "EditorIcons"));
@@ -101,7 +101,7 @@ void ScriptCreateDialog::config(const String &p_base_name, const String &p_base_
     parent_name->set_text(p_base_name);
     parent_name->deselect();
 
-    if (p_base_path != "") {
+    if (!p_base_path.empty()) {
         initial_bp = PathUtils::get_basename(p_base_path);
         file_path->set_text(initial_bp + "." + ScriptServer::get_language(language_menu->get_selected())->get_extension());
     } else {
@@ -129,7 +129,7 @@ bool ScriptCreateDialog::_validate_parent(const String &p_string) {
 
     if (can_inherit_from_file && StringUtils::is_quoted(p_string)) {
         String p = StringUtils::substr(p_string,1, p_string.length() - 2);
-        if (_validate_path(p, true) == "")
+        if (_validate_path(p, true).empty())
             return true;
     }
 
@@ -161,8 +161,8 @@ String ScriptCreateDialog::_validate_path(const String &p_path, bool p_file_must
 
     String p =StringUtils::strip_edges( p_path);
 
-    if (p == "") return TTR("Path is empty.");
-    if (PathUtils::get_basename(PathUtils::get_file(p)) == "") return TTR("Filename is empty.");
+    if (p.empty()) return TTR("Path is empty.");
+    if (PathUtils::get_basename(PathUtils::get_file(p)).empty()) return TTR("Filename is empty.");
 
     p = ProjectSettings::get_singleton()->localize_path(p);
     if (!StringUtils::begins_with(p,"res://")) return TTR("Path is not local.");
@@ -198,11 +198,11 @@ String ScriptCreateDialog::_validate_path(const String &p_path, bool p_file_must
     bool match = false;
     int index = 0;
     for (List<String>::Element *E = extensions.front(); E; E = E->next()) {
-        if (StringUtils::compare(E->get(),extension,StringUtils::CaseInsensitive) == 0) {
+        if (StringUtils::compare(E->deref(),extension,StringUtils::CaseInsensitive) == 0) {
             //FIXME (?) - changing language this way doesn't update controls, needs rework
             //language_menu->select(index); // change Language option by extension
             found = true;
-            if (E->get() == ScriptServer::get_language(language_menu->get_selected())->get_extension()) {
+            if (E->deref() == ScriptServer::get_language(language_menu->get_selected())->get_extension()) {
                 match = true;
             }
             break;
@@ -215,7 +215,7 @@ String ScriptCreateDialog::_validate_path(const String &p_path, bool p_file_must
 
     /* Let ScriptLanguage do custom validation */
     String path_error = ScriptServer::get_language(language_menu->get_selected())->validate_path(p);
-    if (path_error != "") return path_error;
+    if (!path_error.empty()) return path_error;
 
     /* All checks passed */
     return "";
@@ -284,14 +284,14 @@ void ScriptCreateDialog::_create_new() {
     }
 
     Ref<Script> scr;
-    if (script_template != "") {
-        scr = ResourceLoader::load(script_template);
-        if (scr.is_null()) {
+    if (!script_template.empty()) {
+        scr = dynamic_ref_cast<Script>(ResourceLoader::load(script_template));
+        if (not scr) {
             alert->set_text(vformat(TTR("Error loading template '%s'"), script_template));
             alert->popup_centered();
             return;
         }
-        scr = scr->duplicate();
+        scr = dynamic_ref_cast<Script>(scr->duplicate());
         ScriptServer::get_language(language_menu->get_selected())->make_template(cname_param, parent_name->get_text(), scr);
     } else {
         scr = ScriptServer::get_language(language_menu->get_selected())->get_template(cname_param, parent_name->get_text());
@@ -321,14 +321,14 @@ void ScriptCreateDialog::_create_new() {
 void ScriptCreateDialog::_load_exist() {
 
     String path = file_path->get_text();
-    RES p_script = ResourceLoader::load(path, "Script");
-    if (p_script.is_null()) {
+    RES p_script(ResourceLoader::load(path, "Script"));
+    if (not p_script) {
         alert->set_text(vformat(TTR("Error loading script from %s"), path));
         alert->popup_centered();
         return;
     }
 
-    emit_signal("script_created", p_script.get_ref_ptr());
+    emit_signal("script_created", Variant(p_script));
     hide();
 }
 
@@ -345,7 +345,7 @@ void ScriptCreateDialog::_lang_changed(int l) {
     String selected_ext = "." + language->get_extension();
     String path = file_path->get_text();
     String extension = "";
-    if (path != "") {
+    if (!path.empty()) {
         if (StringUtils::contains(path,'.')) {
             extension = PathUtils::get_extension(path);
         }
@@ -363,7 +363,7 @@ void ScriptCreateDialog::_lang_changed(int l) {
             }
 
             for (List<String>::Element *E = extensions.front(); E; E = E->next()) {
-                if (StringUtils::compare(E->get(),extension,StringUtils::CaseInsensitive) == 0) {
+                if (StringUtils::compare(E->deref(),extension,StringUtils::CaseInsensitive) == 0) {
                     path = PathUtils::get_basename(path) + selected_ext;
                     _path_changed(path);
                     break;
@@ -413,8 +413,8 @@ void ScriptCreateDialog::_lang_changed(int l) {
             templates[i].id = new_id;
         }
         // Disable overridden
-        for (Map<String, Vector<int> >::Element *E = template_overrides.front(); E; E = E->next()) {
-            const Vector<int> &overrides = E->get();
+        for (eastl::pair<const String,Vector<int> > &E : template_overrides) {
+            const Vector<int> &overrides = E.second;
 
             if (overrides.size() == 1) {
                 continue; // doesn't override anything
@@ -483,10 +483,10 @@ void ScriptCreateDialog::_update_script_templates(const String &p_extension) {
             sinfo.extension = p_extension;
             template_list.push_back(sinfo);
 
-            if (!template_overrides.has(sinfo.name)) {
+            if (!template_overrides.contains(sinfo.name)) {
                 Vector<int> overrides;
                 overrides.push_back(template_list.size() - 1); // first one
-                template_overrides.insert(sinfo.name, overrides);
+                template_overrides.emplace(sinfo.name, overrides);
             } else {
                 Vector<int> &overrides = template_overrides[sinfo.name];
                 overrides.push_back(template_list.size() - 1);
@@ -528,7 +528,7 @@ void ScriptCreateDialog::_browse_path(bool browse_parent, bool p_save) {
     ScriptServer::get_language(lang)->get_recognized_extensions(&extensions);
 
     for (List<String>::Element *E = extensions.front(); E; E = E->next()) {
-        file_browse->add_filter("*." + E->get());
+        file_browse->add_filter("*." + E->deref());
     }
 
     file_browse->set_current_path(file_path->get_text());
@@ -720,9 +720,9 @@ void ScriptCreateDialog::_bind_methods() {
     MethodBinder::bind_method("_create", &ScriptCreateDialog::_create);
     MethodBinder::bind_method("_browse_class_in_tree", &ScriptCreateDialog::_browse_class_in_tree);
 
-    MethodBinder::bind_method(D_METHOD("config", "inherits", "path", "built_in_enabled"), &ScriptCreateDialog::config, {DEFVAL(true)});
+    MethodBinder::bind_method(D_METHOD("config", {"inherits", "path", "built_in_enabled"}), &ScriptCreateDialog::config, {DEFVAL(true)});
 
-    ADD_SIGNAL(MethodInfo("script_created", PropertyInfo(Variant::OBJECT, "script", PROPERTY_HINT_RESOURCE_TYPE, "Script")));
+    ADD_SIGNAL(MethodInfo("script_created", PropertyInfo(VariantType::OBJECT, "script", PROPERTY_HINT_RESOURCE_TYPE, "Script")));
 }
 
 ScriptCreateDialog::ScriptCreateDialog() {
@@ -798,7 +798,7 @@ ScriptCreateDialog::ScriptCreateDialog() {
     }
 
     String last_selected_language = EditorSettings::get_singleton()->get_project_metadata("script_setup", "last_selected_language", "");
-    if (last_selected_language != "") {
+    if (!last_selected_language.empty()) {
         for (int i = 0; i < language_menu->get_item_count(); i++) {
             if (language_menu->get_item_text(i) == last_selected_language) {
                 language_menu->select(i);

@@ -41,7 +41,7 @@ void ResourceImporterTexture::_texture_reimport_srgb(const StringName &p_tex_pat
 
     singleton->mutex->lock();
 
-    if (!singleton->make_flags.has(p_tex_path)) {
+    if (!singleton->make_flags.contains(p_tex_path)) {
         singleton->make_flags[p_tex_path] = 0;
     }
 
@@ -54,7 +54,7 @@ void ResourceImporterTexture::_texture_reimport_3d(const StringName &p_tex_path)
 
     singleton->mutex->lock();
 
-    if (!singleton->make_flags.has(p_tex_path)) {
+    if (!singleton->make_flags.contains(p_tex_path)) {
         singleton->make_flags[p_tex_path] = 0;
     }
 
@@ -67,7 +67,7 @@ void ResourceImporterTexture::_texture_reimport_normal(const StringName &p_tex_p
 
     singleton->mutex->lock();
 
-    if (!singleton->make_flags.has(p_tex_path)) {
+    if (!singleton->make_flags.contains(p_tex_path)) {
         singleton->make_flags[p_tex_path] = 0;
     }
 
@@ -86,27 +86,27 @@ void ResourceImporterTexture::build_reconfigured_list(bool editor_is_scanning_or
     }
 
     Vector<String> to_reimport;
-    for (Map<StringName, int>::Element *E = make_flags.front(); E; E = E->next()) {
+    for (eastl::pair<const StringName, int> &E : make_flags) {
 
-        Ref<ConfigFile> cf;
-        cf.instance();
-        String src_path = String(E->key()) + ".import";
+        Ref<ConfigFile> cf(make_ref_counted<ConfigFile>());
+
+        String src_path = String(E.first) + ".import";
 
         Error err = cf->load(src_path);
         ERR_CONTINUE(err != OK)
 
         bool changed = false;
-        if (E->get() & MAKE_SRGB_FLAG && int(cf->get_value("params", "flags/srgb")) == 2) {
+        if (E.second & MAKE_SRGB_FLAG && int(cf->get_value("params", "flags/srgb")) == 2) {
             cf->set_value("params", "flags/srgb", 1);
             changed = true;
         }
 
-        if (E->get() & MAKE_NORMAL_FLAG && int(cf->get_value("params", "compress/normal_map")) == 0) {
+        if (E.second & MAKE_NORMAL_FLAG && int(cf->get_value("params", "compress/normal_map")) == 0) {
             cf->set_value("params", "compress/normal_map", 1);
             changed = true;
         }
 
-        if (E->get() & MAKE_3D_FLAG && bool(cf->get_value("params", "detect_3d"))) {
+        if (E.second & MAKE_3D_FLAG && bool(cf->get_value("params", "detect_3d"))) {
             cf->set_value("params", "detect_3d", false);
             cf->set_value("params", "compress/mode", 2);
             cf->set_value("params", "flags/repeat", true);
@@ -117,7 +117,7 @@ void ResourceImporterTexture::build_reconfigured_list(bool editor_is_scanning_or
 
         if (changed) {
             cf->save(src_path);
-            to_reimport.push_back(E->key());
+            to_reimport.push_back(E.first);
         }
     }
 
@@ -152,17 +152,17 @@ String ResourceImporterTexture::get_resource_type() const {
 bool ResourceImporterTexture::get_option_visibility(const String &p_option, const Map<StringName, Variant> &p_options) const {
 
     if (p_option == "compress/lossy_quality") {
-        int compress_mode = int(p_options["compress/mode"]);
+        int compress_mode = int(p_options.at("compress/mode"));
         if (compress_mode != COMPRESS_LOSSY && compress_mode != COMPRESS_VIDEO_RAM) {
             return false;
         }
     } else if (p_option == "compress/hdr_mode") {
-        int compress_mode = int(p_options["compress/mode"]);
+        int compress_mode = int(p_options.at("compress/mode"));
         if (compress_mode != COMPRESS_VIDEO_RAM) {
             return false;
         }
     } else if (p_option == "compress/bptc_ldr") {
-        int compress_mode = int(p_options["compress/mode"]);
+        int compress_mode = int(p_options.at("compress/mode"));
         if (compress_mode != COMPRESS_VIDEO_RAM) {
             return false;
         }
@@ -189,26 +189,26 @@ String ResourceImporterTexture::get_preset_name(int p_idx) const {
     return preset_names[p_idx];
 }
 
-void ResourceImporterTexture::get_import_options(List<ImportOption> *r_options, int p_preset) const {
+void ResourceImporterTexture::get_import_options(ListPOD<ImportOption> *r_options, int p_preset) const {
 
-    r_options->push_back(ImportOption(PropertyInfo(Variant::INT, "compress/mode", PROPERTY_HINT_ENUM, "Lossless,Lossy,Video RAM,Uncompressed", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), p_preset == PRESET_3D ? 2 : 0));
-    r_options->push_back(ImportOption(PropertyInfo(Variant::REAL, "compress/lossy_quality", PROPERTY_HINT_RANGE, "0,1,0.01"), 0.7));
-    r_options->push_back(ImportOption(PropertyInfo(Variant::INT, "compress/hdr_mode", PROPERTY_HINT_ENUM, "Enabled,Force RGBE"), 0));
-    r_options->push_back(ImportOption(PropertyInfo(Variant::INT, "compress/bptc_ldr", PROPERTY_HINT_ENUM, "Enabled,RGBA Only"), 0));
-    r_options->push_back(ImportOption(PropertyInfo(Variant::INT, "compress/normal_map", PROPERTY_HINT_ENUM, "Detect,Enable,Disabled"), 0));
-    r_options->push_back(ImportOption(PropertyInfo(Variant::INT, "flags/repeat", PROPERTY_HINT_ENUM, "Disabled,Enabled,Mirrored"), p_preset == PRESET_3D ? 1 : 0));
-    r_options->push_back(ImportOption(PropertyInfo(Variant::BOOL, "flags/filter"), p_preset != PRESET_2D_PIXEL));
-    r_options->push_back(ImportOption(PropertyInfo(Variant::BOOL, "flags/mipmaps"), p_preset == PRESET_3D));
-    r_options->push_back(ImportOption(PropertyInfo(Variant::BOOL, "flags/anisotropic"), false));
-    r_options->push_back(ImportOption(PropertyInfo(Variant::INT, "flags/srgb", PROPERTY_HINT_ENUM, "Disable,Enable,Detect"), 2));
-    r_options->push_back(ImportOption(PropertyInfo(Variant::BOOL, "process/fix_alpha_border"), p_preset != PRESET_3D));
-    r_options->push_back(ImportOption(PropertyInfo(Variant::BOOL, "process/premult_alpha"), false));
-    r_options->push_back(ImportOption(PropertyInfo(Variant::BOOL, "process/HDR_as_SRGB"), false));
-    r_options->push_back(ImportOption(PropertyInfo(Variant::BOOL, "process/invert_color"), false));
-    r_options->push_back(ImportOption(PropertyInfo(Variant::INT, "stream"), false));
-    r_options->push_back(ImportOption(PropertyInfo(Variant::INT, "size_limit", PROPERTY_HINT_RANGE, "0,4096,1"), 0));
-    r_options->push_back(ImportOption(PropertyInfo(Variant::BOOL, "detect_3d"), p_preset == PRESET_DETECT));
-    r_options->push_back(ImportOption(PropertyInfo(Variant::REAL, "svg/scale", PROPERTY_HINT_RANGE, "0.001,100,0.001"), 1.0));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "compress/mode", PROPERTY_HINT_ENUM, "Lossless,Lossy,Video RAM,Uncompressed", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), p_preset == PRESET_3D ? 2 : 0));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::REAL, "compress/lossy_quality", PROPERTY_HINT_RANGE, "0,1,0.01"), 0.7));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "compress/hdr_mode", PROPERTY_HINT_ENUM, "Enabled,Force RGBE"), 0));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "compress/bptc_ldr", PROPERTY_HINT_ENUM, "Enabled,RGBA Only"), 0));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "compress/normal_map", PROPERTY_HINT_ENUM, "Detect,Enable,Disabled"), 0));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "flags/repeat", PROPERTY_HINT_ENUM, "Disabled,Enabled,Mirrored"), p_preset == PRESET_3D ? 1 : 0));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "flags/filter"), p_preset != PRESET_2D_PIXEL));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "flags/mipmaps"), p_preset == PRESET_3D));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "flags/anisotropic"), false));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "flags/srgb", PROPERTY_HINT_ENUM, "Disable,Enable,Detect"), 2));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "process/fix_alpha_border"), p_preset != PRESET_3D));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "process/premult_alpha"), false));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "process/HDR_as_SRGB"), false));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "process/invert_color"), false));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "stream"), false));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "size_limit", PROPERTY_HINT_RANGE, "0,4096,1"), 0));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "detect_3d"), p_preset == PRESET_DETECT));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::REAL, "svg/scale", PROPERTY_HINT_RANGE, "0.001,100,0.001"), 1.0));
 }
 
 void ResourceImporterTexture::_save_stex(const Ref<Image> &p_image, const String &p_to_path, int p_compress_mode, float p_lossy_quality, Image::CompressMode p_vram_compression, bool p_mipmaps, int p_texture_flags, bool p_streamable, bool p_detect_3d, bool p_detect_srgb, bool p_force_rgbe, bool p_detect_normal, bool p_force_normal, bool p_force_po2_for_compressed) {
@@ -255,7 +255,7 @@ void ResourceImporterTexture::_save_stex(const Ref<Image> &p_image, const String
     switch (p_compress_mode) {
         case COMPRESS_LOSSLESS: {
 
-            Ref<Image> image = p_image->duplicate();
+            Ref<Image> image = dynamic_ref_cast<Image>(p_image->duplicate());
             if (p_mipmaps) {
                 image->generate_mipmaps();
             } else {
@@ -284,7 +284,7 @@ void ResourceImporterTexture::_save_stex(const Ref<Image> &p_image, const String
 
         } break;
         case COMPRESS_LOSSY: {
-            Ref<Image> image = p_image->duplicate();
+            Ref<Image> image(dynamic_ref_cast<Image>(p_image->duplicate()));
             if (p_mipmaps) {
                 image->generate_mipmaps();
             } else {
@@ -313,7 +313,7 @@ void ResourceImporterTexture::_save_stex(const Ref<Image> &p_image, const String
         } break;
         case COMPRESS_VIDEO_RAM: {
 
-            Ref<Image> image = p_image->duplicate();
+            Ref<Image> image(dynamic_ref_cast<Image>(p_image->duplicate()));
             if (resize_to_po2) {
                 image->resize_to_po2();
             }
@@ -345,7 +345,7 @@ void ResourceImporterTexture::_save_stex(const Ref<Image> &p_image, const String
         } break;
         case COMPRESS_UNCOMPRESSED: {
 
-            Ref<Image> image = p_image->duplicate();
+            Ref<Image> image = dynamic_ref_cast<Image>(p_image->duplicate());
             if (p_mipmaps) {
                 image->generate_mipmaps();
             } else {
@@ -369,26 +369,26 @@ void ResourceImporterTexture::_save_stex(const Ref<Image> &p_image, const String
 
 Error ResourceImporterTexture::import(const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata) {
 
-    int compress_mode = p_options["compress/mode"];
-    float lossy = p_options["compress/lossy_quality"];
-    int repeat = p_options["flags/repeat"];
-    bool filter = p_options["flags/filter"];
-    bool mipmaps = p_options["flags/mipmaps"];
-    bool anisotropic = p_options["flags/anisotropic"];
-    int srgb = p_options["flags/srgb"];
-    bool fix_alpha_border = p_options["process/fix_alpha_border"];
-    bool premult_alpha = p_options["process/premult_alpha"];
-    bool invert_color = p_options["process/invert_color"];
-    bool stream = p_options["stream"];
-    int size_limit = p_options["size_limit"];
-    bool hdr_as_srgb = p_options["process/HDR_as_SRGB"];
-    int normal = p_options["compress/normal_map"];
-    float scale = p_options["svg/scale"];
-    bool force_rgbe = p_options["compress/hdr_mode"];
-    int bptc_ldr = p_options["compress/bptc_ldr"];
+    int compress_mode = p_options.at("compress/mode");
+    float lossy = p_options.at("compress/lossy_quality");
+    int repeat = p_options.at("flags/repeat");
+    bool filter = p_options.at("flags/filter").as<bool>();
+    bool mipmaps = p_options.at("flags/mipmaps").as<bool>();
+    bool anisotropic = p_options.at("flags/anisotropic").as<bool>();
+    int srgb = p_options.at("flags/srgb");
+    bool fix_alpha_border = p_options.at("process/fix_alpha_border").as<bool>();
+    bool premult_alpha = p_options.at("process/premult_alpha").as<bool>();
+    bool invert_color = p_options.at("process/invert_color").as<bool>();
+    bool stream = p_options.at("stream").as<bool>();
+    int size_limit = p_options.at("size_limit");
+    bool hdr_as_srgb = p_options.at("process/HDR_as_SRGB").as<bool>();
+    int normal = p_options.at("compress/normal_map");
+    float scale = p_options.at("svg/scale");
+    bool force_rgbe = p_options.at("compress/hdr_mode").as<bool>();
+    int bptc_ldr = p_options.at("compress/bptc_ldr");
 
-    Ref<Image> image;
-    image.instance();
+    Ref<Image> image(make_ref_counted<Image>());
+
     Error err = ImageLoader::load_image(p_source_file, image, nullptr, {scale,hdr_as_srgb});
     if (err != OK)
         return err;
@@ -450,7 +450,7 @@ Error ResourceImporterTexture::import(const String &p_source_file, const String 
         image->unlock();
     }
 
-    bool detect_3d = p_options["detect_3d"];
+    bool detect_3d = p_options.at("detect_3d").as<bool>();
     bool detect_srgb = srgb == 2;
     bool detect_normal = normal == 0;
     bool force_normal = normal == 1;
@@ -462,8 +462,8 @@ Error ResourceImporterTexture::import(const String &p_source_file, const String 
         bool ok_on_pc = false;
         bool is_hdr = (image->get_format() >= Image::FORMAT_RF && image->get_format() <= Image::FORMAT_RGBE9995);
         bool is_ldr = (image->get_format() >= Image::FORMAT_L8 && image->get_format() <= Image::FORMAT_RGBA5551);
-        bool can_bptc = ProjectSettings::get_singleton()->get("rendering/vram_compression/import_bptc");
-        bool can_s3tc = ProjectSettings::get_singleton()->get("rendering/vram_compression/import_s3tc");
+        bool can_bptc = ProjectSettings::get_singleton()->get("rendering/vram_compression/import_bptc").as<bool>();
+        bool can_s3tc = ProjectSettings::get_singleton()->get("rendering/vram_compression/import_s3tc").as<bool>();
 
         if (can_bptc) {
             Image::DetectChannels channels = image->get_detected_channels();
@@ -527,7 +527,7 @@ Error ResourceImporterTexture::import(const String &p_source_file, const String 
     if (r_metadata) {
         Dictionary metadata;
         metadata["vram_texture"] = compress_mode == COMPRESS_VIDEO_RAM;
-        if (formats_imported.size()) {
+        if (!formats_imported.empty()) {
             metadata["imported_formats"] = formats_imported;
         }
         *r_metadata = metadata;
@@ -550,7 +550,7 @@ String ResourceImporterTexture::get_import_settings_string() const {
     int index = 0;
     while (compression_formats[index]) {
         String setting_path = "rendering/vram_compression/import_" + String(compression_formats[index]);
-        bool test = ProjectSettings::get_singleton()->get(setting_path);
+        bool test = ProjectSettings::get_singleton()->get(setting_path).as<bool>();
         if (test) {
             s += String(compression_formats[index]);
         }
@@ -569,7 +569,7 @@ bool ResourceImporterTexture::are_import_settings_valid(const String &p_path) co
         return false;
     }
 
-    bool vram = metadata["vram_texture"];
+    bool vram = metadata["vram_texture"].as<bool>();
     if (!vram) {
         return true; //do not care about non vram
     }
@@ -583,7 +583,7 @@ bool ResourceImporterTexture::are_import_settings_valid(const String &p_path) co
     bool valid = true;
     while (compression_formats[index]) {
         String setting_path = "rendering/vram_compression/import_" + String(compression_formats[index]);
-        bool test = ProjectSettings::get_singleton()->get(setting_path);
+        bool test = ProjectSettings::get_singleton()->get(setting_path).as<bool>();
         if (test) {
             if (formats_imported.find(compression_formats[index]) == -1) {
                 valid = false;

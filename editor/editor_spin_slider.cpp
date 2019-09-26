@@ -51,8 +51,8 @@ void EditorSpinSlider::_gui_input(const Ref<InputEvent> &p_event) {
     if (read_only)
         return;
 
-    Ref<InputEventMouseButton> mb = p_event;
-    if (mb.is_valid()) {
+    Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_event);
+    if (mb) {
 
         if (mb->get_button_index() == BUTTON_LEFT) {
             if (mb->is_pressed()) {
@@ -97,8 +97,8 @@ void EditorSpinSlider::_gui_input(const Ref<InputEvent> &p_event) {
         }
     }
 
-    Ref<InputEventMouseMotion> mm = p_event;
-    if (mm.is_valid()) {
+    Ref<InputEventMouseMotion> mm = dynamic_ref_cast<InputEventMouseMotion>(p_event);
+    if (mm) {
 
         if (grabbing_spinner_attempt) {
 
@@ -134,46 +134,46 @@ void EditorSpinSlider::_gui_input(const Ref<InputEvent> &p_event) {
         }
     }
 
-    Ref<InputEventKey> k = p_event;
-    if (k.is_valid() && k->is_pressed() && k->is_action("ui_accept")) {
+    Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(p_event);
+    if (k && k->is_pressed() && k->is_action("ui_accept")) {
         _focus_entered();
     }
 }
 
 void EditorSpinSlider::_grabber_gui_input(const Ref<InputEvent> &p_event) {
 
-    Ref<InputEventMouseButton> mb = p_event;
-	if (grabbing_grabber) {
-		if (mb.is_valid()) {
+    Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_event);
+    if (grabbing_grabber) {
+        if (mb) {
 
-			if (mb->get_button_index() == BUTTON_WHEEL_UP) {
-				set_value(get_value() + get_step());
-				mousewheel_over_grabber = true;
-			} else if (mb->get_button_index() == BUTTON_WHEEL_DOWN) {
-				set_value(get_value() - get_step());
-				mousewheel_over_grabber = true;
-			}
-		}
-	}
-    if (mb.is_valid() && mb->get_button_index() == BUTTON_LEFT) {
+            if (mb->get_button_index() == BUTTON_WHEEL_UP) {
+                set_value(get_value() + get_step());
+                mousewheel_over_grabber = true;
+            } else if (mb->get_button_index() == BUTTON_WHEEL_DOWN) {
+                set_value(get_value() - get_step());
+                mousewheel_over_grabber = true;
+            }
+        }
+    }
+    if (mb && mb->get_button_index() == BUTTON_LEFT) {
 
         if (mb->is_pressed()) {
 
             grabbing_grabber = true;
-			if (!mousewheel_over_grabber) {
+            if (!mousewheel_over_grabber) {
             grabbing_ratio = get_as_ratio();
             grabbing_from = grabber->get_transform().xform(mb->get_position()).x;
-			}
+            }
         } else {
             grabbing_grabber = false;
-			mousewheel_over_grabber = false;
+            mousewheel_over_grabber = false;
         }
     }
 
-    Ref<InputEventMouseMotion> mm = p_event;
-    if (mm.is_valid() && grabbing_grabber) {
-		if (mousewheel_over_grabber)
-			return;
+    Ref<InputEventMouseMotion> mm = dynamic_ref_cast<InputEventMouseMotion>(p_event);
+    if (mm && grabbing_grabber) {
+        if (mousewheel_over_grabber)
+            return;
 
         float grabbing_ofs = (grabber->get_transform().xform(mm->get_position()).x - grabbing_from) / float(grabber_range);
         set_as_ratio(grabbing_ratio + grabbing_ofs);
@@ -226,7 +226,7 @@ void EditorSpinSlider::_notification(int p_what) {
             lc = fc;
         }
 
-        if (flat && label != String()) {
+        if (flat && !label.empty()) {
             Color label_bg_color = get_color("dark_color_3", "Editor");
             draw_rect(Rect2(Vector2(), Vector2(sb->get_offset().x * 2 + string_width, get_size().height)), label_bg_color);
         }
@@ -289,9 +289,9 @@ void EditorSpinSlider::_notification(int p_what) {
 
                 grabber->set_size(Size2(0, 0));
                 grabber->set_position(get_global_position() + grabber_rect.position + grabber_rect.size * 0.5 - grabber->get_size() * 0.5);
-				if (mousewheel_over_grabber) {
-					Input::get_singleton()->warp_mouse_position(grabber->get_position() + grabber_rect.size);
-				}
+                if (mousewheel_over_grabber) {
+                    Input::get_singleton()->warp_mouse_position(grabber->get_position() + grabber_rect.size);
+                }
                 grabber_range = width;
             }
         }
@@ -351,15 +351,14 @@ String EditorSpinSlider::get_label() const {
 
 void EditorSpinSlider::_evaluate_input_text() {
     String text = value_input->get_text();
-    Ref<Expression> expr;
-    expr.instance();
+    Ref<Expression> expr(make_ref_counted<Expression>());
     Error err = expr->parse(text);
     if (err != OK) {
         return;
     }
 
     Variant v = expr->execute(Array(), nullptr, false);
-    if (v.get_type() == Variant::NIL)
+    if (v.get_type() == VariantType::NIL)
         return;
     set_value(v);
 }
@@ -445,13 +444,13 @@ void EditorSpinSlider::_focus_entered() {
 }
 
 void EditorSpinSlider::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("set_label", "label"), &EditorSpinSlider::set_label);
+    MethodBinder::bind_method(D_METHOD("set_label", {"label"}), &EditorSpinSlider::set_label);
     MethodBinder::bind_method(D_METHOD("get_label"), &EditorSpinSlider::get_label);
 
-    MethodBinder::bind_method(D_METHOD("set_read_only", "read_only"), &EditorSpinSlider::set_read_only);
+    MethodBinder::bind_method(D_METHOD("set_read_only", {"read_only"}), &EditorSpinSlider::set_read_only);
     MethodBinder::bind_method(D_METHOD("is_read_only"), &EditorSpinSlider::is_read_only);
 
-    MethodBinder::bind_method(D_METHOD("set_flat", "flat"), &EditorSpinSlider::set_flat);
+    MethodBinder::bind_method(D_METHOD("set_flat", {"flat"}), &EditorSpinSlider::set_flat);
     MethodBinder::bind_method(D_METHOD("is_flat"), &EditorSpinSlider::is_flat);
 
     MethodBinder::bind_method(D_METHOD("_gui_input"), &EditorSpinSlider::_gui_input);
@@ -462,9 +461,9 @@ void EditorSpinSlider::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_value_input_entered"), &EditorSpinSlider::_value_input_entered);
     MethodBinder::bind_method(D_METHOD("_value_focus_exited"), &EditorSpinSlider::_value_focus_exited);
 
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "label"), "set_label", "get_label");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "read_only"), "set_read_only", "is_read_only");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "flat"), "set_flat", "is_flat");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "label"), "set_label", "get_label");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "read_only"), "set_read_only", "is_read_only");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "flat"), "set_flat", "is_flat");
 }
 
 EditorSpinSlider::EditorSpinSlider() {
@@ -487,7 +486,7 @@ EditorSpinSlider::EditorSpinSlider() {
     grabber->connect("gui_input", this, "_grabber_gui_input");
     mouse_over_spin = false;
     mouse_over_grabber = false;
-	mousewheel_over_grabber = false;
+    mousewheel_over_grabber = false;
     grabbing_grabber = false;
     grabber_range = 1;
     value_input = memnew(LineEdit);

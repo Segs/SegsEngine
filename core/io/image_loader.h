@@ -31,7 +31,7 @@
 #pragma once
 
 //#include "core/image.h"
-#include "core/io/resource_loader.h"
+#include "core/io/resource_format_loader.h"
 #include "core/list.h"
 #include "core/vector.h"
 #include "core/os/file_access.h"
@@ -58,7 +58,7 @@ class GODOT_EXPORT ImageLoader {
 protected:
 public:
     static void register_plugin_resolver();
-    static Error load_image(String p_file, Ref<Image> p_image, FileAccess *p_custom = nullptr, const LoadParams &params={});
+    static Error load_image(const String& p_file, Ref<Image> p_image, FileAccess *p_custom = nullptr, const LoadParams &params={});
     static ImageData load_image(const String &ext, const uint8_t *data, int sz, const LoadParams &params={});
     static void get_recognized_extensions(Vector<String> *p_extensions);
     static ImageFormatLoader *recognize(const String &p_extension);
@@ -74,7 +74,7 @@ public:
 class ResourceFormatLoaderImage : public ResourceFormatLoader {
 public:
     RES load(const String &p_path, const String &p_original_path = String::null_val, Error *r_error = nullptr) override;
-    void get_recognized_extensions(List<String> *p_extensions) const override;
+    void get_recognized_extensions(ListPOD<String> *p_extensions) const override;
     bool handles_type(const String &p_type) const override;
     String get_resource_type(const String &p_path) const override;
 };

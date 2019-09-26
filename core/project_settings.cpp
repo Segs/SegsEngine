@@ -62,7 +62,7 @@ String ProjectSettings::get_resource_path() const {
 
 String ProjectSettings::localize_path(String p_path) const {
 
-    if (resource_path == "")
+    if (resource_path.empty())
         return p_path; //not initialized yet
 
     if (StringUtils::begins_with(p_path,"res://") || StringUtils::begins_with(p_path,"user://") ||
@@ -109,7 +109,7 @@ String ProjectSettings::localize_path(String p_path) const {
         String parent = StringUtils::substr(path,0, sep);
 
         String plocal = localize_path(parent);
-        if (plocal == "") {
+        if (plocal.empty()) {
             return String::null_val;
         }
         return plocal + StringUtils::substr(path,sep);
@@ -118,12 +118,12 @@ String ProjectSettings::localize_path(String p_path) const {
 
 void ProjectSettings::set_initial_value(const StringName &p_name, const Variant &p_value) {
 
-    ERR_FAIL_COND(!props.has(p_name))
+    ERR_FAIL_COND(!props.contains(p_name))
     props[p_name].initial = p_value;
 }
 void ProjectSettings::set_restart_if_changed(const StringName &p_name, bool p_restart) {
 
-    ERR_FAIL_COND(!props.has(p_name))
+    ERR_FAIL_COND(!props.contains(p_name))
     props[p_name].restart_if_changed = p_restart;
 }
 
@@ -131,7 +131,7 @@ String ProjectSettings::globalize_path(String p_path) const {
 
     if (StringUtils::begins_with(p_path,"res://")) {
 
-        if (resource_path != "") {
+        if (!resource_path.empty()) {
 
             return StringUtils::replace(p_path,String("res:/"), resource_path);
         }
@@ -139,7 +139,7 @@ String ProjectSettings::globalize_path(String p_path) const {
     } else if (StringUtils::begins_with(p_path,"user://")) {
 
         String data_dir = OS::get_singleton()->get_user_data_dir();
-        if (data_dir != "") {
+        if (!data_dir.empty()) {
 
             return StringUtils::replace(p_path,String("user:/"), data_dir);
         }
@@ -153,7 +153,7 @@ bool ProjectSettings::_set(const StringName &p_name, const Variant &p_value) {
 
     _THREAD_SAFE_METHOD_
 
-    if (p_value.get_type() == Variant::NIL)
+    if (p_value.get_type() == VariantType::NIL)
         props.erase(p_name);
     else {
 
@@ -174,7 +174,7 @@ bool ProjectSettings::_set(const StringName &p_name, const Variant &p_value) {
                 bool override_valid = false;
                 for (int i = 1; i < s.size(); i++) {
                     String feature =StringUtils::strip_edges( s[i]);
-                    if (OS::get_singleton()->has_feature(feature) || custom_features.has(feature)) {
+                    if (OS::get_singleton()->has_feature(feature) || custom_features.contains(feature)) {
                         override_valid = true;
                         break;
                     }
@@ -187,7 +187,7 @@ bool ProjectSettings::_set(const StringName &p_name, const Variant &p_value) {
             }
         }
 
-        if (props.has(p_name)) {
+        if (props.contains(p_name)) {
             if (!props[p_name].overridden)
                 props[p_name].variant = p_value;
 
@@ -203,42 +203,42 @@ bool ProjectSettings::_get(const StringName &p_name, Variant &r_ret) const {
     _THREAD_SAFE_METHOD_
 
     StringName name = p_name;
-    if (!disable_feature_overrides && feature_overrides.has(name)) {
-        name = feature_overrides[name];
+    if (!disable_feature_overrides && feature_overrides.contains(name)) {
+        name = feature_overrides.at(name);
     }
-    if (!props.has(name)) {
+    if (!props.contains(name)) {
         WARN_PRINTS("Property not found: " + String(name))
         return false;
     }
-    r_ret = props[name].variant;
+    r_ret = props.at(name).variant;
     return true;
 }
 
 struct _VCSort {
 
     String name;
-    Variant::Type type;
+    VariantType type;
     int order;
     int flags;
 
     bool operator<(const _VCSort &p_vcs) const { return order == p_vcs.order ? name < p_vcs.name : order < p_vcs.order; }
 };
 
-void ProjectSettings::_get_property_list(List<PropertyInfo> *p_list) const {
+void ProjectSettings::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
     _THREAD_SAFE_METHOD_
     using namespace StringUtils;
     Set<_VCSort> vclist;
 
-    for (Map<StringName, VariantContainer>::Element *E = props.front(); E; E = E->next()) {
+    for (const eastl::pair<const StringName,VariantContainer> &E : props) {
 
-        const VariantContainer *v = &E->get();
+        const VariantContainer *v = &E.second;
 
         if (v->hide_from_editor)
             continue;
 
         _VCSort vc;
-        vc.name = E->key();
+        vc.name = E.first;
         vc.order = v->order;
         vc.type = v->variant.get_type();
         if (begins_with(vc.name, "input/") || begins_with(vc.name, "import/") || begins_with(vc.name, "export/") ||
@@ -253,20 +253,20 @@ void ProjectSettings::_get_property_list(List<PropertyInfo> *p_list) const {
         vclist.insert(vc);
     }
 
-    for (Set<_VCSort>::Element *E = vclist.front(); E; E = E->next()) {
+    for (const _VCSort &E : vclist) {
 
-        String prop_info_name = E->get().name;
+        String prop_info_name = E.name;
         int dot = StringUtils::find(prop_info_name,".");
         if (dot != -1)
             prop_info_name = StringUtils::substr(prop_info_name,0, dot);
 
-        if (custom_prop_info.has(prop_info_name)) {
-            PropertyInfo pi = custom_prop_info[prop_info_name];
-            pi.name = E->get().name;
-            pi.usage = E->get().flags;
+        if (custom_prop_info.contains(prop_info_name)) {
+            PropertyInfo pi = custom_prop_info.at(prop_info_name);
+            pi.name = E.name;
+            pi.usage = E.flags;
             p_list->push_back(pi);
         } else
-            p_list->push_back(PropertyInfo(E->get().type, StringUtils::to_utf8(E->get().name).data(), PROPERTY_HINT_NONE, nullptr, E->get().flags));
+            p_list->push_back(PropertyInfo(E.type, StringUtils::to_utf8(E.name).data(), PROPERTY_HINT_NONE, nullptr, E.flags));
     }
 }
 
@@ -291,14 +291,14 @@ void ProjectSettings::_convert_to_last_version(int p_from_version) {
 
     if (p_from_version <= 3) {
         // Converts the actions from array to dictionary (array of events to dictionary with deadzone + events)
-        for (Map<StringName, ProjectSettings::VariantContainer>::Element *E = props.front(); E; E = E->next()) {
-            Variant value = E->get().variant;
-            if (StringUtils::begins_with(E->key(),"input/") && value.get_type() == Variant::ARRAY) {
+        for (eastl::pair<const StringName,ProjectSettings::VariantContainer> &E : props) {
+            Variant value = E.second.variant;
+            if (StringUtils::begins_with(E.first,"input/") && value.get_type() == VariantType::ARRAY) {
                 Array array = value;
                 Dictionary action;
                 action["deadzone"] = Variant(0.5f);
                 action["events"] = array;
-                E->get().variant = action;
+                E.second.variant = action;
             }
         }
     }
@@ -339,7 +339,7 @@ Error ProjectSettings::_setup(const String &p_path, const String &p_main_pack, b
 
     // Attempt with a user-defined main pack first
 
-    if (p_main_pack != "") {
+    if (!p_main_pack.empty()) {
 
         bool ok = _load_resource_pack(p_main_pack);
         ERR_FAIL_COND_V(!ok, ERR_CANT_OPEN)
@@ -355,7 +355,7 @@ Error ProjectSettings::_setup(const String &p_path, const String &p_main_pack, b
 
     String exec_path = OS::get_singleton()->get_executable_path();
 
-    if (exec_path != "") {
+    if (!exec_path.empty()) {
         // Attempt with exec_name.pck
         // (This is the usual case when distributing a Godot game.)
 
@@ -407,11 +407,11 @@ Error ProjectSettings::_setup(const String &p_path, const String &p_main_pack, b
 
     // Try to use the filesystem for files, according to OS. (only Android -when reading from pck- and iOS use this)
 
-    if (OS::get_singleton()->get_resource_dir() != "") {
+    if (!OS::get_singleton()->get_resource_dir().empty()) {
         // OS will call ProjectSettings->get_resource_path which will be empty if not overridden!
         // If the OS would rather use a specific location, then it will not be empty.
         resource_path = StringUtils::replace(OS::get_singleton()->get_resource_dir(),"\\", "/");
-        if (resource_path != "" && resource_path[resource_path.length() - 1] == '/') {
+        if (!resource_path.empty() && StringUtils::ends_with(resource_path,'/')) {
             resource_path = StringUtils::substr(resource_path,0, resource_path.length() - 1); // chop end
         }
 
@@ -427,7 +427,7 @@ Error ProjectSettings::_setup(const String &p_path, const String &p_main_pack, b
     // or, if requested (`p_upwards`) in parent directories.
 
     DirAccess *d = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
-    ERR_FAIL_COND_V(!d, ERR_CANT_CREATE);
+    ERR_FAIL_COND_V(!d, ERR_CANT_CREATE)
     d->change_dir(p_path);
 
     String current_dir = d->get_current_dir();
@@ -473,7 +473,7 @@ Error ProjectSettings::setup(const String &p_path, const String &p_main_pack, bo
     Error err = _setup(p_path, p_main_pack, p_upwards);
     if (err == OK) {
         String custom_settings = GLOBAL_DEF("application/config/project_settings_override", "");
-        if (custom_settings != "") {
+        if (!custom_settings.empty()) {
             _load_settings_text(custom_settings);
         }
     }
@@ -485,7 +485,7 @@ bool ProjectSettings::has_setting(const StringName &p_var) const {
 
     _THREAD_SAFE_METHOD_
 
-    return props.has(p_var);
+    return props.contains(p_var);
 }
 
 void ProjectSettings::set_registering_order(bool p_enable) {
@@ -544,8 +544,7 @@ Error ProjectSettings::_load_settings_text(const String &p_path) {
         return ERR_FILE_NOT_FOUND;
     }
 
-    VariantParser::StreamFile stream;
-    stream.f = f;
+    VariantParser::Stream *stream=VariantParser::get_file_stream(f);
 
     String assign;
     Variant value;
@@ -562,8 +561,9 @@ Error ProjectSettings::_load_settings_text(const String &p_path) {
         next_tag.fields.clear();
         next_tag.name = String();
 
-        err = VariantParser::parse_tag_assign_eof(&stream, lines, error_text, next_tag, assign, value, nullptr, true);
+        err = VariantParser::parse_tag_assign_eof(stream, lines, error_text, next_tag, assign, value, nullptr, true);
         if (err == ERR_FILE_EOF) {
+            VariantParser::release_stream(stream);
             memdelete(f);
             // If we're loading a project.godot from source code, we can operate some
             // ProjectSettings conversions if need be.
@@ -571,25 +571,27 @@ Error ProjectSettings::_load_settings_text(const String &p_path) {
             return OK;
         } else if (err != OK) {
             ERR_PRINTS("Error parsing " + p_path + " at line " + itos(lines) + ": " + error_text + " File might be corrupted.");
+            VariantParser::release_stream(stream);
             memdelete(f);
             return err;
         }
 
-        if (assign != String()) {
-            if (section == String() && assign == "config_version") {
+        if (!assign.empty()) {
+            if (section.empty() && assign == "config_version") {
                 config_version = value;
                 if (config_version > CONFIG_VERSION) {
+                    VariantParser::release_stream(stream);
                     memdelete(f);
                     ERR_FAIL_V_MSG(ERR_FILE_CANT_OPEN, FormatV("Can't open project at '%s', its `config_version` (%d) is from a more recent and incompatible version of the engine. Expected config version: %d.", StringUtils::to_utf8(p_path).data(), config_version, CONFIG_VERSION));
                 }
             } else {
-                if (section == String()) {
+                if (section.empty()) {
                     set(assign, value);
                 } else {
                     set(section + "/" + assign, value);
                 }
             }
-        } else if (next_tag.name != String()) {
+        } else if (!next_tag.name.empty()) {
             section = next_tag.name;
         }
     }
@@ -614,18 +616,18 @@ Error ProjectSettings::_load_settings_text_or_binary(const String &p_text_path, 
 
 int ProjectSettings::get_order(const String &p_name) const {
 
-    ERR_FAIL_COND_V(!props.has(p_name), -1)
-    return props[p_name].order;
+    ERR_FAIL_COND_V(!props.contains(p_name), -1)
+    return props.at(p_name).order;
 }
 
 void ProjectSettings::set_order(const String &p_name, int p_order) {
 
-    ERR_FAIL_COND(!props.has(p_name))
+    ERR_FAIL_COND(!props.contains(p_name))
     props[p_name].order = p_order;
 }
 
 void ProjectSettings::set_builtin_order(const StringName &p_name) {
-    ERR_FAIL_COND(!props.has(p_name))
+    ERR_FAIL_COND(!props.contains(p_name))
     if (props[p_name].order >= NO_BUILTIN_ORDER_BASE) {
         props[p_name].order = last_builtin_order++;
     }
@@ -633,7 +635,7 @@ void ProjectSettings::set_builtin_order(const StringName &p_name) {
 
 void ProjectSettings::clear(const String &p_name) {
 
-    ERR_FAIL_COND(!props.has(p_name))
+    ERR_FAIL_COND(!props.contains(p_name))
     props.erase(p_name);
 }
 
@@ -642,26 +644,23 @@ Error ProjectSettings::save() {
     return save_custom(PathUtils::plus_file(get_resource_path(),String("project.godot")));
 }
 
-Error ProjectSettings::_save_settings_binary(const String &p_file, const Map<String, List<String> > &props, const CustomMap &p_custom, const String &p_custom_features) {
+Error ProjectSettings::_save_settings_binary(const String &p_file, const Map<String, ListPOD<String> > &props, const CustomMap &p_custom, const String &p_custom_features) {
 
     Error err;
     FileAccess *file = FileAccess::open(p_file, FileAccess::WRITE, &err);
-    ERR_FAIL_COND_V_MSG(err != OK, err, "Couldn't save project.binary at " + p_file + ".");
+    ERR_FAIL_COND_V_MSG(err != OK, err, "Couldn't save project.binary at " + p_file + ".")
 
     uint8_t hdr[4] = { 'E', 'C', 'F', 'G' };
     file->store_buffer(hdr, 4);
 
     int count = 0;
 
-    for (Map<String, List<String> >::Element *E = props.front(); E; E = E->next()) {
+    for (const eastl::pair<const String,ListPOD<String> > &E : props) {
 
-        for (List<String>::Element *F = E->get().front(); F; F = F->next()) {
-
-            count++;
-        }
+        count += E.second.size();
     }
 
-    if (p_custom_features != String()) {
+    if (!p_custom_features.empty()) {
         file->store_32(count + 1);
         //store how many properties are saved, add one for custom featuers, which must always go first
         String key = CoreStringNames::get_singleton()->_custom_features;
@@ -672,7 +671,7 @@ Error ProjectSettings::_save_settings_binary(const String &p_file, const Map<Str
         err = encode_variant(p_custom_features, nullptr, len, false);
         if (err != OK) {
             memdelete(file);
-            ERR_FAIL_V(err);
+            ERR_FAIL_V(err)
         }
 
         Vector<uint8_t> buff;
@@ -681,7 +680,7 @@ Error ProjectSettings::_save_settings_binary(const String &p_file, const Map<Str
         err = encode_variant(p_custom_features, buff.ptrw(), len, false);
         if (err != OK) {
             memdelete(file);
-            ERR_FAIL_V(err);
+            ERR_FAIL_V(err)
         }
         file->store_32(len);
         file->store_buffer(buff.ptr(), buff.size());
@@ -690,16 +689,16 @@ Error ProjectSettings::_save_settings_binary(const String &p_file, const Map<Str
         file->store_32(count); //store how many properties are saved
     }
 
-    for (Map<String, List<String> >::Element *E = props.front(); E; E = E->next()) {
+    for (const eastl::pair<const String,ListPOD<String> > &E : props) {
 
-        for (List<String>::Element *F = E->get().front(); F; F = F->next()) {
+        for(const String &F : E.second ) {
 
-            String key = F->get();
-            if (E->key() != "")
-                key = E->key() + "/" + key;
+            String key = F;
+            if (!E.first.empty())
+                key = E.first + "/" + key;
             Variant value;
-            if (p_custom.has(key))
-                value = p_custom[key];
+            if (p_custom.contains(key))
+                value = p_custom.at(key);
             else
                 value = get(key);
 
@@ -710,7 +709,7 @@ Error ProjectSettings::_save_settings_binary(const String &p_file, const Map<Str
             err = encode_variant(value, nullptr, len, true);
             if (err != OK)
                 memdelete(file);
-            ERR_FAIL_COND_V(err != OK, ERR_INVALID_DATA);
+            ERR_FAIL_COND_V(err != OK, ERR_INVALID_DATA)
 
             Vector<uint8_t> buff;
             buff.resize(len);
@@ -718,7 +717,7 @@ Error ProjectSettings::_save_settings_binary(const String &p_file, const Map<Str
             err = encode_variant(value, buff.ptrw(), len, true);
             if (err != OK)
                 memdelete(file);
-            ERR_FAIL_COND_V(err != OK, ERR_INVALID_DATA);
+            ERR_FAIL_COND_V(err != OK, ERR_INVALID_DATA)
             file->store_32(len);
             file->store_buffer(buff.ptr(), buff.size());
         }
@@ -730,7 +729,7 @@ Error ProjectSettings::_save_settings_binary(const String &p_file, const Map<Str
     return OK;
 }
 
-Error ProjectSettings::_save_settings_text(const String &p_file, const Map<String, List<String> > &props, const CustomMap &p_custom, const String &p_custom_features) {
+Error ProjectSettings::_save_settings_text(const String &p_file, const Map<String, ListPOD<String> > &props, const CustomMap &p_custom, const String &p_custom_features) {
 
     Error err;
     FileAccess *file = FileAccess::open(p_file, FileAccess::WRITE, &err);
@@ -747,34 +746,34 @@ Error ProjectSettings::_save_settings_text(const String &p_file, const Map<Strin
     file->store_line(String(""));
 
     file->store_string("config_version=" + itos(CONFIG_VERSION) + "\n");
-    if (p_custom_features != String())
+    if (!p_custom_features.empty())
         file->store_string("custom_features=\"" + p_custom_features + "\"\n");
     file->store_string(String("\n"));
 
-    for (Map<String, List<String> >::Element *E = props.front(); E; E = E->next()) {
+    for (Map<String, ListPOD<String> >::const_iterator E = props.begin(); E!=props.end(); ++E) {
 
-        if (E != props.front())
+        if (E != props.begin())
             file->store_string(String("\n"));
 
-        if (E->key() != "")
-            file->store_string("[" + E->key() + "]\n\n");
-        for (List<String>::Element *F = E->get().front(); F; F = F->next()) {
+        if (!E->first.empty())
+            file->store_string("[" + E->first + "]\n\n");
+        for (const String &F : E->second) {
 
-            String key = F->get();
-            if (E->key() != "")
-                key = E->key() + "/" + key;
+            String key = F;
+            if (!E->first.empty())
+                key = E->first + "/" + key;
             Variant value;
-            if (p_custom.has(key))
-                value = p_custom[key];
+            if (p_custom.contains(key))
+                value = p_custom.at(key);
             else
                 value = get(key);
 
             String vstr;
             VariantWriter::write_to_string(value, vstr);
-            if (StringUtils::contains(F->get(),' '))
-                file->store_string(StringUtils::quote(F->get()) + "=" + vstr + "\n");
+            if (StringUtils::contains(F,' '))
+                file->store_string(StringUtils::quote(F) + "=" + vstr + "\n");
             else
-                file->store_string(F->get() + "=" + vstr + "\n");
+                file->store_string(F + "=" + vstr + "\n");
         }
     }
 
@@ -791,23 +790,23 @@ Error ProjectSettings::_save_custom_bnd(const String &p_file) { // add other par
 
 Error ProjectSettings::save_custom(const String &p_path, const CustomMap &p_custom, const Vector<String> &p_custom_features, bool p_merge_with_current) {
 
-    ERR_FAIL_COND_V(p_path == "", ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(p_path.empty(), ERR_INVALID_PARAMETER)
 
     Set<_VCSort> vclist;
 
     if (p_merge_with_current) {
-        for (Map<StringName, VariantContainer>::Element *G = props.front(); G; G = G->next()) {
+        for (eastl::pair<const StringName,VariantContainer> &G : props) {
 
-            const VariantContainer *v = &G->get();
+            const VariantContainer *v = &G.second;
 
             if (v->hide_from_editor)
                 continue;
 
-            if (p_custom.has(G->key()))
+            if (p_custom.contains(G.first))
                 continue;
 
             _VCSort vc;
-            vc.name = G->key(); //*k;
+            vc.name = G.first; //*k;
             vc.order = v->order;
             vc.type = v->variant.get_type();
             vc.flags = PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_STORAGE;
@@ -818,25 +817,25 @@ Error ProjectSettings::save_custom(const String &p_path, const CustomMap &p_cust
         }
     }
 
-    for (const Map<String, Variant>::Element *E = p_custom.front(); E; E = E->next()) {
+    for (const eastl::pair<const String,Variant> &E : p_custom) {
 
         // Lookup global prop to store in the same order
-        Map<StringName, VariantContainer>::Element *global_prop = props.find(E->key());
+        Map<StringName, VariantContainer>::iterator global_prop = props.find(E.first);
 
         _VCSort vc;
-        vc.name = E->key();
-        vc.order = global_prop ? global_prop->get().order : 0xFFFFFFF;
-        vc.type = E->get().get_type();
+        vc.name = E.first;
+        vc.order = global_prop!=props.end() ? global_prop->second.order : 0xFFFFFFF;
+        vc.type = E.second.get_type();
         vc.flags = PROPERTY_USAGE_STORAGE;
         vclist.insert(vc);
     }
 
-    Map<String, List<String> > props;
+    Map<String, ListPOD<String> > props;
 
-    for (Set<_VCSort>::Element *E = vclist.front(); E; E = E->next()) {
+    for (const _VCSort &E : vclist) {
 
-        String category = E->get().name;
-        String name = E->get().name;
+        String category = E.name;
+        String name = E.name;
 
         int div = StringUtils::find(category,"/");
 
@@ -885,15 +884,15 @@ Variant _GLOBAL_DEF(const StringName &p_var, const Variant &p_default, bool p_re
 }
 Vector<String> ProjectSettings::get_optimizer_presets() const {
 
-    List<PropertyInfo> pi;
+    ListPOD<PropertyInfo> pi;
     ProjectSettings::get_singleton()->get_property_list(&pi);
     Vector<String> names;
 
-    for (List<PropertyInfo>::Element *E = pi.front(); E; E = E->next()) {
+    for(const PropertyInfo &E : pi ) {
 
-        if (!StringUtils::begins_with(E->get().name,"optimizer_presets/"))
+        if (!StringUtils::begins_with(E.name,"optimizer_presets/"))
             continue;
-        names.push_back(StringUtils::get_slice(E->get().name,'/', 1));
+        names.push_back(StringUtils::get_slice(E.name,'/', 1));
     }
 
     names.sort();
@@ -908,9 +907,9 @@ void ProjectSettings::_add_property_info_bind(const Dictionary &p_info) {
 
     PropertyInfo pinfo;
     pinfo.name = p_info["name"];
-    ERR_FAIL_COND(!props.has(pinfo.name))
-    pinfo.type = Variant::Type(p_info["type"].operator int());
-    ERR_FAIL_INDEX(pinfo.type, Variant::VARIANT_MAX)
+    ERR_FAIL_COND(!props.contains(pinfo.name))
+    pinfo.type = VariantType(p_info["type"].operator int());
+    ERR_FAIL_INDEX(int(pinfo.type), int(VariantType::VARIANT_MAX))
 
     if (p_info.has("hint"))
         pinfo.hint = PropertyHint(p_info["hint"].operator int());
@@ -922,7 +921,7 @@ void ProjectSettings::_add_property_info_bind(const Dictionary &p_info) {
 
 void ProjectSettings::set_custom_property_info(const StringName &p_prop, const PropertyInfo &p_info) {
 
-    ERR_FAIL_COND(!props.has(p_prop))
+    ERR_FAIL_COND(!props.contains(p_prop))
     custom_prop_info[p_prop] = p_info;
     custom_prop_info[p_prop].name = p_prop;
 }
@@ -943,7 +942,7 @@ bool ProjectSettings::is_using_datapack() const {
 
 bool ProjectSettings::property_can_revert(const String &p_name) {
 
-    if (!props.has(p_name))
+    if (!props.contains(p_name))
         return false;
 
     return props[p_name].initial != props[p_name].variant;
@@ -951,7 +950,7 @@ bool ProjectSettings::property_can_revert(const String &p_name) {
 
 Variant ProjectSettings::property_get_revert(const String &p_name) {
 
-    if (!props.has(p_name))
+    if (!props.contains(p_name))
         return Variant();
 
     return props[p_name].initial;
@@ -966,27 +965,27 @@ Variant ProjectSettings::get_setting(const String &p_setting) const {
 }
 
 bool ProjectSettings::has_custom_feature(const String &p_feature) const {
-    return custom_features.has(p_feature);
+    return custom_features.contains(p_feature);
 }
 
 void ProjectSettings::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("has_setting", "name"), &ProjectSettings::has_setting);
-    MethodBinder::bind_method(D_METHOD("set_setting", "name", "value"), &ProjectSettings::set_setting);
-    MethodBinder::bind_method(D_METHOD("get_setting", "name"), &ProjectSettings::get_setting);
-    MethodBinder::bind_method(D_METHOD("set_order", "name", "position"), &ProjectSettings::set_order);
-    MethodBinder::bind_method(D_METHOD("get_order", "name"), &ProjectSettings::get_order);
-    MethodBinder::bind_method(D_METHOD("set_initial_value", "name", "value"), &ProjectSettings::set_initial_value);
-    MethodBinder::bind_method(D_METHOD("add_property_info", "hint"), &ProjectSettings::_add_property_info_bind);
-    MethodBinder::bind_method(D_METHOD("clear", "name"), &ProjectSettings::clear);
-    MethodBinder::bind_method(D_METHOD("localize_path", "path"), &ProjectSettings::localize_path);
-    MethodBinder::bind_method(D_METHOD("globalize_path", "path"), &ProjectSettings::globalize_path);
+    MethodBinder::bind_method(D_METHOD("has_setting", {"name"}), &ProjectSettings::has_setting);
+    MethodBinder::bind_method(D_METHOD("set_setting", {"name", "value"}), &ProjectSettings::set_setting);
+    MethodBinder::bind_method(D_METHOD("get_setting", {"name"}), &ProjectSettings::get_setting);
+    MethodBinder::bind_method(D_METHOD("set_order", {"name", "position"}), &ProjectSettings::set_order);
+    MethodBinder::bind_method(D_METHOD("get_order", {"name"}), &ProjectSettings::get_order);
+    MethodBinder::bind_method(D_METHOD("set_initial_value", {"name", "value"}), &ProjectSettings::set_initial_value);
+    MethodBinder::bind_method(D_METHOD("add_property_info", {"hint"}), &ProjectSettings::_add_property_info_bind);
+    MethodBinder::bind_method(D_METHOD("clear", {"name"}), &ProjectSettings::clear);
+    MethodBinder::bind_method(D_METHOD("localize_path", {"path"}), &ProjectSettings::localize_path);
+    MethodBinder::bind_method(D_METHOD("globalize_path", {"path"}), &ProjectSettings::globalize_path);
     MethodBinder::bind_method(D_METHOD("save"), &ProjectSettings::save);
-    MethodBinder::bind_method(D_METHOD("load_resource_pack", "pack"), &ProjectSettings::_load_resource_pack);
-    MethodBinder::bind_method(D_METHOD("property_can_revert", "name"), &ProjectSettings::property_can_revert);
-    MethodBinder::bind_method(D_METHOD("property_get_revert", "name"), &ProjectSettings::property_get_revert);
+    MethodBinder::bind_method(D_METHOD("load_resource_pack", {"pack"}), &ProjectSettings::_load_resource_pack);
+    MethodBinder::bind_method(D_METHOD("property_can_revert", {"name"}), &ProjectSettings::property_can_revert);
+    MethodBinder::bind_method(D_METHOD("property_get_revert", {"name"}), &ProjectSettings::property_get_revert);
 
-    MethodBinder::bind_method(D_METHOD("save_custom", "file"), &ProjectSettings::_save_custom_bnd);
+    MethodBinder::bind_method(D_METHOD("save_custom", {"file"}), &ProjectSettings::_save_custom_bnd);
 }
 
 ProjectSettings::ProjectSettings() {
@@ -1004,16 +1003,16 @@ ProjectSettings::ProjectSettings() {
 
     GLOBAL_DEF("application/config/name", "");
     GLOBAL_DEF("application/config/description", "");
-    custom_prop_info[StaticCString("application/config/description")] = PropertyInfo(Variant::STRING, "application/config/description", PROPERTY_HINT_MULTILINE_TEXT);
+    custom_prop_info[StaticCString("application/config/description")] = PropertyInfo(VariantType::STRING, "application/config/description", PROPERTY_HINT_MULTILINE_TEXT);
     GLOBAL_DEF("application/run/main_scene", "");
-    custom_prop_info[StaticCString("application/run/main_scene")] = PropertyInfo(Variant::STRING, "application/run/main_scene", PROPERTY_HINT_FILE, "*.tscn,*.scn,*.res");
+    custom_prop_info[StaticCString("application/run/main_scene")] = PropertyInfo(VariantType::STRING, "application/run/main_scene", PROPERTY_HINT_FILE, "*.tscn,*.scn,*.res");
     GLOBAL_DEF("application/run/disable_stdout", false);
     GLOBAL_DEF("application/run/disable_stderr", false);
     GLOBAL_DEF("application/config/use_custom_user_dir", false);
     GLOBAL_DEF("application/config/custom_user_dir_name", "");
     GLOBAL_DEF("application/config/project_settings_override", "");
     GLOBAL_DEF("audio/default_bus_layout", "res://default_bus_layout.tres");
-    custom_prop_info[StaticCString("audio/default_bus_layout")] = PropertyInfo(Variant::STRING, "audio/default_bus_layout", PROPERTY_HINT_FILE, "*.tres");
+    custom_prop_info[StaticCString("audio/default_bus_layout")] = PropertyInfo(VariantType::STRING, "audio/default_bus_layout", PROPERTY_HINT_FILE, "*.tres");
 
     PoolStringArray extensions = PoolStringArray();
     extensions.push_back(String("gd"));
@@ -1022,24 +1021,24 @@ ProjectSettings::ProjectSettings() {
     extensions.push_back(String("shader"));
 
     GLOBAL_DEF("editor/search_in_file_extensions", extensions);
-    custom_prop_info[StaticCString("editor/search_in_file_extensions")] = PropertyInfo(Variant::POOL_STRING_ARRAY, "editor/search_in_file_extensions");
+    custom_prop_info[StaticCString("editor/search_in_file_extensions")] = PropertyInfo(VariantType::POOL_STRING_ARRAY, "editor/search_in_file_extensions");
 
     GLOBAL_DEF("editor/script_templates_search_path", "res://script_templates");
-    custom_prop_info[StaticCString("editor/script_templates_search_path")] = PropertyInfo(Variant::STRING, "editor/script_templates_search_path", PROPERTY_HINT_DIR);
+    custom_prop_info[StaticCString("editor/script_templates_search_path")] = PropertyInfo(VariantType::STRING, "editor/script_templates_search_path", PROPERTY_HINT_DIR);
 
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
     events = Array();
-    key.instance();
+    key = make_ref_counted<InputEventKey>();
     key->set_scancode(KEY_ENTER);
     events.push_back(key);
-    key.instance();
+    key = make_ref_counted<InputEventKey>();
     key->set_scancode(KEY_KP_ENTER);
     events.push_back(key);
-    key.instance();
+    key = make_ref_counted<InputEventKey>();
     key->set_scancode(KEY_SPACE);
     events.push_back(key);
-    joyb.instance();
+    joyb = make_ref_counted<InputEventJoypadButton>();
     joyb->set_button_index(JOY_BUTTON_0);
     events.push_back(joyb);
     action["events"] = events;
@@ -1049,10 +1048,10 @@ ProjectSettings::ProjectSettings() {
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
     events = Array();
-    key.instance();
+    key = make_ref_counted<InputEventKey>();
     key->set_scancode(KEY_SPACE);
     events.push_back(key);
-    joyb.instance();
+    joyb = make_ref_counted<InputEventJoypadButton>();
     joyb->set_button_index(JOY_BUTTON_3);
     events.push_back(joyb);
     action["events"] = events;
@@ -1062,10 +1061,10 @@ ProjectSettings::ProjectSettings() {
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
     events = Array();
-    key.instance();
+    key = make_ref_counted<InputEventKey>();
     key->set_scancode(KEY_ESCAPE);
     events.push_back(key);
-    joyb.instance();
+    joyb = make_ref_counted<InputEventJoypadButton>();
     joyb->set_button_index(JOY_BUTTON_1);
     events.push_back(joyb);
     action["events"] = events;
@@ -1075,7 +1074,7 @@ ProjectSettings::ProjectSettings() {
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
     events = Array();
-    key.instance();
+    key = make_ref_counted<InputEventKey>();
     key->set_scancode(KEY_TAB);
     events.push_back(key);
     action["events"] = events;
@@ -1085,7 +1084,7 @@ ProjectSettings::ProjectSettings() {
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
     events = Array();
-    key.instance();
+    key = make_ref_counted<InputEventKey>();
     key->set_scancode(KEY_TAB);
     key->set_shift(true);
     events.push_back(key);
@@ -1096,10 +1095,10 @@ ProjectSettings::ProjectSettings() {
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
     events = Array();
-    key.instance();
+    key = make_ref_counted<InputEventKey>();
     key->set_scancode(KEY_LEFT);
     events.push_back(key);
-    joyb.instance();
+        joyb = make_ref_counted<InputEventJoypadButton>();
     joyb->set_button_index(JOY_DPAD_LEFT);
     events.push_back(joyb);
     action["events"] = events;
@@ -1109,10 +1108,10 @@ ProjectSettings::ProjectSettings() {
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
     events = Array();
-    key.instance();
+    key = make_ref_counted<InputEventKey>();
     key->set_scancode(KEY_RIGHT);
     events.push_back(key);
-    joyb.instance();
+    joyb = make_ref_counted<InputEventJoypadButton>();
     joyb->set_button_index(JOY_DPAD_RIGHT);
     events.push_back(joyb);
     action["events"] = events;
@@ -1122,10 +1121,10 @@ ProjectSettings::ProjectSettings() {
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
     events = Array();
-    key.instance();
+    key = make_ref_counted<InputEventKey>();
     key->set_scancode(KEY_UP);
     events.push_back(key);
-    joyb.instance();
+    joyb = make_ref_counted<InputEventJoypadButton>();
     joyb->set_button_index(JOY_DPAD_UP);
     events.push_back(joyb);
     action["events"] = events;
@@ -1135,10 +1134,10 @@ ProjectSettings::ProjectSettings() {
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
     events = Array();
-    key.instance();
+    key = make_ref_counted<InputEventKey>();
     key->set_scancode(KEY_DOWN);
     events.push_back(key);
-    joyb.instance();
+    joyb = make_ref_counted<InputEventJoypadButton>();
     joyb->set_button_index(JOY_DPAD_DOWN);
     events.push_back(joyb);
     action["events"] = events;
@@ -1148,7 +1147,7 @@ ProjectSettings::ProjectSettings() {
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
     events = Array();
-    key.instance();
+    key = make_ref_counted<InputEventKey>();
     key->set_scancode(KEY_PAGEUP);
     events.push_back(key);
     action["events"] = events;
@@ -1158,7 +1157,7 @@ ProjectSettings::ProjectSettings() {
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
     events = Array();
-    key.instance();
+    key = make_ref_counted<InputEventKey>();
     key->set_scancode(KEY_PAGEDOWN);
     events.push_back(key);
     action["events"] = events;
@@ -1168,7 +1167,7 @@ ProjectSettings::ProjectSettings() {
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
     events = Array();
-    key.instance();
+    key = make_ref_counted<InputEventKey>();
     key->set_scancode(KEY_HOME);
     events.push_back(key);
     action["events"] = events;
@@ -1178,34 +1177,34 @@ ProjectSettings::ProjectSettings() {
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
     events = Array();
-    key.instance();
+    key = make_ref_counted<InputEventKey>();
     key->set_scancode(KEY_END);
     events.push_back(key);
     action["events"] = events;
     GLOBAL_DEF("input/ui_end", action);
     input_presets.push_back(String("input/ui_end"));
 
-    custom_prop_info[StaticCString("display/window/handheld/orientation")] = PropertyInfo(Variant::STRING, "display/window/handheld/orientation", PROPERTY_HINT_ENUM, "landscape,portrait,reverse_landscape,reverse_portrait,sensor_landscape,sensor_portrait,sensor");
-    custom_prop_info[StaticCString("rendering/threads/thread_model")] = PropertyInfo(Variant::INT, "rendering/threads/thread_model", PROPERTY_HINT_ENUM, "Single-Unsafe,Single-Safe,Multi-Threaded");
-    custom_prop_info[StaticCString("physics/2d/thread_model")] = PropertyInfo(Variant::INT, "physics/2d/thread_model", PROPERTY_HINT_ENUM, "Single-Unsafe,Single-Safe,Multi-Threaded");
-    custom_prop_info[StaticCString("rendering/quality/intended_usage/framebuffer_allocation")] = PropertyInfo(Variant::INT, "rendering/quality/intended_usage/framebuffer_allocation", PROPERTY_HINT_ENUM, "2D,2D Without Sampling,3D,3D Without Effects");
+    custom_prop_info[StaticCString("display/window/handheld/orientation")] = PropertyInfo(VariantType::STRING, "display/window/handheld/orientation", PROPERTY_HINT_ENUM, "landscape,portrait,reverse_landscape,reverse_portrait,sensor_landscape,sensor_portrait,sensor");
+    custom_prop_info[StaticCString("rendering/threads/thread_model")] = PropertyInfo(VariantType::INT, "rendering/threads/thread_model", PROPERTY_HINT_ENUM, "Single-Unsafe,Single-Safe,Multi-Threaded");
+    custom_prop_info[StaticCString("physics/2d/thread_model")] = PropertyInfo(VariantType::INT, "physics/2d/thread_model", PROPERTY_HINT_ENUM, "Single-Unsafe,Single-Safe,Multi-Threaded");
+    custom_prop_info[StaticCString("rendering/quality/intended_usage/framebuffer_allocation")] = PropertyInfo(VariantType::INT, "rendering/quality/intended_usage/framebuffer_allocation", PROPERTY_HINT_ENUM, "2D,2D Without Sampling,3D,3D Without Effects");
 
     GLOBAL_DEF("debug/settings/profiler/max_functions", 16384);
-    custom_prop_info[StaticCString("debug/settings/profiler/max_functions")] = PropertyInfo(Variant::INT, "debug/settings/profiler/max_functions", PROPERTY_HINT_RANGE, "128,65535,1");
+    custom_prop_info[StaticCString("debug/settings/profiler/max_functions")] = PropertyInfo(VariantType::INT, "debug/settings/profiler/max_functions", PROPERTY_HINT_RANGE, "128,65535,1");
 
     //assigning here, because using GLOBAL_GET on every block for compressing can be slow
-    Compression::zstd_long_distance_matching = GLOBAL_DEF("compression/formats/zstd/long_distance_matching", false);
-    custom_prop_info[StaticCString("compression/formats/zstd/long_distance_matching")] = PropertyInfo(Variant::BOOL, "compression/formats/zstd/long_distance_matching");
+    Compression::zstd_long_distance_matching = GLOBAL_DEF("compression/formats/zstd/long_distance_matching", false).as<bool>();
+    custom_prop_info[StaticCString("compression/formats/zstd/long_distance_matching")] = PropertyInfo(VariantType::BOOL, "compression/formats/zstd/long_distance_matching");
     Compression::zstd_level = GLOBAL_DEF("compression/formats/zstd/compression_level", 3);
-    custom_prop_info[StaticCString("compression/formats/zstd/compression_level")] = PropertyInfo(Variant::INT, "compression/formats/zstd/compression_level", PROPERTY_HINT_RANGE, "1,22,1");
+    custom_prop_info[StaticCString("compression/formats/zstd/compression_level")] = PropertyInfo(VariantType::INT, "compression/formats/zstd/compression_level", PROPERTY_HINT_RANGE, "1,22,1");
     Compression::zstd_window_log_size = GLOBAL_DEF("compression/formats/zstd/window_log_size", 27);
-    custom_prop_info[StaticCString("compression/formats/zstd/window_log_size")] = PropertyInfo(Variant::INT, "compression/formats/zstd/window_log_size", PROPERTY_HINT_RANGE, "10,30,1");
+    custom_prop_info[StaticCString("compression/formats/zstd/window_log_size")] = PropertyInfo(VariantType::INT, "compression/formats/zstd/window_log_size", PROPERTY_HINT_RANGE, "10,30,1");
 
     Compression::zlib_level = GLOBAL_DEF("compression/formats/zlib/compression_level", Z_DEFAULT_COMPRESSION);
-    custom_prop_info[StaticCString("compression/formats/zlib/compression_level")] = PropertyInfo(Variant::INT, "compression/formats/zlib/compression_level", PROPERTY_HINT_RANGE, "-1,9,1");
+    custom_prop_info[StaticCString("compression/formats/zlib/compression_level")] = PropertyInfo(VariantType::INT, "compression/formats/zlib/compression_level", PROPERTY_HINT_RANGE, "-1,9,1");
 
     Compression::gzip_level = GLOBAL_DEF("compression/formats/gzip/compression_level", Z_DEFAULT_COMPRESSION);
-    custom_prop_info[StaticCString("compression/formats/gzip/compression_level")] = PropertyInfo(Variant::INT, "compression/formats/gzip/compression_level", PROPERTY_HINT_RANGE, "-1,9,1");
+    custom_prop_info[StaticCString("compression/formats/gzip/compression_level")] = PropertyInfo(VariantType::INT, "compression/formats/gzip/compression_level", PROPERTY_HINT_RANGE, "-1,9,1");
 
     // Would ideally be defined in an Android-specific file, but then it doesn't appear in the docs
     GLOBAL_DEF("android/modules", "");

@@ -37,7 +37,7 @@ String Range::get_configuration_warning() const {
     String warning = Control::get_configuration_warning();
 
     if (shared->exp_ratio && shared->min <= 0) {
-        if (warning != String()) {
+        if (!warning.empty()) {
             warning += "\n\n";
         }
         warning += TTR(R"(If "Exp Edit" is enabled, "Min Value" must be greater than 0.)");
@@ -56,8 +56,7 @@ void Range::_value_changed_notify() {
 
 void Range::Shared::emit_value_changed() {
 
-    for (Set<Range *>::Element *E = owners.front(); E; E = E->next()) {
-        Range *r = E->get();
+    for (Range * r : owners) {
         if (!r->is_inside_tree())
             continue;
         r->_value_changed_notify();
@@ -73,8 +72,7 @@ void Range::_changed_notify(const char *p_what) {
 
 void Range::Shared::emit_changed(const char *p_what) {
 
-    for (Set<Range *>::Element *E = owners.front(); E; E = E->next()) {
-        Range *r = E->get();
+    for (Range * r : owners) {
         if (!r->is_inside_tree())
             continue;
         r->_changed_notify(p_what);
@@ -158,7 +156,7 @@ void Range::set_as_ratio(double p_value) {
 
     if (shared->exp_ratio && get_min() >= 0) {
 
-		double exp_min = get_min() == 0.0 ? 0.0 : Math::log(get_min()) / Math::log((double)2);
+        double exp_min = get_min() == 0.0 ? 0.0 : Math::log(get_min()) / Math::log((double)2);
         double exp_max = Math::log(get_max()) / Math::log((double)2);
         v = Math::pow(2, exp_min + (exp_max - exp_min) * p_value);
     } else {
@@ -195,7 +193,7 @@ double Range::get_as_ratio() const {
 void Range::_share(Node *p_range) {
 
     Range *r = Object::cast_to<Range>(p_range);
-    ERR_FAIL_COND(!r);
+    ERR_FAIL_COND(!r)
     share(r);
 }
 
@@ -236,7 +234,7 @@ void Range::_unref_shared() {
 
     if (shared) {
         shared->owners.erase(this);
-        if (shared->owners.size() == 0) {
+        if (shared->owners.empty()) {
             memdelete(shared);
             shared = nullptr;
         }
@@ -251,37 +249,37 @@ void Range::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_step"), &Range::get_step);
     MethodBinder::bind_method(D_METHOD("get_page"), &Range::get_page);
     MethodBinder::bind_method(D_METHOD("get_as_ratio"), &Range::get_as_ratio);
-    MethodBinder::bind_method(D_METHOD("set_value", "value"), &Range::set_value);
-    MethodBinder::bind_method(D_METHOD("set_min", "minimum"), &Range::set_min);
-    MethodBinder::bind_method(D_METHOD("set_max", "maximum"), &Range::set_max);
-    MethodBinder::bind_method(D_METHOD("set_step", "step"), &Range::set_step);
-    MethodBinder::bind_method(D_METHOD("set_page", "pagesize"), &Range::set_page);
-    MethodBinder::bind_method(D_METHOD("set_as_ratio", "value"), &Range::set_as_ratio);
-    MethodBinder::bind_method(D_METHOD("set_use_rounded_values", "enabled"), &Range::set_use_rounded_values);
+    MethodBinder::bind_method(D_METHOD("set_value", {"value"}), &Range::set_value);
+    MethodBinder::bind_method(D_METHOD("set_min", {"minimum"}), &Range::set_min);
+    MethodBinder::bind_method(D_METHOD("set_max", {"maximum"}), &Range::set_max);
+    MethodBinder::bind_method(D_METHOD("set_step", {"step"}), &Range::set_step);
+    MethodBinder::bind_method(D_METHOD("set_page", {"pagesize"}), &Range::set_page);
+    MethodBinder::bind_method(D_METHOD("set_as_ratio", {"value"}), &Range::set_as_ratio);
+    MethodBinder::bind_method(D_METHOD("set_use_rounded_values", {"enabled"}), &Range::set_use_rounded_values);
     MethodBinder::bind_method(D_METHOD("is_using_rounded_values"), &Range::is_using_rounded_values);
-    MethodBinder::bind_method(D_METHOD("set_exp_ratio", "enabled"), &Range::set_exp_ratio);
+    MethodBinder::bind_method(D_METHOD("set_exp_ratio", {"enabled"}), &Range::set_exp_ratio);
     MethodBinder::bind_method(D_METHOD("is_ratio_exp"), &Range::is_ratio_exp);
-    MethodBinder::bind_method(D_METHOD("set_allow_greater", "allow"), &Range::set_allow_greater);
+    MethodBinder::bind_method(D_METHOD("set_allow_greater", {"allow"}), &Range::set_allow_greater);
     MethodBinder::bind_method(D_METHOD("is_greater_allowed"), &Range::is_greater_allowed);
-    MethodBinder::bind_method(D_METHOD("set_allow_lesser", "allow"), &Range::set_allow_lesser);
+    MethodBinder::bind_method(D_METHOD("set_allow_lesser", {"allow"}), &Range::set_allow_lesser);
     MethodBinder::bind_method(D_METHOD("is_lesser_allowed"), &Range::is_lesser_allowed);
 
-    MethodBinder::bind_method(D_METHOD("share", "with"), &Range::_share);
+    MethodBinder::bind_method(D_METHOD("share", {"with"}), &Range::_share);
     MethodBinder::bind_method(D_METHOD("unshare"), &Range::unshare);
 
-    ADD_SIGNAL(MethodInfo("value_changed", PropertyInfo(Variant::REAL, "value")));
+    ADD_SIGNAL(MethodInfo("value_changed", PropertyInfo(VariantType::REAL, "value")));
     ADD_SIGNAL(MethodInfo("changed"));
 
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "min_value"), "set_min", "get_min");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "max_value"), "set_max", "get_max");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "step"), "set_step", "get_step");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "page"), "set_page", "get_page");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "value"), "set_value", "get_value");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "ratio", PROPERTY_HINT_RANGE, "0,1,0.01", 0), "set_as_ratio", "get_as_ratio");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "exp_edit"), "set_exp_ratio", "is_ratio_exp");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "rounded"), "set_use_rounded_values", "is_using_rounded_values");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "allow_greater"), "set_allow_greater", "is_greater_allowed");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "allow_lesser"), "set_allow_lesser", "is_lesser_allowed");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "min_value"), "set_min", "get_min");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "max_value"), "set_max", "get_max");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "step"), "set_step", "get_step");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "page"), "set_page", "get_page");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "value"), "set_value", "get_value");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "ratio", PROPERTY_HINT_RANGE, "0,1,0.01", 0), "set_as_ratio", "get_as_ratio");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "exp_edit"), "set_exp_ratio", "is_ratio_exp");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "rounded"), "set_use_rounded_values", "is_using_rounded_values");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "allow_greater"), "set_allow_greater", "is_greater_allowed");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "allow_lesser"), "set_allow_lesser", "is_lesser_allowed");
 }
 
 void Range::set_use_rounded_values(bool p_enable) {

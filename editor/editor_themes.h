@@ -28,13 +28,10 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef EDITOR_THEMES_H
-#define EDITOR_THEMES_H
+#pragma once
 
 #include "scene/resources/theme.h"
 
-Ref<Theme> create_editor_theme(Ref<Theme> p_theme = nullptr);
+Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme = Ref<Theme>());
 
-Ref<Theme> create_custom_theme(Ref<Theme> p_theme = nullptr);
-
-#endif
+Ref<Theme> create_custom_theme(const Ref<Theme>& p_theme = Ref<Theme>());

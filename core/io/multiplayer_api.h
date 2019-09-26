@@ -28,27 +28,27 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef MULTIPLAYER_PROTOCOL_H
-#define MULTIPLAYER_PROTOCOL_H
+#pragma once
 
 #include "core/io/networked_multiplayer_peer.h"
 #include "core/reference.h"
 #include "core/map.h"
+#include "core/hash_map.h"
 #include "core/method_enum_caster.h"
 
 class MultiplayerAPI : public Reference {
 
-    GDCLASS(MultiplayerAPI, Reference);
+    GDCLASS(MultiplayerAPI, Reference)
 
 public:
-	struct ProfilingInfo {
-		ObjectID node;
-		String node_path;
-		int incoming_rpc;
-		int incoming_rset;
-		int outgoing_rpc;
-		int outgoing_rset;
-	};
+    struct ProfilingInfo {
+        ObjectID node;
+        String node_path;
+        int incoming_rpc;
+        int incoming_rset;
+        int outgoing_rpc;
+        int outgoing_rset;
+    };
 private:
     //path sent caches
     struct PathSentCache {
@@ -66,20 +66,20 @@ private:
         Map<int, NodeInfo> nodes;
     };
 #ifdef DEBUG_ENABLED
-	struct BandwidthFrame {
-		uint32_t timestamp;
-		int packet_size;
-	};
+    struct BandwidthFrame {
+        uint32_t timestamp;
+        int packet_size;
+    };
 
-	int bandwidth_incoming_pointer;
-	Vector<BandwidthFrame> bandwidth_incoming_data;
-	int bandwidth_outgoing_pointer;
-	Vector<BandwidthFrame> bandwidth_outgoing_data;
-	Map<ObjectID, ProfilingInfo> profiler_frame_data;
-	bool profiling;
+    int bandwidth_incoming_pointer;
+    Vector<BandwidthFrame> bandwidth_incoming_data;
+    int bandwidth_outgoing_pointer;
+    Vector<BandwidthFrame> bandwidth_outgoing_data;
+    Map<ObjectID, ProfilingInfo> profiler_frame_data;
+    bool profiling;
 
-	void _init_node_profile(ObjectID p_node);
-	int _get_bandwidth_usage(const Vector<BandwidthFrame> &p_buffer, int p_pointer);
+    void _init_node_profile(ObjectID p_node);
+    int _get_bandwidth_usage(const Vector<BandwidthFrame> &p_buffer, int p_pointer);
 #endif
 
     Ref<NetworkedMultiplayerPeer> network_peer;
@@ -104,7 +104,7 @@ protected:
     void _process_raw(int p_from, const uint8_t *p_packet, int p_packet_len);
 
     void _send_rpc(Node *p_from, int p_to, bool p_unreliable, bool p_set, const StringName &p_name, const Variant **p_arg, int p_argcount);
-    bool _send_confirm_path(NodePath p_path, PathSentCache *psc, int p_target);
+    bool _send_confirm_path(const NodePath& p_path, PathSentCache *psc, int p_target);
 
 public:
     enum NetworkCommands {
@@ -133,7 +133,7 @@ public:
     void set_root_node(Node *p_node);
     void set_network_peer(const Ref<NetworkedMultiplayerPeer> &p_peer);
     Ref<NetworkedMultiplayerPeer> get_network_peer() const;
-    Error send_bytes(PoolVector<uint8_t> p_data, int p_to = NetworkedMultiplayerPeer::TARGET_PEER_BROADCAST, NetworkedMultiplayerPeer::TransferMode p_mode = NetworkedMultiplayerPeer::TRANSFER_MODE_RELIABLE);
+    Error send_bytes(const PoolVector<uint8_t>& p_data, int p_to = NetworkedMultiplayerPeer::TARGET_PEER_BROADCAST, NetworkedMultiplayerPeer::TransferMode p_mode = NetworkedMultiplayerPeer::TRANSFER_MODE_RELIABLE);
 
     // Called by Node.rpc
     void rpcp(Node *p_node, int p_peer_id, bool p_unreliable, const StringName &p_method, const Variant **p_arg, int p_argcount);
@@ -146,7 +146,7 @@ public:
     void _connection_failed();
     void _server_disconnected();
 
-    bool has_network_peer() const { return network_peer.is_valid(); }
+    bool has_network_peer() const { return network_peer; }
     Vector<int> get_network_connected_peers() const;
     int get_rpc_sender_id() const { return rpc_sender_id; }
     int get_network_unique_id() const;
@@ -157,17 +157,15 @@ public:
     void set_allow_object_decoding(bool p_enable);
     bool is_object_decoding_allowed() const;
 
-	void profiling_start();
-	void profiling_end();
+    void profiling_start();
+    void profiling_end();
 
-	int get_profiling_frame(ProfilingInfo *r_info);
-	int get_incoming_bandwidth_usage();
-	int get_outgoing_bandwidth_usage();
+    int get_profiling_frame(ProfilingInfo *r_info);
+    int get_incoming_bandwidth_usage();
+    int get_outgoing_bandwidth_usage();
 
     MultiplayerAPI();
     ~MultiplayerAPI() override;
 };
 
-VARIANT_ENUM_CAST(MultiplayerAPI::RPCMode);
 
-#endif // MULTIPLAYER_PROTOCOL_H

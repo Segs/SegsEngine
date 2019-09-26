@@ -44,18 +44,18 @@ void CollisionPolygon::_build_polygon() {
 
     parent->shape_owner_clear_shapes(owner_id);
 
-    if (polygon.size() == 0)
+    if (polygon.empty())
         return;
 
     Vector<Vector<Vector2> > decomp = Geometry::decompose_polygon(polygon);
-    if (decomp.size() == 0)
+    if (decomp.empty())
         return;
 
     //here comes the sun, lalalala
     //decompose concave into multiple convex polygons and add them
 
     for (int i = 0; i < decomp.size(); i++) {
-        Ref<ConvexPolygonShape> convex = memnew(ConvexPolygonShape);
+        Ref<ConvexPolygonShape> convex(make_ref_counted<ConvexPolygonShape>());
         PoolVector<Vector3> cp;
         int cs = decomp[i].size();
         cp.resize(cs * 2);
@@ -65,8 +65,8 @@ void CollisionPolygon::_build_polygon() {
             for (int j = 0; j < cs; j++) {
 
                 Vector2 d = decomp[i][j];
-                w[idx++] = Vector3(d.x, d.y, depth * 0.5);
-                w[idx++] = Vector3(d.x, d.y, -depth * 0.5);
+                w[idx++] = Vector3(d.x, d.y, depth * 0.5f);
+                w[idx++] = Vector3(d.x, d.y, -depth * 0.5f);
             }
         }
 
@@ -183,20 +183,20 @@ bool CollisionPolygon::_is_editable_3d_polygon() const {
 }
 void CollisionPolygon::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_depth", "depth"), &CollisionPolygon::set_depth);
+    MethodBinder::bind_method(D_METHOD("set_depth", {"depth"}), &CollisionPolygon::set_depth);
     MethodBinder::bind_method(D_METHOD("get_depth"), &CollisionPolygon::get_depth);
 
-    MethodBinder::bind_method(D_METHOD("set_polygon", "polygon"), &CollisionPolygon::set_polygon);
+    MethodBinder::bind_method(D_METHOD("set_polygon", {"polygon"}), &CollisionPolygon::set_polygon);
     MethodBinder::bind_method(D_METHOD("get_polygon"), &CollisionPolygon::get_polygon);
 
-    MethodBinder::bind_method(D_METHOD("set_disabled", "disabled"), &CollisionPolygon::set_disabled);
+    MethodBinder::bind_method(D_METHOD("set_disabled", {"disabled"}), &CollisionPolygon::set_disabled);
     MethodBinder::bind_method(D_METHOD("is_disabled"), &CollisionPolygon::is_disabled);
 
     MethodBinder::bind_method(D_METHOD("_is_editable_3d_polygon"), &CollisionPolygon::_is_editable_3d_polygon);
 
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "depth"), "set_depth", "get_depth");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "disabled"), "set_disabled", "is_disabled");
-    ADD_PROPERTY(PropertyInfo(Variant::POOL_VECTOR2_ARRAY, "polygon"), "set_polygon", "get_polygon");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "depth"), "set_depth", "get_depth");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "disabled"), "set_disabled", "is_disabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR2_ARRAY, "polygon"), "set_polygon", "get_polygon");
 }
 
 CollisionPolygon::CollisionPolygon() {

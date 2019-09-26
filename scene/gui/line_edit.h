@@ -75,17 +75,19 @@ private:
 	String ime_text;
 	Point2 ime_selection;
 
+	bool selecting_enabled;
 	bool context_menu_enabled;
 	PopupMenu *menu;
 
 	int cursor_pos;
 	int window_pos;
-	int max_length; // 0 for no maximum
+	int max_length; // 0 for no maximum.
 
 	int cached_width;
 	int cached_placeholder_width;
 
 	bool clear_button_enabled;
+	bool shortcut_keys_enabled;
 
 	Ref<Texture> right_icon;
 
@@ -118,6 +120,8 @@ private:
 	void _clear_redo();
 	void _create_undo_state();
 
+	void _generate_context_menu();
+
 	Timer *caret_blink_timer;
 
 	void _text_changed();
@@ -137,6 +141,7 @@ private:
 	void set_window_pos(int p_pos);
 
 	void set_cursor_at_pixel_pos(int p_x);
+	int get_cursor_pixel_pos();
 
 	void _reset_caret_blink_timer();
 	void _toggle_draw_caret();
@@ -146,7 +151,7 @@ private:
 
 	void _editor_settings_changed();
 
-	void _gui_input(Ref<InputEvent> p_event);
+	void _gui_input(const Ref<InputEvent>& p_event);
 	void _notification(int p_what);
 
 protected:
@@ -174,7 +179,7 @@ public:
 
 	void delete_char();
 	void delete_text(int p_from_column, int p_to_column);
-	void set_text(String p_text);
+	void set_text(const String& p_text);
 	String get_text() const;
 	void set_placeholder(String p_text);
 	String get_placeholder() const;
@@ -184,7 +189,7 @@ public:
 	int get_cursor_position() const;
 	void set_max_length(int p_max_length);
 	int get_max_length() const;
-	void append_at_cursor(String p_text);
+	void append_at_cursor(const String& p_text);
 	void clear();
 
 	bool cursor_get_blink_enabled() const;
@@ -216,7 +221,14 @@ public:
 	void set_clear_button_enabled(bool p_enabled);
 	bool is_clear_button_enabled() const;
 
+	void set_shortcut_keys_enabled(bool p_enabled);
+	bool is_shortcut_keys_enabled() const;
+
+	void set_selecting_enabled(bool p_enabled);
+	bool is_selecting_enabled() const;
+
 	void set_right_icon(const Ref<Texture> &p_icon);
+	Ref<Texture> get_right_icon();
 
 	bool is_text_field() const override;
 	LineEdit();

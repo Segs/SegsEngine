@@ -1,14 +1,18 @@
 #pragma once
-#include "core/variant.h"
+#include <utility>
+
 #include "core/ustring.h"
 #include "typesystem_decls.h"
+
+enum class VariantType : int8_t;
+class Dictionary;
 
 struct GODOT_EXPORT PropertyInfo {
 public:
     String name;
     String hint_string;
     StringName class_name; // for classes
-    Variant::Type type = Variant::NIL;
+    VariantType type = VariantType(0);
     PropertyHint hint = PROPERTY_HINT_NONE;
     uint32_t usage = PROPERTY_USAGE_DEFAULT;
 
@@ -22,6 +26,8 @@ public:
 
     static PropertyInfo from_dict(const Dictionary &p_dict);
 
+    PropertyInfo& operator=(PropertyInfo &&oth) = default;
+
     PropertyInfo& operator=(const PropertyInfo&oth) {
         if(this==&oth)
             return *this;
@@ -33,18 +39,11 @@ public:
         usage=oth.usage;
         return *this;
     }
-    PropertyInfo() {
-    }
-    PropertyInfo(const PropertyInfo &oth) :
-        name(oth.name),
-        hint_string(oth.hint_string),
-        class_name(oth.class_name),
-        type(oth.type),
-        hint(oth.hint),
-        usage(oth.usage)
-    {
-    }
-    PropertyInfo(Variant::Type p_type, const char *p_name, PropertyHint p_hint = PROPERTY_HINT_NONE,
+    PropertyInfo() = default;
+
+    PropertyInfo(const PropertyInfo &oth) = default;
+
+    PropertyInfo(VariantType p_type, const char *p_name, PropertyHint p_hint = PROPERTY_HINT_NONE,
             const char *p_hint_string = nullptr, uint32_t p_usage = PROPERTY_USAGE_DEFAULT,
             const StringName &p_class_name = StringName()) :
             name(p_name),
@@ -59,7 +58,7 @@ public:
             class_name = p_class_name;
         }
     }
-    PropertyInfo(Variant::Type p_type, String &&p_name, PropertyHint p_hint = PROPERTY_HINT_NONE,
+    PropertyInfo(VariantType p_type, String &&p_name, PropertyHint p_hint = PROPERTY_HINT_NONE,
             const StringName &p_hint_string = String::null_val, uint32_t p_usage = PROPERTY_USAGE_DEFAULT,
             const StringName &p_class_name = StringName()) :
             name(std::move(p_name)),
@@ -75,12 +74,12 @@ public:
         }
     }
 
-    PropertyInfo(const StringName &p_class_name) : class_name(p_class_name), type(Variant::OBJECT) {}
+    PropertyInfo(StringName p_class_name, VariantType t) : class_name(std::move(p_class_name)), type(t) {}
     PropertyInfo(const RawPropertyInfo &rp) :
         name(rp.name),
         hint_string(rp.hint_string),
         class_name(rp.class_name ? StaticCString(rp.class_name, true) : StringName()),
-        type(Variant::Type(rp.type)),
+        type(VariantType(rp.type)),
         hint(rp.hint),
         usage(rp.usage)
     {}

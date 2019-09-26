@@ -74,8 +74,7 @@ void AudioEffectLimiterInstance::process(const AudioFrame *p_src_frames, AudioFr
 }
 
 Ref<AudioEffectInstance> AudioEffectLimiter::instance() {
-    Ref<AudioEffectLimiterInstance> ins;
-    ins.instance();
+    Ref<AudioEffectLimiterInstance> ins(make_ref_counted<AudioEffectLimiterInstance>());
     ins->base = Ref<AudioEffectLimiter>(this);
 
     return ins;
@@ -120,27 +119,27 @@ float AudioEffectLimiter::get_soft_clip_ratio() const {
 
 void AudioEffectLimiter::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_ceiling_db", "ceiling"), &AudioEffectLimiter::set_ceiling_db);
+    MethodBinder::bind_method(D_METHOD("set_ceiling_db", {"ceiling"}), &AudioEffectLimiter::set_ceiling_db);
     MethodBinder::bind_method(D_METHOD("get_ceiling_db"), &AudioEffectLimiter::get_ceiling_db);
 
-    MethodBinder::bind_method(D_METHOD("set_threshold_db", "threshold"), &AudioEffectLimiter::set_threshold_db);
+    MethodBinder::bind_method(D_METHOD("set_threshold_db", {"threshold"}), &AudioEffectLimiter::set_threshold_db);
     MethodBinder::bind_method(D_METHOD("get_threshold_db"), &AudioEffectLimiter::get_threshold_db);
 
-    MethodBinder::bind_method(D_METHOD("set_soft_clip_db", "soft_clip"), &AudioEffectLimiter::set_soft_clip_db);
+    MethodBinder::bind_method(D_METHOD("set_soft_clip_db", {"soft_clip"}), &AudioEffectLimiter::set_soft_clip_db);
     MethodBinder::bind_method(D_METHOD("get_soft_clip_db"), &AudioEffectLimiter::get_soft_clip_db);
 
-    MethodBinder::bind_method(D_METHOD("set_soft_clip_ratio", "soft_clip"), &AudioEffectLimiter::set_soft_clip_ratio);
+    MethodBinder::bind_method(D_METHOD("set_soft_clip_ratio", {"soft_clip"}), &AudioEffectLimiter::set_soft_clip_ratio);
     MethodBinder::bind_method(D_METHOD("get_soft_clip_ratio"), &AudioEffectLimiter::get_soft_clip_ratio);
 
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "ceiling_db", PROPERTY_HINT_RANGE, "-20,-0.1,0.1"), "set_ceiling_db", "get_ceiling_db");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "threshold_db", PROPERTY_HINT_RANGE, "-30,0,0.1"), "set_threshold_db", "get_threshold_db");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "soft_clip_db", PROPERTY_HINT_RANGE, "0,6,0.1"), "set_soft_clip_db", "get_soft_clip_db");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "soft_clip_ratio", PROPERTY_HINT_RANGE, "3,20,0.1"), "set_soft_clip_ratio", "get_soft_clip_ratio");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "ceiling_db", PROPERTY_HINT_RANGE, "-20,-0.1,0.1"), "set_ceiling_db", "get_ceiling_db");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "threshold_db", PROPERTY_HINT_RANGE, "-30,0,0.1"), "set_threshold_db", "get_threshold_db");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "soft_clip_db", PROPERTY_HINT_RANGE, "0,6,0.1"), "set_soft_clip_db", "get_soft_clip_db");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "soft_clip_ratio", PROPERTY_HINT_RANGE, "3,20,0.1"), "set_soft_clip_ratio", "get_soft_clip_ratio");
 }
 
 AudioEffectLimiter::AudioEffectLimiter() {
     threshold = 0;
-    ceiling = -0.1;
+    ceiling = -0.1f;
     soft_clip = 2;
     soft_clip_ratio = 10;
 }

@@ -53,10 +53,10 @@ void ColorRect::_notification(int p_what) {
 
 void ColorRect::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_frame_color", "color"), &ColorRect::set_frame_color);
+    MethodBinder::bind_method(D_METHOD("set_frame_color", {"color"}), &ColorRect::set_frame_color);
     MethodBinder::bind_method(D_METHOD("get_frame_color"), &ColorRect::get_frame_color);
 
-    ADD_PROPERTY(PropertyInfo(Variant::COLOR, "color"), "set_frame_color", "get_frame_color");
+    ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "color"), "set_frame_color", "get_frame_color");
 }
 
 ColorRect::ColorRect() {

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdint.h>
+
 namespace GodotTypeInfo {
 enum Metadata {
     METADATA_NONE,

@@ -41,7 +41,7 @@ Vector<Vector3> ConcavePolygonShape::_gen_debug_mesh_lines() {
 
     PoolVector<Vector3> data = get_faces();
     int datalen = data.size();
-    ERR_FAIL_COND_V((datalen % 3) != 0, Vector<Vector3>());
+    ERR_FAIL_COND_V((datalen % 3) != 0, Vector<Vector3>())
 
     PoolVector<Vector3>::Read r = data.read();
 
@@ -57,10 +57,10 @@ Vector<Vector3> ConcavePolygonShape::_gen_debug_mesh_lines() {
     Vector<Vector3> points;
     points.resize(edges.size() * 2);
     int idx = 0;
-    for (Set<DrawEdge>::Element *E = edges.front(); E; E = E->next()) {
+    for (const DrawEdge &E : edges) {
 
-        points.write[idx + 0] = E->get().a;
-        points.write[idx + 1] = E->get().b;
+        points.write[idx + 0] = E.a;
+        points.write[idx + 1] = E.b;
         idx += 2;
     }
 
@@ -84,9 +84,9 @@ PoolVector<Vector3> ConcavePolygonShape::get_faces() const {
 
 void ConcavePolygonShape::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_faces", "faces"), &ConcavePolygonShape::set_faces);
+    MethodBinder::bind_method(D_METHOD("set_faces", {"faces"}), &ConcavePolygonShape::set_faces);
     MethodBinder::bind_method(D_METHOD("get_faces"), &ConcavePolygonShape::get_faces);
-    ADD_PROPERTY(PropertyInfo(Variant::POOL_VECTOR3_ARRAY, "data", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_faces", "get_faces");
+    ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR3_ARRAY, "data", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_faces", "get_faces");
 }
 
 ConcavePolygonShape::ConcavePolygonShape() :

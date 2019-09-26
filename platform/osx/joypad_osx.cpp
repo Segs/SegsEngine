@@ -268,7 +268,7 @@ void JoypadOSX::_device_added(IOReturn p_res, IOHIDDeviceRef p_device) {
 void JoypadOSX::_device_removed(int p_id) {
 
 	int device = get_joy_index(p_id);
-	ERR_FAIL_COND(device == -1);
+	ERR_FAIL_COND(device == -1)
 
 	input->joy_connection_changed(p_id, false, "");
 	device_list.write[device].free();
@@ -303,7 +303,7 @@ bool JoypadOSX::configure_joypad(IOHIDDeviceRef p_device_ref, joypad *p_joy) {
 	name = c_name;
 
 	int id = input->get_unused_joy_id();
-	ERR_FAIL_COND_V(id == -1, false);
+	ERR_FAIL_COND_V(id == -1, false)
 	p_joy->id = id;
 	int vendor = 0;
 	refCF = IOHIDDeviceGetProperty(p_device_ref, CFSTR(kIOHIDVendorIDKey));
@@ -350,7 +350,7 @@ bool JoypadOSX::configure_joypad(IOHIDDeviceRef p_device_ref, joypad *p_joy) {
 bool joypad::config_force_feedback(io_service_t p_service) {
 
 	HRESULT ret = FFCreateDevice(p_service, &ff_device);
-	ERR_FAIL_COND_V(ret != FF_OK, false);
+	ERR_FAIL_COND_V(ret != FF_OK, false)
 
 	ret = FFDeviceSendForceFeedbackCommand(ff_device, FFSFFC_RESET);
 	FF_ERR();
@@ -554,7 +554,7 @@ void JoypadOSX::config_hid_manager(CFArrayRef p_matching_array) const {
 
 	CFRunLoopRef runloop = CFRunLoopGetCurrent();
 	IOReturn ret = IOHIDManagerOpen(hid_manager, kIOHIDOptionsTypeNone);
-	ERR_FAIL_COND(ret != kIOReturnSuccess);
+	ERR_FAIL_COND(ret != kIOReturnSuccess)
 
 	IOHIDManagerSetDeviceMatchingMultiple(hid_manager, p_matching_array);
 	IOHIDManagerRegisterDeviceMatchingCallback(hid_manager, joypad_added_callback, NULL);

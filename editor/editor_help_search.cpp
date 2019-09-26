@@ -59,15 +59,15 @@ void EditorHelpSearch::_update_results() {
     if (hierarchy_button->is_pressed())
         search_flags |= SEARCH_SHOW_HIERARCHY;
 
-    search = Ref<Runner>(memnew(Runner(this, results_tree, term, search_flags)));
+    search = make_ref_counted<Runner>(this, results_tree, term, search_flags);
     set_process(true);
 }
 
 void EditorHelpSearch::_search_box_gui_input(const Ref<InputEvent> &p_event) {
 
     // Redirect up and down navigational key events to the results list.
-    Ref<InputEventKey> key = p_event;
-    if (key.is_valid()) {
+    Ref<InputEventKey> key = dynamic_ref_cast<InputEventKey>(p_event);
+    if (key) {
         switch (key->get_scancode()) {
             case KEY_UP:
             case KEY_DOWN:
@@ -125,7 +125,7 @@ void EditorHelpSearch::_notification(int p_what) {
         case NOTIFICATION_PROCESS: {
 
             // Update background search.
-            if (search.is_valid()) {
+            if (search) {
                 if (search->work()) {
                     // Search done.
 
@@ -171,7 +171,7 @@ void EditorHelpSearch::popup_dialog(const String &p_term) {
     else
         popup_centered_ratio(0.5F);
 
-    if (p_term == "") {
+    if (p_term.empty()) {
         search_box->clear();
     } else {
         old_search = true;
@@ -257,7 +257,7 @@ EditorHelpSearch::EditorHelpSearch() {
 bool EditorHelpSearch::Runner::_is_class_disabled_by_feature_profile(const StringName &p_class) {
 
     Ref<EditorFeatureProfile> profile = EditorFeatureProfileManager::get_singleton()->get_current_profile();
-    if (profile.is_null()) {
+    if (not profile) {
         return false;
     }
 
@@ -316,7 +316,7 @@ bool EditorHelpSearch::Runner::_slice() {
 
 bool EditorHelpSearch::Runner::_phase_match_classes_init() {
 
-    iterator_doc = EditorHelp::get_doc_data()->class_list.front();
+    iterator_doc = EditorHelp::get_doc_data()->class_list.begin();
     matches.clear();
     matched_item = nullptr;
 
@@ -325,7 +325,8 @@ bool EditorHelpSearch::Runner::_phase_match_classes_init() {
 
 bool EditorHelpSearch::Runner::_phase_match_classes() {
 
-    DocData::ClassDoc &class_doc = iterator_doc->value();
+    using namespace StringUtils;
+    DocData::ClassDoc &class_doc = iterator_doc->second;
     if (!_is_class_disabled_by_feature_profile(class_doc.name)) {
 
         matches[class_doc.name] = ClassMatch();
@@ -335,17 +336,22 @@ bool EditorHelpSearch::Runner::_phase_match_classes() {
 
         // Match class name.
         if (search_flags & SEARCH_CLASSES)
-            match.name = term == "" || _match_string(term, class_doc.name);
+            match.name = term.empty() || _match_string(term, class_doc.name);
 
         // Match members if the term is long enough.
         if (term.length() > 1) {
             if (search_flags & SEARCH_METHODS)
                 for (int i = 0; i < class_doc.methods.size(); i++) {
                     String method_name = (search_flags & SEARCH_CASE_SENSITIVE) ? class_doc.methods[i].name : StringUtils::to_lower(class_doc.methods[i].name);
-                    if (StringUtils::find(method_name,term) > -1 ||
-                            (StringUtils::begins_with(term,".") && StringUtils::begins_with(method_name,StringUtils::right(term,1))) ||
-                            (StringUtils::ends_with(term,"(") && StringUtils::ends_with(method_name,StringUtils::strip_edges(StringUtils::left(term,term.length() - 1)))) ||
-                            (StringUtils::begins_with(term,".") && StringUtils::ends_with(term,"(") && method_name == StringUtils::strip_edges(StringUtils::substr(term,1, term.length() - 2))))
+                    String aux_term = (search_flags & SEARCH_CASE_SENSITIVE) ? term : StringUtils::to_lower(term);
+
+                    if (StringUtils::begins_with(aux_term,'.'))
+                        aux_term = right(aux_term,1);
+
+                    if (ends_with(aux_term,"("))
+                        aux_term = strip_edges(left(aux_term,aux_term.length() - 1));
+
+                    if (is_subsequence_of(aux_term,method_name))
                         match.methods.push_back(const_cast<DocData::MethodDoc *>(&class_doc.methods[i]));
                 }
             if (search_flags & SEARCH_SIGNALS)
@@ -367,13 +373,13 @@ bool EditorHelpSearch::Runner::_phase_match_classes() {
         }
     }
 
-    iterator_doc = iterator_doc->next();
-    return !iterator_doc;
+    ++iterator_doc;
+    return iterator_doc==EditorHelp::get_doc_data()->class_list.end();
 }
 
 bool EditorHelpSearch::Runner::_phase_class_items_init() {
 
-    iterator_match = matches.front();
+    iterator_match = matches.begin();
 
     results_tree->clear();
     root_item = results_tree->create_item();
@@ -384,7 +390,7 @@ bool EditorHelpSearch::Runner::_phase_class_items_init() {
 
 bool EditorHelpSearch::Runner::_phase_class_items() {
 
-    ClassMatch &match = iterator_match->value();
+    ClassMatch &match = iterator_match->second;
 
     if (search_flags & SEARCH_SHOW_HIERARCHY) {
         if (match.required())
@@ -394,20 +400,20 @@ bool EditorHelpSearch::Runner::_phase_class_items() {
             _create_class_item(root_item, match.doc, false);
     }
 
-    iterator_match = iterator_match->next();
-    return !iterator_match;
+    ++iterator_match;
+    return iterator_match==matches.end();
 }
 
 bool EditorHelpSearch::Runner::_phase_member_items_init() {
 
-    iterator_match = matches.front();
+    iterator_match = matches.begin();
 
     return true;
 }
 
 bool EditorHelpSearch::Runner::_phase_member_items() {
 
-    ClassMatch &match = iterator_match->value();
+    ClassMatch &match = iterator_match->second;
 
     TreeItem *parent = (search_flags & SEARCH_SHOW_HIERARCHY) ? class_items[match.doc->name] : root_item;
     for (int i = 0; i < match.methods.size(); i++)
@@ -421,8 +427,8 @@ bool EditorHelpSearch::Runner::_phase_member_items() {
     for (int i = 0; i < match.theme_properties.size(); i++)
         _create_theme_property_item(parent, match.doc, match.theme_properties[i]);
 
-    iterator_match = iterator_match->next();
-    return !iterator_match;
+    ++iterator_match;
+    return iterator_match==matches.end();
 }
 
 bool EditorHelpSearch::Runner::_phase_select_match() {
@@ -434,20 +440,18 @@ bool EditorHelpSearch::Runner::_phase_select_match() {
 
 bool EditorHelpSearch::Runner::_match_string(const String &p_term, const String &p_string) const {
 
-    if (search_flags & SEARCH_CASE_SENSITIVE)
-        return StringUtils::find(p_string,p_term) > -1;
-    else
-        return StringUtils::findn(p_string,p_term) > -1;
+    return StringUtils::is_subsequence_of(p_term, p_string,
+            (search_flags & SEARCH_CASE_SENSITIVE) ? StringUtils::CaseSensitive : StringUtils::CaseInsensitive);
 }
 
 void EditorHelpSearch::Runner::_match_item(TreeItem *p_item, const String &p_text) {
 
     if (!matched_item) {
         if (search_flags & SEARCH_CASE_SENSITIVE) {
-			if (p_text==term)
+            if (p_text==term)
                 matched_item = p_item;
         } else {
-			if (StringUtils::compare(p_text,term,StringUtils::CaseInsensitive) == 0)
+            if (StringUtils::compare(p_text,term,StringUtils::CaseInsensitive) == 0)
                 matched_item = p_item;
         }
     }
@@ -455,13 +459,13 @@ void EditorHelpSearch::Runner::_match_item(TreeItem *p_item, const String &p_tex
 
 TreeItem *EditorHelpSearch::Runner::_create_class_hierarchy(const ClassMatch &p_match) {
 
-    if (class_items.has(p_match.doc->name))
+    if (class_items.contains(p_match.doc->name))
         return class_items[p_match.doc->name];
 
     // Ensure parent nodes are created first.
     TreeItem *parent = root_item;
-    if (p_match.doc->inherits != "") {
-        if (class_items.has(p_match.doc->inherits)) {
+    if (!p_match.doc->inherits.empty()) {
+        if (class_items.contains(p_match.doc->inherits)) {
             parent = class_items[p_match.doc->inherits];
         } else {
             ClassMatch &base_match = matches[p_match.doc->inherits];
@@ -506,7 +510,7 @@ TreeItem *EditorHelpSearch::Runner::_create_method_item(TreeItem *p_parent, cons
     for (int i = 0; i < p_doc->arguments.size(); i++) {
         const DocData::ArgumentDoc &arg = p_doc->arguments[i];
         tooltip += arg.type + " " + arg.name;
-        if (arg.default_value != "")
+        if (!arg.default_value.empty())
             tooltip += " = " + arg.default_value;
         if (i < p_doc->arguments.size() - 1)
             tooltip += ", ";
@@ -521,7 +525,7 @@ TreeItem *EditorHelpSearch::Runner::_create_signal_item(TreeItem *p_parent, cons
     for (int i = 0; i < p_doc->arguments.size(); i++) {
         const DocData::ArgumentDoc &arg = p_doc->arguments[i];
         tooltip += arg.type + " " + arg.name;
-        if (arg.default_value != "")
+        if (!arg.default_value.empty())
             tooltip += " = " + arg.default_value;
         if (i < p_doc->arguments.size() - 1)
             tooltip += ", ";

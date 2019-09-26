@@ -74,6 +74,8 @@ class SpriteFramesEditor : public HSplitContainer {
 
     StringName edited_anim;
 
+    ConfirmationDialog *delete_dialog;
+
     ConfirmationDialog *split_sheet_dialog;
     ScrollContainer *splite_sheet_scroll;
     TextureRect *split_sheet_preview;
@@ -99,6 +101,7 @@ class SpriteFramesEditor : public HSplitContainer {
     void _animation_name_edited();
     void _animation_add();
     void _animation_remove();
+    void _animation_remove_confirmed();
     void _animation_loop_changed();
     void _animation_fps_changed(double p_value);
 
@@ -121,7 +124,7 @@ class SpriteFramesEditor : public HSplitContainer {
 
 protected:
     void _notification(int p_what);
-    void _gui_input(Ref<InputEvent> p_event);
+    void _gui_input(const Ref<InputEvent>& p_event);
     static void _bind_methods();
 
 public:

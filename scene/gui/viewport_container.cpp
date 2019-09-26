@@ -33,6 +33,8 @@
 #include "core/engine.h"
 #include "scene/main/viewport.h"
 #include "core/method_bind.h"
+#include "core/os/input_event.h"
+
 
 IMPL_GDCLASS(ViewportContainer)
 
@@ -69,7 +71,7 @@ bool ViewportContainer::is_stretch_enabled() const {
 
 void ViewportContainer::set_stretch_shrink(int p_shrink) {
 
-    ERR_FAIL_COND(p_shrink < 1);
+    ERR_FAIL_COND(p_shrink < 1)
     if (shrink == p_shrink)
         return;
 
@@ -197,16 +199,16 @@ void ViewportContainer::_unhandled_input(const Ref<InputEvent> &p_event) {
 
 void ViewportContainer::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_unhandled_input", "event"), &ViewportContainer::_unhandled_input);
-    MethodBinder::bind_method(D_METHOD("_input", "event"), &ViewportContainer::_input);
-    MethodBinder::bind_method(D_METHOD("set_stretch", "enable"), &ViewportContainer::set_stretch);
+    MethodBinder::bind_method(D_METHOD("_unhandled_input", {"event"}), &ViewportContainer::_unhandled_input);
+    MethodBinder::bind_method(D_METHOD("_input", {"event"}), &ViewportContainer::_input);
+    MethodBinder::bind_method(D_METHOD("set_stretch", {"enable"}), &ViewportContainer::set_stretch);
     MethodBinder::bind_method(D_METHOD("is_stretch_enabled"), &ViewportContainer::is_stretch_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_stretch_shrink", "amount"), &ViewportContainer::set_stretch_shrink);
+    MethodBinder::bind_method(D_METHOD("set_stretch_shrink", {"amount"}), &ViewportContainer::set_stretch_shrink);
     MethodBinder::bind_method(D_METHOD("get_stretch_shrink"), &ViewportContainer::get_stretch_shrink);
 
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "stretch"), "set_stretch", "is_stretch_enabled");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "stretch_shrink"), "set_stretch_shrink", "get_stretch_shrink");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "stretch"), "set_stretch", "is_stretch_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "stretch_shrink"), "set_stretch_shrink", "get_stretch_shrink");
 }
 
 ViewportContainer::ViewportContainer() {

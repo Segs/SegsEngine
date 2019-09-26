@@ -337,7 +337,7 @@ String StreamPeer::get_string(int p_bytes) {
 
     if (p_bytes < 0)
         p_bytes = get_u32();
-    ERR_FAIL_COND_V(p_bytes < 0, String());
+    ERR_FAIL_COND_V(p_bytes < 0, String())
 
     Vector<char> buf;
     Error err = buf.resize(p_bytes + 1);
@@ -380,30 +380,30 @@ Variant StreamPeer::get_var(bool p_allow_objects) {
 
 void StreamPeer::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("put_data", "data"), &StreamPeer::_put_data);
-    MethodBinder::bind_method(D_METHOD("put_partial_data", "data"), &StreamPeer::_put_partial_data);
+    MethodBinder::bind_method(D_METHOD("put_data", {"data"}), &StreamPeer::_put_data);
+    MethodBinder::bind_method(D_METHOD("put_partial_data", {"data"}), &StreamPeer::_put_partial_data);
 
-    MethodBinder::bind_method(D_METHOD("get_data", "bytes"), &StreamPeer::_get_data);
-    MethodBinder::bind_method(D_METHOD("get_partial_data", "bytes"), &StreamPeer::_get_partial_data);
+    MethodBinder::bind_method(D_METHOD("get_data", {"bytes"}), &StreamPeer::_get_data);
+    MethodBinder::bind_method(D_METHOD("get_partial_data", {"bytes"}), &StreamPeer::_get_partial_data);
 
     MethodBinder::bind_method(D_METHOD("get_available_bytes"), &StreamPeer::get_available_bytes);
 
-    MethodBinder::bind_method(D_METHOD("set_big_endian", "enable"), &StreamPeer::set_big_endian);
+    MethodBinder::bind_method(D_METHOD("set_big_endian", {"enable"}), &StreamPeer::set_big_endian);
     MethodBinder::bind_method(D_METHOD("is_big_endian_enabled"), &StreamPeer::is_big_endian_enabled);
 
-    MethodBinder::bind_method(D_METHOD("put_8", "value"), &StreamPeer::put_8);
-    MethodBinder::bind_method(D_METHOD("put_u8", "value"), &StreamPeer::put_u8);
-    MethodBinder::bind_method(D_METHOD("put_16", "value"), &StreamPeer::put_16);
-    MethodBinder::bind_method(D_METHOD("put_u16", "value"), &StreamPeer::put_u16);
-    MethodBinder::bind_method(D_METHOD("put_32", "value"), &StreamPeer::put_32);
-    MethodBinder::bind_method(D_METHOD("put_u32", "value"), &StreamPeer::put_u32);
-    MethodBinder::bind_method(D_METHOD("put_64", "value"), &StreamPeer::put_64);
-    MethodBinder::bind_method(D_METHOD("put_u64", "value"), &StreamPeer::put_u64);
-    MethodBinder::bind_method(D_METHOD("put_float", "value"), &StreamPeer::put_float);
-    MethodBinder::bind_method(D_METHOD("put_double", "value"), &StreamPeer::put_double);
-    MethodBinder::bind_method(D_METHOD("put_string", "value"), &StreamPeer::put_string);
-    MethodBinder::bind_method(D_METHOD("put_utf8_string", "value"), &StreamPeer::put_utf8_string);
-    MethodBinder::bind_method(D_METHOD("put_var", "value", "full_objects"), &StreamPeer::put_var, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("put_8", {"value"}), &StreamPeer::put_8);
+    MethodBinder::bind_method(D_METHOD("put_u8", {"value"}), &StreamPeer::put_u8);
+    MethodBinder::bind_method(D_METHOD("put_16", {"value"}), &StreamPeer::put_16);
+    MethodBinder::bind_method(D_METHOD("put_u16", {"value"}), &StreamPeer::put_u16);
+    MethodBinder::bind_method(D_METHOD("put_32", {"value"}), &StreamPeer::put_32);
+    MethodBinder::bind_method(D_METHOD("put_u32", {"value"}), &StreamPeer::put_u32);
+    MethodBinder::bind_method(D_METHOD("put_64", {"value"}), &StreamPeer::put_64);
+    MethodBinder::bind_method(D_METHOD("put_u64", {"value"}), &StreamPeer::put_u64);
+    MethodBinder::bind_method(D_METHOD("put_float", {"value"}), &StreamPeer::put_float);
+    MethodBinder::bind_method(D_METHOD("put_double", {"value"}), &StreamPeer::put_double);
+    MethodBinder::bind_method(D_METHOD("put_string", {"value"}), &StreamPeer::put_string);
+    MethodBinder::bind_method(D_METHOD("put_utf8_string", {"value"}), &StreamPeer::put_utf8_string);
+    MethodBinder::bind_method(D_METHOD("put_var", {"value", "full_objects"}), &StreamPeer::put_var, {DEFVAL(false)});
 
     MethodBinder::bind_method(D_METHOD("get_8"), &StreamPeer::get_8);
     MethodBinder::bind_method(D_METHOD("get_u8"), &StreamPeer::get_u8);
@@ -415,26 +415,26 @@ void StreamPeer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_u64"), &StreamPeer::get_u64);
     MethodBinder::bind_method(D_METHOD("get_float"), &StreamPeer::get_float);
     MethodBinder::bind_method(D_METHOD("get_double"), &StreamPeer::get_double);
-    MethodBinder::bind_method(D_METHOD("get_string", "bytes"), &StreamPeer::get_string, {DEFVAL(-1)});
-    MethodBinder::bind_method(D_METHOD("get_utf8_string", "bytes"), &StreamPeer::get_utf8_string, {DEFVAL(-1)});
-    MethodBinder::bind_method(D_METHOD("get_var", "allow_objects"), &StreamPeer::get_var, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("get_string", {"bytes"}), &StreamPeer::get_string, {DEFVAL(-1)});
+    MethodBinder::bind_method(D_METHOD("get_utf8_string", {"bytes"}), &StreamPeer::get_utf8_string, {DEFVAL(-1)});
+    MethodBinder::bind_method(D_METHOD("get_var", {"allow_objects"}), &StreamPeer::get_var, {DEFVAL(false)});
 
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "big_endian"), "set_big_endian", "is_big_endian_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "big_endian"), "set_big_endian", "is_big_endian_enabled");
 }
 ////////////////////////////////
 
 void StreamPeerBuffer::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("seek", "position"), &StreamPeerBuffer::seek);
+    MethodBinder::bind_method(D_METHOD("seek", {"position"}), &StreamPeerBuffer::seek);
     MethodBinder::bind_method(D_METHOD("get_size"), &StreamPeerBuffer::get_size);
     MethodBinder::bind_method(D_METHOD("get_position"), &StreamPeerBuffer::get_position);
-    MethodBinder::bind_method(D_METHOD("resize", "size"), &StreamPeerBuffer::resize);
-    MethodBinder::bind_method(D_METHOD("set_data_array", "data"), &StreamPeerBuffer::set_data_array);
+    MethodBinder::bind_method(D_METHOD("resize", {"size"}), &StreamPeerBuffer::resize);
+    MethodBinder::bind_method(D_METHOD("set_data_array", {"data"}), &StreamPeerBuffer::set_data_array);
     MethodBinder::bind_method(D_METHOD("get_data_array"), &StreamPeerBuffer::get_data_array);
     MethodBinder::bind_method(D_METHOD("clear"), &StreamPeerBuffer::clear);
     MethodBinder::bind_method(D_METHOD("duplicate"), &StreamPeerBuffer::duplicate);
 
-    ADD_PROPERTY(PropertyInfo(Variant::POOL_BYTE_ARRAY, "data_array"), "set_data_array", "get_data_array");
+    ADD_PROPERTY(PropertyInfo(VariantType::POOL_BYTE_ARRAY, "data_array"), "set_data_array", "get_data_array");
 }
 
 Error StreamPeerBuffer::put_data(const uint8_t *p_data, int p_bytes) {
@@ -497,8 +497,8 @@ int StreamPeerBuffer::get_available_bytes() const {
 
 void StreamPeerBuffer::seek(int p_pos) {
 
-    ERR_FAIL_COND(p_pos < 0);
-    ERR_FAIL_COND(p_pos > data.size());
+    ERR_FAIL_COND(p_pos < 0)
+    ERR_FAIL_COND(p_pos > data.size())
     pointer = p_pos;
 }
 int StreamPeerBuffer::get_size() const {
@@ -535,8 +535,7 @@ void StreamPeerBuffer::clear() {
 
 Ref<StreamPeerBuffer> StreamPeerBuffer::duplicate() const {
 
-    Ref<StreamPeerBuffer> spb;
-    spb.instance();
+    Ref<StreamPeerBuffer> spb(make_ref_counted<StreamPeerBuffer>());
     spb->data = data;
     return spb;
 }

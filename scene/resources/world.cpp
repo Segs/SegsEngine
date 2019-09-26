@@ -32,12 +32,14 @@
 
 #include "core/math/camera_matrix.h"
 #include "core/math/octree.h"
+#include "core/list.h"
 #include "scene/3d/camera.h"
 #include "scene/3d/visibility_notifier.h"
 #include "scene/scene_string_names.h"
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(World)
+RES_BASE_EXTENSION_IMPL(World,"world")
 
 struct SpatialIndexer {
 
@@ -69,7 +71,7 @@ struct SpatialIndexer {
 
     void _notifier_add(VisibilityNotifier *p_notifier, const AABB &p_rect) {
 
-        ERR_FAIL_COND(notifiers.has(p_notifier));
+        ERR_FAIL_COND(notifiers.contains(p_notifier))
         notifiers[p_notifier].aabb = p_rect;
         notifiers[p_notifier].id = octree.create(p_notifier, p_rect);
         changed = true;
@@ -77,38 +79,38 @@ struct SpatialIndexer {
 
     void _notifier_update(VisibilityNotifier *p_notifier, const AABB &p_rect) {
 
-        Map<VisibilityNotifier *, NotifierData>::Element *E = notifiers.find(p_notifier);
-        ERR_FAIL_COND(!E);
-        if (E->get().aabb == p_rect)
+        Map<VisibilityNotifier *, NotifierData>::iterator E = notifiers.find(p_notifier);
+        ERR_FAIL_COND(E==notifiers.end())
+        if (E->second.aabb == p_rect)
             return;
 
-        E->get().aabb = p_rect;
-        octree.move(E->get().id, E->get().aabb);
+        E->second.aabb = p_rect;
+        octree.move(E->second.id, E->second.aabb);
         changed = true;
     }
 
     void _notifier_remove(VisibilityNotifier *p_notifier) {
 
-        Map<VisibilityNotifier *, NotifierData>::Element *E = notifiers.find(p_notifier);
-        ERR_FAIL_COND(!E);
+        Map<VisibilityNotifier *, NotifierData>::iterator E = notifiers.find(p_notifier);
+        ERR_FAIL_COND(E!=notifiers.end())
 
-        octree.erase(E->get().id);
+        octree.erase(E->second.id);
         notifiers.erase(p_notifier);
 
         List<Camera *> removed;
-        for (Map<Camera *, CameraData>::Element *F = cameras.front(); F; F = F->next()) {
+        for (eastl::pair< Camera *const,CameraData> &F : cameras) {
 
-            Map<VisibilityNotifier *, uint64_t>::Element *G = F->get().notifiers.find(p_notifier);
+            Map<VisibilityNotifier *, uint64_t>::iterator G = F.second.notifiers.find(p_notifier);
 
-            if (G) {
-                F->get().notifiers.erase(G);
-                removed.push_back(F->key());
+            if (G!=F.second.notifiers.end()) {
+                F.second.notifiers.erase(G);
+                removed.push_back(F.first);
             }
         }
 
         while (!removed.empty()) {
 
-            p_notifier->_exit_camera(removed.front()->get());
+            p_notifier->_exit_camera(removed.front()->deref());
             removed.pop_front();
         }
 
@@ -117,7 +119,7 @@ struct SpatialIndexer {
 
     void _add_camera(Camera *p_camera) {
 
-        ERR_FAIL_COND(cameras.has(p_camera));
+        ERR_FAIL_COND(cameras.contains(p_camera))
         CameraData vd;
         cameras[p_camera] = vd;
         changed = true;
@@ -125,21 +127,21 @@ struct SpatialIndexer {
 
     void _update_camera(Camera *p_camera) {
 
-        Map<Camera *, CameraData>::Element *E = cameras.find(p_camera);
-        ERR_FAIL_COND(!E);
+        Map<Camera *, CameraData>::iterator E = cameras.find(p_camera);
+        ERR_FAIL_COND(E==cameras.end())
         changed = true;
     }
 
     void _remove_camera(Camera *p_camera) {
-        ERR_FAIL_COND(!cameras.has(p_camera));
+        ERR_FAIL_COND(!cameras.contains(p_camera))
         List<VisibilityNotifier *> removed;
-        for (Map<VisibilityNotifier *, uint64_t>::Element *E = cameras[p_camera].notifiers.front(); E; E = E->next()) {
+        for (auto &E : cameras[p_camera].notifiers) {
 
-            removed.push_back(E->key());
+            removed.push_back(E.first);
         }
 
         while (!removed.empty()) {
-            removed.front()->get()->_exit_camera(p_camera);
+            removed.front()->deref()->_exit_camera(p_camera);
             removed.pop_front();
         }
 
@@ -155,11 +157,11 @@ struct SpatialIndexer {
         if (!changed)
             return;
 
-        for (Map<Camera *, CameraData>::Element *E = cameras.front(); E; E = E->next()) {
+        for (eastl::pair<Camera *const,CameraData> &E : cameras) {
 
             pass++;
 
-            Camera *c = E->key();
+            Camera *c = E.first;
 
             Vector<Plane> planes = c->get_frustum();
 
@@ -174,30 +176,30 @@ struct SpatialIndexer {
 
                 //notifiers in frustum
 
-                Map<VisibilityNotifier *, uint64_t>::Element *H = E->get().notifiers.find(ptr[i]);
-                if (!H) {
+                Map<VisibilityNotifier *, uint64_t>::iterator H = E.second.notifiers.find(ptr[i]);
+                if (H==E.second.notifiers.end()) {
 
-                    E->get().notifiers.insert(ptr[i], pass);
+                    E.second.notifiers.emplace(ptr[i], pass);
                     added.push_back(ptr[i]);
                 } else {
-                    H->get() = pass;
+                    H->second = pass;
                 }
             }
 
-            for (Map<VisibilityNotifier *, uint64_t>::Element *F = E->get().notifiers.front(); F; F = F->next()) {
+            for (auto &F : E.second.notifiers) {
 
-                if (F->get() != pass)
-                    removed.push_back(F->key());
+                if (F.second != pass)
+                    removed.push_back(F.first);
             }
 
             while (!added.empty()) {
-                added.front()->get()->_enter_camera(E->key());
+                added.front()->deref()->_enter_camera(E.first);
                 added.pop_front();
             }
 
             while (!removed.empty()) {
-                E->get().notifiers.erase(removed.front()->get());
-                removed.front()->get()->_exit_camera(E->key());
+                E.second.notifiers.erase(removed.front()->deref());
+                removed.front()->deref()->_exit_camera(E.first);
                 removed.pop_front();
             }
         }
@@ -273,10 +275,7 @@ RID World::get_scenario() const {
 void World::set_environment(const Ref<Environment> &p_environment) {
 
     environment = p_environment;
-    if (environment.is_valid())
-        VS::get_singleton()->scenario_set_environment(scenario, environment->get_rid());
-    else
-        VS::get_singleton()->scenario_set_environment(scenario, RID());
+    VS::get_singleton()->scenario_set_environment(scenario, environment ? environment->get_rid() : RID());
 }
 
 Ref<Environment> World::get_environment() const {
@@ -287,10 +286,7 @@ Ref<Environment> World::get_environment() const {
 void World::set_fallback_environment(const Ref<Environment> &p_environment) {
 
     fallback_environment = p_environment;
-    if (fallback_environment.is_valid())
-        VS::get_singleton()->scenario_set_fallback_environment(scenario, p_environment->get_rid());
-    else
-        VS::get_singleton()->scenario_set_fallback_environment(scenario, RID());
+    VS::get_singleton()->scenario_set_fallback_environment(scenario, fallback_environment ? fallback_environment->get_rid() : RID());
 }
 
 Ref<Environment> World::get_fallback_environment() const {
@@ -305,8 +301,8 @@ PhysicsDirectSpaceState *World::get_direct_space_state() {
 
 void World::get_camera_list(List<Camera *> *r_cameras) {
 
-    for (Map<Camera *, SpatialIndexer::CameraData>::Element *E = indexer->cameras.front(); E; E = E->next()) {
-        r_cameras->push_back(E->key());
+    for (const eastl::pair<Camera *const,SpatialIndexer::CameraData> &E : indexer->cameras) {
+        r_cameras->push_back(E.first);
     }
 }
 
@@ -314,16 +310,16 @@ void World::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("get_space"), &World::get_space);
     MethodBinder::bind_method(D_METHOD("get_scenario"), &World::get_scenario);
-    MethodBinder::bind_method(D_METHOD("set_environment", "env"), &World::set_environment);
+    MethodBinder::bind_method(D_METHOD("set_environment", {"env"}), &World::set_environment);
     MethodBinder::bind_method(D_METHOD("get_environment"), &World::get_environment);
-    MethodBinder::bind_method(D_METHOD("set_fallback_environment", "env"), &World::set_fallback_environment);
+    MethodBinder::bind_method(D_METHOD("set_fallback_environment", {"env"}), &World::set_fallback_environment);
     MethodBinder::bind_method(D_METHOD("get_fallback_environment"), &World::get_fallback_environment);
     MethodBinder::bind_method(D_METHOD("get_direct_space_state"), &World::get_direct_space_state);
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "environment", PROPERTY_HINT_RESOURCE_TYPE, "Environment"), "set_environment", "get_environment");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "fallback_environment", PROPERTY_HINT_RESOURCE_TYPE, "Environment"), "set_fallback_environment", "get_fallback_environment");
-    ADD_PROPERTY(PropertyInfo(Variant::_RID, "space", PROPERTY_HINT_NONE, "", 0), "", "get_space");
-    ADD_PROPERTY(PropertyInfo(Variant::_RID, "scenario", PROPERTY_HINT_NONE, "", 0), "", "get_scenario");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "direct_space_state", PROPERTY_HINT_RESOURCE_TYPE, "PhysicsDirectSpaceState", 0), "", "get_direct_space_state");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "environment", PROPERTY_HINT_RESOURCE_TYPE, "Environment"), "set_environment", "get_environment");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "fallback_environment", PROPERTY_HINT_RESOURCE_TYPE, "Environment"), "set_fallback_environment", "get_fallback_environment");
+    ADD_PROPERTY(PropertyInfo(VariantType::_RID, "space", PROPERTY_HINT_NONE, "", 0), "", "get_space");
+    ADD_PROPERTY(PropertyInfo(VariantType::_RID, "scenario", PROPERTY_HINT_NONE, "", 0), "", "get_scenario");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "direct_space_state", PROPERTY_HINT_RESOURCE_TYPE, "PhysicsDirectSpaceState", 0), "", "get_direct_space_state");
 }
 
 World::World() {

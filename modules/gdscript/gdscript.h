@@ -28,10 +28,9 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef GDSCRIPT_H
-#define GDSCRIPT_H
+#pragma once
 
-#include "core/io/resource_loader.h"
+#include "core/io/resource_format_loader.h"
 #include "core/io/resource_saver.h"
 #include "core/script_language.h"
 #include "gdscript_function.h"
@@ -99,7 +98,7 @@ class GDScript : public Script {
     Set<ObjectID> inheriters_cache;
     bool source_changed_cache;
     bool placeholder_fallback_enabled;
-    void _update_exports_values(Map<StringName, Variant> &values, List<PropertyInfo> &propnames);
+    void _update_exports_values(Map<StringName, Variant> &values, ListPOD<PropertyInfo> &propnames);
 
 #endif
     Map<StringName, PropertyInfo> member_info;
@@ -135,7 +134,7 @@ class GDScript : public Script {
 protected:
     bool _get(const StringName &p_name, Variant &r_ret) const;
     bool _set(const StringName &p_name, const Variant &p_value);
-    void _get_property_list(List<PropertyInfo> *p_properties) const;
+    void _get_property_list(ListPOD<PropertyInfo> *p_properties) const;
 
     Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error) override;
     //void call_multilevel(const StringName& p_method,const Variant** p_args,int p_argcount);
@@ -149,15 +148,15 @@ public:
     const Map<StringName, Variant> &get_constants() const { return constants; }
     const Set<StringName> &get_members() const { return members; }
     const GDScriptDataType &get_member_type(const StringName &p_member) const {
-        CRASH_COND(!member_indices.has(p_member));
-        return member_indices[p_member].data_type;
+        CRASH_COND(!member_indices.contains(p_member));
+        return member_indices.at(p_member).data_type;
     }
     const Map<StringName, GDScriptFunction *> &get_member_functions() const { return member_functions; }
     const Ref<GDScriptNativeClass> &get_native() const { return native; }
     const String &get_script_class_name() const { return name; }
 
     bool has_script_signal(const StringName &p_signal) const override;
-    void get_script_signal_list(List<MethodInfo> *r_signals) const override;
+    void get_script_signal_list(ListPOD<MethodInfo> *r_signals) const override;
 
     bool is_tool() const override { return tool; }
     Ref<GDScript> get_base() const;
@@ -191,18 +190,18 @@ public:
 
     bool get_property_default_value(const StringName &p_property, Variant &r_value) const override;
 
-    void get_script_method_list(List<MethodInfo> *p_list) const override;
+    void get_script_method_list(PODVector<MethodInfo> *p_list) const override;
     bool has_method(const StringName &p_method) const override;
     MethodInfo get_method_info(const StringName &p_method) const override;
 
-    void get_script_property_list(List<PropertyInfo> *p_list) const override;
+    void get_script_property_list(ListPOD<PropertyInfo> *p_list) const override;
 
     ScriptLanguage *get_language() const override;
 
     int get_member_line(const StringName &p_member) const override {
 #ifdef TOOLS_ENABLED
-        if (member_lines.has(p_member))
-            return member_lines[p_member];
+        if (member_lines.contains(p_member))
+            return member_lines.at(p_member);
         else
 #endif
             return -1;
@@ -240,10 +239,10 @@ public:
 
     bool set(const StringName &p_name, const Variant &p_value) override;
     bool get(const StringName &p_name, Variant &r_ret) const override;
-    void get_property_list(List<PropertyInfo> *p_properties) const override;
-    Variant::Type get_property_type(const StringName &p_name, bool *r_is_valid = nullptr) const override;
+    void get_property_list(ListPOD<PropertyInfo> *p_properties) const override;
+    VariantType get_property_type(const StringName &p_name, bool *r_is_valid = nullptr) const override;
 
-    void get_method_list(List<MethodInfo> *p_list) const override;
+    void get_method_list(PODVector<MethodInfo> *p_list) const override;
     bool has_method(const StringName &p_method) const override;
     Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error) override;
     void call_multilevel(const StringName &p_method, const Variant **p_args, int p_argcount) override;
@@ -512,10 +511,10 @@ public:
 class ResourceFormatLoaderGDScript : public ResourceFormatLoader {
 public:
     RES load(const String &p_path, const String &p_original_path = "", Error *r_error = nullptr) override;
-    void get_recognized_extensions(List<String> *p_extensions) const override;
+    void get_recognized_extensions(ListPOD<String> *p_extensions) const override;
     bool handles_type(const String &p_type) const override;
     String get_resource_type(const String &p_path) const override;
-    void get_dependencies(const String &p_path, List<String> *p_dependencies, bool p_add_types = false) override;
+    void get_dependencies(const String &p_path, ListPOD<String> *p_dependencies, bool p_add_types = false) override;
 };
 
 class ResourceFormatSaverGDScript : public ResourceFormatSaver {
@@ -525,4 +524,3 @@ public:
     bool recognize(const RES &p_resource) const override;
 };
 
-#endif // GDSCRIPT_H

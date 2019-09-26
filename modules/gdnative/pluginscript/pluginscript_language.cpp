@@ -28,13 +28,15 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-// Godot imports
-#include "core/os/file_access.h"
-#include "core/os/os.h"
-#include "core/project_settings.h"
 // PluginScript imports
 #include "pluginscript_language.h"
 #include "pluginscript_script.h"
+
+// Godot imports
+#include "core/method_info.h"
+#include "core/os/file_access.h"
+#include "core/os/os.h"
+#include "core/project_settings.h"
 
 String PluginScriptLanguage::get_name() const {
 	return String(_desc.name);
@@ -99,7 +101,7 @@ void PluginScriptLanguage::get_string_delimiters(List<String> *p_delimiters) con
 
 Ref<Script> PluginScriptLanguage::get_template(const String &p_class_name, const String &p_base_class_name) const {
 	Script *ns = create_script();
-	Ref<Script> script = Ref<Script>(ns);
+    Ref<Script> script = Ref<Script>(ns);
 	if (_desc.get_template_source_code) {
 		godot_string src = _desc.get_template_source_code(_data, (godot_string *)&p_class_name, (godot_string *)&p_base_class_name);
 		script->set_source_code(*(String *)&src);
@@ -200,7 +202,7 @@ void PluginScriptLanguage::get_recognized_extensions(List<String> *p_extensions)
 }
 
 void PluginScriptLanguage::get_public_functions(List<MethodInfo> *p_functions) const {
-	// TODO: provid this statically in `godot_pluginscript_language_desc` ?
+	// TODO: provide this statically in `godot_pluginscript_language_desc` ?
 	if (_desc.get_public_functions) {
 		Array functions;
 		_desc.get_public_functions(_data, (godot_array *)&functions);
@@ -212,7 +214,7 @@ void PluginScriptLanguage::get_public_functions(List<MethodInfo> *p_functions) c
 }
 
 void PluginScriptLanguage::get_public_constants(List<Pair<String, Variant> > *p_constants) const {
-	// TODO: provid this statically in `godot_pluginscript_language_desc` ?
+	// TODO: provide this statically in `godot_pluginscript_language_desc` ?
 	if (_desc.get_public_constants) {
 		Dictionary constants;
 		_desc.get_public_constants(_data, (godot_dictionary *)&constants);
@@ -417,8 +419,8 @@ void PluginScriptLanguage::unlock() {
 
 PluginScriptLanguage::PluginScriptLanguage(const godot_pluginscript_language_desc *desc) :
 		_desc(*desc) {
-	_resource_loader = Ref<ResourceFormatLoaderPluginScript>(memnew(ResourceFormatLoaderPluginScript(this)));
-	_resource_saver = Ref<ResourceFormatSaverPluginScript>(memnew(ResourceFormatSaverPluginScript(this)));
+    _resource_loader = make_ref_counted<ResourceFormatLoaderPluginScript>(this);
+    _resource_saver = make_ref_counted<ResourceFormatSaverPluginScript>(this);
 
 // TODO: totally remove _lock attribute if NO_THREADS is set
 #ifdef NO_THREADS

@@ -31,7 +31,7 @@
 #include "crypto.h"
 
 #include "core/engine.h"
-//#include "core/io/certs_compressed.gen.h"
+#include "core/list.h"
 #include "core/io/compression.h"
 #include "core/method_bind.h"
 
@@ -51,8 +51,8 @@ CryptoKey *CryptoKey::create() {
 }
 
 void CryptoKey::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("save", "path"), &CryptoKey::save);
-    MethodBinder::bind_method(D_METHOD("load", "path"), &CryptoKey::load);
+    MethodBinder::bind_method(D_METHOD("save", {"path"}), &CryptoKey::save);
+    MethodBinder::bind_method(D_METHOD("load", {"path"}), &CryptoKey::load);
 }
 
 X509Certificate *(*X509Certificate::_create)() = nullptr;
@@ -63,8 +63,8 @@ X509Certificate *X509Certificate::create() {
 }
 
 void X509Certificate::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("save", "path"), &X509Certificate::save);
-    MethodBinder::bind_method(D_METHOD("load", "path"), &X509Certificate::load);
+    MethodBinder::bind_method(D_METHOD("save", {"path"}), &X509Certificate::save);
+    MethodBinder::bind_method(D_METHOD("load", {"path"}), &X509Certificate::load);
 }
 
 /// Crypto
@@ -84,23 +84,23 @@ void Crypto::load_default_certificates(String p_path) {
 }
 
 void Crypto::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("generate_random_bytes", "size"), &Crypto::generate_random_bytes);
-    MethodBinder::bind_method(D_METHOD("generate_rsa", "size"), &Crypto::generate_rsa);
-    MethodBinder::bind_method(D_METHOD("generate_self_signed_certificate", "key", "issuer_name", "not_before", "not_after"),
+    MethodBinder::bind_method(D_METHOD("generate_random_bytes", {"size"}), &Crypto::generate_random_bytes);
+    MethodBinder::bind_method(D_METHOD("generate_rsa", {"size"}), &Crypto::generate_rsa);
+    MethodBinder::bind_method(D_METHOD("generate_self_signed_certificate", {"key", "issuer_name", "not_before", "not_after"}),
             &Crypto::generate_self_signed_certificate,
             { DEFVAL("CN=myserver,O=myorganisation,C=IT"), DEFVAL("20140101000000"), DEFVAL("20340101000000") });
 }
 
 PoolByteArray Crypto::generate_random_bytes(int p_bytes) {
-    ERR_FAIL_V_MSG(PoolByteArray(), "generate_random_bytes is not available when mbedtls module is disabled.");
+    ERR_FAIL_V_CMSG(PoolByteArray(), "generate_random_bytes is not available when mbedtls module is disabled.")
 }
 
 Ref<CryptoKey> Crypto::generate_rsa(int p_bytes) {
-    ERR_FAIL_V_MSG(nullptr, "generate_rsa is not available when mbedtls module is disabled.");
+    ERR_FAIL_V_CMSG(Ref<CryptoKey>(), "generate_rsa is not available when mbedtls module is disabled.")
 }
 
 Ref<X509Certificate> Crypto::generate_self_signed_certificate(Ref<CryptoKey> p_key, String p_issuer_name, String p_not_before, String p_not_after) {
-    ERR_FAIL_V_MSG(nullptr, "generate_self_signed_certificate is not available when mbedtls module is disabled.");
+    ERR_FAIL_V_CMSG(Ref<X509Certificate>(), "generate_self_signed_certificate is not available when mbedtls module is disabled.")
 }
 
 Crypto::Crypto() {}
@@ -114,17 +114,17 @@ RES ResourceFormatLoaderCrypto::load(const String &p_path, const String &p_origi
         X509Certificate *cert = X509Certificate::create();
         if (cert)
             cert->load(p_path);
-        return cert;
+        return RES(cert);
     } else if (el == "key") {
         CryptoKey *key = CryptoKey::create();
         if (key)
             key->load(p_path);
-        return key;
+        return RES(key);
     }
-    return nullptr;
+    return RES();
 }
 
-void ResourceFormatLoaderCrypto::get_recognized_extensions(List<String> *p_extensions) const {
+void ResourceFormatLoaderCrypto::get_recognized_extensions(ListPOD<String> *p_extensions) const {
 
     p_extensions->push_back("crt");
     p_extensions->push_back("key");
@@ -148,11 +148,11 @@ String ResourceFormatLoaderCrypto::get_resource_type(const String &p_path) const
 Error ResourceFormatSaverCrypto::save(const String &p_path, const RES &p_resource, uint32_t p_flags) {
 
     Error err;
-    Ref<X509Certificate> cert = p_resource;
-    Ref<CryptoKey> key = p_resource;
-    if (cert.is_valid()) {
+    Ref<X509Certificate> cert = dynamic_ref_cast<X509Certificate>(p_resource);
+    Ref<CryptoKey> key = dynamic_ref_cast<CryptoKey>(p_resource);
+    if (cert) {
         err = cert->save(p_path);
-    } else if (key.is_valid()) {
+    } else if (key) {
         err = key->save(p_path);
     } else {
         ERR_FAIL_V(ERR_INVALID_PARAMETER)
@@ -163,8 +163,8 @@ Error ResourceFormatSaverCrypto::save(const String &p_path, const RES &p_resourc
 
 void ResourceFormatSaverCrypto::get_recognized_extensions(const RES &p_resource, Vector<String> *p_extensions) const {
 
-    const X509Certificate *cert = Object::cast_to<X509Certificate>(*p_resource);
-    const CryptoKey *key = Object::cast_to<CryptoKey>(*p_resource);
+    const X509Certificate *cert = Object::cast_to<X509Certificate>(p_resource.get());
+    const CryptoKey *key = Object::cast_to<CryptoKey>(p_resource.get());
     if (cert) {
         p_extensions->push_back("crt");
     }
@@ -174,5 +174,5 @@ void ResourceFormatSaverCrypto::get_recognized_extensions(const RES &p_resource,
 }
 bool ResourceFormatSaverCrypto::recognize(const RES &p_resource) const {
 
-    return Object::cast_to<X509Certificate>(*p_resource) || Object::cast_to<CryptoKey>(*p_resource);
+    return Object::cast_to<X509Certificate>(p_resource.get()) || Object::cast_to<CryptoKey>(p_resource.get());
 }

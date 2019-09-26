@@ -38,9 +38,10 @@
 void register_gridmap_types() {
 
 #ifndef _3D_DISABLED
-	ClassDB::register_class<GridMap>();
+    ClassDB::register_class<GridMap>();
 #ifdef TOOLS_ENABLED
-	EditorPlugins::add_by_type<GridMapEditorPlugin>();
+    GridMapEditor::initialize_class();
+    EditorPlugins::add_by_type<GridMapEditorPlugin>();
 #endif
 #endif
 }

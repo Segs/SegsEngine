@@ -36,7 +36,7 @@ IMPL_GDCLASS(MeshInstance2D)
 void MeshInstance2D::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_DRAW) {
-        if (mesh.is_valid()) {
+        if (mesh) {
             draw_mesh(mesh, texture, normal_map);
         }
     }
@@ -44,20 +44,20 @@ void MeshInstance2D::_notification(int p_what) {
 
 void MeshInstance2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_mesh", "mesh"), &MeshInstance2D::set_mesh);
+    MethodBinder::bind_method(D_METHOD("set_mesh", {"mesh"}), &MeshInstance2D::set_mesh);
     MethodBinder::bind_method(D_METHOD("get_mesh"), &MeshInstance2D::get_mesh);
 
-    MethodBinder::bind_method(D_METHOD("set_texture", "texture"), &MeshInstance2D::set_texture);
+    MethodBinder::bind_method(D_METHOD("set_texture", {"texture"}), &MeshInstance2D::set_texture);
     MethodBinder::bind_method(D_METHOD("get_texture"), &MeshInstance2D::get_texture);
 
-    MethodBinder::bind_method(D_METHOD("set_normal_map", "normal_map"), &MeshInstance2D::set_normal_map);
+    MethodBinder::bind_method(D_METHOD("set_normal_map", {"normal_map"}), &MeshInstance2D::set_normal_map);
     MethodBinder::bind_method(D_METHOD("get_normal_map"), &MeshInstance2D::get_normal_map);
 
     ADD_SIGNAL(MethodInfo("texture_changed"));
 
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "mesh", PROPERTY_HINT_RESOURCE_TYPE, "Mesh"), "set_mesh", "get_mesh");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_texture", "get_texture");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "normal_map", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_normal_map", "get_normal_map");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "mesh", PROPERTY_HINT_RESOURCE_TYPE, "Mesh"), "set_mesh", "get_mesh");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_texture", "get_texture");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "normal_map", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_normal_map", "get_normal_map");
 }
 
 void MeshInstance2D::set_mesh(const Ref<Mesh> &p_mesh) {
@@ -99,7 +99,7 @@ Ref<Texture> MeshInstance2D::get_texture() const {
 
 Rect2 MeshInstance2D::_edit_get_rect() const {
 
-    if (mesh.is_valid()) {
+    if (mesh) {
         AABB aabb = mesh->get_aabb();
         return Rect2(aabb.position.x, aabb.position.y, aabb.size.x, aabb.size.y);
     }

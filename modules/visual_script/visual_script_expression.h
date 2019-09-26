@@ -41,14 +41,14 @@ class VisualScriptExpression : public VisualScriptNode {
 
 	struct Input {
 
-		Variant::Type type;
+		VariantType type;
 		String name;
 
-		Input() { type = Variant::NIL; }
+		Input() { type = VariantType::NIL; }
 	};
 
 	Vector<Input> inputs;
-	Variant::Type output_type;
+	VariantType output_type;
 
 	String expression;
 
@@ -210,7 +210,7 @@ class VisualScriptExpression : public VisualScriptNode {
 	};
 
 	struct ConstructorNode : public ENode {
-		Variant::Type data_type;
+		VariantType data_type;
 		Vector<ENode *> arguments;
 
 		ConstructorNode() {
@@ -264,7 +264,7 @@ class VisualScriptExpression : public VisualScriptNode {
 protected:
 	bool _set(const StringName &p_name, const Variant &p_value);
 	bool _get(const StringName &p_name, Variant &r_ret) const;
-	void _get_property_list(List<PropertyInfo> *p_list) const;
+	void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
 
 public:
 	int get_output_sequence_port_count() const override;

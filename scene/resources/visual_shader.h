@@ -58,7 +58,7 @@ public:
 
 	struct DefaultTextureParam {
 		StringName name;
-		Ref<Texture> param;
+        Ref<Resource> param; //TODO: SEGS: this was <Texture> but in VisualShaderNodeCubeMap::get_default_texture_parameters a CubeMap ( which is not a Texture ) was assigned to this
 	};
 
 private:
@@ -114,7 +114,7 @@ protected:
 
 	bool _set(const StringName &p_name, const Variant &p_value);
 	bool _get(const StringName &p_name, Variant &r_ret) const;
-	void _get_property_list(List<PropertyInfo> *p_list) const;
+	void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
 
 public:
 	enum {

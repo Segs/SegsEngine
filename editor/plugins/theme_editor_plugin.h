@@ -79,7 +79,7 @@ class ThemeEditor : public VBoxContainer {
 
 	Tree *test_tree;
 
-	void _save_template_cbk(String fname);
+	void _save_template_cbk(const String &fname);
 	void _dialog_cbk();
 	void _type_menu_cbk(int p_option);
 	void _name_menu_about_to_show();

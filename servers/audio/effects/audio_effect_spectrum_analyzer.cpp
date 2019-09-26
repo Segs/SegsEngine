@@ -153,9 +153,9 @@ void AudioEffectSpectrumAnalyzerInstance::process(const AudioFrame *p_src_frames
 
 void AudioEffectSpectrumAnalyzerInstance::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("get_magnitude_for_frequency_range", "from_hz", "to_hz", "mode"), &AudioEffectSpectrumAnalyzerInstance::get_magnitude_for_frequency_range, {DEFVAL(MAGNITUDE_MAX)});
-    BIND_ENUM_CONSTANT(MAGNITUDE_AVERAGE);
-    BIND_ENUM_CONSTANT(MAGNITUDE_MAX);
+    MethodBinder::bind_method(D_METHOD("get_magnitude_for_frequency_range", {"from_hz", "to_hz", "mode"}), &AudioEffectSpectrumAnalyzerInstance::get_magnitude_for_frequency_range, {DEFVAL(MAGNITUDE_MAX)});
+    BIND_ENUM_CONSTANT(MAGNITUDE_AVERAGE)
+    BIND_ENUM_CONSTANT(MAGNITUDE_MAX)
 }
 
 Vector2 AudioEffectSpectrumAnalyzerInstance::get_magnitude_for_frequency_range(float p_begin, float p_end, MagnitudeMode p_mode) const {
@@ -214,8 +214,7 @@ Vector2 AudioEffectSpectrumAnalyzerInstance::get_magnitude_for_frequency_range(f
 
 Ref<AudioEffectInstance> AudioEffectSpectrumAnalyzer::instance() {
 
-    Ref<AudioEffectSpectrumAnalyzerInstance> ins;
-    ins.instance();
+    Ref<AudioEffectSpectrumAnalyzerInstance> ins(make_ref_counted<AudioEffectSpectrumAnalyzerInstance>());
     ins->base = Ref<AudioEffectSpectrumAnalyzer>(this);
     static const int fft_sizes[FFT_SIZE_MAX] = { 256, 512, 1024, 2048, 4096 };
     ins->fft_size = fft_sizes[fft_size];
@@ -263,25 +262,25 @@ AudioEffectSpectrumAnalyzer::FFT_Size AudioEffectSpectrumAnalyzer::get_fft_size(
 
 void AudioEffectSpectrumAnalyzer::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_buffer_length", "seconds"), &AudioEffectSpectrumAnalyzer::set_buffer_length);
+    MethodBinder::bind_method(D_METHOD("set_buffer_length", {"seconds"}), &AudioEffectSpectrumAnalyzer::set_buffer_length);
     MethodBinder::bind_method(D_METHOD("get_buffer_length"), &AudioEffectSpectrumAnalyzer::get_buffer_length);
 
-    MethodBinder::bind_method(D_METHOD("set_tap_back_pos", "seconds"), &AudioEffectSpectrumAnalyzer::set_tap_back_pos);
+    MethodBinder::bind_method(D_METHOD("set_tap_back_pos", {"seconds"}), &AudioEffectSpectrumAnalyzer::set_tap_back_pos);
     MethodBinder::bind_method(D_METHOD("get_tap_back_pos"), &AudioEffectSpectrumAnalyzer::get_tap_back_pos);
 
-    MethodBinder::bind_method(D_METHOD("set_fft_size", "size"), &AudioEffectSpectrumAnalyzer::set_fft_size);
+    MethodBinder::bind_method(D_METHOD("set_fft_size", {"size"}), &AudioEffectSpectrumAnalyzer::set_fft_size);
     MethodBinder::bind_method(D_METHOD("get_fft_size"), &AudioEffectSpectrumAnalyzer::get_fft_size);
 
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "buffer_length", PROPERTY_HINT_RANGE, "0.1,4,0.1"), "set_buffer_length", "get_buffer_length");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "tap_back_pos", PROPERTY_HINT_RANGE, "0.1,4,0.1"), "set_tap_back_pos", "get_tap_back_pos");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "fft_size", PROPERTY_HINT_ENUM, "256,512,1024,2048,4096"), "set_fft_size", "get_fft_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "buffer_length", PROPERTY_HINT_RANGE, "0.1,4,0.1"), "set_buffer_length", "get_buffer_length");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "tap_back_pos", PROPERTY_HINT_RANGE, "0.1,4,0.1"), "set_tap_back_pos", "get_tap_back_pos");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "fft_size", PROPERTY_HINT_ENUM, "256,512,1024,2048,4096"), "set_fft_size", "get_fft_size");
 
-    BIND_ENUM_CONSTANT(FFT_SIZE_256);
-    BIND_ENUM_CONSTANT(FFT_SIZE_512);
-    BIND_ENUM_CONSTANT(FFT_SIZE_1024);
-    BIND_ENUM_CONSTANT(FFT_SIZE_2048);
-    BIND_ENUM_CONSTANT(FFT_SIZE_4096);
-    BIND_ENUM_CONSTANT(FFT_SIZE_MAX);
+    BIND_ENUM_CONSTANT(FFT_SIZE_256)
+    BIND_ENUM_CONSTANT(FFT_SIZE_512)
+    BIND_ENUM_CONSTANT(FFT_SIZE_1024)
+    BIND_ENUM_CONSTANT(FFT_SIZE_2048)
+    BIND_ENUM_CONSTANT(FFT_SIZE_4096)
+    BIND_ENUM_CONSTANT(FFT_SIZE_MAX)
 }
 
 AudioEffectSpectrumAnalyzer::AudioEffectSpectrumAnalyzer() {

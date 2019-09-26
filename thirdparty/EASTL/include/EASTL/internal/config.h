@@ -86,8 +86,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef EASTL_VERSION
-	#define EASTL_VERSION   "3.14.01"
-	#define EASTL_VERSION_N  31401
+    #define EASTL_VERSION   "3.14.02"
+    #define EASTL_VERSION_N  31402
 #endif
 
 
@@ -187,7 +187,7 @@ namespace eastl
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef EASTL_DEBUG
-	#if defined(EA_DEBUG) || defined(_DEBUG)
+    #if defined(EA_DEBUG) || !defined(NDEBUG)
         #define EASTL_DEBUG 1
     #else
         #define EASTL_DEBUG 0

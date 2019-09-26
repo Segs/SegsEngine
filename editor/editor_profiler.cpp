@@ -199,19 +199,19 @@ void EditorProfiler::_update_plot() {
         if (!m.valid)
             continue;
 
-        for (Set<StringName>::Element *E = plot_sigs.front(); E; E = E->next()) {
+        for (const StringName &E : plot_sigs) {
 
-            const Map<StringName, Metric::Category *>::Element *F = m.category_ptrs.find(E->get());
-            if (F) {
-                highest = MAX(F->get()->total_time, highest);
+            const Map<StringName, Metric::Category *>::const_iterator F = m.category_ptrs.find(E);
+            if (F!=m.category_ptrs.end()) {
+                highest = MAX(F->second->total_time, highest);
             }
 
-            const Map<StringName, Metric::Category::Item *>::Element *G = m.item_ptrs.find(E->get());
-            if (G) {
+            const Map<StringName, Metric::Category::Item *>::const_iterator G = m.item_ptrs.find(E);
+            if (G!=m.item_ptrs.end()) {
                 if (use_self) {
-                    highest = MAX(G->get()->self, highest);
+                    highest = MAX(G->second->self, highest);
                 } else {
-                    highest = MAX(G->get()->total, highest);
+                    highest = MAX(G->second->total, highest);
                 }
             }
         }
@@ -244,7 +244,7 @@ void EditorProfiler::_update_plot() {
             if (next == current)
                 next = current + 1; //just because for loop must work
 
-            for (Set<StringName>::Element *E = plot_sigs.front(); E; E = E->next()) {
+            for (const StringName &E : plot_sigs) {
 
                 int plot_pos = -1;
 
@@ -263,17 +263,17 @@ void EditorProfiler::_update_plot() {
 
                     float value = 0;
 
-                    const Map<StringName, Metric::Category *>::Element *F = m.category_ptrs.find(E->get());
-                    if (F) {
-                        value = F->get()->total_time;
+                    const Map<StringName, Metric::Category *>::const_iterator F = m.category_ptrs.find(E);
+                    if (F!=m.category_ptrs.end()) {
+                        value = F->second->total_time;
                     }
 
-                    const Map<StringName, Metric::Category::Item *>::Element *G = m.item_ptrs.find(E->get());
-                    if (G) {
+                    const auto G = m.item_ptrs.find(E);
+                    if (G!=m.item_ptrs.end()) {
                         if (use_self) {
-                            value = G->get()->self;
+                            value = G->second->self;
                         } else {
-                            value = G->get()->total;
+                            value = G->second->total;
                         }
                     }
 
@@ -281,12 +281,12 @@ void EditorProfiler::_update_plot() {
                 }
 
                 int prev_plot = plot_pos;
-                Map<StringName, int>::Element *H = plot_prev.find(E->get());
-                if (H) {
-                    prev_plot = H->get();
-                    H->get() = plot_pos;
+                Map<StringName, int>::iterator H = plot_prev.find(E);
+                if (H!=plot_prev.end()) {
+                    prev_plot = H->second;
+                    H->second = plot_pos;
                 } else {
-                    plot_prev[E->get()] = plot_pos;
+                    plot_prev[E] = plot_pos;
                 }
 
                 if (plot_pos == -1 && prev_plot == -1) {
@@ -310,7 +310,7 @@ void EditorProfiler::_update_plot() {
                     SWAP(prev_plot, plot_pos);
                 }
 
-                Color col = _get_color_from_signature(E->get());
+                Color col = _get_color_from_signature(E);
 
                 for (int j = prev_plot; j <= plot_pos; j++) {
 
@@ -345,14 +345,12 @@ void EditorProfiler::_update_plot() {
 
     wr.release();
 
-    Ref<Image> img;
-    img.instance();
+    Ref<Image> img(make_ref_counted<Image>());
     img->create(w, h, false, Image::FORMAT_RGBA8, graph_image);
 
     if (reset_texture) {
-
-        if (graph_texture.is_null()) {
-            graph_texture.instance();
+        if (not graph_texture) {
+            graph_texture = make_ref_counted<ImageTexture>();
         }
         graph_texture->create(img->get_width(), img->get_height(), img->get_format(), Texture::FLAG_VIDEO_SURFACE);
     }
@@ -386,7 +384,7 @@ void EditorProfiler::_update_frame() {
         category->set_text(0, String(m.categories[i].name));
         category->set_text(1, _get_time_as_text(m, m.categories[i].total_time, 1));
 
-        if (plot_sigs.has(m.categories[i].signature)) {
+        if (plot_sigs.contains(m.categories[i].signature)) {
             category->set_checked(0, true);
             category->set_custom_color(0, _get_color_from_signature(m.categories[i].signature));
         }
@@ -409,7 +407,7 @@ void EditorProfiler::_update_frame() {
 
             item->set_text(2, itos(it.calls));
 
-            if (plot_sigs.has(it.signature)) {
+            if (plot_sigs.contains(it.signature)) {
                 item->set_checked(0, true);
                 item->set_custom_color(0, _get_color_from_signature(it.signature));
             }
@@ -493,13 +491,13 @@ void EditorProfiler::_graph_tex_input(const Ref<InputEvent> &p_ev) {
     if (last_metric < 0)
         return;
 
-    Ref<InputEventMouse> me = p_ev;
-    Ref<InputEventMouseButton> mb = p_ev;
-    Ref<InputEventMouseMotion> mm = p_ev;
+    Ref<InputEventMouse> me = dynamic_ref_cast<InputEventMouse>(p_ev);
+    Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_ev);
+    Ref<InputEventMouseMotion> mm = dynamic_ref_cast<InputEventMouseMotion>(p_ev);
 
     if (
-            (mb.is_valid() && mb->get_button_index() == BUTTON_LEFT && mb->is_pressed()) ||
-            (mm.is_valid())) {
+            (mb && mb->get_button_index() == BUTTON_LEFT && mb->is_pressed()) ||
+            (mm)) {
 
         int x = me->get_position().x;
         x = x * frame_metrics.size() / graph->get_size().width;
@@ -528,7 +526,7 @@ void EditorProfiler::_graph_tex_input(const Ref<InputEvent> &p_ev) {
             hover_metric = -1;
         }
 
-        if (mb.is_valid() || mm->get_button_mask() & BUTTON_MASK_LEFT) {
+        if (mb || mm->get_button_mask() & BUTTON_MASK_LEFT) {
             //cursor_metric=x;
             updating_frame = true;
 
@@ -611,7 +609,7 @@ void EditorProfiler::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_combo_changed"), &EditorProfiler::_combo_changed);
 
     MethodBinder::bind_method(D_METHOD("_item_edited"), &EditorProfiler::_item_edited);
-    ADD_SIGNAL(MethodInfo("enable_profiling", PropertyInfo(Variant::BOOL, "enable")));
+    ADD_SIGNAL(MethodInfo("enable_profiling", PropertyInfo(VariantType::BOOL, "enable")));
     ADD_SIGNAL(MethodInfo("break_request"));
 }
 

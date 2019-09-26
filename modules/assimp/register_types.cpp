@@ -30,6 +30,7 @@
 
 #include "register_types.h"
 
+#include "core/class_db.h"
 #include "editor/editor_node.h"
 #include "editor_scene_importer_assimp.h"
 

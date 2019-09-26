@@ -31,6 +31,7 @@
 #include "json.h"
 
 #include "core/print_string.h"
+#include "core/list.h"
 
 const char *JSON::tk_name[TK_MAX] = {
     "'{'",
@@ -67,14 +68,14 @@ String JSON::_print_var(const Variant &p_var, const String &p_indent, int p_cur_
 
     switch (p_var.get_type()) {
 
-        case Variant::NIL: return "null";
-        case Variant::BOOL: return p_var.operator bool() ? "true" : "false";
-        case Variant::INT: return itos(p_var);
-        case Variant::REAL: return rtos(p_var);
-        case Variant::POOL_INT_ARRAY:
-        case Variant::POOL_REAL_ARRAY:
-        case Variant::POOL_STRING_ARRAY:
-        case Variant::ARRAY: {
+        case VariantType::NIL: return "null";
+        case VariantType::BOOL: return p_var.operator bool() ? "true" : "false";
+        case VariantType::INT: return itos(p_var);
+        case VariantType::REAL: return rtos(p_var);
+        case VariantType::POOL_INT_ARRAY:
+        case VariantType::POOL_REAL_ARRAY:
+        case VariantType::POOL_STRING_ARRAY:
+        case VariantType::ARRAY: {
 
             String s = "[";
             s += end_statement;
@@ -88,27 +89,27 @@ String JSON::_print_var(const Variant &p_var, const String &p_indent, int p_cur_
             }
             s += end_statement + _make_indent(p_indent, p_cur_indent) + "]";
             return s;
-        };
-        case Variant::DICTIONARY: {
+        }
+        case VariantType::DICTIONARY: {
 
             String s = "{";
             s += end_statement;
             Dictionary d = p_var;
-            List<Variant> keys;
+            ListPOD<Variant> keys;
             d.get_key_list(&keys);
 
             if (p_sort_keys)
                 keys.sort();
 
-            for (List<Variant>::Element *E = keys.front(); E; E = E->next()) {
+            for (ListPOD<Variant>::iterator E = keys.begin(); E!=keys.end(); ++E) {
 
-                if (E != keys.front()) {
+                if (E != keys.begin()) {
                     s += ",";
                     s += end_statement;
                 }
-                s += _make_indent(p_indent, p_cur_indent + 1) + _print_var(String(E->get()), p_indent, p_cur_indent + 1, p_sort_keys);
+                s += _make_indent(p_indent, p_cur_indent + 1) + _print_var(String(*E), p_indent, p_cur_indent + 1, p_sort_keys);
                 s += colon;
-                s += _print_var(d[E->get()], p_indent, p_cur_indent + 1, p_sort_keys);
+                s += _print_var(d[*E], p_indent, p_cur_indent + 1, p_sort_keys);
             }
 
             s += end_statement + _make_indent(p_indent, p_cur_indent) + "}";
@@ -226,7 +227,7 @@ Error JSON::_get_token(const CharType *p_str, int &index, int p_len, Token &r_to
                                         v = c.toLatin1() - 'A';
                                         v += 10;
                                     } else {
-                                        ERR_PRINT("BUG");
+                                        ERR_PRINT("BUG")
                                         v = 0;
                                     }
 

@@ -521,6 +521,8 @@ public:
     ~Viewport() override;
 };
 
+void register_viewport_local_classes();
+
 VARIANT_ENUM_CAST(Viewport::UpdateMode);
 VARIANT_ENUM_CAST(Viewport::ShadowAtlasQuadrantSubdiv);
 VARIANT_ENUM_CAST(Viewport::MSAA);

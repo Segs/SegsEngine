@@ -28,11 +28,11 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef AUDIOEFFECTEQ_H
-#define AUDIOEFFECTEQ_H
+#pragma once
 
 #include "servers/audio/audio_effect.h"
 #include "servers/audio/effects/eq.h"
+#include "core/map.h"
 
 class AudioEffectEQ;
 
@@ -61,7 +61,7 @@ class AudioEffectEQ : public AudioEffect {
 protected:
 	bool _set(const StringName &p_name, const Variant &p_value);
 	bool _get(const StringName &p_name, Variant &r_ret) const;
-	void _get_property_list(List<PropertyInfo> *p_list) const;
+    void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
 
 	static void _bind_methods();
 
@@ -97,5 +97,3 @@ public:
 	AudioEffectEQ21() :
 			AudioEffectEQ(EQ::PRESET_21_BANDS) {}
 };
-
-#endif // AUDIOEFFECTEQ_H

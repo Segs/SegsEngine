@@ -133,7 +133,7 @@ void AudioStreamPlayer3D::_calc_output_vol(const Vector3 &source_dir, real_t tig
 
 void AudioStreamPlayer3D::_mix_audio() {
 
-    if (!stream_playback.is_valid() || !active ||
+    if (not stream_playback || !active ||
             (stream_paused && !stream_paused_fade_out)) {
         return;
     }
@@ -380,7 +380,7 @@ void AudioStreamPlayer3D::_notification(int p_what) {
             }
 
             Ref<World> world = get_world();
-            ERR_FAIL_COND(world.is_null());
+            ERR_FAIL_COND(not world)
 
             int new_output_count = 0;
 
@@ -417,7 +417,7 @@ void AudioStreamPlayer3D::_notification(int p_what) {
 
             for (List<Camera *>::Element *E = cameras.front(); E; E = E->next()) {
 
-                Camera *camera = E->get();
+                Camera *camera = E->deref();
                 Viewport *vp = camera->get_viewport();
                 if (!vp->is_audio_listener())
                     continue;
@@ -643,21 +643,21 @@ void AudioStreamPlayer3D::set_stream(Ref<AudioStream> p_stream) {
 
     mix_buffer.resize(AudioServer::get_singleton()->thread_get_mix_buffer_size());
 
-    if (stream_playback.is_valid()) {
+    if (stream_playback) {
         stream_playback.unref();
         stream.unref();
         active = false;
         setseek = -1;
     }
 
-    if (p_stream.is_valid()) {
+    if (p_stream) {
         stream = p_stream;
         stream_playback = p_stream->instance_playback();
     }
 
     AudioServer::get_singleton()->unlock();
 
-    if (p_stream.is_valid() && stream_playback.is_null()) {
+    if (p_stream && not stream_playback) {
         stream.unref();
     }
 }
@@ -695,7 +695,7 @@ float AudioStreamPlayer3D::get_max_db() const {
 }
 
 void AudioStreamPlayer3D::set_pitch_scale(float p_pitch_scale) {
-    ERR_FAIL_COND(p_pitch_scale <= 0.0);
+    ERR_FAIL_COND(p_pitch_scale <= 0.0)
     pitch_scale = p_pitch_scale;
 }
 float AudioStreamPlayer3D::get_pitch_scale() const {
@@ -704,7 +704,7 @@ float AudioStreamPlayer3D::get_pitch_scale() const {
 
 void AudioStreamPlayer3D::play(float p_from_pos) {
 
-    if (stream_playback.is_valid()) {
+    if (stream_playback) {
         active = true;
         setplay = p_from_pos;
         output_ready = false;
@@ -714,14 +714,14 @@ void AudioStreamPlayer3D::play(float p_from_pos) {
 
 void AudioStreamPlayer3D::seek(float p_seconds) {
 
-    if (stream_playback.is_valid()) {
+    if (stream_playback) {
         setseek = p_seconds;
     }
 }
 
 void AudioStreamPlayer3D::stop() {
 
-    if (stream_playback.is_valid()) {
+    if (stream_playback) {
         active = false;
         set_physics_process_internal(false);
         setplay = -1;
@@ -730,7 +730,7 @@ void AudioStreamPlayer3D::stop() {
 
 bool AudioStreamPlayer3D::is_playing() const {
 
-    if (stream_playback.is_valid()) {
+    if (stream_playback) {
         return active; // && stream_playback->is_playing();
     }
 
@@ -739,7 +739,7 @@ bool AudioStreamPlayer3D::is_playing() const {
 
 float AudioStreamPlayer3D::get_playback_position() {
 
-    if (stream_playback.is_valid()) {
+    if (stream_playback) {
         return stream_playback->get_playback_position();
     }
 
@@ -807,7 +807,7 @@ void AudioStreamPlayer3D::_bus_layout_changed() {
 
 void AudioStreamPlayer3D::set_max_distance(float p_metres) {
 
-    ERR_FAIL_COND(p_metres < 0.0);
+    ERR_FAIL_COND(p_metres < 0.0)
     max_distance = p_metres;
 }
 
@@ -836,7 +836,7 @@ bool AudioStreamPlayer3D::is_emission_angle_enabled() const {
 }
 
 void AudioStreamPlayer3D::set_emission_angle(float p_angle) {
-    ERR_FAIL_COND(p_angle < 0 || p_angle > 90);
+    ERR_FAIL_COND(p_angle < 0 || p_angle > 90)
     emission_angle = p_angle;
     update_gizmo();
 }
@@ -936,108 +936,108 @@ Ref<AudioStreamPlayback> AudioStreamPlayer3D::get_stream_playback() {
 
 void AudioStreamPlayer3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_stream", "stream"), &AudioStreamPlayer3D::set_stream);
+    MethodBinder::bind_method(D_METHOD("set_stream", {"stream"}), &AudioStreamPlayer3D::set_stream);
     MethodBinder::bind_method(D_METHOD("get_stream"), &AudioStreamPlayer3D::get_stream);
 
-    MethodBinder::bind_method(D_METHOD("set_unit_db", "unit_db"), &AudioStreamPlayer3D::set_unit_db);
+    MethodBinder::bind_method(D_METHOD("set_unit_db", {"unit_db"}), &AudioStreamPlayer3D::set_unit_db);
     MethodBinder::bind_method(D_METHOD("get_unit_db"), &AudioStreamPlayer3D::get_unit_db);
 
-    MethodBinder::bind_method(D_METHOD("set_unit_size", "unit_size"), &AudioStreamPlayer3D::set_unit_size);
+    MethodBinder::bind_method(D_METHOD("set_unit_size", {"unit_size"}), &AudioStreamPlayer3D::set_unit_size);
     MethodBinder::bind_method(D_METHOD("get_unit_size"), &AudioStreamPlayer3D::get_unit_size);
 
-    MethodBinder::bind_method(D_METHOD("set_max_db", "max_db"), &AudioStreamPlayer3D::set_max_db);
+    MethodBinder::bind_method(D_METHOD("set_max_db", {"max_db"}), &AudioStreamPlayer3D::set_max_db);
     MethodBinder::bind_method(D_METHOD("get_max_db"), &AudioStreamPlayer3D::get_max_db);
 
-    MethodBinder::bind_method(D_METHOD("set_pitch_scale", "pitch_scale"), &AudioStreamPlayer3D::set_pitch_scale);
+    MethodBinder::bind_method(D_METHOD("set_pitch_scale", {"pitch_scale"}), &AudioStreamPlayer3D::set_pitch_scale);
     MethodBinder::bind_method(D_METHOD("get_pitch_scale"), &AudioStreamPlayer3D::get_pitch_scale);
 
-    MethodBinder::bind_method(D_METHOD("play", "from_position"), &AudioStreamPlayer3D::play, {DEFVAL(0.0)});
-    MethodBinder::bind_method(D_METHOD("seek", "to_position"), &AudioStreamPlayer3D::seek);
+    MethodBinder::bind_method(D_METHOD("play", {"from_position"}), &AudioStreamPlayer3D::play, {DEFVAL(0.0)});
+    MethodBinder::bind_method(D_METHOD("seek", {"to_position"}), &AudioStreamPlayer3D::seek);
     MethodBinder::bind_method(D_METHOD("stop"), &AudioStreamPlayer3D::stop);
 
     MethodBinder::bind_method(D_METHOD("is_playing"), &AudioStreamPlayer3D::is_playing);
     MethodBinder::bind_method(D_METHOD("get_playback_position"), &AudioStreamPlayer3D::get_playback_position);
 
-    MethodBinder::bind_method(D_METHOD("set_bus", "bus"), &AudioStreamPlayer3D::set_bus);
+    MethodBinder::bind_method(D_METHOD("set_bus", {"bus"}), &AudioStreamPlayer3D::set_bus);
     MethodBinder::bind_method(D_METHOD("get_bus"), &AudioStreamPlayer3D::get_bus);
 
-    MethodBinder::bind_method(D_METHOD("set_autoplay", "enable"), &AudioStreamPlayer3D::set_autoplay);
+    MethodBinder::bind_method(D_METHOD("set_autoplay", {"enable"}), &AudioStreamPlayer3D::set_autoplay);
     MethodBinder::bind_method(D_METHOD("is_autoplay_enabled"), &AudioStreamPlayer3D::is_autoplay_enabled);
 
-    MethodBinder::bind_method(D_METHOD("_set_playing", "enable"), &AudioStreamPlayer3D::_set_playing);
+    MethodBinder::bind_method(D_METHOD("_set_playing", {"enable"}), &AudioStreamPlayer3D::_set_playing);
     MethodBinder::bind_method(D_METHOD("_is_active"), &AudioStreamPlayer3D::_is_active);
 
-    MethodBinder::bind_method(D_METHOD("set_max_distance", "metres"), &AudioStreamPlayer3D::set_max_distance);
+    MethodBinder::bind_method(D_METHOD("set_max_distance", {"metres"}), &AudioStreamPlayer3D::set_max_distance);
     MethodBinder::bind_method(D_METHOD("get_max_distance"), &AudioStreamPlayer3D::get_max_distance);
 
-    MethodBinder::bind_method(D_METHOD("set_area_mask", "mask"), &AudioStreamPlayer3D::set_area_mask);
+    MethodBinder::bind_method(D_METHOD("set_area_mask", {"mask"}), &AudioStreamPlayer3D::set_area_mask);
     MethodBinder::bind_method(D_METHOD("get_area_mask"), &AudioStreamPlayer3D::get_area_mask);
 
-    MethodBinder::bind_method(D_METHOD("set_emission_angle", "degrees"), &AudioStreamPlayer3D::set_emission_angle);
+    MethodBinder::bind_method(D_METHOD("set_emission_angle", {"degrees"}), &AudioStreamPlayer3D::set_emission_angle);
     MethodBinder::bind_method(D_METHOD("get_emission_angle"), &AudioStreamPlayer3D::get_emission_angle);
 
-    MethodBinder::bind_method(D_METHOD("set_emission_angle_enabled", "enabled"), &AudioStreamPlayer3D::set_emission_angle_enabled);
+    MethodBinder::bind_method(D_METHOD("set_emission_angle_enabled", {"enabled"}), &AudioStreamPlayer3D::set_emission_angle_enabled);
     MethodBinder::bind_method(D_METHOD("is_emission_angle_enabled"), &AudioStreamPlayer3D::is_emission_angle_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_emission_angle_filter_attenuation_db", "db"), &AudioStreamPlayer3D::set_emission_angle_filter_attenuation_db);
+    MethodBinder::bind_method(D_METHOD("set_emission_angle_filter_attenuation_db", {"db"}), &AudioStreamPlayer3D::set_emission_angle_filter_attenuation_db);
     MethodBinder::bind_method(D_METHOD("get_emission_angle_filter_attenuation_db"), &AudioStreamPlayer3D::get_emission_angle_filter_attenuation_db);
 
-    MethodBinder::bind_method(D_METHOD("set_attenuation_filter_cutoff_hz", "degrees"), &AudioStreamPlayer3D::set_attenuation_filter_cutoff_hz);
+    MethodBinder::bind_method(D_METHOD("set_attenuation_filter_cutoff_hz", {"degrees"}), &AudioStreamPlayer3D::set_attenuation_filter_cutoff_hz);
     MethodBinder::bind_method(D_METHOD("get_attenuation_filter_cutoff_hz"), &AudioStreamPlayer3D::get_attenuation_filter_cutoff_hz);
 
-    MethodBinder::bind_method(D_METHOD("set_attenuation_filter_db", "db"), &AudioStreamPlayer3D::set_attenuation_filter_db);
+    MethodBinder::bind_method(D_METHOD("set_attenuation_filter_db", {"db"}), &AudioStreamPlayer3D::set_attenuation_filter_db);
     MethodBinder::bind_method(D_METHOD("get_attenuation_filter_db"), &AudioStreamPlayer3D::get_attenuation_filter_db);
 
-    MethodBinder::bind_method(D_METHOD("set_attenuation_model", "model"), &AudioStreamPlayer3D::set_attenuation_model);
+    MethodBinder::bind_method(D_METHOD("set_attenuation_model", {"model"}), &AudioStreamPlayer3D::set_attenuation_model);
     MethodBinder::bind_method(D_METHOD("get_attenuation_model"), &AudioStreamPlayer3D::get_attenuation_model);
 
-    MethodBinder::bind_method(D_METHOD("set_out_of_range_mode", "mode"), &AudioStreamPlayer3D::set_out_of_range_mode);
+    MethodBinder::bind_method(D_METHOD("set_out_of_range_mode", {"mode"}), &AudioStreamPlayer3D::set_out_of_range_mode);
     MethodBinder::bind_method(D_METHOD("get_out_of_range_mode"), &AudioStreamPlayer3D::get_out_of_range_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_doppler_tracking", "mode"), &AudioStreamPlayer3D::set_doppler_tracking);
+    MethodBinder::bind_method(D_METHOD("set_doppler_tracking", {"mode"}), &AudioStreamPlayer3D::set_doppler_tracking);
     MethodBinder::bind_method(D_METHOD("get_doppler_tracking"), &AudioStreamPlayer3D::get_doppler_tracking);
 
-    MethodBinder::bind_method(D_METHOD("set_stream_paused", "pause"), &AudioStreamPlayer3D::set_stream_paused);
+    MethodBinder::bind_method(D_METHOD("set_stream_paused", {"pause"}), &AudioStreamPlayer3D::set_stream_paused);
     MethodBinder::bind_method(D_METHOD("get_stream_paused"), &AudioStreamPlayer3D::get_stream_paused);
 
     MethodBinder::bind_method(D_METHOD("get_stream_playback"), &AudioStreamPlayer3D::get_stream_playback);
 
     MethodBinder::bind_method(D_METHOD("_bus_layout_changed"), &AudioStreamPlayer3D::_bus_layout_changed);
 
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "stream", PROPERTY_HINT_RESOURCE_TYPE, "AudioStream"), "set_stream", "get_stream");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "attenuation_model", PROPERTY_HINT_ENUM, "Inverse,InverseSquare,Log,Disabled"), "set_attenuation_model", "get_attenuation_model");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "unit_db", PROPERTY_HINT_RANGE, "-80,80"), "set_unit_db", "get_unit_db");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "unit_size", PROPERTY_HINT_RANGE, "0.1,100,0.1"), "set_unit_size", "get_unit_size");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "max_db", PROPERTY_HINT_RANGE, "-24,6"), "set_max_db", "get_max_db");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "pitch_scale", PROPERTY_HINT_RANGE, "0.01,32,0.01"), "set_pitch_scale", "get_pitch_scale");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "playing", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR), "_set_playing", "is_playing");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "autoplay"), "set_autoplay", "is_autoplay_enabled");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "stream_paused", PROPERTY_HINT_NONE, ""), "set_stream_paused", "get_stream_paused");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "max_distance", PROPERTY_HINT_EXP_RANGE, "0,4096,1,or_greater"), "set_max_distance", "get_max_distance");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "out_of_range_mode", PROPERTY_HINT_ENUM, "Mix,Pause"), "set_out_of_range_mode", "get_out_of_range_mode");
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "bus", PROPERTY_HINT_ENUM, ""), "set_bus", "get_bus");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "area_mask", PROPERTY_HINT_LAYERS_2D_PHYSICS), "set_area_mask", "get_area_mask");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "stream", PROPERTY_HINT_RESOURCE_TYPE, "AudioStream"), "set_stream", "get_stream");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "attenuation_model", PROPERTY_HINT_ENUM, "Inverse,InverseSquare,Log,Disabled"), "set_attenuation_model", "get_attenuation_model");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "unit_db", PROPERTY_HINT_RANGE, "-80,80"), "set_unit_db", "get_unit_db");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "unit_size", PROPERTY_HINT_RANGE, "0.1,100,0.1"), "set_unit_size", "get_unit_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "max_db", PROPERTY_HINT_RANGE, "-24,6"), "set_max_db", "get_max_db");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "pitch_scale", PROPERTY_HINT_RANGE, "0.01,32,0.01"), "set_pitch_scale", "get_pitch_scale");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "playing", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR), "_set_playing", "is_playing");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "autoplay"), "set_autoplay", "is_autoplay_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "stream_paused", PROPERTY_HINT_NONE, ""), "set_stream_paused", "get_stream_paused");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "max_distance", PROPERTY_HINT_EXP_RANGE, "0,4096,1,or_greater"), "set_max_distance", "get_max_distance");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "out_of_range_mode", PROPERTY_HINT_ENUM, "Mix,Pause"), "set_out_of_range_mode", "get_out_of_range_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "bus", PROPERTY_HINT_ENUM, ""), "set_bus", "get_bus");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "area_mask", PROPERTY_HINT_LAYERS_2D_PHYSICS), "set_area_mask", "get_area_mask");
     ADD_GROUP("Emission Angle", "emission_angle");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "emission_angle_enabled"), "set_emission_angle_enabled", "is_emission_angle_enabled");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "emission_angle_degrees", PROPERTY_HINT_RANGE, "0.1,90,0.1"), "set_emission_angle", "get_emission_angle");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "emission_angle_filter_attenuation_db", PROPERTY_HINT_RANGE, "-80,0,0.1"), "set_emission_angle_filter_attenuation_db", "get_emission_angle_filter_attenuation_db");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "emission_angle_enabled"), "set_emission_angle_enabled", "is_emission_angle_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "emission_angle_degrees", PROPERTY_HINT_RANGE, "0.1,90,0.1"), "set_emission_angle", "get_emission_angle");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "emission_angle_filter_attenuation_db", PROPERTY_HINT_RANGE, "-80,0,0.1"), "set_emission_angle_filter_attenuation_db", "get_emission_angle_filter_attenuation_db");
     ADD_GROUP("Attenuation Filter", "attenuation_filter_");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "attenuation_filter_cutoff_hz", PROPERTY_HINT_RANGE, "1,20500,1"), "set_attenuation_filter_cutoff_hz", "get_attenuation_filter_cutoff_hz");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "attenuation_filter_db", PROPERTY_HINT_RANGE, "-80,0,0.1"), "set_attenuation_filter_db", "get_attenuation_filter_db");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "attenuation_filter_cutoff_hz", PROPERTY_HINT_RANGE, "1,20500,1"), "set_attenuation_filter_cutoff_hz", "get_attenuation_filter_cutoff_hz");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "attenuation_filter_db", PROPERTY_HINT_RANGE, "-80,0,0.1"), "set_attenuation_filter_db", "get_attenuation_filter_db");
     ADD_GROUP("Doppler", "doppler_");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "doppler_tracking", PROPERTY_HINT_ENUM, "Disabled,Idle,Physics"), "set_doppler_tracking", "get_doppler_tracking");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "doppler_tracking", PROPERTY_HINT_ENUM, "Disabled,Idle,Physics"), "set_doppler_tracking", "get_doppler_tracking");
 
-    BIND_ENUM_CONSTANT(ATTENUATION_INVERSE_DISTANCE);
-    BIND_ENUM_CONSTANT(ATTENUATION_INVERSE_SQUARE_DISTANCE);
-    BIND_ENUM_CONSTANT(ATTENUATION_LOGARITHMIC);
-    BIND_ENUM_CONSTANT(ATTENUATION_DISABLED);
+    BIND_ENUM_CONSTANT(ATTENUATION_INVERSE_DISTANCE)
+    BIND_ENUM_CONSTANT(ATTENUATION_INVERSE_SQUARE_DISTANCE)
+    BIND_ENUM_CONSTANT(ATTENUATION_LOGARITHMIC)
+    BIND_ENUM_CONSTANT(ATTENUATION_DISABLED)
 
-    BIND_ENUM_CONSTANT(OUT_OF_RANGE_MIX);
-    BIND_ENUM_CONSTANT(OUT_OF_RANGE_PAUSE);
+    BIND_ENUM_CONSTANT(OUT_OF_RANGE_MIX)
+    BIND_ENUM_CONSTANT(OUT_OF_RANGE_PAUSE)
 
-    BIND_ENUM_CONSTANT(DOPPLER_TRACKING_DISABLED);
-    BIND_ENUM_CONSTANT(DOPPLER_TRACKING_IDLE_STEP);
-    BIND_ENUM_CONSTANT(DOPPLER_TRACKING_PHYSICS_STEP);
+    BIND_ENUM_CONSTANT(DOPPLER_TRACKING_DISABLED)
+    BIND_ENUM_CONSTANT(DOPPLER_TRACKING_IDLE_STEP)
+    BIND_ENUM_CONSTANT(DOPPLER_TRACKING_PHYSICS_STEP)
 
     ADD_SIGNAL(MethodInfo("finished"));
 }
@@ -1069,7 +1069,7 @@ AudioStreamPlayer3D::AudioStreamPlayer3D() {
     stream_paused_fade_in = false;
     stream_paused_fade_out = false;
 
-    velocity_tracker.instance();
+    velocity_tracker = make_ref_counted<SpatialVelocityTracker>();
     AudioServer::get_singleton()->connect("bus_layout_changed", this, "_bus_layout_changed");
     set_disable_scale(true);
 }

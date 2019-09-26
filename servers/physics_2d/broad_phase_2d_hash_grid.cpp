@@ -36,593 +36,594 @@
 
 void BroadPhase2DHashGrid::_pair_attempt(Element *p_elem, Element *p_with) {
 
-	Map<Element *, PairData *>::Element *E = p_elem->paired.find(p_with);
+    Map<Element *, PairData *>::iterator E = p_elem->paired.find(p_with);
 
-	ERR_FAIL_COND(p_elem->_static && p_with->_static);
+    ERR_FAIL_COND(p_elem->_static && p_with->_static)
 
-	if (!E) {
+    if (E==p_elem->paired.end()) {
 
-		PairData *pd = memnew(PairData);
-		p_elem->paired[p_with] = pd;
-		p_with->paired[p_elem] = pd;
-	} else {
-		E->get()->rc++;
-	}
+        PairData *pd = memnew(PairData);
+        p_elem->paired[p_with] = pd;
+        p_with->paired[p_elem] = pd;
+    } else {
+        E->second->rc++;
+    }
 }
 
 void BroadPhase2DHashGrid::_unpair_attempt(Element *p_elem, Element *p_with) {
 
-	Map<Element *, PairData *>::Element *E = p_elem->paired.find(p_with);
+    Map<Element *, PairData *>::iterator E = p_elem->paired.find(p_with);
 
-	ERR_FAIL_COND(!E); //this should really be paired..
+    ERR_FAIL_COND(E==p_elem->paired.end()) //this should really be paired..
 
-	E->get()->rc--;
+    E->second->rc--;
 
-	if (E->get()->rc == 0) {
+    if (E->second->rc == 0) {
 
-		if (E->get()->colliding) {
-			//uncollide
-			if (unpair_callback) {
-				unpair_callback(p_elem->owner, p_elem->subindex, p_with->owner, p_with->subindex, E->get()->ud, unpair_userdata);
-			}
-		}
+        if (E->second->colliding) {
+            //uncollide
+            if (unpair_callback) {
+                unpair_callback(p_elem->owner, p_elem->subindex, p_with->owner, p_with->subindex, E->second->ud, unpair_userdata);
+            }
+        }
 
-		memdelete(E->get());
-		p_elem->paired.erase(E);
-		p_with->paired.erase(p_elem);
-	}
+        memdelete(E->second);
+        p_elem->paired.erase(E);
+        p_with->paired.erase(p_elem);
+    }
 }
 
 void BroadPhase2DHashGrid::_check_motion(Element *p_elem) {
 
-	for (Map<Element *, PairData *>::Element *E = p_elem->paired.front(); E; E = E->next()) {
+    for (const eastl::pair<const Element *,PairData *> &E : p_elem->paired) {
 
-		bool pairing = p_elem->aabb.intersects(E->key()->aabb);
+        bool pairing = p_elem->aabb.intersects(E.first->aabb);
 
-		if (pairing != E->get()->colliding) {
+        if (pairing != E.second->colliding) {
 
-			if (pairing) {
+            if (pairing) {
 
-				if (pair_callback) {
-					E->get()->ud = pair_callback(p_elem->owner, p_elem->subindex, E->key()->owner, E->key()->subindex, pair_userdata);
-				}
-			} else {
+                if (pair_callback) {
+                    E.second->ud = pair_callback(p_elem->owner, p_elem->subindex, E.first->owner, E.first->subindex, pair_userdata);
+                }
+            } else {
 
-				if (unpair_callback) {
-					unpair_callback(p_elem->owner, p_elem->subindex, E->key()->owner, E->key()->subindex, E->get()->ud, unpair_userdata);
-				}
-			}
+                if (unpair_callback) {
+                    unpair_callback(p_elem->owner, p_elem->subindex, E.first->owner, E.first->subindex, E.second->ud, unpair_userdata);
+                }
+            }
 
-			E->get()->colliding = pairing;
-		}
-	}
+            E.second->colliding = pairing;
+        }
+    }
 }
 
 void BroadPhase2DHashGrid::_enter_grid(Element *p_elem, const Rect2 &p_rect, bool p_static) {
 
-	Vector2 sz = (p_rect.size / cell_size * LARGE_ELEMENT_FI); //use magic number to avoid floating point issues
-	if (sz.width * sz.height > large_object_min_surface) {
-		//large object, do not use grid, must check against all elements
-		for (Map<ID, Element>::Element *E = element_map.front(); E; E = E->next()) {
-			if (E->key() == p_elem->self)
-				continue; // do not pair against itself
-			if (E->get().owner == p_elem->owner)
-				continue;
-			if (E->get()._static && p_static)
-				continue;
+    Vector2 sz = (p_rect.size / cell_size * LARGE_ELEMENT_FI); //use magic number to avoid floating point issues
+    if (sz.width * sz.height > large_object_min_surface) {
+        //large object, do not use grid, must check against all elements
+        for (eastl::pair<const ID,Element> &E : element_map) {
+            if (E.first == p_elem->self)
+                continue; // do not pair against itself
+            if (E.second.owner == p_elem->owner)
+                continue;
+            if (E.second._static && p_static)
+                continue;
 
-			_pair_attempt(p_elem, &E->get());
-		}
+            _pair_attempt(p_elem, &E.second);
+        }
 
-		large_elements[p_elem].inc();
-		return;
-	}
+        large_elements[p_elem].inc();
+        return;
+    }
 
-	Point2i from = (p_rect.position / cell_size).floor();
-	Point2i to = ((p_rect.position + p_rect.size) / cell_size).floor();
+    Point2i from = (p_rect.position / cell_size).floor();
+    Point2i to = ((p_rect.position + p_rect.size) / cell_size).floor();
 
-	for (int i = from.x; i <= to.x; i++) {
+    for (int i = from.x; i <= to.x; i++) {
 
-		for (int j = from.y; j <= to.y; j++) {
+        for (int j = from.y; j <= to.y; j++) {
 
-			PosKey pk;
-			pk.x = i;
-			pk.y = j;
+            PosKey pk;
+            pk.x = i;
+            pk.y = j;
 
-			uint32_t idx = pk.hash() % hash_table_size;
-			PosBin *pb = hash_table[idx];
+            uint32_t idx = pk.hash() % hash_table_size;
+            PosBin *pb = hash_table[idx];
 
-			while (pb) {
+            while (pb) {
 
-				if (pb->key == pk) {
-					break;
-				}
+                if (pb->key == pk) {
+                    break;
+                }
 
-				pb = pb->next;
-			}
+                pb = pb->next;
+            }
 
-			bool entered = false;
+            bool entered = false;
 
-			if (!pb) {
-				//does not exist, create!
-				pb = memnew(PosBin);
-				pb->key = pk;
-				pb->next = hash_table[idx];
-				hash_table[idx] = pb;
-			}
+            if (!pb) {
+                //does not exist, create!
+                pb = memnew(PosBin);
+                pb->key = pk;
+                pb->next = hash_table[idx];
+                hash_table[idx] = pb;
+            }
 
-			if (p_static) {
-				if (pb->static_object_set[p_elem].inc() == 1) {
-					entered = true;
-				}
-			} else {
-				if (pb->object_set[p_elem].inc() == 1) {
+            if (p_static) {
+                if (pb->static_object_set[p_elem].inc() == 1) {
+                    entered = true;
+                }
+            } else {
+                if (pb->object_set[p_elem].inc() == 1) {
 
-					entered = true;
-				}
-			}
+                    entered = true;
+                }
+            }
 
-			if (entered) {
+            if (entered) {
 
-				for (Map<Element *, RC>::Element *E = pb->object_set.front(); E; E = E->next()) {
+                for (eastl::pair<Element *,RC> E : pb->object_set) {
 
-					if (E->key()->owner == p_elem->owner)
-						continue;
-					_pair_attempt(p_elem, E->key());
-				}
+                    if (E.first->owner == p_elem->owner)
+                        continue;
+                    _pair_attempt(p_elem, E.first);
+                }
 
-				if (!p_static) {
+                if (!p_static) {
 
-					for (Map<Element *, RC>::Element *E = pb->static_object_set.front(); E; E = E->next()) {
+                    for (eastl::pair<Element *,RC> E : pb->static_object_set) {
 
-						if (E->key()->owner == p_elem->owner)
-							continue;
-						_pair_attempt(p_elem, E->key());
-					}
-				}
-			}
-		}
-	}
+                        if (E.first->owner == p_elem->owner)
+                            continue;
+                        _pair_attempt(p_elem, E.first);
+                    }
+                }
+            }
+        }
+    }
 
-	//pair separatedly with large elements
+    //pair separatedly with large elements
 
-	for (Map<Element *, RC>::Element *E = large_elements.front(); E; E = E->next()) {
+    for (eastl::pair<Element *const,RC> &E : large_elements) {
 
-		if (E->key() == p_elem)
-			continue; // do not pair against itself
-		if (E->key()->owner == p_elem->owner)
-			continue;
-		if (E->key()->_static && p_static)
-			continue;
+        if (E.first == p_elem)
+            continue; // do not pair against itself
+        if (E.first->owner == p_elem->owner)
+            continue;
+        if (E.first->_static && p_static)
+            continue;
 
-		_pair_attempt(E->key(), p_elem);
-	}
+        _pair_attempt(E.first, p_elem);
+    }
 }
 
 void BroadPhase2DHashGrid::_exit_grid(Element *p_elem, const Rect2 &p_rect, bool p_static) {
 
-	Vector2 sz = (p_rect.size / cell_size * LARGE_ELEMENT_FI);
-	if (sz.width * sz.height > large_object_min_surface) {
+    Vector2 sz = (p_rect.size / cell_size * LARGE_ELEMENT_FI);
+    if (sz.width * sz.height > large_object_min_surface) {
 
-		//unpair all elements, instead of checking all, just check what is already paired, so we at least save from checking static vs static
-		Map<Element *, PairData *>::Element *E = p_elem->paired.front();
-		while (E) {
-			Map<Element *, PairData *>::Element *next = E->next();
-			_unpair_attempt(p_elem, E->key());
-			E = next;
-		}
+        //unpair all elements, instead of checking all, just check what is already paired, so we at least save from checking static vs static
+        Map<Element *, PairData *>::iterator E = p_elem->paired.begin();
+        while (E!=p_elem->paired.end()) {
+            Map<Element *, PairData *>::iterator next = E;
+            ++next;
+            _unpair_attempt(p_elem, E->first);
+            E = next;
+        }
 
-		if (large_elements[p_elem].dec() == 0) {
-			large_elements.erase(p_elem);
-		}
-		return;
-	}
+        if (large_elements[p_elem].dec() == 0) {
+            large_elements.erase(p_elem);
+        }
+        return;
+    }
 
-	Point2i from = (p_rect.position / cell_size).floor();
-	Point2i to = ((p_rect.position + p_rect.size) / cell_size).floor();
+    Point2i from = (p_rect.position / cell_size).floor();
+    Point2i to = ((p_rect.position + p_rect.size) / cell_size).floor();
 
-	for (int i = from.x; i <= to.x; i++) {
+    for (int i = from.x; i <= to.x; i++) {
 
-		for (int j = from.y; j <= to.y; j++) {
+        for (int j = from.y; j <= to.y; j++) {
 
-			PosKey pk;
-			pk.x = i;
-			pk.y = j;
+            PosKey pk;
+            pk.x = i;
+            pk.y = j;
 
-			uint32_t idx = pk.hash() % hash_table_size;
-			PosBin *pb = hash_table[idx];
+            uint32_t idx = pk.hash() % hash_table_size;
+            PosBin *pb = hash_table[idx];
 
-			while (pb) {
+            while (pb) {
 
-				if (pb->key == pk) {
-					break;
-				}
+                if (pb->key == pk) {
+                    break;
+                }
 
-				pb = pb->next;
-			}
+                pb = pb->next;
+            }
 
-			ERR_CONTINUE(!pb); //should exist!!
+            ERR_CONTINUE(!pb); //should exist!!
 
-			bool exited = false;
+            bool exited = false;
 
-			if (p_static) {
-				if (pb->static_object_set[p_elem].dec() == 0) {
+            if (p_static) {
+                if (pb->static_object_set[p_elem].dec() == 0) {
 
-					pb->static_object_set.erase(p_elem);
-					exited = true;
-				}
-			} else {
-				if (pb->object_set[p_elem].dec() == 0) {
+                    pb->static_object_set.erase(p_elem);
+                    exited = true;
+                }
+            } else {
+                if (pb->object_set[p_elem].dec() == 0) {
 
-					pb->object_set.erase(p_elem);
-					exited = true;
-				}
-			}
+                    pb->object_set.erase(p_elem);
+                    exited = true;
+                }
+            }
 
-			if (exited) {
+            if (exited) {
 
-				for (Map<Element *, RC>::Element *E = pb->object_set.front(); E; E = E->next()) {
+                for (eastl::pair<Element *const,RC> &E : pb->object_set) {
 
-					if (E->key()->owner == p_elem->owner)
-						continue;
-					_unpair_attempt(p_elem, E->key());
-				}
+                    if (E.first->owner == p_elem->owner)
+                        continue;
+                    _unpair_attempt(p_elem, E.first);
+                }
 
-				if (!p_static) {
+                if (!p_static) {
 
-					for (Map<Element *, RC>::Element *E = pb->static_object_set.front(); E; E = E->next()) {
+                    for (eastl::pair<Element *const,RC> &E : pb->static_object_set) {
 
-						if (E->key()->owner == p_elem->owner)
-							continue;
-						_unpair_attempt(p_elem, E->key());
-					}
-				}
-			}
+                        if (E.first->owner == p_elem->owner)
+                            continue;
+                        _unpair_attempt(p_elem, E.first);
+                    }
+                }
+            }
 
-			if (pb->object_set.empty() && pb->static_object_set.empty()) {
+            if (pb->object_set.empty() && pb->static_object_set.empty()) {
 
-				if (hash_table[idx] == pb) {
-					hash_table[idx] = pb->next;
-				} else {
+                if (hash_table[idx] == pb) {
+                    hash_table[idx] = pb->next;
+                } else {
 
-					PosBin *px = hash_table[idx];
+                    PosBin *px = hash_table[idx];
 
-					while (px) {
+                    while (px) {
 
-						if (px->next == pb) {
-							px->next = pb->next;
-							break;
-						}
+                        if (px->next == pb) {
+                            px->next = pb->next;
+                            break;
+                        }
 
-						px = px->next;
-					}
+                        px = px->next;
+                    }
 
-					ERR_CONTINUE(!px);
-				}
+                    ERR_CONTINUE(!px);
+                }
 
-				memdelete(pb);
-			}
-		}
-	}
+                memdelete(pb);
+            }
+        }
+    }
 
-	for (Map<Element *, RC>::Element *E = large_elements.front(); E; E = E->next()) {
-		if (E->key() == p_elem)
-			continue; // do not pair against itself
-		if (E->key()->owner == p_elem->owner)
-			continue;
-		if (E->key()->_static && p_static)
-			continue;
+    for (const eastl::pair<Element *const,RC> &E : large_elements) {
+        if (E.first == p_elem)
+            continue; // do not pair against itself
+        if (E.first->owner == p_elem->owner)
+            continue;
+        if (E.first->_static && p_static)
+            continue;
 
-		//unpair from large elements
-		_unpair_attempt(p_elem, E->key());
-	}
+        //unpair from large elements
+        _unpair_attempt(p_elem, E.first);
+    }
 }
 
 BroadPhase2DHashGrid::ID BroadPhase2DHashGrid::create(CollisionObject2DSW *p_object, int p_subindex) {
 
-	current++;
+    current++;
 
-	Element e;
-	e.owner = p_object;
-	e._static = false;
-	e.subindex = p_subindex;
-	e.self = current;
-	e.pass = 0;
+    Element e;
+    e.owner = p_object;
+    e._static = false;
+    e.subindex = p_subindex;
+    e.self = current;
+    e.pass = 0;
 
-	element_map[current] = e;
-	return current;
+    element_map[current] = e;
+    return current;
 }
 
 void BroadPhase2DHashGrid::move(ID p_id, const Rect2 &p_aabb) {
 
-	Map<ID, Element>::Element *E = element_map.find(p_id);
-	ERR_FAIL_COND(!E);
+    Map<ID, Element>::iterator E = element_map.find(p_id);
+    ERR_FAIL_COND(E==element_map.end())
 
-	Element &e = E->get();
+    Element &e = E->second;
 
-	if (p_aabb == e.aabb)
-		return;
+    if (p_aabb == e.aabb)
+        return;
 
-	if (p_aabb != Rect2()) {
+    if (p_aabb != Rect2()) {
 
-		_enter_grid(&e, p_aabb, e._static);
-	}
+        _enter_grid(&e, p_aabb, e._static);
+    }
 
-	if (e.aabb != Rect2()) {
+    if (e.aabb != Rect2()) {
 
-		_exit_grid(&e, e.aabb, e._static);
-	}
+        _exit_grid(&e, e.aabb, e._static);
+    }
 
-	e.aabb = p_aabb;
+    e.aabb = p_aabb;
 
-	_check_motion(&e);
+    _check_motion(&e);
 
-	e.aabb = p_aabb;
+    e.aabb = p_aabb;
 }
 void BroadPhase2DHashGrid::set_static(ID p_id, bool p_static) {
 
-	Map<ID, Element>::Element *E = element_map.find(p_id);
-	ERR_FAIL_COND(!E);
+    Map<ID, Element>::iterator E = element_map.find(p_id);
+    ERR_FAIL_COND(E==element_map.end())
 
-	Element &e = E->get();
+    Element &e = E->second;
 
-	if (e._static == p_static)
-		return;
+    if (e._static == p_static)
+        return;
 
-	if (e.aabb != Rect2())
-		_exit_grid(&e, e.aabb, e._static);
+    if (e.aabb != Rect2())
+        _exit_grid(&e, e.aabb, e._static);
 
-	e._static = p_static;
+    e._static = p_static;
 
-	if (e.aabb != Rect2()) {
-		_enter_grid(&e, e.aabb, e._static);
-		_check_motion(&e);
-	}
+    if (e.aabb != Rect2()) {
+        _enter_grid(&e, e.aabb, e._static);
+        _check_motion(&e);
+    }
 }
 void BroadPhase2DHashGrid::remove(ID p_id) {
 
-	Map<ID, Element>::Element *E = element_map.find(p_id);
-	ERR_FAIL_COND(!E);
+    Map<ID, Element>::iterator E = element_map.find(p_id);
+    ERR_FAIL_COND(E==element_map.end())
 
-	Element &e = E->get();
+    Element &e = E->second;
 
-	if (e.aabb != Rect2())
-		_exit_grid(&e, e.aabb, e._static);
+    if (e.aabb != Rect2())
+        _exit_grid(&e, e.aabb, e._static);
 
-	element_map.erase(p_id);
+    element_map.erase(p_id);
 }
 
 CollisionObject2DSW *BroadPhase2DHashGrid::get_object(ID p_id) const {
 
-	const Map<ID, Element>::Element *E = element_map.find(p_id);
-	ERR_FAIL_COND_V(!E, nullptr);
-	return E->get().owner;
+    const Map<ID, Element>::const_iterator E = element_map.find(p_id);
+    ERR_FAIL_COND_V(E==element_map.end(), nullptr)
+    return E->second.owner;
 }
 bool BroadPhase2DHashGrid::is_static(ID p_id) const {
 
-	const Map<ID, Element>::Element *E = element_map.find(p_id);
-	ERR_FAIL_COND_V(!E, false);
-	return E->get()._static;
+    const Map<ID, Element>::const_iterator E = element_map.find(p_id);
+    ERR_FAIL_COND_V(E==element_map.end(), false)
+    return E->second._static;
 }
 int BroadPhase2DHashGrid::get_subindex(ID p_id) const {
 
-	const Map<ID, Element>::Element *E = element_map.find(p_id);
-	ERR_FAIL_COND_V(!E, -1);
-	return E->get().subindex;
+    const Map<ID, Element>::const_iterator E = element_map.find(p_id);
+    ERR_FAIL_COND_V(E==element_map.end(), -1)
+    return E->second.subindex;
 }
 
 template <bool use_aabb, bool use_segment>
 void BroadPhase2DHashGrid::_cull(const Point2i p_cell, const Rect2 &p_aabb, const Point2 &p_from, const Point2 &p_to, CollisionObject2DSW **p_results, int p_max_results, int *p_result_indices, int &index) {
 
-	PosKey pk;
-	pk.x = p_cell.x;
-	pk.y = p_cell.y;
+    PosKey pk;
+    pk.x = p_cell.x;
+    pk.y = p_cell.y;
 
-	uint32_t idx = pk.hash() % hash_table_size;
-	PosBin *pb = hash_table[idx];
+    uint32_t idx = pk.hash() % hash_table_size;
+    PosBin *pb = hash_table[idx];
 
-	while (pb) {
+    while (pb) {
 
-		if (pb->key == pk) {
-			break;
-		}
+        if (pb->key == pk) {
+            break;
+        }
 
-		pb = pb->next;
-	}
+        pb = pb->next;
+    }
 
-	if (!pb)
-		return;
+    if (!pb)
+        return;
 
-	for (Map<Element *, RC>::Element *E = pb->object_set.front(); E; E = E->next()) {
+    for (eastl::pair<Element *,RC> E : pb->object_set) {
 
-		if (index >= p_max_results)
-			break;
-		if (E->key()->pass == pass)
-			continue;
+        if (index >= p_max_results)
+            break;
+        if (E.first->pass == pass)
+            continue;
 
-		E->key()->pass = pass;
+        E.first->pass = pass;
 
-		if (use_aabb && !p_aabb.intersects(E->key()->aabb))
-			continue;
+        if (use_aabb && !p_aabb.intersects(E.first->aabb))
+            continue;
 
-		if (use_segment && !E->key()->aabb.intersects_segment(p_from, p_to))
-			continue;
+        if (use_segment && !E.first->aabb.intersects_segment(p_from, p_to))
+            continue;
 
-		p_results[index] = E->key()->owner;
-		p_result_indices[index] = E->key()->subindex;
-		index++;
-	}
+        p_results[index] = E.first->owner;
+        p_result_indices[index] = E.first->subindex;
+        index++;
+    }
 
-	for (Map<Element *, RC>::Element *E = pb->static_object_set.front(); E; E = E->next()) {
+    for (const eastl::pair<Element *const,RC> &E : pb->static_object_set) {
 
-		if (index >= p_max_results)
-			break;
-		if (E->key()->pass == pass)
-			continue;
+        if (index >= p_max_results)
+            break;
+        if (E.first->pass == pass)
+            continue;
 
-		if (use_aabb && !p_aabb.intersects(E->key()->aabb)) {
-			continue;
-		}
+        if (use_aabb && !p_aabb.intersects(E.first->aabb)) {
+            continue;
+        }
 
-		if (use_segment && !E->key()->aabb.intersects_segment(p_from, p_to))
-			continue;
+        if (use_segment && !E.first->aabb.intersects_segment(p_from, p_to))
+            continue;
 
-		E->key()->pass = pass;
-		p_results[index] = E->key()->owner;
-		p_result_indices[index] = E->key()->subindex;
-		index++;
-	}
+        E.first->pass = pass;
+        p_results[index] = E.first->owner;
+        p_result_indices[index] = E.first->subindex;
+        index++;
+    }
 }
 
 int BroadPhase2DHashGrid::cull_segment(const Vector2 &p_from, const Vector2 &p_to, CollisionObject2DSW **p_results, int p_max_results, int *p_result_indices) {
 
-	pass++;
+    pass++;
 
-	Vector2 dir = (p_to - p_from);
-	if (dir == Vector2())
-		return 0;
-	//avoid divisions by zero
-	dir.normalize();
-	if (dir.x == 0.0)
-		dir.x = 0.000001;
-	if (dir.y == 0.0)
-		dir.y = 0.000001;
-	Vector2 delta = dir.abs();
+    Vector2 dir = (p_to - p_from);
+    if (dir == Vector2())
+        return 0;
+    //avoid divisions by zero
+    dir.normalize();
+    if (dir.x == 0.0f)
+        dir.x = 0.000001f;
+    if (dir.y == 0.0f)
+        dir.y = 0.000001f;
+    Vector2 delta = dir.abs();
 
-	delta.x = cell_size / delta.x;
-	delta.y = cell_size / delta.y;
+    delta.x = cell_size / delta.x;
+    delta.y = cell_size / delta.y;
 
-	Point2i pos = (p_from / cell_size).floor();
-	Point2i end = (p_to / cell_size).floor();
+    Point2i pos = (p_from / cell_size).floor();
+    Point2i end = (p_to / cell_size).floor();
 
-	Point2i step = Vector2(SGN(dir.x), SGN(dir.y));
+    Point2i step = Vector2(SGN(dir.x), SGN(dir.y));
 
-	Vector2 max;
+    Vector2 max;
 
-	if (dir.x < 0)
-		max.x = (Math::floor((double)pos.x) * cell_size - p_from.x) / dir.x;
-	else
-		max.x = (Math::floor((double)pos.x + 1) * cell_size - p_from.x) / dir.x;
+    if (dir.x < 0)
+        max.x = (Math::floor((double)pos.x) * cell_size - p_from.x) / dir.x;
+    else
+        max.x = (Math::floor((double)pos.x + 1) * cell_size - p_from.x) / dir.x;
 
-	if (dir.y < 0)
-		max.y = (Math::floor((double)pos.y) * cell_size - p_from.y) / dir.y;
-	else
-		max.y = (Math::floor((double)pos.y + 1) * cell_size - p_from.y) / dir.y;
+    if (dir.y < 0)
+        max.y = (Math::floor((double)pos.y) * cell_size - p_from.y) / dir.y;
+    else
+        max.y = (Math::floor((double)pos.y + 1) * cell_size - p_from.y) / dir.y;
 
-	int cullcount = 0;
-	_cull<false, true>(pos, Rect2(), p_from, p_to, p_results, p_max_results, p_result_indices, cullcount);
+    int cullcount = 0;
+    _cull<false, true>(pos, Rect2(), p_from, p_to, p_results, p_max_results, p_result_indices, cullcount);
 
-	bool reached_x = false;
-	bool reached_y = false;
+    bool reached_x = false;
+    bool reached_y = false;
 
-	while (true) {
+    while (true) {
 
-		if (max.x < max.y) {
+        if (max.x < max.y) {
 
-			max.x += delta.x;
-			pos.x += step.x;
-		} else {
+            max.x += delta.x;
+            pos.x += step.x;
+        } else {
 
-			max.y += delta.y;
-			pos.y += step.y;
-		}
+            max.y += delta.y;
+            pos.y += step.y;
+        }
 
-		if (step.x > 0) {
-			if (pos.x >= end.x)
-				reached_x = true;
-		} else if (pos.x <= end.x) {
+        if (step.x > 0) {
+            if (pos.x >= end.x)
+                reached_x = true;
+        } else if (pos.x <= end.x) {
 
-			reached_x = true;
-		}
+            reached_x = true;
+        }
 
-		if (step.y > 0) {
-			if (pos.y >= end.y)
-				reached_y = true;
-		} else if (pos.y <= end.y) {
+        if (step.y > 0) {
+            if (pos.y >= end.y)
+                reached_y = true;
+        } else if (pos.y <= end.y) {
 
-			reached_y = true;
-		}
+            reached_y = true;
+        }
 
-		_cull<false, true>(pos, Rect2(), p_from, p_to, p_results, p_max_results, p_result_indices, cullcount);
+        _cull<false, true>(pos, Rect2(), p_from, p_to, p_results, p_max_results, p_result_indices, cullcount);
 
-		if (reached_x && reached_y)
-			break;
-	}
+        if (reached_x && reached_y)
+            break;
+    }
 
-	for (Map<Element *, RC>::Element *E = large_elements.front(); E; E = E->next()) {
+    for (const eastl::pair<Element * const,RC> &E : large_elements) {
 
-		if (cullcount >= p_max_results)
-			break;
-		if (E->key()->pass == pass)
-			continue;
+        if (cullcount >= p_max_results)
+            break;
+        if (E.first->pass == pass)
+            continue;
 
-		E->key()->pass = pass;
+        E.first->pass = pass;
 
-		/*
-		if (use_aabb && !p_aabb.intersects(E->key()->aabb))
-			continue;
-		*/
+        /*
+        if (use_aabb && !p_aabb.intersects(E.first->aabb))
+            continue;
+        */
 
-		if (!E->key()->aabb.intersects_segment(p_from, p_to))
-			continue;
+        if (!E.first->aabb.intersects_segment(p_from, p_to))
+            continue;
 
-		p_results[cullcount] = E->key()->owner;
-		p_result_indices[cullcount] = E->key()->subindex;
-		cullcount++;
-	}
+        p_results[cullcount] = E.first->owner;
+        p_result_indices[cullcount] = E.first->subindex;
+        cullcount++;
+    }
 
-	return cullcount;
+    return cullcount;
 }
 
 int BroadPhase2DHashGrid::cull_aabb(const Rect2 &p_aabb, CollisionObject2DSW **p_results, int p_max_results, int *p_result_indices) {
 
-	pass++;
+    pass++;
 
-	Point2i from = (p_aabb.position / cell_size).floor();
-	Point2i to = ((p_aabb.position + p_aabb.size) / cell_size).floor();
-	int cullcount = 0;
+    Point2i from = (p_aabb.position / cell_size).floor();
+    Point2i to = ((p_aabb.position + p_aabb.size) / cell_size).floor();
+    int cullcount = 0;
 
-	for (int i = from.x; i <= to.x; i++) {
+    for (int i = from.x; i <= to.x; i++) {
 
-		for (int j = from.y; j <= to.y; j++) {
+        for (int j = from.y; j <= to.y; j++) {
 
-			_cull<true, false>(Point2i(i, j), p_aabb, Point2(), Point2(), p_results, p_max_results, p_result_indices, cullcount);
-		}
-	}
+            _cull<true, false>(Point2i(i, j), p_aabb, Point2(), Point2(), p_results, p_max_results, p_result_indices, cullcount);
+        }
+    }
 
-	for (Map<Element *, RC>::Element *E = large_elements.front(); E; E = E->next()) {
+    for (eastl::pair<Element *,RC> E : large_elements) {
 
-		if (cullcount >= p_max_results)
-			break;
-		if (E->key()->pass == pass)
-			continue;
+        if (cullcount >= p_max_results)
+            break;
+        if (E.first->pass == pass)
+            continue;
 
-		E->key()->pass = pass;
+        E.first->pass = pass;
 
-		if (!p_aabb.intersects(E->key()->aabb))
-			continue;
+        if (!p_aabb.intersects(E.first->aabb))
+            continue;
 
-		/*
-		if (!E->key()->aabb.intersects_segment(p_from,p_to))
-			continue;
-		*/
+        /*
+        if (!E.first->aabb.intersects_segment(p_from,p_to))
+            continue;
+        */
 
-		p_results[cullcount] = E->key()->owner;
-		p_result_indices[cullcount] = E->key()->subindex;
-		cullcount++;
-	}
-	return cullcount;
+        p_results[cullcount] = E.first->owner;
+        p_result_indices[cullcount] = E.first->subindex;
+        cullcount++;
+    }
+    return cullcount;
 }
 
 void BroadPhase2DHashGrid::set_pair_callback(PairCallback p_pair_callback, void *p_userdata) {
 
-	pair_callback = p_pair_callback;
-	pair_userdata = p_userdata;
+    pair_callback = p_pair_callback;
+    pair_userdata = p_userdata;
 }
 void BroadPhase2DHashGrid::set_unpair_callback(UnpairCallback p_unpair_callback, void *p_userdata) {
 
-	unpair_callback = p_unpair_callback;
-	unpair_userdata = p_userdata;
+    unpair_callback = p_unpair_callback;
+    unpair_userdata = p_userdata;
 }
 
 void BroadPhase2DHashGrid::update() {
@@ -630,40 +631,40 @@ void BroadPhase2DHashGrid::update() {
 
 BroadPhase2DSW *BroadPhase2DHashGrid::_create() {
 
-	return memnew(BroadPhase2DHashGrid);
+    return memnew(BroadPhase2DHashGrid);
 }
 
 BroadPhase2DHashGrid::BroadPhase2DHashGrid() {
 
-	hash_table_size = GLOBAL_DEF("physics/2d/bp_hash_table_size", 4096);
-	ProjectSettings::get_singleton()->set_custom_property_info("physics/2d/bp_hash_table_size", PropertyInfo(Variant::INT, "physics/2d/bp_hash_table_size", PROPERTY_HINT_RANGE, "0,8192,1,or_greater"));
-	hash_table_size = Math::larger_prime(hash_table_size);
-	hash_table = memnew_arr(PosBin *, hash_table_size);
+    hash_table_size = GLOBAL_DEF("physics/2d/bp_hash_table_size", 4096);
+    ProjectSettings::get_singleton()->set_custom_property_info("physics/2d/bp_hash_table_size", PropertyInfo(VariantType::INT, "physics/2d/bp_hash_table_size", PROPERTY_HINT_RANGE, "0,8192,1,or_greater"));
+    hash_table_size = Math::larger_prime(hash_table_size);
+    hash_table = memnew_arr(PosBin *, hash_table_size);
 
-	cell_size = GLOBAL_DEF("physics/2d/cell_size", 128);
-	ProjectSettings::get_singleton()->set_custom_property_info("physics/2d/cell_size", PropertyInfo(Variant::INT, "physics/2d/cell_size", PROPERTY_HINT_RANGE, "0,512,1,or_greater"));
+    cell_size = GLOBAL_DEF("physics/2d/cell_size", 128);
+    ProjectSettings::get_singleton()->set_custom_property_info("physics/2d/cell_size", PropertyInfo(VariantType::INT, "physics/2d/cell_size", PROPERTY_HINT_RANGE, "0,512,1,or_greater"));
 
-	large_object_min_surface = GLOBAL_DEF("physics/2d/large_object_surface_threshold_in_cells", 512);
-	ProjectSettings::get_singleton()->set_custom_property_info("physics/2d/large_object_surface_threshold_in_cells", PropertyInfo(Variant::INT, "physics/2d/large_object_surface_threshold_in_cells", PROPERTY_HINT_RANGE, "0,1024,1,or_greater"));
+    large_object_min_surface = GLOBAL_DEF("physics/2d/large_object_surface_threshold_in_cells", 512);
+    ProjectSettings::get_singleton()->set_custom_property_info("physics/2d/large_object_surface_threshold_in_cells", PropertyInfo(VariantType::INT, "physics/2d/large_object_surface_threshold_in_cells", PROPERTY_HINT_RANGE, "0,1024,1,or_greater"));
 
-	for (uint32_t i = 0; i < hash_table_size; i++)
-		hash_table[i] = nullptr;
-	pass = 1;
+    for (uint32_t i = 0; i < hash_table_size; i++)
+        hash_table[i] = nullptr;
+    pass = 1;
 
-	current = 0;
+    current = 0;
 }
 
 BroadPhase2DHashGrid::~BroadPhase2DHashGrid() {
 
-	for (uint32_t i = 0; i < hash_table_size; i++) {
-		while (hash_table[i]) {
-			PosBin *pb = hash_table[i];
-			hash_table[i] = pb->next;
-			memdelete(pb);
-		}
-	}
+    for (uint32_t i = 0; i < hash_table_size; i++) {
+        while (hash_table[i]) {
+            PosBin *pb = hash_table[i];
+            hash_table[i] = pb->next;
+            memdelete(pb);
+        }
+    }
 
-	memdelete_arr(hash_table);
+    memdelete_arr(hash_table);
 }
 
 /* 3D version of voxel traversal:
@@ -699,9 +700,9 @@ public IEnumerable<Point3D> GetCellsOnRay(Ray ray, int maxDepth)
     // the next boundary is AFTER our current position, meaning that we have to add 1.
     // Otherwise, it is BEFORE our current position, in which case we add nothing.
     Point3D cellBoundary = new Point3D(
-	x + (stepX > 0 ? 1 : 0),
-	y + (stepY > 0 ? 1 : 0),
-	z + (stepZ > 0 ? 1 : 0));
+    x + (stepX > 0 ? 1 : 0),
+    y + (stepY > 0 ? 1 : 0),
+    z + (stepZ > 0 ? 1 : 0));
 
     // NOTE: For the following calculations, the result will be Single.PositiveInfinity
     // when ray.Direction.X, Y or Z equals zero, which is OK. However, when the left-hand
@@ -709,18 +710,18 @@ public IEnumerable<Point3D> GetCellsOnRay(Ray ray, int maxDepth)
 
     // Determine how far we can travel along the ray before we hit a voxel boundary.
     Vector3 tMax = new Vector3(
-	(cellBoundary.X - ray.Position.X) / ray.Direction.X,    // Boundary is a plane on the YZ axis.
-	(cellBoundary.Y - ray.Position.Y) / ray.Direction.Y,    // Boundary is a plane on the XZ axis.
-	(cellBoundary.Z - ray.Position.Z) / ray.Direction.Z);    // Boundary is a plane on the XY axis.
+    (cellBoundary.X - ray.Position.X) / ray.Direction.X,    // Boundary is a plane on the YZ axis.
+    (cellBoundary.Y - ray.Position.Y) / ray.Direction.Y,    // Boundary is a plane on the XZ axis.
+    (cellBoundary.Z - ray.Position.Z) / ray.Direction.Z);    // Boundary is a plane on the XY axis.
     if (Single.IsNaN(tMax.X)) tMax.X = Single.PositiveInfinity;
     if (Single.IsNaN(tMax.Y)) tMax.Y = Single.PositiveInfinity;
     if (Single.IsNaN(tMax.Z)) tMax.Z = Single.PositiveInfinity;
 
     // Determine how far we must travel along the ray before we have crossed a gridcell.
     Vector3 tDelta = new Vector3(
-	stepX / ray.Direction.X,                    // Crossing the width of a cell.
-	stepY / ray.Direction.Y,                    // Crossing the height of a cell.
-	stepZ / ray.Direction.Z);                    // Crossing the depth of a cell.
+    stepX / ray.Direction.X,                    // Crossing the width of a cell.
+    stepY / ray.Direction.Y,                    // Crossing the height of a cell.
+    stepZ / ray.Direction.Z);                    // Crossing the depth of a cell.
     if (Single.IsNaN(tDelta.X)) tDelta.X = Single.PositiveInfinity;
     if (Single.IsNaN(tDelta.Y)) tDelta.Y = Single.PositiveInfinity;
     if (Single.IsNaN(tDelta.Z)) tDelta.Z = Single.PositiveInfinity;
@@ -729,28 +730,28 @@ public IEnumerable<Point3D> GetCellsOnRay(Ray ray, int maxDepth)
     // which voxel boundary is nearest) and walk that way.
     for (int i = 0; i < maxDepth; i++)
     {
-	// Return it.
-	yield return new Point3D(x, y, z);
+    // Return it.
+    yield return new Point3D(x, y, z);
 
-	// Do the next step.
-	if (tMax.X < tMax.Y && tMax.X < tMax.Z)
-	{
-	    // tMax.X is the lowest, an YZ cell boundary plane is nearest.
-	    x += stepX;
-	    tMax.X += tDelta.X;
-	}
-	else if (tMax.Y < tMax.Z)
-	{
-	    // tMax.Y is the lowest, an XZ cell boundary plane is nearest.
-	    y += stepY;
-	    tMax.Y += tDelta.Y;
-	}
-	else
-	{
-	    // tMax.Z is the lowest, an XY cell boundary plane is nearest.
-	    z += stepZ;
-	    tMax.Z += tDelta.Z;
-	}
+    // Do the next step.
+    if (tMax.X < tMax.Y && tMax.X < tMax.Z)
+    {
+        // tMax.X is the lowest, an YZ cell boundary plane is nearest.
+        x += stepX;
+        tMax.X += tDelta.X;
+    }
+    else if (tMax.Y < tMax.Z)
+    {
+        // tMax.Y is the lowest, an XZ cell boundary plane is nearest.
+        y += stepY;
+        tMax.Y += tDelta.Y;
+    }
+    else
+    {
+        // tMax.Z is the lowest, an XY cell boundary plane is nearest.
+        z += stepZ;
+        tMax.Z += tDelta.Z;
+    }
     }
 
     */

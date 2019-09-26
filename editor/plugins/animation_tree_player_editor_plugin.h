@@ -140,8 +140,8 @@ class AnimationTreePlayerEditor : public Control {
 	void _edit_oneshot_start();
 	void _edit_dialog_animation_changed();
 	void _edit_dialog_edit_animation();
-	void _edit_dialog_changeds(String);
-	void _edit_dialog_changede(String);
+	void _edit_dialog_changeds(const String&);
+	void _edit_dialog_changede(const String&);
 	void _edit_dialog_changedf(float);
 	void _edit_dialog_changed();
 	void _dialog_changed() const;
@@ -149,11 +149,11 @@ class AnimationTreePlayerEditor : public Control {
 	Point2 _get_slot_pos(const StringName &p_node_id, bool p_input, int p_slot);
 
 	StringName _add_node(int p_item);
-	void _file_dialog_selected(String p_path);
+	void _file_dialog_selected(const String& p_path);
 
 protected:
 	void _notification(int p_what);
-	void _gui_input(Ref<InputEvent> p_event);
+	void _gui_input(const Ref<InputEvent>& p_event);
 	static void _bind_methods();
 
 public:

@@ -85,8 +85,8 @@ class AnimationNodeBlendTreeEditor : public AnimationTreeNodeEditorPlugin {
 	static AnimationNodeBlendTreeEditor *singleton;
 
 	void _node_dragged(const Vector2 &p_from, const Vector2 &p_to, const StringName &p_which);
-	void _node_renamed(const String &p_text, Ref<AnimationNode> p_node);
-	void _node_renamed_focus_out(Node *le, Ref<AnimationNode> p_node);
+	void _node_renamed(const String &p_text, const Ref<AnimationNode>& p_node);
+	void _node_renamed_focus_out(Node *le, const Ref<AnimationNode>& p_node);
 
 	bool updating;
 

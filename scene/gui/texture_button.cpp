@@ -40,10 +40,10 @@ Size2 TextureButton::get_minimum_size() const {
     Size2 rscale = Control::get_minimum_size();
 
     if (!expand) {
-        if (normal.is_null()) {
-            if (pressed.is_null()) {
-                if (hover.is_null())
-                    if (click_mask.is_null())
+        if (not normal) {
+            if (not pressed) {
+                if (not hover)
+                    if (not click_mask)
                         rscale = Size2();
                     else
                         rscale = click_mask->get_size();
@@ -61,7 +61,7 @@ Size2 TextureButton::get_minimum_size() const {
 
 bool TextureButton::has_point(const Point2 &p_point) const {
 
-    if (click_mask.is_valid()) {
+    if (click_mask) {
 
         Point2 point = p_point;
         Rect2 rect = Rect2();
@@ -130,15 +130,15 @@ void TextureButton::_notification(int p_what) {
             switch (draw_mode) {
                 case DRAW_NORMAL: {
 
-                    if (normal.is_valid())
+                    if (normal)
                         texdraw = normal;
                 } break;
                 case DRAW_HOVER_PRESSED:
                 case DRAW_PRESSED: {
 
-                    if (pressed.is_null()) {
-                        if (hover.is_null()) {
-                            if (normal.is_valid())
+                    if (not pressed) {
+                        if (not hover) {
+                            if (normal)
                                 texdraw = normal;
                         } else
                             texdraw = hover;
@@ -148,25 +148,25 @@ void TextureButton::_notification(int p_what) {
                 } break;
                 case DRAW_HOVER: {
 
-                    if (hover.is_null()) {
-                        if (pressed.is_valid() && is_pressed())
+                    if (not hover) {
+                        if (pressed && is_pressed())
                             texdraw = pressed;
-                        else if (normal.is_valid())
+                        else if (normal)
                             texdraw = normal;
                     } else
                         texdraw = hover;
                 } break;
                 case DRAW_DISABLED: {
 
-                    if (disabled.is_null()) {
-                        if (normal.is_valid())
+                    if (not disabled) {
+                        if (normal)
                             texdraw = normal;
                     } else
                         texdraw = disabled;
                 } break;
             }
 
-            if (texdraw.is_valid()) {
+            if (texdraw) {
                 Point2 ofs;
                 Size2 size = texdraw->get_size();
                 _texture_region = Rect2(Point2(), texdraw->get_size());
@@ -208,24 +208,24 @@ void TextureButton::_notification(int p_what) {
                         case STRETCH_KEEP_ASPECT_COVERED: {
                             size = get_size();
                             Size2 tex_size = texdraw->get_size();
-							Size2 scale_size(size.width / tex_size.width, size.height / tex_size.height);
-							float scale = scale_size.width > scale_size.height ? scale_size.width : scale_size.height;
-							Size2 scaled_tex_size = tex_size * scale;
-							Point2 ofs2 = ((scaled_tex_size - size) / scale).abs() / 2.0f;
+                            Size2 scale_size(size.width / tex_size.width, size.height / tex_size.height);
+                            float scale = scale_size.width > scale_size.height ? scale_size.width : scale_size.height;
+                            Size2 scaled_tex_size = tex_size * scale;
+                            Point2 ofs2 = ((scaled_tex_size - size) / scale).abs() / 2.0f;
                             _texture_region = Rect2(ofs2, size / scale);
                         } break;
                     }
                 }
                 _position_rect = Rect2(ofs, size);
-				if (_tile) {
+                if (_tile) {
                     draw_texture_rect(texdraw, _position_rect, _tile);
-				} else {
+                } else {
                     draw_texture_rect_region(texdraw, _position_rect, _texture_region);
-				}
+                }
             } else {
                 _position_rect = Rect2();
             }
-            if (has_focus() && focused.is_valid()) {
+            if (has_focus() && focused) {
                 draw_texture_rect(focused, _position_rect, false);
             };
         } break;
@@ -234,14 +234,14 @@ void TextureButton::_notification(int p_what) {
 
 void TextureButton::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_normal_texture", "texture"), &TextureButton::set_normal_texture);
-    MethodBinder::bind_method(D_METHOD("set_pressed_texture", "texture"), &TextureButton::set_pressed_texture);
-    MethodBinder::bind_method(D_METHOD("set_hover_texture", "texture"), &TextureButton::set_hover_texture);
-    MethodBinder::bind_method(D_METHOD("set_disabled_texture", "texture"), &TextureButton::set_disabled_texture);
-    MethodBinder::bind_method(D_METHOD("set_focused_texture", "texture"), &TextureButton::set_focused_texture);
-    MethodBinder::bind_method(D_METHOD("set_click_mask", "mask"), &TextureButton::set_click_mask);
-    MethodBinder::bind_method(D_METHOD("set_expand", "p_expand"), &TextureButton::set_expand);
-    MethodBinder::bind_method(D_METHOD("set_stretch_mode", "p_mode"), &TextureButton::set_stretch_mode);
+    MethodBinder::bind_method(D_METHOD("set_normal_texture", {"texture"}), &TextureButton::set_normal_texture);
+    MethodBinder::bind_method(D_METHOD("set_pressed_texture", {"texture"}), &TextureButton::set_pressed_texture);
+    MethodBinder::bind_method(D_METHOD("set_hover_texture", {"texture"}), &TextureButton::set_hover_texture);
+    MethodBinder::bind_method(D_METHOD("set_disabled_texture", {"texture"}), &TextureButton::set_disabled_texture);
+    MethodBinder::bind_method(D_METHOD("set_focused_texture", {"texture"}), &TextureButton::set_focused_texture);
+    MethodBinder::bind_method(D_METHOD("set_click_mask", {"mask"}), &TextureButton::set_click_mask);
+    MethodBinder::bind_method(D_METHOD("set_expand", {"p_expand"}), &TextureButton::set_expand);
+    MethodBinder::bind_method(D_METHOD("set_stretch_mode", {"p_mode"}), &TextureButton::set_stretch_mode);
 
     MethodBinder::bind_method(D_METHOD("get_normal_texture"), &TextureButton::get_normal_texture);
     MethodBinder::bind_method(D_METHOD("get_pressed_texture"), &TextureButton::get_pressed_texture);
@@ -253,22 +253,22 @@ void TextureButton::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_stretch_mode"), &TextureButton::get_stretch_mode);
 
     ADD_GROUP("Textures", "texture_");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "texture_normal", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_normal_texture", "get_normal_texture");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "texture_pressed", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_pressed_texture", "get_pressed_texture");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "texture_hover", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_hover_texture", "get_hover_texture");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "texture_disabled", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_disabled_texture", "get_disabled_texture");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "texture_focused", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_focused_texture", "get_focused_texture");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "texture_click_mask", PROPERTY_HINT_RESOURCE_TYPE, "BitMap"), "set_click_mask", "get_click_mask");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "expand", PROPERTY_HINT_RESOURCE_TYPE, "bool"), "set_expand", "get_expand");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "stretch_mode", PROPERTY_HINT_ENUM, "Scale,Tile,Keep,Keep Centered,Keep Aspect,Keep Aspect Centered,Keep Aspect Covered"), "set_stretch_mode", "get_stretch_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture_normal", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_normal_texture", "get_normal_texture");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture_pressed", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_pressed_texture", "get_pressed_texture");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture_hover", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_hover_texture", "get_hover_texture");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture_disabled", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_disabled_texture", "get_disabled_texture");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture_focused", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_focused_texture", "get_focused_texture");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture_click_mask", PROPERTY_HINT_RESOURCE_TYPE, "BitMap"), "set_click_mask", "get_click_mask");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "expand", PROPERTY_HINT_RESOURCE_TYPE, "bool"), "set_expand", "get_expand");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "stretch_mode", PROPERTY_HINT_ENUM, "Scale,Tile,Keep,Keep Centered,Keep Aspect,Keep Aspect Centered,Keep Aspect Covered"), "set_stretch_mode", "get_stretch_mode");
 
-    BIND_ENUM_CONSTANT(STRETCH_SCALE);
-    BIND_ENUM_CONSTANT(STRETCH_TILE);
-    BIND_ENUM_CONSTANT(STRETCH_KEEP);
-    BIND_ENUM_CONSTANT(STRETCH_KEEP_CENTERED);
-    BIND_ENUM_CONSTANT(STRETCH_KEEP_ASPECT);
-    BIND_ENUM_CONSTANT(STRETCH_KEEP_ASPECT_CENTERED);
-    BIND_ENUM_CONSTANT(STRETCH_KEEP_ASPECT_COVERED);
+    BIND_ENUM_CONSTANT(STRETCH_SCALE)
+    BIND_ENUM_CONSTANT(STRETCH_TILE)
+    BIND_ENUM_CONSTANT(STRETCH_KEEP)
+    BIND_ENUM_CONSTANT(STRETCH_KEEP_CENTERED)
+    BIND_ENUM_CONSTANT(STRETCH_KEEP_ASPECT)
+    BIND_ENUM_CONSTANT(STRETCH_KEEP_ASPECT_CENTERED)
+    BIND_ENUM_CONSTANT(STRETCH_KEEP_ASPECT_COVERED)
 }
 
 void TextureButton::set_normal_texture(const Ref<Texture> &p_normal) {

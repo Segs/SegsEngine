@@ -138,6 +138,7 @@ class TileSetEditor : public HSplitContainer {
     int current_item_index;
     Sprite *preview;
     ScrollContainer *scroll;
+	Label *empty_message;
     Control *workspace_container;
     bool draw_handles;
     Control *workspace_overlay;
@@ -169,8 +170,8 @@ class TileSetEditor : public HSplitContainer {
 
     Ref<Texture> get_current_texture();
 
-    static void _import_node(Node *p_node, Ref<TileSet> p_library);
-    static void _import_scene(Node *p_scene, Ref<TileSet> p_library, bool p_merge);
+    static void _import_node(Node *p_node, const Ref<TileSet> &p_library);
+    static void _import_scene(Node *p_scene, const Ref<TileSet> &p_library, bool p_merge);
     void _undo_redo_import_scene(Node *p_scene, bool p_merge);
 
     bool _is_drop_valid(const Dictionary &p_drag_data, const Dictionary &p_item_data) const;
@@ -213,7 +214,7 @@ private:
     void _select_next_tile();
     void _select_previous_tile();
     Array _get_tiles_in_current_texture(bool sorted = false);
-    bool _sort_tiles(Variant p_a, Variant p_b);
+    bool _sort_tiles(const Variant& p_a, const Variant& p_b);
     void _select_next_subtile();
     void _select_previous_subtile();
     void _select_next_shape();
@@ -267,7 +268,7 @@ private:
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(List<PropertyInfo> *p_list) const;
+    void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
     static void _bind_methods();
 
 public:

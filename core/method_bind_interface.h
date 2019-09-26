@@ -3,7 +3,7 @@
 #include "core/list.h"
 #include "core/string_name.h"
 #include "core/variant.h"
-//#include "core/method_info.h"
+#include "core/method_info.h"
 #include "core/type_info.h"
 #include "core/typesystem_decls.h"
 
@@ -15,6 +15,8 @@ class MethodBind {
     Vector<Variant> default_arguments;
     int default_argument_count;
     int argument_count;
+    template<class T, class RESULT,typename ...Args>
+    friend class MethodBindVA;
 protected:
     const char *instance_class_name=nullptr;
     bool _const;
@@ -22,8 +24,8 @@ protected:
     bool _is_vararg=false;
 
 #ifdef DEBUG_METHODS_ENABLED
-    Variant::Type *argument_types=nullptr;
-    Vector<StringName> arg_names;
+    VariantType *argument_types=nullptr;
+    PODVector<StringName> arg_names;
 #endif
 #ifdef DEBUG_METHODS_ENABLED
     bool checkArgs(const Variant** p_args,int p_arg_count,bool (*const verifiers[])(const Variant &), int max_args, Variant::CallError& r_error)
@@ -31,9 +33,9 @@ protected:
         int max_arg_to_check= p_arg_count<max_args ? p_arg_count : max_args;
         for(int i=0; i<max_arg_to_check; ++i)
         {
-            Variant::Type argtype = argument_types[i+1]; // argument types[0] is return type
+            VariantType argtype = argument_types[i+1]; // argument types[0] is return type
             if (!Variant::can_convert_strict(p_args[i]->get_type(), argtype) ||
-                    !verifiers[i](*p_args)) //!VariantObjectClassChecker<P##m_arg>::check(*p_args[i]))
+                    !verifiers[i](*p_args[i])) //!VariantObjectClassChecker<P##m_arg>::check(*p_args[i]))
                      {
                 r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
                 r_error.argument = i;
@@ -56,7 +58,7 @@ public:
     const Vector<Variant> &get_default_arguments() const { return default_arguments; }
     _FORCE_INLINE_ int get_default_argument_count() const { return default_argument_count; }
 
-    _FORCE_INLINE_ Variant has_default_argument(int p_arg) const {
+    _FORCE_INLINE_ bool has_default_argument(int p_arg) const {
 
         int idx = argument_count - p_arg - 1;
 
@@ -78,17 +80,17 @@ public:
 
 #ifdef DEBUG_METHODS_ENABLED
 
-    _FORCE_INLINE_ Variant::Type get_argument_type(int p_argument) const {
+    _FORCE_INLINE_ VariantType get_argument_type(int p_argument) const {
 
-        ERR_FAIL_COND_V(p_argument < -1 || p_argument > argument_count, Variant::NIL)
+        ERR_FAIL_COND_V(p_argument < -1 || p_argument > argument_count, VariantType::NIL)
         return argument_types[p_argument + 1];
     }
 
     PropertyInfo get_argument_info(int p_argument) const;
     PropertyInfo get_return_info() const;
 
-    void set_argument_names(const Vector<StringName> &p_names); //set by class, db, can't be inferred otherwise
-    Vector<StringName> get_argument_names() const;
+    void set_argument_names(const PODVector<StringName> &p_names); //set by class, db, can't be inferred otherwise
+    PODVector<StringName> get_argument_names() const;
 
     GodotTypeInfo::Metadata get_argument_meta(int p_arg) const;
 
@@ -137,16 +139,16 @@ public:
 
         if (p_arg < 0) {
             return arguments.return_val;
-        } else if (p_arg < arguments.arguments.size()) {
+        } else if (p_arg < int(arguments.arguments.size())) {
             return arguments.arguments[p_arg];
         } else {
             //TODO: use a simple char [32] buffer as conversion area.
-            return PropertyInfo(Variant::NIL, StringUtils::to_utf8("arg_" + itos(p_arg)).data(),
+            return PropertyInfo(VariantType::NIL, StringUtils::to_utf8("arg_" + itos(p_arg)).data(),
                     PROPERTY_HINT_NONE, nullptr, PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_NIL_IS_VARIANT);
         }
     }
 
-    Variant::Type _gen_argument_type(int p_arg) const {
+    VariantType _gen_argument_type(int p_arg) const {
         return _gen_argument_type_info(p_arg).type;
     }
 
@@ -156,8 +158,8 @@ public:
 
 #else
 
-    virtual Variant::Type _gen_argument_type(int p_arg) const {
-        return Variant::NIL;
+    virtual VariantType _gen_argument_type(int p_arg) const {
+        return VariantType::NIL;
     }
 
 #endif
@@ -169,18 +171,19 @@ public:
 
     void set_method_info(const MethodInfo &p_info) {
 
-        set_argument_count(p_info.arguments.size());
+        set_argument_count(static_cast<int>(p_info.arguments.size()));
 #ifdef DEBUG_METHODS_ENABLED
-        Variant::Type *at = memnew_arr(Variant::Type, p_info.arguments.size() + 1);
+        VariantType *at = memnew_arr(VariantType, p_info.arguments.size() + 1);
         at[0] = p_info.return_val.type;
-        if (p_info.arguments.size()) {
+        if (!p_info.arguments.empty()) {
 
-            Vector<StringName> names;
+            PODVector<StringName> names;
             names.resize(p_info.arguments.size());
-            for (int i = 0; i < p_info.arguments.size(); i++) {
+            int i=0;
+            for (const PropertyInfo & pi : p_info.arguments) {
 
-                at[i + 1] = p_info.arguments[i].type;
-                names.write[i] = p_info.arguments[i].name;
+                names[i] = pi.name;
+                at[++i] = pi.type;
             }
 
             set_argument_names(names);
@@ -216,13 +219,13 @@ struct MethodBinder {
     template<class T  ,typename R, typename ...Args>
     static MethodBind* create_method_bind_va( R (T::*p_method)(Args...)  ) {
 
-        MethodBindVA<T  , R,  Args...> * a = memnew_args( (MethodBindVA<T  , R, Args...>),p_method );
+        MethodBindVA<T  , R,  Args...> * a = memnew_args( (MethodBindVA<T, R, Args...>),p_method );
         return a;
     }
     template<class T  ,typename R, typename ...Args>
     static MethodBind* create_method_bind_va( R (T::*p_method)(Args...) const ) {
 
-        MethodBindVA<const T  , R,  Args...> * a = memnew_args( (MethodBindVA<const T  , R, Args...>),p_method );
+        MethodBindVA<const T  , R,  Args...> * a = memnew_args( (MethodBindVA<const T, R, Args...>),p_method );
         return a;
     }
     template <class N, class M>

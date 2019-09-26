@@ -129,7 +129,7 @@ void ParticlesMaterial::_update_shader() {
     if (mk.key == current_key.key)
         return; //no update required in the end
 
-    if (shader_map.has(current_key)) {
+    if (shader_map.contains(current_key)) {
         shader_map[current_key].users--;
         if (shader_map[current_key].users == 0) {
             //deallocate shader, as it's no longer in use
@@ -140,7 +140,7 @@ void ParticlesMaterial::_update_shader() {
 
     current_key = mk;
 
-    if (shader_map.has(mk)) {
+    if (shader_map.contains(mk)) {
 
         VS::get_singleton()->material_set_shader(_get_material(), shader_map[mk].shader);
         shader_map[mk].users++;
@@ -198,7 +198,7 @@ void ParticlesMaterial::_update_shader() {
         case EMISSION_SHAPE_POINTS: {
             code += "uniform sampler2D emission_texture_points : hint_black;\n";
             code += "uniform int emission_texture_point_count;\n";
-            if (emission_color_texture.is_valid()) {
+            if (emission_color_texture) {
                 code += "uniform sampler2D emission_texture_color : hint_white;\n";
             }
         } break;
@@ -210,39 +210,39 @@ void ParticlesMaterial::_update_shader() {
 
     code += "uniform vec3 gravity;\n";
 
-    if (color_ramp.is_valid())
+    if (color_ramp)
         code += "uniform sampler2D color_ramp;\n";
 
-    if (tex_parameters[PARAM_INITIAL_LINEAR_VELOCITY].is_valid())
+    if (tex_parameters[PARAM_INITIAL_LINEAR_VELOCITY])
         code += "uniform sampler2D linear_velocity_texture;\n";
-    if (tex_parameters[PARAM_ORBIT_VELOCITY].is_valid())
+    if (tex_parameters[PARAM_ORBIT_VELOCITY])
         code += "uniform sampler2D orbit_velocity_texture;\n";
-    if (tex_parameters[PARAM_ANGULAR_VELOCITY].is_valid())
+    if (tex_parameters[PARAM_ANGULAR_VELOCITY])
         code += "uniform sampler2D angular_velocity_texture;\n";
-    if (tex_parameters[PARAM_LINEAR_ACCEL].is_valid())
+    if (tex_parameters[PARAM_LINEAR_ACCEL])
         code += "uniform sampler2D linear_accel_texture;\n";
-    if (tex_parameters[PARAM_RADIAL_ACCEL].is_valid())
+    if (tex_parameters[PARAM_RADIAL_ACCEL])
         code += "uniform sampler2D radial_accel_texture;\n";
-    if (tex_parameters[PARAM_TANGENTIAL_ACCEL].is_valid())
+    if (tex_parameters[PARAM_TANGENTIAL_ACCEL])
         code += "uniform sampler2D tangent_accel_texture;\n";
-    if (tex_parameters[PARAM_DAMPING].is_valid())
+    if (tex_parameters[PARAM_DAMPING])
         code += "uniform sampler2D damping_texture;\n";
-    if (tex_parameters[PARAM_ANGLE].is_valid())
+    if (tex_parameters[PARAM_ANGLE])
         code += "uniform sampler2D angle_texture;\n";
-    if (tex_parameters[PARAM_SCALE].is_valid())
+    if (tex_parameters[PARAM_SCALE])
         code += "uniform sampler2D scale_texture;\n";
-    if (tex_parameters[PARAM_HUE_VARIATION].is_valid())
+    if (tex_parameters[PARAM_HUE_VARIATION])
         code += "uniform sampler2D hue_variation_texture;\n";
-    if (tex_parameters[PARAM_ANIM_SPEED].is_valid())
+    if (tex_parameters[PARAM_ANIM_SPEED])
         code += "uniform sampler2D anim_speed_texture;\n";
-    if (tex_parameters[PARAM_ANIM_OFFSET].is_valid())
+    if (tex_parameters[PARAM_ANIM_OFFSET])
         code += "uniform sampler2D anim_offset_texture;\n";
 
-    if (trail_size_modifier.is_valid()) {
+    if (trail_size_modifier) {
         code += "uniform sampler2D trail_size_modifier;\n";
     }
 
-    if (trail_color_modifier.is_valid()) {
+    if (trail_color_modifier) {
         code += "uniform sampler2D trail_color_modifier;\n";
     }
 
@@ -298,17 +298,17 @@ void ParticlesMaterial::_update_shader() {
     code += "	}\n\n";
     code += "	if (RESTART || restart) {\n";
 
-    if (tex_parameters[PARAM_INITIAL_LINEAR_VELOCITY].is_valid())
+    if (tex_parameters[PARAM_INITIAL_LINEAR_VELOCITY])
         code += "		float tex_linear_velocity = textureLod(linear_velocity_texture, vec2(0.0, 0.0), 0.0).r;\n";
     else
         code += "		float tex_linear_velocity = 0.0;\n";
 
-    if (tex_parameters[PARAM_ANGLE].is_valid())
+    if (tex_parameters[PARAM_ANGLE])
         code += "		float tex_angle = textureLod(angle_texture, vec2(0.0, 0.0), 0.0).r;\n";
     else
         code += "		float tex_angle = 0.0;\n";
 
-    if (tex_parameters[PARAM_ANIM_OFFSET].is_valid())
+    if (tex_parameters[PARAM_ANIM_OFFSET])
         code += "		float tex_anim_offset = textureLod(anim_offset_texture, vec2(0.0, 0.0), 0.0).r;\n";
     else
         code += "		float tex_anim_offset = 0.0;\n";
@@ -383,55 +383,55 @@ void ParticlesMaterial::_update_shader() {
     code += "	} else {\n";
 
     code += "		CUSTOM.y += DELTA / LIFETIME;\n";
-    if (tex_parameters[PARAM_INITIAL_LINEAR_VELOCITY].is_valid())
+    if (tex_parameters[PARAM_INITIAL_LINEAR_VELOCITY])
         code += "		float tex_linear_velocity = textureLod(linear_velocity_texture, vec2(CUSTOM.y, 0.0), 0.0).r;\n";
     else
         code += "		float tex_linear_velocity = 0.0;\n";
 
     if (flags[FLAG_DISABLE_Z]) {
 
-        if (tex_parameters[PARAM_ORBIT_VELOCITY].is_valid())
+        if (tex_parameters[PARAM_ORBIT_VELOCITY])
             code += "		float tex_orbit_velocity = textureLod(orbit_velocity_texture, vec2(CUSTOM.y, 0.0), 0.0).r;\n";
         else
             code += "		float tex_orbit_velocity = 0.0;\n";
     }
 
-    if (tex_parameters[PARAM_ANGULAR_VELOCITY].is_valid())
+    if (tex_parameters[PARAM_ANGULAR_VELOCITY])
         code += "		float tex_angular_velocity = textureLod(angular_velocity_texture, vec2(CUSTOM.y, 0.0), 0.0).r;\n";
     else
         code += "		float tex_angular_velocity = 0.0;\n";
 
-    if (tex_parameters[PARAM_LINEAR_ACCEL].is_valid())
+    if (tex_parameters[PARAM_LINEAR_ACCEL])
         code += "		float tex_linear_accel = textureLod(linear_accel_texture, vec2(CUSTOM.y, 0.0), 0.0).r;\n";
     else
         code += "		float tex_linear_accel = 0.0;\n";
 
-    if (tex_parameters[PARAM_RADIAL_ACCEL].is_valid())
+    if (tex_parameters[PARAM_RADIAL_ACCEL])
         code += "		float tex_radial_accel = textureLod(radial_accel_texture, vec2(CUSTOM.y, 0.0), 0.0).r;\n";
     else
         code += "		float tex_radial_accel = 0.0;\n";
 
-    if (tex_parameters[PARAM_TANGENTIAL_ACCEL].is_valid())
+    if (tex_parameters[PARAM_TANGENTIAL_ACCEL])
         code += "		float tex_tangent_accel = textureLod(tangent_accel_texture, vec2(CUSTOM.y, 0.0), 0.0).r;\n";
     else
         code += "		float tex_tangent_accel = 0.0;\n";
 
-    if (tex_parameters[PARAM_DAMPING].is_valid())
+    if (tex_parameters[PARAM_DAMPING])
         code += "		float tex_damping = textureLod(damping_texture, vec2(CUSTOM.y, 0.0), 0.0).r;\n";
     else
         code += "		float tex_damping = 0.0;\n";
 
-    if (tex_parameters[PARAM_ANGLE].is_valid())
+    if (tex_parameters[PARAM_ANGLE])
         code += "		float tex_angle = textureLod(angle_texture, vec2(CUSTOM.y, 0.0), 0.0).r;\n";
     else
         code += "		float tex_angle = 0.0;\n";
 
-    if (tex_parameters[PARAM_ANIM_SPEED].is_valid())
+    if (tex_parameters[PARAM_ANIM_SPEED])
         code += "		float tex_anim_speed = textureLod(anim_speed_texture, vec2(CUSTOM.y, 0.0), 0.0).r;\n";
     else
         code += "		float tex_anim_speed = 0.0;\n";
 
-    if (tex_parameters[PARAM_ANIM_OFFSET].is_valid())
+    if (tex_parameters[PARAM_ANIM_OFFSET])
         code += "		float tex_anim_offset = textureLod(anim_offset_texture, vec2(CUSTOM.y, 0.0), 0.0).r;\n";
     else
         code += "		float tex_anim_offset = 0.0;\n";
@@ -469,7 +469,7 @@ void ParticlesMaterial::_update_shader() {
         code += "		}\n";
     }
 
-    if (tex_parameters[PARAM_INITIAL_LINEAR_VELOCITY].is_valid()) {
+    if (tex_parameters[PARAM_INITIAL_LINEAR_VELOCITY]) {
         code += "		VELOCITY = normalize(VELOCITY) * tex_linear_velocity;\n";
     }
     code += "		if (damping + tex_damping > 0.0) {\n";
@@ -489,12 +489,12 @@ void ParticlesMaterial::_update_shader() {
     code += "	}\n";
     // apply color
     // apply hue rotation
-    if (tex_parameters[PARAM_SCALE].is_valid())
+    if (tex_parameters[PARAM_SCALE])
         code += "	float tex_scale = textureLod(scale_texture, vec2(CUSTOM.y, 0.0), 0.0).r;\n";
     else
         code += "	float tex_scale = 1.0;\n";
 
-    if (tex_parameters[PARAM_HUE_VARIATION].is_valid())
+    if (tex_parameters[PARAM_HUE_VARIATION])
         code += "	float tex_hue_variation = textureLod(hue_variation_texture, vec2(CUSTOM.y, 0.0), 0.0).r;\n";
     else
         code += "	float tex_hue_variation = 0.0;\n";
@@ -514,15 +514,15 @@ void ParticlesMaterial::_update_shader() {
     code += "			vec4(-0.328, 0.035,  0.292, 0.0),\n";
     code += "			vec4(1.250, -1.050, -0.203, 0.0),\n";
     code += "			vec4(0.000, 0.000, 0.000, 0.0)) * hue_rot_s;\n";
-    if (color_ramp.is_valid()) {
+    if (color_ramp) {
         code += "	COLOR = hue_rot_mat * textureLod(color_ramp, vec2(CUSTOM.y, 0.0), 0.0);\n";
     } else {
         code += "	COLOR = hue_rot_mat * color_value;\n";
     }
-    if (emission_color_texture.is_valid() && emission_shape >= EMISSION_SHAPE_POINTS) {
+    if (emission_color_texture && emission_shape >= EMISSION_SHAPE_POINTS) {
         code += "	COLOR *= texelFetch(emission_texture_color, emission_tex_ofs, 0);\n";
     }
-    if (trail_color_modifier.is_valid()) {
+    if (trail_color_modifier) {
         code += "	if (trail_divisor > 1) {\n";
         code += "		COLOR *= textureLod(trail_color_modifier, vec2(float(int(NUMBER) % trail_divisor) / float(trail_divisor - 1), 0.0), 0.0);\n";
         code += "	}\n";
@@ -575,7 +575,7 @@ void ParticlesMaterial::_update_shader() {
     code += "	if (base_scale == 0.0) {\n";
     code += "		base_scale = 0.000001;\n";
     code += "	}\n";
-    if (trail_size_modifier.is_valid()) {
+    if (trail_size_modifier) {
         code += "	if (trail_divisor > 1) {\n";
         code += "		base_scale *= textureLod(trail_size_modifier, vec2(float(int(NUMBER) % trail_divisor) / float(trail_divisor - 1), 0.0), 0.0).r;\n";
         code += "	}\n";
@@ -787,8 +787,8 @@ float ParticlesMaterial::get_param_randomness(Parameter p_param) const {
 
 static void _adjust_curve_range(const Ref<Texture> &p_texture, float p_min, float p_max) {
 
-    Ref<CurveTexture> curve_tex = p_texture;
-    if (!curve_tex.is_valid())
+    Ref<CurveTexture> curve_tex = dynamic_ref_cast<CurveTexture>(p_texture);
+    if (not curve_tex)
         return;
 
     curve_tex->ensure_default_setup(p_min, p_max);
@@ -989,7 +989,7 @@ void ParticlesMaterial::set_trail_size_modifier(const Ref<CurveTexture> &p_trail
     trail_size_modifier = p_trail_size_modifier;
 
     Ref<CurveTexture> curve = trail_size_modifier;
-    if (curve.is_valid()) {
+    if (curve) {
         curve->ensure_default_setup();
     }
 
@@ -1042,13 +1042,13 @@ float ParticlesMaterial::get_lifetime_randomness() const {
 
 RID ParticlesMaterial::get_shader_rid() const {
 
-    ERR_FAIL_COND_V(!shader_map.has(current_key), RID());
+    ERR_FAIL_COND_V(!shader_map.contains(current_key), RID())
     return shader_map[current_key].shader;
 }
 
 void ParticlesMaterial::_validate_property(PropertyInfo &property) const {
 
-    if (property.name == "color" && color_ramp.is_valid()) {
+    if (property.name == "color" && color_ramp) {
         property.usage = 0;
     }
 
@@ -1084,168 +1084,168 @@ Shader::Mode ParticlesMaterial::get_shader_mode() const {
 
 void ParticlesMaterial::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_direction", "degrees"), &ParticlesMaterial::set_direction);
+    MethodBinder::bind_method(D_METHOD("set_direction", {"degrees"}), &ParticlesMaterial::set_direction);
     MethodBinder::bind_method(D_METHOD("get_direction"), &ParticlesMaterial::get_direction);
 
-    MethodBinder::bind_method(D_METHOD("set_spread", "degrees"), &ParticlesMaterial::set_spread);
+    MethodBinder::bind_method(D_METHOD("set_spread", {"degrees"}), &ParticlesMaterial::set_spread);
     MethodBinder::bind_method(D_METHOD("get_spread"), &ParticlesMaterial::get_spread);
 
-    MethodBinder::bind_method(D_METHOD("set_flatness", "amount"), &ParticlesMaterial::set_flatness);
+    MethodBinder::bind_method(D_METHOD("set_flatness", {"amount"}), &ParticlesMaterial::set_flatness);
     MethodBinder::bind_method(D_METHOD("get_flatness"), &ParticlesMaterial::get_flatness);
 
-    MethodBinder::bind_method(D_METHOD("set_param", "param", "value"), &ParticlesMaterial::set_param);
-    MethodBinder::bind_method(D_METHOD("get_param", "param"), &ParticlesMaterial::get_param);
+    MethodBinder::bind_method(D_METHOD("set_param", {"param", "value"}), &ParticlesMaterial::set_param);
+    MethodBinder::bind_method(D_METHOD("get_param", {"param"}), &ParticlesMaterial::get_param);
 
-    MethodBinder::bind_method(D_METHOD("set_param_randomness", "param", "randomness"), &ParticlesMaterial::set_param_randomness);
-    MethodBinder::bind_method(D_METHOD("get_param_randomness", "param"), &ParticlesMaterial::get_param_randomness);
+    MethodBinder::bind_method(D_METHOD("set_param_randomness", {"param", "randomness"}), &ParticlesMaterial::set_param_randomness);
+    MethodBinder::bind_method(D_METHOD("get_param_randomness", {"param"}), &ParticlesMaterial::get_param_randomness);
 
-    MethodBinder::bind_method(D_METHOD("set_param_texture", "param", "texture"), &ParticlesMaterial::set_param_texture);
-    MethodBinder::bind_method(D_METHOD("get_param_texture", "param"), &ParticlesMaterial::get_param_texture);
+    MethodBinder::bind_method(D_METHOD("set_param_texture", {"param", "texture"}), &ParticlesMaterial::set_param_texture);
+    MethodBinder::bind_method(D_METHOD("get_param_texture", {"param"}), &ParticlesMaterial::get_param_texture);
 
-    MethodBinder::bind_method(D_METHOD("set_color", "color"), &ParticlesMaterial::set_color);
+    MethodBinder::bind_method(D_METHOD("set_color", {"color"}), &ParticlesMaterial::set_color);
     MethodBinder::bind_method(D_METHOD("get_color"), &ParticlesMaterial::get_color);
 
-    MethodBinder::bind_method(D_METHOD("set_color_ramp", "ramp"), &ParticlesMaterial::set_color_ramp);
+    MethodBinder::bind_method(D_METHOD("set_color_ramp", {"ramp"}), &ParticlesMaterial::set_color_ramp);
     MethodBinder::bind_method(D_METHOD("get_color_ramp"), &ParticlesMaterial::get_color_ramp);
 
-    MethodBinder::bind_method(D_METHOD("set_flag", "flag", "enable"), &ParticlesMaterial::set_flag);
-    MethodBinder::bind_method(D_METHOD("get_flag", "flag"), &ParticlesMaterial::get_flag);
+    MethodBinder::bind_method(D_METHOD("set_flag", {"flag", "enable"}), &ParticlesMaterial::set_flag);
+    MethodBinder::bind_method(D_METHOD("get_flag", {"flag"}), &ParticlesMaterial::get_flag);
 
-    MethodBinder::bind_method(D_METHOD("set_emission_shape", "shape"), &ParticlesMaterial::set_emission_shape);
+    MethodBinder::bind_method(D_METHOD("set_emission_shape", {"shape"}), &ParticlesMaterial::set_emission_shape);
     MethodBinder::bind_method(D_METHOD("get_emission_shape"), &ParticlesMaterial::get_emission_shape);
 
-    MethodBinder::bind_method(D_METHOD("set_emission_sphere_radius", "radius"), &ParticlesMaterial::set_emission_sphere_radius);
+    MethodBinder::bind_method(D_METHOD("set_emission_sphere_radius", {"radius"}), &ParticlesMaterial::set_emission_sphere_radius);
     MethodBinder::bind_method(D_METHOD("get_emission_sphere_radius"), &ParticlesMaterial::get_emission_sphere_radius);
 
-    MethodBinder::bind_method(D_METHOD("set_emission_box_extents", "extents"), &ParticlesMaterial::set_emission_box_extents);
+    MethodBinder::bind_method(D_METHOD("set_emission_box_extents", {"extents"}), &ParticlesMaterial::set_emission_box_extents);
     MethodBinder::bind_method(D_METHOD("get_emission_box_extents"), &ParticlesMaterial::get_emission_box_extents);
 
-    MethodBinder::bind_method(D_METHOD("set_emission_point_texture", "texture"), &ParticlesMaterial::set_emission_point_texture);
+    MethodBinder::bind_method(D_METHOD("set_emission_point_texture", {"texture"}), &ParticlesMaterial::set_emission_point_texture);
     MethodBinder::bind_method(D_METHOD("get_emission_point_texture"), &ParticlesMaterial::get_emission_point_texture);
 
-    MethodBinder::bind_method(D_METHOD("set_emission_normal_texture", "texture"), &ParticlesMaterial::set_emission_normal_texture);
+    MethodBinder::bind_method(D_METHOD("set_emission_normal_texture", {"texture"}), &ParticlesMaterial::set_emission_normal_texture);
     MethodBinder::bind_method(D_METHOD("get_emission_normal_texture"), &ParticlesMaterial::get_emission_normal_texture);
 
-    MethodBinder::bind_method(D_METHOD("set_emission_color_texture", "texture"), &ParticlesMaterial::set_emission_color_texture);
+    MethodBinder::bind_method(D_METHOD("set_emission_color_texture", {"texture"}), &ParticlesMaterial::set_emission_color_texture);
     MethodBinder::bind_method(D_METHOD("get_emission_color_texture"), &ParticlesMaterial::get_emission_color_texture);
 
-    MethodBinder::bind_method(D_METHOD("set_emission_point_count", "point_count"), &ParticlesMaterial::set_emission_point_count);
+    MethodBinder::bind_method(D_METHOD("set_emission_point_count", {"point_count"}), &ParticlesMaterial::set_emission_point_count);
     MethodBinder::bind_method(D_METHOD("get_emission_point_count"), &ParticlesMaterial::get_emission_point_count);
 
-    MethodBinder::bind_method(D_METHOD("set_trail_divisor", "divisor"), &ParticlesMaterial::set_trail_divisor);
+    MethodBinder::bind_method(D_METHOD("set_trail_divisor", {"divisor"}), &ParticlesMaterial::set_trail_divisor);
     MethodBinder::bind_method(D_METHOD("get_trail_divisor"), &ParticlesMaterial::get_trail_divisor);
 
-    MethodBinder::bind_method(D_METHOD("set_trail_size_modifier", "texture"), &ParticlesMaterial::set_trail_size_modifier);
+    MethodBinder::bind_method(D_METHOD("set_trail_size_modifier", {"texture"}), &ParticlesMaterial::set_trail_size_modifier);
     MethodBinder::bind_method(D_METHOD("get_trail_size_modifier"), &ParticlesMaterial::get_trail_size_modifier);
 
-    MethodBinder::bind_method(D_METHOD("set_trail_color_modifier", "texture"), &ParticlesMaterial::set_trail_color_modifier);
+    MethodBinder::bind_method(D_METHOD("set_trail_color_modifier", {"texture"}), &ParticlesMaterial::set_trail_color_modifier);
     MethodBinder::bind_method(D_METHOD("get_trail_color_modifier"), &ParticlesMaterial::get_trail_color_modifier);
 
     MethodBinder::bind_method(D_METHOD("get_gravity"), &ParticlesMaterial::get_gravity);
-    MethodBinder::bind_method(D_METHOD("set_gravity", "accel_vec"), &ParticlesMaterial::set_gravity);
+    MethodBinder::bind_method(D_METHOD("set_gravity", {"accel_vec"}), &ParticlesMaterial::set_gravity);
 
-    MethodBinder::bind_method(D_METHOD("set_lifetime_randomness", "randomness"), &ParticlesMaterial::set_lifetime_randomness);
+    MethodBinder::bind_method(D_METHOD("set_lifetime_randomness", {"randomness"}), &ParticlesMaterial::set_lifetime_randomness);
     MethodBinder::bind_method(D_METHOD("get_lifetime_randomness"), &ParticlesMaterial::get_lifetime_randomness);
 
     ADD_GROUP("Time", "");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "lifetime_randomness", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_lifetime_randomness", "get_lifetime_randomness");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "lifetime_randomness", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_lifetime_randomness", "get_lifetime_randomness");
     ADD_GROUP("Trail", "trail_");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "trail_divisor", PROPERTY_HINT_RANGE, "1,1000000,1"), "set_trail_divisor", "get_trail_divisor");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "trail_size_modifier", PROPERTY_HINT_RESOURCE_TYPE, "CurveTexture"), "set_trail_size_modifier", "get_trail_size_modifier");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "trail_color_modifier", PROPERTY_HINT_RESOURCE_TYPE, "GradientTexture"), "set_trail_color_modifier", "get_trail_color_modifier");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "trail_divisor", PROPERTY_HINT_RANGE, "1,1000000,1"), "set_trail_divisor", "get_trail_divisor");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "trail_size_modifier", PROPERTY_HINT_RESOURCE_TYPE, "CurveTexture"), "set_trail_size_modifier", "get_trail_size_modifier");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "trail_color_modifier", PROPERTY_HINT_RESOURCE_TYPE, "GradientTexture"), "set_trail_color_modifier", "get_trail_color_modifier");
     ADD_GROUP("Emission Shape", "emission_");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "emission_shape", PROPERTY_HINT_ENUM, "Point,Sphere,Box,Points,Directed Points"), "set_emission_shape", "get_emission_shape");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "emission_sphere_radius", PROPERTY_HINT_RANGE, "0.01,128,0.01,or_greater"), "set_emission_sphere_radius", "get_emission_sphere_radius");
-    ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "emission_box_extents"), "set_emission_box_extents", "get_emission_box_extents");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "emission_point_texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_emission_point_texture", "get_emission_point_texture");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "emission_normal_texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_emission_normal_texture", "get_emission_normal_texture");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "emission_color_texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_emission_color_texture", "get_emission_color_texture");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "emission_point_count", PROPERTY_HINT_RANGE, "0,1000000,1"), "set_emission_point_count", "get_emission_point_count");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "emission_shape", PROPERTY_HINT_ENUM, "Point,Sphere,Box,Points,Directed Points"), "set_emission_shape", "get_emission_shape");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "emission_sphere_radius", PROPERTY_HINT_RANGE, "0.01,128,0.01,or_greater"), "set_emission_sphere_radius", "get_emission_sphere_radius");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "emission_box_extents"), "set_emission_box_extents", "get_emission_box_extents");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "emission_point_texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_emission_point_texture", "get_emission_point_texture");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "emission_normal_texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_emission_normal_texture", "get_emission_normal_texture");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "emission_color_texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_emission_color_texture", "get_emission_color_texture");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "emission_point_count", PROPERTY_HINT_RANGE, "0,1000000,1"), "set_emission_point_count", "get_emission_point_count");
     ADD_GROUP("Flags", "flag_");
-    ADD_PROPERTYI(PropertyInfo(Variant::BOOL, "flag_align_y"), "set_flag", "get_flag", FLAG_ALIGN_Y_TO_VELOCITY);
-    ADD_PROPERTYI(PropertyInfo(Variant::BOOL, "flag_rotate_y"), "set_flag", "get_flag", FLAG_ROTATE_Y);
-    ADD_PROPERTYI(PropertyInfo(Variant::BOOL, "flag_disable_z"), "set_flag", "get_flag", FLAG_DISABLE_Z);
+    ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "flag_align_y"), "set_flag", "get_flag", FLAG_ALIGN_Y_TO_VELOCITY);
+    ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "flag_rotate_y"), "set_flag", "get_flag", FLAG_ROTATE_Y);
+    ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "flag_disable_z"), "set_flag", "get_flag", FLAG_DISABLE_Z);
     ADD_GROUP("Direction", "");
-    ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "direction"), "set_direction", "get_direction");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "spread", PROPERTY_HINT_RANGE, "0,180,0.01"), "set_spread", "get_spread");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "flatness", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_flatness", "get_flatness");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "direction"), "set_direction", "get_direction");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "spread", PROPERTY_HINT_RANGE, "0,180,0.01"), "set_spread", "get_spread");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "flatness", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_flatness", "get_flatness");
     ADD_GROUP("Gravity", "");
-    ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "gravity"), "set_gravity", "get_gravity");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "gravity"), "set_gravity", "get_gravity");
     ADD_GROUP("Initial Velocity", "initial_");
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "initial_velocity", PROPERTY_HINT_RANGE, "0,1000,0.01,or_lesser,or_greater"), "set_param", "get_param", PARAM_INITIAL_LINEAR_VELOCITY);
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "initial_velocity_random", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_INITIAL_LINEAR_VELOCITY);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "initial_velocity", PROPERTY_HINT_RANGE, "0,1000,0.01,or_lesser,or_greater"), "set_param", "get_param", PARAM_INITIAL_LINEAR_VELOCITY);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "initial_velocity_random", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_INITIAL_LINEAR_VELOCITY);
     ADD_GROUP("Angular Velocity", "angular_");
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "angular_velocity", PROPERTY_HINT_RANGE, "-720,720,0.01,or_lesser,or_greater"), "set_param", "get_param", PARAM_ANGULAR_VELOCITY);
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "angular_velocity_random", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_ANGULAR_VELOCITY);
-    ADD_PROPERTYI(PropertyInfo(Variant::OBJECT, "angular_velocity_curve", PROPERTY_HINT_RESOURCE_TYPE, "CurveTexture"), "set_param_texture", "get_param_texture", PARAM_ANGULAR_VELOCITY);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "angular_velocity", PROPERTY_HINT_RANGE, "-720,720,0.01,or_lesser,or_greater"), "set_param", "get_param", PARAM_ANGULAR_VELOCITY);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "angular_velocity_random", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_ANGULAR_VELOCITY);
+    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "angular_velocity_curve", PROPERTY_HINT_RESOURCE_TYPE, "CurveTexture"), "set_param_texture", "get_param_texture", PARAM_ANGULAR_VELOCITY);
     ADD_GROUP("Orbit Velocity", "orbit_");
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "orbit_velocity", PROPERTY_HINT_RANGE, "-1000,1000,0.01,or_lesser,or_greater"), "set_param", "get_param", PARAM_ORBIT_VELOCITY);
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "orbit_velocity_random", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_ORBIT_VELOCITY);
-    ADD_PROPERTYI(PropertyInfo(Variant::OBJECT, "orbit_velocity_curve", PROPERTY_HINT_RESOURCE_TYPE, "CurveTexture"), "set_param_texture", "get_param_texture", PARAM_ORBIT_VELOCITY);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "orbit_velocity", PROPERTY_HINT_RANGE, "-1000,1000,0.01,or_lesser,or_greater"), "set_param", "get_param", PARAM_ORBIT_VELOCITY);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "orbit_velocity_random", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_ORBIT_VELOCITY);
+    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "orbit_velocity_curve", PROPERTY_HINT_RESOURCE_TYPE, "CurveTexture"), "set_param_texture", "get_param_texture", PARAM_ORBIT_VELOCITY);
     ADD_GROUP("Linear Accel", "linear_");
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "linear_accel", PROPERTY_HINT_RANGE, "-100,100,0.01,or_lesser,or_greater"), "set_param", "get_param", PARAM_LINEAR_ACCEL);
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "linear_accel_random", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_LINEAR_ACCEL);
-    ADD_PROPERTYI(PropertyInfo(Variant::OBJECT, "linear_accel_curve", PROPERTY_HINT_RESOURCE_TYPE, "CurveTexture"), "set_param_texture", "get_param_texture", PARAM_LINEAR_ACCEL);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "linear_accel", PROPERTY_HINT_RANGE, "-100,100,0.01,or_lesser,or_greater"), "set_param", "get_param", PARAM_LINEAR_ACCEL);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "linear_accel_random", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_LINEAR_ACCEL);
+    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "linear_accel_curve", PROPERTY_HINT_RESOURCE_TYPE, "CurveTexture"), "set_param_texture", "get_param_texture", PARAM_LINEAR_ACCEL);
     ADD_GROUP("Radial Accel", "radial_");
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "radial_accel", PROPERTY_HINT_RANGE, "-100,100,0.01,or_lesser,or_greater"), "set_param", "get_param", PARAM_RADIAL_ACCEL);
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "radial_accel_random", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_RADIAL_ACCEL);
-    ADD_PROPERTYI(PropertyInfo(Variant::OBJECT, "radial_accel_curve", PROPERTY_HINT_RESOURCE_TYPE, "CurveTexture"), "set_param_texture", "get_param_texture", PARAM_RADIAL_ACCEL);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "radial_accel", PROPERTY_HINT_RANGE, "-100,100,0.01,or_lesser,or_greater"), "set_param", "get_param", PARAM_RADIAL_ACCEL);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "radial_accel_random", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_RADIAL_ACCEL);
+    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "radial_accel_curve", PROPERTY_HINT_RESOURCE_TYPE, "CurveTexture"), "set_param_texture", "get_param_texture", PARAM_RADIAL_ACCEL);
     ADD_GROUP("Tangential Accel", "tangential_");
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "tangential_accel", PROPERTY_HINT_RANGE, "-100,100,0.01,or_lesser,or_greater"), "set_param", "get_param", PARAM_TANGENTIAL_ACCEL);
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "tangential_accel_random", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_TANGENTIAL_ACCEL);
-    ADD_PROPERTYI(PropertyInfo(Variant::OBJECT, "tangential_accel_curve", PROPERTY_HINT_RESOURCE_TYPE, "CurveTexture"), "set_param_texture", "get_param_texture", PARAM_TANGENTIAL_ACCEL);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "tangential_accel", PROPERTY_HINT_RANGE, "-100,100,0.01,or_lesser,or_greater"), "set_param", "get_param", PARAM_TANGENTIAL_ACCEL);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "tangential_accel_random", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_TANGENTIAL_ACCEL);
+    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "tangential_accel_curve", PROPERTY_HINT_RESOURCE_TYPE, "CurveTexture"), "set_param_texture", "get_param_texture", PARAM_TANGENTIAL_ACCEL);
     ADD_GROUP("Damping", "");
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "damping", PROPERTY_HINT_RANGE, "0,100,0.01,or_greater"), "set_param", "get_param", PARAM_DAMPING);
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "damping_random", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_DAMPING);
-    ADD_PROPERTYI(PropertyInfo(Variant::OBJECT, "damping_curve", PROPERTY_HINT_RESOURCE_TYPE, "CurveTexture"), "set_param_texture", "get_param_texture", PARAM_DAMPING);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "damping", PROPERTY_HINT_RANGE, "0,100,0.01,or_greater"), "set_param", "get_param", PARAM_DAMPING);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "damping_random", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_DAMPING);
+    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "damping_curve", PROPERTY_HINT_RESOURCE_TYPE, "CurveTexture"), "set_param_texture", "get_param_texture", PARAM_DAMPING);
     ADD_GROUP("Angle", "");
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "angle", PROPERTY_HINT_RANGE, "-720,720,0.1,or_lesser,or_greater"), "set_param", "get_param", PARAM_ANGLE);
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "angle_random", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_ANGLE);
-    ADD_PROPERTYI(PropertyInfo(Variant::OBJECT, "angle_curve", PROPERTY_HINT_RESOURCE_TYPE, "CurveTexture"), "set_param_texture", "get_param_texture", PARAM_ANGLE);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "angle", PROPERTY_HINT_RANGE, "-720,720,0.1,or_lesser,or_greater"), "set_param", "get_param", PARAM_ANGLE);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "angle_random", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_ANGLE);
+    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "angle_curve", PROPERTY_HINT_RESOURCE_TYPE, "CurveTexture"), "set_param_texture", "get_param_texture", PARAM_ANGLE);
     ADD_GROUP("Scale", "");
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "scale", PROPERTY_HINT_RANGE, "0,1000,0.01,or_greater"), "set_param", "get_param", PARAM_SCALE);
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "scale_random", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_SCALE);
-    ADD_PROPERTYI(PropertyInfo(Variant::OBJECT, "scale_curve", PROPERTY_HINT_RESOURCE_TYPE, "CurveTexture"), "set_param_texture", "get_param_texture", PARAM_SCALE);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "scale", PROPERTY_HINT_RANGE, "0,1000,0.01,or_greater"), "set_param", "get_param", PARAM_SCALE);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "scale_random", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_SCALE);
+    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "scale_curve", PROPERTY_HINT_RESOURCE_TYPE, "CurveTexture"), "set_param_texture", "get_param_texture", PARAM_SCALE);
     ADD_GROUP("Color", "");
-    ADD_PROPERTY(PropertyInfo(Variant::COLOR, "color"), "set_color", "get_color");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "color_ramp", PROPERTY_HINT_RESOURCE_TYPE, "GradientTexture"), "set_color_ramp", "get_color_ramp");
+    ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "color"), "set_color", "get_color");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "color_ramp", PROPERTY_HINT_RESOURCE_TYPE, "GradientTexture"), "set_color_ramp", "get_color_ramp");
 
     ADD_GROUP("Hue Variation", "hue_");
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "hue_variation", PROPERTY_HINT_RANGE, "-1,1,0.01"), "set_param", "get_param", PARAM_HUE_VARIATION);
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "hue_variation_random", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_HUE_VARIATION);
-    ADD_PROPERTYI(PropertyInfo(Variant::OBJECT, "hue_variation_curve", PROPERTY_HINT_RESOURCE_TYPE, "CurveTexture"), "set_param_texture", "get_param_texture", PARAM_HUE_VARIATION);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "hue_variation", PROPERTY_HINT_RANGE, "-1,1,0.01"), "set_param", "get_param", PARAM_HUE_VARIATION);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "hue_variation_random", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_HUE_VARIATION);
+    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "hue_variation_curve", PROPERTY_HINT_RESOURCE_TYPE, "CurveTexture"), "set_param_texture", "get_param_texture", PARAM_HUE_VARIATION);
     ADD_GROUP("Animation", "anim_");
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "anim_speed", PROPERTY_HINT_RANGE, "0,128,0.01,or_greater"), "set_param", "get_param", PARAM_ANIM_SPEED);
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "anim_speed_random", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_ANIM_SPEED);
-    ADD_PROPERTYI(PropertyInfo(Variant::OBJECT, "anim_speed_curve", PROPERTY_HINT_RESOURCE_TYPE, "CurveTexture"), "set_param_texture", "get_param_texture", PARAM_ANIM_SPEED);
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "anim_offset", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_param", "get_param", PARAM_ANIM_OFFSET);
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "anim_offset_random", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_ANIM_OFFSET);
-    ADD_PROPERTYI(PropertyInfo(Variant::OBJECT, "anim_offset_curve", PROPERTY_HINT_RESOURCE_TYPE, "CurveTexture"), "set_param_texture", "get_param_texture", PARAM_ANIM_OFFSET);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "anim_speed", PROPERTY_HINT_RANGE, "0,128,0.01,or_greater"), "set_param", "get_param", PARAM_ANIM_SPEED);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "anim_speed_random", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_ANIM_SPEED);
+    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "anim_speed_curve", PROPERTY_HINT_RESOURCE_TYPE, "CurveTexture"), "set_param_texture", "get_param_texture", PARAM_ANIM_SPEED);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "anim_offset", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_param", "get_param", PARAM_ANIM_OFFSET);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "anim_offset_random", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_ANIM_OFFSET);
+    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "anim_offset_curve", PROPERTY_HINT_RESOURCE_TYPE, "CurveTexture"), "set_param_texture", "get_param_texture", PARAM_ANIM_OFFSET);
 
-    BIND_ENUM_CONSTANT(PARAM_INITIAL_LINEAR_VELOCITY);
-    BIND_ENUM_CONSTANT(PARAM_ANGULAR_VELOCITY);
-    BIND_ENUM_CONSTANT(PARAM_ORBIT_VELOCITY);
-    BIND_ENUM_CONSTANT(PARAM_LINEAR_ACCEL);
-    BIND_ENUM_CONSTANT(PARAM_RADIAL_ACCEL);
-    BIND_ENUM_CONSTANT(PARAM_TANGENTIAL_ACCEL);
-    BIND_ENUM_CONSTANT(PARAM_DAMPING);
-    BIND_ENUM_CONSTANT(PARAM_ANGLE);
-    BIND_ENUM_CONSTANT(PARAM_SCALE);
-    BIND_ENUM_CONSTANT(PARAM_HUE_VARIATION);
-    BIND_ENUM_CONSTANT(PARAM_ANIM_SPEED);
-    BIND_ENUM_CONSTANT(PARAM_ANIM_OFFSET);
-    BIND_ENUM_CONSTANT(PARAM_MAX);
+    BIND_ENUM_CONSTANT(PARAM_INITIAL_LINEAR_VELOCITY)
+    BIND_ENUM_CONSTANT(PARAM_ANGULAR_VELOCITY)
+    BIND_ENUM_CONSTANT(PARAM_ORBIT_VELOCITY)
+    BIND_ENUM_CONSTANT(PARAM_LINEAR_ACCEL)
+    BIND_ENUM_CONSTANT(PARAM_RADIAL_ACCEL)
+    BIND_ENUM_CONSTANT(PARAM_TANGENTIAL_ACCEL)
+    BIND_ENUM_CONSTANT(PARAM_DAMPING)
+    BIND_ENUM_CONSTANT(PARAM_ANGLE)
+    BIND_ENUM_CONSTANT(PARAM_SCALE)
+    BIND_ENUM_CONSTANT(PARAM_HUE_VARIATION)
+    BIND_ENUM_CONSTANT(PARAM_ANIM_SPEED)
+    BIND_ENUM_CONSTANT(PARAM_ANIM_OFFSET)
+    BIND_ENUM_CONSTANT(PARAM_MAX)
 
-    BIND_ENUM_CONSTANT(FLAG_ALIGN_Y_TO_VELOCITY);
-    BIND_ENUM_CONSTANT(FLAG_ROTATE_Y);
-    BIND_ENUM_CONSTANT(FLAG_DISABLE_Z);
-    BIND_ENUM_CONSTANT(FLAG_MAX);
+    BIND_ENUM_CONSTANT(FLAG_ALIGN_Y_TO_VELOCITY)
+    BIND_ENUM_CONSTANT(FLAG_ROTATE_Y)
+    BIND_ENUM_CONSTANT(FLAG_DISABLE_Z)
+    BIND_ENUM_CONSTANT(FLAG_MAX)
 
-    BIND_ENUM_CONSTANT(EMISSION_SHAPE_POINT);
-    BIND_ENUM_CONSTANT(EMISSION_SHAPE_SPHERE);
-    BIND_ENUM_CONSTANT(EMISSION_SHAPE_BOX);
-    BIND_ENUM_CONSTANT(EMISSION_SHAPE_POINTS);
-    BIND_ENUM_CONSTANT(EMISSION_SHAPE_DIRECTED_POINTS);
+    BIND_ENUM_CONSTANT(EMISSION_SHAPE_POINT)
+    BIND_ENUM_CONSTANT(EMISSION_SHAPE_SPHERE)
+    BIND_ENUM_CONSTANT(EMISSION_SHAPE_BOX)
+    BIND_ENUM_CONSTANT(EMISSION_SHAPE_POINTS)
+    BIND_ENUM_CONSTANT(EMISSION_SHAPE_DIRECTED_POINTS)
 }
 
 ParticlesMaterial::ParticlesMaterial() :
@@ -1295,7 +1295,7 @@ ParticlesMaterial::~ParticlesMaterial() {
     if (material_mutex)
         material_mutex->lock();
 
-    if (shader_map.has(current_key)) {
+    if (shader_map.contains(current_key)) {
         shader_map[current_key].users--;
         if (shader_map[current_key].users == 0) {
             //deallocate shader, as it's no longer in use

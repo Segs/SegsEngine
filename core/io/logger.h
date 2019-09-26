@@ -28,14 +28,13 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef LOGGER_H
-#define LOGGER_H
+#pragma once
 
-#include "core/os/file_access.h"
 #include "core/vector.h"
 
-class QChar;
 #include <cstdarg>
+
+class QChar;
 
 class Logger {
 protected:
@@ -79,7 +78,7 @@ class CompositeLogger : public Logger {
 	Vector<Logger *> loggers;
 
 public:
-	CompositeLogger(Vector<Logger *> p_loggers);
+	CompositeLogger(const Vector<Logger *>& p_loggers);
 
 	void logv(const QChar *p_msg, bool p_err) override;
 	void logv(const char *p_msg, bool p_err) override;
@@ -89,5 +88,3 @@ public:
 
 	~CompositeLogger() override;
 };
-
-#endif

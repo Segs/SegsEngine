@@ -49,7 +49,7 @@ class SectionedInspectorFilter : public Object {
             return false;
 
         String name = p_name;
-        if (section != "") {
+        if (!section.empty()) {
             name = section + "/" + name;
         }
 
@@ -64,7 +64,7 @@ class SectionedInspectorFilter : public Object {
             return false;
 
         String name = p_name;
-        if (section != "") {
+        if (!section.empty()) {
             name = section + "/" + name;
         }
 
@@ -73,16 +73,16 @@ class SectionedInspectorFilter : public Object {
         r_ret = edited->get(name, &valid);
         return valid;
     }
-    void _get_property_list(List<PropertyInfo> *p_list) const {
+    void _get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
         if (!edited)
             return;
 
-        List<PropertyInfo> pinfo;
+        ListPOD<PropertyInfo> pinfo;
         edited->get_property_list(&pinfo);
-        for (List<PropertyInfo>::Element *E = pinfo.front(); E; E = E->next()) {
+        for (const PropertyInfo &E : pinfo) {
 
-            PropertyInfo pi = E->get();
+            PropertyInfo pi = E;
             int sp = StringUtils::find(pi.name,"/");
 
             if (pi.name == "resource_path" || pi.name == "resource_name" || pi.name == "resource_local_to_scene" || StringUtils::begins_with(pi.name,"script/") || StringUtils::begins_with(pi.name,"_global_script")) //skip resource stuff
@@ -93,7 +93,7 @@ class SectionedInspectorFilter : public Object {
             }
 
             if (StringUtils::begins_with(pi.name,section + "/")) {
-				pi.name = StringUtils::replace_first(pi.name,section + "/", "");
+                pi.name = StringUtils::replace_first(pi.name,section + "/", "");
                 if (!allow_sub && StringUtils::find(pi.name,"/") != -1)
                     continue;
                 p_list->push_back(pi);
@@ -157,7 +157,7 @@ void SectionedInspector::_section_selected() {
 
 void SectionedInspector::set_current_section(const String &p_section) {
 
-    if (section_map.has(p_section)) {
+    if (section_map.contains(p_section)) {
         section_map[p_section]->select(0);
     }
 }
@@ -174,7 +174,7 @@ String SectionedInspector::get_full_item_path(const String &p_item) {
 
     String base = get_current_section();
 
-    if (base != "")
+    if (!base.empty())
         return base + "/" + p_item;
     else
         return p_item;
@@ -227,7 +227,7 @@ void SectionedInspector::update_category_list() {
     if (!o)
         return;
 
-    List<PropertyInfo> pinfo;
+    ListPOD<PropertyInfo> pinfo;
     o->get_property_list(&pinfo);
 
     section_map.clear();
@@ -239,9 +239,7 @@ void SectionedInspector::update_category_list() {
     if (search_box)
         filter = search_box->get_text();
 
-    for (List<PropertyInfo>::Element *E = pinfo.front(); E; E = E->next()) {
-
-        PropertyInfo pi = E->get();
+    for (const PropertyInfo &pi : pinfo) {
 
         if (pi.usage & PROPERTY_USAGE_CATEGORY)
             continue;
@@ -252,13 +250,14 @@ void SectionedInspector::update_category_list() {
             continue;
 
         int sp = StringUtils::find(pi.name,"/");
+        String p_name = pi.name;
         if (sp == -1)
-            pi.name = "global/" + pi.name;
+            p_name = "global/" + p_name;
 
-        Vector<String> sectionarr = StringUtils::split(pi.name,"/");
+        Vector<String> sectionarr = StringUtils::split(p_name,"/");
         String metasection;
 
-        if (!filter.empty() && !StringUtils::is_subsequence_ofi(filter,StringUtils::capitalize(sectionarr[sectionarr.size() - 1])))
+        if (!filter.empty() && !StringUtils::is_subsequence_of(filter,StringUtils::capitalize(sectionarr[sectionarr.size() - 1]),StringUtils::CaseInsensitive))
             continue;
 
         int sc = MIN(2, sectionarr.size() - 1);
@@ -274,7 +273,7 @@ void SectionedInspector::update_category_list() {
                 metasection = sectionarr[i];
             }
 
-            if (!section_map.has(metasection)) {
+            if (!section_map.contains(metasection)) {
                 TreeItem *ms = sections->create_item(parent);
                 section_map[metasection] = ms;
                 ms->set_text(0, StringUtils::capitalize(sectionarr[i]));
@@ -289,7 +288,7 @@ void SectionedInspector::update_category_list() {
         }
     }
 
-    if (section_map.has(selected_category)) {
+    if (section_map.contains(selected_category)) {
         section_map[selected_category]->select(0);
     }
 
@@ -322,7 +321,7 @@ SectionedInspector::SectionedInspector() :
     add_constant_override("autohide", 1); // Fixes the dragger always showing up
 
     VBoxContainer *left_vb = memnew(VBoxContainer);
-	left_vb->set_custom_minimum_size(Size2(190, 0) * EDSCALE);
+    left_vb->set_custom_minimum_size(Size2(190, 0) * EDSCALE);
     add_child(left_vb);
 
     sections->set_v_size_flags(SIZE_EXPAND_FILL);
@@ -345,4 +344,11 @@ SectionedInspector::SectionedInspector() :
 SectionedInspector::~SectionedInspector() {
 
     memdelete(filter);
+}
+
+void register_sectioned_inspector_classes()
+{
+    SectionedInspector::initialize_class();
+    SectionedInspectorFilter::initialize_class();
+
 }

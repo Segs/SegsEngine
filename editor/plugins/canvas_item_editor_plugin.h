@@ -439,7 +439,7 @@ private:
 
     UndoRedo *undo_redo;
     bool _build_bones_list(Node *p_node);
-    bool _get_bone_shape(Vector<Vector2> *shape, Vector<Vector2> *outline_shape, Map<BoneKey, BoneList>::Element *bone);
+    bool _get_bone_shape(Vector<Vector2> *shape, Vector<Vector2> *outline_shape, eastl::pair<const BoneKey, BoneList> &bone);
 
     List<CanvasItem *> _get_edited_canvas_items(bool retreive_locked = false, bool remove_canvas_item_if_parent_in_selection = true);
     Rect2 _get_encompassing_rect_from_list(List<CanvasItem *> p_list);
@@ -526,6 +526,7 @@ private:
 
     HBoxContainer *zoom_hb;
     void _zoom_on_position(float p_zoom, Point2 p_position = Point2());
+	void _update_zoom_label();
     void _button_zoom_minus();
     void _button_zoom_reset();
     void _button_zoom_plus();
@@ -703,3 +704,5 @@ public:
     CanvasItemEditorViewport(EditorNode *p_node, CanvasItemEditor *p_canvas_item_editor);
     ~CanvasItemEditorViewport() override;
 };
+
+void register_canvas_item_editor_classes();

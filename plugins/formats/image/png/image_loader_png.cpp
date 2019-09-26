@@ -30,6 +30,7 @@
 
 #include "image_loader_png.h"
 
+#include "core/os/file_access.h"
 #include "core/os/os.h"
 #include "core/image_data.h"
 #include "core/print_string.h"

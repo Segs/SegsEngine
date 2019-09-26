@@ -91,29 +91,29 @@ void InspectorDock::_menu_option(int p_option) {
         case OBJECT_UNIQUE_RESOURCES: {
             editor_data->apply_changes_in_editors();
             if (current) {
-                List<PropertyInfo> props;
+                ListPOD<PropertyInfo> props;
                 current->get_property_list(&props);
                 Map<RES, RES> duplicates;
-                for (List<PropertyInfo>::Element *E = props.front(); E; E = E->next()) {
+                for (const PropertyInfo &E : props) {
 
-                    if (!(E->get().usage & PROPERTY_USAGE_STORAGE))
+                    if (!(E.usage & PROPERTY_USAGE_STORAGE))
                         continue;
 
-                    Variant v = current->get(E->get().name);
+                    Variant v = current->get(E.name);
                     if (v.is_ref()) {
-                        REF ref = v;
-                        if (ref.is_valid()) {
+                        REF ref(v);
+                        if (ref) {
 
-                            RES res = ref;
-                            if (res.is_valid()) {
+                            RES res = dynamic_ref_cast<Resource>(ref);
+                            if (res) {
 
-                                if (!duplicates.has(res)) {
+                                if (!duplicates.contains(res)) {
                                     duplicates[res] = res->duplicate();
                                 }
                                 res = duplicates[res];
 
-                                current->set(E->get().name, res);
-                                editor->get_inspector()->update_property(E->get().name);
+                                current->set(E.name, res);
+                                editor->get_inspector()->update_property(E.name);
                             }
                         }
                     }
@@ -129,11 +129,11 @@ void InspectorDock::_menu_option(int p_option) {
 
         default: {
             if (p_option >= OBJECT_METHOD_BASE) {
-                ERR_FAIL_COND(!current);
+                ERR_FAIL_COND(!current)
 
                 int idx = p_option - OBJECT_METHOD_BASE;
 
-                List<MethodInfo> methods;
+                PODVector<MethodInfo> methods;
                 current->get_method_list(&methods);
 
                 ERR_FAIL_INDEX(idx, methods.size());
@@ -152,21 +152,21 @@ void InspectorDock::_new_resource() {
 void InspectorDock::_load_resource(const String &p_type) {
     load_resource_dialog->set_mode(EditorFileDialog::MODE_OPEN_FILE);
 
-    List<String> extensions;
+    ListPOD<String> extensions;
     ResourceLoader::get_recognized_extensions_for_type(p_type, &extensions);
 
     load_resource_dialog->clear_filters();
-    for (int i = 0; i < extensions.size(); i++) {
-        load_resource_dialog->add_filter("*." + extensions[i] + " ; " + StringUtils::to_upper(extensions[i]));
+    for (const String &ext : extensions) {
+        load_resource_dialog->add_filter("*." + ext + " ; " + StringUtils::to_upper(ext));
     }
 
     load_resource_dialog->popup_centered_ratio();
 }
 
-void InspectorDock::_resource_file_selected(String p_file) {
-    RES res = ResourceLoader::load(p_file);
+void InspectorDock::_resource_file_selected(const String& p_file) {
+    RES res(ResourceLoader::load(p_file));
 
-    if (res.is_null()) {
+    if (not res) {
         warning_dialog->set_text(TTR("Failed to load resource."));
         return;
     };
@@ -177,10 +177,10 @@ void InspectorDock::_resource_file_selected(String p_file) {
 void InspectorDock::_save_resource(bool save_as) const {
     uint32_t current = EditorNode::get_singleton()->get_editor_history()->get_current();
     Object *current_obj = current > 0 ? ObjectDB::get_instance(current) : nullptr;
+    RES current_res(Object::cast_to<Resource>(current_obj));
 
-    ERR_FAIL_COND(!Object::cast_to<Resource>(current_obj));
+    ERR_FAIL_COND(not current_res)
 
-    RES current_res = RES(Object::cast_to<Resource>(current_obj));
 
     if (save_as)
         editor->save_resource_as(current_res);
@@ -191,10 +191,10 @@ void InspectorDock::_save_resource(bool save_as) const {
 void InspectorDock::_unref_resource() const {
     uint32_t current = EditorNode::get_singleton()->get_editor_history()->get_current();
     Object *current_obj = current > 0 ? ObjectDB::get_instance(current) : nullptr;
+    RES current_res(Object::cast_to<Resource>(current_obj));
 
-    ERR_FAIL_COND(!Object::cast_to<Resource>(current_obj));
+    ERR_FAIL_COND(not current_res)
 
-    RES current_res = RES(Object::cast_to<Resource>(current_obj));
     current_res->set_path("");
     editor->edit_current();
 }
@@ -202,18 +202,18 @@ void InspectorDock::_unref_resource() const {
 void InspectorDock::_copy_resource() const {
     uint32_t current = EditorNode::get_singleton()->get_editor_history()->get_current();
     Object *current_obj = current > 0 ? ObjectDB::get_instance(current) : nullptr;
+    RES current_res(Object::cast_to<Resource>(current_obj));
 
-    ERR_FAIL_COND(!Object::cast_to<Resource>(current_obj));
+    ERR_FAIL_COND(not current_res)
 
-    RES current_res = RES(Object::cast_to<Resource>(current_obj));
 
     EditorSettings::get_singleton()->set_resource_clipboard(current_res);
 }
 
 void InspectorDock::_paste_resource() const {
-    RES r = EditorSettings::get_singleton()->get_resource_clipboard();
-    if (r.is_valid()) {
-        editor->push_item(EditorSettings::get_singleton()->get_resource_clipboard().ptr(), String());
+    RES r(EditorSettings::get_singleton()->get_resource_clipboard());
+    if (r) {
+        editor->push_item(EditorSettings::get_singleton()->get_resource_clipboard().get(), String());
     }
 }
 
@@ -230,7 +230,7 @@ void InspectorDock::_prepare_history() {
 
         ObjectID id = editor_history->get_history_obj(i);
         Object *obj = ObjectDB::get_instance(id);
-        if (!obj || already.has(id)) {
+        if (!obj || already.contains(id)) {
             if (history_to > 0) {
                 history_to--;
             }
@@ -240,7 +240,7 @@ void InspectorDock::_prepare_history() {
         already.insert(id);
 
         Ref<Texture> icon = EditorNode::get_singleton()->get_object_icon(obj, "");
-        if (icon.is_null()) {
+        if (not icon) {
             icon = base_icon;
         }
 
@@ -249,7 +249,7 @@ void InspectorDock::_prepare_history() {
             Resource *r = Object::cast_to<Resource>(obj);
             if (PathUtils::is_resource_file(r->get_path()))
                 text = PathUtils::get_file(r->get_path());
-            else if (r->get_name() != String()) {
+            else if (!r->get_name().empty()) {
                 text = r->get_name();
             } else {
                 text = r->get_class();
@@ -283,20 +283,19 @@ void InspectorDock::_select_history(int p_idx) const {
 void InspectorDock::_resource_created() const {
     Object *c = new_resource_dialog->instance_selected();
 
-    ERR_FAIL_COND(!c);
+    ERR_FAIL_COND(!c)
     Resource *r = Object::cast_to<Resource>(c);
-    ERR_FAIL_COND(!r);
+    ERR_FAIL_COND(!r)
 
     REF res(r);
     editor->push_item(c);
 }
 
 void InspectorDock::_resource_selected(const RES &p_res, const String &p_property) const {
-    if (p_res.is_null())
+    if (not p_res)
         return;
 
-    RES r = p_res;
-    editor->push_item(r.operator->(), p_property);
+    editor->push_item(p_res.get(), p_property);
 }
 
 void InspectorDock::_edit_forward() {
@@ -389,7 +388,7 @@ void InspectorDock::open_resource(const String &p_type) {
 
 void InspectorDock::set_warning(const String &p_message) {
     warning->hide();
-    if (p_message != String()) {
+    if (!p_message.empty()) {
         warning->show();
         warning_dialog->set_text(p_message);
     }
@@ -417,9 +416,10 @@ void InspectorDock::update(Object *p_object) {
         warning->hide();
         search->set_editable(false);
 
+        editor_path->set_disabled(true);
         editor_path->set_text("");
         editor_path->set_tooltip("");
-        editor_path->set_icon(nullptr);
+        editor_path->set_icon(Ref<Texture>());
 
         return;
     }
@@ -429,6 +429,7 @@ void InspectorDock::update(Object *p_object) {
 
     object_menu->set_disabled(false);
     search->set_editable(true);
+    editor_path->set_disabled(false);
     resource_save_button->set_disabled(!is_resource);
 
     PopupMenu *p = object_menu->get_popup();
@@ -459,25 +460,23 @@ void InspectorDock::update(Object *p_object) {
         p->add_icon_shortcut(get_icon("HelpSearch", "EditorIcons"), ED_SHORTCUT("property_editor/open_help", TTR("Open in Help")), OBJECT_REQUEST_HELP);
     }
 
-    List<MethodInfo> methods;
+    PODVector<MethodInfo> methods;
     p_object->get_method_list(&methods);
 
     if (!methods.empty()) {
 
         bool found = false;
-        List<MethodInfo>::Element *I = methods.front();
         int i = 0;
-        while (I) {
+        for(const MethodInfo &mi : methods) {
 
-            if (I->get().flags & METHOD_FLAG_EDITOR) {
+            if (mi.flags & METHOD_FLAG_EDITOR) {
                 if (!found) {
                     p->add_separator();
                     found = true;
                 }
-                p->add_item(StringUtils::capitalize(I->get().name), OBJECT_METHOD_BASE + i);
+                p->add_item(StringUtils::capitalize(mi.name), OBJECT_METHOD_BASE + i);
             }
             i++;
-            I = I->next();
         }
     }
 }

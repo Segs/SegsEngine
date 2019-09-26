@@ -97,10 +97,10 @@ void FuncRef::_bind_methods() {
 		MethodBinder::bind_vararg_method(StaticCString("call_func"), &FuncRef::call_func, mi, defargs);
     }
 
-    MethodBinder::bind_method(D_METHOD("call_funcv", "arg_array"), &FuncRef::call_funcv);
+    MethodBinder::bind_method(D_METHOD("call_funcv", {"arg_array"}), &FuncRef::call_funcv);
 
-    MethodBinder::bind_method(D_METHOD("set_instance", "instance"), &FuncRef::set_instance);
-    MethodBinder::bind_method(D_METHOD("set_function", "name"), &FuncRef::set_function);
+    MethodBinder::bind_method(D_METHOD("set_instance", {"instance"}), &FuncRef::set_instance);
+    MethodBinder::bind_method(D_METHOD("set_function", {"name"}), &FuncRef::set_function);
     MethodBinder::bind_method(D_METHOD("is_valid"), &FuncRef::is_valid);
 }
 

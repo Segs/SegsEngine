@@ -30,6 +30,7 @@
 
 #include "export.h"
 
+#include "core/class_db.h"
 #include "core/io/marshalls.h"
 #include "core/io/resource_saver.h"
 #include "core/io/zip_io.h"
@@ -121,27 +122,27 @@ void EditorExportPlatformOSX::get_preset_features(const Ref<EditorExportPreset> 
 
 void EditorExportPlatformOSX::get_export_options(List<ExportOption> *r_options) {
 
-    r_options->push_back(ExportOption(PropertyInfo(Variant::STRING, "custom_package/debug", PROPERTY_HINT_GLOBAL_FILE, "*.zip"), ""));
-    r_options->push_back(ExportOption(PropertyInfo(Variant::STRING, "custom_package/release", PROPERTY_HINT_GLOBAL_FILE, "*.zip"), ""));
+    r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "custom_package/debug", PROPERTY_HINT_GLOBAL_FILE, "*.zip"), ""));
+    r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "custom_package/release", PROPERTY_HINT_GLOBAL_FILE, "*.zip"), ""));
 
-    r_options->push_back(ExportOption(PropertyInfo(Variant::STRING, "application/name", PROPERTY_HINT_PLACEHOLDER_TEXT, "Game Name"), ""));
-    r_options->push_back(ExportOption(PropertyInfo(Variant::STRING, "application/info"), "Made with Godot Engine"));
-    r_options->push_back(ExportOption(PropertyInfo(Variant::STRING, "application/icon", PROPERTY_HINT_FILE, "*.png,*.icns"), ""));
-    r_options->push_back(ExportOption(PropertyInfo(Variant::STRING, "application/identifier", PROPERTY_HINT_PLACEHOLDER_TEXT, "com.example.game"), ""));
-    r_options->push_back(ExportOption(PropertyInfo(Variant::STRING, "application/signature"), ""));
-    r_options->push_back(ExportOption(PropertyInfo(Variant::STRING, "application/short_version"), "1.0"));
-    r_options->push_back(ExportOption(PropertyInfo(Variant::STRING, "application/version"), "1.0"));
-    r_options->push_back(ExportOption(PropertyInfo(Variant::STRING, "application/copyright"), ""));
-    r_options->push_back(ExportOption(PropertyInfo(Variant::BOOL, "display/high_res"), false));
+    r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "application/name", PROPERTY_HINT_PLACEHOLDER_TEXT, "Game Name"), ""));
+    r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "application/info"), "Made with Godot Engine"));
+    r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "application/icon", PROPERTY_HINT_FILE, "*.png,*.icns"), ""));
+    r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "application/identifier", PROPERTY_HINT_PLACEHOLDER_TEXT, "com.example.game"), ""));
+    r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "application/signature"), ""));
+    r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "application/short_version"), "1.0"));
+    r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "application/version"), "1.0"));
+    r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "application/copyright"), ""));
+    r_options->push_back(ExportOption(PropertyInfo(VariantType::BOOL, "display/high_res"), false));
 
 #ifdef OSX_ENABLED
-    r_options->push_back(ExportOption(PropertyInfo(Variant::STRING, "codesign/identity"), ""));
-    r_options->push_back(ExportOption(PropertyInfo(Variant::STRING, "codesign/entitlements"), ""));
+    r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "codesign/identity"), ""));
+    r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "codesign/entitlements"), ""));
 #endif
 
-    r_options->push_back(ExportOption(PropertyInfo(Variant::BOOL, "texture_format/s3tc"), true));
-    r_options->push_back(ExportOption(PropertyInfo(Variant::BOOL, "texture_format/etc"), false));
-    r_options->push_back(ExportOption(PropertyInfo(Variant::BOOL, "texture_format/etc2"), false));
+    r_options->push_back(ExportOption(PropertyInfo(VariantType::BOOL, "texture_format/s3tc"), true));
+    r_options->push_back(ExportOption(PropertyInfo(VariantType::BOOL, "texture_format/etc"), false));
+    r_options->push_back(ExportOption(PropertyInfo(VariantType::BOOL, "texture_format/etc2"), false));
 }
 
 void _rgba8_to_packbits_encode(int p_ch, int p_size, PoolVector<uint8_t> &p_source, Vector<uint8_t> &p_dest) {
@@ -213,7 +214,7 @@ void _rgba8_to_packbits_encode(int p_ch, int p_size, PoolVector<uint8_t> &p_sour
 
 void EditorExportPlatformOSX::_make_icon(const Ref<Image> &p_icon, Vector<uint8_t> &p_data) {
 
-    Ref<ImageTexture> it = memnew(ImageTexture);
+    Ref<ImageTexture> it(make_ref_counted<ImageTexture>());
 
     Vector<uint8_t> data;
 
@@ -243,7 +244,7 @@ void EditorExportPlatformOSX::_make_icon(const Ref<Image> &p_icon, Vector<uint8_
         { "is32", "s8mk", false, 16 } //16x16 24-bit RLE + 8-bit uncompressed mask
     };
 
-    for (unsigned int i = 0; i < (sizeof(icon_infos) / sizeof(icon_infos[0])); ++i) {
+    for (uint64_t i = 0; i < (sizeof(icon_infos) / sizeof(icon_infos[0])); ++i) {
         Ref<Image> copy = p_icon; // does this make sense? doesn't this just increase the reference count instead of making a copy? Do we even need a copy?
         copy->convert(Image::FORMAT_RGBA8);
         copy->resize(icon_infos[i].size, icon_infos[i].size);
@@ -251,7 +252,7 @@ void EditorExportPlatformOSX::_make_icon(const Ref<Image> &p_icon, Vector<uint8_
         if (icon_infos[i].is_png) {
             // Encode PNG icon.
             it->create_from_image(copy);
-			String path = PathUtils::plus_file(EditorSettings::get_singleton()->get_cache_dir(),"icon.png");
+            String path = PathUtils::plus_file(EditorSettings::get_singleton()->get_cache_dir(),"icon.png");
             ResourceSaver::save(path, it);
 
             FileAccess *f = FileAccess::open(path, FileAccess::READ);
@@ -319,29 +320,29 @@ void EditorExportPlatformOSX::_make_icon(const Ref<Image> &p_icon, Vector<uint8_
 void EditorExportPlatformOSX::_fix_plist(const Ref<EditorExportPreset> &p_preset, Vector<uint8_t> &plist, const String &p_binary) {
 
     String strnew;
-	String str = StringUtils::from_utf8((const char *)plist.ptr(), plist.size());
+    String str = StringUtils::from_utf8((const char *)plist.ptr(), plist.size());
     Vector<String> lines = StringUtils::split(str,"\n");
-	const std::pair<const char*,String> replacements[] = {
-		{"$binary", p_binary},
-		{"$name", p_binary},
-		{"$info", p_preset->get("application/info")},
-		{"$identifier", p_preset->get("application/identifier")},
-		{"$short_version", p_preset->get("application/short_version")},
-		{"$version", p_preset->get("application/version")},
-		{"$signature", p_preset->get("application/signature")},
-		{"$copyright", p_preset->get("application/copyright")},
-		{"$highres", p_preset->get("display/high_res") ? "<true/>" : "<false/>"},
+    const std::pair<const char*,String> replacements[] = {
+        {"$binary", p_binary},
+        {"$name", p_binary},
+        {"$info", p_preset->get("application/info")},
+        {"$identifier", p_preset->get("application/identifier")},
+        {"$short_version", p_preset->get("application/short_version")},
+        {"$version", p_preset->get("application/version")},
+        {"$signature", p_preset->get("application/signature")},
+        {"$copyright", p_preset->get("application/copyright")},
+        {"$highres", p_preset->get("display/high_res") ? "<true/>" : "<false/>"},
     };
     for (int i = 0; i < lines.size(); i++) {
-		String line(lines[i]);
+        String line(lines[i]);
         for(const std::pair<const char *,String > &en : replacements)
         {
-		   line = StringUtils::replace(line,en.first, en.second);
+           line = StringUtils::replace(line,en.first, en.second);
         }
         strnew += line + "\n";
     }
 
-	CharString cs = StringUtils::to_utf8(strnew);
+    CharString cs = StringUtils::to_utf8(strnew);
     plist.resize(cs.size() - 1);
     for (int i = 0; i < cs.size() - 1; i++) {
         plist.write[i] = cs[i];
@@ -356,7 +357,7 @@ void EditorExportPlatformOSX::_fix_plist(const Ref<EditorExportPreset> &p_preset
 **/
 
 Error EditorExportPlatformOSX::_code_sign(const Ref<EditorExportPreset> &p_preset, const String &p_path) {
-    List<String> args;
+    ListPOD<String> args;
 
     if (p_preset->get("codesign/entitlements") != "") {
         /* this should point to our entitlements.plist file that sandboxes our application, I don't know if this should also be placed in our app bundle */
@@ -370,10 +371,10 @@ Error EditorExportPlatformOSX::_code_sign(const Ref<EditorExportPreset> &p_prese
 
     String str;
     Error err = OS::get_singleton()->execute("codesign", args, true, nullptr, &str, nullptr, true);
-    ERR_FAIL_COND_V(err != OK, err);
+    ERR_FAIL_COND_V(err != OK, err)
 
     print_line("codesign: " + str);
-	if (StringUtils::contains(str,"no identity found")) {
+    if (StringUtils::contains(str,"no identity found")) {
         EditorNode::add_io_error("codesign: no identity found");
         return FAILED;
     }
@@ -382,7 +383,7 @@ Error EditorExportPlatformOSX::_code_sign(const Ref<EditorExportPreset> &p_prese
 }
 
 Error EditorExportPlatformOSX::_create_dmg(const String &p_dmg_path, const String &p_pkg_name, const String &p_app_path_name) {
-    List<String> args;
+    ListPOD<String> args;
 
     OS::get_singleton()->move_to_trash(p_dmg_path);
 
@@ -397,11 +398,11 @@ Error EditorExportPlatformOSX::_create_dmg(const String &p_dmg_path, const Strin
 
     String str;
     Error err = OS::get_singleton()->execute("hdiutil", args, true, nullptr, &str, nullptr, true);
-	ERR_FAIL_COND_V(err != OK, err)
+    ERR_FAIL_COND_V(err != OK, err)
 
     print_line("hdiutil returned: " + str);
-	if (StringUtils::contains(str,"create failed")) {
-		if (StringUtils::contains(str,"File exists")) {
+    if (StringUtils::contains(str,"create failed")) {
+        if (StringUtils::contains(str,"File exists")) {
             EditorNode::add_io_error("hdiutil: create failed - file exists");
         } else {
             EditorNode::add_io_error("hdiutil: create failed");
@@ -433,7 +434,7 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
         }
     }
 
-	if (!DirAccess::exists(PathUtils::get_base_dir(p_path))) {
+    if (!DirAccess::exists(PathUtils::get_base_dir(p_path))) {
         return ERR_FILE_BAD_PATH;
     }
 
@@ -444,7 +445,7 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
         return ERR_SKIP;
     }
 
-	unzFile src_pkg_zip = unzOpen2(qPrintable(src_pkg_name.m_str), &io);
+    unzFile src_pkg_zip = unzOpen2(qPrintable(src_pkg_name.m_str), &io);
     if (!src_pkg_zip) {
 
         EditorNode::add_io_error("Could not find template app to export:\n" + src_pkg_name);
@@ -470,10 +471,10 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
     io2.opaque = &dst_f;
     zipFile dst_pkg_zip = nullptr;
 
-	String export_format = use_dmg() && StringUtils::ends_with(p_path,"dmg") ? "dmg" : "zip";
+    String export_format = use_dmg() && StringUtils::ends_with(p_path,"dmg") ? "dmg" : "zip";
     if (export_format == "dmg") {
         // We're on OSX so we can export to DMG, but first we create our application bundle
-		tmp_app_path_name = PathUtils::plus_file(EditorSettings::get_singleton()->get_cache_dir(),pkg_name + ".app");
+        tmp_app_path_name = PathUtils::plus_file(EditorSettings::get_singleton()->get_cache_dir(),pkg_name + ".app");
         print_line("Exporting to " + tmp_app_path_name);
         DirAccess *tmp_app_path = DirAccess::create_for_path(tmp_app_path_name);
         if (!tmp_app_path) {
@@ -497,7 +498,7 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
         }
     } else {
         // Open our destination zip file
-		dst_pkg_zip = zipOpen2(qPrintable(p_path.m_str), APPEND_STATUS_CREATE, nullptr, &io2);
+        dst_pkg_zip = zipOpen2(qPrintable(p_path.m_str), APPEND_STATUS_CREATE, nullptr, &io2);
         if (!dst_pkg_zip) {
             err = ERR_CANT_CREATE;
         }
@@ -527,13 +528,13 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
 
         //write
 
-		file =StringUtils::replace_first(file,"osx_template.app/", "");
+        file =StringUtils::replace_first(file,"osx_template.app/", "");
 
         if (file == "Contents/Info.plist") {
             _fix_plist(p_preset, data, pkg_name);
         }
 
-		if (StringUtils::begins_with(file,"Contents/MacOS/godot_")) {
+        if (StringUtils::begins_with(file,"Contents/MacOS/godot_")) {
             if (file != "Contents/MacOS/" + binary_to_use) {
                 ret = unzGoToNextFile(src_pkg_zip);
                 continue; //ignore!
@@ -552,7 +553,7 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
                 iconpath = ProjectSettings::get_singleton()->get("application/config/icon");
 
             if (!iconpath.empty()) {
-				if (PathUtils::get_extension(iconpath) == "icns") {
+                if (PathUtils::get_extension(iconpath) == "icns") {
                     FileAccess *icon = FileAccess::open(iconpath, FileAccess::READ);
                     if (icon) {
                         data.resize(icon->get_len());
@@ -561,8 +562,7 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
                         memdelete(icon);
                     }
                 } else {
-                    Ref<Image> icon;
-                    icon.instance();
+                    Ref<Image> icon(make_ref_counted<Image>());
                     icon->load(iconpath);
                     if (!icon->empty()) {
                         _make_icon(icon, data);
@@ -577,7 +577,7 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
 
             if (export_format == "dmg") {
                 // write it into our application bundle
-				file = PathUtils::plus_file(tmp_app_path_name,file);
+                file = PathUtils::plus_file(tmp_app_path_name,file);
 
                 // write the file, need to add chmod
                 FileAccess *f = FileAccess::open(file, FileAccess::WRITE);
@@ -608,7 +608,7 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
                 fi.external_fa = info.external_fa;
 
                 zipOpenNewFileInZip(dst_pkg_zip,
-						qPrintable(file.m_str),
+                        qPrintable(file.m_str),
                         &fi,
                         nullptr,
                         0,
@@ -650,9 +650,9 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
             if (err == OK) {
                 DirAccess *da = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
                 for (int i = 0; i < shared_objects.size(); i++) {
-					err = da->copy(shared_objects[i].path, tmp_app_path_name + "/Contents/Frameworks/" + PathUtils::get_file(shared_objects[i].path));
+                    err = da->copy(shared_objects[i].path, tmp_app_path_name + "/Contents/Frameworks/" + PathUtils::get_file(shared_objects[i].path));
                     if (err == OK && !identity.empty()) {
-						err = _code_sign(p_preset, tmp_app_path_name + "/Contents/Frameworks/" + PathUtils::get_file(shared_objects[i].path));
+                        err = _code_sign(p_preset, tmp_app_path_name + "/Contents/Frameworks/" + PathUtils::get_file(shared_objects[i].path));
                     }
                 }
                 memdelete(da);
@@ -697,14 +697,14 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
 
         } else { // pck
 
-			String pack_path = PathUtils::plus_file(EditorSettings::get_singleton()->get_cache_dir(),pkg_name + ".pck");
+            String pack_path = PathUtils::plus_file(EditorSettings::get_singleton()->get_cache_dir(),pkg_name + ".pck");
 
             Vector<SharedObject> shared_objects;
             err = save_pack(p_preset, pack_path, &shared_objects);
 
             if (err == OK) {
                 zipOpenNewFileInZip(dst_pkg_zip,
-						qPrintable((pkg_name + ".app/Contents/Resources/" + pkg_name + ".pck").m_str),
+                        qPrintable((pkg_name + ".app/Contents/Resources/" + pkg_name + ".pck").m_str),
                         nullptr,
                         nullptr,
                         0,
@@ -741,7 +741,7 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
                     ERR_CONTINUE(file.empty());
 
                     zipOpenNewFileInZip(dst_pkg_zip,
-							qPrintable((PathUtils::plus_file(String(pkg_name + ".app/Contents/Frameworks/"),PathUtils::get_file(shared_objects[i].path))).m_str),
+                            qPrintable((PathUtils::plus_file(String(pkg_name + ".app/Contents/Frameworks/"),PathUtils::get_file(shared_objects[i].path))).m_str),
                             nullptr,
                             nullptr,
                             0,
@@ -802,8 +802,8 @@ bool EditorExportPlatformOSX::can_export(const Ref<EditorExportPreset> &p_preset
 
 EditorExportPlatformOSX::EditorExportPlatformOSX() {
 
-    Ref<Image> img = memnew(Image(_osx_logo));
-    logo.instance();
+    Ref<Image> img(make_ref_counted<Image>(_osx_logo));
+    logo = make_ref_counted<ImageTexture>();
     logo->create_from_image(img);
 }
 
@@ -811,9 +811,8 @@ EditorExportPlatformOSX::~EditorExportPlatformOSX() {
 }
 
 void register_osx_exporter() {
-
-    Ref<EditorExportPlatformOSX> platform;
-    platform.instance();
+    EditorExportPlatformOSX::initialize_class();
+    Ref<EditorExportPlatformOSX> platform(make_ref_counted<EditorExportPlatformOSX>());
 
     EditorExport::get_singleton()->add_export_platform(platform);
 }

@@ -30,6 +30,7 @@
 
 #include "texture_loader_dds.h"
 #include "core/os/file_access.h"
+#include "core/class_db.h"
 
 #define PF_FOURCC(s) ((uint32_t)(((s)[3] << 24U) | ((s)[2] << 16U) | ((s)[1] << 8U) | ((s)[0])))
 
@@ -108,7 +109,7 @@ RES ResourceFormatDDS::load(const String &p_path, const String &p_original_path,
     if (r_error)
         *r_error = ERR_FILE_CORRUPT;
 
-    ERR_FAIL_COND_V_MSG(err != OK, RES(), "Unable to open DDS texture file: " + p_path + ".");
+    ERR_FAIL_COND_V_MSG(err != OK, RES(), "Unable to open DDS texture file: " + p_path + ".")
 
     uint32_t magic = f->get_32();
     uint32_t hsize = f->get_32();
@@ -232,8 +233,8 @@ RES ResourceFormatDDS::load(const String &p_path, const String &p_original_path,
         //compressed bc
 
         uint32_t size = MAX(info.divisor, w) / info.divisor * MAX(info.divisor, h) / info.divisor * info.block_size;
-        ERR_FAIL_COND_V(size != pitch, RES());
-        ERR_FAIL_COND_V(!(flags & DDSD_LINEARSIZE), RES());
+        ERR_FAIL_COND_V(size != pitch, RES())
+        ERR_FAIL_COND_V(!(flags & DDSD_LINEARSIZE), RES())
 
         for (uint32_t i = 1; i < mipmaps; i++) {
 
@@ -251,11 +252,11 @@ RES ResourceFormatDDS::load(const String &p_path, const String &p_original_path,
     } else if (info.palette) {
 
         //indexed
-        ERR_FAIL_COND_V(!(flags & DDSD_PITCH), RES());
-        ERR_FAIL_COND_V(format_rgb_bits != 8, RES());
+        ERR_FAIL_COND_V(!(flags & DDSD_PITCH), RES())
+        ERR_FAIL_COND_V(format_rgb_bits != 8, RES())
 
         uint32_t size = pitch * height;
-        ERR_FAIL_COND_V(size != width * height * info.block_size, RES());
+        ERR_FAIL_COND_V(size != width * height * info.block_size, RES())
 
         uint8_t palette[256 * 4];
         f->get_buffer(palette, 256 * 4);
@@ -439,9 +440,9 @@ RES ResourceFormatDDS::load(const String &p_path, const String &p_original_path,
         }
     }
 
-    Ref<Image> img = memnew(Image(width, height, mipmaps - 1, info.format, src_data));
+    Ref<Image> img(make_ref_counted<Image>(width, height, mipmaps - 1, info.format, src_data));
 
-    Ref<ImageTexture> texture = memnew(ImageTexture);
+    Ref<ImageTexture> texture(make_ref_counted<ImageTexture>());
     texture->create_from_image(img);
 
     if (r_error)
@@ -450,7 +451,7 @@ RES ResourceFormatDDS::load(const String &p_path, const String &p_original_path,
     return texture;
 }
 
-void ResourceFormatDDS::get_recognized_extensions(List<String> *p_extensions) const {
+void ResourceFormatDDS::get_recognized_extensions(ListPOD<String> *p_extensions) const {
 
     p_extensions->push_back("dds");
 }

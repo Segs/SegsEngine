@@ -28,12 +28,12 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef NETWORKED_MULTIPLAYER_ENET_H
-#define NETWORKED_MULTIPLAYER_ENET_H
+#pragma once
 
 #include "core/io/compression.h"
 #include "core/io/networked_multiplayer_peer.h"
 #include "core/map.h"
+#include "core/list.h"
 
 #include <enet/enet.h>
 
@@ -165,7 +165,3 @@ public:
 
     void set_bind_ip(const IP_Address &p_ip);
 };
-
-VARIANT_ENUM_CAST(NetworkedMultiplayerENet::CompressionMode);
-
-#endif // NETWORKED_MULTIPLAYER_ENET_H

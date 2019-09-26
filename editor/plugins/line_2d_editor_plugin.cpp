@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "line_2d_editor_plugin.h"
+#include "core/class_db.h"
 
 IMPL_GDCLASS(Line2DEditor)
 IMPL_GDCLASS(Line2DEditorPlugin)

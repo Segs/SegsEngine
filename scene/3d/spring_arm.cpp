@@ -66,26 +66,26 @@ void SpringArm::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("get_hit_length"), &SpringArm::get_hit_length);
 
-    MethodBinder::bind_method(D_METHOD("set_length", "length"), &SpringArm::set_length);
+    MethodBinder::bind_method(D_METHOD("set_length", {"length"}), &SpringArm::set_length);
     MethodBinder::bind_method(D_METHOD("get_length"), &SpringArm::get_length);
 
-    MethodBinder::bind_method(D_METHOD("set_shape", "shape"), &SpringArm::set_shape);
+    MethodBinder::bind_method(D_METHOD("set_shape", {"shape"}), &SpringArm::set_shape);
     MethodBinder::bind_method(D_METHOD("get_shape"), &SpringArm::get_shape);
 
-    MethodBinder::bind_method(D_METHOD("add_excluded_object", "RID"), &SpringArm::add_excluded_object);
-    MethodBinder::bind_method(D_METHOD("remove_excluded_object", "RID"), &SpringArm::remove_excluded_object);
+    MethodBinder::bind_method(D_METHOD("add_excluded_object", {"RID"}), &SpringArm::add_excluded_object);
+    MethodBinder::bind_method(D_METHOD("remove_excluded_object", {"RID"}), &SpringArm::remove_excluded_object);
     MethodBinder::bind_method(D_METHOD("clear_excluded_objects"), &SpringArm::clear_excluded_objects);
 
-    MethodBinder::bind_method(D_METHOD("set_collision_mask", "mask"), &SpringArm::set_mask);
+    MethodBinder::bind_method(D_METHOD("set_collision_mask", {"mask"}), &SpringArm::set_mask);
     MethodBinder::bind_method(D_METHOD("get_collision_mask"), &SpringArm::get_mask);
 
-    MethodBinder::bind_method(D_METHOD("set_margin", "margin"), &SpringArm::set_margin);
+    MethodBinder::bind_method(D_METHOD("set_margin", {"margin"}), &SpringArm::set_margin);
     MethodBinder::bind_method(D_METHOD("get_margin"), &SpringArm::get_margin);
 
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "collision_mask", PROPERTY_HINT_LAYERS_3D_PHYSICS), "set_collision_mask", "get_collision_mask");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "shape", PROPERTY_HINT_RESOURCE_TYPE, "Shape"), "set_shape", "get_shape");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "spring_length"), "set_length", "get_length");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "margin"), "set_margin", "get_margin");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_mask", PROPERTY_HINT_LAYERS_3D_PHYSICS), "set_collision_mask", "get_collision_mask");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "shape", PROPERTY_HINT_RESOURCE_TYPE, "Shape"), "set_shape", "get_shape");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "spring_length"), "set_length", "get_length");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "margin"), "set_margin", "get_margin");
 }
 
 float SpringArm::get_length() const {
@@ -99,7 +99,7 @@ void SpringArm::set_length(float p_length) {
     spring_length = p_length;
 }
 
-void SpringArm::set_shape(Ref<Shape> p_shape) {
+void SpringArm::set_shape(const Ref<Shape>& p_shape) {
     shape = p_shape;
 }
 
@@ -147,7 +147,7 @@ void SpringArm::process_spring() {
     Vector3 motion;
     const Vector3 cast_direction(get_global_transform().basis.xform(Vector3(0, 0, 1)));
 
-    if (shape.is_null()) {
+    if (not shape) {
         motion = Vector3(cast_direction * (spring_length));
         PhysicsDirectSpaceState::RayResult r;
         bool intersected = get_world()->get_direct_space_state()->intersect_ray(get_global_transform().origin, get_global_transform().origin + motion, r, excluded_objects, mask);

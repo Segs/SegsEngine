@@ -103,7 +103,7 @@ private:
     Ref<Mesh> _generate_mesh_from_surface_indices(ImportState &state, const Vector<int> &p_surface_indices, const aiNode *assimp_node, Skeleton *p_skeleton = nullptr);
 
     // utility for node creation
-    void attach_new_node(ImportState &state, Spatial *new_node, const aiNode *node, Node *parent_node, String Name, Transform &transform);
+    void attach_new_node(ImportState &state, Spatial *new_node, const aiNode *node, Node *parent_node, const String& Name, Transform &transform);
     // simple object creation functions
     void create_light(ImportState &state, RecursiveState &recursive_state);
     void create_camera(ImportState &state, RecursiveState &recursive_state);
@@ -126,7 +126,7 @@ private:
     float _get_fbx_fps(int32_t time_mode, const aiScene *p_scene);
     template <class T>
     T _interpolate_track(const Vector<float> &p_times, const Vector<T> &p_values, float p_time, AssetImportAnimation::Interpolation p_interp);
-    void _register_project_setting_import(const String generic, const String import_setting_string, const Vector<String> &exts, Vector<String> *r_extensions, const bool p_enabled) const;
+    void _register_project_setting_import(const String& generic, const String& import_setting_string, const Vector<String> &exts, Vector<String> *r_extensions, const bool p_enabled) const;
 
     struct ImportFormat {
         Vector<String> extensions;

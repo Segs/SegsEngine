@@ -69,9 +69,9 @@ bool Listener::_get(const StringName &p_name, Variant &r_ret) const {
     return true;
 }
 
-void Listener::_get_property_list(List<PropertyInfo> *p_list) const {
+void Listener::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
-    p_list->push_back(PropertyInfo(Variant::BOOL, "current"));
+    p_list->push_back(PropertyInfo(VariantType::BOOL, "current"));
 }
 
 void Listener::_update_listener() {
@@ -155,7 +155,7 @@ bool Listener::_can_gizmo_scale() const {
 }
 
 RES Listener::_get_gizmo_geometry() const {
-    Ref<ArrayMesh> mesh = memnew(ArrayMesh);
+    Ref<ArrayMesh> mesh(make_ref_counted<ArrayMesh>());
 
     return mesh;
 }

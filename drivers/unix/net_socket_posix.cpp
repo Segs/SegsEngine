@@ -97,7 +97,7 @@ size_t NetSocketPosix::_set_addr_storage(struct sockaddr_storage *p_addr, const 
     if (p_ip_type == IP::TYPE_IPV6 || p_ip_type == IP::TYPE_ANY) { // IPv6 socket
 
         // IPv6 only socket with IPv4 address
-        ERR_FAIL_COND_V(!p_ip.is_wildcard() && p_ip_type == IP::TYPE_IPV6 && p_ip.is_ipv4(), 0);
+        ERR_FAIL_COND_V(!p_ip.is_wildcard() && p_ip_type == IP::TYPE_IPV6 && p_ip.is_ipv4(), 0)
 
         struct sockaddr_in6 *addr6 = (struct sockaddr_in6 *)p_addr;
         addr6->sin6_family = AF_INET6;
@@ -111,7 +111,7 @@ size_t NetSocketPosix::_set_addr_storage(struct sockaddr_storage *p_addr, const 
     } else { // IPv4 socket
 
         // IPv4 socket with IPv6 address
-        ERR_FAIL_COND_V(!p_ip.is_wildcard() && !p_ip.is_ipv4(), 0);
+        ERR_FAIL_COND_V(!p_ip.is_wildcard() && !p_ip.is_ipv4(), 0)
 
         struct sockaddr_in *addr4 = (struct sockaddr_in *)p_addr;
         addr4->sin_family = AF_INET;
@@ -175,7 +175,7 @@ NetSocketPosix::NetSocketPosix() :
 }
 
 NetSocketPosix::~NetSocketPosix() {
-    close();
+    NetSocketPosix::close();
 }
 
 // Silent a warning reported in #27594
@@ -225,7 +225,7 @@ bool NetSocketPosix::_can_use_ip(const IP_Address &p_ip, const bool p_for_bind) 
     return !(_ip_type != IP::TYPE_ANY && !p_ip.is_wildcard() && _ip_type != type);
 }
 
-_FORCE_INLINE_ Error NetSocketPosix::_change_multicast_group(IP_Address p_ip, String p_if_name, bool p_add) {
+_FORCE_INLINE_ Error NetSocketPosix::_change_multicast_group(IP_Address p_ip, const String& p_if_name, bool p_add) {
 
     ERR_FAIL_COND_V(!is_open(), ERR_UNCONFIGURED)
     ERR_FAIL_COND_V(!_can_use_ip(p_ip, false), ERR_INVALID_PARAMETER)
@@ -240,8 +240,8 @@ _FORCE_INLINE_ Error NetSocketPosix::_change_multicast_group(IP_Address p_ip, St
     uint32_t if_v6id = 0;
     Map<String, IP::Interface_Info> if_info;
     IP::get_singleton()->get_local_interfaces(&if_info);
-    for (Map<String, IP::Interface_Info>::Element *E = if_info.front(); E; E = E->next()) {
-        IP::Interface_Info &c = E->get();
+    for (eastl::pair<const String,IP::Interface_Info> &E : if_info) {
+        IP::Interface_Info &c = E.second;
         if (c.name != p_if_name)
             continue;
 
@@ -250,16 +250,16 @@ _FORCE_INLINE_ Error NetSocketPosix::_change_multicast_group(IP_Address p_ip, St
             break; // IPv6 uses index.
 
         for (List<IP_Address>::Element *F = c.ip_addresses.front(); F; F = F->next()) {
-            if (!F->get().is_ipv4())
+            if (!F->deref().is_ipv4())
                 continue; // Wrong IP type
-            if_ip = F->get();
+            if_ip = F->deref();
             break;
         }
         break;
     }
 
     if (level == IPPROTO_IP) {
-        ERR_FAIL_COND_V(!if_ip.is_valid(), ERR_INVALID_PARAMETER);
+        ERR_FAIL_COND_V(!if_ip.is_valid(), ERR_INVALID_PARAMETER)
         struct ip_mreq greq;
         int sock_opt = p_add ? IP_ADD_MEMBERSHIP : IP_DROP_MEMBERSHIP;
         memcpy(&greq.imr_multiaddr, p_ip.get_ipv4(), 4);
@@ -272,7 +272,7 @@ _FORCE_INLINE_ Error NetSocketPosix::_change_multicast_group(IP_Address p_ip, St
         greq.ipv6mr_interface = if_v6id;
         ret = setsockopt(_sock, level, sock_opt, (const char *)&greq, sizeof(greq));
     }
-    ERR_FAIL_COND_V(ret != 0, FAILED);
+    ERR_FAIL_COND_V(ret != 0, FAILED)
 
     return OK;
 }
@@ -284,8 +284,8 @@ void NetSocketPosix::_set_socket(SOCKET_TYPE p_sock, IP::Type p_ip_type, bool p_
 }
 
 Error NetSocketPosix::open(Type p_sock_type, IP::Type &ip_type) {
-    ERR_FAIL_COND_V(is_open(), ERR_ALREADY_IN_USE);
-    ERR_FAIL_COND_V(ip_type > IP::TYPE_ANY || ip_type < IP::TYPE_NONE, ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(is_open(), ERR_ALREADY_IN_USE)
+    ERR_FAIL_COND_V(ip_type > IP::TYPE_ANY || ip_type < IP::TYPE_NONE, ERR_INVALID_PARAMETER)
 
 #if defined(__OpenBSD__)
     // OpenBSD does not support dual stacking, fallback to IPv4 only.
@@ -306,7 +306,7 @@ Error NetSocketPosix::open(Type p_sock_type, IP::Type &ip_type) {
         _sock = socket(family, type, protocol);
     }
 
-    ERR_FAIL_COND_V(_sock == SOCK_EMPTY, FAILED);
+    ERR_FAIL_COND_V(_sock == SOCK_EMPTY, FAILED)
     _ip_type = ip_type;
 
     if (family == AF_INET6) {
@@ -357,8 +357,8 @@ void NetSocketPosix::close() {
 
 Error NetSocketPosix::bind(IP_Address p_addr, uint16_t p_port) {
 
-    ERR_FAIL_COND_V(!is_open(), ERR_UNCONFIGURED);
-    ERR_FAIL_COND_V(!_can_use_ip(p_addr, true), ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(!is_open(), ERR_UNCONFIGURED)
+    ERR_FAIL_COND_V(!_can_use_ip(p_addr, true), ERR_INVALID_PARAMETER)
 
     sockaddr_storage addr;
     size_t addr_size = _set_addr_storage(&addr, p_addr, p_port, _ip_type);
@@ -372,7 +372,7 @@ Error NetSocketPosix::bind(IP_Address p_addr, uint16_t p_port) {
 }
 
 Error NetSocketPosix::listen(int p_max_pending) {
-    ERR_FAIL_COND_V(!is_open(), ERR_UNCONFIGURED);
+    ERR_FAIL_COND_V(!is_open(), ERR_UNCONFIGURED)
 
     if (::listen(_sock, p_max_pending) != 0) {
 
@@ -385,8 +385,8 @@ Error NetSocketPosix::listen(int p_max_pending) {
 
 Error NetSocketPosix::connect_to_host(IP_Address p_host, uint16_t p_port) {
 
-    ERR_FAIL_COND_V(!is_open(), ERR_UNCONFIGURED);
-    ERR_FAIL_COND_V(!_can_use_ip(p_host, false), ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(!is_open(), ERR_UNCONFIGURED)
+    ERR_FAIL_COND_V(!_can_use_ip(p_host, false), ERR_INVALID_PARAMETER)
 
     struct sockaddr_storage addr;
     size_t addr_size = _set_addr_storage(&addr, p_host, p_port, _ip_type);
@@ -415,7 +415,7 @@ Error NetSocketPosix::connect_to_host(IP_Address p_host, uint16_t p_port) {
 
 Error NetSocketPosix::poll(PollType p_type, int p_timeout) const {
 
-    ERR_FAIL_COND_V(!is_open(), ERR_UNCONFIGURED);
+    ERR_FAIL_COND_V(!is_open(), ERR_UNCONFIGURED)
 
 #if defined(WINDOWS_ENABLED)
     bool ready = false;
@@ -451,12 +451,12 @@ Error NetSocketPosix::poll(PollType p_type, int p_timeout) const {
     }
     int ret = select(1, rdp, wrp, &ex, tp);
 
-    ERR_FAIL_COND_V(ret == SOCKET_ERROR, FAILED);
+    ERR_FAIL_COND_V(ret == SOCKET_ERROR, FAILED)
 
     if (ret == 0)
         return ERR_BUSY;
 
-    ERR_FAIL_COND_V(FD_ISSET(_sock, &ex), FAILED);
+    ERR_FAIL_COND_V(FD_ISSET(_sock, &ex), FAILED)
 
     if (rdp && FD_ISSET(_sock, rdp))
         ready = true;
@@ -483,8 +483,8 @@ Error NetSocketPosix::poll(PollType p_type, int p_timeout) const {
 
     int ret = ::poll(&pfd, 1, p_timeout);
 
-    ERR_FAIL_COND_V(ret < 0, FAILED);
-    ERR_FAIL_COND_V(pfd.revents & POLLERR, FAILED);
+    ERR_FAIL_COND_V(ret < 0, FAILED)
+    ERR_FAIL_COND_V(pfd.revents & POLLERR, FAILED)
 
     if (ret == 0)
         return ERR_BUSY;
@@ -494,7 +494,7 @@ Error NetSocketPosix::poll(PollType p_type, int p_timeout) const {
 }
 
 Error NetSocketPosix::recv(uint8_t *p_buffer, int p_len, int &r_read) {
-    ERR_FAIL_COND_V(!is_open(), ERR_UNCONFIGURED);
+    ERR_FAIL_COND_V(!is_open(), ERR_UNCONFIGURED)
 
     r_read = ::recv(_sock, SOCK_BUF(p_buffer), p_len, 0);
 
@@ -510,7 +510,7 @@ Error NetSocketPosix::recv(uint8_t *p_buffer, int p_len, int &r_read) {
 }
 
 Error NetSocketPosix::recvfrom(uint8_t *p_buffer, int p_len, int &r_read, IP_Address &r_ip, uint16_t &r_port) {
-    ERR_FAIL_COND_V(!is_open(), ERR_UNCONFIGURED);
+    ERR_FAIL_COND_V(!is_open(), ERR_UNCONFIGURED)
 
     struct sockaddr_storage from;
     socklen_t len = sizeof(struct sockaddr_storage);
@@ -543,7 +543,7 @@ Error NetSocketPosix::recvfrom(uint8_t *p_buffer, int p_len, int &r_read, IP_Add
 }
 
 Error NetSocketPosix::send(const uint8_t *p_buffer, int p_len, int &r_sent) {
-    ERR_FAIL_COND_V(!is_open(), ERR_UNCONFIGURED);
+    ERR_FAIL_COND_V(!is_open(), ERR_UNCONFIGURED)
 
     int flags = 0;
 #ifdef MSG_NOSIGNAL
@@ -564,7 +564,7 @@ Error NetSocketPosix::send(const uint8_t *p_buffer, int p_len, int &r_sent) {
 }
 
 Error NetSocketPosix::sendto(const uint8_t *p_buffer, int p_len, int &r_sent, IP_Address p_ip, uint16_t p_port) {
-    ERR_FAIL_COND_V(!is_open(), ERR_UNCONFIGURED);
+    ERR_FAIL_COND_V(!is_open(), ERR_UNCONFIGURED)
 
     struct sockaddr_storage addr;
     size_t addr_size = _set_addr_storage(&addr, p_ip, p_port, _ip_type);
@@ -582,9 +582,9 @@ Error NetSocketPosix::sendto(const uint8_t *p_buffer, int p_len, int &r_sent, IP
 }
 
 void NetSocketPosix::set_broadcasting_enabled(bool p_enabled) {
-    ERR_FAIL_COND(!is_open());
+    ERR_FAIL_COND(!is_open())
     // IPv6 has no broadcast support.
-    ERR_FAIL_COND(_ip_type == IP::TYPE_IPV6);
+    ERR_FAIL_COND(_ip_type == IP::TYPE_IPV6)
 
     int par = p_enabled ? 1 : 0;
     if (setsockopt(_sock, SOL_SOCKET, SO_BROADCAST, SOCK_CBUF(&par), sizeof(int)) != 0) {
@@ -593,7 +593,7 @@ void NetSocketPosix::set_broadcasting_enabled(bool p_enabled) {
 }
 
 void NetSocketPosix::set_blocking_enabled(bool p_enabled) {
-    ERR_FAIL_COND(!is_open());
+    ERR_FAIL_COND(!is_open())
 
     int ret = 0;
 #if defined(WINDOWS_ENABLED) || defined(NO_FCNTL)
@@ -612,9 +612,9 @@ void NetSocketPosix::set_blocking_enabled(bool p_enabled) {
 }
 
 void NetSocketPosix::set_ipv6_only_enabled(bool p_enabled) {
-    ERR_FAIL_COND(!is_open());
+    ERR_FAIL_COND(!is_open())
     // This option is only available in IPv6 sockets.
-    ERR_FAIL_COND(_ip_type == IP::TYPE_IPV4);
+    ERR_FAIL_COND(_ip_type == IP::TYPE_IPV4)
 
     int par = p_enabled ? 1 : 0;
     if (setsockopt(_sock, IPPROTO_IPV6, IPV6_V6ONLY, SOCK_CBUF(&par), sizeof(int)) != 0) {
@@ -623,8 +623,8 @@ void NetSocketPosix::set_ipv6_only_enabled(bool p_enabled) {
 }
 
 void NetSocketPosix::set_tcp_no_delay_enabled(bool p_enabled) {
-    ERR_FAIL_COND(!is_open());
-    ERR_FAIL_COND(!_is_stream); // Not TCP
+    ERR_FAIL_COND(!is_open())
+    ERR_FAIL_COND(!_is_stream) // Not TCP
 
     int par = p_enabled ? 1 : 0;
     if (setsockopt(_sock, IPPROTO_TCP, TCP_NODELAY, SOCK_CBUF(&par), sizeof(int)) < 0) {
@@ -633,7 +633,7 @@ void NetSocketPosix::set_tcp_no_delay_enabled(bool p_enabled) {
 }
 
 void NetSocketPosix::set_reuse_address_enabled(bool p_enabled) {
-    ERR_FAIL_COND(!is_open());
+    ERR_FAIL_COND(!is_open())
 
     int par = p_enabled ? 1 : 0;
     if (setsockopt(_sock, SOL_SOCKET, SO_REUSEADDR, SOCK_CBUF(&par), sizeof(int)) < 0) {
@@ -644,7 +644,7 @@ void NetSocketPosix::set_reuse_address_enabled(bool p_enabled) {
 void NetSocketPosix::set_reuse_port_enabled(bool p_enabled) {
 // Windows does not have this option, as it is always ON when setting REUSEADDR.
 #ifndef WINDOWS_ENABLED
-    ERR_FAIL_COND(!is_open());
+    ERR_FAIL_COND(!is_open())
 
     int par = p_enabled ? 1 : 0;
     if (setsockopt(_sock, SOL_SOCKET, SO_REUSEPORT, SOCK_CBUF(&par), sizeof(int)) < 0) {
@@ -659,23 +659,23 @@ bool NetSocketPosix::is_open() const {
 
 int NetSocketPosix::get_available_bytes() const {
 
-    ERR_FAIL_COND_V(_sock == SOCK_EMPTY, -1);
+    ERR_FAIL_COND_V(_sock == SOCK_EMPTY, -1)
 
     unsigned long len;
     int ret = SOCK_IOCTL(_sock, FIONREAD, &len);
-    ERR_FAIL_COND_V(ret == -1, 0);
+    ERR_FAIL_COND_V(ret == -1, 0)
     return len;
 }
 
 Ref<NetSocket> NetSocketPosix::accept(IP_Address &r_ip, uint16_t &r_port) {
 
     Ref<NetSocket> out;
-    ERR_FAIL_COND_V(!is_open(), out);
+    ERR_FAIL_COND_V(!is_open(), out)
 
     struct sockaddr_storage their_addr;
     socklen_t size = sizeof(their_addr);
     SOCKET_TYPE fd = ::accept(_sock, (struct sockaddr *)&their_addr, &size);
-    ERR_FAIL_COND_V(fd == SOCK_EMPTY, out);
+    ERR_FAIL_COND_V(fd == SOCK_EMPTY, out)
 
     _set_ip_port(&their_addr, r_ip, r_port);
 

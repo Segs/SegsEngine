@@ -28,12 +28,9 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef NETWORKED_MULTIPLAYER_PEER_H
-#define NETWORKED_MULTIPLAYER_PEER_H
+#pragma once
 
 #include "core/io/packet_peer.h"
-#include "core/method_arg_casters.h"
-#include "core/method_enum_caster.h"
 #include "core/type_info.h"
 
 class NetworkedMultiplayerPeer : public PacketPeer {
@@ -80,7 +77,3 @@ public:
     NetworkedMultiplayerPeer() {}
 };
 
-VARIANT_ENUM_CAST(NetworkedMultiplayerPeer::TransferMode)
-VARIANT_ENUM_CAST(NetworkedMultiplayerPeer::ConnectionStatus)
-
-#endif // NetworkedMultiplayerPeer_H

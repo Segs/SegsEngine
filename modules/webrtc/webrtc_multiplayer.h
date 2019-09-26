@@ -28,10 +28,10 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef WEBRTC_MULTIPLAYER_H
-#define WEBRTC_MULTIPLAYER_H
+#pragma once
 
 #include "core/map.h"
+#include "core/list.h"
 #include "core/io/networked_multiplayer_peer.h"
 #include "webrtc_peer_connection.h"
 
@@ -114,5 +114,3 @@ public:
 
     ConnectionStatus get_connection_status() const override;
 };
-
-#endif

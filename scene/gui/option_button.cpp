@@ -119,10 +119,16 @@ void OptionButton::add_item(const String &p_label, int p_id) {
 void OptionButton::set_item_text(int p_idx, const String &p_text) {
 
     popup->set_item_text(p_idx, p_text);
+
+    if (current == p_idx)
+        set_text(p_text);
 }
 void OptionButton::set_item_icon(int p_idx, const Ref<Texture> &p_icon) {
 
     popup->set_item_icon(p_idx, p_icon);
+
+    if (current == p_idx)
+        set_icon(p_icon);
 }
 void OptionButton::set_item_id(int p_idx, int p_id) {
 
@@ -266,13 +272,13 @@ Array OptionButton::_get_items() const {
 }
 void OptionButton::_set_items(const Array &p_items) {
 
-    ERR_FAIL_COND(p_items.size() % 5);
+    ERR_FAIL_COND(p_items.size() % 5)
     clear();
 
     for (int i = 0; i < p_items.size(); i += 5) {
 
         String text = p_items[i + 0];
-        Ref<Texture> icon = p_items[i + 1];
+        Ref<Texture> icon = refFromRefPtr<Texture>(p_items[i + 1]);
         bool disabled = p_items[i + 2];
         int id = p_items[i + 3];
         Variant meta = p_items[i + 4];
@@ -285,7 +291,7 @@ void OptionButton::_set_items(const Array &p_items) {
     }
 }
 
-void OptionButton::get_translatable_strings(List<String> *p_strings) const {
+void OptionButton::get_translatable_strings(ListPOD<String> *p_strings) const {
 
     popup->get_translatable_strings(p_strings);
 }
@@ -295,27 +301,27 @@ void OptionButton::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_selected"), &OptionButton::_selected);
     MethodBinder::bind_method(D_METHOD("_focused"), &OptionButton::_focused);
 
-    MethodBinder::bind_method(D_METHOD("add_item", "label", "id"), &OptionButton::add_item, {DEFVAL(-1)});
-    MethodBinder::bind_method(D_METHOD("add_icon_item", "texture", "label", "id"), &OptionButton::add_icon_item, {DEFVAL(-1)});
-    MethodBinder::bind_method(D_METHOD("set_item_text", "idx", "text"), &OptionButton::set_item_text);
-    MethodBinder::bind_method(D_METHOD("set_item_icon", "idx", "texture"), &OptionButton::set_item_icon);
-    MethodBinder::bind_method(D_METHOD("set_item_disabled", "idx", "disabled"), &OptionButton::set_item_disabled);
-    MethodBinder::bind_method(D_METHOD("set_item_id", "idx", "id"), &OptionButton::set_item_id);
-    MethodBinder::bind_method(D_METHOD("set_item_metadata", "idx", "metadata"), &OptionButton::set_item_metadata);
-    MethodBinder::bind_method(D_METHOD("get_item_text", "idx"), &OptionButton::get_item_text);
-    MethodBinder::bind_method(D_METHOD("get_item_icon", "idx"), &OptionButton::get_item_icon);
-    MethodBinder::bind_method(D_METHOD("get_item_id", "idx"), &OptionButton::get_item_id);
-    MethodBinder::bind_method(D_METHOD("get_item_index", "id"), &OptionButton::get_item_index);
-    MethodBinder::bind_method(D_METHOD("get_item_metadata", "idx"), &OptionButton::get_item_metadata);
-    MethodBinder::bind_method(D_METHOD("is_item_disabled", "idx"), &OptionButton::is_item_disabled);
+    MethodBinder::bind_method(D_METHOD("add_item", {"label", "id"}), &OptionButton::add_item, {DEFVAL(-1)});
+    MethodBinder::bind_method(D_METHOD("add_icon_item", {"texture", "label", "id"}), &OptionButton::add_icon_item, {DEFVAL(-1)});
+    MethodBinder::bind_method(D_METHOD("set_item_text", {"idx", "text"}), &OptionButton::set_item_text);
+    MethodBinder::bind_method(D_METHOD("set_item_icon", {"idx", "texture"}), &OptionButton::set_item_icon);
+    MethodBinder::bind_method(D_METHOD("set_item_disabled", {"idx", "disabled"}), &OptionButton::set_item_disabled);
+    MethodBinder::bind_method(D_METHOD("set_item_id", {"idx", "id"}), &OptionButton::set_item_id);
+    MethodBinder::bind_method(D_METHOD("set_item_metadata", {"idx", "metadata"}), &OptionButton::set_item_metadata);
+    MethodBinder::bind_method(D_METHOD("get_item_text", {"idx"}), &OptionButton::get_item_text);
+    MethodBinder::bind_method(D_METHOD("get_item_icon", {"idx"}), &OptionButton::get_item_icon);
+    MethodBinder::bind_method(D_METHOD("get_item_id", {"idx"}), &OptionButton::get_item_id);
+    MethodBinder::bind_method(D_METHOD("get_item_index", {"id"}), &OptionButton::get_item_index);
+    MethodBinder::bind_method(D_METHOD("get_item_metadata", {"idx"}), &OptionButton::get_item_metadata);
+    MethodBinder::bind_method(D_METHOD("is_item_disabled", {"idx"}), &OptionButton::is_item_disabled);
     MethodBinder::bind_method(D_METHOD("get_item_count"), &OptionButton::get_item_count);
     MethodBinder::bind_method(D_METHOD("add_separator"), &OptionButton::add_separator);
     MethodBinder::bind_method(D_METHOD("clear"), &OptionButton::clear);
-    MethodBinder::bind_method(D_METHOD("select", "idx"), &OptionButton::select);
+    MethodBinder::bind_method(D_METHOD("select", {"idx"}), &OptionButton::select);
     MethodBinder::bind_method(D_METHOD("get_selected"), &OptionButton::get_selected);
     MethodBinder::bind_method(D_METHOD("get_selected_id"), &OptionButton::get_selected_id);
     MethodBinder::bind_method(D_METHOD("get_selected_metadata"), &OptionButton::get_selected_metadata);
-    MethodBinder::bind_method(D_METHOD("remove_item", "idx"), &OptionButton::remove_item);
+    MethodBinder::bind_method(D_METHOD("remove_item", {"idx"}), &OptionButton::remove_item);
     MethodBinder::bind_method(D_METHOD("_select_int"), &OptionButton::_select_int);
 
     MethodBinder::bind_method(D_METHOD("get_popup"), &OptionButton::get_popup);
@@ -323,11 +329,11 @@ void OptionButton::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_set_items"), &OptionButton::_set_items);
     MethodBinder::bind_method(D_METHOD("_get_items"), &OptionButton::_get_items);
 
-    ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "items", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_items", "_get_items");
+    ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "items", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_items", "_get_items");
     // "selected" property must come after "items", otherwise GH-10213 occurs
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "selected"), "_select_int", "get_selected");
-    ADD_SIGNAL(MethodInfo("item_selected", PropertyInfo(Variant::INT, "id")));
-    ADD_SIGNAL(MethodInfo("item_focused", PropertyInfo(Variant::INT, "id")));
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "selected"), "_select_int", "get_selected");
+    ADD_SIGNAL(MethodInfo("item_selected", PropertyInfo(VariantType::INT, "id")));
+    ADD_SIGNAL(MethodInfo("item_focused", PropertyInfo(VariantType::INT, "id")));
 }
 
 OptionButton::OptionButton() {

@@ -84,7 +84,7 @@ void CanvasItemMaterial::_update_shader() {
     if (mk.key == current_key.key)
         return; //no update required in the end
 
-    if (shader_map.has(current_key)) {
+    if (shader_map.contains(current_key)) {
         shader_map[current_key].users--;
         if (shader_map[current_key].users == 0) {
             //deallocate shader, as it's no longer in use
@@ -95,7 +95,7 @@ void CanvasItemMaterial::_update_shader() {
 
     current_key = mk;
 
-    if (shader_map.has(mk)) {
+    if (shader_map.contains(mk)) {
 
         VS::get_singleton()->material_set_shader(_get_material(), shader_map[mk].shader);
         shader_map[mk].users++;
@@ -263,14 +263,14 @@ bool CanvasItemMaterial::get_particles_anim_loop() const {
 }
 
 void CanvasItemMaterial::_validate_property(PropertyInfo &property) const {
-	if (StringUtils::begins_with(property.name,"particles_anim_") && !particles_animation) {
+    if (StringUtils::begins_with(property.name,"particles_anim_") && !particles_animation) {
         property.usage = 0;
     }
 }
 
 RID CanvasItemMaterial::get_shader_rid() const {
 
-    ERR_FAIL_COND_V(!shader_map.has(current_key), RID());
+    ERR_FAIL_COND_V(!shader_map.contains(current_key), RID())
     return shader_map[current_key].shader;
 }
 
@@ -281,41 +281,41 @@ Shader::Mode CanvasItemMaterial::get_shader_mode() const {
 
 void CanvasItemMaterial::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_blend_mode", "blend_mode"), &CanvasItemMaterial::set_blend_mode);
+    MethodBinder::bind_method(D_METHOD("set_blend_mode", {"blend_mode"}), &CanvasItemMaterial::set_blend_mode);
     MethodBinder::bind_method(D_METHOD("get_blend_mode"), &CanvasItemMaterial::get_blend_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_light_mode", "light_mode"), &CanvasItemMaterial::set_light_mode);
+    MethodBinder::bind_method(D_METHOD("set_light_mode", {"light_mode"}), &CanvasItemMaterial::set_light_mode);
     MethodBinder::bind_method(D_METHOD("get_light_mode"), &CanvasItemMaterial::get_light_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_particles_animation", "particles_anim"), &CanvasItemMaterial::set_particles_animation);
+    MethodBinder::bind_method(D_METHOD("set_particles_animation", {"particles_anim"}), &CanvasItemMaterial::set_particles_animation);
     MethodBinder::bind_method(D_METHOD("get_particles_animation"), &CanvasItemMaterial::get_particles_animation);
 
-    MethodBinder::bind_method(D_METHOD("set_particles_anim_h_frames", "frames"), &CanvasItemMaterial::set_particles_anim_h_frames);
+    MethodBinder::bind_method(D_METHOD("set_particles_anim_h_frames", {"frames"}), &CanvasItemMaterial::set_particles_anim_h_frames);
     MethodBinder::bind_method(D_METHOD("get_particles_anim_h_frames"), &CanvasItemMaterial::get_particles_anim_h_frames);
 
-    MethodBinder::bind_method(D_METHOD("set_particles_anim_v_frames", "frames"), &CanvasItemMaterial::set_particles_anim_v_frames);
+    MethodBinder::bind_method(D_METHOD("set_particles_anim_v_frames", {"frames"}), &CanvasItemMaterial::set_particles_anim_v_frames);
     MethodBinder::bind_method(D_METHOD("get_particles_anim_v_frames"), &CanvasItemMaterial::get_particles_anim_v_frames);
 
-    MethodBinder::bind_method(D_METHOD("set_particles_anim_loop", "loop"), &CanvasItemMaterial::set_particles_anim_loop);
+    MethodBinder::bind_method(D_METHOD("set_particles_anim_loop", {"loop"}), &CanvasItemMaterial::set_particles_anim_loop);
     MethodBinder::bind_method(D_METHOD("get_particles_anim_loop"), &CanvasItemMaterial::get_particles_anim_loop);
 
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "blend_mode", PROPERTY_HINT_ENUM, "Mix,Add,Sub,Mul,Premult Alpha"), "set_blend_mode", "get_blend_mode");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "light_mode", PROPERTY_HINT_ENUM, "Normal,Unshaded,Light Only"), "set_light_mode", "get_light_mode");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "particles_animation"), "set_particles_animation", "get_particles_animation");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "blend_mode", PROPERTY_HINT_ENUM, "Mix,Add,Sub,Mul,Premult Alpha"), "set_blend_mode", "get_blend_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "light_mode", PROPERTY_HINT_ENUM, "Normal,Unshaded,Light Only"), "set_light_mode", "get_light_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "particles_animation"), "set_particles_animation", "get_particles_animation");
 
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "particles_anim_h_frames", PROPERTY_HINT_RANGE, "1,128,1"), "set_particles_anim_h_frames", "get_particles_anim_h_frames");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "particles_anim_v_frames", PROPERTY_HINT_RANGE, "1,128,1"), "set_particles_anim_v_frames", "get_particles_anim_v_frames");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "particles_anim_loop"), "set_particles_anim_loop", "get_particles_anim_loop");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "particles_anim_h_frames", PROPERTY_HINT_RANGE, "1,128,1"), "set_particles_anim_h_frames", "get_particles_anim_h_frames");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "particles_anim_v_frames", PROPERTY_HINT_RANGE, "1,128,1"), "set_particles_anim_v_frames", "get_particles_anim_v_frames");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "particles_anim_loop"), "set_particles_anim_loop", "get_particles_anim_loop");
 
-    BIND_ENUM_CONSTANT(BLEND_MODE_MIX);
-    BIND_ENUM_CONSTANT(BLEND_MODE_ADD);
-    BIND_ENUM_CONSTANT(BLEND_MODE_SUB);
-    BIND_ENUM_CONSTANT(BLEND_MODE_MUL);
-    BIND_ENUM_CONSTANT(BLEND_MODE_PREMULT_ALPHA);
+    BIND_ENUM_CONSTANT(BLEND_MODE_MIX)
+    BIND_ENUM_CONSTANT(BLEND_MODE_ADD)
+    BIND_ENUM_CONSTANT(BLEND_MODE_SUB)
+    BIND_ENUM_CONSTANT(BLEND_MODE_MUL)
+    BIND_ENUM_CONSTANT(BLEND_MODE_PREMULT_ALPHA)
 
-    BIND_ENUM_CONSTANT(LIGHT_MODE_NORMAL);
-    BIND_ENUM_CONSTANT(LIGHT_MODE_UNSHADED);
-    BIND_ENUM_CONSTANT(LIGHT_MODE_LIGHT_ONLY);
+    BIND_ENUM_CONSTANT(LIGHT_MODE_NORMAL)
+    BIND_ENUM_CONSTANT(LIGHT_MODE_UNSHADED)
+    BIND_ENUM_CONSTANT(LIGHT_MODE_LIGHT_ONLY)
 }
 
 CanvasItemMaterial::CanvasItemMaterial() :
@@ -339,7 +339,7 @@ CanvasItemMaterial::~CanvasItemMaterial() {
     if (material_mutex)
         material_mutex->lock();
 
-    if (shader_map.has(current_key)) {
+    if (shader_map.contains(current_key)) {
         shader_map[current_key].users--;
         if (shader_map[current_key].users == 0) {
             //deallocate shader, as it's no longer in use
@@ -479,7 +479,7 @@ Transform2D CanvasItem::get_global_transform_with_canvas() const {
 
 Transform2D CanvasItem::get_global_transform() const {
 #ifdef DEBUG_ENABLED
-    ERR_FAIL_COND_V(!is_inside_tree(), get_transform());
+    ERR_FAIL_COND_V(!is_inside_tree(), get_transform())
 #endif
     if (global_invalid) {
 
@@ -587,11 +587,11 @@ void CanvasItem::_notification(int p_what) {
             if (!is_inside_tree())
                 break;
 
-            if (group != "") {
+            if (!group.empty()) {
                 get_tree()->call_group_flags(SceneTree::GROUP_CALL_UNIQUE, group, "_toplevel_raise_self");
             } else {
                 CanvasItem *p = get_parent_item();
-                ERR_FAIL_COND(!p);
+                ERR_FAIL_COND(!p)
                 VisualServer::get_singleton()->canvas_item_set_draw_index(canvas_item, get_index());
             }
 
@@ -606,9 +606,7 @@ void CanvasItem::_notification(int p_what) {
             }
             global_invalid = true;
         } break;
-        case NOTIFICATION_DRAW: {
-
-        } break;
+		case NOTIFICATION_DRAW:
         case NOTIFICATION_TRANSFORM_CHANGED: {
 
         } break;
@@ -645,8 +643,8 @@ void CanvasItem::update() {
 
 void CanvasItem::set_modulate(const Color &p_modulate) {
 
-	if (modulate == p_modulate)
-		return;
+    if (modulate == p_modulate)
+        return;
 
     modulate = p_modulate;
     VisualServer::get_singleton()->canvas_item_set_modulate(canvas_item, modulate);
@@ -686,8 +684,8 @@ CanvasItem *CanvasItem::get_parent_item() const {
 
 void CanvasItem::set_self_modulate(const Color &p_self_modulate) {
 
-	if (self_modulate == p_self_modulate)
-		return;
+    if (self_modulate == p_self_modulate)
+        return;
 
     self_modulate = p_self_modulate;
     VisualServer::get_singleton()->canvas_item_set_self_modulate(canvas_item, self_modulate);
@@ -699,8 +697,8 @@ Color CanvasItem::get_self_modulate() const {
 
 void CanvasItem::set_light_mask(int p_light_mask) {
 
-	if (light_mask == p_light_mask)
-		return;
+    if (light_mask == p_light_mask)
+        return;
 
     light_mask = p_light_mask;
     VS::get_singleton()->canvas_item_set_light_mask(canvas_item, p_light_mask);
@@ -720,14 +718,14 @@ void CanvasItem::item_rect_changed(bool p_size_changed) {
 
 void CanvasItem::draw_line(const Point2 &p_from, const Point2 &p_to, const Color &p_color, float p_width, bool p_antialiased) {
 
-    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.")
 
     VisualServer::get_singleton()->canvas_item_add_line(canvas_item, p_from, p_to, p_color, p_width, p_antialiased);
 }
 
 void CanvasItem::draw_polyline(const Vector<Point2> &p_points, const Color &p_color, float p_width, bool p_antialiased) {
 
-    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.")
 
     Vector<Color> colors;
     colors.push_back(p_color);
@@ -736,14 +734,14 @@ void CanvasItem::draw_polyline(const Vector<Point2> &p_points, const Color &p_co
 
 void CanvasItem::draw_polyline_colors(const Vector<Point2> &p_points, const Vector<Color> &p_colors, float p_width, bool p_antialiased) {
 
-    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.")
 
     VisualServer::get_singleton()->canvas_item_add_polyline(canvas_item, p_points, p_colors, p_width, p_antialiased);
 }
 
 void CanvasItem::draw_multiline(const Vector<Point2> &p_points, const Color &p_color, float p_width, bool p_antialiased) {
 
-    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.")
 
     Vector<Color> colors;
     colors.push_back(p_color);
@@ -752,14 +750,14 @@ void CanvasItem::draw_multiline(const Vector<Point2> &p_points, const Color &p_c
 
 void CanvasItem::draw_multiline_colors(const Vector<Point2> &p_points, const Vector<Color> &p_colors, float p_width, bool p_antialiased) {
 
-    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.")
 
     VisualServer::get_singleton()->canvas_item_add_multiline(canvas_item, p_points, p_colors, p_width, p_antialiased);
 }
 
 void CanvasItem::draw_rect(const Rect2 &p_rect, const Color &p_color, bool p_filled, float p_width, bool p_antialiased) {
 
-    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.")
 
     if (p_filled) {
         if (p_width != 1.0) {
@@ -814,53 +812,53 @@ void CanvasItem::draw_rect(const Rect2 &p_rect, const Color &p_color, bool p_fil
 
 void CanvasItem::draw_circle(const Point2 &p_pos, float p_radius, const Color &p_color) {
 
-    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.")
 
     VisualServer::get_singleton()->canvas_item_add_circle(canvas_item, p_pos, p_radius, p_color);
 }
 
 void CanvasItem::draw_texture(const Ref<Texture> &p_texture, const Point2 &p_pos, const Color &p_modulate, const Ref<Texture> &p_normal_map) {
 
-    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.")
 
-    ERR_FAIL_COND(p_texture.is_null());
+    ERR_FAIL_COND(not p_texture)
 
     p_texture->draw(canvas_item, p_pos, p_modulate, false, p_normal_map);
 }
 
 void CanvasItem::draw_texture_rect(const Ref<Texture> &p_texture, const Rect2 &p_rect, bool p_tile, const Color &p_modulate, bool p_transpose, const Ref<Texture> &p_normal_map) {
 
-    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.")
 
-    ERR_FAIL_COND(p_texture.is_null());
+    ERR_FAIL_COND(not p_texture)
     p_texture->draw_rect(canvas_item, p_rect, p_tile, p_modulate, p_transpose, p_normal_map);
 }
 void CanvasItem::draw_texture_rect_region(const Ref<Texture> &p_texture, const Rect2 &p_rect, const Rect2 &p_src_rect, const Color &p_modulate, bool p_transpose, const Ref<Texture> &p_normal_map, bool p_clip_uv) {
 
-    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
-    ERR_FAIL_COND(p_texture.is_null());
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.")
+    ERR_FAIL_COND(not p_texture)
     p_texture->draw_rect_region(canvas_item, p_rect, p_src_rect, p_modulate, p_transpose, p_normal_map, p_clip_uv);
 }
 
 void CanvasItem::draw_style_box(const Ref<StyleBox> &p_style_box, const Rect2 &p_rect) {
-    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.")
 
-    ERR_FAIL_COND(p_style_box.is_null());
+    ERR_FAIL_COND(not p_style_box)
 
     p_style_box->draw(canvas_item, p_rect);
 }
 void CanvasItem::draw_primitive(const Vector<Point2> &p_points, const Vector<Color> &p_colors, const Vector<Point2> &p_uvs, Ref<Texture> p_texture, float p_width, const Ref<Texture> &p_normal_map) {
 
-    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.")
 
-    RID rid = p_texture.is_valid() ? p_texture->get_rid() : RID();
-    RID rid_normal = p_normal_map.is_valid() ? p_normal_map->get_rid() : RID();
+    RID rid = p_texture ? p_texture->get_rid() : RID();
+    RID rid_normal = p_normal_map ? p_normal_map->get_rid() : RID();
 
     VisualServer::get_singleton()->canvas_item_add_primitive(canvas_item, p_points, p_colors, p_uvs, rid, p_width, rid_normal);
 }
 void CanvasItem::draw_set_transform(const Point2 &p_offset, float p_rot, const Size2 &p_scale) {
 
-    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.")
 
     Transform2D xform(p_rot, p_offset);
     xform.scale_basis(p_scale);
@@ -869,63 +867,63 @@ void CanvasItem::draw_set_transform(const Point2 &p_offset, float p_rot, const S
 
 void CanvasItem::draw_set_transform_matrix(const Transform2D &p_matrix) {
 
-    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.")
 
     VisualServer::get_singleton()->canvas_item_add_set_transform(canvas_item, p_matrix);
 }
 
 void CanvasItem::draw_polygon(const Vector<Point2> &p_points, const Vector<Color> &p_colors, const Vector<Point2> &p_uvs, Ref<Texture> p_texture, const Ref<Texture> &p_normal_map, bool p_antialiased) {
 
-    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.")
 
-    RID rid = p_texture.is_valid() ? p_texture->get_rid() : RID();
-    RID rid_normal = p_normal_map.is_valid() ? p_normal_map->get_rid() : RID();
+    RID rid = p_texture ? p_texture->get_rid() : RID();
+    RID rid_normal = p_normal_map ? p_normal_map->get_rid() : RID();
 
     VisualServer::get_singleton()->canvas_item_add_polygon(canvas_item, p_points, p_colors, p_uvs, rid, rid_normal, p_antialiased);
 }
 
 void CanvasItem::draw_colored_polygon(const Vector<Point2> &p_points, const Color &p_color, const Vector<Point2> &p_uvs, Ref<Texture> p_texture, const Ref<Texture> &p_normal_map, bool p_antialiased) {
 
-    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.")
 
     Vector<Color> colors;
     colors.push_back(p_color);
-    RID rid = p_texture.is_valid() ? p_texture->get_rid() : RID();
-    RID rid_normal = p_normal_map.is_valid() ? p_normal_map->get_rid() : RID();
+    RID rid = p_texture ? p_texture->get_rid() : RID();
+    RID rid_normal = p_normal_map ? p_normal_map->get_rid() : RID();
 
     VisualServer::get_singleton()->canvas_item_add_polygon(canvas_item, p_points, colors, p_uvs, rid, rid_normal, p_antialiased);
 }
 
 void CanvasItem::draw_mesh(const Ref<Mesh> &p_mesh, const Ref<Texture> &p_texture, const Ref<Texture> &p_normal_map, const Transform2D &p_transform, const Color &p_modulate) {
 
-    ERR_FAIL_COND(p_mesh.is_null());
-    RID texture_rid = p_texture.is_valid() ? p_texture->get_rid() : RID();
-    RID normal_map_rid = p_normal_map.is_valid() ? p_normal_map->get_rid() : RID();
+    ERR_FAIL_COND(not p_mesh)
+    RID texture_rid = p_texture ? p_texture->get_rid() : RID();
+    RID normal_map_rid = p_normal_map ? p_normal_map->get_rid() : RID();
 
     VisualServer::get_singleton()->canvas_item_add_mesh(canvas_item, p_mesh->get_rid(), p_transform, p_modulate, texture_rid, normal_map_rid);
 }
 void CanvasItem::draw_multimesh(const Ref<MultiMesh> &p_multimesh, const Ref<Texture> &p_texture, const Ref<Texture> &p_normal_map) {
 
-    ERR_FAIL_COND(p_multimesh.is_null());
-    RID texture_rid = p_texture.is_valid() ? p_texture->get_rid() : RID();
-    RID normal_map_rid = p_normal_map.is_valid() ? p_normal_map->get_rid() : RID();
+    ERR_FAIL_COND(not p_multimesh)
+    RID texture_rid = p_texture ? p_texture->get_rid() : RID();
+    RID normal_map_rid = p_normal_map ? p_normal_map->get_rid() : RID();
     VisualServer::get_singleton()->canvas_item_add_multimesh(canvas_item, p_multimesh->get_rid(), texture_rid, normal_map_rid);
 }
 
 void CanvasItem::draw_string(const Ref<Font> &p_font, const Point2 &p_pos, const String &p_text, const Color &p_modulate, int p_clip_w) {
 
-    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.")
 
-    ERR_FAIL_COND(p_font.is_null());
+    ERR_FAIL_COND(not p_font)
     p_font->draw(canvas_item, p_pos, p_text, p_modulate, p_clip_w);
 }
 
 float CanvasItem::draw_char(const Ref<Font> &p_font, const Point2 &p_pos, const String &p_char, const String &p_next, const Color &p_modulate) {
 
-    ERR_FAIL_COND_V_MSG(!drawing, 0, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
+    ERR_FAIL_COND_V_MSG(!drawing, 0, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.")
 
-    ERR_FAIL_COND_V(p_char.length() != 1, 0);
-    ERR_FAIL_COND_V(p_font.is_null(), 0);
+    ERR_FAIL_COND_V(p_char.length() != 1, 0)
+    ERR_FAIL_COND_V(not p_font, 0)
 
     if (p_font->has_outline()) {
         p_font->draw_char(canvas_item, p_pos, p_char[0], p_next.cdata()[0], Color(1, 1, 1), true);
@@ -956,7 +954,7 @@ void CanvasItem::_notify_transform(CanvasItem *p_node) {
 
     for (List<CanvasItem *>::Element *E = p_node->children_items.front(); E; E = E->next()) {
 
-        CanvasItem *ci = E->get();
+        CanvasItem *ci = E->deref();
         if (ci->toplevel)
             continue;
         _notify_transform(ci);
@@ -965,13 +963,13 @@ void CanvasItem::_notify_transform(CanvasItem *p_node) {
 
 Rect2 CanvasItem::get_viewport_rect() const {
 
-    ERR_FAIL_COND_V(!is_inside_tree(), Rect2());
+    ERR_FAIL_COND_V(!is_inside_tree(), Rect2())
     return get_viewport()->get_visible_rect();
 }
 
 RID CanvasItem::get_canvas() const {
 
-    ERR_FAIL_COND_V(!is_inside_tree(), RID());
+    ERR_FAIL_COND_V(!is_inside_tree(), RID())
 
     if (canvas_layer)
         return canvas_layer->get_canvas();
@@ -1000,7 +998,7 @@ CanvasItem *CanvasItem::get_toplevel() const {
 
 Ref<World2D> CanvasItem::get_world_2d() const {
 
-    ERR_FAIL_COND_V(!is_inside_tree(), Ref<World2D>());
+    ERR_FAIL_COND_V(!is_inside_tree(), Ref<World2D>())
 
     CanvasItem *tl = get_toplevel();
 
@@ -1013,7 +1011,7 @@ Ref<World2D> CanvasItem::get_world_2d() const {
 
 RID CanvasItem::get_viewport_rid() const {
 
-    ERR_FAIL_COND_V(!is_inside_tree(), RID());
+    ERR_FAIL_COND_V(!is_inside_tree(), RID())
     return get_viewport()->get_viewport_rid();
 }
 
@@ -1043,7 +1041,7 @@ void CanvasItem::set_material(const Ref<Material> &p_material) {
 
     material = p_material;
     RID rid;
-    if (material.is_valid())
+    if (material)
         rid = material->get_rid();
     VS::get_singleton()->canvas_item_set_material(canvas_item, rid);
     _change_notify(); //properties for material exposed
@@ -1067,7 +1065,7 @@ Ref<Material> CanvasItem::get_material() const {
 
 Vector2 CanvasItem::make_canvas_position_local(const Vector2 &screen_point) const {
 
-    ERR_FAIL_COND_V(!is_inside_tree(), screen_point);
+    ERR_FAIL_COND_V(!is_inside_tree(), screen_point)
 
     Transform2D local_matrix = (get_canvas_transform() * get_global_transform()).affine_inverse();
 
@@ -1076,27 +1074,27 @@ Vector2 CanvasItem::make_canvas_position_local(const Vector2 &screen_point) cons
 
 Ref<InputEvent> CanvasItem::make_input_local(const Ref<InputEvent> &p_event) const {
 
-    ERR_FAIL_COND_V(p_event.is_null(), p_event);
-    ERR_FAIL_COND_V(!is_inside_tree(), p_event);
+    ERR_FAIL_COND_V(not p_event, p_event)
+    ERR_FAIL_COND_V(!is_inside_tree(), p_event)
 
     return p_event->xformed_by((get_canvas_transform() * get_global_transform()).affine_inverse());
 }
 
 Vector2 CanvasItem::get_global_mouse_position() const {
 
-    ERR_FAIL_COND_V(!get_viewport(), Vector2());
+    ERR_FAIL_COND_V(!get_viewport(), Vector2())
     return get_canvas_transform().affine_inverse().xform(get_viewport()->get_mouse_position());
 }
 
 Vector2 CanvasItem::get_local_mouse_position() const {
 
-    ERR_FAIL_COND_V(!get_viewport(), Vector2());
+    ERR_FAIL_COND_V(!get_viewport(), Vector2())
 
     return get_global_transform().affine_inverse().xform(get_global_mouse_position());
 }
 
 void CanvasItem::force_update_transform() {
-    ERR_FAIL_COND(!is_inside_tree());
+    ERR_FAIL_COND(!is_inside_tree())
     if (!xform_change.in_list()) {
         return;
     }
@@ -1110,26 +1108,26 @@ void CanvasItem::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_toplevel_raise_self"), &CanvasItem::_toplevel_raise_self);
     MethodBinder::bind_method(D_METHOD("_update_callback"), &CanvasItem::_update_callback);
-    MethodBinder::bind_method(D_METHOD("_edit_set_state", "state"), &CanvasItem::_edit_set_state);
+    MethodBinder::bind_method(D_METHOD("_edit_set_state", {"state"}), &CanvasItem::_edit_set_state);
     MethodBinder::bind_method(D_METHOD("_edit_get_state"), &CanvasItem::_edit_get_state);
 
-    MethodBinder::bind_method(D_METHOD("_edit_set_position", "position"), &CanvasItem::_edit_set_position);
+    MethodBinder::bind_method(D_METHOD("_edit_set_position", {"position"}), &CanvasItem::_edit_set_position);
     MethodBinder::bind_method(D_METHOD("_edit_get_position"), &CanvasItem::_edit_get_position);
-    MethodBinder::bind_method(D_METHOD("_edit_set_scale", "scale"), &CanvasItem::_edit_set_scale);
+    MethodBinder::bind_method(D_METHOD("_edit_set_scale", {"scale"}), &CanvasItem::_edit_set_scale);
     MethodBinder::bind_method(D_METHOD("_edit_get_scale"), &CanvasItem::_edit_get_scale);
-    MethodBinder::bind_method(D_METHOD("_edit_set_rect", "rect"), &CanvasItem::_edit_set_rect);
+    MethodBinder::bind_method(D_METHOD("_edit_set_rect", {"rect"}), &CanvasItem::_edit_set_rect);
     MethodBinder::bind_method(D_METHOD("_edit_get_rect"), &CanvasItem::_edit_get_rect);
     MethodBinder::bind_method(D_METHOD("_edit_use_rect"), &CanvasItem::_edit_use_rect);
-    MethodBinder::bind_method(D_METHOD("_edit_set_rotation", "degrees"), &CanvasItem::_edit_set_rotation);
+    MethodBinder::bind_method(D_METHOD("_edit_set_rotation", {"degrees"}), &CanvasItem::_edit_set_rotation);
     MethodBinder::bind_method(D_METHOD("_edit_get_rotation"), &CanvasItem::_edit_get_rotation);
     MethodBinder::bind_method(D_METHOD("_edit_use_rotation"), &CanvasItem::_edit_use_rotation);
-    MethodBinder::bind_method(D_METHOD("_edit_set_pivot", "pivot"), &CanvasItem::_edit_set_pivot);
+    MethodBinder::bind_method(D_METHOD("_edit_set_pivot", {"pivot"}), &CanvasItem::_edit_set_pivot);
     MethodBinder::bind_method(D_METHOD("_edit_get_pivot"), &CanvasItem::_edit_get_pivot);
     MethodBinder::bind_method(D_METHOD("_edit_use_pivot"), &CanvasItem::_edit_use_pivot);
 
     MethodBinder::bind_method(D_METHOD("get_canvas_item"), &CanvasItem::get_canvas_item);
 
-    MethodBinder::bind_method(D_METHOD("set_visible", "visible"), &CanvasItem::set_visible);
+    MethodBinder::bind_method(D_METHOD("set_visible", {"visible"}), &CanvasItem::set_visible);
     MethodBinder::bind_method(D_METHOD("is_visible"), &CanvasItem::is_visible);
     MethodBinder::bind_method(D_METHOD("is_visible_in_tree"), &CanvasItem::is_visible_in_tree);
     MethodBinder::bind_method(D_METHOD("show"), &CanvasItem::show);
@@ -1137,45 +1135,45 @@ void CanvasItem::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("update"), &CanvasItem::update);
 
-    MethodBinder::bind_method(D_METHOD("set_as_toplevel", "enable"), &CanvasItem::set_as_toplevel);
+    MethodBinder::bind_method(D_METHOD("set_as_toplevel", {"enable"}), &CanvasItem::set_as_toplevel);
     MethodBinder::bind_method(D_METHOD("is_set_as_toplevel"), &CanvasItem::is_set_as_toplevel);
 
-    MethodBinder::bind_method(D_METHOD("set_light_mask", "light_mask"), &CanvasItem::set_light_mask);
+    MethodBinder::bind_method(D_METHOD("set_light_mask", {"light_mask"}), &CanvasItem::set_light_mask);
     MethodBinder::bind_method(D_METHOD("get_light_mask"), &CanvasItem::get_light_mask);
 
-    MethodBinder::bind_method(D_METHOD("set_modulate", "modulate"), &CanvasItem::set_modulate);
+    MethodBinder::bind_method(D_METHOD("set_modulate", {"modulate"}), &CanvasItem::set_modulate);
     MethodBinder::bind_method(D_METHOD("get_modulate"), &CanvasItem::get_modulate);
-    MethodBinder::bind_method(D_METHOD("set_self_modulate", "self_modulate"), &CanvasItem::set_self_modulate);
+    MethodBinder::bind_method(D_METHOD("set_self_modulate", {"self_modulate"}), &CanvasItem::set_self_modulate);
     MethodBinder::bind_method(D_METHOD("get_self_modulate"), &CanvasItem::get_self_modulate);
 
-    MethodBinder::bind_method(D_METHOD("set_draw_behind_parent", "enable"), &CanvasItem::set_draw_behind_parent);
+    MethodBinder::bind_method(D_METHOD("set_draw_behind_parent", {"enable"}), &CanvasItem::set_draw_behind_parent);
     MethodBinder::bind_method(D_METHOD("is_draw_behind_parent_enabled"), &CanvasItem::is_draw_behind_parent_enabled);
 
-    MethodBinder::bind_method(D_METHOD("_set_on_top", "on_top"), &CanvasItem::_set_on_top);
+    MethodBinder::bind_method(D_METHOD("_set_on_top", {"on_top"}), &CanvasItem::_set_on_top);
     MethodBinder::bind_method(D_METHOD("_is_on_top"), &CanvasItem::_is_on_top);
     //MethodBinder::bind_method(D_METHOD("get_transform"),&CanvasItem::get_transform);
 
-    MethodBinder::bind_method(D_METHOD("draw_line", "from", "to", "color", "width", "antialiased"), &CanvasItem::draw_line, {DEFVAL(1.0), DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("draw_polyline", "points", "color", "width", "antialiased"), &CanvasItem::draw_polyline, {DEFVAL(1.0), DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("draw_polyline_colors", "points", "colors", "width", "antialiased"), &CanvasItem::draw_polyline_colors, {DEFVAL(1.0), DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("draw_multiline", "points", "color", "width", "antialiased"), &CanvasItem::draw_multiline, {DEFVAL(1.0), DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("draw_multiline_colors", "points", "colors", "width", "antialiased"), &CanvasItem::draw_multiline_colors, {DEFVAL(1.0), DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("draw_rect", "rect", "color", "filled", "width", "antialiased"), &CanvasItem::draw_rect, {DEFVAL(true), DEFVAL(1.0), DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("draw_circle", "position", "radius", "color"), &CanvasItem::draw_circle);
-    MethodBinder::bind_method(D_METHOD("draw_texture", "texture", "position", "modulate", "normal_map"), &CanvasItem::draw_texture, {DEFVAL(Color(1, 1, 1, 1)), DEFVAL(Variant())});
-    MethodBinder::bind_method(D_METHOD("draw_texture_rect", "texture", "rect", "tile", "modulate", "transpose", "normal_map"), &CanvasItem::draw_texture_rect, {DEFVAL(Color(1, 1, 1)), DEFVAL(false), DEFVAL(Variant())});
-    MethodBinder::bind_method(D_METHOD("draw_texture_rect_region", "texture", "rect", "src_rect", "modulate", "transpose", "normal_map", "clip_uv"), &CanvasItem::draw_texture_rect_region, {DEFVAL(Color(1, 1, 1)), DEFVAL(false), DEFVAL(Variant()), DEFVAL(true)});
-    MethodBinder::bind_method(D_METHOD("draw_style_box", "style_box", "rect"), &CanvasItem::draw_style_box);
-    MethodBinder::bind_method(D_METHOD("draw_primitive", "points", "colors", "uvs", "texture", "width", "normal_map"), &CanvasItem::draw_primitive, {DEFVAL(Variant()), DEFVAL(1.0), DEFVAL(Variant())});
-    MethodBinder::bind_method(D_METHOD("draw_polygon", "points", "colors", "uvs", "texture", "normal_map", "antialiased"), &CanvasItem::draw_polygon, {DEFVAL(PoolVector2Array()), DEFVAL(Variant()), DEFVAL(Variant()), DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("draw_colored_polygon", "points", "color", "uvs", "texture", "normal_map", "antialiased"), &CanvasItem::draw_colored_polygon, {DEFVAL(PoolVector2Array()), DEFVAL(Variant()), DEFVAL(Variant()), DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("draw_string", "font", "position", "text", "modulate", "clip_w"), &CanvasItem::draw_string, {DEFVAL(Color(1, 1, 1)), DEFVAL(-1)});
-    MethodBinder::bind_method(D_METHOD("draw_char", "font", "position", "char", "next", "modulate"), &CanvasItem::draw_char, {DEFVAL(Color(1, 1, 1))});
-    MethodBinder::bind_method(D_METHOD("draw_mesh", "mesh", "texture", "normal_map", "transform", "modulate"), &CanvasItem::draw_mesh, {DEFVAL(Ref<Texture>()), DEFVAL(Transform2D()), DEFVAL(Color(1, 1, 1))});
-    MethodBinder::bind_method(D_METHOD("draw_multimesh", "multimesh", "texture", "normal_map"), &CanvasItem::draw_multimesh, {DEFVAL(Ref<Texture>())});
+    MethodBinder::bind_method(D_METHOD("draw_line", {"from", "to", "color", "width", "antialiased"}), &CanvasItem::draw_line, {DEFVAL(1.0), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("draw_polyline", {"points", "color", "width", "antialiased"}), &CanvasItem::draw_polyline, {DEFVAL(1.0), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("draw_polyline_colors", {"points", "colors", "width", "antialiased"}), &CanvasItem::draw_polyline_colors, {DEFVAL(1.0), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("draw_multiline", {"points", "color", "width", "antialiased"}), &CanvasItem::draw_multiline, {DEFVAL(1.0), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("draw_multiline_colors", {"points", "colors", "width", "antialiased"}), &CanvasItem::draw_multiline_colors, {DEFVAL(1.0), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("draw_rect", {"rect", "color", "filled", "width", "antialiased"}), &CanvasItem::draw_rect, {DEFVAL(true), DEFVAL(1.0), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("draw_circle", {"position", "radius", "color"}), &CanvasItem::draw_circle);
+    MethodBinder::bind_method(D_METHOD("draw_texture", {"texture", "position", "modulate", "normal_map"}), &CanvasItem::draw_texture, {DEFVAL(Color(1, 1, 1, 1)), DEFVAL(Variant())});
+    MethodBinder::bind_method(D_METHOD("draw_texture_rect", {"texture", "rect", "tile", "modulate", "transpose", "normal_map"}), &CanvasItem::draw_texture_rect, {DEFVAL(Color(1, 1, 1)), DEFVAL(false), DEFVAL(Variant())});
+    MethodBinder::bind_method(D_METHOD("draw_texture_rect_region", {"texture", "rect", "src_rect", "modulate", "transpose", "normal_map", "clip_uv"}), &CanvasItem::draw_texture_rect_region, {DEFVAL(Color(1, 1, 1)), DEFVAL(false), DEFVAL(Variant()), DEFVAL(true)});
+    MethodBinder::bind_method(D_METHOD("draw_style_box", {"style_box", "rect"}), &CanvasItem::draw_style_box);
+    MethodBinder::bind_method(D_METHOD("draw_primitive", {"points", "colors", "uvs", "texture", "width", "normal_map"}), &CanvasItem::draw_primitive, {DEFVAL(Variant()), DEFVAL(1.0), DEFVAL(Variant())});
+    MethodBinder::bind_method(D_METHOD("draw_polygon", {"points", "colors", "uvs", "texture", "normal_map", "antialiased"}), &CanvasItem::draw_polygon, {DEFVAL(Variant(PoolVector2Array())), DEFVAL(Variant()), DEFVAL(Variant()), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("draw_colored_polygon", {"points", "color", "uvs", "texture", "normal_map", "antialiased"}), &CanvasItem::draw_colored_polygon, {DEFVAL(Variant(PoolVector2Array())), DEFVAL(Variant()), DEFVAL(Variant()), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("draw_string", {"font", "position", "text", "modulate", "clip_w"}), &CanvasItem::draw_string, {DEFVAL(Color(1, 1, 1)), DEFVAL(-1)});
+    MethodBinder::bind_method(D_METHOD("draw_char", {"font", "position", "char", "next", "modulate"}), &CanvasItem::draw_char, {DEFVAL(Color(1, 1, 1))});
+    MethodBinder::bind_method(D_METHOD("draw_mesh", {"mesh", "texture", "normal_map", "transform", "modulate"}), &CanvasItem::draw_mesh, {DEFVAL(Ref<Texture>()), DEFVAL(Transform2D()), DEFVAL(Color(1, 1, 1))});
+    MethodBinder::bind_method(D_METHOD("draw_multimesh", {"multimesh", "texture", "normal_map"}), &CanvasItem::draw_multimesh, {DEFVAL(Ref<Texture>())});
 
-    MethodBinder::bind_method(D_METHOD("draw_set_transform", "position", "rotation", "scale"), &CanvasItem::draw_set_transform);
-    MethodBinder::bind_method(D_METHOD("draw_set_transform_matrix", "xform"), &CanvasItem::draw_set_transform_matrix);
+    MethodBinder::bind_method(D_METHOD("draw_set_transform", {"position", "rotation", "scale"}), &CanvasItem::draw_set_transform);
+    MethodBinder::bind_method(D_METHOD("draw_set_transform_matrix", {"xform"}), &CanvasItem::draw_set_transform_matrix);
     MethodBinder::bind_method(D_METHOD("get_transform"), &CanvasItem::get_transform);
     MethodBinder::bind_method(D_METHOD("get_global_transform"), &CanvasItem::get_global_transform);
     MethodBinder::bind_method(D_METHOD("get_global_transform_with_canvas"), &CanvasItem::get_global_transform_with_canvas);
@@ -1188,51 +1186,51 @@ void CanvasItem::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_world_2d"), &CanvasItem::get_world_2d);
     //MethodBinder::bind_method(D_METHOD("get_viewport"),&CanvasItem::get_viewport);
 
-    MethodBinder::bind_method(D_METHOD("set_material", "material"), &CanvasItem::set_material);
+    MethodBinder::bind_method(D_METHOD("set_material", {"material"}), &CanvasItem::set_material);
     MethodBinder::bind_method(D_METHOD("get_material"), &CanvasItem::get_material);
 
-    MethodBinder::bind_method(D_METHOD("set_use_parent_material", "enable"), &CanvasItem::set_use_parent_material);
+    MethodBinder::bind_method(D_METHOD("set_use_parent_material", {"enable"}), &CanvasItem::set_use_parent_material);
     MethodBinder::bind_method(D_METHOD("get_use_parent_material"), &CanvasItem::get_use_parent_material);
 
-    MethodBinder::bind_method(D_METHOD("set_notify_local_transform", "enable"), &CanvasItem::set_notify_local_transform);
+    MethodBinder::bind_method(D_METHOD("set_notify_local_transform", {"enable"}), &CanvasItem::set_notify_local_transform);
     MethodBinder::bind_method(D_METHOD("is_local_transform_notification_enabled"), &CanvasItem::is_local_transform_notification_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_notify_transform", "enable"), &CanvasItem::set_notify_transform);
+    MethodBinder::bind_method(D_METHOD("set_notify_transform", {"enable"}), &CanvasItem::set_notify_transform);
     MethodBinder::bind_method(D_METHOD("is_transform_notification_enabled"), &CanvasItem::is_transform_notification_enabled);
 
     MethodBinder::bind_method(D_METHOD("force_update_transform"), &CanvasItem::force_update_transform);
 
-    MethodBinder::bind_method(D_METHOD("make_canvas_position_local", "screen_point"), &CanvasItem::make_canvas_position_local);
-    MethodBinder::bind_method(D_METHOD("make_input_local", "event"), &CanvasItem::make_input_local);
+    MethodBinder::bind_method(D_METHOD("make_canvas_position_local", {"screen_point"}), &CanvasItem::make_canvas_position_local);
+    MethodBinder::bind_method(D_METHOD("make_input_local", {"event"}), &CanvasItem::make_input_local);
 
     BIND_VMETHOD(MethodInfo("_draw"));
 
     ADD_GROUP("Visibility", "");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "visible"), "set_visible", "is_visible");
-    ADD_PROPERTY(PropertyInfo(Variant::COLOR, "modulate"), "set_modulate", "get_modulate");
-    ADD_PROPERTY(PropertyInfo(Variant::COLOR, "self_modulate"), "set_self_modulate", "get_self_modulate");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "show_behind_parent"), "set_draw_behind_parent", "is_draw_behind_parent_enabled");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "show_on_top", PROPERTY_HINT_NONE, "", 0), "_set_on_top", "_is_on_top"); //compatibility
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "light_mask", PROPERTY_HINT_LAYERS_2D_RENDER), "set_light_mask", "get_light_mask");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "visible"), "set_visible", "is_visible");
+    ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "modulate"), "set_modulate", "get_modulate");
+    ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "self_modulate"), "set_self_modulate", "get_self_modulate");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "show_behind_parent"), "set_draw_behind_parent", "is_draw_behind_parent_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "show_on_top", PROPERTY_HINT_NONE, "", 0), "_set_on_top", "_is_on_top"); //compatibility
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "light_mask", PROPERTY_HINT_LAYERS_2D_RENDER), "set_light_mask", "get_light_mask");
 
     ADD_GROUP("Material", "");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "material", PROPERTY_HINT_RESOURCE_TYPE, "ShaderMaterial,CanvasItemMaterial"), "set_material", "get_material");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "use_parent_material"), "set_use_parent_material", "get_use_parent_material");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "material", PROPERTY_HINT_RESOURCE_TYPE, "ShaderMaterial,CanvasItemMaterial"), "set_material", "get_material");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "use_parent_material"), "set_use_parent_material", "get_use_parent_material");
     //exporting these things doesn't really make much sense i think
-    // ADD_PROPERTY(PropertyInfo(Variant::BOOL, "toplevel", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_as_toplevel", "is_set_as_toplevel");
-    // ADD_PROPERTY(PropertyInfo(Variant::BOOL,"transform/notify"),"set_transform_notify","is_transform_notify_enabled");
+    // ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "toplevel", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_as_toplevel", "is_set_as_toplevel");
+    // ADD_PROPERTY(PropertyInfo(VariantType::BOOL,"transform/notify"),"set_transform_notify","is_transform_notify_enabled");
 
     ADD_SIGNAL(MethodInfo("draw"));
     ADD_SIGNAL(MethodInfo("visibility_changed"));
     ADD_SIGNAL(MethodInfo("hide"));
     ADD_SIGNAL(MethodInfo("item_rect_changed"));
 
-    BIND_ENUM_CONSTANT(BLEND_MODE_MIX);
-    BIND_ENUM_CONSTANT(BLEND_MODE_ADD);
-    BIND_ENUM_CONSTANT(BLEND_MODE_SUB);
-    BIND_ENUM_CONSTANT(BLEND_MODE_MUL);
-    BIND_ENUM_CONSTANT(BLEND_MODE_PREMULT_ALPHA);
-    BIND_ENUM_CONSTANT(BLEND_MODE_DISABLED);
+    BIND_ENUM_CONSTANT(BLEND_MODE_MIX)
+    BIND_ENUM_CONSTANT(BLEND_MODE_ADD)
+    BIND_ENUM_CONSTANT(BLEND_MODE_SUB)
+    BIND_ENUM_CONSTANT(BLEND_MODE_MUL)
+    BIND_ENUM_CONSTANT(BLEND_MODE_PREMULT_ALPHA)
+    BIND_ENUM_CONSTANT(BLEND_MODE_DISABLED)
 
     BIND_CONSTANT(NOTIFICATION_TRANSFORM_CHANGED);
     BIND_CONSTANT(NOTIFICATION_DRAW);
@@ -1243,7 +1241,7 @@ void CanvasItem::_bind_methods() {
 
 Transform2D CanvasItem::get_canvas_transform() const {
 
-    ERR_FAIL_COND_V(!is_inside_tree(), Transform2D());
+    ERR_FAIL_COND_V(!is_inside_tree(), Transform2D())
 
     if (canvas_layer)
         return canvas_layer->get_transform();
@@ -1255,7 +1253,7 @@ Transform2D CanvasItem::get_canvas_transform() const {
 
 Transform2D CanvasItem::get_viewport_transform() const {
 
-    ERR_FAIL_COND_V(!is_inside_tree(), Transform2D());
+    ERR_FAIL_COND_V(!is_inside_tree(), Transform2D())
 
     if (canvas_layer) {
 

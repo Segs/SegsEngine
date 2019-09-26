@@ -39,6 +39,7 @@
 #include "scene/gui/panel.h"
 #include "scene/main/viewport.h"
 #include "scene/resources/style_box.h"
+#include "EASTL/sort.h"
 
 IMPL_GDCLASS(AnimationTreePlayerEditor)
 IMPL_GDCLASS(AnimationTreePlayerEditorPlugin)
@@ -69,13 +70,13 @@ Size2 AnimationTreePlayerEditor::_get_maximum_size() {
 
     for (List<StringName>::Element *E = order.front(); E; E = E->next()) {
 
-        Point2 pos = anim_tree->node_get_position(E->get());
+        Point2 pos = anim_tree->node_get_position(E->deref());
 
-        if (click_type == CLICK_NODE && click_node == E->get()) {
+        if (click_type == CLICK_NODE && click_node == E->deref()) {
 
             pos += click_motion - click_pos;
         }
-        pos += get_node_size(E->get());
+        pos += get_node_size(E->deref());
         if (pos.x > max.x)
             max.x = pos.x;
         if (pos.y > max.y)
@@ -130,12 +131,12 @@ Size2 AnimationTreePlayerEditor::get_node_size(const StringName &p_node) const {
     return size;
 }
 
-void AnimationTreePlayerEditor::_edit_dialog_changede(String) {
+void AnimationTreePlayerEditor::_edit_dialog_changede(const String&) {
 
     edit_dialog->hide();
 }
 
-void AnimationTreePlayerEditor::_edit_dialog_changeds(String s) {
+void AnimationTreePlayerEditor::_edit_dialog_changeds(const String& s) {
 
     _edit_dialog_changed();
 }
@@ -155,8 +156,8 @@ void AnimationTreePlayerEditor::_edit_dialog_changed() {
         if (anim_tree->node_rename(edited_node, edit_line[0]->get_text()) == OK) {
             for (List<StringName>::Element *E = order.front(); E; E = E->next()) {
 
-                if (E->get() == edited_node)
-                    E->get() = edit_line[0]->get_text();
+                if (E->deref() == edited_node)
+                    E->deref() = edit_line[0]->get_text();
             }
             edited_node = edit_line[0]->get_text();
         }
@@ -212,7 +213,7 @@ void AnimationTreePlayerEditor::_edit_dialog_changed() {
 
 void AnimationTreePlayerEditor::_edit_dialog_animation_changed() {
 
-    Ref<Animation> anim = property_editor->get_variant().operator RefPtr();
+    Ref<Animation> anim(property_editor->get_variant());
     anim_tree->animation_node_set_animation(edited_node, anim);
     update();
 }
@@ -220,8 +221,9 @@ void AnimationTreePlayerEditor::_edit_dialog_animation_changed() {
 void AnimationTreePlayerEditor::_edit_dialog_edit_animation() {
 
     if (Engine::get_singleton()->is_editor_hint()) {
-        get_tree()->get_root()->get_child(0)->call("_resource_selected", property_editor->get_variant().operator RefPtr());
-    };
+        //TODO: SEGS: the amount of conversion operator calls below looks pretty strange.
+        get_tree()->get_root()->get_child(0)->call("_resource_selected", Variant(property_editor->get_variant().operator RefPtr()));
+    }
 };
 
 void AnimationTreePlayerEditor::_edit_oneshot_start() {
@@ -294,17 +296,17 @@ void AnimationTreePlayerEditor::_popup_edit_dialog() {
                     master_anim_popup->clear();
                     master_anim_popup->add_item(TTR("Edit Filters"));
                     master_anim_popup->add_separator();
-                    List<StringName> sn;
+                    ListPOD<StringName> sn;
                     ap->get_animation_list(&sn);
-                    sn.sort_custom<WrapAlphaCompare>();
-                    for (List<StringName>::Element *E = sn.front(); E; E = E->next()) {
-                        master_anim_popup->add_item(E->get());
+                    sn.sort(WrapAlphaCompare());
+                    for (const StringName &E : sn) {
+                        master_anim_popup->add_item(E);
                     }
 
                     master_anim_popup->set_position(popup_pos);
                     master_anim_popup->popup();
                 } else {
-                    property_editor->edit(this, "", Variant::OBJECT, anim_tree->animation_node_get_animation(edited_node), PROPERTY_HINT_RESOURCE_TYPE, "Animation");
+                    property_editor->edit(this, "", VariantType::OBJECT, anim_tree->animation_node_get_animation(edited_node), PROPERTY_HINT_RESOURCE_TYPE, "Animation");
                     property_editor->set_position(popup_pos);
                     property_editor->popup();
                     updating_edit = false;
@@ -583,7 +585,7 @@ void AnimationTreePlayerEditor::_draw_node(const StringName &p_node) {
             String text;
             if (!anim_tree->animation_node_get_master_animation(p_node).empty())
                 text = anim_tree->animation_node_get_master_animation(p_node);
-            else if (anim.is_null())
+            else if (not anim)
                 text = "load...";
             else
                 text = anim->get_name();
@@ -621,7 +623,7 @@ AnimationTreePlayerEditor::ClickType AnimationTreePlayerEditor::_locate_click(co
 
     for (const List<StringName>::Element *E = order.back(); E; E = E->prev()) {
 
-        const StringName &node = E->get();
+        const StringName &node = E->deref();
 
         AnimationTreePlayer::NodeType type = anim_tree->node_get_type(node);
 
@@ -703,7 +705,7 @@ Point2 AnimationTreePlayerEditor::_get_slot_pos(const StringName &p_node_id, boo
 
     pos.y += h * p_slot;
 
-    pos += Point2(-slot_icon->get_width() / 2.0, h / 2.0).floor();
+    pos += Point2(-slot_icon->get_width() / 2.0f, h / 2.0f).floor();
 
     if (!p_input) {
         pos.x += w + slot_icon->get_width();
@@ -712,11 +714,11 @@ Point2 AnimationTreePlayerEditor::_get_slot_pos(const StringName &p_node_id, boo
     return pos;
 }
 
-void AnimationTreePlayerEditor::_gui_input(Ref<InputEvent> p_event) {
+void AnimationTreePlayerEditor::_gui_input(const Ref<InputEvent>& p_event) {
 
-    Ref<InputEventMouseButton> mb = p_event;
+    Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_event);
 
-    if (mb.is_valid()) {
+    if (mb) {
 
         if (mb->is_pressed()) {
 
@@ -834,9 +836,9 @@ void AnimationTreePlayerEditor::_gui_input(Ref<InputEvent> p_event) {
         }
     }
 
-    Ref<InputEventMouseMotion> mm = p_event;
+    Ref<InputEventMouseMotion> mm = dynamic_ref_cast<InputEventMouseMotion>(p_event);
 
-    if (mm.is_valid()) {
+    if (mm) {
 
         if (mm->get_button_mask() & 1 && click_type != CLICK_NONE) {
 
@@ -897,12 +899,12 @@ void AnimationTreePlayerEditor::_notification(int p_what) {
 
             for (List<StringName>::Element *E = order.front(); E; E = E->next()) {
 
-                _draw_node(E->get());
+                _draw_node(E->deref());
             }
 
             if (click_type == CLICK_INPUT_SLOT || click_type == CLICK_OUTPUT_SLOT) {
 
-                _draw_cos_line(click_pos, click_motion, Color(0.5, 1, 0.5, 0.8));
+                _draw_cos_line(click_pos, click_motion, Color(0.5f, 1.0f, 0.5f, 0.8f));
             }
 
             List<AnimationTreePlayer::Connection> connections;
@@ -910,7 +912,7 @@ void AnimationTreePlayerEditor::_notification(int p_what) {
 
             for (List<AnimationTreePlayer::Connection>::Element *E = connections.front(); E; E = E->next()) {
 
-                const AnimationTreePlayer::Connection &c = E->get();
+                const AnimationTreePlayer::Connection &c = E->deref();
                 Point2 source = _get_slot_pos(c.src_node, false, 0);
                 Point2 dest = _get_slot_pos(c.dst_node, true, c.dst_input);
                 Color col = Color(1, 1, 0.5, 0.8);
@@ -1011,7 +1013,7 @@ void AnimationTreePlayerEditor::_node_menu_item(int p_item) {
 
                 for (List<AnimationTreePlayer::Connection>::Element *E = connections.front(); E; E = E->next()) {
 
-                    const AnimationTreePlayer::Connection &c = E->get();
+                    const AnimationTreePlayer::Connection &c = E->deref();
                     if (c.dst_node == rclick_node) {
 
                         anim_tree->disconnect_nodes(c.dst_node, c.dst_input);
@@ -1103,7 +1105,7 @@ StringName AnimationTreePlayerEditor::_add_node(int p_item) {
     return name;
 };
 
-void AnimationTreePlayerEditor::_file_dialog_selected(String p_path) {
+void AnimationTreePlayerEditor::_file_dialog_selected(const String& p_path) {
 
     switch (file_op) {
 
@@ -1114,15 +1116,15 @@ void AnimationTreePlayerEditor::_file_dialog_selected(String p_path) {
 
                 StringName node = _add_node(AnimationTreePlayer::NODE_ANIMATION);
 
-                RES anim = ResourceLoader::load(files[i]);
+                auto anim = dynamic_ref_cast<Animation>(ResourceLoader::load(files[i]));
                 anim_tree->animation_node_set_animation(node, anim);
                 //anim_tree->node_set_name(node, PathUtils::get_file(files[i]));
-            };
+            }
         } break;
 
         default:
             break;
-    };
+    }
 };
 
 void AnimationTreePlayerEditor::_add_menu_item(int p_item) {
@@ -1149,7 +1151,7 @@ Size2 AnimationTreePlayerEditor::get_minimum_size() const {
 
 void AnimationTreePlayerEditor::_find_paths_for_filter(const StringName &p_node, Set<String> &paths) {
 
-    ERR_FAIL_COND(!anim_tree->node_exists(p_node));
+    ERR_FAIL_COND(!anim_tree->node_exists(p_node))
 
     for (int i = 0; i < anim_tree->node_get_input_count(p_node); i++) {
 
@@ -1162,7 +1164,7 @@ void AnimationTreePlayerEditor::_find_paths_for_filter(const StringName &p_node,
     if (anim_tree->node_get_type(p_node) == AnimationTreePlayer::NODE_ANIMATION) {
 
         Ref<Animation> anim = anim_tree->animation_node_get_animation(p_node);
-        if (anim.is_valid()) {
+        if (anim) {
 
             for (int i = 0; i < anim->get_track_count(); i++) {
                 paths.insert(String(anim->track_get_path(i)));
@@ -1200,19 +1202,19 @@ void AnimationTreePlayerEditor::_edit_filters() {
 
     Node *base = anim_tree->get_node(anim_tree->get_base_path());
 
-    for (Set<String>::Element *E = npb.front(); E; E = E->next()) {
+    for (const String &E : npb) {
 
         TreeItem *parent = root;
-        String descr = E->get();
+        String descr = E;
         if (base) {
-            NodePath np(E->get());
+            NodePath np(E);
 
             if (np.get_subname_count() == 1) {
                 Node *n = base->get_node(np);
                 Skeleton *s = Object::cast_to<Skeleton>(n);
                 if (s) {
 
-                    String skelbase = StringUtils::substr(E->get(),0, StringUtils::find(E->get(),":"));
+                    String skelbase = StringUtils::substr(E,0, StringUtils::find(E,":"));
 
                     int bidx = s->find_bone(np.get_subname(0));
 
@@ -1222,13 +1224,13 @@ void AnimationTreePlayerEditor::_edit_filters() {
                         if (bparent != -1) {
 
                             String bpn = skelbase + ":" + s->get_bone_name(bparent);
-                            if (pm.has(bpn)) {
+                            if (pm.contains(bpn)) {
                                 parent = pm[bpn];
                                 descr = np.get_subname(0);
                             }
                         } else {
 
-                            if (pm.has(skelbase)) {
+                            if (pm.contains(skelbase)) {
                                 parent = pm[skelbase];
                             }
                         }
@@ -1240,9 +1242,9 @@ void AnimationTreePlayerEditor::_edit_filters() {
         TreeItem *it = filter->create_item(parent);
         it->set_cell_mode(0, TreeItem::CELL_MODE_CHECK);
         it->set_text(0, descr);
-        it->set_metadata(0, NodePath(E->get()));
+        it->set_metadata(0, NodePath(E));
         it->set_editable(0, true);
-        NodePath asnp(E->get());
+        NodePath asnp(E);
         if (anim_tree->node_get_type(edited_node) == AnimationTreePlayer::NODE_ONESHOT) {
             it->set_checked(0, anim_tree->oneshot_node_is_path_filtered(edited_node, asnp));
         } else if (anim_tree->node_get_type(edited_node) == AnimationTreePlayer::NODE_BLEND2) {
@@ -1250,7 +1252,7 @@ void AnimationTreePlayerEditor::_edit_filters() {
         } else if (anim_tree->node_get_type(edited_node) == AnimationTreePlayer::NODE_ANIMATION) {
             it->set_checked(0, anim_tree->animation_node_is_path_filtered(edited_node, asnp));
         }
-        pm[E->get()] = it;
+        pm[E] = it;
     }
 }
 

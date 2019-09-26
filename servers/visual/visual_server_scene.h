@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef VISUALSERVERSCENE_H
-#define VISUALSERVERSCENE_H
+#pragma once
 
 #include "servers/visual/rasterizer.h"
 
@@ -306,12 +305,12 @@ public:
 
 		Instance *owner;
 
-		struct PairInfo {
-			List<Instance *>::Element *L; //gi probe iterator in geometry
-			Instance *geometry;
-		};
+        struct PairInfo {
+            List<Instance *>::Element *L; //gi probe iterator in geometry
+            Instance *geometry;
+        };
 
-		List<PairInfo> geometries;
+        List<PairInfo> geometries;
 
 		Set<Instance *> lights;
 
@@ -536,4 +535,3 @@ public:
 	virtual ~VisualServerScene();
 };
 
-#endif // VISUALSERVERSCENE_H

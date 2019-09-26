@@ -44,6 +44,7 @@
 #include "scene/main/node.h"
 #include "scene/resources/texture.h"
 #include "servers/visual/shader_language.h"
+#include "core/class_db.h"
 
 #include "core/method_ptrcall.h"
 
@@ -246,8 +247,8 @@ class GetClassAndNamespace {
                     if (code[idx] == '-' || (code[idx] >= '0' && code[idx] <= '9')) {
                         //a number
                         const CharType *rptr;
-						double number = StringUtils::to_double(code.cdata()+idx, &rptr);
-						idx += (rptr - (code.cdata()+idx));
+                        double number = StringUtils::to_double(code.cdata()+idx, &rptr);
+                        idx += (rptr - (code.cdata()+idx));
                         value = number;
                         return TK_NUMBER;
 
@@ -304,8 +305,8 @@ public:
                 if (tk == TK_IDENTIFIER) {
                     String name = value;
                     if (use_next_class || p_known_class_name == name) {
-                        for (Map<int, String>::Element *E = namespace_stack.front(); E; E = E->next()) {
-                            class_name += E->get() + ".";
+                        for (eastl::pair<const int,String> &E : namespace_stack) {
+                            class_name += E.second + ".";
                         }
                         class_name += String(value);
                         break;
@@ -340,7 +341,7 @@ public:
                 curly_stack++;
             } else if (tk == TK_CURLY_BRACKET_CLOSE) {
                 curly_stack--;
-                if (namespace_stack.has(curly_stack)) {
+                if (namespace_stack.contains(curly_stack)) {
                     namespace_stack.erase(curly_stack);
                 }
             }
@@ -479,14 +480,14 @@ MainLoop *test() {
     print_line("later Mem used: " + itos(MemoryPool::total_memory));
     print_line("Mlater Ax mem used: " + itos(MemoryPool::max_memory));
 
-    List<String> cmdlargs = OS::get_singleton()->get_cmdline_args();
+    ListPOD<String> cmdlargs = OS::get_singleton()->get_cmdline_args();
 
     if (cmdlargs.empty()) {
         //try editor!
         return nullptr;
     }
 
-    String test = cmdlargs.back()->get();
+    String test = cmdlargs.back();
     if (test == "math") {
         // Not a file name but the test name, abort.
         // FIXME: This test is ugly as heck, needs fixing :)
@@ -494,7 +495,7 @@ MainLoop *test() {
     }
 
     FileAccess *fa = FileAccess::open(test, FileAccess::READ);
-	ERR_FAIL_COND_V_MSG(!fa, nullptr, "Could not open file: " + test)
+    ERR_FAIL_COND_V_MSG(!fa, nullptr, "Could not open file: " + test)
 
     Vector<uint8_t> buf;
     int flen = fa->get_len();
@@ -502,7 +503,7 @@ MainLoop *test() {
     fa->get_buffer(buf.ptrw(), flen);
     buf.write[flen] = 0;
 
-	String code = StringUtils::from_utf8((const char *)&buf[0]);
+    String code = StringUtils::from_utf8((const char *)&buf[0]);
 
     GetClassAndNamespace getclass;
     if (getclass.parse(code)) {
@@ -533,7 +534,7 @@ MainLoop *test() {
                 for (int j = 0; j < hashes.size(); j++) {
 
                     uint32_t eh = ihash2(ihash3(hashes[j] + ihash(s) + s)) & ((1 << i) - 1);
-                    if (existing.has(eh)) {
+                    if (existing.contains(eh)) {
                         success = false;
                         break;
                     }
@@ -585,15 +586,15 @@ MainLoop *test() {
 
     String ret;
 
-    List<String> args;
+    ListPOD<String> args;
     args.push_back("-l");
     Error err = OS::get_singleton()->execute("/bin/ls", args, true, nullptr, &ret);
     print_line("error: " + itos(err));
     print_line(ret);
 
     Basis m3;
-    m3.rotate(Vector3(1, 0, 0), 0.2);
-    m3.rotate(Vector3(0, 1, 0), 1.77);
+    m3.rotate(Vector3(1, 0, 0), 0.2f);
+    m3.rotate(Vector3(0, 1, 0), 1.77f);
     m3.rotate(Vector3(0, 0, 1), 212);
     Basis m32;
     m32.set_euler(m3.get_euler());

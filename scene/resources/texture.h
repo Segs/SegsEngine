@@ -30,7 +30,7 @@
 
 #pragma once
 
-#include "core/io/resource_loader.h"
+#include "core/io/resource_format_loader.h"
 #include "core/math/rect2.h"
 #include "core/resource.h"
 #include "scene/resources/gradient.h"
@@ -114,7 +114,7 @@ protected:
 
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(List<PropertyInfo> *p_list) const;
+    void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
 
     void _reload_hook(const RID &p_hook);
     void _resource_path_changed() override;
@@ -236,7 +236,7 @@ public:
 class ResourceFormatLoaderStreamTexture : public ResourceFormatLoader {
 public:
     RES load(const String &p_path, const String &p_original_path = "", Error *r_error = nullptr) override;
-    void get_recognized_extensions(List<String> *p_extensions) const override;
+    void get_recognized_extensions(ListPOD<String> *p_extensions) const override;
     bool handles_type(const String &p_type) const override;
     String get_resource_type(const String &p_path) const override;
 };
@@ -432,7 +432,7 @@ private:
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(List<PropertyInfo> *p_list) const;
+    void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
 
     static void _bind_methods();
 
@@ -539,7 +539,7 @@ public:
     };
 
     RES load(const String &p_path, const String &p_original_path = "", Error *r_error = nullptr) override;
-    void get_recognized_extensions(List<String> *p_extensions) const override;
+    void get_recognized_extensions(ListPOD<String> *p_extensions) const override;
     bool handles_type(const String &p_type) const override;
     String get_resource_type(const String &p_path) const override;
 };
@@ -584,7 +584,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void set_gradient(Ref<Gradient> p_gradient);
+    void set_gradient(const Ref<Gradient>& p_gradient);
     Ref<Gradient> get_gradient() const;
 
     void set_width(int p_width);

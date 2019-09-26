@@ -38,7 +38,7 @@
 IMPL_GDCLASS(ResourcePreloaderEditor)
 IMPL_GDCLASS(ResourcePreloaderEditorPlugin)
 
-void ResourcePreloaderEditor::_gui_input(Ref<InputEvent> p_event) {
+void ResourcePreloaderEditor::_gui_input(const Ref<InputEvent>& p_event) {
 }
 
 void ResourcePreloaderEditor::_notification(int p_what) {
@@ -65,7 +65,7 @@ void ResourcePreloaderEditor::_files_load_request(const Vector<String> &p_paths)
         RES resource;
         resource = ResourceLoader::load(path);
 
-        if (resource.is_null()) {
+        if (not resource) {
             dialog->set_text(TTR("ERROR: Couldn't load resource!"));
             dialog->set_title(TTR("Error!"));
             //dialog->get_cancel()->set_text("Close");
@@ -96,10 +96,10 @@ void ResourcePreloaderEditor::_load_pressed() {
     loading_scene = false;
 
     file->clear_filters();
-    List<String> extensions;
+    ListPOD<String> extensions;
     ResourceLoader::get_recognized_extensions_for_type("", &extensions);
-    for (int i = 0; i < extensions.size(); i++)
-        file->add_filter("*." + extensions[i]);
+    for (const String & ext : extensions)
+        file->add_filter("*." + ext);
 
     file->set_mode(EditorFileDialog::MODE_OPEN_FILES);
 
@@ -126,7 +126,7 @@ void ResourcePreloaderEditor::_item_edited() {
             return;
         }
 
-        RES samp = preloader->get_resource(old_name);
+        RES samp(preloader->get_resource(old_name));
         undo_redo->create_action(TTR("Rename Resource"));
         undo_redo->add_do_method(preloader, "remove_resource", old_name);
         undo_redo->add_do_method(preloader, "add_resource", new_name, samp);
@@ -150,8 +150,8 @@ void ResourcePreloaderEditor::_remove_resource(const String &p_to_remove) {
 
 void ResourcePreloaderEditor::_paste_pressed() {
 
-    RES r = EditorSettings::get_singleton()->get_resource_clipboard();
-    if (!r.is_valid()) {
+    RES r(EditorSettings::get_singleton()->get_resource_clipboard());
+    if (not r) {
         dialog->set_text(TTR("Resource clipboard is empty!"));
         dialog->set_title(TTR("Error!"));
         dialog->get_ok()->set_text(TTR("Close"));
@@ -191,7 +191,7 @@ void ResourcePreloaderEditor::_update_library() {
 
     List<String> names;
     for (List<StringName>::Element *E = rnames.front(); E; E = E->next()) {
-        names.push_back(E->get());
+        names.push_back(E->deref());
     }
 
     names.sort();
@@ -202,12 +202,12 @@ void ResourcePreloaderEditor::_update_library() {
         ti->set_cell_mode(0, TreeItem::CELL_MODE_STRING);
         ti->set_editable(0, true);
         ti->set_selectable(0, true);
-        ti->set_text(0, E->get());
-        ti->set_metadata(0, E->get());
+        ti->set_text(0, E->deref());
+        ti->set_metadata(0, E->deref());
 
-        RES r = preloader->get_resource(E->get());
+        RES r(preloader->get_resource(E->deref()));
 
-        ERR_CONTINUE(r.is_null());
+        ERR_CONTINUE(not r);
 
         String type = r->get_class();
         ti->set_icon(0, EditorNode::get_singleton()->get_class_icon(type, "Object"));
@@ -231,14 +231,14 @@ void ResourcePreloaderEditor::_update_library() {
 void ResourcePreloaderEditor::_cell_button_pressed(Object *p_item, int p_column, int p_id) {
 
     TreeItem *item = Object::cast_to<TreeItem>(p_item);
-    ERR_FAIL_COND(!item);
+    ERR_FAIL_COND(!item)
 
     if (p_id == BUTTON_OPEN_SCENE) {
         String rpath = item->get_text(p_column);
         EditorInterface::get_singleton()->open_scene_from_path(rpath);
 
     } else if (p_id == BUTTON_EDIT_RESOURCE) {
-        RES r = preloader->get_resource(item->get_text(0));
+        RES r(preloader->get_resource(item->get_text(0)));
         EditorInterface::get_singleton()->edit_resource(r);
 
     } else if (p_id == BUTTON_REMOVE) {
@@ -267,8 +267,8 @@ Variant ResourcePreloaderEditor::get_drag_data_fw(const Point2 &p_point, Control
 
     String name = ti->get_metadata(0);
 
-    RES res = preloader->get_resource(name);
-    if (!res.is_valid())
+    RES res(preloader->get_resource(name));
+    if (not res)
         return Variant();
 
     return EditorNode::get_singleton()->drag_resource(res, p_from);
@@ -285,9 +285,9 @@ bool ResourcePreloaderEditor::can_drop_data_fw(const Point2 &p_point, const Vari
         return false;
 
     if (String(d["type"]) == "resource" && d.has("resource")) {
-        RES r = d["resource"];
+        RES r(d["resource"]);
 
-        return r.is_valid();
+        return r;
     }
 
     if (String(d["type"]) == "files") {
@@ -310,9 +310,9 @@ void ResourcePreloaderEditor::drop_data_fw(const Point2 &p_point, const Variant 
         return;
 
     if (String(d["type"]) == "resource" && d.has("resource")) {
-        RES r = d["resource"];
+        RES r(d["resource"]);
 
-        if (r.is_valid()) {
+        if (r) {
 
             String basename;
             if (!r->get_name().empty()) {
@@ -356,7 +356,7 @@ void ResourcePreloaderEditor::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_files_load_request"), &ResourcePreloaderEditor::_files_load_request);
     MethodBinder::bind_method(D_METHOD("_update_library"), &ResourcePreloaderEditor::_update_library);
     MethodBinder::bind_method(D_METHOD("_cell_button_pressed"), &ResourcePreloaderEditor::_cell_button_pressed);
-    MethodBinder::bind_method(D_METHOD("_remove_resource", "to_remove"), &ResourcePreloaderEditor::_remove_resource);
+    MethodBinder::bind_method(D_METHOD("_remove_resource", {"to_remove"}), &ResourcePreloaderEditor::_remove_resource);
 
     MethodBinder::bind_method(D_METHOD("get_drag_data_fw"), &ResourcePreloaderEditor::get_drag_data_fw);
     MethodBinder::bind_method(D_METHOD("can_drop_data_fw"), &ResourcePreloaderEditor::can_drop_data_fw);

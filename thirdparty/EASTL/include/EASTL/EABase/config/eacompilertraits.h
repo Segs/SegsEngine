@@ -1038,7 +1038,7 @@
 //    EA_PURE void Function();
 //
 #ifndef EA_PURE
-    #if defined(EA_COMPILER_GNUC)
+    #if defined(EA_COMPILER_GNUC) || defined(EA_COMPILER_CLANG)
         #define EA_PURE __attribute__((pure))
         #elif defined(EA_COMPILER_ARM)  // Arm brand compiler for ARM CPU
             #define EA_PURE __pure

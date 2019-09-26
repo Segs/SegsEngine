@@ -47,9 +47,9 @@ bool UPNP::is_common_device(const String &dev) const {
 }
 
 int UPNP::discover(int timeout, int ttl, const String &device_filter) {
-    ERR_FAIL_COND_V(timeout < 0, UPNP_RESULT_INVALID_PARAM);
-    ERR_FAIL_COND_V(ttl < 0, UPNP_RESULT_INVALID_PARAM);
-    ERR_FAIL_COND_V(ttl > 255, UPNP_RESULT_INVALID_PARAM);
+    ERR_FAIL_COND_V(timeout < 0, UPNP_RESULT_INVALID_PARAM)
+    ERR_FAIL_COND_V(ttl < 0, UPNP_RESULT_INVALID_PARAM)
+    ERR_FAIL_COND_V(ttl > 255, UPNP_RESULT_INVALID_PARAM)
 
     devices.clear();
 
@@ -57,9 +57,9 @@ int UPNP::discover(int timeout, int ttl, const String &device_filter) {
     struct UPNPDev *devlist;
 
     if (is_common_device(device_filter)) {
-		devlist = upnpDiscover(timeout, StringUtils::to_utf8(discover_multicast_if).data(), nullptr, discover_local_port, discover_ipv6, ttl, &error);
+        devlist = upnpDiscover(timeout, StringUtils::to_utf8(discover_multicast_if).data(), nullptr, discover_local_port, discover_ipv6, ttl, &error);
     } else {
-		devlist = upnpDiscoverAll(timeout, StringUtils::to_utf8(discover_multicast_if).data(), nullptr, discover_local_port, discover_ipv6, ttl, &error);
+        devlist = upnpDiscoverAll(timeout, StringUtils::to_utf8(discover_multicast_if).data(), nullptr, discover_local_port, discover_ipv6, ttl, &error);
     }
 
     if (error != UPNPDISCOVER_SUCCESS) {
@@ -80,7 +80,7 @@ int UPNP::discover(int timeout, int ttl, const String &device_filter) {
     struct UPNPDev *dev = devlist;
 
     while (dev) {
-		if (device_filter.empty() || strstr(dev->st, StringUtils::to_utf8(device_filter).data())) {
+        if (device_filter.empty() || strstr(dev->st, StringUtils::to_utf8(device_filter).data())) {
             add_device_to_list(dev, devlist);
         }
 
@@ -93,8 +93,7 @@ int UPNP::discover(int timeout, int ttl, const String &device_filter) {
 }
 
 void UPNP::add_device_to_list(UPNPDev *dev, UPNPDev *devlist) {
-    Ref<UPNPDevice> new_device;
-    new_device.instance();
+    Ref<UPNPDevice> new_device(make_ref_counted<UPNPDevice>());
 
     new_device->set_description_url(dev->descURL);
     new_device->set_service_type(dev->st);
@@ -138,7 +137,7 @@ void UPNP::parse_igd(Ref<UPNPDevice> dev, UPNPDev *devlist) {
     free(xml);
     xml = nullptr;
 
-	GetUPNPUrls(urls, &data, StringUtils::to_utf8(dev->get_description_url()).data(), 0);
+    GetUPNPUrls(urls, &data, StringUtils::to_utf8(dev->get_description_url()).data(), 0);
 
     if (!urls) {
         dev->set_igd_status(UPNPDevice::IGD_STATUS_NO_URLS);
@@ -238,20 +237,20 @@ int UPNP::get_device_count() const {
 }
 
 Ref<UPNPDevice> UPNP::get_device(int index) const {
-    ERR_FAIL_INDEX_V(index, devices.size(), nullptr);
+    ERR_FAIL_INDEX_V(index, devices.size(), Ref<UPNPDevice>())
 
     return devices.get(index);
 }
 
 void UPNP::add_device(Ref<UPNPDevice> device) {
-    ERR_FAIL_COND(device == nullptr);
+    ERR_FAIL_COND(device == Ref<UPNPDevice>())
 
     devices.push_back(device);
 }
 
 void UPNP::set_device(int index, Ref<UPNPDevice> device) {
     ERR_FAIL_INDEX(index, devices.size());
-    ERR_FAIL_COND(device == nullptr);
+    ERR_FAIL_COND(device == nullptr)
 
     devices.set(index, device);
 }
@@ -267,7 +266,7 @@ void UPNP::clear_devices() {
 }
 
 Ref<UPNPDevice> UPNP::get_gateway() const {
-    ERR_FAIL_COND_V(devices.size() < 1, nullptr);
+    ERR_FAIL_COND_V(devices.empty(), Ref<UPNPDevice>())
 
     for (int i = 0; i < devices.size(); i++) {
         Ref<UPNPDevice> dev = get_device(i);
@@ -277,7 +276,7 @@ Ref<UPNPDevice> UPNP::get_gateway() const {
         }
     }
 
-    return nullptr;
+    return Ref<UPNPDevice>();
 }
 
 void UPNP::set_discover_multicast_if(const String &m_if) {
@@ -338,62 +337,62 @@ int UPNP::delete_port_mapping(int port, String proto) const {
 
 void UPNP::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_device_count"), &UPNP::get_device_count);
-    MethodBinder::bind_method(D_METHOD("get_device", "index"), &UPNP::get_device);
-    MethodBinder::bind_method(D_METHOD("add_device", "device"), &UPNP::add_device);
-    MethodBinder::bind_method(D_METHOD("set_device", "index", "device"), &UPNP::set_device);
-    MethodBinder::bind_method(D_METHOD("remove_device", "index"), &UPNP::remove_device);
+    MethodBinder::bind_method(D_METHOD("get_device", {"index"}), &UPNP::get_device);
+    MethodBinder::bind_method(D_METHOD("add_device", {"device"}), &UPNP::add_device);
+    MethodBinder::bind_method(D_METHOD("set_device", {"index", "device"}), &UPNP::set_device);
+    MethodBinder::bind_method(D_METHOD("remove_device", {"index"}), &UPNP::remove_device);
     MethodBinder::bind_method(D_METHOD("clear_devices"), &UPNP::clear_devices);
 
     MethodBinder::bind_method(D_METHOD("get_gateway"), &UPNP::get_gateway);
 
-    MethodBinder::bind_method(D_METHOD("discover", "timeout", "ttl", "device_filter"), &UPNP::discover, {DEFVAL(2000), DEFVAL(2), DEFVAL("InternetGatewayDevice")});
+    MethodBinder::bind_method(D_METHOD("discover", {"timeout", "ttl", "device_filter"}), &UPNP::discover, {DEFVAL(2000), DEFVAL(2), DEFVAL("InternetGatewayDevice")});
 
     MethodBinder::bind_method(D_METHOD("query_external_address"), &UPNP::query_external_address);
 
-    MethodBinder::bind_method(D_METHOD("add_port_mapping", "port", "port_internal", "desc", "proto", "duration"), &UPNP::add_port_mapping, {DEFVAL(0), DEFVAL(""), DEFVAL("UDP"), DEFVAL(0)});
-    MethodBinder::bind_method(D_METHOD("delete_port_mapping", "port", "proto"), &UPNP::delete_port_mapping, {DEFVAL("UDP")});
+    MethodBinder::bind_method(D_METHOD("add_port_mapping", {"port", "port_internal", "desc", "proto", "duration"}), &UPNP::add_port_mapping, {DEFVAL(0), DEFVAL(""), DEFVAL("UDP"), DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("delete_port_mapping", {"port", "proto"}), &UPNP::delete_port_mapping, {DEFVAL("UDP")});
 
-    MethodBinder::bind_method(D_METHOD("set_discover_multicast_if", "m_if"), &UPNP::set_discover_multicast_if);
+    MethodBinder::bind_method(D_METHOD("set_discover_multicast_if", {"m_if"}), &UPNP::set_discover_multicast_if);
     MethodBinder::bind_method(D_METHOD("get_discover_multicast_if"), &UPNP::get_discover_multicast_if);
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "discover_multicast_if"), "set_discover_multicast_if", "get_discover_multicast_if");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "discover_multicast_if"), "set_discover_multicast_if", "get_discover_multicast_if");
 
-    MethodBinder::bind_method(D_METHOD("set_discover_local_port", "port"), &UPNP::set_discover_local_port);
+    MethodBinder::bind_method(D_METHOD("set_discover_local_port", {"port"}), &UPNP::set_discover_local_port);
     MethodBinder::bind_method(D_METHOD("get_discover_local_port"), &UPNP::get_discover_local_port);
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "discover_local_port", PROPERTY_HINT_RANGE, "0,65535"), "set_discover_local_port", "get_discover_local_port");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "discover_local_port", PROPERTY_HINT_RANGE, "0,65535"), "set_discover_local_port", "get_discover_local_port");
 
-    MethodBinder::bind_method(D_METHOD("set_discover_ipv6", "ipv6"), &UPNP::set_discover_ipv6);
+    MethodBinder::bind_method(D_METHOD("set_discover_ipv6", {"ipv6"}), &UPNP::set_discover_ipv6);
     MethodBinder::bind_method(D_METHOD("is_discover_ipv6"), &UPNP::is_discover_ipv6);
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "discover_ipv6"), "set_discover_ipv6", "is_discover_ipv6");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "discover_ipv6"), "set_discover_ipv6", "is_discover_ipv6");
 
-    BIND_ENUM_CONSTANT(UPNP_RESULT_SUCCESS);
-    BIND_ENUM_CONSTANT(UPNP_RESULT_NOT_AUTHORIZED);
-    BIND_ENUM_CONSTANT(UPNP_RESULT_PORT_MAPPING_NOT_FOUND);
-    BIND_ENUM_CONSTANT(UPNP_RESULT_INCONSISTENT_PARAMETERS);
-    BIND_ENUM_CONSTANT(UPNP_RESULT_NO_SUCH_ENTRY_IN_ARRAY);
-    BIND_ENUM_CONSTANT(UPNP_RESULT_ACTION_FAILED);
-    BIND_ENUM_CONSTANT(UPNP_RESULT_SRC_IP_WILDCARD_NOT_PERMITTED);
-    BIND_ENUM_CONSTANT(UPNP_RESULT_EXT_PORT_WILDCARD_NOT_PERMITTED);
-    BIND_ENUM_CONSTANT(UPNP_RESULT_INT_PORT_WILDCARD_NOT_PERMITTED);
-    BIND_ENUM_CONSTANT(UPNP_RESULT_REMOTE_HOST_MUST_BE_WILDCARD);
-    BIND_ENUM_CONSTANT(UPNP_RESULT_EXT_PORT_MUST_BE_WILDCARD);
-    BIND_ENUM_CONSTANT(UPNP_RESULT_NO_PORT_MAPS_AVAILABLE);
-    BIND_ENUM_CONSTANT(UPNP_RESULT_CONFLICT_WITH_OTHER_MECHANISM);
-    BIND_ENUM_CONSTANT(UPNP_RESULT_CONFLICT_WITH_OTHER_MAPPING);
-    BIND_ENUM_CONSTANT(UPNP_RESULT_SAME_PORT_VALUES_REQUIRED);
-    BIND_ENUM_CONSTANT(UPNP_RESULT_ONLY_PERMANENT_LEASE_SUPPORTED);
-    BIND_ENUM_CONSTANT(UPNP_RESULT_INVALID_GATEWAY);
-    BIND_ENUM_CONSTANT(UPNP_RESULT_INVALID_PORT);
-    BIND_ENUM_CONSTANT(UPNP_RESULT_INVALID_PROTOCOL);
-    BIND_ENUM_CONSTANT(UPNP_RESULT_INVALID_DURATION);
-    BIND_ENUM_CONSTANT(UPNP_RESULT_INVALID_ARGS);
-    BIND_ENUM_CONSTANT(UPNP_RESULT_INVALID_RESPONSE);
-    BIND_ENUM_CONSTANT(UPNP_RESULT_INVALID_PARAM);
-    BIND_ENUM_CONSTANT(UPNP_RESULT_HTTP_ERROR);
-    BIND_ENUM_CONSTANT(UPNP_RESULT_SOCKET_ERROR);
-    BIND_ENUM_CONSTANT(UPNP_RESULT_MEM_ALLOC_ERROR);
-    BIND_ENUM_CONSTANT(UPNP_RESULT_NO_GATEWAY);
-    BIND_ENUM_CONSTANT(UPNP_RESULT_NO_DEVICES);
-    BIND_ENUM_CONSTANT(UPNP_RESULT_UNKNOWN_ERROR);
+    BIND_ENUM_CONSTANT(UPNP_RESULT_SUCCESS)
+    BIND_ENUM_CONSTANT(UPNP_RESULT_NOT_AUTHORIZED)
+    BIND_ENUM_CONSTANT(UPNP_RESULT_PORT_MAPPING_NOT_FOUND)
+    BIND_ENUM_CONSTANT(UPNP_RESULT_INCONSISTENT_PARAMETERS)
+    BIND_ENUM_CONSTANT(UPNP_RESULT_NO_SUCH_ENTRY_IN_ARRAY)
+    BIND_ENUM_CONSTANT(UPNP_RESULT_ACTION_FAILED)
+    BIND_ENUM_CONSTANT(UPNP_RESULT_SRC_IP_WILDCARD_NOT_PERMITTED)
+    BIND_ENUM_CONSTANT(UPNP_RESULT_EXT_PORT_WILDCARD_NOT_PERMITTED)
+    BIND_ENUM_CONSTANT(UPNP_RESULT_INT_PORT_WILDCARD_NOT_PERMITTED)
+    BIND_ENUM_CONSTANT(UPNP_RESULT_REMOTE_HOST_MUST_BE_WILDCARD)
+    BIND_ENUM_CONSTANT(UPNP_RESULT_EXT_PORT_MUST_BE_WILDCARD)
+    BIND_ENUM_CONSTANT(UPNP_RESULT_NO_PORT_MAPS_AVAILABLE)
+    BIND_ENUM_CONSTANT(UPNP_RESULT_CONFLICT_WITH_OTHER_MECHANISM)
+    BIND_ENUM_CONSTANT(UPNP_RESULT_CONFLICT_WITH_OTHER_MAPPING)
+    BIND_ENUM_CONSTANT(UPNP_RESULT_SAME_PORT_VALUES_REQUIRED)
+    BIND_ENUM_CONSTANT(UPNP_RESULT_ONLY_PERMANENT_LEASE_SUPPORTED)
+    BIND_ENUM_CONSTANT(UPNP_RESULT_INVALID_GATEWAY)
+    BIND_ENUM_CONSTANT(UPNP_RESULT_INVALID_PORT)
+    BIND_ENUM_CONSTANT(UPNP_RESULT_INVALID_PROTOCOL)
+    BIND_ENUM_CONSTANT(UPNP_RESULT_INVALID_DURATION)
+    BIND_ENUM_CONSTANT(UPNP_RESULT_INVALID_ARGS)
+    BIND_ENUM_CONSTANT(UPNP_RESULT_INVALID_RESPONSE)
+    BIND_ENUM_CONSTANT(UPNP_RESULT_INVALID_PARAM)
+    BIND_ENUM_CONSTANT(UPNP_RESULT_HTTP_ERROR)
+    BIND_ENUM_CONSTANT(UPNP_RESULT_SOCKET_ERROR)
+    BIND_ENUM_CONSTANT(UPNP_RESULT_MEM_ALLOC_ERROR)
+    BIND_ENUM_CONSTANT(UPNP_RESULT_NO_GATEWAY)
+    BIND_ENUM_CONSTANT(UPNP_RESULT_NO_DEVICES)
+    BIND_ENUM_CONSTANT(UPNP_RESULT_UNKNOWN_ERROR)
 }
 
 UPNP::UPNP() {

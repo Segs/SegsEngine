@@ -64,7 +64,7 @@ static bool is_text_char(CharType c) {
     return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_';
 }
 
-static bool find_next(const String &line, String pattern, int from, bool match_case, bool whole_words, int &out_begin, int &out_end) {
+static bool find_next(const String &line, const String& pattern, int from, bool match_case, bool whole_words, int &out_begin, int &out_end) {
 
     int end = from;
 
@@ -170,7 +170,7 @@ void FindInFiles::_process() {
 
 void FindInFiles::_iterate() {
 
-    if (_folders_stack.size() != 0) {
+    if (!_folders_stack.empty()) {
 
         // Scan folders first so we can build a list of files and have progress info later
 
@@ -195,13 +195,13 @@ void FindInFiles::_iterate() {
             pop_back(_folders_stack);
             _current_dir = PathUtils::get_base_dir(_current_dir);
 
-            if (_folders_stack.size() == 0) {
+            if (_folders_stack.empty()) {
                 // All folders scanned
                 _initial_files_count = _files_to_scan.size();
             }
         }
 
-    } else if (_files_to_scan.size() != 0) {
+    } else if (!_files_to_scan.empty()) {
 
         // Then scan files
 
@@ -225,7 +225,7 @@ float FindInFiles::get_progress() const {
     return 0;
 }
 
-void FindInFiles::_scan_dir(String path, PoolStringArray &out_folders) {
+void FindInFiles::_scan_dir(const String& path, PoolStringArray &out_folders) {
 
     DirAccessRef dir = DirAccess::open(path);
     if (!dir) {
@@ -238,7 +238,7 @@ void FindInFiles::_scan_dir(String path, PoolStringArray &out_folders) {
     for (int i = 0; i < 1000; ++i) {
         String file = dir->get_next();
 
-        if (file == "")
+        if (file.empty())
             break;
 
         // Ignore special dirs and hidden dirs (such as .git and .import)
@@ -250,14 +250,14 @@ void FindInFiles::_scan_dir(String path, PoolStringArray &out_folders) {
 
         else {
             String file_ext = PathUtils::get_extension(file);
-            if (_extension_filter.has(file_ext)) {
+            if (_extension_filter.contains(file_ext)) {
                 _files_to_scan.push_back(PathUtils::plus_file(path,file));
             }
         }
     }
 }
 
-void FindInFiles::_scan_file(String fpath) {
+void FindInFiles::_scan_file(const String& fpath) {
 
     FileAccessRef  f = FileAccess::open(fpath, FileAccess::READ);
     if (!f) {
@@ -288,11 +288,11 @@ void FindInFiles::_scan_file(String fpath) {
 void FindInFiles::_bind_methods() {
 
     ADD_SIGNAL(MethodInfo(SIGNAL_RESULT_FOUND,
-            PropertyInfo(Variant::STRING, "path"),
-            PropertyInfo(Variant::INT, "line_number"),
-            PropertyInfo(Variant::INT, "begin"),
-            PropertyInfo(Variant::INT, "end"),
-            PropertyInfo(Variant::STRING, "text")));
+            PropertyInfo(VariantType::STRING, "path"),
+            PropertyInfo(VariantType::INT, "line_number"),
+            PropertyInfo(VariantType::INT, "begin"),
+            PropertyInfo(VariantType::INT, "end"),
+            PropertyInfo(VariantType::STRING, "text")));
 
     ADD_SIGNAL(MethodInfo(SIGNAL_FINISHED));
 }
@@ -389,7 +389,7 @@ FindInFilesDialog::FindInFilesDialog() {
     cancel_button->set_text(TTR("Cancel"));
 }
 
-void FindInFilesDialog::set_search_text(String text) {
+void FindInFilesDialog::set_search_text(const String& text) {
     _search_text_line_edit->set_text(text);
     _on_search_text_modified(text);
 }
@@ -438,7 +438,7 @@ void FindInFilesDialog::_notification(int p_what) {
             for (int i = 0; i < exts.size(); ++i) {
                 CheckBox *cb = memnew(CheckBox);
                 cb->set_text(exts[i]);
-                if (!_filters_preferences.has(exts[i])) {
+                if (!_filters_preferences.contains(exts[i])) {
                     _filters_preferences[exts[i]] = true;
                 }
                 cb->set_pressed(_filters_preferences[exts[i]]);
@@ -466,16 +466,16 @@ void FindInFilesDialog::custom_action(const String &p_action) {
     }
 }
 
-void FindInFilesDialog::_on_search_text_modified(String text) {
+void FindInFilesDialog::_on_search_text_modified(const String& text) {
 
-    ERR_FAIL_COND(!_find_button);
-    ERR_FAIL_COND(!_replace_button);
+    ERR_FAIL_COND(!_find_button)
+    ERR_FAIL_COND(!_replace_button)
 
     _find_button->set_disabled(get_search_text().empty());
     _replace_button->set_disabled(get_search_text().empty());
 }
 
-void FindInFilesDialog::_on_search_text_entered(String text) {
+void FindInFilesDialog::_on_search_text_entered(const String& text) {
     // This allows to trigger a global search without leaving the keyboard
     if (!_find_button->is_disabled())
         custom_action("find");
@@ -639,12 +639,12 @@ void FindInFilesPanel::_notification(int p_what) {
     }
 }
 
-void FindInFilesPanel::_on_result_found(String fpath, int line_number, int begin, int end, String text) {
+void FindInFilesPanel::_on_result_found(const String& fpath, int line_number, int begin, int end, const String& text) {
 
     TreeItem *file_item;
-    Map<String, TreeItem *>::Element *E = _file_items.find(fpath);
+    Map<String, TreeItem *>::iterator E = _file_items.find(fpath);
 
-    if (E == nullptr) {
+    if (E == _file_items.end()) {
         file_item = _results_display->create_item();
         file_item->set_text(0, fpath);
         file_item->set_metadata(0, fpath);
@@ -656,7 +656,7 @@ void FindInFilesPanel::_on_result_found(String fpath, int line_number, int begin
         _file_items[fpath] = file_item;
 
     } else {
-        file_item = E->value();
+        file_item = E->second;
     }
 
     int text_index = _with_replace ? 1 : 0;
@@ -697,10 +697,10 @@ void FindInFilesPanel::draw_result_text(Object *item_obj, Rect2 rect) {
     if (!item)
         return;
 
-    Map<TreeItem *, Result>::Element *E = _result_items.find(item);
-    if (!E)
+    Map<TreeItem *, Result>::iterator E = _result_items.find(item);
+    if (E==_result_items.end())
         return;
-    Result r = E->value();
+    Result r = E->second;
 
     Rect2 match_rect = rect;
     match_rect.position.x += r.draw_begin;
@@ -742,11 +742,11 @@ void FindInFilesPanel::_on_cancel_button_clicked() {
 void FindInFilesPanel::_on_result_selected() {
 
     TreeItem *item = _results_display->get_selected();
-    Map<TreeItem *, Result>::Element *E = _result_items.find(item);
+    Map<TreeItem *, Result>::iterator E = _result_items.find(item);
 
-    if (E == nullptr)
+    if (E == _result_items.end())
         return;
-    Result r = E->value();
+    Result r = E->second;
 
     TreeItem *file_item = item->get_parent();
     String fpath = file_item->get_metadata(0);
@@ -754,7 +754,7 @@ void FindInFilesPanel::_on_result_selected() {
     emit_signal(StaticCString(SIGNAL_RESULT_SELECTED,true), fpath, r.line_number, r.begin, r.end);
 }
 
-void FindInFilesPanel::_on_replace_text_changed(String text) {
+void FindInFilesPanel::_on_replace_text_changed(const String& text) {
     update_replace_buttons();
 }
 
@@ -764,9 +764,9 @@ void FindInFilesPanel::_on_replace_all_clicked() {
 
     PoolStringArray modified_files;
 
-    for (Map<String, TreeItem *>::Element *E = _file_items.front(); E; E = E->next()) {
+    for (eastl::pair<const String,TreeItem *> &E : _file_items) {
 
-        TreeItem *file_item = E->value();
+        TreeItem *file_item = E.second;
         String fpath = file_item->get_metadata(0);
 
         Vector<Result> locations;
@@ -775,12 +775,12 @@ void FindInFilesPanel::_on_replace_all_clicked() {
             if (!item->is_checked(0))
                 continue;
 
-            Map<TreeItem *, Result>::Element *F = _result_items.find(item);
-            ERR_FAIL_COND(F == nullptr)
-            locations.push_back(F->value());
+            Map<TreeItem *, Result>::iterator F = _result_items.find(item);
+            ERR_FAIL_COND(F == _result_items.end())
+            locations.push_back(F->second);
         }
 
-        if (locations.size() != 0) {
+        if (!locations.empty()) {
             // Results are sorted by file, so we can batch replaces
             apply_replaces_in_file(fpath, locations, replace_text);
             modified_files.append(fpath);
@@ -828,7 +828,7 @@ private:
     Vector<char> _line_buffer;
 };
 
-void FindInFilesPanel::apply_replaces_in_file(String fpath, const Vector<Result> &locations, String new_text) {
+void FindInFilesPanel::apply_replaces_in_file(const String& fpath, const Vector<Result> &locations, const String& new_text) {
 
     // If the file is already open, I assume the editor will reload it.
     // If there are unsaved changes, the user will be asked on focus,
@@ -917,10 +917,18 @@ void FindInFilesPanel::_bind_methods() {
     MethodBinder::bind_method("_draw_result_text", &FindInFilesPanel::draw_result_text);
 
     ADD_SIGNAL(MethodInfo(SIGNAL_RESULT_SELECTED,
-            PropertyInfo(Variant::STRING, "path"),
-            PropertyInfo(Variant::INT, "line_number"),
-            PropertyInfo(Variant::INT, "begin"),
-            PropertyInfo(Variant::INT, "end")));
+            PropertyInfo(VariantType::STRING, "path"),
+            PropertyInfo(VariantType::INT, "line_number"),
+            PropertyInfo(VariantType::INT, "begin"),
+            PropertyInfo(VariantType::INT, "end")));
 
-    ADD_SIGNAL(MethodInfo(SIGNAL_FILES_MODIFIED, PropertyInfo(Variant::STRING, "paths")));
+    ADD_SIGNAL(MethodInfo(SIGNAL_FILES_MODIFIED, PropertyInfo(VariantType::STRING, "paths")));
+}
+
+void register_find_in_files_classes()
+{
+    FindInFiles::initialize_class();
+    FindInFilesDialog::initialize_class();
+    FindInFilesPanel::initialize_class();
+
 }

@@ -39,6 +39,10 @@ IMPL_GDCLASS(StyleBoxEmpty)
 IMPL_GDCLASS(StyleBoxTexture)
 IMPL_GDCLASS(StyleBoxFlat)
 IMPL_GDCLASS(StyleBoxLine)
+RES_BASE_EXTENSION_IMPL(StyleBox,"stylebox")
+
+VARIANT_ENUM_CAST(StyleBoxTexture::AxisStretchMode)
+
 
 bool StyleBox::test_mask(const Point2 &p_point, const Rect2 &p_rect) const {
 
@@ -84,27 +88,27 @@ Size2 StyleBox::get_center_size() const {
 
 void StyleBox::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("test_mask", "point", "rect"), &StyleBox::test_mask);
+    MethodBinder::bind_method(D_METHOD("test_mask", {"point", "rect"}), &StyleBox::test_mask);
 
-    MethodBinder::bind_method(D_METHOD("set_default_margin", "margin", "offset"), &StyleBox::set_default_margin);
-    MethodBinder::bind_method(D_METHOD("get_default_margin", "margin"), &StyleBox::get_default_margin);
+    MethodBinder::bind_method(D_METHOD("set_default_margin", {"margin", "offset"}), &StyleBox::set_default_margin);
+    MethodBinder::bind_method(D_METHOD("get_default_margin", {"margin"}), &StyleBox::get_default_margin);
 
     //MethodBinder::bind_method(D_METHOD("set_default_margin"),&StyleBox::set_default_margin);
     //MethodBinder::bind_method(D_METHOD("get_default_margin"),&StyleBox::get_default_margin);
 
-    MethodBinder::bind_method(D_METHOD("get_margin", "margin"), &StyleBox::get_margin);
+    MethodBinder::bind_method(D_METHOD("get_margin", {"margin"}), &StyleBox::get_margin);
     MethodBinder::bind_method(D_METHOD("get_minimum_size"), &StyleBox::get_minimum_size);
     MethodBinder::bind_method(D_METHOD("get_center_size"), &StyleBox::get_center_size);
     MethodBinder::bind_method(D_METHOD("get_offset"), &StyleBox::get_offset);
     MethodBinder::bind_method(D_METHOD("get_current_item_drawn"), &StyleBox::get_current_item_drawn);
 
-    MethodBinder::bind_method(D_METHOD("draw", "canvas_item", "rect"), &StyleBox::draw);
+    MethodBinder::bind_method(D_METHOD("draw", {"canvas_item", "rect"}), &StyleBox::draw);
 
     ADD_GROUP("Content Margin", "content_margin_");
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "content_margin_left", PROPERTY_HINT_RANGE, "-1,2048,1"), "set_default_margin", "get_default_margin", MARGIN_LEFT);
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "content_margin_right", PROPERTY_HINT_RANGE, "-1,2048,1"), "set_default_margin", "get_default_margin", MARGIN_RIGHT);
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "content_margin_top", PROPERTY_HINT_RANGE, "-1,2048,1"), "set_default_margin", "get_default_margin", MARGIN_TOP);
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "content_margin_bottom", PROPERTY_HINT_RANGE, "-1,2048,1"), "set_default_margin", "get_default_margin", MARGIN_BOTTOM);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "content_margin_left", PROPERTY_HINT_RANGE, "-1,2048,1"), "set_default_margin", "get_default_margin", MARGIN_LEFT);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "content_margin_right", PROPERTY_HINT_RANGE, "-1,2048,1"), "set_default_margin", "get_default_margin", MARGIN_RIGHT);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "content_margin_top", PROPERTY_HINT_RANGE, "-1,2048,1"), "set_default_margin", "get_default_margin", MARGIN_TOP);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "content_margin_bottom", PROPERTY_HINT_RANGE, "-1,2048,1"), "set_default_margin", "get_default_margin", MARGIN_BOTTOM);
 }
 
 StyleBox::StyleBox() {
@@ -115,12 +119,12 @@ StyleBox::StyleBox() {
     }
 }
 
-void StyleBoxTexture::set_texture(Ref<Texture> p_texture) {
+void StyleBoxTexture::set_texture(const Ref<Texture>& p_texture) {
 
     if (texture == p_texture)
         return;
     texture = p_texture;
-    if (p_texture.is_null()) {
+    if (not p_texture) {
         region_rect = Rect2(0, 0, 0, 0);
     } else {
         region_rect = Rect2(Point2(), texture->get_size());
@@ -135,7 +139,7 @@ Ref<Texture> StyleBoxTexture::get_texture() const {
     return texture;
 }
 
-void StyleBoxTexture::set_normal_map(Ref<Texture> p_normal_map) {
+void StyleBoxTexture::set_normal_map(const Ref<Texture>& p_normal_map) {
 
     if (normal_map == p_normal_map)
         return;
@@ -173,7 +177,7 @@ float StyleBoxTexture::get_style_margin(Margin p_margin) const {
 }
 
 void StyleBoxTexture::draw(RID p_canvas_item, const Rect2 &p_rect) const {
-    if (texture.is_null())
+    if (not texture)
         return;
 
     Rect2 rect = p_rect;
@@ -187,7 +191,7 @@ void StyleBoxTexture::draw(RID p_canvas_item, const Rect2 &p_rect) const {
     rect.size.y += expand_margin[MARGIN_TOP] + expand_margin[MARGIN_BOTTOM];
 
     RID normal_rid;
-    if (normal_map.is_valid())
+    if (normal_map)
         normal_rid = normal_map->get_rid();
 
     VisualServer::get_singleton()->canvas_item_add_nine_patch(p_canvas_item, rect, src_rect, texture->get_rid(), Vector2(margin[MARGIN_LEFT], margin[MARGIN_TOP]), Vector2(margin[MARGIN_RIGHT], margin[MARGIN_BOTTOM]), VS::NinePatchAxisMode(axis_h), VS::NinePatchAxisMode(axis_v), draw_center, modulate, normal_rid);
@@ -206,7 +210,7 @@ bool StyleBoxTexture::is_draw_center_enabled() const {
 
 Size2 StyleBoxTexture::get_center_size() const {
 
-    if (texture.is_null())
+    if (not texture)
         return Size2();
 
     return region_rect.size - get_minimum_size();
@@ -291,60 +295,60 @@ Color StyleBoxTexture::get_modulate() const {
 
 void StyleBoxTexture::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_texture", "texture"), &StyleBoxTexture::set_texture);
+    MethodBinder::bind_method(D_METHOD("set_texture", {"texture"}), &StyleBoxTexture::set_texture);
     MethodBinder::bind_method(D_METHOD("get_texture"), &StyleBoxTexture::get_texture);
 
-    MethodBinder::bind_method(D_METHOD("set_normal_map", "normal_map"), &StyleBoxTexture::set_normal_map);
+    MethodBinder::bind_method(D_METHOD("set_normal_map", {"normal_map"}), &StyleBoxTexture::set_normal_map);
     MethodBinder::bind_method(D_METHOD("get_normal_map"), &StyleBoxTexture::get_normal_map);
 
-    MethodBinder::bind_method(D_METHOD("set_margin_size", "margin", "size"), &StyleBoxTexture::set_margin_size);
-    MethodBinder::bind_method(D_METHOD("get_margin_size", "margin"), &StyleBoxTexture::get_margin_size);
+    MethodBinder::bind_method(D_METHOD("set_margin_size", {"margin", "size"}), &StyleBoxTexture::set_margin_size);
+    MethodBinder::bind_method(D_METHOD("get_margin_size", {"margin"}), &StyleBoxTexture::get_margin_size);
 
-    MethodBinder::bind_method(D_METHOD("set_expand_margin_size", "margin", "size"), &StyleBoxTexture::set_expand_margin_size);
-    MethodBinder::bind_method(D_METHOD("set_expand_margin_all", "size"), &StyleBoxTexture::set_expand_margin_size_all);
-    MethodBinder::bind_method(D_METHOD("set_expand_margin_individual", "size_left", "size_top", "size_right", "size_bottom"), &StyleBoxTexture::set_expand_margin_size_individual);
-    MethodBinder::bind_method(D_METHOD("get_expand_margin_size", "margin"), &StyleBoxTexture::get_expand_margin_size);
+    MethodBinder::bind_method(D_METHOD("set_expand_margin_size", {"margin", "size"}), &StyleBoxTexture::set_expand_margin_size);
+    MethodBinder::bind_method(D_METHOD("set_expand_margin_all", {"size"}), &StyleBoxTexture::set_expand_margin_size_all);
+    MethodBinder::bind_method(D_METHOD("set_expand_margin_individual", {"size_left", "size_top", "size_right", "size_bottom"}), &StyleBoxTexture::set_expand_margin_size_individual);
+    MethodBinder::bind_method(D_METHOD("get_expand_margin_size", {"margin"}), &StyleBoxTexture::get_expand_margin_size);
 
-    MethodBinder::bind_method(D_METHOD("set_region_rect", "region"), &StyleBoxTexture::set_region_rect);
+    MethodBinder::bind_method(D_METHOD("set_region_rect", {"region"}), &StyleBoxTexture::set_region_rect);
     MethodBinder::bind_method(D_METHOD("get_region_rect"), &StyleBoxTexture::get_region_rect);
 
-    MethodBinder::bind_method(D_METHOD("set_draw_center", "enable"), &StyleBoxTexture::set_draw_center);
+    MethodBinder::bind_method(D_METHOD("set_draw_center", {"enable"}), &StyleBoxTexture::set_draw_center);
     MethodBinder::bind_method(D_METHOD("is_draw_center_enabled"), &StyleBoxTexture::is_draw_center_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_modulate", "color"), &StyleBoxTexture::set_modulate);
+    MethodBinder::bind_method(D_METHOD("set_modulate", {"color"}), &StyleBoxTexture::set_modulate);
     MethodBinder::bind_method(D_METHOD("get_modulate"), &StyleBoxTexture::get_modulate);
 
-    MethodBinder::bind_method(D_METHOD("set_h_axis_stretch_mode", "mode"), &StyleBoxTexture::set_h_axis_stretch_mode);
+    MethodBinder::bind_method(D_METHOD("set_h_axis_stretch_mode", {"mode"}), &StyleBoxTexture::set_h_axis_stretch_mode);
     MethodBinder::bind_method(D_METHOD("get_h_axis_stretch_mode"), &StyleBoxTexture::get_h_axis_stretch_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_v_axis_stretch_mode", "mode"), &StyleBoxTexture::set_v_axis_stretch_mode);
+    MethodBinder::bind_method(D_METHOD("set_v_axis_stretch_mode", {"mode"}), &StyleBoxTexture::set_v_axis_stretch_mode);
     MethodBinder::bind_method(D_METHOD("get_v_axis_stretch_mode"), &StyleBoxTexture::get_v_axis_stretch_mode);
 
     ADD_SIGNAL(MethodInfo("texture_changed"));
 
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_texture", "get_texture");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "normal_map", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_normal_map", "get_normal_map");
-    ADD_PROPERTY(PropertyInfo(Variant::RECT2, "region_rect"), "set_region_rect", "get_region_rect");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_texture", "get_texture");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "normal_map", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_normal_map", "get_normal_map");
+    ADD_PROPERTY(PropertyInfo(VariantType::RECT2, "region_rect"), "set_region_rect", "get_region_rect");
     ADD_GROUP("Margin", "margin_");
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "margin_left", PROPERTY_HINT_RANGE, "0,2048,1"), "set_margin_size", "get_margin_size", MARGIN_LEFT);
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "margin_right", PROPERTY_HINT_RANGE, "0,2048,1"), "set_margin_size", "get_margin_size", MARGIN_RIGHT);
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "margin_top", PROPERTY_HINT_RANGE, "0,2048,1"), "set_margin_size", "get_margin_size", MARGIN_TOP);
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "margin_bottom", PROPERTY_HINT_RANGE, "0,2048,1"), "set_margin_size", "get_margin_size", MARGIN_BOTTOM);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "margin_left", PROPERTY_HINT_RANGE, "0,2048,1"), "set_margin_size", "get_margin_size", MARGIN_LEFT);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "margin_right", PROPERTY_HINT_RANGE, "0,2048,1"), "set_margin_size", "get_margin_size", MARGIN_RIGHT);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "margin_top", PROPERTY_HINT_RANGE, "0,2048,1"), "set_margin_size", "get_margin_size", MARGIN_TOP);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "margin_bottom", PROPERTY_HINT_RANGE, "0,2048,1"), "set_margin_size", "get_margin_size", MARGIN_BOTTOM);
     ADD_GROUP("Expand Margin", "expand_margin_");
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "expand_margin_left", PROPERTY_HINT_RANGE, "0,2048,1"), "set_expand_margin_size", "get_expand_margin_size", MARGIN_LEFT);
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "expand_margin_right", PROPERTY_HINT_RANGE, "0,2048,1"), "set_expand_margin_size", "get_expand_margin_size", MARGIN_RIGHT);
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "expand_margin_top", PROPERTY_HINT_RANGE, "0,2048,1"), "set_expand_margin_size", "get_expand_margin_size", MARGIN_TOP);
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "expand_margin_bottom", PROPERTY_HINT_RANGE, "0,2048,1"), "set_expand_margin_size", "get_expand_margin_size", MARGIN_BOTTOM);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "expand_margin_left", PROPERTY_HINT_RANGE, "0,2048,1"), "set_expand_margin_size", "get_expand_margin_size", MARGIN_LEFT);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "expand_margin_right", PROPERTY_HINT_RANGE, "0,2048,1"), "set_expand_margin_size", "get_expand_margin_size", MARGIN_RIGHT);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "expand_margin_top", PROPERTY_HINT_RANGE, "0,2048,1"), "set_expand_margin_size", "get_expand_margin_size", MARGIN_TOP);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "expand_margin_bottom", PROPERTY_HINT_RANGE, "0,2048,1"), "set_expand_margin_size", "get_expand_margin_size", MARGIN_BOTTOM);
     ADD_GROUP("Axis Stretch", "axis_stretch_");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "axis_stretch_horizontal", PROPERTY_HINT_ENUM, "Stretch,Tile,Tile Fit"), "set_h_axis_stretch_mode", "get_h_axis_stretch_mode");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "axis_stretch_vertical", PROPERTY_HINT_ENUM, "Stretch,Tile,Tile Fit"), "set_v_axis_stretch_mode", "get_v_axis_stretch_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "axis_stretch_horizontal", PROPERTY_HINT_ENUM, "Stretch,Tile,Tile Fit"), "set_h_axis_stretch_mode", "get_h_axis_stretch_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "axis_stretch_vertical", PROPERTY_HINT_ENUM, "Stretch,Tile,Tile Fit"), "set_v_axis_stretch_mode", "get_v_axis_stretch_mode");
     ADD_GROUP("Modulate", "modulate_");
-    ADD_PROPERTY(PropertyInfo(Variant::COLOR, "modulate_color"), "set_modulate", "get_modulate");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "draw_center"), "set_draw_center", "is_draw_center_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "modulate_color"), "set_modulate", "get_modulate");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "draw_center"), "set_draw_center", "is_draw_center_enabled");
 
-    BIND_ENUM_CONSTANT(AXIS_STRETCH_MODE_STRETCH);
-    BIND_ENUM_CONSTANT(AXIS_STRETCH_MODE_TILE);
-    BIND_ENUM_CONSTANT(AXIS_STRETCH_MODE_TILE_FIT);
+    BIND_ENUM_CONSTANT(AXIS_STRETCH_MODE_STRETCH)
+    BIND_ENUM_CONSTANT(AXIS_STRETCH_MODE_TILE)
+    BIND_ENUM_CONSTANT(AXIS_STRETCH_MODE_TILE_FIT)
 }
 
 StyleBoxTexture::StyleBoxTexture() {
@@ -720,6 +724,7 @@ void StyleBoxFlat::draw(RID p_canvas_item, const Rect2 &p_rect) const {
     Vector<Point2> verts;
     Vector<int> indices;
     Vector<Color> colors;
+    Vector<Point2> uvs;
 
     //DRAW SHADOW
     if (draw_shadow) {
@@ -806,9 +811,16 @@ void StyleBoxFlat::draw(RID p_canvas_item, const Rect2 &p_rect) const {
         }
     }
 
+    //COMPUTE UV COORDINATES
+    Rect2 uv_rect = style_rect.grow(aa_on ? aa_size : 0);
+    uvs.resize(verts.size());
+    for (int i = 0; i < verts.size(); i++) {
+        uvs.write[i].x = (verts[i].x - uv_rect.position.x) / uv_rect.size.width;
+        uvs.write[i].y = (verts[i].y - uv_rect.position.y) / uv_rect.size.height;
+    }
     //DRAWING
     VisualServer *vs = VisualServer::get_singleton();
-    vs->canvas_item_add_triangle_array(p_canvas_item, indices, verts, colors);
+    vs->canvas_item_add_triangle_array(p_canvas_item, indices, verts, colors, uvs);
 }
 
 float StyleBoxFlat::get_style_margin(Margin p_margin) const {
@@ -816,90 +828,90 @@ float StyleBoxFlat::get_style_margin(Margin p_margin) const {
 }
 void StyleBoxFlat::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_bg_color", "color"), &StyleBoxFlat::set_bg_color);
+    MethodBinder::bind_method(D_METHOD("set_bg_color", {"color"}), &StyleBoxFlat::set_bg_color);
     MethodBinder::bind_method(D_METHOD("get_bg_color"), &StyleBoxFlat::get_bg_color);
 
-    MethodBinder::bind_method(D_METHOD("set_border_color", "color"), &StyleBoxFlat::set_border_color);
+    MethodBinder::bind_method(D_METHOD("set_border_color", {"color"}), &StyleBoxFlat::set_border_color);
     MethodBinder::bind_method(D_METHOD("get_border_color"), &StyleBoxFlat::get_border_color);
 
-    MethodBinder::bind_method(D_METHOD("set_border_width_all", "width"), &StyleBoxFlat::set_border_width_all);
+    MethodBinder::bind_method(D_METHOD("set_border_width_all", {"width"}), &StyleBoxFlat::set_border_width_all);
     MethodBinder::bind_method(D_METHOD("get_border_width_min"), &StyleBoxFlat::get_border_width_min);
 
-    MethodBinder::bind_method(D_METHOD("set_border_width", "margin", "width"), &StyleBoxFlat::set_border_width);
-    MethodBinder::bind_method(D_METHOD("get_border_width", "margin"), &StyleBoxFlat::get_border_width);
+    MethodBinder::bind_method(D_METHOD("set_border_width", {"margin", "width"}), &StyleBoxFlat::set_border_width);
+    MethodBinder::bind_method(D_METHOD("get_border_width", {"margin"}), &StyleBoxFlat::get_border_width);
 
-    MethodBinder::bind_method(D_METHOD("set_border_blend", "blend"), &StyleBoxFlat::set_border_blend);
+    MethodBinder::bind_method(D_METHOD("set_border_blend", {"blend"}), &StyleBoxFlat::set_border_blend);
     MethodBinder::bind_method(D_METHOD("get_border_blend"), &StyleBoxFlat::get_border_blend);
 
-    MethodBinder::bind_method(D_METHOD("set_corner_radius_individual", "radius_top_left", "radius_top_right", "radius_bottom_right", "radius_bottom_left"), &StyleBoxFlat::set_corner_radius_individual);
-    MethodBinder::bind_method(D_METHOD("set_corner_radius_all", "radius"), &StyleBoxFlat::set_corner_radius_all);
+    MethodBinder::bind_method(D_METHOD("set_corner_radius_individual", {"radius_top_left", "radius_top_right", "radius_bottom_right", "radius_bottom_left"}), &StyleBoxFlat::set_corner_radius_individual);
+    MethodBinder::bind_method(D_METHOD("set_corner_radius_all", {"radius"}), &StyleBoxFlat::set_corner_radius_all);
 
-    MethodBinder::bind_method(D_METHOD("set_corner_radius", "corner", "radius"), &StyleBoxFlat::set_corner_radius);
-    MethodBinder::bind_method(D_METHOD("get_corner_radius", "corner"), &StyleBoxFlat::get_corner_radius);
+    MethodBinder::bind_method(D_METHOD("set_corner_radius", {"corner", "radius"}), &StyleBoxFlat::set_corner_radius);
+    MethodBinder::bind_method(D_METHOD("get_corner_radius", {"corner"}), &StyleBoxFlat::get_corner_radius);
 
-    MethodBinder::bind_method(D_METHOD("set_expand_margin", "margin", "size"), &StyleBoxFlat::set_expand_margin_size);
-    MethodBinder::bind_method(D_METHOD("set_expand_margin_all", "size"), &StyleBoxFlat::set_expand_margin_size_all);
-    MethodBinder::bind_method(D_METHOD("set_expand_margin_individual", "size_left", "size_top", "size_right", "size_bottom"), &StyleBoxFlat::set_expand_margin_size_individual);
-    MethodBinder::bind_method(D_METHOD("get_expand_margin", "margin"), &StyleBoxFlat::get_expand_margin_size);
+    MethodBinder::bind_method(D_METHOD("set_expand_margin", {"margin", "size"}), &StyleBoxFlat::set_expand_margin_size);
+    MethodBinder::bind_method(D_METHOD("set_expand_margin_all", {"size"}), &StyleBoxFlat::set_expand_margin_size_all);
+    MethodBinder::bind_method(D_METHOD("set_expand_margin_individual", {"size_left", "size_top", "size_right", "size_bottom"}), &StyleBoxFlat::set_expand_margin_size_individual);
+    MethodBinder::bind_method(D_METHOD("get_expand_margin", {"margin"}), &StyleBoxFlat::get_expand_margin_size);
 
-    MethodBinder::bind_method(D_METHOD("set_draw_center", "draw_center"), &StyleBoxFlat::set_draw_center);
+    MethodBinder::bind_method(D_METHOD("set_draw_center", {"draw_center"}), &StyleBoxFlat::set_draw_center);
     MethodBinder::bind_method(D_METHOD("is_draw_center_enabled"), &StyleBoxFlat::is_draw_center_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_shadow_color", "color"), &StyleBoxFlat::set_shadow_color);
+    MethodBinder::bind_method(D_METHOD("set_shadow_color", {"color"}), &StyleBoxFlat::set_shadow_color);
     MethodBinder::bind_method(D_METHOD("get_shadow_color"), &StyleBoxFlat::get_shadow_color);
 
-    MethodBinder::bind_method(D_METHOD("set_shadow_size", "size"), &StyleBoxFlat::set_shadow_size);
+    MethodBinder::bind_method(D_METHOD("set_shadow_size", {"size"}), &StyleBoxFlat::set_shadow_size);
     MethodBinder::bind_method(D_METHOD("get_shadow_size"), &StyleBoxFlat::get_shadow_size);
 
-    MethodBinder::bind_method(D_METHOD("set_shadow_offset", "offset"), &StyleBoxFlat::set_shadow_offset);
+    MethodBinder::bind_method(D_METHOD("set_shadow_offset", {"offset"}), &StyleBoxFlat::set_shadow_offset);
     MethodBinder::bind_method(D_METHOD("get_shadow_offset"), &StyleBoxFlat::get_shadow_offset);
 
-    MethodBinder::bind_method(D_METHOD("set_anti_aliased", "anti_aliased"), &StyleBoxFlat::set_anti_aliased);
+    MethodBinder::bind_method(D_METHOD("set_anti_aliased", {"anti_aliased"}), &StyleBoxFlat::set_anti_aliased);
     MethodBinder::bind_method(D_METHOD("is_anti_aliased"), &StyleBoxFlat::is_anti_aliased);
 
-    MethodBinder::bind_method(D_METHOD("set_aa_size", "size"), &StyleBoxFlat::set_aa_size);
+    MethodBinder::bind_method(D_METHOD("set_aa_size", {"size"}), &StyleBoxFlat::set_aa_size);
     MethodBinder::bind_method(D_METHOD("get_aa_size"), &StyleBoxFlat::get_aa_size);
 
-    MethodBinder::bind_method(D_METHOD("set_corner_detail", "detail"), &StyleBoxFlat::set_corner_detail);
+    MethodBinder::bind_method(D_METHOD("set_corner_detail", {"detail"}), &StyleBoxFlat::set_corner_detail);
     MethodBinder::bind_method(D_METHOD("get_corner_detail"), &StyleBoxFlat::get_corner_detail);
 
-    ADD_PROPERTY(PropertyInfo(Variant::COLOR, "bg_color"), "set_bg_color", "get_bg_color");
+    ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "bg_color"), "set_bg_color", "get_bg_color");
 
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "draw_center"), "set_draw_center", "is_draw_center_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "draw_center"), "set_draw_center", "is_draw_center_enabled");
 
     ADD_GROUP("Border Width", "border_width_");
-    ADD_PROPERTYI(PropertyInfo(Variant::INT, "border_width_left", PROPERTY_HINT_RANGE, "0,1024,1"), "set_border_width", "get_border_width", MARGIN_LEFT);
-    ADD_PROPERTYI(PropertyInfo(Variant::INT, "border_width_top", PROPERTY_HINT_RANGE, "0,1024,1"), "set_border_width", "get_border_width", MARGIN_TOP);
-    ADD_PROPERTYI(PropertyInfo(Variant::INT, "border_width_right", PROPERTY_HINT_RANGE, "0,1024,1"), "set_border_width", "get_border_width", MARGIN_RIGHT);
-    ADD_PROPERTYI(PropertyInfo(Variant::INT, "border_width_bottom", PROPERTY_HINT_RANGE, "0,1024,1"), "set_border_width", "get_border_width", MARGIN_BOTTOM);
+    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "border_width_left", PROPERTY_HINT_RANGE, "0,1024,1"), "set_border_width", "get_border_width", MARGIN_LEFT);
+    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "border_width_top", PROPERTY_HINT_RANGE, "0,1024,1"), "set_border_width", "get_border_width", MARGIN_TOP);
+    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "border_width_right", PROPERTY_HINT_RANGE, "0,1024,1"), "set_border_width", "get_border_width", MARGIN_RIGHT);
+    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "border_width_bottom", PROPERTY_HINT_RANGE, "0,1024,1"), "set_border_width", "get_border_width", MARGIN_BOTTOM);
 
     ADD_GROUP("Border", "border_");
-    ADD_PROPERTY(PropertyInfo(Variant::COLOR, "border_color"), "set_border_color", "get_border_color");
+    ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "border_color"), "set_border_color", "get_border_color");
 
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "border_blend"), "set_border_blend", "get_border_blend");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "border_blend"), "set_border_blend", "get_border_blend");
 
     ADD_GROUP("Corner Radius", "corner_radius_");
-    ADD_PROPERTYI(PropertyInfo(Variant::INT, "corner_radius_top_left", PROPERTY_HINT_RANGE, "0,1024,1"), "set_corner_radius", "get_corner_radius", CORNER_TOP_LEFT);
-    ADD_PROPERTYI(PropertyInfo(Variant::INT, "corner_radius_top_right", PROPERTY_HINT_RANGE, "0,1024,1"), "set_corner_radius", "get_corner_radius", CORNER_TOP_RIGHT);
-    ADD_PROPERTYI(PropertyInfo(Variant::INT, "corner_radius_bottom_right", PROPERTY_HINT_RANGE, "0,1024,1"), "set_corner_radius", "get_corner_radius", CORNER_BOTTOM_RIGHT);
-    ADD_PROPERTYI(PropertyInfo(Variant::INT, "corner_radius_bottom_left", PROPERTY_HINT_RANGE, "0,1024,1"), "set_corner_radius", "get_corner_radius", CORNER_BOTTOM_LEFT);
+    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "corner_radius_top_left", PROPERTY_HINT_RANGE, "0,1024,1"), "set_corner_radius", "get_corner_radius", CORNER_TOP_LEFT);
+    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "corner_radius_top_right", PROPERTY_HINT_RANGE, "0,1024,1"), "set_corner_radius", "get_corner_radius", CORNER_TOP_RIGHT);
+    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "corner_radius_bottom_right", PROPERTY_HINT_RANGE, "0,1024,1"), "set_corner_radius", "get_corner_radius", CORNER_BOTTOM_RIGHT);
+    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "corner_radius_bottom_left", PROPERTY_HINT_RANGE, "0,1024,1"), "set_corner_radius", "get_corner_radius", CORNER_BOTTOM_LEFT);
 
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "corner_detail", PROPERTY_HINT_RANGE, "1,128,1"), "set_corner_detail", "get_corner_detail");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "corner_detail", PROPERTY_HINT_RANGE, "1,128,1"), "set_corner_detail", "get_corner_detail");
 
     ADD_GROUP("Expand Margin", "expand_margin_");
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "expand_margin_left", PROPERTY_HINT_RANGE, "0,2048,1"), "set_expand_margin", "get_expand_margin", MARGIN_LEFT);
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "expand_margin_right", PROPERTY_HINT_RANGE, "0,2048,1"), "set_expand_margin", "get_expand_margin", MARGIN_RIGHT);
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "expand_margin_top", PROPERTY_HINT_RANGE, "0,2048,1"), "set_expand_margin", "get_expand_margin", MARGIN_TOP);
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "expand_margin_bottom", PROPERTY_HINT_RANGE, "0,2048,1"), "set_expand_margin", "get_expand_margin", MARGIN_BOTTOM);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "expand_margin_left", PROPERTY_HINT_RANGE, "0,2048,1"), "set_expand_margin", "get_expand_margin", MARGIN_LEFT);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "expand_margin_right", PROPERTY_HINT_RANGE, "0,2048,1"), "set_expand_margin", "get_expand_margin", MARGIN_RIGHT);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "expand_margin_top", PROPERTY_HINT_RANGE, "0,2048,1"), "set_expand_margin", "get_expand_margin", MARGIN_TOP);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "expand_margin_bottom", PROPERTY_HINT_RANGE, "0,2048,1"), "set_expand_margin", "get_expand_margin", MARGIN_BOTTOM);
 
     ADD_GROUP("Shadow", "shadow_");
-    ADD_PROPERTY(PropertyInfo(Variant::COLOR, "shadow_color"), "set_shadow_color", "get_shadow_color");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "shadow_size"), "set_shadow_size", "get_shadow_size");
-    ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "shadow_offset"), "set_shadow_offset", "get_shadow_offset");
+    ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "shadow_color"), "set_shadow_color", "get_shadow_color");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "shadow_size"), "set_shadow_size", "get_shadow_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "shadow_offset"), "set_shadow_offset", "get_shadow_offset");
 
     ADD_GROUP("Anti Aliasing", "anti_aliasing_");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "anti_aliasing"), "set_anti_aliased", "is_anti_aliased");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "anti_aliasing_size", PROPERTY_HINT_RANGE, "1,5,1"), "set_aa_size", "get_aa_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "anti_aliasing"), "set_anti_aliased", "is_anti_aliased");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "anti_aliasing_size", PROPERTY_HINT_RANGE, "1,5,1"), "set_aa_size", "get_aa_size");
 }
 
 StyleBoxFlat::StyleBoxFlat() {
@@ -977,22 +989,22 @@ float StyleBoxLine::get_grow_begin() const {
 
 void StyleBoxLine::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_color", "color"), &StyleBoxLine::set_color);
+    MethodBinder::bind_method(D_METHOD("set_color", {"color"}), &StyleBoxLine::set_color);
     MethodBinder::bind_method(D_METHOD("get_color"), &StyleBoxLine::get_color);
-    MethodBinder::bind_method(D_METHOD("set_thickness", "thickness"), &StyleBoxLine::set_thickness);
+    MethodBinder::bind_method(D_METHOD("set_thickness", {"thickness"}), &StyleBoxLine::set_thickness);
     MethodBinder::bind_method(D_METHOD("get_thickness"), &StyleBoxLine::get_thickness);
-    MethodBinder::bind_method(D_METHOD("set_grow_begin", "offset"), &StyleBoxLine::set_grow_begin);
+    MethodBinder::bind_method(D_METHOD("set_grow_begin", {"offset"}), &StyleBoxLine::set_grow_begin);
     MethodBinder::bind_method(D_METHOD("get_grow_begin"), &StyleBoxLine::get_grow_begin);
-    MethodBinder::bind_method(D_METHOD("set_grow_end", "offset"), &StyleBoxLine::set_grow_end);
+    MethodBinder::bind_method(D_METHOD("set_grow_end", {"offset"}), &StyleBoxLine::set_grow_end);
     MethodBinder::bind_method(D_METHOD("get_grow_end"), &StyleBoxLine::get_grow_end);
-    MethodBinder::bind_method(D_METHOD("set_vertical", "vertical"), &StyleBoxLine::set_vertical);
+    MethodBinder::bind_method(D_METHOD("set_vertical", {"vertical"}), &StyleBoxLine::set_vertical);
     MethodBinder::bind_method(D_METHOD("is_vertical"), &StyleBoxLine::is_vertical);
 
-    ADD_PROPERTY(PropertyInfo(Variant::COLOR, "color"), "set_color", "get_color");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "grow_begin", PROPERTY_HINT_RANGE, "-300,300,1"), "set_grow_begin", "get_grow_begin");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "grow_end", PROPERTY_HINT_RANGE, "-300,300,1"), "set_grow_end", "get_grow_end");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "thickness", PROPERTY_HINT_RANGE, "0,10"), "set_thickness", "get_thickness");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "vertical"), "set_vertical", "is_vertical");
+    ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "color"), "set_color", "get_color");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "grow_begin", PROPERTY_HINT_RANGE, "-300,300,1"), "set_grow_begin", "get_grow_begin");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "grow_end", PROPERTY_HINT_RANGE, "-300,300,1"), "set_grow_end", "get_grow_end");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "thickness", PROPERTY_HINT_RANGE, "0,10"), "set_thickness", "get_thickness");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "vertical"), "set_vertical", "is_vertical");
 }
 float StyleBoxLine::get_style_margin(Margin p_margin) const {
     return thickness;

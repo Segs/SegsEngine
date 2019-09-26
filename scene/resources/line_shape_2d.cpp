@@ -105,14 +105,14 @@ Rect2 LineShape2D::get_rect() const {
 
 void LineShape2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_normal", "normal"), &LineShape2D::set_normal);
+    MethodBinder::bind_method(D_METHOD("set_normal", {"normal"}), &LineShape2D::set_normal);
     MethodBinder::bind_method(D_METHOD("get_normal"), &LineShape2D::get_normal);
 
-    MethodBinder::bind_method(D_METHOD("set_d", "d"), &LineShape2D::set_d);
+    MethodBinder::bind_method(D_METHOD("set_d", {"d"}), &LineShape2D::set_d);
     MethodBinder::bind_method(D_METHOD("get_d"), &LineShape2D::get_d);
 
-    ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "normal"), "set_normal", "get_normal");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "d"), "set_d", "get_d");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "normal"), "set_normal", "get_normal");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "d"), "set_d", "get_d");
 }
 
 LineShape2D::LineShape2D() :

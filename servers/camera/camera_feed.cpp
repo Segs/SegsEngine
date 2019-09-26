@@ -29,6 +29,8 @@
 /*************************************************************************/
 
 #include "camera_feed.h"
+
+#include <utility>
 #include "servers/visual_server.h"
 #include "servers/visual_server_enum_casters.h"
 #include "core/image_enum_casters.h"
@@ -42,26 +44,26 @@ void CameraFeed::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("get_id"), &CameraFeed::get_id);
     MethodBinder::bind_method(D_METHOD("get_name"), &CameraFeed::get_name);
-    MethodBinder::bind_method(D_METHOD("_set_name", "name"), &CameraFeed::set_name);
+    MethodBinder::bind_method(D_METHOD("_set_name", {"name"}), &CameraFeed::set_name);
 
     MethodBinder::bind_method(D_METHOD("is_active"), &CameraFeed::is_active);
-    MethodBinder::bind_method(D_METHOD("set_active", "active"), &CameraFeed::set_active);
+    MethodBinder::bind_method(D_METHOD("set_active", {"active"}), &CameraFeed::set_active);
 
     MethodBinder::bind_method(D_METHOD("get_position"), &CameraFeed::get_position);
-    MethodBinder::bind_method(D_METHOD("_set_position", "position"), &CameraFeed::set_position);
+    MethodBinder::bind_method(D_METHOD("_set_position", {"position"}), &CameraFeed::set_position);
 
     // Note, for transform some feeds may override what the user sets (such as ARKit)
     MethodBinder::bind_method(D_METHOD("get_transform"), &CameraFeed::get_transform);
-    MethodBinder::bind_method(D_METHOD("set_transform", "transform"), &CameraFeed::set_transform);
+    MethodBinder::bind_method(D_METHOD("set_transform", {"transform"}), &CameraFeed::set_transform);
 
-    MethodBinder::bind_method(D_METHOD("_set_RGB_img", "rgb_img"), &CameraFeed::set_RGB_img);
-    MethodBinder::bind_method(D_METHOD("_set_YCbCr_img", "ycbcr_img"), &CameraFeed::set_YCbCr_img);
-    MethodBinder::bind_method(D_METHOD("_set_YCbCr_imgs", "y_img", "cbcr_img"), &CameraFeed::set_YCbCr_imgs);
-    MethodBinder::bind_method(D_METHOD("_allocate_texture", "width", "height", "format", "texture_type", "data_type"), &CameraFeed::allocate_texture);
+    MethodBinder::bind_method(D_METHOD("_set_RGB_img", {"rgb_img"}), &CameraFeed::set_RGB_img);
+    MethodBinder::bind_method(D_METHOD("_set_YCbCr_img", {"ycbcr_img"}), &CameraFeed::set_YCbCr_img);
+    MethodBinder::bind_method(D_METHOD("_set_YCbCr_imgs", {"y_img", "cbcr_img"}), &CameraFeed::set_YCbCr_imgs);
+    MethodBinder::bind_method(D_METHOD("_allocate_texture", {"width", "height", "format", "texture_type", "data_type"}), &CameraFeed::allocate_texture);
 
     ADD_GROUP("Feed", "feed_");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "feed_is_active"), "set_active", "is_active");
-    ADD_PROPERTY(PropertyInfo(Variant::TRANSFORM2D, "feed_transform"), "set_transform", "get_transform");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "feed_is_active"), "set_active", "is_active");
+    ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM2D, "feed_transform"), "set_transform", "get_transform");
 
     BIND_ENUM_CONSTANT(FEED_NOIMAGE)
     BIND_ENUM_CONSTANT(FEED_RGB)
@@ -103,7 +105,7 @@ String CameraFeed::get_name() const {
 }
 
 void CameraFeed::set_name(String p_name) {
-    name = p_name;
+    name = std::move(p_name);
 }
 
 int CameraFeed::get_base_width() const {
@@ -158,7 +160,7 @@ CameraFeed::CameraFeed(String p_name, FeedPosition p_position) {
     id = CameraServer::get_singleton()->get_free_id();
     base_width = 0;
     base_height = 0;
-    name = p_name;
+    name = std::move(p_name);
     active = false;
     datatype = CameraFeed::FEED_NOIMAGE;
     position = p_position;

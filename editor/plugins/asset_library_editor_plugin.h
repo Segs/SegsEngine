@@ -293,7 +293,7 @@ class EditorAssetLibrary : public PanelContainer {
 	void _repository_changed(int p_repository_id);
 	void _support_toggled(int p_support);
 
-	void _install_external_asset(String p_zip_path, String p_title);
+	void _install_external_asset(const String& p_zip_path, const String& p_title);
 
 	friend class EditorAssetLibraryItemDescription;
 	friend class EditorAssetLibraryItem;

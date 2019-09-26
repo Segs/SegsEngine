@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef SHADER_GLES3_H
-#define SHADER_GLES3_H
+#pragma once
 
 #include "core/hashfuncs.h"
 #include "core/hash_map.h"
@@ -37,6 +36,7 @@
 #include "core/math/camera_matrix.h"
 #include "core/variant.h"
 #include "core/ustring.h"
+#include "core/vector.h"
 
 #include "platform_config.h"
 #ifndef GLES3_INCLUDE_H
@@ -86,7 +86,7 @@ protected:
 
     struct UniformPair {
         const char *name;
-        Variant::Type type_hint;
+        VariantType type_hint;
     };
 
     struct TexUnitPair {
@@ -194,44 +194,44 @@ private:
             return; // do none
         switch (p_value.get_type()) {
 
-            case Variant::BOOL:
-            case Variant::INT: {
+            case VariantType::BOOL:
+            case VariantType::INT: {
 
                 int val = p_value;
                 glUniform1i(p_uniform, val);
             } break;
-            case Variant::REAL: {
+            case VariantType::REAL: {
 
                 real_t val = p_value;
                 glUniform1f(p_uniform, val);
             } break;
-            case Variant::COLOR: {
+            case VariantType::COLOR: {
 
                 Color val = p_value;
                 glUniform4f(p_uniform, val.r, val.g, val.b, val.a);
             } break;
-            case Variant::VECTOR2: {
+            case VariantType::VECTOR2: {
 
                 Vector2 val = p_value;
                 glUniform2f(p_uniform, val.x, val.y);
             } break;
-            case Variant::VECTOR3: {
+            case VariantType::VECTOR3: {
 
                 Vector3 val = p_value;
                 glUniform3f(p_uniform, val.x, val.y, val.z);
             } break;
-            case Variant::PLANE: {
+            case VariantType::PLANE: {
 
                 Plane val = p_value;
                 glUniform4f(p_uniform, val.normal.x, val.normal.y, val.normal.z, val.d);
             } break;
-            case Variant::QUAT: {
+            case VariantType::QUAT: {
 
                 Quat val = p_value;
                 glUniform4f(p_uniform, val.x, val.y, val.z, val.w);
             } break;
 
-            case Variant::TRANSFORM2D: {
+            case VariantType::TRANSFORM2D: {
 
                 Transform2D tr = p_value;
                 GLfloat matrix[16] = { /* build a 16x16 matrix */
@@ -256,8 +256,8 @@ private:
                 glUniformMatrix4fv(p_uniform, 1, false, matrix);
 
             } break;
-            case Variant::BASIS:
-            case Variant::TRANSFORM: {
+            case VariantType::BASIS:
+            case VariantType::TRANSFORM: {
 
                 Transform tr = p_value;
                 GLfloat matrix[16] = { /* build a 16x16 matrix */
@@ -322,7 +322,7 @@ public:
 
     void set_uniform_default(int p_idx, const Variant &p_value) {
 
-        if (p_value.get_type() == Variant::NIL) {
+        if (p_value.get_type() == VariantType::NIL) {
 
             uniform_defaults.erase(p_idx);
         } else {
@@ -343,14 +343,14 @@ public:
 
     _FORCE_INLINE_ void set_texture_uniform(int p_idx, const Variant &p_value) {
 
-        ERR_FAIL_COND(!version);
+        ERR_FAIL_COND(!version)
         ERR_FAIL_INDEX(p_idx, version->texture_uniform_locations.size());
         _set_uniform_variant(version->texture_uniform_locations[p_idx], p_value);
     }
 
     _FORCE_INLINE_ GLint get_texture_uniform_location(int p_idx) {
 
-        ERR_FAIL_COND_V(!version, -1);
+        ERR_FAIL_COND_V(!version, -1)
         ERR_FAIL_INDEX_V(p_idx, version->texture_uniform_locations.size(), -1);
         return version->texture_uniform_locations[p_idx];
     }
@@ -372,7 +372,7 @@ public:
 int ShaderGLES3::_get_uniform(int p_which) const {
 
     ERR_FAIL_INDEX_V(p_which, uniform_count, -1);
-    ERR_FAIL_COND_V(!version, -1);
+    ERR_FAIL_COND_V(!version, -1)
     return version->uniform_location[p_which];
 }
 
@@ -384,5 +384,3 @@ void ShaderGLES3::_set_conditional(int p_which, bool p_value) {
     else
         new_conditional_version.version &= ~(1 << p_which);
 }
-
-#endif

@@ -67,7 +67,7 @@ void Basis::invert() {
                  elements[0][1] * co[1] +
                  elements[0][2] * co[2];
 #ifdef MATH_CHECKS
-    ERR_FAIL_COND(det == 0);
+    ERR_FAIL_COND(det == 0)
 #endif
     real_t s = 1.0 / det;
 
@@ -79,7 +79,7 @@ void Basis::invert() {
 void Basis::orthonormalize() {
 
 #ifdef MATH_CHECKS
-    ERR_FAIL_COND(determinant() == 0);
+    ERR_FAIL_COND(determinant() == 0)
 #endif
 
     // Gram-Schmidt Process
@@ -141,7 +141,7 @@ Basis Basis::diagonalize() {
 //NOTE: only implemented for symmetric matrices
 //with the Jacobi iterative method method
 #ifdef MATH_CHECKS
-    ERR_FAIL_COND_V(!is_symmetric(), Basis());
+    ERR_FAIL_COND_V(!is_symmetric(), Basis())
 #endif
     const int ite_max = 1024;
 
@@ -303,17 +303,17 @@ Vector3 Basis::get_scale() const {
 // This (internal) function is too specific and named too ugly to expose to users, and probably there's no need to do so.
 Vector3 Basis::rotref_posscale_decomposition(Basis &rotref) const {
 #ifdef MATH_CHECKS
-    ERR_FAIL_COND_V(determinant() == 0, Vector3());
+    ERR_FAIL_COND_V(determinant() == 0, Vector3())
 
     Basis m = transposed() * (*this);
-    ERR_FAIL_COND_V(!m.is_diagonal(), Vector3());
+    ERR_FAIL_COND_V(!m.is_diagonal(), Vector3())
 #endif
     Vector3 scale = get_scale();
     Basis inv_scale = Basis().scaled(scale.inverse()); // this will also absorb the sign of scale
     rotref = (*this) * inv_scale;
 
 #ifdef MATH_CHECKS
-    ERR_FAIL_COND_V(!rotref.is_orthogonal(), Vector3());
+    ERR_FAIL_COND_V(!rotref.is_orthogonal(), Vector3())
 #endif
     return scale.abs();
 }
@@ -437,7 +437,7 @@ Vector3 Basis::get_euler_xyz() const {
 
     Vector3 euler;
 #ifdef MATH_CHECKS
-    ERR_FAIL_COND_V(!is_rotation(), euler);
+    ERR_FAIL_COND_V(!is_rotation(), euler)
 #endif
     real_t sy = elements[0][2];
     if (sy < 1.0) {
@@ -497,7 +497,7 @@ Vector3 Basis::get_euler_yxz() const {
 
     /* checking this is a bad idea, because obtaining from scaled transform is a valid use case
 #ifdef MATH_CHECKS
-    ERR_FAIL_COND(!is_rotation());
+    ERR_FAIL_COND(!is_rotation())
 #endif
 */
     // Euler angles in YXZ convention.
@@ -623,7 +623,7 @@ Basis::operator String() const {
 Quat Basis::get_quat() const {
 
 #ifdef MATH_CHECKS
-    ERR_FAIL_COND_V_MSG(!is_rotation(), Quat(), "Basis must be normalized in order to be casted to a Quaternion. Use get_rotation_quat() or call orthonormalized() instead.");
+    ERR_FAIL_COND_V_MSG(!is_rotation(), Quat(), "Basis must be normalized in order to be casted to a Quaternion. Use get_rotation_quat() or call orthonormalized() instead.")
 #endif
     /* Allow getting a quaternion from an unnormalized transform */
     Basis m = *this;
@@ -723,7 +723,7 @@ void Basis::set_orthogonal_index(int p_index) {
 void Basis::get_axis_angle(Vector3 &r_axis, real_t &r_angle) const {
     /* checking this is a bad idea, because obtaining from scaled transform is a valid use case
 #ifdef MATH_CHECKS
-    ERR_FAIL_COND(!is_rotation());
+    ERR_FAIL_COND(!is_rotation())
 #endif
 */
     real_t angle, x, y, z; // variables for result
@@ -812,7 +812,7 @@ void Basis::set_quat(const Quat &p_quat) {
 void Basis::set_axis_angle(const Vector3 &p_axis, real_t p_phi) {
 // Rotation matrix from axis and angle, see https://en.wikipedia.org/wiki/Rotation_matrix#Rotation_matrix_from_axis_angle
 #ifdef MATH_CHECKS
-    ERR_FAIL_COND(!p_axis.is_normalized());
+    ERR_FAIL_COND(!p_axis.is_normalized())
 #endif
     Vector3 axis_sq(p_axis.x * p_axis.x, p_axis.y * p_axis.y, p_axis.z * p_axis.z);
     real_t cosine = Math::cos(p_phi);

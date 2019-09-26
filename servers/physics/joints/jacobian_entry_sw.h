@@ -72,7 +72,7 @@ public:
 		m_1MinvJt = inertiaInvB * m_bJ;
 		m_Adiag = massInvA + m_0MinvJt.dot(m_aJ) + massInvB + m_1MinvJt.dot(m_bJ);
 
-		ERR_FAIL_COND(m_Adiag <= real_t(0.0));
+		ERR_FAIL_COND(m_Adiag <= real_t(0.0))
 	}
 
 	//angular constraint between two different rigidbodies
@@ -88,7 +88,7 @@ public:
 		m_1MinvJt = inertiaInvB * m_bJ;
 		m_Adiag = m_0MinvJt.dot(m_aJ) + m_1MinvJt.dot(m_bJ);
 
-		ERR_FAIL_COND(m_Adiag <= real_t(0.0));
+		ERR_FAIL_COND(m_Adiag <= real_t(0.0))
 	}
 
 	//angular constraint between two different rigidbodies
@@ -103,7 +103,7 @@ public:
 		m_1MinvJt = inertiaInvB * m_bJ;
 		m_Adiag = m_0MinvJt.dot(m_aJ) + m_1MinvJt.dot(m_bJ);
 
-		ERR_FAIL_COND(m_Adiag <= real_t(0.0));
+		ERR_FAIL_COND(m_Adiag <= real_t(0.0))
 	}
 
 	//constraint on one rigidbody
@@ -120,7 +120,7 @@ public:
 		m_1MinvJt = Vector3(real_t(0.), real_t(0.), real_t(0.));
 		m_Adiag = massInvA + m_0MinvJt.dot(m_aJ);
 
-		ERR_FAIL_COND(m_Adiag <= real_t(0.0));
+		ERR_FAIL_COND(m_Adiag <= real_t(0.0))
 	}
 
 	real_t getDiagonal() const { return m_Adiag; }

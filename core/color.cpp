@@ -397,7 +397,6 @@ bool Color::html_is_valid(const String &p_color) {
 }
 
 Color Color::named(const String &p_name) {
-    if (_named_colors.empty()) _populate_named_colors(); // from color_names.inc
     String name = p_name;
     // Normalize name
     name = StringUtils::replace(name," ", "");
@@ -407,9 +406,9 @@ Color Color::named(const String &p_name) {
     name = StringUtils::replace(name,".", "");
     name = StringUtils::to_lower(name);
 
-    const Map<const char *, Color>::Element *color = _named_colors.find(StringUtils::to_utf8(name).data());
-    ERR_FAIL_NULL_V_MSG(color, Color(), "Invalid color name: " + p_name + ".")
-    return color->value();
+    const Map<const char *, Color>::iterator color = _named_colors.find(StringUtils::to_utf8(name).data());
+    ERR_FAIL_COND_V_MSG(color==_named_colors.end(), Color(), "Invalid color name: " + p_name + ".")
+    return color->second;
 }
 
 String _to_hex(float p_val) {

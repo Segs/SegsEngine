@@ -44,10 +44,10 @@ public:
     virtual bool recognize(const Ref<Resource> &p_resource) const;
     virtual void get_recognized_extensions(const Ref<Resource> &p_resource, Vector<String> *p_extensions) const;
 
-	~ResourceFormatSaver() override = default;
+    ~ResourceFormatSaver() override = default;
 };
 
-using ResourceSavedCallback = void (*)(Ref<Resource>, const String &);
+using ResourceSavedCallback = void (*)(const Ref<Resource> &, const String &);
 
 class ResourceSaver {
 
@@ -60,7 +60,7 @@ class ResourceSaver {
     static bool timestamp_on_save;
     static ResourceSavedCallback save_callback;
 
-    static Ref<ResourceFormatSaver> _find_custom_resource_format_saver(String path);
+    static Ref<ResourceFormatSaver> _find_custom_resource_format_saver(const String& path);
 
 public:
     enum SaverFlags {
@@ -76,16 +76,16 @@ public:
 
     static Error save(const String &p_path, const RES &p_resource, uint32_t p_flags = 0);
     static void get_recognized_extensions(const RES &p_resource, Vector<String> *p_extensions);
-    static void add_resource_format_saver(Ref<ResourceFormatSaver> p_format_saver, bool p_at_front = false);
-    static void remove_resource_format_saver(Ref<ResourceFormatSaver> p_format_saver);
+    static void add_resource_format_saver(const Ref<ResourceFormatSaver>& p_format_saver, bool p_at_front = false);
+    static void remove_resource_format_saver(const Ref<ResourceFormatSaver>& p_format_saver);
 
     static void set_timestamp_on_save(bool p_timestamp) { timestamp_on_save = p_timestamp; }
     static bool get_timestamp_on_save() { return timestamp_on_save; }
 
     static void set_save_callback(ResourceSavedCallback p_callback);
 
-    static bool add_custom_resource_format_saver(String script_path);
-    static void remove_custom_resource_format_saver(String script_path);
+    static bool add_custom_resource_format_saver(const String& script_path);
+    static void remove_custom_resource_format_saver(const String& script_path);
     static void add_custom_savers();
     static void remove_custom_savers();
 };

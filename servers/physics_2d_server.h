@@ -31,6 +31,8 @@
 #ifndef PHYSICS_2D_SERVER_H
 #define PHYSICS_2D_SERVER_H
 
+#include <utility>
+
 #include "core/object.h"
 #include "core/reference.h"
 #include "core/resource.h"
@@ -474,7 +476,7 @@ public:
     //fix
     virtual void body_add_collision_exception(RID p_body, RID p_body_b) = 0;
     virtual void body_remove_collision_exception(RID p_body, RID p_body_b) = 0;
-    virtual void body_get_collision_exceptions(RID p_body, List<RID> *p_exceptions) = 0;
+    virtual void body_get_collision_exceptions(RID p_body, DefList<RID> *p_exceptions) = 0;
 
     virtual void body_set_max_contacts_reported(RID p_body, int p_contacts) = 0;
     virtual int body_get_max_contacts_reported(RID p_body) const = 0;
@@ -606,7 +608,7 @@ public:
     virtual int get_process_info(ProcessInfo p_info) = 0;
 
     Physics2DServer();
-	~Physics2DServer() override;
+    ~Physics2DServer() override;
 };
 
 class Physics2DTestMotionResult : public Reference {
@@ -645,11 +647,10 @@ class Physics2DServerManager {
         String name;
         CreatePhysics2DServerCallback create_callback=nullptr;
 
-        ClassInfo() :
-                name("") {}
+        ClassInfo() = default;
 
         ClassInfo(String p_name, CreatePhysics2DServerCallback p_create_callback) :
-                name(p_name),
+                name(std::move(p_name)),
                 create_callback(p_create_callback) {}
 
         ClassInfo(const ClassInfo &p_ci) = default;

@@ -35,14 +35,14 @@ IMPL_GDCLASS(RandomNumberGenerator)
 
 
 void RandomNumberGenerator::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("set_seed", "seed"), &RandomNumberGenerator::set_seed);
+    MethodBinder::bind_method(D_METHOD("set_seed", {"seed"}), &RandomNumberGenerator::set_seed);
     MethodBinder::bind_method(D_METHOD("get_seed"), &RandomNumberGenerator::get_seed);
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "seed"), "set_seed", "get_seed");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "seed"), "set_seed", "get_seed");
 
     MethodBinder::bind_method(D_METHOD("randi"), &RandomNumberGenerator::randi);
     MethodBinder::bind_method(D_METHOD("randf"), &RandomNumberGenerator::randf);
-    MethodBinder::bind_method(D_METHOD("randfn", "mean", "deviation"), &RandomNumberGenerator::randfn, {DEFVAL(0.0), DEFVAL(1.0)});
-    MethodBinder::bind_method(D_METHOD("randf_range", "from", "to"), &RandomNumberGenerator::randf_range);
-    MethodBinder::bind_method(D_METHOD("randi_range", "from", "to"), &RandomNumberGenerator::randi_range);
+    MethodBinder::bind_method(D_METHOD("randfn", {"mean", "deviation"}), &RandomNumberGenerator::randfn, {DEFVAL(0.0), DEFVAL(1.0)});
+    MethodBinder::bind_method(D_METHOD("randf_range", {"from", "to"}), &RandomNumberGenerator::randf_range);
+    MethodBinder::bind_method(D_METHOD("randi_range", {"from", "to"}), &RandomNumberGenerator::randi_range);
     MethodBinder::bind_method(D_METHOD("randomize"), &RandomNumberGenerator::randomize);
 }

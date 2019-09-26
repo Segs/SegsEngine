@@ -49,8 +49,8 @@ void BitMap::create(const Size2 &p_size) {
 
 void BitMap::create_from_image_alpha(const Ref<Image> &p_image, float p_threshold) {
 
-    ERR_FAIL_COND(p_image.is_null() || p_image->empty())
-    Ref<Image> img = p_image->duplicate();
+    ERR_FAIL_COND(not p_image || p_image->empty())
+    Ref<Image> img(dynamic_ref_cast<Image>(p_image->duplicate()));
     img->convert(Image::FORMAT_LA8);
     ERR_FAIL_COND(img->get_format() != Image::FORMAT_LA8)
 
@@ -63,7 +63,7 @@ void BitMap::create_from_image_alpha(const Ref<Image> &p_image, float p_threshol
 
         int bbyte = i / 8;
         int bbit = i % 8;
-        if (r[i * 2 + 1] / 255.0 > p_threshold) {
+        if (r[i * 2 + 1] / 255.0f > p_threshold) {
             w[bbyte] |= (1 << bbit);
         }
     }
@@ -284,7 +284,7 @@ Vector<Vector2> BitMap::_march_square(const Rect2i &rect, const Point2i &start) 
                 +---+---+
                 this should normally go UP, but if we already been here, we go down
                 */
-                if (case9s.has(Point2i(curx, cury))) {
+                if (case9s.contains(Point2i(curx, cury))) {
                     //found, so we go down, and delete from case9s;
                     stepx = 0;
                     stepy = 1;
@@ -306,7 +306,7 @@ Vector<Vector2> BitMap::_march_square(const Rect2i &rect, const Point2i &start) 
                 +---+---+
                 this normally go RIGHT, but if its coming from UP, it should go LEFT
                 */
-                if (case6s.has(Point2i(curx, cury))) {
+                if (case6s.contains(Point2i(curx, cury))) {
                     //found, so we go down, and delete from case6s;
                     stepx = -1;
                     stepy = 0;
@@ -404,7 +404,7 @@ static Vector<Vector2> rdp(const Vector<Vector2> &v, float optimization) {
 static Vector<Vector2> reduce(const Vector<Vector2> &points, const Rect2i &rect, float epsilon) {
     int size = points.size();
     // if there are less than 3 points, then we have nothing
-    ERR_FAIL_COND_V(size < 3, Vector<Vector2>());
+    ERR_FAIL_COND_V(size < 3, Vector<Vector2>())
     // if there are less than 9 points (but more than 3), then we don't need to reduce it
     if (size < 9) {
         return points;
@@ -505,8 +505,7 @@ Vector<Vector<Vector2> > BitMap::clip_opaque_to_polygons(const Rect2 &p_rect, fl
     print_verbose("BitMap: Rect: " + r);
 
     Point2i from;
-    Ref<BitMap> fill;
-    fill.instance();
+    Ref<BitMap> fill(make_ref_counted<BitMap>());
     fill->create(get_size());
 
     Vector<Vector<Vector2> > polygons;
@@ -531,8 +530,7 @@ void BitMap::grow_mask(int p_pixels, const Rect2 &p_rect) {
 
     Rect2i r = Rect2i(0, 0, width, height).clip(p_rect);
 
-    Ref<BitMap> copy;
-    copy.instance();
+    Ref<BitMap> copy(make_ref_counted<BitMap>());
     copy->create(get_size());
     copy->bitmask = bitmask;
 
@@ -593,7 +591,7 @@ Array BitMap::_opaque_to_polygons_bind(const Rect2 &p_rect, float p_epsilon) con
             }
         }
 
-        result_array[i] = polygon_array;
+        result_array[i] = Variant(polygon_array);
     }
 
     return result_array;
@@ -601,8 +599,7 @@ Array BitMap::_opaque_to_polygons_bind(const Rect2 &p_rect, float p_epsilon) con
 
 void BitMap::resize(const Size2 &p_new_size) {
 
-    Ref<BitMap> new_bitmap;
-    new_bitmap.instance();
+    Ref<BitMap> new_bitmap(make_ref_counted<BitMap>());
     new_bitmap->create(p_new_size);
     int lw = MIN(width, p_new_size.width);
     int lh = MIN(height, p_new_size.height);
@@ -619,8 +616,7 @@ void BitMap::resize(const Size2 &p_new_size) {
 
 Ref<Image> BitMap::convert_to_image() const {
 
-    Ref<Image> image;
-    image.instance();
+    Ref<Image> image(make_ref_counted<Image>());
     image->create(width, height, false, Image::FORMAT_L8);
     image->lock();
     for (int i = 0; i < width; i++) {
@@ -657,13 +653,13 @@ void BitMap::blit(const Vector2 &p_pos, const Ref<BitMap> &p_bitmap) {
 
 void BitMap::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("create", "size"), &BitMap::create);
-    MethodBinder::bind_method(D_METHOD("create_from_image_alpha", "image", "threshold"), &BitMap::create_from_image_alpha, {DEFVAL(0.1)});
+    MethodBinder::bind_method(D_METHOD("create", {"size"}), &BitMap::create);
+    MethodBinder::bind_method(D_METHOD("create_from_image_alpha", {"image", "threshold"}), &BitMap::create_from_image_alpha, {DEFVAL(0.1)});
 
-    MethodBinder::bind_method(D_METHOD("set_bit", "position", "bit"), &BitMap::set_bit);
-    MethodBinder::bind_method(D_METHOD("get_bit", "position"), &BitMap::get_bit);
+    MethodBinder::bind_method(D_METHOD("set_bit", {"position", "bit"}), &BitMap::set_bit);
+    MethodBinder::bind_method(D_METHOD("get_bit", {"position"}), &BitMap::get_bit);
 
-    MethodBinder::bind_method(D_METHOD("set_bit_rect", "rect", "bit"), &BitMap::set_bit_rect);
+    MethodBinder::bind_method(D_METHOD("set_bit_rect", {"rect", "bit"}), &BitMap::set_bit_rect);
     MethodBinder::bind_method(D_METHOD("get_true_bit_count"), &BitMap::get_true_bit_count);
 
     MethodBinder::bind_method(D_METHOD("get_size"), &BitMap::get_size);
@@ -671,10 +667,10 @@ void BitMap::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_set_data"), &BitMap::_set_data);
     MethodBinder::bind_method(D_METHOD("_get_data"), &BitMap::_get_data);
 
-    MethodBinder::bind_method(D_METHOD("grow_mask", "pixels", "rect"), &BitMap::grow_mask);
-    MethodBinder::bind_method(D_METHOD("opaque_to_polygons", "rect", "epsilon"), &BitMap::_opaque_to_polygons_bind, {DEFVAL(2.0)});
+    MethodBinder::bind_method(D_METHOD("grow_mask", {"pixels", "rect"}), &BitMap::grow_mask);
+    MethodBinder::bind_method(D_METHOD("opaque_to_polygons", {"rect", "epsilon"}), &BitMap::_opaque_to_polygons_bind, {DEFVAL(2.0)});
 
-    ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "data", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_data", "_get_data");
+    ADD_PROPERTY(PropertyInfo(VariantType::DICTIONARY, "data", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_data", "_get_data");
 }
 
 BitMap::BitMap() {

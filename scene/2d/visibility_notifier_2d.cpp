@@ -44,7 +44,7 @@ IMPL_GDCLASS(VisibilityEnabler2D)
 
 void VisibilityNotifier2D::_enter_viewport(Viewport *p_viewport) {
 
-    ERR_FAIL_COND(viewports.has(p_viewport));
+    ERR_FAIL_COND(viewports.contains(p_viewport))
     viewports.insert(p_viewport);
 
     if (is_inside_tree() && Engine::get_singleton()->is_editor_hint())
@@ -55,19 +55,19 @@ void VisibilityNotifier2D::_enter_viewport(Viewport *p_viewport) {
 
         _screen_enter();
     }
-    emit_signal(SceneStringNames::get_singleton()->viewport_entered, p_viewport);
+    emit_signal(SceneStringNames::get_singleton()->viewport_entered, Variant(p_viewport));
 }
 
 void VisibilityNotifier2D::_exit_viewport(Viewport *p_viewport) {
 
-    ERR_FAIL_COND(!viewports.has(p_viewport));
+    ERR_FAIL_COND(!viewports.contains(p_viewport))
     viewports.erase(p_viewport);
 
     if (is_inside_tree() && Engine::get_singleton()->is_editor_hint())
         return;
 
-    emit_signal(SceneStringNames::get_singleton()->viewport_exited, p_viewport);
-    if (viewports.size() == 0) {
+    emit_signal(SceneStringNames::get_singleton()->viewport_exited, Variant(p_viewport));
+    if (viewports.empty()) {
         emit_signal(SceneStringNames::get_singleton()->screen_exited);
 
         _screen_exit();
@@ -131,19 +131,19 @@ void VisibilityNotifier2D::_notification(int p_what) {
 
 bool VisibilityNotifier2D::is_on_screen() const {
 
-    return viewports.size() > 0;
+    return !viewports.empty();
 }
 
 void VisibilityNotifier2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_rect", "rect"), &VisibilityNotifier2D::set_rect);
+    MethodBinder::bind_method(D_METHOD("set_rect", {"rect"}), &VisibilityNotifier2D::set_rect);
     MethodBinder::bind_method(D_METHOD("get_rect"), &VisibilityNotifier2D::get_rect);
     MethodBinder::bind_method(D_METHOD("is_on_screen"), &VisibilityNotifier2D::is_on_screen);
 
-    ADD_PROPERTY(PropertyInfo(Variant::RECT2, "rect"), "set_rect", "get_rect");
+    ADD_PROPERTY(PropertyInfo(VariantType::RECT2, "rect"), "set_rect", "get_rect");
 
-    ADD_SIGNAL(MethodInfo("viewport_entered", PropertyInfo(Variant::OBJECT, "viewport", PROPERTY_HINT_RESOURCE_TYPE, "Viewport")));
-    ADD_SIGNAL(MethodInfo("viewport_exited", PropertyInfo(Variant::OBJECT, "viewport", PROPERTY_HINT_RESOURCE_TYPE, "Viewport")));
+    ADD_SIGNAL(MethodInfo("viewport_entered", PropertyInfo(VariantType::OBJECT, "viewport", PROPERTY_HINT_RESOURCE_TYPE, "Viewport")));
+    ADD_SIGNAL(MethodInfo("viewport_exited", PropertyInfo(VariantType::OBJECT, "viewport", PROPERTY_HINT_RESOURCE_TYPE, "Viewport")));
     ADD_SIGNAL(MethodInfo("screen_entered"));
     ADD_SIGNAL(MethodInfo("screen_exited"));
 }
@@ -158,9 +158,9 @@ VisibilityNotifier2D::VisibilityNotifier2D() {
 
 void VisibilityEnabler2D::_screen_enter() {
 
-    for (Map<Node *, Variant>::Element *E = nodes.front(); E; E = E->next()) {
+    for (eastl::pair<Node *const,Variant> &E : nodes) {
 
-        _change_node_state(E->key(), true);
+        _change_node_state(E.first, true);
     }
 
     if (enabler[ENABLER_PARENT_PHYSICS_PROCESS] && get_parent())
@@ -173,9 +173,9 @@ void VisibilityEnabler2D::_screen_enter() {
 
 void VisibilityEnabler2D::_screen_exit() {
 
-    for (Map<Node *, Variant>::Element *E = nodes.front(); E; E = E->next()) {
+    for (eastl::pair<Node *const,Variant> &E : nodes) {
 
-        _change_node_state(E->key(), false);
+        _change_node_state(E.first, false);
     }
 
     if (enabler[ENABLER_PARENT_PHYSICS_PROCESS] && get_parent())
@@ -227,14 +227,14 @@ void VisibilityEnabler2D::_find_nodes(Node *p_node) {
 
     if (add) {
 
-        p_node->connect(SceneStringNames::get_singleton()->tree_exiting, this, "_node_removed", varray(p_node), ObjectNS::CONNECT_ONESHOT);
+        p_node->connect(SceneStringNames::get_singleton()->tree_exiting, this, "_node_removed", varray(Variant(p_node)), ObjectNS::CONNECT_ONESHOT);
         nodes[p_node] = meta;
         _change_node_state(p_node, false);
     }
 
     for (int i = 0; i < p_node->get_child_count(); i++) {
         Node *c = p_node->get_child(i);
-        if (c->get_filename() != String())
+        if (!c->get_filename().empty())
             continue; //skip, instance
 
         _find_nodes(c);
@@ -250,7 +250,7 @@ void VisibilityEnabler2D::_notification(int p_what) {
 
         Node *from = this;
         //find where current scene starts
-        while (from->get_parent() && from->get_filename() == String())
+        while (from->get_parent() && from->get_filename().empty())
             from = from->get_parent();
 
         _find_nodes(from);
@@ -266,11 +266,11 @@ void VisibilityEnabler2D::_notification(int p_what) {
         if (Engine::get_singleton()->is_editor_hint())
             return;
 
-        for (Map<Node *, Variant>::Element *E = nodes.front(); E; E = E->next()) {
+        for (eastl::pair<Node *const,Variant> &E : nodes) {
 
             if (!visible)
-                _change_node_state(E->key(), true);
-            E->key()->disconnect(SceneStringNames::get_singleton()->tree_exiting, this, "_node_removed");
+                _change_node_state(E.first, true);
+            E.first->disconnect(SceneStringNames::get_singleton()->tree_exiting, this, "_node_removed");
         }
 
         nodes.clear();
@@ -279,7 +279,7 @@ void VisibilityEnabler2D::_notification(int p_what) {
 
 void VisibilityEnabler2D::_change_node_state(Node *p_node, bool p_enabled) {
 
-    ERR_FAIL_COND(!nodes.has(p_node));
+    ERR_FAIL_COND(!nodes.contains(p_node))
 
     {
         RigidBody2D *rb = Object::cast_to<RigidBody2D>(p_node);
@@ -330,7 +330,7 @@ void VisibilityEnabler2D::_node_removed(Node *p_node) {
 
 String VisibilityEnabler2D::get_configuration_warning() const {
 #ifdef TOOLS_ENABLED
-    if (is_inside_tree() && get_parent() && (get_parent()->get_filename() == String() && get_parent() != get_tree()->get_edited_scene_root())) {
+    if (is_inside_tree() && get_parent() && (get_parent()->get_filename().empty() && get_parent() != get_tree()->get_edited_scene_root())) {
         return TTR("VisibilityEnabler2D works best when used with the edited scene root directly as parent.");
     }
 #endif
@@ -339,34 +339,34 @@ String VisibilityEnabler2D::get_configuration_warning() const {
 
 void VisibilityEnabler2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_enabler", "enabler", "enabled"), &VisibilityEnabler2D::set_enabler);
-    MethodBinder::bind_method(D_METHOD("is_enabler_enabled", "enabler"), &VisibilityEnabler2D::is_enabler_enabled);
+    MethodBinder::bind_method(D_METHOD("set_enabler", {"enabler", "enabled"}), &VisibilityEnabler2D::set_enabler);
+    MethodBinder::bind_method(D_METHOD("is_enabler_enabled", {"enabler"}), &VisibilityEnabler2D::is_enabler_enabled);
     MethodBinder::bind_method(D_METHOD("_node_removed"), &VisibilityEnabler2D::_node_removed);
 
-    ADD_PROPERTYI(PropertyInfo(Variant::BOOL, "pause_animations"), "set_enabler", "is_enabler_enabled", ENABLER_PAUSE_ANIMATIONS);
-    ADD_PROPERTYI(PropertyInfo(Variant::BOOL, "freeze_bodies"), "set_enabler", "is_enabler_enabled", ENABLER_FREEZE_BODIES);
-    ADD_PROPERTYI(PropertyInfo(Variant::BOOL, "pause_particles"), "set_enabler", "is_enabler_enabled", ENABLER_PAUSE_PARTICLES);
-    ADD_PROPERTYI(PropertyInfo(Variant::BOOL, "pause_animated_sprites"), "set_enabler", "is_enabler_enabled", ENABLER_PAUSE_ANIMATED_SPRITES);
-    ADD_PROPERTYI(PropertyInfo(Variant::BOOL, "process_parent"), "set_enabler", "is_enabler_enabled", ENABLER_PARENT_PROCESS);
-    ADD_PROPERTYI(PropertyInfo(Variant::BOOL, "physics_process_parent"), "set_enabler", "is_enabler_enabled", ENABLER_PARENT_PHYSICS_PROCESS);
+    ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "pause_animations"), "set_enabler", "is_enabler_enabled", ENABLER_PAUSE_ANIMATIONS);
+    ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "freeze_bodies"), "set_enabler", "is_enabler_enabled", ENABLER_FREEZE_BODIES);
+    ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "pause_particles"), "set_enabler", "is_enabler_enabled", ENABLER_PAUSE_PARTICLES);
+    ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "pause_animated_sprites"), "set_enabler", "is_enabler_enabled", ENABLER_PAUSE_ANIMATED_SPRITES);
+    ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "process_parent"), "set_enabler", "is_enabler_enabled", ENABLER_PARENT_PROCESS);
+    ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "physics_process_parent"), "set_enabler", "is_enabler_enabled", ENABLER_PARENT_PHYSICS_PROCESS);
 
-    BIND_ENUM_CONSTANT(ENABLER_PAUSE_ANIMATIONS);
-    BIND_ENUM_CONSTANT(ENABLER_FREEZE_BODIES);
-    BIND_ENUM_CONSTANT(ENABLER_PAUSE_PARTICLES);
-    BIND_ENUM_CONSTANT(ENABLER_PARENT_PROCESS);
-    BIND_ENUM_CONSTANT(ENABLER_PARENT_PHYSICS_PROCESS);
-    BIND_ENUM_CONSTANT(ENABLER_PAUSE_ANIMATED_SPRITES);
-    BIND_ENUM_CONSTANT(ENABLER_MAX);
+    BIND_ENUM_CONSTANT(ENABLER_PAUSE_ANIMATIONS)
+    BIND_ENUM_CONSTANT(ENABLER_FREEZE_BODIES)
+    BIND_ENUM_CONSTANT(ENABLER_PAUSE_PARTICLES)
+    BIND_ENUM_CONSTANT(ENABLER_PARENT_PROCESS)
+    BIND_ENUM_CONSTANT(ENABLER_PARENT_PHYSICS_PROCESS)
+    BIND_ENUM_CONSTANT(ENABLER_PAUSE_ANIMATED_SPRITES)
+    BIND_ENUM_CONSTANT(ENABLER_MAX)
 }
 
 void VisibilityEnabler2D::set_enabler(Enabler p_enabler, bool p_enable) {
 
-    ERR_FAIL_INDEX(p_enabler, ENABLER_MAX);
+    ERR_FAIL_INDEX(p_enabler, ENABLER_MAX)
     enabler[p_enabler] = p_enable;
 }
 bool VisibilityEnabler2D::is_enabler_enabled(Enabler p_enabler) const {
 
-    ERR_FAIL_INDEX_V(p_enabler, ENABLER_MAX, false);
+    ERR_FAIL_INDEX_V(p_enabler, ENABLER_MAX, false)
     return enabler[p_enabler];
 }
 

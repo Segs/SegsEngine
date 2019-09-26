@@ -160,7 +160,7 @@ void ZipArchive::close_handle(unzFile p_file) const {
 unzFile ZipArchive::get_file_handle(String p_file) const {
 
     ERR_FAIL_COND_V(!file_exists(p_file), nullptr)
-    File file = files[p_file];
+    File file = files.at(p_file);
 
     FileAccess *f = FileAccess::open(packages[file.package].filename, FileAccess::READ);
     ERR_FAIL_COND_V(!f, nullptr)
@@ -181,7 +181,7 @@ unzFile ZipArchive::get_file_handle(String p_file) const {
     io.alloc_mem = godot_alloc;
     io.free_mem = godot_free;
 
-	unzFile pkg = unzOpen2(StringUtils::to_utf8(packages[file.package].filename), &io);
+    unzFile pkg = unzOpen2(StringUtils::to_utf8(packages[file.package].filename), &io);
     ERR_FAIL_COND_V(!pkg, nullptr)
     int unz_err = unzGoToFilePos(pkg, &file.file_pos);
     if (unz_err != UNZ_OK || unzOpenCurrentFile(pkg) != UNZ_OK) {
@@ -195,9 +195,9 @@ unzFile ZipArchive::get_file_handle(String p_file) const {
 
 bool ZipArchive::try_open_pack(const String &p_path) {
 
-	String ext = StringUtils::to_lower(PathUtils::get_extension(p_path)); // for case insensitive compare
+    String ext = StringUtils::to_lower(PathUtils::get_extension(p_path)); // for case insensitive compare
     //printf("opening zip pack %ls, %i, %i\n", p_name.c_str(), StringUtils::compare(p_name.extension(),"zip",false), p_name.extension().nocasecmp_to("pcz"));
-	if (StringUtils::compare(ext,"zip") != 0 && StringUtils::compare(ext,"pcz") != 0)
+    if (StringUtils::compare(ext,"zip") != 0 && StringUtils::compare(ext,"pcz") != 0)
         return false;
 
     zlib_filefunc_def io;
@@ -215,7 +215,7 @@ bool ZipArchive::try_open_pack(const String &p_path) {
     io.zclose_file = godot_close;
     io.zerror_file = godot_testerror;
 
-	unzFile zfile = unzOpen2(StringUtils::to_utf8(p_path), &io);
+    unzFile zfile = unzOpen2(StringUtils::to_utf8(p_path), &io);
     ERR_FAIL_COND_V(!zfile, false)
 
     unz_global_info64 gi;
@@ -228,7 +228,7 @@ bool ZipArchive::try_open_pack(const String &p_path) {
     packages.push_back(pkg);
     int pkg_num = packages.size() - 1;
 
-    for (unsigned int i = 0; i < gi.number_entry; i++) {
+    for (uint64_t i = 0; i < gi.number_entry; i++) {
 
         char filename_inzip[256];
 
@@ -257,7 +257,7 @@ bool ZipArchive::try_open_pack(const String &p_path) {
 
 bool ZipArchive::file_exists(String p_name) const {
 
-    return files.has(p_name);
+    return files.contains(p_name);
 }
 
 FileAccess *ZipArchive::get_file(const String &p_path, PackedDataFile *p_file) {

@@ -82,11 +82,11 @@ class GroupDialog : public WindowDialog {
 	void _group_renamed();
 	void _rename_group_item(const String &p_old_name, const String &p_new_name);
 
-	void _add_group(String p_name);
+	void _add_group(const String& p_name);
 	void _delete_group_pressed(Object *p_item, int p_column, int p_id);
 	void _delete_group_item(const String &p_name);
 
-	bool _can_edit(Node *p_node, String p_group);
+	bool _can_edit(Node *p_node, const String& p_group);
 
 	void _load_groups(Node *p_current);
 	void _load_nodes(Node *p_current);

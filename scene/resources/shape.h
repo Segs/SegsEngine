@@ -40,7 +40,7 @@ class Shape : public Resource {
 
     OBJ_SAVE_TYPE(Shape);
 	RES_BASE_EXTENSION("shape");
-	RID shape;
+    RID shape;
 	real_t margin;
 
 	Ref<ArrayMesh> debug_mesh_cache;

@@ -33,6 +33,7 @@
 #include "scene/scene_string_names.h"
 #include "servers/physics_server.h"
 #include "core/method_bind.h"
+#include "core/os/input_event.h"
 
 IMPL_GDCLASS(CollisionObject)
 
@@ -84,9 +85,9 @@ void CollisionObject::_notification(int p_what) {
 void CollisionObject::_input_event(Node *p_camera, const Ref<InputEvent> &p_input_event, const Vector3 &p_pos, const Vector3 &p_normal, int p_shape) {
 
     if (get_script_instance()) {
-        get_script_instance()->call(SceneStringNames::get_singleton()->_input_event, p_camera, p_input_event, p_pos, p_normal, p_shape);
+        get_script_instance()->call(SceneStringNames::get_singleton()->_input_event, Variant(p_camera), p_input_event, p_pos, p_normal, p_shape);
     }
-    emit_signal(SceneStringNames::get_singleton()->input_event, p_camera, p_input_event, p_pos, p_normal, p_shape);
+    emit_signal(SceneStringNames::get_singleton()->input_event, Variant(p_camera), p_input_event, p_pos, p_normal, p_shape);
 }
 
 void CollisionObject::_mouse_enter() {
@@ -108,7 +109,7 @@ void CollisionObject::_mouse_exit() {
 void CollisionObject::_update_pickable() {
     if (!is_inside_tree())
         return;
-	bool pickable = ray_pickable && is_visible_in_tree();
+    bool pickable = ray_pickable && is_visible_in_tree();
     if (area)
         PhysicsServer::get_singleton()->area_set_ray_pickable(rid, pickable);
     else
@@ -128,35 +129,41 @@ bool CollisionObject::is_ray_pickable() const {
 
 void CollisionObject::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_ray_pickable", "ray_pickable"), &CollisionObject::set_ray_pickable);
+    MethodBinder::bind_method(D_METHOD("set_ray_pickable", {"ray_pickable"}), &CollisionObject::set_ray_pickable);
     MethodBinder::bind_method(D_METHOD("is_ray_pickable"), &CollisionObject::is_ray_pickable);
-    MethodBinder::bind_method(D_METHOD("set_capture_input_on_drag", "enable"), &CollisionObject::set_capture_input_on_drag);
+    MethodBinder::bind_method(D_METHOD("set_capture_input_on_drag", {"enable"}), &CollisionObject::set_capture_input_on_drag);
     MethodBinder::bind_method(D_METHOD("get_capture_input_on_drag"), &CollisionObject::get_capture_input_on_drag);
     MethodBinder::bind_method(D_METHOD("get_rid"), &CollisionObject::get_rid);
-    MethodBinder::bind_method(D_METHOD("create_shape_owner", "owner"), &CollisionObject::create_shape_owner);
-    MethodBinder::bind_method(D_METHOD("remove_shape_owner", "owner_id"), &CollisionObject::remove_shape_owner);
+    MethodBinder::bind_method(D_METHOD("create_shape_owner", {"owner"}), &CollisionObject::create_shape_owner);
+    MethodBinder::bind_method(D_METHOD("remove_shape_owner", {"owner_id"}), &CollisionObject::remove_shape_owner);
     MethodBinder::bind_method(D_METHOD("get_shape_owners"), &CollisionObject::_get_shape_owners);
-    MethodBinder::bind_method(D_METHOD("shape_owner_set_transform", "owner_id", "transform"), &CollisionObject::shape_owner_set_transform);
-    MethodBinder::bind_method(D_METHOD("shape_owner_get_transform", "owner_id"), &CollisionObject::shape_owner_get_transform);
-    MethodBinder::bind_method(D_METHOD("shape_owner_get_owner", "owner_id"), &CollisionObject::shape_owner_get_owner);
-    MethodBinder::bind_method(D_METHOD("shape_owner_set_disabled", "owner_id", "disabled"), &CollisionObject::shape_owner_set_disabled);
-    MethodBinder::bind_method(D_METHOD("is_shape_owner_disabled", "owner_id"), &CollisionObject::is_shape_owner_disabled);
-    MethodBinder::bind_method(D_METHOD("shape_owner_add_shape", "owner_id", "shape"), &CollisionObject::shape_owner_add_shape);
-    MethodBinder::bind_method(D_METHOD("shape_owner_get_shape_count", "owner_id"), &CollisionObject::shape_owner_get_shape_count);
-    MethodBinder::bind_method(D_METHOD("shape_owner_get_shape", "owner_id", "shape_id"), &CollisionObject::shape_owner_get_shape);
-    MethodBinder::bind_method(D_METHOD("shape_owner_get_shape_index", "owner_id", "shape_id"), &CollisionObject::shape_owner_get_shape_index);
-    MethodBinder::bind_method(D_METHOD("shape_owner_remove_shape", "owner_id", "shape_id"), &CollisionObject::shape_owner_remove_shape);
-    MethodBinder::bind_method(D_METHOD("shape_owner_clear_shapes", "owner_id"), &CollisionObject::shape_owner_clear_shapes);
-    MethodBinder::bind_method(D_METHOD("shape_find_owner", "shape_index"), &CollisionObject::shape_find_owner);
+    MethodBinder::bind_method(D_METHOD("shape_owner_set_transform", {"owner_id", "transform"}), &CollisionObject::shape_owner_set_transform);
+    MethodBinder::bind_method(D_METHOD("shape_owner_get_transform", {"owner_id"}), &CollisionObject::shape_owner_get_transform);
+    MethodBinder::bind_method(D_METHOD("shape_owner_get_owner", {"owner_id"}), &CollisionObject::shape_owner_get_owner);
+    MethodBinder::bind_method(D_METHOD("shape_owner_set_disabled", {"owner_id", "disabled"}), &CollisionObject::shape_owner_set_disabled);
+    MethodBinder::bind_method(D_METHOD("is_shape_owner_disabled", {"owner_id"}), &CollisionObject::is_shape_owner_disabled);
+    MethodBinder::bind_method(D_METHOD("shape_owner_add_shape", {"owner_id", "shape"}), &CollisionObject::shape_owner_add_shape);
+    MethodBinder::bind_method(D_METHOD("shape_owner_get_shape_count", {"owner_id"}), &CollisionObject::shape_owner_get_shape_count);
+    MethodBinder::bind_method(D_METHOD("shape_owner_get_shape", {"owner_id", "shape_id"}), &CollisionObject::shape_owner_get_shape);
+    MethodBinder::bind_method(D_METHOD("shape_owner_get_shape_index", {"owner_id", "shape_id"}), &CollisionObject::shape_owner_get_shape_index);
+    MethodBinder::bind_method(D_METHOD("shape_owner_remove_shape", {"owner_id", "shape_id"}), &CollisionObject::shape_owner_remove_shape);
+    MethodBinder::bind_method(D_METHOD("shape_owner_clear_shapes", {"owner_id"}), &CollisionObject::shape_owner_clear_shapes);
+    MethodBinder::bind_method(D_METHOD("shape_find_owner", {"shape_index"}), &CollisionObject::shape_find_owner);
 
-    BIND_VMETHOD(MethodInfo("_input_event", PropertyInfo(Variant::OBJECT, "camera"), PropertyInfo(Variant::OBJECT, "event", PROPERTY_HINT_RESOURCE_TYPE, "InputEvent"), PropertyInfo(Variant::VECTOR3, "click_position"), PropertyInfo(Variant::VECTOR3, "click_normal"), PropertyInfo(Variant::INT, "shape_idx")));
+    BIND_VMETHOD(MethodInfo("_input_event", PropertyInfo(VariantType::OBJECT, "camera"),
+            PropertyInfo(VariantType::OBJECT, "event", PROPERTY_HINT_RESOURCE_TYPE, "InputEvent"),
+            PropertyInfo(VariantType::VECTOR3, "click_position"), PropertyInfo(VariantType::VECTOR3, "click_normal"),
+            PropertyInfo(VariantType::INT, "shape_idx")))
 
-    ADD_SIGNAL(MethodInfo("input_event", PropertyInfo(Variant::OBJECT, "camera", PROPERTY_HINT_RESOURCE_TYPE, "Node"), PropertyInfo(Variant::OBJECT, "event", PROPERTY_HINT_RESOURCE_TYPE, "InputEvent"), PropertyInfo(Variant::VECTOR3, "click_position"), PropertyInfo(Variant::VECTOR3, "click_normal"), PropertyInfo(Variant::INT, "shape_idx")));
+    ADD_SIGNAL(MethodInfo("input_event", PropertyInfo(VariantType::OBJECT, "camera", PROPERTY_HINT_RESOURCE_TYPE, "Node"),
+            PropertyInfo(VariantType::OBJECT, "event", PROPERTY_HINT_RESOURCE_TYPE, "InputEvent"),
+            PropertyInfo(VariantType::VECTOR3, "click_position"), PropertyInfo(VariantType::VECTOR3, "click_normal"),
+            PropertyInfo(VariantType::INT, "shape_idx")));
     ADD_SIGNAL(MethodInfo("mouse_entered"));
     ADD_SIGNAL(MethodInfo("mouse_exited"));
 
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "input_ray_pickable"), "set_ray_pickable", "is_ray_pickable");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "input_capture_on_drag"), "set_capture_input_on_drag", "get_capture_input_on_drag");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "input_ray_pickable"), "set_ray_pickable", "is_ray_pickable");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "input_capture_on_drag"), "set_capture_input_on_drag", "get_capture_input_on_drag");
 }
 
 uint32_t CollisionObject::create_shape_owner(Object *p_owner) {
@@ -164,10 +171,10 @@ uint32_t CollisionObject::create_shape_owner(Object *p_owner) {
     ShapeData sd;
     uint32_t id;
 
-    if (shapes.size() == 0) {
+    if (shapes.empty()) {
         id = 0;
     } else {
-        id = shapes.back()->key() + 1;
+        id = shapes.rbegin()->first + 1;
     }
 
     sd.owner = p_owner;
@@ -179,7 +186,7 @@ uint32_t CollisionObject::create_shape_owner(Object *p_owner) {
 
 void CollisionObject::remove_shape_owner(uint32_t owner) {
 
-    ERR_FAIL_COND(!shapes.has(owner));
+    ERR_FAIL_COND(!shapes.contains(owner))
 
     shape_owner_clear_shapes(owner);
 
@@ -187,7 +194,7 @@ void CollisionObject::remove_shape_owner(uint32_t owner) {
 }
 
 void CollisionObject::shape_owner_set_disabled(uint32_t p_owner, bool p_disabled) {
-    ERR_FAIL_COND(!shapes.has(p_owner));
+    ERR_FAIL_COND(!shapes.contains(p_owner))
 
     ShapeData &sd = shapes[p_owner];
     sd.disabled = p_disabled;
@@ -202,23 +209,23 @@ void CollisionObject::shape_owner_set_disabled(uint32_t p_owner, bool p_disabled
 
 bool CollisionObject::is_shape_owner_disabled(uint32_t p_owner) const {
 
-    ERR_FAIL_COND_V(!shapes.has(p_owner), false);
+    ERR_FAIL_COND_V(!shapes.contains(p_owner), false)
 
-    return shapes[p_owner].disabled;
+    return shapes.at(p_owner).disabled;
 }
 
 void CollisionObject::get_shape_owners(List<uint32_t> *r_owners) {
 
-    for (Map<uint32_t, ShapeData>::Element *E = shapes.front(); E; E = E->next()) {
-        r_owners->push_back(E->key());
+    for (eastl::pair<const uint32_t,ShapeData> &E : shapes) {
+        r_owners->push_back(E.first);
     }
 }
 
 Array CollisionObject::_get_shape_owners() {
 
     Array ret;
-    for (Map<uint32_t, ShapeData>::Element *E = shapes.front(); E; E = E->next()) {
-        ret.push_back(E->key());
+    for (eastl::pair<const uint32_t,ShapeData> &E : shapes) {
+        ret.push_back(E.first);
     }
 
     return ret;
@@ -226,7 +233,7 @@ Array CollisionObject::_get_shape_owners() {
 
 void CollisionObject::shape_owner_set_transform(uint32_t p_owner, const Transform &p_transform) {
 
-    ERR_FAIL_COND(!shapes.has(p_owner));
+    ERR_FAIL_COND(!shapes.contains(p_owner))
 
     ShapeData &sd = shapes[p_owner];
     sd.xform = p_transform;
@@ -240,22 +247,22 @@ void CollisionObject::shape_owner_set_transform(uint32_t p_owner, const Transfor
 }
 Transform CollisionObject::shape_owner_get_transform(uint32_t p_owner) const {
 
-    ERR_FAIL_COND_V(!shapes.has(p_owner), Transform());
+    ERR_FAIL_COND_V(!shapes.contains(p_owner), Transform())
 
-    return shapes[p_owner].xform;
+    return shapes.at(p_owner).xform;
 }
 
 Object *CollisionObject::shape_owner_get_owner(uint32_t p_owner) const {
 
-    ERR_FAIL_COND_V(!shapes.has(p_owner), nullptr);
+    ERR_FAIL_COND_V(!shapes.contains(p_owner), nullptr)
 
-    return shapes[p_owner].owner;
+    return shapes.at(p_owner).owner;
 }
 
 void CollisionObject::shape_owner_add_shape(uint32_t p_owner, const Ref<Shape> &p_shape) {
 
-    ERR_FAIL_COND(!shapes.has(p_owner));
-    ERR_FAIL_COND(p_shape.is_null());
+    ERR_FAIL_COND(!shapes.contains(p_owner))
+    ERR_FAIL_COND(not p_shape)
 
     ShapeData &sd = shapes[p_owner];
     ShapeData::ShapeBase s;
@@ -272,28 +279,28 @@ void CollisionObject::shape_owner_add_shape(uint32_t p_owner, const Ref<Shape> &
 }
 int CollisionObject::shape_owner_get_shape_count(uint32_t p_owner) const {
 
-    ERR_FAIL_COND_V(!shapes.has(p_owner), 0);
+    ERR_FAIL_COND_V(!shapes.contains(p_owner), 0)
 
-    return shapes[p_owner].shapes.size();
+    return shapes.at(p_owner).shapes.size();
 }
 Ref<Shape> CollisionObject::shape_owner_get_shape(uint32_t p_owner, int p_shape) const {
 
-    ERR_FAIL_COND_V(!shapes.has(p_owner), Ref<Shape>());
-    ERR_FAIL_INDEX_V(p_shape, shapes[p_owner].shapes.size(), Ref<Shape>());
+    ERR_FAIL_COND_V(!shapes.contains(p_owner), Ref<Shape>())
+    ERR_FAIL_INDEX_V(p_shape, shapes.at(p_owner).shapes.size(), Ref<Shape>());
 
-    return shapes[p_owner].shapes[p_shape].shape;
+    return shapes.at(p_owner).shapes[p_shape].shape;
 }
 int CollisionObject::shape_owner_get_shape_index(uint32_t p_owner, int p_shape) const {
 
-    ERR_FAIL_COND_V(!shapes.has(p_owner), -1);
-    ERR_FAIL_INDEX_V(p_shape, shapes[p_owner].shapes.size(), -1);
+    ERR_FAIL_COND_V(!shapes.contains(p_owner), -1)
+    ERR_FAIL_INDEX_V(p_shape, shapes.at(p_owner).shapes.size(), -1);
 
-    return shapes[p_owner].shapes[p_shape].index;
+    return shapes.at(p_owner).shapes[p_shape].index;
 }
 
 void CollisionObject::shape_owner_remove_shape(uint32_t p_owner, int p_shape) {
 
-    ERR_FAIL_COND(!shapes.has(p_owner));
+    ERR_FAIL_COND(!shapes.contains(p_owner))
     ERR_FAIL_INDEX(p_shape, shapes[p_owner].shapes.size());
 
     int index_to_remove = shapes[p_owner].shapes[p_shape].index;
@@ -305,10 +312,10 @@ void CollisionObject::shape_owner_remove_shape(uint32_t p_owner, int p_shape) {
 
     shapes[p_owner].shapes.remove(p_shape);
 
-    for (Map<uint32_t, ShapeData>::Element *E = shapes.front(); E; E = E->next()) {
-        for (int i = 0; i < E->get().shapes.size(); i++) {
-            if (E->get().shapes[i].index > index_to_remove) {
-                E->get().shapes.write[i].index -= 1;
+    for (eastl::pair<const uint32_t,ShapeData> &E : shapes) {
+        for (int i = 0; i < E.second.shapes.size(); i++) {
+            if (E.second.shapes[i].index > index_to_remove) {
+                E.second.shapes.write[i].index -= 1;
             }
         }
     }
@@ -318,7 +325,7 @@ void CollisionObject::shape_owner_remove_shape(uint32_t p_owner, int p_shape) {
 
 void CollisionObject::shape_owner_clear_shapes(uint32_t p_owner) {
 
-    ERR_FAIL_COND(!shapes.has(p_owner));
+    ERR_FAIL_COND(!shapes.contains(p_owner))
 
     while (shape_owner_get_shape_count(p_owner) > 0) {
         shape_owner_remove_shape(p_owner, 0);
@@ -329,10 +336,10 @@ uint32_t CollisionObject::shape_find_owner(int p_shape_index) const {
 
     ERR_FAIL_INDEX_V(p_shape_index, total_subshapes, 0);
 
-    for (const Map<uint32_t, ShapeData>::Element *E = shapes.front(); E; E = E->next()) {
-        for (int i = 0; i < E->get().shapes.size(); i++) {
-            if (E->get().shapes[i].index == p_shape_index) {
-                return E->key();
+    for (const eastl::pair<const uint32_t,ShapeData> &E : shapes) {
+        for (int i = 0; i < E.second.shapes.size(); i++) {
+            if (E.second.shapes[i].index == p_shape_index) {
+                return E.first;
             }
         }
     }

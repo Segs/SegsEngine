@@ -32,6 +32,7 @@
 #include "multiplayer_peer_gdnative.h"
 #include "packet_peer_gdnative.h"
 #include "stream_peer_gdnative.h"
+#include "core/class_db.h"
 
 void register_net_types() {
 	ClassDB::register_class<MultiplayerPeerGDNative>();

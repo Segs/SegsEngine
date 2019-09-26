@@ -335,7 +335,7 @@ void RasterizerCanvasGLES3::_draw_polygon(const int *p_indices, int p_index_coun
 	buffer_ofs += sizeof(Vector2) * p_vertex_count;
 	//color
 #ifdef DEBUG_ENABLED
-	ERR_FAIL_COND(buffer_ofs > data.polygon_buffer_size);
+	ERR_FAIL_COND(buffer_ofs > data.polygon_buffer_size)
 #endif
 
 	if (p_singlecolor) {
@@ -354,7 +354,7 @@ void RasterizerCanvasGLES3::_draw_polygon(const int *p_indices, int p_index_coun
 	}
 
 #ifdef DEBUG_ENABLED
-	ERR_FAIL_COND(buffer_ofs > data.polygon_buffer_size);
+	ERR_FAIL_COND(buffer_ofs > data.polygon_buffer_size)
 #endif
 
 	if (p_uvs) {
@@ -369,7 +369,7 @@ void RasterizerCanvasGLES3::_draw_polygon(const int *p_indices, int p_index_coun
 	}
 
 #ifdef DEBUG_ENABLED
-	ERR_FAIL_COND(buffer_ofs > data.polygon_buffer_size);
+	ERR_FAIL_COND(buffer_ofs > data.polygon_buffer_size)
 #endif
 
 	if (p_bones && p_weights) {
@@ -391,7 +391,7 @@ void RasterizerCanvasGLES3::_draw_polygon(const int *p_indices, int p_index_coun
 	}
 
 #ifdef DEBUG_ENABLED
-	ERR_FAIL_COND(buffer_ofs > data.polygon_buffer_size);
+	ERR_FAIL_COND(buffer_ofs > data.polygon_buffer_size)
 #endif
 
 	//bind the indices buffer.
@@ -1156,7 +1156,7 @@ void RasterizerCanvasGLES3::_canvas_item_render_commands(Item *p_item, Item *cur
 
 void RasterizerCanvasGLES3::_copy_texscreen(const Rect2 &p_rect) {
 
-	ERR_FAIL_COND_MSG(storage->frame.current_rt->effects.mip_maps[0].sizes.empty(), "Can't use screen texture copying in a render target configured without copy buffers.");
+	ERR_FAIL_COND_MSG(storage->frame.current_rt->effects.mip_maps[0].sizes.empty(), "Can't use screen texture copying in a render target configured without copy buffers.")
 
 	glDisable(GL_BLEND);
 
@@ -1718,7 +1718,7 @@ void RasterizerCanvasGLES3::canvas_debug_viewport_shadows(Light *p_lights_with_s
 void RasterizerCanvasGLES3::canvas_light_shadow_buffer_update(RID p_buffer, const Transform2D &p_light_xform, int p_light_mask, float p_near, float p_far, LightOccluderInstance *p_occluders, CameraMatrix *p_xform_cache) {
 
 	RasterizerStorageGLES3::CanvasLightShadow *cls = storage->canvas_light_shadow_owner.get(p_buffer);
-	ERR_FAIL_COND(!cls);
+	ERR_FAIL_COND(!cls)
 
 	glDisable(GL_BLEND);
 	glDisable(GL_SCISSOR_TEST);
@@ -2055,7 +2055,7 @@ void RasterizerCanvasGLES3::initialize() {
 	{
 
 		uint32_t poly_size = GLOBAL_DEF_RST("rendering/limits/buffers/canvas_polygon_buffer_size_kb", 128);
-		ProjectSettings::get_singleton()->set_custom_property_info("rendering/limits/buffers/canvas_polygon_buffer_size_kb", PropertyInfo(Variant::INT, "rendering/limits/buffers/canvas_polygon_buffer_size_kb", PROPERTY_HINT_RANGE, "0,256,1,or_greater"));
+        ProjectSettings::get_singleton()->set_custom_property_info("rendering/limits/buffers/canvas_polygon_buffer_size_kb", PropertyInfo(VariantType::INT, "rendering/limits/buffers/canvas_polygon_buffer_size_kb", PROPERTY_HINT_RANGE, "0,256,1,or_greater"));
 		poly_size *= 1024; //kb
 		poly_size = MAX(poly_size, (2 + 2 + 4) * 4 * sizeof(float));
 		glGenBuffers(1, &data.polygon_buffer);
@@ -2103,7 +2103,7 @@ void RasterizerCanvasGLES3::initialize() {
 		glGenVertexArrays(1, &data.polygon_buffer_pointer_array);
 
 		uint32_t index_size = GLOBAL_DEF_RST("rendering/limits/buffers/canvas_polygon_index_buffer_size_kb", 128);
-		ProjectSettings::get_singleton()->set_custom_property_info("rendering/limits/buffers/canvas_polygon_index_buffer_size_kb", PropertyInfo(Variant::INT, "rendering/limits/buffers/canvas_polygon_index_buffer_size_kb", PROPERTY_HINT_RANGE, "0,256,1,or_greater"));
+        ProjectSettings::get_singleton()->set_custom_property_info("rendering/limits/buffers/canvas_polygon_index_buffer_size_kb", PropertyInfo(VariantType::INT, "rendering/limits/buffers/canvas_polygon_index_buffer_size_kb", PROPERTY_HINT_RANGE, "0,256,1,or_greater"));
 		index_size *= 1024; //kb
 		glGenBuffers(1, &data.polygon_index_buffer);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, data.polygon_index_buffer);
@@ -2139,3 +2139,31 @@ void RasterizerCanvasGLES3::finalize() {
 
 	glDeleteVertexArrays(1, &data.polygon_buffer_pointer_array);
 }
+/*
+
+2256 glUseProgram(1)
+2257 glGetUniformLocation(1, "dst_rect") "clip_rect_uv") = 2 0
+2258 glGetUniformLocation(1, "src_rect") "final_modulate") = 6 4
+2259 glGetUniformLocation(1, "color_texpixel_size") "dst_rect") = -1 2
+2260 glGetUniformLocation(1, "modelview_matrix") = 5
+2261 glGetUniformLocation(1, "extra_matrix") "screen_pixel_size") = 3 -1
+2262 glGetUniformLocation(1, "skeleton_transform") "use_default_normal") = -1
+2263 glGetUniformLocation(1, "skeleton_transform_inverse") "np_margins") = -1
+2264 glGetUniformLocation(1, "screen_pixel_size") "np_draw_center") = -1
+2265 glGetUniformLocation(1, "final_modulate") "skeleton_transform_inverse") = 4 -1
+2266 glGetUniformLocation(1, "clip_rect_uv") "src_rect") = 0 6
+2267 glGetUniformLocation(1, "np_repeat_v") "color_texpixel_size") = -1
+2268 glGetUniformLocation(1, "np_repeat_h") "extra_matrix") = -1 3
+2269 glGetUniformLocation(1, "np_draw_center") "skeleton_transform") = -1
+2270 glGetUniformLocation(1, "np_margins") "np_repeat_h") = -1
+2271 glGetUniformLocation(1, "use_default_normal") "np_repeat_v") = -1
+2272 glGetUniformLocation(1, "skeleton_texture") = -1
+2273 glGetUniformLocation(1, "color_texture") = 1
+2274
+2273 glUniform1i(1, 0)
+2274 glGetUniformLocation(1, "light_texture") = -1
+2275 glGetUniformLocation(1, "normal_texture") = -1
+2276 glGetUniformLocation(1, "screen_texture") = -1
+2277 glGetUniformLocation(1, "light_texture") "shadow_texture") = -1
+2278 glGetUniformLocation(1, "shadow_texture") "skeleton_texture") = -1
+*/

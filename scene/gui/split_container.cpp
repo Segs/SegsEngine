@@ -33,6 +33,8 @@
 #include "label.h"
 #include "margin_container.h"
 #include "core/method_bind.h"
+#include "core/os/input_event.h"
+
 
 IMPL_GDCLASS(SplitContainer)
 IMPL_GDCLASS(HSplitContainer)
@@ -207,9 +209,9 @@ void SplitContainer::_gui_input(const Ref<InputEvent> &p_event) {
     if (collapsed || !_getch(0) || !_getch(1) || dragger_visibility != DRAGGER_VISIBLE)
         return;
 
-    Ref<InputEventMouseButton> mb = p_event;
+    Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_event);
 
-    if (mb.is_valid()) {
+    if (mb) {
 
         if (mb->get_button_index() == BUTTON_LEFT) {
 
@@ -241,9 +243,9 @@ void SplitContainer::_gui_input(const Ref<InputEvent> &p_event) {
         }
     }
 
-    Ref<InputEventMouseMotion> mm = p_event;
+    Ref<InputEventMouseMotion> mm = dynamic_ref_cast<InputEventMouseMotion>(p_event);
 
-    if (mm.is_valid()) {
+    if (mm) {
 
         bool mouse_inside_state = false;
         if (vertical)
@@ -342,25 +344,25 @@ void SplitContainer::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_gui_input"), &SplitContainer::_gui_input);
 
-    MethodBinder::bind_method(D_METHOD("set_split_offset", "offset"), &SplitContainer::set_split_offset);
+    MethodBinder::bind_method(D_METHOD("set_split_offset", {"offset"}), &SplitContainer::set_split_offset);
     MethodBinder::bind_method(D_METHOD("get_split_offset"), &SplitContainer::get_split_offset);
     MethodBinder::bind_method(D_METHOD("clamp_split_offset"), &SplitContainer::clamp_split_offset);
 
-    MethodBinder::bind_method(D_METHOD("set_collapsed", "collapsed"), &SplitContainer::set_collapsed);
+    MethodBinder::bind_method(D_METHOD("set_collapsed", {"collapsed"}), &SplitContainer::set_collapsed);
     MethodBinder::bind_method(D_METHOD("is_collapsed"), &SplitContainer::is_collapsed);
 
-    MethodBinder::bind_method(D_METHOD("set_dragger_visibility", "mode"), &SplitContainer::set_dragger_visibility);
+    MethodBinder::bind_method(D_METHOD("set_dragger_visibility", {"mode"}), &SplitContainer::set_dragger_visibility);
     MethodBinder::bind_method(D_METHOD("get_dragger_visibility"), &SplitContainer::get_dragger_visibility);
 
-    ADD_SIGNAL(MethodInfo("dragged", PropertyInfo(Variant::INT, "offset")));
+    ADD_SIGNAL(MethodInfo("dragged", PropertyInfo(VariantType::INT, "offset")));
 
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "split_offset"), "set_split_offset", "get_split_offset");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "collapsed"), "set_collapsed", "is_collapsed");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "dragger_visibility", PROPERTY_HINT_ENUM, "Visible,Hidden,Hidden & Collapsed"), "set_dragger_visibility", "get_dragger_visibility");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "split_offset"), "set_split_offset", "get_split_offset");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "collapsed"), "set_collapsed", "is_collapsed");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "dragger_visibility", PROPERTY_HINT_ENUM, "Visible,Hidden,Hidden & Collapsed"), "set_dragger_visibility", "get_dragger_visibility");
 
-    BIND_ENUM_CONSTANT(DRAGGER_VISIBLE);
-    BIND_ENUM_CONSTANT(DRAGGER_HIDDEN);
-    BIND_ENUM_CONSTANT(DRAGGER_HIDDEN_COLLAPSED);
+    BIND_ENUM_CONSTANT(DRAGGER_VISIBLE)
+    BIND_ENUM_CONSTANT(DRAGGER_HIDDEN)
+    BIND_ENUM_CONSTANT(DRAGGER_HIDDEN_COLLAPSED)
 }
 
 SplitContainer::SplitContainer(bool p_vertical) {

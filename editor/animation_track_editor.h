@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef ANIMATION_TRACK_EDITOR_H
-#define ANIMATION_TRACK_EDITOR_H
+#pragma once
 
 #include "editor/editor_data.h"
 #include "editor/editor_spin_slider.h"
@@ -174,7 +173,7 @@ class AnimationTrackEdit : public Control {
 
     void _path_entered(const String &p_text);
     void _play_position_draw();
-    bool _is_value_key_valid(const Variant &p_key_value, Variant::Type &r_valid_type) const;
+    bool _is_value_key_valid(const Variant &p_key_value, VariantType &r_valid_type) const;
 
     mutable int dropping_at;
     float insert_at_pos;
@@ -240,7 +239,7 @@ class AnimationTrackEditPlugin : public Reference {
     GDCLASS(AnimationTrackEditPlugin,Reference)
 
 public:
-    virtual AnimationTrackEdit *create_value_track_edit(Object *p_object, Variant::Type p_type, const String &p_property, PropertyHint p_hint, const String &p_hint_string, int p_usage);
+    virtual AnimationTrackEdit *create_value_track_edit(Object *p_object, VariantType p_type, const String &p_property, PropertyHint p_hint, const String &p_hint_string, int p_usage);
     virtual AnimationTrackEdit *create_audio_track_edit();
     virtual AnimationTrackEdit *create_animation_track_edit(Object *p_object);
 };
@@ -305,6 +304,8 @@ class AnimationTrackEditor : public VBoxContainer {
     VBoxContainer *track_vbox;
     AnimationBezierTrackEdit *bezier_edit;
 
+	Label *info_message;
+
     AnimationTimelineEdit *timeline;
     HSlider *zoom;
     EditorSpinSlider *step;
@@ -338,8 +339,8 @@ class AnimationTrackEditor : public VBoxContainer {
     void _dropped_track(int p_from_track, int p_to_track);
 
     void _add_track(int p_type);
-    void _new_track_node_selected(NodePath p_path);
-    void _new_track_property_selected(String p_name);
+    void _new_track_node_selected(const NodePath& p_path);
+    void _new_track_property_selected(const String& p_name);
 
     void _update_step_spinbox();
 
@@ -386,7 +387,7 @@ class AnimationTrackEditor : public VBoxContainer {
     void _insert_key_from_track(float p_ofs, int p_track);
     void _add_method_key(const String &p_method);
 
-    void _clear_selection();
+	void _clear_selection(bool p_update = false);
     void _clear_selection_for_anim(const Ref<Animation> &p_anim);
     void _select_at_anim(const Ref<Animation> &p_anim, int p_track, float p_pos);
 
@@ -489,7 +490,7 @@ class AnimationTrackEditor : public VBoxContainer {
 
     Vector<TrackClipboard> track_clipboard;
 
-    void _insert_animation_key(NodePath p_path, const Variant &p_value);
+    void _insert_animation_key(const NodePath& p_path, const Variant &p_value);
 
 protected:
     static void _bind_methods();
@@ -531,4 +532,4 @@ public:
     ~AnimationTrackEditor() override;
 };
 
-#endif // ANIMATION_TRACK_EDITOR_H
+void register_animation_track_editor_classes();

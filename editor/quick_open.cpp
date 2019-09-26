@@ -83,8 +83,8 @@ void EditorQuickOpen::_text_changed(const String &p_newtext) {
 
 void EditorQuickOpen::_sbox_input(const Ref<InputEvent> &p_ie) {
 
-    Ref<InputEventKey> k = p_ie;
-    if (k.is_valid()) {
+    Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(p_ie);
+    if (k) {
 
         switch (k->get_scancode()) {
             case KEY_UP:
@@ -114,7 +114,7 @@ void EditorQuickOpen::_sbox_input(const Ref<InputEvent> &p_ie) {
     }
 }
 
-float EditorQuickOpen::_path_cmp(String search, String path) const {
+float EditorQuickOpen::_path_cmp(const String& search, const String& path) const {
 
     if (search == path) {
         return 1.2f;
@@ -142,12 +142,12 @@ void EditorQuickOpen::_parse_fs(EditorFileSystemDirectory *efsd, Vector<Pair<Str
             path += "/";
         if (path != "res://") {
             path = StringUtils::substr(path,6, path.length());
-            if (StringUtils::is_subsequence_ofi(search_text,path)) {
+            if (StringUtils::is_subsequence_of(search_text,path,StringUtils::CaseInsensitive)) {
                 Pair<String, Ref<Texture> > pair;
                 pair.first = path;
                 pair.second = get_icon("folder", "FileDialog");
 
-                if (search_text != String() && list.size() > 0) {
+                if (!search_text.empty() && !list.empty()) {
 
                     float this_sim = _path_cmp(search_text, path);
                     float other_sim = _path_cmp(list[0].first, path);
@@ -171,7 +171,7 @@ void EditorQuickOpen::_parse_fs(EditorFileSystemDirectory *efsd, Vector<Pair<Str
         String file = efsd->get_file_path(i);
         file = StringUtils::substr(file,6, file.length());
 
-        if (ClassDB::is_parent_class(efsd->get_file_type(i), base_type) && (StringUtils::is_subsequence_ofi(search_text,file))) {
+        if (ClassDB::is_parent_class(efsd->get_file_type(i), base_type) && (StringUtils::is_subsequence_of(search_text,file,StringUtils::CaseInsensitive))) {
             Pair<String, Ref<Texture> > pair;
             pair.first = file;
             pair.second = get_icon((has_icon(efsd->get_file_type(i), ei) ? efsd->get_file_type(i) : ot), ei);
@@ -192,7 +192,7 @@ Vector<Pair<String, Ref<Texture> > > EditorQuickOpen::_sort_fs(Vector<Pair<Strin
     String search_text = search_box->get_text();
     Vector<Pair<String, Ref<Texture> > > sorted_list;
 
-    if (search_text == String() || list.size() == 0)
+    if (search_text.empty() || list.empty())
         return list;
 
     Vector<float> scores;
@@ -200,7 +200,7 @@ Vector<Pair<String, Ref<Texture> > > EditorQuickOpen::_sort_fs(Vector<Pair<Strin
     for (int i = 0; i < list.size(); i++)
         scores.write[i] = _path_cmp(search_text, list[i].first);
 
-    while (list.size() > 0) {
+    while (!list.empty()) {
 
         float best_score = 0.0f;
         int best_idx = 0;

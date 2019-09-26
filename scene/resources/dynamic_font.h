@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef DYNAMIC_FONT_H
-#define DYNAMIC_FONT_H
+#pragma once
 
 #ifdef FREETYPE_ENABLED
 #include "core/hashfuncs.h"
@@ -106,8 +105,6 @@ public:
     DynamicFontData();
     ~DynamicFontData() override;
 };
-
-VARIANT_ENUM_CAST(DynamicFontData::Hinting);
 
 class DynamicFontAtSize : public Reference {
 
@@ -241,7 +238,7 @@ protected:
 
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(List<PropertyInfo> *p_list) const;
+    void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
 
     static void _bind_methods();
 
@@ -299,18 +296,14 @@ public:
     ~DynamicFont() override;
 };
 
-VARIANT_ENUM_CAST(DynamicFont::SpacingType);
-
 /////////////
 
 class ResourceFormatLoaderDynamicFont : public ResourceFormatLoader {
 public:
     RES load(const String &p_path, const String &p_original_path = "", Error *r_error = nullptr) override;
-    void get_recognized_extensions(List<String> *p_extensions) const override;
+    void get_recognized_extensions(ListPOD<String> *p_extensions) const override;
     bool handles_type(const String &p_type) const override;
     String get_resource_type(const String &p_path) const override;
 };
-
-#endif
 
 #endif

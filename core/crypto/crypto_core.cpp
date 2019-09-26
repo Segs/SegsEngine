@@ -31,6 +31,8 @@
 #include "crypto_core.h"
 
 #include "core/ustring.h"
+#include "core/pool_vector.h"
+
 #include <mbedtls/aes.h>
 #include <mbedtls/base64.h>
 #include <mbedtls/md5.h>

@@ -1,432 +1,328 @@
+#include <QDirIterator>
+#include <QFileInfo>
+#include <QRegularExpression>
 #include <cstdio>
 #include <QtCore/QFile>
 #include <QtCore/QString>
+#include <QtCore/QDebug>
 #ifdef _MSC_VER
 #include <iso646.h>
 #endif
 
-static const char *template_typed = R"raw(
-#ifdef TYPED_METHOD_BIND
-template<class T $ifret ,class R$ $ifargs ,$ $arg, class P@$>
-class MethodBind$argc$$ifret R$$ifconst C$ : public MethodBind {
-public:
-
-    $ifret R$ $ifnoret void$ (T::*method)($arg, P@$) $ifconst const$;
-#ifdef DEBUG_METHODS_ENABLED
-    virtual Variant::Type _gen_argument_type(int p_arg) const { return _get_argument_type(p_arg); }
-    virtual GodotTypeInfo::Metadata get_argument_meta(int p_arg) const {
-        $ifret if (p_arg==-1) return GetTypeInfo<R>::METADATA;$
-        $arg if (p_arg==(@-1)) return GetTypeInfo<P@>::METADATA;
-        $
-        return GodotTypeInfo::METADATA_NONE;
-    }
-    Variant::Type _get_argument_type(int p_argument) const {
-        $ifret if (p_argument==-1) return (Variant::Type)GetTypeInfo<R>::VARIANT_TYPE;$
-        $arg if (p_argument==(@-1)) return (Variant::Type)GetTypeInfo<P@>::VARIANT_TYPE;
-        $
-        return Variant::NIL;
-    }
-    virtual PropertyInfo _gen_argument_type_info(int p_argument) const {
-        $ifret if (p_argument==-1) return GetTypeInfo<R>::get_class_info();$
-        $arg if (p_argument==(@-1)) return GetTypeInfo<P@>::get_class_info();
-        $
-        return PropertyInfo();
-    }
-#endif
-    virtual String get_instance_class() const {
-        return T::get_class_static();
-    }
-
-    virtual Variant call(Object* p_object,const Variant** p_args,int p_arg_count, Variant::CallError& r_error) {
-
-        T *instance=Object::cast_to<T>(p_object);
-        r_error.error=Variant::CallError::CALL_OK;
-#ifdef DEBUG_METHODS_ENABLED
-
-        ERR_FAIL_COND_V(!instance,Variant());
-        if (p_arg_count>get_argument_count()) {
-            r_error.error=Variant::CallError::CALL_ERROR_TOO_MANY_ARGUMENTS;
-            r_error.argument=get_argument_count();
-            return Variant();
-
-        }
-        if (p_arg_count<(get_argument_count()-get_default_argument_count())) {
-
-            r_error.error=Variant::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS;
-            r_error.argument=get_argument_count()-get_default_argument_count();
-            return Variant();
-        }
-        $arg CHECK_ARG(@);
-        $
-#endif
-        $ifret Variant ret = $(instance->*method)($arg, _VC(@)$);
-        $ifret return Variant(ret);$
-        $ifnoret return Variant();$
-    }
-
-#ifdef PTRCALL_ENABLED
-    virtual void ptrcall(Object*p_object,const void** p_args,void *r_ret) {
-
-        T *instance=Object::cast_to<T>(p_object);
-        $ifret PtrToArg<R>::encode( $ (instance->*method)($arg, PtrToArg<P@>::convert(p_args[@-1])$) $ifret ,r_ret)$ ;
-    }
-#endif
-    MethodBind$argc$$ifret R$$ifconst C$ () {
-#ifdef DEBUG_METHODS_ENABLED
-        _set_const($ifconst true$$ifnoconst false$);
-        _generate_argument_types($argc$);
-#else
-        set_argument_count($argc$);
-#endif
-
-        $ifret _set_returns(true); $
-    }
-};
-
-template<class T $ifret ,class R$ $ifargs ,$ $arg, class P@$>
-MethodBind* create_method_bind($ifret R$ $ifnoret void$ (T::*p_method)($arg, P@$) $ifconst const$ ) {
-
-    MethodBind$argc$$ifret R$$ifconst C$<T $ifret ,R$ $ifargs ,$ $arg, P@$> * a = memnew( (MethodBind$argc$$ifret R$$ifconst C$<T $ifret ,R$ $ifargs ,$ $arg, P@$>) );
-    a->method=p_method;
-    return a;
-}
-#endif
-)raw";
-
-static const char *template_untyped = R"raw(
-#ifndef TYPED_METHOD_BIND
-$iftempl template<$ $ifret class R$ $ifretargs ,$ $arg, class P@$ $iftempl >$
-class MethodBind$argc$$ifret R$$ifconst C$ : public MethodBind {
-
-public:
-
-    StringName type_name;
-    $ifret R$ $ifnoret void$ (__UnexistingClass::*method)($arg, P@$) $ifconst const$;
-
-#ifdef DEBUG_METHODS_ENABLED
-    virtual Variant::Type _gen_argument_type(int p_arg) const { return _get_argument_type(p_arg); }
-    virtual GodotTypeInfo::Metadata get_argument_meta(int p_arg) const {
-        $ifret if (p_arg==-1) return GetTypeInfo<R>::METADATA;$
-        $arg if (p_arg==(@-1)) return GetTypeInfo<P@>::METADATA;
-        $
-        return GodotTypeInfo::METADATA_NONE;
-    }
-
-    Variant::Type _get_argument_type(int p_argument) const {
-        $ifret if (p_argument==-1) return (Variant::Type)GetTypeInfo<R>::VARIANT_TYPE;$
-        $arg if (p_argument==(@-1)) return (Variant::Type)GetTypeInfo<P@>::VARIANT_TYPE;
-        $
-        return Variant::NIL;
-    }
-
-    virtual PropertyInfo _gen_argument_type_info(int p_argument) const {
-        $ifret if (p_argument==-1) return GetTypeInfo<R>::get_class_info();$
-        $arg if (p_argument==(@-1)) return GetTypeInfo<P@>::get_class_info();
-        $
-        return PropertyInfo();
-    }
-
-#endif
-    virtual String get_instance_class() const {
-        return type_name;
-    }
-
-    virtual Variant call(Object* p_object,const Variant** p_args,int p_arg_count, Variant::CallError& r_error) {
-
-        __UnexistingClass *instance = (__UnexistingClass*)p_object;
-
-        r_error.error=Variant::CallError::CALL_OK;
-#ifdef DEBUG_METHODS_ENABLED
-
-        ERR_FAIL_COND_V(!instance,Variant());
-        if (p_arg_count>get_argument_count()) {
-            r_error.error=Variant::CallError::CALL_ERROR_TOO_MANY_ARGUMENTS;
-            r_error.argument=get_argument_count();
-            return Variant();
-        }
-
-        if (p_arg_count<(get_argument_count()-get_default_argument_count())) {
-
-            r_error.error=Variant::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS;
-            r_error.argument=get_argument_count()-get_default_argument_count();
-            return Variant();
-        }
-
-        $arg CHECK_ARG(@);
-        $
-#endif
-        $ifret Variant ret = $(instance->*method)($arg, _VC(@)$);
-        $ifret return Variant(ret);$
-        $ifnoret return Variant();$
-    }
-#ifdef PTRCALL_ENABLED
-    virtual void ptrcall(Object*p_object,const void** p_args,void *r_ret) {
-        __UnexistingClass *instance = (__UnexistingClass*)p_object;
-        $ifret PtrToArg<R>::encode( $ (instance->*method)($arg, PtrToArg<P@>::convert(p_args[@-1])$) $ifret ,r_ret) $ ;
-    }
-#endif
-    MethodBind$argc$$ifret R$$ifconst C$ () {
-#ifdef DEBUG_METHODS_ENABLED
-        _set_const($ifconst true$$ifnoconst false$);
-        _generate_argument_types($argc$);
-#else
-        set_argument_count($argc$);
-#endif
-        $ifret _set_returns(true); $
-
-
-    }
-};
-
-template<class T $ifret ,class R$ $ifargs ,$ $arg, class P@$>
-MethodBind* create_method_bind($ifret R$ $ifnoret void$ (T::*p_method)($arg, P@$) $ifconst const$ ) {
-
-    MethodBind$argc$$ifret R$$ifconst C$ $iftempl <$  $ifret R$ $ifretargs ,$ $arg, P@$ $iftempl >$ * a = memnew( (MethodBind$argc$$ifret R$$ifconst C$ $iftempl <$ $ifret R$ $ifretargs ,$ $arg, P@$ $iftempl >$) );
-    union {
-
-        $ifret R$ $ifnoret void$ (T::*sm)($arg, P@$) $ifconst const$;
-        $ifret R$ $ifnoret void$ (__UnexistingClass::*dm)($arg, P@$) $ifconst const$;
-    } u;
-    u.sm=p_method;
-    a->method=u.dm;
-    a->type_name=T::get_class_static();
-    return a;
-}
-#endif
-)raw";
-
-static const char *template_typed_free_func =
-R"raw(
-#ifdef TYPED_METHOD_BIND
-template<class T $ifret ,class R$ $ifargs ,$ $arg, class P@$>
-class FunctionBind$argc$$ifret R$$ifconst C$ : public MethodBind {
-public:
-
-    $ifret R$ $ifnoret void$ (*method) ($ifconst const$ T *$ifargs , $$arg, P@$);
-#ifdef DEBUG_METHODS_ENABLED
-    virtual Variant::Type _gen_argument_type(int p_arg) const { return _get_argument_type(p_arg); }
-    virtual GodotTypeInfo::Metadata get_argument_meta(int p_arg) const {
-        $ifret if (p_arg==-1) return GetTypeInfo<R>::METADATA;$
-        $arg if (p_arg==(@-1)) return GetTypeInfo<P@>::METADATA;
-        $
-        return GodotTypeInfo::METADATA_NONE;
-    }
-    Variant::Type _get_argument_type(int p_argument) const {
-        $ifret if (p_argument==-1) return (Variant::Type)GetTypeInfo<R>::VARIANT_TYPE;$
-        $arg if (p_argument==(@-1)) return (Variant::Type)GetTypeInfo<P@>::VARIANT_TYPE;
-        $
-        return Variant::NIL;
-    }
-    virtual PropertyInfo _gen_argument_type_info(int p_argument) const {
-        $ifret if (p_argument==-1) return GetTypeInfo<R>::get_class_info();$
-        $arg if (p_argument==(@-1)) return GetTypeInfo<P@>::get_class_info();
-        $
-        return PropertyInfo();
-    }
-#endif
-    virtual String get_instance_class() const {
-        return T::get_class_static();
-    }
-
-    virtual Variant call(Object* p_object,const Variant** p_args,int p_arg_count, Variant::CallError& r_error) {
-
-        T *instance=Object::cast_to<T>(p_object);
-        r_error.error=Variant::CallError::CALL_OK;
-#ifdef DEBUG_METHODS_ENABLED
-
-        ERR_FAIL_COND_V(!instance,Variant());
-        if (p_arg_count>get_argument_count()) {
-            r_error.error=Variant::CallError::CALL_ERROR_TOO_MANY_ARGUMENTS;
-            r_error.argument=get_argument_count();
-            return Variant();
-
-        }
-        if (p_arg_count<(get_argument_count()-get_default_argument_count())) {
-
-            r_error.error=Variant::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS;
-            r_error.argument=get_argument_count()-get_default_argument_count();
-            return Variant();
-        }
-        $arg CHECK_ARG(@);
-        $
-#endif
-        $ifret Variant ret = $(method)(instance$ifargs , $$arg, _VC(@)$);
-        $ifret return Variant(ret);$
-        $ifnoret return Variant();$
-    }
-
-#ifdef PTRCALL_ENABLED
-    virtual void ptrcall(Object*p_object,const void** p_args,void *r_ret) {
-
-        T *instance=Object::cast_to<T>(p_object);
-        $ifret PtrToArg<R>::encode( $ (method)(instance$ifargs , $$arg, PtrToArg<P@>::convert(p_args[@-1])$) $ifret ,r_ret)$ ;
-    }
-#endif
-    FunctionBind$argc$$ifret R$$ifconst C$ () {
-#ifdef DEBUG_METHODS_ENABLED
-        _set_const($ifconst true$$ifnoconst false$);
-        _generate_argument_types($argc$);
-#else
-        set_argument_count($argc$);
-#endif
-
-        $ifret _set_returns(true); $
-    }
-};
-
-template<class T $ifret ,class R$ $ifargs ,$ $arg, class P@$>
-MethodBind* create_method_bind($ifret R$ $ifnoret void$ (*p_method)($ifconst const$ T *$ifargs , $$arg, P@$) ) {
-
-    FunctionBind$argc$$ifret R$$ifconst C$<T $ifret ,R$ $ifargs ,$ $arg, P@$> * a = memnew( (FunctionBind$argc$$ifret R$$ifconst C$<T $ifret ,R$ $ifargs ,$ $arg, P@$>) );
-    a->method=p_method;
-    return a;
-}
-#endif
-
-)raw";
-QString make_version(const char *template_name, int nargs, int argmax, bool const_val,bool ret)
+QString stripComments(QString src)
 {
-    QString intext = template_name;
-    int from_pos = 0;
-    QString outtext = "";
-
-    while(true)
+    bool single_line=false;
+    bool multi_line = false;
+    QString result;
+    src.replace("\r\n","\n");
+    result.reserve(src.size());
+    for(int i=0; i<src.size()-1; ++i)
     {
-        auto to_pos = intext.indexOf("$", from_pos);
-        if (to_pos == -1)
+        if(single_line && src[i]=='\n') {
+            i++;
+            single_line = false;
+        }
+        else if (multi_line>0 && src[i]=='*' && src[i+1]=='/') {
+            multi_line=false;
+            ++i;
+        }
+        else if(single_line || multi_line>0)
         {
-			outtext += intext.midRef(from_pos);
+            continue; // skipped
+        }
+        else if(src[i]=='/' && src[i+1]=='/') {
+            single_line = true;
+            ++i;
+        }
+        else if(src[i]=='/' && src[i+1]=='*') {
+            multi_line=true;
+            ++i;
+        }
+        else
+            result+=src[i];
+
+    }
+    if(!single_line && !multi_line)
+        result+=src.back();
+
+    return result;
+}
+int findClosingBraceIdx(const QStringRef &src,int idx,int depth,char br_open='{',char br_close='}')
+{
+    bool can_exit = depth!=0;
+    for(;idx<src.size();++idx)
+    {
+        if(src[idx]==br_open) {
+            can_exit = true; // first brace encountered, can actually get the whole thing.
+            depth++;
+        }
+        else if(src[idx]==br_close)
+            depth--;
+        if(depth==0 && can_exit)
+            break;
+    }
+    return idx;
+}
+int findOpeningBraceIdx(const QStringRef &src,int idx,int depth,char br_open='{',char br_close='}')
+{
+    bool can_exit = depth!=0;
+    for(;idx>=0;--idx)
+    {
+        if(src[idx]==br_open) {
+            depth--;
+        }
+        else if(src[idx]==br_close) {
+            can_exit = true; // first brace encountered, can actually get the whole thing.
+            depth++;
+        }
+        if(depth==0 && can_exit)
+            break;
+    }
+    return idx;
+}
+int nextSemicolon(const QStringRef &src,int idx)
+{
+    return src.indexOf(';',idx);
+}
+struct GD_TypeDecl {
+    QString name;
+};
+struct ArgDecl {
+    GD_TypeDecl type;
+    QString name;
+    QString def_val;
+};
+ArgDecl processArg(const QStringRef &d)
+{
+    ArgDecl res;
+
+    int start_of_name = d.size()-1;
+    int def_val_idx = d.lastIndexOf('=');
+    if(def_val_idx!=-1)
+    {
+        start_of_name = def_val_idx-1;
+        res.def_val = d.mid(def_val_idx+1).trimmed().toString();
+        while(d[start_of_name].isSpace())
+            start_of_name--;
+    }
+    while(start_of_name>=0) {
+        if(d[start_of_name].isLetter()||d[start_of_name].isNumber()||d[start_of_name]=='_')
+            start_of_name--;
+        else {
             break;
         }
-        else
-			outtext += intext.midRef(from_pos,to_pos-from_pos);
-        auto end = intext.indexOf("$", to_pos + 1);
-        if (end == -1)
-            break;  //# ignore
-        QString macro = intext.mid(to_pos + 1,end-(to_pos + 1));
-        QString cmd = "";
-        QString data = "";
-
-        if (macro.indexOf(" ") != -1)
-        {
-            cmd = macro.mid(0,macro.indexOf(" "));
-            data = macro.mid(macro.indexOf(" ") + 1);
-        }
-        else
-            cmd = macro;
-
-        if (cmd == "argc")
-            outtext += QString::number(nargs);
-        if (cmd == "ifret" and ret)
-            outtext += data;
-        if (cmd == "ifargs" and nargs)
-            outtext += data;
-        if (cmd == "ifretargs" and nargs and ret)
-            outtext += data;
-        if (cmd == "ifconst" and const_val)
-            outtext += data;
-        else if (cmd == "ifnoconst" and not const_val)
-            outtext += data;
-        else if (cmd == "ifnoret" and not ret)
-            outtext += data;
-        else if (cmd == "iftempl" and (nargs > 0 or ret))
-            outtext += data;
-        else if (cmd == "arg,")
-            for(int i=1; i <=nargs; ++i)
-            {
-                if (i > 1)
-                    outtext += ", ";
-                outtext += QString(data).replace("@", QString::number(i));
-            }
-        else if (cmd == "arg")
-        {
-            for(int i=1; i <=nargs; ++i)
-                outtext += QString(data).replace("@", QString::number(i));
-        }
-        else if (cmd == "noarg")
-        {
-            for(int i=nargs + 1; i <= argmax; ++i)
-                outtext += QString(data).replace("@", QString::number(i));
-        }
-        from_pos = end + 1;
     }
-    return outtext;
+    if(def_val_idx!=-1)
+        res.name = d.mid(start_of_name+1,def_val_idx-start_of_name-2).toString();
+    else
+        res.name = d.mid(start_of_name+1).toString();
+    res.type = GD_TypeDecl {d.mid(0,start_of_name+1).toString()};
+    return res;
 }
+QVector<ArgDecl> splitArgs(const QStringRef &src)
+{
+    //TODO: doesn't handle argument names embedded in parens
+    QVector<ArgDecl> res;
+    int nesting=0;
+    int start_idx=0;
+    int idx;
+    for(idx=0; idx<src.size(); ++idx)
+    {
+        if(src[idx]=='<'||src[idx]=='(') {
+            nesting++;
+        }
+        else if(src[idx]=='>'||src[idx]==')') {
+            nesting++;
+        }
+        else if(nesting==0 && src[idx]==',') {
+            res<< processArg(src.mid(start_idx,idx-start_idx));
+            start_idx = idx+1;
+        }
+    }
+    if(start_idx!=idx)
+        res<< processArg(src.mid(start_idx+1,idx-(start_idx+1)));
+    return res;
+}
+struct GD_Invocable
+{
+    GD_TypeDecl return_type;
+    QString name;
+    QVector<ArgDecl> args;
+};
+void processInvocable(GD_Invocable &tgt,const QStringRef &src)
+{
+    int start_of_args = findOpeningBraceIdx(src,src.size()-1,0,'(',')');
+    int start_of_name = start_of_args-1;
+    QStringRef args = src.mid(start_of_args+1,src.size()-(start_of_args+2));
+    while(start_of_name!=0) {
+        if(src[start_of_name].isLetter()||src[start_of_name].isNumber()||src[start_of_name]=='_')
+            start_of_name--;
+        else {
+            break;
+        }
+    }
+    tgt.name = src.mid(start_of_name+1,start_of_args-start_of_name-1).toString();
+    tgt.args = splitArgs(args);
+    tgt.return_type = GD_TypeDecl {src.mid(0,start_of_name).toString()};
+}
+struct GD_Class {
+    QString name;
+    QString parent_name;
+    bool requested_binds=false;
+    QVector<GD_Invocable> bindable_definitions;
+};
+int processClass(const QStringRef &src,int idx,GD_Class &cl)
+{
+    int closing=findClosingBraceIdx(src,idx,1);
+    QStringRef sub_area = src.mid(idx,closing);
+    cl.requested_binds = sub_area.contains("HAS_BINDS");
+    int internal_idx=0;
+    while((internal_idx=sub_area.indexOf("INVOCABLE",internal_idx))!=-1)
+    {
+        //TODO: will barf on complex return types-> void (*)(z) getTheZ();
+        int fin_idx = findClosingBraceIdx(sub_area,internal_idx,0,'(',')');
+        if(fin_idx!=-1) {
+            GD_Invocable inv;
+            processInvocable(inv,sub_area.mid(internal_idx+9,fin_idx-(internal_idx+9)+1).trimmed());
+            cl.bindable_definitions << inv;
+            internal_idx = fin_idx+1;
+        }
+        else {
+            qCritical() << "INVOCABLE was not terminated correctly ?";
+        }
+    }
 
+    return closing;
+}
+QVector<GD_Class> collectClasses(const QStringRef &src)
+{
+    QVector<GD_Class> res;
+    int idx = 0;
+    while((idx=src.indexOf("GDCLASS(",idx))!=-1)
+    {
+        int closing_paren_idx = src.indexOf(')',idx);
+        QStringRef v = src.mid(idx+8,closing_paren_idx - (idx+8));
+        auto pr = v.split(',');
+        GD_Class entry {pr[0].trimmed().toString(),pr[1].trimmed().toString(),false,{}};
+        idx = closing_paren_idx+1;
+        idx = processClass(src,idx,entry);
+        res << entry;
+    }
+    return res;
+}
+QString genDesc(const GD_Invocable &inv)
+{
+    QString res="D_METHOD(\""+inv.name + '"';
+    if(!inv.args.isEmpty()) {
+        res+=",{";
+        bool first=true;
+        for(auto arg : inv.args) {
+            if(!first)
+                res+=',';
+            first = false;
+            res+='"'+arg.name+'"';
+        }
+        res+="}";
+    }
+    res+=')';
+    return res;
+}
+QString genDefVals(const GD_Invocable &inv)
+{
+    QString res;
+    QStringList defs;
+    for(auto arg : inv.args) {
+        if(!arg.def_val.isEmpty())
+            defs+= QString("DEFVAL(%1)").arg(arg.def_val);
+    }
+    if(defs.isEmpty())
+        return "";
+    return "{" + defs.join(',') + "}";
+}
+struct BindDefInfo {
+    QString include;
+    QString methods;
+};
+
+BindDefInfo genClassBinders(const QString header_path,QVector<GD_Class> &src)
+{
+    BindDefInfo res;
+    QTextStream ts(&res.methods);
+    res.include = QString("#include \"%1\"\n").arg(header_path);
+    const QString indent(QStringLiteral("    "));
+    for(const GD_Class & cl : src)
+    {
+        if(!cl.bindable_definitions.isEmpty())
+        {
+            ts << QString("void %1::_bind_methods() {\n").arg(cl.name);
+            for(const auto &bn : cl.bindable_definitions) {
+                //MethodBinder::bind_method(D_METHOD("load_interactive", {"path", "type_hint"}), &_ResourceLoader::load_interactive, {DEFVAL("")});
+
+                ts << indent+QString("MethodBinder::bind_method(%1,").arg(genDesc(bn));
+                ts << QString("&%1::%2").arg(cl.name,bn.name);
+                QString def_vals=genDefVals(bn);
+                if(!def_vals.isEmpty())
+                    ts<<","<<def_vals;
+                ts<<")\n";
+
+            }
+            ts << QString("}\n");
+        }
+    }
+    return res;
+}
 int main(int argc, char **argv)
 {
-    int versions = 13;
-    int versions_ext = 6;
     QString text = "";
     if(argc<3)
         return -1;
-
-    int gen_ext = atoi(argv[1]);
-    switch(gen_ext) {
-    case 0:
-    {
-        for(int i=0; i<versions_ext; ++i)
-        {
-            QString t = "";
-            t += make_version(template_untyped, i, versions, false, false);
-            t += make_version(template_typed, i, versions, false, false);
-            t += make_version(template_untyped, i, versions, false, true);
-            t += make_version(template_typed, i, versions, false, true);
-            t += make_version(template_untyped, i, versions, true, false);
-            t += make_version(template_typed, i, versions, true, false);
-            t += make_version(template_untyped, i, versions, true, true);
-            t += make_version(template_typed, i, versions, true, true);
-            text += t;
-        }
-        break;
-    }
-    case 1: {
-        for(int i=versions_ext; i<versions + 1; ++i)
-        {
-            QString t = "";
-            t += make_version(template_untyped, i, versions, false, false);
-            t += make_version(template_typed, i, versions, false, false);
-            t += make_version(template_untyped, i, versions, false, true);
-            t += make_version(template_typed, i, versions, false, true);
-            t += make_version(template_untyped, i, versions, true, false);
-            t += make_version(template_typed, i, versions, true, false);
-            t += make_version(template_untyped, i, versions, true, true);
-            t += make_version(template_typed, i, versions, true, true);
-            text += t;
-        }
-        QFile tgt2(argv[2]);
-        if(tgt2.open(QFile::WriteOnly))
-        {
-            tgt2.write(text.toLocal8Bit());
-        }
-        tgt2.close();
-        break;
-    }
-    case 2:
-    {
-        text = "#ifndef METHOD_BIND_FREE_FUNC_H\n#define METHOD_BIND_FREE_FUNC_H\n";
-
-        text += "\n//including this header file allows method binding to use free functions\n";
-        text += "//note that the free function must have a pointer to an instance of the class as its first parameter\n";
-
-        for(int i=0; i<versions + 1; ++i) {
-            text += make_version(template_typed_free_func, i, versions, false, false);
-            text += make_version(template_typed_free_func, i, versions, false, true);
-            text += make_version(template_typed_free_func, i, versions, true, false);
-            text += make_version(template_typed_free_func, i, versions, true, true);
-        }
-        text += "#endif";
-        break;
-    }
-    default:
+    QString to_scan(argv[1]);
+    if(!QFile::exists(to_scan)) {
+        qCritical() << "Source file "<<to_scan<<"missing";
         return -1;
     }
-    QFile tgt1(argv[2]);
-    if(tgt1.open(QFile::WriteOnly))
+    QFileInfo fi(to_scan);
+    if(!fi.isDir())
     {
-        tgt1.write(text.toLocal8Bit());
+        qCritical() << "Provided path"<<to_scan<<"is not a directory file";
+        return -1;
+    }
+
+    QFile tgt1(argv[2]);
+    if(!tgt1.open(QFile::WriteOnly))
+    {
+        qCritical() << "Provided output file cannot be opened";
+        //tgt1.write(stripped.toLocal8Bit());
+    }
+
+    QDirIterator di(to_scan,{"*.h"},QDir::Files,QDirIterator::Subdirectories);
+    QVector<BindDefInfo> entries;
+    while(di.hasNext())
+    {
+        QString path=di.next();
+        QFile fl(path);
+        if(!fl.open(QFile::ReadOnly|QFile::Text))
+        {
+            qCritical() << "Opening"<<to_scan<<"failed";
+            return -1;
+        }
+
+        QByteArray filedata = fl.readAll();
+        QString stripped = stripComments(QString::fromUtf8(filedata));
+        auto v = collectClasses(&stripped);
+        entries<<genClassBinders(path,v);
+    }
+    QTextStream result_file(&tgt1);
+
+    for(const BindDefInfo &bi : entries)
+    {
+        result_file<<bi.include;
+    }
+    for(const BindDefInfo &bi : entries)
+    {
+        result_file<< "// methods for "<<bi.include;
+        result_file<<bi.methods;
     }
     tgt1.close();
-
     return 0;
 }

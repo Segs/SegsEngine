@@ -117,7 +117,7 @@ void BoxContainer::_resort() {
             if (c->is_set_as_toplevel())
                 continue;
 
-            ERR_FAIL_COND(!min_size_cache.has(c));
+            ERR_FAIL_COND(!min_size_cache.contains(c))
             _MinSizeCache &msc = min_size_cache[c];
 
             if (msc.will_stretch) { //wants to stretch
@@ -300,15 +300,15 @@ BoxContainer::BoxContainer(bool p_vertical) {
 
 void BoxContainer::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("add_spacer", "begin"), &BoxContainer::add_spacer);
+    MethodBinder::bind_method(D_METHOD("add_spacer", {"begin"}), &BoxContainer::add_spacer);
     MethodBinder::bind_method(D_METHOD("get_alignment"), &BoxContainer::get_alignment);
-    MethodBinder::bind_method(D_METHOD("set_alignment", "alignment"), &BoxContainer::set_alignment);
+    MethodBinder::bind_method(D_METHOD("set_alignment", {"alignment"}), &BoxContainer::set_alignment);
 
-    BIND_ENUM_CONSTANT(ALIGN_BEGIN);
-    BIND_ENUM_CONSTANT(ALIGN_CENTER);
-    BIND_ENUM_CONSTANT(ALIGN_END);
+    BIND_ENUM_CONSTANT(ALIGN_BEGIN)
+    BIND_ENUM_CONSTANT(ALIGN_CENTER)
+    BIND_ENUM_CONSTANT(ALIGN_END)
 
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "alignment", PROPERTY_HINT_ENUM, "Begin,Center,End"), "set_alignment", "get_alignment");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "alignment", PROPERTY_HINT_ENUM, "Begin,Center,End"), "set_alignment", "get_alignment");
 }
 
 MarginContainer *VBoxContainer::add_margin_child(const String &p_label, Control *p_control, bool p_expand) {

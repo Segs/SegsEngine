@@ -282,7 +282,7 @@ public:
 	 *  capacity.
 	 **/
 	void reserve(uint32_t p_new_capacity) {
-		ERR_FAIL_COND(p_new_capacity < capacity);
+		ERR_FAIL_COND(p_new_capacity < capacity)
 		_resize_and_rehash(p_new_capacity);
     }
 

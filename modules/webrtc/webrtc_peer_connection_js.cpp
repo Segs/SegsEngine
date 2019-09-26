@@ -151,7 +151,7 @@ void WebRTCPeerConnectionJS::close() {
 }
 
 Error WebRTCPeerConnectionJS::create_offer() {
-	ERR_FAIL_COND_V(_conn_state != STATE_NEW, FAILED);
+	ERR_FAIL_COND_V(_conn_state != STATE_NEW, FAILED)
 
 	_conn_state = STATE_CONNECTING;
 	/* clang-format off */
@@ -199,7 +199,7 @@ Error WebRTCPeerConnectionJS::set_local_description(String type, String sdp) {
 
 Error WebRTCPeerConnectionJS::set_remote_description(String type, String sdp) {
 	if (type == "offer") {
-		ERR_FAIL_COND_V(_conn_state != STATE_NEW, FAILED);
+		ERR_FAIL_COND_V(_conn_state != STATE_NEW, FAILED)
 		_conn_state = STATE_CONNECTING;
 	}
 	/* clang-format off */
@@ -279,7 +279,7 @@ Ref<WebRTCDataChannel> WebRTCPeerConnectionJS::create_data_channel(String p_chan
 		}
 	}, _js_id, p_channel.utf8().get_data(), config.utf8().get_data());
 	/* clang-format on */
-	ERR_FAIL_COND_V(id == 0, NULL);
+	ERR_FAIL_COND_V(id == 0, NULL)
 	return memnew(WebRTCDataChannelJS(id));
 }
 

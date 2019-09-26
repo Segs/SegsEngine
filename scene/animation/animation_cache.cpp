@@ -39,7 +39,7 @@ void AnimationCache::_node_exit_tree(Node *p_node) {
 
     //it is one shot, so it disconnects upon arrival
 
-    ERR_FAIL_COND(!connected_nodes.has(p_node));
+    ERR_FAIL_COND(!connected_nodes.contains(p_node))
 
     connected_nodes.erase(p_node);
 
@@ -59,10 +59,10 @@ void AnimationCache::_animation_changed() {
 
 void AnimationCache::_clear_cache() {
 
-    while (connected_nodes.size()) {
+    while (!connected_nodes.empty()) {
 
-        connected_nodes.front()->get()->disconnect("tree_exiting", this, "_node_exit_tree");
-        connected_nodes.erase(connected_nodes.front());
+        (*connected_nodes.begin())->disconnect("tree_exiting", this, "_node_exit_tree");
+        connected_nodes.erase(connected_nodes.begin());
     }
     path_cache.clear();
     cache_valid = false;
@@ -73,9 +73,9 @@ void AnimationCache::_update_cache() {
 
     cache_valid = false;
 
-    ERR_FAIL_COND(!root);
-    ERR_FAIL_COND(!root->is_inside_tree());
-    ERR_FAIL_COND(animation.is_null());
+    ERR_FAIL_COND(!root)
+    ERR_FAIL_COND(!root->is_inside_tree())
+    ERR_FAIL_COND(not animation)
 
     for (int i = 0; i < animation->get_track_count(); i++) {
 
@@ -140,12 +140,12 @@ void AnimationCache::_update_cache() {
                 bool is_method = animation->track_get_type(i) == Animation::TYPE_METHOD;
                 root->get_node_and_resource(np, res2, leftover_subpath, is_method);
 
-                if (res2.is_valid()) {
+                if (res2) {
                     path.resource = res2;
                 } else {
                     path.node = node;
                 }
-                path.object = res2.is_valid() ? res2.ptr() : (Object *)node;
+                path.object = res2 ? res2.get() : (Object *)node;
                 path.subpath = leftover_subpath;
 
             } else {
@@ -166,10 +166,10 @@ void AnimationCache::_update_cache() {
 
         } else if (animation->track_get_type(i) == Animation::TYPE_METHOD) {
 
-            if (path.subpath.size() != 0) { // Trying to call a method of a non-resource
+            if (!path.subpath.empty()) { // Trying to call a method of a non-resource
 
                 path_cache.push_back(Path());
-                ERR_CONTINUE_MSG(path.subpath.size() != 0, "Method Track has property: " + (String)np + ".");
+                ERR_CONTINUE_MSG(!path.subpath.empty(), "Method Track has property: " + (String)np + ".");
             }
         }
 
@@ -177,9 +177,9 @@ void AnimationCache::_update_cache() {
 
         path_cache.push_back(path);
 
-        if (!connected_nodes.has(path.node)) {
+        if (!connected_nodes.contains(path.node)) {
             connected_nodes.insert(path.node);
-            path.node->connect("tree_exiting", this, "_node_exit_tree", Node::make_binds(path.node), ObjectNS::CONNECT_ONESHOT);
+            path.node->connect("tree_exiting", this, "_node_exit_tree", Node::make_binds(Variant(path.node)), ObjectNS::CONNECT_ONESHOT);
         }
     }
 
@@ -243,7 +243,7 @@ void AnimationCache::set_all(float p_time, float p_delta) {
     if (cache_dirty)
         _update_cache();
 
-    ERR_FAIL_COND(!cache_valid);
+    ERR_FAIL_COND(!cache_valid)
 
     int tc = animation->get_track_count();
     for (int i = 0; i < tc; i++) {
@@ -273,7 +273,7 @@ void AnimationCache::set_all(float p_time, float p_delta) {
 
                     for (List<int>::Element *E = indices.front(); E; E = E->next()) {
 
-                        Variant v = animation->track_get_key_value(i, E->get());
+                        Variant v = animation->track_get_key_value(i, E->deref());
                         set_track_value(i, v);
                     }
                 }
@@ -286,11 +286,11 @@ void AnimationCache::set_all(float p_time, float p_delta) {
 
                 for (List<int>::Element *E = indices.front(); E; E = E->next()) {
 
-                    Vector<Variant> args = animation->method_track_get_params(i, E->get());
-                    StringName name = animation->method_track_get_name(i, E->get());
+                    Vector<Variant> args = animation->method_track_get_params(i, E->deref());
+                    StringName name = animation->method_track_get_name(i, E->deref());
                     Variant::CallError err;
 
-                    if (!args.size()) {
+                    if (args.empty()) {
 
                         call_track(i, name, nullptr, 0, err);
                     } else {
@@ -317,12 +317,12 @@ void AnimationCache::set_animation(const Ref<Animation> &p_animation) {
 
     _clear_cache();
 
-    if (animation.is_valid())
+    if (animation)
         animation->disconnect("changed", this, "_animation_changed");
 
     animation = p_animation;
 
-    if (animation.is_valid())
+    if (animation)
         animation->connect("changed", this, "_animation_changed");
 }
 

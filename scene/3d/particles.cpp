@@ -60,13 +60,13 @@ void Particles::set_emitting(bool p_emitting) {
 
 void Particles::set_amount(int p_amount) {
 
-    ERR_FAIL_COND(p_amount < 1);
+    ERR_FAIL_COND(p_amount < 1)
     amount = p_amount;
     VS::get_singleton()->particles_set_amount(particles, amount);
 }
 void Particles::set_lifetime(float p_lifetime) {
 
-    ERR_FAIL_COND(p_lifetime <= 0);
+    ERR_FAIL_COND(p_lifetime <= 0)
     lifetime = p_lifetime;
     VS::get_singleton()->particles_set_lifetime(particles, lifetime);
 }
@@ -118,7 +118,7 @@ void Particles::set_process_material(const Ref<Material> &p_material) {
 
     process_material = p_material;
     RID material_rid;
-    if (process_material.is_valid())
+    if (process_material)
         material_rid = process_material->get_rid();
     VS::get_singleton()->particles_set_process_material(particles, material_rid);
 
@@ -191,7 +191,7 @@ Particles::DrawOrder Particles::get_draw_order() const {
 
 void Particles::set_draw_passes(int p_count) {
 
-    ERR_FAIL_COND(p_count < 1);
+    ERR_FAIL_COND(p_count < 1)
     draw_passes.resize(p_count);
     VS::get_singleton()->particles_set_draw_passes(particles, p_count);
     _change_notify();
@@ -208,7 +208,7 @@ void Particles::set_draw_pass_mesh(int p_pass, const Ref<Mesh> &p_mesh) {
     draw_passes.write[p_pass] = p_mesh;
 
     RID mesh_rid;
-    if (p_mesh.is_valid())
+    if (p_mesh)
         mesh_rid = p_mesh->get_rid();
 
     VS::get_singleton()->particles_set_draw_pass_mesh(particles, p_pass, mesh_rid);
@@ -253,37 +253,37 @@ String Particles::get_configuration_warning() const {
     bool anim_material_found = false;
 
     for (int i = 0; i < draw_passes.size(); i++) {
-        if (draw_passes[i].is_valid()) {
+        if (draw_passes[i]) {
             meshes_found = true;
             for (int j = 0; j < draw_passes[i]->get_surface_count(); j++) {
-                anim_material_found = Object::cast_to<ShaderMaterial>(draw_passes[i]->surface_get_material(j).ptr()) != nullptr;
-                SpatialMaterial *spat = Object::cast_to<SpatialMaterial>(draw_passes[i]->surface_get_material(j).ptr());
+                anim_material_found = Object::cast_to<ShaderMaterial>(draw_passes[i]->surface_get_material(j).get()) != nullptr;
+                SpatialMaterial *spat = Object::cast_to<SpatialMaterial>(draw_passes[i]->surface_get_material(j).get());
                 anim_material_found = anim_material_found || (spat && spat->get_billboard_mode() == SpatialMaterial::BILLBOARD_PARTICLES);
             }
             if (anim_material_found) break;
         }
     }
 
-    anim_material_found = anim_material_found || Object::cast_to<ShaderMaterial>(get_material_override().ptr()) != nullptr;
-    SpatialMaterial *spat = Object::cast_to<SpatialMaterial>(get_material_override().ptr());
+    anim_material_found = anim_material_found || Object::cast_to<ShaderMaterial>(get_material_override().get()) != nullptr;
+    SpatialMaterial *spat = Object::cast_to<SpatialMaterial>(get_material_override().get());
     anim_material_found = anim_material_found || (spat && spat->get_billboard_mode() == SpatialMaterial::BILLBOARD_PARTICLES);
 
     if (!meshes_found) {
-        if (warnings != String())
+        if (!warnings.empty())
             warnings += "\n";
         warnings += "- " + TTR("Nothing is visible because meshes have not been assigned to draw passes.");
     }
 
-    if (process_material.is_null()) {
-        if (warnings != String())
+    if (not process_material) {
+        if (!warnings.empty())
             warnings += "\n";
         warnings += "- " + TTR("A material to process the particles is not assigned, so no behavior is imprinted.");
     } else {
-        const ParticlesMaterial *process = Object::cast_to<ParticlesMaterial>(process_material.ptr());
+        const ParticlesMaterial *process = Object::cast_to<ParticlesMaterial>(process_material.get());
         if (!anim_material_found && process &&
-                (process->get_param(ParticlesMaterial::PARAM_ANIM_SPEED) != 0.0 || process->get_param(ParticlesMaterial::PARAM_ANIM_OFFSET) != 0.0 ||
-                        process->get_param_texture(ParticlesMaterial::PARAM_ANIM_SPEED).is_valid() || process->get_param_texture(ParticlesMaterial::PARAM_ANIM_OFFSET).is_valid())) {
-            if (warnings != String())
+                (process->get_param(ParticlesMaterial::PARAM_ANIM_SPEED) != 0.0f || process->get_param(ParticlesMaterial::PARAM_ANIM_OFFSET) != 0.0f ||
+                        process->get_param_texture(ParticlesMaterial::PARAM_ANIM_SPEED) || process->get_param_texture(ParticlesMaterial::PARAM_ANIM_OFFSET))) {
+            if (!warnings.empty())
                 warnings += "\n";
             warnings += "- " + TTR("Particles animation requires the usage of a SpatialMaterial whose Billboard Mode is set to \"Particle Billboard\".");
         }
@@ -338,19 +338,19 @@ void Particles::_notification(int p_what) {
 
 void Particles::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_emitting", "emitting"), &Particles::set_emitting);
-    MethodBinder::bind_method(D_METHOD("set_amount", "amount"), &Particles::set_amount);
-    MethodBinder::bind_method(D_METHOD("set_lifetime", "secs"), &Particles::set_lifetime);
-    MethodBinder::bind_method(D_METHOD("set_one_shot", "enable"), &Particles::set_one_shot);
-    MethodBinder::bind_method(D_METHOD("set_pre_process_time", "secs"), &Particles::set_pre_process_time);
-    MethodBinder::bind_method(D_METHOD("set_explosiveness_ratio", "ratio"), &Particles::set_explosiveness_ratio);
-    MethodBinder::bind_method(D_METHOD("set_randomness_ratio", "ratio"), &Particles::set_randomness_ratio);
-    MethodBinder::bind_method(D_METHOD("set_visibility_aabb", "aabb"), &Particles::set_visibility_aabb);
-    MethodBinder::bind_method(D_METHOD("set_use_local_coordinates", "enable"), &Particles::set_use_local_coordinates);
-    MethodBinder::bind_method(D_METHOD("set_fixed_fps", "fps"), &Particles::set_fixed_fps);
-    MethodBinder::bind_method(D_METHOD("set_fractional_delta", "enable"), &Particles::set_fractional_delta);
-    MethodBinder::bind_method(D_METHOD("set_process_material", "material"), &Particles::set_process_material);
-    MethodBinder::bind_method(D_METHOD("set_speed_scale", "scale"), &Particles::set_speed_scale);
+    MethodBinder::bind_method(D_METHOD("set_emitting", {"emitting"}), &Particles::set_emitting);
+    MethodBinder::bind_method(D_METHOD("set_amount", {"amount"}), &Particles::set_amount);
+    MethodBinder::bind_method(D_METHOD("set_lifetime", {"secs"}), &Particles::set_lifetime);
+    MethodBinder::bind_method(D_METHOD("set_one_shot", {"enable"}), &Particles::set_one_shot);
+    MethodBinder::bind_method(D_METHOD("set_pre_process_time", {"secs"}), &Particles::set_pre_process_time);
+    MethodBinder::bind_method(D_METHOD("set_explosiveness_ratio", {"ratio"}), &Particles::set_explosiveness_ratio);
+    MethodBinder::bind_method(D_METHOD("set_randomness_ratio", {"ratio"}), &Particles::set_randomness_ratio);
+    MethodBinder::bind_method(D_METHOD("set_visibility_aabb", {"aabb"}), &Particles::set_visibility_aabb);
+    MethodBinder::bind_method(D_METHOD("set_use_local_coordinates", {"enable"}), &Particles::set_use_local_coordinates);
+    MethodBinder::bind_method(D_METHOD("set_fixed_fps", {"fps"}), &Particles::set_fixed_fps);
+    MethodBinder::bind_method(D_METHOD("set_fractional_delta", {"enable"}), &Particles::set_fractional_delta);
+    MethodBinder::bind_method(D_METHOD("set_process_material", {"material"}), &Particles::set_process_material);
+    MethodBinder::bind_method(D_METHOD("set_speed_scale", {"scale"}), &Particles::set_speed_scale);
 
     MethodBinder::bind_method(D_METHOD("is_emitting"), &Particles::is_emitting);
     MethodBinder::bind_method(D_METHOD("get_amount"), &Particles::get_amount);
@@ -366,46 +366,46 @@ void Particles::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_process_material"), &Particles::get_process_material);
     MethodBinder::bind_method(D_METHOD("get_speed_scale"), &Particles::get_speed_scale);
 
-    MethodBinder::bind_method(D_METHOD("set_draw_order", "order"), &Particles::set_draw_order);
+    MethodBinder::bind_method(D_METHOD("set_draw_order", {"order"}), &Particles::set_draw_order);
 
     MethodBinder::bind_method(D_METHOD("get_draw_order"), &Particles::get_draw_order);
 
-    MethodBinder::bind_method(D_METHOD("set_draw_passes", "passes"), &Particles::set_draw_passes);
-    MethodBinder::bind_method(D_METHOD("set_draw_pass_mesh", "pass", "mesh"), &Particles::set_draw_pass_mesh);
+    MethodBinder::bind_method(D_METHOD("set_draw_passes", {"passes"}), &Particles::set_draw_passes);
+    MethodBinder::bind_method(D_METHOD("set_draw_pass_mesh", {"pass", "mesh"}), &Particles::set_draw_pass_mesh);
 
     MethodBinder::bind_method(D_METHOD("get_draw_passes"), &Particles::get_draw_passes);
-    MethodBinder::bind_method(D_METHOD("get_draw_pass_mesh", "pass"), &Particles::get_draw_pass_mesh);
+    MethodBinder::bind_method(D_METHOD("get_draw_pass_mesh", {"pass"}), &Particles::get_draw_pass_mesh);
 
     MethodBinder::bind_method(D_METHOD("restart"), &Particles::restart);
     MethodBinder::bind_method(D_METHOD("capture_aabb"), &Particles::capture_aabb);
 
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "emitting"), "set_emitting", "is_emitting");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "amount", PROPERTY_HINT_EXP_RANGE, "1,1000000,1"), "set_amount", "get_amount");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "emitting"), "set_emitting", "is_emitting");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "amount", PROPERTY_HINT_EXP_RANGE, "1,1000000,1"), "set_amount", "get_amount");
     ADD_GROUP("Time", "");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "lifetime", PROPERTY_HINT_EXP_RANGE, "0.01,600.0,0.01,or_greater"), "set_lifetime", "get_lifetime");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "one_shot"), "set_one_shot", "get_one_shot");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "preprocess", PROPERTY_HINT_EXP_RANGE, "0.00,600.0,0.01"), "set_pre_process_time", "get_pre_process_time");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "speed_scale", PROPERTY_HINT_RANGE, "0,64,0.01"), "set_speed_scale", "get_speed_scale");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "explosiveness", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_explosiveness_ratio", "get_explosiveness_ratio");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "randomness", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_randomness_ratio", "get_randomness_ratio");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "fixed_fps", PROPERTY_HINT_RANGE, "0,1000,1"), "set_fixed_fps", "get_fixed_fps");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "fract_delta"), "set_fractional_delta", "get_fractional_delta");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "lifetime", PROPERTY_HINT_EXP_RANGE, "0.01,600.0,0.01,or_greater"), "set_lifetime", "get_lifetime");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "one_shot"), "set_one_shot", "get_one_shot");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "preprocess", PROPERTY_HINT_EXP_RANGE, "0.00,600.0,0.01"), "set_pre_process_time", "get_pre_process_time");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "speed_scale", PROPERTY_HINT_RANGE, "0,64,0.01"), "set_speed_scale", "get_speed_scale");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "explosiveness", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_explosiveness_ratio", "get_explosiveness_ratio");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "randomness", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_randomness_ratio", "get_randomness_ratio");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "fixed_fps", PROPERTY_HINT_RANGE, "0,1000,1"), "set_fixed_fps", "get_fixed_fps");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "fract_delta"), "set_fractional_delta", "get_fractional_delta");
     ADD_GROUP("Drawing", "");
-    ADD_PROPERTY(PropertyInfo(Variant::AABB, "visibility_aabb"), "set_visibility_aabb", "get_visibility_aabb");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "local_coords"), "set_use_local_coordinates", "get_use_local_coordinates");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "draw_order", PROPERTY_HINT_ENUM, "Index,Lifetime,View Depth"), "set_draw_order", "get_draw_order");
+    ADD_PROPERTY(PropertyInfo(VariantType::AABB, "visibility_aabb"), "set_visibility_aabb", "get_visibility_aabb");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "local_coords"), "set_use_local_coordinates", "get_use_local_coordinates");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "draw_order", PROPERTY_HINT_ENUM, "Index,Lifetime,View Depth"), "set_draw_order", "get_draw_order");
     ADD_GROUP("Process Material", "");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "process_material", PROPERTY_HINT_RESOURCE_TYPE, "ShaderMaterial,ParticlesMaterial"), "set_process_material", "get_process_material");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "process_material", PROPERTY_HINT_RESOURCE_TYPE, "ShaderMaterial,ParticlesMaterial"), "set_process_material", "get_process_material");
     ADD_GROUP("Draw Passes", "draw_");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "draw_passes", PROPERTY_HINT_RANGE, "0," + itos(MAX_DRAW_PASSES) + ",1"), "set_draw_passes", "get_draw_passes");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "draw_passes", PROPERTY_HINT_RANGE, "0," + itos(MAX_DRAW_PASSES) + ",1"), "set_draw_passes", "get_draw_passes");
     for (int i = 0; i < MAX_DRAW_PASSES; i++) {
 
-        ADD_PROPERTYI(PropertyInfo(Variant::OBJECT, "draw_pass_" + itos(i + 1), PROPERTY_HINT_RESOURCE_TYPE, "Mesh"), "set_draw_pass_mesh", "get_draw_pass_mesh", i);
+        ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "draw_pass_" + itos(i + 1), PROPERTY_HINT_RESOURCE_TYPE, "Mesh"), "set_draw_pass_mesh", "get_draw_pass_mesh", i);
     }
 
-    BIND_ENUM_CONSTANT(DRAW_ORDER_INDEX);
-    BIND_ENUM_CONSTANT(DRAW_ORDER_LIFETIME);
-    BIND_ENUM_CONSTANT(DRAW_ORDER_VIEW_DEPTH);
+    BIND_ENUM_CONSTANT(DRAW_ORDER_INDEX)
+    BIND_ENUM_CONSTANT(DRAW_ORDER_LIFETIME)
+    BIND_ENUM_CONSTANT(DRAW_ORDER_VIEW_DEPTH)
 
     BIND_CONSTANT(MAX_DRAW_PASSES);
 }

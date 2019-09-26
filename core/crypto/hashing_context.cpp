@@ -36,9 +36,9 @@
 IMPL_GDCLASS(HashingContext)
 
 Error HashingContext::start(HashType p_type) {
-    ERR_FAIL_COND_V(ctx != nullptr, ERR_ALREADY_IN_USE);
+    ERR_FAIL_COND_V(ctx != nullptr, ERR_ALREADY_IN_USE)
     _create_ctx(p_type);
-    ERR_FAIL_COND_V(ctx == nullptr, ERR_UNAVAILABLE);
+    ERR_FAIL_COND_V(ctx == nullptr, ERR_UNAVAILABLE)
     switch (type) {
         case HASH_MD5:
             return ((CryptoCore::MD5Context *)ctx)->start();
@@ -51,7 +51,7 @@ Error HashingContext::start(HashType p_type) {
 }
 
 Error HashingContext::update(const PoolByteArray& p_chunk) {
-    ERR_FAIL_COND_V(ctx == nullptr, ERR_UNCONFIGURED);
+    ERR_FAIL_COND_V(ctx == nullptr, ERR_UNCONFIGURED)
     size_t len = p_chunk.size();
     PoolByteArray::Read r = p_chunk.read();
     switch (type) {
@@ -66,7 +66,7 @@ Error HashingContext::update(const PoolByteArray& p_chunk) {
 }
 
 PoolByteArray HashingContext::finish() {
-    ERR_FAIL_COND_V(ctx == nullptr, PoolByteArray());
+    ERR_FAIL_COND_V(ctx == nullptr, PoolByteArray())
     PoolByteArray out;
     Error err = FAILED;
     switch (type) {
@@ -84,7 +84,7 @@ PoolByteArray HashingContext::finish() {
             break;
     }
     _delete_ctx();
-    ERR_FAIL_COND_V(err != OK, PoolByteArray());
+    ERR_FAIL_COND_V(err != OK, PoolByteArray())
     return out;
 }
 
@@ -106,7 +106,6 @@ void HashingContext::_create_ctx(HashType p_type) {
 }
 
 void HashingContext::_delete_ctx() {
-    return;
     switch (type) {
         case HASH_MD5:
             memdelete((CryptoCore::MD5Context *)ctx);
@@ -122,12 +121,12 @@ void HashingContext::_delete_ctx() {
 }
 
 void HashingContext::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("start", "type"), &HashingContext::start);
-    MethodBinder::bind_method(D_METHOD("update", "chunk"), &HashingContext::update);
+    MethodBinder::bind_method(D_METHOD("start", {"type"}), &HashingContext::start);
+    MethodBinder::bind_method(D_METHOD("update", {"chunk"}), &HashingContext::update);
     MethodBinder::bind_method(D_METHOD("finish"), &HashingContext::finish);
-    BIND_ENUM_CONSTANT(HASH_MD5);
-    BIND_ENUM_CONSTANT(HASH_SHA1);
-    BIND_ENUM_CONSTANT(HASH_SHA256);
+    BIND_ENUM_CONSTANT(HASH_MD5)
+    BIND_ENUM_CONSTANT(HASH_SHA1)
+    BIND_ENUM_CONSTANT(HASH_SHA256)
 }
 
 HashingContext::HashingContext() {

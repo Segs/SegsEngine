@@ -38,8 +38,8 @@ void WorldEnvironment::_notification(int p_what) {
 
     if (p_what == Spatial::NOTIFICATION_ENTER_WORLD || p_what == Spatial::NOTIFICATION_ENTER_TREE) {
 
-        if (environment.is_valid()) {
-            if (get_viewport()->find_world()->get_environment().is_valid()) {
+        if (environment) {
+            if (get_viewport()->find_world()->get_environment()) {
                 WARN_PRINT("World already has an environment (Another WorldEnvironment?), overriding.");
             }
             get_viewport()->find_world()->set_environment(environment);
@@ -48,7 +48,7 @@ void WorldEnvironment::_notification(int p_what) {
 
     } else if (p_what == Spatial::NOTIFICATION_EXIT_WORLD || p_what == Spatial::NOTIFICATION_EXIT_TREE) {
 
-        if (environment.is_valid() && get_viewport()->find_world()->get_environment() == environment) {
+        if (environment && get_viewport()->find_world()->get_environment() == environment) {
             get_viewport()->find_world()->set_environment(Ref<Environment>());
             remove_from_group("_world_environment_" + itos(get_viewport()->find_world()->get_scenario().get_id()));
         }
@@ -57,15 +57,15 @@ void WorldEnvironment::_notification(int p_what) {
 
 void WorldEnvironment::set_environment(const Ref<Environment> &p_environment) {
 
-    if (is_inside_tree() && environment.is_valid() && get_viewport()->find_world()->get_environment() == environment) {
+    if (is_inside_tree() && environment && get_viewport()->find_world()->get_environment() == environment) {
         get_viewport()->find_world()->set_environment(Ref<Environment>());
         remove_from_group("_world_environment_" + itos(get_viewport()->find_world()->get_scenario().get_id()));
         //clean up
     }
 
     environment = p_environment;
-    if (is_inside_tree() && environment.is_valid()) {
-        if (get_viewport()->find_world()->get_environment().is_valid()) {
+    if (is_inside_tree() && environment) {
+        if (get_viewport()->find_world()->get_environment()) {
             WARN_PRINT("World already has an environment (Another WorldEnvironment?), overriding.");
         }
         get_viewport()->find_world()->set_environment(environment);
@@ -82,7 +82,7 @@ Ref<Environment> WorldEnvironment::get_environment() const {
 
 String WorldEnvironment::get_configuration_warning() const {
 
-    if (!environment.is_valid()) {
+    if (not environment) {
         return TTR("WorldEnvironment requires its \"Environment\" property to contain an Environment to have a visible effect.");
     }
 
@@ -97,7 +97,7 @@ String WorldEnvironment::get_configuration_warning() const {
     }
 
     // Commenting this warning for now, I think it makes no sense. If anyone can figure out what its supposed to do, feedback welcome. Else it should be deprecated.
-    //if (environment.is_valid() && get_viewport() && !get_viewport()->get_camera() && environment->get_background() != Environment::BG_CANVAS) {
+    //if (environment && get_viewport() && !get_viewport()->get_camera() && environment->get_background() != Environment::BG_CANVAS) {
     //	return TTR("This WorldEnvironment is ignored. Either add a Camera (for 3D scenes) or set this environment's Background Mode to Canvas (for 2D scenes).");
     //}
 
@@ -106,9 +106,9 @@ String WorldEnvironment::get_configuration_warning() const {
 
 void WorldEnvironment::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_environment", "env"), &WorldEnvironment::set_environment);
+    MethodBinder::bind_method(D_METHOD("set_environment", {"env"}), &WorldEnvironment::set_environment);
     MethodBinder::bind_method(D_METHOD("get_environment"), &WorldEnvironment::get_environment);
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "environment", PROPERTY_HINT_RESOURCE_TYPE, "Environment"), "set_environment", "get_environment");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "environment", PROPERTY_HINT_RESOURCE_TYPE, "Environment"), "set_environment", "get_environment");
 }
 
 WorldEnvironment::WorldEnvironment() {

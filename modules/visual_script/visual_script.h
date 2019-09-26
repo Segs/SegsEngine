@@ -88,12 +88,12 @@ public:
 
 	struct TypeGuess {
 
-		Variant::Type type;
+		VariantType type;
 		StringName gdclass;
 		Ref<Script> script;
 
 		TypeGuess() {
-			type = Variant::NIL;
+			type = VariantType::NIL;
 		}
 	};
 
@@ -157,7 +157,7 @@ public:
 
 	virtual int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) = 0; //do a step, return which sequence port to go out
 
-	Ref<VisualScriptNode> get_base_node() { return Ref<VisualScriptNode>(base); }
+    Ref<VisualScriptNode> get_base_node() { return Ref<VisualScriptNode>(base); }
 
 	VisualScriptNodeInstance();
 	virtual ~VisualScriptNodeInstance();
@@ -213,7 +213,7 @@ private:
 	StringName base_type;
 	struct Argument {
 		String name;
-		Variant::Type type;
+		VariantType type;
 	};
 
 	struct Function {
@@ -247,6 +247,8 @@ private:
 
 	Map<Object *, VisualScriptInstance *> instances;
 
+	bool is_tool_script;
+
 #ifdef TOOLS_ENABLED
 	Set<PlaceHolderScriptInstance *> placeholders;
 	//void _update_placeholder(PlaceHolderScriptInstance *p_placeholder);
@@ -273,6 +275,7 @@ public:
 	Vector2 get_function_scroll(const StringName &p_name) const;
     void get_function_list(Vector<StringName> *r_functions) const;
 	int get_function_node_id(const StringName &p_name) const;
+	void set_tool_enabled(bool p_enabled);
 
 	void add_node(const StringName &p_func, int p_id, const Ref<VisualScriptNode> &p_node, const Point2 &p_pos = Point2());
 	void remove_node(const StringName &p_func, int p_id);
@@ -308,9 +311,9 @@ public:
 
 	void add_custom_signal(const StringName &p_name);
 	bool has_custom_signal(const StringName &p_name) const;
-	void custom_signal_add_argument(const StringName &p_func, Variant::Type p_type, const String &p_name, int p_index = -1);
-	void custom_signal_set_argument_type(const StringName &p_func, int p_argidx, Variant::Type p_type);
-	Variant::Type custom_signal_get_argument_type(const StringName &p_func, int p_argidx) const;
+	void custom_signal_add_argument(const StringName &p_func, VariantType p_type, const String &p_name, int p_index = -1);
+	void custom_signal_set_argument_type(const StringName &p_func, int p_argidx, VariantType p_type);
+	VariantType custom_signal_get_argument_type(const StringName &p_func, int p_argidx) const;
 	void custom_signal_set_argument_name(const StringName &p_func, int p_argidx, const String &p_name);
 	String custom_signal_get_argument_name(const StringName &p_func, int p_argidx) const;
 	void custom_signal_remove_argument(const StringName &p_func, int p_argidx);
@@ -344,15 +347,15 @@ public:
 	ScriptLanguage *get_language() const override;
 
 	bool has_script_signal(const StringName &p_signal) const override;
-	void get_script_signal_list(List<MethodInfo> *r_signals) const override;
+	void get_script_signal_list(ListPOD<MethodInfo> *r_signals) const override;
 
 	bool get_property_default_value(const StringName &p_property, Variant &r_value) const override;
-	void get_script_method_list(List<MethodInfo> *p_list) const override;
+	void get_script_method_list(PODVector<MethodInfo> *p_list) const override;
 
 	bool has_method(const StringName &p_method) const override;
 	MethodInfo get_method_info(const StringName &p_method) const override;
 
-	void get_script_property_list(List<PropertyInfo> *p_list) const override;
+	void get_script_property_list(ListPOD<PropertyInfo> *p_list) const override;
 
 	int get_member_line(const StringName &p_member) const override;
 
@@ -397,10 +400,10 @@ class VisualScriptInstance : public ScriptInstance {
 public:
 	bool set(const StringName &p_name, const Variant &p_value) override;
 	bool get(const StringName &p_name, Variant &r_ret) const override;
-	void get_property_list(List<PropertyInfo> *p_properties) const override;
-	Variant::Type get_property_type(const StringName &p_name, bool *r_is_valid = nullptr) const override;
+	void get_property_list(ListPOD<PropertyInfo> *p_properties) const override;
+	VariantType get_property_type(const StringName &p_name, bool *r_is_valid = nullptr) const override;
 
-	void get_method_list(List<MethodInfo> *p_list) const override;
+	void get_method_list(PODVector<MethodInfo> *p_list) const override;
 	bool has_method(const StringName &p_method) const override;
 	Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error) override;
 	void notification(int p_notification) override;
@@ -408,27 +411,27 @@ public:
 
 	bool set_variable(const StringName &p_variable, const Variant &p_value) {
 
-		Map<StringName, Variant>::Element *E = variables.find(p_variable);
-		if (!E)
+        Map<StringName, Variant>::iterator E = variables.find(p_variable);
+        if (E==variables.end())
 			return false;
 
-		E->get() = p_value;
+        E->second = p_value;
 		return true;
 	}
 
 	bool get_variable(const StringName &p_variable, Variant *r_variable) const {
 
-		const Map<StringName, Variant>::Element *E = variables.find(p_variable);
-		if (!E)
+        const Map<StringName, Variant>::const_iterator E = variables.find(p_variable);
+        if (E==variables.end())
 			return false;
 
-		*r_variable = E->get();
+        *r_variable = E->second;
 		return true;
 	}
 
 	Ref<Script> get_script() const override;
 
-	_FORCE_INLINE_ VisualScript *get_script_ptr() { return script.ptr(); }
+	_FORCE_INLINE_ VisualScript *get_script_ptr() { return script.get(); }
 	_FORCE_INLINE_ Object *get_owner_ptr() { return owner; }
 
 	void create(const Ref<VisualScript> &p_script, Object *p_owner);
@@ -614,8 +617,7 @@ public:
 template <class T>
 static Ref<VisualScriptNode> create_node_generic(const String &p_name) {
 
-	Ref<T> node;
-	node.instance();
+	Ref<T> node(make_ref_counted<T>());
 	return node;
 }
 

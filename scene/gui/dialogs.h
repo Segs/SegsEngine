@@ -139,7 +139,7 @@ public:
 	void set_hide_on_ok(bool p_hide);
 	bool get_hide_on_ok() const;
 
-	void set_text(String p_text);
+	void set_text(const String& p_text);
 	String get_text() const;
 
 	void set_autowrap(bool p_autowrap);

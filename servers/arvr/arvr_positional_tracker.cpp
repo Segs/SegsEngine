@@ -35,9 +35,9 @@
 IMPL_GDCLASS(ARVRPositionalTracker)
 
 void ARVRPositionalTracker::_bind_methods() {
-    BIND_ENUM_CONSTANT(TRACKER_HAND_UNKNOWN);
-    BIND_ENUM_CONSTANT(TRACKER_LEFT_HAND);
-    BIND_ENUM_CONSTANT(TRACKER_RIGHT_HAND);
+    BIND_ENUM_CONSTANT(TRACKER_HAND_UNKNOWN)
+    BIND_ENUM_CONSTANT(TRACKER_LEFT_HAND)
+    BIND_ENUM_CONSTANT(TRACKER_RIGHT_HAND)
 
     // this class is read only from GDScript, so we only have access to getters..
     MethodBinder::bind_method(D_METHOD("get_type"), &ARVRPositionalTracker::get_type);
@@ -48,20 +48,20 @@ void ARVRPositionalTracker::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_tracks_position"), &ARVRPositionalTracker::get_tracks_position);
     MethodBinder::bind_method(D_METHOD("get_position"), &ARVRPositionalTracker::get_position);
     MethodBinder::bind_method(D_METHOD("get_hand"), &ARVRPositionalTracker::get_hand);
-    MethodBinder::bind_method(D_METHOD("get_transform", "adjust_by_reference_frame"), &ARVRPositionalTracker::get_transform);
+    MethodBinder::bind_method(D_METHOD("get_transform", {"adjust_by_reference_frame"}), &ARVRPositionalTracker::get_transform);
     MethodBinder::bind_method(D_METHOD("get_mesh"), &ARVRPositionalTracker::get_mesh);
 
     // these functions we don't want to expose to normal users but do need to be callable from GDNative
-    MethodBinder::bind_method(D_METHOD("_set_type", "type"), &ARVRPositionalTracker::set_type);
-    MethodBinder::bind_method(D_METHOD("_set_name", "name"), &ARVRPositionalTracker::set_name);
-    MethodBinder::bind_method(D_METHOD("_set_joy_id", "joy_id"), &ARVRPositionalTracker::set_joy_id);
-    MethodBinder::bind_method(D_METHOD("_set_orientation", "orientation"), &ARVRPositionalTracker::set_orientation);
-    MethodBinder::bind_method(D_METHOD("_set_rw_position", "rw_position"), &ARVRPositionalTracker::set_rw_position);
-    MethodBinder::bind_method(D_METHOD("_set_mesh", "mesh"), &ARVRPositionalTracker::set_mesh);
+    MethodBinder::bind_method(D_METHOD("_set_type", {"type"}), &ARVRPositionalTracker::set_type);
+    MethodBinder::bind_method(D_METHOD("_set_name", {"name"}), &ARVRPositionalTracker::set_name);
+    MethodBinder::bind_method(D_METHOD("_set_joy_id", {"joy_id"}), &ARVRPositionalTracker::set_joy_id);
+    MethodBinder::bind_method(D_METHOD("_set_orientation", {"orientation"}), &ARVRPositionalTracker::set_orientation);
+    MethodBinder::bind_method(D_METHOD("_set_rw_position", {"rw_position"}), &ARVRPositionalTracker::set_rw_position);
+    MethodBinder::bind_method(D_METHOD("_set_mesh", {"mesh"}), &ARVRPositionalTracker::set_mesh);
     MethodBinder::bind_method(D_METHOD("get_rumble"), &ARVRPositionalTracker::get_rumble);
-    MethodBinder::bind_method(D_METHOD("set_rumble", "rumble"), &ARVRPositionalTracker::set_rumble);
+    MethodBinder::bind_method(D_METHOD("set_rumble", {"rumble"}), &ARVRPositionalTracker::set_rumble);
 
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "rumble"), "set_rumble", "get_rumble");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "rumble"), "set_rumble", "get_rumble");
 };
 
 void ARVRPositionalTracker::set_type(ARVRServer::TrackerType p_type) {
@@ -129,7 +129,7 @@ void ARVRPositionalTracker::set_position(const Vector3 &p_position) {
     ARVRServer *arvr_server = ARVRServer::get_singleton();
     ERR_FAIL_NULL(arvr_server);
     real_t world_scale = arvr_server->get_world_scale();
-    ERR_FAIL_COND(world_scale == 0);
+    ERR_FAIL_COND(world_scale == 0)
 
     tracks_position = true; // obviously we have this
     rw_position = p_position / world_scale;
@@ -180,7 +180,7 @@ void ARVRPositionalTracker::set_hand(const ARVRPositionalTracker::TrackerHand p_
 
     if (hand != p_hand) {
         // we can only set this if we've previously set this to be a controller!!
-        ERR_FAIL_COND((type != ARVRServer::TRACKER_CONTROLLER) && (p_hand != ARVRPositionalTracker::TRACKER_HAND_UNKNOWN));
+        ERR_FAIL_COND((type != ARVRServer::TRACKER_CONTROLLER) && (p_hand != ARVRPositionalTracker::TRACKER_HAND_UNKNOWN))
 
         hand = p_hand;
         if (hand == ARVRPositionalTracker::TRACKER_LEFT_HAND) {

@@ -142,8 +142,7 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 	if ([event type] == NSEventTypeKeyDown) {
 		if (([event modifierFlags] & NSEventModifierFlagCommand) && [event keyCode] == 0x2f) {
 
-			Ref<InputEventKey> k;
-			k.instance();
+			Ref<InputEventKey> k(make_ref_counted<InputEventKey>());
 
 			get_key_modifier_state([event modifierFlags], k);
 			k->set_pressed(true);
@@ -658,8 +657,7 @@ static void _mouseDownEvent(NSEvent *event, int index, int mask, bool pressed) {
 		button_mask &= ~mask;
 	}
 
-	Ref<InputEventMouseButton> mb;
-	mb.instance();
+	Ref<InputEventMouseButton> mb(make_ref_counted<InputEventMouseButton>());
 	const CGFloat backingScaleFactor = [[event window] backingScaleFactor];
 	const Vector2 pos = get_mouse_pos([event locationInWindow], backingScaleFactor);
 	get_key_modifier_state([event modifierFlags], mb);
@@ -698,8 +696,7 @@ static void _mouseDownEvent(NSEvent *event, int index, int mask, bool pressed) {
 
 - (void)mouseMoved:(NSEvent *)event {
 
-	Ref<InputEventMouseMotion> mm;
-	mm.instance();
+	Ref<InputEventMouseMotion> mm(make_ref_counted<InputEventMouseMotion>());
 
 	mm->set_button_mask(button_mask);
 	const CGFloat backingScaleFactor = [[event window] backingScaleFactor];
@@ -785,8 +782,7 @@ static void _mouseDownEvent(NSEvent *event, int index, int mask, bool pressed) {
 }
 
 - (void)magnifyWithEvent:(NSEvent *)event {
-	Ref<InputEventMagnifyGesture> ev;
-	ev.instance();
+	Ref<InputEventMagnifyGesture> ev(make_ref_counted<InputEventMagnifyGesture>());
 	get_key_modifier_state([event modifierFlags], ev);
 	ev->set_position(get_mouse_pos([event locationInWindow], [[event window] backingScaleFactor]));
 	ev->set_factor([event magnification] + 1.0);
@@ -1230,8 +1226,7 @@ inline void sendScrollEvent(int button, double factor, int modifierFlags) {
 	unsigned int mask = 1 << (button - 1);
 	Vector2 mouse_pos = Vector2(mouse_x, mouse_y);
 
-	Ref<InputEventMouseButton> sc;
-	sc.instance();
+	Ref<InputEventMouseButton> sc(make_ref_counted<InputEventMouseButton>());
 
 	get_key_modifier_state(modifierFlags, sc);
 	sc->set_button_index(button);
@@ -1256,8 +1251,7 @@ inline void sendScrollEvent(int button, double factor, int modifierFlags) {
 
 inline void sendPanEvent(double dx, double dy, int modifierFlags) {
 
-	Ref<InputEventPanGesture> pg;
-	pg.instance();
+	Ref<InputEventPanGesture> pg(make_ref_counted<InputEventPanGesture>());
 
 	get_key_modifier_state(modifierFlags, pg);
 	Vector2 mouse_pos = Vector2(mouse_x, mouse_y);
@@ -1793,7 +1787,7 @@ void OS_OSX::alert(const String &p_alert, const String &p_title) {
 	[window release];
 }
 
-Error OS_OSX::open_dynamic_library(const String p_path, void *&p_library_handle, bool p_also_set_library_path) {
+Error OS_OSX::open_dynamic_library(const String &p_path, void *&p_library_handle, bool p_also_set_library_path) {
 
 	String path = p_path;
 

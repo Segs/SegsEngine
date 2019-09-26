@@ -34,7 +34,7 @@
 IMPL_GDCLASS(AnimationNodeBlendSpace1D)
 
 void AnimationNodeBlendSpace1D::get_parameter_list(List<PropertyInfo> *r_list) const {
-    r_list->push_back(PropertyInfo(Variant::REAL, blend_position));
+    r_list->push_back(PropertyInfo(VariantType::REAL, blend_position));
 }
 Variant AnimationNodeBlendSpace1D::get_parameter_default_value(const StringName &p_parameter) const {
     return 0;
@@ -60,39 +60,39 @@ void AnimationNodeBlendSpace1D::_tree_changed() {
 }
 
 void AnimationNodeBlendSpace1D::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("add_blend_point", "node", "pos", "at_index"), &AnimationNodeBlendSpace1D::add_blend_point, {DEFVAL(-1)});
-    MethodBinder::bind_method(D_METHOD("set_blend_point_position", "point", "pos"), &AnimationNodeBlendSpace1D::set_blend_point_position);
-    MethodBinder::bind_method(D_METHOD("get_blend_point_position", "point"), &AnimationNodeBlendSpace1D::get_blend_point_position);
-    MethodBinder::bind_method(D_METHOD("set_blend_point_node", "point", "node"), &AnimationNodeBlendSpace1D::set_blend_point_node);
-    MethodBinder::bind_method(D_METHOD("get_blend_point_node", "point"), &AnimationNodeBlendSpace1D::get_blend_point_node);
-    MethodBinder::bind_method(D_METHOD("remove_blend_point", "point"), &AnimationNodeBlendSpace1D::remove_blend_point);
+    MethodBinder::bind_method(D_METHOD("add_blend_point", {"node", "pos", "at_index"}), &AnimationNodeBlendSpace1D::add_blend_point, {DEFVAL(-1)});
+    MethodBinder::bind_method(D_METHOD("set_blend_point_position", {"point", "pos"}), &AnimationNodeBlendSpace1D::set_blend_point_position);
+    MethodBinder::bind_method(D_METHOD("get_blend_point_position", {"point"}), &AnimationNodeBlendSpace1D::get_blend_point_position);
+    MethodBinder::bind_method(D_METHOD("set_blend_point_node", {"point", "node"}), &AnimationNodeBlendSpace1D::set_blend_point_node);
+    MethodBinder::bind_method(D_METHOD("get_blend_point_node", {"point"}), &AnimationNodeBlendSpace1D::get_blend_point_node);
+    MethodBinder::bind_method(D_METHOD("remove_blend_point", {"point"}), &AnimationNodeBlendSpace1D::remove_blend_point);
     MethodBinder::bind_method(D_METHOD("get_blend_point_count"), &AnimationNodeBlendSpace1D::get_blend_point_count);
 
-    MethodBinder::bind_method(D_METHOD("set_min_space", "min_space"), &AnimationNodeBlendSpace1D::set_min_space);
+    MethodBinder::bind_method(D_METHOD("set_min_space", {"min_space"}), &AnimationNodeBlendSpace1D::set_min_space);
     MethodBinder::bind_method(D_METHOD("get_min_space"), &AnimationNodeBlendSpace1D::get_min_space);
 
-    MethodBinder::bind_method(D_METHOD("set_max_space", "max_space"), &AnimationNodeBlendSpace1D::set_max_space);
+    MethodBinder::bind_method(D_METHOD("set_max_space", {"max_space"}), &AnimationNodeBlendSpace1D::set_max_space);
     MethodBinder::bind_method(D_METHOD("get_max_space"), &AnimationNodeBlendSpace1D::get_max_space);
 
-    MethodBinder::bind_method(D_METHOD("set_snap", "snap"), &AnimationNodeBlendSpace1D::set_snap);
+    MethodBinder::bind_method(D_METHOD("set_snap", {"snap"}), &AnimationNodeBlendSpace1D::set_snap);
     MethodBinder::bind_method(D_METHOD("get_snap"), &AnimationNodeBlendSpace1D::get_snap);
 
-    MethodBinder::bind_method(D_METHOD("set_value_label", "text"), &AnimationNodeBlendSpace1D::set_value_label);
+    MethodBinder::bind_method(D_METHOD("set_value_label", {"text"}), &AnimationNodeBlendSpace1D::set_value_label);
     MethodBinder::bind_method(D_METHOD("get_value_label"), &AnimationNodeBlendSpace1D::get_value_label);
 
-    MethodBinder::bind_method(D_METHOD("_add_blend_point", "index", "node"), &AnimationNodeBlendSpace1D::_add_blend_point);
+    MethodBinder::bind_method(D_METHOD("_add_blend_point", {"index", "node"}), &AnimationNodeBlendSpace1D::_add_blend_point);
 
     MethodBinder::bind_method(D_METHOD("_tree_changed"), &AnimationNodeBlendSpace1D::_tree_changed);
 
     for (int i = 0; i < MAX_BLEND_POINTS; i++) {
-        ADD_PROPERTYI(PropertyInfo(Variant::OBJECT, "blend_point_" + itos(i) + "/node", PROPERTY_HINT_RESOURCE_TYPE, "AnimationRootNode", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_add_blend_point", "get_blend_point_node", i);
-        ADD_PROPERTYI(PropertyInfo(Variant::REAL, "blend_point_" + itos(i) + "/pos", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_blend_point_position", "get_blend_point_position", i);
+        ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "blend_point_" + itos(i) + "/node", PROPERTY_HINT_RESOURCE_TYPE, "AnimationRootNode", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_add_blend_point", "get_blend_point_node", i);
+        ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "blend_point_" + itos(i) + "/pos", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_blend_point_position", "get_blend_point_position", i);
     }
 
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "min_space", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_min_space", "get_min_space");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "max_space", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_max_space", "get_max_space");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "snap", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_snap", "get_snap");
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "value_label", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_value_label", "get_value_label");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "min_space", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_min_space", "get_min_space");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "max_space", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_max_space", "get_max_space");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "snap", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_snap", "get_snap");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "value_label", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_value_label", "get_value_label");
 }
 
 void AnimationNodeBlendSpace1D::get_child_nodes(List<ChildNode> *r_child_nodes) {
@@ -105,10 +105,10 @@ void AnimationNodeBlendSpace1D::get_child_nodes(List<ChildNode> *r_child_nodes) 
 }
 
 void AnimationNodeBlendSpace1D::add_blend_point(const Ref<AnimationRootNode> &p_node, float p_position, int p_at_index) {
-    ERR_FAIL_COND(blend_points_used >= MAX_BLEND_POINTS);
-    ERR_FAIL_COND(p_node.is_null());
+    ERR_FAIL_COND(blend_points_used >= MAX_BLEND_POINTS)
+    ERR_FAIL_COND(not p_node)
 
-    ERR_FAIL_COND(p_at_index < -1 || p_at_index > blend_points_used);
+    ERR_FAIL_COND(p_at_index < -1 || p_at_index > blend_points_used)
 
     if (p_at_index == -1 || p_at_index == blend_points_used) {
         p_at_index = blend_points_used;
@@ -135,9 +135,9 @@ void AnimationNodeBlendSpace1D::set_blend_point_position(int p_point, float p_po
 
 void AnimationNodeBlendSpace1D::set_blend_point_node(int p_point, const Ref<AnimationRootNode> &p_node) {
     ERR_FAIL_INDEX(p_point, blend_points_used);
-    ERR_FAIL_COND(p_node.is_null());
+    ERR_FAIL_COND(not p_node)
 
-    if (blend_points[p_point].node.is_valid()) {
+    if (blend_points[p_point].node) {
         blend_points[p_point].node->disconnect("tree_changed", this, "_tree_changed");
     }
 

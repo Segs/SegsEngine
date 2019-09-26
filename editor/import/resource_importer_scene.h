@@ -124,7 +124,7 @@ public:
     int get_preset_count() const override;
     String get_preset_name(int p_idx) const override;
 
-    void get_import_options(List<ImportOption> *r_options, int p_preset = 0) const override;
+    void get_import_options(ListPOD<ImportOption> *r_options, int p_preset = 0) const override;
     bool get_option_visibility(const String &p_option, const Map<StringName, Variant> &p_options) const override;
     int get_import_order() const override { return 100; } //after everything
 
@@ -135,7 +135,7 @@ public:
     Node *_fix_node(Node *p_node, Node *p_root, Map<Ref<Mesh>, List<Ref<Shape> > > &collision_map, LightBakeMode p_light_bake_mode);
 
     void _create_clips(Node *scene, const Array &p_clips, bool p_bake_all);
-    void _filter_anim_tracks(Ref<Animation> anim, Set<String> &keep);
+    void _filter_anim_tracks(const Ref<Animation>& anim, Set<String> &keep);
     void _filter_tracks(Node *scene, const String &p_text);
     void _optimize_animations(Node *scene, float p_max_lin_error, float p_max_ang_error, float p_max_angle);
 

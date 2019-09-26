@@ -28,11 +28,11 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef NATIVE_SCRIPT_H
-#define NATIVE_SCRIPT_H
+#pragma once
 
 #include "core/io/resource_loader.h"
 #include "core/io/resource_saver.h"
+#include "core/method_info.h"
 #include "core/oa_hash_map.h"
 #include "core/ordered_hash_map.h"
 #include "core/os/thread_safe.h"
@@ -166,13 +166,13 @@ public:
     ScriptLanguage *get_language() const override;
 
     bool has_script_signal(const StringName &p_signal) const override;
-    void get_script_signal_list(List<MethodInfo> *r_signals) const override;
+    void get_script_signal_list(ListPOD<MethodInfo> *r_signals) const override;
 
     bool get_property_default_value(const StringName &p_property, Variant &r_value) const override;
 
     void update_exports() override; //editor tool
-    void get_script_method_list(List<MethodInfo> *p_list) const override;
-    void get_script_property_list(List<PropertyInfo> *p_list) const override;
+    void get_script_method_list(PODVector<MethodInfo> *p_list) const override;
+    void get_script_property_list(ListPOD<PropertyInfo> *p_list) const override;
 
     String get_class_documentation() const;
     String get_method_documentation(const StringName &p_method) const;
@@ -202,9 +202,9 @@ public:
 
     bool set(const StringName &p_name, const Variant &p_value) override;
     bool get(const StringName &p_name, Variant &r_ret) const override;
-    void get_property_list(List<PropertyInfo> *p_properties) const override;
-    Variant::Type get_property_type(const StringName &p_name, bool *r_is_valid) const override;
-    void get_method_list(List<MethodInfo> *p_list) const override;
+    void get_property_list(ListPOD<PropertyInfo> *p_properties) const override;
+    VariantType get_property_type(const StringName &p_name, bool *r_is_valid) const override;
+    void get_method_list(PODVector<MethodInfo> *p_list) const override;
     bool has_method(const StringName &p_method) const override;
     Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error) override;
     void notification(int p_notification) override;
@@ -365,8 +365,9 @@ public:
 };
 
 inline NativeScriptDesc *NativeScript::get_script_desc() const {
-    Map<StringName, NativeScriptDesc>::Element *E = NativeScriptLanguage::singleton->library_classes[lib_path].find(class_name);
-    return E ? &E->get() : nullptr;
+    auto &classes(NativeScriptLanguage::singleton->library_classes[lib_path]);
+    auto iter = classes.find(class_name);
+    return iter!=classes.end() ? &iter->second : nullptr;
 }
 
 class NativeReloadNode : public Node {
@@ -385,7 +386,7 @@ public:
 class ResourceFormatLoaderNativeScript : public ResourceFormatLoader {
 public:
     RES load(const String &p_path, const String &p_original_path = "", Error *r_error = nullptr) override;
-    void get_recognized_extensions(List<String> *p_extensions) const override;
+    void get_recognized_extensions(ListPOD<String> *p_extensions) const override;
     bool handles_type(const String &p_type) const override;
     String get_resource_type(const String &p_path) const override;
 };
@@ -395,5 +396,3 @@ class ResourceFormatSaverNativeScript : public ResourceFormatSaver {
     bool recognize(const RES &p_resource) const override;
     void get_recognized_extensions(const RES &p_resource, Vector<String> *p_extensions) const override;
 };
-
-#endif // GDNATIVE_H

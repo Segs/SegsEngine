@@ -29,9 +29,11 @@
 /*************************************************************************/
 
 #include "slider.h"
+
+#include "core/method_bind.h"
+#include "core/os/input_event.h"
 #include "core/os/keyboard.h"
 #include "scene/resources/style_box.h"
-#include "core/method_bind.h"
 
 IMPL_GDCLASS(Slider)
 IMPL_GDCLASS(HSlider)
@@ -57,9 +59,9 @@ void Slider::_gui_input(Ref<InputEvent> p_event) {
         return;
     }
 
-    Ref<InputEventMouseButton> mb = p_event;
+    Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_event);
 
-    if (mb.is_valid()) {
+    if (mb) {
         if (mb->get_button_index() == BUTTON_LEFT) {
 
             if (mb->is_pressed()) {
@@ -87,9 +89,9 @@ void Slider::_gui_input(Ref<InputEvent> p_event) {
         }
     }
 
-    Ref<InputEventMouseMotion> mm = p_event;
+    Ref<InputEventMouseMotion> mm = dynamic_ref_cast<InputEventMouseMotion>(p_event);
 
-    if (mm.is_valid()) {
+    if (mm) {
         if (grab.active) {
 
             Size2i size = get_size();
@@ -105,7 +107,7 @@ void Slider::_gui_input(Ref<InputEvent> p_event) {
         }
     }
 
-    if (!mm.is_valid() && !mb.is_valid()) {
+    if (not mm && not mb) {
 
         if (p_event->is_action("ui_left") && p_event->is_pressed()) {
 
@@ -278,22 +280,22 @@ bool Slider::is_scrollable() const {
 void Slider::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_gui_input"), &Slider::_gui_input);
-    MethodBinder::bind_method(D_METHOD("set_ticks", "count"), &Slider::set_ticks);
+    MethodBinder::bind_method(D_METHOD("set_ticks", {"count"}), &Slider::set_ticks);
     MethodBinder::bind_method(D_METHOD("get_ticks"), &Slider::get_ticks);
 
     MethodBinder::bind_method(D_METHOD("get_ticks_on_borders"), &Slider::get_ticks_on_borders);
-    MethodBinder::bind_method(D_METHOD("set_ticks_on_borders", "ticks_on_border"), &Slider::set_ticks_on_borders);
+    MethodBinder::bind_method(D_METHOD("set_ticks_on_borders", {"ticks_on_border"}), &Slider::set_ticks_on_borders);
 
-    MethodBinder::bind_method(D_METHOD("set_editable", "editable"), &Slider::set_editable);
+    MethodBinder::bind_method(D_METHOD("set_editable", {"editable"}), &Slider::set_editable);
     MethodBinder::bind_method(D_METHOD("is_editable"), &Slider::is_editable);
-    MethodBinder::bind_method(D_METHOD("set_scrollable", "scrollable"), &Slider::set_scrollable);
+    MethodBinder::bind_method(D_METHOD("set_scrollable", {"scrollable"}), &Slider::set_scrollable);
     MethodBinder::bind_method(D_METHOD("is_scrollable"), &Slider::is_scrollable);
 
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "editable"), "set_editable", "is_editable");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "scrollable"), "set_scrollable", "is_scrollable");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "tick_count", PROPERTY_HINT_RANGE, "0,4096,1"), "set_ticks", "get_ticks");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "ticks_on_borders"), "set_ticks_on_borders", "get_ticks_on_borders");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "focus_mode", PROPERTY_HINT_ENUM, "None,Click,All"), "set_focus_mode", "get_focus_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "editable"), "set_editable", "is_editable");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "scrollable"), "set_scrollable", "is_scrollable");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "tick_count", PROPERTY_HINT_RANGE, "0,4096,1"), "set_ticks", "get_ticks");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "ticks_on_borders"), "set_ticks_on_borders", "get_ticks_on_borders");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "focus_mode", PROPERTY_HINT_ENUM, "None,Click,All"), "set_focus_mode", "get_focus_mode");
 }
 
 Slider::Slider(Orientation p_orientation) {

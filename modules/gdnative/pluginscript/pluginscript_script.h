@@ -109,13 +109,13 @@ public:
 	ScriptLanguage *get_language() const override;
 
 	bool has_script_signal(const StringName &p_signal) const override;
-	void get_script_signal_list(List<MethodInfo> *r_signals) const override;
+	void get_script_signal_list(ListPOD<MethodInfo> *r_signals) const override;
 
 	bool get_property_default_value(const StringName &p_property, Variant &r_value) const override;
 
 	void update_exports() override;
-	void get_script_method_list(List<MethodInfo> *r_methods) const override;
-	void get_script_property_list(List<PropertyInfo> *r_properties) const override;
+	void get_script_method_list(PODVector<MethodInfo> *r_methods) const override;
+	void get_script_property_list(ListPOD<PropertyInfo> *r_properties) const override;
 
 	int get_member_line(const StringName &p_member) const override;
 

@@ -31,6 +31,8 @@
 #pragma once
 
 #include "core/os/memory.h"
+#include "core/error_list.h"
+#include "core/error_macros.h"
 #include "core/safe_refcount.h"
 
 #include <cstring>
@@ -46,7 +48,7 @@ template <class T>
 class CowData {
     template <class TV>
     friend class Vector;
-    friend class String;
+
     template <class TV, class VV>
     friend class VMap;
 
@@ -71,6 +73,7 @@ private:
 
 public:
     CowData &operator=(const CowData<T> &p_from) { _ref(p_from); return *this; }
+    CowData &operator=(CowData<T> &&p_from);
 
     _FORCE_INLINE_ T *ptrw() {
         _copy_on_write();
@@ -107,7 +110,8 @@ public:
 
     _FORCE_INLINE_ CowData();
     _FORCE_INLINE_ ~CowData();
-    _FORCE_INLINE_ CowData(CowData<T> &p_from) { _ref(p_from); }
+    _FORCE_INLINE_ CowData(const CowData<T> &p_from) { _ref(p_from); }
+    CowData(CowData<T> &&p_from);
 };
 
 //GODOT_TEMPLATE_EXT_DECLARE(CowData<char>)

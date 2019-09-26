@@ -336,8 +336,7 @@ void CameraOSX::update_feeds() {
 		};
 
 		if (!found) {
-			Ref<CameraFeedOSX> newfeed;
-			newfeed.instance();
+			Ref<CameraFeedOSX> newfeed(make_ref_counted<CameraFeedOSX>());
 			newfeed->set_device(device);
 
 			// assume display camera so inverse

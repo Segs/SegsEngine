@@ -74,15 +74,15 @@ protected:
 
     bool _get(const StringName &p_name, Variant &r_ret) const {
 
-        if (!values.has(p_name))
+        if (!values.contains(p_name))
             return false;
-        r_ret = values[p_name];
+        r_ret = values.at(p_name);
         return true;
     }
-    void _get_property_list(List<PropertyInfo> *p_list) const {
+    void _get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
         for (const List<PropertyInfo>::Element *E = props.front(); E; E = E->next())
-            p_list->push_back(E->get());
+            p_list->push_back(E->deref());
     }
 
 public:
@@ -94,16 +94,16 @@ public:
 
     String get_var_value(const String &p_var) const {
 
-        for (Map<StringName, Variant>::Element *E = values.front(); E; E = E->next()) {
-            String v = StringUtils::get_slice(E->key(),"/", 1);
+        for (const eastl::pair<const StringName,Variant> &E : values) {
+            String v = StringUtils::get_slice(E.first,"/", 1);
             if (v == p_var)
-                return E->get();
+                return E.second;
         }
 
         return "";
     }
 
-    void add_property(const String &p_name, const Variant &p_value, const PropertyHint &p_hint, const String p_hint_string) {
+    void add_property(const String &p_name, const Variant &p_value, const PropertyHint &p_hint, const String& p_hint_string) {
 
         PropertyInfo pinfo;
         pinfo.name = p_name;
@@ -130,7 +130,7 @@ class ScriptEditorDebuggerInspectedObject : public Object {
 protected:
     bool _set(const StringName &p_name, const Variant &p_value) {
 
-        if (!prop_values.has(p_name) || StringUtils::begins_with(p_name,"Constants/"))
+        if (!prop_values.contains(p_name) || StringUtils::begins_with(p_name,"Constants/"))
             return false;
 
         prop_values[p_name] = p_value;
@@ -140,18 +140,18 @@ protected:
 
     bool _get(const StringName &p_name, Variant &r_ret) const {
 
-        if (!prop_values.has(p_name))
+        if (!prop_values.contains(p_name))
             return false;
 
-        r_ret = prop_values[p_name];
+        r_ret = prop_values.at(p_name);
         return true;
     }
 
-    void _get_property_list(List<PropertyInfo> *p_list) const {
+    void _get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
         p_list->clear(); //sorry, no want category
         for (const List<PropertyInfo>::Element *E = prop_list.front(); E; E = E->next()) {
-            p_list->push_back(E->get());
+            p_list->push_back(E->deref());
         }
     }
 
@@ -208,7 +208,7 @@ IMPL_GDCLASS(ScriptEditorDebuggerInspectedObject)
 
 void ScriptEditorDebugger::debug_copy() {
     String msg = reason->get_text();
-    if (msg == "") return;
+    if (msg.empty()) return;
     OS::get_singleton()->set_clipboard(msg);
 }
 
@@ -219,7 +219,7 @@ void ScriptEditorDebugger::debug_skip_breakpoints() {
     else
         skip_breakpoints->set_icon(get_icon("DebugSkipBreakpointsOff", "EditorIcons"));
 
-    if (connection.is_valid()) {
+    if (connection) {
         Array msg;
         msg.push_back("set_skip_breakpoints");
         msg.push_back(skip_breakpoints_value);
@@ -229,9 +229,9 @@ void ScriptEditorDebugger::debug_skip_breakpoints() {
 
 void ScriptEditorDebugger::debug_next() {
 
-    ERR_FAIL_COND(!breaked);
-    ERR_FAIL_COND(connection.is_null());
-    ERR_FAIL_COND(!connection->is_connected_to_host());
+    ERR_FAIL_COND(!breaked)
+    ERR_FAIL_COND(not connection)
+    ERR_FAIL_COND(!connection->is_connected_to_host())
     Array msg;
     msg.push_back("next");
     ppeer->put_var(msg);
@@ -240,9 +240,9 @@ void ScriptEditorDebugger::debug_next() {
 }
 void ScriptEditorDebugger::debug_step() {
 
-    ERR_FAIL_COND(!breaked);
-    ERR_FAIL_COND(connection.is_null());
-    ERR_FAIL_COND(!connection->is_connected_to_host());
+    ERR_FAIL_COND(!breaked)
+    ERR_FAIL_COND(not connection)
+    ERR_FAIL_COND(!connection->is_connected_to_host())
 
     Array msg;
     msg.push_back("step");
@@ -253,9 +253,9 @@ void ScriptEditorDebugger::debug_step() {
 
 void ScriptEditorDebugger::debug_break() {
 
-    ERR_FAIL_COND(breaked);
-    ERR_FAIL_COND(connection.is_null());
-    ERR_FAIL_COND(!connection->is_connected_to_host());
+    ERR_FAIL_COND(breaked)
+    ERR_FAIL_COND(not connection)
+    ERR_FAIL_COND(!connection->is_connected_to_host())
 
     Array msg;
     msg.push_back("break");
@@ -264,9 +264,9 @@ void ScriptEditorDebugger::debug_break() {
 
 void ScriptEditorDebugger::debug_continue() {
 
-    ERR_FAIL_COND(!breaked);
-    ERR_FAIL_COND(connection.is_null());
-    ERR_FAIL_COND(!connection->is_connected_to_host());
+    ERR_FAIL_COND(!breaked)
+    ERR_FAIL_COND(not connection)
+    ERR_FAIL_COND(!connection->is_connected_to_host())
 
     OS::get_singleton()->enable_for_stealing_focus(EditorNode::get_singleton()->get_child_process_id());
 
@@ -288,7 +288,7 @@ void ScriptEditorDebugger::_scene_tree_folded(Object *obj) {
         return;
 
     ObjectID id = item->get_metadata(0);
-    if (unfold_cache.has(id)) {
+    if (unfold_cache.contains(id)) {
         unfold_cache.erase(id);
     } else {
         unfold_cache.insert(id);
@@ -344,7 +344,7 @@ void ScriptEditorDebugger::_file_selected(const String &p_file) {
             FileAccessRef file = FileAccess::open(p_file, FileAccess::WRITE, &err);
 
             if (err != OK) {
-                ERR_PRINTS("Failed to open " + p_file);
+                ERR_PRINTS("Failed to open " + p_file)
                 return;
             }
             Vector<String> line;
@@ -360,7 +360,7 @@ void ScriptEditorDebugger::_file_selected(const String &p_file) {
             List<Vector<float> >::Element *E = perf_history.back();
             while (E) {
 
-                Vector<float> &perf_data = E->get();
+                Vector<float> &perf_data = E->deref();
                 for (int i = 0; i < perf_data.size(); i++) {
 
                     line.write[i] = StringUtils::num_real(perf_data[i]);
@@ -401,8 +401,8 @@ void ScriptEditorDebugger::_scene_tree_property_select_object(ObjectID p_object)
 
 void ScriptEditorDebugger::_scene_tree_request() {
 
-    ERR_FAIL_COND(connection.is_null());
-    ERR_FAIL_COND(!connection->is_connected_to_host());
+    ERR_FAIL_COND(not connection)
+    ERR_FAIL_COND(!connection->is_connected_to_host())
 
     Array msg;
     msg.push_back("request_scene_tree");
@@ -433,20 +433,28 @@ void ScriptEditorDebugger::_scene_tree_request() {
 int ScriptEditorDebugger::_update_scene_tree(TreeItem *parent, const Array &nodes, int current_index) {
     String filter = EditorNode::get_singleton()->get_scene_tree_dock()->get_filter();
     String item_text = nodes[current_index + 1];
-    bool keep = StringUtils::is_subsequence_ofi(filter,item_text);
+    bool keep = StringUtils::is_subsequence_of(filter,item_text,StringUtils::CaseInsensitive);
 
     TreeItem *item = inspect_scene_tree->create_item(parent);
     item->set_text(0, item_text);
     ObjectID id = ObjectID(nodes[current_index + 3]);
     Ref<Texture> icon = EditorNode::get_singleton()->get_class_icon(nodes[current_index + 2], "");
-    if (icon.is_valid()) {
+    if (icon) {
         item->set_icon(0, icon);
     }
     item->set_metadata(0, id);
 
+    if (id == inspected_object_id) {
+        TreeItem *cti = item->get_parent();
+        while (cti) {
+            cti->set_collapsed(false);
+            cti = cti->get_parent();
+        }
+        item->select(0);
+    }
     // Set current item as collapsed if necessary
     if (parent) {
-        if (!unfold_cache.has(id)) {
+        if (!unfold_cache.contains(id)) {
             item->set_collapsed(true);
         }
     }
@@ -479,8 +487,8 @@ int ScriptEditorDebugger::_update_scene_tree(TreeItem *parent, const Array &node
 
 void ScriptEditorDebugger::_video_mem_request() {
 
-    ERR_FAIL_COND(connection.is_null());
-    ERR_FAIL_COND(!connection->is_connected_to_host());
+    ERR_FAIL_COND(not connection)
+    ERR_FAIL_COND(!connection->is_connected_to_host())
 
     Array msg;
     msg.push_back("request_video_mem");
@@ -500,7 +508,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
         Array msg;
         msg.push_back("get_stack_dump");
         ppeer->put_var(msg);
-        ERR_FAIL_COND(p_data.size() != 2);
+        ERR_FAIL_COND(p_data.size() != 2)
         bool can_continue = p_data[0];
         String error = p_data[1];
         step->set_disabled(!can_continue);
@@ -512,7 +520,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
         docontinue->set_disabled(false);
         emit_signal("breaked", true, can_continue);
         OS::get_singleton()->move_window_to_foreground();
-        if (error != "") {
+        if (!error.empty()) {
             tabs->set_current_tab(0);
         }
         profiler->set_enabled(false);
@@ -563,7 +571,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
         String type = p_data[1];
         Array properties = p_data[2];
 
-        if (remote_objects.has(id)) {
+        if (remote_objects.contains(id)) {
             debugObj = remote_objects[id];
         } else {
             debugObj = memnew(ScriptEditorDebuggerInspectedObject);
@@ -586,21 +594,21 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
 
             PropertyInfo pinfo;
             pinfo.name = prop[0];
-            pinfo.type = Variant::Type(int(prop[1]));
+            pinfo.type = VariantType(int(prop[1]));
             pinfo.hint = PropertyHint(int(prop[2]));
             pinfo.hint_string = prop[3];
             pinfo.usage = PropertyUsageFlags(int(prop[4]));
             Variant var = prop[5];
 
-            if (pinfo.type == Variant::OBJECT) {
+            if (pinfo.type == VariantType::OBJECT) {
                 if (var.is_zero()) {
                     var = RES();
-                } else if (var.get_type() == Variant::STRING) {
+                } else if (var.get_type() == VariantType::STRING) {
                     var = ResourceLoader::load(var);
 
                     if (pinfo.hint_string == "Script")
                         debugObj->set_script(var);
-                } else if (var.get_type() == Variant::OBJECT) {
+                } else if (var.get_type() == VariantType::OBJECT) {
                     if (((Object *)var)->is_class("EncodedObjectAsID")) {
                         var = Object::cast_to<EncodedObjectAsID>(var)->get_object_id();
                         pinfo.type = var.get_type();
@@ -613,7 +621,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
             //always add the property, since props may have been added or removed
             debugObj->prop_list.push_back(pinfo);
 
-            if (!debugObj->prop_values.has(pinfo.name)) {
+            if (!debugObj->prop_values.contains(pinfo.name)) {
                 new_props_added++;
                 debugObj->prop_values[pinfo.name] = var;
             } else {
@@ -631,8 +639,8 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
 
             if (old_prop_size == debugObj->prop_list.size() && new_props_added == 0) {
                 //only some may have changed, if so, then update those, if exist
-                for (Set<String>::Element *E = changed.front(); E; E = E->next()) {
-                    EditorNode::get_singleton()->get_inspector()->update_property(E->get());
+                for (const String &E : changed) {
+                    EditorNode::get_singleton()->get_inspector()->update_property(E);
                 }
             } else {
                 //full update, because props were added or removed
@@ -701,7 +709,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
             PropertyHint h = PROPERTY_HINT_NONE;
             String hs = String();
 
-            if (v.get_type() == Variant::OBJECT) {
+            if (v.get_type() == VariantType::OBJECT) {
                 v = Object::cast_to<EncodedObjectAsID>(v)->get_object_id();
                 h = PROPERTY_HINT_OBJECT_ID;
                 hs = "Object";
@@ -720,7 +728,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
             PropertyHint h = PROPERTY_HINT_NONE;
             String hs = String();
 
-            if (v.get_type() == Variant::OBJECT) {
+            if (v.get_type() == VariantType::OBJECT) {
                 v = Object::cast_to<EncodedObjectAsID>(v)->get_object_id();
                 h = PROPERTY_HINT_OBJECT_ID;
                 hs = "Object";
@@ -739,7 +747,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
             PropertyHint h = PROPERTY_HINT_NONE;
             String hs = String();
 
-            if (v.get_type() == Variant::OBJECT) {
+            if (v.get_type() == VariantType::OBJECT) {
                 v = Object::cast_to<EncodedObjectAsID>(v)->get_object_id();
                 h = PROPERTY_HINT_OBJECT_ID;
                 hs = "Object";
@@ -970,7 +978,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
             float self = p_data[idx++];
 
             EditorProfiler::Metric::Category::Item item;
-            if (profiler_signature.has(signature)) {
+            if (profiler_signature.contains(signature)) {
 
                 item.signature = profiler_signature[signature];
 
@@ -1052,17 +1060,17 @@ void ScriptEditorDebugger::_performance_draw() {
             which.push_back(i);
     }
 
-    Ref<Font> graph_font = get_font("font", "TextEdit");
 
     if (which.empty()) {
-        String text = TTR("Pick one or more items from the list to display the graph.");
-
-        perf_draw->draw_string(graph_font, Point2i(MAX(0, perf_draw->get_size().x - graph_font->get_string_size(text).x), perf_draw->get_size().y + graph_font->get_ascent()) / 2, text, get_color("font_color", "Label"), perf_draw->get_size().x);
+        info_message->show();
 
         return;
     }
 
+    info_message->hide();
+
     Ref<StyleBox> graph_sb = get_stylebox("normal", "TextEdit");
+    Ref<Font> graph_font = get_font("font", "TextEdit");
 
     int cols = Math::ceil(Math::sqrt((float)which.size()));
     int rows = Math::ceil((float)which.size() / cols);
@@ -1103,7 +1111,7 @@ void ScriptEditorDebugger::_performance_draw() {
             float m = perf_max[pi];
             if (m == 0)
                 m = 0.00001;
-            float h2 = E->get()[pi] / m;
+            float h2 = E->deref()[pi] / m;
             h2 = (1.0 - h2) * r.size.y;
 
             if (E != perf_history.front())
@@ -1131,7 +1139,6 @@ void ScriptEditorDebugger::_notification(int p_what) {
             forward->set_icon(get_icon("Forward", "EditorIcons"));
             dobreak->set_icon(get_icon("Pause", "EditorIcons"));
             docontinue->set_icon(get_icon("DebugContinue", "EditorIcons"));
-            //scene_tree_refresh->set_icon( get_icon("Reload","EditorIcons"));
             le_set->connect("pressed", this, "_live_edit_set");
             le_clear->connect("pressed", this, "_live_edit_clear");
             error_tree->connect("item_selected", this, "_error_selected");
@@ -1143,7 +1150,7 @@ void ScriptEditorDebugger::_notification(int p_what) {
         } break;
         case NOTIFICATION_PROCESS: {
 
-            if (connection.is_valid()) {
+            if (connection) {
 
                 inspect_scene_tree_timeout -= get_process_delta_time();
                 if (inspect_scene_tree_timeout < 0) {
@@ -1193,17 +1200,17 @@ void ScriptEditorDebugger::_notification(int p_what) {
             }
 
             if (server->is_connection_available()) {
-                if (connection.is_valid()) {
+                if (connection) {
                     // We already have a valid connection. Disconnecting any new connecting client to prevent it from hanging.
                     // (If we don't keep a reference to the connection it will be destroyed and disconnect_from_host will be called internally)
                     server->take_connection();
                 } else {
                     // We just got the first connection.
                     connection = server->take_connection();
-                    if (connection.is_null())
+                    if (not connection)
                         break;
 
-                    EditorNode::get_log()->add_message("** Debug Process Started **");
+                    EditorNode::get_log()->add_message("--- Debugging process started ---", EditorLog::MSG_TYPE_EDITOR);
 
                     ppeer->set_stream_peer(connection);
 
@@ -1213,7 +1220,7 @@ void ScriptEditorDebugger::_notification(int p_what) {
                     dobreak->set_disabled(false);
                     tabs->set_current_tab(0);
 
-                    _set_reason_text(TTR("Child Process Connected"), MESSAGE_SUCCESS);
+                    _set_reason_text(TTR("Child process connected."), MESSAGE_SUCCESS);
                     profiler->clear();
 
                     inspect_scene_tree->clear();
@@ -1238,7 +1245,7 @@ void ScriptEditorDebugger::_notification(int p_what) {
                 }
             }
 
-            if (connection.is_null())
+            if (not connection)
                 break;
 
             if (!connection->is_connected_to_host()) {
@@ -1265,7 +1272,7 @@ void ScriptEditorDebugger::_notification(int p_what) {
                         Error ret = ppeer->get_var(cmd);
                         if (ret != OK) {
                             stop();
-                            ERR_FAIL_COND(ret != OK);
+                            ERR_FAIL_COND(ret != OK)
                         }
 
                         message.push_back(cmd);
@@ -1285,11 +1292,11 @@ void ScriptEditorDebugger::_notification(int p_what) {
                         Error ret = ppeer->get_var(cmd);
                         if (ret != OK) {
                             stop();
-                            ERR_FAIL_COND(ret != OK);
+                            ERR_FAIL_COND(ret != OK)
                         }
-                        if (cmd.get_type() != Variant::STRING) {
+                        if (cmd.get_type() != VariantType::STRING) {
                             stop();
-                            ERR_FAIL_COND(cmd.get_type() != Variant::STRING);
+                            ERR_FAIL_COND(cmd.get_type() != VariantType::STRING)
                         }
 
                         message_type = cmd;
@@ -1297,11 +1304,11 @@ void ScriptEditorDebugger::_notification(int p_what) {
                         ret = ppeer->get_var(cmd);
                         if (ret != OK) {
                             stop();
-                            ERR_FAIL_COND(ret != OK);
+                            ERR_FAIL_COND(ret != OK)
                         }
-                        if (cmd.get_type() != Variant::INT) {
+                        if (cmd.get_type() != VariantType::INT) {
                             stop();
-                            ERR_FAIL_COND(cmd.get_type() != Variant::INT);
+                            ERR_FAIL_COND(cmd.get_type() != VariantType::INT)
                         }
 
                         pending_in_queue = cmd;
@@ -1348,7 +1355,7 @@ void ScriptEditorDebugger::_clear_execution() {
 
     Dictionary d = ti->get_metadata(0);
 
-    stack_script = ResourceLoader::load(d["file"]);
+    stack_script = dynamic_ref_cast<Script>(ResourceLoader::load(d["file"]));
     emit_signal("clear_execution", stack_script);
     stack_script.unref();
 }
@@ -1399,8 +1406,8 @@ void ScriptEditorDebugger::stop() {
     _clear_remote_objects();
     ppeer->set_stream_peer(Ref<StreamPeer>());
 
-    if (connection.is_valid()) {
-        EditorNode::get_log()->add_message("** Debug Process Stopped **");
+    if (connection) {
+        EditorNode::get_log()->add_message("--- Debugging process stopped ---", EditorLog::MSG_TYPE_EDITOR);
         connection.unref();
 
         reason->set_text("");
@@ -1433,7 +1440,7 @@ void ScriptEditorDebugger::stop() {
 
 void ScriptEditorDebugger::_profiler_activate(bool p_enable) {
 
-    if (!connection.is_valid())
+    if (not connection)
         return;
 
     if (p_enable) {
@@ -1456,7 +1463,7 @@ void ScriptEditorDebugger::_profiler_activate(bool p_enable) {
 
 void ScriptEditorDebugger::_network_profiler_activate(bool p_enable) {
 
-    if (!connection.is_valid())
+    if (not connection)
         return;
 
     if (p_enable) {
@@ -1474,7 +1481,7 @@ void ScriptEditorDebugger::_network_profiler_activate(bool p_enable) {
 }
 void ScriptEditorDebugger::_profiler_seeked() {
 
-    if (!connection.is_valid() || !connection->is_connected_to_host())
+    if (not connection || !connection->is_connected_to_host())
         return;
 
     if (breaked)
@@ -1490,12 +1497,12 @@ void ScriptEditorDebugger::_stack_dump_frame_selected() {
 
     Dictionary d = ti->get_metadata(0);
 
-    stack_script = ResourceLoader::load(d["file"]);
+    stack_script = dynamic_ref_cast<Script>(ResourceLoader::load(d["file"]));
     emit_signal("goto_script_line", stack_script, int(d["line"]) - 1);
     emit_signal("set_execution", stack_script, int(d["line"]) - 1);
     stack_script.unref();
 
-    if (connection.is_valid() && connection->is_connected_to_host()) {
+    if (connection && connection->is_connected_to_host()) {
         Array msg;
         msg.push_back("get_stack_frame_vars");
         msg.push_back(d["frame"]);
@@ -1544,10 +1551,10 @@ int ScriptEditorDebugger::_get_node_path_cache(const NodePath &p_path) {
 
 int ScriptEditorDebugger::_get_res_path_cache(const String &p_path) {
 
-    Map<String, int>::Element *E = res_path_cache.find(p_path);
+    Map<String, int>::iterator E = res_path_cache.find(p_path);
 
-    if (E)
-        return E->get();
+    if (E!=res_path_cache.end())
+        return E->second;
 
     last_path_id++;
 
@@ -1563,7 +1570,7 @@ int ScriptEditorDebugger::_get_res_path_cache(const String &p_path) {
 
 void ScriptEditorDebugger::_method_changed(Object *p_base, const StringName &p_name, VARIANT_ARG_DECLARE) {
 
-    if (!p_base || !live_debug || !connection.is_valid() || !editor->get_edited_scene())
+    if (!p_base || !live_debug || not connection || !editor->get_edited_scene())
         return;
 
     Node *node = Object::cast_to<Node>(p_base);
@@ -1572,7 +1579,7 @@ void ScriptEditorDebugger::_method_changed(Object *p_base, const StringName &p_n
 
     for (int i = 0; i < VARIANT_ARG_MAX; i++) {
         //no pointers, sorry
-        if (argptr[i] && (argptr[i]->get_type() == Variant::OBJECT || argptr[i]->get_type() == Variant::_RID))
+        if (argptr[i] && (argptr[i]->get_type() == VariantType::OBJECT || argptr[i]->get_type() == VariantType::_RID))
             return;
     }
 
@@ -1596,7 +1603,7 @@ void ScriptEditorDebugger::_method_changed(Object *p_base, const StringName &p_n
 
     Resource *res = Object::cast_to<Resource>(p_base);
 
-    if (res && res->get_path() != String()) {
+    if (res && !res->get_path().empty()) {
 
         String respath = res->get_path();
         int pathid = _get_res_path_cache(respath);
@@ -1617,7 +1624,7 @@ void ScriptEditorDebugger::_method_changed(Object *p_base, const StringName &p_n
 
 void ScriptEditorDebugger::_property_changed(Object *p_base, const StringName &p_property, const Variant &p_value) {
 
-    if (!p_base || !live_debug || !connection.is_valid() || !editor->get_edited_scene())
+    if (!p_base || !live_debug || not connection || !editor->get_edited_scene())
         return;
 
     Node *node = Object::cast_to<Node>(p_base);
@@ -1628,8 +1635,8 @@ void ScriptEditorDebugger::_property_changed(Object *p_base, const StringName &p
         int pathid = _get_node_path_cache(path);
 
         if (p_value.is_ref()) {
-            Ref<Resource> res = p_value;
-            if (res.is_valid() && res->get_path() != String()) {
+            Ref<Resource> res(p_value);
+            if (res && !res->get_path().empty()) {
 
                 Array msg;
                 msg.push_back("live_node_prop_res");
@@ -1653,14 +1660,14 @@ void ScriptEditorDebugger::_property_changed(Object *p_base, const StringName &p
 
     Resource *res = Object::cast_to<Resource>(p_base);
 
-    if (res && res->get_path() != String()) {
+    if (res && !res->get_path().empty()) {
 
         String respath = res->get_path();
         int pathid = _get_res_path_cache(respath);
 
         if (p_value.is_ref()) {
-            Ref<Resource> res2 = p_value;
-            if (res2.is_valid() && res2->get_path() != String()) {
+            Ref<Resource> res2(p_value);
+            if (res2 && !res2->get_path().empty()) {
 
                 Array msg;
                 msg.push_back("live_res_prop_res");
@@ -1702,7 +1709,7 @@ void ScriptEditorDebugger::set_live_debugging(bool p_enable) {
 
 void ScriptEditorDebugger::_live_edit_set() {
 
-    if (!connection.is_valid())
+    if (not connection)
         return;
 
     TreeItem *ti = inspect_scene_tree->get_selected();
@@ -1735,7 +1742,7 @@ void ScriptEditorDebugger::update_live_edit_root() {
 
     NodePath np = editor->get_editor_data().get_edited_scene_live_edit_root();
 
-    if (connection.is_valid()) {
+    if (connection) {
         Array msg;
         msg.push_back("live_set_root");
         msg.push_back(np);
@@ -1750,7 +1757,7 @@ void ScriptEditorDebugger::update_live_edit_root() {
 
 void ScriptEditorDebugger::live_debug_create_node(const NodePath &p_parent, const String &p_type, const String &p_name) {
 
-    if (live_debug && connection.is_valid()) {
+    if (live_debug && connection) {
         Array msg;
         msg.push_back("live_create_node");
         msg.push_back(p_parent);
@@ -1762,7 +1769,7 @@ void ScriptEditorDebugger::live_debug_create_node(const NodePath &p_parent, cons
 
 void ScriptEditorDebugger::live_debug_instance_node(const NodePath &p_parent, const String &p_path, const String &p_name) {
 
-    if (live_debug && connection.is_valid()) {
+    if (live_debug && connection) {
         Array msg;
         msg.push_back("live_instance_node");
         msg.push_back(p_parent);
@@ -1773,7 +1780,7 @@ void ScriptEditorDebugger::live_debug_instance_node(const NodePath &p_parent, co
 }
 void ScriptEditorDebugger::live_debug_remove_node(const NodePath &p_at) {
 
-    if (live_debug && connection.is_valid()) {
+    if (live_debug && connection) {
         Array msg;
         msg.push_back("live_remove_node");
         msg.push_back(p_at);
@@ -1782,7 +1789,7 @@ void ScriptEditorDebugger::live_debug_remove_node(const NodePath &p_at) {
 }
 void ScriptEditorDebugger::live_debug_remove_and_keep_node(const NodePath &p_at, ObjectID p_keep_id) {
 
-    if (live_debug && connection.is_valid()) {
+    if (live_debug && connection) {
         Array msg;
         msg.push_back("live_remove_and_keep_node");
         msg.push_back(p_at);
@@ -1792,7 +1799,7 @@ void ScriptEditorDebugger::live_debug_remove_and_keep_node(const NodePath &p_at,
 }
 void ScriptEditorDebugger::live_debug_restore_node(ObjectID p_id, const NodePath &p_at, int p_at_pos) {
 
-    if (live_debug && connection.is_valid()) {
+    if (live_debug && connection) {
         Array msg;
         msg.push_back("live_restore_node");
         msg.push_back(p_id);
@@ -1803,7 +1810,7 @@ void ScriptEditorDebugger::live_debug_restore_node(ObjectID p_id, const NodePath
 }
 void ScriptEditorDebugger::live_debug_duplicate_node(const NodePath &p_at, const String &p_new_name) {
 
-    if (live_debug && connection.is_valid()) {
+    if (live_debug && connection) {
         Array msg;
         msg.push_back("live_duplicate_node");
         msg.push_back(p_at);
@@ -1813,7 +1820,7 @@ void ScriptEditorDebugger::live_debug_duplicate_node(const NodePath &p_at, const
 }
 void ScriptEditorDebugger::live_debug_reparent_node(const NodePath &p_at, const NodePath &p_new_place, const String &p_new_name, int p_at_pos) {
 
-    if (live_debug && connection.is_valid()) {
+    if (live_debug && connection) {
         Array msg;
         msg.push_back("live_reparent_node");
         msg.push_back(p_at);
@@ -1826,7 +1833,7 @@ void ScriptEditorDebugger::live_debug_reparent_node(const NodePath &p_at, const 
 
 void ScriptEditorDebugger::set_breakpoint(const String &p_path, int p_line, bool p_enabled) {
 
-    if (connection.is_valid()) {
+    if (connection) {
         Array msg;
         msg.push_back("breakpoint");
         msg.push_back(p_path);
@@ -1838,7 +1845,7 @@ void ScriptEditorDebugger::set_breakpoint(const String &p_path, int p_line, bool
 
 void ScriptEditorDebugger::reload_scripts() {
 
-    if (connection.is_valid()) {
+    if (connection) {
         Array msg;
         msg.push_back("reload_scripts");
         ppeer->put_var(msg);
@@ -1863,11 +1870,11 @@ void ScriptEditorDebugger::_error_selected() {
 
     Array meta = selected->get_metadata(0);
 
-    if (meta.size() == 0) {
+    if (meta.empty()) {
         return;
     }
 
-    Ref<Script> s = ResourceLoader::load(meta[0]);
+    Ref<Script> s = dynamic_ref_cast<Script>(ResourceLoader::load(meta[0]));
     emit_signal("goto_script_line", s, int(meta[1]) - 1);
 }
 
@@ -1919,8 +1926,8 @@ Ref<Script> ScriptEditorDebugger::get_dump_stack_script() const {
 
 void ScriptEditorDebugger::_paused() {
 
-    ERR_FAIL_COND(connection.is_null());
-    ERR_FAIL_COND(!connection->is_connected_to_host());
+    ERR_FAIL_COND(not connection)
+    ERR_FAIL_COND(!connection->is_connected_to_host())
 
     if (!breaked && EditorNode::get_singleton()->get_pause_button()->is_pressed()) {
         debug_break();
@@ -1933,18 +1940,18 @@ void ScriptEditorDebugger::_paused() {
 
 void ScriptEditorDebugger::_set_remote_object(ObjectID p_id, ScriptEditorDebuggerInspectedObject *p_obj) {
 
-    if (remote_objects.has(p_id))
+    if (remote_objects.contains(p_id))
         memdelete(remote_objects[p_id]);
     remote_objects[p_id] = p_obj;
 }
 
 void ScriptEditorDebugger::_clear_remote_objects() {
 
-    for (Map<ObjectID, ScriptEditorDebuggerInspectedObject *>::Element *E = remote_objects.front(); E; E = E->next()) {
-        if (editor->get_editor_history()->get_current() == E->value()->get_instance_id()) {
+    for (eastl::pair<const ObjectID,ScriptEditorDebuggerInspectedObject *> &E : remote_objects) {
+        if (editor->get_editor_history()->get_current() == E.second->get_instance_id()) {
             editor->push_item(nullptr);
         }
-        memdelete(E->value());
+        memdelete(E.second);
     }
     remote_objects.clear();
 }
@@ -2010,7 +2017,7 @@ void ScriptEditorDebugger::_item_menu_id_pressed(int p_option) {
             file_dialog_mode = SAVE_NODE;
 
             Vector<String> extensions;
-            Ref<PackedScene> sd = memnew(PackedScene);
+            Ref<PackedScene> sd(make_ref_counted<PackedScene>());
             ResourceSaver::get_recognized_extensions(sd, &extensions);
             file_dialog->clear_filters();
             for (int i = 0; i < extensions.size(); i++) {
@@ -2065,6 +2072,7 @@ void ScriptEditorDebugger::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_expand_errors_list"), &ScriptEditorDebugger::_expand_errors_list);
     MethodBinder::bind_method(D_METHOD("_collapse_errors_list"), &ScriptEditorDebugger::_collapse_errors_list);
     MethodBinder::bind_method(D_METHOD("_profiler_activate"), &ScriptEditorDebugger::_profiler_activate);
+    MethodBinder::bind_method(D_METHOD("_network_profiler_activate"), &ScriptEditorDebugger::_network_profiler_activate);
     MethodBinder::bind_method(D_METHOD("_profiler_seeked"), &ScriptEditorDebugger::_profiler_seeked);
     MethodBinder::bind_method(D_METHOD("_clear_errors_list"), &ScriptEditorDebugger::_clear_errors_list);
 
@@ -2089,15 +2097,15 @@ void ScriptEditorDebugger::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_scene_tree_property_value_edited"), &ScriptEditorDebugger::_scene_tree_property_value_edited);
 
     ADD_SIGNAL(MethodInfo("goto_script_line"));
-    ADD_SIGNAL(MethodInfo("set_execution", PropertyInfo("script"), PropertyInfo(Variant::INT, "line")));
-    ADD_SIGNAL(MethodInfo("clear_execution", PropertyInfo("script")));
-    ADD_SIGNAL(MethodInfo("breaked", PropertyInfo(Variant::BOOL, "reallydid"), PropertyInfo(Variant::BOOL, "can_debug")));
-    ADD_SIGNAL(MethodInfo("show_debugger", PropertyInfo(Variant::BOOL, "reallydid")));
+    ADD_SIGNAL(MethodInfo("set_execution", PropertyInfo("script",VariantType::OBJECT), PropertyInfo(VariantType::INT, "line")));
+    ADD_SIGNAL(MethodInfo("clear_execution", PropertyInfo("script",VariantType::OBJECT)));
+    ADD_SIGNAL(MethodInfo("breaked", PropertyInfo(VariantType::BOOL, "reallydid"), PropertyInfo(VariantType::BOOL, "can_debug")));
+    ADD_SIGNAL(MethodInfo("show_debugger", PropertyInfo(VariantType::BOOL, "reallydid")));
 }
 
 ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
 
-    ppeer = Ref<PacketPeerStream>(memnew(PacketPeerStream));
+    ppeer = make_ref_counted<PacketPeerStream>();
     ppeer->set_input_buffer_max_size(1024 * 1024 * 8); //8mb should be enough
     editor = p_editor;
     editor->get_inspector()->connect("object_id_selected", this, "_scene_tree_property_select_object");
@@ -2149,11 +2157,13 @@ ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
         step = memnew(ToolButton);
         hbc->add_child(step);
         step->set_tooltip(TTR("Step Into"));
+        step->set_shortcut(ED_GET_SHORTCUT("debugger/step_into"));
         step->connect("pressed", this, "debug_step");
 
         next = memnew(ToolButton);
         hbc->add_child(next);
         next->set_tooltip(TTR("Step Over"));
+        next->set_shortcut(ED_GET_SHORTCUT("debugger/step_over"));
         next->connect("pressed", this, "debug_next");
 
         hbc->add_child(memnew(VSeparator));
@@ -2161,11 +2171,13 @@ ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
         dobreak = memnew(ToolButton);
         hbc->add_child(dobreak);
         dobreak->set_tooltip(TTR("Break"));
+        dobreak->set_shortcut(ED_GET_SHORTCUT("debugger/break"));
         dobreak->connect("pressed", this, "debug_break");
 
         docontinue = memnew(ToolButton);
         hbc->add_child(docontinue);
         docontinue->set_tooltip(TTR("Continue"));
+        docontinue->set_shortcut(ED_GET_SHORTCUT("debugger/continue"));
         docontinue->connect("pressed", this, "debug_continue");
 
         back = memnew(Button);
@@ -2199,7 +2211,7 @@ ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
         inspector->connect("object_id_selected", this, "_scene_tree_property_select_object");
         sc->add_child(inspector);
 
-        server.instance();
+        server = make_ref_counted<TCP_Server>();
 
         pending_in_queue = 0;
 
@@ -2306,9 +2318,11 @@ ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
         perf_monitors->set_column_title(0, TTR("Monitor"));
         perf_monitors->set_column_title(1, TTR("Value"));
         perf_monitors->set_column_titles_visible(true);
-        hsp->add_child(perf_monitors);
         perf_monitors->connect("item_edited", this, "_performance_select");
+        hsp->add_child(perf_monitors);
+
         perf_draw = memnew(Control);
+        perf_draw->set_clip_contents(true);
         perf_draw->connect("draw", this, "_performance_draw");
         hsp->add_child(perf_draw);
         hsp->set_name(TTR("Monitors"));
@@ -2325,7 +2339,7 @@ ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
             Performance::MonitorType mtype = Performance::get_singleton()->get_monitor_type(Performance::Monitor(i));
             String base = StringUtils::get_slice(n,"/", 0);
             String name = StringUtils::get_slice(n,"/", 1);
-            if (!bases.has(base)) {
+            if (!bases.contains(base)) {
                 TreeItem *b = perf_monitors->create_item(root);
                 b->set_text(0, StringUtils::capitalize(base));
                 b->set_editable(0, false);
@@ -2344,6 +2358,14 @@ ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
             perf_items.push_back(it);
             perf_max.write[i] = 0;
         }
+
+        info_message = memnew(Label);
+        info_message->set_text(TTR("Pick one or more items from the list to display the graph."));
+        info_message->set_valign(Label::VALIGN_CENTER);
+        info_message->set_align(Label::ALIGN_CENTER);
+        info_message->set_autowrap(true);
+        info_message->set_anchors_and_margins_preset(PRESET_WIDE, PRESET_MODE_KEEP_SIZE, 8 * EDSCALE);
+        perf_draw->add_child(info_message);
     }
 
     { //vmem inspect
@@ -2355,7 +2377,7 @@ ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
         vmem_hb->add_child(memnew(Label(TTR("Total:") + " ")));
         vmem_total = memnew(LineEdit);
         vmem_total->set_editable(false);
-        vmem_total->set_custom_minimum_size(Size2(100, 1) * EDSCALE);
+        vmem_total->set_custom_minimum_size(Size2(100, 0) * EDSCALE);
         vmem_hb->add_child(vmem_total);
         vmem_refresh = memnew(ToolButton);
         vmem_hb->add_child(vmem_refresh);
@@ -2458,4 +2480,11 @@ ScriptEditorDebugger::~ScriptEditorDebugger() {
 
     server->stop();
     _clear_remote_objects();
+}
+
+void register_script_debugger_classes() {
+    ScriptEditorDebugger::initialize_class();
+    ScriptEditorDebuggerVariables::initialize_class();
+    ScriptEditorDebuggerInspectedObject::initialize_class();
+
 }

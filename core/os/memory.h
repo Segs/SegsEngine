@@ -31,8 +31,8 @@
 #pragma once
 
 #include "core/safe_refcount.h"
-#include "core/error_macros.h"
 
+#include <type_traits>
 #include <cstddef>
 
 #ifndef PAD_ALIGN
@@ -64,7 +64,60 @@ public:
     _FORCE_INLINE_ static void *alloc(size_t p_memory) { return Memory::alloc_static(p_memory, false); }
     _FORCE_INLINE_ static void free(void *p_ptr) { Memory::free_static(p_ptr, false); }
 };
+class GODOT_EXPORT wrap_allocator
+{
+public:
+    explicit wrap_allocator(const char* pName = "") noexcept {}
+    wrap_allocator(const wrap_allocator& x) noexcept = default;
+    wrap_allocator(const wrap_allocator& x, const char* pName) noexcept {}
 
+    wrap_allocator& operator=(const wrap_allocator& x) noexcept = default;
+
+    void* allocate(size_t n, int flags = 0) {
+        return Memory::alloc_static(n, false);
+    }
+    void* allocate(size_t n, size_t alignment, size_t offset, int flags = 0) {
+        return Memory::alloc_static(n, true);
+    }
+    void  deallocate(void* p, size_t n) {
+        return Memory::free_static(p, false);
+
+    }
+    static void *alloc(size_t p_memory) { return Memory::alloc_static(p_memory, false); }
+    static void free(void *p_ptr) { Memory::free_static(p_ptr, false); }
+    inline bool operator==(const wrap_allocator&)
+    {
+        return true; // All allocators are considered equal, as they merely use global new/delete.
+    }
+
+
+    inline bool operator!=(const wrap_allocator&)
+    {
+        return false; // All allocators are considered equal, as they merely use global new/delete.
+    }
+    const char* get_name() const noexcept { return "wrap godot allocator"; }
+    void        set_name(const char* pName) {}
+};
+
+template <class T>
+class wrap_allocator_T : public wrap_allocator {
+public:
+    using size_type = size_t;
+    using difference_type = ptrdiff_t;
+    using pointer = T *;
+    using const_pointer = const T *;
+    using reference = T &;
+    using const_reference = const T &;
+    using value_type = T;
+
+    value_type* allocate(std::size_t n)
+    {
+        return (value_type*)wrap_allocator::allocate(n*sizeof(value_type));
+    }
+    template<class U>
+    wrap_allocator_T(const wrap_allocator_T<U> &) : wrap_allocator() {}
+    using wrap_allocator::wrap_allocator;
+};
 GODOT_EXPORT void *operator new(size_t p_size, const char *p_description); ///< operator new that takes a description and uses MemoryStaticPool
 GODOT_EXPORT void *operator new(size_t p_size, void *(*p_allocfunc)(size_t p_size)); ///< operator new that takes a description and uses MemoryStaticPool
 
@@ -82,25 +135,26 @@ GODOT_EXPORT void operator delete(void *p_mem, void *p_pointer, size_t check, co
 #define memrealloc(m_mem, m_size) Memory::realloc_static(m_mem, m_size)
 #define memfree(m_size) Memory::free_static(m_size)
 
-_ALWAYS_INLINE_ void postinitialize_handler(void *) {}
+inline void postinitialize_handler(void *) {}
 
 template <class T>
 _ALWAYS_INLINE_ T *_post_initialize(T *p_obj) {
-
     postinitialize_handler(p_obj);
     return p_obj;
 }
-
-#define memnew(m_class) _post_initialize(new (#m_class) m_class)
-#define memnew_args(m_class,...) _post_initialize(new (#m_class) m_class(__VA_ARGS__))
-
 _ALWAYS_INLINE_ void *operator new(size_t p_size, void *p_pointer, size_t check, const char *p_description) {
     //void *failptr=0;
-    //ERR_FAIL_COND_V( check < p_size , failptr); /** bug, or strange compiler, most likely */
+    //ERR_FAIL_COND_V( check < p_size , failptr) /** bug, or strange compiler, most likely */
 
     return p_pointer;
 }
+#define memnew_basic(m_class) (new (#m_class) m_class)
+#define memnew_args_basic(m_class,...) (new (#m_class) m_class(__VA_ARGS__))
+#define memnew_allocator_basic(m_class, m_allocator) (new (m_allocator::alloc) m_class)
+#define memnew_placement_basic(m_placement, m_class) (new (m_placement, sizeof(m_class), "") m_class)
 
+#define memnew(m_class) _post_initialize(new (#m_class) m_class)
+#define memnew_args(m_class,...) _post_initialize(new (#m_class) m_class(__VA_ARGS__))
 #define memnew_allocator(m_class, m_allocator) _post_initialize(new (m_allocator::alloc) m_class)
 #define memnew_placement(m_placement, m_class) _post_initialize(new (m_placement, sizeof(m_class), "") m_class)
 
@@ -142,13 +196,13 @@ T *memnew_arr_template(size_t p_elements, const char *p_descr = "") {
 
     if (p_elements == 0)
         return nullptr;
-    /** overloading operator new[] cannot be done , because it may not return the real allocated address (it may pad the 'element count' before the actual array). Because of that, it must be done by hand. This is the
-    same strategy used by std::vector, and the PoolVector class, so it should be safe.*/
+    /** overloading operator new[] cannot be done , because it may not return the real allocated address (it may pad the
+    'element count' before the actual array). Because of that, it must be done by hand. This is the same strategy used by
+    std::vector, and the PoolVector class, so it should be safe.*/
 
     size_t len = sizeof(T) * p_elements;
     uint64_t *mem = (uint64_t *)Memory::alloc_static(len, true);
-    T *failptr = nullptr; //get rid of a warning
-    ERR_FAIL_COND_V(!mem, failptr);
+
     *(mem - 1) = p_elements;
 
     if (!__has_trivial_constructor(T)) {

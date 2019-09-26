@@ -55,7 +55,7 @@ int sfind(const String &p_text, int p_from) {
         for (int j = 0; j < src_len; j++) {
             int read_pos = i + j;
 
-            ERR_FAIL_COND_V(read_pos >= len, -1);
+            ERR_FAIL_COND_V(read_pos >= len, -1)
 
             switch (j) {
                 case 0:
@@ -165,7 +165,7 @@ Error read_all_file_utf8(const String &p_path, String &r_content) {
     PoolVector<uint8_t> sourcef;
     Error err;
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ, &err);
-    ERR_FAIL_COND_V(err != OK, err);
+    ERR_FAIL_COND_V(err != OK, err)
 
     int len = f->get_len();
     sourcef.resize(len + 1);
@@ -173,7 +173,7 @@ Error read_all_file_utf8(const String &p_path, String &r_content) {
     int r = f->get_buffer(w.ptr(), len);
     f->close();
     memdelete(f);
-    ERR_FAIL_COND_V(r != len, ERR_CANT_OPEN);
+    ERR_FAIL_COND_V(r != len, ERR_CANT_OPEN)
     w[len] = 0;
 
     String source;

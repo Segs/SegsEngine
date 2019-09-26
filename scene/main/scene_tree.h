@@ -31,7 +31,6 @@
 #ifndef SCENE_MAIN_LOOP_H
 #define SCENE_MAIN_LOOP_H
 
-#include "core/io/multiplayer_api.h"
 #include "core/os/main_loop.h"
 #include "core/os/thread_safe.h"
 #include "core/self_list.h"
@@ -407,15 +406,15 @@ public:
     static SceneTree *get_singleton() { return singleton; }
 
     void drop_files(const Vector<String> &p_files, int p_from_screen = 0) override;
-	void global_menu_action(const Variant &p_id, const Variant &p_meta) override;
-	void get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const override;
+    void global_menu_action(const Variant &p_id, const Variant &p_meta) override;
+    void get_argument_options(const StringName &p_function, int p_idx, ListPOD<String> *r_options) const override;
 
     //network API
 
     Ref<MultiplayerAPI> get_multiplayer() const;
     void set_multiplayer_poll_enabled(bool p_enabled);
     bool is_multiplayer_poll_enabled() const;
-    void set_multiplayer(Ref<MultiplayerAPI> p_multiplayer);
+    void set_multiplayer(const Ref<MultiplayerAPI>& p_multiplayer);
     void set_network_peer(const Ref<NetworkedMultiplayerPeer> &p_network_peer);
     Ref<NetworkedMultiplayerPeer> get_network_peer() const;
     bool is_network_server() const;

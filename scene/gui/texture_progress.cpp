@@ -51,7 +51,7 @@ void TextureProgress::set_over_texture(const Ref<Texture> &p_texture) {
 
     over = p_texture;
     update();
-    if (under.is_null()) {
+    if (not under) {
         minimum_size_changed();
     }
 }
@@ -87,11 +87,11 @@ Size2 TextureProgress::get_minimum_size() const {
 
     if (nine_patch_stretch)
         return Size2(stretch_margin[MARGIN_LEFT] + stretch_margin[MARGIN_RIGHT], stretch_margin[MARGIN_TOP] + stretch_margin[MARGIN_BOTTOM]);
-    else if (under.is_valid())
+    else if (under)
         return under->get_size();
-    else if (over.is_valid())
+    else if (over)
         return over->get_size();
-    else if (progress.is_valid())
+    else if (progress)
         return progress->get_size();
 
     return Size2(1, 1);
@@ -137,7 +137,7 @@ Color TextureProgress::get_tint_over() const {
 }
 
 Point2 TextureProgress::unit_val_to_uv(float val) {
-    if (progress.is_null())
+    if (not progress)
         return Point2();
 
     if (val < 0)
@@ -193,7 +193,7 @@ Point2 TextureProgress::unit_val_to_uv(float val) {
 }
 
 Point2 TextureProgress::get_relative_center() {
-    if (progress.is_null())
+    if (not progress)
         return Point2();
     Point2 p = progress->get_size() / 2;
     p += rad_center_off;
@@ -313,19 +313,19 @@ void TextureProgress::_notification(int p_what) {
         case NOTIFICATION_DRAW: {
 
             if (nine_patch_stretch && (mode == FILL_LEFT_TO_RIGHT || mode == FILL_RIGHT_TO_LEFT || mode == FILL_TOP_TO_BOTTOM || mode == FILL_BOTTOM_TO_TOP)) {
-                if (under.is_valid()) {
+                if (under) {
                     draw_nine_patch_stretched(under, FILL_LEFT_TO_RIGHT, 1.0, tint_under);
                 }
-                if (progress.is_valid()) {
+                if (progress) {
                     draw_nine_patch_stretched(progress, mode, get_as_ratio(), tint_progress);
                 }
-                if (over.is_valid()) {
+                if (over) {
                     draw_nine_patch_stretched(over, FILL_LEFT_TO_RIGHT, 1.0, tint_over);
                 }
             } else {
-                if (under.is_valid())
+                if (under)
                     draw_texture(under, Point2(), tint_under);
-                if (progress.is_valid()) {
+                if (progress) {
                     Size2 s = progress->get_size();
                     switch (mode) {
                         case FILL_LEFT_TO_RIGHT: {
@@ -407,7 +407,7 @@ void TextureProgress::_notification(int p_what) {
                             draw_texture_rect_region(progress, Rect2(Point2(), Size2(s.x * get_as_ratio(), s.y)), Rect2(Point2(), Size2(s.x * get_as_ratio(), s.y)), tint_progress);
                     }
                 }
-                if (over.is_valid())
+                if (over)
                     draw_texture(over, Point2(), tint_over);
             }
 
@@ -458,71 +458,71 @@ Point2 TextureProgress::get_radial_center_offset() {
 
 void TextureProgress::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_under_texture", "tex"), &TextureProgress::set_under_texture);
+    MethodBinder::bind_method(D_METHOD("set_under_texture", {"tex"}), &TextureProgress::set_under_texture);
     MethodBinder::bind_method(D_METHOD("get_under_texture"), &TextureProgress::get_under_texture);
 
-    MethodBinder::bind_method(D_METHOD("set_progress_texture", "tex"), &TextureProgress::set_progress_texture);
+    MethodBinder::bind_method(D_METHOD("set_progress_texture", {"tex"}), &TextureProgress::set_progress_texture);
     MethodBinder::bind_method(D_METHOD("get_progress_texture"), &TextureProgress::get_progress_texture);
 
-    MethodBinder::bind_method(D_METHOD("set_over_texture", "tex"), &TextureProgress::set_over_texture);
+    MethodBinder::bind_method(D_METHOD("set_over_texture", {"tex"}), &TextureProgress::set_over_texture);
     MethodBinder::bind_method(D_METHOD("get_over_texture"), &TextureProgress::get_over_texture);
 
-    MethodBinder::bind_method(D_METHOD("set_fill_mode", "mode"), &TextureProgress::set_fill_mode);
+    MethodBinder::bind_method(D_METHOD("set_fill_mode", {"mode"}), &TextureProgress::set_fill_mode);
     MethodBinder::bind_method(D_METHOD("get_fill_mode"), &TextureProgress::get_fill_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_tint_under", "tint"), &TextureProgress::set_tint_under);
+    MethodBinder::bind_method(D_METHOD("set_tint_under", {"tint"}), &TextureProgress::set_tint_under);
     MethodBinder::bind_method(D_METHOD("get_tint_under"), &TextureProgress::get_tint_under);
 
-    MethodBinder::bind_method(D_METHOD("set_tint_progress", "tint"), &TextureProgress::set_tint_progress);
+    MethodBinder::bind_method(D_METHOD("set_tint_progress", {"tint"}), &TextureProgress::set_tint_progress);
     MethodBinder::bind_method(D_METHOD("get_tint_progress"), &TextureProgress::get_tint_progress);
 
-    MethodBinder::bind_method(D_METHOD("set_tint_over", "tint"), &TextureProgress::set_tint_over);
+    MethodBinder::bind_method(D_METHOD("set_tint_over", {"tint"}), &TextureProgress::set_tint_over);
     MethodBinder::bind_method(D_METHOD("get_tint_over"), &TextureProgress::get_tint_over);
 
-    MethodBinder::bind_method(D_METHOD("set_radial_initial_angle", "mode"), &TextureProgress::set_radial_initial_angle);
+    MethodBinder::bind_method(D_METHOD("set_radial_initial_angle", {"mode"}), &TextureProgress::set_radial_initial_angle);
     MethodBinder::bind_method(D_METHOD("get_radial_initial_angle"), &TextureProgress::get_radial_initial_angle);
 
-    MethodBinder::bind_method(D_METHOD("set_radial_center_offset", "mode"), &TextureProgress::set_radial_center_offset);
+    MethodBinder::bind_method(D_METHOD("set_radial_center_offset", {"mode"}), &TextureProgress::set_radial_center_offset);
     MethodBinder::bind_method(D_METHOD("get_radial_center_offset"), &TextureProgress::get_radial_center_offset);
 
-    MethodBinder::bind_method(D_METHOD("set_fill_degrees", "mode"), &TextureProgress::set_fill_degrees);
+    MethodBinder::bind_method(D_METHOD("set_fill_degrees", {"mode"}), &TextureProgress::set_fill_degrees);
     MethodBinder::bind_method(D_METHOD("get_fill_degrees"), &TextureProgress::get_fill_degrees);
 
-    MethodBinder::bind_method(D_METHOD("set_stretch_margin", "margin", "value"), &TextureProgress::set_stretch_margin);
-    MethodBinder::bind_method(D_METHOD("get_stretch_margin", "margin"), &TextureProgress::get_stretch_margin);
+    MethodBinder::bind_method(D_METHOD("set_stretch_margin", {"margin", "value"}), &TextureProgress::set_stretch_margin);
+    MethodBinder::bind_method(D_METHOD("get_stretch_margin", {"margin"}), &TextureProgress::get_stretch_margin);
 
-    MethodBinder::bind_method(D_METHOD("set_nine_patch_stretch", "stretch"), &TextureProgress::set_nine_patch_stretch);
+    MethodBinder::bind_method(D_METHOD("set_nine_patch_stretch", {"stretch"}), &TextureProgress::set_nine_patch_stretch);
     MethodBinder::bind_method(D_METHOD("get_nine_patch_stretch"), &TextureProgress::get_nine_patch_stretch);
 
     ADD_GROUP("Textures", "texture_");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "texture_under", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_under_texture", "get_under_texture");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "texture_over", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_over_texture", "get_over_texture");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "texture_progress", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_progress_texture", "get_progress_texture");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "fill_mode", PROPERTY_HINT_ENUM, "Left to Right,Right to Left,Top to Bottom,Bottom to Top,Clockwise,Counter Clockwise,Bilinear (Left and Right),Bilinear (Top and Bottom), Clockwise and Counter Clockwise"), "set_fill_mode", "get_fill_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture_under", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_under_texture", "get_under_texture");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture_over", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_over_texture", "get_over_texture");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture_progress", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_progress_texture", "get_progress_texture");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "fill_mode", PROPERTY_HINT_ENUM, "Left to Right,Right to Left,Top to Bottom,Bottom to Top,Clockwise,Counter Clockwise,Bilinear (Left and Right),Bilinear (Top and Bottom), Clockwise and Counter Clockwise"), "set_fill_mode", "get_fill_mode");
     ADD_GROUP("Tint", "tint_");
-    ADD_PROPERTY(PropertyInfo(Variant::COLOR, "tint_under"), "set_tint_under", "get_tint_under");
-    ADD_PROPERTY(PropertyInfo(Variant::COLOR, "tint_over"), "set_tint_over", "get_tint_over");
-    ADD_PROPERTY(PropertyInfo(Variant::COLOR, "tint_progress"), "set_tint_progress", "get_tint_progress");
+    ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "tint_under"), "set_tint_under", "get_tint_under");
+    ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "tint_over"), "set_tint_over", "get_tint_over");
+    ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "tint_progress"), "set_tint_progress", "get_tint_progress");
     ADD_GROUP("Radial Fill", "radial_");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "radial_initial_angle", PROPERTY_HINT_RANGE, "0.0,360.0,0.1,slider"), "set_radial_initial_angle", "get_radial_initial_angle");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "radial_fill_degrees", PROPERTY_HINT_RANGE, "0.0,360.0,0.1,slider"), "set_fill_degrees", "get_fill_degrees");
-    ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "radial_center_offset"), "set_radial_center_offset", "get_radial_center_offset");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "radial_initial_angle", PROPERTY_HINT_RANGE, "0.0,360.0,0.1,slider"), "set_radial_initial_angle", "get_radial_initial_angle");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "radial_fill_degrees", PROPERTY_HINT_RANGE, "0.0,360.0,0.1,slider"), "set_fill_degrees", "get_fill_degrees");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "radial_center_offset"), "set_radial_center_offset", "get_radial_center_offset");
     ADD_GROUP("Stretch", "stretch_");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "nine_patch_stretch"), "set_nine_patch_stretch", "get_nine_patch_stretch");
-    ADD_PROPERTYI(PropertyInfo(Variant::INT, "stretch_margin_left", PROPERTY_HINT_RANGE, "0,16384,1"), "set_stretch_margin", "get_stretch_margin", MARGIN_LEFT);
-    ADD_PROPERTYI(PropertyInfo(Variant::INT, "stretch_margin_top", PROPERTY_HINT_RANGE, "0,16384,1"), "set_stretch_margin", "get_stretch_margin", MARGIN_TOP);
-    ADD_PROPERTYI(PropertyInfo(Variant::INT, "stretch_margin_right", PROPERTY_HINT_RANGE, "0,16384,1"), "set_stretch_margin", "get_stretch_margin", MARGIN_RIGHT);
-    ADD_PROPERTYI(PropertyInfo(Variant::INT, "stretch_margin_bottom", PROPERTY_HINT_RANGE, "0,16384,1"), "set_stretch_margin", "get_stretch_margin", MARGIN_BOTTOM);
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "nine_patch_stretch"), "set_nine_patch_stretch", "get_nine_patch_stretch");
+    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "stretch_margin_left", PROPERTY_HINT_RANGE, "0,16384,1"), "set_stretch_margin", "get_stretch_margin", MARGIN_LEFT);
+    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "stretch_margin_top", PROPERTY_HINT_RANGE, "0,16384,1"), "set_stretch_margin", "get_stretch_margin", MARGIN_TOP);
+    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "stretch_margin_right", PROPERTY_HINT_RANGE, "0,16384,1"), "set_stretch_margin", "get_stretch_margin", MARGIN_RIGHT);
+    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "stretch_margin_bottom", PROPERTY_HINT_RANGE, "0,16384,1"), "set_stretch_margin", "get_stretch_margin", MARGIN_BOTTOM);
 
-    BIND_ENUM_CONSTANT(FILL_LEFT_TO_RIGHT);
-    BIND_ENUM_CONSTANT(FILL_RIGHT_TO_LEFT);
-    BIND_ENUM_CONSTANT(FILL_TOP_TO_BOTTOM);
-    BIND_ENUM_CONSTANT(FILL_BOTTOM_TO_TOP);
-    BIND_ENUM_CONSTANT(FILL_CLOCKWISE);
-    BIND_ENUM_CONSTANT(FILL_COUNTER_CLOCKWISE);
-    BIND_ENUM_CONSTANT(FILL_BILINEAR_LEFT_AND_RIGHT);
-    BIND_ENUM_CONSTANT(FILL_BILINEAR_TOP_AND_BOTTOM);
-    BIND_ENUM_CONSTANT(FILL_CLOCKWISE_AND_COUNTER_CLOCKWISE);
+    BIND_ENUM_CONSTANT(FILL_LEFT_TO_RIGHT)
+    BIND_ENUM_CONSTANT(FILL_RIGHT_TO_LEFT)
+    BIND_ENUM_CONSTANT(FILL_TOP_TO_BOTTOM)
+    BIND_ENUM_CONSTANT(FILL_BOTTOM_TO_TOP)
+    BIND_ENUM_CONSTANT(FILL_CLOCKWISE)
+    BIND_ENUM_CONSTANT(FILL_COUNTER_CLOCKWISE)
+    BIND_ENUM_CONSTANT(FILL_BILINEAR_LEFT_AND_RIGHT)
+    BIND_ENUM_CONSTANT(FILL_BILINEAR_TOP_AND_BOTTOM)
+    BIND_ENUM_CONSTANT(FILL_CLOCKWISE_AND_COUNTER_CLOCKWISE)
 }
 
 TextureProgress::TextureProgress() {

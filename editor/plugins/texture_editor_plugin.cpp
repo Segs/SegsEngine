@@ -41,7 +41,7 @@ IMPL_GDCLASS(TextureEditor)
 IMPL_GDCLASS(EditorInspectorPluginTexture)
 IMPL_GDCLASS(TextureEditorPlugin)
 
-void TextureEditor::_gui_input(Ref<InputEvent> p_event) {
+void TextureEditor::_gui_input(const Ref<InputEvent>& p_event) {
 }
 
 void TextureEditor::_notification(int p_what) {
@@ -75,13 +75,13 @@ void TextureEditor::_notification(int p_what) {
         int ofs_x = (size.width - tex_width) / 2;
         int ofs_y = (size.height - tex_height) / 2;
 
-        if (Object::cast_to<CurveTexture>(*texture)) {
+        if (dynamic_ref_cast<CurveTexture>(texture)) {
             // In the case of CurveTextures we know they are 1 in height, so fill the preview to see the gradient
             ofs_y = 0;
             tex_height = size.height;
-        } else if (Object::cast_to<GradientTexture>(*texture)) {
-            ofs_y = size.height / 4.0;
-            tex_height = size.height / 2.0;
+        } else if (dynamic_ref_cast<GradientTexture>(texture)) {
+            ofs_y = size.height / 4.0f;
+            tex_height = size.height / 2.0f;
         }
 
         draw_texture_rect(texture, Rect2(ofs_x, ofs_y, tex_width, tex_height));
@@ -89,10 +89,10 @@ void TextureEditor::_notification(int p_what) {
         Ref<Font> font = get_font("font", "Label");
 
         String format;
-        if (Object::cast_to<ImageTexture>(*texture)) {
-            format = Image::get_format_name(Object::cast_to<ImageTexture>(*texture)->get_format());
-        } else if (Object::cast_to<StreamTexture>(*texture)) {
-            format = Image::get_format_name(Object::cast_to<StreamTexture>(*texture)->get_format());
+        if (dynamic_ref_cast<ImageTexture>(texture)) {
+            format = Image::get_format_name(dynamic_ref_cast<ImageTexture>(texture)->get_format());
+        } else if (dynamic_ref_cast<StreamTexture>(texture)) {
+            format = Image::get_format_name(dynamic_ref_cast<StreamTexture>(texture)->get_format());
         } else {
             format = texture->get_class();
         }
@@ -117,14 +117,14 @@ void TextureEditor::_changed_callback(Object *p_changed, const char *p_prop) {
     update();
 }
 
-void TextureEditor::edit(Ref<Texture> p_texture) {
+void TextureEditor::edit(const Ref<Texture>& p_texture) {
 
-    if (!texture.is_null())
+    if (texture)
         texture->remove_change_receptor(this);
 
     texture = p_texture;
 
-    if (!texture.is_null()) {
+    if (texture) {
         texture->add_change_receptor(this);
         update();
     } else {
@@ -143,7 +143,7 @@ TextureEditor::TextureEditor() {
 }
 
 TextureEditor::~TextureEditor() {
-    if (!texture.is_null()) {
+    if (texture) {
         texture->remove_change_receptor(this);
     }
 }
@@ -168,7 +168,6 @@ void EditorInspectorPluginTexture::parse_begin(Object *p_object) {
 
 TextureEditorPlugin::TextureEditorPlugin(EditorNode *p_node) {
 
-    Ref<EditorInspectorPluginTexture> plugin;
-    plugin.instance();
+    Ref<EditorInspectorPluginTexture> plugin(make_ref_counted<EditorInspectorPluginTexture>());
     add_inspector_plugin(plugin);
 }

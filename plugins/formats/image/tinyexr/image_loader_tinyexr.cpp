@@ -31,6 +31,7 @@
 #include "image_loader_tinyexr.h"
 #include "image_saver_tinyexr.h"
 
+#include "core/os/file_access.h"
 #include "core/os/os.h"
 #include "core/print_string.h"
 #include "core/image_data.h"

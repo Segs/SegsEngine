@@ -28,15 +28,18 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef FILE_ACCESS_NETWORK_H
-#define FILE_ACCESS_NETWORK_H
+#pragma once
 
-#include "core/io/stream_peer_tcp.h"
 #include "core/os/file_access.h"
-#include "core/os/semaphore.h"
-#include "core/os/thread.h"
+#include "core/reference.h"
+#include "core/ustring.h"
+#include "core/list.h"
+#include "core/map.h"
 
+class Thread;
 class FileAccessNetwork;
+class Semaphore;
+class StreamPeerTCP;
 
 class FileAccessNetworkClient {
 
@@ -167,5 +170,3 @@ public:
 	FileAccessNetwork();
 	~FileAccessNetwork() override;
 };
-
-#endif // FILE_ACCESS_NETWORK_H

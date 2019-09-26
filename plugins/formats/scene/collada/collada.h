@@ -638,7 +638,7 @@ private: // private stuff
     void _merge_skeletons(VisualScene *p_vscene, Node *p_node);
     bool _optimize_skeletons(VisualScene *p_vscene, Node *p_node);
 
-    bool _move_geometry_to_skeletons(VisualScene *p_vscene, Node *p_node, List<Node *> *p_mgeom);
+    bool _move_geometry_to_skeletons(VisualScene *p_vscene, Node *p_node, ListPOD<Node *> *p_mgeom);
 
     void _optimize();
 };

@@ -28,11 +28,10 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef FILE_ACCESS_BUFFERED_H
-#define FILE_ACCESS_BUFFERED_H
+#pragma once
 
 #include "core/os/file_access.h"
-#include "core/pool_vector.h"
+#include "core/vector.h"
 #include "core/ustring.h"
 
 class FileAccessBuffered : public FileAccess {
@@ -90,5 +89,3 @@ public:
 	FileAccessBuffered() {}
 	~FileAccessBuffered() override = default ;
 };
-
-#endif

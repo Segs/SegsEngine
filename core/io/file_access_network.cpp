@@ -32,7 +32,10 @@
 
 #include "core/io/ip.h"
 #include "core/io/marshalls.h"
+#include "core/io/stream_peer_tcp.h"
 #include "core/os/os.h"
+#include "core/os/semaphore.h"
+#include "core/os/thread.h"
 #include "core/project_settings.h"
 
 //#define DEBUG_PRINT(m_p) print_line(m_p)
@@ -99,10 +102,10 @@ void FileAccessNetworkClient::_thread_func() {
 
         blockrequest_mutex->lock();
         while (!block_requests.empty()) {
-            put_32(block_requests.front()->get().id);
+            put_32(block_requests.front()->deref().id);
             put_32(FileAccessNetwork::COMMAND_READ_BLOCK);
-            put_64(block_requests.front()->get().offset);
-            put_32(block_requests.front()->get().size);
+            put_64(block_requests.front()->deref().offset);
+            put_32(block_requests.front()->deref().size);
             block_requests.pop_front();
         }
         blockrequest_mutex->unlock();
@@ -118,13 +121,13 @@ void FileAccessNetworkClient::_thread_func() {
         FileAccessNetwork *fa = nullptr;
 
         if (response != FileAccessNetwork::RESPONSE_DATA) {
-            if (!accesses.has(id)) {
+            if (!accesses.contains(id)) {
                 unlock_mutex();
-                ERR_FAIL_COND(!accesses.has(id));
+                ERR_FAIL_COND(!accesses.contains(id))
             }
         }
 
-        if (accesses.has(id))
+        if (accesses.contains(id))
             fa = accesses[id];
 
         switch (response) {
@@ -195,7 +198,7 @@ Error FileAccessNetworkClient::connect(const String &p_host, int p_port, const S
 
     DEBUG_PRINT("IP: " + String(ip) + " port " + itos(p_port));
     Error err = client->connect_to_host(ip, p_port);
-    ERR_FAIL_COND_V(err, err);
+    ERR_FAIL_COND_V(err, err)
     while (client->get_status() == StreamPeerTCP::STATUS_CONNECTING) {
         //DEBUG_PRINT("trying to connect....");
         OS::get_singleton()->delay_usec(1000);
@@ -230,7 +233,7 @@ FileAccessNetworkClient::FileAccessNetworkClient() {
     quit = false;
     singleton = this;
     last_id = 0;
-    client.instance();
+    client= make_ref_counted<StreamPeerTCP>();
     sem = Semaphore::create();
     lockcount = 0;
 }
@@ -254,9 +257,9 @@ void FileAccessNetwork::_set_block(int p_offset, const Vector<uint8_t> &p_block)
     int page = p_offset / page_size;
     ERR_FAIL_INDEX(page, pages.size());
     if (page < pages.size() - 1) {
-        ERR_FAIL_COND(p_block.size() != page_size);
+        ERR_FAIL_COND(p_block.size() != page_size)
     } else {
-        ERR_FAIL_COND((p_block.size() != (int)(total_size % page_size)));
+        ERR_FAIL_COND((p_block.size() != (int)(total_size % page_size)))
     }
 
     buffer_mutex->lock();
@@ -284,7 +287,7 @@ void FileAccessNetwork::_respond(size_t p_len, Error p_status) {
 
 Error FileAccessNetwork::_open(const String &p_path, int p_mode_flags) {
 
-    ERR_FAIL_COND_V(p_mode_flags != READ, ERR_UNAVAILABLE);
+    ERR_FAIL_COND_V(p_mode_flags != READ, ERR_UNAVAILABLE)
     if (opened)
         close();
     FileAccessNetworkClient *nc = FileAccessNetworkClient::singleton;
@@ -339,7 +342,7 @@ bool FileAccessNetwork::is_open() const {
 
 void FileAccessNetwork::seek(size_t p_position) {
 
-    ERR_FAIL_COND(!opened);
+    ERR_FAIL_COND(!opened)
     eof_flag = p_position > total_size;
 
     if (p_position >= total_size) {
@@ -355,24 +358,24 @@ void FileAccessNetwork::seek_end(int64_t p_position) {
 }
 size_t FileAccessNetwork::get_position() const {
 
-    ERR_FAIL_COND_V(!opened, 0);
+    ERR_FAIL_COND_V(!opened, 0)
     return pos;
 }
 size_t FileAccessNetwork::get_len() const {
 
-    ERR_FAIL_COND_V(!opened, 0);
+    ERR_FAIL_COND_V(!opened, 0)
     return total_size;
 }
 
 bool FileAccessNetwork::eof_reached() const {
 
-    ERR_FAIL_COND_V(!opened, false);
+    ERR_FAIL_COND_V(!opened, false)
     return eof_flag;
 }
 
 uint8_t FileAccessNetwork::get_8() const {
 
-    uint8_t v;
+    uint8_t v=0;
     get_buffer(&v, 1);
     return v;
 }
@@ -512,9 +515,9 @@ Error FileAccessNetwork::_set_unix_permissions(const String &p_file, uint32_t p_
 void FileAccessNetwork::configure() {
 
     GLOBAL_DEF("network/remote_fs/page_size", 65536);
-    ProjectSettings::get_singleton()->set_custom_property_info("network/remote_fs/page_size", PropertyInfo(Variant::INT, "network/remote_fs/page_size", PROPERTY_HINT_RANGE, "1,65536,1,or_greater")); //is used as denominator and can't be zero
+    ProjectSettings::get_singleton()->set_custom_property_info("network/remote_fs/page_size", PropertyInfo(VariantType::INT, "network/remote_fs/page_size", PROPERTY_HINT_RANGE, "1,65536,1,or_greater")); //is used as denominator and can't be zero
     GLOBAL_DEF("network/remote_fs/page_read_ahead", 4);
-    ProjectSettings::get_singleton()->set_custom_property_info("network/remote_fs/page_read_ahead", PropertyInfo(Variant::INT, "network/remote_fs/page_read_ahead", PROPERTY_HINT_RANGE, "0,8,1,or_greater"));
+    ProjectSettings::get_singleton()->set_custom_property_info("network/remote_fs/page_read_ahead", PropertyInfo(VariantType::INT, "network/remote_fs/page_read_ahead", PROPERTY_HINT_RANGE, "0,8,1,or_greater"));
 }
 
 FileAccessNetwork::FileAccessNetwork() {

@@ -31,6 +31,7 @@
 #include "register_types.h"
 
 #include "navigation_mesh_editor_plugin.h"
+#include "core/class_db.h"
 
 #ifdef TOOLS_ENABLED
 EditorNavigationMeshGenerator *_nav_mesh_generator = nullptr;
@@ -38,24 +39,25 @@ EditorNavigationMeshGenerator *_nav_mesh_generator = nullptr;
 
 void register_recast_types() {
 #ifdef TOOLS_ENABLED
-	EditorPlugins::add_by_type<NavigationMeshEditorPlugin>();
-	_nav_mesh_generator = memnew(EditorNavigationMeshGenerator);
+    NavigationMeshEditor::initialize_class();
+    EditorPlugins::add_by_type<NavigationMeshEditorPlugin>();
 
-	ClassDB::APIType prev_api = ClassDB::get_current_api();
-	ClassDB::set_current_api(ClassDB::API_EDITOR);
+    ClassDB::APIType prev_api = ClassDB::get_current_api();
+    ClassDB::set_current_api(ClassDB::API_EDITOR);
 
-	ClassDB::register_class<EditorNavigationMeshGenerator>();
+    ClassDB::register_class<EditorNavigationMeshGenerator>();
 
-	ClassDB::set_current_api(prev_api);
+    ClassDB::set_current_api(prev_api);
 
-	Engine::get_singleton()->add_singleton(Engine::Singleton("NavigationMeshGenerator", EditorNavigationMeshGenerator::get_singleton()));
+    _nav_mesh_generator = memnew(EditorNavigationMeshGenerator);
+    Engine::get_singleton()->add_singleton(Engine::Singleton("NavigationMeshGenerator", EditorNavigationMeshGenerator::get_singleton()));
 #endif
 }
 
 void unregister_recast_types() {
 #ifdef TOOLS_ENABLED
-	if (_nav_mesh_generator) {
-		memdelete(_nav_mesh_generator);
-	}
+    if (_nav_mesh_generator) {
+        memdelete(_nav_mesh_generator);
+    }
 #endif
 }

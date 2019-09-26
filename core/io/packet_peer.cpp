@@ -133,47 +133,47 @@ Error PacketPeer::_get_packet_error() const {
 
 void PacketPeer::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("get_var", "allow_objects"), &PacketPeer::_bnd_get_var, {DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("put_var", "var", "full_objects"), &PacketPeer::put_var, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("get_var", {"allow_objects"}), &PacketPeer::_bnd_get_var, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("put_var", {"var", "full_objects"}), &PacketPeer::put_var, {DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("get_packet"), &PacketPeer::_get_packet);
-    MethodBinder::bind_method(D_METHOD("put_packet", "buffer"), &PacketPeer::_put_packet);
+    MethodBinder::bind_method(D_METHOD("put_packet", {"buffer"}), &PacketPeer::_put_packet);
     MethodBinder::bind_method(D_METHOD("get_packet_error"), &PacketPeer::_get_packet_error);
     MethodBinder::bind_method(D_METHOD("get_available_packet_count"), &PacketPeer::get_available_packet_count);
 
-    MethodBinder::bind_method(D_METHOD("set_allow_object_decoding", "enable"), &PacketPeer::set_allow_object_decoding);
+    MethodBinder::bind_method(D_METHOD("set_allow_object_decoding", {"enable"}), &PacketPeer::set_allow_object_decoding);
     MethodBinder::bind_method(D_METHOD("is_object_decoding_allowed"), &PacketPeer::is_object_decoding_allowed);
 
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "allow_object_decoding"), "set_allow_object_decoding", "is_object_decoding_allowed");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "allow_object_decoding"), "set_allow_object_decoding", "is_object_decoding_allowed");
 };
 
 /***************/
 
-void PacketPeerStream::_set_stream_peer(REF p_peer) {
+void PacketPeerStream::_set_stream_peer(const REF& p_peer) {
 
-    ERR_FAIL_COND(p_peer.is_null())
-    set_stream_peer(p_peer);
+    ERR_FAIL_COND(not p_peer)
+    set_stream_peer(dynamic_ref_cast<StreamPeer>(p_peer));
 }
 
 void PacketPeerStream::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_stream_peer", "peer"), &PacketPeerStream::set_stream_peer);
+    MethodBinder::bind_method(D_METHOD("set_stream_peer", {"peer"}), &PacketPeerStream::set_stream_peer);
     MethodBinder::bind_method(D_METHOD("get_stream_peer"), &PacketPeerStream::get_stream_peer);
-    MethodBinder::bind_method(D_METHOD("set_input_buffer_max_size", "max_size_bytes"), &PacketPeerStream::set_input_buffer_max_size);
-    MethodBinder::bind_method(D_METHOD("set_output_buffer_max_size", "max_size_bytes"), &PacketPeerStream::set_output_buffer_max_size);
+    MethodBinder::bind_method(D_METHOD("set_input_buffer_max_size", {"max_size_bytes"}), &PacketPeerStream::set_input_buffer_max_size);
+    MethodBinder::bind_method(D_METHOD("set_output_buffer_max_size", {"max_size_bytes"}), &PacketPeerStream::set_output_buffer_max_size);
     MethodBinder::bind_method(D_METHOD("get_input_buffer_max_size"), &PacketPeerStream::get_input_buffer_max_size);
     MethodBinder::bind_method(D_METHOD("get_output_buffer_max_size"), &PacketPeerStream::get_output_buffer_max_size);
 
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "input_buffer_max_size"), "set_input_buffer_max_size", "get_input_buffer_max_size");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "output_buffer_max_size"), "set_output_buffer_max_size", "get_output_buffer_max_size");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "stream_peer", PROPERTY_HINT_RESOURCE_TYPE, "StreamPeer", 0), "set_stream_peer", "get_stream_peer");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "input_buffer_max_size"), "set_input_buffer_max_size", "get_input_buffer_max_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "output_buffer_max_size"), "set_output_buffer_max_size", "get_output_buffer_max_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "stream_peer", PROPERTY_HINT_RESOURCE_TYPE, "StreamPeer", 0), "set_stream_peer", "get_stream_peer");
 }
 
 Error PacketPeerStream::_poll_buffer() const {
 
-    ERR_FAIL_COND_V(peer.is_null(), ERR_UNCONFIGURED)
+    ERR_FAIL_COND_V(not peer, ERR_UNCONFIGURED)
 
     int read = 0;
-    ERR_FAIL_COND_V(input_buffer.size() < ring_buffer.space_left(), ERR_UNAVAILABLE);
+    ERR_FAIL_COND_V(input_buffer.size() < ring_buffer.space_left(), ERR_UNAVAILABLE)
     Error err = peer->get_partial_data(input_buffer.ptrw(), ring_buffer.space_left(), read);
     if (err)
         return err;
@@ -214,7 +214,7 @@ int PacketPeerStream::get_available_packet_count() const {
 
 Error PacketPeerStream::get_packet(const uint8_t **r_buffer, int &r_buffer_size) {
 
-    ERR_FAIL_COND_V(peer.is_null(), ERR_UNCONFIGURED)
+    ERR_FAIL_COND_V(not peer, ERR_UNCONFIGURED)
     _poll_buffer();
 
     int remaining = ring_buffer.data_left();
@@ -236,7 +236,7 @@ Error PacketPeerStream::get_packet(const uint8_t **r_buffer, int &r_buffer_size)
 
 Error PacketPeerStream::put_packet(const uint8_t *p_buffer, int p_buffer_size) {
 
-    ERR_FAIL_COND_V(peer.is_null(), ERR_UNCONFIGURED)
+    ERR_FAIL_COND_V(not peer, ERR_UNCONFIGURED)
     Error err = _poll_buffer(); //won't hurt to poll here too
 
     if (err)
@@ -263,9 +263,9 @@ int PacketPeerStream::get_max_packet_size() const {
 
 void PacketPeerStream::set_stream_peer(const Ref<StreamPeer> &p_peer) {
 
-    //ERR_FAIL_COND(p_peer.is_null());
+    //ERR_FAIL_COND(not p_peer)
 
-    if (p_peer.ptr() != peer.ptr()) {
+    if (p_peer.get() != peer.get()) {
         ring_buffer.advance_read(ring_buffer.data_left()); // reset the ring buffer
     }
 

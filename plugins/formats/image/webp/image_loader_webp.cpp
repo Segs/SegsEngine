@@ -31,6 +31,7 @@
 #include "image_loader_webp.h"
 
 #include "core/image_data.h"
+#include "core/os/file_access.h"
 #include "core/os/os.h"
 #include "core/print_string.h"
 

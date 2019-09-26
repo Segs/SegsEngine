@@ -83,7 +83,7 @@ void CreateDialog::popup_create(bool p_dont_clear, bool p_replace_mode, const St
         while (!f->eof_reached()) {
             String l = StringUtils::strip_edges(f->get_line());
 
-            if (l != String()) {
+            if (!l.empty()) {
                 favorite_list.push_back(l);
             }
         }
@@ -130,8 +130,8 @@ void CreateDialog::_text_changed(const String &p_newtext) {
 
 void CreateDialog::_sbox_input(const Ref<InputEvent> &p_ie) {
 
-    Ref<InputEventKey> k = p_ie;
-    if (k.is_valid() && (k->get_scancode() == KEY_UP ||
+    Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(p_ie);
+    if (k && (k->get_scancode() == KEY_UP ||
                                 k->get_scancode() == KEY_DOWN ||
                                 k->get_scancode() == KEY_PAGEUP ||
                                 k->get_scancode() == KEY_PAGEDOWN)) {
@@ -143,7 +143,7 @@ void CreateDialog::_sbox_input(const Ref<InputEvent> &p_ie) {
 
 void CreateDialog::add_type(const String &p_type, HashMap<String, TreeItem *> &p_types, TreeItem *p_root, TreeItem **to_select) {
 
-    if (p_types.has(p_type))
+    if (p_types.contains(p_type))
         return;
 
     bool cpp_type = ClassDB::class_exists(p_type);
@@ -172,12 +172,12 @@ void CreateDialog::add_type(const String &p_type, HashMap<String, TreeItem *> &p
 
     if (inherits.length()) {
 
-        if (!p_types.has(inherits)) {
+        if (!p_types.contains(inherits)) {
 
             add_type(inherits, p_types, p_root, to_select);
         }
 
-        if (p_types.has(inherits))
+        if (p_types.contains(inherits))
             parent = p_types[inherits];
         else if (ScriptServer::is_global_class(inherits))
             return;
@@ -206,7 +206,7 @@ void CreateDialog::add_type(const String &p_type, HashMap<String, TreeItem *> &p
         bool current_type_prefered = _is_type_prefered(p_type);
         bool selected_type_prefered = *to_select ? _is_type_prefered(StringUtils::split((*to_select)->get_text(0)," ")[0]) : false;
 
-        bool is_subsequence_of_type = StringUtils::is_subsequence_ofi(search_box->get_text(),p_type);
+        bool is_subsequence_of_type = StringUtils::is_subsequence_of(search_box->get_text(),p_type,StringUtils::CaseInsensitive);
         bool is_substring_of_type = StringUtils::contains(StringUtils::to_lower(p_type),search_term);
         bool is_substring_of_selected = false;
         bool is_subsequence_of_selected = false;
@@ -240,7 +240,7 @@ void CreateDialog::add_type(const String &p_type, HashMap<String, TreeItem *> &p
         item->set_collapsed(false);
     } else {
         // don't collapse search results
-        bool collapse = (search_box->get_text() == "");
+        bool collapse = (search_box->get_text().empty());
         // don't collapse the root node
         collapse &= (item != p_root);
         // don't collapse abstract nodes on the first tree level
@@ -269,7 +269,7 @@ bool CreateDialog::_is_type_prefered(const String &type) {
 bool CreateDialog::_is_class_disabled_by_feature_profile(const StringName &p_class) {
 
     Ref<EditorFeatureProfile> profile = EditorFeatureProfileManager::get_singleton()->get_current_profile();
-    if (profile.is_null()) {
+    if (not profile) {
         return false;
     }
 
@@ -289,7 +289,7 @@ bool CreateDialog::_is_class_disabled_by_feature_profile(const StringName &p_cla
 void CreateDialog::select_type(const String &p_type) {
 
     TreeItem *to_select;
-    if (search_options_types.has(p_type)) {
+    if (search_options_types.contains(p_type)) {
         to_select = search_options_types[p_type];
     } else {
         to_select = search_options->get_root();
@@ -344,22 +344,22 @@ void CreateDialog::_update_search() {
         if (cpp_type) {
             bool skip = false;
 
-            for (Set<StringName>::Element *E = type_blacklist.front(); E && !skip; E = E->next()) {
-                if (ClassDB::is_parent_class(type, E->get()))
+            for (Set<StringName>::iterator E = type_blacklist.begin(); E!=type_blacklist.end() && !skip; ++E) {
+                if (ClassDB::is_parent_class(type, *E))
                     skip = true;
             }
             if (skip)
                 continue;
         }
 
-        if (search_box->get_text() == "") {
+        if (search_box->get_text().empty()) {
             add_type(type, search_options_types, root, &to_select);
         } else {
 
             bool found = false;
             String type2 = type_list[i];
-            while (type2 != "" && (cpp_type ? ClassDB::is_parent_class(type2, base_type) : ed.script_class_is_parent(type2, base_type)) && type2 != base_type) {
-                if (StringUtils::is_subsequence_ofi(search_box->get_text(),type2)) {
+            while (!type2.empty() && (cpp_type ? ClassDB::is_parent_class(type2, base_type) : ed.script_class_is_parent(type2, base_type)) && type2 != base_type) {
+                if (StringUtils::is_subsequence_of(search_box->get_text(),type2,StringUtils::CaseInsensitive)) {
 
                     found = true;
                     break;
@@ -372,22 +372,22 @@ void CreateDialog::_update_search() {
                 add_type(type_list[i], search_options_types, root, &to_select);
         }
 
-        if (EditorNode::get_editor_data().get_custom_types().has(type) && ClassDB::is_parent_class(type, base_type)) {
+        if (EditorNode::get_editor_data().get_custom_types().contains(type) && ClassDB::is_parent_class(type, base_type)) {
             //there are custom types based on this... cool.
 
-            const Vector<EditorData::CustomType> &ct = EditorNode::get_editor_data().get_custom_types()[type];
+            const Vector<EditorData::CustomType> &ct = EditorNode::get_editor_data().get_custom_types().at(type);
             for (int i = 0; i < ct.size(); i++) {
 
-                bool show = StringUtils::is_subsequence_ofi(search_box->get_text(),ct[i].name);
+                bool show = StringUtils::is_subsequence_of(search_box->get_text(),ct[i].name,StringUtils::CaseInsensitive);
 
                 if (!show)
                     continue;
 
-                if (!search_options_types.has(type))
+                if (!search_options_types.contains(type))
                     add_type(type, search_options_types, root, &to_select);
 
                 TreeItem *ti;
-                if (search_options_types.has(type))
+                if (search_options_types.contains(type))
                     ti = search_options_types[type];
                 else
                     ti = search_options->get_root();
@@ -395,7 +395,7 @@ void CreateDialog::_update_search() {
                 TreeItem *item = search_options->create_item(ti);
                 item->set_metadata(0, type);
                 item->set_text(0, ct[i].name);
-                if (ct[i].icon.is_valid()) {
+                if (ct[i].icon) {
                     item->set_icon(0, ct[i].icon);
                 }
 
@@ -406,7 +406,7 @@ void CreateDialog::_update_search() {
         }
     }
 
-    if (search_box->get_text() == "") {
+    if (search_box->get_text().empty()) {
         to_select = root;
     }
 
@@ -521,10 +521,10 @@ Object *CreateDialog::instance_selected() {
         Variant md = selected->get_metadata(0);
 
         String custom;
-        if (md.get_type() != Variant::NIL)
+        if (md.get_type() != VariantType::NIL)
             custom = md;
 
-        if (custom != String()) {
+        if (!custom.empty()) {
             if (ScriptServer::is_global_class(custom)) {
                 Object *obj = EditorNode::get_editor_data().script_class_instance(custom);
                 Node *n = Object::cast_to<Node>(obj);
@@ -552,7 +552,7 @@ void CreateDialog::_item_selected() {
     favorite->set_disabled(false);
     favorite->set_pressed(favorite_list.find(name) != -1);
 
-    if (!EditorHelp::get_doc_data()->class_list.has(name))
+    if (!EditorHelp::get_doc_data()->class_list.contains(name))
         return;
 
     help_bit->set_text(EditorHelp::get_doc_data()->class_list[name].brief_description);

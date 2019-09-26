@@ -34,6 +34,7 @@
 #include "bullet_types_converter.h"
 #include "bullet_utilities.h"
 #include "constraint_bullet.h"
+#include "core/class_db.h"
 #include "core/object_db.h"
 #include "core/project_settings.h"
 #include "core/ustring.h"
@@ -148,7 +149,7 @@ int BulletPhysicsDirectSpaceState::intersect_shape(const RID &p_shape, const Tra
     btQuery.m_closestDistanceThreshold = 0;
     space->dynamicsWorld->contactTest(&collision_object, btQuery);
 
-	bulletdelete(btConvex)
+    bulletdelete(btConvex)
 
     return btQuery.m_count;
 }
@@ -158,7 +159,7 @@ bool BulletPhysicsDirectSpaceState::cast_motion(const RID &p_shape, const Transf
 
     btCollisionShape *btShape = shape->create_bt_shape(p_xform.basis.get_scale(), p_margin);
     if (!btShape->isConvex()) {
-		bulletdelete(btShape)
+        bulletdelete(btShape)
         ERR_PRINTS("The shape is not a convex shape, then is not supported: shape type: " + itos(shape->get_type()));
         return false;
     }
@@ -200,7 +201,7 @@ bool BulletPhysicsDirectSpaceState::cast_motion(const RID &p_shape, const Transf
         }
     }
 
-	bulletdelete(bt_convex_shape)
+    bulletdelete(bt_convex_shape)
     return true; // Mean success
 }
 
@@ -213,8 +214,8 @@ bool BulletPhysicsDirectSpaceState::collide_shape(RID p_shape, const Transform &
 
     btCollisionShape *btShape = shape->create_bt_shape(p_shape_xform.basis.get_scale_abs(), p_margin);
     if (!btShape->isConvex()) {
-		bulletdelete(btShape)
-		ERR_PRINTS("The shape is not a convex shape, then is not supported: shape type: " + itos(shape->get_type()))
+        bulletdelete(btShape)
+        ERR_PRINTS("The shape is not a convex shape, then is not supported: shape type: " + itos(shape->get_type()))
         return false;
     }
     btConvexShape *btConvex = static_cast<btConvexShape *>(btShape);
@@ -280,7 +281,7 @@ bool BulletPhysicsDirectSpaceState::rest_info(RID p_shape, const Transform &p_sh
 Vector3 BulletPhysicsDirectSpaceState::get_closest_point_to_object_volume(RID p_object, const Vector3 p_point) const {
 
     RigidCollisionObjectBullet *rigid_object = space->get_physics_server()->get_rigid_collisin_object(p_object);
-    ERR_FAIL_COND_V(!rigid_object, Vector3());
+    ERR_FAIL_COND_V(!rigid_object, Vector3())
 
     btVector3 out_closest_point(0, 0, 0);
     btScalar out_distance = 1e20;
@@ -585,7 +586,7 @@ void SpaceBullet::create_empty_world(bool p_create_soft_world) {
         world_mem = malloc(sizeof(btDiscreteDynamicsWorld));
     }
 
-    ERR_FAIL_COND_MSG(!world_mem, "Out of memory.");
+    ERR_FAIL_COND_MSG(!world_mem, "Out of memory.")
 
     if (p_create_soft_world) {
         collisionConfiguration = bulletnew(GodotSoftCollisionConfiguration(static_cast<btDiscreteDynamicsWorld *>(world_mem)));
@@ -902,7 +903,7 @@ bool SpaceBullet::test_body_motion(RigidBodyBullet *p_body, const Transform &p_f
         motionVec->set_as_toplevel(true);
         normalLine->set_as_toplevel(true);
 
-        red_mat = Ref<SpatialMaterial>(memnew(SpatialMaterial));
+        red_mat = make_ref_counted<SpatialMaterial>();
         red_mat->set_flag(SpatialMaterial::FLAG_UNSHADED, true);
         red_mat->set_line_width(20.0);
         red_mat->set_feature(SpatialMaterial::FEATURE_TRANSPARENT, true);
@@ -911,7 +912,7 @@ bool SpaceBullet::test_body_motion(RigidBodyBullet *p_body, const Transform &p_f
         red_mat->set_albedo(Color(1, 0, 0, 1));
         motionVec->set_material_override(red_mat);
 
-        blue_mat = Ref<SpatialMaterial>(memnew(SpatialMaterial));
+        blue_mat = make_ref_counted<SpatialMaterial>();
         blue_mat->set_flag(SpatialMaterial::FLAG_UNSHADED, true);
         blue_mat->set_line_width(20.0);
         blue_mat->set_feature(SpatialMaterial::FEATURE_TRANSPARENT, true);
@@ -1121,7 +1122,7 @@ public:
 
                     if (cs->getNumChildShapes() > 1) {
                         const btDbvt *tree = cs->getDynamicAabbTree();
-                        ERR_FAIL_COND_V(tree == nullptr, true);
+                        ERR_FAIL_COND_V(tree == nullptr, true)
 
                         // Transform bounds into compound shape local space
                         const btTransform other_in_compound_space = co->getWorldTransform().inverse();
@@ -1232,7 +1233,7 @@ bool SpaceBullet::recover_from_penetration(RigidBodyBullet *p_body, const btTran
             if (otherObject->getCollisionShape()->isCompound()) {
                 const btCompoundShape *cs = static_cast<const btCompoundShape *>(otherObject->getCollisionShape());
                 int shape_idx = recover_broad_result.results[i].compound_child_index;
-                ERR_FAIL_COND_V(shape_idx < 0 || shape_idx >= cs->getNumChildShapes(), false);
+                ERR_FAIL_COND_V(shape_idx < 0 || shape_idx >= cs->getNumChildShapes(), false)
 
                 if (cs->getChildShape(shape_idx)->isConvex()) {
                     if (RFP_convex_convex_test(kin_shape.shape, static_cast<const btConvexShape *>(cs->getChildShape(shape_idx)), otherObject, kinIndex, shape_idx, shape_transform, otherObject->getWorldTransform() * cs->getChildTransform(shape_idx), p_recover_movement_scale, r_delta_recover_movement, r_recover_result)) {
@@ -1297,7 +1298,7 @@ bool SpaceBullet::RFP_convex_world_test(const btConvexShape *p_shapeA, const btC
 
     /// Contact test
 
-    btTransform tA(p_transformA);
+    const btTransform &tA(p_transformA);
 
     btCollisionObjectWrapper obA(nullptr, p_shapeA, p_objectA, tA, -1, p_shapeId_A);
     btCollisionObjectWrapper obB(nullptr, p_shapeB, p_objectB, p_transformB, -1, p_shapeId_B);
@@ -1431,7 +1432,7 @@ int SpaceBullet::recover_from_penetration_ray(RigidBodyBullet *p_body, const btT
             if (otherObject->getCollisionShape()->isCompound()) {
                 const btCompoundShape *cs = static_cast<const btCompoundShape *>(otherObject->getCollisionShape());
                 int shape_idx = recover_broad_result.results[i].compound_child_index;
-                ERR_FAIL_COND_V(shape_idx < 0 || shape_idx >= cs->getNumChildShapes(), false);
+                ERR_FAIL_COND_V(shape_idx < 0 || shape_idx >= cs->getNumChildShapes(), false)
 
                 RecoverResult recover_result;
                 if (RFP_convex_world_test(kin_shape.shape, cs->getChildShape(shape_idx), p_body->get_bt_collision_object(), otherObject, kinIndex, shape_idx, shape_transform, otherObject->getWorldTransform() * cs->getChildTransform(shape_idx), p_recover_movement_scale, r_delta_recover_movement, &recover_result)) {

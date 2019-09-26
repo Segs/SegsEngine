@@ -98,6 +98,7 @@ struct StringName::_Data {
        if(mark)  // dynamic memory
        {
            Memory::free_static((void *)get_name());
+           cname = nullptr;
        }
     }
 };
@@ -136,7 +137,7 @@ void StringName::cleanup() {
                 }
 
                 _table[i] = _table[i]->next;
-                delete d;
+                memdelete(d);
             }
         }
         if (lost_strings) {
@@ -150,8 +151,8 @@ void StringName::cleanup() {
 void StringName::unref() {
 
     ERR_FAIL_COND(!configured)
-
-    if (_data && _data->refcount.unref()) {
+    assert(_data);
+    if (_data->refcount.unref()) {
         MutexLock mlocker(lock);
 
         if (_data->prev) {
@@ -166,7 +167,7 @@ void StringName::unref() {
         if (_data->next) {
             _data->next->prev = _data->prev;
         }
-        delete _data;
+        memdelete(_data);
     }
 
     _data = nullptr;
@@ -217,7 +218,8 @@ StringName &StringName::operator=(StringName &&p_name)
 {
     if(this==&p_name)
         return *this;
-    unref();
+    if(_data)
+        unref();
     _data = p_name._data;
     p_name._data = nullptr;
     return *this;
@@ -246,7 +248,8 @@ StringName &StringName::operator=(const StringName &p_name) {
     if (this == &p_name)
         return *this;
 
-    unref();
+    if(_data)
+        unref();
 
     if (p_name._data && p_name._data->refcount.ref()) {
 
@@ -266,11 +269,7 @@ StringName::StringName(const StringName &p_name) {
     }
 }
 
-StringName::StringName(StringName &&p_name) noexcept
-{
-    _data = p_name._data;
-    p_name._data = nullptr;
-}
+
 
 StringName::StringName(const char *p_name) {
 
@@ -304,7 +303,7 @@ StringName::StringName(const char *p_name) {
         }
     }
 
-    _data = new _Data;
+    _data = memnew(_Data);
     _data->refcount.init();
     _data->set_dynamic_name(p_name);
     _data->idx = idx;
@@ -342,7 +341,7 @@ void StringName::setupFromCString(const StaticCString &p_static_string) {
         }
     }
 
-    _data = new _Data;
+    _data = memnew(_Data);
 
     _data->refcount.init();
     _data->set_static_name(p_static_string.ptr);
@@ -387,7 +386,7 @@ StringName::StringName(const String &p_name) {
         }
     }
 
-    _data = new _Data;
+    _data = memnew(_Data);
     _data->set_dynamic_name(p_name);
     _data->refcount.init();
     _data->hash = hash;
@@ -458,10 +457,7 @@ StringName StringName::search(const String &p_name) {
     return StringName(); //does not exist
 }
 
-StringName::~StringName() {
 
-    unref();
-}
 
 bool StringName::AlphCompare(const StringName &l, const StringName &r) {
 

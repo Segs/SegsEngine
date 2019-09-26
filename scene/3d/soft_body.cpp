@@ -47,7 +47,7 @@ SoftBodyVisualServerHandler::SoftBodyVisualServerHandler() {}
 void SoftBodyVisualServerHandler::prepare(RID p_mesh, int p_surface) {
     clear();
 
-    ERR_FAIL_COND(!p_mesh.is_valid());
+    ERR_FAIL_COND(!p_mesh.is_valid())
 
     mesh = p_mesh;
     surface = p_surface;
@@ -170,16 +170,16 @@ bool SoftBody::_get(const StringName &p_name, Variant &r_ret) const {
     return false;
 }
 
-void SoftBody::_get_property_list(List<PropertyInfo> *p_list) const {
+void SoftBody::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
     const int pinned_points_indices_size = pinned_points.size();
 
-    p_list->push_back(PropertyInfo(Variant::POOL_INT_ARRAY, "pinned_points"));
+    p_list->push_back(PropertyInfo(VariantType::POOL_INT_ARRAY, "pinned_points"));
 
     for (int i = 0; i < pinned_points_indices_size; ++i) {
-        p_list->push_back(PropertyInfo(Variant::INT, "attachments/" + itos(i) + "/point_index"));
-        p_list->push_back(PropertyInfo(Variant::NODE_PATH, "attachments/" + itos(i) + "/spatial_attachment_path"));
-        p_list->push_back(PropertyInfo(Variant::VECTOR3, "attachments/" + itos(i) + "/offset"));
+        p_list->push_back(PropertyInfo(VariantType::INT, "attachments/" + itos(i) + "/point_index"));
+        p_list->push_back(PropertyInfo(VariantType::NODE_PATH, "attachments/" + itos(i) + "/spatial_attachment_path"));
+        p_list->push_back(PropertyInfo(VariantType::VECTOR3, "attachments/" + itos(i) + "/offset"));
     }
 }
 
@@ -336,76 +336,76 @@ void SoftBody::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_draw_soft_mesh"), &SoftBody::_draw_soft_mesh);
 
-    MethodBinder::bind_method(D_METHOD("set_collision_mask", "collision_mask"), &SoftBody::set_collision_mask);
+    MethodBinder::bind_method(D_METHOD("set_collision_mask", {"collision_mask"}), &SoftBody::set_collision_mask);
     MethodBinder::bind_method(D_METHOD("get_collision_mask"), &SoftBody::get_collision_mask);
 
-    MethodBinder::bind_method(D_METHOD("set_collision_layer", "collision_layer"), &SoftBody::set_collision_layer);
+    MethodBinder::bind_method(D_METHOD("set_collision_layer", {"collision_layer"}), &SoftBody::set_collision_layer);
     MethodBinder::bind_method(D_METHOD("get_collision_layer"), &SoftBody::get_collision_layer);
 
-    MethodBinder::bind_method(D_METHOD("set_collision_mask_bit", "bit", "value"), &SoftBody::set_collision_mask_bit);
-    MethodBinder::bind_method(D_METHOD("get_collision_mask_bit", "bit"), &SoftBody::get_collision_mask_bit);
+    MethodBinder::bind_method(D_METHOD("set_collision_mask_bit", {"bit", "value"}), &SoftBody::set_collision_mask_bit);
+    MethodBinder::bind_method(D_METHOD("get_collision_mask_bit", {"bit"}), &SoftBody::get_collision_mask_bit);
 
-    MethodBinder::bind_method(D_METHOD("set_collision_layer_bit", "bit", "value"), &SoftBody::set_collision_layer_bit);
-    MethodBinder::bind_method(D_METHOD("get_collision_layer_bit", "bit"), &SoftBody::get_collision_layer_bit);
+    MethodBinder::bind_method(D_METHOD("set_collision_layer_bit", {"bit", "value"}), &SoftBody::set_collision_layer_bit);
+    MethodBinder::bind_method(D_METHOD("get_collision_layer_bit", {"bit"}), &SoftBody::get_collision_layer_bit);
 
-    MethodBinder::bind_method(D_METHOD("set_parent_collision_ignore", "parent_collision_ignore"), &SoftBody::set_parent_collision_ignore);
+    MethodBinder::bind_method(D_METHOD("set_parent_collision_ignore", {"parent_collision_ignore"}), &SoftBody::set_parent_collision_ignore);
     MethodBinder::bind_method(D_METHOD("get_parent_collision_ignore"), &SoftBody::get_parent_collision_ignore);
 
     MethodBinder::bind_method(D_METHOD("get_collision_exceptions"), &SoftBody::get_collision_exceptions);
-    MethodBinder::bind_method(D_METHOD("add_collision_exception_with", "body"), &SoftBody::add_collision_exception_with);
-    MethodBinder::bind_method(D_METHOD("remove_collision_exception_with", "body"), &SoftBody::remove_collision_exception_with);
+    MethodBinder::bind_method(D_METHOD("add_collision_exception_with", {"body"}), &SoftBody::add_collision_exception_with);
+    MethodBinder::bind_method(D_METHOD("remove_collision_exception_with", {"body"}), &SoftBody::remove_collision_exception_with);
 
-    MethodBinder::bind_method(D_METHOD("set_simulation_precision", "simulation_precision"), &SoftBody::set_simulation_precision);
+    MethodBinder::bind_method(D_METHOD("set_simulation_precision", {"simulation_precision"}), &SoftBody::set_simulation_precision);
     MethodBinder::bind_method(D_METHOD("get_simulation_precision"), &SoftBody::get_simulation_precision);
 
-    MethodBinder::bind_method(D_METHOD("set_total_mass", "mass"), &SoftBody::set_total_mass);
+    MethodBinder::bind_method(D_METHOD("set_total_mass", {"mass"}), &SoftBody::set_total_mass);
     MethodBinder::bind_method(D_METHOD("get_total_mass"), &SoftBody::get_total_mass);
 
-    MethodBinder::bind_method(D_METHOD("set_linear_stiffness", "linear_stiffness"), &SoftBody::set_linear_stiffness);
+    MethodBinder::bind_method(D_METHOD("set_linear_stiffness", {"linear_stiffness"}), &SoftBody::set_linear_stiffness);
     MethodBinder::bind_method(D_METHOD("get_linear_stiffness"), &SoftBody::get_linear_stiffness);
 
-    MethodBinder::bind_method(D_METHOD("set_areaAngular_stiffness", "areaAngular_stiffness"), &SoftBody::set_areaAngular_stiffness);
+    MethodBinder::bind_method(D_METHOD("set_areaAngular_stiffness", {"areaAngular_stiffness"}), &SoftBody::set_areaAngular_stiffness);
     MethodBinder::bind_method(D_METHOD("get_areaAngular_stiffness"), &SoftBody::get_areaAngular_stiffness);
 
-    MethodBinder::bind_method(D_METHOD("set_volume_stiffness", "volume_stiffness"), &SoftBody::set_volume_stiffness);
+    MethodBinder::bind_method(D_METHOD("set_volume_stiffness", {"volume_stiffness"}), &SoftBody::set_volume_stiffness);
     MethodBinder::bind_method(D_METHOD("get_volume_stiffness"), &SoftBody::get_volume_stiffness);
 
-    MethodBinder::bind_method(D_METHOD("set_pressure_coefficient", "pressure_coefficient"), &SoftBody::set_pressure_coefficient);
+    MethodBinder::bind_method(D_METHOD("set_pressure_coefficient", {"pressure_coefficient"}), &SoftBody::set_pressure_coefficient);
     MethodBinder::bind_method(D_METHOD("get_pressure_coefficient"), &SoftBody::get_pressure_coefficient);
 
-    MethodBinder::bind_method(D_METHOD("set_pose_matching_coefficient", "pose_matching_coefficient"), &SoftBody::set_pose_matching_coefficient);
+    MethodBinder::bind_method(D_METHOD("set_pose_matching_coefficient", {"pose_matching_coefficient"}), &SoftBody::set_pose_matching_coefficient);
     MethodBinder::bind_method(D_METHOD("get_pose_matching_coefficient"), &SoftBody::get_pose_matching_coefficient);
 
-    MethodBinder::bind_method(D_METHOD("set_damping_coefficient", "damping_coefficient"), &SoftBody::set_damping_coefficient);
+    MethodBinder::bind_method(D_METHOD("set_damping_coefficient", {"damping_coefficient"}), &SoftBody::set_damping_coefficient);
     MethodBinder::bind_method(D_METHOD("get_damping_coefficient"), &SoftBody::get_damping_coefficient);
 
-    MethodBinder::bind_method(D_METHOD("set_drag_coefficient", "drag_coefficient"), &SoftBody::set_drag_coefficient);
+    MethodBinder::bind_method(D_METHOD("set_drag_coefficient", {"drag_coefficient"}), &SoftBody::set_drag_coefficient);
     MethodBinder::bind_method(D_METHOD("get_drag_coefficient"), &SoftBody::get_drag_coefficient);
 
-    MethodBinder::bind_method(D_METHOD("set_ray_pickable", "ray_pickable"), &SoftBody::set_ray_pickable);
+    MethodBinder::bind_method(D_METHOD("set_ray_pickable", {"ray_pickable"}), &SoftBody::set_ray_pickable);
     MethodBinder::bind_method(D_METHOD("is_ray_pickable"), &SoftBody::is_ray_pickable);
 
     ADD_GROUP("Collision", "collision_");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "collision_layer", PROPERTY_HINT_LAYERS_3D_PHYSICS), "set_collision_layer", "get_collision_layer");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "collision_mask", PROPERTY_HINT_LAYERS_3D_PHYSICS), "set_collision_mask", "get_collision_mask");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_layer", PROPERTY_HINT_LAYERS_3D_PHYSICS), "set_collision_layer", "get_collision_layer");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_mask", PROPERTY_HINT_LAYERS_3D_PHYSICS), "set_collision_mask", "get_collision_mask");
 
-    ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "parent_collision_ignore", PROPERTY_HINT_PROPERTY_OF_VARIANT_TYPE, "Parent collision object"), "set_parent_collision_ignore", "get_parent_collision_ignore");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "simulation_precision", PROPERTY_HINT_RANGE, "1,100,1"), "set_simulation_precision", "get_simulation_precision");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "total_mass", PROPERTY_HINT_RANGE, "0.01,10000,1"), "set_total_mass", "get_total_mass");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "linear_stiffness", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_linear_stiffness", "get_linear_stiffness");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "areaAngular_stiffness", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_areaAngular_stiffness", "get_areaAngular_stiffness");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "volume_stiffness", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_volume_stiffness", "get_volume_stiffness");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "pressure_coefficient"), "set_pressure_coefficient", "get_pressure_coefficient");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "damping_coefficient", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_damping_coefficient", "get_damping_coefficient");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "drag_coefficient", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_drag_coefficient", "get_drag_coefficient");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "pose_matching_coefficient", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_pose_matching_coefficient", "get_pose_matching_coefficient");
+    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "parent_collision_ignore", PROPERTY_HINT_PROPERTY_OF_VARIANT_TYPE, "Parent collision object"), "set_parent_collision_ignore", "get_parent_collision_ignore");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "simulation_precision", PROPERTY_HINT_RANGE, "1,100,1"), "set_simulation_precision", "get_simulation_precision");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "total_mass", PROPERTY_HINT_RANGE, "0.01,10000,1"), "set_total_mass", "get_total_mass");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "linear_stiffness", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_linear_stiffness", "get_linear_stiffness");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "areaAngular_stiffness", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_areaAngular_stiffness", "get_areaAngular_stiffness");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "volume_stiffness", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_volume_stiffness", "get_volume_stiffness");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "pressure_coefficient"), "set_pressure_coefficient", "get_pressure_coefficient");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "damping_coefficient", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_damping_coefficient", "get_damping_coefficient");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "drag_coefficient", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_drag_coefficient", "get_drag_coefficient");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "pose_matching_coefficient", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_pose_matching_coefficient", "get_pose_matching_coefficient");
 }
 
 String SoftBody::get_configuration_warning() const {
 
     String warning = MeshInstance::get_configuration_warning();
 
-    if (get_mesh().is_null()) {
+    if (not get_mesh()) {
         if (!warning.empty())
             warning += "\n\n";
 
@@ -413,18 +413,19 @@ String SoftBody::get_configuration_warning() const {
     }
 
     Transform t = get_transform();
-    if ((ABS(t.basis.get_axis(0).length() - 1.0) > 0.05 || ABS(t.basis.get_axis(1).length() - 1.0) > 0.05 || ABS(t.basis.get_axis(2).length() - 1.0) > 0.05)) {
-        if (!warning.empty())
-            warning += "\n\n";
+    if ((ABS(t.basis.get_axis(0).length() - 1.0f) > 0.05f || ABS(t.basis.get_axis(1).length() - 1.0f) > 0.05f ||
+                ABS(t.basis.get_axis(2).length() - 1.0f) > 0.05f)) {
+        if (!warning.empty()) warning += "\n\n";
 
-        warning += TTR("Size changes to SoftBody will be overridden by the physics engine when running.\nChange the size in children collision shapes instead.");
+        warning += TTR("Size changes to SoftBody will be overridden by the physics engine when running.\nChange the size "
+                       "in children collision shapes instead.");
     }
 
     return warning;
 }
 
 void SoftBody::_draw_soft_mesh() {
-    if (get_mesh().is_null())
+    if (not get_mesh())
         return;
 
     if (!visual_server_handler.is_ready()) {
@@ -448,28 +449,28 @@ void SoftBody::update_physics_server() {
 
     if (Engine::get_singleton()->is_editor_hint()) {
 
-        if (get_mesh().is_valid())
+        if (get_mesh())
             PhysicsServer::get_singleton()->soft_body_set_mesh(physics_rid, get_mesh());
         else
-            PhysicsServer::get_singleton()->soft_body_set_mesh(physics_rid, nullptr);
+            PhysicsServer::get_singleton()->soft_body_set_mesh(physics_rid, REF());
 
         return;
     }
 
-    if (get_mesh().is_valid()) {
+    if (get_mesh()) {
 
         become_mesh_owner();
         PhysicsServer::get_singleton()->soft_body_set_mesh(physics_rid, get_mesh());
         VS::get_singleton()->connect("frame_pre_draw", this, "_draw_soft_mesh");
     } else {
 
-        PhysicsServer::get_singleton()->soft_body_set_mesh(physics_rid, nullptr);
+        PhysicsServer::get_singleton()->soft_body_set_mesh(physics_rid, REF());
         VS::get_singleton()->disconnect("frame_pre_draw", this, "_draw_soft_mesh");
     }
 }
 
 void SoftBody::become_mesh_owner() {
-    if (mesh.is_null())
+    if (not mesh)
         return;
 
     if (!mesh_owner) {
@@ -478,7 +479,7 @@ void SoftBody::become_mesh_owner() {
         Vector<Ref<Material> > copy_materials;
         copy_materials.append_array(materials);
 
-        ERR_FAIL_COND(!mesh->get_surface_count());
+        ERR_FAIL_COND(!mesh->get_surface_count())
 
         // Get current mesh array and create new mesh array with necessary flag for softbody
         Array surface_arrays = mesh->surface_get_arrays(0);
@@ -488,8 +489,7 @@ void SoftBody::become_mesh_owner() {
         surface_format &= ~(Mesh::ARRAY_COMPRESS_VERTEX | Mesh::ARRAY_COMPRESS_NORMAL);
         surface_format |= Mesh::ARRAY_FLAG_USE_DYNAMIC_UPDATE;
 
-        Ref<ArrayMesh> soft_mesh;
-        soft_mesh.instance();
+        Ref<ArrayMesh> soft_mesh(make_ref_counted<ArrayMesh>());
         soft_mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, surface_arrays, surface_blend_arrays, surface_format);
         soft_mesh->surface_set_material(0, mesh->surface_get_material(0));
 
@@ -552,7 +552,7 @@ const NodePath &SoftBody::get_parent_collision_ignore() const {
     return parent_collision_ignore;
 }
 
-void SoftBody::set_pinned_points_indices(PoolVector<SoftBody::PinnedPoint> p_pinned_points_indices) {
+void SoftBody::set_pinned_points_indices(const PoolVector<SoftBody::PinnedPoint>& p_pinned_points_indices) {
     pinned_points = p_pinned_points_indices;
     PoolVector<PinnedPoint>::Read w = pinned_points.read();
     for (int i = pinned_points.size() - 1; 0 <= i; --i) {
@@ -569,11 +569,11 @@ Array SoftBody::get_collision_exceptions() {
     PhysicsServer::get_singleton()->soft_body_get_collision_exceptions(physics_rid, &exceptions);
     Array ret;
     for (List<RID>::Element *E = exceptions.front(); E; E = E->next()) {
-        RID body = E->get();
+        RID body = E->deref();
         ObjectID instance_id = PhysicsServer::get_singleton()->body_get_object_instance_id(body);
         Object *obj = ObjectDB::get_instance(instance_id);
         PhysicsBody *physics_body = Object::cast_to<PhysicsBody>(obj);
-        ret.append(physics_body);
+        ret.append(Variant(physics_body));
     }
     return ret;
 }
@@ -581,14 +581,14 @@ Array SoftBody::get_collision_exceptions() {
 void SoftBody::add_collision_exception_with(Node *p_node) {
     ERR_FAIL_NULL(p_node);
     CollisionObject *collision_object = Object::cast_to<CollisionObject>(p_node);
-    ERR_FAIL_COND_MSG(!collision_object, "Collision exception only works between two CollisionObject.");
+    ERR_FAIL_COND_MSG(!collision_object, "Collision exception only works between two CollisionObject.")
     PhysicsServer::get_singleton()->soft_body_add_collision_exception(physics_rid, collision_object->get_rid());
 }
 
 void SoftBody::remove_collision_exception_with(Node *p_node) {
     ERR_FAIL_NULL(p_node);
     CollisionObject *collision_object = Object::cast_to<CollisionObject>(p_node);
-    ERR_FAIL_COND_MSG(!collision_object, "Collision exception only works between two CollisionObject.");
+    ERR_FAIL_COND_MSG(!collision_object, "Collision exception only works between two CollisionObject.")
     PhysicsServer::get_singleton()->soft_body_remove_collision_exception(physics_rid, collision_object->get_rid());
 }
 

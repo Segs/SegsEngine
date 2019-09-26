@@ -64,7 +64,7 @@ void VisualInstance::_notification(int p_what) {
             if (skeleton)
                 VisualServer::get_singleton()->instance_attach_skeleton( instance, skeleton->get_skeleton() );
             */
-            ERR_FAIL_COND(get_world().is_null());
+            ERR_FAIL_COND(not get_world())
             VisualServer::get_singleton()->instance_set_scenario(instance, get_world()->get_scenario());
             _update_visibility();
 
@@ -126,17 +126,17 @@ bool VisualInstance::get_layer_mask_bit(int p_layer) const {
 void VisualInstance::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_get_visual_instance_rid"), &VisualInstance::_get_visual_instance_rid);
-    MethodBinder::bind_method(D_METHOD("set_base", "base"), &VisualInstance::set_base);
+    MethodBinder::bind_method(D_METHOD("set_base", {"base"}), &VisualInstance::set_base);
     MethodBinder::bind_method(D_METHOD("get_base"), &VisualInstance::get_base);
     MethodBinder::bind_method(D_METHOD("get_instance"), &VisualInstance::get_instance);
-    MethodBinder::bind_method(D_METHOD("set_layer_mask", "mask"), &VisualInstance::set_layer_mask);
+    MethodBinder::bind_method(D_METHOD("set_layer_mask", {"mask"}), &VisualInstance::set_layer_mask);
     MethodBinder::bind_method(D_METHOD("get_layer_mask"), &VisualInstance::get_layer_mask);
-    MethodBinder::bind_method(D_METHOD("set_layer_mask_bit", "layer", "enabled"), &VisualInstance::set_layer_mask_bit);
-    MethodBinder::bind_method(D_METHOD("get_layer_mask_bit", "layer"), &VisualInstance::get_layer_mask_bit);
+    MethodBinder::bind_method(D_METHOD("set_layer_mask_bit", {"layer", "enabled"}), &VisualInstance::set_layer_mask_bit);
+    MethodBinder::bind_method(D_METHOD("get_layer_mask_bit", {"layer"}), &VisualInstance::get_layer_mask_bit);
 
     MethodBinder::bind_method(D_METHOD("get_transformed_aabb"), &VisualInstance::get_transformed_aabb);
 
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "layers", PROPERTY_HINT_LAYERS_3D_RENDER), "set_layer_mask", "get_layer_mask");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "layers", PROPERTY_HINT_LAYERS_3D_RENDER), "set_layer_mask", "get_layer_mask");
 }
 
 void VisualInstance::set_base(const RID &p_base) {
@@ -166,7 +166,7 @@ VisualInstance::~VisualInstance() {
 void GeometryInstance::set_material_override(const Ref<Material> &p_material) {
 
     material_override = p_material;
-    VS::get_singleton()->instance_geometry_set_material_override(get_instance(), p_material.is_valid() ? p_material->get_rid() : RID());
+    VS::get_singleton()->instance_geometry_set_material_override(get_instance(), p_material ? p_material->get_rid() : RID());
 }
 
 Ref<Material> GeometryInstance::get_material_override() const {
@@ -252,7 +252,7 @@ GeometryInstance::ShadowCastingSetting GeometryInstance::get_cast_shadows_settin
 
 void GeometryInstance::set_extra_cull_margin(float p_margin) {
 
-    ERR_FAIL_COND(p_margin < 0);
+    ERR_FAIL_COND(p_margin < 0)
     extra_cull_margin = p_margin;
     VS::get_singleton()->instance_set_extra_visibility_margin(get_instance(), extra_cull_margin);
 }
@@ -269,56 +269,56 @@ void GeometryInstance::set_custom_aabb(AABB aabb) {
 
 void GeometryInstance::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_material_override", "material"), &GeometryInstance::set_material_override);
+    MethodBinder::bind_method(D_METHOD("set_material_override", {"material"}), &GeometryInstance::set_material_override);
     MethodBinder::bind_method(D_METHOD("get_material_override"), &GeometryInstance::get_material_override);
 
-    MethodBinder::bind_method(D_METHOD("set_flag", "flag", "value"), &GeometryInstance::set_flag);
-    MethodBinder::bind_method(D_METHOD("get_flag", "flag"), &GeometryInstance::get_flag);
+    MethodBinder::bind_method(D_METHOD("set_flag", {"flag", "value"}), &GeometryInstance::set_flag);
+    MethodBinder::bind_method(D_METHOD("get_flag", {"flag"}), &GeometryInstance::get_flag);
 
-    MethodBinder::bind_method(D_METHOD("set_cast_shadows_setting", "shadow_casting_setting"), &GeometryInstance::set_cast_shadows_setting);
+    MethodBinder::bind_method(D_METHOD("set_cast_shadows_setting", {"shadow_casting_setting"}), &GeometryInstance::set_cast_shadows_setting);
     MethodBinder::bind_method(D_METHOD("get_cast_shadows_setting"), &GeometryInstance::get_cast_shadows_setting);
 
-    MethodBinder::bind_method(D_METHOD("set_lod_max_hysteresis", "mode"), &GeometryInstance::set_lod_max_hysteresis);
+    MethodBinder::bind_method(D_METHOD("set_lod_max_hysteresis", {"mode"}), &GeometryInstance::set_lod_max_hysteresis);
     MethodBinder::bind_method(D_METHOD("get_lod_max_hysteresis"), &GeometryInstance::get_lod_max_hysteresis);
 
-    MethodBinder::bind_method(D_METHOD("set_lod_max_distance", "mode"), &GeometryInstance::set_lod_max_distance);
+    MethodBinder::bind_method(D_METHOD("set_lod_max_distance", {"mode"}), &GeometryInstance::set_lod_max_distance);
     MethodBinder::bind_method(D_METHOD("get_lod_max_distance"), &GeometryInstance::get_lod_max_distance);
 
-    MethodBinder::bind_method(D_METHOD("set_lod_min_hysteresis", "mode"), &GeometryInstance::set_lod_min_hysteresis);
+    MethodBinder::bind_method(D_METHOD("set_lod_min_hysteresis", {"mode"}), &GeometryInstance::set_lod_min_hysteresis);
     MethodBinder::bind_method(D_METHOD("get_lod_min_hysteresis"), &GeometryInstance::get_lod_min_hysteresis);
 
-    MethodBinder::bind_method(D_METHOD("set_lod_min_distance", "mode"), &GeometryInstance::set_lod_min_distance);
+    MethodBinder::bind_method(D_METHOD("set_lod_min_distance", {"mode"}), &GeometryInstance::set_lod_min_distance);
     MethodBinder::bind_method(D_METHOD("get_lod_min_distance"), &GeometryInstance::get_lod_min_distance);
 
-    MethodBinder::bind_method(D_METHOD("set_extra_cull_margin", "margin"), &GeometryInstance::set_extra_cull_margin);
+    MethodBinder::bind_method(D_METHOD("set_extra_cull_margin", {"margin"}), &GeometryInstance::set_extra_cull_margin);
     MethodBinder::bind_method(D_METHOD("get_extra_cull_margin"), &GeometryInstance::get_extra_cull_margin);
 
-    MethodBinder::bind_method(D_METHOD("set_custom_aabb", "aabb"), &GeometryInstance::set_custom_aabb);
+    MethodBinder::bind_method(D_METHOD("set_custom_aabb", {"aabb"}), &GeometryInstance::set_custom_aabb);
 
     MethodBinder::bind_method(D_METHOD("get_aabb"), &GeometryInstance::get_aabb);
 
     ADD_GROUP("Geometry", "");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "material_override", PROPERTY_HINT_RESOURCE_TYPE, "ShaderMaterial,SpatialMaterial"), "set_material_override", "get_material_override");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "cast_shadow", PROPERTY_HINT_ENUM, "Off,On,Double-Sided,Shadows Only"), "set_cast_shadows_setting", "get_cast_shadows_setting");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "extra_cull_margin", PROPERTY_HINT_RANGE, "0,16384,0.01"), "set_extra_cull_margin", "get_extra_cull_margin");
-    ADD_PROPERTYI(PropertyInfo(Variant::BOOL, "use_in_baked_light"), "set_flag", "get_flag", FLAG_USE_BAKED_LIGHT);
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "material_override", PROPERTY_HINT_RESOURCE_TYPE, "ShaderMaterial,SpatialMaterial"), "set_material_override", "get_material_override");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "cast_shadow", PROPERTY_HINT_ENUM, "Off,On,Double-Sided,Shadows Only"), "set_cast_shadows_setting", "get_cast_shadows_setting");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "extra_cull_margin", PROPERTY_HINT_RANGE, "0,16384,0.01"), "set_extra_cull_margin", "get_extra_cull_margin");
+    ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "use_in_baked_light"), "set_flag", "get_flag", FLAG_USE_BAKED_LIGHT);
 
     ADD_GROUP("LOD", "lod_");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "lod_min_distance", PROPERTY_HINT_RANGE, "0,32768,0.01"), "set_lod_min_distance", "get_lod_min_distance");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "lod_min_hysteresis", PROPERTY_HINT_RANGE, "0,32768,0.01"), "set_lod_min_hysteresis", "get_lod_min_hysteresis");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "lod_max_distance", PROPERTY_HINT_RANGE, "0,32768,0.01"), "set_lod_max_distance", "get_lod_max_distance");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "lod_max_hysteresis", PROPERTY_HINT_RANGE, "0,32768,0.01"), "set_lod_max_hysteresis", "get_lod_max_hysteresis");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "lod_min_distance", PROPERTY_HINT_RANGE, "0,32768,0.01"), "set_lod_min_distance", "get_lod_min_distance");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "lod_min_hysteresis", PROPERTY_HINT_RANGE, "0,32768,0.01"), "set_lod_min_hysteresis", "get_lod_min_hysteresis");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "lod_max_distance", PROPERTY_HINT_RANGE, "0,32768,0.01"), "set_lod_max_distance", "get_lod_max_distance");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "lod_max_hysteresis", PROPERTY_HINT_RANGE, "0,32768,0.01"), "set_lod_max_hysteresis", "get_lod_max_hysteresis");
 
     //ADD_SIGNAL( MethodInfo("visibility_changed"));
 
-    BIND_ENUM_CONSTANT(SHADOW_CASTING_SETTING_OFF);
-    BIND_ENUM_CONSTANT(SHADOW_CASTING_SETTING_ON);
-    BIND_ENUM_CONSTANT(SHADOW_CASTING_SETTING_DOUBLE_SIDED);
-    BIND_ENUM_CONSTANT(SHADOW_CASTING_SETTING_SHADOWS_ONLY);
+    BIND_ENUM_CONSTANT(SHADOW_CASTING_SETTING_OFF)
+    BIND_ENUM_CONSTANT(SHADOW_CASTING_SETTING_ON)
+    BIND_ENUM_CONSTANT(SHADOW_CASTING_SETTING_DOUBLE_SIDED)
+    BIND_ENUM_CONSTANT(SHADOW_CASTING_SETTING_SHADOWS_ONLY)
 
-    BIND_ENUM_CONSTANT(FLAG_USE_BAKED_LIGHT);
-    BIND_ENUM_CONSTANT(FLAG_DRAW_NEXT_FRAME_IF_VISIBLE);
-    BIND_ENUM_CONSTANT(FLAG_MAX);
+    BIND_ENUM_CONSTANT(FLAG_USE_BAKED_LIGHT)
+    BIND_ENUM_CONSTANT(FLAG_DRAW_NEXT_FRAME_IF_VISIBLE)
+    BIND_ENUM_CONSTANT(FLAG_MAX)
 }
 
 GeometryInstance::GeometryInstance() {

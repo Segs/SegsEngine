@@ -38,38 +38,38 @@
 
 class AudioDriverDummy : public AudioDriver {
 
-	Thread *thread;
-	Mutex *mutex;
+    Thread *thread;
+    Mutex *mutex;
 
-	int32_t *samples_in;
+    int32_t *samples_in;
 
-	static void thread_func(void *p_udata);
+    static void thread_func(void *p_udata);
 
-	unsigned int buffer_frames;
-	unsigned int mix_rate;
-	SpeakerMode speaker_mode;
+    unsigned int buffer_frames;
+    unsigned int mix_rate;
+    SpeakerMode speaker_mode;
 
-	int channels;
+    int channels;
 
-	bool active;
-	bool thread_exited;
-	mutable bool exit_thread;
+    bool active;
+    bool thread_exited;
+    mutable bool exit_thread;
 
 public:
-	const char *get_name() const override {
-		return "Dummy";
-	};
+    const char *get_name() const override {
+        return "Dummy";
+    }
 
-	Error init() override;
-	void start() override;
-	int get_mix_rate() const override;
-	SpeakerMode get_speaker_mode() const override;
-	void lock() override;
-	void unlock() override;
-	void finish() override;
+    Error init() override;
+    void start() override;
+    int get_mix_rate() const override;
+    SpeakerMode get_speaker_mode() const override;
+    void lock() override;
+    void unlock() override;
+    void finish() override;
 
-	AudioDriverDummy();
-	~AudioDriverDummy() override;
+    AudioDriverDummy();
+    ~AudioDriverDummy() override;
 };
 
 #endif

@@ -54,6 +54,7 @@
 #include "scene/2d/parallax_layer.h"
 #include "scene/2d/particles_2d.h"
 #include "scene/2d/path_2d.h"
+#include "scene/2d/path_texture.h"
 #include "scene/2d/physics_body_2d.h"
 #include "scene/2d/polygon_2d.h"
 #include "scene/2d/position_2d.h"
@@ -65,6 +66,7 @@
 #include "scene/2d/touch_screen_button.h"
 #include "scene/2d/visibility_notifier_2d.h"
 #include "scene/2d/y_sort.h"
+#include "scene/animation/animation_cache.h"
 #include "scene/animation/animation_blend_space_1d.h"
 #include "scene/animation/animation_blend_space_2d.h"
 #include "scene/animation/animation_blend_tree.h"
@@ -85,6 +87,7 @@
 #include "scene/gui/control.h"
 #include "scene/gui/dialogs.h"
 #include "scene/gui/file_dialog.h"
+#include "scene/gui/gradient_edit.h"
 #include "scene/gui/graph_edit.h"
 #include "scene/gui/graph_node.h"
 #include "scene/gui/grid_container.h"
@@ -129,6 +132,7 @@
 #include "scene/resources/audio_stream_sample.h"
 #include "scene/resources/bit_map.h"
 #include "scene/resources/box_shape.h"
+#include "scene/resources/canvas.h"
 #include "scene/resources/camera_texture.h"
 #include "scene/resources/capsule_shape.h"
 #include "scene/resources/capsule_shape_2d.h"
@@ -156,6 +160,7 @@
 #include "scene/resources/ray_shape.h"
 #include "scene/resources/rectangle_shape_2d.h"
 #include "scene/resources/resource_format_text.h"
+#include "scene/resources/space_2d.h"
 #include "scene/resources/segment_shape_2d.h"
 #include "scene/resources/sky.h"
 #include "scene/resources/sphere_shape.h"
@@ -237,28 +242,377 @@ void register_scene_types() {
 
     Node::init_node_hrcr();
 
-    resource_loader_dynamic_font.instance();
+    AudioStreamPlayer::initialize_class();
+    ResourcePreloader::initialize_class();
+    HTTPRequest::initialize_class();
+    Timer::initialize_class();
+    SceneTree::initialize_class();
+    ViewportTexture::initialize_class();
+    Viewport::initialize_class();
+    CanvasLayer::initialize_class();
+    Node::initialize_class();
+    register_viewport_local_classes();
+    //RoomBounds::initialize_class();
+    TileSet::initialize_class();
+    LineShape2D::initialize_class();
+    ConcavePolygonShape2D::initialize_class();
+    DynamicFontData::initialize_class();
+    DynamicFontAtSize::initialize_class();
+    DynamicFont::initialize_class();
+    ResourceFormatLoaderDynamicFont::initialize_class();
+    Canvas::initialize_class();
+    ConvexPolygonShape2D::initialize_class();
+    World2D::initialize_class();
+    VisualShader::initialize_class();
+    VisualShaderNodeCustom::initialize_class();
+    VisualShaderNodeInput::initialize_class();
+    VisualShaderNodeGroupBase::initialize_class();
+    VisualShaderNodeExpression::initialize_class();
+    VisualShaderNodeGlobalExpression::initialize_class();
+    CapsuleShape2D::initialize_class();
+    BoxShape::initialize_class();
+    Gradient::initialize_class();
+    ConvexPolygonShape::initialize_class();
+    ResourceFormatLoaderShader::initialize_class();
+    ResourceFormatSaverShader::initialize_class();
+    SegmentShape2D::initialize_class();
+    RayShape2D::initialize_class();
+    ParticlesMaterial::initialize_class();
+    CameraTexture::initialize_class();
+    PolygonPathFinder::initialize_class();
+    PlaneShape::initialize_class();
+    MeshDataTool::initialize_class();
+    SurfaceTool::initialize_class();
+    ConcavePolygonShape::initialize_class();
+    BitmapFont::initialize_class();
+    ResourceFormatLoaderBMFont::initialize_class();
+    AudioStreamPlaybackSample::initialize_class();
+    AudioStreamSample::initialize_class();
+    MultiMesh::initialize_class();
+    BitMap::initialize_class();
+    VisualShaderNodeScalarConstant::initialize_class();
+    VisualShaderNodeBooleanConstant::initialize_class();
+    VisualShaderNodeColorConstant::initialize_class();
+    VisualShaderNodeVec3Constant::initialize_class();
+    VisualShaderNodeTransformConstant::initialize_class();
+    VisualShaderNodeTexture::initialize_class();
+    VisualShaderNodeCubeMap::initialize_class();
+    VisualShaderNodeScalarOp::initialize_class();
+    VisualShaderNodeVectorOp::initialize_class();
+    VisualShaderNodeColorOp::initialize_class();
+    VisualShaderNodeTransformMult::initialize_class();
+    VisualShaderNodeTransformVecMult::initialize_class();
+    VisualShaderNodeScalarFunc::initialize_class();
+    VisualShaderNodeVectorFunc::initialize_class();
+    VisualShaderNodeColorFunc::initialize_class();
+    VisualShaderNodeTransformFunc::initialize_class();
+    VisualShaderNodeDotProduct::initialize_class();
+    VisualShaderNodeVectorLen::initialize_class();
+    VisualShaderNodeDeterminant::initialize_class();
+    VisualShaderNodeScalarClamp::initialize_class();
+    VisualShaderNodeVectorClamp::initialize_class();
+    VisualShaderNodeScalarDerivativeFunc::initialize_class();
+    VisualShaderNodeVectorDerivativeFunc::initialize_class();
+    VisualShaderNodeFaceForward::initialize_class();
+    VisualShaderNodeOuterProduct::initialize_class();
+    VisualShaderNodeVectorScalarStep::initialize_class();
+    VisualShaderNodeScalarSmoothStep::initialize_class();
+    VisualShaderNodeVectorSmoothStep::initialize_class();
+    VisualShaderNodeVectorScalarSmoothStep::initialize_class();
+    VisualShaderNodeVectorDistance::initialize_class();
+    VisualShaderNodeVectorRefract::initialize_class();
+    VisualShaderNodeScalarInterp::initialize_class();
+    VisualShaderNodeVectorInterp::initialize_class();
+    VisualShaderNodeVectorScalarMix::initialize_class();
+    VisualShaderNodeVectorCompose::initialize_class();
+    VisualShaderNodeTransformCompose::initialize_class();
+    VisualShaderNodeVectorDecompose::initialize_class();
+    VisualShaderNodeTransformDecompose::initialize_class();
+    VisualShaderNodeScalarUniform::initialize_class();
+    VisualShaderNodeBooleanUniform::initialize_class();
+    VisualShaderNodeColorUniform::initialize_class();
+    VisualShaderNodeVec3Uniform::initialize_class();
+    VisualShaderNodeTransformUniform::initialize_class();
+    VisualShaderNodeTextureUniform::initialize_class();
+    VisualShaderNodeTextureUniformTriplanar::initialize_class();
+    VisualShaderNodeCubeMapUniform::initialize_class();
+    VisualShaderNodeIf::initialize_class();
+    VisualShaderNodeSwitch::initialize_class();
+    VisualShaderNodeScalarSwitch::initialize_class();
+    VisualShaderNodeFresnel::initialize_class();
+    VisualShaderNodeIs::initialize_class();
+    VisualShaderNodeCompare::initialize_class();
+    PanoramaSky::initialize_class();
+    ProceduralSky::initialize_class();
+    PhysicsMaterial::initialize_class();
+    CylinderShape::initialize_class();
+    CircleShape2D::initialize_class();
+    ArrayMesh::initialize_class();
+    PackedScene::initialize_class();
+    Environment::initialize_class();
+    Curve::initialize_class();
+    Curve2D::initialize_class();
+    Curve3D::initialize_class();
+    SphereShape::initialize_class();
+    TextFile::initialize_class();
+    World::initialize_class();
+    MeshLibrary::initialize_class();
+    Space2D::initialize_class();
+    CapsuleMesh::initialize_class();
+    CubeMesh::initialize_class();
+    CylinderMesh::initialize_class();
+    PlaneMesh::initialize_class();
+    PrismMesh::initialize_class();
+    QuadMesh::initialize_class();
+    SphereMesh::initialize_class();
+    PointMesh::initialize_class();
+    ResourceInteractiveLoaderText::initialize_class();
+    ResourceFormatLoaderText::initialize_class();
+    ResourceFormatSaverText::initialize_class();
+    CapsuleShape::initialize_class();
+    DynamicFontData::initialize_class();
+    DynamicFontAtSize::initialize_class();
+    DynamicFont::initialize_class();
+    ResourceFormatLoaderDynamicFont::initialize_class();
+    RayShape::initialize_class();
+    Animation::initialize_class();
+    VideoStreamPlayback::initialize_class();
+    RectangleShape2D::initialize_class();
+    HeightMapShape::initialize_class();
+    CurveTexture::initialize_class();
+    ShaderMaterial::initialize_class();
+    SpatialMaterial::initialize_class();
+    Theme::initialize_class();
+    StyleBoxEmpty::initialize_class();
+    StyleBoxTexture::initialize_class();
+    StyleBoxFlat::initialize_class();
+    StyleBoxLine::initialize_class();
+    ResourceFormatLoaderStreamTexture::initialize_class();
+    AtlasTexture::initialize_class();
+    MeshTexture::initialize_class();
+    LargeTexture::initialize_class();
+    CubeMap::initialize_class();
+    Texture3D::initialize_class();
+    TextureArray::initialize_class();
+    ResourceFormatLoaderTextureLayered::initialize_class();
+    GradientTexture::initialize_class();
+    ProxyTexture::initialize_class();
+    AnimatedTexture::initialize_class();
+    Navigation2D::initialize_class();
+    Area2D::initialize_class();
+    NavigationPolygon::initialize_class();
+    NavigationPolygonInstance::initialize_class();
+    VisibilityNotifier2D::initialize_class();
+    VisibilityEnabler2D::initialize_class();
+    PathTexture::initialize_class();
+    CollisionPolygon2D::initialize_class();
+    Node2D::initialize_class();
+    YSort::initialize_class();
+    ParallaxBackground::initialize_class();
+    Particles2D::initialize_class();
+    PinJoint2D::initialize_class();
+    GrooveJoint2D::initialize_class();
+    DampedSpringJoint2D::initialize_class();
+    CPUParticles2D::initialize_class();
+    Light2D::initialize_class();
+    Position2D::initialize_class();
+    CollisionShape2D::initialize_class();
+    Bone2D::initialize_class();
+    Skeleton2D::initialize_class();
+    Line2D::initialize_class();
+    RemoteTransform2D::initialize_class();
+    MultiMeshInstance2D::initialize_class();
+    OccluderPolygon2D::initialize_class();
+    LightOccluder2D::initialize_class();
+    Path2D::initialize_class();
+    PathFollow2D::initialize_class();
+    CanvasModulate::initialize_class();
+    SpriteFrames::initialize_class();
+    AnimatedSprite::initialize_class();
+    MeshInstance2D::initialize_class();
+    StaticBody2D::initialize_class();
+    RigidBody2D::initialize_class();
+    KinematicBody2D::initialize_class();
+    KinematicCollision2D::initialize_class();
+    RayCast2D::initialize_class();
+    ParallaxLayer::initialize_class();
+    TileMap::initialize_class();
+    Polygon2D::initialize_class();
+    Sprite::initialize_class();
+    TouchScreenButton::initialize_class();
+    CanvasItemMaterial::initialize_class();
+    BackBufferCopy::initialize_class();
+    Camera2D::initialize_class();
+    AudioStreamPlayer2D::initialize_class();
+    GraphEditFilter::initialize_class();
+    GraphEdit::initialize_class();
+    HSplitContainer::initialize_class();
+    VSplitContainer::initialize_class();
+    HSlider::initialize_class();
+    VSlider::initialize_class();
+    Panel::initialize_class();
+    GraphNode::initialize_class();
+    TextureProgress::initialize_class();
+    TabContainer::initialize_class();
+    Tree::initialize_class();
+    MenuButton::initialize_class();
+    LinkButton::initialize_class();
+    CenterContainer::initialize_class();
+    CheckButton::initialize_class();
+    Container::initialize_class();
+    ToolButton::initialize_class();
+    NinePatchRect::initialize_class();
+    Control::initialize_class();
+    FileDialog::initialize_class();
+    LineEditFileChooser::initialize_class();
+    ColorPicker::initialize_class();
+    ColorPickerButton::initialize_class();
+    Tabs::initialize_class();
+    ReferenceRect::initialize_class();
+    GradientEdit::initialize_class();
+    GridContainer::initialize_class();
+    ViewportContainer::initialize_class();
+    ItemList::initialize_class();
+    ColorRect::initialize_class();
+    VideoPlayer::initialize_class();
+    HBoxContainer::initialize_class();
+    VBoxContainer::initialize_class();
+    Button::initialize_class();
+    CheckBox::initialize_class();
+    OptionButton::initialize_class();
+    RichTextEffect::initialize_class();
+    CharFXTransform::initialize_class();
+    VSeparator::initialize_class();
+    HSeparator::initialize_class();
+    ShortCut::initialize_class();
+    PopupMenu::initialize_class();
+    Label::initialize_class();
+    TextureButton::initialize_class();
+    TextureRect::initialize_class();
+    ButtonGroup::initialize_class();
+    Popup::initialize_class();
+    PopupPanel::initialize_class();
+    HScrollBar::initialize_class();
+    VScrollBar::initialize_class();
+    SpinBox::initialize_class();
+    TextEdit::initialize_class();
+    ProgressBar::initialize_class();
+    PanelContainer::initialize_class();
+    ScrollContainer::initialize_class();
+    MarginContainer::initialize_class();
+    WindowDialog::initialize_class();
+    PopupDialog::initialize_class();
+    AcceptDialog::initialize_class();
+    ConfirmationDialog::initialize_class();
+    RichTextLabel::initialize_class();
+    LineEdit::initialize_class();
+    Camera::initialize_class();
+    ClippedCamera::initialize_class();
+    Skeleton::initialize_class();
+    VisibilityNotifier::initialize_class();
+    VisibilityEnabler::initialize_class();
+    Area::initialize_class();
+    ARVRCamera::initialize_class();
+    ARVRController::initialize_class();
+    ARVRAnchor::initialize_class();
+    ARVROrigin::initialize_class();
+    Particles::initialize_class();
+    InterpolatedCamera::initialize_class();
+    ProximityGroup::initialize_class();
+    PinJoint::initialize_class();
+    HingeJoint::initialize_class();
+    SliderJoint::initialize_class();
+    ConeTwistJoint::initialize_class();
+    Generic6DOFJoint::initialize_class();
+    Spatial::initialize_class();
+    BakedLightmapData::initialize_class();
+    BakedLightmap::initialize_class();
+    VehicleWheel::initialize_class();
+    VehicleBody::initialize_class();
+    CollisionPolygon::initialize_class();
+    DirectionalLight::initialize_class();
+    OmniLight::initialize_class();
+    SpotLight::initialize_class();
+    Position3D::initialize_class();
+    SoftBody::initialize_class();
+    Listener::initialize_class();
+    SpringArm::initialize_class();
+    WorldEnvironment::initialize_class();
+    CollisionShape::initialize_class();
+    BoneAttachment::initialize_class();
+    Sprite3D::initialize_class();
+    AnimatedSprite3D::initialize_class();
+    MeshInstance::initialize_class();
+    Navigation::initialize_class();
+    NavigationMesh::initialize_class();
+    NavigationMeshInstance::initialize_class();
+    ImmediateGeometry::initialize_class();
+    AudioStreamPlayer3D::initialize_class();
+    MultiMeshInstance::initialize_class();
+    RemoteTransform::initialize_class();
+    StaticBody::initialize_class();
+    RigidBody::initialize_class();
+    KinematicBody::initialize_class();
+    KinematicCollision::initialize_class();
+    PhysicalBone::initialize_class();
+    CPUParticles::initialize_class();
+    GIProbeData::initialize_class();
+    GIProbe::initialize_class();
+//    Portal::initialize_class();
+//    Room::initialize_class();
+    RayCast::initialize_class();
+    ReflectionProbe::initialize_class();
+    SpatialVelocityTracker::initialize_class();
+    Path::initialize_class();
+    PathFollow::initialize_class();
+    AnimationCache::initialize_class();
+    AnimationTreePlayer::initialize_class();
+    AnimationNodeAnimation::initialize_class();
+    AnimationNodeOneShot::initialize_class();
+    AnimationNodeAdd2::initialize_class();
+    AnimationNodeAdd3::initialize_class();
+    AnimationNodeBlend2::initialize_class();
+    AnimationNodeBlend3::initialize_class();
+    AnimationNodeTimeScale::initialize_class();
+    AnimationNodeTimeSeek::initialize_class();
+    AnimationNodeTransition::initialize_class();
+    AnimationNodeOutput::initialize_class();
+    AnimationNodeBlendTree::initialize_class();
+    AnimationNodeBlendSpace1D::initialize_class();
+    SkeletonIK::initialize_class();
+    RootMotionView::initialize_class();
+    AnimationPlayer::initialize_class();
+    AnimationNodeStateMachineTransition::initialize_class();
+    AnimationNodeStateMachinePlayback::initialize_class();
+    AnimationNodeStateMachine::initialize_class();
+    AnimationNode::initialize_class();
+    AnimationRootNode::initialize_class();
+    AnimationTree::initialize_class();
+    Tween::initialize_class();
+    AnimationNodeBlendSpace2D::initialize_class();
+
+    resource_loader_dynamic_font = make_ref_counted<ResourceFormatLoaderDynamicFont>();
     ResourceLoader::add_resource_format_loader(resource_loader_dynamic_font);
 
-    resource_loader_stream_texture.instance();
+    resource_loader_stream_texture = make_ref_counted<ResourceFormatLoaderStreamTexture>();
     ResourceLoader::add_resource_format_loader(resource_loader_stream_texture);
 
-    resource_loader_texture_layered.instance();
+    resource_loader_texture_layered = make_ref_counted<ResourceFormatLoaderTextureLayered>();
     ResourceLoader::add_resource_format_loader(resource_loader_texture_layered);
 
-    resource_saver_text.instance();
+    resource_saver_text = make_ref_counted<ResourceFormatSaverText>();
     ResourceSaver::add_resource_format_saver(resource_saver_text, true);
 
-    resource_loader_text.instance();
+    resource_loader_text = make_ref_counted<ResourceFormatLoaderText>();
     ResourceLoader::add_resource_format_loader(resource_loader_text, true);
 
-    resource_saver_shader.instance();
+    resource_saver_shader = make_ref_counted<ResourceFormatSaverShader>();
     ResourceSaver::add_resource_format_saver(resource_saver_shader, true);
 
-    resource_loader_shader.instance();
+    resource_loader_shader = make_ref_counted<ResourceFormatLoaderShader>();
     ResourceLoader::add_resource_format_loader(resource_loader_shader, true);
 
-    resource_loader_bmfont.instance();
+    resource_loader_bmfont = make_ref_counted<ResourceFormatLoaderBMFont>();
     ResourceLoader::add_resource_format_loader(resource_loader_bmfont, true);
 
     OS::get_singleton()->yield(); //may take time to init
@@ -348,7 +702,7 @@ void register_scene_types() {
     ClassDB::register_class<ColorPickerButton>();
     ClassDB::register_class<RichTextLabel>();
     ClassDB::register_class<RichTextEffect>();
-	ClassDB::register_class<CharFXTransform>();
+    ClassDB::register_class<CharFXTransform>();
     ClassDB::register_class<PopupDialog>();
     ClassDB::register_class<WindowDialog>();
     ClassDB::register_class<AcceptDialog>();
@@ -359,6 +713,7 @@ void register_scene_types() {
     ClassDB::register_class<HSplitContainer>();
     ClassDB::register_class<VSplitContainer>();
     ClassDB::register_class<GraphNode>();
+    GraphEditFilter::initialize_class();
     ClassDB::register_class<GraphEdit>();
 
     OS::get_singleton()->yield(); //may take time to init
@@ -366,6 +721,9 @@ void register_scene_types() {
 #endif
 
     /* REGISTER 3D */
+
+	ClassDB::register_class<Skin>();
+	ClassDB::register_virtual_class<SkinReference>();
 
     ClassDB::register_class<Spatial>();
     ClassDB::register_virtual_class<SpatialGizmo>();
@@ -534,7 +892,7 @@ void register_scene_types() {
     ClassDB::register_class<VisualShaderNodeCubeMapUniform>();
     ClassDB::register_class<VisualShaderNodeIf>();
     ClassDB::register_class<VisualShaderNodeSwitch>();
-	ClassDB::register_class<VisualShaderNodeScalarSwitch>();
+    ClassDB::register_class<VisualShaderNodeScalarSwitch>();
     ClassDB::register_class<VisualShaderNodeFresnel>();
     ClassDB::register_class<VisualShaderNodeExpression>();
     ClassDB::register_class<VisualShaderNodeGlobalExpression>();
@@ -742,32 +1100,32 @@ void register_scene_types() {
     }
 
     bool default_theme_hidpi = GLOBAL_DEF("gui/theme/use_hidpi", false);
-    ProjectSettings::get_singleton()->set_custom_property_info("gui/theme/use_hidpi", PropertyInfo(Variant::BOOL, "gui/theme/use_hidpi", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_RESTART_IF_CHANGED));
+    ProjectSettings::get_singleton()->set_custom_property_info("gui/theme/use_hidpi", PropertyInfo(VariantType::BOOL, "gui/theme/use_hidpi", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_RESTART_IF_CHANGED));
     String theme_path = GLOBAL_DEF("gui/theme/custom", "");
-    ProjectSettings::get_singleton()->set_custom_property_info("gui/theme/custom", PropertyInfo(Variant::STRING, "gui/theme/custom", PROPERTY_HINT_FILE, "*.tres,*.res,*.theme", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_RESTART_IF_CHANGED));
+    ProjectSettings::get_singleton()->set_custom_property_info("gui/theme/custom", PropertyInfo(VariantType::STRING, "gui/theme/custom", PROPERTY_HINT_FILE, "*.tres,*.res,*.theme", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_RESTART_IF_CHANGED));
     String font_path = GLOBAL_DEF("gui/theme/custom_font", "");
-    ProjectSettings::get_singleton()->set_custom_property_info("gui/theme/custom_font", PropertyInfo(Variant::STRING, "gui/theme/custom_font", PROPERTY_HINT_FILE, "*.tres,*.res,*.font", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_RESTART_IF_CHANGED));
+    ProjectSettings::get_singleton()->set_custom_property_info("gui/theme/custom_font", PropertyInfo(VariantType::STRING, "gui/theme/custom_font", PROPERTY_HINT_FILE, "*.tres,*.res,*.font", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_RESTART_IF_CHANGED));
 
     Ref<Font> font;
-    if (font_path != String()) {
-        font = ResourceLoader::load(font_path);
-        if (!font.is_valid()) {
-            ERR_PRINTS("Error loading custom font '" + font_path + "'");
+    if (!font_path.empty()) {
+        font = dynamic_ref_cast<Font>(ResourceLoader::load(font_path));
+        if (not font) {
+            ERR_PRINTS("Error loading custom font '" + font_path + "'")
         }
     }
 
     // Always make the default theme to avoid invalid default font/icon/style in the given theme
     make_default_theme(default_theme_hidpi, font);
 
-    if (theme_path != String()) {
-        Ref<Theme> theme = ResourceLoader::load(theme_path);
-        if (theme.is_valid()) {
+    if (!theme_path.empty()) {
+        Ref<Theme> theme = dynamic_ref_cast<Theme>(ResourceLoader::load(theme_path));
+        if (theme) {
             Theme::set_project_default(theme);
-            if (font.is_valid()) {
+            if (font) {
                 Theme::set_default_font(font);
             }
         } else {
-            ERR_PRINTS("Error loading custom theme '" + theme_path + "'");
+            ERR_PRINTS("Error loading custom theme '" + theme_path + "'")
         }
     }
 }

@@ -43,7 +43,7 @@ EditorRun::Status EditorRun::get_status() const {
 }
 Error EditorRun::run(const String &p_scene, const String &p_custom_args, const List<String> &p_breakpoints, const bool &p_skip_breakpoints) {
 
-    List<String> args;
+    ListPOD<String> args;
 
     String resource_path = ProjectSettings::get_singleton()->get_resource_path();
     String remote_host = EditorSettings::get_singleton()->get("network/debug/remote_host");
@@ -158,7 +158,7 @@ Error EditorRun::run(const String &p_scene, const String &p_custom_args, const L
         String bpoints;
         for (const List<String>::Element *E = p_breakpoints.front(); E; E = E->next()) {
 
-            bpoints += StringUtils::replace(E->get()," ", "%20");
+            bpoints += StringUtils::replace(E->deref()," ", "%20");
             if (E->next())
                 bpoints += ",";
         }
@@ -185,15 +185,15 @@ Error EditorRun::run(const String &p_scene, const String &p_custom_args, const L
     {
         QDebug msg_log(qDebug());
         msg_log<<"Running: "<<exec.cdata();
-        for (List<String>::Element *E = args.front(); E; E = E->next()) {
+        for (const String &E : args) {
 
-            msg_log<<" "<<E->get().cdata();
+            msg_log<<" "<<E.cdata();
         }
     }
 
     pid = 0;
     Error err = OS::get_singleton()->execute(exec, args, false, &pid);
-    ERR_FAIL_COND_V(err, err);
+    ERR_FAIL_COND_V(err, err)
 
     status = STATUS_PLAY;
 

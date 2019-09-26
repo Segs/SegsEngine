@@ -9,10 +9,7 @@
 // http://en.cppreference.com/w/cpp/header/string_view
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef EASTL_STRING_VIEW_H
-#define EASTL_STRING_VIEW_H
-
-	#pragma once // Some compilers (e.g. VC++) benefit significantly from using this. We've measured 3-4% build speed improvements in apps as a result.
+#pragma once // Some compilers (e.g. VC++) benefit significantly from using this. We've measured 3-4% build speed improvements in apps as a result.
 
 #include <EASTL/internal/config.h>
 #include <EASTL/internal/char_traits.h>
@@ -146,7 +143,7 @@ namespace eastl
 					EASTL_FAIL_MSG("string_view::copy -- out of range");
 			#endif
 
-			count = eastl::min(count, mnCount - pos);
+            count = eastl::min<size_type>(count, mnCount - pos);
 			auto* pResult = CharStringUninitializedCopy(mpBegin + pos, mpBegin + pos + count, pDestination);
 			// *pResult = 0; // don't write the null-terminator
 			return pResult - pDestination;
@@ -162,7 +159,7 @@ namespace eastl
 					EASTL_FAIL_MSG("string_view::substr -- out of range");
 			#endif
 
-			count = eastl::min(count, mnCount - pos);
+            count = eastl::min<size_type>(count, mnCount - pos);
 			return this_type(mpBegin + pos, count);
 		}
 
@@ -583,4 +580,3 @@ namespace eastl
 } // namespace eastl
 
 EA_RESTORE_VC_WARNING()
-#endif // EASTL_STRING_VIEW_H

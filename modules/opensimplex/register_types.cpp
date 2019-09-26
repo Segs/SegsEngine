@@ -31,6 +31,7 @@
 #include "register_types.h"
 #include "noise_texture.h"
 #include "open_simplex_noise.h"
+#include "core/class_db.h"
 
 void register_opensimplex_types() {
 

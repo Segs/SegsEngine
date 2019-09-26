@@ -138,7 +138,7 @@ void Polygon2D::_notification(int p_what) {
             Vector<float> weights;
 
             int len = polygon.size();
-            if ((invert || polygons.size() == 0) && internal_vertices > 0) {
+            if ((invert || polygons.empty()) && internal_vertices > 0) {
                 //if no polygons are around, internal vertices must not be drawn, else let them be
                 len -= internal_vertices;
             }
@@ -209,7 +209,7 @@ void Polygon2D::_notification(int p_what) {
                 len = points.size();
             }
 
-            if (texture.is_valid()) {
+            if (texture) {
 
                 Transform2D texmat(tex_rot, tex_ofs);
                 texmat.scale(tex_scale);
@@ -232,7 +232,7 @@ void Polygon2D::_notification(int p_what) {
                 }
             }
 
-            if (skeleton_node && !invert && bone_weights.size()) {
+            if (skeleton_node && !invert && !bone_weights.empty()) {
                 //a skeleton is set! fill indices and weights
                 int vc = len;
                 bones.resize(vc * 4);
@@ -307,12 +307,12 @@ void Polygon2D::_notification(int p_what) {
             }
 
             //			Vector<int> indices = Geometry::triangulate_polygon(points);
-            //			VS::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(), indices, points, colors, uvs, texture.is_valid() ? texture->get_rid() : RID());
+            //			VS::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(), indices, points, colors, uvs, texture ? texture->get_rid() : RID());
 
-            if (invert || polygons.size() == 0) {
+            if (invert || polygons.empty()) {
                 Vector<int> indices = Geometry::triangulate_polygon(points);
-                if (indices.size()) {
-                    VS::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(), indices, points, colors, uvs, bones, weights, texture.is_valid() ? texture->get_rid() : RID());
+                if (!indices.empty()) {
+                    VS::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(), indices, points, colors, uvs, bones, weights, texture ? texture->get_rid() : RID());
                 }
             } else {
                 //draw individual polygons
@@ -345,8 +345,8 @@ void Polygon2D::_notification(int p_what) {
                     }
                 }
 
-                if (total_indices.size()) {
-                    VS::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(), total_indices, points, colors, uvs, bones, weights, texture.is_valid() ? texture->get_rid() : RID());
+                if (!total_indices.empty()) {
+                    VS::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(), total_indices, points, colors, uvs, bones, weights, texture ? texture->get_rid() : RID());
                 }
 
 #if 0
@@ -534,7 +534,7 @@ void Polygon2D::_notification(int p_what) {
                         }
                     }
 
-                    VS::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(), indices, points, colors, uvs, bones, weights, texture.is_valid() ? texture->get_rid() : RID());
+                    VS::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(), indices, points, colors, uvs, bones, weights, texture ? texture->get_rid() : RID());
                 }
 #endif
             }
@@ -609,7 +609,7 @@ void Polygon2D::set_texture(const Ref<Texture> &p_texture) {
 
     texture = p_texture;
 
-    /*if (texture.is_valid()) {
+    /*if (texture) {
         uint32_t flags=texture->get_flags();
         flags&=~Texture::FLAG_REPEAT;
         if (tex_tile)
@@ -756,7 +756,7 @@ Array Polygon2D::_get_bones() const {
 }
 void Polygon2D::_set_bones(const Array &p_bones) {
 
-    ERR_FAIL_COND(p_bones.size() & 1);
+    ERR_FAIL_COND(p_bones.size() & 1)
     clear_bones();
     for (int i = 0; i < p_bones.size(); i += 2) {
         add_bone(p_bones[i], p_bones[i + 1]);
@@ -776,92 +776,92 @@ NodePath Polygon2D::get_skeleton() const {
 
 void Polygon2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_polygon", "polygon"), &Polygon2D::set_polygon);
+    MethodBinder::bind_method(D_METHOD("set_polygon", {"polygon"}), &Polygon2D::set_polygon);
     MethodBinder::bind_method(D_METHOD("get_polygon"), &Polygon2D::get_polygon);
 
-    MethodBinder::bind_method(D_METHOD("set_uv", "uv"), &Polygon2D::set_uv);
+    MethodBinder::bind_method(D_METHOD("set_uv", {"uv"}), &Polygon2D::set_uv);
     MethodBinder::bind_method(D_METHOD("get_uv"), &Polygon2D::get_uv);
 
-    MethodBinder::bind_method(D_METHOD("set_color", "color"), &Polygon2D::set_color);
+    MethodBinder::bind_method(D_METHOD("set_color", {"color"}), &Polygon2D::set_color);
     MethodBinder::bind_method(D_METHOD("get_color"), &Polygon2D::get_color);
 
-    MethodBinder::bind_method(D_METHOD("set_polygons", "polygons"), &Polygon2D::set_polygons);
+    MethodBinder::bind_method(D_METHOD("set_polygons", {"polygons"}), &Polygon2D::set_polygons);
     MethodBinder::bind_method(D_METHOD("get_polygons"), &Polygon2D::get_polygons);
 
-    MethodBinder::bind_method(D_METHOD("set_vertex_colors", "vertex_colors"), &Polygon2D::set_vertex_colors);
+    MethodBinder::bind_method(D_METHOD("set_vertex_colors", {"vertex_colors"}), &Polygon2D::set_vertex_colors);
     MethodBinder::bind_method(D_METHOD("get_vertex_colors"), &Polygon2D::get_vertex_colors);
 
-    MethodBinder::bind_method(D_METHOD("set_texture", "texture"), &Polygon2D::set_texture);
+    MethodBinder::bind_method(D_METHOD("set_texture", {"texture"}), &Polygon2D::set_texture);
     MethodBinder::bind_method(D_METHOD("get_texture"), &Polygon2D::get_texture);
 
-    MethodBinder::bind_method(D_METHOD("set_texture_offset", "texture_offset"), &Polygon2D::set_texture_offset);
+    MethodBinder::bind_method(D_METHOD("set_texture_offset", {"texture_offset"}), &Polygon2D::set_texture_offset);
     MethodBinder::bind_method(D_METHOD("get_texture_offset"), &Polygon2D::get_texture_offset);
 
-    MethodBinder::bind_method(D_METHOD("set_texture_rotation", "texture_rotation"), &Polygon2D::set_texture_rotation);
+    MethodBinder::bind_method(D_METHOD("set_texture_rotation", {"texture_rotation"}), &Polygon2D::set_texture_rotation);
     MethodBinder::bind_method(D_METHOD("get_texture_rotation"), &Polygon2D::get_texture_rotation);
 
-    MethodBinder::bind_method(D_METHOD("set_texture_rotation_degrees", "texture_rotation"), &Polygon2D::set_texture_rotation_degrees);
+    MethodBinder::bind_method(D_METHOD("set_texture_rotation_degrees", {"texture_rotation"}), &Polygon2D::set_texture_rotation_degrees);
     MethodBinder::bind_method(D_METHOD("get_texture_rotation_degrees"), &Polygon2D::get_texture_rotation_degrees);
 
-    MethodBinder::bind_method(D_METHOD("set_texture_scale", "texture_scale"), &Polygon2D::set_texture_scale);
+    MethodBinder::bind_method(D_METHOD("set_texture_scale", {"texture_scale"}), &Polygon2D::set_texture_scale);
     MethodBinder::bind_method(D_METHOD("get_texture_scale"), &Polygon2D::get_texture_scale);
 
-    MethodBinder::bind_method(D_METHOD("set_invert", "invert"), &Polygon2D::set_invert);
+    MethodBinder::bind_method(D_METHOD("set_invert", {"invert"}), &Polygon2D::set_invert);
     MethodBinder::bind_method(D_METHOD("get_invert"), &Polygon2D::get_invert);
 
-    MethodBinder::bind_method(D_METHOD("set_antialiased", "antialiased"), &Polygon2D::set_antialiased);
+    MethodBinder::bind_method(D_METHOD("set_antialiased", {"antialiased"}), &Polygon2D::set_antialiased);
     MethodBinder::bind_method(D_METHOD("get_antialiased"), &Polygon2D::get_antialiased);
 
-    MethodBinder::bind_method(D_METHOD("set_invert_border", "invert_border"), &Polygon2D::set_invert_border);
+    MethodBinder::bind_method(D_METHOD("set_invert_border", {"invert_border"}), &Polygon2D::set_invert_border);
     MethodBinder::bind_method(D_METHOD("get_invert_border"), &Polygon2D::get_invert_border);
 
-    MethodBinder::bind_method(D_METHOD("set_offset", "offset"), &Polygon2D::set_offset);
+    MethodBinder::bind_method(D_METHOD("set_offset", {"offset"}), &Polygon2D::set_offset);
     MethodBinder::bind_method(D_METHOD("get_offset"), &Polygon2D::get_offset);
 
-    MethodBinder::bind_method(D_METHOD("add_bone", "path", "weights"), &Polygon2D::add_bone);
+    MethodBinder::bind_method(D_METHOD("add_bone", {"path", "weights"}), &Polygon2D::add_bone);
     MethodBinder::bind_method(D_METHOD("get_bone_count"), &Polygon2D::get_bone_count);
-    MethodBinder::bind_method(D_METHOD("get_bone_path", "index"), &Polygon2D::get_bone_path);
-    MethodBinder::bind_method(D_METHOD("get_bone_weights", "index"), &Polygon2D::get_bone_weights);
-    MethodBinder::bind_method(D_METHOD("erase_bone", "index"), &Polygon2D::erase_bone);
+    MethodBinder::bind_method(D_METHOD("get_bone_path", {"index"}), &Polygon2D::get_bone_path);
+    MethodBinder::bind_method(D_METHOD("get_bone_weights", {"index"}), &Polygon2D::get_bone_weights);
+    MethodBinder::bind_method(D_METHOD("erase_bone", {"index"}), &Polygon2D::erase_bone);
     MethodBinder::bind_method(D_METHOD("clear_bones"), &Polygon2D::clear_bones);
-    MethodBinder::bind_method(D_METHOD("set_bone_path", "index", "path"), &Polygon2D::set_bone_path);
-    MethodBinder::bind_method(D_METHOD("set_bone_weights", "index", "weights"), &Polygon2D::set_bone_weights);
+    MethodBinder::bind_method(D_METHOD("set_bone_path", {"index", "path"}), &Polygon2D::set_bone_path);
+    MethodBinder::bind_method(D_METHOD("set_bone_weights", {"index", "weights"}), &Polygon2D::set_bone_weights);
 
-    MethodBinder::bind_method(D_METHOD("set_skeleton", "skeleton"), &Polygon2D::set_skeleton);
+    MethodBinder::bind_method(D_METHOD("set_skeleton", {"skeleton"}), &Polygon2D::set_skeleton);
     MethodBinder::bind_method(D_METHOD("get_skeleton"), &Polygon2D::get_skeleton);
 
-    MethodBinder::bind_method(D_METHOD("set_internal_vertex_count", "internal_vertex_count"), &Polygon2D::set_internal_vertex_count);
+    MethodBinder::bind_method(D_METHOD("set_internal_vertex_count", {"internal_vertex_count"}), &Polygon2D::set_internal_vertex_count);
     MethodBinder::bind_method(D_METHOD("get_internal_vertex_count"), &Polygon2D::get_internal_vertex_count);
 
-    MethodBinder::bind_method(D_METHOD("_set_bones", "bones"), &Polygon2D::_set_bones);
+    MethodBinder::bind_method(D_METHOD("_set_bones", {"bones"}), &Polygon2D::_set_bones);
     MethodBinder::bind_method(D_METHOD("_get_bones"), &Polygon2D::_get_bones);
 
     MethodBinder::bind_method(D_METHOD("_skeleton_bone_setup_changed"), &Polygon2D::_skeleton_bone_setup_changed);
 
-    ADD_PROPERTY(PropertyInfo(Variant::COLOR, "color"), "set_color", "get_color");
-    ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "offset"), "set_offset", "get_offset");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "antialiased"), "set_antialiased", "get_antialiased");
+    ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "color"), "set_color", "get_color");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "offset"), "set_offset", "get_offset");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "antialiased"), "set_antialiased", "get_antialiased");
     ADD_GROUP("Texture", "");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_texture", "get_texture");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_texture", "get_texture");
     ADD_GROUP("Texture", "texture_");
-    ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "texture_offset"), "set_texture_offset", "get_texture_offset");
-    ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "texture_scale"), "set_texture_scale", "get_texture_scale");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "texture_rotation_degrees", PROPERTY_HINT_RANGE, "-1080,1080,0.1,or_lesser,or_greater"), "set_texture_rotation_degrees", "get_texture_rotation_degrees");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "texture_rotation", PROPERTY_HINT_NONE, "", 0), "set_texture_rotation", "get_texture_rotation");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "texture_offset"), "set_texture_offset", "get_texture_offset");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "texture_scale"), "set_texture_scale", "get_texture_scale");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "texture_rotation_degrees", PROPERTY_HINT_RANGE, "-1080,1080,0.1,or_lesser,or_greater"), "set_texture_rotation_degrees", "get_texture_rotation_degrees");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "texture_rotation", PROPERTY_HINT_NONE, "", 0), "set_texture_rotation", "get_texture_rotation");
     ADD_GROUP("Skeleton", "");
-    ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "skeleton", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Skeleton2D"), "set_skeleton", "get_skeleton");
+    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "skeleton", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Skeleton2D"), "set_skeleton", "get_skeleton");
 
     ADD_GROUP("Invert", "invert_");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "invert_enable"), "set_invert", "get_invert");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "invert_border", PROPERTY_HINT_RANGE, "0.1,16384,0.1"), "set_invert_border", "get_invert_border");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "invert_enable"), "set_invert", "get_invert");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "invert_border", PROPERTY_HINT_RANGE, "0.1,16384,0.1"), "set_invert_border", "get_invert_border");
 
     ADD_GROUP("Data", "");
-    ADD_PROPERTY(PropertyInfo(Variant::POOL_VECTOR2_ARRAY, "polygon"), "set_polygon", "get_polygon");
-    ADD_PROPERTY(PropertyInfo(Variant::POOL_VECTOR2_ARRAY, "uv"), "set_uv", "get_uv");
-    ADD_PROPERTY(PropertyInfo(Variant::POOL_COLOR_ARRAY, "vertex_colors"), "set_vertex_colors", "get_vertex_colors");
-    ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "polygons"), "set_polygons", "get_polygons");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "bones", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "_set_bones", "_get_bones");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "internal_vertex_count", PROPERTY_HINT_RANGE, "0,1000"), "set_internal_vertex_count", "get_internal_vertex_count");
+    ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR2_ARRAY, "polygon"), "set_polygon", "get_polygon");
+    ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR2_ARRAY, "uv"), "set_uv", "get_uv");
+    ADD_PROPERTY(PropertyInfo(VariantType::POOL_COLOR_ARRAY, "vertex_colors"), "set_vertex_colors", "get_vertex_colors");
+    ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "polygons"), "set_polygons", "get_polygons");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "bones", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "_set_bones", "_get_bones");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "internal_vertex_count", PROPERTY_HINT_RANGE, "0,1000"), "set_internal_vertex_count", "get_internal_vertex_count");
 }
 
 Polygon2D::Polygon2D() {

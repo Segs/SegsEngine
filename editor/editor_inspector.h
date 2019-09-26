@@ -190,7 +190,7 @@ public:
 	virtual bool can_handle(Object *p_object);
 	virtual void parse_begin(Object *p_object);
 	virtual void parse_category(Object *p_object, const String &p_parse_category);
-	virtual bool parse_property(Object *p_object, Variant::Type p_type, const String &p_path, PropertyHint p_hint, const String &p_hint_text, int p_usage);
+	virtual bool parse_property(Object *p_object, VariantType p_type, const String &p_path, PropertyHint p_hint, const String &p_hint_text, int p_usage);
 	virtual void parse_end();
 };
 
@@ -304,13 +304,13 @@ class EditorInspector : public ScrollContainer {
 
 	void _property_changed(const String &p_path, const Variant &p_value, const String &p_name = "", bool changing = false);
 	void _property_changed_update_all(const String &p_path, const Variant &p_value, const String &p_name = "", bool p_changing = false);
-	void _multiple_properties_changed(Vector<String> p_paths, Array p_values);
+	void _multiple_properties_changed(const Vector<String>& p_paths, Array p_values);
 	void _property_keyed(const String &p_path, bool p_advance);
 	void _property_keyed_with_value(const String &p_path, const Variant &p_value, bool p_advance);
 
 	void _property_checked(const String &p_path, bool p_checked);
 
-	void _resource_selected(const String &p_path, RES p_resource);
+	void _resource_selected(const String &p_path, const RES& p_resource);
 	void _property_selected(const String &p_path, int p_focusable);
 	void _object_id_selected(const String &p_path, ObjectID p_id);
 
@@ -320,7 +320,7 @@ class EditorInspector : public ScrollContainer {
 	void _edit_request_change(Object *p_object, const String &p_prop);
 
 	void _filter_changed(const String &p_text);
-	void _parse_added_editors(VBoxContainer *current_vbox, Ref<EditorInspectorPlugin> ped);
+	void _parse_added_editors(VBoxContainer *current_vbox, const Ref<EditorInspectorPlugin>& ped);
 
 	void _vscroll_changed(double);
 
@@ -337,7 +337,7 @@ public:
 	static void remove_inspector_plugin(const Ref<EditorInspectorPlugin> &p_plugin);
 	static void cleanup_plugins();
 
-	static EditorProperty *instantiate_property_editor(Object *p_object, Variant::Type p_type, const String &p_path, PropertyHint p_hint, const String &p_hint_text, int p_usage);
+	static EditorProperty *instantiate_property_editor(Object *p_object, VariantType p_type, const String &p_path, PropertyHint p_hint, const String &p_hint_text, int p_usage);
 
 	void set_undo_redo(UndoRedo *p_undo_redo);
 

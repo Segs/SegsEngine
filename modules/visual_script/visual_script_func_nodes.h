@@ -28,10 +28,10 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef VISUAL_SCRIPT_FUNC_NODES_H
-#define VISUAL_SCRIPT_FUNC_NODES_H
+#pragma once
 
 #include "visual_script.h"
+#include "core/method_info.h"
 
 class VisualScriptFunctionCall : public VisualScriptNode {
 
@@ -58,7 +58,7 @@ private:
 	CallMode call_mode;
 	StringName base_type;
 	String base_script;
-	Variant::Type basic_type;
+	VariantType basic_type;
 	NodePath base_path;
 	StringName function;
 	int use_default_args;
@@ -96,8 +96,8 @@ public:
 	String get_text() const override;
 	String get_category() const override { return "functions"; }
 
-	void set_basic_type(Variant::Type p_type);
-	Variant::Type get_basic_type() const;
+	void set_basic_type(VariantType p_type);
+	VariantType get_basic_type() const;
 
 	void set_base_type(const StringName &p_type);
 	StringName get_base_type() const;
@@ -133,9 +133,6 @@ public:
 	VisualScriptFunctionCall();
 };
 
-VARIANT_ENUM_CAST(VisualScriptFunctionCall::CallMode);
-VARIANT_ENUM_CAST(VisualScriptFunctionCall::RPCCallMode);
-
 class VisualScriptPropertySet : public VisualScriptNode {
 
 	GDCLASS(VisualScriptPropertySet,VisualScriptNode)
@@ -168,7 +165,7 @@ private:
 	PropertyInfo type_cache;
 
 	CallMode call_mode;
-	Variant::Type basic_type;
+	VariantType basic_type;
 	StringName base_type;
 	String base_script;
 	NodePath base_path;
@@ -215,8 +212,8 @@ public:
 	void set_base_script(const String &p_path);
 	String get_base_script() const;
 
-	void set_basic_type(Variant::Type p_type);
-	Variant::Type get_basic_type() const;
+	void set_basic_type(VariantType p_type);
+	VariantType get_basic_type() const;
 
 	void set_property(const StringName &p_type);
 	StringName get_property() const;
@@ -239,8 +236,6 @@ public:
 	VisualScriptPropertySet();
 };
 
-VARIANT_ENUM_CAST(VisualScriptPropertySet::CallMode);
-VARIANT_ENUM_CAST(VisualScriptPropertySet::AssignOp);
 
 class VisualScriptPropertyGet : public VisualScriptNode {
 
@@ -256,10 +251,10 @@ public:
 	};
 
 private:
-	Variant::Type type_cache;
+	VariantType type_cache;
 
 	CallMode call_mode;
-	Variant::Type basic_type;
+	VariantType basic_type;
 	StringName base_type;
 	String base_script;
 	NodePath base_path;
@@ -272,8 +267,8 @@ private:
 
 	void _update_cache();
 
-	void _set_type_cache(Variant::Type p_type);
-	Variant::Type _get_type_cache() const;
+	void _set_type_cache(VariantType p_type);
+	VariantType _get_type_cache() const;
 
 protected:
 	void _validate_property(PropertyInfo &property) const override;
@@ -302,8 +297,8 @@ public:
 	void set_base_script(const String &p_path);
 	String get_base_script() const;
 
-	void set_basic_type(Variant::Type p_type);
-	Variant::Type get_basic_type() const;
+	void set_basic_type(VariantType p_type);
+	VariantType get_basic_type() const;
 
 	void set_property(const StringName &p_type);
 	StringName get_property() const;
@@ -322,7 +317,6 @@ public:
 	VisualScriptPropertyGet();
 };
 
-VARIANT_ENUM_CAST(VisualScriptPropertyGet::CallMode);
 
 class VisualScriptEmitSignal : public VisualScriptNode {
 
@@ -361,5 +355,3 @@ public:
 };
 
 void register_visual_script_func_nodes();
-
-#endif // VISUAL_SCRIPT_FUNC_NODES_H

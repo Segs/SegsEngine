@@ -106,7 +106,7 @@ function(add_plugins_to_target target global_tgt)
         set(tgt_name ${global_tgt}_plugin_${plug})
         target_link_libraries(${target} PUBLIC ${tgt_name})
     endforeach()
-    target_link_libraries(${target} PRIVATE Qt5::Core)
+    target_link_libraries(${target} PRIVATE Qt5::Core EASTL_Import)
     # this is needed for plugin_registry.cpp includes
     target_link_libraries(${target} PUBLIC ${global_tgt}_core)
 endfunction()

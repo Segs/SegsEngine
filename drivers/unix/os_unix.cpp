@@ -65,6 +65,7 @@
 #include <cstring>
 #include <sys/time.h>
 #include <sys/wait.h>
+#include <QCoreApplication>
 #include <unistd.h>
 
 /// Clock Setup function (used by get_ticks_usec)
@@ -74,7 +75,7 @@ static double _clock_scale = 0;
 static void _setup_clock() {
     mach_timebase_info_data_t info;
     kern_return_t ret = mach_timebase_info(&info);
-    ERR_FAIL_COND_MSG(ret != 0, "OS CLOCK IS NOT WORKING!");
+    ERR_FAIL_COND_MSG(ret != 0, "OS CLOCK IS NOT WORKING!")
     _clock_scale = ((double)info.numer / (double)info.denom) / 1000.0;
     _clock_start = mach_absolute_time() * _clock_scale;
 }
@@ -86,7 +87,7 @@ static void _setup_clock() {
 #endif
 static void _setup_clock() {
     struct timespec tv_now = { 0, 0 };
-    ERR_FAIL_COND_MSG(clock_gettime(GODOT_CLOCK, &tv_now) != 0, "OS CLOCK IS NOT WORKING!");
+    ERR_FAIL_COND_MSG(clock_gettime(GODOT_CLOCK, &tv_now) != 0, "OS CLOCK IS NOT WORKING!")
     _clock_start = ((uint64_t)tv_now.tv_nsec / 1000L) + (uint64_t)tv_now.tv_sec * 1000000L;
 }
 #endif
@@ -276,7 +277,7 @@ uint64_t OS_Unix::get_ticks_usec() const {
     return longtime;
 }
 
-Error OS_Unix::execute(const String &p_path, const List<String> &p_arguments, bool p_blocking, ProcessID *r_child_id, String *r_pipe, int *r_exitcode, bool read_stderr, Mutex *p_pipe_mutex) {
+Error OS_Unix::execute(const String &p_path, const ListPOD<String> &p_arguments, bool p_blocking, ProcessID *r_child_id, String *r_pipe, int *r_exitcode, bool read_stderr, Mutex *p_pipe_mutex) {
 
 #ifdef __EMSCRIPTEN__
     // Don't compile this code at all to avoid undefined references.
@@ -288,9 +289,8 @@ Error OS_Unix::execute(const String &p_path, const List<String> &p_arguments, bo
         String argss;
         argss = "\"" + p_path + "\"";
 
-        for (int i = 0; i < p_arguments.size(); i++) {
-
-            argss += String(" \"") + p_arguments[i] + "\"";
+        for (const String &arg : p_arguments) {
+            argss += String(" \"") + arg + "\"";
         }
 
         if (read_stderr) {
@@ -335,8 +335,8 @@ Error OS_Unix::execute(const String &p_path, const List<String> &p_arguments, bo
 
         Vector<CharString> cs;
         cs.push_back(StringUtils::to_utf8(p_path));
-        for (int i = 0; i < p_arguments.size(); i++)
-            cs.push_back(StringUtils::to_utf8(p_arguments[i]));
+        for (const String &arg : p_arguments)
+            cs.push_back(StringUtils::to_utf8(arg));
 
         Vector<char *> args;
         for (int i = 0; i < cs.size(); i++)
@@ -399,7 +399,7 @@ String OS_Unix::get_locale() const {
     return locale;
 }
 
-Error OS_Unix::open_dynamic_library(const String p_path, void *&p_library_handle, bool p_also_set_library_path) {
+Error OS_Unix::open_dynamic_library(const String &p_path, void *&p_library_handle, bool p_also_set_library_path) {
 
     String path = p_path;
 
@@ -420,7 +420,7 @@ Error OS_Unix::open_dynamic_library(const String p_path, void *&p_library_handle
     }
 
     p_library_handle = dlopen(qPrintable(path.m_str), RTLD_NOW);
-    ERR_FAIL_COND_V_MSG(!p_library_handle, ERR_CANT_OPEN, "Can't open dynamic library: " + p_path + ". Error: " + dlerror());
+    ERR_FAIL_COND_V_MSG(!p_library_handle, ERR_CANT_OPEN, "Can't open dynamic library: " + p_path + ". Error: " + dlerror())
     return OK;
 }
 
@@ -439,7 +439,7 @@ Error OS_Unix::get_dynamic_library_symbol_handle(void *p_library_handle, const S
 
     error = dlerror();
     if (error != nullptr) {
-        ERR_FAIL_COND_V_MSG(!p_optional, ERR_CANT_RESOLVE, "Can't resolve symbol " + p_name + ". Error: " + error + ".");
+        ERR_FAIL_COND_V_MSG(!p_optional, ERR_CANT_RESOLVE, "Can't resolve symbol " + p_name + ". Error: " + error + ".")
 
         return ERR_CANT_RESOLVE;
     }
@@ -491,56 +491,7 @@ String OS_Unix::get_user_data_dir() const {
 }
 
 String OS_Unix::get_executable_path() const {
-
-#ifdef __linux__
-    //fix for running from a symlink
-    char buf[256];
-    memset(buf, 0, 256);
-    ssize_t len = readlink("/proc/self/exe", buf, sizeof(buf));
-    String b;
-    if (len > 0) {
-        StringUtils::parse_utf8(b,buf, len);
-    }
-    if (b.empty()) {
-        WARN_PRINT("Couldn't get executable path from /proc/self/exe, using argv[0]")
-        return OS::get_executable_path();
-    }
-    return b;
-#elif defined(__OpenBSD__)
-    char resolved_path[MAXPATHLEN];
-
-    realpath(OS::get_executable_path().utf8().get_data(), resolved_path);
-
-    return String(resolved_path);
-#elif defined(__FreeBSD__)
-    int mib[4] = { CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, -1 };
-    char buf[MAXPATHLEN];
-    size_t len = sizeof(buf);
-    if (sysctl(mib, 4, buf, &len, NULL, 0) != 0) {
-        WARN_PRINT("Couldn't get executable path from sysctl");
-        return OS::get_executable_path();
-    }
-    String b;
-    b.parse_utf8(buf);
-    return b;
-#elif defined(__APPLE__)
-    char temp_path[1];
-    uint32_t buff_size = 1;
-    _NSGetExecutablePath(temp_path, &buff_size);
-
-    char *resolved_path = new char[buff_size + 1];
-
-    if (_NSGetExecutablePath(resolved_path, &buff_size) == 1)
-        WARN_PRINT("MAXPATHLEN is too small");
-
-    String path(resolved_path);
-    delete[] resolved_path;
-
-    return path;
-#else
-    ERR_PRINT("Warning, don't know how to obtain executable path on this OS! Please override this function properly.");
-    return OS::get_executable_path();
-#endif
+    return QCoreApplication::applicationFilePath();
 }
 
 void UnixTerminalLogger::log_error(const char *p_function, const char *p_file, int p_line, const char *p_code, const char *p_rationale, ErrorType p_type) {

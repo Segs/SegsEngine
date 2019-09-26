@@ -142,7 +142,7 @@ static void _compress_etc(Image *p_img, float p_lossy_quality, bool force_etc1_f
 
     Image::Format etc_format = force_etc1_format ? Image::FORMAT_ETC : _get_etc2_mode(detected_channels);
 
-    Ref<Image> img = p_img->duplicate();
+    Ref<Image> img = dynamic_ref_cast<Image>(p_img->duplicate());
 
     if (img->get_format() != Image::FORMAT_RGBA8)
         img->convert(Image::FORMAT_RGBA8); //still uses RGBA to convert

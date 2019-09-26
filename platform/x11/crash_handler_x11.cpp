@@ -91,7 +91,7 @@ static void handle_crash(int sig) {
                 }
             }
 
-            List<String> args;
+            ListPOD<String> args;
 
             char str[1024];
             snprintf(str, 1024, "%p", bt_buffer[i]);
@@ -108,7 +108,7 @@ static void handle_crash(int sig) {
                 StringUtils::erase(output,output.length() - 1, 1);
             }
 
-            fprintf(stderr, "[%ld] %s (%ls)\n", i, fname, qUtf16Printable(output.m_str));
+            fprintf(stderr, "[%ld] %s (%s)\n", i, fname, qPrintable(output.m_str));
         }
 
         free(strings);

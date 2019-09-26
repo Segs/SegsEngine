@@ -39,33 +39,33 @@ IMPL_GDCLASS(EditorVCSInterface)
 void EditorVCSInterface::_bind_methods() {
 
     // Proxy end points that act as fallbacks to unavailability of a function in the VCS addon
-    MethodBinder::bind_method(D_METHOD("_initialize", "project_root_path"), &EditorVCSInterface::_initialize);
+    MethodBinder::bind_method(D_METHOD("_initialize", {"project_root_path"}), &EditorVCSInterface::_initialize);
     MethodBinder::bind_method(D_METHOD("_get_is_vcs_intialized"), &EditorVCSInterface::_get_is_vcs_intialized);
     MethodBinder::bind_method(D_METHOD("_get_vcs_name"), &EditorVCSInterface::_get_vcs_name);
     MethodBinder::bind_method(D_METHOD("_shut_down"), &EditorVCSInterface::_shut_down);
     MethodBinder::bind_method(D_METHOD("_get_project_name"), &EditorVCSInterface::_get_project_name);
     MethodBinder::bind_method(D_METHOD("_get_modified_files_data"), &EditorVCSInterface::_get_modified_files_data);
-    MethodBinder::bind_method(D_METHOD("_commit", "msg"), &EditorVCSInterface::_commit);
-    MethodBinder::bind_method(D_METHOD("_get_file_diff", "file_path"), &EditorVCSInterface::_get_file_diff);
-    MethodBinder::bind_method(D_METHOD("_stage_file", "file_path"), &EditorVCSInterface::_stage_file);
-    MethodBinder::bind_method(D_METHOD("_unstage_file", "file_path"), &EditorVCSInterface::_unstage_file);
+    MethodBinder::bind_method(D_METHOD("_commit", {"msg"}), &EditorVCSInterface::_commit);
+    MethodBinder::bind_method(D_METHOD("_get_file_diff", {"file_path"}), &EditorVCSInterface::_get_file_diff);
+    MethodBinder::bind_method(D_METHOD("_stage_file", {"file_path"}), &EditorVCSInterface::_stage_file);
+    MethodBinder::bind_method(D_METHOD("_unstage_file", {"file_path"}), &EditorVCSInterface::_unstage_file);
 
     MethodBinder::bind_method(D_METHOD("is_addon_ready"), &EditorVCSInterface::is_addon_ready);
 
     // API methods that redirect calls to the proxy end points
-    MethodBinder::bind_method(D_METHOD("initialize", "project_root_path"), &EditorVCSInterface::initialize);
+    MethodBinder::bind_method(D_METHOD("initialize", {"project_root_path"}), &EditorVCSInterface::initialize);
     MethodBinder::bind_method(D_METHOD("get_is_vcs_intialized"), &EditorVCSInterface::get_is_vcs_intialized);
     MethodBinder::bind_method(D_METHOD("get_modified_files_data"), &EditorVCSInterface::get_modified_files_data);
-    MethodBinder::bind_method(D_METHOD("stage_file", "file_path"), &EditorVCSInterface::stage_file);
-    MethodBinder::bind_method(D_METHOD("unstage_file", "file_path"), &EditorVCSInterface::unstage_file);
-    MethodBinder::bind_method(D_METHOD("commit", "msg"), &EditorVCSInterface::commit);
-    MethodBinder::bind_method(D_METHOD("get_file_diff", "file_path"), &EditorVCSInterface::get_file_diff);
+    MethodBinder::bind_method(D_METHOD("stage_file", {"file_path"}), &EditorVCSInterface::stage_file);
+    MethodBinder::bind_method(D_METHOD("unstage_file", {"file_path"}), &EditorVCSInterface::unstage_file);
+    MethodBinder::bind_method(D_METHOD("commit", {"msg"}), &EditorVCSInterface::commit);
+    MethodBinder::bind_method(D_METHOD("get_file_diff", {"file_path"}), &EditorVCSInterface::get_file_diff);
     MethodBinder::bind_method(D_METHOD("shut_down"), &EditorVCSInterface::shut_down);
     MethodBinder::bind_method(D_METHOD("get_project_name"), &EditorVCSInterface::get_project_name);
     MethodBinder::bind_method(D_METHOD("get_vcs_name"), &EditorVCSInterface::get_vcs_name);
 }
 
-bool EditorVCSInterface::_initialize(String p_project_root_path) {
+bool EditorVCSInterface::_initialize(const String& p_project_root_path) {
 
     WARN_PRINT("Selected VCS addon does not implement an initialization function. This warning will be suppressed.")
     return true;
@@ -81,22 +81,16 @@ Dictionary EditorVCSInterface::_get_modified_files_data() {
     return Dictionary();
 }
 
-void EditorVCSInterface::_stage_file(String p_file_path) {
-
-    return;
+void EditorVCSInterface::_stage_file(const String& p_file_path) {
 }
 
-void EditorVCSInterface::_unstage_file(String p_file_path) {
-
-    return;
+void EditorVCSInterface::_unstage_file(const String& p_file_path) {
 }
 
-void EditorVCSInterface::_commit(String p_msg) {
-
-    return;
+void EditorVCSInterface::_commit(const String& p_msg) {
 }
 
-Array EditorVCSInterface::_get_file_diff(String p_file_path) {
+Array EditorVCSInterface::_get_file_diff(const String& p_file_path) {
 
     return Array();
 }
@@ -116,7 +110,7 @@ String EditorVCSInterface::_get_vcs_name() {
     return "";
 }
 
-bool EditorVCSInterface::initialize(String p_project_root_path) {
+bool EditorVCSInterface::initialize(const String& p_project_root_path) {
 
     is_initialized = call("_initialize", p_project_root_path);
     return is_initialized;
@@ -132,22 +126,20 @@ Dictionary EditorVCSInterface::get_modified_files_data() {
     return call("_get_modified_files_data");
 }
 
-void EditorVCSInterface::stage_file(String p_file_path) {
+void EditorVCSInterface::stage_file(const String& p_file_path) {
 
     if (is_addon_ready()) {
 
         call("_stage_file", p_file_path);
     }
-    return;
 }
 
-void EditorVCSInterface::unstage_file(String p_file_path) {
+void EditorVCSInterface::unstage_file(const String& p_file_path) {
 
     if (is_addon_ready()) {
 
         call("_unstage_file", p_file_path);
     }
-    return;
 }
 
 bool EditorVCSInterface::is_addon_ready() {
@@ -155,16 +147,15 @@ bool EditorVCSInterface::is_addon_ready() {
     return is_initialized;
 }
 
-void EditorVCSInterface::commit(String p_msg) {
+void EditorVCSInterface::commit(const String& p_msg) {
 
     if (is_addon_ready()) {
 
         call("_commit", p_msg);
     }
-    return;
 }
 
-Array EditorVCSInterface::get_file_diff(String p_file_path) {
+Array EditorVCSInterface::get_file_diff(const String& p_file_path) {
 
     if (is_addon_ready()) {
 

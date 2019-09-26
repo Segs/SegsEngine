@@ -101,7 +101,7 @@ ScrollContainer *EditorAbout::_populate_list(const String &p_name, const List<St
             il->set_mouse_filter(Control::MOUSE_FILTER_IGNORE);
             il->add_constant_override("hseparation", 16 * EDSCALE);
             while (*names_ptr) {
-				il->add_item(StringUtils::from_utf8(*names_ptr++), nullptr, false);
+                il->add_item(StringUtils::from_utf8(*names_ptr++), Ref<Texture>(), false);
             }
             il->set_max_columns(il->get_item_count() < 4 || single_column ? 1 : 16);
             vbc->add_child(il);
@@ -139,7 +139,7 @@ EditorAbout::EditorAbout() {
     Label *about_text = memnew(Label);
     about_text->set_v_size_flags(Control::SIZE_SHRINK_CENTER);
     about_text->set_text(VERSION_FULL_NAME + hash +
-						 StringUtils::from_utf8("\n\xc2\xa9 2007-2019 Juan Linietsky, Ariel Manzur.\n\xc2\xa9 2014-2019 ") +
+                         StringUtils::from_utf8("\n\xc2\xa9 2007-2019 Juan Linietsky, Ariel Manzur.\n\xc2\xa9 2014-2019 ") +
                          TTR("Godot Engine contributors") + "\n");
     hbc->add_child(about_text);
 
@@ -178,7 +178,7 @@ EditorAbout::EditorAbout() {
     _license_text->set_name(TTR("License"));
     _license_text->set_h_size_flags(Control::SIZE_EXPAND_FILL);
     _license_text->set_v_size_flags(Control::SIZE_EXPAND_FILL);
-	_license_text->set_text(StringUtils::from_utf8(GODOT_LICENSE_TEXT));
+    _license_text->set_text(StringUtils::from_utf8(GODOT_LICENSE_TEXT));
     tc->add_child(_license_text);
 
     // Thirdparty License
@@ -229,7 +229,7 @@ EditorAbout::EditorAbout() {
             }
             String copyright;
             for (int copyright_index = 0; copyright_index < part.copyright_count; copyright_index++) {
-				copyright += StringUtils::from_utf8("\n    \xc2\xa9 ") + StringUtils::from_utf8(part.copyright_statements[copyright_index]);
+                copyright += StringUtils::from_utf8("\n    \xc2\xa9 ") + StringUtils::from_utf8(part.copyright_statements[copyright_index]);
             }
             text += copyright;
             long_text += copyright;

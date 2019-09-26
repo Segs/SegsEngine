@@ -27,7 +27,7 @@ add_library(thirdparty_misc STATIC
     )
 target_include_directories(thirdparty_misc PUBLIC thirdparty/misc/)
 target_link_libraries(thirdparty_misc PUBLIC zlib)
-
+target_link_libraries(thirdparty_misc PRIVATE EASTL_Import)
 
 if(OPTION_BUILTIN_SQUISH)
 # Thirdparty source files

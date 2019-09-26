@@ -30,6 +30,7 @@
 
 #include "packed_data_container.h"
 
+#include "core/map.h"
 #include "core/core_string_names.h"
 #include "core/io/marshalls.h"
 #include "core/method_bind.h"
@@ -99,7 +100,7 @@ Variant PackedDataContainer::_iter_get_ofs(const Variant &p_iter, uint32_t p_off
         uint32_t vpos = decode_uint32(rd.ptr() + p_offset + 8 + pos * 12 + 4);
         return _get_at_ofs(vpos, rd.ptr(), err);
     } else {
-        ERR_FAIL_V(Variant());
+        ERR_FAIL_V(Variant::null_variant)
     }
 }
 
@@ -109,8 +110,8 @@ Variant PackedDataContainer::_get_at_ofs(uint32_t p_ofs, const uint8_t *p_buf, b
 
     if (type == TYPE_ARRAY || type == TYPE_DICT) {
 
-        Ref<PackedDataContainerRef> pdcr = memnew(PackedDataContainerRef);
-        Ref<PackedDataContainer> pdc = Ref<PackedDataContainer>((PackedDataContainer *)this);
+        Ref<PackedDataContainerRef> pdcr(make_ref_counted<PackedDataContainerRef>());
+        Ref<PackedDataContainer> pdc(const_cast<PackedDataContainer *>(this));
 
         pdcr->from = pdc;
         pdcr->offset = p_ofs;
@@ -123,7 +124,7 @@ Variant PackedDataContainer::_get_at_ofs(uint32_t p_ofs, const uint8_t *p_buf, b
         if (rerr != OK) {
 
             err = true;
-            ERR_FAIL_COND_V(err != OK, Variant());
+            ERR_FAIL_COND_V(err != OK, Variant())
         }
         return v;
     }
@@ -153,7 +154,7 @@ int PackedDataContainer::_size(uint32_t p_ofs) const {
 
         uint32_t len = decode_uint32(r + 4);
         return len;
-    };
+    }
 
     return -1;
 };
@@ -219,10 +220,10 @@ uint32_t PackedDataContainer::_pack(const Variant &p_data, Vector<uint8_t> &tmpd
 
     switch (p_data.get_type()) {
 
-        case Variant::STRING: {
+        case VariantType::STRING: {
 
             String s = p_data.as<String>();
-            if (string_cache.has(s)) {
+            if (string_cache.contains(s)) {
                 return string_cache[s];
             }
 
@@ -230,27 +231,27 @@ uint32_t PackedDataContainer::_pack(const Variant &p_data, Vector<uint8_t> &tmpd
 
             FALLTHROUGH;
         };
-        case Variant::NIL:
-        case Variant::BOOL:
-        case Variant::INT:
-        case Variant::REAL:
-        case Variant::VECTOR2:
-        case Variant::RECT2:
-        case Variant::VECTOR3:
-        case Variant::TRANSFORM2D:
-        case Variant::PLANE:
-        case Variant::QUAT:
-        case Variant::AABB:
-        case Variant::BASIS:
-        case Variant::TRANSFORM:
-        case Variant::POOL_BYTE_ARRAY:
-        case Variant::POOL_INT_ARRAY:
-        case Variant::POOL_REAL_ARRAY:
-        case Variant::POOL_STRING_ARRAY:
-        case Variant::POOL_VECTOR2_ARRAY:
-        case Variant::POOL_VECTOR3_ARRAY:
-        case Variant::POOL_COLOR_ARRAY:
-        case Variant::NODE_PATH: {
+        case VariantType::NIL:
+        case VariantType::BOOL:
+        case VariantType::INT:
+        case VariantType::REAL:
+        case VariantType::VECTOR2:
+        case VariantType::RECT2:
+        case VariantType::VECTOR3:
+        case VariantType::TRANSFORM2D:
+        case VariantType::PLANE:
+        case VariantType::QUAT:
+        case VariantType::AABB:
+        case VariantType::BASIS:
+        case VariantType::TRANSFORM:
+        case VariantType::POOL_BYTE_ARRAY:
+        case VariantType::POOL_INT_ARRAY:
+        case VariantType::POOL_REAL_ARRAY:
+        case VariantType::POOL_STRING_ARRAY:
+        case VariantType::POOL_VECTOR2_ARRAY:
+        case VariantType::POOL_VECTOR3_ARRAY:
+        case VariantType::POOL_COLOR_ARRAY:
+        case VariantType::NODE_PATH: {
 
             uint32_t pos = tmpdata.size();
             int len;
@@ -261,12 +262,12 @@ uint32_t PackedDataContainer::_pack(const Variant &p_data, Vector<uint8_t> &tmpd
 
         } break;
         // misc types
-        case Variant::_RID:
-        case Variant::OBJECT: {
+        case VariantType::_RID:
+        case VariantType::OBJECT: {
 
             return _pack(Variant(), tmpdata, string_cache);
         } break;
-        case Variant::DICTIONARY: {
+        case VariantType::DICTIONARY: {
 
             Dictionary d = p_data;
             //size is known, use sort
@@ -276,15 +277,15 @@ uint32_t PackedDataContainer::_pack(const Variant &p_data, Vector<uint8_t> &tmpd
             encode_uint32(TYPE_DICT, &tmpdata.write[pos + 0]);
             encode_uint32(len, &tmpdata.write[pos + 4]);
 
-            List<Variant> keys;
+            ListPOD<Variant> keys;
             d.get_key_list(&keys);
             List<DictKey> sortk;
 
-            for (List<Variant>::Element *E = keys.front(); E; E = E->next()) {
+            for(Variant &E : keys ) {
 
                 DictKey dk;
-                dk.hash = E->get().hash();
-                dk.key = E->get();
+                dk.hash = E.hash();
+                dk.key = E;
                 sortk.push_back(dk);
             }
 
@@ -293,10 +294,10 @@ uint32_t PackedDataContainer::_pack(const Variant &p_data, Vector<uint8_t> &tmpd
             int idx = 0;
             for (List<DictKey>::Element *E = sortk.front(); E; E = E->next()) {
 
-                encode_uint32(E->get().hash, &tmpdata.write[pos + 8 + idx * 12 + 0]);
-                uint32_t ofs = _pack(E->get().key, tmpdata, string_cache);
+                encode_uint32(E->deref().hash, &tmpdata.write[pos + 8 + idx * 12 + 0]);
+                uint32_t ofs = _pack(E->deref().key, tmpdata, string_cache);
                 encode_uint32(ofs, &tmpdata.write[pos + 8 + idx * 12 + 4]);
-                ofs = _pack(d[E->get().key], tmpdata, string_cache);
+                ofs = _pack(d[E->deref().key], tmpdata, string_cache);
                 encode_uint32(ofs, &tmpdata.write[pos + 8 + idx * 12 + 8]);
                 idx++;
             }
@@ -304,7 +305,7 @@ uint32_t PackedDataContainer::_pack(const Variant &p_data, Vector<uint8_t> &tmpd
             return pos;
 
         } break;
-        case Variant::ARRAY: {
+        case VariantType::ARRAY: {
 
             Array a = p_data;
             //size is known, use sort
@@ -375,10 +376,10 @@ void PackedDataContainer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_iter_init"), &PackedDataContainer::_iter_init);
     MethodBinder::bind_method(D_METHOD("_iter_get"), &PackedDataContainer::_iter_get);
     MethodBinder::bind_method(D_METHOD("_iter_next"), &PackedDataContainer::_iter_next);
-    MethodBinder::bind_method(D_METHOD("pack", "value"), &PackedDataContainer::pack);
+    MethodBinder::bind_method(D_METHOD("pack", {"value"}), &PackedDataContainer::pack);
     MethodBinder::bind_method(D_METHOD("size"), &PackedDataContainer::size);
 
-    ADD_PROPERTY(PropertyInfo(Variant::POOL_BYTE_ARRAY, "__data__"), "_set_data", "_get_data");
+    ADD_PROPERTY(PropertyInfo(VariantType::POOL_BYTE_ARRAY, "__data__"), "_set_data", "_get_data");
 }
 
 PackedDataContainer::PackedDataContainer() {

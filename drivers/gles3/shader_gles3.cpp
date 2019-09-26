@@ -67,45 +67,38 @@ void ShaderGLES3::bind_uniforms() {
 
     if (!uniforms_dirty) {
         return;
-    };
+    }
 
     // upload default uniforms
-    const Map<uint32_t, Variant>::Element *E = uniform_defaults.front();
-
-    while (E) {
-        int idx = E->key();
+    for(const auto & val : uniform_defaults) {
+        int idx = val.first;
         int location = version->uniform_location[idx];
 
         if (location < 0) {
-            E = E->next();
             continue;
         }
 
-        const Variant &v = E->value();
+        const Variant &v(val.second);
         _set_uniform_variant(location, v);
         //print_line("uniform "+itos(location)+" value "+v+ " type "+Variant::get_type_name(v.get_type()));
-        E = E->next();
-    };
+    }
 
-    const Map<uint32_t, CameraMatrix>::Element *C = uniform_cameras.front();
-    while (C) {
+    for(const auto &c : uniform_cameras) {
 
-        int location = version->uniform_location[C->key()];
+        int location = version->uniform_location[c.first];
         if (location < 0) {
-            C = C->next();
             continue;
         }
 
-        glUniformMatrix4fv(location, 1, false, &(C->get().matrix[0][0]));
-        C = C->next();
-    };
+        glUniformMatrix4fv(location, 1, false, &(c.second.matrix[0][0]));
+    }
 
     uniforms_dirty = false;
 }
 
 GLint ShaderGLES3::get_uniform_location(int p_index) const {
 
-    ERR_FAIL_COND_V(!version, -1);
+    ERR_FAIL_COND_V(!version, -1)
 
     return version->uniform_location[p_index];
 }
@@ -120,7 +113,7 @@ bool ShaderGLES3::bind() {
         return false;
     }
 
-    ERR_FAIL_COND_V(!version, false);
+    ERR_FAIL_COND_V(!version, false)
 
     if (!version->ok) { //broken, unable to bind (do not throw error, you saw it before already when it failed compilation).
         glUseProgram(0);
@@ -161,7 +154,7 @@ static void _display_error_with_code(const String &p_error, const Vector<const c
         line++;
     }
 
-    ERR_PRINTS(p_error);
+    ERR_PRINTS(p_error)
 }
 
 ShaderGLES3::Version *ShaderGLES3::get_current_version() {
@@ -172,7 +165,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
 
         if (conditional_version.code_version != 0) {
             CustomCode *cc = custom_code_map.getptr(conditional_version.code_version);
-            ERR_FAIL_COND_V(!cc, _v);
+            ERR_FAIL_COND_V(!cc, _v)
             if (cc->version == _v->code_version)
                 return _v;
         } else {
@@ -236,7 +229,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
     if (conditional_version.code_version > 0) {
         //do custom code related stuff
 
-        ERR_FAIL_COND_V(!custom_code_map.has(conditional_version.code_version), nullptr);
+        ERR_FAIL_COND_V(!custom_code_map.contains(conditional_version.code_version), nullptr)
         cc = &custom_code_map[conditional_version.code_version];
         v.code_version = cc->version;
     }
@@ -245,7 +238,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
 
     v.id = glCreateProgram();
 
-    ERR_FAIL_COND_V(v.id == 0, nullptr);
+    ERR_FAIL_COND_V(v.id == 0, nullptr)
 
     /* VERTEX SHADER */
 
@@ -317,7 +310,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
             glDeleteProgram(v.id);
             v.id = 0;
 
-            ERR_PRINT("Vertex shader compilation failed with empty log");
+            ERR_PRINT("Vertex shader compilation failed with empty log")
         } else {
 
             if (iloglen == 0) {
@@ -339,7 +332,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
             v.id = 0;
         }
 
-        ERR_FAIL_V(nullptr);
+        ERR_FAIL_V(nullptr)
     }
 
     //_display_error_with_code("pepo", strings);
@@ -410,7 +403,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
             glDeleteShader(v.vert_id);
             glDeleteProgram(v.id);
             v.id = 0;
-            ERR_PRINT("Fragment shader compilation failed with empty log");
+            ERR_PRINT("Fragment shader compilation failed with empty log")
         } else {
 
             if (iloglen == 0) {
@@ -434,7 +427,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
             v.id = 0;
         }
 
-        ERR_FAIL_V(nullptr);
+        ERR_FAIL_V(nullptr)
     }
 
     glAttachShader(v.id, v.frag_id);
@@ -478,7 +471,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
             glDeleteShader(v.vert_id);
             glDeleteProgram(v.id);
             v.id = 0;
-            ERR_FAIL_COND_V(iloglen < 0, nullptr);
+            ERR_FAIL_COND_V(iloglen < 0, nullptr)
         }
 
         if (iloglen == 0) {
@@ -494,14 +487,14 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
 
         err_string += ilogmem;
         _display_error_with_code(err_string, strings);
-        ERR_PRINT(StringUtils::ascii(err_string).data());
+        ERR_PRINT(StringUtils::ascii(err_string).data())
         Memory::free_static(ilogmem);
         glDeleteShader(v.frag_id);
         glDeleteShader(v.vert_id);
         glDeleteProgram(v.id);
         v.id = 0;
 
-        ERR_FAIL_V(nullptr);
+        ERR_FAIL_V(nullptr)
     }
 
     /* UNIFORMS */
@@ -559,13 +552,13 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
 
 GLint ShaderGLES3::get_uniform_location(const String &p_name) const {
 
-    ERR_FAIL_COND_V(!version, -1);
+    ERR_FAIL_COND_V(!version, -1)
     return glGetUniformLocation(version->id, StringUtils::ascii(p_name).data());
 }
 
 void ShaderGLES3::setup(const char **p_conditional_defines, int p_conditional_count, const char **p_uniform_names, int p_uniform_count, const AttributePair *p_attribute_pairs, int p_attribute_count, const TexUnitPair *p_texunit_pairs, int p_texunit_pair_count, const UBOPair *p_ubo_pairs, int p_ubo_pair_count, const Feedback *p_feedback, int p_feedback_count, const char *p_vertex_code, const char *p_fragment_code, int p_vertex_code_start, int p_fragment_code_start) {
 
-    ERR_FAIL_COND(version);
+    ERR_FAIL_COND(version)
     conditional_version.key = 0;
     new_conditional_version.key = 0;
     uniform_count = p_uniform_count;
@@ -713,7 +706,7 @@ uint32_t ShaderGLES3::create_custom_shader() {
 
 void ShaderGLES3::set_custom_shader_code(uint32_t p_code_id, const String &p_vertex, const String &p_vertex_globals, const String &p_fragment, const String &p_light, const String &p_fragment_globals, const String &p_uniforms, const Vector<StringName> &p_texture_uniforms, const Vector<CharString> &p_custom_defines) {
 
-    ERR_FAIL_COND(!custom_code_map.has(p_code_id));
+    ERR_FAIL_COND(!custom_code_map.contains(p_code_id))
     CustomCode *cc = &custom_code_map[p_code_id];
 
     cc->vertex = p_vertex;
@@ -734,7 +727,7 @@ void ShaderGLES3::set_custom_shader(uint32_t p_code_id) {
 
 void ShaderGLES3::free_custom_shader(uint32_t p_code_id) {
 
-    ERR_FAIL_COND(!custom_code_map.has(p_code_id));
+    ERR_FAIL_COND(!custom_code_map.contains(p_code_id))
     if (conditional_version.code_version == p_code_id) {
         conditional_version.code_version = 0; //do not keep using a version that is going away
         unbind();
@@ -742,9 +735,9 @@ void ShaderGLES3::free_custom_shader(uint32_t p_code_id) {
 
     ShaderVersionKey key;
     key.code_version = p_code_id;
-    for (Set<uint32_t>::Element *E = custom_code_map[p_code_id].versions.front(); E; E = E->next()) {
-        key.version = E->get();
-        ERR_CONTINUE(!version_map.has(key));
+    for (uint32_t E : custom_code_map[p_code_id].versions) {
+        key.version = E;
+        ERR_CONTINUE(!version_map.contains(key))
         Version &v = version_map[key];
 
         glDeleteShader(v.vert_id);

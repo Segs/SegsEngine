@@ -60,7 +60,7 @@ void ScriptDebuggerLocal::debug(ScriptLanguage *p_script, bool p_can_continue, b
         // Cache options
         String variable_prefix = options["variable_prefix"];
 
-        if (line == "") {
+        if (line.empty()) {
             print_line("\nDebugger Break, Reason: '" + p_script->debug_get_error() + "'");
             print_line("*Frame " + itos(current_frame) + " - " + p_script->debug_get_stack_level_source(current_frame) + ":" + itos(p_script->debug_get_stack_level_line(current_frame)) + " in function '" + p_script->debug_get_stack_level_function(current_frame) + "'");
             print_line("Enter \"help\" for assistance.");
@@ -92,8 +92,8 @@ void ScriptDebuggerLocal::debug(ScriptLanguage *p_script, bool p_can_continue, b
 
             if (StringUtils::get_slice_count(line," ") == 1) {
 
-                for (Map<String, String>::Element *E = options.front(); E; E = E->next()) {
-                    print_line("\t" + E->key() + "=" + E->value());
+                for (const eastl::pair<const String,String> &E : options) {
+                    print_line("\t" + E.first + "=" + E.second);
                 }
 
             } else {
@@ -106,7 +106,7 @@ void ScriptDebuggerLocal::debug(ScriptLanguage *p_script, bool p_can_continue, b
 
                     String key = StringUtils::left(key_value,value_pos);
 
-                    if (!options.has(key)) {
+                    if (!options.contains(key)) {
                         print_line("Error: Unknown option " + key);
                     } else {
 
@@ -181,14 +181,14 @@ void ScriptDebuggerLocal::debug(ScriptLanguage *p_script, bool p_can_continue, b
             if (StringUtils::get_slice_count(line," ") <= 1) {
 
                 const Map<int, Set<StringName> > &breakpoints = get_breakpoints();
-                if (breakpoints.size() == 0) {
+                if (breakpoints.empty()) {
                     print_line("No Breakpoints.");
                     continue;
                 }
 
                 print_line("Breakpoint(s): " + itos(breakpoints.size()));
-                for (Map<int, Set<StringName> >::Element *E = breakpoints.front(); E; E = E->next()) {
-                    print_line("\t" + String(E->value().front()->get()) + ":" + itos(E->key()));
+                for (const eastl::pair<const int,Set<StringName> > &E : breakpoints) {
+                    print_line("\t" + String(*E.second.begin()) + ":" + itos(E.first));
                 }
 
             } else {
@@ -264,13 +264,13 @@ void ScriptDebuggerLocal::print_variables(const List<String> &names, const List<
     const List<Variant>::Element *V = values.front();
     for (const List<String>::Element *E = names.front(); E; E = E->next()) {
 
-        value = String(V->get());
+        value = String(V->deref());
 
         if (variable_prefix.empty()) {
-            print_line(E->get() + ": " + String(V->get()));
+            print_line(E->deref() + ": " + String(V->deref()));
         } else {
 
-            print_line(E->get() + ":");
+            print_line(E->deref() + ":");
             value_lines = StringUtils::split(value,'\n');
             for (int i = 0; i < value_lines.size(); ++i) {
                 print_line(variable_prefix + value_lines[i]);

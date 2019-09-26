@@ -62,13 +62,13 @@ void Path::_curve_changed() {
 
 void Path::set_curve(const Ref<Curve3D> &p_curve) {
 
-    if (curve.is_valid()) {
+    if (curve) {
         curve->disconnect("changed", this, "_curve_changed");
     }
 
     curve = p_curve;
 
-    if (curve.is_valid()) {
+    if (curve) {
         curve->connect("changed", this, "_curve_changed");
     }
     _curve_changed();
@@ -81,18 +81,18 @@ Ref<Curve3D> Path::get_curve() const {
 
 void Path::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_curve", "curve"), &Path::set_curve);
+    MethodBinder::bind_method(D_METHOD("set_curve", {"curve"}), &Path::set_curve);
     MethodBinder::bind_method(D_METHOD("get_curve"), &Path::get_curve);
     MethodBinder::bind_method(D_METHOD("_curve_changed"), &Path::_curve_changed);
 
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "curve", PROPERTY_HINT_RESOURCE_TYPE, "Curve3D"), "set_curve", "get_curve");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "curve", PROPERTY_HINT_RESOURCE_TYPE, "Curve3D"), "set_curve", "get_curve");
 
     ADD_SIGNAL(MethodInfo("curve_changed"));
 }
 
 Path::Path() {
 
-    set_curve(Ref<Curve3D>(memnew(Curve3D))); //create one by default
+    set_curve(make_ref_counted<Curve3D>()); //create one by default
 }
 
 //////////////
@@ -103,7 +103,7 @@ void PathFollow::_update_transform() {
         return;
 
     Ref<Curve3D> c = path->get_curve();
-    if (!c.is_valid())
+    if (not c)
         return;
 
     if (delta_offset == 0) {
@@ -257,7 +257,7 @@ void PathFollow::_validate_property(PropertyInfo &property) const {
     if (property.name == "offset") {
 
         float max = 10000;
-        if (path && path->get_curve().is_valid())
+        if (path && path->get_curve())
             max = path->get_curve()->get_baked_length();
 
         property.hint_string = "0," + rtos(max) + ",0.01,or_greater";
@@ -273,7 +273,7 @@ String PathFollow::get_configuration_warning() const {
         return TTR("PathFollow only works when set as a child of a Path node.");
     } else {
         Path *path = Object::cast_to<Path>(get_parent());
-        if (path->get_curve().is_valid() && !path->get_curve()->is_up_vector_enabled() && rotation_mode == ROTATION_ORIENTED) {
+        if (path->get_curve() && !path->get_curve()->is_up_vector_enabled() && rotation_mode == ROTATION_ORIENTED) {
             return TTR("PathFollow's ROTATION_ORIENTED requires \"Up Vector\" to be enabled in its parent Path's Curve resource.");
         }
     }
@@ -283,40 +283,40 @@ String PathFollow::get_configuration_warning() const {
 
 void PathFollow::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_offset", "offset"), &PathFollow::set_offset);
+    MethodBinder::bind_method(D_METHOD("set_offset", {"offset"}), &PathFollow::set_offset);
     MethodBinder::bind_method(D_METHOD("get_offset"), &PathFollow::get_offset);
 
-    MethodBinder::bind_method(D_METHOD("set_h_offset", "h_offset"), &PathFollow::set_h_offset);
+    MethodBinder::bind_method(D_METHOD("set_h_offset", {"h_offset"}), &PathFollow::set_h_offset);
     MethodBinder::bind_method(D_METHOD("get_h_offset"), &PathFollow::get_h_offset);
 
-    MethodBinder::bind_method(D_METHOD("set_v_offset", "v_offset"), &PathFollow::set_v_offset);
+    MethodBinder::bind_method(D_METHOD("set_v_offset", {"v_offset"}), &PathFollow::set_v_offset);
     MethodBinder::bind_method(D_METHOD("get_v_offset"), &PathFollow::get_v_offset);
 
-    MethodBinder::bind_method(D_METHOD("set_unit_offset", "unit_offset"), &PathFollow::set_unit_offset);
+    MethodBinder::bind_method(D_METHOD("set_unit_offset", {"unit_offset"}), &PathFollow::set_unit_offset);
     MethodBinder::bind_method(D_METHOD("get_unit_offset"), &PathFollow::get_unit_offset);
 
-    MethodBinder::bind_method(D_METHOD("set_rotation_mode", "rotation_mode"), &PathFollow::set_rotation_mode);
+    MethodBinder::bind_method(D_METHOD("set_rotation_mode", {"rotation_mode"}), &PathFollow::set_rotation_mode);
     MethodBinder::bind_method(D_METHOD("get_rotation_mode"), &PathFollow::get_rotation_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_cubic_interpolation", "enable"), &PathFollow::set_cubic_interpolation);
+    MethodBinder::bind_method(D_METHOD("set_cubic_interpolation", {"enable"}), &PathFollow::set_cubic_interpolation);
     MethodBinder::bind_method(D_METHOD("get_cubic_interpolation"), &PathFollow::get_cubic_interpolation);
 
-    MethodBinder::bind_method(D_METHOD("set_loop", "loop"), &PathFollow::set_loop);
+    MethodBinder::bind_method(D_METHOD("set_loop", {"loop"}), &PathFollow::set_loop);
     MethodBinder::bind_method(D_METHOD("has_loop"), &PathFollow::has_loop);
 
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "offset", PROPERTY_HINT_RANGE, "0,10000,0.01,or_greater"), "set_offset", "get_offset");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "unit_offset", PROPERTY_HINT_RANGE, "0,1,0.0001,or_greater", PROPERTY_USAGE_EDITOR), "set_unit_offset", "get_unit_offset");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "h_offset"), "set_h_offset", "get_h_offset");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "v_offset"), "set_v_offset", "get_v_offset");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "rotation_mode", PROPERTY_HINT_ENUM, "None,Y,XY,XYZ,Oriented"), "set_rotation_mode", "get_rotation_mode");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "cubic_interp"), "set_cubic_interpolation", "get_cubic_interpolation");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "loop"), "set_loop", "has_loop");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "offset", PROPERTY_HINT_RANGE, "0,10000,0.01,or_greater"), "set_offset", "get_offset");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "unit_offset", PROPERTY_HINT_RANGE, "0,1,0.0001,or_greater", PROPERTY_USAGE_EDITOR), "set_unit_offset", "get_unit_offset");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "h_offset"), "set_h_offset", "get_h_offset");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "v_offset"), "set_v_offset", "get_v_offset");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "rotation_mode", PROPERTY_HINT_ENUM, "None,Y,XY,XYZ,Oriented"), "set_rotation_mode", "get_rotation_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "cubic_interp"), "set_cubic_interpolation", "get_cubic_interpolation");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "loop"), "set_loop", "has_loop");
 
-    BIND_ENUM_CONSTANT(ROTATION_NONE);
-    BIND_ENUM_CONSTANT(ROTATION_Y);
-    BIND_ENUM_CONSTANT(ROTATION_XY);
-    BIND_ENUM_CONSTANT(ROTATION_XYZ);
-    BIND_ENUM_CONSTANT(ROTATION_ORIENTED);
+    BIND_ENUM_CONSTANT(ROTATION_NONE)
+    BIND_ENUM_CONSTANT(ROTATION_Y)
+    BIND_ENUM_CONSTANT(ROTATION_XY)
+    BIND_ENUM_CONSTANT(ROTATION_XYZ)
+    BIND_ENUM_CONSTANT(ROTATION_ORIENTED)
 }
 
 void PathFollow::set_offset(float p_offset) {
@@ -360,13 +360,13 @@ float PathFollow::get_offset() const {
 
 void PathFollow::set_unit_offset(float p_unit_offset) {
 
-    if (path && path->get_curve().is_valid() && path->get_curve()->get_baked_length())
+    if (path && path->get_curve() && path->get_curve()->get_baked_length())
         set_offset(p_unit_offset * path->get_curve()->get_baked_length());
 }
 
 float PathFollow::get_unit_offset() const {
 
-    if (path && path->get_curve().is_valid() && path->get_curve()->get_baked_length())
+    if (path && path->get_curve() && path->get_curve()->get_baked_length())
         return get_offset() / path->get_curve()->get_baked_length();
     else
         return 0;

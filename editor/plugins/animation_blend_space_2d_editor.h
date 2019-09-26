@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef ANIMATION_BLEND_SPACE_2D_EDITOR_H
-#define ANIMATION_BLEND_SPACE_2D_EDITOR_H
+#pragma once
 
 #include "editor/editor_node.h"
 #include "editor/editor_plugin.h"
@@ -93,7 +92,7 @@ class AnimationNodeBlendSpace2DEditor : public AnimationTreeNodeEditorPlugin {
 	void _update_space();
 
 	void _config_changed(double);
-	void _labels_changed(String);
+	void _labels_changed(const String&);
 	void _snap_toggled();
 
 	PopupMenu *menu;
@@ -147,5 +146,3 @@ public:
 	void edit(const Ref<AnimationNode> &p_node) override;
 	AnimationNodeBlendSpace2DEditor();
 };
-
-#endif // ANIMATION_BLEND_SPACE_2D_EDITOR_H

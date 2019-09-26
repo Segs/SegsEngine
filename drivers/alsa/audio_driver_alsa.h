@@ -78,7 +78,7 @@ public:
     SpeakerMode get_speaker_mode() const override;
     Array get_device_list() override;
     String get_device() override;
-    void set_device(String device) override;
+    void set_device(const String &device) override;
     void lock() override;
     void unlock() override;
     void finish() override;

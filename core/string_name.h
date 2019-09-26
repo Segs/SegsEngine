@@ -57,11 +57,11 @@ class GODOT_EXPORT StringName {
 
     struct _Data;
 
-	static _Data *_table[STRING_TABLE_LEN];
-	static Mutex *lock;
-	static void setup();
-	static void cleanup();
-	static bool configured;
+    static _Data *_table[STRING_TABLE_LEN];
+    static Mutex *lock;
+    static void setup();
+    static void cleanup();
+    static bool configured;
 
     _Data *_data;
 
@@ -69,7 +69,7 @@ class GODOT_EXPORT StringName {
     friend void register_core_types();
     friend void unregister_core_types();
 
-	void setupFromCString(const StaticCString &p_static_string);
+    void setupFromCString(const StaticCString &p_static_string);
     explicit StringName(_Data *p_data) { _data = p_data; }
 
 public:
@@ -87,7 +87,7 @@ public:
         // this is why path comparisons are very fast
         return _data == p_name._data;
     }
-    uint32_t hash() const;
+    [[nodiscard]] uint32_t hash() const;
 
     _FORCE_INLINE_ const void *data_unique_pointer() const {
         return (void *)_data;
@@ -111,36 +111,43 @@ public:
 
 
     StringName(const StringName &p_name);
-    StringName(StringName &&p_name) noexcept;
+    StringName(StringName &&p_name) noexcept
+    {
+        _data = p_name._data;
+        p_name._data = nullptr;
+    }
     //TODO: mark StringName(const String &p_name) explicit, it allocates some memory, even if COW'ed
     StringName(const String &p_name);
-	StringName(const StaticCString &p_static_string) {
-		_data = nullptr;
+    StringName(const StaticCString &p_static_string) {
+        _data = nullptr;
 
-		ERR_FAIL_COND(!configured)
+        ERR_FAIL_COND(!configured)
 
-		if (unlikely(!p_static_string.ptr || !p_static_string.ptr[0])) {
-			ERR_REPORT_COND(!p_static_string.ptr || !p_static_string.ptr[0])
-			return;
-		}
-		ERR_RESET()
-		setupFromCString(p_static_string);
-	}
+        if (unlikely(!p_static_string.ptr || !p_static_string.ptr[0])) {
+            ERR_REPORT_COND(!p_static_string.ptr || !p_static_string.ptr[0])
+            return;
+        }
+        ERR_RESET()
+        setupFromCString(p_static_string);
+    }
 
-	constexpr StringName() : _data(nullptr) {}
+    constexpr StringName() : _data(nullptr) {}
 
     template<std::size_t N>
-	StringName(char const (&s)[N]) {
-		_data = nullptr;
+    StringName(char const (&s)[N]) {
+        _data = nullptr;
 
-		if constexpr (N<=1) // static zero-terminated string of length 1 is just \000
-			return;
-		//TODO: consider compile-time hash and index generation
-		ERR_FAIL_COND(!configured)
-		setupFromCString(StaticCString(s));
-	}
+        if constexpr (N<=1) // static zero-terminated string of length 1 is just \000
+            return;
+        //TODO: consider compile-time hash and index generation
+        ERR_FAIL_COND(!configured)
+        setupFromCString(StaticCString(s));
+    }
 
-	~StringName();
+    ~StringName() {
+        if(_data)
+            unref();
+    }
 };
 struct WrapAlphaCompare
 {

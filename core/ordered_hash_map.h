@@ -120,27 +120,27 @@ public:
 
         const K &key() const {
             CRASH_COND(!list_element)
-            return *(list_element->get().first);
+            return *(list_element->deref().first);
         }
 
         V &value() {
             CRASH_COND(!list_element)
-            return list_element->get().second;
+            return list_element->deref().second;
         }
 
         const V &value() const {
             CRASH_COND(!list_element)
-            return list_element->get().second;
+            return list_element->deref().second;
         }
 
         V &get() {
             CRASH_COND(!list_element)
-            return list_element->get().second;
+            return list_element->deref().second;
         }
 
         const V &get() const {
             CRASH_COND(!list_element)
-            return list_element->get().second;
+            return list_element->deref().second;
         }
     };
 
@@ -188,17 +188,17 @@ public:
 
         const K &key() const {
             CRASH_COND(!list_element)
-            return *(list_element->get().first);
+            return *(list_element->deref().first);
         }
 
         const V &value() const {
             CRASH_COND(!list_element)
-            return list_element->get().second;
+            return list_element->deref().second;
         }
 
         const V &get() const {
             CRASH_COND(!list_element)
-            return list_element->get().second;
+            return list_element->deref().second;
         }
     };
 
@@ -221,12 +221,12 @@ public:
     Element insert(const K &p_key, const V &p_value) {
         typename InternalList::Element **list_element = map.getptr(p_key);
         if (list_element) {
-            (*list_element)->get().second = p_value;
+            (*list_element)->deref().second = p_value;
             return Element(*list_element);
         }
         typename InternalList::Element *new_element = list.push_back(Pair<const K *, V>(NULL, p_value));
         typename InternalMap::Element *e = map.set(p_key, new_element);
-        new_element->get().first = &e->key();
+        new_element->deref().first = &e->key();
 
         return Element(new_element);
     }
@@ -248,7 +248,7 @@ public:
     }
 
     inline bool has(const K &p_key) const {
-        return map.has(p_key);
+        return map.contains(p_key);
     }
 
     const V &operator[](const K &p_key) const {
@@ -302,8 +302,9 @@ private:
     }
 
 public:
-    void operator=(const OrderedHashMap &p_map) {
+    OrderedHashMap &operator=(const OrderedHashMap &p_map) {
         _copy_from(p_map);
+        return *this;
     }
 
     OrderedHashMap(const OrderedHashMap &p_map) {

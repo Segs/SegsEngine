@@ -40,9 +40,9 @@
 IMPL_GDCLASS(EditorLayoutsDialog)
 
 void EditorLayoutsDialog::_line_gui_input(const Ref<InputEvent> &p_event) {
-    Ref<InputEventKey> k = p_event;
+    Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(p_event);
 
-    if (k.is_valid()) {
+    if (k) {
 
         if (!k->is_pressed())
             return;
@@ -68,7 +68,7 @@ void EditorLayoutsDialog::_line_gui_input(const Ref<InputEvent> &p_event) {
 void EditorLayoutsDialog::_bind_methods() {
     MethodBinder::bind_method("_line_gui_input", &EditorLayoutsDialog::_line_gui_input);
 
-    ADD_SIGNAL(MethodInfo("name_confirmed", PropertyInfo(Variant::STRING, "name")));
+    ADD_SIGNAL(MethodInfo("name_confirmed", PropertyInfo(VariantType::STRING, "name")));
 }
 
 void EditorLayoutsDialog::ok_pressed() {
@@ -80,7 +80,7 @@ void EditorLayoutsDialog::ok_pressed() {
 
             emit_signal("name_confirmed", layout_names->get_item_text(selected_items[i]));
         }
-    } else if (name->is_visible() && name->get_text() != "") {
+    } else if (name->is_visible() && !name->get_text().empty()) {
 
         emit_signal("name_confirmed", name->get_text());
     }
@@ -92,16 +92,15 @@ void EditorLayoutsDialog::_post_popup() {
     name->clear();
     layout_names->clear();
 
-    Ref<ConfigFile> config;
-    config.instance();
-    Error err = config->load(EditorSettings::get_singleton()->get_editor_layouts_config());
+    ConfigFile config;
+    Error err = config.load(EditorSettings::get_singleton()->get_editor_layouts_config());
     if (err != OK) {
 
         return;
     }
 
     List<String> layouts;
-    config.ptr()->get_sections(&layouts);
+    config.get_sections(&layouts);
 
     for (List<String>::Element *E = layouts.front(); E; E = E->next()) {
 

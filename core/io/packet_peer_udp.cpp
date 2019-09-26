@@ -30,6 +30,8 @@
 
 #include "packet_peer_udp.h"
 
+#include <utility>
+
 #include "core/io/ip.h"
 #include "core/method_bind.h"
 
@@ -42,23 +44,23 @@ void PacketPeerUDP::set_blocking_mode(bool p_enable) {
 
 Error PacketPeerUDP::join_multicast_group(IP_Address p_multi_address, String p_if_name) {
 
-    ERR_FAIL_COND_V(!_sock.is_valid(), ERR_UNAVAILABLE);
-    ERR_FAIL_COND_V(!p_multi_address.is_valid(), ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(not _sock, ERR_UNAVAILABLE)
+    ERR_FAIL_COND_V(!p_multi_address.is_valid(), ERR_INVALID_PARAMETER)
 
     if (!_sock->is_open()) {
         IP::Type ip_type = p_multi_address.is_ipv4() ? IP::TYPE_IPV4 : IP::TYPE_IPV6;
         Error err = _sock->open(NetSocket::TYPE_UDP, ip_type);
-        ERR_FAIL_COND_V(err != OK, err);
+        ERR_FAIL_COND_V(err != OK, err)
         _sock->set_blocking_enabled(false);
     }
-    return _sock->join_multicast_group(p_multi_address, p_if_name);
+    return _sock->join_multicast_group(p_multi_address, std::move(p_if_name));
 }
 
 Error PacketPeerUDP::leave_multicast_group(IP_Address p_multi_address, String p_if_name) {
 
-    ERR_FAIL_COND_V(!_sock.is_valid(), ERR_UNAVAILABLE);
-    ERR_FAIL_COND_V(!_sock->is_open(), ERR_UNCONFIGURED);
-    return _sock->leave_multicast_group(p_multi_address, p_if_name);
+    ERR_FAIL_COND_V(not _sock, ERR_UNAVAILABLE)
+    ERR_FAIL_COND_V(!_sock->is_open(), ERR_UNCONFIGURED)
+    return _sock->leave_multicast_group(p_multi_address, std::move(p_if_name));
 }
 
 String PacketPeerUDP::_get_packet_ip() const {
@@ -114,8 +116,8 @@ Error PacketPeerUDP::get_packet(const uint8_t **r_buffer, int &r_buffer_size) {
 
 Error PacketPeerUDP::put_packet(const uint8_t *p_buffer, int p_buffer_size) {
 
-    ERR_FAIL_COND_V(!_sock.is_valid(), ERR_UNAVAILABLE);
-    ERR_FAIL_COND_V(!peer_addr.is_valid(), ERR_UNCONFIGURED);
+    ERR_FAIL_COND_V(not _sock, ERR_UNAVAILABLE)
+    ERR_FAIL_COND_V(!peer_addr.is_valid(), ERR_UNCONFIGURED)
 
     Error err;
     int sent = -1;
@@ -123,7 +125,7 @@ Error PacketPeerUDP::put_packet(const uint8_t *p_buffer, int p_buffer_size) {
     if (!_sock->is_open()) {
         IP::Type ip_type = peer_addr.is_ipv4() ? IP::TYPE_IPV4 : IP::TYPE_IPV6;
         err = _sock->open(NetSocket::TYPE_UDP, ip_type);
-        ERR_FAIL_COND_V(err != OK, err);
+        ERR_FAIL_COND_V(err != OK, err)
         _sock->set_blocking_enabled(false);
     }
 
@@ -151,9 +153,9 @@ int PacketPeerUDP::get_max_packet_size() const {
 
 Error PacketPeerUDP::listen(int p_port, const IP_Address &p_bind_address, int p_recv_buffer_size) {
 
-    ERR_FAIL_COND_V(!_sock.is_valid(), ERR_UNAVAILABLE);
-    ERR_FAIL_COND_V(_sock->is_open(), ERR_ALREADY_IN_USE);
-    ERR_FAIL_COND_V(!p_bind_address.is_valid() && !p_bind_address.is_wildcard(), ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(not _sock, ERR_UNAVAILABLE)
+    ERR_FAIL_COND_V(_sock->is_open(), ERR_ALREADY_IN_USE)
+    ERR_FAIL_COND_V(!p_bind_address.is_valid() && !p_bind_address.is_wildcard(), ERR_INVALID_PARAMETER)
 
     Error err;
     IP::Type ip_type = IP::TYPE_ANY;
@@ -180,7 +182,7 @@ Error PacketPeerUDP::listen(int p_port, const IP_Address &p_bind_address, int p_
 
 void PacketPeerUDP::close() {
 
-    if (_sock.is_valid())
+    if (_sock)
         _sock->close();
     rb.resize(16);
     queue_count = 0;
@@ -188,13 +190,13 @@ void PacketPeerUDP::close() {
 
 Error PacketPeerUDP::wait() {
 
-    ERR_FAIL_COND_V(!_sock.is_valid(), ERR_UNAVAILABLE);
+    ERR_FAIL_COND_V(not _sock, ERR_UNAVAILABLE)
     return _sock->poll(NetSocket::POLL_TYPE_IN, -1);
 }
 
 Error PacketPeerUDP::_poll() {
 
-    ERR_FAIL_COND_V(!_sock.is_valid(), ERR_UNAVAILABLE);
+    ERR_FAIL_COND_V(not _sock, ERR_UNAVAILABLE)
 
     if (!_sock->is_open()) {
         return FAILED;
@@ -233,7 +235,7 @@ Error PacketPeerUDP::_poll() {
 }
 bool PacketPeerUDP::is_listening() const {
 
-    return _sock.is_valid() && _sock->is_open();
+    return _sock && _sock->is_open();
 }
 
 IP_Address PacketPeerUDP::get_packet_address() const {
@@ -254,15 +256,15 @@ void PacketPeerUDP::set_dest_address(const IP_Address &p_address, int p_port) {
 
 void PacketPeerUDP::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("listen", "port", "bind_address", "recv_buf_size"), &PacketPeerUDP::listen, {DEFVAL("*"), DEFVAL(65536)});
+    MethodBinder::bind_method(D_METHOD("listen", {"port", "bind_address", "recv_buf_size"}), &PacketPeerUDP::listen, {DEFVAL("*"), DEFVAL(65536)});
     MethodBinder::bind_method(D_METHOD("close"), &PacketPeerUDP::close);
     MethodBinder::bind_method(D_METHOD("wait"), &PacketPeerUDP::wait);
     MethodBinder::bind_method(D_METHOD("is_listening"), &PacketPeerUDP::is_listening);
     MethodBinder::bind_method(D_METHOD("get_packet_ip"), &PacketPeerUDP::_get_packet_ip);
     MethodBinder::bind_method(D_METHOD("get_packet_port"), &PacketPeerUDP::get_packet_port);
-    MethodBinder::bind_method(D_METHOD("set_dest_address", "host", "port"), &PacketPeerUDP::_set_dest_address);
-    MethodBinder::bind_method(D_METHOD("join_multicast_group", "multicast_address", "interface_name"), &PacketPeerUDP::join_multicast_group);
-    MethodBinder::bind_method(D_METHOD("leave_multicast_group", "multicast_address", "interface_name"), &PacketPeerUDP::leave_multicast_group);
+    MethodBinder::bind_method(D_METHOD("set_dest_address", {"host", "port"}), &PacketPeerUDP::_set_dest_address);
+    MethodBinder::bind_method(D_METHOD("join_multicast_group", {"multicast_address", "interface_name"}), &PacketPeerUDP::join_multicast_group);
+    MethodBinder::bind_method(D_METHOD("leave_multicast_group", {"multicast_address", "interface_name"}), &PacketPeerUDP::leave_multicast_group);
 }
 
 PacketPeerUDP::PacketPeerUDP() : _sock(Ref<NetSocket>(NetSocket::create())) {

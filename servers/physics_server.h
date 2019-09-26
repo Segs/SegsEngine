@@ -28,13 +28,12 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef PHYSICS_SERVER_H
-#define PHYSICS_SERVER_H
-
+#pragma once
 #include "core/object.h"
 #include "core/resource.h"
 #include "core/method_arg_casters.h"
-#include "core/method_enum_caster.h"
+
+#include <utility>
 
 class PhysicsDirectSpaceState;
 
@@ -463,7 +462,7 @@ public:
     //fix
     virtual void body_add_collision_exception(RID p_body, RID p_body_b) = 0;
     virtual void body_remove_collision_exception(RID p_body, RID p_body_b) = 0;
-    virtual void body_get_collision_exceptions(RID p_body, List<RID> *p_exceptions) = 0;
+    virtual void body_get_collision_exceptions(RID p_body, DefList<RID> *p_exceptions) = 0;
 
     virtual void body_set_max_contacts_reported(RID p_body, int p_contacts) = 0;
     virtual int body_get_max_contacts_reported(RID p_body) const = 0;
@@ -539,7 +538,7 @@ public:
 
     virtual void soft_body_add_collision_exception(RID p_body, RID p_body_b) = 0;
     virtual void soft_body_remove_collision_exception(RID p_body, RID p_body_b) = 0;
-    virtual void soft_body_get_collision_exceptions(RID p_body, List<RID> *p_exceptions) = 0;
+    virtual void soft_body_get_collision_exceptions(RID p_body, DefList<RID> *p_exceptions) = 0;
 
     virtual void soft_body_set_state(RID p_body, BodyState p_state, const Variant &p_variant) = 0;
     virtual Variant soft_body_get_state(RID p_body, BodyState p_state) const = 0;
@@ -783,13 +782,13 @@ using CreatePhysicsServerCallback = PhysicsServer *(*)();
 
 class PhysicsServerManager {
     struct ClassInfo {
-        String name;
+        const char *name;
         CreatePhysicsServerCallback create_callback = nullptr;
 
         ClassInfo() :
                 name("") {}
 
-        ClassInfo(const String &p_name, CreatePhysicsServerCallback p_create_callback) :
+        ClassInfo(const char *p_name, CreatePhysicsServerCallback p_create_callback) :
                 name(p_name),
                 create_callback(p_create_callback) {}
 
@@ -809,7 +808,7 @@ private:
     static void on_servers_changed();
 
 public:
-    static void register_server(const String &p_name, CreatePhysicsServerCallback p_creat_callback);
+    static void register_server(const char *p_name, CreatePhysicsServerCallback p_creat_callback);
     static void set_default_server(const String &p_name, int p_priority = 0);
     static int find_server_id(const String &p_name);
     static int get_servers_count();
@@ -817,24 +816,3 @@ public:
     static PhysicsServer *new_default_server();
     static PhysicsServer *new_server(const String &p_name);
 };
-
-VARIANT_ENUM_CAST(PhysicsServer::ShapeType);
-VARIANT_ENUM_CAST(PhysicsServer::SpaceParameter);
-VARIANT_ENUM_CAST(PhysicsServer::AreaParameter);
-VARIANT_ENUM_CAST(PhysicsServer::AreaSpaceOverrideMode);
-VARIANT_ENUM_CAST(PhysicsServer::BodyMode);
-VARIANT_ENUM_CAST(PhysicsServer::BodyParameter);
-VARIANT_ENUM_CAST(PhysicsServer::BodyState);
-VARIANT_ENUM_CAST(PhysicsServer::BodyAxis);
-VARIANT_ENUM_CAST(PhysicsServer::PinJointParam);
-VARIANT_ENUM_CAST(PhysicsServer::JointType);
-VARIANT_ENUM_CAST(PhysicsServer::HingeJointParam);
-VARIANT_ENUM_CAST(PhysicsServer::HingeJointFlag);
-VARIANT_ENUM_CAST(PhysicsServer::SliderJointParam);
-VARIANT_ENUM_CAST(PhysicsServer::ConeTwistJointParam);
-VARIANT_ENUM_CAST(PhysicsServer::G6DOFJointAxisParam);
-VARIANT_ENUM_CAST(PhysicsServer::G6DOFJointAxisFlag);
-VARIANT_ENUM_CAST(PhysicsServer::AreaBodyStatus);
-VARIANT_ENUM_CAST(PhysicsServer::ProcessInfo);
-
-#endif

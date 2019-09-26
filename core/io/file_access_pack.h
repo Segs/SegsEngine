@@ -34,9 +34,10 @@
 #include "core/map.h"
 #include "core/os/dir_access.h"
 #include "core/os/file_access.h"
-#include "core/print_string.h"
 #include "core/ustring.h"
 #include "core/plugin_interfaces/PackSourceInterface.h"
+#include "core/set.h"
+#include "core/vector.h"
 
 class PackSourceInterface;
 
@@ -49,7 +50,7 @@ struct PackedDataFile {
     PackSourceInterface *src;
 };
 
-class PackedData {
+class GODOT_EXPORT PackedData {
     friend class FileAccessPack;
     friend class DirAccessPack;
     friend class PackSourceInterface;
@@ -120,71 +121,22 @@ public:
     ~PackedData();
 };
 
-class PackedSourcePCK : public PackSourceInterface {
-
-public:
-    bool try_open_pack(const String &p_path) override;
-    FileAccess *get_file(const String &p_path, PackedDataFile *p_file) override;
-};
-
-class FileAccessPack : public FileAccess {
-
-    PackedDataFile pf;
-
-    mutable size_t pos;
-    mutable bool eof;
-
-    FileAccess *f;
-    Error _open(const String &p_path, int p_mode_flags) override;
-    uint64_t _get_modified_time(const String &p_file) override { return 0; }
-    uint32_t _get_unix_permissions(const String &p_file) override { return 0; }
-    Error _set_unix_permissions(const String &p_file, uint32_t p_permissions) override { return FAILED; }
-
-public:
-    void close() override;
-    bool is_open() const override;
-
-    void seek(size_t p_position) override;
-    void seek_end(int64_t p_position = 0) override;
-    size_t get_position() const override;
-    size_t get_len() const override;
-
-    bool eof_reached() const override;
-
-    uint8_t get_8() const override;
-
-    int get_buffer(uint8_t *p_dst, int p_length) const override;
-
-    void set_endian_swap(bool p_swap) override;
-
-    Error get_error() const override;
-
-    void flush() override;
-    void store_8(uint8_t p_dest) override;
-
-    void store_buffer(const uint8_t *p_src, int p_length) override;
-
-    bool file_exists(const String &p_name) override;
-
-    FileAccessPack(const String &p_path, const PackedDataFile &p_file);
-    ~FileAccessPack() override;
-};
 
 FileAccess *PackedData::try_open_path(const String &p_path) {
 
     PathMD5 pmd5(StringUtils::md5_buffer(p_path));
-    Map<PathMD5, PackedDataFile>::Element *E = files.find(pmd5);
-    if (!E)
+    auto E = files.find(pmd5);
+    if (E==files.end())
         return nullptr; //not found
-    if (E->get().offset == 0)
+    if (E->second.offset == 0)
         return nullptr; //was erased
 
-    return E->get().src->get_file(p_path, &E->get());
+    return E->second.src->get_file(p_path, &E->second);
 }
 
 bool PackedData::has_path(const String &p_path) {
 
-    return files.has(PathMD5(StringUtils::md5_buffer(p_path)));
+    return files.contains(PathMD5(StringUtils::md5_buffer(p_path)));
 }
 
 class DirAccessPack : public DirAccess {
@@ -198,8 +150,8 @@ class DirAccessPack : public DirAccess {
 public:
     Error list_dir_begin() override;
     String get_next() override;
-    bool current_is_dir() const override;
-    bool current_is_hidden() const override;
+    [[nodiscard]] bool current_is_dir() const override;
+    [[nodiscard]] bool current_is_hidden() const override;
     void list_dir_end() override;
 
     int get_drive_count() override;

@@ -52,7 +52,7 @@ void EditorDirDialog::_update_dir(TreeItem *p_item, EditorFileSystemDirectory *p
         p_item->set_text(0, "res://");
     } else {
 
-		if (!opened_paths.has(path) && (p_select_path == String() || !StringUtils::begins_with(p_select_path,path))) {
+		if (!opened_paths.contains(path) && (p_select_path.empty() || !StringUtils::begins_with(p_select_path,path))) {
             p_item->set_collapsed(true);
         }
 
@@ -155,7 +155,7 @@ void EditorDirDialog::_make_dir_confirm() {
     String dir = ti->get_metadata(0);
 
     DirAccessRef d = DirAccess::open(dir);
-    ERR_FAIL_COND(!d);
+    ERR_FAIL_COND(!d)
     Error err = d->make_dir(makedirname->get_text());
 
     if (err != OK) {
@@ -175,7 +175,7 @@ void EditorDirDialog::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_make_dir_confirm"), &EditorDirDialog::_make_dir_confirm);
     MethodBinder::bind_method(D_METHOD("reload"), &EditorDirDialog::reload, {DEFVAL("")});
 
-    ADD_SIGNAL(MethodInfo("dir_selected", PropertyInfo(Variant::STRING, "dir")));
+    ADD_SIGNAL(MethodInfo("dir_selected", PropertyInfo(VariantType::STRING, "dir")));
 }
 
 EditorDirDialog::EditorDirDialog() {

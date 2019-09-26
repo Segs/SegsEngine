@@ -33,7 +33,6 @@
 #include "core/engine.h"
 #include "core/object_db.h"
 #include "core/method_bind.h"
-#include "core/math/math_funcs.h"
 #include "scene/scene_string_names.h"
 #include "servers/visual_server.h"
 
@@ -54,7 +53,7 @@ void Camera2D::_update_scroll() {
 
     if (current) {
 
-        ERR_FAIL_COND(custom_viewport && !ObjectDB::get_instance(custom_viewport_id));
+        ERR_FAIL_COND(custom_viewport && !ObjectDB::get_instance(custom_viewport_id))
 
         Transform2D xform = get_camera_transform();
 
@@ -99,7 +98,7 @@ Transform2D Camera2D::get_camera_transform() {
     if (!get_tree())
         return Transform2D();
 
-    ERR_FAIL_COND_V(custom_viewport && !ObjectDB::get_instance(custom_viewport_id), Transform2D());
+    ERR_FAIL_COND_V(custom_viewport && !ObjectDB::get_instance(custom_viewport_id), Transform2D())
 
     Size2 screen_size = viewport->get_visible_rect().size;
 
@@ -428,7 +427,7 @@ void Camera2D::make_current() {
     if (!is_inside_tree()) {
         current = true;
     } else {
-        get_tree()->call_group_flags(SceneTree::GROUP_CALL_REALTIME, group_name, "_make_current", this);
+        get_tree()->call_group_flags(SceneTree::GROUP_CALL_REALTIME, group_name, "_make_current", Variant(this));
     }
     _update_scroll();
 }
@@ -437,7 +436,7 @@ void Camera2D::clear_current() {
 
     current = false;
     if (is_inside_tree()) {
-        get_tree()->call_group_flags(SceneTree::GROUP_CALL_REALTIME, group_name, "_make_current", (Object *)nullptr);
+        get_tree()->call_group_flags(SceneTree::GROUP_CALL_REALTIME, group_name, "_make_current", Variant((Object *)nullptr));
     }
 }
 
@@ -496,7 +495,7 @@ void Camera2D::reset_smoothing() {
 
 void Camera2D::align() {
 
-    ERR_FAIL_COND(custom_viewport && !ObjectDB::get_instance(custom_viewport_id));
+    ERR_FAIL_COND(custom_viewport && !ObjectDB::get_instance(custom_viewport_id))
 
     Size2 screen_size = viewport->get_visible_rect().size;
 
@@ -664,13 +663,13 @@ bool Camera2D::is_margin_drawing_enabled() const {
 
 void Camera2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_offset", "offset"), &Camera2D::set_offset);
+    MethodBinder::bind_method(D_METHOD("set_offset", {"offset"}), &Camera2D::set_offset);
     MethodBinder::bind_method(D_METHOD("get_offset"), &Camera2D::get_offset);
 
-    MethodBinder::bind_method(D_METHOD("set_anchor_mode", "anchor_mode"), &Camera2D::set_anchor_mode);
+    MethodBinder::bind_method(D_METHOD("set_anchor_mode", {"anchor_mode"}), &Camera2D::set_anchor_mode);
     MethodBinder::bind_method(D_METHOD("get_anchor_mode"), &Camera2D::get_anchor_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_rotating", "rotating"), &Camera2D::set_rotating);
+    MethodBinder::bind_method(D_METHOD("set_rotating", {"rotating"}), &Camera2D::set_rotating);
     MethodBinder::bind_method(D_METHOD("is_rotating"), &Camera2D::is_rotating);
 
     MethodBinder::bind_method(D_METHOD("make_current"), &Camera2D::make_current);
@@ -679,105 +678,105 @@ void Camera2D::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_update_scroll"), &Camera2D::_update_scroll);
 
-    MethodBinder::bind_method(D_METHOD("set_process_mode", "mode"), &Camera2D::set_process_mode);
+    MethodBinder::bind_method(D_METHOD("set_process_mode", {"mode"}), &Camera2D::set_process_mode);
     MethodBinder::bind_method(D_METHOD("get_process_mode"), &Camera2D::get_process_mode);
 
-    MethodBinder::bind_method(D_METHOD("_set_current", "current"), &Camera2D::_set_current);
+    MethodBinder::bind_method(D_METHOD("_set_current", {"current"}), &Camera2D::_set_current);
     MethodBinder::bind_method(D_METHOD("is_current"), &Camera2D::is_current);
 
-    MethodBinder::bind_method(D_METHOD("set_limit", "margin", "limit"), &Camera2D::set_limit);
-    MethodBinder::bind_method(D_METHOD("get_limit", "margin"), &Camera2D::get_limit);
+    MethodBinder::bind_method(D_METHOD("set_limit", {"margin", "limit"}), &Camera2D::set_limit);
+    MethodBinder::bind_method(D_METHOD("get_limit", {"margin"}), &Camera2D::get_limit);
 
-    MethodBinder::bind_method(D_METHOD("set_limit_smoothing_enabled", "limit_smoothing_enabled"), &Camera2D::set_limit_smoothing_enabled);
+    MethodBinder::bind_method(D_METHOD("set_limit_smoothing_enabled", {"limit_smoothing_enabled"}), &Camera2D::set_limit_smoothing_enabled);
     MethodBinder::bind_method(D_METHOD("is_limit_smoothing_enabled"), &Camera2D::is_limit_smoothing_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_v_drag_enabled", "enabled"), &Camera2D::set_v_drag_enabled);
+    MethodBinder::bind_method(D_METHOD("set_v_drag_enabled", {"enabled"}), &Camera2D::set_v_drag_enabled);
     MethodBinder::bind_method(D_METHOD("is_v_drag_enabled"), &Camera2D::is_v_drag_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_h_drag_enabled", "enabled"), &Camera2D::set_h_drag_enabled);
+    MethodBinder::bind_method(D_METHOD("set_h_drag_enabled", {"enabled"}), &Camera2D::set_h_drag_enabled);
     MethodBinder::bind_method(D_METHOD("is_h_drag_enabled"), &Camera2D::is_h_drag_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_v_offset", "ofs"), &Camera2D::set_v_offset);
+    MethodBinder::bind_method(D_METHOD("set_v_offset", {"ofs"}), &Camera2D::set_v_offset);
     MethodBinder::bind_method(D_METHOD("get_v_offset"), &Camera2D::get_v_offset);
 
-    MethodBinder::bind_method(D_METHOD("set_h_offset", "ofs"), &Camera2D::set_h_offset);
+    MethodBinder::bind_method(D_METHOD("set_h_offset", {"ofs"}), &Camera2D::set_h_offset);
     MethodBinder::bind_method(D_METHOD("get_h_offset"), &Camera2D::get_h_offset);
 
-    MethodBinder::bind_method(D_METHOD("set_drag_margin", "margin", "drag_margin"), &Camera2D::set_drag_margin);
-    MethodBinder::bind_method(D_METHOD("get_drag_margin", "margin"), &Camera2D::get_drag_margin);
+    MethodBinder::bind_method(D_METHOD("set_drag_margin", {"margin", "drag_margin"}), &Camera2D::set_drag_margin);
+    MethodBinder::bind_method(D_METHOD("get_drag_margin", {"margin"}), &Camera2D::get_drag_margin);
 
     MethodBinder::bind_method(D_METHOD("get_camera_position"), &Camera2D::get_camera_position);
     MethodBinder::bind_method(D_METHOD("get_camera_screen_center"), &Camera2D::get_camera_screen_center);
 
-    MethodBinder::bind_method(D_METHOD("set_zoom", "zoom"), &Camera2D::set_zoom);
+    MethodBinder::bind_method(D_METHOD("set_zoom", {"zoom"}), &Camera2D::set_zoom);
     MethodBinder::bind_method(D_METHOD("get_zoom"), &Camera2D::get_zoom);
 
-    MethodBinder::bind_method(D_METHOD("set_custom_viewport", "viewport"), &Camera2D::set_custom_viewport);
+    MethodBinder::bind_method(D_METHOD("set_custom_viewport", {"viewport"}), &Camera2D::set_custom_viewport);
     MethodBinder::bind_method(D_METHOD("get_custom_viewport"), &Camera2D::get_custom_viewport);
 
-    MethodBinder::bind_method(D_METHOD("set_follow_smoothing", "follow_smoothing"), &Camera2D::set_follow_smoothing);
+    MethodBinder::bind_method(D_METHOD("set_follow_smoothing", {"follow_smoothing"}), &Camera2D::set_follow_smoothing);
     MethodBinder::bind_method(D_METHOD("get_follow_smoothing"), &Camera2D::get_follow_smoothing);
 
-    MethodBinder::bind_method(D_METHOD("set_enable_follow_smoothing", "follow_smoothing"), &Camera2D::set_enable_follow_smoothing);
+    MethodBinder::bind_method(D_METHOD("set_enable_follow_smoothing", {"follow_smoothing"}), &Camera2D::set_enable_follow_smoothing);
     MethodBinder::bind_method(D_METHOD("is_follow_smoothing_enabled"), &Camera2D::is_follow_smoothing_enabled);
 
     MethodBinder::bind_method(D_METHOD("force_update_scroll"), &Camera2D::force_update_scroll);
     MethodBinder::bind_method(D_METHOD("reset_smoothing"), &Camera2D::reset_smoothing);
     MethodBinder::bind_method(D_METHOD("align"), &Camera2D::align);
 
-    MethodBinder::bind_method(D_METHOD("_set_old_smoothing", "follow_smoothing"), &Camera2D::_set_old_smoothing);
+    MethodBinder::bind_method(D_METHOD("_set_old_smoothing", {"follow_smoothing"}), &Camera2D::_set_old_smoothing);
 
-    MethodBinder::bind_method(D_METHOD("set_screen_drawing_enabled", "screen_drawing_enabled"), &Camera2D::set_screen_drawing_enabled);
+    MethodBinder::bind_method(D_METHOD("set_screen_drawing_enabled", {"screen_drawing_enabled"}), &Camera2D::set_screen_drawing_enabled);
     MethodBinder::bind_method(D_METHOD("is_screen_drawing_enabled"), &Camera2D::is_screen_drawing_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_limit_drawing_enabled", "limit_drawing_enabled"), &Camera2D::set_limit_drawing_enabled);
+    MethodBinder::bind_method(D_METHOD("set_limit_drawing_enabled", {"limit_drawing_enabled"}), &Camera2D::set_limit_drawing_enabled);
     MethodBinder::bind_method(D_METHOD("is_limit_drawing_enabled"), &Camera2D::is_limit_drawing_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_margin_drawing_enabled", "margin_drawing_enabled"), &Camera2D::set_margin_drawing_enabled);
+    MethodBinder::bind_method(D_METHOD("set_margin_drawing_enabled", {"margin_drawing_enabled"}), &Camera2D::set_margin_drawing_enabled);
     MethodBinder::bind_method(D_METHOD("is_margin_drawing_enabled"), &Camera2D::is_margin_drawing_enabled);
 
-    ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "offset"), "set_offset", "get_offset");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "anchor_mode", PROPERTY_HINT_ENUM, "Fixed TopLeft,Drag Center"), "set_anchor_mode", "get_anchor_mode");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "rotating"), "set_rotating", "is_rotating");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "current"), "_set_current", "is_current");
-    ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "zoom"), "set_zoom", "get_zoom");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "custom_viewport", PROPERTY_HINT_RESOURCE_TYPE, "Viewport", 0), "set_custom_viewport", "get_custom_viewport");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "process_mode", PROPERTY_HINT_ENUM, "Physics,Idle"), "set_process_mode", "get_process_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "offset"), "set_offset", "get_offset");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "anchor_mode", PROPERTY_HINT_ENUM, "Fixed TopLeft,Drag Center"), "set_anchor_mode", "get_anchor_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "rotating"), "set_rotating", "is_rotating");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "current"), "_set_current", "is_current");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "zoom"), "set_zoom", "get_zoom");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "custom_viewport", PROPERTY_HINT_RESOURCE_TYPE, "Viewport", 0), "set_custom_viewport", "get_custom_viewport");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "process_mode", PROPERTY_HINT_ENUM, "Physics,Idle"), "set_process_mode", "get_process_mode");
 
     ADD_GROUP("Limit", "limit_");
-    ADD_PROPERTYI(PropertyInfo(Variant::INT, "limit_left"), "set_limit", "get_limit", MARGIN_LEFT);
-    ADD_PROPERTYI(PropertyInfo(Variant::INT, "limit_top"), "set_limit", "get_limit", MARGIN_TOP);
-    ADD_PROPERTYI(PropertyInfo(Variant::INT, "limit_right"), "set_limit", "get_limit", MARGIN_RIGHT);
-    ADD_PROPERTYI(PropertyInfo(Variant::INT, "limit_bottom"), "set_limit", "get_limit", MARGIN_BOTTOM);
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "limit_smoothed"), "set_limit_smoothing_enabled", "is_limit_smoothing_enabled");
+    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "limit_left"), "set_limit", "get_limit", MARGIN_LEFT);
+    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "limit_top"), "set_limit", "get_limit", MARGIN_TOP);
+    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "limit_right"), "set_limit", "get_limit", MARGIN_RIGHT);
+    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "limit_bottom"), "set_limit", "get_limit", MARGIN_BOTTOM);
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "limit_smoothed"), "set_limit_smoothing_enabled", "is_limit_smoothing_enabled");
 
     ADD_GROUP("Draw Margin", "draw_margin_");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "drag_margin_h_enabled"), "set_h_drag_enabled", "is_h_drag_enabled");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "drag_margin_v_enabled"), "set_v_drag_enabled", "is_v_drag_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "drag_margin_h_enabled"), "set_h_drag_enabled", "is_h_drag_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "drag_margin_v_enabled"), "set_v_drag_enabled", "is_v_drag_enabled");
 
     ADD_GROUP("Smoothing", "smoothing_");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "smoothing_enabled"), "set_enable_follow_smoothing", "is_follow_smoothing_enabled");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "smoothing_speed"), "set_follow_smoothing", "get_follow_smoothing");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "smoothing_enabled"), "set_enable_follow_smoothing", "is_follow_smoothing_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "smoothing_speed"), "set_follow_smoothing", "get_follow_smoothing");
 
     ADD_GROUP("Offset", "offset_");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "offset_h", PROPERTY_HINT_RANGE, "-1,1,0.01"), "set_h_offset", "get_h_offset");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "offset_v", PROPERTY_HINT_RANGE, "-1,1,0.01"), "set_v_offset", "get_v_offset");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "offset_h", PROPERTY_HINT_RANGE, "-1,1,0.01"), "set_h_offset", "get_h_offset");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "offset_v", PROPERTY_HINT_RANGE, "-1,1,0.01"), "set_v_offset", "get_v_offset");
 
     ADD_GROUP("Drag Margin", "drag_margin_");
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "drag_margin_left", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_drag_margin", "get_drag_margin", MARGIN_LEFT);
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "drag_margin_top", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_drag_margin", "get_drag_margin", MARGIN_TOP);
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "drag_margin_right", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_drag_margin", "get_drag_margin", MARGIN_RIGHT);
-    ADD_PROPERTYI(PropertyInfo(Variant::REAL, "drag_margin_bottom", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_drag_margin", "get_drag_margin", MARGIN_BOTTOM);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "drag_margin_left", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_drag_margin", "get_drag_margin", MARGIN_LEFT);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "drag_margin_top", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_drag_margin", "get_drag_margin", MARGIN_TOP);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "drag_margin_right", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_drag_margin", "get_drag_margin", MARGIN_RIGHT);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "drag_margin_bottom", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_drag_margin", "get_drag_margin", MARGIN_BOTTOM);
 
     ADD_GROUP("Editor", "editor_");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "editor_draw_screen"), "set_screen_drawing_enabled", "is_screen_drawing_enabled");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "editor_draw_limits"), "set_limit_drawing_enabled", "is_limit_drawing_enabled");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "editor_draw_drag_margin"), "set_margin_drawing_enabled", "is_margin_drawing_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "editor_draw_screen"), "set_screen_drawing_enabled", "is_screen_drawing_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "editor_draw_limits"), "set_limit_drawing_enabled", "is_limit_drawing_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "editor_draw_drag_margin"), "set_margin_drawing_enabled", "is_margin_drawing_enabled");
 
-    BIND_ENUM_CONSTANT(ANCHOR_MODE_FIXED_TOP_LEFT);
-    BIND_ENUM_CONSTANT(ANCHOR_MODE_DRAG_CENTER);
-    BIND_ENUM_CONSTANT(CAMERA2D_PROCESS_PHYSICS);
-    BIND_ENUM_CONSTANT(CAMERA2D_PROCESS_IDLE);
+    BIND_ENUM_CONSTANT(ANCHOR_MODE_FIXED_TOP_LEFT)
+    BIND_ENUM_CONSTANT(ANCHOR_MODE_DRAG_CENTER)
+    BIND_ENUM_CONSTANT(CAMERA2D_PROCESS_PHYSICS)
+    BIND_ENUM_CONSTANT(CAMERA2D_PROCESS_IDLE)
 }
 
 Camera2D::Camera2D() {
@@ -790,10 +789,10 @@ Camera2D::Camera2D() {
     limit[MARGIN_RIGHT] = 10000000;
     limit[MARGIN_BOTTOM] = 10000000;
 
-    drag_margin[MARGIN_LEFT] = 0.2;
-    drag_margin[MARGIN_TOP] = 0.2;
-    drag_margin[MARGIN_RIGHT] = 0.2;
-    drag_margin[MARGIN_BOTTOM] = 0.2;
+    drag_margin[MARGIN_LEFT] = 0.2f;
+    drag_margin[MARGIN_TOP] = 0.2f;
+    drag_margin[MARGIN_RIGHT] = 0.2f;
+    drag_margin[MARGIN_BOTTOM] = 0.2f;
     camera_pos = Vector2();
     first = true;
     smoothing_enabled = false;
@@ -802,7 +801,7 @@ Camera2D::Camera2D() {
     custom_viewport_id = 0;
     process_mode = CAMERA2D_PROCESS_IDLE;
 
-    smoothing = 5.0;
+    smoothing = 5.0f;
     zoom = Vector2(1, 1);
 
     screen_drawing_enabled = true;

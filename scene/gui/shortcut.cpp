@@ -48,12 +48,12 @@ Ref<InputEvent> ShortCut::get_shortcut() const {
 
 bool ShortCut::is_shortcut(const Ref<InputEvent> &p_event) const {
 
-    return shortcut.is_valid() && shortcut->shortcut_match(p_event);
+    return shortcut && shortcut->shortcut_match(p_event);
 }
 
 String ShortCut::get_as_text() const {
 
-    if (shortcut.is_valid())
+    if (shortcut)
         return shortcut->as_text();
     else
         return "None";
@@ -61,20 +61,20 @@ String ShortCut::get_as_text() const {
 
 bool ShortCut::is_valid() const {
 
-    return shortcut.is_valid();
+    return shortcut;
 }
 
 void ShortCut::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_shortcut", "event"), &ShortCut::set_shortcut);
+    MethodBinder::bind_method(D_METHOD("set_shortcut", {"event"}), &ShortCut::set_shortcut);
     MethodBinder::bind_method(D_METHOD("get_shortcut"), &ShortCut::get_shortcut);
 
     MethodBinder::bind_method(D_METHOD("is_valid"), &ShortCut::is_valid);
 
-    MethodBinder::bind_method(D_METHOD("is_shortcut", "event"), &ShortCut::is_shortcut);
+    MethodBinder::bind_method(D_METHOD("is_shortcut", {"event"}), &ShortCut::is_shortcut);
     MethodBinder::bind_method(D_METHOD("get_as_text"), &ShortCut::get_as_text);
 
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "shortcut", PROPERTY_HINT_RESOURCE_TYPE, "InputEvent"), "set_shortcut", "get_shortcut");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "shortcut", PROPERTY_HINT_RESOURCE_TYPE, "InputEvent"), "set_shortcut", "get_shortcut");
 }
 
 ShortCut::ShortCut() {

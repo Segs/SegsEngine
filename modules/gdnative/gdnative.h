@@ -30,9 +30,10 @@
 
 #pragma once
 
-#include "core/io/resource_loader.h"
+#include "core/io/resource_format_loader.h"
 #include "core/io/resource_saver.h"
 #include "core/os/thread_safe.h"
+#include "core/map.h"
 #include "core/resource.h"
 
 #include "gdnative/gdnative.h"
@@ -67,7 +68,7 @@ public:
 
     virtual bool _set(const StringName &p_name, const Variant &p_property);
     virtual bool _get(const StringName &p_name, Variant &r_property) const;
-    virtual void _get_property_list(List<PropertyInfo> *p_list) const;
+    virtual void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
 
     _FORCE_INLINE_ Ref<ConfigFile> get_config_file() { return config_file; }
 
@@ -166,7 +167,7 @@ public:
 class GDNativeLibraryResourceLoader : public ResourceFormatLoader {
 public:
     RES load(const String &p_path, const String &p_original_path, Error *r_error) override;
-    void get_recognized_extensions(List<String> *p_extensions) const override;
+    void get_recognized_extensions(ListPOD<String> *p_extensions) const override;
     bool handles_type(const String &p_type) const override;
     String get_resource_type(const String &p_path) const override;
 };

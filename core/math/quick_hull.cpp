@@ -36,441 +36,441 @@ uint32_t QuickHull::debug_stop_after = 0xFFFFFFFF;
 
 Error QuickHull::build(const Vector<Vector3> &p_points, Geometry::MeshData &r_mesh) {
 
-	/* CREATE AABB VOLUME */
+    /* CREATE AABB VOLUME */
 
-	AABB aabb;
-	for (int i = 0; i < p_points.size(); i++) {
+    AABB aabb;
+    for (int i = 0; i < p_points.size(); i++) {
 
-		if (i == 0) {
-			aabb.position = p_points[i];
-		} else {
-			aabb.expand_to(p_points[i]);
-		}
-	}
+        if (i == 0) {
+            aabb.position = p_points[i];
+        } else {
+            aabb.expand_to(p_points[i]);
+        }
+    }
 
-	if (aabb.size == Vector3()) {
-		return ERR_CANT_CREATE;
-	}
+    if (aabb.size == Vector3()) {
+        return ERR_CANT_CREATE;
+    }
 
-	Vector<bool> valid_points;
-	valid_points.resize(p_points.size());
-	Set<Vector3> valid_cache;
+    Vector<bool> valid_points;
+    valid_points.resize(p_points.size());
+    Set<Vector3> valid_cache;
 
-	for (int i = 0; i < p_points.size(); i++) {
+    for (int i = 0; i < p_points.size(); i++) {
 
-		Vector3 sp = p_points[i].snapped(Vector3(0.0001, 0.0001, 0.0001));
-		if (valid_cache.has(sp)) {
-			valid_points.write[i] = false;
-		} else {
-			valid_points.write[i] = true;
-			valid_cache.insert(sp);
-		}
-	}
+        Vector3 sp = p_points[i].snapped(Vector3(0.0001f, 0.0001f, 0.0001f));
+        if (valid_cache.contains(sp)) {
+            valid_points.write[i] = false;
+        } else {
+            valid_points.write[i] = true;
+            valid_cache.insert(sp);
+        }
+    }
 
-	/* CREATE INITIAL SIMPLEX */
+    /* CREATE INITIAL SIMPLEX */
 
-	int longest_axis = aabb.get_longest_axis_index();
+    int longest_axis = aabb.get_longest_axis_index();
 
-	//first two vertices are the most distant
-	int simplex[4] = { 0 };
+    //first two vertices are the most distant
+    int simplex[4] = { 0 };
 
-	{
-		real_t max = 0, min = 0;
+    {
+        real_t max = 0, min = 0;
 
-		for (int i = 0; i < p_points.size(); i++) {
+        for (int i = 0; i < p_points.size(); i++) {
 
-			if (!valid_points[i])
-				continue;
-			real_t d = p_points[i][longest_axis];
-			if (i == 0 || d < min) {
+            if (!valid_points[i])
+                continue;
+            real_t d = p_points[i][longest_axis];
+            if (i == 0 || d < min) {
 
-				simplex[0] = i;
-				min = d;
-			}
+                simplex[0] = i;
+                min = d;
+            }
 
-			if (i == 0 || d > max) {
-				simplex[1] = i;
-				max = d;
-			}
-		}
-	}
+            if (i == 0 || d > max) {
+                simplex[1] = i;
+                max = d;
+            }
+        }
+    }
 
-	//third vertex is one most further away from the line
+    //third vertex is one most further away from the line
 
-	{
-		real_t maxd = 0;
-		Vector3 rel12 = p_points[simplex[0]] - p_points[simplex[1]];
+    {
+        real_t maxd = 0;
+        Vector3 rel12 = p_points[simplex[0]] - p_points[simplex[1]];
 
-		for (int i = 0; i < p_points.size(); i++) {
+        for (int i = 0; i < p_points.size(); i++) {
 
-			if (!valid_points[i])
-				continue;
+            if (!valid_points[i])
+                continue;
 
-			Vector3 n = rel12.cross(p_points[simplex[0]] - p_points[i]).cross(rel12).normalized();
-			real_t d = Math::abs(n.dot(p_points[simplex[0]]) - n.dot(p_points[i]));
+            Vector3 n = rel12.cross(p_points[simplex[0]] - p_points[i]).cross(rel12).normalized();
+            real_t d = Math::abs(n.dot(p_points[simplex[0]]) - n.dot(p_points[i]));
 
-			if (i == 0 || d > maxd) {
+            if (i == 0 || d > maxd) {
 
-				maxd = d;
-				simplex[2] = i;
-			}
-		}
-	}
+                maxd = d;
+                simplex[2] = i;
+            }
+        }
+    }
 
-	//fourth vertex is the one  most further away from the plane
+    //fourth vertex is the one  most further away from the plane
 
-	{
-		real_t maxd = 0;
-		Plane p(p_points[simplex[0]], p_points[simplex[1]], p_points[simplex[2]]);
+    {
+        real_t maxd = 0;
+        Plane p(p_points[simplex[0]], p_points[simplex[1]], p_points[simplex[2]]);
 
-		for (int i = 0; i < p_points.size(); i++) {
+        for (int i = 0; i < p_points.size(); i++) {
 
-			if (!valid_points[i])
-				continue;
+            if (!valid_points[i])
+                continue;
 
-			real_t d = Math::abs(p.distance_to(p_points[i]));
+            real_t d = Math::abs(p.distance_to(p_points[i]));
 
-			if (i == 0 || d > maxd) {
+            if (i == 0 || d > maxd) {
 
-				maxd = d;
-				simplex[3] = i;
-			}
-		}
-	}
+                maxd = d;
+                simplex[3] = i;
+            }
+        }
+    }
 
-	//compute center of simplex, this is a point always warranted to be inside
-	Vector3 center;
+    //compute center of simplex, this is a point always warranted to be inside
+    Vector3 center;
 
-	for (int i = 0; i < 4; i++) {
-		center += p_points[simplex[i]];
-	}
+    for (int i = 0; i < 4; i++) {
+        center += p_points[simplex[i]];
+    }
 
-	center /= 4.0;
+    center /= 4.0;
 
-	//add faces
+    //add faces
 
-	List<Face> faces;
+    List<Face> faces;
 
-	for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 4; i++) {
 
-		static const int face_order[4][3] = {
-			{ 0, 1, 2 },
-			{ 0, 1, 3 },
-			{ 0, 2, 3 },
-			{ 1, 2, 3 }
-		};
+        static const int face_order[4][3] = {
+            { 0, 1, 2 },
+            { 0, 1, 3 },
+            { 0, 2, 3 },
+            { 1, 2, 3 }
+        };
 
-		Face f;
-		for (int j = 0; j < 3; j++) {
-			f.vertices[j] = simplex[face_order[i][j]];
-		}
+        Face f;
+        for (int j = 0; j < 3; j++) {
+            f.vertices[j] = simplex[face_order[i][j]];
+        }
 
-		Plane p(p_points[f.vertices[0]], p_points[f.vertices[1]], p_points[f.vertices[2]]);
+        Plane p(p_points[f.vertices[0]], p_points[f.vertices[1]], p_points[f.vertices[2]]);
 
-		if (p.is_point_over(center)) {
-			//flip face to clockwise if facing inwards
-			SWAP(f.vertices[0], f.vertices[1]);
-			p = -p;
-		}
+        if (p.is_point_over(center)) {
+            //flip face to clockwise if facing inwards
+            SWAP(f.vertices[0], f.vertices[1]);
+            p = -p;
+        }
 
-		f.plane = p;
+        f.plane = p;
 
-		faces.push_back(f);
-	}
+        faces.push_back(f);
+    }
 
-	real_t over_tolerance = 3 * UNIT_EPSILON * (aabb.size.x + aabb.size.y + aabb.size.z);
+    real_t over_tolerance = 3 * UNIT_EPSILON * (aabb.size.x + aabb.size.y + aabb.size.z);
 
-	/* COMPUTE AVAILABLE VERTICES */
+    /* COMPUTE AVAILABLE VERTICES */
 
-	for (int i = 0; i < p_points.size(); i++) {
+    for (int i = 0; i < p_points.size(); i++) {
 
-		if (i == simplex[0])
-			continue;
-		if (i == simplex[1])
-			continue;
-		if (i == simplex[2])
-			continue;
-		if (i == simplex[3])
-			continue;
-		if (!valid_points[i])
-			continue;
+        if (i == simplex[0])
+            continue;
+        if (i == simplex[1])
+            continue;
+        if (i == simplex[2])
+            continue;
+        if (i == simplex[3])
+            continue;
+        if (!valid_points[i])
+            continue;
 
-		for (List<Face>::Element *E = faces.front(); E; E = E->next()) {
+        for (List<Face>::Element *E = faces.front(); E; E = E->next()) {
 
-			if (E->get().plane.distance_to(p_points[i]) > over_tolerance) {
+            if (E->deref().plane.distance_to(p_points[i]) > over_tolerance) {
 
-				E->get().points_over.push_back(i);
-				break;
-			}
-		}
-	}
+                E->deref().points_over.push_back(i);
+                break;
+            }
+        }
+    }
 
-	faces.sort(); // sort them, so the ones with points are in the back
+    faces.sort(); // sort them, so the ones with points are in the back
 
-	/* BUILD HULL */
+    /* BUILD HULL */
 
-	//poop face (while still remain)
-	//find further away point
-	//find lit faces
-	//determine horizon edges
-	//build new faces with horizon edges, them assign points side from all lit faces
-	//remove lit faces
+    //poop face (while still remain)
+    //find further away point
+    //find lit faces
+    //determine horizon edges
+    //build new faces with horizon edges, them assign points side from all lit faces
+    //remove lit faces
 
-	uint32_t debug_stop = debug_stop_after;
+    uint32_t debug_stop = debug_stop_after;
 
-	while (debug_stop > 0 && faces.back()->get().points_over.size()) {
+    while (debug_stop > 0 && faces.back()->deref().points_over.size()) {
 
-		debug_stop--;
-		Face &f = faces.back()->get();
+        debug_stop--;
+        Face &f = faces.back()->deref();
 
-		//find vertex most outside
-		int next = -1;
-		real_t next_d = 0;
+        //find vertex most outside
+        int next = -1;
+        real_t next_d = 0;
 
-		for (int i = 0; i < f.points_over.size(); i++) {
+        for (int i = 0; i < f.points_over.size(); i++) {
 
-			real_t d = f.plane.distance_to(p_points[f.points_over[i]]);
+            real_t d = f.plane.distance_to(p_points[f.points_over[i]]);
 
-			if (d > next_d) {
-				next_d = d;
-				next = i;
-			}
-		}
+            if (d > next_d) {
+                next_d = d;
+                next = i;
+            }
+        }
 
-		ERR_FAIL_COND_V(next == -1, ERR_BUG);
+        ERR_FAIL_COND_V(next == -1, ERR_BUG)
 
-		Vector3 v = p_points[f.points_over[next]];
+        Vector3 v = p_points[f.points_over[next]];
 
-		//find lit faces and lit edges
-		List<List<Face>::Element *> lit_faces; //lit face is a death sentence
+        //find lit faces and lit edges
+        List<List<Face>::Element *> lit_faces; //lit face is a death sentence
 
-		Map<Edge, FaceConnect> lit_edges; //create this on the flight, should not be that bad for performance and simplifies code a lot
+        Map<Edge, FaceConnect> lit_edges; //create this on the flight, should not be that bad for performance and simplifies code a lot
 
-		for (List<Face>::Element *E = faces.front(); E; E = E->next()) {
+        for (List<Face>::Element *E = faces.front(); E; E = E->next()) {
 
-			if (E->get().plane.distance_to(v) > 0) {
+            if (E->deref().plane.distance_to(v) > 0) {
 
-				lit_faces.push_back(E);
+                lit_faces.push_back(E);
 
-				for (int i = 0; i < 3; i++) {
-					uint32_t a = E->get().vertices[i];
-					uint32_t b = E->get().vertices[(i + 1) % 3];
-					Edge e(a, b);
+                for (int i = 0; i < 3; i++) {
+                    uint32_t a = E->deref().vertices[i];
+                    uint32_t b = E->deref().vertices[(i + 1) % 3];
+                    Edge e(a, b);
 
-					Map<Edge, FaceConnect>::Element *F = lit_edges.find(e);
-					if (!F) {
-						F = lit_edges.insert(e, FaceConnect());
-					}
-					if (e.vertices[0] == a) {
-						//left
-						F->get().left = E;
-					} else {
+                    Map<Edge, FaceConnect>::iterator F = lit_edges.find(e);
+                    if (F==lit_edges.end()) {
+                        F = lit_edges.emplace(e, FaceConnect()).first;
+                    }
+                    if (e.vertices[0] == a) {
+                        //left
+                        F->second.left = E;
+                    } else {
 
-						F->get().right = E;
-					}
-				}
-			}
-		}
+                        F->second.right = E;
+                    }
+                }
+            }
+        }
 
-		//create new faces from horizon edges
-		List<List<Face>::Element *> new_faces; //new faces
+        //create new faces from horizon edges
+        List<List<Face>::Element *> new_faces; //new faces
 
-		for (Map<Edge, FaceConnect>::Element *E = lit_edges.front(); E; E = E->next()) {
+        for (eastl::pair<const Edge,FaceConnect> &E : lit_edges) {
 
-			FaceConnect &fc = E->get();
-			if (fc.left && fc.right) {
-				continue; //edge is uninteresting, not on horizont
-			}
+            FaceConnect &fc = E.second;
+            if (fc.left && fc.right) {
+                continue; //edge is uninteresting, not on horizont
+            }
 
-			//create new face!
+            //create new face!
 
-			Face face;
-			face.vertices[0] = f.points_over[next];
-			face.vertices[1] = E->key().vertices[0];
-			face.vertices[2] = E->key().vertices[1];
+            Face face;
+            face.vertices[0] = f.points_over[next];
+            face.vertices[1] = E.first.vertices[0];
+            face.vertices[2] = E.first.vertices[1];
 
-			Plane p(p_points[face.vertices[0]], p_points[face.vertices[1]], p_points[face.vertices[2]]);
+            Plane p(p_points[face.vertices[0]], p_points[face.vertices[1]], p_points[face.vertices[2]]);
 
-			if (p.is_point_over(center)) {
-				//flip face to clockwise if facing inwards
-				SWAP(face.vertices[0], face.vertices[1]);
-				p = -p;
-			}
+            if (p.is_point_over(center)) {
+                //flip face to clockwise if facing inwards
+                SWAP(face.vertices[0], face.vertices[1]);
+                p = -p;
+            }
 
-			face.plane = p;
-			new_faces.push_back(faces.push_back(face));
-		}
+            face.plane = p;
+            new_faces.push_back(faces.push_back(face));
+        }
 
-		//distribute points into new faces
+        //distribute points into new faces
 
-		for (List<List<Face>::Element *>::Element *F = lit_faces.front(); F; F = F->next()) {
+        for (List<List<Face>::Element *>::Element *F = lit_faces.front(); F; F = F->next()) {
 
-			Face &lf = F->get()->get();
+            Face &lf = F->deref()->deref();
 
-			for (int i = 0; i < lf.points_over.size(); i++) {
+            for (int i = 0; i < lf.points_over.size(); i++) {
 
-				if (lf.points_over[i] == f.points_over[next]) //do not add current one
-					continue;
+                if (lf.points_over[i] == f.points_over[next]) //do not add current one
+                    continue;
 
-				Vector3 p = p_points[lf.points_over[i]];
-				for (List<List<Face>::Element *>::Element *E = new_faces.front(); E; E = E->next()) {
+                Vector3 p = p_points[lf.points_over[i]];
+                for (List<List<Face>::Element *>::Element *E = new_faces.front(); E; E = E->next()) {
 
-					Face &f2 = E->get()->get();
-					if (f2.plane.distance_to(p) > over_tolerance) {
-						f2.points_over.push_back(lf.points_over[i]);
-						break;
-					}
-				}
-			}
-		}
+                    Face &f2 = E->deref()->deref();
+                    if (f2.plane.distance_to(p) > over_tolerance) {
+                        f2.points_over.push_back(lf.points_over[i]);
+                        break;
+                    }
+                }
+            }
+        }
 
-		//erase lit faces
+        //erase lit faces
 
-		while (lit_faces.size()) {
+        while (lit_faces.size()) {
 
-			faces.erase(lit_faces.front()->get());
-			lit_faces.pop_front();
-		}
+            faces.erase(lit_faces.front()->deref());
+            lit_faces.pop_front();
+        }
 
-		//put faces that contain no points on the front
+        //put faces that contain no points on the front
 
-		for (List<List<Face>::Element *>::Element *E = new_faces.front(); E; E = E->next()) {
+        for (List<List<Face>::Element *>::Element *E = new_faces.front(); E; E = E->next()) {
 
-			Face &f2 = E->get()->get();
-			if (f2.points_over.size() == 0) {
-				faces.move_to_front(E->get());
-			}
-		}
+            Face &f2 = E->deref()->deref();
+            if (f2.points_over.size() == 0) {
+                faces.move_to_front(E->deref());
+            }
+        }
 
-		//whew, done with iteration, go next
-	}
+        //whew, done with iteration, go next
+    }
 
-	/* CREATE MESHDATA */
+    /* CREATE MESHDATA */
 
-	//make a map of edges again
-	Map<Edge, RetFaceConnect> ret_edges;
-	List<Geometry::MeshData::Face> ret_faces;
+    //make a map of edges again
+    Map<Edge, RetFaceConnect> ret_edges;
+    List<Geometry::MeshData::Face> ret_faces;
 
-	for (List<Face>::Element *E = faces.front(); E; E = E->next()) {
+    for (List<Face>::Element *E = faces.front(); E; E = E->next()) {
 
-		Geometry::MeshData::Face f;
-		f.plane = E->get().plane;
+        Geometry::MeshData::Face f;
+        f.plane = E->deref().plane;
 
-		for (int i = 0; i < 3; i++) {
-			f.indices.push_back(E->get().vertices[i]);
-		}
+        for (int i = 0; i < 3; i++) {
+            f.indices.push_back(E->deref().vertices[i]);
+        }
 
-		List<Geometry::MeshData::Face>::Element *F = ret_faces.push_back(f);
+        List<Geometry::MeshData::Face>::Element *F = ret_faces.push_back(f);
 
-		for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 3; i++) {
 
-			uint32_t a = E->get().vertices[i];
-			uint32_t b = E->get().vertices[(i + 1) % 3];
-			Edge e(a, b);
+            uint32_t a = E->deref().vertices[i];
+            uint32_t b = E->deref().vertices[(i + 1) % 3];
+            Edge e(a, b);
 
-			Map<Edge, RetFaceConnect>::Element *G = ret_edges.find(e);
-			if (!G) {
-				G = ret_edges.insert(e, RetFaceConnect());
-			}
-			if (e.vertices[0] == a) {
-				//left
-				G->get().left = F;
-			} else {
+            Map<Edge, RetFaceConnect>::iterator G = ret_edges.find(e);
+            if (G==ret_edges.end()) {
+                G = ret_edges.emplace(e, RetFaceConnect()).first;
+            }
+            if (e.vertices[0] == a) {
+                //left
+                G->second.left = F;
+            } else {
 
-				G->get().right = F;
-			}
-		}
-	}
+                G->second.right = F;
+            }
+        }
+    }
 
-	//fill faces
+    //fill faces
 
-	for (List<Geometry::MeshData::Face>::Element *E = ret_faces.front(); E; E = E->next()) {
+    for (List<Geometry::MeshData::Face>::Element *E = ret_faces.front(); E; E = E->next()) {
 
-		Geometry::MeshData::Face &f = E->get();
+        Geometry::MeshData::Face &f = E->deref();
 
-		for (int i = 0; i < f.indices.size(); i++) {
+        for (int i = 0; i < f.indices.size(); i++) {
 
-			int a = E->get().indices[i];
-			int b = E->get().indices[(i + 1) % f.indices.size()];
-			Edge e(a, b);
+            int a = E->deref().indices[i];
+            int b = E->deref().indices[(i + 1) % f.indices.size()];
+            Edge e(a, b);
 
-			Map<Edge, RetFaceConnect>::Element *F = ret_edges.find(e);
+            Map<Edge, RetFaceConnect>::iterator F = ret_edges.find(e);
 
-			ERR_CONTINUE(!F);
-			List<Geometry::MeshData::Face>::Element *O = F->get().left == E ? F->get().right : F->get().left;
-			ERR_CONTINUE(O == E);
-			ERR_CONTINUE(O == nullptr);
+            ERR_CONTINUE(F==ret_edges.end());
+            List<Geometry::MeshData::Face>::Element *O = F->second.left == E ? F->second.right : F->second.left;
+            ERR_CONTINUE(O == E);
+            ERR_CONTINUE(O == nullptr);
 
-			if (O->get().plane.is_almost_like(f.plane)) {
-				//merge and delete edge and contiguous face, while repointing edges (uuugh!)
-				int ois = O->get().indices.size();
-				int merged = 0;
+            if (O->deref().plane.is_almost_like(f.plane)) {
+                //merge and delete edge and contiguous face, while repointing edges (uuugh!)
+                int ois = O->deref().indices.size();
+                int merged = 0;
 
-				for (int j = 0; j < ois; j++) {
-					//search a
-					if (O->get().indices[j] == a) {
-						//append the rest
-						for (int k = 0; k < ois; k++) {
+                for (int j = 0; j < ois; j++) {
+                    //search a
+                    if (O->deref().indices[j] == a) {
+                        //append the rest
+                        for (int k = 0; k < ois; k++) {
 
-							int idx = O->get().indices[(k + j) % ois];
-							int idxn = O->get().indices[(k + j + 1) % ois];
-							if (idx == b && idxn == a) { //already have b!
-								break;
-							}
-							if (idx != a) {
-								f.indices.insert(i + 1, idx);
-								i++;
-								merged++;
-							}
-							Edge e2(idx, idxn);
+                            int idx = O->deref().indices[(k + j) % ois];
+                            int idxn = O->deref().indices[(k + j + 1) % ois];
+                            if (idx == b && idxn == a) { //already have b!
+                                break;
+                            }
+                            if (idx != a) {
+                                f.indices.insert(i + 1, idx);
+                                i++;
+                                merged++;
+                            }
+                            Edge e2(idx, idxn);
 
-							Map<Edge, RetFaceConnect>::Element *F2 = ret_edges.find(e2);
-							ERR_CONTINUE(!F2);
-							//change faceconnect, point to this face instead
-							if (F2->get().left == O)
-								F2->get().left = E;
-							else if (F2->get().right == O)
-								F2->get().right = E;
-						}
+                            Map<Edge, RetFaceConnect>::iterator F2 = ret_edges.find(e2);
+                            ERR_CONTINUE(F2==ret_edges.end())
+                            //change faceconnect, point to this face instead
+                            if (F2->second.left == O)
+                                F2->second.left = E;
+                            else if (F2->second.right == O)
+                                F2->second.right = E;
+                        }
 
-						break;
-					}
-				}
+                        break;
+                    }
+                }
 
-				// remove all edge connections to this face
-				for (Map<Edge, RetFaceConnect>::Element *G = ret_edges.front(); G; G = G->next()) {
-					if (G->get().left == O)
-						G->get().left = nullptr;
+                // remove all edge connections to this face
+                for (eastl::pair<const Edge,RetFaceConnect> &G : ret_edges) {
+                    if (G.second.left == O)
+                        G.second.left = nullptr;
 
-					if (G->get().right == O)
-						G->get().right = nullptr;
-				}
+                    if (G.second.right == O)
+                        G.second.right = nullptr;
+                }
 
-				ret_edges.erase(F); //remove the edge
-				ret_faces.erase(O); //remove the face
-			}
-		}
-	}
+                ret_edges.erase(F); //remove the edge
+                ret_faces.erase(O); //remove the face
+            }
+        }
+    }
 
-	//fill mesh
-	r_mesh.faces.clear();
-	r_mesh.faces.resize(ret_faces.size());
+    //fill mesh
+    r_mesh.faces.clear();
+    r_mesh.faces.resize(ret_faces.size());
 
-	int idx = 0;
-	for (List<Geometry::MeshData::Face>::Element *E = ret_faces.front(); E; E = E->next()) {
-		r_mesh.faces.write[idx++] = E->get();
-	}
-	r_mesh.edges.resize(ret_edges.size());
-	idx = 0;
-	for (Map<Edge, RetFaceConnect>::Element *E = ret_edges.front(); E; E = E->next()) {
+    int idx = 0;
+    for (List<Geometry::MeshData::Face>::Element *E = ret_faces.front(); E; E = E->next()) {
+        r_mesh.faces.write[idx++] = E->deref();
+    }
+    r_mesh.edges.resize(ret_edges.size());
+    idx = 0;
+    for (eastl::pair<const Edge,RetFaceConnect> &E : ret_edges) {
 
-		Geometry::MeshData::Edge e;
-		e.a = E->key().vertices[0];
-		e.b = E->key().vertices[1];
-		r_mesh.edges.write[idx++] = e;
-	}
+        Geometry::MeshData::Edge e;
+        e.a = E.first.vertices[0];
+        e.b = E.first.vertices[1];
+        r_mesh.edges.write[idx++] = e;
+    }
 
-	r_mesh.vertices = p_points;
+    r_mesh.vertices = p_points;
 
-	return OK;
+    return OK;
 }

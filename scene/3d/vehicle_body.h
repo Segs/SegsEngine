@@ -37,176 +37,176 @@ class VehicleBody;
 
 class VehicleWheel : public Spatial {
 
-	GDCLASS(VehicleWheel,Spatial)
+    GDCLASS(VehicleWheel,Spatial)
 
-	friend class VehicleBody;
+    friend class VehicleBody;
 
-	Transform m_worldTransform;
-	Transform local_xform;
-	bool engine_traction;
-	bool steers;
+    Transform m_worldTransform;
+    Transform local_xform;
+    bool engine_traction=false;
+    bool steers=false;
 
-	Vector3 m_chassisConnectionPointCS; //const
-	Vector3 m_wheelDirectionCS; //const
-	Vector3 m_wheelAxleCS; // const or modified by steering
+    Vector3 m_chassisConnectionPointCS; //const
+    Vector3 m_wheelDirectionCS; //const
+    Vector3 m_wheelAxleCS; // const or modified by steering
 
-	real_t m_suspensionRestLength;
-	real_t m_maxSuspensionTravelCm;
-	real_t m_wheelRadius;
+    real_t m_suspensionRestLength = 0.15f;
+    real_t m_maxSuspensionTravelCm = 500;
+    real_t m_wheelRadius = 0.5f;
 
-	real_t m_suspensionStiffness;
-	real_t m_wheelsDampingCompression;
-	real_t m_wheelsDampingRelaxation;
-	real_t m_frictionSlip;
-	real_t m_maxSuspensionForce;
-	bool m_bIsFrontWheel;
+    real_t m_suspensionStiffness = 5.88f;
+    real_t m_wheelsDampingCompression = 0.83f;
+    real_t m_wheelsDampingRelaxation = 0.88f;
+    real_t m_frictionSlip = 10.5;
+    real_t m_maxSuspensionForce = 6000;
+    bool m_bIsFrontWheel = false;
 
-	VehicleBody *body;
+    VehicleBody *body=nullptr;
 
-	//btVector3	m_wheelAxleCS; // const or modified by steering ?
+    //btVector3	m_wheelAxleCS; // const or modified by steering ?
 
-	real_t m_steering;
-	real_t m_rotation;
-	real_t m_deltaRotation;
-	real_t m_rpm;
-	real_t m_rollInfluence;
-	real_t m_engineForce;
-	real_t m_brake;
+    real_t m_steering=0;
+    real_t m_rotation=0;
+    real_t m_deltaRotation=0;
+    real_t m_rpm=0;
+    real_t m_rollInfluence=0.1f;
+    real_t m_engineForce=0;
+    real_t m_brake=0;
 
-	real_t m_clippedInvContactDotSuspension;
-	real_t m_suspensionRelativeVelocity;
-	//calculated by suspension
-	real_t m_wheelsSuspensionForce;
-	real_t m_skidInfo;
+    real_t m_clippedInvContactDotSuspension = 1.0;
+    real_t m_suspensionRelativeVelocity = 0;
+    //calculated by suspension
+    real_t m_wheelsSuspensionForce=0;
+    real_t m_skidInfo=0;
 
-	struct RaycastInfo {
-		//set by raycaster
-		Vector3 m_contactNormalWS; //contactnormal
-		Vector3 m_contactPointWS; //raycast hitpoint
-		real_t m_suspensionLength;
-		Vector3 m_hardPointWS; //raycast starting point
-		Vector3 m_wheelDirectionWS; //direction in worldspace
-		Vector3 m_wheelAxleWS; // axle in worldspace
-		bool m_isInContact;
-		PhysicsBody *m_groundObject; //could be general void* ptr
-	} m_raycastInfo;
+    struct RaycastInfo {
+        //set by raycaster
+        Vector3 m_contactNormalWS; //contactnormal
+        Vector3 m_contactPointWS; //raycast hitpoint
+        real_t m_suspensionLength=0;
+        Vector3 m_hardPointWS; //raycast starting point
+        Vector3 m_wheelDirectionWS; //direction in worldspace
+        Vector3 m_wheelAxleWS; // axle in worldspace
+        bool m_isInContact = false;
+        PhysicsBody *m_groundObject; //could be general void* ptr
+    } m_raycastInfo;
 
-	void _update(PhysicsDirectBodyState *s);
+    void _update(PhysicsDirectBodyState *s);
 
 protected:
-	void _notification(int p_what);
-	static void _bind_methods();
+    void _notification(int p_what);
+    static void _bind_methods();
 
 public:
-	void set_radius(float p_radius);
-	float get_radius() const;
+    void set_radius(float p_radius);
+    float get_radius() const;
 
-	void set_suspension_rest_length(float p_length);
-	float get_suspension_rest_length() const;
+    void set_suspension_rest_length(float p_length);
+    float get_suspension_rest_length() const;
 
-	void set_suspension_travel(float p_length);
-	float get_suspension_travel() const;
+    void set_suspension_travel(float p_length);
+    float get_suspension_travel() const;
 
-	void set_suspension_stiffness(float p_value);
-	float get_suspension_stiffness() const;
+    void set_suspension_stiffness(float p_value);
+    float get_suspension_stiffness() const;
 
-	void set_suspension_max_force(float p_value);
-	float get_suspension_max_force() const;
+    void set_suspension_max_force(float p_value);
+    float get_suspension_max_force() const;
 
-	void set_damping_compression(float p_value);
-	float get_damping_compression() const;
+    void set_damping_compression(float p_value);
+    float get_damping_compression() const;
 
-	void set_damping_relaxation(float p_value);
-	float get_damping_relaxation() const;
+    void set_damping_relaxation(float p_value);
+    float get_damping_relaxation() const;
 
-	void set_friction_slip(float p_value);
-	float get_friction_slip() const;
+    void set_friction_slip(float p_value);
+    float get_friction_slip() const;
 
-	void set_use_as_traction(bool p_enable);
-	bool is_used_as_traction() const;
+    void set_use_as_traction(bool p_enable);
+    bool is_used_as_traction() const;
 
-	void set_use_as_steering(bool p_enabled);
-	bool is_used_as_steering() const;
+    void set_use_as_steering(bool p_enabled);
+    bool is_used_as_steering() const;
 
-	bool is_in_contact() const;
+    bool is_in_contact() const;
 
-	void set_roll_influence(float p_value);
-	float get_roll_influence() const;
+    void set_roll_influence(float p_value);
+    float get_roll_influence() const;
 
-	float get_skidinfo() const;
+    float get_skidinfo() const;
 
-	float get_rpm() const;
+    float get_rpm() const;
 
-	void set_engine_force(float p_engine_force);
-	float get_engine_force() const;
+    void set_engine_force(float p_engine_force);
+    float get_engine_force() const;
 
-	void set_brake(float p_brake);
-	float get_brake() const;
+    void set_brake(float p_brake);
+    float get_brake() const;
 
-	void set_steering(float p_steering);
-	float get_steering() const;
+    void set_steering(float p_steering);
+    float get_steering() const;
 
-	String get_configuration_warning() const override;
+    String get_configuration_warning() const override;
 
-	VehicleWheel();
+    VehicleWheel();
 };
 
 class VehicleBody : public RigidBody {
 
-	GDCLASS(VehicleBody,RigidBody)
+    GDCLASS(VehicleBody,RigidBody)
 
-	float engine_force;
-	float brake;
+    float engine_force;
+    float brake;
 
-	real_t m_pitchControl;
-	real_t m_steeringValue;
-	real_t m_currentVehicleSpeedKmHour;
+    real_t m_pitchControl;
+    real_t m_steeringValue;
+    real_t m_currentVehicleSpeedKmHour;
 
-	Set<RID> exclude;
+    Set<RID> exclude;
 
-	Vector<Vector3> m_forwardWS;
-	Vector<Vector3> m_axle;
-	Vector<real_t> m_forwardImpulse;
-	Vector<real_t> m_sideImpulse;
+    Vector<Vector3> m_forwardWS;
+    Vector<Vector3> m_axle;
+    Vector<real_t> m_forwardImpulse;
+    Vector<real_t> m_sideImpulse;
 
-	struct btVehicleWheelContactPoint {
-		PhysicsDirectBodyState *m_s;
-		PhysicsBody *m_body1;
-		Vector3 m_frictionPositionWorld;
-		Vector3 m_frictionDirectionWorld;
-		real_t m_jacDiagABInv;
-		real_t m_maxImpulse;
+    struct btVehicleWheelContactPoint {
+        PhysicsDirectBodyState *m_s;
+        PhysicsBody *m_body1;
+        Vector3 m_frictionPositionWorld;
+        Vector3 m_frictionDirectionWorld;
+        real_t m_jacDiagABInv;
+        real_t m_maxImpulse;
 
-		btVehicleWheelContactPoint(PhysicsDirectBodyState *s, PhysicsBody *body1, const Vector3 &frictionPosWorld, const Vector3 &frictionDirectionWorld, real_t maxImpulse);
-	};
+        btVehicleWheelContactPoint(PhysicsDirectBodyState *s, PhysicsBody *body1, const Vector3 &frictionPosWorld, const Vector3 &frictionDirectionWorld, real_t maxImpulse);
+    };
 
-	void _resolve_single_bilateral(PhysicsDirectBodyState *s, const Vector3 &pos1, PhysicsBody *body2, const Vector3 &pos2, const Vector3 &normal, real_t &impulse, const real_t p_rollInfluence);
-	real_t _calc_rolling_friction(btVehicleWheelContactPoint &contactPoint);
+    void _resolve_single_bilateral(PhysicsDirectBodyState *s, const Vector3 &pos1, PhysicsBody *body2, const Vector3 &pos2, const Vector3 &normal, real_t &impulse, const real_t p_rollInfluence);
+    real_t _calc_rolling_friction(btVehicleWheelContactPoint &contactPoint);
 
-	void _update_friction(PhysicsDirectBodyState *s);
-	void _update_suspension(PhysicsDirectBodyState *s);
-	real_t _ray_cast(int p_idx, PhysicsDirectBodyState *s);
-	void _update_wheel_transform(VehicleWheel &wheel, PhysicsDirectBodyState *s);
-	void _update_wheel(int p_idx, PhysicsDirectBodyState *s);
+    void _update_friction(PhysicsDirectBodyState *s);
+    void _update_suspension(PhysicsDirectBodyState *s);
+    real_t _ray_cast(int p_idx, PhysicsDirectBodyState *s);
+    void _update_wheel_transform(VehicleWheel &wheel, PhysicsDirectBodyState *s);
+    void _update_wheel(int p_idx, PhysicsDirectBodyState *s);
 
-	friend class VehicleWheel;
-	Vector<VehicleWheel *> wheels;
+    friend class VehicleWheel;
+    Vector<VehicleWheel *> wheels;
 
-	static void _bind_methods();
+    static void _bind_methods();
 
-	void _direct_state_changed(Object *p_state) override;
+    void _direct_state_changed(Object *p_state) override;
 
 public:
-	void set_engine_force(float p_engine_force);
-	float get_engine_force() const;
+    void set_engine_force(float p_engine_force);
+    float get_engine_force() const;
 
-	void set_brake(float p_brake);
-	float get_brake() const;
+    void set_brake(float p_brake);
+    float get_brake() const;
 
-	void set_steering(float p_steering);
-	float get_steering() const;
+    void set_steering(float p_steering);
+    float get_steering() const;
 
-	VehicleBody();
+    VehicleBody();
 };
 
 #endif // VEHICLE_BODY_H

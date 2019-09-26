@@ -32,7 +32,9 @@
 
 #include "../editor_settings.h"
 #include "core/io/marshalls.h"
+#include "core/os/os.h"
 #include "core/print_string.h"
+#include "core/class_db.h"
 
 //#define DEBUG_PRINT(m_p) print_line(m_p)
 //#define DEBUG_TIME(m_what) printf("MS: %s - %lu\n", m_what, OS::get_singleton()->get_ticks_usec());
@@ -49,8 +51,8 @@ void EditorFileServer::_close_client(ClientData *cd) {
     cd->efs->to_wait.insert(cd->thread);
     cd->efs->wait_mutex->unlock();
     while (!cd->files.empty()) {
-        memdelete(cd->files.front()->get());
-        cd->files.erase(cd->files.front());
+        memdelete(cd->files.begin()->second);
+        cd->files.erase(cd->files.begin());
     }
     memdelete(cd);
 }
@@ -64,7 +66,7 @@ void EditorFileServer::_subthread_start(void *s) {
     Error err = cd->connection->get_data(buf4, 4);
     if (err != OK) {
         _close_client(cd);
-        ERR_FAIL_COND(err != OK);
+        ERR_FAIL_COND(err != OK)
     }
 
     int passlen = decode_uint32(buf4);
@@ -72,7 +74,7 @@ void EditorFileServer::_subthread_start(void *s) {
     if (passlen > 512) {
 
         _close_client(cd);
-        ERR_FAIL_COND(passlen > 512);
+        ERR_FAIL_COND(passlen > 512)
     } else if (passlen > 0) {
 
         Vector<char> passutf8;
@@ -80,7 +82,7 @@ void EditorFileServer::_subthread_start(void *s) {
         err = cd->connection->get_data((uint8_t *)passutf8.ptr(), passlen);
         if (err != OK) {
             _close_client(cd);
-            ERR_FAIL_COND(err != OK);
+            ERR_FAIL_COND(err != OK)
         }
         passutf8.write[passlen] = 0;
         String s2 = StringUtils::from_utf8(passutf8.ptr());
@@ -114,7 +116,7 @@ void EditorFileServer::_subthread_start(void *s) {
 
         if (err != OK) {
             _close_client(cd);
-            ERR_FAIL_COND(err != OK);
+            ERR_FAIL_COND(err != OK)
         }
         int id = decode_uint32(buf4);
 
@@ -122,7 +124,7 @@ void EditorFileServer::_subthread_start(void *s) {
         err = cd->connection->get_data(buf4, 4);
         if (err != OK) {
             _close_client(cd);
-            ERR_FAIL_COND(err != OK);
+            ERR_FAIL_COND(err != OK)
         }
         int cmd = decode_uint32(buf4);
 
@@ -136,7 +138,7 @@ void EditorFileServer::_subthread_start(void *s) {
                 err = cd->connection->get_data(buf4, 4);
                 if (err != OK) {
                     _close_client(cd);
-                    ERR_FAIL_COND(err != OK);
+                    ERR_FAIL_COND(err != OK)
                 }
 
                 int namelen = decode_uint32(buf4);
@@ -145,7 +147,7 @@ void EditorFileServer::_subthread_start(void *s) {
                 err = cd->connection->get_data((uint8_t *)fileutf8.ptr(), namelen);
                 if (err != OK) {
                     _close_client(cd);
-                    ERR_FAIL_COND(err != OK);
+                    ERR_FAIL_COND(err != OK)
                 }
                 fileutf8.write[namelen] = 0;
                 String s2 = StringUtils::from_utf8(fileutf8.ptr());
@@ -163,9 +165,9 @@ void EditorFileServer::_subthread_start(void *s) {
                 if (!StringUtils::begins_with(s2,"res://")) {
 
                     _close_client(cd);
-                    ERR_FAIL_COND(!StringUtils::begins_with(s2,"res://"));
+                    ERR_FAIL_COND(!StringUtils::begins_with(s2,"res://"))
                 }
-                ERR_CONTINUE(cd->files.has(id));
+                ERR_CONTINUE(cd->files.contains(id));
 
                 if (cmd == FileAccessNetwork::COMMAND_FILE_EXISTS) {
 
@@ -222,17 +224,17 @@ void EditorFileServer::_subthread_start(void *s) {
                 err = cd->connection->get_data(buf4, 8);
                 if (err != OK) {
                     _close_client(cd);
-                    ERR_FAIL_COND(err != OK);
+                    ERR_FAIL_COND(err != OK)
                 }
 
-                ERR_CONTINUE(!cd->files.has(id));
+                ERR_CONTINUE(!cd->files.contains(id));
 
                 uint64_t offset = decode_uint64(buf4);
 
                 err = cd->connection->get_data(buf4, 4);
                 if (err != OK) {
                     _close_client(cd);
-                    ERR_FAIL_COND(err != OK);
+                    ERR_FAIL_COND(err != OK)
                 }
 
                 int blocklen = decode_uint32(buf4);
@@ -261,7 +263,7 @@ void EditorFileServer::_subthread_start(void *s) {
             case FileAccessNetwork::COMMAND_CLOSE: {
 
                 print_verbose("CLOSED");
-                ERR_CONTINUE(!cd->files.has(id));
+                ERR_CONTINUE(!cd->files.contains(id));
                 memdelete(cd->files[id]);
                 cd->files.erase(id);
             } break;
@@ -298,7 +300,7 @@ void EditorFileServer::_thread_start(void *s) {
 
         self->wait_mutex->lock();
         while (!self->to_wait.empty()) {
-            Thread *w = self->to_wait.front()->get();
+            Thread *w = *self->to_wait.begin();
             self->to_wait.erase(w);
             self->wait_mutex->unlock();
             Thread::wait_to_finish(w);
@@ -331,7 +333,7 @@ void EditorFileServer::stop() {
 
 EditorFileServer::EditorFileServer() {
 
-    server.instance();
+    server = make_ref_counted<TCP_Server>();
     wait_mutex = Mutex::create();
     quit = false;
     active = false;

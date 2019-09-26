@@ -87,7 +87,7 @@ GDMonoClass *GDMonoClass::get_nesting_class() {
 Vector<MonoClassField *> GDMonoClass::get_enum_fields() {
 
 	bool class_is_enum = mono_class_is_enum(mono_class);
-	ERR_FAIL_COND_V(!class_is_enum, Vector<MonoClassField *>());
+	ERR_FAIL_COND_V(!class_is_enum, Vector<MonoClassField *>())
 
 	Vector<MonoClassField *> enum_fields;
 
@@ -139,7 +139,7 @@ MonoObject *GDMonoClass::get_attribute(GDMonoClass *p_attr_class) {
 
 void GDMonoClass::fetch_attributes() {
 
-	ERR_FAIL_COND(attributes != NULL);
+	ERR_FAIL_COND(attributes != NULL)
 
 	attributes = mono_custom_attrs_from_class(get_mono_ptr());
 	attrs_fetched = true;
@@ -241,7 +241,7 @@ void GDMonoClass::fetch_methods_with_godot_api_checks(GDMonoClass *p_native_base
 
 GDMonoMethod *GDMonoClass::get_fetched_method_unknown_params(const StringName &p_name) {
 
-	ERR_FAIL_COND_V(!methods_fetched, NULL);
+	ERR_FAIL_COND_V(!methods_fetched, NULL)
 
 	const MethodKey *k = NULL;
 
@@ -327,7 +327,7 @@ GDMonoMethod *GDMonoClass::get_method_with_desc(const String &p_description, boo
 	MonoMethod *method = mono_method_desc_search_in_class(desc, mono_class);
 	mono_method_desc_free(desc);
 
-	ERR_FAIL_COND_V(mono_method_get_class(method) != mono_class, NULL);
+	ERR_FAIL_COND_V(mono_method_get_class(method) != mono_class, NULL)
 
 	return get_method(method);
 }

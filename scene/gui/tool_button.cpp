@@ -30,6 +30,8 @@
 
 #include "tool_button.h"
 
+#include "core/class_db.h"
+
 IMPL_GDCLASS(ToolButton)
 
 ToolButton::ToolButton() {

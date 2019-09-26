@@ -177,7 +177,7 @@ class Curve2D : public Resource {
 
     float bake_interval;
 
-    void _bake_segment2d(Map<float, Vector2> &r_bake, float p_begin, float p_end, const Vector2 &p_a, const Vector2 &p_out, const Vector2 &p_b, const Vector2 &p_in, int p_depth, int p_max_depth, float p_tol) const;
+    void _bake_segment2d(DefMap<float, Vector2> &r_bake, float p_begin, float p_end, const Vector2 &p_a, const Vector2 &p_out, const Vector2 &p_b, const Vector2 &p_in, int p_depth, int p_max_depth, float p_tol) const;
     Dictionary _get_data() const;
     void _set_data(const Dictionary &p_data);
 
@@ -246,7 +246,7 @@ class Curve3D : public Resource {
     float bake_interval;
     bool up_vector_enabled;
 
-    void _bake_segment3d(Map<float, Vector3> &r_bake, float p_begin, float p_end, const Vector3 &p_a, const Vector3 &p_out, const Vector3 &p_b, const Vector3 &p_in, int p_depth, int p_max_depth, float p_tol) const;
+    void _bake_segment3d(DefMap<float, Vector3> &r_bake, float p_begin, float p_end, const Vector3 &p_a, const Vector3 &p_out, const Vector3 &p_b, const Vector3 &p_in, int p_depth, int p_max_depth, float p_tol) const;
     Dictionary _get_data() const;
     void _set_data(const Dictionary &p_data);
 

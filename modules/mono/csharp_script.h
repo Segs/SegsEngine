@@ -108,7 +108,7 @@ IMPL_GDCLASS(CSharpScript)
 
     struct Argument {
         String name;
-        Variant::Type type;
+        VariantType type;
     };
 
     Map<StringName, Vector<Argument> > _signals;
@@ -136,7 +136,7 @@ IMPL_GDCLASS(CSharpScript)
     bool _update_exports();
 #ifdef TOOLS_ENABLED
     bool _get_member_export(IMonoClassMember *p_member, bool p_inspect_export, PropertyInfo &r_prop_info, bool &r_exported);
-    static int _try_get_member_export_hint(IMonoClassMember *p_member, ManagedType p_type, Variant::Type p_variant_type, bool p_allow_generics, PropertyHint &r_hint, String &r_hint_string);
+    static int _try_get_member_export_hint(IMonoClassMember *p_member, ManagedType p_type, VariantType p_variant_type, bool p_allow_generics, PropertyHint &r_hint, String &r_hint_string);
 #endif
 
     CSharpInstance *_create_instance(const Variant **p_args, int p_argcount, Object *p_owner, bool p_isref, Variant::CallError &r_error);
@@ -154,7 +154,7 @@ protected:
     virtual void _resource_path_changed();
     bool _get(const StringName &p_name, Variant &r_ret) const;
     bool _set(const StringName &p_name, const Variant &p_value);
-    void _get_property_list(List<PropertyInfo> *p_properties) const;
+    void _get_property_list(ListPOD<PropertyInfo> *p_properties) const;
 
 public:
     virtual bool can_instance() const;
@@ -170,10 +170,10 @@ public:
     virtual Error reload(bool p_keep_state = false);
 
     virtual bool has_script_signal(const StringName &p_signal) const;
-    virtual void get_script_signal_list(List<MethodInfo> *r_signals) const;
+    virtual void get_script_signal_list(ListPOD<MethodInfo> *r_signals) const;
 
     virtual bool get_property_default_value(const StringName &p_property, Variant &r_value) const;
-    virtual void get_script_property_list(List<PropertyInfo> *p_list) const;
+    virtual void get_script_property_list(ListPOD<PropertyInfo> *p_list) const;
     virtual void update_exports();
 
     virtual bool is_tool() const { return tool; }
@@ -182,7 +182,7 @@ public:
     virtual Ref<Script> get_base_script() const;
     virtual ScriptLanguage *get_language() const;
 
-    virtual void get_script_method_list(List<MethodInfo> *p_list) const;
+    virtual void get_script_method_list(PODVector<MethodInfo> *p_list) const;
     bool has_method(const StringName &p_method) const;
     MethodInfo get_method_info(const StringName &p_method) const;
 
@@ -246,10 +246,10 @@ public:
 
     virtual bool set(const StringName &p_name, const Variant &p_value);
     virtual bool get(const StringName &p_name, Variant &r_ret) const;
-    virtual void get_property_list(List<PropertyInfo> *p_properties) const;
-    virtual Variant::Type get_property_type(const StringName &p_name, bool *r_is_valid) const;
+    virtual void get_property_list(ListPOD<PropertyInfo> *p_properties) const;
+    virtual VariantType get_property_type(const StringName &p_name, bool *r_is_valid) const;
 
-    /* TODO */ virtual void get_method_list(List<MethodInfo> *p_list) const {}
+    /* TODO */ virtual void get_method_list(PODVector<MethodInfo> *p_list) const {}
     virtual bool has_method(const StringName &p_method) const;
     virtual Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error);
     virtual void call_multilevel(const StringName &p_method, const Variant **p_args, int p_argcount);

@@ -34,7 +34,6 @@
 #include "core/image_data.h"
 #include "core/math/rect2.h"
 #include "core/method_arg_casters.h"
-#include "core/method_enum_caster.h"
 #include "core/pool_vector.h"
 #include "core/resource.h"
 
@@ -63,7 +62,6 @@ public:
 
     using Format = ImageData::Format;
 
-    static const char *format_names[Format::FORMAT_MAX];
     enum Interpolation {
 
         INTERPOLATE_NEAREST,
@@ -310,7 +308,7 @@ public:
     void set_pixel(int p_x, int p_y, const Color &p_color);
 
     void copy_internals_from(const Ref<Image> &p_image) {
-        ERR_FAIL_COND(p_image.is_null())
+        ERR_FAIL_COND(not p_image)
         format = p_image->format;
         width = p_image->width;
         height = p_image->height;

@@ -85,9 +85,9 @@ void SkeletonEditor::create_physical_skeleton() {
                 bones_infos.write[parent].physical_bone = create_physical_bone(parent, bone_id, bones_infos);
 
                 ur->create_action(TTR("Create physical bones"));
-                ur->add_do_method(skeleton, "add_child", bones_infos[parent].physical_bone);
+                ur->add_do_method(skeleton, "add_child", Variant(bones_infos[parent].physical_bone));
                 ur->add_do_reference(bones_infos[parent].physical_bone);
-                ur->add_undo_method(skeleton, "remove_child", bones_infos[parent].physical_bone);
+                ur->add_undo_method(skeleton, "remove_child", Variant(bones_infos[parent].physical_bone));
                 ur->commit_action();
 
                 bones_infos[parent].physical_bone->set_bone_name(skeleton->get_bone_name(parent));
@@ -114,7 +114,7 @@ PhysicalBone *SkeletonEditor::create_physical_bone(int bone_id, int bone_child_i
     bone_shape_capsule->set_radius(radius);
 
     CollisionShape *bone_shape = memnew(CollisionShape);
-    bone_shape->set_shape(bone_shape_capsule);
+    bone_shape->set_shape(Ref<Shape>(bone_shape_capsule));
 
     Transform body_transform;
     body_transform.origin = Vector3(0, 0, -half_height);

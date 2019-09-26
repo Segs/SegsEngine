@@ -2,7 +2,7 @@
 
 # This is a heavily modified stand-alone fork of the Godot engine
 
-Synced with upstream up to godotengine/godot@e9f49a6d5ac88a6afca8a16f91a05f4fcdf5a589
+Synced with upstream up to godotengine/godot@b8e56c5c15380399c682d437a76828f0180f56d0
 
 ### Note: Our changes likely introduced new errors, please if at all possible, check similar operations on upstream editor.
 
@@ -11,7 +11,7 @@ Synced with upstream up to godotengine/godot@e9f49a6d5ac88a6afca8a16f91a05f4fcdf
 * Codebase is meant to be modernized to a current c++ standard (c++17), but we will be careful with readability ( no `auto`-everything )
 * We use Qt5::Core library to ease some of the common tasks, but no Qt types are meant to be a part of the API
 * Memory allocation is important, reduce the size of COW object pastures :smile:
-* Try to port & clean up most of the internal types to EASTL.
+* Try to port & clean up most of the internal types to EASTL (Set and Map already done).
 * Keep things in sync with upstream ( no more than a 1 week between merges )
 * Introduction of 2 types of dynamically/statically loaded plugins : infrastructure ( providing new types, extending engine ) and game ( implementing game logic )
 * Reduce the target surface to desktop-like platforms only ( no js, no mobile )

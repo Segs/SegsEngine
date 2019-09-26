@@ -167,9 +167,9 @@ void AudioStreamPreviewGenerator::_preview_thread(void *p_preview) {
 }
 
 Ref<AudioStreamPreview> AudioStreamPreviewGenerator::generate_preview(const Ref<AudioStream> &p_stream) {
-    ERR_FAIL_COND_V(p_stream.is_null(), Ref<AudioStreamPreview>());
+    ERR_FAIL_COND_V(not p_stream, Ref<AudioStreamPreview>())
 
-    if (previews.has(p_stream->get_instance_id())) {
+    if (previews.contains(p_stream->get_instance_id())) {
         return previews[p_stream->get_instance_id()].preview;
     }
 
@@ -200,11 +200,11 @@ Ref<AudioStreamPreview> AudioStreamPreviewGenerator::generate_preview(const Ref<
         }
     }
 
-    preview->preview.instance();
+    preview->preview = make_ref_counted<AudioStreamPreview>();
     preview->preview->preview = maxmin;
     preview->preview->length = len_s;
 
-    if (preview->playback.is_valid())
+    if (preview->playback)
         preview->thread = Thread::create(_preview_thread, preview);
 
     return preview->preview;
@@ -212,9 +212,9 @@ Ref<AudioStreamPreview> AudioStreamPreviewGenerator::generate_preview(const Ref<
 
 void AudioStreamPreviewGenerator::_bind_methods() {
     MethodBinder::bind_method("_update_emit", &AudioStreamPreviewGenerator::_update_emit);
-    MethodBinder::bind_method(D_METHOD("generate_preview", "stream"), &AudioStreamPreviewGenerator::generate_preview);
+    MethodBinder::bind_method(D_METHOD("generate_preview", {"stream"}), &AudioStreamPreviewGenerator::generate_preview);
 
-    ADD_SIGNAL(MethodInfo("preview_updated", PropertyInfo(Variant::INT, "obj_id")));
+    ADD_SIGNAL(MethodInfo("preview_updated", PropertyInfo(VariantType::INT, "obj_id")));
 }
 
 AudioStreamPreviewGenerator *AudioStreamPreviewGenerator::singleton = nullptr;
@@ -222,20 +222,20 @@ AudioStreamPreviewGenerator *AudioStreamPreviewGenerator::singleton = nullptr;
 void AudioStreamPreviewGenerator::_notification(int p_what) {
     if (p_what == NOTIFICATION_PROCESS) {
         List<ObjectID> to_erase;
-        for (Map<ObjectID, Preview>::Element *E = previews.front(); E; E = E->next()) {
-            if (!E->get().generating) {
-                if (E->get().thread) {
-                    Thread::wait_to_finish(E->get().thread);
-                    E->get().thread = nullptr;
+        for (eastl::pair<const ObjectID,Preview> &E : previews) {
+            if (!E.second.generating) {
+                if (E.second.thread) {
+                    Thread::wait_to_finish(E.second.thread);
+                    E.second.thread = nullptr;
                 }
-                if (!ObjectDB::get_instance(E->key())) { //no longer in use, get rid of preview
-                    to_erase.push_back(E->key());
+                if (!ObjectDB::get_instance(E.first)) { //no longer in use, get rid of preview
+                    to_erase.push_back(E.first);
                 }
             }
         }
 
         while (to_erase.front()) {
-            previews.erase(to_erase.front()->get());
+            previews.erase(to_erase.front()->deref());
             to_erase.pop_front();
         }
     }

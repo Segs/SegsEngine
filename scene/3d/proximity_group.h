@@ -61,9 +61,9 @@ public:
 	uint32_t group_version;
 
 	void add_groups(int *p_cell, String p_base, int p_depth);
-	void _new_group(StringName p_name);
+	void _new_group(const StringName& p_name);
 
-	void _proximity_group_broadcast(String p_name, Variant p_params);
+	void _proximity_group_broadcast(const String& p_name, const Variant& p_params);
 
 	static void _bind_methods();
 
@@ -77,7 +77,7 @@ public:
 	void set_grid_radius(const Vector3 &p_radius);
 	Vector3 get_grid_radius() const;
 
-	void broadcast(String p_name, Variant p_params);
+	void broadcast(const String& p_name, const Variant& p_params);
 
 	ProximityGroup();
 	~ProximityGroup() override;

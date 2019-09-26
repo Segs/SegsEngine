@@ -28,16 +28,16 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef CONFIG_FILE_H
-#define CONFIG_FILE_H
+#pragma once
 
 #include "core/ordered_hash_map.h"
-#include "core/os/file_access.h"
 #include "core/reference.h"
+
+class FileAccess;
 
 class ConfigFile : public Reference {
 
-	GDCLASS(ConfigFile, Reference);
+    GDCLASS(ConfigFile, Reference)
 
 	OrderedHashMap<String, OrderedHashMap<String, Variant> > values;
 
@@ -72,5 +72,3 @@ public:
 
 	ConfigFile();
 };
-
-#endif // CONFIG_FILE_H

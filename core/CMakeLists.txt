@@ -71,7 +71,7 @@ foreach(tgt ${global_targets})
     target_compile_options(${tgt}_core PUBLIC
             $<$<CXX_COMPILER_ID:MSVC>:/W3>
             $<$<CXX_COMPILER_ID:Clang>:-Wall -Wextra -Wno-unused-parameter>
-            $<$<CXX_COMPILER_ID:GNU>:-Wall -Wextra -Wno-unused-parameter>
+            $<$<CXX_COMPILER_ID:GNU>:-Wall -Wextra -Wno-unused-parameter -Wno-deprecated-copy>
     )
     target_include_directories(${tgt}_core PUBLIC ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR}/..)
     target_include_directories(${tgt}_core PRIVATE ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/include)

@@ -55,7 +55,7 @@ void BroadPhaseOctree::remove(ID p_id) {
 CollisionObjectSW *BroadPhaseOctree::get_object(ID p_id) const {
 
 	CollisionObjectSW *it = octree.get(p_id);
-	ERR_FAIL_COND_V(!it, nullptr);
+	ERR_FAIL_COND_V(!it, nullptr)
 	return it;
 }
 bool BroadPhaseOctree::is_static(ID p_id) const {

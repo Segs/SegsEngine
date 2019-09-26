@@ -31,6 +31,7 @@
 #include "register_types.h"
 
 #include "audio_stream_ogg_vorbis.h"
+#include "core/class_db.h"
 
 #ifdef TOOLS_ENABLED
 #include "core/engine.h"
@@ -40,13 +41,14 @@
 void register_stb_vorbis_types() {
 
 #ifdef TOOLS_ENABLED
-	if (Engine::get_singleton()->is_editor_hint()) {
-		Ref<ResourceImporterOGGVorbis> ogg_import;
-		ogg_import.instance();
-		ResourceFormatImporter::get_singleton()->add_importer(ogg_import);
-	}
+    if (Engine::get_singleton()->is_editor_hint()) {
+        ResourceImporterOGGVorbis::initialize_class();
+
+        Ref<ResourceImporterOGGVorbis> ogg_import(make_ref_counted<ResourceImporterOGGVorbis>());
+        ResourceFormatImporter::get_singleton()->add_importer(ogg_import);
+    }
 #endif
-	ClassDB::register_class<AudioStreamOGGVorbis>();
+    ClassDB::register_class<AudioStreamOGGVorbis>();
 }
 
 void unregister_stb_vorbis_types() {

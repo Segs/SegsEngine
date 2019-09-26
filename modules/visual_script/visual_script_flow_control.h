@@ -37,7 +37,7 @@ class VisualScriptReturn : public VisualScriptNode {
 
 	GDCLASS(VisualScriptReturn,VisualScriptNode)
 
-	Variant::Type type;
+	VariantType type;
 	bool with_value;
 
 protected:
@@ -59,8 +59,8 @@ public:
 	String get_text() const override;
 	String get_category() const override { return "flow_control"; }
 
-	void set_return_type(Variant::Type);
-	Variant::Type get_return_type() const;
+	void set_return_type(VariantType);
+	VariantType get_return_type() const;
 
 	void set_enable_return_value(bool p_enable);
 	bool is_return_value_enabled() const;
@@ -197,8 +197,8 @@ class VisualScriptSwitch : public VisualScriptNode {
 
 
 	struct Case {
-		Variant::Type type;
-		Case() { type = Variant::NIL; }
+		VariantType type;
+		Case() { type = VariantType::NIL; }
 	};
 
 	Vector<Case> case_values;
@@ -208,7 +208,7 @@ class VisualScriptSwitch : public VisualScriptNode {
 protected:
 	bool _set(const StringName &p_name, const Variant &p_value);
 	bool _get(const StringName &p_name, Variant &r_ret) const;
-	void _get_property_list(List<PropertyInfo> *p_list) const;
+	void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
 
 	static void _bind_methods();
 

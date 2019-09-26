@@ -117,7 +117,7 @@ void GDAPI godot_videodecoder_register_decoder(const godot_videodecoder_interfac
 // VideoStreamPlaybackGDNative starts here.
 
 bool VideoStreamPlaybackGDNative::open_file(const String &p_file) {
-    ERR_FAIL_COND_V(interface == nullptr, false);
+    ERR_FAIL_COND_V(interface == nullptr, false)
     file = FileAccess::open(p_file, FileAccess::READ);
     bool file_opened = interface->open_file(data_struct, file);
 
@@ -147,13 +147,13 @@ void VideoStreamPlaybackGDNative::update(float p_delta) {
         return;
     }
     time += p_delta;
-    ERR_FAIL_COND(interface == nullptr);
+    ERR_FAIL_COND(interface == nullptr)
     interface->update(data_struct, p_delta);
 
     if (mix_callback) {
         if (pcm_write_idx >= 0) {
             // Previous remains
-            int mixed = mix_callback(mix_udata, pcm, samples_decoded);
+            int mixed = mix_callback(mix_udata, pcm + pcm_write_idx * num_channels, samples_decoded);
             if (mixed == samples_decoded) {
                 pcm_write_idx = -1;
             } else {
@@ -186,7 +186,7 @@ void VideoStreamPlaybackGDNative::update_texture() {
         return;
     }
 
-    Ref<Image> img = memnew(Image(texture_size.width, texture_size.height, 0, Image::FORMAT_RGBA8, *pba));
+    Ref<Image> img(make_ref_counted<Image>(texture_size.width, texture_size.height, 0, Image::FORMAT_RGBA8, *pba));
 
     texture->set_data(img);
 }
@@ -194,7 +194,7 @@ void VideoStreamPlaybackGDNative::update_texture() {
 // ctor and dtor
 
 VideoStreamPlaybackGDNative::VideoStreamPlaybackGDNative() :
-        texture(Ref<ImageTexture>(memnew(ImageTexture))),
+        texture(make_ref_counted<ImageTexture>()),
         playing(false),
         paused(false),
         mix_udata(nullptr),
@@ -227,7 +227,7 @@ void VideoStreamPlaybackGDNative::cleanup() {
 }
 
 void VideoStreamPlaybackGDNative::set_interface(const godot_videodecoder_interface_gdnative *p_interface) {
-    ERR_FAIL_COND(p_interface == nullptr);
+    ERR_FAIL_COND(p_interface == nullptr)
     if (interface != nullptr) {
         cleanup();
     }
@@ -263,7 +263,7 @@ void VideoStreamPlaybackGDNative::stop() {
 }
 
 void VideoStreamPlaybackGDNative::seek(float p_time) {
-    ERR_FAIL_COND(interface == nullptr);
+    ERR_FAIL_COND(interface == nullptr)
     interface->seek(data_struct, p_time);
 }
 
@@ -276,13 +276,13 @@ Ref<Texture> VideoStreamPlaybackGDNative::get_texture() {
 }
 
 float VideoStreamPlaybackGDNative::get_length() const {
-    ERR_FAIL_COND_V(interface == nullptr, 0);
+    ERR_FAIL_COND_V(interface == nullptr, 0)
     return interface->get_length(data_struct);
 }
 
 float VideoStreamPlaybackGDNative::get_playback_position() const {
 
-    ERR_FAIL_COND_V(interface == nullptr, 0);
+    ERR_FAIL_COND_V(interface == nullptr, 0)
     return interface->get_playback_position(data_struct);
 }
 
@@ -296,7 +296,7 @@ void VideoStreamPlaybackGDNative::set_loop(bool p_enable) {
 }
 
 void VideoStreamPlaybackGDNative::set_audio_track(int p_idx) {
-    ERR_FAIL_COND(interface == nullptr);
+    ERR_FAIL_COND(interface == nullptr)
     interface->set_audio_track(data_struct, p_idx);
 }
 
@@ -307,13 +307,13 @@ void VideoStreamPlaybackGDNative::set_mix_callback(AudioMixCallback p_callback, 
 }
 
 int VideoStreamPlaybackGDNative::get_channels() const {
-    ERR_FAIL_COND_V(interface == nullptr, 0);
+    ERR_FAIL_COND_V(interface == nullptr, 0)
 
     return (num_channels > 0) ? num_channels : 0;
 }
 
 int VideoStreamPlaybackGDNative::get_mix_rate() const {
-    ERR_FAIL_COND_V(interface == nullptr, 0);
+    ERR_FAIL_COND_V(interface == nullptr, 0)
 
     return mix_rate;
 }
@@ -321,15 +321,16 @@ int VideoStreamPlaybackGDNative::get_mix_rate() const {
 /* --- NOTE VideoStreamGDNative starts here. ----- */
 
 Ref<VideoStreamPlayback> VideoStreamGDNative::instance_playback() {
-    Ref<VideoStreamPlaybackGDNative> pb = memnew(VideoStreamPlaybackGDNative);
     VideoDecoderGDNative *decoder = decoder_server.get_decoder(StringUtils::to_lower(PathUtils::get_extension(file)));
     if (decoder == nullptr)
-        return nullptr;
+        return Ref<VideoStreamPlayback>();
+
+    Ref<VideoStreamPlaybackGDNative> pb(make_ref_counted<VideoStreamPlaybackGDNative>());
     pb->set_interface(decoder->interface);
     pb->set_audio_track(audio_track);
     if (pb->open_file(file))
         return pb;
-    return nullptr;
+    return Ref<VideoStreamPlayback>();
 }
 
 void VideoStreamGDNative::set_file(const String &p_file) {
@@ -344,10 +345,10 @@ String VideoStreamGDNative::get_file() {
 
 void VideoStreamGDNative::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_file", "file"), &VideoStreamGDNative::set_file);
+    MethodBinder::bind_method(D_METHOD("set_file", {"file"}), &VideoStreamGDNative::set_file);
     MethodBinder::bind_method(D_METHOD("get_file"), &VideoStreamGDNative::get_file);
 
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "file", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_file", "get_file");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "file", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_file", "get_file");
 }
 
 void VideoStreamGDNative::set_audio_track(int p_track) {
@@ -375,11 +376,10 @@ RES ResourceFormatLoaderVideoStreamGDNative::load(const String &p_path, const St
     return ogv_stream;
 }
 
-void ResourceFormatLoaderVideoStreamGDNative::get_recognized_extensions(List<String> *p_extensions) const {
-    Map<String, int>::Element *el = VideoDecoderServer::get_instance()->get_extensions().front();
-    while (el) {
-        p_extensions->push_back(el->key());
-        el = el->next();
+void ResourceFormatLoaderVideoStreamGDNative::get_recognized_extensions(ListPOD<String> *p_extensions) const {
+    const Map<String, int> &exts(VideoDecoderServer::get_instance()->get_extensions());
+    for (const auto &val : exts) {
+        p_extensions->push_back(val.first);
     }
 }
 
@@ -389,7 +389,7 @@ bool ResourceFormatLoaderVideoStreamGDNative::handles_type(const String &p_type)
 
 String ResourceFormatLoaderVideoStreamGDNative::get_resource_type(const String &p_path) const {
     String el = StringUtils::to_lower(PathUtils::get_extension(p_path));
-    if (VideoDecoderServer::get_instance()->get_extensions().has(el))
+    if (VideoDecoderServer::get_instance()->get_extensions().contains(el))
         return "VideoStreamGDNative";
     return "";
 }

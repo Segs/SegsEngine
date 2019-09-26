@@ -101,14 +101,14 @@ float Line2D::get_width() const {
 
 void Line2D::set_curve(const Ref<Curve> &p_curve) {
     // Cleanup previous connection if any
-    if (_curve.is_valid()) {
+    if (_curve) {
         _curve->disconnect(CoreStringNames::get_singleton()->changed, this, "_curve_changed");
     }
 
     _curve = p_curve;
 
     // Connect to the curve so the line will update when it is changed
-    if (_curve.is_valid()) {
+    if (_curve) {
         _curve->connect(CoreStringNames::get_singleton()->changed, this, "_curve_changed");
     }
 
@@ -171,14 +171,14 @@ Color Line2D::get_default_color() const {
 void Line2D::set_gradient(const Ref<Gradient> &p_gradient) {
 
     // Cleanup previous connection if any
-    if (_gradient.is_valid()) {
+    if (_gradient) {
         _gradient->disconnect(CoreStringNames::get_singleton()->changed, this, "_gradient_changed");
     }
 
     _gradient = p_gradient;
 
     // Connect to the gradient so the line will update when the ColorRamp is changed
-    if (_gradient.is_valid()) {
+    if (_gradient) {
         _gradient->connect(CoreStringNames::get_singleton()->changed, this, "_gradient_changed");
     }
 
@@ -284,7 +284,7 @@ void Line2D::_draw() {
     LineBuilder lb;
     lb.points = points;
     lb.default_color = _default_color;
-    lb.gradient = *_gradient;
+    lb.gradient = _gradient.get();
     lb.texture_mode = _texture_mode;
     lb.joint_mode = _joint_mode;
     lb.begin_cap_mode = _begin_cap_mode;
@@ -292,10 +292,10 @@ void Line2D::_draw() {
     lb.round_precision = _round_precision;
     lb.sharp_limit = _sharp_limit;
     lb.width = _width;
-    lb.curve = *_curve;
+    lb.curve = _curve.get();
 
     RID texture_rid;
-    if (_texture.is_valid()) {
+    if (_texture) {
         texture_rid = _texture->get_rid();
 
         lb.tile_aspect = _texture->get_size().aspect();
@@ -344,79 +344,79 @@ void Line2D::_curve_changed() {
 // static
 void Line2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_points", "points"), &Line2D::set_points);
+    MethodBinder::bind_method(D_METHOD("set_points", {"points"}), &Line2D::set_points);
     MethodBinder::bind_method(D_METHOD("get_points"), &Line2D::get_points);
 
-    MethodBinder::bind_method(D_METHOD("set_point_position", "i", "position"), &Line2D::set_point_position);
-    MethodBinder::bind_method(D_METHOD("get_point_position", "i"), &Line2D::get_point_position);
+    MethodBinder::bind_method(D_METHOD("set_point_position", {"i", "position"}), &Line2D::set_point_position);
+    MethodBinder::bind_method(D_METHOD("get_point_position", {"i"}), &Line2D::get_point_position);
 
     MethodBinder::bind_method(D_METHOD("get_point_count"), &Line2D::get_point_count);
 
-    MethodBinder::bind_method(D_METHOD("add_point", "position", "at_position"), &Line2D::add_point, {DEFVAL(-1)});
-    MethodBinder::bind_method(D_METHOD("remove_point", "i"), &Line2D::remove_point);
+    MethodBinder::bind_method(D_METHOD("add_point", {"position", "at_position"}), &Line2D::add_point, {DEFVAL(-1)});
+    MethodBinder::bind_method(D_METHOD("remove_point", {"i"}), &Line2D::remove_point);
 
     MethodBinder::bind_method(D_METHOD("clear_points"), &Line2D::clear_points);
 
-    MethodBinder::bind_method(D_METHOD("set_width", "width"), &Line2D::set_width);
+    MethodBinder::bind_method(D_METHOD("set_width", {"width"}), &Line2D::set_width);
     MethodBinder::bind_method(D_METHOD("get_width"), &Line2D::get_width);
 
-    MethodBinder::bind_method(D_METHOD("set_curve", "curve"), &Line2D::set_curve);
+    MethodBinder::bind_method(D_METHOD("set_curve", {"curve"}), &Line2D::set_curve);
     MethodBinder::bind_method(D_METHOD("get_curve"), &Line2D::get_curve);
 
-    MethodBinder::bind_method(D_METHOD("set_default_color", "color"), &Line2D::set_default_color);
+    MethodBinder::bind_method(D_METHOD("set_default_color", {"color"}), &Line2D::set_default_color);
     MethodBinder::bind_method(D_METHOD("get_default_color"), &Line2D::get_default_color);
 
-    MethodBinder::bind_method(D_METHOD("set_gradient", "color"), &Line2D::set_gradient);
+    MethodBinder::bind_method(D_METHOD("set_gradient", {"color"}), &Line2D::set_gradient);
     MethodBinder::bind_method(D_METHOD("get_gradient"), &Line2D::get_gradient);
 
-    MethodBinder::bind_method(D_METHOD("set_texture", "texture"), &Line2D::set_texture);
+    MethodBinder::bind_method(D_METHOD("set_texture", {"texture"}), &Line2D::set_texture);
     MethodBinder::bind_method(D_METHOD("get_texture"), &Line2D::get_texture);
 
-    MethodBinder::bind_method(D_METHOD("set_texture_mode", "mode"), &Line2D::set_texture_mode);
+    MethodBinder::bind_method(D_METHOD("set_texture_mode", {"mode"}), &Line2D::set_texture_mode);
     MethodBinder::bind_method(D_METHOD("get_texture_mode"), &Line2D::get_texture_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_joint_mode", "mode"), &Line2D::set_joint_mode);
+    MethodBinder::bind_method(D_METHOD("set_joint_mode", {"mode"}), &Line2D::set_joint_mode);
     MethodBinder::bind_method(D_METHOD("get_joint_mode"), &Line2D::get_joint_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_begin_cap_mode", "mode"), &Line2D::set_begin_cap_mode);
+    MethodBinder::bind_method(D_METHOD("set_begin_cap_mode", {"mode"}), &Line2D::set_begin_cap_mode);
     MethodBinder::bind_method(D_METHOD("get_begin_cap_mode"), &Line2D::get_begin_cap_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_end_cap_mode", "mode"), &Line2D::set_end_cap_mode);
+    MethodBinder::bind_method(D_METHOD("set_end_cap_mode", {"mode"}), &Line2D::set_end_cap_mode);
     MethodBinder::bind_method(D_METHOD("get_end_cap_mode"), &Line2D::get_end_cap_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_sharp_limit", "limit"), &Line2D::set_sharp_limit);
+    MethodBinder::bind_method(D_METHOD("set_sharp_limit", {"limit"}), &Line2D::set_sharp_limit);
     MethodBinder::bind_method(D_METHOD("get_sharp_limit"), &Line2D::get_sharp_limit);
 
-    MethodBinder::bind_method(D_METHOD("set_round_precision", "precision"), &Line2D::set_round_precision);
+    MethodBinder::bind_method(D_METHOD("set_round_precision", {"precision"}), &Line2D::set_round_precision);
     MethodBinder::bind_method(D_METHOD("get_round_precision"), &Line2D::get_round_precision);
 
-    ADD_PROPERTY(PropertyInfo(Variant::POOL_VECTOR2_ARRAY, "points"), "set_points", "get_points");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "width"), "set_width", "get_width");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "width_curve", PROPERTY_HINT_RESOURCE_TYPE, "Curve"), "set_curve", "get_curve");
-    ADD_PROPERTY(PropertyInfo(Variant::COLOR, "default_color"), "set_default_color", "get_default_color");
+    ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR2_ARRAY, "points"), "set_points", "get_points");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "width"), "set_width", "get_width");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "width_curve", PROPERTY_HINT_RESOURCE_TYPE, "Curve"), "set_curve", "get_curve");
+    ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "default_color"), "set_default_color", "get_default_color");
     ADD_GROUP("Fill", "");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "gradient", PROPERTY_HINT_RESOURCE_TYPE, "Gradient"), "set_gradient", "get_gradient");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_texture", "get_texture");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "texture_mode", PROPERTY_HINT_ENUM, "None,Tile,Stretch"), "set_texture_mode", "get_texture_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "gradient", PROPERTY_HINT_RESOURCE_TYPE, "Gradient"), "set_gradient", "get_gradient");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_texture", "get_texture");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "texture_mode", PROPERTY_HINT_ENUM, "None,Tile,Stretch"), "set_texture_mode", "get_texture_mode");
     ADD_GROUP("Capping", "");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "joint_mode", PROPERTY_HINT_ENUM, "Sharp,Bevel,Round"), "set_joint_mode", "get_joint_mode");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "begin_cap_mode", PROPERTY_HINT_ENUM, "None,Box,Round"), "set_begin_cap_mode", "get_begin_cap_mode");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "end_cap_mode", PROPERTY_HINT_ENUM, "None,Box,Round"), "set_end_cap_mode", "get_end_cap_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "joint_mode", PROPERTY_HINT_ENUM, "Sharp,Bevel,Round"), "set_joint_mode", "get_joint_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "begin_cap_mode", PROPERTY_HINT_ENUM, "None,Box,Round"), "set_begin_cap_mode", "get_begin_cap_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "end_cap_mode", PROPERTY_HINT_ENUM, "None,Box,Round"), "set_end_cap_mode", "get_end_cap_mode");
     ADD_GROUP("Border", "");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "sharp_limit"), "set_sharp_limit", "get_sharp_limit");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "round_precision"), "set_round_precision", "get_round_precision");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "sharp_limit"), "set_sharp_limit", "get_sharp_limit");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "round_precision"), "set_round_precision", "get_round_precision");
 
-    BIND_ENUM_CONSTANT(LINE_JOINT_SHARP);
-    BIND_ENUM_CONSTANT(LINE_JOINT_BEVEL);
-    BIND_ENUM_CONSTANT(LINE_JOINT_ROUND);
+    BIND_ENUM_CONSTANT(LINE_JOINT_SHARP)
+    BIND_ENUM_CONSTANT(LINE_JOINT_BEVEL)
+    BIND_ENUM_CONSTANT(LINE_JOINT_ROUND)
 
-    BIND_ENUM_CONSTANT(LINE_CAP_NONE);
-    BIND_ENUM_CONSTANT(LINE_CAP_BOX);
-    BIND_ENUM_CONSTANT(LINE_CAP_ROUND);
+    BIND_ENUM_CONSTANT(LINE_CAP_NONE)
+    BIND_ENUM_CONSTANT(LINE_CAP_BOX)
+    BIND_ENUM_CONSTANT(LINE_CAP_ROUND)
 
-    BIND_ENUM_CONSTANT(LINE_TEXTURE_NONE);
-    BIND_ENUM_CONSTANT(LINE_TEXTURE_TILE);
-    BIND_ENUM_CONSTANT(LINE_TEXTURE_STRETCH);
+    BIND_ENUM_CONSTANT(LINE_TEXTURE_NONE)
+    BIND_ENUM_CONSTANT(LINE_TEXTURE_TILE)
+    BIND_ENUM_CONSTANT(LINE_TEXTURE_STRETCH)
 
     MethodBinder::bind_method(D_METHOD("_gradient_changed"), &Line2D::_gradient_changed);
     MethodBinder::bind_method(D_METHOD("_curve_changed"), &Line2D::_curve_changed);

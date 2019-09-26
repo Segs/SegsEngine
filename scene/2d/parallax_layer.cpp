@@ -156,17 +156,17 @@ String ParallaxLayer::get_configuration_warning() const {
 
 void ParallaxLayer::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_motion_scale", "scale"), &ParallaxLayer::set_motion_scale);
+    MethodBinder::bind_method(D_METHOD("set_motion_scale", {"scale"}), &ParallaxLayer::set_motion_scale);
     MethodBinder::bind_method(D_METHOD("get_motion_scale"), &ParallaxLayer::get_motion_scale);
-    MethodBinder::bind_method(D_METHOD("set_motion_offset", "offset"), &ParallaxLayer::set_motion_offset);
+    MethodBinder::bind_method(D_METHOD("set_motion_offset", {"offset"}), &ParallaxLayer::set_motion_offset);
     MethodBinder::bind_method(D_METHOD("get_motion_offset"), &ParallaxLayer::get_motion_offset);
-    MethodBinder::bind_method(D_METHOD("set_mirroring", "mirror"), &ParallaxLayer::set_mirroring);
+    MethodBinder::bind_method(D_METHOD("set_mirroring", {"mirror"}), &ParallaxLayer::set_mirroring);
     MethodBinder::bind_method(D_METHOD("get_mirroring"), &ParallaxLayer::get_mirroring);
 
     ADD_GROUP("Motion", "motion_");
-    ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "motion_scale"), "set_motion_scale", "get_motion_scale");
-    ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "motion_offset"), "set_motion_offset", "get_motion_offset");
-    ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "motion_mirroring"), "set_mirroring", "get_mirroring");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "motion_scale"), "set_motion_scale", "get_motion_scale");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "motion_offset"), "set_motion_offset", "get_motion_offset");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "motion_mirroring"), "set_mirroring", "get_mirroring");
 }
 
 ParallaxLayer::ParallaxLayer() {

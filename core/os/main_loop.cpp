@@ -32,27 +32,28 @@
 
 #include "core/script_language.h"
 #include "core/method_bind.h"
+#include "core/os/input_event.h"
 
 IMPL_GDCLASS(MainLoop)
 
 void MainLoop::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("input_event", "event"), &MainLoop::input_event);
-    MethodBinder::bind_method(D_METHOD("input_text", "text"), &MainLoop::input_text);
+    MethodBinder::bind_method(D_METHOD("input_event", {"event"}), &MainLoop::input_event);
+    MethodBinder::bind_method(D_METHOD("input_text", {"text"}), &MainLoop::input_text);
     MethodBinder::bind_method(D_METHOD("init"), &MainLoop::init);
-    MethodBinder::bind_method(D_METHOD("iteration", "delta"), &MainLoop::iteration);
-    MethodBinder::bind_method(D_METHOD("idle", "delta"), &MainLoop::idle);
+    MethodBinder::bind_method(D_METHOD("iteration", {"delta"}), &MainLoop::iteration);
+    MethodBinder::bind_method(D_METHOD("idle", {"delta"}), &MainLoop::idle);
     MethodBinder::bind_method(D_METHOD("finish"), &MainLoop::finish);
 
-    BIND_VMETHOD(MethodInfo("_input_event", PropertyInfo(Variant::OBJECT, "event", PROPERTY_HINT_RESOURCE_TYPE, "InputEvent")))
-    BIND_VMETHOD(MethodInfo("_input_text", PropertyInfo(Variant::STRING, "text")))
+    BIND_VMETHOD(MethodInfo("_input_event", PropertyInfo(VariantType::OBJECT, "event", PROPERTY_HINT_RESOURCE_TYPE, "InputEvent")))
+    BIND_VMETHOD(MethodInfo("_input_text", PropertyInfo(VariantType::STRING, "text")))
     BIND_VMETHOD(MethodInfo("_initialize"))
-    BIND_VMETHOD(MethodInfo(Variant::BOOL, "_iteration", PropertyInfo(Variant::REAL, "delta")))
-    BIND_VMETHOD(MethodInfo(Variant::BOOL, "_idle", PropertyInfo(Variant::REAL, "delta")))
-    BIND_VMETHOD(MethodInfo("_drop_files", PropertyInfo(Variant::POOL_STRING_ARRAY, "files"), PropertyInfo(Variant::INT, "from_screen")))
+    BIND_VMETHOD(MethodInfo(VariantType::BOOL, "_iteration", PropertyInfo(VariantType::REAL, "delta")))
+    BIND_VMETHOD(MethodInfo(VariantType::BOOL, "_idle", PropertyInfo(VariantType::REAL, "delta")))
+    BIND_VMETHOD(MethodInfo("_drop_files", PropertyInfo(VariantType::POOL_STRING_ARRAY, "files"), PropertyInfo(VariantType::INT, "from_screen")))
     BIND_VMETHOD(MethodInfo("_finalize"))
 
-    BIND_VMETHOD(MethodInfo("_global_menu_action", PropertyInfo(Variant::NIL, "id"), PropertyInfo(Variant::NIL, "meta")))
+    BIND_VMETHOD(MethodInfo("_global_menu_action", PropertyInfo(VariantType::NIL, "id"), PropertyInfo(VariantType::NIL, "meta")))
 
     BIND_CONSTANT(NOTIFICATION_WM_MOUSE_ENTER)
     BIND_CONSTANT(NOTIFICATION_WM_MOUSE_EXIT)
@@ -73,6 +74,13 @@ void MainLoop::set_init_script(const Ref<Script> &p_init_script) {
     init_script = p_init_script;
 }
 
+MainLoop::MainLoop() {}
+
+MainLoop::~MainLoop()
+{
+
+}
+
 void MainLoop::input_text(const String &p_text) {
 
     if (get_script_instance())
@@ -87,7 +95,7 @@ void MainLoop::input_event(const Ref<InputEvent> &p_event) {
 
 void MainLoop::init() {
 
-    if (init_script.is_valid())
+    if (init_script)
         set_script(init_script.get_ref_ptr());
 
     if (get_script_instance())
@@ -96,14 +104,14 @@ void MainLoop::init() {
 bool MainLoop::iteration(float p_time) {
 
     if (get_script_instance())
-        return get_script_instance()->call("_iteration", p_time);
+        return get_script_instance()->call("_iteration", p_time).as<bool>();
 
     return false;
 }
 bool MainLoop::idle(float p_time) {
 
     if (get_script_instance())
-        return get_script_instance()->call("_idle", p_time);
+        return get_script_instance()->call("_idle", p_time).as<bool>();
 
     return false;
 }

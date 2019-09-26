@@ -40,7 +40,7 @@ class FileAccessBufferedFA : public FileAccessBuffered {
 
 	int read_data_block(int p_offset, int p_size, uint8_t *p_dest = 0) const {
 
-		ERR_FAIL_COND_V_MSG(!f.is_open(), -1, "Can't read data block when file is not opened.");
+		ERR_FAIL_COND_V_MSG(!f.is_open(), -1, "Can't read data block when file is not opened.")
 
 		((T *)&f)->seek(p_offset);
 
@@ -104,7 +104,7 @@ public:
 		Error ret = f._open(p_path, p_mode_flags);
 		if (ret != OK)
 			return ret;
-		//ERR_FAIL_COND_V( ret != OK, ret );
+		//ERR_FAIL_COND_V( ret != OK, ret )
 
 		file.size = f.get_len();
 		file.offset = 0;

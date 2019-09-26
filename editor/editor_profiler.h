@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef EDITORPROFILER_H
-#define EDITORPROFILER_H
+#pragma once
 
 #include "scene/gui/box_container.h"
 #include "scene/gui/button.h"
@@ -42,136 +41,134 @@
 
 class EditorProfiler : public VBoxContainer {
 
-	GDCLASS(EditorProfiler,VBoxContainer)
+    GDCLASS(EditorProfiler,VBoxContainer)
 
 public:
-	struct Metric {
+    struct Metric {
 
-		bool valid;
+        bool valid;
 
-		int frame_number;
-		float frame_time;
-		float idle_time;
-		float physics_time;
-		float physics_frame_time;
+        int frame_number;
+        float frame_time;
+        float idle_time;
+        float physics_time;
+        float physics_frame_time;
 
-		struct Category {
+        struct Category {
 
-			StringName signature;
-			String name;
-			float total_time; //total for category
+            StringName signature;
+            String name;
+            float total_time; //total for category
 
-			struct Item {
+            struct Item {
 
-				StringName signature;
-				String name;
-				String script;
-				int line;
-				float self;
-				float total;
-				int calls;
-			};
+                StringName signature;
+                String name;
+                String script;
+                int line;
+                float self;
+                float total;
+                int calls;
+            };
 
-			Vector<Item> items;
-		};
+            Vector<Item> items;
+        };
 
-		Vector<Category> categories;
+        Vector<Category> categories;
 
-		Map<StringName, Category *> category_ptrs;
-		Map<StringName, Category::Item *> item_ptrs;
+        Map<StringName, Category *> category_ptrs;
+        Map<StringName, Category::Item *> item_ptrs;
 
-		Metric() {
-			valid = false;
-			frame_number = 0;
-		}
-	};
+        Metric() {
+            valid = false;
+            frame_number = 0;
+        }
+    };
 
-	enum DisplayMode {
-		DISPLAY_FRAME_TIME,
-		DISPLAY_AVERAGE_TIME,
-		DISPLAY_FRAME_PERCENT,
-		DISPLAY_PHYSICS_FRAME_PERCENT,
-	};
+    enum DisplayMode {
+        DISPLAY_FRAME_TIME,
+        DISPLAY_AVERAGE_TIME,
+        DISPLAY_FRAME_PERCENT,
+        DISPLAY_PHYSICS_FRAME_PERCENT,
+    };
 
-	enum DisplayTime {
-		DISPLAY_TOTAL_TIME,
-		DISPLAY_SELF_TIME,
-	};
+    enum DisplayTime {
+        DISPLAY_TOTAL_TIME,
+        DISPLAY_SELF_TIME,
+    };
 
 private:
-	Button *activate;
-	Button *clear_button;
-	TextureRect *graph;
-	Ref<ImageTexture> graph_texture;
-	PoolVector<uint8_t> graph_image;
-	Tree *variables;
-	HSplitContainer *h_split;
+    Button *activate;
+    Button *clear_button;
+    TextureRect *graph;
+    Ref<ImageTexture> graph_texture;
+    PoolVector<uint8_t> graph_image;
+    Tree *variables;
+    HSplitContainer *h_split;
 
-	Set<StringName> plot_sigs;
+    Set<StringName> plot_sigs;
 
-	OptionButton *display_mode;
-	OptionButton *display_time;
+    OptionButton *display_mode;
+    OptionButton *display_time;
 
-	SpinBox *cursor_metric_edit;
+    SpinBox *cursor_metric_edit;
 
-	Vector<Metric> frame_metrics;
-	int last_metric;
+    Vector<Metric> frame_metrics;
+    int last_metric;
 
-	int max_functions;
+    int max_functions;
 
-	bool updating_frame;
+    bool updating_frame;
 
-	//int cursor_metric;
-	int hover_metric;
+    //int cursor_metric;
+    int hover_metric;
 
-	float graph_height;
+    float graph_height;
 
-	bool seeking;
+    bool seeking;
 
-	Timer *frame_delay;
-	Timer *plot_delay;
+    Timer *frame_delay;
+    Timer *plot_delay;
 
-	void _update_frame();
+    void _update_frame();
 
-	void _activate_pressed();
-	void _clear_pressed();
+    void _activate_pressed();
+    void _clear_pressed();
 
-	String _get_time_as_text(const Metric &m, float p_time, int p_calls);
+    String _get_time_as_text(const Metric &m, float p_time, int p_calls);
 
-	void _make_metric_ptrs(Metric &m);
-	void _item_edited();
+    void _make_metric_ptrs(Metric &m);
+    void _item_edited();
 
-	void _update_plot();
+    void _update_plot();
 
-	void _graph_tex_mouse_exit();
+    void _graph_tex_mouse_exit();
 
-	void _graph_tex_draw();
-	void _graph_tex_input(const Ref<InputEvent> &p_ev);
+    void _graph_tex_draw();
+    void _graph_tex_input(const Ref<InputEvent> &p_ev);
 
-	int _get_cursor_index() const;
+    int _get_cursor_index() const;
 
-	Color _get_color_from_signature(const StringName &p_signature) const;
+    Color _get_color_from_signature(const StringName &p_signature) const;
 
-	void _cursor_metric_changed(double);
+    void _cursor_metric_changed(double);
 
-	void _combo_changed(int);
+    void _combo_changed(int);
 
 protected:
-	void _notification(int p_what);
-	static void _bind_methods();
+    void _notification(int p_what);
+    static void _bind_methods();
 
 public:
-	void add_frame_metric(const Metric &p_metric, bool p_final = false);
-	void set_enabled(bool p_enable);
-	bool is_profiling();
-	bool is_seeking() { return seeking; }
-	void disable_seeking();
+    void add_frame_metric(const Metric &p_metric, bool p_final = false);
+    void set_enabled(bool p_enable);
+    bool is_profiling();
+    bool is_seeking() { return seeking; }
+    void disable_seeking();
 
-	void clear();
+    void clear();
 
-	Vector<Vector<String> > get_data_as_csv() const;
+    Vector<Vector<String> > get_data_as_csv() const;
 
-	EditorProfiler();
+    EditorProfiler();
 };
-
-#endif // EDITORPROFILER_H

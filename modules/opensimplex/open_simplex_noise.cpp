@@ -106,8 +106,8 @@ Ref<Image> OpenSimplexNoise::get_image(int p_width, int p_height) {
     for (int i = 0; i < p_height; i++) {
         for (int j = 0; j < p_width; j++) {
             float v = get_noise_2d(i, j);
-            v = v * 0.5 + 0.5; // Normalize [0..1]
-            uint8_t value = uint8_t(CLAMP(v * 255.0, 0, 255));
+            v = v * 0.5f + 0.5f; // Normalize [0..1]
+            uint8_t value = uint8_t(CLAMP(v * 255.0f, 0, 255));
             wd8[(i * p_width + j) * 4 + 0] = value;
             wd8[(i * p_width + j) * 4 + 1] = value;
             wd8[(i * p_width + j) * 4 + 2] = value;
@@ -115,8 +115,7 @@ Ref<Image> OpenSimplexNoise::get_image(int p_width, int p_height) {
         }
     }
 
-    Ref<Image> image = memnew(Image(p_width, p_height, false, Image::FORMAT_RGBA8, data));
-    return image;
+    return Ref<Image>(make_ref_counted<Image>(p_width, p_height, false, Image::FORMAT_RGBA8, data));
 }
 
 Ref<Image> OpenSimplexNoise::get_seamless_image(int p_size) {
@@ -152,43 +151,42 @@ Ref<Image> OpenSimplexNoise::get_seamless_image(int p_size) {
         }
     }
 
-    Ref<Image> image = memnew(Image(p_size, p_size, false, Image::FORMAT_RGBA8, data));
-    return image;
+    return Ref<Image>(make_ref_counted<Image>(p_size, p_size, false, Image::FORMAT_RGBA8, data));
 }
 
 void OpenSimplexNoise::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("get_seed"), &OpenSimplexNoise::get_seed);
-    MethodBinder::bind_method(D_METHOD("set_seed", "seed"), &OpenSimplexNoise::set_seed);
+    MethodBinder::bind_method(D_METHOD("set_seed", {"seed"}), &OpenSimplexNoise::set_seed);
 
-    MethodBinder::bind_method(D_METHOD("set_octaves", "octave_count"), &OpenSimplexNoise::set_octaves);
+    MethodBinder::bind_method(D_METHOD("set_octaves", {"octave_count"}), &OpenSimplexNoise::set_octaves);
     MethodBinder::bind_method(D_METHOD("get_octaves"), &OpenSimplexNoise::get_octaves);
 
-    MethodBinder::bind_method(D_METHOD("set_period", "period"), &OpenSimplexNoise::set_period);
+    MethodBinder::bind_method(D_METHOD("set_period", {"period"}), &OpenSimplexNoise::set_period);
     MethodBinder::bind_method(D_METHOD("get_period"), &OpenSimplexNoise::get_period);
 
-    MethodBinder::bind_method(D_METHOD("set_persistence", "persistence"), &OpenSimplexNoise::set_persistence);
+    MethodBinder::bind_method(D_METHOD("set_persistence", {"persistence"}), &OpenSimplexNoise::set_persistence);
     MethodBinder::bind_method(D_METHOD("get_persistence"), &OpenSimplexNoise::get_persistence);
 
-    MethodBinder::bind_method(D_METHOD("set_lacunarity", "lacunarity"), &OpenSimplexNoise::set_lacunarity);
+    MethodBinder::bind_method(D_METHOD("set_lacunarity", {"lacunarity"}), &OpenSimplexNoise::set_lacunarity);
     MethodBinder::bind_method(D_METHOD("get_lacunarity"), &OpenSimplexNoise::get_lacunarity);
 
-    MethodBinder::bind_method(D_METHOD("get_image", "width", "height"), &OpenSimplexNoise::get_image);
-    MethodBinder::bind_method(D_METHOD("get_seamless_image", "size"), &OpenSimplexNoise::get_seamless_image);
+    MethodBinder::bind_method(D_METHOD("get_image", {"width", "height"}), &OpenSimplexNoise::get_image);
+    MethodBinder::bind_method(D_METHOD("get_seamless_image", {"size"}), &OpenSimplexNoise::get_seamless_image);
 
-    MethodBinder::bind_method(D_METHOD("get_noise_1d", "x"), &OpenSimplexNoise::get_noise_1d);
-    MethodBinder::bind_method(D_METHOD("get_noise_2d", "x", "y"), &OpenSimplexNoise::get_noise_2d);
-    MethodBinder::bind_method(D_METHOD("get_noise_3d", "x", "y", "z"), &OpenSimplexNoise::get_noise_3d);
-    MethodBinder::bind_method(D_METHOD("get_noise_4d", "x", "y", "z", "w"), &OpenSimplexNoise::get_noise_4d);
+    MethodBinder::bind_method(D_METHOD("get_noise_1d", {"x"}), &OpenSimplexNoise::get_noise_1d);
+    MethodBinder::bind_method(D_METHOD("get_noise_2d", {"x", "y"}), &OpenSimplexNoise::get_noise_2d);
+    MethodBinder::bind_method(D_METHOD("get_noise_3d", {"x", "y", "z"}), &OpenSimplexNoise::get_noise_3d);
+    MethodBinder::bind_method(D_METHOD("get_noise_4d", {"x", "y", "z", "w"}), &OpenSimplexNoise::get_noise_4d);
 
-    MethodBinder::bind_method(D_METHOD("get_noise_2dv", "pos"), &OpenSimplexNoise::get_noise_2dv);
-    MethodBinder::bind_method(D_METHOD("get_noise_3dv", "pos"), &OpenSimplexNoise::get_noise_3dv);
+    MethodBinder::bind_method(D_METHOD("get_noise_2dv", {"pos"}), &OpenSimplexNoise::get_noise_2dv);
+    MethodBinder::bind_method(D_METHOD("get_noise_3dv", {"pos"}), &OpenSimplexNoise::get_noise_3dv);
 
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "seed"), "set_seed", "get_seed");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "octaves", PROPERTY_HINT_RANGE, "1,6,1"), "set_octaves", "get_octaves");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "period", PROPERTY_HINT_RANGE, "0.1,256.0,0.1"), "set_period", "get_period");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "persistence", PROPERTY_HINT_RANGE, "0.0,1.0,0.001"), "set_persistence", "get_persistence");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "lacunarity", PROPERTY_HINT_RANGE, "0.1,4.0,0.01"), "set_lacunarity", "get_lacunarity");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "seed"), "set_seed", "get_seed");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "octaves", PROPERTY_HINT_RANGE, "1,6,1"), "set_octaves", "get_octaves");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "period", PROPERTY_HINT_RANGE, "0.1,256.0,0.1"), "set_period", "get_period");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "persistence", PROPERTY_HINT_RANGE, "0.0,1.0,0.001"), "set_persistence", "get_persistence");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "lacunarity", PROPERTY_HINT_RANGE, "0.1,4.0,0.01"), "set_lacunarity", "get_lacunarity");
 }
 
 float OpenSimplexNoise::get_noise_1d(float x) {

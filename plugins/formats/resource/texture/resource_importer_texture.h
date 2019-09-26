@@ -78,7 +78,7 @@ public:
     int get_preset_count() const override;
     String get_preset_name(int p_idx) const override;
 
-    void get_import_options(List<ImportOption> *r_options, int p_preset = 0) const override;
+    void get_import_options(ListPOD<ImportOption> *r_options, int p_preset = 0) const override;
     bool get_option_visibility(const String &p_option, const Map<StringName, Variant> &p_options) const override;
 
     void _save_stex(const Ref<Image> &p_image, const String &p_to_path, int p_compress_mode, float p_lossy_quality,
@@ -87,7 +87,7 @@ public:
             bool p_force_po2_for_compressed);
 
     Error import(const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options,
-            List<String> *r_platform_variants, List<String> *r_gen_files = nullptr,
+            DefList<String> *r_platform_variants, DefList<String> *r_gen_files = nullptr,
             Variant *r_metadata = nullptr) override;
 
     void build_reconfigured_list(bool editor_is_scanning_or_importing);

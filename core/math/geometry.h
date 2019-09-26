@@ -827,7 +827,7 @@ public:
 
 	static Vector<Vector<Point2> > offset_polyline_2d(const Vector<Vector2> &p_polygon, real_t p_delta, PolyJoinType p_join_type, PolyEndType p_end_type) {
 
-        ERR_FAIL_COND_V_CMSG(p_end_type == END_POLYGON, Vector<Vector<Point2> >(), "Attempt to offset a polyline like a polygon (use offset_polygon_2d instead).");
+        ERR_FAIL_COND_V_CMSG(p_end_type == END_POLYGON, Vector<Vector<Point2> >(), "Attempt to offset a polyline like a polygon (use offset_polygon_2d instead).")
 
 		return _polypath_offset(p_polygon, p_delta, p_join_type, p_end_type);
 	}
@@ -908,9 +908,9 @@ public:
 		return (intersections & 1);
 	}
 
-	static PoolVector<PoolVector<Face3> > separate_objects(PoolVector<Face3> p_array);
+	static PoolVector<PoolVector<Face3> > separate_objects(const PoolVector<Face3>& p_array);
     /// Create a "wrap" that encloses the given geometry.
-	static PoolVector<Face3> wrap_geometry(PoolVector<Face3> p_array, real_t *p_error = nullptr); 
+	static PoolVector<Face3> wrap_geometry(const PoolVector<Face3>& p_array, real_t *p_error = nullptr); 
 
 	struct MeshData {
 
@@ -1012,7 +1012,7 @@ public:
 		H.resize(k);
 		return H;
 	}
-	static Vector<Vector<Vector2> > decompose_polygon_in_convex(Vector<Point2> polygon);
+	static Vector<Vector<Vector2> > decompose_polygon_in_convex(const Vector<Point2>& polygon);
 
 	static MeshData build_convex_mesh(const PoolVector<Plane> &p_planes);
 	static PoolVector<Plane> build_sphere_planes(real_t p_radius, int p_lats, int p_lons, Vector3::Axis p_axis = Vector3::AXIS_Z);

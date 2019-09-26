@@ -59,7 +59,7 @@ class MeshLibraryEditor : public Control {
 	void _menu_cbk(int p_option);
 	void _menu_confirm();
 
-	static void _import_scene(Node *p_scene, Ref<MeshLibrary> p_library, bool p_merge);
+	static void _import_scene(Node *p_scene, const Ref<MeshLibrary> &p_library, bool p_merge);
 
 protected:
 	static void _bind_methods();
@@ -68,7 +68,7 @@ public:
 	MenuButton *get_menu_button() const { return menu; }
 
 	void edit(const Ref<MeshLibrary> &p_mesh_library);
-	static Error update_library_file(Node *p_base_scene, Ref<MeshLibrary> ml, bool p_merge = true);
+	static Error update_library_file(Node *p_base_scene, const Ref<MeshLibrary>& ml, bool p_merge = true);
 
 	MeshLibraryEditor(EditorNode *p_editor);
 };

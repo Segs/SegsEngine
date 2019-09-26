@@ -30,6 +30,8 @@
 
 #include "asset_library_editor_plugin.h"
 
+#include <utility>
+
 #include "core/io/json.h"
 #include "core/io/image_loader.h"
 #include "core/method_bind.h"
@@ -61,8 +63,8 @@ void EditorAssetLibraryItem::configure(const String &p_title, int p_asset_id, co
 
 void EditorAssetLibraryItem::set_image(int p_type, int p_index, const Ref<Texture> &p_image) {
 
-    ERR_FAIL_COND(p_type != EditorAssetLibrary::IMAGE_QUEUE_ICON);
-    ERR_FAIL_COND(p_index != 0);
+    ERR_FAIL_COND(p_type != EditorAssetLibrary::IMAGE_QUEUE_ICON)
+    ERR_FAIL_COND(p_index != 0)
 
     icon->set_normal_texture(p_image);
 }
@@ -105,8 +107,7 @@ void EditorAssetLibraryItem::_bind_methods() {
 
 EditorAssetLibraryItem::EditorAssetLibraryItem() {
 
-    Ref<StyleBoxEmpty> border;
-    border.instance();
+    Ref<StyleBoxEmpty> border(make_ref_counted<StyleBoxEmpty>());
     border->set_default_margin(MARGIN_LEFT, 5 * EDSCALE);
     border->set_default_margin(MARGIN_RIGHT, 5 * EDSCALE);
     border->set_default_margin(MARGIN_BOTTOM, 5 * EDSCALE);
@@ -172,7 +173,7 @@ void EditorAssetLibraryItemDescription::set_image(int p_type, int p_index, const
                     if (preview_images[i].is_video) {
                         Ref<Image> overlay = get_icon("PlayOverlay", "EditorIcons")->get_data();
                         Ref<Image> thumbnail = p_image->get_data();
-                        thumbnail = thumbnail->duplicate();
+                        thumbnail = dynamic_ref_cast<Image>(thumbnail->duplicate());
                         Point2 overlay_pos = Point2((thumbnail->get_width() - overlay->get_width() / 2) / 2, (thumbnail->get_height() - overlay->get_height() / 2) / 2);
 
                         // Overlay and thumbnail need the same format for `blend_rect` to work.
@@ -181,8 +182,7 @@ void EditorAssetLibraryItemDescription::set_image(int p_type, int p_index, const
                         thumbnail->blend_rect(overlay, overlay->get_used_rect(), overlay_pos);
                         thumbnail->unlock();
 
-                        Ref<ImageTexture> tex;
-                        tex.instance();
+                        Ref<ImageTexture> tex(make_ref_counted<ImageTexture>());
                         tex->create_from_image(thumbnail);
 
                         preview_images[i].button->set_icon(tex);
@@ -223,7 +223,7 @@ void EditorAssetLibraryItemDescription::_bind_methods() {
 }
 
 void EditorAssetLibraryItemDescription::_link_click(const String &p_url) {
-    ERR_FAIL_COND(!StringUtils::begins_with(p_url,"http"));
+    ERR_FAIL_COND(!StringUtils::begins_with(p_url,"http"))
     OS::get_singleton()->shell_open(p_url);
 }
 
@@ -232,7 +232,7 @@ void EditorAssetLibraryItemDescription::_preview_click(int p_id) {
         if (preview_images[i].id == p_id) {
             preview_images[i].button->set_pressed(true);
             if (!preview_images[i].is_video) {
-                if (preview_images[i].image.is_valid()) {
+                if (preview_images[i].image) {
                     preview->set_texture(preview_images[i].image);
                     minimum_size_changed();
                 }
@@ -408,7 +408,7 @@ void EditorAssetLibraryItemDownload::configure(const String &p_title, int p_asse
     title->set_text(p_title);
     icon->set_texture(p_preview);
     asset_id = p_asset_id;
-    if (!p_preview.is_valid())
+    if (not p_preview)
         icon->set_texture(get_icon("FileBrokenBigThumb", "EditorIcons"));
     host = p_download_url;
     sha256 = p_sha256_hash;
@@ -513,7 +513,7 @@ void EditorAssetLibraryItemDownload::_bind_methods() {
     MethodBinder::bind_method("_close", &EditorAssetLibraryItemDownload::_close);
     MethodBinder::bind_method("_make_request", &EditorAssetLibraryItemDownload::_make_request);
 
-    ADD_SIGNAL(MethodInfo("install_asset", PropertyInfo(Variant::STRING, "zip_path"), PropertyInfo(Variant::STRING, "name")));
+    ADD_SIGNAL(MethodInfo("install_asset", PropertyInfo(VariantType::STRING, "zip_path"), PropertyInfo(VariantType::STRING, "name")));
 }
 
 EditorAssetLibraryItemDownload::EditorAssetLibraryItemDownload() {
@@ -631,7 +631,7 @@ void EditorAssetLibrary::_notification(int p_what) {
 
 void EditorAssetLibrary::_install_asset() {
 
-    ERR_FAIL_COND(!description);
+    ERR_FAIL_COND(!description)
 
     for (int i = 0; i < downloads_hb->get_child_count(); i++) {
 
@@ -730,7 +730,7 @@ void EditorAssetLibrary::_image_update(bool use_cache, bool final, const PoolByt
 
         int len = image_data.size();
         PoolByteArray::Read r = image_data.read();
-        Ref<Image> image = Ref<Image>(memnew(Image));
+        Ref<Image> image(make_ref_counted<Image>());
 
         uint8_t png_signature[8] = { 137, 80, 78, 71, 13, 10, 26, 10 };
         uint8_t jpg_signature[3] = { 255, 216, 255 };
@@ -768,8 +768,7 @@ void EditorAssetLibrary::_image_update(bool use_cache, bool final, const PoolByt
                 } break;
             }
 
-            Ref<ImageTexture> tex;
-            tex.instance();
+            Ref<ImageTexture> tex(make_ref_counted<ImageTexture>());
             tex->create_from_image(image);
 
             obj->call("set_image", image_queue[p_queue_id].image_type, image_queue[p_queue_id].image_index, tex);
@@ -784,7 +783,7 @@ void EditorAssetLibrary::_image_update(bool use_cache, bool final, const PoolByt
 
 void EditorAssetLibrary::_image_request_completed(int p_status, int p_code, const PoolStringArray &headers, const PoolByteArray &p_data, int p_queue_id) {
 
-    ERR_FAIL_COND(!image_queue.has(p_queue_id));
+    ERR_FAIL_COND(!image_queue.contains(p_queue_id))
 
     if (p_status == HTTPRequest::RESULT_SUCCESS && p_code < HTTPClient::RESPONSE_BAD_REQUEST) {
 
@@ -838,10 +837,10 @@ void EditorAssetLibrary::_update_image_queue() {
     int current_images = 0;
 
     List<int> to_delete;
-    for (Map<int, ImageQueue>::Element *E = image_queue.front(); E; E = E->next()) {
-        if (!E->get().active && current_images < max_images) {
+    for (eastl::pair<const int,ImageQueue> &E : image_queue) {
+        if (!E.second.active && current_images < max_images) {
 
-            String cache_filename_base = PathUtils::plus_file(EditorSettings::get_singleton()->get_cache_dir(),"assetimage_" + StringUtils::md5_text(E->get().image_url));
+            String cache_filename_base = PathUtils::plus_file(EditorSettings::get_singleton()->get_cache_dir(),"assetimage_" + StringUtils::md5_text(E.second.image_url));
             Vector<String> headers;
 
             if (FileAccess::exists(cache_filename_base + ".etag") && FileAccess::exists(cache_filename_base + ".data")) {
@@ -853,21 +852,21 @@ void EditorAssetLibrary::_update_image_queue() {
                 }
             }
 
-            Error err = E->get().request->request(E->get().image_url, headers);
+            Error err = E.second.request->request(E.second.image_url, headers);
             if (err != OK) {
-                to_delete.push_back(E->key());
+                to_delete.push_back(E.first);
             } else {
-                E->get().active = true;
+                E.second.active = true;
             }
             current_images++;
-        } else if (E->get().active) {
+        } else if (E.second.active) {
             current_images++;
         }
     }
 
     while (!to_delete.empty()) {
-        image_queue[to_delete.front()->get()].request->queue_delete();
-        image_queue.erase(to_delete.front()->get());
+        image_queue[to_delete.front()->deref()].request->queue_delete();
+        image_queue.erase(to_delete.front()->deref());
         to_delete.pop_front();
     }
 }
@@ -875,7 +874,7 @@ void EditorAssetLibrary::_update_image_queue() {
 void EditorAssetLibrary::_request_image(ObjectID p_for, String p_image_url, ImageType p_type, int p_image_index) {
 
     ImageQueue iq;
-    iq.image_url = p_image_url;
+    iq.image_url = std::move(p_image_url);
     iq.image_index = p_image_index;
     iq.image_type = p_type;
     iq.request = memnew(HTTPRequest);
@@ -1207,7 +1206,7 @@ void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const
                 ERR_CONTINUE(!r.has("author"));
                 ERR_CONTINUE(!r.has("author_id"));
                 ERR_CONTINUE(!r.has("category_id"));
-                ERR_FAIL_COND(!category_map.has(r["category_id"]));
+                ERR_FAIL_COND(!category_map.has(r["category_id"]))
                 ERR_CONTINUE(!r.has("cost"));
 
                 EditorAssetLibraryItem *item = memnew(EditorAssetLibraryItem);
@@ -1225,19 +1224,19 @@ void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const
         case REQUESTING_ASSET: {
             Dictionary r = d;
 
-            ERR_FAIL_COND(!r.has("title"));
-            ERR_FAIL_COND(!r.has("asset_id"));
-            ERR_FAIL_COND(!r.has("author"));
-            ERR_FAIL_COND(!r.has("author_id"));
-            ERR_FAIL_COND(!r.has("version"));
-            ERR_FAIL_COND(!r.has("version_string"));
-            ERR_FAIL_COND(!r.has("category_id"));
-            ERR_FAIL_COND(!category_map.has(r["category_id"]));
-            ERR_FAIL_COND(!r.has("cost"));
-            ERR_FAIL_COND(!r.has("description"));
-            ERR_FAIL_COND(!r.has("download_url"));
-            ERR_FAIL_COND(!r.has("download_hash"));
-            ERR_FAIL_COND(!r.has("browse_url"));
+            ERR_FAIL_COND(!r.has("title"))
+            ERR_FAIL_COND(!r.has("asset_id"))
+            ERR_FAIL_COND(!r.has("author"))
+            ERR_FAIL_COND(!r.has("author_id"))
+            ERR_FAIL_COND(!r.has("version"))
+            ERR_FAIL_COND(!r.has("version_string"))
+            ERR_FAIL_COND(!r.has("category_id"))
+            ERR_FAIL_COND(!category_map.has(r["category_id"]))
+            ERR_FAIL_COND(!r.has("cost"))
+            ERR_FAIL_COND(!r.has("description"))
+            ERR_FAIL_COND(!r.has("download_url"))
+            ERR_FAIL_COND(!r.has("download_hash"))
+            ERR_FAIL_COND(!r.has("browse_url"))
 
             if (description) {
                 memdelete(description);
@@ -1309,7 +1308,7 @@ void EditorAssetLibrary::_manage_plugins() {
     ProjectSettingsEditor::get_singleton()->set_plugins_page();
 }
 
-void EditorAssetLibrary::_install_external_asset(String p_zip_path, String p_title) {
+void EditorAssetLibrary::_install_external_asset(const String& p_zip_path, const String& p_title) {
 
     emit_signal("install_asset", p_zip_path, p_title);
 }
@@ -1336,7 +1335,7 @@ void EditorAssetLibrary::_bind_methods() {
     MethodBinder::bind_method("_rerun_search", &EditorAssetLibrary::_rerun_search);
     MethodBinder::bind_method("_install_external_asset", &EditorAssetLibrary::_install_external_asset);
 
-    ADD_SIGNAL(MethodInfo("install_asset", PropertyInfo(Variant::STRING, "zip_path"), PropertyInfo(Variant::STRING, "name")));
+    ADD_SIGNAL(MethodInfo("install_asset", PropertyInfo(VariantType::STRING, "zip_path"), PropertyInfo(VariantType::STRING, "name")));
 }
 
 EditorAssetLibrary::EditorAssetLibrary(bool p_templates_only) {
@@ -1442,8 +1441,7 @@ EditorAssetLibrary::EditorAssetLibrary(bool p_templates_only) {
 
     library_scroll_bg->add_child(library_scroll);
 
-    Ref<StyleBoxEmpty> border2;
-    border2.instance();
+    Ref<StyleBoxEmpty> border2(make_ref_counted<StyleBoxEmpty>());
     border2->set_default_margin(MARGIN_LEFT, 15 * EDSCALE);
     border2->set_default_margin(MARGIN_RIGHT, 35 * EDSCALE);
     border2->set_default_margin(MARGIN_BOTTOM, 15 * EDSCALE);

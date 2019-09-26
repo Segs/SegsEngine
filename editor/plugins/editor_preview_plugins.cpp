@@ -95,31 +95,31 @@ bool EditorTexturePreviewPlugin::generate_small_preview_automatically() const {
 Ref<Texture> EditorTexturePreviewPlugin::generate(const RES &p_from, const Size2 &p_size) const {
 
     Ref<Image> img;
-    Ref<AtlasTexture> atex = p_from;
-    Ref<LargeTexture> ltex = p_from;
-    if (atex.is_valid()) {
+    Ref<AtlasTexture> atex = dynamic_ref_cast<AtlasTexture>(p_from);
+    Ref<LargeTexture> ltex = dynamic_ref_cast<LargeTexture>(p_from);
+    if (atex) {
         Ref<Texture> tex = atex->get_atlas();
-        if (!tex.is_valid()) {
+        if (not tex) {
             return Ref<Texture>();
         }
 
         Ref<Image> atlas = tex->get_data();
-        if (!atlas.is_valid()) {
+        if (not atlas) {
             return Ref<Texture>();
         }
 
         img = atlas->get_rect(atex->get_region());
-    } else if (ltex.is_valid()) {
+    } else if (ltex) {
         img = ltex->to_image();
     } else {
-        Ref<Texture> tex = p_from;
+        Ref<Texture> tex = dynamic_ref_cast<Texture>(p_from);
         img = tex->get_data();
-        if (img.is_valid()) {
-            img = img->duplicate();
+        if (img) {
+            img = dynamic_ref_cast<Image>(img->duplicate());
         }
     }
 
-    if (img.is_null() || img->empty())
+    if (not img || img->empty())
         return Ref<Texture>();
 
     img->clear_mipmaps();
@@ -142,7 +142,7 @@ Ref<Texture> EditorTexturePreviewPlugin::generate(const RES &p_from, const Size2
 
     post_process_preview(img);
 
-    Ref<ImageTexture> ptex = Ref<ImageTexture>(memnew(ImageTexture));
+    Ref<ImageTexture> ptex(make_ref_counted<ImageTexture>());
 
     ptex->create_from_image(img, 0);
     return ptex;
@@ -160,17 +160,17 @@ bool EditorImagePreviewPlugin::handles(const String &p_type) const {
 
 Ref<Texture> EditorImagePreviewPlugin::generate(const RES &p_from, const Size2 &p_size) const {
 
-    Ref<Image> img = p_from;
+    Ref<Image> img = dynamic_ref_cast<Image>(p_from);
 
-    if (img.is_null() || img->empty())
-        return Ref<Image>();
+    if (not img || img->empty())
+        return Ref<Texture>();
 
-    img = img->duplicate();
+    img = dynamic_ref_cast<Image>(img->duplicate());
     img->clear_mipmaps();
 
     if (img->is_compressed()) {
         if (img->decompress() != OK)
-            return Ref<Image>();
+            return Ref<Texture>();
     } else if (img->get_format() != Image::FORMAT_RGB8 && img->get_format() != Image::FORMAT_RGBA8) {
         img->convert(Image::FORMAT_RGBA8);
     }
@@ -186,8 +186,7 @@ Ref<Texture> EditorImagePreviewPlugin::generate(const RES &p_from, const Size2 &
 
     post_process_preview(img);
 
-    Ref<ImageTexture> ptex;
-    ptex.instance();
+    Ref<ImageTexture> ptex(make_ref_counted<ImageTexture>());
 
     ptex->create_from_image(img, 0);
     return ptex;
@@ -208,7 +207,7 @@ bool EditorBitmapPreviewPlugin::handles(const String &p_type) const {
 
 Ref<Texture> EditorBitmapPreviewPlugin::generate(const RES &p_from, const Size2 &p_size) const {
 
-    Ref<BitMap> bm = p_from;
+    Ref<BitMap> bm = dynamic_ref_cast<BitMap>(p_from);
 
     if (bm->get_size() == Size2()) {
         return Ref<Texture>();
@@ -232,8 +231,7 @@ Ref<Texture> EditorBitmapPreviewPlugin::generate(const RES &p_from, const Size2 
         }
     }
 
-    Ref<Image> img;
-    img.instance();
+    Ref<Image> img(make_ref_counted<Image>());
     img->create(bm->get_size().width, bm->get_size().height, false, Image::FORMAT_L8, data);
 
     if (img->is_compressed()) {
@@ -254,7 +252,7 @@ Ref<Texture> EditorBitmapPreviewPlugin::generate(const RES &p_from, const Size2 
 
     post_process_preview(img);
 
-    Ref<ImageTexture> ptex = Ref<ImageTexture>(memnew(ImageTexture));
+    Ref<ImageTexture> ptex(make_ref_counted<ImageTexture>());
 
     ptex->create_from_image(img, 0);
     return ptex;
@@ -291,12 +289,11 @@ Ref<Texture> EditorPackedScenePreviewPlugin::generate_from_path(const String &p_
     if (!FileAccess::exists(path))
         return Ref<Texture>();
 
-    Ref<Image> img;
-    img.instance();
+    Ref<Image> img(make_ref_counted<Image>());
     Error err = img->load(path);
     if (err == OK) {
 
-        Ref<ImageTexture> ptex = Ref<ImageTexture>(memnew(ImageTexture));
+        Ref<ImageTexture> ptex(make_ref_counted<ImageTexture>());
 
         post_process_preview(img);
         ptex->create_from_image(img, 0);
@@ -333,8 +330,8 @@ bool EditorMaterialPreviewPlugin::generate_small_preview_automatically() const {
 
 Ref<Texture> EditorMaterialPreviewPlugin::generate(const RES &p_from, const Size2 &p_size) const {
 
-    Ref<Material> material = p_from;
-    ERR_FAIL_COND_V(material.is_null(), Ref<Texture>());
+    Ref<Material> material = dynamic_ref_cast<Material>(p_from);
+    ERR_FAIL_COND_V(not material, Ref<Texture>())
 
     if (material->get_shader_mode() == Shader::MODE_SPATIAL) {
 
@@ -352,13 +349,13 @@ Ref<Texture> EditorMaterialPreviewPlugin::generate(const RES &p_from, const Size
         Ref<Image> img = VS::get_singleton()->texture_get_data(viewport_texture);
         VS::get_singleton()->mesh_surface_set_material(sphere, 0, RID());
 
-        ERR_FAIL_COND_V(!img.is_valid(), Ref<ImageTexture>());
+        ERR_FAIL_COND_V(not img, Ref<ImageTexture>())
 
         img->convert(Image::FORMAT_RGBA8);
         int thumbnail_size = MAX(p_size.x, p_size.y);
         img->resize(thumbnail_size, thumbnail_size, Image::INTERPOLATE_CUBIC);
         post_process_preview(img);
-        Ref<ImageTexture> ptex = Ref<ImageTexture>(memnew(ImageTexture));
+        Ref<ImageTexture> ptex(make_ref_counted<ImageTexture>());
         ptex->create_from_image(img, 0);
         return ptex;
     }
@@ -468,7 +465,7 @@ EditorMaterialPreviewPlugin::EditorMaterialPreviewPlugin() {
     arr[VS::ARRAY_VERTEX] = vertices;
     arr[VS::ARRAY_NORMAL] = normals;
     arr[VS::ARRAY_TANGENT] = tangents;
-    arr[VS::ARRAY_TEX_UV] = uvs;
+    arr[VS::ARRAY_TEX_UV] = Variant(uvs);
     VS::get_singleton()->mesh_add_surface_from_arrays(sphere, VS::PRIMITIVE_TRIANGLES, arr);
 }
 
@@ -499,12 +496,12 @@ bool EditorScriptPreviewPlugin::handles(const String &p_type) const {
 
 Ref<Texture> EditorScriptPreviewPlugin::generate(const RES &p_from, const Size2 &p_size) const {
 
-    Ref<Script> scr = p_from;
-    if (scr.is_null())
+    Ref<Script> scr = dynamic_ref_cast<Script>(p_from);
+    if (not scr)
         return Ref<Texture>();
 
     String code = StringUtils::strip_edges(scr->get_source_code());
-    if (code == "")
+    if (code.empty())
         return Ref<Texture>();
 
     List<String> kwors;
@@ -514,13 +511,12 @@ Ref<Texture> EditorScriptPreviewPlugin::generate(const RES &p_from, const Size2 
 
     for (List<String>::Element *E = kwors.front(); E; E = E->next()) {
 
-        keywords.insert(E->get());
+        keywords.insert(E->deref());
     }
 
     int line = 0;
     int col = 0;
-    Ref<Image> img;
-    img.instance();
+    Ref<Image> img(make_ref_counted<Image>());
     int thumbnail_size = MAX(p_size.x, p_size.y);
     img->create(thumbnail_size, thumbnail_size, false, Image::FORMAT_RGBA8);
 
@@ -566,7 +562,7 @@ Ref<Texture> EditorScriptPreviewPlugin::generate(const RES &p_from, const Size2 
                         pos++;
                     }
                     String word = StringUtils::substr(code,i, pos - i);
-                    if (keywords.has(word))
+                    if (keywords.contains(word))
                         in_keyword = true;
 
                 } else if (!_is_text_char(c)) {
@@ -604,7 +600,7 @@ Ref<Texture> EditorScriptPreviewPlugin::generate(const RES &p_from, const Size2 
 
     post_process_preview(img);
 
-    Ref<ImageTexture> ptex = Ref<ImageTexture>(memnew(ImageTexture));
+    Ref<ImageTexture> ptex(make_ref_counted<ImageTexture>());
 
     ptex->create_from_image(img, 0);
     return ptex;
@@ -621,8 +617,8 @@ bool EditorAudioStreamPreviewPlugin::handles(const String &p_type) const {
 
 Ref<Texture> EditorAudioStreamPreviewPlugin::generate(const RES &p_from, const Size2 &p_size) const {
 
-    Ref<AudioStream> stream = p_from;
-    ERR_FAIL_COND_V(stream.is_null(), Ref<Texture>());
+    Ref<AudioStream> stream = dynamic_ref_cast<AudioStream>(p_from);
+    ERR_FAIL_COND_V(not stream, Ref<Texture>())
 
     PoolVector<uint8_t> img;
 
@@ -634,7 +630,7 @@ Ref<Texture> EditorAudioStreamPreviewPlugin::generate(const RES &p_from, const S
     uint8_t *imgw = imgdata.ptr();
 
     Ref<AudioStreamPlayback> playback = stream->instance_playback();
-    ERR_FAIL_COND_V(playback.is_null(), Ref<Texture>());
+    ERR_FAIL_COND_V(not playback, Ref<Texture>())
 
     float len_s = stream->get_length();
     if (len_s == 0) {
@@ -690,9 +686,8 @@ Ref<Texture> EditorAudioStreamPreviewPlugin::generate(const RES &p_from, const S
     imgdata.release();
     //post_process_preview(img);
 
-    Ref<ImageTexture> ptex = Ref<ImageTexture>(memnew(ImageTexture));
-    Ref<Image> image;
-    image.instance();
+    Ref<ImageTexture> ptex(make_ref_counted<ImageTexture>());
+    Ref<Image> image(make_ref_counted<Image>());
     image->create(w, h, false, Image::FORMAT_RGB8, img);
     ptex->create_from_image(image, 0);
     return ptex;
@@ -719,8 +714,8 @@ bool EditorMeshPreviewPlugin::handles(const String &p_type) const {
 
 Ref<Texture> EditorMeshPreviewPlugin::generate(const RES &p_from, const Size2 &p_size) const {
 
-    Ref<Mesh> mesh = p_from;
-    ERR_FAIL_COND_V(mesh.is_null(), Ref<Texture>());
+    Ref<Mesh> mesh = dynamic_ref_cast<Mesh>(p_from);
+    ERR_FAIL_COND_V(not mesh, Ref<Texture>())
 
     VS::get_singleton()->instance_set_base(mesh_instance, mesh->get_rid());
 
@@ -751,7 +746,7 @@ Ref<Texture> EditorMeshPreviewPlugin::generate(const RES &p_from, const Size2 &p
     }
 
     Ref<Image> img = VS::get_singleton()->texture_get_data(viewport_texture);
-    ERR_FAIL_COND_V(img.is_null(), Ref<ImageTexture>());
+    ERR_FAIL_COND_V(not img, Ref<ImageTexture>())
 
     VS::get_singleton()->instance_set_base(mesh_instance, RID());
 
@@ -768,7 +763,7 @@ Ref<Texture> EditorMeshPreviewPlugin::generate(const RES &p_from, const Size2 &p
 
     post_process_preview(img);
 
-    Ref<ImageTexture> ptex = Ref<ImageTexture>(memnew(ImageTexture));
+    Ref<ImageTexture> ptex(make_ref_counted<ImageTexture>());
     ptex->create_from_image(img, 0);
     return ptex;
 }
@@ -840,12 +835,10 @@ bool EditorFontPreviewPlugin::handles(const String &p_type) const {
 
 Ref<Texture> EditorFontPreviewPlugin::generate_from_path(const String &p_path, const Size2 &p_size) const {
 
-    Ref<DynamicFontData> SampledFont;
-    SampledFont.instance();
+    Ref<DynamicFontData> SampledFont(make_ref_counted<DynamicFontData>());
     SampledFont->set_font_path(p_path);
 
-    Ref<DynamicFont> sampled_font;
-    sampled_font.instance();
+    Ref<DynamicFont> sampled_font(make_ref_counted<DynamicFont>());
     sampled_font->set_size(50);
     sampled_font->set_font_data(SampledFont);
 
@@ -872,7 +865,7 @@ Ref<Texture> EditorFontPreviewPlugin::generate_from_path(const String &p_path, c
     VS::get_singleton()->canvas_item_clear(canvas_item);
 
     Ref<Image> img = VS::get_singleton()->texture_get_data(viewport_texture);
-    ERR_FAIL_COND_V(img.is_null(), Ref<ImageTexture>());
+    ERR_FAIL_COND_V(not img, Ref<ImageTexture>())
 
     img->convert(Image::FORMAT_RGBA8);
 
@@ -887,7 +880,7 @@ Ref<Texture> EditorFontPreviewPlugin::generate_from_path(const String &p_path, c
 
     post_process_preview(img);
 
-    Ref<ImageTexture> ptex = Ref<ImageTexture>(memnew(ImageTexture));
+    Ref<ImageTexture> ptex(make_ref_counted<ImageTexture>());
     ptex->create_from_image(img, 0);
 
     return ptex;

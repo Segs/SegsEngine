@@ -55,19 +55,19 @@ GradientEdit::GradientEdit() {
 
     add_child(popup);
 
-    checker = Ref<ImageTexture>(memnew(ImageTexture));
-    Ref<Image> img = memnew(Image(checker_bg_png));
+    checker = make_ref_counted<ImageTexture>();
+    Ref<Image> img(make_ref_counted<Image>(checker_bg_png));
     checker->create_from_image(img, ImageTexture::FLAG_REPEAT);
 }
 
 int GradientEdit::_get_point_from_pos(int x) {
     int result = -1;
     int total_w = get_size().width - get_size().height - SPACING;
-    float min_distance = 1e20;
+    float min_distance = 1e20f;
     for (int i = 0; i < points.size(); i++) {
         //Check if we clicked at point
         float distance = ABS(x - points[i].offset * total_w);
-        float min = (POINT_WIDTH / 2 * 1.7); //make it easier to grab
+        float min = (POINT_WIDTH / 2 * 1.7f); //make it easier to grab
         if (distance <= min && distance < min_distance) {
             result = i;
             min_distance = distance;
@@ -98,9 +98,9 @@ GradientEdit::~GradientEdit() {
 
 void GradientEdit::_gui_input(const Ref<InputEvent> &p_event) {
 
-    Ref<InputEventKey> k = p_event;
+    Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(p_event);
 
-    if (k.is_valid() && k->is_pressed() && k->get_scancode() == KEY_DELETE && grabbed != -1) {
+    if (k && k->is_pressed() && k->get_scancode() == KEY_DELETE && grabbed != -1) {
 
         points.remove(grabbed);
         grabbed = -1;
@@ -110,16 +110,16 @@ void GradientEdit::_gui_input(const Ref<InputEvent> &p_event) {
         accept_event();
     }
 
-    Ref<InputEventMouseButton> mb = p_event;
+    Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_event);
     //Show color picker on double click.
-    if (mb.is_valid() && mb->get_button_index() == 1 && mb->is_doubleclick() && mb->is_pressed()) {
+    if (mb && mb->get_button_index() == 1 && mb->is_doubleclick() && mb->is_pressed()) {
         grabbed = _get_point_from_pos(mb->get_position().x);
         _show_color_picker();
         accept_event();
     }
 
     //Delete point on right click
-    if (mb.is_valid() && mb->get_button_index() == 2 && mb->is_pressed()) {
+    if (mb && mb->get_button_index() == 2 && mb->is_pressed()) {
         grabbed = _get_point_from_pos(mb->get_position().x);
         if (grabbed != -1) {
             points.remove(grabbed);
@@ -132,7 +132,7 @@ void GradientEdit::_gui_input(const Ref<InputEvent> &p_event) {
     }
 
     //Hold alt key to duplicate selected color
-    if (mb.is_valid() && mb->get_button_index() == 1 && mb->is_pressed() && mb->get_alt()) {
+    if (mb && mb->get_button_index() == 1 && mb->is_pressed() && mb->get_alt()) {
 
         int x = mb->get_position().x;
         grabbed = _get_point_from_pos(x);
@@ -157,7 +157,7 @@ void GradientEdit::_gui_input(const Ref<InputEvent> &p_event) {
     }
 
     //select
-    if (mb.is_valid() && mb->get_button_index() == 1 && mb->is_pressed()) {
+    if (mb && mb->get_button_index() == 1 && mb->is_pressed()) {
 
         update();
         int x = mb->get_position().x;
@@ -194,7 +194,7 @@ void GradientEdit::_gui_input(const Ref<InputEvent> &p_event) {
 
             prev.color = Color(0, 0, 0);
             prev.offset = 0;
-            if (points.size()) {
+            if (!points.empty()) {
                 next = points[0];
             } else {
                 next.color = Color(1, 1, 1);
@@ -225,7 +225,7 @@ void GradientEdit::_gui_input(const Ref<InputEvent> &p_event) {
         emit_signal("ramp_changed");
     }
 
-    if (mb.is_valid() && mb->get_button_index() == 1 && !mb->is_pressed()) {
+    if (mb && mb->get_button_index() == 1 && !mb->is_pressed()) {
 
         if (grabbing) {
             grabbing = false;
@@ -234,9 +234,9 @@ void GradientEdit::_gui_input(const Ref<InputEvent> &p_event) {
         update();
     }
 
-    Ref<InputEventMouseMotion> mm = p_event;
+    Ref<InputEventMouseMotion> mm = dynamic_ref_cast<InputEventMouseMotion>(p_event);
 
-    if (mm.is_valid() && grabbing) {
+    if (mm && grabbing) {
 
         int total_w = get_size().width - get_size().height - SPACING;
 
@@ -244,13 +244,13 @@ void GradientEdit::_gui_input(const Ref<InputEvent> &p_event) {
 
         float newofs = CLAMP(x / float(total_w), 0, 1);
 
-		// Snap to "round" coordinates if holding Ctrl.
-		// Be more precise if holding Shift as well
-		if (mm->get_control()) {
-			newofs = Math::stepify(newofs, mm->get_shift() ? 0.025f : 0.1f);
-		} else if (mm->get_shift()) {
-			// Snap to nearest point if holding just Shift
-			const float snap_threshold = 0.03f;
+        // Snap to "round" coordinates if holding Ctrl.
+        // Be more precise if holding Shift as well
+        if (mm->get_control()) {
+            newofs = Math::stepify(newofs, mm->get_shift() ? 0.025f : 0.1f);
+        } else if (mm->get_shift()) {
+            // Snap to nearest point if holding just Shift
+            const float snap_threshold = 0.03f;
             float smallest_ofs = snap_threshold;
             bool found = false;
             int nearest_point = 0;
@@ -268,9 +268,9 @@ void GradientEdit::_gui_input(const Ref<InputEvent> &p_event) {
             }
             if (found) {
                 if (points[nearest_point].offset < newofs)
-                    newofs = points[nearest_point].offset + 0.00001;
+                    newofs = points[nearest_point].offset + 0.00001f;
                 else
-                    newofs = points[nearest_point].offset - 0.00001;
+                    newofs = points[nearest_point].offset - 0.00001f;
                 newofs = CLAMP(newofs, 0, 1);
             }
         }
@@ -325,7 +325,7 @@ void GradientEdit::_notification(int p_what) {
         //Draw color ramp
         Gradient::Point prev;
         prev.offset = 0;
-        if (points.size() == 0)
+        if (points.empty())
             prev.color = Color(0, 0, 0); //Draw black rectangle if we have no points
         else
             prev.color = points[0].color; //Extend color of first point to the beginning.
@@ -335,7 +335,7 @@ void GradientEdit::_notification(int p_what) {
             Gradient::Point next;
             //If there is no next point
             if (i + 1 == points.size()) {
-                if (points.size() == 0)
+                if (points.empty())
                     next.color = Color(0, 0, 0); //Draw black rectangle if we have no points
                 else
                     next.color = points[i].color; //Extend color of last point to the end.
@@ -453,7 +453,7 @@ void GradientEdit::_color_changed(const Color &p_color) {
 
 void GradientEdit::set_ramp(const Vector<float> &p_offsets, const Vector<Color> &p_colors) {
 
-    ERR_FAIL_COND(p_offsets.size() != p_colors.size());
+    ERR_FAIL_COND(p_offsets.size() != p_colors.size())
     points.clear();
     for (int i = 0; i < p_offsets.size(); i++) {
         Gradient::Point p;

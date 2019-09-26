@@ -93,7 +93,7 @@ class InspectorDock : public VBoxContainer {
 	void _new_resource();
 	void _load_resource(const String &p_type = "");
 	void _open_resource_selector() { _load_resource(); }; // just used to call from arg-less signal
-	void _resource_file_selected(String p_file);
+	void _resource_file_selected(const String& p_file);
 	void _save_resource(bool save_as) const;
 	void _unref_resource() const;
 	void _copy_resource() const;

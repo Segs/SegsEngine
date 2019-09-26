@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef OS_H
-#define OS_H
+#pragma once
 
 #include "core/engine.h"
 #include "core/io/logger.h"
@@ -52,7 +51,7 @@ class OS {
 
     static OS *singleton;
     String _execpath;
-    List<String> _cmdline;
+    ListPOD<String> _cmdline;
     bool _keep_screen_on;
     bool low_processor_usage_mode;
     int low_processor_usage_mode_sleep_usec;
@@ -73,7 +72,7 @@ class OS {
     CompositeLogger *_logger;
 
     bool restart_on_exit;
-    List<String> restart_commandline;
+    ListPOD<String> restart_commandline;
 
 protected:
     void _set_logger(CompositeLogger *p_logger);
@@ -138,7 +137,7 @@ protected:
     virtual void finalize() = 0;
     virtual void finalize_core() = 0;
 
-    virtual void set_cmdline(const char *p_execpath, const List<String> &p_args);
+    virtual void set_cmdline(const char *p_execpath, const ListPOD<String> &p_args);
 
     void _ensure_user_data_dir();
     virtual bool _check_internal_feature_support(const String &p_feature) = 0;
@@ -262,7 +261,7 @@ public:
     virtual Point2 get_ime_selection() const { return Point2(); }
     virtual String get_ime_text() const { return String(); }
 
-    virtual Error open_dynamic_library(const String p_path, void *&p_library_handle, bool p_also_set_library_path = false) { return ERR_UNAVAILABLE; }
+    virtual Error open_dynamic_library(const String &p_path, void *&p_library_handle, bool p_also_set_library_path = false) { return ERR_UNAVAILABLE; }
     virtual Error close_dynamic_library(void *p_library_handle) { return ERR_UNAVAILABLE; }
     virtual Error get_dynamic_library_symbol_handle(void *p_library_handle, const String p_name, void *&p_symbol_handle, bool p_optional = false) { return ERR_UNAVAILABLE; }
 
@@ -274,7 +273,7 @@ public:
     virtual int get_low_processor_usage_mode_sleep_usec() const;
 
     virtual String get_executable_path() const;
-    virtual Error execute(const String &p_path, const List<String> &p_arguments, bool p_blocking, ProcessID *r_child_id = nullptr, String *r_pipe = nullptr, int *r_exitcode = nullptr, bool read_stderr = false, Mutex *p_pipe_mutex = nullptr) = 0;
+    virtual Error execute(const String &p_path, const ListPOD<String> &p_arguments, bool p_blocking, ProcessID *r_child_id = nullptr, String *r_pipe = nullptr, int *r_exitcode = nullptr, bool read_stderr = false, Mutex *p_pipe_mutex = nullptr) = 0;
     virtual Error kill(const ProcessID &p_pid) = 0;
     virtual int get_process_id() const;
     virtual void vibrate_handheld(int p_duration_ms = 500);
@@ -287,7 +286,7 @@ public:
     virtual bool set_environment(const String &p_var, const String &p_value) const = 0;
 
     virtual String get_name() const = 0;
-    virtual List<String> get_cmdline_args() const { return _cmdline; }
+    virtual ListPOD<String> get_cmdline_args() const { return _cmdline; }
     virtual String get_model_name() const;
 
     virtual MainLoop *get_main_loop() const = 0;
@@ -412,7 +411,7 @@ public:
 
     virtual String get_locale() const;
 
-    String get_safe_dir_name(String p_dir_name, bool p_allow_dir_separator = false) const;
+    String get_safe_dir_name(const String& p_dir_name, bool p_allow_dir_separator = false) const;
     virtual String get_godot_dir_name() const;
 
     virtual String get_data_path() const;
@@ -532,9 +531,9 @@ public:
     bool is_layered_allowed() const { return _allow_layered; }
     bool is_hidpi_allowed() const { return _allow_hidpi; }
 
-    void set_restart_on_exit(bool p_restart, const List<String> &p_restart_arguments);
+    void set_restart_on_exit(bool p_restart, const ListPOD<String> &p_restart_arguments);
     bool is_restart_on_exit_set() const;
-    List<String> get_restart_on_exit_arguments() const;
+    ListPOD<String> get_restart_on_exit_arguments() const;
 
     virtual bool request_permission(const String &p_name) { return true; }
 
@@ -542,5 +541,3 @@ public:
     OS();
     virtual ~OS();
 };
-
-#endif

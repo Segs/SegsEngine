@@ -37,6 +37,7 @@
 #include "editor_scale.h"
 #include "filesystem_dock.h"
 #include "scene/resources/font.h"
+#include "core/os/input.h"
 #include "servers/audio_server.h"
 #include "scene/resources/style_box.h"
 
@@ -330,7 +331,13 @@ void EditorAudioBus::_volume_changed(float p_normalized) {
 
     updating_bus = true;
 
-    float p_db = this->_normalized_volume_to_scaled_db(p_normalized);
+    const float p_db = this->_normalized_volume_to_scaled_db(p_normalized);
+
+    if (Input::get_singleton()->is_key_pressed(KEY_CONTROL)) {
+        // Snap the value when holding Ctrl for easier editing.
+        // To do so, it needs to be converted back to normalized volume (as the slider uses that unit).
+        slider->set_value(_scaled_db_to_normalized_volume(Math::round(p_db)));
+    }
 
     UndoRedo *ur = EditorNode::get_undo_redo();
     ur->create_action(TTR("Change Audio Bus Volume"), UndoRedo::MERGE_ENDS);
@@ -385,14 +392,24 @@ float EditorAudioBus::_scaled_db_to_normalized_volume(float db) {
 }
 
 void EditorAudioBus::_show_value(float slider_value) {
-    String text = vformat("%10.1f dB", _normalized_volume_to_scaled_db(slider_value));
 
+    float db;
+    if (Input::get_singleton()->is_key_pressed(KEY_CONTROL)) {
+        // Display the correct (snapped) value when holding Ctrl
+        db = Math::round(_normalized_volume_to_scaled_db(slider_value));
+    } else {
+        db = _normalized_volume_to_scaled_db(slider_value);
+    }
+
+    String text = vformat("%10.1f dB", db);
+
+    slider->set_tooltip(text);
     audio_value_preview_label->set_text(text);
     Vector2 slider_size = slider->get_size();
     Vector2 slider_position = slider->get_global_position();
     float left_padding = 5.0f;
     float vert_padding = 10.0f;
-    Vector2 box_position = Vector2(slider_size.x + left_padding, (slider_size.y - vert_padding) * (1.0f - slider_value) - vert_padding);
+    Vector2 box_position = Vector2(slider_size.x + left_padding, (slider_size.y - vert_padding) * (1.0f - slider->get_value()) - vert_padding);
     audio_value_preview_box->set_position(slider_position + box_position);
     audio_value_preview_box->set_size(audio_value_preview_label->get_size());
     if (slider->has_focus() && !audio_value_preview_box->is_visible()) {
@@ -474,8 +491,8 @@ void EditorAudioBus::_effect_selected() {
 
         int index = effect->get_metadata(0);
         Ref<AudioEffect> effect2 = AudioServer::get_singleton()->get_bus_effect(get_index(), index);
-        if (effect2.is_valid()) {
-            EditorNode::get_singleton()->push_item(effect2.ptr());
+        if (effect2) {
+            EditorNode::get_singleton()->push_item(effect2.get());
         }
     }
 
@@ -521,9 +538,9 @@ void EditorAudioBus::_effect_add(int p_which) {
     StringName name = effect_options->get_item_metadata(p_which);
 
     Object *fx = ClassDB::instance(name);
-    ERR_FAIL_COND(!fx);
+    ERR_FAIL_COND(!fx)
     AudioEffect *afx = Object::cast_to<AudioEffect>(fx);
-    ERR_FAIL_COND(!afx);
+    ERR_FAIL_COND(!afx)
     Ref<AudioEffect> afxr = Ref<AudioEffect>(afx);
 
     afxr->set_name(effect_options->get_item_text(p_which));
@@ -539,14 +556,14 @@ void EditorAudioBus::_effect_add(int p_which) {
 
 void EditorAudioBus::_gui_input(const Ref<InputEvent> &p_event) {
 
-    Ref<InputEventKey> k = p_event;
-    if (k.is_valid() && k->is_pressed() && k->get_scancode() == KEY_DELETE && !k->is_echo()) {
+    Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(p_event);
+    if (k && k->is_pressed() && k->get_scancode() == KEY_DELETE && !k->is_echo()) {
         accept_event();
         emit_signal("delete_request");
     }
 
-    Ref<InputEventMouseButton> mb = p_event;
-    if (mb.is_valid() && mb->get_button_index() == 2 && mb->is_pressed()) {
+    Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_event);
+    if (mb && mb->get_button_index() == 2 && mb->is_pressed()) {
 
         Vector2 pos = Vector2(mb->get_position().x, mb->get_position().y);
         bus_popup->set_position(get_global_position() + pos);
@@ -621,7 +638,7 @@ Variant EditorAudioBus::get_drag_data_fw(const Point2 &p_point, Control *p_from)
     }
 
     Variant md = item->get_metadata(0);
-    if (md.get_type() == Variant::INT) {
+    if (md.get_type() == VariantType::INT) {
         Dictionary fxd;
         fxd["type"] = "audio_bus_effect";
         fxd["bus"] = get_index();
@@ -666,7 +683,7 @@ void EditorAudioBus::drop_data_fw(const Point2 &p_point, const Variant &p_data, 
     int bus = d["bus"];
     int effect = d["effect"];
 
-    if (md.get_type() == Variant::INT) {
+    if (md.get_type() == VariantType::INT) {
         paste_at = md;
         if (pos > 0)
             paste_at++;
@@ -716,7 +733,7 @@ void EditorAudioBus::_delete_effect_pressed(int p_option) {
     if (!item)
         return;
 
-    if (item->get_metadata(0).get_type() != Variant::INT)
+    if (item->get_metadata(0).get_type() != VariantType::INT)
         return;
 
     int index = item->get_metadata(0);
@@ -737,7 +754,7 @@ void EditorAudioBus::_effect_rmb(const Vector2 &p_pos) {
     if (!item)
         return;
 
-    if (item->get_metadata(0).get_type() != Variant::INT)
+    if (item->get_metadata(0).get_type() != VariantType::INT)
         return;
 
     delete_effect_popup->set_position(get_global_mouse_position());
@@ -782,7 +799,7 @@ EditorAudioBus::EditorAudioBus(EditorAudioBuses *p_buses, bool p_is_master) {
     is_master = p_is_master;
     hovering_drop = false;
 
-    set_tooltip(TTR("Audio Bus, Drag and Drop to rearrange."));
+    set_tooltip(TTR("Drag & drop to rearrange."));
 
     VBoxContainer *vb = memnew(VBoxContainer);
     add_child(vb);
@@ -822,7 +839,7 @@ EditorAudioBus::EditorAudioBus(EditorAudioBuses *p_buses, bool p_is_master) {
     bus_options->set_tooltip(TTR("Bus options"));
     hbc->add_child(bus_options);
 
-    Ref<StyleBoxEmpty> sbempty = memnew(StyleBoxEmpty);
+    Ref<StyleBoxEmpty> sbempty(make_ref_counted<StyleBoxEmpty>());
     for (int i = 0; i < hbc->get_child_count(); i++) {
         Control *child = Object::cast_to<Control>(hbc->get_child(i));
         child->add_style_override("normal", sbempty);
@@ -859,7 +876,7 @@ EditorAudioBus::EditorAudioBus(EditorAudioBuses *p_buses, bool p_is_master) {
 
     slider->add_child(audio_value_preview_box);
     audio_value_preview_box->set_as_toplevel(true);
-    Ref<StyleBoxFlat> panel_style = memnew(StyleBoxFlat);
+    Ref<StyleBoxFlat> panel_style(make_ref_counted<StyleBoxFlat>());
     panel_style->set_bg_color(Color(0.0f, 0.0f, 0.0f, 0.8f));
     audio_value_preview_box->add_style_override("panel", panel_style);
     audio_value_preview_box->set_mouse_filter(MOUSE_FILTER_PASS);
@@ -929,17 +946,17 @@ EditorAudioBus::EditorAudioBus(EditorAudioBuses *p_buses, bool p_is_master) {
     effect_options = memnew(PopupMenu);
     effect_options->connect("index_pressed", this, "_effect_add");
     add_child(effect_options);
-    List<StringName> effects;
+    ListPOD<StringName> effects;
     ClassDB::get_inheriters_from_class("AudioEffect", &effects);
-    effects.sort_custom<WrapAlphaCompare>();
-    for (List<StringName>::Element *E = effects.front(); E; E = E->next()) {
-        if (!ClassDB::can_instance(E->get()))
+    effects.sort(WrapAlphaCompare());
+    for (const StringName &E : effects) {
+        if (!ClassDB::can_instance(E))
             continue;
 
-        Ref<Texture> icon = EditorNode::get_singleton()->get_class_icon(E->get());
-        String name = StringUtils::replace(E->get(),"AudioEffect", "");
+        Ref<Texture> icon = EditorNode::get_singleton()->get_class_icon(E);
+        String name = StringUtils::replace(E,"AudioEffect", "");
         effect_options->add_item(name);
-        effect_options->set_item_metadata(effect_options->get_item_count() - 1, E->get());
+        effect_options->set_item_metadata(effect_options->get_item_count() - 1, E);
         effect_options->set_item_icon(effect_options->get_item_count() - 1, icon);
     }
 
@@ -1021,9 +1038,9 @@ void EditorAudioBuses::_update_buses() {
         bool is_master = (i == 0);
         EditorAudioBus *audio_bus = memnew(EditorAudioBus(this, is_master));
         bus_hb->add_child(audio_bus);
-        audio_bus->connect("delete_request", this, "_delete_bus", varray(audio_bus), ObjectNS::CONNECT_DEFERRED);
+        audio_bus->connect("delete_request", this, "_delete_bus", varray(Variant(audio_bus)), ObjectNS::CONNECT_DEFERRED);
         audio_bus->connect("duplicate_request", this, "_duplicate_bus", varray(), ObjectNS::CONNECT_DEFERRED);
-        audio_bus->connect("vol_reset_request", this, "_reset_bus_volume", varray(audio_bus), ObjectNS::CONNECT_DEFERRED);
+        audio_bus->connect("vol_reset_request", this, "_reset_bus_volume", varray(Variant(audio_bus)), ObjectNS::CONNECT_DEFERRED);
         audio_bus->connect("drop_end_request", this, "_request_drop_end");
         audio_bus->connect("dropped", this, "_drop_at_index", varray(), ObjectNS::CONNECT_DEFERRED);
     }
@@ -1240,8 +1257,8 @@ void EditorAudioBuses::_load_default_layout() {
 
     String layout_path = ProjectSettings::get_singleton()->get("audio/default_bus_layout");
 
-    Ref<AudioBusLayout> state = ResourceLoader::load(layout_path);
-    if (state.is_null()) {
+    Ref<AudioBusLayout> state = dynamic_ref_cast<AudioBusLayout>(ResourceLoader::load(layout_path));
+    if (not state) {
         EditorNode::get_singleton()->show_warning(vformat(TTR("There is no '%s' file."), layout_path));
         return;
     }
@@ -1257,8 +1274,8 @@ void EditorAudioBuses::_load_default_layout() {
 void EditorAudioBuses::_file_dialog_callback(const String &p_string) {
 
     if (file_dialog->get_mode() == EditorFileDialog::MODE_OPEN_FILE) {
-        Ref<AudioBusLayout> state = ResourceLoader::load(p_string);
-        if (state.is_null()) {
+        Ref<AudioBusLayout> state = dynamic_ref_cast<AudioBusLayout>(ResourceLoader::load(p_string));
+        if (not state) {
             EditorNode::get_singleton()->show_warning(TTR("Invalid file, not an audio bus layout."));
             return;
         }
@@ -1273,8 +1290,7 @@ void EditorAudioBuses::_file_dialog_callback(const String &p_string) {
     } else if (file_dialog->get_mode() == EditorFileDialog::MODE_SAVE_FILE) {
 
         if (new_layout) {
-            Ref<AudioBusLayout> empty_state;
-            empty_state.instance();
+            Ref<AudioBusLayout> empty_state(make_ref_counted<AudioBusLayout>());
             AudioServer::get_singleton()->set_bus_layout(empty_state);
         }
 
@@ -1369,7 +1385,7 @@ EditorAudioBuses::EditorAudioBuses() {
     bus_scroll->add_child(bus_hb);
 
     save_timer = memnew(Timer);
-    save_timer->set_wait_time(0.8);
+    save_timer->set_wait_time(0.8f);
     save_timer->set_one_shot(true);
     add_child(save_timer);
     save_timer->connect("timeout", this, "_server_save");
@@ -1379,10 +1395,10 @@ EditorAudioBuses::EditorAudioBuses() {
     edited_path = ProjectSettings::get_singleton()->get("audio/default_bus_layout");
 
     file_dialog = memnew(EditorFileDialog);
-    List<String> ext;
+    ListPOD<String> ext;
     ResourceLoader::get_recognized_extensions_for_type("AudioBusLayout", &ext);
-    for (List<String>::Element *E = ext.front(); E; E = E->next()) {
-        file_dialog->add_filter("*." + E->get() + "; Audio Bus Layout");
+    for (const String &E : ext) {
+        file_dialog->add_filter("*." + E + "; Audio Bus Layout");
     }
     add_child(file_dialog);
     file_dialog->connect("file_selected", this, "_file_dialog_callback");
@@ -1394,8 +1410,8 @@ void EditorAudioBuses::open_layout(const String &p_path) {
 
     EditorNode::get_singleton()->make_bottom_panel_item_visible(this);
 
-    Ref<AudioBusLayout> state = ResourceLoader::load(p_path);
-    if (state.is_null()) {
+    Ref<AudioBusLayout> state = dynamic_ref_cast<AudioBusLayout>(ResourceLoader::load(p_path));
+    if (not state) {
         EditorNode::get_singleton()->show_warning(TTR("Invalid file, not an audio bus layout."));
         return;
     }
@@ -1448,7 +1464,7 @@ Size2 EditorAudioMeterNotches::get_minimum_size() const {
     float width = 0;
     float height = top_padding + btm_padding;
 
-    for (uint8_t i = 0; i < notches.size(); i++) {
+    for (int i = 0; i < notches.size(); i++) {
         if (notches[i].render_db_value) {
             width = MAX(width, font->get_string_size(StringUtils::num(Math::abs(notches[i].db_value)) + "dB").x);
             height += font_height;
@@ -1482,7 +1498,7 @@ void EditorAudioMeterNotches::_draw_audio_notches() {
     Ref<Font> font = get_font("font", "Label");
     float font_height = font->get_height();
 
-    for (uint8_t i = 0; i < notches.size(); i++) {
+    for (int i = 0; i < notches.size(); i++) {
         AudioNotch n = notches[i];
         draw_line(Vector2(0, (1.0f - n.relative_position) * (get_size().y - btm_padding - top_padding) + top_padding),
                 Vector2(line_length, (1.0f - n.relative_position) * (get_size().y - btm_padding - top_padding) + top_padding),

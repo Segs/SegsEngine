@@ -32,11 +32,12 @@
 
 #include "core/os/file_access.h"
 #include "core/property_info.h"
+#include "core/class_db.h"
 
 IMPL_GDCLASS(TextFile)
 
 bool TextFile::has_text() const {
-	return text != "";
+	return !text.empty();
 }
 
 String TextFile::get_text() const {

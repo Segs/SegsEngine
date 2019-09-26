@@ -89,18 +89,18 @@ BackBufferCopy::CopyMode BackBufferCopy::get_copy_mode() const {
 
 void BackBufferCopy::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_rect", "rect"), &BackBufferCopy::set_rect);
+    MethodBinder::bind_method(D_METHOD("set_rect", {"rect"}), &BackBufferCopy::set_rect);
     MethodBinder::bind_method(D_METHOD("get_rect"), &BackBufferCopy::get_rect);
 
-    MethodBinder::bind_method(D_METHOD("set_copy_mode", "copy_mode"), &BackBufferCopy::set_copy_mode);
+    MethodBinder::bind_method(D_METHOD("set_copy_mode", {"copy_mode"}), &BackBufferCopy::set_copy_mode);
     MethodBinder::bind_method(D_METHOD("get_copy_mode"), &BackBufferCopy::get_copy_mode);
 
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "copy_mode", PROPERTY_HINT_ENUM, "Disabled,Rect,Viewport"), "set_copy_mode", "get_copy_mode");
-    ADD_PROPERTY(PropertyInfo(Variant::RECT2, "rect"), "set_rect", "get_rect");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "copy_mode", PROPERTY_HINT_ENUM, "Disabled,Rect,Viewport"), "set_copy_mode", "get_copy_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::RECT2, "rect"), "set_rect", "get_rect");
 
-    BIND_ENUM_CONSTANT(COPY_MODE_DISABLED);
-    BIND_ENUM_CONSTANT(COPY_MODE_RECT);
-    BIND_ENUM_CONSTANT(COPY_MODE_VIEWPORT);
+    BIND_ENUM_CONSTANT(COPY_MODE_DISABLED)
+    BIND_ENUM_CONSTANT(COPY_MODE_RECT)
+    BIND_ENUM_CONSTANT(COPY_MODE_VIEWPORT)
 }
 
 BackBufferCopy::BackBufferCopy() {

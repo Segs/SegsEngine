@@ -124,7 +124,7 @@ public:
         TK_CF_DO,
         TK_CF_SWITCH,
         TK_CF_CASE,
-		TK_CF_DEFAULT,
+        TK_CF_DEFAULT,
         TK_CF_BREAK,
         TK_CF_CONTINUE,
         TK_CF_RETURN,
@@ -266,8 +266,8 @@ public:
         FLOW_OP_DO,
         FLOW_OP_BREAK,
         FLOW_OP_SWITCH,
-		FLOW_OP_CASE,
-		FLOW_OP_DEFAULT,
+        FLOW_OP_CASE,
+        FLOW_OP_DEFAULT,
         FLOW_OP_CONTINUE,
         FLOW_OP_DISCARD
     };
@@ -316,7 +316,7 @@ public:
         DataType return_cache = TYPE_VOID;
         DataPrecision return_precision_cache=PRECISION_DEFAULT;
         Operator op=OP_EQUAL;
-        Vector<Node *> arguments;
+        PODVector<Node *> arguments;
 
         DataType get_datatype() const override { return return_cache; }
 
@@ -344,7 +344,7 @@ public:
             Node *initializer;
         };
 
-        Vector<Declaration> declarations;
+        PODVector<Declaration> declarations;
         DataType get_datatype() const override { return datatype; }
 
         VariableDeclarationNode() :
@@ -372,10 +372,10 @@ public:
         struct Declaration {
             StringName name;
             uint32_t size;
-            Vector<Node *> initializer;
+            PODVector<Node *> initializer;
         };
 
-        Vector<Declaration> declarations;
+        PODVector<Declaration> declarations;
         DataType get_datatype() const override { return datatype; }
 
         ArrayDeclarationNode() :
@@ -392,7 +392,7 @@ public:
             uint32_t uint;
         };
 
-        Vector<Value> values;
+        PODVector<Value> values;
         DataType get_datatype() const override { return datatype; }
 
         ConstantNode() : Node(TYPE_CONSTANT) {}
@@ -401,12 +401,12 @@ public:
     struct FunctionNode;
 
     struct BlockNode : public Node {
-		enum BlockType {
-			BLOCK_TYPE_STANDART,
-			BLOCK_TYPE_SWITCH,
-			BLOCK_TYPE_CASE,
-			BLOCK_TYPE_DEFAULT,
-		};
+        enum BlockType {
+            BLOCK_TYPE_STANDART,
+            BLOCK_TYPE_SWITCH,
+            BLOCK_TYPE_CASE,
+            BLOCK_TYPE_DEFAULT,
+        };
 
         struct Variable {
             DataType type;
@@ -420,7 +420,7 @@ public:
         BlockNode *parent_block=nullptr;
         Map<StringName, Variable> variables;
         List<Node *> statements;
-		int block_type=BLOCK_TYPE_STANDART;
+        int block_type=BLOCK_TYPE_STANDART;
         bool single_statement=false;
 
         BlockNode() :
@@ -429,8 +429,8 @@ public:
 
     struct ControlFlowNode : public Node {
         FlowOperation flow_op=FLOW_OP_IF;
-        Vector<Node *> expressions;
-        Vector<BlockNode *> blocks;
+        PODVector<Node *> expressions;
+        PODVector<BlockNode *> blocks;
 
         ControlFlowNode() :
                 Node(TYPE_CONTROL_FLOW) {}
@@ -458,7 +458,7 @@ public:
         StringName name;
         DataType return_type;
         DataPrecision return_precision;
-        Vector<Argument> arguments;
+        PODVector<Argument> arguments;
         BlockNode *body;
         bool can_discard;
 
@@ -481,19 +481,15 @@ public:
         struct Function {
             StringName name;
             FunctionNode *function;
-            Set<StringName> uses_function;
+            Set<StringName> uses_function {};
             bool callable;
         };
 
         struct Varying {
-            DataType type;
-            DataInterpolation interpolation;
-            DataPrecision precision;
-
-            Varying() :
-                    type(TYPE_VOID),
-                    interpolation(INTERPOLATION_FLAT),
-                    precision(PRECISION_DEFAULT) {}
+            DataType type=TYPE_VOID;
+            DataInterpolation interpolation=INTERPOLATION_FLAT;
+            DataPrecision precision=PRECISION_DEFAULT;
+            int array_size=0;
         };
 
         struct Uniform {
@@ -514,7 +510,7 @@ public:
             int texture_order=0;
             DataType type=TYPE_VOID;
             DataPrecision precision=PRECISION_DEFAULT;
-            Vector<ConstantNode::Value> default_value;
+            PODVector<ConstantNode::Value> default_value;
             Hint hint=HINT_NONE;
             float hint_range[3];
 
@@ -528,9 +524,9 @@ public:
         Map<StringName, Constant> constants;
         Map<StringName, Varying> varyings;
         Map<StringName, Uniform> uniforms;
-        Vector<StringName> render_modes;
+        PODVector<StringName> render_modes;
 
-        Vector<Function> functions;
+        PODVector<Function> functions;
 
         ShaderNode() :
                 Node(TYPE_SHADER) {}
@@ -567,7 +563,7 @@ public:
     };
 
     static String get_operator_text(Operator p_op);
-    static String get_token_text(Token p_token);
+    static String get_token_text(const Token& p_token);
 
     static bool is_token_datatype(TokenType p_type);
     static bool is_token_variable_datatype(TokenType p_type);
@@ -586,10 +582,10 @@ public:
     static int get_cardinality(DataType p_type);
     static bool is_scalar_type(DataType p_type);
     static bool is_sampler_type(DataType p_type);
-    static Variant constant_value_to_variant(const Vector<ShaderLanguage::ConstantNode::Value> &p_value, DataType p_type, ShaderLanguage::ShaderNode::Uniform::Hint p_hint = ShaderLanguage::ShaderNode::Uniform::HINT_NONE);
+    static Variant constant_value_to_variant(const PODVector<ConstantNode::Value> &p_value, DataType p_type, ShaderLanguage::ShaderNode::Uniform::Hint p_hint = ShaderLanguage::ShaderNode::Uniform::HINT_NONE);
 
-    static void get_keyword_list(List<String> *r_keywords);
-    static void get_builtin_funcs(List<String> *r_keywords);
+    static void get_keyword_list(PODVector<String> *r_keywords);
+    static void get_builtin_funcs(PODVector<String> *r_keywords);
 
     struct BuiltInInfo {
         DataType type;
@@ -715,8 +711,8 @@ private:
     Error _parse_block(BlockNode *p_block, const Map<StringName, BuiltInInfo> &p_builtin_types, bool p_just_one = false, bool p_can_break = false, bool p_can_continue = false);
     Error _parse_shader(const Map<StringName, FunctionInfo> &p_functions, const Vector<StringName> &p_render_modes, const Set<String> &p_shader_types);
 
-	Error _find_last_flow_op_in_block(BlockNode *p_block, FlowOperation p_op);
-	Error _find_last_flow_op_in_op(ControlFlowNode *p_flow, FlowOperation p_op);
+    Error _find_last_flow_op_in_block(BlockNode *p_block, FlowOperation p_op);
+    Error _find_last_flow_op_in_op(ControlFlowNode *p_flow, FlowOperation p_op);
 public:
     //static void get_keyword_list(ShaderType p_type,List<String> *p_keywords);
 

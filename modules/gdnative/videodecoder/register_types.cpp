@@ -31,13 +31,15 @@
 #include "register_types.h"
 
 #include "core/class_db.h"
+#include "core/io/resource_loader.h"
 #include "video_stream_gdnative.h"
+
 
 static Ref<ResourceFormatLoaderVideoStreamGDNative> resource_loader_vsgdnative;
 
 void register_videodecoder_types() {
 
-	resource_loader_vsgdnative.instance();
+    resource_loader_vsgdnative = make_ref_counted<ResourceFormatLoaderVideoStreamGDNative>();
 	ResourceLoader::add_resource_format_loader(resource_loader_vsgdnative, true);
 
 	ClassDB::register_class<VideoStreamGDNative>();

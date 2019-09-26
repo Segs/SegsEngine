@@ -57,7 +57,7 @@ void MeshInstanceEditor::edit(MeshInstance *p_mesh) {
 void MeshInstanceEditor::_menu_option(int p_option) {
 
     Ref<Mesh> mesh = node->get_mesh();
-    if (mesh.is_null()) {
+    if (not mesh) {
         err_dialog->set_text(TTR("Mesh is empty!"));
         err_dialog->popup_centered_minsize();
         return;
@@ -76,7 +76,7 @@ void MeshInstanceEditor::_menu_option(int p_option) {
 
             if (selection.empty()) {
                 Ref<Shape> shape = trimesh_shape ? mesh->create_trimesh_shape() : mesh->create_convex_shape();
-                if (shape.is_null())
+                if (not shape)
                     return;
 
                 CollisionShape *cshape = memnew(CollisionShape);
@@ -91,11 +91,11 @@ void MeshInstanceEditor::_menu_option(int p_option) {
                 else
                     ur->create_action(TTR("Create Static Convex Body"));
 
-                ur->add_do_method(node, "add_child", body);
-                ur->add_do_method(body, "set_owner", owner);
-                ur->add_do_method(cshape, "set_owner", owner);
+                ur->add_do_method(node, "add_child", Variant(body));
+                ur->add_do_method(body, "set_owner", Variant(owner));
+                ur->add_do_method(cshape, "set_owner", Variant(owner));
                 ur->add_do_reference(body);
-                ur->add_undo_method(node, "remove_child", body);
+                ur->add_undo_method(node, "remove_child", Variant(body));
                 ur->commit_action();
                 return;
             }
@@ -104,16 +104,16 @@ void MeshInstanceEditor::_menu_option(int p_option) {
 
             for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
 
-                MeshInstance *instance = Object::cast_to<MeshInstance>(E->get());
+                MeshInstance *instance = Object::cast_to<MeshInstance>(E->deref());
                 if (!instance)
                     continue;
 
                 Ref<Mesh> m = instance->get_mesh();
-                if (m.is_null())
+                if (not m)
                     continue;
 
                 Ref<Shape> shape = trimesh_shape ? m->create_trimesh_shape() : m->create_convex_shape();
-                if (shape.is_null())
+                if (not shape)
                     continue;
 
                 CollisionShape *cshape = memnew(CollisionShape);
@@ -123,11 +123,11 @@ void MeshInstanceEditor::_menu_option(int p_option) {
 
                 Node *owner = instance == get_tree()->get_edited_scene_root() ? instance : instance->get_owner();
 
-                ur->add_do_method(instance, "add_child", body);
-                ur->add_do_method(body, "set_owner", owner);
-                ur->add_do_method(cshape, "set_owner", owner);
+                ur->add_do_method(instance, "add_child", Variant(body));
+                ur->add_do_method(body, "set_owner", Variant(owner));
+                ur->add_do_method(cshape, "set_owner", Variant(owner));
                 ur->add_do_reference(body);
-                ur->add_undo_method(instance, "remove_child", body);
+                ur->add_undo_method(instance, "remove_child", Variant(body));
             }
 
             ur->commit_action();
@@ -143,7 +143,7 @@ void MeshInstanceEditor::_menu_option(int p_option) {
             }
 
             Ref<Shape> shape = mesh->create_trimesh_shape();
-            if (shape.is_null())
+            if (not shape)
                 return;
 
             CollisionShape *cshape = memnew(CollisionShape);
@@ -155,11 +155,11 @@ void MeshInstanceEditor::_menu_option(int p_option) {
 
             ur->create_action(TTR("Create Trimesh Static Shape"));
 
-            ur->add_do_method(node->get_parent(), "add_child", cshape);
-            ur->add_do_method(node->get_parent(), "move_child", cshape, node->get_index() + 1);
-            ur->add_do_method(cshape, "set_owner", owner);
+            ur->add_do_method(node->get_parent(), "add_child", Variant(cshape));
+            ur->add_do_method(node->get_parent(), "move_child", Variant(cshape), node->get_index() + 1);
+            ur->add_do_method(cshape, "set_owner", Variant(owner));
             ur->add_do_reference(cshape);
-            ur->add_undo_method(node->get_parent(), "remove_child", cshape);
+            ur->add_undo_method(node->get_parent(), "remove_child", Variant(cshape));
             ur->commit_action();
         } break;
         case MENU_OPTION_CREATE_CONVEX_COLLISION_SHAPE: {
@@ -172,7 +172,7 @@ void MeshInstanceEditor::_menu_option(int p_option) {
 
             Vector<Ref<Shape> > shapes = mesh->convex_decompose();
 
-            if (!shapes.size()) {
+            if (shapes.empty()) {
                 err_dialog->set_text(TTR("Failed creating shapes!"));
                 err_dialog->popup_centered_minsize();
                 return;
@@ -188,11 +188,11 @@ void MeshInstanceEditor::_menu_option(int p_option) {
 
                 Node *owner = node->get_owner();
 
-                ur->add_do_method(node->get_parent(), "add_child", cshape);
-                ur->add_do_method(node->get_parent(), "move_child", cshape, node->get_index() + 1);
-                ur->add_do_method(cshape, "set_owner", owner);
+                ur->add_do_method(node->get_parent(), "add_child", Variant(cshape));
+                ur->add_do_method(node->get_parent(), "move_child", Variant(cshape), node->get_index() + 1);
+                ur->add_do_method(cshape, "set_owner", Variant(owner));
                 ur->add_do_reference(cshape);
-                ur->add_undo_method(node->get_parent(), "remove_child", cshape);
+                ur->add_undo_method(node->get_parent(), "remove_child", Variant(cshape));
             }
             ur->commit_action();
 
@@ -200,9 +200,9 @@ void MeshInstanceEditor::_menu_option(int p_option) {
 
         case MENU_OPTION_CREATE_NAVMESH: {
 
-            Ref<NavigationMesh> nmesh = memnew(NavigationMesh);
+            Ref<NavigationMesh> nmesh(make_ref_counted<NavigationMesh>());
 
-            if (nmesh.is_null())
+            if (not nmesh)
                 return;
 
             nmesh->create_from_mesh(mesh);
@@ -214,11 +214,11 @@ void MeshInstanceEditor::_menu_option(int p_option) {
             UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
             ur->create_action(TTR("Create Navigation Mesh"));
 
-            ur->add_do_method(node, "add_child", nmi);
-            ur->add_do_method(nmi, "set_owner", owner);
+            ur->add_do_method(node, "add_child", Variant(nmi));
+            ur->add_do_method(nmi, "set_owner", Variant(owner));
 
             ur->add_do_reference(nmi);
-            ur->add_undo_method(node, "remove_child", nmi);
+            ur->add_undo_method(node, "remove_child", Variant(nmi));
             ur->commit_action();
         } break;
 
@@ -228,8 +228,8 @@ void MeshInstanceEditor::_menu_option(int p_option) {
         } break;
         case MENU_OPTION_CREATE_UV2: {
 
-            Ref<ArrayMesh> mesh2 = node->get_mesh();
-            if (!mesh2.is_valid()) {
+            Ref<ArrayMesh> mesh2 = dynamic_ref_cast<ArrayMesh>(node->get_mesh());
+            if (not mesh2) {
                 err_dialog->set_text(TTR("Contained Mesh is not of type ArrayMesh."));
                 err_dialog->popup_centered_minsize();
                 return;
@@ -245,7 +245,7 @@ void MeshInstanceEditor::_menu_option(int p_option) {
         } break;
         case MENU_OPTION_DEBUG_UV1: {
             Ref<Mesh> mesh2 = node->get_mesh();
-            if (!mesh2.is_valid()) {
+            if (not mesh2) {
                 err_dialog->set_text(TTR("No mesh to debug."));
                 err_dialog->popup_centered_minsize();
                 return;
@@ -254,7 +254,7 @@ void MeshInstanceEditor::_menu_option(int p_option) {
         } break;
         case MENU_OPTION_DEBUG_UV2: {
             Ref<Mesh> mesh2 = node->get_mesh();
-            if (!mesh2.is_valid()) {
+            if (not mesh2) {
                 err_dialog->set_text(TTR("No mesh to debug."));
                 err_dialog->popup_centered_minsize();
                 return;
@@ -291,7 +291,7 @@ struct MeshInstanceEditorEdgeSort {
 void MeshInstanceEditor::_create_uv_lines(int p_layer) {
 
     Ref<Mesh> mesh = node->get_mesh();
-    ERR_FAIL_COND(!mesh.is_valid());
+    ERR_FAIL_COND(not mesh)
 
     Set<MeshInstanceEditorEdgeSort> edges;
     uv_lines.clear();
@@ -337,7 +337,7 @@ void MeshInstanceEditor::_create_uv_lines(int p_layer) {
                     edge.b = r[j + ((k + 1) % 3)];
                 }
 
-                if (edges.has(edge))
+                if (edges.contains(edge))
                     continue;
 
                 uv_lines.push_back(edge.a);
@@ -352,19 +352,19 @@ void MeshInstanceEditor::_create_uv_lines(int p_layer) {
 
 void MeshInstanceEditor::_debug_uv_draw() {
 
-    if (uv_lines.size() == 0)
+    if (uv_lines.empty())
         return;
 
     debug_uv->set_clip_contents(true);
-    debug_uv->draw_rect(Rect2(Vector2(), debug_uv->get_size()), Color(0.2, 0.2, 0.0));
+    debug_uv->draw_rect(Rect2(Vector2(), debug_uv->get_size()), Color(0.2f, 0.2f, 0.0));
     debug_uv->draw_set_transform(Vector2(), 0, debug_uv->get_size());
-    debug_uv->draw_multiline(uv_lines, Color(1.0, 0.8, 0.7));
+    debug_uv->draw_multiline(uv_lines, Color(1.0, 0.8f, 0.7f));
 }
 
 void MeshInstanceEditor::_create_outline_mesh() {
 
     Ref<Mesh> mesh = node->get_mesh();
-    if (mesh.is_null()) {
+    if (not mesh) {
         err_dialog->set_text(TTR("MeshInstance lacks a Mesh!"));
         err_dialog->popup_centered_minsize();
         return;
@@ -382,7 +382,7 @@ void MeshInstanceEditor::_create_outline_mesh() {
 
     Ref<Mesh> mesho = mesh->create_outline(outline_size->get_value());
 
-    if (mesho.is_null()) {
+    if (not mesho) {
         err_dialog->set_text(TTR("Could not create outline!"));
         err_dialog->popup_centered_minsize();
         return;
@@ -399,11 +399,11 @@ void MeshInstanceEditor::_create_outline_mesh() {
 
     ur->create_action(TTR("Create Outline"));
 
-    ur->add_do_method(node, "add_child", mi);
-    ur->add_do_method(mi, "set_owner", owner);
+    ur->add_do_method(node, "add_child", Variant(mi));
+    ur->add_do_method(mi, "set_owner", Variant(owner));
 
     ur->add_do_reference(mi);
-    ur->add_undo_method(node, "remove_child", mi);
+    ur->add_undo_method(node, "remove_child", Variant(mi));
     ur->commit_action();
 }
 

@@ -80,7 +80,7 @@ private:
 
 	static void joy_thread_func(void *p_user);
 
-	int get_joy_from_path(String p_path) const;
+	int get_joy_from_path(const String& p_path) const;
 
 	void setup_joypad_properties(int p_id);
 	void close_joypad(int p_id = -1);

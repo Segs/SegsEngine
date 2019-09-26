@@ -38,7 +38,7 @@ Mutex *(*Mutex::create_func)(bool) = nullptr;
 
 Mutex *Mutex::create(bool p_recursive) {
 
-	ERR_FAIL_COND_V(!create_func, nullptr);
+	ERR_FAIL_COND_V(!create_func, nullptr)
 
 	return create_func(p_recursive);
 }

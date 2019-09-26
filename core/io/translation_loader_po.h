@@ -30,7 +30,7 @@
 
 #pragma once
 
-#include "core/io/resource_loader.h"
+#include "core/io/resource_format_loader.h"
 #include "core/os/file_access.h"
 #include "core/translation.h"
 
@@ -38,7 +38,7 @@ class TranslationLoaderPO : public ResourceFormatLoader {
 public:
     static RES load_translation(FileAccess *f, Error *r_error, const String &p_path = String());
     RES load(const String &p_path, const String &p_original_path = "", Error *r_error = nullptr) override;
-    void get_recognized_extensions(List<String> *p_extensions) const override;
+    void get_recognized_extensions(ListPOD<String> *p_extensions) const override;
     bool handles_type(const String &p_type) const override;
     String get_resource_type(const String &p_path) const override;
 

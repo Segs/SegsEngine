@@ -56,11 +56,11 @@ class ThreadWindows : public Thread {
 	ThreadWindows();
 
 public:
-	virtual ID get_id() const;
+	[[nodiscard]] virtual ID get_id() const;
 
 	static void make_default();
 
-	~ThreadWindows();
+	~ThreadWindows() override;
 };
 
 #endif

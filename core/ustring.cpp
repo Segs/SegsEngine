@@ -34,9 +34,9 @@
 #include "core/crypto/crypto_core.h"
 #include "core/math/math_funcs.h"
 #include "core/os/memory.h"
-#include "core/print_string.h"
 #include "core/translation.h"
-#include "core/ucaps.h"
+#include "core/list.h"
+#include "core/vector.h"
 #include "core/variant.h"
 
 #include <QString>
@@ -1223,7 +1223,7 @@ int StringUtils::findmk(const String &s,const Vector<String> &p_keys, int p_from
 
     if (p_from < 0)
         return -1;
-    if (p_keys.size() == 0)
+    if (p_keys.empty())
         return -1;
 
     //int src_len=p_str.length();
@@ -1338,14 +1338,9 @@ bool StringUtils::begins_with(const String &s,const char *p_string) {
     return s.m_str.startsWith(p_string);
 }
 
-bool StringUtils::is_subsequence_of(const String &str,const String &p_string) {
+bool StringUtils::is_subsequence_of(const String &str,const String &p_string, Compare mode) {
 
-    return p_string.m_str.startsWith(str.m_str,Qt::CaseSensitive);
-}
-
-bool StringUtils::is_subsequence_ofi(const String &str,const String &p_string) {
-
-    return p_string.m_str.startsWith(str.m_str,Qt::CaseInsensitive);
+    return p_string.m_str.startsWith(str.m_str,mode==CaseSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive);
 }
 
 bool StringUtils::is_quoted(const String &str) {
@@ -1475,12 +1470,12 @@ String StringUtils::format(const String &fmt, const Variant &values) {
     static const String underscore("_");
     String new_string = String(fmt);
 
-    if (values.get_type() == Variant::ARRAY) {
+    if (values.get_type() == VariantType::ARRAY) {
         Array values_arr = values;
         for (int i = 0; i < values_arr.size(); i++) {
             String i_as_str = num_int64(i);
 
-            if (values_arr[i].get_type() == Variant::ARRAY) { //Array in Array structure [["name","RobotGuy"],[0,"godot"],["strength",9000.91]]
+            if (values_arr[i].get_type() == VariantType::ARRAY) { //Array in Array structure [["name","RobotGuy"],[0,"godot"],["strength",9000.91]]
                 Array value_arr = values_arr[i];
 
                 if (value_arr.size() == 2) {
@@ -1510,14 +1505,14 @@ String StringUtils::format(const String &fmt, const Variant &values) {
                 new_string = replace(new_string,"{"+i_as_str+"}", val);
             }
         }
-    } else if (values.get_type() == Variant::DICTIONARY) {
+    } else if (values.get_type() == VariantType::DICTIONARY) {
         Dictionary d = values;
-        List<Variant> keys;
+        ListPOD<Variant> keys;
         d.get_key_list(&keys);
 
-        for (List<Variant>::Element *E = keys.front(); E; E = E->next()) {
-            String key = E->get().as<String>();
-            String val = d[E->get()].as<String>();
+        for (const Variant &E : keys) {
+            String key = E.as<String>();
+            String val = d[E].as<String>();
 
             if (is_enclosed_in(key,'"')) {
                 key = StringUtils::substr(key,1, key.length() - 2);
@@ -1871,8 +1866,7 @@ String StringUtils::word_wrap(const String &str,int p_chars_per_line) {
 String StringUtils::http_escape(const String &s) {
     const CharString temp = s.m_str.toUtf8();
     QString res;
-    for (int i = 0; i < temp.length(); ++i) {
-        char ord = temp[i];
+    for (char ord : temp) {
         if (ord == '.' || ord == '-' || ord == '_' || ord == '~' ||
                 (ord >= 'a' && ord <= 'z') ||
                 (ord >= 'A' && ord <= 'Z') ||
@@ -2353,7 +2347,7 @@ bool StringUtils::is_valid_filename(const String &str) {
         return false;
     }
 
-    if (stripped == String()) {
+    if (stripped.empty()) {
         return false;
     }
     //TODO: SEGS: convert this chain of string scans to something saner.
@@ -2714,7 +2708,7 @@ String StringUtils::sprintf(const String &str,const Array &values, bool *error) 
                             return String("unsigned byte integer is greater than maximum");
                         }
                         str = String(values[value_index].as<QChar>());
-                    } else if (values[value_index].get_type() == Variant::STRING) {
+                    } else if (values[value_index].get_type() == VariantType::STRING) {
                         str = values[value_index].as<String>();
                         if (str.length() != 1) {
                             return String("%c requires number or single-character string");
@@ -2859,7 +2853,7 @@ String RTR(const String &p_text) {
 
     if (TranslationServer::get_singleton()) {
         String rtr = TranslationServer::get_singleton()->tool_translate(p_text);
-        if (rtr == String() || rtr == p_text) {
+        if (rtr.empty() || rtr == p_text) {
             return TranslationServer::get_singleton()->translate(p_text);
         } else {
             return rtr;

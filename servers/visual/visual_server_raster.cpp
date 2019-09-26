@@ -86,7 +86,7 @@ void VisualServerRaster::free(RID p_rid) {
 
 void VisualServerRaster::request_frame_drawn_callback(Object *p_where, const StringName &p_method, const Variant &p_userdata) {
 
-    ERR_FAIL_NULL(p_where);
+    ERR_FAIL_NULL(p_where)
     FrameDrawnCallbacks fdc;
     fdc.object = p_where->get_instance_id();
     fdc.method = p_method;
@@ -113,14 +113,14 @@ void VisualServerRaster::draw(bool p_swap_buffers, double frame_step) {
 
     while (frame_drawn_callbacks.front()) {
 
-        Object *obj = ObjectDB::get_instance(frame_drawn_callbacks.front()->get().object);
+        Object *obj = ObjectDB::get_instance(frame_drawn_callbacks.front()->deref().object);
         if (obj) {
             Variant::CallError ce;
-            const Variant *v = &frame_drawn_callbacks.front()->get().param;
-            obj->call(frame_drawn_callbacks.front()->get().method, &v, 1, ce);
+            const Variant *v = &frame_drawn_callbacks.front()->deref().param;
+            obj->call(frame_drawn_callbacks.front()->deref().method, &v, 1, ce);
             if (ce.error != Variant::CallError::CALL_OK) {
-                String err = Variant::get_call_error_text(obj, frame_drawn_callbacks.front()->get().method, &v, 1, ce);
-                ERR_PRINTS("Error calling frame drawn function: " + err);
+                String err = Variant::get_call_error_text(obj, frame_drawn_callbacks.front()->deref().method, &v, 1, ce);
+                ERR_PRINTS("Error calling frame drawn function: " + err)
             }
         }
 

@@ -70,28 +70,28 @@ String Shader::get_code() const {
     return VisualServer::get_singleton()->shader_get_code(shader);
 }
 
-void Shader::get_param_list(List<PropertyInfo> *p_params) const {
+void Shader::get_param_list(ListPOD<PropertyInfo> *p_params) const {
 
     _update_shader();
 
-    List<PropertyInfo> local;
+    ListPOD<PropertyInfo> local;
     VisualServer::get_singleton()->shader_get_param_list(shader, &local);
     params_cache.clear();
     params_cache_dirty = false;
 
-    for (List<PropertyInfo>::Element *E = local.front(); E; E = E->next()) {
+    for (const PropertyInfo &E : local) {
 
-        PropertyInfo pi = E->get();
-        if (default_textures.has(pi.name)) { //do not show default textures
+        PropertyInfo pi = E;
+        if (default_textures.contains(pi.name)) { //do not show default textures
             continue;
         }
         pi.name = "shader_param/" + pi.name;
-        params_cache[pi.name] = E->get().name;
+        params_cache[pi.name] = E.name;
         if (p_params) {
 
             //small little hack
-            if (pi.type == Variant::_RID)
-                pi.type = Variant::OBJECT;
+            if (pi.type == VariantType::_RID)
+                pi.type = VariantType::OBJECT;
             p_params->push_back(pi);
         }
     }
@@ -104,9 +104,9 @@ RID Shader::get_rid() const {
     return shader;
 }
 
-void Shader::set_default_texture_param(const StringName &p_param, const Ref<Texture> &p_texture) {
+void Shader::set_default_texture_param(const StringName &p_param, const Ref<Resource> &p_texture) {
 
-    if (p_texture.is_valid()) {
+    if (p_texture) {
         default_textures[p_param] = p_texture;
         VS::get_singleton()->shader_set_default_texture_param(shader, p_param, p_texture->get_rid());
     } else {
@@ -117,19 +117,16 @@ void Shader::set_default_texture_param(const StringName &p_param, const Ref<Text
     emit_changed();
 }
 
-Ref<Texture> Shader::get_default_texture_param(const StringName &p_param) const {
+Ref<Resource> Shader::get_default_texture_param(const StringName &p_param) const {
 
-    if (default_textures.has(p_param))
-        return default_textures[p_param];
-    else
-        return Ref<Texture>();
+    return default_textures.at(p_param,Ref<Resource>());
 }
 
 void Shader::get_default_texture_param_list(List<StringName> *r_textures) const {
 
-    for (const Map<StringName, Ref<Texture> >::Element *E = default_textures.front(); E; E = E->next()) {
+    for (const eastl::pair<const StringName,Ref<Resource> > &E : default_textures) {
 
-        r_textures->push_back(E->key());
+        r_textures->push_back(E.first);
     }
 }
 
@@ -139,7 +136,7 @@ bool Shader::is_text_shader() const {
 
 bool Shader::has_param(const StringName &p_param) const {
 
-    return params_cache.has(p_param);
+    return params_cache.contains(p_param);
 }
 
 void Shader::_update_shader() const {
@@ -149,21 +146,21 @@ void Shader::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("get_mode"), &Shader::get_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_code", "code"), &Shader::set_code);
+    MethodBinder::bind_method(D_METHOD("set_code", {"code"}), &Shader::set_code);
     MethodBinder::bind_method(D_METHOD("get_code"), &Shader::get_code);
 
-    MethodBinder::bind_method(D_METHOD("set_default_texture_param", "param", "texture"), &Shader::set_default_texture_param);
-    MethodBinder::bind_method(D_METHOD("get_default_texture_param", "param"), &Shader::get_default_texture_param);
+    MethodBinder::bind_method(D_METHOD("set_default_texture_param", {"param", "texture"}), &Shader::set_default_texture_param);
+    MethodBinder::bind_method(D_METHOD("get_default_texture_param", {"param"}), &Shader::get_default_texture_param);
 
-    MethodBinder::bind_method(D_METHOD("has_param", "name"), &Shader::has_param);
+    MethodBinder::bind_method(D_METHOD("has_param", {"name"}), &Shader::has_param);
 
     //MethodBinder::bind_method(D_METHOD("get_param_list"),&Shader::get_fragment_code);
 
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "code", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_code", "get_code");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "code", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_code", "get_code");
 
-    BIND_ENUM_CONSTANT(MODE_SPATIAL);
-    BIND_ENUM_CONSTANT(MODE_CANVAS_ITEM);
-    BIND_ENUM_CONSTANT(MODE_PARTICLES);
+    BIND_ENUM_CONSTANT(MODE_SPATIAL)
+    BIND_ENUM_CONSTANT(MODE_CANVAS_ITEM)
+    BIND_ENUM_CONSTANT(MODE_PARTICLES)
 }
 
 Shader::Shader() {
@@ -184,8 +181,7 @@ RES ResourceFormatLoaderShader::load(const String &p_path, const String &p_origi
     if (r_error)
         *r_error = ERR_FILE_CANT_OPEN;
 
-    Ref<Shader> shader;
-    shader.instance();
+    Ref<Shader> shader(make_ref_counted<Shader>());
 
     Vector<uint8_t> buffer = FileAccess::get_file_as_array(p_path);
 
@@ -199,7 +195,7 @@ RES ResourceFormatLoaderShader::load(const String &p_path, const String &p_origi
     return shader;
 }
 
-void ResourceFormatLoaderShader::get_recognized_extensions(List<String> *p_extensions) const {
+void ResourceFormatLoaderShader::get_recognized_extensions(ListPOD<String> *p_extensions) const {
 
     p_extensions->push_back("shader");
 }
@@ -219,8 +215,8 @@ String ResourceFormatLoaderShader::get_resource_type(const String &p_path) const
 
 Error ResourceFormatSaverShader::save(const String &p_path, const RES &p_resource, uint32_t p_flags) {
 
-    Ref<Shader> shader = p_resource;
-    ERR_FAIL_COND_V(shader.is_null(), ERR_INVALID_PARAMETER)
+    Ref<Shader> shader = dynamic_ref_cast<Shader>(p_resource);
+    ERR_FAIL_COND_V(not shader, ERR_INVALID_PARAMETER)
 
     String source = shader->get_code();
 
@@ -245,7 +241,7 @@ Error ResourceFormatSaverShader::save(const String &p_path, const RES &p_resourc
 
 void ResourceFormatSaverShader::get_recognized_extensions(const RES &p_resource, Vector<String> *p_extensions) const {
 
-    if (const Shader *shader = Object::cast_to<Shader>(*p_resource)) {
+    if (const Shader *shader = Object::cast_to<Shader>(p_resource.get())) {
         if (shader->is_text_shader()) {
             p_extensions->push_back("shader");
         }

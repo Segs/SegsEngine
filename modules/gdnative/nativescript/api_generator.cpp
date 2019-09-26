@@ -41,16 +41,18 @@
 #include "core/method_bind_interface.h"
 #include "core/pair.h"
 #include "core/ustring.h"
+
+#include "EASTL/sort.h"
 // helper stuff
 
 static Error save_file(const String &p_path, const List<String> &p_content) {
 
     FileAccessRef file = FileAccess::open(p_path, FileAccess::WRITE);
 
-    ERR_FAIL_COND_V(!file, ERR_FILE_CANT_WRITE);
+    ERR_FAIL_COND_V(!file, ERR_FILE_CANT_WRITE)
 
     for (const List<String>::Element *e = p_content.front(); e != nullptr; e = e->next()) {
-        file->store_string(e->get());
+        file->store_string(e->deref());
     }
 
     file->close();
@@ -123,8 +125,8 @@ struct ClassAPI {
 };
 
 static String get_type_name(const PropertyInfo &info) {
-    if (info.type == Variant::INT && (info.usage & PROPERTY_USAGE_CLASS_IS_ENUM)) {
-		return String("enum.") + StringUtils::replace(info.class_name,".", "::");
+    if (info.type == VariantType::INT && (info.usage & PROPERTY_USAGE_CLASS_IS_ENUM)) {
+        return String("enum.") + StringUtils::replace(info.class_name,".", "::");
     }
     if (info.class_name != StringName()) {
         return info.class_name;
@@ -132,10 +134,10 @@ static String get_type_name(const PropertyInfo &info) {
     if (info.hint == PROPERTY_HINT_RESOURCE_TYPE) {
         return info.hint_string;
     }
-    if (info.type == Variant::NIL && (info.usage & PROPERTY_USAGE_NIL_IS_VARIANT)) {
+    if (info.type == VariantType::NIL && (info.usage & PROPERTY_USAGE_NIL_IS_VARIANT)) {
         return "Variant";
     }
-    if (info.type == Variant::NIL) {
+    if (info.type == VariantType::NIL) {
         return "void";
     }
     return Variant::get_type_name(info.type);
@@ -207,29 +209,29 @@ List<ClassAPI> generate_c_api_classes() {
         {
             String name = class_name;
             if (StringUtils::begins_with(name,"_")) {
-				StringUtils::erase(name,0,1);
+                StringUtils::erase(name,0,1);
             }
             class_api.is_singleton = Engine::get_singleton()->has_singleton(name);
         }
         class_api.is_instanciable = !class_api.is_singleton && ClassDB::can_instance(class_name);
 
         {
-            List<StringName> inheriters;
+            ListPOD<StringName> inheriters;
             ClassDB::get_inheriters_from_class("Reference", &inheriters);
-            bool is_reference = !!inheriters.find(class_name);
+            bool is_reference = inheriters.contains(class_name);
             // @Unclear
             class_api.is_reference = !class_api.is_singleton && is_reference;
         }
 
         // constants
         {
-            List<String> constant;
+            ListPOD<String> constant;
             ClassDB::get_integer_constant_list(class_name, &constant, true);
-            constant.sort_custom<NoCaseComparator>();
-            for (List<String>::Element *c = constant.front(); c != nullptr; c = c->next()) {
+            constant.sort(NoCaseComparator());
+            for (const String &c : constant) {
                 ConstantAPI constant_api;
-                constant_api.constant_name = c->get();
-                constant_api.constant_value = ClassDB::get_integer_constant(class_name, c->get());
+                constant_api.constant_name = c;
+                constant_api.constant_value = ClassDB::get_integer_constant(class_name, c);
 
                 class_api.constants.push_back(constant_api);
             }
@@ -237,22 +239,20 @@ List<ClassAPI> generate_c_api_classes() {
 
         // signals
         {
-            List<MethodInfo> signals_;
+            ListPOD<MethodInfo> signals_;
             ClassDB::get_signal_list(class_name, &signals_, true);
-            signals_.sort_custom<MethodInfoComparator>();
+            signals_.sort(MethodInfoComparator());
 
-            for (int i = 0; i < signals_.size(); i++) {
+            for (const MethodInfo &method_info : signals_) {
                 SignalAPI signal;
 
-                MethodInfo method_info = signals_[i];
                 signal.name = method_info.name;
 
-                for (int j = 0; j < method_info.arguments.size(); j++) {
-                    PropertyInfo argument = method_info.arguments[j];
+                for (const PropertyInfo &argument : method_info.arguments) {
                     String type;
                     String name = argument.name;
 
-					if (StringUtils::contains(argument.name,':')) {
+                    if (StringUtils::contains(argument.name,':')) {
                         type = StringUtils::get_slice(argument.name,":", 1);
                         name = StringUtils::get_slice(argument.name,":", 0);
                     } else {
@@ -263,11 +263,11 @@ List<ClassAPI> generate_c_api_classes() {
                     signal.argument_types.push_back(type);
                 }
 
-                Vector<Variant> default_arguments = method_info.default_arguments;
+                const PODVector<Variant> &default_arguments(method_info.default_arguments);
 
                 int default_start = signal.argument_names.size() - default_arguments.size();
 
-                for (int j = 0; j < default_arguments.size(); j++) {
+                for (size_t j = 0; j < default_arguments.size(); j++) {
                     signal.default_arguments[default_start + j] = default_arguments[j];
                 }
 
@@ -277,25 +277,25 @@ List<ClassAPI> generate_c_api_classes() {
 
         //properties
         {
-            List<PropertyInfo> properties;
+            ListPOD<PropertyInfo> properties;
             ClassDB::get_property_list(class_name, &properties, true);
-            properties.sort_custom<PropertyInfoComparator>();
+            properties.sort(PropertyInfoComparator());
 
-            for (List<PropertyInfo>::Element *p = properties.front(); p != nullptr; p = p->next()) {
+            for (const PropertyInfo &p : properties) {
                 PropertyAPI property_api;
 
-                property_api.name = p->get().name;
-                property_api.getter = ClassDB::get_property_getter(class_name, p->get().name);
-                property_api.setter = ClassDB::get_property_setter(class_name, p->get().name);
+                property_api.name = p.name;
+                property_api.getter = ClassDB::get_property_getter(class_name, p.name);
+                property_api.setter = ClassDB::get_property_setter(class_name, p.name);
 
-				if( StringUtils::contains(p->get().name,":") ) {
-                    property_api.type = StringUtils::get_slice(p->get().name,":", 1);
-                    property_api.name = StringUtils::get_slice(p->get().name,":", 0);
+                if( StringUtils::contains(p.name,":") ) {
+                    property_api.type = StringUtils::get_slice(p.name,":", 1);
+                    property_api.name = StringUtils::get_slice(p.name,":", 0);
                 } else {
-                    property_api.type = get_type_name(p->get());
+                    property_api.type = get_type_name(p);
                 }
 
-                property_api.index = ClassDB::get_property_index(class_name, p->get().name);
+                property_api.index = ClassDB::get_property_index(class_name, p.name);
 
                 if (!property_api.setter.empty() || !property_api.getter.empty()) {
                     class_api.properties.push_back(property_api);
@@ -305,23 +305,22 @@ List<ClassAPI> generate_c_api_classes() {
 
         //methods
         {
-            List<MethodInfo> methods;
+            PODVector<MethodInfo> methods;
             ClassDB::get_method_list(class_name, &methods, true);
-            methods.sort_custom<MethodInfoComparator>();
+            eastl::sort(methods.begin(),methods.end(),MethodInfoComparator());
 
-            for (List<MethodInfo>::Element *m = methods.front(); m != nullptr; m = m->next()) {
+            for (MethodInfo &method_info : methods) {
                 MethodAPI method_api;
-                MethodBind *method_bind = ClassDB::get_method(class_name, m->get().name);
-                MethodInfo &method_info = m->get();
+                MethodBind *method_bind = ClassDB::get_method(class_name, method_info.name);
 
                 //method name
                 method_api.method_name = method_info.name;
                 //method return type
-				if( StringUtils::contains(method_api.method_name,":") ) {
+                if( StringUtils::contains(method_api.method_name,":") ) {
                     method_api.return_type = StringUtils::get_slice(method_api.method_name,":", 1);
                     method_api.method_name = StringUtils::get_slice(method_api.method_name,":", 0);
                 } else {
-                    method_api.return_type = get_type_name(m->get().return_val);
+                    method_api.return_type = get_type_name(method_info.return_val);
                 }
 
                 method_api.argument_count = method_info.arguments.size();
@@ -350,16 +349,16 @@ List<ClassAPI> generate_c_api_classes() {
 
                     arg_name = arg_info.name;
 
-					if (StringUtils::contains(arg_info.name,":") ) {
+                    if (StringUtils::contains(arg_info.name,":") ) {
                         arg_type = StringUtils::get_slice(arg_info.name,":", 1);
                         arg_name = StringUtils::get_slice(arg_info.name,":", 0);
                     } else if (arg_info.hint == PROPERTY_HINT_RESOURCE_TYPE) {
                         arg_type = arg_info.hint_string;
-                    } else if (arg_info.type == Variant::NIL) {
+                    } else if (arg_info.type == VariantType::NIL) {
                         arg_type = "Variant";
-                    } else if (arg_info.type == Variant::OBJECT) {
+                    } else if (arg_info.type == VariantType::OBJECT) {
                         arg_type = arg_info.class_name;
-                        if (arg_type == "") {
+                        if (arg_type.empty()) {
                             arg_type = Variant::get_type_name(arg_info.type);
                         }
                     } else {
@@ -381,16 +380,16 @@ List<ClassAPI> generate_c_api_classes() {
         // enums
         {
             List<EnumAPI> enums;
-            List<StringName> enum_names;
+            ListPOD<StringName> enum_names;
             ClassDB::get_enum_list(class_name, &enum_names, true);
-            for (List<StringName>::Element *E = enum_names.front(); E; E = E->next()) {
-                List<StringName> value_names;
+            for(const StringName & E : enum_names) {
+                ListPOD<StringName> value_names;
                 EnumAPI enum_api;
-                enum_api.name = E->get();
-                ClassDB::get_enum_constants(class_name, E->get(), &value_names, true);
-                for (List<StringName>::Element *val_e = value_names.front(); val_e; val_e = val_e->next()) {
-                    int int_val = ClassDB::get_integer_constant(class_name, val_e->get(), nullptr);
-                    enum_api.values.push_back(Pair<int, String>(int_val, val_e->get()));
+                enum_api.name = E;
+                ClassDB::get_enum_constants(class_name, E, &value_names, true);
+                for(const StringName & val_e : value_names) {
+                    int int_val = ClassDB::get_integer_constant(class_name, val_e, nullptr);
+                    enum_api.values.push_back(Pair<int, String>(int_val, val_e));
                 }
                 enum_api.values.sort_custom<PairSort<int, String> >();
                 class_api.enums.push_back(enum_api);
@@ -415,7 +414,7 @@ static List<String> generate_c_api_json(const List<ClassAPI> &p_api) {
     source.push_back("[\n");
 
     for (const List<ClassAPI>::Element *c = p_api.front(); c != nullptr; c = c->next()) {
-        ClassAPI api = c->get();
+        ClassAPI api = c->deref();
 
         source.push_back("\t{\n");
 
@@ -429,18 +428,18 @@ static List<String> generate_c_api_json(const List<ClassAPI> &p_api) {
 
         source.push_back("\t\t\"constants\": {\n");
         for (List<ConstantAPI>::Element *e = api.constants.front(); e; e = e->next()) {
-            source.push_back("\t\t\t\"" + e->get().constant_name + "\": " + StringUtils::num_int64(e->get().constant_value) + (e->next() ? "," : "") + "\n");
+            source.push_back("\t\t\t\"" + e->deref().constant_name + "\": " + StringUtils::num_int64(e->deref().constant_value) + (e->next() ? "," : "") + "\n");
         }
         source.push_back("\t\t},\n");
 
         source.push_back("\t\t\"properties\": [\n");
         for (List<PropertyAPI>::Element *e = api.properties.front(); e; e = e->next()) {
             source.push_back("\t\t\t{\n");
-            source.push_back("\t\t\t\t\"name\": \"" + e->get().name + "\",\n");
-            source.push_back("\t\t\t\t\"type\": \"" + e->get().type + "\",\n");
-            source.push_back("\t\t\t\t\"getter\": \"" + e->get().getter + "\",\n");
-            source.push_back("\t\t\t\t\"setter\": \"" + e->get().setter + "\",\n");
-            source.push_back(String("\t\t\t\t\"index\": ") + itos(e->get().index) + "\n");
+            source.push_back("\t\t\t\t\"name\": \"" + e->deref().name + "\",\n");
+            source.push_back("\t\t\t\t\"type\": \"" + e->deref().type + "\",\n");
+            source.push_back("\t\t\t\t\"getter\": \"" + e->deref().getter + "\",\n");
+            source.push_back("\t\t\t\t\"setter\": \"" + e->deref().setter + "\",\n");
+            source.push_back(String("\t\t\t\t\"index\": ") + itos(e->deref().index) + "\n");
             source.push_back(String("\t\t\t}") + (e->next() ? "," : "") + "\n");
         }
         source.push_back("\t\t],\n");
@@ -448,14 +447,14 @@ static List<String> generate_c_api_json(const List<ClassAPI> &p_api) {
         source.push_back("\t\t\"signals\": [\n");
         for (List<SignalAPI>::Element *e = api.signals_.front(); e; e = e->next()) {
             source.push_back("\t\t\t{\n");
-            source.push_back("\t\t\t\t\"name\": \"" + e->get().name + "\",\n");
+            source.push_back("\t\t\t\t\"name\": \"" + e->deref().name + "\",\n");
             source.push_back("\t\t\t\t\"arguments\": [\n");
-            for (int i = 0; i < e->get().argument_names.size(); i++) {
+            for (int i = 0; i < e->deref().argument_names.size(); i++) {
                 source.push_back("\t\t\t\t\t{\n");
-                source.push_back("\t\t\t\t\t\t\"name\": \"" + e->get().argument_names[i] + "\",\n");
-                source.push_back("\t\t\t\t\t\t\"type\": \"" + e->get().argument_types[i] + "\",\n");
-                source.push_back("\t\t\t\t\t\t\"default_value\": \"" + (e->get().default_arguments.has(i) ? (String)e->get().default_arguments[i] : "") + "\"\n");
-                source.push_back(String("\t\t\t\t\t}") + ((i < e->get().argument_names.size() - 1) ? "," : "") + "\n");
+                source.push_back("\t\t\t\t\t\t\"name\": \"" + e->deref().argument_names[i] + "\",\n");
+                source.push_back("\t\t\t\t\t\t\"type\": \"" + e->deref().argument_types[i] + "\",\n");
+                source.push_back("\t\t\t\t\t\t\"default_value\": \"" + (e->deref().default_arguments.contains(i) ? (String)e->deref().default_arguments[i] : "") + "\"\n");
+                source.push_back(String("\t\t\t\t\t}") + ((i < e->deref().argument_names.size() - 1) ? "," : "") + "\n");
             }
             source.push_back("\t\t\t\t]\n");
             source.push_back(String("\t\t\t}") + (e->next() ? "," : "") + "\n");
@@ -465,23 +464,23 @@ static List<String> generate_c_api_json(const List<ClassAPI> &p_api) {
         source.push_back("\t\t\"methods\": [\n");
         for (List<MethodAPI>::Element *e = api.methods.front(); e; e = e->next()) {
             source.push_back("\t\t\t{\n");
-            source.push_back("\t\t\t\t\"name\": \"" + e->get().method_name + "\",\n");
-            source.push_back("\t\t\t\t\"return_type\": \"" + e->get().return_type + "\",\n");
-            source.push_back(String("\t\t\t\t\"is_editor\": ") + (e->get().is_editor ? "true" : "false") + ",\n");
-            source.push_back(String("\t\t\t\t\"is_noscript\": ") + (e->get().is_noscript ? "true" : "false") + ",\n");
-            source.push_back(String("\t\t\t\t\"is_const\": ") + (e->get().is_const ? "true" : "false") + ",\n");
-            source.push_back(String("\t\t\t\t\"is_reverse\": ") + (e->get().is_reverse ? "true" : "false") + ",\n");
-            source.push_back(String("\t\t\t\t\"is_virtual\": ") + (e->get().is_virtual ? "true" : "false") + ",\n");
-            source.push_back(String("\t\t\t\t\"has_varargs\": ") + (e->get().has_varargs ? "true" : "false") + ",\n");
-            source.push_back(String("\t\t\t\t\"is_from_script\": ") + (e->get().is_from_script ? "true" : "false") + ",\n");
+            source.push_back("\t\t\t\t\"name\": \"" + e->deref().method_name + "\",\n");
+            source.push_back("\t\t\t\t\"return_type\": \"" + e->deref().return_type + "\",\n");
+            source.push_back(String("\t\t\t\t\"is_editor\": ") + (e->deref().is_editor ? "true" : "false") + ",\n");
+            source.push_back(String("\t\t\t\t\"is_noscript\": ") + (e->deref().is_noscript ? "true" : "false") + ",\n");
+            source.push_back(String("\t\t\t\t\"is_const\": ") + (e->deref().is_const ? "true" : "false") + ",\n");
+            source.push_back(String("\t\t\t\t\"is_reverse\": ") + (e->deref().is_reverse ? "true" : "false") + ",\n");
+            source.push_back(String("\t\t\t\t\"is_virtual\": ") + (e->deref().is_virtual ? "true" : "false") + ",\n");
+            source.push_back(String("\t\t\t\t\"has_varargs\": ") + (e->deref().has_varargs ? "true" : "false") + ",\n");
+            source.push_back(String("\t\t\t\t\"is_from_script\": ") + (e->deref().is_from_script ? "true" : "false") + ",\n");
             source.push_back("\t\t\t\t\"arguments\": [\n");
-            for (int i = 0; i < e->get().argument_names.size(); i++) {
+            for (int i = 0; i < e->deref().argument_names.size(); i++) {
                 source.push_back("\t\t\t\t\t{\n");
-                source.push_back("\t\t\t\t\t\t\"name\": \"" + e->get().argument_names[i] + "\",\n");
-                source.push_back("\t\t\t\t\t\t\"type\": \"" + e->get().argument_types[i] + "\",\n");
-                source.push_back(String("\t\t\t\t\t\t\"has_default_value\": ") + (e->get().default_arguments.has(i) ? "true" : "false") + ",\n");
-                source.push_back("\t\t\t\t\t\t\"default_value\": \"" + (e->get().default_arguments.has(i) ? (String)e->get().default_arguments[i] : "") + "\"\n");
-                source.push_back(String("\t\t\t\t\t}") + ((i < e->get().argument_names.size() - 1) ? "," : "") + "\n");
+                source.push_back("\t\t\t\t\t\t\"name\": \"" + e->deref().argument_names[i] + "\",\n");
+                source.push_back("\t\t\t\t\t\t\"type\": \"" + e->deref().argument_types[i] + "\",\n");
+                source.push_back(String("\t\t\t\t\t\t\"has_default_value\": ") + (e->deref().default_arguments.contains(i) ? "true" : "false") + ",\n");
+                source.push_back("\t\t\t\t\t\t\"default_value\": \"" + (e->deref().default_arguments.contains(i) ? (String)e->deref().default_arguments[i] : "") + "\"\n");
+                source.push_back(String("\t\t\t\t\t}") + ((i < e->deref().argument_names.size() - 1) ? "," : "") + "\n");
             }
             source.push_back("\t\t\t\t]\n");
             source.push_back(String("\t\t\t}") + (e->next() ? "," : "") + "\n");
@@ -491,10 +490,10 @@ static List<String> generate_c_api_json(const List<ClassAPI> &p_api) {
         source.push_back("\t\t\"enums\": [\n");
         for (List<EnumAPI>::Element *e = api.enums.front(); e; e = e->next()) {
             source.push_back("\t\t\t{\n");
-            source.push_back("\t\t\t\t\"name\": \"" + e->get().name + "\",\n");
+            source.push_back("\t\t\t\t\"name\": \"" + e->deref().name + "\",\n");
             source.push_back("\t\t\t\t\"values\": {\n");
-            for (List<Pair<int, String> >::Element *val_e = e->get().values.front(); val_e; val_e = val_e->next()) {
-                source.push_back("\t\t\t\t\t\"" + val_e->get().second + "\": " + itos(val_e->get().first));
+            for (List<Pair<int, String> >::Element *val_e = e->deref().values.front(); val_e; val_e = val_e->next()) {
+                source.push_back("\t\t\t\t\t\"" + val_e->deref().second + "\": " + itos(val_e->deref().first));
                 source.push_back(String((val_e->next() ? "," : "")) + "\n");
             }
             source.push_back("\t\t\t\t}\n");

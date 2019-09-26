@@ -61,7 +61,7 @@ void DynamicFontData::unlock() {
 
 void DynamicFontData::set_font_data(const PoolVector<uint8_t> &p_font) {
     //clear caches and stuff
-    ERR_FAIL_COND(font_data.size());
+    ERR_FAIL_COND(font_data.size())
     font_data = p_font;
 
     lock();
@@ -87,19 +87,18 @@ void DynamicFontData::set_font_data(const PoolVector<uint8_t> &p_font) {
     unlock();
     //clear existing stuff
 
-    ERR_FAIL_COND(!valid);
+    ERR_FAIL_COND(!valid)
 }
 
 Ref<DynamicFontAtSize> DynamicFontData::_get_dynamic_font_at_size(int p_size) {
 
-    ERR_FAIL_COND_V(!valid, Ref<DynamicFontAtSize>());
+    ERR_FAIL_COND_V(!valid, Ref<DynamicFontAtSize>())
 
     if (size_cache.has(p_size)) {
         return Ref<DynamicFontAtSize>(size_cache[p_size]);
     }
 
-    Ref<DynamicFontAtSize> dfas;
-    dfas.instance();
+    Ref<DynamicFontAtSize> dfas(make_ref_counted<DynamicFontAtSize>());
 
     dfas->font = Ref<DynamicFontData>(this);
 
@@ -145,7 +144,7 @@ Size2 DynamicFontAtSize::get_char_size(CharType p_char, CharType p_next) const {
     const_cast<DynamicFontAtSize *>(this)->_update_char(p_char);
 
     const Character *c = char_map.getptr(p_char);
-    ERR_FAIL_COND_V(!c, Size2());
+    ERR_FAIL_COND_V(!c, Size2())
 
     Size2 ret(c->advance, get_height());
 
@@ -178,7 +177,7 @@ float DynamicFontAtSize::draw_char(RID p_canvas_item, const Point2 &p_pos, CharT
         cpos.x += c->h_align;
         cpos.y -= get_ascent();
         cpos.y += c->v_align;
-        ERR_FAIL_COND_V(c->texture_idx < -1 || c->texture_idx >= textures.size(), 0);
+        ERR_FAIL_COND_V(c->texture_idx < -1 || c->texture_idx >= textures.size(), 0)
         if (c->texture_idx != -1)
             VisualServer::get_singleton()->canvas_item_add_texture_rect_region(p_canvas_item, Rect2(cpos, c->rect.size), textures[c->texture_idx].texture->get_rid(), c->rect, p_modulate);
     }
@@ -202,7 +201,7 @@ float DynamicFontAtSize::draw_char(RID p_canvas_item, const Point2 &p_pos, CharT
 
 void DynamicFontAtSize::_update_char(CharType p_char) {
 
-    if (char_map.has(p_char))
+    if (char_map.contains(p_char))
         return;
 
     font->lock();
@@ -235,8 +234,8 @@ void DynamicFontAtSize::_update_char(CharType p_char) {
 
         stbtt_FreeBitmap(cpbitmap, NULL);
         font->unlock();
-        ERR_FAIL_COND(mw > 4096);
-        ERR_FAIL_COND(mh > 4096);
+        ERR_FAIL_COND(mw > 4096)
+        ERR_FAIL_COND(mh > 4096)
     }
 
     //find a texture to fit this...
@@ -301,7 +300,7 @@ void DynamicFontAtSize::_update_char(CharType p_char) {
         {
             //zero texture
             PoolVector<uint8_t>::Write w = tex.imgdata.write();
-            ERR_FAIL_COND(texsize * texsize * 2 > tex.imgdata.size());
+            ERR_FAIL_COND(texsize * texsize * 2 > tex.imgdata.size())
             for (int i = 0; i < texsize * texsize * 2; i++) {
                 w[i] = 0;
             }
@@ -325,7 +324,7 @@ void DynamicFontAtSize::_update_char(CharType p_char) {
             for (int j = 0; j < w; j++) {
 
                 int ofs = ((i + tex_y + rect_margin) * tex.texture_size + j + tex_x + rect_margin) * 2;
-                ERR_FAIL_COND(ofs >= tex.imgdata.size());
+                ERR_FAIL_COND(ofs >= tex.imgdata.size())
                 wr[ofs + 0] = 255; //grayscale as 1
                 wr[ofs + 1] = cpbitmap[i * w + j]; //alpha as 0
             }
@@ -376,7 +375,7 @@ DynamicFontAtSize::DynamicFontAtSize() {
 
 DynamicFontAtSize::~DynamicFontAtSize() {
 
-    ERR_FAIL_COND(!font.ptr());
+    ERR_FAIL_COND(!font.ptr())
     font->size_cache.erase(size);
 }
 
@@ -384,14 +383,14 @@ DynamicFontAtSize::~DynamicFontAtSize() {
 
 void DynamicFont::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_font_data", "data"), &DynamicFont::set_font_data);
+    MethodBinder::bind_method(D_METHOD("set_font_data", {"data"}), &DynamicFont::set_font_data);
     MethodBinder::bind_method(D_METHOD("get_font_data"), &DynamicFont::get_font_data);
 
-    MethodBinder::bind_method(D_METHOD("set_size", "data"), &DynamicFont::set_size);
+    MethodBinder::bind_method(D_METHOD("set_size", {"data"}), &DynamicFont::set_size);
     MethodBinder::bind_method(D_METHOD("get_size"), &DynamicFont::get_size);
 
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "font/size"), "set_size", "get_size");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "font/font", PROPERTY_HINT_RESOURCE_TYPE, "DynamicFontData"), "set_font_data", "get_font_data");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "font/size"), "set_size", "get_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "font/font", PROPERTY_HINT_RESOURCE_TYPE, "DynamicFontData"), "set_font_data", "get_font_data");
 }
 
 void DynamicFont::set_font_data(const Ref<DynamicFontData> &p_data) {
@@ -410,7 +409,7 @@ void DynamicFont::set_size(int p_size) {
     if (size == p_size)
         return;
     size = p_size;
-    ERR_FAIL_COND(p_size < 1);
+    ERR_FAIL_COND(p_size < 1)
     if (!data.is_valid())
         return;
     data_at_size = data->_get_dynamic_font_at_size(size);
@@ -481,21 +480,20 @@ RES ResourceFormatLoaderDynamicFont::load(const String &p_path, const String &p_
         *r_error = ERR_FILE_CANT_OPEN;
 
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ);
-    ERR_FAIL_COND_V(!f, RES());
+    ERR_FAIL_COND_V(!f, RES())
 
     PoolVector<uint8_t> data;
 
     data.resize(f->get_len());
 
-    ERR_FAIL_COND_V(data.size() == 0, RES());
+    ERR_FAIL_COND_V(data.size() == 0, RES())
 
     {
         PoolVector<uint8_t>::Write w = data.write();
         f->get_buffer(w.ptr(), data.size());
     }
 
-    Ref<DynamicFontData> dfd;
-    dfd.instance();
+    Ref<DynamicFontData> dfd(make_ref_counted<DynamicFontData>());
     dfd->set_font_data(data);
 
     if (r_error)

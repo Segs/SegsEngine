@@ -31,7 +31,10 @@
 #include "texture_loader_pvr.h"
 #include "PvrTcEncoder.h"
 #include "RgbaBitmap.h"
+
 #include "core/os/file_access.h"
+#include "core/class_db.h"
+
 #include <cstring>
 #include <new>
 
@@ -63,14 +66,14 @@ RES ResourceFormatPVR::load(const String &p_path, const String &p_original_path,
 
     FileAccessRef faref(f);
 
-    ERR_FAIL_COND_V(err, RES());
+    ERR_FAIL_COND_V(err, RES())
 
     if (r_error)
         *r_error = ERR_FILE_CORRUPT;
 
     uint32_t hsize = f->get_32();
 
-    ERR_FAIL_COND_V(hsize != 52, RES());
+    ERR_FAIL_COND_V(hsize != 52, RES())
     uint32_t height = f->get_32();
     uint32_t width = f->get_32();
     uint32_t mipmaps = f->get_32();
@@ -79,7 +82,7 @@ RES ResourceFormatPVR::load(const String &p_path, const String &p_original_path,
     f->seek(f->get_position() + 20); // bpp, rmask, gmask, bmask, amask
     uint8_t pvrid[5] = { 0, 0, 0, 0, 0 };
     f->get_buffer(pvrid, 4);
-    ERR_FAIL_COND_V(String((char *)pvrid) != "PVR!", RES());
+    ERR_FAIL_COND_V(String((char *)pvrid) != "PVR!", RES())
     f->get_32(); // surfcount
 
     /*
@@ -99,12 +102,12 @@ RES ResourceFormatPVR::load(const String &p_path, const String &p_original_path,
     PoolVector<uint8_t> data;
     data.resize(surfsize);
 
-    ERR_FAIL_COND_V(data.size() == 0, RES());
+    ERR_FAIL_COND_V(data.size() == 0, RES())
 
     PoolVector<uint8_t>::Write w = data.write();
     f->get_buffer(&w[0], surfsize);
     err = f->get_error();
-    ERR_FAIL_COND_V(err != OK, RES());
+    ERR_FAIL_COND_V(err != OK, RES())
 
     Image::Format format = Image::FORMAT_MAX;
 
@@ -159,10 +162,10 @@ RES ResourceFormatPVR::load(const String &p_path, const String &p_original_path,
     if (mipmaps)
         tex_flags |= Texture::FLAG_MIPMAPS;
 
-    Ref<Image> image = memnew(Image(width, height, mipmaps, format, data));
-    ERR_FAIL_COND_V(image->empty(), RES());
+    Ref<Image> image(make_ref_counted<Image>(width, height, mipmaps, format, data));
+    ERR_FAIL_COND_V(image->empty(), RES())
 
-    Ref<ImageTexture> texture = memnew(ImageTexture);
+    Ref<ImageTexture> texture(make_ref_counted<ImageTexture>());
     texture->create_from_image(image, tex_flags);
 
     if (r_error)
@@ -171,7 +174,7 @@ RES ResourceFormatPVR::load(const String &p_path, const String &p_original_path,
     return texture;
 }
 
-void ResourceFormatPVR::get_recognized_extensions(List<String> *p_extensions) const {
+void ResourceFormatPVR::get_recognized_extensions(ListPOD<String> *p_extensions) const {
 
     p_extensions->push_back("pvr");
 }
@@ -188,7 +191,7 @@ String ResourceFormatPVR::get_resource_type(const String &p_path) const {
 
 static void _compress_pvrtc4(Image *p_img) {
 
-    Ref<Image> img = p_img->duplicate();
+    Ref<Image> img = dynamic_ref_cast<Image>(p_img->duplicate());
 
     bool make_mipmaps = false;
     if (!img->is_size_po2() || img->get_width() != img->get_height()) {
@@ -201,8 +204,7 @@ static void _compress_pvrtc4(Image *p_img) {
 
     bool use_alpha = img->detect_alpha();
 
-    Ref<Image> new_img;
-    new_img.instance();
+    Ref<Image> new_img(make_ref_counted<Image>());
     new_img->create(img->get_width(), img->get_height(), img->has_mipmaps(), use_alpha ? Image::FORMAT_PVRTC4A : Image::FORMAT_PVRTC4);
 
     PoolVector<uint8_t> data = new_img->get_data();
@@ -348,7 +350,7 @@ static void unpack_modulations(const PVRTCBlock *p_block, const int p_2bit, int 
         }
     }
 
-    ERR_FAIL_COND(modulation_bits != 0);
+    ERR_FAIL_COND(modulation_bits != 0)
 }
 
 static void interpolate_colors(const int p_colorp[4], const int p_colorq[4], const int p_colorr[4], const int p_colors[4], bool p_2bit, const int x, const int y, int r_result[4]) {
@@ -405,7 +407,7 @@ static void interpolate_colors(const int p_colorp[4], const int p_colorq[4], con
     }
 
     for (k = 0; k < 4; k++) {
-        ERR_FAIL_COND(r_result[k] >= 256);
+        ERR_FAIL_COND(r_result[k] >= 256)
     }
 
     for (k = 0; k < 3; k++) {
@@ -415,7 +417,7 @@ static void interpolate_colors(const int p_colorp[4], const int p_colorq[4], con
     r_result[3] += r_result[3] >> 4;
 
     for (k = 0; k < 4; k++) {
-        ERR_FAIL_COND(r_result[k] >= 256);
+        ERR_FAIL_COND(r_result[k] >= 256)
     }
 }
 
@@ -477,11 +479,11 @@ static uint32_t twiddle_uv(uint32_t p_height, uint32_t p_width, uint32_t p_y, ui
 
     int shift_count;
 
-    ERR_FAIL_COND_V(p_y >= p_height, 0);
-    ERR_FAIL_COND_V(p_x >= p_width, 0);
+    ERR_FAIL_COND_V(p_y >= p_height, 0)
+    ERR_FAIL_COND_V(p_x >= p_width, 0)
 
-    ERR_FAIL_COND_V(!is_po2(p_height), 0);
-    ERR_FAIL_COND_V(!is_po2(p_width), 0);
+    ERR_FAIL_COND_V(!is_po2(p_height), 0)
+    ERR_FAIL_COND_V(!is_po2(p_width), 0)
 
     if (p_height < p_width) {
         min_dimension = p_height;
@@ -641,7 +643,7 @@ static void decompress_pvrtc(PVRTCBlock *p_comp_img, const int p_2bit, const int
 
 static void _pvrtc_decompress(Image *p_img) {
 
-    ERR_FAIL_COND(p_img->get_format() != Image::FORMAT_PVRTC2 && p_img->get_format() != Image::FORMAT_PVRTC2A && p_img->get_format() != Image::FORMAT_PVRTC4 && p_img->get_format() != Image::FORMAT_PVRTC4A);
+    ERR_FAIL_COND(p_img->get_format() != Image::FORMAT_PVRTC2 && p_img->get_format() != Image::FORMAT_PVRTC2A && p_img->get_format() != Image::FORMAT_PVRTC4 && p_img->get_format() != Image::FORMAT_PVRTC4A)
 
     bool _2bit = (p_img->get_format() == Image::FORMAT_PVRTC2 || p_img->get_format() == Image::FORMAT_PVRTC2A);
 

@@ -72,7 +72,7 @@ void EditorPluginSettings::update_plugins() {
 
     Vector<String> plugins;
 
-    while (d != String()) {
+    while (!d.empty()) {
 
         bool dir = da->current_is_dir();
         String path = "res://addons/" + d + "/plugin.cfg";
@@ -92,8 +92,7 @@ void EditorPluginSettings::update_plugins() {
 
     for (int i = 0; i < plugins.size(); i++) {
 
-        Ref<ConfigFile> cf;
-        cf.instance();
+        Ref<ConfigFile> cf(make_ref_counted<ConfigFile>());
         String path = "res://addons/" + plugins[i] + "/plugin.cfg";
 
         Error err2 = cf->load(path);
@@ -166,7 +165,7 @@ void EditorPluginSettings::_plugin_activity_changed() {
         return;
 
     TreeItem *ti = plugin_list->get_edited();
-    ERR_FAIL_COND(!ti);
+    ERR_FAIL_COND(!ti)
     bool active = ti->get_range(3);
     String name = ti->get_metadata(0);
 

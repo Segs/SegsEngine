@@ -88,17 +88,17 @@ void OutputStrings::_notification(int p_what) {
             //int lines = (size_height-(int)margin.y) / font_height;
             Point2 ofs = tree_st->get_offset();
 
-            LineMap::Element *E = line_map.find(v_scroll->get_value());
+            LineMap::iterator E = line_map.find(v_scroll->get_value());
             float h_ofs = (int)h_scroll->get_value();
             Point2 icon_ofs = Point2(0, (font_height - (int)icon_error->get_height()) / 2);
 
             FontDrawer drawer(font, Color(1, 1, 1));
-            while (E && ofs.y < (size_height - (int)margin.y)) {
+            while (E!=line_map.end() && ofs.y < (size_height - (int)margin.y)) {
 
-                String str = E->get().text;
+                String str = E->second.text;
                 Point2 line_ofs = ofs;
 
-                switch (E->get().type) {
+                switch (E->second.type) {
 
                     case LINE_WARNING: {
                         icon_warning->draw(ci, line_ofs + icon_ofs);
@@ -128,7 +128,7 @@ void OutputStrings::_notification(int p_what) {
                 }
 
                 ofs.y += font_height;
-                E = E->next();
+                ++E;
             }
 
         } break;
@@ -168,23 +168,23 @@ void OutputStrings::add_line(const String &p_text, const Variant &p_meta, const 
         if (strings[i].length() == 0)
             continue;
 
-        int last = line_map.empty() ? 0 : (line_map.back()->key() + 1);
+        int last = line_map.empty() ? 0 : (line_map.rbegin()->first + 1);
 
         Line l;
         l.text = strings[i];
         l.meta = p_meta;
         l.type = p_type;
-        line_map.insert(last, l);
+        line_map.emplace(last, l);
 
         updating = true;
         v_scroll->set_max(last + 1);
-        v_scroll->set_min(line_map.front()->key());
+        v_scroll->set_min(line_map.begin()->first);
         updating = false;
     }
 
     while (line_map.size() > line_max_count) {
 
-        line_map.erase(line_map.front());
+        line_map.erase(line_map.begin());
     }
 
     update();

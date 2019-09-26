@@ -32,6 +32,7 @@
 
 #include "bullet_types_converter.h"
 #include "rigid_body_bullet.h"
+#include "core/ustring.h"
 
 #include <BulletDynamics/ConstraintSolver/btPoint2PointConstraint.h>
 

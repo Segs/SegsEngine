@@ -30,9 +30,12 @@
 
 #include "http_client.h"
 
+#include "core/io/stream_peer.h"
 #include "core/io/stream_peer_ssl.h"
-#include "core/version.h"
+#include "core/io/stream_peer_tcp.h"
 #include "core/method_bind.h"
+#include "core/os/os.h"
+#include "core/version.h"
 
 const char *HTTPClient::_methods[METHOD_MAX] = {
     "GET",
@@ -45,6 +48,11 @@ const char *HTTPClient::_methods[METHOD_MAX] = {
     "CONNECT",
     "PATCH"
 };
+
+VARIANT_ENUM_CAST(HTTPClient::ResponseCode)
+VARIANT_ENUM_CAST(HTTPClient::Method);
+VARIANT_ENUM_CAST(HTTPClient::Status);
+
 
 IMPL_GDCLASS(HTTPClient)
 
@@ -69,7 +77,7 @@ Error HTTPClient::connect_to_host(const String &p_host, int p_port, bool p_ssl, 
         conn_host = StringUtils::substr(conn_host,8, conn_host.length() - 8);
     }
 
-    ERR_FAIL_COND_V(conn_host.length() < HOST_MIN_LEN, ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(conn_host.length() < HOST_MIN_LEN, ERR_INVALID_PARAMETER)
 
     if (conn_port < 0) {
         if (ssl) {
@@ -114,9 +122,9 @@ Ref<StreamPeer> HTTPClient::get_connection() const {
 Error HTTPClient::request_raw(Method p_method, const String &p_url, const Vector<String> &p_headers, const PoolVector<uint8_t> &p_body) {
 
     ERR_FAIL_INDEX_V(p_method, METHOD_MAX, ERR_INVALID_PARAMETER);
-    ERR_FAIL_COND_V(!StringUtils::begins_with(p_url,"/"), ERR_INVALID_PARAMETER);
-    ERR_FAIL_COND_V(status != STATUS_CONNECTED, ERR_INVALID_PARAMETER);
-    ERR_FAIL_COND_V(connection.is_null(), ERR_INVALID_DATA);
+    ERR_FAIL_COND_V(!StringUtils::begins_with(p_url,"/"), ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(status != STATUS_CONNECTED, ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(not connection, ERR_INVALID_DATA)
 
     String request = String(_methods[p_method]) + " " + p_url + " HTTP/1.1\r\n";
     if ((ssl && conn_port == PORT_HTTPS) || (!ssl && conn_port == PORT_HTTP)) {
@@ -183,7 +191,7 @@ Error HTTPClient::request(Method p_method, const String &p_url, const Vector<Str
     ERR_FAIL_INDEX_V(p_method, METHOD_MAX, ERR_INVALID_PARAMETER)
     ERR_FAIL_COND_V(!StringUtils::begins_with(p_url,'/'), ERR_INVALID_PARAMETER)
     ERR_FAIL_COND_V(status != STATUS_CONNECTED, ERR_INVALID_PARAMETER)
-    ERR_FAIL_COND_V(connection.is_null(), ERR_INVALID_DATA)
+    ERR_FAIL_COND_V(not connection, ERR_INVALID_DATA)
 
     String request = String(_methods[p_method]) + " " + p_url + " HTTP/1.1\r\n";
     if ((ssl && conn_port == PORT_HTTPS) || (!ssl && conn_port == PORT_HTTP)) {
@@ -235,7 +243,7 @@ Error HTTPClient::request(Method p_method, const String &p_url, const Vector<Str
 
 bool HTTPClient::has_response() const {
 
-    return response_headers.size() != 0;
+    return !response_headers.empty();
 }
 
 bool HTTPClient::is_response_chunked() const {
@@ -250,7 +258,7 @@ int HTTPClient::get_response_code() const {
 
 Error HTTPClient::get_response_headers(List<String> *r_response) {
 
-    if (!response_headers.size())
+    if (response_headers.empty())
         return ERR_INVALID_PARAMETER;
 
     for (int i = 0; i < response_headers.size(); i++) {
@@ -292,7 +300,7 @@ Error HTTPClient::poll() {
     switch (status) {
 
         case STATUS_RESOLVING: {
-            ERR_FAIL_COND_V(resolving == IP::RESOLVER_INVALID_ID, ERR_BUG);
+            ERR_FAIL_COND_V(resolving == IP::RESOLVER_INVALID_ID, ERR_BUG)
 
             IP::ResolverStatus rstatus = IP::get_singleton()->get_resolve_item_status(resolving);
             switch (rstatus) {
@@ -348,8 +356,8 @@ Error HTTPClient::poll() {
                             handshaking = true;
                         } else {
                             // We are already handshaking, which means we can use your already active SSL connection
-                            ssl = static_cast<Ref<StreamPeerSSL> >(connection);
-                            if (ssl.is_null()) {
+                            ssl = dynamic_ref_cast<StreamPeerSSL>(connection);
+                            if (not ssl) {
                                 close();
                                 status = STATUS_SSL_HANDSHAKE_ERROR;
                                 return ERR_CANT_CONNECT;
@@ -374,21 +382,21 @@ Error HTTPClient::poll() {
                         status = STATUS_CONNECTED;
                     }
                     return OK;
-                } break;
+                }
                 case StreamPeerTCP::STATUS_ERROR:
                 case StreamPeerTCP::STATUS_NONE: {
 
                     close();
                     status = STATUS_CANT_CONNECT;
                     return ERR_CANT_CONNECT;
-                } break;
+                }
             }
         } break;
         case STATUS_BODY:
         case STATUS_CONNECTED: {
             // Check if we are still connected
             if (ssl) {
-                Ref<StreamPeerSSL> tmp = connection;
+                Ref<StreamPeerSSL> tmp(dynamic_ref_cast<StreamPeerSSL>(connection));
                 tmp->poll();
                 if (tmp->get_status() != StreamPeerSSL::STATUS_CONNECTED) {
                     status = STATUS_CONNECTION_ERROR;
@@ -400,7 +408,7 @@ Error HTTPClient::poll() {
             }
             // Connection established, requests can now be made
             return OK;
-        } break;
+        }
         case STATUS_REQUESTING: {
 
             while (true) {
@@ -510,7 +518,7 @@ int HTTPClient::get_response_body_length() const {
 
 PoolByteArray HTTPClient::read_response_body_chunk() {
 
-    ERR_FAIL_COND_V(status != STATUS_BODY, PoolByteArray());
+    ERR_FAIL_COND_V(status != STATUS_BODY, PoolByteArray())
 
     PoolByteArray ret;
     Error err = OK;
@@ -711,13 +719,13 @@ Error HTTPClient::_get_http_data(uint8_t *p_buffer, int p_bytes, int &r_received
 }
 
 void HTTPClient::set_read_chunk_size(int p_size) {
-    ERR_FAIL_COND(p_size < 256 || p_size > (1 << 24));
+    ERR_FAIL_COND(p_size < 256 || p_size > (1 << 24))
     read_chunk_size = p_size;
 }
 
 HTTPClient::HTTPClient() {
 
-    tcp_connection.instance();
+    tcp_connection = make_ref_counted<StreamPeerTCP>();
     resolving = IP::RESOLVER_INVALID_ID;
     status = STATUS_DISCONNECTED;
     conn_port = -1;
@@ -745,7 +753,7 @@ String HTTPClient::query_string_from_dict(const Dictionary &p_dict) {
         String encoded_key = StringUtils::http_escape(keys[i].as<String>());
         Variant value = p_dict[keys[i]];
         switch (value.get_type()) {
-            case Variant::ARRAY: {
+            case VariantType::ARRAY: {
                 // Repeat the key with every values
                 Array values = value;
                 for (int j = 0; j < values.size(); ++j) {
@@ -753,7 +761,7 @@ String HTTPClient::query_string_from_dict(const Dictionary &p_dict) {
                 }
                 break;
             }
-            case Variant::NIL: {
+            case VariantType::NIL: {
                 // Add the key with no value
                 query += "&" + encoded_key;
                 break;
@@ -774,7 +782,7 @@ Dictionary HTTPClient::_get_response_headers_as_dictionary() {
     get_response_headers(&rh);
     Dictionary ret;
     for (const List<String>::Element *E = rh.front(); E; E = E->next()) {
-        const String &s = E->get();
+        const String &s = E->deref();
         int sp = StringUtils::find(s,":");
         if (sp == -1)
             continue;
@@ -794,7 +802,7 @@ PoolStringArray HTTPClient::_get_response_headers() {
     ret.resize(rh.size());
     int idx = 0;
     for (const List<String>::Element *E = rh.front(); E; E = E->next()) {
-        ret.set(idx++, E->get());
+        ret.set(idx++, E->deref());
     }
 
     return ret;
@@ -802,11 +810,11 @@ PoolStringArray HTTPClient::_get_response_headers() {
 
 void HTTPClient::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("connect_to_host", "host", "port", "use_ssl", "verify_host"), &HTTPClient::connect_to_host, {DEFVAL(-1), DEFVAL(false), DEFVAL(true)});
-    MethodBinder::bind_method(D_METHOD("set_connection", "connection"), &HTTPClient::set_connection);
+    MethodBinder::bind_method(D_METHOD("connect_to_host", {"host", "port", "use_ssl", "verify_host"}), &HTTPClient::connect_to_host, {DEFVAL(-1), DEFVAL(false), DEFVAL(true)});
+    MethodBinder::bind_method(D_METHOD("set_connection", {"connection"}), &HTTPClient::set_connection);
     MethodBinder::bind_method(D_METHOD("get_connection"), &HTTPClient::get_connection);
-    MethodBinder::bind_method(D_METHOD("request_raw", "method", "url", "headers", "body"), &HTTPClient::request_raw);
-    MethodBinder::bind_method(D_METHOD("request", "method", "url", "headers", "body"), &HTTPClient::request, {DEFVAL(String())});
+    MethodBinder::bind_method(D_METHOD("request_raw", {"method", "url", "headers", "body"}), &HTTPClient::request_raw);
+    MethodBinder::bind_method(D_METHOD("request", {"method", "url", "headers", "body"}), &HTTPClient::request, {DEFVAL(String())});
     MethodBinder::bind_method(D_METHOD("close"), &HTTPClient::close);
 
     MethodBinder::bind_method(D_METHOD("has_response"), &HTTPClient::has_response);
@@ -816,108 +824,108 @@ void HTTPClient::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_response_headers_as_dictionary"), &HTTPClient::_get_response_headers_as_dictionary);
     MethodBinder::bind_method(D_METHOD("get_response_body_length"), &HTTPClient::get_response_body_length);
     MethodBinder::bind_method(D_METHOD("read_response_body_chunk"), &HTTPClient::read_response_body_chunk);
-    MethodBinder::bind_method(D_METHOD("set_read_chunk_size", "bytes"), &HTTPClient::set_read_chunk_size);
+    MethodBinder::bind_method(D_METHOD("set_read_chunk_size", {"bytes"}), &HTTPClient::set_read_chunk_size);
 
-    MethodBinder::bind_method(D_METHOD("set_blocking_mode", "enabled"), &HTTPClient::set_blocking_mode);
+    MethodBinder::bind_method(D_METHOD("set_blocking_mode", {"enabled"}), &HTTPClient::set_blocking_mode);
     MethodBinder::bind_method(D_METHOD("is_blocking_mode_enabled"), &HTTPClient::is_blocking_mode_enabled);
 
     MethodBinder::bind_method(D_METHOD("get_status"), &HTTPClient::get_status);
     MethodBinder::bind_method(D_METHOD("poll"), &HTTPClient::poll);
 
-    MethodBinder::bind_method(D_METHOD("query_string_from_dict", "fields"), &HTTPClient::query_string_from_dict);
+    MethodBinder::bind_method(D_METHOD("query_string_from_dict", {"fields"}), &HTTPClient::query_string_from_dict);
 
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "blocking_mode_enabled"), "set_blocking_mode", "is_blocking_mode_enabled");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "connection", PROPERTY_HINT_RESOURCE_TYPE, "StreamPeer", 0), "set_connection", "get_connection");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "blocking_mode_enabled"), "set_blocking_mode", "is_blocking_mode_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "connection", PROPERTY_HINT_RESOURCE_TYPE, "StreamPeer", 0), "set_connection", "get_connection");
 
-    BIND_ENUM_CONSTANT(METHOD_GET);
-    BIND_ENUM_CONSTANT(METHOD_HEAD);
-    BIND_ENUM_CONSTANT(METHOD_POST);
-    BIND_ENUM_CONSTANT(METHOD_PUT);
-    BIND_ENUM_CONSTANT(METHOD_DELETE);
-    BIND_ENUM_CONSTANT(METHOD_OPTIONS);
-    BIND_ENUM_CONSTANT(METHOD_TRACE);
-    BIND_ENUM_CONSTANT(METHOD_CONNECT);
-    BIND_ENUM_CONSTANT(METHOD_PATCH);
-    BIND_ENUM_CONSTANT(METHOD_MAX);
+    BIND_ENUM_CONSTANT(METHOD_GET)
+    BIND_ENUM_CONSTANT(METHOD_HEAD)
+    BIND_ENUM_CONSTANT(METHOD_POST)
+    BIND_ENUM_CONSTANT(METHOD_PUT)
+    BIND_ENUM_CONSTANT(METHOD_DELETE)
+    BIND_ENUM_CONSTANT(METHOD_OPTIONS)
+    BIND_ENUM_CONSTANT(METHOD_TRACE)
+    BIND_ENUM_CONSTANT(METHOD_CONNECT)
+    BIND_ENUM_CONSTANT(METHOD_PATCH)
+    BIND_ENUM_CONSTANT(METHOD_MAX)
 
-    BIND_ENUM_CONSTANT(STATUS_DISCONNECTED);
-    BIND_ENUM_CONSTANT(STATUS_RESOLVING); // Resolving hostname (if hostname was passed in)
-    BIND_ENUM_CONSTANT(STATUS_CANT_RESOLVE);
-    BIND_ENUM_CONSTANT(STATUS_CONNECTING); // Connecting to IP
-    BIND_ENUM_CONSTANT(STATUS_CANT_CONNECT);
-    BIND_ENUM_CONSTANT(STATUS_CONNECTED); // Connected, now accepting requests
-    BIND_ENUM_CONSTANT(STATUS_REQUESTING); // Request in progress
-    BIND_ENUM_CONSTANT(STATUS_BODY); // Request resulted in body which must be read
-    BIND_ENUM_CONSTANT(STATUS_CONNECTION_ERROR);
-    BIND_ENUM_CONSTANT(STATUS_SSL_HANDSHAKE_ERROR);
+    BIND_ENUM_CONSTANT(STATUS_DISCONNECTED)
+    BIND_ENUM_CONSTANT(STATUS_RESOLVING) // Resolving hostname (if hostname was passed in)
+    BIND_ENUM_CONSTANT(STATUS_CANT_RESOLVE)
+    BIND_ENUM_CONSTANT(STATUS_CONNECTING) // Connecting to IP
+    BIND_ENUM_CONSTANT(STATUS_CANT_CONNECT)
+    BIND_ENUM_CONSTANT(STATUS_CONNECTED) // Connected, now accepting requests
+    BIND_ENUM_CONSTANT(STATUS_REQUESTING) // Request in progress
+    BIND_ENUM_CONSTANT(STATUS_BODY) // Request resulted in body which must be read
+    BIND_ENUM_CONSTANT(STATUS_CONNECTION_ERROR)
+    BIND_ENUM_CONSTANT(STATUS_SSL_HANDSHAKE_ERROR)
 
-    BIND_ENUM_CONSTANT(RESPONSE_CONTINUE);
-    BIND_ENUM_CONSTANT(RESPONSE_SWITCHING_PROTOCOLS);
-    BIND_ENUM_CONSTANT(RESPONSE_PROCESSING);
+    BIND_ENUM_CONSTANT(RESPONSE_CONTINUE)
+    BIND_ENUM_CONSTANT(RESPONSE_SWITCHING_PROTOCOLS)
+    BIND_ENUM_CONSTANT(RESPONSE_PROCESSING)
 
     // 2xx successful
-    BIND_ENUM_CONSTANT(RESPONSE_OK);
-    BIND_ENUM_CONSTANT(RESPONSE_CREATED);
-    BIND_ENUM_CONSTANT(RESPONSE_ACCEPTED);
-    BIND_ENUM_CONSTANT(RESPONSE_NON_AUTHORITATIVE_INFORMATION);
-    BIND_ENUM_CONSTANT(RESPONSE_NO_CONTENT);
-    BIND_ENUM_CONSTANT(RESPONSE_RESET_CONTENT);
-    BIND_ENUM_CONSTANT(RESPONSE_PARTIAL_CONTENT);
-    BIND_ENUM_CONSTANT(RESPONSE_MULTI_STATUS);
-    BIND_ENUM_CONSTANT(RESPONSE_ALREADY_REPORTED);
-    BIND_ENUM_CONSTANT(RESPONSE_IM_USED);
+    BIND_ENUM_CONSTANT(RESPONSE_OK)
+    BIND_ENUM_CONSTANT(RESPONSE_CREATED)
+    BIND_ENUM_CONSTANT(RESPONSE_ACCEPTED)
+    BIND_ENUM_CONSTANT(RESPONSE_NON_AUTHORITATIVE_INFORMATION)
+    BIND_ENUM_CONSTANT(RESPONSE_NO_CONTENT)
+    BIND_ENUM_CONSTANT(RESPONSE_RESET_CONTENT)
+    BIND_ENUM_CONSTANT(RESPONSE_PARTIAL_CONTENT)
+    BIND_ENUM_CONSTANT(RESPONSE_MULTI_STATUS)
+    BIND_ENUM_CONSTANT(RESPONSE_ALREADY_REPORTED)
+    BIND_ENUM_CONSTANT(RESPONSE_IM_USED)
 
     // 3xx redirection
-    BIND_ENUM_CONSTANT(RESPONSE_MULTIPLE_CHOICES);
-    BIND_ENUM_CONSTANT(RESPONSE_MOVED_PERMANENTLY);
-    BIND_ENUM_CONSTANT(RESPONSE_FOUND);
-    BIND_ENUM_CONSTANT(RESPONSE_SEE_OTHER);
-    BIND_ENUM_CONSTANT(RESPONSE_NOT_MODIFIED);
-    BIND_ENUM_CONSTANT(RESPONSE_USE_PROXY);
-    BIND_ENUM_CONSTANT(RESPONSE_SWITCH_PROXY);
-    BIND_ENUM_CONSTANT(RESPONSE_TEMPORARY_REDIRECT);
-    BIND_ENUM_CONSTANT(RESPONSE_PERMANENT_REDIRECT);
+    BIND_ENUM_CONSTANT(RESPONSE_MULTIPLE_CHOICES)
+    BIND_ENUM_CONSTANT(RESPONSE_MOVED_PERMANENTLY)
+    BIND_ENUM_CONSTANT(RESPONSE_FOUND)
+    BIND_ENUM_CONSTANT(RESPONSE_SEE_OTHER)
+    BIND_ENUM_CONSTANT(RESPONSE_NOT_MODIFIED)
+    BIND_ENUM_CONSTANT(RESPONSE_USE_PROXY)
+    BIND_ENUM_CONSTANT(RESPONSE_SWITCH_PROXY)
+    BIND_ENUM_CONSTANT(RESPONSE_TEMPORARY_REDIRECT)
+    BIND_ENUM_CONSTANT(RESPONSE_PERMANENT_REDIRECT)
 
     // 4xx client error
-    BIND_ENUM_CONSTANT(RESPONSE_BAD_REQUEST);
-    BIND_ENUM_CONSTANT(RESPONSE_UNAUTHORIZED);
-    BIND_ENUM_CONSTANT(RESPONSE_PAYMENT_REQUIRED);
-    BIND_ENUM_CONSTANT(RESPONSE_FORBIDDEN);
-    BIND_ENUM_CONSTANT(RESPONSE_NOT_FOUND);
-    BIND_ENUM_CONSTANT(RESPONSE_METHOD_NOT_ALLOWED);
-    BIND_ENUM_CONSTANT(RESPONSE_NOT_ACCEPTABLE);
-    BIND_ENUM_CONSTANT(RESPONSE_PROXY_AUTHENTICATION_REQUIRED);
-    BIND_ENUM_CONSTANT(RESPONSE_REQUEST_TIMEOUT);
-    BIND_ENUM_CONSTANT(RESPONSE_CONFLICT);
-    BIND_ENUM_CONSTANT(RESPONSE_GONE);
-    BIND_ENUM_CONSTANT(RESPONSE_LENGTH_REQUIRED);
-    BIND_ENUM_CONSTANT(RESPONSE_PRECONDITION_FAILED);
-    BIND_ENUM_CONSTANT(RESPONSE_REQUEST_ENTITY_TOO_LARGE);
-    BIND_ENUM_CONSTANT(RESPONSE_REQUEST_URI_TOO_LONG);
-    BIND_ENUM_CONSTANT(RESPONSE_UNSUPPORTED_MEDIA_TYPE);
-    BIND_ENUM_CONSTANT(RESPONSE_REQUESTED_RANGE_NOT_SATISFIABLE);
-    BIND_ENUM_CONSTANT(RESPONSE_EXPECTATION_FAILED);
-    BIND_ENUM_CONSTANT(RESPONSE_IM_A_TEAPOT);
-    BIND_ENUM_CONSTANT(RESPONSE_MISDIRECTED_REQUEST);
-    BIND_ENUM_CONSTANT(RESPONSE_UNPROCESSABLE_ENTITY);
-    BIND_ENUM_CONSTANT(RESPONSE_LOCKED);
-    BIND_ENUM_CONSTANT(RESPONSE_FAILED_DEPENDENCY);
-    BIND_ENUM_CONSTANT(RESPONSE_UPGRADE_REQUIRED);
-    BIND_ENUM_CONSTANT(RESPONSE_PRECONDITION_REQUIRED);
-    BIND_ENUM_CONSTANT(RESPONSE_TOO_MANY_REQUESTS);
-    BIND_ENUM_CONSTANT(RESPONSE_REQUEST_HEADER_FIELDS_TOO_LARGE);
-    BIND_ENUM_CONSTANT(RESPONSE_UNAVAILABLE_FOR_LEGAL_REASONS);
+    BIND_ENUM_CONSTANT(RESPONSE_BAD_REQUEST)
+    BIND_ENUM_CONSTANT(RESPONSE_UNAUTHORIZED)
+    BIND_ENUM_CONSTANT(RESPONSE_PAYMENT_REQUIRED)
+    BIND_ENUM_CONSTANT(RESPONSE_FORBIDDEN)
+    BIND_ENUM_CONSTANT(RESPONSE_NOT_FOUND)
+    BIND_ENUM_CONSTANT(RESPONSE_METHOD_NOT_ALLOWED)
+    BIND_ENUM_CONSTANT(RESPONSE_NOT_ACCEPTABLE)
+    BIND_ENUM_CONSTANT(RESPONSE_PROXY_AUTHENTICATION_REQUIRED)
+    BIND_ENUM_CONSTANT(RESPONSE_REQUEST_TIMEOUT)
+    BIND_ENUM_CONSTANT(RESPONSE_CONFLICT)
+    BIND_ENUM_CONSTANT(RESPONSE_GONE)
+    BIND_ENUM_CONSTANT(RESPONSE_LENGTH_REQUIRED)
+    BIND_ENUM_CONSTANT(RESPONSE_PRECONDITION_FAILED)
+    BIND_ENUM_CONSTANT(RESPONSE_REQUEST_ENTITY_TOO_LARGE)
+    BIND_ENUM_CONSTANT(RESPONSE_REQUEST_URI_TOO_LONG)
+    BIND_ENUM_CONSTANT(RESPONSE_UNSUPPORTED_MEDIA_TYPE)
+    BIND_ENUM_CONSTANT(RESPONSE_REQUESTED_RANGE_NOT_SATISFIABLE)
+    BIND_ENUM_CONSTANT(RESPONSE_EXPECTATION_FAILED)
+    BIND_ENUM_CONSTANT(RESPONSE_IM_A_TEAPOT)
+    BIND_ENUM_CONSTANT(RESPONSE_MISDIRECTED_REQUEST)
+    BIND_ENUM_CONSTANT(RESPONSE_UNPROCESSABLE_ENTITY)
+    BIND_ENUM_CONSTANT(RESPONSE_LOCKED)
+    BIND_ENUM_CONSTANT(RESPONSE_FAILED_DEPENDENCY)
+    BIND_ENUM_CONSTANT(RESPONSE_UPGRADE_REQUIRED)
+    BIND_ENUM_CONSTANT(RESPONSE_PRECONDITION_REQUIRED)
+    BIND_ENUM_CONSTANT(RESPONSE_TOO_MANY_REQUESTS)
+    BIND_ENUM_CONSTANT(RESPONSE_REQUEST_HEADER_FIELDS_TOO_LARGE)
+    BIND_ENUM_CONSTANT(RESPONSE_UNAVAILABLE_FOR_LEGAL_REASONS)
 
     // 5xx server error
-    BIND_ENUM_CONSTANT(RESPONSE_INTERNAL_SERVER_ERROR);
-    BIND_ENUM_CONSTANT(RESPONSE_NOT_IMPLEMENTED);
-    BIND_ENUM_CONSTANT(RESPONSE_BAD_GATEWAY);
-    BIND_ENUM_CONSTANT(RESPONSE_SERVICE_UNAVAILABLE);
-    BIND_ENUM_CONSTANT(RESPONSE_GATEWAY_TIMEOUT);
-    BIND_ENUM_CONSTANT(RESPONSE_HTTP_VERSION_NOT_SUPPORTED);
-    BIND_ENUM_CONSTANT(RESPONSE_VARIANT_ALSO_NEGOTIATES);
-    BIND_ENUM_CONSTANT(RESPONSE_INSUFFICIENT_STORAGE);
-    BIND_ENUM_CONSTANT(RESPONSE_LOOP_DETECTED);
-    BIND_ENUM_CONSTANT(RESPONSE_NOT_EXTENDED);
-    BIND_ENUM_CONSTANT(RESPONSE_NETWORK_AUTH_REQUIRED);
+    BIND_ENUM_CONSTANT(RESPONSE_INTERNAL_SERVER_ERROR)
+    BIND_ENUM_CONSTANT(RESPONSE_NOT_IMPLEMENTED)
+    BIND_ENUM_CONSTANT(RESPONSE_BAD_GATEWAY)
+    BIND_ENUM_CONSTANT(RESPONSE_SERVICE_UNAVAILABLE)
+    BIND_ENUM_CONSTANT(RESPONSE_GATEWAY_TIMEOUT)
+    BIND_ENUM_CONSTANT(RESPONSE_HTTP_VERSION_NOT_SUPPORTED)
+    BIND_ENUM_CONSTANT(RESPONSE_VARIANT_ALSO_NEGOTIATES)
+    BIND_ENUM_CONSTANT(RESPONSE_INSUFFICIENT_STORAGE)
+    BIND_ENUM_CONSTANT(RESPONSE_LOOP_DETECTED)
+    BIND_ENUM_CONSTANT(RESPONSE_NOT_EXTENDED)
+    BIND_ENUM_CONSTANT(RESPONSE_NETWORK_AUTH_REQUIRED)
 }

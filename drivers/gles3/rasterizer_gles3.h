@@ -31,10 +31,17 @@
 #ifndef RASTERIZERGLES3_H
 #define RASTERIZERGLES3_H
 
-#include "rasterizer_canvas_gles3.h"
-#include "rasterizer_scene_gles3.h"
-#include "rasterizer_storage_gles3.h"
-#include "servers/visual/rasterizer.h"
+#include "error_list.h"                 // for Error
+#include "reference.h"                  // for Ref
+#include "servers/visual/rasterizer.h"  // for Rasterizer, RasterizerCanvas ...
+class Image;
+class RID;
+class RasterizerCanvasGLES3;
+class RasterizerSceneGLES3;
+class RasterizerStorageGLES3;
+struct Color;
+struct Rect2;
+struct Vector2;
 
 class RasterizerGLES3 : public Rasterizer {
 

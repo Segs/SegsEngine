@@ -83,7 +83,7 @@ void Timer::_notification(int p_what) {
 }
 
 void Timer::set_wait_time(float p_time) {
-    ERR_FAIL_COND_MSG(p_time <= 0, "Time should be greater than zero.");
+    ERR_FAIL_COND_MSG(p_time <= 0, "Time should be greater than zero.")
     wait_time = p_time;
 }
 float Timer::get_wait_time() const {
@@ -110,7 +110,7 @@ bool Timer::has_autostart() const {
 }
 
 void Timer::start(float p_time) {
-	ERR_FAIL_COND_MSG(!is_inside_tree(), "Timer was not added to the SceneTree!");
+	ERR_FAIL_COND_MSG(!is_inside_tree(), "Timer was not added to the SceneTree!")
 
     if (p_time > 0) {
         set_wait_time(p_time);
@@ -183,39 +183,39 @@ void Timer::_set_process(bool p_process, bool p_force) {
 
 void Timer::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_wait_time", "time_sec"), &Timer::set_wait_time);
+    MethodBinder::bind_method(D_METHOD("set_wait_time", {"time_sec"}), &Timer::set_wait_time);
     MethodBinder::bind_method(D_METHOD("get_wait_time"), &Timer::get_wait_time);
 
-    MethodBinder::bind_method(D_METHOD("set_one_shot", "enable"), &Timer::set_one_shot);
+    MethodBinder::bind_method(D_METHOD("set_one_shot", {"enable"}), &Timer::set_one_shot);
     MethodBinder::bind_method(D_METHOD("is_one_shot"), &Timer::is_one_shot);
 
-    MethodBinder::bind_method(D_METHOD("set_autostart", "enable"), &Timer::set_autostart);
+    MethodBinder::bind_method(D_METHOD("set_autostart", {"enable"}), &Timer::set_autostart);
     MethodBinder::bind_method(D_METHOD("has_autostart"), &Timer::has_autostart);
 
-    MethodBinder::bind_method(D_METHOD("start", "time_sec"), &Timer::start, {DEFVAL(-1)});
+    MethodBinder::bind_method(D_METHOD("start", {"time_sec"}), &Timer::start, {DEFVAL(-1)});
     MethodBinder::bind_method(D_METHOD("stop"), &Timer::stop);
 
-    MethodBinder::bind_method(D_METHOD("set_paused", "paused"), &Timer::set_paused);
+    MethodBinder::bind_method(D_METHOD("set_paused", {"paused"}), &Timer::set_paused);
     MethodBinder::bind_method(D_METHOD("is_paused"), &Timer::is_paused);
 
     MethodBinder::bind_method(D_METHOD("is_stopped"), &Timer::is_stopped);
 
     MethodBinder::bind_method(D_METHOD("get_time_left"), &Timer::get_time_left);
 
-    MethodBinder::bind_method(D_METHOD("set_timer_process_mode", "mode"), &Timer::set_timer_process_mode);
+    MethodBinder::bind_method(D_METHOD("set_timer_process_mode", {"mode"}), &Timer::set_timer_process_mode);
     MethodBinder::bind_method(D_METHOD("get_timer_process_mode"), &Timer::get_timer_process_mode);
 
     ADD_SIGNAL(MethodInfo("timeout"));
 
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "process_mode", PROPERTY_HINT_ENUM, "Physics,Idle"), "set_timer_process_mode", "get_timer_process_mode");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "wait_time", PROPERTY_HINT_EXP_RANGE, "0.01,4096,0.01"), "set_wait_time", "get_wait_time");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "one_shot"), "set_one_shot", "is_one_shot");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "autostart"), "set_autostart", "has_autostart");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "paused", PROPERTY_HINT_NONE, "", 0), "set_paused", "is_paused");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "time_left", PROPERTY_HINT_NONE, "", 0), "", "get_time_left");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "process_mode", PROPERTY_HINT_ENUM, "Physics,Idle"), "set_timer_process_mode", "get_timer_process_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "wait_time", PROPERTY_HINT_EXP_RANGE, "0.01,4096,0.01"), "set_wait_time", "get_wait_time");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "one_shot"), "set_one_shot", "is_one_shot");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "autostart"), "set_autostart", "has_autostart");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "paused", PROPERTY_HINT_NONE, "", 0), "set_paused", "is_paused");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "time_left", PROPERTY_HINT_NONE, "", 0), "", "get_time_left");
 
-    BIND_ENUM_CONSTANT(TIMER_PROCESS_PHYSICS);
-    BIND_ENUM_CONSTANT(TIMER_PROCESS_IDLE);
+    BIND_ENUM_CONSTANT(TIMER_PROCESS_PHYSICS)
+    BIND_ENUM_CONSTANT(TIMER_PROCESS_IDLE)
 }
 
 Timer::Timer() {

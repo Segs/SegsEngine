@@ -80,7 +80,7 @@ bool GraphEdit::is_node_connected(const StringName &p_from, int p_from_port, con
 
     for (List<Connection>::Element *E = connections.front(); E; E = E->next()) {
 
-        if (E->get().from == p_from && E->get().from_port == p_from_port && E->get().to == p_to && E->get().to_port == p_to_port)
+        if (E->deref().from == p_from && E->deref().from_port == p_from_port && E->deref().to == p_to && E->deref().to_port == p_to_port)
             return true;
     }
 
@@ -91,7 +91,7 @@ void GraphEdit::disconnect_node(const StringName &p_from, int p_from_port, const
 
     for (List<Connection>::Element *E = connections.front(); E; E = E->next()) {
 
-        if (E->get().from == p_from && E->get().from_port == p_from_port && E->get().to == p_to && E->get().to_port == p_to_port) {
+        if (E->deref().from == p_from && E->deref().from_port == p_from_port && E->deref().to == p_to && E->deref().to_port == p_to_port) {
 
             connections.erase(E);
             top_layer->update();
@@ -218,7 +218,7 @@ void GraphEdit::_update_scroll() {
 void GraphEdit::_graph_node_raised(Node *p_gn) {
 
     GraphNode *gn = Object::cast_to<GraphNode>(p_gn);
-    ERR_FAIL_COND(!gn);
+    ERR_FAIL_COND(!gn)
     if (gn->is_comment()) {
         move_child(gn, 0);
     } else {
@@ -235,13 +235,13 @@ void GraphEdit::_graph_node_raised(Node *p_gn) {
 
     move_child(connections_layer, first_not_comment);
     top_layer->raise();
-    emit_signal("node_selected", p_gn);
+    emit_signal("node_selected", Variant(p_gn));
 }
 
 void GraphEdit::_graph_node_moved(Node *p_gn) {
 
     GraphNode *gn = Object::cast_to<GraphNode>(p_gn);
-    ERR_FAIL_COND(!gn);
+    ERR_FAIL_COND(!gn)
     top_layer->update();
     update();
     connections_layer->update();
@@ -255,8 +255,8 @@ void GraphEdit::add_child_notify(Node *p_child) {
     GraphNode *gn = Object::cast_to<GraphNode>(p_child);
     if (gn) {
         gn->set_scale(Vector2(zoom, zoom));
-        gn->connect("offset_changed", this, "_graph_node_moved", varray(gn));
-        gn->connect("raise_request", this, "_graph_node_raised", varray(gn));
+        gn->connect("offset_changed", this, "_graph_node_moved", varray(Variant(gn)));
+        gn->connect("raise_request", this, "_graph_node_raised", varray(Variant(gn)));
         gn->connect("item_rect_changed", connections_layer, "update");
         _graph_node_moved(gn);
         gn->set_mouse_filter(MOUSE_FILTER_PASS);
@@ -282,10 +282,10 @@ void GraphEdit::_notification(int p_what) {
         port_grab_distance_horizontal = get_constant("port_grab_distance_horizontal");
         port_grab_distance_vertical = get_constant("port_grab_distance_vertical");
 
-		zoom_minus->set_icon(get_icon("minus"));
-		zoom_reset->set_icon(get_icon("reset"));
-		zoom_plus->set_icon(get_icon("more"));
-		snap_button->set_icon(get_icon("snap"));
+        zoom_minus->set_icon(get_icon("minus"));
+        zoom_reset->set_icon(get_icon("reset"));
+        zoom_plus->set_icon(get_icon("more"));
+        snap_button->set_icon(get_icon("snap"));
     }
     if (p_what == NOTIFICATION_READY) {
         Size2 hmin = h_scroll->get_combined_minimum_size();
@@ -384,8 +384,8 @@ bool GraphEdit::_filter_input(const Point2 &p_point) {
 
 void GraphEdit::_top_layer_input(const Ref<InputEvent> &p_ev) {
 
-    Ref<InputEventMouseButton> mb = p_ev;
-    if (mb.is_valid() && mb->get_button_index() == BUTTON_LEFT && mb->is_pressed()) {
+    Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_ev);
+    if (mb && mb->get_button_index() == BUTTON_LEFT && mb->is_pressed()) {
 
         Ref<Texture> port = get_icon("port", "GraphNode");
         Vector2 mpos(mb->get_position().x, mb->get_position().y);
@@ -400,25 +400,25 @@ void GraphEdit::_top_layer_input(const Ref<InputEvent> &p_ev) {
                 Vector2 pos = gn->get_connection_output_position(j) + gn->get_position();
                 if (is_in_hot_zone(pos, mpos)) {
 
-                    if (valid_left_disconnect_types.has(gn->get_connection_output_type(j))) {
+                    if (valid_left_disconnect_types.contains(gn->get_connection_output_type(j))) {
                         //check disconnect
                         for (List<Connection>::Element *E = connections.front(); E; E = E->next()) {
 
-                            if (E->get().from == gn->get_name() && E->get().from_port == j) {
+                            if (E->deref().from == gn->get_name() && E->deref().from_port == j) {
 
-                                Node *to = get_node((NodePath)String(E->get().to));
+                                Node *to = get_node((NodePath)String(E->deref().to));
                                 if (Object::cast_to<GraphNode>(to)) {
 
-                                    connecting_from = E->get().to;
-                                    connecting_index = E->get().to_port;
+                                    connecting_from = E->deref().to;
+                                    connecting_index = E->deref().to_port;
                                     connecting_out = false;
-                                    connecting_type = Object::cast_to<GraphNode>(to)->get_connection_input_type(E->get().to_port);
-                                    connecting_color = Object::cast_to<GraphNode>(to)->get_connection_input_color(E->get().to_port);
+                                    connecting_type = Object::cast_to<GraphNode>(to)->get_connection_input_type(E->deref().to_port);
+                                    connecting_color = Object::cast_to<GraphNode>(to)->get_connection_input_color(E->deref().to_port);
                                     connecting_target = false;
                                     connecting_to = pos;
                                     just_disconnected = true;
 
-                                    emit_signal("disconnection_request", E->get().from, E->get().from_port, E->get().to, E->get().to_port);
+                                    emit_signal("disconnection_request", E->deref().from, E->deref().from_port, E->deref().to, E->deref().to_port);
                                     to = get_node((NodePath)String(connecting_from)); // maybe it was erased
                                     if (Object::cast_to<GraphNode>(to)) {
                                         connecting = true;
@@ -447,25 +447,25 @@ void GraphEdit::_top_layer_input(const Ref<InputEvent> &p_ev) {
                 Vector2 pos = gn->get_connection_input_position(j) + gn->get_position();
                 if (is_in_hot_zone(pos, mpos)) {
 
-                    if (right_disconnects || valid_right_disconnect_types.has(gn->get_connection_input_type(j))) {
+                    if (right_disconnects || valid_right_disconnect_types.contains(gn->get_connection_input_type(j))) {
                         //check disconnect
                         for (List<Connection>::Element *E = connections.front(); E; E = E->next()) {
 
-                            if (E->get().to == gn->get_name() && E->get().to_port == j) {
+                            if (E->deref().to == gn->get_name() && E->deref().to_port == j) {
 
-                                Node *fr = get_node((NodePath)String(E->get().from));
+                                Node *fr = get_node((NodePath)String(E->deref().from));
                                 if (Object::cast_to<GraphNode>(fr)) {
 
-                                    connecting_from = E->get().from;
-                                    connecting_index = E->get().from_port;
+                                    connecting_from = E->deref().from;
+                                    connecting_index = E->deref().from_port;
                                     connecting_out = true;
-                                    connecting_type = Object::cast_to<GraphNode>(fr)->get_connection_output_type(E->get().from_port);
-                                    connecting_color = Object::cast_to<GraphNode>(fr)->get_connection_output_color(E->get().from_port);
+                                    connecting_type = Object::cast_to<GraphNode>(fr)->get_connection_output_type(E->deref().from_port);
+                                    connecting_color = Object::cast_to<GraphNode>(fr)->get_connection_output_color(E->deref().from_port);
                                     connecting_target = false;
                                     connecting_to = pos;
                                     just_disconnected = true;
 
-                                    emit_signal("disconnection_request", E->get().from, E->get().from_port, E->get().to, E->get().to_port);
+                                    emit_signal("disconnection_request", E->deref().from, E->deref().from_port, E->deref().to, E->deref().to_port);
                                     fr = get_node((NodePath)String(connecting_from)); // maybe it was erased
                                     if (Object::cast_to<GraphNode>(fr)) {
                                         connecting = true;
@@ -492,8 +492,8 @@ void GraphEdit::_top_layer_input(const Ref<InputEvent> &p_ev) {
         }
     }
 
-    Ref<InputEventMouseMotion> mm = p_ev;
-    if (mm.is_valid() && connecting) {
+    Ref<InputEventMouseMotion> mm = dynamic_ref_cast<InputEventMouseMotion>(p_ev);
+    if (mm && connecting) {
 
         connecting_to = mm->get_position();
         connecting_target = false;
@@ -512,7 +512,7 @@ void GraphEdit::_top_layer_input(const Ref<InputEvent> &p_ev) {
 
                     Vector2 pos = gn->get_connection_output_position(j) + gn->get_position();
                     int type = gn->get_connection_output_type(j);
-                    if ((type == connecting_type || valid_connection_types.has(ConnType(type, connecting_type))) && is_in_hot_zone(pos, mpos)) {
+                    if ((type == connecting_type || valid_connection_types.contains(ConnType(type, connecting_type))) && is_in_hot_zone(pos, mpos)) {
 
                         connecting_target = true;
                         connecting_to = pos;
@@ -527,7 +527,7 @@ void GraphEdit::_top_layer_input(const Ref<InputEvent> &p_ev) {
 
                     Vector2 pos = gn->get_connection_input_position(j) + gn->get_position();
                     int type = gn->get_connection_input_type(j);
-                    if ((type == connecting_type || valid_connection_types.has(ConnType(type, connecting_type))) && is_in_hot_zone(pos, mpos)) {
+                    if ((type == connecting_type || valid_connection_types.contains(ConnType(type, connecting_type))) && is_in_hot_zone(pos, mpos)) {
                         connecting_target = true;
                         connecting_to = pos;
                         connecting_target_to = gn->get_name();
@@ -539,7 +539,7 @@ void GraphEdit::_top_layer_input(const Ref<InputEvent> &p_ev) {
         }
     }
 
-    if (mb.is_valid() && mb->get_button_index() == BUTTON_LEFT && !mb->is_pressed()) {
+    if (mb && mb->get_button_index() == BUTTON_LEFT && !mb->is_pressed()) {
 
         if (connecting && connecting_target) {
 
@@ -700,7 +700,7 @@ void GraphEdit::_connections_layer_draw() {
     List<List<Connection>::Element *> to_erase;
     for (List<Connection>::Element *E = connections.front(); E; E = E->next()) {
 
-        NodePath fromnp(E->get().from);
+        NodePath fromnp(E->deref().from);
 
         Node *from = get_node(fromnp);
         if (!from) {
@@ -715,7 +715,7 @@ void GraphEdit::_connections_layer_draw() {
             continue;
         }
 
-        NodePath tonp(E->get().to);
+        NodePath tonp(E->deref().to);
         Node *to = get_node(tonp);
         if (!to) {
             to_erase.push_back(E);
@@ -729,20 +729,20 @@ void GraphEdit::_connections_layer_draw() {
             continue;
         }
 
-        Vector2 frompos = gfrom->get_connection_output_position(E->get().from_port) + gfrom->get_offset() * zoom;
-        Color color = gfrom->get_connection_output_color(E->get().from_port);
-        Vector2 topos = gto->get_connection_input_position(E->get().to_port) + gto->get_offset() * zoom;
-        Color tocolor = gto->get_connection_input_color(E->get().to_port);
+        Vector2 frompos = gfrom->get_connection_output_position(E->deref().from_port) + gfrom->get_offset() * zoom;
+        Color color = gfrom->get_connection_output_color(E->deref().from_port);
+        Vector2 topos = gto->get_connection_input_position(E->deref().to_port) + gto->get_offset() * zoom;
+        Color tocolor = gto->get_connection_input_color(E->deref().to_port);
 
-        if (E->get().activity > 0) {
-            color = color.linear_interpolate(activity_color, E->get().activity);
-            tocolor = tocolor.linear_interpolate(activity_color, E->get().activity);
+        if (E->deref().activity > 0) {
+            color = color.linear_interpolate(activity_color, E->deref().activity);
+            tocolor = tocolor.linear_interpolate(activity_color, E->deref().activity);
         }
         _draw_cos_line(connections_layer, frompos, topos, color, tocolor);
     }
 
     while (!to_erase.empty()) {
-        connections.erase(to_erase.front()->get());
+        connections.erase(to_erase.front()->deref());
         to_erase.pop_front();
     }
 }
@@ -754,9 +754,9 @@ void GraphEdit::_top_layer_draw() {
     if (connecting) {
 
         Node *fromn = get_node((NodePath)connecting_from);
-        ERR_FAIL_COND(!fromn);
+        ERR_FAIL_COND(!fromn)
         GraphNode *from = Object::cast_to<GraphNode>(fromn);
-        ERR_FAIL_COND(!from);
+        ERR_FAIL_COND(!from)
         Vector2 pos;
         if (connecting_out)
             pos = from->get_connection_output_position(connecting_index);
@@ -807,13 +807,13 @@ void GraphEdit::set_selected(Node *p_child) {
 
 void GraphEdit::_gui_input(const Ref<InputEvent> &p_ev) {
 
-    Ref<InputEventMouseMotion> mm = p_ev;
-    if (mm.is_valid() && (mm->get_button_mask() & BUTTON_MASK_MIDDLE || (mm->get_button_mask() & BUTTON_MASK_LEFT && Input::get_singleton()->is_key_pressed(KEY_SPACE)))) {
+    Ref<InputEventMouseMotion> mm = dynamic_ref_cast<InputEventMouseMotion>(p_ev);
+    if (mm && (mm->get_button_mask() & BUTTON_MASK_MIDDLE || (mm->get_button_mask() & BUTTON_MASK_LEFT && Input::get_singleton()->is_key_pressed(KEY_SPACE)))) {
         h_scroll->set_value(h_scroll->get_value() - mm->get_relative().x);
         v_scroll->set_value(v_scroll->get_value() - mm->get_relative().y);
     }
 
-    if (mm.is_valid() && dragging) {
+    if (mm && dragging) {
 
         just_selected = true;
         // TODO: Remove local mouse pos hack if/when InputEventMouseMotion is fixed to support floats
@@ -834,7 +834,7 @@ void GraphEdit::_gui_input(const Ref<InputEvent> &p_ev) {
         }
     }
 
-    if (mm.is_valid() && box_selecting) {
+    if (mm && box_selecting) {
         box_selecting_to = get_local_mouse_position();
 
         box_selecting_rect = Rect2(MIN(box_selecting_from.x, box_selecting_to.x),
@@ -861,8 +861,8 @@ void GraphEdit::_gui_input(const Ref<InputEvent> &p_ev) {
         top_layer->update();
     }
 
-    Ref<InputEventMouseButton> b = p_ev;
-    if (b.is_valid()) {
+    Ref<InputEventMouseButton> b = dynamic_ref_cast<InputEventMouseButton>(p_ev);
+    if (b) {
 
         if (b->get_button_index() == BUTTON_RIGHT && b->is_pressed()) {
             if (box_selecting) {
@@ -1040,9 +1040,9 @@ void GraphEdit::_gui_input(const Ref<InputEvent> &p_ev) {
         }
     }
 
-    Ref<InputEventKey> k = p_ev;
+    Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(p_ev);
 
-    if (k.is_valid()) {
+    if (k) {
 
         if (k->get_scancode() == KEY_D && k->is_pressed() && k->get_command()) {
             emit_signal("duplicate_nodes_request");
@@ -1065,14 +1065,14 @@ void GraphEdit::_gui_input(const Ref<InputEvent> &p_ev) {
         }
     }
 
-    Ref<InputEventMagnifyGesture> magnify_gesture = p_ev;
-    if (magnify_gesture.is_valid()) {
+    Ref<InputEventMagnifyGesture> magnify_gesture = dynamic_ref_cast<InputEventMagnifyGesture>(p_ev);
+    if (magnify_gesture) {
 
         set_zoom_custom(zoom * magnify_gesture->get_factor(), magnify_gesture->get_position());
     }
 
-    Ref<InputEventPanGesture> pan_gesture = p_ev;
-    if (pan_gesture.is_valid()) {
+    Ref<InputEventPanGesture> pan_gesture = dynamic_ref_cast<InputEventPanGesture>(p_ev);
+    if (pan_gesture) {
 
         h_scroll->set_value(h_scroll->get_value() + h_scroll->get_page() * pan_gesture->get_delta().x / 8);
         v_scroll->set_value(v_scroll->get_value() + v_scroll->get_page() * pan_gesture->get_delta().y / 8);
@@ -1083,14 +1083,14 @@ void GraphEdit::set_connection_activity(const StringName &p_from, int p_from_por
 
     for (List<Connection>::Element *E = connections.front(); E; E = E->next()) {
 
-        if (E->get().from == p_from && E->get().from_port == p_from_port && E->get().to == p_to && E->get().to_port == p_to_port) {
+        if (E->deref().from == p_from && E->deref().from_port == p_from_port && E->deref().to == p_to && E->deref().to_port == p_to_port) {
 
-            if (Math::is_equal_approx(E->get().activity, p_activity)) {
+            if (Math::is_equal_approx(E->deref().activity, p_activity)) {
                 //update only if changed
                 top_layer->update();
                 connections_layer->update();
             }
-            E->get().activity = p_activity;
+            E->deref().activity = p_activity;
             return;
         }
     }
@@ -1176,10 +1176,10 @@ Array GraphEdit::_get_connection_list() const {
     Array arr;
     for (List<Connection>::Element *E = conns.front(); E; E = E->next()) {
         Dictionary d;
-        d["from"] = E->get().from;
-        d["from_port"] = E->get().from_port;
-        d["to"] = E->get().to;
-        d["to_port"] = E->get().to_port;
+        d["from"] = E->deref().from;
+        d["from_port"] = E->deref().from_port;
+        d["to"] = E->deref().to;
+        d["to_port"] = E->deref().to_port;
         arr.push_back(d);
     }
     return arr;
@@ -1223,7 +1223,7 @@ bool GraphEdit::is_valid_connection_type(int p_type, int p_with_type) const {
     ct.type_a = p_type;
     ct.type_b = p_with_type;
 
-    return valid_connection_types.has(ct);
+    return valid_connection_types.contains(ct);
 }
 
 void GraphEdit::set_use_snap(bool p_enable) {
@@ -1244,7 +1244,7 @@ int GraphEdit::get_snap() const {
 
 void GraphEdit::set_snap(int p_snap) {
 
-    ERR_FAIL_COND(p_snap < 5);
+    ERR_FAIL_COND(p_snap < 5)
     snap_amount->set_value(p_snap);
     update();
 }
@@ -1263,33 +1263,33 @@ HBoxContainer *GraphEdit::get_zoom_hbox() {
 
 void GraphEdit::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("connect_node", "from", "from_port", "to", "to_port"), &GraphEdit::connect_node);
-    MethodBinder::bind_method(D_METHOD("is_node_connected", "from", "from_port", "to", "to_port"), &GraphEdit::is_node_connected);
-    MethodBinder::bind_method(D_METHOD("disconnect_node", "from", "from_port", "to", "to_port"), &GraphEdit::disconnect_node);
-    MethodBinder::bind_method(D_METHOD("set_connection_activity", "from", "from_port", "to", "to_port", "amount"), &GraphEdit::set_connection_activity);
+    MethodBinder::bind_method(D_METHOD("connect_node", {"from", "from_port", "to", "to_port"}), &GraphEdit::connect_node);
+    MethodBinder::bind_method(D_METHOD("is_node_connected", {"from", "from_port", "to", "to_port"}), &GraphEdit::is_node_connected);
+    MethodBinder::bind_method(D_METHOD("disconnect_node", {"from", "from_port", "to", "to_port"}), &GraphEdit::disconnect_node);
+    MethodBinder::bind_method(D_METHOD("set_connection_activity", {"from", "from_port", "to", "to_port", "amount"}), &GraphEdit::set_connection_activity);
     MethodBinder::bind_method(D_METHOD("get_connection_list"), &GraphEdit::_get_connection_list);
     MethodBinder::bind_method(D_METHOD("clear_connections"), &GraphEdit::clear_connections);
     MethodBinder::bind_method(D_METHOD("get_scroll_ofs"), &GraphEdit::get_scroll_ofs);
-    MethodBinder::bind_method(D_METHOD("set_scroll_ofs", "ofs"), &GraphEdit::set_scroll_ofs);
+    MethodBinder::bind_method(D_METHOD("set_scroll_ofs", {"ofs"}), &GraphEdit::set_scroll_ofs);
 
-    MethodBinder::bind_method(D_METHOD("add_valid_right_disconnect_type", "type"), &GraphEdit::add_valid_right_disconnect_type);
-    MethodBinder::bind_method(D_METHOD("remove_valid_right_disconnect_type", "type"), &GraphEdit::remove_valid_right_disconnect_type);
-    MethodBinder::bind_method(D_METHOD("add_valid_left_disconnect_type", "type"), &GraphEdit::add_valid_left_disconnect_type);
-    MethodBinder::bind_method(D_METHOD("remove_valid_left_disconnect_type", "type"), &GraphEdit::remove_valid_left_disconnect_type);
-    MethodBinder::bind_method(D_METHOD("add_valid_connection_type", "from_type", "to_type"), &GraphEdit::add_valid_connection_type);
-    MethodBinder::bind_method(D_METHOD("remove_valid_connection_type", "from_type", "to_type"), &GraphEdit::remove_valid_connection_type);
-    MethodBinder::bind_method(D_METHOD("is_valid_connection_type", "from_type", "to_type"), &GraphEdit::is_valid_connection_type);
+    MethodBinder::bind_method(D_METHOD("add_valid_right_disconnect_type", {"type"}), &GraphEdit::add_valid_right_disconnect_type);
+    MethodBinder::bind_method(D_METHOD("remove_valid_right_disconnect_type", {"type"}), &GraphEdit::remove_valid_right_disconnect_type);
+    MethodBinder::bind_method(D_METHOD("add_valid_left_disconnect_type", {"type"}), &GraphEdit::add_valid_left_disconnect_type);
+    MethodBinder::bind_method(D_METHOD("remove_valid_left_disconnect_type", {"type"}), &GraphEdit::remove_valid_left_disconnect_type);
+    MethodBinder::bind_method(D_METHOD("add_valid_connection_type", {"from_type", "to_type"}), &GraphEdit::add_valid_connection_type);
+    MethodBinder::bind_method(D_METHOD("remove_valid_connection_type", {"from_type", "to_type"}), &GraphEdit::remove_valid_connection_type);
+    MethodBinder::bind_method(D_METHOD("is_valid_connection_type", {"from_type", "to_type"}), &GraphEdit::is_valid_connection_type);
 
-    MethodBinder::bind_method(D_METHOD("set_zoom", "p_zoom"), &GraphEdit::set_zoom);
+    MethodBinder::bind_method(D_METHOD("set_zoom", {"p_zoom"}), &GraphEdit::set_zoom);
     MethodBinder::bind_method(D_METHOD("get_zoom"), &GraphEdit::get_zoom);
 
-    MethodBinder::bind_method(D_METHOD("set_snap", "pixels"), &GraphEdit::set_snap);
+    MethodBinder::bind_method(D_METHOD("set_snap", {"pixels"}), &GraphEdit::set_snap);
     MethodBinder::bind_method(D_METHOD("get_snap"), &GraphEdit::get_snap);
 
-    MethodBinder::bind_method(D_METHOD("set_use_snap", "enable"), &GraphEdit::set_use_snap);
+    MethodBinder::bind_method(D_METHOD("set_use_snap", {"enable"}), &GraphEdit::set_use_snap);
     MethodBinder::bind_method(D_METHOD("is_using_snap"), &GraphEdit::is_using_snap);
 
-    MethodBinder::bind_method(D_METHOD("set_right_disconnects", "enable"), &GraphEdit::set_right_disconnects);
+    MethodBinder::bind_method(D_METHOD("set_right_disconnects", {"enable"}), &GraphEdit::set_right_disconnects);
     MethodBinder::bind_method(D_METHOD("is_right_disconnects_enabled"), &GraphEdit::is_right_disconnects_enabled);
 
     MethodBinder::bind_method(D_METHOD("_graph_node_moved"), &GraphEdit::_graph_node_moved);
@@ -1310,27 +1310,27 @@ void GraphEdit::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("get_zoom_hbox"), &GraphEdit::get_zoom_hbox);
 
-    MethodBinder::bind_method(D_METHOD("set_selected", "node"), &GraphEdit::set_selected);
+    MethodBinder::bind_method(D_METHOD("set_selected", {"node"}), &GraphEdit::set_selected);
 
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "right_disconnects"), "set_right_disconnects", "is_right_disconnects_enabled");
-    ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "scroll_offset"), "set_scroll_ofs", "get_scroll_ofs");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "snap_distance"), "set_snap", "get_snap");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "use_snap"), "set_use_snap", "is_using_snap");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "zoom"), "set_zoom", "get_zoom");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "right_disconnects"), "set_right_disconnects", "is_right_disconnects_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "scroll_offset"), "set_scroll_ofs", "get_scroll_ofs");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "snap_distance"), "set_snap", "get_snap");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "use_snap"), "set_use_snap", "is_using_snap");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "zoom"), "set_zoom", "get_zoom");
 
-    ADD_SIGNAL(MethodInfo("connection_request", PropertyInfo(Variant::STRING, "from"), PropertyInfo(Variant::INT, "from_slot"), PropertyInfo(Variant::STRING, "to"), PropertyInfo(Variant::INT, "to_slot")));
-    ADD_SIGNAL(MethodInfo("disconnection_request", PropertyInfo(Variant::STRING, "from"), PropertyInfo(Variant::INT, "from_slot"), PropertyInfo(Variant::STRING, "to"), PropertyInfo(Variant::INT, "to_slot")));
-    ADD_SIGNAL(MethodInfo("popup_request", PropertyInfo(Variant::VECTOR2, "position")));
+    ADD_SIGNAL(MethodInfo("connection_request", PropertyInfo(VariantType::STRING, "from"), PropertyInfo(VariantType::INT, "from_slot"), PropertyInfo(VariantType::STRING, "to"), PropertyInfo(VariantType::INT, "to_slot")));
+    ADD_SIGNAL(MethodInfo("disconnection_request", PropertyInfo(VariantType::STRING, "from"), PropertyInfo(VariantType::INT, "from_slot"), PropertyInfo(VariantType::STRING, "to"), PropertyInfo(VariantType::INT, "to_slot")));
+    ADD_SIGNAL(MethodInfo("popup_request", PropertyInfo(VariantType::VECTOR2, "position")));
     ADD_SIGNAL(MethodInfo("duplicate_nodes_request"));
     ADD_SIGNAL(MethodInfo("copy_nodes_request"));
     ADD_SIGNAL(MethodInfo("paste_nodes_request"));
-    ADD_SIGNAL(MethodInfo("node_selected", PropertyInfo(Variant::OBJECT, "node", PROPERTY_HINT_RESOURCE_TYPE, "Node")));
-    ADD_SIGNAL(MethodInfo("connection_to_empty", PropertyInfo(Variant::STRING, "from"), PropertyInfo(Variant::INT, "from_slot"), PropertyInfo(Variant::VECTOR2, "release_position")));
-    ADD_SIGNAL(MethodInfo("connection_from_empty", PropertyInfo(Variant::STRING, "to"), PropertyInfo(Variant::INT, "to_slot"), PropertyInfo(Variant::VECTOR2, "release_position")));
+    ADD_SIGNAL(MethodInfo("node_selected", PropertyInfo(VariantType::OBJECT, "node", PROPERTY_HINT_RESOURCE_TYPE, "Node")));
+    ADD_SIGNAL(MethodInfo("connection_to_empty", PropertyInfo(VariantType::STRING, "from"), PropertyInfo(VariantType::INT, "from_slot"), PropertyInfo(VariantType::VECTOR2, "release_position")));
+    ADD_SIGNAL(MethodInfo("connection_from_empty", PropertyInfo(VariantType::STRING, "to"), PropertyInfo(VariantType::INT, "to_slot"), PropertyInfo(VariantType::VECTOR2, "release_position")));
     ADD_SIGNAL(MethodInfo("delete_nodes_request"));
     ADD_SIGNAL(MethodInfo("_begin_node_move"));
     ADD_SIGNAL(MethodInfo("_end_node_move"));
-    ADD_SIGNAL(MethodInfo("scroll_offset_changed", PropertyInfo(Variant::VECTOR2, "ofs")));
+    ADD_SIGNAL(MethodInfo("scroll_offset_changed", PropertyInfo(VariantType::VECTOR2, "ofs")));
 }
 
 GraphEdit::GraphEdit() {

@@ -30,6 +30,8 @@
 
 #include "spatial_editor_plugin.h"
 
+#include <utility>
+
 #include "core/math/camera_matrix.h"
 #include "core/method_bind.h"
 #include "core/object_db.h"
@@ -200,9 +202,9 @@ int SpatialEditorViewport::get_selected_count() const {
 
     int count = 0;
 
-    for (Map<Node *, Object *>::Element *E = selection.front(); E; E = E->next()) {
+    for (eastl::pair<Node *,Object *> E : selection) {
 
-        Spatial *sp = Object::cast_to<Spatial>(E->key());
+        Spatial *sp = Object::cast_to<Spatial>(E.first);
         if (!sp)
             continue;
 
@@ -303,7 +305,7 @@ void SpatialEditorViewport::_select(Node *p_node, bool p_append, bool p_single) 
 
     if (p_single) {
         if (Engine::get_singleton()->is_editor_hint())
-            editor->call("edit_node", p_node);
+            editor->call("edit_node", Variant(p_node));
     }
 }
 
@@ -331,9 +333,9 @@ ObjectID SpatialEditorViewport::_select_ray(const Point2 &p_pos, bool p_append, 
         if (!spat)
             continue;
 
-        Ref<EditorSpatialGizmo> seg = spat->get_gizmo();
+        Ref<EditorSpatialGizmo> seg = dynamic_ref_cast<EditorSpatialGizmo>(spat->get_gizmo());
 
-        if ((!seg.is_valid()) || found_gizmos.has(seg)) {
+        if ((not seg) || found_gizmos.contains(seg)) {
             continue;
         }
 
@@ -394,12 +396,12 @@ void SpatialEditorViewport::_find_items_at_pos(const Point2 &p_pos, bool &r_incl
         if (!spat)
             continue;
 
-        Ref<EditorSpatialGizmo> seg = spat->get_gizmo();
+        Ref<EditorSpatialGizmo> seg = dynamic_ref_cast<EditorSpatialGizmo>(spat->get_gizmo());
 
-        if (!seg.is_valid())
+        if (not seg)
             continue;
 
-        if (found_gizmos.has(seg))
+        if (found_gizmos.contains(seg))
             continue;
 
         found_gizmos.insert(seg);
@@ -539,9 +541,9 @@ void SpatialEditorViewport::_select_region() {
 
         if (_is_node_locked(Object::cast_to<Spatial>(item))) continue;
 
-        Ref<EditorSpatialGizmo> seg = sp->get_gizmo();
+        Ref<EditorSpatialGizmo> seg = dynamic_ref_cast<EditorSpatialGizmo>(sp->get_gizmo());
 
-        if (!seg.is_valid())
+        if (not seg)
             continue;
 
         if (seg->intersect_frustum(camera, frustum)) {
@@ -559,7 +561,7 @@ void SpatialEditorViewport::_update_name() {
 
     String view_mode = orthogonal ? TTR("Orthogonal") : TTR("Perspective");
 
-    if (name != "")
+    if (!name.empty())
         view_menu->set_text(name + " " + view_mode);
     else
         view_menu->set_text(view_mode);
@@ -579,7 +581,7 @@ void SpatialEditorViewport::_compute_edit(const Point2 &p_point) {
 
     for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
 
-        Spatial *sp = Object::cast_to<Spatial>(E->get());
+        Spatial *sp = Object::cast_to<Spatial>(E->deref());
         if (!sp)
             continue;
 
@@ -914,9 +916,9 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
         }
     }
 
-    Ref<InputEventMouseButton> b = p_event;
+    Ref<InputEventMouseButton> b = dynamic_ref_cast<InputEventMouseButton>(p_event);
 
-    if (b.is_valid()) {
+    if (b) {
         float zoom_factor = 1 + (ZOOM_MULTIPLIER - 1) * b->get_factor();
         switch (b->get_button_index()) {
 
@@ -938,7 +940,7 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
 
                 NavigationScheme nav_scheme = (NavigationScheme)EditorSettings::get_singleton()->get("editors/3d/navigation/navigation_scheme").operator int();
 
-                if (b->is_pressed() && _edit.gizmo.is_valid()) {
+                if (b->is_pressed() && _edit.gizmo) {
                     //restore
                     _edit.gizmo->commit_handle(_edit.gizmo_handle, _edit.gizmo_initial_value, true);
                     _edit.gizmo = Ref<EditorSpatialGizmo>();
@@ -964,7 +966,7 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
 
                     for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
 
-                        Spatial *sp = Object::cast_to<Spatial>(E->get());
+                        Spatial *sp = Object::cast_to<Spatial>(E->deref());
                         if (!sp)
                             continue;
 
@@ -1063,8 +1065,8 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
 
                     if (can_select_gizmos && spatial_editor->get_selected()) {
 
-                        Ref<EditorSpatialGizmo> seg = spatial_editor->get_selected()->get_gizmo();
-                        if (seg.is_valid()) {
+                        Ref<EditorSpatialGizmo> seg = dynamic_ref_cast<EditorSpatialGizmo>(spatial_editor->get_selected()->get_gizmo());
+                        if (seg) {
                             int handle = -1;
                             Vector3 point;
                             Vector3 normal;
@@ -1142,8 +1144,8 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
                         Spatial *spa = Object::cast_to<Spatial>(ObjectDB::get_instance(clicked));
                         if (spa) {
 
-                            Ref<EditorSpatialGizmo> seg = spa->get_gizmo();
-                            if (seg.is_valid()) {
+                            Ref<EditorSpatialGizmo> seg = dynamic_ref_cast<EditorSpatialGizmo>(spa->get_gizmo());
+                            if (seg) {
 
                                 _edit.gizmo = seg;
                                 _edit.gizmo_handle = gizmo_handle;
@@ -1156,7 +1158,7 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
                     surface->update();
                 } else {
 
-                    if (_edit.gizmo.is_valid()) {
+                    if (_edit.gizmo) {
 
                         _edit.gizmo->commit_handle(_edit.gizmo_handle, _edit.gizmo_initial_value, false);
                         _edit.gizmo = Ref<EditorSpatialGizmo>();
@@ -1186,7 +1188,7 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
 
                         for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
 
-                            Spatial *sp = Object::cast_to<Spatial>(E->get());
+                            Spatial *sp = Object::cast_to<Spatial>(E->deref());
                             if (!sp)
                                 continue;
 
@@ -1209,16 +1211,16 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
         }
     }
 
-    Ref<InputEventMouseMotion> m = p_event;
+    Ref<InputEventMouseMotion> m = dynamic_ref_cast<InputEventMouseMotion>(p_event);
 
-    if (m.is_valid()) {
+    if (m) {
 
         _edit.mouse_pos = m->get_position();
 
         if (spatial_editor->get_selected()) {
 
-            Ref<EditorSpatialGizmo> seg = spatial_editor->get_selected()->get_gizmo();
-            if (seg.is_valid()) {
+            Ref<EditorSpatialGizmo> seg = dynamic_ref_cast<EditorSpatialGizmo>(spatial_editor->get_selected()->get_gizmo());
+            if (seg) {
 
                 int selected_handle = -1;
 
@@ -1240,7 +1242,7 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
             }
         }
 
-        if (spatial_editor->get_over_gizmo_handle() == -1 && !(m->get_button_mask() & 1) && !_edit.gizmo.is_valid()) {
+        if (spatial_editor->get_over_gizmo_handle() == -1 && !(m->get_button_mask() & 1) && not _edit.gizmo) {
 
             _gizmo_select(_edit.mouse_pos, true);
         }
@@ -1248,7 +1250,7 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
         NavigationScheme nav_scheme = (NavigationScheme)EditorSettings::get_singleton()->get("editors/3d/navigation/navigation_scheme").operator int();
         NavigationMode nav_mode = NAVIGATION_NONE;
 
-        if (_edit.gizmo.is_valid()) {
+        if (_edit.gizmo) {
 
             _edit.gizmo->set_handle(_edit.gizmo_handle, camera, m->get_position());
             Variant v = _edit.gizmo->get_handle_value(_edit.gizmo_handle);
@@ -1385,7 +1387,7 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
 
                         for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
 
-                            Spatial *sp = Object::cast_to<Spatial>(E->get());
+                            Spatial *sp = Object::cast_to<Spatial>(E->deref());
                             if (!sp) {
                                 continue;
                             }
@@ -1510,7 +1512,7 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
 
                         for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
 
-                            Spatial *sp = Object::cast_to<Spatial>(E->get());
+                            Spatial *sp = Object::cast_to<Spatial>(E->deref());
                             if (!sp) {
                                 continue;
                             }
@@ -1608,7 +1610,7 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
 
                         for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
 
-                            Spatial *sp = Object::cast_to<Spatial>(E->get());
+                            Spatial *sp = Object::cast_to<Spatial>(E->deref());
                             if (!sp)
                                 continue;
 
@@ -1724,8 +1726,8 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
         }
     }
 
-    Ref<InputEventMagnifyGesture> magnify_gesture = p_event;
-    if (magnify_gesture.is_valid()) {
+    Ref<InputEventMagnifyGesture> magnify_gesture = dynamic_ref_cast<InputEventMagnifyGesture>(p_event);
+    if (magnify_gesture) {
 
         if (is_freelook_active())
             scale_freelook_speed(magnify_gesture->get_factor());
@@ -1733,8 +1735,8 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
             scale_cursor_distance(1.0 / magnify_gesture->get_factor());
     }
 
-    Ref<InputEventPanGesture> pan_gesture = p_event;
-    if (pan_gesture.is_valid()) {
+    Ref<InputEventPanGesture> pan_gesture = dynamic_ref_cast<InputEventPanGesture>(p_event);
+    if (pan_gesture) {
 
         NavigationScheme nav_scheme = (NavigationScheme)EditorSettings::get_singleton()->get("editors/3d/navigation/navigation_scheme").operator int();
         NavigationMode nav_mode = NAVIGATION_NONE;
@@ -1781,9 +1783,9 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
         }
     }
 
-    Ref<InputEventKey> k = p_event;
+    Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(p_event);
 
-    if (k.is_valid()) {
+    if (k) {
         if (!k->is_pressed())
             return;
 
@@ -1840,11 +1842,11 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
 
             for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
 
-                Spatial *sp = Object::cast_to<Spatial>(E->get());
+                Spatial *sp = Object::cast_to<Spatial>(E->deref());
                 if (!sp)
                     continue;
 
-                spatial_editor->emit_signal("transform_key_request", sp, "", sp->get_transform());
+                spatial_editor->emit_signal("transform_key_request", Variant(sp), "", sp->get_transform());
             }
 
             set_message(TTR("Animation Key Inserted."));
@@ -1859,7 +1861,7 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
         }
 
         if (k->get_scancode() == KEY_SPACE) {
-            if (!k->is_pressed()) emit_signal("toggle_maximize_view", this);
+            if (!k->is_pressed()) emit_signal("toggle_maximize_view", Variant(this));
         }
     }
 
@@ -1893,7 +1895,7 @@ void SpatialEditorViewport::_nav_zoom(Ref<InputEventWithModifiers> p_event, cons
 
     const NavigationScheme nav_scheme = (NavigationScheme)EditorSettings::get_singleton()->get("editors/3d/navigation/navigation_scheme").operator int();
 
-    real_t zoom_speed = 1 / 80.0;
+    real_t zoom_speed = 1 / 80.0f;
     int zoom_speed_modifier = 10;
     if (nav_scheme == NAVIGATION_MAYA && p_event->get_shift())
         zoom_speed *= zoom_speed_modifier;
@@ -1912,7 +1914,7 @@ void SpatialEditorViewport::_nav_zoom(Ref<InputEventWithModifiers> p_event, cons
     }
 }
 
-void SpatialEditorViewport::_nav_orbit(Ref<InputEventWithModifiers> p_event, const Vector2 &p_relative) {
+void SpatialEditorViewport::_nav_orbit(const Ref<InputEventWithModifiers>& p_event, const Vector2 &p_relative) {
 
     if (lock_rotation) {
         _nav_pan(p_event, p_relative);
@@ -1937,7 +1939,7 @@ void SpatialEditorViewport::_nav_orbit(Ref<InputEventWithModifiers> p_event, con
     _update_name();
 }
 
-void SpatialEditorViewport::_nav_look(Ref<InputEventWithModifiers> p_event, const Vector2 &p_relative) {
+void SpatialEditorViewport::_nav_look(const Ref<InputEventWithModifiers>& p_event, const Vector2 &p_relative) {
 
     if (orthogonal) {
         _nav_pan(p_event, p_relative);
@@ -2047,10 +2049,10 @@ Point2i SpatialEditorViewport::_get_warped_mouse_motion(const Ref<InputEventMous
 
 static bool is_shortcut_pressed(const String &p_path) {
     Ref<ShortCut> shortcut = ED_GET_SHORTCUT(p_path);
-    if (shortcut.is_null()) {
+    if (not shortcut) {
         return false;
     }
-    InputEventKey *k = Object::cast_to<InputEventKey>(shortcut->get_shortcut().ptr());
+    InputEventKey *k = Object::cast_to<InputEventKey>(shortcut->get_shortcut().get());
     if (k == nullptr) {
         return false;
     }
@@ -2107,7 +2109,7 @@ void SpatialEditorViewport::_update_freelook(real_t delta) {
 
 void SpatialEditorViewport::set_message(String p_message, float p_time) {
 
-    message = p_message;
+    message = std::move(p_message);
     message_time = p_time;
 }
 
@@ -2176,9 +2178,9 @@ void SpatialEditorViewport::_notification(int p_what) {
         bool changed = false;
         bool exist = false;
 
-        for (Map<Node *, Object *>::Element *E = selection.front(); E; E = E->next()) {
+        for (const eastl::pair<Node *,Object *> E : selection) {
 
-            Spatial *sp = Object::cast_to<Spatial>(E->key());
+            Spatial *sp = Object::cast_to<Spatial>(E.first);
             if (!sp)
                 continue;
 
@@ -2188,7 +2190,7 @@ void SpatialEditorViewport::_notification(int p_what) {
 
             VisualInstance *vi = Object::cast_to<VisualInstance>(sp);
 
-            se->aabb = vi ? vi->get_aabb() : AABB(Vector3(-0.2, -0.2, -0.2), Vector3(0.4, 0.4, 0.4));
+            se->aabb = vi ? vi->get_aabb() : AABB(Vector3(-0.2f, -0.2f, -0.2f), Vector3(0.4f, 0.4f, 0.4f));
 
             Transform t = sp->get_global_gizmo_transform();
             t.translate(se->aabb.position);
@@ -2570,7 +2572,7 @@ void SpatialEditorViewport::_menu_option(int p_option) {
 
             for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
 
-                Spatial *sp = Object::cast_to<Spatial>(E->get());
+                Spatial *sp = Object::cast_to<Spatial>(E->deref());
                 if (!sp)
                     continue;
 
@@ -2606,7 +2608,7 @@ void SpatialEditorViewport::_menu_option(int p_option) {
             undo_redo->create_action(TTR("Align Rotation with View"));
             for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
 
-                Spatial *sp = Object::cast_to<Spatial>(E->get());
+                Spatial *sp = Object::cast_to<Spatial>(E->deref());
                 if (!sp)
                     continue;
 
@@ -2627,7 +2629,7 @@ void SpatialEditorViewport::_menu_option(int p_option) {
             current = !current;
             if (current) {
 
-                camera->set_environment(RES());
+                camera->set_environment(Ref<Environment>());
             } else {
 
                 camera->set_environment(SpatialEditor::get_singleton()->get_viewport_environment());
@@ -2836,8 +2838,8 @@ void SpatialEditorViewport::_finish_gizmo_instances() {
 }
 void SpatialEditorViewport::_toggle_camera_preview(bool p_activate) {
 
-    ERR_FAIL_COND(p_activate && !preview);
-    ERR_FAIL_COND(!p_activate && !previewing);
+    ERR_FAIL_COND(p_activate && !preview)
+    ERR_FAIL_COND(!p_activate && !previewing)
 
     if (!p_activate) {
 
@@ -2997,7 +2999,7 @@ void SpatialEditorViewport::set_state(const Dictionary &p_state) {
     if (p_state.has("use_environment")) {
         bool env = p_state["use_environment"];
 
-        if (env != camera->get_environment().is_valid())
+        if (env != (camera->get_environment()!=nullptr))
             _menu_option(VIEW_ENVIRONMENT);
     }
     if (p_state.has("listener")) {
@@ -3069,7 +3071,7 @@ Dictionary SpatialEditorViewport::get_state() const {
     d["x_rotation"] = cursor.x_rot;
     d["y_rotation"] = cursor.y_rot;
     d["distance"] = cursor.distance;
-    d["use_environment"] = camera->get_environment().is_valid();
+    d["use_environment"] = camera->get_environment()!=nullptr;
     d["use_orthogonal"] = camera->get_projection() == Camera::PROJECTION_ORTHOGONAL;
     if (view_menu->get_popup()->is_item_checked(view_menu->get_popup()->get_item_index(VIEW_DISPLAY_NORMAL)))
         d["display_mode"] = VIEW_DISPLAY_NORMAL;
@@ -3112,7 +3114,7 @@ void SpatialEditorViewport::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("can_drop_data_fw"), &SpatialEditorViewport::can_drop_data_fw);
     MethodBinder::bind_method(D_METHOD("drop_data_fw"), &SpatialEditorViewport::drop_data_fw);
 
-    ADD_SIGNAL(MethodInfo("toggle_maximize_view", PropertyInfo(Variant::OBJECT, "viewport")));
+    ADD_SIGNAL(MethodInfo("toggle_maximize_view", PropertyInfo(VariantType::OBJECT, "viewport")));
 }
 
 void SpatialEditorViewport::reset() {
@@ -3143,7 +3145,7 @@ void SpatialEditorViewport::focus_selection() {
 
     for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
 
-        Spatial *sp = Object::cast_to<Spatial>(E->get());
+        Spatial *sp = Object::cast_to<Spatial>(E->deref());
         if (!sp)
             continue;
 
@@ -3189,9 +3191,9 @@ Vector3 SpatialEditorViewport::_get_instance_position(const Point2 &p_pos) const
         if (!mesh_instance)
             continue;
 
-        Ref<EditorSpatialGizmo> seg = mesh_instance->get_gizmo();
+        Ref<EditorSpatialGizmo> seg = dynamic_ref_cast<EditorSpatialGizmo>(mesh_instance->get_gizmo());
 
-        if ((!seg.is_valid()) || found_gizmos.has(seg)) {
+        if ((not seg) || found_gizmos.contains(seg)) {
             continue;
         }
 
@@ -3245,16 +3247,16 @@ AABB SpatialEditorViewport::_calculate_spatial_bounds(const Spatial *p_parent, c
 void SpatialEditorViewport::_create_preview(const Vector<String> &files) const {
     for (int i = 0; i < files.size(); i++) {
         String path = files[i];
-        RES res = ResourceLoader::load(path);
-        Ref<PackedScene> scene = Ref<PackedScene>(Object::cast_to<PackedScene>(*res));
-        Ref<Mesh> mesh = Ref<Mesh>(Object::cast_to<Mesh>(*res));
+        RES res(ResourceLoader::load(path));
+        Ref<PackedScene> scene = dynamic_ref_cast<PackedScene>(res);
+        Ref<Mesh> mesh = dynamic_ref_cast<Mesh>(res);
         if (mesh != nullptr || scene != nullptr) {
             if (mesh != nullptr) {
                 MeshInstance *mesh_instance = memnew(MeshInstance);
                 mesh_instance->set_mesh(mesh);
                 preview_node->add_child(mesh_instance);
             } else {
-                if (scene.is_valid()) {
+                if (scene) {
                     Node *instance = scene->instance();
                     if (instance) {
                         preview_node->add_child(instance);
@@ -3294,10 +3296,10 @@ bool SpatialEditorViewport::_cyclical_dependency_exists(const String &p_target_s
 }
 
 bool SpatialEditorViewport::_create_instance(Node *parent, String &path, const Point2 &p_point) {
-    RES res = ResourceLoader::load(path);
+    RES res(ResourceLoader::load(path));
 
-    Ref<PackedScene> scene = Ref<PackedScene>(Object::cast_to<PackedScene>(*res));
-    Ref<Mesh> mesh = Ref<Mesh>(Object::cast_to<Mesh>(*res));
+    Ref<PackedScene> scene = dynamic_ref_cast<PackedScene>(res);
+    Ref<Mesh> mesh = dynamic_ref_cast<Mesh>(res);
 
     Node *instanced_scene = nullptr;
 
@@ -3308,7 +3310,7 @@ bool SpatialEditorViewport::_create_instance(Node *parent, String &path, const P
             mesh_instance->set_name(PathUtils::get_basename(PathUtils::get_file(path)));
             instanced_scene = mesh_instance;
         } else {
-            if (!scene.is_valid()) { // invalid scene
+            if (not scene) { // invalid scene
                 return false;
             } else {
                 instanced_scene = scene->instance(PackedScene::GEN_EDIT_STATE_INSTANCE);
@@ -3320,7 +3322,7 @@ bool SpatialEditorViewport::_create_instance(Node *parent, String &path, const P
         return false;
     }
 
-    if (editor->get_edited_scene()->get_filename() != "") { // cyclical instancing
+    if (!editor->get_edited_scene()->get_filename().empty()) { // cyclical instancing
         if (_cyclical_dependency_exists(editor->get_edited_scene()->get_filename(), instanced_scene)) {
             memdelete(instanced_scene);
             return false;
@@ -3331,10 +3333,10 @@ bool SpatialEditorViewport::_create_instance(Node *parent, String &path, const P
         instanced_scene->set_filename(ProjectSettings::get_singleton()->localize_path(path));
     }
 
-    editor_data->get_undo_redo().add_do_method(parent, "add_child", instanced_scene);
-    editor_data->get_undo_redo().add_do_method(instanced_scene, "set_owner", editor->get_edited_scene());
+    editor_data->get_undo_redo().add_do_method(parent, "add_child", Variant(instanced_scene));
+    editor_data->get_undo_redo().add_do_method(instanced_scene, "set_owner", Variant(editor->get_edited_scene()));
     editor_data->get_undo_redo().add_do_reference(instanced_scene);
-    editor_data->get_undo_redo().add_undo_method(parent, "remove_child", instanced_scene);
+    editor_data->get_undo_redo().add_undo_method(parent, "remove_child", Variant(instanced_scene));
 
     String new_name = parent->validate_child_name(instanced_scene);
     ScriptEditorDebugger *sed = ScriptEditor::get_singleton()->get_debugger();
@@ -3362,12 +3364,12 @@ void SpatialEditorViewport::_perform_drop_data() {
 
     for (int i = 0; i < selected_files.size(); i++) {
         String path = selected_files[i];
-        RES res = ResourceLoader::load(path);
-        if (res.is_null()) {
+        RES res(ResourceLoader::load(path));
+        if (not res) {
             continue;
         }
-        Ref<PackedScene> scene = Ref<PackedScene>(Object::cast_to<PackedScene>(*res));
-        Ref<Mesh> mesh = Ref<Mesh>(Object::cast_to<Mesh>(*res));
+        Ref<PackedScene> scene = dynamic_ref_cast<PackedScene>(res);
+        Ref<Mesh> mesh = dynamic_ref_cast<Mesh>(res);
         if (mesh != nullptr || scene != nullptr) {
             bool success = _create_instance(target_node, path, drop_pos);
             if (!success) {
@@ -3378,7 +3380,7 @@ void SpatialEditorViewport::_perform_drop_data() {
 
     editor_data->get_undo_redo().commit_action();
 
-    if (error_files.size() > 0) {
+    if (!error_files.empty()) {
         String files_str;
         for (int i = 0; i < error_files.size(); i++) {
             files_str += PathUtils::get_basename(PathUtils::get_file(error_files[i])) + ",";
@@ -3398,29 +3400,29 @@ bool SpatialEditorViewport::can_drop_data_fw(const Point2 &p_point, const Varian
         if (d.has("type") && (String(d["type"]) == "files")) {
             Vector<String> files = d["files"];
 
-            List<String> scene_extensions;
+            ListPOD<String> scene_extensions;
             ResourceLoader::get_recognized_extensions_for_type("PackedScene", &scene_extensions);
-            List<String> mesh_extensions;
+            ListPOD<String> mesh_extensions;
             ResourceLoader::get_recognized_extensions_for_type("Mesh", &mesh_extensions);
 
             for (int i = 0; i < files.size(); i++) {
-                if (mesh_extensions.find(PathUtils::get_extension(files[i])) || scene_extensions.find(PathUtils::get_extension(files[i]))) {
-                    RES res = ResourceLoader::load(files[i]);
-                    if (res.is_null()) {
+                if (mesh_extensions.contains(PathUtils::get_extension(files[i])) || scene_extensions.contains(PathUtils::get_extension(files[i]))) {
+                    RES res(ResourceLoader::load(files[i]));
+                    if (not res) {
                         continue;
                     }
 
                     String type = res->get_class();
                     if (type == "PackedScene") {
-                        Ref<PackedScene> sdata = ResourceLoader::load(files[i]);
+                        Ref<PackedScene> sdata = dynamic_ref_cast<PackedScene>(ResourceLoader::load(files[i]));
                         Node *instanced_scene = sdata->instance(PackedScene::GEN_EDIT_STATE_INSTANCE);
                         if (!instanced_scene) {
                             continue;
                         }
                         memdelete(instanced_scene);
                     } else if (type == "Mesh" || type == "ArrayMesh" || type == "PrimitiveMesh") {
-                        Ref<Mesh> mesh = ResourceLoader::load(files[i]);
-                        if (!mesh.is_valid()) {
+                        Ref<Mesh> mesh = dynamic_ref_cast<Mesh>(ResourceLoader::load(files[i]));
+                        if (not mesh) {
                             continue;
                         }
                     } else {
@@ -3459,7 +3461,7 @@ void SpatialEditorViewport::drop_data_fw(const Point2 &p_point, const Variant &p
     }
 
     List<Node *> list = editor->get_editor_selection()->get_selected_node_list();
-    if (list.size() == 0) {
+    if (list.empty()) {
         Node *root_node = editor->get_edited_scene();
         if (root_node) {
             list.push_back(root_node);
@@ -3664,9 +3666,9 @@ SpatialEditorViewport::SpatialEditorViewport(SpatialEditor *p_spatial_editor, Ed
 
 void SpatialEditorViewportContainer::_gui_input(const Ref<InputEvent> &p_event) {
 
-    Ref<InputEventMouseButton> mb = p_event;
+    Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_event);
 
-    if (mb.is_valid() && mb->get_button_index() == BUTTON_LEFT) {
+    if (mb && mb->get_button_index() == BUTTON_LEFT) {
 
         if (mb->is_pressed()) {
             Vector2 size = get_size();
@@ -3715,9 +3717,9 @@ void SpatialEditorViewportContainer::_gui_input(const Ref<InputEvent> &p_event) 
         }
     }
 
-    Ref<InputEventMouseMotion> mm = p_event;
+    Ref<InputEventMouseMotion> mm = dynamic_ref_cast<InputEventMouseMotion>(p_event);
 
-    if (mm.is_valid()) {
+    if (mm) {
 
         if (view == VIEW_USE_3_VIEWPORTS || view == VIEW_USE_3_VIEWPORTS_ALT || view == VIEW_USE_4_VIEWPORTS) {
             Vector2 size = get_size();
@@ -3860,7 +3862,7 @@ void SpatialEditorViewportContainer::_notification(int p_what) {
             }
         }
 
-        ERR_FAIL_COND(vc != 4);
+        ERR_FAIL_COND(vc != 4)
 
         Size2 size = get_size();
 
@@ -4032,7 +4034,7 @@ void SpatialEditor::update_transform_gizmo() {
 
     for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
 
-        Spatial *sp = Object::cast_to<Spatial>(E->get());
+        Spatial *sp = Object::cast_to<Spatial>(E->deref());
         if (!sp)
             continue;
 
@@ -4116,9 +4118,9 @@ Color SpatialEditor::_get_axis_color(int axis) {
 void SpatialEditor::_generate_selection_box() {
 
     AABB aabb(Vector3(), Vector3(1, 1, 1));
-    aabb.grow_by(aabb.get_longest_axis_size() / 20.0);
+    aabb.grow_by(aabb.get_longest_axis_size() / 20.0f);
 
-    Ref<SurfaceTool> st = memnew(SurfaceTool);
+    Ref<SurfaceTool> st(make_ref_counted<SurfaceTool>());
 
     st->begin(Mesh::PRIMITIVE_LINES);
     for (int i = 0; i < 12; i++) {
@@ -4126,18 +4128,18 @@ void SpatialEditor::_generate_selection_box() {
         Vector3 a, b;
         aabb.get_edge(i, a, b);
 
-        st->add_color(Color(1.0, 1.0, 0.8, 0.8));
+        st->add_color(Color(1.0, 1.0, 0.8f, 0.8f));
         st->add_vertex(a);
-        st->add_color(Color(1.0, 1.0, 0.8, 0.4));
-        st->add_vertex(a.linear_interpolate(b, 0.2));
+        st->add_color(Color(1.0, 1.0, 0.8f, 0.4f));
+        st->add_vertex(a.linear_interpolate(b, 0.2f));
 
-        st->add_color(Color(1.0, 1.0, 0.8, 0.4));
-        st->add_vertex(a.linear_interpolate(b, 0.8));
-        st->add_color(Color(1.0, 1.0, 0.8, 0.8));
+        st->add_color(Color(1.0, 1.0, 0.8f, 0.4f));
+        st->add_vertex(a.linear_interpolate(b, 0.8f));
+        st->add_color(Color(1.0, 1.0, 0.8f, 0.8f));
         st->add_vertex(b);
     }
 
-    Ref<SpatialMaterial> mat = memnew(SpatialMaterial);
+    Ref<SpatialMaterial> mat(make_ref_counted<SpatialMaterial>());
     mat->set_flag(SpatialMaterial::FLAG_UNSHADED, true);
     mat->set_albedo(Color(1, 1, 1));
     mat->set_feature(SpatialMaterial::FEATURE_TRANSPARENT, true);
@@ -4276,15 +4278,15 @@ void SpatialEditor::set_state(const Dictionary &p_state) {
 
     if (d.has("gizmos_status")) {
         Dictionary gizmos_status = d["gizmos_status"];
-        List<Variant> keys;
+        ListPOD<Variant> keys;
         gizmos_status.get_key_list(&keys);
 
         for (int j = 0; j < gizmo_plugins_by_name.size(); ++j) {
             if (!gizmo_plugins_by_name[j]->can_be_hidden()) continue;
             int state = EditorSpatialGizmoPlugin::VISIBLE;
-            for (int i = 0; i < keys.size(); i++) {
-                if (gizmo_plugins_by_name.write[j]->get_name() == String(keys[i])) {
-                    state = gizmos_status[keys[i]];
+            for (const Variant &k :keys) {
+                if (gizmo_plugins_by_name.write[j]->get_name() == String(k)) {
+                    state = gizmos_status[k];
                     break;
                 }
             }
@@ -4300,8 +4302,8 @@ void SpatialEditor::edit(Spatial *p_spatial) {
     if (p_spatial != selected) {
         if (selected) {
 
-            Ref<EditorSpatialGizmo> seg = selected->get_gizmo();
-            if (seg.is_valid()) {
+            Ref<EditorSpatialGizmo> seg = dynamic_ref_cast<EditorSpatialGizmo>(selected->get_gizmo());
+            if (seg) {
                 seg->set_selected(false);
                 selected->update_gizmo();
             }
@@ -4312,8 +4314,8 @@ void SpatialEditor::edit(Spatial *p_spatial) {
 
         if (selected) {
 
-            Ref<EditorSpatialGizmo> seg = selected->get_gizmo();
-            if (seg.is_valid()) {
+            Ref<EditorSpatialGizmo> seg = dynamic_ref_cast<EditorSpatialGizmo>(selected->get_gizmo());
+            if (seg) {
                 seg->set_selected(true);
                 selected->update_gizmo();
             }
@@ -4345,7 +4347,7 @@ void SpatialEditor::_xform_dialog_action() {
 
     for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
 
-        Spatial *sp = Object::cast_to<Spatial>(E->get());
+        Spatial *sp = Object::cast_to<Spatial>(E->deref());
         if (!sp)
             continue;
 
@@ -4556,7 +4558,7 @@ void SpatialEditor::_menu_item_pressed(int p_option) {
 
             for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
 
-                Spatial *spatial = Object::cast_to<Spatial>(E->get());
+                Spatial *spatial = Object::cast_to<Spatial>(E->deref());
                 if (!spatial || !spatial->is_visible_in_tree())
                     continue;
 
@@ -4580,7 +4582,7 @@ void SpatialEditor::_menu_item_pressed(int p_option) {
 
             for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
 
-                Spatial *spatial = Object::cast_to<Spatial>(E->get());
+                Spatial *spatial = Object::cast_to<Spatial>(E->deref());
                 if (!spatial || !spatial->is_visible_in_tree())
                     continue;
 
@@ -4604,7 +4606,7 @@ void SpatialEditor::_menu_item_pressed(int p_option) {
 
             for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
 
-                Spatial *spatial = Object::cast_to<Spatial>(E->get());
+                Spatial *spatial = Object::cast_to<Spatial>(E->deref());
                 if (!spatial || !spatial->is_visible_in_tree())
                     continue;
 
@@ -4627,7 +4629,7 @@ void SpatialEditor::_menu_item_pressed(int p_option) {
 
             for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
 
-                Spatial *spatial = Object::cast_to<Spatial>(E->get());
+                Spatial *spatial = Object::cast_to<Spatial>(E->deref());
                 if (!spatial || !spatial->is_visible_in_tree())
                     continue;
 
@@ -4653,7 +4655,7 @@ void SpatialEditor::_init_indicators() {
         origin_enabled = true;
         grid_enabled = true;
 
-        indicator_mat.instance();
+        indicator_mat = make_ref_counted<SpatialMaterial>();
         indicator_mat->set_flag(SpatialMaterial::FLAG_UNSHADED, true);
         indicator_mat->set_flag(SpatialMaterial::FLAG_ALBEDO_FROM_VERTEX_COLOR, true);
         indicator_mat->set_flag(SpatialMaterial::FLAG_SRGB_VERTEX_COLOR, true);
@@ -4704,20 +4706,20 @@ void SpatialEditor::_init_indicators() {
             Color col = _get_axis_color(i);
             col.a = EditorSettings::get_singleton()->get("editors/3d/manipulator_gizmo_opacity");
 
-            move_gizmo[i] = Ref<ArrayMesh>(memnew(ArrayMesh));
-            move_plane_gizmo[i] = Ref<ArrayMesh>(memnew(ArrayMesh));
-            rotate_gizmo[i] = Ref<ArrayMesh>(memnew(ArrayMesh));
-            scale_gizmo[i] = Ref<ArrayMesh>(memnew(ArrayMesh));
-            scale_plane_gizmo[i] = Ref<ArrayMesh>(memnew(ArrayMesh));
+            move_gizmo[i] = make_ref_counted<ArrayMesh>();
+            move_plane_gizmo[i] = make_ref_counted<ArrayMesh>();
+            rotate_gizmo[i] = make_ref_counted<ArrayMesh>();
+            scale_gizmo[i] = make_ref_counted<ArrayMesh>();
+            scale_plane_gizmo[i] = make_ref_counted<ArrayMesh>();
 
-            Ref<SpatialMaterial> mat = memnew(SpatialMaterial);
+            Ref<SpatialMaterial> mat(make_ref_counted<SpatialMaterial>());
             mat->set_flag(SpatialMaterial::FLAG_UNSHADED, true);
             mat->set_on_top_of_alpha();
             mat->set_feature(SpatialMaterial::FEATURE_TRANSPARENT, true);
             mat->set_albedo(col);
             gizmo_color[i] = mat;
 
-            Ref<SpatialMaterial> mat_hl = mat->duplicate();
+            Ref<SpatialMaterial> mat_hl = dynamic_ref_cast<SpatialMaterial>(mat->duplicate());
             mat_hl->set_albedo(Color(col.r, col.g, col.b, 1.0));
             gizmo_color_hl[i] = mat_hl;
 
@@ -4734,7 +4736,7 @@ void SpatialEditor::_init_indicators() {
             //translate
             {
 
-                Ref<SurfaceTool> surftool = memnew(SurfaceTool);
+                Ref<SurfaceTool> surftool(make_ref_counted<SurfaceTool>());
                 surftool->begin(Mesh::PRIMITIVE_TRIANGLES);
 
                 // Arrow profile
@@ -4778,7 +4780,7 @@ void SpatialEditor::_init_indicators() {
 
             // Plane Translation
             {
-                Ref<SurfaceTool> surftool = memnew(SurfaceTool);
+                Ref<SurfaceTool> surftool(make_ref_counted<SurfaceTool>());
                 surftool->begin(Mesh::PRIMITIVE_TRIANGLES);
 
                 Vector3 vec = ivec2 - ivec3;
@@ -4805,7 +4807,7 @@ void SpatialEditor::_init_indicators() {
                 surftool->add_vertex(points[2]);
                 surftool->add_vertex(points[3]);
 
-                Ref<SpatialMaterial> plane_mat = memnew(SpatialMaterial);
+                Ref<SpatialMaterial> plane_mat(make_ref_counted<SpatialMaterial>());
                 plane_mat->set_flag(SpatialMaterial::FLAG_UNSHADED, true);
                 plane_mat->set_on_top_of_alpha();
                 plane_mat->set_feature(SpatialMaterial::FEATURE_TRANSPARENT, true);
@@ -4815,7 +4817,7 @@ void SpatialEditor::_init_indicators() {
                 surftool->set_material(plane_mat);
                 surftool->commit(move_plane_gizmo[i]);
 
-                Ref<SpatialMaterial> plane_mat_hl = plane_mat->duplicate();
+                Ref<SpatialMaterial> plane_mat_hl = dynamic_ref_cast<SpatialMaterial>(plane_mat->duplicate());
                 plane_mat_hl->set_albedo(Color(col.r, col.g, col.b, 1.0));
                 plane_gizmo_color_hl[i] = plane_mat_hl; // needed, so we can draw planes from both sides
             }
@@ -4823,15 +4825,15 @@ void SpatialEditor::_init_indicators() {
             // Rotate
             {
 
-                Ref<SurfaceTool> surftool = memnew(SurfaceTool);
+                Ref<SurfaceTool> surftool(make_ref_counted<SurfaceTool>());
                 surftool->begin(Mesh::PRIMITIVE_TRIANGLES);
 
                 Vector3 circle[5] = {
-                    ivec * 0.02 + ivec2 * 0.02 + ivec2 * GIZMO_CIRCLE_SIZE,
-                    ivec * -0.02 + ivec2 * 0.02 + ivec2 * GIZMO_CIRCLE_SIZE,
-                    ivec * -0.02 + ivec2 * -0.02 + ivec2 * GIZMO_CIRCLE_SIZE,
-                    ivec * 0.02 + ivec2 * -0.02 + ivec2 * GIZMO_CIRCLE_SIZE,
-                    ivec * 0.02 + ivec2 * 0.02 + ivec2 * GIZMO_CIRCLE_SIZE,
+                    ivec * 0.02f + ivec2 * 0.02f + ivec2 * GIZMO_CIRCLE_SIZE,
+                    ivec * -0.02f + ivec2 * 0.02f + ivec2 * GIZMO_CIRCLE_SIZE,
+                    ivec * -0.02f + ivec2 * -0.02f + ivec2 * GIZMO_CIRCLE_SIZE,
+                    ivec * 0.02f + ivec2 * -0.02f + ivec2 * GIZMO_CIRCLE_SIZE,
+                    ivec * 0.02f + ivec2 * 0.02f + ivec2 * GIZMO_CIRCLE_SIZE,
                 };
 
                 for (int k = 0; k < 64; k++) {
@@ -4863,18 +4865,18 @@ void SpatialEditor::_init_indicators() {
 
             // Scale
             {
-                Ref<SurfaceTool> surftool = memnew(SurfaceTool);
+                Ref<SurfaceTool> surftool(make_ref_counted<SurfaceTool>());
                 surftool->begin(Mesh::PRIMITIVE_TRIANGLES);
 
                 // Cube arrow profile
                 const int arrow_points = 6;
                 Vector3 arrow[6] = {
                     nivec * 0.0 + ivec * 0.0,
-                    nivec * 0.01 + ivec * 0.0,
-                    nivec * 0.01 + ivec * 1.0 * GIZMO_SCALE_OFFSET,
-                    nivec * 0.07 + ivec * 1.0 * GIZMO_SCALE_OFFSET,
-                    nivec * 0.07 + ivec * 1.11 * GIZMO_SCALE_OFFSET,
-                    nivec * 0.0 + ivec * 1.11 * GIZMO_SCALE_OFFSET,
+                    nivec * 0.01f + ivec * 0.0,
+                    nivec * 0.01f + ivec * 1.0 * GIZMO_SCALE_OFFSET,
+                    nivec * 0.07f + ivec * 1.0 * GIZMO_SCALE_OFFSET,
+                    nivec * 0.07f + ivec * 1.11f * GIZMO_SCALE_OFFSET,
+                    nivec * 0.0 + ivec * 1.11f * GIZMO_SCALE_OFFSET,
                 };
 
                 int arrow_sides = 4;
@@ -4908,7 +4910,7 @@ void SpatialEditor::_init_indicators() {
 
             // Plane Scale
             {
-                Ref<SurfaceTool> surftool = memnew(SurfaceTool);
+                Ref<SurfaceTool> surftool(make_ref_counted<SurfaceTool>());
                 surftool->begin(Mesh::PRIMITIVE_TRIANGLES);
 
                 Vector3 vec = ivec2 - ivec3;
@@ -4935,7 +4937,7 @@ void SpatialEditor::_init_indicators() {
                 surftool->add_vertex(points[2]);
                 surftool->add_vertex(points[3]);
 
-                Ref<SpatialMaterial> plane_mat = memnew(SpatialMaterial);
+                Ref<SpatialMaterial> plane_mat(make_ref_counted<SpatialMaterial>());
                 plane_mat->set_flag(SpatialMaterial::FLAG_UNSHADED, true);
                 plane_mat->set_on_top_of_alpha();
                 plane_mat->set_feature(SpatialMaterial::FEATURE_TRANSPARENT, true);
@@ -4945,7 +4947,7 @@ void SpatialEditor::_init_indicators() {
                 surftool->set_material(plane_mat);
                 surftool->commit(scale_plane_gizmo[i]);
 
-                Ref<SpatialMaterial> plane_mat_hl = plane_mat->duplicate();
+                Ref<SpatialMaterial> plane_mat_hl = dynamic_ref_cast<SpatialMaterial>(plane_mat->duplicate());
                 plane_mat_hl->set_albedo(Color(col.r, col.g, col.b, 1.0));
                 plane_gizmo_color_hl[i] = plane_mat_hl; // needed, so we can draw planes from both sides
             }
@@ -5092,13 +5094,13 @@ void SpatialEditor::_refresh_menu_icons() {
         all_grouped = false;
     } else {
         for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
-            if (Object::cast_to<Spatial>(E->get()) && !Object::cast_to<Spatial>(E->get())->has_meta("_edit_lock_")) {
+            if (Object::cast_to<Spatial>(E->deref()) && !Object::cast_to<Spatial>(E->deref())->has_meta("_edit_lock_")) {
                 all_locked = false;
                 break;
             }
         }
         for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
-            if (Object::cast_to<Spatial>(E->get()) && !Object::cast_to<Spatial>(E->get())->has_meta("_edit_group_")) {
+            if (Object::cast_to<Spatial>(E->deref()) && !Object::cast_to<Spatial>(E->deref())->has_meta("_edit_group_")) {
                 all_grouped = false;
                 break;
             }
@@ -5125,8 +5127,8 @@ Set<T *> _get_child_nodes(Node *parent_node) {
     for (int i = 0; i < parent_node->get_child_count(); i++) {
         Node *child_node = parent_node->get_child(i);
         Set<T *> child_nodes = _get_child_nodes<T>(child_node);
-        for (typename Set<T *>::Element *I = child_nodes.front(); I; I = I->next()) {
-            nodes.insert(I->get());
+        for (T * I : child_nodes) {
+            nodes.insert(I);
         }
     }
 
@@ -5140,8 +5142,8 @@ Set<RID> _get_physics_bodies_rid(Node *node) {
         rids.insert(pb->get_rid());
     }
     Set<PhysicsBody *> child_nodes = _get_child_nodes<PhysicsBody>(node);
-    for (Set<PhysicsBody *>::Element *I = child_nodes.front(); I; I = I->next()) {
-        rids.insert(I->get()->get_rid());
+    for (const PhysicsBody * I : child_nodes) {
+        rids.insert(I->get_rid());
     }
 
     return rids;
@@ -5152,7 +5154,7 @@ void SpatialEditor::snap_selected_nodes_to_floor() {
     Dictionary snap_data;
 
     for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
-        Spatial *sp = Object::cast_to<Spatial>(E->get());
+        Spatial *sp = Object::cast_to<Spatial>(E->deref());
         if (sp) {
             Vector3 from = Vector3();
             Vector3 position_offset = Vector3();
@@ -5161,18 +5163,18 @@ void SpatialEditor::snap_selected_nodes_to_floor() {
             Set<VisualInstance *> vi = _get_child_nodes<VisualInstance>(sp);
             Set<CollisionShape *> cs = _get_child_nodes<CollisionShape>(sp);
 
-            if (cs.size()) {
-                AABB aabb = sp->get_global_transform().xform(cs.front()->get()->get_shape()->get_debug_mesh()->get_aabb());
-                for (Set<CollisionShape *>::Element *I = cs.front(); I; I = I->next()) {
-                    aabb.merge_with(sp->get_global_transform().xform(I->get()->get_shape()->get_debug_mesh()->get_aabb()));
+            if (!cs.empty()) {
+                AABB aabb = sp->get_global_transform().xform((*cs.begin())->get_shape()->get_debug_mesh()->get_aabb());
+                for (CollisionShape * I : cs) {
+                    aabb.merge_with(sp->get_global_transform().xform(I->get_shape()->get_debug_mesh()->get_aabb()));
                 }
                 Vector3 size = aabb.size * Vector3(0.5, 0.0, 0.5);
                 from = aabb.position + size;
                 position_offset.y = from.y - sp->get_global_transform().origin.y;
-            } else if (vi.size()) {
-                AABB aabb = vi.front()->get()->get_transformed_aabb();
-                for (Set<VisualInstance *>::Element *I = vi.front(); I; I = I->next()) {
-                    aabb.merge_with(I->get()->get_transformed_aabb());
+            } else if (!vi.empty()) {
+                AABB aabb = (*vi.begin())->get_transformed_aabb();
+                for (VisualInstance * I : vi) {
+                    aabb.merge_with(I->get_transformed_aabb());
                 }
                 Vector3 size = aabb.size * Vector3(0.5, 0.0, 0.5);
                 from = aabb.position + size;
@@ -5184,13 +5186,13 @@ void SpatialEditor::snap_selected_nodes_to_floor() {
             // We add a bit of margin to the from position to avoid it from snapping
             // when the spatial is already on a floor and there's another floor under
             // it
-            from = from + Vector3(0.0, 0.2, 0.0);
+            from = from + Vector3(0.0, 0.2f, 0.0);
 
             Dictionary d;
 
             d["from"] = from;
             d["position_offset"] = position_offset;
-            snap_data[sp] = d;
+            snap_data[Variant(sp)] = d;
         }
     }
 
@@ -5202,16 +5204,16 @@ void SpatialEditor::snap_selected_nodes_to_floor() {
     // The maximum height an object can travel to be snapped
     const float max_snap_height = 20.0;
 
-    // Will be set to `true` if at least one node from the selection was sucessfully snapped
+    // Will be set to `true` if at least one node from the selection was successfully snapped
     bool snapped_to_floor = false;
 
-    if (keys.size()) {
+    if (!keys.empty()) {
         // For snapping to be performed, there must be solid geometry under at least one of the selected nodes.
         // We need to check this before snapping to register the undo/redo action only if needed.
         for (int i = 0; i < keys.size(); i++) {
             Node *node = keys[i];
             Spatial *sp = Object::cast_to<Spatial>(node);
-            Dictionary d = snap_data[node];
+            Dictionary d = snap_data[Variant(node)];
             Vector3 from = d["from"];
             Vector3 to = from - Vector3(0.0, max_snap_height, 0.0);
             Set<RID> excluded = _get_physics_bodies_rid(sp);
@@ -5228,7 +5230,7 @@ void SpatialEditor::snap_selected_nodes_to_floor() {
             for (int i = 0; i < keys.size(); i++) {
                 Node *node = keys[i];
                 Spatial *sp = Object::cast_to<Spatial>(node);
-                Dictionary d = snap_data[node];
+                Dictionary d = snap_data[Variant(node)];
                 Vector3 from = d["from"];
                 Vector3 to = from - Vector3(0.0, max_snap_height, 0.0);
                 Set<RID> excluded = _get_physics_bodies_rid(sp);
@@ -5252,7 +5254,7 @@ void SpatialEditor::snap_selected_nodes_to_floor() {
     }
 }
 
-void SpatialEditor::_unhandled_key_input(Ref<InputEvent> p_event) {
+void SpatialEditor::_unhandled_key_input(const Ref<InputEvent>& p_event) {
 
     if (!is_visible_in_tree() || get_viewport()->gui_has_modal_stack())
         return;
@@ -5366,7 +5368,7 @@ void SpatialEditor::_request_gizmo(Object *p_obj) {
         for (int i = 0; i < gizmo_plugins_by_priority.size(); ++i) {
             seg = gizmo_plugins_by_priority.write[i]->get_gizmo(sp);
 
-            if (seg.is_valid()) {
+            if (seg) {
                 sp->set_gizmo(seg);
 
                 if (sp == selected) {
@@ -5430,30 +5432,36 @@ void SpatialEditor::_node_removed(Node *p_node) {
     if (p_node == selected)
         selected = nullptr;
 }
+template<class T>
+void register_gizmo_class(SpatialEditor *ed)
+{
+    T::initialize_class();
+    ed->add_gizmo_plugin(make_ref_counted<T>());
 
+}
 void SpatialEditor::_register_all_gizmos() {
-    add_gizmo_plugin(Ref<CameraSpatialGizmoPlugin>(memnew(CameraSpatialGizmoPlugin)));
-    add_gizmo_plugin(Ref<LightSpatialGizmoPlugin>(memnew(LightSpatialGizmoPlugin)));
-    add_gizmo_plugin(Ref<AudioStreamPlayer3DSpatialGizmoPlugin>(memnew(AudioStreamPlayer3DSpatialGizmoPlugin)));
-    add_gizmo_plugin(Ref<MeshInstanceSpatialGizmoPlugin>(memnew(MeshInstanceSpatialGizmoPlugin)));
-    add_gizmo_plugin(Ref<SoftBodySpatialGizmoPlugin>(memnew(SoftBodySpatialGizmoPlugin)));
-    add_gizmo_plugin(Ref<Sprite3DSpatialGizmoPlugin>(memnew(Sprite3DSpatialGizmoPlugin)));
-    add_gizmo_plugin(Ref<SkeletonSpatialGizmoPlugin>(memnew(SkeletonSpatialGizmoPlugin)));
-    add_gizmo_plugin(Ref<Position3DSpatialGizmoPlugin>(memnew(Position3DSpatialGizmoPlugin)));
-    add_gizmo_plugin(Ref<RayCastSpatialGizmoPlugin>(memnew(RayCastSpatialGizmoPlugin)));
-    add_gizmo_plugin(Ref<SpringArmSpatialGizmoPlugin>(memnew(SpringArmSpatialGizmoPlugin)));
-    add_gizmo_plugin(Ref<VehicleWheelSpatialGizmoPlugin>(memnew(VehicleWheelSpatialGizmoPlugin)));
-    add_gizmo_plugin(Ref<VisibilityNotifierGizmoPlugin>(memnew(VisibilityNotifierGizmoPlugin)));
-    add_gizmo_plugin(Ref<ParticlesGizmoPlugin>(memnew(ParticlesGizmoPlugin)));
-    add_gizmo_plugin(Ref<CPUParticlesGizmoPlugin>(memnew(CPUParticlesGizmoPlugin)));
-    add_gizmo_plugin(Ref<ReflectionProbeGizmoPlugin>(memnew(ReflectionProbeGizmoPlugin)));
-    add_gizmo_plugin(Ref<GIProbeGizmoPlugin>(memnew(GIProbeGizmoPlugin)));
-    add_gizmo_plugin(Ref<BakedIndirectLightGizmoPlugin>(memnew(BakedIndirectLightGizmoPlugin)));
-    add_gizmo_plugin(Ref<CollisionShapeSpatialGizmoPlugin>(memnew(CollisionShapeSpatialGizmoPlugin)));
-    add_gizmo_plugin(Ref<CollisionPolygonSpatialGizmoPlugin>(memnew(CollisionPolygonSpatialGizmoPlugin)));
-    add_gizmo_plugin(Ref<NavigationMeshSpatialGizmoPlugin>(memnew(NavigationMeshSpatialGizmoPlugin)));
-    add_gizmo_plugin(Ref<JointSpatialGizmoPlugin>(memnew(JointSpatialGizmoPlugin)));
-    add_gizmo_plugin(Ref<PhysicalBoneSpatialGizmoPlugin>(memnew(PhysicalBoneSpatialGizmoPlugin)));
+    register_gizmo_class<CameraSpatialGizmoPlugin>(this);
+    register_gizmo_class<LightSpatialGizmoPlugin>(this);
+    register_gizmo_class<AudioStreamPlayer3DSpatialGizmoPlugin>(this);
+    register_gizmo_class<MeshInstanceSpatialGizmoPlugin>(this);
+    register_gizmo_class<SoftBodySpatialGizmoPlugin>(this);
+    register_gizmo_class<Sprite3DSpatialGizmoPlugin>(this);
+    register_gizmo_class<SkeletonSpatialGizmoPlugin>(this);
+    register_gizmo_class<Position3DSpatialGizmoPlugin>(this);
+    register_gizmo_class<RayCastSpatialGizmoPlugin>(this);
+    register_gizmo_class<SpringArmSpatialGizmoPlugin>(this);
+    register_gizmo_class<VehicleWheelSpatialGizmoPlugin>(this);
+    register_gizmo_class<VisibilityNotifierGizmoPlugin>(this);
+    register_gizmo_class<ParticlesGizmoPlugin>(this);
+    register_gizmo_class<CPUParticlesGizmoPlugin>(this);
+    register_gizmo_class<ReflectionProbeGizmoPlugin>(this);
+    register_gizmo_class<GIProbeGizmoPlugin>(this);
+    register_gizmo_class<BakedIndirectLightGizmoPlugin>(this);
+    register_gizmo_class<CollisionShapeSpatialGizmoPlugin>(this);
+    register_gizmo_class<CollisionPolygonSpatialGizmoPlugin>(this);
+    register_gizmo_class<NavigationMeshSpatialGizmoPlugin>(this);
+    register_gizmo_class<JointSpatialGizmoPlugin>(this);
+    register_gizmo_class<PhysicalBoneSpatialGizmoPlugin>(this);
 }
 
 void SpatialEditor::_bind_methods() {
@@ -5507,7 +5515,7 @@ SpatialEditor::SpatialEditor(EditorNode *p_editor) {
     gizmo.visible = true;
     gizmo.scale = 1.0;
 
-    viewport_environment = Ref<Environment>(memnew(Environment));
+    viewport_environment = make_ref_counted<Environment>();
     undo_redo = p_editor->get_undo_redo();
     VBoxContainer *vbc = this;
 
@@ -5830,9 +5838,9 @@ SpatialEditor::SpatialEditor(EditorNode *p_editor) {
     add_to_group("_spatial_editor_group");
 
     EDITOR_DEF("editors/3d/manipulator_gizmo_size", 80);
-    EditorSettings::get_singleton()->add_property_hint(PropertyInfo(Variant::INT, "editors/3d/manipulator_gizmo_size", PROPERTY_HINT_RANGE, "16,1024,1"));
+    EditorSettings::get_singleton()->add_property_hint(PropertyInfo(VariantType::INT, "editors/3d/manipulator_gizmo_size", PROPERTY_HINT_RANGE, "16,1024,1"));
     EDITOR_DEF("editors/3d/manipulator_gizmo_opacity", 0.4);
-    EditorSettings::get_singleton()->add_property_hint(PropertyInfo(Variant::REAL, "editors/3d/manipulator_gizmo_opacity", PROPERTY_HINT_RANGE, "0,1,0.01"));
+    EditorSettings::get_singleton()->add_property_hint(PropertyInfo(VariantType::REAL, "editors/3d/manipulator_gizmo_opacity", PROPERTY_HINT_RANGE, "0,1,0.01"));
 
     over_gizmo_handle = -1;
 }
@@ -5948,7 +5956,7 @@ struct _GizmoPluginNameComparator {
 };
 
 void SpatialEditor::add_gizmo_plugin(Ref<EditorSpatialGizmoPlugin> p_plugin) {
-    ERR_FAIL_NULL(p_plugin.ptr());
+    ERR_FAIL_NULL(p_plugin.get());
 
     gizmo_plugins_by_priority.push_back(p_plugin);
     gizmo_plugins_by_priority.sort_custom<_GizmoPluginPriorityComparator>();
@@ -5960,7 +5968,7 @@ void SpatialEditor::add_gizmo_plugin(Ref<EditorSpatialGizmoPlugin> p_plugin) {
     SpatialEditor::get_singleton()->update_all_gizmos();
 }
 
-void SpatialEditor::remove_gizmo_plugin(Ref<EditorSpatialGizmoPlugin> p_plugin) {
+void SpatialEditor::remove_gizmo_plugin(const Ref<EditorSpatialGizmoPlugin>& p_plugin) {
     gizmo_plugins_by_priority.erase(p_plugin);
     gizmo_plugins_by_name.erase(p_plugin);
     _update_gizmos_menu();
@@ -5982,7 +5990,7 @@ SpatialEditorPlugin::~SpatialEditorPlugin() {
 
 void EditorSpatialGizmoPlugin::create_material(const String &p_name, const Color &p_color, bool p_billboard, bool p_on_top, bool p_use_vertex_color) {
 
-    Color instanced_color = EDITOR_DEF("editors/3d_gizmos/gizmo_colors/instanced", Color(0.7, 0.7, 0.7, 0.6));
+    Color instanced_color = EDITOR_DEF("editors/3d_gizmos/gizmo_colors/instanced", Color(0.7f, 0.7f, 0.7f, 0.6f));
 
     Vector<Ref<SpatialMaterial> > mats;
 
@@ -5990,12 +5998,12 @@ void EditorSpatialGizmoPlugin::create_material(const String &p_name, const Color
         bool selected = i % 2 == 1;
         bool instanced = i < 2;
 
-        Ref<SpatialMaterial> material = Ref<SpatialMaterial>(memnew(SpatialMaterial));
+        Ref<SpatialMaterial> material(make_ref_counted<SpatialMaterial>());
 
         Color color = instanced ? instanced_color : p_color;
 
         if (!selected) {
-            color.a *= 0.3;
+            color.a *= 0.3f;
         }
 
         material->set_albedo(color);
@@ -6032,12 +6040,12 @@ void EditorSpatialGizmoPlugin::create_icon_material(const String &p_name, const 
         bool selected = i % 2 == 1;
         bool instanced = i < 2;
 
-        Ref<SpatialMaterial> icon = Ref<SpatialMaterial>(memnew(SpatialMaterial));
+        Ref<SpatialMaterial> icon(make_ref_counted<SpatialMaterial>());
 
         Color color = instanced ? instanced_color : p_albedo;
 
         if (!selected) {
-            color.a *= 0.85;
+            color.a *= 0.85f;
         }
 
         icon->set_albedo(color);
@@ -6062,7 +6070,7 @@ void EditorSpatialGizmoPlugin::create_icon_material(const String &p_name, const 
 }
 
 void EditorSpatialGizmoPlugin::create_handle_material(const String &p_name, bool p_billboard) {
-    Ref<SpatialMaterial> handle_material = Ref<SpatialMaterial>(memnew(SpatialMaterial));
+    Ref<SpatialMaterial> handle_material(make_ref_counted<SpatialMaterial>());
 
     handle_material->set_flag(SpatialMaterial::FLAG_UNSHADED, true);
     handle_material->set_flag(SpatialMaterial::FLAG_USE_POINT_SIZE, true);
@@ -6083,27 +6091,23 @@ void EditorSpatialGizmoPlugin::create_handle_material(const String &p_name, bool
     materials[p_name].push_back(handle_material);
 }
 
-void EditorSpatialGizmoPlugin::add_material(const String &p_name, Ref<SpatialMaterial> p_material) {
+void EditorSpatialGizmoPlugin::add_material(const String &p_name, const Ref<SpatialMaterial>& p_material) {
     materials[p_name] = Vector<Ref<SpatialMaterial> >();
     materials[p_name].push_back(p_material);
 }
 
 Ref<SpatialMaterial> EditorSpatialGizmoPlugin::get_material(const String &p_name, const Ref<EditorSpatialGizmo> &p_gizmo) {
-    ERR_FAIL_COND_V(!materials.has(p_name), Ref<SpatialMaterial>());
-    ERR_FAIL_COND_V(materials[p_name].size() == 0, Ref<SpatialMaterial>());
+    ERR_FAIL_COND_V(!materials.contains(p_name), Ref<SpatialMaterial>())
+    ERR_FAIL_COND_V(materials[p_name].empty(), Ref<SpatialMaterial>())
 
-    if (p_gizmo.is_null() || materials[p_name].size() == 1) return materials[p_name][0];
+    if (not p_gizmo || materials[p_name].size() == 1)
+            return materials[p_name][0];
 
     int index = (p_gizmo->is_selected() ? 1 : 0) + (p_gizmo->is_editable() ? 2 : 0);
 
-    Ref<SpatialMaterial> mat = materials[p_name][index];
-
-    if (current_state == ON_TOP && p_gizmo->is_selected()) {
-        mat->set_flag(SpatialMaterial::FLAG_DISABLE_DEPTH_TEST, true);
-    } else {
-        mat->set_flag(SpatialMaterial::FLAG_DISABLE_DEPTH_TEST, false);
-    }
-
+    Ref<SpatialMaterial> mat = dynamic_ref_cast<SpatialMaterial>(materials[p_name][index]);
+    bool disable_depth_testing = current_state == ON_TOP && p_gizmo->is_selected();
+    mat->set_flag(SpatialMaterial::FLAG_DISABLE_DEPTH_TEST, disable_depth_testing);
     return mat;
 }
 
@@ -6124,59 +6128,59 @@ int EditorSpatialGizmoPlugin::get_priority() const {
 Ref<EditorSpatialGizmo> EditorSpatialGizmoPlugin::get_gizmo(Spatial *p_spatial) {
 
     if (get_script_instance() && get_script_instance()->has_method("get_gizmo")) {
-        return get_script_instance()->call("get_gizmo", p_spatial);
+        return refFromRefPtr<EditorSpatialGizmo>(get_script_instance()->call("get_gizmo", Variant(p_spatial)));
     }
 
-    Ref<EditorSpatialGizmo> ref = create_gizmo(p_spatial);
+    Ref<EditorSpatialGizmo> ref = dynamic_ref_cast<EditorSpatialGizmo>(create_gizmo(p_spatial));
 
-    if (ref.is_null()) return ref;
+    if (not ref) return ref;
 
     ref->set_plugin(this);
     ref->set_spatial_node(p_spatial);
     ref->set_hidden(current_state == HIDDEN);
 
-    current_gizmos.push_back(ref.ptr());
+    current_gizmos.push_back(ref.get());
     return ref;
 }
 
 void EditorSpatialGizmoPlugin::_bind_methods() {
-#define GIZMO_REF PropertyInfo(Variant::OBJECT, "gizmo", PROPERTY_HINT_RESOURCE_TYPE, "EditorSpatialGizmo")
+#define GIZMO_REF PropertyInfo(VariantType::OBJECT, "gizmo", PROPERTY_HINT_RESOURCE_TYPE, "EditorSpatialGizmo")
 
-    BIND_VMETHOD(MethodInfo(Variant::BOOL, "has_gizmo", PropertyInfo(Variant::OBJECT, "spatial", PROPERTY_HINT_RESOURCE_TYPE, "Spatial")));
-    BIND_VMETHOD(MethodInfo(GIZMO_REF, "create_gizmo", PropertyInfo(Variant::OBJECT, "spatial", PROPERTY_HINT_RESOURCE_TYPE, "Spatial")));
+    BIND_VMETHOD(MethodInfo(VariantType::BOOL, "has_gizmo", PropertyInfo(VariantType::OBJECT, "spatial", PROPERTY_HINT_RESOURCE_TYPE, "Spatial")))
+    BIND_VMETHOD(MethodInfo(GIZMO_REF, "create_gizmo", PropertyInfo(VariantType::OBJECT, "spatial", PROPERTY_HINT_RESOURCE_TYPE, "Spatial")))
 
-    MethodBinder::bind_method(D_METHOD("create_material", "name", "color", "billboard", "on_top", "use_vertex_color"), &EditorSpatialGizmoPlugin::create_material, {DEFVAL(false), DEFVAL(false), DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("create_icon_material", "name", "texture", "on_top", "color"), &EditorSpatialGizmoPlugin::create_icon_material, {DEFVAL(false), DEFVAL(Color(1, 1, 1, 1))});
-    MethodBinder::bind_method(D_METHOD("create_handle_material", "name", "billboard"), &EditorSpatialGizmoPlugin::create_handle_material, {DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("add_material", "name", "material"), &EditorSpatialGizmoPlugin::add_material);
+    MethodBinder::bind_method(D_METHOD("create_material", {"name", "color", "billboard", "on_top", "use_vertex_color"}), &EditorSpatialGizmoPlugin::create_material, {DEFVAL(false), DEFVAL(false), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("create_icon_material", {"name", "texture", "on_top", "color"}), &EditorSpatialGizmoPlugin::create_icon_material, {DEFVAL(false), DEFVAL(Color(1, 1, 1, 1))});
+    MethodBinder::bind_method(D_METHOD("create_handle_material", {"name", "billboard"}), &EditorSpatialGizmoPlugin::create_handle_material, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("add_material", {"name", "material"}), &EditorSpatialGizmoPlugin::add_material);
 
-    MethodBinder::bind_method(D_METHOD("get_material", "name", "gizmo"), &EditorSpatialGizmoPlugin::get_material); //, {DEFVAL(Ref<EditorSpatialGizmo>())});
+    MethodBinder::bind_method(D_METHOD("get_material", {"name", "gizmo"}), &EditorSpatialGizmoPlugin::get_material); //, {DEFVAL(Ref<EditorSpatialGizmo>())});
 
-    BIND_VMETHOD(MethodInfo(Variant::STRING, "get_name"));
-    BIND_VMETHOD(MethodInfo(Variant::STRING, "get_priority"));
-    BIND_VMETHOD(MethodInfo(Variant::BOOL, "can_be_hidden"));
-    BIND_VMETHOD(MethodInfo(Variant::BOOL, "is_selectable_when_hidden"));
+    BIND_VMETHOD(MethodInfo(VariantType::STRING, "get_name"))
+    BIND_VMETHOD(MethodInfo(VariantType::STRING, "get_priority"))
+    BIND_VMETHOD(MethodInfo(VariantType::BOOL, "can_be_hidden"))
+    BIND_VMETHOD(MethodInfo(VariantType::BOOL, "is_selectable_when_hidden"))
 
     BIND_VMETHOD(MethodInfo("redraw", GIZMO_REF));
-    BIND_VMETHOD(MethodInfo(Variant::STRING, "get_handle_name", GIZMO_REF, PropertyInfo(Variant::INT, "index")));
+    BIND_VMETHOD(MethodInfo(VariantType::STRING, "get_handle_name", GIZMO_REF, PropertyInfo(VariantType::INT, "index")));
 
-    MethodInfo hvget(Variant::NIL, "get_handle_value", GIZMO_REF, PropertyInfo(Variant::INT, "index"));
+    MethodInfo hvget(VariantType::NIL, "get_handle_value", GIZMO_REF, PropertyInfo(VariantType::INT, "index"));
     hvget.return_val.usage |= PROPERTY_USAGE_NIL_IS_VARIANT;
     BIND_VMETHOD(hvget);
 
-    BIND_VMETHOD(MethodInfo("set_handle", GIZMO_REF, PropertyInfo(Variant::INT, "index"), PropertyInfo(Variant::OBJECT, "camera", PROPERTY_HINT_RESOURCE_TYPE, "Camera"), PropertyInfo(Variant::VECTOR2, "point")));
-    MethodInfo cm = MethodInfo("commit_handle", GIZMO_REF, PropertyInfo(Variant::INT, "index"), PropertyInfo(Variant::NIL, "restore"), PropertyInfo(Variant::BOOL, "cancel"));
+    BIND_VMETHOD(MethodInfo("set_handle", GIZMO_REF, PropertyInfo(VariantType::INT, "index"), PropertyInfo(VariantType::OBJECT, "camera", PROPERTY_HINT_RESOURCE_TYPE, "Camera"), PropertyInfo(VariantType::VECTOR2, "point")));
+    MethodInfo cm = MethodInfo("commit_handle", GIZMO_REF, PropertyInfo(VariantType::INT, "index"), PropertyInfo(VariantType::NIL, "restore"), PropertyInfo(VariantType::BOOL, "cancel"));
     cm.default_arguments.push_back(false);
     BIND_VMETHOD(cm);
 
-    BIND_VMETHOD(MethodInfo(Variant::BOOL, "is_handle_highlighted", GIZMO_REF, PropertyInfo(Variant::INT, "index")));
+    BIND_VMETHOD(MethodInfo(VariantType::BOOL, "is_handle_highlighted", GIZMO_REF, PropertyInfo(VariantType::INT, "index")));
 
 #undef GIZMO_REF
 }
 
 bool EditorSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     if (get_script_instance() && get_script_instance()->has_method("has_gizmo")) {
-        return get_script_instance()->call("has_gizmo", p_spatial);
+        return get_script_instance()->call("has_gizmo", Variant(p_spatial));
     }
     return false;
 }
@@ -6184,11 +6188,12 @@ bool EditorSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
 Ref<EditorSpatialGizmo> EditorSpatialGizmoPlugin::create_gizmo(Spatial *p_spatial) {
 
     if (get_script_instance() && get_script_instance()->has_method("create_gizmo")) {
-        return get_script_instance()->call("create_gizmo", p_spatial);
+        return refFromRefPtr<EditorSpatialGizmo>(get_script_instance()->call("create_gizmo", Variant(p_spatial)));
     }
 
     Ref<EditorSpatialGizmo> ref;
-    if (has_gizmo(p_spatial)) ref.instance();
+    if (has_gizmo(p_spatial))
+        ref = make_ref_counted<EditorSpatialGizmo>();
     return ref;
 }
 
@@ -6215,33 +6220,33 @@ void EditorSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
 
 String EditorSpatialGizmoPlugin::get_handle_name(const EditorSpatialGizmo *p_gizmo, int p_idx) const {
     if (get_script_instance() && get_script_instance()->has_method("get_handle_name")) {
-        return get_script_instance()->call("get_handle_name", p_gizmo, p_idx);
+        return get_script_instance()->call("get_handle_name", Variant(p_gizmo), p_idx);
     }
     return "";
 }
 
 Variant EditorSpatialGizmoPlugin::get_handle_value(EditorSpatialGizmo *p_gizmo, int p_idx) const {
     if (get_script_instance() && get_script_instance()->has_method("get_handle_value")) {
-        return get_script_instance()->call("get_handle_value", p_gizmo, p_idx);
+        return get_script_instance()->call("get_handle_value", Variant(p_gizmo), p_idx);
     }
     return Variant();
 }
 
 void EditorSpatialGizmoPlugin::set_handle(EditorSpatialGizmo *p_gizmo, int p_idx, Camera *p_camera, const Point2 &p_point) {
     if (get_script_instance() && get_script_instance()->has_method("set_handle")) {
-        get_script_instance()->call("set_handle", p_gizmo, p_idx, p_camera, p_point);
+        get_script_instance()->call("set_handle", Variant(p_gizmo), p_idx, Variant(p_camera), p_point);
     }
 }
 
 void EditorSpatialGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo, int p_idx, const Variant &p_restore, bool p_cancel) {
     if (get_script_instance() && get_script_instance()->has_method("commit_handle")) {
-        get_script_instance()->call("commit_handle", p_gizmo, p_idx, p_restore, p_cancel);
+        get_script_instance()->call("commit_handle", Variant(p_gizmo), p_idx, p_restore, p_cancel);
     }
 }
 
 bool EditorSpatialGizmoPlugin::is_handle_highlighted(const EditorSpatialGizmo *p_gizmo, int p_idx) const {
     if (get_script_instance() && get_script_instance()->has_method("is_handle_highlighted")) {
-        return get_script_instance()->call("is_handle_highlighted", p_gizmo, p_idx);
+        return get_script_instance()->call("is_handle_highlighted", Variant(p_gizmo), p_idx);
     }
     return false;
 }
@@ -6268,7 +6273,7 @@ EditorSpatialGizmoPlugin::EditorSpatialGizmoPlugin() {
 EditorSpatialGizmoPlugin::~EditorSpatialGizmoPlugin() {
     for (int i = 0; i < current_gizmos.size(); ++i) {
         current_gizmos[i]->set_plugin(nullptr);
-        current_gizmos[i]->get_spatial_node()->set_gizmo(nullptr);
+        current_gizmos[i]->get_spatial_node()->set_gizmo(Ref<SpatialGizmo>());
     }
     SpatialEditor::get_singleton()->update_all_gizmos();
 }

@@ -62,13 +62,13 @@ protected:
 	void _on_finished();
 	void _draw_preview();
 	void _draw_indicator();
-	void _on_input_indicator(Ref<InputEvent> p_event);
+	void _on_input_indicator(const Ref<InputEvent>& p_event);
 	void _seek_to(real_t p_x);
 	void _changed_callback(Object *p_changed, const char *p_prop) override;
 	static void _bind_methods();
 
 public:
-	void edit(Ref<AudioStream> p_stream);
+	void edit(const Ref<AudioStream>& p_stream);
 	AudioStreamEditor();
 };
 

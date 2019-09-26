@@ -49,7 +49,7 @@ RES ResourceFormatLoaderPluginScript::load(const String &p_path, const String &p
     Ref<PluginScript> scriptres(script);
 
     Error err = script->load_source_code(p_path);
-    ERR_FAIL_COND_V(err != OK, RES());
+    ERR_FAIL_COND_V(err != OK, RES())
 
     script->set_path(p_original_path);
 
@@ -61,7 +61,7 @@ RES ResourceFormatLoaderPluginScript::load(const String &p_path, const String &p
     return scriptres;
 }
 
-void ResourceFormatLoaderPluginScript::get_recognized_extensions(List<String> *p_extensions) const {
+void ResourceFormatLoaderPluginScript::get_recognized_extensions(ListPOD<String> *p_extensions) const {
     p_extensions->push_back(_language->get_extension());
 }
 
@@ -81,14 +81,14 @@ ResourceFormatSaverPluginScript::ResourceFormatSaverPluginScript(PluginScriptLan
 }
 
 Error ResourceFormatSaverPluginScript::save(const String &p_path, const RES &p_resource, uint32_t p_flags) {
-    Ref<PluginScript> sqscr = p_resource;
-    ERR_FAIL_COND_V(sqscr.is_null(), ERR_INVALID_PARAMETER);
+    Ref<PluginScript> sqscr = dynamic_ref_cast<PluginScript>(p_resource);
+    ERR_FAIL_COND_V(not sqscr, ERR_INVALID_PARAMETER)
 
     String source = sqscr->get_source_code();
 
     Error err;
     FileAccess *file = FileAccess::open(p_path, FileAccess::WRITE, &err);
-    ERR_FAIL_COND_V(err, err);
+    ERR_FAIL_COND_V(err, err)
 
     file->store_string(source);
     if (file->get_error() != OK && file->get_error() != ERR_FILE_EOF) {
@@ -102,12 +102,12 @@ Error ResourceFormatSaverPluginScript::save(const String &p_path, const RES &p_r
 
 void ResourceFormatSaverPluginScript::get_recognized_extensions(const RES &p_resource, Vector<String> *p_extensions) const {
 
-    if (Object::cast_to<PluginScript>(*p_resource)) {
+    if (Object::cast_to<PluginScript>(p_resource.get())) {
         p_extensions->push_back(_language->get_extension());
     }
 }
 
 bool ResourceFormatSaverPluginScript::recognize(const RES &p_resource) const {
 
-    return Object::cast_to<PluginScript>(*p_resource) != nullptr;
+    return Object::cast_to<PluginScript>(p_resource.get()) != nullptr;
 }

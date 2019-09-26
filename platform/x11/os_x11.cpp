@@ -366,6 +366,13 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
         XChangeProperty(x11_display, x11_window, property, property, 32, PropModeReplace, (unsigned char *)&hints, 5);
     }
 
+	// make PID known to X11
+	{
+		const long pid = this->get_process_id();
+		Atom net_wm_pid = XInternAtom(x11_display, "_NET_WM_PID", False);
+		XChangeProperty(x11_display, x11_window, net_wm_pid, XA_CARDINAL, 32, PropModeReplace, (unsigned char *)&pid, 1);
+	}
+
     // disable resizable window
     if (!current_videomode.resizable && !current_videomode.fullscreen) {
         XSizeHints *xsh;
@@ -459,7 +466,7 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
     if (xim && xim_style) {
 
         xic = XCreateIC(xim, XNInputStyle, xim_style, XNClientWindow, x11_window, XNFocusWindow, x11_window, (char *)nullptr);
-        if (XGetICValues(xic, XNFilterEvents, &im_event_mask, NULL) != nullptr) {
+        if (XGetICValues(xic, XNFilterEvents, &im_event_mask, nullptr) != nullptr) {
             WARN_PRINT("XGetICValues couldn't obtain XNFilterEvents value")
             XDestroyIC(xic);
             xic = nullptr;
@@ -1548,7 +1555,7 @@ bool OS_X11::is_window_maximize_allowed() {
         bool found_wm_act_max_horz = false;
         bool found_wm_act_max_vert = false;
 
-        for (unsigned int i = 0; i < len; i++) {
+		for (uint64_t i = 0; i < len; i++) {
             if (atoms[i] == wm_act_max_horz)
                 found_wm_act_max_horz = true;
             if (atoms[i] == wm_act_max_vert)
@@ -1594,7 +1601,7 @@ bool OS_X11::is_window_maximized() const {
         bool found_wm_max_horz = false;
         bool found_wm_max_vert = false;
 
-        for (unsigned int i = 0; i < len; i++) {
+		for (uint64_t i = 0; i < len; i++) {
             if (atoms[i] == wm_max_horz)
                 found_wm_max_horz = true;
             if (atoms[i] == wm_max_vert)
@@ -1785,8 +1792,7 @@ void OS_X11::handle_key_event(XKeyEvent *p_event, bool p_echo) {
 
             String tmp = StringUtils::from_utf8(utf8string, utf8bytes);
             for (int i = 0; i < tmp.length(); i++) {
-                Ref<InputEventKey> k;
-                k.instance();
+                Ref<InputEventKey> k(make_ref_counted<InputEventKey>());
                 if (keycode == 0 && tmp[i] == nullptr) {
                     continue;
                 }
@@ -1862,8 +1868,7 @@ void OS_X11::handle_key_event(XKeyEvent *p_event, bool p_echo) {
 
     //print_verbose("mod1: "+itos(xkeyevent->state&Mod1Mask)+" mod 5: "+itos(xkeyevent->state&Mod5Mask));
 
-    Ref<InputEventKey> k;
-    k.instance();
+    Ref<InputEventKey> k(make_ref_counted<InputEventKey>());
 
     get_key_modifier_state(xkeyevent->state, k);
 
@@ -2098,11 +2103,11 @@ void OS_X11::process_xevents() {
                         xi.raw_pos.x = rel_x;
                         xi.raw_pos.y = rel_y;
 
-                        Map<int, Vector2>::Element *abs_info = xi.absolute_devices.find(device_id);
+                        Map<int, Vector2>::iterator abs_info = xi.absolute_devices.find(device_id);
 
-                        if (abs_info) {
+                        if (abs_info!=xi.absolute_devices.end()) {
                             // Absolute mode device
-                            Vector2 mult = abs_info->value();
+                            Vector2 mult = abs_info->second;
 
                             xi.relative_motion.x += (xi.raw_pos.x - xi.old_raw_pos.x) * mult.x;
                             xi.relative_motion.y += (xi.raw_pos.y - xi.old_raw_pos.y) * mult.y;
@@ -2123,14 +2128,13 @@ void OS_X11::process_xevents() {
 
                         bool is_begin = event_data->evtype == XI_TouchBegin;
 
-                        Ref<InputEventScreenTouch> st;
-                        st.instance();
+                        Ref<InputEventScreenTouch> st(make_ref_counted<InputEventScreenTouch>());
                         st->set_index(index);
                         st->set_position(pos);
                         st->set_pressed(is_begin);
 
                         if (is_begin) {
-                            if (xi.state.has(index)) // Defensive
+                            if (xi.state.contains(index)) // Defensive
                                 break;
                             xi.state[index] = pos;
                             if (xi.state.size() == 1) {
@@ -2140,7 +2144,7 @@ void OS_X11::process_xevents() {
                             }
                             input->accumulate_input_event(st);
                         } else {
-                            if (!xi.state.has(index)) // Defensive
+                            if (!xi.state.contains(index)) // Defensive
                                 break;
                             xi.state.erase(index);
                             input->accumulate_input_event(st);
@@ -2149,21 +2153,20 @@ void OS_X11::process_xevents() {
 
                     case XI_TouchUpdate: {
 
-                        Map<int, Vector2>::Element *curr_pos_elem = xi.state.find(index);
-                        if (!curr_pos_elem) { // Defensive
+                        Map<int, Vector2>::iterator curr_pos_elem = xi.state.find(index);
+                        if (curr_pos_elem==xi.state.end()) { // Defensive
                             break;
                         }
 
-                        if (curr_pos_elem->value() != pos) {
+                        if (curr_pos_elem->second != pos) {
 
-                            Ref<InputEventScreenDrag> sd;
-                            sd.instance();
+                            Ref<InputEventScreenDrag> sd(make_ref_counted<InputEventScreenDrag>());
                             sd->set_index(index);
                             sd->set_position(pos);
-                            sd->set_relative(pos - curr_pos_elem->value());
+                            sd->set_relative(pos - curr_pos_elem->second);
                             input->accumulate_input_event(sd);
 
-                            curr_pos_elem->value() = pos;
+                            curr_pos_elem->second = pos;
                         }
                     } break;
 #endif
@@ -2241,12 +2244,11 @@ void OS_X11::process_xevents() {
                 }*/
 
                 // Release every pointer to avoid sticky points
-                for (Map<int, Vector2>::Element *E = xi.state.front(); E; E = E->next()) {
+                for (eastl::pair<const int,Vector2> &E : xi.state) {
 
-                    Ref<InputEventScreenTouch> st;
-                    st.instance();
-                    st->set_index(E->key());
-                    st->set_position(E->get());
+                    Ref<InputEventScreenTouch> st(make_ref_counted<InputEventScreenTouch>());
+                    st->set_index(E.first);
+                    st->set_position(E.second);
                     input->accumulate_input_event(st);
                 }
                 xi.state.clear();
@@ -2269,8 +2271,7 @@ void OS_X11::process_xevents() {
                     event.xbutton.y = last_mouse_pos.y;
                 }
 
-                Ref<InputEventMouseButton> mb;
-                mb.instance();
+                Ref<InputEventMouseButton> mb(make_ref_counted<InputEventMouseButton>());
 
                 get_key_modifier_state(event.xbutton.state, mb);
                 mb->set_button_index(event.xbutton.button);
@@ -2396,8 +2397,7 @@ void OS_X11::process_xevents() {
                     pos = Point2i(current_videomode.width / 2, current_videomode.height / 2);
                 }
 
-                Ref<InputEventMouseMotion> mm;
-                mm.instance();
+                Ref<InputEventMouseMotion> mm(make_ref_counted<InputEventMouseMotion>());
 
                 // Make the absolute position integral so it doesn't look _too_ weird :)
                 Point2i posi(pos);
@@ -2694,7 +2694,7 @@ static String _get_clipboard_impl(Atom p_source, Window x11_window, ::Display *x
     return ret;
 }
 
-static String _get_clipboard(Atom p_source, Window x11_window, ::Display *x11_display, String p_internal_clipboard) {
+static String _get_clipboard(Atom p_source, Window x11_window, ::Display *x11_display, const String& p_internal_clipboard) {
     String ret;
     Atom utf8_atom = XInternAtom(x11_display, "UTF8_STRING", True);
     if (utf8_atom != None) {
@@ -2726,7 +2726,7 @@ String OS_X11::get_name() const {
 Error OS_X11::shell_open(String p_uri) {
 
     Error ok;
-    List<String> args;
+    ListPOD<String> args;
     args.push_back(p_uri);
     ok = execute("xdg-open", args, false);
     if (ok == OK)
@@ -2823,7 +2823,7 @@ String OS_X11::get_system_dir(SystemDir p_dir) const {
     }
 
     String pipe;
-    List<String> arg;
+    ListPOD<String> arg;
     arg.push_back(xdgparam);
     Error err = const_cast<OS_X11 *>(this)->execute("xdg-user-dir", arg, true, nullptr, &pipe);
     if (err != OK)
@@ -2874,12 +2874,12 @@ OS::CursorShape OS_X11::get_cursor_shape() const {
 
 void OS_X11::set_custom_mouse_cursor(const RES &p_cursor, CursorShape p_shape, const Vector2 &p_hotspot) {
 
-    if (p_cursor.is_valid()) {
+    if (p_cursor) {
 
-        Map<CursorShape, Vector<Variant> >::Element *cursor_c = cursors_cache.find(p_shape);
+        Map<CursorShape, Vector<Variant> >::iterator cursor_c = cursors_cache.find(p_shape);
 
-        if (cursor_c) {
-            if (cursor_c->get()[0] == p_cursor && cursor_c->get()[1] == p_hotspot) {
+        if (cursor_c!=cursors_cache.end()) {
+            if (cursor_c->second[0] == p_cursor && cursor_c->second[1] == p_hotspot) {
                 set_cursor_shape(p_shape);
                 return;
             }
@@ -2887,17 +2887,17 @@ void OS_X11::set_custom_mouse_cursor(const RES &p_cursor, CursorShape p_shape, c
             cursors_cache.erase(p_shape);
         }
 
-        Ref<Texture> texture = p_cursor;
-        Ref<AtlasTexture> atlas_texture = p_cursor;
+        Ref<Texture> texture = dynamic_ref_cast<Texture>(p_cursor);
+        Ref<AtlasTexture> atlas_texture = dynamic_ref_cast<AtlasTexture>(p_cursor);
         Ref<Image> image;
         Size2 texture_size;
         Rect2 atlas_rect;
 
-        if (texture.is_valid()) {
+        if (texture) {
             image = texture->get_data();
         }
 
-        if (!image.is_valid() && atlas_texture.is_valid()) {
+        if (not image && atlas_texture) {
             texture = atlas_texture->get_atlas();
 
             atlas_rect.size.width = texture->get_width();
@@ -2907,19 +2907,19 @@ void OS_X11::set_custom_mouse_cursor(const RES &p_cursor, CursorShape p_shape, c
 
             texture_size.width = atlas_texture->get_region().size.x;
             texture_size.height = atlas_texture->get_region().size.y;
-        } else if (image.is_valid()) {
+        } else if (image) {
             texture_size.width = texture->get_width();
             texture_size.height = texture->get_height();
         }
 
-        ERR_FAIL_COND(!texture.is_valid());
-        ERR_FAIL_COND(p_hotspot.x < 0 || p_hotspot.y < 0);
-        ERR_FAIL_COND(texture_size.width > 256 || texture_size.height > 256);
-        ERR_FAIL_COND(p_hotspot.x > texture_size.width || p_hotspot.y > texture_size.height);
+        ERR_FAIL_COND(not texture)
+        ERR_FAIL_COND(p_hotspot.x < 0 || p_hotspot.y < 0)
+        ERR_FAIL_COND(texture_size.width > 256 || texture_size.height > 256)
+        ERR_FAIL_COND(p_hotspot.x > texture_size.width || p_hotspot.y > texture_size.height)
 
         image = texture->get_data();
 
-        ERR_FAIL_COND(!image.is_valid());
+        ERR_FAIL_COND(not image)
 
         // Create the cursor structure
         XcursorImage *cursor_image = XcursorImageCreate(texture_size.width, texture_size.height);
@@ -2940,7 +2940,7 @@ void OS_X11::set_custom_mouse_cursor(const RES &p_cursor, CursorShape p_shape, c
             int row_index = floor(index / texture_size.width) + atlas_rect.position.y;
             int column_index = (index % int(texture_size.width)) + atlas_rect.position.x;
 
-            if (atlas_texture.is_valid()) {
+            if (atlas_texture) {
                 column_index = MIN(column_index, atlas_rect.size.width - 1);
                 row_index = MIN(row_index, atlas_rect.size.height - 1);
             }
@@ -2950,7 +2950,7 @@ void OS_X11::set_custom_mouse_cursor(const RES &p_cursor, CursorShape p_shape, c
 
         image->unlock();
 
-        ERR_FAIL_COND(cursor_image->pixels == nullptr);
+        ERR_FAIL_COND(cursor_image->pixels == nullptr)
 
         // Save it for a further usage
         cursors[p_shape] = XcursorImageLoadCursor(x11_display, cursor_image);
@@ -2958,7 +2958,7 @@ void OS_X11::set_custom_mouse_cursor(const RES &p_cursor, CursorShape p_shape, c
         Vector<Variant> params;
         params.push_back(p_cursor);
         params.push_back(p_hotspot);
-        cursors_cache.insert(p_shape, params);
+        cursors_cache.emplace(p_shape, params);
 
         if (p_shape == current_cursor) {
             if (mouse_mode == MOUSE_MODE_VISIBLE || mouse_mode == MOUSE_MODE_CONFINED) {
@@ -3009,7 +3009,7 @@ void OS_X11::alert(const String &p_alert, const String &p_title) {
     String program;
 
     for (int i = 0; i < path_elems.size(); i++) {
-        for (unsigned int k = 0; k < sizeof(message_programs) / sizeof(char *); k++) {
+        for (uint64_t k = 0; k < sizeof(message_programs) / sizeof(char *); k++) {
             String tested_path = PathUtils::plus_file(path_elems[i],message_programs[k]);
 
             if (FileAccess::exists(tested_path)) {
@@ -3022,7 +3022,7 @@ void OS_X11::alert(const String &p_alert, const String &p_title) {
             break;
     }
 
-    List<String> args;
+    ListPOD<String> args;
 
     if (StringUtils::ends_with(program,"zenity")) {
         args.push_back("--error");
@@ -3075,8 +3075,8 @@ void OS_X11::set_icon(const Ref<Image> &p_icon) {
 
     Atom net_wm_icon = XInternAtom(x11_display, "_NET_WM_ICON", False);
 
-    if (p_icon.is_valid()) {
-        Ref<Image> img = p_icon->duplicate();
+    if (p_icon) {
+        Ref<Image> img = dynamic_ref_cast<Image>(p_icon->duplicate());
         img->convert(Image::FORMAT_RGBA8);
 
         while (true) {
@@ -3086,7 +3086,7 @@ void OS_X11::set_icon(const Ref<Image> &p_icon) {
             if (g_set_icon_error) {
                 g_set_icon_error = false;
 
-                WARN_PRINT("Icon too large, attempting to resize icon.");
+                WARN_PRINT("Icon too large, attempting to resize icon.")
 
                 int new_width, new_height;
                 if (w > h) {
@@ -3101,7 +3101,7 @@ void OS_X11::set_icon(const Ref<Image> &p_icon) {
                 h = new_height;
 
                 if (!w || !h) {
-                    WARN_PRINT("Unable to set icon.");
+                    WARN_PRINT("Unable to set icon.")
                     break;
                 }
 
@@ -3334,7 +3334,7 @@ Error OS_X11::move_to_trash(const String &p_path) {
 
     // The trash can is successfully created, now move the given resource to it.
     // Do not use DirAccess:rename() because it can't move files across multiple mountpoints.
-    List<String> mv_args;
+    ListPOD<String> mv_args;
     mv_args.push_back(p_path);
     mv_args.push_back(trash_can);
     int retval;

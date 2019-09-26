@@ -108,7 +108,7 @@ public:
 
     Array get_device_list() override;
     String get_device() override;
-    void set_device(String device) override;
+    void set_device(const String &device) override;
 
     Array capture_get_device_list() override;
     void capture_set_device(const String &p_name) override;
