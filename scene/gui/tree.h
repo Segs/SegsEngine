@@ -181,7 +181,7 @@ public:
 	void set_checked(int p_column, bool p_checked);
 	bool is_checked(int p_column) const;
 
-	void set_text(int p_column, String p_text);
+	void set_text(int p_column, const String& p_text);
 	String get_text(int p_column) const;
 
 	void set_suffix(int p_column, String p_suffix);
@@ -374,7 +374,7 @@ private:
 	int draw_item(const Point2i &p_pos, const Point2 &p_draw_ofs, const Size2 &p_draw_size, TreeItem *p_item);
 	void select_single_item(TreeItem *p_selected, TreeItem *p_current, int p_col, TreeItem *p_prev = nullptr, bool *r_in_range = nullptr, bool p_force_deselect = false);
 	int propagate_mouse_event(const Point2i &p_pos, int x_ofs, int y_ofs, bool p_doubleclick, TreeItem *p_item, int p_button, const Ref<InputEventWithModifiers> &p_mod);
-	void text_editor_enter(String p_text);
+	void text_editor_enter(const String& p_text);
 	void _text_editor_modal_close();
 	void value_editor_changed(double p_value);
 
@@ -416,7 +416,6 @@ private:
 		Ref<Texture> arrow_collapsed;
 		Ref<Texture> arrow;
 		Ref<Texture> select_arrow;
-		Ref<Texture> select_option;
 		Ref<Texture> updown;
 
 		Color font_color;
@@ -429,7 +428,6 @@ private:
 		int hseparation;
 		int vseparation;
 		int item_margin;
-		int guide_width;
 		int button_margin;
 		Point2 offset;
 		int draw_relationship_lines;

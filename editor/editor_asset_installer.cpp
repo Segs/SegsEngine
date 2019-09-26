@@ -140,9 +140,9 @@ void EditorAssetInstaller::open(const String &p_path, int p_depth) {
     root->set_editable(0, true);
     Map<String, TreeItem *> dir_map;
 
-    for (Set<String>::Element *E = files_sorted.front(); E; E = E->next()) {
+    for (const String &E : files_sorted) {
 
-        String path = E->get();
+        String path = E;
         int depth = p_depth;
         bool skip = false;
         while (depth > 0) {
@@ -173,7 +173,7 @@ void EditorAssetInstaller::open(const String &p_path, int p_depth) {
             parent = root;
         } else {
             String ppath = StringUtils::substr(path,0, pp);
-            ERR_CONTINUE(!dir_map.has(ppath));
+            ERR_CONTINUE(!dir_map.contains(ppath))
             parent = dir_map[ppath];
         }
 
@@ -189,7 +189,7 @@ void EditorAssetInstaller::open(const String &p_path, int p_depth) {
         } else {
             String file = PathUtils::get_file(path);
             String extension = StringUtils::to_lower(PathUtils::get_extension(file));
-            if (extension_guess.has(extension)) {
+            if (extension_guess.contains(extension)) {
                 ti->set_icon(0, extension_guess[extension]);
             } else {
                 ti->set_icon(0, generic_extension);
@@ -208,7 +208,7 @@ void EditorAssetInstaller::open(const String &p_path, int p_depth) {
             ti->set_metadata(0, res_path);
         }
 
-        status_map[E->get()] = ti;
+        status_map[E] = ti;
     }
     popup_centered_ratio();
     updating = false;
@@ -242,7 +242,7 @@ void EditorAssetInstaller::ok_pressed() {
 
         String name = fname;
 
-        if (status_map.has(name) && status_map[name]->is_checked(0)) {
+        if (status_map.contains(name) && status_map[name]->is_checked(0)) {
 
             String path = status_map[name]->get_metadata(0);
             if (path.empty()) { // a dir

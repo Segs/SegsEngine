@@ -36,10 +36,10 @@ IMPL_GDCLASS(MeshEditor)
 IMPL_GDCLASS(EditorInspectorPluginMesh)
 IMPL_GDCLASS(MeshEditorPlugin)
 
-void MeshEditor::_gui_input(Ref<InputEvent> p_event) {
+void MeshEditor::_gui_input(const Ref<InputEvent>& p_event) {
 
-    Ref<InputEventMouseMotion> mm = p_event;
-    if (mm.is_valid() && mm->get_button_mask() & BUTTON_MASK_LEFT) {
+    Ref<InputEventMouseMotion> mm = dynamic_ref_cast<InputEventMouseMotion>(p_event);
+    if (mm && mm->get_button_mask() & BUTTON_MASK_LEFT) {
 
         rot_x -= mm->get_relative().y * 0.01f;
         rot_y -= mm->get_relative().x * 0.01f;
@@ -78,7 +78,7 @@ void MeshEditor::_update_rotation() {
     rotation->set_transform(t);
 }
 
-void MeshEditor::edit(Ref<Mesh> p_mesh) {
+void MeshEditor::edit(const Ref<Mesh>& p_mesh) {
 
     mesh = p_mesh;
     mesh_instance->set_mesh(mesh);
@@ -121,8 +121,7 @@ void MeshEditor::_bind_methods() {
 MeshEditor::MeshEditor() {
 
     viewport = memnew(Viewport);
-    Ref<World> world;
-    world.instance();
+    Ref<World> world(make_ref_counted<World>());
     viewport->set_world(world); //use own world
     add_child(viewport);
     viewport->set_disable_input(true);
@@ -161,12 +160,12 @@ MeshEditor::MeshEditor() {
     light_1_switch = memnew(TextureButton);
     light_1_switch->set_toggle_mode(true);
     vb_light->add_child(light_1_switch);
-    light_1_switch->connect("pressed", this, "_button_pressed", varray(light_1_switch));
+    light_1_switch->connect("pressed", this, "_button_pressed", varray(Variant(light_1_switch)));
 
     light_2_switch = memnew(TextureButton);
     light_2_switch->set_toggle_mode(true);
     vb_light->add_child(light_2_switch);
-    light_2_switch->connect("pressed", this, "_button_pressed", varray(light_2_switch));
+    light_2_switch->connect("pressed", this, "_button_pressed", varray(Variant(light_2_switch)));
 
     first_enter = true;
 
@@ -196,7 +195,6 @@ void EditorInspectorPluginMesh::parse_begin(Object *p_object) {
 
 MeshEditorPlugin::MeshEditorPlugin(EditorNode *p_node) {
 
-    Ref<EditorInspectorPluginMesh> plugin;
-    plugin.instance();
+    Ref<EditorInspectorPluginMesh> plugin(make_ref_counted<EditorInspectorPluginMesh>());
     add_inspector_plugin(plugin);
 }

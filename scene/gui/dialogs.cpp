@@ -37,8 +37,9 @@
 
 
 #ifdef TOOLS_ENABLED
-#include "editor/editor_node.h"
 #include "editor/editor_scale.h"
+#include "editor/editor_node.h"
+#include "scene/main/viewport.h" // Only used to check for more modals when dimming the editor.
 
 #endif
 
@@ -70,15 +71,15 @@ void WindowDialog::_fix_size() {
     float bottom = 0;
     float right = 0;
 
-    // Check validity, because the theme could contain a different type of StyleBox
+    // Check validity, because the theme could contain a different type of StyleBox.
     if (0==strcmp(panel->get_class(),"StyleBoxTexture")) {
-        Ref<StyleBoxTexture> panel_texture = Object::cast_to<StyleBoxTexture>(*panel);
+        Ref<StyleBoxTexture> panel_texture(dynamic_ref_cast<StyleBoxTexture>(panel));
         top = panel_texture->get_expand_margin_size(MARGIN_TOP);
         left = panel_texture->get_expand_margin_size(MARGIN_LEFT);
         bottom = panel_texture->get_expand_margin_size(MARGIN_BOTTOM);
         right = panel_texture->get_expand_margin_size(MARGIN_RIGHT);
     } else if (0==strcmp(panel->get_class(),"StyleBoxFlat")) {
-        Ref<StyleBoxFlat> panel_flat = Object::cast_to<StyleBoxFlat>(*panel);
+        Ref<StyleBoxFlat> panel_flat(dynamic_ref_cast<StyleBoxFlat>(panel));
         top = panel_flat->get_expand_margin_size(MARGIN_TOP);
         left = panel_flat->get_expand_margin_size(MARGIN_LEFT);
         bottom = panel_flat->get_expand_margin_size(MARGIN_BOTTOM);
@@ -119,9 +120,9 @@ bool WindowDialog::has_point(const Point2 &p_point) const {
 
 void WindowDialog::_gui_input(const Ref<InputEvent> &p_event) {
 
-    Ref<InputEventMouseButton> mb = p_event;
+    Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_event);
 
-    if (mb.is_valid() && mb->get_button_index() == BUTTON_LEFT) {
+    if (mb && mb->get_button_index() == BUTTON_LEFT) {
 
         if (mb->is_pressed()) {
             // Begin a possible dragging operation.
@@ -135,9 +136,9 @@ void WindowDialog::_gui_input(const Ref<InputEvent> &p_event) {
         }
     }
 
-    Ref<InputEventMouseMotion> mm = p_event;
+    Ref<InputEventMouseMotion> mm = dynamic_ref_cast<InputEventMouseMotion>(p_event);
 
-    if (mm.is_valid()) {
+    if (mm) {
 
         if (drag_type == DRAG_NONE) {
             // Update the cursor while moving along the borders.
@@ -253,7 +254,7 @@ void WindowDialog::_notification(int p_what) {
         } break;
 
         case NOTIFICATION_POPUP_HIDE: {
-            if (get_tree() && Engine::get_singleton()->is_editor_hint() && EditorNode::get_singleton())
+            if (get_tree() && Engine::get_singleton()->is_editor_hint() && EditorNode::get_singleton() && !get_viewport()->gui_has_modal_stack())
                 EditorNode::get_singleton()->dim_editor(false);
         } break;
 #endif
@@ -335,15 +336,15 @@ TextureButton *WindowDialog::get_close_button() {
 void WindowDialog::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_gui_input"), &WindowDialog::_gui_input);
-    MethodBinder::bind_method(D_METHOD("set_title", "title"), &WindowDialog::set_title);
+    MethodBinder::bind_method(D_METHOD("set_title", {"title"}), &WindowDialog::set_title);
     MethodBinder::bind_method(D_METHOD("get_title"), &WindowDialog::get_title);
-    MethodBinder::bind_method(D_METHOD("set_resizable", "resizable"), &WindowDialog::set_resizable);
+    MethodBinder::bind_method(D_METHOD("set_resizable", {"resizable"}), &WindowDialog::set_resizable);
     MethodBinder::bind_method(D_METHOD("get_resizable"), &WindowDialog::get_resizable);
     MethodBinder::bind_method(D_METHOD("_closed"), &WindowDialog::_closed);
     MethodBinder::bind_method(D_METHOD("get_close_button"), &WindowDialog::get_close_button);
 
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "window_title", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT_INTL), "set_title", "get_title");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "resizable", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT_INTL), "set_resizable", "get_resizable");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "window_title", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT_INTL), "set_title", "get_title");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "resizable", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT_INTL), "set_resizable", "get_resizable");
 }
 
 WindowDialog::WindowDialog() {
@@ -417,7 +418,7 @@ String AcceptDialog::get_text() const {
 
     return label->get_text();
 }
-void AcceptDialog::set_text(String p_text) {
+void AcceptDialog::set_text(const String& p_text) {
 
     label->set_text(p_text);
     minimum_size_changed();
@@ -444,7 +445,7 @@ bool AcceptDialog::has_autowrap() {
 
 void AcceptDialog::register_text_enter(Node *p_line_edit) {
 
-    ERR_FAIL_NULL(p_line_edit);
+    ERR_FAIL_NULL(p_line_edit)
     p_line_edit->connect("text_entered", this, "_builtin_text_entered");
 }
 
@@ -551,25 +552,25 @@ void AcceptDialog::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_ok"), &AcceptDialog::_ok_pressed);
     MethodBinder::bind_method(D_METHOD("get_ok"), &AcceptDialog::get_ok);
     MethodBinder::bind_method(D_METHOD("get_label"), &AcceptDialog::get_label);
-    MethodBinder::bind_method(D_METHOD("set_hide_on_ok", "enabled"), &AcceptDialog::set_hide_on_ok);
+    MethodBinder::bind_method(D_METHOD("set_hide_on_ok", {"enabled"}), &AcceptDialog::set_hide_on_ok);
     MethodBinder::bind_method(D_METHOD("get_hide_on_ok"), &AcceptDialog::get_hide_on_ok);
-    MethodBinder::bind_method(D_METHOD("add_button", "text", "right", "action"), &AcceptDialog::add_button, {DEFVAL(false), DEFVAL("")});
-    MethodBinder::bind_method(D_METHOD("add_cancel", "name"), &AcceptDialog::add_cancel);
+    MethodBinder::bind_method(D_METHOD("add_button", {"text", "right", "action"}), &AcceptDialog::add_button, {DEFVAL(false), DEFVAL("")});
+    MethodBinder::bind_method(D_METHOD("add_cancel", {"name"}), &AcceptDialog::add_cancel);
     MethodBinder::bind_method(D_METHOD("_builtin_text_entered"), &AcceptDialog::_builtin_text_entered);
-    MethodBinder::bind_method(D_METHOD("register_text_enter", "line_edit"), &AcceptDialog::register_text_enter);
+    MethodBinder::bind_method(D_METHOD("register_text_enter", {"line_edit"}), &AcceptDialog::register_text_enter);
     MethodBinder::bind_method(D_METHOD("_custom_action"), &AcceptDialog::_custom_action);
-    MethodBinder::bind_method(D_METHOD("set_text", "text"), &AcceptDialog::set_text);
+    MethodBinder::bind_method(D_METHOD("set_text", {"text"}), &AcceptDialog::set_text);
     MethodBinder::bind_method(D_METHOD("get_text"), &AcceptDialog::get_text);
-    MethodBinder::bind_method(D_METHOD("set_autowrap", "autowrap"), &AcceptDialog::set_autowrap);
+    MethodBinder::bind_method(D_METHOD("set_autowrap", {"autowrap"}), &AcceptDialog::set_autowrap);
     MethodBinder::bind_method(D_METHOD("has_autowrap"), &AcceptDialog::has_autowrap);
 
     ADD_SIGNAL(MethodInfo("confirmed"));
-    ADD_SIGNAL(MethodInfo("custom_action", PropertyInfo(Variant::STRING, "action")));
+    ADD_SIGNAL(MethodInfo("custom_action", PropertyInfo(VariantType::STRING, "action")));
 
     ADD_GROUP("Dialog", "dialog");
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "dialog_text", PROPERTY_HINT_MULTILINE_TEXT, "", PROPERTY_USAGE_DEFAULT_INTL), "set_text", "get_text");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "dialog_hide_on_ok"), "set_hide_on_ok", "get_hide_on_ok");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "dialog_autowrap"), "set_autowrap", "has_autowrap");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "dialog_text", PROPERTY_HINT_MULTILINE_TEXT, "", PROPERTY_USAGE_DEFAULT_INTL), "set_text", "get_text");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "dialog_hide_on_ok"), "set_hide_on_ok", "get_hide_on_ok");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "dialog_autowrap"), "set_autowrap", "has_autowrap");
 }
 
 bool AcceptDialog::swap_ok_cancel = false;

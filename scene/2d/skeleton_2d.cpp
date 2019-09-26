@@ -84,17 +84,17 @@ void Bone2D::_notification(int p_what) {
 }
 void Bone2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_rest", "rest"), &Bone2D::set_rest);
+    MethodBinder::bind_method(D_METHOD("set_rest", {"rest"}), &Bone2D::set_rest);
     MethodBinder::bind_method(D_METHOD("get_rest"), &Bone2D::get_rest);
     MethodBinder::bind_method(D_METHOD("apply_rest"), &Bone2D::apply_rest);
     MethodBinder::bind_method(D_METHOD("get_skeleton_rest"), &Bone2D::get_skeleton_rest);
     MethodBinder::bind_method(D_METHOD("get_index_in_skeleton"), &Bone2D::get_index_in_skeleton);
 
-    MethodBinder::bind_method(D_METHOD("set_default_length", "default_length"), &Bone2D::set_default_length);
+    MethodBinder::bind_method(D_METHOD("set_default_length", {"default_length"}), &Bone2D::set_default_length);
     MethodBinder::bind_method(D_METHOD("get_default_length"), &Bone2D::get_default_length);
 
-    ADD_PROPERTY(PropertyInfo(Variant::TRANSFORM2D, "rest"), "set_rest", "get_rest");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "default_length", PROPERTY_HINT_RANGE, "1,1024,1"), "set_default_length", "get_default_length");
+    ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM2D, "rest"), "set_rest", "get_rest");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "default_length", PROPERTY_HINT_RANGE, "1,1024,1"), "set_default_length", "get_default_length");
 }
 
 void Bone2D::set_rest(const Transform2D &p_rest) {
@@ -132,7 +132,7 @@ float Bone2D::get_default_length() const {
 }
 
 int Bone2D::get_index_in_skeleton() const {
-    ERR_FAIL_COND_V(!skeleton, -1);
+    ERR_FAIL_COND_V(!skeleton, -1)
     skeleton->_update_bone_setup();
     return skeleton_index;
 }
@@ -250,7 +250,7 @@ void Skeleton2D::_update_transform() {
 
 int Skeleton2D::get_bone_count() const {
 
-    ERR_FAIL_COND_V(!is_inside_tree(), 0);
+    ERR_FAIL_COND_V(!is_inside_tree(), 0)
 
     if (bone_setup_dirty) {
         const_cast<Skeleton2D *>(this)->_update_bone_setup();
@@ -261,7 +261,7 @@ int Skeleton2D::get_bone_count() const {
 
 Bone2D *Skeleton2D::get_bone(int p_idx) {
 
-    ERR_FAIL_COND_V(!is_inside_tree(), nullptr);
+    ERR_FAIL_COND_V(!is_inside_tree(), nullptr)
     ERR_FAIL_INDEX_V(p_idx, bones.size(), nullptr);
 
     return bones[p_idx].bone;
@@ -293,7 +293,7 @@ void Skeleton2D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_update_transform"), &Skeleton2D::_update_transform);
 
     MethodBinder::bind_method(D_METHOD("get_bone_count"), &Skeleton2D::get_bone_count);
-    MethodBinder::bind_method(D_METHOD("get_bone", "idx"), &Skeleton2D::get_bone);
+    MethodBinder::bind_method(D_METHOD("get_bone", {"idx"}), &Skeleton2D::get_bone);
 
     MethodBinder::bind_method(D_METHOD("get_skeleton"), &Skeleton2D::get_skeleton);
 

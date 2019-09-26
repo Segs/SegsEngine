@@ -32,18 +32,15 @@
 
 #include "core/object.h"
 #include "core/resource.h"
-#include "core/method_arg_casters.h"
-#include "core/method_enum_caster.h"
-#include "core/type_info.h"
 
 class UndoRedo : public Object {
 
     GDCLASS(UndoRedo,Object)
 
-    OBJ_SAVE_TYPE(UndoRedo);
+    OBJ_SAVE_TYPE(UndoRedo)
 
 public:
-    enum MergeMode {
+    enum MergeMode : int8_t {
         MERGE_DISABLE,
         MERGE_ENDS,
         MERGE_ALL
@@ -57,54 +54,14 @@ public:
     using PropertyNotifyCallback = void (*)(void *, Object *, const StringName &, const Variant &);
 
 private:
-    struct Operation {
-
-        enum Type {
-            TYPE_METHOD,
-            TYPE_PROPERTY,
-            TYPE_REFERENCE
-        };
-
-        Type type;
-        Ref<Resource> resref;
-        ObjectID object;
-        String name;
-        Variant args[VARIANT_ARG_MAX];
-    };
-
-    struct Action {
-        String name;
-        List<Operation> do_ops;
-        List<Operation> undo_ops;
-        uint64_t last_tick;
-    };
-
-    Vector<Action> actions;
-    int current_action;
-    int action_level;
-    MergeMode merge_mode;
-    bool merging;
-    uint64_t version;
-
-    void _pop_history_tail();
-    void _process_operation_list(List<Operation>::Element *E);
-    void _discard_redo();
-
-    CommitNotifyCallback callback;
-    void *callback_ud;
-    void *method_callbck_ud;
-    void *prop_callback_ud;
-
-    MethodNotifyCallback method_callback;
-    PropertyNotifyCallback property_callback;
-
-    int committing;
+    struct PrivateData;
+    PrivateData *pimpl=nullptr;
 
 protected:
     static void _bind_methods();
 
 public:
-    void create_action(const String &p_name = "", MergeMode p_mode = MERGE_DISABLE);
+    void create_action(const String &p_name, MergeMode p_mode = MERGE_DISABLE);
 
     void add_do_method(Object *p_object, const String &p_method, VARIANT_ARG_LIST);
     void add_undo_method(Object *p_object, const String &p_method, VARIANT_ARG_LIST);
@@ -135,4 +92,4 @@ public:
     ~UndoRedo() override;
 };
 
-VARIANT_ENUM_CAST(UndoRedo::MergeMode);
+

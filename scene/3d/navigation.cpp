@@ -38,10 +38,10 @@ IMPL_GDCLASS(Navigation)
 
 void Navigation::_navmesh_link(int p_id) {
 
-    ERR_FAIL_COND(!navmesh_map.has(p_id));
+    ERR_FAIL_COND(!navmesh_map.contains(p_id))
     NavMesh &nm = navmesh_map[p_id];
-    ERR_FAIL_COND(nm.linked);
-    ERR_FAIL_COND(nm.navmesh.is_null());
+    ERR_FAIL_COND(nm.linked)
+    ERR_FAIL_COND(not nm.navmesh)
 
     PoolVector<Vector3> vertices = nm.navmesh->get_vertices();
     int len = vertices.size();
@@ -55,7 +55,7 @@ void Navigation::_navmesh_link(int p_id) {
         //build
 
         List<Polygon>::Element *P = nm.polygons.push_back(Polygon());
-        Polygon &p = P->get();
+        Polygon &p = P->deref();
         p.owner = &nm;
 
         Vector<int> poly = nm.navmesh->get_polygon(i);
@@ -108,8 +108,8 @@ void Navigation::_navmesh_link(int p_id) {
             int next = (j + 1) % plen;
             EdgeKey ek(p.edges[j].point, p.edges[next].point);
 
-            Map<EdgeKey, Connection>::Element *C = connections.find(ek);
-            if (!C) {
+            Map<EdgeKey, Connection>::iterator C = connections.find(ek);
+            if (C==connections.end()) {
 
                 Connection c;
                 c.A = &p;
@@ -119,20 +119,20 @@ void Navigation::_navmesh_link(int p_id) {
                 connections[ek] = c;
             } else {
 
-                if (C->get().B != nullptr) {
+                if (C->second.B != nullptr) {
                     ConnectionPending pending;
                     pending.polygon = &p;
                     pending.edge = j;
-                    p.edges.write[j].P = C->get().pending.push_back(pending);
+                    p.edges.write[j].P = C->second.pending.push_back(pending);
                     continue;
                 }
 
-                C->get().B = &p;
-                C->get().B_edge = j;
-                C->get().A->edges.write[C->get().A_edge].C = &p;
-                C->get().A->edges.write[C->get().A_edge].C_edge = j;
-                p.edges.write[j].C = C->get().A;
-                p.edges.write[j].C_edge = C->get().A_edge;
+                C->second.B = &p;
+                C->second.B_edge = j;
+                C->second.A->edges.write[C->second.A_edge].C = &p;
+                C->second.A->edges.write[C->second.A_edge].C_edge = j;
+                p.edges.write[j].C = C->second.A;
+                p.edges.write[j].C_edge = C->second.A_edge;
                 //connection successful.
             }
         }
@@ -143,13 +143,13 @@ void Navigation::_navmesh_link(int p_id) {
 
 void Navigation::_navmesh_unlink(int p_id) {
 
-    ERR_FAIL_COND(!navmesh_map.has(p_id));
+    ERR_FAIL_COND(!navmesh_map.contains(p_id))
     NavMesh &nm = navmesh_map[p_id];
-    ERR_FAIL_COND(!nm.linked);
+    ERR_FAIL_COND(!nm.linked)
 
     for (List<Polygon>::Element *E = nm.polygons.front(); E; E = E->next()) {
 
-        Polygon &p = E->get();
+        Polygon &p = E->deref();
 
         int ec = p.edges.size();
         Polygon::Edge *edges = p.edges.ptrw();
@@ -158,40 +158,40 @@ void Navigation::_navmesh_unlink(int p_id) {
             int next = (i + 1) % ec;
 
             EdgeKey ek(edges[i].point, edges[next].point);
-            Map<EdgeKey, Connection>::Element *C = connections.find(ek);
+            Map<EdgeKey, Connection>::iterator C = connections.find(ek);
 
-            ERR_CONTINUE(!C);
+            ERR_CONTINUE(C==connections.end());
 
             if (edges[i].P) {
-                C->get().pending.erase(edges[i].P);
+                C->second.pending.erase(edges[i].P);
                 edges[i].P = nullptr;
-            } else if (C->get().B) {
+            } else if (C->second.B) {
                 //disconnect
 
-                C->get().B->edges.write[C->get().B_edge].C = nullptr;
-                C->get().B->edges.write[C->get().B_edge].C_edge = -1;
-                C->get().A->edges.write[C->get().A_edge].C = nullptr;
-                C->get().A->edges.write[C->get().A_edge].C_edge = -1;
+                C->second.B->edges.write[C->second.B_edge].C = nullptr;
+                C->second.B->edges.write[C->second.B_edge].C_edge = -1;
+                C->second.A->edges.write[C->second.A_edge].C = nullptr;
+                C->second.A->edges.write[C->second.A_edge].C_edge = -1;
 
-                if (C->get().A == &E->get()) {
+                if (C->second.A == &E->deref()) {
 
-                    C->get().A = C->get().B;
-                    C->get().A_edge = C->get().B_edge;
+                    C->second.A = C->second.B;
+                    C->second.A_edge = C->second.B_edge;
                 }
-                C->get().B = nullptr;
-                C->get().B_edge = -1;
+                C->second.B = nullptr;
+                C->second.B_edge = -1;
 
-                if (!C->get().pending.empty()) {
+                if (!C->second.pending.empty()) {
                     //reconnect if something is pending
-                    ConnectionPending cp = C->get().pending.front()->get();
-                    C->get().pending.pop_front();
+                    ConnectionPending cp = C->second.pending.front()->deref();
+                    C->second.pending.pop_front();
 
-                    C->get().B = cp.polygon;
-                    C->get().B_edge = cp.edge;
-                    C->get().A->edges.write[C->get().A_edge].C = cp.polygon;
-                    C->get().A->edges.write[C->get().A_edge].C_edge = cp.edge;
-                    cp.polygon->edges.write[cp.edge].C = C->get().A;
-                    cp.polygon->edges.write[cp.edge].C_edge = C->get().A_edge;
+                    C->second.B = cp.polygon;
+                    C->second.B_edge = cp.edge;
+                    C->second.A->edges.write[C->second.A_edge].C = cp.polygon;
+                    C->second.A->edges.write[C->second.A_edge].C_edge = cp.edge;
+                    cp.polygon->edges.write[cp.edge].C = C->second.A;
+                    cp.polygon->edges.write[cp.edge].C_edge = C->second.A_edge;
                     cp.polygon->edges.write[cp.edge].P = nullptr;
                 }
 
@@ -224,7 +224,7 @@ int Navigation::navmesh_add(const Ref<NavigationMesh> &p_mesh, const Transform &
 
 void Navigation::navmesh_set_transform(int p_id, const Transform &p_xform) {
 
-    ERR_FAIL_COND(!navmesh_map.has(p_id));
+    ERR_FAIL_COND(!navmesh_map.contains(p_id))
     NavMesh &nm = navmesh_map[p_id];
     if (nm.xform == p_xform)
         return; //bleh
@@ -234,7 +234,7 @@ void Navigation::navmesh_set_transform(int p_id, const Transform &p_xform) {
 }
 void Navigation::navmesh_remove(int p_id) {
 
-    ERR_FAIL_COND(!navmesh_map.has(p_id));
+    ERR_FAIL_COND(!navmesh_map.contains(p_id))
     _navmesh_unlink(p_id);
     navmesh_map.erase(p_id);
 }
@@ -259,7 +259,7 @@ void Navigation::_clip_path(Vector<Vector3> &path, Polygon *from_poly, const Vec
         Vector3 b = _get_vertex(from_poly->edges[(pe + 1) % from_poly->edges.size()].point);
 
         from_poly = from_poly->edges[pe].C;
-        ERR_FAIL_COND(!from_poly);
+        ERR_FAIL_COND(!from_poly)
 
         if (a.distance_to(b) > CMP_EPSILON) {
 
@@ -279,16 +279,16 @@ Vector<Vector3> Navigation::get_simple_path(const Vector3 &p_start, const Vector
     Polygon *end_poly = nullptr;
     Vector3 begin_point;
     Vector3 end_point;
-    float begin_d = 1e20;
-    float end_d = 1e20;
+    float begin_d = 1e20f;
+    float end_d = 1e20f;
 
-    for (Map<int, NavMesh>::Element *E = navmesh_map.front(); E; E = E->next()) {
+    for (eastl::pair<const int,NavMesh> &E : navmesh_map) {
 
-        if (!E->get().linked)
+        if (!E.second.linked)
             continue;
-        for (List<Polygon>::Element *F = E->get().polygons.front(); F; F = F->next()) {
+        for (List<Polygon>::Element *F = E.second.polygons.front(); F; F = F->next()) {
 
-            Polygon &p = F->get();
+            Polygon &p = F->deref();
             for (int i = 2; i < p.edges.size(); i++) {
 
                 Face3 f(_get_vertex(p.edges[0].point), _get_vertex(p.edges[i - 1].point), _get_vertex(p.edges[i].point));
@@ -360,12 +360,12 @@ Vector<Vector3> Navigation::get_simple_path(const Vector3 &p_start, const Vector
         //check open list
 
         List<Polygon *>::Element *least_cost_poly = nullptr;
-        float least_cost = 1e30;
+        float least_cost = 1e30f;
 
         //this could be faster (cache previous results)
         for (List<Polygon *>::Element *E = open_list.front(); E; E = E->next()) {
 
-            Polygon *p = E->get();
+            Polygon *p = E->deref();
 
             float cost = p->distance;
 #ifdef USE_ENTRY_POINT
@@ -379,7 +379,7 @@ Vector<Vector3> Navigation::get_simple_path(const Vector3 &p_start, const Vector
             }
         }
 
-        Polygon *p = least_cost_poly->get();
+        Polygon *p = least_cost_poly->deref();
         //open the neighbours for search
 
         if (p == end_poly) {
@@ -559,13 +559,13 @@ Vector3 Navigation::get_closest_point_to_segment(const Vector3 &p_from, const Ve
     Vector3 closest_point;
     float closest_point_d = 1e20;
 
-    for (Map<int, NavMesh>::Element *E = navmesh_map.front(); E; E = E->next()) {
+    for (eastl::pair<const int,NavMesh> &E : navmesh_map) {
 
-        if (!E->get().linked)
+        if (!E.second.linked)
             continue;
-        for (List<Polygon>::Element *F = E->get().polygons.front(); F; F = F->next()) {
+        for (List<Polygon>::Element *F = E.second.polygons.front(); F; F = F->next()) {
 
-            Polygon &p = F->get();
+            Polygon &p = F->deref();
             for (int i = 2; i < p.edges.size(); i++) {
 
                 Face3 f(_get_vertex(p.edges[0].point), _get_vertex(p.edges[i - 1].point), _get_vertex(p.edges[i].point));
@@ -611,13 +611,13 @@ Vector3 Navigation::get_closest_point(const Vector3 &p_point) {
     Vector3 closest_point;
     float closest_point_d = 1e20;
 
-    for (Map<int, NavMesh>::Element *E = navmesh_map.front(); E; E = E->next()) {
+    for (eastl::pair<const int,NavMesh> &E : navmesh_map) {
 
-        if (!E->get().linked)
+        if (!E.second.linked)
             continue;
-        for (List<Polygon>::Element *F = E->get().polygons.front(); F; F = F->next()) {
+        for (List<Polygon>::Element *F = E.second.polygons.front(); F; F = F->next()) {
 
-            Polygon &p = F->get();
+            Polygon &p = F->deref();
             for (int i = 2; i < p.edges.size(); i++) {
 
                 Face3 f(_get_vertex(p.edges[0].point), _get_vertex(p.edges[i - 1].point), _get_vertex(p.edges[i].point));
@@ -640,13 +640,13 @@ Vector3 Navigation::get_closest_point_normal(const Vector3 &p_point) {
     Vector3 closest_normal;
     float closest_point_d = 1e20;
 
-    for (Map<int, NavMesh>::Element *E = navmesh_map.front(); E; E = E->next()) {
+    for (eastl::pair<const int,NavMesh> &E : navmesh_map) {
 
-        if (!E->get().linked)
+        if (!E.second.linked)
             continue;
-        for (List<Polygon>::Element *F = E->get().polygons.front(); F; F = F->next()) {
+        for (List<Polygon>::Element *F = E.second.polygons.front(); F; F = F->next()) {
 
-            Polygon &p = F->get();
+            Polygon &p = F->deref();
             for (int i = 2; i < p.edges.size(); i++) {
 
                 Face3 f(_get_vertex(p.edges[0].point), _get_vertex(p.edges[i - 1].point), _get_vertex(p.edges[i].point));
@@ -670,13 +670,13 @@ Object *Navigation::get_closest_point_owner(const Vector3 &p_point) {
     Object *owner = nullptr;
     float closest_point_d = 1e20;
 
-    for (Map<int, NavMesh>::Element *E = navmesh_map.front(); E; E = E->next()) {
+    for (eastl::pair<const int,NavMesh> &E : navmesh_map) {
 
-        if (!E->get().linked)
+        if (!E.second.linked)
             continue;
-        for (List<Polygon>::Element *F = E->get().polygons.front(); F; F = F->next()) {
+        for (List<Polygon>::Element *F = E.second.polygons.front(); F; F = F->next()) {
 
-            Polygon &p = F->get();
+            Polygon &p = F->deref();
             for (int i = 2; i < p.edges.size(); i++) {
 
                 Face3 f(_get_vertex(p.edges[0].point), _get_vertex(p.edges[i - 1].point), _get_vertex(p.edges[i].point));
@@ -685,7 +685,7 @@ Object *Navigation::get_closest_point_owner(const Vector3 &p_point) {
                 if (d < closest_point_d) {
                     closest_point = inters;
                     closest_point_d = d;
-                    owner = E->get().owner;
+                    owner = E.second.owner;
                 }
             }
         }
@@ -706,26 +706,26 @@ Vector3 Navigation::get_up_vector() const {
 
 void Navigation::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("navmesh_add", "mesh", "xform", "owner"), &Navigation::navmesh_add, {DEFVAL(Variant())});
-    MethodBinder::bind_method(D_METHOD("navmesh_set_transform", "id", "xform"), &Navigation::navmesh_set_transform);
-    MethodBinder::bind_method(D_METHOD("navmesh_remove", "id"), &Navigation::navmesh_remove);
+    MethodBinder::bind_method(D_METHOD("navmesh_add", {"mesh", "xform", "owner"}), &Navigation::navmesh_add, {DEFVAL(Variant())});
+    MethodBinder::bind_method(D_METHOD("navmesh_set_transform", {"id", "xform"}), &Navigation::navmesh_set_transform);
+    MethodBinder::bind_method(D_METHOD("navmesh_remove", {"id"}), &Navigation::navmesh_remove);
 
-    MethodBinder::bind_method(D_METHOD("get_simple_path", "start", "end", "optimize"), &Navigation::get_simple_path, {DEFVAL(true)});
-    MethodBinder::bind_method(D_METHOD("get_closest_point_to_segment", "start", "end", "use_collision"), &Navigation::get_closest_point_to_segment, {DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("get_closest_point", "to_point"), &Navigation::get_closest_point);
-    MethodBinder::bind_method(D_METHOD("get_closest_point_normal", "to_point"), &Navigation::get_closest_point_normal);
-    MethodBinder::bind_method(D_METHOD("get_closest_point_owner", "to_point"), &Navigation::get_closest_point_owner);
+    MethodBinder::bind_method(D_METHOD("get_simple_path", {"start", "end", "optimize"}), &Navigation::get_simple_path, {DEFVAL(true)});
+    MethodBinder::bind_method(D_METHOD("get_closest_point_to_segment", {"start", "end", "use_collision"}), &Navigation::get_closest_point_to_segment, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("get_closest_point", {"to_point"}), &Navigation::get_closest_point);
+    MethodBinder::bind_method(D_METHOD("get_closest_point_normal", {"to_point"}), &Navigation::get_closest_point_normal);
+    MethodBinder::bind_method(D_METHOD("get_closest_point_owner", {"to_point"}), &Navigation::get_closest_point_owner);
 
-    MethodBinder::bind_method(D_METHOD("set_up_vector", "up"), &Navigation::set_up_vector);
+    MethodBinder::bind_method(D_METHOD("set_up_vector", {"up"}), &Navigation::set_up_vector);
     MethodBinder::bind_method(D_METHOD("get_up_vector"), &Navigation::get_up_vector);
 
-    ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "up_vector"), "set_up_vector", "get_up_vector");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "up_vector"), "set_up_vector", "get_up_vector");
 }
 
 Navigation::Navigation() {
 
-    ERR_FAIL_COND(sizeof(Point) != 8);
-    cell_size = 0.01; //one centimeter
+    ERR_FAIL_COND(sizeof(Point) != 8)
+    cell_size = 0.01f; //one centimeter
     last_id = 1;
     up = Vector3(0, 1, 0);
 }

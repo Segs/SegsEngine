@@ -81,13 +81,13 @@ String GDScriptLanguageProtocol::format_output(const String &p_text) {
 }
 
 void GDScriptLanguageProtocol::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("initialize", "params"), &GDScriptLanguageProtocol::initialize);
-	ClassDB::bind_method(D_METHOD("initialized", "params"), &GDScriptLanguageProtocol::initialized);
+	ClassDB::bind_method(D_METHOD("initialize", {"params"}), &GDScriptLanguageProtocol::initialize);
+	ClassDB::bind_method(D_METHOD("initialized", {"params"}), &GDScriptLanguageProtocol::initialized);
 	ClassDB::bind_method(D_METHOD("on_data_received"), &GDScriptLanguageProtocol::on_data_received);
 	ClassDB::bind_method(D_METHOD("on_client_connected"), &GDScriptLanguageProtocol::on_client_connected);
 	ClassDB::bind_method(D_METHOD("on_client_disconnected"), &GDScriptLanguageProtocol::on_client_disconnected);
-	ClassDB::bind_method(D_METHOD("notify_all_clients", "p_method", "p_params"), &GDScriptLanguageProtocol::notify_all_clients, DEFVAL(Variant()));
-	ClassDB::bind_method(D_METHOD("notify_client", "p_method", "p_params", "p_client"), &GDScriptLanguageProtocol::notify_client, DEFVAL(Variant()), DEFVAL(-1));
+	ClassDB::bind_method(D_METHOD("notify_all_clients", {"p_method", "p_params"}), &GDScriptLanguageProtocol::notify_all_clients, DEFVAL(Variant()));
+	ClassDB::bind_method(D_METHOD("notify_client", {"p_method", "p_params", "p_client"}), &GDScriptLanguageProtocol::notify_client, DEFVAL(Variant()), DEFVAL(-1));
 	ClassDB::bind_method(D_METHOD("is_smart_resolve_enabled"), &GDScriptLanguageProtocol::is_smart_resolve_enabled);
 	ClassDB::bind_method(D_METHOD("get_text_document"), &GDScriptLanguageProtocol::get_text_document);
 	ClassDB::bind_method(D_METHOD("get_workspace"), &GDScriptLanguageProtocol::get_workspace);
@@ -100,9 +100,10 @@ Dictionary GDScriptLanguageProtocol::initialize(const Dictionary &p_params) {
 
 	String root_uri = p_params["rootUri"];
 	String root = p_params["rootPath"];
-	bool is_same_workspace = root == workspace->root;
+	bool is_same_workspace;
+#ifndef WINDOWS_ENABLED
 	is_same_workspace = root.to_lower() == workspace->root.to_lower();
-#ifdef WINDOWS_ENABLED
+#else
 	is_same_workspace = root.replace("\\", "/").to_lower() == workspace->root.to_lower();
 #endif
 
@@ -142,6 +143,7 @@ void GDScriptLanguageProtocol::poll() {
 Error GDScriptLanguageProtocol::start(int p_port) {
 	if (server == NULL) {
 		server = dynamic_cast<WebSocketServer *>(ClassDB::instance("WebSocketServer"));
+		ERR_FAIL_COND_V(!server, FAILED);
 		server->set_buffers(8192, 1024, 8192, 1024); // 8mb should be way more than enough
 		server->connect("data_received", this, "on_data_received");
 		server->connect("client_connected", this, "on_client_connected");
@@ -175,7 +177,7 @@ void GDScriptLanguageProtocol::notify_client(const String &p_method, const Varia
 	}
 
 	Ref<WebSocketPeer> *peer = clients.getptr(p_client);
-	ERR_FAIL_COND(peer == NULL);
+	ERR_FAIL_COND(peer == NULL)
 
 	Dictionary message = make_notification(p_method, p_params);
 	String msg = JSON::print(message);

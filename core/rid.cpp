@@ -30,11 +30,25 @@
 
 #include "rid.h"
 
+#include "core/list.h"
+
 RID_Data::~RID_Data() {}
 
 SafeRefCount RID_OwnerBase::refcount;
 
+void RID_OwnerBase::get_owned_list(DefList<RID> *p_owned) {
+
+#ifdef DEBUG_ENABLED
+
+    for (RID_Data *iter : id_map) {
+        RID r;
+        _set_data(r, iter);
+        p_owned->push_back(r);
+    }
+#endif
+}
+
 void RID_OwnerBase::init_rid() {
 
-	refcount.init();
+    refcount.init();
 }

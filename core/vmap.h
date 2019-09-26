@@ -152,8 +152,8 @@ public:
 		return _find(p_val, exact);
 	}
 
-	_FORCE_INLINE_ int size() const { return _cowdata.size(); }
-	_FORCE_INLINE_ bool empty() const { return _cowdata.empty(); }
+	[[nodiscard]] _FORCE_INLINE_ int size() const { return _cowdata.size(); }
+	[[nodiscard]] _FORCE_INLINE_ bool empty() const { return _cowdata.empty(); }
 
 	const Pair *get_array() const {
 

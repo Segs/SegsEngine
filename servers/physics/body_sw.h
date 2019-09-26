@@ -28,12 +28,12 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef BODY_SW_H
-#define BODY_SW_H
+#pragma once
 
 #include "area_sw.h"
 #include "collision_object_sw.h"
 #include "core/vset.h"
+#include "core/map.h"
 
 class ConstraintSW;
 
@@ -472,4 +472,3 @@ public:
 	}
 };
 
-#endif // BODY__SW_H

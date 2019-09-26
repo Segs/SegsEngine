@@ -365,7 +365,7 @@ void RigidBodyBullet::dispatch_callbacks() {
 
         BulletPhysicsDirectBodyState *bodyDirect = BulletPhysicsDirectBodyState::get_singleton(this);
 
-        Variant variantBodyDirect = bodyDirect;
+        Variant variantBodyDirect(bodyDirect);
 
         Object *obj = ObjectDB::get_instance(force_integration_callback->id);
         if (!obj) {
@@ -375,7 +375,7 @@ void RigidBodyBullet::dispatch_callbacks() {
             const Variant *vp[2] = { &variantBodyDirect, &force_integration_callback->udata };
 
             Variant::CallError responseCallError;
-            int argc = (force_integration_callback->udata.get_type() == Variant::NIL) ? 1 : 2;
+            int argc = (force_integration_callback->udata.get_type() == VariantType::NIL) ? 1 : 2;
             obj->call(force_integration_callback->method, vp, argc, responseCallError);
         }
     }
@@ -498,7 +498,7 @@ void RigidBodyBullet::set_param(PhysicsServer::BodyParameter p_param, real_t p_v
             btBody->setFriction(p_value);
             break;
         case PhysicsServer::BODY_PARAM_MASS: {
-            ERR_FAIL_COND(p_value < 0);
+            ERR_FAIL_COND(p_value < 0)
             mass = p_value;
             _internal_set_mass(p_value);
             break;
@@ -870,7 +870,7 @@ void RigidBodyBullet::on_enter_area(AreaBullet *p_area) {
 
     if (p_area->is_spOv_gravityPoint()) {
         ++countGravityPointSpaces;
-        ERR_FAIL_COND(countGravityPointSpaces <= 0);
+        ERR_FAIL_COND(countGravityPointSpaces <= 0)
     }
 }
 
@@ -892,7 +892,7 @@ void RigidBodyBullet::on_exit_area(AreaBullet *p_area) {
     if (wasTheAreaFound) {
         if (p_area->is_spOv_gravityPoint()) {
             --countGravityPointSpaces;
-            ERR_FAIL_COND(countGravityPointSpaces < 0);
+            ERR_FAIL_COND(countGravityPointSpaces < 0)
         }
 
         --areaWhereIamCount;

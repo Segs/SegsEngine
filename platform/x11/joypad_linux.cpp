@@ -107,7 +107,7 @@ void JoypadLinux::joy_thread_func(void *p_user) {
 void JoypadLinux::run_joypad_thread() {
 #ifdef UDEV_ENABLED
     udev *_udev = udev_new();
-    ERR_FAIL_COND(!_udev);
+    ERR_FAIL_COND(!_udev)
     enumerate_joypads(_udev);
     monitor_joypads(_udev);
     udev_unref(_udev);
@@ -218,7 +218,7 @@ void JoypadLinux::monitor_joypads() {
     }
 }
 
-int JoypadLinux::get_joy_from_path(String p_path) const {
+int JoypadLinux::get_joy_from_path(const String& p_path) const {
 
     for (int i = 0; i < JOYPADS_MAX; i++) {
 

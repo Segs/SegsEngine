@@ -68,18 +68,18 @@ void MethodBind::set_name(const StringName &p_name) {
 }
 
 #ifdef DEBUG_METHODS_ENABLED
-void MethodBind::set_argument_names(const Vector<StringName> &p_names) {
+void MethodBind::set_argument_names(const PODVector<StringName> &p_names) {
 
     arg_names = p_names;
 }
-Vector<StringName> MethodBind::get_argument_names() const {
+PODVector<StringName> MethodBind::get_argument_names() const {
 
     return arg_names;
 }
 
 GodotTypeInfo::Metadata MethodBind::get_argument_meta(int p_arg) const
 {
-    if(p_arg<-1 || size_t(p_arg) >= argument_count)
+    if(p_arg<-1 || p_arg >= argument_count)
         return GodotTypeInfo::METADATA_NONE;
     return do_get_argument_meta(p_arg);
 }

@@ -144,8 +144,7 @@ AudioEffectRecordInstance::~AudioEffectRecordInstance() {
 }
 
 Ref<AudioEffectInstance> AudioEffectRecord::instance() {
-    Ref<AudioEffectRecordInstance> ins;
-    ins.instance();
+    Ref<AudioEffectRecordInstance> ins(make_ref_counted<AudioEffectRecordInstance>());
     ins->base = Ref<AudioEffectRecord>(this);
     ins->is_recording = false;
 
@@ -220,8 +219,8 @@ Ref<AudioStreamSample> AudioEffectRecord::get_recording() const {
 
     PoolVector<uint8_t> dst_data;
 
-    ERR_FAIL_COND_V(current_instance.is_null(), nullptr);
-    ERR_FAIL_COND_V(current_instance->recording_data.empty(), nullptr);
+    ERR_FAIL_COND_V(not current_instance, Ref<AudioStreamSample>())
+    ERR_FAIL_COND_V(current_instance->recording_data.empty(), Ref<AudioStreamSample>())
 
     if (dst_format == AudioStreamSample::FORMAT_8_BITS) {
         int data_size = current_instance->recording_data.size();
@@ -276,8 +275,7 @@ Ref<AudioStreamSample> AudioEffectRecord::get_recording() const {
         ERR_PRINT("Format not implemented.");
     }
 
-    Ref<AudioStreamSample> sample;
-    sample.instance();
+    Ref<AudioStreamSample> sample(make_ref_counted<AudioStreamSample>());
     sample->set_data(dst_data);
     sample->set_format(dst_format);
     sample->set_mix_rate(AudioServer::get_singleton()->get_mix_rate());
@@ -290,13 +288,13 @@ Ref<AudioStreamSample> AudioEffectRecord::get_recording() const {
 }
 
 void AudioEffectRecord::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("set_recording_active", "record"), &AudioEffectRecord::set_recording_active);
+    MethodBinder::bind_method(D_METHOD("set_recording_active", {"record"}), &AudioEffectRecord::set_recording_active);
     MethodBinder::bind_method(D_METHOD("is_recording_active"), &AudioEffectRecord::is_recording_active);
-    MethodBinder::bind_method(D_METHOD("set_format", "format"), &AudioEffectRecord::set_format);
+    MethodBinder::bind_method(D_METHOD("set_format", {"format"}), &AudioEffectRecord::set_format);
     MethodBinder::bind_method(D_METHOD("get_format"), &AudioEffectRecord::get_format);
     MethodBinder::bind_method(D_METHOD("get_recording"), &AudioEffectRecord::get_recording);
 
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "format", PROPERTY_HINT_ENUM, "8-Bit,16-Bit,IMA-ADPCM"), "set_format", "get_format");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "format", PROPERTY_HINT_ENUM, "8-Bit,16-Bit,IMA-ADPCM"), "set_format", "get_format");
 }
 
 AudioEffectRecord::AudioEffectRecord() {

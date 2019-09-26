@@ -63,12 +63,12 @@ void DependencyEditor::_load_pressed(Object *p_item, int p_cell, int p_button) {
     search->set_title(TTR("Search Replacement For:") + " " + PathUtils::get_file(replacing));
 
     search->clear_filters();
-    List<String> ext;
+    ListPOD<String> ext;
     ResourceLoader::get_recognized_extensions_for_type(ti->get_metadata(0), &ext);
-    for (List<String>::Element *E = ext.front(); E; E = E->next()) {
-        search->add_filter("*" + E->get());
+    for (const String &E : ext) {
+        search->add_filter("*" + E);
     }
-    search->popup_centered_ratio(0.65); // So it doesn't completely cover the dialog below it.
+    search->popup_centered_ratio(0.65f); // So it doesn't completely cover the dialog below it.
 }
 
 void DependencyEditor::_fix_and_find(EditorFileSystemDirectory *efsd, Map<String, Map<String, String> > &candidates) {
@@ -80,22 +80,22 @@ void DependencyEditor::_fix_and_find(EditorFileSystemDirectory *efsd, Map<String
     for (int i = 0; i < efsd->get_file_count(); i++) {
 
         String file = efsd->get_file(i);
-        if (!candidates.has(file))
+        if (!candidates.contains(file))
             continue;
 
         String path = efsd->get_file_path(i);
 
-        for (Map<String, String>::Element *E = candidates[file].front(); E; E = E->next()) {
+        for (auto & E : candidates[file]) {
 
-            if (E->get().empty()) {
-                E->get() = path;
+            if (E.second.empty()) {
+                E.second = path;
                 continue;
             }
 
             //must match the best, using subdirs
-            String existing = StringUtils::replace_first(E->get(),"res://", "");
+            String existing = StringUtils::replace_first(E.second,"res://", "");
             String current = StringUtils::replace_first(path,"res://", "");
-            String lost = StringUtils::replace_first(E->key(),"res://", "");
+            String lost = StringUtils::replace_first(E.first,"res://", "");
 
             Vector<String> existingv = StringUtils::split(existing,"/");
             existingv.invert();
@@ -121,7 +121,7 @@ void DependencyEditor::_fix_and_find(EditorFileSystemDirectory *efsd, Map<String
 
                 //if it was the same, could track distance to new path but..
 
-                E->get() = path; //replace by more accurate
+                E.second = path; //replace by more accurate
             }
         }
     }
@@ -136,24 +136,24 @@ void DependencyEditor::_fix_all() {
 
     for (List<String>::Element *E = missing.front(); E; E = E->next()) {
 
-        String base = PathUtils::get_file(E->get());
-        if (!candidates.has(base)) {
+        String base = PathUtils::get_file(E->deref());
+        if (!candidates.contains(base)) {
             candidates[base] = Map<String, String>();
         }
 
-        candidates[base][E->get()] = "";
+        candidates[base][E->deref()] = "";
     }
 
     _fix_and_find(EditorFileSystem::get_singleton()->get_filesystem(), candidates);
 
     Map<String, String> remaps;
 
-    for (Map<String, Map<String, String> >::Element *E = candidates.front(); E; E = E->next()) {
+    for (eastl::pair<const String, Map<String, String> > &E : candidates) {
 
-        for (Map<String, String>::Element *F = E->get().front(); F; F = F->next()) {
+        for (eastl::pair<const String, String> &F : E.second) {
 
-            if (!F->get().empty()) {
-                remaps[F->key()] = F->get();
+            if (!F.second.empty()) {
+                remaps[F.first] = F.second;
             }
         }
     }
@@ -174,7 +174,7 @@ void DependencyEditor::_update_file() {
 
 void DependencyEditor::_update_list() {
 
-    List<String> deps;
+    ListPOD<String> deps;
     ResourceLoader::get_dependencies(editing, &deps, true);
 
     tree->clear();
@@ -186,11 +186,10 @@ void DependencyEditor::_update_list() {
 
     bool broken = false;
 
-    for (List<String>::Element *E = deps.front(); E; E = E->next()) {
+    for (const String &n : deps) {
 
         TreeItem *item = tree->create_item(root);
 
-        String n = E->get();
         String path;
         String type;
 
@@ -389,7 +388,7 @@ void DependencyRemoveDialog::_find_files_in_removed_folder(EditorFileSystemDirec
     }
     for (int i = 0; i < efsd->get_file_count(); i++) {
         String file = efsd->get_file_path(i);
-        ERR_FAIL_COND(all_remove_files.has(file)); //We are deleting a directory which is contained in a directory we are deleting...
+        ERR_FAIL_COND(all_remove_files.contains(file)) //We are deleting a directory which is contained in a directory we are deleting...
         all_remove_files[file] = p_folder; //Point the file to the ancestor directory we are deleting so we know what to parent it under in the tree.
     }
 }
@@ -406,12 +405,12 @@ void DependencyRemoveDialog::_find_all_removed_dependencies(EditorFileSystemDire
         const String path = efsd->get_file_path(i);
 
         //It doesn't matter if a file we are about to delete will have some of its dependencies removed too
-        if (all_remove_files.has(path))
+        if (all_remove_files.contains(path))
             continue;
 
         Vector<String> all_deps = efsd->get_file_deps(i);
         for (int j = 0; j < all_deps.size(); ++j) {
-            if (all_remove_files.has(all_deps[j])) {
+            if (all_remove_files.contains(all_deps[j])) {
                 RemovedDependency dep;
                 dep.file = path;
                 dep.file_type = efsd->get_file_type(i);
@@ -432,10 +431,10 @@ void DependencyRemoveDialog::_build_removed_dependency_tree(const Vector<Removed
         RemovedDependency rd = p_removed[i];
 
         //Ensure that the dependency is already in the tree
-        if (!tree_items.has(rd.dependency)) {
+        if (!tree_items.contains(rd.dependency)) {
             if (rd.dependency_folder.length() > 0) {
                 //Ensure the ancestor folder is already in the tree
-                if (!tree_items.has(rd.dependency_folder)) {
+                if (!tree_items.contains(rd.dependency_folder)) {
                     TreeItem *folder_item = owners->create_item(owners->get_root());
                     folder_item->set_text(0, rd.dependency_folder);
                     folder_item->set_icon(0, get_icon("Folder", "EditorIcons"));
@@ -579,8 +578,8 @@ void DependencyRemoveDialog::ok_pressed() {
 }
 
 void DependencyRemoveDialog::_bind_methods() {
-    ADD_SIGNAL(MethodInfo("file_removed", PropertyInfo(Variant::STRING, "file")));
-    ADD_SIGNAL(MethodInfo("folder_removed", PropertyInfo(Variant::STRING, "folder")));
+    ADD_SIGNAL(MethodInfo("file_removed", PropertyInfo(VariantType::STRING, "file")));
+    ADD_SIGNAL(MethodInfo("folder_removed", PropertyInfo(VariantType::STRING, "folder")));
 }
 
 DependencyRemoveDialog::DependencyRemoveDialog() {
@@ -713,14 +712,14 @@ bool OrphanResourcesDialog::_fill_owners(EditorFileSystemDirectory *efsd, HashMa
             Vector<String> deps = efsd->get_file_deps(i);
             for (int j = 0; j < deps.size(); j++) {
 
-                if (!refs.has(deps[j])) {
+                if (!refs.contains(deps[j])) {
                     refs[deps[j]] = 1;
                 }
             }
         } else {
 
             String path = efsd->get_file_path(i);
-            if (!refs.has(path)) {
+            if (!refs.contains(path)) {
                 TreeItem *ti = files->create_item(p_parent);
                 ti->set_cell_mode(0, TreeItem::CELL_MODE_CHECK);
                 ti->set_text(0, efsd->get_file(i));
@@ -779,8 +778,8 @@ void OrphanResourcesDialog::_delete_confirm() {
     DirAccess *da = DirAccess::create(DirAccess::ACCESS_RESOURCES);
     for (List<String>::Element *E = paths.front(); E; E = E->next()) {
 
-        da->remove(E->get());
-        EditorFileSystem::get_singleton()->update_file(E->get());
+        da->remove(E->deref());
+        EditorFileSystem::get_singleton()->update_file(E->deref());
     }
     memdelete(da);
     refresh();

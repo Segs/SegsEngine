@@ -34,6 +34,7 @@
 #include "core/string_name.h"
 #include "core/map.h"
 #include "core/dictionary.h"
+#include "core/vector.h"
 
 class Engine {
 
@@ -50,7 +51,7 @@ public:
 private:
     friend class Main;
 
-    List<Singleton> singletons;
+    PODVector<Singleton> singletons;
     Map<StringName, Object *> singleton_ptrs;
     uint64_t frames_drawn=0;
     uint64_t _frame_ticks=0;
@@ -102,7 +103,7 @@ public:
     uint32_t get_frame_delay() const;
 
     void add_singleton(const Singleton &p_singleton);
-    void get_singletons(List<Singleton> *p_singletons);
+    const PODVector<Singleton> &get_singletons() { return singletons; }
     bool has_singleton(const String &p_name) const;
     Object *get_singleton_object(const String &p_name) const;
 

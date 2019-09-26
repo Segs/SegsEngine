@@ -172,7 +172,7 @@ uint32_t Math::larger_prime(uint32_t p_val) {
 	int idx = 0;
 	while (true) {
 
-		ERR_FAIL_COND_V(primes[idx] == 0, 0);
+		ERR_FAIL_COND_V(primes[idx] == 0, 0)
 		if (primes[idx] > p_val)
 			return primes[idx];
 		idx++;

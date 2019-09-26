@@ -30,7 +30,7 @@
 
 #pragma once
 
-#include "core/io/resource_loader.h"
+#include "core/io/resource_format_loader.h"
 #include "core/property_info.h"
 
 #include "core/plugin_interfaces/ResourceImporterInterface.h"
@@ -61,14 +61,14 @@ class GODOT_EXPORT ResourceFormatImporter : public ResourceFormatLoader {
 public:
     static ResourceFormatImporter *get_singleton() { return singleton; }
     RES load(const String &p_path, const String &p_original_path = "", Error *r_error = nullptr) override;
-    void get_recognized_extensions(List<String> *p_extensions) const override;
-    void get_recognized_extensions_for_type(const String &p_type, List<String> *p_extensions) const override;
+    void get_recognized_extensions(ListPOD<String> *p_extensions) const override;
+    void get_recognized_extensions_for_type(const String &p_type, ListPOD<String> *p_extensions) const override;
     bool recognize_path(const String &p_path, const String &p_for_type = String()) const override;
     bool handles_type(const String &p_type) const override;
     String get_resource_type(const String &p_path) const override;
     virtual Variant get_resource_metadata(const String &p_path) const;
     bool is_import_valid(const String &p_path) const override;
-    void get_dependencies(const String &p_path, List<String> *p_dependencies, bool p_add_types = false) override;
+    void get_dependencies(const String &p_path, ListPOD<String> *p_dependencies, bool p_add_types = false) override;
     bool is_imported(const String &p_path) const override { return recognize_path(p_path); }
     String get_import_group_file(const String &p_path) const override;
     bool exists(const String &p_path) const override;
@@ -77,7 +77,7 @@ public:
     int get_import_order(const String &p_path) const override;
 
     String get_internal_resource_path(const String &p_path) const;
-    void get_internal_resource_path_list(const String &p_path, List<String> *r_paths);
+    void get_internal_resource_path_list(const String &p_path, DefList<String> *r_paths);
 
     void add_importer(ResourceImporterInterface *p_importer) {
         importers.push_back(p_importer);
@@ -100,7 +100,7 @@ public:
     ResourceFormatImporter();
 };
 
-class ResourceImporter : public ResourceImporterInterface, public Reference {
+class ResourceImporter : public Reference,public ResourceImporterInterface {
 
     GDCLASS(ResourceImporter, Reference)
 
@@ -111,7 +111,7 @@ public:
     String get_preset_name(int /*p_idx*/) const override { return String(); }
     String get_option_group_file() const override { return String(); }
     Error import(const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options,
-            List<String> *r_platform_variants, List<String> *r_gen_files = nullptr,
+            DefList<String> *r_platform_variants, DefList<String> *r_gen_files = nullptr,
             Variant *r_metadata = nullptr) override = 0;
     Error import_group_file(const String & /*p_group_file*/,
             const Map<String, Map<StringName, Variant>> & /*p_source_file_options*/,

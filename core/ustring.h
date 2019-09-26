@@ -30,13 +30,14 @@
 
 #pragma once
 #include "core/typedefs.h"
-#include "core/vector.h"
 #include "core/hashfuncs.h"
 
 #include <QtCore/QString>
+
 class Array;
 class Variant;
-
+template <class T>
+class Vector;
 using CharString = QByteArray;
 using CharProxy = QCharRef;
 using CharType = QChar;
@@ -73,7 +74,7 @@ public:
     CharType back() const { return m_str.back(); }
     //void remove(int p_index) { this->re.remove(p_index); }
 
-	const CharType operator[](int p_index) const {
+    const CharType operator[](int p_index) const {
         if(p_index==size())
             return CharType(); // Godot logic assumes accessing str[length] will return null char :|
         return m_str[p_index];
@@ -207,8 +208,10 @@ double to_double(const CharType *p_str, const CharType **r_end = nullptr);
 [[nodiscard]] String json_escape(const String &src);
 [[nodiscard]] String word_wrap(const String &src,int p_chars_per_line);
 
-[[nodiscard]] bool is_subsequence_of(const String &str,const String &p_string);
-[[nodiscard]] bool is_subsequence_ofi(const String &str,const String &p_string);
+[[nodiscard]] bool is_subsequence_of(const String &str,const String &p_string, Compare mode=CaseSensitive);
+[[nodiscard]] inline bool is_subsequence_ofi(const String &str,const String &p_string) {
+    return is_subsequence_of(str,p_string, CaseInsensitive);
+}
 [[nodiscard]] bool is_quoted(const String &str);
 [[nodiscard]] bool is_numeric(const String &str);
 [[nodiscard]] bool is_valid_identifier(const String &src);
@@ -415,5 +418,5 @@ bool select_word(const String &p_s, int p_col, int &r_beg, int &r_end);
 
 template<>
 struct Hasher<String> {
-    _FORCE_INLINE_ uint32_t operator()(const String &p_string) { return StringUtils::hash(p_string); }
+    _FORCE_INLINE_ uint32_t operator()(const String &p_string) const { return StringUtils::hash(p_string); }
 };

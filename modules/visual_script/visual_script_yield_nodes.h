@@ -81,7 +81,6 @@ public:
 
 	VisualScriptYield();
 };
-VARIANT_ENUM_CAST(VisualScriptYield::YieldMode)
 
 class VisualScriptYieldSignal : public VisualScriptNode {
 
@@ -141,8 +140,6 @@ public:
 
 	VisualScriptYieldSignal();
 };
-
-VARIANT_ENUM_CAST(VisualScriptYieldSignal::CallMode);
 
 void register_visual_script_yield_nodes();
 

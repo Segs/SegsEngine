@@ -31,7 +31,7 @@
 #include "geometry.h"
 
 #include "core/map.h"
-#include "core/print_string.h"
+
 #include "thirdparty/misc/clipper.hpp"
 #include "thirdparty/misc/triangulator.h"
 
@@ -60,7 +60,7 @@ void Geometry::MeshData::optimize_vertices() {
         for (int j = 0; j < faces[i].indices.size(); j++) {
 
             int idx = faces[i].indices[j];
-            if (!vtx_remap.has(idx)) {
+            if (!vtx_remap.contains(idx)) {
                 int ni = vtx_remap.size();
                 vtx_remap[idx] = ni;
             }
@@ -74,11 +74,11 @@ void Geometry::MeshData::optimize_vertices() {
         int a = edges[i].a;
         int b = edges[i].b;
 
-        if (!vtx_remap.has(a)) {
+        if (!vtx_remap.contains(a)) {
             int ni = vtx_remap.size();
             vtx_remap[a] = ni;
         }
-        if (!vtx_remap.has(b)) {
+        if (!vtx_remap.contains(b)) {
             int ni = vtx_remap.size();
             vtx_remap[b] = ni;
         }
@@ -92,7 +92,7 @@ void Geometry::MeshData::optimize_vertices() {
 
     for (int i = 0; i < vertices.size(); i++) {
 
-        if (vtx_remap.has(i))
+        if (vtx_remap.contains(i))
             new_vertices.write[vtx_remap[i]] = vertices[i];
     }
     vertices = new_vertices;
@@ -126,8 +126,8 @@ struct _FaceClassify {
 };
 
 static bool _connect_faces(_FaceClassify *p_faces, int len, int p_group) {
-	// Connect faces, error will occur if an edge is shared between more than 2 faces.
-	// Clear connections.
+    // Connect faces, error will occur if an edge is shared between more than 2 faces.
+    // Clear connections.
 
     bool error = false;
 
@@ -217,7 +217,7 @@ static bool _group_face(_FaceClassify *p_faces, int len, int p_index, int p_grou
     return true;
 }
 
-PoolVector<PoolVector<Face3> > Geometry::separate_objects(PoolVector<Face3> p_array) {
+PoolVector<PoolVector<Face3> > Geometry::separate_objects(const PoolVector<Face3>& p_array) {
 
     PoolVector<PoolVector<Face3> > objects;
 
@@ -244,10 +244,10 @@ PoolVector<PoolVector<Face3> > Geometry::separate_objects(PoolVector<Face3> p_ar
 
     if (error) {
 
-		ERR_FAIL_COND_V(error, PoolVector<PoolVector<Face3> >()); // Invalid geometry.
+        ERR_FAIL_COND_V(error, PoolVector<PoolVector<Face3> >()) // Invalid geometry.
     }
 
-	// Group connected faces in separate objects.
+    // Group connected faces in separate objects.
 
     int group = 0;
     for (int i = 0; i < len; i++) {
@@ -259,7 +259,7 @@ PoolVector<PoolVector<Face3> > Geometry::separate_objects(PoolVector<Face3> p_ar
         }
     }
 
-	// Group connected faces in separate objects.
+    // Group connected faces in separate objects.
 
     for (int i = 0; i < len; i++) {
 
@@ -371,7 +371,7 @@ static inline void _plot_face(uint8_t ***p_cell_status, int x, int y, int z, int
 static inline void _mark_outside(uint8_t ***p_cell_status, int x, int y, int z, int len_x, int len_y, int len_z) {
 
     if (p_cell_status[x][y][z] & 3)
-		return; // Nothing to do, already used and/or visited.
+        return; // Nothing to do, already used and/or visited.
 
     p_cell_status[x][y][z] = _CELL_PREV_FIRST;
 
@@ -381,18 +381,18 @@ static inline void _mark_outside(uint8_t ***p_cell_status, int x, int y, int z, 
 
 
         if ((c & _CELL_STEP_MASK) == _CELL_STEP_NONE) {
-			// Haven't been in here, mark as outside.
+            // Haven't been in here, mark as outside.
             p_cell_status[x][y][z] |= _CELL_EXTERIOR;
         }
 
 
         if ((c & _CELL_STEP_MASK) != _CELL_STEP_DONE) {
-			// If not done, increase step.
+            // If not done, increase step.
             c += 1 << 2;
         }
 
         if ((c & _CELL_STEP_MASK) == _CELL_STEP_DONE) {
-			// Go back.
+            // Go back.
 
             switch (c & _CELL_PREV_MASK) {
                 case _CELL_PREV_FIRST: {
@@ -539,7 +539,7 @@ static inline void _build_faces(uint8_t ***p_cell_status, int x, int y, int z, i
     }
 }
 
-PoolVector<Face3> Geometry::wrap_geometry(PoolVector<Face3> p_array, real_t *p_error) {
+PoolVector<Face3> Geometry::wrap_geometry(const PoolVector<Face3>& p_array, real_t *p_error) {
 
 constexpr float _MIN_SIZE = 1.0f;
 constexpr int _MAX_LENGTH = 20;
@@ -561,9 +561,9 @@ constexpr int _MAX_LENGTH = 20;
         }
     }
 
-	global_aabb.grow_by(0.01); // Avoid numerical error.
+    global_aabb.grow_by(0.01); // Avoid numerical error.
 
-	// Determine amount of cells in grid axis.
+    // Determine amount of cells in grid axis.
     int div_x, div_y, div_z;
 
     if (global_aabb.size.x / _MIN_SIZE < _MAX_LENGTH)
@@ -586,7 +586,7 @@ constexpr int _MAX_LENGTH = 20;
     voxelsize.y /= div_y;
     voxelsize.z /= div_z;
 
-	// Create and initialize cells to zero.
+    // Create and initialize cells to zero.
 
     uint8_t ***cell_status = memnew_arr(uint8_t **, div_x);
     for (int i = 0; i < div_x; i++) {
@@ -604,7 +604,7 @@ constexpr int _MAX_LENGTH = 20;
         }
     }
 
-	// Plot faces into cells.
+    // Plot faces into cells.
 
     for (int i = 0; i < face_count; i++) {
 
@@ -616,7 +616,7 @@ constexpr int _MAX_LENGTH = 20;
         _plot_face(cell_status, 0, 0, 0, div_x, div_y, div_z, voxelsize, f);
     }
 
-	// Determine which cells connect to the outside by traversing the outside and recursively flood-fill marking.
+    // Determine which cells connect to the outside by traversing the outside and recursively flood-fill marking.
 
     for (int i = 0; i < div_x; i++) {
 
@@ -645,7 +645,7 @@ constexpr int _MAX_LENGTH = 20;
         }
     }
 
-	// Build faces for the inside-outside cell divisors.
+    // Build faces for the inside-outside cell divisors.
 
     PoolVector<Face3> wrapped_faces;
 
@@ -660,7 +660,7 @@ constexpr int _MAX_LENGTH = 20;
         }
     }
 
-	// Transform face vertices to global coords.
+    // Transform face vertices to global coords.
 
     int wrapped_faces_count = wrapped_faces.size();
     PoolVector<Face3>::Write wrapped_facesw = wrapped_faces.write();
@@ -695,9 +695,9 @@ constexpr int _MAX_LENGTH = 20;
     return wrapped_faces;
 }
 
-Vector<Vector<Vector2> > Geometry::decompose_polygon_in_convex(Vector<Point2> polygon) {
+Vector<Vector<Vector2> > Geometry::decompose_polygon_in_convex(const Vector<Point2>& polygon) {
     Vector<Vector<Vector2> > decomp;
-    List<TriangulatorPoly> in_poly, out_poly;
+    ListPOD<TriangulatorPoly> in_poly, out_poly;
 
     TriangulatorPoly inp;
     inp.Init(polygon.size());
@@ -707,19 +707,18 @@ Vector<Vector<Vector2> > Geometry::decompose_polygon_in_convex(Vector<Point2> po
     inp.SetOrientation(TRIANGULATOR_CCW);
     in_poly.push_back(inp);
     TriangulatorPartition tpart;
-	if (tpart.ConvexPartition_HM(&in_poly, &out_poly) == 0) { // Failed.
+    if (tpart.ConvexPartition_HM(&in_poly, &out_poly) == 0) { // Failed.
         ERR_PRINT("Convex decomposing failed!");
         return decomp;
     }
 
     decomp.resize(out_poly.size());
     int idx = 0;
-    for (List<TriangulatorPoly>::Element *I = out_poly.front(); I; I = I->next()) {
-        TriangulatorPoly &tp = I->get();
+    for (const TriangulatorPoly &tp : out_poly) {
 
         decomp.write[idx].resize(tp.GetNumPoints());
 
-        for (int i = 0; i < tp.GetNumPoints(); i++) {
+        for (long i = 0; i < tp.GetNumPoints(); i++) {
             decomp.write[idx].write[i] = tp.GetPoint(i);
         }
 
@@ -808,11 +807,11 @@ Geometry::MeshData Geometry::build_convex_mesh(const PoolVector<Plane> &p_planes
         if (vertices.size() < 3)
             continue;
 
-		// Result is a clockwise face.
+        // Result is a clockwise face.
 
         MeshData::Face face;
 
-		// Add face indices.
+        // Add face indices.
         for (int j = 0; j < vertices.size(); j++) {
 
             int idx = -1;
@@ -836,7 +835,7 @@ Geometry::MeshData Geometry::build_convex_mesh(const PoolVector<Plane> &p_planes
         face.plane = p;
         mesh.faces.push_back(face);
 
-		// Add edge.
+        // Add edge.
 
         for (int j = 0; j < face.indices.size(); j++) {
 
@@ -889,8 +888,8 @@ PoolVector<Plane> Geometry::build_cylinder_planes(real_t p_radius, real_t p_heig
     for (int i = 0; i < p_sides; i++) {
 
         Vector3 normal;
-        normal[(p_axis + 1) % 3] = Math::cos(i * (2.0 * Math_PI) / p_sides);
-        normal[(p_axis + 2) % 3] = Math::sin(i * (2.0 * Math_PI) / p_sides);
+        normal[(p_axis + 1) % 3] = Math::cos(i * (2.0f * Math_PI) / p_sides);
+        normal[(p_axis + 2) % 3] = Math::sin(i * (2.0f * Math_PI) / p_sides);
 
         planes.push_back(Plane(normal, p_radius));
     }
@@ -898,8 +897,8 @@ PoolVector<Plane> Geometry::build_cylinder_planes(real_t p_radius, real_t p_heig
     Vector3 axis;
     axis[p_axis] = 1.0;
 
-    planes.push_back(Plane(axis, p_height * 0.5));
-    planes.push_back(Plane(-axis, p_height * 0.5));
+    planes.push_back(Plane(axis, p_height * 0.5f));
+    planes.push_back(Plane(-axis, p_height * 0.5f));
 
     return planes;
 }
@@ -912,21 +911,21 @@ PoolVector<Plane> Geometry::build_sphere_planes(real_t p_radius, int p_lats, int
     axis[p_axis] = 1.0;
 
     Vector3 axis_neg;
-    axis_neg[(p_axis + 1) % 3] = 1.0;
-    axis_neg[(p_axis + 2) % 3] = 1.0;
-    axis_neg[p_axis] = -1.0;
+    axis_neg[(p_axis + 1) % 3] = 1.0f;
+    axis_neg[(p_axis + 2) % 3] = 1.0f;
+    axis_neg[p_axis] = -1.0f;
 
     for (int i = 0; i < p_lons; i++) {
 
         Vector3 normal;
-        normal[(p_axis + 1) % 3] = Math::cos(i * (2.0 * Math_PI) / p_lons);
-        normal[(p_axis + 2) % 3] = Math::sin(i * (2.0 * Math_PI) / p_lons);
+        normal[(p_axis + 1) % 3] = Math::cos(i * (2.0f * Math_PI) / p_lons);
+        normal[(p_axis + 2) % 3] = Math::sin(i * (2.0f * Math_PI) / p_lons);
 
         planes.push_back(Plane(normal, p_radius));
 
         for (int j = 1; j <= p_lats; j++) {
 
-			// FIXME: This is stupid.
+            // FIXME: This is stupid.
             Vector3 angle = normal.linear_interpolate(axis, j / (real_t)p_lats).normalized();
             Vector3 pos = angle * p_radius;
             planes.push_back(Plane(pos, angle));
@@ -986,15 +985,15 @@ struct _AtlasWorkRectResult {
 
 void Geometry::make_atlas(const Vector<Size2i> &p_rects, Vector<Point2i> &r_result, Size2i &r_size) {
 
-	// Super simple, almost brute force scanline stacking fitter.
-	// It's pretty basic for now, but it tries to make sure that the aspect ratio of the
-	// resulting atlas is somehow square. This is necessary because video cards have limits.
-	// On texture size (usually 2048 or 4096), so the more square a texture, the more chances.
-	// It will work in every hardware.
-	// For example, it will prioritize a 1024x1024 atlas (works everywhere) instead of a
+    // Super simple, almost brute force scanline stacking fitter.
+    // It's pretty basic for now, but it tries to make sure that the aspect ratio of the
+    // resulting atlas is somehow square. This is necessary because video cards have limits.
+    // On texture size (usually 2048 or 4096), so the more square a texture, the more chances.
+    // It will work in every hardware.
+    // For example, it will prioritize a 1024x1024 atlas (works everywhere) instead of a
     // 256x8192 atlas (won't work anywhere).
 
-    ERR_FAIL_COND(p_rects.empty());
+    ERR_FAIL_COND(p_rects.empty())
 
     Vector<_AtlasWorkRect> wrects;
     wrects.resize(p_rects.size());

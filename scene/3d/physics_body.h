@@ -391,7 +391,7 @@ public:
 		/// "j" is used to set the parameter inside the PhysicsServer
 		virtual bool _set(const StringName &p_name, const Variant &p_value, RID j = RID());
 		virtual bool _get(const StringName &p_name, Variant &r_ret) const;
-		virtual void _get_property_list(List<PropertyInfo> *p_list) const;
+		virtual void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
 
 		virtual ~JointData() {}
 	};
@@ -401,15 +401,15 @@ public:
 
 		bool _set(const StringName &p_name, const Variant &p_value, RID j = RID()) override;
 		bool _get(const StringName &p_name, Variant &r_ret) const override;
-		void _get_property_list(List<PropertyInfo> *p_list) const override;
+		void _get_property_list(ListPOD<PropertyInfo> *p_list) const override;
 
 		real_t bias;
 		real_t damping;
 		real_t impulse_clamp;
 
 		PinJointData() :
-				bias(0.3),
-				damping(1.),
+				bias(0.3f),
+				damping(1.f),
 				impulse_clamp(0) {}
 	};
 
@@ -418,7 +418,7 @@ public:
 
 		bool _set(const StringName &p_name, const Variant &p_value, RID j = RID()) override;
 		bool _get(const StringName &p_name, Variant &r_ret) const override;
-		void _get_property_list(List<PropertyInfo> *p_list) const override;
+		void _get_property_list(ListPOD<PropertyInfo> *p_list) const override;
 
 		real_t swing_span;
 		real_t twist_span;
@@ -427,11 +427,11 @@ public:
 		real_t relaxation;
 
 		ConeJointData() :
-				swing_span(Math_PI * 0.25),
+				swing_span(Math_PI * 0.25f),
 				twist_span(Math_PI),
-				bias(0.3),
-				softness(0.8),
-				relaxation(1.) {}
+				bias(0.3f),
+				softness(0.8f),
+				relaxation(1.f) {}
 	};
 
 	struct HingeJointData : public JointData {
@@ -439,7 +439,7 @@ public:
 
 		bool _set(const StringName &p_name, const Variant &p_value, RID j = RID()) override;
 		bool _get(const StringName &p_name, Variant &r_ret) const override;
-		void _get_property_list(List<PropertyInfo> *p_list) const override;
+		void _get_property_list(ListPOD<PropertyInfo> *p_list) const override;
 
 		bool angular_limit_enabled;
 		real_t angular_limit_upper;
@@ -462,7 +462,7 @@ public:
 
 		bool _set(const StringName &p_name, const Variant &p_value, RID j = RID()) override;
 		bool _get(const StringName &p_name, Variant &r_ret) const override;
-		void _get_property_list(List<PropertyInfo> *p_list) const override;
+		void _get_property_list(ListPOD<PropertyInfo> *p_list) const override;
 
 		real_t linear_limit_upper;
 		real_t linear_limit_lower;
@@ -540,7 +540,7 @@ public:
 
 		bool _set(const StringName &p_name, const Variant &p_value, RID j = RID()) override;
 		bool _get(const StringName &p_name, Variant &r_ret) const override;
-		void _get_property_list(List<PropertyInfo> *p_list) const override;
+		void _get_property_list(ListPOD<PropertyInfo> *p_list) const override;
 
 		SixDOFAxisData axis_data[3];
 
@@ -575,7 +575,7 @@ private:
 protected:
 	bool _set(const StringName &p_name, const Variant &p_value);
 	bool _get(const StringName &p_name, Variant &r_ret) const;
-	void _get_property_list(List<PropertyInfo> *p_list) const;
+	void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
 	void _notification(int p_what);
 	void _direct_state_changed(Object *p_state);
 

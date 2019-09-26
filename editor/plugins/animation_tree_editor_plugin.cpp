@@ -80,8 +80,7 @@ void AnimationTreeEditor::_update_path() {
         memdelete(path_hb->get_child(1));
     }
 
-    Ref<ButtonGroup> group;
-    group.instance();
+    Ref<ButtonGroup> group(make_ref_counted<ButtonGroup>());
 
     Button *b = memnew(Button);
     b->set_text("root");
@@ -109,13 +108,13 @@ void AnimationTreeEditor::edit_path(const Vector<String> &p_path) {
 
     Ref<AnimationNode> node = tree->get_tree_root();
 
-    if (node.is_valid()) {
+    if (node) {
         current_root = node->get_instance_id();
 
         for (int i = 0; i < p_path.size(); i++) {
 
             Ref<AnimationNode> child = node->get_child_by_name(p_path[i]);
-            ERR_BREAK(child.is_null());
+            ERR_BREAK(not child);
             node = child;
             button_path.push_back(p_path[i]);
         }
@@ -156,7 +155,7 @@ void AnimationTreeEditor::_about_to_show_root() {
 void AnimationTreeEditor::_notification(int p_what) {
     if (p_what == NOTIFICATION_PROCESS) {
         ObjectID root = 0;
-        if (tree && tree->get_tree_root().is_valid()) {
+        if (tree && tree->get_tree_root()) {
             root = tree->get_tree_root()->get_instance_id();
         }
 
@@ -177,7 +176,7 @@ void AnimationTreeEditor::_bind_methods() {
 AnimationTreeEditor *AnimationTreeEditor::singleton = nullptr;
 
 void AnimationTreeEditor::add_plugin(AnimationTreeNodeEditorPlugin *p_editor) {
-    ERR_FAIL_COND(p_editor->get_parent());
+    ERR_FAIL_COND(p_editor->get_parent())
     editor_base->add_child(p_editor);
     editors.push_back(p_editor);
     p_editor->set_h_size_flags(SIZE_EXPAND_FILL);
@@ -186,7 +185,7 @@ void AnimationTreeEditor::add_plugin(AnimationTreeNodeEditorPlugin *p_editor) {
 }
 
 void AnimationTreeEditor::remove_plugin(AnimationTreeNodeEditorPlugin *p_editor) {
-    ERR_FAIL_COND(p_editor->get_parent() != editor_base);
+    ERR_FAIL_COND(p_editor->get_parent() != editor_base)
     editor_base->remove_child(p_editor);
     editors.erase(p_editor);
 }
@@ -223,11 +222,11 @@ Vector<String> AnimationTreeEditor::get_animation_list() {
     if (!ap)
         return Vector<String>();
 
-    List<StringName> anims;
+    ListPOD<StringName> anims;
     ap->get_animation_list(&anims);
     Vector<String> ret;
-    for (List<StringName>::Element *E = anims.front(); E; E = E->next()) {
-        ret.push_back(E->get());
+    for (const StringName &E : anims) {
+        ret.push_back(E);
     }
 
     return ret;

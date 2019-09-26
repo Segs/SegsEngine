@@ -65,12 +65,12 @@ void Shape::set_margin(real_t p_margin) {
 
 Ref<ArrayMesh> Shape::get_debug_mesh() {
 
-    if (debug_mesh_cache.is_valid())
+    if (debug_mesh_cache)
         return debug_mesh_cache;
 
     Vector<Vector3> lines = _gen_debug_mesh_lines();
 
-    debug_mesh_cache = Ref<ArrayMesh>(memnew(ArrayMesh));
+    debug_mesh_cache = make_ref_counted<ArrayMesh>();
 
     if (!lines.empty()) {
         //make mesh
@@ -107,10 +107,10 @@ void Shape::_update_shape() {
 
 void Shape::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_margin", "margin"), &Shape::set_margin);
+    MethodBinder::bind_method(D_METHOD("set_margin", {"margin"}), &Shape::set_margin);
     MethodBinder::bind_method(D_METHOD("get_margin"), &Shape::get_margin);
 
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "margin", PROPERTY_HINT_RANGE, "0.001,10,0.001"), "set_margin", "get_margin");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "margin", PROPERTY_HINT_RANGE, "0.001,10,0.001"), "set_margin", "get_margin");
 }
 
 Shape::Shape() :

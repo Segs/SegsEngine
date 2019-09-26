@@ -37,6 +37,7 @@
 #include "core/os/file_access.h"
 #include "gdscript.h"
 #include "gdscript_tokenizer.h"
+#include <QResource>
 
 GDScriptLanguage *script_language_gd = nullptr;
 Ref<ResourceFormatLoaderGDScript> resource_loader_gd;
@@ -66,19 +67,19 @@ public:
 
         const Ref<EditorExportPreset> &preset = get_export_preset();
 
-        if (preset.is_valid()) {
+        if (preset) {
             script_mode = preset->get_script_export_mode();
             script_key = StringUtils::to_lower(preset->get_script_encryption_key());
         }
 
-		if (!StringUtils::ends_with(p_path,".gd") || script_mode == EditorExportPreset::MODE_SCRIPT_TEXT)
+        if (!StringUtils::ends_with(p_path,".gd") || script_mode == EditorExportPreset::MODE_SCRIPT_TEXT)
             return;
 
         Vector<uint8_t> file = FileAccess::get_file_as_array(p_path);
         if (file.empty())
             return;
 
-		String txt = StringUtils::from_utf8((const char *)file.ptr(), file.size());
+        String txt = StringUtils::from_utf8((const char *)file.ptr(), file.size());
         file = GDScriptTokenizerBuffer::parse_code_string(txt);
 
         if (!file.empty()) {
@@ -138,14 +139,13 @@ IMPL_GDCLASS(EditorExportGDScript)
 
 static void _editor_init() {
 
-    Ref<EditorExportGDScript> gd_export;
-    gd_export.instance();
+    Ref<EditorExportGDScript> gd_export(make_ref_counted<EditorExportGDScript>());
     EditorExport::get_singleton()->add_export_plugin(gd_export);
 #ifndef GDSCRIPT_NO_LSP
-	register_lsp_types();
-	GDScriptLanguageServer *lsp_plugin = memnew(GDScriptLanguageServer);
-	EditorNode::get_singleton()->add_editor_plugin(lsp_plugin);
-	Engine::get_singleton()->add_singleton(Engine::Singleton("GDScriptLanguageProtocol", GDScriptLanguageProtocol::get_singleton()));
+    register_lsp_types();
+    GDScriptLanguageServer *lsp_plugin = memnew(GDScriptLanguageServer);
+    EditorNode::get_singleton()->add_editor_plugin(lsp_plugin);
+    Engine::get_singleton()->add_singleton(Engine::Singleton("GDScriptLanguageProtocol", GDScriptLanguageProtocol::get_singleton()));
 #endif // !GDSCRIPT_NO_LSP
 }
 
@@ -153,16 +153,21 @@ static void _editor_init() {
 
 void register_gdscript_types() {
 
+    GDScriptNativeClass::initialize_class();
+#ifdef TOOLS_ENABLED
+    Q_INIT_RESOURCE(gdscript);
+    EditorExportGDScript::initialize_class();
+#endif
     ClassDB::register_class<GDScript>();
     ClassDB::register_virtual_class<GDScriptFunctionState>();
 
     script_language_gd = memnew(GDScriptLanguage);
     ScriptServer::register_language(script_language_gd);
 
-    resource_loader_gd.instance();
+    resource_loader_gd = make_ref_counted<ResourceFormatLoaderGDScript>();
     ResourceLoader::add_resource_format_loader(resource_loader_gd);
 
-    resource_saver_gd.instance();
+    resource_saver_gd = make_ref_counted<ResourceFormatSaverGDScript>();
     ResourceSaver::add_resource_format_saver(resource_saver_gd);
 
 #ifdef TOOLS_ENABLED

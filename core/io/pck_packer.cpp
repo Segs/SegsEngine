@@ -58,16 +58,16 @@ static void _pad(FileAccess *p_file, int p_bytes) {
 
 void PCKPacker::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("pck_start", "pck_name", "alignment"), &PCKPacker::pck_start);
-    MethodBinder::bind_method(D_METHOD("add_file", "pck_path", "source_path"), &PCKPacker::add_file);
-    MethodBinder::bind_method(D_METHOD("flush", "verbose"), &PCKPacker::flush);
+    MethodBinder::bind_method(D_METHOD("pck_start", {"pck_name", "alignment"}), &PCKPacker::pck_start);
+    MethodBinder::bind_method(D_METHOD("add_file", {"pck_path", "source_path"}), &PCKPacker::add_file);
+    MethodBinder::bind_method(D_METHOD("flush", {"verbose"}), &PCKPacker::flush);
 };
 
 Error PCKPacker::pck_start(const String &p_file, int p_alignment) {
 
     file = FileAccess::open(p_file, FileAccess::WRITE);
 
-    ERR_FAIL_COND_V_MSG(!file, ERR_CANT_CREATE, "Can't open file to write: " + String(p_file) + ".");
+    ERR_FAIL_COND_V_MSG(!file, ERR_CANT_CREATE, "Can't open file to write: " + String(p_file) + ".")
 
     alignment = p_alignment;
 
@@ -110,7 +110,7 @@ Error PCKPacker::add_file(const String &p_file, const String &p_src) {
 
 Error PCKPacker::flush(bool p_verbose) {
 
-    ERR_FAIL_COND_V(!file, ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(!file, ERR_INVALID_PARAMETER)
 
     // write the index
 

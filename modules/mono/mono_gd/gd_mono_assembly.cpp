@@ -272,14 +272,14 @@ void GDMonoAssembly::initialize() {
 
 Error GDMonoAssembly::load(bool p_refonly) {
 
-    ERR_FAIL_COND_V(loaded, ERR_FILE_ALREADY_IN_USE);
+    ERR_FAIL_COND_V(loaded, ERR_FILE_ALREADY_IN_USE)
 
     refonly = p_refonly;
 
     uint64_t last_modified_time = FileAccess::get_modified_time(path);
 
     Vector<uint8_t> data = FileAccess::get_file_as_array(path);
-    ERR_FAIL_COND_V(data.empty(), ERR_FILE_CANT_READ);
+    ERR_FAIL_COND_V(data.empty(), ERR_FILE_CANT_READ)
 
     String image_filename;
 
@@ -301,7 +301,7 @@ Error GDMonoAssembly::load(bool p_refonly) {
             true, &status, refonly,
             image_filename.utf8().get_data());
 
-    ERR_FAIL_COND_V(status != MONO_IMAGE_OK, ERR_FILE_CANT_OPEN);
+    ERR_FAIL_COND_V(status != MONO_IMAGE_OK, ERR_FILE_CANT_OPEN)
     ERR_FAIL_NULL_V(image, ERR_FILE_CANT_OPEN);
 
 #ifdef DEBUG_ENABLED
@@ -334,7 +334,7 @@ no_pdb:
     if (is_corlib_preload)
         image_corlib_loading = NULL;
 
-    ERR_FAIL_COND_V(status != MONO_IMAGE_OK || assembly == NULL, ERR_FILE_CANT_OPEN);
+    ERR_FAIL_COND_V(status != MONO_IMAGE_OK || assembly == NULL, ERR_FILE_CANT_OPEN)
 
     // Decrement refcount which was previously incremented by mono_image_open_from_data_with_name
     mono_image_close(image);
@@ -347,7 +347,7 @@ no_pdb:
 
 Error GDMonoAssembly::wrapper_for_image(MonoImage *p_image) {
 
-    ERR_FAIL_COND_V(loaded, ERR_FILE_ALREADY_IN_USE);
+    ERR_FAIL_COND_V(loaded, ERR_FILE_ALREADY_IN_USE)
 
     assembly = mono_image_get_assembly(p_image);
     ERR_FAIL_NULL_V(assembly, FAILED);
@@ -361,7 +361,7 @@ Error GDMonoAssembly::wrapper_for_image(MonoImage *p_image) {
 
 void GDMonoAssembly::unload() {
 
-    ERR_FAIL_COND(!loaded);
+    ERR_FAIL_COND(!loaded)
 
     for (Map<MonoClass *, GDMonoClass *>::Element *E = cached_raw.front(); E; E = E->next()) {
         memdelete(E->value());
@@ -377,7 +377,7 @@ void GDMonoAssembly::unload() {
 
 GDMonoClass *GDMonoAssembly::get_class(const StringName &p_namespace, const StringName &p_name) {
 
-    ERR_FAIL_COND_V(!loaded, NULL);
+    ERR_FAIL_COND_V(!loaded, NULL)
 
     ClassKey key(p_namespace, p_name);
 
@@ -401,7 +401,7 @@ GDMonoClass *GDMonoAssembly::get_class(const StringName &p_namespace, const Stri
 
 GDMonoClass *GDMonoAssembly::get_class(MonoClass *p_mono_class) {
 
-    ERR_FAIL_COND_V(!loaded, NULL);
+    ERR_FAIL_COND_V(!loaded, NULL)
 
     Map<MonoClass *, GDMonoClass *>::Element *match = cached_raw.find(p_mono_class);
 

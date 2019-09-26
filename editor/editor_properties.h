@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef EDITOR_PROPERTIES_H
-#define EDITOR_PROPERTIES_H
+#pragma once
 
 
 #include "editor/editor_inspector.h"
@@ -330,6 +329,7 @@ class EditorPropertyEasing : public EditorProperty {
     EditorSpinSlider *spin;
     bool setting;
 
+	bool dragging;
     bool full;
     bool flip;
 
@@ -522,7 +522,7 @@ class EditorPropertyColor : public EditorProperty {
     ColorPickerButton *picker;
     void _color_changed(const Color &p_color);
     void _popup_closed();
-	void _picker_created();
+    void _picker_created();
 
 protected:
     static void _bind_methods();
@@ -553,7 +553,7 @@ protected:
 
 public:
     void update_property() override;
-    void setup(const NodePath &p_base_hint, Vector<StringName> p_valid_types, bool p_use_path_from_scene_root = true);
+    void setup(const NodePath &p_base_hint, const Vector<StringName>& p_valid_types, bool p_use_path_from_scene_root = true);
     EditorPropertyNodePath();
 };
 
@@ -652,8 +652,9 @@ class EditorInspectorDefaultPlugin : public EditorInspectorPlugin {
 public:
     bool can_handle(Object *p_object) override;
     void parse_begin(Object *p_object) override;
-    bool parse_property(Object *p_object, Variant::Type p_type, const String &p_path, PropertyHint p_hint, const String &p_hint_text, int p_usage) override;
+    bool parse_property(Object *p_object, VariantType p_type, const String &p_path, PropertyHint p_hint, const String &p_hint_text, int p_usage) override;
     void parse_end() override;
 };
 
-#endif // EDITOR_PROPERTIES_H
+void register_editor_properties_classes();
+

@@ -123,13 +123,13 @@ void SpatialVelocityTracker::reset(const Vector3 &p_new_pos) {
 
 void SpatialVelocityTracker::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_track_physics_step", "enable"), &SpatialVelocityTracker::set_track_physics_step);
+    MethodBinder::bind_method(D_METHOD("set_track_physics_step", {"enable"}), &SpatialVelocityTracker::set_track_physics_step);
     MethodBinder::bind_method(D_METHOD("is_tracking_physics_step"), &SpatialVelocityTracker::is_tracking_physics_step);
-    MethodBinder::bind_method(D_METHOD("update_position", "position"), &SpatialVelocityTracker::update_position);
+    MethodBinder::bind_method(D_METHOD("update_position", {"position"}), &SpatialVelocityTracker::update_position);
     MethodBinder::bind_method(D_METHOD("get_tracked_linear_velocity"), &SpatialVelocityTracker::get_tracked_linear_velocity);
-    MethodBinder::bind_method(D_METHOD("reset", "position"), &SpatialVelocityTracker::reset);
+    MethodBinder::bind_method(D_METHOD("reset", {"position"}), &SpatialVelocityTracker::reset);
 
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "track_physics_step"), "set_track_physics_step", "is_tracking_physics_step");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "track_physics_step"), "set_track_physics_step", "is_tracking_physics_step");
 }
 
 SpatialVelocityTracker::SpatialVelocityTracker() {

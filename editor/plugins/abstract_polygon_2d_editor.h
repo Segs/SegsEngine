@@ -134,7 +134,7 @@ protected:
 	virtual void _create_resource();
 
 public:
-	void disable_polygon_editing(bool p_disable, String p_reason);
+	void disable_polygon_editing(bool p_disable, const String& p_reason);
 
 	bool forward_gui_input(const Ref<InputEvent> &p_event);
 	void forward_canvas_draw_over_viewport(Control *p_overlay);

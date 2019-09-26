@@ -43,7 +43,7 @@ IMPL_GDCLASS(ProgressDialog)
 void BackgroundProgress::_add_task(const String &p_task, const String &p_label, int p_steps) {
 
     _THREAD_SAFE_METHOD_
-    ERR_FAIL_COND(tasks.has(p_task));
+    ERR_FAIL_COND(tasks.contains(p_task))
     BackgroundProgress::Task t;
     t.hb = memnew(HBoxContainer);
     Label *l = memnew(Label);
@@ -69,10 +69,10 @@ void BackgroundProgress::_update() {
 
     _THREAD_SAFE_METHOD_
 
-    for (Map<String, int>::Element *E = updates.front(); E; E = E->next()) {
+    for (eastl::pair<const String,int> &E : updates) {
 
-        if (tasks.has(E->key())) {
-            _task_step(E->key(), E->get());
+        if (tasks.contains(E.first)) {
+            _task_step(E.first, E.second);
         }
     }
 
@@ -83,7 +83,7 @@ void BackgroundProgress::_task_step(const String &p_task, int p_step) {
 
     _THREAD_SAFE_METHOD_
 
-    ERR_FAIL_COND(!tasks.has(p_task));
+    ERR_FAIL_COND(!tasks.contains(p_task))
 
     Task &t = tasks[p_task];
     if (p_step < 0)
@@ -95,7 +95,7 @@ void BackgroundProgress::_end_task(const String &p_task) {
 
     _THREAD_SAFE_METHOD_
 
-    ERR_FAIL_COND(!tasks.has(p_task));
+    ERR_FAIL_COND(!tasks.contains(p_task))
     Task &t = tasks[p_task];
 
     memdelete(t.hb);
@@ -177,7 +177,7 @@ void ProgressDialog::add_task(const String &p_task, const String &p_label, int p
         return;
     }
 
-    ERR_FAIL_COND(tasks.has(p_task));
+    ERR_FAIL_COND(tasks.contains(p_task))
     ProgressDialog::Task t;
     t.vb = memnew(VBoxContainer);
     VBoxContainer *vb2 = memnew(VBoxContainer);
@@ -207,7 +207,7 @@ void ProgressDialog::add_task(const String &p_task, const String &p_label, int p
 
 bool ProgressDialog::task_step(const String &p_task, const String &p_state, int p_step, bool p_force_redraw) {
 
-    ERR_FAIL_COND_V(!tasks.has(p_task), cancelled);
+    ERR_FAIL_COND_V(!tasks.contains(p_task), cancelled)
 
     if (!p_force_redraw) {
         uint64_t tus = OS::get_singleton()->get_ticks_usec();
@@ -233,7 +233,7 @@ bool ProgressDialog::task_step(const String &p_task, const String &p_state, int 
 
 void ProgressDialog::end_task(const String &p_task) {
 
-    ERR_FAIL_COND(!tasks.has(p_task));
+    ERR_FAIL_COND(!tasks.contains(p_task))
     Task &t = tasks[p_task];
 
     memdelete(t.vb);

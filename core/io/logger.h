@@ -78,7 +78,7 @@ class CompositeLogger : public Logger {
 	Vector<Logger *> loggers;
 
 public:
-	CompositeLogger(Vector<Logger *> p_loggers);
+	CompositeLogger(const Vector<Logger *>& p_loggers);
 
 	void logv(const QChar *p_msg, bool p_err) override;
 	void logv(const char *p_msg, bool p_err) override;

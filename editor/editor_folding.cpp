@@ -41,8 +41,8 @@ PoolVector<String> EditorFolding::_get_unfolds(const Object *p_object) {
     if (sections.size()) {
         PoolVector<String>::Write w = sections.write();
         int idx = 0;
-        for (const Set<String>::Element *E = p_object->editor_get_section_folding().front(); E; E = E->next()) {
-            w[idx++] = E->get();
+        for (const String &E : p_object->editor_get_section_folding()) {
+            w[idx++] = E;
         }
     }
 
@@ -50,9 +50,8 @@ PoolVector<String> EditorFolding::_get_unfolds(const Object *p_object) {
 }
 
 void EditorFolding::save_resource_folding(const RES &p_resource, const String &p_path) {
-    Ref<ConfigFile> config;
-    config.instance();
-    PoolVector<String> unfolds = _get_unfolds(p_resource.ptr());
+    Ref<ConfigFile> config(make_ref_counted<ConfigFile>());
+    PoolVector<String> unfolds = _get_unfolds(p_resource.get());
     config->set_value("folding", "sections_unfolded", unfolds);
 
     String path = EditorSettings::get_singleton()->get_project_settings_dir();
@@ -71,10 +70,9 @@ void EditorFolding::_set_unfolds(Object *p_object, const PoolVector<String> &p_u
     }
 }
 
-void EditorFolding::load_resource_folding(RES p_resource, const String &p_path) {
+void EditorFolding::load_resource_folding(const RES& p_resource, const String &p_path) {
 
-    Ref<ConfigFile> config;
-    config.instance();
+    Ref<ConfigFile> config(make_ref_counted<ConfigFile>());
 
     String path = EditorSettings::get_singleton()->get_project_settings_dir();
     String file = PathUtils::get_file(p_path) + "-folding-" + StringUtils::md5_text(p_path) + ".cfg";
@@ -89,7 +87,7 @@ void EditorFolding::load_resource_folding(RES p_resource, const String &p_path) 
     if (config->has_section_key("folding", "sections_unfolded")) {
         unfolds = config->get_value("folding", "sections_unfolded");
     }
-    _set_unfolds(p_resource.ptr(), unfolds);
+    _set_unfolds(p_resource.get(), unfolds);
 }
 
 void EditorFolding::_fill_folds(const Node *p_root, const Node *p_node, Array &p_folds, Array &resource_folds, Array &nodes_folded, Set<RES> &resources) {
@@ -112,15 +110,15 @@ void EditorFolding::_fill_folds(const Node *p_root, const Node *p_node, Array &p
         p_folds.push_back(unfolds);
     }
 
-    List<PropertyInfo> plist;
+    ListPOD<PropertyInfo> plist;
     p_node->get_property_list(&plist);
-    for (List<PropertyInfo>::Element *E = plist.front(); E; E = E->next()) {
-        if (E->get().usage & PROPERTY_USAGE_EDITOR) {
-            if (E->get().type == Variant::OBJECT) {
-                RES res = p_node->get(E->get().name);
-                if (res.is_valid() && !resources.has(res) && !res->get_path().empty() && !PathUtils::is_resource_file(res->get_path())) {
+    for (const PropertyInfo &E : plist) {
+        if (E.usage & PROPERTY_USAGE_EDITOR) {
+            if (E.type == VariantType::OBJECT) {
+                RES res(p_node->get(E.name));
+                if (res && !resources.contains(res) && !res->get_path().empty() && !PathUtils::is_resource_file(res->get_path())) {
 
-                    PoolVector<String> res_unfolds = _get_unfolds(res.ptr());
+                    PoolVector<String> res_unfolds = _get_unfolds(res.get());
                     resource_folds.push_back(res->get_path());
                     resource_folds.push_back(res_unfolds);
                     resources.insert(res);
@@ -135,8 +133,7 @@ void EditorFolding::_fill_folds(const Node *p_root, const Node *p_node, Array &p
 }
 void EditorFolding::save_scene_folding(const Node *p_scene, const String &p_path) {
 
-    Ref<ConfigFile> config;
-    config.instance();
+    Ref<ConfigFile> config(make_ref_counted<ConfigFile>());
 
     Array unfolds, res_unfolds;
     Set<RES> resources;
@@ -154,8 +151,7 @@ void EditorFolding::save_scene_folding(const Node *p_scene, const String &p_path
 }
 void EditorFolding::load_scene_folding(Node *p_scene, const String &p_path) {
 
-    Ref<ConfigFile> config;
-    config.instance();
+    Ref<ConfigFile> config(make_ref_counted<ConfigFile>());
 
     String path = EditorSettings::get_singleton()->get_project_settings_dir();
     String file = PathUtils::get_file(p_path) + "-folding-" + StringUtils::md5_text(p_path) + ".cfg";
@@ -178,8 +174,8 @@ void EditorFolding::load_scene_folding(Node *p_scene, const String &p_path) {
         nodes_folded = config->get_value("folding", "nodes_folded");
     }
 
-    ERR_FAIL_COND(unfolds.size() & 1);
-    ERR_FAIL_COND(res_unfolds.size() & 1);
+    ERR_FAIL_COND(unfolds.size() & 1)
+    ERR_FAIL_COND(res_unfolds.size() & 1)
 
     for (int i = 0; i < unfolds.size(); i += 2) {
         NodePath path2 = unfolds[i];
@@ -197,12 +193,12 @@ void EditorFolding::load_scene_folding(Node *p_scene, const String &p_path) {
         if (ResourceCache::has(path2)) {
             res = RES(ResourceCache::get(path2));
         }
-        if (res.is_null()) {
+        if (not res) {
             continue;
         }
 
         PoolVector<String> unfolds2 = res_unfolds[i + 1];
-        _set_unfolds(res.ptr(), unfolds2);
+        _set_unfolds(res.get(), unfolds2);
     }
 
     for (int i = 0; i < nodes_folded.size(); i++) {
@@ -223,60 +219,60 @@ bool EditorFolding::has_folding_data(const String &p_path) {
 
 void EditorFolding::_do_object_unfolds(Object *p_object, Set<RES> &resources) {
 
-    List<PropertyInfo> plist;
+    ListPOD<PropertyInfo> plist;
     p_object->get_property_list(&plist);
     String group_base;
     String group;
 
     Set<String> unfold_group;
 
-    for (List<PropertyInfo>::Element *E = plist.front(); E; E = E->next()) {
+    for (PropertyInfo &E : plist) {
 
-        if (E->get().usage & PROPERTY_USAGE_CATEGORY) {
+        if (E.usage & PROPERTY_USAGE_CATEGORY) {
             group = "";
             group_base = "";
         }
-        if (E->get().usage & PROPERTY_USAGE_GROUP) {
-            group = E->get().name;
-            group_base = E->get().hint_string;
+        if (E.usage & PROPERTY_USAGE_GROUP) {
+            group = E.name;
+            group_base = E.hint_string;
             if (StringUtils::ends_with(group_base,"_")) {
                 group_base = StringUtils::substr(group_base,0, group_base.length() - 1);
             }
         }
 
         //can unfold
-        if (E->get().usage & PROPERTY_USAGE_EDITOR) {
+        if (E.usage & PROPERTY_USAGE_EDITOR) {
 
             if (!group.empty()) { //group
-                if (group_base.empty() || StringUtils::begins_with(E->get().name,group_base)) {
-                    bool can_revert = EditorPropertyRevert::can_property_revert(p_object, E->get().name);
+                if (group_base.empty() || StringUtils::begins_with(E.name,group_base)) {
+                    bool can_revert = EditorPropertyRevert::can_property_revert(p_object, E.name);
                     if (can_revert) {
                         unfold_group.insert(group);
                     }
                 }
             } else { //path
-                int last = StringUtils::find_last(E->get().name,"/");
+                int last = StringUtils::find_last(E.name,"/");
                 if (last != -1) {
-                    bool can_revert = EditorPropertyRevert::can_property_revert(p_object, E->get().name);
+                    bool can_revert = EditorPropertyRevert::can_property_revert(p_object, E.name);
                     if (can_revert) {
-                        unfold_group.insert(StringUtils::substr(E->get().name,0, last));
+                        unfold_group.insert(StringUtils::substr(E.name,0, last));
                     }
                 }
             }
         }
 
-        if (E->get().type == Variant::OBJECT) {
-            RES res = p_object->get(E->get().name);
-            if (res.is_valid() && !resources.has(res) && not res->get_path().empty() && !PathUtils::is_resource_file(res->get_path())) {
+        if (E.type == VariantType::OBJECT) {
+            RES res(p_object->get(E.name));
+            if (res && !resources.contains(res) && not res->get_path().empty() && !PathUtils::is_resource_file(res->get_path())) {
 
                 resources.insert(res);
-                _do_object_unfolds(res.ptr(), resources);
+                _do_object_unfolds(res.get(), resources);
             }
         }
     }
 
-    for (Set<String>::Element *E = unfold_group.front(); E; E = E->next()) {
-        p_object->editor_set_section_unfold(E->get(), true);
+    for (const String &E : unfold_group) {
+        p_object->editor_set_section_unfold(E, true);
     }
 }
 

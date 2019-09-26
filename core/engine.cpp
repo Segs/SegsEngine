@@ -199,21 +199,15 @@ void Engine::add_singleton(const Singleton &p_singleton) {
 
 Object *Engine::get_singleton_object(const String &p_name) const {
 
-    const Map<StringName, Object *>::Element *E = singleton_ptrs.find(p_name);
-    ERR_FAIL_COND_V_MSG(!E, nullptr, "Failed to retrieve non-existent singleton '" + p_name + "'.")
-    return E->get();
+    Map<StringName, Object *>::const_iterator E = singleton_ptrs.find(p_name);
+    ERR_FAIL_COND_V_MSG(E==singleton_ptrs.end(), nullptr, "Failed to retrieve non-existent singleton '" + p_name + "'.")
+    return E->second;
 };
 
 bool Engine::has_singleton(const String &p_name) const {
 
-    return singleton_ptrs.has(p_name);
+    return singleton_ptrs.contains(p_name);
 };
-
-void Engine::get_singletons(List<Singleton> *p_singletons) {
-
-    for (List<Singleton>::Element *E = singletons.front(); E; E = E->next())
-        p_singletons->push_back(E->get());
-}
 
 Engine *Engine::singleton = nullptr;
 
@@ -259,6 +253,19 @@ public:
     void clearLastError() override
     {
         _err_error_exists = false;
+    }
+
+    // CoreInterface interface
+public:
+    void fillVersion(uint32_t &major, uint32_t &minor, uint32_t &patch) override
+    {
+        major = VERSION_MAJOR;
+        minor = VERSION_MINOR;
+#ifdef VERSION_PATCH
+        patch = VERSION_PATCH;
+#else
+        patch = 0;
+#endif
     }
 };
 extern CoreInterface *getCoreInterface() {

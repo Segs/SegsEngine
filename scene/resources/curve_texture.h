@@ -53,7 +53,7 @@ public:
 
     void ensure_default_setup(float p_min = 0, float p_max = 1);
 
-    void set_curve(Ref<Curve> p_curve);
+    void set_curve(const Ref<Curve>& p_curve);
     Ref<Curve> get_curve() const;
 
     RID get_rid() const override;

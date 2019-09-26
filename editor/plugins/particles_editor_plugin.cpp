@@ -71,9 +71,9 @@ bool ParticlesEditorBase::_generate(PoolVector<Vector3> &points, PoolVector<Vect
 
             float areapos = Math::random(0.0f, area_accum);
 
-            Map<float, int>::Element *E = triangle_area_map.find_closest(areapos);
-            ERR_FAIL_COND_V(!E, false);
-            int index = E->get();
+            Map<float, int>::iterator E = triangle_area_map.lower_bound(areapos);
+            ERR_FAIL_COND_V(E==triangle_area_map.end(), false)
+            int index = E->second;
             ERR_FAIL_INDEX_V(index, geometry.size(), false);
 
             // ok FINALLY get face
@@ -246,13 +246,13 @@ ParticlesEditorBase::ParticlesEditorBase() {
     add_child(emission_tree_dialog);
     emission_tree_dialog->connect("selected", this, "_node_selected");
 
-    List<String> extensions;
+    ListPOD<String> extensions;
     ResourceLoader::get_recognized_extensions_for_type("Mesh", &extensions);
 
     emission_file_dialog->clear_filters();
-    for (int i = 0; i < extensions.size(); i++) {
+    for (const String & ext : extensions) {
 
-        emission_file_dialog->add_filter("*." + extensions[i] + " ; " + StringUtils::to_upper(extensions[i]));
+        emission_file_dialog->add_filter("*." + ext + " ; " + StringUtils::to_upper(ext));
     }
 
     emission_file_dialog->set_mode(EditorFileDialog::MODE_OPEN_FILE);
@@ -289,8 +289,8 @@ void ParticlesEditor::_menu_option(int p_option) {
         } break;
         case MENU_OPTION_CREATE_EMISSION_VOLUME_FROM_MESH: {
 
-            Ref<ParticlesMaterial> material = node->get_process_material();
-            if (material.is_null()) {
+            Ref<ParticlesMaterial> material = dynamic_ref_cast<ParticlesMaterial>(node->get_process_material());
+            if (not material) {
                 EditorNode::get_singleton()->show_warning(TTR("A processor material of type 'ParticlesMaterial' is required."));
                 return;
             }
@@ -299,8 +299,8 @@ void ParticlesEditor::_menu_option(int p_option) {
         } break;
 
         case MENU_OPTION_CREATE_EMISSION_VOLUME_FROM_NODE: {
-            Ref<ParticlesMaterial> material = node->get_process_material();
-            if (material.is_null()) {
+            Ref<ParticlesMaterial> material = dynamic_ref_cast<ParticlesMaterial>(node->get_process_material());
+            if (not material) {
                 EditorNode::get_singleton()->show_warning(TTR("A processor material of type 'ParticlesMaterial' is required."));
                 return;
             }
@@ -319,9 +319,9 @@ void ParticlesEditor::_menu_option(int p_option) {
 
             UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
             ur->create_action(TTR("Convert to CPUParticles"));
-            ur->add_do_method(EditorNode::get_singleton()->get_scene_tree_dock(), "replace_node", node, cpu_particles, true, false);
+            ur->add_do_method(EditorNode::get_singleton()->get_scene_tree_dock(), "replace_node", Variant(node), Variant(cpu_particles), true, false);
             ur->add_do_reference(cpu_particles);
-            ur->add_undo_method(EditorNode::get_singleton()->get_scene_tree_dock(), "replace_node", cpu_particles, node, false, false);
+            ur->add_undo_method(EditorNode::get_singleton()->get_scene_tree_dock(), "replace_node", Variant(cpu_particles), Variant(node), false, false);
             ur->add_undo_reference(node);
             ur->commit_action();
 
@@ -412,14 +412,13 @@ void ParticlesEditor::_generate_emission_points() {
         }
     }
 
-    Ref<Image> image = memnew(Image(w, h, false, Image::FORMAT_RGBF, point_img));
+    Ref<Image> image(make_ref_counted<Image>(w, h, false, Image::FORMAT_RGBF, point_img));
 
-    Ref<ImageTexture> tex;
-    tex.instance();
+    Ref<ImageTexture> tex(make_ref_counted<ImageTexture>());
     tex->create_from_image(image, Texture::FLAG_FILTER);
 
-    Ref<ParticlesMaterial> material = node->get_process_material();
-    ERR_FAIL_COND(material.is_null())
+    Ref<ParticlesMaterial> material = dynamic_ref_cast<ParticlesMaterial>(node->get_process_material());
+    ERR_FAIL_COND(not material)
 
     if (normals.size() > 0) {
 
@@ -442,10 +441,9 @@ void ParticlesEditor::_generate_emission_points() {
             }
         }
 
-        Ref<Image> image2 = memnew(Image(w, h, false, Image::FORMAT_RGBF, point_img2));
+        Ref<Image> image2(make_ref_counted<Image>(w, h, false, Image::FORMAT_RGBF, point_img2));
 
-        Ref<ImageTexture> tex2;
-        tex2.instance();
+        Ref<ImageTexture> tex2(make_ref_counted<ImageTexture>());
         tex2->create_from_image(image2, Texture::FLAG_FILTER);
 
         material->set_emission_normal_texture(tex2);

@@ -28,51 +28,19 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef VARIANT_PARSER_H
-#define VARIANT_PARSER_H
+#pragma once
 
 #include "core/os/file_access.h"
 #include "core/resource.h"
 #include "core/variant.h"
+#include "core/ustring.h"
+#include "core/map.h"
 
 class VariantParser {
 public:
-	struct Stream {
+    struct Stream;
 
-		virtual CharType get_char() = 0;
-		virtual bool is_utf8() const = 0;
-		virtual bool is_eof() const = 0;
-
-		CharType saved = 0;
-
-		Stream() {}
-		virtual ~Stream() {}
-	};
-
-	struct StreamFile : public Stream {
-
-		FileAccess *f;
-
-		CharType get_char() override;
-		bool is_utf8() const override;
-		bool is_eof() const override;
-
-		StreamFile() { f = nullptr; }
-	};
-
-	struct StreamString : public Stream {
-
-		String s;
-		int pos;
-
-		CharType get_char() override;
-		bool is_utf8() const override;
-		bool is_eof() const override;
-
-		StreamString() { pos = 0; }
-	};
-
-	using ParseResourceFunc = Error (*)(void *, Stream *, Ref<Resource> &, int &, String &);
+    using ParseResourceFunc = Error (*)(void *, Stream *, Ref<Resource> &, int &, String &);
 
 	struct ResourceParser {
 
@@ -116,11 +84,11 @@ public:
 		Variant value;
 	};
 
-	struct Tag {
+    struct Tag {
 
-		String name;
-		Map<String, Variant> fields;
-	};
+        String name;
+        Map<String, Variant> fields;
+    };
 
 private:
 	static const char *tk_name[TK_MAX];
@@ -139,6 +107,10 @@ public:
 	static Error parse_value(Token &token, Variant &value, Stream *p_stream, int &line, String &r_err_str, ResourceParser *p_res_parser = nullptr);
 	static Error get_token(Stream *p_stream, Token &r_token, int &line, String &r_err_str);
 	static Error parse(Stream *p_stream, Variant &r_ret, String &r_err_str, int &r_err_line, ResourceParser *p_res_parser = nullptr);
+
+    static Stream *get_file_stream(FileAccess *f);
+    static Stream *get_string_stream(const String &f);
+    static void release_stream(Stream *s);
 };
 
 class VariantWriter {
@@ -149,5 +121,3 @@ public:
 	static Error write(const Variant &p_variant, StoreStringFunc p_store_string_func, void *p_store_string_ud, EncodeResourceFunc p_encode_res_func, void *p_encode_res_ud);
 	static Error write_to_string(const Variant &p_variant, String &r_string, EncodeResourceFunc p_encode_res_func = nullptr, void *p_encode_res_ud = nullptr);
 };
-
-#endif // VARIANT_PARSER_H

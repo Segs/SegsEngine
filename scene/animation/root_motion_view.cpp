@@ -166,7 +166,7 @@ void RootMotionView::_notification(int p_what) {
 
 AABB RootMotionView::get_aabb() const {
 
-    return AABB(Vector3(-radius, 0, -radius), Vector3(radius * 2, 0.001, radius * 2));
+    return AABB(Vector3(-radius, 0, -radius), Vector3(radius * 2, 0.001f, radius * 2));
 }
 PoolVector<Face3> RootMotionView::get_faces(uint32_t p_usage_flags) const {
     return PoolVector<Face3>();
@@ -174,26 +174,26 @@ PoolVector<Face3> RootMotionView::get_faces(uint32_t p_usage_flags) const {
 
 void RootMotionView::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_animation_path", "path"), &RootMotionView::set_animation_path);
+    MethodBinder::bind_method(D_METHOD("set_animation_path", {"path"}), &RootMotionView::set_animation_path);
     MethodBinder::bind_method(D_METHOD("get_animation_path"), &RootMotionView::get_animation_path);
 
-    MethodBinder::bind_method(D_METHOD("set_color", "color"), &RootMotionView::set_color);
+    MethodBinder::bind_method(D_METHOD("set_color", {"color"}), &RootMotionView::set_color);
     MethodBinder::bind_method(D_METHOD("get_color"), &RootMotionView::get_color);
 
-    MethodBinder::bind_method(D_METHOD("set_cell_size", "size"), &RootMotionView::set_cell_size);
+    MethodBinder::bind_method(D_METHOD("set_cell_size", {"size"}), &RootMotionView::set_cell_size);
     MethodBinder::bind_method(D_METHOD("get_cell_size"), &RootMotionView::get_cell_size);
 
-    MethodBinder::bind_method(D_METHOD("set_radius", "size"), &RootMotionView::set_radius);
+    MethodBinder::bind_method(D_METHOD("set_radius", {"size"}), &RootMotionView::set_radius);
     MethodBinder::bind_method(D_METHOD("get_radius"), &RootMotionView::get_radius);
 
-    MethodBinder::bind_method(D_METHOD("set_zero_y", "enable"), &RootMotionView::set_zero_y);
+    MethodBinder::bind_method(D_METHOD("set_zero_y", {"enable"}), &RootMotionView::set_zero_y);
     MethodBinder::bind_method(D_METHOD("get_zero_y"), &RootMotionView::get_zero_y);
 
-    ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "animation_path", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "AnimationTree"), "set_animation_path", "get_animation_path");
-    ADD_PROPERTY(PropertyInfo(Variant::COLOR, "color"), "set_color", "get_color");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "cell_size", PROPERTY_HINT_RANGE, "0.1,16,0.01,or_greater"), "set_cell_size", "get_cell_size");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "radius", PROPERTY_HINT_RANGE, "0.1,16,0.01,or_greater"), "set_radius", "get_radius");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "zero_y"), "set_zero_y", "get_zero_y");
+    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "animation_path", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "AnimationTree"), "set_animation_path", "get_animation_path");
+    ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "color"), "set_color", "get_color");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "cell_size", PROPERTY_HINT_RANGE, "0.1,16,0.01,or_greater"), "set_cell_size", "get_cell_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "radius", PROPERTY_HINT_RANGE, "0.1,16,0.01,or_greater"), "set_radius", "get_radius");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "zero_y"), "set_zero_y", "get_zero_y");
 }
 
 RootMotionView::RootMotionView() {
@@ -203,7 +203,7 @@ RootMotionView::RootMotionView() {
     set_process_internal(true);
     immediate = VisualServer::get_singleton()->immediate_create();
     set_base(immediate);
-    color = Color(0.5, 0.5, 1.0);
+    color = Color(0.5f, 0.5f, 1.0f);
 }
 
 RootMotionView::~RootMotionView() {

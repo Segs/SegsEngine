@@ -84,7 +84,7 @@ bool generate_api_solution(const String &p_solution_dir, const String &p_core_pr
 		GDMonoAssembly *tools_project_editor_asm = NULL;
 
 		bool assembly_loaded = GDMono::get_singleton()->load_assembly(TOOLS_PROJECT_EDITOR_ASM_NAME, &tools_project_editor_asm);
-		ERR_FAIL_COND_V_MSG(!assembly_loaded, false, "Failed to load assembly: '" TOOLS_PROJECT_EDITOR_ASM_NAME "'.");
+		ERR_FAIL_COND_V_MSG(!assembly_loaded, false, "Failed to load assembly: '" TOOLS_PROJECT_EDITOR_ASM_NAME "'.")
 
 		return generate_api_solution_impl(p_solution_dir, p_core_proj_dir, p_core_compile_items,
 				p_editor_proj_dir, p_editor_compile_items,

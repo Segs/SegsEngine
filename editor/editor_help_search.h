@@ -94,7 +94,6 @@ class EditorHelpSearch::Runner : public Reference {
         PHASE_SELECT_MATCH,
         PHASE_MAX
     };
-    int phase;
 
     struct ClassMatch {
         DocData::ClassDoc *doc;
@@ -110,19 +109,20 @@ class EditorHelpSearch::Runner : public Reference {
         }
     };
 
+    Map<String, ClassMatch> matches;
+    Map<String, TreeItem *> class_items;
     Control *ui_service;
     Tree *results_tree;
     String term;
-    int search_flags;
 
     Ref<Texture> empty_icon;
+    int search_flags;
+    int phase;
     Color disabled_color;
 
-    Map<String, DocData::ClassDoc>::Element *iterator_doc;
-    Map<String, ClassMatch> matches;
-    Map<String, ClassMatch>::Element *iterator_match;
+    Map<String, DocData::ClassDoc>::iterator iterator_doc;
+    Map<String, ClassMatch>::iterator iterator_match;
     TreeItem *root_item;
-    Map<String, TreeItem *> class_items;
     TreeItem *matched_item;
 
     bool _is_class_disabled_by_feature_profile(const StringName &p_class);

@@ -80,7 +80,7 @@ SpatialGizmo::SpatialGizmo() {
 void Spatial::_notify_dirty() {
 
 #ifdef TOOLS_ENABLED
-    if ((data.gizmo.is_valid() || data.notify_transform) && !data.ignore_notification && !xform_change.in_list()) {
+    if ((data.gizmo || data.notify_transform) && !data.ignore_notification && !xform_change.in_list()) {
 #else
     if (data.notify_transform && !data.ignore_notification && !xform_change.in_list()) {
 
@@ -109,12 +109,12 @@ void Spatial::_propagate_transform_changed(Spatial *p_origin) {
 
     for (List<Spatial *>::Element *E = data.children.front(); E; E = E->next()) {
 
-        if (E->get()->data.toplevel_active)
+        if (E->deref()->data.toplevel_active)
             continue; //don't propagate to a toplevel
-        E->get()->_propagate_transform_changed(p_origin);
+        E->deref()->_propagate_transform_changed(p_origin);
     }
 #ifdef TOOLS_ENABLED
-    if ((data.gizmo.is_valid() || data.notify_transform) && !data.ignore_notification && !xform_change.in_list()) {
+    if ((data.gizmo || data.notify_transform) && !data.ignore_notification && !xform_change.in_list()) {
 #else
     if (data.notify_transform && !data.ignore_notification && !xform_change.in_list()) {
 #endif
@@ -175,7 +175,7 @@ void Spatial::_notification(int p_what) {
                 parent = parent->get_parent();
             }
 
-            ERR_FAIL_COND(!data.viewport);
+            ERR_FAIL_COND(!data.viewport)
 
             if (get_script_instance()) {
 
@@ -185,10 +185,10 @@ void Spatial::_notification(int p_what) {
             if (Engine::get_singleton()->is_editor_hint() && get_tree()->is_node_being_edited(this)) {
 
                 //get_scene()->call_group(SceneMainLoop::GROUP_CALL_REALTIME,SceneStringNames::get_singleton()->_spatial_editor_group,SceneStringNames::get_singleton()->_request_gizmo,this);
-                get_tree()->call_group_flags(0, SceneStringNames::get_singleton()->_spatial_editor_group, SceneStringNames::get_singleton()->_request_gizmo, this);
+                get_tree()->call_group_flags(0, SceneStringNames::get_singleton()->_spatial_editor_group, SceneStringNames::get_singleton()->_request_gizmo, Variant(this));
                 if (!data.gizmo_disabled) {
 
-                    if (data.gizmo.is_valid()) {
+                    if (data.gizmo) {
                         data.gizmo->create();
                         if (is_visible_in_tree()) {
                             data.gizmo->redraw();
@@ -203,7 +203,7 @@ void Spatial::_notification(int p_what) {
         case NOTIFICATION_EXIT_WORLD: {
 
 #ifdef TOOLS_ENABLED
-            if (data.gizmo.is_valid()) {
+            if (data.gizmo) {
                 data.gizmo->free();
                 data.gizmo.unref();
             }
@@ -222,7 +222,7 @@ void Spatial::_notification(int p_what) {
         case NOTIFICATION_TRANSFORM_CHANGED: {
 
 #ifdef TOOLS_ENABLED
-            if (data.gizmo.is_valid()) {
+            if (data.gizmo) {
                 data.gizmo->transform();
             }
 #endif
@@ -268,7 +268,7 @@ Transform Spatial::get_transform() const {
 }
 Transform Spatial::get_global_transform() const {
 
-    ERR_FAIL_COND_V(!is_inside_tree(), Transform());
+    ERR_FAIL_COND_V(!is_inside_tree(), Transform())
 
     if (data.dirty & DIRTY_GLOBAL) {
 
@@ -315,7 +315,7 @@ Transform Spatial::get_relative_transform(const Node *p_parent) const {
     if (p_parent == this)
         return Transform();
 
-    ERR_FAIL_COND_V(!data.parent, Transform());
+    ERR_FAIL_COND_V(!data.parent, Transform())
 
     if (p_parent == data.parent)
         return get_transform();
@@ -406,9 +406,10 @@ void Spatial::update_gizmo() {
 #ifdef TOOLS_ENABLED
     if (!is_inside_world())
         return;
-    if (!data.gizmo.is_valid())
-        get_tree()->call_group_flags(SceneTree::GROUP_CALL_REALTIME, SceneStringNames::get_singleton()->_spatial_editor_group, SceneStringNames::get_singleton()->_request_gizmo, this);
-    if (!data.gizmo.is_valid())
+    if (not data.gizmo)
+        get_tree()->call_group_flags(SceneTree::GROUP_CALL_REALTIME, SceneStringNames::get_singleton()->_spatial_editor_group,
+                SceneStringNames::get_singleton()->_request_gizmo, Variant(this));
+    if (not data.gizmo)
         return;
     if (data.gizmo_dirty)
         return;
@@ -423,10 +424,10 @@ void Spatial::set_gizmo(const Ref<SpatialGizmo> &p_gizmo) {
 
     if (data.gizmo_disabled)
         return;
-    if (data.gizmo.is_valid() && is_inside_world())
+    if (data.gizmo && is_inside_world())
         data.gizmo->free();
     data.gizmo = p_gizmo;
-    if (data.gizmo.is_valid() && is_inside_world()) {
+    if (data.gizmo && is_inside_world()) {
 
         data.gizmo->create();
         if (is_visible_in_tree()) {
@@ -455,7 +456,7 @@ void Spatial::_update_gizmo() {
     if (!is_inside_world())
         return;
     data.gizmo_dirty = false;
-    if (data.gizmo.is_valid()) {
+    if (data.gizmo) {
         if (is_visible_in_tree())
             data.gizmo->redraw();
         else
@@ -468,7 +469,7 @@ void Spatial::_update_gizmo() {
 void Spatial::set_disable_gizmo(bool p_enabled) {
 
     data.gizmo_disabled = p_enabled;
-    if (!p_enabled && data.gizmo.is_valid())
+    if (!p_enabled && data.gizmo)
         data.gizmo = Ref<SpatialGizmo>();
 }
 
@@ -509,8 +510,8 @@ bool Spatial::is_set_as_toplevel() const {
 
 Ref<World> Spatial::get_world() const {
 
-    ERR_FAIL_COND_V(!is_inside_world(), Ref<World>());
-    ERR_FAIL_COND_V(!data.viewport, Ref<World>());
+    ERR_FAIL_COND_V(!is_inside_world(), Ref<World>())
+    ERR_FAIL_COND_V(!data.viewport, Ref<World>())
 
     return data.viewport->find_world();
 }
@@ -521,13 +522,13 @@ void Spatial::_propagate_visibility_changed() {
     emit_signal(SceneStringNames::get_singleton()->visibility_changed);
     _change_notify("visible");
 #ifdef TOOLS_ENABLED
-    if (data.gizmo.is_valid())
+    if (data.gizmo)
         _update_gizmo();
 #endif
 
     for (List<Spatial *>::Element *E = data.children.front(); E; E = E->next()) {
 
-        Spatial *c = E->get();
+        Spatial *c = E->deref();
         if (!c || !c->data.visible)
             continue;
         c->_propagate_visibility_changed();
@@ -688,8 +689,8 @@ void Spatial::look_at(const Vector3 &p_target, const Vector3 &p_up) {
 
 void Spatial::look_at_from_position(const Vector3 &p_pos, const Vector3 &p_target, const Vector3 &p_up) {
 
-    ERR_FAIL_COND_MSG(p_pos == p_target, "Node origin and target are in the same position, look_at() failed.");
-    ERR_FAIL_COND_MSG(p_up.cross(p_target - p_pos) == Vector3(), "Up vector and direction between node origin and target are aligned, look_at() failed.");
+    ERR_FAIL_COND_MSG(p_pos == p_target, "Node origin and target are in the same position, look_at() failed.")
+    ERR_FAIL_COND_MSG(p_up.cross(p_target - p_pos) == Vector3(), "Up vector and direction between node origin and target are aligned, look_at() failed.")
 
     Transform lookat;
     lookat.origin = p_pos;
@@ -728,7 +729,7 @@ bool Spatial::is_local_transform_notification_enabled() const {
 }
 
 void Spatial::force_update_transform() {
-    ERR_FAIL_COND(!is_inside_tree());
+    ERR_FAIL_COND(!is_inside_tree())
     if (!xform_change.in_list()) {
         return; //nothing to update
     }
@@ -739,23 +740,23 @@ void Spatial::force_update_transform() {
 
 void Spatial::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_transform", "local"), &Spatial::set_transform);
+    MethodBinder::bind_method(D_METHOD("set_transform", {"local"}), &Spatial::set_transform);
     MethodBinder::bind_method(D_METHOD("get_transform"), &Spatial::get_transform);
-    MethodBinder::bind_method(D_METHOD("set_translation", "translation"), &Spatial::set_translation);
+    MethodBinder::bind_method(D_METHOD("set_translation", {"translation"}), &Spatial::set_translation);
     MethodBinder::bind_method(D_METHOD("get_translation"), &Spatial::get_translation);
-    MethodBinder::bind_method(D_METHOD("set_rotation", "euler"), &Spatial::set_rotation);
+    MethodBinder::bind_method(D_METHOD("set_rotation", {"euler"}), &Spatial::set_rotation);
     MethodBinder::bind_method(D_METHOD("get_rotation"), &Spatial::get_rotation);
-    MethodBinder::bind_method(D_METHOD("set_rotation_degrees", "euler_degrees"), &Spatial::set_rotation_degrees);
+    MethodBinder::bind_method(D_METHOD("set_rotation_degrees", {"euler_degrees"}), &Spatial::set_rotation_degrees);
     MethodBinder::bind_method(D_METHOD("get_rotation_degrees"), &Spatial::get_rotation_degrees);
-    MethodBinder::bind_method(D_METHOD("set_scale", "scale"), &Spatial::set_scale);
+    MethodBinder::bind_method(D_METHOD("set_scale", {"scale"}), &Spatial::set_scale);
     MethodBinder::bind_method(D_METHOD("get_scale"), &Spatial::get_scale);
-    MethodBinder::bind_method(D_METHOD("set_global_transform", "global"), &Spatial::set_global_transform);
+    MethodBinder::bind_method(D_METHOD("set_global_transform", {"global"}), &Spatial::set_global_transform);
     MethodBinder::bind_method(D_METHOD("get_global_transform"), &Spatial::get_global_transform);
     MethodBinder::bind_method(D_METHOD("get_parent_spatial"), &Spatial::get_parent_spatial);
-    MethodBinder::bind_method(D_METHOD("set_ignore_transform_notification", "enabled"), &Spatial::set_ignore_transform_notification);
-    MethodBinder::bind_method(D_METHOD("set_as_toplevel", "enable"), &Spatial::set_as_toplevel);
+    MethodBinder::bind_method(D_METHOD("set_ignore_transform_notification", {"enabled"}), &Spatial::set_ignore_transform_notification);
+    MethodBinder::bind_method(D_METHOD("set_as_toplevel", {"enable"}), &Spatial::set_as_toplevel);
     MethodBinder::bind_method(D_METHOD("is_set_as_toplevel"), &Spatial::is_set_as_toplevel);
-    MethodBinder::bind_method(D_METHOD("set_disable_scale", "disable"), &Spatial::set_disable_scale);
+    MethodBinder::bind_method(D_METHOD("set_disable_scale", {"disable"}), &Spatial::set_disable_scale);
     MethodBinder::bind_method(D_METHOD("is_scale_disabled"), &Spatial::is_scale_disabled);
     MethodBinder::bind_method(D_METHOD("get_world"), &Spatial::get_world);
 
@@ -764,58 +765,58 @@ void Spatial::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_update_gizmo"), &Spatial::_update_gizmo);
 
     MethodBinder::bind_method(D_METHOD("update_gizmo"), &Spatial::update_gizmo);
-    MethodBinder::bind_method(D_METHOD("set_gizmo", "gizmo"), &Spatial::set_gizmo);
+    MethodBinder::bind_method(D_METHOD("set_gizmo", {"gizmo"}), &Spatial::set_gizmo);
     MethodBinder::bind_method(D_METHOD("get_gizmo"), &Spatial::get_gizmo);
 
-    MethodBinder::bind_method(D_METHOD("set_visible", "visible"), &Spatial::set_visible);
+    MethodBinder::bind_method(D_METHOD("set_visible", {"visible"}), &Spatial::set_visible);
     MethodBinder::bind_method(D_METHOD("is_visible"), &Spatial::is_visible);
     MethodBinder::bind_method(D_METHOD("is_visible_in_tree"), &Spatial::is_visible_in_tree);
     MethodBinder::bind_method(D_METHOD("show"), &Spatial::show);
     MethodBinder::bind_method(D_METHOD("hide"), &Spatial::hide);
 
-    MethodBinder::bind_method(D_METHOD("set_notify_local_transform", "enable"), &Spatial::set_notify_local_transform);
+    MethodBinder::bind_method(D_METHOD("set_notify_local_transform", {"enable"}), &Spatial::set_notify_local_transform);
     MethodBinder::bind_method(D_METHOD("is_local_transform_notification_enabled"), &Spatial::is_local_transform_notification_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_notify_transform", "enable"), &Spatial::set_notify_transform);
+    MethodBinder::bind_method(D_METHOD("set_notify_transform", {"enable"}), &Spatial::set_notify_transform);
     MethodBinder::bind_method(D_METHOD("is_transform_notification_enabled"), &Spatial::is_transform_notification_enabled);
 
-    MethodBinder::bind_method(D_METHOD("rotate", "axis", "angle"), &Spatial::rotate);
-    MethodBinder::bind_method(D_METHOD("global_rotate", "axis", "angle"), &Spatial::global_rotate);
-    MethodBinder::bind_method(D_METHOD("global_scale", "scale"), &Spatial::global_scale);
-    MethodBinder::bind_method(D_METHOD("global_translate", "offset"), &Spatial::global_translate);
-    MethodBinder::bind_method(D_METHOD("rotate_object_local", "axis", "angle"), &Spatial::rotate_object_local);
-    MethodBinder::bind_method(D_METHOD("scale_object_local", "scale"), &Spatial::scale_object_local);
-    MethodBinder::bind_method(D_METHOD("translate_object_local", "offset"), &Spatial::translate_object_local);
-    MethodBinder::bind_method(D_METHOD("rotate_x", "angle"), &Spatial::rotate_x);
-    MethodBinder::bind_method(D_METHOD("rotate_y", "angle"), &Spatial::rotate_y);
-    MethodBinder::bind_method(D_METHOD("rotate_z", "angle"), &Spatial::rotate_z);
-    MethodBinder::bind_method(D_METHOD("translate", "offset"), &Spatial::translate);
+    MethodBinder::bind_method(D_METHOD("rotate", {"axis", "angle"}), &Spatial::rotate);
+    MethodBinder::bind_method(D_METHOD("global_rotate", {"axis", "angle"}), &Spatial::global_rotate);
+    MethodBinder::bind_method(D_METHOD("global_scale", {"scale"}), &Spatial::global_scale);
+    MethodBinder::bind_method(D_METHOD("global_translate", {"offset"}), &Spatial::global_translate);
+    MethodBinder::bind_method(D_METHOD("rotate_object_local", {"axis", "angle"}), &Spatial::rotate_object_local);
+    MethodBinder::bind_method(D_METHOD("scale_object_local", {"scale"}), &Spatial::scale_object_local);
+    MethodBinder::bind_method(D_METHOD("translate_object_local", {"offset"}), &Spatial::translate_object_local);
+    MethodBinder::bind_method(D_METHOD("rotate_x", {"angle"}), &Spatial::rotate_x);
+    MethodBinder::bind_method(D_METHOD("rotate_y", {"angle"}), &Spatial::rotate_y);
+    MethodBinder::bind_method(D_METHOD("rotate_z", {"angle"}), &Spatial::rotate_z);
+    MethodBinder::bind_method(D_METHOD("translate", {"offset"}), &Spatial::translate);
     MethodBinder::bind_method(D_METHOD("orthonormalize"), &Spatial::orthonormalize);
     MethodBinder::bind_method(D_METHOD("set_identity"), &Spatial::set_identity);
 
-    MethodBinder::bind_method(D_METHOD("look_at", "target", "up"), &Spatial::look_at);
-    MethodBinder::bind_method(D_METHOD("look_at_from_position", "position", "target", "up"), &Spatial::look_at_from_position);
+    MethodBinder::bind_method(D_METHOD("look_at", {"target", "up"}), &Spatial::look_at);
+    MethodBinder::bind_method(D_METHOD("look_at_from_position", {"position", "target", "up"}), &Spatial::look_at_from_position);
 
-    MethodBinder::bind_method(D_METHOD("to_local", "global_point"), &Spatial::to_local);
-    MethodBinder::bind_method(D_METHOD("to_global", "local_point"), &Spatial::to_global);
+    MethodBinder::bind_method(D_METHOD("to_local", {"global_point"}), &Spatial::to_local);
+    MethodBinder::bind_method(D_METHOD("to_global", {"local_point"}), &Spatial::to_global);
 
     BIND_CONSTANT(NOTIFICATION_TRANSFORM_CHANGED);
     BIND_CONSTANT(NOTIFICATION_ENTER_WORLD);
     BIND_CONSTANT(NOTIFICATION_EXIT_WORLD);
     BIND_CONSTANT(NOTIFICATION_VISIBILITY_CHANGED);
 
-    //ADD_PROPERTY( PropertyInfo(Variant::TRANSFORM,"transform/global",PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR ), "set_global_transform", "get_global_transform") ;
+    //ADD_PROPERTY( PropertyInfo(VariantType::TRANSFORM,"transform/global",PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR ), "set_global_transform", "get_global_transform") ;
     ADD_GROUP("Transform", "");
-    ADD_PROPERTY(PropertyInfo(Variant::TRANSFORM, "global_transform", PROPERTY_HINT_NONE, "", 0), "set_global_transform", "get_global_transform");
-    ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "translation", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR), "set_translation", "get_translation");
-    ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "rotation_degrees", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR), "set_rotation_degrees", "get_rotation_degrees");
-    ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "rotation", PROPERTY_HINT_NONE, "", 0), "set_rotation", "get_rotation");
-    ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "scale", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR), "set_scale", "get_scale");
+    ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM, "global_transform", PROPERTY_HINT_NONE, "", 0), "set_global_transform", "get_global_transform");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "translation", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR), "set_translation", "get_translation");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "rotation_degrees", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR), "set_rotation_degrees", "get_rotation_degrees");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "rotation", PROPERTY_HINT_NONE, "", 0), "set_rotation", "get_rotation");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "scale", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR), "set_scale", "get_scale");
     ADD_GROUP("Matrix", "");
-    ADD_PROPERTY(PropertyInfo(Variant::TRANSFORM, "transform", PROPERTY_HINT_NONE, ""), "set_transform", "get_transform");
+    ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM, "transform", PROPERTY_HINT_NONE, ""), "set_transform", "get_transform");
     ADD_GROUP("Visibility", "");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "visible"), "set_visible", "is_visible");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "gizmo", PROPERTY_HINT_RESOURCE_TYPE, "SpatialGizmo", 0), "set_gizmo", "get_gizmo");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "visible"), "set_visible", "is_visible");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "gizmo", PROPERTY_HINT_RESOURCE_TYPE, "SpatialGizmo", 0), "set_gizmo", "get_gizmo");
 
     ADD_SIGNAL(MethodInfo("visibility_changed"));
 }

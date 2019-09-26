@@ -154,7 +154,7 @@ int BSP_Tree::_get_points_inside(int p_node, const Vector3 *p_points, int *p_ind
 
 int BSP_Tree::get_points_inside(const Vector3 *p_points, int p_point_count) const {
 
-	if (nodes.size() == 0)
+	if (nodes.empty())
 		return 0;
 
 #if 1
@@ -199,7 +199,7 @@ int BSP_Tree::get_points_inside(const Vector3 *p_points, int p_point_count) cons
 
 #ifdef DEBUG_ENABLED
 
-			ERR_FAIL_COND_V(idx < MAX_NODES && idx >= node_count, false);
+			ERR_FAIL_COND_V(idx < MAX_NODES && idx >= node_count, false)
 #endif
 		}
 
@@ -266,7 +266,7 @@ bool BSP_Tree::point_is_inside(const Vector3 &p_point) const {
 		idx = over ? nodes[idx].over : nodes[idx].under;
 
 #ifdef DEBUG_ENABLED
-		ERR_FAIL_COND_V(idx < MAX_NODES && idx >= node_count, false);
+		ERR_FAIL_COND_V(idx < MAX_NODES && idx >= node_count, false)
 #endif
 	}
 }
@@ -338,10 +338,10 @@ static int _bsp_find_best_half_plane(const Face3 *p_faces, const Vector<int> &p_
 
 static int _bsp_create_node(const Face3 *p_faces, const Vector<int> &p_indices, Vector<Plane> &p_planes, Vector<BSP_Tree::Node> &p_nodes, real_t p_tolerance) {
 
-	ERR_FAIL_COND_V(p_nodes.size() == BSP_Tree::MAX_NODES, -1);
+	ERR_FAIL_COND_V(p_nodes.size() == BSP_Tree::MAX_NODES, -1)
 
 	// should not reach here
-	ERR_FAIL_COND_V(p_indices.size() == 0, -1)
+	ERR_FAIL_COND_V(p_indices.empty(), -1)
 
 	int ic = p_indices.size();
 	const int *indices = p_indices.ptr();
@@ -349,7 +349,7 @@ static int _bsp_create_node(const Face3 *p_faces, const Vector<int> &p_indices, 
 	int divisor_idx = _bsp_find_best_half_plane(p_faces, p_indices, p_tolerance);
 
 	// returned error
-	ERR_FAIL_COND_V(divisor_idx < 0, -1);
+	ERR_FAIL_COND_V(divisor_idx < 0, -1)
 
 	Vector<int> faces_over;
 	Vector<int> faces_under;
@@ -391,14 +391,14 @@ static int _bsp_create_node(const Face3 *p_faces, const Vector<int> &p_indices, 
 
 	uint16_t over_idx = BSP_Tree::OVER_LEAF, under_idx = BSP_Tree::UNDER_LEAF;
 
-	if (faces_over.size() > 0) { //have facess above?
+	if (!faces_over.empty()) { //have facess above?
 
 		int idx = _bsp_create_node(p_faces, faces_over, p_planes, p_nodes, p_tolerance);
 		if (idx >= 0)
 			over_idx = idx;
 	}
 
-	if (faces_under.size() > 0) { //have facess above?
+	if (!faces_under.empty()) { //have facess above?
 
 		int idx = _bsp_create_node(p_faces, faces_under, p_planes, p_nodes, p_tolerance);
 		if (idx >= 0)
@@ -420,7 +420,7 @@ static int _bsp_create_node(const Face3 *p_faces, const Vector<int> &p_indices, 
 
 	if (divisor_plane_idx == -1) {
 
-		ERR_FAIL_COND_V(p_planes.size() == BSP_Tree::MAX_PLANES, -1);
+		ERR_FAIL_COND_V(p_planes.size() == BSP_Tree::MAX_PLANES, -1)
 		divisor_plane_idx = p_planes.size();
 		p_planes.push_back(divisor_plane);
 	}
@@ -474,19 +474,19 @@ BSP_Tree::BSP_Tree() {}
 BSP_Tree::BSP_Tree(const Variant &p_variant) {
 
 	Dictionary d = p_variant;
-	ERR_FAIL_COND(!d.has("nodes"));
-	ERR_FAIL_COND(!d.has("planes"));
-	ERR_FAIL_COND(!d.has("aabb"));
-	ERR_FAIL_COND(!d.has("error_radius"));
+	ERR_FAIL_COND(!d.has("nodes"))
+	ERR_FAIL_COND(!d.has("planes"))
+	ERR_FAIL_COND(!d.has("aabb"))
+	ERR_FAIL_COND(!d.has("error_radius"))
 
 	PoolVector<int> src_nodes = d["nodes"];
-	ERR_FAIL_COND(src_nodes.size() % 3);
+	ERR_FAIL_COND(src_nodes.size() % 3)
 
-	if (d["planes"].get_type() == Variant::POOL_REAL_ARRAY) {
+    if (d["planes"].get_type() == VariantType::POOL_REAL_ARRAY) {
 
 		PoolVector<real_t> src_planes = d["planes"];
 		int plane_count = src_planes.size();
-		ERR_FAIL_COND(plane_count % 4);
+		ERR_FAIL_COND(plane_count % 4)
 		planes.resize(plane_count / 4);
 
 		if (plane_count) {
@@ -555,7 +555,7 @@ BSP_Tree::BSP_Tree(const PoolVector<Face3> &p_faces, real_t p_error_radius) {
 		indices.push_back(i);
 	}
 
-	ERR_FAIL_COND(aabb.has_no_area());
+	ERR_FAIL_COND(aabb.has_no_area())
 
 	int top = _bsp_create_node(faces_r.ptr(), indices, planes, nodes, aabb.get_longest_axis_size() * 0.0001);
 
@@ -563,7 +563,7 @@ BSP_Tree::BSP_Tree(const PoolVector<Face3> &p_faces, real_t p_error_radius) {
 
 		nodes.clear();
 		planes.clear();
-		ERR_FAIL_COND(top < 0);
+		ERR_FAIL_COND(top < 0)
 	}
 
 	error_radius = p_error_radius;

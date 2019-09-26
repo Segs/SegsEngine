@@ -67,12 +67,12 @@ String OS::get_iso_date_time(bool local) const {
         if (zone.bias >= 0) {
             timezone = "+";
         }
-		timezone += FormatV("%02d %02d",(zone.bias / 60),zone.bias % 60);
+        timezone += FormatV("%02d %02d",(zone.bias / 60),zone.bias % 60);
     } else {
         timezone = "Z";
     }
 
-	return FormatV("%02d-%02d-%02dT%02d:%02d:%02d",date.year,date.month,date.day,time.hour,time.min,time.sec) +
+    return FormatV("%02d-%02d-%02dT%02d:%02d:%02d",date.year,date.month,date.day,time.hour,time.min,time.sec) +
            timezone;
 }
 
@@ -122,14 +122,14 @@ void OS::print(const char *p_msg) {
 
 void OS::print(const String &p_msg)
 {
-	_logger->logv(p_msg.cdata(), false);
+    _logger->logv(p_msg.cdata(), false);
 };
 
 void OS::printerr(const char *p_format) {
     _logger->logv(p_format, true);
 };
 void OS::printerr(const String &p_format) {
-	_logger->logv(p_format.cdata(), true);
+    _logger->logv(p_format.cdata(), true);
 };
 
 void OS::set_keep_screen_on(bool p_enabled) {
@@ -181,7 +181,7 @@ int OS::get_process_id() const {
 
 void OS::vibrate_handheld(int p_duration_ms) {
 
-    WARN_PRINTS("vibrate_handheld() only works with Android and iOS");
+    WARN_PRINT("vibrate_handheld() only works with Android and iOS")
 }
 
 bool OS::is_stdout_verbose() const {
@@ -259,14 +259,14 @@ void OS::set_custom_mouse_cursor(const RES &p_cursor, CursorShape p_shape, const
 
 void OS::print_all_resources(const String &p_to_file) {
 
-    ERR_FAIL_COND(!p_to_file.empty() && _OSPRF);
+    ERR_FAIL_COND(!p_to_file.empty() && _OSPRF)
     if (!p_to_file.empty()) {
 
         Error err;
         _OSPRF = FileAccess::open(p_to_file, FileAccess::WRITE, &err);
         if (err != OK) {
             _OSPRF = nullptr;
-            ERR_FAIL_MSG("Can't print all resources to file: " + String(p_to_file) + ".");
+            ERR_FAIL_MSG("Can't print all resources to file: " + String(p_to_file) + ".")
         }
     }
 
@@ -323,19 +323,19 @@ String OS::get_locale() const {
 }
 
 // Helper function to ensure that a dir name/path will be valid on the OS
-String OS::get_safe_dir_name(String p_dir_name, bool p_allow_dir_separator) const {
+String OS::get_safe_dir_name(const String& p_dir_name, bool p_allow_dir_separator) const {
 
-    String invalid_chars[8] = {":","*","?", "\\", "<",">","|"};
+    constexpr char invalid_chars[7] = {':','*','?', '\\', '<','>','|'};
+
+    String safe_dir_name = StringUtils::strip_edges(PathUtils::from_native_path(p_dir_name));
+    for (char s  : invalid_chars) {
+        safe_dir_name = StringUtils::replace(safe_dir_name,s, '-');
+    }
     if (p_allow_dir_separator) {
         // Dir separators are allowed, but disallow ".." to avoid going up the filesystem
-        invalid_chars[7]="..";
+        safe_dir_name = StringUtils::replace(safe_dir_name,"..", "-");
     } else {
-        invalid_chars[7] = "/";
-    }
-
-	String safe_dir_name = StringUtils::strip_edges(PathUtils::from_native_path(p_dir_name));
-    for (const String &s  : invalid_chars) {
-        safe_dir_name = StringUtils::replace(safe_dir_name,s, "-");
+        safe_dir_name = StringUtils::replace(safe_dir_name,'/', '-');
     }
     return safe_dir_name;
 }
@@ -380,7 +380,7 @@ String OS::get_resource_dir() const {
 }
 
 // Access system-specific dirs like Documents, Downloads, etc.
-String OS::get_system_dir(SystemDir p_dir) const {
+String OS::get_system_dir(SystemDir /*p_dir*/) const {
 
     return ".";
 }
@@ -394,10 +394,10 @@ Error OS::dialog_show(String p_title, String p_description, Vector<String> p_but
     using namespace StringUtils;
     while (true) {
 
-		print(FormatV("%s\n--------\n%s\n",qPrintable(p_title.m_str), qPrintable(p_description.m_str)));
+        print(FormatV("%s\n--------\n%s\n",qPrintable(p_title.m_str), qPrintable(p_description.m_str)));
         for (int i = 0; i < p_buttons.size(); i++) {
             if (i > 0) print(", ");
-			print(FormatV("%d=%s",i + 1,qPrintable(p_buttons[i].m_str)));
+            print(FormatV("%d=%s",i + 1,qPrintable(p_buttons[i].m_str)));
         }
         print("\n");
         String res = StringUtils::strip_edges(get_stdin_string());
@@ -417,7 +417,7 @@ Error OS::dialog_input_text(String p_title, String p_description, String p_parti
 
     ERR_FAIL_COND_V(!p_obj, FAILED)
     ERR_FAIL_COND_V(p_callback.empty(), FAILED)
-	print(FormatV("%s\n---------\n%s\n[%s]:\n",qPrintable(p_title.m_str), qPrintable(p_description.m_str), qPrintable(p_partial.m_str)));
+    print(FormatV("%s\n---------\n%s\n[%s]:\n",qPrintable(p_title.m_str), qPrintable(p_description.m_str), qPrintable(p_partial.m_str)));
 
     String res = StringUtils::strip_edges(get_stdin_string());
     bool success = true;
@@ -484,7 +484,7 @@ void OS::_ensure_user_data_dir() {
 
     da = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
     Error err = da->make_dir_recursive(dd);
-    ERR_FAIL_COND_MSG(err != OK, "Error attempting to create data dir: " + dd + ".");
+    ERR_FAIL_COND_MSG(err != OK, "Error attempting to create data dir: " + dd + ".")
 
     memdelete(da);
 }
@@ -500,7 +500,7 @@ String OS::get_model_name() const {
     return "GenericDevice";
 }
 
-void OS::set_cmdline(const char *p_execpath, const List<String> &p_args) {
+void OS::set_cmdline(const char *p_execpath, const ListPOD<String> &p_args) {
 
     _execpath = p_execpath;
     _cmdline = p_args;
@@ -715,11 +715,11 @@ int OS::get_audio_driver_count() const {
 const char *OS::get_audio_driver_name(int p_driver) const {
 
     AudioDriver *driver = AudioDriverManager::get_driver(p_driver);
-    ERR_FAIL_COND_V(!driver, "");
+    ERR_FAIL_COND_V(!driver, "")
     return AudioDriverManager::get_driver(p_driver)->get_name();
 }
 
-void OS::set_restart_on_exit(bool p_restart, const List<String> &p_restart_arguments) {
+void OS::set_restart_on_exit(bool p_restart, const ListPOD<String> &p_restart_arguments) {
     restart_on_exit = p_restart;
     restart_commandline = p_restart_arguments;
 }
@@ -728,7 +728,7 @@ bool OS::is_restart_on_exit_set() const {
     return restart_on_exit;
 }
 
-List<String> OS::get_restart_on_exit_arguments() const {
+ListPOD<String> OS::get_restart_on_exit_arguments() const {
     return restart_commandline;
 }
 

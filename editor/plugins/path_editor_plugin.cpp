@@ -42,7 +42,7 @@ IMPL_GDCLASS(PathEditorPlugin)
 String PathSpatialGizmo::get_handle_name(int p_idx) const {
 
     Ref<Curve3D> c = path->get_curve();
-    if (c.is_null())
+    if (not c)
         return "";
 
     if (p_idx < c->get_point_count()) {
@@ -65,7 +65,7 @@ String PathSpatialGizmo::get_handle_name(int p_idx) const {
 Variant PathSpatialGizmo::get_handle_value(int p_idx) {
 
     Ref<Curve3D> c = path->get_curve();
-    if (c.is_null())
+    if (not c)
         return Variant();
 
     if (p_idx < c->get_point_count()) {
@@ -92,7 +92,7 @@ Variant PathSpatialGizmo::get_handle_value(int p_idx) {
 void PathSpatialGizmo::set_handle(int p_idx, Camera *p_camera, const Point2 &p_point) {
 
     Ref<Curve3D> c = path->get_curve();
-    if (c.is_null())
+    if (not c)
         return;
 
     Transform gt = path->get_global_transform();
@@ -162,7 +162,7 @@ void PathSpatialGizmo::set_handle(int p_idx, Camera *p_camera, const Point2 &p_p
 void PathSpatialGizmo::commit_handle(int p_idx, const Variant &p_restore, bool p_cancel) {
 
     Ref<Curve3D> c = path->get_curve();
-    if (c.is_null())
+    if (not c)
         return;
 
     UndoRedo *ur = SpatialEditor::get_singleton()->get_undo_redo();
@@ -175,8 +175,8 @@ void PathSpatialGizmo::commit_handle(int p_idx, const Variant &p_restore, bool p
             return;
         }
         ur->create_action(TTR("Set Curve Point Position"));
-        ur->add_do_method(c.ptr(), "set_point_position", p_idx, c->get_point_position(p_idx));
-        ur->add_undo_method(c.ptr(), "set_point_position", p_idx, p_restore);
+        ur->add_do_method(c.get(), "set_point_position", p_idx, c->get_point_position(p_idx));
+        ur->add_undo_method(c.get(), "set_point_position", p_idx, p_restore);
         ur->commit_action();
 
         return;
@@ -194,12 +194,12 @@ void PathSpatialGizmo::commit_handle(int p_idx, const Variant &p_restore, bool p
         }
 
         ur->create_action(TTR("Set Curve In Position"));
-        ur->add_do_method(c.ptr(), "set_point_in", idx, c->get_point_in(idx));
-        ur->add_undo_method(c.ptr(), "set_point_in", idx, p_restore);
+        ur->add_do_method(c.get(), "set_point_in", idx, c->get_point_in(idx));
+        ur->add_undo_method(c.get(), "set_point_in", idx, p_restore);
 
         if (PathEditorPlugin::singleton->mirror_angle_enabled()) {
-            ur->add_do_method(c.ptr(), "set_point_out", idx, PathEditorPlugin::singleton->mirror_length_enabled() ? -c->get_point_in(idx) : (-c->get_point_in(idx).normalized() * orig_out_length));
-            ur->add_undo_method(c.ptr(), "set_point_out", idx, PathEditorPlugin::singleton->mirror_length_enabled() ? -static_cast<Vector3>(p_restore) : (-static_cast<Vector3>(p_restore).normalized() * orig_out_length));
+            ur->add_do_method(c.get(), "set_point_out", idx, PathEditorPlugin::singleton->mirror_length_enabled() ? -c->get_point_in(idx) : (-c->get_point_in(idx).normalized() * orig_out_length));
+            ur->add_undo_method(c.get(), "set_point_out", idx, PathEditorPlugin::singleton->mirror_length_enabled() ? -static_cast<Vector3>(p_restore) : (-static_cast<Vector3>(p_restore).normalized() * orig_out_length));
         }
         ur->commit_action();
 
@@ -211,12 +211,12 @@ void PathSpatialGizmo::commit_handle(int p_idx, const Variant &p_restore, bool p
         }
 
         ur->create_action(TTR("Set Curve Out Position"));
-        ur->add_do_method(c.ptr(), "set_point_out", idx, c->get_point_out(idx));
-        ur->add_undo_method(c.ptr(), "set_point_out", idx, p_restore);
+        ur->add_do_method(c.get(), "set_point_out", idx, c->get_point_out(idx));
+        ur->add_undo_method(c.get(), "set_point_out", idx, p_restore);
 
         if (PathEditorPlugin::singleton->mirror_angle_enabled()) {
-            ur->add_do_method(c.ptr(), "set_point_in", idx, PathEditorPlugin::singleton->mirror_length_enabled() ? -c->get_point_out(idx) : (-c->get_point_out(idx).normalized() * orig_in_length));
-            ur->add_undo_method(c.ptr(), "set_point_in", idx, PathEditorPlugin::singleton->mirror_length_enabled() ? -static_cast<Vector3>(p_restore) : (-static_cast<Vector3>(p_restore).normalized() * orig_in_length));
+            ur->add_do_method(c.get(), "set_point_in", idx, PathEditorPlugin::singleton->mirror_length_enabled() ? -c->get_point_out(idx) : (-c->get_point_out(idx).normalized() * orig_in_length));
+            ur->add_undo_method(c.get(), "set_point_in", idx, PathEditorPlugin::singleton->mirror_length_enabled() ? -static_cast<Vector3>(p_restore) : (-static_cast<Vector3>(p_restore).normalized() * orig_in_length));
         }
         ur->commit_action();
     }
@@ -226,12 +226,13 @@ void PathSpatialGizmo::redraw() {
 
     clear();
 
-    Ref<SpatialMaterial> path_material = gizmo_plugin->get_material("path_material", this);
-    Ref<SpatialMaterial> path_thin_material = gizmo_plugin->get_material("path_thin_material", this);
-    Ref<SpatialMaterial> handles_material = gizmo_plugin->get_material("handles");
+    Ref<SpatialMaterial> path_material(gizmo_plugin->get_material("path_material", Ref<EditorSpatialGizmo>(this)));
+    Ref<SpatialMaterial> path_thin_material(
+            gizmo_plugin->get_material("path_thin_material", Ref<EditorSpatialGizmo>(this)));
+    Ref<SpatialMaterial> handles_material(gizmo_plugin->get_material("handles"));
 
     Ref<Curve3D> c = path->get_curve();
-    if (c.is_null())
+    if (not c)
         return;
 
     PoolVector<Vector3> v3a = c->tessellate();
@@ -302,16 +303,16 @@ bool PathEditorPlugin::forward_spatial_gui_input(Camera *p_camera, const Ref<Inp
     if (!path)
         return false;
     Ref<Curve3D> c = path->get_curve();
-    if (c.is_null())
+    if (not c)
         return false;
     Transform gt = path->get_global_transform();
     Transform it = gt.affine_inverse();
 
     static const int click_dist = 10; //should make global
 
-    Ref<InputEventMouseButton> mb = p_event;
+    Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_event);
 
-    if (mb.is_valid()) {
+    if (mb) {
 
         Point2 mbpos(mb->get_position().x, mb->get_position().y);
 
@@ -383,8 +384,8 @@ bool PathEditorPlugin::forward_spatial_gui_input(Camera *p_camera, const Ref<Inp
                 //subdivide
 
                 ur->create_action(TTR("Split Path"));
-                ur->add_do_method(c.ptr(), "add_point", closest_seg_point, Vector3(), Vector3(), closest_seg + 1);
-                ur->add_undo_method(c.ptr(), "remove_point", closest_seg + 1);
+                ur->add_do_method(c.get(), "add_point", closest_seg_point, Vector3(), Vector3(), closest_seg + 1);
+                ur->add_undo_method(c.get(), "remove_point", closest_seg + 1);
                 ur->commit_action();
                 return true;
 
@@ -403,8 +404,8 @@ bool PathEditorPlugin::forward_spatial_gui_input(Camera *p_camera, const Ref<Inp
                 if (p.intersects_ray(ray_from, ray_dir, &inters)) {
 
                     ur->create_action(TTR("Add Point to Curve"));
-                    ur->add_do_method(c.ptr(), "add_point", it.xform(inters), Vector3(), Vector3(), -1);
-                    ur->add_undo_method(c.ptr(), "remove_point", c->get_point_count());
+                    ur->add_do_method(c.get(), "add_point", it.xform(inters), Vector3(), Vector3(), -1);
+                    ur->add_undo_method(c.get(), "remove_point", c->get_point_count());
                     ur->commit_action();
                     return true;
                 }
@@ -425,24 +426,24 @@ bool PathEditorPlugin::forward_spatial_gui_input(Camera *p_camera, const Ref<Inp
 
                     UndoRedo *ur = editor->get_undo_redo();
                     ur->create_action(TTR("Remove Path Point"));
-                    ur->add_do_method(c.ptr(), "remove_point", i);
-                    ur->add_undo_method(c.ptr(), "add_point", c->get_point_position(i), c->get_point_in(i), c->get_point_out(i), i);
+                    ur->add_do_method(c.get(), "remove_point", i);
+                    ur->add_undo_method(c.get(), "add_point", c->get_point_position(i), c->get_point_in(i), c->get_point_out(i), i);
                     ur->commit_action();
                     return true;
                 } else if (dist_to_p_out < click_dist) {
 
                     UndoRedo *ur = editor->get_undo_redo();
                     ur->create_action(TTR("Remove Out-Control Point"));
-                    ur->add_do_method(c.ptr(), "set_point_out", i, Vector3());
-                    ur->add_undo_method(c.ptr(), "set_point_out", i, c->get_point_out(i));
+                    ur->add_do_method(c.get(), "set_point_out", i, Vector3());
+                    ur->add_undo_method(c.get(), "set_point_out", i, c->get_point_out(i));
                     ur->commit_action();
                     return true;
                 } else if (dist_to_p_in < click_dist) {
 
                     UndoRedo *ur = editor->get_undo_redo();
                     ur->create_action(TTR("Remove In-Control Point"));
-                    ur->add_do_method(c.ptr(), "set_point_in", i, Vector3());
-                    ur->add_undo_method(c.ptr(), "set_point_in", i, c->get_point_in(i));
+                    ur->add_do_method(c.get(), "set_point_in", i, Vector3());
+                    ur->add_undo_method(c.get(), "set_point_in", i, c->get_point_in(i));
                     ur->commit_action();
                     return true;
                 }
@@ -459,7 +460,7 @@ void PathEditorPlugin::edit(Object *p_object) {
         path = Object::cast_to<Path>(p_object);
         if (path) {
 
-            if (path->get_curve().is_valid()) {
+            if (path->get_curve()) {
                 path->get_curve()->emit_signal("changed");
             }
         }
@@ -500,7 +501,7 @@ void PathEditorPlugin::make_visible(bool p_visible) {
         {
             Path *pre = path;
             path = nullptr;
-            if (pre && pre->get_curve().is_valid()) {
+            if (pre && pre->get_curve()) {
                 pre->get_curve()->emit_signal("changed");
             }
         }
@@ -517,7 +518,7 @@ void PathEditorPlugin::_mode_changed(int p_idx) {
 void PathEditorPlugin::_close_curve() {
 
     Ref<Curve3D> c = path->get_curve();
-    if (c.is_null())
+    if (not c)
         return;
     if (c->get_point_count() < 2)
         return;
@@ -572,8 +573,7 @@ PathEditorPlugin::PathEditorPlugin(EditorNode *p_node) {
     mirror_handle_angle = true;
     mirror_handle_length = true;
 
-    Ref<PathSpatialGizmoPlugin> gizmo_plugin;
-    gizmo_plugin.instance();
+    Ref<PathSpatialGizmoPlugin> gizmo_plugin(make_ref_counted<PathSpatialGizmoPlugin>());
     SpatialEditor::get_singleton()->add_gizmo_plugin(gizmo_plugin);
 
     sep = memnew(VSeparator);
@@ -640,7 +640,8 @@ Ref<EditorSpatialGizmo> PathSpatialGizmoPlugin::create_gizmo(Spatial *p_spatial)
     Ref<PathSpatialGizmo> ref;
 
     Path *path = Object::cast_to<Path>(p_spatial);
-    if (path) ref = Ref<PathSpatialGizmo>(memnew(PathSpatialGizmo(path)));
+    if (path)
+        ref = make_ref_counted<PathSpatialGizmo>(path);
 
     return ref;
 }

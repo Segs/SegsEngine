@@ -35,6 +35,7 @@
 #include "core/list.h"
 #include "core/math/math_funcs.h"
 #include "core/os/memory.h"
+#include "EASTL/unordered_map.h"
 
 template<class T>
 struct Hasher;
@@ -58,6 +59,8 @@ struct HashMapComparatorDefault;
  * times bigger than the hash table, table is resized to solve this condition. if RELATIONSHIP is zero, table is always MIN_HASH_TABLE_POWER.
  *
 */
+template <class TKey, class TData>
+using DefHashMap = eastl::unordered_map<TKey,TData,Hasher<TKey>,HashMapComparatorDefault<TKey>,wrap_allocator>;
 
 template <class TKey, class TData, class Hasher = Hasher<TKey>,
         class Comparator = HashMapComparatorDefault<TKey>, uint8_t MIN_HASH_TABLE_POWER = 3, uint8_t RELATIONSHIP = 8>
@@ -105,7 +108,7 @@ private:
 
     void make_hash_table() {
 
-        ERR_FAIL_COND(hash_table);
+        ERR_FAIL_COND(hash_table)
 
         hash_table = memnew_arr(Element *, (1 << MIN_HASH_TABLE_POWER));
 
@@ -117,7 +120,7 @@ private:
 
     void erase_hash_table() {
 
-        ERR_FAIL_COND(elements);
+        ERR_FAIL_COND(elements)
 
         memdelete_arr(hash_table);
         hash_table = nullptr;
@@ -156,7 +159,7 @@ private:
             return;
 
         Element **new_hash_table = memnew_arr(Element *, ((uint64_t)1 << new_hash_table_power));
-        ERR_FAIL_COND_CMSG(!new_hash_table, "Out of memory.");
+        ERR_FAIL_COND_CMSG(!new_hash_table, "Out of memory.")
 
         for (int i = 0; i < (1 << new_hash_table_power); i++) {
 
@@ -209,7 +212,7 @@ private:
 
         /* if element doesn't exist, create it */
         Element *e = memnew(Element);
-        ERR_FAIL_COND_V_CMSG(!e, nullptr, "Out of memory.");
+        ERR_FAIL_COND_V_CMSG(!e, nullptr, "Out of memory.")
         uint32_t hash = Hasher()(p_key);
         uint32_t index = hash & ((1 << hash_table_power) - 1);
         e->next = hash_table[index];
@@ -284,7 +287,7 @@ public:
         return e;
     }
 
-    bool has(const TKey &p_key) const {
+    bool contains(const TKey &p_key) const {
 
         return getptr(p_key) != nullptr;
     }
@@ -298,14 +301,14 @@ public:
     const TData &get(const TKey &p_key) const {
 
         const TData *res = getptr(p_key);
-        ERR_FAIL_COND_V(!res, *res);
+        ERR_FAIL_COND_V(!res, *res)
         return *res;
     }
 
     TData &get(const TKey &p_key) {
 
         TData *res = getptr(p_key);
-        ERR_FAIL_COND_V(!res, *res);
+        ERR_FAIL_COND_V(!res, *res)
         return *res;
     }
 
@@ -496,7 +499,7 @@ public:
         } else { /* get the next key */
 
             const Element *e = get_element(*p_key);
-            ERR_FAIL_COND_V_CMSG(!e, nullptr, "Invalid key supplied.");
+            ERR_FAIL_COND_V_CMSG(!e, nullptr, "Invalid key supplied.")
             if (e->next) {
                 /* if there is a "next" in the list, return that */
                 return &e->next->pair.key;

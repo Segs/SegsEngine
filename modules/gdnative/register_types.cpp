@@ -70,9 +70,9 @@ void GDNativeExportPlugin::_export_file(const String &p_path, const String &p_ty
         return;
     }
 
-    Ref<GDNativeLibrary> lib = ResourceLoader::load(p_path);
+    Ref<GDNativeLibrary> lib = dynamic_ref_cast<GDNativeLibrary>(ResourceLoader::load(p_path));
 
-    if (lib.is_null()) {
+    if (not lib) {
         return;
     }
 
@@ -84,13 +84,13 @@ void GDNativeExportPlugin::_export_file(const String &p_path, const String &p_ty
         config->get_section_keys("entry", &entry_keys);
 
         for (List<String>::Element *E = entry_keys.front(); E; E = E->next()) {
-            String key = E->get();
+            String key = E->deref();
 
             Vector<String> tags = StringUtils::split(key,".");
 
             bool skip = false;
             for (int i = 0; i < tags.size(); i++) {
-                bool has_feature = p_features.has(tags[i]);
+                bool has_feature = p_features.contains(tags[i]);
 
                 if (!has_feature) {
                     skip = true;
@@ -117,13 +117,13 @@ void GDNativeExportPlugin::_export_file(const String &p_path, const String &p_ty
         config->get_section_keys("dependencies", &dependency_keys);
 
         for (List<String>::Element *E = dependency_keys.front(); E; E = E->next()) {
-            String key = E->get();
+            String key = E->deref();
 
             Vector<String> tags = StringUtils::split(key,".");
 
             bool skip = false;
             for (int i = 0; i < tags.size(); i++) {
-                bool has_feature = p_features.has(tags[i]);
+                bool has_feature = p_features.contains(tags[i]);
 
                 if (!has_feature) {
                     skip = true;
@@ -146,7 +146,7 @@ void GDNativeExportPlugin::_export_file(const String &p_path, const String &p_ty
         }
     }
 
-    if (p_features.has("iOS")) {
+    if (p_features.contains("iOS")) {
         // Register symbols in the "fake" dynamic lookup table, because dlsym does not work well on iOS.
         LibrarySymbol expected_symbols[] = {
             { "gdnative_init", true },
@@ -192,12 +192,14 @@ void GDNativeExportPlugin::_export_file(const String &p_path, const String &p_ty
 
 static void editor_init_callback() {
 
+    GDNativeLibrarySingletonEditor::initialize_class();
+    GDNativeLibraryEditorPlugin::initialize_class();
+
     GDNativeLibrarySingletonEditor *library_editor = memnew(GDNativeLibrarySingletonEditor);
     library_editor->set_name(TTR("GDNative"));
     ProjectSettingsEditor::get_singleton()->get_tabs()->add_child(library_editor);
 
-    Ref<GDNativeExportPlugin> export_plugin;
-    export_plugin.instance();
+    Ref<GDNativeExportPlugin> export_plugin(make_ref_counted<GDNativeExportPlugin>());
 
     EditorExport::get_singleton()->add_export_plugin(export_plugin);
 
@@ -224,17 +226,17 @@ Ref<GDNativeLibraryResourceSaver> resource_saver_gdnlib;
 void register_gdnative_types() {
 
 #ifdef TOOLS_ENABLED
-
+    GDNativeLibraryEditor::initialize_class();
     EditorNode::add_init_callback(editor_init_callback);
 #endif
 
     ClassDB::register_class<GDNativeLibrary>();
     ClassDB::register_class<GDNative>();
 
-    resource_loader_gdnlib.instance();
+    resource_loader_gdnlib = make_ref_counted<GDNativeLibraryResourceLoader>();
     ResourceLoader::add_resource_format_loader(resource_loader_gdnlib);
 
-    resource_saver_gdnlib.instance();
+    resource_saver_gdnlib = make_ref_counted<GDNativeLibraryResourceSaver>();
     ResourceSaver::add_resource_format_saver(resource_saver_gdnlib);
 
     GDNativeCallRegistry::singleton = memnew(GDNativeCallRegistry);
@@ -261,12 +263,11 @@ void register_gdnative_types() {
     for (int i = 0; i < singletons.size(); i++) {
         String path = singletons[i];
 
-        if (excluded.has(path))
+        if (excluded.contains(path))
             continue;
 
-        Ref<GDNativeLibrary> lib = ResourceLoader::load(path);
-        Ref<GDNative> singleton;
-        singleton.instance();
+        Ref<GDNativeLibrary> lib = dynamic_ref_cast<GDNativeLibrary>(ResourceLoader::load(path));
+        Ref<GDNative> singleton(make_ref_counted<GDNative>());
         singleton->set_library(lib);
 
         if (!singleton->initialize()) {
@@ -280,7 +281,7 @@ void register_gdnative_types() {
                 proc_ptr);
 
         if (err != OK) {
-			ERR_PRINT(StringUtils::to_utf8("No godot_gdnative_singleton in \"" + singleton->get_library()->get_current_library_path() + "\" found").data())
+            ERR_PRINT(StringUtils::to_utf8("No godot_gdnative_singleton in \"" + singleton->get_library()->get_current_library_path() + "\" found").data())
         } else {
             singleton_gdnatives.push_back(singleton);
             ((void (*)())proc_ptr)();
@@ -292,7 +293,7 @@ void unregister_gdnative_types() {
 
     for (int i = 0; i < singleton_gdnatives.size(); i++) {
 
-        if (singleton_gdnatives[i].is_null()) {
+        if (not singleton_gdnatives[i]) {
             continue;
         }
 

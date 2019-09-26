@@ -36,7 +36,7 @@ IMPL_GDCLASS(MultiMeshInstance2D)
 void MultiMeshInstance2D::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_DRAW) {
-        if (multimesh.is_valid()) {
+        if (multimesh) {
             draw_multimesh(multimesh, texture, normal_map);
         }
     }
@@ -44,20 +44,20 @@ void MultiMeshInstance2D::_notification(int p_what) {
 
 void MultiMeshInstance2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_multimesh", "multimesh"), &MultiMeshInstance2D::set_multimesh);
+    MethodBinder::bind_method(D_METHOD("set_multimesh", {"multimesh"}), &MultiMeshInstance2D::set_multimesh);
     MethodBinder::bind_method(D_METHOD("get_multimesh"), &MultiMeshInstance2D::get_multimesh);
 
-    MethodBinder::bind_method(D_METHOD("set_texture", "texture"), &MultiMeshInstance2D::set_texture);
+    MethodBinder::bind_method(D_METHOD("set_texture", {"texture"}), &MultiMeshInstance2D::set_texture);
     MethodBinder::bind_method(D_METHOD("get_texture"), &MultiMeshInstance2D::get_texture);
 
-    MethodBinder::bind_method(D_METHOD("set_normal_map", "normal_map"), &MultiMeshInstance2D::set_normal_map);
+    MethodBinder::bind_method(D_METHOD("set_normal_map", {"normal_map"}), &MultiMeshInstance2D::set_normal_map);
     MethodBinder::bind_method(D_METHOD("get_normal_map"), &MultiMeshInstance2D::get_normal_map);
 
     ADD_SIGNAL(MethodInfo("texture_changed"));
 
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "multimesh", PROPERTY_HINT_RESOURCE_TYPE, "MultiMesh"), "set_multimesh", "get_multimesh");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_texture", "get_texture");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "normal_map", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_normal_map", "get_normal_map");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "multimesh", PROPERTY_HINT_RESOURCE_TYPE, "MultiMesh"), "set_multimesh", "get_multimesh");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_texture", "get_texture");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "normal_map", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_normal_map", "get_normal_map");
 }
 
 void MultiMeshInstance2D::set_multimesh(const Ref<MultiMesh> &p_multimesh) {
@@ -99,7 +99,7 @@ Ref<Texture> MultiMeshInstance2D::get_normal_map() const {
 
 Rect2 MultiMeshInstance2D::_edit_get_rect() const {
 
-    if (multimesh.is_valid()) {
+    if (multimesh) {
         AABB aabb = multimesh->get_aabb();
         return Rect2(aabb.position.x, aabb.position.y, aabb.size.x, aabb.size.y);
     }

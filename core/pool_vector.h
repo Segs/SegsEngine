@@ -28,16 +28,20 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef POOL_VECTOR_H
-#define POOL_VECTOR_H
+#pragma once
 
 #include "core/os/memory.h"
 #include "core/os/rw_lock.h"
+#include "core/os/mutex.h"
 #include "core/pool_allocator.h"
 #include "core/safe_refcount.h"
+#include "core/error_macros.h"
 
+#include <type_traits>
 
 class String;
+class Object;
+class Mutex;
 
 struct GODOT_EXPORT MemoryPool {
 
@@ -69,6 +73,7 @@ struct GODOT_EXPORT MemoryPool {
     static void cleanup();
 };
 
+
 template <class T>
 class PoolVector {
 
@@ -79,7 +84,7 @@ class PoolVector {
         if (!alloc)
             return;
 
-        //		ERR_FAIL_COND(alloc->lock>0); should not be illegal to lock this for copy on write, as it's a copy on write after all
+        //		ERR_FAIL_COND(alloc->lock>0) should not be illegal to lock this for copy on write, as it's a copy on write after all
 
         // Refcount should not be zero, otherwise it's a misuse of COW
         if (alloc->refcount.get() == 1)
@@ -131,11 +136,16 @@ class PoolVector {
             int cur_elements = int(alloc->size / sizeof(T));
             T *dst = (T *)w.ptr();
             const T *src = (const T *)r.ptr();
-            for (int i = 0; i < cur_elements; i++) {
-                memnew_placement(&dst[i], T(src[i]));
+            if constexpr (std::is_base_of<Object, T>::value) {
+                for (int i = 0; i < cur_elements; i++) {
+                    memnew_placement(&dst[i], T(src[i]));
+                }
+            } else {
+                for (int i = 0; i < cur_elements; i++) {
+                    memnew_placement_basic(&dst[i], T(src[i]));
+                }
             }
         }
-
         if (old_alloc->refcount.unref()) {
             //this should never happen but..
 
@@ -301,11 +311,12 @@ public:
         _FORCE_INLINE_ const T &operator[](int p_index) const { return this->mem[p_index]; }
         _FORCE_INLINE_ const T *ptr() const { return this->mem; }
 
-        void operator=(const Read &p_read) {
+        Read &operator=(const Read &p_read) {
             if (this->alloc == p_read.alloc)
-                return;
+                return *this;
             this->_unref();
             this->_ref(p_read.alloc);
+            return *this;
         }
 
         Read(const Read &p_read) {
@@ -575,10 +586,14 @@ Error PoolVector<T>::resize(int p_size) {
         alloc->size = new_size;
 
         Write w = write();
-
-        for (int i = cur_elements; i < p_size; i++) {
-
-            memnew_placement(&w[i], T);
+        if constexpr(std::is_base_of<Object, T>::value) {
+            for (int i = cur_elements; i < p_size; i++) {
+                memnew_placement(&w[i], T);
+            }
+        } else {
+            for (int i = cur_elements; i < p_size; i++) {
+                memnew_placement_basic(&w[i], T);
+            }
         }
 
     } else {
@@ -631,4 +646,3 @@ void PoolVector<T>::invert() {
         w[s - i - 1] = temp;
     }
 }
-#endif // POOL_VECTOR_H

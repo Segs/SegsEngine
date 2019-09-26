@@ -67,8 +67,8 @@ Node *EditorScript::get_scene() {
 
 void EditorScript::_run() {
 
-    Ref<Script> s = get_script();
-    ERR_FAIL_COND(!s.is_valid());
+    Ref<Script> s(refFromRefPtr<Script>(get_script()));
+    ERR_FAIL_COND(not s)
     if (!get_script_instance()) {
         EditorNode::add_io_error(TTR("Couldn't instance script:") + "\n " + s->get_path() + "\n" + TTR("Did you forget the 'tool' keyword?"));
         return;
@@ -90,7 +90,7 @@ void EditorScript::set_editor(EditorNode *p_editor) {
 
 void EditorScript::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("add_root_node", "node"), &EditorScript::add_root_node);
+    MethodBinder::bind_method(D_METHOD("add_root_node", {"node"}), &EditorScript::add_root_node);
     MethodBinder::bind_method(D_METHOD("get_scene"), &EditorScript::get_scene);
     MethodBinder::bind_method(D_METHOD("get_editor_interface"), &EditorScript::get_editor_interface);
     BIND_VMETHOD(MethodInfo("_run"));

@@ -60,31 +60,31 @@ NoiseTexture::~NoiseTexture() {
 
 void NoiseTexture::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_width", "width"), &NoiseTexture::set_width);
-    MethodBinder::bind_method(D_METHOD("set_height", "height"), &NoiseTexture::set_height);
+    MethodBinder::bind_method(D_METHOD("set_width", {"width"}), &NoiseTexture::set_width);
+    MethodBinder::bind_method(D_METHOD("set_height", {"height"}), &NoiseTexture::set_height);
 
-    MethodBinder::bind_method(D_METHOD("set_noise", "noise"), &NoiseTexture::set_noise);
+    MethodBinder::bind_method(D_METHOD("set_noise", {"noise"}), &NoiseTexture::set_noise);
     MethodBinder::bind_method(D_METHOD("get_noise"), &NoiseTexture::get_noise);
 
-    MethodBinder::bind_method(D_METHOD("set_seamless", "seamless"), &NoiseTexture::set_seamless);
+    MethodBinder::bind_method(D_METHOD("set_seamless", {"seamless"}), &NoiseTexture::set_seamless);
     MethodBinder::bind_method(D_METHOD("get_seamless"), &NoiseTexture::get_seamless);
 
-    MethodBinder::bind_method(D_METHOD("set_as_normalmap", "as_normalmap"), &NoiseTexture::set_as_normalmap);
+    MethodBinder::bind_method(D_METHOD("set_as_normalmap", {"as_normalmap"}), &NoiseTexture::set_as_normalmap);
     MethodBinder::bind_method(D_METHOD("is_normalmap"), &NoiseTexture::is_normalmap);
 
-    MethodBinder::bind_method(D_METHOD("set_bump_strength", "bump_strength"), &NoiseTexture::set_bump_strength);
+    MethodBinder::bind_method(D_METHOD("set_bump_strength", {"bump_strength"}), &NoiseTexture::set_bump_strength);
     MethodBinder::bind_method(D_METHOD("get_bump_strength"), &NoiseTexture::get_bump_strength);
 
     MethodBinder::bind_method(D_METHOD("_update_texture"), &NoiseTexture::_update_texture);
     MethodBinder::bind_method(D_METHOD("_generate_texture"), &NoiseTexture::_generate_texture);
-    MethodBinder::bind_method(D_METHOD("_thread_done", "image"), &NoiseTexture::_thread_done);
+    MethodBinder::bind_method(D_METHOD("_thread_done", {"image"}), &NoiseTexture::_thread_done);
 
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "width", PROPERTY_HINT_RANGE, "1,2048,1,or_greater"), "set_width", "get_width");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "height", PROPERTY_HINT_RANGE, "1,2048,1,or_greater"), "set_height", "get_height");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "seamless"), "set_seamless", "get_seamless");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "as_normalmap"), "set_as_normalmap", "is_normalmap");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "bump_strength", PROPERTY_HINT_RANGE, "0,32,0.1,or_greater"), "set_bump_strength", "get_bump_strength");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "noise", PROPERTY_HINT_RESOURCE_TYPE, "OpenSimplexNoise"), "set_noise", "get_noise");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "width", PROPERTY_HINT_RANGE, "1,2048,1,or_greater"), "set_width", "get_width");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "height", PROPERTY_HINT_RANGE, "1,2048,1,or_greater"), "set_height", "get_height");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "seamless"), "set_seamless", "get_seamless");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "as_normalmap"), "set_as_normalmap", "is_normalmap");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "bump_strength", PROPERTY_HINT_RANGE, "0,32,0.1,or_greater"), "set_bump_strength", "get_bump_strength");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "noise", PROPERTY_HINT_RESOURCE_TYPE, "OpenSimplexNoise"), "set_noise", "get_noise");
 }
 
 void NoiseTexture::_validate_property(PropertyInfo &property) const {
@@ -98,7 +98,7 @@ void NoiseTexture::_validate_property(PropertyInfo &property) const {
 
 void NoiseTexture::_set_texture_data(const Ref<Image> &p_image) {
     data = p_image;
-    if (data.is_valid()) {
+    if (data) {
         VS::get_singleton()->texture_allocate(texture, size.x, size.y, 0, Image::FORMAT_RGBA8, VS::TEXTURE_TYPE_2D, flags);
         VS::get_singleton()->texture_set_data(texture, p_image);
     }
@@ -135,7 +135,7 @@ Ref<Image> NoiseTexture::_generate_texture() {
 
     update_queued = false;
 
-    if (noise.is_null()) return Ref<Image>();
+    if (not noise) return Ref<Image>();
 
     Ref<Image> image;
 
@@ -179,11 +179,11 @@ void NoiseTexture::_update_texture() {
 void NoiseTexture::set_noise(Ref<OpenSimplexNoise> p_noise) {
     if (p_noise == noise)
         return;
-    if (noise.is_valid()) {
+    if (noise) {
         noise->disconnect(CoreStringNames::get_singleton()->changed, this, "_update_texture");
     }
     noise = p_noise;
-    if (noise.is_valid()) {
+    if (noise) {
         noise->connect(CoreStringNames::get_singleton()->changed, this, "_update_texture");
     }
     _queue_update();

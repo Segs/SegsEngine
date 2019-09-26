@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "resource_saver.h"
+#include "core/method_info.h"
 #include "core/class_db.h"
 #include "core/io/resource_loader.h"
 #include "core/io/image_saver.h"
@@ -52,8 +53,8 @@ Error ResourceFormatSaver::save(const String &p_path, const Ref<Resource> &p_res
     if (get_script_instance() && get_script_instance()->has_method("save")) {
         return (Error)get_script_instance()->call("save", p_path, p_resource, p_flags).operator int64_t();
     }
-    Ref<ImageTexture> texture = p_resource;
-    if(texture.is_valid()) {
+    Ref<ImageTexture> texture = dynamic_ref_cast<ImageTexture>( p_resource );
+    if(texture) {
         ERR_FAIL_COND_V_MSG(!texture->get_width(), ERR_INVALID_PARAMETER, "Can't save empty texture as PNG.")
         Ref<Image> img = texture->get_data();
         Ref<Image> source_image = prepareForPngStorage(img);
@@ -66,9 +67,9 @@ Error ResourceFormatSaver::save(const String &p_path, const Ref<Resource> &p_res
 bool ResourceFormatSaver::recognize(const Ref<Resource> &p_resource) const {
 
     if (get_script_instance() && get_script_instance()->has_method("recognize")) {
-        return get_script_instance()->call("recognize", p_resource);
+        return get_script_instance()->call("recognize", p_resource).as<bool>();
     }
-    if(p_resource.is_valid() && p_resource->is_class("ImageTexture"))
+    if(p_resource && p_resource->is_class("ImageTexture"))
         return true;
     return false;
 }
@@ -85,7 +86,7 @@ void ResourceFormatSaver::get_recognized_extensions(const Ref<Resource> &p_resou
             }
         }
     }
-    if (Object::cast_to<ImageTexture>(*p_resource)) {
+    if (Object::cast_to<ImageTexture>(p_resource.get())) {
         //TODO: use resource name here ?
         auto saver = ImageSaver::recognize("png");
         saver->get_saved_extensions(p_extensions);
@@ -95,19 +96,19 @@ void ResourceFormatSaver::get_recognized_extensions(const Ref<Resource> &p_resou
 void ResourceFormatSaver::_bind_methods() {
 
     {
-        PropertyInfo arg0 = PropertyInfo(Variant::STRING, "path");
-        PropertyInfo arg1 = PropertyInfo(Variant::OBJECT, "resource", PROPERTY_HINT_RESOURCE_TYPE, "Resource");
-        PropertyInfo arg2 = PropertyInfo(Variant::INT, "flags");
-		ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(Variant::INT, "save", arg0, arg1, arg2));
+        PropertyInfo arg0 = PropertyInfo(VariantType::STRING, "path");
+        PropertyInfo arg1 = PropertyInfo(VariantType::OBJECT, "resource", PROPERTY_HINT_RESOURCE_TYPE, "Resource");
+        PropertyInfo arg2 = PropertyInfo(VariantType::INT, "flags");
+        ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::INT, "save", arg0, arg1, arg2));
     }
 
-	ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(Variant::POOL_STRING_ARRAY, "get_recognized_extensions", PropertyInfo(Variant::OBJECT, "resource", PROPERTY_HINT_RESOURCE_TYPE, "Resource")));
-	ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(Variant::BOOL, "recognize", PropertyInfo(Variant::OBJECT, "resource", PROPERTY_HINT_RESOURCE_TYPE, "Resource")));
+    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::POOL_STRING_ARRAY, "get_recognized_extensions", PropertyInfo(VariantType::OBJECT, "resource", PROPERTY_HINT_RESOURCE_TYPE, "Resource")));
+    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::BOOL, "recognize", PropertyInfo(VariantType::OBJECT, "resource", PROPERTY_HINT_RESOURCE_TYPE, "Resource")));
 }
 
 Error ResourceSaver::save(const String &p_path, const RES &p_resource, uint32_t p_flags) {
 
-	String extension = PathUtils::get_extension(p_path);
+    String extension = PathUtils::get_extension(p_path);
     Error err = ERR_FILE_UNRECOGNIZED;
 
     for (int i = 0; i < saver_count; i++) {
@@ -132,7 +133,7 @@ Error ResourceSaver::save(const String &p_path, const RES &p_resource, uint32_t 
 
         String local_path = ProjectSettings::get_singleton()->localize_path(p_path);
 
-        RES rwcopy = p_resource;
+        RES rwcopy(p_resource);
         if (p_flags & FLAG_CHANGE_PATH)
             rwcopy->set_path(local_path);
 
@@ -142,18 +143,18 @@ Error ResourceSaver::save(const String &p_path, const RES &p_resource, uint32_t 
 
 #ifdef TOOLS_ENABLED
 
-            ((Resource *)p_resource.ptr())->set_edited(false);
+            p_resource->set_edited(false);
             if (timestamp_on_save) {
                 uint64_t mt = FileAccess::get_modified_time(p_path);
 
-                ((Resource *)p_resource.ptr())->set_last_modified_time(mt);
+                p_resource->set_last_modified_time(mt);
             }
 #endif
 
             if (p_flags & FLAG_CHANGE_PATH)
                 rwcopy->set_path(old_path);
 
-			if (save_callback && StringUtils::begins_with(p_path,"res://"))
+            if (save_callback && StringUtils::begins_with(p_path,"res://"))
                 save_callback(p_resource, p_path);
 
             return OK;
@@ -176,9 +177,9 @@ void ResourceSaver::get_recognized_extensions(const RES &p_resource, Vector<Stri
     }
 }
 
-void ResourceSaver::add_resource_format_saver(Ref<ResourceFormatSaver> p_format_saver, bool p_at_front) {
+void ResourceSaver::add_resource_format_saver(const Ref<ResourceFormatSaver>& p_format_saver, bool p_at_front) {
 
-    ERR_FAIL_COND(p_format_saver.is_null())
+    ERR_FAIL_COND(not p_format_saver)
     ERR_FAIL_COND(saver_count >= MAX_SAVERS)
 
     if (p_at_front) {
@@ -192,9 +193,9 @@ void ResourceSaver::add_resource_format_saver(Ref<ResourceFormatSaver> p_format_
     }
 }
 
-void ResourceSaver::remove_resource_format_saver(Ref<ResourceFormatSaver> p_format_saver) {
+void ResourceSaver::remove_resource_format_saver(const Ref<ResourceFormatSaver>& p_format_saver) {
 
-    ERR_FAIL_COND(p_format_saver.is_null())
+    ERR_FAIL_COND(not p_format_saver)
 
     // Find saver
     int i = 0;
@@ -213,7 +214,7 @@ void ResourceSaver::remove_resource_format_saver(Ref<ResourceFormatSaver> p_form
     --saver_count;
 }
 
-Ref<ResourceFormatSaver> ResourceSaver::_find_custom_resource_format_saver(String path) {
+Ref<ResourceFormatSaver> ResourceSaver::_find_custom_resource_format_saver(const String& path) {
     for (int i = 0; i < saver_count; ++i) {
         if (saver[i]->get_script_instance() && saver[i]->get_script_instance()->get_script()->get_path() == path) {
             return saver[i];
@@ -222,35 +223,35 @@ Ref<ResourceFormatSaver> ResourceSaver::_find_custom_resource_format_saver(Strin
     return Ref<ResourceFormatSaver>();
 }
 
-bool ResourceSaver::add_custom_resource_format_saver(String script_path) {
+bool ResourceSaver::add_custom_resource_format_saver(const String& script_path) {
 
-    if (_find_custom_resource_format_saver(script_path).is_valid())
+    if (_find_custom_resource_format_saver(script_path))
         return false;
 
     Ref<Resource> res = ResourceLoader::load(script_path);
-    ERR_FAIL_COND_V(res.is_null(), false)
+    ERR_FAIL_COND_V(not res, false)
     ERR_FAIL_COND_V(!res->is_class("Script"), false)
 
-    Ref<Script> s = res;
+    Ref<Script> s = dynamic_ref_cast<Script>(res);
     StringName ibt = s->get_instance_base_type();
     bool valid_type = ClassDB::is_parent_class(ibt, "ResourceFormatSaver");
-    ERR_FAIL_COND_V_MSG(!valid_type, false, "Script does not inherit a CustomResourceSaver: " + script_path + ".");
+    ERR_FAIL_COND_V_MSG(!valid_type, false, "Script does not inherit a CustomResourceSaver: " + script_path + ".")
 
     Object *obj = ClassDB::instance(ibt);
 
-    ERR_FAIL_COND_V_MSG(obj == nullptr, false, "Cannot instance script as custom resource saver, expected 'ResourceFormatSaver' inheritance, got: " + String(ibt) + ".");
+    ERR_FAIL_COND_V_MSG(obj == nullptr, false, "Cannot instance script as custom resource saver, expected 'ResourceFormatSaver' inheritance, got: " + String(ibt) + ".")
 
     ResourceFormatSaver *crl = Object::cast_to<ResourceFormatSaver>(obj);
     crl->set_script(s.get_ref_ptr());
-    ResourceSaver::add_resource_format_saver(crl);
+    ResourceSaver::add_resource_format_saver(Ref<ResourceFormatSaver>(crl));
 
     return true;
 }
 
-void ResourceSaver::remove_custom_resource_format_saver(String script_path) {
+void ResourceSaver::remove_custom_resource_format_saver(const String& script_path) {
 
     Ref<ResourceFormatSaver> custom_saver = _find_custom_resource_format_saver(script_path);
-    if (custom_saver.is_valid())
+    if (custom_saver)
         remove_resource_format_saver(custom_saver);
 }
 

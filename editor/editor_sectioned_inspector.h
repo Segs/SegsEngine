@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef EDITOR_SECTIONED_INSPECTOR_H
-#define EDITOR_SECTIONED_INSPECTOR_H
+#pragma once
 
 #include "editor/editor_inspector.h"
 #include "scene/gui/split_container.h"
@@ -39,36 +38,37 @@ class SectionedInspectorFilter;
 
 class SectionedInspector : public HSplitContainer {
 
-	GDCLASS(SectionedInspector,HSplitContainer)
+    GDCLASS(SectionedInspector,HSplitContainer)
 
-	ObjectID obj;
+    ObjectID obj;
 
-	Tree *sections;
-	SectionedInspectorFilter *filter;
+    Tree *sections;
+    SectionedInspectorFilter *filter;
 
-	Map<String, TreeItem *> section_map;
-	EditorInspector *inspector;
-	LineEdit *search_box;
+    Map<String, TreeItem *> section_map;
+    EditorInspector *inspector;
+    LineEdit *search_box;
 
-	String selected_category;
+    String selected_category;
 
-	static void _bind_methods();
-	void _section_selected();
+    static void _bind_methods();
+    void _section_selected();
 
-	void _search_changed(const String &p_what);
+    void _search_changed(const String &p_what);
 
 public:
-	void register_search_box(LineEdit *p_box);
-	EditorInspector *get_inspector();
-	void edit(Object *p_object);
-	String get_full_item_path(const String &p_item);
+    void register_search_box(LineEdit *p_box);
+    EditorInspector *get_inspector();
+    void edit(Object *p_object);
+    String get_full_item_path(const String &p_item);
 
-	void set_current_section(const String &p_section);
-	String get_current_section() const;
+    void set_current_section(const String &p_section);
+    String get_current_section() const;
 
-	void update_category_list();
+    void update_category_list();
 
-	SectionedInspector();
-	~SectionedInspector() override;
+    SectionedInspector();
+    ~SectionedInspector() override;
 };
-#endif // EDITOR_SECTIONED_INSPECTOR_H
+
+void register_sectioned_inspector_classes();

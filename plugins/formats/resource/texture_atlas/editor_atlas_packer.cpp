@@ -108,8 +108,8 @@ void EditorAtlasPacker::chart_pack(Vector<Chart> &charts, int &r_width, int &r_h
 			}
 		}
 
-		Ref<BitMap> src_bitmap;
-		src_bitmap.instance();
+        Ref<BitMap> src_bitmap(make_ref_counted<BitMap>());
+
 		src_bitmap->create(aabb.size / divide_by);
 
 		int w = src_bitmap->get_size().width;

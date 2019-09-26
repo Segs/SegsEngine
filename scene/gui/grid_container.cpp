@@ -63,11 +63,11 @@ void GridContainer::_notification(int p_what) {
                 valid_controls_index++;
 
                 Size2i ms = c->get_combined_minimum_size();
-                if (col_minw.has(col))
+                if (col_minw.contains(col))
                     col_minw[col] = MAX(col_minw[col], ms.width);
                 else
                     col_minw[col] = ms.width;
-                if (row_minh.has(row))
+                if (row_minh.contains(row))
                     row_minh[row] = MAX(row_minh[row], ms.height);
                 else
                     row_minh[row] = ms.height;
@@ -82,14 +82,14 @@ void GridContainer::_notification(int p_what) {
 
             // Evaluate the remaining space for expanded columns/rows
             Size2 remaining_space = get_size();
-            for (Map<int, int>::Element *E = col_minw.front(); E; E = E->next()) {
-                if (!col_expanded.has(E->key()))
-                    remaining_space.width -= E->get();
+            for (eastl::pair<const int,int> &E : col_minw) {
+                if (!col_expanded.contains(E.first))
+                    remaining_space.width -= E.second;
             }
 
-            for (Map<int, int>::Element *E = row_minh.front(); E; E = E->next()) {
-                if (!row_expanded.has(E->key()))
-                    remaining_space.height -= E->get();
+            for (eastl::pair<const int,int> &E : row_minh) {
+                if (!row_expanded.contains(E.first))
+                    remaining_space.height -= E.second;
             }
             remaining_space.height -= vsep * MAX(max_row - 1, 0);
             remaining_space.width -= hsep * MAX(max_col - 1, 0);
@@ -98,12 +98,12 @@ void GridContainer::_notification(int p_what) {
             while (!can_fit && !col_expanded.empty()) {
                 // Check if all minwidth constraints are ok if we use the remaining space
                 can_fit = true;
-                int max_index = col_expanded.front()->get();
-                for (Set<int>::Element *E = col_expanded.front(); E; E = E->next()) {
-                    if (col_minw[E->get()] > col_minw[max_index]) {
-                        max_index = E->get();
+                int max_index = *col_expanded.begin();
+                for (int E : col_expanded) {
+                    if (col_minw[E] > col_minw[max_index]) {
+                        max_index = E;
                     }
-                    if (can_fit && (remaining_space.width / col_expanded.size()) < col_minw[E->get()]) {
+                    if (can_fit && (remaining_space.width / col_expanded.size()) < col_minw[E]) {
                         can_fit = false;
                     }
                 }
@@ -119,12 +119,12 @@ void GridContainer::_notification(int p_what) {
             while (!can_fit && !row_expanded.empty()) {
                 // Check if all minwidth constraints are ok if we use the remaining space
                 can_fit = true;
-                int max_index = row_expanded.front()->get();
-                for (Set<int>::Element *E = row_expanded.front(); E; E = E->next()) {
-                    if (row_minh[E->get()] > row_minh[max_index]) {
-                        max_index = E->get();
+                int max_index = *row_expanded.begin();
+                for (int E : row_expanded) {
+                    if (row_minh[E] > row_minh[max_index]) {
+                        max_index = E;
                     }
-                    if (can_fit && (remaining_space.height / row_expanded.size()) < row_minh[E->get()]) {
+                    if (can_fit && (remaining_space.height / row_expanded.size()) < row_minh[E]) {
                         can_fit = false;
                     }
                 }
@@ -155,11 +155,11 @@ void GridContainer::_notification(int p_what) {
                 if (col == 0) {
                     col_ofs = 0;
                     if (row > 0)
-                        row_ofs += ((row_expanded.has(row - 1)) ? row_expand : row_minh[row - 1]) + vsep;
+                        row_ofs += ((row_expanded.contains(row - 1)) ? row_expand : row_minh[row - 1]) + vsep;
                 }
 
                 Point2 p(col_ofs, row_ofs);
-                Size2 s((col_expanded.has(col)) ? col_expand : col_minw[col], (row_expanded.has(row)) ? row_expand : row_minh[row]);
+                Size2 s((col_expanded.contains(col)) ? col_expand : col_minw[col], (row_expanded.contains(row)) ? row_expand : row_minh[row]);
 
                 fit_child_in_rect(c, Rect2(p, s));
 
@@ -176,7 +176,7 @@ void GridContainer::_notification(int p_what) {
 
 void GridContainer::set_columns(int p_columns) {
 
-    ERR_FAIL_COND(p_columns < 1);
+    ERR_FAIL_COND(p_columns < 1)
     columns = p_columns;
     queue_sort();
     minimum_size_changed();
@@ -189,10 +189,10 @@ int GridContainer::get_columns() const {
 
 void GridContainer::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_columns", "columns"), &GridContainer::set_columns);
+    MethodBinder::bind_method(D_METHOD("set_columns", {"columns"}), &GridContainer::set_columns);
     MethodBinder::bind_method(D_METHOD("get_columns"), &GridContainer::get_columns);
 
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "columns", PROPERTY_HINT_RANGE, "1,1024,1"), "set_columns", "get_columns");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "columns", PROPERTY_HINT_RANGE, "1,1024,1"), "set_columns", "get_columns");
 }
 
 Size2 GridContainer::get_minimum_size() const {
@@ -217,12 +217,12 @@ Size2 GridContainer::get_minimum_size() const {
         valid_controls_index++;
 
         Size2i ms = c->get_combined_minimum_size();
-        if (col_minw.has(col))
+        if (col_minw.contains(col))
             col_minw[col] = MAX(col_minw[col], ms.width);
         else
             col_minw[col] = ms.width;
 
-        if (row_minh.has(row))
+        if (row_minh.contains(row))
             row_minh[row] = MAX(row_minh[row], ms.height);
         else
             row_minh[row] = ms.height;
@@ -232,12 +232,12 @@ Size2 GridContainer::get_minimum_size() const {
 
     Size2 ms;
 
-    for (Map<int, int>::Element *E = col_minw.front(); E; E = E->next()) {
-        ms.width += E->get();
+    for (eastl::pair<const int,int> &E : col_minw) {
+        ms.width += E.second;
     }
 
-    for (Map<int, int>::Element *E = row_minh.front(); E; E = E->next()) {
-        ms.height += E->get();
+    for (eastl::pair<const int,int> &E : row_minh) {
+        ms.height += E.second;
     }
 
     ms.height += vsep * max_row;

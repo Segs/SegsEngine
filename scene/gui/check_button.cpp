@@ -42,9 +42,9 @@ Size2 CheckButton::get_icon_size() const {
     Ref<Texture> on = Control::get_icon(is_disabled() ? StringName("on_disabled") : StringName("on"));
     Ref<Texture> off = Control::get_icon(is_disabled() ? StringName("off_disabled") : StringName("off"));
     Size2 tex_size = Size2(0, 0);
-    if (!on.is_null())
+    if (on)
         tex_size = Size2(on->get_width(), on->get_height());
-    if (!off.is_null())
+    if (off)
         tex_size = Size2(MAX(tex_size.width, off->get_width()), MAX(tex_size.height, off->get_height()));
 
     return tex_size;

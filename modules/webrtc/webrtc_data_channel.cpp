@@ -39,7 +39,7 @@ void WebRTCDataChannel::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("close"), &WebRTCDataChannel::close);
 
     MethodBinder::bind_method(D_METHOD("was_string_packet"), &WebRTCDataChannel::was_string_packet);
-    MethodBinder::bind_method(D_METHOD("set_write_mode", "write_mode"), &WebRTCDataChannel::set_write_mode);
+    MethodBinder::bind_method(D_METHOD("set_write_mode", {"write_mode"}), &WebRTCDataChannel::set_write_mode);
     MethodBinder::bind_method(D_METHOD("get_write_mode"), &WebRTCDataChannel::get_write_mode);
     MethodBinder::bind_method(D_METHOD("get_ready_state"), &WebRTCDataChannel::get_ready_state);
     MethodBinder::bind_method(D_METHOD("get_label"), &WebRTCDataChannel::get_label);
@@ -50,15 +50,15 @@ void WebRTCDataChannel::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_protocol"), &WebRTCDataChannel::get_protocol);
     MethodBinder::bind_method(D_METHOD("is_negotiated"), &WebRTCDataChannel::is_negotiated);
 
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "write_mode", PROPERTY_HINT_ENUM), "set_write_mode", "get_write_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "write_mode", PROPERTY_HINT_ENUM), "set_write_mode", "get_write_mode");
 
-    BIND_ENUM_CONSTANT(WRITE_MODE_TEXT);
-    BIND_ENUM_CONSTANT(WRITE_MODE_BINARY);
+    BIND_ENUM_CONSTANT(WRITE_MODE_TEXT)
+    BIND_ENUM_CONSTANT(WRITE_MODE_BINARY)
 
-    BIND_ENUM_CONSTANT(STATE_CONNECTING);
-    BIND_ENUM_CONSTANT(STATE_OPEN);
-    BIND_ENUM_CONSTANT(STATE_CLOSING);
-    BIND_ENUM_CONSTANT(STATE_CLOSED);
+    BIND_ENUM_CONSTANT(STATE_CONNECTING)
+    BIND_ENUM_CONSTANT(STATE_OPEN)
+    BIND_ENUM_CONSTANT(STATE_CLOSING)
+    BIND_ENUM_CONSTANT(STATE_CLOSED)
 }
 
 WebRTCDataChannel::WebRTCDataChannel() {

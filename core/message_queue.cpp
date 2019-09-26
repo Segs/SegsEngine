@@ -83,8 +83,8 @@ Error MessageQueue::push_call(ObjectID p_id, const StringName &p_method, VARIANT
 
     int argc = 0;
 
-    for (int i = 0; i < VARIANT_ARG_MAX; i++) {
-        if (argptr[i]->get_type() == Variant::NIL)
+    for (const Variant *arg_ptr : argptr) {
+        if (arg_ptr->get_type() == VariantType::NIL)
             break;
         argc++;
     }
@@ -184,7 +184,7 @@ void MessageQueue::statistics() {
 
                 case TYPE_CALL: {
 
-                    if (!call_count.has(message->target))
+                    if (!call_count.contains(message->target))
                         call_count[message->target] = 0;
 
                     call_count[message->target]++;
@@ -192,7 +192,7 @@ void MessageQueue::statistics() {
                 } break;
                 case TYPE_NOTIFICATION: {
 
-                    if (!notify_count.has(message->notification))
+                    if (!notify_count.contains(message->notification))
                         notify_count[message->notification] = 0;
 
                     notify_count[message->notification]++;
@@ -200,7 +200,7 @@ void MessageQueue::statistics() {
                 } break;
                 case TYPE_SET: {
 
-                    if (!set_count.has(message->target))
+                    if (!set_count.contains(message->target))
                         set_count[message->target] = 0;
 
                     set_count[message->target]++;
@@ -223,16 +223,16 @@ void MessageQueue::statistics() {
     print_line("TOTAL BYTES: " + itos(buffer_end));
     print_line("NULL count: " + itos(null_count));
 
-    for (Map<StringName, int>::Element *E = set_count.front(); E; E = E->next()) {
-        print_line("SET " + E->key() + ": " + itos(E->get()));
+    for (const eastl::pair<const StringName,int> &E : set_count) {
+        print_line("SET " + E.first + ": " + itos(E.second));
     }
 
-    for (Map<StringName, int>::Element *E = call_count.front(); E; E = E->next()) {
-        print_line("CALL " + E->key() + ": " + itos(E->get()));
+    for (const eastl::pair<const StringName,int> &E : call_count) {
+        print_line("CALL " + E.first + ": " + itos(E.second));
     }
 
-    for (Map<int, int>::Element *E = notify_count.front(); E; E = E->next()) {
-        print_line("NOTIFY " + itos(E->key()) + ": " + itos(E->get()));
+    for (const eastl::pair<const int,int> &E : notify_count) {
+        print_line("NOTIFY " + itos(E.first) + ": " + itos(E.second));
     }
 }
 
@@ -270,7 +270,7 @@ void MessageQueue::flush() {
     //using reverse locking strategy
     _THREAD_SAFE_LOCK_
 
-    ERR_FAIL_COND(flushing) //already flushing, you did something odd
+    ERR_FAIL_COND(flushing )//already flushing, you did something odd
     flushing = true;
 
     while (read_pos < buffer_end) {
@@ -350,7 +350,7 @@ MessageQueue::MessageQueue() {
     buffer_max_used = 0;
     buffer_size = GLOBAL_DEF_RST(prop_name, DEFAULT_QUEUE_SIZE_KB);
     ProjectSettings::get_singleton()->set_custom_property_info(
-            prop_name, PropertyInfo(Variant::INT, "memory/limits/message_queue/max_size_kb", PROPERTY_HINT_RANGE,
+            prop_name, PropertyInfo(VariantType::INT, "memory/limits/message_queue/max_size_kb", PROPERTY_HINT_RANGE,
                                "0,2048,1,or_greater"));
     buffer_size *= 1024;
     buffer = memnew_arr(uint8_t, buffer_size);

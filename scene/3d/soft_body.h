@@ -102,7 +102,7 @@ private:
 protected:
 	bool _set(const StringName &p_name, const Variant &p_value);
 	bool _get(const StringName &p_name, Variant &r_ret) const;
-	void _get_property_list(List<PropertyInfo> *p_list) const;
+	void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
 
 	bool _set_property_pinned_points_indices(const Array &p_indices);
 	bool _set_property_pinned_points_attachment(int p_item, const String &p_what, const Variant &p_value);
@@ -137,7 +137,7 @@ public:
 	void set_parent_collision_ignore(const NodePath &p_parent_collision_ignore);
 	const NodePath &get_parent_collision_ignore() const;
 
-	void set_pinned_points_indices(PoolVector<PinnedPoint> p_pinned_points_indices);
+	void set_pinned_points_indices(const PoolVector<PinnedPoint>& p_pinned_points_indices);
 	PoolVector<PinnedPoint> get_pinned_points_indices();
 
 	void set_simulation_precision(int p_simulation_precision);

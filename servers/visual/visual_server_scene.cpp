@@ -44,7 +44,7 @@ RID VisualServerScene::camera_create() {
 void VisualServerScene::camera_set_perspective(RID p_camera, float p_fovy_degrees, float p_z_near, float p_z_far) {
 
     Camera *camera = camera_owner.get(p_camera);
-    ERR_FAIL_COND(!camera);
+    ERR_FAIL_COND(!camera)
     camera->type = Camera::PERSPECTIVE;
     camera->fov = p_fovy_degrees;
     camera->znear = p_z_near;
@@ -54,7 +54,7 @@ void VisualServerScene::camera_set_perspective(RID p_camera, float p_fovy_degree
 void VisualServerScene::camera_set_orthogonal(RID p_camera, float p_size, float p_z_near, float p_z_far) {
 
     Camera *camera = camera_owner.get(p_camera);
-    ERR_FAIL_COND(!camera);
+    ERR_FAIL_COND(!camera)
     camera->type = Camera::ORTHOGONAL;
     camera->size = p_size;
     camera->znear = p_z_near;
@@ -63,7 +63,7 @@ void VisualServerScene::camera_set_orthogonal(RID p_camera, float p_size, float 
 
 void VisualServerScene::camera_set_frustum(RID p_camera, float p_size, Vector2 p_offset, float p_z_near, float p_z_far) {
     Camera *camera = camera_owner.get(p_camera);
-    ERR_FAIL_COND(!camera);
+    ERR_FAIL_COND(!camera)
     camera->type = Camera::FRUSTUM;
     camera->size = p_size;
     camera->offset = p_offset;
@@ -74,14 +74,14 @@ void VisualServerScene::camera_set_frustum(RID p_camera, float p_size, Vector2 p
 void VisualServerScene::camera_set_transform(RID p_camera, const Transform &p_transform) {
 
     Camera *camera = camera_owner.get(p_camera);
-    ERR_FAIL_COND(!camera);
+    ERR_FAIL_COND(!camera)
     camera->transform = p_transform.orthonormalized();
 }
 
 void VisualServerScene::camera_set_cull_mask(RID p_camera, uint32_t p_layers) {
 
     Camera *camera = camera_owner.get(p_camera);
-    ERR_FAIL_COND(!camera);
+    ERR_FAIL_COND(!camera)
 
     camera->visible_layers = p_layers;
 }
@@ -89,14 +89,14 @@ void VisualServerScene::camera_set_cull_mask(RID p_camera, uint32_t p_layers) {
 void VisualServerScene::camera_set_environment(RID p_camera, RID p_env) {
 
     Camera *camera = camera_owner.get(p_camera);
-    ERR_FAIL_COND(!camera);
+    ERR_FAIL_COND(!camera)
     camera->env = p_env;
 }
 
 void VisualServerScene::camera_set_use_vertical_aspect(RID p_camera, bool p_enable) {
 
     Camera *camera = camera_owner.get(p_camera);
-    ERR_FAIL_COND(!camera);
+    ERR_FAIL_COND(!camera)
     camera->vaspect = p_enable;
 }
 
@@ -176,7 +176,8 @@ void *VisualServerScene::_instance_pair(void *p_self, OctreeElementID, Instance 
     } else if (B->base_type == VS::INSTANCE_GI_PROBE && A->base_type == VS::INSTANCE_LIGHT) {
 
         InstanceGIProbeData *gi_probe = static_cast<InstanceGIProbeData *>(B->base_data);
-        return gi_probe->lights.insert(A);
+        gi_probe->lights.insert(A);
+        return A;
     }
 
     return nullptr;
@@ -199,7 +200,7 @@ void VisualServerScene::_instance_unpair(void *p_self, OctreeElementID, Instance
 
         List<InstanceLightData::PairInfo>::Element *E = reinterpret_cast<List<InstanceLightData::PairInfo>::Element *>(udata);
 
-        geom->lighting.erase(E->get().L);
+        geom->lighting.erase(E->deref().L);
         light->geometries.erase(E);
 
         if (geom->can_cast_shadows) {
@@ -214,7 +215,7 @@ void VisualServerScene::_instance_unpair(void *p_self, OctreeElementID, Instance
 
         List<InstanceReflectionProbeData::PairInfo>::Element *E = reinterpret_cast<List<InstanceReflectionProbeData::PairInfo>::Element *>(udata);
 
-        geom->reflection_probes.erase(E->get().L);
+        geom->reflection_probes.erase(E->deref().L);
         reflection_probe->geometries.erase(E);
 
         geom->reflection_dirty = true;
@@ -225,7 +226,7 @@ void VisualServerScene::_instance_unpair(void *p_self, OctreeElementID, Instance
 
         List<InstanceLightmapCaptureData::PairInfo>::Element *E = reinterpret_cast<List<InstanceLightmapCaptureData::PairInfo>::Element *>(udata);
 
-        geom->lightmap_captures.erase(E->get().L);
+        geom->lightmap_captures.erase(E->deref().L);
         lightmap_capture->geometries.erase(E);
         ((VisualServerScene *)p_self)->_instance_queue_update(A, false, false); //need to update capture
 
@@ -236,7 +237,7 @@ void VisualServerScene::_instance_unpair(void *p_self, OctreeElementID, Instance
 
         List<InstanceGIProbeData::PairInfo>::Element *E = reinterpret_cast<List<InstanceGIProbeData::PairInfo>::Element *>(udata);
 
-        geom->gi_probes.erase(E->get().L);
+        geom->gi_probes.erase(E->deref().L);
         gi_probe->geometries.erase(E);
 
         geom->gi_probes_dirty = true;
@@ -244,7 +245,7 @@ void VisualServerScene::_instance_unpair(void *p_self, OctreeElementID, Instance
     } else if (B->base_type == VS::INSTANCE_GI_PROBE && A->base_type == VS::INSTANCE_LIGHT) {
 
         InstanceGIProbeData *gi_probe = static_cast<InstanceGIProbeData *>(B->base_data);
-        Set<Instance *>::Element *E = reinterpret_cast<Set<Instance *>::Element *>(udata);
+        Instance *E = reinterpret_cast<Instance *>(udata);
 
         gi_probe->lights.erase(E);
     }
@@ -253,7 +254,7 @@ void VisualServerScene::_instance_unpair(void *p_self, OctreeElementID, Instance
 RID VisualServerScene::scenario_create() {
 
     Scenario *scenario = memnew(Scenario);
-    ERR_FAIL_COND_V(!scenario, RID());
+    ERR_FAIL_COND_V(!scenario, RID())
     RID scenario_rid = scenario_owner.make_rid(scenario);
     scenario->self = scenario_rid;
 
@@ -273,28 +274,28 @@ RID VisualServerScene::scenario_create() {
 void VisualServerScene::scenario_set_debug(RID p_scenario, VS::ScenarioDebugMode p_debug_mode) {
 
     Scenario *scenario = scenario_owner.get(p_scenario);
-    ERR_FAIL_COND(!scenario);
+    ERR_FAIL_COND(!scenario)
     scenario->debug = p_debug_mode;
 }
 
 void VisualServerScene::scenario_set_environment(RID p_scenario, RID p_environment) {
 
     Scenario *scenario = scenario_owner.get(p_scenario);
-    ERR_FAIL_COND(!scenario);
+    ERR_FAIL_COND(!scenario)
     scenario->environment = p_environment;
 }
 
 void VisualServerScene::scenario_set_fallback_environment(RID p_scenario, RID p_environment) {
 
     Scenario *scenario = scenario_owner.get(p_scenario);
-    ERR_FAIL_COND(!scenario);
+    ERR_FAIL_COND(!scenario)
     scenario->fallback_environment = p_environment;
 }
 
 void VisualServerScene::scenario_set_reflection_atlas_size(RID p_scenario, int p_size, int p_subdiv) {
 
     Scenario *scenario = scenario_owner.get(p_scenario);
-    ERR_FAIL_COND(!scenario);
+    ERR_FAIL_COND(!scenario)
     VSG::scene_render->reflection_atlas_set_size(scenario->reflection_atlas, p_size);
     VSG::scene_render->reflection_atlas_set_subdivision(scenario->reflection_atlas, p_subdiv);
 }
@@ -318,7 +319,7 @@ void VisualServerScene::_instance_queue_update(Instance *p_instance, bool p_upda
 RID VisualServerScene::instance_create() {
 
     Instance *instance = memnew(Instance);
-    ERR_FAIL_COND_V(!instance, RID());
+    ERR_FAIL_COND_V(!instance, RID())
 
     RID instance_rid = instance_owner.make_rid(instance);
     instance->self = instance_rid;
@@ -329,7 +330,7 @@ RID VisualServerScene::instance_create() {
 void VisualServerScene::instance_set_base(RID p_instance, RID p_base) {
 
     Instance *instance = instance_owner.get(p_instance);
-    ERR_FAIL_COND(!instance);
+    ERR_FAIL_COND(!instance)
 
     Scenario *scenario = instance->scenario;
 
@@ -383,8 +384,8 @@ void VisualServerScene::instance_set_base(RID p_instance, RID p_base) {
 
                 InstanceLightmapCaptureData *lightmap_capture = static_cast<InstanceLightmapCaptureData *>(instance->base_data);
                 //erase dependencies, since no longer a lightmap
-                while (lightmap_capture->users.front()) {
-                    instance_set_use_lightmap(lightmap_capture->users.front()->get()->self, RID(), RID());
+                while (!lightmap_capture->users.empty()) {
+                    instance_set_use_lightmap((*lightmap_capture->users.begin())->self, RID(), RID());
                 }
             } break;
             case VS::INSTANCE_GI_PROBE: {
@@ -434,7 +435,7 @@ void VisualServerScene::instance_set_base(RID p_instance, RID p_base) {
     if (p_base.is_valid()) {
 
         instance->base_type = VSG::storage->get_base_type(p_base);
-        ERR_FAIL_COND(instance->base_type == VS::INSTANCE_NONE);
+        ERR_FAIL_COND(instance->base_type == VS::INSTANCE_NONE)
 
         switch (instance->base_type) {
             case VS::INSTANCE_LIGHT: {
@@ -502,7 +503,7 @@ void VisualServerScene::instance_set_base(RID p_instance, RID p_base) {
 void VisualServerScene::instance_set_scenario(RID p_instance, RID p_scenario) {
 
     Instance *instance = instance_owner.get(p_instance);
-    ERR_FAIL_COND(!instance);
+    ERR_FAIL_COND(!instance)
 
     if (instance->scenario) {
 
@@ -546,7 +547,7 @@ void VisualServerScene::instance_set_scenario(RID p_instance, RID p_scenario) {
     if (p_scenario.is_valid()) {
 
         Scenario *scenario = scenario_owner.get(p_scenario);
-        ERR_FAIL_COND(!scenario);
+        ERR_FAIL_COND(!scenario)
 
         instance->scenario = scenario;
 
@@ -579,14 +580,14 @@ void VisualServerScene::instance_set_scenario(RID p_instance, RID p_scenario) {
 void VisualServerScene::instance_set_layer_mask(RID p_instance, uint32_t p_mask) {
 
     Instance *instance = instance_owner.get(p_instance);
-    ERR_FAIL_COND(!instance);
+    ERR_FAIL_COND(!instance)
 
     instance->layer_mask = p_mask;
 }
 void VisualServerScene::instance_set_transform(RID p_instance, const Transform &p_transform) {
 
     Instance *instance = instance_owner.get(p_instance);
-    ERR_FAIL_COND(!instance);
+    ERR_FAIL_COND(!instance)
 
     if (instance->transform == p_transform)
         return; //must be checked to avoid worst evil
@@ -595,12 +596,12 @@ void VisualServerScene::instance_set_transform(RID p_instance, const Transform &
 
     for (int i = 0; i < 4; i++) {
         const Vector3 &v = i < 3 ? p_transform.basis.elements[i] : p_transform.origin;
-        ERR_FAIL_COND(Math::is_inf(v.x));
-        ERR_FAIL_COND(Math::is_nan(v.x));
-        ERR_FAIL_COND(Math::is_inf(v.y));
-        ERR_FAIL_COND(Math::is_nan(v.y));
-        ERR_FAIL_COND(Math::is_inf(v.z));
-        ERR_FAIL_COND(Math::is_nan(v.z));
+        ERR_FAIL_COND(Math::is_inf(v.x))
+        ERR_FAIL_COND(Math::is_nan(v.x))
+        ERR_FAIL_COND(Math::is_inf(v.y))
+        ERR_FAIL_COND(Math::is_nan(v.y))
+        ERR_FAIL_COND(Math::is_inf(v.z))
+        ERR_FAIL_COND(Math::is_nan(v.z))
     }
 
 #endif
@@ -610,14 +611,14 @@ void VisualServerScene::instance_set_transform(RID p_instance, const Transform &
 void VisualServerScene::instance_attach_object_instance_id(RID p_instance, ObjectID p_id) {
 
     Instance *instance = instance_owner.get(p_instance);
-    ERR_FAIL_COND(!instance);
+    ERR_FAIL_COND(!instance)
 
     instance->object_id = p_id;
 }
 void VisualServerScene::instance_set_blend_shape_weight(RID p_instance, int p_shape, float p_weight) {
 
     Instance *instance = instance_owner.get(p_instance);
-    ERR_FAIL_COND(!instance);
+    ERR_FAIL_COND(!instance)
 
     if (instance->update_item.in_list()) {
         _update_dirty_instance(instance);
@@ -630,7 +631,7 @@ void VisualServerScene::instance_set_blend_shape_weight(RID p_instance, int p_sh
 void VisualServerScene::instance_set_surface_material(RID p_instance, int p_surface, RID p_material) {
 
     Instance *instance = instance_owner.get(p_instance);
-    ERR_FAIL_COND(!instance);
+    ERR_FAIL_COND(!instance)
 
     if (instance->base_type == VS::INSTANCE_MESH) {
         //may not have been updated yet
@@ -653,7 +654,7 @@ void VisualServerScene::instance_set_surface_material(RID p_instance, int p_surf
 void VisualServerScene::instance_set_visible(RID p_instance, bool p_visible) {
 
     Instance *instance = instance_owner.get(p_instance);
-    ERR_FAIL_COND(!instance);
+    ERR_FAIL_COND(!instance)
 
     if (instance->visible == p_visible)
         return;
@@ -696,7 +697,7 @@ inline bool is_geometry_instance(VisualServer::InstanceType p_type) {
 void VisualServerScene::instance_set_use_lightmap(RID p_instance, RID p_lightmap_instance, RID p_lightmap) {
 
     Instance *instance = instance_owner.get(p_instance);
-    ERR_FAIL_COND(!instance);
+    ERR_FAIL_COND(!instance)
 
     if (instance->lightmap_capture) {
         InstanceLightmapCaptureData *lightmap_capture = static_cast<InstanceLightmapCaptureData *>(((Instance *)instance->lightmap_capture)->base_data);
@@ -707,8 +708,8 @@ void VisualServerScene::instance_set_use_lightmap(RID p_instance, RID p_lightmap
 
     if (p_lightmap_instance.is_valid()) {
         Instance *lightmap_instance = instance_owner.get(p_lightmap_instance);
-        ERR_FAIL_COND(!lightmap_instance);
-        ERR_FAIL_COND(lightmap_instance->base_type != VS::INSTANCE_LIGHTMAP_CAPTURE);
+        ERR_FAIL_COND(!lightmap_instance)
+        ERR_FAIL_COND(lightmap_instance->base_type != VS::INSTANCE_LIGHTMAP_CAPTURE)
         instance->lightmap_capture = lightmap_instance;
 
         InstanceLightmapCaptureData *lightmap_capture = static_cast<InstanceLightmapCaptureData *>(((Instance *)instance->lightmap_capture)->base_data);
@@ -720,8 +721,8 @@ void VisualServerScene::instance_set_use_lightmap(RID p_instance, RID p_lightmap
 void VisualServerScene::instance_set_custom_aabb(RID p_instance, AABB p_aabb) {
 
     Instance *instance = instance_owner.get(p_instance);
-    ERR_FAIL_COND(!instance);
-    ERR_FAIL_COND(!is_geometry_instance(instance->base_type));
+    ERR_FAIL_COND(!instance)
+    ERR_FAIL_COND(!is_geometry_instance(instance->base_type))
 
     if (p_aabb != AABB()) {
 
@@ -746,7 +747,7 @@ void VisualServerScene::instance_set_custom_aabb(RID p_instance, AABB p_aabb) {
 void VisualServerScene::instance_attach_skeleton(RID p_instance, RID p_skeleton) {
 
     Instance *instance = instance_owner.get(p_instance);
-    ERR_FAIL_COND(!instance);
+    ERR_FAIL_COND(!instance)
 
     if (instance->skeleton == p_skeleton)
         return;
@@ -769,7 +770,7 @@ void VisualServerScene::instance_set_exterior(RID p_instance, bool p_enabled) {
 
 void VisualServerScene::instance_set_extra_visibility_margin(RID p_instance, real_t p_margin) {
     Instance *instance = instance_owner.get(p_instance);
-    ERR_FAIL_COND(!instance);
+    ERR_FAIL_COND(!instance)
 
     instance->extra_margin = p_margin;
     _instance_queue_update(instance, true, false);
@@ -779,7 +780,7 @@ Vector<ObjectID> VisualServerScene::instances_cull_aabb(const AABB &p_aabb, RID 
 
     Vector<ObjectID> instances;
     Scenario *scenario = scenario_owner.get(p_scenario);
-    ERR_FAIL_COND_V(!scenario, instances);
+    ERR_FAIL_COND_V(!scenario, instances)
 
     const_cast<VisualServerScene *>(this)->update_dirty_instances(); // check dirty instances before culling
 
@@ -803,7 +804,7 @@ Vector<ObjectID> VisualServerScene::instances_cull_ray(const Vector3 &p_from, co
 
     Vector<ObjectID> instances;
     Scenario *scenario = scenario_owner.get(p_scenario);
-    ERR_FAIL_COND_V(!scenario, instances);
+    ERR_FAIL_COND_V(!scenario, instances)
     const_cast<VisualServerScene *>(this)->update_dirty_instances(); // check dirty instances before culling
 
     int culled = 0;
@@ -825,7 +826,7 @@ Vector<ObjectID> VisualServerScene::instances_cull_convex(const Vector<Plane> &p
 
     Vector<ObjectID> instances;
     Scenario *scenario = scenario_owner.get(p_scenario);
-    ERR_FAIL_COND_V(!scenario, instances);
+    ERR_FAIL_COND_V(!scenario, instances)
     const_cast<VisualServerScene *>(this)->update_dirty_instances(); // check dirty instances before culling
 
     int culled = 0;
@@ -849,7 +850,7 @@ Vector<ObjectID> VisualServerScene::instances_cull_convex(const Vector<Plane> &p
 void VisualServerScene::instance_geometry_set_flag(RID p_instance, VS::InstanceFlags p_flags, bool p_enabled) {
 
     Instance *instance = instance_owner.get(p_instance);
-    ERR_FAIL_COND(!instance);
+    ERR_FAIL_COND(!instance)
 
     switch (p_flags) {
 
@@ -870,7 +871,7 @@ void VisualServerScene::instance_geometry_set_flag(RID p_instance, VS::InstanceF
 void VisualServerScene::instance_geometry_set_cast_shadows_setting(RID p_instance, VS::ShadowCastingSetting p_shadow_casting_setting) {
 
     Instance *instance = instance_owner.get(p_instance);
-    ERR_FAIL_COND(!instance);
+    ERR_FAIL_COND(!instance)
 
     instance->cast_shadows = p_shadow_casting_setting;
     instance->base_changed(false, true); // to actually compute if shadows are visible or not
@@ -878,7 +879,7 @@ void VisualServerScene::instance_geometry_set_cast_shadows_setting(RID p_instanc
 void VisualServerScene::instance_geometry_set_material_override(RID p_instance, RID p_material) {
 
     Instance *instance = instance_owner.get(p_instance);
-    ERR_FAIL_COND(!instance);
+    ERR_FAIL_COND(!instance)
 
     if (instance->material_override.is_valid()) {
         VSG::storage->material_remove_instance_owner(instance->material_override, instance);
@@ -932,7 +933,7 @@ void VisualServerScene::_update_instance(Instance *p_instance) {
 
         if (geom->can_cast_shadows) {
             for (List<Instance *>::Element *E = geom->lighting.front(); E; E = E->next()) {
-                InstanceLightData *light = static_cast<InstanceLightData *>(E->get()->base_data);
+                InstanceLightData *light = static_cast<InstanceLightData *>(E->deref()->base_data);
                 light->shadow_dirty = true;
             }
         }
@@ -996,7 +997,7 @@ void VisualServerScene::_update_instance_aabb(Instance *p_instance) {
 
     AABB new_aabb;
 
-    ERR_FAIL_COND(p_instance->base_type != VS::INSTANCE_NONE && !p_instance->base.is_valid());
+    ERR_FAIL_COND(p_instance->base_type != VS::INSTANCE_NONE && !p_instance->base.is_valid())
 
     switch (p_instance->base_type) {
         case VisualServer::INSTANCE_NONE: {
@@ -1279,13 +1280,13 @@ void VisualServerScene::_update_instance_lightmap_captures(Instance *p_instance)
 
     //this could use some sort of blending..
     for (List<Instance *>::Element *E = geom->lightmap_captures.front(); E; E = E->next()) {
-        const PoolVector<RasterizerStorage::LightmapCaptureOctree> *octree = VSG::storage->lightmap_capture_get_octree_ptr(E->get()->base);
+        const PoolVector<RasterizerStorage::LightmapCaptureOctree> *octree = VSG::storage->lightmap_capture_get_octree_ptr(E->deref()->base);
         //print_line("octree size: " + itos(octree->size()));
         if (octree->size() == 0)
             continue;
-        Transform to_cell_xform = VSG::storage->lightmap_capture_get_octree_cell_transform(E->get()->base);
-        int cell_subdiv = VSG::storage->lightmap_capture_get_octree_cell_subdiv(E->get()->base);
-        to_cell_xform = to_cell_xform * E->get()->transform.affine_inverse();
+        Transform to_cell_xform = VSG::storage->lightmap_capture_get_octree_cell_transform(E->deref()->base);
+        int cell_subdiv = VSG::storage->lightmap_capture_get_octree_cell_subdiv(E->deref()->base);
+        to_cell_xform = to_cell_xform * E->deref()->transform.affine_inverse();
 
         PoolVector<RasterizerStorage::LightmapCaptureOctree>::Read octree_r = octree->read();
 
@@ -1712,7 +1713,7 @@ void VisualServerScene::render_camera(RID p_camera, RID p_scenario, Size2 p_view
 #ifndef _3D_DISABLED
 
     Camera *camera = camera_owner.getornull(p_camera);
-    ERR_FAIL_COND(!camera);
+    ERR_FAIL_COND(!camera)
 
     /* STEP 1 - SETUP CAMERA */
     CameraMatrix camera_matrix;
@@ -1762,7 +1763,7 @@ void VisualServerScene::render_camera(Ref<ARVRInterface> &p_interface, ARVRInter
     // render for AR/VR interface
 
     Camera *camera = camera_owner.getornull(p_camera);
-    ERR_FAIL_COND(!camera);
+    ERR_FAIL_COND(!camera)
 
     /* SETUP CAMERA, we are ignoring type and FOV here */
     float aspect = p_viewport_size.width / (float)p_viewport_size.height;
@@ -1972,7 +1973,7 @@ void VisualServerScene::_prepare_scene(const Transform p_cam_transform, const Ca
 
                 for (List<Instance *>::Element *E = geom->lighting.front(); E; E = E->next()) {
 
-                    InstanceLightData *light = static_cast<InstanceLightData *>(E->get()->base_data);
+                    InstanceLightData *light = static_cast<InstanceLightData *>(E->deref()->base_data);
 
                     ins->light_instances.write[l++] = light->instance;
                 }
@@ -1987,7 +1988,7 @@ void VisualServerScene::_prepare_scene(const Transform p_cam_transform, const Ca
 
                 for (List<Instance *>::Element *E = geom->reflection_probes.front(); E; E = E->next()) {
 
-                    InstanceReflectionProbeData *reflection_probe = static_cast<InstanceReflectionProbeData *>(E->get()->base_data);
+                    InstanceReflectionProbeData *reflection_probe = static_cast<InstanceReflectionProbeData *>(E->deref()->base_data);
 
                     ins->reflection_probe_instances.write[l++] = reflection_probe->instance;
                 }
@@ -2002,7 +2003,7 @@ void VisualServerScene::_prepare_scene(const Transform p_cam_transform, const Ca
 
                 for (List<Instance *>::Element *E = geom->gi_probes.front(); E; E = E->next()) {
 
-                    InstanceGIProbeData *gi_probe = static_cast<InstanceGIProbeData *>(E->get()->base_data);
+                    InstanceGIProbeData *gi_probe = static_cast<InstanceGIProbeData *>(E->deref()->base_data);
 
                     ins->gi_probe_instances.write[l++] = gi_probe->probe_instance;
                 }
@@ -2043,16 +2044,16 @@ void VisualServerScene::_prepare_scene(const Transform p_cam_transform, const Ca
                 break;
             }
 
-            if (!E->get()->visible)
+            if (!E->deref()->visible)
                 continue;
 
-            InstanceLightData *light = static_cast<InstanceLightData *>(E->get()->base_data);
+            InstanceLightData *light = static_cast<InstanceLightData *>(E->deref()->base_data);
 
             //check shadow..
 
             if (light) {
-                if (p_shadow_atlas.is_valid() && VSG::storage->light_has_shadow(E->get()->base)) {
-                    lights_with_shadow[directional_shadow_count++] = E->get();
+                if (p_shadow_atlas.is_valid() && VSG::storage->light_has_shadow(E->deref()->base)) {
+                    lights_with_shadow[directional_shadow_count++] = E->deref();
                 }
                 //add to list
                 directional_light_ptr[directional_light_count++] = light->instance;
@@ -2206,7 +2207,7 @@ bool VisualServerScene::_render_reflection_probe_step(Instance *p_instance, int 
 
     InstanceReflectionProbeData *reflection_probe = static_cast<InstanceReflectionProbeData *>(p_instance->base_data);
     Scenario *scenario = p_instance->scenario;
-    ERR_FAIL_COND_V(!scenario, true);
+    ERR_FAIL_COND_V(!scenario, true)
 
     VisualServerRaster::redraw_request(); //update, so it updates in editor
 
@@ -2451,7 +2452,7 @@ void VisualServerScene::_setup_gi_probe(Instance *p_instance) {
 
             Map<uint32_t, InstanceGIProbeData::CompBlockS3TC> &cmap = comp_blocks.write[mipmap];
 
-            if (!cmap.has(key)) {
+            if (!cmap.contains(key)) {
 
                 InstanceGIProbeData::CompBlockS3TC k;
                 k.offset = key; //use offset as counter first
@@ -2473,9 +2474,9 @@ void VisualServerScene::_setup_gi_probe(Instance *p_instance) {
             PoolVector<InstanceGIProbeData::CompBlockS3TC>::Write w = probe->dynamic.mipmaps_s3tc.write[i].write();
             int block_idx = 0;
 
-            for (Map<uint32_t, InstanceGIProbeData::CompBlockS3TC>::Element *E = comp_blocks[i].front(); E; E = E->next()) {
+            for (auto &E : comp_blocks[i]) {
 
-                InstanceGIProbeData::CompBlockS3TC k = E->get();
+                InstanceGIProbeData::CompBlockS3TC k = E.second;
 
                 //PRECOMPUTE ALPHA
                 int max_alpha = -100000;
@@ -2510,7 +2511,7 @@ void VisualServerScene::_setup_gi_probe(Instance *p_instance) {
                             //subtract minimum
                             uint32_t a = uint32_t(alpha_block[x][y]) - min_alpha;
                             //convert range to 3 bits
-                            a = int((a * 7.0 / (max_alpha - min_alpha)) + 0.5);
+                            a = int((a * 7.0f / (max_alpha - min_alpha)) + 0.5f);
                             a = MIN(a, 7); //just to be sure
                             a = 7 - a; //because range is inverted in this mode
                             if (a == 0) {
@@ -2554,7 +2555,7 @@ void VisualServerScene::_gi_probe_bake_thread() {
         probe_bake_mutex->lock();
 
         if (!probe_bake_list.empty()) {
-            to_bake = probe_bake_list.front()->get();
+            to_bake = probe_bake_list.front()->deref();
             probe_bake_list.pop_front();
         }
         probe_bake_mutex->unlock();
@@ -2893,12 +2894,12 @@ void VisualServerScene::_bake_gi_probe(Instance *p_gi_probe) {
     InstanceGIProbeData::LocalData *local_data = ldw.ptr();
 
     //remove what must be removed
-    for (Map<RID, InstanceGIProbeData::LightCache>::Element *E = probe_data->dynamic.light_cache.front(); E; E = E->next()) {
+    for (eastl::pair<const RID,InstanceGIProbeData::LightCache> &E : probe_data->dynamic.light_cache) {
 
-        RID rid = E->key();
-        const InstanceGIProbeData::LightCache &lc = E->get();
+        RID rid = E.first;
+        const InstanceGIProbeData::LightCache &lc = E.second;
 
-        if ((!probe_data->dynamic.light_cache_changes.has(rid) || probe_data->dynamic.light_cache_changes[rid] != lc) && lc.visible) {
+        if ((!probe_data->dynamic.light_cache_changes.contains(rid) || probe_data->dynamic.light_cache_changes[rid] != lc) && lc.visible) {
             //erase light data
 
             _bake_gi_probe_light(header, cells, local_data, leaves, leaf_count, lc, -1);
@@ -2906,12 +2907,12 @@ void VisualServerScene::_bake_gi_probe(Instance *p_gi_probe) {
     }
 
     //add what must be added
-    for (Map<RID, InstanceGIProbeData::LightCache>::Element *E = probe_data->dynamic.light_cache_changes.front(); E; E = E->next()) {
+    for (eastl::pair<const RID,InstanceGIProbeData::LightCache> &E : probe_data->dynamic.light_cache_changes) {
 
-        RID rid = E->key();
-        const InstanceGIProbeData::LightCache &lc = E->get();
+        RID rid = E.first;
+        const InstanceGIProbeData::LightCache &lc = E.second;
 
-        if ((!probe_data->dynamic.light_cache.has(rid) || probe_data->dynamic.light_cache[rid] != lc) && lc.visible) {
+        if ((!probe_data->dynamic.light_cache.contains(rid) || probe_data->dynamic.light_cache[rid] != lc) && lc.visible) {
             //add light data
 
             _bake_gi_probe_light(header, cells, local_data, leaves, leaf_count, lc, 1);
@@ -3117,48 +3118,48 @@ bool VisualServerScene::_check_gi_probe(Instance *p_gi_probe) {
 
     for (List<Instance *>::Element *E = p_gi_probe->scenario->directional_lights.front(); E; E = E->next()) {
 
-        if (!VSG::storage->light_get_use_gi(E->get()->base))
+        if (!VSG::storage->light_get_use_gi(E->deref()->base))
             continue;
 
         InstanceGIProbeData::LightCache lc;
-        lc.type = VSG::storage->light_get_type(E->get()->base);
-        lc.color = VSG::storage->light_get_color(E->get()->base);
-        lc.energy = VSG::storage->light_get_param(E->get()->base, VS::LIGHT_PARAM_ENERGY) * VSG::storage->light_get_param(E->get()->base, VS::LIGHT_PARAM_INDIRECT_ENERGY);
-        lc.radius = VSG::storage->light_get_param(E->get()->base, VS::LIGHT_PARAM_RANGE);
-        lc.attenuation = VSG::storage->light_get_param(E->get()->base, VS::LIGHT_PARAM_ATTENUATION);
-        lc.spot_angle = VSG::storage->light_get_param(E->get()->base, VS::LIGHT_PARAM_SPOT_ANGLE);
-        lc.spot_attenuation = VSG::storage->light_get_param(E->get()->base, VS::LIGHT_PARAM_SPOT_ATTENUATION);
-        lc.transform = probe_data->dynamic.light_to_cell_xform * E->get()->transform;
-        lc.visible = E->get()->visible;
+        lc.type = VSG::storage->light_get_type(E->deref()->base);
+        lc.color = VSG::storage->light_get_color(E->deref()->base);
+        lc.energy = VSG::storage->light_get_param(E->deref()->base, VS::LIGHT_PARAM_ENERGY) * VSG::storage->light_get_param(E->deref()->base, VS::LIGHT_PARAM_INDIRECT_ENERGY);
+        lc.radius = VSG::storage->light_get_param(E->deref()->base, VS::LIGHT_PARAM_RANGE);
+        lc.attenuation = VSG::storage->light_get_param(E->deref()->base, VS::LIGHT_PARAM_ATTENUATION);
+        lc.spot_angle = VSG::storage->light_get_param(E->deref()->base, VS::LIGHT_PARAM_SPOT_ANGLE);
+        lc.spot_attenuation = VSG::storage->light_get_param(E->deref()->base, VS::LIGHT_PARAM_SPOT_ATTENUATION);
+        lc.transform = probe_data->dynamic.light_to_cell_xform * E->deref()->transform;
+        lc.visible = E->deref()->visible;
 
-        if (!probe_data->dynamic.light_cache.has(E->get()->self) || probe_data->dynamic.light_cache[E->get()->self] != lc) {
+        if (!probe_data->dynamic.light_cache.contains(E->deref()->self) || probe_data->dynamic.light_cache[E->deref()->self] != lc) {
             all_equal = false;
         }
 
-        probe_data->dynamic.light_cache_changes[E->get()->self] = lc;
+        probe_data->dynamic.light_cache_changes[E->deref()->self] = lc;
     }
 
-    for (Set<Instance *>::Element *E = probe_data->lights.front(); E; E = E->next()) {
+    for (Instance * E : probe_data->lights) {
 
-        if (!VSG::storage->light_get_use_gi(E->get()->base))
+        if (!VSG::storage->light_get_use_gi(E->base))
             continue;
 
         InstanceGIProbeData::LightCache lc;
-        lc.type = VSG::storage->light_get_type(E->get()->base);
-        lc.color = VSG::storage->light_get_color(E->get()->base);
-        lc.energy = VSG::storage->light_get_param(E->get()->base, VS::LIGHT_PARAM_ENERGY) * VSG::storage->light_get_param(E->get()->base, VS::LIGHT_PARAM_INDIRECT_ENERGY);
-        lc.radius = VSG::storage->light_get_param(E->get()->base, VS::LIGHT_PARAM_RANGE);
-        lc.attenuation = VSG::storage->light_get_param(E->get()->base, VS::LIGHT_PARAM_ATTENUATION);
-        lc.spot_angle = VSG::storage->light_get_param(E->get()->base, VS::LIGHT_PARAM_SPOT_ANGLE);
-        lc.spot_attenuation = VSG::storage->light_get_param(E->get()->base, VS::LIGHT_PARAM_SPOT_ATTENUATION);
-        lc.transform = probe_data->dynamic.light_to_cell_xform * E->get()->transform;
-        lc.visible = E->get()->visible;
+        lc.type = VSG::storage->light_get_type(E->base);
+        lc.color = VSG::storage->light_get_color(E->base);
+        lc.energy = VSG::storage->light_get_param(E->base, VS::LIGHT_PARAM_ENERGY) * VSG::storage->light_get_param(E->base, VS::LIGHT_PARAM_INDIRECT_ENERGY);
+        lc.radius = VSG::storage->light_get_param(E->base, VS::LIGHT_PARAM_RANGE);
+        lc.attenuation = VSG::storage->light_get_param(E->base, VS::LIGHT_PARAM_ATTENUATION);
+        lc.spot_angle = VSG::storage->light_get_param(E->base, VS::LIGHT_PARAM_SPOT_ANGLE);
+        lc.spot_attenuation = VSG::storage->light_get_param(E->base, VS::LIGHT_PARAM_SPOT_ATTENUATION);
+        lc.transform = probe_data->dynamic.light_to_cell_xform * E->transform;
+        lc.visible = E->visible;
 
-        if (!probe_data->dynamic.light_cache.has(E->get()->self) || probe_data->dynamic.light_cache[E->get()->self] != lc) {
+        if (!probe_data->dynamic.light_cache.contains(E->self) || probe_data->dynamic.light_cache[E->self] != lc) {
             all_equal = false;
         }
 
-        probe_data->dynamic.light_cache_changes[E->get()->self] = lc;
+        probe_data->dynamic.light_cache_changes[E->self] = lc;
     }
 
     //lighting changed from after to before, must do some updating
@@ -3433,7 +3434,7 @@ void VisualServerScene::_update_dirty_instance(Instance *p_instance) {
             if (can_cast_shadows != geom->can_cast_shadows) {
                 //ability to cast shadows change, let lights now
                 for (List<Instance *>::Element *E = geom->lighting.front(); E; E = E->next()) {
-                    InstanceLightData *light = static_cast<InstanceLightData *>(E->get()->base_data);
+                    InstanceLightData *light = static_cast<InstanceLightData *>(E->deref()->base_data);
                     light->shadow_dirty = true;
                 }
 

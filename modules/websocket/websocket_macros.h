@@ -50,7 +50,7 @@ public:\
 \
 		if (!_create)\
 			return Ref<CNAME >();\
-		return Ref<CNAME >(_create());\
+        return Ref<CNAME >(_create());\
 	}\
 \
 	static CNAME *create() {\

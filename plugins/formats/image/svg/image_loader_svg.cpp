@@ -87,7 +87,7 @@ void ImageLoaderSVG::set_convert_colors(Dictionary *p_replace_color) {
         for (int i = 0; i < replace_color.keys().size(); i++) {
             Variant o_c = replace_color.keys()[i];
             Variant n_c = replace_color[replace_color.keys()[i]];
-            if (o_c.get_type() == Variant::COLOR && n_c.get_type() == Variant::COLOR) {
+            if (o_c.get_type() == VariantType::COLOR && n_c.get_type() == VariantType::COLOR) {
                 Color old_color = o_c;
                 Color new_color = n_c;
                 replace_colors.old_colors.push_back(old_color.to_abgr32());

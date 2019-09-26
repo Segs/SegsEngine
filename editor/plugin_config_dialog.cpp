@@ -60,7 +60,7 @@ void PluginConfigDialog::_on_confirmed() {
             return;
     }
 
-    Ref<ConfigFile> cf = memnew(ConfigFile);
+    Ref<ConfigFile> cf(make_ref_counted<ConfigFile>());
     cf->set_value("plugin", "name", name_edit->get_text());
     cf->set_value("plugin", "description", desc_edit->get_text());
     cf->set_value("plugin", "author", author_edit->get_text());
@@ -80,7 +80,7 @@ void PluginConfigDialog::_on_confirmed() {
 
         if (lang_name == GDScriptLanguage::get_singleton()->get_name()) {
             // Hard-coded GDScript template to keep usability until we use script templates.
-            Ref<GDScript> gdscript = memnew(GDScript);
+            Ref<GDScript> gdscript(make_ref_counted<GDScript>());
             gdscript->set_source_code(
                     "tool\n"
                     "extends EditorPlugin\n"
@@ -102,7 +102,7 @@ void PluginConfigDialog::_on_confirmed() {
             ResourceSaver::save(script_path, script);
         }
 
-        emit_signal("plugin_ready", script.operator->(), active_edit->is_pressed() ? subfolder_edit->get_text() : "");
+        emit_signal("plugin_ready", Variant(script), active_edit->is_pressed() ? subfolder_edit->get_text() : "");
     } else {
         EditorNode::get_singleton()->get_project_settings()->update_plugins();
     }
@@ -134,9 +134,9 @@ void PluginConfigDialog::_notification(int p_what) {
 
 void PluginConfigDialog::config(const String &p_config_path) {
     if (p_config_path.length()) {
-        Ref<ConfigFile> cf = memnew(ConfigFile);
+        Ref<ConfigFile> cf(make_ref_counted<ConfigFile>());
         Error err = cf->load(p_config_path);
-        ERR_FAIL_COND(err != OK);
+        ERR_FAIL_COND(err != OK)
 
         name_edit->set_text(cf->get_value("plugin", "name", ""));
         subfolder_edit->set_text(PathUtils::get_file(PathUtils::get_basename(PathUtils::get_base_dir(p_config_path))));
@@ -168,7 +168,7 @@ void PluginConfigDialog::_bind_methods() {
     MethodBinder::bind_method("_on_required_text_changed", &PluginConfigDialog::_on_required_text_changed);
     MethodBinder::bind_method("_on_confirmed", &PluginConfigDialog::_on_confirmed);
     MethodBinder::bind_method("_on_cancelled", &PluginConfigDialog::_on_cancelled);
-    ADD_SIGNAL(MethodInfo("plugin_ready", PropertyInfo(Variant::STRING, "script_path", PROPERTY_HINT_NONE, ""), PropertyInfo(Variant::STRING, "activate_name")));
+    ADD_SIGNAL(MethodInfo("plugin_ready", PropertyInfo(VariantType::STRING, "script_path", PROPERTY_HINT_NONE, ""), PropertyInfo(VariantType::STRING, "activate_name")));
 }
 
 PluginConfigDialog::PluginConfigDialog() {

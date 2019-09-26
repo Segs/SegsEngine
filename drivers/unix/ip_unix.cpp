@@ -32,6 +32,7 @@
 #include "core/class_db.h"
 
 #if defined(UNIX_ENABLED) || defined(WINDOWS_ENABLED)
+#include "core/property_info.h"
 
 #include <cstring>
 
@@ -110,7 +111,7 @@ IP_Address IP_Unix::_resolve_hostname(const String &p_hostname, Type p_type) {
     };
     hints.ai_flags &= ~AI_NUMERICHOST;
 
-	int s = getaddrinfo(qPrintable(p_hostname.m_str), nullptr, &hints, &result);
+    int s = getaddrinfo(qPrintable(p_hostname.m_str), nullptr, &hints, &result);
     if (s != 0) {
         ERR_PRINT("getaddrinfo failed! Cannot resolve hostname.");
         return IP_Address();
@@ -210,7 +211,7 @@ void IP_Unix::get_local_interfaces(Map<String, Interface_Info> *r_interfaces) co
         adapter = adapter->Next;
         // Only add interface if it has at least one IP
         if (info.ip_addresses.size() > 0)
-            r_interfaces->insert(info.name, info);
+            r_interfaces->emplace(info.name, info);
     };
 
     memfree(addrs);
@@ -237,17 +238,18 @@ void IP_Unix::get_local_interfaces(Map<String, Interface_Info> *r_interfaces) co
         if (family != AF_INET && family != AF_INET6)
             continue;
 
-        Map<String, Interface_Info>::Element *E = r_interfaces->find(ifa->ifa_name);
-        if (!E) {
+        Map<String, Interface_Info>::iterator E = r_interfaces->find(ifa->ifa_name);
+        if (E==r_interfaces->end()) {
             Interface_Info info;
             info.name = ifa->ifa_name;
             info.name_friendly = ifa->ifa_name;
             info.index = if_nametoindex(ifa->ifa_name);
-            E = r_interfaces->insert(ifa->ifa_name, info);
-            ERR_CONTINUE(!E)
+            auto insert_res = r_interfaces->emplace(ifa->ifa_name, info);
+            E = insert_res.first;
+            ERR_CONTINUE(insert_res.second==false)
         }
 
-        Interface_Info &info = E->get();
+        Interface_Info &info = E->second;
         info.ip_addresses.push_front(_sockaddr2ip(ifa->ifa_addr));
     }
 
@@ -261,7 +263,7 @@ void IP_Unix::make_default() {
 }
 
 IP *IP_Unix::_create_unix() {
-
+    IP_Unix::initialize_class();
     return memnew(IP_Unix);
 }
 

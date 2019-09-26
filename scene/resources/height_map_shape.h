@@ -53,7 +53,7 @@ public:
 	int get_map_width() const;
 	void set_map_depth(int p_new);
 	int get_map_depth() const;
-	void set_map_data(PoolRealArray p_new);
+	void set_map_data(const PoolRealArray& p_new);
 	PoolRealArray get_map_data() const;
 
 	HeightMapShape();

@@ -29,7 +29,7 @@
 /*************************************************************************/
 
 #include "image_compress_squish.h"
-
+#include "core/ustring.h"
 #include <squish.h>
 
 void image_decompress_squish(Image *p_image) {

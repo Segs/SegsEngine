@@ -85,9 +85,9 @@ RES ResourceFormatPKM::load(const String &p_path, const String &p_original_path,
     int width = h.origWidth;
     int height = h.origHeight;
 
-    Ref<Image> img = memnew(Image(width, height, mipmaps, Image::FORMAT_ETC, src_data));
+    Ref<Image> img(make_ref_counted<Image>(width, height, mipmaps, Image::FORMAT_ETC, src_data));
 
-    Ref<ImageTexture> texture = memnew(ImageTexture);
+    Ref<ImageTexture> texture(make_ref_counted<ImageTexture>());
     texture->create_from_image(img);
 
     if (r_error)
@@ -96,7 +96,7 @@ RES ResourceFormatPKM::load(const String &p_path, const String &p_original_path,
     return texture;
 }
 
-void ResourceFormatPKM::get_recognized_extensions(List<String> *p_extensions) const {
+void ResourceFormatPKM::get_recognized_extensions(ListPOD<String> *p_extensions) const {
 
     p_extensions->push_back("pkm");
 }

@@ -43,10 +43,7 @@
 #include "gles3/shaders/cubemap_filter.glsl.gen.h"
 #include "gles3/shaders/particles.glsl.gen.h"
 
-// WebGL 2.0 has no MapBufferRange/UnmapBuffer, but offers a non-ES style BufferSubData API instead.
-#ifdef __EMSCRIPTEN__
-void glGetBufferSubData(GLenum target, GLintptr offset, GLsizeiptr size, GLvoid *data);
-#endif
+#include "EASTL/deque.h"
 
 class RasterizerCanvasGLES3;
 class RasterizerSceneGLES3;
@@ -221,17 +218,12 @@ public:
             GEOMETRY_MULTISURFACE,
         };
 
-        Type type;
         RID material;
-        uint64_t last_pass;
-        uint32_t index;
+        uint64_t last_pass=0;
+        uint32_t index=0;
+        Type type;
 
         virtual void material_changed_notify() {}
-
-        Geometry() {
-            last_pass = 0;
-            index = 0;
-        }
     };
 
     /////////////////////////////////////////////////////////////////////////////////////////
@@ -244,75 +236,45 @@ public:
 
     struct Texture : public RID_Data {
 
-        Texture *proxy;
+        uint32_t flags=0; // put here to align next field to 8 bytes
         Set<Texture *> proxy_owners;
-
+        Vector<Ref<Image> > images;
         String path;
-        uint32_t flags;
-        int width, height, depth;
-        int alloc_width, alloc_height, alloc_depth;
-        Image::Format format;
-        VS::TextureType type;
 
-        GLenum target;
+        RenderTarget *render_target = nullptr;
+        Texture *proxy=nullptr;
+        VisualServer::TextureDetectCallback detect_3d = nullptr;
+        void *detect_3d_ud = nullptr;
+
+        VisualServer::TextureDetectCallback detect_srgb = nullptr;
+        void *detect_srgb_ud = nullptr;
+
+        VisualServer::TextureDetectCallback detect_normal = nullptr;
+        void *detect_normal_ud = nullptr;
+
+        int width=0, height=0, depth;
+        int alloc_width, alloc_height, alloc_depth;
+        Image::Format format=Image::FORMAT_L8;
+        VS::TextureType type=VS::TEXTURE_TYPE_2D;
+
+        GLenum target = GL_TEXTURE_2D;
         GLenum gl_format_cache;
         GLenum gl_internal_format_cache;
         GLenum gl_type_cache;
-        int data_size; //original data size, useful for retrieving back
-        bool compressed;
-        bool srgb;
-        int total_data_size;
-        bool ignore_mipmaps;
+        int data_size=0; //original data size, useful for retrieving back
+        int total_data_size=0;
+        int mipmaps=0;
+        GLuint tex_id=0;
+        uint16_t stored_cube_sides=0;
 
-        int mipmaps;
 
-        bool active;
-        GLuint tex_id;
-
-        bool using_srgb;
-        bool redraw_if_visible;
-
-        uint16_t stored_cube_sides;
-
-        RenderTarget *render_target;
-
-        Vector<Ref<Image> > images;
-
-        VisualServer::TextureDetectCallback detect_3d;
-        void *detect_3d_ud;
-
-        VisualServer::TextureDetectCallback detect_srgb;
-        void *detect_srgb_ud;
-
-        VisualServer::TextureDetectCallback detect_normal;
-        void *detect_normal_ud;
-
-        Texture() :
-                proxy(nullptr),
-                flags(0),
-                width(0),
-                height(0),
-                format(Image::FORMAT_L8),
-                type(VS::TEXTURE_TYPE_2D),
-                target(GL_TEXTURE_2D),
-                data_size(0),
-                compressed(false),
-                srgb(false),
-                total_data_size(0),
-                ignore_mipmaps(false),
-                mipmaps(0),
-                active(false),
-                tex_id(0),
-                using_srgb(false),
-                redraw_if_visible(false),
-                stored_cube_sides(0),
-                render_target(nullptr),
-                detect_3d(nullptr),
-                detect_3d_ud(nullptr),
-                detect_srgb(nullptr),
-                detect_srgb_ud(nullptr),
-                detect_normal(nullptr),
-                detect_normal_ud(nullptr) {
+        bool compressed=false;
+        bool srgb=false;
+        bool ignore_mipmaps=false;
+        bool active=false;
+        bool using_srgb=false;
+        bool redraw_if_visible=false;
+        Texture() {
         }
 
         _ALWAYS_INLINE_ Texture *get_ptr() {
@@ -330,8 +292,8 @@ public:
                 glDeleteTextures(1, &tex_id);
             }
 
-            for (Set<Texture *>::Element *E = proxy_owners.front(); E; E = E->next()) {
-                E->get()->proxy = nullptr;
+            for (Texture * E : proxy_owners) {
+                E->proxy = nullptr;
             }
 
             if (proxy) {
@@ -365,7 +327,7 @@ public:
 
     void texture_set_shrink_all_x2_on_set_data(bool p_enable) override;
 
-    void texture_debug_usage(List<VS::TextureInfo> *r_info) override;
+    void texture_debug_usage(DefList<VS::TextureInfo> *r_info) override;
 
     RID texture_create_radiance_cubemap(RID p_source, int p_resolution = -1) const override;
 
@@ -383,9 +345,8 @@ public:
     /* SKY API */
 
     struct Sky : public RID_Data {
-
-        RID panorama;
         GLuint radiance;
+        RID panorama;
         int radiance_size;
     };
 
@@ -400,35 +361,30 @@ public:
 
     struct Shader : public RID_Data {
 
-        RID self;
-
-        VS::ShaderMode mode;
-        ShaderGLES3 *shader;
-        String code;
-        SelfList<Material>::List materials;
-
-        Map<StringName, ShaderLanguage::ShaderNode::Uniform> uniforms;
-        Vector<uint32_t> ubo_offsets;
-        uint32_t ubo_size;
-
-        uint32_t texture_count;
-
-        uint32_t custom_code_id;
         uint32_t version;
-
-        SelfList<Shader> dirty_list;
-
+        Map<StringName, ShaderLanguage::ShaderNode::Uniform> uniforms;
         Map<StringName, RID> default_textures;
-
+        Vector<uint32_t> ubo_offsets;
         Vector<ShaderLanguage::DataType> texture_types;
         Vector<ShaderLanguage::ShaderNode::Uniform::Hint> texture_hints;
+        SelfList<Material>::List materials;
+        SelfList<Shader> dirty_list;
+        String code;
+        String path;
+        RID self;
+        ShaderGLES3 *shader;
 
+        VS::ShaderMode mode;
+        uint32_t ubo_size;
+        uint32_t texture_count;
+        uint32_t custom_code_id;
         bool valid;
 
-        String path;
 
         struct CanvasItem {
-
+            bool uses_screen_texture;
+            bool uses_screen_uv;
+            bool uses_time;
             enum BlendMode {
                 BLEND_MODE_MIX,
                 BLEND_MODE_ADD,
@@ -448,9 +404,6 @@ public:
 
             int light_mode;
 
-            bool uses_screen_texture;
-            bool uses_screen_uv;
-            bool uses_time;
 
         } canvas_item;
 
@@ -525,7 +478,7 @@ public:
 
     void shader_set_code(RID p_shader, const String &p_code) override;
     String shader_get_code(RID p_shader) const override;
-    void shader_get_param_list(RID p_shader, List<PropertyInfo> *p_param_list) const override;
+    void shader_get_param_list(RID p_shader, ListPOD<PropertyInfo> *p_param_list) const override;
 
     void shader_set_default_texture_param(RID p_shader, const StringName &p_name, RID p_texture) override;
     RID shader_get_default_texture_param(RID p_shader, const StringName &p_name) const override;
@@ -538,37 +491,30 @@ public:
 
     struct Material : public RID_Data {
 
-        Shader *shader;
-        GLuint ubo_id;
-        uint32_t ubo_size;
+        GLuint ubo_id=0;
+        Shader *shader=nullptr;
         Map<StringName, Variant> params;
+        Map<Geometry *, int> geometry_owners;
+        Map<RasterizerScene::InstanceBase *, int> instance_owners;
         SelfList<Material> list;
         SelfList<Material> dirty_list;
         Vector<bool> texture_is_3d;
         Vector<RID> textures;
-        float line_width;
-        int render_priority;
-
         RID next_pass;
-
+        float line_width;
+        uint32_t ubo_size=0;
+        int render_priority=0;
         uint32_t index;
-        uint64_t last_pass;
+        uint64_t last_pass=0;
 
-        Map<Geometry *, int> geometry_owners;
-        Map<RasterizerScene::InstanceBase *, int> instance_owners;
 
         bool can_cast_shadow_cache;
         bool is_animated_cache;
 
         Material() :
-                shader(nullptr),
-                ubo_id(0),
-                ubo_size(0),
                 list(this),
                 dirty_list(this),
                 line_width(1.0),
-                render_priority(0),
-                last_pass(0),
                 can_cast_shadow_cache(false),
                 is_animated_cache(false) {
         }
@@ -612,18 +558,26 @@ public:
 
         struct Attrib {
 
-            bool enabled;
-            bool integer;
             GLuint index;
             GLint size;
-            GLenum type;
-            GLboolean normalized;
-            GLsizei stride;
             uint32_t offset;
+            GLenum type;
+            GLsizei stride;
+            bool enabled;
+            bool integer;
+            GLboolean normalized;
+        };
+        struct BlendShape {
+            GLuint vertex_id;
+            GLuint array_id;
         };
 
         Attrib attribs[VS::ARRAY_MAX];
+        Vector<AABB> skeleton_bone_aabb;
+        Vector<bool> skeleton_bone_used;
+        Vector<BlendShape> blend_shapes;
 
+        AABB aabb;
         Mesh *mesh;
         uint32_t format;
 
@@ -636,20 +590,6 @@ public:
         GLuint array_wireframe_id;
         GLuint instancing_array_wireframe_id;
         int index_wireframe_len;
-
-        Vector<AABB> skeleton_bone_aabb;
-        Vector<bool> skeleton_bone_used;
-
-        //bool packed;
-
-        struct BlendShape {
-            GLuint vertex_id;
-            GLuint array_id;
-        };
-
-        Vector<BlendShape> blend_shapes;
-
-        AABB aabb;
 
         int array_len;
         int index_array_len;
@@ -837,21 +777,20 @@ public:
     struct Immediate : public Geometry {
 
         struct Chunk {
-
-            RID texture;
-            VS::PrimitiveType primitive;
             Vector<Vector3> vertices;
+            RID texture;
             Vector<Vector3> normals;
             Vector<Plane> tangents;
             Vector<Color> colors;
             Vector<Vector2> uvs;
             Vector<Vector2> uvs2;
+            VS::PrimitiveType primitive;
         };
 
-        List<Chunk> chunks;
-        bool building;
-        int mask;
+        eastl::deque<Chunk,wrap_allocator> chunks;
         AABB aabb;
+        int mask;
+        bool building;
 
         Immediate() {
             type = GEOMETRY_IMMEDIATE;
@@ -885,22 +824,14 @@ public:
     /* SKELETON API */
 
     struct Skeleton : RID_Data {
-        bool use_2d;
-        int size;
-        Vector<float> skel_texture;
-        GLuint texture;
-        SelfList<Skeleton> update_list;
+        int size=0; // put first to align from parent members
         Set<RasterizerScene::InstanceBase *> instances; //instances using skeleton
+        Vector<float> skel_texture;
+        SelfList<Skeleton> update_list;
         Transform2D base_transform_2d;
-        bool use_world_transform;
-        Transform world_transform;
-
-        Skeleton() :
-                use_2d(false),
-                size(0),
-                texture(0),
-                update_list(this),
-                use_world_transform(false) {
+        GLuint texture=0;
+        bool use_2d=false;
+        Skeleton() : update_list(this) {
         }
     };
 
@@ -918,7 +849,6 @@ public:
     void skeleton_bone_set_transform_2d(RID p_skeleton, int p_bone, const Transform2D &p_transform) override;
     Transform2D skeleton_bone_get_transform_2d(RID p_skeleton, int p_bone) const override;
     void skeleton_set_base_transform_2d(RID p_skeleton, const Transform2D &p_base_transform) override;
-    void skeleton_set_world_transform(RID p_skeleton, bool p_enable, const Transform &p_world_transform) override;
 
     /* Light API */
 
@@ -938,8 +868,8 @@ public:
         VS::LightOmniShadowDetail omni_shadow_detail;
         VS::LightDirectionalShadowMode directional_shadow_mode;
         VS::LightDirectionalShadowDepthRangeMode directional_range_mode;
-        bool directional_blend_splits;
         uint64_t version;
+        bool directional_blend_splits;
     };
 
     mutable RID_Owner<Light> light_owner;
@@ -991,10 +921,10 @@ public:
         float max_distance;
         Vector3 extents;
         Vector3 origin_offset;
+        uint32_t cull_mask;
         bool interior;
         bool box_projection;
         bool enable_shadows;
-        uint32_t cull_mask;
     };
 
     mutable RID_Owner<ReflectionProbe> reflection_probe_owner;
@@ -1020,7 +950,7 @@ public:
     uint32_t reflection_probe_get_cull_mask(RID p_probe) const override;
 
     Vector3 reflection_probe_get_extents(RID p_probe) const override;
-	Vector3 reflection_probe_get_origin_offset(RID p_probe) const override;
+    Vector3 reflection_probe_get_origin_offset(RID p_probe) const override;
     float reflection_probe_get_origin_max_distance(RID p_probe) const override;
     bool reflection_probe_renders_shadows(RID p_probe) const override;
 
@@ -1030,6 +960,7 @@ public:
 
         AABB bounds;
         Transform to_cell;
+        PoolVector<int> dynamic_data;
         float cell_size;
 
         int dynamic_range;
@@ -1037,12 +968,11 @@ public:
         float bias;
         float normal_bias;
         float propagation;
+        uint32_t version;
+
         bool interior;
         bool compress;
 
-        uint32_t version;
-
-        PoolVector<int> dynamic_data;
     };
 
     mutable RID_Owner<GIProbe> gi_probe_owner;
@@ -1125,12 +1055,8 @@ public:
         PoolVector<LightmapCaptureOctree> octree;
         AABB bounds;
         Transform cell_xform;
-        int cell_subdiv;
-        float energy;
-        LightmapCapture() {
-            energy = 1.0;
-            cell_subdiv = 1;
-        }
+        int cell_subdiv=1;
+        float energy=1.0f;
     };
 
     mutable RID_Owner<LightmapCapture> lightmap_capture_data_owner;
@@ -1139,77 +1065,52 @@ public:
 
     struct Particles : public GeometryOwner {
 
-        bool inactive;
-        float inactive_time;
-        bool emitting;
-        bool one_shot;
-        int amount;
-        float lifetime;
-        float pre_process_time;
-        float explosiveness;
-        float randomness;
-        bool restart_request;
-        AABB custom_aabb;
-        bool use_local_coords;
-        RID process_material;
-
-        VS::ParticlesDrawOrder draw_order;
-
         Vector<RID> draw_passes;
+        RID process_material;
+        AABB custom_aabb;
+        Transform emission_transform;
+        SelfList<Particles> particle_element;
 
-        GLuint particle_buffers[2];
+        float inactive_time=0.0f;
+        int amount=0;
+        float lifetime=1.0f;
+        float pre_process_time=0.0f;
+        float explosiveness=0.0f;
+        float randomness=0.0f;
+        float phase;
+        float prev_phase;
+        uint64_t prev_ticks=0;
+        uint32_t random_seed=0;
+
+        uint32_t cycle_number=0;
+
+        float speed_scale=1.0f;
+
+        int fixed_fps=0;
+        float frame_remainder=0;
+
+        VS::ParticlesDrawOrder draw_order=VS::PARTICLES_DRAW_ORDER_INDEX;
+
+
+        GLuint particle_buffers[2] = {0,0};
         GLuint particle_vaos[2];
 
         GLuint particle_buffer_histories[2];
         GLuint particle_vao_histories[2];
         bool particle_valid_histories[2];
-        bool histories_enabled;
+        bool histories_enabled = false;
 
-        SelfList<Particles> particle_element;
-
-        float phase;
-        float prev_phase;
-        uint64_t prev_ticks;
-        uint32_t random_seed;
-
-        uint32_t cycle_number;
-
-        float speed_scale;
-
-        int fixed_fps;
-        bool fractional_delta;
-        float frame_remainder;
-
-        bool clear;
-
-        Transform emission_transform;
+        bool inactive = true;
+        bool emitting = false;
+        bool one_shot = false;
+        bool restart_request = false;
+        bool use_local_coords = true;
+        bool fractional_delta = false;
+        bool clear = true;
 
         Particles() :
-                inactive(true),
-                inactive_time(0.0),
-                emitting(false),
-                one_shot(false),
-                amount(0),
-                lifetime(1.0),
-                pre_process_time(0.0),
-                explosiveness(0.0),
-                randomness(0.0),
-                restart_request(false),
                 custom_aabb(AABB(Vector3(-4, -4, -4), Vector3(8, 8, 8))),
-                use_local_coords(true),
-                draw_order(VS::PARTICLES_DRAW_ORDER_INDEX),
-                histories_enabled(false),
-                particle_element(this),
-                prev_ticks(0),
-                random_seed(0),
-                cycle_number(0),
-                speed_scale(1.0),
-                fixed_fps(0),
-                fractional_delta(false),
-                frame_remainder(0),
-                clear(true) {
-            particle_buffers[0] = 0;
-            particle_buffers[1] = 0;
+                particle_element(this) {
             glGenBuffers(2, particle_buffers);
             glGenVertexArrays(2, particle_vaos);
         }

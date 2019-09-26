@@ -106,7 +106,7 @@ private:
         MaterialKey mk;
         mk.key = 0;
         for (int i = 0; i < PARAM_MAX; i++) {
-            if (tex_parameters[i].is_valid()) {
+            if (tex_parameters[i]) {
                 mk.texture_mask |= (1 << i);
             }
         }
@@ -116,11 +116,11 @@ private:
             }
         }
 
-        mk.texture_color = color_ramp.is_valid() ? 1 : 0;
+        mk.texture_color = color_ramp ? 1 : 0;
         mk.emission_shape = emission_shape;
-        mk.trail_color_texture = trail_color_modifier.is_valid() ? 1 : 0;
-        mk.trail_size_texture = trail_size_modifier.is_valid() ? 1 : 0;
-        mk.has_emission_color = emission_shape >= EMISSION_SHAPE_POINTS && emission_color_texture.is_valid();
+        mk.trail_color_texture = trail_color_modifier ? 1 : 0;
+        mk.trail_size_texture = trail_size_modifier ? 1 : 0;
+        mk.has_emission_color = emission_shape >= EMISSION_SHAPE_POINTS && emission_color_texture;
 
         return mk;
     }

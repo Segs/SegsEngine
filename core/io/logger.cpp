@@ -146,8 +146,10 @@ void RotatedFileLogger::clear_old_backups() const {
         // since backups are appended with timestamp and Set iterates them in sorted order,
         // first backups are the oldest
         int to_delete = backups.size() - max_backups;
-        for (Set<String>::Element *E = backups.front(); E && to_delete > 0; E = E->next(), --to_delete) {
-            da->remove(E->get());
+        for (const String &E : backups) {
+            if(to_delete--<=0)
+                break;
+            da->remove(E);
         }
     }
 
@@ -267,7 +269,7 @@ void StdLogger::logv(const char *p_format, bool p_err) {
 
 StdLogger::~StdLogger() {}
 
-CompositeLogger::CompositeLogger(Vector<Logger *> p_loggers) :
+CompositeLogger::CompositeLogger(const Vector<Logger *>& p_loggers) :
         loggers(p_loggers) {
 }
 

@@ -35,6 +35,10 @@
 
 IMPL_GDCLASS(HTTPRequest)
 
+//TODO: SEGS: duplicating HTTPClient enums here
+VARIANT_ENUM_CAST(HTTPClient::Method);
+VARIANT_ENUM_CAST(HTTPClient::Status);
+
 void HTTPRequest::_redirect_request(const String & /*p_new_url*/) {
 }
 
@@ -92,7 +96,7 @@ Error HTTPRequest::_parse_url(const String &p_url) {
 Error HTTPRequest::request(const String &p_url, const Vector<String> &p_custom_headers, bool p_ssl_validate_domain, HTTPClient::Method p_method, const String &p_request_data) {
 
     ERR_FAIL_COND_V(!is_inside_tree(), ERR_UNCONFIGURED)
-    ERR_FAIL_COND_V_MSG(requesting, ERR_BUSY, "HTTPRequest is processing a request. Wait for completion or cancel it before attempting a new one.");
+    ERR_FAIL_COND_V_MSG(requesting, ERR_BUSY, "HTTPRequest is processing a request. Wait for completion or cancel it before attempting a new one.")
 
     if (timeout > 0) {
         timer->stop();
@@ -197,7 +201,7 @@ bool HTTPRequest::_handle_response(bool *ret_value) {
     response_headers.resize(0);
     downloaded = 0;
     for (List<String>::Element *E = rheaders.front(); E; E = E->next()) {
-        response_headers.push_back(E->get());
+        response_headers.push_back(E->deref());
     }
 
     if (response_code == 301 || response_code == 302) {
@@ -213,8 +217,8 @@ bool HTTPRequest::_handle_response(bool *ret_value) {
         String new_request;
 
         for (List<String>::Element *E = rheaders.front(); E; E = E->next()) {
-            if (StringUtils::contains(E->get(),"Location: ",StringUtils::CaseInsensitive) ) {
-                new_request = StringUtils::strip_edges(StringUtils::substr(E->get(),9));
+            if (StringUtils::contains(E->deref(),"Location: ",StringUtils::CaseInsensitive) ) {
+                new_request = StringUtils::strip_edges(StringUtils::substr(E->deref(),9));
             }
         }
 
@@ -430,7 +434,7 @@ void HTTPRequest::_notification(int p_what) {
 
 void HTTPRequest::set_use_threads(bool p_use) {
 
-    ERR_FAIL_COND(get_http_client_status() != HTTPClient::STATUS_DISCONNECTED);
+    ERR_FAIL_COND(get_http_client_status() != HTTPClient::STATUS_DISCONNECTED)
     use_threads = p_use;
 }
 
@@ -441,7 +445,7 @@ bool HTTPRequest::is_using_threads() const {
 
 void HTTPRequest::set_body_size_limit(int p_bytes) {
 
-    ERR_FAIL_COND(get_http_client_status() != HTTPClient::STATUS_DISCONNECTED);
+    ERR_FAIL_COND(get_http_client_status() != HTTPClient::STATUS_DISCONNECTED)
 
     body_size_limit = p_bytes;
 }
@@ -453,7 +457,7 @@ int HTTPRequest::get_body_size_limit() const {
 
 void HTTPRequest::set_download_file(const String &p_file) {
 
-    ERR_FAIL_COND(get_http_client_status() != HTTPClient::STATUS_DISCONNECTED);
+    ERR_FAIL_COND(get_http_client_status() != HTTPClient::STATUS_DISCONNECTED)
 
     download_to_file = p_file;
 }
@@ -503,21 +507,21 @@ void HTTPRequest::_timeout() {
 
 void HTTPRequest::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("request", "url", "custom_headers", "ssl_validate_domain", "method", "request_data"), &HTTPRequest::request, {DEFVAL(PoolStringArray()), DEFVAL(true), DEFVAL(HTTPClient::METHOD_GET), DEFVAL(String())});
+    MethodBinder::bind_method(D_METHOD("request", {"url", "custom_headers", "ssl_validate_domain", "method", "request_data"}), &HTTPRequest::request, {DEFVAL(PoolStringArray()), DEFVAL(true), DEFVAL(HTTPClient::METHOD_GET), DEFVAL(String())});
     MethodBinder::bind_method(D_METHOD("cancel_request"), &HTTPRequest::cancel_request);
 
     MethodBinder::bind_method(D_METHOD("get_http_client_status"), &HTTPRequest::get_http_client_status);
 
-    MethodBinder::bind_method(D_METHOD("set_use_threads", "enable"), &HTTPRequest::set_use_threads);
+    MethodBinder::bind_method(D_METHOD("set_use_threads", {"enable"}), &HTTPRequest::set_use_threads);
     MethodBinder::bind_method(D_METHOD("is_using_threads"), &HTTPRequest::is_using_threads);
 
-    MethodBinder::bind_method(D_METHOD("set_body_size_limit", "bytes"), &HTTPRequest::set_body_size_limit);
+    MethodBinder::bind_method(D_METHOD("set_body_size_limit", {"bytes"}), &HTTPRequest::set_body_size_limit);
     MethodBinder::bind_method(D_METHOD("get_body_size_limit"), &HTTPRequest::get_body_size_limit);
 
-    MethodBinder::bind_method(D_METHOD("set_max_redirects", "amount"), &HTTPRequest::set_max_redirects);
+    MethodBinder::bind_method(D_METHOD("set_max_redirects", {"amount"}), &HTTPRequest::set_max_redirects);
     MethodBinder::bind_method(D_METHOD("get_max_redirects"), &HTTPRequest::get_max_redirects);
 
-    MethodBinder::bind_method(D_METHOD("set_download_file", "path"), &HTTPRequest::set_download_file);
+    MethodBinder::bind_method(D_METHOD("set_download_file", {"path"}), &HTTPRequest::set_download_file);
     MethodBinder::bind_method(D_METHOD("get_download_file"), &HTTPRequest::get_download_file);
 
     MethodBinder::bind_method(D_METHOD("get_downloaded_bytes"), &HTTPRequest::get_downloaded_bytes);
@@ -526,33 +530,33 @@ void HTTPRequest::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_redirect_request"), &HTTPRequest::_redirect_request);
     MethodBinder::bind_method(D_METHOD("_request_done"), &HTTPRequest::_request_done);
 
-    MethodBinder::bind_method(D_METHOD("set_timeout", "timeout"), &HTTPRequest::set_timeout);
+    MethodBinder::bind_method(D_METHOD("set_timeout", {"timeout"}), &HTTPRequest::set_timeout);
     MethodBinder::bind_method(D_METHOD("get_timeout"), &HTTPRequest::get_timeout);
 
     MethodBinder::bind_method(D_METHOD("_timeout"), &HTTPRequest::_timeout);
 
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "download_file", PROPERTY_HINT_FILE), "set_download_file", "get_download_file");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "use_threads"), "set_use_threads", "is_using_threads");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "body_size_limit", PROPERTY_HINT_RANGE, "-1,2000000000"), "set_body_size_limit", "get_body_size_limit");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "max_redirects", PROPERTY_HINT_RANGE, "-1,64"), "set_max_redirects", "get_max_redirects");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "timeout", PROPERTY_HINT_RANGE, "0,86400"), "set_timeout", "get_timeout");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "download_file", PROPERTY_HINT_FILE), "set_download_file", "get_download_file");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "use_threads"), "set_use_threads", "is_using_threads");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "body_size_limit", PROPERTY_HINT_RANGE, "-1,2000000000"), "set_body_size_limit", "get_body_size_limit");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "max_redirects", PROPERTY_HINT_RANGE, "-1,64"), "set_max_redirects", "get_max_redirects");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "timeout", PROPERTY_HINT_RANGE, "0,86400"), "set_timeout", "get_timeout");
 
-    ADD_SIGNAL(MethodInfo("request_completed", PropertyInfo(Variant::INT, "result"), PropertyInfo(Variant::INT, "response_code"), PropertyInfo(Variant::POOL_STRING_ARRAY, "headers"), PropertyInfo(Variant::POOL_BYTE_ARRAY, "body")));
+    ADD_SIGNAL(MethodInfo("request_completed", PropertyInfo(VariantType::INT, "result"), PropertyInfo(VariantType::INT, "response_code"), PropertyInfo(VariantType::POOL_STRING_ARRAY, "headers"), PropertyInfo(VariantType::POOL_BYTE_ARRAY, "body")));
 
-    BIND_ENUM_CONSTANT(RESULT_SUCCESS);
-    //BIND_ENUM_CONSTANT( RESULT_NO_BODY );
-    BIND_ENUM_CONSTANT(RESULT_CHUNKED_BODY_SIZE_MISMATCH);
-    BIND_ENUM_CONSTANT(RESULT_CANT_CONNECT);
-    BIND_ENUM_CONSTANT(RESULT_CANT_RESOLVE);
-    BIND_ENUM_CONSTANT(RESULT_CONNECTION_ERROR);
-    BIND_ENUM_CONSTANT(RESULT_SSL_HANDSHAKE_ERROR);
-    BIND_ENUM_CONSTANT(RESULT_NO_RESPONSE);
-    BIND_ENUM_CONSTANT(RESULT_BODY_SIZE_LIMIT_EXCEEDED);
-    BIND_ENUM_CONSTANT(RESULT_REQUEST_FAILED);
-    BIND_ENUM_CONSTANT(RESULT_DOWNLOAD_FILE_CANT_OPEN);
-    BIND_ENUM_CONSTANT(RESULT_DOWNLOAD_FILE_WRITE_ERROR);
-    BIND_ENUM_CONSTANT(RESULT_REDIRECT_LIMIT_REACHED);
-    BIND_ENUM_CONSTANT(RESULT_TIMEOUT);
+    BIND_ENUM_CONSTANT(RESULT_SUCCESS)
+    //BIND_ENUM_CONSTANT( RESULT_NO_BODY )
+    BIND_ENUM_CONSTANT(RESULT_CHUNKED_BODY_SIZE_MISMATCH)
+    BIND_ENUM_CONSTANT(RESULT_CANT_CONNECT)
+    BIND_ENUM_CONSTANT(RESULT_CANT_RESOLVE)
+    BIND_ENUM_CONSTANT(RESULT_CONNECTION_ERROR)
+    BIND_ENUM_CONSTANT(RESULT_SSL_HANDSHAKE_ERROR)
+    BIND_ENUM_CONSTANT(RESULT_NO_RESPONSE)
+    BIND_ENUM_CONSTANT(RESULT_BODY_SIZE_LIMIT_EXCEEDED)
+    BIND_ENUM_CONSTANT(RESULT_REQUEST_FAILED)
+    BIND_ENUM_CONSTANT(RESULT_DOWNLOAD_FILE_CANT_OPEN)
+    BIND_ENUM_CONSTANT(RESULT_DOWNLOAD_FILE_WRITE_ERROR)
+    BIND_ENUM_CONSTANT(RESULT_REDIRECT_LIMIT_REACHED)
+    BIND_ENUM_CONSTANT(RESULT_TIMEOUT)
 }
 
 HTTPRequest::HTTPRequest() {
@@ -569,7 +573,7 @@ HTTPRequest::HTTPRequest() {
     response_code = 0;
     request_sent = false;
     requesting = false;
-    client.instance();
+    client = make_ref_counted<HTTPClient>();
     use_threads = false;
     thread_done = false;
     downloaded = 0;

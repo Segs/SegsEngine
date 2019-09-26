@@ -86,7 +86,7 @@ class AnimationNodeBlendSpace1DEditor : public AnimationTreeNodeEditorPlugin {
 	void _update_space();
 
 	void _config_changed(double);
-	void _labels_changed(String);
+	void _labels_changed(const String&);
 	void _snap_toggled();
 
 	PopupMenu *menu;

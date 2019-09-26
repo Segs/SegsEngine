@@ -37,18 +37,18 @@ IMPL_GDCLASS(MenuButton)
 
 void MenuButton::_unhandled_key_input(Ref<InputEvent> p_event) {
 
-    if (disable_shortcuts)
-        return;
+    if (disable_shortcuts) return;
 
-    if (p_event->is_pressed() && !p_event->is_echo() && (Object::cast_to<InputEventKey>(p_event.ptr()) || Object::cast_to<InputEventJoypadButton>(p_event.ptr()) || Object::cast_to<InputEventAction>(*p_event))) {
+    if (p_event->is_pressed() && !p_event->is_echo() &&
+            (Object::cast_to<InputEventKey>(p_event.get()) || Object::cast_to<InputEventJoypadButton>(p_event.get()) ||
+                    Object::cast_to<InputEventAction>(p_event.get()))) {
 
-        if (!get_parent() || !is_visible_in_tree() || is_disabled())
-            return;
+        if (!get_parent() || !is_visible_in_tree() || is_disabled()) return;
 
-        bool global_only = (get_viewport()->get_modal_stack_top() && !get_viewport()->get_modal_stack_top()->is_a_parent_of(this));
+        bool global_only =
+                (get_viewport()->get_modal_stack_top() && !get_viewport()->get_modal_stack_top()->is_a_parent_of(this));
 
-        if (popup->activate_item_by_event(p_event, global_only))
-            accept_event();
+        if (popup->activate_item_by_event(p_event, global_only)) accept_event();
     }
 }
 
@@ -111,12 +111,12 @@ void MenuButton::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_unhandled_key_input"), &MenuButton::_unhandled_key_input);
     MethodBinder::bind_method(D_METHOD("_set_items"), &MenuButton::_set_items);
     MethodBinder::bind_method(D_METHOD("_get_items"), &MenuButton::_get_items);
-    MethodBinder::bind_method(D_METHOD("set_switch_on_hover", "enable"), &MenuButton::set_switch_on_hover);
+    MethodBinder::bind_method(D_METHOD("set_switch_on_hover", {"enable"}), &MenuButton::set_switch_on_hover);
     MethodBinder::bind_method(D_METHOD("is_switch_on_hover"), &MenuButton::is_switch_on_hover);
-    MethodBinder::bind_method(D_METHOD("set_disable_shortcuts", "disabled"), &MenuButton::set_disable_shortcuts);
+    MethodBinder::bind_method(D_METHOD("set_disable_shortcuts", {"disabled"}), &MenuButton::set_disable_shortcuts);
 
-    ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "items", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_items", "_get_items");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "switch_on_hover"), "set_switch_on_hover", "is_switch_on_hover");
+    ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "items", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_items", "_get_items");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "switch_on_hover"), "set_switch_on_hover", "is_switch_on_hover");
 
     ADD_SIGNAL(MethodInfo("about_to_show"));
 }

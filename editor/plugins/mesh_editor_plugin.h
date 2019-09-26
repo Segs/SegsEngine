@@ -66,11 +66,11 @@ class MeshEditor : public ViewportContainer {
 
 protected:
 	void _notification(int p_what);
-	void _gui_input(Ref<InputEvent> p_event);
+	void _gui_input(const Ref<InputEvent>& p_event);
 	static void _bind_methods();
 
 public:
-	void edit(Ref<Mesh> p_mesh);
+	void edit(const Ref<Mesh>& p_mesh);
 	MeshEditor();
 };
 

@@ -34,6 +34,7 @@
 #include "core/safe_refcount.h"
 #include "core/hashfuncs.h"
 #include "core/variant.h"
+#include "core/list.h"
 
 struct DictionaryPrivate {
 
@@ -41,7 +42,7 @@ struct DictionaryPrivate {
     OrderedHashMap<Variant, Variant, Hasher<Variant>, VariantComparator> variant_map;
 };
 
-void Dictionary::get_key_list(List<Variant> *p_keys) const {
+void Dictionary::get_key_list(ListPOD<Variant> *p_keys) const {
 
     if (_p->variant_map.empty())
         return;
@@ -128,7 +129,7 @@ int Dictionary::size() const {
 }
 bool Dictionary::empty() const {
 
-    return !_p->variant_map.size();
+    return _p->variant_map.empty();
 }
 
 bool Dictionary::has(const Variant &p_key) const {
@@ -183,7 +184,7 @@ void Dictionary::clear() {
 
 void Dictionary::_unref() const {
 
-    ERR_FAIL_COND(!_p);
+    ERR_FAIL_COND(!_p)
     if (_p->refcount.unref()) {
         memdelete(_p);
     }
@@ -191,15 +192,15 @@ void Dictionary::_unref() const {
 }
 uint32_t Dictionary::hash() const {
 
-    uint32_t h = hash_djb2_one_32(Variant::DICTIONARY);
+    uint32_t h = hash_djb2_one_32(int(VariantType::DICTIONARY));
 
-    List<Variant> keys;
+    ListPOD<Variant> keys;
     get_key_list(&keys);
 
-    for (List<Variant>::Element *E = keys.front(); E; E = E->next()) {
+    for (const Variant &E : keys) {
 
-        h = hash_djb2_one_32(E->get().hash(), h);
-        h = hash_djb2_one_32(operator[](E->get()).hash(), h);
+        h = hash_djb2_one_32(E.hash(), h);
+        h = hash_djb2_one_32(operator[](E).hash(), h);
     }
 
     return h;
@@ -256,19 +257,21 @@ Dictionary Dictionary::duplicate(bool p_deep) const {
 
     Dictionary n;
 
-    List<Variant> keys;
+    ListPOD<Variant> keys;
     get_key_list(&keys);
 
-    for (List<Variant>::Element *E = keys.front(); E; E = E->next()) {
-        n[E->get()] = p_deep ? operator[](E->get()).duplicate(p_deep) : operator[](E->get());
+    for (const Variant &E : keys) {
+        n[E] = p_deep ? operator[](E).duplicate(p_deep) : operator[](E);
     }
 
     return n;
 }
 
-void Dictionary::operator=(const Dictionary &p_dictionary) {
-
+Dictionary &Dictionary::operator=(const Dictionary &p_dictionary) {
+    if(this==&p_dictionary)
+        return *this;
     _ref(p_dictionary);
+    return *this;
 }
 
 const void *Dictionary::id() const {

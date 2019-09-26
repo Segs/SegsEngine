@@ -61,8 +61,8 @@ public:
     static _ALWAYS_INLINE_ double sinh(double p_x) { return ::sinh(p_x); }
     static _ALWAYS_INLINE_ float sinh(float p_x) { return ::sinhf(p_x); }
 
-    static _ALWAYS_INLINE_ float sinc(float p_x) { return p_x == 0 ? 1 : ::sin(p_x) / p_x; }
-    static _ALWAYS_INLINE_ double sinc(double p_x) { return p_x == 0 ? 1 : ::sin(p_x) / p_x; }
+    static _ALWAYS_INLINE_ float sinc(float p_x) { return p_x == 0 ? 1 : std::sin(p_x) / p_x; }
+    static _ALWAYS_INLINE_ double sinc(double p_x) { return p_x == 0 ? 1 : std::sin(p_x) / p_x; }
 
     static _ALWAYS_INLINE_ float sincn(float p_x) { return sinc(float(Math_PI) * p_x); }
     static _ALWAYS_INLINE_ double sincn(double p_x) { return sinc(Math_PI * p_x); }

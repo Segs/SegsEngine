@@ -69,7 +69,7 @@ void SceneTreeEditor::_cell_button_pressed(Object *p_item, int p_column, int p_i
 
     if (p_id == BUTTON_SUBSCENE) {
         if (n == get_scene_node()) {
-            if (n && n->get_scene_inherited_state().is_valid()) {
+            if (n && n->get_scene_inherited_state()) {
                 emit_signal("open", n->get_scene_inherited_state()->get_path());
             }
         } else {
@@ -77,9 +77,9 @@ void SceneTreeEditor::_cell_button_pressed(Object *p_item, int p_column, int p_i
         }
     } else if (p_id == BUTTON_SCRIPT) {
         RefPtr script = n->get_script();
-        Ref<Script> script_typed = script;
-        if (!script_typed.is_null())
-            emit_signal("open_script", script);
+        Ref<Script> script_typed(refFromRefPtr<Script>(script));
+        if (script_typed)
+            emit_signal("open_script", Variant(script));
 
     } else if (p_id == BUTTON_VISIBILITY) {
         undo_redo->create_action(TTR("Toggle Visible"));
@@ -87,7 +87,7 @@ void SceneTreeEditor::_cell_button_pressed(Object *p_item, int p_column, int p_i
         List<Node *> selection = editor_selection->get_selected_node_list();
         if (selection.size() > 1 && selection.find(n) != nullptr) {
             for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
-                Node *nv = E->get();
+                Node *nv = E->deref();
                 ERR_FAIL_COND(!nv)
                 if (nv == n) {
                     continue;
@@ -187,7 +187,7 @@ bool SceneTreeEditor::_add_nodes(Node *p_node, TreeItem *p_parent) {
             return false;
         }
     } else {
-        part_of_subscene = p_node != get_scene_node() && get_scene_node()->get_scene_inherited_state().is_valid() && get_scene_node()->get_scene_inherited_state()->find_node_by_path(get_scene_node()->get_path_to(p_node)) >= 0;
+        part_of_subscene = p_node != get_scene_node() && get_scene_node()->get_scene_inherited_state() && get_scene_node()->get_scene_inherited_state()->find_node_by_path(get_scene_node()->get_path_to(p_node)) >= 0;
     }
 
     TreeItem *item = tree->create_item(p_parent);
@@ -218,8 +218,8 @@ bool SceneTreeEditor::_add_nodes(Node *p_node, TreeItem *p_parent) {
     if (connect_to_script_mode) {
         Color accent = get_color("accent_color", "Editor");
 
-        Ref<Script> script = p_node->get_script();
-        if (!script.is_null() && EditorNode::get_singleton()->get_object_custom_type_base(p_node) != script) {
+        Ref<Script> script(refFromRefPtr<Script>(p_node->get_script()));
+        if (script && EditorNode::get_singleton()->get_object_custom_type_base(p_node) != script) {
             //has script
             item->add_button(0, get_icon("Script", "EditorIcons"), BUTTON_SCRIPT);
         } else {
@@ -227,7 +227,7 @@ bool SceneTreeEditor::_add_nodes(Node *p_node, TreeItem *p_parent) {
             item->set_custom_color(0, get_color("disabled_font_color", "Editor"));
             item->set_selectable(0, false);
 
-            if (!script.is_null()) { // make sure to mark the script if a custom type
+            if (script) { // make sure to mark the script if a custom type
                 item->add_button(0, get_icon("Script", "EditorIcons"), BUTTON_SCRIPT);
                 item->set_button_disabled(0, item->get_button_count(0) - 1, true);
             }
@@ -235,7 +235,7 @@ bool SceneTreeEditor::_add_nodes(Node *p_node, TreeItem *p_parent) {
             accent.a *= 0.7f;
         }
 
-        if (marked.has(p_node)) {
+        if (marked.contains(p_node)) {
             String node_name = p_node->get_name();
             if (connecting_signal) {
                 node_name += " " + TTR("(Connecting From)");
@@ -248,7 +248,7 @@ bool SceneTreeEditor::_add_nodes(Node *p_node, TreeItem *p_parent) {
         if (valid_types.empty()) {
             item->set_custom_color(0, get_color("disabled_font_color", "Editor"));
         }
-    } else if (marked.has(p_node)) {
+    } else if (marked.contains(p_node)) {
 
         String node_name = p_node->get_name();
         if (connecting_signal) {
@@ -261,7 +261,7 @@ bool SceneTreeEditor::_add_nodes(Node *p_node, TreeItem *p_parent) {
 
         Node *node = p_node;
         while (node) {
-            if (marked.has(node)) {
+            if (marked.contains(node)) {
                 item->set_selectable(0, false);
                 item->set_custom_color(0, get_color("error_color", "Editor"));
                 break;
@@ -304,7 +304,7 @@ bool SceneTreeEditor::_add_nodes(Node *p_node, TreeItem *p_parent) {
         }
     }
 
-    if (p_node == get_scene_node() && p_node->get_scene_inherited_state().is_valid()) {
+    if (p_node == get_scene_node() && p_node->get_scene_inherited_state()) {
         item->add_button(0, get_icon("InstanceOptions", "EditorIcons"), BUTTON_SUBSCENE, false, TTR("Open in Editor"));
         String tooltip = TTR("Inherits:") + " " + p_node->get_scene_inherited_state()->get_path() + "\n" + TTR("Type:") + " " + p_node->get_class();
         if (!p_node->get_editor_description().empty()) {
@@ -338,10 +338,10 @@ bool SceneTreeEditor::_add_nodes(Node *p_node, TreeItem *p_parent) {
     if (can_open_instance && undo_redo) { //Show buttons only when necessary(SceneTreeDock) to avoid crashes
 
         if (!p_node->is_connected("script_changed", this, "_node_script_changed"))
-            p_node->connect("script_changed", this, "_node_script_changed", varray(p_node));
+            p_node->connect("script_changed", this, "_node_script_changed", varray(Variant(p_node)));
 
-        Ref<Script> script = p_node->get_script();
-        if (!script.is_null()) {
+        Ref<Script> script(refFromRefPtr<Script>(p_node->get_script()));
+        if (script) {
             item->add_button(0, get_icon("Script", "EditorIcons"), BUTTON_SCRIPT, false, TTR("Open Script:") + " " + script->get_path());
             if (EditorNode::get_singleton()->get_object_custom_type_base(p_node) == script) {
                 item->set_button_color(0, item->get_button_count(0) - 1, Color(1, 1, 1, 0.5));
@@ -365,7 +365,7 @@ bool SceneTreeEditor::_add_nodes(Node *p_node, TreeItem *p_parent) {
                 item->add_button(0, get_icon("GuiVisibilityHidden", "EditorIcons"), BUTTON_VISIBILITY, false, TTR("Toggle Visibility"));
 
             if (!p_node->is_connected("visibility_changed", this, "_node_visibility_changed"))
-                p_node->connect("visibility_changed", this, "_node_visibility_changed", varray(p_node));
+                p_node->connect("visibility_changed", this, "_node_visibility_changed", varray(Variant(p_node)));
 
             _update_visibility_color(p_node, item);
         } else if (p_node->is_class("Spatial")) {
@@ -385,7 +385,7 @@ bool SceneTreeEditor::_add_nodes(Node *p_node, TreeItem *p_parent) {
                 item->add_button(0, get_icon("GuiVisibilityHidden", "EditorIcons"), BUTTON_VISIBILITY, false, TTR("Toggle Visibility"));
 
             if (!p_node->is_connected("visibility_changed", this, "_node_visibility_changed"))
-                p_node->connect("visibility_changed", this, "_node_visibility_changed", varray(p_node));
+                p_node->connect("visibility_changed", this, "_node_visibility_changed", varray(Variant(p_node)));
 
             _update_visibility_color(p_node, item);
         } else if (p_node->is_class("AnimationPlayer")) {
@@ -411,7 +411,7 @@ bool SceneTreeEditor::_add_nodes(Node *p_node, TreeItem *p_parent) {
         item->set_as_cursor(0);
     }
 
-    bool keep = StringUtils::is_subsequence_ofi(filter,String(p_node->get_name()));
+    bool keep = StringUtils::is_subsequence_of(filter,String(p_node->get_name()),StringUtils::CaseInsensitive);
 
     for (int i = 0; i < p_node->get_child_count(); i++) {
 
@@ -464,7 +464,7 @@ void SceneTreeEditor::_node_visibility_changed(Node *p_node) {
     }
 
     int idx = item->get_button_by_id(0, BUTTON_VISIBILITY);
-    ERR_FAIL_COND(idx == -1);
+    ERR_FAIL_COND(idx == -1)
 
     bool visible = false;
 
@@ -616,7 +616,7 @@ void SceneTreeEditor::_tree_changed() {
 void SceneTreeEditor::_selected_changed() {
 
     TreeItem *s = tree->get_selected();
-    ERR_FAIL_COND(!s);
+    ERR_FAIL_COND(!s)
     NodePath np = s->get_metadata(0);
 
     Node *n = get_node(np);
@@ -643,7 +643,7 @@ void SceneTreeEditor::_deselect_items() {
 void SceneTreeEditor::_cell_multi_selected(Object *p_object, int p_cell, bool p_selected) {
 
     TreeItem *item = Object::cast_to<TreeItem>(p_object);
-    ERR_FAIL_COND(!item);
+    ERR_FAIL_COND(!item)
 
     NodePath np = item->get_metadata(0);
 
@@ -716,7 +716,7 @@ TreeItem *SceneTreeEditor::_find(TreeItem *p_node, const NodePath &p_path) {
 
 void SceneTreeEditor::set_selected(Node *p_node, bool p_emit_selected) {
 
-    ERR_FAIL_COND(blocked > 0);
+    ERR_FAIL_COND(blocked > 0)
 
     if (pending_test_update)
         _test_update_tree();
@@ -755,11 +755,11 @@ void SceneTreeEditor::set_selected(Node *p_node, bool p_emit_selected) {
 void SceneTreeEditor::_rename_node(ObjectID p_node, const String &p_name) {
 
     Object *o = ObjectDB::get_instance(p_node);
-    ERR_FAIL_COND(!o);
+    ERR_FAIL_COND(!o)
     Node *n = Object::cast_to<Node>(o);
-    ERR_FAIL_COND(!n);
+    ERR_FAIL_COND(!n)
     TreeItem *item = _find(tree->get_root(), n->get_path());
-    ERR_FAIL_COND(!item);
+    ERR_FAIL_COND(!item)
 
     n->set_name(p_name);
     item->set_metadata(0, n->get_path());
@@ -770,10 +770,10 @@ void SceneTreeEditor::_renamed() {
 
     TreeItem *which = tree->get_edited();
 
-    ERR_FAIL_COND(!which);
+    ERR_FAIL_COND(!which)
     NodePath np = which->get_metadata(0);
     Node *n = get_node(np);
-    ERR_FAIL_COND(!n);
+    ERR_FAIL_COND(!n)
 
     // Empty node names are not allowed, so resets it to previous text and show warning
     if (StringUtils::strip_edges(which->get_text(0)).empty()) {
@@ -805,7 +805,7 @@ void SceneTreeEditor::_renamed() {
         emit_signal("node_renamed");
     } else {
         undo_redo->create_action(TTR("Rename Node"));
-        emit_signal("node_prerename", n, new_name);
+        emit_signal("node_prerename", Variant(n), new_name);
         undo_redo->add_do_method(this, "_rename_node", n->get_instance_id(), new_name);
         undo_redo->add_undo_method(this, "_rename_node", n->get_instance_id(), n->get_name());
         undo_redo->commit_action();
@@ -870,7 +870,7 @@ void SceneTreeEditor::set_editor_selection(EditorSelection *p_selection) {
 
 void SceneTreeEditor::_update_selection(TreeItem *item) {
 
-    ERR_FAIL_COND(!item);
+    ERR_FAIL_COND(!item)
 
     NodePath np = item->get_metadata(0);
 
@@ -924,7 +924,7 @@ void SceneTreeEditor::_cell_collapsed(Object *p_obj) {
     NodePath np = ti->get_metadata(0);
 
     Node *n = get_node(np);
-    ERR_FAIL_COND(!n);
+    ERR_FAIL_COND(!n)
 
     n->set_display_folded(collapsed);
 }
@@ -988,7 +988,7 @@ Variant SceneTreeEditor::get_drag_data_fw(const Point2 &p_point, Control *p_from
 }
 
 bool SceneTreeEditor::_is_script_type(const StringName &p_type) const {
-    return (script_types->find(p_type));
+    return (script_types->contains(p_type));
 }
 
 bool SceneTreeEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const {
@@ -1147,10 +1147,10 @@ void SceneTreeEditor::_bind_methods() {
     ADD_SIGNAL(MethodInfo("node_prerename"));
     ADD_SIGNAL(MethodInfo("node_changed"));
     ADD_SIGNAL(MethodInfo("nodes_dragged"));
-    ADD_SIGNAL(MethodInfo("nodes_rearranged", PropertyInfo(Variant::ARRAY, "paths"), PropertyInfo(Variant::NODE_PATH, "to_path"), PropertyInfo(Variant::INT, "type")));
-    ADD_SIGNAL(MethodInfo("files_dropped", PropertyInfo(Variant::POOL_STRING_ARRAY, "files"), PropertyInfo(Variant::NODE_PATH, "to_path"), PropertyInfo(Variant::INT, "type")));
-    ADD_SIGNAL(MethodInfo("script_dropped", PropertyInfo(Variant::STRING, "file"), PropertyInfo(Variant::NODE_PATH, "to_path")));
-    ADD_SIGNAL(MethodInfo("rmb_pressed", PropertyInfo(Variant::VECTOR2, "position")));
+    ADD_SIGNAL(MethodInfo("nodes_rearranged", PropertyInfo(VariantType::ARRAY, "paths"), PropertyInfo(VariantType::NODE_PATH, "to_path"), PropertyInfo(VariantType::INT, "type")));
+    ADD_SIGNAL(MethodInfo("files_dropped", PropertyInfo(VariantType::POOL_STRING_ARRAY, "files"), PropertyInfo(VariantType::NODE_PATH, "to_path"), PropertyInfo(VariantType::INT, "type")));
+    ADD_SIGNAL(MethodInfo("script_dropped", PropertyInfo(VariantType::STRING, "file"), PropertyInfo(VariantType::NODE_PATH, "to_path")));
+    ADD_SIGNAL(MethodInfo("rmb_pressed", PropertyInfo(VariantType::VECTOR2, "position")));
 
     ADD_SIGNAL(MethodInfo("open"));
     ADD_SIGNAL(MethodInfo("open_script"));
@@ -1222,7 +1222,7 @@ SceneTreeEditor::SceneTreeEditor(bool p_label, bool p_can_rename, bool p_can_ope
     update_timer->set_wait_time(0.5);
     add_child(update_timer);
 
-    script_types = memnew(List<StringName>);
+    script_types = memnew(ListPOD<StringName>);
     ClassDB::get_inheriters_from_class("Script", script_types);
 }
 
@@ -1274,7 +1274,7 @@ void SceneTreeDialog::_bind_methods() {
     MethodBinder::bind_method("_cancel", &SceneTreeDialog::_cancel);
     MethodBinder::bind_method(D_METHOD("_filter_changed"), &SceneTreeDialog::_filter_changed);
 
-    ADD_SIGNAL(MethodInfo("selected", PropertyInfo(Variant::NODE_PATH, "path")));
+    ADD_SIGNAL(MethodInfo("selected", PropertyInfo(VariantType::NODE_PATH, "path")));
 }
 
 SceneTreeDialog::SceneTreeDialog() {

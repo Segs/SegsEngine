@@ -116,7 +116,7 @@ void JoypadUWP::OnGamepadAdded(Platform::Object ^ sender, Windows::Gaming::Input
 		}
 	}
 
-	ERR_FAIL_COND(idx == -1);
+	ERR_FAIL_COND(idx == -1)
 
 	controllers[idx].connected = true;
 	controllers[idx].controller_reference = value;
@@ -138,7 +138,7 @@ void JoypadUWP::OnGamepadRemoved(Platform::Object ^ sender, Windows::Gaming::Inp
 		}
 	}
 
-	ERR_FAIL_COND(idx == -1);
+	ERR_FAIL_COND(idx == -1)
 
 	controllers[idx] = ControllerDevice();
 

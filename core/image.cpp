@@ -46,46 +46,48 @@
 
 IMPL_GDCLASS(Image)
 
-const char *Image::format_names[Image::FORMAT_MAX] = {
-    "Lum8", //luminance
-    "LumAlpha8", //luminance-alpha
-    "Red8",
-    "RedGreen",
-    "RGB8",
-    "RGBA8",
-    "RGBA4444",
-    "RGBA5551",
-    "RFloat", //float
-    "RGFloat",
-    "RGBFloat",
-    "RGBAFloat",
-    "RHalf", //half float
-    "RGHalf",
-    "RGBHalf",
-    "RGBAHalf",
-    "RGBE9995",
-    "DXT1 RGB8", //s3tc
-    "DXT3 RGBA8",
-    "DXT5 RGBA8",
-    "RGTC Red8",
-    "RGTC RedGreen8",
-    "BPTC_RGBA",
-    "BPTC_RGBF",
-    "BPTC_RGBFU",
-    "PVRTC2", //pvrtc
-    "PVRTC2A",
-    "PVRTC4",
-    "PVRTC4A",
-    "ETC", //etc1
-    "ETC2_R11", //etc2
-    "ETC2_R11S", //signed", NOT srgb.
-    "ETC2_RG11",
-    "ETC2_RG11S",
-    "ETC2_RGB8",
-    "ETC2_RGBA8",
-    "ETC2_RGB8A1",
+namespace {
+    constexpr const char *format_names[Image::FORMAT_MAX] = {
+        "Lum8", //luminance
+        "LumAlpha8", //luminance-alpha
+        "Red8",
+        "RedGreen",
+        "RGB8",
+        "RGBA8",
+        "RGBA4444",
+        "RGBA5551",
+        "RFloat", //float
+        "RGFloat",
+        "RGBFloat",
+        "RGBAFloat",
+        "RHalf", //half float
+        "RGHalf",
+        "RGBHalf",
+        "RGBAHalf",
+        "RGBE9995",
+        "DXT1 RGB8", //s3tc
+        "DXT3 RGBA8",
+        "DXT5 RGBA8",
+        "RGTC Red8",
+        "RGTC RedGreen8",
+        "BPTC_RGBA",
+        "BPTC_RGBF",
+        "BPTC_RGBFU",
+        "PVRTC2", //pvrtc
+        "PVRTC2A",
+        "PVRTC4",
+        "PVRTC4A",
+        "ETC", //etc1
+        "ETC2_R11", //etc2
+        "ETC2_R11S", //signed", NOT srgb.
+        "ETC2_RG11",
+        "ETC2_RG11S",
+        "ETC2_RGB8",
+        "ETC2_RGBA8",
+        "ETC2_RGB8A1",
 
-};
+    };
+}
 
 Error Image::save_png_func(const String &p_path, const Ref<Image> &p_img)
 {
@@ -909,7 +911,7 @@ bool Image::is_size_po2() const {
 
 void Image::resize_to_po2(bool p_square) {
 
-    ERR_FAIL_COND_CMSG(!_can_modify(format), "Cannot resize in compressed or custom image formats.");
+    ERR_FAIL_COND_CMSG(!_can_modify(format), "Cannot resize in compressed or custom image formats.")
 
     int w = next_power_of_2(width);
     int h = next_power_of_2(height);
@@ -925,16 +927,16 @@ void Image::resize_to_po2(bool p_square) {
 
 void Image::resize(int p_width, int p_height, Interpolation p_interpolation) {
 
-    ERR_FAIL_COND_CMSG(data.size() == 0, "Cannot resize image before creating it, use create() or create_from_data() first.");
+    ERR_FAIL_COND_CMSG(data.size() == 0, "Cannot resize image before creating it, use create() or create_from_data() first.")
 
-    ERR_FAIL_COND_CMSG(!_can_modify(format), "Cannot resize in compressed or custom image formats.");
+    ERR_FAIL_COND_CMSG(!_can_modify(format), "Cannot resize in compressed or custom image formats.")
 
     bool mipmap_aware = p_interpolation == INTERPOLATE_TRILINEAR /* || p_interpolation == INTERPOLATE_TRICUBIC */;
 
-    ERR_FAIL_COND(p_width <= 0);
-    ERR_FAIL_COND(p_height <= 0);
-    ERR_FAIL_COND(p_width > MAX_WIDTH);
-    ERR_FAIL_COND(p_height > MAX_HEIGHT);
+    ERR_FAIL_COND(p_width <= 0)
+    ERR_FAIL_COND(p_height <= 0)
+    ERR_FAIL_COND(p_width > MAX_WIDTH)
+    ERR_FAIL_COND(p_height > MAX_HEIGHT)
 
     if (p_width == width && p_height == height)
         return;
@@ -1140,14 +1142,14 @@ void Image::resize(int p_width, int p_height, Interpolation p_interpolation) {
 
 void Image::crop_from_point(int p_x, int p_y, int p_width, int p_height) {
 
-    ERR_FAIL_COND_CMSG(!_can_modify(format), "Cannot crop in compressed or custom image formats.");
+    ERR_FAIL_COND_CMSG(!_can_modify(format), "Cannot crop in compressed or custom image formats.")
 
-    ERR_FAIL_COND(p_x < 0);
-    ERR_FAIL_COND(p_y < 0);
-    ERR_FAIL_COND(p_width <= 0);
-    ERR_FAIL_COND(p_height <= 0);
-    ERR_FAIL_COND(p_x + p_width > MAX_WIDTH);
-    ERR_FAIL_COND(p_y + p_height > MAX_HEIGHT);
+    ERR_FAIL_COND(p_x < 0)
+    ERR_FAIL_COND(p_y < 0)
+    ERR_FAIL_COND(p_width <= 0)
+    ERR_FAIL_COND(p_height <= 0)
+    ERR_FAIL_COND(p_x + p_width > MAX_WIDTH)
+    ERR_FAIL_COND(p_y + p_height > MAX_HEIGHT)
 
     /* to save memory, cropping should be done in-place, however, since this function
        will most likely either not be used much, or in critical areas, for now it won't, because
@@ -1195,7 +1197,7 @@ void Image::crop(int p_width, int p_height) {
 
 void Image::flip_y() {
 
-    ERR_FAIL_COND_CMSG(!_can_modify(format), "Cannot flip_y in compressed or custom image formats.");
+    ERR_FAIL_COND_CMSG(!_can_modify(format), "Cannot flip_y in compressed or custom image formats.")
 
     bool used_mipmaps = has_mipmaps();
     if (used_mipmaps) {
@@ -1228,7 +1230,7 @@ void Image::flip_y() {
 
 void Image::flip_x() {
 
-    ERR_FAIL_COND_CMSG(!_can_modify(format), "Cannot flip_x in compressed or custom image formats.");
+    ERR_FAIL_COND_CMSG(!_can_modify(format), "Cannot flip_x in compressed or custom image formats.")
 
     bool used_mipmaps = has_mipmaps();
     if (used_mipmaps) {
@@ -1349,7 +1351,7 @@ static void _generate_po2_mipmap(const Component *p_src, Component *p_dst, uint3
 
 void Image::expand_x2_hq2x() {
 
-    ERR_FAIL_COND(!_can_modify(format));
+    ERR_FAIL_COND(!_can_modify(format))
 
     bool used_mipmaps = has_mipmaps();
     if (used_mipmaps) {
@@ -1373,7 +1375,7 @@ void Image::expand_x2_hq2x() {
 
     width *= 2;
     height *= 2;
-    data = dest;
+    data = std::move(dest);
 
     if (current != FORMAT_RGBA8)
         convert(current);
@@ -1387,7 +1389,7 @@ void Image::expand_x2_hq2x() {
 
 void Image::shrink_x2() {
 
-    ERR_FAIL_COND(data.size() == 0);
+    ERR_FAIL_COND(data.size() == 0)
 
     if (mipmaps) {
 
@@ -1398,7 +1400,7 @@ void Image::shrink_x2() {
 
         int new_size = data.size() - ofs;
         new_img.resize(new_size);
-        ERR_FAIL_COND(new_img.size() == 0);
+        ERR_FAIL_COND(new_img.size() == 0)
 
         {
             PoolVector<uint8_t>::Write w = new_img.write();
@@ -1415,10 +1417,10 @@ void Image::shrink_x2() {
 
         PoolVector<uint8_t> new_img;
 
-        ERR_FAIL_COND(!_can_modify(format));
+        ERR_FAIL_COND(!_can_modify(format))
         int ps = get_format_pixel_size(format);
         new_img.resize((width / 2) * (height / 2) * ps);
-        ERR_FAIL_COND(new_img.size() == 0);
+        ERR_FAIL_COND(new_img.size() == 0)
 
         {
             PoolVector<uint8_t>::Write w = new_img.write();
@@ -1946,7 +1948,7 @@ Error Image::load(const String &p_path) {
         WARN_PRINTS("Loaded resource as image file, this will not work on export: '" + p_path + "'. Instead, import the image file as an Image resource and load it normally as a resource.");
     }
 #endif
-    return ImageLoader::load_image(p_path, this);
+    return ImageLoader::load_image(p_path, Ref<Image>(this));
 }
 
 Error Image::save_png(const String &p_path) const {
@@ -2007,32 +2009,32 @@ Error Image::compress(CompressMode p_mode, CompressSource p_source, float p_loss
 
         case COMPRESS_S3TC: {
 
-            ERR_FAIL_COND_V(!_image_compress_bc_func, ERR_UNAVAILABLE);
+            ERR_FAIL_COND_V(!_image_compress_bc_func, ERR_UNAVAILABLE)
             _image_compress_bc_func(this, p_lossy_quality, p_source);
         } break;
         case COMPRESS_PVRTC2: {
 
-            ERR_FAIL_COND_V(!_image_compress_pvrtc2_func, ERR_UNAVAILABLE);
+            ERR_FAIL_COND_V(!_image_compress_pvrtc2_func, ERR_UNAVAILABLE)
             _image_compress_pvrtc2_func(this);
         } break;
         case COMPRESS_PVRTC4: {
 
-            ERR_FAIL_COND_V(!_image_compress_pvrtc4_func, ERR_UNAVAILABLE);
+            ERR_FAIL_COND_V(!_image_compress_pvrtc4_func, ERR_UNAVAILABLE)
             _image_compress_pvrtc4_func(this);
         } break;
         case COMPRESS_ETC: {
 
-            ERR_FAIL_COND_V(!_image_compress_etc1_func, ERR_UNAVAILABLE);
+            ERR_FAIL_COND_V(!_image_compress_etc1_func, ERR_UNAVAILABLE)
             _image_compress_etc1_func(this, p_lossy_quality);
         } break;
         case COMPRESS_ETC2: {
 
-            ERR_FAIL_COND_V(!_image_compress_etc2_func, ERR_UNAVAILABLE);
+            ERR_FAIL_COND_V(!_image_compress_etc2_func, ERR_UNAVAILABLE)
             _image_compress_etc2_func(this, p_lossy_quality, p_source);
         } break;
         case COMPRESS_BPTC: {
 
-            ERR_FAIL_COND_V(!_image_compress_bptc_func, ERR_UNAVAILABLE);
+            ERR_FAIL_COND_V(!_image_compress_bptc_func, ERR_UNAVAILABLE)
             _image_compress_bptc_func(this, p_lossy_quality, p_source);
         } break;
     }
@@ -2110,19 +2112,19 @@ Rect2 Image::get_used_rect() const {
 
 Ref<Image> Image::get_rect(const Rect2 &p_area) const {
 
-    Ref<Image> img = memnew(Image(p_area.size.x, p_area.size.y, mipmaps, format));
+    Ref<Image> img(make_ref_counted<Image>(p_area.size.x, p_area.size.y, mipmaps, format));
     img->blit_rect(Ref<Image>((Image *)this), p_area, Point2(0, 0));
     return img;
 }
 
 void Image::blit_rect(const Ref<Image> &p_src, const Rect2 &p_src_rect, const Point2 &p_dest) {
 
-    ERR_FAIL_COND(p_src.is_null());
+    ERR_FAIL_COND(not p_src)
     int dsize = data.size();
     int srcdsize = p_src->data.size();
-    ERR_FAIL_COND(dsize == 0);
-    ERR_FAIL_COND(srcdsize == 0);
-    ERR_FAIL_COND(format != p_src->format);
+    ERR_FAIL_COND(dsize == 0)
+    ERR_FAIL_COND(srcdsize == 0)
+    ERR_FAIL_COND(format != p_src->format)
 
     Rect2i clipped_src_rect = Rect2i(0, 0, p_src->width, p_src->height).clip(p_src_rect);
 
@@ -2167,17 +2169,17 @@ void Image::blit_rect(const Ref<Image> &p_src, const Rect2 &p_src_rect, const Po
 
 void Image::blit_rect_mask(const Ref<Image> &p_src, const Ref<Image> &p_mask, const Rect2 &p_src_rect, const Point2 &p_dest) {
 
-    ERR_FAIL_COND(p_src.is_null());
-    ERR_FAIL_COND(p_mask.is_null());
+    ERR_FAIL_COND(not p_src)
+    ERR_FAIL_COND(not p_mask)
     int dsize = data.size();
     int srcdsize = p_src->data.size();
     int maskdsize = p_mask->data.size();
-    ERR_FAIL_COND(dsize == 0);
-    ERR_FAIL_COND(srcdsize == 0);
-    ERR_FAIL_COND(maskdsize == 0);
-    ERR_FAIL_COND(p_src->width != p_mask->width);
-    ERR_FAIL_COND(p_src->height != p_mask->height);
-    ERR_FAIL_COND(format != p_src->format);
+    ERR_FAIL_COND(dsize == 0)
+    ERR_FAIL_COND(srcdsize == 0)
+    ERR_FAIL_COND(maskdsize == 0)
+    ERR_FAIL_COND(p_src->width != p_mask->width)
+    ERR_FAIL_COND(p_src->height != p_mask->height)
+    ERR_FAIL_COND(format != p_src->format)
 
     Rect2i clipped_src_rect = Rect2i(0, 0, p_src->width, p_src->height).clip(p_src_rect);
 
@@ -2230,12 +2232,12 @@ void Image::blit_rect_mask(const Ref<Image> &p_src, const Ref<Image> &p_mask, co
 
 void Image::blend_rect(const Ref<Image> &p_src, const Rect2 &p_src_rect, const Point2 &p_dest) {
 
-    ERR_FAIL_COND(p_src.is_null());
+    ERR_FAIL_COND(not p_src)
     int dsize = data.size();
     int srcdsize = p_src->data.size();
-    ERR_FAIL_COND(dsize == 0);
-    ERR_FAIL_COND(srcdsize == 0);
-    ERR_FAIL_COND(format != p_src->format);
+    ERR_FAIL_COND(dsize == 0)
+    ERR_FAIL_COND(srcdsize == 0)
+    ERR_FAIL_COND(format != p_src->format)
 
     Rect2i clipped_src_rect = Rect2i(0, 0, p_src->width, p_src->height).clip(p_src_rect);
 
@@ -2280,17 +2282,17 @@ void Image::blend_rect(const Ref<Image> &p_src, const Rect2 &p_src_rect, const P
 
 void Image::blend_rect_mask(const Ref<Image> &p_src, const Ref<Image> &p_mask, const Rect2 &p_src_rect, const Point2 &p_dest) {
 
-    ERR_FAIL_COND(p_src.is_null());
-    ERR_FAIL_COND(p_mask.is_null());
+    ERR_FAIL_COND(not p_src)
+    ERR_FAIL_COND(not p_mask)
     int dsize = data.size();
     int srcdsize = p_src->data.size();
     int maskdsize = p_mask->data.size();
-    ERR_FAIL_COND(dsize == 0);
-    ERR_FAIL_COND(srcdsize == 0);
-    ERR_FAIL_COND(maskdsize == 0);
-    ERR_FAIL_COND(p_src->width != p_mask->width);
-    ERR_FAIL_COND(p_src->height != p_mask->height);
-    ERR_FAIL_COND(format != p_src->format);
+    ERR_FAIL_COND(dsize == 0)
+    ERR_FAIL_COND(srcdsize == 0)
+    ERR_FAIL_COND(maskdsize == 0)
+    ERR_FAIL_COND(p_src->width != p_mask->width)
+    ERR_FAIL_COND(p_src->height != p_mask->height)
+    ERR_FAIL_COND(format != p_src->format)
 
     Rect2i clipped_src_rect = Rect2i(0, 0, p_src->width, p_src->height).clip(p_src_rect);
 
@@ -2384,9 +2386,9 @@ void (*Image::_image_decompress_etc2)(Image *) = nullptr;
 PoolVector<uint8_t> Image::lossy_packer(const Ref<Image> &p_image, float qualt)
 {
     Ref<Image> img = p_image;
-    if(p_image->get_format()!=Image::FORMAT_RGBA8 && p_image->get_format()!=Image::FORMAT_RGBA8)
+    if (p_image->get_format() != Image::FORMAT_RGBA8 && p_image->get_format() != Image::FORMAT_RGB8)
     {
-        img = p_image->duplicate();
+        img = dynamic_ref_cast<Image>( p_image->duplicate());
         if (img->detect_alpha())
             img->convert(Image::FORMAT_RGBA8);
         else
@@ -2413,8 +2415,8 @@ Ref<Image> Image::lossy_unpacker(const PoolVector<uint8_t> &p_buffer)
 
     ERR_FAIL_COND_V(r[0] != 'W' || r[1] != 'E' || r[2] != 'B' || r[3] != 'P', Ref<Image>())
 
-    Ref<Image> res;
-    res.instance();
+    Ref<Image> res(make_ref_counted<Image>());
+
     if(OK!=res->_load_from_buffer(&r[4], size - 4,"webp"))
         return {};
     return res;
@@ -2442,8 +2444,8 @@ Ref<Image> Image::lossless_unpacker(const PoolVector<uint8_t> &p_data)
     ERR_FAIL_COND_V(len < 4, {})
     PoolVector<uint8_t>::Read r = p_data.read();
     ERR_FAIL_COND_V(r[0] != 'P' || r[1] != 'N' || r[2] != 'G' || r[3] != ' ', {})
-    Ref<Image> res;
-    res.instance();
+    Ref<Image> res(make_ref_counted<Image>());
+
     if(OK!=res->_load_from_buffer(&r[4], len - 4,"png"))
         return {};
     return res;
@@ -2451,16 +2453,16 @@ Ref<Image> Image::lossless_unpacker(const PoolVector<uint8_t> &p_data)
 
 void Image::_set_data(const Dictionary &p_data) {
 
-    ERR_FAIL_COND(!p_data.has("width"));
-    ERR_FAIL_COND(!p_data.has("height"));
-    ERR_FAIL_COND(!p_data.has("format"));
-    ERR_FAIL_COND(!p_data.has("mipmaps"));
-    ERR_FAIL_COND(!p_data.has("data"));
+    ERR_FAIL_COND(!p_data.has("width"))
+    ERR_FAIL_COND(!p_data.has("height"))
+    ERR_FAIL_COND(!p_data.has("format"))
+    ERR_FAIL_COND(!p_data.has("mipmaps"))
+    ERR_FAIL_COND(!p_data.has("data"))
 
     int dwidth = p_data["width"];
     int dheight = p_data["height"];
     String dformat = p_data["format"].as<String>();
-    bool dmipmaps = p_data["mipmaps"];
+    bool dmipmaps = p_data["mipmaps"].as<bool>();
     PoolVector<uint8_t> ddata = p_data["data"];
     Format ddformat = FORMAT_MAX;
     for (int i = 0; i < FORMAT_MAX; i++) {
@@ -2470,7 +2472,7 @@ void Image::_set_data(const Dictionary &p_data) {
         }
     }
 
-    ERR_FAIL_COND(ddformat == FORMAT_MAX);
+    ERR_FAIL_COND(ddformat == FORMAT_MAX)
 
     create(dwidth, dheight, dmipmaps, ddformat, ddata);
 }
@@ -2488,7 +2490,7 @@ Dictionary Image::_get_data() const {
 
 void Image::lock() {
 
-    ERR_FAIL_COND(data.size() == 0);
+    ERR_FAIL_COND(data.size() == 0)
     write_lock = data.write();
 }
 
@@ -2505,7 +2507,7 @@ Color Image::get_pixel(int p_x, int p_y) const {
 
     uint8_t *ptr = write_lock.ptr();
 #ifdef DEBUG_ENABLED
-    ERR_FAIL_COND_V_CMSG(!ptr, Color(), "Image must be locked with 'lock()' before using get_pixel().");
+    ERR_FAIL_COND_V_CMSG(!ptr, Color(), "Image must be locked with 'lock()' before using get_pixel().")
 
     ERR_FAIL_INDEX_V(p_x, width, Color());
     ERR_FAIL_INDEX_V(p_y, height, Color());
@@ -2634,7 +2636,7 @@ void Image::set_pixel(int p_x, int p_y, const Color &p_color) {
 
     uint8_t *ptr = write_lock.ptr();
 #ifdef DEBUG_ENABLED
-    ERR_FAIL_COND_CMSG(!ptr, "Image must be locked with 'lock()' before using set_pixel().");
+    ERR_FAIL_COND_CMSG(!ptr, "Image must be locked with 'lock()' before using set_pixel().")
 
     ERR_FAIL_INDEX(p_x, width);
     ERR_FAIL_INDEX(p_y, height);
@@ -2753,8 +2755,8 @@ void Image::set_pixel(int p_x, int p_y, const Color &p_color) {
 
 Image::DetectChannels Image::get_detected_channels() {
 
-    ERR_FAIL_COND_V(data.size() == 0, DETECTED_RGBA);
-    ERR_FAIL_COND_V(is_compressed(), DETECTED_RGBA);
+    ERR_FAIL_COND_V(data.size() == 0, DETECTED_RGBA)
+    ERR_FAIL_COND_V(is_compressed(), DETECTED_RGBA)
     bool r = false, g = false, b = false, a = false, c = false;
     lock();
     for (int i = 0; i < width; i++) {
@@ -2816,34 +2818,34 @@ void Image::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_format"), &Image::get_format);
     MethodBinder::bind_method(D_METHOD("get_data"), &Image::get_data);
 
-    MethodBinder::bind_method(D_METHOD("convert", "format"), &Image::convert);
+    MethodBinder::bind_method(D_METHOD("convert", {"format"}), &Image::convert);
 
-    MethodBinder::bind_method(D_METHOD("get_mipmap_offset", "mipmap"), &Image::get_mipmap_offset);
+    MethodBinder::bind_method(D_METHOD("get_mipmap_offset", {"mipmap"}), &Image::get_mipmap_offset);
 
-    MethodBinder::bind_method(D_METHOD("resize_to_po2", "square"), &Image::resize_to_po2, {DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("resize", "width", "height", "interpolation"), &Image::resize, {DEFVAL(INTERPOLATE_BILINEAR)});
+    MethodBinder::bind_method(D_METHOD("resize_to_po2", {"square"}), &Image::resize_to_po2, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("resize", {"width", "height", "interpolation"}), &Image::resize, {DEFVAL(INTERPOLATE_BILINEAR)});
     MethodBinder::bind_method(D_METHOD("shrink_x2"), &Image::shrink_x2);
     MethodBinder::bind_method(D_METHOD("expand_x2_hq2x"), &Image::expand_x2_hq2x);
 
-    MethodBinder::bind_method(D_METHOD("crop", "width", "height"), &Image::crop);
+    MethodBinder::bind_method(D_METHOD("crop", {"width", "height"}), &Image::crop);
     MethodBinder::bind_method(D_METHOD("flip_x"), &Image::flip_x);
     MethodBinder::bind_method(D_METHOD("flip_y"), &Image::flip_y);
-    MethodBinder::bind_method(D_METHOD("generate_mipmaps", "renormalize"), &Image::generate_mipmaps, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("generate_mipmaps", {"renormalize"}), &Image::generate_mipmaps, {DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("clear_mipmaps"), &Image::clear_mipmaps);
 
-    MethodBinder::bind_method(D_METHOD("create", "width", "height", "use_mipmaps", "format"), &Image::_create_empty);
-    MethodBinder::bind_method(D_METHOD("create_from_data", "width", "height", "use_mipmaps", "format", "data"), &Image::_create_from_data);
+    MethodBinder::bind_method(D_METHOD("create", {"width", "height", "use_mipmaps", "format"}), &Image::_create_empty);
+    MethodBinder::bind_method(D_METHOD("create_from_data", {"width", "height", "use_mipmaps", "format", "data"}), &Image::_create_from_data);
 
     MethodBinder::bind_method(D_METHOD("is_empty"), &Image::empty);
 
-    MethodBinder::bind_method(D_METHOD("load", "path"), &Image::load);
-    MethodBinder::bind_method(D_METHOD("save_png", "path"), &Image::save_png);
-    MethodBinder::bind_method(D_METHOD("save_exr", "path", "grayscale"), &Image::save_exr, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("load", {"path"}), &Image::load);
+    MethodBinder::bind_method(D_METHOD("save_png", {"path"}), &Image::save_png);
+    MethodBinder::bind_method(D_METHOD("save_exr", {"path", "grayscale"}), &Image::save_exr, {DEFVAL(false)});
 
     MethodBinder::bind_method(D_METHOD("detect_alpha"), &Image::detect_alpha);
     MethodBinder::bind_method(D_METHOD("is_invisible"), &Image::is_invisible);
 
-    MethodBinder::bind_method(D_METHOD("compress", "mode", "source", "lossy_quality"), &Image::compress);
+    MethodBinder::bind_method(D_METHOD("compress", {"mode", "source", "lossy_quality"}), &Image::compress);
     MethodBinder::bind_method(D_METHOD("decompress"), &Image::decompress);
     MethodBinder::bind_method(D_METHOD("is_compressed"), &Image::is_compressed);
 
@@ -2852,34 +2854,34 @@ void Image::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("srgb_to_linear"), &Image::srgb_to_linear);
     MethodBinder::bind_method(D_METHOD("normalmap_to_xy"), &Image::normalmap_to_xy);
     MethodBinder::bind_method(D_METHOD("rgbe_to_srgb"), &Image::rgbe_to_srgb);
-    MethodBinder::bind_method(D_METHOD("bumpmap_to_normalmap", "bump_scale"), &Image::bumpmap_to_normalmap, {DEFVAL(1.0)});
+    MethodBinder::bind_method(D_METHOD("bumpmap_to_normalmap", {"bump_scale"}), &Image::bumpmap_to_normalmap, {DEFVAL(1.0)});
 
-    MethodBinder::bind_method(D_METHOD("blit_rect", "src", "src_rect", "dst"), &Image::blit_rect);
-    MethodBinder::bind_method(D_METHOD("blit_rect_mask", "src", "mask", "src_rect", "dst"), &Image::blit_rect_mask);
-    MethodBinder::bind_method(D_METHOD("blend_rect", "src", "src_rect", "dst"), &Image::blend_rect);
-    MethodBinder::bind_method(D_METHOD("blend_rect_mask", "src", "mask", "src_rect", "dst"), &Image::blend_rect_mask);
-    MethodBinder::bind_method(D_METHOD("fill", "color"), &Image::fill);
+    MethodBinder::bind_method(D_METHOD("blit_rect", {"src", "src_rect", "dst"}), &Image::blit_rect);
+    MethodBinder::bind_method(D_METHOD("blit_rect_mask", {"src", "mask", "src_rect", "dst"}), &Image::blit_rect_mask);
+    MethodBinder::bind_method(D_METHOD("blend_rect", {"src", "src_rect", "dst"}), &Image::blend_rect);
+    MethodBinder::bind_method(D_METHOD("blend_rect_mask", {"src", "mask", "src_rect", "dst"}), &Image::blend_rect_mask);
+    MethodBinder::bind_method(D_METHOD("fill", {"color"}), &Image::fill);
 
     MethodBinder::bind_method(D_METHOD("get_used_rect"), &Image::get_used_rect);
-    MethodBinder::bind_method(D_METHOD("get_rect", "rect"), &Image::get_rect);
+    MethodBinder::bind_method(D_METHOD("get_rect", {"rect"}), &Image::get_rect);
 
-    MethodBinder::bind_method(D_METHOD("copy_from", "src"), &Image::copy_internals_from);
+    MethodBinder::bind_method(D_METHOD("copy_from", {"src"}), &Image::copy_internals_from);
 
-    MethodBinder::bind_method(D_METHOD("_set_data", "data"), &Image::_set_data);
+    MethodBinder::bind_method(D_METHOD("_set_data", {"data"}), &Image::_set_data);
     MethodBinder::bind_method(D_METHOD("_get_data"), &Image::_get_data);
 
     MethodBinder::bind_method(D_METHOD("lock"), &Image::lock);
     MethodBinder::bind_method(D_METHOD("unlock"), &Image::unlock);
-    MethodBinder::bind_method(D_METHOD("get_pixelv", "src"), &Image::get_pixelv);
-    MethodBinder::bind_method(D_METHOD("get_pixel", "x", "y"), &Image::get_pixel);
-    MethodBinder::bind_method(D_METHOD("set_pixelv", "dst", "color"), &Image::set_pixelv);
-    MethodBinder::bind_method(D_METHOD("set_pixel", "x", "y", "color"), &Image::set_pixel);
+    MethodBinder::bind_method(D_METHOD("get_pixelv", {"src"}), &Image::get_pixelv);
+    MethodBinder::bind_method(D_METHOD("get_pixel", {"x", "y"}), &Image::get_pixel);
+    MethodBinder::bind_method(D_METHOD("set_pixelv", {"dst", "color"}), &Image::set_pixelv);
+    MethodBinder::bind_method(D_METHOD("set_pixel", {"x", "y", "color"}), &Image::set_pixel);
 
-    MethodBinder::bind_method(D_METHOD("load_png_from_buffer", "buffer"), &Image::load_png_from_buffer);
-    MethodBinder::bind_method(D_METHOD("load_jpg_from_buffer", "buffer"), &Image::load_jpg_from_buffer);
-    MethodBinder::bind_method(D_METHOD("load_webp_from_buffer", "buffer"), &Image::load_webp_from_buffer);
+    MethodBinder::bind_method(D_METHOD("load_png_from_buffer", {"buffer"}), &Image::load_png_from_buffer);
+    MethodBinder::bind_method(D_METHOD("load_jpg_from_buffer", {"buffer"}), &Image::load_jpg_from_buffer);
+    MethodBinder::bind_method(D_METHOD("load_webp_from_buffer", {"buffer"}), &Image::load_webp_from_buffer);
 
-    ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "data", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_STORAGE), "_set_data", "_get_data");
+    ADD_PROPERTY(PropertyInfo(VariantType::DICTIONARY, "data", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_STORAGE), "_set_data", "_get_data");
 
     BIND_CONSTANT(MAX_WIDTH)
     BIND_CONSTANT(MAX_HEIGHT)
@@ -2979,10 +2981,10 @@ Ref<Image> Image::rgbe_to_srgb() {
     if (data.size() == 0)
         return Ref<Image>();
 
-    ERR_FAIL_COND_V(format != FORMAT_RGBE9995, Ref<Image>());
+    ERR_FAIL_COND_V(format != FORMAT_RGBE9995, Ref<Image>())
 
-    Ref<Image> new_image;
-    new_image.instance();
+    Ref<Image> new_image(make_ref_counted<Image>());
+
     new_image->create(width, height, false, Image::FORMAT_RGB8);
 
     lock();
@@ -3006,7 +3008,7 @@ Ref<Image> Image::rgbe_to_srgb() {
 }
 
 void Image::bumpmap_to_normalmap(float bump_scale) {
-    ERR_FAIL_COND(!_can_modify(format));
+    ERR_FAIL_COND(!_can_modify(format))
     convert(Image::FORMAT_RF);
 
     PoolVector<uint8_t> result_image; //rgba output
@@ -3053,7 +3055,7 @@ void Image::srgb_to_linear() {
 
     static const uint8_t srgb2lin[256] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7, 8, 8, 8, 9, 9, 9, 10, 10, 10, 11, 11, 11, 12, 12, 13, 13, 13, 14, 14, 15, 15, 16, 16, 16, 17, 17, 18, 18, 19, 19, 20, 20, 21, 22, 22, 23, 23, 24, 24, 25, 26, 26, 27, 27, 28, 29, 29, 30, 31, 31, 32, 33, 33, 34, 35, 36, 36, 37, 38, 38, 39, 40, 41, 42, 42, 43, 44, 45, 46, 47, 47, 48, 49, 50, 51, 52, 53, 54, 55, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 70, 71, 72, 73, 74, 75, 76, 77, 78, 80, 81, 82, 83, 84, 85, 87, 88, 89, 90, 92, 93, 94, 95, 97, 98, 99, 101, 102, 103, 105, 106, 107, 109, 110, 112, 113, 114, 116, 117, 119, 120, 122, 123, 125, 126, 128, 129, 131, 132, 134, 135, 137, 139, 140, 142, 144, 145, 147, 148, 150, 152, 153, 155, 157, 159, 160, 162, 164, 166, 167, 169, 171, 173, 175, 176, 178, 180, 182, 184, 186, 188, 190, 192, 193, 195, 197, 199, 201, 203, 205, 207, 209, 211, 213, 215, 218, 220, 222, 224, 226, 228, 230, 232, 235, 237, 239, 241, 243, 245, 248, 250, 252 };
 
-    ERR_FAIL_COND(format != FORMAT_RGB8 && format != FORMAT_RGBA8);
+    ERR_FAIL_COND(format != FORMAT_RGB8 && format != FORMAT_RGBA8)
 
     if (format == FORMAT_RGBA8) {
 
@@ -3277,8 +3279,8 @@ Image::Image(const uint8_t *p_mem_png_jpg, int p_len) {
 
 Ref<Resource> Image::duplicate(bool p_subresources) const {
 
-    Ref<Image> copy;
-    copy.instance();
+    Ref<Image> copy(make_ref_counted<Image>());
+
     copy->_copy_internals_from(*this);
     return copy;
 }
@@ -3304,7 +3306,7 @@ Ref<Image> prepareForPngStorage(const Ref<Image> &img)
 
     if (source_image->is_compressed())
     {
-        source_image = source_image->duplicate();
+        source_image = dynamic_ref_cast<Image>(source_image->duplicate());
         source_image->decompress();
     }
     ERR_FAIL_COND_V(source_image->is_compressed(), Ref<Image>())
@@ -3314,8 +3316,8 @@ Ref<Image> prepareForPngStorage(const Ref<Image> &img)
             && source_image->get_format()!=ImageData::FORMAT_RGBA8;
     if (!need_convert)
         return source_image;
-    if(img==source_image) // create a copy to prevent modifications to img content
-        source_image = source_image->duplicate();
+    if(img==source_image) // create a copy to prevent modifications to img contents
+        source_image = dynamic_ref_cast<Image>(source_image->duplicate());
 
     if (source_image->detect_alpha()) {
         source_image->convert(ImageData::FORMAT_RGBA8);

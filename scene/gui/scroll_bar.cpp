@@ -51,14 +51,14 @@ void ScrollBar::set_can_focus_by_default(bool p_can_focus) {
 
 void ScrollBar::_gui_input(Ref<InputEvent> p_event) {
 
-    Ref<InputEventMouseMotion> m = p_event;
-    if (!m.is_valid() || drag.active) {
+    Ref<InputEventMouseMotion> m = dynamic_ref_cast<InputEventMouseMotion>(p_event);
+    if (!m || drag.active) {
         emit_signal("scrolling");
     }
 
-    Ref<InputEventMouseButton> b = p_event;
+    Ref<InputEventMouseButton> b = dynamic_ref_cast<InputEventMouseButton>(p_event);
 
-    if (b.is_valid()) {
+    if (b) {
         accept_event();
 
         if (b->get_button_index() == BUTTON_WHEEL_DOWN && b->is_pressed()) {
@@ -149,7 +149,7 @@ void ScrollBar::_gui_input(Ref<InputEvent> p_event) {
         }
     }
 
-    if (m.is_valid()) {
+    if (m) {
 
         accept_event();
 
@@ -554,9 +554,9 @@ void ScrollBar::_drag_node_exit() {
 
 void ScrollBar::_drag_node_input(const Ref<InputEvent> &p_input) {
 
-    Ref<InputEventMouseButton> mb = p_input;
+    Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_input);
 
-    if (mb.is_valid()) {
+    if (mb) {
 
         if (mb->get_button_index() != 1)
             return;
@@ -592,9 +592,9 @@ void ScrollBar::_drag_node_input(const Ref<InputEvent> &p_input) {
         }
     }
 
-    Ref<InputEventMouseMotion> mm = p_input;
+    Ref<InputEventMouseMotion> mm = dynamic_ref_cast<InputEventMouseMotion>(p_input);
 
-    if (mm.is_valid()) {
+    if (mm) {
 
         if (drag_node_touching && !drag_node_touching_deaccel) {
 
@@ -657,14 +657,14 @@ bool ScrollBar::is_smooth_scroll_enabled() const {
 void ScrollBar::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_gui_input"), &ScrollBar::_gui_input);
-    MethodBinder::bind_method(D_METHOD("set_custom_step", "step"), &ScrollBar::set_custom_step);
+    MethodBinder::bind_method(D_METHOD("set_custom_step", {"step"}), &ScrollBar::set_custom_step);
     MethodBinder::bind_method(D_METHOD("get_custom_step"), &ScrollBar::get_custom_step);
     MethodBinder::bind_method(D_METHOD("_drag_node_input"), &ScrollBar::_drag_node_input);
     MethodBinder::bind_method(D_METHOD("_drag_node_exit"), &ScrollBar::_drag_node_exit);
 
     ADD_SIGNAL(MethodInfo("scrolling"));
 
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "custom_step", PROPERTY_HINT_RANGE, "-1,4096"), "set_custom_step", "get_custom_step");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "custom_step", PROPERTY_HINT_RANGE, "-1,4096"), "set_custom_step", "get_custom_step");
 }
 
 ScrollBar::ScrollBar(Orientation p_orientation) {

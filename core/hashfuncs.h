@@ -28,14 +28,15 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef HASHFUNCS_H
-#define HASHFUNCS_H
+#pragma once
 
 #include "core/math/math_defs.h"
 #include "core/math/math_funcs.h"
 #include "core/node_path.h"
 #include "core/string_name.h"
 #include "core/typedefs.h"
+
+#include <type_traits>
 
 class String;
 
@@ -129,7 +130,7 @@ static inline uint32_t hash_djb2_one_float(double p_in, uint32_t p_prev = 5381) 
     } u;
 
     // Normalize +/- 0.0 and NaN values so they hash the same.
-    if (p_in == 0.0f)
+    if (p_in == 0.0)
         u.d = 0.0;
     else if (Math::is_nan(p_in))
         u.d = Math_NAN;
@@ -138,7 +139,22 @@ static inline uint32_t hash_djb2_one_float(double p_in, uint32_t p_prev = 5381) 
 
     return ((p_prev << 5) + p_prev) + hash_one_uint64(u.i);
 }
+static inline uint32_t hash_djb2_one_float(float p_in, uint32_t p_prev = 5381) {
+    union {
+        float d;
+        uint32_t i;
+    } u;
 
+    // Normalize +/- 0.0 and NaN values so they hash the same.
+    if (p_in == 0.0f)
+        u.d = 0.0f;
+    else if (Math::is_nan(p_in))
+        u.d = Math_NAN;
+    else
+        u.d = p_in;
+
+    return ((p_prev << 5) + p_prev) + hash_djb2_one_32(u.i);
+}
 template <class T>
 static inline uint32_t make_uint32_t(T p_in) {
 
@@ -169,54 +185,54 @@ static inline uint64_t make_uint64_t(T p_in) {
     return _u._u64;
 }
 template <class T> struct Hasher {
-    _FORCE_INLINE_ uint32_t operator()(const T &val) { return val.hash(); }
+    _FORCE_INLINE_ uint32_t operator()(const T &val) const { return val.hash(); }
 };
 template <typename Key>
 using HashType = typename std::conditional<std::is_enum<Key>::value, Hasher<typename std::underlying_type<Key>::type>,
         Hasher<Key>>::type;
 
 template <> struct Hasher<const char *> {
-    _FORCE_INLINE_ uint32_t operator()(const char *p_cstr) { return hash_djb2(p_cstr); }
+    _FORCE_INLINE_ uint32_t operator()(const char *p_cstr) const { return hash_djb2(p_cstr); }
 };
 template <> struct Hasher<uint64_t> {
-    _FORCE_INLINE_ uint32_t operator()(const uint64_t p_int) { return hash_one_uint64(p_int); }
+    _FORCE_INLINE_ uint32_t operator()(const uint64_t p_int) const { return hash_one_uint64(p_int); }
 };
 
 template <> struct Hasher<int64_t> {
-    _FORCE_INLINE_ uint32_t operator()(const int64_t p_int) { return Hasher<uint64_t>()(uint64_t(p_int)); }
+    _FORCE_INLINE_ uint32_t operator()(const int64_t p_int) const { return Hasher<uint64_t>()(uint64_t(p_int)); }
 };
 template <> struct Hasher<float> {
-    _FORCE_INLINE_ uint32_t operator()(const float p_float) { return hash_djb2_one_float(p_float); }
+    _FORCE_INLINE_ uint32_t operator()(const float p_float) const { return hash_djb2_one_float(p_float); }
 };
 template <> struct Hasher<double> {
-    _FORCE_INLINE_ uint32_t operator()(const double p_double) { return hash_djb2_one_float(p_double); }
+    _FORCE_INLINE_ uint32_t operator()(const double p_double) const { return hash_djb2_one_float(p_double); }
 };
 template <> struct Hasher<uint32_t> {
-    _FORCE_INLINE_ uint32_t operator()(const uint32_t p_int) { return p_int; }
+    _FORCE_INLINE_ uint32_t operator()(const uint32_t p_int) const { return p_int; }
 };
 template <> struct Hasher<int32_t> {
-    _FORCE_INLINE_ uint32_t operator()(const int32_t p_int) { return (uint32_t)p_int; }
+    _FORCE_INLINE_ uint32_t operator()(const int32_t p_int) const { return (uint32_t)p_int; }
 };
 template <> struct Hasher<uint16_t> {
-    _FORCE_INLINE_ uint32_t operator()(const uint16_t p_int) { return p_int; }
+    _FORCE_INLINE_ uint32_t operator()(const uint16_t p_int) const { return p_int; }
 };
 template <> struct Hasher<int16_t> {
-    _FORCE_INLINE_ uint32_t operator()(const int16_t p_int) { return (uint32_t)p_int; }
+    _FORCE_INLINE_ uint32_t operator()(const int16_t p_int) const { return (uint32_t)p_int; }
 };
 template <> struct Hasher<uint8_t> {
-    _FORCE_INLINE_ uint32_t operator()(const uint8_t p_int) { return p_int; }
+    _FORCE_INLINE_ uint32_t operator()(const uint8_t p_int) const { return p_int; }
 };
 template <> struct Hasher<int8_t> {
-    _FORCE_INLINE_ uint32_t operator()(const int8_t p_int) { return (uint32_t)p_int; }
+    _FORCE_INLINE_ uint32_t operator()(const int8_t p_int) const { return (uint32_t)p_int; }
 };
 template <> struct Hasher<char16_t> {
-    _FORCE_INLINE_ uint32_t operator()(const char16_t p_wchar) { return (uint32_t)p_wchar; }
+    _FORCE_INLINE_ uint32_t operator()(const char16_t p_wchar) const { return (uint32_t)p_wchar; }
 };
 template <> struct Hasher<StringName> {
-    _FORCE_INLINE_ uint32_t operator()(const StringName &p_string_name) { return p_string_name.hash(); }
+    _FORCE_INLINE_ uint32_t operator()(const StringName &p_string_name) const { return p_string_name.hash(); }
 };
 template <> struct Hasher<NodePath> {
-    _FORCE_INLINE_ uint32_t operator()(const NodePath &p_path) { return p_path.hash(); }
+    _FORCE_INLINE_ uint32_t operator()(const NodePath &p_path) const { return p_path.hash(); }
 };
 
 template <typename T>
@@ -232,6 +248,5 @@ struct HashMapComparatorDefault {
     static bool compare(double p_lhs, double p_rhs) {
         return (p_lhs == p_rhs) || (Math::is_nan(p_lhs) && Math::is_nan(p_rhs));
     }
+    constexpr bool operator()(const T &p_lhs, const T &p_rhs) const { return p_lhs==p_rhs; }
 };
-
-#endif

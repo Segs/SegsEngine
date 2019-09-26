@@ -59,11 +59,8 @@ int RegExMatch::_find(const Variant &p_name) const {
             return -1;
         return i;
 
-    } else if (p_name.get_type() == Variant::STRING) {
-
-        const Map<String, int>::Element *found = names.find((String)p_name);
-        if (found)
-            return found->value();
+    } else if (p_name.get_type() == VariantType::STRING) {
+        return names.at((String)p_name,-1);
     }
 
     return -1;
@@ -85,8 +82,8 @@ Dictionary RegExMatch::get_names() const {
 
     Dictionary result;
 
-    for (const Map<String, int>::Element *i = names.front(); i != nullptr; i = i->next()) {
-        result[i->key()] = i->value();
+    for (const auto &i : names) {
+        result[i.first] = i.second;
     }
 
     return result;
@@ -158,13 +155,13 @@ void RegExMatch::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_group_count"), &RegExMatch::get_group_count);
     MethodBinder::bind_method(D_METHOD("get_names"), &RegExMatch::get_names);
     MethodBinder::bind_method(D_METHOD("get_strings"), &RegExMatch::get_strings);
-    MethodBinder::bind_method(D_METHOD("get_string", "name"), &RegExMatch::get_string, {DEFVAL(0)});
-    MethodBinder::bind_method(D_METHOD("get_start", "name"), &RegExMatch::get_start, {DEFVAL(0)});
-    MethodBinder::bind_method(D_METHOD("get_end", "name"), &RegExMatch::get_end, {DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("get_string", {"name"}), &RegExMatch::get_string, {DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("get_start", {"name"}), &RegExMatch::get_start, {DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("get_end", {"name"}), &RegExMatch::get_end, {DEFVAL(0)});
 
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "subject"), "", "get_subject");
-    ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "names"), "", "get_names");
-    ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "strings"), "", "get_strings");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "subject"), "", "get_subject");
+    ADD_PROPERTY(PropertyInfo(VariantType::DICTIONARY, "names"), "", "get_names");
+    ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "strings"), "", "get_strings");
 }
 
 void RegEx::_pattern_info(uint32_t what, void *where) const {
@@ -211,7 +208,7 @@ Error RegEx::compile(const String &p_pattern) {
 
         pcre2_general_context_16 *gctx = (pcre2_general_context_16 *)general_ctx;
         pcre2_compile_context_16 *cctx = pcre2_compile_context_create_16(gctx);
-		PCRE2_SPTR16 p = (PCRE2_SPTR16)pattern.cdata();
+        PCRE2_SPTR16 p = (PCRE2_SPTR16)pattern.cdata();
 
         code = pcre2_compile_16(p, pattern.length(), flags, &err, &offset, cctx);
 
@@ -229,7 +226,7 @@ Error RegEx::compile(const String &p_pattern) {
 
         pcre2_general_context_32 *gctx = (pcre2_general_context_32 *)general_ctx;
         pcre2_compile_context_32 *cctx = pcre2_compile_context_create_32(gctx);
-		PCRE2_SPTR32 p = (PCRE2_SPTR32)pattern.cdata();
+        PCRE2_SPTR32 p = (PCRE2_SPTR32)pattern.cdata();
 
         code = pcre2_compile_32(p, pattern.length(), flags, &err, &offset, cctx);
 
@@ -248,9 +245,9 @@ Error RegEx::compile(const String &p_pattern) {
 
 Ref<RegExMatch> RegEx::search(const String &p_subject, int p_offset, int p_end) const {
 
-    ERR_FAIL_COND_V(!is_valid(), nullptr)
+    ERR_FAIL_COND_V(!is_valid(), Ref<RegExMatch>())
 
-    Ref<RegExMatch> result = memnew(RegExMatch);
+    Ref<RegExMatch> result(make_ref_counted<RegExMatch>());
 
     int length = p_subject.length();
     if (p_end >= 0 && p_end < length)
@@ -261,7 +258,7 @@ Ref<RegExMatch> RegEx::search(const String &p_subject, int p_offset, int p_end) 
         pcre2_code_16 *c = (pcre2_code_16 *)code;
         pcre2_general_context_16 *gctx = (pcre2_general_context_16 *)general_ctx;
         pcre2_match_context_16 *mctx = pcre2_match_context_create_16(gctx);
-		PCRE2_SPTR16 s = (PCRE2_SPTR16)p_subject.cdata();
+        PCRE2_SPTR16 s = (PCRE2_SPTR16)p_subject.cdata();
 
         pcre2_match_data_16 *match = pcre2_match_data_create_from_pattern_16(c, gctx);
 
@@ -269,7 +266,7 @@ Ref<RegExMatch> RegEx::search(const String &p_subject, int p_offset, int p_end) 
 
         if (res < 0) {
             pcre2_match_data_free_16(match);
-            return nullptr;
+            return Ref<RegExMatch>();
         }
 
         uint32_t size = pcre2_get_ovector_count_16(match);
@@ -291,7 +288,7 @@ Ref<RegExMatch> RegEx::search(const String &p_subject, int p_offset, int p_end) 
         pcre2_code_32 *c = (pcre2_code_32 *)code;
         pcre2_general_context_32 *gctx = (pcre2_general_context_32 *)general_ctx;
         pcre2_match_context_32 *mctx = pcre2_match_context_create_32(gctx);
-		PCRE2_SPTR32 s = (PCRE2_SPTR32)p_subject.cdata();
+        PCRE2_SPTR32 s = (PCRE2_SPTR32)p_subject.cdata();
 
         pcre2_match_data_32 *match = pcre2_match_data_create_from_pattern_32(c, gctx);
 
@@ -301,7 +298,7 @@ Ref<RegExMatch> RegEx::search(const String &p_subject, int p_offset, int p_end) 
             pcre2_match_data_free_32(match);
             pcre2_match_context_free_32(mctx);
 
-            return nullptr;
+            return Ref<RegExMatch>();
         }
 
         uint32_t size = pcre2_get_ovector_count_32(match);
@@ -335,10 +332,10 @@ Ref<RegExMatch> RegEx::search(const String &p_subject, int p_offset, int p_end) 
         if (result->data[id.unicode()].start == -1)
             continue;
         String name = String(&table[i * entry_size + 1]);
-        if (result->names.has(name))
+        if (result->names.contains(name))
             continue;
 
-        result->names.insert(name, id.unicode());
+        result->names.emplace(name, id.unicode());
     }
 
     return result;
@@ -349,7 +346,7 @@ Array RegEx::search_all(const String &p_subject, int p_offset, int p_end) const 
     int last_end = -1;
     Array result;
     Ref<RegExMatch> match = search(p_subject, p_offset, p_end);
-    while (match.is_valid()) {
+    while (match) {
         if (last_end == match->get_end(0))
             break;
         result.push_back(match);
@@ -361,7 +358,7 @@ Array RegEx::search_all(const String &p_subject, int p_offset, int p_end) const 
 
 String RegEx::sub(const String &p_subject, const String &p_replacement, bool p_all, int p_offset, int p_end) const {
 
-    ERR_FAIL_COND_V(!is_valid(), String());
+    ERR_FAIL_COND_V(!is_valid(), String())
 
     // safety_zone is the number of chars we allocate in addition to the number of chars expected in order to
     // guard against the PCRE API writing one additional \0 at the end. PCRE's API docs are unclear on whether
@@ -386,8 +383,8 @@ String RegEx::sub(const String &p_subject, const String &p_replacement, bool p_a
         pcre2_code_16 *c = (pcre2_code_16 *)code;
         pcre2_general_context_16 *gctx = (pcre2_general_context_16 *)general_ctx;
         pcre2_match_context_16 *mctx = pcre2_match_context_create_16(gctx);
-		PCRE2_SPTR16 s = (PCRE2_SPTR16)p_subject.cdata();
-		PCRE2_SPTR16 r = (PCRE2_SPTR16)p_replacement.cdata();
+        PCRE2_SPTR16 s = (PCRE2_SPTR16)p_subject.cdata();
+        PCRE2_SPTR16 r = (PCRE2_SPTR16)p_replacement.cdata();
         PCRE2_UCHAR16 *o = (PCRE2_UCHAR16 *)output.ptrw();
 
         pcre2_match_data_16 *match = pcre2_match_data_create_from_pattern_16(c, gctx);
@@ -411,8 +408,8 @@ String RegEx::sub(const String &p_subject, const String &p_replacement, bool p_a
         pcre2_code_32 *c = (pcre2_code_32 *)code;
         pcre2_general_context_32 *gctx = (pcre2_general_context_32 *)general_ctx;
         pcre2_match_context_32 *mctx = pcre2_match_context_create_32(gctx);
-		PCRE2_SPTR32 s = (PCRE2_SPTR32)p_subject.cdata();
-		PCRE2_SPTR32 r = (PCRE2_SPTR32)p_replacement.cdata();
+        PCRE2_SPTR32 s = (PCRE2_SPTR32)p_subject.cdata();
+        PCRE2_SPTR32 r = (PCRE2_SPTR32)p_replacement.cdata();
         PCRE2_UCHAR32 *o = (PCRE2_UCHAR32 *)output.ptrw();
 
         pcre2_match_data_32 *match = pcre2_match_data_create_from_pattern_32(c, gctx);
@@ -447,7 +444,7 @@ String RegEx::get_pattern() const {
 
 int RegEx::get_group_count() const {
 
-    ERR_FAIL_COND_V(!is_valid(), 0);
+    ERR_FAIL_COND_V(!is_valid(), 0)
 
     uint32_t count;
 
@@ -460,7 +457,7 @@ Array RegEx::get_names() const {
 
     Array result;
 
-    ERR_FAIL_COND_V(!is_valid(), result);
+    ERR_FAIL_COND_V(!is_valid(), result)
 
     uint32_t count;
     const CharType *table;
@@ -527,10 +524,10 @@ RegEx::~RegEx() {
 void RegEx::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("clear"), &RegEx::clear);
-    MethodBinder::bind_method(D_METHOD("compile", "pattern"), &RegEx::compile);
-    MethodBinder::bind_method(D_METHOD("search", "subject", "offset", "end"), &RegEx::search, {DEFVAL(0), DEFVAL(-1)});
-    MethodBinder::bind_method(D_METHOD("search_all", "subject", "offset", "end"), &RegEx::search_all, {DEFVAL(0), DEFVAL(-1)});
-    MethodBinder::bind_method(D_METHOD("sub", "subject", "replacement", "all", "offset", "end"), &RegEx::sub, {DEFVAL(false), DEFVAL(0), DEFVAL(-1)});
+    MethodBinder::bind_method(D_METHOD("compile", {"pattern"}), &RegEx::compile);
+    MethodBinder::bind_method(D_METHOD("search", {"subject", "offset", "end"}), &RegEx::search, {DEFVAL(0), DEFVAL(-1)});
+    MethodBinder::bind_method(D_METHOD("search_all", {"subject", "offset", "end"}), &RegEx::search_all, {DEFVAL(0), DEFVAL(-1)});
+    MethodBinder::bind_method(D_METHOD("sub", {"subject", "replacement", "all", "offset", "end"}), &RegEx::sub, {DEFVAL(false), DEFVAL(0), DEFVAL(-1)});
     MethodBinder::bind_method(D_METHOD("is_valid"), &RegEx::is_valid);
     MethodBinder::bind_method(D_METHOD("get_pattern"), &RegEx::get_pattern);
     MethodBinder::bind_method(D_METHOD("get_group_count"), &RegEx::get_group_count);

@@ -36,9 +36,11 @@
 
 IMPL_GDCLASS(StreamPeerTCP);
 
+VARIANT_ENUM_CAST(StreamPeerTCP::Status);
+
 Error StreamPeerTCP::_poll_connection() {
 
-    ERR_FAIL_COND_V(status != STATUS_CONNECTING || !_sock.is_valid() || !_sock->is_open(), FAILED)
+    ERR_FAIL_COND_V(status != STATUS_CONNECTING || not _sock || !_sock->is_open(), FAILED)
 
     Error err = _sock->connect_to_host(peer_host, peer_port);
 
@@ -63,7 +65,7 @@ Error StreamPeerTCP::_poll_connection() {
 
 void StreamPeerTCP::accept_socket(Ref<NetSocket> p_sock, IP_Address p_host, uint16_t p_port) {
 
-    _sock = p_sock;
+    _sock = std::move(p_sock);
     _sock->set_blocking_enabled(false);
 
     timeout = OS::get_singleton()->get_ticks_msec() + (((uint64_t)GLOBAL_GET("network/limits/tcp/connect_timeout_seconds")) * 1000);
@@ -75,7 +77,7 @@ void StreamPeerTCP::accept_socket(Ref<NetSocket> p_sock, IP_Address p_host, uint
 
 Error StreamPeerTCP::connect_to_host(const IP_Address &p_host, uint16_t p_port) {
 
-    ERR_FAIL_COND_V(!_sock.is_valid(), ERR_UNAVAILABLE)
+    ERR_FAIL_COND_V(not _sock, ERR_UNAVAILABLE)
     ERR_FAIL_COND_V(_sock->is_open(), ERR_ALREADY_IN_USE)
     ERR_FAIL_COND_V(!p_host.is_valid(), ERR_INVALID_PARAMETER)
 
@@ -83,7 +85,7 @@ Error StreamPeerTCP::connect_to_host(const IP_Address &p_host, uint16_t p_port) 
     IP::Type ip_type = p_host.is_ipv4() ? IP::TYPE_IPV4 : IP::TYPE_IPV6;
 
     err = _sock->open(NetSocket::TYPE_TCP, ip_type);
-    ERR_FAIL_COND_V(err != OK, FAILED);
+    ERR_FAIL_COND_V(err != OK, FAILED)
 
     _sock->set_blocking_enabled(false);
 
@@ -108,7 +110,7 @@ Error StreamPeerTCP::connect_to_host(const IP_Address &p_host, uint16_t p_port) 
 
 Error StreamPeerTCP::write(const uint8_t *p_data, int p_bytes, int &r_sent, bool p_block) {
 
-    ERR_FAIL_COND_V(!_sock.is_valid(), ERR_UNAVAILABLE);
+    ERR_FAIL_COND_V(not _sock, ERR_UNAVAILABLE)
 
     if (status == STATUS_NONE || status == STATUS_ERROR) {
 
@@ -261,7 +263,7 @@ bool StreamPeerTCP::is_connected_to_host() const {
         return true;
     }
 
-    return _sock.is_valid() && _sock->is_open();
+    return _sock && _sock->is_open();
 }
 
 StreamPeerTCP::Status StreamPeerTCP::get_status() {
@@ -292,7 +294,7 @@ StreamPeerTCP::Status StreamPeerTCP::get_status() {
 
 void StreamPeerTCP::disconnect_from_host() {
 
-    if (_sock.is_valid() && _sock->is_open())
+    if (_sock && _sock->is_open())
         _sock->close();
 
     timeout = 0;
@@ -325,7 +327,7 @@ Error StreamPeerTCP::get_partial_data(uint8_t *p_buffer, int p_bytes, int &r_rec
 
 int StreamPeerTCP::get_available_bytes() const {
 
-    ERR_FAIL_COND_V(!_sock.is_valid(), -1)
+    ERR_FAIL_COND_V(not _sock, -1)
     return _sock->get_available_bytes();
 }
 
@@ -355,18 +357,18 @@ Error StreamPeerTCP::_connect(const String &p_address, int p_port) {
 
 void StreamPeerTCP::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("connect_to_host", "host", "port"), &StreamPeerTCP::_connect);
+    MethodBinder::bind_method(D_METHOD("connect_to_host", {"host", "port"}), &StreamPeerTCP::_connect);
     MethodBinder::bind_method(D_METHOD("is_connected_to_host"), &StreamPeerTCP::is_connected_to_host);
     MethodBinder::bind_method(D_METHOD("get_status"), &StreamPeerTCP::get_status);
     MethodBinder::bind_method(D_METHOD("get_connected_host"), &StreamPeerTCP::get_connected_host);
     MethodBinder::bind_method(D_METHOD("get_connected_port"), &StreamPeerTCP::get_connected_port);
     MethodBinder::bind_method(D_METHOD("disconnect_from_host"), &StreamPeerTCP::disconnect_from_host);
-    MethodBinder::bind_method(D_METHOD("set_no_delay", "enabled"), &StreamPeerTCP::set_no_delay);
+    MethodBinder::bind_method(D_METHOD("set_no_delay", {"enabled"}), &StreamPeerTCP::set_no_delay);
 
-    BIND_ENUM_CONSTANT(STATUS_NONE);
-    BIND_ENUM_CONSTANT(STATUS_CONNECTING);
-    BIND_ENUM_CONSTANT(STATUS_CONNECTED);
-    BIND_ENUM_CONSTANT(STATUS_ERROR);
+    BIND_ENUM_CONSTANT(STATUS_NONE)
+    BIND_ENUM_CONSTANT(STATUS_CONNECTING)
+    BIND_ENUM_CONSTANT(STATUS_CONNECTED)
+    BIND_ENUM_CONSTANT(STATUS_ERROR)
 }
 
 StreamPeerTCP::StreamPeerTCP() :

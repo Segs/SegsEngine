@@ -82,13 +82,13 @@ void TileMap::_notification(int p_what) {
         case NOTIFICATION_EXIT_TREE: {
 
             _update_quadrant_space(RID());
-            for (Map<PosKey, Quadrant>::Element *E = quadrant_map.front(); E; E = E->next()) {
+            for (eastl::pair<const PosKey,Quadrant> &E : quadrant_map) {
 
-                Quadrant &q = E->get();
+                Quadrant &q = E.second;
                 if (navigation) {
-                    for (Map<PosKey, Quadrant::NavPoly>::Element *F = q.navpoly_ids.front(); F; F = F->next()) {
+                    for (eastl::pair<const PosKey,Quadrant::NavPoly> &F : q.navpoly_ids) {
 
-                        navigation->navpoly_remove(F->get().id);
+                        navigation->navpoly_remove(F.second.id);
                     }
                     q.navpoly_ids.clear();
                 }
@@ -98,8 +98,8 @@ void TileMap::_notification(int p_what) {
                     q.shape_owner_id = -1;
                 }
 
-                for (Map<PosKey, Quadrant::Occluder>::Element *F = q.occluder_instances.front(); F; F = F->next()) {
-                    VS::get_singleton()->free(F->get().id);
+                for (eastl::pair<const PosKey,Quadrant::Occluder> &F : q.occluder_instances) {
+                    VS::get_singleton()->free(F.second.id);
                 }
                 q.occluder_instances.clear();
             }
@@ -128,9 +128,9 @@ void TileMap::_notification(int p_what) {
 void TileMap::_update_quadrant_space(const RID &p_space) {
 
     if (!use_parent) {
-        for (Map<PosKey, Quadrant>::Element *E = quadrant_map.front(); E; E = E->next()) {
+        for (eastl::pair<const PosKey,Quadrant> &E : quadrant_map) {
 
-            Quadrant &q = E->get();
+            Quadrant &q = E.second;
             Physics2DServer::get_singleton()->body_set_space(q.body, p_space);
         }
     }
@@ -151,9 +151,9 @@ void TileMap::_update_quadrant_transform() {
     if (navigation)
         nav_rel = get_relative_transform_to_parent(navigation);
 
-    for (Map<PosKey, Quadrant>::Element *E = quadrant_map.front(); E; E = E->next()) {
+    for (eastl::pair<const PosKey,Quadrant> &E : quadrant_map) {
 
-        Quadrant &q = E->get();
+        Quadrant &q = E.second;
         Transform2D xform;
         xform.set_origin(q.pos);
 
@@ -163,21 +163,21 @@ void TileMap::_update_quadrant_transform() {
         }
 
         if (navigation) {
-            for (Map<PosKey, Quadrant::NavPoly>::Element *F = q.navpoly_ids.front(); F; F = F->next()) {
+            for (eastl::pair<const PosKey,Quadrant::NavPoly> &F : q.navpoly_ids) {
 
-                navigation->navpoly_set_transform(F->get().id, nav_rel * F->get().xform);
+                navigation->navpoly_set_transform(F.second.id, nav_rel * F.second.xform);
             }
         }
 
-        for (Map<PosKey, Quadrant::Occluder>::Element *F = q.occluder_instances.front(); F; F = F->next()) {
-            VS::get_singleton()->canvas_light_occluder_set_transform(F->get().id, global_transform * F->get().xform);
+        for (eastl::pair<const PosKey,Quadrant::Occluder> &F : q.occluder_instances) {
+            VS::get_singleton()->canvas_light_occluder_set_transform(F.second.id, global_transform * F.second.xform);
         }
     }
 }
 
 void TileMap::set_tileset(const Ref<TileSet> &p_tileset) {
 
-    if (tile_set.is_valid()) {
+    if (tile_set) {
         tile_set->disconnect("changed", this, "_recreate_quadrants");
         tile_set->remove_change_receptor(this);
     }
@@ -185,7 +185,7 @@ void TileMap::set_tileset(const Ref<TileSet> &p_tileset) {
     _clear_quadrants();
     tile_set = p_tileset;
 
-    if (tile_set.is_valid()) {
+    if (tile_set) {
         tile_set->connect("changed", this, "_recreate_quadrants");
         tile_set->add_change_receptor(this);
     } else {
@@ -203,7 +203,7 @@ Ref<TileSet> TileMap::get_tileset() const {
 
 void TileMap::set_cell_size(Size2 p_size) {
 
-    ERR_FAIL_COND(p_size.x < 1 || p_size.y < 1);
+    ERR_FAIL_COND(p_size.x < 1 || p_size.y < 1)
 
     _clear_quadrants();
     cell_size = p_size;
@@ -218,7 +218,7 @@ Size2 TileMap::get_cell_size() const {
 
 void TileMap::set_quadrant_size(int p_size) {
 
-    ERR_FAIL_COND(p_size < 1);
+    ERR_FAIL_COND(p_size < 1)
 
     _clear_quadrants();
     quadrant_size = p_size;
@@ -330,7 +330,7 @@ void TileMap::update_dirty_quadrants() {
 
     if (!pending_update)
         return;
-    if (!is_inside_tree() || !tile_set.is_valid()) {
+    if (!is_inside_tree() || not tile_set) {
         pending_update = false;
         return;
     }
@@ -341,8 +341,6 @@ void TileMap::update_dirty_quadrants() {
     Transform2D nav_rel;
     if (navigation)
         nav_rel = get_relative_transform_to_parent(navigation);
-
-    Vector2 qofs;
 
     SceneTree *st = SceneTree::get_singleton();
     Color debug_collision_color;
@@ -364,7 +362,7 @@ void TileMap::update_dirty_quadrants() {
 
         for (List<RID>::Element *E = q.canvas_items.front(); E; E = E->next()) {
 
-            vs->free(E->get());
+            vs->free(E->deref());
         }
 
         q.canvas_items.clear();
@@ -377,15 +375,15 @@ void TileMap::update_dirty_quadrants() {
         int shape_idx = 0;
 
         if (navigation) {
-            for (Map<PosKey, Quadrant::NavPoly>::Element *E = q.navpoly_ids.front(); E; E = E->next()) {
+            for (eastl::pair<const PosKey,Quadrant::NavPoly> &E : q.navpoly_ids) {
 
-                navigation->navpoly_remove(E->get().id);
+                navigation->navpoly_remove(E.second.id);
             }
             q.navpoly_ids.clear();
         }
 
-        for (Map<PosKey, Quadrant::Occluder>::Element *E = q.occluder_instances.front(); E; E = E->next()) {
-            VS::get_singleton()->free(E->get().id);
+        for (eastl::pair<const PosKey,Quadrant::Occluder> &E : q.occluder_instances) {
+            VS::get_singleton()->free(E.second.id);
         }
         q.occluder_instances.clear();
         Ref<ShaderMaterial> prev_material;
@@ -395,18 +393,18 @@ void TileMap::update_dirty_quadrants() {
 
         for (int i = 0; i < q.cells.size(); i++) {
 
-            Map<PosKey, Cell>::Element *E = tile_map.find(q.cells[i]);
-            Cell &c = E->get();
+            Map<PosKey, Cell>::iterator E = tile_map.find(q.cells[i]);
+            Cell &c = E->second;
             //moment of truth
             if (!tile_set->has_tile(c.id))
                 continue;
             Ref<Texture> tex = tile_set->tile_get_texture(c.id);
             Vector2 tile_ofs = tile_set->tile_get_texture_offset(c.id);
 
-            Vector2 wofs = _map_to_world(E->key().x, E->key().y);
+            Vector2 wofs = _map_to_world(E->first.x, E->first.y);
             Vector2 offset = wofs - q.pos + tofs;
 
-            if (!tex.is_valid())
+            if (not tex)
                 continue;
 
             Ref<ShaderMaterial> mat = tile_set->tile_get_material(c.id);
@@ -423,7 +421,7 @@ void TileMap::update_dirty_quadrants() {
             if (prev_canvas_item == RID() || prev_material != mat || prev_z_index != z_index) {
 
                 canvas_item = vs->canvas_item_create();
-                if (mat.is_valid())
+                if (mat)
                     vs->canvas_item_set_material(canvas_item, mat->get_rid());
                 vs->canvas_item_set_parent(canvas_item, get_canvas_item());
                 _update_item_material_state(canvas_item);
@@ -558,7 +556,7 @@ void TileMap::update_dirty_quadrants() {
 
             for (int j = 0; j < shapes.size(); j++) {
                 Ref<Shape2D> shape = shapes[j].shape;
-                if (shape.is_valid()) {
+                if (shape) {
                     if (tile_set->tile_get_tile_mode(c.id) == TileSet::SINGLE_TILE || (shapes[j].autotile_coord.x == c.autotile_coord_x && shapes[j].autotile_coord.y == c.autotile_coord_y)) {
                         Transform2D xform;
                         xform.set_origin(offset.floor());
@@ -577,9 +575,9 @@ void TileMap::update_dirty_quadrants() {
                         if (shape->has_meta("decomposed")) {
                             Array _shapes = shape->get_meta("decomposed");
                             for (int k = 0; k < _shapes.size(); k++) {
-                                Ref<ConvexPolygonShape2D> convex = _shapes[k];
-                                if (convex.is_valid()) {
-                                    _add_shape(shape_idx, q, convex, shapes[j], xform, Vector2(E->key().x, E->key().y));
+                                Ref<ConvexPolygonShape2D> convex = refFromRefPtr<ConvexPolygonShape2D>(_shapes[k]);
+                                if (convex) {
+                                    _add_shape(shape_idx, q, convex, shapes[j], xform, Vector2(E->first.x, E->first.y));
 #ifdef DEBUG_ENABLED
                                 } else {
                                     print_error("The TileSet assigned to the TileMap " + get_name() + " has an invalid convex shape.");
@@ -587,7 +585,7 @@ void TileMap::update_dirty_quadrants() {
                                 }
                             }
                         } else {
-                            _add_shape(shape_idx, q, shape, shapes[j], xform, Vector2(E->key().x, E->key().y));
+                            _add_shape(shape_idx, q, shape, shapes[j], xform, Vector2(E->first.x, E->first.y));
                         }
                     }
                 }
@@ -608,7 +606,7 @@ void TileMap::update_dirty_quadrants() {
                     npoly_ofs = tile_set->tile_get_navigation_polygon_offset(c.id);
                 }
 
-                if (navpoly.is_valid()) {
+                if (navpoly) {
                     Transform2D xform;
                     xform.set_origin(offset.floor() + q.pos);
                     _fix_cell_transform(xform, c, npoly_ofs, s);
@@ -618,7 +616,7 @@ void TileMap::update_dirty_quadrants() {
                     Quadrant::NavPoly np;
                     np.id = pid;
                     np.xform = xform;
-                    q.navpoly_ids[E->key()] = np;
+                    q.navpoly_ids[E->first] = np;
 
                     if (debug_navigation) {
                         RID debug_navigation_item = vs->canvas_item_create();
@@ -677,7 +675,7 @@ void TileMap::update_dirty_quadrants() {
             } else {
                 occluder = tile_set->tile_get_light_occluder(c.id);
             }
-            if (occluder.is_valid()) {
+            if (occluder) {
                 Vector2 occluder_ofs = tile_set->tile_get_occluder_offset(c.id);
                 Transform2D xform;
                 xform.set_origin(offset.floor() + q.pos);
@@ -691,7 +689,7 @@ void TileMap::update_dirty_quadrants() {
                 Quadrant::Occluder oc;
                 oc.xform = xform;
                 oc.id = orid;
-                q.occluder_instances[E->key()] = oc;
+                q.occluder_instances[E->first] = oc;
             }
         }
 
@@ -704,12 +702,12 @@ void TileMap::update_dirty_quadrants() {
     if (quadrant_order_dirty) {
 
         int index = -(int64_t)0x80000000; //always must be drawn below children
-        for (Map<PosKey, Quadrant>::Element *E = quadrant_map.front(); E; E = E->next()) {
+        for (eastl::pair<const PosKey,Quadrant> &E : quadrant_map) {
 
-            Quadrant &q = E->get();
+            Quadrant &q = E.second;
             for (List<RID>::Element *F = q.canvas_items.front(); F; F = F->next()) {
 
-                VS::get_singleton()->canvas_item_set_draw_index(F->get(), index++);
+                VS::get_singleton()->canvas_item_set_draw_index(F->deref(), index++);
             }
         }
 
@@ -727,14 +725,14 @@ void TileMap::_recompute_rect_cache() {
         return;
 
     Rect2 r_total;
-    for (Map<PosKey, Quadrant>::Element *E = quadrant_map.front(); E; E = E->next()) {
+    for (eastl::pair<const PosKey,Quadrant> &E : quadrant_map) {
 
         Rect2 r;
-        r.position = _map_to_world(E->key().x * _get_quadrant_size(), E->key().y * _get_quadrant_size());
-        r.expand_to(_map_to_world(E->key().x * _get_quadrant_size() + _get_quadrant_size(), E->key().y * _get_quadrant_size()));
-        r.expand_to(_map_to_world(E->key().x * _get_quadrant_size() + _get_quadrant_size(), E->key().y * _get_quadrant_size() + _get_quadrant_size()));
-        r.expand_to(_map_to_world(E->key().x * _get_quadrant_size(), E->key().y * _get_quadrant_size() + _get_quadrant_size()));
-        if (E == quadrant_map.front())
+        r.position = _map_to_world(E.first.x * _get_quadrant_size(), E.first.y * _get_quadrant_size());
+        r.expand_to(_map_to_world(E.first.x * _get_quadrant_size() + _get_quadrant_size(), E.first.y * _get_quadrant_size()));
+        r.expand_to(_map_to_world(E.first.x * _get_quadrant_size() + _get_quadrant_size(), E.first.y * _get_quadrant_size() + _get_quadrant_size()));
+        r.expand_to(_map_to_world(E.first.x * _get_quadrant_size(), E.first.y * _get_quadrant_size() + _get_quadrant_size()));
+        if (&E == &*quadrant_map.begin())
             r_total = r;
         else
             r_total = r_total.merge(r);
@@ -748,7 +746,7 @@ void TileMap::_recompute_rect_cache() {
 #endif
 }
 
-Map<TileMap::PosKey, TileMap::Quadrant>::Element *TileMap::_create_quadrant(const PosKey &p_qk) {
+Map<TileMap::PosKey, TileMap::Quadrant>::iterator TileMap::_create_quadrant(const PosKey &p_qk) {
 
     Transform2D xform;
     //xform.set_origin(Point2(p_qk.x,p_qk.y)*cell_size*quadrant_size);
@@ -788,12 +786,12 @@ Map<TileMap::PosKey, TileMap::Quadrant>::Element *TileMap::_create_quadrant(cons
 
     rect_cache_dirty = true;
     quadrant_order_dirty = true;
-    return quadrant_map.insert(p_qk, q);
+    return quadrant_map.emplace(p_qk, q).first;
 }
 
-void TileMap::_erase_quadrant(Map<PosKey, Quadrant>::Element *Q) {
+void TileMap::_erase_quadrant(Map<PosKey, Quadrant>::iterator Q) {
 
-    Quadrant &q = Q->get();
+    Quadrant &q = Q->second;
     if (!use_parent) {
         Physics2DServer::get_singleton()->free(q.body);
     } else if (collision_parent) {
@@ -802,22 +800,22 @@ void TileMap::_erase_quadrant(Map<PosKey, Quadrant>::Element *Q) {
 
     for (List<RID>::Element *E = q.canvas_items.front(); E; E = E->next()) {
 
-        VisualServer::get_singleton()->free(E->get());
+        VisualServer::get_singleton()->free(E->deref());
     }
     q.canvas_items.clear();
     if (q.dirty_list.in_list())
         dirty_quadrant_list.remove(&q.dirty_list);
 
     if (navigation) {
-        for (Map<PosKey, Quadrant::NavPoly>::Element *E = q.navpoly_ids.front(); E; E = E->next()) {
+        for (eastl::pair<const PosKey,Quadrant::NavPoly> &E : q.navpoly_ids) {
 
-            navigation->navpoly_remove(E->get().id);
+            navigation->navpoly_remove(E.second.id);
         }
         q.navpoly_ids.clear();
     }
 
-    for (Map<PosKey, Quadrant::Occluder>::Element *E = q.occluder_instances.front(); E; E = E->next()) {
-        VS::get_singleton()->free(E->get().id);
+    for (eastl::pair<const PosKey,Quadrant::Occluder> &E : q.occluder_instances) {
+        VS::get_singleton()->free(E.second.id);
     }
     q.occluder_instances.clear();
 
@@ -825,9 +823,9 @@ void TileMap::_erase_quadrant(Map<PosKey, Quadrant>::Element *Q) {
     rect_cache_dirty = true;
 }
 
-void TileMap::_make_quadrant_dirty(Map<PosKey, Quadrant>::Element *Q, bool update) {
+void TileMap::_make_quadrant_dirty(Map<PosKey, Quadrant>::iterator Q, bool update) {
 
-    Quadrant &q = Q->get();
+    Quadrant &q = Q->second;
     if (!q.dirty_list.in_list())
         dirty_quadrant_list.add(&q.dirty_list);
 
@@ -859,17 +857,17 @@ void TileMap::set_cell(int p_x, int p_y, int p_tile, bool p_flip_x, bool p_flip_
 
     PosKey pk(p_x, p_y);
 
-    Map<PosKey, Cell>::Element *E = tile_map.find(pk);
-    if (!E && p_tile == INVALID_CELL)
+    Map<PosKey, Cell>::iterator E = tile_map.find(pk);
+    if (E==tile_map.end() && p_tile == INVALID_CELL)
         return; //nothing to do
 
     PosKey qk = pk.to_quadrant(_get_quadrant_size());
     if (p_tile == INVALID_CELL) {
         //erase existing
         tile_map.erase(pk);
-        Map<PosKey, Quadrant>::Element *Q = quadrant_map.find(qk);
-        ERR_FAIL_COND(!Q);
-        Quadrant &q = Q->get();
+        Map<PosKey, Quadrant>::iterator Q = quadrant_map.find(qk);
+        ERR_FAIL_COND(Q==quadrant_map.end())
+        Quadrant &q = Q->second;
         q.cells.erase(pk);
         if (q.cells.empty())
             _erase_quadrant(Q);
@@ -880,23 +878,25 @@ void TileMap::set_cell(int p_x, int p_y, int p_tile, bool p_flip_x, bool p_flip_
         return;
     }
 
-    Map<PosKey, Quadrant>::Element *Q = quadrant_map.find(qk);
+    Map<PosKey, Quadrant>::iterator Q = quadrant_map.find(qk);
 
-    if (!E) {
-        E = tile_map.insert(pk, Cell());
-        if (!Q) {
+    if (E==tile_map.end()) {
+        E = tile_map.emplace(pk, Cell()).first;
+        if (Q==quadrant_map.end()) {
             Q = _create_quadrant(qk);
         }
-        Quadrant &q = Q->get();
+        Quadrant &q = Q->second;
         q.cells.insert(pk);
     } else {
-        ERR_FAIL_COND(!Q); // quadrant should exist...
+        ERR_FAIL_COND(Q==quadrant_map.end()) // quadrant should exist...
 
-        if (E->get().id == p_tile && E->get().flip_h == p_flip_x && E->get().flip_v == p_flip_y && E->get().transpose == p_transpose && E->get().autotile_coord_x == (uint16_t)p_autotile_coord.x && E->get().autotile_coord_y == (uint16_t)p_autotile_coord.y)
+        if (E->second.id == p_tile && E->second.flip_h == p_flip_x && E->second.flip_v == p_flip_y &&
+                E->second.transpose == p_transpose && E->second.autotile_coord_x == (uint16_t)p_autotile_coord.x &&
+                E->second.autotile_coord_y == (uint16_t)p_autotile_coord.y)
             return; //nothing changed
     }
 
-    Cell &c = E->get();
+    Cell &c = E->second;
 
     c.id = p_tile;
     c.flip_h = p_flip_x;
@@ -958,8 +958,8 @@ void TileMap::update_bitmask_region(const Vector2 &p_start, const Vector2 &p_end
 void TileMap::update_cell_bitmask(int p_x, int p_y) {
 
     PosKey p(p_x, p_y);
-    Map<PosKey, Cell>::Element *E = tile_map.find(p);
-    if (E != nullptr) {
+    Map<PosKey, Cell>::iterator E = tile_map.find(p);
+    if (E != tile_map.end()) {
         int id = get_cell(p_x, p_y);
         if (tile_set->tile_get_tile_mode(id) == TileSet::AUTO_TILE) {
             uint16_t mask = 0;
@@ -1019,24 +1019,24 @@ void TileMap::update_cell_bitmask(int p_x, int p_y) {
                 }
             }
             Vector2 coord = tile_set->autotile_get_subtile_for_bitmask(id, mask, this, Vector2(p_x, p_y));
-            E->get().autotile_coord_x = (int)coord.x;
-            E->get().autotile_coord_y = (int)coord.y;
+            E->second.autotile_coord_x = (int)coord.x;
+            E->second.autotile_coord_y = (int)coord.y;
 
             PosKey qk = p.to_quadrant(_get_quadrant_size());
-            Map<PosKey, Quadrant>::Element *Q = quadrant_map.find(qk);
+            Map<PosKey, Quadrant>::iterator Q = quadrant_map.find(qk);
             _make_quadrant_dirty(Q);
 
         } else if (tile_set->tile_get_tile_mode(id) == TileSet::SINGLE_TILE) {
 
-            E->get().autotile_coord_x = 0;
-            E->get().autotile_coord_y = 0;
+            E->second.autotile_coord_x = 0;
+            E->second.autotile_coord_y = 0;
         } else if (tile_set->tile_get_tile_mode(id) == TileSet::ATLAS_TILE) {
 
             if (tile_set->autotile_get_bitmask(id, Vector2(p_x, p_y)) == TileSet::BIND_CENTER) {
                 Vector2 coord = tile_set->atlastile_get_subtile_by_priority(id, this, Vector2(p_x, p_y));
 
-                E->get().autotile_coord_x = (int)coord.x;
-                E->get().autotile_coord_y = (int)coord.y;
+                E->second.autotile_coord_x = (int)coord.x;
+                E->second.autotile_coord_y = (int)coord.y;
             }
         }
     }
@@ -1052,10 +1052,10 @@ void TileMap::update_dirty_bitmask() {
 
 void TileMap::fix_invalid_tiles() {
 
-    for (Map<PosKey, Cell>::Element *E = tile_map.front(); E; E = E->next()) {
+    for (eastl::pair<const PosKey,Cell> &E : tile_map) {
 
-        if (!tile_set->has_tile(get_cell(E->key().x, E->key().y))) {
-            set_cell(E->key().x, E->key().y, INVALID_CELL);
+        if (!tile_set->has_tile(get_cell(E.first.x, E.first.y))) {
+            set_cell(E.first.x, E.first.y, INVALID_CELL);
         }
     }
 }
@@ -1064,65 +1064,65 @@ int TileMap::get_cell(int p_x, int p_y) const {
 
     PosKey pk(p_x, p_y);
 
-    const Map<PosKey, Cell>::Element *E = tile_map.find(pk);
+    const Map<PosKey, Cell>::const_iterator E = tile_map.find(pk);
 
-    if (!E)
+    if (E==tile_map.end())
         return INVALID_CELL;
 
-    return E->get().id;
+    return E->second.id;
 }
 bool TileMap::is_cell_x_flipped(int p_x, int p_y) const {
 
     PosKey pk(p_x, p_y);
 
-    const Map<PosKey, Cell>::Element *E = tile_map.find(pk);
+    const Map<PosKey, Cell>::const_iterator E = tile_map.find(pk);
 
-    if (!E)
+    if (E==tile_map.end())
         return false;
 
-    return E->get().flip_h;
+    return E->second.flip_h;
 }
 bool TileMap::is_cell_y_flipped(int p_x, int p_y) const {
 
     PosKey pk(p_x, p_y);
 
-    const Map<PosKey, Cell>::Element *E = tile_map.find(pk);
+    const Map<PosKey, Cell>::const_iterator E = tile_map.find(pk);
 
-    if (!E)
+    if (E==tile_map.end())
         return false;
 
-    return E->get().flip_v;
+    return E->second.flip_v;
 }
 bool TileMap::is_cell_transposed(int p_x, int p_y) const {
 
     PosKey pk(p_x, p_y);
 
-    const Map<PosKey, Cell>::Element *E = tile_map.find(pk);
+    const Map<PosKey, Cell>::const_iterator E = tile_map.find(pk);
 
-    if (!E)
+    if (E==tile_map.end())
         return false;
 
-    return E->get().transpose;
+    return E->second.transpose;
 }
 
 void TileMap::set_cell_autotile_coord(int p_x, int p_y, const Vector2 &p_coord) {
 
     PosKey pk(p_x, p_y);
 
-    const Map<PosKey, Cell>::Element *E = tile_map.find(pk);
+    const Map<PosKey, Cell>::iterator E = tile_map.find(pk);
 
-    if (!E)
+    if (E==tile_map.end())
         return;
 
-    Cell c = E->get();
+    Cell c = E->second;
     c.autotile_coord_x = p_coord.x;
     c.autotile_coord_y = p_coord.y;
     tile_map[pk] = c;
 
     PosKey qk = pk.to_quadrant(_get_quadrant_size());
-    Map<PosKey, Quadrant>::Element *Q = quadrant_map.find(qk);
+    Map<PosKey, Quadrant>::iterator Q = quadrant_map.find(qk);
 
-    if (!Q)
+    if (Q==quadrant_map.end())
         return;
 
     _make_quadrant_dirty(Q);
@@ -1132,29 +1132,29 @@ Vector2 TileMap::get_cell_autotile_coord(int p_x, int p_y) const {
 
     PosKey pk(p_x, p_y);
 
-    const Map<PosKey, Cell>::Element *E = tile_map.find(pk);
+    const Map<PosKey, Cell>::const_iterator E = tile_map.find(pk);
 
-    if (!E)
+    if (E==tile_map.end())
         return Vector2();
 
-    return Vector2(E->get().autotile_coord_x, E->get().autotile_coord_y);
+    return Vector2(E->second.autotile_coord_x, E->second.autotile_coord_y);
 }
 
 void TileMap::_recreate_quadrants() {
 
     _clear_quadrants();
 
-    for (Map<PosKey, Cell>::Element *E = tile_map.front(); E; E = E->next()) {
+    for (eastl::pair<const PosKey,Cell> &E : tile_map) {
 
-        PosKey qk = PosKey(E->key().x, E->key().y).to_quadrant(_get_quadrant_size());
+        PosKey qk = PosKey(E.first.x, E.first.y).to_quadrant(_get_quadrant_size());
 
-        Map<PosKey, Quadrant>::Element *Q = quadrant_map.find(qk);
-        if (!Q) {
+        Map<PosKey, Quadrant>::iterator Q = quadrant_map.find(qk);
+        if (Q==quadrant_map.end()) {
             Q = _create_quadrant(qk);
-            dirty_quadrant_list.add(&Q->get().dirty_list);
+            dirty_quadrant_list.add(&Q->second.dirty_list);
         }
 
-        Q->get().cells.insert(E->key());
+        Q->second.cells.insert(E.first);
         _make_quadrant_dirty(Q, false);
     }
     update_dirty_quadrants();
@@ -1163,7 +1163,7 @@ void TileMap::_recreate_quadrants() {
 void TileMap::_clear_quadrants() {
 
     while (!quadrant_map.empty()) {
-        _erase_quadrant(quadrant_map.front());
+        _erase_quadrant(quadrant_map.begin());
     }
 }
 
@@ -1181,19 +1181,19 @@ void TileMap::set_use_parent_material(bool p_use_parent_material) {
 
 void TileMap::_update_all_items_material_state() {
 
-    for (Map<PosKey, Quadrant>::Element *E = quadrant_map.front(); E; E = E->next()) {
+    for (eastl::pair<const PosKey,Quadrant> &E : quadrant_map) {
 
-        Quadrant &q = E->get();
+        Quadrant &q = E.second;
         for (List<RID>::Element *F = q.canvas_items.front(); F; F = F->next()) {
 
-            _update_item_material_state(F->get());
+            _update_item_material_state(F->deref());
         }
     }
 }
 
 void TileMap::_update_item_material_state(const RID &p_canvas_item) {
 
-    VS::get_singleton()->canvas_item_set_use_parent_material(p_canvas_item, get_use_parent_material() || get_material().is_valid());
+    VS::get_singleton()->canvas_item_set_use_parent_material(p_canvas_item, get_use_parent_material() || get_material());
 }
 
 void TileMap::clear() {
@@ -1205,7 +1205,7 @@ void TileMap::clear() {
 
 void TileMap::_set_tile_data(const PoolVector<int> &p_data) {
 
-    ERR_FAIL_COND(format > FORMAT_2);
+    ERR_FAIL_COND(format > FORMAT_2)
 
     int c = p_data.size();
     PoolVector<int>::Read r = p_data.read();
@@ -1260,20 +1260,20 @@ PoolVector<int> TileMap::_get_tile_data() const {
     // Save in highest format
 
     int idx = 0;
-    for (const Map<PosKey, Cell>::Element *E = tile_map.front(); E; E = E->next()) {
+    for (const eastl::pair<const PosKey,Cell> &E : tile_map) {
         uint8_t *ptr = (uint8_t *)&w[idx];
-        encode_uint16(E->key().x, &ptr[0]);
-        encode_uint16(E->key().y, &ptr[2]);
-        uint32_t val = E->get().id;
-        if (E->get().flip_h)
+        encode_uint16(E.first.x, &ptr[0]);
+        encode_uint16(E.first.y, &ptr[2]);
+        uint32_t val = E.second.id;
+        if (E.second.flip_h)
             val |= (1 << 29);
-        if (E->get().flip_v)
+        if (E.second.flip_v)
             val |= (1 << 30);
-        if (E->get().transpose)
+        if (E.second.transpose)
             val |= (1 << 31);
         encode_uint32(val, &ptr[4]);
-        encode_uint16(E->get().autotile_coord_x, &ptr[8]);
-        encode_uint16(E->get().autotile_coord_y, &ptr[10]);
+        encode_uint16(E.second.autotile_coord_x, &ptr[8]);
+        encode_uint16(E.second.autotile_coord_y, &ptr[10]);
         idx += 3;
     }
 
@@ -1295,9 +1295,9 @@ void TileMap::set_collision_layer(uint32_t p_layer) {
 
     collision_layer = p_layer;
     if (!use_parent) {
-        for (Map<PosKey, Quadrant>::Element *E = quadrant_map.front(); E; E = E->next()) {
+        for (eastl::pair<const PosKey,Quadrant> &E : quadrant_map) {
 
-            Quadrant &q = E->get();
+            Quadrant &q = E.second;
             Physics2DServer::get_singleton()->body_set_collision_layer(q.body, collision_layer);
         }
     }
@@ -1307,9 +1307,9 @@ void TileMap::set_collision_mask(uint32_t p_mask) {
 
     collision_mask = p_mask;
     if (!use_parent) {
-        for (Map<PosKey, Quadrant>::Element *E = quadrant_map.front(); E; E = E->next()) {
+        for (eastl::pair<const PosKey,Quadrant> &E : quadrant_map) {
 
-            Quadrant &q = E->get();
+            Quadrant &q = E.second;
             Physics2DServer::get_singleton()->body_set_collision_mask(q.body, collision_mask);
         }
     }
@@ -1376,9 +1376,9 @@ void TileMap::set_collision_friction(float p_friction) {
 
     friction = p_friction;
     if (!use_parent) {
-        for (Map<PosKey, Quadrant>::Element *E = quadrant_map.front(); E; E = E->next()) {
+        for (eastl::pair<const PosKey,Quadrant> &E : quadrant_map) {
 
-            Quadrant &q = E->get();
+            Quadrant &q = E.second;
             Physics2DServer::get_singleton()->body_set_param(q.body, Physics2DServer::BODY_PARAM_FRICTION, p_friction);
         }
     }
@@ -1393,9 +1393,9 @@ void TileMap::set_collision_bounce(float p_bounce) {
 
     bounce = p_bounce;
     if (!use_parent) {
-        for (Map<PosKey, Quadrant>::Element *E = quadrant_map.front(); E; E = E->next()) {
+        for (eastl::pair<const PosKey,Quadrant> &E : quadrant_map) {
 
-            Quadrant &q = E->get();
+            Quadrant &q = E.second;
             Physics2DServer::get_singleton()->body_set_param(q.body, Physics2DServer::BODY_PARAM_BOUNCE, p_bounce);
         }
     }
@@ -1468,7 +1468,7 @@ Vector2 TileMap::get_cell_draw_offset() const {
         } break;
         case MODE_ISOMETRIC: {
 
-            return Vector2(-cell_size.x * 0.5, 0);
+            return Vector2(-cell_size.x * 0.5f, 0);
 
         } break;
         case MODE_CUSTOM: {
@@ -1505,8 +1505,8 @@ Transform2D TileMap::get_cell_transform() const {
             //isometric only makes sense when y is positive in both x and y vectors, otherwise
             //the drawing of tiles will overlap
             Transform2D m;
-            m[0] = Vector2(cell_size.x * 0.5, cell_size.y * 0.5);
-            m[1] = Vector2(-cell_size.x * 0.5, cell_size.y * 0.5);
+            m[0] = Vector2(cell_size.x * 0.5f, cell_size.y * 0.5f);
+            m[1] = Vector2(-cell_size.x * 0.5f, cell_size.y * 0.5f);
             return m;
 
         } break;
@@ -1561,7 +1561,7 @@ Vector2 TileMap::_map_to_world(int p_x, int p_y, bool p_ignore_ofs) const {
 bool TileMap::_set(const StringName &p_name, const Variant &p_value) {
 
     if (p_name == "format") {
-        if (p_value.get_type() == Variant::INT) {
+        if (p_value.get_type() == VariantType::INT) {
             format = (DataFormat)(p_value.operator int64_t()); // Set format used for loading
             return true;
         }
@@ -1587,17 +1587,17 @@ bool TileMap::_get(const StringName &p_name, Variant &r_ret) const {
     return false;
 }
 
-void TileMap::_get_property_list(List<PropertyInfo> *p_list) const {
+void TileMap::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
-    PropertyInfo p(Variant::INT, "format", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL);
+    PropertyInfo p(VariantType::INT, "format", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL);
     p_list->push_back(p);
 
-    p = PropertyInfo(Variant::OBJECT, "tile_data", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL);
+    p = PropertyInfo(VariantType::OBJECT, "tile_data", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL);
     p_list->push_back(p);
 }
 
 void TileMap::_validate_property(PropertyInfo &property) const {
-	if (use_parent && property.name != "collision_use_parent" && StringUtils::begins_with(property.name,"collision_")) {
+    if (use_parent && property.name != "collision_use_parent" && StringUtils::begins_with(property.name,"collision_")) {
         property.usage = PROPERTY_USAGE_NOEDITOR;
     }
 }
@@ -1615,22 +1615,22 @@ Vector2 TileMap::world_to_map(const Vector2 &p_pos) const {
 
         case HALF_OFFSET_X: {
             if (ret.y > 0 ? int(ret.y) & 1 : (int(ret.y) - 1) & 1) {
-                ret.x -= 0.5;
+                ret.x -= 0.5f;
             }
         } break;
         case HALF_OFFSET_NEGATIVE_X: {
             if (ret.y > 0 ? int(ret.y) & 1 : (int(ret.y) - 1) & 1) {
-                ret.x += 0.5;
+                ret.x += 0.5f;
             }
         } break;
         case HALF_OFFSET_Y: {
             if (ret.x > 0 ? int(ret.x) & 1 : (int(ret.x) - 1) & 1) {
-                ret.y -= 0.5;
+                ret.y -= 0.5f;
             }
         } break;
         case HALF_OFFSET_NEGATIVE_Y: {
             if (ret.x > 0 ? int(ret.x) & 1 : (int(ret.x) - 1) & 1) {
-                ret.y += 0.5;
+                ret.y += 0.5f;
             }
         } break;
         default: {
@@ -1690,9 +1690,9 @@ Array TileMap::get_used_cells() const {
     Array a;
     a.resize(tile_map.size());
     int i = 0;
-    for (Map<PosKey, Cell>::Element *E = tile_map.front(); E; E = E->next()) {
+    for (const eastl::pair<const PosKey,Cell> &E : tile_map) {
 
-        Vector2 p(E->key().x, E->key().y);
+        Vector2 p(E.first.x, E.first.y);
         a[i++] = p;
     }
 
@@ -1702,10 +1702,10 @@ Array TileMap::get_used_cells() const {
 Array TileMap::get_used_cells_by_id(int p_id) const {
 
     Array a;
-    for (Map<PosKey, Cell>::Element *E = tile_map.front(); E; E = E->next()) {
+    for (const eastl::pair<const PosKey,Cell> &E : tile_map) {
 
-        if (E->value().id == p_id) {
-            Vector2 p(E->key().x, E->key().y);
+        if (E.second.id == p_id) {
+            Vector2 p(E.first.x, E.first.y);
             a.push_back(p);
         }
     }
@@ -1717,10 +1717,10 @@ Rect2 TileMap::get_used_rect() { // Not const because of cache
 
     if (used_size_cache_dirty) {
         if (!tile_map.empty()) {
-            used_size_cache = Rect2(tile_map.front()->key().x, tile_map.front()->key().y, 0, 0);
+            used_size_cache = Rect2(tile_map.begin()->first.x, tile_map.begin()->first.y, 0, 0);
 
-            for (Map<PosKey, Cell>::Element *E = tile_map.front(); E; E = E->next()) {
-                used_size_cache.expand_to(Vector2(E->key().x, E->key().y));
+            for (eastl::pair<const PosKey,Cell> &E : tile_map) {
+                used_size_cache.expand_to(Vector2(E.first.x, E.first.y));
             }
 
             used_size_cache.size += Vector2(1, 1);
@@ -1737,10 +1737,10 @@ Rect2 TileMap::get_used_rect() { // Not const because of cache
 void TileMap::set_occluder_light_mask(int p_mask) {
 
     occluder_light_mask = p_mask;
-    for (Map<PosKey, Quadrant>::Element *E = quadrant_map.front(); E; E = E->next()) {
+    for (eastl::pair<const PosKey,Quadrant> &E : quadrant_map) {
 
-        for (Map<PosKey, Quadrant::Occluder>::Element *F = E->get().occluder_instances.front(); F; F = F->next()) {
-            VisualServer::get_singleton()->canvas_light_occluder_set_light_mask(F->get().id, occluder_light_mask);
+        for (auto &F : E.second.occluder_instances) {
+            VisualServer::get_singleton()->canvas_light_occluder_set_light_mask(F.second.id, occluder_light_mask);
         }
     }
 }
@@ -1753,10 +1753,10 @@ int TileMap::get_occluder_light_mask() const {
 void TileMap::set_light_mask(int p_light_mask) {
 
     CanvasItem::set_light_mask(p_light_mask);
-    for (Map<PosKey, Quadrant>::Element *E = quadrant_map.front(); E; E = E->next()) {
+    for (eastl::pair<const PosKey,Quadrant> &E : quadrant_map) {
 
-        for (List<RID>::Element *F = E->get().canvas_items.front(); F; F = F->next()) {
-            VisualServer::get_singleton()->canvas_item_set_light_mask(F->get(), get_light_mask());
+        for (List<RID>::Element *F = E.second.canvas_items.front(); F; F = F->next()) {
+            VisualServer::get_singleton()->canvas_item_set_light_mask(F->deref(), get_light_mask());
         }
     }
 }
@@ -1792,124 +1792,124 @@ String TileMap::get_configuration_warning() const {
 
 void TileMap::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_tileset", "tileset"), &TileMap::set_tileset);
+    MethodBinder::bind_method(D_METHOD("set_tileset", {"tileset"}), &TileMap::set_tileset);
     MethodBinder::bind_method(D_METHOD("get_tileset"), &TileMap::get_tileset);
 
-    MethodBinder::bind_method(D_METHOD("set_mode", "mode"), &TileMap::set_mode);
+    MethodBinder::bind_method(D_METHOD("set_mode", {"mode"}), &TileMap::set_mode);
     MethodBinder::bind_method(D_METHOD("get_mode"), &TileMap::get_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_half_offset", "half_offset"), &TileMap::set_half_offset);
+    MethodBinder::bind_method(D_METHOD("set_half_offset", {"half_offset"}), &TileMap::set_half_offset);
     MethodBinder::bind_method(D_METHOD("get_half_offset"), &TileMap::get_half_offset);
 
-    MethodBinder::bind_method(D_METHOD("set_custom_transform", "custom_transform"), &TileMap::set_custom_transform);
+    MethodBinder::bind_method(D_METHOD("set_custom_transform", {"custom_transform"}), &TileMap::set_custom_transform);
     MethodBinder::bind_method(D_METHOD("get_custom_transform"), &TileMap::get_custom_transform);
 
-    MethodBinder::bind_method(D_METHOD("set_cell_size", "size"), &TileMap::set_cell_size);
+    MethodBinder::bind_method(D_METHOD("set_cell_size", {"size"}), &TileMap::set_cell_size);
     MethodBinder::bind_method(D_METHOD("get_cell_size"), &TileMap::get_cell_size);
 
-    MethodBinder::bind_method(D_METHOD("_set_old_cell_size", "size"), &TileMap::_set_old_cell_size);
+    MethodBinder::bind_method(D_METHOD("_set_old_cell_size", {"size"}), &TileMap::_set_old_cell_size);
     MethodBinder::bind_method(D_METHOD("_get_old_cell_size"), &TileMap::_get_old_cell_size);
 
-    MethodBinder::bind_method(D_METHOD("set_quadrant_size", "size"), &TileMap::set_quadrant_size);
+    MethodBinder::bind_method(D_METHOD("set_quadrant_size", {"size"}), &TileMap::set_quadrant_size);
     MethodBinder::bind_method(D_METHOD("get_quadrant_size"), &TileMap::get_quadrant_size);
 
-    MethodBinder::bind_method(D_METHOD("set_tile_origin", "origin"), &TileMap::set_tile_origin);
+    MethodBinder::bind_method(D_METHOD("set_tile_origin", {"origin"}), &TileMap::set_tile_origin);
     MethodBinder::bind_method(D_METHOD("get_tile_origin"), &TileMap::get_tile_origin);
 
-    MethodBinder::bind_method(D_METHOD("set_clip_uv", "enable"), &TileMap::set_clip_uv);
+    MethodBinder::bind_method(D_METHOD("set_clip_uv", {"enable"}), &TileMap::set_clip_uv);
     MethodBinder::bind_method(D_METHOD("get_clip_uv"), &TileMap::get_clip_uv);
 
-    MethodBinder::bind_method(D_METHOD("set_y_sort_mode", "enable"), &TileMap::set_y_sort_mode);
+    MethodBinder::bind_method(D_METHOD("set_y_sort_mode", {"enable"}), &TileMap::set_y_sort_mode);
     MethodBinder::bind_method(D_METHOD("is_y_sort_mode_enabled"), &TileMap::is_y_sort_mode_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_compatibility_mode", "enable"), &TileMap::set_compatibility_mode);
+    MethodBinder::bind_method(D_METHOD("set_compatibility_mode", {"enable"}), &TileMap::set_compatibility_mode);
     MethodBinder::bind_method(D_METHOD("is_compatibility_mode_enabled"), &TileMap::is_compatibility_mode_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_centered_textures", "enable"), &TileMap::set_centered_textures);
+    MethodBinder::bind_method(D_METHOD("set_centered_textures", {"enable"}), &TileMap::set_centered_textures);
     MethodBinder::bind_method(D_METHOD("is_centered_textures_enabled"), &TileMap::is_centered_textures_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_collision_use_kinematic", "use_kinematic"), &TileMap::set_collision_use_kinematic);
+    MethodBinder::bind_method(D_METHOD("set_collision_use_kinematic", {"use_kinematic"}), &TileMap::set_collision_use_kinematic);
     MethodBinder::bind_method(D_METHOD("get_collision_use_kinematic"), &TileMap::get_collision_use_kinematic);
 
-    MethodBinder::bind_method(D_METHOD("set_collision_use_parent", "use_parent"), &TileMap::set_collision_use_parent);
+    MethodBinder::bind_method(D_METHOD("set_collision_use_parent", {"use_parent"}), &TileMap::set_collision_use_parent);
     MethodBinder::bind_method(D_METHOD("get_collision_use_parent"), &TileMap::get_collision_use_parent);
 
-    MethodBinder::bind_method(D_METHOD("set_collision_layer", "layer"), &TileMap::set_collision_layer);
+    MethodBinder::bind_method(D_METHOD("set_collision_layer", {"layer"}), &TileMap::set_collision_layer);
     MethodBinder::bind_method(D_METHOD("get_collision_layer"), &TileMap::get_collision_layer);
 
-    MethodBinder::bind_method(D_METHOD("set_collision_mask", "mask"), &TileMap::set_collision_mask);
+    MethodBinder::bind_method(D_METHOD("set_collision_mask", {"mask"}), &TileMap::set_collision_mask);
     MethodBinder::bind_method(D_METHOD("get_collision_mask"), &TileMap::get_collision_mask);
 
-    MethodBinder::bind_method(D_METHOD("set_collision_layer_bit", "bit", "value"), &TileMap::set_collision_layer_bit);
-    MethodBinder::bind_method(D_METHOD("get_collision_layer_bit", "bit"), &TileMap::get_collision_layer_bit);
+    MethodBinder::bind_method(D_METHOD("set_collision_layer_bit", {"bit", "value"}), &TileMap::set_collision_layer_bit);
+    MethodBinder::bind_method(D_METHOD("get_collision_layer_bit", {"bit"}), &TileMap::get_collision_layer_bit);
 
-    MethodBinder::bind_method(D_METHOD("set_collision_mask_bit", "bit", "value"), &TileMap::set_collision_mask_bit);
-    MethodBinder::bind_method(D_METHOD("get_collision_mask_bit", "bit"), &TileMap::get_collision_mask_bit);
+    MethodBinder::bind_method(D_METHOD("set_collision_mask_bit", {"bit", "value"}), &TileMap::set_collision_mask_bit);
+    MethodBinder::bind_method(D_METHOD("get_collision_mask_bit", {"bit"}), &TileMap::get_collision_mask_bit);
 
-    MethodBinder::bind_method(D_METHOD("set_collision_friction", "value"), &TileMap::set_collision_friction);
+    MethodBinder::bind_method(D_METHOD("set_collision_friction", {"value"}), &TileMap::set_collision_friction);
     MethodBinder::bind_method(D_METHOD("get_collision_friction"), &TileMap::get_collision_friction);
 
-    MethodBinder::bind_method(D_METHOD("set_collision_bounce", "value"), &TileMap::set_collision_bounce);
+    MethodBinder::bind_method(D_METHOD("set_collision_bounce", {"value"}), &TileMap::set_collision_bounce);
     MethodBinder::bind_method(D_METHOD("get_collision_bounce"), &TileMap::get_collision_bounce);
 
-    MethodBinder::bind_method(D_METHOD("set_occluder_light_mask", "mask"), &TileMap::set_occluder_light_mask);
+    MethodBinder::bind_method(D_METHOD("set_occluder_light_mask", {"mask"}), &TileMap::set_occluder_light_mask);
     MethodBinder::bind_method(D_METHOD("get_occluder_light_mask"), &TileMap::get_occluder_light_mask);
 
-    MethodBinder::bind_method(D_METHOD("set_cell", "x", "y", "tile", "flip_x", "flip_y", "transpose", "autotile_coord"), &TileMap::set_cell, {DEFVAL(false), DEFVAL(false), DEFVAL(false), DEFVAL(Vector2())});
-    MethodBinder::bind_method(D_METHOD("set_cellv", "position", "tile", "flip_x", "flip_y", "transpose"), &TileMap::set_cellv, {DEFVAL(false), DEFVAL(false), DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("_set_celld", "position", "data"), &TileMap::_set_celld);
-    MethodBinder::bind_method(D_METHOD("get_cell", "x", "y"), &TileMap::get_cell);
-    MethodBinder::bind_method(D_METHOD("get_cellv", "position"), &TileMap::get_cellv);
-    MethodBinder::bind_method(D_METHOD("is_cell_x_flipped", "x", "y"), &TileMap::is_cell_x_flipped);
-    MethodBinder::bind_method(D_METHOD("is_cell_y_flipped", "x", "y"), &TileMap::is_cell_y_flipped);
-    MethodBinder::bind_method(D_METHOD("is_cell_transposed", "x", "y"), &TileMap::is_cell_transposed);
+    MethodBinder::bind_method(D_METHOD("set_cell", {"x", "y", "tile", "flip_x", "flip_y", "transpose", "autotile_coord"}), &TileMap::set_cell, {DEFVAL(false), DEFVAL(false), DEFVAL(false), DEFVAL(Vector2())});
+    MethodBinder::bind_method(D_METHOD("set_cellv", {"position", "tile", "flip_x", "flip_y", "transpose"}), &TileMap::set_cellv, {DEFVAL(false), DEFVAL(false), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("_set_celld", {"position", "data"}), &TileMap::_set_celld);
+    MethodBinder::bind_method(D_METHOD("get_cell", {"x", "y"}), &TileMap::get_cell);
+    MethodBinder::bind_method(D_METHOD("get_cellv", {"position"}), &TileMap::get_cellv);
+    MethodBinder::bind_method(D_METHOD("is_cell_x_flipped", {"x", "y"}), &TileMap::is_cell_x_flipped);
+    MethodBinder::bind_method(D_METHOD("is_cell_y_flipped", {"x", "y"}), &TileMap::is_cell_y_flipped);
+    MethodBinder::bind_method(D_METHOD("is_cell_transposed", {"x", "y"}), &TileMap::is_cell_transposed);
 
-    MethodBinder::bind_method(D_METHOD("get_cell_autotile_coord", "x", "y"), &TileMap::get_cell_autotile_coord);
+    MethodBinder::bind_method(D_METHOD("get_cell_autotile_coord", {"x", "y"}), &TileMap::get_cell_autotile_coord);
 
     MethodBinder::bind_method(D_METHOD("fix_invalid_tiles"), &TileMap::fix_invalid_tiles);
     MethodBinder::bind_method(D_METHOD("clear"), &TileMap::clear);
 
     MethodBinder::bind_method(D_METHOD("get_used_cells"), &TileMap::get_used_cells);
-    MethodBinder::bind_method(D_METHOD("get_used_cells_by_id", "id"), &TileMap::get_used_cells_by_id);
+    MethodBinder::bind_method(D_METHOD("get_used_cells_by_id", {"id"}), &TileMap::get_used_cells_by_id);
     MethodBinder::bind_method(D_METHOD("get_used_rect"), &TileMap::get_used_rect);
 
-    MethodBinder::bind_method(D_METHOD("map_to_world", "map_position", "ignore_half_ofs"), &TileMap::map_to_world, {DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("world_to_map", "world_position"), &TileMap::world_to_map);
+    MethodBinder::bind_method(D_METHOD("map_to_world", {"map_position", "ignore_half_ofs"}), &TileMap::map_to_world, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("world_to_map", {"world_position"}), &TileMap::world_to_map);
 
     MethodBinder::bind_method(D_METHOD("_clear_quadrants"), &TileMap::_clear_quadrants);
     MethodBinder::bind_method(D_METHOD("_recreate_quadrants"), &TileMap::_recreate_quadrants);
     MethodBinder::bind_method(D_METHOD("update_dirty_quadrants"), &TileMap::update_dirty_quadrants);
 
-    MethodBinder::bind_method(D_METHOD("update_bitmask_area", "position"), &TileMap::update_bitmask_area);
-    MethodBinder::bind_method(D_METHOD("update_bitmask_region", "start", "end"), &TileMap::update_bitmask_region, {DEFVAL(Vector2()), DEFVAL(Vector2())});
+    MethodBinder::bind_method(D_METHOD("update_bitmask_area", {"position"}), &TileMap::update_bitmask_area);
+    MethodBinder::bind_method(D_METHOD("update_bitmask_region", {"start", "end"}), &TileMap::update_bitmask_region, {DEFVAL(Vector2()), DEFVAL(Vector2())});
 
     MethodBinder::bind_method(D_METHOD("_set_tile_data"), &TileMap::_set_tile_data);
     MethodBinder::bind_method(D_METHOD("_get_tile_data"), &TileMap::_get_tile_data);
 
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "mode", PROPERTY_HINT_ENUM, "Square,Isometric,Custom"), "set_mode", "get_mode");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "tile_set", PROPERTY_HINT_RESOURCE_TYPE, "TileSet"), "set_tileset", "get_tileset");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "mode", PROPERTY_HINT_ENUM, "Square,Isometric,Custom"), "set_mode", "get_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "tile_set", PROPERTY_HINT_RESOURCE_TYPE, "TileSet"), "set_tileset", "get_tileset");
 
     ADD_GROUP("Cell", "cell_");
-    ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "cell_size", PROPERTY_HINT_RANGE, "1,8192,1"), "set_cell_size", "get_cell_size");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "cell_quadrant_size", PROPERTY_HINT_RANGE, "1,128,1"), "set_quadrant_size", "get_quadrant_size");
-    ADD_PROPERTY(PropertyInfo(Variant::TRANSFORM2D, "cell_custom_transform"), "set_custom_transform", "get_custom_transform");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "cell_half_offset", PROPERTY_HINT_ENUM, "Offset X,Offset Y,Disabled,Offset Negative X,Offset Negative Y"), "set_half_offset", "get_half_offset");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "cell_tile_origin", PROPERTY_HINT_ENUM, "Top Left,Center,Bottom Left"), "set_tile_origin", "get_tile_origin");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "cell_y_sort"), "set_y_sort_mode", "is_y_sort_mode_enabled");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "compatibility_mode"), "set_compatibility_mode", "is_compatibility_mode_enabled");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "centered_textures"), "set_centered_textures", "is_centered_textures_enabled");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "cell_clip_uv"), "set_clip_uv", "get_clip_uv");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "cell_size", PROPERTY_HINT_RANGE, "1,8192,1"), "set_cell_size", "get_cell_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "cell_quadrant_size", PROPERTY_HINT_RANGE, "1,128,1"), "set_quadrant_size", "get_quadrant_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM2D, "cell_custom_transform"), "set_custom_transform", "get_custom_transform");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "cell_half_offset", PROPERTY_HINT_ENUM, "Offset X,Offset Y,Disabled,Offset Negative X,Offset Negative Y"), "set_half_offset", "get_half_offset");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "cell_tile_origin", PROPERTY_HINT_ENUM, "Top Left,Center,Bottom Left"), "set_tile_origin", "get_tile_origin");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "cell_y_sort"), "set_y_sort_mode", "is_y_sort_mode_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "compatibility_mode"), "set_compatibility_mode", "is_compatibility_mode_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "centered_textures"), "set_centered_textures", "is_centered_textures_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "cell_clip_uv"), "set_clip_uv", "get_clip_uv");
 
     ADD_GROUP("Collision", "collision_");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "collision_use_parent", PROPERTY_HINT_NONE, ""), "set_collision_use_parent", "get_collision_use_parent");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "collision_use_kinematic", PROPERTY_HINT_NONE, ""), "set_collision_use_kinematic", "get_collision_use_kinematic");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "collision_friction", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_collision_friction", "get_collision_friction");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "collision_bounce", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_collision_bounce", "get_collision_bounce");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "collision_layer", PROPERTY_HINT_LAYERS_2D_PHYSICS), "set_collision_layer", "get_collision_layer");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "collision_mask", PROPERTY_HINT_LAYERS_2D_PHYSICS), "set_collision_mask", "get_collision_mask");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "collision_use_parent", PROPERTY_HINT_NONE, ""), "set_collision_use_parent", "get_collision_use_parent");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "collision_use_kinematic", PROPERTY_HINT_NONE, ""), "set_collision_use_kinematic", "get_collision_use_kinematic");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "collision_friction", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_collision_friction", "get_collision_friction");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "collision_bounce", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_collision_bounce", "get_collision_bounce");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_layer", PROPERTY_HINT_LAYERS_2D_PHYSICS), "set_collision_layer", "get_collision_layer");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_mask", PROPERTY_HINT_LAYERS_2D_PHYSICS), "set_collision_mask", "get_collision_mask");
 
     ADD_GROUP("Occluder", "occluder_");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "occluder_light_mask", PROPERTY_HINT_LAYERS_2D_RENDER), "set_occluder_light_mask", "get_occluder_light_mask");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "occluder_light_mask", PROPERTY_HINT_LAYERS_2D_RENDER), "set_occluder_light_mask", "get_occluder_light_mask");
 
     ADD_PROPERTY_DEFAULT("format", FORMAT_1);
 
@@ -1917,23 +1917,23 @@ void TileMap::_bind_methods() {
 
     BIND_CONSTANT(INVALID_CELL);
 
-    BIND_ENUM_CONSTANT(MODE_SQUARE);
-    BIND_ENUM_CONSTANT(MODE_ISOMETRIC);
-    BIND_ENUM_CONSTANT(MODE_CUSTOM);
+    BIND_ENUM_CONSTANT(MODE_SQUARE)
+    BIND_ENUM_CONSTANT(MODE_ISOMETRIC)
+    BIND_ENUM_CONSTANT(MODE_CUSTOM)
 
-    BIND_ENUM_CONSTANT(HALF_OFFSET_X);
-    BIND_ENUM_CONSTANT(HALF_OFFSET_Y);
-    BIND_ENUM_CONSTANT(HALF_OFFSET_DISABLED);
-    BIND_ENUM_CONSTANT(HALF_OFFSET_NEGATIVE_X);
-    BIND_ENUM_CONSTANT(HALF_OFFSET_NEGATIVE_Y);
+    BIND_ENUM_CONSTANT(HALF_OFFSET_X)
+    BIND_ENUM_CONSTANT(HALF_OFFSET_Y)
+    BIND_ENUM_CONSTANT(HALF_OFFSET_DISABLED)
+    BIND_ENUM_CONSTANT(HALF_OFFSET_NEGATIVE_X)
+    BIND_ENUM_CONSTANT(HALF_OFFSET_NEGATIVE_Y)
 
-    BIND_ENUM_CONSTANT(TILE_ORIGIN_TOP_LEFT);
-    BIND_ENUM_CONSTANT(TILE_ORIGIN_CENTER);
-    BIND_ENUM_CONSTANT(TILE_ORIGIN_BOTTOM_LEFT);
+    BIND_ENUM_CONSTANT(TILE_ORIGIN_TOP_LEFT)
+    BIND_ENUM_CONSTANT(TILE_ORIGIN_CENTER)
+    BIND_ENUM_CONSTANT(TILE_ORIGIN_BOTTOM_LEFT)
 }
 
 void TileMap::_changed_callback(Object *p_changed, const char *p_prop) {
-    if (tile_set.is_valid() && tile_set.ptr() == p_changed) {
+    if (tile_set && tile_set.get() == p_changed) {
         emit_signal("settings_changed");
     }
 }
@@ -1946,7 +1946,7 @@ TileMap::TileMap() {
     quadrant_order_dirty = false;
     quadrant_size = 16;
     cell_size = Size2(64, 64);
-	custom_transform = Transform2D(64, 0, 0, 64, 0, 0);
+    custom_transform = Transform2D(64, 0, 0, 64, 0, 0);
     collision_layer = 1;
     collision_mask = 1;
     friction = 1;
@@ -1972,7 +1972,7 @@ TileMap::TileMap() {
 
 TileMap::~TileMap() {
 
-    if (tile_set.is_valid())
+    if (tile_set)
         tile_set->remove_change_receptor(this);
 
     clear();

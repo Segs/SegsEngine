@@ -176,13 +176,13 @@ void ColorPicker::_value_changed(double) {
         return;
 
     if (hsv_mode_enabled) {
-        color.set_hsv(scroll[0]->get_value() / 360.0,
-                scroll[1]->get_value() / 100.0,
-                scroll[2]->get_value() / 100.0,
-                scroll[3]->get_value() / 255.0);
+        color.set_hsv(scroll[0]->get_value() / 360.0f,
+                scroll[1]->get_value() / 100.0f,
+                scroll[2]->get_value() / 100.0f,
+                scroll[3]->get_value() / 255.0f);
     } else {
         for (int i = 0; i < 4; i++) {
-            color.components[i] = scroll[i]->get_value() / (raw_mode_enabled ? 1.0 : 255.0);
+            color.components[i] = scroll[i]->get_value() / (raw_mode_enabled ? 1.0f : 255.0f);
         }
     }
 
@@ -236,7 +236,7 @@ void ColorPicker::_update_color(bool p_update_sliders) {
                     scroll[i]->set_value(color.components[i]);
                 } else {
                     scroll[i]->set_step(1);
-                    const float byte_value = color.components[i] * 255.0;
+                    const float byte_value = color.components[i] * 255.0f;
                     scroll[i]->set_max(next_power_of_2(MAX(255, byte_value)) - 1);
                     scroll[i]->set_value(byte_value);
                 }
@@ -279,7 +279,7 @@ void ColorPicker::_text_type_toggled() {
         c_text->set_editable(false);
     } else {
         text_type->set_text("#");
-        text_type->set_icon(nullptr);
+        text_type->set_icon(Ref<Texture>());
 
         c_text->set_editable(true);
     }
@@ -456,15 +456,15 @@ void ColorPicker::_hsv_draw(int p_which, Control *c) {
 
 void ColorPicker::_uv_input(const Ref<InputEvent> &p_event) {
 
-    Ref<InputEventMouseButton> bev = p_event;
+    Ref<InputEventMouseButton> bev = dynamic_ref_cast<InputEventMouseButton>(p_event);
 
-    if (bev.is_valid()) {
+    if (bev) {
         if (bev->is_pressed() && bev->get_button_index() == BUTTON_LEFT) {
             changing_color = true;
             float x = CLAMP((float)bev->get_position().x, 0, uv_edit->get_size().width);
             float y = CLAMP((float)bev->get_position().y, 0, uv_edit->get_size().height);
             s = x / uv_edit->get_size().width;
-            v = 1.0 - y / uv_edit->get_size().height;
+            v = 1.0f - y / uv_edit->get_size().height;
             color.set_hsv(h, s, v, color.a);
             last_hsv = color;
             set_pick_color(color);
@@ -479,9 +479,9 @@ void ColorPicker::_uv_input(const Ref<InputEvent> &p_event) {
         }
     }
 
-    Ref<InputEventMouseMotion> mev = p_event;
+    Ref<InputEventMouseMotion> mev = dynamic_ref_cast<InputEventMouseMotion>(p_event);
 
-    if (mev.is_valid()) {
+    if (mev) {
         if (!changing_color)
             return;
         float x = CLAMP((float)mev->get_position().x, 0, uv_edit->get_size().width);
@@ -499,9 +499,9 @@ void ColorPicker::_uv_input(const Ref<InputEvent> &p_event) {
 
 void ColorPicker::_w_input(const Ref<InputEvent> &p_event) {
 
-    Ref<InputEventMouseButton> bev = p_event;
+    Ref<InputEventMouseButton> bev = dynamic_ref_cast<InputEventMouseButton>(p_event);
 
-    if (bev.is_valid()) {
+    if (bev) {
 
         if (bev->is_pressed() && bev->get_button_index() == BUTTON_LEFT) {
             changing_color = true;
@@ -520,9 +520,9 @@ void ColorPicker::_w_input(const Ref<InputEvent> &p_event) {
             emit_signal("color_changed", color);
     }
 
-    Ref<InputEventMouseMotion> mev = p_event;
+    Ref<InputEventMouseMotion> mev = dynamic_ref_cast<InputEventMouseMotion>(p_event);
 
-    if (mev.is_valid()) {
+    if (mev) {
 
         if (!changing_color)
             return;
@@ -539,16 +539,17 @@ void ColorPicker::_w_input(const Ref<InputEvent> &p_event) {
 
 void ColorPicker::_preset_input(const Ref<InputEvent> &p_event) {
 
-    Ref<InputEventMouseButton> bev = p_event;
+    Ref<InputEventMouseButton> bev = dynamic_ref_cast<InputEventMouseButton>(p_event);
 
-    if (bev.is_valid()) {
+    if (bev) {
 
         int index = 0;
         if (bev->is_pressed() && bev->get_button_index() == BUTTON_LEFT) {
             for (int i = 0; i < presets.size(); i++) {
                 int x = (i % presets_per_row) * bt_add_preset->get_size().x;
                 int y = (Math::floor((float)i / presets_per_row)) * bt_add_preset->get_size().y;
-                if (bev->get_position().x > x && bev->get_position().x < x + preset->get_size().x && bev->get_position().y > y && bev->get_position().y < y + preset->get_size().y) {
+                if (bev->get_position().x > x && bev->get_position().x < x + preset->get_size().x &&
+                        bev->get_position().y > y && bev->get_position().y < y + preset->get_size().y) {
                     index = i;
                 }
             }
@@ -564,38 +565,38 @@ void ColorPicker::_preset_input(const Ref<InputEvent> &p_event) {
         }
     }
 
-    Ref<InputEventMouseMotion> mev = p_event;
+    Ref<InputEventMouseMotion> mev = dynamic_ref_cast<InputEventMouseMotion>(p_event);
 
-    if (mev.is_valid()) {
+    if (mev) {
 
         int index = mev->get_position().x * presets.size();
         if (preset->get_size().x != 0) {
             index /= preset->get_size().x;
         }
-        if (index < 0 || index >= presets.size())
-            return;
-        preset->set_tooltip("Color: #" + presets[index].to_html(presets[index].a < 1) + "\n"
-                                                                                        "LMB: Set color\n"
-                                                                                        "RMB: Remove preset");
+        if (index < 0 || index >= presets.size()) return;
+        preset->set_tooltip("Color: #" + presets[index].to_html(presets[index].a < 1) +
+                            "\n"
+                            "LMB: Set color\n"
+                            "RMB: Remove preset");
     }
 }
 
 void ColorPicker::_screen_input(const Ref<InputEvent> &p_event) {
 
-    Ref<InputEventMouseButton> bev = p_event;
-    if (bev.is_valid() && bev->get_button_index() == BUTTON_LEFT && !bev->is_pressed()) {
+    Ref<InputEventMouseButton> bev = dynamic_ref_cast<InputEventMouseButton>(p_event);
+    if (bev && bev->get_button_index() == BUTTON_LEFT && !bev->is_pressed()) {
         emit_signal("color_changed", color);
         screen->hide();
     }
 
-    Ref<InputEventMouseMotion> mev = p_event;
-    if (mev.is_valid()) {
+    Ref<InputEventMouseMotion> mev = dynamic_ref_cast<InputEventMouseMotion>(p_event);
+    if (mev) {
         Viewport *r = get_tree()->get_root();
         if (!r->get_visible_rect().has_point(Point2(mev->get_global_position().x, mev->get_global_position().y)))
             return;
 
         Ref<Image> img = r->get_texture()->get_data();
-        if (img.is_valid() && !img->empty()) {
+        if (img && !img->empty()) {
             img->lock();
             Vector2 ofs = mev->get_global_position() - r->get_visible_rect().get_position();
             Color c = img->get_pixel(ofs.x, r->get_visible_rect().size.height - ofs.y);
@@ -620,7 +621,7 @@ void ColorPicker::_screen_pick_pressed() {
         screen->set_default_cursor_shape(CURSOR_POINTING_HAND);
         screen->connect("gui_input", this, "_screen_input");
         // It immediately toggles off in the first press otherwise.
-        screen->call_deferred("connect", "hide", btn_pick, "set_pressed", varray(false));
+        screen->call_deferred("connect", "hide", Variant(btn_pick), "set_pressed", varray(false));
     }
     screen->raise();
     screen->show_modal();
@@ -678,22 +679,22 @@ bool ColorPicker::are_presets_visible() const {
 
 void ColorPicker::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_pick_color", "color"), &ColorPicker::set_pick_color);
+    MethodBinder::bind_method(D_METHOD("set_pick_color", {"color"}), &ColorPicker::set_pick_color);
     MethodBinder::bind_method(D_METHOD("get_pick_color"), &ColorPicker::get_pick_color);
-    MethodBinder::bind_method(D_METHOD("set_hsv_mode", "mode"), &ColorPicker::set_hsv_mode);
+    MethodBinder::bind_method(D_METHOD("set_hsv_mode", {"mode"}), &ColorPicker::set_hsv_mode);
     MethodBinder::bind_method(D_METHOD("is_hsv_mode"), &ColorPicker::is_hsv_mode);
-    MethodBinder::bind_method(D_METHOD("set_raw_mode", "mode"), &ColorPicker::set_raw_mode);
+    MethodBinder::bind_method(D_METHOD("set_raw_mode", {"mode"}), &ColorPicker::set_raw_mode);
     MethodBinder::bind_method(D_METHOD("is_raw_mode"), &ColorPicker::is_raw_mode);
-    MethodBinder::bind_method(D_METHOD("set_deferred_mode", "mode"), &ColorPicker::set_deferred_mode);
+    MethodBinder::bind_method(D_METHOD("set_deferred_mode", {"mode"}), &ColorPicker::set_deferred_mode);
     MethodBinder::bind_method(D_METHOD("is_deferred_mode"), &ColorPicker::is_deferred_mode);
-    MethodBinder::bind_method(D_METHOD("set_edit_alpha", "show"), &ColorPicker::set_edit_alpha);
+    MethodBinder::bind_method(D_METHOD("set_edit_alpha", {"show"}), &ColorPicker::set_edit_alpha);
     MethodBinder::bind_method(D_METHOD("is_editing_alpha"), &ColorPicker::is_editing_alpha);
-    MethodBinder::bind_method(D_METHOD("set_presets_enabled", "enabled"), &ColorPicker::set_presets_enabled);
+    MethodBinder::bind_method(D_METHOD("set_presets_enabled", {"enabled"}), &ColorPicker::set_presets_enabled);
     MethodBinder::bind_method(D_METHOD("are_presets_enabled"), &ColorPicker::are_presets_enabled);
-    MethodBinder::bind_method(D_METHOD("set_presets_visible", "visible"), &ColorPicker::set_presets_visible);
+    MethodBinder::bind_method(D_METHOD("set_presets_visible", {"visible"}), &ColorPicker::set_presets_visible);
     MethodBinder::bind_method(D_METHOD("are_presets_visible"), &ColorPicker::are_presets_visible);
-    MethodBinder::bind_method(D_METHOD("add_preset", "color"), &ColorPicker::add_preset);
-    MethodBinder::bind_method(D_METHOD("erase_preset", "color"), &ColorPicker::erase_preset);
+    MethodBinder::bind_method(D_METHOD("add_preset", {"color"}), &ColorPicker::add_preset);
+    MethodBinder::bind_method(D_METHOD("erase_preset", {"color"}), &ColorPicker::erase_preset);
     MethodBinder::bind_method(D_METHOD("get_presets"), &ColorPicker::get_presets);
     MethodBinder::bind_method(D_METHOD("_value_changed"), &ColorPicker::_value_changed);
     MethodBinder::bind_method(D_METHOD("_html_entered"), &ColorPicker::_html_entered);
@@ -711,17 +712,17 @@ void ColorPicker::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_focus_exit"), &ColorPicker::_focus_exit);
     MethodBinder::bind_method(D_METHOD("_html_focus_exit"), &ColorPicker::_html_focus_exit);
 
-    ADD_PROPERTY(PropertyInfo(Variant::COLOR, "color"), "set_pick_color", "get_pick_color");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "edit_alpha"), "set_edit_alpha", "is_editing_alpha");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "hsv_mode"), "set_hsv_mode", "is_hsv_mode");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "raw_mode"), "set_raw_mode", "is_raw_mode");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "deferred_mode"), "set_deferred_mode", "is_deferred_mode");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "presets_enabled"), "set_presets_enabled", "are_presets_enabled");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "presets_visible"), "set_presets_visible", "are_presets_visible");
+    ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "color"), "set_pick_color", "get_pick_color");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "edit_alpha"), "set_edit_alpha", "is_editing_alpha");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "hsv_mode"), "set_hsv_mode", "is_hsv_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "raw_mode"), "set_raw_mode", "is_raw_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "deferred_mode"), "set_deferred_mode", "is_deferred_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "presets_enabled"), "set_presets_enabled", "are_presets_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "presets_visible"), "set_presets_visible", "are_presets_visible");
 
-    ADD_SIGNAL(MethodInfo("color_changed", PropertyInfo(Variant::COLOR, "color")));
-    ADD_SIGNAL(MethodInfo("preset_added", PropertyInfo(Variant::COLOR, "color")));
-    ADD_SIGNAL(MethodInfo("preset_removed", PropertyInfo(Variant::COLOR, "color")));
+    ADD_SIGNAL(MethodInfo("color_changed", PropertyInfo(VariantType::COLOR, "color")));
+    ADD_SIGNAL(MethodInfo("preset_added", PropertyInfo(VariantType::COLOR, "color")));
+    ADD_SIGNAL(MethodInfo("preset_removed", PropertyInfo(VariantType::COLOR, "color")));
 }
 
 ColorPicker::ColorPicker() :
@@ -763,7 +764,7 @@ ColorPicker::ColorPicker() :
     uv_edit->set_h_size_flags(SIZE_EXPAND_FILL);
     uv_edit->set_v_size_flags(SIZE_EXPAND_FILL);
     uv_edit->set_custom_minimum_size(Size2(get_constant("sv_width"), get_constant("sv_height")));
-    uv_edit->connect("draw", this, "_hsv_draw", make_binds(0, uv_edit));
+    uv_edit->connect("draw", this, "_hsv_draw", make_binds(0, Variant(uv_edit)));
 
     w_edit = memnew(Control);
     hb_edit->add_child(w_edit);
@@ -771,7 +772,7 @@ ColorPicker::ColorPicker() :
     w_edit->set_h_size_flags(SIZE_FILL);
     w_edit->set_v_size_flags(SIZE_EXPAND_FILL);
     w_edit->connect("gui_input", this, "_w_input");
-    w_edit->connect("draw", this, "_hsv_draw", make_binds(1, w_edit));
+    w_edit->connect("draw", this, "_hsv_draw", make_binds(1, Variant(w_edit)));
 
     VBoxContainer *vbl = memnew(VBoxContainer);
     add_child(vbl);
@@ -972,26 +973,26 @@ void ColorPickerButton::_update_picker() {
         popup->connect("popup_hide", this, "set_pressed", varray(false));
         picker->set_pick_color(color);
         picker->set_edit_alpha(edit_alpha);
-		emit_signal("picker_created");
+        emit_signal("picker_created");
     }
 }
 
 void ColorPickerButton::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_pick_color", "color"), &ColorPickerButton::set_pick_color);
+    MethodBinder::bind_method(D_METHOD("set_pick_color", {"color"}), &ColorPickerButton::set_pick_color);
     MethodBinder::bind_method(D_METHOD("get_pick_color"), &ColorPickerButton::get_pick_color);
     MethodBinder::bind_method(D_METHOD("get_picker"), &ColorPickerButton::get_picker);
     MethodBinder::bind_method(D_METHOD("get_popup"), &ColorPickerButton::get_popup);
-    MethodBinder::bind_method(D_METHOD("set_edit_alpha", "show"), &ColorPickerButton::set_edit_alpha);
+    MethodBinder::bind_method(D_METHOD("set_edit_alpha", {"show"}), &ColorPickerButton::set_edit_alpha);
     MethodBinder::bind_method(D_METHOD("is_editing_alpha"), &ColorPickerButton::is_editing_alpha);
     MethodBinder::bind_method(D_METHOD("_color_changed"), &ColorPickerButton::_color_changed);
     MethodBinder::bind_method(D_METHOD("_modal_closed"), &ColorPickerButton::_modal_closed);
 
-    ADD_SIGNAL(MethodInfo("color_changed", PropertyInfo(Variant::COLOR, "color")));
+    ADD_SIGNAL(MethodInfo("color_changed", PropertyInfo(VariantType::COLOR, "color")));
     ADD_SIGNAL(MethodInfo("popup_closed"));
-	ADD_SIGNAL(MethodInfo("picker_created"));
-    ADD_PROPERTY(PropertyInfo(Variant::COLOR, "color"), "set_pick_color", "get_pick_color");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "edit_alpha"), "set_edit_alpha", "is_editing_alpha");
+    ADD_SIGNAL(MethodInfo("picker_created"));
+    ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "color"), "set_pick_color", "get_pick_color");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "edit_alpha"), "set_edit_alpha", "is_editing_alpha");
 }
 
 ColorPickerButton::ColorPickerButton() {

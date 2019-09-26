@@ -30,8 +30,18 @@
 
 #include "node_path.h"
 
-#include "core/print_string.h"
 #include "core/ustring.h"
+#include "core/vector.h"
+
+struct Data {
+
+    SafeRefCount refcount;
+    Vector<StringName> path;
+    Vector<StringName> subpath;
+    StringName concatenated_subpath;
+    bool absolute;
+    bool has_slashes;
+};
 
 void NodePath::_update_hash_cache() const {
 
@@ -47,8 +57,8 @@ void NodePath::_update_hash_cache() const {
         h = h ^ ssn[i].hash();
     }
 
-    data->hash_cache_valid = true;
-    data->hash_cache = h;
+    hash_cache_valid = true;
+    hash_cache = h;
 }
 
 StringName NodePath::get_sname() const {
@@ -64,7 +74,7 @@ void NodePath::prepend_period() {
 
     if (!data->path.empty() && data->path[0].operator String() != ".") {
         data->path.insert(0, StaticCString("."));
-        data->hash_cache_valid = false;
+        hash_cache_valid = false;
     }
 }
 
@@ -307,7 +317,6 @@ NodePath::NodePath(const Vector<StringName> &p_path, bool p_absolute) {
     data->absolute = p_absolute;
     data->path = p_path;
     data->has_slashes = true;
-    data->hash_cache_valid = false;
 }
 
 NodePath::NodePath(const Vector<StringName> &p_path, const Vector<StringName> &p_subpath, bool p_absolute) {
@@ -323,7 +332,6 @@ NodePath::NodePath(const Vector<StringName> &p_path, const Vector<StringName> &p
     data->path = p_path;
     data->subpath = p_subpath;
     data->has_slashes = true;
-    data->hash_cache_valid = false;
 }
 
 void NodePath::simplify() {
@@ -347,7 +355,7 @@ void NodePath::simplify() {
             }
         }
     }
-    data->hash_cache_valid = false;
+    hash_cache_valid = false;
 }
 
 NodePath NodePath::simplified() const {
@@ -419,7 +427,7 @@ NodePath::NodePath(const String &p_path) {
     data->absolute = absolute;
     data->has_slashes = has_slashes;
     data->subpath = subpath;
-    data->hash_cache_valid = false;
+    hash_cache_valid = false;
 
     if (slices == 0)
         return;
@@ -458,8 +466,6 @@ bool NodePath::is_empty() const {
     return !data;
 }
 NodePath::NodePath() {
-
-    data = nullptr;
 }
 
 NodePath::~NodePath() {

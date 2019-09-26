@@ -34,8 +34,6 @@
 
 #include <cstdio>
 
-#define PACK_VERSION 1
-
 Error PackedData::add_pack(const String &p_path) {
 
     for (int i = 0; i < sources.size(); i++) {
@@ -54,7 +52,7 @@ void PackedData::add_path(const String &pkg_path, const String &path, uint64_t o
     PathMD5 pmd5(StringUtils::md5_buffer(path));
     //printf("adding path %ls, %lli, %lli\n", path.c_str(), pmd5.a, pmd5.b);
 
-    bool exists = files.has(pmd5);
+    bool exists = files.contains(pmd5);
 
     PackedDataFile pf;
     pf.pack = pkg_path;
@@ -68,16 +66,16 @@ void PackedData::add_path(const String &pkg_path, const String &path, uint64_t o
 
     if (!exists) {
         //search for dir
-		String p = StringUtils::replace_first(path,"res://", "");
+        String p = StringUtils::replace_first(path,"res://", "");
         PackedDir *cd = root;
 
-		if (StringUtils::contains(p,"/")) { //in a subdir
+        if (StringUtils::contains(p,"/")) { //in a subdir
 
             Vector<String> ds = StringUtils::split(PathUtils::get_base_dir(p),"/");
 
             for (int j = 0; j < ds.size(); j++) {
 
-                if (!cd->subdirs.has(ds[j])) {
+                if (!cd->subdirs.contains(ds[j])) {
 
                     PackedDir *pd = memnew(PackedDir);
                     pd->name = ds[j];
@@ -123,225 +121,22 @@ PackedData::PackedData() {
     root = memnew(PackedDir);
     root->parent = nullptr;
     disabled = false;
-
-    add_pack_source(memnew(PackedSourcePCK));
 }
 
 void PackedData::_free_packed_dirs(PackedDir *p_dir) {
 
-    for (Map<String, PackedDir *>::Element *E = p_dir->subdirs.front(); E; E = E->next())
-        _free_packed_dirs(E->get());
+    for (eastl::pair<const String, PackedDir *> &E : p_dir->subdirs)
+        _free_packed_dirs(E.second);
     memdelete(p_dir);
 }
 
 PackedData::~PackedData() {
 
-    for (int i = 0; i < sources.size(); i++) {
-        memdelete(sources[i]);
-    }
+    //TODO: inform all sources that PackedData interface is being deleted ?
+    sources.clear();
     _free_packed_dirs(root);
 }
 
-//////////////////////////////////////////////////////////////////
-
-bool PackedSourcePCK::try_open_pack(const String &p_path) {
-
-    FileAccess *f = FileAccess::open(p_path, FileAccess::READ);
-    if (!f)
-        return false;
-
-    //printf("try open %ls!\n", p_path.c_str());
-
-    uint32_t magic = f->get_32();
-
-    if (magic != 0x43504447) {
-        //maybe at the end.... self contained exe
-        f->seek_end();
-        f->seek(f->get_position() - 4);
-        magic = f->get_32();
-        if (magic != 0x43504447) {
-
-            memdelete(f);
-            return false;
-        }
-        f->seek(f->get_position() - 12);
-
-        uint64_t ds = f->get_64();
-        f->seek(f->get_position() - ds - 8);
-
-        magic = f->get_32();
-        if (magic != 0x43504447) {
-
-            memdelete(f);
-            return false;
-        }
-    }
-
-    uint32_t version = f->get_32();
-    uint32_t ver_major = f->get_32();
-    uint32_t ver_minor = f->get_32();
-    f->get_32(); // ver_rev
-
-    ERR_FAIL_COND_V_MSG(version != PACK_VERSION, false, "Pack version unsupported: " + itos(version) + ".")
-    ERR_FAIL_COND_V_MSG(ver_major > VERSION_MAJOR || (ver_major == VERSION_MAJOR && ver_minor > VERSION_MINOR), false, "Pack created with a newer version of the engine: " + itos(ver_major) + "." + itos(ver_minor) + ".")
-
-    for (int i = 0; i < 16; i++) {
-        //reserved
-        f->get_32();
-    }
-
-    int file_count = f->get_32();
-
-    for (int i = 0; i < file_count; i++) {
-
-        uint32_t sl = f->get_32();
-        CharString cs;
-        cs.resize(sl + 1);
-        f->get_buffer((uint8_t *)cs.data(), sl);
-        cs[sl] = 0;
-
-		String path = StringUtils::from_utf8(cs.data());
-
-        uint64_t ofs = f->get_64();
-        uint64_t size = f->get_64();
-        uint8_t md5[16];
-        f->get_buffer(md5, 16);
-        PackedData::get_singleton()->add_path(p_path, path, ofs, size, md5, this);
-	}
-
-    return true;
-};
-
-FileAccess *PackedSourcePCK::get_file(const String &p_path, PackedDataFile *p_file) {
-
-    return memnew(FileAccessPack(p_path, *p_file));
-};
-
-//////////////////////////////////////////////////////////////////
-
-Error FileAccessPack::_open(const String &p_path, int p_mode_flags) {
-
-	ERR_FAIL_V(ERR_UNAVAILABLE)
-    return ERR_UNAVAILABLE;
-}
-
-void FileAccessPack::close() {
-
-    f->close();
-}
-
-bool FileAccessPack::is_open() const {
-
-    return f->is_open();
-}
-
-void FileAccessPack::seek(size_t p_position) {
-
-    if (p_position > pf.size) {
-        eof = true;
-    } else {
-        eof = false;
-    }
-
-    f->seek(pf.offset + p_position);
-    pos = p_position;
-}
-void FileAccessPack::seek_end(int64_t p_position) {
-
-    seek(pf.size + p_position);
-}
-size_t FileAccessPack::get_position() const {
-
-    return pos;
-}
-size_t FileAccessPack::get_len() const {
-
-    return pf.size;
-}
-
-bool FileAccessPack::eof_reached() const {
-
-    return eof;
-}
-
-uint8_t FileAccessPack::get_8() const {
-
-    if (pos >= pf.size) {
-        eof = true;
-        return 0;
-    }
-
-    pos++;
-    return f->get_8();
-}
-
-int FileAccessPack::get_buffer(uint8_t *p_dst, int p_length) const {
-
-    if (eof)
-        return 0;
-
-    uint64_t to_read = p_length;
-    if (to_read + pos > pf.size) {
-        eof = true;
-        to_read = int64_t(pf.size) - int64_t(pos);
-    }
-
-    pos += p_length;
-
-    if (to_read <= 0)
-        return 0;
-    f->get_buffer(p_dst, to_read);
-
-    return to_read;
-}
-
-void FileAccessPack::set_endian_swap(bool p_swap) {
-    FileAccess::set_endian_swap(p_swap);
-    f->set_endian_swap(p_swap);
-}
-
-Error FileAccessPack::get_error() const {
-
-    if (eof)
-        return ERR_FILE_EOF;
-    return OK;
-}
-
-void FileAccessPack::flush() {
-
-    ERR_FAIL()
-}
-
-void FileAccessPack::store_8(uint8_t p_dest) {
-
-    ERR_FAIL()
-}
-
-void FileAccessPack::store_buffer(const uint8_t *p_src, int p_length) {
-
-    ERR_FAIL()
-}
-
-bool FileAccessPack::file_exists(const String &p_name) {
-
-    return false;
-}
-
-FileAccessPack::FileAccessPack(const String &p_path, const PackedDataFile &p_file) :
-        pf(p_file),
-        f(FileAccess::open(pf.pack, FileAccess::READ)) {
-
-    ERR_FAIL_COND_MSG(!f, "Can't open pack-referenced file: " + String(pf.pack) + ".");
-
-    f->seek(pf.offset);
-    pos = 0;
-    eof = false;
-}
-
-FileAccessPack::~FileAccessPack() {
-    if (f)
-        memdelete(f);
-}
 
 //////////////////////////////////////////////////////////////////////////////////
 // DIR ACCESS
@@ -352,14 +147,14 @@ Error DirAccessPack::list_dir_begin() {
     list_dirs.clear();
     list_files.clear();
 
-    for (Map<String, PackedData::PackedDir *>::Element *E = current->subdirs.front(); E; E = E->next()) {
+    for (eastl::pair<const String, PackedData::PackedDir *> &E : current->subdirs) {
 
-        list_dirs.push_back(E->key());
+        list_dirs.push_back(E.first);
     }
 
-    for (Set<String>::Element *E = current->files.front(); E; E = E->next()) {
+    for (const String &E : current->files) {
 
-        list_files.push_back(E->get());
+        list_files.push_back(E);
     }
 
     return OK;
@@ -369,17 +164,18 @@ String DirAccessPack::get_next() {
 
     if (!list_dirs.empty()) {
         cdir = true;
-        String d = list_dirs.front()->get();
+        String d = list_dirs.front()->deref();
         list_dirs.pop_front();
         return d;
     } else if (!list_files.empty()) {
         cdir = false;
-        String f = list_files.front()->get();
+        String f = list_files.front()->deref();
         list_files.pop_front();
         return f;
     } else {
         return String();
     }
+
 }
 bool DirAccessPack::current_is_dir() const {
 
@@ -406,20 +202,20 @@ String DirAccessPack::get_drive(int p_drive) {
 
 Error DirAccessPack::change_dir(String p_dir) {
 
-	String nd = PathUtils::from_native_path(p_dir);
+    String nd = PathUtils::from_native_path(p_dir);
     bool absolute = false;
-	if (StringUtils::begins_with(nd,"res://")) {
-		nd = StringUtils::replace_first(nd,"res://", "");
+    if (StringUtils::begins_with(nd,"res://")) {
+        nd = StringUtils::replace_first(nd,"res://", "");
         absolute = true;
     }
 
     nd = PathUtils::simplify_path(nd);
 
-	if (nd.empty())
-		nd = ".";
+    if (nd.empty())
+        nd = ".";
 
-	if (StringUtils::begins_with(nd,"/")) {
-		nd = StringUtils::replace_first(nd,"/", "");
+    if (StringUtils::begins_with(nd,"/")) {
+        nd = StringUtils::replace_first(nd,"/", "");
         absolute = true;
     }
 
@@ -441,7 +237,7 @@ Error DirAccessPack::change_dir(String p_dir) {
             if (pd->parent) {
                 pd = pd->parent;
             }
-        } else if (pd->subdirs.has(p)) {
+        } else if (pd->subdirs.contains(p)) {
 
             pd = pd->subdirs[p];
 
@@ -472,13 +268,13 @@ String DirAccessPack::get_current_dir() {
 bool DirAccessPack::file_exists(String p_file) {
     p_file = fix_path(p_file);
 
-    return current->files.has(p_file);
+    return current->files.contains(p_file);
 }
 
 bool DirAccessPack::dir_exists(String p_dir) {
     p_dir = fix_path(p_dir);
 
-    return current->subdirs.has(p_dir);
+    return current->subdirs.contains(p_dir);
 }
 
 Error DirAccessPack::make_dir(String p_dir) {

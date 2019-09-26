@@ -53,7 +53,7 @@
 #include "scene/gui/texture_rect.h"
 #include "scene/gui/tool_button.h"
 
-static inline String get_project_key_from_path(String dir) {
+static inline String get_project_key_from_path(const String& dir) {
     return StringUtils::replace(dir,"/", "::");
 }
 IMPL_GDCLASS(ProjectManager)
@@ -352,16 +352,14 @@ private:
 
     void _path_selected(const String &p_path) {
 
-        String p = p_path;
-        String sp = PathUtils::simplify_path(p);
+        String sp = PathUtils::simplify_path(p_path);
         project_path->set_text(sp);
         _path_text_changed(sp);
         get_ok()->call_deferred("grab_focus");
     }
 
     void _install_path_selected(const String &p_path) {
-        String p = p_path;
-        String sp = PathUtils::simplify_path(p);
+        String sp = PathUtils::simplify_path(p_path);
         install_path->set_text(sp);
         _path_text_changed(sp);
         get_ok()->call_deferred("grab_focus");
@@ -869,7 +867,7 @@ public:
         rasterizer_container->add_child(l);
         Container *rshb = memnew(HBoxContainer);
         rasterizer_container->add_child(rshb);
-        rasterizer_button_group.instance();
+        rasterizer_button_group = make_ref_counted<ButtonGroup>();
 
         Container *rvb = memnew(VBoxContainer);
         rvb->set_h_size_flags(SIZE_EXPAND_FILL);
@@ -933,15 +931,34 @@ public:
     TextureButton *favorite_button;
     TextureRect *icon;
     bool icon_needs_reload;
+    bool hover;
 
     ProjectListItemControl() {
         favorite_button = nullptr;
         icon = nullptr;
         icon_needs_reload = true;
+        hover = false;
     }
 
     void set_is_favorite(bool fav) {
         favorite_button->set_modulate(fav ? Color(1, 1, 1, 1) : Color(1, 1, 1, 0.2));
+    }
+    void _notification(int p_what) {
+        switch (p_what) {
+            case NOTIFICATION_MOUSE_ENTER: {
+                hover = true;
+                update();
+            } break;
+            case NOTIFICATION_MOUSE_EXIT: {
+                hover = false;
+                update();
+            } break;
+            case NOTIFICATION_DRAW: {
+                if (hover) {
+                    draw_style_box(get_stylebox("hover", "Tree"), Rect2(Point2(), get_size() - Size2(10, 0) * EDSCALE));
+                }
+            } break;
+        }
     }
 };
 
@@ -1116,18 +1133,17 @@ void ProjectList::load_project_icon(int p_index) {
     Ref<Texture> default_icon = get_icon("DefaultProjectIcon", "EditorIcons");
     Ref<Texture> icon;
     if (!item.icon.empty()) {
-        Ref<Image> img;
-        img.instance();
+        Ref<Image> img(make_ref_counted<Image>());
         Error err = img->load(StringUtils::replace_first(item.icon,"res://", item.path + "/"));
         if (err == OK) {
 
             img->resize(default_icon->get_width(), default_icon->get_height(), Image::INTERPOLATE_LANCZOS);
-            Ref<ImageTexture> it = memnew(ImageTexture);
+            Ref<ImageTexture> it(make_ref_counted<ImageTexture>());
             it->create_from_image(img);
             icon = it;
         }
     }
-    if (icon.is_null()) {
+    if (not icon) {
         icon = default_icon;
     }
 
@@ -1142,7 +1158,7 @@ void ProjectList::load_project_data(const String &p_property_key, Item &p_item, 
     bool grayed = false;
     bool missing = false;
 
-    Ref<ConfigFile> cf = memnew(ConfigFile);
+    Ref<ConfigFile> cf(make_ref_counted<ConfigFile>());
     Error cf_err = cf->load(conf);
 
     int config_version = 0;
@@ -1203,26 +1219,26 @@ void ProjectList::load_projects() {
     // TODO Would be nice to change how projects and favourites are stored... it complicates things a bit.
     // Use a dictionary associating project path to metadata (like is_favorite).
 
-    List<PropertyInfo> properties;
+    ListPOD<PropertyInfo> properties;
     EditorSettings::get_singleton()->get_property_list(&properties);
 
     Set<String> favorites;
     // Find favourites...
-    for (List<PropertyInfo>::Element *E = properties.front(); E; E = E->next()) {
-        String property_key = E->get().name;
+    for (const PropertyInfo &E : properties) {
+        String property_key = E.name;
         if (StringUtils::begins_with(property_key,"favorite_projects/")) {
             favorites.insert(property_key);
         }
     }
 
-    for (List<PropertyInfo>::Element *E = properties.front(); E; E = E->next()) {
+    for (const PropertyInfo &E : properties) {
         // This is actually something like "projects/C:::Documents::Godot::Projects::MyGame"
-        String property_key = E->get().name;
+        String property_key = E.name;
         if (!StringUtils::begins_with(property_key,"projects/"))
             continue;
 
         String project_key = StringUtils::get_slice(property_key,"/", 1);
-        bool favorite = favorites.has("favorite_projects/" + project_key);
+        bool favorite = favorites.contains("favorite_projects/" + project_key);
 
         Item item;
         load_project_data(property_key, item, favorite);
@@ -1248,17 +1264,17 @@ void ProjectList::load_projects() {
 void ProjectList::create_project_item_control(int p_index) {
 
     // Will be added last in the list, so make sure indexes match
-    ERR_FAIL_COND(p_index != _scroll_children->get_child_count());
+    ERR_FAIL_COND(p_index != _scroll_children->get_child_count())
 
     Item &item = _projects.write[p_index];
-    ERR_FAIL_COND(item.control != nullptr); // Already created
+    ERR_FAIL_COND(item.control != nullptr) // Already created
 
     Ref<Texture> favorite_icon = get_icon("Favorites", "EditorIcons");
     Color font_color = get_color("font_color", "Tree");
 
     ProjectListItemControl *hb = memnew(ProjectListItemControl);
-    hb->connect("draw", this, "_panel_draw", varray(hb));
-    hb->connect("gui_input", this, "_panel_input", varray(hb));
+    hb->connect("draw", this, "_panel_draw", varray(Variant(hb)));
+    hb->connect("gui_input", this, "_panel_input", varray(Variant(hb)));
     hb->add_constant_override("separation", 10 * EDSCALE);
     hb->set_tooltip(item.description);
 
@@ -1267,7 +1283,9 @@ void ProjectList::create_project_item_control(int p_index) {
     TextureButton *favorite = memnew(TextureButton);
     favorite->set_name("FavoriteButton");
     favorite->set_normal_texture(favorite_icon);
-    favorite->connect("pressed", this, "_favorite_pressed", varray(hb));
+    // This makes the project's "hover" style display correctly when hovering the favorite icon
+    favorite->set_mouse_filter(MOUSE_FILTER_PASS);
+    favorite->connect("pressed", this, "_favorite_pressed", varray(Variant(hb)));
     favorite_box->add_child(favorite);
     favorite_box->set_alignment(BoxContainer::ALIGN_CENTER);
     hb->add_child(favorite_box);
@@ -1395,11 +1413,11 @@ Vector<ProjectList::Item> ProjectList::get_selected_projects() const {
     int j = 0;
     for (int i = 0; i < _projects.size(); ++i) {
         const Item &item = _projects[i];
-        if (_selected_project_keys.has(item.project_key)) {
+        if (_selected_project_keys.contains(item.project_key)) {
             items.write[j++] = item;
         }
     }
-    ERR_FAIL_COND_V(j != items.size(), items);
+    ERR_FAIL_COND_V(j != items.size(), items)
     return items;
 }
 
@@ -1425,7 +1443,7 @@ int ProjectList::get_single_selected_index() const {
     String key;
     if (_selected_project_keys.size() == 1) {
         // Only one selected
-        key = _selected_project_keys.front()->get();
+        key = *_selected_project_keys.begin();
     } else {
         // Multiple selected, consider the last clicked one as "main"
         key = _last_clicked;
@@ -1506,13 +1524,13 @@ int ProjectList::refresh_project(const String &dir_path) {
     bool should_be_in_list = false;
     String property_key = "projects/" + project_key;
     {
-        List<PropertyInfo> properties;
+        ListPOD<PropertyInfo> properties;
         EditorSettings::get_singleton()->get_property_list(&properties);
         String favorite_property_key = "favorite_projects/" + project_key;
 
         bool found = false;
-        for (List<PropertyInfo>::Element *E = properties.front(); E; E = E->next()) {
-            String prop = E->get().name;
+        for (const PropertyInfo &E : properties) {
+            String prop = E.name;
             if (!found && prop == property_key) {
                 found = true;
             } else if (!is_favourite && prop == favorite_property_key) {
@@ -1523,7 +1541,7 @@ int ProjectList::refresh_project(const String &dir_path) {
         should_be_in_list = found;
     }
 
-    bool was_selected = _selected_project_keys.has(project_key);
+    bool was_selected = _selected_project_keys.contains(project_key);
 
     // Remove item in any case
     for (int i = 0; i < _projects.size(); ++i) {
@@ -1596,7 +1614,7 @@ void ProjectList::select_range(int p_begin, int p_end) {
 
 void ProjectList::toggle_select(int p_index) {
     Item &item = _projects.write[p_index];
-    if (_selected_project_keys.has(item.project_key)) {
+    if (_selected_project_keys.contains(item.project_key)) {
         _selected_project_keys.erase(item.project_key);
     } else {
         _selected_project_keys.insert(item.project_key);
@@ -1612,7 +1630,7 @@ void ProjectList::erase_selected_projects() {
 
     for (int i = 0; i < _projects.size(); ++i) {
         Item &item = _projects.write[i];
-        if (_selected_project_keys.has(item.project_key) && item.control->is_visible()) {
+        if (_selected_project_keys.contains(item.project_key) && item.control->is_visible()) {
 
             EditorSettings::get_singleton()->erase("projects/" + item.project_key);
             EditorSettings::get_singleton()->erase("favorite_projects/" + item.project_key);
@@ -1637,7 +1655,7 @@ void ProjectList::_panel_draw(Node *p_hb) {
 
     String key = _projects[p_hb->get_index()].project_key;
 
-    if (_selected_project_keys.has(key)) {
+    if (_selected_project_keys.contains(key)) {
         hb->draw_style_box(get_stylebox("selected", "Tree"), Rect2(Point2(), hb->get_size() - Size2(10, 0) * EDSCALE));
     }
 }
@@ -1645,11 +1663,11 @@ void ProjectList::_panel_draw(Node *p_hb) {
 // Input for each item in the list
 void ProjectList::_panel_input(const Ref<InputEvent> &p_ev, Node *p_hb) {
 
-    Ref<InputEventMouseButton> mb = p_ev;
+    Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_ev);
     int clicked_index = p_hb->get_index();
     const Item &clicked_project = _projects[clicked_index];
 
-    if (mb.is_valid() && mb->is_pressed() && mb->get_button_index() == BUTTON_LEFT) {
+    if (mb && mb->is_pressed() && mb->get_button_index() == BUTTON_LEFT) {
 
         if (mb->get_shift() && !_selected_project_keys.empty() && !_last_clicked.empty() && clicked_project.project_key != _last_clicked) {
 
@@ -1742,6 +1760,11 @@ void ProjectManager::_notification(int p_what) {
 
             if (_project_list->get_project_count() == 0 && StreamPeerSSL::is_available())
                 open_templates->popup_centered_minsize();
+            if (_project_list->get_project_count() >= 1) {
+                // Focus on the search box immediately to allow the user
+                // to search without having to reach for their mouse
+                project_filter->search_box->grab_focus();
+            }
         } break;
         case NOTIFICATION_VISIBILITY_CHANGED: {
 
@@ -1761,7 +1784,7 @@ void ProjectManager::_dim_window() {
 
     // Dim the project manager window while it's quitting to make it clearer that it's busy.
     // No transition is applied, as the effect needs to be visible immediately
-	float c = 0.5f;
+    float c = 0.5f;
     Color dim_color = Color(c, c, c);
     gui_base->set_modulate(dim_color);
 }
@@ -1788,9 +1811,9 @@ void ProjectManager::_update_project_buttons() {
 
 void ProjectManager::_unhandled_input(const Ref<InputEvent> &p_ev) {
 
-    Ref<InputEventKey> k = p_ev;
+    Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(p_ev);
 
-    if (k.is_valid()) {
+    if (k) {
 
         if (!k->is_pressed()) {
             return;
@@ -1919,7 +1942,7 @@ void ProjectManager::_global_menu_action(const Variant &p_id, const Variant &p_m
 
     int id = (int)p_id;
     if (id == ProjectList::GLOBAL_NEW_WINDOW) {
-        List<String> args;
+        ListPOD<String> args;
         String exec = OS::get_singleton()->get_executable_path();
 
         OS::ProcessID pid = 0;
@@ -1928,7 +1951,7 @@ void ProjectManager::_global_menu_action(const Variant &p_id, const Variant &p_m
         String conf = (String)p_meta;
 
         if (!conf.empty()) {
-            List<String> args;
+            ListPOD<String> args;
             args.push_back(conf);
             String exec = OS::get_singleton()->get_executable_path();
 
@@ -1942,8 +1965,8 @@ void ProjectManager::_open_selected_projects() {
 
     const Set<String> &selected_list = _project_list->get_selected_project_keys();
 
-    for (const Set<String>::Element *E = selected_list.front(); E; E = E->next()) {
-        const String &selected = E->get();
+    for (const String &E : selected_list) {
+        const String &selected = E;
         String path = EditorSettings::get_singleton()->get("projects/" + selected);
         String conf = PathUtils::plus_file(path,"project.godot");
 
@@ -1955,7 +1978,7 @@ void ProjectManager::_open_selected_projects() {
 
         print_line("Editing project: " + path + " (" + selected + ")");
 
-        List<String> args;
+        ListPOD<String> args;
 
         args.push_back("--path");
         args.push_back(path);
@@ -1970,7 +1993,7 @@ void ProjectManager::_open_selected_projects() {
 
         OS::ProcessID pid = 0;
         Error err = OS::get_singleton()->execute(exec, args, false, &pid);
-        ERR_FAIL_COND(err);
+        ERR_FAIL_COND(err)
     }
 
     _dim_window();
@@ -2047,7 +2070,7 @@ void ProjectManager::_run_project_confirm() {
 
         print_line("Running project: " + path + " (" + selected + ")");
 
-        List<String> args;
+        ListPOD<String> args;
 
         args.push_back("--path");
         args.push_back(path);
@@ -2060,7 +2083,7 @@ void ProjectManager::_run_project_confirm() {
 
         OS::ProcessID pid = 0;
         Error err = OS::get_singleton()->execute(exec, args, false, &pid);
-        ERR_FAIL_COND(err);
+        ERR_FAIL_COND(err)
     }
 }
 
@@ -2106,8 +2129,8 @@ void ProjectManager::_scan_begin(const String &p_base) {
     print_line("Found " + itos(projects.size()) + " projects.");
 
     for (List<String>::Element *E = projects.front(); E; E = E->next()) {
-        String proj = get_project_key_from_path(E->get());
-        EditorSettings::get_singleton()->set("projects/" + proj, E->get());
+        String proj = get_project_key_from_path(E->deref());
+        EditorSettings::get_singleton()->set("projects/" + proj, E->deref());
     }
     EditorSettings::get_singleton()->save();
     _load_recent_projects();
@@ -2138,8 +2161,8 @@ void ProjectManager::_rename_project() {
         return;
     }
 
-    for (Set<String>::Element *E = selected_list.front(); E; E = E->next()) {
-        const String &selected = E->get();
+    for (const String &E : selected_list) {
+        const String &selected = E;
         String path = EditorSettings::get_singleton()->get("projects/" + selected);
         npdialog->set_project_path(path);
         npdialog->set_mode(ProjectDialog::MODE_RENAME);
@@ -2194,11 +2217,11 @@ void ProjectManager::_language_selected(int p_id) {
 
 void ProjectManager::_restart_confirm() {
 
-    List<String> args = OS::get_singleton()->get_cmdline_args();
+    ListPOD<String> args = OS::get_singleton()->get_cmdline_args();
     String exec = OS::get_singleton()->get_executable_path();
     OS::ProcessID pid = 0;
     Error err = OS::get_singleton()->execute(exec, args, false, &pid);
-    ERR_FAIL_COND(err);
+    ERR_FAIL_COND(err)
 
     _dim_window();
     get_tree()->quit();
@@ -2228,8 +2251,8 @@ void ProjectManager::_files_dropped(PoolStringArray p_files, int p_screen) {
     memdelete(da);
     if (!folders_set.empty()) {
         PoolStringArray folders;
-        for (Set<String>::Element *E = folders_set.front(); E; E = E->next()) {
-            folders.append(E->get());
+        for (const String &E : folders_set) {
+            folders.append(E);
         }
 
         bool confirm = true;
@@ -2305,7 +2328,7 @@ void ProjectManager::_bind_methods() {
     MethodBinder::bind_method("_open_asset_library", &ProjectManager::_open_asset_library);
     MethodBinder::bind_method("_confirm_update_settings", &ProjectManager::_confirm_update_settings);
     MethodBinder::bind_method("_update_project_buttons", &ProjectManager::_update_project_buttons);
-    MethodBinder::bind_method(D_METHOD("_scan_multiple_folders", "files"), &ProjectManager::_scan_multiple_folders);
+    MethodBinder::bind_method(D_METHOD("_scan_multiple_folders", {"files"}), &ProjectManager::_scan_multiple_folders);
 }
 
 void ProjectManager::_open_asset_library() {
@@ -2527,10 +2550,9 @@ ProjectManager::ProjectManager() {
     language_btn->set_focus_mode(Control::FOCUS_NONE);
 
     Vector<String> editor_languages;
-    List<PropertyInfo> editor_settings_properties;
+    ListPOD<PropertyInfo> editor_settings_properties;
     EditorSettings::get_singleton()->get_property_list(&editor_settings_properties);
-    for (List<PropertyInfo>::Element *E = editor_settings_properties.front(); E; E = E->next()) {
-        PropertyInfo &pi = E->get();
+    for (const PropertyInfo &pi : editor_settings_properties) {
         if (pi.name == "interface/editor/editor_language") {
             editor_languages = StringUtils::split(pi.hint_string,',');
         }
@@ -2706,4 +2728,11 @@ void ProjectListFilter::clear() {
     if (has_search_box) {
         search_box->clear();
     }
+}
+
+void register_project_manager_classes() {
+    ProjectDialog::initialize_class();
+    ProjectListItemControl::initialize_class();
+    ProjectList::initialize_class();
+
 }

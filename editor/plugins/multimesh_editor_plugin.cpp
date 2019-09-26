@@ -58,13 +58,13 @@ void MultiMeshEditor::_populate() {
 
         Ref<MultiMesh> multimesh;
         multimesh = node->get_multimesh();
-        if (multimesh.is_null()) {
+        if (not multimesh) {
 
             err_dialog->set_text(TTR("No mesh source specified (and no MultiMesh set in node)."));
             err_dialog->popup_centered_minsize();
             return;
         }
-        if (multimesh->get_mesh().is_null()) {
+        if (not multimesh->get_mesh()) {
 
             err_dialog->set_text(TTR("No mesh source specified (and MultiMesh contains no Mesh)."));
             err_dialog->popup_centered_minsize();
@@ -94,7 +94,7 @@ void MultiMeshEditor::_populate() {
 
         mesh = ms_instance->get_mesh();
 
-        if (mesh.is_null()) {
+        if (not mesh) {
 
             err_dialog->set_text(TTR("Mesh source is invalid (contains no Mesh resource)."));
             err_dialog->popup_centered_minsize();
@@ -153,7 +153,7 @@ void MultiMeshEditor::_populate() {
 
     PoolVector<Face3> faces = geometry;
     int facecount = faces.size();
-    ERR_FAIL_COND_MSG(!facecount, "Parent has no solid faces to populate.");
+    ERR_FAIL_COND_MSG(!facecount, "Parent has no solid faces to populate.")
 
     PoolVector<Face3>::Read r = faces.read();
 
@@ -168,10 +168,10 @@ void MultiMeshEditor::_populate() {
         area_accum += area;
     }
 
-    ERR_FAIL_COND_MSG(triangle_area_map.empty(), "Couldn't map area.");
-    ERR_FAIL_COND_MSG(area_accum == 0, "Couldn't map area.");
+    ERR_FAIL_COND_CMSG(triangle_area_map.empty(), "Couldn't map area.")
+    ERR_FAIL_COND_CMSG(area_accum == 0.0f, "Couldn't map area.")
 
-    Ref<MultiMesh> multimesh = memnew(MultiMesh);
+    Ref<MultiMesh> multimesh(make_ref_counted<MultiMesh>());
     multimesh->set_mesh(mesh);
 
     int instance_count = populate_amount->get_value();
@@ -191,17 +191,17 @@ void MultiMeshEditor::_populate() {
         axis_xform.rotate(Vector3(1, 0, 0), -Math_PI * 0.5);
     }
     if (axis == Vector3::AXIS_X) {
-        axis_xform.rotate(Vector3(0, 0, 1), -Math_PI * 0.5);
+        axis_xform.rotate(Vector3(0, 0, 1), -Math_PI * 0.5f);
     }
 
     for (int i = 0; i < instance_count; i++) {
 
         float areapos = Math::random(0.0f, area_accum);
 
-        Map<float, int>::Element *E = triangle_area_map.find_closest(areapos);
-        ERR_FAIL_COND(!E);
-        int index = E->get();
-        ERR_FAIL_INDEX(index, facecount);
+        Map<float, int>::iterator E = triangle_area_map.lower_bound(areapos);
+        ERR_FAIL_COND(E==triangle_area_map.end())
+        int index = E->second;
+        ERR_FAIL_INDEX(index, facecount)
 
         // ok FINALLY get face
         Face3 face = r[index];

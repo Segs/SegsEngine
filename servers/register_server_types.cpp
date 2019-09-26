@@ -66,7 +66,7 @@
 #include "visual/shader_types.h"
 #include "visual_server.h"
 
-static void _debugger_get_resource_usage(List<ScriptDebuggerRemote::ResourceUsage> *r_usage) {
+static void _debugger_get_resource_usage(ListPOD<ScriptDebuggerRemote::ResourceUsage> *r_usage) {
 
     List<VS::TextureInfo> tinfo;
     VS::get_singleton()->texture_debug_usage(&tinfo);
@@ -74,14 +74,14 @@ static void _debugger_get_resource_usage(List<ScriptDebuggerRemote::ResourceUsag
     for (List<VS::TextureInfo>::Element *E = tinfo.front(); E; E = E->next()) {
 
         ScriptDebuggerRemote::ResourceUsage usage;
-        usage.path = E->get().path;
-        usage.vram = E->get().bytes;
-        usage.id = E->get().texture;
+        usage.path = E->deref().path;
+        usage.vram = E->deref().bytes;
+        usage.id = E->deref().texture;
         usage.type = "Texture";
-        if (E->get().depth == 0) {
-            usage.format = itos(E->get().width) + "x" + itos(E->get().height) + " " + Image::get_format_name(E->get().format);
+        if (E->deref().depth == 0) {
+            usage.format = itos(E->deref().width) + "x" + itos(E->deref().height) + " " + Image::get_format_name(E->deref().format);
         } else {
-            usage.format = itos(E->get().width) + "x" + itos(E->get().height) + "x" + itos(E->get().depth) + " " + Image::get_format_name(E->get().format);
+            usage.format = itos(E->deref().width) + "x" + itos(E->deref().height) + "x" + itos(E->deref().depth) + " " + Image::get_format_name(E->deref().format);
         }
         r_usage->push_back(usage);
     }
@@ -110,7 +110,68 @@ static bool has_server_feature_callback(const String &p_feature) {
 
 void register_server_types() {
 
-    OS::get_singleton()->set_has_server_feature_callback(has_server_feature_callback);
+
+    AudioStreamMicrophone::initialize_class();
+    AudioStreamPlaybackMicrophone::initialize_class();
+    AudioStreamRandomPitch::initialize_class();
+    AudioStreamPlaybackRandomPitch::initialize_class();
+    AudioEffectPitchShiftInstance::initialize_class();
+    AudioEffectPitchShift::initialize_class();
+    AudioEffectCompressorInstance::initialize_class();
+    AudioEffectCompressor::initialize_class();
+    AudioEffectStereoEnhanceInstance::initialize_class();
+    AudioEffectStereoEnhance::initialize_class();
+    AudioEffectDistortionInstance::initialize_class();
+    AudioEffectDistortion::initialize_class();
+    AudioEffectChorusInstance::initialize_class();
+    AudioEffectChorus::initialize_class();
+    AudioEffectReverbInstance::initialize_class();
+    AudioEffectReverb::initialize_class();
+    AudioEffectPannerInstance::initialize_class();
+    AudioEffectPanner::initialize_class();
+    AudioEffectLimiterInstance::initialize_class();
+    AudioEffectLimiter::initialize_class();
+    AudioEffectEQInstance::initialize_class();
+    AudioEffectEQ::initialize_class();
+    AudioEffectEQ6::initialize_class();
+    AudioEffectEQ10::initialize_class();
+    AudioEffectEQ21::initialize_class();
+    AudioEffectPhaserInstance::initialize_class();
+    AudioEffectPhaser::initialize_class();
+    AudioEffectSpectrumAnalyzer::initialize_class();
+    AudioEffectRecordInstance::initialize_class();
+    AudioEffectRecord::initialize_class();
+    AudioStreamGenerator::initialize_class();
+    AudioEffectDelayInstance::initialize_class();
+    AudioEffectDelay::initialize_class();
+    AudioEffectAmplifyInstance::initialize_class();
+    AudioEffectAmplify::initialize_class();
+    AudioEffectFilterInstance::initialize_class();
+    AudioEffectFilter::initialize_class();
+    AudioEffectLowPassFilter::initialize_class();
+    AudioEffectHighPassFilter::initialize_class();
+    AudioEffectBandPassFilter::initialize_class();
+    AudioEffectNotchFilter::initialize_class();
+    AudioEffectBandLimitFilter::initialize_class();
+    AudioEffectLowShelfFilter::initialize_class();
+    AudioEffectHighShelfFilter::initialize_class();
+    PhysicsServerSW::initialize_class();
+    PhysicsDirectBodyStateSW::initialize_class();
+    PhysicsDirectSpaceStateSW::initialize_class();
+    CameraServer::initialize_class();
+    ARVRServer::initialize_class();
+    ARVRPositionalTracker::initialize_class();
+    CameraFeed::initialize_class();
+    Physics2DDirectBodyStateSW::initialize_class();
+    Physics2DServerSW::initialize_class();
+    Physics2DDirectSpaceStateSW::initialize_class();
+    Physics2DServerWrapMT::initialize_class();
+    PhysicsShapeQueryParameters::initialize_class();
+    Physics2DShapeQueryParameters::initialize_class();
+    Physics2DTestMotionResult::initialize_class();
+    AudioServer::initialize_class();
+    AudioBusLayout::initialize_class();
+
 
     ClassDB::register_virtual_class<VisualServer>();
     ClassDB::register_class<AudioServer>();
@@ -188,10 +249,14 @@ void register_server_types() {
 
     ScriptDebuggerRemote::resource_usage_func = _debugger_get_resource_usage;
 
+}
+void setup_server_defs()
+{
+    OS::get_singleton()->set_has_server_feature_callback(has_server_feature_callback);
     // Physics 2D
     GLOBAL_DEF(Physics2DServerManager::setting_property_name, "DEFAULT");
     ProjectSettings::get_singleton()->set_custom_property_info(Physics2DServerManager::setting_property_name,
-            PropertyInfo(Variant::STRING, StringName(Physics2DServerManager::setting_property_name), PROPERTY_HINT_ENUM, "DEFAULT"));
+            PropertyInfo(VariantType::STRING, StringName(Physics2DServerManager::setting_property_name), PROPERTY_HINT_ENUM, "DEFAULT"));
 
     Physics2DServerManager::register_server("GodotPhysics", &_createGodotPhysics2DCallback);
     Physics2DServerManager::set_default_server("GodotPhysics");
@@ -199,12 +264,12 @@ void register_server_types() {
     // Physics 3D
     GLOBAL_DEF(PhysicsServerManager::setting_property_name, "DEFAULT");
     ProjectSettings::get_singleton()->set_custom_property_info(PhysicsServerManager::setting_property_name,
-        PropertyInfo(Variant::STRING, StringName(PhysicsServerManager::setting_property_name), PROPERTY_HINT_ENUM, "DEFAULT"));
+        PropertyInfo(VariantType::STRING, StringName(PhysicsServerManager::setting_property_name), PROPERTY_HINT_ENUM, "DEFAULT"));
 
     PhysicsServerManager::register_server("GodotPhysics", &_createGodotPhysicsCallback);
     PhysicsServerManager::set_default_server("GodotPhysics");
-}
 
+}
 void unregister_server_types() {
 
     memdelete(shader_types);

@@ -154,7 +154,7 @@ class SceneTreeDock : public VBoxContainer {
 
     void _add_children_to_popup(Object *p_obj, int p_depth);
 
-    void _node_reparent(NodePath p_path, bool p_keep_global_xform);
+    void _node_reparent(const NodePath& p_path, bool p_keep_global_xform);
     void _do_reparent(Node *p_new_parent, int p_position_in_parent, Vector<Node *> p_nodes, bool p_keep_global_xform);
 
     bool _is_collapsed_recursive(TreeItem *p_item) const;
@@ -188,12 +188,12 @@ class SceneTreeDock : public VBoxContainer {
     void _node_prerenamed(Node *p_node, const String &p_new_name);
 
     void _nodes_drag_begin();
-    void _input(Ref<InputEvent> p_event);
+    void _input(const Ref<InputEvent>& p_event);
     void _unhandled_key_input(Ref<InputEvent> p_event);
 
     void _import_subscene();
 
-    void _new_scene_from(String p_file);
+    void _new_scene_from(const String& p_file);
 
     bool _validate_no_foreign();
     void _selection_changed();
@@ -204,9 +204,9 @@ class SceneTreeDock : public VBoxContainer {
 
     void _normalize_drop(Node *&to_node, int &to_pos, int p_type);
 
-    void _nodes_dragged(Array p_nodes, NodePath p_to, int p_type);
-    void _files_dropped(Vector<String> p_files, NodePath p_to, int p_type);
-    void _script_dropped(String p_file, NodePath p_to);
+    void _nodes_dragged(const Array& p_nodes, const NodePath& p_to, int p_type);
+    void _files_dropped(const Vector<String>& p_files, const NodePath& p_to, int p_type);
+    void _script_dropped(const String& p_file, const NodePath& p_to);
     void _quick_open();
 
     void _tree_rmb(const Vector2 &p_menu_pos);

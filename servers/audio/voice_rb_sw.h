@@ -114,7 +114,7 @@ private:
 public:
 	_FORCE_INLINE_ bool commands_left() const { return read_pos != write_pos; }
 	_FORCE_INLINE_ Command pop_command() {
-		ERR_FAIL_COND_V(read_pos == write_pos, Command());
+		ERR_FAIL_COND_V(read_pos == write_pos, Command())
 		Command cmd = voice_cmd_rb[read_pos];
 		read_pos = (read_pos + 1) % VOICE_RB_SIZE;
 		return cmd;
@@ -125,7 +125,7 @@ public:
 		if (full) {
 #ifdef DEBUG_ENABLED
 			if (OS::get_singleton()->is_stdout_verbose()) {
-				ERR_FAIL_COND_MSG(((write_pos + 1) % VOICE_RB_SIZE) == read_pos, "Audio ring buffer full (too many commands).");
+				ERR_FAIL_COND_MSG(((write_pos + 1) % VOICE_RB_SIZE) == read_pos, "Audio ring buffer full (too many commands).")
 			}
 #endif
 			return;

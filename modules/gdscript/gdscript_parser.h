@@ -60,7 +60,7 @@ public:
 		bool infer_type;
 		bool may_yield; // For function calls
 
-		Variant::Type builtin_type;
+		VariantType builtin_type;
 		StringName native_type;
 		Ref<Script> script_type;
 		ClassNode *class_type;
@@ -101,13 +101,13 @@ public:
 				is_meta_type(false),
 				infer_type(false),
 				may_yield(false),
-				builtin_type(Variant::NIL),
+				builtin_type(VariantType::NIL),
 				class_type(nullptr) {}
 	};
 
 	struct Node {
 
-		enum Type {
+        enum Type : int8_t {
 			TYPE_CLASS,
 			TYPE_FUNCTION,
 			TYPE_BUILT_IN_FUNCTION,
@@ -129,7 +129,7 @@ public:
 
 		Node *next;
 		int line;
-		int column;
+        int column;
 		Type type;
 
 		virtual DataType get_datatype() const { return DataType(); }
@@ -146,14 +146,14 @@ public:
 
 	struct ClassNode : public Node {
 
+        Vector<StringName> extends_class;
+        DataType base_type;
+        String icon_path;
+        StringName name;
+        StringName extends_file;
 		bool tool;
-		StringName name;
 		bool extends_used;
 		bool classname_used;
-		StringName extends_file;
-		Vector<StringName> extends_class;
-		DataType base_type;
-		String icon_path;
 
 		struct Member {
 			PropertyInfo _export;
@@ -259,7 +259,7 @@ public:
 
 	struct TypeNode : public Node {
 
-		Variant::Type vtype;
+		VariantType vtype;
 		TypeNode() { type = TYPE_TYPE; }
 	};
 	struct BuiltInFunctionNode : public Node {
@@ -301,7 +301,7 @@ public:
 
 	struct ConstantNode : public Node {
 		Variant value;
-		DataType datatype;
+        DataType datatype;
 		DataType get_datatype() const override { return datatype; }
 		void set_datatype(const DataType &p_datatype) override { datatype = p_datatype; }
 		ConstantNode() { type = TYPE_CONSTANT; }
@@ -317,7 +317,7 @@ public:
 			type = TYPE_ARRAY;
 			datatype.has_type = true;
 			datatype.kind = DataType::BUILTIN;
-			datatype.builtin_type = Variant::ARRAY;
+			datatype.builtin_type = VariantType::ARRAY;
 		}
 	};
 
@@ -337,7 +337,7 @@ public:
 			type = TYPE_DICTIONARY;
 			datatype.has_type = true;
 			datatype.kind = DataType::BUILTIN;
-			datatype.builtin_type = Variant::DICTIONARY;
+			datatype.builtin_type = VariantType::DICTIONARY;
 		}
 	};
 
@@ -480,7 +480,8 @@ public:
 	};
 
 	struct AssertNode : public Node {
-		Node *condition;
+		Node *condition=nullptr;
+		Node *message=nullptr;
 		AssertNode() { type = TYPE_ASSERT; }
 	};
 
@@ -561,7 +562,7 @@ private:
 
 	CompletionType completion_type;
 	StringName completion_cursor;
-	Variant::Type completion_built_in_constant;
+	VariantType completion_built_in_constant;
 	Node *completion_node;
 	ClassNode *completion_class;
 	FunctionNode *completion_function;
@@ -610,6 +611,7 @@ private:
 	bool _get_function_signature(DataType &p_base_type, const StringName &p_function, DataType &r_return_type, List<DataType> &r_arg_types, int &r_default_arg_count, bool &r_static, bool &r_vararg) const;
 	bool _get_member_type(const DataType &p_base_type, const StringName &p_member, DataType &r_member_type) const;
 	bool _is_type_compatible(const DataType &p_container, const DataType &p_expression, bool p_allow_implicit_conversion = false) const;
+	Node *_get_default_value_for_type(const DataType &p_type, int p_line = -1);
 
 	DataType _reduce_node_type(Node *p_node);
 	DataType _reduce_function_call_type(const OperatorNode *p_call);
@@ -650,7 +652,7 @@ public:
 	CompletionType get_completion_type();
 	StringName get_completion_cursor();
 	int get_completion_line();
-	Variant::Type get_completion_built_in_constant();
+	VariantType get_completion_built_in_constant();
 	Node *get_completion_node();
 	ClassNode *get_completion_class();
 	BlockNode *get_completion_block();

@@ -102,7 +102,7 @@ void Label::_notification(int p_what) {
 
         style->draw(ci, Rect2(Point2(0, 0), get_size()));
 
-        VisualServer::get_singleton()->canvas_item_set_distance_field_mode(get_canvas_item(), font.is_valid() && font->is_distance_field_hint());
+        VisualServer::get_singleton()->canvas_item_set_distance_field_mode(get_canvas_item(), font && font->is_distance_field_hint());
 
         int font_h = font->get_height() + line_spacing;
 
@@ -635,51 +635,51 @@ int Label::get_total_character_count() const {
 
 void Label::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_align", "align"), &Label::set_align);
+    MethodBinder::bind_method(D_METHOD("set_align", {"align"}), &Label::set_align);
     MethodBinder::bind_method(D_METHOD("get_align"), &Label::get_align);
-    MethodBinder::bind_method(D_METHOD("set_valign", "valign"), &Label::set_valign);
+    MethodBinder::bind_method(D_METHOD("set_valign", {"valign"}), &Label::set_valign);
     MethodBinder::bind_method(D_METHOD("get_valign"), &Label::get_valign);
-    MethodBinder::bind_method(D_METHOD("set_text", "text"), &Label::set_text);
+    MethodBinder::bind_method(D_METHOD("set_text", {"text"}), &Label::set_text);
     MethodBinder::bind_method(D_METHOD("get_text"), &Label::get_text);
-    MethodBinder::bind_method(D_METHOD("set_autowrap", "enable"), &Label::set_autowrap);
+    MethodBinder::bind_method(D_METHOD("set_autowrap", {"enable"}), &Label::set_autowrap);
     MethodBinder::bind_method(D_METHOD("has_autowrap"), &Label::has_autowrap);
-    MethodBinder::bind_method(D_METHOD("set_clip_text", "enable"), &Label::set_clip_text);
+    MethodBinder::bind_method(D_METHOD("set_clip_text", {"enable"}), &Label::set_clip_text);
     MethodBinder::bind_method(D_METHOD("is_clipping_text"), &Label::is_clipping_text);
-    MethodBinder::bind_method(D_METHOD("set_uppercase", "enable"), &Label::set_uppercase);
+    MethodBinder::bind_method(D_METHOD("set_uppercase", {"enable"}), &Label::set_uppercase);
     MethodBinder::bind_method(D_METHOD("is_uppercase"), &Label::is_uppercase);
     MethodBinder::bind_method(D_METHOD("get_line_height"), &Label::get_line_height);
     MethodBinder::bind_method(D_METHOD("get_line_count"), &Label::get_line_count);
     MethodBinder::bind_method(D_METHOD("get_visible_line_count"), &Label::get_visible_line_count);
     MethodBinder::bind_method(D_METHOD("get_total_character_count"), &Label::get_total_character_count);
-    MethodBinder::bind_method(D_METHOD("set_visible_characters", "amount"), &Label::set_visible_characters);
+    MethodBinder::bind_method(D_METHOD("set_visible_characters", {"amount"}), &Label::set_visible_characters);
     MethodBinder::bind_method(D_METHOD("get_visible_characters"), &Label::get_visible_characters);
-    MethodBinder::bind_method(D_METHOD("set_percent_visible", "percent_visible"), &Label::set_percent_visible);
+    MethodBinder::bind_method(D_METHOD("set_percent_visible", {"percent_visible"}), &Label::set_percent_visible);
     MethodBinder::bind_method(D_METHOD("get_percent_visible"), &Label::get_percent_visible);
-    MethodBinder::bind_method(D_METHOD("set_lines_skipped", "lines_skipped"), &Label::set_lines_skipped);
+    MethodBinder::bind_method(D_METHOD("set_lines_skipped", {"lines_skipped"}), &Label::set_lines_skipped);
     MethodBinder::bind_method(D_METHOD("get_lines_skipped"), &Label::get_lines_skipped);
-    MethodBinder::bind_method(D_METHOD("set_max_lines_visible", "lines_visible"), &Label::set_max_lines_visible);
+    MethodBinder::bind_method(D_METHOD("set_max_lines_visible", {"lines_visible"}), &Label::set_max_lines_visible);
     MethodBinder::bind_method(D_METHOD("get_max_lines_visible"), &Label::get_max_lines_visible);
 
-    BIND_ENUM_CONSTANT(ALIGN_LEFT);
-    BIND_ENUM_CONSTANT(ALIGN_CENTER);
-    BIND_ENUM_CONSTANT(ALIGN_RIGHT);
-    BIND_ENUM_CONSTANT(ALIGN_FILL);
+    BIND_ENUM_CONSTANT(ALIGN_LEFT)
+    BIND_ENUM_CONSTANT(ALIGN_CENTER)
+    BIND_ENUM_CONSTANT(ALIGN_RIGHT)
+    BIND_ENUM_CONSTANT(ALIGN_FILL)
 
-    BIND_ENUM_CONSTANT(VALIGN_TOP);
-    BIND_ENUM_CONSTANT(VALIGN_CENTER);
-    BIND_ENUM_CONSTANT(VALIGN_BOTTOM);
-    BIND_ENUM_CONSTANT(VALIGN_FILL);
+    BIND_ENUM_CONSTANT(VALIGN_TOP)
+    BIND_ENUM_CONSTANT(VALIGN_CENTER)
+    BIND_ENUM_CONSTANT(VALIGN_BOTTOM)
+    BIND_ENUM_CONSTANT(VALIGN_FILL)
 
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "text", PROPERTY_HINT_MULTILINE_TEXT, "", PROPERTY_USAGE_DEFAULT_INTL), "set_text", "get_text");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "align", PROPERTY_HINT_ENUM, "Left,Center,Right,Fill"), "set_align", "get_align");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "valign", PROPERTY_HINT_ENUM, "Top,Center,Bottom,Fill"), "set_valign", "get_valign");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "autowrap"), "set_autowrap", "has_autowrap");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "clip_text"), "set_clip_text", "is_clipping_text");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "uppercase"), "set_uppercase", "is_uppercase");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "visible_characters", PROPERTY_HINT_RANGE, "-1,128000,1", PROPERTY_USAGE_EDITOR), "set_visible_characters", "get_visible_characters");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "percent_visible", PROPERTY_HINT_RANGE, "0,1,0.001"), "set_percent_visible", "get_percent_visible");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "lines_skipped", PROPERTY_HINT_RANGE, "0,999,1"), "set_lines_skipped", "get_lines_skipped");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "max_lines_visible", PROPERTY_HINT_RANGE, "-1,999,1"), "set_max_lines_visible", "get_max_lines_visible");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "text", PROPERTY_HINT_MULTILINE_TEXT, "", PROPERTY_USAGE_DEFAULT_INTL), "set_text", "get_text");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "align", PROPERTY_HINT_ENUM, "Left,Center,Right,Fill"), "set_align", "get_align");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "valign", PROPERTY_HINT_ENUM, "Top,Center,Bottom,Fill"), "set_valign", "get_valign");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "autowrap"), "set_autowrap", "has_autowrap");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "clip_text"), "set_clip_text", "is_clipping_text");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "uppercase"), "set_uppercase", "is_uppercase");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "visible_characters", PROPERTY_HINT_RANGE, "-1,128000,1", PROPERTY_USAGE_EDITOR), "set_visible_characters", "get_visible_characters");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "percent_visible", PROPERTY_HINT_RANGE, "0,1,0.001"), "set_percent_visible", "get_percent_visible");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "lines_skipped", PROPERTY_HINT_RANGE, "0,999,1"), "set_lines_skipped", "get_lines_skipped");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "max_lines_visible", PROPERTY_HINT_RANGE, "-1,999,1"), "set_max_lines_visible", "get_max_lines_visible");
 }
 
 Label::Label(const String &p_text) {

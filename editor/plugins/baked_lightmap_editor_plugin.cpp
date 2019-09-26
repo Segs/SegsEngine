@@ -35,26 +35,27 @@ IMPL_GDCLASS(BakedLightmapEditorPlugin)
 
 void BakedLightmapEditorPlugin::_bake() {
 
-    if (lightmap) {
-        BakedLightmap::BakeError err;
-        if (get_tree()->get_edited_scene_root() && get_tree()->get_edited_scene_root() == lightmap) {
-            err = lightmap->bake(lightmap);
-        } else {
-            err = lightmap->bake(lightmap->get_parent());
-        }
+    if (!lightmap)
+        return;
 
-        switch (err) {
-            case BakedLightmap::BAKE_ERROR_NO_SAVE_PATH:
-                EditorNode::get_singleton()->show_warning(TTR("Can't determine a save path for lightmap images.\nSave your scene (for images to be saved in the same dir), or pick a save path from the BakedLightmap properties."));
-                break;
-            case BakedLightmap::BAKE_ERROR_NO_MESHES:
-                EditorNode::get_singleton()->show_warning(TTR("No meshes to bake. Make sure they contain an UV2 channel and that the 'Bake Light' flag is on."));
-                break;
-            case BakedLightmap::BAKE_ERROR_CANT_CREATE_IMAGE:
-                EditorNode::get_singleton()->show_warning(TTR("Failed creating lightmap images, make sure path is writable."));
-                break;
-            default: {
-            }
+    BakedLightmap::BakeError err;
+    if (get_tree()->get_edited_scene_root() && get_tree()->get_edited_scene_root() == lightmap) {
+        err = lightmap->bake(lightmap);
+    } else {
+        err = lightmap->bake(lightmap->get_parent());
+    }
+
+    switch (err) {
+        case BakedLightmap::BAKE_ERROR_NO_SAVE_PATH:
+            EditorNode::get_singleton()->show_warning(TTR("Can't determine a save path for lightmap images.\nSave your scene (for images to be saved in the same dir), or pick a save path from the BakedLightmap properties."));
+            break;
+        case BakedLightmap::BAKE_ERROR_NO_MESHES:
+            EditorNode::get_singleton()->show_warning(TTR("No meshes to bake. Make sure they contain an UV2 channel and that the 'Bake Light' flag is on."));
+            break;
+        case BakedLightmap::BAKE_ERROR_CANT_CREATE_IMAGE:
+            EditorNode::get_singleton()->show_warning(TTR("Failed creating lightmap images, make sure path is writable."));
+            break;
+        default: {
         }
     }
 }
@@ -87,19 +88,19 @@ EditorProgress *BakedLightmapEditorPlugin::tmp_progress = nullptr;
 
 void BakedLightmapEditorPlugin::bake_func_begin(int p_steps) {
 
-    ERR_FAIL_COND(tmp_progress != nullptr);
+    ERR_FAIL_COND(tmp_progress != nullptr)
 
     tmp_progress = memnew(EditorProgress("bake_lightmaps", TTR("Bake Lightmaps"), p_steps, true));
 }
 
 bool BakedLightmapEditorPlugin::bake_func_step(int p_step, const String &p_description) {
 
-    ERR_FAIL_COND_V(tmp_progress == nullptr, false);
+    ERR_FAIL_COND_V(tmp_progress == nullptr, false)
     return tmp_progress->step(p_description, p_step, false);
 }
 
 void BakedLightmapEditorPlugin::bake_func_end() {
-    ERR_FAIL_COND(tmp_progress == nullptr);
+    ERR_FAIL_COND(tmp_progress == nullptr)
     memdelete(tmp_progress);
     tmp_progress = nullptr;
 }

@@ -46,7 +46,7 @@ String PopupMenu::_get_accel_text(int p_item) const {
 
     ERR_FAIL_INDEX_V(p_item, items.size(), String());
 
-    if (items[p_item].shortcut.is_valid())
+    if (items[p_item].shortcut)
         return items[p_item].shortcut->get_as_text();
     else if (items[p_item].accel)
         return keycode_get_string(items[p_item].accel);
@@ -71,7 +71,7 @@ Size2 PopupMenu::get_minimum_size() const {
     for (int i = 0; i < items.size(); i++) {
 
         Size2 size;
-        if (!items[i].icon.is_null()) {
+        if (items[i].icon) {
 
             Size2 icon_size = items[i].icon->get_size();
             size.height = MAX(icon_size.height, font_h);
@@ -86,12 +86,12 @@ Size2 PopupMenu::get_minimum_size() const {
         if (items[i].checkable_type)
             has_check = true;
 
-        String text = items[i].shortcut.is_valid() ? String(tr(items[i].shortcut->get_name())) : items[i].xl_text;
+        String text = items[i].shortcut ? String(tr(items[i].shortcut->get_name())) : items[i].xl_text;
         size.width += font->get_string_size(text).width;
         if (i > 0)
             size.height += vseparation;
 
-        if (items[i].accel || (items[i].shortcut.is_valid() && items[i].shortcut->is_valid())) {
+        if (items[i].accel || (items[i].shortcut && items[i].shortcut->is_valid())) {
 
             int accel_w = hseparation * 2;
             accel_w += font->get_string_size(_get_accel_text(i)).width;
@@ -134,7 +134,7 @@ int PopupMenu::_get_mouse_over(const Point2 &p_over) const {
         ofs.y += vseparation;
         float h;
 
-        if (!items[i].icon.is_null()) {
+        if (items[i].icon) {
 
             Size2 icon_size = items[i].icon->get_size();
             h = MAX(icon_size.height, font_h);
@@ -155,9 +155,9 @@ int PopupMenu::_get_mouse_over(const Point2 &p_over) const {
 void PopupMenu::_activate_submenu(int over) {
 
     Node *n = get_node((NodePath)items[over].submenu);
-    ERR_FAIL_COND_MSG(!n, "Item subnode does not exist: " + items[over].submenu + ".");
+    ERR_FAIL_COND_MSG(!n, "Item subnode does not exist: " + items[over].submenu + ".")
     Popup *pm = Object::cast_to<Popup>(n);
-    ERR_FAIL_COND_MSG(!pm, "Item subnode is not a Popup: " + items[over].submenu + ".");
+    ERR_FAIL_COND_MSG(!pm, "Item subnode is not a Popup: " + items[over].submenu + ".")
     if (pm->is_visible_in_tree())
         return; //already visible!
 
@@ -210,8 +210,7 @@ void PopupMenu::_scroll(float p_factor, const Point2 &p_over) {
         dy = -MIN(-dy, global_y + get_size().y * get_global_transform().get_scale().y - get_viewport_rect().size.y - 1);
     set_position(get_position() + Vector2(0, dy));
 
-    Ref<InputEventMouseMotion> ie;
-    ie.instance();
+    Ref<InputEventMouseMotion> ie(make_ref_counted<InputEventMouseMotion>());
     ie->set_position(p_over - Vector2(0, dy));
     _gui_input(ie);
 }
@@ -284,9 +283,9 @@ void PopupMenu::_gui_input(const Ref<InputEvent> &p_event) {
         }
     }
 
-    Ref<InputEventMouseButton> b = p_event;
+    Ref<InputEventMouseButton> b = dynamic_ref_cast<InputEventMouseButton>(p_event);
 
-    if (b.is_valid()) {
+    if (b) {
 
         if (b->is_pressed())
             return;
@@ -342,9 +341,9 @@ void PopupMenu::_gui_input(const Ref<InputEvent> &p_event) {
         //update();
     }
 
-    Ref<InputEventMouseMotion> m = p_event;
+    Ref<InputEventMouseMotion> m = dynamic_ref_cast<InputEventMouseMotion>(p_event);
 
-    if (m.is_valid()) {
+    if (m) {
 
         if (invalidated_click) {
             moved += m->get_relative();
@@ -354,7 +353,7 @@ void PopupMenu::_gui_input(const Ref<InputEvent> &p_event) {
 
         for (List<Rect2>::Element *E = autohide_areas.front(); E; E = E->next()) {
 
-            if (!Rect2(Point2(), get_size()).has_point(m->get_position()) && E->get().has_point(m->get_position())) {
+            if (!Rect2(Point2(), get_size()).has_point(m->get_position()) && E->deref().has_point(m->get_position())) {
                 call_deferred("hide");
                 return;
             }
@@ -380,16 +379,16 @@ void PopupMenu::_gui_input(const Ref<InputEvent> &p_event) {
         }
     }
 
-    Ref<InputEventPanGesture> pan_gesture = p_event;
-    if (pan_gesture.is_valid()) {
+    Ref<InputEventPanGesture> pan_gesture = dynamic_ref_cast<InputEventPanGesture>(p_event);
+    if (pan_gesture) {
         if (get_global_position().y + get_size().y > get_viewport_rect().size.y || get_global_position().y < 0) {
             _scroll(-pan_gesture->get_delta().y, pan_gesture->get_position());
         }
     }
 
-    Ref<InputEventKey> k = p_event;
+    Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(p_event);
 
-    if (allow_search && k.is_valid() && k->get_unicode()) {
+    if (allow_search && k && k->get_unicode()) {
 
         uint64_t now = OS::get_singleton()->get_ticks_msec();
         uint64_t diff = now - search_time_msec;
@@ -431,7 +430,7 @@ bool PopupMenu::has_point(const Point2 &p_point) const {
         return true;
     for (const List<Rect2>::Element *E = autohide_areas.front(); E; E = E->next()) {
 
-        if (E->get().has_point(p_point))
+        if (E->deref().has_point(p_point))
             return true;
     }
 
@@ -491,7 +490,7 @@ void PopupMenu::_notification(int p_what) {
             bool has_check = false;
             for (int i = 0; i < items.size(); i++) {
 
-                if (!items[i].icon.is_null())
+                if (items[i].icon)
                     icon_ofs = MAX(items[i].icon->get_size().width, icon_ofs);
 
                 if (items[i].checkable_type)
@@ -512,7 +511,7 @@ void PopupMenu::_notification(int p_what) {
                 Size2 icon_size;
                 float h;
 
-                if (!items[i].icon.is_null()) {
+                if (items[i].icon) {
 
                     icon_size = items[i].icon->get_size();
                     h = MAX(icon_size.height, font_h);
@@ -526,7 +525,7 @@ void PopupMenu::_notification(int p_what) {
                     hover->draw(ci, Rect2(item_ofs + Point2(-hseparation, -vseparation / 2), Size2(get_size().width - style->get_minimum_size().width + hseparation * 2, h + vseparation)));
                 }
 
-                String text = items[i].shortcut.is_valid() ? String(tr(items[i].shortcut->get_name())) : items[i].xl_text;
+                String text = items[i].shortcut ? String(tr(items[i].shortcut->get_name())) : items[i].xl_text;
 
                 item_ofs.x += items[i].h_ofs;
                 if (items[i].separator) {
@@ -551,11 +550,11 @@ void PopupMenu::_notification(int p_what) {
                 Color icon_color(1, 1, 1, items[i].disabled ? 0.5 : 1);
 
                 if (items[i].checkable_type) {
-                    Texture *icon = (items[i].checked ? check[items[i].checkable_type - 1] : uncheck[items[i].checkable_type - 1]).ptr();
+                    Texture *icon = (items[i].checked ? check[items[i].checkable_type - 1] : uncheck[items[i].checkable_type - 1]).get();
                     icon->draw(ci, item_ofs + Point2(0, Math::floor((h - icon->get_height()) / 2.0)), icon_color);
                 }
 
-                if (!items[i].icon.is_null()) {
+                if (items[i].icon) {
                     items[i].icon->draw(ci, item_ofs + Size2(check_ofs, 0) + Point2(0, Math::floor((h - icon_size.height) / 2.0)), icon_color);
                 }
 
@@ -576,7 +575,7 @@ void PopupMenu::_notification(int p_what) {
                     font->draw(ci, item_ofs + Point2(0, Math::floor((h - font_h) / 2.0)), text, items[i].disabled ? font_color_disabled : (i == mouse_over ? font_color_hover : font_color));
                 }
 
-                if (items[i].accel || (items[i].shortcut.is_valid() && items[i].shortcut->is_valid())) {
+                if (items[i].accel || (items[i].shortcut && items[i].shortcut->is_valid())) {
                     //accelerator
                     String text2 = _get_accel_text(i);
                     item_ofs.x = size.width - style->get_margin(MARGIN_RIGHT) - font->get_string_size(text2).width;
@@ -715,7 +714,7 @@ void PopupMenu::add_icon_radio_check_item(const Ref<Texture> &p_icon, const Stri
 
 void PopupMenu::add_icon_shortcut(const Ref<Texture> &p_icon, const Ref<ShortCut> &p_shortcut, int p_id, bool p_global) {
 
-    ERR_FAIL_COND(p_shortcut.is_null());
+    ERR_FAIL_COND(not p_shortcut)
 
     _ref_shortcut(p_shortcut);
 
@@ -731,7 +730,7 @@ void PopupMenu::add_icon_shortcut(const Ref<Texture> &p_icon, const Ref<ShortCut
 
 void PopupMenu::add_shortcut(const Ref<ShortCut> &p_shortcut, int p_id, bool p_global) {
 
-    ERR_FAIL_COND(p_shortcut.is_null());
+    ERR_FAIL_COND(not p_shortcut)
 
     _ref_shortcut(p_shortcut);
 
@@ -746,7 +745,7 @@ void PopupMenu::add_shortcut(const Ref<ShortCut> &p_shortcut, int p_id, bool p_g
 
 void PopupMenu::add_icon_check_shortcut(const Ref<Texture> &p_icon, const Ref<ShortCut> &p_shortcut, int p_id, bool p_global) {
 
-    ERR_FAIL_COND(p_shortcut.is_null());
+    ERR_FAIL_COND(not p_shortcut)
 
     _ref_shortcut(p_shortcut);
 
@@ -763,7 +762,7 @@ void PopupMenu::add_icon_check_shortcut(const Ref<Texture> &p_icon, const Ref<Sh
 
 void PopupMenu::add_check_shortcut(const Ref<ShortCut> &p_shortcut, int p_id, bool p_global) {
 
-    ERR_FAIL_COND(p_shortcut.is_null());
+    ERR_FAIL_COND(not p_shortcut)
 
     _ref_shortcut(p_shortcut);
 
@@ -996,13 +995,13 @@ void PopupMenu::set_item_tooltip(int p_idx, const String &p_tooltip) {
 
 void PopupMenu::set_item_shortcut(int p_idx, const Ref<ShortCut> &p_shortcut, bool p_global) {
     ERR_FAIL_INDEX(p_idx, items.size());
-    if (items[p_idx].shortcut.is_valid()) {
+    if (items[p_idx].shortcut) {
         _unref_shortcut(items[p_idx].shortcut);
     }
     items.write[p_idx].shortcut = p_shortcut;
     items.write[p_idx].shortcut_is_global = p_global;
 
-    if (items[p_idx].shortcut.is_valid()) {
+    if (items[p_idx].shortcut) {
         _ref_shortcut(items[p_idx].shortcut);
     }
 
@@ -1069,9 +1068,9 @@ int PopupMenu::get_item_count() const {
 bool PopupMenu::activate_item_by_event(const Ref<InputEvent> &p_event, bool p_for_global_only) {
 
     uint32_t code = 0;
-    Ref<InputEventKey> k = p_event;
+    Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(p_event);
 
-    if (k.is_valid()) {
+    if (k) {
         code = k->get_scancode();
         if (code == 0)
             code = k->get_unicode();
@@ -1089,7 +1088,7 @@ bool PopupMenu::activate_item_by_event(const Ref<InputEvent> &p_event, bool p_fo
         if (is_item_disabled(i) || items[i].shortcut_is_disabled)
             continue;
 
-        if (items[i].shortcut.is_valid() && items[i].shortcut->is_shortcut(p_event) && (items[i].shortcut_is_global || !p_for_global_only)) {
+        if (items[i].shortcut && items[i].shortcut->is_shortcut(p_event) && (items[i].shortcut_is_global || !p_for_global_only)) {
             activate_item(i);
             return true;
         }
@@ -1119,7 +1118,7 @@ bool PopupMenu::activate_item_by_event(const Ref<InputEvent> &p_event, bool p_fo
 void PopupMenu::activate_item(int p_item) {
 
     ERR_FAIL_INDEX(p_item, items.size());
-    ERR_FAIL_COND(items[p_item].separator);
+    ERR_FAIL_COND(items[p_item].separator)
     int id = items[p_item].id >= 0 ? items[p_item].id : p_item;
 
     //hide all parent PopupMenus
@@ -1169,7 +1168,7 @@ void PopupMenu::remove_item(int p_idx) {
 
     ERR_FAIL_INDEX(p_idx, items.size());
 
-    if (items[p_idx].shortcut.is_valid()) {
+    if (items[p_idx].shortcut) {
         _unref_shortcut(items[p_idx].shortcut);
     }
 
@@ -1194,7 +1193,7 @@ void PopupMenu::add_separator(const String &p_text) {
 void PopupMenu::clear() {
 
     for (int i = 0; i < items.size(); i++) {
-        if (items[i].shortcut.is_valid()) {
+        if (items[i].shortcut) {
             _unref_shortcut(items[i].shortcut);
         }
     }
@@ -1229,7 +1228,7 @@ Array PopupMenu::_get_items() const {
 
 void PopupMenu::_ref_shortcut(Ref<ShortCut> p_sc) {
 
-    if (!shortcut_refcount.has(p_sc)) {
+    if (!shortcut_refcount.contains(p_sc)) {
         shortcut_refcount[p_sc] = 1;
         p_sc->connect("changed", this, "update");
     } else {
@@ -1239,7 +1238,7 @@ void PopupMenu::_ref_shortcut(Ref<ShortCut> p_sc) {
 
 void PopupMenu::_unref_shortcut(Ref<ShortCut> p_sc) {
 
-    ERR_FAIL_COND(!shortcut_refcount.has(p_sc));
+    ERR_FAIL_COND(!shortcut_refcount.contains(p_sc))
     shortcut_refcount[p_sc]--;
     if (shortcut_refcount[p_sc] == 0) {
         p_sc->disconnect("changed", this, "update");
@@ -1249,13 +1248,13 @@ void PopupMenu::_unref_shortcut(Ref<ShortCut> p_sc) {
 
 void PopupMenu::_set_items(const Array &p_items) {
 
-    ERR_FAIL_COND(p_items.size() % 10);
+    ERR_FAIL_COND(p_items.size() % 10)
     clear();
 
     for (int i = 0; i < p_items.size(); i += 10) {
 
         String text = p_items[i + 0];
-        Ref<Texture> icon = p_items[i + 1];
+        Ref<Texture> icon(p_items[i + 1]);
         // For compatibility, use false/true for no/checkbox and integers for other values
         bool checkable = p_items[i + 2];
         bool radio_checkable = (int)p_items[i + 2] == Item::CHECKABLE_TYPE_RADIO_BUTTON;
@@ -1365,7 +1364,7 @@ void PopupMenu::set_parent_rect(const Rect2 &p_rect) {
     parent_rect = p_rect;
 }
 
-void PopupMenu::get_translatable_strings(List<String> *p_strings) const {
+void PopupMenu::get_translatable_strings(ListPOD<String> *p_strings) const {
 
     for (int i = 0; i < items.size(); i++) {
 
@@ -1387,94 +1386,94 @@ void PopupMenu::clear_autohide_areas() {
 void PopupMenu::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_gui_input"), &PopupMenu::_gui_input);
-    MethodBinder::bind_method(D_METHOD("add_icon_item", "texture", "label", "id", "accel"), &PopupMenu::add_icon_item, {DEFVAL(-1), DEFVAL(0)});
-    MethodBinder::bind_method(D_METHOD("add_item", "label", "id", "accel"), &PopupMenu::add_item, {DEFVAL(-1), DEFVAL(0)});
-    MethodBinder::bind_method(D_METHOD("add_icon_check_item", "texture", "label", "id", "accel"), &PopupMenu::add_icon_check_item, {DEFVAL(-1), DEFVAL(0)});
-    MethodBinder::bind_method(D_METHOD("add_check_item", "label", "id", "accel"), &PopupMenu::add_check_item, {DEFVAL(-1), DEFVAL(0)});
-    MethodBinder::bind_method(D_METHOD("add_radio_check_item", "label", "id", "accel"), &PopupMenu::add_radio_check_item, {DEFVAL(-1), DEFVAL(0)});
-    MethodBinder::bind_method(D_METHOD("add_submenu_item", "label", "submenu", "id"), &PopupMenu::add_submenu_item, {DEFVAL(-1)});
+    MethodBinder::bind_method(D_METHOD("add_icon_item", {"texture", "label", "id", "accel"}), &PopupMenu::add_icon_item, {DEFVAL(-1), DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("add_item", {"label", "id", "accel"}), &PopupMenu::add_item, {DEFVAL(-1), DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("add_icon_check_item", {"texture", "label", "id", "accel"}), &PopupMenu::add_icon_check_item, {DEFVAL(-1), DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("add_check_item", {"label", "id", "accel"}), &PopupMenu::add_check_item, {DEFVAL(-1), DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("add_radio_check_item", {"label", "id", "accel"}), &PopupMenu::add_radio_check_item, {DEFVAL(-1), DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("add_submenu_item", {"label", "submenu", "id"}), &PopupMenu::add_submenu_item, {DEFVAL(-1)});
 
-    MethodBinder::bind_method(D_METHOD("add_icon_shortcut", "texture", "shortcut", "id", "global"), &PopupMenu::add_icon_shortcut, {DEFVAL(-1), DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("add_shortcut", "shortcut", "id", "global"), &PopupMenu::add_shortcut, {DEFVAL(-1), DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("add_icon_check_shortcut", "texture", "shortcut", "id", "global"), &PopupMenu::add_icon_check_shortcut, {DEFVAL(-1), DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("add_check_shortcut", "shortcut", "id", "global"), &PopupMenu::add_check_shortcut, {DEFVAL(-1), DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("add_radio_check_shortcut", "shortcut", "id", "global"), &PopupMenu::add_radio_check_shortcut, {DEFVAL(-1), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("add_icon_shortcut", {"texture", "shortcut", "id", "global"}), &PopupMenu::add_icon_shortcut, {DEFVAL(-1), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("add_shortcut", {"shortcut", "id", "global"}), &PopupMenu::add_shortcut, {DEFVAL(-1), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("add_icon_check_shortcut", {"texture", "shortcut", "id", "global"}), &PopupMenu::add_icon_check_shortcut, {DEFVAL(-1), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("add_check_shortcut", {"shortcut", "id", "global"}), &PopupMenu::add_check_shortcut, {DEFVAL(-1), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("add_radio_check_shortcut", {"shortcut", "id", "global"}), &PopupMenu::add_radio_check_shortcut, {DEFVAL(-1), DEFVAL(false)});
 
-    MethodBinder::bind_method(D_METHOD("set_item_text", "idx", "text"), &PopupMenu::set_item_text);
-    MethodBinder::bind_method(D_METHOD("set_item_icon", "idx", "icon"), &PopupMenu::set_item_icon);
-    MethodBinder::bind_method(D_METHOD("set_item_checked", "idx", "checked"), &PopupMenu::set_item_checked);
-    MethodBinder::bind_method(D_METHOD("set_item_id", "idx", "id"), &PopupMenu::set_item_id);
-    MethodBinder::bind_method(D_METHOD("set_item_accelerator", "idx", "accel"), &PopupMenu::set_item_accelerator);
-    MethodBinder::bind_method(D_METHOD("set_item_metadata", "idx", "metadata"), &PopupMenu::set_item_metadata);
-    MethodBinder::bind_method(D_METHOD("set_item_disabled", "idx", "disabled"), &PopupMenu::set_item_disabled);
-    MethodBinder::bind_method(D_METHOD("set_item_submenu", "idx", "submenu"), &PopupMenu::set_item_submenu);
-    MethodBinder::bind_method(D_METHOD("set_item_as_separator", "idx", "enable"), &PopupMenu::set_item_as_separator);
-    MethodBinder::bind_method(D_METHOD("set_item_as_checkable", "idx", "enable"), &PopupMenu::set_item_as_checkable);
-    MethodBinder::bind_method(D_METHOD("set_item_as_radio_checkable", "idx", "enable"), &PopupMenu::set_item_as_radio_checkable);
-    MethodBinder::bind_method(D_METHOD("set_item_tooltip", "idx", "tooltip"), &PopupMenu::set_item_tooltip);
-    MethodBinder::bind_method(D_METHOD("set_item_shortcut", "idx", "shortcut", "global"), &PopupMenu::set_item_shortcut, {DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("set_item_multistate", "idx", "state"), &PopupMenu::set_item_multistate);
-    MethodBinder::bind_method(D_METHOD("set_item_shortcut_disabled", "idx", "disabled"), &PopupMenu::set_item_shortcut_disabled);
+    MethodBinder::bind_method(D_METHOD("set_item_text", {"idx", "text"}), &PopupMenu::set_item_text);
+    MethodBinder::bind_method(D_METHOD("set_item_icon", {"idx", "icon"}), &PopupMenu::set_item_icon);
+    MethodBinder::bind_method(D_METHOD("set_item_checked", {"idx", "checked"}), &PopupMenu::set_item_checked);
+    MethodBinder::bind_method(D_METHOD("set_item_id", {"idx", "id"}), &PopupMenu::set_item_id);
+    MethodBinder::bind_method(D_METHOD("set_item_accelerator", {"idx", "accel"}), &PopupMenu::set_item_accelerator);
+    MethodBinder::bind_method(D_METHOD("set_item_metadata", {"idx", "metadata"}), &PopupMenu::set_item_metadata);
+    MethodBinder::bind_method(D_METHOD("set_item_disabled", {"idx", "disabled"}), &PopupMenu::set_item_disabled);
+    MethodBinder::bind_method(D_METHOD("set_item_submenu", {"idx", "submenu"}), &PopupMenu::set_item_submenu);
+    MethodBinder::bind_method(D_METHOD("set_item_as_separator", {"idx", "enable"}), &PopupMenu::set_item_as_separator);
+    MethodBinder::bind_method(D_METHOD("set_item_as_checkable", {"idx", "enable"}), &PopupMenu::set_item_as_checkable);
+    MethodBinder::bind_method(D_METHOD("set_item_as_radio_checkable", {"idx", "enable"}), &PopupMenu::set_item_as_radio_checkable);
+    MethodBinder::bind_method(D_METHOD("set_item_tooltip", {"idx", "tooltip"}), &PopupMenu::set_item_tooltip);
+    MethodBinder::bind_method(D_METHOD("set_item_shortcut", {"idx", "shortcut", "global"}), &PopupMenu::set_item_shortcut, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("set_item_multistate", {"idx", "state"}), &PopupMenu::set_item_multistate);
+    MethodBinder::bind_method(D_METHOD("set_item_shortcut_disabled", {"idx", "disabled"}), &PopupMenu::set_item_shortcut_disabled);
 
-    MethodBinder::bind_method(D_METHOD("toggle_item_checked", "idx"), &PopupMenu::toggle_item_checked);
-    MethodBinder::bind_method(D_METHOD("toggle_item_multistate", "idx"), &PopupMenu::toggle_item_multistate);
+    MethodBinder::bind_method(D_METHOD("toggle_item_checked", {"idx"}), &PopupMenu::toggle_item_checked);
+    MethodBinder::bind_method(D_METHOD("toggle_item_multistate", {"idx"}), &PopupMenu::toggle_item_multistate);
 
-    MethodBinder::bind_method(D_METHOD("get_item_text", "idx"), &PopupMenu::get_item_text);
-    MethodBinder::bind_method(D_METHOD("get_item_icon", "idx"), &PopupMenu::get_item_icon);
-    MethodBinder::bind_method(D_METHOD("is_item_checked", "idx"), &PopupMenu::is_item_checked);
-    MethodBinder::bind_method(D_METHOD("get_item_id", "idx"), &PopupMenu::get_item_id);
-    MethodBinder::bind_method(D_METHOD("get_item_index", "id"), &PopupMenu::get_item_index);
-    MethodBinder::bind_method(D_METHOD("get_item_accelerator", "idx"), &PopupMenu::get_item_accelerator);
-    MethodBinder::bind_method(D_METHOD("get_item_metadata", "idx"), &PopupMenu::get_item_metadata);
-    MethodBinder::bind_method(D_METHOD("is_item_disabled", "idx"), &PopupMenu::is_item_disabled);
-    MethodBinder::bind_method(D_METHOD("get_item_submenu", "idx"), &PopupMenu::get_item_submenu);
-    MethodBinder::bind_method(D_METHOD("is_item_separator", "idx"), &PopupMenu::is_item_separator);
-    MethodBinder::bind_method(D_METHOD("is_item_checkable", "idx"), &PopupMenu::is_item_checkable);
-    MethodBinder::bind_method(D_METHOD("is_item_radio_checkable", "idx"), &PopupMenu::is_item_radio_checkable);
-    MethodBinder::bind_method(D_METHOD("is_item_shortcut_disabled", "idx"), &PopupMenu::is_item_shortcut_disabled);
-    MethodBinder::bind_method(D_METHOD("get_item_tooltip", "idx"), &PopupMenu::get_item_tooltip);
-    MethodBinder::bind_method(D_METHOD("get_item_shortcut", "idx"), &PopupMenu::get_item_shortcut);
+    MethodBinder::bind_method(D_METHOD("get_item_text", {"idx"}), &PopupMenu::get_item_text);
+    MethodBinder::bind_method(D_METHOD("get_item_icon", {"idx"}), &PopupMenu::get_item_icon);
+    MethodBinder::bind_method(D_METHOD("is_item_checked", {"idx"}), &PopupMenu::is_item_checked);
+    MethodBinder::bind_method(D_METHOD("get_item_id", {"idx"}), &PopupMenu::get_item_id);
+    MethodBinder::bind_method(D_METHOD("get_item_index", {"id"}), &PopupMenu::get_item_index);
+    MethodBinder::bind_method(D_METHOD("get_item_accelerator", {"idx"}), &PopupMenu::get_item_accelerator);
+    MethodBinder::bind_method(D_METHOD("get_item_metadata", {"idx"}), &PopupMenu::get_item_metadata);
+    MethodBinder::bind_method(D_METHOD("is_item_disabled", {"idx"}), &PopupMenu::is_item_disabled);
+    MethodBinder::bind_method(D_METHOD("get_item_submenu", {"idx"}), &PopupMenu::get_item_submenu);
+    MethodBinder::bind_method(D_METHOD("is_item_separator", {"idx"}), &PopupMenu::is_item_separator);
+    MethodBinder::bind_method(D_METHOD("is_item_checkable", {"idx"}), &PopupMenu::is_item_checkable);
+    MethodBinder::bind_method(D_METHOD("is_item_radio_checkable", {"idx"}), &PopupMenu::is_item_radio_checkable);
+    MethodBinder::bind_method(D_METHOD("is_item_shortcut_disabled", {"idx"}), &PopupMenu::is_item_shortcut_disabled);
+    MethodBinder::bind_method(D_METHOD("get_item_tooltip", {"idx"}), &PopupMenu::get_item_tooltip);
+    MethodBinder::bind_method(D_METHOD("get_item_shortcut", {"idx"}), &PopupMenu::get_item_shortcut);
 
     MethodBinder::bind_method(D_METHOD("get_item_count"), &PopupMenu::get_item_count);
 
-    MethodBinder::bind_method(D_METHOD("remove_item", "idx"), &PopupMenu::remove_item);
+    MethodBinder::bind_method(D_METHOD("remove_item", {"idx"}), &PopupMenu::remove_item);
 
-    MethodBinder::bind_method(D_METHOD("add_separator", "label"), &PopupMenu::add_separator, {DEFVAL(String())});
+    MethodBinder::bind_method(D_METHOD("add_separator", {"label"}), &PopupMenu::add_separator, {DEFVAL(String())});
     MethodBinder::bind_method(D_METHOD("clear"), &PopupMenu::clear);
 
     MethodBinder::bind_method(D_METHOD("_set_items"), &PopupMenu::_set_items);
     MethodBinder::bind_method(D_METHOD("_get_items"), &PopupMenu::_get_items);
 
-    MethodBinder::bind_method(D_METHOD("set_hide_on_item_selection", "enable"), &PopupMenu::set_hide_on_item_selection);
+    MethodBinder::bind_method(D_METHOD("set_hide_on_item_selection", {"enable"}), &PopupMenu::set_hide_on_item_selection);
     MethodBinder::bind_method(D_METHOD("is_hide_on_item_selection"), &PopupMenu::is_hide_on_item_selection);
 
-    MethodBinder::bind_method(D_METHOD("set_hide_on_checkable_item_selection", "enable"), &PopupMenu::set_hide_on_checkable_item_selection);
+    MethodBinder::bind_method(D_METHOD("set_hide_on_checkable_item_selection", {"enable"}), &PopupMenu::set_hide_on_checkable_item_selection);
     MethodBinder::bind_method(D_METHOD("is_hide_on_checkable_item_selection"), &PopupMenu::is_hide_on_checkable_item_selection);
 
-    MethodBinder::bind_method(D_METHOD("set_hide_on_state_item_selection", "enable"), &PopupMenu::set_hide_on_multistate_item_selection);
+    MethodBinder::bind_method(D_METHOD("set_hide_on_state_item_selection", {"enable"}), &PopupMenu::set_hide_on_multistate_item_selection);
     MethodBinder::bind_method(D_METHOD("is_hide_on_state_item_selection"), &PopupMenu::is_hide_on_multistate_item_selection);
 
-    MethodBinder::bind_method(D_METHOD("set_submenu_popup_delay", "seconds"), &PopupMenu::set_submenu_popup_delay);
+    MethodBinder::bind_method(D_METHOD("set_submenu_popup_delay", {"seconds"}), &PopupMenu::set_submenu_popup_delay);
     MethodBinder::bind_method(D_METHOD("get_submenu_popup_delay"), &PopupMenu::get_submenu_popup_delay);
 
-    MethodBinder::bind_method(D_METHOD("set_hide_on_window_lose_focus", "enable"), &PopupMenu::set_hide_on_window_lose_focus);
+    MethodBinder::bind_method(D_METHOD("set_hide_on_window_lose_focus", {"enable"}), &PopupMenu::set_hide_on_window_lose_focus);
     MethodBinder::bind_method(D_METHOD("is_hide_on_window_lose_focus"), &PopupMenu::is_hide_on_window_lose_focus);
 
-    MethodBinder::bind_method(D_METHOD("set_allow_search", "allow"), &PopupMenu::set_allow_search);
+    MethodBinder::bind_method(D_METHOD("set_allow_search", {"allow"}), &PopupMenu::set_allow_search);
     MethodBinder::bind_method(D_METHOD("get_allow_search"), &PopupMenu::get_allow_search);
 
     MethodBinder::bind_method(D_METHOD("_submenu_timeout"), &PopupMenu::_submenu_timeout);
 
-    ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "items", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_items", "_get_items");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "hide_on_item_selection"), "set_hide_on_item_selection", "is_hide_on_item_selection");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "hide_on_checkable_item_selection"), "set_hide_on_checkable_item_selection", "is_hide_on_checkable_item_selection");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "hide_on_state_item_selection"), "set_hide_on_state_item_selection", "is_hide_on_state_item_selection");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "submenu_popup_delay"), "set_submenu_popup_delay", "get_submenu_popup_delay");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "allow_search"), "set_allow_search", "get_allow_search");
+    ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "items", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_items", "_get_items");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "hide_on_item_selection"), "set_hide_on_item_selection", "is_hide_on_item_selection");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "hide_on_checkable_item_selection"), "set_hide_on_checkable_item_selection", "is_hide_on_checkable_item_selection");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "hide_on_state_item_selection"), "set_hide_on_state_item_selection", "is_hide_on_state_item_selection");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "submenu_popup_delay"), "set_submenu_popup_delay", "get_submenu_popup_delay");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "allow_search"), "set_allow_search", "get_allow_search");
 
-    ADD_SIGNAL(MethodInfo("id_pressed", PropertyInfo(Variant::INT, "id")));
-    ADD_SIGNAL(MethodInfo("id_focused", PropertyInfo(Variant::INT, "id")));
-    ADD_SIGNAL(MethodInfo("index_pressed", PropertyInfo(Variant::INT, "index")));
+    ADD_SIGNAL(MethodInfo("id_pressed", PropertyInfo(VariantType::INT, "id")));
+    ADD_SIGNAL(MethodInfo("id_focused", PropertyInfo(VariantType::INT, "id")));
+    ADD_SIGNAL(MethodInfo("index_pressed", PropertyInfo(VariantType::INT, "index")));
 }
 
 void PopupMenu::popup(const Rect2 &p_bounds) {

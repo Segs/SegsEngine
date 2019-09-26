@@ -55,7 +55,7 @@ void ConvexPolygonShape2D::_update_shape() {
 void ConvexPolygonShape2D::set_point_cloud(const Vector<Vector2> &p_points) {
 
     Vector<Point2> hull = Geometry::convex_hull_2d(p_points);
-    ERR_FAIL_COND(hull.size() < 3);
+    ERR_FAIL_COND(hull.size() < 3)
     set_points(hull);
 }
 
@@ -73,11 +73,11 @@ Vector<Vector2> ConvexPolygonShape2D::get_points() const {
 
 void ConvexPolygonShape2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_point_cloud", "point_cloud"), &ConvexPolygonShape2D::set_point_cloud);
-    MethodBinder::bind_method(D_METHOD("set_points", "points"), &ConvexPolygonShape2D::set_points);
+    MethodBinder::bind_method(D_METHOD("set_point_cloud", {"point_cloud"}), &ConvexPolygonShape2D::set_point_cloud);
+    MethodBinder::bind_method(D_METHOD("set_points", {"points"}), &ConvexPolygonShape2D::set_points);
     MethodBinder::bind_method(D_METHOD("get_points"), &ConvexPolygonShape2D::get_points);
 
-    ADD_PROPERTY(PropertyInfo(Variant::POOL_VECTOR2_ARRAY, "points"), "set_points", "get_points");
+    ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR2_ARRAY, "points"), "set_points", "get_points");
 }
 
 void ConvexPolygonShape2D::draw(const RID &p_to_rid, const Color &p_color) {

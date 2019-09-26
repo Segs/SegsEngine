@@ -66,13 +66,13 @@ bool ReferenceRect::get_editor_only() const {
 
 void ReferenceRect::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_border_color"), &ReferenceRect::get_border_color);
-    MethodBinder::bind_method(D_METHOD("set_border_color", "color"), &ReferenceRect::set_border_color);
+    MethodBinder::bind_method(D_METHOD("set_border_color", {"color"}), &ReferenceRect::set_border_color);
 
     MethodBinder::bind_method(D_METHOD("get_editor_only"), &ReferenceRect::get_editor_only);
-    MethodBinder::bind_method(D_METHOD("set_editor_only", "enabled"), &ReferenceRect::set_editor_only);
+    MethodBinder::bind_method(D_METHOD("set_editor_only", {"enabled"}), &ReferenceRect::set_editor_only);
 
-    ADD_PROPERTY(PropertyInfo(Variant::COLOR, "border_color"), "set_border_color", "get_border_color");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "editor_only"), "set_editor_only", "get_editor_only");
+    ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "border_color"), "set_border_color", "get_border_color");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "editor_only"), "set_editor_only", "get_editor_only");
 }
 
 ReferenceRect::ReferenceRect() {

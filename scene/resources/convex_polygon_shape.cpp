@@ -78,10 +78,10 @@ PoolVector<Vector3> ConvexPolygonShape::get_points() const {
 
 void ConvexPolygonShape::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_points", "points"), &ConvexPolygonShape::set_points);
+    MethodBinder::bind_method(D_METHOD("set_points", {"points"}), &ConvexPolygonShape::set_points);
     MethodBinder::bind_method(D_METHOD("get_points"), &ConvexPolygonShape::get_points);
 
-    ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "points"), "set_points", "get_points");
+    ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "points"), "set_points", "get_points");
 }
 
 ConvexPolygonShape::ConvexPolygonShape() :

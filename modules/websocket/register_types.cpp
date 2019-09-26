@@ -46,7 +46,7 @@
 void register_websocket_types() {
 #define _SET_HINT(NAME, _VAL_, _MAX_) \
 	GLOBAL_DEF(NAME, _VAL_);          \
-	ProjectSettings::get_singleton()->set_custom_property_info(NAME, PropertyInfo(Variant::INT, NAME, PROPERTY_HINT_RANGE, "2," #_MAX_ ",1,or_greater"));
+	ProjectSettings::get_singleton()->set_custom_property_info(NAME, PropertyInfo(VariantType::INT, NAME, PROPERTY_HINT_RANGE, "2," #_MAX_ ",1,or_greater"));
 
 	// Client buffers project settings
 	_SET_HINT(WSC_IN_BUF, 64, 4096);

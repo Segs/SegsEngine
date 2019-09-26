@@ -40,20 +40,20 @@ IMPL_GDCLASS(CameraServer)
 // CameraServer
 
 void CameraServer::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("get_feed", "index"), &CameraServer::get_feed);
+    MethodBinder::bind_method(D_METHOD("get_feed", {"index"}), &CameraServer::get_feed);
     MethodBinder::bind_method(D_METHOD("get_feed_count"), &CameraServer::get_feed_count);
     MethodBinder::bind_method(D_METHOD("feeds"), &CameraServer::get_feeds);
 
-    MethodBinder::bind_method(D_METHOD("add_feed", "feed"), &CameraServer::add_feed);
-    MethodBinder::bind_method(D_METHOD("remove_feed", "feed"), &CameraServer::remove_feed);
+    MethodBinder::bind_method(D_METHOD("add_feed", {"feed"}), &CameraServer::add_feed);
+    MethodBinder::bind_method(D_METHOD("remove_feed", {"feed"}), &CameraServer::remove_feed);
 
-    ADD_SIGNAL(MethodInfo("camera_feed_added", PropertyInfo(Variant::INT, "id")));
-    ADD_SIGNAL(MethodInfo("camera_feed_removed", PropertyInfo(Variant::INT, "id")));
+    ADD_SIGNAL(MethodInfo("camera_feed_added", PropertyInfo(VariantType::INT, "id")));
+    ADD_SIGNAL(MethodInfo("camera_feed_removed", PropertyInfo(VariantType::INT, "id")));
 
-    BIND_ENUM_CONSTANT(FEED_RGBA_IMAGE);
-    BIND_ENUM_CONSTANT(FEED_YCBCR_IMAGE);
-    BIND_ENUM_CONSTANT(FEED_Y_IMAGE);
-    BIND_ENUM_CONSTANT(FEED_CBCR_IMAGE);
+    BIND_ENUM_CONSTANT(FEED_RGBA_IMAGE)
+    BIND_ENUM_CONSTANT(FEED_YCBCR_IMAGE)
+    BIND_ENUM_CONSTANT(FEED_Y_IMAGE)
+    BIND_ENUM_CONSTANT(FEED_CBCR_IMAGE)
 };
 
 CameraServer *CameraServer::singleton = nullptr;
@@ -84,8 +84,8 @@ int CameraServer::get_feed_index(int p_id) {
     for (int i = 0; i < feeds.size(); i++) {
         if (feeds[i]->get_id() == p_id) {
             return i;
-        };
-    };
+        }
+    }
 
     return -1;
 };
@@ -94,7 +94,7 @@ Ref<CameraFeed> CameraServer::get_feed_by_id(int p_id) {
     int index = get_feed_index(p_id);
 
     if (index == -1) {
-        return nullptr;
+        return Ref<CameraFeed>();
     } else {
         return feeds[index];
     }
@@ -129,12 +129,12 @@ void CameraServer::remove_feed(const Ref<CameraFeed> &p_feed) {
             // let whomever is interested know
             emit_signal("camera_feed_removed", feed_id);
             return;
-        };
-    };
+        }
+    }
 };
 
 Ref<CameraFeed> CameraServer::get_feed(int p_index) {
-    ERR_FAIL_INDEX_V(p_index, feeds.size(), nullptr);
+    ERR_FAIL_INDEX_V(p_index, feeds.size(), Ref<CameraFeed>());
 
     return feeds[p_index];
 };
@@ -150,14 +150,14 @@ Array CameraServer::get_feeds() {
 
     for (int i = 0; i < feeds.size(); i++) {
         return_feeds[i] = get_feed(i);
-    };
+    }
 
     return return_feeds;
 };
 
 RID CameraServer::feed_texture(int p_id, CameraServer::FeedImage p_texture) {
     int index = get_feed_index(p_id);
-    ERR_FAIL_COND_V(index == -1, RID());
+    ERR_FAIL_COND_V(index == -1, RID())
 
     Ref<CameraFeed> feed = get_feed(index);
 

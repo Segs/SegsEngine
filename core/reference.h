@@ -34,6 +34,7 @@
 #include "core/ref_ptr.h"
 #include "core/safe_refcount.h"
 #include "core/typesystem_decls.h"
+#include <cassert>
 
 template <class T, typename>
 struct GetTypeInfo;
@@ -57,220 +58,99 @@ public:
     int reference_get_count() const;
 
     Reference();
-    ~Reference() override  = default;
+    ~Reference() override;
 };
-
+enum RefMode {
+    AddRef,
+    DoNotAddRef
+};
 template <class T>
 class Ref {
 
+    template <typename U>
+    friend class Ref;
+
     T *reference;
 
-    void ref(const Ref &p_from) {
+public:
+    constexpr Ref() : reference(nullptr) {}
 
-        if (p_from.reference == reference)
-            return;
-
-        unref();
-
-        reference = p_from.reference;
+    explicit Ref(T *p_reference,RefMode add_ref=AddRef) {
+        reference = p_reference;
+        if(p_reference && add_ref==AddRef)
+            p_reference->reference();
+    }
+    Ref(const Ref &p_from) : reference(p_from.reference) {
         if (reference)
             reference->reference();
     }
-
-    void ref_pointer(T *p_ref) {
-
-        ERR_FAIL_COND(!p_ref)
-
-        if (p_ref->init_ref())
-            reference = p_ref;
-    }
-
-    //virtual Reference * get_reference() const { return reference; }
-public:
-    _FORCE_INLINE_ bool operator==(const T *p_ptr) const {
-        return reference == p_ptr;
-    }
-    _FORCE_INLINE_ bool operator!=(const T *p_ptr) const {
-        return reference != p_ptr;
-    }
-
-    _FORCE_INLINE_ bool operator<(const Ref<T> &p_r) const {
-
-        return reference < p_r.reference;
-    }
-    _FORCE_INLINE_ bool operator==(const Ref<T> &p_r) const {
-
-        return reference == p_r.reference;
-    }
-    _FORCE_INLINE_ bool operator!=(const Ref<T> &p_r) const {
-
-        return reference != p_r.reference;
-    }
-
-    _FORCE_INLINE_ T *operator->() {
-
-        return reference;
-    }
-
-    _FORCE_INLINE_ T *operator*() {
-
-        return reference;
-    }
-
-    _FORCE_INLINE_ const T *operator->() const {
-
-        return reference;
-    }
-
-    _FORCE_INLINE_ const T *ptr() const {
-
-        return reference;
-    }
-    _FORCE_INLINE_ T *ptr() {
-
-        return reference;
-    }
-
-    _FORCE_INLINE_ const T *operator*() const {
-
-        return reference;
-    }
-
-    RefPtr get_ref_ptr() const {
-
-        RefPtr refptr;
-        Ref<Reference> *irr = reinterpret_cast<Ref<Reference> *>(refptr.get_data());
-        *irr = *this;
-        return refptr;
-    }
-
-    operator Variant() const {
-
-        return Variant(get_ref_ptr());
-    }
-
-    void operator=(const Ref &p_from) {
-
-        ref(p_from);
+    Ref(Ref &&p_from) noexcept
+    {
+        reference = p_from.reference;
+        p_from.reference = nullptr;
     }
 
     template <class T_Other>
-    void operator=(const Ref<T_Other> &p_from) {
-
-        Reference *refb = const_cast<Reference *>(static_cast<const Reference *>(p_from.ptr()));
-        if (!refb) {
-            unref();
-            return;
-        }
-        Ref r;
-        r.reference = Object::cast_to<T>(refb);
-        ref(r);
-        r.reference = nullptr;
+    Ref(const Ref<T_Other> &p_from) : reference(p_from.reference) {
+        if(reference)
+            reference->reference();
     }
 
-    void operator=(const RefPtr &p_refptr) {
+    explicit Ref(const Variant &p_variant);
 
-        Ref<Reference> *irr = reinterpret_cast<Ref<Reference> *>(p_refptr.get_data());
-        Reference *refb = irr->ptr();
-        if (!refb) {
-            unref();
-            return;
-        }
-        Ref r;
-        r.reference = Object::cast_to<T>(refb);
-        ref(r);
-        r.reference = nullptr;
-    }
 
-    void operator=(const Variant &p_variant) {
-
-        RefPtr refptr = p_variant;
-        Ref<Reference> *irr = reinterpret_cast<Ref<Reference> *>(refptr.get_data());
-        Reference *refb = irr->ptr();
-        if (!refb) {
-            unref();
-            return;
-        }
-        Ref r;
-        r.reference = Object::cast_to<T>(refb);
-        ref(r);
-        r.reference = nullptr;
-    }
-
-    template <class T_Other>
-    void reference_ptr(T_Other *p_ptr) {
-        if (reference == p_ptr) {
-            return;
-        }
+    ~Ref() {
         unref();
-
-        T *r = Object::cast_to<T>(p_ptr);
-        if (r) {
-            ref_pointer(r);
-        }
     }
 
-    Ref(const Ref &p_from) {
+    Ref &operator=(const Ref &p_from) {
+        return operator=(p_from.reference);
+    }
 
-        reference = nullptr;
-        ref(p_from);
+    Ref & operator=(Ref &&p_from) noexcept {
+        // after swap p_from holds our data, and will deref it in it's destructor.
+        eastl::swap(reference,p_from.reference);
+        return *this;
     }
 
     template <class T_Other>
-    Ref(const Ref<T_Other> &p_from) {
+    Ref &operator=(const Ref<T_Other> &p_from) {
+        return operator=(p_from.reference);
+    }
 
-        reference = nullptr;
-        Reference *refb = const_cast<Reference *>(static_cast<const Reference *>(p_from.ptr()));
-        if (!refb) {
-            unref();
-            return;
+    Ref& operator=(T* p_Object)
+    {
+        if(p_Object != reference)
+        {
+            T* const temp = reference;
+            if(p_Object) {
+                p_Object->reference();
+            }
+            reference = p_Object;
+            if(temp && temp->unreference()) {
+                memdelete(temp);
+            }
         }
-        Ref r;
-        r.reference = Object::cast_to<T>(refb);
-        ref(r);
-        r.reference = nullptr;
+        return *this;
     }
 
-    Ref(T *p_reference) {
-
-        reference = nullptr;
-        if (p_reference)
-            ref_pointer(p_reference);
+    T& operator *() const
+    {
+        return *reference;
     }
 
-    Ref(const Variant &p_variant) {
-
-        RefPtr refptr = p_variant;
-        Ref<Reference> *irr = reinterpret_cast<Ref<Reference> *>(refptr.get_data());
-        reference = nullptr;
-        Reference *refb = irr->ptr();
-        if (!refb) {
-            unref();
-            return;
-        }
-        Ref r;
-        r.reference = Object::cast_to<T>(refb);
-        ref(r);
-        r.reference = nullptr;
+    T* operator ->() const
+    {
+        return reference;
     }
 
-    Ref(const RefPtr &p_refptr) {
-
-        Ref<Reference> *irr = reinterpret_cast<Ref<Reference> *>(p_refptr.get_data());
-        reference = nullptr;
-        Reference *refb = irr->ptr();
-        if (!refb) {
-            unref();
-            return;
-        }
-        Ref r;
-        r.reference = Object::cast_to<T>(refb);
-        ref(r);
-        r.reference = nullptr;
+    using bool_ = T *(Ref<T>::*)() const;
+    operator bool_() const
+    {
+        if(reference)
+            return &Ref::get;
+        return nullptr;
     }
-
-    inline bool is_valid() const { return reference != nullptr; }
-    inline bool is_null() const { return reference == nullptr; }
 
     void unref() {
         //TODO this should be moved to mutexes, since this engine does not really
@@ -284,20 +164,114 @@ public:
         reference = nullptr;
     }
 
-    void instance() {
-        ref(memnew(T));
+    operator Variant() const {
+
+        return Variant(get_ref_ptr());
+    }
+    RefPtr get_ref_ptr() const {
+
+        RefPtr refptr;
+        Ref<Reference> *irr = reinterpret_cast<Ref<Reference> *>(refptr.get_data());
+        *irr = *this;
+        return refptr;
+    }
+    _FORCE_INLINE_ T *get() const {
+
+        return reference;
     }
 
-    Ref() {
-
+    void reset()
+    {
+        T* const temp = reference;
         reference = nullptr;
-    }
-
-    ~Ref() {
-
-        unref();
+        if(temp && temp->unreference()) {
+            memdelete(temp);
+        }
     }
 };
+template <typename T, typename U>
+bool operator==(Ref<T> const& lhs, Ref<U> const& rhs)
+{
+    return (lhs.get() == rhs.get());
+}
+
+template <typename T, typename U>
+bool operator!=(Ref<T> const& lhs, Ref<U> const& rhs)
+{
+    return (lhs.get() != rhs.get());
+}
+
+template <typename T>
+bool operator==(Ref<T> const& lhs, T* p)
+{
+    return (lhs.get() == p);
+}
+
+template <typename T>
+bool operator!=(Ref<T> const& lhs, T* p)
+{
+    return (lhs.get() != p);
+}
+
+template <typename T>
+bool operator==(T* p, Ref<T> const& rhs)
+{
+    return (p == rhs.get());
+}
+
+template <typename T>
+bool operator!=(T* p, Ref<T> const& rhs)
+{
+    return (p != rhs.get());
+}
+
+template <typename T, typename U>
+bool operator<(Ref<T> const& lhs, Ref<U> const& rhs)
+{
+    return ((uintptr_t)lhs.get() < (uintptr_t)rhs.get());
+}
+
+template <typename T, typename... Args>
+inline Ref<T> make_ref_counted(Args&&... args)
+    { return Ref<T>(_post_initialize(new (typeid(T).name()) T(eastl::forward<Args>(args)...)),DoNotAddRef); }
+
+template<class T>
+inline Ref<T> refFromRefPtr(RefPtr p_refptr) {
+
+    Ref<Reference> *irr = reinterpret_cast<Ref<Reference> *>(p_refptr.get_data());
+    Reference *refb = irr->get();
+    if (!refb) {
+        return Ref<T>();
+    }
+    return Ref<T>(Object::cast_to<T>(refb));
+}
+template<class T>
+inline Ref<T> refFromVariant(const Variant &p_variant) {
+    //TODO: SEGS: notify about failed type conversions?
+    RefPtr refptr = p_variant.as<RefPtr>();
+    return refFromRefPtr<T>(refptr);
+}
+template<class T>
+Ref<T>::Ref(const Variant &p_variant) {
+   RefPtr refptr = p_variant;
+   reference = nullptr;
+   *this = refFromRefPtr<T>(refptr);
+}
+//template <class T, class U>
+//Ref<T> static_ref_cast(const Ref<U>& intrusivePtr)
+//{
+//    return static_cast<T*>(intrusivePtr.ptr());
+//}
+template <class T, class U>
+Ref<T> dynamic_ref_cast(const Ref<U>& intrusivePtr)
+{
+    return Ref<T>(Object::cast_to<T>(intrusivePtr.get()));
+}
+template <class T, class U>
+Ref<T> dynamic_ref_cast(Ref<U>& intrusivePtr)
+{
+    return Ref<T>(Object::cast_to<T>(intrusivePtr.get()));
+}
 
 using REF = Ref<Reference>;
 
@@ -330,7 +304,7 @@ struct PtrToArg<Ref<T> > {
         return Ref<T>(const_cast<T *>(reinterpret_cast<const T *>(p_ptr)));
     }
 
-    _FORCE_INLINE_ static void encode(Ref<T> p_val, const void *p_ptr) {
+    _FORCE_INLINE_ static void encode(const Ref<T> &p_val, void *p_ptr) {
 
         *(Ref<Reference> *)p_ptr = p_val;
     }
@@ -355,10 +329,9 @@ struct PtrToArg<RefPtr> {
         return Ref<Reference>(const_cast<Reference *>(reinterpret_cast<const Reference *>(p_ptr))).get_ref_ptr();
     }
 
-    _FORCE_INLINE_ static void encode(RefPtr p_val, const void *p_ptr) {
+    _FORCE_INLINE_ static void encode(const RefPtr &p_val, void *p_ptr) {
 
-        Ref<Reference> r = p_val;
-        *(Ref<Reference> *)p_ptr = r;
+        *(Ref<Reference> *)p_ptr = refFromRefPtr<Reference>(p_val);
     }
 };
 
@@ -377,21 +350,21 @@ struct PtrToArg<const RefPtr &> {
 
 template <class T>
 struct GetTypeInfo<Ref<T>,void> {
-    static const Variant::Type VARIANT_TYPE = Variant::OBJECT;
+    static const VariantType VARIANT_TYPE = VariantType::OBJECT;
     static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;
 
     static RawPropertyInfo get_class_info() {
-        return RawPropertyInfo{ nullptr,T::get_class_static(),nullptr,Variant::OBJECT, PROPERTY_HINT_RESOURCE_TYPE };
+        return RawPropertyInfo{ nullptr,T::get_class_static(),nullptr,int8_t(VariantType::OBJECT), PROPERTY_HINT_RESOURCE_TYPE };
     }
 };
 
 template <class T>
 struct GetTypeInfo<const Ref<T> &,void> {
-    static const Variant::Type VARIANT_TYPE = Variant::OBJECT;
+    static const VariantType VARIANT_TYPE = VariantType::OBJECT;
     static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;
 
     static inline RawPropertyInfo get_class_info() {
-        return RawPropertyInfo { nullptr,T::get_class_static(),nullptr,Variant::OBJECT, PROPERTY_HINT_RESOURCE_TYPE };
+        return RawPropertyInfo { nullptr,T::get_class_static(),nullptr,int8_t(VariantType::OBJECT), PROPERTY_HINT_RESOURCE_TYPE };
     }
 };
 

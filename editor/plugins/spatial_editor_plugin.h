@@ -37,12 +37,13 @@
 #include "scene/3d/visual_instance.h"
 #include "scene/gui/panel_container.h"
 #include "scene/gui/spin_box.h"
+#include "scene/3d/skeleton.h"
+
 
 class Camera;
 class SpatialEditor;
 class EditorSpatialGizmoPlugin;
 class ViewportContainer;
-
 
 class EditorSpatialGizmo : public SpatialGizmo {
 
@@ -60,6 +61,7 @@ public:
         RID instance;
         Ref<ArrayMesh> mesh;
         Ref<Material> material;
+        Ref<SkinReference> skin_reference;
         RID skeleton;
         bool billboard;
         bool unscaled;
@@ -100,7 +102,7 @@ protected:
 
 public:
     void add_lines(const Vector<Vector3> &p_lines, const Ref<Material> &p_material, bool p_billboard = false);
-    void add_mesh(const Ref<ArrayMesh> &p_mesh, bool p_billboard = false, const RID &p_skeleton = RID(), const Ref<Material> &p_material = Ref<Material>());
+    void add_mesh(const Ref<ArrayMesh> &p_mesh, bool p_billboard = false, const Ref<SkinReference> &p_skin_reference = Ref<SkinReference>(), const Ref<Material> &p_material = Ref<Material>());
     void add_collision_segments(const Vector<Vector3> &p_lines);
     void add_collision_triangles(const Ref<TriangleMesh> &p_tmesh);
     void add_unscaled_billboard(const Ref<Material> &p_material, float p_scale = 1);
@@ -115,7 +117,7 @@ public:
 
     void set_spatial_node(Spatial *p_node);
     Spatial *get_spatial_node() const { return spatial_node; }
-    Ref<EditorSpatialGizmoPlugin> get_plugin() const { return gizmo_plugin; }
+    Ref<EditorSpatialGizmoPlugin> get_plugin() const { return Ref<EditorSpatialGizmoPlugin>(gizmo_plugin); }
     Vector3 get_handle_pos(int p_idx) const;
     bool intersect_frustum(const Camera *p_camera, const Vector<Plane> &p_frustum);
     bool intersect_ray(Camera *p_camera, const Point2 &p_point, Vector3 &r_pos, Vector3 &r_normal, int *r_gizmo_handle = nullptr, bool p_sec_first = false);
@@ -250,8 +252,8 @@ private:
 
     void _nav_pan(Ref<InputEventWithModifiers> p_event, const Vector2 &p_relative);
     void _nav_zoom(Ref<InputEventWithModifiers> p_event, const Vector2 &p_relative);
-    void _nav_orbit(Ref<InputEventWithModifiers> p_event, const Vector2 &p_relative);
-    void _nav_look(Ref<InputEventWithModifiers> p_event, const Vector2 &p_relative);
+    void _nav_orbit(const Ref<InputEventWithModifiers>& p_event, const Vector2 &p_relative);
+    void _nav_look(const Ref<InputEventWithModifiers>& p_event, const Vector2 &p_relative);
 
     float get_znear() const;
     float get_zfar() const;
@@ -658,7 +660,7 @@ private:
 protected:
     void _notification(int p_what);
     //void _gui_input(InputEvent p_event);
-    void _unhandled_key_input(Ref<InputEvent> p_event);
+    void _unhandled_key_input(const Ref<InputEvent>& p_event);
 
     static void _bind_methods();
 
@@ -721,7 +723,7 @@ public:
     }
 
     void add_gizmo_plugin(Ref<EditorSpatialGizmoPlugin> p_plugin);
-    void remove_gizmo_plugin(Ref<EditorSpatialGizmoPlugin> p_plugin);
+    void remove_gizmo_plugin(const Ref<EditorSpatialGizmoPlugin>& p_plugin);
 
     void edit(Spatial *p_spatial);
     void clear();
@@ -772,7 +774,7 @@ public:
 private:
     int current_state;
     List<EditorSpatialGizmo *> current_gizmos;
-    HashMap<String, Vector<Ref<SpatialMaterial> > > materials;
+    DefHashMap<String, Vector<Ref<SpatialMaterial> > > materials;
 
 protected:
     static void _bind_methods();
@@ -783,7 +785,7 @@ public:
     void create_material(const String &p_name, const Color &p_color, bool p_billboard = false, bool p_on_top = false, bool p_use_vertex_color = false);
     void create_icon_material(const String &p_name, const Ref<Texture> &p_texture, bool p_on_top = false, const Color &p_albedo = Color(1, 1, 1, 1));
     void create_handle_material(const String &p_name, bool p_billboard = false);
-    void add_material(const String &p_name, Ref<SpatialMaterial> p_material);
+    void add_material(const String &p_name, const Ref<SpatialMaterial>& p_material);
 
     Ref<SpatialMaterial> get_material(const String &p_name, const Ref<EditorSpatialGizmo> &p_gizmo = Ref<EditorSpatialGizmo>());
 

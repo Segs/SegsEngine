@@ -477,7 +477,7 @@ Vector<Color> VoxelLightBaker::_get_bake_texture(Ref<Image> p_image, const Color
 
     Vector<Color> ret;
 
-    if (p_image.is_null() || p_image->empty()) {
+    if (not p_image || p_image->empty()) {
 
         ret.resize(bake_texture_size * bake_texture_size);
         for (int i = 0; i < bake_texture_size * bake_texture_size; i++) {
@@ -486,7 +486,7 @@ Vector<Color> VoxelLightBaker::_get_bake_texture(Ref<Image> p_image, const Color
 
         return ret;
     }
-    p_image = p_image->duplicate();
+    p_image = dynamic_ref_cast<Image>(p_image->duplicate());
 
     if (p_image->is_compressed()) {
         p_image->decompress();
@@ -511,25 +511,25 @@ Vector<Color> VoxelLightBaker::_get_bake_texture(Ref<Image> p_image, const Color
     return ret;
 }
 
-VoxelLightBaker::MaterialCache VoxelLightBaker::_get_material_cache(Ref<Material> p_material) {
+VoxelLightBaker::MaterialCache VoxelLightBaker::_get_material_cache(const Ref<Material>& p_material) {
 
     //this way of obtaining materials is inaccurate and also does not support some compressed formats very well
-    Ref<SpatialMaterial> mat = p_material;
+    Ref<SpatialMaterial> mat = dynamic_ref_cast<SpatialMaterial>(p_material);
 
     Ref<Material> material = mat; //hack for now
 
-    if (material_cache.has(material)) {
+    if (material_cache.contains(material)) {
         return material_cache[material];
     }
 
     MaterialCache mc;
 
-    if (mat.is_valid()) {
+    if (mat) {
 
         Ref<Texture> albedo_tex = mat->get_texture(SpatialMaterial::TEXTURE_ALBEDO);
 
         Ref<Image> img_albedo;
-        if (albedo_tex.is_valid()) {
+        if (albedo_tex) {
 
             img_albedo = albedo_tex->get_data();
             mc.albedo = _get_bake_texture(img_albedo, mat->get_albedo(), Color(0, 0, 0)); // albedo texture, color is multiplicative
@@ -544,7 +544,7 @@ VoxelLightBaker::MaterialCache VoxelLightBaker::_get_material_cache(Ref<Material
 
         Ref<Image> img_emission;
 
-        if (emission_tex.is_valid()) {
+        if (emission_tex) {
 
             img_emission = emission_tex->get_data();
         }
@@ -575,9 +575,9 @@ void VoxelLightBaker::plot_mesh(const Transform &p_xform, Ref<Mesh> &p_mesh, con
 
         Ref<Material> src_material;
 
-        if (p_override_material.is_valid()) {
+        if (p_override_material) {
             src_material = p_override_material;
-        } else if (i < p_materials.size() && p_materials[i].is_valid()) {
+        } else if (i < p_materials.size() && p_materials[i]) {
             src_material = p_materials[i];
         } else {
             src_material = p_mesh->surface_get_material(i);
@@ -2139,8 +2139,7 @@ Error VoxelLightBaker::make_lightmap(const Transform &p_xform, Ref<Mesh> &p_mesh
                 }
             }
 
-            Ref<Image> image;
-            image.instance();
+            Ref<Image> image(make_ref_counted<Image>());
             image->create(width, height, false, Image::FORMAT_RGB8, img);
 
             String name = p_mesh->get_name();
@@ -2335,15 +2334,14 @@ Ref<MultiMesh> VoxelLightBaker::create_debug_multimesh(DebugMode p_mode) {
 
     Ref<MultiMesh> mm;
 
-    ERR_FAIL_COND_V(p_mode == DEBUG_LIGHT && bake_light.empty(), mm);
-    mm.instance();
+    ERR_FAIL_COND_V(p_mode == DEBUG_LIGHT && bake_light.empty(), mm)
+    mm = make_ref_counted<MultiMesh>();
 
     mm->set_transform_format(MultiMesh::TRANSFORM_3D);
     mm->set_color_format(MultiMesh::COLOR_8BIT);
     mm->set_instance_count(leaf_voxel_count);
 
-    Ref<ArrayMesh> mesh;
-    mesh.instance();
+    Ref<ArrayMesh> mesh(make_ref_counted<ArrayMesh>());
 
     {
         Array arr;
@@ -2392,8 +2390,7 @@ Ref<MultiMesh> VoxelLightBaker::create_debug_multimesh(DebugMode p_mode) {
     }
 
     {
-        Ref<SpatialMaterial> fsm;
-        fsm.instance();
+        Ref<SpatialMaterial> fsm(make_ref_counted<SpatialMaterial>());
         fsm->set_flag(SpatialMaterial::FLAG_SRGB_VERTEX_COLOR, true);
         fsm->set_flag(SpatialMaterial::FLAG_ALBEDO_FROM_VERTEX_COLOR, true);
         fsm->set_flag(SpatialMaterial::FLAG_UNSHADED, true);

@@ -35,6 +35,7 @@
 #include "scene/main/node.h"
 #include "core/method_bind_interface.h"
 
+#include "EASTL/sort.h"
 
 static void _write_string(FileAccess *f, int p_tablevel, const String &p_string) {
 
@@ -107,43 +108,43 @@ void DocDump::dump(const String &p_file) {
         _write_string(f, 1, "</description>");
         _write_string(f, 1, "<methods>");
 
-        List<MethodInfo> method_list;
+        PODVector<MethodInfo> method_list;
         ClassDB::get_method_list(name, &method_list, true);
-        method_list.sort();
+        eastl::sort(method_list.begin(),method_list.end());
 
-        for (List<MethodInfo>::Element *E = method_list.front(); E; E = E->next()) {
-            if (E->get().name.empty() || E->get().name[0] == '_')
+        for (const MethodInfo &E : method_list) {
+            if (E.name.empty() || E.name[0] == '_')
                 continue; //hidden
 
-            MethodBind *m = ClassDB::get_method(name, E->get().name);
+            MethodBind *m = ClassDB::get_method(name, E.name);
 
             String qualifiers;
-            if (E->get().flags & METHOD_FLAG_CONST)
+            if (E.flags & METHOD_FLAG_CONST)
                 qualifiers += "qualifiers=\"const\"";
 
-            _write_string(f, 2, "<method name=\"" + _escape_string(E->get().name) + "\" " + qualifiers + " >");
+            _write_string(f, 2, "<method name=\"" + _escape_string(E.name) + "\" " + qualifiers + " >");
 
-            for (int i = -1; i < E->get().arguments.size(); i++) {
+            for (int i = -1; i < E.arguments.size(); i++) {
 
                 PropertyInfo arginfo;
 
                 if (i == -1) {
 
-                    arginfo = E->get().return_val;
+                    arginfo = E.return_val;
                     String type_name = (arginfo.hint == PROPERTY_HINT_RESOURCE_TYPE) ? arginfo.hint_string : Variant::get_type_name(arginfo.type);
 
-                    if (arginfo.type == Variant::NIL)
+                    if (arginfo.type == VariantType::NIL)
                         continue;
                     _write_string(f, 3, "<return type=\"" + type_name + "\">");
                 } else {
 
-                    arginfo = E->get().arguments[i];
+                    arginfo = E.arguments[i];
 
                     String type_name;
 
                     if (arginfo.hint == PROPERTY_HINT_RESOURCE_TYPE)
                         type_name = arginfo.hint_string;
-                    else if (arginfo.type == Variant::NIL)
+                    else if (arginfo.type == VariantType::NIL)
                         type_name = "Variant";
                     else
                         type_name = Variant::get_type_name(arginfo.type);
@@ -154,25 +155,25 @@ void DocDump::dump(const String &p_file) {
 
                         switch (default_arg.get_type()) {
 
-                            case Variant::NIL:
+                            case VariantType::NIL:
                                 default_arg_text = "NULL";
                                 break;
                             // atomic types
-                            case Variant::BOOL:
+                            case VariantType::BOOL:
                                 if (bool(default_arg))
                                     default_arg_text = "true";
                                 else
                                     default_arg_text = "false";
                                 break;
-                            case Variant::INT:
-                            case Variant::REAL:
+                            case VariantType::INT:
+                            case VariantType::REAL:
                                 //keep it
                                 break;
-                            case Variant::STRING:
-                            case Variant::NODE_PATH:
+                            case VariantType::STRING:
+                            case VariantType::NODE_PATH:
                                 default_arg_text = "\"" + default_arg_text + "\"";
                                 break;
-                            case Variant::TRANSFORM:
+                            case VariantType::TRANSFORM:
                                 if (default_arg.operator Transform() == Transform()) {
                                     default_arg_text = "";
                                 }
@@ -180,26 +181,26 @@ void DocDump::dump(const String &p_file) {
                                 default_arg_text = String(Variant::get_type_name(default_arg.get_type())) + "(" + default_arg_text + ")";
                                 break;
 
-                            case Variant::VECTOR2:
-                            case Variant::RECT2:
-                            case Variant::VECTOR3:
-                            case Variant::PLANE:
-                            case Variant::QUAT:
-                            case Variant::AABB:
-                            case Variant::BASIS:
-                            case Variant::COLOR:
-                            case Variant::POOL_BYTE_ARRAY:
-                            case Variant::POOL_INT_ARRAY:
-                            case Variant::POOL_REAL_ARRAY:
-                            case Variant::POOL_STRING_ARRAY:
-                            case Variant::POOL_VECTOR3_ARRAY:
-                            case Variant::POOL_COLOR_ARRAY:
+                            case VariantType::VECTOR2:
+                            case VariantType::RECT2:
+                            case VariantType::VECTOR3:
+                            case VariantType::PLANE:
+                            case VariantType::QUAT:
+                            case VariantType::AABB:
+                            case VariantType::BASIS:
+                            case VariantType::COLOR:
+                            case VariantType::POOL_BYTE_ARRAY:
+                            case VariantType::POOL_INT_ARRAY:
+                            case VariantType::POOL_REAL_ARRAY:
+                            case VariantType::POOL_STRING_ARRAY:
+                            case VariantType::POOL_VECTOR3_ARRAY:
+                            case VariantType::POOL_COLOR_ARRAY:
                                 default_arg_text = String(Variant::get_type_name(default_arg.get_type())) + "(" + default_arg_text + ")";
                                 break;
-                            case Variant::OBJECT:
-                            case Variant::DICTIONARY: // 20
-                            case Variant::ARRAY:
-                            case Variant::_RID:
+                            case VariantType::OBJECT:
+                            case VariantType::DICTIONARY: // 20
+                            case VariantType::ARRAY:
+                            case VariantType::_RID:
 
                             default: {
                             }
@@ -251,17 +252,17 @@ void DocDump::dump(const String &p_file) {
 
         _write_string(f, 1, "</methods>");
 
-        List<MethodInfo> signal_list;
+        ListPOD<MethodInfo> signal_list;
         ClassDB::get_signal_list(name, &signal_list, true);
 
         if (!signal_list.empty()) {
 
             _write_string(f, 1, "<signals>");
-            for (List<MethodInfo>::Element *EV = signal_list.front(); EV; EV = EV->next()) {
+            for (const MethodInfo &EV : signal_list) {
 
-                _write_string(f, 2, "<signal name=\"" + EV->get().name + "\">");
-                for (int i = 0; i < EV->get().arguments.size(); i++) {
-                    PropertyInfo arginfo = EV->get().arguments[i];
+                _write_string(f, 2, "<signal name=\"" + EV.name + "\">");
+                for (int i = 0; i < EV.arguments.size(); i++) {
+                    PropertyInfo arginfo = EV.arguments[i];
                     _write_string(f, 3, "<argument index=\"" + itos(i) + "\" name=\"" + arginfo.name + "\" type=\"" + Variant::get_type_name(arginfo.type) + "\">");
                     _write_string(f, 3, "</argument>");
                 }
@@ -276,17 +277,17 @@ void DocDump::dump(const String &p_file) {
 
         _write_string(f, 1, "<constants>");
 
-        List<String> constant_list;
+        ListPOD<String> constant_list;
         ClassDB::get_integer_constant_list(name, &constant_list, true);
 
         /* constants are sorted in a special way */
 
         List<_ConstantSort> constant_sort;
 
-        for (List<String>::Element *E = constant_list.front(); E; E = E->next()) {
+        for (const String &E : constant_list) {
             _ConstantSort cs;
-            cs.name = E->get();
-            cs.value = ClassDB::get_integer_constant(name, E->get());
+            cs.name = E;
+            cs.value = ClassDB::get_integer_constant(name, E);
             constant_sort.push_back(cs);
         }
 
@@ -294,7 +295,7 @@ void DocDump::dump(const String &p_file) {
 
         for (List<_ConstantSort>::Element *E = constant_sort.front(); E; E = E->next()) {
 
-            _write_string(f, 2, "<constant name=\"" + E->get().name + "\" value=\"" + itos(E->get().value) + "\">");
+            _write_string(f, 2, "<constant name=\"" + E->deref().name + "\" value=\"" + itos(E->deref().value) + "\">");
             _write_string(f, 2, "</constant>");
         }
 

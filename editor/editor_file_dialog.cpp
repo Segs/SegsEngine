@@ -30,6 +30,8 @@
 
 #include "editor_file_dialog.h"
 
+#include <utility>
+
 #include "core/method_bind.h"
 #include "core/os/file_access.h"
 #include "core/os/keyboard.h"
@@ -115,9 +117,9 @@ void EditorFileDialog::_notification(int p_what) {
 
 void EditorFileDialog::_unhandled_input(const Ref<InputEvent> &p_event) {
 
-    Ref<InputEventKey> k = p_event;
+    Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(p_event);
 
-    if (k.is_valid() && is_window_modal_on_top()) {
+    if (k && is_window_modal_on_top()) {
 
         if (k->is_pressed()) {
 
@@ -224,7 +226,7 @@ void EditorFileDialog::update_dir() {
 
 void EditorFileDialog::_dir_entered(String p_dir) {
 
-    dir_access->change_dir(p_dir);
+    dir_access->change_dir(std::move(p_dir));
     file->set_text("");
     invalidate();
     update_dir();
@@ -294,7 +296,7 @@ void EditorFileDialog::_post_popup() {
 
 void EditorFileDialog::_thumbnail_result(const String &p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, const Variant &p_udata) {
 
-    if (display_mode == DISPLAY_LIST || p_preview.is_null())
+    if (display_mode == DISPLAY_LIST || not p_preview)
         return;
 
     for (int i = 0; i < item_list->get_item_count(); i++) {
@@ -312,7 +314,7 @@ void EditorFileDialog::_thumbnail_done(const String &p_path, const Ref<Texture> 
     set_process(false);
     preview_waiting = false;
 
-    if (p_preview.is_valid() && get_current_path() == p_path) {
+    if (p_preview && get_current_path() == p_path) {
 
         preview->set_texture(p_preview);
         if (display_mode == DISPLAY_THUMBNAILS) {
@@ -401,7 +403,7 @@ void EditorFileDialog::_action_pressed() {
                 for (int j = 0; j < StringUtils::get_slice_count(flt,","); j++) {
 
                     String str = StringUtils::strip_edges(StringUtils::get_slice(flt,",", j));
-					if (StringUtils::match(f,str)) {
+                    if (StringUtils::match(f,str)) {
                         valid = true;
                         break;
                     }
@@ -420,7 +422,7 @@ void EditorFileDialog::_action_pressed() {
                 for (int j = 0; j < filterSliceCount; j++) {
 
                     String str = StringUtils::strip_edges(StringUtils::get_slice(flt,",", j));
-					if (StringUtils::match(f,str)) {
+                    if (StringUtils::match(f,str)) {
                         valid = true;
                         break;
                     }
@@ -731,7 +733,7 @@ void EditorFileDialog::update_file_list() {
         item_list->set_max_text_lines(1);
         item_list->set_fixed_column_width(0);
         item_list->set_fixed_icon_size(Size2());
-        if (preview->get_texture().is_valid())
+        if (preview->get_texture())
             preview_vb->show();
     }
 
@@ -763,7 +765,7 @@ void EditorFileDialog::update_file_list() {
     files.sort_custom<NaturalNoCaseComparator>();
 
     while (!dirs.empty()) {
-        const String &dir_name = dirs.front()->get();
+        const String &dir_name = dirs.front()->deref();
 
         item_list->add_item(dir_name);
 
@@ -821,7 +823,7 @@ void EditorFileDialog::update_file_list() {
 
         for (List<String>::Element *E = patterns.front(); E; E = E->next()) {
 
-			if (StringUtils::matchn(files.front()->get(),E->get())) {
+            if (StringUtils::matchn(files.front()->deref(),E->deref())) {
 
                 match = true;
                 break;
@@ -830,11 +832,11 @@ void EditorFileDialog::update_file_list() {
 
         if (match) {
 
-            item_list->add_item(files.front()->get());
+            item_list->add_item(files.front()->deref());
 
             if (get_icon_func) {
 
-                Ref<Texture> icon = get_icon_func(PathUtils::plus_file(cdir,files.front()->get()));
+                Ref<Texture> icon = get_icon_func(PathUtils::plus_file(cdir,files.front()->deref()));
                 if (display_mode == DISPLAY_THUMBNAILS) {
 
                     item_list->set_item_icon(item_list->get_item_count() - 1, file_thumbnail);
@@ -845,9 +847,9 @@ void EditorFileDialog::update_file_list() {
             }
 
             Dictionary d;
-            d["name"] = files.front()->get();
+            d["name"] = files.front()->deref();
             d["dir"] = false;
-            String fullpath = PathUtils::plus_file(cdir,files.front()->get());
+            String fullpath = PathUtils::plus_file(cdir,files.front()->deref());
             d["path"] = fullpath;
             item_list->set_item_metadata(item_list->get_item_count() - 1, d);
 
@@ -855,7 +857,7 @@ void EditorFileDialog::update_file_list() {
                 EditorResourcePreview::get_singleton()->queue_resource_preview(fullpath, this, "_thumbnail_result", fullpath);
             }
 
-            if (file->get_text() == files.front()->get())
+            if (file->get_text() == files.front()->deref())
                 item_list->set_current(item_list->get_item_count() - 1);
         }
 
@@ -1371,19 +1373,19 @@ void EditorFileDialog::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_save_confirm_pressed"), &EditorFileDialog::_save_confirm_pressed);
 
     MethodBinder::bind_method(D_METHOD("clear_filters"), &EditorFileDialog::clear_filters);
-    MethodBinder::bind_method(D_METHOD("add_filter", "filter"), &EditorFileDialog::add_filter);
+    MethodBinder::bind_method(D_METHOD("add_filter", {"filter"}), &EditorFileDialog::add_filter);
     MethodBinder::bind_method(D_METHOD("get_current_dir"), &EditorFileDialog::get_current_dir);
     MethodBinder::bind_method(D_METHOD("get_current_file"), &EditorFileDialog::get_current_file);
     MethodBinder::bind_method(D_METHOD("get_current_path"), &EditorFileDialog::get_current_path);
-    MethodBinder::bind_method(D_METHOD("set_current_dir", "dir"), &EditorFileDialog::set_current_dir);
-    MethodBinder::bind_method(D_METHOD("set_current_file", "file"), &EditorFileDialog::set_current_file);
-    MethodBinder::bind_method(D_METHOD("set_current_path", "path"), &EditorFileDialog::set_current_path);
-    MethodBinder::bind_method(D_METHOD("set_mode", "mode"), &EditorFileDialog::set_mode);
+    MethodBinder::bind_method(D_METHOD("set_current_dir", {"dir"}), &EditorFileDialog::set_current_dir);
+    MethodBinder::bind_method(D_METHOD("set_current_file", {"file"}), &EditorFileDialog::set_current_file);
+    MethodBinder::bind_method(D_METHOD("set_current_path", {"path"}), &EditorFileDialog::set_current_path);
+    MethodBinder::bind_method(D_METHOD("set_mode", {"mode"}), &EditorFileDialog::set_mode);
     MethodBinder::bind_method(D_METHOD("get_mode"), &EditorFileDialog::get_mode);
     MethodBinder::bind_method(D_METHOD("get_vbox"), &EditorFileDialog::get_vbox);
-    MethodBinder::bind_method(D_METHOD("set_access", "access"), &EditorFileDialog::set_access);
+    MethodBinder::bind_method(D_METHOD("set_access", {"access"}), &EditorFileDialog::set_access);
     MethodBinder::bind_method(D_METHOD("get_access"), &EditorFileDialog::get_access);
-    MethodBinder::bind_method(D_METHOD("set_show_hidden_files", "show"), &EditorFileDialog::set_show_hidden_files);
+    MethodBinder::bind_method(D_METHOD("set_show_hidden_files", {"show"}), &EditorFileDialog::set_show_hidden_files);
     MethodBinder::bind_method(D_METHOD("is_showing_hidden_files"), &EditorFileDialog::is_showing_hidden_files);
     MethodBinder::bind_method(D_METHOD("_select_drive"), &EditorFileDialog::_select_drive);
     MethodBinder::bind_method(D_METHOD("_make_dir"), &EditorFileDialog::_make_dir);
@@ -1392,10 +1394,10 @@ void EditorFileDialog::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_update_file_list"), &EditorFileDialog::update_file_list);
     MethodBinder::bind_method(D_METHOD("_update_dir"), &EditorFileDialog::update_dir);
     MethodBinder::bind_method(D_METHOD("_thumbnail_done"), &EditorFileDialog::_thumbnail_done);
-    MethodBinder::bind_method(D_METHOD("set_display_mode", "mode"), &EditorFileDialog::set_display_mode);
+    MethodBinder::bind_method(D_METHOD("set_display_mode", {"mode"}), &EditorFileDialog::set_display_mode);
     MethodBinder::bind_method(D_METHOD("get_display_mode"), &EditorFileDialog::get_display_mode);
     MethodBinder::bind_method(D_METHOD("_thumbnail_result"), &EditorFileDialog::_thumbnail_result);
-    MethodBinder::bind_method(D_METHOD("set_disable_overwrite_warning", "disable"), &EditorFileDialog::set_disable_overwrite_warning);
+    MethodBinder::bind_method(D_METHOD("set_disable_overwrite_warning", {"disable"}), &EditorFileDialog::set_disable_overwrite_warning);
     MethodBinder::bind_method(D_METHOD("is_overwrite_warning_disabled"), &EditorFileDialog::is_overwrite_warning_disabled);
 
     MethodBinder::bind_method(D_METHOD("_recent_selected"), &EditorFileDialog::_recent_selected);
@@ -1410,31 +1412,31 @@ void EditorFileDialog::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("invalidate"), &EditorFileDialog::invalidate);
 
-    ADD_SIGNAL(MethodInfo("file_selected", PropertyInfo(Variant::STRING, "path")));
-    ADD_SIGNAL(MethodInfo("files_selected", PropertyInfo(Variant::POOL_STRING_ARRAY, "paths")));
-    ADD_SIGNAL(MethodInfo("dir_selected", PropertyInfo(Variant::STRING, "dir")));
+    ADD_SIGNAL(MethodInfo("file_selected", PropertyInfo(VariantType::STRING, "path")));
+    ADD_SIGNAL(MethodInfo("files_selected", PropertyInfo(VariantType::POOL_STRING_ARRAY, "paths")));
+    ADD_SIGNAL(MethodInfo("dir_selected", PropertyInfo(VariantType::STRING, "dir")));
 
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "access", PROPERTY_HINT_ENUM, "Resources,User data,File system"), "set_access", "get_access");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "display_mode", PROPERTY_HINT_ENUM, "Thumbnails,List"), "set_display_mode", "get_display_mode");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "mode", PROPERTY_HINT_ENUM, "Open one,Open many,Open folder,Open any,Save"), "set_mode", "get_mode");
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "current_dir", PROPERTY_HINT_DIR), "set_current_dir", "get_current_dir");
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "current_file", PROPERTY_HINT_FILE, "*"), "set_current_file", "get_current_file");
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "current_path"), "set_current_path", "get_current_path");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "show_hidden_files"), "set_show_hidden_files", "is_showing_hidden_files");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "disable_overwrite_warning"), "set_disable_overwrite_warning", "is_overwrite_warning_disabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "access", PROPERTY_HINT_ENUM, "Resources,User data,File system"), "set_access", "get_access");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "display_mode", PROPERTY_HINT_ENUM, "Thumbnails,List"), "set_display_mode", "get_display_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "mode", PROPERTY_HINT_ENUM, "Open one,Open many,Open folder,Open any,Save"), "set_mode", "get_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "current_dir", PROPERTY_HINT_DIR), "set_current_dir", "get_current_dir");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "current_file", PROPERTY_HINT_FILE, "*"), "set_current_file", "get_current_file");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "current_path"), "set_current_path", "get_current_path");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "show_hidden_files"), "set_show_hidden_files", "is_showing_hidden_files");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "disable_overwrite_warning"), "set_disable_overwrite_warning", "is_overwrite_warning_disabled");
 
-    BIND_ENUM_CONSTANT(MODE_OPEN_FILE);
-    BIND_ENUM_CONSTANT(MODE_OPEN_FILES);
-    BIND_ENUM_CONSTANT(MODE_OPEN_DIR);
-    BIND_ENUM_CONSTANT(MODE_OPEN_ANY);
-    BIND_ENUM_CONSTANT(MODE_SAVE_FILE);
+    BIND_ENUM_CONSTANT(MODE_OPEN_FILE)
+    BIND_ENUM_CONSTANT(MODE_OPEN_FILES)
+    BIND_ENUM_CONSTANT(MODE_OPEN_DIR)
+    BIND_ENUM_CONSTANT(MODE_OPEN_ANY)
+    BIND_ENUM_CONSTANT(MODE_SAVE_FILE)
 
-    BIND_ENUM_CONSTANT(ACCESS_RESOURCES);
-    BIND_ENUM_CONSTANT(ACCESS_USERDATA);
-    BIND_ENUM_CONSTANT(ACCESS_FILESYSTEM);
+    BIND_ENUM_CONSTANT(ACCESS_RESOURCES)
+    BIND_ENUM_CONSTANT(ACCESS_USERDATA)
+    BIND_ENUM_CONSTANT(ACCESS_FILESYSTEM)
 
-    BIND_ENUM_CONSTANT(DISPLAY_THUMBNAILS);
-    BIND_ENUM_CONSTANT(DISPLAY_LIST);
+    BIND_ENUM_CONSTANT(DISPLAY_THUMBNAILS)
+    BIND_ENUM_CONSTANT(DISPLAY_LIST)
 }
 
 void EditorFileDialog::set_show_hidden_files(bool p_show) {
@@ -1559,8 +1561,7 @@ EditorFileDialog::EditorFileDialog() {
 
     pathhb->add_child(memnew(VSeparator));
 
-    Ref<ButtonGroup> view_mode_group;
-    view_mode_group.instance();
+    Ref<ButtonGroup> view_mode_group(make_ref_counted<ButtonGroup>());
 
     mode_thumbnails = memnew(ToolButton);
     mode_thumbnails->connect("pressed", this, "set_display_mode", varray(DISPLAY_THUMBNAILS));

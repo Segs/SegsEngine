@@ -57,7 +57,7 @@ MonoObject *godot_icall_GD_convert(MonoObject *p_what, int32_t p_type) {
 	const Variant *args[1] = { &what };
 	Variant::CallError ce;
 	Variant ret = Variant::construct(Variant::Type(p_type), args, 1, ce);
-	ERR_FAIL_COND_V(ce.error != Variant::CallError::CALL_OK, NULL);
+	ERR_FAIL_COND_V(ce.error != Variant::CallError::CALL_OK, NULL)
 	return GDMonoMarshal::variant_to_mono_object(ret);
 }
 
@@ -193,7 +193,7 @@ MonoArray *godot_icall_GD_var2bytes(MonoObject *p_var, MonoBoolean p_full_object
 	PoolByteArray barr;
 	int len;
 	Error err = encode_variant(var, NULL, len, p_full_objects);
-	ERR_FAIL_COND_V_MSG(err != OK, NULL, "Unexpected error encoding variable to bytes, likely unserializable type found (Object or RID).");
+	ERR_FAIL_COND_V_MSG(err != OK, NULL, "Unexpected error encoding variable to bytes, likely unserializable type found (Object or RID).")
 
 	barr.resize(len);
 	{

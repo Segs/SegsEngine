@@ -79,7 +79,7 @@ void MaterialEditor::edit(const Ref<Material>& p_material, const Ref<Environment
 
     material = p_material;
     camera->set_environment(p_env);
-    if (!material.is_null()) {
+    if (material) {
         sphere_instance->set_material_override(material);
         box_instance->set_material_override(material);
     } else {
@@ -125,8 +125,7 @@ MaterialEditor::MaterialEditor() {
     add_child(vc);
     vc->set_anchors_and_margins_preset(PRESET_WIDE);
     viewport = memnew(Viewport);
-    Ref<World> world;
-    world.instance();
+    Ref<World> world(make_ref_counted<World>());
     viewport->set_world(world); //use own world
     vc->add_child(viewport);
     viewport->set_disable_input(true);
@@ -157,13 +156,13 @@ MaterialEditor::MaterialEditor() {
     Transform box_xform;
     box_xform.basis.rotate(Vector3(1, 0, 0), Math::deg2rad(25.0));
     box_xform.basis = box_xform.basis * Basis().rotated(Vector3(0, 1, 0), Math::deg2rad(-25.0));
-    box_xform.basis.scale(Vector3(0.8, 0.8, 0.8));
-    box_xform.origin.y = 0.2;
+    box_xform.basis.scale(Vector3(0.8f, 0.8f, 0.8f));
+    box_xform.origin.y = 0.2f;
     box_instance->set_transform(box_xform);
 
-    sphere_mesh.instance();
+    sphere_mesh = make_ref_counted<SphereMesh>();
     sphere_instance->set_mesh(sphere_mesh);
-    box_mesh.instance();
+    box_mesh = make_ref_counted<CubeMesh>();
     box_instance->set_mesh(box_mesh);
     box_instance->hide();
 
@@ -180,13 +179,13 @@ MaterialEditor::MaterialEditor() {
     sphere_switch->set_toggle_mode(true);
     sphere_switch->set_pressed(true);
     vb_shape->add_child(sphere_switch);
-    sphere_switch->connect("pressed", this, "_button_pressed", varray(sphere_switch));
+    sphere_switch->connect("pressed", this, "_button_pressed", varray(Variant(sphere_switch)));
 
     box_switch = memnew(TextureButton);
     box_switch->set_toggle_mode(true);
     box_switch->set_pressed(false);
     vb_shape->add_child(box_switch);
-    box_switch->connect("pressed", this, "_button_pressed", varray(box_switch));
+    box_switch->connect("pressed", this, "_button_pressed", varray(Variant(box_switch)));
 
     hb->add_spacer();
 
@@ -196,12 +195,12 @@ MaterialEditor::MaterialEditor() {
     light_1_switch = memnew(TextureButton);
     light_1_switch->set_toggle_mode(true);
     vb_light->add_child(light_1_switch);
-    light_1_switch->connect("pressed", this, "_button_pressed", varray(light_1_switch));
+    light_1_switch->connect("pressed", this, "_button_pressed", varray(Variant(light_1_switch)));
 
     light_2_switch = memnew(TextureButton);
     light_2_switch->set_toggle_mode(true);
     vb_light->add_child(light_2_switch);
-    light_2_switch->connect("pressed", this, "_button_pressed", varray(light_2_switch));
+    light_2_switch->connect("pressed", this, "_button_pressed", varray(Variant(light_2_switch)));
 
     first_enter = true;
 }
@@ -231,16 +230,15 @@ void EditorInspectorPluginMaterial::parse_begin(Object *p_object) {
 }
 
 EditorInspectorPluginMaterial::EditorInspectorPluginMaterial() {
-    env.instance();
-    Ref<ProceduralSky> proc_sky = memnew(ProceduralSky(true));
+    env = make_ref_counted<Environment>();
+    Ref<ProceduralSky> proc_sky(make_ref_counted<ProceduralSky>(true));
     env->set_sky(proc_sky);
     env->set_background(Environment::BG_COLOR_SKY);
 }
 
 MaterialEditorPlugin::MaterialEditorPlugin(EditorNode *p_node) {
 
-    Ref<EditorInspectorPluginMaterial> plugin;
-    plugin.instance();
+    Ref<EditorInspectorPluginMaterial> plugin(make_ref_counted<EditorInspectorPluginMaterial>());
     add_inspector_plugin(plugin);
 }
 
@@ -250,19 +248,17 @@ String SpatialMaterialConversionPlugin::converts_to() const {
 }
 bool SpatialMaterialConversionPlugin::handles(const Ref<Resource> &p_resource) const {
 
-    Ref<SpatialMaterial> mat = p_resource;
-    return mat.is_valid();
+    Ref<SpatialMaterial> mat = dynamic_ref_cast<SpatialMaterial>(p_resource);
+    return mat;
 }
 Ref<Resource> SpatialMaterialConversionPlugin::convert(const Ref<Resource> &p_resource) const {
 
-    Ref<SpatialMaterial> mat = p_resource;
-    ERR_FAIL_COND_V(!mat.is_valid(), Ref<Resource>());
+    Ref<SpatialMaterial> mat = dynamic_ref_cast<SpatialMaterial>(p_resource);
+    ERR_FAIL_COND_V(not mat, Ref<Resource>())
 
-    Ref<ShaderMaterial> smat;
-    smat.instance();
+    Ref<ShaderMaterial> smat(make_ref_counted<ShaderMaterial>());
 
-    Ref<Shader> shader;
-    shader.instance();
+    Ref<Shader> shader(make_ref_counted<Shader>());
 
     String code = VS::get_singleton()->shader_get_code(mat->get_shader_rid());
 
@@ -270,19 +266,19 @@ Ref<Resource> SpatialMaterialConversionPlugin::convert(const Ref<Resource> &p_re
 
     smat->set_shader(shader);
 
-    List<PropertyInfo> params;
+    ListPOD<PropertyInfo> params;
     VS::get_singleton()->shader_get_param_list(mat->get_shader_rid(), &params);
 
-    for (List<PropertyInfo>::Element *E = params.front(); E; E = E->next()) {
+    for(const PropertyInfo & E : params) {
 
         // Texture parameter has to be treated specially since SpatialMaterial saved it
         // as RID but ShaderMaterial needs Texture itself
-        Ref<Texture> texture = mat->get_texture_by_name(E->get().name);
-        if (texture.is_valid()) {
-            smat->set_shader_param(E->get().name, texture);
+        Ref<Texture> texture = mat->get_texture_by_name(E.name);
+        if (texture) {
+            smat->set_shader_param(E.name, texture);
         } else {
-            Variant value = VS::get_singleton()->material_get_param(mat->get_rid(), E->get().name);
-            smat->set_shader_param(E->get().name, value);
+            Variant value = VS::get_singleton()->material_get_param(mat->get_rid(), E.name);
+            smat->set_shader_param(E.name, value);
         }
     }
 
@@ -296,19 +292,17 @@ String ParticlesMaterialConversionPlugin::converts_to() const {
 }
 bool ParticlesMaterialConversionPlugin::handles(const Ref<Resource> &p_resource) const {
 
-    Ref<ParticlesMaterial> mat = p_resource;
-    return mat.is_valid();
+    Ref<ParticlesMaterial> mat = dynamic_ref_cast<ParticlesMaterial>(p_resource);
+    return mat;
 }
 Ref<Resource> ParticlesMaterialConversionPlugin::convert(const Ref<Resource> &p_resource) const {
 
-    Ref<ParticlesMaterial> mat = p_resource;
-    ERR_FAIL_COND_V(!mat.is_valid(), Ref<Resource>());
+    Ref<ParticlesMaterial> mat = dynamic_ref_cast<ParticlesMaterial>(p_resource);
+    ERR_FAIL_COND_V(not mat, Ref<Resource>())
 
-    Ref<ShaderMaterial> smat;
-    smat.instance();
+    Ref<ShaderMaterial> smat(make_ref_counted<ShaderMaterial>());
 
-    Ref<Shader> shader;
-    shader.instance();
+    Ref<Shader> shader(make_ref_counted<Shader>());
 
     String code = VS::get_singleton()->shader_get_code(mat->get_shader_rid());
 
@@ -316,12 +310,12 @@ Ref<Resource> ParticlesMaterialConversionPlugin::convert(const Ref<Resource> &p_
 
     smat->set_shader(shader);
 
-    List<PropertyInfo> params;
+    ListPOD<PropertyInfo> params;
     VS::get_singleton()->shader_get_param_list(mat->get_shader_rid(), &params);
 
-    for (List<PropertyInfo>::Element *E = params.front(); E; E = E->next()) {
-        Variant value = VS::get_singleton()->material_get_param(mat->get_rid(), E->get().name);
-        smat->set_shader_param(E->get().name, value);
+    for(const PropertyInfo & E : params) {
+        Variant value = VS::get_singleton()->material_get_param(mat->get_rid(), E.name);
+        smat->set_shader_param(E.name, value);
     }
 
     smat->set_render_priority(mat->get_render_priority());
@@ -334,19 +328,17 @@ String CanvasItemMaterialConversionPlugin::converts_to() const {
 }
 bool CanvasItemMaterialConversionPlugin::handles(const Ref<Resource> &p_resource) const {
 
-    Ref<CanvasItemMaterial> mat = p_resource;
-    return mat.is_valid();
+    Ref<CanvasItemMaterial> mat = dynamic_ref_cast<CanvasItemMaterial>(p_resource);
+    return mat;
 }
 Ref<Resource> CanvasItemMaterialConversionPlugin::convert(const Ref<Resource> &p_resource) const {
 
-    Ref<CanvasItemMaterial> mat = p_resource;
-    ERR_FAIL_COND_V(!mat.is_valid(), Ref<Resource>());
+    Ref<CanvasItemMaterial> mat = dynamic_ref_cast<CanvasItemMaterial>(p_resource);
+    ERR_FAIL_COND_V(not mat, Ref<Resource>())
 
-    Ref<ShaderMaterial> smat;
-    smat.instance();
+    Ref<ShaderMaterial> smat(make_ref_counted<ShaderMaterial>());
 
-    Ref<Shader> shader;
-    shader.instance();
+    Ref<Shader> shader(make_ref_counted<Shader>());
 
     String code = VS::get_singleton()->shader_get_code(mat->get_shader_rid());
 
@@ -354,12 +346,12 @@ Ref<Resource> CanvasItemMaterialConversionPlugin::convert(const Ref<Resource> &p
 
     smat->set_shader(shader);
 
-    List<PropertyInfo> params;
+    ListPOD<PropertyInfo> params;
     VS::get_singleton()->shader_get_param_list(mat->get_shader_rid(), &params);
 
-    for (List<PropertyInfo>::Element *E = params.front(); E; E = E->next()) {
-        Variant value = VS::get_singleton()->material_get_param(mat->get_rid(), E->get().name);
-        smat->set_shader_param(E->get().name, value);
+    for(const PropertyInfo & E : params) {
+        Variant value = VS::get_singleton()->material_get_param(mat->get_rid(), E.name);
+        smat->set_shader_param(E.name, value);
     }
 
     smat->set_render_priority(mat->get_render_priority());

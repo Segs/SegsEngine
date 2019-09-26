@@ -80,12 +80,12 @@ Vector3 ARVRCamera::project_local_ray_normal(const Point2 &p_pos) const {
     ERR_FAIL_NULL_V(arvr_server, Vector3());
 
     Ref<ARVRInterface> arvr_interface = arvr_server->get_primary_interface();
-    if (arvr_interface.is_null()) {
+    if (not arvr_interface) {
         // we might be in the editor or have VR turned off, just call superclass
         return Camera::project_local_ray_normal(p_pos);
     }
 
-    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector3(), "Camera is not inside scene.");
+    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector3(), "Camera is not inside scene.")
 
     Size2 viewport_size = get_viewport()->get_camera_rect_size();
     Vector2 cpos = get_viewport()->get_camera_coords(p_pos);
@@ -105,12 +105,12 @@ Point2 ARVRCamera::unproject_position(const Vector3 &p_pos) const {
     ERR_FAIL_NULL_V(arvr_server, Vector2());
 
     Ref<ARVRInterface> arvr_interface = arvr_server->get_primary_interface();
-    if (arvr_interface.is_null()) {
+    if (not arvr_interface) {
         // we might be in the editor or have VR turned off, just call superclass
         return Camera::unproject_position(p_pos);
     }
 
-    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector2(), "Camera is not inside scene.");
+    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector2(), "Camera is not inside scene.")
 
     Size2 viewport_size = get_viewport()->get_visible_rect().size;
 
@@ -134,12 +134,12 @@ Vector3 ARVRCamera::project_position(const Point2 &p_point, float p_z_depth) con
     ERR_FAIL_NULL_V(arvr_server, Vector3());
 
     Ref<ARVRInterface> arvr_interface = arvr_server->get_primary_interface();
-    if (arvr_interface.is_null()) {
+    if (not arvr_interface) {
         // we might be in the editor or have VR turned off, just call superclass
         return Camera::project_position(p_point, p_z_depth);
     }
 
-    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector3(), "Camera is not inside scene.");
+    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector3(), "Camera is not inside scene.")
 
     Size2 viewport_size = get_viewport()->get_visible_rect().size;
 
@@ -164,12 +164,12 @@ Vector<Plane> ARVRCamera::get_frustum() const {
     ERR_FAIL_NULL_V(arvr_server, Vector<Plane>());
 
     Ref<ARVRInterface> arvr_interface = arvr_server->get_primary_interface();
-    if (arvr_interface.is_null()) {
+    if (not arvr_interface) {
         // we might be in the editor or have VR turned off, just call superclass
         return Camera::get_frustum();
     }
 
-    ERR_FAIL_COND_V(!is_inside_world(), Vector<Plane>());
+    ERR_FAIL_COND_V(!is_inside_world(), Vector<Plane>())
 
     Size2 viewport_size = get_viewport()->get_visible_rect().size;
     CameraMatrix cm = arvr_interface->get_projection_for_eye(ARVRInterface::EYE_MONO, viewport_size.aspect(), get_znear(), get_zfar());
@@ -246,29 +246,29 @@ void ARVRController::_notification(int p_what) {
 };
 
 void ARVRController::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("set_controller_id", "controller_id"), &ARVRController::set_controller_id);
+    MethodBinder::bind_method(D_METHOD("set_controller_id", {"controller_id"}), &ARVRController::set_controller_id);
     MethodBinder::bind_method(D_METHOD("get_controller_id"), &ARVRController::get_controller_id);
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "controller_id", PROPERTY_HINT_RANGE, "0,32,1"), "set_controller_id", "get_controller_id");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "controller_id", PROPERTY_HINT_RANGE, "0,32,1"), "set_controller_id", "get_controller_id");
     MethodBinder::bind_method(D_METHOD("get_controller_name"), &ARVRController::get_controller_name);
 
     // passthroughs to information about our related joystick
     MethodBinder::bind_method(D_METHOD("get_joystick_id"), &ARVRController::get_joystick_id);
-    MethodBinder::bind_method(D_METHOD("is_button_pressed", "button"), &ARVRController::is_button_pressed);
-    MethodBinder::bind_method(D_METHOD("get_joystick_axis", "axis"), &ARVRController::get_joystick_axis);
+    MethodBinder::bind_method(D_METHOD("is_button_pressed", {"button"}), &ARVRController::is_button_pressed);
+    MethodBinder::bind_method(D_METHOD("get_joystick_axis", {"axis"}), &ARVRController::get_joystick_axis);
 
     MethodBinder::bind_method(D_METHOD("get_is_active"), &ARVRController::get_is_active);
     MethodBinder::bind_method(D_METHOD("get_hand"), &ARVRController::get_hand);
 
     MethodBinder::bind_method(D_METHOD("get_rumble"), &ARVRController::get_rumble);
-    MethodBinder::bind_method(D_METHOD("set_rumble", "rumble"), &ARVRController::set_rumble);
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "rumble", PROPERTY_HINT_RANGE, "0.0,1.0,0.01"), "set_rumble", "get_rumble");
+    MethodBinder::bind_method(D_METHOD("set_rumble", {"rumble"}), &ARVRController::set_rumble);
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "rumble", PROPERTY_HINT_RANGE, "0.0,1.0,0.01"), "set_rumble", "get_rumble");
     ADD_PROPERTY_DEFAULT("rumble", 0.0);
 
     MethodBinder::bind_method(D_METHOD("get_mesh"), &ARVRController::get_mesh);
 
-    ADD_SIGNAL(MethodInfo("button_pressed", PropertyInfo(Variant::INT, "button")));
-    ADD_SIGNAL(MethodInfo("button_release", PropertyInfo(Variant::INT, "button")));
-    ADD_SIGNAL(MethodInfo("mesh_updated", PropertyInfo(Variant::OBJECT, "mesh", PROPERTY_HINT_RESOURCE_TYPE, "Mesh")));
+    ADD_SIGNAL(MethodInfo("button_pressed", PropertyInfo(VariantType::INT, "button")));
+    ADD_SIGNAL(MethodInfo("button_release", PropertyInfo(VariantType::INT, "button")));
+    ADD_SIGNAL(MethodInfo("mesh_updated", PropertyInfo(VariantType::OBJECT, "mesh", PROPERTY_HINT_RESOURCE_TYPE, "Mesh")));
 };
 
 void ARVRController::set_controller_id(int p_controller_id) {
@@ -452,9 +452,9 @@ void ARVRAnchor::_notification(int p_what) {
 
 void ARVRAnchor::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_anchor_id", "anchor_id"), &ARVRAnchor::set_anchor_id);
+    MethodBinder::bind_method(D_METHOD("set_anchor_id", {"anchor_id"}), &ARVRAnchor::set_anchor_id);
     MethodBinder::bind_method(D_METHOD("get_anchor_id"), &ARVRAnchor::get_anchor_id);
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "anchor_id", PROPERTY_HINT_RANGE, "0,32,1"), "set_anchor_id", "get_anchor_id");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "anchor_id", PROPERTY_HINT_RANGE, "0,32,1"), "set_anchor_id", "get_anchor_id");
     MethodBinder::bind_method(D_METHOD("get_anchor_name"), &ARVRAnchor::get_anchor_name);
 
     MethodBinder::bind_method(D_METHOD("get_is_active"), &ARVRAnchor::get_is_active);
@@ -463,7 +463,7 @@ void ARVRAnchor::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_plane"), &ARVRAnchor::get_plane);
 
     MethodBinder::bind_method(D_METHOD("get_mesh"), &ARVRAnchor::get_mesh);
-    ADD_SIGNAL(MethodInfo("mesh_updated", PropertyInfo(Variant::OBJECT, "mesh", PROPERTY_HINT_RESOURCE_TYPE, "Mesh")));
+    ADD_SIGNAL(MethodInfo("mesh_updated", PropertyInfo(VariantType::OBJECT, "mesh", PROPERTY_HINT_RESOURCE_TYPE, "Mesh")));
 };
 
 void ARVRAnchor::set_anchor_id(int p_anchor_id) {
@@ -550,9 +550,9 @@ String ARVROrigin::get_configuration_warning() const {
 };
 
 void ARVROrigin::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("set_world_scale", "world_scale"), &ARVROrigin::set_world_scale);
+    MethodBinder::bind_method(D_METHOD("set_world_scale", {"world_scale"}), &ARVROrigin::set_world_scale);
     MethodBinder::bind_method(D_METHOD("get_world_scale"), &ARVROrigin::get_world_scale);
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "world_scale"), "set_world_scale", "get_world_scale");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "world_scale"), "set_world_scale", "get_world_scale");
 };
 
 void ARVROrigin::set_tracked_camera(ARVRCamera *p_tracked_camera) {
@@ -599,7 +599,7 @@ void ARVROrigin::_notification(int p_what) {
 
             // check if we have a primary interface
             Ref<ARVRInterface> arvr_interface = arvr_server->get_primary_interface();
-            if (arvr_interface.is_valid() && tracked_camera != nullptr) {
+            if (arvr_interface && tracked_camera != nullptr) {
                 // get our positioning transform for our headset
                 Transform t = arvr_interface->get_transform_for_eye(ARVRInterface::EYE_MONO, Transform());
 
@@ -614,7 +614,7 @@ void ARVROrigin::_notification(int p_what) {
     // send our notification to all active ARVR interfaces, they may need to react to it also
     for (int i = 0; i < arvr_server->get_interface_count(); i++) {
         Ref<ARVRInterface> interface = arvr_server->get_interface(i);
-        if (interface.is_valid() && interface->is_initialized()) {
+        if (interface && interface->is_initialized()) {
             interface->notification(p_what);
         }
     }

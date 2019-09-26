@@ -375,10 +375,10 @@
     <DisplayString Condition="mnElementCount == 0">[{mnElementCount}] {{}}</DisplayString>
 	<DisplayString Condition="mnElementCount != 0">[{mnElementCount}] {{ ... }}</DisplayString>
 	<Expand>
-		<ArrayItems>
-            <Size>mnBucketCount</Size>
-            <ValuePointer>mpBucketArray</ValuePointer>
-        </ArrayItems>
+            <ArrayItems>
+                <Size>mnBucketCount</Size>
+                <ValuePointer>mpBucketArray</ValuePointer>
+            </ArrayItems>
 	</Expand>
 </Type>
 

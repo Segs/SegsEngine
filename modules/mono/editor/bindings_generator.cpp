@@ -862,11 +862,11 @@ void BindingsGenerator::_generate_global_constants(StringBuilder &p_output) {
 Error BindingsGenerator::generate_cs_core_project(const String &p_proj_dir, Vector<String> &r_compile_items) {
 
     DirAccessRef da = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
-    ERR_FAIL_COND_V(!da, ERR_CANT_CREATE);
+    ERR_FAIL_COND_V(!da, ERR_CANT_CREATE)
 
     if (!DirAccess::exists(p_proj_dir)) {
         Error err = da->make_dir_recursive(p_proj_dir);
-        ERR_FAIL_COND_V(err != OK, ERR_CANT_CREATE);
+        ERR_FAIL_COND_V(err != OK, ERR_CANT_CREATE)
     }
 
     da->change_dir(p_proj_dir);
@@ -925,11 +925,11 @@ Error BindingsGenerator::generate_cs_core_project(const String &p_proj_dir, Vect
 
         if (!DirAccess::exists(output_dir)) {
             Error err = da->make_dir_recursive(ProjectSettings::get_singleton()->globalize_path(output_dir));
-            ERR_FAIL_COND_V(err != OK, ERR_CANT_CREATE);
+            ERR_FAIL_COND_V(err != OK, ERR_CANT_CREATE)
         }
 
         FileAccessRef file = FileAccess::open(output_file, FileAccess::WRITE);
-        ERR_FAIL_COND_V(!file, ERR_FILE_CANT_WRITE);
+        ERR_FAIL_COND_V(!file, ERR_FILE_CANT_WRITE)
         file->store_buffer(data.ptr(), data.size());
         file->close();
 
@@ -983,11 +983,11 @@ Error BindingsGenerator::generate_cs_core_project(const String &p_proj_dir, Vect
 Error BindingsGenerator::generate_cs_editor_project(const String &p_proj_dir, Vector<String> &r_compile_items) {
 
     DirAccessRef da = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
-    ERR_FAIL_COND_V(!da, ERR_CANT_CREATE);
+    ERR_FAIL_COND_V(!da, ERR_CANT_CREATE)
 
     if (!DirAccess::exists(p_proj_dir)) {
         Error err = da->make_dir_recursive(p_proj_dir);
-        ERR_FAIL_COND_V(err != OK, ERR_CANT_CREATE);
+        ERR_FAIL_COND_V(err != OK, ERR_CANT_CREATE)
     }
 
     da->change_dir(p_proj_dir);
@@ -1065,11 +1065,11 @@ Error BindingsGenerator::generate_cs_api(const String &p_output_dir) {
     String output_dir = path::abspath(path::realpath(p_output_dir));
 
     DirAccessRef da = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
-    ERR_FAIL_COND_V(!da, ERR_CANT_CREATE);
+    ERR_FAIL_COND_V(!da, ERR_CANT_CREATE)
 
     if (!DirAccess::exists(output_dir)) {
         Error err = da->make_dir_recursive(output_dir);
-        ERR_FAIL_COND_V(err != OK, ERR_CANT_CREATE);
+        ERR_FAIL_COND_V(err != OK, ERR_CANT_CREATE)
     }
 
     Error proj_err;
@@ -1230,7 +1230,7 @@ Error BindingsGenerator::_generate_cs_type(const TypeInterface &itype, const Str
         for (const List<EnumInterface>::Element *E = itype.enums.front(); E; E = E->next()) {
             const EnumInterface &ienum = E->get();
 
-            ERR_FAIL_COND_V(ienum.constants.empty(), ERR_BUG);
+            ERR_FAIL_COND_V(ienum.constants.empty(), ERR_BUG)
 
             output.append(MEMBER_BEGIN "public enum ");
             output.append(ienum.cname.operator String());
@@ -1372,7 +1372,7 @@ Error BindingsGenerator::_generate_cs_property(const BindingsGenerator::TypeInte
     const TypeInterface *current_type = &p_itype;
     while (!setter && current_type->base_name != StringName()) {
         OrderedHashMap<StringName, TypeInterface>::Element base_match = obj_types.find(current_type->base_name);
-        ERR_FAIL_COND_V(!base_match, ERR_BUG);
+        ERR_FAIL_COND_V(!base_match, ERR_BUG)
         current_type = &base_match.get();
         setter = current_type->find_method_by_name(p_iprop.setter);
     }
@@ -1383,25 +1383,25 @@ Error BindingsGenerator::_generate_cs_property(const BindingsGenerator::TypeInte
     current_type = &p_itype;
     while (!getter && current_type->base_name != StringName()) {
         OrderedHashMap<StringName, TypeInterface>::Element base_match = obj_types.find(current_type->base_name);
-        ERR_FAIL_COND_V(!base_match, ERR_BUG);
+        ERR_FAIL_COND_V(!base_match, ERR_BUG)
         current_type = &base_match.get();
         getter = current_type->find_method_by_name(p_iprop.getter);
     }
 
-    ERR_FAIL_COND_V(!setter && !getter, ERR_BUG);
+    ERR_FAIL_COND_V(!setter && !getter, ERR_BUG)
 
     if (setter) {
         int setter_argc = p_iprop.index != -1 ? 2 : 1;
-        ERR_FAIL_COND_V(setter->arguments.size() != setter_argc, ERR_BUG);
+        ERR_FAIL_COND_V(setter->arguments.size() != setter_argc, ERR_BUG)
     }
 
     if (getter) {
         int getter_argc = p_iprop.index != -1 ? 1 : 0;
-        ERR_FAIL_COND_V(getter->arguments.size() != getter_argc, ERR_BUG);
+        ERR_FAIL_COND_V(getter->arguments.size() != getter_argc, ERR_BUG)
     }
 
     if (getter && setter) {
-        ERR_FAIL_COND_V(getter->return_type.cname != setter->arguments.back()->get().type.cname, ERR_BUG);
+        ERR_FAIL_COND_V(getter->return_type.cname != setter->arguments.back()->get().type.cname, ERR_BUG)
     }
 
     const TypeReference &proptype_name = getter ? getter->return_type : setter->arguments.back()->get().type;
@@ -1702,7 +1702,7 @@ Error BindingsGenerator::_generate_cs_method(const BindingsGenerator::TypeInterf
 Error BindingsGenerator::generate_glue(const String &p_output_dir) {
 
     bool dir_exists = DirAccess::exists(p_output_dir);
-    ERR_FAIL_COND_V_MSG(!dir_exists, ERR_FILE_BAD_PATH, "The output directory does not exist.");
+    ERR_FAIL_COND_V_MSG(!dir_exists, ERR_FILE_BAD_PATH, "The output directory does not exist.")
 
     StringBuilder output;
 
@@ -1782,6 +1782,9 @@ Error BindingsGenerator::generate_glue(const String &p_output_dir) {
 
     output.append("uint32_t get_bindings_version() { return ");
     output.append(String::num_uint64(BINDINGS_GENERATOR_VERSION) + "; }\n");
+
+	output.append("uint32_t get_cs_glue_version() { return ");
+	output.append(String::num_uint64(CS_GLUE_VERSION) + "; }\n");
 
     output.append("\nvoid register_generated_icalls() " OPEN_BLOCK);
     output.append("\tgodot_register_glue_header_icalls();\n");
@@ -1870,7 +1873,7 @@ Error BindingsGenerator::_save_file(const String &p_path, const StringBuilder &p
 
     FileAccessRef file = FileAccess::open(p_path, FileAccess::WRITE);
 
-    ERR_FAIL_COND_V_MSG(!file, ERR_FILE_CANT_WRITE, "Cannot open file: '" + p_path + "'.");
+    ERR_FAIL_COND_V_MSG(!file, ERR_FILE_CANT_WRITE, "Cannot open file: '" + p_path + "'.")
 
     file->store_string(p_content.as_string());
     file->close();
@@ -2224,7 +2227,7 @@ void BindingsGenerator::_populate_object_type_interfaces() {
 
             bool valid = false;
             iprop.index = ClassDB::get_property_index(type_cname, iprop.cname, &valid);
-            ERR_FAIL_COND(!valid);
+            ERR_FAIL_COND(!valid)
 
             iprop.proxy_name = escape_csharp_keyword(snake_to_pascal_case(iprop.cname));
 
@@ -2254,7 +2257,7 @@ void BindingsGenerator::_populate_object_type_interfaces() {
 
         // Populate methods
 
-        List<MethodInfo> virtual_method_list;
+        PODVector<MethodInfo> virtual_method_list;
         ClassDB::get_virtual_methods(type_cname, &virtual_method_list, true);
 
         List<MethodInfo> method_list;

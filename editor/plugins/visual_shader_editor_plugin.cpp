@@ -68,7 +68,7 @@ Control *VisualShaderNodePlugin::create_editor(const Ref<Resource> &p_parent_res
 
 void VisualShaderNodePlugin::_bind_methods() {
 
-    BIND_VMETHOD(MethodInfo(Variant::OBJECT, "create_editor", PropertyInfo(Variant::OBJECT, "parent_resource", PROPERTY_HINT_RESOURCE_TYPE, "Resource"), PropertyInfo(Variant::OBJECT, "for_node", PROPERTY_HINT_RESOURCE_TYPE, "VisualShaderNode")));
+    BIND_VMETHOD(MethodInfo(VariantType::OBJECT, "create_editor", PropertyInfo(VariantType::OBJECT, "parent_resource", PROPERTY_HINT_RESOURCE_TYPE, "Resource"), PropertyInfo(VariantType::OBJECT, "for_node", PROPERTY_HINT_RESOURCE_TYPE, "VisualShaderNode")));
 }
 
 ///////////////////
@@ -77,10 +77,10 @@ void VisualShaderEditor::edit(VisualShader *p_visual_shader) {
 
     bool changed = false;
     if (p_visual_shader) {
-        if (visual_shader.is_null()) {
+        if (not visual_shader) {
             changed = true;
         } else {
-            if (visual_shader.ptr() != p_visual_shader) {
+            if (visual_shader.get() != p_visual_shader) {
                 changed = true;
             }
         }
@@ -90,7 +90,7 @@ void VisualShaderEditor::edit(VisualShader *p_visual_shader) {
         }
         visual_shader->set_graph_offset(graph->get_scroll_ofs() / EDSCALE);
     } else {
-        if (visual_shader.is_valid()) {
+        if (visual_shader) {
             if (visual_shader->is_connected("changed", this, "")) {
                 visual_shader->disconnect("changed", this, "_update_preview");
             }
@@ -98,7 +98,7 @@ void VisualShaderEditor::edit(VisualShader *p_visual_shader) {
         visual_shader.unref();
     }
 
-    if (visual_shader.is_null()) {
+    if (not visual_shader) {
         hide();
     } else {
         if (changed) { // to avoid tree collapse
@@ -131,8 +131,8 @@ void VisualShaderEditor::clear_custom_types() {
 
 void VisualShaderEditor::add_custom_type(const String &p_name, const Ref<Script> &p_script, const String &p_description, int p_return_icon_type, const String &p_category, const String &p_sub_category) {
 
-    ERR_FAIL_COND(!StringUtils::is_valid_identifier(p_name));
-    ERR_FAIL_COND(!p_script.is_valid());
+    ERR_FAIL_COND(!StringUtils::is_valid_identifier(p_name))
+    ERR_FAIL_COND(not p_script)
 
     for (int i = 0; i < add_options.size(); i++) {
         if (add_options[i].is_custom) {
@@ -202,12 +202,11 @@ void VisualShaderEditor::_update_custom_nodes() {
 
             String script_path = ScriptServer::get_global_class_path(class_list[i]);
             Ref<Resource> res = ResourceLoader::load(script_path);
-            ERR_FAIL_COND(res.is_null());
-            ERR_FAIL_COND(!res->is_class("Script"));
-            Ref<Script> script = Ref<Script>(res);
+            ERR_FAIL_COND(not res)
+            ERR_FAIL_COND(!res->is_class("Script"))
+            Ref<Script> script = dynamic_ref_cast<Script>(res);
 
-            Ref<VisualShaderNodeCustom> ref;
-            ref.instance();
+            Ref<VisualShaderNodeCustom> ref(make_ref_counted<VisualShaderNodeCustom>());
             ref->set_script(script.get_ref_ptr());
 
             String name;
@@ -283,7 +282,7 @@ void VisualShaderEditor::_update_options_menu() {
 
     int current_func = -1;
 
-    if (!visual_shader.is_null()) {
+    if (visual_shader) {
         current_func = visual_shader->get_mode();
     }
 
@@ -405,7 +404,7 @@ void VisualShaderEditor::_draw_color_over_button(Object *obj, Color p_color) {
 }
 
 static Ref<StyleBoxEmpty> make_empty_stylebox(float p_margin_left = -1, float p_margin_top = -1, float p_margin_right = -1, float p_margin_bottom = -1) {
-    Ref<StyleBoxEmpty> style(memnew(StyleBoxEmpty));
+    Ref<StyleBoxEmpty> style(make_ref_counted<StyleBoxEmpty>());
     style->set_default_margin(MARGIN_LEFT, p_margin_left * EDSCALE);
     style->set_default_margin(MARGIN_RIGHT, p_margin_right * EDSCALE);
     style->set_default_margin(MARGIN_BOTTOM, p_margin_bottom * EDSCALE);
@@ -416,7 +415,7 @@ static Ref<StyleBoxEmpty> make_empty_stylebox(float p_margin_left = -1, float p_
 void VisualShaderEditor::_update_created_node(GraphNode *node) {
 
     if (EditorSettings::get_singleton()->get("interface/theme/use_graph_node_headers")) {
-        Ref<StyleBoxFlat> sb = node->get_stylebox("frame", "GraphNode");
+        Ref<StyleBoxFlat> sb = dynamic_ref_cast<StyleBoxFlat>(node->get_stylebox("frame", "GraphNode"));
         Color c = sb->get_border_color();
         Color mono_color = ((c.r + c.g + c.b) / 3) < 0.7 ? Color(1.0, 1.0, 1.0) : Color(0.0, 0.0, 0.0);
         mono_color.a = 0.85;
@@ -434,7 +433,7 @@ void VisualShaderEditor::_update_graph() {
     if (updating)
         return;
 
-    if (visual_shader.is_null())
+    if (not visual_shader)
         return;
 
     graph->set_scroll_ofs(visual_shader->get_graph_offset() * EDSCALE);
@@ -453,10 +452,10 @@ void VisualShaderEditor::_update_graph() {
     }
 
     static const Color type_color[4] = {
-        Color(0.38, 0.85, 0.96), // scalar
-        Color(0.84, 0.49, 0.93), // vector
-        Color(0.55, 0.65, 0.94), // boolean
-        Color(0.96, 0.66, 0.43) // transform
+        Color(0.38f, 0.85f, 0.96f), // scalar
+        Color(0.84f, 0.49f, 0.93f), // vector
+        Color(0.55f, 0.65f, 0.94f), // boolean
+        Color(0.96f, 0.66f, 0.43f) // transform
     };
 
     List<VisualShader::Connection> connections;
@@ -473,12 +472,12 @@ void VisualShaderEditor::_update_graph() {
         Vector2 position = visual_shader->get_node_position(type, nodes[n_i]);
         Ref<VisualShaderNode> vsnode = visual_shader->get_node(type, nodes[n_i]);
 
-        Ref<VisualShaderNodeGroupBase> group_node = Object::cast_to<VisualShaderNodeGroupBase>(vsnode.ptr());
-        bool is_group = !group_node.is_null();
+        Ref<VisualShaderNodeGroupBase> group_node(dynamic_ref_cast<VisualShaderNodeGroupBase>(vsnode));
+        bool is_group = group_node;
         Size2 size = Size2(0, 0);
 
-        Ref<VisualShaderNodeExpression> expression_node = Object::cast_to<VisualShaderNodeExpression>(group_node.ptr());
-        bool is_expression = !expression_node.is_null();
+        Ref<VisualShaderNodeExpression> expression_node(dynamic_ref_cast<VisualShaderNodeExpression>(group_node));
+        bool is_expression = expression_node;
         String expression = "";
 
         GraphNode *node = memnew(GraphNode);
@@ -516,16 +515,16 @@ void VisualShaderEditor::_update_graph() {
             port_offset += 2;
         }
 
-        Ref<VisualShaderNodeUniform> uniform = vsnode;
-        if (uniform.is_valid()) {
+        Ref<VisualShaderNodeUniform> uniform = dynamic_ref_cast<VisualShaderNodeUniform>(vsnode);
+        if (uniform) {
             graph->add_child(node);
             _update_created_node(node);
 
             LineEdit *uniform_name = memnew(LineEdit);
             uniform_name->set_text(uniform->get_uniform_name());
             node->add_child(uniform_name);
-            uniform_name->connect("text_entered", this, "_line_edit_changed", varray(uniform_name, nodes[n_i]));
-            uniform_name->connect("focus_exited", this, "_line_edit_focus_out", varray(uniform_name, nodes[n_i]));
+            uniform_name->connect("text_entered", this, "_line_edit_changed", varray(Variant(uniform_name), Variant(nodes[n_i])));
+            uniform_name->connect("focus_exited", this, "_line_edit_focus_out", varray(Variant(uniform_name), Variant(nodes[n_i])));
 
             if (vsnode->get_input_port_count() == 0 && vsnode->get_output_port_count() == 1 && vsnode->get_output_port_name(0).empty()) {
                 //shortcut
@@ -591,7 +590,7 @@ void VisualShaderEditor::_update_graph() {
                 name_left = vsnode->get_input_port_name(i);
                 port_left = vsnode->get_input_port_type(i);
                 for (List<VisualShader::Connection>::Element *E = connections.front(); E; E = E->next()) {
-                    if (E->get().to_node == nodes[n_i] && E->get().to_port == i) {
+                    if (E->deref().to_node == nodes[n_i] && E->deref().to_port == i) {
                         port_left_used = true;
                     }
                 }
@@ -614,25 +613,25 @@ void VisualShaderEditor::_update_graph() {
                 default_value = vsnode->get_input_port_default_value(i);
             }
 
-            if (default_value.get_type() != Variant::NIL) { // only a label
+            if (default_value.get_type() != VariantType::NIL) { // only a label
                 Button *button = memnew(Button);
                 hb->add_child(button);
-                button->connect("pressed", this, "_edit_port_default_input", varray(button, nodes[n_i], i));
+                button->connect("pressed", this, "_edit_port_default_input", varray(Variant(button), Variant(nodes[n_i]), i));
 
                 switch (default_value.get_type()) {
 
-                    case Variant::COLOR: {
+                    case VariantType::COLOR: {
                         button->set_custom_minimum_size(Size2(30, 0) * EDSCALE);
-                        button->connect("draw", this, "_draw_color_over_button", varray(button, default_value));
+                        button->connect("draw", this, "_draw_color_over_button", varray(Variant(button), default_value));
                     } break;
-                    case Variant::BOOL: {
+                    case VariantType::BOOL: {
                         button->set_text(((bool)default_value) ? "true" : "false");
                     } break;
-                    case Variant::INT:
-                    case Variant::REAL: {
+                    case VariantType::INT:
+                    case VariantType::REAL: {
                         button->set_text(StringUtils::num(default_value, 4));
                     } break;
-                    case Variant::VECTOR3: {
+                    case VariantType::VECTOR3: {
                         Vector3 v = default_value;
                         button->set_text(StringUtils::num(v.x, 3) + "," + StringUtils::num(v.y, 3) + "," + StringUtils::num(v.z, 3));
                     } break;
@@ -664,8 +663,8 @@ void VisualShaderEditor::_update_graph() {
                         name_box->set_custom_minimum_size(Size2(65 * EDSCALE, 0));
                         name_box->set_h_size_flags(SIZE_EXPAND_FILL);
                         name_box->set_text(name_left);
-                        name_box->connect("text_entered", this, "_change_input_port_name", varray(name_box, nodes[n_i], i));
-                        name_box->connect("focus_exited", this, "_port_name_focus_out", varray(name_box, nodes[n_i], i, false));
+                        name_box->connect("text_entered", this, "_change_input_port_name", varray(Variant(name_box), nodes[n_i], i));
+                        name_box->connect("focus_exited", this, "_port_name_focus_out", varray(Variant(name_box), nodes[n_i], i, false));
 
                         Button *remove_btn = memnew(Button);
                         remove_btn->set_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("Remove", "EditorIcons"));
@@ -698,8 +697,8 @@ void VisualShaderEditor::_update_graph() {
                         name_box->set_custom_minimum_size(Size2(65 * EDSCALE, 0));
                         name_box->set_h_size_flags(SIZE_EXPAND_FILL);
                         name_box->set_text(name_right);
-                        name_box->connect("text_entered", this, "_change_output_port_name", varray(name_box, nodes[n_i], i));
-                        name_box->connect("focus_exited", this, "_port_name_focus_out", varray(name_box, nodes[n_i], i, true));
+                        name_box->connect("text_entered", this, "_change_output_port_name", varray(Variant(name_box), nodes[n_i], i));
+                        name_box->connect("focus_exited", this, "_port_name_focus_out", varray(Variant(name_box), nodes[n_i], i, true));
 
                         OptionButton *type_box = memnew(OptionButton);
                         hb->add_child(type_box);
@@ -784,9 +783,9 @@ void VisualShaderEditor::_update_graph() {
             expression_box->set_syntax_coloring(true);
             expression_box->add_color_override("background_color", background_color);
 
-            for (List<String>::Element *E = keyword_list.front(); E; E = E->next()) {
+            for (const String &E : keyword_list) {
 
-                expression_box->add_keyword_color(E->get(), keyword_color);
+                expression_box->add_keyword_color(E, keyword_color);
             }
 
             expression_box->add_font_override("font", get_font("expression", "EditorFonts"));
@@ -799,10 +798,10 @@ void VisualShaderEditor::_update_graph() {
             expression_box->set_context_menu_enabled(false);
             expression_box->set_show_line_numbers(true);
 
-            expression_box->connect("focus_exited", this, "_expression_focus_out", varray(expression_box, nodes[n_i]));
+            expression_box->connect("focus_exited", this, "_expression_focus_out", varray(Variant(expression_box), nodes[n_i]));
         }
 
-        if (!uniform.is_valid()) {
+        if (not uniform) {
             graph->add_child(node);
             _update_created_node(node);
             if (is_group)
@@ -812,10 +811,10 @@ void VisualShaderEditor::_update_graph() {
 
     for (List<VisualShader::Connection>::Element *E = connections.front(); E; E = E->next()) {
 
-        int from = E->get().from_node;
-        int from_idx = E->get().from_port;
-        int to = E->get().to_node;
-        int to_idx = E->get().to_port;
+        int from = E->deref().from_node;
+        int from_idx = E->deref().from_port;
+        int to = E->deref().to_node;
+        int to_idx = E->deref().to_port;
 
         graph->connect_node(itos(from), from_idx, itos(to), to_idx);
     }
@@ -824,14 +823,14 @@ void VisualShaderEditor::_update_graph() {
 void VisualShaderEditor::_add_input_port(int p_node, int p_port, int p_port_type, const String &p_name) {
 
     VisualShader::Type type = VisualShader::Type(edit_type->get_selected());
-    Ref<VisualShaderNodeExpression> node = visual_shader->get_node(type, p_node);
-    if (node.is_null()) {
+    Ref<VisualShaderNodeExpression> node = dynamic_ref_cast<VisualShaderNodeExpression>(visual_shader->get_node(type, p_node));
+    if (not node) {
         return;
     }
 
     undo_redo->create_action(TTR("Add input port"));
-    undo_redo->add_do_method(node.ptr(), "add_input_port", p_port, p_port_type, p_name);
-    undo_redo->add_undo_method(node.ptr(), "remove_input_port", p_port);
+    undo_redo->add_do_method(node.get(), "add_input_port", p_port, p_port_type, p_name);
+    undo_redo->add_undo_method(node.get(), "remove_input_port", p_port);
     undo_redo->add_do_method(this, "_update_graph");
     undo_redo->add_undo_method(this, "_update_graph");
     undo_redo->add_do_method(this, "_rebuild");
@@ -842,14 +841,14 @@ void VisualShaderEditor::_add_input_port(int p_node, int p_port, int p_port_type
 void VisualShaderEditor::_add_output_port(int p_node, int p_port, int p_port_type, const String &p_name) {
 
     VisualShader::Type type = VisualShader::Type(edit_type->get_selected());
-    Ref<VisualShaderNodeGroupBase> node = visual_shader->get_node(type, p_node);
-    if (node.is_null()) {
+    Ref<VisualShaderNodeGroupBase> node = dynamic_ref_cast<VisualShaderNodeGroupBase>(visual_shader->get_node(type, p_node));
+    if (not node) {
         return;
     }
 
     undo_redo->create_action(TTR("Add output port"));
-    undo_redo->add_do_method(node.ptr(), "add_output_port", p_port, p_port_type, p_name);
-    undo_redo->add_undo_method(node.ptr(), "remove_output_port", p_port);
+    undo_redo->add_do_method(node.get(), "add_output_port", p_port, p_port_type, p_name);
+    undo_redo->add_undo_method(node.get(), "remove_output_port", p_port);
     undo_redo->add_do_method(this, "_update_graph");
     undo_redo->add_undo_method(this, "_update_graph");
     undo_redo->add_do_method(this, "_rebuild");
@@ -860,14 +859,14 @@ void VisualShaderEditor::_add_output_port(int p_node, int p_port, int p_port_typ
 void VisualShaderEditor::_change_input_port_type(int p_type, int p_node, int p_port) {
 
     VisualShader::Type type = VisualShader::Type(edit_type->get_selected());
-    Ref<VisualShaderNodeGroupBase> node = visual_shader->get_node(type, p_node);
-    if (node.is_null()) {
+    Ref<VisualShaderNodeGroupBase> node = dynamic_ref_cast<VisualShaderNodeGroupBase>(visual_shader->get_node(type, p_node));
+    if (not node) {
         return;
     }
 
     undo_redo->create_action(TTR("Change input port type"));
-    undo_redo->add_do_method(node.ptr(), "set_input_port_type", p_port, p_type);
-    undo_redo->add_undo_method(node.ptr(), "set_input_port_type", p_port, node->get_input_port_type(p_port));
+    undo_redo->add_do_method(node.get(), "set_input_port_type", p_port, p_type);
+    undo_redo->add_undo_method(node.get(), "set_input_port_type", p_port, node->get_input_port_type(p_port));
     undo_redo->add_do_method(this, "_update_graph");
     undo_redo->add_undo_method(this, "_update_graph");
     undo_redo->add_do_method(this, "_rebuild");
@@ -878,14 +877,14 @@ void VisualShaderEditor::_change_input_port_type(int p_type, int p_node, int p_p
 void VisualShaderEditor::_change_output_port_type(int p_type, int p_node, int p_port) {
 
     VisualShader::Type type = VisualShader::Type(edit_type->get_selected());
-    Ref<VisualShaderNodeGroupBase> node = visual_shader->get_node(type, p_node);
-    if (node.is_null()) {
+    Ref<VisualShaderNodeGroupBase> node = dynamic_ref_cast<VisualShaderNodeGroupBase>(visual_shader->get_node(type, p_node));
+    if (not node) {
         return;
     }
 
     undo_redo->create_action(TTR("Change output port type"));
-    undo_redo->add_do_method(node.ptr(), "set_output_port_type", p_port, p_type);
-    undo_redo->add_undo_method(node.ptr(), "set_output_port_type", p_port, node->get_output_port_type(p_port));
+    undo_redo->add_do_method(node.get(), "set_output_port_type", p_port, p_type);
+    undo_redo->add_undo_method(node.get(), "set_output_port_type", p_port, node->get_output_port_type(p_port));
     undo_redo->add_do_method(this, "_update_graph");
     undo_redo->add_undo_method(this, "_update_graph");
     undo_redo->add_do_method(this, "_rebuild");
@@ -897,12 +896,12 @@ void VisualShaderEditor::_change_input_port_name(const String &p_text, Object *l
 
     VisualShader::Type type = VisualShader::Type(edit_type->get_selected());
 
-    Ref<VisualShaderNodeGroupBase> node = visual_shader->get_node(type, p_node_id);
-    ERR_FAIL_COND(!node.is_valid());
+    Ref<VisualShaderNodeGroupBase> node = dynamic_ref_cast<VisualShaderNodeGroupBase>(visual_shader->get_node(type, p_node_id));
+    ERR_FAIL_COND(not node)
 
     undo_redo->create_action(TTR("Change input port name"));
-    undo_redo->add_do_method(node.ptr(), "set_input_port_name", p_port_id, p_text);
-    undo_redo->add_undo_method(node.ptr(), "set_input_port_name", p_port_id, node->get_input_port_name(p_port_id));
+    undo_redo->add_do_method(node.get(), "set_input_port_name", p_port_id, p_text);
+    undo_redo->add_undo_method(node.get(), "set_input_port_name", p_port_id, node->get_input_port_name(p_port_id));
     undo_redo->add_do_method(this, "_rebuild");
     undo_redo->add_undo_method(this, "_rebuild");
     undo_redo->commit_action();
@@ -912,12 +911,12 @@ void VisualShaderEditor::_change_output_port_name(const String &p_text, Object *
 
     VisualShader::Type type = VisualShader::Type(edit_type->get_selected());
 
-    Ref<VisualShaderNodeGroupBase> node = visual_shader->get_node(type, p_node_id);
-    ERR_FAIL_COND(!node.is_valid());
+    Ref<VisualShaderNodeGroupBase> node = dynamic_ref_cast<VisualShaderNodeGroupBase>(visual_shader->get_node(type, p_node_id));
+    ERR_FAIL_COND(not node)
 
     undo_redo->create_action(TTR("Change output port name"));
-    undo_redo->add_do_method(node.ptr(), "set_output_port_name", p_port_id, p_text);
-    undo_redo->add_undo_method(node.ptr(), "set_output_port_name", p_port_id, node->get_output_port_name(p_port_id));
+    undo_redo->add_do_method(node.get(), "set_output_port_name", p_port_id, p_text);
+    undo_redo->add_undo_method(node.get(), "set_output_port_name", p_port_id, node->get_output_port_name(p_port_id));
     undo_redo->add_do_method(this, "_rebuild");
     undo_redo->add_undo_method(this, "_rebuild");
     undo_redo->commit_action();
@@ -926,8 +925,8 @@ void VisualShaderEditor::_change_output_port_name(const String &p_text, Object *
 void VisualShaderEditor::_remove_input_port(int p_node, int p_port) {
 
     VisualShader::Type type = VisualShader::Type(edit_type->get_selected());
-    Ref<VisualShaderNodeGroupBase> node = visual_shader->get_node(type, p_node);
-    if (node.is_null()) {
+    Ref<VisualShaderNodeGroupBase> node = dynamic_ref_cast<VisualShaderNodeGroupBase>(visual_shader->get_node(type, p_node));
+    if (not node) {
         return;
     }
 
@@ -937,27 +936,27 @@ void VisualShaderEditor::_remove_input_port(int p_node, int p_port) {
     visual_shader->get_node_connections(type, &conns);
     for (List<VisualShader::Connection>::Element *E = conns.front(); E; E = E->next()) {
 
-        int from_node = E->get().from_node;
-        int from_port = E->get().from_port;
-        int to_node = E->get().to_node;
-        int to_port = E->get().to_port;
+        int from_node = E->deref().from_node;
+        int from_port = E->deref().from_port;
+        int to_node = E->deref().to_node;
+        int to_port = E->deref().to_port;
 
         if (to_node == p_node) {
             if (to_port == p_port) {
-                undo_redo->add_do_method(visual_shader.ptr(), "disconnect_nodes", type, from_node, from_port, to_node, to_port);
-                undo_redo->add_undo_method(visual_shader.ptr(), "connect_nodes_forced", type, from_node, from_port, to_node, to_port);
+                undo_redo->add_do_method(visual_shader.get(), "disconnect_nodes", type, from_node, from_port, to_node, to_port);
+                undo_redo->add_undo_method(visual_shader.get(), "connect_nodes_forced", type, from_node, from_port, to_node, to_port);
             } else if (to_port > p_port) {
-                undo_redo->add_do_method(visual_shader.ptr(), "disconnect_nodes", type, from_node, from_port, to_node, to_port);
-                undo_redo->add_undo_method(visual_shader.ptr(), "connect_nodes_forced", type, from_node, from_port, to_node, to_port);
+                undo_redo->add_do_method(visual_shader.get(), "disconnect_nodes", type, from_node, from_port, to_node, to_port);
+                undo_redo->add_undo_method(visual_shader.get(), "connect_nodes_forced", type, from_node, from_port, to_node, to_port);
 
-                undo_redo->add_do_method(visual_shader.ptr(), "connect_nodes_forced", type, from_node, from_port, to_node, to_port - 1);
-                undo_redo->add_undo_method(visual_shader.ptr(), "disconnect_nodes", type, from_node, from_port, to_node, to_port - 1);
+                undo_redo->add_do_method(visual_shader.get(), "connect_nodes_forced", type, from_node, from_port, to_node, to_port - 1);
+                undo_redo->add_undo_method(visual_shader.get(), "disconnect_nodes", type, from_node, from_port, to_node, to_port - 1);
             }
         }
     }
 
-    undo_redo->add_do_method(node.ptr(), "remove_input_port", p_port);
-    undo_redo->add_undo_method(node.ptr(), "add_input_port", p_port, (int)node->get_input_port_type(p_port), node->get_input_port_name(p_port));
+    undo_redo->add_do_method(node.get(), "remove_input_port", p_port);
+    undo_redo->add_undo_method(node.get(), "add_input_port", p_port, (int)node->get_input_port_type(p_port), node->get_input_port_name(p_port));
 
     undo_redo->add_do_method(this, "_update_graph");
     undo_redo->add_undo_method(this, "_update_graph");
@@ -971,8 +970,8 @@ void VisualShaderEditor::_remove_input_port(int p_node, int p_port) {
 void VisualShaderEditor::_remove_output_port(int p_node, int p_port) {
 
     VisualShader::Type type = VisualShader::Type(edit_type->get_selected());
-    Ref<VisualShaderNodeGroupBase> node = visual_shader->get_node(type, p_node);
-    if (node.is_null()) {
+    Ref<VisualShaderNodeGroupBase> node = dynamic_ref_cast<VisualShaderNodeGroupBase>(visual_shader->get_node(type, p_node));
+    if (not node) {
         return;
     }
 
@@ -982,27 +981,27 @@ void VisualShaderEditor::_remove_output_port(int p_node, int p_port) {
     visual_shader->get_node_connections(type, &conns);
     for (List<VisualShader::Connection>::Element *E = conns.front(); E; E = E->next()) {
 
-        int from_node = E->get().from_node;
-        int from_port = E->get().from_port;
-        int to_node = E->get().to_node;
-        int to_port = E->get().to_port;
+        int from_node = E->deref().from_node;
+        int from_port = E->deref().from_port;
+        int to_node = E->deref().to_node;
+        int to_port = E->deref().to_port;
 
         if (from_node == p_node) {
             if (from_port == p_port) {
-                undo_redo->add_do_method(visual_shader.ptr(), "disconnect_nodes", type, from_node, from_port, to_node, to_port);
-                undo_redo->add_undo_method(visual_shader.ptr(), "connect_nodes_forced", type, from_node, from_port, to_node, to_port);
+                undo_redo->add_do_method(visual_shader.get(), "disconnect_nodes", type, from_node, from_port, to_node, to_port);
+                undo_redo->add_undo_method(visual_shader.get(), "connect_nodes_forced", type, from_node, from_port, to_node, to_port);
             } else if (from_port > p_port) {
-                undo_redo->add_do_method(visual_shader.ptr(), "disconnect_nodes", type, from_node, from_port, to_node, to_port);
-                undo_redo->add_undo_method(visual_shader.ptr(), "connect_nodes_forced", type, from_node, from_port, to_node, to_port);
+                undo_redo->add_do_method(visual_shader.get(), "disconnect_nodes", type, from_node, from_port, to_node, to_port);
+                undo_redo->add_undo_method(visual_shader.get(), "connect_nodes_forced", type, from_node, from_port, to_node, to_port);
 
-                undo_redo->add_do_method(visual_shader.ptr(), "connect_nodes_forced", type, from_node, from_port - 1, to_node, to_port);
-                undo_redo->add_undo_method(visual_shader.ptr(), "disconnect_nodes", type, from_node, from_port - 1, to_node, to_port);
+                undo_redo->add_do_method(visual_shader.get(), "connect_nodes_forced", type, from_node, from_port - 1, to_node, to_port);
+                undo_redo->add_undo_method(visual_shader.get(), "disconnect_nodes", type, from_node, from_port - 1, to_node, to_port);
             }
         }
     }
 
-    undo_redo->add_do_method(node.ptr(), "remove_output_port", p_port);
-    undo_redo->add_undo_method(node.ptr(), "add_output_port", p_port, (int)node->get_output_port_type(p_port), node->get_output_port_name(p_port));
+    undo_redo->add_do_method(node.get(), "remove_output_port", p_port);
+    undo_redo->add_undo_method(node.get(), "add_output_port", p_port, (int)node->get_output_port_type(p_port), node->get_output_port_name(p_port));
 
     undo_redo->add_do_method(this, "_update_graph");
     undo_redo->add_undo_method(this, "_update_graph");
@@ -1016,8 +1015,8 @@ void VisualShaderEditor::_remove_output_port(int p_node, int p_port) {
 void VisualShaderEditor::_expression_focus_out(Object *text_edit, int p_node) {
 
     VisualShader::Type type = VisualShader::Type(edit_type->get_selected());
-    Ref<VisualShaderNodeExpression> node = visual_shader->get_node(type, p_node);
-    if (node.is_null()) {
+    Ref<VisualShaderNodeExpression> node = dynamic_ref_cast<VisualShaderNodeExpression>(visual_shader->get_node(type, p_node));
+    if (not node) {
         return;
     }
 
@@ -1027,8 +1026,8 @@ void VisualShaderEditor::_expression_focus_out(Object *text_edit, int p_node) {
         return;
 
     undo_redo->create_action(TTR("Set expression"));
-    undo_redo->add_do_method(node.ptr(), "set_expression", expression_box->get_text());
-    undo_redo->add_undo_method(node.ptr(), "set_expression", node->get_expression());
+    undo_redo->add_do_method(node.get(), "set_expression", expression_box->get_text());
+    undo_redo->add_undo_method(node.get(), "set_expression", node->get_expression());
     undo_redo->add_do_method(this, "_rebuild");
     undo_redo->add_undo_method(this, "_rebuild");
     undo_redo->commit_action();
@@ -1045,13 +1044,13 @@ void VisualShaderEditor::_set_node_size(int p_type, int p_node, const Vector2 &p
 
     VisualShader::Type type = VisualShader::Type(p_type);
     Ref<VisualShaderNode> node = visual_shader->get_node(type, p_node);
-    if (node.is_null()) {
+    if (not node) {
         return;
     }
 
-    Ref<VisualShaderNodeGroupBase> group_node = Object::cast_to<VisualShaderNodeGroupBase>(node.ptr());
+    Ref<VisualShaderNodeGroupBase> group_node(dynamic_ref_cast<VisualShaderNodeGroupBase>(node));
 
-    if (group_node.is_null()) {
+    if (not group_node) {
         return;
     }
 
@@ -1070,8 +1069,8 @@ void VisualShaderEditor::_set_node_size(int p_type, int p_node, const Vector2 &p
         gn->set_size(Size2(1, 1));
     }
 
-    Ref<VisualShaderNodeExpression> expression_node = Object::cast_to<VisualShaderNodeExpression>(node.ptr());
-    if (!expression_node.is_null()) {
+    Ref<VisualShaderNodeExpression> expression_node(dynamic_ref_cast<VisualShaderNodeExpression>(node));
+    if (expression_node) {
         Control *text_box = expression_node->get_control(0);
         Size2 box_size = size;
         if (gn != nullptr) {
@@ -1091,8 +1090,8 @@ void VisualShaderEditor::_set_node_size(int p_type, int p_node, const Vector2 &p
 void VisualShaderEditor::_node_resized(const Vector2 &p_new_size, int p_type, int p_node) {
 
     VisualShader::Type type = VisualShader::Type(p_type);
-    Ref<VisualShaderNodeGroupBase> node = visual_shader->get_node(type, p_node);
-    if (node.is_null()) {
+    Ref<VisualShaderNodeGroupBase> node = dynamic_ref_cast<VisualShaderNodeGroupBase>(visual_shader->get_node(type, p_node));
+    if (not node) {
         return;
     }
 
@@ -1106,7 +1105,7 @@ void VisualShaderEditor::_preview_select_port(int p_node, int p_port) {
 
     VisualShader::Type type = VisualShader::Type(edit_type->get_selected());
     Ref<VisualShaderNode> node = visual_shader->get_node(type, p_node);
-    if (node.is_null()) {
+    if (not node) {
         return;
     }
 
@@ -1114,8 +1113,8 @@ void VisualShaderEditor::_preview_select_port(int p_node, int p_port) {
         p_port = -1; //toggle it
     }
     undo_redo->create_action(TTR("Set Uniform Name"));
-    undo_redo->add_do_method(node.ptr(), "set_output_port_for_preview", p_port);
-    undo_redo->add_undo_method(node.ptr(), "set_output_port_for_preview", node->get_output_port_for_preview());
+    undo_redo->add_do_method(node.get(), "set_output_port_for_preview", p_port);
+    undo_redo->add_undo_method(node.get(), "set_output_port_for_preview", node->get_output_port_for_preview());
     undo_redo->add_do_method(this, "_update_graph");
     undo_redo->add_undo_method(this, "_update_graph");
     undo_redo->commit_action();
@@ -1125,15 +1124,15 @@ void VisualShaderEditor::_line_edit_changed(const String &p_text, Object *line_e
 
     VisualShader::Type type = VisualShader::Type(edit_type->get_selected());
 
-    Ref<VisualShaderNodeUniform> node = visual_shader->get_node(type, p_node_id);
-    ERR_FAIL_COND(!node.is_valid());
+    Ref<VisualShaderNodeUniform> node = dynamic_ref_cast<VisualShaderNodeUniform>(visual_shader->get_node(type, p_node_id));
+    ERR_FAIL_COND(not node)
 
     String validated_name = visual_shader->validate_uniform_name(p_text, node);
 
     updating = true;
     undo_redo->create_action(TTR("Set Uniform Name"));
-    undo_redo->add_do_method(node.ptr(), "set_uniform_name", validated_name);
-    undo_redo->add_undo_method(node.ptr(), "set_uniform_name", node->get_uniform_name());
+    undo_redo->add_do_method(node.get(), "set_uniform_name", validated_name);
+    undo_redo->add_undo_method(node.get(), "set_uniform_name", node->get_uniform_name());
     undo_redo->add_do_method(this, "_update_graph");
     undo_redo->add_undo_method(this, "_update_graph");
     undo_redo->commit_action();
@@ -1152,8 +1151,8 @@ void VisualShaderEditor::_port_name_focus_out(Object *line_edit, int p_node_id, 
 
     VisualShader::Type type = VisualShader::Type(edit_type->get_selected());
 
-    Ref<VisualShaderNodeGroupBase> node = visual_shader->get_node(type, p_node_id);
-    ERR_FAIL_COND(!node.is_valid());
+    Ref<VisualShaderNodeGroupBase> node = dynamic_ref_cast<VisualShaderNodeGroupBase>(visual_shader->get_node(type, p_node_id));
+    ERR_FAIL_COND(not node)
 
     String text = Object::cast_to<LineEdit>(line_edit)->get_text();
 
@@ -1200,11 +1199,11 @@ void VisualShaderEditor::_port_edited() {
 
     Variant value = property_editor->get_variant();
     Ref<VisualShaderNode> vsn = visual_shader->get_node(type, editing_node);
-    ERR_FAIL_COND(!vsn.is_valid());
+    ERR_FAIL_COND(not vsn)
 
     undo_redo->create_action(TTR("Set Input Default Port"));
-    undo_redo->add_do_method(vsn.ptr(), "set_input_port_default_value", editing_port, value);
-    undo_redo->add_undo_method(vsn.ptr(), "set_input_port_default_value", editing_port, vsn->get_input_port_default_value(editing_port));
+    undo_redo->add_do_method(vsn.get(), "set_input_port_default_value", editing_port, value);
+    undo_redo->add_undo_method(vsn.get(), "set_input_port_default_value", editing_port, vsn->get_input_port_default_value(editing_port));
     undo_redo->add_do_method(this, "_update_graph");
     undo_redo->add_undo_method(this, "_update_graph");
     undo_redo->commit_action();
@@ -1219,7 +1218,7 @@ void VisualShaderEditor::_edit_port_default_input(Object *p_button, int p_node, 
     Ref<VisualShaderNode> vsn = visual_shader->get_node(type, p_node);
 
     Button *button = Object::cast_to<Button>(p_button);
-    ERR_FAIL_COND(!button);
+    ERR_FAIL_COND(!button)
     Variant value = vsn->get_input_port_default_value(p_port);
     property_editor->set_global_position(button->get_global_position() + Vector2(0, button->get_size().height));
     property_editor->edit(nullptr, "", value.get_type(), value, 0, "");
@@ -1238,7 +1237,7 @@ void VisualShaderEditor::_add_node(int p_idx, int p_op_idx) {
 
     if (!is_custom && !add_options[p_idx].type.empty()) {
         VisualShaderNode *vsn = Object::cast_to<VisualShaderNode>(ClassDB::instance(add_options[p_idx].type));
-        ERR_FAIL_COND(!vsn);
+        ERR_FAIL_COND(!vsn)
 
         VisualShaderNodeScalarConstant *constant = Object::cast_to<VisualShaderNodeScalarConstant>(vsn);
 
@@ -1324,10 +1323,10 @@ void VisualShaderEditor::_add_node(int p_idx, int p_op_idx) {
 
         vsnode = Ref<VisualShaderNode>(vsn);
     } else {
-        ERR_FAIL_COND(add_options[p_idx].script.is_null());
+        ERR_FAIL_COND(not add_options[p_idx].script)
         String base_type = add_options[p_idx].script->get_instance_base_type();
         VisualShaderNode *vsn = Object::cast_to<VisualShaderNode>(ClassDB::instance(base_type));
-        ERR_FAIL_COND(!vsn);
+        ERR_FAIL_COND(!vsn)
         vsnode = Ref<VisualShaderNode>(vsn);
         vsnode->set_script(add_options[p_idx].script.get_ref_ptr());
     }
@@ -1347,10 +1346,10 @@ void VisualShaderEditor::_add_node(int p_idx, int p_op_idx) {
     int id_to_use = visual_shader->get_valid_node_id(type);
 
     undo_redo->create_action(TTR("Add Node to Visual Shader"));
-    undo_redo->add_do_method(visual_shader.ptr(), "add_node", type, vsnode, position, id_to_use);
-    undo_redo->add_undo_method(visual_shader.ptr(), "remove_node", type, id_to_use);
+    undo_redo->add_do_method(visual_shader.get(), "add_node", type, vsnode, position, id_to_use);
+    undo_redo->add_undo_method(visual_shader.get(), "remove_node", type, id_to_use);
 
-    VisualShaderNodeExpression *expr = Object::cast_to<VisualShaderNodeExpression>(vsnode.ptr());
+    VisualShaderNodeExpression *expr = Object::cast_to<VisualShaderNodeExpression>(vsnode.get());
     if (expr) {
         undo_redo->add_do_method(expr, "set_size", Size2(250 * EDSCALE, 150 * EDSCALE));
     }
@@ -1362,8 +1361,8 @@ void VisualShaderEditor::_add_node(int p_idx, int p_op_idx) {
             int _from_slot = 0;
 
             if (visual_shader->is_port_types_compatible(vsnode->get_output_port_type(_from_slot), visual_shader->get_node(type, to_node)->get_input_port_type(to_slot))) {
-                undo_redo->add_do_method(visual_shader.ptr(), "connect_nodes", type, _from_node, _from_slot, to_node, to_slot);
-                undo_redo->add_undo_method(visual_shader.ptr(), "disconnect_nodes", type, _from_node, _from_slot, to_node, to_slot);
+                undo_redo->add_do_method(visual_shader.get(), "connect_nodes", type, _from_node, _from_slot, to_node, to_slot);
+                undo_redo->add_undo_method(visual_shader.get(), "disconnect_nodes", type, _from_node, _from_slot, to_node, to_slot);
             }
         }
     } else if (from_node != -1 && from_slot != -1) {
@@ -1373,8 +1372,8 @@ void VisualShaderEditor::_add_node(int p_idx, int p_op_idx) {
             int _to_slot = 0;
 
             if (visual_shader->is_port_types_compatible(visual_shader->get_node(type, from_node)->get_output_port_type(from_slot), vsnode->get_input_port_type(_to_slot))) {
-                undo_redo->add_do_method(visual_shader.ptr(), "connect_nodes", type, from_node, from_slot, _to_node, _to_slot);
-                undo_redo->add_undo_method(visual_shader.ptr(), "disconnect_nodes", type, from_node, from_slot, _to_node, _to_slot);
+                undo_redo->add_do_method(visual_shader.get(), "connect_nodes", type, from_node, from_slot, _to_node, _to_slot);
+                undo_redo->add_undo_method(visual_shader.get(), "disconnect_nodes", type, from_node, from_slot, _to_node, _to_slot);
             }
         }
     }
@@ -1390,8 +1389,8 @@ void VisualShaderEditor::_node_dragged(const Vector2 &p_from, const Vector2 &p_t
 
     updating = true;
     undo_redo->create_action(TTR("Node Moved"));
-    undo_redo->add_do_method(visual_shader.ptr(), "set_node_position", type, p_node, p_to);
-    undo_redo->add_undo_method(visual_shader.ptr(), "set_node_position", type, p_node, p_from);
+    undo_redo->add_do_method(visual_shader.get(), "set_node_position", type, p_node, p_to);
+    undo_redo->add_undo_method(visual_shader.get(), "set_node_position", type, p_node, p_from);
     undo_redo->add_do_method(this, "_update_graph");
     undo_redo->add_undo_method(this, "_update_graph");
     undo_redo->commit_action();
@@ -1415,14 +1414,14 @@ void VisualShaderEditor::_connection_request(const String &p_from, int p_from_in
     visual_shader->get_node_connections(type, &conns);
 
     for (List<VisualShader::Connection>::Element *E = conns.front(); E; E = E->next()) {
-        if (E->get().to_node == to && E->get().to_port == p_to_index) {
-            undo_redo->add_do_method(visual_shader.ptr(), "disconnect_nodes", type, E->get().from_node, E->get().from_port, E->get().to_node, E->get().to_port);
-            undo_redo->add_undo_method(visual_shader.ptr(), "connect_nodes", type, E->get().from_node, E->get().from_port, E->get().to_node, E->get().to_port);
+        if (E->deref().to_node == to && E->deref().to_port == p_to_index) {
+            undo_redo->add_do_method(visual_shader.get(), "disconnect_nodes", type, E->deref().from_node, E->deref().from_port, E->deref().to_node, E->deref().to_port);
+            undo_redo->add_undo_method(visual_shader.get(), "connect_nodes", type, E->deref().from_node, E->deref().from_port, E->deref().to_node, E->deref().to_port);
         }
     }
 
-    undo_redo->add_do_method(visual_shader.ptr(), "connect_nodes", type, from, p_from_index, to, p_to_index);
-    undo_redo->add_undo_method(visual_shader.ptr(), "disconnect_nodes", type, from, p_from_index, to, p_to_index);
+    undo_redo->add_do_method(visual_shader.get(), "connect_nodes", type, from, p_from_index, to, p_to_index);
+    undo_redo->add_undo_method(visual_shader.get(), "disconnect_nodes", type, from, p_from_index, to, p_to_index);
     undo_redo->add_do_method(this, "_update_graph");
     undo_redo->add_undo_method(this, "_update_graph");
     undo_redo->commit_action();
@@ -1439,8 +1438,8 @@ void VisualShaderEditor::_disconnection_request(const String &p_from, int p_from
 
     //updating = true; seems graph edit can handle this, no need to protect
     undo_redo->create_action(TTR("Nodes Disconnected"));
-    undo_redo->add_do_method(visual_shader.ptr(), "disconnect_nodes", type, from, p_from_index, to, p_to_index);
-    undo_redo->add_undo_method(visual_shader.ptr(), "connect_nodes", type, from, p_from_index, to, p_to_index);
+    undo_redo->add_do_method(visual_shader.get(), "disconnect_nodes", type, from, p_from_index, to, p_to_index);
+    undo_redo->add_undo_method(visual_shader.get(), "connect_nodes", type, from, p_from_index, to, p_to_index);
     undo_redo->add_do_method(this, "_update_graph");
     undo_redo->add_undo_method(this, "_update_graph");
     undo_redo->commit_action();
@@ -1465,14 +1464,14 @@ void VisualShaderEditor::_delete_request(int which) {
     Ref<VisualShaderNode> node = Ref<VisualShaderNode>(visual_shader->get_node(type, which));
 
     undo_redo->create_action(TTR("Delete Node"));
-    undo_redo->add_do_method(visual_shader.ptr(), "remove_node", type, which);
-    undo_redo->add_undo_method(visual_shader.ptr(), "add_node", type, node, visual_shader->get_node_position(type, which), which);
+    undo_redo->add_do_method(visual_shader.get(), "remove_node", type, which);
+    undo_redo->add_undo_method(visual_shader.get(), "add_node", type, node, visual_shader->get_node_position(type, which), which);
 
     undo_redo->add_do_method(this, "_clear_buffer");
     undo_redo->add_undo_method(this, "_clear_buffer");
 
     // restore size, inputs and outputs if node is group
-    VisualShaderNodeGroupBase *group = Object::cast_to<VisualShaderNodeGroupBase>(node.ptr());
+    VisualShaderNodeGroupBase *group = Object::cast_to<VisualShaderNodeGroupBase>(node.get());
     if (group) {
         undo_redo->add_undo_method(group, "set_size", group->get_size());
         undo_redo->add_undo_method(group, "set_inputs", group->get_inputs());
@@ -1480,7 +1479,7 @@ void VisualShaderEditor::_delete_request(int which) {
     }
 
     // restore expression text if node is expression
-    VisualShaderNodeExpression *expression = Object::cast_to<VisualShaderNodeExpression>(node.ptr());
+    VisualShaderNodeExpression *expression = Object::cast_to<VisualShaderNodeExpression>(node.get());
     if (expression) {
         undo_redo->add_undo_method(expression, "set_expression", expression->get_expression());
     }
@@ -1489,8 +1488,8 @@ void VisualShaderEditor::_delete_request(int which) {
     visual_shader->get_node_connections(type, &conns);
 
     for (List<VisualShader::Connection>::Element *E = conns.front(); E; E = E->next()) {
-        if (E->get().from_node == which || E->get().to_node == which) {
-            undo_redo->add_undo_method(visual_shader.ptr(), "connect_nodes", type, E->get().from_node, E->get().from_port, E->get().to_node, E->get().to_port);
+        if (E->deref().from_node == which || E->deref().to_node == which) {
+            undo_redo->add_undo_method(visual_shader.get(), "connect_nodes", type, E->deref().from_node, E->deref().from_port, E->deref().to_node, E->deref().to_port);
         }
     }
 
@@ -1504,12 +1503,12 @@ void VisualShaderEditor::_node_selected(Object *p_node) {
     VisualShader::Type type = VisualShader::Type(edit_type->get_selected());
 
     GraphNode *gn = Object::cast_to<GraphNode>(p_node);
-    ERR_FAIL_COND(!gn);
+    ERR_FAIL_COND(!gn)
 
     int id = StringUtils::to_int(gn->get_name());
 
     Ref<VisualShaderNode> vsnode = visual_shader->get_node(type, id);
-    ERR_FAIL_COND(!vsnode.is_valid());
+    ERR_FAIL_COND(not vsnode)
 
     //do not rely on this, makes editor more complex
     //EditorNode::get_singleton()->push_item(vsnode.ptr(), "", true);
@@ -1517,9 +1516,9 @@ void VisualShaderEditor::_node_selected(Object *p_node) {
 
 void VisualShaderEditor::_graph_gui_input(const Ref<InputEvent> &p_event) {
 
-    Ref<InputEventMouseButton> mb = p_event;
+    Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_event);
 
-    if (mb.is_valid() && mb->is_pressed() && mb->get_button_index() == BUTTON_RIGHT)
+    if (mb && mb->is_pressed() && mb->get_button_index() == BUTTON_RIGHT)
         _show_members_dialog(true);
 }
 
@@ -1555,8 +1554,8 @@ void VisualShaderEditor::_show_members_dialog(bool at_mouse_pos) {
 }
 
 void VisualShaderEditor::_sbox_input(const Ref<InputEvent> &p_ie) {
-    Ref<InputEventKey> ie = p_ie;
-    if (ie.is_valid() && (ie->get_scancode() == KEY_UP ||
+    Ref<InputEventKey> ie = dynamic_ref_cast<InputEventKey>(p_ie);
+    if (ie && (ie->get_scancode() == KEY_UP ||
                                  ie->get_scancode() == KEY_DOWN ||
                                  ie->get_scancode() == KEY_ENTER ||
                                  ie->get_scancode() == KEY_KP_ENTER)) {
@@ -1612,9 +1611,9 @@ void VisualShaderEditor::_notification(int p_what) {
 
             preview_text->add_color_override("background_color", background_color);
 
-            for (List<String>::Element *E = keyword_list.front(); E; E = E->next()) {
+            for (const String &E : keyword_list) {
 
-                preview_text->add_keyword_color(E->get(), keyword_color);
+                preview_text->add_keyword_color(E, keyword_color);
             }
 
             preview_text->add_font_override("font", get_font("expression", "EditorFonts"));
@@ -1661,8 +1660,8 @@ void VisualShaderEditor::_dup_update_excluded(int p_type, Set<int> &r_excluded) 
         if (gn) {
             int id = StringUtils::to_int(gn->get_name());
             Ref<VisualShaderNode> node = visual_shader->get_node(type, id);
-            Ref<VisualShaderNodeOutput> output = node;
-            if (output.is_valid()) {
+            Ref<VisualShaderNodeOutput> output = dynamic_ref_cast<VisualShaderNodeOutput>(node);
+            if (output) {
                 r_excluded.insert(id);
                 continue;
             }
@@ -1684,12 +1683,12 @@ void VisualShaderEditor::_dup_copy_nodes(int p_type, List<int> &r_nodes, Set<int
         if (gn) {
             int id = StringUtils::to_int(gn->get_name());
             Ref<VisualShaderNode> node = visual_shader->get_node(type, id);
-            Ref<VisualShaderNodeOutput> output = node;
-            if (output.is_valid()) { // can't duplicate output
+            Ref<VisualShaderNodeOutput> output = dynamic_ref_cast<VisualShaderNodeOutput>(node);
+            if (output) { // can't duplicate output
                 r_excluded.insert(id);
                 continue;
             }
-            if (node.is_valid() && gn->is_selected()) {
+            if (node && gn->is_selected()) {
                 Vector2 pos = visual_shader->get_node_position(type, id);
                 selection_center += pos;
                 r_nodes.push_back(id);
@@ -1713,8 +1712,8 @@ void VisualShaderEditor::_dup_paste_nodes(int p_type, int p_pasted_type, List<in
 
     for (List<int>::Element *E = r_nodes.front(); E; E = E->next()) {
 
-        connection_remap[E->get()] = id_from;
-        Ref<VisualShaderNode> node = visual_shader->get_node(pasted_type, E->get());
+        connection_remap[E->deref()] = id_from;
+        Ref<VisualShaderNode> node = visual_shader->get_node(pasted_type, E->deref());
 
         bool unsupported = false;
         for (int i = 0; i < add_options.size(); i++) {
@@ -1726,26 +1725,26 @@ void VisualShaderEditor::_dup_paste_nodes(int p_type, int p_pasted_type, List<in
             }
         }
         if (unsupported) {
-            unsupported_set.insert(E->get());
+            unsupported_set.insert(E->deref());
             continue;
         }
 
-        Ref<VisualShaderNode> dupli = node->duplicate();
+        Ref<VisualShaderNode> dupli = dynamic_ref_cast<VisualShaderNode>(node->duplicate());
 
-        undo_redo->add_do_method(visual_shader.ptr(), "add_node", type, dupli, visual_shader->get_node_position(pasted_type, E->get()) + p_offset, id_from);
-        undo_redo->add_undo_method(visual_shader.ptr(), "remove_node", type, id_from);
+        undo_redo->add_do_method(visual_shader.get(), "add_node", type, dupli, visual_shader->get_node_position(pasted_type, E->deref()) + p_offset, id_from);
+        undo_redo->add_undo_method(visual_shader.get(), "remove_node", type, id_from);
 
         // duplicate size, inputs and outputs if node is group
-        Ref<VisualShaderNodeGroupBase> group = Object::cast_to<VisualShaderNodeGroupBase>(node.ptr());
-        if (!group.is_null()) {
-            undo_redo->add_do_method(dupli.ptr(), "set_size", group->get_size());
-            undo_redo->add_do_method(dupli.ptr(), "set_inputs", group->get_inputs());
-            undo_redo->add_do_method(dupli.ptr(), "set_outputs", group->get_outputs());
+        Ref<VisualShaderNodeGroupBase> group(dynamic_ref_cast<VisualShaderNodeGroupBase>(node));
+        if (group) {
+            undo_redo->add_do_method(dupli.get(), "set_size", group->get_size());
+            undo_redo->add_do_method(dupli.get(), "set_inputs", group->get_inputs());
+            undo_redo->add_do_method(dupli.get(), "set_outputs", group->get_outputs());
         }
         // duplicate expression text if node is expression
-        Ref<VisualShaderNodeExpression> expression = Object::cast_to<VisualShaderNodeExpression>(node.ptr());
-        if (!expression.is_null()) {
-            undo_redo->add_do_method(dupli.ptr(), "set_expression", expression->get_expression());
+        Ref<VisualShaderNodeExpression> expression(dynamic_ref_cast<VisualShaderNodeExpression>(node));
+        if (expression) {
+            undo_redo->add_do_method(dupli.get(), "set_expression", expression->get_expression());
         }
 
         id_from++;
@@ -1755,11 +1754,11 @@ void VisualShaderEditor::_dup_paste_nodes(int p_type, int p_pasted_type, List<in
     visual_shader->get_node_connections(pasted_type, &conns);
 
     for (List<VisualShader::Connection>::Element *E = conns.front(); E; E = E->next()) {
-        if (unsupported_set.has(E->get().from_node) || unsupported_set.has(E->get().to_node)) {
+        if (unsupported_set.contains(E->deref().from_node) || unsupported_set.contains(E->deref().to_node)) {
             continue;
         }
-        if (connection_remap.has(E->get().from_node) && connection_remap.has(E->get().to_node)) {
-            undo_redo->add_do_method(visual_shader.ptr(), "connect_nodes_forced", type, connection_remap[E->get().from_node], E->get().from_port, connection_remap[E->get().to_node], E->get().to_port);
+        if (connection_remap.contains(E->deref().from_node) && connection_remap.contains(E->deref().to_node)) {
+            undo_redo->add_do_method(visual_shader.get(), "connect_nodes_forced", type, connection_remap[E->deref().from_node], E->deref().from_port, connection_remap[E->deref().to_node], E->deref().to_port);
         }
     }
 
@@ -1774,7 +1773,7 @@ void VisualShaderEditor::_dup_paste_nodes(int p_type, int p_pasted_type, List<in
             GraphNode *gn = Object::cast_to<GraphNode>(graph->get_child(i));
             if (gn) {
                 int id = StringUtils::to_int(gn->get_name());
-                if (!r_excluded.has(id)) {
+                if (!r_excluded.contains(id)) {
                     gn->set_selected(true);
                 } else {
                     gn->set_selected(false);
@@ -1853,16 +1852,16 @@ void VisualShaderEditor::_on_nodes_delete() {
 
     for (List<int>::Element *F = to_erase.front(); F; F = F->next()) {
 
-        Ref<VisualShaderNode> node = visual_shader->get_node(type, F->get());
+        Ref<VisualShaderNode> node = visual_shader->get_node(type, F->deref());
 
-        undo_redo->add_do_method(visual_shader.ptr(), "remove_node", type, F->get());
-        undo_redo->add_undo_method(visual_shader.ptr(), "add_node", type, node, visual_shader->get_node_position(type, F->get()), F->get());
+        undo_redo->add_do_method(visual_shader.get(), "remove_node", type, F->deref());
+        undo_redo->add_undo_method(visual_shader.get(), "add_node", type, node, visual_shader->get_node_position(type, F->deref()), F->deref());
 
         undo_redo->add_do_method(this, "_clear_buffer");
         undo_redo->add_undo_method(this, "_clear_buffer");
 
         // restore size, inputs and outputs if node is group
-        VisualShaderNodeGroupBase *group = Object::cast_to<VisualShaderNodeGroupBase>(node.ptr());
+        VisualShaderNodeGroupBase *group = Object::cast_to<VisualShaderNodeGroupBase>(node.get());
         if (group) {
             undo_redo->add_undo_method(group, "set_size", group->get_size());
             undo_redo->add_undo_method(group, "set_inputs", group->get_inputs());
@@ -1870,7 +1869,7 @@ void VisualShaderEditor::_on_nodes_delete() {
         }
 
         // restore expression text if node is expression
-        VisualShaderNodeExpression *expression = Object::cast_to<VisualShaderNodeExpression>(node.ptr());
+        VisualShaderNodeExpression *expression = Object::cast_to<VisualShaderNodeExpression>(node.get());
         if (expression) {
             undo_redo->add_undo_method(expression, "set_expression", expression->get_expression());
         }
@@ -1882,18 +1881,18 @@ void VisualShaderEditor::_on_nodes_delete() {
     List<VisualShader::Connection> used_conns;
     for (List<int>::Element *F = to_erase.front(); F; F = F->next()) {
         for (List<VisualShader::Connection>::Element *E = conns.front(); E; E = E->next()) {
-            if (E->get().from_node == F->get() || E->get().to_node == F->get()) {
+            if (E->deref().from_node == F->deref() || E->deref().to_node == F->deref()) {
 
                 bool cancel = false;
                 for (List<VisualShader::Connection>::Element *R = used_conns.front(); R; R = R->next()) {
-                    if (R->get().from_node == E->get().from_node && R->get().from_port == E->get().from_port && R->get().to_node == E->get().to_node && R->get().to_port == E->get().to_port) {
+                    if (R->deref().from_node == E->deref().from_node && R->deref().from_port == E->deref().from_port && R->deref().to_node == E->deref().to_node && R->deref().to_port == E->deref().to_port) {
                         cancel = true; // to avoid ERR_ALREADY_EXISTS warning
                         break;
                     }
                 }
                 if (!cancel) {
-                    undo_redo->add_undo_method(visual_shader.ptr(), "connect_nodes", type, E->get().from_node, E->get().from_port, E->get().to_node, E->get().to_port);
-                    used_conns.push_back(E->get());
+                    undo_redo->add_undo_method(visual_shader.get(), "connect_nodes", type, E->deref().from_node, E->deref().from_port, E->deref().to_node, E->deref().to_port);
+                    used_conns.push_back(E->deref());
                 }
             }
         }
@@ -1910,7 +1909,7 @@ void VisualShaderEditor::_mode_selected(int p_id) {
     _update_graph();
 }
 
-void VisualShaderEditor::_input_select_item(Ref<VisualShaderNodeInput> input, String name) {
+void VisualShaderEditor::_input_select_item(Ref<VisualShaderNodeInput> input, const String& name) {
 
     String prev_name = input->get_input_name();
 
@@ -1922,8 +1921,8 @@ void VisualShaderEditor::_input_select_item(Ref<VisualShaderNodeInput> input, St
     UndoRedo *undo_redo = EditorNode::get_singleton()->get_undo_redo();
     undo_redo->create_action(TTR("Visual Shader Input Type Changed"));
 
-    undo_redo->add_do_method(input.ptr(), "set_input_name", name);
-    undo_redo->add_undo_method(input.ptr(), "set_input_name", prev_name);
+    undo_redo->add_do_method(input.get(), "set_input_name", name);
+    undo_redo->add_undo_method(input.get(), "set_input_name", prev_name);
 
     if (type_changed) {
         //restore connections if type changed
@@ -1932,8 +1931,8 @@ void VisualShaderEditor::_input_select_item(Ref<VisualShaderNodeInput> input, St
         List<VisualShader::Connection> conns;
         visual_shader->get_node_connections(type, &conns);
         for (List<VisualShader::Connection>::Element *E = conns.front(); E; E = E->next()) {
-            if (E->get().from_node == id) {
-                undo_redo->add_undo_method(visual_shader.ptr(), "connect_nodes", type, E->get().from_node, E->get().from_port, E->get().to_node, E->get().to_port);
+            if (E->deref().from_node == id) {
+                undo_redo->add_undo_method(visual_shader.get(), "connect_nodes", type, E->deref().from_node, E->deref().from_port, E->deref().to_node, E->deref().to_port);
             }
         }
     }
@@ -2693,8 +2692,7 @@ VisualShaderEditor::VisualShaderEditor() {
 
     undo_redo = EditorNode::get_singleton()->get_undo_redo();
 
-    Ref<VisualShaderNodePluginDefault> default_plugin;
-    default_plugin.instance();
+    Ref<VisualShaderNodePluginDefault> default_plugin(make_ref_counted<VisualShaderNodePluginDefault>());
     add_plugin(default_plugin);
 
     property_editor = memnew(CustomPropertyEditor);
@@ -2810,23 +2808,23 @@ public:
 
         updating = true;
         undo_redo->create_action(TTR("Edit Visual Property") + ": " + prop, UndoRedo::MERGE_ENDS);
-        undo_redo->add_do_property(node.ptr(), prop, p_value);
-        undo_redo->add_undo_property(node.ptr(), prop, node->get(prop));
+        undo_redo->add_do_property(node.get(), prop, p_value);
+        undo_redo->add_undo_property(node.get(), prop, node->get(prop));
 
-        if (p_value.get_type() == Variant::OBJECT) {
+        if (p_value.get_type() == VariantType::OBJECT) {
 
-            RES prev_res = node->get(prop);
-            RES curr_res = p_value;
+            RES prev_res(node->get(prop));
+            RES curr_res(p_value);
 
-            if (curr_res.is_null()) {
-                undo_redo->add_do_method(this, "_open_inspector", (RES)parent_resource.ptr());
+            if (not curr_res) {
+                undo_redo->add_do_method(this, "_open_inspector", parent_resource);
             } else {
-                undo_redo->add_do_method(this, "_open_inspector", (RES)curr_res.ptr());
+                undo_redo->add_do_method(this, "_open_inspector", curr_res);
             }
-            if (!prev_res.is_null()) {
-                undo_redo->add_undo_method(this, "_open_inspector", (RES)prev_res.ptr());
+            if (prev_res) {
+                undo_redo->add_undo_method(this, "_open_inspector", prev_res);
             } else {
-                undo_redo->add_undo_method(this, "_open_inspector", (RES)parent_resource.ptr());
+                undo_redo->add_undo_method(this, "_open_inspector", parent_resource);
             }
             undo_redo->add_do_method(this, "_refresh_request");
             undo_redo->add_undo_method(this, "_refresh_request");
@@ -2848,19 +2846,19 @@ public:
         VisualShaderEditor::get_singleton()->call_deferred("_update_graph");
     }
 
-    void _resource_selected(const String &p_path, RES p_resource) {
+    void _resource_selected(const String &p_path, const RES& p_resource) {
         _open_inspector(p_resource);
     }
 
     void _open_inspector(RES p_resource) {
-        EditorNode::get_singleton()->get_inspector()->edit(p_resource.ptr());
+        EditorNode::get_singleton()->get_inspector()->edit(p_resource.get());
     }
 
     bool updating;
     Ref<VisualShaderNode> node;
     Vector<EditorProperty *> properties;
 
-    void setup(Ref<Resource> p_parent_resource, Vector<EditorProperty *> p_properties, const Vector<StringName> &p_names, Ref<VisualShaderNode> p_node) {
+    void setup(const Ref<Resource>& p_parent_resource, const Vector<EditorProperty *>& p_properties, const Vector<StringName> &p_names, const Ref<VisualShaderNode>& p_node) {
         parent_resource = p_parent_resource;
         updating = false;
         node = p_node;
@@ -2876,7 +2874,7 @@ public:
             }
 
             properties[i]->connect("property_changed", this, "_property_changed");
-            properties[i]->set_object_and_property(node.ptr(), p_names[i]);
+            properties[i]->set_object_and_property(node.get(), p_names[i]);
             properties[i]->update_property();
             properties[i]->set_name_split_ratio(0);
         }
@@ -2900,7 +2898,7 @@ Control *VisualShaderNodePluginDefault::create_editor(const Ref<Resource> &p_par
     if (p_node->is_class("VisualShaderNodeInput")) {
         //create input
         VisualShaderNodePluginInputEditor *input_editor = memnew(VisualShaderNodePluginInputEditor);
-        input_editor->setup(p_node);
+        input_editor->setup(dynamic_ref_cast<VisualShaderNodeInput>(p_node));
         return input_editor;
     }
 
@@ -2909,16 +2907,16 @@ Control *VisualShaderNodePluginDefault::create_editor(const Ref<Resource> &p_par
         return nullptr;
     }
 
-    List<PropertyInfo> props;
+    ListPOD<PropertyInfo> props;
     p_node->get_property_list(&props);
 
     Vector<PropertyInfo> pinfo;
 
-    for (List<PropertyInfo>::Element *E = props.front(); E; E = E->next()) {
+    for(const PropertyInfo & E : props) {
 
         for (int i = 0; i < properties.size(); i++) {
-            if (E->get().name == String(properties[i])) {
-                pinfo.push_back(E->get());
+            if (E.name == String(properties[i])) {
+                pinfo.push_back(E);
             }
         }
     }
@@ -2933,7 +2931,7 @@ Control *VisualShaderNodePluginDefault::create_editor(const Ref<Resource> &p_par
 
     for (int i = 0; i < pinfo.size(); i++) {
 
-        EditorProperty *prop = EditorInspector::instantiate_property_editor(node.ptr(), pinfo[i].type, pinfo[i].name, pinfo[i].hint, pinfo[i].hint_string, pinfo[i].usage);
+        EditorProperty *prop = EditorInspector::instantiate_property_editor(node.get(), pinfo[i].type, pinfo[i].name, pinfo[i].hint, pinfo[i].hint_string, pinfo[i].usage);
         if (!prop)
             return nullptr;
 
@@ -2970,8 +2968,8 @@ void EditorPropertyShaderMode::_option_selected(int p_which) {
     UndoRedo *undo_redo = EditorNode::get_singleton()->get_undo_redo();
     undo_redo->create_action(TTR("Visual Shader Mode Changed"));
     //do is easy
-    undo_redo->add_do_method(visual_shader.ptr(), "set_mode", p_which);
-    undo_redo->add_undo_method(visual_shader.ptr(), "set_mode", visual_shader->get_mode());
+    undo_redo->add_do_method(visual_shader.get(), "set_mode", p_which);
+    undo_redo->add_undo_method(visual_shader.get(), "set_mode", visual_shader->get_mode());
     //now undo is hell
 
     //1. restore connections to output
@@ -2981,8 +2979,8 @@ void EditorPropertyShaderMode::_option_selected(int p_which) {
         List<VisualShader::Connection> conns;
         visual_shader->get_node_connections(type, &conns);
         for (List<VisualShader::Connection>::Element *E = conns.front(); E; E = E->next()) {
-            if (E->get().to_node == VisualShader::NODE_ID_OUTPUT) {
-                undo_redo->add_undo_method(visual_shader.ptr(), "connect_nodes", type, E->get().from_node, E->get().from_port, E->get().to_node, E->get().to_port);
+            if (E->deref().to_node == VisualShader::NODE_ID_OUTPUT) {
+                undo_redo->add_undo_method(visual_shader.get(), "connect_nodes", type, E->deref().from_node, E->deref().from_port, E->deref().to_node, E->deref().to_port);
             }
         }
     }
@@ -2992,23 +2990,23 @@ void EditorPropertyShaderMode::_option_selected(int p_which) {
         VisualShader::Type type = VisualShader::Type(i);
         Vector<int> nodes = visual_shader->get_node_list(type);
         for (int j = 0; j < nodes.size(); j++) {
-            Ref<VisualShaderNodeInput> input = visual_shader->get_node(type, nodes[j]);
-            if (!input.is_valid()) {
+            Ref<VisualShaderNodeInput> input = dynamic_ref_cast<VisualShaderNodeInput>(visual_shader->get_node(type, nodes[j]));
+            if (not input) {
                 continue;
             }
 
-            undo_redo->add_undo_method(input.ptr(), "set_input_name", input->get_input_name());
+            undo_redo->add_undo_method(input.get(), "set_input_name", input->get_input_name());
         }
     }
 
     //3. restore enums and flags
-    List<PropertyInfo> props;
+    ListPOD<PropertyInfo> props;
     visual_shader->get_property_list(&props);
 
-    for (List<PropertyInfo>::Element *E = props.front(); E; E = E->next()) {
+    for(const PropertyInfo & E : props) {
 
-        if (StringUtils::begins_with(E->get().name,"flags/") || StringUtils::begins_with(E->get().name,"modes/")) {
-            undo_redo->add_undo_property(visual_shader.ptr(), E->get().name, visual_shader->get(E->get().name));
+        if (StringUtils::begins_with(E.name,"flags/") || StringUtils::begins_with(E.name,"modes/")) {
+            undo_redo->add_undo_property(visual_shader.get(), E.name, visual_shader->get(E.name));
         }
     }
 
@@ -3059,9 +3057,9 @@ void EditorInspectorShaderModePlugin::parse_begin(Object *p_object) {
     //do none
 }
 
-bool EditorInspectorShaderModePlugin::parse_property(Object *p_object, Variant::Type p_type, const String &p_path, PropertyHint p_hint, const String &p_hint_text, int p_usage) {
+bool EditorInspectorShaderModePlugin::parse_property(Object *p_object, VariantType p_type, const String &p_path, PropertyHint p_hint, const String &p_hint_text, int p_usage) {
 
-    if (p_path == "mode" && p_object->is_class("VisualShader") && p_type == Variant::INT) {
+    if (p_path == "mode" && p_object->is_class("VisualShader") && p_type == VariantType::INT) {
 
         EditorPropertyShaderMode *editor = memnew(EditorPropertyShaderMode);
         Vector<String> options = StringUtils::split(p_hint_text,",");
@@ -3080,22 +3078,20 @@ void EditorInspectorShaderModePlugin::parse_end() {
 //////////////////////////////////
 
 void VisualShaderNodePortPreview::_shader_changed() {
-    if (shader.is_null()) {
+    if (not shader) {
         return;
     }
 
     Vector<VisualShader::DefaultTextureParam> default_textures;
     String shader_code = shader->generate_preview_shader(type, node, port, default_textures);
 
-    Ref<Shader> preview_shader;
-    preview_shader.instance();
+    Ref<Shader> preview_shader(make_ref_counted<Shader>());
     preview_shader->set_code(shader_code);
     for (int i = 0; i < default_textures.size(); i++) {
         preview_shader->set_default_texture_param(default_textures[i].name, default_textures[i].param);
     }
 
-    Ref<ShaderMaterial> material;
-    material.instance();
+    Ref<ShaderMaterial> material(make_ref_counted<ShaderMaterial>());
     material->set_shader(preview_shader);
 
     //find if a material is also being edited and copy parameters to this one
@@ -3105,12 +3101,12 @@ void VisualShaderNodePortPreview::_shader_changed() {
         if (!object)
             continue;
         ShaderMaterial *src_mat = Object::cast_to<ShaderMaterial>(object);
-        if (src_mat && src_mat->get_shader().is_valid()) {
+        if (src_mat && src_mat->get_shader()) {
 
-            List<PropertyInfo> params;
+            ListPOD<PropertyInfo> params;
             src_mat->get_shader()->get_param_list(&params);
-            for (List<PropertyInfo>::Element *E = params.front(); E; E = E->next()) {
-                material->set(E->get().name, src_mat->get(E->get().name));
+            for(const PropertyInfo & E : params) {
+                material->set(E.name, src_mat->get(E.name));
             }
         }
     }
@@ -3171,20 +3167,32 @@ String VisualShaderConversionPlugin::converts_to() const {
 
 bool VisualShaderConversionPlugin::handles(const Ref<Resource> &p_resource) const {
 
-    Ref<VisualShader> vshader = p_resource;
-    return vshader.is_valid();
+    Ref<VisualShader> vshader = dynamic_ref_cast<VisualShader>(p_resource);
+    return vshader;
 }
 
 Ref<Resource> VisualShaderConversionPlugin::convert(const Ref<Resource> &p_resource) const {
 
-    Ref<VisualShader> vshader = p_resource;
-    ERR_FAIL_COND_V(!vshader.is_valid(), Ref<Resource>());
+    Ref<VisualShader> vshader = dynamic_ref_cast<VisualShader>(p_resource);
+    ERR_FAIL_COND_V(not vshader, Ref<Resource>())
 
-    Ref<Shader> shader;
-    shader.instance();
+    Ref<Shader> shader(make_ref_counted<Shader>());
 
     String code = vshader->get_code();
     shader->set_code(code);
 
     return shader;
+}
+
+void register_visual_shader_editor_classes()
+{
+    VisualShaderNodePluginInputEditor::initialize_class();
+    VisualShaderNodePluginDefaultEditor::initialize_class();
+    VisualShaderNodePlugin::initialize_class();
+    VisualShaderEditor::initialize_class();
+    VisualShaderEditorPlugin::initialize_class();
+    VisualShaderNodePluginDefault::initialize_class();
+    VisualShaderNodePortPreview::initialize_class();
+    VisualShaderConversionPlugin::initialize_class();
+
 }

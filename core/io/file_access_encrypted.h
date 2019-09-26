@@ -36,55 +36,58 @@
 
 class FileAccessEncrypted : public FileAccess {
 public:
-	enum Mode {
-		MODE_READ,
-		MODE_WRITE_AES256,
-		MODE_MAX
-	};
+    enum Mode {
+        MODE_READ,
+        MODE_WRITE_AES256,
+        MODE_MAX
+    };
 
 private:
-	Mode mode;
-	Vector<uint8_t> key;
-	bool writing;
-	FileAccess *file;
-	size_t base;
-	size_t length;
-	Vector<uint8_t> data;
-	mutable int pos;
-	mutable bool eofed;
+    Mode mode;
+    Vector<uint8_t> key;
+    bool writing;
+    FileAccess *file;
+    size_t base;
+    size_t length;
+    Vector<uint8_t> data;
+    mutable int pos;
+    mutable bool eofed;
 
 public:
-	Error open_and_parse(FileAccess *p_base, const Vector<uint8_t> &p_key, Mode p_mode);
-	Error open_and_parse_password(FileAccess *p_base, const String &p_key, Mode p_mode);
+    Error open_and_parse(FileAccess *p_base, const Vector<uint8_t> &p_key, Mode p_mode);
+    Error open_and_parse_password(FileAccess *p_base, const String &p_key, Mode p_mode);
 
-	Error _open(const String &p_path, int p_mode_flags) override; ///< open a file
-	void close() override; ///< close a file
-	bool is_open() const override; ///< true when file is open
+    Error _open(const String &p_path, int p_mode_flags) override; ///< open a file
+    void close() override; ///< close a file
+    bool is_open() const override; ///< true when file is open
 
-	void seek(size_t p_position) override; ///< seek to a given position
-	void seek_end(int64_t p_position = 0) override; ///< seek from the end of file
-	size_t get_position() const override; ///< get position in the file
-	size_t get_len() const override; ///< get size of the file
+    String get_path() const override; /// returns the path for the current open file
+    String get_path_absolute() const override; /// returns the absolute path for the current open file
 
-	bool eof_reached() const override; ///< reading passed EOF
+    void seek(size_t p_position) override; ///< seek to a given position
+    void seek_end(int64_t p_position = 0) override; ///< seek from the end of file
+    size_t get_position() const override; ///< get position in the file
+    size_t get_len() const override; ///< get size of the file
 
-	uint8_t get_8() const override; ///< get a byte
-	int get_buffer(uint8_t *p_dst, int p_length) const override;
+    bool eof_reached() const override; ///< reading passed EOF
 
-	Error get_error() const override; ///< get last error
+    uint8_t get_8() const override; ///< get a byte
+    int get_buffer(uint8_t *p_dst, int p_length) const override;
 
-	void flush() override;
-	void store_8(uint8_t p_dest) override; ///< store a byte
-	void store_buffer(const uint8_t *p_src, int p_length) override; ///< store an array of bytes
+    Error get_error() const override; ///< get last error
 
-	bool file_exists(const String &p_name) override; ///< return true if a file exists
+    void flush() override;
+    void store_8(uint8_t p_dest) override; ///< store a byte
+    void store_buffer(const uint8_t *p_src, int p_length) override; ///< store an array of bytes
 
-	uint64_t _get_modified_time(const String &p_file) override;
-	uint32_t _get_unix_permissions(const String &p_file) override;
-	Error _set_unix_permissions(const String &p_file, uint32_t p_permissions) override;
+    bool file_exists(const String &p_name) override; ///< return true if a file exists
 
-	FileAccessEncrypted();
-	~FileAccessEncrypted() override;
+    uint64_t _get_modified_time(const String &p_file) override;
+    uint32_t _get_unix_permissions(const String &p_file) override;
+    Error _set_unix_permissions(const String &p_file, uint32_t p_permissions) override;
+
+    FileAccessEncrypted();
+    ~FileAccessEncrypted() override;
 };
 
 #endif // FILE_ACCESS_ENCRYPTED_H

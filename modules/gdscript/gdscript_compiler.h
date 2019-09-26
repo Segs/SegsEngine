@@ -78,20 +78,20 @@ class GDScriptCompiler {
         }
 
         void pop_stack_identifiers() {
-            stack_identifiers = stack_id_stack.back()->get();
+            stack_identifiers = stack_id_stack.back()->deref();
             stack_id_stack.pop_back();
 
             if (debug_stack) {
-                for (Map<StringName, int>::Element *E = block_identifiers.front(); E; E = E->next()) {
+                for (eastl::pair<const StringName,int> &E : block_identifiers) {
 
                     GDScriptFunction::StackDebug sd;
                     sd.added = false;
-                    sd.identifier = E->key();
+                    sd.identifier = E.first;
                     sd.line = current_line;
-                    sd.pos = E->get();
+                    sd.pos = E.second;
                     stack_debug.push_back(sd);
                 }
-                block_identifiers = block_identifier_stack.back()->get();
+                block_identifiers = block_identifier_stack.back()->deref();
                 block_identifier_stack.pop_back();
             }
         }
@@ -104,7 +104,7 @@ class GDScriptCompiler {
 
         int get_name_map_pos(const StringName &p_identifier) {
             int ret;
-            if (!name_map.has(p_identifier)) {
+            if (!name_map.contains(p_identifier)) {
                 ret = name_map.size();
                 name_map[p_identifier] = ret;
             } else {
@@ -114,7 +114,7 @@ class GDScriptCompiler {
         }
 
         int get_constant_pos(const Variant &p_constant) {
-            if (constant_map.has(p_constant))
+            if (constant_map.contains(p_constant))
                 return constant_map[p_constant];
             int pos = constant_map.size();
             constant_map[p_constant] = pos;

@@ -205,59 +205,59 @@ void ReflectionProbe::_validate_property(PropertyInfo &property) const {
 
 void ReflectionProbe::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_intensity", "intensity"), &ReflectionProbe::set_intensity);
+    MethodBinder::bind_method(D_METHOD("set_intensity", {"intensity"}), &ReflectionProbe::set_intensity);
     MethodBinder::bind_method(D_METHOD("get_intensity"), &ReflectionProbe::get_intensity);
 
-    MethodBinder::bind_method(D_METHOD("set_interior_ambient", "ambient"), &ReflectionProbe::set_interior_ambient);
+    MethodBinder::bind_method(D_METHOD("set_interior_ambient", {"ambient"}), &ReflectionProbe::set_interior_ambient);
     MethodBinder::bind_method(D_METHOD("get_interior_ambient"), &ReflectionProbe::get_interior_ambient);
 
-    MethodBinder::bind_method(D_METHOD("set_interior_ambient_energy", "ambient_energy"), &ReflectionProbe::set_interior_ambient_energy);
+    MethodBinder::bind_method(D_METHOD("set_interior_ambient_energy", {"ambient_energy"}), &ReflectionProbe::set_interior_ambient_energy);
     MethodBinder::bind_method(D_METHOD("get_interior_ambient_energy"), &ReflectionProbe::get_interior_ambient_energy);
 
-    MethodBinder::bind_method(D_METHOD("set_interior_ambient_probe_contribution", "ambient_probe_contribution"), &ReflectionProbe::set_interior_ambient_probe_contribution);
+    MethodBinder::bind_method(D_METHOD("set_interior_ambient_probe_contribution", {"ambient_probe_contribution"}), &ReflectionProbe::set_interior_ambient_probe_contribution);
     MethodBinder::bind_method(D_METHOD("get_interior_ambient_probe_contribution"), &ReflectionProbe::get_interior_ambient_probe_contribution);
 
-    MethodBinder::bind_method(D_METHOD("set_max_distance", "max_distance"), &ReflectionProbe::set_max_distance);
+    MethodBinder::bind_method(D_METHOD("set_max_distance", {"max_distance"}), &ReflectionProbe::set_max_distance);
     MethodBinder::bind_method(D_METHOD("get_max_distance"), &ReflectionProbe::get_max_distance);
 
-    MethodBinder::bind_method(D_METHOD("set_extents", "extents"), &ReflectionProbe::set_extents);
+    MethodBinder::bind_method(D_METHOD("set_extents", {"extents"}), &ReflectionProbe::set_extents);
     MethodBinder::bind_method(D_METHOD("get_extents"), &ReflectionProbe::get_extents);
 
-    MethodBinder::bind_method(D_METHOD("set_origin_offset", "origin_offset"), &ReflectionProbe::set_origin_offset);
+    MethodBinder::bind_method(D_METHOD("set_origin_offset", {"origin_offset"}), &ReflectionProbe::set_origin_offset);
     MethodBinder::bind_method(D_METHOD("get_origin_offset"), &ReflectionProbe::get_origin_offset);
 
-    MethodBinder::bind_method(D_METHOD("set_as_interior", "enable"), &ReflectionProbe::set_as_interior);
+    MethodBinder::bind_method(D_METHOD("set_as_interior", {"enable"}), &ReflectionProbe::set_as_interior);
     MethodBinder::bind_method(D_METHOD("is_set_as_interior"), &ReflectionProbe::is_set_as_interior);
 
-    MethodBinder::bind_method(D_METHOD("set_enable_box_projection", "enable"), &ReflectionProbe::set_enable_box_projection);
+    MethodBinder::bind_method(D_METHOD("set_enable_box_projection", {"enable"}), &ReflectionProbe::set_enable_box_projection);
     MethodBinder::bind_method(D_METHOD("is_box_projection_enabled"), &ReflectionProbe::is_box_projection_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_enable_shadows", "enable"), &ReflectionProbe::set_enable_shadows);
+    MethodBinder::bind_method(D_METHOD("set_enable_shadows", {"enable"}), &ReflectionProbe::set_enable_shadows);
     MethodBinder::bind_method(D_METHOD("are_shadows_enabled"), &ReflectionProbe::are_shadows_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_cull_mask", "layers"), &ReflectionProbe::set_cull_mask);
+    MethodBinder::bind_method(D_METHOD("set_cull_mask", {"layers"}), &ReflectionProbe::set_cull_mask);
     MethodBinder::bind_method(D_METHOD("get_cull_mask"), &ReflectionProbe::get_cull_mask);
 
-    MethodBinder::bind_method(D_METHOD("set_update_mode", "mode"), &ReflectionProbe::set_update_mode);
+    MethodBinder::bind_method(D_METHOD("set_update_mode", {"mode"}), &ReflectionProbe::set_update_mode);
     MethodBinder::bind_method(D_METHOD("get_update_mode"), &ReflectionProbe::get_update_mode);
 
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "update_mode", PROPERTY_HINT_ENUM, "Once,Always"), "set_update_mode", "get_update_mode");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "intensity", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_intensity", "get_intensity");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "max_distance", PROPERTY_HINT_EXP_RANGE, "0,16384,0.1,or_greater"), "set_max_distance", "get_max_distance");
-    ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "extents"), "set_extents", "get_extents");
-    ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "origin_offset"), "set_origin_offset", "get_origin_offset");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "box_projection"), "set_enable_box_projection", "is_box_projection_enabled");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "enable_shadows"), "set_enable_shadows", "are_shadows_enabled");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "cull_mask", PROPERTY_HINT_LAYERS_3D_RENDER), "set_cull_mask", "get_cull_mask");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "update_mode", PROPERTY_HINT_ENUM, "Once,Always"), "set_update_mode", "get_update_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "intensity", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_intensity", "get_intensity");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "max_distance", PROPERTY_HINT_EXP_RANGE, "0,16384,0.1,or_greater"), "set_max_distance", "get_max_distance");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "extents"), "set_extents", "get_extents");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "origin_offset"), "set_origin_offset", "get_origin_offset");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "box_projection"), "set_enable_box_projection", "is_box_projection_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "enable_shadows"), "set_enable_shadows", "are_shadows_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "cull_mask", PROPERTY_HINT_LAYERS_3D_RENDER), "set_cull_mask", "get_cull_mask");
 
     ADD_GROUP("Interior", "interior_");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "interior_enable"), "set_as_interior", "is_set_as_interior");
-    ADD_PROPERTY(PropertyInfo(Variant::COLOR, "interior_ambient_color", PROPERTY_HINT_COLOR_NO_ALPHA), "set_interior_ambient", "get_interior_ambient");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "interior_ambient_energy", PROPERTY_HINT_RANGE, "0,16,0.01"), "set_interior_ambient_energy", "get_interior_ambient_energy");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "interior_ambient_contrib", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_interior_ambient_probe_contribution", "get_interior_ambient_probe_contribution");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "interior_enable"), "set_as_interior", "is_set_as_interior");
+    ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "interior_ambient_color", PROPERTY_HINT_COLOR_NO_ALPHA), "set_interior_ambient", "get_interior_ambient");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "interior_ambient_energy", PROPERTY_HINT_RANGE, "0,16,0.01"), "set_interior_ambient_energy", "get_interior_ambient_energy");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "interior_ambient_contrib", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_interior_ambient_probe_contribution", "get_interior_ambient_probe_contribution");
 
-    BIND_ENUM_CONSTANT(UPDATE_ONCE);
-    BIND_ENUM_CONSTANT(UPDATE_ALWAYS);
+    BIND_ENUM_CONSTANT(UPDATE_ONCE)
+    BIND_ENUM_CONSTANT(UPDATE_ALWAYS)
 }
 
 ReflectionProbe::ReflectionProbe() {

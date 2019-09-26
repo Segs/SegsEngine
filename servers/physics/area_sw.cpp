@@ -156,7 +156,7 @@ Variant AreaSW::get_param(PhysicsServer::AreaParameter p_param) const {
 
 void AreaSW::_queue_monitor_update() {
 
-    ERR_FAIL_COND(!get_space());
+    ERR_FAIL_COND(!get_space())
 
     if (!monitor_query_list.in_list())
         get_space()->area_add_to_monitor_query_list(&monitor_query_list);
@@ -187,16 +187,16 @@ void AreaSW::call_queries() {
             return;
         }
 
-        for (Map<BodyKey, BodyState>::Element *E = monitored_bodies.front(); E; E = E->next()) {
+        for (eastl::pair<const BodyKey,BodyState> &E : monitored_bodies) {
 
-            if (E->get().state == 0)
+            if (E.second.state == 0)
                 continue; //nothing happened
 
-            res[0] = E->get().state > 0 ? PhysicsServer::AREA_BODY_ADDED : PhysicsServer::AREA_BODY_REMOVED;
-            res[1] = E->key().rid;
-            res[2] = E->key().instance_id;
-            res[3] = E->key().body_shape;
-            res[4] = E->key().area_shape;
+            res[0] = E.second.state > 0 ? PhysicsServer::AREA_BODY_ADDED : PhysicsServer::AREA_BODY_REMOVED;
+            res[1] = E.first.rid;
+            res[2] = E.first.instance_id;
+            res[3] = E.first.body_shape;
+            res[4] = E.first.area_shape;
 
             Variant::CallError ce;
             obj->call(monitor_callback_method, (const Variant **)resptr, 5, ce);
@@ -219,16 +219,16 @@ void AreaSW::call_queries() {
             return;
         }
 
-        for (Map<BodyKey, BodyState>::Element *E = monitored_areas.front(); E; E = E->next()) {
+        for (eastl::pair<const BodyKey,BodyState> &E : monitored_areas) {
 
-            if (E->get().state == 0)
+            if (E.second.state == 0)
                 continue; //nothing happened
 
-            res[0] = E->get().state > 0 ? PhysicsServer::AREA_BODY_ADDED : PhysicsServer::AREA_BODY_REMOVED;
-            res[1] = E->key().rid;
-            res[2] = E->key().instance_id;
-            res[3] = E->key().body_shape;
-            res[4] = E->key().area_shape;
+            res[0] = E.second.state > 0 ? PhysicsServer::AREA_BODY_ADDED : PhysicsServer::AREA_BODY_REMOVED;
+            res[1] = E.first.rid;
+            res[2] = E.first.instance_id;
+            res[3] = E.first.body_shape;
+            res[4] = E.first.area_shape;
 
             Variant::CallError ce;
             obj->call(area_monitor_callback_method, (const Variant **)resptr, 5, ce);

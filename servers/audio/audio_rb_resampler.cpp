@@ -55,7 +55,7 @@ uint32_t AudioRBResampler::_resample(AudioFrame *p_dest, int p_todo, int32_t p_i
 		read += p_increment;
 		uint32_t pos = offset >> MIX_FRAC_BITS;
 		float frac = float(offset & MIX_FRAC_MASK) / float(MIX_FRAC_LEN);
-		ERR_FAIL_COND_V(pos >= rb_len, 0);
+		ERR_FAIL_COND_V(pos >= rb_len, 0)
 		uint32_t pos_next = (pos + 1) & rb_mask;
 
 		// since this is a template with a known compile time value (C), conditionals go away when compiling.
@@ -156,7 +156,7 @@ int AudioRBResampler::get_num_of_ready_frames() {
 
 Error AudioRBResampler::setup(int p_channels, int p_src_mix_rate, int p_target_mix_rate, int p_buffer_msec, int p_minbuff_needed) {
 
-	ERR_FAIL_COND_V(p_channels != 1 && p_channels != 2 && p_channels != 4 && p_channels != 6, ERR_INVALID_PARAMETER);
+	ERR_FAIL_COND_V(p_channels != 1 && p_channels != 2 && p_channels != 4 && p_channels != 6, ERR_INVALID_PARAMETER)
 
 	int desired_rb_bits = nearest_shift(MAX((p_buffer_msec / 1000.0) * p_src_mix_rate, p_minbuff_needed));
 

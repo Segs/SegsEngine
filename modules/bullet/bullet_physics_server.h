@@ -235,7 +235,7 @@ public:
 
 	void body_add_collision_exception(RID p_body, RID p_body_b) override;
 	void body_remove_collision_exception(RID p_body, RID p_body_b) override;
-	void body_get_collision_exceptions(RID p_body, List<RID> *p_exceptions) override;
+    void body_get_collision_exceptions(RID p_body, DefList<RID> *p_exceptions) override;
 
 	void body_set_max_contacts_reported(RID p_body, int p_contacts) override;
 	int body_get_max_contacts_reported(RID p_body) const override;
@@ -276,7 +276,7 @@ public:
 
 	void soft_body_add_collision_exception(RID p_body, RID p_body_b) override;
 	void soft_body_remove_collision_exception(RID p_body, RID p_body_b) override;
-	void soft_body_get_collision_exceptions(RID p_body, List<RID> *p_exceptions) override;
+    void soft_body_get_collision_exceptions(RID p_body, DefList<RID> *p_exceptions) override;
 
 	void soft_body_set_state(RID p_body, BodyState p_state, const Variant &p_variant) override;
 	Variant soft_body_get_state(RID p_body, BodyState p_state) const override;

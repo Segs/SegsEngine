@@ -56,7 +56,7 @@ MonoCache mono_cache;
     {                                                                        \
         CRASH_COND(m_var != NULL);                                           \
         m_var = m_val;                                                       \
-        ERR_FAIL_COND_MSG(!m_var, "Mono Cache: Member " #m_var " is null."); \
+        ERR_FAIL_COND_MSG(!m_var, "Mono Cache: Member " #m_var " is null.") \
     }
 
 #define CACHE_CLASS_AND_CHECK(m_class, m_val) CACHE_AND_CHECK(GDMonoUtils::mono_cache.class_##m_class, m_val)
@@ -340,12 +340,12 @@ MonoObject *unmanaged_get_managed(Object *unmanaged) {
             // Already had a binding that needs to be setup
             CSharpLanguage::get_singleton()->setup_csharp_script_binding(script_binding, unmanaged);
 
-            ERR_FAIL_COND_V(!script_binding.inited, NULL);
+            ERR_FAIL_COND_V(!script_binding.inited, NULL)
         }
     }
 
     Ref<MonoGCHandle> &gchandle = script_binding.gchandle;
-    ERR_FAIL_COND_V(gchandle.is_null(), NULL);
+    ERR_FAIL_COND_V(gchandle.is_null(), NULL)
 
     MonoObject *target = gchandle->get_target();
 
@@ -385,13 +385,13 @@ void set_main_thread(MonoThread *p_thread) {
 }
 
 void attach_current_thread() {
-    ERR_FAIL_COND(!GDMono::get_singleton()->is_runtime_initialized());
+    ERR_FAIL_COND(!GDMono::get_singleton()->is_runtime_initialized())
     MonoThread *mono_thread = mono_thread_attach(mono_domain_get());
     ERR_FAIL_NULL(mono_thread);
 }
 
 void detach_current_thread() {
-    ERR_FAIL_COND(!GDMono::get_singleton()->is_runtime_initialized());
+    ERR_FAIL_COND(!GDMono::get_singleton()->is_runtime_initialized())
     MonoThread *mono_thread = mono_thread_current();
     ERR_FAIL_NULL(mono_thread);
     mono_thread_detach(mono_thread);

@@ -75,13 +75,13 @@ void GroupDialog::_load_nodes(Node *p_current) {
     TreeItem *node = nullptr;
     NodePath path = scene_tree->get_edited_scene_root()->get_path_to(p_current);
     if (keep && p_current->is_in_group(selected_group)) {
-        if (StringUtils::is_subsequence_ofi(remove_filter->get_text(),p_current->get_name())) {
+        if (StringUtils::is_subsequence_of(remove_filter->get_text(),p_current->get_name(),StringUtils::CaseInsensitive)) {
             node = nodes_to_remove->create_item(remove_node_root);
             keep = true;
         } else {
             keep = false;
         }
-    } else if (keep && StringUtils::is_subsequence_ofi(add_filter->get_text(),p_current->get_name())) {
+    } else if (keep && StringUtils::is_subsequence_of(add_filter->get_text(),p_current->get_name(),StringUtils::CaseInsensitive)) {
         node = nodes_to_add->create_item(add_node_root);
         keep = true;
     } else {
@@ -107,12 +107,12 @@ void GroupDialog::_load_nodes(Node *p_current) {
     }
 }
 
-bool GroupDialog::_can_edit(Node *p_node, String p_group) {
+bool GroupDialog::_can_edit(Node *p_node, const String& p_group) {
     Node *n = p_node;
     bool can_edit = true;
     while (n) {
         Ref<SceneState> ss = (n == EditorNode::get_singleton()->get_edited_scene()) ? n->get_scene_inherited_state() : n->get_scene_instance_state();
-        if (ss.is_valid()) {
+        if (ss) {
             int path = ss->find_node_by_path(n->get_path_to(p_node));
             if (path != -1) {
                 if (ss->is_node_in_group(path, p_group)) {
@@ -195,7 +195,7 @@ void GroupDialog::_add_group_pressed(const String &p_name) {
     add_group_text->clear();
 }
 
-void GroupDialog::_add_group(String p_name) {
+void GroupDialog::_add_group(const String& p_name) {
     if (!is_visible()) {
         return; // No need to edit the dialog if it's not being used.
     }
@@ -242,7 +242,7 @@ void GroupDialog::_group_renamed() {
     scene_tree->get_nodes_in_group(selected_group, &nodes);
     bool removed_all = true;
     for (List<Node *>::Element *E = nodes.front(); E; E = E->next()) {
-        Node *node = E->get();
+        Node *node = E->deref();
         if (_can_edit(node, selected_group)) {
             undo_redo->add_do_method(node, "remove_from_group", selected_group);
             undo_redo->add_undo_method(node, "remove_from_group", name);
@@ -288,10 +288,10 @@ void GroupDialog::_load_groups(Node *p_current) {
     p_current->get_groups(&gi);
 
     for (List<Node::GroupInfo>::Element *E = gi.front(); E; E = E->next()) {
-        if (!E->get().persistent) {
+        if (!E->deref().persistent) {
             continue;
         }
-        _add_group(E->get().name);
+        _add_group(E->deref().name);
     }
 
     for (int i = 0; i < p_current->get_child_count(); i++) {
@@ -311,9 +311,9 @@ void GroupDialog::_delete_group_pressed(Object *p_item, int p_column, int p_id) 
     scene_tree->get_nodes_in_group(name, &nodes);
     bool removed_all = true;
     for (List<Node *>::Element *E = nodes.front(); E; E = E->next()) {
-        if (_can_edit(E->get(), name)) {
-            undo_redo->add_do_method(E->get(), "remove_from_group", name);
-            undo_redo->add_undo_method(E->get(), "add_to_group", name, true);
+        if (_can_edit(E->deref(), name)) {
+            undo_redo->add_do_method(E->deref(), "remove_from_group", name);
+            undo_redo->add_undo_method(E->deref(), "add_to_group", name, true);
         } else {
             removed_all = false;
         }
@@ -621,7 +621,7 @@ void GroupsEditor::update_tree() {
 
     for (List<GroupInfo>::Element *E = groups.front(); E; E = E->next()) {
 
-        Node::GroupInfo gi = E->get();
+        Node::GroupInfo gi = E->deref();
         if (!gi.persistent)
             continue;
 
@@ -632,7 +632,7 @@ void GroupsEditor::update_tree() {
 
             Ref<SceneState> ss = (n == EditorNode::get_singleton()->get_edited_scene()) ? n->get_scene_inherited_state() : n->get_scene_instance_state();
 
-            if (ss.is_valid()) {
+            if (ss) {
 
                 int path = ss->find_node_by_path(n->get_path_to(node));
                 if (path != -1) {

@@ -41,10 +41,10 @@ void GDNativeLibraryEditor::edit(Ref<GDNativeLibrary> p_library) {
     library = p_library;
     Ref<ConfigFile> config = p_library->get_config_file();
 
-    for (Map<String, NativePlatformConfig>::Element *E = platforms.front(); E; E = E->next()) {
-        for (List<String>::Element *it = E->value().entries.front(); it; it = it->next()) {
+    for (eastl::pair<const String,NativePlatformConfig> &E : platforms) {
+        for (List<String>::Element *it = E.second.entries.front(); it; it = it->next()) {
 
-            String target = E->key() + "." + it->get();
+            String target = E.first + "." + it->deref();
             TargetConfig ecfg;
             ecfg.library = config->get_value("entry", target, "");
             ecfg.dependencies = config->get_value("dependencies", target, Array());
@@ -78,15 +78,15 @@ void GDNativeLibraryEditor::_update_tree() {
         if (!filter_list->is_item_checked(i)) {
             continue;
         }
-        Map<String, NativePlatformConfig>::Element *E = platforms.find(filter_list->get_item_metadata(i));
+        Map<String, NativePlatformConfig>::iterator E = platforms.find(filter_list->get_item_metadata(i));
         if (!text.empty()) {
             text += ", ";
         }
-        text += E->get().name;
+        text += E->second.name;
 
         TreeItem *platform = tree->create_item(root);
-        platform->set_text(0, E->get().name);
-        platform->set_metadata(0, E->get().library_extension);
+        platform->set_text(0, E->second.name);
+        platform->set_metadata(0, E->second.library_extension);
 
         platform->set_custom_bg_color(0, get_color("prop_category", "Editor"));
         platform->set_custom_bg_color(1, get_color("prop_category", "Editor"));
@@ -94,12 +94,12 @@ void GDNativeLibraryEditor::_update_tree() {
         platform->set_selectable(0, false);
         platform->set_expand_right(0, true);
 
-        for (List<String>::Element *it = E->value().entries.front(); it; it = it->next()) {
+        for (List<String>::Element *it = E->second.entries.front(); it; it = it->next()) {
 
-            String target = E->key() + "." + it->get();
+            String target = E->first + "." + it->deref();
             TreeItem *bit = tree->create_item(platform);
 
-            bit->set_text(0, it->get());
+            bit->set_text(0, it->deref());
             bit->set_metadata(0, target);
             bit->set_selectable(0, false);
             bit->set_custom_bg_color(0, get_color("prop_subsection", "Editor"));
@@ -128,9 +128,9 @@ void GDNativeLibraryEditor::_update_tree() {
         new_arch->set_text_align(0, TreeItem::ALIGN_CENTER);
         new_arch->set_custom_color(0, get_color("accent_color", "Editor"));
         new_arch->set_expand_right(0, true);
-        new_arch->set_metadata(1, E->key());
+        new_arch->set_metadata(1, E->first);
 
-        platform->set_collapsed(collapsed_items.find(E->get().name) != nullptr);
+        platform->set_collapsed(collapsed_items.contains(E->second.name));
     }
     filter->set_text(text);
 }
@@ -190,7 +190,10 @@ void GDNativeLibraryEditor::_on_item_collapsed(Object *p_item) {
 
     if (item->is_collapsed()) {
         collapsed_items.insert(name);
-    } else if (Set<String>::Element *e = collapsed_items.find(name)) {
+        return;
+    }
+    Set<String>::iterator e = collapsed_items.find(name);
+    if (e!=collapsed_items.end()) {
         collapsed_items.erase(e);
     }
 }
@@ -198,7 +201,7 @@ void GDNativeLibraryEditor::_on_item_collapsed(Object *p_item) {
 void GDNativeLibraryEditor::_on_item_activated() {
 
     TreeItem *item = tree->get_selected();
-    if (item && tree->get_selected_column() == 0 && item->get_metadata(0).get_type() == Variant::NIL) {
+    if (item && tree->get_selected_column() == 0 && item->get_metadata(0).get_type() == VariantType::NIL) {
         new_architecture_dialog->set_meta("platform", item->get_metadata(1));
         new_architecture_dialog->popup_centered();
     }
@@ -225,7 +228,7 @@ void GDNativeLibraryEditor::_set_target_value(const String &section, const Strin
 
 void GDNativeLibraryEditor::_erase_entry(const String &platform, const String &entry) {
 
-    if (platforms.has(platform)) {
+    if (platforms.contains(platform)) {
         if (List<String>::Element *E = platforms[platform].entries.find(entry)) {
 
             String target = platform + "." + entry;
@@ -243,10 +246,10 @@ void GDNativeLibraryEditor::_erase_entry(const String &platform, const String &e
 void GDNativeLibraryEditor::_move_entry(const String &platform, const String &entry, int dir) {
     if (List<String>::Element *E = platforms[platform].entries.find(entry)) {
         if (E->prev() && dir == BUTTON_MOVE_UP) {
-            platforms[platform].entries.insert_before(E->prev(), E->get());
+            platforms[platform].entries.insert_before(E->prev(), E->deref());
             platforms[platform].entries.erase(E);
         } else if (E->next() && dir == BUTTON_MOVE_DOWN) {
-            platforms[platform].entries.insert_after(E->next(), E->get());
+            platforms[platform].entries.insert_after(E->next(), E->deref());
             platforms[platform].entries.erase(E);
         }
         _translate_to_config_file();
@@ -256,16 +259,16 @@ void GDNativeLibraryEditor::_move_entry(const String &platform, const String &en
 
 void GDNativeLibraryEditor::_translate_to_config_file() {
 
-    if (!library.is_null()) {
+    if (library) {
 
         Ref<ConfigFile> config = library->get_config_file();
         config->erase_section("entry");
         config->erase_section("dependencies");
 
-        for (Map<String, NativePlatformConfig>::Element *E = platforms.front(); E; E = E->next()) {
-            for (List<String>::Element *it = E->value().entries.front(); it; it = it->next()) {
+        for (eastl::pair<const String,NativePlatformConfig> &E : platforms) {
+            for (List<String>::Element *it = E.second.entries.front(); it; it = it->next()) {
 
-                String target = E->key() + "." + it->get();
+                String target = E.first + "." + it->deref();
                 if (entry_configs[target].library.empty() && entry_configs[target].dependencies.empty())
                     continue;
 
@@ -357,9 +360,9 @@ GDNativeLibraryEditor::GDNativeLibraryEditor() {
     filter_list->set_hide_on_checkable_item_selection(false);
 
     int idx = 0;
-    for (Map<String, NativePlatformConfig>::Element *E = platforms.front(); E; E = E->next()) {
-        filter_list->add_check_item(E->get().name, idx);
-        filter_list->set_item_metadata(idx, E->key());
+    for (eastl::pair<const String,NativePlatformConfig> &E : platforms) {
+        filter_list->add_check_item(E.second.name, idx);
+        filter_list->set_item_metadata(idx, E.first);
         filter_list->set_item_checked(idx, true);
         idx += 1;
     }
@@ -401,8 +404,8 @@ GDNativeLibraryEditor::GDNativeLibraryEditor() {
 
 void GDNativeLibraryEditorPlugin::edit(Object *p_node) {
 
-    Ref<GDNativeLibrary> new_library = Object::cast_to<GDNativeLibrary>(p_node);
-    if (new_library.is_valid())
+    Ref<GDNativeLibrary> new_library(Object::cast_to<GDNativeLibrary>(p_node));
+    if (new_library)
         library_editor->edit(new_library);
 }
 

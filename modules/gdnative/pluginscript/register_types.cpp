@@ -45,10 +45,10 @@
 static List<PluginScriptLanguage *> pluginscript_languages;
 
 static Error _check_language_desc(const godot_pluginscript_language_desc *desc) {
-	ERR_FAIL_COND_V(!desc->name || desc->name == String(), ERR_BUG);
-	ERR_FAIL_COND_V(!desc->type || desc->type == String(), ERR_BUG);
-	ERR_FAIL_COND_V(!desc->extension || desc->extension == String(), ERR_BUG);
-	ERR_FAIL_COND_V(!desc->recognized_extensions || !desc->recognized_extensions[0], ERR_BUG);
+	ERR_FAIL_COND_V(!desc->name || desc->name == String(), ERR_BUG)
+	ERR_FAIL_COND_V(!desc->type || desc->type == String(), ERR_BUG)
+	ERR_FAIL_COND_V(!desc->extension || desc->extension == String(), ERR_BUG)
+	ERR_FAIL_COND_V(!desc->recognized_extensions || !desc->recognized_extensions[0], ERR_BUG)
     ERR_FAIL_COND_V(!desc->init, ERR_BUG)
     ERR_FAIL_COND_V(!desc->finish, ERR_BUG)
 
@@ -113,7 +113,7 @@ void register_pluginscript_types() {
 
 void unregister_pluginscript_types() {
 	for (List<PluginScriptLanguage *>::Element *e = pluginscript_languages.front(); e; e = e->next()) {
-		PluginScriptLanguage *language = e->get();
+		PluginScriptLanguage *language = e->deref();
 		ScriptServer::unregister_language(language);
 		ResourceLoader::remove_resource_format_loader(language->get_resource_loader());
 		ResourceSaver::remove_resource_format_saver(language->get_resource_saver());

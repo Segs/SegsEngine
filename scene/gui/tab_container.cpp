@@ -64,8 +64,8 @@ int TabContainer::_get_top_margin() const {
         if (!c->has_meta("_tab_icon"))
             continue;
 
-        Ref<Texture> tex = c->get_meta("_tab_icon");
-        if (!tex.is_valid())
+        Ref<Texture> tex = refFromRefPtr<Texture>(c->get_meta("_tab_icon"));
+        if (not tex)
             continue;
         content_height = MAX(content_height, tex->get_size().height);
     }
@@ -75,9 +75,9 @@ int TabContainer::_get_top_margin() const {
 
 void TabContainer::_gui_input(const Ref<InputEvent> &p_event) {
 
-    Ref<InputEventMouseButton> mb = p_event;
+    Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_event);
 
-    if (mb.is_valid() && mb->is_pressed() && mb->get_button_index() == BUTTON_LEFT) {
+    if (mb && mb->is_pressed() && mb->get_button_index() == BUTTON_LEFT) {
 
         Point2 pos(mb->get_position().x, mb->get_position().y);
         Size2 size = get_size();
@@ -317,8 +317,8 @@ void TabContainer::_notification(int p_what) {
 
                 // Draw the tab icon.
                 if (control->has_meta("_tab_icon")) {
-                    Ref<Texture> icon = control->get_meta("_tab_icon");
-                    if (icon.is_valid()) {
+                    Ref<Texture> icon = refFromRefPtr<Texture>(control->get_meta("_tab_icon"));
+                    if (icon) {
                         int y = y_center - (icon->get_height() / 2);
                         icon->draw(canvas, Point2i(x_content, y));
                         if (!text.empty())
@@ -387,8 +387,8 @@ int TabContainer::_get_tab_width(int p_index) const {
 
     // Add space for a tab icon.
     if (control->has_meta("_tab_icon")) {
-        Ref<Texture> icon = control->get_meta("_tab_icon");
-        if (icon.is_valid()) {
+        Ref<Texture> icon = refFromRefPtr<Texture>(control->get_meta("_tab_icon"));
+        if (icon) {
             width += icon->get_width();
             if (!text.empty())
                 width += get_constant("hseparation");
@@ -572,7 +572,7 @@ Variant TabContainer::get_drag_data(const Point2 &p_point) {
     HBoxContainer *drag_preview = memnew(HBoxContainer);
 
     Ref<Texture> icon = get_tab_icon(tab_over);
-    if (!icon.is_null()) {
+    if (icon) {
         TextureRect *tf = memnew(TextureRect);
         tf->set_texture(icon);
         drag_preview->add_child(tf);
@@ -740,7 +740,7 @@ Control *TabContainer::_get_tab(int p_idx) const {
 void TabContainer::set_tab_title(int p_tab, const String &p_title) {
 
     Control *child = _get_tab(p_tab);
-    ERR_FAIL_COND(!child);
+    ERR_FAIL_COND(!child)
     child->set_meta("_tab_name", p_title);
     update();
 }
@@ -748,7 +748,7 @@ void TabContainer::set_tab_title(int p_tab, const String &p_title) {
 String TabContainer::get_tab_title(int p_tab) const {
 
     Control *child = _get_tab(p_tab);
-    ERR_FAIL_COND_V(!child, "");
+    ERR_FAIL_COND_V(!child, "")
     if (child->has_meta("_tab_name"))
         return child->get_meta("_tab_name");
     else
@@ -758,16 +758,16 @@ String TabContainer::get_tab_title(int p_tab) const {
 void TabContainer::set_tab_icon(int p_tab, const Ref<Texture> &p_icon) {
 
     Control *child = _get_tab(p_tab);
-    ERR_FAIL_COND(!child);
+    ERR_FAIL_COND(!child)
     child->set_meta("_tab_icon", p_icon);
     update();
 }
 Ref<Texture> TabContainer::get_tab_icon(int p_tab) const {
 
     Control *child = _get_tab(p_tab);
-    ERR_FAIL_COND_V(!child, Ref<Texture>());
+    ERR_FAIL_COND_V(!child, Ref<Texture>())
     if (child->has_meta("_tab_icon"))
-        return child->get_meta("_tab_icon");
+        return refFromRefPtr<Texture>(child->get_meta("_tab_icon"));
     else
         return Ref<Texture>();
 }
@@ -775,7 +775,7 @@ Ref<Texture> TabContainer::get_tab_icon(int p_tab) const {
 void TabContainer::set_tab_disabled(int p_tab, bool p_disabled) {
 
     Control *child = _get_tab(p_tab);
-    ERR_FAIL_COND(!child);
+    ERR_FAIL_COND(!child)
     child->set_meta("_tab_disabled", p_disabled);
     update();
 }
@@ -783,7 +783,7 @@ void TabContainer::set_tab_disabled(int p_tab, bool p_disabled) {
 bool TabContainer::get_tab_disabled(int p_tab) const {
 
     Control *child = _get_tab(p_tab);
-    ERR_FAIL_COND_V(!child, false);
+    ERR_FAIL_COND_V(!child, false)
     if (child->has_meta("_tab_disabled"))
         return child->get_meta("_tab_disabled");
     else
@@ -793,7 +793,7 @@ bool TabContainer::get_tab_disabled(int p_tab) const {
 void TabContainer::set_tab_hidden(int p_tab, bool p_hidden) {
 
     Control *child = _get_tab(p_tab);
-    ERR_FAIL_COND(!child);
+    ERR_FAIL_COND(!child)
     child->set_meta("_tab_hidden", p_hidden);
     update();
     for (int i = 0; i < get_tab_count(); i++) {
@@ -813,14 +813,14 @@ void TabContainer::set_tab_hidden(int p_tab, bool p_hidden) {
 bool TabContainer::get_tab_hidden(int p_tab) const {
 
     Control *child = _get_tab(p_tab);
-    ERR_FAIL_COND_V(!child, false);
+    ERR_FAIL_COND_V(!child, false)
     if (child->has_meta("_tab_hidden"))
         return child->get_meta("_tab_hidden");
     else
         return false;
 }
 
-void TabContainer::get_translatable_strings(List<String> *p_strings) const {
+void TabContainer::get_translatable_strings(ListPOD<String> *p_strings) const {
 
     Vector<Control *> tabs = _get_tabs();
     for (int i = 0; i < tabs.size(); i++) {
@@ -846,7 +846,7 @@ Size2 TabContainer::get_minimum_size() const {
 
         Control *c = tabs[i];
 
-		if (!c->is_visible_in_tree() && !use_hidden_tabs_for_min_size)
+        if (!c->is_visible_in_tree() && !use_hidden_tabs_for_min_size)
             continue;
 
         Size2 cms = c->get_combined_minimum_size();
@@ -894,58 +894,58 @@ int TabContainer::get_tabs_rearrange_group() const {
 }
 
 void TabContainer::set_use_hidden_tabs_for_min_size(bool p_use_hidden_tabs) {
-	use_hidden_tabs_for_min_size = p_use_hidden_tabs;
+    use_hidden_tabs_for_min_size = p_use_hidden_tabs;
 }
 
 bool TabContainer::get_use_hidden_tabs_for_min_size() const {
-	return use_hidden_tabs_for_min_size;
+    return use_hidden_tabs_for_min_size;
 }
 void TabContainer::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_gui_input"), &TabContainer::_gui_input);
     MethodBinder::bind_method(D_METHOD("get_tab_count"), &TabContainer::get_tab_count);
-    MethodBinder::bind_method(D_METHOD("set_current_tab", "tab_idx"), &TabContainer::set_current_tab);
+    MethodBinder::bind_method(D_METHOD("set_current_tab", {"tab_idx"}), &TabContainer::set_current_tab);
     MethodBinder::bind_method(D_METHOD("get_current_tab"), &TabContainer::get_current_tab);
     MethodBinder::bind_method(D_METHOD("get_previous_tab"), &TabContainer::get_previous_tab);
     MethodBinder::bind_method(D_METHOD("get_current_tab_control"), &TabContainer::get_current_tab_control);
-    MethodBinder::bind_method(D_METHOD("get_tab_control", "idx"), &TabContainer::get_tab_control);
-    MethodBinder::bind_method(D_METHOD("set_tab_align", "align"), &TabContainer::set_tab_align);
+    MethodBinder::bind_method(D_METHOD("get_tab_control", {"idx"}), &TabContainer::get_tab_control);
+    MethodBinder::bind_method(D_METHOD("set_tab_align", {"align"}), &TabContainer::set_tab_align);
     MethodBinder::bind_method(D_METHOD("get_tab_align"), &TabContainer::get_tab_align);
-    MethodBinder::bind_method(D_METHOD("set_tabs_visible", "visible"), &TabContainer::set_tabs_visible);
+    MethodBinder::bind_method(D_METHOD("set_tabs_visible", {"visible"}), &TabContainer::set_tabs_visible);
     MethodBinder::bind_method(D_METHOD("are_tabs_visible"), &TabContainer::are_tabs_visible);
-    MethodBinder::bind_method(D_METHOD("set_tab_title", "tab_idx", "title"), &TabContainer::set_tab_title);
-    MethodBinder::bind_method(D_METHOD("get_tab_title", "tab_idx"), &TabContainer::get_tab_title);
-    MethodBinder::bind_method(D_METHOD("set_tab_icon", "tab_idx", "icon"), &TabContainer::set_tab_icon);
-    MethodBinder::bind_method(D_METHOD("get_tab_icon", "tab_idx"), &TabContainer::get_tab_icon);
-    MethodBinder::bind_method(D_METHOD("set_tab_disabled", "tab_idx", "disabled"), &TabContainer::set_tab_disabled);
-    MethodBinder::bind_method(D_METHOD("get_tab_disabled", "tab_idx"), &TabContainer::get_tab_disabled);
-    MethodBinder::bind_method(D_METHOD("set_popup", "popup"), &TabContainer::set_popup);
+    MethodBinder::bind_method(D_METHOD("set_tab_title", {"tab_idx", "title"}), &TabContainer::set_tab_title);
+    MethodBinder::bind_method(D_METHOD("get_tab_title", {"tab_idx"}), &TabContainer::get_tab_title);
+    MethodBinder::bind_method(D_METHOD("set_tab_icon", {"tab_idx", "icon"}), &TabContainer::set_tab_icon);
+    MethodBinder::bind_method(D_METHOD("get_tab_icon", {"tab_idx"}), &TabContainer::get_tab_icon);
+    MethodBinder::bind_method(D_METHOD("set_tab_disabled", {"tab_idx", "disabled"}), &TabContainer::set_tab_disabled);
+    MethodBinder::bind_method(D_METHOD("get_tab_disabled", {"tab_idx"}), &TabContainer::get_tab_disabled);
+    MethodBinder::bind_method(D_METHOD("set_popup", {"popup"}), &TabContainer::set_popup);
     MethodBinder::bind_method(D_METHOD("get_popup"), &TabContainer::get_popup);
-    MethodBinder::bind_method(D_METHOD("set_drag_to_rearrange_enabled", "enabled"), &TabContainer::set_drag_to_rearrange_enabled);
+    MethodBinder::bind_method(D_METHOD("set_drag_to_rearrange_enabled", {"enabled"}), &TabContainer::set_drag_to_rearrange_enabled);
     MethodBinder::bind_method(D_METHOD("get_drag_to_rearrange_enabled"), &TabContainer::get_drag_to_rearrange_enabled);
-    MethodBinder::bind_method(D_METHOD("set_tabs_rearrange_group", "group_id"), &TabContainer::set_tabs_rearrange_group);
+    MethodBinder::bind_method(D_METHOD("set_tabs_rearrange_group", {"group_id"}), &TabContainer::set_tabs_rearrange_group);
     MethodBinder::bind_method(D_METHOD("get_tabs_rearrange_group"), &TabContainer::get_tabs_rearrange_group);
 
-	MethodBinder::bind_method(D_METHOD("set_use_hidden_tabs_for_min_size", "enabled"), &TabContainer::set_use_hidden_tabs_for_min_size);
-	MethodBinder::bind_method(D_METHOD("get_use_hidden_tabs_for_min_size"), &TabContainer::get_use_hidden_tabs_for_min_size);
+    MethodBinder::bind_method(D_METHOD("set_use_hidden_tabs_for_min_size", {"enabled"}), &TabContainer::set_use_hidden_tabs_for_min_size);
+    MethodBinder::bind_method(D_METHOD("get_use_hidden_tabs_for_min_size"), &TabContainer::get_use_hidden_tabs_for_min_size);
 
     MethodBinder::bind_method(D_METHOD("_child_renamed_callback"), &TabContainer::_child_renamed_callback);
     MethodBinder::bind_method(D_METHOD("_on_theme_changed"), &TabContainer::_on_theme_changed);
     MethodBinder::bind_method(D_METHOD("_update_current_tab"), &TabContainer::_update_current_tab);
 
-    ADD_SIGNAL(MethodInfo("tab_changed", PropertyInfo(Variant::INT, "tab")));
-    ADD_SIGNAL(MethodInfo("tab_selected", PropertyInfo(Variant::INT, "tab")));
+    ADD_SIGNAL(MethodInfo("tab_changed", PropertyInfo(VariantType::INT, "tab")));
+    ADD_SIGNAL(MethodInfo("tab_selected", PropertyInfo(VariantType::INT, "tab")));
     ADD_SIGNAL(MethodInfo("pre_popup_pressed"));
 
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "tab_align", PROPERTY_HINT_ENUM, "Left,Center,Right"), "set_tab_align", "get_tab_align");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "current_tab", PROPERTY_HINT_RANGE, "-1,4096,1", PROPERTY_USAGE_EDITOR), "set_current_tab", "get_current_tab");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "tabs_visible"), "set_tabs_visible", "are_tabs_visible");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "drag_to_rearrange_enabled"), "set_drag_to_rearrange_enabled", "get_drag_to_rearrange_enabled");
-	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "use_hidden_tabs_for_min_size"), "set_use_hidden_tabs_for_min_size", "get_use_hidden_tabs_for_min_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "tab_align", PROPERTY_HINT_ENUM, "Left,Center,Right"), "set_tab_align", "get_tab_align");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "current_tab", PROPERTY_HINT_RANGE, "-1,4096,1", PROPERTY_USAGE_EDITOR), "set_current_tab", "get_current_tab");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "tabs_visible"), "set_tabs_visible", "are_tabs_visible");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "drag_to_rearrange_enabled"), "set_drag_to_rearrange_enabled", "get_drag_to_rearrange_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "use_hidden_tabs_for_min_size"), "set_use_hidden_tabs_for_min_size", "get_use_hidden_tabs_for_min_size");
 
-    BIND_ENUM_CONSTANT(ALIGN_LEFT);
-    BIND_ENUM_CONSTANT(ALIGN_CENTER);
-    BIND_ENUM_CONSTANT(ALIGN_RIGHT);
+    BIND_ENUM_CONSTANT(ALIGN_LEFT)
+    BIND_ENUM_CONSTANT(ALIGN_CENTER)
+    BIND_ENUM_CONSTANT(ALIGN_RIGHT)
 }
 
 TabContainer::TabContainer() {
@@ -962,5 +962,5 @@ TabContainer::TabContainer() {
     popup = nullptr;
     drag_to_rearrange_enabled = false;
     tabs_rearrange_group = -1;
-	use_hidden_tabs_for_min_size = false;
+    use_hidden_tabs_for_min_size = false;
 }

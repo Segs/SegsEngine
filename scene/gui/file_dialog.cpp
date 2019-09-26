@@ -65,8 +65,8 @@ void FileDialog::_notification(int p_what) {
 
 void FileDialog::_unhandled_input(const Ref<InputEvent> &p_event) {
 
-    Ref<InputEventKey> k = p_event;
-    if (k.is_valid() && is_window_modal_on_top()) {
+    Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(p_event);
+    if (k && is_window_modal_on_top()) {
 
         if (k->is_pressed()) {
 
@@ -227,7 +227,7 @@ void FileDialog::_action_pressed() {
                 for (int j = 0; j < StringUtils::get_slice_count(flt,","); j++) {
 
                     String str = StringUtils::strip_edges(StringUtils::get_slice(flt,",", j));
-					if (StringUtils::match(f,str)) {
+                    if (StringUtils::match(f,str)) {
                         valid = true;
                         break;
                     }
@@ -246,8 +246,8 @@ void FileDialog::_action_pressed() {
                 for (int j = 0; j < filterSliceCount; j++) {
 
                     String str = StringUtils::strip_edges(StringUtils::get_slice(flt,",", j));
-					if (StringUtils::match(f,str)) {
-						valid = true;
+                    if (StringUtils::match(f,str)) {
+                        valid = true;
                         break;
                     }
                 }
@@ -430,7 +430,7 @@ void FileDialog::update_file_list() {
     files.sort_custom<NaturalNoCaseComparator>();
 
     while (!dirs.empty()) {
-        String &dir_name = dirs.front()->get();
+        String &dir_name = dirs.front()->deref();
         TreeItem *ti = tree->create_item(root);
         ti->set_text(0, dir_name);
         ti->set_icon(0, folder);
@@ -484,8 +484,8 @@ void FileDialog::update_file_list() {
 
         for (List<String>::Element *E = patterns.front(); E; E = E->next()) {
 
-			if (StringUtils::matchn(files.front()->get(),E->get())) {
-                match_str = E->get();
+            if (StringUtils::matchn(files.front()->deref(),E->deref())) {
+                match_str = E->deref();
                 match = true;
                 break;
             }
@@ -493,11 +493,11 @@ void FileDialog::update_file_list() {
 
         if (match) {
             TreeItem *ti = tree->create_item(root);
-            ti->set_text(0, files.front()->get());
+            ti->set_text(0, files.front()->deref());
 
             if (get_icon_func) {
 
-                Ref<Texture> icon = get_icon_func(PathUtils::plus_file(base_dir,files.front()->get()));
+                Ref<Texture> icon = get_icon_func(PathUtils::plus_file(base_dir,files.front()->deref()));
                 ti->set_icon(0, icon);
             }
 
@@ -506,11 +506,11 @@ void FileDialog::update_file_list() {
                 ti->set_selectable(0, false);
             }
             Dictionary d;
-            d["name"] = files.front()->get();
+            d["name"] = files.front()->deref();
             d["dir"] = false;
             ti->set_metadata(0, d);
 
-            if (file->get_text() == files.front()->get() || match_str == files.front()->get())
+            if (file->get_text() == files.front()->deref() || match_str == files.front()->deref())
                 ti->select(0);
         }
 
@@ -616,7 +616,7 @@ void FileDialog::set_current_file(const String &p_file) {
 }
 void FileDialog::set_current_path(const String &p_path) {
 
-	if (p_path.empty())
+    if (p_path.empty())
         return;
     int pos = MAX(StringUtils::find_last(p_path,"/"), StringUtils::find_last(p_path,"\\"));
     if (pos == -1) {
@@ -793,24 +793,24 @@ void FileDialog::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_save_confirm_pressed"), &FileDialog::_save_confirm_pressed);
 
     MethodBinder::bind_method(D_METHOD("clear_filters"), &FileDialog::clear_filters);
-    MethodBinder::bind_method(D_METHOD("add_filter", "filter"), &FileDialog::add_filter);
-    MethodBinder::bind_method(D_METHOD("set_filters", "filters"), &FileDialog::set_filters);
+    MethodBinder::bind_method(D_METHOD("add_filter", {"filter"}), &FileDialog::add_filter);
+    MethodBinder::bind_method(D_METHOD("set_filters", {"filters"}), &FileDialog::set_filters);
     MethodBinder::bind_method(D_METHOD("get_filters"), &FileDialog::get_filters);
     MethodBinder::bind_method(D_METHOD("get_current_dir"), &FileDialog::get_current_dir);
     MethodBinder::bind_method(D_METHOD("get_current_file"), &FileDialog::get_current_file);
     MethodBinder::bind_method(D_METHOD("get_current_path"), &FileDialog::get_current_path);
-    MethodBinder::bind_method(D_METHOD("set_current_dir", "dir"), &FileDialog::set_current_dir);
-    MethodBinder::bind_method(D_METHOD("set_current_file", "file"), &FileDialog::set_current_file);
-    MethodBinder::bind_method(D_METHOD("set_current_path", "path"), &FileDialog::set_current_path);
-    MethodBinder::bind_method(D_METHOD("set_mode_overrides_title", "override"), &FileDialog::set_mode_overrides_title);
+    MethodBinder::bind_method(D_METHOD("set_current_dir", {"dir"}), &FileDialog::set_current_dir);
+    MethodBinder::bind_method(D_METHOD("set_current_file", {"file"}), &FileDialog::set_current_file);
+    MethodBinder::bind_method(D_METHOD("set_current_path", {"path"}), &FileDialog::set_current_path);
+    MethodBinder::bind_method(D_METHOD("set_mode_overrides_title", {"override"}), &FileDialog::set_mode_overrides_title);
     MethodBinder::bind_method(D_METHOD("is_mode_overriding_title"), &FileDialog::is_mode_overriding_title);
-    MethodBinder::bind_method(D_METHOD("set_mode", "mode"), &FileDialog::set_mode);
+    MethodBinder::bind_method(D_METHOD("set_mode", {"mode"}), &FileDialog::set_mode);
     MethodBinder::bind_method(D_METHOD("get_mode"), &FileDialog::get_mode);
     MethodBinder::bind_method(D_METHOD("get_vbox"), &FileDialog::get_vbox);
     MethodBinder::bind_method(D_METHOD("get_line_edit"), &FileDialog::get_line_edit);
-    MethodBinder::bind_method(D_METHOD("set_access", "access"), &FileDialog::set_access);
+    MethodBinder::bind_method(D_METHOD("set_access", {"access"}), &FileDialog::set_access);
     MethodBinder::bind_method(D_METHOD("get_access"), &FileDialog::get_access);
-    MethodBinder::bind_method(D_METHOD("set_show_hidden_files", "show"), &FileDialog::set_show_hidden_files);
+    MethodBinder::bind_method(D_METHOD("set_show_hidden_files", {"show"}), &FileDialog::set_show_hidden_files);
     MethodBinder::bind_method(D_METHOD("is_showing_hidden_files"), &FileDialog::is_showing_hidden_files);
     MethodBinder::bind_method(D_METHOD("_select_drive"), &FileDialog::_select_drive);
     MethodBinder::bind_method(D_METHOD("_make_dir"), &FileDialog::_make_dir);
@@ -823,28 +823,28 @@ void FileDialog::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("invalidate"), &FileDialog::invalidate);
 
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "mode_overrides_title"), "set_mode_overrides_title", "is_mode_overriding_title");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "mode", PROPERTY_HINT_ENUM, "Open File,Open Files,Open Folder,Open Any,Save"), "set_mode", "get_mode");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "access", PROPERTY_HINT_ENUM, "Resources,User data,File system"), "set_access", "get_access");
-    ADD_PROPERTY(PropertyInfo(Variant::POOL_STRING_ARRAY, "filters"), "set_filters", "get_filters");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "show_hidden_files"), "set_show_hidden_files", "is_showing_hidden_files");
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "current_dir"), "set_current_dir", "get_current_dir");
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "current_file"), "set_current_file", "get_current_file");
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "current_path"), "set_current_path", "get_current_path");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "mode_overrides_title"), "set_mode_overrides_title", "is_mode_overriding_title");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "mode", PROPERTY_HINT_ENUM, "Open File,Open Files,Open Folder,Open Any,Save"), "set_mode", "get_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "access", PROPERTY_HINT_ENUM, "Resources,User data,File system"), "set_access", "get_access");
+    ADD_PROPERTY(PropertyInfo(VariantType::POOL_STRING_ARRAY, "filters"), "set_filters", "get_filters");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "show_hidden_files"), "set_show_hidden_files", "is_showing_hidden_files");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "current_dir"), "set_current_dir", "get_current_dir");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "current_file"), "set_current_file", "get_current_file");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "current_path"), "set_current_path", "get_current_path");
 
-    ADD_SIGNAL(MethodInfo("file_selected", PropertyInfo(Variant::STRING, "path")));
-    ADD_SIGNAL(MethodInfo("files_selected", PropertyInfo(Variant::POOL_STRING_ARRAY, "paths")));
-    ADD_SIGNAL(MethodInfo("dir_selected", PropertyInfo(Variant::STRING, "dir")));
+    ADD_SIGNAL(MethodInfo("file_selected", PropertyInfo(VariantType::STRING, "path")));
+    ADD_SIGNAL(MethodInfo("files_selected", PropertyInfo(VariantType::POOL_STRING_ARRAY, "paths")));
+    ADD_SIGNAL(MethodInfo("dir_selected", PropertyInfo(VariantType::STRING, "dir")));
 
-    BIND_ENUM_CONSTANT(MODE_OPEN_FILE);
-    BIND_ENUM_CONSTANT(MODE_OPEN_FILES);
-    BIND_ENUM_CONSTANT(MODE_OPEN_DIR);
-    BIND_ENUM_CONSTANT(MODE_OPEN_ANY);
-    BIND_ENUM_CONSTANT(MODE_SAVE_FILE);
+    BIND_ENUM_CONSTANT(MODE_OPEN_FILE)
+    BIND_ENUM_CONSTANT(MODE_OPEN_FILES)
+    BIND_ENUM_CONSTANT(MODE_OPEN_DIR)
+    BIND_ENUM_CONSTANT(MODE_OPEN_ANY)
+    BIND_ENUM_CONSTANT(MODE_SAVE_FILE)
 
-    BIND_ENUM_CONSTANT(ACCESS_RESOURCES);
-    BIND_ENUM_CONSTANT(ACCESS_USERDATA);
-    BIND_ENUM_CONSTANT(ACCESS_FILESYSTEM);
+    BIND_ENUM_CONSTANT(ACCESS_RESOURCES)
+    BIND_ENUM_CONSTANT(ACCESS_USERDATA)
+    BIND_ENUM_CONSTANT(ACCESS_FILESYSTEM)
 }
 
 void FileDialog::set_show_hidden_files(bool p_show) {

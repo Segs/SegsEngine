@@ -183,7 +183,7 @@ bool IP_Address::is_ipv4() const {
 }
 
 const uint8_t *IP_Address::get_ipv4() const {
-    ERR_FAIL_COND_V(!is_ipv4(), &(field8[12])); // Not the correct IPv4 (it's an IPv6), but we don't want to return a null pointer risking an engine crash.
+    ERR_FAIL_COND_V(!is_ipv4(), &(field8[12])) // Not the correct IPv4 (it's an IPv6, but we don't want to return a null pointer risking an engine crash.
     return &(field8[12]);
 }
 
@@ -213,7 +213,7 @@ IP_Address::IP_Address(const String &p_string) {
         // Wildcard (not a valid IP)
         wildcard = true;
 
-	} else if (StringUtils::contains(p_string,':') ) {
+    } else if (StringUtils::contains(p_string,':') ) {
         // IPv6
         _parse_ipv6(p_string);
         valid = true;
@@ -225,7 +225,7 @@ IP_Address::IP_Address(const String &p_string) {
         valid = true;
 
     } else {
-		ERR_PRINT("Invalid IP address.")
+        ERR_PRINT("Invalid IP address.")
     }
 }
 

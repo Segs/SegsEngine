@@ -132,22 +132,22 @@ RID OccluderPolygon2D::get_rid() const {
 
 void OccluderPolygon2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_closed", "closed"), &OccluderPolygon2D::set_closed);
+    MethodBinder::bind_method(D_METHOD("set_closed", {"closed"}), &OccluderPolygon2D::set_closed);
     MethodBinder::bind_method(D_METHOD("is_closed"), &OccluderPolygon2D::is_closed);
 
-    MethodBinder::bind_method(D_METHOD("set_cull_mode", "cull_mode"), &OccluderPolygon2D::set_cull_mode);
+    MethodBinder::bind_method(D_METHOD("set_cull_mode", {"cull_mode"}), &OccluderPolygon2D::set_cull_mode);
     MethodBinder::bind_method(D_METHOD("get_cull_mode"), &OccluderPolygon2D::get_cull_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_polygon", "polygon"), &OccluderPolygon2D::set_polygon);
+    MethodBinder::bind_method(D_METHOD("set_polygon", {"polygon"}), &OccluderPolygon2D::set_polygon);
     MethodBinder::bind_method(D_METHOD("get_polygon"), &OccluderPolygon2D::get_polygon);
 
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "closed"), "set_closed", "is_closed");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "cull_mode", PROPERTY_HINT_ENUM, "Disabled,ClockWise,CounterClockWise"), "set_cull_mode", "get_cull_mode");
-    ADD_PROPERTY(PropertyInfo(Variant::POOL_VECTOR2_ARRAY, "polygon"), "set_polygon", "get_polygon");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "closed"), "set_closed", "is_closed");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "cull_mode", PROPERTY_HINT_ENUM, "Disabled,ClockWise,CounterClockWise"), "set_cull_mode", "get_cull_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR2_ARRAY, "polygon"), "set_polygon", "get_polygon");
 
-    BIND_ENUM_CONSTANT(CULL_DISABLED);
-    BIND_ENUM_CONSTANT(CULL_CLOCKWISE);
-    BIND_ENUM_CONSTANT(CULL_COUNTER_CLOCKWISE);
+    BIND_ENUM_CONSTANT(CULL_DISABLED)
+    BIND_ENUM_CONSTANT(CULL_CLOCKWISE)
+    BIND_ENUM_CONSTANT(CULL_COUNTER_CLOCKWISE)
 }
 
 OccluderPolygon2D::OccluderPolygon2D() {
@@ -191,7 +191,7 @@ void LightOccluder2D::_notification(int p_what) {
 
         if (Engine::get_singleton()->is_editor_hint()) {
 
-            if (occluder_polygon.is_valid()) {
+            if (occluder_polygon) {
 
                 PoolVector<Vector2> poly = occluder_polygon->get_polygon();
 
@@ -222,29 +222,29 @@ void LightOccluder2D::_notification(int p_what) {
 
 Rect2 LightOccluder2D::_edit_get_rect() const {
 
-    return occluder_polygon.is_valid() ? occluder_polygon->_edit_get_rect() : Rect2();
+    return occluder_polygon ? occluder_polygon->_edit_get_rect() : Rect2();
 }
 
 bool LightOccluder2D::_edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const {
 
-    return occluder_polygon.is_valid() ? occluder_polygon->_edit_is_selected_on_click(p_point, p_tolerance) : false;
+    return occluder_polygon ? occluder_polygon->_edit_is_selected_on_click(p_point, p_tolerance) : false;
 }
 
 void LightOccluder2D::set_occluder_polygon(const Ref<OccluderPolygon2D> &p_polygon) {
 
 #ifdef DEBUG_ENABLED
-    if (occluder_polygon.is_valid())
+    if (occluder_polygon)
         occluder_polygon->disconnect("changed", this, "_poly_changed");
 #endif
     occluder_polygon = p_polygon;
 
-    if (occluder_polygon.is_valid())
+    if (occluder_polygon)
         VS::get_singleton()->canvas_light_occluder_set_polygon(occluder, occluder_polygon->get_rid());
     else
         VS::get_singleton()->canvas_light_occluder_set_polygon(occluder, RID());
 
 #ifdef DEBUG_ENABLED
-    if (occluder_polygon.is_valid())
+    if (occluder_polygon)
         occluder_polygon->connect("changed", this, "_poly_changed");
     update();
 #endif
@@ -268,11 +268,11 @@ int LightOccluder2D::get_occluder_light_mask() const {
 
 String LightOccluder2D::get_configuration_warning() const {
 
-    if (!occluder_polygon.is_valid()) {
+    if (not occluder_polygon) {
         return TTR("An occluder polygon must be set (or drawn) for this occluder to take effect.");
     }
 
-    if (occluder_polygon.is_valid() && occluder_polygon->get_polygon().size() == 0) {
+    if (occluder_polygon && occluder_polygon->get_polygon().size() == 0) {
         return TTR("The occluder polygon for this occluder is empty. Please draw a polygon.");
     }
 
@@ -281,16 +281,16 @@ String LightOccluder2D::get_configuration_warning() const {
 
 void LightOccluder2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_occluder_polygon", "polygon"), &LightOccluder2D::set_occluder_polygon);
+    MethodBinder::bind_method(D_METHOD("set_occluder_polygon", {"polygon"}), &LightOccluder2D::set_occluder_polygon);
     MethodBinder::bind_method(D_METHOD("get_occluder_polygon"), &LightOccluder2D::get_occluder_polygon);
 
-    MethodBinder::bind_method(D_METHOD("set_occluder_light_mask", "mask"), &LightOccluder2D::set_occluder_light_mask);
+    MethodBinder::bind_method(D_METHOD("set_occluder_light_mask", {"mask"}), &LightOccluder2D::set_occluder_light_mask);
     MethodBinder::bind_method(D_METHOD("get_occluder_light_mask"), &LightOccluder2D::get_occluder_light_mask);
 
     MethodBinder::bind_method("_poly_changed", &LightOccluder2D::_poly_changed);
 
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "occluder", PROPERTY_HINT_RESOURCE_TYPE, "OccluderPolygon2D"), "set_occluder_polygon", "get_occluder_polygon");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "light_mask", PROPERTY_HINT_LAYERS_2D_RENDER), "set_occluder_light_mask", "get_occluder_light_mask");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "occluder", PROPERTY_HINT_RESOURCE_TYPE, "OccluderPolygon2D"), "set_occluder_polygon", "get_occluder_polygon");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "light_mask", PROPERTY_HINT_LAYERS_2D_RENDER), "set_occluder_light_mask", "get_occluder_light_mask");
 }
 
 LightOccluder2D::LightOccluder2D() {

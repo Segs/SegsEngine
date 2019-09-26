@@ -32,6 +32,7 @@
 
 #include "core/string_formatter.h"
 #include "core/method_bind.h"
+#include "core/os/keyboard.h"
 #include "editor_node.h"
 
 IMPL_GDCLASS(TextEditor)
@@ -64,10 +65,9 @@ void TextEditor::set_syntax_highlighter(SyntaxHighlighter *p_highlighter) {
 }
 
 void TextEditor::_change_syntax_highlighter(int p_idx) {
-    Map<String, SyntaxHighlighter *>::Element *el = highlighters.front();
-    while (el != nullptr) {
-        highlighter_menu->set_item_checked(highlighter_menu->get_item_idx_from_text(el->key()), false);
-        el = el->next();
+    Map<String, SyntaxHighlighter *>::iterator el = highlighters.begin();
+    for (;el != highlighters.end(); ++el) {
+        highlighter_menu->set_item_checked(highlighter_menu->get_item_idx_from_text(el->first), false);
     }
     set_syntax_highlighter(highlighters[highlighter_menu->get_item_text(p_idx)]);
 }
@@ -176,9 +176,9 @@ RES TextEditor::get_edited_resource() const {
 }
 
 void TextEditor::set_edited_resource(const RES &p_res) {
-    ERR_FAIL_COND(!text_file.is_null())
+    ERR_FAIL_COND(text_file)
 
-    text_file = p_res;
+    text_file = dynamic_ref_cast<TextFile>(p_res);
 
     code_editor->get_text_edit()->set_text(text_file->get_text());
     code_editor->get_text_edit()->clear_undo_history();
@@ -199,7 +199,7 @@ void TextEditor::get_breakpoints(List<int> *p_breakpoints) {
 
 void TextEditor::reload_text() {
 
-    ERR_FAIL_COND(text_file.is_null())
+    ERR_FAIL_COND(not text_file)
 
     TextEdit *te = code_editor->get_text_edit();
     int column = te->cursor_get_column();
@@ -352,7 +352,7 @@ void TextEditor::update_settings() {
 
 void TextEditor::set_tooltip_request_func(String p_method, Object *p_obj) {
 
-    code_editor->get_text_edit()->set_tooltip_request_func(p_obj, p_method, this);
+    code_editor->get_text_edit()->set_tooltip_request_func(p_obj, p_method, Variant(this));
 }
 
 Control *TextEditor::get_edit_menu() {
@@ -535,7 +535,7 @@ void TextEditor::_bind_methods() {
 
 static ScriptEditorBase *create_editor(const RES &p_resource) {
 
-    if (Object::cast_to<TextFile>(*p_resource)) {
+    if (dynamic_ref_cast<TextFile>(p_resource)) {
         return memnew(TextEditor);
     }
     return nullptr;
@@ -548,9 +548,9 @@ void TextEditor::register_editor() {
 
 void TextEditor::_text_edit_gui_input(const Ref<InputEvent> &ev) {
 
-    Ref<InputEventMouseButton> mb = ev;
+    Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(ev);
 
-    if (mb.is_valid()) {
+    if (mb) {
         if (mb->get_button_index() == BUTTON_RIGHT) {
 
             int col, row;
@@ -581,13 +581,20 @@ void TextEditor::_text_edit_gui_input(const Ref<InputEvent> &ev) {
             }
 
             if (!mb->is_pressed()) {
-                _make_context_menu(tx->is_selection_active(), can_fold, is_folded);
+                _make_context_menu(tx->is_selection_active(), can_fold, is_folded, get_local_mouse_position());
             }
         }
     }
+    Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(ev);
+    if (k && k->is_pressed() && k->get_scancode() == KEY_MENU) {
+        TextEdit *tx = code_editor->get_text_edit();
+        int line = tx->cursor_get_line();
+        _make_context_menu(tx->is_selection_active(), tx->can_fold(line), tx->is_folded(line), (get_global_transform().inverse() * tx->get_global_transform()).xform(tx->_get_cursor_pixel_pos()));
+        context_menu->grab_focus();
+    }
 }
 
-void TextEditor::_make_context_menu(bool p_selection, bool p_can_fold, bool p_is_folded) {
+void TextEditor::_make_context_menu(bool p_selection, bool p_can_fold, bool p_is_folded, Vector2 p_position) {
 
     context_menu->clear();
     if (p_selection) {
@@ -613,7 +620,7 @@ void TextEditor::_make_context_menu(bool p_selection, bool p_can_fold, bool p_is
     if (p_can_fold || p_is_folded)
         context_menu->add_shortcut(ED_GET_SHORTCUT("script_text_editor/toggle_fold_line"), EDIT_TOGGLE_FOLD_LINE);
 
-    context_menu->set_position(get_global_transform().xform(get_local_mouse_position()));
+    context_menu->set_position(get_global_transform().xform(p_position));
     context_menu->set_size(Vector2(1, 1));
     context_menu->popup();
 }
@@ -722,9 +729,9 @@ TextEditor::TextEditor() {
 }
 
 TextEditor::~TextEditor() {
-    for (const Map<String, SyntaxHighlighter *>::Element *E = highlighters.front(); E; E = E->next()) {
-        if (E->get() != nullptr) {
-            memdelete(E->get());
+    for (const eastl::pair<const String,SyntaxHighlighter *> &E : highlighters) {
+        if (E.second != nullptr) {
+            memdelete(E.second);
         }
     }
     highlighters.clear();

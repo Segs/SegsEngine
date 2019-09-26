@@ -50,8 +50,8 @@ Set<String> GDNativeLibrarySingletonEditor::_find_singletons_recursive(EditorFil
             continue;
         }
 
-        Ref<GDNativeLibrary> lib = ResourceLoader::load(p_dir->get_file_path(i));
-        if (lib.is_valid() && lib->is_singleton()) {
+        Ref<GDNativeLibrary> lib = dynamic_ref_cast<GDNativeLibrary>(ResourceLoader::load(p_dir->get_file_path(i)));
+        if (lib && lib->is_singleton()) {
             file_paths.insert(p_dir->get_file_path(i));
         }
     }
@@ -60,8 +60,8 @@ Set<String> GDNativeLibrarySingletonEditor::_find_singletons_recursive(EditorFil
     for (int i = 0; i < p_dir->get_subdir_count(); i++) {
         Set<String> paths = _find_singletons_recursive(p_dir->get_subdir(i));
 
-        for (Set<String>::Element *E = paths.front(); E; E = E->next()) {
-            file_paths.insert(E->get());
+        for (const String &E : paths) {
+            file_paths.insert(E);
         }
     }
 
@@ -80,18 +80,18 @@ void GDNativeLibrarySingletonEditor::_discover_singletons() {
         current_files = ProjectSettings::get_singleton()->get("gdnative/singletons");
     }
     Array files;
-    for (Set<String>::Element *E = file_paths.front(); E; E = E->next()) {
-        if (!current_files.has(E->get())) {
+    for (const String &E : file_paths) {
+        if (!current_files.contains(E)) {
             changed = true;
         }
-        files.append(E->get());
+        files.append(E);
     }
 
     // Check for removed files
     if (!changed) {
         // Removed singleton
         for (int j = 0; j < current_files.size(); j++) {
-            if (!files.has(current_files[j])) {
+            if (!files.contains(current_files[j])) {
                 changed = true;
                 break;
             }
@@ -125,7 +125,7 @@ void GDNativeLibrarySingletonEditor::_update_libraries() {
     for (int i = 0; i < singletons.size(); i++) {
         bool enabled = true;
         String path = singletons[i];
-        if (singletons_disabled.has(path)) {
+        if (singletons_disabled.contains(path)) {
             enabled = false;
             updated_disabled.push_back(path);
         }

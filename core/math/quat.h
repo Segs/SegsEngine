@@ -124,7 +124,7 @@ public:
 
     Quat(const Quat &q) = default;
 
-    Quat operator=(const Quat &q) {
+    Quat &operator=(const Quat &q) {
         x = q.x;
         y = q.y;
         z = q.z;

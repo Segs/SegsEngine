@@ -38,10 +38,10 @@ void ARVRInterface::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_capabilities"), &ARVRInterface::get_capabilities);
 
     MethodBinder::bind_method(D_METHOD("is_primary"), &ARVRInterface::is_primary);
-    MethodBinder::bind_method(D_METHOD("set_is_primary", "enable"), &ARVRInterface::set_is_primary);
+    MethodBinder::bind_method(D_METHOD("set_is_primary", {"enable"}), &ARVRInterface::set_is_primary);
 
     MethodBinder::bind_method(D_METHOD("is_initialized"), &ARVRInterface::is_initialized);
-    MethodBinder::bind_method(D_METHOD("set_is_initialized", "initialized"), &ARVRInterface::set_is_initialized);
+    MethodBinder::bind_method(D_METHOD("set_is_initialized", {"initialized"}), &ARVRInterface::set_is_initialized);
     MethodBinder::bind_method(D_METHOD("initialize"), &ARVRInterface::initialize);
     MethodBinder::bind_method(D_METHOD("uninitialize"), &ARVRInterface::uninitialize);
 
@@ -51,34 +51,34 @@ void ARVRInterface::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("is_stereo"), &ARVRInterface::is_stereo);
 
     ADD_GROUP("Interface", "interface_");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "interface_is_primary"), "set_is_primary", "is_primary");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "interface_is_initialized"), "set_is_initialized", "is_initialized");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "interface_is_primary"), "set_is_primary", "is_primary");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "interface_is_initialized"), "set_is_initialized", "is_initialized");
 
     // we don't have any properties specific to VR yet....
 
     // but we do have properties specific to AR....
     MethodBinder::bind_method(D_METHOD("get_anchor_detection_is_enabled"), &ARVRInterface::get_anchor_detection_is_enabled);
-    MethodBinder::bind_method(D_METHOD("set_anchor_detection_is_enabled", "enable"), &ARVRInterface::set_anchor_detection_is_enabled);
+    MethodBinder::bind_method(D_METHOD("set_anchor_detection_is_enabled", {"enable"}), &ARVRInterface::set_anchor_detection_is_enabled);
     MethodBinder::bind_method(D_METHOD("get_camera_feed_id"), &ARVRInterface::get_camera_feed_id);
 
     ADD_GROUP("AR", "ar_");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "ar_is_anchor_detection_enabled"), "set_anchor_detection_is_enabled", "get_anchor_detection_is_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "ar_is_anchor_detection_enabled"), "set_anchor_detection_is_enabled", "get_anchor_detection_is_enabled");
 
-    BIND_ENUM_CONSTANT(ARVR_NONE);
-    BIND_ENUM_CONSTANT(ARVR_MONO);
-    BIND_ENUM_CONSTANT(ARVR_STEREO);
-    BIND_ENUM_CONSTANT(ARVR_AR);
-    BIND_ENUM_CONSTANT(ARVR_EXTERNAL);
+    BIND_ENUM_CONSTANT(ARVR_NONE)
+    BIND_ENUM_CONSTANT(ARVR_MONO)
+    BIND_ENUM_CONSTANT(ARVR_STEREO)
+    BIND_ENUM_CONSTANT(ARVR_AR)
+    BIND_ENUM_CONSTANT(ARVR_EXTERNAL)
 
-    BIND_ENUM_CONSTANT(EYE_MONO);
-    BIND_ENUM_CONSTANT(EYE_LEFT);
-    BIND_ENUM_CONSTANT(EYE_RIGHT);
+    BIND_ENUM_CONSTANT(EYE_MONO)
+    BIND_ENUM_CONSTANT(EYE_LEFT)
+    BIND_ENUM_CONSTANT(EYE_RIGHT)
 
-    BIND_ENUM_CONSTANT(ARVR_NORMAL_TRACKING);
-    BIND_ENUM_CONSTANT(ARVR_EXCESSIVE_MOTION);
-    BIND_ENUM_CONSTANT(ARVR_INSUFFICIENT_FEATURES);
-    BIND_ENUM_CONSTANT(ARVR_UNKNOWN_TRACKING);
-    BIND_ENUM_CONSTANT(ARVR_NOT_TRACKING);
+    BIND_ENUM_CONSTANT(ARVR_NORMAL_TRACKING)
+    BIND_ENUM_CONSTANT(ARVR_EXCESSIVE_MOTION)
+    BIND_ENUM_CONSTANT(ARVR_INSUFFICIENT_FEATURES)
+    BIND_ENUM_CONSTANT(ARVR_UNKNOWN_TRACKING)
+    BIND_ENUM_CONSTANT(ARVR_NOT_TRACKING)
 };
 
 StringName ARVRInterface::get_name() const {
@@ -87,34 +87,34 @@ StringName ARVRInterface::get_name() const {
 
 bool ARVRInterface::is_primary() {
     ARVRServer *arvr_server = ARVRServer::get_singleton();
-    ERR_FAIL_NULL_V(arvr_server, false);
+    ERR_FAIL_NULL_V(arvr_server, false)
 
     return arvr_server->get_primary_interface() == this;
 };
 
 void ARVRInterface::set_is_primary(bool p_is_primary) {
     ARVRServer *arvr_server = ARVRServer::get_singleton();
-    ERR_FAIL_NULL(arvr_server);
+    ERR_FAIL_NULL(arvr_server)
 
     if (p_is_primary) {
-        ERR_FAIL_COND(!is_initialized());
+        ERR_FAIL_COND(!is_initialized())
 
-        arvr_server->set_primary_interface(this);
+        arvr_server->set_primary_interface(Ref<ARVRInterface>(this));
     } else {
-        arvr_server->clear_primary_interface_if(this);
-    };
-};
+        arvr_server->clear_primary_interface_if(Ref<ARVRInterface>(this));
+    }
+}
 
 void ARVRInterface::set_is_initialized(bool p_initialized) {
     if (p_initialized) {
         if (!is_initialized()) {
             initialize();
-        };
+        }
     } else {
         if (is_initialized()) {
             uninitialize();
-        };
-    };
+        }
+    }
 };
 
 ARVRInterface::Tracking_status ARVRInterface::get_tracking_status() const {
@@ -125,7 +125,7 @@ ARVRInterface::ARVRInterface() {
     tracking_state = ARVR_UNKNOWN_TRACKING;
 };
 
-ARVRInterface::~ARVRInterface(){};
+ARVRInterface::~ARVRInterface(){}
 
 // optional render to external texture which enhances performance on those platforms that require us to submit our end result into special textures.
 unsigned int ARVRInterface::get_external_texture_for_eye(ARVRInterface::Eyes p_eye) {

@@ -192,7 +192,7 @@ void Container::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_child_minsize_changed"), &Container::_child_minsize_changed);
 
     MethodBinder::bind_method(D_METHOD("queue_sort"), &Container::queue_sort);
-    MethodBinder::bind_method(D_METHOD("fit_child_in_rect", "child", "rect"), &Container::fit_child_in_rect);
+    MethodBinder::bind_method(D_METHOD("fit_child_in_rect", {"child", "rect"}), &Container::fit_child_in_rect);
 
     BIND_CONSTANT(NOTIFICATION_SORT_CHILDREN)
     ADD_SIGNAL(MethodInfo("sort_children"));

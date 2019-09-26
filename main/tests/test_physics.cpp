@@ -265,17 +265,17 @@ protected:
 public:
     void input_event(const Ref<InputEvent> &p_event) override {
 
-        Ref<InputEventMouseMotion> mm = p_event;
-        if (mm.is_valid() && mm->get_button_mask() & 4) {
+        Ref<InputEventMouseMotion> mm = dynamic_ref_cast<InputEventMouseMotion>(p_event);
+        if (mm && mm->get_button_mask() & 4) {
 
-            ofs_y -= mm->get_relative().y / 200.0;
-            ofs_x += mm->get_relative().x / 200.0;
+            ofs_y -= mm->get_relative().y / 200.0f;
+            ofs_x += mm->get_relative().x / 200.0f;
         }
 
-        if (mm.is_valid() && mm->get_button_mask() & 1) {
+        if (mm && mm->get_button_mask() & 1) {
 
-            float y = -mm->get_relative().y / 20.0;
-            float x = mm->get_relative().x / 20.0;
+            float y = -mm->get_relative().y / 20.0f;
+            float x = mm->get_relative().x / 20.0f;
 
             if (mover.is_valid()) {
 
@@ -309,7 +309,7 @@ public:
         vs->light_set_shadow(lightaux, true);
         light = vs->instance_create2(lightaux, scenario);
         Transform t;
-        t.rotate(Vector3(1.0, 0, 0), 0.6);
+        t.rotate(Vector3(1.0, 0, 0), 0.6f);
         vs->instance_set_transform(light, t);
 
         /* CAMERA */
@@ -324,11 +324,11 @@ public:
         vs->viewport_attach_camera(viewport, camera);
         vs->viewport_set_scenario(viewport, scenario);
 
-        vs->camera_set_perspective(camera, 60, 0.1, 40.0);
+        vs->camera_set_perspective(camera, 60, 0.1f, 40.0);
         vs->camera_set_transform(camera, Transform(Basis(), Vector3(0, 9, 12)));
 
         Transform gxf;
-        gxf.basis.scale(Vector3(1.4, 0.4, 1.4));
+        gxf.basis.scale(Vector3(1.4f, 0.4f, 1.4f));
         gxf.origin = Vector3(-2, 1, -2);
         make_grid(5, 5, 2.5, 1, gxf);
         test_fall();

@@ -54,20 +54,20 @@ bool EditorResourcePreviewGenerator::handles(const String &p_type) const {
 Ref<Texture> EditorResourcePreviewGenerator::generate(const RES &p_from, const Size2 &p_size) const {
 
     if (get_script_instance() && get_script_instance()->has_method("generate")) {
-        return get_script_instance()->call("generate", p_from, p_size);
+        return refFromRefPtr<Texture>(get_script_instance()->call("generate", p_from, p_size));
     }
-    ERR_FAIL_V_MSG(Ref<Texture>(), "EditorResourcePreviewGenerator::generate needs to be overridden.");
+    ERR_FAIL_V_CMSG(Ref<Texture>(), "EditorResourcePreviewGenerator::generate needs to be overridden.")
 }
 
 Ref<Texture> EditorResourcePreviewGenerator::generate_from_path(const String &p_path, const Size2 &p_size) const {
 
     if (get_script_instance() && get_script_instance()->has_method("generate_from_path")) {
-        return get_script_instance()->call("generate_from_path", p_path, p_size);
+        return refFromRefPtr<Texture>(get_script_instance()->call("generate_from_path", p_path, p_size));
     }
 
-    RES res = ResourceLoader::load(p_path);
-    if (!res.is_valid())
-        return res;
+    RES res(ResourceLoader::load(p_path));
+    if (not res)
+        return Ref<Texture>();
     return generate(res, p_size);
 }
 
@@ -91,11 +91,11 @@ bool EditorResourcePreviewGenerator::can_generate_small_preview() const {
 
 void EditorResourcePreviewGenerator::_bind_methods() {
 
-    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(Variant::BOOL, "handles", PropertyInfo(Variant::STRING, "type")));
-    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(CLASS_INFO(Texture), "generate", PropertyInfo(Variant::OBJECT, "from", PROPERTY_HINT_RESOURCE_TYPE, "Resource"), PropertyInfo(Variant::VECTOR2, "size")));
-    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(CLASS_INFO(Texture), "generate_from_path", PropertyInfo(Variant::STRING, "path", PROPERTY_HINT_FILE), PropertyInfo(Variant::VECTOR2, "size")));
-    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(Variant::BOOL, "generate_small_preview_automatically"));
-    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(Variant::BOOL, "can_generate_small_preview"));
+    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::BOOL, "handles", PropertyInfo(VariantType::STRING, "type")));
+    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(CLASS_INFO(Texture), "generate", PropertyInfo(VariantType::OBJECT, "from", PROPERTY_HINT_RESOURCE_TYPE, "Resource"), PropertyInfo(VariantType::VECTOR2, "size")));
+    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(CLASS_INFO(Texture), "generate_from_path", PropertyInfo(VariantType::STRING, "path", PROPERTY_HINT_FILE), PropertyInfo(VariantType::VECTOR2, "size")));
+    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::BOOL, "generate_small_preview_automatically"));
+    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::BOOL, "can_generate_small_preview"));
 }
 
 EditorResourcePreviewGenerator::EditorResourcePreviewGenerator() {
@@ -118,7 +118,7 @@ void EditorResourcePreview::_preview_ready(const String &p_str, const Ref<Textur
     uint64_t modified_time = 0;
 
     if (StringUtils::begins_with(p_str,"ID:")) {
-        hash = StringUtils::to_int(StringUtils::get_slice(p_str,':', 2));
+        hash = uint32_t(StringUtils::to_int64(StringUtils::get_slice(p_str,':', 2)));
         path = "ID:" + StringUtils::get_slice(p_str,':', 1);
     } else {
         modified_time = FileAccess::get_modified_time(path);
@@ -141,7 +141,7 @@ void EditorResourcePreview::_preview_ready(const String &p_str, const Ref<Textur
 void EditorResourcePreview::_generate_preview(Ref<ImageTexture> &r_texture, Ref<ImageTexture> &r_small_texture, const QueueItem &p_item, const String &cache_base) {
     String type;
 
-    if (p_item.resource.is_valid())
+    if (p_item.resource)
         type = p_item.resource->get_class();
     else
         type = ResourceLoader::get_resource_type(p_item.path);
@@ -163,49 +163,49 @@ void EditorResourcePreview::_generate_preview(Ref<ImageTexture> &r_texture, Ref<
             continue;
 
         Ref<Texture> generated;
-        if (p_item.resource.is_valid()) {
+        if (p_item.resource) {
             generated = preview_generators[i]->generate(p_item.resource, Vector2(thumbnail_size, thumbnail_size));
         } else {
             generated = preview_generators[i]->generate_from_path(p_item.path, Vector2(thumbnail_size, thumbnail_size));
         }
-        r_texture = generated;
+        r_texture = dynamic_ref_cast<ImageTexture>(generated);
 
         int small_thumbnail_size = EditorNode::get_singleton()->get_theme_base()->get_icon("Object", "EditorIcons")->get_width(); // Kind of a workaround to retrieve the default icon size
         small_thumbnail_size *= EDSCALE;
 
         if (preview_generators[i]->can_generate_small_preview()) {
             Ref<Texture> generated_small;
-            if (p_item.resource.is_valid()) {
+            if (p_item.resource) {
                 generated_small = preview_generators[i]->generate(p_item.resource, Vector2(small_thumbnail_size, small_thumbnail_size));
             } else {
                 generated_small = preview_generators[i]->generate_from_path(p_item.path, Vector2(small_thumbnail_size, small_thumbnail_size));
             }
-            r_small_texture = generated_small;
+            r_small_texture = dynamic_ref_cast<ImageTexture>(generated_small);
         }
 
-        if (!r_small_texture.is_valid() && r_texture.is_valid() && preview_generators[i]->generate_small_preview_automatically()) {
+        if (not r_small_texture && r_texture && preview_generators[i]->generate_small_preview_automatically()) {
             Ref<Image> small_image = r_texture->get_data();
-            small_image = small_image->duplicate();
+            small_image = dynamic_ref_cast<Image>(small_image->duplicate());
             small_image->resize(small_thumbnail_size, small_thumbnail_size, Image::INTERPOLATE_CUBIC);
-            r_small_texture.instance();
+            r_small_texture = make_ref_counted<ImageTexture>();
             r_small_texture->create_from_image(small_image);
         }
 
         break;
     }
 
-    if (!p_item.resource.is_valid()) {
+    if (not p_item.resource) {
         // cache the preview in case it's a resource on disk
-        if (r_texture.is_valid()) {
+        if (r_texture) {
             //wow it generated a preview... save cache
-            bool has_small_texture = r_small_texture.is_valid();
+            bool has_small_texture = r_small_texture;
             ResourceSaver::save(cache_base + ".png", r_texture);
             if (has_small_texture) {
                 ResourceSaver::save(cache_base + "_small.png", r_small_texture);
             }
             Error err;
             FileAccess *f = FileAccess::open(cache_base + ".txt", FileAccess::WRITE, &err);
-            ERR_FAIL_COND(err != OK);
+            ERR_FAIL_COND(err != OK)
             f->store_line(itos(thumbnail_size));
             f->store_line(itos(has_small_texture));
             f->store_line(itos(FileAccess::get_modified_time(p_item.path)));
@@ -226,13 +226,13 @@ void EditorResourcePreview::_thread() {
 
         if (!queue.empty()) {
 
-            QueueItem item = queue.front()->get();
+            QueueItem item = queue.front()->deref();
             queue.pop_front();
 
-            if (cache.has(item.path)) {
+            if (cache.contains(item.path)) {
                 //already has it because someone loaded it, just let it know it's ready
                 String path = item.path;
-                if (item.resource.is_valid()) {
+                if (item.resource) {
                     path += ":" + itos(cache[item.path].last_hash); //keep last hash (see description of what this is in condition below)
                 }
 
@@ -249,7 +249,7 @@ void EditorResourcePreview::_thread() {
                 int thumbnail_size = EditorSettings::get_singleton()->get("filesystem/file_dialog/thumbnail_size");
                 thumbnail_size *= EDSCALE;
 
-                if (item.resource.is_valid()) {
+                if (item.resource) {
 
                     _generate_preview(texture, small_texture, item, String());
 
@@ -297,8 +297,8 @@ void EditorResourcePreview::_thread() {
                                 //update modified time
 
                                 f = FileAccess::open(file, FileAccess::WRITE);
-								f->store_line(itos(thumbnail_size));
-								f->store_line(itos(has_small_texture));
+                                f->store_line(itos(thumbnail_size));
+                                f->store_line(itos(has_small_texture));
                                 f->store_line(itos(modtime));
                                 f->store_line(md5);
                                 memdelete(f);
@@ -309,23 +309,21 @@ void EditorResourcePreview::_thread() {
 
                         if (cache_valid) {
 
-                            Ref<Image> img;
-                            img.instance();
-                            Ref<Image> small_img;
-                            small_img.instance();
+                            Ref<Image> img(make_ref_counted<Image>());
+                            Ref<Image> small_img(make_ref_counted<Image>());
 
                             if (img->load(cache_base + ".png") != OK) {
                                 cache_valid = false;
                             } else {
 
-                                texture.instance();
+                                texture = make_ref_counted<ImageTexture>();
                                 texture->create_from_image(img, Texture::FLAG_FILTER);
 
                                 if (has_small_texture) {
                                     if (small_img->load(cache_base + "_small.png") != OK) {
                                         cache_valid = false;
                                     } else {
-                                        small_texture.instance();
+                                        small_texture = make_ref_counted<ImageTexture>();
                                         small_texture->create_from_image(small_img, Texture::FLAG_FILTER);
                                     }
                                 }
@@ -352,13 +350,13 @@ void EditorResourcePreview::_thread() {
 void EditorResourcePreview::queue_edited_resource_preview(const Ref<Resource> &p_res, Object *p_receiver, const StringName &p_receiver_func, const Variant &p_userdata) {
 
     ERR_FAIL_NULL(p_receiver);
-    ERR_FAIL_COND(!p_res.is_valid());
+    ERR_FAIL_COND(not p_res)
 
     preview_mutex->lock();
 
     String path_id = "ID:" + itos(p_res->get_instance_id());
 
-    if (cache.has(path_id) && cache[path_id].last_hash == p_res->hash_edited_version()) {
+    if (cache.contains(path_id) && cache[path_id].last_hash == p_res->hash_edited_version()) {
 
         cache[path_id].order = order++;
         p_receiver->call(p_receiver_func, path_id, cache[path_id].preview, cache[path_id].small_preview, p_userdata);
@@ -384,7 +382,7 @@ void EditorResourcePreview::queue_resource_preview(const String &p_path, Object 
 
     ERR_FAIL_NULL(p_receiver);
     preview_mutex->lock();
-    if (cache.has(p_path)) {
+    if (cache.contains(p_path)) {
         cache[p_path].order = order++;
         p_receiver->call(p_receiver_func, p_path, cache[p_path].preview, cache[p_path].small_preview, p_userdata);
         preview_mutex->unlock();
@@ -421,13 +419,13 @@ void EditorResourcePreview::_bind_methods() {
 
     MethodBinder::bind_method("_preview_ready", &EditorResourcePreview::_preview_ready);
 
-    MethodBinder::bind_method(D_METHOD("queue_resource_preview", "path", "receiver", "receiver_func", "userdata"), &EditorResourcePreview::queue_resource_preview);
-    MethodBinder::bind_method(D_METHOD("queue_edited_resource_preview", "resource", "receiver", "receiver_func", "userdata"), &EditorResourcePreview::queue_edited_resource_preview);
-    MethodBinder::bind_method(D_METHOD("add_preview_generator", "generator"), &EditorResourcePreview::add_preview_generator);
-    MethodBinder::bind_method(D_METHOD("remove_preview_generator", "generator"), &EditorResourcePreview::remove_preview_generator);
-    MethodBinder::bind_method(D_METHOD("check_for_invalidation", "path"), &EditorResourcePreview::check_for_invalidation);
+    MethodBinder::bind_method(D_METHOD("queue_resource_preview", {"path", "receiver", "receiver_func", "userdata"}), &EditorResourcePreview::queue_resource_preview);
+    MethodBinder::bind_method(D_METHOD("queue_edited_resource_preview", {"resource", "receiver", "receiver_func", "userdata"}), &EditorResourcePreview::queue_edited_resource_preview);
+    MethodBinder::bind_method(D_METHOD("add_preview_generator", {"generator"}), &EditorResourcePreview::add_preview_generator);
+    MethodBinder::bind_method(D_METHOD("remove_preview_generator", {"generator"}), &EditorResourcePreview::remove_preview_generator);
+    MethodBinder::bind_method(D_METHOD("check_for_invalidation", {"path"}), &EditorResourcePreview::check_for_invalidation);
 
-    ADD_SIGNAL(MethodInfo("preview_invalidated", PropertyInfo(Variant::STRING, "path")));
+    ADD_SIGNAL(MethodInfo("preview_invalidated", PropertyInfo(VariantType::STRING, "path")));
 }
 
 void EditorResourcePreview::check_for_invalidation(const String &p_path) {
@@ -435,7 +433,7 @@ void EditorResourcePreview::check_for_invalidation(const String &p_path) {
     preview_mutex->lock();
 
     bool call_invalidated = false;
-    if (cache.has(p_path)) {
+    if (cache.contains(p_path)) {
 
         uint64_t modified_time = FileAccess::get_modified_time(p_path);
         if (modified_time != cache[p_path].modified_time) {
@@ -452,7 +450,7 @@ void EditorResourcePreview::check_for_invalidation(const String &p_path) {
 }
 
 void EditorResourcePreview::start() {
-    ERR_FAIL_COND(thread);
+    ERR_FAIL_COND(thread)
     thread = Thread::create(_thread_func, this);
 }
 

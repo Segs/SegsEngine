@@ -39,7 +39,7 @@ IMPL_GDCLASS(AudioStreamPlayer2D)
 
 void AudioStreamPlayer2D::_mix_audio() {
 
-    if (!stream_playback.is_valid() || !active ||
+    if (not stream_playback || !active ||
             (stream_paused && !stream_paused_fade_out)) {
         return;
     }
@@ -180,7 +180,7 @@ void AudioStreamPlayer2D::_notification(int p_what) {
         if (!output_ready) {
             List<Viewport *> viewports;
             Ref<World2D> world_2d = get_world_2d();
-            ERR_FAIL_COND(world_2d.is_null());
+            ERR_FAIL_COND(not world_2d)
 
             int new_output_count = 0;
 
@@ -213,7 +213,7 @@ void AudioStreamPlayer2D::_notification(int p_what) {
             world_2d->get_viewport_list(&viewports);
             for (List<Viewport *>::Element *E = viewports.front(); E; E = E->next()) {
 
-                Viewport *vp = E->get();
+                Viewport *vp = E->deref();
                 if (vp->is_audio_listener_2d()) {
 
                     //compute matrix to convert to screen
@@ -277,21 +277,21 @@ void AudioStreamPlayer2D::set_stream(Ref<AudioStream> p_stream) {
 
     mix_buffer.resize(AudioServer::get_singleton()->thread_get_mix_buffer_size());
 
-    if (stream_playback.is_valid()) {
+    if (stream_playback) {
         stream_playback.unref();
         stream.unref();
         active = false;
         setseek = -1;
     }
 
-    if (p_stream.is_valid()) {
+    if (p_stream) {
         stream = p_stream;
         stream_playback = p_stream->instance_playback();
     }
 
     AudioServer::get_singleton()->unlock();
 
-    if (p_stream.is_valid() && stream_playback.is_null()) {
+    if (p_stream && not stream_playback) {
         stream.unref();
     }
 }
@@ -311,7 +311,7 @@ float AudioStreamPlayer2D::get_volume_db() const {
 }
 
 void AudioStreamPlayer2D::set_pitch_scale(float p_pitch_scale) {
-    ERR_FAIL_COND(p_pitch_scale <= 0.0);
+    ERR_FAIL_COND(p_pitch_scale <= 0.0)
     pitch_scale = p_pitch_scale;
 }
 float AudioStreamPlayer2D::get_pitch_scale() const {
@@ -325,7 +325,7 @@ void AudioStreamPlayer2D::play(float p_from_pos) {
         prev_output_count = 0;
     }
 
-    if (stream_playback.is_valid()) {
+    if (stream_playback) {
         active = true;
         setplay = p_from_pos;
         output_ready = false;
@@ -335,14 +335,14 @@ void AudioStreamPlayer2D::play(float p_from_pos) {
 
 void AudioStreamPlayer2D::seek(float p_seconds) {
 
-    if (stream_playback.is_valid()) {
+    if (stream_playback) {
         setseek = p_seconds;
     }
 }
 
 void AudioStreamPlayer2D::stop() {
 
-    if (stream_playback.is_valid()) {
+    if (stream_playback) {
         active = false;
         set_physics_process_internal(false);
         setplay = -1;
@@ -351,7 +351,7 @@ void AudioStreamPlayer2D::stop() {
 
 bool AudioStreamPlayer2D::is_playing() const {
 
-    if (stream_playback.is_valid()) {
+    if (stream_playback) {
         return active; // && stream_playback->is_playing();
     }
 
@@ -360,7 +360,7 @@ bool AudioStreamPlayer2D::is_playing() const {
 
 float AudioStreamPlayer2D::get_playback_position() {
 
-    if (stream_playback.is_valid()) {
+    if (stream_playback) {
         return stream_playback->get_playback_position();
     }
 
@@ -428,7 +428,7 @@ void AudioStreamPlayer2D::_bus_layout_changed() {
 
 void AudioStreamPlayer2D::set_max_distance(float p_pixels) {
 
-    ERR_FAIL_COND(p_pixels <= 0.0);
+    ERR_FAIL_COND(p_pixels <= 0.0)
     max_distance = p_pixels;
 }
 
@@ -476,57 +476,57 @@ Ref<AudioStreamPlayback> AudioStreamPlayer2D::get_stream_playback() {
 
 void AudioStreamPlayer2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_stream", "stream"), &AudioStreamPlayer2D::set_stream);
+    MethodBinder::bind_method(D_METHOD("set_stream", {"stream"}), &AudioStreamPlayer2D::set_stream);
     MethodBinder::bind_method(D_METHOD("get_stream"), &AudioStreamPlayer2D::get_stream);
 
-    MethodBinder::bind_method(D_METHOD("set_volume_db", "volume_db"), &AudioStreamPlayer2D::set_volume_db);
+    MethodBinder::bind_method(D_METHOD("set_volume_db", {"volume_db"}), &AudioStreamPlayer2D::set_volume_db);
     MethodBinder::bind_method(D_METHOD("get_volume_db"), &AudioStreamPlayer2D::get_volume_db);
 
-    MethodBinder::bind_method(D_METHOD("set_pitch_scale", "pitch_scale"), &AudioStreamPlayer2D::set_pitch_scale);
+    MethodBinder::bind_method(D_METHOD("set_pitch_scale", {"pitch_scale"}), &AudioStreamPlayer2D::set_pitch_scale);
     MethodBinder::bind_method(D_METHOD("get_pitch_scale"), &AudioStreamPlayer2D::get_pitch_scale);
 
-    MethodBinder::bind_method(D_METHOD("play", "from_position"), &AudioStreamPlayer2D::play, {DEFVAL(0.0)});
-    MethodBinder::bind_method(D_METHOD("seek", "to_position"), &AudioStreamPlayer2D::seek);
+    MethodBinder::bind_method(D_METHOD("play", {"from_position"}), &AudioStreamPlayer2D::play, {DEFVAL(0.0)});
+    MethodBinder::bind_method(D_METHOD("seek", {"to_position"}), &AudioStreamPlayer2D::seek);
     MethodBinder::bind_method(D_METHOD("stop"), &AudioStreamPlayer2D::stop);
 
     MethodBinder::bind_method(D_METHOD("is_playing"), &AudioStreamPlayer2D::is_playing);
     MethodBinder::bind_method(D_METHOD("get_playback_position"), &AudioStreamPlayer2D::get_playback_position);
 
-    MethodBinder::bind_method(D_METHOD("set_bus", "bus"), &AudioStreamPlayer2D::set_bus);
+    MethodBinder::bind_method(D_METHOD("set_bus", {"bus"}), &AudioStreamPlayer2D::set_bus);
     MethodBinder::bind_method(D_METHOD("get_bus"), &AudioStreamPlayer2D::get_bus);
 
-    MethodBinder::bind_method(D_METHOD("set_autoplay", "enable"), &AudioStreamPlayer2D::set_autoplay);
+    MethodBinder::bind_method(D_METHOD("set_autoplay", {"enable"}), &AudioStreamPlayer2D::set_autoplay);
     MethodBinder::bind_method(D_METHOD("is_autoplay_enabled"), &AudioStreamPlayer2D::is_autoplay_enabled);
 
-    MethodBinder::bind_method(D_METHOD("_set_playing", "enable"), &AudioStreamPlayer2D::_set_playing);
+    MethodBinder::bind_method(D_METHOD("_set_playing", {"enable"}), &AudioStreamPlayer2D::_set_playing);
     MethodBinder::bind_method(D_METHOD("_is_active"), &AudioStreamPlayer2D::_is_active);
 
-    MethodBinder::bind_method(D_METHOD("set_max_distance", "pixels"), &AudioStreamPlayer2D::set_max_distance);
+    MethodBinder::bind_method(D_METHOD("set_max_distance", {"pixels"}), &AudioStreamPlayer2D::set_max_distance);
     MethodBinder::bind_method(D_METHOD("get_max_distance"), &AudioStreamPlayer2D::get_max_distance);
 
-    MethodBinder::bind_method(D_METHOD("set_attenuation", "curve"), &AudioStreamPlayer2D::set_attenuation);
+    MethodBinder::bind_method(D_METHOD("set_attenuation", {"curve"}), &AudioStreamPlayer2D::set_attenuation);
     MethodBinder::bind_method(D_METHOD("get_attenuation"), &AudioStreamPlayer2D::get_attenuation);
 
-    MethodBinder::bind_method(D_METHOD("set_area_mask", "mask"), &AudioStreamPlayer2D::set_area_mask);
+    MethodBinder::bind_method(D_METHOD("set_area_mask", {"mask"}), &AudioStreamPlayer2D::set_area_mask);
     MethodBinder::bind_method(D_METHOD("get_area_mask"), &AudioStreamPlayer2D::get_area_mask);
 
-    MethodBinder::bind_method(D_METHOD("set_stream_paused", "pause"), &AudioStreamPlayer2D::set_stream_paused);
+    MethodBinder::bind_method(D_METHOD("set_stream_paused", {"pause"}), &AudioStreamPlayer2D::set_stream_paused);
     MethodBinder::bind_method(D_METHOD("get_stream_paused"), &AudioStreamPlayer2D::get_stream_paused);
 
     MethodBinder::bind_method(D_METHOD("get_stream_playback"), &AudioStreamPlayer2D::get_stream_playback);
 
     MethodBinder::bind_method(D_METHOD("_bus_layout_changed"), &AudioStreamPlayer2D::_bus_layout_changed);
 
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "stream", PROPERTY_HINT_RESOURCE_TYPE, "AudioStream"), "set_stream", "get_stream");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "volume_db", PROPERTY_HINT_RANGE, "-80,24"), "set_volume_db", "get_volume_db");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "pitch_scale", PROPERTY_HINT_RANGE, "0.01,32,0.01"), "set_pitch_scale", "get_pitch_scale");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "playing", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR), "_set_playing", "is_playing");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "autoplay"), "set_autoplay", "is_autoplay_enabled");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "stream_paused", PROPERTY_HINT_NONE, ""), "set_stream_paused", "get_stream_paused");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "max_distance", PROPERTY_HINT_EXP_RANGE, "1,4096,1,or_greater"), "set_max_distance", "get_max_distance");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "attenuation", PROPERTY_HINT_EXP_EASING, "attenuation"), "set_attenuation", "get_attenuation");
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "bus", PROPERTY_HINT_ENUM, ""), "set_bus", "get_bus");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "area_mask", PROPERTY_HINT_LAYERS_2D_PHYSICS), "set_area_mask", "get_area_mask");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "stream", PROPERTY_HINT_RESOURCE_TYPE, "AudioStream"), "set_stream", "get_stream");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "volume_db", PROPERTY_HINT_RANGE, "-80,24"), "set_volume_db", "get_volume_db");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "pitch_scale", PROPERTY_HINT_RANGE, "0.01,32,0.01"), "set_pitch_scale", "get_pitch_scale");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "playing", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR), "_set_playing", "is_playing");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "autoplay"), "set_autoplay", "is_autoplay_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "stream_paused", PROPERTY_HINT_NONE, ""), "set_stream_paused", "get_stream_paused");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "max_distance", PROPERTY_HINT_EXP_RANGE, "1,4096,1,or_greater"), "set_max_distance", "get_max_distance");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "attenuation", PROPERTY_HINT_EXP_EASING, "attenuation"), "set_attenuation", "get_attenuation");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "bus", PROPERTY_HINT_ENUM, ""), "set_bus", "get_bus");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "area_mask", PROPERTY_HINT_LAYERS_2D_PHYSICS), "set_area_mask", "get_area_mask");
 
     ADD_SIGNAL(MethodInfo("finished"));
 }

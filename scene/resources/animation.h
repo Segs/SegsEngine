@@ -66,25 +66,19 @@ private:
     struct Track {
 
         TrackType type;
-        InterpolationType interpolation;
-        bool loop_wrap;
+        InterpolationType interpolation = INTERPOLATION_LINEAR;
+        bool loop_wrap=true;
         NodePath path; // path to something
-        bool imported;
-        bool enabled;
-        Track() {
-            interpolation = INTERPOLATION_LINEAR;
-            imported = false;
-            loop_wrap = true;
-            enabled = true;
-        }
+        bool imported = false;
+        bool enabled = true;
+        Track(TrackType t) : type(t) {}
         virtual ~Track() {}
     };
 
     struct Key {
 
-        float transition;
+        float transition=1.0f;
         float time; // time in secs
-        Key() { transition = 1; }
     };
 
     // transform key holds either Vector3 or Quaternion
@@ -107,20 +101,18 @@ private:
 
         Vector<TKey<TransformKey> > transforms;
 
-        TransformTrack() { type = TYPE_TRANSFORM; }
+        TransformTrack() : Track(TYPE_TRANSFORM) {}
     };
 
     /* PROPERTY VALUE TRACK */
 
     struct ValueTrack : public Track {
 
-        UpdateMode update_mode;
+        UpdateMode update_mode = UPDATE_CONTINUOUS;
         bool update_on_seek;
         Vector<TKey<Variant> > values;
 
-        ValueTrack() {
-            type = TYPE_VALUE;
-            update_mode = UPDATE_CONTINUOUS;
+        ValueTrack() : Track(TYPE_VALUE) {
         }
     };
 
@@ -135,7 +127,7 @@ private:
     struct MethodTrack : public Track {
 
         Vector<MethodKey> methods;
-        MethodTrack() { type = TYPE_METHOD; }
+        MethodTrack() : Track(TYPE_METHOD) {}
     };
 
     /* BEZIER TRACK */
@@ -150,9 +142,7 @@ private:
 
         Vector<TKey<BezierKey> > values;
 
-        BezierTrack() {
-            type = TYPE_BEZIER;
-        }
+        BezierTrack() : Track(TYPE_BEZIER) {}
     };
 
     /* AUDIO TRACK */
@@ -171,9 +161,7 @@ private:
 
         Vector<TKey<AudioKey> > values;
 
-        AudioTrack() {
-            type = TYPE_AUDIO;
-        }
+        AudioTrack() : Track(TYPE_AUDIO) {}
     };
 
     /* AUDIO TRACK */
@@ -182,9 +170,7 @@ private:
 
         Vector<TKey<StringName> > values;
 
-        AnimationTrack() {
-            type = TYPE_ANIMATION;
-        }
+        AnimationTrack() : Track(TYPE_ANIMATION) {}
     };
 
     Vector<Track *> tracks;
@@ -219,10 +205,10 @@ private:
     _FORCE_INLINE_ T _interpolate(const Vector<TKey<T> > &p_keys, float p_time, InterpolationType p_interp, bool p_loop_wrap, bool *p_ok) const;
 
     template <class T>
-    _FORCE_INLINE_ void _track_get_key_indices_in_range(const Vector<T> &p_array, float from_time, float to_time, List<int> *p_indices) const;
+    _FORCE_INLINE_ void _track_get_key_indices_in_range(const Vector<T> &p_array, float from_time, float to_time, DefList<int> *p_indices) const;
 
-    _FORCE_INLINE_ void _value_track_get_key_indices_in_range(const ValueTrack *vt, float from_time, float to_time, List<int> *p_indices) const;
-    _FORCE_INLINE_ void _method_track_get_key_indices_in_range(const MethodTrack *mt, float from_time, float to_time, List<int> *p_indices) const;
+    _FORCE_INLINE_ void _value_track_get_key_indices_in_range(const ValueTrack *vt, float from_time, float to_time, DefList<int> *p_indices) const;
+    _FORCE_INLINE_ void _method_track_get_key_indices_in_range(const MethodTrack *mt, float from_time, float to_time, DefList<int> *p_indices) const;
 
     float length;
     float step;
@@ -242,38 +228,16 @@ private:
         return ret;
     }
 
-    PoolVector<int> _value_track_get_key_indices(int p_track, float p_time, float p_delta) const {
-
-        List<int> idxs;
-        value_track_get_key_indices(p_track, p_time, p_delta, &idxs);
-        PoolVector<int> idxr;
-
-        for (List<int>::Element *E = idxs.front(); E; E = E->next()) {
-
-            idxr.push_back(E->get());
-        }
-        return idxr;
-    }
-    PoolVector<int> _method_track_get_key_indices(int p_track, float p_time, float p_delta) const {
-
-        List<int> idxs;
-        method_track_get_key_indices(p_track, p_time, p_delta, &idxs);
-        PoolVector<int> idxr;
-
-        for (List<int>::Element *E = idxs.front(); E; E = E->next()) {
-
-            idxr.push_back(E->get());
-        }
-        return idxr;
-    }
+    PoolVector<int> _value_track_get_key_indices(int p_track, float p_time, float p_delta) const;
+    PoolVector<int> _method_track_get_key_indices(int p_track, float p_time, float p_delta) const;
 
     bool _transform_track_optimize_key(const TKey<TransformKey> &t0, const TKey<TransformKey> &t1, const TKey<TransformKey> &t2, float p_alowed_linear_err, float p_alowed_angular_err, float p_max_optimizable_angle, const Vector3 &p_norm);
-    void _transform_track_optimize(int p_idx, float p_allowed_linear_err = 0.05f, float p_allowed_angular_err = 0.01f, float p_max_optimizable_angle = Math_PI * 0.125);
+    void _transform_track_optimize(int p_idx, float p_allowed_linear_err = 0.05f, float p_allowed_angular_err = 0.01f, float p_max_optimizable_angle = Math_PI * 0.125f);
 
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(List<PropertyInfo> *p_list) const;
+    void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
 
     static void _bind_methods();
 
@@ -345,17 +309,17 @@ public:
     Error transform_track_interpolate(int p_track, float p_time, Vector3 *r_loc, Quat *r_rot, Vector3 *r_scale) const;
 
     Variant value_track_interpolate(int p_track, float p_time) const;
-    void value_track_get_key_indices(int p_track, float p_time, float p_delta, List<int> *p_indices) const;
+    void value_track_get_key_indices(int p_track, float p_time, float p_delta, DefList<int> *p_indices) const;
     void value_track_set_update_mode(int p_track, UpdateMode p_mode);
     UpdateMode value_track_get_update_mode(int p_track) const;
 
-    void method_track_get_key_indices(int p_track, float p_time, float p_delta, List<int> *p_indices) const;
+    void method_track_get_key_indices(int p_track, float p_time, float p_delta, DefList<int> *p_indices) const;
     Vector<Variant> method_track_get_params(int p_track, int p_key_idx) const;
     StringName method_track_get_name(int p_track, int p_key_idx) const;
 
     void copy_track(int p_track, Ref<Animation> p_to_animation);
 
-    void track_get_key_indices_in_range(int p_track, float p_time, float p_delta, List<int> *p_indices) const;
+    void track_get_key_indices_in_range(int p_track, float p_time, float p_delta, DefList<int> *p_indices) const;
 
     void set_length(float p_length);
     float get_length() const;

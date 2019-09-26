@@ -28,11 +28,12 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef SCENE_STRING_NAMES_H
-#define SCENE_STRING_NAMES_H
+#pragma once
 
 #include "core/node_path.h"
 #include "core/string_name.h"
+#include "core/os/memory.h"
+
 class SceneStringNames {
 
 	friend void register_scene_types();
@@ -213,5 +214,3 @@ public:
 	StringName mesh_materials[MAX_MATERIALS];
 	StringName _mesh_changed;
 };
-
-#endif // SCENE_STRING_NAMES_H

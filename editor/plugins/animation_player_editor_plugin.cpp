@@ -41,7 +41,7 @@
 #include "editor/editor_scale.h"
 #include "scene/resources/style_box.h"
 
-// For onion skinning
+// For onion skinning.
 #include "editor/plugins/canvas_item_editor_plugin.h"
 #include "editor/plugins/spatial_editor_plugin.h"
 #include "scene/main/viewport.h"
@@ -81,7 +81,7 @@ void AnimationPlayerEditor::_notification(int p_what) {
 
                     if (player->has_animation(animname)) {
                         Ref<Animation> anim = player->get_animation(animname);
-                        if (!anim.is_null()) {
+                        if (anim) {
 
                             frame->set_max(anim->get_length());
                         }
@@ -164,8 +164,8 @@ void AnimationPlayerEditor::_autoplay_pressed() {
         undo_redo->create_action(TTR("Toggle Autoplay"));
         undo_redo->add_do_method(player, "set_autoplay", "");
         undo_redo->add_undo_method(player, "set_autoplay", player->get_autoplay());
-        undo_redo->add_do_method(this, "_animation_player_changed", player);
-        undo_redo->add_undo_method(this, "_animation_player_changed", player);
+        undo_redo->add_do_method(this, "_animation_player_changed", Variant(player));
+        undo_redo->add_undo_method(this, "_animation_player_changed", Variant(player));
         undo_redo->commit_action();
 
     } else {
@@ -173,8 +173,8 @@ void AnimationPlayerEditor::_autoplay_pressed() {
         undo_redo->create_action(TTR("Toggle Autoplay"));
         undo_redo->add_do_method(player, "set_autoplay", current);
         undo_redo->add_undo_method(player, "set_autoplay", player->get_autoplay());
-        undo_redo->add_do_method(this, "_animation_player_changed", player);
-        undo_redo->add_undo_method(this, "_animation_player_changed", player);
+        undo_redo->add_do_method(this, "_animation_player_changed", Variant(player));
+        undo_redo->add_undo_method(this, "_animation_player_changed", Variant(player));
         undo_redo->commit_action();
     }
 }
@@ -351,15 +351,15 @@ void AnimationPlayerEditor::_animation_rename() {
     name->grab_focus();
 }
 void AnimationPlayerEditor::_animation_load() {
-    ERR_FAIL_COND(!player);
+    ERR_FAIL_COND(!player)
     file->set_mode(EditorFileDialog::MODE_OPEN_FILE);
     file->clear_filters();
-    List<String> extensions;
+    ListPOD<String> extensions;
 
     ResourceLoader::get_recognized_extensions_for_type("Animation", &extensions);
-    for (List<String>::Element *E = extensions.front(); E; E = E->next()) {
+    for (const String &E : extensions) {
 
-        file->add_filter("*." + E->get() + " ; " + StringUtils::to_upper(E->get()));
+        file->add_filter("*." + E + " ; " + StringUtils::to_upper(E));
     }
 
     file->popup_centered_ratio();
@@ -381,7 +381,7 @@ void AnimationPlayerEditor::_animation_save_in_path(const Ref<Resource> &p_resou
         return;
     }
 
-    ((Resource *)p_resource.ptr())->set_path(path);
+    ((Resource *)p_resource.get())->set_path(path);
     editor->emit_signal("resource_saved", p_resource);
 }
 
@@ -451,12 +451,12 @@ void AnimationPlayerEditor::_animation_remove_confirmed() {
         undo_redo->add_do_method(player, "set_autoplay", "");
         undo_redo->add_undo_method(player, "set_autoplay", current);
         // Avoid having the autoplay icon linger around if there is only one animation in the player.
-        undo_redo->add_do_method(this, "_animation_player_changed", player);
+        undo_redo->add_do_method(this, "_animation_player_changed", Variant(player));
     }
     undo_redo->add_do_method(player, "remove_animation", current);
     undo_redo->add_undo_method(player, "add_animation", current, anim);
-    undo_redo->add_do_method(this, "_animation_player_changed", player);
-    undo_redo->add_undo_method(this, "_animation_player_changed", player);
+    undo_redo->add_do_method(this, "_animation_player_changed", Variant(player));
+    undo_redo->add_undo_method(this, "_animation_player_changed", Variant(player));
     if (animation->get_item_count() == 1) {
         undo_redo->add_do_method(this, "_stop_onion_skinning");
         undo_redo->add_undo_method(this, "_start_onion_skinning");
@@ -524,25 +524,25 @@ void AnimationPlayerEditor::_animation_name_edited() {
 
         undo_redo->create_action(TTR("Rename Animation"));
         undo_redo->add_do_method(player, "rename_animation", current, new_name);
-        undo_redo->add_do_method(anim.ptr(), "set_name", new_name);
+        undo_redo->add_do_method(anim.get(), "set_name", new_name);
         undo_redo->add_undo_method(player, "rename_animation", new_name, current);
-        undo_redo->add_undo_method(anim.ptr(), "set_name", current);
-        undo_redo->add_do_method(this, "_animation_player_changed", player);
-        undo_redo->add_undo_method(this, "_animation_player_changed", player);
+        undo_redo->add_undo_method(anim.get(), "set_name", current);
+        undo_redo->add_do_method(this, "_animation_player_changed", Variant(player));
+        undo_redo->add_undo_method(this, "_animation_player_changed", Variant(player));
         undo_redo->commit_action();
 
         _select_anim_by_name(new_name);
 
     } else {
 
-        Ref<Animation> new_anim = Ref<Animation>(memnew(Animation));
+        Ref<Animation> new_anim(make_ref_counted<Animation>());
         new_anim->set_name(new_name);
 
         undo_redo->create_action(TTR("Add Animation"));
         undo_redo->add_do_method(player, "add_animation", new_name, new_anim);
         undo_redo->add_undo_method(player, "remove_animation", new_name);
-        undo_redo->add_do_method(this, "_animation_player_changed", player);
-        undo_redo->add_undo_method(this, "_animation_player_changed", player);
+        undo_redo->add_do_method(this, "_animation_player_changed", Variant(player));
+        undo_redo->add_undo_method(this, "_animation_player_changed", Variant(player));
         if (animation->get_item_count() == 0) {
             undo_redo->add_do_method(this, "_start_onion_skinning");
             undo_redo->add_undo_method(this, "_stop_onion_skinning");
@@ -565,8 +565,8 @@ void AnimationPlayerEditor::_blend_editor_next_changed(const int p_idx) {
     undo_redo->create_action(TTR("Blend Next Changed"));
     undo_redo->add_do_method(player, "animation_set_next", current, blend_editor.next->get_item_text(p_idx));
     undo_redo->add_undo_method(player, "animation_set_next", current, player->animation_get_next(current));
-    undo_redo->add_do_method(this, "_animation_player_changed", player);
-    undo_redo->add_undo_method(this, "_animation_player_changed", player);
+    undo_redo->add_do_method(this, "_animation_player_changed", Variant(player));
+    undo_redo->add_undo_method(this, "_animation_player_changed", Variant(player));
     undo_redo->commit_action();
 }
 
@@ -588,7 +588,7 @@ void AnimationPlayerEditor::_animation_blend() {
     blend_editor.tree->set_column_min_width(0, 10);
     blend_editor.tree->set_column_min_width(1, 3);
 
-    List<StringName> anims;
+    ListPOD<StringName> anims;
     player->get_animation_list(&anims);
     TreeItem *root = blend_editor.tree->create_item();
     updating_blends = true;
@@ -598,9 +598,9 @@ void AnimationPlayerEditor::_animation_blend() {
     blend_editor.next->clear();
     blend_editor.next->add_item("", i);
 
-    for (List<StringName>::Element *E = anims.front(); E; E = E->next()) {
+    for (const StringName &E : anims) {
 
-        String to = E->get();
+        String to = E;
         TreeItem *blend = blend_editor.tree->create_item(root);
         blend->set_editable(0, false);
         blend->set_editable(1, true);
@@ -648,8 +648,8 @@ void AnimationPlayerEditor::_blend_edited() {
     undo_redo->create_action(TTR("Change Blend Time"));
     undo_redo->add_do_method(player, "set_blend_time", current, to, blend_time);
     undo_redo->add_undo_method(player, "set_blend_time", current, to, prev_blend_time);
-    undo_redo->add_do_method(this, "_animation_player_changed", player);
-    undo_redo->add_undo_method(this, "_animation_player_changed", player);
+    undo_redo->add_do_method(this, "_animation_player_changed", Variant(player));
+    undo_redo->add_undo_method(this, "_animation_player_changed", Variant(player));
     undo_redo->commit_action();
     updating_blends = false;
 }
@@ -696,10 +696,12 @@ void AnimationPlayerEditor::set_state(const Dictionary &p_state) {
 
             if (p_state.has("animation")) {
                 String anim = p_state["animation"];
+                if (!anim.empty() && player->has_animation(anim)) {
                 _select_anim_by_name(anim);
                 _animation_edit();
             }
         }
+    }
     }
 
     if (p_state.has("track_editor_state")) {
@@ -737,11 +739,11 @@ void AnimationPlayerEditor::_dialog_action(String p_file) {
 
     switch (current_option) {
         case RESOURCE_LOAD: {
-            ERR_FAIL_COND(!player);
+            ERR_FAIL_COND(!player)
 
             Ref<Resource> res = ResourceLoader::load(p_file, "Animation");
-            ERR_FAIL_COND(res.is_null());
-            ERR_FAIL_COND(!res->is_class("Animation"));
+            ERR_FAIL_COND(not res)
+            ERR_FAIL_COND(!res->is_class("Animation"))
             if (StringUtils::find_last(p_file,"/") != -1) {
 
                 p_file = StringUtils::substr(p_file,StringUtils::find_last(p_file,"/") + 1, p_file.length());
@@ -760,8 +762,8 @@ void AnimationPlayerEditor::_dialog_action(String p_file) {
             if (player->has_animation(p_file)) {
                 undo_redo->add_undo_method(player, "add_animation", p_file, player->get_animation(p_file));
             }
-            undo_redo->add_do_method(this, "_animation_player_changed", player);
-            undo_redo->add_undo_method(this, "_animation_player_changed", player);
+            undo_redo->add_do_method(this, "_animation_player_changed", Variant(player));
+            undo_redo->add_undo_method(this, "_animation_player_changed", Variant(player));
             undo_redo->commit_action();
             break;
         }
@@ -771,9 +773,9 @@ void AnimationPlayerEditor::_dialog_action(String p_file) {
             if (!current.empty()) {
                 Ref<Animation> anim = player->get_animation(current);
 
-                ERR_FAIL_COND(!Object::cast_to<Resource>(*anim));
+                ERR_FAIL_COND(!Object::cast_to<Resource>(anim.get()))
 
-                RES current_res = RES(Object::cast_to<Resource>(*anim));
+                RES current_res(RES(Object::cast_to<Resource>(anim.get())));
 
                 _animation_save_in_path(current_res, p_file);
             }
@@ -821,7 +823,7 @@ void AnimationPlayerEditor::_update_animation() {
 void AnimationPlayerEditor::_update_player() {
 
     updating = true;
-    List<StringName> animlist;
+    ListPOD<StringName> animlist;
     if (player)
         player->get_animation_list(&animlist);
 
@@ -857,14 +859,14 @@ void AnimationPlayerEditor::_update_player() {
     }
 
     int active_idx = -1;
-    for (List<StringName>::Element *E = animlist.front(); E; E = E->next()) {
+    for (const StringName &E : animlist) {
 
-        if (player->get_autoplay() == E->get())
-            animation->add_icon_item(autoplay_icon, E->get());
+        if (player->get_autoplay() == E)
+            animation->add_icon_item(autoplay_icon, E);
         else
-            animation->add_item(E->get());
+            animation->add_item(E);
 
-        if (player->get_assigned_animation() == E->get())
+        if (player->get_assigned_animation() == E)
             active_idx = animation->get_item_count() - 1;
     }
 
@@ -977,17 +979,17 @@ void AnimationPlayerEditor::_animation_duplicate() {
 
     String current = animation->get_item_text(animation->get_selected());
     Ref<Animation> anim = player->get_animation(current);
-    if (!anim.is_valid())
+    if (not anim)
         return;
 
-    Ref<Animation> new_anim = memnew(Animation);
-    List<PropertyInfo> plist;
+    Ref<Animation> new_anim(make_ref_counted<Animation>());
+    ListPOD<PropertyInfo> plist;
     anim->get_property_list(&plist);
-    for (List<PropertyInfo>::Element *E = plist.front(); E; E = E->next()) {
+    for(const PropertyInfo & E : plist) {
 
-        if (E->get().usage & PROPERTY_USAGE_STORAGE) {
+        if (E.usage & PROPERTY_USAGE_STORAGE) {
 
-            new_anim->set(E->get().name, anim->get(E->get().name));
+            new_anim->set(E.name, anim->get(E.name));
         }
     }
     new_anim->set_path("");
@@ -1002,8 +1004,8 @@ void AnimationPlayerEditor::_animation_duplicate() {
     undo_redo->add_do_method(player, "add_animation", new_name, new_anim);
     undo_redo->add_undo_method(player, "remove_animation", new_name);
     undo_redo->add_do_method(player, "animation_set_next", new_name, player->animation_get_next(current));
-    undo_redo->add_do_method(this, "_animation_player_changed", player);
-    undo_redo->add_undo_method(this, "_animation_player_changed", player);
+    undo_redo->add_do_method(this, "_animation_player_changed", Variant(player));
+    undo_redo->add_undo_method(this, "_animation_player_changed", Variant(player));
     undo_redo->commit_action();
 
     for (int i = 0; i < animation->get_item_count(); i++) {
@@ -1094,19 +1096,6 @@ void AnimationPlayerEditor::_animation_key_editor_seek(float p_pos, bool p_drag)
     EditorNode::get_singleton()->get_inspector()->refresh();
 }
 
-void AnimationPlayerEditor::_hide_anim_editors() {
-
-    player = nullptr;
-    hide();
-    set_process(false);
-
-    track_editor->set_animation(Ref<Animation>());
-    track_editor->set_root(nullptr);
-    track_editor->show_select_node_warning(true);
-}
-
-void AnimationPlayerEditor::_animation_about_to_show_menu() {
-}
 
 void AnimationPlayerEditor::_animation_tool_menu(int p_option) {
 
@@ -1132,13 +1121,13 @@ void AnimationPlayerEditor::_animation_tool_menu(int p_option) {
         } break;
         case TOOL_SAVE_ANIM: {
 
-            if (anim.is_valid()) {
+            if (anim) {
                 _animation_save(anim);
             }
         } break;
         case TOOL_SAVE_AS_ANIM: {
 
-            if (anim.is_valid()) {
+            if (anim) {
                 _animation_save_as(anim);
             }
         } break;
@@ -1172,8 +1161,8 @@ void AnimationPlayerEditor::_animation_tool_menu(int p_option) {
         } break;
         case TOOL_PASTE_ANIM: {
 
-            Ref<Animation> anim2 = EditorSettings::get_singleton()->get_resource_clipboard();
-            if (!anim2.is_valid()) {
+            Ref<Animation> anim2 = dynamic_ref_cast<Animation>(EditorSettings::get_singleton()->get_resource_clipboard());
+            if (not anim2) {
                 error_dialog->set_text(TTR("No animation resource on clipboard!"));
                 error_dialog->popup_centered_minsize();
                 return;
@@ -1195,8 +1184,8 @@ void AnimationPlayerEditor::_animation_tool_menu(int p_option) {
             undo_redo->create_action(TTR("Paste Animation"));
             undo_redo->add_do_method(player, "add_animation", name, anim2);
             undo_redo->add_undo_method(player, "remove_animation", name);
-            undo_redo->add_do_method(this, "_animation_player_changed", player);
-            undo_redo->add_undo_method(this, "_animation_player_changed", player);
+            undo_redo->add_do_method(this, "_animation_player_changed", Variant(player));
+            undo_redo->add_undo_method(this, "_animation_player_changed", Variant(player));
             undo_redo->commit_action();
 
             _select_anim_by_name(name);
@@ -1275,8 +1264,8 @@ void AnimationPlayerEditor::_onion_skinning_menu(int p_option) {
 
 void AnimationPlayerEditor::_unhandled_key_input(const Ref<InputEvent> &p_ev) {
 
-    Ref<InputEventKey> k = p_ev;
-    if (is_visible_in_tree() && k.is_valid() && k->is_pressed() && !k->is_echo() && !k->get_alt() && !k->get_control() && !k->get_metakey()) {
+    Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(p_ev);
+    if (is_visible_in_tree() && k && k->is_pressed() && !k->is_echo() && !k->get_alt() && !k->get_control() && !k->get_metakey()) {
 
         switch (k->get_scancode()) {
 
@@ -1308,7 +1297,7 @@ void AnimationPlayerEditor::_editor_visibility_changed() {
 
 bool AnimationPlayerEditor::_are_onion_layers_valid() {
 
-    ERR_FAIL_COND_V(!onion.past && !onion.future, false);
+    ERR_FAIL_COND_V(!onion.past && !onion.future, false)
 
     Point2 capture_size = get_tree()->get_root()->get_size();
     return onion.captures.size() == onion.get_needed_capture_count() && onion.capture_size == capture_size;
@@ -1383,7 +1372,7 @@ void AnimationPlayerEditor::_prepare_onion_layers_1() {
 void AnimationPlayerEditor::_prepare_onion_layers_2() {
 
     Ref<Animation> anim = player->get_animation(player->get_assigned_animation());
-    if (!anim.is_valid())
+    if (not anim)
         return;
 
     if (!_are_onion_layers_valid())
@@ -1563,7 +1552,6 @@ void AnimationPlayerEditor::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_list_changed"), &AnimationPlayerEditor::_list_changed);
     MethodBinder::bind_method(D_METHOD("_animation_key_editor_seek"), &AnimationPlayerEditor::_animation_key_editor_seek);
     MethodBinder::bind_method(D_METHOD("_animation_key_editor_anim_len_changed"), &AnimationPlayerEditor::_animation_key_editor_anim_len_changed);
-    MethodBinder::bind_method(D_METHOD("_hide_anim_editors"), &AnimationPlayerEditor::_hide_anim_editors);
     MethodBinder::bind_method(D_METHOD("_animation_duplicate"), &AnimationPlayerEditor::_animation_duplicate);
     MethodBinder::bind_method(D_METHOD("_blend_editor_next_changed"), &AnimationPlayerEditor::_blend_editor_next_changed);
     MethodBinder::bind_method(D_METHOD("_unhandled_key_input"), &AnimationPlayerEditor::_unhandled_key_input);
@@ -1801,9 +1789,9 @@ AnimationPlayerEditor::AnimationPlayerEditor(EditorNode *p_editor, AnimationPlay
     onion.capture.canvas_item = VS::get_singleton()->canvas_item_create();
     VS::get_singleton()->canvas_item_set_parent(onion.capture.canvas_item, onion.capture.canvas);
 
-    onion.capture.material = Ref<ShaderMaterial>(memnew(ShaderMaterial));
+    onion.capture.material = make_ref_counted<ShaderMaterial>();
 
-    onion.capture.shader = Ref<Shader>(memnew(Shader));
+    onion.capture.shader = make_ref_counted<Shader>();
     onion.capture.shader->set_code(" \
         shader_type canvas_item; \
         \

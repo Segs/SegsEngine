@@ -38,7 +38,7 @@
 IMPL_GDCLASS(UPNPDevice)
 
 String UPNPDevice::query_external_address() const {
-    ERR_FAIL_COND_V(!is_valid_gateway(), "");
+    ERR_FAIL_COND_V(!is_valid_gateway(), "")
 
     char addr[16];
     int i = UPNP_GetExternalIPAddress(
@@ -46,17 +46,17 @@ String UPNPDevice::query_external_address() const {
 			StringUtils::to_utf8(igd_service_type).data(),
             (char *)&addr);
 
-    ERR_FAIL_COND_V(i != UPNPCOMMAND_SUCCESS, "");
+    ERR_FAIL_COND_V(i != UPNPCOMMAND_SUCCESS, "")
 
     return String(addr);
 }
 
 int UPNPDevice::add_port_mapping(int port, int port_internal, String desc, String proto, int duration) const {
-    ERR_FAIL_COND_V(!is_valid_gateway(), UPNP::UPNP_RESULT_INVALID_GATEWAY);
-    ERR_FAIL_COND_V(port < 1 || port > 65535, UPNP::UPNP_RESULT_INVALID_PORT);
-    ERR_FAIL_COND_V(port_internal < 0 || port_internal > 65535, UPNP::UPNP_RESULT_INVALID_PORT); // Needs to allow 0 because 0 signifies "use external port as internal port"
-    ERR_FAIL_COND_V(proto != "UDP" && proto != "TCP", UPNP::UPNP_RESULT_INVALID_PROTOCOL);
-    ERR_FAIL_COND_V(duration < 0, UPNP::UPNP_RESULT_INVALID_DURATION);
+    ERR_FAIL_COND_V(!is_valid_gateway(), UPNP::UPNP_RESULT_INVALID_GATEWAY)
+    ERR_FAIL_COND_V(port < 1 || port > 65535, UPNP::UPNP_RESULT_INVALID_PORT)
+    ERR_FAIL_COND_V(port_internal < 0 || port_internal > 65535, UPNP::UPNP_RESULT_INVALID_PORT) // Needs to allow 0 because 0 signifies "use external port as internal port"
+    ERR_FAIL_COND_V(proto != "UDP" && proto != "TCP", UPNP::UPNP_RESULT_INVALID_PROTOCOL)
+    ERR_FAIL_COND_V(duration < 0, UPNP::UPNP_RESULT_INVALID_DURATION)
 
     if (port_internal < 1) {
         port_internal = port;
@@ -73,14 +73,14 @@ int UPNPDevice::add_port_mapping(int port, int port_internal, String desc, Strin
             nullptr, // Remote host, always NULL as IGDs don't support it
 			duration > 0 ? StringUtils::to_utf8(itos(duration)).data() : nullptr);
 
-    ERR_FAIL_COND_V(i != UPNPCOMMAND_SUCCESS, UPNP::upnp_result(i));
+    ERR_FAIL_COND_V(i != UPNPCOMMAND_SUCCESS, UPNP::upnp_result(i))
 
     return UPNP::UPNP_RESULT_SUCCESS;
 }
 
 int UPNPDevice::delete_port_mapping(int port, String proto) const {
-    ERR_FAIL_COND_V(port < 1 || port > 65535, UPNP::UPNP_RESULT_INVALID_PORT);
-    ERR_FAIL_COND_V(proto != "UDP" && proto != "TCP", UPNP::UPNP_RESULT_INVALID_PROTOCOL);
+    ERR_FAIL_COND_V(port < 1 || port > 65535, UPNP::UPNP_RESULT_INVALID_PORT)
+    ERR_FAIL_COND_V(proto != "UDP" && proto != "TCP", UPNP::UPNP_RESULT_INVALID_PROTOCOL)
 
     int i = UPNP_DeletePortMapping(
 			StringUtils::to_utf8(igd_control_url).data(),
@@ -90,7 +90,7 @@ int UPNPDevice::delete_port_mapping(int port, String proto) const {
             nullptr // Remote host, always NULL as IGDs don't support it
     );
 
-    ERR_FAIL_COND_V(i != UPNPCOMMAND_SUCCESS, UPNP::upnp_result(i));
+    ERR_FAIL_COND_V(i != UPNPCOMMAND_SUCCESS, UPNP::upnp_result(i))
 
     return UPNP::UPNP_RESULT_SUCCESS;
 }
@@ -150,43 +150,43 @@ bool UPNPDevice::is_valid_gateway() const {
 void UPNPDevice::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("is_valid_gateway"), &UPNPDevice::is_valid_gateway);
     MethodBinder::bind_method(D_METHOD("query_external_address"), &UPNPDevice::query_external_address);
-    MethodBinder::bind_method(D_METHOD("add_port_mapping", "port", "port_internal", "desc", "proto", "duration"), &UPNPDevice::add_port_mapping, {DEFVAL(0), DEFVAL(""), DEFVAL("UDP"), DEFVAL(0)});
-    MethodBinder::bind_method(D_METHOD("delete_port_mapping", "port", "proto"), &UPNPDevice::delete_port_mapping, {DEFVAL("UDP")});
+    MethodBinder::bind_method(D_METHOD("add_port_mapping", {"port", "port_internal", "desc", "proto", "duration"}), &UPNPDevice::add_port_mapping, {DEFVAL(0), DEFVAL(""), DEFVAL("UDP"), DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("delete_port_mapping", {"port", "proto"}), &UPNPDevice::delete_port_mapping, {DEFVAL("UDP")});
 
-    MethodBinder::bind_method(D_METHOD("set_description_url", "url"), &UPNPDevice::set_description_url);
+    MethodBinder::bind_method(D_METHOD("set_description_url", {"url"}), &UPNPDevice::set_description_url);
     MethodBinder::bind_method(D_METHOD("get_description_url"), &UPNPDevice::get_description_url);
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "description_url"), "set_description_url", "get_description_url");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "description_url"), "set_description_url", "get_description_url");
 
-    MethodBinder::bind_method(D_METHOD("set_service_type", "type"), &UPNPDevice::set_service_type);
+    MethodBinder::bind_method(D_METHOD("set_service_type", {"type"}), &UPNPDevice::set_service_type);
     MethodBinder::bind_method(D_METHOD("get_service_type"), &UPNPDevice::get_service_type);
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "service_type"), "set_service_type", "get_service_type");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "service_type"), "set_service_type", "get_service_type");
 
-    MethodBinder::bind_method(D_METHOD("set_igd_control_url", "url"), &UPNPDevice::set_igd_control_url);
+    MethodBinder::bind_method(D_METHOD("set_igd_control_url", {"url"}), &UPNPDevice::set_igd_control_url);
     MethodBinder::bind_method(D_METHOD("get_igd_control_url"), &UPNPDevice::get_igd_control_url);
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "igd_control_url"), "set_igd_control_url", "get_igd_control_url");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "igd_control_url"), "set_igd_control_url", "get_igd_control_url");
 
-    MethodBinder::bind_method(D_METHOD("set_igd_service_type", "type"), &UPNPDevice::set_igd_service_type);
+    MethodBinder::bind_method(D_METHOD("set_igd_service_type", {"type"}), &UPNPDevice::set_igd_service_type);
     MethodBinder::bind_method(D_METHOD("get_igd_service_type"), &UPNPDevice::get_igd_service_type);
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "igd_service_type"), "set_igd_service_type", "get_igd_service_type");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "igd_service_type"), "set_igd_service_type", "get_igd_service_type");
 
-    MethodBinder::bind_method(D_METHOD("set_igd_our_addr", "addr"), &UPNPDevice::set_igd_our_addr);
+    MethodBinder::bind_method(D_METHOD("set_igd_our_addr", {"addr"}), &UPNPDevice::set_igd_our_addr);
     MethodBinder::bind_method(D_METHOD("get_igd_our_addr"), &UPNPDevice::get_igd_our_addr);
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "igd_our_addr"), "set_igd_our_addr", "get_igd_our_addr");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "igd_our_addr"), "set_igd_our_addr", "get_igd_our_addr");
 
-    MethodBinder::bind_method(D_METHOD("set_igd_status", "status"), &UPNPDevice::set_igd_status);
+    MethodBinder::bind_method(D_METHOD("set_igd_status", {"status"}), &UPNPDevice::set_igd_status);
     MethodBinder::bind_method(D_METHOD("get_igd_status"), &UPNPDevice::get_igd_status);
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "igd_status", PROPERTY_HINT_ENUM), "set_igd_status", "get_igd_status");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "igd_status", PROPERTY_HINT_ENUM), "set_igd_status", "get_igd_status");
 
-    BIND_ENUM_CONSTANT(IGD_STATUS_OK);
-    BIND_ENUM_CONSTANT(IGD_STATUS_HTTP_ERROR);
-    BIND_ENUM_CONSTANT(IGD_STATUS_HTTP_EMPTY);
-    BIND_ENUM_CONSTANT(IGD_STATUS_NO_URLS);
-    BIND_ENUM_CONSTANT(IGD_STATUS_NO_IGD);
-    BIND_ENUM_CONSTANT(IGD_STATUS_DISCONNECTED);
-    BIND_ENUM_CONSTANT(IGD_STATUS_UNKNOWN_DEVICE);
-    BIND_ENUM_CONSTANT(IGD_STATUS_INVALID_CONTROL);
-    BIND_ENUM_CONSTANT(IGD_STATUS_MALLOC_ERROR);
-    BIND_ENUM_CONSTANT(IGD_STATUS_UNKNOWN_ERROR);
+    BIND_ENUM_CONSTANT(IGD_STATUS_OK)
+    BIND_ENUM_CONSTANT(IGD_STATUS_HTTP_ERROR)
+    BIND_ENUM_CONSTANT(IGD_STATUS_HTTP_EMPTY)
+    BIND_ENUM_CONSTANT(IGD_STATUS_NO_URLS)
+    BIND_ENUM_CONSTANT(IGD_STATUS_NO_IGD)
+    BIND_ENUM_CONSTANT(IGD_STATUS_DISCONNECTED)
+    BIND_ENUM_CONSTANT(IGD_STATUS_UNKNOWN_DEVICE)
+    BIND_ENUM_CONSTANT(IGD_STATUS_INVALID_CONTROL)
+    BIND_ENUM_CONSTANT(IGD_STATUS_MALLOC_ERROR)
+    BIND_ENUM_CONSTANT(IGD_STATUS_UNKNOWN_ERROR)
 }
 
 UPNPDevice::UPNPDevice() {

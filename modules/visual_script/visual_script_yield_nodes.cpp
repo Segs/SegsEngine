@@ -39,6 +39,9 @@
 IMPL_GDCLASS(VisualScriptYield)
 IMPL_GDCLASS(VisualScriptYieldSignal)
 
+VARIANT_ENUM_CAST(VisualScriptYield::YieldMode)
+VARIANT_ENUM_CAST(VisualScriptYieldSignal::CallMode);
+
 //////////////////////////////////////////
 ////////////////YIELD///////////
 //////////////////////////////////////////
@@ -117,8 +120,7 @@ public:
                 return 0;
             }
 
-            Ref<VisualScriptFunctionState> state;
-            state.instance();
+            Ref<VisualScriptFunctionState> state(make_ref_counted<VisualScriptFunctionState>());
 
             int ret = STEP_YIELD_BIT;
             switch (mode) {
@@ -128,7 +130,7 @@ public:
                     break; //return the yield
                 case VisualScriptYield::YIELD_FRAME: state->connect_to_signal(tree, "idle_frame", Array()); break;
                 case VisualScriptYield::YIELD_PHYSICS_FRAME: state->connect_to_signal(tree, "physics_frame", Array()); break;
-                case VisualScriptYield::YIELD_WAIT: state->connect_to_signal(tree->create_timer(wait_time).ptr(), "timeout", Array()); break;
+                case VisualScriptYield::YIELD_WAIT: state->connect_to_signal(tree->create_timer(wait_time).get(), "timeout", Array()); break;
             }
 
             *p_working_mem = state;
@@ -185,18 +187,18 @@ void VisualScriptYield::_validate_property(PropertyInfo &property) const {
 
 void VisualScriptYield::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_yield_mode", "mode"), &VisualScriptYield::set_yield_mode);
+    MethodBinder::bind_method(D_METHOD("set_yield_mode", {"mode"}), &VisualScriptYield::set_yield_mode);
     MethodBinder::bind_method(D_METHOD("get_yield_mode"), &VisualScriptYield::get_yield_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_wait_time", "sec"), &VisualScriptYield::set_wait_time);
+    MethodBinder::bind_method(D_METHOD("set_wait_time", {"sec"}), &VisualScriptYield::set_wait_time);
     MethodBinder::bind_method(D_METHOD("get_wait_time"), &VisualScriptYield::get_wait_time);
 
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "mode", PROPERTY_HINT_ENUM, "Frame,Physics Frame,Time", PROPERTY_USAGE_NOEDITOR), "set_yield_mode", "get_yield_mode");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "wait_time"), "set_wait_time", "get_wait_time");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "mode", PROPERTY_HINT_ENUM, "Frame,Physics Frame,Time", PROPERTY_USAGE_NOEDITOR), "set_yield_mode", "get_yield_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "wait_time"), "set_wait_time", "get_wait_time");
 
-    BIND_ENUM_CONSTANT(YIELD_FRAME);
-    BIND_ENUM_CONSTANT(YIELD_PHYSICS_FRAME);
-    BIND_ENUM_CONSTANT(YIELD_WAIT);
+    BIND_ENUM_CONSTANT(YIELD_FRAME)
+    BIND_ENUM_CONSTANT(YIELD_PHYSICS_FRAME)
+    BIND_ENUM_CONSTANT(YIELD_WAIT)
 }
 
 VisualScriptYield::VisualScriptYield() {
@@ -208,8 +210,7 @@ VisualScriptYield::VisualScriptYield() {
 template <VisualScriptYield::YieldMode MODE>
 static Ref<VisualScriptNode> create_yield_node(const String &p_name) {
 
-    Ref<VisualScriptYield> node;
-    node.instance();
+    Ref<VisualScriptYield> node(make_ref_counted<VisualScriptYield>());
     node->set_yield_mode(MODE);
     return node;
 }
@@ -234,9 +235,9 @@ static Node *_find_script_node(Node *p_edited_scene, Node *p_current_node, const
     if (p_edited_scene != p_current_node && p_current_node->get_owner() != p_edited_scene)
         return nullptr;
 
-    Ref<Script> scr = p_current_node->get_script();
+    Ref<Script> scr = refFromRefPtr<Script>(p_current_node->get_script());
 
-    if (scr.is_valid() && scr == script)
+    if (scr && scr == script)
         return p_current_node;
 
     for (int i = 0; i < p_current_node->get_child_count(); i++) {
@@ -253,7 +254,7 @@ Node *VisualScriptYieldSignal::_get_base_node() const {
 
 #ifdef TOOLS_ENABLED
     Ref<Script> script = get_visual_script();
-    if (!script.is_valid())
+    if (not script)
         return nullptr;
 
     MainLoop *main_loop = OS::get_singleton()->get_main_loop();
@@ -286,9 +287,9 @@ Node *VisualScriptYieldSignal::_get_base_node() const {
 
 StringName VisualScriptYieldSignal::_get_base_type() const {
 
-    if (call_mode == CALL_MODE_SELF && get_visual_script().is_valid())
+    if (call_mode == CALL_MODE_SELF && get_visual_script())
         return get_visual_script()->get_instance_base_type();
-    else if (call_mode == CALL_MODE_NODE_PATH && get_visual_script().is_valid()) {
+    else if (call_mode == CALL_MODE_NODE_PATH && get_visual_script()) {
         Node *path = _get_base_node();
         if (path)
             return path->get_class_name();
@@ -322,7 +323,7 @@ String VisualScriptYieldSignal::get_output_sequence_port_text(int p_port) const 
 PropertyInfo VisualScriptYieldSignal::get_input_value_port_info(int p_idx) const {
 
     if (call_mode == CALL_MODE_INSTANCE)
-        return PropertyInfo(Variant::OBJECT, "instance");
+        return PropertyInfo(VariantType::OBJECT, "instance");
     else
         return PropertyInfo();
 }
@@ -442,15 +443,15 @@ void VisualScriptYieldSignal::_validate_property(PropertyInfo &property) const {
     if (property.name == "signal") {
         property.hint = PROPERTY_HINT_ENUM;
 
-        List<MethodInfo> methods;
+        ListPOD<MethodInfo> methods;
 
         ClassDB::get_signal_list(_get_base_type(), &methods);
 
         List<String> mstring;
-        for (List<MethodInfo>::Element *E = methods.front(); E; E = E->next()) {
-            if (StringUtils::begins_with(E->get().name,"_"))
+        for(const MethodInfo & E : methods) {
+            if (StringUtils::begins_with(E.name,"_"))
                 continue;
-            mstring.push_back(StringUtils::get_slice(E->get().name,":", 0));
+            mstring.push_back(StringUtils::get_slice(E.name,":", 0));
         }
 
         mstring.sort();
@@ -460,7 +461,7 @@ void VisualScriptYieldSignal::_validate_property(PropertyInfo &property) const {
 
             if (!ml.empty())
                 ml += ",";
-            ml += E->get();
+            ml += E->deref();
         }
 
         property.hint_string = ml;
@@ -469,34 +470,34 @@ void VisualScriptYieldSignal::_validate_property(PropertyInfo &property) const {
 
 void VisualScriptYieldSignal::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_base_type", "base_type"), &VisualScriptYieldSignal::set_base_type);
+    MethodBinder::bind_method(D_METHOD("set_base_type", {"base_type"}), &VisualScriptYieldSignal::set_base_type);
     MethodBinder::bind_method(D_METHOD("get_base_type"), &VisualScriptYieldSignal::get_base_type);
 
-    MethodBinder::bind_method(D_METHOD("set_signal", "signal"), &VisualScriptYieldSignal::set_signal);
+    MethodBinder::bind_method(D_METHOD("set_signal", {"signal"}), &VisualScriptYieldSignal::set_signal);
     MethodBinder::bind_method(D_METHOD("get_signal"), &VisualScriptYieldSignal::get_signal);
 
-    MethodBinder::bind_method(D_METHOD("set_call_mode", "mode"), &VisualScriptYieldSignal::set_call_mode);
+    MethodBinder::bind_method(D_METHOD("set_call_mode", {"mode"}), &VisualScriptYieldSignal::set_call_mode);
     MethodBinder::bind_method(D_METHOD("get_call_mode"), &VisualScriptYieldSignal::get_call_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_base_path", "base_path"), &VisualScriptYieldSignal::set_base_path);
+    MethodBinder::bind_method(D_METHOD("set_base_path", {"base_path"}), &VisualScriptYieldSignal::set_base_path);
     MethodBinder::bind_method(D_METHOD("get_base_path"), &VisualScriptYieldSignal::get_base_path);
 
     String bt;
-    for (int i = 0; i < Variant::VARIANT_MAX; i++) {
+    for (int i = 0; i < (int)VariantType::VARIANT_MAX; i++) {
         if (i > 0)
             bt += ",";
 
-        bt += Variant::get_type_name(Variant::Type(i));
+        bt += Variant::get_type_name(VariantType(i));
     }
 
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "call_mode", PROPERTY_HINT_ENUM, "Self,Node Path,Instance"), "set_call_mode", "get_call_mode");
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "base_type", PROPERTY_HINT_TYPE_STRING, "Object"), "set_base_type", "get_base_type");
-    ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "node_path", PROPERTY_HINT_NODE_PATH_TO_EDITED_NODE), "set_base_path", "get_base_path");
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "signal"), "set_signal", "get_signal");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "call_mode", PROPERTY_HINT_ENUM, "Self,Node Path,Instance"), "set_call_mode", "get_call_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "base_type", PROPERTY_HINT_TYPE_STRING, "Object"), "set_base_type", "get_base_type");
+    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "node_path", PROPERTY_HINT_NODE_PATH_TO_EDITED_NODE), "set_base_path", "get_base_path");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "signal"), "set_signal", "get_signal");
 
-    BIND_ENUM_CONSTANT(CALL_MODE_SELF);
-    BIND_ENUM_CONSTANT(CALL_MODE_NODE_PATH);
-    BIND_ENUM_CONSTANT(CALL_MODE_INSTANCE);
+    BIND_ENUM_CONSTANT(CALL_MODE_SELF)
+    BIND_ENUM_CONSTANT(CALL_MODE_NODE_PATH)
+    BIND_ENUM_CONSTANT(CALL_MODE_INSTANCE)
 }
 
 class VisualScriptNodeInstanceYieldSignal : public VisualScriptNodeInstance {
@@ -560,8 +561,7 @@ public:
                 } break;
             }
 
-            Ref<VisualScriptFunctionState> state;
-            state.instance();
+            Ref<VisualScriptFunctionState> state(make_ref_counted<VisualScriptFunctionState>());
 
             state->connect_to_signal(object, signal, Array());
 
@@ -592,8 +592,7 @@ VisualScriptYieldSignal::VisualScriptYieldSignal() {
 template <VisualScriptYieldSignal::CallMode cmode>
 static Ref<VisualScriptNode> create_yield_signal_node(const String &p_name) {
 
-    Ref<VisualScriptYieldSignal> node;
-    node.instance();
+    Ref<VisualScriptYieldSignal> node(make_ref_counted<VisualScriptYieldSignal>());
     node->set_call_mode(cmode);
     return node;
 }

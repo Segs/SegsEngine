@@ -32,6 +32,8 @@
 
 #include "core/os/input.h"
 #include "core/os/input_event.h"
+#include "core/list.h"
+#include "core/map.h"
 
 class InputDefault : public Input {
 
@@ -177,7 +179,7 @@ private:
 
 	Vector<JoyDeviceMapping> map_db;
 
-	JoyEvent _find_to_event(String p_to);
+	JoyEvent _find_to_event(const String& p_to);
 	void _button_event(int p_device, int p_index, bool p_pressed);
 	void _axis_event(int p_device, int p_axis, float p_value);
 	float _handle_deadzone(int p_device, int p_axis, float p_value);
@@ -249,7 +251,7 @@ public:
 	CursorShape get_current_cursor_shape() const override;
 	void set_custom_mouse_cursor(const RES &p_cursor, CursorShape p_shape = Input::CURSOR_ARROW, const Vector2 &p_hotspot = Vector2()) override;
 
-	void parse_mapping(String p_mapping);
+	void parse_mapping(const String& p_mapping);
 	void joy_button(int p_device, int p_button, bool p_pressed);
 	void joy_axis(int p_device, int p_axis, const JoyAxis &p_value);
 	void joy_hat(int p_device, int p_val);
@@ -268,7 +270,7 @@ public:
 
 	bool is_joy_mapped(int p_device);
 	String get_joy_guid_remapped(int p_device) const;
-	void set_fallback_mapping(String p_guid);
+	void set_fallback_mapping(const String& p_guid);
 
 	void accumulate_input_event(const Ref<InputEvent> &p_event) override;
 	void flush_accumulated_events() override;

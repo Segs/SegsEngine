@@ -703,7 +703,7 @@ Variant mono_object_to_variant(MonoObject *p_obj) {
 
 	ManagedType type = ManagedType::from_class(mono_object_get_class(p_obj));
 
-	ERR_FAIL_COND_V(!type.type_class, Variant());
+	ERR_FAIL_COND_V(!type.type_class, Variant())
 
 	switch (type.type_encoding) {
 		case MONO_TYPE_BOOLEAN:

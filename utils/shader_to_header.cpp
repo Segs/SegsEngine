@@ -296,7 +296,7 @@ void build_legacygl_header(const QString &filename, const char *include, const c
         fd << "\t_FORCE_INLINE_ void set_conditional(Conditionals p_conditional,bool p_enable)  {  _set_conditional(p_conditional,p_enable); }\n\n";
     fd << R"raw(
     #ifdef DEBUG_ENABLED
-    #define _FU if (get_uniform(p_uniform)<0) return; if (!is_version_valid()) return; ERR_FAIL_COND( get_active()!=this );
+    #define _FU if (get_uniform(p_uniform)<0) return; if (!is_version_valid()) return; ERR_FAIL_COND( get_active()!=this )
     #else
     #define _FU if (get_uniform(p_uniform)<0) return;
     #endif
@@ -537,13 +537,13 @@ void build_legacygl_header(const QString &filename, const char *include, const c
     fd<<"\t\tstatic const int _vertex_code_start=" << header_data.vertex_offset <<";\n";
 
     fd<<"\t\tstatic const char _fragment_code[]={\n";
-    for(const QString &x : header_data.fragment_lines)
+    for (const QString &x : header_data.fragment_lines)
     {
         for (QChar c : x)
-            fd<<QString::number(c.toLatin1()) << ",";
-        fd<<QString::number('\n') + ",";
+            fd << QString::number(c.toLatin1()) << ",";
+        fd << QString::number('\n') + ",";
     }
-    fd<<"\t\t0};\n\n";
+    fd << "\t\t0};\n\n";
 
     fd<<"\t\tstatic const int _fragment_code_start=" << header_data.fragment_offset << ";\n";
 

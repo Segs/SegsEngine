@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef CANVAS_ITEM_H
-#define CANVAS_ITEM_H
+#pragma once
 
 #include "scene/main/node.h"
 #include "scene/main/scene_tree.h"
@@ -389,5 +388,3 @@ public:
 };
 
 VARIANT_ENUM_CAST(CanvasItem::BlendMode);
-
-#endif // CANVAS_ITEM_H

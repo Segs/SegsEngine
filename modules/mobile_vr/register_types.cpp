@@ -35,8 +35,7 @@
 void register_mobile_vr_types() {
 	ClassDB::register_class<MobileVRInterface>();
 
-	Ref<MobileVRInterface> mobile_vr;
-	mobile_vr.instance();
+	Ref<MobileVRInterface> mobile_vr(make_ref_counted<MobileVRInterface>());
 	ARVRServer::get_singleton()->add_interface(mobile_vr);
 }
 

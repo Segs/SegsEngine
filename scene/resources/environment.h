@@ -28,8 +28,8 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef ENVIRONMENT_H
-#define ENVIRONMENT_H
+#pragma once
+
 
 #include "core/resource.h"
 #include "scene/resources/sky.h"
@@ -410,12 +410,3 @@ public:
 	Environment();
 	~Environment() override;
 };
-
-VARIANT_ENUM_CAST(Environment::BGMode)
-VARIANT_ENUM_CAST(Environment::ToneMapper)
-VARIANT_ENUM_CAST(Environment::GlowBlendMode)
-VARIANT_ENUM_CAST(Environment::DOFBlurQuality)
-VARIANT_ENUM_CAST(Environment::SSAOQuality)
-VARIANT_ENUM_CAST(Environment::SSAOBlur)
-
-#endif // ENVIRONMENT_H

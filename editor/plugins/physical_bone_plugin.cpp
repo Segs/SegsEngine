@@ -37,7 +37,7 @@ IMPL_GDCLASS(PhysicalBoneEditor)
 IMPL_GDCLASS(PhysicalBonePlugin)
 
 void PhysicalBoneEditor::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("_on_toggle_button_transform_joint", "is_pressed"), &PhysicalBoneEditor::_on_toggle_button_transform_joint);
+    MethodBinder::bind_method(D_METHOD("_on_toggle_button_transform_joint", {"is_pressed"}), &PhysicalBoneEditor::_on_toggle_button_transform_joint);
 }
 
 void PhysicalBoneEditor::_on_toggle_button_transform_joint(bool p_is_pressed) {
@@ -111,7 +111,7 @@ void PhysicalBonePlugin::make_visible(bool p_visible) {
 
 void PhysicalBonePlugin::edit(Object *p_node) {
     selected = static_cast<PhysicalBone *>(p_node); // Trust it
-    ERR_FAIL_COND(!selected);
+    ERR_FAIL_COND(!selected)
 
     physical_bone_editor.set_selected(selected);
 }

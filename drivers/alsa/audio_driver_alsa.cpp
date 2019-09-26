@@ -63,7 +63,7 @@ Error AudioDriverALSA::init_device() {
             snd_pcm_close(pcm_handle);                           \
             pcm_handle = NULL;                                   \
         }                                                        \
-        ERR_FAIL_COND_V(m_cond, ERR_CANT_OPEN);                  \
+        ERR_FAIL_COND_V(m_cond, ERR_CANT_OPEN)                  \
     }
 
     //todo, add
@@ -78,29 +78,29 @@ Error AudioDriverALSA::init_device() {
         if (pos != -1) {
             device = StringUtils::substr(device,0, pos);
         }
-		status = snd_pcm_open(&pcm_handle, StringUtils::to_utf8(device).data(), SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK);
+        status = snd_pcm_open(&pcm_handle, StringUtils::to_utf8(device).data(), SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK);
     }
 
-	ERR_FAIL_COND_V(status < 0, ERR_CANT_OPEN)
+    ERR_FAIL_COND_V(status < 0, ERR_CANT_OPEN)
 
     snd_pcm_hw_params_alloca(&hwparams);
 
     status = snd_pcm_hw_params_any(pcm_handle, hwparams);
-	CHECK_FAIL(status < 0)
+    CHECK_FAIL(status < 0)
 
     status = snd_pcm_hw_params_set_access(pcm_handle, hwparams, SND_PCM_ACCESS_RW_INTERLEAVED);
-	CHECK_FAIL(status < 0)
+    CHECK_FAIL(status < 0)
 
     //not interested in anything else
     status = snd_pcm_hw_params_set_format(pcm_handle, hwparams, SND_PCM_FORMAT_S16_LE);
-	CHECK_FAIL(status < 0)
+    CHECK_FAIL(status < 0)
 
     //todo: support 4 and 6
     status = snd_pcm_hw_params_set_channels(pcm_handle, hwparams, 2);
-	CHECK_FAIL(status < 0)
+    CHECK_FAIL(status < 0)
 
     status = snd_pcm_hw_params_set_rate_near(pcm_handle, hwparams, &mix_rate, nullptr);
-	CHECK_FAIL(status < 0)
+    CHECK_FAIL(status < 0)
 
     // In ALSA the period size seems to be the one that will determine the actual latency
     // Ref: https://www.alsa-project.org/main/index.php/FramesPeriods
@@ -172,14 +172,14 @@ void AudioDriverALSA::thread_func(void *p_udata) {
         ad->start_counting_ticks();
 
         if (!ad->active) {
-            for (unsigned int i = 0; i < ad->period_size * ad->channels; i++) {
+            for (uint64_t i = 0; i < ad->period_size * ad->channels; i++) {
                 ad->samples_out.write[i] = 0;
             }
 
         } else {
             ad->audio_server_process(ad->period_size, ad->samples_in.ptrw());
 
-            for (unsigned int i = 0; i < ad->period_size * ad->channels; i++) {
+            for (uint64_t i = 0; i < ad->period_size * ad->channels; i++) {
                 ad->samples_out.write[i] = ad->samples_in[i] >> 16;
             }
         }
@@ -219,7 +219,7 @@ void AudioDriverALSA::thread_func(void *p_udata) {
 
             Error err = ad->init_device();
             if (err != OK) {
-                ERR_PRINT("ALSA: init_device error");
+                ERR_PRINT("ALSA: init_device error")
                 ad->device_name = "Default";
                 ad->new_device = "Default";
 
@@ -291,7 +291,7 @@ String AudioDriverALSA::get_device() {
     return device_name;
 }
 
-void AudioDriverALSA::set_device(String device) {
+void AudioDriverALSA::set_device(const String &device) {
 
     lock();
     new_device = device;

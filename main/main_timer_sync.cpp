@@ -105,7 +105,7 @@ MainFrameTime MainTimerSync::advance_core(float p_frame_slice, int p_iterations_
 
     // try to keep it consistent with previous iterations
     if (ret.physics_steps < min_typical_steps) {
-        const int max_possible_steps = floor((time_accum)*p_iterations_per_second + get_physics_jitter_fix());
+        const int max_possible_steps = std::floor((time_accum)*p_iterations_per_second + get_physics_jitter_fix());
         if (max_possible_steps < min_typical_steps) {
             ret.physics_steps = max_possible_steps;
             update_typical = true;
@@ -113,7 +113,7 @@ MainFrameTime MainTimerSync::advance_core(float p_frame_slice, int p_iterations_
             ret.physics_steps = min_typical_steps;
         }
     } else if (ret.physics_steps > max_typical_steps) {
-        const int min_possible_steps = floor((time_accum)*p_iterations_per_second - get_physics_jitter_fix());
+        const int min_possible_steps = std::floor((time_accum)*p_iterations_per_second - get_physics_jitter_fix());
         if (min_possible_steps > max_typical_steps) {
             ret.physics_steps = min_possible_steps;
             update_typical = true;
@@ -192,7 +192,7 @@ float MainTimerSync::get_cpu_idle_step() {
     uint64_t cpu_ticks_elapsed = current_cpu_ticks_usec - last_cpu_ticks_usec;
     last_cpu_ticks_usec = current_cpu_ticks_usec;
 
-    return cpu_ticks_elapsed / 1000000.0;
+    return cpu_ticks_elapsed / 1000000.0f;
 }
 
 MainTimerSync::MainTimerSync() :

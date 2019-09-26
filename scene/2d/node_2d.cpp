@@ -92,7 +92,7 @@ bool Node2D::_edit_use_rotation() const {
 }
 
 void Node2D::_edit_set_rect(const Rect2 &p_edit_rect) {
-    ERR_FAIL_COND(!_edit_use_rect());
+    ERR_FAIL_COND(!_edit_use_rect())
 
     Rect2 r = _edit_get_rect();
 
@@ -333,8 +333,8 @@ void Node2D::set_global_transform(const Transform2D &p_transform) {
 
 void Node2D::set_z_index(int p_z) {
 
-    ERR_FAIL_COND(p_z < VS::CANVAS_ITEM_Z_MIN);
-    ERR_FAIL_COND(p_z > VS::CANVAS_ITEM_Z_MAX);
+    ERR_FAIL_COND(p_z < VS::CANVAS_ITEM_Z_MIN)
+    ERR_FAIL_COND(p_z > VS::CANVAS_ITEM_Z_MAX)
     z_index = p_z;
     VS::get_singleton()->canvas_item_set_z_index(get_canvas_item(), z_index);
     _change_notify("z_index");
@@ -365,7 +365,7 @@ Transform2D Node2D::get_relative_transform_to_parent(const Node *p_parent) const
 
     Node2D *parent_2d = Object::cast_to<Node2D>(get_parent());
 
-    ERR_FAIL_COND_V(!parent_2d, Transform2D());
+    ERR_FAIL_COND_V(!parent_2d, Transform2D())
     if (p_parent == parent_2d)
         return get_transform();
     else
@@ -394,65 +394,65 @@ Point2 Node2D::to_global(Point2 p_local) const {
 
 void Node2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_position", "position"), &Node2D::set_position);
-    MethodBinder::bind_method(D_METHOD("set_rotation", "radians"), &Node2D::set_rotation);
-    MethodBinder::bind_method(D_METHOD("set_rotation_degrees", "degrees"), &Node2D::set_rotation_degrees);
-    MethodBinder::bind_method(D_METHOD("set_scale", "scale"), &Node2D::set_scale);
+    MethodBinder::bind_method(D_METHOD("set_position", {"position"}), &Node2D::set_position);
+    MethodBinder::bind_method(D_METHOD("set_rotation", {"radians"}), &Node2D::set_rotation);
+    MethodBinder::bind_method(D_METHOD("set_rotation_degrees", {"degrees"}), &Node2D::set_rotation_degrees);
+    MethodBinder::bind_method(D_METHOD("set_scale", {"scale"}), &Node2D::set_scale);
 
     MethodBinder::bind_method(D_METHOD("get_position"), &Node2D::get_position);
     MethodBinder::bind_method(D_METHOD("get_rotation"), &Node2D::get_rotation);
     MethodBinder::bind_method(D_METHOD("get_rotation_degrees"), &Node2D::get_rotation_degrees);
     MethodBinder::bind_method(D_METHOD("get_scale"), &Node2D::get_scale);
 
-    MethodBinder::bind_method(D_METHOD("rotate", "radians"), &Node2D::rotate);
-    MethodBinder::bind_method(D_METHOD("move_local_x", "delta", "scaled"), &Node2D::move_x, {DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("move_local_y", "delta", "scaled"), &Node2D::move_y, {DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("translate", "offset"), &Node2D::translate);
-    MethodBinder::bind_method(D_METHOD("global_translate", "offset"), &Node2D::global_translate);
-    MethodBinder::bind_method(D_METHOD("apply_scale", "ratio"), &Node2D::apply_scale);
+    MethodBinder::bind_method(D_METHOD("rotate", {"radians"}), &Node2D::rotate);
+    MethodBinder::bind_method(D_METHOD("move_local_x", {"delta", "scaled"}), &Node2D::move_x, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("move_local_y", {"delta", "scaled"}), &Node2D::move_y, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("translate", {"offset"}), &Node2D::translate);
+    MethodBinder::bind_method(D_METHOD("global_translate", {"offset"}), &Node2D::global_translate);
+    MethodBinder::bind_method(D_METHOD("apply_scale", {"ratio"}), &Node2D::apply_scale);
 
-    MethodBinder::bind_method(D_METHOD("set_global_position", "position"), &Node2D::set_global_position);
+    MethodBinder::bind_method(D_METHOD("set_global_position", {"position"}), &Node2D::set_global_position);
     MethodBinder::bind_method(D_METHOD("get_global_position"), &Node2D::get_global_position);
-    MethodBinder::bind_method(D_METHOD("set_global_rotation", "radians"), &Node2D::set_global_rotation);
+    MethodBinder::bind_method(D_METHOD("set_global_rotation", {"radians"}), &Node2D::set_global_rotation);
     MethodBinder::bind_method(D_METHOD("get_global_rotation"), &Node2D::get_global_rotation);
-    MethodBinder::bind_method(D_METHOD("set_global_rotation_degrees", "degrees"), &Node2D::set_global_rotation_degrees);
+    MethodBinder::bind_method(D_METHOD("set_global_rotation_degrees", {"degrees"}), &Node2D::set_global_rotation_degrees);
     MethodBinder::bind_method(D_METHOD("get_global_rotation_degrees"), &Node2D::get_global_rotation_degrees);
-    MethodBinder::bind_method(D_METHOD("set_global_scale", "scale"), &Node2D::set_global_scale);
+    MethodBinder::bind_method(D_METHOD("set_global_scale", {"scale"}), &Node2D::set_global_scale);
     MethodBinder::bind_method(D_METHOD("get_global_scale"), &Node2D::get_global_scale);
 
-    MethodBinder::bind_method(D_METHOD("set_transform", "xform"), &Node2D::set_transform);
-    MethodBinder::bind_method(D_METHOD("set_global_transform", "xform"), &Node2D::set_global_transform);
+    MethodBinder::bind_method(D_METHOD("set_transform", {"xform"}), &Node2D::set_transform);
+    MethodBinder::bind_method(D_METHOD("set_global_transform", {"xform"}), &Node2D::set_global_transform);
 
-    MethodBinder::bind_method(D_METHOD("look_at", "point"), &Node2D::look_at);
-    MethodBinder::bind_method(D_METHOD("get_angle_to", "point"), &Node2D::get_angle_to);
+    MethodBinder::bind_method(D_METHOD("look_at", {"point"}), &Node2D::look_at);
+    MethodBinder::bind_method(D_METHOD("get_angle_to", {"point"}), &Node2D::get_angle_to);
 
-    MethodBinder::bind_method(D_METHOD("to_local", "global_point"), &Node2D::to_local);
-    MethodBinder::bind_method(D_METHOD("to_global", "local_point"), &Node2D::to_global);
+    MethodBinder::bind_method(D_METHOD("to_local", {"global_point"}), &Node2D::to_local);
+    MethodBinder::bind_method(D_METHOD("to_global", {"local_point"}), &Node2D::to_global);
 
-    MethodBinder::bind_method(D_METHOD("set_z_index", "z_index"), &Node2D::set_z_index);
+    MethodBinder::bind_method(D_METHOD("set_z_index", {"z_index"}), &Node2D::set_z_index);
     MethodBinder::bind_method(D_METHOD("get_z_index"), &Node2D::get_z_index);
 
-    MethodBinder::bind_method(D_METHOD("set_z_as_relative", "enable"), &Node2D::set_z_as_relative);
+    MethodBinder::bind_method(D_METHOD("set_z_as_relative", {"enable"}), &Node2D::set_z_as_relative);
     MethodBinder::bind_method(D_METHOD("is_z_relative"), &Node2D::is_z_relative);
 
-    MethodBinder::bind_method(D_METHOD("get_relative_transform_to_parent", "parent"), &Node2D::get_relative_transform_to_parent);
+    MethodBinder::bind_method(D_METHOD("get_relative_transform_to_parent", {"parent"}), &Node2D::get_relative_transform_to_parent);
 
     ADD_GROUP("Transform", "");
-    ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "position"), "set_position", "get_position");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "rotation", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_rotation", "get_rotation");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "rotation_degrees", PROPERTY_HINT_RANGE, "-1080,1080,0.1,or_lesser,or_greater", PROPERTY_USAGE_EDITOR), "set_rotation_degrees", "get_rotation_degrees");
-    ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "scale"), "set_scale", "get_scale");
-    ADD_PROPERTY(PropertyInfo(Variant::TRANSFORM2D, "transform", PROPERTY_HINT_NONE, "", 0), "set_transform", "get_transform");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "position"), "set_position", "get_position");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "rotation", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_rotation", "get_rotation");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "rotation_degrees", PROPERTY_HINT_RANGE, "-1080,1080,0.1,or_lesser,or_greater", PROPERTY_USAGE_EDITOR), "set_rotation_degrees", "get_rotation_degrees");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "scale"), "set_scale", "get_scale");
+    ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM2D, "transform", PROPERTY_HINT_NONE, "", 0), "set_transform", "get_transform");
 
-    ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "global_position", PROPERTY_HINT_NONE, "", 0), "set_global_position", "get_global_position");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "global_rotation", PROPERTY_HINT_NONE, "", 0), "set_global_rotation", "get_global_rotation");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "global_rotation_degrees", PROPERTY_HINT_NONE, "", 0), "set_global_rotation_degrees", "get_global_rotation_degrees");
-    ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "global_scale", PROPERTY_HINT_NONE, "", 0), "set_global_scale", "get_global_scale");
-    ADD_PROPERTY(PropertyInfo(Variant::TRANSFORM2D, "global_transform", PROPERTY_HINT_NONE, "", 0), "set_global_transform", "get_global_transform");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "global_position", PROPERTY_HINT_NONE, "", 0), "set_global_position", "get_global_position");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "global_rotation", PROPERTY_HINT_NONE, "", 0), "set_global_rotation", "get_global_rotation");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "global_rotation_degrees", PROPERTY_HINT_NONE, "", 0), "set_global_rotation_degrees", "get_global_rotation_degrees");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "global_scale", PROPERTY_HINT_NONE, "", 0), "set_global_scale", "get_global_scale");
+    ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM2D, "global_transform", PROPERTY_HINT_NONE, "", 0), "set_global_transform", "get_global_transform");
 
     ADD_GROUP("Z Index", "");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "z_index", PROPERTY_HINT_RANGE, itos(VS::CANVAS_ITEM_Z_MIN) + "," + itos(VS::CANVAS_ITEM_Z_MAX) + ",1"), "set_z_index", "get_z_index");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "z_as_relative"), "set_z_as_relative", "is_z_relative");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "z_index", PROPERTY_HINT_RANGE, itos(VS::CANVAS_ITEM_Z_MIN) + "," + itos(VS::CANVAS_ITEM_Z_MAX) + ",1"), "set_z_index", "get_z_index");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "z_as_relative"), "set_z_as_relative", "is_z_relative");
 }
 
 Node2D::Node2D() {

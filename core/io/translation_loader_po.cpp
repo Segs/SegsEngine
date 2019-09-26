@@ -30,6 +30,7 @@
 
 #include "translation_loader_po.h"
 
+#include "core/list.h"
 #include "core/os/file_access.h"
 #include "core/translation.h"
 
@@ -51,7 +52,7 @@ RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, const S
     if (r_error)
         *r_error = ERR_FILE_CORRUPT;
 
-    Ref<Translation> translation = Ref<Translation>(memnew(Translation));
+    Ref<Translation> translation(make_ref_counted<Translation>());
     int line = 1;
     bool skip_this = false;
     bool skip_next = false;
@@ -81,10 +82,10 @@ RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, const S
                 ERR_FAIL_V_MSG(RES(), p_path + ":" + itos(line) + " Unexpected 'msgid', was expecting 'msgstr' while parsing: ");
             }
 
-            if (msg_id != "") {
+            if (!msg_id.empty()) {
                 if (!skip_this)
                     translation->add_message(msg_id, msg_str);
-            } else if (config == "")
+            } else if (config.empty())
                 config = msg_str;
 
             l = StringUtils::strip_edges(StringUtils::substr(l,5, l.length()));
@@ -100,22 +101,22 @@ RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, const S
             if (status != STATUS_READING_ID) {
 
                 memdelete(f);
-				ERR_FAIL_V_MSG(RES(), p_path + ":" + itos(line) + " Unexpected 'msgstr', was expecting 'msgid' while parsing: ")
+                ERR_FAIL_V_MSG(RES(), p_path + ":" + itos(line) + " Unexpected 'msgstr', was expecting 'msgid' while parsing: ")
             }
 
             l = StringUtils::strip_edges(StringUtils::substr(l,6, l.length()));
             status = STATUS_READING_STRING;
         }
 
-		if (l.empty() || StringUtils::begins_with(l,"#")) {
-			if (StringUtils::contains(l,"fuzzy")) {
+        if (l.empty() || StringUtils::begins_with(l,"#")) {
+            if (StringUtils::contains(l,"fuzzy")) {
                 skip_next = true;
             }
             line++;
             continue; //nothing to read or comment
         }
 
-		ERR_FAIL_COND_V_MSG(!StringUtils::begins_with(l,"\"") || status == STATUS_NONE, RES(), p_path + ":" + itos(line) + " Invalid line '" + l + "' while parsing: ")
+        ERR_FAIL_COND_V_MSG(!StringUtils::begins_with(l,"\"") || status == STATUS_NONE, RES(), p_path + ":" + itos(line) + " Invalid line '" + l + "' while parsing: ")
 
         l = StringUtils::substr(l,1, l.length());
         //find final quote
@@ -128,7 +129,7 @@ RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, const S
             }
         }
 
-		ERR_FAIL_COND_V_MSG(end_pos == -1, RES(), p_path + ":" + itos(line) + " Expected '\"' at end of message while parsing file: ")
+        ERR_FAIL_COND_V_MSG(end_pos == -1, RES(), p_path + ":" + itos(line) + " Expected '\"' at end of message while parsing file: ")
 
         l = StringUtils::substr(l,0, end_pos);
         l = StringUtils::c_unescape(l);
@@ -146,14 +147,14 @@ RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, const S
 
     if (status == STATUS_READING_STRING) {
 
-        if (msg_id != "") {
+        if (!msg_id.empty()) {
             if (!skip_this)
                 translation->add_message(msg_id, msg_str);
-        } else if (config == "")
+        } else if (config.empty())
             config = msg_str;
     }
 
-    ERR_FAIL_COND_V_MSG(config == "", RES(), "No config found in file: " + p_path + ".")
+    ERR_FAIL_COND_V_MSG(config.empty(), RES(), "No config found in file: " + p_path + ".")
 
     Vector<String> configs = StringUtils::split(config,"\n");
     for (int i = 0; i < configs.size(); i++) {
@@ -182,12 +183,12 @@ RES TranslationLoaderPO::load(const String &p_path, const String &p_original_pat
         *r_error = ERR_CANT_OPEN;
 
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ);
-    ERR_FAIL_COND_V(!f, RES());
+    ERR_FAIL_COND_V(!f, RES())
 
     return load_translation(f, r_error);
 }
 
-void TranslationLoaderPO::get_recognized_extensions(List<String> *p_extensions) const {
+void TranslationLoaderPO::get_recognized_extensions(ListPOD<String> *p_extensions) const {
 
     p_extensions->push_back("po");
     //p_extensions->push_back("mo"); //mo in the future...

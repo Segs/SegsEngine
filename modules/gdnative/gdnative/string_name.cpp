@@ -32,6 +32,7 @@
 
 #include "core/string_name.h"
 #include "core/ustring.h"
+#include "core/os/memory.h"
 
 #include <cstring>
 

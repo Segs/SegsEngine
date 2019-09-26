@@ -31,10 +31,20 @@
 #pragma once
 
 #include "core/array.h"
-#include "core/list.h"
-
+#include "core/os/memory.h"
 
 class Variant;
+template <class T, class A>
+class List;
+namespace eastl {
+template <class T, class A>
+class list;
+}
+
+template <class T>
+using DefList = class List<T, DefaultAllocator>;
+template<class T>
+using ListPOD = eastl::list<T,wrap_allocator>;
 
 struct DictionaryPrivate;
 
@@ -46,7 +56,7 @@ class GODOT_EXPORT Dictionary {
     void _unref() const;
 
 public:
-    void get_key_list(List<Variant> *p_keys) const;
+    void get_key_list(ListPOD<Variant> *p_keys) const;
     Variant get_key_at_index(int p_index) const;
     Variant get_value_at_index(int p_index) const;
 
@@ -72,7 +82,7 @@ public:
     bool operator!=(const Dictionary &p_dictionary) const;
 
     uint32_t hash() const;
-    void operator=(const Dictionary &p_dictionary);
+    Dictionary &operator=(const Dictionary &p_dictionary);
 
     const Variant *next(const Variant *p_key = nullptr) const;
 

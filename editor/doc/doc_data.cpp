@@ -41,16 +41,18 @@
 #include "core/version.h"
 #include "scene/resources/theme.h"
 
+#include "EASTL/sort.h"
+
 void DocData::merge_from(const DocData &p_data) {
 
-    for (Map<String, ClassDoc>::Element *E = class_list.front(); E; E = E->next()) {
+    for (eastl::pair<const String,ClassDoc> &E : class_list) {
 
-        ClassDoc &c = E->get();
-
-        if (!p_data.class_list.has(c.name))
+        ClassDoc &c(E.second);
+        auto iter = p_data.class_list.find(c.name);
+        if (iter==p_data.class_list.end())
             continue;
 
-        const ClassDoc &cf = p_data.class_list[c.name];
+        const ClassDoc &cf = iter->second;
 
         c.description = cf.description;
         c.brief_description = cf.brief_description;
@@ -159,15 +161,15 @@ void DocData::merge_from(const DocData &p_data) {
 }
 
 void DocData::remove_from(const DocData &p_data) {
-    for (Map<String, ClassDoc>::Element *E = p_data.class_list.front(); E; E = E->next()) {
-        if (class_list.has(E->key()))
-            class_list.erase(E->key());
+    for (const eastl::pair<const String,ClassDoc> &E : p_data.class_list) {
+        if (class_list.contains(E.first))
+            class_list.erase(E.first);
     }
 }
 
 static void return_doc_from_retinfo(DocData::MethodDoc &p_method, const PropertyInfo &p_retinfo) {
 
-    if (p_retinfo.type == Variant::INT && p_retinfo.usage & PROPERTY_USAGE_CLASS_IS_ENUM) {
+    if (p_retinfo.type == VariantType::INT && p_retinfo.usage & PROPERTY_USAGE_CLASS_IS_ENUM) {
         p_method.return_enum = p_retinfo.class_name;
         if (StringUtils::begins_with(p_method.return_enum,"_")) //proxy class
             p_method.return_enum = StringUtils::substr(p_method.return_enum,1, p_method.return_enum.length());
@@ -176,9 +178,9 @@ static void return_doc_from_retinfo(DocData::MethodDoc &p_method, const Property
         p_method.return_type = p_retinfo.class_name;
     } else if (p_retinfo.hint == PROPERTY_HINT_RESOURCE_TYPE) {
         p_method.return_type = p_retinfo.hint_string;
-    } else if (p_retinfo.type == Variant::NIL && p_retinfo.usage & PROPERTY_USAGE_NIL_IS_VARIANT) {
+    } else if (p_retinfo.type == VariantType::NIL && p_retinfo.usage & PROPERTY_USAGE_NIL_IS_VARIANT) {
         p_method.return_type = "Variant";
-    } else if (p_retinfo.type == Variant::NIL) {
+    } else if (p_retinfo.type == VariantType::NIL) {
         p_method.return_type = "void";
     } else {
         p_method.return_type = Variant::get_type_name(p_retinfo.type);
@@ -189,7 +191,7 @@ static void argument_doc_from_arginfo(DocData::ArgumentDoc &p_argument, const Pr
 
     p_argument.name = p_arginfo.name;
 
-    if (p_arginfo.type == Variant::INT && p_arginfo.usage & PROPERTY_USAGE_CLASS_IS_ENUM) {
+    if (p_arginfo.type == VariantType::INT && p_arginfo.usage & PROPERTY_USAGE_CLASS_IS_ENUM) {
         p_argument.enumeration = p_arginfo.class_name;
         if (StringUtils::begins_with(p_argument.enumeration,"_")) //proxy class
             p_argument.enumeration = StringUtils::substr(p_argument.enumeration,1, p_argument.enumeration.length());
@@ -198,7 +200,7 @@ static void argument_doc_from_arginfo(DocData::ArgumentDoc &p_argument, const Pr
         p_argument.type = p_arginfo.class_name;
     } else if (p_arginfo.hint == PROPERTY_HINT_RESOURCE_TYPE) {
         p_argument.type = p_arginfo.hint_string;
-    } else if (p_arginfo.type == Variant::NIL) {
+    } else if (p_arginfo.type == VariantType::NIL) {
         // Parameters cannot be void, so PROPERTY_USAGE_NIL_IS_VARIANT is not necessary
         p_argument.type = "Variant";
     } else {
@@ -229,7 +231,7 @@ void DocData::generate(bool p_basic_types) {
         c.inherits = ClassDB::get_parent_class(name);
         c.category = ClassDB::get_category(name);
 
-        List<PropertyInfo> properties;
+        ListPOD<PropertyInfo> properties;
         if (name == "ProjectSettings") {
             //special case for project settings, so settings can be documented
             ProjectSettings::get_singleton()->get_property_list(&properties);
@@ -237,15 +239,15 @@ void DocData::generate(bool p_basic_types) {
             ClassDB::get_property_list(name, &properties, true);
         }
 
-        for (List<PropertyInfo>::Element *E = properties.front(); E; E = E->next()) {
-            if (E->get().usage & PROPERTY_USAGE_GROUP || E->get().usage & PROPERTY_USAGE_CATEGORY || E->get().usage & PROPERTY_USAGE_INTERNAL)
+        for (const PropertyInfo & E : properties) {
+            if (E.usage & PROPERTY_USAGE_GROUP || E.usage & PROPERTY_USAGE_CATEGORY || E.usage & PROPERTY_USAGE_INTERNAL)
                 continue;
 
             PropertyDoc prop;
-            StringName setter = ClassDB::get_property_setter(name, E->get().name);
-            StringName getter = ClassDB::get_property_getter(name, E->get().name);
+            StringName setter = ClassDB::get_property_setter(name, E.name);
+            StringName getter = ClassDB::get_property_getter(name, E.name);
 
-            prop.name = E->get().name;
+            prop.name = E.name;
             prop.setter = setter;
             prop.getter = getter;
 
@@ -253,21 +255,21 @@ void DocData::generate(bool p_basic_types) {
             bool default_value_valid = false;
 
             if (ClassDB::can_instance(name)) {
-                default_value = ClassDB::class_get_default_property_value(name, E->get().name, &default_value_valid);
+                default_value = ClassDB::class_get_default_property_value(name, E.name, &default_value_valid);
             } else {
                 // Cannot get default value of classes that can't be instanced
-                List<StringName> inheriting_classes;
+                ListPOD<StringName> inheriting_classes;
                 ClassDB::get_direct_inheriters_from_class(name, &inheriting_classes);
-                for (List<StringName>::Element *E2 = inheriting_classes.front(); E2; E2 = E2->next()) {
-                    if (ClassDB::can_instance(E2->get())) {
-                        default_value = ClassDB::class_get_default_property_value(E2->get(), E->get().name, &default_value_valid);
+                for (const StringName &E2 : inheriting_classes) {
+                    if (ClassDB::can_instance(E2)) {
+                        default_value = ClassDB::class_get_default_property_value(E2, E.name, &default_value_valid);
                         if (default_value_valid)
                             break;
                     }
                 }
             }
 
-            if (default_value_valid && default_value.get_type() != Variant::OBJECT) {
+            if (default_value_valid && default_value.get_type() != VariantType::OBJECT) {
                 prop.default_value = StringUtils::replace(default_value.get_construct_string(),"\n", "");
             }
 
@@ -279,7 +281,7 @@ void DocData::generate(bool p_basic_types) {
                     PropertyInfo retinfo = mb->get_return_info();
 
                     found_type = true;
-                    if (retinfo.type == Variant::INT && retinfo.usage & PROPERTY_USAGE_CLASS_IS_ENUM) {
+                    if (retinfo.type == VariantType::INT && retinfo.usage & PROPERTY_USAGE_CLASS_IS_ENUM) {
                         prop.enumeration = retinfo.class_name;
                         prop.type = "int";
                     } else if (retinfo.class_name != StringName()) {
@@ -287,10 +289,10 @@ void DocData::generate(bool p_basic_types) {
                     } else if (retinfo.hint == PROPERTY_HINT_RESOURCE_TYPE) {
 
                         prop.type = retinfo.hint_string;
-                    } else if (retinfo.type == Variant::NIL && retinfo.usage & PROPERTY_USAGE_NIL_IS_VARIANT) {
+                    } else if (retinfo.type == VariantType::NIL && retinfo.usage & PROPERTY_USAGE_NIL_IS_VARIANT) {
 
                         prop.type = "Variant";
-                    } else if (retinfo.type == Variant::NIL) {
+                    } else if (retinfo.type == VariantType::NIL) {
                         prop.type = "void";
                     } else {
                         prop.type = Variant::get_type_name(retinfo.type);
@@ -308,68 +310,68 @@ void DocData::generate(bool p_basic_types) {
 
             if (!found_type) {
 
-                if (E->get().type == Variant::OBJECT && E->get().hint == PROPERTY_HINT_RESOURCE_TYPE)
-                    prop.type = E->get().hint_string;
+                if (E.type == VariantType::OBJECT && E.hint == PROPERTY_HINT_RESOURCE_TYPE)
+                    prop.type = E.hint_string;
                 else
-                    prop.type = Variant::get_type_name(E->get().type);
+                    prop.type = Variant::get_type_name(E.type);
             }
 
             c.properties.push_back(prop);
         }
 
-        List<MethodInfo> method_list;
+        PODVector<MethodInfo> method_list;
         ClassDB::get_method_list(name, &method_list, true);
-        method_list.sort();
+        eastl::sort(method_list.begin(),method_list.end());
 
-        for (List<MethodInfo>::Element *E = method_list.front(); E; E = E->next()) {
+        for (const MethodInfo &E : method_list) {
 
-            if (E->get().name.empty() || (E->get().name[0] == '_' && !(E->get().flags & METHOD_FLAG_VIRTUAL)))
+            if (E.name.empty() || (E.name[0] == '_' && !(E.flags & METHOD_FLAG_VIRTUAL)))
                 continue; //hidden, don't count
 
-            if (skip_setter_getter_methods && setters_getters.has(E->get().name)) {
+            if (skip_setter_getter_methods && setters_getters.contains(E.name)) {
                 // Don't skip parametric setters and getters, i.e. method which require
                 // one or more parameters to define what property should be set or retrieved.
                 // E.g. CPUParticles::set_param(Parameter param, float value).
-                if (E->get().arguments.empty() /* getter */ || (E->get().arguments.size() == 1 && E->get().return_val.type == Variant::NIL /* setter */)) {
+                if (E.arguments.empty() /* getter */ || (E.arguments.size() == 1 && E.return_val.type == VariantType::NIL /* setter */)) {
                     continue;
                 }
             }
 
             MethodDoc method;
 
-            method.name = E->get().name;
+            method.name = E.name;
 
-            if (E->get().flags & METHOD_FLAG_VIRTUAL)
+            if (E.flags & METHOD_FLAG_VIRTUAL)
                 method.qualifiers = "virtual";
 
-            if (E->get().flags & METHOD_FLAG_CONST) {
+            if (E.flags & METHOD_FLAG_CONST) {
                 if (!method.qualifiers.empty())
                     method.qualifiers += " ";
                 method.qualifiers += "const";
-            } else if (E->get().flags & METHOD_FLAG_VARARG) {
+            } else if (E.flags & METHOD_FLAG_VARARG) {
                 if (!method.qualifiers.empty())
                     method.qualifiers += " ";
                 method.qualifiers += "vararg";
             }
 
-            for (int i = -1; i < E->get().arguments.size(); i++) {
+            for (int i = -1; i < E.arguments.size(); i++) {
 
                 if (i == -1) {
 #ifdef DEBUG_METHODS_ENABLED
-                    return_doc_from_retinfo(method, E->get().return_val);
+                    return_doc_from_retinfo(method, E.return_val);
 #endif
                 } else {
 
-                    const PropertyInfo &arginfo = E->get().arguments[i];
+                    const PropertyInfo &arginfo = E.arguments[i];
 
                     ArgumentDoc argument;
 
                     argument_doc_from_arginfo(argument, arginfo);
 
-                    int darg_idx = i - (E->get().arguments.size() - E->get().default_arguments.size());
+                    int darg_idx = i - (E.arguments.size() - E.default_arguments.size());
 
                     if (darg_idx >= 0) {
-                        Variant default_arg = E->get().default_arguments[darg_idx];
+                        Variant default_arg = E.default_arguments[darg_idx];
                         argument.default_value = default_arg.get_construct_string();
                     }
 
@@ -380,21 +382,20 @@ void DocData::generate(bool p_basic_types) {
             c.methods.push_back(method);
         }
 
-        List<MethodInfo> signal_list;
+        ListPOD<MethodInfo> signal_list;
         ClassDB::get_signal_list(name, &signal_list, true);
 
         if (!signal_list.empty()) {
 
-            for (List<MethodInfo>::Element *EV = signal_list.front(); EV; EV = EV->next()) {
+            for (const MethodInfo &EV : signal_list) {
 
                 MethodDoc signal;
-                signal.name = EV->get().name;
-                for (int i = 0; i < EV->get().arguments.size(); i++) {
+                signal.name = EV.name;
+                for (const PropertyInfo &arginfo : EV.arguments) {
 
-                    PropertyInfo arginfo = EV->get().arguments[i];
                     ArgumentDoc argument;
                     argument.name = arginfo.name;
-                    if (arginfo.type == Variant::OBJECT && arginfo.class_name != StringName()) {
+                    if (arginfo.type == VariantType::OBJECT && arginfo.class_name != StringName()) {
                         argument.type = arginfo.class_name.operator String();
                     } else {
                         argument.type = Variant::get_type_name(arginfo.type);
@@ -406,15 +407,15 @@ void DocData::generate(bool p_basic_types) {
             }
         }
 
-        List<String> constant_list;
+        ListPOD<String> constant_list;
         ClassDB::get_integer_constant_list(name, &constant_list, true);
 
-        for (List<String>::Element *E = constant_list.front(); E; E = E->next()) {
+        for (const String & E : constant_list) {
 
             ConstantDoc constant;
-            constant.name = E->get();
-            constant.value = itos(ClassDB::get_integer_constant(name, E->get()));
-            constant.enumeration = ClassDB::get_integer_constant_enum(name, E->get());
+            constant.name = E;
+            constant.value = itos(ClassDB::get_integer_constant(name, E));
+            constant.enumeration = ClassDB::get_integer_constant_enum(name, E);
             c.constants.push_back(constant);
         }
 
@@ -426,9 +427,9 @@ void DocData::generate(bool p_basic_types) {
             for (List<StringName>::Element *E = l.front(); E; E = E->next()) {
 
                 PropertyDoc pd;
-                pd.name = E->get();
+                pd.name = E->deref();
                 pd.type = "int";
-                pd.default_value = itos(Theme::get_default()->get_constant(E->get(), cname));
+                pd.default_value = itos(Theme::get_default()->get_constant(E->deref(), cname));
                 c.theme_properties.push_back(pd);
             }
 
@@ -437,9 +438,9 @@ void DocData::generate(bool p_basic_types) {
             for (List<StringName>::Element *E = l.front(); E; E = E->next()) {
 
                 PropertyDoc pd;
-                pd.name = E->get();
+                pd.name = E->deref();
                 pd.type = "Color";
-                pd.default_value = Variant(Theme::get_default()->get_color(E->get(), cname)).get_construct_string();
+                pd.default_value = Variant(Theme::get_default()->get_color(E->deref(), cname)).get_construct_string();
                 c.theme_properties.push_back(pd);
             }
 
@@ -448,7 +449,7 @@ void DocData::generate(bool p_basic_types) {
             for (List<StringName>::Element *E = l.front(); E; E = E->next()) {
 
                 PropertyDoc pd;
-                pd.name = E->get();
+                pd.name = E->deref();
                 pd.type = "Texture";
                 c.theme_properties.push_back(pd);
             }
@@ -457,7 +458,7 @@ void DocData::generate(bool p_basic_types) {
             for (List<StringName>::Element *E = l.front(); E; E = E->next()) {
 
                 PropertyDoc pd;
-                pd.name = E->get();
+                pd.name = E->deref();
                 pd.type = "Font";
                 c.theme_properties.push_back(pd);
             }
@@ -466,7 +467,7 @@ void DocData::generate(bool p_basic_types) {
             for (List<StringName>::Element *E = l.front(); E; E = E->next()) {
 
                 PropertyDoc pd;
-                pd.name = E->get();
+                pd.name = E->deref();
                 pd.type = "StyleBox";
                 c.theme_properties.push_back(pd);
             }
@@ -482,12 +483,12 @@ void DocData::generate(bool p_basic_types) {
     if (!p_basic_types)
         return;
 
-    for (int i = 0; i < Variant::VARIANT_MAX; i++) {
+    for (int i = 0; i < int(VariantType::VARIANT_MAX); i++) {
 
-        if (i == Variant::OBJECT)
+        if (VariantType(i) == VariantType::OBJECT)
             continue; //use the core type instead
 
-        String cname = Variant::get_type_name(Variant::Type(i));
+        String cname = Variant::get_type_name(VariantType(i));
 
         class_list[cname] = ClassDoc();
         ClassDoc &c = class_list[cname];
@@ -495,16 +496,15 @@ void DocData::generate(bool p_basic_types) {
         c.category = "Built-In Types";
 
         Variant::CallError cerror;
-        Variant v = Variant::construct(Variant::Type(i), nullptr, 0, cerror);
+        Variant v = Variant::construct(VariantType(i), nullptr, 0, cerror);
 
-        List<MethodInfo> method_list;
+        PODVector<MethodInfo> method_list;
         v.get_method_list(&method_list);
-        method_list.sort();
-        Variant::get_constructor_list(Variant::Type(i), &method_list);
+        eastl::sort(method_list.begin(),method_list.end());
+        Variant::get_constructor_list(VariantType(i), &method_list);
 
-        for (List<MethodInfo>::Element *E = method_list.front(); E; E = E->next()) {
+        for (MethodInfo &mi : method_list) {
 
-            MethodInfo &mi = E->get();
             MethodDoc method;
 
             method.name = mi.name;
@@ -516,7 +516,7 @@ void DocData::generate(bool p_basic_types) {
                 ArgumentDoc ad;
                 ad.name = arginfo.name;
 
-                if (arginfo.type == Variant::NIL)
+                if (arginfo.type == VariantType::NIL)
                     ad.type = "Variant";
                 else
                     ad.type = Variant::get_type_name(arginfo.type);
@@ -528,7 +528,7 @@ void DocData::generate(bool p_basic_types) {
                 method.arguments.push_back(ad);
             }
 
-            if (mi.return_val.type == Variant::NIL) {
+            if (mi.return_val.type == VariantType::NIL) {
                 if (!mi.return_val.name.empty())
                     method.return_type = "Variant";
             } else {
@@ -538,11 +538,10 @@ void DocData::generate(bool p_basic_types) {
             c.methods.push_back(method);
         }
 
-        List<PropertyInfo> properties;
+        ListPOD<PropertyInfo> properties;
         v.get_property_list(&properties);
-        for (List<PropertyInfo>::Element *E = properties.front(); E; E = E->next()) {
+        for (const PropertyInfo &pi : properties) {
 
-            PropertyInfo pi = E->get();
             PropertyDoc property;
             property.name = pi.name;
             property.type = Variant::get_type_name(pi.type);
@@ -551,15 +550,15 @@ void DocData::generate(bool p_basic_types) {
             c.properties.push_back(property);
         }
 
-        List<StringName> constants;
-        Variant::get_constants_for_type(Variant::Type(i), &constants);
+        ListPOD<StringName> constants;
+        Variant::get_constants_for_type(VariantType(i), &constants);
 
-        for (List<StringName>::Element *E = constants.front(); E; E = E->next()) {
+        for (const StringName &E : constants) {
 
             ConstantDoc constant;
-            constant.name = E->get();
-            Variant value = Variant::get_constant_value(Variant::Type(i), E->get());
-            constant.value = value.get_type() == Variant::INT ? itos(value) : value.get_construct_string();
+            constant.name = E;
+            Variant value = Variant::get_constant_value(VariantType(i), E);
+            constant.value = value.get_type() == VariantType::INT ? itos(value) : value.get_construct_string();
             c.constants.push_back(constant);
         }
     }
@@ -582,14 +581,12 @@ void DocData::generate(bool p_basic_types) {
             c.constants.push_back(cd);
         }
 
-        List<Engine::Singleton> singletons;
-        Engine::get_singleton()->get_singletons(&singletons);
+        auto &singletons(Engine::get_singleton()->get_singletons());
 
         //servers (this is kind of hackish)
-        for (List<Engine::Singleton>::Element *E = singletons.front(); E; E = E->next()) {
+        for (const Engine::Singleton &s : singletons) {
 
             PropertyDoc pd;
-            Engine::Singleton &s = E->get();
             if (!s.ptr) {
                 continue;
             }
@@ -621,7 +618,7 @@ void DocData::generate(bool p_basic_types) {
 
             for (List<MethodInfo>::Element *E = minfo.front(); E; E = E->next()) {
 
-                MethodInfo &mi = E->get();
+                MethodInfo &mi = E->deref();
                 MethodDoc md;
                 md.name = mi.name;
 
@@ -641,7 +638,7 @@ void DocData::generate(bool p_basic_types) {
                     int darg_idx = j - (mi.arguments.size() - mi.default_arguments.size());
 
                     if (darg_idx >= 0) {
-                        Variant default_arg = E->get().default_arguments[darg_idx];
+                        Variant default_arg = E->deref().default_arguments[darg_idx];
                         ad.default_value = default_arg.get_construct_string();
                     }
 
@@ -657,8 +654,8 @@ void DocData::generate(bool p_basic_types) {
             for (List<Pair<String, Variant> >::Element *E = cinfo.front(); E; E = E->next()) {
 
                 ConstantDoc cd;
-                cd.name = E->get().first;
-                cd.value = E->get().second;
+                cd.name = E->deref().first;
+                cd.value = E->deref().second;
                 c.constants.push_back(cd);
             }
         }
@@ -677,7 +674,7 @@ static Error _parse_methods(Ref<XMLParser> &parser, Vector<DocData::MethodDoc> &
             if (parser->get_node_name() == element) {
 
                 DocData::MethodDoc method;
-                ERR_FAIL_COND_V(!parser->has_attribute("name"), ERR_FILE_CORRUPT);
+                ERR_FAIL_COND_V(!parser->has_attribute("name"), ERR_FILE_CORRUPT)
                 method.name = parser->get_attribute_value("name");
                 if (parser->has_attribute("qualifiers"))
                     method.qualifiers = parser->get_attribute_value("qualifiers");
@@ -689,7 +686,7 @@ static Error _parse_methods(Ref<XMLParser> &parser, Vector<DocData::MethodDoc> &
                         String name = parser->get_node_name();
                         if (name == "return") {
 
-                            ERR_FAIL_COND_V(!parser->has_attribute("type"), ERR_FILE_CORRUPT);
+                            ERR_FAIL_COND_V(!parser->has_attribute("type"), ERR_FILE_CORRUPT)
                             method.return_type = parser->get_attribute_value("type");
                             if (parser->has_attribute("enum")) {
                                 method.return_enum = parser->get_attribute_value("enum");
@@ -697,9 +694,9 @@ static Error _parse_methods(Ref<XMLParser> &parser, Vector<DocData::MethodDoc> &
                         } else if (name == "argument") {
 
                             DocData::ArgumentDoc argument;
-                            ERR_FAIL_COND_V(!parser->has_attribute("name"), ERR_FILE_CORRUPT);
+                            ERR_FAIL_COND_V(!parser->has_attribute("name"), ERR_FILE_CORRUPT)
                             argument.name = parser->get_attribute_value("name");
-                            ERR_FAIL_COND_V(!parser->has_attribute("type"), ERR_FILE_CORRUPT);
+                            ERR_FAIL_COND_V(!parser->has_attribute("type"), ERR_FILE_CORRUPT)
                             argument.type = parser->get_attribute_value("type");
                             if (parser->has_attribute("enum")) {
                                 argument.enumeration = parser->get_attribute_value("enum");
@@ -721,7 +718,7 @@ static Error _parse_methods(Ref<XMLParser> &parser, Vector<DocData::MethodDoc> &
                 methods.push_back(method);
 
             } else {
-                ERR_FAIL_V_MSG(ERR_FILE_CORRUPT, "Invalid tag in doc file: " + parser->get_node_name() + ".");
+                ERR_FAIL_V_MSG(ERR_FILE_CORRUPT, "Invalid tag in doc file: " + parser->get_node_name() + ".")
             }
 
         } else if (parser->get_node_type() == XMLParser::NODE_ELEMENT_END && parser->get_node_name() == section)
@@ -744,7 +741,7 @@ Error DocData::load_classes(const String &p_dir) {
     path = da->get_next();
     while (!path.empty()) {
         if (!da->current_is_dir() && StringUtils::ends_with(path,"xml")) {
-            Ref<XMLParser> parser = memnew(XMLParser);
+            Ref<XMLParser> parser(make_ref_counted<XMLParser>());
             Error err2 = parser->open(PathUtils::plus_file(p_dir,path));
             if (err2)
                 return err2;
@@ -780,7 +777,7 @@ Error DocData::erase_classes(const String &p_dir) {
     da->list_dir_end();
 
     while (!to_erase.empty()) {
-        da->remove(to_erase.front()->get());
+        da->remove(to_erase.front()->deref());
         to_erase.pop_front();
     }
 
@@ -799,9 +796,9 @@ Error DocData::_load(Ref<XMLParser> parser) {
         if (parser->get_node_type() != XMLParser::NODE_ELEMENT)
             continue; //no idea what this may be, but skipping anyway
 
-        ERR_FAIL_COND_V(parser->get_node_name() != "class", ERR_FILE_CORRUPT);
+        ERR_FAIL_COND_V(parser->get_node_name() != "class", ERR_FILE_CORRUPT)
 
-        ERR_FAIL_COND_V(!parser->has_attribute("name"), ERR_FILE_CORRUPT);
+        ERR_FAIL_COND_V(!parser->has_attribute("name"), ERR_FILE_CORRUPT)
         String name = parser->get_attribute_value("name");
         class_list[name] = ClassDoc();
         ClassDoc &c = class_list[name];
@@ -849,12 +846,12 @@ Error DocData::_load(Ref<XMLParser> parser) {
                 } else if (name2 == "methods") {
 
                     Error err2 = _parse_methods(parser, c.methods);
-                    ERR_FAIL_COND_V(err2, err2);
+                    ERR_FAIL_COND_V(err2, err2)
 
                 } else if (name2 == "signals") {
 
                     Error err2 = _parse_methods(parser, c.defined_signals);
-                    ERR_FAIL_COND_V(err2, err2);
+                    ERR_FAIL_COND_V(err2, err2)
                 } else if (name2 == "members") {
 
                     while (parser->read() == OK) {
@@ -867,9 +864,9 @@ Error DocData::_load(Ref<XMLParser> parser) {
 
                                 PropertyDoc prop2;
 
-                                ERR_FAIL_COND_V(!parser->has_attribute("name"), ERR_FILE_CORRUPT);
+                                ERR_FAIL_COND_V(!parser->has_attribute("name"), ERR_FILE_CORRUPT)
                                 prop2.name = parser->get_attribute_value("name");
-                                ERR_FAIL_COND_V(!parser->has_attribute("type"), ERR_FILE_CORRUPT);
+                                ERR_FAIL_COND_V(!parser->has_attribute("type"), ERR_FILE_CORRUPT)
                                 prop2.type = parser->get_attribute_value("type");
                                 if (parser->has_attribute("setter"))
                                     prop2.setter = parser->get_attribute_value("setter");
@@ -901,9 +898,9 @@ Error DocData::_load(Ref<XMLParser> parser) {
 
                                 PropertyDoc prop2;
 
-                                ERR_FAIL_COND_V(!parser->has_attribute("name"), ERR_FILE_CORRUPT);
+                                ERR_FAIL_COND_V(!parser->has_attribute("name"), ERR_FILE_CORRUPT)
                                 prop2.name = parser->get_attribute_value("name");
-                                ERR_FAIL_COND_V(!parser->has_attribute("type"), ERR_FILE_CORRUPT);
+                                ERR_FAIL_COND_V(!parser->has_attribute("type"), ERR_FILE_CORRUPT)
                                 prop2.type = parser->get_attribute_value("type");
                                 parser->read();
                                 if (parser->get_node_type() == XMLParser::NODE_TEXT)
@@ -928,9 +925,9 @@ Error DocData::_load(Ref<XMLParser> parser) {
                             if (name3 == "constant") {
 
                                 ConstantDoc constant2;
-                                ERR_FAIL_COND_V(!parser->has_attribute("name"), ERR_FILE_CORRUPT);
+                                ERR_FAIL_COND_V(!parser->has_attribute("name"), ERR_FILE_CORRUPT)
                                 constant2.name = parser->get_attribute_value("name");
-                                ERR_FAIL_COND_V(!parser->has_attribute("value"), ERR_FILE_CORRUPT);
+                                ERR_FAIL_COND_V(!parser->has_attribute("value"), ERR_FILE_CORRUPT)
                                 constant2.value = parser->get_attribute_value("value");
                                 if (parser->has_attribute("enum")) {
                                     constant2.enumeration = parser->get_attribute_value("enum");
@@ -972,13 +969,13 @@ static void _write_string(FileAccess *f, int p_tablevel, const String &p_string)
 
 Error DocData::save_classes(const String &p_default_path, const Map<String, String> &p_class_path) {
 
-    for (Map<String, ClassDoc>::Element *E = class_list.front(); E; E = E->next()) {
+    for (eastl::pair<const String,ClassDoc> &E : class_list) {
 
-        ClassDoc &c = E->get();
+        ClassDoc &c(E.second);
 
         String save_path;
-        if (p_class_path.has(c.name)) {
-            save_path = p_class_path[c.name];
+        if (p_class_path.contains(c.name)) {
+            save_path = p_class_path.at(c.name);
         } else {
             save_path = p_default_path;
         }
@@ -1166,7 +1163,7 @@ Error DocData::load_compressed(const uint8_t *p_data, int p_compressed_size, int
     Compression::decompress(data.ptrw(), p_uncompressed_size, p_data, p_compressed_size, Compression::MODE_DEFLATE);
     class_list.clear();
 
-    Ref<XMLParser> parser = memnew(XMLParser);
+    Ref<XMLParser> parser(make_ref_counted<XMLParser>());
     Error err = parser->open_buffer(data);
     if (err)
         return err;

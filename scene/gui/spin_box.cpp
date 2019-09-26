@@ -54,8 +54,7 @@ void SpinBox::_value_changed(double) {
 
 void SpinBox::_text_entered(const String &p_string) {
     using namespace StringUtils;
-    Ref<Expression> expr;
-    expr.instance();
+    Ref<Expression> expr(make_ref_counted<Expression>());
     // Ignore the prefix and suffix in the expression
     Error err = expr->parse(trim_suffix(trim_prefix(p_string,prefix + " ")," " + suffix));
     if (err != OK) {
@@ -63,7 +62,7 @@ void SpinBox::_text_entered(const String &p_string) {
     }
 
     Variant value = expr->execute(Array(), nullptr, false);
-    if (value.get_type() != Variant::NIL) {
+    if (value.get_type() != VariantType::NIL) {
         set_value(value);
     _value_changed(0);
     }
@@ -101,9 +100,9 @@ void SpinBox::_gui_input(const Ref<InputEvent> &p_event) {
         return;
     }
 
-    Ref<InputEventMouseButton> mb = p_event;
+    Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_event);
 
-    if (mb.is_valid() && mb->is_pressed()) {
+    if (mb && mb->is_pressed()) {
 
         bool up = mb->get_position().y < (get_size().height / 2);
 
@@ -144,7 +143,7 @@ void SpinBox::_gui_input(const Ref<InputEvent> &p_event) {
         }
     }
 
-    if (mb.is_valid() && !mb->is_pressed() && mb->get_button_index() == BUTTON_LEFT) {
+    if (mb && !mb->is_pressed() && mb->get_button_index() == BUTTON_LEFT) {
 
         //set_default_cursor_shape(CURSOR_ARROW);
         range_click_timer->stop();
@@ -157,9 +156,9 @@ void SpinBox::_gui_input(const Ref<InputEvent> &p_event) {
         drag.allowed = false;
     }
 
-    Ref<InputEventMouseMotion> mm = p_event;
+    Ref<InputEventMouseMotion> mm = dynamic_ref_cast<InputEventMouseMotion>(p_event);
 
-    if (mm.is_valid() && mm->get_button_mask() & BUTTON_MASK_LEFT) {
+    if (mm && mm->get_button_mask() & BUTTON_MASK_LEFT) {
 
         if (drag.enabled) {
 
@@ -263,23 +262,23 @@ void SpinBox::_bind_methods() {
     //MethodBinder::bind_method(D_METHOD("_value_changed"),&SpinBox::_value_changed);
     MethodBinder::bind_method(D_METHOD("_gui_input"), &SpinBox::_gui_input);
     MethodBinder::bind_method(D_METHOD("_text_entered"), &SpinBox::_text_entered);
-    MethodBinder::bind_method(D_METHOD("set_align", "align"), &SpinBox::set_align);
+    MethodBinder::bind_method(D_METHOD("set_align", {"align"}), &SpinBox::set_align);
     MethodBinder::bind_method(D_METHOD("get_align"), &SpinBox::get_align);
-    MethodBinder::bind_method(D_METHOD("set_suffix", "suffix"), &SpinBox::set_suffix);
+    MethodBinder::bind_method(D_METHOD("set_suffix", {"suffix"}), &SpinBox::set_suffix);
     MethodBinder::bind_method(D_METHOD("get_suffix"), &SpinBox::get_suffix);
-    MethodBinder::bind_method(D_METHOD("set_prefix", "prefix"), &SpinBox::set_prefix);
+    MethodBinder::bind_method(D_METHOD("set_prefix", {"prefix"}), &SpinBox::set_prefix);
     MethodBinder::bind_method(D_METHOD("get_prefix"), &SpinBox::get_prefix);
-    MethodBinder::bind_method(D_METHOD("set_editable", "editable"), &SpinBox::set_editable);
+    MethodBinder::bind_method(D_METHOD("set_editable", {"editable"}), &SpinBox::set_editable);
     MethodBinder::bind_method(D_METHOD("is_editable"), &SpinBox::is_editable);
     MethodBinder::bind_method(D_METHOD("_line_edit_focus_exit"), &SpinBox::_line_edit_focus_exit);
     MethodBinder::bind_method(D_METHOD("get_line_edit"), &SpinBox::get_line_edit);
     MethodBinder::bind_method(D_METHOD("_line_edit_input"), &SpinBox::_line_edit_input);
     MethodBinder::bind_method(D_METHOD("_range_click_timeout"), &SpinBox::_range_click_timeout);
 
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "align", PROPERTY_HINT_ENUM, "Left,Center,Right,Fill"), "set_align", "get_align");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "editable"), "set_editable", "is_editable");
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "prefix"), "set_prefix", "get_prefix");
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "suffix"), "set_suffix", "get_suffix");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "align", PROPERTY_HINT_ENUM, "Left,Center,Right,Fill"), "set_align", "get_align");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "editable"), "set_editable", "is_editable");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "prefix"), "set_prefix", "get_prefix");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "suffix"), "set_suffix", "get_suffix");
 }
 
 SpinBox::SpinBox() {

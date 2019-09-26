@@ -127,14 +127,14 @@ Error DirAccessWindows::change_dir(String p_dir) {
     GLOBAL_LOCK_FUNCTION
     bool worked = true;
     p_dir = fix_path(p_dir);
-
+    QString actual_wd = QDir::currentPath();
     // try_dir is the directory we are trying to change into
     String try_dir;
-    if (PathUtils::is_rel_path(p_dir)) {
-        String next_dir = PathUtils::plus_file(current_dir, p_dir);
+    if (PathUtils::is_rel_path(p_dir) || p_dir==".") {
+        String next_dir = PathUtils::plus_file(actual_wd, p_dir);
         next_dir = PathUtils::simplify_path(next_dir);
         if (next_dir.empty())
-            next_dir = ".";
+            next_dir = actual_wd+"/.";
         try_dir = next_dir;
     }
     else {
@@ -151,7 +151,7 @@ Error DirAccessWindows::change_dir(String p_dir) {
         try_dir = current_dir; //revert
         worked = false;
     }
-
+    QDir::setCurrent(actual_wd);
     current_dir = try_dir;
     return worked ? OK : ERR_INVALID_PARAMETER;
 }
@@ -173,9 +173,9 @@ Error DirAccessWindows::make_dir(String p_dir) {
 String DirAccessWindows::get_current_dir() {
 
     String base = _get_root_path();
-    if (base == "") return current_dir;
+    if (base.empty()) return current_dir;
 
-    String bd = StringUtils::replace_first(PathUtils::to_win_path(current_dir),base, "");
+    String bd = StringUtils::replace_first(current_dir,base, "");
     if (StringUtils::begins_with(bd,"/")) return _get_root_string() + StringUtils::substr(bd,1, bd.length());
     return _get_root_string() + bd;
 }
@@ -273,7 +273,7 @@ size_t DirAccessWindows::get_space_left() {
 String DirAccessWindows::get_filesystem_type() const {
     String path = fix_path(const_cast<DirAccessWindows *>(this)->get_current_dir());
     int unit_end = StringUtils::find(path,":");
-    ERR_FAIL_COND_V(unit_end == -1, String());
+    ERR_FAIL_COND_V(unit_end == -1, String())
     String unit = StringUtils::substr(path,0, unit_end + 1) + "\\";
     QStorageInfo info(path.m_str);
     return StringUtils::from_utf8(info.fileSystemType());

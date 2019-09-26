@@ -88,7 +88,7 @@ static String _parser_expr(const GDScriptParser::Node *p_expr) {
         } break;
         case GDScriptParser::Node::TYPE_CONSTANT: {
             const GDScriptParser::ConstantNode *c_node = static_cast<const GDScriptParser::ConstantNode *>(p_expr);
-            if (c_node->value.get_type() == Variant::STRING)
+            if (c_node->value.get_type() == VariantType::STRING)
                 txt = "\"" + String(c_node->value) + "\"";
             else
                 txt = c_node->value;
@@ -133,7 +133,7 @@ static String _parser_expr(const GDScriptParser::Node *p_expr) {
                     FALLTHROUGH;
                 case GDScriptParser::OperatorNode::OP_CALL: {
 
-                    ERR_FAIL_COND_V(c_node->arguments.empty(), "");
+                    ERR_FAIL_COND_V(c_node->arguments.empty(), "")
                     String func_name;
                     const GDScriptParser::Node *nfunc = c_node->arguments[0];
                     int arg_ofs = 0;
@@ -149,9 +149,9 @@ static String _parser_expr(const GDScriptParser::Node *p_expr) {
                         arg_ofs = 1;
                     } else {
 
-                        ERR_FAIL_COND_V(c_node->arguments.size() < 2, "");
+                        ERR_FAIL_COND_V(c_node->arguments.size() < 2, "")
                         nfunc = c_node->arguments[1];
-                        ERR_FAIL_COND_V(nfunc->type != GDScriptParser::Node::TYPE_IDENTIFIER, "");
+                        ERR_FAIL_COND_V(nfunc->type != GDScriptParser::Node::TYPE_IDENTIFIER, "")
 
                         if (c_node->arguments[0]->type != GDScriptParser::Node::TYPE_SELF)
                             func_name = _parser_expr(c_node->arguments[0]) + ".";
@@ -175,7 +175,7 @@ static String _parser_expr(const GDScriptParser::Node *p_expr) {
                 } break;
                 case GDScriptParser::OperatorNode::OP_INDEX: {
 
-                    ERR_FAIL_COND_V(c_node->arguments.size() != 2, "");
+                    ERR_FAIL_COND_V(c_node->arguments.size() != 2, "")
 
                     //index with []
                     txt = _parser_expr(c_node->arguments[0]) + "[" + _parser_expr(c_node->arguments[1]) + "]";
@@ -183,7 +183,7 @@ static String _parser_expr(const GDScriptParser::Node *p_expr) {
                 } break;
                 case GDScriptParser::OperatorNode::OP_INDEX_NAMED: {
 
-                    ERR_FAIL_COND_V(c_node->arguments.size() != 2, "");
+                    ERR_FAIL_COND_V(c_node->arguments.size() != 2, "")
 
                     txt = _parser_expr(c_node->arguments[0]) + "." + _parser_expr(c_node->arguments[1]);
 
@@ -325,13 +325,13 @@ static void _parser_show_block(const GDScriptParser::BlockNode *p_block, int p_i
 
                     case GDScriptParser::ControlFlowNode::CF_IF: {
 
-                        ERR_FAIL_COND(cf_node->arguments.size() != 1);
+                        ERR_FAIL_COND(cf_node->arguments.size() != 1)
                         String txt;
                         txt += "if ";
                         txt += _parser_expr(cf_node->arguments[0]);
                         txt += ":";
                         _print_indent(p_indent, txt);
-                        ERR_FAIL_COND(!cf_node->body);
+                        ERR_FAIL_COND(!cf_node->body)
                         _parser_show_block(cf_node->body, p_indent + 1);
                         if (cf_node->body_else) {
                             _print_indent(p_indent, "else:");
@@ -340,7 +340,7 @@ static void _parser_show_block(const GDScriptParser::BlockNode *p_block, int p_i
 
                     } break;
                     case GDScriptParser::ControlFlowNode::CF_FOR: {
-                        ERR_FAIL_COND(cf_node->arguments.size() != 2);
+                        ERR_FAIL_COND(cf_node->arguments.size() != 2)
                         String txt;
                         txt += "for ";
                         txt += _parser_expr(cf_node->arguments[0]);
@@ -348,19 +348,19 @@ static void _parser_show_block(const GDScriptParser::BlockNode *p_block, int p_i
                         txt += _parser_expr(cf_node->arguments[1]);
                         txt += ":";
                         _print_indent(p_indent, txt);
-                        ERR_FAIL_COND(!cf_node->body);
+                        ERR_FAIL_COND(!cf_node->body)
                         _parser_show_block(cf_node->body, p_indent + 1);
 
                     } break;
                     case GDScriptParser::ControlFlowNode::CF_WHILE: {
 
-                        ERR_FAIL_COND(cf_node->arguments.size() != 1);
+                        ERR_FAIL_COND(cf_node->arguments.size() != 1)
                         String txt;
                         txt += "while ";
                         txt += _parser_expr(cf_node->arguments[0]);
                         txt += ":";
                         _print_indent(p_indent, txt);
-                        ERR_FAIL_COND(!cf_node->body);
+                        ERR_FAIL_COND(!cf_node->body)
                         _parser_show_block(cf_node->body, p_indent + 1);
 
                     } break;
@@ -454,9 +454,9 @@ static void _parser_show_class(const GDScriptParser::ClassNode *p_class, int p_i
         print_line("\n");
     }
 
-    for (Map<StringName, GDScriptParser::ClassNode::Constant>::Element *E = p_class->constant_expressions.front(); E; E = E->next()) {
-        const GDScriptParser::ClassNode::Constant &constant = E->get();
-        _print_indent(p_indent, "const " + String(E->key()) + "=" + _parser_expr(constant.expression));
+    for (auto &E : p_class->constant_expressions) {
+        const GDScriptParser::ClassNode::Constant &constant = E.second;
+        _print_indent(p_indent, "const " + String(E.first) + "=" + _parser_expr(constant.expression));
     }
 
     for (int i = 0; i < p_class->variables.size(); i++) {
@@ -501,36 +501,36 @@ static String _disassemble_addr(const Ref<GDScript> &p_script, const GDScriptFun
         case GDScriptFunction::ADDR_TYPE_MEMBER: {
 
             return "member(" + p_script->debug_get_member_by_index(addr) + ")";
-        } break;
+        }
         case GDScriptFunction::ADDR_TYPE_CLASS_CONSTANT: {
 
             return "class_const(" + func.get_global_name(addr) + ")";
-        } break;
+        }
         case GDScriptFunction::ADDR_TYPE_LOCAL_CONSTANT: {
 
             Variant v = func.get_constant(addr);
             String txt;
-            if (v.get_type() == Variant::STRING || v.get_type() == Variant::NODE_PATH)
+            if (v.get_type() == VariantType::STRING || v.get_type() == VariantType::NODE_PATH)
                 txt = "\"" + String(v) + "\"";
             else
                 txt = v;
             return "const(" + txt + ")";
-        } break;
+        }
         case GDScriptFunction::ADDR_TYPE_STACK: {
 
             return "stack(" + itos(addr) + ")";
-        } break;
+        }
         case GDScriptFunction::ADDR_TYPE_STACK_VARIABLE: {
 
             return "var_stack(" + itos(addr) + ")";
-        } break;
+        }
         case GDScriptFunction::ADDR_TYPE_GLOBAL: {
 
             return "global(" + func.get_global_name(addr) + ")";
-        } break;
+        }
         case GDScriptFunction::ADDR_TYPE_NIL: {
             return "nil";
-        } break;
+        }
     }
 
     return "<err>";
@@ -540,9 +540,9 @@ static void _disassemble_class(const Ref<GDScript> &p_class, const Vector<String
 
     const Map<StringName, GDScriptFunction *> &mf = p_class->debug_get_member_functions();
 
-    for (const Map<StringName, GDScriptFunction *>::Element *E = mf.front(); E; E = E->next()) {
+    for (const auto &E : mf) {
 
-        const GDScriptFunction &func = *E->get();
+        const GDScriptFunction &func = *E.second;
         const int *code = func.get_code();
         int codelen = func.get_code_size();
         String defargs;
@@ -687,7 +687,7 @@ static void _disassemble_class(const Ref<GDScript> &p_class, const Vector<String
                 } break;
                 case GDScriptFunction::OPCODE_CONSTRUCT: {
 
-                    Variant::Type t = Variant::Type(code[ip + 1]);
+                    VariantType t = VariantType(code[ip + 1]);
                     int argc = code[ip + 2];
 
                     txt += " construct ";
@@ -920,20 +920,20 @@ static void _disassemble_class(const Ref<GDScript> &p_class, const Vector<String
 
 MainLoop *test(TestType p_type) {
 
-    List<String> cmdlargs = OS::get_singleton()->get_cmdline_args();
+    ListPOD<String> cmdlargs = OS::get_singleton()->get_cmdline_args();
 
     if (cmdlargs.empty()) {
         return nullptr;
     }
 
-    String test = cmdlargs.back()->get();
+    String test = cmdlargs.back();
     if (!StringUtils::ends_with(test,".gd") && !StringUtils::ends_with(test,".gdc")) {
         print_line("This test expects a path to a GDScript file as its last parameter. Got: " + test);
         return nullptr;
     }
 
     FileAccess *fa = FileAccess::open(test, FileAccess::READ);
-    ERR_FAIL_COND_V_MSG(!fa, nullptr, "Could not open file: " + test);
+    ERR_FAIL_COND_V_MSG(!fa, nullptr, "Could not open file: " + test)
 
     Vector<uint8_t> buf;
     int flen = fa->get_len();
@@ -967,7 +967,7 @@ MainLoop *test(TestType p_type) {
                 text = "'" + tk.get_token_identifier() + "' (identifier)";
             else if (tk.get_token() == GDScriptTokenizer::TK_CONSTANT) {
                 const Variant &c = tk.get_token_constant();
-                if (c.get_type() == Variant::STRING)
+                if (c.get_type() == VariantType::STRING)
                     text = "\"" + String(c) + "\"";
                 else
                     text = c;
@@ -1009,7 +1009,7 @@ MainLoop *test(TestType p_type) {
         }
 
         const GDScriptParser::Node *root = parser.get_parse_tree();
-        ERR_FAIL_COND_V(root->type != GDScriptParser::Node::TYPE_CLASS, nullptr);
+        ERR_FAIL_COND_V(root->type != GDScriptParser::Node::TYPE_CLASS, nullptr)
         const GDScriptParser::ClassNode *cnode = static_cast<const GDScriptParser::ClassNode *>(root);
 
         _parser_show_class(cnode, 0, lines);
@@ -1026,11 +1026,10 @@ MainLoop *test(TestType p_type) {
             return nullptr;
         }
 
-        Ref<GDScript> gds;
-        gds.instance();
+        Ref<GDScript> gds(make_ref_counted<GDScript>());
 
         GDScriptCompiler gdc;
-        err = gdc.compile(&parser, gds.ptr());
+        err = gdc.compile(&parser, gds.get());
         if (err) {
 
             print_line("Compile Error:\n" + itos(gdc.get_error_line()) + ":" + itos(gdc.get_error_column()) + ":" + gdc.get_error());
@@ -1039,7 +1038,7 @@ MainLoop *test(TestType p_type) {
 
         Ref<GDScript> current = gds;
 
-        while (current.is_valid()) {
+        while (current) {
 
             print_line("** CLASS **");
             _disassemble_class(current, lines);

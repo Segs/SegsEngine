@@ -126,7 +126,7 @@ MonoObject *GDMonoProperty::get_attribute(GDMonoClass *p_attr_class) {
 }
 
 void GDMonoProperty::fetch_attributes() {
-	ERR_FAIL_COND(attributes != NULL);
+	ERR_FAIL_COND(attributes != NULL)
 	attributes = mono_custom_attrs_from_property(owner->get_mono_ptr(), mono_property);
 	attrs_fetched = true;
 }

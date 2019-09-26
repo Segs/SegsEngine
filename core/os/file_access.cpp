@@ -141,10 +141,10 @@ String FileAccess::fix_path(String p_path) const {
                 if (StringUtils::begins_with(r_path,"res://")) {
 
                     String resource_path = ProjectSettings::get_singleton()->get_resource_path();
-                    if (resource_path != "") {
+                    if (!resource_path.empty()) {
 
                         return StringUtils::replace(r_path,"res:/", resource_path);
-                    };
+                    }
                     return StringUtils::replace(r_path,"res://", "");
                 }
             }
@@ -155,7 +155,7 @@ String FileAccess::fix_path(String p_path) const {
             if (StringUtils::begins_with(r_path,"user://")) {
 
                 String data_dir = OS::get_singleton()->get_user_data_dir();
-                if (data_dir != "") {
+                if (not data_dir.empty()) {
 
                     return StringUtils::replace(r_path,"user:/", data_dir);
                 }
@@ -166,7 +166,7 @@ String FileAccess::fix_path(String p_path) const {
         case ACCESS_FILESYSTEM: {
 
             return r_path;
-        } break;
+        }
         case ACCESS_MAX: break; // Can't happen, but silences warning
     }
 
@@ -315,7 +315,7 @@ public:
 
         if (written >= capacity) {
 
-            ERR_FAIL_COND(!grow());
+            ERR_FAIL_COND(!grow())
         }
 
         buffer[written++] = c;
@@ -492,7 +492,7 @@ uint64_t FileAccess::get_modified_time(const String &p_file) {
         return 0;
 
     FileAccess *fa = create_for_path(p_file);
-    ERR_FAIL_COND_V(!fa, 0);
+    ERR_FAIL_COND_V(!fa, 0)
 
     uint64_t mt = fa->_get_modified_time(p_file);
     memdelete(fa);
@@ -505,7 +505,7 @@ uint32_t FileAccess::get_unix_permissions(const String &p_file) {
         return 0;
 
     FileAccess *fa = create_for_path(p_file);
-    ERR_FAIL_COND_V(!fa, 0);
+    ERR_FAIL_COND_V(!fa, 0)
 
     uint32_t mt = fa->_get_unix_permissions(p_file);
     memdelete(fa);
@@ -515,7 +515,7 @@ uint32_t FileAccess::get_unix_permissions(const String &p_file) {
 Error FileAccess::set_unix_permissions(const String &p_file, uint32_t p_permissions) {
 
     FileAccess *fa = create_for_path(p_file);
-    ERR_FAIL_COND_V(!fa, ERR_CANT_CREATE);
+    ERR_FAIL_COND_V(!fa, ERR_CANT_CREATE)
 
     Error err = fa->_set_unix_permissions(p_file, p_permissions);
     memdelete(fa);

@@ -368,17 +368,17 @@ void XMLParser::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_node_data"), &XMLParser::get_node_data);
     MethodBinder::bind_method(D_METHOD("get_node_offset"), &XMLParser::get_node_offset);
     MethodBinder::bind_method(D_METHOD("get_attribute_count"), &XMLParser::get_attribute_count);
-    MethodBinder::bind_method(D_METHOD("get_attribute_name", "idx"), &XMLParser::get_attribute_name);
-    MethodBinder::bind_method(D_METHOD("get_attribute_value", "idx"), (String(XMLParser::*)(int) const) & XMLParser::get_attribute_value);
-    MethodBinder::bind_method(D_METHOD("has_attribute", "name"), &XMLParser::has_attribute);
-    MethodBinder::bind_method(D_METHOD("get_named_attribute_value", "name"), (String(XMLParser::*)(const String &) const) & XMLParser::get_attribute_value);
-    MethodBinder::bind_method(D_METHOD("get_named_attribute_value_safe", "name"), &XMLParser::get_attribute_value_safe);
+    MethodBinder::bind_method(D_METHOD("get_attribute_name", {"idx"}), &XMLParser::get_attribute_name);
+    MethodBinder::bind_method(D_METHOD("get_attribute_value", {"idx"}), (String(XMLParser::*)(int) const) & XMLParser::get_attribute_value);
+    MethodBinder::bind_method(D_METHOD("has_attribute", {"name"}), &XMLParser::has_attribute);
+    MethodBinder::bind_method(D_METHOD("get_named_attribute_value", {"name"}), (String(XMLParser::*)(const String &) const) & XMLParser::get_attribute_value);
+    MethodBinder::bind_method(D_METHOD("get_named_attribute_value_safe", {"name"}), &XMLParser::get_attribute_value_safe);
     MethodBinder::bind_method(D_METHOD("is_empty"), &XMLParser::is_empty);
     MethodBinder::bind_method(D_METHOD("get_current_line"), &XMLParser::get_current_line);
     MethodBinder::bind_method(D_METHOD("skip_section"), &XMLParser::skip_section);
-    MethodBinder::bind_method(D_METHOD("seek", "position"), &XMLParser::seek);
-    MethodBinder::bind_method(D_METHOD("open", "file"), &XMLParser::open);
-    MethodBinder::bind_method(D_METHOD("open_buffer", "buffer"), &XMLParser::open_buffer);
+    MethodBinder::bind_method(D_METHOD("seek", {"position"}), &XMLParser::seek);
+    MethodBinder::bind_method(D_METHOD("open", {"file"}), &XMLParser::open);
+    MethodBinder::bind_method(D_METHOD("open_buffer", {"buffer"}), &XMLParser::open_buffer);
 
     BIND_ENUM_CONSTANT(NODE_NONE)
     BIND_ENUM_CONSTANT(NODE_ELEMENT)
@@ -447,7 +447,7 @@ String XMLParser::get_attribute_value(const String &p_name) const {
         }
     }
 
-    ERR_FAIL_COND_V_MSG(idx < 0, "", "Attribute not found: " + p_name + ".");
+    ERR_FAIL_COND_V_MSG(idx < 0, "", "Attribute not found: " + p_name + ".")
 
     return attributes[idx].value;
 }
@@ -473,7 +473,7 @@ bool XMLParser::is_empty() const {
 
 Error XMLParser::open_buffer(const Vector<uint8_t> &p_buffer) {
 
-    ERR_FAIL_COND_V(p_buffer.size() == 0, ERR_INVALID_DATA)
+    ERR_FAIL_COND_V(p_buffer.empty(), ERR_INVALID_DATA)
 
     length = p_buffer.size();
     data = memnew_arr(char, length + 1);

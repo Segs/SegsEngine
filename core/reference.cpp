@@ -39,22 +39,20 @@ IMPL_GDCLASS(WeakRef)
 
 bool Reference::init_ref() {
 
-    if (reference()) {
-
-        // this may fail in the scenario of two threads assigning the pointer for the FIRST TIME
-        // at the same time, which is never likely to happen (would be crazy to do)
-        // so don't do it.
-
-        if (refcount_init.get() > 0) {
-            refcount_init.unref();
-            unreference(); // first referencing is already 1, so compensate for the ref above
-        }
-
-        return true;
-    } else {
-
+    if (!reference()) {
         return false;
     }
+
+    // this may fail in the scenario of two threads assigning the pointer for the FIRST TIME
+    // at the same time, which is never likely to happen (would be crazy to do)
+    // so don't do it.
+
+    if (refcount_init.get() > 0) {
+        refcount_init.unref();
+        unreference(); // first referencing is already 1, so compensate for the ref above
+    }
+
+    return true;
 }
 
 void Reference::_bind_methods() {
@@ -115,6 +113,10 @@ Reference::Reference() {
     refcount_init.init();
 }
 
+Reference::~Reference() {
+    assert(refcount.get()<=1);
+}
+
 Variant WeakRef::get_ref() const {
 
     if (ref == 0)
@@ -129,7 +131,7 @@ Variant WeakRef::get_ref() const {
         return REF(r);
     }
 
-    return obj;
+    return Variant(obj);
 }
 
 void WeakRef::set_obj(Object *p_object) {
@@ -138,7 +140,7 @@ void WeakRef::set_obj(Object *p_object) {
 
 void WeakRef::set_ref(const REF &p_ref) {
 
-    ref = p_ref.is_valid() ? p_ref->get_instance_id() : 0;
+    ref = p_ref ? p_ref->get_instance_id() : 0;
 }
 
 

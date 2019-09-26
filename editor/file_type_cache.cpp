@@ -42,13 +42,13 @@ FileTypeCache *FileTypeCache::singleton = nullptr;
 bool FileTypeCache::has_file(const String &p_path) const {
 
 	GLOBAL_LOCK_FUNCTION
-	return file_type_map.has(p_path);
+	return file_type_map.contains(p_path);
 }
 
 String FileTypeCache::get_file_type(const String &p_path) const {
 
 	GLOBAL_LOCK_FUNCTION
-	ERR_FAIL_COND_V(!file_type_map.has(p_path), "");
+	ERR_FAIL_COND_V(!file_type_map.contains(p_path), "")
 	return file_type_map[p_path];
 }
 void FileTypeCache::set_file_type(const String &p_path, const String &p_type) {
@@ -88,7 +88,7 @@ void FileTypeCache::save() {
 	String project = ProjectSettings::get_singleton()->get_resource_path();
 	FileAccess *f = FileAccess::open(project + "/file_type_cache.cch", FileAccess::WRITE);
 
-	ERR_FAIL_COND_MSG(!f, "Can't open file_type_cache.cch for writing, not saving file type cache!");
+	ERR_FAIL_COND_MSG(!f, "Can't open file_type_cache.cch for writing, not saving file type cache!")
 
 	const String *K = nullptr;
 
@@ -103,6 +103,6 @@ void FileTypeCache::save() {
 
 FileTypeCache::FileTypeCache() {
 
-	ERR_FAIL_COND(singleton);
+	ERR_FAIL_COND(singleton)
 	singleton = this;
 }

@@ -155,7 +155,11 @@ namespace EA
 			~CoreDeleterAdapter() EA_NOEXCEPT {}
 
 			template <typename T>
-			void operator()(T* p) { mpCoreAllocator->Free(p); }
+            void operator()(T* p)
+            {
+                p->~T();
+                mpCoreAllocator->Free(p);
+            }
 
 			CoreDeleterAdapter(const CoreDeleterAdapter& in) { mpCoreAllocator = in.mpCoreAllocator; }
 

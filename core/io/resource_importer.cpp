@@ -30,10 +30,11 @@
 
 #include "resource_importer.h"
 
-#include "core/os/os.h"
 #include "core/class_db.h"
-#include "core/variant_parser.h"
+#include "core/io/resource_loader.h"
+#include "core/os/os.h"
 #include "core/property_info.h"
+#include "core/variant_parser.h"
 
 IMPL_GDCLASS(ResourceImporter)
 
@@ -53,8 +54,7 @@ Error ResourceFormatImporter::_get_path_and_type(const String &p_path, PathAndTy
         return err;
     }
 
-    VariantParser::StreamFile stream;
-    stream.f = f;
+    VariantParser::Stream *stream=VariantParser::get_file_stream(f);
 
     String assign;
     Variant value;
@@ -73,18 +73,20 @@ Error ResourceFormatImporter::_get_path_and_type(const String &p_path, PathAndTy
         next_tag.fields.clear();
         next_tag.name = String();
 
-        err = VariantParser::parse_tag_assign_eof(&stream, lines, error_text, next_tag, assign, value, nullptr, true);
+        err = VariantParser::parse_tag_assign_eof(stream, lines, error_text, next_tag, assign, value, nullptr, true);
         if (err == ERR_FILE_EOF) {
+            VariantParser::release_stream(stream);
             memdelete(f);
             return OK;
         } else if (err != OK) {
-            ERR_PRINTS("ResourceFormatImporter::load - " + p_path + ".import:" + itos(lines) + " error: " + error_text);
+            ERR_PRINTS("ResourceFormatImporter::load - " + p_path + ".import:" + itos(lines) + " error: " + error_text)
+            VariantParser::release_stream(stream);
             memdelete(f);
             return err;
         }
 
-        if (assign != String()) {
-            if (!path_found && StringUtils::begins_with(assign,"path.") && r_path_and_type.path == String()) {
+        if (!assign.empty()) {
+            if (!path_found && StringUtils::begins_with(assign,"path.") && r_path_and_type.path.empty()) {
                 String feature = StringUtils::get_slice(assign,'.', 1);
                 if (OS::get_singleton()->has_feature(feature)) {
                     r_path_and_type.path = value;
@@ -104,7 +106,7 @@ Error ResourceFormatImporter::_get_path_and_type(const String &p_path, PathAndTy
                 r_path_and_type.metadata = value;
             } else if (assign == "valid") {
                 if (r_valid) {
-                    *r_valid = value;
+                    *r_valid = value.as<bool>();
                 }
             }
 
@@ -113,9 +115,10 @@ Error ResourceFormatImporter::_get_path_and_type(const String &p_path, PathAndTy
         }
     }
 
+    VariantParser::release_stream(stream);
     memdelete(f);
 
-    if (r_path_and_type.path == String() || r_path_and_type.type == String()) {
+    if (r_path_and_type.path.empty() || r_path_and_type.type.empty()) {
         return ERR_FILE_CORRUPT;
     }
     return OK;
@@ -134,10 +137,10 @@ RES ResourceFormatImporter::load(const String &p_path, const String &p_original_
         return RES();
     }
 
-    RES res = ResourceLoader::_load(pat.path, p_path, pat.type, false, r_error);
+    RES res(ResourceLoader::_load(pat.path, p_path, pat.type, false, r_error));
 
 #ifdef TOOLS_ENABLED
-    if (res.is_valid()) {
+    if (res) {
         res->set_import_last_modified_time(res->get_last_modified_time()); //pass this, if used
         res->set_import_path(pat.path);
     }
@@ -146,7 +149,7 @@ RES ResourceFormatImporter::load(const String &p_path, const String &p_original_
     return res;
 }
 
-void ResourceFormatImporter::get_recognized_extensions(List<String> *p_extensions) const {
+void ResourceFormatImporter::get_recognized_extensions(ListPOD<String> *p_extensions) const {
 
     Set<String> found;
 
@@ -154,7 +157,7 @@ void ResourceFormatImporter::get_recognized_extensions(List<String> *p_extension
         Vector<String> local_exts;
         importers[i]->get_recognized_extensions(&local_exts);
         for (int j=0,fin=local_exts.size(); j<fin; ++j) {
-            if (!found.has(local_exts[j])) {
+            if (!found.contains(local_exts[j])) {
                 p_extensions->push_back(local_exts[j]);
                 found.insert(local_exts[j]);
             }
@@ -164,7 +167,7 @@ void ResourceFormatImporter::get_recognized_extensions(List<String> *p_extension
         Vector<String> local_exts;
         owned_importers[i]->get_recognized_extensions(&local_exts);
         for (int j=0,fin=local_exts.size(); j<fin; ++j) {
-            if (!found.has(local_exts[j])) {
+            if (!found.contains(local_exts[j])) {
                 p_extensions->push_back(local_exts[j]);
                 found.insert(local_exts[j]);
             }
@@ -172,9 +175,9 @@ void ResourceFormatImporter::get_recognized_extensions(List<String> *p_extension
     }
 }
 
-void ResourceFormatImporter::get_recognized_extensions_for_type(const String &p_type, List<String> *p_extensions) const {
+void ResourceFormatImporter::get_recognized_extensions_for_type(const String &p_type, ListPOD<String> *p_extensions) const {
 
-    if (p_type == "") {
+    if (p_type.empty()) {
         get_recognized_extensions(p_extensions);
         return;
     }
@@ -183,7 +186,7 @@ void ResourceFormatImporter::get_recognized_extensions_for_type(const String &p_
 
     for (int i = 0; i < importers.size(); i++) {
         String res_type = importers[i]->get_resource_type();
-        if (res_type == String())
+        if (res_type.empty())
             continue;
 
         if (!ClassDB::is_parent_class(res_type, p_type))
@@ -192,7 +195,7 @@ void ResourceFormatImporter::get_recognized_extensions_for_type(const String &p_
         Vector<String> local_exts;
         importers[i]->get_recognized_extensions(&local_exts);
         for (int j=0,fin=local_exts.size(); j<fin; ++j) {
-            if (!found.has(local_exts[j])) {
+            if (!found.contains(local_exts[j])) {
                 p_extensions->push_back(local_exts[j]);
                 found.insert(local_exts[j]);
             }
@@ -200,7 +203,7 @@ void ResourceFormatImporter::get_recognized_extensions_for_type(const String &p_
     }
     for (int i = 0; i < owned_importers.size(); i++) {
         String res_type = owned_importers[i]->get_resource_type();
-        if (res_type == String())
+        if (res_type.empty())
             continue;
 
         if (!ClassDB::is_parent_class(res_type, p_type))
@@ -209,7 +212,7 @@ void ResourceFormatImporter::get_recognized_extensions_for_type(const String &p_
         Vector<String> local_exts;
         owned_importers[i]->get_recognized_extensions(&local_exts);
         for (int j=0,fin=local_exts.size(); j<fin; ++j) {
-            if (!found.has(local_exts[j])) {
+            if (!found.contains(local_exts[j])) {
                 p_extensions->push_back(local_exts[j]);
                 found.insert(local_exts[j]);
             }
@@ -260,7 +263,7 @@ bool ResourceFormatImporter::handles_type(const String &p_type) const {
     for (int i = 0; i < importers.size(); i++) {
 
         String res_type = importers[i]->get_resource_type();
-        if (res_type == String())
+        if (res_type.empty())
             continue;
         if (ClassDB::is_parent_class(res_type, p_type))
             return true;
@@ -268,7 +271,7 @@ bool ResourceFormatImporter::handles_type(const String &p_type) const {
     for (int i = 0; i < owned_importers.size(); i++) {
 
         String res_type = owned_importers[i]->get_resource_type();
-        if (res_type == String())
+        if (res_type.empty())
             continue;
         if (ClassDB::is_parent_class(res_type, p_type))
             return true;
@@ -298,8 +301,7 @@ void ResourceFormatImporter::get_internal_resource_path_list(const String &p_pat
     if (!f)
         return;
 
-    VariantParser::StreamFile stream;
-    stream.f = f;
+    VariantParser::Stream *stream=VariantParser::get_file_stream(f);
 
     String assign;
     Variant value;
@@ -313,17 +315,19 @@ void ResourceFormatImporter::get_internal_resource_path_list(const String &p_pat
         next_tag.fields.clear();
         next_tag.name = String();
 
-        err = VariantParser::parse_tag_assign_eof(&stream, lines, error_text, next_tag, assign, value, nullptr, true);
+        err = VariantParser::parse_tag_assign_eof(stream, lines, error_text, next_tag, assign, value, nullptr, true);
         if (err == ERR_FILE_EOF) {
+            VariantParser::release_stream(stream);
             memdelete(f);
             return;
         } else if (err != OK) {
             ERR_PRINTS("ResourceFormatImporter::get_internal_resource_path_list - " + p_path + ".import:" + itos(lines) + " error: " + error_text);
+            VariantParser::release_stream(stream);
             memdelete(f);
             return;
         }
 
-        if (assign != String()) {
+        if (!assign.empty()) {
             if (StringUtils::begins_with(assign,"path.")) {
                 r_paths->push_back(value);
             } else if (assign == "path") {
@@ -333,6 +337,7 @@ void ResourceFormatImporter::get_internal_resource_path_list(const String &p_pat
             break;
         }
     }
+    VariantParser::release_stream(stream);
     memdelete(f);
 }
 
@@ -377,7 +382,7 @@ Variant ResourceFormatImporter::get_resource_metadata(const String &p_path) cons
     return pat.metadata;
 }
 
-void ResourceFormatImporter::get_dependencies(const String &p_path, List<String> *p_dependencies, bool p_add_types) {
+void ResourceFormatImporter::get_dependencies(const String &p_path, ListPOD<String> *p_dependencies, bool p_add_types) {
 
     PathAndType pat;
     Error err = _get_path_and_type(p_path, pat);
@@ -399,7 +404,7 @@ ResourceImporterInterface *ResourceFormatImporter::get_importer_by_name(const St
     }
     for (int i = 0; i < owned_importers.size(); i++) {
         if (owned_importers[i]->get_importer_name() == p_name) {
-            return const_cast<ResourceImporterInterface *>(static_cast<const ResourceImporterInterface *>(owned_importers[i].ptr()));
+            return const_cast<ResourceImporterInterface *>(static_cast<const ResourceImporterInterface *>(owned_importers[i].get()));
         }
     }
     return nullptr;
@@ -421,7 +426,7 @@ void ResourceFormatImporter::get_importers_for_extension(const String &p_extensi
         owned_importers[i]->get_recognized_extensions(&local_exts);
         for (int j=0,fin=local_exts.size(); j<fin; ++j) {
             if (StringUtils::to_lower(p_extension) == local_exts[j]) {
-                r_importers->push_back(owned_importers.write[i].ptr());
+                r_importers->push_back(owned_importers.write[i].get());
             }
         }
     }
@@ -448,7 +453,7 @@ ResourceImporterInterface *ResourceFormatImporter::get_importer_by_extension(con
         owned_importers[i]->get_recognized_extensions(&local_exts);
         for (int j=0,fin=local_exts.size(); j<fin; ++j) {
             if (StringUtils::to_lower(p_extension) == local_exts[j] && importers[i]->get_priority() > priority) {
-                importer = const_cast<ResourceImporterInterface *>(static_cast<const ResourceImporterInterface *>(owned_importers[i].ptr()));
+                importer = const_cast<ResourceImporterInterface *>(static_cast<const ResourceImporterInterface *>(owned_importers[i].get()));
                 priority = owned_importers[i]->get_priority();
             }
         }
@@ -495,7 +500,7 @@ String ResourceFormatImporter::get_import_settings_hash() const {
     for(int i=0; i<importers.size(); ++i)
         sorted_importers.push_back(importers[i]);
     for(int i=0; i<owned_importers.size(); ++i)
-        sorted_importers.push_back(owned_importers[i].ptr());
+        sorted_importers.push_back(owned_importers[i].get());
 
     sorted_importers.sort_custom<SortImporterByName>();
 

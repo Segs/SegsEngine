@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef THEME_H
-#define THEME_H
+#pragma once
 
 #include "core/io/resource_loader.h"
 #include "core/resource.h"
@@ -37,160 +36,159 @@
 #include "scene/resources/shader.h"
 #include "scene/resources/style_box.h"
 #include "scene/resources/texture.h"
+#include "core/hash_map.h"
 
 class Theme : public Resource {
 
-	GDCLASS(Theme,Resource)
+    GDCLASS(Theme,Resource)
 
-    RES_BASE_EXTENSION("theme");
+    RES_BASE_EXTENSION("theme")
 
-	void _emit_theme_changed();
+    void _emit_theme_changed();
 
-	HashMap<StringName, HashMap<StringName, Ref<Texture> > > icon_map;
-	HashMap<StringName, HashMap<StringName, Ref<StyleBox> > > style_map;
-	HashMap<StringName, HashMap<StringName, Ref<Font> > > font_map;
-	HashMap<StringName, HashMap<StringName, Ref<Shader> > > shader_map;
-	HashMap<StringName, HashMap<StringName, Color> > color_map;
-	HashMap<StringName, HashMap<StringName, int> > constant_map;
+    DefHashMap<StringName, DefHashMap<StringName, Ref<Texture> > > icon_map;
+    HashMap<StringName, HashMap<StringName, Ref<StyleBox> > > style_map;
+    HashMap<StringName, HashMap<StringName, Ref<Font> > > font_map;
+    HashMap<StringName, HashMap<StringName, Ref<Shader> > > shader_map;
+    HashMap<StringName, HashMap<StringName, Color> > color_map;
+    HashMap<StringName, HashMap<StringName, int> > constant_map;
 
 protected:
-	bool _set(const StringName &p_name, const Variant &p_value);
-	bool _get(const StringName &p_name, Variant &r_ret) const;
-	void _get_property_list(List<PropertyInfo> *p_list) const;
+    bool _set(const StringName &p_name, const Variant &p_value);
+    bool _get(const StringName &p_name, Variant &r_ret) const;
+    void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
 
-	static Ref<Theme> project_default_theme;
-	static Ref<Theme> default_theme;
-	static Ref<Texture> default_icon;
-	static Ref<StyleBox> default_style;
-	static Ref<Font> default_font;
+    static Ref<Theme> project_default_theme;
+    static Ref<Theme> default_theme;
+    static Ref<Texture> default_icon;
+    static Ref<StyleBox> default_style;
+    static Ref<Font> default_font;
 
-	Ref<Font> default_theme_font;
+    Ref<Font> default_theme_font;
 
-	PoolVector<String> _get_icon_list(const String &p_type) const {
-		PoolVector<String> ilret;
-		List<StringName> il;
-		get_icon_list(p_type, &il);
-		for (List<StringName>::Element *E = il.front(); E; E = E->next()) {
-			ilret.push_back(E->get());
-		}
-		return ilret;
-	}
-	PoolVector<String> _get_stylebox_list(const String &p_type) const {
-		PoolVector<String> ilret;
-		List<StringName> il;
-		get_stylebox_list(p_type, &il);
-		for (List<StringName>::Element *E = il.front(); E; E = E->next()) {
-			ilret.push_back(E->get());
-		}
-		return ilret;
-	}
-	PoolVector<String> _get_stylebox_types() const {
-		PoolVector<String> ilret;
-		List<StringName> il;
-		get_stylebox_types(&il);
-		for (List<StringName>::Element *E = il.front(); E; E = E->next()) {
-			ilret.push_back(E->get());
-		}
-		return ilret;
-	}
-	PoolVector<String> _get_font_list(const String &p_type) const {
-		PoolVector<String> ilret;
-		List<StringName> il;
-		get_font_list(p_type, &il);
-		for (List<StringName>::Element *E = il.front(); E; E = E->next()) {
-			ilret.push_back(E->get());
-		}
-		return ilret;
-	}
-	PoolVector<String> _get_color_list(const String &p_type) const {
-		PoolVector<String> ilret;
-		List<StringName> il;
-		get_color_list(p_type, &il);
-		for (List<StringName>::Element *E = il.front(); E; E = E->next()) {
-			ilret.push_back(E->get());
-		}
-		return ilret;
-	}
-	PoolVector<String> _get_constant_list(const String &p_type) const {
-		PoolVector<String> ilret;
-		List<StringName> il;
-		get_constant_list(p_type, &il);
-		for (List<StringName>::Element *E = il.front(); E; E = E->next()) {
-			ilret.push_back(E->get());
-		}
-		return ilret;
-	}
-	PoolVector<String> _get_type_list(const String &p_type) const {
-		PoolVector<String> ilret;
-		List<StringName> il;
-		get_type_list(&il);
-		for (List<StringName>::Element *E = il.front(); E; E = E->next()) {
-			ilret.push_back(E->get());
-		}
-		return ilret;
-	}
+    PoolVector<String> _get_icon_list(const String &p_type) const {
+        PoolVector<String> ilret;
+        List<StringName> il;
+        get_icon_list(p_type, &il);
+        for (List<StringName>::Element *E = il.front(); E; E = E->next()) {
+            ilret.push_back(E->deref());
+        }
+        return ilret;
+    }
+    PoolVector<String> _get_stylebox_list(const String &p_type) const {
+        PoolVector<String> ilret;
+        List<StringName> il;
+        get_stylebox_list(p_type, &il);
+        for (List<StringName>::Element *E = il.front(); E; E = E->next()) {
+            ilret.push_back(E->deref());
+        }
+        return ilret;
+    }
+    PoolVector<String> _get_stylebox_types() const {
+        PoolVector<String> ilret;
+        List<StringName> il;
+        get_stylebox_types(&il);
+        for (List<StringName>::Element *E = il.front(); E; E = E->next()) {
+            ilret.push_back(E->deref());
+        }
+        return ilret;
+    }
+    PoolVector<String> _get_font_list(const String &p_type) const {
+        PoolVector<String> ilret;
+        List<StringName> il;
+        get_font_list(p_type, &il);
+        for (List<StringName>::Element *E = il.front(); E; E = E->next()) {
+            ilret.push_back(E->deref());
+        }
+        return ilret;
+    }
+    PoolVector<String> _get_color_list(const String &p_type) const {
+        PoolVector<String> ilret;
+        List<StringName> il;
+        get_color_list(p_type, &il);
+        for (List<StringName>::Element *E = il.front(); E; E = E->next()) {
+            ilret.push_back(E->deref());
+        }
+        return ilret;
+    }
+    PoolVector<String> _get_constant_list(const String &p_type) const {
+        PoolVector<String> ilret;
+        List<StringName> il;
+        get_constant_list(p_type, &il);
+        for (List<StringName>::Element *E = il.front(); E; E = E->next()) {
+            ilret.push_back(E->deref());
+        }
+        return ilret;
+    }
+    PoolVector<String> _get_type_list(const String &p_type) const {
+        PoolVector<String> ilret;
+        List<StringName> il;
+        get_type_list(&il);
+        for (List<StringName>::Element *E = il.front(); E; E = E->next()) {
+            ilret.push_back(E->deref());
+        }
+        return ilret;
+    }
 
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	static Ref<Theme> get_default();
-	static void set_default(const Ref<Theme> &p_default);
+    static Ref<Theme> get_default();
+    static void set_default(const Ref<Theme> &p_default);
 
-	static Ref<Theme> get_project_default();
-	static void set_project_default(const Ref<Theme> &p_project_default);
+    static Ref<Theme> get_project_default();
+    static void set_project_default(const Ref<Theme> &p_project_default);
 
-	static void set_default_icon(const Ref<Texture> &p_icon);
-	static void set_default_style(const Ref<StyleBox> &p_style);
-	static void set_default_font(const Ref<Font> &p_font);
+    static void set_default_icon(const Ref<Texture> &p_icon);
+    static void set_default_style(const Ref<StyleBox> &p_style);
+    static void set_default_font(const Ref<Font> &p_font);
 
-	void set_default_theme_font(const Ref<Font> &p_default_font);
-	Ref<Font> get_default_theme_font() const;
+    void set_default_theme_font(const Ref<Font> &p_default_font);
+    Ref<Font> get_default_theme_font() const;
 
-	void set_icon(const StringName &p_name, const StringName &p_type, const Ref<Texture> &p_icon);
-	Ref<Texture> get_icon(const StringName &p_name, const StringName &p_type) const;
-	bool has_icon(const StringName &p_name, const StringName &p_type) const;
-	void clear_icon(const StringName &p_name, const StringName &p_type);
-	void get_icon_list(StringName p_type, List<StringName> *p_list) const;
+    void set_icon(const StringName &p_name, const StringName &p_type, const Ref<Texture> &p_icon);
+    Ref<Texture> get_icon(const StringName &p_name, const StringName &p_type) const;
+    bool has_icon(const StringName &p_name, const StringName &p_type) const;
+    void clear_icon(const StringName &p_name, const StringName &p_type);
+    void get_icon_list(const StringName& p_type, List<StringName> *p_list) const;
 
-	void set_shader(const StringName &p_name, const StringName &p_type, const Ref<Shader> &p_shader);
-	Ref<Shader> get_shader(const StringName &p_name, const StringName &p_type) const;
-	bool has_shader(const StringName &p_name, const StringName &p_type) const;
-	void clear_shader(const StringName &p_name, const StringName &p_type);
-	void get_shader_list(const StringName &p_type, List<StringName> *p_list) const;
+    void set_shader(const StringName &p_name, const StringName &p_type, const Ref<Shader> &p_shader);
+    Ref<Shader> get_shader(const StringName &p_name, const StringName &p_type) const;
+    bool has_shader(const StringName &p_name, const StringName &p_type) const;
+    void clear_shader(const StringName &p_name, const StringName &p_type);
+    void get_shader_list(const StringName &p_type, List<StringName> *p_list) const;
 
-	void set_stylebox(const StringName &p_name, const StringName &p_type, const Ref<StyleBox> &p_style);
-	Ref<StyleBox> get_stylebox(const StringName &p_name, const StringName &p_type) const;
-	bool has_stylebox(const StringName &p_name, const StringName &p_type) const;
-	void clear_stylebox(const StringName &p_name, const StringName &p_type);
-	void get_stylebox_list(StringName p_type, List<StringName> *p_list) const;
-	void get_stylebox_types(List<StringName> *p_list) const;
+    void set_stylebox(const StringName &p_name, const StringName &p_type, const Ref<StyleBox> &p_style);
+    Ref<StyleBox> get_stylebox(const StringName &p_name, const StringName &p_type) const;
+    bool has_stylebox(const StringName &p_name, const StringName &p_type) const;
+    void clear_stylebox(const StringName &p_name, const StringName &p_type);
+    void get_stylebox_list(const StringName& p_type, List<StringName> *p_list) const;
+    void get_stylebox_types(List<StringName> *p_list) const;
 
-	void set_font(const StringName &p_name, const StringName &p_type, const Ref<Font> &p_font);
-	Ref<Font> get_font(const StringName &p_name, const StringName &p_type) const;
-	bool has_font(const StringName &p_name, const StringName &p_type) const;
-	void clear_font(const StringName &p_name, const StringName &p_type);
-	void get_font_list(StringName p_type, List<StringName> *p_list) const;
+    void set_font(const StringName &p_name, const StringName &p_type, const Ref<Font> &p_font);
+    Ref<Font> get_font(const StringName &p_name, const StringName &p_type) const;
+    bool has_font(const StringName &p_name, const StringName &p_type) const;
+    void clear_font(const StringName &p_name, const StringName &p_type);
+    void get_font_list(const StringName& p_type, List<StringName> *p_list) const;
 
-	void set_color(const StringName &p_name, const StringName &p_type, const Color &p_color);
-	Color get_color(const StringName &p_name, const StringName &p_type) const;
-	bool has_color(const StringName &p_name, const StringName &p_type) const;
-	void clear_color(const StringName &p_name, const StringName &p_type);
-	void get_color_list(StringName p_type, List<StringName> *p_list) const;
+    void set_color(const StringName &p_name, const StringName &p_type, const Color &p_color);
+    Color get_color(const StringName &p_name, const StringName &p_type) const;
+    bool has_color(const StringName &p_name, const StringName &p_type) const;
+    void clear_color(const StringName &p_name, const StringName &p_type);
+    void get_color_list(const StringName& p_type, List<StringName> *p_list) const;
 
-	void set_constant(const StringName &p_name, const StringName &p_type, int p_constant);
-	int get_constant(const StringName &p_name, const StringName &p_type) const;
-	bool has_constant(const StringName &p_name, const StringName &p_type) const;
-	void clear_constant(const StringName &p_name, const StringName &p_type);
-	void get_constant_list(StringName p_type, List<StringName> *p_list) const;
+    void set_constant(const StringName &p_name, const StringName &p_type, int p_constant);
+    int get_constant(const StringName &p_name, const StringName &p_type) const;
+    bool has_constant(const StringName &p_name, const StringName &p_type) const;
+    void clear_constant(const StringName &p_name, const StringName &p_type);
+    void get_constant_list(const StringName& p_type, List<StringName> *p_list) const;
 
-	void get_type_list(List<StringName> *p_list) const;
+    void get_type_list(List<StringName> *p_list) const;
 
-	void copy_default_theme();
-	void copy_theme(const Ref<Theme> &p_other);
-	void clear();
+    void copy_default_theme();
+    void copy_theme(const Ref<Theme> &p_other);
+    void clear();
 
-	Theme();
-	~Theme() override;
+    Theme();
+    ~Theme() override;
 };
-
-#endif

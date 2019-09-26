@@ -45,7 +45,7 @@ public:
 
 	Size2 get_minimum_size() const override;
 
-	void set_curve(const Ref<Curve>& curve);
+	void set_curve(Ref<Curve> &&curve);
 
 	enum PresetID {
 		PRESET_FLAT0 = 0,

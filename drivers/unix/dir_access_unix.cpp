@@ -35,6 +35,7 @@
 #include "core/list.h"
 #include "core/os/memory.h"
 #include "core/print_string.h"
+#include "core/vector.h"
 
 #include <cerrno>
 #include <cstdio>
@@ -117,7 +118,7 @@ uint64_t DirAccessUnix::get_modified_time(String p_file) {
         return flags.st_mtime;
     } else {
 
-        ERR_FAIL_V(0);
+        ERR_FAIL_V(0)
     }
     return 0;
 };
@@ -332,7 +333,7 @@ Error DirAccessUnix::change_dir(String p_dir) {
 
     // the directory exists, so set current_dir to try_dir
     current_dir = try_dir;
-	ERR_FAIL_COND_V(chdir(StringUtils::to_utf8(prev_dir).data()) != 0, ERR_BUG);
+	ERR_FAIL_COND_V(chdir(StringUtils::to_utf8(prev_dir).data()) != 0, ERR_BUG)
     return OK;
 }
 
@@ -389,7 +390,7 @@ size_t DirAccessUnix::get_space_left() {
 	if (statvfs(StringUtils::to_utf8(current_dir).data(), &vfs) != 0) {
 
         return 0;
-    };
+    }
 
     return vfs.f_bfree * vfs.f_bsize;
 #else

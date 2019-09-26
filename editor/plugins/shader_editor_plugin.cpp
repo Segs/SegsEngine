@@ -67,7 +67,7 @@ void ShaderTextEditor::set_edited_shader(const Ref<Shader> &p_shader) {
 }
 
 void ShaderTextEditor::reload_text() {
-    ERR_FAIL_COND(shader.is_null());
+    ERR_FAIL_COND(not shader)
 
     TextEdit *te = get_text_edit();
     int column = te->cursor_get_column();
@@ -148,15 +148,15 @@ void ShaderTextEditor::_load_theme_settings() {
     get_text_edit()->add_color_override("search_result_border_color", search_result_border_color);
     get_text_edit()->add_color_override("symbol_color", symbol_color);
 
-    List<String> keywords;
+    PODVector<String> keywords;
     ShaderLanguage::get_keyword_list(&keywords);
 
-    if (shader.is_valid()) {
+    if (shader) {
 
-        for (const Map<StringName, ShaderLanguage::FunctionInfo>::Element *E = ShaderTypes::get_singleton()->get_functions(VisualServer::ShaderMode(shader->get_mode())).front(); E; E = E->next()) {
+        for (const eastl::pair<const StringName, ShaderLanguage::FunctionInfo> &E : ShaderTypes::get_singleton()->get_functions(VisualServer::ShaderMode(shader->get_mode()))) {
 
-            for (const Map<StringName, ShaderLanguage::BuiltInInfo>::Element *F = E->get().built_ins.front(); F; F = F->next()) {
-                keywords.push_back(F->key());
+            for (const eastl::pair<const StringName, ShaderLanguage::BuiltInInfo> &F : E.second.built_ins) {
+                keywords.push_back(F.first);
             }
         }
 
@@ -166,9 +166,9 @@ void ShaderTextEditor::_load_theme_settings() {
         }
     }
 
-    for (List<String>::Element *E = keywords.front(); E; E = E->next()) {
+    for (const String &E : keywords) {
 
-        get_text_edit()->add_keyword_color(E->get(), keyword_color);
+        get_text_edit()->add_keyword_color(E, keyword_color);
     }
 
     //colorize comments
@@ -278,7 +278,7 @@ void ShaderEditor::_menu_option(int p_option) {
         } break;
         case EDIT_INDENT_LEFT: {
 
-            if (shader.is_null())
+            if (not shader)
                 return;
 
             TextEdit *tx = shader_editor->get_text_edit();
@@ -287,7 +287,7 @@ void ShaderEditor::_menu_option(int p_option) {
         } break;
         case EDIT_INDENT_RIGHT: {
 
-            if (shader.is_null())
+            if (not shader)
                 return;
 
             TextEdit *tx = shader_editor->get_text_edit();
@@ -302,7 +302,7 @@ void ShaderEditor::_menu_option(int p_option) {
         } break;
         case EDIT_TOGGLE_COMMENT: {
 
-            if (shader.is_null())
+            if (not shader)
                 return;
 
             shader_editor->toggle_inline_comment("//");
@@ -424,7 +424,7 @@ void ShaderEditor::goto_line_selection(int p_line, int p_begin, int p_end) {
 
 void ShaderEditor::_check_for_external_edit() {
 
-    if (shader.is_null() || !shader.is_valid()) {
+    if (not shader || not shader) {
         return;
     }
 
@@ -445,8 +445,8 @@ void ShaderEditor::_check_for_external_edit() {
 
 void ShaderEditor::_reload_shader_from_disk() {
 
-    Ref<Shader> rel_shader = ResourceLoader::load(shader->get_path(), shader->get_class(), true);
-    ERR_FAIL_COND(!rel_shader.is_valid());
+    Ref<Shader> rel_shader = dynamic_ref_cast<Shader>(ResourceLoader::load(shader->get_path(), shader->get_class(), true));
+    ERR_FAIL_COND(not rel_shader)
 
     shader->set_code(rel_shader->get_code());
     shader->set_last_modified_time(rel_shader->get_last_modified_time());
@@ -455,7 +455,7 @@ void ShaderEditor::_reload_shader_from_disk() {
 
 void ShaderEditor::edit(const Ref<Shader> &p_shader) {
 
-    if (p_shader.is_null() || !p_shader->is_text_shader())
+    if (not p_shader || !p_shader->is_text_shader())
         return;
 
     if (shader == p_shader)
@@ -471,7 +471,7 @@ void ShaderEditor::edit(const Ref<Shader> &p_shader) {
 
 void ShaderEditor::save_external_data(const String &p_str) {
 
-    if (shader.is_null()) {
+    if (not shader) {
         disk_changed->hide();
         return;
     }
@@ -487,7 +487,7 @@ void ShaderEditor::save_external_data(const String &p_str) {
 
 void ShaderEditor::apply_shaders() {
 
-    if (shader.is_valid()) {
+    if (shader) {
         String shader_code = shader->get_code();
         String editor_code = shader_editor->get_text_edit()->get_text();
         if (shader_code != editor_code) {
@@ -499,9 +499,9 @@ void ShaderEditor::apply_shaders() {
 
 void ShaderEditor::_text_edit_gui_input(const Ref<InputEvent> &ev) {
 
-    Ref<InputEventMouseButton> mb = ev;
+    Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(ev);
 
-    if (mb.is_valid()) {
+    if (mb) {
 
         if (mb->get_button_index() == BUTTON_RIGHT && mb->is_pressed()) {
 
@@ -528,8 +528,14 @@ void ShaderEditor::_text_edit_gui_input(const Ref<InputEvent> &ev) {
                     tx->cursor_set_column(col);
                 }
             }
-            _make_context_menu(tx->is_selection_active());
+            _make_context_menu(tx->is_selection_active(), get_local_mouse_position());
         }
+    }
+    Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(ev);
+    if (k && k->is_pressed() && k->get_scancode() == KEY_MENU) {
+        TextEdit *tx = shader_editor->get_text_edit();
+        _make_context_menu(tx->is_selection_active(), (get_global_transform().inverse() * tx->get_global_transform()).xform(tx->_get_cursor_pixel_pos()));
+        context_menu->grab_focus();
     }
 }
 
@@ -570,7 +576,7 @@ void ShaderEditor::_bookmark_item_pressed(int p_idx) {
     }
 }
 
-void ShaderEditor::_make_context_menu(bool p_selection) {
+void ShaderEditor::_make_context_menu(bool p_selection, Vector2 p_position) {
 
     context_menu->clear();
     if (p_selection) {
@@ -590,7 +596,7 @@ void ShaderEditor::_make_context_menu(bool p_selection) {
     context_menu->add_shortcut(ED_GET_SHORTCUT("script_text_editor/toggle_comment"), EDIT_TOGGLE_COMMENT);
     context_menu->add_shortcut(ED_GET_SHORTCUT("script_text_editor/toggle_bookmark"), BOOKMARK_TOGGLE);
 
-    context_menu->set_position(get_global_transform().xform(get_local_mouse_position()));
+    context_menu->set_position(get_global_transform().xform(p_position));
     context_menu->set_size(Vector2(1, 1));
     context_menu->popup();
 }
@@ -714,7 +720,7 @@ ShaderEditor::ShaderEditor(EditorNode *p_node) {
 void ShaderEditorPlugin::edit(Object *p_object) {
 
     Shader *s = Object::cast_to<Shader>(p_object);
-    shader_editor->edit(s);
+    shader_editor->edit(Ref<Shader>(s));
 }
 
 bool ShaderEditorPlugin::handles(Object *p_object) const {

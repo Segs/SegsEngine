@@ -169,7 +169,7 @@ void VideoStreamPlaybackTheora::clear() {
 
 void VideoStreamPlaybackTheora::set_file(const String &p_file) {
 
-	ERR_FAIL_COND(playing);
+	ERR_FAIL_COND(playing)
 	ogg_packet op;
 	th_setup_info *ts = NULL;
 
@@ -178,7 +178,7 @@ void VideoStreamPlaybackTheora::set_file(const String &p_file) {
 		memdelete(file);
 	}
 	file = FileAccess::open(p_file, FileAccess::READ);
-	ERR_FAIL_COND(!file);
+	ERR_FAIL_COND(!file)
 
 #ifdef THEORA_USE_THREAD_STREAMING
 	thread_exit = false;
@@ -684,7 +684,7 @@ VideoStreamPlaybackTheora::VideoStreamPlaybackTheora() {
 	paused = false;
 
 	buffering = false;
-	texture = Ref<ImageTexture>(memnew(ImageTexture));
+	texture = make_ref_counted<ImageTexture>();
 	mix_callback = NULL;
 	mix_udata = NULL;
 	audio_track = 0;
@@ -717,7 +717,7 @@ VideoStreamPlaybackTheora::~VideoStreamPlaybackTheora() {
 
 void VideoStreamTheora::_bind_methods() {
 
-	ClassDB::bind_method(D_METHOD("set_file", "file"), &VideoStreamTheora::set_file);
+	ClassDB::bind_method(D_METHOD("set_file", {"file"}), &VideoStreamTheora::set_file);
 	ClassDB::bind_method(D_METHOD("get_file"), &VideoStreamTheora::get_file);
 
 	ADD_PROPERTY(PropertyInfo(Variant::STRING, "file", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_file", "get_file");

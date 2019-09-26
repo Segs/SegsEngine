@@ -1,12 +1,14 @@
 file(GLOB source_files "*.cpp" )
 file(GLOB header_files "*.h" )
+file(GLOB qrc_files "*.qrc" )
 
 foreach(tgt ${global_targets})
     if(OPTION_TOOLS)
         list(APPEND source_files editor/gdscript_highlighter.cpp editor/gdscript_highlighter.h)
     endif()
 
-    add_library(${tgt}_gdscript OBJECT ${source_files} ${header_files})
+    add_library(${tgt}_gdscript OBJECT ${source_files} ${header_files} ${qrc_files})
+    set_target_properties(${tgt}_gdscript PROPERTIES AUTORCC ON)
     # Those two modules are required for the language server protocol
     if(module_jsonrpc_enabled AND module_websocket_enabled)
         file(GLOB lsp_source_files "language_server/*.cpp" )

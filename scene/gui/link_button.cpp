@@ -129,18 +129,18 @@ void LinkButton::_notification(int p_what) {
 
 void LinkButton::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_text", "text"), &LinkButton::set_text);
+    MethodBinder::bind_method(D_METHOD("set_text", {"text"}), &LinkButton::set_text);
     MethodBinder::bind_method(D_METHOD("get_text"), &LinkButton::get_text);
 
-    MethodBinder::bind_method(D_METHOD("set_underline_mode", "underline_mode"), &LinkButton::set_underline_mode);
+    MethodBinder::bind_method(D_METHOD("set_underline_mode", {"underline_mode"}), &LinkButton::set_underline_mode);
     MethodBinder::bind_method(D_METHOD("get_underline_mode"), &LinkButton::get_underline_mode);
 
-    BIND_ENUM_CONSTANT(UNDERLINE_MODE_ALWAYS);
-    BIND_ENUM_CONSTANT(UNDERLINE_MODE_ON_HOVER);
-    BIND_ENUM_CONSTANT(UNDERLINE_MODE_NEVER);
+    BIND_ENUM_CONSTANT(UNDERLINE_MODE_ALWAYS)
+    BIND_ENUM_CONSTANT(UNDERLINE_MODE_ON_HOVER)
+    BIND_ENUM_CONSTANT(UNDERLINE_MODE_NEVER)
 
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "text"), "set_text", "get_text");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "underline", PROPERTY_HINT_ENUM, "Always,On Hover,Never"), "set_underline_mode", "get_underline_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "text"), "set_text", "get_text");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "underline", PROPERTY_HINT_ENUM, "Always,On Hover,Never"), "set_underline_mode", "get_underline_mode");
 }
 
 LinkButton::LinkButton() {

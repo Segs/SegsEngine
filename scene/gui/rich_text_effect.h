@@ -28,10 +28,11 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef RICH_TEXT_EFFECT_H
-#define RICH_TEXT_EFFECT_H
+#pragma once
 
 #include "core/resource.h"
+#include <QChar>
+using CharType = class QChar;
 
 class RichTextEffect : public Resource {
     GDCLASS(RichTextEffect, Resource)
@@ -42,7 +43,7 @@ protected:
 
 public:
     Variant get_bbcode() const;
-    bool _process_effect_impl(Ref<class CharFXTransform> p_cfx);
+    bool _process_effect_impl(const Ref<class CharFXTransform>& p_cfx);
 
     RichTextEffect();
 };
@@ -55,13 +56,13 @@ protected:
 
 public:
     Dictionary environment;
-    Point2 offset;
-    Color color;
-    uint64_t relative_index;
-    uint64_t absolute_index;
-    float elapsed_time;
-    CharType character;
-    bool visibility;
+    Point2 offset=Point2();
+    Color color= Color();
+    uint64_t relative_index=0;
+    uint64_t absolute_index=0;
+    float elapsed_time=0;
+    QChar character = 0;
+    bool visibility=true;
 
     CharFXTransform();
     uint64_t get_relative_index() { return relative_index; }
@@ -81,7 +82,5 @@ public:
     Dictionary get_environment() { return environment; }
     void set_environment(const Dictionary &p_environment) { environment = p_environment; }
 
-    Variant get_value_or(String p_key, Variant p_default_value);
+    Variant get_value_or(const String& p_key, const Variant& p_default_value);
 };
-
-#endif // RICH_TEXT_EFFECT_H

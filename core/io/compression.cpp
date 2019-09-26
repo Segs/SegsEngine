@@ -159,7 +159,7 @@ int Compression::decompress(uint8_t *p_dst, int p_dst_max_size, const uint8_t *p
             strm.avail_in = 0;
             strm.next_in = nullptr;
             int err = inflateInit2(&strm, window_bits);
-            ERR_FAIL_COND_V(err != Z_OK, -1);
+            ERR_FAIL_COND_V(err != Z_OK, -1)
 
             strm.avail_in = p_src_size;
             strm.avail_out = p_dst_max_size;
@@ -169,7 +169,7 @@ int Compression::decompress(uint8_t *p_dst, int p_dst_max_size, const uint8_t *p
             err = inflate(&strm, Z_FINISH);
             int total = strm.total_out;
             inflateEnd(&strm);
-            ERR_FAIL_COND_V(err != Z_STREAM_END, -1);
+            ERR_FAIL_COND_V(err != Z_STREAM_END, -1)
             return total;
         } break;
         case MODE_ZSTD: {

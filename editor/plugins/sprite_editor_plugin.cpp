@@ -60,7 +60,7 @@ void SpriteEditor::edit(Sprite *p_sprite) {
 
 Vector<Vector2> expand(const Vector<Vector2> &points, const Rect2i &rect, float epsilon = 2.0) {
     int size = points.size();
-    ERR_FAIL_COND_V(size < 2, Vector<Vector2>());
+    ERR_FAIL_COND_V(size < 2, Vector<Vector2>())
 
     ClipperLib::Path subj;
     ClipperLib::PolyTree solution;
@@ -76,7 +76,7 @@ Vector<Vector2> expand(const Vector<Vector2> &points, const Rect2i &rect, float 
 
     ClipperLib::PolyNode *p = solution.GetFirst();
 
-    ERR_FAIL_COND_V(!p, points);
+    ERR_FAIL_COND_V(!p, points)
 
     while (p->IsHole()) {
         p = p->GetNext();
@@ -99,7 +99,7 @@ Vector<Vector2> expand(const Vector<Vector2> &points, const Rect2i &rect, float 
 
     Vector<Vector2> outPoints;
     ClipperLib::PolyNode *p2 = out.GetFirst();
-    ERR_FAIL_COND_V(!p2, points);
+    ERR_FAIL_COND_V(!p2, points)
 
     while (p2->IsHole()) {
         p2 = p2->GetNext();
@@ -107,10 +107,10 @@ Vector<Vector2> expand(const Vector<Vector2> &points, const Rect2i &rect, float 
 
     int lasti = p2->Contour.size() - 1;
     Vector2 prev = Vector2(p2->Contour[lasti].X / PRECISION, p2->Contour[lasti].Y / PRECISION);
-    for (unsigned int i = 0; i < p2->Contour.size(); i++) {
+    for (size_t i = 0; i < p2->Contour.size(); i++) {
 
         Vector2 cur = Vector2(p2->Contour[i].X / PRECISION, p2->Contour[i].Y / PRECISION);
-        if (cur.distance_to(prev) > 0.5) {
+        if (cur.distance_to(prev) > 0.5f) {
             outPoints.push_back(cur);
             prev = cur;
         }
@@ -172,7 +172,7 @@ void SpriteEditor::_menu_option(int p_option) {
 void SpriteEditor::_update_mesh_data() {
 
     Ref<Texture> texture = node->get_texture();
-    if (texture.is_null()) {
+    if (not texture) {
         err_dialog->set_text(TTR("Sprite is empty!"));
         err_dialog->popup_centered_minsize();
         return;
@@ -184,15 +184,14 @@ void SpriteEditor::_update_mesh_data() {
         return;
     }
     Ref<Image> image = texture->get_data();
-    ERR_FAIL_COND(image.is_null());
+    ERR_FAIL_COND(not image)
     Rect2 rect;
     if (node->is_region())
         rect = node->get_region_rect();
     else
         rect.size = Size2(image->get_width(), image->get_height());
 
-    Ref<BitMap> bm;
-    bm.instance();
+    Ref<BitMap> bm(make_ref_counted<BitMap>());
     bm->create_from_image_alpha(image);
 
     int grow = island_merging->get_value();
@@ -319,8 +318,7 @@ void SpriteEditor::_convert_to_mesh_2d_node() {
         return;
     }
 
-    Ref<ArrayMesh> mesh;
-    mesh.instance();
+    Ref<ArrayMesh> mesh(make_ref_counted<ArrayMesh>());
 
     Array a;
     a.resize(Mesh::ARRAY_MAX);
@@ -333,11 +331,11 @@ void SpriteEditor::_convert_to_mesh_2d_node() {
     MeshInstance2D *mesh_instance = memnew(MeshInstance2D);
     mesh_instance->set_mesh(mesh);
 
-    UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
+    UndoRedo *ur = EditorNode::get_undo_redo();
     ur->create_action(TTR("Convert to Mesh2D"));
-    ur->add_do_method(EditorNode::get_singleton()->get_scene_tree_dock(), "replace_node", node, mesh_instance, true, false);
+    ur->add_do_method(EditorNode::get_singleton()->get_scene_tree_dock(), "replace_node", Variant(node), Variant(mesh_instance), true, false);
     ur->add_do_reference(mesh_instance);
-    ur->add_undo_method(EditorNode::get_singleton()->get_scene_tree_dock(), "replace_node", mesh_instance, node, false, false);
+    ur->add_undo_method(EditorNode::get_singleton()->get_scene_tree_dock(), "replace_node", Variant(mesh_instance), Variant(node), false, false);
     ur->add_undo_reference(node);
     ur->commit_action();
 }
@@ -393,9 +391,9 @@ void SpriteEditor::_convert_to_polygon_2d_node() {
 
     UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
     ur->create_action(TTR("Convert to Polygon2D"));
-    ur->add_do_method(EditorNode::get_singleton()->get_scene_tree_dock(), "replace_node", node, polygon_2d_instance, true, false);
+    ur->add_do_method(EditorNode::get_singleton()->get_scene_tree_dock(), "replace_node", Variant(node), Variant(polygon_2d_instance), true, false);
     ur->add_do_reference(polygon_2d_instance);
-    ur->add_undo_method(EditorNode::get_singleton()->get_scene_tree_dock(), "replace_node", polygon_2d_instance, node, false, false);
+    ur->add_undo_method(EditorNode::get_singleton()->get_scene_tree_dock(), "replace_node", Variant(polygon_2d_instance), Variant(node), false, false);
     ur->add_undo_reference(node);
     ur->commit_action();
 }
@@ -416,9 +414,9 @@ void SpriteEditor::_create_collision_polygon_2d_node() {
 
         UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
         ur->create_action(TTR("Create CollisionPolygon2D Sibling"));
-        ur->add_do_method(this, "_add_as_sibling_or_child", node, collision_polygon_2d_instance);
+        ur->add_do_method(this, "_add_as_sibling_or_child", Variant(node), Variant(collision_polygon_2d_instance));
         ur->add_do_reference(collision_polygon_2d_instance);
-        ur->add_undo_method(node != this->get_tree()->get_edited_scene_root() ? node->get_parent() : this->get_tree()->get_edited_scene_root(), "remove_child", collision_polygon_2d_instance);
+        ur->add_undo_method(node != this->get_tree()->get_edited_scene_root() ? node->get_parent() : this->get_tree()->get_edited_scene_root(), "remove_child", Variant(collision_polygon_2d_instance));
         ur->commit_action();
     }
 }
@@ -434,8 +432,7 @@ void SpriteEditor::_create_light_occluder_2d_node() {
             continue;
         }
 
-        Ref<OccluderPolygon2D> polygon;
-        polygon.instance();
+        Ref<OccluderPolygon2D> polygon(make_ref_counted<OccluderPolygon2D>());
 
         PoolVector2Array a;
         a.resize(outline.size());
@@ -450,9 +447,9 @@ void SpriteEditor::_create_light_occluder_2d_node() {
 
         UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
         ur->create_action(TTR("Create LightOccluder2D Sibling"));
-        ur->add_do_method(this, "_add_as_sibling_or_child", node, light_occluder_2d_instance);
+        ur->add_do_method(this, "_add_as_sibling_or_child", Variant(node), Variant(light_occluder_2d_instance));
         ur->add_do_reference(light_occluder_2d_instance);
-        ur->add_undo_method(node != this->get_tree()->get_edited_scene_root() ? node->get_parent() : this->get_tree()->get_edited_scene_root(), "remove_child", light_occluder_2d_instance);
+        ur->add_undo_method(node != this->get_tree()->get_edited_scene_root() ? node->get_parent() : this->get_tree()->get_edited_scene_root(), "remove_child", Variant(light_occluder_2d_instance));
         ur->commit_action();
     }
 }
@@ -473,7 +470,7 @@ void SpriteEditor::_add_as_sibling_or_child(Node *p_own_node, Node *p_new_node) 
 void SpriteEditor::_create_uv_lines() {
 
     Ref<Mesh> sprite = node->get_sprite();
-    ERR_FAIL_COND(!sprite.is_valid());
+    ERR_FAIL_COND(not sprite)
 
     Set<SpriteEditorEdgeSort> edges;
     uv_lines.clear();
@@ -535,7 +532,7 @@ void SpriteEditor::_create_uv_lines() {
 void SpriteEditor::_debug_uv_draw() {
 
     Ref<Texture> tex = node->get_texture();
-    ERR_FAIL_COND(!tex.is_valid());
+    ERR_FAIL_COND(not tex)
     debug_uv->set_clip_contents(true);
     debug_uv->draw_texture(tex, Point2());
     debug_uv->set_custom_minimum_size(tex->get_size());

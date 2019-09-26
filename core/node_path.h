@@ -30,23 +30,20 @@
 
 #pragma once
 
-#include "core/string_name.h"
-#include "core/vector.h"
+#include "typedefs.h"
+
+class StringName;
+class String;
+template <class T>
+class Vector;
+
 class NodePath {
 
-	struct Data {
 
-		SafeRefCount refcount;
-		Vector<StringName> path;
-		Vector<StringName> subpath;
-		StringName concatenated_subpath;
-		bool absolute;
-		bool has_slashes;
-		mutable bool hash_cache_valid;
-		mutable uint32_t hash_cache;
-	};
+	mutable class Data *data=nullptr;
+    mutable bool hash_cache_valid=false;
+    mutable uint32_t hash_cache;
 
-	mutable Data *data;
 	void unref();
 
 	void _update_hash_cache() const;
@@ -73,10 +70,10 @@ public:
 	_FORCE_INLINE_ uint32_t hash() const {
 		if (!data)
 			return 0;
-		if (!data->hash_cache_valid) {
+		if (!hash_cache_valid) {
 			_update_hash_cache();
 		}
-		return data->hash_cache;
+		return hash_cache;
 	}
 
     explicit operator String() const;

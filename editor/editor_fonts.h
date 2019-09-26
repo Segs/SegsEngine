@@ -33,6 +33,6 @@
 
 #include "scene/resources/theme.h"
 
-void editor_register_fonts(Ref<Theme> p_theme);
+void editor_register_fonts(const Ref<Theme>& p_theme);
 
 #endif

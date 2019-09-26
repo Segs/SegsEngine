@@ -36,7 +36,7 @@ static Ref<ResourceFormatPVR> resource_loader_pvr;
 
 void register_pvr_types() {
 
-	resource_loader_pvr.instance();
+    resource_loader_pvr = make_ref_counted<ResourceFormatPVR>();
 	ResourceLoader::add_resource_format_loader(resource_loader_pvr);
 }
 

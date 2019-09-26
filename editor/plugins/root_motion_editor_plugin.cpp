@@ -72,12 +72,12 @@ void EditorPropertyRootMotion::_node_assign() {
 
     Set<String> paths;
     {
-        List<StringName> animations;
+        ListPOD<StringName> animations;
         player->get_animation_list(&animations);
 
-        for (List<StringName>::Element *E = animations.front(); E; E = E->next()) {
+        for (const StringName & E : animations) {
 
-            Ref<Animation> anim = player->get_animation(E->get());
+            Ref<Animation> anim = player->get_animation(E);
             for (int i = 0; i < anim->get_track_count(); i++) {
                 paths.insert(String(anim->track_get_path(i)));
             }
@@ -89,9 +89,9 @@ void EditorPropertyRootMotion::_node_assign() {
 
     Map<String, TreeItem *> parenthood;
 
-    for (Set<String>::Element *E = paths.front(); E; E = E->next()) {
+    for (const String &E : paths) {
 
-        NodePath path(E->get());
+        NodePath path(E);
         TreeItem *ti = nullptr;
         String accum;
         for (int i = 0; i < path.get_name_count(); i++) {
@@ -101,7 +101,7 @@ void EditorPropertyRootMotion::_node_assign() {
             }
             accum += name;
             NodePath accum_np(accum);
-            if (!parenthood.has(accum)) {
+            if (!parenthood.contains(accum)) {
                 if (ti) {
                     ti = filters->create_item(ti);
                 } else {
@@ -150,11 +150,11 @@ void EditorPropertyRootMotion::_node_assign() {
                         accum += "/";
                     }
 
-                    accum += F->get();
-                    if (!parenthood.has(accum)) {
+                    accum += F->deref();
+                    if (!parenthood.contains(accum)) {
                         ti = filters->create_item(ti);
                         parenthood[accum] = ti;
-                        ti->set_text(0, F->get());
+                        ti->set_text(0, F->deref());
                         ti->set_selectable(0, true);
                         ti->set_editable(0, false);
                         ti->set_icon(0, get_icon("BoneAttachment", "EditorIcons"));
@@ -233,7 +233,7 @@ void EditorPropertyRootMotion::update_property() {
     }
 
     Node *target_node = base_node->get_node(p);
-    ERR_FAIL_COND(!target_node);
+    ERR_FAIL_COND(!target_node)
 
     assign->set_text(target_node->get_name());
     assign->set_icon(EditorNode::get_singleton()->get_object_icon(target_node, "Node"));
@@ -297,9 +297,9 @@ void EditorInspectorRootMotionPlugin::parse_begin(Object *p_object) {
     //do none
 }
 
-bool EditorInspectorRootMotionPlugin::parse_property(Object *p_object, Variant::Type p_type, const String &p_path, PropertyHint p_hint, const String &p_hint_text, int p_usage) {
+bool EditorInspectorRootMotionPlugin::parse_property(Object *p_object, VariantType p_type, const String &p_path, PropertyHint p_hint, const String &p_hint_text, int p_usage) {
 
-    if (p_path == "root_motion_track" && p_object->is_class("AnimationTree") && p_type == Variant::NODE_PATH) {
+    if (p_path == "root_motion_track" && p_object->is_class("AnimationTree") && p_type == VariantType::NODE_PATH) {
         EditorPropertyRootMotion *editor = memnew(EditorPropertyRootMotion);
         if (p_hint == PROPERTY_HINT_NODE_PATH_TO_EDITED_NODE && !p_hint_text.empty()) {
             editor->setup(NodePath(p_hint_text));

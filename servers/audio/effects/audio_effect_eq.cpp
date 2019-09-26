@@ -70,8 +70,7 @@ void AudioEffectEQInstance::process(const AudioFrame *p_src_frames, AudioFrame *
 }
 
 Ref<AudioEffectInstance> AudioEffectEQ::instance() {
-    Ref<AudioEffectEQInstance> ins;
-    ins.instance();
+    Ref<AudioEffectEQInstance> ins(make_ref_counted<AudioEffectEQInstance>());
     ins->base = Ref<AudioEffectEQ>(this);
     ins->gains.resize(eq.get_band_count());
     for (int i = 0; i < 2; i++) {
@@ -100,9 +99,9 @@ int AudioEffectEQ::get_band_count() const {
 
 bool AudioEffectEQ::_set(const StringName &p_name, const Variant &p_value) {
 
-    const Map<StringName, int>::Element *E = prop_band_map.find(p_name);
-    if (E) {
-        set_band_gain_db(E->get(), p_value);
+    const Map<StringName, int>::iterator E = prop_band_map.find(p_name);
+    if (E!=prop_band_map.end()) {
+        set_band_gain_db(E->second, p_value);
         return true;
     }
 
@@ -111,27 +110,27 @@ bool AudioEffectEQ::_set(const StringName &p_name, const Variant &p_value) {
 
 bool AudioEffectEQ::_get(const StringName &p_name, Variant &r_ret) const {
 
-    const Map<StringName, int>::Element *E = prop_band_map.find(p_name);
-    if (E) {
-        r_ret = get_band_gain_db(E->get());
+    const Map<StringName, int>::const_iterator E = prop_band_map.find(p_name);
+    if (E!=prop_band_map.end()) {
+        r_ret = get_band_gain_db(E->second);
         return true;
     }
 
     return false;
 }
 
-void AudioEffectEQ::_get_property_list(List<PropertyInfo> *p_list) const {
+void AudioEffectEQ::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
     for (int i = 0; i < band_names.size(); i++) {
 
-        p_list->push_back(PropertyInfo(Variant::REAL, String(band_names[i]), PROPERTY_HINT_RANGE, "-60,24,0.1"));
+        p_list->push_back(PropertyInfo(VariantType::REAL, String(band_names[i]), PROPERTY_HINT_RANGE, "-60,24,0.1"));
     }
 }
 
 void AudioEffectEQ::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_band_gain_db", "band_idx", "volume_db"), &AudioEffectEQ::set_band_gain_db);
-    MethodBinder::bind_method(D_METHOD("get_band_gain_db", "band_idx"), &AudioEffectEQ::get_band_gain_db);
+    MethodBinder::bind_method(D_METHOD("set_band_gain_db", {"band_idx", "volume_db"}), &AudioEffectEQ::set_band_gain_db);
+    MethodBinder::bind_method(D_METHOD("get_band_gain_db", {"band_idx"}), &AudioEffectEQ::get_band_gain_db);
     MethodBinder::bind_method(D_METHOD("get_band_count"), &AudioEffectEQ::get_band_count);
 }
 

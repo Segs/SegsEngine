@@ -33,9 +33,8 @@
 #include "core/io/ip_address.h"
 #include "core/list.h"
 #include "core/map.h"
-#include "core/method_arg_casters.h"
-#include "core/method_enum_caster.h"
 #include "core/object.h"
+#include "core/ustring.h"
 
 struct _IP_ResolverPrivate;
 
@@ -107,4 +106,4 @@ public:
     ~IP() override;
 };
 
-VARIANT_ENUM_CAST(IP::Type);
+

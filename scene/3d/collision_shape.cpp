@@ -59,7 +59,7 @@ void CollisionShape::make_convex_from_brothers() {
         if (mi) {
 
             Ref<Mesh> m = mi->get_mesh();
-            if (m.is_valid()) {
+            if (m) {
 
                 Ref<Shape> s = m->create_convex_shape();
                 set_shape(s);
@@ -83,7 +83,7 @@ void CollisionShape::_notification(int p_what) {
             parent = Object::cast_to<CollisionObject>(get_parent());
             if (parent) {
                 owner_id = parent->create_shape_owner(this);
-                if (shape.is_valid()) {
+                if (shape) {
                     parent->shape_owner_add_shape(owner_id, shape);
                 }
                 _update_in_shape_owner();
@@ -112,7 +112,7 @@ void CollisionShape::_notification(int p_what) {
     }
 }
 
-void CollisionShape::resource_changed(RES res) {
+void CollisionShape::resource_changed(const RES& res) {
 
     update_gizmo();
 }
@@ -123,7 +123,7 @@ String CollisionShape::get_configuration_warning() const {
         return TTR("CollisionShape only serves to provide a collision shape to a CollisionObject derived node. Please only use it as a child of Area, StaticBody, RigidBody, KinematicBody, etc. to give them a shape.");
     }
 
-    if (!shape.is_valid()) {
+    if (not shape) {
         return TTR("A shape must be provided for CollisionShape to function. Please create a shape resource for it.");
     }
 
@@ -137,10 +137,10 @@ String CollisionShape::get_configuration_warning() const {
 void CollisionShape::_bind_methods() {
 
     //not sure if this should do anything
-    MethodBinder::bind_method(D_METHOD("resource_changed", "resource"), &CollisionShape::resource_changed);
-    MethodBinder::bind_method(D_METHOD("set_shape", "shape"), &CollisionShape::set_shape);
+    MethodBinder::bind_method(D_METHOD("resource_changed", {"resource"}), &CollisionShape::resource_changed);
+    MethodBinder::bind_method(D_METHOD("set_shape", {"shape"}), &CollisionShape::set_shape);
     MethodBinder::bind_method(D_METHOD("get_shape"), &CollisionShape::get_shape);
-    MethodBinder::bind_method(D_METHOD("set_disabled", "enable"), &CollisionShape::set_disabled);
+    MethodBinder::bind_method(D_METHOD("set_disabled", {"enable"}), &CollisionShape::set_disabled);
     MethodBinder::bind_method(D_METHOD("is_disabled"), &CollisionShape::is_disabled);
     MethodBinder::bind_method(D_METHOD("make_convex_from_brothers"), &CollisionShape::make_convex_from_brothers);
     ClassDB::set_method_flags("CollisionShape", "make_convex_from_brothers", METHOD_FLAGS_DEFAULT | METHOD_FLAG_EDITOR);
@@ -148,25 +148,25 @@ void CollisionShape::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_shape_changed"), &CollisionShape::_shape_changed);
     MethodBinder::bind_method(D_METHOD("_update_debug_shape"), &CollisionShape::_update_debug_shape);
 
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "shape", PROPERTY_HINT_RESOURCE_TYPE, "Shape"), "set_shape", "get_shape");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "disabled"), "set_disabled", "is_disabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "shape", PROPERTY_HINT_RESOURCE_TYPE, "Shape"), "set_shape", "get_shape");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "disabled"), "set_disabled", "is_disabled");
 }
 
 void CollisionShape::set_shape(const Ref<Shape> &p_shape) {
 
-    if (!shape.is_null()) {
+    if (shape) {
         shape->unregister_owner(this);
         shape->disconnect("changed", this, "_shape_changed");
     }
     shape = p_shape;
-    if (!shape.is_null()) {
+    if (shape) {
         shape->register_owner(this);
         shape->connect("changed", this, "_shape_changed");
     }
     update_gizmo();
     if (parent) {
         parent->shape_owner_clear_shapes(owner_id);
-        if (shape.is_valid()) {
+        if (shape) {
             parent->shape_owner_add_shape(owner_id, shape);
         }
     }
@@ -206,7 +206,7 @@ CollisionShape::CollisionShape() {
 }
 
 CollisionShape::~CollisionShape() {
-    if (!shape.is_null())
+    if (shape)
         shape->unregister_owner(this);
     //VisualServer::get_singleton()->free(indicator);
 }
@@ -220,7 +220,7 @@ void CollisionShape::_update_debug_shape() {
     }
 
     Ref<Shape> s = get_shape();
-    if (s.is_null())
+    if (not s)
         return;
 
     Ref<Mesh> mesh = s->get_debug_mesh();

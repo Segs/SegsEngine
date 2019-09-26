@@ -32,14 +32,10 @@
 
 #include "core/os/memory.h"
 #include "core/sort_array.h"
+#include "EASTL/list.h"
 
 template<class T>
-struct ComparatorWrap {
-    bool (*compare_func)(const T&,const T&);
-    bool operator()(const T& a,const T& b) {
-        return compare_func(a,b);
-    }
-};
+using ListPOD = eastl::list<T,wrap_allocator>;
 /**
  * Generic Templatized Linked List Implementation.
  * The implementation differs from the STL one because
@@ -123,27 +119,15 @@ public:
         /**
          * get the value stored in this element.
          */
-        _FORCE_INLINE_ T &get() {
+        _FORCE_INLINE_ T &deref() {
             return value;
         }
         /**
          * get the value stored in this element, for constant lists
          */
-        _FORCE_INLINE_ const T &get() const {
+        _FORCE_INLINE_ const T &deref() const {
             return value;
         }
-        /**
-         * set the value stored in this element.
-         */
-        _FORCE_INLINE_ void set(const T &p_value) {
-            value = (T &)p_value;
-        }
-
-        void erase() {
-
-            data->erase(this);
-        }
-
         _FORCE_INLINE_ Element() {
             next_ptr = nullptr;
             prev_ptr = nullptr;
@@ -450,9 +434,19 @@ public:
         const Element *it = p_list.front();
         while (it) {
 
-            push_back(it->get());
+            push_back(it->deref());
             it = it->next();
         }
+    }
+
+    List &operator=(List &&p_list) {
+        if(this==&p_list)
+            return *this;
+        clear();
+
+        _data = p_list._data;
+        p_list._data = nullptr;
+        return *this;
     }
 
     T &operator[](int p_index) {
@@ -465,7 +459,7 @@ public:
 
             if (c == p_index) {
 
-                return I->get();
+                return I->deref();
             }
             I = I->next();
             c++;
@@ -484,7 +478,7 @@ public:
 
             if (c == p_index) {
 
-                return I->get();
+                return I->deref();
             }
             I = I->next();
             c++;
@@ -741,11 +735,14 @@ public:
         const Element *it = p_list.front();
         while (it) {
 
-            push_back(it->get());
+            push_back(it->deref());
             it = it->next();
         }
     }
-
+    List(List &&p_list) noexcept {
+        _data = p_list._data;
+        p_list._data = nullptr;
+    }
     List() {
         _data = nullptr;
     }

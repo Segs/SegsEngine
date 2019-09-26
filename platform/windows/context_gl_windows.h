@@ -40,7 +40,7 @@
 
 #include <windows.h>
 
-typedef bool(APIENTRY *PFNWGLSWAPINTERVALEXTPROC)(int interval);
+using PFNWGLSWAPINTERVALEXTPROC = bool (*)(int);
 
 class ContextGL_Windows {
 

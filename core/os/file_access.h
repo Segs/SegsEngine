@@ -44,7 +44,7 @@ class String;
  * Multi-Platform abstraction for accessing to files.
  */
 
-class FileAccess {
+class GODOT_EXPORT FileAccess {
 
 public:
     enum AccessType {
@@ -182,7 +182,7 @@ public:
     }
 
     FileAccess();
-	virtual ~FileAccess() {}
+    virtual ~FileAccess() {}
 };
 
 struct FileAccessRef {
@@ -191,7 +191,7 @@ struct FileAccessRef {
         return f;
     }
 
-	operator bool() const { return f != nullptr; }
+    operator bool() const { return f != nullptr; }
     FileAccess *f;
     operator FileAccess *() { return f; }
     FileAccessRef(FileAccess *fa) { f = fa; }

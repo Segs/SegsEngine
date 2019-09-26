@@ -67,7 +67,7 @@ void enet_time_set(enet_uint32 newTimeBase) {
 int enet_address_set_host(ENetAddress *address, const char *name) {
 
 	IP_Address ip = IP::get_singleton()->resolve_hostname(name);
-	ERR_FAIL_COND_V(!ip.is_valid(), -1);
+	ERR_FAIL_COND_V(!ip.is_valid(), -1)
 
 	enet_address_set_ip(address, ip.get_ipv6(), 16);
 	return 0;
@@ -123,7 +123,7 @@ void enet_socket_destroy(ENetSocket socket) {
 
 int enet_socket_send(ENetSocket socket, const ENetAddress *address, const ENetBuffer *buffers, size_t bufferCount) {
 
-	ERR_FAIL_COND_V(address == nullptr, -1);
+	ERR_FAIL_COND_V(address == nullptr, -1)
 
 	NetSocket *sock = (NetSocket *)socket;
 	IP_Address dest;
@@ -165,7 +165,7 @@ int enet_socket_send(ENetSocket socket, const ENetAddress *address, const ENetBu
 
 int enet_socket_receive(ENetSocket socket, ENetAddress *address, ENetBuffer *buffers, size_t bufferCount) {
 
-	ERR_FAIL_COND_V(bufferCount != 1, -1);
+	ERR_FAIL_COND_V(bufferCount != 1, -1)
 
 	NetSocket *sock = (NetSocket *)socket;
 
@@ -221,17 +221,17 @@ int enet_socket_set_option(ENetSocket socket, ENetSocketOption option, int value
 		case ENET_SOCKOPT_NONBLOCK: {
 			sock->set_blocking_enabled(value ? false : true);
 			return 0;
-		} break;
+        }
 
 		case ENET_SOCKOPT_BROADCAST: {
 			sock->set_broadcasting_enabled(value ? true : false);
 			return 0;
-		} break;
+        }
 
 		case ENET_SOCKOPT_REUSEADDR: {
 			sock->set_reuse_address_enabled(value ? true : false);
 			return 0;
-		} break;
+        }
 
 		case ENET_SOCKOPT_RCVBUF: {
 			return -1;

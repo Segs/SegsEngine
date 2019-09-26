@@ -65,12 +65,12 @@ Variant DictionaryPropertyEdit::get_dictionary() const {
     if (!o)
         return Dictionary();
     Variant dict = o->get(property);
-    if (dict.get_type() != Variant::DICTIONARY)
+    if (dict.get_type() != VariantType::DICTIONARY)
         return Dictionary();
     return dict;
 }
 
-void DictionaryPropertyEdit::_get_property_list(List<PropertyInfo> *p_list) const {
+void DictionaryPropertyEdit::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
     Dictionary dict = get_dictionary();
 

@@ -34,10 +34,13 @@
 #include "core/os/semaphore.h"
 #include "core/os/thread.h"
 #include "core/method_bind.h"
+#include "core/method_arg_casters.h"
+#include "core/method_enum_caster.h"
 
 IMPL_GDCLASS(IP);
 
 VARIANT_ENUM_CAST(IP::ResolverStatus);
+VARIANT_ENUM_CAST(IP::Type);
 
 /************* RESOLVER ******************/
 
@@ -111,7 +114,7 @@ struct _IP_ResolverPrivate {
 
     HashMap<String, IP_Address> cache;
 
-    static String get_cache_key(String p_hostname, IP::Type p_type) {
+    static String get_cache_key(const String& p_hostname, IP::Type p_type) {
         return itos(p_type) + p_hostname;
     }
 };
@@ -121,7 +124,7 @@ IP_Address IP::resolve_hostname(const String &p_hostname, IP::Type p_type) {
     resolver->mutex->lock();
 
     String key = _IP_ResolverPrivate::get_cache_key(p_hostname, p_type);
-    if (resolver->cache.has(key) && resolver->cache[key].is_valid()) {
+    if (resolver->cache.contains(key) && resolver->cache[key].is_valid()) {
         IP_Address res = resolver->cache[key];
         resolver->mutex->unlock();
         return res;
@@ -148,7 +151,7 @@ IP::ResolverID IP::resolve_hostname_queue_item(const String &p_hostname, IP::Typ
     String key = _IP_ResolverPrivate::get_cache_key(p_hostname, p_type);
     resolver->queue[id].hostname = p_hostname;
     resolver->queue[id].type = p_type;
-    if (resolver->cache.has(key) && resolver->cache[key].is_valid()) {
+    if (resolver->cache.contains(key) && resolver->cache[key].is_valid()) {
         resolver->queue[id].response = resolver->cache[key];
         resolver->queue[id].status = IP::RESOLVER_STATUS_DONE;
     } else {
@@ -231,7 +234,7 @@ Array IP::_get_local_addresses() const {
     List<IP_Address> ip_addresses;
     get_local_addresses(&ip_addresses);
     for (List<IP_Address>::Element *E = ip_addresses.front(); E; E = E->next()) {
-        addresses.push_back(E->get());
+        addresses.push_back(Variant(E->deref()));
     }
 
     return addresses;
@@ -242,8 +245,8 @@ Array IP::_get_local_interfaces() const {
     Array results;
     Map<String, Interface_Info> interfaces;
     get_local_interfaces(&interfaces);
-    for (Map<String, Interface_Info>::Element *E = interfaces.front(); E; E = E->next()) {
-        Interface_Info &c = E->get();
+    for (eastl::pair<const String,Interface_Info> &E : interfaces) {
+        Interface_Info &c(E.second);
         Dictionary rc;
         rc["name"] = c.name;
         rc["friendly"] = c.name_friendly;
@@ -251,7 +254,7 @@ Array IP::_get_local_interfaces() const {
 
         Array ips;
         for (const List<IP_Address>::Element *F = c.ip_addresses.front(); F; F = F->next()) {
-            ips.push_front(F->get());
+            ips.push_front(Variant(F->deref()));
         }
         rc["addresses"] = ips;
 
@@ -265,23 +268,23 @@ void IP::get_local_addresses(List<IP_Address> *r_addresses) const {
 
     Map<String, Interface_Info> interfaces;
     get_local_interfaces(&interfaces);
-    for (Map<String, Interface_Info>::Element *E = interfaces.front(); E; E = E->next()) {
-        for (const List<IP_Address>::Element *F = E->get().ip_addresses.front(); F; F = F->next()) {
-            r_addresses->push_front(F->get());
+    for (eastl::pair<const String,Interface_Info> &E : interfaces) {
+        for (const List<IP_Address>::Element *F = E.second.ip_addresses.front(); F; F = F->next()) {
+            r_addresses->push_front(F->deref());
         }
     }
 }
 
 void IP::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("resolve_hostname", "host", "ip_type"), &IP::resolve_hostname, {DEFVAL(IP::TYPE_ANY)});
-    MethodBinder::bind_method(D_METHOD("resolve_hostname_queue_item", "host", "ip_type"), &IP::resolve_hostname_queue_item, {DEFVAL(IP::TYPE_ANY)});
-    MethodBinder::bind_method(D_METHOD("get_resolve_item_status", "id"), &IP::get_resolve_item_status);
-    MethodBinder::bind_method(D_METHOD("get_resolve_item_address", "id"), &IP::get_resolve_item_address);
-    MethodBinder::bind_method(D_METHOD("erase_resolve_item", "id"), &IP::erase_resolve_item);
+    MethodBinder::bind_method(D_METHOD("resolve_hostname", {"host", "ip_type"}), &IP::resolve_hostname, {DEFVAL(IP::TYPE_ANY)});
+    MethodBinder::bind_method(D_METHOD("resolve_hostname_queue_item", {"host", "ip_type"}), &IP::resolve_hostname_queue_item, {DEFVAL(IP::TYPE_ANY)});
+    MethodBinder::bind_method(D_METHOD("get_resolve_item_status", {"id"}), &IP::get_resolve_item_status);
+    MethodBinder::bind_method(D_METHOD("get_resolve_item_address", {"id"}), &IP::get_resolve_item_address);
+    MethodBinder::bind_method(D_METHOD("erase_resolve_item", {"id"}), &IP::erase_resolve_item);
     MethodBinder::bind_method(D_METHOD("get_local_addresses"), &IP::_get_local_addresses);
     MethodBinder::bind_method(D_METHOD("get_local_interfaces"), &IP::_get_local_interfaces);
-    MethodBinder::bind_method(D_METHOD("clear_cache", "hostname"), &IP::clear_cache, {DEFVAL("")});
+    MethodBinder::bind_method(D_METHOD("clear_cache", {"hostname"}), &IP::clear_cache, {DEFVAL("")});
 
     BIND_ENUM_CONSTANT(RESOLVER_STATUS_NONE)
     BIND_ENUM_CONSTANT(RESOLVER_STATUS_WAITING)
@@ -291,10 +294,10 @@ void IP::_bind_methods() {
     BIND_CONSTANT(RESOLVER_MAX_QUERIES)
     BIND_CONSTANT(RESOLVER_INVALID_ID)
 
-    BIND_ENUM_CONSTANT(TYPE_NONE);
-    BIND_ENUM_CONSTANT(TYPE_IPV4);
-    BIND_ENUM_CONSTANT(TYPE_IPV6);
-    BIND_ENUM_CONSTANT(TYPE_ANY);
+    BIND_ENUM_CONSTANT(TYPE_NONE)
+    BIND_ENUM_CONSTANT(TYPE_IPV4)
+    BIND_ENUM_CONSTANT(TYPE_IPV6)
+    BIND_ENUM_CONSTANT(TYPE_ANY)
 }
 
 IP *IP::singleton = nullptr;
@@ -308,8 +311,8 @@ IP *(*IP::_create)() = nullptr;
 
 IP *IP::create() {
 
-    ERR_FAIL_COND_V(singleton, nullptr);
-    ERR_FAIL_COND_V(!_create, nullptr);
+    ERR_FAIL_COND_V(singleton, nullptr)
+    ERR_FAIL_COND_V(!_create, nullptr)
     return _create();
 }
 

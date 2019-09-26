@@ -44,17 +44,17 @@ WebSocketServer::~WebSocketServer() {
 void WebSocketServer::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("is_listening"), &WebSocketServer::is_listening);
-    MethodBinder::bind_method(D_METHOD("listen", "port", "protocols", "gd_mp_api"), &WebSocketServer::listen, {DEFVAL(PoolVector<String>()), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("listen", {"port", "protocols", "gd_mp_api"}), &WebSocketServer::listen, {DEFVAL(PoolVector<String>()), DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("stop"), &WebSocketServer::stop);
-    MethodBinder::bind_method(D_METHOD("has_peer", "id"), &WebSocketServer::has_peer);
-    MethodBinder::bind_method(D_METHOD("get_peer_address", "id"), &WebSocketServer::get_peer_address);
-    MethodBinder::bind_method(D_METHOD("get_peer_port", "id"), &WebSocketServer::get_peer_port);
-    MethodBinder::bind_method(D_METHOD("disconnect_peer", "id", "code", "reason"), &WebSocketServer::disconnect_peer, {DEFVAL(1000), DEFVAL("")});
+    MethodBinder::bind_method(D_METHOD("has_peer", {"id"}), &WebSocketServer::has_peer);
+    MethodBinder::bind_method(D_METHOD("get_peer_address", {"id"}), &WebSocketServer::get_peer_address);
+    MethodBinder::bind_method(D_METHOD("get_peer_port", {"id"}), &WebSocketServer::get_peer_port);
+    MethodBinder::bind_method(D_METHOD("disconnect_peer", {"id", "code", "reason"}), &WebSocketServer::disconnect_peer, {DEFVAL(1000), DEFVAL("")});
 
-    ADD_SIGNAL(MethodInfo("client_close_request", PropertyInfo(Variant::INT, "id"), PropertyInfo(Variant::INT, "code"), PropertyInfo(Variant::STRING, "reason")));
-    ADD_SIGNAL(MethodInfo("client_disconnected", PropertyInfo(Variant::INT, "id"), PropertyInfo(Variant::BOOL, "was_clean_close")));
-    ADD_SIGNAL(MethodInfo("client_connected", PropertyInfo(Variant::INT, "id"), PropertyInfo(Variant::STRING, "protocol")));
-    ADD_SIGNAL(MethodInfo("data_received", PropertyInfo(Variant::INT, "id")));
+    ADD_SIGNAL(MethodInfo("client_close_request", PropertyInfo(VariantType::INT, "id"), PropertyInfo(VariantType::INT, "code"), PropertyInfo(VariantType::STRING, "reason")));
+    ADD_SIGNAL(MethodInfo("client_disconnected", PropertyInfo(VariantType::INT, "id"), PropertyInfo(VariantType::BOOL, "was_clean_close")));
+    ADD_SIGNAL(MethodInfo("client_connected", PropertyInfo(VariantType::INT, "id"), PropertyInfo(VariantType::STRING, "protocol")));
+    ADD_SIGNAL(MethodInfo("data_received", PropertyInfo(VariantType::INT, "id")));
 }
 
 NetworkedMultiplayerPeer::ConnectionStatus WebSocketServer::get_connection_status() const {

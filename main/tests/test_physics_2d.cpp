@@ -86,7 +86,7 @@ class TestPhysics2DMainLoop : public MainLoop {
                 }
             }
 
-            Ref<Image> image = memnew(Image(32, 2, 0, Image::FORMAT_LA8, pixels));
+            Ref<Image> image(make_ref_counted<Image>(32, 2, 0, Image::FORMAT_LA8, pixels));
 
             body_shape_data[Physics2DServer::SHAPE_SEGMENT].image = vs->texture_create_from_image(image);
 
@@ -113,7 +113,7 @@ class TestPhysics2DMainLoop : public MainLoop {
                 }
             }
 
-            Ref<Image> image = memnew(Image(32, 32, 0, Image::FORMAT_LA8, pixels));
+            Ref<Image> image(make_ref_counted<Image>(32, 32, 0, Image::FORMAT_LA8, pixels));
 
             body_shape_data[Physics2DServer::SHAPE_CIRCLE].image = vs->texture_create_from_image(image);
 
@@ -140,7 +140,7 @@ class TestPhysics2DMainLoop : public MainLoop {
                 }
             }
 
-            Ref<Image> image = memnew(Image(32, 32, 0, Image::FORMAT_LA8, pixels));
+            Ref<Image> image(make_ref_counted<Image>(32, 32, 0, Image::FORMAT_LA8, pixels));
 
             body_shape_data[Physics2DServer::SHAPE_RECTANGLE].image = vs->texture_create_from_image(image);
 
@@ -168,7 +168,7 @@ class TestPhysics2DMainLoop : public MainLoop {
                 }
             }
 
-            Ref<Image> image = memnew(Image(32, 64, 0, Image::FORMAT_LA8, pixels));
+            Ref<Image> image(make_ref_counted<Image>(32, 64, 0, Image::FORMAT_LA8, pixels));
 
             body_shape_data[Physics2DServer::SHAPE_CAPSULE].image = vs->texture_create_from_image(image);
 
@@ -182,7 +182,7 @@ class TestPhysics2DMainLoop : public MainLoop {
 
         {
 
-            Ref<Image> image = memnew(Image(convex_png));
+            Ref<Image> image(make_ref_counted<Image>(convex_png));
 
             body_shape_data[Physics2DServer::SHAPE_CONVEX_POLYGON].image = vs->texture_create_from_image(image);
 
@@ -197,7 +197,7 @@ class TestPhysics2DMainLoop : public MainLoop {
             arr.push_back(Point2(5, 56) - sb);
             arr.push_back(Point2(4, 20) - sb);
             arr.push_back(Point2(11, 7) - sb);
-            ps->shape_set_data(convex_polygon_shape, arr);
+            ps->shape_set_data(convex_polygon_shape, Variant(arr));
 
             body_shape_data[Physics2DServer::SHAPE_CONVEX_POLYGON].shape = convex_polygon_shape;
         }
@@ -214,9 +214,9 @@ class TestPhysics2DMainLoop : public MainLoop {
 protected:
     void input_event(const Ref<InputEvent> &p_event) override {
 
-        Ref<InputEventMouseButton> mb = p_event;
+        Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_event);
 
-        if (mb.is_valid()) {
+        if (mb) {
 
             if (mb->is_pressed()) {
 
@@ -232,9 +232,9 @@ protected:
             }
         }
 
-        Ref<InputEventMouseMotion> mm = p_event;
+        Ref<InputEventMouseMotion> mm = dynamic_ref_cast<InputEventMouseMotion>(p_event);
 
-        if (mm.is_valid()) {
+        if (mm) {
 
             Point2 p = mm->get_position();
 

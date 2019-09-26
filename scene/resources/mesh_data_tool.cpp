@@ -44,16 +44,16 @@ void MeshDataTool::clear() {
 
 Error MeshDataTool::create_from_surface(const Ref<ArrayMesh> &p_mesh, int p_surface) {
 
-    ERR_FAIL_COND_V(p_mesh.is_null(), ERR_INVALID_PARAMETER);
-    ERR_FAIL_COND_V(p_mesh->surface_get_primitive_type(p_surface) != Mesh::PRIMITIVE_TRIANGLES, ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(not p_mesh, ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(p_mesh->surface_get_primitive_type(p_surface) != Mesh::PRIMITIVE_TRIANGLES, ERR_INVALID_PARAMETER)
 
     Array arrays = p_mesh->surface_get_arrays(p_surface);
-    ERR_FAIL_COND_V(arrays.empty(), ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(arrays.empty(), ERR_INVALID_PARAMETER)
 
     PoolVector<Vector3> varray = arrays[Mesh::ARRAY_VERTEX];
 
     int vcount = varray.size();
-    ERR_FAIL_COND_V(vcount == 0, ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(vcount == 0, ERR_INVALID_PARAMETER)
 
     clear();
     format = p_mesh->surface_get_format(p_surface);
@@ -62,30 +62,30 @@ Error MeshDataTool::create_from_surface(const Ref<ArrayMesh> &p_mesh, int p_surf
     PoolVector<Vector3>::Read vr = varray.read();
 
     PoolVector<Vector3>::Read nr;
-    if (arrays[Mesh::ARRAY_NORMAL].get_type() != Variant::NIL)
+    if (arrays[Mesh::ARRAY_NORMAL].get_type() != VariantType::NIL)
         nr = arrays[Mesh::ARRAY_NORMAL].operator PoolVector<Vector3>().read();
 
     PoolVector<real_t>::Read ta;
-    if (arrays[Mesh::ARRAY_TANGENT].get_type() != Variant::NIL)
+    if (arrays[Mesh::ARRAY_TANGENT].get_type() != VariantType::NIL)
         ta = arrays[Mesh::ARRAY_TANGENT].operator PoolVector<real_t>().read();
 
     PoolVector<Vector2>::Read uv;
-    if (arrays[Mesh::ARRAY_TEX_UV].get_type() != Variant::NIL)
+    if (arrays[Mesh::ARRAY_TEX_UV].get_type() != VariantType::NIL)
         uv = arrays[Mesh::ARRAY_TEX_UV].operator PoolVector<Vector2>().read();
     PoolVector<Vector2>::Read uv2;
-    if (arrays[Mesh::ARRAY_TEX_UV2].get_type() != Variant::NIL)
+    if (arrays[Mesh::ARRAY_TEX_UV2].get_type() != VariantType::NIL)
         uv2 = arrays[Mesh::ARRAY_TEX_UV2].operator PoolVector<Vector2>().read();
 
     PoolVector<Color>::Read col;
-    if (arrays[Mesh::ARRAY_COLOR].get_type() != Variant::NIL)
+    if (arrays[Mesh::ARRAY_COLOR].get_type() != VariantType::NIL)
         col = arrays[Mesh::ARRAY_COLOR].operator PoolVector<Color>().read();
 
     PoolVector<int>::Read bo;
-    if (arrays[Mesh::ARRAY_BONES].get_type() != Variant::NIL)
+    if (arrays[Mesh::ARRAY_BONES].get_type() != VariantType::NIL)
         bo = arrays[Mesh::ARRAY_BONES].operator PoolVector<int>().read();
 
     PoolVector<real_t>::Read we;
-    if (arrays[Mesh::ARRAY_WEIGHTS].get_type() != Variant::NIL)
+    if (arrays[Mesh::ARRAY_WEIGHTS].get_type() != VariantType::NIL)
         we = arrays[Mesh::ARRAY_WEIGHTS].operator PoolVector<real_t>().read();
 
     vertices.resize(vcount);
@@ -126,7 +126,7 @@ Error MeshDataTool::create_from_surface(const Ref<ArrayMesh> &p_mesh, int p_surf
 
     PoolVector<int> indices;
 
-    if (arrays[Mesh::ARRAY_INDEX].get_type() != Variant::NIL) {
+    if (arrays[Mesh::ARRAY_INDEX].get_type() != VariantType::NIL) {
 
         indices = arrays[Mesh::ARRAY_INDEX];
     } else {
@@ -158,7 +158,7 @@ Error MeshDataTool::create_from_surface(const Ref<ArrayMesh> &p_mesh, int p_surf
                 SWAP(edge.x, edge.y);
             }
 
-            if (edge_indices.has(edge)) {
+            if (edge_indices.contains(edge)) {
                 face.edges[j] = edge_indices[edge];
 
             } else {
@@ -168,8 +168,8 @@ Error MeshDataTool::create_from_surface(const Ref<ArrayMesh> &p_mesh, int p_surf
                 e.vertex[0] = edge.x;
                 e.vertex[1] = edge.y;
                 edges.push_back(e);
-				v[j]->edges.push_back(face.edges[j]);
-				v[(j + 1) % 3]->edges.push_back(face.edges[j]);
+                v[j]->edges.push_back(face.edges[j]);
+                v[(j + 1) % 3]->edges.push_back(face.edges[j]);
             }
 
             edges.write[face.edges[j]].faces.push_back(fidx);
@@ -184,7 +184,7 @@ Error MeshDataTool::create_from_surface(const Ref<ArrayMesh> &p_mesh, int p_surf
 
 Error MeshDataTool::commit_to_surface(const Ref<ArrayMesh> &p_mesh) {
 
-    ERR_FAIL_COND_V(p_mesh.is_null(), ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(not p_mesh, ERR_INVALID_PARAMETER)
     Array arr;
     arr.resize(Mesh::ARRAY_MAX);
 
@@ -302,9 +302,9 @@ Error MeshDataTool::commit_to_surface(const Ref<ArrayMesh> &p_mesh) {
     if (c.size())
         arr[Mesh::ARRAY_COLOR] = c;
     if (u.size())
-        arr[Mesh::ARRAY_TEX_UV] = u;
+        arr[Mesh::ARRAY_TEX_UV] = Variant(u);
     if (u2.size())
-        arr[Mesh::ARRAY_TEX_UV2] = u2;
+        arr[Mesh::ARRAY_TEX_UV2] = Variant(u2);
     if (t.size())
         arr[Mesh::ARRAY_TANGENT] = t;
     if (b.size())
@@ -523,8 +523,8 @@ void MeshDataTool::set_material(const Ref<Material> &p_material) {
 void MeshDataTool::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("clear"), &MeshDataTool::clear);
-    MethodBinder::bind_method(D_METHOD("create_from_surface", "mesh", "surface"), &MeshDataTool::create_from_surface);
-    MethodBinder::bind_method(D_METHOD("commit_to_surface", "mesh"), &MeshDataTool::commit_to_surface);
+    MethodBinder::bind_method(D_METHOD("create_from_surface", {"mesh", "surface"}), &MeshDataTool::create_from_surface);
+    MethodBinder::bind_method(D_METHOD("commit_to_surface", {"mesh"}), &MeshDataTool::commit_to_surface);
 
     MethodBinder::bind_method(D_METHOD("get_format"), &MeshDataTool::get_format);
 
@@ -532,51 +532,51 @@ void MeshDataTool::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_edge_count"), &MeshDataTool::get_edge_count);
     MethodBinder::bind_method(D_METHOD("get_face_count"), &MeshDataTool::get_face_count);
 
-    MethodBinder::bind_method(D_METHOD("set_vertex", "idx", "vertex"), &MeshDataTool::set_vertex);
-    MethodBinder::bind_method(D_METHOD("get_vertex", "idx"), &MeshDataTool::get_vertex);
+    MethodBinder::bind_method(D_METHOD("set_vertex", {"idx", "vertex"}), &MeshDataTool::set_vertex);
+    MethodBinder::bind_method(D_METHOD("get_vertex", {"idx"}), &MeshDataTool::get_vertex);
 
-    MethodBinder::bind_method(D_METHOD("set_vertex_normal", "idx", "normal"), &MeshDataTool::set_vertex_normal);
-    MethodBinder::bind_method(D_METHOD("get_vertex_normal", "idx"), &MeshDataTool::get_vertex_normal);
+    MethodBinder::bind_method(D_METHOD("set_vertex_normal", {"idx", "normal"}), &MeshDataTool::set_vertex_normal);
+    MethodBinder::bind_method(D_METHOD("get_vertex_normal", {"idx"}), &MeshDataTool::get_vertex_normal);
 
-    MethodBinder::bind_method(D_METHOD("set_vertex_tangent", "idx", "tangent"), &MeshDataTool::set_vertex_tangent);
-    MethodBinder::bind_method(D_METHOD("get_vertex_tangent", "idx"), &MeshDataTool::get_vertex_tangent);
+    MethodBinder::bind_method(D_METHOD("set_vertex_tangent", {"idx", "tangent"}), &MeshDataTool::set_vertex_tangent);
+    MethodBinder::bind_method(D_METHOD("get_vertex_tangent", {"idx"}), &MeshDataTool::get_vertex_tangent);
 
-    MethodBinder::bind_method(D_METHOD("set_vertex_uv", "idx", "uv"), &MeshDataTool::set_vertex_uv);
-    MethodBinder::bind_method(D_METHOD("get_vertex_uv", "idx"), &MeshDataTool::get_vertex_uv);
+    MethodBinder::bind_method(D_METHOD("set_vertex_uv", {"idx", "uv"}), &MeshDataTool::set_vertex_uv);
+    MethodBinder::bind_method(D_METHOD("get_vertex_uv", {"idx"}), &MeshDataTool::get_vertex_uv);
 
-    MethodBinder::bind_method(D_METHOD("set_vertex_uv2", "idx", "uv2"), &MeshDataTool::set_vertex_uv2);
-    MethodBinder::bind_method(D_METHOD("get_vertex_uv2", "idx"), &MeshDataTool::get_vertex_uv2);
+    MethodBinder::bind_method(D_METHOD("set_vertex_uv2", {"idx", "uv2"}), &MeshDataTool::set_vertex_uv2);
+    MethodBinder::bind_method(D_METHOD("get_vertex_uv2", {"idx"}), &MeshDataTool::get_vertex_uv2);
 
-    MethodBinder::bind_method(D_METHOD("set_vertex_color", "idx", "color"), &MeshDataTool::set_vertex_color);
-    MethodBinder::bind_method(D_METHOD("get_vertex_color", "idx"), &MeshDataTool::get_vertex_color);
+    MethodBinder::bind_method(D_METHOD("set_vertex_color", {"idx", "color"}), &MeshDataTool::set_vertex_color);
+    MethodBinder::bind_method(D_METHOD("get_vertex_color", {"idx"}), &MeshDataTool::get_vertex_color);
 
-    MethodBinder::bind_method(D_METHOD("set_vertex_bones", "idx", "bones"), &MeshDataTool::set_vertex_bones);
-    MethodBinder::bind_method(D_METHOD("get_vertex_bones", "idx"), &MeshDataTool::get_vertex_bones);
+    MethodBinder::bind_method(D_METHOD("set_vertex_bones", {"idx", "bones"}), &MeshDataTool::set_vertex_bones);
+    MethodBinder::bind_method(D_METHOD("get_vertex_bones", {"idx"}), &MeshDataTool::get_vertex_bones);
 
-    MethodBinder::bind_method(D_METHOD("set_vertex_weights", "idx", "weights"), &MeshDataTool::set_vertex_weights);
-    MethodBinder::bind_method(D_METHOD("get_vertex_weights", "idx"), &MeshDataTool::get_vertex_weights);
+    MethodBinder::bind_method(D_METHOD("set_vertex_weights", {"idx", "weights"}), &MeshDataTool::set_vertex_weights);
+    MethodBinder::bind_method(D_METHOD("get_vertex_weights", {"idx"}), &MeshDataTool::get_vertex_weights);
 
-    MethodBinder::bind_method(D_METHOD("set_vertex_meta", "idx", "meta"), &MeshDataTool::set_vertex_meta);
-    MethodBinder::bind_method(D_METHOD("get_vertex_meta", "idx"), &MeshDataTool::get_vertex_meta);
+    MethodBinder::bind_method(D_METHOD("set_vertex_meta", {"idx", "meta"}), &MeshDataTool::set_vertex_meta);
+    MethodBinder::bind_method(D_METHOD("get_vertex_meta", {"idx"}), &MeshDataTool::get_vertex_meta);
 
-    MethodBinder::bind_method(D_METHOD("get_vertex_edges", "idx"), &MeshDataTool::get_vertex_edges);
-    MethodBinder::bind_method(D_METHOD("get_vertex_faces", "idx"), &MeshDataTool::get_vertex_faces);
+    MethodBinder::bind_method(D_METHOD("get_vertex_edges", {"idx"}), &MeshDataTool::get_vertex_edges);
+    MethodBinder::bind_method(D_METHOD("get_vertex_faces", {"idx"}), &MeshDataTool::get_vertex_faces);
 
-    MethodBinder::bind_method(D_METHOD("get_edge_vertex", "idx", "vertex"), &MeshDataTool::get_edge_vertex);
-    MethodBinder::bind_method(D_METHOD("get_edge_faces", "idx"), &MeshDataTool::get_edge_faces);
+    MethodBinder::bind_method(D_METHOD("get_edge_vertex", {"idx", "vertex"}), &MeshDataTool::get_edge_vertex);
+    MethodBinder::bind_method(D_METHOD("get_edge_faces", {"idx"}), &MeshDataTool::get_edge_faces);
 
-    MethodBinder::bind_method(D_METHOD("set_edge_meta", "idx", "meta"), &MeshDataTool::set_edge_meta);
-    MethodBinder::bind_method(D_METHOD("get_edge_meta", "idx"), &MeshDataTool::get_edge_meta);
+    MethodBinder::bind_method(D_METHOD("set_edge_meta", {"idx", "meta"}), &MeshDataTool::set_edge_meta);
+    MethodBinder::bind_method(D_METHOD("get_edge_meta", {"idx"}), &MeshDataTool::get_edge_meta);
 
-    MethodBinder::bind_method(D_METHOD("get_face_vertex", "idx", "vertex"), &MeshDataTool::get_face_vertex);
-    MethodBinder::bind_method(D_METHOD("get_face_edge", "idx", "edge"), &MeshDataTool::get_face_edge);
+    MethodBinder::bind_method(D_METHOD("get_face_vertex", {"idx", "vertex"}), &MeshDataTool::get_face_vertex);
+    MethodBinder::bind_method(D_METHOD("get_face_edge", {"idx", "edge"}), &MeshDataTool::get_face_edge);
 
-    MethodBinder::bind_method(D_METHOD("set_face_meta", "idx", "meta"), &MeshDataTool::set_face_meta);
-    MethodBinder::bind_method(D_METHOD("get_face_meta", "idx"), &MeshDataTool::get_face_meta);
+    MethodBinder::bind_method(D_METHOD("set_face_meta", {"idx", "meta"}), &MeshDataTool::set_face_meta);
+    MethodBinder::bind_method(D_METHOD("get_face_meta", {"idx"}), &MeshDataTool::get_face_meta);
 
-    MethodBinder::bind_method(D_METHOD("get_face_normal", "idx"), &MeshDataTool::get_face_normal);
+    MethodBinder::bind_method(D_METHOD("get_face_normal", {"idx"}), &MeshDataTool::get_face_normal);
 
-    MethodBinder::bind_method(D_METHOD("set_material", "material"), &MeshDataTool::set_material);
+    MethodBinder::bind_method(D_METHOD("set_material", {"material"}), &MeshDataTool::set_material);
     MethodBinder::bind_method(D_METHOD("get_material"), &MeshDataTool::get_material);
 }
 

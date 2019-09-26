@@ -51,7 +51,7 @@
 
 void FileAccessWindows::check_errors() const {
 
-    ERR_FAIL_COND(!f);
+    ERR_FAIL_COND(!f)
 
     if (feof(f)) {
 
@@ -185,7 +185,7 @@ void FileAccessWindows::close() {
 
     save_path = "";
 
-    ERR_FAIL_COND_MSG(rename_error, "Safe save failed. This may be a permissions problem, but also may happen because you are running a paranoid antivirus. If this is the case, please switch to Windows Defender or disable the 'safe save' option in editor settings. This makes it work, but increases the risk of file corruption in a crash.");
+    ERR_FAIL_COND_MSG(rename_error, "Safe save failed. This may be a permissions problem, but also may happen because you are running a paranoid antivirus. If this is the case, please switch to Windows Defender or disable the 'safe save' option in editor settings. This makes it work, but increases the risk of file corruption in a crash.")
 }
 
 String FileAccessWindows::get_path() const {
@@ -204,7 +204,7 @@ bool FileAccessWindows::is_open() const {
 }
 void FileAccessWindows::seek(size_t p_position) {
 
-    ERR_FAIL_COND(!f);
+    ERR_FAIL_COND(!f)
     last_error = OK;
     if (fseek(f, p_position, SEEK_SET))
         check_errors();
@@ -212,7 +212,7 @@ void FileAccessWindows::seek(size_t p_position) {
 }
 void FileAccessWindows::seek_end(int64_t p_position) {
 
-    ERR_FAIL_COND(!f);
+    ERR_FAIL_COND(!f)
     if (fseek(f, p_position, SEEK_END))
         check_errors();
     prev_op = 0;
@@ -228,7 +228,7 @@ size_t FileAccessWindows::get_position() const {
 }
 size_t FileAccessWindows::get_len() const {
 
-    ERR_FAIL_COND_V(!f, 0);
+    ERR_FAIL_COND_V(!f, 0)
 
     size_t pos = get_position();
     fseek(f, 0, SEEK_END);
@@ -246,7 +246,7 @@ bool FileAccessWindows::eof_reached() const {
 
 uint8_t FileAccessWindows::get_8() const {
 
-    ERR_FAIL_COND_V(!f, 0);
+    ERR_FAIL_COND_V(!f, 0)
     if (flags == READ_WRITE || flags == WRITE_READ) {
         if (prev_op == WRITE) {
             fflush(f);
@@ -264,7 +264,7 @@ uint8_t FileAccessWindows::get_8() const {
 
 int FileAccessWindows::get_buffer(uint8_t *p_dst, int p_length) const {
 
-    ERR_FAIL_COND_V(!f, -1);
+    ERR_FAIL_COND_V(!f, -1)
     if (flags == READ_WRITE || flags == WRITE_READ) {
         if (prev_op == WRITE) {
             fflush(f);
@@ -283,7 +283,7 @@ Error FileAccessWindows::get_error() const {
 
 void FileAccessWindows::flush() {
 
-    ERR_FAIL_COND(!f);
+    ERR_FAIL_COND(!f)
     fflush(f);
     if (prev_op == WRITE)
         prev_op = 0;
@@ -291,7 +291,7 @@ void FileAccessWindows::flush() {
 
 void FileAccessWindows::store_8(uint8_t p_dest) {
 
-    ERR_FAIL_COND(!f);
+    ERR_FAIL_COND(!f)
     if (flags == READ_WRITE || flags == WRITE_READ) {
         if (prev_op == READ) {
             if (last_error != ERR_FILE_EOF) {
@@ -304,7 +304,7 @@ void FileAccessWindows::store_8(uint8_t p_dest) {
 }
 
 void FileAccessWindows::store_buffer(const uint8_t *p_src, int p_length) {
-    ERR_FAIL_COND(!f);
+    ERR_FAIL_COND(!f)
     if (flags == READ_WRITE || flags == WRITE_READ) {
         if (prev_op == READ) {
             if (last_error != ERR_FILE_EOF) {
@@ -313,7 +313,7 @@ void FileAccessWindows::store_buffer(const uint8_t *p_src, int p_length) {
         }
         prev_op = WRITE;
     }
-    ERR_FAIL_COND(fwrite(p_src, 1, p_length, f) != (size_t)p_length);
+    ERR_FAIL_COND(fwrite(p_src, 1, p_length, f) != (size_t)p_length)
 }
 
 bool FileAccessWindows::file_exists(const String &p_name) {

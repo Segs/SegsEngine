@@ -66,66 +66,68 @@ using PoolStringArray = PoolVector<String>;
 using PoolVector2Array = PoolVector<Vector2>;
 using PoolVector3Array = PoolVector<Vector3>;
 using PoolColorArray = PoolVector<Color>;
-
+namespace eastl {
+template<class T,class A>
+class vector;
+}
+template<class T>
+using PODVector = eastl::vector<T,wrap_allocator>;
 // Temporary workaround until c++11 alignas()
 #ifdef __GNUC__
 #define GCC_ALIGNED_8 __attribute__((aligned(8)))
 #else
 #define GCC_ALIGNED_8
 #endif
-
-class GODOT_EXPORT Variant {
-public:
     // If this changes the table in variant_op must be updated
-    enum Type {
+enum class VariantType : int8_t {
 
-        NIL=0,
+    NIL = 0,
 
-        // atomic types
-        BOOL,
-        INT,
-        REAL,
-        STRING,
+    // atomic types
+    BOOL,
+    INT,
+    REAL,
+    STRING,
 
-        // math types
+    // math types
 
-        VECTOR2, // 5
-        RECT2,
-        VECTOR3,
-        TRANSFORM2D,
-        PLANE,
-        QUAT, // 10
-        AABB,
-        BASIS,
-        TRANSFORM,
+    VECTOR2, // 5
+    RECT2,
+    VECTOR3,
+    TRANSFORM2D,
+    PLANE,
+    QUAT, // 10
+    AABB,
+    BASIS,
+    TRANSFORM,
 
-        // misc types
-        COLOR,
-        NODE_PATH, // 15
-        _RID,
-        OBJECT,
-        DICTIONARY,
-        ARRAY,
+    // misc types
+    COLOR,
+    NODE_PATH, // 15
+    _RID,
+    OBJECT,
+    DICTIONARY,
+    ARRAY,
 
-        // arrays
-        POOL_BYTE_ARRAY, // 20
-        POOL_INT_ARRAY,
-        POOL_REAL_ARRAY,
-        POOL_STRING_ARRAY,
-        POOL_VECTOR2_ARRAY,
-        POOL_VECTOR3_ARRAY, // 25
-        POOL_COLOR_ARRAY,
+    // arrays
+    POOL_BYTE_ARRAY, // 20
+    POOL_INT_ARRAY,
+    POOL_REAL_ARRAY,
+    POOL_STRING_ARRAY,
+    POOL_VECTOR2_ARRAY,
+    POOL_VECTOR3_ARRAY, // 25
+    POOL_COLOR_ARRAY,
 
-        VARIANT_MAX
+    VARIANT_MAX
 
-    };
-
+};
+class GODOT_EXPORT Variant {
 private:
     friend struct _VariantCall;
     // Variant takes 20 bytes when real_t is float, and 36 if double
     // it only allocates extra memory for aabb/matrix.
 
-    Type type;
+    VariantType type;
 
     struct ObjData {
 
@@ -153,14 +155,14 @@ private:
 
 public:
     static const Variant null_variant;
-    _FORCE_INLINE_ Type get_type() const { return type; }
-    static const char *get_type_name(Variant::Type p_type);
-    static bool can_convert(Type p_type_from, Type p_type_to);
-    static bool can_convert_strict(Type p_type_from, Type p_type_to);
+    _FORCE_INLINE_ VariantType get_type() const { return type; }
+    static const char *get_type_name(VariantType p_type);
+    static bool can_convert(VariantType p_type_from, VariantType p_type_to);
+    static bool can_convert_strict(VariantType p_type_from, VariantType p_type_to);
 
     bool is_ref() const;
-    _FORCE_INLINE_ bool is_num() const { return type == INT || type == REAL; }
-    _FORCE_INLINE_ bool is_array() const { return type >= ARRAY; }
+    _FORCE_INLINE_ bool is_num() const { return type == VariantType::INT || type == VariantType::REAL; }
+    _FORCE_INLINE_ bool is_array() const { return type >= VariantType::ARRAY; }
     bool is_shared() const;
     bool is_zero() const;
     bool is_one() const;
@@ -238,8 +240,14 @@ public:
     operator Orientation() const;
 
     operator IP_Address() const;
-
-    Variant(bool p_bool);
+    //NOTE: Code below is convoluted to prevent implcit bool conversions from all bool convertible types.
+    template<class T ,
+               class = typename std::enable_if<std::is_same<bool,T>::value>::type >
+    Variant(T p_bool) {
+        type = VariantType::BOOL;
+        _data._bool = p_bool;
+    }
+    Variant(VariantType p_v) : Variant(int8_t(p_v)) {}
     Variant(signed int p_int); // real one
     Variant(unsigned int p_int);
 #ifdef NEED_LONG_INT
@@ -271,9 +279,9 @@ public:
     Variant(const Transform &p_transform);
     Variant(const Color &p_color);
     Variant(const NodePath &p_node_path);
-    Variant(const RefPtr &p_resource);
+    explicit Variant(const RefPtr &p_resource);
     Variant(const RID &p_rid);
-    Variant(const Object *p_object);
+    explicit Variant(const Object *p_object);
     Variant(const Dictionary &p_dictionary);
 
     Variant(const Array &p_array);
@@ -297,9 +305,9 @@ public:
     Variant(const Vector<Plane> &p_array); // helper
     Variant(const Vector<RID> &p_array); // helper
     Variant(const Vector<Vector2> &p_array); // helper
-    Variant(const PoolVector<Vector2> &p_vector2_array); // helper
+    explicit Variant(const PoolVector<Vector2> &p_vector2_array); // helper
 
-    Variant(const IP_Address &p_address);
+    explicit Variant(const IP_Address &p_address);
 
     // If this changes the table in variant_op must be updated
     enum Operator {
@@ -349,12 +357,12 @@ public:
     }
 
     void zero();
-    Variant duplicate(bool deep = false) const;
+    [[nodiscard]] Variant duplicate(bool deep = false) const;
     static void blend(const Variant &a, const Variant &b, float c, Variant &r_dst);
     static void interpolate(const Variant &a, const Variant &b, float c, Variant &r_dst);
 
     struct CallError {
-        enum Error {
+        enum Error : int8_t {
             CALL_OK,
             CALL_ERROR_INVALID_METHOD,
             CALL_ERROR_INVALID_ARGUMENT,
@@ -364,7 +372,7 @@ public:
         };
         Error error;
         int argument;
-        Type expected;
+        VariantType expected;
     };
 
     void call_ptr(const StringName &p_method, const Variant **p_args, int p_argcount, Variant *r_ret, CallError &r_error);
@@ -373,15 +381,15 @@ public:
 
     static String get_call_error_text(Object *p_base, const StringName &p_method, const Variant **p_argptrs, int p_argcount, const Variant::CallError &ce);
 
-    static Variant construct(const Variant::Type, const Variant **p_args, int p_argcount, CallError &r_error, bool p_strict = true);
+    static Variant construct(const VariantType, const Variant **p_args, int p_argcount, CallError &r_error, bool p_strict = true);
 
-    void get_method_list(List<MethodInfo> *p_list) const;
+    void get_method_list(PODVector<MethodInfo> *p_list) const;
     bool has_method(const StringName &p_method) const;
-    static Vector<Variant::Type> get_method_argument_types(Variant::Type p_type, const StringName &p_method);
-    static Vector<Variant> get_method_default_arguments(Variant::Type p_type, const StringName &p_method);
-    static Variant::Type get_method_return_type(Variant::Type p_type, const StringName &p_method, bool *r_has_return = nullptr);
-    static Vector<StringName> get_method_argument_names(Variant::Type p_type, const StringName &p_method);
-    static bool is_method_const(Variant::Type p_type, const StringName &p_method);
+    static Vector<VariantType> get_method_argument_types(VariantType p_type, const StringName &p_method);
+    static const PODVector<Variant> &get_method_default_arguments(VariantType p_type, const StringName &p_method);
+    static VariantType get_method_return_type(VariantType p_type, const StringName &p_method, bool *r_has_return = nullptr);
+    static Vector<StringName> get_method_argument_names(VariantType p_type, const StringName &p_method);
+    static bool is_method_const(VariantType p_type, const StringName &p_method);
 
     void set_named(const StringName &p_index, const Variant &p_value, bool *r_valid = nullptr);
     Variant get_named(const StringName &p_index, bool *r_valid = nullptr) const;
@@ -394,7 +402,7 @@ public:
     bool iter_next(Variant &r_iter, bool &r_valid) const;
     Variant iter_get(const Variant &r_iter, bool &r_valid) const;
 
-    void get_property_list(List<PropertyInfo> *p_list) const;
+    void get_property_list(ListPOD<PropertyInfo> *p_list) const;
 
     //argsVariant call()
 
@@ -405,13 +413,13 @@ public:
 
     bool hash_compare(const Variant &p_variant) const;
     bool booleanize() const;
-    String stringify(List<const void *> &stack) const;
+    String stringify(DefList<const void *> &stack) const;
 
     void static_assign(const Variant &p_variant);
-    static void get_constructor_list(Variant::Type p_type, List<MethodInfo> *p_list);
-    static void get_constants_for_type(Variant::Type p_type, List<StringName> *p_constants);
-    static bool has_constant(Variant::Type p_type, const StringName &p_value);
-    static Variant get_constant_value(Variant::Type p_type, const StringName &p_value, bool *r_valid = nullptr);
+    static void get_constructor_list(VariantType p_type, PODVector<MethodInfo> *p_list);
+    static void get_constants_for_type(VariantType p_type, ListPOD<StringName> *p_constants);
+    static bool has_constant(VariantType p_type, const StringName &p_value);
+    static Variant get_constant_value(VariantType p_type, const StringName &p_value, bool *r_valid = nullptr);
 
     using ObjectDeConstruct = String (*)(const Variant &, void *);
     using ObjectConstruct = void (*)(const String &, void *, Variant &);
@@ -419,16 +427,16 @@ public:
     String get_construct_string() const;
     static void construct_from_string(const String &p_string, Variant &r_value, ObjectConstruct p_obj_construct = nullptr, void *p_construct_ud = nullptr);
 
-    void operator=(const Variant &p_variant); // only this is enough for all the other types
+    Variant &operator=(const Variant &p_variant); // only this is enough for all the other types
     Variant(const Variant &p_variant);
-    _FORCE_INLINE_ Variant() { type = NIL; }
+    _FORCE_INLINE_ Variant() { type = VariantType::NIL; }
     _FORCE_INLINE_ ~Variant() {
-        if (type != Variant::NIL) clear();
+        if (type != VariantType::NIL) clear();
     }
 };
 static constexpr int longest_variant_type_name=16;
 //! Fill correctly sized char buffer with all variant names
-void fill_with_all_variant_types(const char *nillname, char (&s)[7+(longest_variant_type_name+1)*Variant::VARIANT_MAX]);
+void fill_with_all_variant_types(const char *nillname, char (&s)[7+(longest_variant_type_name+1)*int8_t(VariantType::VARIANT_MAX)]);
 
 Vector<Variant> varray();
 Vector<Variant> varray(const Variant &p_arg1);
@@ -440,12 +448,13 @@ Vector<Variant> varray(const Variant &p_arg1, const Variant &p_arg2, const Varia
 template<>
 struct Hasher<Variant> {
 
-    uint32_t operator()(const Variant &p_variant) { return p_variant.hash(); }
+    uint32_t operator()(const Variant &p_variant) const { return p_variant.hash(); }
 };
 
 struct VariantComparator {
 
     static _FORCE_INLINE_ bool compare(const Variant &p_lhs, const Variant &p_rhs) { return p_lhs.hash_compare(p_rhs); }
+    _FORCE_INLINE_ bool operator()(const Variant &p_lhs, const Variant &p_rhs) const { return p_lhs.hash_compare(p_rhs); }
 };
 
 Variant::ObjData &Variant::_get_obj() {
@@ -470,4 +479,5 @@ template <> GODOT_EXPORT IP_Address Variant::as<IP_Address>() const;
 template <> GODOT_EXPORT Transform Variant::as<Transform>() const;
 template <> GODOT_EXPORT Basis Variant::as<Basis>() const;
 template <> GODOT_EXPORT Quat Variant::as<Quat>() const;
+
 

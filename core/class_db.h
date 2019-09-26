@@ -30,14 +30,17 @@
 
 #pragma once
 
-//#include "core/method_bind.h"
+
 #include "core/hash_map.h"
 #include "core/string_name.h"
 #include "core/variant.h"
+#include "EASTL/vector.h"
 
 #include <initializer_list>
 
 class MethodBind;
+template<class T>
+using PODVector = eastl::vector<T,wrap_allocator>;
 
 #define DEFVAL(m_defval) (m_defval)
 
@@ -48,7 +51,7 @@ class MethodBind;
 struct MethodDefinition {
 
     StringName name;
-    Vector<StringName> args;
+    eastl::vector<StringName,wrap_allocator> args;
     MethodDefinition() {}
     MethodDefinition(const char *p_name) :
             name(p_name) {}
@@ -57,19 +60,7 @@ struct MethodDefinition {
 };
 
 MethodDefinition D_METHOD(const char *p_name);
-MethodDefinition D_METHOD(const char *p_name, const char *p_arg1);
-MethodDefinition D_METHOD(const char *p_name, const char *p_arg1, const char *p_arg2);
-MethodDefinition D_METHOD(const char *p_name, const char *p_arg1, const char *p_arg2, const char *p_arg3);
-MethodDefinition D_METHOD(const char *p_name, const char *p_arg1, const char *p_arg2, const char *p_arg3, const char *p_arg4);
-MethodDefinition D_METHOD(const char *p_name, const char *p_arg1, const char *p_arg2, const char *p_arg3, const char *p_arg4, const char *p_arg5);
-MethodDefinition D_METHOD(const char *p_name, const char *p_arg1, const char *p_arg2, const char *p_arg3, const char *p_arg4, const char *p_arg5, const char *p_arg6);
-MethodDefinition D_METHOD(const char *p_name, const char *p_arg1, const char *p_arg2, const char *p_arg3, const char *p_arg4, const char *p_arg5, const char *p_arg6, const char *p_arg7);
-MethodDefinition D_METHOD(const char *p_name, const char *p_arg1, const char *p_arg2, const char *p_arg3, const char *p_arg4, const char *p_arg5, const char *p_arg6, const char *p_arg7, const char *p_arg8);
-MethodDefinition D_METHOD(const char *p_name, const char *p_arg1, const char *p_arg2, const char *p_arg3, const char *p_arg4, const char *p_arg5, const char *p_arg6, const char *p_arg7, const char *p_arg8, const char *p_arg9);
-MethodDefinition D_METHOD(const char *p_name, const char *p_arg1, const char *p_arg2, const char *p_arg3, const char *p_arg4, const char *p_arg5, const char *p_arg6, const char *p_arg7, const char *p_arg8, const char *p_arg9, const char *p_arg10);
-MethodDefinition D_METHOD(const char *p_name, const char *p_arg1, const char *p_arg2, const char *p_arg3, const char *p_arg4, const char *p_arg5, const char *p_arg6, const char *p_arg7, const char *p_arg8, const char *p_arg9, const char *p_arg10, const char *p_arg11);
-MethodDefinition D_METHOD(const char *p_name, const char *p_arg1, const char *p_arg2, const char *p_arg3, const char *p_arg4, const char *p_arg5, const char *p_arg6, const char *p_arg7, const char *p_arg8, const char *p_arg9, const char *p_arg10, const char *p_arg11, const char *p_arg12);
-MethodDefinition D_METHOD(const char *p_name, const char *p_arg1, const char *p_arg2, const char *p_arg3, const char *p_arg4, const char *p_arg5, const char *p_arg6, const char *p_arg7, const char *p_arg8, const char *p_arg9, const char *p_arg10, const char *p_arg11, const char *p_arg12, const char *p_arg13);
+MethodDefinition D_METHOD(const char *p_name, std::initializer_list<StringName> names);
 
 #else
 
@@ -112,7 +103,7 @@ public:
         StringName getter;
         MethodBind *_setptr;
         MethodBind *_getptr;
-        Variant::Type type;
+        VariantType type;
     };
 
     struct ClassInfo {
@@ -121,14 +112,14 @@ public:
         ClassInfo *inherits_ptr;
         HashMap<StringName, MethodBind *> method_map;
         HashMap<StringName, int> constant_map;
-        HashMap<StringName, List<StringName> > enum_map;
+        HashMap<StringName, ListPOD<StringName> > enum_map;
         HashMap<StringName, MethodInfo> signal_map;
-        List<PropertyInfo> property_list;
+        ListPOD<PropertyInfo> property_list;
 #ifdef DEBUG_METHODS_ENABLED
-        List<StringName> constant_order;
-        List<StringName> method_order;
+        ListPOD<StringName> constant_order;
+        ListPOD<StringName> method_order;
         Set<StringName> methods_in_properties;
-        List<MethodInfo> virtual_methods;
+        ListPOD<MethodInfo> virtual_methods;
         StringName category;
 #endif
         HashMap<StringName, PropertySetGet> property_setget;
@@ -220,8 +211,8 @@ public:
     static bool bind_helper(MethodBind *bind,const char * instance_type,const StringName &p_name);
 
     static void get_class_list(Vector<StringName> *p_classes);
-    static void get_inheriters_from_class(const StringName &p_class, List<StringName> *p_classes);
-    static void get_direct_inheriters_from_class(const StringName &p_class, List<StringName> *p_classes);
+    static void get_inheriters_from_class(const StringName &p_class, ListPOD<StringName> *p_classes);
+    static void get_direct_inheriters_from_class(const StringName &p_class, ListPOD<StringName> *p_classes);
     static StringName get_parent_class_nocheck(const StringName &p_class);
     static StringName get_parent_class(const StringName &p_class);
     static bool class_exists(const StringName &p_class);
@@ -235,36 +226,36 @@ public:
     static void add_signal(StringName p_class, const MethodInfo &p_signal);
     static bool has_signal(StringName p_class, StringName p_signal);
     static bool get_signal(StringName p_class, StringName p_signal, MethodInfo *r_signal);
-    static void get_signal_list(StringName p_class, List<MethodInfo> *p_signals, bool p_no_inheritance = false);
+    static void get_signal_list(StringName p_class, ListPOD<MethodInfo> *p_signals, bool p_no_inheritance = false);
 
     static void add_property_group(StringName p_class, const char *p_name, const char *p_prefix = nullptr);
     static void add_property(StringName p_class, const PropertyInfo &p_pinfo, const StringName &p_setter, const StringName &p_getter, int p_index = -1);
     static void set_property_default_value(StringName p_class, const StringName &p_name, const Variant &p_default);
-    static void get_property_list(StringName p_class, List<PropertyInfo> *p_list, bool p_no_inheritance = false, const Object *p_validator = nullptr);
+    static void get_property_list(StringName p_class, ListPOD<PropertyInfo> *p_list, bool p_no_inheritance = false, const Object *p_validator = nullptr);
     static bool set_property(Object *p_object, const StringName &p_property, const Variant &p_value, bool *r_valid = nullptr);
     static bool get_property(Object *p_object, const StringName &p_property, Variant &r_value);
     static bool has_property(const StringName &p_class, const StringName &p_property, bool p_no_inheritance = false);
     static int get_property_index(const StringName &p_class, const StringName &p_property, bool *r_is_valid = nullptr);
-    static Variant::Type get_property_type(const StringName &p_class, const StringName &p_property, bool *r_is_valid = nullptr);
+    static VariantType get_property_type(const StringName &p_class, const StringName &p_property, bool *r_is_valid = nullptr);
     static StringName get_property_setter(StringName p_class, const StringName &p_property);
     static StringName get_property_getter(StringName p_class, const StringName &p_property);
 
     static bool has_method(StringName p_class, StringName p_method, bool p_no_inheritance = false);
     static void set_method_flags(StringName p_class, StringName p_method, int p_flags);
 
-    static void get_method_list(StringName p_class, List<MethodInfo> *p_methods, bool p_no_inheritance = false, bool p_exclude_from_properties = false);
+    static void get_method_list(const StringName& p_class, PODVector<MethodInfo> *p_methods, bool p_no_inheritance = false, bool p_exclude_from_properties = false);
     static MethodBind *get_method(StringName p_class, StringName p_name);
 
     static void add_virtual_method(const StringName &p_class, const MethodInfo &p_method, bool p_virtual = true);
-    static void get_virtual_methods(const StringName &p_class, List<MethodInfo> *p_methods, bool p_no_inheritance = false);
+    static void get_virtual_methods(const StringName &p_class, PODVector<MethodInfo> *p_methods, bool p_no_inheritance = false);
 
     static void bind_integer_constant(const StringName &p_class, const StringName &p_enum, const StringName &p_name, int p_constant);
-    static void get_integer_constant_list(const StringName &p_class, List<String> *p_constants, bool p_no_inheritance = false);
+    static void get_integer_constant_list(const StringName &p_class, ListPOD<String> *p_constants, bool p_no_inheritance = false);
     static int get_integer_constant(const StringName &p_class, const StringName &p_name, bool *p_success = nullptr);
 
     static StringName get_integer_constant_enum(const StringName &p_class, const StringName &p_name, bool p_no_inheritance = false);
-    static void get_enum_list(const StringName &p_class, List<StringName> *p_enums, bool p_no_inheritance = false);
-    static void get_enum_constants(const StringName &p_class, const StringName &p_enum, List<StringName> *p_constants, bool p_no_inheritance = false);
+    static void get_enum_list(const StringName &p_class, ListPOD<StringName> *p_enums, bool p_no_inheritance = false);
+    static void get_enum_constants(const StringName &p_class, const StringName &p_enum, ListPOD<StringName> *p_constants, bool p_no_inheritance = false);
 
     static Variant class_get_default_property_value(const StringName &p_class, const StringName &p_property, bool *r_valid = nullptr);
 
@@ -276,8 +267,8 @@ public:
     static bool is_class_exposed(StringName p_class);
 
     static void add_resource_base_extension(const StringName &p_extension, const StringName &p_class);
-    static void get_resource_base_extensions(List<String> *p_extensions);
-    static void get_extensions_for_type(const StringName &p_class, List<String> *p_extensions);
+    static void get_resource_base_extensions(ListPOD<String> *p_extensions);
+    static void get_extensions_for_type(const StringName &p_class, ListPOD<String> *p_extensions);
 
     static void add_compatibility_class(const StringName &p_class, const StringName &p_fallback);
     static void init();
@@ -285,7 +276,7 @@ public:
     static void set_current_api(APIType p_api);
     static APIType get_current_api();
     static void cleanup_defaults();
-    static void cleanup();   
+    static void cleanup();
 };
 
 #ifdef DEBUG_METHODS_ENABLED

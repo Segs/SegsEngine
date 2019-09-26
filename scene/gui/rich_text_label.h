@@ -114,7 +114,7 @@ private:
 
         void _clear_children() {
             while (!subitems.empty()) {
-                memdelete(subitems.front()->get());
+                memdelete(subitems.front()->deref());
                 subitems.pop_front();
             }
         }
@@ -423,13 +423,13 @@ private:
     void _update_fx(ItemFrame *p_frame, float p_delta_time);
     void _scroll_changed(double);
 
-    void _gui_input(Ref<InputEvent> p_event);
+    void _gui_input(const Ref<InputEvent>& p_event);
     Item *_get_next_item(Item *p_item, bool p_free = false);
     Item *_get_prev_item(Item *p_item, bool p_free = false);
 
     Rect2 _get_text_rect();
-    Ref<RichTextEffect> _get_custom_effect_by_code(String p_bbcode_identifier);
-    virtual Dictionary parse_expressions_for_values(Vector<String> p_expressions);
+    Ref<RichTextEffect> _get_custom_effect_by_code(const String& p_bbcode_identifier);
+    virtual Dictionary parse_expressions_for_values(const Vector<String> &p_expressions);
 
     bool use_bbcode;
     String bbcode;
@@ -457,11 +457,11 @@ public:
     void push_meta(const Variant &p_meta);
     void push_table(int p_columns);
     void push_fade(int p_start_index, int p_length);
-    void push_shake(int p_level, float p_rate);
+	void push_shake(int p_strength, float p_rate);
     void push_wave(float p_frequency, float p_amplitude);
     void push_tornado(float p_frequency, float p_radius);
     void push_rainbow(float p_saturation, float p_value, float p_frequency);
-    void push_customfx(String p_identifier, Dictionary p_environment);
+    void push_customfx(String p_identifier, const Dictionary& p_environment);
     void set_table_column_expand(int p_column, bool p_expand, int p_ratio = 1);
     int get_current_table_column() const;
     void push_cell();
@@ -523,7 +523,7 @@ public:
     void set_effects(const Vector<Variant> &effects);
     Vector<Variant> get_effects();
 
-    void install_effect(const Variant effect);
+    void install_effect(const Variant& effect);
 
     void set_fixed_size_to_width(int p_width);
     Size2 get_minimum_size() const override;

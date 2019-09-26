@@ -110,14 +110,14 @@ private:
 	mutable int pending_update;
 	int uid;
 
-	List<InterpolateData> interpolates;
+    ListPOD<InterpolateData> interpolates;
 
 	struct PendingCommand {
 		StringName key;
 		int args;
 		Variant arg[10];
 	};
-	List<PendingCommand> pending_commands;
+    PODVector<PendingCommand> pending_commands;
 
 	void _add_pending_command(StringName p_key, const Variant &p_arg1 = Variant(), const Variant &p_arg2 = Variant(), const Variant &p_arg3 = Variant(), const Variant &p_arg4 = Variant(), const Variant &p_arg5 = Variant(), const Variant &p_arg6 = Variant(), const Variant &p_arg7 = Variant(), const Variant &p_arg8 = Variant(), const Variant &p_arg9 = Variant(), const Variant &p_arg10 = Variant());
 	void _process_pending_commands();
@@ -135,12 +135,12 @@ private:
 	void _tween_process(float p_delta);
 	void _remove_by_uid(int uid);
 	void _push_interpolate_data(InterpolateData &p_data);
-	bool _build_interpolation(InterpolateType p_interpolation_type, Object *p_object, NodePath *p_property, StringName *p_method, Variant p_initial_val, Variant p_final_val, real_t p_duration, TransitionType p_trans_type, EaseType p_ease_type, real_t p_delay);
+	bool _build_interpolation(InterpolateType p_interpolation_type, Object *p_object, NodePath *p_property, StringName *p_method, const Variant& p_initial_val, const Variant& p_final_val, real_t p_duration, TransitionType p_trans_type, EaseType p_ease_type, real_t p_delay);
 
 protected:
 	bool _set(const StringName &p_name, const Variant &p_value);
 	bool _get(const StringName &p_name, Variant &r_ret) const;
-	void _get_property_list(List<PropertyInfo> *p_list) const;
+	void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
 	void _notification(int p_what);
 
 	static void _bind_methods();
@@ -159,13 +159,13 @@ public:
 	float get_speed_scale() const;
 
 	bool start();
-	bool reset(Object *p_object, StringName p_key);
+	bool reset(Object *p_object, const StringName& p_key);
 	bool reset_all();
-	bool stop(Object *p_object, StringName p_key);
+	bool stop(Object *p_object, const StringName& p_key);
 	bool stop_all();
-	bool resume(Object *p_object, StringName p_key);
+	bool resume(Object *p_object, const StringName& p_key);
 	bool resume_all();
-	bool remove(Object *p_object, StringName p_key);
+	bool remove(Object *p_object, const StringName& p_key);
 	bool remove_all();
 
 	bool seek(real_t p_time);
@@ -176,17 +176,17 @@ public:
 
 	bool interpolate_method(Object *p_object, StringName p_method, Variant p_initial_val, Variant p_final_val, real_t p_duration, TransitionType p_trans_type, EaseType p_ease_type, real_t p_delay = 0);
 
-	bool interpolate_callback(Object *p_object, real_t p_duration, String p_callback, VARIANT_ARG_DECLARE);
+	bool interpolate_callback(Object *p_object, real_t p_duration, const String& p_callback, VARIANT_ARG_DECLARE);
 
-	bool interpolate_deferred_callback(Object *p_object, real_t p_duration, String p_callback, VARIANT_ARG_DECLARE);
+	bool interpolate_deferred_callback(Object *p_object, real_t p_duration, const String& p_callback, VARIANT_ARG_DECLARE);
 
 	bool follow_property(Object *p_object, NodePath p_property, Variant p_initial_val, Object *p_target, NodePath p_target_property, real_t p_duration, TransitionType p_trans_type, EaseType p_ease_type, real_t p_delay = 0);
 
-	bool follow_method(Object *p_object, StringName p_method, Variant p_initial_val, Object *p_target, StringName p_target_method, real_t p_duration, TransitionType p_trans_type, EaseType p_ease_type, real_t p_delay = 0);
+	bool follow_method(Object *p_object, const StringName& p_method, Variant p_initial_val, Object *p_target, const StringName& p_target_method, real_t p_duration, TransitionType p_trans_type, EaseType p_ease_type, real_t p_delay = 0);
 
 	bool targeting_property(Object *p_object, NodePath p_property, Object *p_initial, NodePath p_initial_property, Variant p_final_val, real_t p_duration, TransitionType p_trans_type, EaseType p_ease_type, real_t p_delay = 0);
 
-	bool targeting_method(Object *p_object, StringName p_method, Object *p_initial, StringName p_initial_method, Variant p_final_val, real_t p_duration, TransitionType p_trans_type, EaseType p_ease_type, real_t p_delay = 0);
+	bool targeting_method(Object *p_object, const StringName& p_method, Object *p_initial, const StringName& p_initial_method, Variant p_final_val, real_t p_duration, TransitionType p_trans_type, EaseType p_ease_type, real_t p_delay = 0);
 
 	Tween();
 	~Tween() override;

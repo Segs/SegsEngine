@@ -70,7 +70,7 @@ const char **tests_get_names() {
     return test_names;
 }
 
-MainLoop *test_main(String p_test, const List<String> &p_args) {
+MainLoop *test_main(const String& p_test, const ListPOD<String> &p_args) {
 
     if (p_test == "string") {
 

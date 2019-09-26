@@ -47,7 +47,7 @@ PoolStringArray ConfigFile::_get_sections() const {
     int idx = 0;
     for (const List<String>::Element *E = s.front(); E; E = E->next()) {
 
-        arr.set(idx++, E->get());
+        arr.set(idx++, E->deref());
     }
 
     return arr;
@@ -62,7 +62,7 @@ PoolStringArray ConfigFile::_get_section_keys(const String &p_section) const {
     int idx = 0;
     for (const List<String>::Element *E = s.front(); E; E = E->next()) {
 
-        arr.set(idx++, E->get());
+        arr.set(idx++, E->deref());
     }
 
     return arr;
@@ -70,7 +70,7 @@ PoolStringArray ConfigFile::_get_section_keys(const String &p_section) const {
 
 void ConfigFile::set_value(const String &p_section, const String &p_key, const Variant &p_value) {
 
-    if (p_value.get_type() == Variant::NIL) {
+    if (p_value.get_type() == VariantType::NIL) {
         //erase
         if (!values.has(p_section))
             return; // ?
@@ -90,7 +90,7 @@ void ConfigFile::set_value(const String &p_section, const String &p_key, const V
 Variant ConfigFile::get_value(const String &p_section, const String &p_key, const Variant& p_default) const {
 
     if (!values.has(p_section) || !values[p_section].has(p_key)) {
-        ERR_FAIL_COND_V_CMSG(p_default.get_type() == Variant::NIL, p_default, "Couldn't find the given section/key and no default was given.")
+        ERR_FAIL_COND_V_CMSG(p_default.get_type() == VariantType::NIL, p_default, "Couldn't find the given section/key and no default was given.")
         return p_default;
     }
     return values[p_section][p_key];
@@ -115,7 +115,7 @@ void ConfigFile::get_sections(List<String> *r_sections) const {
 }
 void ConfigFile::get_section_keys(const String &p_section, List<String> *r_keys) const {
 
-    ERR_FAIL_COND(!values.has(p_section));
+    ERR_FAIL_COND(!values.has(p_section))
 
     for (OrderedHashMap<String, Variant>::ConstElement E = values[p_section].front(); E; E = E.next()) {
         r_keys->push_back(E.key());
@@ -249,8 +249,7 @@ Error ConfigFile::load_encrypted_pass(const String &p_path, const String &p_pass
 
 Error ConfigFile::_internal_load(const String &p_path, FileAccess *f) {
 
-    VariantParser::StreamFile stream;
-    stream.f = f;
+    VariantParser::Stream *stream=VariantParser::get_file_stream(f);
 
     String assign;
     Variant value;
@@ -267,12 +266,14 @@ Error ConfigFile::_internal_load(const String &p_path, FileAccess *f) {
         next_tag.fields.clear();
         next_tag.name = String();
 
-        Error err = VariantParser::parse_tag_assign_eof(&stream, lines, error_text, next_tag, assign, value, nullptr, true);
+        Error err = VariantParser::parse_tag_assign_eof(stream, lines, error_text, next_tag, assign, value, nullptr, true);
         if (err == ERR_FILE_EOF) {
+            VariantParser::release_stream(stream);
             memdelete(f);
             return OK;
         } else if (err != OK) {
             ERR_PRINTS("ConfgFile::load - " + p_path + ":" + itos(lines) + " error: " + error_text + ".");
+            VariantParser::release_stream(stream);
             memdelete(f);
             return err;
         }
@@ -287,25 +288,25 @@ Error ConfigFile::_internal_load(const String &p_path, FileAccess *f) {
 
 void ConfigFile::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_value", "section", "key", "value"), &ConfigFile::set_value);
-    MethodBinder::bind_method(D_METHOD("get_value", "section", "key", "default"), &ConfigFile::get_value, {DEFVAL(Variant())});
+    MethodBinder::bind_method(D_METHOD("set_value", {"section", "key", "value"}), &ConfigFile::set_value);
+    MethodBinder::bind_method(D_METHOD("get_value", {"section", "key", "default"}), &ConfigFile::get_value, {DEFVAL(Variant())});
 
-    MethodBinder::bind_method(D_METHOD("has_section", "section"), &ConfigFile::has_section);
-    MethodBinder::bind_method(D_METHOD("has_section_key", "section", "key"), &ConfigFile::has_section_key);
+    MethodBinder::bind_method(D_METHOD("has_section", {"section"}), &ConfigFile::has_section);
+    MethodBinder::bind_method(D_METHOD("has_section_key", {"section", "key"}), &ConfigFile::has_section_key);
 
     MethodBinder::bind_method(D_METHOD("get_sections"), &ConfigFile::_get_sections);
-    MethodBinder::bind_method(D_METHOD("get_section_keys", "section"), &ConfigFile::_get_section_keys);
+    MethodBinder::bind_method(D_METHOD("get_section_keys", {"section"}), &ConfigFile::_get_section_keys);
 
-    MethodBinder::bind_method(D_METHOD("erase_section", "section"), &ConfigFile::erase_section);
+    MethodBinder::bind_method(D_METHOD("erase_section", {"section"}), &ConfigFile::erase_section);
 
-    MethodBinder::bind_method(D_METHOD("load", "path"), &ConfigFile::load);
-    MethodBinder::bind_method(D_METHOD("save", "path"), &ConfigFile::save);
+    MethodBinder::bind_method(D_METHOD("load", {"path"}), &ConfigFile::load);
+    MethodBinder::bind_method(D_METHOD("save", {"path"}), &ConfigFile::save);
 
-    MethodBinder::bind_method(D_METHOD("load_encrypted", "path", "key"), &ConfigFile::load_encrypted);
-    MethodBinder::bind_method(D_METHOD("load_encrypted_pass", "path", "pass"), &ConfigFile::load_encrypted_pass);
+    MethodBinder::bind_method(D_METHOD("load_encrypted", {"path", "key"}), &ConfigFile::load_encrypted);
+    MethodBinder::bind_method(D_METHOD("load_encrypted_pass", {"path", "pass"}), &ConfigFile::load_encrypted_pass);
 
-    MethodBinder::bind_method(D_METHOD("save_encrypted", "path", "key"), &ConfigFile::save_encrypted);
-    MethodBinder::bind_method(D_METHOD("save_encrypted_pass", "path", "pass"), &ConfigFile::save_encrypted_pass);
+    MethodBinder::bind_method(D_METHOD("save_encrypted", {"path", "key"}), &ConfigFile::save_encrypted);
+    MethodBinder::bind_method(D_METHOD("save_encrypted_pass", {"path", "pass"}), &ConfigFile::save_encrypted_pass);
 }
 
 ConfigFile::ConfigFile() {}

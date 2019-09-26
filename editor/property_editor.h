@@ -96,7 +96,7 @@ class CustomPropertyEditor : public Popup {
 	EditorFileDialog *file;
 	ConfirmationDialog *error;
 	String name;
-	Variant::Type type;
+	VariantType type;
 	Variant v;
 	List<String> field_names;
 	int hint;
@@ -129,10 +129,10 @@ class CustomPropertyEditor : public Popup {
 	PropertyValueEvaluator *evaluator;
 
 	void _text_edit_changed();
-	void _file_selected(String p_file);
-	void _modified(String p_string);
+	void _file_selected(const String& p_file);
+	void _modified(const String& p_string);
 
-	real_t _parse_real_expression(String text);
+	real_t _parse_real_expression(const String& text);
 
 	void _range_modified(double p_value);
 	void _focus_enter();
@@ -167,7 +167,7 @@ public:
 
 	void set_read_only(bool p_read_only) { read_only = p_read_only; }
 
-	bool edit(Object *p_owner, const String &p_name, Variant::Type p_type, const Variant &p_variant, int p_hint, String p_hint_text);
+	bool edit(Object *p_owner, const String &p_name, VariantType p_type, const Variant &p_variant, int p_hint, String p_hint_text);
 
 	CustomPropertyEditor();
 };

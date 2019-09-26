@@ -32,6 +32,7 @@
 
 #include "core/godot_export.h"
 #ifdef _MSC_VER
+#include <sal.h>
 #include <iso646.h>
 #endif
 #include <cstddef>

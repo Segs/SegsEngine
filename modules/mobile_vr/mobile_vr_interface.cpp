@@ -200,25 +200,25 @@ void MobileVRInterface::set_position_from_sensors() {
 };
 
 void MobileVRInterface::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("set_eye_height", "eye_height"), &MobileVRInterface::set_eye_height);
+	ClassDB::bind_method(D_METHOD("set_eye_height", {"eye_height"}), &MobileVRInterface::set_eye_height);
 	ClassDB::bind_method(D_METHOD("get_eye_height"), &MobileVRInterface::get_eye_height);
 
-	ClassDB::bind_method(D_METHOD("set_iod", "iod"), &MobileVRInterface::set_iod);
+	ClassDB::bind_method(D_METHOD("set_iod", {"iod"}), &MobileVRInterface::set_iod);
 	ClassDB::bind_method(D_METHOD("get_iod"), &MobileVRInterface::get_iod);
 
-	ClassDB::bind_method(D_METHOD("set_display_width", "display_width"), &MobileVRInterface::set_display_width);
+	ClassDB::bind_method(D_METHOD("set_display_width", {"display_width"}), &MobileVRInterface::set_display_width);
 	ClassDB::bind_method(D_METHOD("get_display_width"), &MobileVRInterface::get_display_width);
 
-	ClassDB::bind_method(D_METHOD("set_display_to_lens", "display_to_lens"), &MobileVRInterface::set_display_to_lens);
+	ClassDB::bind_method(D_METHOD("set_display_to_lens", {"display_to_lens"}), &MobileVRInterface::set_display_to_lens);
 	ClassDB::bind_method(D_METHOD("get_display_to_lens"), &MobileVRInterface::get_display_to_lens);
 
-	ClassDB::bind_method(D_METHOD("set_oversample", "oversample"), &MobileVRInterface::set_oversample);
+	ClassDB::bind_method(D_METHOD("set_oversample", {"oversample"}), &MobileVRInterface::set_oversample);
 	ClassDB::bind_method(D_METHOD("get_oversample"), &MobileVRInterface::get_oversample);
 
-	ClassDB::bind_method(D_METHOD("set_k1", "k"), &MobileVRInterface::set_k1);
+	ClassDB::bind_method(D_METHOD("set_k1", {"k"}), &MobileVRInterface::set_k1);
 	ClassDB::bind_method(D_METHOD("get_k1"), &MobileVRInterface::get_k1);
 
-	ClassDB::bind_method(D_METHOD("set_k2", "k"), &MobileVRInterface::set_k2);
+	ClassDB::bind_method(D_METHOD("set_k2", {"k"}), &MobileVRInterface::set_k2);
 	ClassDB::bind_method(D_METHOD("get_k2"), &MobileVRInterface::get_k2);
 
 	ADD_PROPERTY(PropertyInfo(Variant::REAL, "eye_height", PROPERTY_HINT_RANGE, "0.0,3.0,0.1"), "set_eye_height", "get_eye_height");
@@ -405,10 +405,10 @@ void MobileVRInterface::commit_for_eye(ARVRInterface::Eyes p_eye, RID p_render_t
 	_THREAD_SAFE_METHOD_
 
 	// We must have a valid render target
-	ERR_FAIL_COND(!p_render_target.is_valid());
+	ERR_FAIL_COND(!p_render_target.is_valid())
 
 	// Because we are rendering to our device we must use our main viewport!
-	ERR_FAIL_COND(p_screen_rect == Rect2());
+	ERR_FAIL_COND(p_screen_rect == Rect2())
 
 	Rect2 dest = p_screen_rect;
 	Vector2 eye_center;

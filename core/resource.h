@@ -30,12 +30,18 @@
 
 #pragma once
 
-
 #include "core/reference.h"
-#include "core/self_list.h"
-#include "core/hash_map.h"
-#include "core/map.h"
-#include "core/ustring.h"
+
+namespace eastl {
+template <typename Key, typename T, typename Compare, typename Allocator>
+class map;
+}
+template <class T>
+struct Comparator;
+class wrap_allocator;
+
+template <class K,class V>
+using DefMap = eastl::map<K,V,Comparator<K>,wrap_allocator>;
 
 #define RES_BASE_EXTENSION_IMPL(m_class,m_ext)                                                                      \
                                                                                                                     \
@@ -45,7 +51,7 @@ void m_class::register_custom_data_to_otdb() {                                  
 
 #define RES_BASE_EXTENSION(m_ext)                                                                                   \
 public:                                                                                                             \
-    StringName get_base_extension() const override { return String(m_ext); }                                        \
+    StringName get_base_extension() const override { return StringName(m_ext); }                                    \
                                                                                                                     \
     static void register_custom_data_to_otdb();                                                                     \
 private:
@@ -58,24 +64,15 @@ public:
     virtual StringName get_base_extension() const { return StringName("res"); }
     static void register_custom_data_to_otdb();
 private:
-
-    Set<ObjectID> owners;
-
     friend class ResBase;
     friend class ResourceCache;
     friend class SceneState;
-
-    String name;
-    String path_cache;
-    Node *local_scene;
-    SelfList<Resource> remapped_list;
-    int subindex;
-    bool local_to_scene;
+    struct Data;
+    Data *impl_data;
 
 #ifdef TOOLS_ENABLED
     uint64_t last_modified_time;
     uint64_t import_last_modified_time;
-    String import_path;
 #endif
     virtual bool _use_builtin_script() const { return true; }
 
@@ -89,9 +86,6 @@ protected:
 
     void _set_path(const String &p_path);
     void _take_over_path(const String &p_path);
-#ifdef TOOLS_ENABLED
-    Map<String, int> id_for_path;
-#endif
 public:
     static Node *(*_get_local_scene_func)(); //used by editor
 
@@ -111,8 +105,8 @@ public:
     int get_subindex() const;
 
     virtual Ref<Resource> duplicate(bool p_subresources = false) const;
-    Ref<Resource> duplicate_for_local_scene(Node *p_for_scene, Map<Ref<Resource>, Ref<Resource> > &remap_cache);
-    void configure_for_local_scene(Node *p_for_scene, Map<Ref<Resource>, Ref<Resource> > &remap_cache);
+    Ref<Resource> duplicate_for_local_scene(Node *p_for_scene, DefMap<Ref<Resource>, Ref<Resource> > &remap_cache);
+    void configure_for_local_scene(Node *p_for_scene, DefMap<Ref<Resource>, Ref<Resource> > &remap_cache);
 
     void set_local_to_scene(bool p_enable);
     bool is_local_to_scene() const;
@@ -130,8 +124,8 @@ public:
     virtual void set_import_last_modified_time(uint64_t p_time) { import_last_modified_time = p_time; }
     uint64_t get_import_last_modified_time() const { return import_last_modified_time; }
 
-    void set_import_path(const String &p_path) { import_path = p_path; }
-    String get_import_path() const { return import_path; }
+    void set_import_path(const String &p_path);
+    String get_import_path() const;
 
 #endif
 
@@ -156,17 +150,16 @@ class ResourceCache {
     friend class Resource;
     friend class ResourceLoader; //need the lock
     static RWLock *lock;
-    static HashMap<String, Resource *> resources;
     friend void unregister_core_types();
     static void clear();
     friend void register_core_types();
     static void setup();
-
+    static Resource *get_unguarded(const String &p_path);
 public:
     static void reload_externals();
     static bool has(const String &p_path);
     static Resource *get(const String &p_path);
     static void dump(const char *p_file = nullptr, bool p_short = false);
-    static void get_cached_resources(List<Ref<Resource> > *p_resources);
+    static void get_cached_resources(DefList<Ref<Resource> > *p_resources);
     static int get_cached_resource_count();
 };

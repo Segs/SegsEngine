@@ -141,17 +141,17 @@ struct Color {
 
         const float expp = MAX(-B - 1.0f, std::floor(Math::log(cMax) / float(Math_LN2))) + 1.0f + B;
 
-        float sMax = (float)floor((cMax / Math::pow(2.0f, expp - B - N)) + 0.5f);
+        float sMax = (float)std::floor((cMax / Math::pow(2.0f, expp - B - N)) + 0.5f);
 
         float exps = expp + 1.0f;
 
-        if (0.0 <= sMax && sMax < pow2to9) {
+        if (0.0f <= sMax && sMax < pow2to9) {
             exps = expp;
         }
 
-        float sRed = Math::floor((cRed / pow(2.0f, exps - B - N)) + 0.5f);
-        float sGreen = Math::floor((cGreen / pow(2.0f, exps - B - N)) + 0.5f);
-        float sBlue = Math::floor((cBlue / pow(2.0f, exps - B - N)) + 0.5f);
+        float sRed = Math::floor((cRed / std::pow(2.0f, exps - B - N)) + 0.5f);
+        float sGreen = Math::floor((cGreen / std::pow(2.0f, exps - B - N)) + 0.5f);
+        float sBlue = Math::floor((cBlue / std::pow(2.0f, exps - B - N)) + 0.5f);
 
         return (uint32_t(Math::fast_ftoi(sRed)) & 0x1FF) | ((uint32_t(Math::fast_ftoi(sGreen)) & 0x1FF) << 9) | ((uint32_t(Math::fast_ftoi(sBlue)) & 0x1FF) << 18) | ((uint32_t(Math::fast_ftoi(exps)) & 0x1F) << 27);
     }

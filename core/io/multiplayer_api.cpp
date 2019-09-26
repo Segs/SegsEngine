@@ -41,6 +41,10 @@
 #endif
 IMPL_GDCLASS(MultiplayerAPI)
 
+VARIANT_ENUM_CAST(MultiplayerAPI::RPCMode);
+//TODO: SEGS: duplicated instantiation
+VARIANT_ENUM_CAST(NetworkedMultiplayerPeer::TransferMode)
+
 namespace {
 _FORCE_INLINE_ bool _should_call_local(MultiplayerAPI::RPCMode mode, bool is_master, bool &r_skip_rpc) {
 
@@ -100,12 +104,12 @@ _FORCE_INLINE_ bool _can_call_mode(Node *p_node, MultiplayerAPI::RPCMode mode, i
 
 void MultiplayerAPI::poll() {
 
-    if (!network_peer.is_valid() || network_peer->get_connection_status() == NetworkedMultiplayerPeer::CONNECTION_DISCONNECTED)
+    if (not network_peer || network_peer->get_connection_status() == NetworkedMultiplayerPeer::CONNECTION_DISCONNECTED)
         return;
 
     network_peer->poll();
 
-    if (!network_peer.is_valid()) // It's possible that polling might have resulted in a disconnection, so check here.
+    if (not network_peer) // It's possible that polling might have resulted in a disconnection, so check here.
         return;
 
     while (network_peer->get_available_packet_count()) {
@@ -123,7 +127,7 @@ void MultiplayerAPI::poll() {
         _process_packet(sender, packet, len);
         rpc_sender_id = 0;
 
-        if (!network_peer.is_valid()) {
+        if (not network_peer) {
             break; // It's also possible that a packet or RPC caused a disconnection, so also check here.
         }
     }
@@ -145,7 +149,7 @@ void MultiplayerAPI::set_network_peer(const Ref<NetworkedMultiplayerPeer> &p_pee
 
     if (p_peer == network_peer) return; // Nothing to do
 
-    if (network_peer.is_valid()) {
+    if (network_peer) {
         network_peer->disconnect("peer_connected", this, "_add_peer");
         network_peer->disconnect("peer_disconnected", this, "_del_peer");
         network_peer->disconnect("connection_succeeded", this, "_connected_to_server");
@@ -156,9 +160,9 @@ void MultiplayerAPI::set_network_peer(const Ref<NetworkedMultiplayerPeer> &p_pee
 
     network_peer = p_peer;
 
-    ERR_FAIL_COND_MSG(p_peer.is_valid() && p_peer->get_connection_status() == NetworkedMultiplayerPeer::CONNECTION_DISCONNECTED, "Supplied NetworkedNetworkPeer must be connecting or connected.");
+    ERR_FAIL_COND_MSG(p_peer && p_peer->get_connection_status() == NetworkedMultiplayerPeer::CONNECTION_DISCONNECTED, "Supplied NetworkedNetworkPeer must be connecting or connected.")
 
-    if (network_peer.is_valid()) {
+    if (network_peer) {
         network_peer->connect("peer_connected", this, "_add_peer");
         network_peer->connect("peer_disconnected", this, "_del_peer");
         network_peer->connect("connection_succeeded", this, "_connected_to_server");
@@ -173,8 +177,8 @@ Ref<NetworkedMultiplayerPeer> MultiplayerAPI::get_network_peer() const {
 
 void MultiplayerAPI::_process_packet(int p_from, const uint8_t *p_packet, int p_packet_len) {
 
-    ERR_FAIL_COND_MSG(root_node == nullptr, "Multiplayer root node was not initialized. If you are using custom multiplayer, remember to set the root node via MultiplayerAPI.set_root_node before using it.");
-    ERR_FAIL_COND_MSG(p_packet_len < 1, "Invalid packet received. Size too small.");
+    ERR_FAIL_COND_MSG(root_node == nullptr, "Multiplayer root node was not initialized. If you are using custom multiplayer, remember to set the root node via MultiplayerAPI.set_root_node before using it.")
+    ERR_FAIL_COND_MSG(p_packet_len < 1, "Invalid packet received. Size too small.")
 
 #ifdef DEBUG_ENABLED
     if (profiling) {
@@ -260,13 +264,13 @@ Node *MultiplayerAPI::_process_get_node(int p_from, const uint8_t *p_packet, int
         // Use cached path.
         int id = target;
 
-        Map<int, PathGetCache>::Element *E = path_get_cache.find(p_from);
-        ERR_FAIL_COND_V_MSG(!E, nullptr, "Invalid packet received. Requests invalid peer cache.")
+        Map<int, PathGetCache>::iterator E = path_get_cache.find(p_from);
+        ERR_FAIL_COND_V_MSG(E==path_get_cache.end(), nullptr, "Invalid packet received. Requests invalid peer cache.")
 
-        Map<int, PathGetCache::NodeInfo>::Element *F = E->get().nodes.find(id);
-        ERR_FAIL_COND_V_MSG(!F, nullptr, "Invalid packet received. Unabled to find requested cached node.")
+        Map<int, PathGetCache::NodeInfo>::iterator F = E->second.nodes.find(id);
+        ERR_FAIL_COND_V_MSG(F==E->second.nodes.end(), nullptr, "Invalid packet received. Unabled to find requested cached node.")
 
-        PathGetCache::NodeInfo *ni = &F->get();
+        PathGetCache::NodeInfo *ni = &F->second;
         // Do proper caching later.
 
         node = root_node->get_node(ni->path);
@@ -282,15 +286,15 @@ void MultiplayerAPI::_process_rpc(Node *p_node, const StringName &p_name, int p_
 
     // Check that remote can call the RPC on this node.
     RPCMode rpc_mode = RPC_MODE_DISABLED;
-    const Map<StringName, RPCMode>::Element *E = p_node->get_node_rpc_mode(p_name);
+    const RPCMode *E = p_node->get_node_rpc_mode(p_name);
     if (E) {
-        rpc_mode = E->get();
+        rpc_mode = *E;
     } else if (p_node->get_script_instance()) {
         rpc_mode = p_node->get_script_instance()->get_rpc_mode(p_name);
     }
 
     bool can_call = _can_call_mode(p_node, rpc_mode, p_from);
-    ERR_FAIL_COND_MSG(!can_call, "RPC '" + String(p_name) + "' is not allowed on node " + (String)p_node->get_path() + " from: " + itos(p_from) + ". Mode is " + itos((int)rpc_mode) + ", master is " + itos(p_node->get_network_master()) + ".");
+    ERR_FAIL_COND_MSG(!can_call, "RPC '" + String(p_name) + "' is not allowed on node " + (String)p_node->get_path() + " from: " + itos(p_from) + ". Mode is " + itos((int)rpc_mode) + ", master is " + itos(p_node->get_network_master()) + ".")
 
     int argc = p_packet[p_offset];
     Vector<Variant> args;
@@ -326,7 +330,7 @@ void MultiplayerAPI::_process_rpc(Node *p_node, const StringName &p_name, int p_
     if (ce.error != Variant::CallError::CALL_OK) {
         String error = Variant::get_call_error_text(p_node, p_name, (const Variant **)argp.ptr(), argc, ce);
         error = "RPC - " + error;
-        ERR_PRINTS(error);
+        ERR_PRINTS(error)
     }
 }
 
@@ -336,9 +340,9 @@ void MultiplayerAPI::_process_rset(Node *p_node, const StringName &p_name, int p
 
     // Check that remote can call the RSET on this node.
     RPCMode rset_mode = RPC_MODE_DISABLED;
-    const Map<StringName, RPCMode>::Element *E = p_node->get_node_rset_mode(p_name);
+    const RPCMode *E = p_node->get_node_rset_mode(p_name);
     if (E) {
-        rset_mode = E->get();
+        rset_mode = *E;
     } else if (p_node->get_script_instance()) {
         rset_mode = p_node->get_script_instance()->get_rset_mode(p_name);
     }
@@ -371,7 +375,7 @@ void MultiplayerAPI::_process_simplify_path(int p_from, const uint8_t *p_packet,
 
     NodePath path(paths);
 
-    if (!path_get_cache.has(p_from)) {
+    if (!path_get_cache.contains(p_from)) {
         path_get_cache[p_from] = PathGetCache();
     }
 
@@ -407,30 +411,30 @@ void MultiplayerAPI::_process_confirm_path(int p_from, const uint8_t *p_packet, 
     PathSentCache *psc = path_send_cache.getptr(path);
     ERR_FAIL_COND_MSG(!psc, "Invalid packet received. Tries to confirm a path which was not found in cache.")
 
-    Map<int, bool>::Element *E = psc->confirmed_peers.find(p_from);
-    ERR_FAIL_COND_MSG(!E, "Invalid packet received. Source peer was not found in cache for the given path.")
-    E->get() = true;
+    Map<int, bool>:: iterator E = psc->confirmed_peers.find(p_from);
+    ERR_FAIL_COND_MSG(E==psc->confirmed_peers.end(), "Invalid packet received. Source peer was not found in cache for the given path.")
+    E->second = true;
 }
 
-bool MultiplayerAPI::_send_confirm_path(NodePath p_path, PathSentCache *psc, int p_target) {
+bool MultiplayerAPI::_send_confirm_path(const NodePath& p_path, PathSentCache *psc, int p_target) {
     bool has_all_peers = true;
     List<int> peers_to_add; // If one is missing, take note to add it.
 
-    for (Set<int>::Element *E = connected_peers.front(); E; E = E->next()) {
+    for (int E : connected_peers) {
 
-        if (p_target < 0 && E->get() == -p_target)
+        if (p_target < 0 && E == -p_target)
             continue; // Continue, excluded.
 
-        if (p_target > 0 && E->get() != p_target)
+        if (p_target > 0 && E != p_target)
             continue; // Continue, not for this peer.
 
-        Map<int, bool>::Element *F = psc->confirmed_peers.find(E->get());
+        Map<int, bool>::iterator F = psc->confirmed_peers.find(E);
 
-        if (!F || !F->get()) {
+        if (F== psc->confirmed_peers.end() || !F->second) {
             // Path was not cached, or was cached but is unconfirmed.
-            if (!F) {
+            if (F== psc->confirmed_peers.end()) {
                 // Not cached at all, take note.
-                peers_to_add.push_back(E->get());
+                peers_to_add.push_back(E);
             }
 
             has_all_peers = false;
@@ -452,11 +456,11 @@ bool MultiplayerAPI::_send_confirm_path(NodePath p_path, PathSentCache *psc, int
         encode_uint32(psc->id, &packet.write[1]);
         encode_cstring(pname.data(), &packet.write[5]);
 
-        network_peer->set_target_peer(E->get()); // To all of you.
+        network_peer->set_target_peer(E->deref()); // To all of you.
         network_peer->set_transfer_mode(NetworkedMultiplayerPeer::TRANSFER_MODE_RELIABLE);
         network_peer->put_packet(packet.ptr(), packet.size());
 
-        psc->confirmed_peers.insert(E->get(), false); // Insert into confirmed, but as false since it was not confirmed.
+        psc->confirmed_peers.emplace(E->deref(), false); // Insert into confirmed, but as false since it was not confirmed.
     }
 
     return has_all_peers;
@@ -464,15 +468,15 @@ bool MultiplayerAPI::_send_confirm_path(NodePath p_path, PathSentCache *psc, int
 
 void MultiplayerAPI::_send_rpc(Node *p_from, int p_to, bool p_unreliable, bool p_set, const StringName &p_name, const Variant **p_arg, int p_argcount) {
 
-    ERR_FAIL_COND_MSG(network_peer.is_null(), "Attempt to remote call/set when networking is not active in SceneTree.")
+    ERR_FAIL_COND_MSG(not network_peer, "Attempt to remote call/set when networking is not active in SceneTree.")
 
-    ERR_FAIL_COND_MSG(network_peer->get_connection_status() == NetworkedMultiplayerPeer::CONNECTION_CONNECTING, "Attempt to remote call/set when networking is not connected yet in SceneTree.");
+    ERR_FAIL_COND_MSG(network_peer->get_connection_status() == NetworkedMultiplayerPeer::CONNECTION_CONNECTING, "Attempt to remote call/set when networking is not connected yet in SceneTree.")
 
-    ERR_FAIL_COND_MSG(network_peer->get_connection_status() == NetworkedMultiplayerPeer::CONNECTION_DISCONNECTED, "Attempt to remote call/set when networking is disconnected.");
+    ERR_FAIL_COND_MSG(network_peer->get_connection_status() == NetworkedMultiplayerPeer::CONNECTION_DISCONNECTED, "Attempt to remote call/set when networking is disconnected.")
 
     ERR_FAIL_COND_MSG(p_argcount > 255, "Too many arguments >255.")
 
-    if (p_to != 0 && !connected_peers.has(ABS(p_to))) {
+    if (p_to != 0 && !connected_peers.contains(ABS(p_to))) {
         ERR_FAIL_COND_MSG(p_to == network_peer->get_unique_id(), "Attempt to remote call/set yourself! unique ID: " + itos(network_peer->get_unique_id()) + ".")
 
         ERR_FAIL_MSG("Attempt to remote call unexisting ID: " + itos(p_to) + ".")
@@ -563,20 +567,20 @@ void MultiplayerAPI::_send_rpc(Node *p_from, int p_to, bool p_unreliable, bool p
         MAKE_ROOM(ofs + path_len)
         encode_cstring(pname.data(), &(packet_cache.write[ofs]));
 
-        for (Set<int>::Element *E = connected_peers.front(); E; E = E->next()) {
+        for (int E : connected_peers) {
 
-            if (p_to < 0 && E->get() == -p_to)
+            if (p_to < 0 && E == -p_to)
                 continue; // Continue, excluded.
 
-            if (p_to > 0 && E->get() != p_to)
+            if (p_to > 0 && E != p_to)
                 continue; // Continue, not for this peer.
 
-            Map<int, bool>::Element *F = psc->confirmed_peers.find(E->get());
-            ERR_CONTINUE(!F) // Should never happen.
+            Map<int, bool>::iterator F = psc->confirmed_peers.find(E);
+            ERR_CONTINUE(F==psc->confirmed_peers.end()) // Should never happen.
 
-            network_peer->set_target_peer(E->get()); // To this one specifically.
+            network_peer->set_target_peer(E); // To this one specifically.
 
-            if (F->get()) {
+            if (F->second) {
                 // This one confirmed path, so use id.
                 encode_uint32(psc->id, &(packet_cache.write[1]));
                 network_peer->put_packet(packet_cache.ptr(), ofs);
@@ -591,7 +595,7 @@ void MultiplayerAPI::_send_rpc(Node *p_from, int p_to, bool p_unreliable, bool p
 
 void MultiplayerAPI::_add_peer(int p_id) {
     connected_peers.insert(p_id);
-    path_get_cache.insert(p_id, PathGetCache());
+    path_get_cache.emplace(p_id, PathGetCache());
     emit_signal("network_peer_connected", p_id);
 }
 
@@ -618,7 +622,7 @@ void MultiplayerAPI::_server_disconnected() {
 
 void MultiplayerAPI::rpcp(Node *p_node, int p_peer_id, bool p_unreliable, const StringName &p_method, const Variant **p_arg, int p_argcount) {
 
-    ERR_FAIL_COND_MSG(!network_peer.is_valid(), "Trying to call an RPC while no network peer is active.")
+    ERR_FAIL_COND_MSG(not network_peer, "Trying to call an RPC while no network peer is active.")
     ERR_FAIL_COND_MSG(!p_node->is_inside_tree(), "Trying to call an RPC on a node which is not inside SceneTree.")
     ERR_FAIL_COND_MSG(network_peer->get_connection_status() != NetworkedMultiplayerPeer::CONNECTION_CONNECTED, "Trying to call an RPC via a network peer which is not connected.")
 
@@ -631,9 +635,9 @@ void MultiplayerAPI::rpcp(Node *p_node, int p_peer_id, bool p_unreliable, const 
     if (p_peer_id == 0 || p_peer_id == node_id || (p_peer_id < 0 && p_peer_id != -node_id)) {
         // Check that send mode can use local call.
 
-        const Map<StringName, RPCMode>::Element *E = p_node->get_node_rpc_mode(p_method);
+        const RPCMode *E = p_node->get_node_rpc_mode(p_method);
         if (E) {
-            call_local_native = _should_call_local(E->get(), is_master, skip_rpc);
+            call_local_native = _should_call_local(*E, is_master, skip_rpc);
         }
 
         if (call_local_native) {
@@ -685,14 +689,14 @@ void MultiplayerAPI::rpcp(Node *p_node, int p_peer_id, bool p_unreliable, const 
         }
     }
 
-    ERR_FAIL_COND_MSG(skip_rpc && !(call_local_native || call_local_script), "RPC '" + p_method + "' on yourself is not allowed by selected mode.");
+    ERR_FAIL_COND_MSG(skip_rpc && !(call_local_native || call_local_script), "RPC '" + p_method + "' on yourself is not allowed by selected mode.")
 }
 
 void MultiplayerAPI::rsetp(Node *p_node, int p_peer_id, bool p_unreliable, const StringName &p_property, const Variant &p_value) {
 
-    ERR_FAIL_COND_MSG(!network_peer.is_valid(), "Trying to RSET while no network peer is active.")
+    ERR_FAIL_COND_MSG(not network_peer, "Trying to RSET while no network peer is active.")
     ERR_FAIL_COND_MSG(!p_node->is_inside_tree(), "Trying to RSET on a node which is not inside SceneTree.")
-    ERR_FAIL_COND_MSG(network_peer->get_connection_status() != NetworkedMultiplayerPeer::CONNECTION_CONNECTED, "Trying to send an RSET via a network peer which is not connected.");
+    ERR_FAIL_COND_MSG(network_peer->get_connection_status() != NetworkedMultiplayerPeer::CONNECTION_CONNECTED, "Trying to send an RSET via a network peer which is not connected.")
 
     int node_id = network_peer->get_unique_id();
     bool is_master = p_node->is_network_master();
@@ -701,10 +705,10 @@ void MultiplayerAPI::rsetp(Node *p_node, int p_peer_id, bool p_unreliable, const
 
     if (p_peer_id == 0 || p_peer_id == node_id || (p_peer_id < 0 && p_peer_id != -node_id)) {
         // Check that send mode can use local call.
-        const Map<StringName, RPCMode>::Element *E = p_node->get_node_rset_mode(p_property);
+        const RPCMode *E = p_node->get_node_rset_mode(p_property);
         if (E) {
 
-            set_local = _should_call_local(E->get(), is_master, skip_rset);
+            set_local = _should_call_local(*E, is_master, skip_rset);
         }
 
         if (set_local) {
@@ -759,11 +763,11 @@ void MultiplayerAPI::rsetp(Node *p_node, int p_peer_id, bool p_unreliable, const
     _send_rpc(p_node, p_peer_id, p_unreliable, true, p_property, &vptr, 1);
 }
 
-Error MultiplayerAPI::send_bytes(PoolVector<uint8_t> p_data, int p_to, NetworkedMultiplayerPeer::TransferMode p_mode) {
+Error MultiplayerAPI::send_bytes(const PoolVector<uint8_t>& p_data, int p_to, NetworkedMultiplayerPeer::TransferMode p_mode) {
 
     ERR_FAIL_COND_V_MSG(p_data.size() < 1, ERR_INVALID_DATA, "Trying to send an empty raw packet.")
-    ERR_FAIL_COND_V_MSG(!network_peer.is_valid(), ERR_UNCONFIGURED, "Trying to send a raw packet while no network peer is active.")
-    ERR_FAIL_COND_V_MSG(network_peer->get_connection_status() != NetworkedMultiplayerPeer::CONNECTION_CONNECTED, ERR_UNCONFIGURED, "Trying to send a raw packet via a network peer which is not connected.");
+    ERR_FAIL_COND_V_MSG(not network_peer, ERR_UNCONFIGURED, "Trying to send a raw packet while no network peer is active.")
+    ERR_FAIL_COND_V_MSG(network_peer->get_connection_status() != NetworkedMultiplayerPeer::CONNECTION_CONNECTED, ERR_UNCONFIGURED, "Trying to send a raw packet via a network peer which is not connected.")
 
     MAKE_ROOM(p_data.size() + 1)
     PoolVector<uint8_t>::Read r = p_data.read();
@@ -792,36 +796,36 @@ void MultiplayerAPI::_process_raw(int p_from, const uint8_t *p_packet, int p_pac
 
 int MultiplayerAPI::get_network_unique_id() const {
 
-    ERR_FAIL_COND_V_MSG(!network_peer.is_valid(), 0, "No network peer is assigned. Unable to get unique network ID.")
+    ERR_FAIL_COND_V_MSG(not network_peer, 0, "No network peer is assigned. Unable to get unique network ID.")
     return network_peer->get_unique_id();
 }
 
 bool MultiplayerAPI::is_network_server() const {
 
     // XXX Maybe fail silently? Maybe should actually return true to make development of both local and online multiplayer easier?
-    ERR_FAIL_COND_V_MSG(!network_peer.is_valid(), false, "No network peer is assigned. I can't be a server.")
+    ERR_FAIL_COND_V_MSG(not network_peer, false, "No network peer is assigned. I can't be a server.")
     return network_peer->is_server();
 }
 
 void MultiplayerAPI::set_refuse_new_network_connections(bool p_refuse) {
 
-    ERR_FAIL_COND_MSG(!network_peer.is_valid(), "No network peer is assigned. Unable to set 'refuse_new_connections'.")
+    ERR_FAIL_COND_MSG(not network_peer, "No network peer is assigned. Unable to set 'refuse_new_connections'.")
     network_peer->set_refuse_new_connections(p_refuse);
 }
 
 bool MultiplayerAPI::is_refusing_new_network_connections() const {
 
-    ERR_FAIL_COND_V_MSG(!network_peer.is_valid(), false, "No network peer is assigned. Unable to get 'refuse_new_connections'.")
+    ERR_FAIL_COND_V_MSG(not network_peer, false, "No network peer is assigned. Unable to get 'refuse_new_connections'.")
     return network_peer->is_refusing_new_connections();
 }
 
 Vector<int> MultiplayerAPI::get_network_connected_peers() const {
 
-    ERR_FAIL_COND_V_MSG(!network_peer.is_valid(), Vector<int>(), "No network peer is assigned. Assume no peers are connected.")
+    ERR_FAIL_COND_V_MSG(not network_peer, Vector<int>(), "No network peer is assigned. Assume no peers are connected.")
 
     Vector<int> ret;
-    for (Set<int>::Element *E = connected_peers.front(); E; E = E->next()) {
-        ret.push_back(E->get());
+    for (int E : connected_peers) {
+        ret.push_back(E);
     }
 
     return ret;
@@ -867,8 +871,8 @@ void MultiplayerAPI::profiling_end() {
 int MultiplayerAPI::get_profiling_frame(ProfilingInfo *r_info) {
     int i = 0;
 #ifdef DEBUG_ENABLED
-    for (Map<ObjectID, ProfilingInfo>::Element *E = profiler_frame_data.front(); E; E = E->next()) {
-        r_info[i] = E->get();
+    for (eastl::pair<const ObjectID,ProfilingInfo> &E : profiler_frame_data) {
+        r_info[i] = E.second;
         ++i;
     }
     profiler_frame_data.clear();
@@ -910,14 +914,14 @@ int MultiplayerAPI::_get_bandwidth_usage(const Vector<BandwidthFrame> &p_buffer,
     }
 
     ERR_EXPLAIN("Reached the end of the bandwidth profiler buffer, values might be inaccurate.");
-    ERR_FAIL_COND_V(i == p_pointer, total_bandwidth);
+    ERR_FAIL_COND_V(i == p_pointer, total_bandwidth)
     return total_bandwidth;
 }
 
 void MultiplayerAPI::_init_node_profile(ObjectID p_node) {
-    if (profiler_frame_data.has(p_node))
+    if (profiler_frame_data.contains(p_node))
         return;
-    profiler_frame_data.insert(p_node, ProfilingInfo());
+    profiler_frame_data.emplace(p_node, ProfilingInfo());
     profiler_frame_data[p_node].node = p_node;
     profiler_frame_data[p_node].node_path = (String)Object::cast_to<Node>(ObjectDB::get_instance(p_node))->get_path();
     profiler_frame_data[p_node].incoming_rpc = 0;
@@ -927,16 +931,16 @@ void MultiplayerAPI::_init_node_profile(ObjectID p_node) {
 }
 #endif
 void MultiplayerAPI::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("set_root_node", "node"), &MultiplayerAPI::set_root_node);
-    MethodBinder::bind_method(D_METHOD("send_bytes", "bytes", "id", "mode"), &MultiplayerAPI::send_bytes, {DEFVAL(NetworkedMultiplayerPeer::TARGET_PEER_BROADCAST), DEFVAL(NetworkedMultiplayerPeer::TRANSFER_MODE_RELIABLE)});
+    MethodBinder::bind_method(D_METHOD("set_root_node", {"node"}), &MultiplayerAPI::set_root_node);
+    MethodBinder::bind_method(D_METHOD("send_bytes", {"bytes", "id", "mode"}), &MultiplayerAPI::send_bytes, {DEFVAL(NetworkedMultiplayerPeer::TARGET_PEER_BROADCAST), DEFVAL(NetworkedMultiplayerPeer::TRANSFER_MODE_RELIABLE)});
     MethodBinder::bind_method(D_METHOD("has_network_peer"), &MultiplayerAPI::has_network_peer);
     MethodBinder::bind_method(D_METHOD("get_network_peer"), &MultiplayerAPI::get_network_peer);
     MethodBinder::bind_method(D_METHOD("get_network_unique_id"), &MultiplayerAPI::get_network_unique_id);
     MethodBinder::bind_method(D_METHOD("is_network_server"), &MultiplayerAPI::is_network_server);
     MethodBinder::bind_method(D_METHOD("get_rpc_sender_id"), &MultiplayerAPI::get_rpc_sender_id);
-    MethodBinder::bind_method(D_METHOD("_add_peer", "id"), &MultiplayerAPI::_add_peer);
-    MethodBinder::bind_method(D_METHOD("_del_peer", "id"), &MultiplayerAPI::_del_peer);
-    MethodBinder::bind_method(D_METHOD("set_network_peer", "peer"), &MultiplayerAPI::set_network_peer);
+    MethodBinder::bind_method(D_METHOD("_add_peer", {"id"}), &MultiplayerAPI::_add_peer);
+    MethodBinder::bind_method(D_METHOD("_del_peer", {"id"}), &MultiplayerAPI::_del_peer);
+    MethodBinder::bind_method(D_METHOD("set_network_peer", {"peer"}), &MultiplayerAPI::set_network_peer);
     MethodBinder::bind_method(D_METHOD("poll"), &MultiplayerAPI::poll);
     MethodBinder::bind_method(D_METHOD("clear"), &MultiplayerAPI::clear);
 
@@ -944,19 +948,19 @@ void MultiplayerAPI::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_connection_failed"), &MultiplayerAPI::_connection_failed);
     MethodBinder::bind_method(D_METHOD("_server_disconnected"), &MultiplayerAPI::_server_disconnected);
     MethodBinder::bind_method(D_METHOD("get_network_connected_peers"), &MultiplayerAPI::get_network_connected_peers);
-    MethodBinder::bind_method(D_METHOD("set_refuse_new_network_connections", "refuse"), &MultiplayerAPI::set_refuse_new_network_connections);
+    MethodBinder::bind_method(D_METHOD("set_refuse_new_network_connections", {"refuse"}), &MultiplayerAPI::set_refuse_new_network_connections);
     MethodBinder::bind_method(D_METHOD("is_refusing_new_network_connections"), &MultiplayerAPI::is_refusing_new_network_connections);
-    MethodBinder::bind_method(D_METHOD("set_allow_object_decoding", "enable"), &MultiplayerAPI::set_allow_object_decoding);
+    MethodBinder::bind_method(D_METHOD("set_allow_object_decoding", {"enable"}), &MultiplayerAPI::set_allow_object_decoding);
     MethodBinder::bind_method(D_METHOD("is_object_decoding_allowed"), &MultiplayerAPI::is_object_decoding_allowed);
 
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "allow_object_decoding"), "set_allow_object_decoding", "is_object_decoding_allowed");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "refuse_new_network_connections"), "set_refuse_new_network_connections", "is_refusing_new_network_connections");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "network_peer", PROPERTY_HINT_RESOURCE_TYPE, "NetworkedMultiplayerPeer", 0), "set_network_peer", "get_network_peer");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "allow_object_decoding"), "set_allow_object_decoding", "is_object_decoding_allowed");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "refuse_new_network_connections"), "set_refuse_new_network_connections", "is_refusing_new_network_connections");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "network_peer", PROPERTY_HINT_RESOURCE_TYPE, "NetworkedMultiplayerPeer", 0), "set_network_peer", "get_network_peer");
     ADD_PROPERTY_DEFAULT("refuse_new_network_connections", false);
 
-    ADD_SIGNAL(MethodInfo("network_peer_connected", PropertyInfo(Variant::INT, "id")));
-    ADD_SIGNAL(MethodInfo("network_peer_disconnected", PropertyInfo(Variant::INT, "id")));
-    ADD_SIGNAL(MethodInfo("network_peer_packet", PropertyInfo(Variant::INT, "id"), PropertyInfo(Variant::POOL_BYTE_ARRAY, "packet")));
+    ADD_SIGNAL(MethodInfo("network_peer_connected", PropertyInfo(VariantType::INT, "id")));
+    ADD_SIGNAL(MethodInfo("network_peer_disconnected", PropertyInfo(VariantType::INT, "id")));
+    ADD_SIGNAL(MethodInfo("network_peer_packet", PropertyInfo(VariantType::INT, "id"), PropertyInfo(VariantType::POOL_BYTE_ARRAY, "packet")));
     ADD_SIGNAL(MethodInfo("connected_to_server"));
     ADD_SIGNAL(MethodInfo("connection_failed"));
     ADD_SIGNAL(MethodInfo("server_disconnected"));

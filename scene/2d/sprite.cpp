@@ -66,7 +66,7 @@ Rect2 Sprite::_edit_get_rect() const {
 }
 
 bool Sprite::_edit_use_rect() const {
-    return texture.is_valid();
+    return texture;
 }
 
 Rect2 Sprite::get_anchorable_rect() const {
@@ -113,7 +113,7 @@ void Sprite::_notification(int p_what) {
 
         case NOTIFICATION_DRAW: {
 
-            if (texture.is_null())
+            if (not texture)
                 return;
 
             RID ci = get_canvas_item();
@@ -137,12 +137,12 @@ void Sprite::set_texture(const Ref<Texture> &p_texture) {
     if (p_texture == texture)
         return;
 
-    if (texture.is_valid())
+    if (texture)
         texture->remove_change_receptor(this);
 
     texture = p_texture;
 
-    if (texture.is_valid())
+    if (texture)
         texture->add_change_receptor(this);
 
     update();
@@ -284,7 +284,7 @@ Vector2 Sprite::get_frame_coords() const {
 
 void Sprite::set_vframes(int p_amount) {
 
-    ERR_FAIL_COND(p_amount < 1);
+    ERR_FAIL_COND(p_amount < 1)
     vframes = p_amount;
     update();
     item_rect_changed();
@@ -297,7 +297,7 @@ int Sprite::get_vframes() const {
 
 void Sprite::set_hframes(int p_amount) {
 
-    ERR_FAIL_COND(p_amount < 1);
+    ERR_FAIL_COND(p_amount < 1)
     hframes = p_amount;
     update();
     item_rect_changed();
@@ -315,7 +315,7 @@ bool Sprite::_edit_is_selected_on_click(const Point2 &p_point, double p_toleranc
 
 bool Sprite::is_pixel_opaque(const Point2 &p_point) const {
 
-    if (texture.is_null())
+    if (not texture)
         return false;
 
     Rect2 src_rect, dst_rect;
@@ -360,7 +360,7 @@ bool Sprite::is_pixel_opaque(const Point2 &p_point) const {
 
 Rect2 Sprite::get_rect() const {
 
-    if (texture.is_null())
+    if (not texture)
         return Rect2(0, 0, 1, 1);
 
     Size2i s;
@@ -396,52 +396,52 @@ void Sprite::_changed_callback(Object *p_changed, const char *p_prop) {
 
     // Changes to the texture need to trigger an update to make
     // the editor redraw the sprite with the updated texture.
-    if (texture.is_valid() && texture.ptr() == p_changed) {
+    if (texture && texture.get() == p_changed) {
         update();
     }
 }
 
 void Sprite::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_texture", "texture"), &Sprite::set_texture);
+    MethodBinder::bind_method(D_METHOD("set_texture", {"texture"}), &Sprite::set_texture);
     MethodBinder::bind_method(D_METHOD("get_texture"), &Sprite::get_texture);
 
-    MethodBinder::bind_method(D_METHOD("set_normal_map", "normal_map"), &Sprite::set_normal_map);
+    MethodBinder::bind_method(D_METHOD("set_normal_map", {"normal_map"}), &Sprite::set_normal_map);
     MethodBinder::bind_method(D_METHOD("get_normal_map"), &Sprite::get_normal_map);
 
-    MethodBinder::bind_method(D_METHOD("set_centered", "centered"), &Sprite::set_centered);
+    MethodBinder::bind_method(D_METHOD("set_centered", {"centered"}), &Sprite::set_centered);
     MethodBinder::bind_method(D_METHOD("is_centered"), &Sprite::is_centered);
 
-    MethodBinder::bind_method(D_METHOD("set_offset", "offset"), &Sprite::set_offset);
+    MethodBinder::bind_method(D_METHOD("set_offset", {"offset"}), &Sprite::set_offset);
     MethodBinder::bind_method(D_METHOD("get_offset"), &Sprite::get_offset);
 
-    MethodBinder::bind_method(D_METHOD("set_flip_h", "flip_h"), &Sprite::set_flip_h);
+    MethodBinder::bind_method(D_METHOD("set_flip_h", {"flip_h"}), &Sprite::set_flip_h);
     MethodBinder::bind_method(D_METHOD("is_flipped_h"), &Sprite::is_flipped_h);
 
-    MethodBinder::bind_method(D_METHOD("set_flip_v", "flip_v"), &Sprite::set_flip_v);
+    MethodBinder::bind_method(D_METHOD("set_flip_v", {"flip_v"}), &Sprite::set_flip_v);
     MethodBinder::bind_method(D_METHOD("is_flipped_v"), &Sprite::is_flipped_v);
 
-    MethodBinder::bind_method(D_METHOD("set_region", "enabled"), &Sprite::set_region);
+    MethodBinder::bind_method(D_METHOD("set_region", {"enabled"}), &Sprite::set_region);
     MethodBinder::bind_method(D_METHOD("is_region"), &Sprite::is_region);
 
-    MethodBinder::bind_method(D_METHOD("is_pixel_opaque", "pos"), &Sprite::is_pixel_opaque);
+    MethodBinder::bind_method(D_METHOD("is_pixel_opaque", {"pos"}), &Sprite::is_pixel_opaque);
 
-    MethodBinder::bind_method(D_METHOD("set_region_rect", "rect"), &Sprite::set_region_rect);
+    MethodBinder::bind_method(D_METHOD("set_region_rect", {"rect"}), &Sprite::set_region_rect);
     MethodBinder::bind_method(D_METHOD("get_region_rect"), &Sprite::get_region_rect);
 
-    MethodBinder::bind_method(D_METHOD("set_region_filter_clip", "enabled"), &Sprite::set_region_filter_clip);
+    MethodBinder::bind_method(D_METHOD("set_region_filter_clip", {"enabled"}), &Sprite::set_region_filter_clip);
     MethodBinder::bind_method(D_METHOD("is_region_filter_clip_enabled"), &Sprite::is_region_filter_clip_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_frame", "frame"), &Sprite::set_frame);
+    MethodBinder::bind_method(D_METHOD("set_frame", {"frame"}), &Sprite::set_frame);
     MethodBinder::bind_method(D_METHOD("get_frame"), &Sprite::get_frame);
 
-    MethodBinder::bind_method(D_METHOD("set_frame_coords", "coords"), &Sprite::set_frame_coords);
+    MethodBinder::bind_method(D_METHOD("set_frame_coords", {"coords"}), &Sprite::set_frame_coords);
     MethodBinder::bind_method(D_METHOD("get_frame_coords"), &Sprite::get_frame_coords);
 
-    MethodBinder::bind_method(D_METHOD("set_vframes", "vframes"), &Sprite::set_vframes);
+    MethodBinder::bind_method(D_METHOD("set_vframes", {"vframes"}), &Sprite::set_vframes);
     MethodBinder::bind_method(D_METHOD("get_vframes"), &Sprite::get_vframes);
 
-    MethodBinder::bind_method(D_METHOD("set_hframes", "hframes"), &Sprite::set_hframes);
+    MethodBinder::bind_method(D_METHOD("set_hframes", {"hframes"}), &Sprite::set_hframes);
     MethodBinder::bind_method(D_METHOD("get_hframes"), &Sprite::get_hframes);
 
     MethodBinder::bind_method(D_METHOD("get_rect"), &Sprite::get_rect);
@@ -449,23 +449,23 @@ void Sprite::_bind_methods() {
     ADD_SIGNAL(MethodInfo("frame_changed"));
     ADD_SIGNAL(MethodInfo("texture_changed"));
 
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_texture", "get_texture");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "normal_map", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_normal_map", "get_normal_map");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_texture", "get_texture");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "normal_map", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_normal_map", "get_normal_map");
     ADD_GROUP("Offset", "");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "centered"), "set_centered", "is_centered");
-    ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "offset"), "set_offset", "get_offset");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "flip_h"), "set_flip_h", "is_flipped_h");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "flip_v"), "set_flip_v", "is_flipped_v");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "centered"), "set_centered", "is_centered");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "offset"), "set_offset", "get_offset");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "flip_h"), "set_flip_h", "is_flipped_h");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "flip_v"), "set_flip_v", "is_flipped_v");
     ADD_GROUP("Animation", "");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "vframes", PROPERTY_HINT_RANGE, "1,16384,1"), "set_vframes", "get_vframes");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "hframes", PROPERTY_HINT_RANGE, "1,16384,1"), "set_hframes", "get_hframes");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "frame"), "set_frame", "get_frame");
-    ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "frame_coords", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR), "set_frame_coords", "get_frame_coords");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "vframes", PROPERTY_HINT_RANGE, "1,16384,1"), "set_vframes", "get_vframes");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "hframes", PROPERTY_HINT_RANGE, "1,16384,1"), "set_hframes", "get_hframes");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "frame"), "set_frame", "get_frame");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "frame_coords", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR), "set_frame_coords", "get_frame_coords");
 
     ADD_GROUP("Region", "region_");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "region_enabled"), "set_region", "is_region");
-    ADD_PROPERTY(PropertyInfo(Variant::RECT2, "region_rect"), "set_region_rect", "get_region_rect");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "region_filter_clip"), "set_region_filter_clip", "is_region_filter_clip_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "region_enabled"), "set_region", "is_region");
+    ADD_PROPERTY(PropertyInfo(VariantType::RECT2, "region_rect"), "set_region_rect", "get_region_rect");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "region_filter_clip"), "set_region_filter_clip", "is_region_filter_clip_enabled");
 }
 
 Sprite::Sprite() {
@@ -483,6 +483,6 @@ Sprite::Sprite() {
 }
 
 Sprite::~Sprite() {
-    if (texture.is_valid())
+    if (texture)
         texture->remove_change_receptor(this);
 }

@@ -33,6 +33,7 @@
 #if defined(WINDOWS_ENABLED)
 
 #include "core/os/memory.h"
+#include "error_macros.h"
 
 Error SemaphoreWindows::wait() {
 
@@ -41,20 +42,20 @@ Error SemaphoreWindows::wait() {
 }
 Error SemaphoreWindows::post() {
 
-	ReleaseSemaphore(semaphore, 1, NULL);
+	ReleaseSemaphore(semaphore, 1, nullptr);
 	return OK;
 }
 int SemaphoreWindows::get() const {
 	long previous;
 	switch (WaitForSingleObjectEx(semaphore, 0, false)) {
 		case WAIT_OBJECT_0: {
-			ERR_FAIL_COND_V(!ReleaseSemaphore(semaphore, 1, &previous), -1);
+			ERR_FAIL_COND_V(!ReleaseSemaphore(semaphore, 1, &previous), -1)
 			return previous + 1;
-		} break;
-		case WAIT_TIMEOUT: {
+		}
+        case WAIT_TIMEOUT: {
 			return 0;
-		} break;
-		default: {
+		}
+        default: {
 		}
 	}
 
@@ -83,10 +84,10 @@ SemaphoreWindows::SemaphoreWindows() {
 			SEMAPHORE_ALL_ACCESS);
 #else
 	semaphore = CreateSemaphore(
-			NULL,
+			nullptr,
 			0,
 			0xFFFFFFF, //wathever
-			NULL);
+			nullptr);
 #endif
 }
 

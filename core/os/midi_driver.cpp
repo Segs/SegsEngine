@@ -46,8 +46,7 @@ void MIDIDriver::set_singleton() {
 
 void MIDIDriver::receive_input_packet(uint64_t timestamp, uint8_t *data, uint32_t length) {
 
-	Ref<InputEventMIDI> event;
-	event.instance();
+	Ref<InputEventMIDI> event(make_ref_counted<InputEventMIDI>());
 
 	if (length >= 1) {
 		event->set_channel(data[0] & 0xF);

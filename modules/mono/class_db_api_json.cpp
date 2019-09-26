@@ -54,7 +54,7 @@ void class_db_api_to_json(const String &p_output_file, ClassDB::APIType p_api) {
 	for (List<StringName>::Element *E = names.front(); E; E = E->next()) {
 
 		ClassDB::ClassInfo *t = ClassDB::classes.getptr(E->get());
-		ERR_FAIL_COND(!t);
+		ERR_FAIL_COND(!t)
 		if (t->api != p_api || !t->exposed)
 			continue;
 
@@ -236,7 +236,7 @@ void class_db_api_to_json(const String &p_output_file, ClassDB::APIType p_api) {
 	}
 
 	FileAccessRef f = FileAccess::open(p_output_file, FileAccess::WRITE);
-	ERR_FAIL_COND(!f);
+	ERR_FAIL_COND(!f)
 	f->store_string(JSON::print(classes_dict, /*indent: */ "\t"));
 	f->close();
 

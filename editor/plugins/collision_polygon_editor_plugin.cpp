@@ -124,9 +124,9 @@ bool Polygon3DEditor::forward_spatial_gui_input(Camera *p_camera, const Ref<Inpu
     Vector3 n = gt.basis.get_axis(2).normalized();
     Plane p(gt.origin + n * depth, n);
 
-    Ref<InputEventMouseButton> mb = p_event;
+    Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_event);
 
-    if (mb.is_valid()) {
+    if (mb) {
 
         Vector2 gpoint = mb->get_position();
         Vector3 ray_from = p_camera->project_ray_origin(gpoint);
@@ -327,9 +327,9 @@ bool Polygon3DEditor::forward_spatial_gui_input(Camera *p_camera, const Ref<Inpu
         }
     }
 
-    Ref<InputEventMouseMotion> mm = p_event;
+    Ref<InputEventMouseMotion> mm = dynamic_ref_cast<InputEventMouseMotion>(p_event);
 
-    if (mm.is_valid()) {
+    if (mm) {
         if (edited_point != -1 && (wip_active || mm->get_button_mask() & BUTTON_MASK_LEFT)) {
 
             Vector2 gpoint = mm->get_position();
@@ -483,8 +483,7 @@ void Polygon3DEditor::_polygon_draw() {
         PoolVector<Vector3>::Write w = va.write();
         for (int i = 0; i < poly.size(); i++) {
 
-            Vector2 p, p2;
-            p = i == edited_point ? edited_point_pos : poly[i];
+            Vector2 p = (i == edited_point) ? edited_point_pos : poly[i];
 
             Vector3 point = Vector3(p.x, p.y, depth);
             w[i] = point;
@@ -551,7 +550,7 @@ Polygon3DEditor::Polygon3DEditor(EditorNode *p_editor) {
     imgeom = memnew(ImmediateGeometry);
     imgeom->set_transform(Transform(Basis(), Vector3(0, 0, 0.00001f)));
 
-    line_material = Ref<SpatialMaterial>(memnew(SpatialMaterial));
+    line_material = make_ref_counted<SpatialMaterial>();
     line_material->set_flag(SpatialMaterial::FLAG_UNSHADED, true);
     line_material->set_line_width(3.0f);
     line_material->set_feature(SpatialMaterial::FEATURE_TRANSPARENT, true);
@@ -559,7 +558,7 @@ Polygon3DEditor::Polygon3DEditor(EditorNode *p_editor) {
     line_material->set_flag(SpatialMaterial::FLAG_SRGB_VERTEX_COLOR, true);
     line_material->set_albedo(Color(1, 1, 1));
 
-    handle_material = Ref<SpatialMaterial>(memnew(SpatialMaterial));
+    handle_material = make_ref_counted<SpatialMaterial>();
     handle_material->set_flag(SpatialMaterial::FLAG_UNSHADED, true);
     handle_material->set_flag(SpatialMaterial::FLAG_USE_POINT_SIZE, true);
     handle_material->set_feature(SpatialMaterial::FEATURE_TRANSPARENT, true);
@@ -571,7 +570,7 @@ Polygon3DEditor::Polygon3DEditor(EditorNode *p_editor) {
 
     pointsm = memnew(MeshInstance);
     imgeom->add_child(pointsm);
-    m.instance();
+    m = make_ref_counted<ArrayMesh>();
     pointsm->set_mesh(m);
     pointsm->set_transform(Transform(Basis(), Vector3(0, 0, 0.00001f)));
 

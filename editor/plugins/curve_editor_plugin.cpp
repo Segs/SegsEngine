@@ -72,19 +72,19 @@ CurveEditor::CurveEditor() {
     _context_menu->add_child(_presets_menu);
 }
 
-void CurveEditor::set_curve(const Ref<Curve>& curve) {
+void CurveEditor::set_curve(Ref<Curve> && curve) {
 
     if (curve == _curve_ref)
         return;
 
-    if (_curve_ref.is_valid()) {
+    if (_curve_ref) {
         _curve_ref->disconnect(CoreStringNames::get_singleton()->changed, this, "_curve_changed");
         _curve_ref->disconnect(StaticCString(Curve::SIGNAL_RANGE_CHANGED,true), this, "_curve_changed");
     }
 
-    _curve_ref = curve;
+    _curve_ref = std::move(curve);
 
-    if (_curve_ref.is_valid()) {
+    if (_curve_ref) {
         _curve_ref->connect(CoreStringNames::get_singleton()->changed, this, "_curve_changed");
         _curve_ref->connect(StaticCString(Curve::SIGNAL_RANGE_CHANGED,true), this, "_curve_changed");
     }
@@ -110,10 +110,10 @@ void CurveEditor::_notification(int p_what) {
 
 void CurveEditor::on_gui_input(const Ref<InputEvent> &p_event) {
 
-    Ref<InputEventMouseButton> mb_ref = p_event;
-    if (mb_ref.is_valid()) {
+    Ref<InputEventMouseButton> mb_ref = dynamic_ref_cast<InputEventMouseButton>(p_event);
+    if (mb_ref) {
 
-        const InputEventMouseButton &mb = **mb_ref;
+        const InputEventMouseButton &mb = *mb_ref;
 
         if (mb.is_pressed() && !_dragging) {
 
@@ -146,8 +146,8 @@ void CurveEditor::on_gui_input(const Ref<InputEvent> &p_event) {
                 UndoRedo &ur = *EditorNode::get_singleton()->get_undo_redo();
 
                 ur.create_action(_selected_tangent == TANGENT_NONE ? TTR("Modify Curve Point") : TTR("Modify Curve Tangent"));
-                ur.add_do_method(*_curve_ref, "_set_data", _curve_ref->get_data());
-                ur.add_undo_method(*_curve_ref, "_set_data", _undo_data);
+                ur.add_do_method(_curve_ref.get(), "_set_data", _curve_ref->get_data());
+                ur.add_undo_method(_curve_ref.get(), "_set_data", _undo_data);
                 // Note: this will trigger one more "changed" signal even if nothing changes,
                 // but it's ok since it would have fired every frame during the drag anyways
                 ur.commit_action();
@@ -157,17 +157,17 @@ void CurveEditor::on_gui_input(const Ref<InputEvent> &p_event) {
         }
     }
 
-    Ref<InputEventMouseMotion> mm_ref = p_event;
-    if (mm_ref.is_valid()) {
+    Ref<InputEventMouseMotion> mm_ref = dynamic_ref_cast<InputEventMouseMotion>(p_event);
+    if (mm_ref) {
 
-        const InputEventMouseMotion &mm = **mm_ref;
+        const InputEventMouseMotion &mm = *mm_ref;
 
         Vector2 mpos = mm.get_position();
 
-        if (_dragging && _curve_ref.is_valid()) {
+        if (_dragging && _curve_ref) {
 
             if (_selected_point != -1) {
-                Curve &curve = **_curve_ref;
+                Curve &curve = *_curve_ref;
 
                 if (!_has_undo_data) {
                     // Save full curve state before dragging points,
@@ -241,9 +241,9 @@ void CurveEditor::on_gui_input(const Ref<InputEvent> &p_event) {
         }
     }
 
-    Ref<InputEventKey> key_ref = p_event;
-    if (key_ref.is_valid()) {
-        const InputEventKey &key = **key_ref;
+    Ref<InputEventKey> key_ref = dynamic_ref_cast<InputEventKey>(p_event);
+    if (key_ref) {
+        const InputEventKey &key = *key_ref;
 
         if (key.is_pressed() && _selected_point != -1) {
             if (key.get_scancode() == KEY_DELETE)
@@ -253,10 +253,10 @@ void CurveEditor::on_gui_input(const Ref<InputEvent> &p_event) {
 }
 
 void CurveEditor::on_preset_item_selected(int preset_id) {
-    ERR_FAIL_COND(preset_id < 0 || preset_id >= PRESET_COUNT);
-    ERR_FAIL_COND(_curve_ref.is_null());
+    ERR_FAIL_COND(preset_id < 0 || preset_id >= PRESET_COUNT)
+    ERR_FAIL_COND(not _curve_ref)
 
-    Curve &curve = **_curve_ref;
+    Curve &curve = *_curve_ref;
     Array previous_data = curve.get_data();
 
     curve.clear_points();
@@ -348,7 +348,7 @@ void CurveEditor::open_context_menu(Vector2 pos) {
 
     _context_menu->clear();
 
-    if (_curve_ref.is_valid()) {
+    if (_curve_ref) {
         _context_menu->add_item(TTR("Add Point"), CONTEXT_ADD_POINT);
 
         if (_selected_point >= 0) {
@@ -392,9 +392,9 @@ void CurveEditor::open_context_menu(Vector2 pos) {
 }
 
 int CurveEditor::get_point_at(Vector2 pos) const {
-    if (_curve_ref.is_null())
+    if (not _curve_ref)
         return -1;
-    const Curve &curve = **_curve_ref;
+    const Curve &curve = *_curve_ref;
 
     const float r = _hover_radius * _hover_radius;
 
@@ -409,7 +409,7 @@ int CurveEditor::get_point_at(Vector2 pos) const {
 }
 
 CurveEditor::TangentIndex CurveEditor::get_tangent_at(Vector2 pos) const {
-    if (_curve_ref.is_null() || _selected_point < 0)
+    if (not _curve_ref || _selected_point < 0)
         return TANGENT_NONE;
 
     if (_selected_point != 0) {
@@ -430,7 +430,7 @@ CurveEditor::TangentIndex CurveEditor::get_tangent_at(Vector2 pos) const {
 }
 
 void CurveEditor::add_point(Vector2 pos) {
-    ERR_FAIL_COND(_curve_ref.is_null());
+    ERR_FAIL_COND(not _curve_ref)
 
     UndoRedo &ur = *EditorNode::get_singleton()->get_undo_redo();
     ur.create_action(TTR("Remove Curve Point"));
@@ -445,22 +445,22 @@ void CurveEditor::add_point(Vector2 pos) {
     int i = _curve_ref->add_point(point_pos);
     _curve_ref->remove_point(i);
 
-    ur.add_do_method(*_curve_ref, "add_point", point_pos);
-    ur.add_undo_method(*_curve_ref, "remove_point", i);
+    ur.add_do_method(_curve_ref.get(), "add_point", point_pos);
+    ur.add_undo_method(_curve_ref.get(), "remove_point", i);
 
     ur.commit_action();
 }
 
 void CurveEditor::remove_point(int index) {
-    ERR_FAIL_COND(_curve_ref.is_null());
+    ERR_FAIL_COND(not _curve_ref)
 
     UndoRedo &ur = *EditorNode::get_singleton()->get_undo_redo();
     ur.create_action(TTR("Remove Curve Point"));
 
     Curve::Point p = _curve_ref->get_point(index);
 
-    ur.add_do_method(*_curve_ref, "remove_point", index);
-    ur.add_undo_method(*_curve_ref, "add_point", p.pos, p.left_tangent, p.right_tangent, p.left_mode, p.right_mode);
+    ur.add_do_method(_curve_ref.get(), "remove_point", index);
+    ur.add_undo_method(_curve_ref.get(), "add_point", p.pos, p.left_tangent, p.right_tangent, p.left_mode, p.right_mode);
 
     if (index == _selected_point)
         set_selected_point(-1);
@@ -469,7 +469,7 @@ void CurveEditor::remove_point(int index) {
 }
 
 void CurveEditor::toggle_linear(TangentIndex tangent) {
-    ERR_FAIL_COND(_curve_ref.is_null());
+    ERR_FAIL_COND(not _curve_ref)
 
     UndoRedo &ur = *EditorNode::get_singleton()->get_undo_redo();
     ur.create_action(TTR("Toggle Curve Linear Tangent"));
@@ -484,8 +484,8 @@ void CurveEditor::toggle_linear(TangentIndex tangent) {
         Curve::TangentMode prev_mode = _curve_ref->get_point_left_mode(_selected_point);
         Curve::TangentMode mode = is_linear ? Curve::TANGENT_FREE : Curve::TANGENT_LINEAR;
 
-        ur.add_do_method(*_curve_ref, "set_point_left_mode", _selected_point, mode);
-        ur.add_undo_method(*_curve_ref, "set_point_left_mode", _selected_point, prev_mode);
+        ur.add_do_method(_curve_ref.get(), "set_point_left_mode", _selected_point, mode);
+        ur.add_undo_method(_curve_ref.get(), "set_point_left_mode", _selected_point, prev_mode);
 
     } else {
 
@@ -494,8 +494,8 @@ void CurveEditor::toggle_linear(TangentIndex tangent) {
         Curve::TangentMode prev_mode = _curve_ref->get_point_right_mode(_selected_point);
         Curve::TangentMode mode = is_linear ? Curve::TANGENT_FREE : Curve::TANGENT_LINEAR;
 
-        ur.add_do_method(*_curve_ref, "set_point_right_mode", _selected_point, mode);
-        ur.add_undo_method(*_curve_ref, "set_point_right_mode", _selected_point, prev_mode);
+        ur.add_do_method(_curve_ref.get(), "set_point_right_mode", _selected_point, mode);
+        ur.add_undo_method(_curve_ref.get(), "set_point_right_mode", _selected_point, prev_mode);
     }
 
     ur.commit_action();
@@ -522,7 +522,7 @@ void CurveEditor::update_view_transform() {
     float min_y = 0;
     float max_y = 1;
 
-    if (_curve_ref.is_valid()) {
+    if (_curve_ref) {
         min_y = _curve_ref->get_min_value();
         max_y = _curve_ref->get_max_value();
     }
@@ -618,9 +618,9 @@ struct CanvasItemPlotCurve {
 };
 
 void CurveEditor::_draw() {
-    if (_curve_ref.is_null())
+    if (not _curve_ref)
         return;
-    Curve &curve = **_curve_ref;
+    Curve &curve = *_curve_ref;
 
     update_view_transform();
 
@@ -762,20 +762,20 @@ bool EditorInspectorPluginCurve::can_handle(Object *p_object) {
 void EditorInspectorPluginCurve::parse_begin(Object *p_object) {
 
     Curve *curve = Object::cast_to<Curve>(p_object);
-    ERR_FAIL_COND(!curve);
+    ERR_FAIL_COND(!curve)
     Ref<Curve> c(curve);
 
     CurveEditor *editor = memnew(CurveEditor);
-    editor->set_curve(curve);
+    editor->set_curve(std::move(c));
     add_custom_control(editor);
 }
 
 CurveEditorPlugin::CurveEditorPlugin(EditorNode *p_node) {
-    Ref<EditorInspectorPluginCurve> curve_plugin;
-    curve_plugin.instance();
+    Ref<EditorInspectorPluginCurve> curve_plugin(make_ref_counted<EditorInspectorPluginCurve>());
     EditorInspector::add_inspector_plugin(curve_plugin);
 
-    get_editor_interface()->get_resource_previewer()->add_preview_generator(memnew(CurvePreviewGenerator));
+    get_editor_interface()->get_resource_previewer()->add_preview_generator(
+            make_ref_counted<CurvePreviewGenerator>());
 }
 
 //-----------------------------------
@@ -787,29 +787,28 @@ bool CurvePreviewGenerator::handles(const String &p_type) const {
 
 Ref<Texture> CurvePreviewGenerator::generate(const Ref<Resource> &p_from, const Size2 &p_size) const {
 
-    Ref<Curve> curve_ref = p_from;
-    ERR_FAIL_COND_V(curve_ref.is_null(), Ref<Texture>());
-    Curve &curve = **curve_ref;
+    Ref<Curve> curve_ref = dynamic_ref_cast<Curve>(p_from);
+    ERR_FAIL_COND_V(not curve_ref, Ref<Texture>())
+    Curve &curve = *curve_ref;
 
     // FIXME: Should be ported to use p_size as done in b2633a97
     int thumbnail_size = EditorSettings::get_singleton()->get("filesystem/file_dialog/thumbnail_size");
     thumbnail_size *= EDSCALE;
-    Ref<Image> img_ref;
-    img_ref.instance();
-    Image &im = **img_ref;
+    Ref<Image> img_ref(make_ref_counted<Image>());
+    Image &im = *img_ref;
 
     im.create(thumbnail_size, thumbnail_size / 2, false, Image::FORMAT_RGBA8);
 
     im.lock();
 
-    Color bg_color(0.1, 0.1, 0.1, 1.0);
+    Color bg_color(0.1f, 0.1f, 0.1f, 1.0);
     for (int i = 0; i < thumbnail_size; i++) {
         for (int j = 0; j < thumbnail_size / 2; j++) {
             im.set_pixel(i, j, bg_color);
         }
     }
 
-    Color line_color(0.8, 0.8, 0.8, 1.0);
+    Color line_color(0.8f, 0.8f, 0.8f, 1.0);
     float range_y = curve.get_max_value() - curve.get_min_value();
 
     int prev_y = 0;
@@ -844,7 +843,7 @@ Ref<Texture> CurvePreviewGenerator::generate(const Ref<Resource> &p_from, const 
 
     im.unlock();
 
-    Ref<ImageTexture> ptex = Ref<ImageTexture>(memnew(ImageTexture));
+    Ref<ImageTexture> ptex(make_ref_counted<ImageTexture>());
 
     ptex->create_from_image(img_ref, 0);
     return ptex;

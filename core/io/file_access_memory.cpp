@@ -36,7 +36,7 @@
 
 static Map<String, Vector<uint8_t> > *files = nullptr;
 
-void FileAccessMemory::register_file(String p_name, Vector<uint8_t> p_data) {
+void FileAccessMemory::register_file(const String& p_name, const Vector<uint8_t>& p_data) {
 
     if (!files) {
         files = memnew((Map<String, Vector<uint8_t> >));
@@ -70,7 +70,7 @@ bool FileAccessMemory::file_exists(const String &p_name) {
     String name = fix_path(p_name);
     //name = DirAccess::normalize_path(name);
 
-    return files && (files->find(name) != nullptr);
+    return files && files->contains(name);
 }
 
 Error FileAccessMemory::open_custom(const uint8_t *p_data, int p_len) {
@@ -88,11 +88,11 @@ Error FileAccessMemory::_open(const String &p_path, int p_mode_flags) {
     String name = fix_path(p_path);
     //name = DirAccess::normalize_path(name);
 
-    Map<String, Vector<uint8_t> >::Element *E = files->find(name);
-    ERR_FAIL_COND_V(!E, ERR_FILE_NOT_FOUND)
+    Map<String, Vector<uint8_t> >::iterator E = files->find(name);
+    ERR_FAIL_COND_V(E!=files->end(), ERR_FILE_NOT_FOUND)
 
-    data = E->get().ptrw();
-    length = E->get().size();
+    data = E->second.ptrw();
+    length = E->second.size();
     pos = 0;
 
     return OK;

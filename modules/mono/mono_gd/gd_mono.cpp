@@ -336,10 +336,10 @@ void GDMono::initialize() {
 
 	// mscorlib assembly MUST be present at initialization
 	bool corlib_loaded = _load_corlib_assembly();
-	ERR_FAIL_COND_MSG(!corlib_loaded, "Mono: Failed to load mscorlib assembly.");
+	ERR_FAIL_COND_MSG(!corlib_loaded, "Mono: Failed to load mscorlib assembly.")
 
 	Error domain_load_err = _load_scripts_domain();
-	ERR_FAIL_COND_MSG(domain_load_err != OK, "Mono: Failed to load scripts domain.");
+	ERR_FAIL_COND_MSG(domain_load_err != OK, "Mono: Failed to load scripts domain.")
 
 #ifdef DEBUG_ENABLED
 	bool debugger_attached = _wait_for_debugger_msecs(500);
@@ -394,23 +394,24 @@ uint64_t get_core_api_hash();
 uint64_t get_editor_api_hash();
 #endif
 uint32_t get_bindings_version();
+uint32_t get_cs_glue_version();
 
 void register_generated_icalls();
 
 #else
 
 uint64_t get_core_api_hash() {
-	CRASH_NOW();
 	GD_UNREACHABLE();
 }
 #ifdef TOOLS_ENABLED
 uint64_t get_editor_api_hash() {
-	CRASH_NOW();
 	GD_UNREACHABLE();
 }
 #endif
 uint32_t get_bindings_version() {
-	CRASH_NOW();
+	GD_UNREACHABLE();
+}
+uint32_t get_cs_glue_version() {
 	GD_UNREACHABLE();
 }
 
@@ -476,14 +477,14 @@ bool GDMono::load_assembly(const String &p_name, MonoAssemblyName *p_aname, GDMo
 	if (!assembly)
 		return false;
 
-	ERR_FAIL_COND_V(status != MONO_IMAGE_OK, false);
+	ERR_FAIL_COND_V(status != MONO_IMAGE_OK, false)
 
 	uint32_t domain_id = mono_domain_get_id(mono_domain_get());
 
 	GDMonoAssembly **stored_assembly = assemblies[domain_id].getptr(p_name);
 
-	ERR_FAIL_COND_V(stored_assembly == NULL, false);
-	ERR_FAIL_COND_V((*stored_assembly)->get_assembly() != assembly, false);
+	ERR_FAIL_COND_V(stored_assembly == NULL, false)
+	ERR_FAIL_COND_V((*stored_assembly)->get_assembly() != assembly, false)
 
 	*r_assembly = *stored_assembly;
 
@@ -507,8 +508,8 @@ bool GDMono::load_assembly_from(const String &p_name, const String &p_path, GDMo
 	uint32_t domain_id = mono_domain_get_id(mono_domain_get());
 	GDMonoAssembly **stored_assembly = assemblies[domain_id].getptr(p_name);
 
-	ERR_FAIL_COND_V(stored_assembly == NULL, false);
-	ERR_FAIL_COND_V(*stored_assembly != assembly, false);
+	ERR_FAIL_COND_V(stored_assembly == NULL, false)
+	ERR_FAIL_COND_V(*stored_assembly != assembly, false)
 #endif
 
 	*r_assembly = assembly;
@@ -686,7 +687,7 @@ bool GDMono::_load_core_api_assembly() {
 		APIAssembly::Version api_assembly_ver = APIAssembly::Version::get_from_loaded_assembly(core_api_assembly, APIAssembly::API_CORE);
 		core_api_assembly_out_of_sync = GodotSharpBindings::get_core_api_hash() != api_assembly_ver.godot_api_hash ||
 										GodotSharpBindings::get_bindings_version() != api_assembly_ver.bindings_version ||
-										CS_GLUE_VERSION != api_assembly_ver.cs_glue_version;
+										GodotSharpBindings::get_cs_glue_version() != api_assembly_ver.cs_glue_version;
 		if (!core_api_assembly_out_of_sync) {
 			GDMonoUtils::update_godot_api_cache();
 
@@ -721,7 +722,7 @@ bool GDMono::_load_editor_api_assembly() {
 		APIAssembly::Version api_assembly_ver = APIAssembly::Version::get_from_loaded_assembly(editor_api_assembly, APIAssembly::API_EDITOR);
 		editor_api_assembly_out_of_sync = GodotSharpBindings::get_editor_api_hash() != api_assembly_ver.godot_api_hash ||
 										  GodotSharpBindings::get_bindings_version() != api_assembly_ver.bindings_version ||
-										  CS_GLUE_VERSION != api_assembly_ver.cs_glue_version;
+										  GodotSharpBindings::get_cs_glue_version() != api_assembly_ver.cs_glue_version;
 	} else {
 		editor_api_assembly_out_of_sync = false;
 	}
@@ -858,7 +859,7 @@ void GDMono::_install_trace_listener() {
 
 Error GDMono::_load_scripts_domain() {
 
-	ERR_FAIL_COND_V(scripts_domain != NULL, ERR_BUG);
+	ERR_FAIL_COND_V(scripts_domain != NULL, ERR_BUG)
 
 	print_verbose("Mono: Loading scripts domain...");
 
@@ -920,17 +921,17 @@ Error GDMono::_unload_scripts_domain() {
 #ifdef GD_MONO_HOT_RELOAD
 Error GDMono::reload_scripts_domain() {
 
-	ERR_FAIL_COND_V(!runtime_initialized, ERR_BUG);
+	ERR_FAIL_COND_V(!runtime_initialized, ERR_BUG)
 
 	if (scripts_domain) {
 		Error domain_unload_err = _unload_scripts_domain();
-		ERR_FAIL_COND_V_MSG(domain_unload_err != OK, domain_unload_err, "Mono: Failed to unload scripts domain.");
+		ERR_FAIL_COND_V_MSG(domain_unload_err != OK, domain_unload_err, "Mono: Failed to unload scripts domain.")
 	}
 
 	CSharpLanguage::get_singleton()->_on_scripts_domain_unloaded();
 
 	Error domain_load_err = _load_scripts_domain();
-	ERR_FAIL_COND_V_MSG(domain_load_err != OK, domain_load_err, "Mono: Failed to load scripts domain.");
+	ERR_FAIL_COND_V_MSG(domain_load_err != OK, domain_load_err, "Mono: Failed to load scripts domain.")
 
 	// Load assemblies. The API and tools assemblies are required,
 	// the application is aborted if these assemblies cannot be loaded.
@@ -1204,7 +1205,7 @@ void _GodotSharp::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_domain_id"), &_GodotSharp::get_domain_id);
 	ClassDB::bind_method(D_METHOD("get_scripts_domain_id"), &_GodotSharp::get_scripts_domain_id);
 	ClassDB::bind_method(D_METHOD("is_scripts_domain_loaded"), &_GodotSharp::is_scripts_domain_loaded);
-	ClassDB::bind_method(D_METHOD("is_domain_finalizing_for_unload", "domain_id"), &_GodotSharp::_is_domain_finalizing_for_unload);
+	ClassDB::bind_method(D_METHOD("is_domain_finalizing_for_unload", {"domain_id"}), &_GodotSharp::_is_domain_finalizing_for_unload);
 
 	ClassDB::bind_method(D_METHOD("is_runtime_shutting_down"), &_GodotSharp::is_runtime_shutting_down);
 	ClassDB::bind_method(D_METHOD("is_runtime_initialized"), &_GodotSharp::is_runtime_initialized);

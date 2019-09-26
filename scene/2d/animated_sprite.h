@@ -36,170 +36,170 @@
 
 class SpriteFrames : public Resource {
 
-	GDCLASS(SpriteFrames,Resource)
+    GDCLASS(SpriteFrames,Resource)
 
-	struct Anim {
+    struct Anim {
 
-		float speed;
-		bool loop;
-		Vector<Ref<Texture> > frames;
+        float speed;
+        bool loop;
+        Vector<Ref<Texture> > frames;
 
-		Anim() {
-			loop = true;
-			speed = 5;
-		}
+        Anim() {
+            loop = true;
+            speed = 5;
+        }
 
-		StringName normal_name;
-	};
+        StringName normal_name;
+    };
 
-	Map<StringName, Anim> animations;
+    Map<StringName, Anim> animations;
 
-	Array _get_frames() const;
-	void _set_frames(const Array &p_frames);
+    Array _get_frames() const;
+    void _set_frames(const Array &p_frames);
 
-	Array _get_animations() const;
-	void _set_animations(const Array &p_animations);
+    Array _get_animations() const;
+    void _set_animations(const Array &p_animations);
 
-	Vector<String> _get_animation_list() const;
+    Vector<String> _get_animation_list() const;
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	void add_animation(const StringName &p_anim);
-	bool has_animation(const StringName &p_anim) const;
-	void remove_animation(const StringName &p_anim);
-	void rename_animation(const StringName &p_prev, const StringName &p_next);
+    void add_animation(const StringName &p_anim);
+    bool has_animation(const StringName &p_anim) const;
+    void remove_animation(const StringName &p_anim);
+    void rename_animation(const StringName &p_prev, const StringName &p_next);
 
-	void get_animation_list(List<StringName> *r_animations) const;
-	Vector<String> get_animation_names() const;
+    void get_animation_list(List<StringName> *r_animations) const;
+    Vector<String> get_animation_names() const;
 
-	void set_animation_speed(const StringName &p_anim, float p_fps);
-	float get_animation_speed(const StringName &p_anim) const;
+    void set_animation_speed(const StringName &p_anim, float p_fps);
+    float get_animation_speed(const StringName &p_anim) const;
 
-	void set_animation_loop(const StringName &p_anim, bool p_loop);
-	bool get_animation_loop(const StringName &p_anim) const;
+    void set_animation_loop(const StringName &p_anim, bool p_loop);
+    bool get_animation_loop(const StringName &p_anim) const;
 
-	void add_frame(const StringName &p_anim, const Ref<Texture> &p_frame, int p_at_pos = -1);
-	int get_frame_count(const StringName &p_anim) const;
-	_FORCE_INLINE_ Ref<Texture> get_frame(const StringName &p_anim, int p_idx) const {
+    void add_frame(const StringName &p_anim, const Ref<Texture> &p_frame, int p_at_pos = -1);
+    int get_frame_count(const StringName &p_anim) const;
+    _FORCE_INLINE_ Ref<Texture> get_frame(const StringName &p_anim, int p_idx) const {
 
-		const Map<StringName, Anim>::Element *E = animations.find(p_anim);
-		ERR_FAIL_COND_V(!E, Ref<Texture>());
-		ERR_FAIL_COND_V(p_idx < 0, Ref<Texture>());
-		if (p_idx >= E->get().frames.size())
-			return Ref<Texture>();
+        const Map<StringName, Anim>::const_iterator E = animations.find(p_anim);
+        ERR_FAIL_COND_V(E==animations.end(), Ref<Texture>())
+        ERR_FAIL_COND_V(p_idx < 0, Ref<Texture>())
+        if (p_idx >= E->second.frames.size())
+            return Ref<Texture>();
 
-		return E->get().frames[p_idx];
-	}
+        return E->second.frames[p_idx];
+    }
 
-	_FORCE_INLINE_ Ref<Texture> get_normal_frame(const StringName &p_anim, int p_idx) const {
+    _FORCE_INLINE_ Ref<Texture> get_normal_frame(const StringName &p_anim, int p_idx) const {
 
-		const Map<StringName, Anim>::Element *E = animations.find(p_anim);
-		ERR_FAIL_COND_V(!E, Ref<Texture>());
-		ERR_FAIL_COND_V(p_idx < 0, Ref<Texture>());
+        const Map<StringName, Anim>::const_iterator E = animations.find(p_anim);
+        ERR_FAIL_COND_V(E==animations.end(), Ref<Texture>())
+        ERR_FAIL_COND_V(p_idx < 0, Ref<Texture>())
 
-		const Map<StringName, Anim>::Element *EN = animations.find(E->get().normal_name);
+        const Map<StringName, Anim>::const_iterator EN = animations.find(E->second.normal_name);
 
-		if (!EN || p_idx >= EN->get().frames.size())
-			return Ref<Texture>();
+        if (EN==animations.end() || p_idx >= EN->second.frames.size())
+            return Ref<Texture>();
 
-		return EN->get().frames[p_idx];
-	}
+        return EN->second.frames[p_idx];
+    }
 
-	void set_frame(const StringName &p_anim, int p_idx, const Ref<Texture> &p_frame) {
-		Map<StringName, Anim>::Element *E = animations.find(p_anim);
-		ERR_FAIL_COND(!E);
-		ERR_FAIL_COND(p_idx < 0);
-		if (p_idx >= E->get().frames.size())
-			return;
-		E->get().frames.write[p_idx] = p_frame;
-	}
-	void remove_frame(const StringName &p_anim, int p_idx);
-	void clear(const StringName &p_anim);
-	void clear_all();
+    void set_frame(const StringName &p_anim, int p_idx, const Ref<Texture> &p_frame) {
+        Map<StringName, Anim>::iterator E = animations.find(p_anim);
+        ERR_FAIL_COND(E==animations.end())
+        ERR_FAIL_COND(p_idx < 0)
+        if (p_idx >= E->second.frames.size())
+            return;
+        E->second.frames.write[p_idx] = p_frame;
+    }
+    void remove_frame(const StringName &p_anim, int p_idx);
+    void clear(const StringName &p_anim);
+    void clear_all();
 
-	SpriteFrames();
+    SpriteFrames();
 };
 
 class AnimatedSprite : public Node2D {
 
-	GDCLASS(AnimatedSprite,Node2D)
+    GDCLASS(AnimatedSprite,Node2D)
 
-	Ref<SpriteFrames> frames;
-	bool playing;
-	bool backwards;
-	StringName animation;
-	int frame;
-	float speed_scale;
+    Ref<SpriteFrames> frames;
+    bool playing;
+    bool backwards;
+    StringName animation;
+    int frame;
+    float speed_scale;
 
-	bool centered;
-	Point2 offset;
+    bool centered;
+    Point2 offset;
 
-	bool is_over;
-	float timeout;
+    bool is_over;
+    float timeout;
 
-	bool hflip;
-	bool vflip;
+    bool hflip;
+    bool vflip;
 
-	void _res_changed();
+    void _res_changed();
 
-	float _get_frame_duration();
-	void _reset_timeout();
-	void _set_playing(bool p_playing);
-	bool _is_playing() const;
-	Rect2 _get_rect() const;
+    float _get_frame_duration();
+    void _reset_timeout();
+    void _set_playing(bool p_playing);
+    bool _is_playing() const;
+    Rect2 _get_rect() const;
 
 protected:
-	static void _bind_methods();
-	void _notification(int p_what);
-	void _validate_property(PropertyInfo &property) const override;
+    static void _bind_methods();
+    void _notification(int p_what);
+    void _validate_property(PropertyInfo &property) const override;
 
 public:
-	Dictionary _edit_get_state() const override;
-	void _edit_set_state(const Dictionary &p_state) override;
+    Dictionary _edit_get_state() const override;
+    void _edit_set_state(const Dictionary &p_state) override;
 
-	void _edit_set_pivot(const Point2 &p_pivot) override;
-	Point2 _edit_get_pivot() const override;
-	bool _edit_use_pivot() const override;
-	Rect2 _edit_get_rect() const override;
-	bool _edit_use_rect() const override;
+    void _edit_set_pivot(const Point2 &p_pivot) override;
+    Point2 _edit_get_pivot() const override;
+    bool _edit_use_pivot() const override;
+    Rect2 _edit_get_rect() const override;
+    bool _edit_use_rect() const override;
 
-	Rect2 get_anchorable_rect() const override;
+    Rect2 get_anchorable_rect() const override;
 
-	void set_sprite_frames(const Ref<SpriteFrames> &p_frames);
-	Ref<SpriteFrames> get_sprite_frames() const;
+    void set_sprite_frames(const Ref<SpriteFrames> &p_frames);
+    Ref<SpriteFrames> get_sprite_frames() const;
 
-	void play(const StringName &p_animation = StringName(), const bool p_backwards = false);
-	void stop();
-	bool is_playing() const;
+    void play(const StringName &p_animation = StringName(), const bool p_backwards = false);
+    void stop();
+    bool is_playing() const;
 
-	void set_animation(const StringName &p_animation);
-	StringName get_animation() const;
+    void set_animation(const StringName &p_animation);
+    StringName get_animation() const;
 
-	void set_frame(int p_frame);
-	int get_frame() const;
+    void set_frame(int p_frame);
+    int get_frame() const;
 
-	void set_speed_scale(float p_speed_scale);
-	float get_speed_scale() const;
+    void set_speed_scale(float p_speed_scale);
+    float get_speed_scale() const;
 
-	void set_centered(bool p_center);
-	bool is_centered() const;
+    void set_centered(bool p_center);
+    bool is_centered() const;
 
-	void set_offset(const Point2 &p_offset);
-	Point2 get_offset() const;
+    void set_offset(const Point2 &p_offset);
+    Point2 get_offset() const;
 
-	void set_flip_h(bool p_flip);
-	bool is_flipped_h() const;
+    void set_flip_h(bool p_flip);
+    bool is_flipped_h() const;
 
-	void set_flip_v(bool p_flip);
-	bool is_flipped_v() const;
+    void set_flip_v(bool p_flip);
+    bool is_flipped_v() const;
 
-	void set_modulate(const Color &p_color);
-	Color get_modulate() const;
+    void set_modulate(const Color &p_color);
+    Color get_modulate() const;
 
-	String get_configuration_warning() const override;
-	AnimatedSprite();
+    String get_configuration_warning() const override;
+    AnimatedSprite();
 };
 
 #endif // ANIMATED_SPRITE_H

@@ -51,7 +51,7 @@ protected:
 public:
 	void set_length(float p_length);
 	float get_length() const;
-	void set_shape(Ref<Shape> p_shape);
+	void set_shape(const Ref<Shape>& p_shape);
 	Ref<Shape> get_shape() const;
 	void set_mask(uint32_t p_mask);
 	uint32_t get_mask();

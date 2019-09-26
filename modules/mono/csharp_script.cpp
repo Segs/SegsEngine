@@ -333,8 +333,7 @@ Ref<Script> CSharpLanguage::get_template(const String &p_class_name, const Strin
     script_template = StringUtils::replace(script_template,"%BASE%", base_class_name)
                               .replace("%CLASS%", p_class_name);
 
-    Ref<CSharpScript> script;
-    script.instance();
+    Ref<CSharpScript> script(make_ref_counted<CSharpScript>());
     script->set_source_code(script_template);
     script->set_name(p_class_name);
 
@@ -767,8 +766,8 @@ void CSharpLanguage::reload_assemblies(bool p_soft_reload) {
         // Script::instances are deleted during managed object disposal, which happens on domain finalize.
         // Only placeholders are kept. Therefore we need to keep a copy before that happens.
 
-        for (Set<Object *>::Element *F = script->instances.front(); F; F = F->next()) {
-            Object *obj = F->get();
+        for (Object * obj : script->instances) {
+
             script->pending_reload_instances.insert(obj->get_instance_id());
 
             Reference *ref = Object::cast_to<Reference>(obj);
@@ -778,8 +777,8 @@ void CSharpLanguage::reload_assemblies(bool p_soft_reload) {
         }
 
 #ifdef TOOLS_ENABLED
-        for (Set<PlaceHolderScriptInstance *>::Element *F = script->placeholders.front(); F; F = F->next()) {
-            Object *obj = F->get()->get_owner();
+        for (PlaceHolderScriptInstance * F : script->placeholders) {
+            Object *obj = F->get_owner();
             script->pending_reload_instances.insert(obj->get_instance_id());
 
             Reference *ref = Object::cast_to<Reference>(obj);
@@ -792,8 +791,7 @@ void CSharpLanguage::reload_assemblies(bool p_soft_reload) {
         // Save state and remove script from instances
         Map<ObjectID, CSharpScript::StateBackup> &owners_map = script->pending_reload_state;
 
-        for (Set<Object *>::Element *F = script->instances.front(); F; F = F->next()) {
-            Object *obj = F->get();
+        for (Object * obj : script->instances) {
 
             ERR_CONTINUE(!obj->get_script_instance());
 
@@ -923,8 +921,7 @@ void CSharpLanguage::reload_assemblies(bool p_soft_reload) {
         String native_name = NATIVE_GDMONOCLASS_NAME(script->native);
 
         {
-            for (Set<ObjectID>::Element *F = script->pending_reload_instances.front(); F; F = F->next()) {
-                ObjectID obj_id = F->get();
+            for (ObjectID obj_id : script->pending_reload_instances) {
                 Object *obj = ObjectDB::get_instance(obj_id);
 
                 if (!obj) {
@@ -978,8 +975,7 @@ void CSharpLanguage::reload_assemblies(bool p_soft_reload) {
     for (List<Ref<CSharpScript> >::Element *E = to_reload_state.front(); E; E = E->next()) {
         Ref<CSharpScript> script = E->get();
 
-        for (Set<ObjectID>::Element *F = script->pending_reload_instances.front(); F; F = F->next()) {
-            ObjectID obj_id = F->get();
+        for (ObjectID obj_id : script->pending_reload_instances) {
             Object *obj = ObjectDB::get_instance(obj_id);
 
             if (!obj) {
@@ -1039,7 +1035,7 @@ void CSharpLanguage::_load_scripts_metadata() {
 
         Error ferr = read_all_file_utf8(scripts_metadata_path, old_json);
 
-        ERR_FAIL_COND(ferr != OK);
+        ERR_FAIL_COND(ferr != OK)
 
         Variant old_dict_var;
         String err_str;
@@ -1103,7 +1099,7 @@ bool CSharpLanguage::debug_break_parse(const String &p_file, int p_line, const S
         _debug_parse_err_line = p_line;
         _debug_parse_err_file = p_file;
         _debug_error = p_error;
-		ScriptDebugger::get_singleton()->debug(this, false, true);
+        ScriptDebugger::get_singleton()->debug(this, false, true);
         return true;
     } else {
         return false;
@@ -1162,7 +1158,7 @@ void CSharpLanguage::_editor_init_callback() {
 
 void CSharpLanguage::set_language_index(int p_idx) {
 
-    ERR_FAIL_COND(lang_idx != -1);
+    ERR_FAIL_COND(lang_idx != -1)
     lang_idx = p_idx;
 }
 
@@ -1197,7 +1193,7 @@ void CSharpLanguage::release_script_gchandle(MonoObject *p_expected_obj, Ref<Mon
 
 CSharpLanguage::CSharpLanguage() {
 
-    ERR_FAIL_COND(singleton);
+    ERR_FAIL_COND(singleton)
     singleton = this;
 
     finalizing = false;
@@ -1439,7 +1435,7 @@ CSharpInstance *CSharpInstance::create_for_managed_type(Object *p_owner, CSharpS
 
 MonoObject *CSharpInstance::get_mono_object() const {
 
-    ERR_FAIL_COND_V(gchandle.is_null(), NULL);
+    ERR_FAIL_COND_V(gchandle.is_null(), NULL)
     return gchandle->get_target();
 }
 
@@ -1449,7 +1445,7 @@ Object *CSharpInstance::get_owner() {
 
 bool CSharpInstance::set(const StringName &p_name, const Variant &p_value) {
 
-    ERR_FAIL_COND_V(!script.is_valid(), false);
+    ERR_FAIL_COND_V(!script.is_valid(), false)
 
     MonoObject *mono_object = get_mono_object();
     ERR_FAIL_NULL_V(mono_object, false);
@@ -1501,7 +1497,7 @@ bool CSharpInstance::set(const StringName &p_name, const Variant &p_value) {
 
 bool CSharpInstance::get(const StringName &p_name, Variant &r_ret) const {
 
-    ERR_FAIL_COND_V(!script.is_valid(), false);
+    ERR_FAIL_COND_V(!script.is_valid(), false)
 
     MonoObject *mono_object = get_mono_object();
     ERR_FAIL_NULL_V(mono_object, false);
@@ -1586,7 +1582,7 @@ void CSharpInstance::get_properties_state_for_reloading(List<Pair<StringName, Va
     }
 }
 
-void CSharpInstance::get_property_list(List<PropertyInfo> *p_properties) const {
+void CSharpInstance::get_property_list(ListPOD<PropertyInfo> *p_properties) const {
 
     for (Map<StringName, PropertyInfo>::Element *E = script->member_info.front(); E; E = E->next()) {
         p_properties->push_back(E->value());
@@ -1594,7 +1590,7 @@ void CSharpInstance::get_property_list(List<PropertyInfo> *p_properties) const {
 
     // Call _get_property_list
 
-    ERR_FAIL_COND(!script.is_valid());
+    ERR_FAIL_COND(!script.is_valid())
 
     MonoObject *mono_object = get_mono_object();
     ERR_FAIL_NULL(mono_object);
@@ -1777,7 +1773,7 @@ MonoObject *CSharpInstance::_internal_new_managed() {
     CSharpLanguage::get_singleton()->release_script_gchandle(gchandle);
 
     ERR_FAIL_NULL_V(owner, NULL);
-    ERR_FAIL_COND_V(script.is_null(), NULL);
+    ERR_FAIL_COND_V(script.is_null(), NULL)
 
     MonoObject *mono_object = mono_object_new(mono_domain_get(), script->script_class->get_mono_ptr());
 
@@ -2334,8 +2330,8 @@ bool CSharpScript::_update_exports() {
         List<PropertyInfo> propnames;
         _update_exports_values(values, propnames);
 
-        for (Set<PlaceHolderScriptInstance *>::Element *E = placeholders.front(); E; E = E->next()) {
-            E->get()->update(propnames, values);
+        for (PlaceHolderScriptInstance * E : placeholders) {
+            E->update(propnames, values);
         }
     }
 
@@ -2529,7 +2525,7 @@ int CSharpScript::_try_get_member_export_hint(IMonoClassMember *p_member, Manage
 
             bool r_error;
             uint64_t val = GDMonoUtils::unbox_enum_value(val_obj, enum_basetype, r_error);
-            ERR_FAIL_COND_V_MSG(r_error, -1, "Failed to unbox '" + enum_field_name + "' constant enum value.");
+            ERR_FAIL_COND_V_MSG(r_error, -1, "Failed to unbox '" + enum_field_name + "' constant enum value.")
 
             if (val != (unsigned int)i) {
                 uses_default_values = false;
@@ -2564,11 +2560,11 @@ int CSharpScript::_try_get_member_export_hint(IMonoClassMember *p_member, Manage
         PropertyHint elem_hint = PROPERTY_HINT_NONE;
         String elem_hint_string;
 
-        ERR_FAIL_COND_V_MSG(elem_variant_type == Variant::NIL, -1, "Unknown array element type.");
+        ERR_FAIL_COND_V_MSG(elem_variant_type == Variant::NIL, -1, "Unknown array element type.")
 
         int hint_res = _try_get_member_export_hint(p_member, elem_type, elem_variant_type, /* allow_generics: */ false, elem_hint, elem_hint_string);
 
-        ERR_FAIL_COND_V_MSG(hint_res == -1, -1, "Error while trying to determine information about the array element type.");
+        ERR_FAIL_COND_V_MSG(hint_res == -1, -1, "Error while trying to determine information about the array element type.")
 
         // Format: type/hint:hint_string
         r_hint_string = itos(elem_variant_type) + "/" + itos(elem_hint) + ":" + elem_hint_string;
@@ -2656,14 +2652,14 @@ bool CSharpScript::_set(const StringName &p_name, const Variant &p_value) {
     return false;
 }
 
-void CSharpScript::_get_property_list(List<PropertyInfo> *p_properties) const {
+void CSharpScript::_get_property_list(ListPOD<PropertyInfo> *p_properties) const {
 
     p_properties->push_back(PropertyInfo(Variant::STRING, CSharpLanguage::singleton->string_names._script_source, PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
 }
 
 void CSharpScript::_bind_methods() {
 
-	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "new", &CSharpScript::_new, MethodInfo("new"));
+    ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "new", &CSharpScript::_new, MethodInfo("new"));
 }
 
 Ref<CSharpScript> CSharpScript::create_for_managed_type(GDMonoClass *p_class, GDMonoClass *p_native) {
@@ -3020,7 +3016,7 @@ Error CSharpScript::reload(bool p_keep_state) {
         has_instances = instances.size();
     }
 
-    ERR_FAIL_COND_V(!p_keep_state && has_instances, ERR_ALREADY_IN_USE);
+    ERR_FAIL_COND_V(!p_keep_state && has_instances, ERR_ALREADY_IN_USE)
 
     GDMonoAssembly *project_assembly = GDMono::get_singleton()->get_project_assembly();
 
@@ -3035,7 +3031,7 @@ Error CSharpScript::reload(bool p_keep_state) {
             GDMonoClass *klass = project_assembly->get_class(namespace_->operator String(), class_name->operator String());
             if (klass) {
                 bool obj_type = CACHED_CLASS(GodotObject)->is_assignable_from(klass);
-                ERR_FAIL_COND_V(!obj_type, ERR_BUG);
+                ERR_FAIL_COND_V(!obj_type, ERR_BUG)
                 script_class = klass;
             }
         } else {
@@ -3163,7 +3159,7 @@ Ref<Script> CSharpScript::get_base_script() const {
     return Ref<Script>();
 }
 
-void CSharpScript::get_script_property_list(List<PropertyInfo> *p_list) const {
+void CSharpScript::get_script_property_list(ListPOD<PropertyInfo> *p_list) const {
 
     for (Map<StringName, PropertyInfo>::Element *E = member_info.front(); E; E = E->next()) {
         p_list->push_back(E->value());
@@ -3244,7 +3240,7 @@ RES ResourceFormatLoaderCSharpScript::load(const String &p_path, const String &p
 
 #if defined(DEBUG_ENABLED) || defined(TOOLS_ENABLED)
     Error err = script->load_source_code(p_path);
-    ERR_FAIL_COND_V(err != OK, RES());
+    ERR_FAIL_COND_V(err != OK, RES())
 #endif
 
     script->set_path(p_original_path);
@@ -3307,7 +3303,7 @@ String ResourceFormatLoaderCSharpScript::get_resource_type(const String &p_path)
 Error ResourceFormatSaverCSharpScript::save(const String &p_path, const RES &p_resource, uint32_t p_flags) {
 
     Ref<CSharpScript> sqscr = p_resource;
-    ERR_FAIL_COND_V(sqscr.is_null(), ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(sqscr.is_null(), ERR_INVALID_PARAMETER)
 
     String source = sqscr->get_source_code();
 
@@ -3327,7 +3323,7 @@ Error ResourceFormatSaverCSharpScript::save(const String &p_path, const RES &p_r
 
     Error err;
     FileAccess *file = FileAccess::open(p_path, FileAccess::WRITE, &err);
-    ERR_FAIL_COND_V(err, err);
+    ERR_FAIL_COND_V(err, err)
 
     file->store_string(source);
 

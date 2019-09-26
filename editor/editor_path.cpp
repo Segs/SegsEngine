@@ -42,17 +42,17 @@ void EditorPath::_add_children_to_popup(Object *p_obj, int p_depth) {
     if (p_depth > 8)
         return;
 
-    List<PropertyInfo> pinfo;
+    ListPOD<PropertyInfo> pinfo;
     p_obj->get_property_list(&pinfo);
-    for (List<PropertyInfo>::Element *E = pinfo.front(); E; E = E->next()) {
+    for (PropertyInfo &E : pinfo) {
 
-        if (!(E->get().usage & PROPERTY_USAGE_EDITOR))
+        if (!(E.usage & PROPERTY_USAGE_EDITOR))
             continue;
-        if (E->get().hint != PROPERTY_HINT_RESOURCE_TYPE)
+        if (E.hint != PROPERTY_HINT_RESOURCE_TYPE)
             continue;
 
-        Variant value = p_obj->get(E->get().name);
-        if (value.get_type() != Variant::OBJECT)
+        Variant value = p_obj->get(E.name);
+        if (value.get_type() != VariantType::OBJECT)
             continue;
         Object *obj = value;
         if (!obj)
@@ -61,7 +61,7 @@ void EditorPath::_add_children_to_popup(Object *p_obj, int p_depth) {
         Ref<Texture> icon = EditorNode::get_singleton()->get_object_icon(obj);
 
         int index = get_popup()->get_item_count();
-        get_popup()->add_icon_item(icon, StringUtils::capitalize(E->get().name), objects.size());
+        get_popup()->add_icon_item(icon, StringUtils::capitalize(E.name), objects.size());
         get_popup()->set_item_h_offset(index, p_depth * 10 * EDSCALE);
         objects.push_back(obj->get_instance_id());
 
@@ -90,7 +90,7 @@ void EditorPath::update_path() {
             continue;
 
         Ref<Texture> icon = EditorNode::get_singleton()->get_object_icon(obj);
-        if (icon.is_valid())
+        if (icon)
             set_icon(icon);
 
         if (i == history->get_path_size() - 1) {

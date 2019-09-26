@@ -46,7 +46,7 @@ public:
     _FORCE_INLINE_ static bool instance_validate(Object *p_ptr) {
         rw_lock->read_lock();
 
-        bool exists = instance_checks.has(p_ptr);
+        bool exists = instance_checks.contains(p_ptr);
 
         rw_lock->read_unlock();
 

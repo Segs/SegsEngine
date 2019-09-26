@@ -82,6 +82,8 @@ class TileMapEditor : public VBoxContainer {
 	ItemList *palette;
 	ItemList *manual_palette;
 
+	Label *info_message;
+
 	HBoxContainer *toolbar;
 	HBoxContainer *toolbar_right;
 
@@ -178,7 +180,7 @@ class TileMapEditor : public VBoxContainer {
 	void _update_copydata();
 
 	Vector<int> get_selected_tiles() const;
-	void set_selected_tiles(Vector<int> p_tile);
+	void set_selected_tiles(const Vector<int>& p_tile);
 
 	void _manual_toggled(bool p_enabled);
 	void _priority_toggled(bool p_enabled);
@@ -196,7 +198,7 @@ class TileMapEditor : public VBoxContainer {
 	void _start_undo(const String &p_action);
 	void _finish_undo();
 	void _create_set_cell_undo_redo(const Vector2 &p_vec, const CellOp &p_cell_old, const CellOp &p_cell_new);
-	void _set_cell(const Point2i &p_pos, Vector<int> p_values, bool p_flip_h = false, bool p_flip_v = false, bool p_transpose = false, const Point2i &p_autotile_coord = Point2());
+	void _set_cell(const Point2i &p_pos, const Vector<int>& p_values, bool p_flip_h = false, bool p_flip_v = false, bool p_transpose = false, const Point2i &p_autotile_coord = Point2());
 
 	void _canvas_mouse_enter();
 	void _canvas_mouse_exit();

@@ -49,6 +49,9 @@
 
 IMPL_GDCLASS(Node)
 
+//TODO: SEGS: duplicated VARIANT_ENUM_CAST
+VARIANT_ENUM_CAST(MultiplayerAPI::RPCMode);
+
 VARIANT_ENUM_CAST(Node::PauseMode);
 
 int Node::orphan_node_count = 0;
@@ -77,8 +80,8 @@ void Node::_notification(int p_notification) {
 
         } break;
         case NOTIFICATION_ENTER_TREE: {
-            ERR_FAIL_COND(!get_viewport());
-            ERR_FAIL_COND(!get_tree());
+            ERR_FAIL_COND(!get_viewport())
+            ERR_FAIL_COND(!get_tree())
 
             if (data.pause_mode == PAUSE_MODE_INHERIT) {
 
@@ -102,8 +105,8 @@ void Node::_notification(int p_notification) {
 
         } break;
         case NOTIFICATION_EXIT_TREE: {
-            ERR_FAIL_COND(!get_viewport());
-            ERR_FAIL_COND(!get_tree());
+            ERR_FAIL_COND(!get_viewport())
+            ERR_FAIL_COND(!get_tree())
 
             get_tree()->node_count--;
             orphan_node_count++;
@@ -165,7 +168,7 @@ void Node::_notification(int p_notification) {
 
             while (!data.owned.empty()) {
 
-                data.owned.front()->get()->set_owner(nullptr);
+                data.owned.front()->deref()->set_owner(nullptr);
             }
 
             if (data.parent) {
@@ -221,8 +224,8 @@ void Node::_propagate_enter_tree() {
 
     data.inside_tree = true;
 
-    for (Map<StringName, GroupData>::Element *E = data.grouped.front(); E; E = E->next()) {
-        E->get().group = data.tree->add_to_group(E->key(), this);
+    for (eastl::pair<const StringName, GroupData> &E : data.grouped) {
+        E.second.group = data.tree->add_to_group(E.first, this);
     }
 
     notification(NOTIFICATION_ENTER_TREE);
@@ -275,19 +278,19 @@ void Node::_propagate_exit_tree() {
 
     if (ScriptDebugger::get_singleton() && !data.filename.empty()) {
         //used for live edit
-        Map<String, Set<Node *> >::Element *E = data.tree->live_scene_edit_cache.find(data.filename);
-        if (E) {
-            E->get().erase(this);
-            if (E->get().empty()) {
+        Map<String, Set<Node *> >::iterator E = data.tree->live_scene_edit_cache.find(data.filename);
+        if (E!=data.tree->live_scene_edit_cache.end()) {
+            E->second.erase(this);
+            if (E->second.empty()) {
                 data.tree->live_scene_edit_cache.erase(E);
             }
         }
 
-        Map<Node *, Map<ObjectID, Node *> >::Element *F = data.tree->live_edit_remove_list.find(this);
-        if (F) {
-            for (Map<ObjectID, Node *>::Element *G = F->get().front(); G; G = G->next()) {
+        Map<Node *, Map<ObjectID, Node *> >::iterator F = data.tree->live_edit_remove_list.find(this);
+        if (F!=data.tree->live_edit_remove_list.end()) {
+            for (eastl::pair<const ObjectID, Node *> &G : F->second) {
 
-                memdelete(G->get());
+                memdelete(G.second);
             }
             data.tree->live_edit_remove_list.erase(F);
         }
@@ -314,9 +317,9 @@ void Node::_propagate_exit_tree() {
 
     // exit groups
 
-    for (Map<StringName, GroupData>::Element *E = data.grouped.front(); E; E = E->next()) {
-        data.tree->remove_from_group(E->key(), this);
-        E->get().group = nullptr;
+    for (eastl::pair<const StringName, GroupData> &E : data.grouped) {
+        data.tree->remove_from_group(E.first, this);
+        E.second.group = nullptr;
     }
 
     data.viewport = nullptr;
@@ -332,10 +335,10 @@ void Node::_propagate_exit_tree() {
 
 void Node::move_child(Node *p_child, int p_pos) {
 
-    ERR_FAIL_NULL(p_child);
+    ERR_FAIL_NULL(p_child)
     ERR_FAIL_INDEX_MSG(p_pos, data.children.size() + 1, "Invalid new child position: " + itos(p_pos) + ".");
-    ERR_FAIL_COND_MSG(p_child->data.parent != this, "Child is not a child of this node.");
-    ERR_FAIL_COND_MSG(data.blocked > 0, "Parent node is busy setting up children, move_child() failed. Consider using call_deferred(\"move_child\") instead (or \"popup\" if this is from a popup).");
+    ERR_FAIL_COND_MSG(p_child->data.parent != this, "Child is not a child of this node.")
+    ERR_FAIL_COND_MSG(data.blocked > 0, "Parent node is busy setting up children, move_child() failed. Consider using call_deferred(\"move_child\") instead (or \"popup\" if this is from a popup).")
 
     // Specifying one place beyond the end
     // means the same as moving to the last position
@@ -366,9 +369,9 @@ void Node::move_child(Node *p_child, int p_pos) {
     for (int i = motion_from; i <= motion_to; i++) {
         data.children[i]->notification(NOTIFICATION_MOVED_IN_PARENT);
     }
-    for (const Map<StringName, GroupData>::Element *E = p_child->data.grouped.front(); E; E = E->next()) {
-        if (E->get().group)
-            E->get().group->changed = true;
+    for (const eastl::pair<const StringName, GroupData> &E : p_child->data.grouped) {
+        if (E.second.group)
+            E.second.group->changed = true;
     }
 
     data.blocked--;
@@ -497,7 +500,7 @@ int Node::get_network_master() const {
 
 bool Node::is_network_master() const {
 
-    ERR_FAIL_COND_V(!is_inside_tree(), false);
+    ERR_FAIL_COND_V(!is_inside_tree(), false)
 
     return get_multiplayer()->get_network_unique_id() == data.network_master;
 }
@@ -530,7 +533,7 @@ void Node::rpc(const StringName &p_method, VARIANT_ARG_DECLARE) {
 
     int argc = 0;
     for (int i = 0; i < VARIANT_ARG_MAX; i++) {
-        if (argptr[i]->get_type() == Variant::NIL)
+        if (argptr[i]->get_type() == VariantType::NIL)
             break;
         argc++;
     }
@@ -544,7 +547,7 @@ void Node::rpc_id(int p_peer_id, const StringName &p_method, VARIANT_ARG_DECLARE
 
     int argc = 0;
     for (int i = 0; i < VARIANT_ARG_MAX; i++) {
-        if (argptr[i]->get_type() == Variant::NIL)
+        if (argptr[i]->get_type() == VariantType::NIL)
             break;
         argc++;
     }
@@ -558,7 +561,7 @@ void Node::rpc_unreliable(const StringName &p_method, VARIANT_ARG_DECLARE) {
 
     int argc = 0;
     for (int i = 0; i < VARIANT_ARG_MAX; i++) {
-        if (argptr[i]->get_type() == Variant::NIL)
+        if (argptr[i]->get_type() == VariantType::NIL)
             break;
         argc++;
     }
@@ -572,7 +575,7 @@ void Node::rpc_unreliable_id(int p_peer_id, const StringName &p_method, VARIANT_
 
     int argc = 0;
     for (int i = 0; i < VARIANT_ARG_MAX; i++) {
-        if (argptr[i]->get_type() == Variant::NIL)
+        if (argptr[i]->get_type() == VariantType::NIL)
             break;
         argc++;
     }
@@ -588,10 +591,10 @@ Variant Node::_rpc_bind(const Variant **p_args, int p_argcount, Variant::CallErr
         return Variant();
     }
 
-    if (p_args[0]->get_type() != Variant::STRING) {
+    if (p_args[0]->get_type() != VariantType::STRING) {
         r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
         r_error.argument = 0;
-        r_error.expected = Variant::STRING;
+        r_error.expected = VariantType::STRING;
         return Variant();
     }
 
@@ -611,17 +614,17 @@ Variant Node::_rpc_id_bind(const Variant **p_args, int p_argcount, Variant::Call
         return Variant();
     }
 
-    if (p_args[0]->get_type() != Variant::INT) {
+    if (p_args[0]->get_type() != VariantType::INT) {
         r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
         r_error.argument = 0;
-        r_error.expected = Variant::INT;
+        r_error.expected = VariantType::INT;
         return Variant();
     }
 
-    if (p_args[1]->get_type() != Variant::STRING) {
+    if (p_args[1]->get_type() != VariantType::STRING) {
         r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
         r_error.argument = 1;
-        r_error.expected = Variant::STRING;
+        r_error.expected = VariantType::STRING;
         return Variant();
     }
 
@@ -642,10 +645,10 @@ Variant Node::_rpc_unreliable_bind(const Variant **p_args, int p_argcount, Varia
         return Variant();
     }
 
-    if (p_args[0]->get_type() != Variant::STRING) {
+    if (p_args[0]->get_type() != VariantType::STRING) {
         r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
         r_error.argument = 0;
-        r_error.expected = Variant::STRING;
+        r_error.expected = VariantType::STRING;
         return Variant();
     }
 
@@ -665,17 +668,17 @@ Variant Node::_rpc_unreliable_id_bind(const Variant **p_args, int p_argcount, Va
         return Variant();
     }
 
-    if (p_args[0]->get_type() != Variant::INT) {
+    if (p_args[0]->get_type() != VariantType::INT) {
         r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
         r_error.argument = 0;
-        r_error.expected = Variant::INT;
+        r_error.expected = VariantType::INT;
         return Variant();
     }
 
-    if (p_args[1]->get_type() != Variant::STRING) {
+    if (p_args[1]->get_type() != VariantType::STRING) {
         r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
         r_error.argument = 1;
-        r_error.expected = Variant::STRING;
+        r_error.expected = VariantType::STRING;
         return Variant();
     }
 
@@ -689,12 +692,12 @@ Variant Node::_rpc_unreliable_id_bind(const Variant **p_args, int p_argcount, Va
 }
 
 void Node::rpcp(int p_peer_id, bool p_unreliable, const StringName &p_method, const Variant **p_arg, int p_argcount) {
-    ERR_FAIL_COND(!is_inside_tree());
+    ERR_FAIL_COND(!is_inside_tree())
     get_multiplayer()->rpcp(this, p_peer_id, p_unreliable, p_method, p_arg, p_argcount);
 }
 
 void Node::rsetp(int p_peer_id, bool p_unreliable, const StringName &p_property, const Variant &p_value) {
-    ERR_FAIL_COND(!is_inside_tree());
+    ERR_FAIL_COND(!is_inside_tree())
     get_multiplayer()->rsetp(this, p_peer_id, p_unreliable, p_property, p_value);
 }
 
@@ -721,7 +724,7 @@ void Node::rset_unreliable_id(int p_peer_id, const StringName &p_property, const
 
 //////////// end of rpc
 Ref<MultiplayerAPI> Node::get_multiplayer() const {
-    if (multiplayer.is_valid())
+    if (multiplayer)
         return multiplayer;
     if (!is_inside_tree())
         return Ref<MultiplayerAPI>();
@@ -737,12 +740,18 @@ void Node::set_custom_multiplayer(Ref<MultiplayerAPI> p_multiplayer) {
     multiplayer = p_multiplayer;
 }
 
-const Map<StringName, MultiplayerAPI::RPCMode>::Element *Node::get_node_rpc_mode(const StringName &p_method) {
-    return data.rpc_methods.find(p_method);
+const MultiplayerAPI::RPCMode *Node::get_node_rpc_mode(const StringName &p_method) {
+    auto iter = data.rpc_methods.find(p_method);
+    if(iter==data.rpc_methods.end())
+        return nullptr;
+    return &iter->second;
 }
 
-const Map<StringName, MultiplayerAPI::RPCMode>::Element *Node::get_node_rset_mode(const StringName &p_property) {
-    return data.rpc_properties.find(p_property);
+const MultiplayerAPI::RPCMode *Node::get_node_rset_mode(const StringName &p_property) {
+    auto iter = data.rpc_properties.find(p_property);
+    if(iter==data.rpc_properties.end())
+        return nullptr;
+    return &iter->second;
 }
 
 bool Node::can_process_notification(int p_what) const {
@@ -758,7 +767,7 @@ bool Node::can_process_notification(int p_what) const {
 
 bool Node::can_process() const {
 
-    ERR_FAIL_COND_V(!is_inside_tree(), false);
+    ERR_FAIL_COND_V(!is_inside_tree(), false)
 
     if (get_tree()->is_paused()) {
 
@@ -841,7 +850,7 @@ bool Node::is_processing_internal() const {
 void Node::set_process_priority(int p_priority) {
     data.process_priority = p_priority;
 
-    ERR_FAIL_COND(!data.tree);
+    ERR_FAIL_COND(!data.tree)
 
     if (is_processing())
         data.tree->make_group_changed("idle_process");
@@ -1037,9 +1046,9 @@ String increase_numeric_string(const String &s) {
         }
         CharType n = s[i];
         if (n == '9') { // keep carry as true: 9 + 1
-			res.set(i,'0');
+            res.set(i,'0');
         } else {
-			res.set(i,n.toLatin1() + 1);
+            res.set(i,n.toLatin1() + 1);
             carry = false;
         }
     }
@@ -1228,7 +1237,7 @@ void Node::_propagate_validate_owner() {
 void Node::remove_child(Node *p_child) {
 
     ERR_FAIL_NULL(p_child)
-    ERR_FAIL_COND_MSG(data.blocked > 0, "Parent node is busy setting up children, remove_node() failed. Consider using call_deferred(\"remove_child\", child) instead.");
+    ERR_FAIL_COND_MSG(data.blocked > 0, "Parent node is busy setting up children, remove_node() failed. Consider using call_deferred(\"remove_child\", child) instead.")
 
     int child_count = data.children.size();
     Node **children = data.children.ptrw();
@@ -1251,8 +1260,8 @@ void Node::remove_child(Node *p_child) {
         }
     }
 
-    ERR_FAIL_COND_MSG(idx == -1, "Cannot remove child node " + p_child->get_name() + " as it is not a child of this node.");
-    //ERR_FAIL_COND( p_child->data.blocked > 0 );
+    ERR_FAIL_COND_MSG(idx == -1, "Cannot remove child node " + p_child->get_name() + " as it is not a child of this node.")
+    //ERR_FAIL_COND( p_child->data.blocked > 0 )
 
     //if (data.scene) { does not matter
 
@@ -1577,7 +1586,7 @@ Node *Node::find_common_parent_with(const Node *p_node) const {
 
     while (common_parent) {
 
-        if (visited.has(common_parent))
+        if (visited.contains(common_parent))
             break;
         common_parent = common_parent->data.parent;
     }
@@ -1609,7 +1618,7 @@ NodePath Node::get_path_to(const Node *p_node) const {
 
     while (common_parent) {
 
-        if (visited.has(common_parent))
+        if (visited.contains(common_parent))
             break;
         common_parent = common_parent->data.parent;
     }
@@ -1667,14 +1676,14 @@ NodePath Node::get_path() const {
 
 bool Node::is_in_group(const StringName &p_identifier) const {
 
-    return data.grouped.has(p_identifier);
+    return data.grouped.contains(p_identifier);
 }
 
 void Node::add_to_group(const StringName &p_identifier, bool p_persistent) {
 
     ERR_FAIL_COND(!p_identifier.asString().length())
 
-    if (data.grouped.has(p_identifier))
+    if (data.grouped.contains(p_identifier))
         return;
 
     GroupData gd;
@@ -1692,14 +1701,14 @@ void Node::add_to_group(const StringName &p_identifier, bool p_persistent) {
 
 void Node::remove_from_group(const StringName &p_identifier) {
 
-    ERR_FAIL_COND(!data.grouped.has(p_identifier))
+    ERR_FAIL_COND(!data.grouped.contains(p_identifier))
 
-    Map<StringName, GroupData>::Element *E = data.grouped.find(p_identifier);
+    Map<StringName, GroupData>::iterator E = data.grouped.find(p_identifier);
 
-    ERR_FAIL_COND(!E)
+    ERR_FAIL_COND(E==data.grouped.end())
 
     if (data.tree)
-        data.tree->remove_from_group(E->key(), this);
+        data.tree->remove_from_group(E->first, this);
 
     data.grouped.erase(E);
 }
@@ -1710,7 +1719,7 @@ Array Node::_get_groups() const {
     List<GroupInfo> gi;
     get_groups(&gi);
     for (List<GroupInfo>::Element *E = gi.front(); E; E = E->next()) {
-        groups.push_back(E->get().name);
+        groups.push_back(E->deref().name);
     }
 
     return groups;
@@ -1718,10 +1727,10 @@ Array Node::_get_groups() const {
 
 void Node::get_groups(List<GroupInfo> *p_groups) const {
 
-    for (const Map<StringName, GroupData>::Element *E = data.grouped.front(); E; E = E->next()) {
+    for (const eastl::pair<const StringName, GroupData> &E : data.grouped) {
         GroupInfo gi;
-        gi.name = E->key();
-        gi.persistent = E->get().persistent;
+        gi.name = E.first;
+        gi.persistent = E.second.persistent;
         p_groups->push_back(gi);
     }
 }
@@ -1730,8 +1739,8 @@ int Node::get_persistent_group_count() const {
 
     int count = 0;
 
-    for (const Map<StringName, GroupData>::Element *E = data.grouped.front(); E; E = E->next()) {
-        if (E->get().persistent) {
+    for (const eastl::pair<const StringName, GroupData> &E : data.grouped) {
+        if (E.second.persistent) {
             count += 1;
         }
     }
@@ -1764,7 +1773,7 @@ void Node::_propagate_reverse_notification(int p_notification) {
 
 void Node::_propagate_deferred_notification(int p_notification, bool p_reverse) {
 
-    ERR_FAIL_COND(!is_inside_tree());
+    ERR_FAIL_COND(!is_inside_tree())
 
     data.blocked++;
 
@@ -1827,7 +1836,7 @@ int Node::get_index() const {
 }
 void Node::remove_and_skip() {
 
-    ERR_FAIL_COND(!data.parent);
+    ERR_FAIL_COND(!data.parent)
 
     Node *new_owner = get_owner();
 
@@ -1854,7 +1863,7 @@ void Node::remove_and_skip() {
 
     while (!children.empty()) {
 
-        Node *c_node = children.front()->get();
+        Node *c_node = children.front()->deref();
         data.parent->add_child(c_node);
         c_node->_propagate_replace_owner(nullptr, new_owner);
         children.pop_front();
@@ -1874,16 +1883,16 @@ String Node::get_filename() const {
 
 void Node::set_editor_description(const String &p_editor_description) {
 
-	set_meta("_editor_description_", p_editor_description);
+    set_meta("_editor_description_", p_editor_description);
 }
 
 String Node::get_editor_description() const {
 
-	if (has_meta("_editor_description_")) {
-		return get_meta("_editor_description_");
-	} else {
-		return "";
-	}
+    if (has_meta("_editor_description_")) {
+        return get_meta("_editor_description_");
+    } else {
+        return "";
+    }
 }
 
 void Node::set_editable_instance(Node *p_node, bool p_editable) {
@@ -1905,9 +1914,9 @@ bool Node::is_editable_instance(const Node *p_node) const {
 
     if (!p_node)
         return false; //easier, null is never editable :)
-    ERR_FAIL_COND_V(!is_a_parent_of(p_node), false);
+    ERR_FAIL_COND_V(!is_a_parent_of(p_node), false)
     NodePath p = get_path_to(p_node);
-    return data.editable_instances.has(p);
+    return data.editable_instances.contains(p);
 }
 
 void Node::set_editable_instances(const HashMap<NodePath, int> &p_editable_instances) {
@@ -1970,8 +1979,8 @@ Node *Node::_duplicate(int p_flags, Map<const Node *, Node *> *r_duplimap) const
 
     } else if ((p_flags & DUPLICATE_USE_INSTANCING) && !get_filename().empty()) {
 
-        Ref<PackedScene> res = ResourceLoader::load(get_filename());
-        ERR_FAIL_COND_V(res.is_null(), nullptr)
+        Ref<PackedScene> res = dynamic_ref_cast<PackedScene>(ResourceLoader::load(get_filename()));
+        ERR_FAIL_COND_V(not res, nullptr)
         PackedScene::GenEditState ges = PackedScene::GEN_EDIT_STATE_DISABLED;
 #ifdef TOOLS_ENABLED
         if (p_flags & DUPLICATE_FROM_EDITOR)
@@ -2007,9 +2016,9 @@ Node *Node::_duplicate(int p_flags, Map<const Node *, Node *> *r_duplimap) const
         // of all the nodes in the tree of the instanced scene in order to transfer the values of the properties
 
         for (List<const Node *>::Element *N = node_tree.front(); N; N = N->next()) {
-            for (int i = 0; i < N->get()->get_child_count(); ++i) {
+            for (int i = 0; i < N->deref()->get_child_count(); ++i) {
 
-                Node *descendant = N->get()->get_child(i);
+                Node *descendant = N->deref()->get_child(i);
                 // Skip nodes not really belonging to the instanced hierarchy; they'll be processed normally later
                 // but remember non-instanced nodes that are hidden below instanced ones
                 if (descendant->data.owner != this) {
@@ -2025,31 +2034,31 @@ Node *Node::_duplicate(int p_flags, Map<const Node *, Node *> *r_duplimap) const
 
     for (List<const Node *>::Element *N = node_tree.front(); N; N = N->next()) {
 
-        Node *current_node = node->get_node(get_path_to(N->get()));
+        Node *current_node = node->get_node(get_path_to(N->deref()));
         ERR_CONTINUE(!current_node);
 
         if (p_flags & DUPLICATE_SCRIPTS) {
             bool is_valid = false;
-            Variant script = N->get()->get(script_property_name, &is_valid);
+            Variant script = N->deref()->get(script_property_name, &is_valid);
             if (is_valid) {
                 current_node->set(script_property_name, script);
             }
         }
 
-        List<PropertyInfo> plist;
-        N->get()->get_property_list(&plist);
+        ListPOD<PropertyInfo> plist;
+        N->deref()->get_property_list(&plist);
 
-        for (List<PropertyInfo>::Element *E = plist.front(); E; E = E->next()) {
+        for (const PropertyInfo & E : plist) {
 
-            if (!(E->get().usage & PROPERTY_USAGE_STORAGE))
+            if (!(E.usage & PROPERTY_USAGE_STORAGE))
                 continue;
-            String name = E->get().name;
+            String name = E.name;
             if (name == script_property_name)
                 continue;
 
-            Variant value = N->get()->get(name).duplicate(true);
+            Variant value = N->deref()->get(name).duplicate(true);
 
-            if (E->get().usage & PROPERTY_USAGE_DO_NOT_SHARE_ON_DUPLICATE) {
+            if (E.usage & PROPERTY_USAGE_DO_NOT_SHARE_ON_DUPLICATE) {
 
                 Resource *res = Object::cast_to<Resource>(value);
                 if (res) { // Duplicate only if it's a resource
@@ -2069,7 +2078,7 @@ Node *Node::_duplicate(int p_flags, Map<const Node *, Node *> *r_duplimap) const
 
 #ifdef TOOLS_ENABLED
     if ((p_flags & DUPLICATE_FROM_EDITOR) && r_duplimap)
-        r_duplimap->insert(this, node);
+        r_duplimap->emplace(this, node);
 #endif
 
     if (p_flags & DUPLICATE_GROUPS) {
@@ -2078,11 +2087,11 @@ Node *Node::_duplicate(int p_flags, Map<const Node *, Node *> *r_duplimap) const
         for (List<GroupInfo>::Element *E = gi.front(); E; E = E->next()) {
 
 #ifdef TOOLS_ENABLED
-            if ((p_flags & DUPLICATE_FROM_EDITOR) && !E->get().persistent)
+            if ((p_flags & DUPLICATE_FROM_EDITOR) && !E->deref().persistent)
                 continue;
 #endif
 
-            node->add_to_group(E->get().name, E->get().persistent);
+            node->add_to_group(E->deref().name, E->deref().persistent);
         }
     }
 
@@ -2108,14 +2117,14 @@ Node *Node::_duplicate(int p_flags, Map<const Node *, Node *> *r_duplimap) const
 
     for (List<const Node *>::Element *E = hidden_roots.front(); E; E = E->next()) {
 
-        Node *parent = node->get_node(get_path_to(E->get()->data.parent));
+        Node *parent = node->get_node(get_path_to(E->deref()->data.parent));
         if (!parent) {
 
             memdelete(node);
             return nullptr;
         }
 
-        Node *dup = E->get()->_duplicate(p_flags, r_duplimap);
+        Node *dup = E->deref()->_duplicate(p_flags, r_duplimap);
         if (!dup) {
 
             memdelete(node);
@@ -2123,7 +2132,7 @@ Node *Node::_duplicate(int p_flags, Map<const Node *, Node *> *r_duplimap) const
         }
 
         parent->add_child(dup);
-        int pos = E->get()->get_position_in_parent();
+        int pos = E->deref()->get_position_in_parent();
 
         if (pos < parent->get_child_count() - 1) {
 
@@ -2168,30 +2177,30 @@ void Node::_duplicate_and_reown(Node *p_new_parent, const Map<Node *, Node *> &p
 
     if (!get_filename().empty()) {
 
-        Ref<PackedScene> res = ResourceLoader::load(get_filename());
-        ERR_FAIL_COND(res.is_null());
+        Ref<PackedScene> res = dynamic_ref_cast<PackedScene>(ResourceLoader::load(get_filename()));
+        ERR_FAIL_COND(not res)
         node = res->instance();
-        ERR_FAIL_COND(!node);
+        ERR_FAIL_COND(!node)
     } else {
 
         Object *obj = ClassDB::instance(get_class_name());
-        ERR_FAIL_COND_MSG(!obj, "Node: Could not duplicate: " + String(get_class()) + ".");
+        ERR_FAIL_COND_MSG(!obj, "Node: Could not duplicate: " + String(get_class()) + ".")
         node = Object::cast_to<Node>(obj);
         if (!node) {
             memdelete(obj);
-            ERR_FAIL_MSG("Node: Could not duplicate: " + String(get_class()) + ".");
+            ERR_FAIL_MSG("Node: Could not duplicate: " + String(get_class()) + ".")
         }
     }
 
-    List<PropertyInfo> plist;
+    ListPOD<PropertyInfo> plist;
 
     get_property_list(&plist);
 
-    for (List<PropertyInfo>::Element *E = plist.front(); E; E = E->next()) {
+    for (const PropertyInfo & E : plist) {
 
-        if (!(E->get().usage & PROPERTY_USAGE_STORAGE))
+        if (!(E.usage & PROPERTY_USAGE_STORAGE))
             continue;
-        String name = E->get().name;
+        String name = E.name;
 
         Variant value = get(name).duplicate(true);
 
@@ -2202,15 +2211,15 @@ void Node::_duplicate_and_reown(Node *p_new_parent, const Map<Node *, Node *> &p
     get_groups(&groups);
 
     for (List<GroupInfo>::Element *E = groups.front(); E; E = E->next())
-        node->add_to_group(E->get().name, E->get().persistent);
+        node->add_to_group(E->deref().name, E->deref().persistent);
 
     node->set_name(get_name());
     p_new_parent->add_child(node);
 
     Node *owner = get_owner();
 
-    if (p_reown_map.has(owner))
-        owner = p_reown_map[owner];
+    if (p_reown_map.contains(owner))
+        owner = p_reown_map.at(owner);
 
     if (owner) {
         NodePath p = get_path_to(owner);
@@ -2236,17 +2245,17 @@ void Node::_duplicate_signals(const Node *p_original, Node *p_copy) const {
     if (this != p_original && (get_owner() != p_original && get_owner() != p_original->get_owner()))
         return;
 
-    List<Connection> conns;
+    ListPOD<Connection> conns;
     get_all_signal_connections(&conns);
 
-    for (List<Connection>::Element *E = conns.front(); E; E = E->next()) {
+    for (const Connection &E : conns) {
 
-        if (E->get().flags & ObjectNS::CONNECT_PERSIST) {
+        if (E.flags & ObjectNS::CONNECT_PERSIST) {
             //user connected
             NodePath p = p_original->get_path_to(this);
             Node *copy = p_copy->get_node(p);
 
-            Node *target = Object::cast_to<Node>(E->get().target);
+            Node *target = Object::cast_to<Node>(E.target);
             if (!target) {
                 continue;
             }
@@ -2261,8 +2270,8 @@ void Node::_duplicate_signals(const Node *p_original, Node *p_copy) const {
             if (p_copy->has_node(ptarget))
                 copytarget = p_copy->get_node(ptarget);
 
-            if (copy && copytarget && !copy->is_connected(E->get().signal, copytarget, E->get().method)) {
-                copy->connect(E->get().signal, copytarget, E->get().method, E->get().binds, E->get().flags);
+            if (copy && copytarget && !copy->is_connected(E.signal, copytarget, E.method)) {
+                copy->connect(E.signal, copytarget, E.method, E.binds, E.flags);
             }
         }
     }
@@ -2277,24 +2286,24 @@ Node *Node::duplicate_and_reown(const Map<Node *, Node *> &p_reown_map) const {
     ERR_FAIL_COND_V(!get_filename().empty(), nullptr)
 
     Object *obj = ClassDB::instance(get_class_name());
-    ERR_FAIL_COND_V_MSG(!obj, nullptr, "Node: Could not duplicate: " + String(get_class()) + ".");
+    ERR_FAIL_COND_V_MSG(!obj, nullptr, "Node: Could not duplicate: " + String(get_class()) + ".")
 
     Node *node = Object::cast_to<Node>(obj);
     if (!node) {
         memdelete(obj);
-        ERR_FAIL_V_MSG(nullptr, "Node: Could not duplicate: " + String(get_class()) + ".");
+        ERR_FAIL_V_MSG(nullptr, "Node: Could not duplicate: " + String(get_class()) + ".")
     }
     node->set_name(get_name());
 
-    List<PropertyInfo> plist;
+    ListPOD<PropertyInfo> plist;
 
     get_property_list(&plist);
 
-    for (List<PropertyInfo>::Element *E = plist.front(); E; E = E->next()) {
+    for (PropertyInfo &E : plist) {
 
-        if (!(E->get().usage & PROPERTY_USAGE_STORAGE))
+        if (!(E.usage & PROPERTY_USAGE_STORAGE))
             continue;
-        String name = E->get().name;
+        String name = E.name;
         node->set(name, get(name));
     }
 
@@ -2302,7 +2311,7 @@ Node *Node::duplicate_and_reown(const Map<Node *, Node *> &p_reown_map) const {
     get_groups(&groups);
 
     for (List<GroupInfo>::Element *E = groups.front(); E; E = E->next())
-        node->add_to_group(E->get().name, E->get().persistent);
+        node->add_to_group(E->deref().name, E->deref().persistent);
 
     for (int i = 0; i < get_child_count(); i++) {
 
@@ -2346,15 +2355,15 @@ void Node::replace_by(Node *p_node, bool p_keep_data) {
 
     if (p_keep_data) {
 
-        List<PropertyInfo> plist;
+        ListPOD<PropertyInfo> plist;
         get_property_list(&plist);
 
-        for (List<PropertyInfo>::Element *E = plist.front(); E; E = E->next()) {
+        for (const PropertyInfo &E : plist) {
 
             _NodeReplaceByPair rd;
-            if (!(E->get().usage & PROPERTY_USAGE_STORAGE))
+            if (!(E.usage & PROPERTY_USAGE_STORAGE))
                 continue;
-            rd.name = E->get().name;
+            rd.name = E.name;
             rd.value = get(rd.name);
         }
 
@@ -2362,7 +2371,7 @@ void Node::replace_by(Node *p_node, bool p_keep_data) {
         get_groups(&groups);
 
         for (List<GroupInfo>::Element *E = groups.front(); E; E = E->next())
-            p_node->add_to_group(E->get().name, E->get().persistent);
+            p_node->add_to_group(E->deref().name, E->deref().persistent);
     }
 
     _replace_connections_target(p_node);
@@ -2403,22 +2412,21 @@ void Node::replace_by(Node *p_node, bool p_keep_data) {
 
     for (List<_NodeReplaceByPair>::Element *E = replace_data.front(); E; E = E->next()) {
 
-        p_node->set(E->get().name, E->get().value);
+        p_node->set(E->deref().name, E->deref().value);
     }
 }
 
 void Node::_replace_connections_target(Node *p_new_target) {
 
-    List<Connection> cl;
+    ListPOD<Connection> cl;
     get_signals_connected_to_this(&cl);
 
-    for (List<Connection>::Element *E = cl.front(); E; E = E->next()) {
-
-        Connection &c = E->get();
+    for (Connection &c : cl) {
 
         if (c.flags & ObjectNS::CONNECT_PERSIST) {
             c.source->disconnect(c.signal, this, c.method);
-            bool valid = p_new_target->has_method(c.method) || Ref<Script>(p_new_target->get_script()).is_null() || Ref<Script>(p_new_target->get_script())->has_method(c.method);
+            bool valid = p_new_target->has_method(c.method) || not refFromRefPtr<Script>(p_new_target->get_script()) ||
+                         refFromRefPtr<Script>(p_new_target->get_script())->has_method(c.method);
             ERR_CONTINUE_MSG(!valid, FormatV("Attempt to connect signal '%s.", c.source->get_class()) + c.signal +
                                              FormatV("' to nonexistent method '%s.", c.target->get_class()) + c.method + "'.")
             c.source->connect(c.signal, p_new_target, c.method, c.binds, c.flags);
@@ -2430,27 +2438,27 @@ Vector<Variant> Node::make_binds(VARIANT_ARG_DECLARE) {
 
     Vector<Variant> ret;
 
-    if (p_arg1.get_type() == Variant::NIL)
+    if (p_arg1.get_type() == VariantType::NIL)
         return ret;
 
     ret.push_back(p_arg1);
 
-    if (p_arg2.get_type() == Variant::NIL)
+    if (p_arg2.get_type() == VariantType::NIL)
         return ret;
 
     ret.push_back(p_arg2);
 
-    if (p_arg3.get_type() == Variant::NIL)
+    if (p_arg3.get_type() == VariantType::NIL)
         return ret;
 
     ret.push_back(p_arg3);
 
-    if (p_arg4.get_type() == Variant::NIL)
+    if (p_arg4.get_type() == VariantType::NIL)
         return ret;
 
     ret.push_back(p_arg4);
 
-    if (p_arg5.get_type() == Variant::NIL)
+    if (p_arg5.get_type() == VariantType::NIL)
         return ret;
 
     ret.push_back(p_arg5);
@@ -2477,11 +2485,11 @@ Array Node::_get_node_and_resource(const NodePath &p_path) {
     Array result;
 
     if (node)
-        result.push_back(node);
+        result.push_back(Variant(node));
     else
         result.push_back(Variant());
 
-    if (res.is_valid())
+    if (res)
         result.push_back(res);
     else
         result.push_back(Variant());
@@ -2506,13 +2514,13 @@ Node *Node::get_node_and_resource(const NodePath &p_path, RES &r_res, Vector<Str
         for (; j < p_path.get_subname_count() - (int)p_last_is_property; j++) {
             Variant new_res_v = j == 0 ? node->get(p_path.get_subname(j)) : r_res->get(p_path.get_subname(j));
 
-            if (new_res_v.get_type() == Variant::NIL) { // Found nothing on that path
+            if (new_res_v.get_type() == VariantType::NIL) { // Found nothing on that path
                 return nullptr;
             }
 
-            RES new_res = new_res_v;
+            RES new_res(refFromRefPtr<Resource>(new_res_v));
 
-            if (new_res.is_null()) { // No longer a resource, assume property
+            if (not new_res) { // No longer a resource, assume property
                 break;
             }
 
@@ -2532,7 +2540,7 @@ void Node::_set_tree(SceneTree *p_tree) {
     SceneTree *tree_changed_a = nullptr;
     SceneTree *tree_changed_b = nullptr;
 
-    //ERR_FAIL_COND(p_scene && data.parent && !data.parent->data.scene); //nobug if both are null
+    //ERR_FAIL_COND(p_scene && data.parent && !data.parent->data.scene) //nobug if both are null
 
     if (data.tree) {
         _propagate_exit_tree();
@@ -2609,7 +2617,7 @@ Array Node::_get_children() const {
     int cc = get_child_count();
     arr.resize(cc);
     for (int i = 0; i < cc; i++)
-        arr[i] = get_child(i);
+        arr[i] = Variant(get_child(i));
 
     return arr;
 }
@@ -2630,7 +2638,7 @@ NodePath Node::get_import_path() const {
 #endif
 }
 
-static void _add_nodes_to_options(const Node *p_base, const Node *p_node, List<String> *r_options) {
+static void _add_nodes_to_options(const Node *p_base, const Node *p_node, ListPOD<String> *r_options) {
 
 #ifdef TOOLS_ENABLED
     const String quote_style = EDITOR_DEF("text_editor/completion/use_single_quotes", 0) ? "'" : "\"";
@@ -2647,7 +2655,7 @@ static void _add_nodes_to_options(const Node *p_base, const Node *p_node, List<S
     }
 }
 
-void Node::get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const {
+void Node::get_argument_options(const StringName &p_function, int p_idx, ListPOD<String> *r_options) const {
 
     String pf = p_function;
     if ((pf == "has_node" || pf == "get_node") && p_idx == 0) {
@@ -2679,7 +2687,7 @@ void Node::update_configuration_warning() {
     if (!is_inside_tree())
         return;
     if (get_tree()->get_edited_scene_root() && (get_tree()->get_edited_scene_root() == this || get_tree()->get_edited_scene_root()->is_a_parent_of(this))) {
-        get_tree()->emit_signal(SceneStringNames::get_singleton()->node_configuration_warning_changed, this);
+        get_tree()->emit_signal(SceneStringNames::get_singleton()->node_configuration_warning_changed, Variant(this));
     }
 #endif
 }
@@ -2704,83 +2712,83 @@ void Node::request_ready() {
 void Node::_bind_methods() {
 
     GLOBAL_DEF("node/name_num_separator", 0);
-    ProjectSettings::get_singleton()->set_custom_property_info("node/name_num_separator", PropertyInfo(Variant::INT, "node/name_num_separator", PROPERTY_HINT_ENUM, "None,Space,Underscore,Dash"));
+    ProjectSettings::get_singleton()->set_custom_property_info("node/name_num_separator", PropertyInfo(VariantType::INT, "node/name_num_separator", PROPERTY_HINT_ENUM, "None,Space,Underscore,Dash"));
     GLOBAL_DEF("node/name_casing", NAME_CASING_PASCAL_CASE);
-    ProjectSettings::get_singleton()->set_custom_property_info("node/name_casing", PropertyInfo(Variant::INT, "node/name_casing", PROPERTY_HINT_ENUM, "PascalCase,camelCase,snake_case"));
+    ProjectSettings::get_singleton()->set_custom_property_info("node/name_casing", PropertyInfo(VariantType::INT, "node/name_casing", PROPERTY_HINT_ENUM, "PascalCase,camelCase,snake_case"));
 
-    MethodBinder::bind_method(D_METHOD("add_child_below_node", "node", "child_node", "legible_unique_name"), &Node::add_child_below_node, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("add_child_below_node", {"node", "child_node", "legible_unique_name"}), &Node::add_child_below_node, {DEFVAL(false)});
 
-    MethodBinder::bind_method(D_METHOD("set_name", "name"), &Node::set_name);
+    MethodBinder::bind_method(D_METHOD("set_name", {"name"}), &Node::set_name);
     MethodBinder::bind_method(D_METHOD("get_name"), &Node::get_name);
-    MethodBinder::bind_method(D_METHOD("add_child", "node", "legible_unique_name"), &Node::add_child, {DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("remove_child", "node"), &Node::remove_child);
+    MethodBinder::bind_method(D_METHOD("add_child", {"node", "legible_unique_name"}), &Node::add_child, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("remove_child", {"node"}), &Node::remove_child);
     MethodBinder::bind_method(D_METHOD("get_child_count"), &Node::get_child_count);
     MethodBinder::bind_method(D_METHOD("get_children"), &Node::_get_children);
-    MethodBinder::bind_method(D_METHOD("get_child", "idx"), &Node::get_child);
-    MethodBinder::bind_method(D_METHOD("has_node", "path"), &Node::has_node);
-    MethodBinder::bind_method(D_METHOD("get_node", "path"), &Node::get_node);
-    MethodBinder::bind_method(D_METHOD("get_node_or_null", "path"), &Node::get_node_or_null);
+    MethodBinder::bind_method(D_METHOD("get_child", {"idx"}), &Node::get_child);
+    MethodBinder::bind_method(D_METHOD("has_node", {"path"}), &Node::has_node);
+    MethodBinder::bind_method(D_METHOD("get_node", {"path"}), &Node::get_node);
+    MethodBinder::bind_method(D_METHOD("get_node_or_null", {"path"}), &Node::get_node_or_null);
     MethodBinder::bind_method(D_METHOD("get_parent"), &Node::get_parent);
-    MethodBinder::bind_method(D_METHOD("find_node", "mask", "recursive", "owned"), &Node::find_node, {DEFVAL(true), DEFVAL(true)});
-    MethodBinder::bind_method(D_METHOD("find_parent", "mask"), &Node::find_parent);
-    MethodBinder::bind_method(D_METHOD("has_node_and_resource", "path"), &Node::has_node_and_resource);
-    MethodBinder::bind_method(D_METHOD("get_node_and_resource", "path"), &Node::_get_node_and_resource);
+    MethodBinder::bind_method(D_METHOD("find_node", {"mask", "recursive", "owned"}), &Node::find_node, {DEFVAL(true), DEFVAL(true)});
+    MethodBinder::bind_method(D_METHOD("find_parent", {"mask"}), &Node::find_parent);
+    MethodBinder::bind_method(D_METHOD("has_node_and_resource", {"path"}), &Node::has_node_and_resource);
+    MethodBinder::bind_method(D_METHOD("get_node_and_resource", {"path"}), &Node::_get_node_and_resource);
 
     MethodBinder::bind_method(D_METHOD("is_inside_tree"), &Node::is_inside_tree);
-    MethodBinder::bind_method(D_METHOD("is_a_parent_of", "node"), &Node::is_a_parent_of);
-    MethodBinder::bind_method(D_METHOD("is_greater_than", "node"), &Node::is_greater_than);
+    MethodBinder::bind_method(D_METHOD("is_a_parent_of", {"node"}), &Node::is_a_parent_of);
+    MethodBinder::bind_method(D_METHOD("is_greater_than", {"node"}), &Node::is_greater_than);
     MethodBinder::bind_method(D_METHOD("get_path"), &Node::get_path);
-    MethodBinder::bind_method(D_METHOD("get_path_to", "node"), &Node::get_path_to);
-    MethodBinder::bind_method(D_METHOD("add_to_group", "group", "persistent"), &Node::add_to_group, {DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("remove_from_group", "group"), &Node::remove_from_group);
-    MethodBinder::bind_method(D_METHOD("is_in_group", "group"), &Node::is_in_group);
-    MethodBinder::bind_method(D_METHOD("move_child", "child_node", "to_position"), &Node::move_child);
+    MethodBinder::bind_method(D_METHOD("get_path_to", {"node"}), &Node::get_path_to);
+    MethodBinder::bind_method(D_METHOD("add_to_group", {"group", "persistent"}), &Node::add_to_group, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("remove_from_group", {"group"}), &Node::remove_from_group);
+    MethodBinder::bind_method(D_METHOD("is_in_group", {"group"}), &Node::is_in_group);
+    MethodBinder::bind_method(D_METHOD("move_child", {"child_node", "to_position"}), &Node::move_child);
     MethodBinder::bind_method(D_METHOD("get_groups"), &Node::_get_groups);
     MethodBinder::bind_method(D_METHOD("raise"), &Node::raise);
-    MethodBinder::bind_method(D_METHOD("set_owner", "owner"), &Node::set_owner);
+    MethodBinder::bind_method(D_METHOD("set_owner", {"owner"}), &Node::set_owner);
     MethodBinder::bind_method(D_METHOD("get_owner"), &Node::get_owner);
     MethodBinder::bind_method(D_METHOD("remove_and_skip"), &Node::remove_and_skip);
     MethodBinder::bind_method(D_METHOD("get_index"), &Node::get_index);
     MethodBinder::bind_method(D_METHOD("print_tree"), &Node::print_tree);
 
-    MethodBinder::bind_method(D_METHOD("set_filename", "filename"), &Node::set_filename);
+    MethodBinder::bind_method(D_METHOD("set_filename", {"filename"}), &Node::set_filename);
     MethodBinder::bind_method(D_METHOD("get_filename"), &Node::get_filename);
-    MethodBinder::bind_method(D_METHOD("propagate_notification", "what"), &Node::propagate_notification);
-    MethodBinder::bind_method(D_METHOD("propagate_call", "method", "args", "parent_first"), &Node::propagate_call, {DEFVAL(Array()), DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("set_physics_process", "enable"), &Node::set_physics_process);
+    MethodBinder::bind_method(D_METHOD("propagate_notification", {"what"}), &Node::propagate_notification);
+    MethodBinder::bind_method(D_METHOD("propagate_call", {"method", "args", "parent_first"}), &Node::propagate_call, {DEFVAL(Array()), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("set_physics_process", {"enable"}), &Node::set_physics_process);
     MethodBinder::bind_method(D_METHOD("get_physics_process_delta_time"), &Node::get_physics_process_delta_time);
     MethodBinder::bind_method(D_METHOD("is_physics_processing"), &Node::is_physics_processing);
     MethodBinder::bind_method(D_METHOD("get_process_delta_time"), &Node::get_process_delta_time);
-    MethodBinder::bind_method(D_METHOD("set_process", "enable"), &Node::set_process);
-    MethodBinder::bind_method(D_METHOD("set_process_priority", "priority"), &Node::set_process_priority);
+    MethodBinder::bind_method(D_METHOD("set_process", {"enable"}), &Node::set_process);
+    MethodBinder::bind_method(D_METHOD("set_process_priority", {"priority"}), &Node::set_process_priority);
     MethodBinder::bind_method(D_METHOD("is_processing"), &Node::is_processing);
-    MethodBinder::bind_method(D_METHOD("set_process_input", "enable"), &Node::set_process_input);
+    MethodBinder::bind_method(D_METHOD("set_process_input", {"enable"}), &Node::set_process_input);
     MethodBinder::bind_method(D_METHOD("is_processing_input"), &Node::is_processing_input);
-    MethodBinder::bind_method(D_METHOD("set_process_unhandled_input", "enable"), &Node::set_process_unhandled_input);
+    MethodBinder::bind_method(D_METHOD("set_process_unhandled_input", {"enable"}), &Node::set_process_unhandled_input);
     MethodBinder::bind_method(D_METHOD("is_processing_unhandled_input"), &Node::is_processing_unhandled_input);
-    MethodBinder::bind_method(D_METHOD("set_process_unhandled_key_input", "enable"), &Node::set_process_unhandled_key_input);
+    MethodBinder::bind_method(D_METHOD("set_process_unhandled_key_input", {"enable"}), &Node::set_process_unhandled_key_input);
     MethodBinder::bind_method(D_METHOD("is_processing_unhandled_key_input"), &Node::is_processing_unhandled_key_input);
-    MethodBinder::bind_method(D_METHOD("set_pause_mode", "mode"), &Node::set_pause_mode);
+    MethodBinder::bind_method(D_METHOD("set_pause_mode", {"mode"}), &Node::set_pause_mode);
     MethodBinder::bind_method(D_METHOD("get_pause_mode"), &Node::get_pause_mode);
     MethodBinder::bind_method(D_METHOD("can_process"), &Node::can_process);
     MethodBinder::bind_method(D_METHOD("print_stray_nodes"), &Node::_print_stray_nodes);
     MethodBinder::bind_method(D_METHOD("get_position_in_parent"), &Node::get_position_in_parent);
 
-    MethodBinder::bind_method(D_METHOD("set_display_folded", "fold"), &Node::set_display_folded);
+    MethodBinder::bind_method(D_METHOD("set_display_folded", {"fold"}), &Node::set_display_folded);
     MethodBinder::bind_method(D_METHOD("is_displayed_folded"), &Node::is_displayed_folded);
 
-    MethodBinder::bind_method(D_METHOD("set_process_internal", "enable"), &Node::set_process_internal);
+    MethodBinder::bind_method(D_METHOD("set_process_internal", {"enable"}), &Node::set_process_internal);
     MethodBinder::bind_method(D_METHOD("is_processing_internal"), &Node::is_processing_internal);
 
-    MethodBinder::bind_method(D_METHOD("set_physics_process_internal", "enable"), &Node::set_physics_process_internal);
+    MethodBinder::bind_method(D_METHOD("set_physics_process_internal", {"enable"}), &Node::set_physics_process_internal);
     MethodBinder::bind_method(D_METHOD("is_physics_processing_internal"), &Node::is_physics_processing_internal);
 
     MethodBinder::bind_method(D_METHOD("get_tree"), &Node::get_tree);
 
-    MethodBinder::bind_method(D_METHOD("duplicate", "flags"), &Node::duplicate, {DEFVAL(DUPLICATE_USE_INSTANCING | DUPLICATE_SIGNALS | DUPLICATE_GROUPS | DUPLICATE_SCRIPTS)});
-    MethodBinder::bind_method(D_METHOD("replace_by", "node", "keep_data"), &Node::replace_by, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("duplicate", {"flags"}), &Node::duplicate, {DEFVAL(DUPLICATE_USE_INSTANCING | DUPLICATE_SIGNALS | DUPLICATE_GROUPS | DUPLICATE_SCRIPTS)});
+    MethodBinder::bind_method(D_METHOD("replace_by", {"node", "keep_data"}), &Node::replace_by, {DEFVAL(false)});
 
-    MethodBinder::bind_method(D_METHOD("set_scene_instance_load_placeholder", "load_placeholder"), &Node::set_scene_instance_load_placeholder);
+    MethodBinder::bind_method(D_METHOD("set_scene_instance_load_placeholder", {"load_placeholder"}), &Node::set_scene_instance_load_placeholder);
     MethodBinder::bind_method(D_METHOD("get_scene_instance_load_placeholder"), &Node::get_scene_instance_load_placeholder);
 
     MethodBinder::bind_method(D_METHOD("get_viewport"), &Node::get_viewport);
@@ -2789,32 +2797,32 @@ void Node::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("request_ready"), &Node::request_ready);
 
-    MethodBinder::bind_method(D_METHOD("set_network_master", "id", "recursive"), &Node::set_network_master, {DEFVAL(true)});
+    MethodBinder::bind_method(D_METHOD("set_network_master", {"id", "recursive"}), &Node::set_network_master, {DEFVAL(true)});
     MethodBinder::bind_method(D_METHOD("get_network_master"), &Node::get_network_master);
 
     MethodBinder::bind_method(D_METHOD("is_network_master"), &Node::is_network_master);
 
     MethodBinder::bind_method(D_METHOD("get_multiplayer"), &Node::get_multiplayer);
     MethodBinder::bind_method(D_METHOD("get_custom_multiplayer"), &Node::get_custom_multiplayer);
-    MethodBinder::bind_method(D_METHOD("set_custom_multiplayer", "api"), &Node::set_custom_multiplayer);
-    MethodBinder::bind_method(D_METHOD("rpc_config", "method", "mode"), &Node::rpc_config);
-    MethodBinder::bind_method(D_METHOD("rset_config", "property", "mode"), &Node::rset_config);
+    MethodBinder::bind_method(D_METHOD("set_custom_multiplayer", {"api"}), &Node::set_custom_multiplayer);
+    MethodBinder::bind_method(D_METHOD("rpc_config", {"method", "mode"}), &Node::rpc_config);
+    MethodBinder::bind_method(D_METHOD("rset_config", {"property", "mode"}), &Node::rset_config);
 
-    MethodBinder::bind_method(D_METHOD("_set_import_path", "import_path"), &Node::set_import_path);
+    MethodBinder::bind_method(D_METHOD("_set_import_path", {"import_path"}), &Node::set_import_path);
     MethodBinder::bind_method(D_METHOD("_get_import_path"), &Node::get_import_path);
-    ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "_import_path", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_import_path", "_get_import_path");
+    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "_import_path", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_import_path", "_get_import_path");
 
     {
         MethodInfo mi;
 
-        mi.arguments.push_back(PropertyInfo(Variant::STRING, "method"));
+        mi.arguments.push_back(PropertyInfo(VariantType::STRING, "method"));
 
         mi.name = "rpc";
         MethodBinder::bind_vararg_method("rpc", &Node::_rpc_bind, mi);
         mi.name = "rpc_unreliable";
         MethodBinder::bind_vararg_method("rpc_unreliable", &Node::_rpc_unreliable_bind, mi);
 
-        mi.arguments.push_front(PropertyInfo(Variant::INT, "peer_id"));
+        mi.arguments.push_front(PropertyInfo(VariantType::INT, "peer_id"));
 
         mi.name = "rpc_id";
         MethodBinder::bind_vararg_method( "rpc_id", &Node::_rpc_id_bind, mi);
@@ -2822,10 +2830,10 @@ void Node::_bind_methods() {
         MethodBinder::bind_vararg_method( "rpc_unreliable_id", &Node::_rpc_unreliable_id_bind, mi);
     }
 
-    MethodBinder::bind_method(D_METHOD("rset", "property", "value"), &Node::rset);
-    MethodBinder::bind_method(D_METHOD("rset_id", "peer_id", "property", "value"), &Node::rset_id);
-    MethodBinder::bind_method(D_METHOD("rset_unreliable", "property", "value"), &Node::rset_unreliable);
-    MethodBinder::bind_method(D_METHOD("rset_unreliable_id", "peer_id", "property", "value"), &Node::rset_unreliable_id);
+    MethodBinder::bind_method(D_METHOD("rset", {"property", "value"}), &Node::rset);
+    MethodBinder::bind_method(D_METHOD("rset_id", {"peer_id", "property", "value"}), &Node::rset_id);
+    MethodBinder::bind_method(D_METHOD("rset_unreliable", {"property", "value"}), &Node::rset_unreliable);
+    MethodBinder::bind_method(D_METHOD("rset_unreliable_id", {"peer_id", "property", "value"}), &Node::rset_unreliable_id);
 
     BIND_CONSTANT(NOTIFICATION_ENTER_TREE)
     BIND_CONSTANT(NOTIFICATION_EXIT_TREE)
@@ -2856,15 +2864,17 @@ void Node::_bind_methods() {
     BIND_CONSTANT(NOTIFICATION_WM_ABOUT);
     BIND_CONSTANT(NOTIFICATION_CRASH);
     BIND_CONSTANT(NOTIFICATION_OS_IME_UPDATE);
+    BIND_CONSTANT(NOTIFICATION_APP_RESUMED);
+    BIND_CONSTANT(NOTIFICATION_APP_PAUSED);
 
-    BIND_ENUM_CONSTANT(PAUSE_MODE_INHERIT);
-    BIND_ENUM_CONSTANT(PAUSE_MODE_STOP);
-    BIND_ENUM_CONSTANT(PAUSE_MODE_PROCESS);
+    BIND_ENUM_CONSTANT(PAUSE_MODE_INHERIT)
+    BIND_ENUM_CONSTANT(PAUSE_MODE_STOP)
+    BIND_ENUM_CONSTANT(PAUSE_MODE_PROCESS)
 
-    BIND_ENUM_CONSTANT(DUPLICATE_SIGNALS);
-    BIND_ENUM_CONSTANT(DUPLICATE_GROUPS);
-    BIND_ENUM_CONSTANT(DUPLICATE_SCRIPTS);
-    BIND_ENUM_CONSTANT(DUPLICATE_USE_INSTANCING);
+    BIND_ENUM_CONSTANT(DUPLICATE_SIGNALS)
+    BIND_ENUM_CONSTANT(DUPLICATE_GROUPS)
+    BIND_ENUM_CONSTANT(DUPLICATE_SCRIPTS)
+    BIND_ENUM_CONSTANT(DUPLICATE_USE_INSTANCING)
 
     ADD_SIGNAL(MethodInfo("ready"));
     ADD_SIGNAL(MethodInfo("renamed"));
@@ -2873,28 +2883,28 @@ void Node::_bind_methods() {
     ADD_SIGNAL(MethodInfo("tree_exited"));
 
     ADD_GROUP("Pause", "pause_");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "pause_mode", PROPERTY_HINT_ENUM, "Inherit,Stop,Process"), "set_pause_mode", "get_pause_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "pause_mode", PROPERTY_HINT_ENUM, "Inherit,Stop,Process"), "set_pause_mode", "get_pause_mode");
 
 #ifdef ENABLE_DEPRECATED
     //no longer exists, but remains for compatibility (keep previous scenes folded
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "editor/display_folded", PROPERTY_HINT_NONE, "", 0), "set_display_folded", "is_displayed_folded");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "editor/display_folded", PROPERTY_HINT_NONE, "", 0), "set_display_folded", "is_displayed_folded");
 #endif
 
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "name", PROPERTY_HINT_NONE, "", 0), "set_name", "get_name");
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "filename", PROPERTY_HINT_NONE, "", 0), "set_filename", "get_filename");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "owner", PROPERTY_HINT_RESOURCE_TYPE, "Node", 0), "set_owner", "get_owner");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "multiplayer", PROPERTY_HINT_RESOURCE_TYPE, "MultiplayerAPI", 0), "", "get_multiplayer");
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "custom_multiplayer", PROPERTY_HINT_RESOURCE_TYPE, "MultiplayerAPI", 0), "set_custom_multiplayer", "get_custom_multiplayer");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "name", PROPERTY_HINT_NONE, "", 0), "set_name", "get_name");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "filename", PROPERTY_HINT_NONE, "", 0), "set_filename", "get_filename");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "owner", PROPERTY_HINT_RESOURCE_TYPE, "Node", 0), "set_owner", "get_owner");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "multiplayer", PROPERTY_HINT_RESOURCE_TYPE, "MultiplayerAPI", 0), "", "get_multiplayer");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "custom_multiplayer", PROPERTY_HINT_RESOURCE_TYPE, "MultiplayerAPI", 0), "set_custom_multiplayer", "get_custom_multiplayer");
 
-    BIND_VMETHOD(MethodInfo("_process", PropertyInfo(Variant::REAL, "delta")));
-    BIND_VMETHOD(MethodInfo("_physics_process", PropertyInfo(Variant::REAL, "delta")));
+    BIND_VMETHOD(MethodInfo("_process", PropertyInfo(VariantType::REAL, "delta")));
+    BIND_VMETHOD(MethodInfo("_physics_process", PropertyInfo(VariantType::REAL, "delta")));
     BIND_VMETHOD(MethodInfo("_enter_tree"));
     BIND_VMETHOD(MethodInfo("_exit_tree"));
     BIND_VMETHOD(MethodInfo("_ready"));
-    BIND_VMETHOD(MethodInfo("_input", PropertyInfo(Variant::OBJECT, "event", PROPERTY_HINT_RESOURCE_TYPE, "InputEvent")));
-    BIND_VMETHOD(MethodInfo("_unhandled_input", PropertyInfo(Variant::OBJECT, "event", PROPERTY_HINT_RESOURCE_TYPE, "InputEvent")));
-    BIND_VMETHOD(MethodInfo("_unhandled_key_input", PropertyInfo(Variant::OBJECT, "event", PROPERTY_HINT_RESOURCE_TYPE, "InputEventKey")));
-    BIND_VMETHOD(MethodInfo(Variant::STRING, "_get_configuration_warning"));
+    BIND_VMETHOD(MethodInfo("_input", PropertyInfo(VariantType::OBJECT, "event", PROPERTY_HINT_RESOURCE_TYPE, "InputEvent")));
+    BIND_VMETHOD(MethodInfo("_unhandled_input", PropertyInfo(VariantType::OBJECT, "event", PROPERTY_HINT_RESOURCE_TYPE, "InputEvent")));
+    BIND_VMETHOD(MethodInfo("_unhandled_key_input", PropertyInfo(VariantType::OBJECT, "event", PROPERTY_HINT_RESOURCE_TYPE, "InputEventKey")));
+    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_configuration_warning"));
 }
 
 String Node::_get_name_num_separator() {
@@ -2947,8 +2957,8 @@ Node::~Node() {
     data.owned.clear();
     data.children.clear();
 
-    ERR_FAIL_COND(data.parent);
-    ERR_FAIL_COND(data.children.size());
+    ERR_FAIL_COND(data.parent)
+    ERR_FAIL_COND(data.children.size())
 
     orphan_node_count--;
 }

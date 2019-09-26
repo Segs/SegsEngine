@@ -151,7 +151,7 @@ void Body2DSW::set_param(Physics2DServer::BodyParameter p_param, real_t p_value)
             friction = p_value;
         } break;
         case Physics2DServer::BODY_PARAM_MASS: {
-            ERR_FAIL_COND(p_value <= 0);
+            ERR_FAIL_COND(p_value <= 0)
             mass = p_value;
             _update_inertia();
 
@@ -427,7 +427,7 @@ void Body2DSW::integrate_forces(real_t p_step) {
 
     Area2DSW *def_area = get_space()->get_default_area();
     // Area2DSW *damp_area = def_area;
-    ERR_FAIL_COND(!def_area);
+    ERR_FAIL_COND(!def_area)
 
     int ac = areas.size();
     bool stopped = false;
@@ -581,15 +581,15 @@ void Body2DSW::integrate_velocities(real_t p_step) {
 
 void Body2DSW::wakeup_neighbours() {
 
-    for (Map<Constraint2DSW *, int>::Element *E = constraint_map.front(); E; E = E->next()) {
+    for (const eastl::pair<Constraint2DSW * const,int> &E : constraint_map) {
 
-        const Constraint2DSW *c = E->key();
+        const Constraint2DSW *c = E.first;
         Body2DSW **n = c->get_body_ptr();
         int bc = c->get_body_count();
 
         for (int i = 0; i < bc; i++) {
 
-            if (i == E->get())
+            if (i == E.second)
                 continue;
             Body2DSW *b = n[i];
             if (b->mode != Physics2DServer::BODY_MODE_RIGID)
@@ -608,7 +608,7 @@ void Body2DSW::call_queries() {
         Physics2DDirectBodyStateSW *dbs = Physics2DDirectBodyStateSW::singleton;
         dbs->body = this;
 
-        Variant v = dbs;
+        Variant v(dbs);
         const Variant *vp[2] = { &v, &fi_callback->callback_udata };
 
         Object *obj = ObjectDB::get_instance(fi_callback->id);
@@ -617,7 +617,7 @@ void Body2DSW::call_queries() {
             set_force_integration_callback(0, StringName());
         } else {
             Variant::CallError ce;
-            if (fi_callback->callback_udata.get_type() != Variant::NIL) {
+            if (fi_callback->callback_udata.get_type() != VariantType::NIL) {
 
                 obj->call(fi_callback->method, vp, 2, ce);
 

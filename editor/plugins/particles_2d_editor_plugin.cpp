@@ -98,9 +98,9 @@ void Particles2DEditorPlugin::_menu_callback(int p_idx) {
 
             UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
             ur->create_action(TTR("Convert to CPUParticles"));
-            ur->add_do_method(EditorNode::get_singleton()->get_scene_tree_dock(), "replace_node", particles, cpu_particles, true, false);
+            ur->add_do_method(EditorNode::get_singleton()->get_scene_tree_dock(), "replace_node", Variant(particles), Variant(cpu_particles), true, false);
             ur->add_do_reference(cpu_particles);
-            ur->add_undo_method(EditorNode::get_singleton()->get_scene_tree_dock(), "replace_node", cpu_particles, particles, false, false);
+            ur->add_undo_method(EditorNode::get_singleton()->get_scene_tree_dock(), "replace_node", Variant(cpu_particles), Variant(particles), false, false);
             ur->add_undo_reference(particles);
             ur->commit_action();
 
@@ -154,24 +154,23 @@ void Particles2DEditorPlugin::_generate_visibility_rect() {
 
 void Particles2DEditorPlugin::_generate_emission_mask() {
 
-    Ref<ParticlesMaterial> pm = particles->get_process_material();
-    if (!pm.is_valid()) {
+    Ref<ParticlesMaterial> pm = dynamic_ref_cast<ParticlesMaterial>(particles->get_process_material());
+    if (not pm) {
         EditorNode::get_singleton()->show_warning(TTR("Can only set point into a ParticlesMaterial process material"));
         return;
     }
 
-    Ref<Image> img;
-    img.instance();
+    Ref<Image> img(make_ref_counted<Image>());
     Error err = ImageLoader::load_image(source_emission_file, img);
-    ERR_FAIL_COND_MSG(err != OK, "Error loading image: " + source_emission_file + ".");
+    ERR_FAIL_COND_MSG(err != OK, "Error loading image: " + source_emission_file + ".")
 
     if (img->is_compressed()) {
         img->decompress();
     }
     img->convert(Image::FORMAT_RGBA8);
-    ERR_FAIL_COND(img->get_format() != Image::FORMAT_RGBA8);
+    ERR_FAIL_COND(img->get_format() != Image::FORMAT_RGBA8)
     Size2i s = Size2(img->get_width(), img->get_height());
-    ERR_FAIL_COND(s.width == 0 || s.height == 0);
+    ERR_FAIL_COND(s.width == 0 || s.height == 0)
 
     Vector<Point2> valid_positions;
     Vector<Point2> valid_normals;
@@ -271,7 +270,7 @@ void Particles2DEditorPlugin::_generate_emission_mask() {
         valid_normals.resize(vpc);
     }
 
-    ERR_FAIL_COND_MSG(valid_positions.empty(), "No pixels with transparency > 128 in image...");
+    ERR_FAIL_COND_MSG(valid_positions.empty(), "No pixels with transparency > 128 in image...")
 
     PoolVector<uint8_t> texdata;
 
@@ -290,11 +289,10 @@ void Particles2DEditorPlugin::_generate_emission_mask() {
         }
     }
 
-    img.instance();
+    img = make_ref_counted<Image>();
     img->create(w, h, false, Image::FORMAT_RGF, texdata);
 
-    Ref<ImageTexture> imgt;
-    imgt.instance();
+    Ref<ImageTexture> imgt(make_ref_counted<ImageTexture>());
     imgt->create_from_image(img, 0);
 
     pm->set_emission_point_texture(imgt);
@@ -313,10 +311,10 @@ void Particles2DEditorPlugin::_generate_emission_mask() {
             }
         }
 
-        img.instance();
+        img = make_ref_counted<Image>();
         img->create(w, h, false, Image::FORMAT_RGBA8, colordata);
 
-        imgt.instance();
+        imgt = make_ref_counted<ImageTexture>();
         imgt->create_from_image(img, 0);
         pm->set_emission_color_texture(imgt);
     }
@@ -336,10 +334,10 @@ void Particles2DEditorPlugin::_generate_emission_mask() {
             }
         }
 
-        img.instance();
+        img = make_ref_counted<Image>();
         img->create(w, h, false, Image::FORMAT_RGF, normdata);
 
-        imgt.instance();
+        imgt = make_ref_counted<ImageTexture>();
         imgt->create_from_image(img, 0);
         pm->set_emission_normal_texture(imgt);
 

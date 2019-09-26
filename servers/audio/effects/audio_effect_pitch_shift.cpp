@@ -302,8 +302,7 @@ void AudioEffectPitchShiftInstance::process(const AudioFrame *p_src_frames, Audi
 }
 
 Ref<AudioEffectInstance> AudioEffectPitchShift::instance() {
-    Ref<AudioEffectPitchShiftInstance> ins;
-    ins.instance();
+    Ref<AudioEffectPitchShiftInstance> ins(make_ref_counted<AudioEffectPitchShiftInstance>());
     ins->base = Ref<AudioEffectPitchShift>(this);
     static const int fft_sizes[FFT_SIZE_MAX] = { 256, 512, 1024, 2048, 4096 };
     ins->fft_size = fft_sizes[fft_size];
@@ -312,7 +311,7 @@ Ref<AudioEffectInstance> AudioEffectPitchShift::instance() {
 }
 
 void AudioEffectPitchShift::set_pitch_scale(float p_pitch_scale) {
-    ERR_FAIL_COND(p_pitch_scale <= 0.0);
+    ERR_FAIL_COND(p_pitch_scale <= 0.0)
     pitch_scale = p_pitch_scale;
 }
 
@@ -322,7 +321,7 @@ float AudioEffectPitchShift::get_pitch_scale() const {
 }
 
 void AudioEffectPitchShift::set_oversampling(int p_oversampling) {
-    ERR_FAIL_COND(p_oversampling < 4);
+    ERR_FAIL_COND(p_oversampling < 4)
     oversampling = p_oversampling;
 }
 
@@ -342,25 +341,25 @@ AudioEffectPitchShift::FFT_Size AudioEffectPitchShift::get_fft_size() const {
 
 void AudioEffectPitchShift::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_pitch_scale", "rate"), &AudioEffectPitchShift::set_pitch_scale);
+    MethodBinder::bind_method(D_METHOD("set_pitch_scale", {"rate"}), &AudioEffectPitchShift::set_pitch_scale);
     MethodBinder::bind_method(D_METHOD("get_pitch_scale"), &AudioEffectPitchShift::get_pitch_scale);
 
-    MethodBinder::bind_method(D_METHOD("set_oversampling", "amount"), &AudioEffectPitchShift::set_oversampling);
+    MethodBinder::bind_method(D_METHOD("set_oversampling", {"amount"}), &AudioEffectPitchShift::set_oversampling);
     MethodBinder::bind_method(D_METHOD("get_oversampling"), &AudioEffectPitchShift::get_oversampling);
 
-    MethodBinder::bind_method(D_METHOD("set_fft_size", "size"), &AudioEffectPitchShift::set_fft_size);
+    MethodBinder::bind_method(D_METHOD("set_fft_size", {"size"}), &AudioEffectPitchShift::set_fft_size);
     MethodBinder::bind_method(D_METHOD("get_fft_size"), &AudioEffectPitchShift::get_fft_size);
 
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "pitch_scale", PROPERTY_HINT_RANGE, "0.01,16,0.01"), "set_pitch_scale", "get_pitch_scale");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "oversampling", PROPERTY_HINT_RANGE, "4,32,1"), "set_oversampling", "get_oversampling");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "fft_size", PROPERTY_HINT_ENUM, "256,512,1024,2048,4096"), "set_fft_size", "get_fft_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "pitch_scale", PROPERTY_HINT_RANGE, "0.01,16,0.01"), "set_pitch_scale", "get_pitch_scale");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "oversampling", PROPERTY_HINT_RANGE, "4,32,1"), "set_oversampling", "get_oversampling");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "fft_size", PROPERTY_HINT_ENUM, "256,512,1024,2048,4096"), "set_fft_size", "get_fft_size");
 
-    BIND_ENUM_CONSTANT(FFT_SIZE_256);
-    BIND_ENUM_CONSTANT(FFT_SIZE_512);
-    BIND_ENUM_CONSTANT(FFT_SIZE_1024);
-    BIND_ENUM_CONSTANT(FFT_SIZE_2048);
-    BIND_ENUM_CONSTANT(FFT_SIZE_4096);
-    BIND_ENUM_CONSTANT(FFT_SIZE_MAX);
+    BIND_ENUM_CONSTANT(FFT_SIZE_256)
+    BIND_ENUM_CONSTANT(FFT_SIZE_512)
+    BIND_ENUM_CONSTANT(FFT_SIZE_1024)
+    BIND_ENUM_CONSTANT(FFT_SIZE_2048)
+    BIND_ENUM_CONSTANT(FFT_SIZE_4096)
+    BIND_ENUM_CONSTANT(FFT_SIZE_MAX)
 }
 
 AudioEffectPitchShift::AudioEffectPitchShift() {

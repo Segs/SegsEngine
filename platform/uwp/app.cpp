@@ -258,8 +258,7 @@ void App::pointer_event(Windows::UI::Core::CoreWindow ^ sender, Windows::UI::Cor
 	int but = _get_button(point);
 	if (_is_touch(point)) {
 
-		Ref<InputEventScreenTouch> screen_touch;
-		screen_touch.instance();
+		Ref<InputEventScreenTouch> screen_touch(make_ref_counted<InputEventScreenTouch>());
 		screen_touch->set_device(0);
 		screen_touch->set_pressed(p_pressed);
 		screen_touch->set_position(Vector2(pos.X, pos.Y));
@@ -271,8 +270,7 @@ void App::pointer_event(Windows::UI::Core::CoreWindow ^ sender, Windows::UI::Cor
 		os->input_event(screen_touch);
 	} else {
 
-		Ref<InputEventMouseButton> mouse_button;
-		mouse_button.instance();
+		Ref<InputEventMouseButton> mouse_button(make_ref_counted<InputEventMouseButton>());
 		mouse_button->set_device(0);
 		mouse_button->set_pressed(p_pressed);
 		mouse_button->set_button_index(but);
@@ -347,8 +345,7 @@ void App::OnPointerMoved(Windows::UI::Core::CoreWindow ^ sender, Windows::UI::Co
 
 	if (_is_touch(point)) {
 
-		Ref<InputEventScreenDrag> screen_drag;
-		screen_drag.instance();
+		Ref<InputEventScreenDrag> screen_drag(make_ref_counted<InputEventScreenDrag>());
 		screen_drag->set_device(0);
 		screen_drag->set_position(Vector2(pos.X, pos.Y));
 		screen_drag->set_index(_get_finger(point->PointerId));
@@ -361,8 +358,7 @@ void App::OnPointerMoved(Windows::UI::Core::CoreWindow ^ sender, Windows::UI::Co
 		if (os->get_mouse_mode() == OS::MouseMode::MOUSE_MODE_CAPTURED)
 			return;
 
-		Ref<InputEventMouseMotion> mouse_motion;
-		mouse_motion.instance();
+		Ref<InputEventMouseMotion> mouse_motion(make_ref_counted<InputEventMouseMotion>());
 		mouse_motion->set_device(0);
 		mouse_motion->set_position(Vector2(pos.X, pos.Y));
 		mouse_motion->set_global_position(Vector2(pos.X, pos.Y));
@@ -384,8 +380,7 @@ void App::OnMouseMoved(MouseDevice ^ mouse_device, MouseEventArgs ^ args) {
 	pos.X = last_mouse_pos.X + args->MouseDelta.X;
 	pos.Y = last_mouse_pos.Y + args->MouseDelta.Y;
 
-	Ref<InputEventMouseMotion> mouse_motion;
-	mouse_motion.instance();
+	Ref<InputEventMouseMotion> mouse_motion(make_ref_counted<InputEventMouseMotion>());
 	mouse_motion->set_device(0);
 	mouse_motion->set_position(Vector2(pos.X, pos.Y));
 	mouse_motion->set_global_position(Vector2(pos.X, pos.Y));

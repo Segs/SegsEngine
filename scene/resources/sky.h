@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef SKY_H
-#define SKY_H
+#pragma once
 
 #include "core/os/thread.h"
 #include "scene/resources/texture.h"
@@ -62,7 +61,7 @@ public:
 	Sky();
 };
 
-VARIANT_ENUM_CAST(Sky::RadianceSize)
+
 
 class PanoramaSky : public Sky {
 	GDCLASS(PanoramaSky,Sky)
@@ -194,7 +193,3 @@ public:
 	ProceduralSky(bool p_desaturate=false);
 	~ProceduralSky() override;
 };
-
-VARIANT_ENUM_CAST(ProceduralSky::TextureSize)
-
-#endif // SKY_H

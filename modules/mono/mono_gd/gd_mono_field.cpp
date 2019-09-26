@@ -554,7 +554,7 @@ MonoObject *GDMonoField::get_attribute(GDMonoClass *p_attr_class) {
 }
 
 void GDMonoField::fetch_attributes() {
-	ERR_FAIL_COND(attributes != NULL);
+	ERR_FAIL_COND(attributes != NULL)
 	attributes = mono_custom_attrs_from_field(owner->get_mono_ptr(), mono_field);
 	attrs_fetched = true;
 }

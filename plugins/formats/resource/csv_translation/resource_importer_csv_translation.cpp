@@ -33,6 +33,7 @@
 #include "core/compressed_translation.h"
 #include "core/io/resource_saver.h"
 #include "core/os/file_access.h"
+#include "core/list.h"
 #include "core/translation.h"
 
 String ResourceImporterCSVTranslation::get_importer_name() const {
@@ -71,18 +72,18 @@ String ResourceImporterCSVTranslation::get_preset_name(int p_idx) const {
     return "";
 }
 
-void ResourceImporterCSVTranslation::get_import_options(List<ImportOption> *r_options, int p_preset) const {
+void ResourceImporterCSVTranslation::get_import_options(ListPOD<ImportOption> *r_options, int p_preset) const {
 
-    r_options->push_back(ImportOption(PropertyInfo(Variant::BOOL, "compress"), true));
-    r_options->push_back(ImportOption(PropertyInfo(Variant::INT, "delimiter", PROPERTY_HINT_ENUM, "Comma,Semicolon,Tab"), 0));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "compress"), true));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "delimiter", PROPERTY_HINT_ENUM, "Comma,Semicolon,Tab"), 0));
 }
 
 Error ResourceImporterCSVTranslation::import(const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata) {
 
-    bool compress = p_options["compress"];
+    bool compress = p_options.at("compress").as<bool>();
 
     char delimiter;
-    switch ((int)p_options["delimiter"]) {
+    switch ((int)p_options.at("delimiter")) {
         case 0: delimiter = ','; break;
         case 1: delimiter = ';'; break;
         case 2: delimiter = '\t'; break;
@@ -101,11 +102,10 @@ Error ResourceImporterCSVTranslation::import(const String &p_source_file, const 
     for (int i = 1; i < line.size(); i++) {
 
         String locale = line[i];
-        ERR_FAIL_COND_V_MSG(!TranslationServer::is_locale_valid(locale), ERR_PARSE_ERROR, "Error importing CSV translation: '" + locale + "' is not a valid locale.");
+        ERR_FAIL_COND_V_MSG(!TranslationServer::is_locale_valid(locale), ERR_PARSE_ERROR, "Error importing CSV translation: '" + locale + "' is not a valid locale.")
 
         locales.push_back(locale);
-        Ref<Translation> translation;
-        translation.instance();
+        Ref<Translation> translation=make_ref_counted<Translation>();
         translation->set_locale(locale);
         translations.push_back(translation);
     }
@@ -129,7 +129,7 @@ Error ResourceImporterCSVTranslation::import(const String &p_source_file, const 
         Ref<Translation> xlt = translations[i];
 
         if (compress) {
-            Ref<PHashTranslation> cxl = memnew(PHashTranslation);
+            Ref<PHashTranslation> cxl(make_ref_counted<PHashTranslation>());
             cxl->generate(xlt);
             xlt = cxl;
         }

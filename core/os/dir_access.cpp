@@ -90,7 +90,7 @@ static Error _erase_recursive(DirAccess *da) {
 
     for (List<String>::Element *E = dirs.front(); E; E = E->next()) {
 
-        Error err = da->change_dir(E->get());
+        Error err = da->change_dir(E->deref());
         if (err == OK) {
 
             err = _erase_recursive(da);
@@ -102,7 +102,7 @@ static Error _erase_recursive(DirAccess *da) {
             if (err) {
                 return err;
             }
-            err = da->remove(PathUtils::plus_file(da->get_current_dir(),E->get()));
+            err = da->remove(PathUtils::plus_file(da->get_current_dir(),E->deref()));
             if (err) {
                 return err;
             }
@@ -113,7 +113,7 @@ static Error _erase_recursive(DirAccess *da) {
 
     for (List<String>::Element *E = files.front(); E; E = E->next()) {
 
-        Error err = da->remove(PathUtils::plus_file(da->get_current_dir(),E->get()));
+        Error err = da->remove(PathUtils::plus_file(da->get_current_dir(),E->deref()));
         if (err) {
             return err;
         }
@@ -158,7 +158,7 @@ Error DirAccess::make_dir_recursive(String p_dir) {
     else if (StringUtils::find(full_dir,":/") != -1) {
         base = StringUtils::substr(full_dir,0, StringUtils::find(full_dir,":/") + 2);
     } else {
-        ERR_FAIL_V(ERR_INVALID_PARAMETER);
+        ERR_FAIL_V(ERR_INVALID_PARAMETER)
     }
 
     full_dir = PathUtils::simplify_path(StringUtils::replace_first(full_dir,base, ""));
@@ -172,7 +172,7 @@ Error DirAccess::make_dir_recursive(String p_dir) {
         Error err = make_dir(curpath);
         if (err != OK && err != ERR_ALREADY_EXISTS) {
 
-            ERR_FAIL_V(err);
+            ERR_FAIL_V(err)
         }
     }
 
@@ -189,7 +189,7 @@ String DirAccess::fix_path(String p_path) const {
                 if (StringUtils::begins_with(p_path,"res://")) {
 
                     String resource_path = ProjectSettings::get_singleton()->get_resource_path();
-                    if (resource_path != "") {
+                    if (!resource_path.empty()) {
 
                         return StringUtils::replace_first(p_path,"res:/", resource_path);
                     }
@@ -203,7 +203,7 @@ String DirAccess::fix_path(String p_path) const {
             if (StringUtils::begins_with(p_path,"user://")) {
 
                 String data_dir = OS::get_singleton()->get_user_data_dir();
-                if (data_dir != "") {
+                if (!data_dir.empty()) {
 
                     return StringUtils::replace_first(p_path,"user:/", data_dir);
                 }
@@ -214,7 +214,7 @@ String DirAccess::fix_path(String p_path) const {
         case ACCESS_FILESYSTEM: {
 
             return p_path;
-        } break;
+        }
         case ACCESS_MAX: break; // Can't happen, but silences warning
     }
 
@@ -244,7 +244,7 @@ DirAccess *DirAccess::open(const String &p_path, Error *r_error) {
 
     DirAccess *da = create_for_path(p_path);
 
-    ERR_FAIL_COND_V(!da, nullptr);
+    ERR_FAIL_COND_V(!da, nullptr)
     Error err = da->change_dir(p_path);
     if (r_error)
         *r_error = err;
@@ -330,7 +330,7 @@ Error DirAccess::copy(String p_from, String p_to, int p_chmod_flags) {
     return err;
 }
 
-void DirAccess::remove_file_or_error(String p_path) {
+void DirAccess::remove_file_or_error(const String& p_path) {
     DirAccess *da = create(ACCESS_FILESYSTEM);
     if (da->file_exists(p_path)) {
         if (da->remove(p_path) != OK) {
@@ -358,13 +358,13 @@ public:
     }
 };
 
-Error DirAccess::_copy_dir(DirAccess *p_target_da, String p_to, int p_chmod_flags) {
+Error DirAccess::_copy_dir(DirAccess *p_target_da, const String& p_to, int p_chmod_flags) {
     List<String> dirs;
 
     String curdir = get_current_dir();
     list_dir_begin();
     String n = get_next();
-    while (n != String()) {
+    while (!n.empty()) {
 
         if (n != "." && n != "..") {
 
@@ -390,15 +390,15 @@ Error DirAccess::_copy_dir(DirAccess *p_target_da, String p_to, int p_chmod_flag
     list_dir_end();
 
     for (List<String>::Element *E = dirs.front(); E; E = E->next()) {
-        String rel_path = E->get();
+        String rel_path = E->deref();
         String target_dir = p_to + rel_path;
         if (!p_target_da->dir_exists(target_dir)) {
             Error err = p_target_da->make_dir(target_dir);
-            ERR_FAIL_COND_V(err, err);
+            ERR_FAIL_COND_V(err, err)
         }
 
-        Error err = change_dir(E->get());
-        ERR_FAIL_COND_V(err, err);
+        Error err = change_dir(E->deref());
+        ERR_FAIL_COND_V(err, err)
         err = _copy_dir(p_target_da, p_to + rel_path + "/", p_chmod_flags);
         if (err) {
             change_dir("..");
@@ -415,18 +415,18 @@ Error DirAccess::_copy_dir(DirAccess *p_target_da, String p_to, int p_chmod_flag
     return OK;
 }
 
-Error DirAccess::copy_dir(String p_from, String p_to, int p_chmod_flags) {
-    ERR_FAIL_COND_V(!dir_exists(p_from), ERR_FILE_NOT_FOUND);
+Error DirAccess::copy_dir(const String& p_from, String p_to, int p_chmod_flags) {
+    ERR_FAIL_COND_V(!dir_exists(p_from), ERR_FILE_NOT_FOUND)
 
     DirAccess *target_da = DirAccess::create_for_path(p_to);
-    ERR_FAIL_COND_V(!target_da, ERR_CANT_CREATE);
+    ERR_FAIL_COND_V(!target_da, ERR_CANT_CREATE)
 
     if (!target_da->dir_exists(p_to)) {
         Error err = target_da->make_dir_recursive(p_to);
         if (err) {
             memdelete(target_da);
         }
-        ERR_FAIL_COND_V(err, err);
+        ERR_FAIL_COND_V(err, err)
     }
 
     if (!StringUtils::ends_with(p_to,"/")) {
@@ -440,7 +440,7 @@ Error DirAccess::copy_dir(String p_from, String p_to, int p_chmod_flags) {
     return err;
 }
 
-bool DirAccess::exists(String p_dir) {
+bool DirAccess::exists(const String& p_dir) {
 
     DirAccess *da = DirAccess::create_for_path(p_dir);
     bool valid = da->change_dir(p_dir) == OK;

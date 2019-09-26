@@ -73,8 +73,8 @@ void ImageSaver::register_plugin_resolver()
     }
 }
 
-Error ImageSaver::save_image(String p_file, const Ref<Image> &p_image, FileAccess *p_custom, float p_quality) {
-    ERR_FAIL_COND_V(p_image.is_null(), ERR_INVALID_PARAMETER)
+Error ImageSaver::save_image(const String& p_file, const Ref<Image> &p_image, FileAccess *p_custom, float p_quality) {
+    ERR_FAIL_COND_V(not p_image, ERR_INVALID_PARAMETER)
 
     register_plugin_resolver();
 
@@ -94,7 +94,7 @@ Error ImageSaver::save_image(String p_file, const Ref<Image> &p_image, FileAcces
 
         if (!g_savers[i]->can_save(extension))
             continue;
-        ImageData result_data = *p_image.ptr();
+        ImageData result_data = *p_image;
         Error err = g_savers[i]->save_image(result_data, f, {p_quality,false});
         if (err != OK) {
             ERR_PRINTS("Error saving image: " + p_file)
@@ -114,7 +114,7 @@ Error ImageSaver::save_image(String p_file, const Ref<Image> &p_image, FileAcces
     return ERR_FILE_UNRECOGNIZED;
 }
 
-Error ImageSaver::save_image(String ext, const Ref<Image> & p_image, PoolVector<uint8_t> &tgt, float p_quality)
+Error ImageSaver::save_image(const String& ext, const Ref<Image> & p_image, PoolVector<uint8_t> &tgt, float p_quality)
 {
     register_plugin_resolver();
     ImageData result_data;
@@ -123,7 +123,7 @@ Error ImageSaver::save_image(String ext, const Ref<Image> & p_image, PoolVector<
 
         if (!g_savers[i]->can_save(ext))
             continue;
-        Error err = g_savers[i]->save_image(*p_image.ptr(), tgt, {p_quality,false});
+        Error err = g_savers[i]->save_image(*p_image, tgt, {p_quality,false});
         if (err != OK) {
             ERR_PRINT("Error loading image from memory")
         }

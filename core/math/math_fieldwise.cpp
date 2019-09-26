@@ -43,14 +43,14 @@
 
 Variant fieldwise_assign(const Variant &p_target, const Variant &p_source, const String &p_field) {
 
-	ERR_FAIL_COND_V(p_target.get_type() != p_source.get_type(), p_target);
+	ERR_FAIL_COND_V(p_target.get_type() != p_source.get_type(), p_target)
 
 	/* clang-format makes a mess of this macro usage */
 	/* clang-format off */
 
 	switch (p_source.get_type()) {
 
-		case Variant::VECTOR2: {
+        case VariantType::VECTOR2: {
 
 			SETUP_TYPE(Vector2)
 
@@ -60,7 +60,7 @@ Variant fieldwise_assign(const Variant &p_target, const Variant &p_source, const
 			return target;
 		}
 
-		case Variant::RECT2: {
+        case VariantType::RECT2: {
 
 			SETUP_TYPE(Rect2)
 
@@ -72,7 +72,7 @@ Variant fieldwise_assign(const Variant &p_target, const Variant &p_source, const
 			return target;
 		}
 
-		case Variant::VECTOR3: {
+        case VariantType::VECTOR3: {
 
 			SETUP_TYPE(Vector3)
 
@@ -83,7 +83,7 @@ Variant fieldwise_assign(const Variant &p_target, const Variant &p_source, const
 			return target;
 		}
 
-		case Variant::PLANE: {
+        case VariantType::PLANE: {
 
 			SETUP_TYPE(Plane)
 
@@ -95,7 +95,7 @@ Variant fieldwise_assign(const Variant &p_target, const Variant &p_source, const
 			return target;
 		}
 
-		case Variant::QUAT: {
+        case VariantType::QUAT: {
 
 			SETUP_TYPE(Quat)
 
@@ -107,7 +107,7 @@ Variant fieldwise_assign(const Variant &p_target, const Variant &p_source, const
 			return target;
 		}
 
-		case Variant::AABB: {
+        case VariantType::AABB: {
 
 			SETUP_TYPE(AABB)
 
@@ -121,7 +121,7 @@ Variant fieldwise_assign(const Variant &p_target, const Variant &p_source, const
 			return target;
 		}
 
-		case Variant::TRANSFORM2D: {
+        case VariantType::TRANSFORM2D: {
 
 			SETUP_TYPE(Transform2D)
 
@@ -135,7 +135,7 @@ Variant fieldwise_assign(const Variant &p_target, const Variant &p_source, const
 			return target;
 		}
 
-		case Variant::BASIS: {
+        case VariantType::BASIS: {
 
 			SETUP_TYPE(Basis)
 
@@ -152,7 +152,7 @@ Variant fieldwise_assign(const Variant &p_target, const Variant &p_source, const
 			return target;
 		}
 
-		case Variant::TRANSFORM: {
+        case VariantType::TRANSFORM: {
 
 			SETUP_TYPE(Transform)
 

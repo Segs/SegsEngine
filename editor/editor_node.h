@@ -101,7 +101,7 @@ public:
 
     struct ExecuteThreadArgs {
         String path;
-        List<String> args;
+        ListPOD<String> args;
         String output;
         Thread *execute_output_thread;
         Mutex *execute_output_mutex;
@@ -435,14 +435,14 @@ private:
     void _bottom_panel_switch(bool p_enable, int p_idx);
 
     String external_file;
-    List<String> previous_scenes;
+    ListPOD<String> previous_scenes;
     bool opening_prev;
 
-    void _dialog_action(String p_file);
+    void _dialog_action(const String& p_file);
 
     void _edit_current();
-    void _dialog_display_save_error(String p_file, Error p_error);
-    void _dialog_display_load_error(String p_file, Error p_error);
+    void _dialog_display_save_error(const String& p_file, Error p_error);
+    void _dialog_display_load_error(const String& p_file, Error p_error);
 
     int current_option;
     void _menu_option(int p_option);
@@ -451,7 +451,7 @@ private:
 
     void _request_screenshot();
     void _screenshot(bool p_use_utc = false);
-    void _save_screenshot(NodePath p_path);
+    void _save_screenshot(const NodePath& p_path);
 
     void _tool_menu_option(int p_idx);
     void _update_debug_options();
@@ -480,7 +480,7 @@ private:
     int _save_external_resources();
 
     bool _validate_scene_recursive(const String &p_filename, Node *p_node);
-    void _save_scene(String p_file, int idx = -1);
+    void _save_scene(const String& p_file, int idx = -1);
     void _save_all_scenes();
     int _next_unsaved_scene(bool p_valid_filename, int p_start = 0);
     void _discard_changes(const String &p_str = String());
@@ -489,7 +489,7 @@ private:
     void _instance_request(const Vector<String> &p_files);
 
     void _display_top_editors(bool p_display);
-    void _set_top_editors(Vector<EditorPlugin *> p_editor_plugins_over);
+    void _set_top_editors(const Vector<EditorPlugin *>& p_editor_plugins_over);
     void _set_editing_top_editors(Object *p_current_object);
 
     void _quick_opened();
@@ -505,7 +505,7 @@ private:
     void _open_recent_scene(int p_idx);
     void _global_menu_action(const Variant &p_id, const Variant &p_meta);
     void _dropped_files(const Vector<String> &p_files, int p_screen);
-    void _add_dropped_files_recursive(const Vector<String> &p_files, String to_path);
+    void _add_dropped_files_recursive(const Vector<String> &p_files, const String& to_path);
     String _recent_scene;
 
     void _exit_editor();
@@ -538,19 +538,19 @@ private:
     void _cleanup_scene();
     void _remove_edited_scene(bool p_change_tab = true);
     void _remove_scene(int index, bool p_change_tab = true);
-    bool _find_and_save_resource(RES p_res, Map<RES, bool> &processed, int32_t flags);
+    bool _find_and_save_resource(const RES& p_res, Map<RES, bool> &processed, int32_t flags);
     bool _find_and_save_edited_subresources(Object *obj, Map<RES, bool> &processed, int32_t flags);
     void _save_edited_subresources(Node *scene, Map<RES, bool> &processed, int32_t flags);
     void _mark_unsaved_scenes();
 
     void _find_node_types(Node *p_node, int &count_2d, int &count_3d);
-    void _save_scene_with_preview(String p_file, int p_idx = -1);
+    void _save_scene_with_preview(const String& p_file, int p_idx = -1);
 
     Map<String, Set<String> > dependency_errors;
 
     static void _dependency_error_report(void *ud, const String &p_path, const String &p_dep, const String &p_type) {
         EditorNode *en = (EditorNode *)ud;
-        if (!en->dependency_errors.has(p_path))
+        if (!en->dependency_errors.contains(p_path))
             en->dependency_errors[p_path] = Set<String>();
         en->dependency_errors[p_path].insert(p_dep + "::" + p_type);
     }
@@ -638,7 +638,7 @@ private:
     PrintHandlerList print_handler;
     static void _print_handler(void *p_this, const String &p_string, bool p_error);
 
-    static void _resource_saved(RES p_resource, const String &p_path);
+    static void _resource_saved(const RES& p_resource, const String &p_path);
     static void _resource_loaded(RES p_resource, const String &p_path);
 
     void _resources_changed(const PoolVector<String> &p_resources);
@@ -799,7 +799,7 @@ public:
     static void progress_task_step_bg(const String &p_task, int p_step = -1);
     static void progress_end_task_bg(const String &p_task);
 
-    void save_scene_to_path(String p_file, bool p_with_preview = true) {
+    void save_scene_to_path(const String& p_file, bool p_with_preview = true) {
         if (p_with_preview)
             _save_scene_with_preview(p_file);
         else
@@ -820,7 +820,7 @@ public:
 
     ToolButton *get_pause_button() { return pause_button; }
 
-    ToolButton *add_bottom_panel_item(String p_text, Control *p_item);
+    ToolButton *add_bottom_panel_item(const String& p_text, Control *p_item);
     bool are_bottom_panels_hidden() const;
     void make_bottom_panel_item_visible(Control *p_item);
     void raise_bottom_panel_item(Control *p_item);
@@ -835,7 +835,7 @@ public:
     void remove_tool_menu_item(const String &p_name);
 
     void save_all_scenes();
-    void save_scene_list(Vector<String> p_scene_filenames);
+    void save_scene_list(const Vector<String>& p_scene_filenames);
     void restart_editor();
 
     void dim_editor(bool p_dimming, bool p_force_dim = false);
@@ -845,7 +845,7 @@ public:
     void update_keying() const { inspector_dock->update_keying(); }
     bool has_scenes_in_session();
 
-    int execute_and_show_output(const String &p_title, const String &p_path, const List<String> &p_arguments, bool p_close_on_ok = true, bool p_close_on_errors = false);
+    int execute_and_show_output(const String &p_title, const String &p_path, const ListPOD<String> &p_arguments, bool p_close_on_ok = true, bool p_close_on_errors = false);
 
     EditorNode();
     ~EditorNode() override;
@@ -880,7 +880,7 @@ private:
     Vector<EditorPlugin *> plugins_list;
 
 public:
-    void set_plugins_list(Vector<EditorPlugin *> p_plugins_list) {
+    void set_plugins_list(const Vector<EditorPlugin *>& p_plugins_list) {
         plugins_list = p_plugins_list;
     }
 

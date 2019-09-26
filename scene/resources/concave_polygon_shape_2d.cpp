@@ -55,7 +55,7 @@ bool ConcavePolygonShape2D::_edit_is_selected_on_click(const Point2 &p_point, do
 
 void ConcavePolygonShape2D::set_segments(const PoolVector<Vector2> &p_segments) {
 
-    Physics2DServer::get_singleton()->shape_set_data(get_rid(), p_segments);
+    Physics2DServer::get_singleton()->shape_set_data(get_rid(), Variant(p_segments));
     emit_changed();
 }
 
@@ -99,10 +99,10 @@ Rect2 ConcavePolygonShape2D::get_rect() const {
 
 void ConcavePolygonShape2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_segments", "segments"), &ConcavePolygonShape2D::set_segments);
+    MethodBinder::bind_method(D_METHOD("set_segments", {"segments"}), &ConcavePolygonShape2D::set_segments);
     MethodBinder::bind_method(D_METHOD("get_segments"), &ConcavePolygonShape2D::get_segments);
 
-    ADD_PROPERTY(PropertyInfo(Variant::POOL_VECTOR2_ARRAY, "segments"), "set_segments", "get_segments");
+    ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR2_ARRAY, "segments"), "set_segments", "get_segments");
 }
 
 ConcavePolygonShape2D::ConcavePolygonShape2D() :

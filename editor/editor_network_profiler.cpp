@@ -42,14 +42,20 @@ void EditorNetworkProfiler::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_update_frame"), &EditorNetworkProfiler::_update_frame);
     MethodBinder::bind_method(D_METHOD("_activate_pressed"), &EditorNetworkProfiler::_activate_pressed);
     MethodBinder::bind_method(D_METHOD("_clear_pressed"), &EditorNetworkProfiler::_clear_pressed);
-    ADD_SIGNAL(MethodInfo("enable_profiling", PropertyInfo(Variant::BOOL, "enable")));
+    ADD_SIGNAL(MethodInfo("enable_profiling", PropertyInfo(VariantType::BOOL, "enable")));
 }
 
 void EditorNetworkProfiler::_notification(int p_what) {
 
-    if (p_what == NOTIFICATION_ENTER_TREE) {
+	if (p_what == NOTIFICATION_ENTER_TREE || p_what == NOTIFICATION_THEME_CHANGED) {
         activate->set_icon(get_icon("Play", "EditorIcons"));
         clear_button->set_icon(get_icon("Clear", "EditorIcons"));
+		incoming_bandwidth_text->set_right_icon(get_icon("ArrowDown", "EditorIcons"));
+		outgoing_bandwidth_text->set_right_icon(get_icon("ArrowUp", "EditorIcons"));
+
+		// This needs to be done here to set the faded color when the profiler is first opened
+		incoming_bandwidth_text->add_color_override("font_color_uneditable", get_color("font_color", "Editor") * Color(1, 1, 1, 0.5));
+		outgoing_bandwidth_text->add_color_override("font_color_uneditable", get_color("font_color", "Editor") * Color(1, 1, 1, 0.5));
     }
 }
 
@@ -59,7 +65,7 @@ void EditorNetworkProfiler::_update_frame() {
 
     TreeItem *root = counters_display->create_item();
 
-    for (Map<ObjectID, MultiplayerAPI::ProfilingInfo>::Element *E = nodes_data.front(); E; E = E->next()) {
+    for (eastl::pair<const ObjectID,MultiplayerAPI::ProfilingInfo> &E : nodes_data) {
 
         TreeItem *node = counters_display->create_item(root);
 
@@ -67,11 +73,11 @@ void EditorNetworkProfiler::_update_frame() {
             node->set_text_align(j, j > 0 ? TreeItem::ALIGN_RIGHT : TreeItem::ALIGN_LEFT);
         }
 
-        node->set_text(0, E->get().node_path);
-        node->set_text(1, E->get().incoming_rpc == 0 ? "-" : itos(E->get().incoming_rpc));
-        node->set_text(2, E->get().incoming_rset == 0 ? "-" : itos(E->get().incoming_rset));
-        node->set_text(3, E->get().outgoing_rpc == 0 ? "-" : itos(E->get().outgoing_rpc));
-        node->set_text(4, E->get().outgoing_rset == 0 ? "-" : itos(E->get().outgoing_rset));
+        node->set_text(0, E.second.node_path);
+        node->set_text(1, E.second.incoming_rpc == 0 ? "-" : itos(E.second.incoming_rpc));
+        node->set_text(2, E.second.incoming_rset == 0 ? "-" : itos(E.second.incoming_rset));
+        node->set_text(3, E.second.outgoing_rpc == 0 ? "-" : itos(E.second.outgoing_rpc));
+        node->set_text(4, E.second.outgoing_rset == 0 ? "-" : itos(E.second.outgoing_rset));
     }
 }
 
@@ -96,10 +102,10 @@ void EditorNetworkProfiler::_clear_pressed() {
     }
 }
 
-void EditorNetworkProfiler::add_node_frame_data(const MultiplayerAPI::ProfilingInfo p_frame) {
+void EditorNetworkProfiler::add_node_frame_data(const MultiplayerAPI::ProfilingInfo& p_frame) {
 
-    if (!nodes_data.has(p_frame.node)) {
-        nodes_data.insert(p_frame.node, p_frame);
+    if (!nodes_data.contains(p_frame.node)) {
+        nodes_data.emplace(p_frame.node, p_frame);
     } else {
         nodes_data[p_frame.node].incoming_rpc += p_frame.incoming_rpc;
         nodes_data[p_frame.node].incoming_rset += p_frame.incoming_rset;
@@ -142,26 +148,31 @@ EditorNetworkProfiler::EditorNetworkProfiler() {
     hb->add_spacer();
 
     Label *lb = memnew(Label);
-    lb->set_text("Down ");
+	lb->set_text(TTR("Down"));
     hb->add_child(lb);
 
     incoming_bandwidth_text = memnew(LineEdit);
     incoming_bandwidth_text->set_editable(false);
-    incoming_bandwidth_text->set_custom_minimum_size(Size2(100, 0));
+	incoming_bandwidth_text->set_custom_minimum_size(Size2(120, 0) * EDSCALE);
     incoming_bandwidth_text->set_align(LineEdit::Align::ALIGN_RIGHT);
-    incoming_bandwidth_text->set_text("0.0 B/s");
     hb->add_child(incoming_bandwidth_text);
 
+	Control *down_up_spacer = memnew(Control);
+	down_up_spacer->set_custom_minimum_size(Size2(30, 0) * EDSCALE);
+	hb->add_child(down_up_spacer);
+
     lb = memnew(Label);
-    lb->set_text("Up ");
+	lb->set_text(TTR("Up"));
     hb->add_child(lb);
 
     outgoing_bandwidth_text = memnew(LineEdit);
     outgoing_bandwidth_text->set_editable(false);
-    outgoing_bandwidth_text->set_custom_minimum_size(Size2(100, 0));
+	outgoing_bandwidth_text->set_custom_minimum_size(Size2(120, 0) * EDSCALE);
     outgoing_bandwidth_text->set_align(LineEdit::Align::ALIGN_RIGHT);
-    outgoing_bandwidth_text->set_text("0.0 B/s");
     hb->add_child(outgoing_bandwidth_text);
+
+	// Set initial texts in the incoming/outgoing bandwidth labels
+	set_bandwidth(0, 0);
 
     counters_display = memnew(Tree);
     counters_display->set_custom_minimum_size(Size2(300, 0) * EDSCALE);
@@ -172,7 +183,7 @@ EditorNetworkProfiler::EditorNetworkProfiler() {
     counters_display->set_column_titles_visible(true);
     counters_display->set_column_title(0, TTR("Node"));
     counters_display->set_column_expand(0, true);
-    counters_display->set_column_min_width(0, 60);
+	counters_display->set_column_min_width(0, 60 * EDSCALE);
     counters_display->set_column_title(1, TTR("Incoming RPC"));
     counters_display->set_column_expand(1, false);
     counters_display->set_column_min_width(1, 120 * EDSCALE);

@@ -35,8 +35,8 @@ IMPL_GDCLASS(ImmediateGeometry)
 
 void ImmediateGeometry::begin(Mesh::PrimitiveType p_primitive, const Ref<Texture> &p_texture) {
 
-    VS::get_singleton()->immediate_begin(im, (VS::PrimitiveType)p_primitive, p_texture.is_valid() ? p_texture->get_rid() : RID());
-    if (p_texture.is_valid())
+    VS::get_singleton()->immediate_begin(im, (VS::PrimitiveType)p_primitive, p_texture ? p_texture->get_rid() : RID());
+    if (p_texture)
         cached_textures.push_back(p_texture);
 }
 
@@ -147,14 +147,14 @@ void ImmediateGeometry::add_sphere(int p_lats, int p_lons, float p_radius, bool 
 
 void ImmediateGeometry::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("begin", "primitive", "texture"), &ImmediateGeometry::begin, {DEFVAL(Ref<Texture>())});
-    MethodBinder::bind_method(D_METHOD("set_normal", "normal"), &ImmediateGeometry::set_normal);
-    MethodBinder::bind_method(D_METHOD("set_tangent", "tangent"), &ImmediateGeometry::set_tangent);
-    MethodBinder::bind_method(D_METHOD("set_color", "color"), &ImmediateGeometry::set_color);
-    MethodBinder::bind_method(D_METHOD("set_uv", "uv"), &ImmediateGeometry::set_uv);
-    MethodBinder::bind_method(D_METHOD("set_uv2", "uv"), &ImmediateGeometry::set_uv2);
-    MethodBinder::bind_method(D_METHOD("add_vertex", "position"), &ImmediateGeometry::add_vertex);
-    MethodBinder::bind_method(D_METHOD("add_sphere", "lats", "lons", "radius", "add_uv"), &ImmediateGeometry::add_sphere, {DEFVAL(true)});
+    MethodBinder::bind_method(D_METHOD("begin", {"primitive", "texture"}), &ImmediateGeometry::begin, {DEFVAL(Ref<Texture>())});
+    MethodBinder::bind_method(D_METHOD("set_normal", {"normal"}), &ImmediateGeometry::set_normal);
+    MethodBinder::bind_method(D_METHOD("set_tangent", {"tangent"}), &ImmediateGeometry::set_tangent);
+    MethodBinder::bind_method(D_METHOD("set_color", {"color"}), &ImmediateGeometry::set_color);
+    MethodBinder::bind_method(D_METHOD("set_uv", {"uv"}), &ImmediateGeometry::set_uv);
+    MethodBinder::bind_method(D_METHOD("set_uv2", {"uv"}), &ImmediateGeometry::set_uv2);
+    MethodBinder::bind_method(D_METHOD("add_vertex", {"position"}), &ImmediateGeometry::add_vertex);
+    MethodBinder::bind_method(D_METHOD("add_sphere", {"lats", "lons", "radius", "add_uv"}), &ImmediateGeometry::add_sphere, {DEFVAL(true)});
     MethodBinder::bind_method(D_METHOD("end"), &ImmediateGeometry::end);
     MethodBinder::bind_method(D_METHOD("clear"), &ImmediateGeometry::clear);
 }

@@ -30,6 +30,7 @@
 
 #include "video_stream.h"
 #include "core/class_db.h"
+#include "core/property_info.h"
 
 IMPL_GDCLASS(VideoStreamPlayback)
 IMPL_GDCLASS(VideoStream)

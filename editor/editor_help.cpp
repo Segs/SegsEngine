@@ -30,6 +30,7 @@
 
 #include "editor_help.h"
 
+#include "core/os/input.h"
 #include "core/os/keyboard.h"
 #include "doc_data_compressed.gen.h"
 #include "editor/plugins/script_editor_plugin.h"
@@ -69,9 +70,9 @@ void EditorHelp::_unhandled_key_input(const Ref<InputEvent> &p_ev) {
     if (!is_visible_in_tree())
         return;
 
-    Ref<InputEventKey> k = p_ev;
+    Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(p_ev);
 
-    if (k.is_valid() && k->get_control() && k->get_scancode() == KEY_F) {
+    if (k && k->get_control() && k->get_scancode() == KEY_F) {
 
         search->grab_focus();
         search->select_all();
@@ -135,7 +136,7 @@ void EditorHelp::_class_desc_select(const String &p_select) {
         if (StringUtils::find(link,".") != -1) {
             emit_signal("go_to_help", String(topic + ":" + StringUtils::get_slice(link,".", 0) + ":" + StringUtils::get_slice(link,".", 1)));
         } else {
-            if (table->has(link)) {
+            if (table->contains(link)) {
                 // Found in the current page
                 class_desc->scroll_to_line((*table)[link]);
             } else {
@@ -177,7 +178,7 @@ void EditorHelp::_class_desc_resized() {
     // The margins increase as the width of the editor help container increases.
     const int display_margin = MAX(30 * EDSCALE, get_parent_anchorable_rect().size.width - 900 * EDSCALE) * 0.5;
 
-    Ref<StyleBox> class_desc_stylebox = EditorNode::get_singleton()->get_theme_base()->get_stylebox("normal", "RichTextLabel")->duplicate();
+    Ref<StyleBox> class_desc_stylebox = dynamic_ref_cast<StyleBox>(EditorNode::get_singleton()->get_theme_base()->get_stylebox("normal", "RichTextLabel")->duplicate());
     class_desc_stylebox->set_default_margin(MARGIN_LEFT, display_margin);
     class_desc_stylebox->set_default_margin(MARGIN_RIGHT, display_margin);
     class_desc->add_style_override("normal", class_desc_stylebox);
@@ -314,7 +315,7 @@ void EditorHelp::_add_method(const DocData::MethodDoc &p_method, bool p_overview
 
 Error EditorHelp::_goto_desc(const String &p_class, int p_vscr) {
 
-    if (!doc->class_list.has(p_class))
+    if (!doc->class_list.contains(p_class))
         return ERR_DOES_NOT_EXIST;
 
     select_locked = true;
@@ -334,7 +335,7 @@ Error EditorHelp::_goto_desc(const String &p_class, int p_vscr) {
 void EditorHelp::_update_doc() {
     using namespace StringUtils;
 
-    if (!doc->class_list.has(edited_class))
+    if (!doc->class_list.contains(edited_class))
         return;
 
     scroll_locked = true;
@@ -397,9 +398,9 @@ void EditorHelp::_update_doc() {
         bool found = false;
         bool prev = false;
 
-        for (Map<String, DocData::ClassDoc>::Element *E = doc->class_list.front(); E; E = E->next()) {
+        for (eastl::pair<const String,DocData::ClassDoc> &E : doc->class_list) {
 
-            if (E->get().inherits == cd.name) {
+            if (E.second.inherits == cd.name) {
 
                 if (!found) {
                     class_desc->push_color(title_color);
@@ -414,7 +415,7 @@ void EditorHelp::_update_doc() {
                     class_desc->add_text(" , ");
                 }
 
-                _add_type(E->get().name);
+                _add_type(E.second.name);
                 prev = true;
             }
         }
@@ -543,7 +544,7 @@ void EditorHelp::_update_doc() {
     Vector<DocData::MethodDoc> methods;
 
     for (int i = 0; i < cd.methods.size(); i++) {
-        if (skip_methods.has(cd.methods[i].name))
+        if (skip_methods.contains(cd.methods[i].name))
             continue;
         methods.push_back(cd.methods[i]);
     }
@@ -762,7 +763,7 @@ void EditorHelp::_update_doc() {
         for (int i = 0; i < cd.constants.size(); i++) {
 
             if (not cd.constants[i].enumeration.empty()) {
-                if (!enums.has(cd.constants[i].enumeration)) {
+                if (!enums.contains(cd.constants[i].enumeration)) {
                     enums[cd.constants[i].enumeration] = Vector<DocData::ConstantDoc>();
                 }
 
@@ -786,15 +787,15 @@ void EditorHelp::_update_doc() {
 
             class_desc->add_newline();
 
-            for (Map<String, Vector<DocData::ConstantDoc> >::Element *E = enums.front(); E; E = E->next()) {
+            for (eastl::pair<const String,Vector<DocData::ConstantDoc> > &E : enums) {
 
-                enum_line[E->key()] = class_desc->get_line_count() - 2;
+                enum_line[E.first] = class_desc->get_line_count() - 2;
 
                 class_desc->push_color(title_color);
                 class_desc->add_text(TTR("enum  "));
                 class_desc->pop();
                 class_desc->push_font(doc_code_font);
-                String e = E->key();
+                String e = E.first;
                 if (StringUtils::get_slice_count(e,".")) {
                     e = StringUtils::get_slice(e,".", 1);
                 }
@@ -809,10 +810,10 @@ void EditorHelp::_update_doc() {
                 class_desc->add_newline();
 
                 class_desc->push_indent(1);
-                Vector<DocData::ConstantDoc> enum_list = E->get();
+                Vector<DocData::ConstantDoc> enum_list = E.second;
 
                 Map<String, int> enumValuesContainer;
-                int enumStartingLine = enum_line[E->key()];
+                int enumStartingLine = enum_line[E.first];
 
                 for (int i = 0; i < enum_list.size(); i++) {
                     if (cd.name == "@GlobalScope")
@@ -848,7 +849,7 @@ void EditorHelp::_update_doc() {
                 }
 
                 if (cd.name == "@GlobalScope")
-                    enum_values_line[E->key()] = enumValuesContainer;
+                    enum_values_line[E.first] = enumValuesContainer;
 
                 class_desc->pop();
 
@@ -1173,36 +1174,32 @@ void EditorHelp::_help_callback(const String &p_topic) {
     if (what == "class_desc") {
         line = description_line;
     } else if (what == "class_signal") {
-        if (signal_line.has(name))
+        if (signal_line.contains(name))
             line = signal_line[name];
     } else if (what == "class_method" || what == "class_method_desc") {
-        if (method_line.has(name))
+        if (method_line.contains(name))
             line = method_line[name];
     } else if (what == "class_property") {
-        if (property_line.has(name))
+        if (property_line.contains(name))
             line = property_line[name];
     } else if (what == "class_enum") {
-        if (enum_line.has(name))
+        if (enum_line.contains(name))
             line = enum_line[name];
     } else if (what == "class_theme_item") {
-        if (theme_property_line.has(name))
+        if (theme_property_line.contains(name))
             line = theme_property_line[name];
     } else if (what == "class_constant") {
-        if (constant_line.has(name))
+        if (constant_line.contains(name))
             line = constant_line[name];
     } else if (what == "class_global") {
-        if (constant_line.has(name))
+        if (constant_line.contains(name))
             line = constant_line[name];
         else {
-            Map<String, Map<String, int> >::Element *iter = enum_values_line.front();
-            while (true) {
-                if (iter->value().has(name)) {
-                    line = iter->value()[name];
+            for(const auto &e : enum_values_line) {
+                if (e.second.contains(name)) {
+                    line = e.second.at(name);
                     break;
-                } else if (iter == enum_values_line.back())
-                    break;
-                else
-                    iter = iter->next();
+                }
             }
         }
     }
@@ -1260,7 +1257,7 @@ static void _add_text_to_rt(const String &p_bbcode, RichTextLabel *p_rt) {
         String tag = StringUtils::substr(bbcode,brk_pos + 1, brk_end - brk_pos - 1);
 
         if (StringUtils::begins_with(tag,"/")) {
-            bool tag_ok = !tag_stack.empty() && tag_stack.front()->get() == StringUtils::substr(tag,1, tag.length());
+            bool tag_ok = !tag_stack.empty() && tag_stack.front()->deref() == StringUtils::substr(tag,1, tag.length());
 
             if (!tag_ok) {
 
@@ -1293,7 +1290,7 @@ static void _add_text_to_rt(const String &p_bbcode, RichTextLabel *p_rt) {
             p_rt->pop();
             pos = brk_end + 1;
 
-        } else if (doc->class_list.has(tag)) {
+        } else if (doc->class_list.contains(tag)) {
 
             p_rt->push_color(link_color);
             p_rt->push_meta(String("#" + tag));
@@ -1368,8 +1365,8 @@ static void _add_text_to_rt(const String &p_bbcode, RichTextLabel *p_rt) {
                 end = bbcode.length();
             String image = StringUtils::substr(bbcode,brk_end + 1, end - brk_end - 1);
 
-            Ref<Texture> texture = ResourceLoader::load(PathUtils::plus_file(base_path,image), "Texture");
-            if (texture.is_valid())
+            Ref<Texture> texture = dynamic_ref_cast<Texture>(ResourceLoader::load(PathUtils::plus_file(base_path,image), "Texture"));
+            if (texture)
                 p_rt->add_image(texture);
 
             pos = end;
@@ -1424,8 +1421,8 @@ static void _add_text_to_rt(const String &p_bbcode, RichTextLabel *p_rt) {
 
             String fnt = StringUtils::substr(tag,5, tag.length());
 
-            Ref<Font> font = ResourceLoader::load(PathUtils::plus_file(base_path,fnt), "Font");
-            if (font.is_valid())
+            Ref<Font> font = dynamic_ref_cast<Font>(ResourceLoader::load(PathUtils::plus_file(base_path,fnt), "Font"));
+            if (font)
                 p_rt->push_font(font);
             else {
                 p_rt->push_font(doc_font);
@@ -1560,14 +1557,14 @@ EditorHelp::EditorHelp() {
 EditorHelp::~EditorHelp() {
 }
 
-void EditorHelpBit::_go_to_help(String p_what) {
+void EditorHelpBit::_go_to_help(const String& p_what) {
 
     EditorNode::get_singleton()->set_visible_editor(EditorNode::EDITOR_SCRIPT);
     ScriptEditor::get_singleton()->goto_help(p_what);
     emit_signal("request_hide");
 }
 
-void EditorHelpBit::_meta_clicked(String p_select) {
+void EditorHelpBit::_meta_clicked(const String& p_select) {
 
     if (StringUtils::begins_with(p_select,"$")) { //enum
 
@@ -1596,7 +1593,7 @@ void EditorHelpBit::_meta_clicked(String p_select) {
 void EditorHelpBit::_bind_methods() {
 
     MethodBinder::bind_method("_meta_clicked", &EditorHelpBit::_meta_clicked);
-    MethodBinder::bind_method(D_METHOD("set_text", "text"), &EditorHelpBit::set_text);
+    MethodBinder::bind_method(D_METHOD("set_text", {"text"}), &EditorHelpBit::set_text);
     ADD_SIGNAL(MethodInfo("request_hide"));
 }
 
@@ -1793,8 +1790,8 @@ void FindBar::_hide_bar() {
 
 void FindBar::_unhandled_input(const Ref<InputEvent> &p_event) {
 
-    Ref<InputEventKey> k = p_event;
-    if (k.is_valid()) {
+    Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(p_event);
+    if (k) {
 
         if (k->is_pressed() && (rich_text_label->has_focus() || is_a_parent_of(get_focus_owner()))) {
 
@@ -1826,5 +1823,9 @@ void FindBar::_search_text_changed(const String &/*p_text*/) {
 
 void FindBar::_search_text_entered(const String &/*p_text*/) {
 
+	if (Input::get_singleton()->is_key_pressed(KEY_SHIFT)) {
+		search_prev();
+	} else {
     search_next();
+	}
 }

@@ -40,19 +40,14 @@
 
 class GODOT_EXPORT RefPtr {
 
-	enum {
-
-		DATASIZE = sizeof(void *) //*4 -ref was shrunk
-	};
-
-	mutable char data[DATASIZE]; // too much probably, virtual class + pointer
+    mutable intptr_t data;
 public:
 	bool is_null() const;
 	void operator=(const RefPtr &p_other);
 	bool operator==(const RefPtr &p_other) const;
 	RID get_rid() const;
 	void unref();
-	_FORCE_INLINE_ void *get_data() const { return data; }
+    _FORCE_INLINE_ void *get_data() const { return &data; }
 	RefPtr(const RefPtr &p_other);
 	RefPtr();
 	~RefPtr();

@@ -3,6 +3,8 @@
 #ifdef PTRCALL_ENABLED
 #include "core/type_info.h"
 
+//TODO: SEGS: all enums are encoded as ints, try using underlying type helper here?
+
 #define VARIANT_ENUM_CAST(m_enum)                                            \
     MAKE_ENUM_TYPE_INFO(m_enum)                                              \
     template <>                                                              \
@@ -18,7 +20,7 @@
             return m_enum(*reinterpret_cast<const int *>(p_ptr));            \
         }                                                                    \
         _FORCE_INLINE_ static void encode(m_enum p_val, void *p_ptr) {       \
-            *(int *)p_ptr = p_val;                                           \
+            *(int *)p_ptr = int(p_val);                                      \
         }                                                                    \
     };
 

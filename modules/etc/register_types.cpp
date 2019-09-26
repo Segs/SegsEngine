@@ -37,7 +37,7 @@ static Ref<ResourceFormatPKM> resource_loader_pkm;
 
 void register_etc_types() {
 
-	resource_loader_pkm.instance();
+    resource_loader_pkm=make_ref_counted<ResourceFormatPKM>();
 	ResourceLoader::add_resource_format_loader(resource_loader_pkm);
 
 	_register_etc_compress_func();

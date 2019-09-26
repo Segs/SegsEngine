@@ -28,16 +28,17 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef TRANSLATION_H
-#define TRANSLATION_H
+#pragma once
 
 #include "core/resource.h"
+#include "core/ustring.h"
+#include "core/map.h"
 
 class Translation : public Resource {
 
 	GDCLASS(Translation,Resource)
-	OBJ_SAVE_TYPE(Translation);
-	RES_BASE_EXTENSION("translation");
+    OBJ_SAVE_TYPE(Translation)
+    RES_BASE_EXTENSION("translation")
 
 	String locale;
 	Map<StringName, StringName> translation_map;
@@ -58,7 +59,7 @@ public:
 	virtual StringName get_message(const StringName &p_src_text) const; //overridable for other implementations
 	void erase_message(const StringName &p_src_text);
 
-	void get_message_list(List<StringName> *r_messages) const;
+    void get_message_list(DefList<StringName> *r_messages) const;
 	int get_message_count() const;
 
 	Translation();
@@ -104,7 +105,7 @@ public:
 	static Vector<String> get_all_locales();
 	static Vector<String> get_all_locale_names();
 	static bool is_locale_valid(const String &p_locale);
-	static String standardize_locale(String p_locale);
+	static String standardize_locale(const String& p_locale);
 
 	void set_tool_translation(const Ref<Translation> &p_translation);
 	StringName tool_translate(const StringName &p_message) const;
@@ -117,5 +118,3 @@ public:
 
 	TranslationServer();
 };
-
-#endif // TRANSLATION_H

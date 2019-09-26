@@ -215,7 +215,7 @@ EMWSClient::EMWSClient() {
 	_in_buf_size = nearest_shift((int)GLOBAL_GET(WSC_IN_BUF) - 1) + 10;
 	_in_pkt_size = nearest_shift((int)GLOBAL_GET(WSC_IN_PKT) - 1);
 	_is_connecting = false;
-	_peer = Ref<EMWSPeer>(memnew(EMWSPeer));
+	_peer = make_ref_counted<EMWSPeer>();
 	/* clang-format off */
 	_js_id = EM_ASM_INT({
 		return Module.IDHandler.add($0);

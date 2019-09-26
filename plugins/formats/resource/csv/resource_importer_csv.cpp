@@ -69,10 +69,10 @@ String ResourceImporterCSV::get_preset_name(int p_idx) const {
     return "";
 }
 
-void ResourceImporterCSV::get_import_options(List<ImportOption> *r_options, int p_preset) const {
+void ResourceImporterCSV::get_import_options(ListPOD<ImportOption> *r_options, int p_preset) const {
 }
 
-Error ResourceImporterCSV::import(const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata) {
+Error ResourceImporterCSV::import(const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, DefList<String> *r_platform_variants, DefList<String> *r_gen_files, Variant *r_metadata) {
     return OK;
 }
 

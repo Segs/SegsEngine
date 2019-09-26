@@ -33,6 +33,9 @@
 #include "core/os/thread.h"
 #include "core/resource.h"
 #include "core/hashfuncs.h"
+#include "core/hash_map.h"
+#include "core/self_list.h"
+#include "core/ustring.h"
 
 //used to track paths being loaded in a thread, avoids cyclic recursion
 struct LoadingMapKey {
@@ -48,54 +51,8 @@ struct Hasher<LoadingMapKey> {
 };
 
 
-class ResourceInteractiveLoader : public Reference {
-
-    GDCLASS(ResourceInteractiveLoader, Reference);
-    friend class ResourceLoader;
-    String path_loading;
-    Thread::ID path_loading_thread;
-
-protected:
-    static void _bind_methods();
-
-public:
-    virtual void set_local_path(const String &p_local_path) = 0;
-    virtual Ref<Resource> get_resource() = 0;
-    virtual Error poll() = 0;
-    virtual int get_stage() const = 0;
-    virtual int get_stage_count() const = 0;
-    virtual void set_translation_remapped(bool p_remapped) = 0;
-    virtual Error wait();
-
-    ResourceInteractiveLoader() {}
-    ~ResourceInteractiveLoader() override;
-};
-
-class ResourceFormatLoader : public Reference {
-
-    GDCLASS(ResourceFormatLoader, Reference)
-
-protected:
-    static void _bind_methods();
-
-public:
-    virtual Ref<ResourceInteractiveLoader> load_interactive(const String &p_path, const String &p_original_path = String::null_val, Error *r_error = nullptr);
-    virtual Ref<Resource> load(const String &p_path, const String &p_original_path = String::null_val, Error *r_error = nullptr);
-    virtual bool exists(const String &p_path) const;
-    virtual void get_recognized_extensions(List<String> *p_extensions) const;
-    virtual void get_recognized_extensions_for_type(const String &p_type, List<String> *p_extensions) const;
-    virtual bool recognize_path(const String &p_path, const String &p_for_type = String()) const;
-    virtual bool handles_type(const String &p_type) const;
-    virtual String get_resource_type(const String &p_path) const;
-    virtual void get_dependencies(const String &p_path, List<String> *p_dependencies, bool p_add_types = false);
-    virtual Error rename_dependencies(const String &p_path, const Map<String, String> &p_map);
-    virtual bool is_import_valid(const String & /*p_path*/) const { return true; }
-    virtual bool is_imported(const String & /*p_path*/) const { return false; }
-    virtual int get_import_order(const String & /*p_path*/) const { return 0; }
-    virtual String get_import_group_file(const String & /*p_path*/) const { return String::null_val; } //no group
-
-    ~ResourceFormatLoader() override = default;
-};
+class ResourceFormatLoader;
+class ResourceInteractiveLoader;
 
 using ResourceLoadErrorNotify = void (*)(void *, const String &);
 using DependencyErrorNotify = void (*)(void *, const String &, const String &, const String &);
@@ -133,7 +90,7 @@ class ResourceLoader {
 
     static ResourceLoadedCallback _loaded_callback;
 
-    static Ref<ResourceFormatLoader> _find_custom_resource_format_loader(String path);
+    static Ref<ResourceFormatLoader> _find_custom_resource_format_loader(const String& path);
     static Mutex *loading_map_mutex;
 
     static HashMap<LoadingMapKey, int, Hasher<LoadingMapKey>> loading_map;
@@ -147,12 +104,12 @@ public:
     static RES load(const String &p_path, const String &p_type_hint = String::null_val, bool p_no_cache = false, Error *r_error = nullptr);
     static bool exists(const String &p_path, const String &p_type_hint = String::null_val);
 
-    static void get_recognized_extensions_for_type(const String &p_type, List<String> *p_extensions);
-    static void add_resource_format_loader(Ref<ResourceFormatLoader> p_format_loader, bool p_at_front = false);
-    static void remove_resource_format_loader(Ref<ResourceFormatLoader> p_format_loader);
+    static void get_recognized_extensions_for_type(const String &p_type, ListPOD<String> *p_extensions);
+    static void add_resource_format_loader(const Ref<ResourceFormatLoader>& p_format_loader, bool p_at_front = false);
+    static void remove_resource_format_loader(const Ref<ResourceFormatLoader>& p_format_loader);
     static String get_resource_type(const String &p_path);
-    static void get_dependencies(const String &p_path, List<String> *p_dependencies, bool p_add_types = false);
-    static Error rename_dependencies(const String &p_path, const Map<String, String> &p_map);
+    static void get_dependencies(const String &p_path, ListPOD<String> *p_dependencies, bool p_add_types = false);
+    static Error rename_dependencies(const String &p_path, const DefMap<String, String> &p_map);
     static bool is_import_valid(const String &p_path);
     static String get_import_group_file(const String &p_path);
     static bool is_imported(const String &p_path);
@@ -193,8 +150,8 @@ public:
     static void set_load_callback(ResourceLoadedCallback p_callback);
     static ResourceLoaderImport import;
 
-    static bool add_custom_resource_format_loader(String script_path);
-    static void remove_custom_resource_format_loader(String script_path);
+    static bool add_custom_resource_format_loader(const String& script_path);
+    static void remove_custom_resource_format_loader(const String& script_path);
     static void add_custom_loaders();
     static void remove_custom_loaders();
 

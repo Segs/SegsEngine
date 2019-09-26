@@ -84,7 +84,7 @@ class EditorAutoloadSettings : public VBoxContainer {
 	void _autoload_edited();
 	void _autoload_button_pressed(Object *p_item, int p_column, int p_button);
 	void _autoload_activated();
-	void _autoload_text_entered(String) { _autoload_add(); }
+    void _autoload_text_entered(const String &) { _autoload_add(); }
 	void _autoload_open(const String &fpath);
 	void _autoload_file_callback(const String &p_path);
 	Node *_create_autoload(const String &p_path);

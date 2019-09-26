@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  simple_type.h                                                        */
+/*  disjoint_set.h                                                       */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,27 +28,4 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef SIMPLE_TYPE_H
-#define SIMPLE_TYPE_H
-
-/* Batch of specializations to obtain the actual simple type */
-
-template <class T>
-struct GetSimpleTypeT {
-
-	using type_t = T;
-};
-
-template <class T>
-struct GetSimpleTypeT<T &> {
-
-	using type_t = T;
-};
-
-template <class T>
-struct GetSimpleTypeT<T const> {
-
-	using type_t = T;
-};
-
-#endif
+#include "disjoint_set.h"

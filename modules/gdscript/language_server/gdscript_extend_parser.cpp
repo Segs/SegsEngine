@@ -189,6 +189,7 @@ void ExtendGDScriptParser::parse_class_symbol(const GDScriptParser::ClassNode *p
 		lsp::DocumentSymbol symbol;
 		const GDScriptParser::ClassNode::Constant &c = E->value();
 		const GDScriptParser::ConstantNode *node = dynamic_cast<const GDScriptParser::ConstantNode *>(c.expression);
+		ERR_FAIL_COND(!node);
 		symbol.name = E->key();
 		symbol.kind = lsp::SymbolKind::Constant;
 		symbol.deprecated = false;
@@ -209,7 +210,7 @@ void ExtendGDScriptParser::parse_class_symbol(const GDScriptParser::ClassNode *p
 
 		String value_text;
 		if (node->value.get_type() == Variant::OBJECT) {
-			RES res = node->value;
+			RES res(node->value);
 			if (res.is_valid() && !res->get_path().empty()) {
 				value_text = "preload(\"" + res->get_path() + "\")";
 				if (symbol.documentation.empty()) {
@@ -344,15 +345,13 @@ String ExtendGDScriptParser::marked_documentation(const String &p_bbcode) {
 		if (block_start != -1) {
 			code_block_indent = block_start;
 			in_code_block = true;
-			line = "'''gdscript";
-			line = "\n";
+			line = "'''gdscript\n";
 		} else if (in_code_block) {
 			line = "\t" + line.substr(code_block_indent, line.length());
 		}
 
 		if (in_code_block && line.find("[/codeblock]") != -1) {
-			line = "'''\n";
-			line = "\n";
+			line = "'''\n\n";
 			in_code_block = false;
 		}
 
@@ -674,6 +673,7 @@ Dictionary ExtendGDScriptParser::dump_class_api(const GDScriptParser::ClassNode 
 
 		const GDScriptParser::ClassNode::Constant &c = E->value();
 		const GDScriptParser::ConstantNode *node = dynamic_cast<const GDScriptParser::ConstantNode *>(c.expression);
+		ERR_FAIL_COND_V(!node, class_api);
 
 		Dictionary api;
 		api["name"] = E->key();

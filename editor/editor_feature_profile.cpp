@@ -69,7 +69,7 @@ void EditorFeatureProfile::set_disable_class(const StringName &p_class, bool p_d
 }
 
 bool EditorFeatureProfile::is_class_disabled(const StringName &p_class) const {
-    return disabled_classes.has(p_class);
+    return disabled_classes.contains(p_class);
 }
 
 void EditorFeatureProfile::set_disable_class_editor(const StringName &p_class, bool p_disabled) {
@@ -81,19 +81,19 @@ void EditorFeatureProfile::set_disable_class_editor(const StringName &p_class, b
 }
 
 bool EditorFeatureProfile::is_class_editor_disabled(const StringName &p_class) const {
-    return disabled_editors.has(p_class);
+    return disabled_editors.contains(p_class);
 }
 
 void EditorFeatureProfile::set_disable_class_property(const StringName &p_class, const StringName &p_property, bool p_disabled) {
 
     if (p_disabled) {
-        if (!disabled_properties.has(p_class)) {
+        if (!disabled_properties.contains(p_class)) {
             disabled_properties[p_class] = Set<StringName>();
         }
 
         disabled_properties[p_class].insert(p_property);
     } else {
-        ERR_FAIL_COND(!disabled_properties.has(p_class));
+        ERR_FAIL_COND(!disabled_properties.contains(p_class))
         disabled_properties[p_class].erase(p_property);
         if (disabled_properties[p_class].empty()) {
             disabled_properties.erase(p_class);
@@ -102,11 +102,11 @@ void EditorFeatureProfile::set_disable_class_property(const StringName &p_class,
 }
 bool EditorFeatureProfile::is_class_property_disabled(const StringName &p_class, const StringName &p_property) const {
 
-    if (!disabled_properties.has(p_class)) {
+    if (!disabled_properties.contains(p_class)) {
         return false;
     }
 
-    if (!disabled_properties[p_class].has(p_property)) {
+    if (!disabled_properties.at(p_class).contains(p_property)) {
         return false;
     }
 
@@ -114,7 +114,7 @@ bool EditorFeatureProfile::is_class_property_disabled(const StringName &p_class,
 }
 
 bool EditorFeatureProfile::has_class_properties_disabled(const StringName &p_class) const {
-    return disabled_properties.has(p_class);
+    return disabled_properties.contains(p_class);
 }
 
 void EditorFeatureProfile::set_disable_feature(Feature p_feature, bool p_disable) {
@@ -137,24 +137,24 @@ Error EditorFeatureProfile::save_to_file(const String &p_path) {
     Dictionary json;
     json["type"] = "feature_profile";
     Array dis_classes;
-    for (Set<StringName>::Element *E = disabled_classes.front(); E; E = E->next()) {
-        dis_classes.push_back(String(E->get()));
+    for (const StringName &E : disabled_classes) {
+        dis_classes.push_back(String(E));
     }
     dis_classes.sort();
     json["disabled_classes"] = dis_classes;
 
     Array dis_editors;
-    for (Set<StringName>::Element *E = disabled_editors.front(); E; E = E->next()) {
-        dis_editors.push_back(String(E->get()));
+    for (const StringName &E : disabled_editors) {
+        dis_editors.push_back(String(E));
     }
     dis_editors.sort();
     json["disabled_editors"] = dis_editors;
 
     Array dis_props;
 
-    for (Map<StringName, Set<StringName> >::Element *E = disabled_properties.front(); E; E = E->next()) {
-        for (Set<StringName>::Element *F = E->get().front(); F; F = F->next()) {
-			dis_props.push_back(String(E->key()) + ":" + String(F->get()));
+    for (eastl::pair<const StringName,Set<StringName> > &E : disabled_properties) {
+        for (const StringName &F : E.second) {
+            dis_props.push_back(String(E.first) + ":" + String(F));
         }
     }
 
@@ -170,7 +170,7 @@ Error EditorFeatureProfile::save_to_file(const String &p_path) {
     json["disabled_features"] = dis_features;
 
     FileAccessRef f = FileAccess::open(p_path, FileAccess::WRITE);
-    ERR_FAIL_COND_V(!f, ERR_CANT_OPEN);
+    ERR_FAIL_COND_V(!f, ERR_CANT_OPEN)
 
     String text = JSON::print(json, "\t");
     f->store_string(text);
@@ -253,31 +253,31 @@ Error EditorFeatureProfile::load_from_file(const String &p_path) {
 
 void EditorFeatureProfile::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_disable_class", "class_name", "disable"), &EditorFeatureProfile::set_disable_class);
-    MethodBinder::bind_method(D_METHOD("is_class_disabled", "class_name"), &EditorFeatureProfile::is_class_disabled);
+    MethodBinder::bind_method(D_METHOD("set_disable_class", {"class_name", "disable"}), &EditorFeatureProfile::set_disable_class);
+    MethodBinder::bind_method(D_METHOD("is_class_disabled", {"class_name"}), &EditorFeatureProfile::is_class_disabled);
 
-    MethodBinder::bind_method(D_METHOD("set_disable_class_editor", "class_name", "disable"), &EditorFeatureProfile::set_disable_class_editor);
-    MethodBinder::bind_method(D_METHOD("is_class_editor_disabled", "class_name"), &EditorFeatureProfile::is_class_editor_disabled);
+    MethodBinder::bind_method(D_METHOD("set_disable_class_editor", {"class_name", "disable"}), &EditorFeatureProfile::set_disable_class_editor);
+    MethodBinder::bind_method(D_METHOD("is_class_editor_disabled", {"class_name"}), &EditorFeatureProfile::is_class_editor_disabled);
 
-    MethodBinder::bind_method(D_METHOD("set_disable_class_property", "class_name", "property"), &EditorFeatureProfile::set_disable_class_property);
-    MethodBinder::bind_method(D_METHOD("is_class_property_disabled", "class_name"), &EditorFeatureProfile::is_class_property_disabled);
+    MethodBinder::bind_method(D_METHOD("set_disable_class_property", {"class_name", "property"}), &EditorFeatureProfile::set_disable_class_property);
+    MethodBinder::bind_method(D_METHOD("is_class_property_disabled", {"class_name"}), &EditorFeatureProfile::is_class_property_disabled);
 
-    MethodBinder::bind_method(D_METHOD("set_disable_feature", "feature", "disable"), &EditorFeatureProfile::set_disable_feature);
-    MethodBinder::bind_method(D_METHOD("is_feature_disabled", "feature"), &EditorFeatureProfile::is_feature_disabled);
+    MethodBinder::bind_method(D_METHOD("set_disable_feature", {"feature", "disable"}), &EditorFeatureProfile::set_disable_feature);
+    MethodBinder::bind_method(D_METHOD("is_feature_disabled", {"feature"}), &EditorFeatureProfile::is_feature_disabled);
 
-    MethodBinder::bind_method(D_METHOD("get_feature_name", "feature"), &EditorFeatureProfile::_get_feature_name);
+    MethodBinder::bind_method(D_METHOD("get_feature_name", {"feature"}), &EditorFeatureProfile::_get_feature_name);
 
-    MethodBinder::bind_method(D_METHOD("save_to_file", "path"), &EditorFeatureProfile::save_to_file);
-    MethodBinder::bind_method(D_METHOD("load_from_file", "path"), &EditorFeatureProfile::load_from_file);
+    MethodBinder::bind_method(D_METHOD("save_to_file", {"path"}), &EditorFeatureProfile::save_to_file);
+    MethodBinder::bind_method(D_METHOD("load_from_file", {"path"}), &EditorFeatureProfile::load_from_file);
 
-    BIND_ENUM_CONSTANT(FEATURE_3D);
-    BIND_ENUM_CONSTANT(FEATURE_SCRIPT);
-    BIND_ENUM_CONSTANT(FEATURE_ASSET_LIB);
-    BIND_ENUM_CONSTANT(FEATURE_SCENE_TREE);
-    BIND_ENUM_CONSTANT(FEATURE_IMPORT_DOCK);
-    BIND_ENUM_CONSTANT(FEATURE_NODE_DOCK);
-    BIND_ENUM_CONSTANT(FEATURE_FILESYSTEM_DOCK);
-    BIND_ENUM_CONSTANT(FEATURE_MAX);
+    BIND_ENUM_CONSTANT(FEATURE_3D)
+    BIND_ENUM_CONSTANT(FEATURE_SCRIPT)
+    BIND_ENUM_CONSTANT(FEATURE_ASSET_LIB)
+    BIND_ENUM_CONSTANT(FEATURE_SCENE_TREE)
+    BIND_ENUM_CONSTANT(FEATURE_IMPORT_DOCK)
+    BIND_ENUM_CONSTANT(FEATURE_NODE_DOCK)
+    BIND_ENUM_CONSTANT(FEATURE_FILESYSTEM_DOCK)
+    BIND_ENUM_CONSTANT(FEATURE_MAX)
 }
 
 EditorFeatureProfile::EditorFeatureProfile() {
@@ -294,7 +294,7 @@ void EditorFeatureProfileManager::_notification(int p_what) {
 
         current_profile = EDITOR_GET("_default_feature_profile");
         if (!current_profile.empty()) {
-            current.instance();
+            current = make_ref_counted<EditorFeatureProfile>();
             Error err = current->load_from_file(PathUtils::plus_file(EditorSettings::get_singleton()->get_feature_profiles_dir(),current_profile + ".profile"));
             if (err != OK) {
                 ERR_PRINTS("Error loading default feature profile: " + current_profile);
@@ -331,7 +331,7 @@ void EditorFeatureProfileManager::_update_profile_list(const String &p_select_pr
 
     Vector<String> profiles;
     DirAccessRef d = DirAccess::open(EditorSettings::get_singleton()->get_feature_profiles_dir());
-    ERR_FAIL_COND(!d);
+    ERR_FAIL_COND(!d)
     d->list_dir_begin();
     while (true) {
         String f = d->get_next();
@@ -395,7 +395,7 @@ void EditorFeatureProfileManager::_profile_action(int p_action) {
         case PROFILE_SET: {
 
             String selected = _get_selected_profile();
-            ERR_FAIL_COND(selected.empty());
+            ERR_FAIL_COND(selected.empty())
             if (selected == current_profile) {
                 return; // Nothing to do here.
             }
@@ -425,7 +425,7 @@ void EditorFeatureProfileManager::_profile_action(int p_action) {
         case PROFILE_ERASE: {
 
             String selected = _get_selected_profile();
-            ERR_FAIL_COND(selected.empty());
+            ERR_FAIL_COND(selected.empty())
 
             erase_profile_dialog->set_text(vformat(TTR("Erase profile '%s'? (no undo)"), selected));
             erase_profile_dialog->popup_centered_minsize();
@@ -436,9 +436,9 @@ void EditorFeatureProfileManager::_profile_action(int p_action) {
 void EditorFeatureProfileManager::_erase_selected_profile() {
 
     String selected = _get_selected_profile();
-    ERR_FAIL_COND(selected.empty());
+    ERR_FAIL_COND(selected.empty())
     DirAccessRef da = DirAccess::open(EditorSettings::get_singleton()->get_feature_profiles_dir());
-    ERR_FAIL_COND(!da);
+    ERR_FAIL_COND(!da)
     da->remove(selected + ".profile");
     if (selected == current_profile) {
         _profile_action(PROFILE_CLEAR);
@@ -459,8 +459,7 @@ void EditorFeatureProfileManager::_create_new_profile() {
         return;
     }
 
-    Ref<EditorFeatureProfile> new_profile;
-    new_profile.instance();
+    Ref<EditorFeatureProfile> new_profile(make_ref_counted<EditorFeatureProfile>());
     new_profile->save_to_file(file);
 
     _update_profile_list(name);
@@ -505,12 +504,12 @@ void EditorFeatureProfileManager::_fill_classes_from(TreeItem *p_parent, const S
 
     class_item->set_checked(0, true); // if its not disabled, its checked
 
-    List<StringName> child_classes;
+    ListPOD<StringName> child_classes;
     ClassDB::get_direct_inheriters_from_class(p_class, &child_classes);
-    child_classes.sort_custom<WrapAlphaCompare>();
+    child_classes.sort(WrapAlphaCompare());
 
-    for (List<StringName>::Element *E = child_classes.front(); E; E = E->next()) {
-        String name = E->get();
+    for (const StringName &E : child_classes) {
+        String name = E;
         if (StringUtils::begins_with(name,"Editor") || ClassDB::get_api_type(name) != ClassDB::API_CORE) {
             continue;
         }
@@ -531,7 +530,7 @@ void EditorFeatureProfileManager::_class_list_item_selected() {
     }
 
     Variant md = item->get_metadata(0);
-    if (md.get_type() != Variant::STRING) {
+    if (md.get_type() != VariantType::STRING) {
         return;
     }
 
@@ -559,14 +558,14 @@ void EditorFeatureProfileManager::_class_list_item_selected() {
     TreeItem *properties = property_list->create_item(root);
     properties->set_text(0, TTR("Enabled Properties:"));
 
-    List<PropertyInfo> props;
+    ListPOD<PropertyInfo> props;
 
     ClassDB::get_property_list(class_name, &props, true);
 
-    for (List<PropertyInfo>::Element *E = props.front(); E; E = E->next()) {
+    for (const PropertyInfo &E : props) {
 
-        String name = E->get().name;
-        if (!(E->get().usage & PROPERTY_USAGE_EDITOR))
+        String name = E.name;
+        if (!(E.usage & PROPERTY_USAGE_EDITOR))
             continue;
         TreeItem *property = property_list->create_item(properties);
         property->set_cell_mode(0, TreeItem::CELL_MODE_CHECK);
@@ -575,7 +574,7 @@ void EditorFeatureProfileManager::_class_list_item_selected() {
         property->set_checked(0, !edited->is_class_property_disabled(class_name, name));
         property->set_text(0, StringUtils::capitalize(name));
         property->set_metadata(0, name);
-        String icon_type = Variant::get_type_name(E->get().type);
+        String icon_type = Variant::get_type_name(E.type);
         property->set_icon(0, EditorNode::get_singleton()->get_class_icon(icon_type));
     }
 
@@ -595,12 +594,12 @@ void EditorFeatureProfileManager::_class_list_item_edited() {
     bool checked = item->is_checked(0);
 
     Variant md = item->get_metadata(0);
-    if (md.get_type() == Variant::STRING) {
+    if (md.get_type() == VariantType::STRING) {
         String class_selected = md;
         edited->set_disable_class(class_selected, !checked);
         _save_and_update();
         _update_selected_profile();
-    } else if (md.get_type() == Variant::INT) {
+    } else if (md.get_type() == VariantType::INT) {
         int feature_selected = md;
         edited->set_disable_feature(EditorFeatureProfile::Feature(feature_selected), !checked);
         _save_and_update();
@@ -617,7 +616,7 @@ void EditorFeatureProfileManager::_property_item_edited() {
     }
 
     Variant md = class_item->get_metadata(0);
-    if (md.get_type() != Variant::STRING) {
+    if (md.get_type() != VariantType::STRING) {
         return;
     }
 
@@ -630,12 +629,12 @@ void EditorFeatureProfileManager::_property_item_edited() {
     bool checked = item->is_checked(0);
 
     md = item->get_metadata(0);
-    if (md.get_type() == Variant::STRING) {
+    if (md.get_type() == VariantType::STRING) {
         String property_selected = md;
         edited->set_disable_class_property(class_name, property_selected, !checked);
         _save_and_update();
         _update_selected_profile();
-    } else if (md.get_type() == Variant::INT) {
+    } else if (md.get_type() == VariantType::INT) {
         int feature_selected = md;
         switch (feature_selected) {
             case CLASS_OPTION_DISABLE_EDITOR: {
@@ -654,9 +653,9 @@ void EditorFeatureProfileManager::_update_selected_profile() {
 
     if (class_list->get_selected()) {
         Variant md = class_list->get_selected()->get_metadata(0);
-        if (md.get_type() == Variant::STRING) {
+        if (md.get_type() == VariantType::STRING) {
             class_selected = md;
-        } else if (md.get_type() == Variant::INT) {
+        } else if (md.get_type() == VariantType::INT) {
             feature_selected = md;
         }
     }
@@ -672,12 +671,12 @@ void EditorFeatureProfileManager::_update_selected_profile() {
 
     if (profile == current_profile) {
         edited = current; //reuse current profile (which is what editor uses)
-        ERR_FAIL_COND(current.is_null()); //nothing selected, current should never be null
+        ERR_FAIL_COND(not current) //nothing selected, current should never be null
     } else {
         //reload edited, if different from current
-        edited.instance();
+        edited = make_ref_counted<EditorFeatureProfile>();
         Error err = edited->load_from_file(PathUtils::plus_file(EditorSettings::get_singleton()->get_feature_profiles_dir(),profile + ".profile"));
-        ERR_FAIL_COND(err != OK);
+        ERR_FAIL_COND(err != OK)
     }
 
     updating_features = true;
@@ -718,8 +717,7 @@ void EditorFeatureProfileManager::_import_profiles(const Vector<String> &p_paths
 
     //test it first
     for (int i = 0; i < p_paths.size(); i++) {
-        Ref<EditorFeatureProfile> profile;
-        profile.instance();
+        Ref<EditorFeatureProfile> profile(make_ref_counted<EditorFeatureProfile>());
         Error err = profile->load_from_file(p_paths[i]);
         String basefile = PathUtils::get_file(p_paths[i]);
         if (err != OK) {
@@ -737,8 +735,7 @@ void EditorFeatureProfileManager::_import_profiles(const Vector<String> &p_paths
 
     //do it second
     for (int i = 0; i < p_paths.size(); i++) {
-        Ref<EditorFeatureProfile> profile;
-        profile.instance();
+        Ref<EditorFeatureProfile> profile(make_ref_counted<EditorFeatureProfile>());
         Error err = profile->load_from_file(p_paths[i]);
         ERR_CONTINUE(err != OK);
         String basefile = PathUtils::get_file(p_paths[i]);
@@ -751,7 +748,7 @@ void EditorFeatureProfileManager::_import_profiles(const Vector<String> &p_paths
 
 void EditorFeatureProfileManager::_export_profile(const String &p_path) {
 
-    ERR_FAIL_COND(edited.is_null());
+    ERR_FAIL_COND(not edited)
     Error err = edited->save_to_file(p_path);
     if (err != OK) {
         EditorNode::get_singleton()->show_warning(vformat(TTR("Error saving profile to path: '%s'."), p_path));
@@ -761,8 +758,8 @@ void EditorFeatureProfileManager::_export_profile(const String &p_path) {
 void EditorFeatureProfileManager::_save_and_update() {
 
     String edited_path = _get_selected_profile();
-    ERR_FAIL_COND(edited_path.empty());
-    ERR_FAIL_COND(edited.is_null());
+    ERR_FAIL_COND(edited_path.empty())
+    ERR_FAIL_COND(not edited)
 
     edited->save_to_file(PathUtils::plus_file(EditorSettings::get_singleton()->get_feature_profiles_dir(),edited_path + ".profile"));
 

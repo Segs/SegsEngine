@@ -71,7 +71,7 @@ target_include_directories(editor_interface INTERFACE ${CMAKE_CURRENT_BINARY_DIR
 target_compile_options(edit_tools PRIVATE
         $<$<CXX_COMPILER_ID:MSVC>:/W3>
         $<$<CXX_COMPILER_ID:Clang>:-Wall -Wextra -Wno-unused-parameter>
-        $<$<CXX_COMPILER_ID:GNU>:-Wall -Wextra -Wno-unused-parameter>
+        $<$<CXX_COMPILER_ID:GNU>:-Wall -Wextra -Wno-unused-parameter -Wno-deprecated-copy>
 )
 set_target_properties(edit_tools PROPERTIES AUTORCC_OPTIONS "--compress;7;--verbose")
 set_target_properties(edit_tools PROPERTIES AUTORCC ON)

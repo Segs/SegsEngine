@@ -35,7 +35,7 @@ IMPL_GDCLASS(TCP_Server)
 
 void TCP_Server::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("listen", "port", "bind_address"), &TCP_Server::listen, {DEFVAL("*")});
+    MethodBinder::bind_method(D_METHOD("listen", {"port", "bind_address"}), &TCP_Server::listen, {DEFVAL("*")});
     MethodBinder::bind_method(D_METHOD("is_connection_available"), &TCP_Server::is_connection_available);
     MethodBinder::bind_method(D_METHOD("is_listening"), &TCP_Server::is_listening);
     MethodBinder::bind_method(D_METHOD("take_connection"), &TCP_Server::take_connection);
@@ -44,7 +44,7 @@ void TCP_Server::_bind_methods() {
 
 Error TCP_Server::listen(uint16_t p_port, const IP_Address &p_bind_address) {
 
-    ERR_FAIL_COND_V(!_sock.is_valid(), ERR_UNAVAILABLE)
+    ERR_FAIL_COND_V(not _sock, ERR_UNAVAILABLE)
     ERR_FAIL_COND_V(_sock->is_open(), ERR_ALREADY_IN_USE)
     ERR_FAIL_COND_V(!p_bind_address.is_valid() && !p_bind_address.is_wildcard(), ERR_INVALID_PARAMETER)
 
@@ -80,14 +80,14 @@ Error TCP_Server::listen(uint16_t p_port, const IP_Address &p_bind_address) {
 }
 
 bool TCP_Server::is_listening() const {
-    ERR_FAIL_COND_V(!_sock.is_valid(), false);
+    ERR_FAIL_COND_V(not _sock, false)
 
     return _sock->is_open();
 }
 
 bool TCP_Server::is_connection_available() const {
 
-    ERR_FAIL_COND_V(!_sock.is_valid(), false);
+    ERR_FAIL_COND_V(not _sock, false)
 
     if (!_sock->is_open())
         return false;
@@ -107,17 +107,17 @@ Ref<StreamPeerTCP> TCP_Server::take_connection() {
     IP_Address ip;
     uint16_t port = 0;
     ns = _sock->accept(ip, port);
-    if (!ns.is_valid())
+    if (not ns)
         return conn;
 
-    conn = Ref<StreamPeerTCP>(memnew(StreamPeerTCP));
+    conn = make_ref_counted<StreamPeerTCP>();
     conn->accept_socket(ns, ip, port);
     return conn;
 }
 
 void TCP_Server::stop() {
 
-    if (_sock.is_valid()) {
+    if (_sock) {
         _sock->close();
     }
 }

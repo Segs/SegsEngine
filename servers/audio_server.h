@@ -96,7 +96,7 @@ public:
     virtual SpeakerMode get_speaker_mode() const = 0;
     virtual Array get_device_list();
     virtual String get_device();
-    virtual void set_device(String /*device*/) {}
+    virtual void set_device(const String &/*device*/) {}
     virtual void lock() = 0;
     virtual void unlock() = 0;
     virtual void finish() = 0;
@@ -371,7 +371,7 @@ public:
 
     Array get_device_list();
     String get_device();
-    void set_device(String device);
+    void set_device(const String& device);
 
     Error capture_start();
     Error capture_stop();
@@ -385,7 +385,7 @@ public:
     unsigned int get_capture_size();
 
     AudioServer();
-	~AudioServer() override;
+    ~AudioServer() override;
 };
 
 VARIANT_ENUM_CAST(AudioServer::SpeakerMode)
@@ -426,7 +426,7 @@ class AudioBusLayout : public Resource {
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(List<PropertyInfo> *p_list) const;
+    void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
 
 public:
     AudioBusLayout();

@@ -83,8 +83,8 @@ void ImageLoader::register_plugin_resolver()
     }
 }
 
-Error ImageLoader::load_image(String p_file, Ref<Image> p_image, FileAccess *p_custom, const LoadParams &params) {
-    ERR_FAIL_COND_V(p_image.is_null(), ERR_INVALID_PARAMETER)
+Error ImageLoader::load_image(const String& p_file, Ref<Image> p_image, FileAccess *p_custom, const LoadParams &params) {
+    ERR_FAIL_COND_V(not p_image, ERR_INVALID_PARAMETER)
 
     register_plugin_resolver();
 
@@ -258,14 +258,14 @@ RES ResourceFormatLoaderImage::load(const String &p_path, const String &p_origin
         *r_error = OK;
     }
 
-    Ref<Image> image;
-    image.instance();
+    Ref<Image> image(make_ref_counted<Image>());
+
     image->create(std::move(resdata));
 
     return image;
 }
 
-void ResourceFormatLoaderImage::get_recognized_extensions(List<String> *p_extensions) const {
+void ResourceFormatLoaderImage::get_recognized_extensions(ListPOD<String> *p_extensions) const {
 
     p_extensions->push_back("image");
 }

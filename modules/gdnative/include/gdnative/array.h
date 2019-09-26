@@ -42,7 +42,7 @@ extern "C" {
 #ifndef GODOT_CORE_API_GODOT_ARRAY_TYPE_DEFINED
 #define GODOT_CORE_API_GODOT_ARRAY_TYPE_DEFINED
 typedef struct {
-	uint8_t _dont_touch_that[GODOT_ARRAY_SIZE];
+    uint8_t _dont_touch_that[GODOT_ARRAY_SIZE];
 } godot_array;
 #endif
 
@@ -131,6 +131,8 @@ godot_int GDAPI godot_array_bsearch_custom(godot_array *p_self, const godot_vari
 void GDAPI godot_array_destroy(godot_array *p_self);
 
 godot_array GDAPI godot_array_duplicate(const godot_array *p_self, const godot_bool p_deep);
+
+godot_array GDAPI godot_array_slice(const godot_array *p_self, const godot_int p_begin, const godot_int p_end, const godot_int p_delta, const godot_bool p_deep);
 
 godot_variant GDAPI godot_array_max(const godot_array *p_self);
 

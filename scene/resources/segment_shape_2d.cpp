@@ -88,14 +88,14 @@ Rect2 SegmentShape2D::get_rect() const {
 
 void SegmentShape2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_a", "a"), &SegmentShape2D::set_a);
+    MethodBinder::bind_method(D_METHOD("set_a", {"a"}), &SegmentShape2D::set_a);
     MethodBinder::bind_method(D_METHOD("get_a"), &SegmentShape2D::get_a);
 
-    MethodBinder::bind_method(D_METHOD("set_b", "b"), &SegmentShape2D::set_b);
+    MethodBinder::bind_method(D_METHOD("set_b", {"b"}), &SegmentShape2D::set_b);
     MethodBinder::bind_method(D_METHOD("get_b"), &SegmentShape2D::get_b);
 
-    ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "a"), "set_a", "get_a");
-    ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "b"), "set_b", "get_b");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "a"), "set_a", "get_a");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "b"), "set_b", "get_b");
 }
 
 SegmentShape2D::SegmentShape2D() :
@@ -144,14 +144,14 @@ Rect2 RayShape2D::get_rect() const {
 
 void RayShape2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_length", "length"), &RayShape2D::set_length);
+    MethodBinder::bind_method(D_METHOD("set_length", {"length"}), &RayShape2D::set_length);
     MethodBinder::bind_method(D_METHOD("get_length"), &RayShape2D::get_length);
 
-    MethodBinder::bind_method(D_METHOD("set_slips_on_slope", "active"), &RayShape2D::set_slips_on_slope);
+    MethodBinder::bind_method(D_METHOD("set_slips_on_slope", {"active"}), &RayShape2D::set_slips_on_slope);
     MethodBinder::bind_method(D_METHOD("get_slips_on_slope"), &RayShape2D::get_slips_on_slope);
 
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "length"), "set_length", "get_length");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "slips_on_slope"), "set_slips_on_slope", "get_slips_on_slope");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "length"), "set_length", "get_length");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "slips_on_slope"), "set_slips_on_slope", "get_slips_on_slope");
 }
 
 void RayShape2D::set_length(real_t p_length) {

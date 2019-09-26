@@ -54,7 +54,7 @@ Size2 Tabs::get_minimum_size() const {
     for (int i = 0; i < tabs.size(); i++) {
 
         Ref<Texture> tex = tabs[i].icon;
-        if (tex.is_valid()) {
+        if (tex) {
             ms.height = MAX(ms.height, tex->get_size().height);
             if (!tabs[i].text.empty())
                 ms.width += get_constant("hseparation");
@@ -69,7 +69,7 @@ Size2 Tabs::get_minimum_size() const {
         else
             ms.width += tab_bg->get_minimum_size().width;
 
-        if (tabs[i].right_button.is_valid()) {
+        if (tabs[i].right_button) {
             Ref<Texture> rb = tabs[i].right_button;
             Size2 bms = rb->get_size();
             bms.width += get_constant("hseparation");
@@ -92,9 +92,9 @@ Size2 Tabs::get_minimum_size() const {
 
 void Tabs::_gui_input(const Ref<InputEvent> &p_event) {
 
-    Ref<InputEventMouseMotion> mm = p_event;
+    Ref<InputEventMouseMotion> mm = dynamic_ref_cast<InputEventMouseMotion>(p_event);
 
-    if (mm.is_valid()) {
+    if (mm) {
 
         Point2 pos = mm->get_position();
 
@@ -118,9 +118,9 @@ void Tabs::_gui_input(const Ref<InputEvent> &p_event) {
         return;
     }
 
-    Ref<InputEventMouseButton> mb = p_event;
+    Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_event);
 
-    if (mb.is_valid()) {
+    if (mb) {
 
         if (mb->is_pressed() && mb->get_button_index() == BUTTON_WHEEL_UP && !mb->get_command()) {
 
@@ -324,7 +324,7 @@ void Tabs::_notification(int p_what) {
 
                 Size2i sb_ms = sb->get_minimum_size();
                 Ref<Texture> icon = tabs[i].icon;
-                if (icon.is_valid()) {
+                if (icon) {
 
                     icon->draw(ci, Point2i(w, sb->get_margin(MARGIN_TOP) + ((sb_rect.size.y - sb_ms.y) - icon->get_height()) / 2));
                     if (!tabs[i].text.empty())
@@ -335,7 +335,7 @@ void Tabs::_notification(int p_what) {
 
                 w += tabs[i].size_text;
 
-                if (tabs[i].right_button.is_valid()) {
+                if (tabs[i].right_button) {
 
                     Ref<StyleBox> style = get_stylebox("button");
                     Ref<Texture> rb = tabs[i].right_button;
@@ -584,7 +584,7 @@ void Tabs::_update_cache() {
         if (min_width > 0 && mw > limit && i != current) {
             if (lsize > m_width) {
                 slen = m_width - (sb->get_margin(MARGIN_LEFT) + sb->get_margin(MARGIN_RIGHT));
-                if (tabs[i].icon.is_valid()) {
+                if (tabs[i].icon) {
                     slen -= tabs[i].icon->get_width();
                     slen -= get_constant("hseparation");
                 }
@@ -658,14 +658,14 @@ Variant Tabs::get_drag_data(const Point2 &p_point) {
 
     HBoxContainer *drag_preview = memnew(HBoxContainer);
 
-    if (!tabs[tab_over].icon.is_null()) {
+    if (tabs[tab_over].icon) {
         TextureRect *tf = memnew(TextureRect);
         tf->set_texture(tabs[tab_over].icon);
         drag_preview->add_child(tf);
     }
     Label *label = memnew(Label(tabs[tab_over].text));
     drag_preview->add_child(label);
-    if (!tabs[tab_over].right_button.is_null()) {
+    if (tabs[tab_over].right_button) {
         TextureRect *tf = memnew(TextureRect);
         tf->set_texture(tabs[tab_over].right_button);
         drag_preview->add_child(tf);
@@ -806,7 +806,7 @@ int Tabs::get_tab_width(int p_idx) const {
     int x = 0;
 
     Ref<Texture> tex = tabs[p_idx].icon;
-    if (tex.is_valid()) {
+    if (tex) {
         x += tex->get_width();
         if (!tabs[p_idx].text.empty())
             x += get_constant("hseparation");
@@ -821,7 +821,7 @@ int Tabs::get_tab_width(int p_idx) const {
     else
         x += tab_bg->get_minimum_size().width;
 
-    if (tabs[p_idx].right_button.is_valid()) {
+    if (tabs[p_idx].right_button) {
         Ref<Texture> rb = tabs[p_idx].right_button;
         x += rb->get_width();
         x += get_constant("hseparation");
@@ -956,57 +956,57 @@ void Tabs::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_gui_input"), &Tabs::_gui_input);
     MethodBinder::bind_method(D_METHOD("_update_hover"), &Tabs::_update_hover);
     MethodBinder::bind_method(D_METHOD("get_tab_count"), &Tabs::get_tab_count);
-    MethodBinder::bind_method(D_METHOD("set_current_tab", "tab_idx"), &Tabs::set_current_tab);
+    MethodBinder::bind_method(D_METHOD("set_current_tab", {"tab_idx"}), &Tabs::set_current_tab);
     MethodBinder::bind_method(D_METHOD("get_current_tab"), &Tabs::get_current_tab);
-    MethodBinder::bind_method(D_METHOD("set_tab_title", "tab_idx", "title"), &Tabs::set_tab_title);
-    MethodBinder::bind_method(D_METHOD("get_tab_title", "tab_idx"), &Tabs::get_tab_title);
-    MethodBinder::bind_method(D_METHOD("set_tab_icon", "tab_idx", "icon"), &Tabs::set_tab_icon);
-    MethodBinder::bind_method(D_METHOD("get_tab_icon", "tab_idx"), &Tabs::get_tab_icon);
-    MethodBinder::bind_method(D_METHOD("set_tab_disabled", "tab_idx", "disabled"), &Tabs::set_tab_disabled);
-    MethodBinder::bind_method(D_METHOD("get_tab_disabled", "tab_idx"), &Tabs::get_tab_disabled);
-    MethodBinder::bind_method(D_METHOD("remove_tab", "tab_idx"), &Tabs::remove_tab);
-    MethodBinder::bind_method(D_METHOD("add_tab", "title", "icon"), &Tabs::add_tab, {DEFVAL(""), DEFVAL(Ref<Texture>())});
-    MethodBinder::bind_method(D_METHOD("set_tab_align", "align"), &Tabs::set_tab_align);
+    MethodBinder::bind_method(D_METHOD("set_tab_title", {"tab_idx", "title"}), &Tabs::set_tab_title);
+    MethodBinder::bind_method(D_METHOD("get_tab_title", {"tab_idx"}), &Tabs::get_tab_title);
+    MethodBinder::bind_method(D_METHOD("set_tab_icon", {"tab_idx", "icon"}), &Tabs::set_tab_icon);
+    MethodBinder::bind_method(D_METHOD("get_tab_icon", {"tab_idx"}), &Tabs::get_tab_icon);
+    MethodBinder::bind_method(D_METHOD("set_tab_disabled", {"tab_idx", "disabled"}), &Tabs::set_tab_disabled);
+    MethodBinder::bind_method(D_METHOD("get_tab_disabled", {"tab_idx"}), &Tabs::get_tab_disabled);
+    MethodBinder::bind_method(D_METHOD("remove_tab", {"tab_idx"}), &Tabs::remove_tab);
+    MethodBinder::bind_method(D_METHOD("add_tab", {"title", "icon"}), &Tabs::add_tab, {DEFVAL(""), DEFVAL(Ref<Texture>())});
+    MethodBinder::bind_method(D_METHOD("set_tab_align", {"align"}), &Tabs::set_tab_align);
     MethodBinder::bind_method(D_METHOD("get_tab_align"), &Tabs::get_tab_align);
     MethodBinder::bind_method(D_METHOD("get_tab_offset"), &Tabs::get_tab_offset);
     MethodBinder::bind_method(D_METHOD("get_offset_buttons_visible"), &Tabs::get_offset_buttons_visible);
-    MethodBinder::bind_method(D_METHOD("ensure_tab_visible", "idx"), &Tabs::ensure_tab_visible);
-    MethodBinder::bind_method(D_METHOD("get_tab_rect", "tab_idx"), &Tabs::get_tab_rect);
-    MethodBinder::bind_method(D_METHOD("move_tab", "from", "to"), &Tabs::move_tab);
-    MethodBinder::bind_method(D_METHOD("set_tab_close_display_policy", "policy"), &Tabs::set_tab_close_display_policy);
+    MethodBinder::bind_method(D_METHOD("ensure_tab_visible", {"idx"}), &Tabs::ensure_tab_visible);
+    MethodBinder::bind_method(D_METHOD("get_tab_rect", {"tab_idx"}), &Tabs::get_tab_rect);
+    MethodBinder::bind_method(D_METHOD("move_tab", {"from", "to"}), &Tabs::move_tab);
+    MethodBinder::bind_method(D_METHOD("set_tab_close_display_policy", {"policy"}), &Tabs::set_tab_close_display_policy);
     MethodBinder::bind_method(D_METHOD("get_tab_close_display_policy"), &Tabs::get_tab_close_display_policy);
-    MethodBinder::bind_method(D_METHOD("set_scrolling_enabled", "enabled"), &Tabs::set_scrolling_enabled);
+    MethodBinder::bind_method(D_METHOD("set_scrolling_enabled", {"enabled"}), &Tabs::set_scrolling_enabled);
     MethodBinder::bind_method(D_METHOD("get_scrolling_enabled"), &Tabs::get_scrolling_enabled);
-    MethodBinder::bind_method(D_METHOD("set_drag_to_rearrange_enabled", "enabled"), &Tabs::set_drag_to_rearrange_enabled);
+    MethodBinder::bind_method(D_METHOD("set_drag_to_rearrange_enabled", {"enabled"}), &Tabs::set_drag_to_rearrange_enabled);
     MethodBinder::bind_method(D_METHOD("get_drag_to_rearrange_enabled"), &Tabs::get_drag_to_rearrange_enabled);
-    MethodBinder::bind_method(D_METHOD("set_tabs_rearrange_group", "group_id"), &Tabs::set_tabs_rearrange_group);
+    MethodBinder::bind_method(D_METHOD("set_tabs_rearrange_group", {"group_id"}), &Tabs::set_tabs_rearrange_group);
     MethodBinder::bind_method(D_METHOD("get_tabs_rearrange_group"), &Tabs::get_tabs_rearrange_group);
 
-    MethodBinder::bind_method(D_METHOD("set_select_with_rmb", "enabled"), &Tabs::set_select_with_rmb);
+    MethodBinder::bind_method(D_METHOD("set_select_with_rmb", {"enabled"}), &Tabs::set_select_with_rmb);
     MethodBinder::bind_method(D_METHOD("get_select_with_rmb"), &Tabs::get_select_with_rmb);
 
-    ADD_SIGNAL(MethodInfo("tab_changed", PropertyInfo(Variant::INT, "tab")));
-    ADD_SIGNAL(MethodInfo("right_button_pressed", PropertyInfo(Variant::INT, "tab")));
-    ADD_SIGNAL(MethodInfo("tab_close", PropertyInfo(Variant::INT, "tab")));
-    ADD_SIGNAL(MethodInfo("tab_hover", PropertyInfo(Variant::INT, "tab")));
-    ADD_SIGNAL(MethodInfo("reposition_active_tab_request", PropertyInfo(Variant::INT, "idx_to")));
-    ADD_SIGNAL(MethodInfo("tab_clicked", PropertyInfo(Variant::INT, "tab")));
+    ADD_SIGNAL(MethodInfo("tab_changed", PropertyInfo(VariantType::INT, "tab")));
+    ADD_SIGNAL(MethodInfo("right_button_pressed", PropertyInfo(VariantType::INT, "tab")));
+    ADD_SIGNAL(MethodInfo("tab_close", PropertyInfo(VariantType::INT, "tab")));
+    ADD_SIGNAL(MethodInfo("tab_hover", PropertyInfo(VariantType::INT, "tab")));
+    ADD_SIGNAL(MethodInfo("reposition_active_tab_request", PropertyInfo(VariantType::INT, "idx_to")));
+    ADD_SIGNAL(MethodInfo("tab_clicked", PropertyInfo(VariantType::INT, "tab")));
 
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "current_tab", PROPERTY_HINT_RANGE, "-1,4096,1", PROPERTY_USAGE_EDITOR), "set_current_tab", "get_current_tab");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "tab_align", PROPERTY_HINT_ENUM, "Left,Center,Right"), "set_tab_align", "get_tab_align");
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "tab_close_display_policy", PROPERTY_HINT_ENUM, "Show Never,Show Active Only,Show Always"), "set_tab_close_display_policy", "get_tab_close_display_policy");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "scrolling_enabled"), "set_scrolling_enabled", "get_scrolling_enabled");
-    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "drag_to_rearrange_enabled"), "set_drag_to_rearrange_enabled", "get_drag_to_rearrange_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "current_tab", PROPERTY_HINT_RANGE, "-1,4096,1", PROPERTY_USAGE_EDITOR), "set_current_tab", "get_current_tab");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "tab_align", PROPERTY_HINT_ENUM, "Left,Center,Right"), "set_tab_align", "get_tab_align");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "tab_close_display_policy", PROPERTY_HINT_ENUM, "Show Never,Show Active Only,Show Always"), "set_tab_close_display_policy", "get_tab_close_display_policy");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "scrolling_enabled"), "set_scrolling_enabled", "get_scrolling_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "drag_to_rearrange_enabled"), "set_drag_to_rearrange_enabled", "get_drag_to_rearrange_enabled");
 
-    BIND_ENUM_CONSTANT(ALIGN_LEFT);
-    BIND_ENUM_CONSTANT(ALIGN_CENTER);
-    BIND_ENUM_CONSTANT(ALIGN_RIGHT);
-    BIND_ENUM_CONSTANT(ALIGN_MAX);
+    BIND_ENUM_CONSTANT(ALIGN_LEFT)
+    BIND_ENUM_CONSTANT(ALIGN_CENTER)
+    BIND_ENUM_CONSTANT(ALIGN_RIGHT)
+    BIND_ENUM_CONSTANT(ALIGN_MAX)
 
-    BIND_ENUM_CONSTANT(CLOSE_BUTTON_SHOW_NEVER);
-    BIND_ENUM_CONSTANT(CLOSE_BUTTON_SHOW_ACTIVE_ONLY);
-    BIND_ENUM_CONSTANT(CLOSE_BUTTON_SHOW_ALWAYS);
-    BIND_ENUM_CONSTANT(CLOSE_BUTTON_MAX);
+    BIND_ENUM_CONSTANT(CLOSE_BUTTON_SHOW_NEVER)
+    BIND_ENUM_CONSTANT(CLOSE_BUTTON_SHOW_ACTIVE_ONLY)
+    BIND_ENUM_CONSTANT(CLOSE_BUTTON_SHOW_ALWAYS)
+    BIND_ENUM_CONSTANT(CLOSE_BUTTON_MAX)
 }
 
 Tabs::Tabs() {

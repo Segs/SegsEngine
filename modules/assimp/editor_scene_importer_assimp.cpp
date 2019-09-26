@@ -67,20 +67,20 @@ void EditorSceneImporterAssimp::get_extensions(Vector<String> *r_extensions) con
         Vector<String> exts;
         exts.push_back("fbx");
         ImportFormat import = { exts, true };
-        import_format.insert("fbx", import);
+        import_format.emplace("fbx", import);
     }
     {
         Vector<String> exts;
         exts.push_back("pmx");
         ImportFormat import = { exts, true };
-        import_format.insert("mmd", import);
+        import_format.emplace("mmd", import);
     }
-    for (Map<String, ImportFormat>::Element *E = import_format.front(); E; E = E->next()) {
-        _register_project_setting_import(E->key(), import_setting_string, E->get().extensions, r_extensions, E->get().is_default);
+    for (eastl::pair<const String,ImportFormat> &E : import_format) {
+        _register_project_setting_import(E.first, import_setting_string, E.second.extensions, r_extensions, E.second.is_default);
     }
 }
 
-void EditorSceneImporterAssimp::_register_project_setting_import(const String generic, const String import_setting_string, const Vector<String> &exts, Vector<String> *r_extensions, const bool p_enabled) const {
+void EditorSceneImporterAssimp::_register_project_setting_import(const String& generic, const String& import_setting_string, const Vector<String> &exts, Vector<String> *r_extensions, const bool p_enabled) const {
     const String use_generic = "use_" + generic;
     _GLOBAL_DEF(import_setting_string + use_generic, p_enabled, true);
     if (ProjectSettings::get_singleton()->get(import_setting_string + use_generic)) {
@@ -139,7 +139,7 @@ Node *EditorSceneImporterAssimp::import_scene(const String &p_path, uint32_t p_f
                                  0;
     aiScene *scene = (aiScene *)importer.ReadFile(s_path.c_str(), post_process_Steps);
     ERR_EXPLAIN(String("Open Asset Import failed to open: ") + String(importer.GetErrorString()))
-    ERR_FAIL_COND_V(scene == nullptr, nullptr);
+    ERR_FAIL_COND_V(scene == nullptr, nullptr)
     return _generate_scene(p_path, scene, p_flags, p_bake_fps, max_bone_weights);
 }
 
@@ -182,22 +182,22 @@ template <>
 struct EditorSceneImporterAssetImportInterpolate<Quat> {
 
     Quat lerp(const Quat &a, const Quat &b, float c) const {
-        ERR_FAIL_COND_V(!a.is_normalized(), Quat());
-        ERR_FAIL_COND_V(!b.is_normalized(), Quat());
+        ERR_FAIL_COND_V(!a.is_normalized(), Quat())
+        ERR_FAIL_COND_V(!b.is_normalized(), Quat())
 
         return a.slerp(b, c).normalized();
     }
 
     Quat catmull_rom(const Quat &p0, const Quat &p1, const Quat &p2, const Quat &p3, float c) {
-        ERR_FAIL_COND_V(!p1.is_normalized(), Quat());
-        ERR_FAIL_COND_V(!p2.is_normalized(), Quat());
+        ERR_FAIL_COND_V(!p1.is_normalized(), Quat())
+        ERR_FAIL_COND_V(!p2.is_normalized(), Quat())
 
         return p1.slerp(p2, c).normalized();
     }
 
     Quat bezier(Quat start, Quat control_1, Quat control_2, Quat end, float t) {
-        ERR_FAIL_COND_V(!start.is_normalized(), Quat());
-        ERR_FAIL_COND_V(!end.is_normalized(), Quat());
+        ERR_FAIL_COND_V(!start.is_normalized(), Quat())
+        ERR_FAIL_COND_V(!end.is_normalized(), Quat())
 
         return start.slerp(end, t).normalized();
     }
@@ -277,7 +277,7 @@ T EditorSceneImporterAssimp::_interpolate_track(const Vector<float> &p_times, co
 }
 
 Spatial *EditorSceneImporterAssimp::_generate_scene(const String &p_path, aiScene *scene, const uint32_t p_flags, int p_bake_fps, const int32_t p_max_bone_weights) {
-    ERR_FAIL_COND_V(scene == nullptr, nullptr);
+    ERR_FAIL_COND_V(scene == nullptr, nullptr)
 
     ImportState state;
     state.path = p_path;
@@ -310,8 +310,8 @@ Spatial *EditorSceneImporterAssimp::_generate_scene(const String &p_path, aiScen
         }
 
         // finalize skeleton
-        for (Map<Skeleton *, const Spatial *>::Element *key_value_pair = state.armature_skeletons.front(); key_value_pair; key_value_pair = key_value_pair->next()) {
-            Skeleton *skeleton = key_value_pair->key();
+        for (eastl::pair<Skeleton *,const Spatial *> key_value_pair : state.armature_skeletons) {
+            Skeleton *skeleton = key_value_pair.first;
             // convert world to local for skeleton bone rests
             skeleton->localize_rests();
         }
@@ -450,8 +450,7 @@ void EditorSceneImporterAssimp::_import_animation(ImportState &state, int p_anim
         ticks_per_second = 25.0f;
     }
 
-    Ref<Animation> animation;
-    animation.instance();
+    Ref<Animation> animation(make_ref_counted<Animation>());
     animation->set_name(name);
     animation->set_length(anim->mDuration / ticks_per_second);
 
@@ -464,8 +463,8 @@ void EditorSceneImporterAssimp::_import_animation(ImportState &state, int p_anim
             continue; //do not bother
         }
 
-        for (Map<Skeleton *, const Spatial *>::Element *key_value_pair = state.armature_skeletons.front(); key_value_pair; key_value_pair = key_value_pair->next()) {
-            Skeleton *skeleton = key_value_pair->key();
+        for (eastl::pair<Skeleton *,const Spatial *> key_value_pair : state.armature_skeletons) {
+            Skeleton *skeleton = key_value_pair.first;
 
             bool is_bone = skeleton->find_bone(node_name) != -1;
             //print_verbose("Bone " + node_name + " is bone? " + (is_bone ? "Yes" : "No"));
@@ -476,7 +475,7 @@ void EditorSceneImporterAssimp::_import_animation(ImportState &state, int p_anim
             path += ":" + node_name;
             node_path = NodePath(path);
         } else {
-            ERR_CONTINUE(!state.node_map.has(node_name))
+            ERR_CONTINUE(!state.node_map.contains(node_name))
             Node *node = state.node_map[node_name];
             node_path = state.root->get_path_to(node);
         }
@@ -496,7 +495,7 @@ void EditorSceneImporterAssimp::_import_animation(ImportState &state, int p_anim
 
         ERR_CONTINUE(StringUtils::split(prop_name,"*").size() != 2)
 
-        ERR_CONTINUE(!state.node_map.has(mesh_name))
+        ERR_CONTINUE(!state.node_map.contains(mesh_name))
 
         const MeshInstance *mesh_instance = Object::cast_to<MeshInstance>(state.node_map[mesh_name]);
 
@@ -505,7 +504,7 @@ void EditorSceneImporterAssimp::_import_animation(ImportState &state, int p_anim
         String base_path = (String)state.root->get_path_to(mesh_instance);
 
         Ref<Mesh> mesh = mesh_instance->get_mesh();
-        ERR_CONTINUE(mesh.is_null());
+        ERR_CONTINUE(not mesh);
 
         //add the tracks for this mesh
         int base_track = animation->get_track_count();
@@ -532,7 +531,7 @@ void EditorSceneImporterAssimp::_import_animation(ImportState &state, int p_anim
 }
 
 //
-// Mesh Generation from indicies ? why do we need so much mesh code
+// Mesh Generation from indices ? why do we need so much mesh code
 // [debt needs looked into]
 Ref<Mesh> EditorSceneImporterAssimp::_generate_mesh_from_surface_indices(
         ImportState &state,
@@ -540,10 +539,27 @@ Ref<Mesh> EditorSceneImporterAssimp::_generate_mesh_from_surface_indices(
         const aiNode *assimp_node,
         Skeleton *p_skeleton) {
 
-    Ref<ArrayMesh> mesh;
-    mesh.instance();
+    Ref<ArrayMesh> mesh(make_ref_counted<ArrayMesh>());
     bool has_uvs = false;
 
+    Map<String, uint32_t> morph_mesh_string_lookup;
+
+    for (int i = 0; i < p_surface_indices.size(); i++) {
+        const unsigned int mesh_idx = p_surface_indices[0];
+        const aiMesh *ai_mesh = state.assimp_scene->mMeshes[mesh_idx];
+        for (size_t j = 0; j < ai_mesh->mNumAnimMeshes; j++) {
+
+            String ai_anim_mesh_name = AssimpUtils::get_assimp_string(ai_mesh->mAnimMeshes[j]->mName);
+            if (!morph_mesh_string_lookup.contains(ai_anim_mesh_name)) {
+                morph_mesh_string_lookup.emplace(ai_anim_mesh_name, j);
+                mesh->set_blend_shape_mode(Mesh::BLEND_SHAPE_MODE_NORMALIZED);
+                if (ai_anim_mesh_name.empty()) {
+                    ai_anim_mesh_name = String("morph_") + itos(j);
+                }
+                mesh->add_blend_shape(ai_anim_mesh_name);
+            }
+        }
+    }
     //
     // Process Vertex Weights
     //
@@ -570,7 +586,7 @@ Ref<Mesh> EditorSceneImporterAssimp::_generate_mesh_from_surface_indices(
                     bi.bone = bone_index;
                     bi.weight = ai_weights.mWeight;
 
-                    if (!vertex_weights.has(vertex_index)) {
+                    if (!vertex_weights.contains(vertex_index)) {
                         vertex_weights[vertex_index] = Vector<BoneInfo>();
                     }
 
@@ -582,8 +598,7 @@ Ref<Mesh> EditorSceneImporterAssimp::_generate_mesh_from_surface_indices(
         // Create mesh from data from assimp
         //
 
-        Ref<SurfaceTool> st;
-        st.instance();
+        Ref<SurfaceTool> st(make_ref_counted<SurfaceTool>());
         st->begin(Mesh::PRIMITIVE_TRIANGLES);
 
         for (size_t j = 0; j < ai_mesh->mNumVertices; j++) {
@@ -617,7 +632,7 @@ Ref<Mesh> EditorSceneImporterAssimp::_generate_mesh_from_surface_indices(
             }
 
             // We have vertex weights right?
-            if (vertex_weights.has(j)) {
+            if (vertex_weights.contains(j)) {
 
                 Vector<BoneInfo> bone_info = vertex_weights[j];
                 Vector<int> bones;
@@ -653,8 +668,7 @@ Ref<Mesh> EditorSceneImporterAssimp::_generate_mesh_from_surface_indices(
         }
 
         aiMaterial *ai_material = state.assimp_scene->mMaterials[ai_mesh->mMaterialIndex];
-        Ref<SpatialMaterial> mat;
-        mat.instance();
+        Ref<SpatialMaterial> mat(make_ref_counted<SpatialMaterial>());
 
         int32_t mat_two_sided = 0;
         if (AI_SUCCESS == ai_material->Get(AI_MATKEY_TWOSIDED, mat_two_sided)) {
@@ -675,6 +689,24 @@ Ref<Mesh> EditorSceneImporterAssimp::_generate_mesh_from_surface_indices(
         mat->set_cull_mode(SpatialMaterial::CULL_BACK);
 
         // Now process materials
+        aiTextureType base_color = aiTextureType_BASE_COLOR;
+        {
+            String filename, path;
+            AssimpImageData image_data;
+
+            if (AssimpUtils::GetAssimpTexture(state, ai_material, base_color, filename, path, image_data)) {
+                AssimpUtils::set_texture_mapping_mode(image_data.map_mode, image_data.texture);
+
+                // anything transparent must be culled
+                if (image_data.raw_image->detect_alpha() != Image::ALPHA_NONE) {
+                    mat->set_feature(SpatialMaterial::FEATURE_TRANSPARENT, true);
+                    mat->set_depth_draw_mode(SpatialMaterial::DepthDrawMode::DEPTH_DRAW_ALPHA_OPAQUE_PREPASS);
+                    mat->set_cull_mode(SpatialMaterial::CULL_DISABLED); // since you can see both sides in transparent mode
+                }
+
+                mat->set_texture(SpatialMaterial::TEXTURE_ALBEDO, image_data.texture);
+            }
+        }
         aiTextureType tex_diffuse = aiTextureType_DIFFUSE;
         {
             String filename, path;
@@ -726,6 +758,60 @@ Ref<Mesh> EditorSceneImporterAssimp::_generate_mesh_from_surface_indices(
             }
         }
 
+        aiTextureType tex_normal_camera = aiTextureType_NORMAL_CAMERA;
+        {
+            String filename, path;
+            Ref<ImageTexture> texture;
+            AssimpImageData image_data;
+
+            // Process texture normal map
+            if (AssimpUtils::GetAssimpTexture(state, ai_material, tex_normal_camera, filename, path, image_data)) {
+                AssimpUtils::set_texture_mapping_mode(image_data.map_mode, image_data.texture);
+                mat->set_feature(SpatialMaterial::Feature::FEATURE_NORMAL_MAPPING, true);
+                mat->set_texture(SpatialMaterial::TEXTURE_NORMAL, image_data.texture);
+            }
+        }
+
+        aiTextureType tex_emission_color = aiTextureType_EMISSION_COLOR;
+        {
+            String filename, path;
+            Ref<ImageTexture> texture;
+            AssimpImageData image_data;
+
+            // Process texture normal map
+            if (AssimpUtils::GetAssimpTexture(state, ai_material, tex_emission_color, filename, path, image_data)) {
+                AssimpUtils::set_texture_mapping_mode(image_data.map_mode, image_data.texture);
+                mat->set_feature(SpatialMaterial::Feature::FEATURE_NORMAL_MAPPING, true);
+                mat->set_texture(SpatialMaterial::TEXTURE_NORMAL, image_data.texture);
+            }
+        }
+
+        aiTextureType tex_metalness = aiTextureType_METALNESS;
+        {
+            String filename, path;
+            Ref<ImageTexture> texture;
+            AssimpImageData image_data;
+
+            // Process texture normal map
+            if (AssimpUtils::GetAssimpTexture(state, ai_material, tex_metalness, filename, path, image_data)) {
+                AssimpUtils::set_texture_mapping_mode(image_data.map_mode, image_data.texture);
+                mat->set_texture(SpatialMaterial::TEXTURE_METALLIC, image_data.texture);
+            }
+        }
+
+        aiTextureType tex_roughness = aiTextureType_DIFFUSE_ROUGHNESS;
+        {
+            String filename, path;
+            Ref<ImageTexture> texture;
+            AssimpImageData image_data;
+
+            // Process texture normal map
+            if (AssimpUtils::GetAssimpTexture(state, ai_material, tex_roughness, filename, path, image_data)) {
+                AssimpUtils::set_texture_mapping_mode(image_data.map_mode, image_data.texture);
+                mat->set_texture(SpatialMaterial::TEXTURE_ROUGHNESS, image_data.texture);
+            }
+        }
+
         aiTextureType tex_emissive = aiTextureType_EMISSIVE;
         {
             String filename = "";
@@ -767,16 +853,17 @@ Ref<Mesh> EditorSceneImporterAssimp::_generate_mesh_from_surface_indices(
             }
         }
 
-        aiTextureType tex_roughness = aiTextureType_SHININESS;
+        aiTextureType tex_ao_map = aiTextureType_AMBIENT_OCCLUSION;
         {
             String filename, path;
             Ref<ImageTexture> texture;
             AssimpImageData image_data;
 
             // Process texture normal map
-            if (AssimpUtils::GetAssimpTexture(state, ai_material, tex_roughness, filename, path, image_data)) {
+            if (AssimpUtils::GetAssimpTexture(state, ai_material, tex_ao_map, filename, path, image_data)) {
                 AssimpUtils::set_texture_mapping_mode(image_data.map_mode, image_data.texture);
-                mat->set_texture(SpatialMaterial::TEXTURE_ROUGHNESS, image_data.texture);
+                mat->set_feature(SpatialMaterial::FEATURE_AMBIENT_OCCLUSION, true);
+                mat->set_texture(SpatialMaterial::TEXTURE_AMBIENT_OCCLUSION, image_data.texture);
             }
         }
 
@@ -784,16 +871,12 @@ Ref<Mesh> EditorSceneImporterAssimp::_generate_mesh_from_surface_indices(
         Array morphs;
         morphs.resize(ai_mesh->mNumAnimMeshes);
         Mesh::PrimitiveType primitive = Mesh::PRIMITIVE_TRIANGLES;
-        Map<uint32_t, String> morph_mesh_idx_names;
         for (size_t j = 0; j < ai_mesh->mNumAnimMeshes; j++) {
 
             String ai_anim_mesh_name = AssimpUtils::get_assimp_string(ai_mesh->mAnimMeshes[j]->mName);
-                mesh->set_blend_shape_mode(Mesh::BLEND_SHAPE_MODE_NORMALIZED);
                 if (ai_anim_mesh_name.empty()) {
                     ai_anim_mesh_name = String("morph_") + itos(j);
                 }
-                mesh->add_blend_shape(ai_anim_mesh_name);
-            morph_mesh_idx_names.insert(j, ai_anim_mesh_name);
 
             Array array_copy;
             array_copy.resize(VisualServer::ARRAY_MAX);
@@ -890,7 +973,7 @@ Ref<Mesh> EditorSceneImporterAssimp::_generate_mesh_from_surface_indices(
 }
 
 /* to be moved into assimp */
-aiBone *get_bone_by_name(const aiScene *scene, aiString bone_name) {
+aiBone *get_bone_by_name(const aiScene *scene, const aiString& bone_name) {
     for (unsigned int mesh_id = 0; mesh_id < scene->mNumMeshes; ++mesh_id) {
         aiMesh *mesh = scene->mMeshes[mesh_id];
 
@@ -927,11 +1010,11 @@ void EditorSceneImporterAssimp::create_mesh(ImportState &state, const aiNode *as
             // we only need the first bone to retrieve the skeleton
             const aiBone *first = ai_mesh->mBones[0];
 
-            ERR_FAIL_COND(first == nullptr);
+            ERR_FAIL_COND(first == nullptr)
 
-            Map<const aiBone *, Skeleton *>::Element *match = state.bone_to_skeleton_lookup.find(first);
-            if (match != nullptr) {
-                skeleton = match->value();
+            Map<const aiBone *, Skeleton *>::iterator match = state.bone_to_skeleton_lookup.find(first);
+            if (match != state.bone_to_skeleton_lookup.end()) {
+                skeleton = match->second;
 
                 if (skeleton == nullptr) {
                     print_error("failed to find bone skeleton for bone: " + AssimpUtils::get_assimp_string(first->mName));
@@ -939,7 +1022,7 @@ void EditorSceneImporterAssimp::create_mesh(ImportState &state, const aiNode *as
                     print_verbose("successfully found skeleton for first bone on mesh, can properly handle animations now!");
                         }
                 // I really need the skeleton and bone to be known as this is something flaky in model exporters.
-                ERR_FAIL_COND(skeleton == nullptr); // should not happen if bone was successfully created in previous step.
+                ERR_FAIL_COND(skeleton == nullptr) // should not happen if bone was successfully created in previous step.
                     }
                 }
         surface_indices.push_back(mesh_index);
@@ -953,7 +1036,7 @@ void EditorSceneImporterAssimp::create_mesh(ImportState &state, const aiNode *as
                 mesh_key += itos(surface_indices[i]);
             }
 
-            if (!state.mesh_cache.has(mesh_key)) {
+            if (!state.mesh_cache.contains(mesh_key)) {
         mesh = _generate_mesh_from_surface_indices(state, surface_indices, assimp_node, skeleton);
         state.mesh_cache[mesh_key] = mesh;
                 }
@@ -964,9 +1047,9 @@ void EditorSceneImporterAssimp::create_mesh(ImportState &state, const aiNode *as
     if (skeleton != nullptr) {
         print_verbose("Applying mesh and skeleton to armature");
         // required for blender, maya etc
-        Map<Skeleton *, const Spatial *>::Element *match = state.armature_skeletons.find(skeleton);
-        node_transform = match->value()->get_transform();
-            }
+        Map<Skeleton *, const Spatial *>::iterator match = state.armature_skeletons.find(skeleton);
+        node_transform = match->second->get_transform();
+    }
 
     MeshInstance *mesh_node = memnew(MeshInstance);
             mesh = state.mesh_cache[mesh_key];
@@ -1001,13 +1084,13 @@ void EditorSceneImporterAssimp::generate_mesh_phase_from_skeletal_mesh(ImportSta
     // prevent more than one skeleton existing per mesh
     // * multiple root bones have this
     // * this simply filters the node out if it has already been added then references the skeleton so we know the actual skeleton for this node
-    for (Map<const aiNode *, const Node *>::Element *key_value_pair = state.assimp_node_map.front(); key_value_pair; key_value_pair = key_value_pair->next()) {
-        const aiNode *assimp_node = key_value_pair->key();
-        Node *current_node = (Node *)key_value_pair->value();
+    for (const eastl::pair<const aiNode *,const Node *> &key_value_pair : state.assimp_node_map) {
+        const aiNode *assimp_node = key_value_pair.first;
+        Node *current_node = (Node *)key_value_pair.second;
         Node *parent_node = current_node->get_parent();
 
-        ERR_CONTINUE(assimp_node == nullptr);
-        ERR_CONTINUE(parent_node == nullptr);
+        ERR_CONTINUE(assimp_node == nullptr)
+        ERR_CONTINUE(parent_node == nullptr)
 
         String node_name = AssimpUtils::get_assimp_string(assimp_node->mName);
         Transform node_transform = AssimpUtils::assimp_matrix_transform(assimp_node->mTransformation);
@@ -1022,11 +1105,11 @@ void EditorSceneImporterAssimp::generate_mesh_phase_from_skeletal_mesh(ImportSta
  * attach_new_node
  * configures node, assigns parent node
 **/
-void EditorSceneImporterAssimp::attach_new_node(ImportState &state, Spatial *new_node, const aiNode *node, Node *parent_node, String Name, Transform &transform) {
-    ERR_FAIL_COND(new_node == nullptr);
-    ERR_FAIL_COND(node == nullptr);
-    ERR_FAIL_COND(parent_node == nullptr);
-    ERR_FAIL_COND(state.root == nullptr);
+void EditorSceneImporterAssimp::attach_new_node(ImportState &state, Spatial *new_node, const aiNode *node, Node *parent_node, const String& Name, Transform &transform) {
+    ERR_FAIL_COND(new_node == nullptr)
+    ERR_FAIL_COND(node == nullptr)
+    ERR_FAIL_COND(parent_node == nullptr)
+    ERR_FAIL_COND(state.root == nullptr)
 
     // assign properties to new godot note
     new_node->set_name(Name);
@@ -1050,7 +1133,7 @@ void EditorSceneImporterAssimp::attach_new_node(ImportState &state, Spatial *new
 void EditorSceneImporterAssimp::create_light(ImportState &state, RecursiveState &recursive_state) {
         Light *light = nullptr;
     aiLight *ai_light = state.assimp_scene->mLights[state.light_cache[recursive_state.node_name]];
-        ERR_FAIL_COND(!ai_light);
+        ERR_FAIL_COND(!ai_light)
 
         if (ai_light->mType == aiLightSource_DIRECTIONAL) {
             light = memnew(DirectionalLight);
@@ -1091,7 +1174,7 @@ void EditorSceneImporterAssimp::create_light(ImportState &state, RecursiveState 
 
             //light->set_param(Light::PARAM_ATTENUATION, 0.0f);
         }
-        ERR_FAIL_COND(light == nullptr);
+        ERR_FAIL_COND(light == nullptr)
         light->set_color(Color(ai_light->mColorDiffuse.r, ai_light->mColorDiffuse.g, ai_light->mColorDiffuse.b));
     recursive_state.new_node = light;
 
@@ -1108,7 +1191,7 @@ void EditorSceneImporterAssimp::create_light(ImportState &state, RecursiveState 
  */
 void EditorSceneImporterAssimp::create_camera(ImportState &state, RecursiveState &recursive_state) {
     aiCamera *ai_camera = state.assimp_scene->mCameras[state.camera_cache[recursive_state.node_name]];
-        ERR_FAIL_COND(!ai_camera);
+        ERR_FAIL_COND(!ai_camera)
 
         Camera *camera = memnew(Camera);
 
@@ -1152,10 +1235,10 @@ void EditorSceneImporterAssimp::create_bone(ImportState &state, RecursiveState &
     // prevent more than one skeleton existing per mesh
     // * multiple root bones have this
     // * this simply filters the node out if it has already been added then references the skeleton so we know the actual skeleton for this node
-    for (Map<Skeleton *, const Spatial *>::Element *key_value_pair = state.armature_skeletons.front(); key_value_pair; key_value_pair = key_value_pair->next()) {
-        if (key_value_pair->value() == recursive_state.parent_node) {
+    for (eastl::pair<Skeleton *,const Spatial *> key_value_pair : state.armature_skeletons) {
+        if (key_value_pair.second == recursive_state.parent_node) {
             // apply the skeleton for this mesh
-            recursive_state.skeleton = key_value_pair->key();
+            recursive_state.skeleton = key_value_pair.first;
 
             // force this off
             do_not_create_armature = true;
@@ -1171,29 +1254,28 @@ void EditorSceneImporterAssimp::create_bone(ImportState &state, RecursiveState &
         // create new skeleton on the root.
         recursive_state.skeleton = memnew(Skeleton);
 
-        ERR_FAIL_COND(state.root == nullptr);
-        ERR_FAIL_COND(recursive_state.skeleton == nullptr);
+        ERR_FAIL_COND(state.root == nullptr)
+        ERR_FAIL_COND(recursive_state.skeleton == nullptr)
 
         print_verbose("Parent armature node is called " + recursive_state.parent_node->get_name());
         // store root node for this skeleton / used in animation playback and bone detection.
 
-        state.armature_skeletons.insert(recursive_state.skeleton, Object::cast_to<Spatial>(recursive_state.parent_node));
+        state.armature_skeletons.emplace(recursive_state.skeleton, Object::cast_to<Spatial>(recursive_state.parent_node));
 
         //skeleton->set_use_bones_in_world_transform(true);
         print_verbose("Created new FBX skeleton for armature node");
     }
 
-    ERR_FAIL_COND_MSG(recursive_state.skeleton == nullptr, "Mesh has invalid armature detection - report this");
+    ERR_FAIL_COND_MSG(recursive_state.skeleton == nullptr, "Mesh has invalid armature detection - report this")
 
     // this transform is a bone
     recursive_state.skeleton->add_bone(recursive_state.node_name);
 
-    ERR_FAIL_COND(recursive_state.skeleton == nullptr); // serious bug we must now exit.
-    //ERR_FAIL_COND(recursive_state.skeleton->get_name() == "");
+	//ERR_FAIL_COND(recursive_state.skeleton->get_name() == "");
     print_verbose("Bone added to lookup: " + AssimpUtils::get_assimp_string(recursive_state.bone->mName));
     print_verbose("Skeleton attached to: " + recursive_state.skeleton->get_name());
     // make sure to write the bone lookup inverse so we can retrieve the mesh for this bone later
-    state.bone_to_skeleton_lookup.insert(recursive_state.bone, recursive_state.skeleton);
+    state.bone_to_skeleton_lookup.emplace(recursive_state.bone, recursive_state.skeleton);
 
     Transform xform = AssimpUtils::assimp_matrix_transform(recursive_state.bone->mOffsetMatrix);
     recursive_state.skeleton->set_bone_rest(recursive_state.skeleton->get_bone_count() - 1, xform.affine_inverse());
@@ -1221,10 +1303,10 @@ void EditorSceneImporterAssimp::_generate_node(
         const aiNode *assimp_node, Node *parent_node) {
 
     // sanity check
-    ERR_FAIL_COND(state.root == nullptr);
-    ERR_FAIL_COND(state.assimp_scene == nullptr);
-    ERR_FAIL_COND(assimp_node == nullptr);
-    ERR_FAIL_COND(parent_node == nullptr);
+    ERR_FAIL_COND(state.root == nullptr)
+    ERR_FAIL_COND(state.assimp_scene == nullptr)
+    ERR_FAIL_COND(assimp_node == nullptr)
+    ERR_FAIL_COND(parent_node == nullptr)
 
     Spatial *new_node = nullptr;
     String node_name = AssimpUtils::get_assimp_string(assimp_node->mName);
@@ -1237,9 +1319,9 @@ void EditorSceneImporterAssimp::_generate_node(
     RecursiveState recursive_state(node_transform, skeleton, new_node, node_name, assimp_node, parent_node, bone);
 
     // Creation code
-    if (state.light_cache.has(node_name)) {
+    if (state.light_cache.contains(node_name)) {
         create_light(state, recursive_state);
-    } else if (state.camera_cache.has(node_name)) {
+    } else if (state.camera_cache.contains(node_name)) {
         create_camera(state, recursive_state);
     } else if (bone != nullptr) {
         create_bone(state, recursive_state);

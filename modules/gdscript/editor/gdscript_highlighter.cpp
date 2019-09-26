@@ -158,8 +158,8 @@ Map<int, TextEdit::HighlighterInfo> GDScriptSyntaxHighlighter::_get_line_syntax_
             in_word = false;
         }
 
-        if (is_symbol && cri_map.has(j)) {
-            const TextEdit::Text::ColorRegionInfo &cri = cri_map[j];
+        if (is_symbol && cri_map.contains(j)) {
+            const TextEdit::Text::ColorRegionInfo &cri = cri_map.at(j);
 
             if (in_region == -1) {
                 if (!cri.end) {
