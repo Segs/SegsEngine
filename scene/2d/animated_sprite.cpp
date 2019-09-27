@@ -177,17 +177,17 @@ void SpriteFrames::rename_animation(const StringName &p_prev, const StringName &
 Vector<String> SpriteFrames::_get_animation_list() const {
 
     Vector<String> ret;
-    List<StringName> al;
+    ListPOD<StringName> al;
     get_animation_list(&al);
-    for (List<StringName>::Element *E = al.front(); E; E = E->next()) {
+    for (const StringName &E : al) {
 
-        ret.push_back(E->deref());
+        ret.push_back(E);
     }
 
     return ret;
 }
 
-void SpriteFrames::get_animation_list(List<StringName> *r_animations) const {
+void SpriteFrames::get_animation_list(ListPOD<StringName> *r_animations) const {
 
     for (const eastl::pair<const StringName,Anim> &E : animations) {
         r_animations->push_back(E.first);
@@ -334,19 +334,19 @@ void AnimatedSprite::_validate_property(PropertyInfo &property) const {
     if (property.name == "animation") {
 
         property.hint = PROPERTY_HINT_ENUM;
-        List<StringName> names;
+        ListPOD<StringName> names;
         frames->get_animation_list(&names);
-        names.sort_custom<WrapAlphaCompare>();
+        names.sort(WrapAlphaCompare());
 
         bool current_found = false;
 
-        for (List<StringName>::Element *E = names.front(); E; E = E->next()) {
-            if (E->prev()) {
+        for (ListPOD<StringName>::iterator E = names.begin(); E!=names.end(); ++E) {
+            if (E!=names.begin()) {
                 property.hint_string += ",";
             }
 
-            property.hint_string += String(E->deref());
-            if (animation == E->deref()) {
+            property.hint_string += String(*E);
+            if (animation == *E) {
                 current_found = true;
             }
         }

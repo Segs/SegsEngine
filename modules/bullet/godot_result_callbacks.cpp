@@ -31,6 +31,7 @@
 #include "godot_result_callbacks.h"
 
 #include "core/object_db.h"
+#include "core/rid.h"
 #include "area_bullet.h"
 #include "bullet_types_converter.h"
 #include "collision_object_bullet.h"

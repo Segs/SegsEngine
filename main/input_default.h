@@ -34,6 +34,8 @@
 #include "core/os/input_event.h"
 #include "core/list.h"
 #include "core/map.h"
+#include "core/ustring.h"
+#include "core/set.h"
 
 class InputDefault : public Input {
 

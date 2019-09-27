@@ -211,7 +211,10 @@ void ResourceImporterTexture::get_import_options(ListPOD<ImportOption> *r_option
     r_options->push_back(ImportOption(PropertyInfo(VariantType::REAL, "svg/scale", PROPERTY_HINT_RANGE, "0.001,100,0.001"), 1.0));
 }
 
-void ResourceImporterTexture::_save_stex(const Ref<Image> &p_image, const String &p_to_path, int p_compress_mode, float p_lossy_quality, Image::CompressMode p_vram_compression, bool p_mipmaps, int p_texture_flags, bool p_streamable, bool p_detect_3d, bool p_detect_srgb, bool p_force_rgbe, bool p_detect_normal, bool p_force_normal, bool p_force_po2_for_compressed) {
+void ResourceImporterTexture::_save_stex(const Ref<Image> &p_image, const String &p_to_path, int p_compress_mode,
+        float p_lossy_quality, Image::CompressMode p_vram_compression, bool p_mipmaps, int p_texture_flags,
+        bool p_streamable, bool p_detect_3d, bool p_detect_srgb, bool p_force_rgbe, bool p_detect_normal,
+        bool p_force_normal, bool p_force_po2_for_compressed) {
 
     FileAccess *f = FileAccess::open(p_to_path, FileAccess::WRITE);
     f->store_8('G');
@@ -274,12 +277,11 @@ void ResourceImporterTexture::_save_stex(const Ref<Image> &p_image, const String
                     image->shrink_x2();
                 }
 
-                PoolVector<uint8_t> data = Image::lossless_packer(image);
+                PODVector<uint8_t> data = Image::lossless_packer(image);
                 int data_len = data.size();
                 f->store_32(data_len);
 
-                PoolVector<uint8_t>::Read r = data.read();
-                f->store_buffer(r.ptr(), data_len);
+                f->store_buffer(data.data(), data_len);
             }
 
         } break;
@@ -303,12 +305,11 @@ void ResourceImporterTexture::_save_stex(const Ref<Image> &p_image, const String
                     image->shrink_x2();
                 }
 
-                PoolVector<uint8_t> data = Image::lossy_packer(image, p_lossy_quality);
+                PODVector<uint8_t> data = Image::lossy_packer(image, p_lossy_quality);
                 int data_len = data.size();
                 f->store_32(data_len);
 
-                PoolVector<uint8_t>::Read r = data.read();
-                f->store_buffer(r.ptr(), data_len);
+                f->store_buffer(data.data(), data_len);
             }
         } break;
         case COMPRESS_VIDEO_RAM: {

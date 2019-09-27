@@ -34,6 +34,7 @@
 #include "core/io/resource_loader.h"
 #include "core/project_settings.h"
 #include "editor/editor_settings.h"
+#include "EASTL/sort.h"
 
 IMPL_GDCLASS(ResourcePreloaderEditor)
 IMPL_GDCLASS(ResourcePreloaderEditorPlugin)
@@ -186,28 +187,25 @@ void ResourcePreloaderEditor::_update_library() {
     tree->set_hide_root(true);
     TreeItem *root = tree->create_item(nullptr);
 
-    List<StringName> rnames;
+    ListPOD<StringName> rnames;
     preloader->get_resource_list(&rnames);
 
-    List<String> names;
-    for (List<StringName>::Element *E = rnames.front(); E; E = E->next()) {
-        names.push_back(E->deref());
-    }
+    PODVector<String> names(rnames.begin(),rnames.end());
 
-    names.sort();
+    eastl::sort(names.begin(),names.end());
 
-    for (List<String>::Element *E = names.front(); E; E = E->next()) {
+    for (const String &E : names) {
 
         TreeItem *ti = tree->create_item(root);
         ti->set_cell_mode(0, TreeItem::CELL_MODE_STRING);
         ti->set_editable(0, true);
         ti->set_selectable(0, true);
-        ti->set_text(0, E->deref());
-        ti->set_metadata(0, E->deref());
+        ti->set_text(0, E);
+        ti->set_metadata(0, E);
 
-        RES r(preloader->get_resource(E->deref()));
+        RES r(preloader->get_resource(E));
 
-        ERR_CONTINUE(not r);
+        ERR_CONTINUE(not r)
 
         String type = r->get_class();
         ti->set_icon(0, EditorNode::get_singleton()->get_class_icon(type, "Object"));

@@ -46,7 +46,7 @@
 #include "core/node_path.h"
 #include "core/pool_vector.h"
 #include "core/ref_ptr.h"
-#include "core/rid.h"
+
 #include "core/hashfuncs.h"
 
 #include <cstdint>
@@ -55,6 +55,7 @@ class Object;
 class Node; // helper
 class Control; // helper
 class String;
+class RID;
 using CharType = class QChar;
 struct PropertyInfo;
 struct MethodInfo;

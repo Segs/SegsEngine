@@ -95,10 +95,10 @@ public:
     static void (*_image_decompress_etc1)(Image *);
     static void (*_image_decompress_etc2)(Image *);
 
-    static PoolVector<uint8_t> lossy_packer(const Ref<Image> &p_image, float p_quality);
-    static Ref<Image> lossy_unpacker(const PoolVector<uint8_t> &p_buffer);
-    static PoolVector<uint8_t> lossless_packer(const Ref<Image> &p_image);
-    static Ref<Image> lossless_unpacker(const PoolVector<uint8_t> &p_buffer);
+    static PODVector<uint8_t> lossy_packer(const Ref<Image> &p_image, float p_quality);
+    static Ref<Image> lossy_unpacker(const PODVector<uint8_t> &p_buffer);
+    static PODVector<uint8_t> lossless_packer(const Ref<Image> &p_image);
+    static Ref<Image> lossless_unpacker(const PODVector<uint8_t> &p_buffer);
 
     PoolVector<uint8_t>::Write write_lock;
 
@@ -150,7 +150,7 @@ public:
     int get_width() const; ///< Get image width
     int get_height() const; ///< Get image height
     Vector2 get_size() const;
-    bool has_mipmaps() const;
+    bool has_mipmaps() const { return mipmaps; }
     int get_mipmap_count() const;
 
     /**

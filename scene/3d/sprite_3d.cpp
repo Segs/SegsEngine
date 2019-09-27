@@ -862,19 +862,19 @@ void AnimatedSprite3D::_validate_property(PropertyInfo &property) const {
     if (property.name == "animation") {
 
         property.hint = PROPERTY_HINT_ENUM;
-        List<StringName> names;
+        ListPOD<StringName> names;
         frames->get_animation_list(&names);
-        names.sort_custom<WrapAlphaCompare>();
+        names.sort(WrapAlphaCompare());
 
         bool current_found = false;
 
-        for (List<StringName>::Element *E = names.front(); E; E = E->next()) {
-            if (E->prev()) {
+        for (ListPOD<StringName>::iterator E = names.begin(); E!=names.end(); ++E) {
+            if (E!=names.begin()) {
                 property.hint_string += ",";
             }
 
-            property.hint_string += String(E->deref());
-            if (animation == E->deref()) {
+            property.hint_string += String(*E);
+            if (animation == *E) {
                 current_found = true;
             }
         }

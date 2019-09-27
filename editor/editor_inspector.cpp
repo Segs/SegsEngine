@@ -231,9 +231,9 @@ void EditorProperty::_notification(int p_what) {
 
             Color color2(1, 1, 1);
             if (check_hover) {
-                color2.r *= 1.2;
-                color2.g *= 1.2;
-                color2.b *= 1.2;
+                color2.r *= 1.2f;
+                color2.g *= 1.2f;
+                color2.b *= 1.2f;
             }
             check_rect = Rect2(ofs, ((size.height - checkbox->get_height()) / 2), checkbox->get_width(), checkbox->get_height());
             draw_texture(checkbox, check_rect.position, color2);
@@ -250,9 +250,9 @@ void EditorProperty::_notification(int p_what) {
 
             Color color2(1, 1, 1);
             if (revert_hover) {
-                color2.r *= 1.2;
-                color2.g *= 1.2;
-                color2.b *= 1.2;
+                color2.r *= 1.2f;
+                color2.g *= 1.2f;
+                color2.b *= 1.2f;
             }
 
             draw_texture(reload_icon, revert_rect.position, color2);
@@ -276,9 +276,9 @@ void EditorProperty::_notification(int p_what) {
 
             Color color2(1, 1, 1);
             if (keying_hover) {
-                color2.r *= 1.2;
-                color2.g *= 1.2;
-                color2.b *= 1.2;
+                color2.r *= 1.2f;
+                color2.g *= 1.2f;
+                color2.b *= 1.2f;
             }
             keying_rect = Rect2(ofs, ((size.height - key->get_height()) / 2), key->get_width(), key->get_height());
             draw_texture(key, keying_rect.position, color2);

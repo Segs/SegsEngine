@@ -33,6 +33,7 @@
 #include "core/map.h"
 #include "core/node_path.h"
 #include "core/object.h"
+//TODO: SEGS: remove scene_tree include from here
 #include "scene/main/scene_tree.h"
 
 class Viewport;

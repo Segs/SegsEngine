@@ -28,16 +28,16 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef PHYSICS_2D_SERVER_H
-#define PHYSICS_2D_SERVER_H
-
-#include <utility>
+#pragma once
 
 #include "core/object.h"
 #include "core/reference.h"
 #include "core/resource.h"
 #include "core/method_arg_casters.h"
 #include "core/method_enum_caster.h"
+#include "core/rid.h"
+
+#include <utility>
 
 class Physics2DDirectSpaceState;
 
@@ -696,5 +696,3 @@ VARIANT_ENUM_CAST(Physics2DServer::DampedStringParam);
 //VARIANT_ENUM_CAST( Physics2DServer::ObjectType );
 VARIANT_ENUM_CAST(Physics2DServer::AreaBodyStatus);
 VARIANT_ENUM_CAST(Physics2DServer::ProcessInfo);
-
-#endif

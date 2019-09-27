@@ -31,8 +31,6 @@
 #pragma once
 
 #include "core/object.h"
-#include "core/method_arg_casters.h"
-#include "core/method_enum_caster.h"
 
 #define PERF_WARN_OFFLINE_FUNCTION
 #define PERF_WARN_PROCESS_SYNC
@@ -103,4 +101,3 @@ public:
     Performance();
 };
 
-VARIANT_ENUM_CAST(Performance::Monitor);

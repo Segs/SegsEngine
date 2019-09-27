@@ -39,11 +39,11 @@
 #include <webp/decode.h>
 #include <webp/encode.h>
 
-static PoolVector<uint8_t> _webp_lossy_pack(const ImageData &p_image, float p_quality) {
+static PODVector<uint8_t> _webp_lossy_pack(const ImageData &p_image, float p_quality) {
 
-    ERR_FAIL_COND_V(p_image.data.size()==0, PoolVector<uint8_t>())
+    ERR_FAIL_COND_V(p_image.data.size()==0, PODVector<uint8_t>())
 
-    ERR_FAIL_COND_V(p_image.format!=ImageData::FORMAT_RGBA8 && p_image.format!=ImageData::FORMAT_RGB8, PoolVector<uint8_t>())
+    ERR_FAIL_COND_V(p_image.format!=ImageData::FORMAT_RGBA8 && p_image.format!=ImageData::FORMAT_RGB8, PODVector<uint8_t>())
 
     Size2 s(p_image.width, p_image.height);
     const PoolVector<uint8_t> &data = p_image.data;
@@ -58,17 +58,15 @@ static PoolVector<uint8_t> _webp_lossy_pack(const ImageData &p_image, float p_qu
         dst_size = WebPEncodeRGBA(r.ptr(), s.width, s.height, 4 * s.width, CLAMP(p_quality * 100.0f, 0, 100.0), &dst_buff);
     }
 
-    ERR_FAIL_COND_V(dst_size == 0, PoolVector<uint8_t>())
-    PoolVector<uint8_t> dst;
+    ERR_FAIL_COND_V(dst_size == 0, PODVector<uint8_t>())
+    PODVector<uint8_t> dst;
     dst.resize(4 + dst_size);
-    PoolVector<uint8_t>::Write w = dst.write();
-    w[0] = 'W';
-    w[1] = 'E';
-    w[2] = 'B';
-    w[3] = 'P';
-    memcpy(&w[4], dst_buff, dst_size);
+    dst[0] = 'W';
+    dst[1] = 'E';
+    dst[2] = 'B';
+    dst[3] = 'P';
+    memcpy(dst.data()+4, dst_buff, dst_size);
     free(dst_buff);
-    w.release();
     return dst;
 }
 
@@ -119,18 +117,17 @@ Error ImageLoaderWEBP::load_image(ImageData &p_image, FileAccess *f, LoadParams 
     return err;
 }
 
-Error ImageLoaderWEBP::save_image(const ImageData &p_image, PoolVector<uint8_t> &tgt, SaveParams params)
+Error ImageLoaderWEBP::save_image(const ImageData &p_image, PODVector<uint8_t> &tgt, SaveParams params)
 {
     tgt = _webp_lossy_pack(p_image,params.p_quality);
     return tgt.size()==0 ? ERR_CANT_CREATE : OK;
 }
 Error ImageLoaderWEBP::save_image(const ImageData &p_image, FileAccess *p_fileaccess, SaveParams params)
 {
-    PoolVector<uint8_t> tgt = _webp_lossy_pack(p_image,params.p_quality);
+    PODVector<uint8_t> tgt = _webp_lossy_pack(p_image,params.p_quality);
     if(tgt.size()==0)
         return ERR_CANT_CREATE;
-    auto reader = tgt.read();
-    p_fileaccess->store_buffer(reader.ptr(), tgt.size());
+    p_fileaccess->store_buffer(tgt.data(), tgt.size());
     if (p_fileaccess->get_error() != OK && p_fileaccess->get_error() != ERR_FILE_EOF) {
         return ERR_CANT_CREATE;
     }

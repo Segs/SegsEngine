@@ -30,7 +30,7 @@
 
 #include "animation_node_state_machine.h"
 #include "core/method_bind.h"
-
+#include "EASTL/sort.h"
 
 IMPL_GDCLASS(AnimationNodeStateMachineTransition)
 IMPL_GDCLASS(AnimationNodeStateMachinePlayback)
@@ -519,7 +519,7 @@ AnimationNodeStateMachinePlayback::AnimationNodeStateMachinePlayback() {
 
 void AnimationNodeStateMachine::get_parameter_list(List<PropertyInfo> *r_list) const {
     r_list->push_back(PropertyInfo(VariantType::OBJECT, playback, PROPERTY_HINT_RESOURCE_TYPE, "AnimationNodeStateMachinePlayback", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_DO_NOT_SHARE_ON_DUPLICATE));
-    List<StringName> advance_conditions;
+    PODVector<StringName> advance_conditions;
     for (int i = 0; i < transitions.size(); i++) {
         StringName ac = transitions[i].transition->get_advance_condition_name();
         if (ac != StringName() && advance_conditions.find(ac) == nullptr) {
@@ -527,9 +527,9 @@ void AnimationNodeStateMachine::get_parameter_list(List<PropertyInfo> *r_list) c
         }
     }
 
-    advance_conditions.sort_custom<WrapAlphaCompare>();
-    for (List<StringName>::Element *E = advance_conditions.front(); E; E = E->next()) {
-        r_list->push_back(PropertyInfo(VariantType::BOOL, E->deref()));
+    eastl::sort(advance_conditions.begin(),advance_conditions.end(),WrapAlphaCompare());
+    for (const StringName &E : advance_conditions) {
+        r_list->push_back(PropertyInfo(VariantType::BOOL, E));
     }
 }
 
@@ -671,17 +671,14 @@ void AnimationNodeStateMachine::rename_node(const StringName &p_name, const Stri
     emit_signal("tree_changed");
 }
 
-void AnimationNodeStateMachine::get_node_list(List<StringName> *r_nodes) const {
+void AnimationNodeStateMachine::get_node_list(ListPOD<StringName> *r_nodes) const {
 
-    List<StringName> nodes;
+    ListPOD<StringName> nodes;
     for (const eastl::pair<const StringName,State> &E : states) {
         nodes.push_back(E.first);
     }
-    nodes.sort_custom<WrapAlphaCompare>();
-
-    for (List<StringName>::Element *E = nodes.front(); E; E = E->next()) {
-        r_nodes->push_back(E->deref());
-    }
+    nodes.sort(WrapAlphaCompare());
+    r_nodes->splice(r_nodes->end(),std::move(nodes));
 }
 
 bool AnimationNodeStateMachine::has_transition(const StringName &p_from, const StringName &p_to) const {
@@ -724,7 +721,7 @@ void AnimationNodeStateMachine::add_transition(const StringName &p_from, const S
 }
 
 Ref<AnimationNodeStateMachineTransition> AnimationNodeStateMachine::get_transition(int p_transition) const {
-    ERR_FAIL_INDEX_V(p_transition, transitions.size(), Ref<AnimationNodeStateMachineTransition>());
+    ERR_FAIL_INDEX_V(p_transition, transitions.size(), Ref<AnimationNodeStateMachineTransition>())
     return transitions[p_transition].transition;
 }
 StringName AnimationNodeStateMachine::get_transition_from(int p_transition) const {
@@ -909,14 +906,14 @@ bool AnimationNodeStateMachine::_get(const StringName &p_name, Variant &r_ret) c
 }
 void AnimationNodeStateMachine::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
-    List<StringName> names;
+    PODVector<StringName> names;
     for (const eastl::pair<const StringName,State> &E : states) {
         names.push_back(E.first);
     }
-    names.sort_custom<WrapAlphaCompare>();
+    eastl::sort(names.begin(),names.end(),WrapAlphaCompare());
 
-    for (List<StringName>::Element *E = names.front(); E; E = E->next()) {
-        String name = E->deref();
+    for (const StringName &E : names) {
+        String name = E;
         p_list->push_back(PropertyInfo(VariantType::OBJECT, "states/" + name + "/node", PROPERTY_HINT_RESOURCE_TYPE, "AnimationNode", PROPERTY_USAGE_NOEDITOR));
         p_list->push_back(PropertyInfo(VariantType::VECTOR2, "states/" + name + "/position", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
     }

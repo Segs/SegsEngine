@@ -37,6 +37,7 @@
 #include "core/variant.h"
 #include "core/ustring.h"
 #include "core/vector.h"
+#include "core/set.h"
 
 #include "platform_config.h"
 #ifndef GLES3_INCLUDE_H

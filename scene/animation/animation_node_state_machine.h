@@ -183,7 +183,7 @@ public:
 	void rename_node(const StringName &p_name, const StringName &p_new_name);
 	bool has_node(const StringName &p_name) const;
 	StringName get_node_name(const Ref<AnimationNode> &p_node) const;
-	void get_node_list(List<StringName> *r_nodes) const;
+    void get_node_list(ListPOD<StringName> *r_nodes) const;
 
 	void set_node_position(const StringName &p_name, const Vector2 &p_position);
 	Vector2 get_node_position(const StringName &p_name) const;

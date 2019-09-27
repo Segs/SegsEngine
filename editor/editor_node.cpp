@@ -4091,14 +4091,14 @@ Ref<Texture> EditorNode::_file_dialog_get_icon(const String &p_path) {
 
 void EditorNode::_build_icon_type_cache() {
 
-    List<StringName> tl;
+    ListPOD<StringName> tl;
     StringName ei = "EditorIcons";
     theme_base->get_theme()->get_icon_list(ei, &tl);
-    for (List<StringName>::Element *E = tl.front(); E; E = E->next()) {
+    for (const StringName &E : tl) {
 
-        if (!ClassDB::class_exists(E->deref()))
+        if (!ClassDB::class_exists(E))
             continue;
-        icon_type_cache[E->deref()] = theme_base->get_theme()->get_icon(E->deref(), ei);
+        icon_type_cache[E] = theme_base->get_theme()->get_icon(E, ei);
     }
 }
 

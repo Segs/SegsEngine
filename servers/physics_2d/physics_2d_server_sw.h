@@ -28,14 +28,14 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef PHYSICS_2D_SERVER_SW
-#define PHYSICS_2D_SERVER_SW
+#pragma once
 
 #include "joints_2d_sw.h"
 #include "servers/physics_2d_server.h"
 #include "shape_2d_sw.h"
 #include "space_2d_sw.h"
 #include "step_2d_sw.h"
+#include "core/rid.h"
 
 class Physics2DServerSW : public Physics2DServer {
 
@@ -291,5 +291,3 @@ public:
 	Physics2DServerSW();
 	~Physics2DServerSW() override;
 };
-
-#endif

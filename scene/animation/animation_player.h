@@ -242,7 +242,7 @@ private:
         bool started;
     } playback;
 
-    List<StringName> queued;
+    ListPOD<StringName> queued;
 
     bool end_reached;
     bool end_notify;

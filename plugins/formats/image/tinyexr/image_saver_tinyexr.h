@@ -28,13 +28,11 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef IMAGE_SAVER_TINYEXR_H
-#define IMAGE_SAVER_TINYEXR_H
+#pragma once
 
-#include "core/pool_vector.h"
+#include "core/vector.h"
 
 struct ImageData;
 
 Error save_exr(const String &p_path, const ImageData &p_img, bool p_grayscale);
-Error save_exr(PoolVector<uint8_t> &tgt, const ImageData &p_img, bool p_grayscale);
-#endif // IMAGE_SAVER_TINYEXR_H
+Error save_exr(PODVector<uint8_t> &tgt, const ImageData &p_img, bool p_grayscale);

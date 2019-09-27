@@ -42,6 +42,7 @@
 #include "core/os/os.h"
 #include "core/script_language.h"
 #include "core/vector.h"
+#include "core/rid.h"
 
 using VariantFunc = void (*)(Variant &, Variant &, const Variant **);
 using VariantConstructFunc = void (*)(Variant &, const Variant **);
@@ -1093,7 +1094,7 @@ struct _VariantCall {
 
         Map<StringName, int> value;
 #ifdef DEBUG_ENABLED
-        List<StringName> value_ordered;
+        ListPOD<StringName> value_ordered;
 #endif
         Map<StringName, Variant> variant_value;
     };
@@ -1471,9 +1472,9 @@ void Variant::get_constants_for_type(VariantType p_type, ListPOD<StringName> *p_
     _VariantCall::ConstantData &cd = _VariantCall::constant_data[(int)p_type];
 
 #ifdef DEBUG_ENABLED
-    for (List<StringName>::Element *E = cd.value_ordered.front(); E; E = E->next()) {
+    for (const StringName &E : cd.value_ordered) {
 
-        p_constants->push_back(E->deref());
+        p_constants->push_back(E);
 #else
     for (Map<StringName, int>::Element *E = cd.value.front(); E; E = E->next()) {
 

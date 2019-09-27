@@ -31,10 +31,12 @@
 #include "input.h"
 
 #include "core/input_map.h"
+#include "core/list.h"
+#include "core/method_arg_casters.h"
+#include "core/method_bind.h"
+#include "core/method_enum_caster.h"
 #include "core/os/os.h"
 #include "core/project_settings.h"
-#include "core/method_bind.h"
-#include "core/list.h"
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_settings.h"
@@ -42,6 +44,9 @@
 
 
 IMPL_GDCLASS(Input)
+
+VARIANT_ENUM_CAST(Input::MouseMode);
+VARIANT_ENUM_CAST(Input::CursorShape);
 
 Input *Input::singleton = nullptr;
 
@@ -51,7 +56,7 @@ Input *Input::get_singleton() {
 }
 
 void Input::set_mouse_mode(MouseMode p_mode) {
-    ERR_FAIL_INDEX((int)p_mode, 4);
+    ERR_FAIL_INDEX((int)p_mode, 4)
     OS::get_singleton()->set_mouse_mode((OS::MouseMode)p_mode);
 }
 

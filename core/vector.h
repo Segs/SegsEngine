@@ -161,3 +161,7 @@ bool Vector<T>::push_back(const T &p_elem) {
 
     return false;
 }
+
+extern template class GODOT_EXPORT_TEMPLATE_A eastl::vector<class StringName,wrap_allocator>;
+extern template class GODOT_EXPORT_TEMPLATE_A eastl::vector<uint8_t,wrap_allocator>;
+//extern template class GODOT_EXPORT_TEMPLATE_A eastl::vector<class String,wrap_allocator>;

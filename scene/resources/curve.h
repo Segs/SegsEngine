@@ -28,12 +28,9 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef CURVE_H
-#define CURVE_H
+#pragma once
 
 #include "core/resource.h"
-#include "core/method_arg_casters.h"
-#include "core/method_enum_caster.h"
 
 // y(x) curve
 class Curve : public Resource {
@@ -148,7 +145,6 @@ private:
     int _minmax_set_once; // Encodes whether min and max have been set a first time, first bit for min and second for max.
 };
 
-VARIANT_ENUM_CAST(Curve::TangentMode)
 
 class Curve2D : public Resource {
 
@@ -289,5 +285,3 @@ public:
 
     Curve3D();
 };
-
-#endif // CURVE_H

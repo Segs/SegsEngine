@@ -32,6 +32,7 @@
 #define POLYGON_PATH_FINDER_H
 
 #include "core/resource.h"
+#include "core/set.h"
 
 class PolygonPathFinder : public Resource {
 

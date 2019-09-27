@@ -33,6 +33,7 @@
 #include "core/resource.h"
 #include "core/ustring.h"
 #include "core/map.h"
+#include "core/set.h"
 
 class Translation : public Resource {
 
@@ -59,7 +60,7 @@ public:
 	virtual StringName get_message(const StringName &p_src_text) const; //overridable for other implementations
 	void erase_message(const StringName &p_src_text);
 
-    void get_message_list(DefList<StringName> *r_messages) const;
+    void get_message_list(ListPOD<StringName> *r_messages) const;
 	int get_message_count() const;
 
 	Translation();

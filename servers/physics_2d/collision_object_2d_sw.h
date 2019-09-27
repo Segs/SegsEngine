@@ -28,10 +28,10 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef COLLISION_OBJECT_2D_SW_H
-#define COLLISION_OBJECT_2D_SW_H
+#pragma once
 
 #include "broad_phase_2d_sw.h"
+#include "core/rid.h"
 #include "core/self_list.h"
 #include "servers/physics_2d_server.h"
 #include "shape_2d_sw.h"
@@ -192,5 +192,3 @@ public:
 
 	~CollisionObject2DSW() override {}
 };
-
-#endif // COLLISION_OBJECT_2D_SW_H

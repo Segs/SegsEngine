@@ -28,10 +28,10 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef SHAPE_H
-#define SHAPE_H
+#pragma once
 
 #include "core/resource.h"
+#include "core/rid.h"
 class ArrayMesh;
 
 class Shape : public Resource {
@@ -67,5 +67,3 @@ public:
 	Shape();
 	~Shape() override;
 };
-
-#endif // SHAPE_H

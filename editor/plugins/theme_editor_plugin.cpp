@@ -74,7 +74,7 @@ void ThemeEditor::_type_menu_cbk(int p_option) {
 void ThemeEditor::_name_menu_about_to_show() {
 
     String fromtype = type_edit->get_text();
-    List<StringName> names;
+    ListPOD<StringName> names;
 
     if (popup_mode == POPUP_ADD) {
 
@@ -97,9 +97,9 @@ void ThemeEditor::_name_menu_about_to_show() {
 
     name_menu->get_popup()->clear();
     name_menu->get_popup()->set_size(Size2());
-    for (List<StringName>::Element *E = names.front(); E; E = E->next()) {
+    for (const StringName &E : names) {
 
-        name_menu->get_popup()->add_item(E->deref());
+        name_menu->get_popup()->add_item(E);
     }
 }
 
@@ -141,10 +141,10 @@ void ThemeEditor::_save_template_cbk(const String &fname) {
     Map<String, _TECategory> categories;
 
     // Fill types.
-    List<StringName> type_list;
+    ListPOD<StringName> type_list;
     Theme::get_default()->get_type_list(&type_list);
-    for (List<StringName>::Element *E = type_list.front(); E; E = E->next()) {
-        categories.emplace(E->deref(), _TECategory());
+    for (const StringName &E : type_list) {
+        categories.emplace(E, _TECategory());
     }
 
     // Fill default theme.
@@ -152,48 +152,48 @@ void ThemeEditor::_save_template_cbk(const String &fname) {
 
         _TECategory &tc(E.second);
 
-        List<StringName> stylebox_list;
+        ListPOD<StringName> stylebox_list;
         Theme::get_default()->get_stylebox_list(E.first, &stylebox_list);
-        for (List<StringName>::Element *F = stylebox_list.front(); F; F = F->next()) {
+        for (const StringName &F : stylebox_list) {
             _TECategory::RefItem<StyleBox> it;
-            it.name = F->deref();
-            it.item = Theme::get_default()->get_stylebox(F->deref(), E.first);
+            it.name = F;
+            it.item = Theme::get_default()->get_stylebox(F, E.first);
             tc.stylebox_items.insert(it);
         }
 
-        List<StringName> font_list;
+        ListPOD<StringName> font_list;
         Theme::get_default()->get_font_list(E.first, &font_list);
-        for (List<StringName>::Element *F = font_list.front(); F; F = F->next()) {
+        for (const StringName &F : font_list) {
             _TECategory::RefItem<Font> it;
-            it.name = F->deref();
-            it.item = Theme::get_default()->get_font(F->deref(), E.first);
+            it.name = F;
+            it.item = Theme::get_default()->get_font(F, E.first);
             tc.font_items.insert(it);
         }
 
-        List<StringName> icon_list;
+        ListPOD<StringName> icon_list;
         Theme::get_default()->get_icon_list(E.first, &icon_list);
-        for (List<StringName>::Element *F = icon_list.front(); F; F = F->next()) {
+        for (const StringName &F : icon_list) {
             _TECategory::RefItem<Texture> it;
-            it.name = F->deref();
-            it.item = Theme::get_default()->get_icon(F->deref(), E.first);
+            it.name = F;
+            it.item = Theme::get_default()->get_icon(F, E.first);
             tc.icon_items.insert(it);
         }
 
-        List<StringName> color_list;
+        ListPOD<StringName> color_list;
         Theme::get_default()->get_color_list(E.first, &color_list);
-        for (List<StringName>::Element *F = color_list.front(); F; F = F->next()) {
+        for (const StringName &F : color_list) {
             _TECategory::Item<Color> it;
-            it.name = F->deref();
-            it.item = Theme::get_default()->get_color(F->deref(), E.first);
+            it.name = F;
+            it.item = Theme::get_default()->get_color(F, E.first);
             tc.color_items.insert(it);
         }
 
-        List<StringName> constant_list;
+        ListPOD<StringName> constant_list;
         Theme::get_default()->get_constant_list(E.first, &constant_list);
-        for (List<StringName>::Element *F = constant_list.front(); F; F = F->next()) {
+        for (const StringName &F : constant_list) {
             _TECategory::Item<int> it;
-            it.name = F->deref();
-            it.item = Theme::get_default()->get_constant(F->deref(), E.first);
+            it.name = F;
+            it.item = Theme::get_default()->get_constant(F, E.first);
             tc.constant_items.insert(it);
         }
     }
@@ -341,41 +341,41 @@ void ThemeEditor::_dialog_cbk() {
         case POPUP_CLASS_ADD: {
 
             StringName fromtype = type_edit->get_text();
-            List<StringName> names;
+            ListPOD<StringName> names;
 
             {
                 names.clear();
                 Theme::get_default()->get_icon_list(fromtype, &names);
-                for (List<StringName>::Element *E = names.front(); E; E = E->next()) {
-                    theme->set_icon(E->deref(), fromtype, Ref<Texture>());
+                for (const StringName &E : names) {
+                    theme->set_icon(E, fromtype, Ref<Texture>());
                 }
             }
             {
                 names.clear();
                 Theme::get_default()->get_stylebox_list(fromtype, &names);
-                for (List<StringName>::Element *E = names.front(); E; E = E->next()) {
-                    theme->set_stylebox(E->deref(), fromtype, Ref<StyleBox>());
+                for (const StringName &E : names) {
+                    theme->set_stylebox(E, fromtype, Ref<StyleBox>());
                 }
             }
             {
                 names.clear();
                 Theme::get_default()->get_font_list(fromtype, &names);
-                for (List<StringName>::Element *E = names.front(); E; E = E->next()) {
-                    theme->set_font(E->deref(), fromtype, Ref<Font>());
+                for (const StringName &E : names) {
+                    theme->set_font(E, fromtype, Ref<Font>());
                 }
             }
             {
                 names.clear();
                 Theme::get_default()->get_color_list(fromtype, &names);
-                for (List<StringName>::Element *E = names.front(); E; E = E->next()) {
-                    theme->set_color(E->deref(), fromtype, Theme::get_default()->get_color(E->deref(), fromtype));
+                for (const StringName &E : names) {
+                    theme->set_color(E, fromtype, Theme::get_default()->get_color(E, fromtype));
                 }
             }
             {
                 names.clear();
                 Theme::get_default()->get_constant_list(fromtype, &names);
-                for (List<StringName>::Element *E = names.front(); E; E = E->next()) {
-                    theme->set_constant(E->deref(), fromtype, Theme::get_default()->get_constant(E->deref(), fromtype));
+                for (const StringName &E : names) {
+                    theme->set_constant(E, fromtype, Theme::get_default()->get_constant(E, fromtype));
                 }
             }
         } break;
@@ -392,41 +392,41 @@ void ThemeEditor::_dialog_cbk() {
         } break;
         case POPUP_CLASS_REMOVE: {
             StringName fromtype = type_edit->get_text();
-            List<StringName> names;
+            ListPOD<StringName> names;
 
             {
                 names.clear();
                 Theme::get_default()->get_icon_list(fromtype, &names);
-                for (List<StringName>::Element *E = names.front(); E; E = E->next()) {
-                    theme->clear_icon(E->deref(), fromtype);
+                for (const StringName &E : names) {
+                    theme->clear_icon(E, fromtype);
                 }
             }
             {
                 names.clear();
                 Theme::get_default()->get_stylebox_list(fromtype, &names);
-                for (List<StringName>::Element *E = names.front(); E; E = E->next()) {
-                    theme->clear_stylebox(E->deref(), fromtype);
+                for (const StringName &E : names) {
+                    theme->clear_stylebox(E, fromtype);
                 }
             }
             {
                 names.clear();
                 Theme::get_default()->get_font_list(fromtype, &names);
-                for (List<StringName>::Element *E = names.front(); E; E = E->next()) {
-                    theme->clear_font(E->deref(), fromtype);
+                for (const StringName &E : names) {
+                    theme->clear_font(E, fromtype);
                 }
             }
             {
                 names.clear();
                 Theme::get_default()->get_color_list(fromtype, &names);
-                for (List<StringName>::Element *E = names.front(); E; E = E->next()) {
-                    theme->clear_color(E->deref(), fromtype);
+                for (const StringName &E : names) {
+                    theme->clear_color(E, fromtype);
                 }
             }
             {
                 names.clear();
                 Theme::get_default()->get_constant_list(fromtype, &names);
-                for (List<StringName>::Element *E = names.front(); E; E = E->next()) {
-                    theme->clear_constant(E->deref(), fromtype);
+                for (const StringName &E : names) {
+                    theme->clear_constant(E, fromtype);
                 }
             }
 
@@ -450,52 +450,51 @@ void ThemeEditor::_theme_menu_cbk(int p_option) {
 
         {
 
-            List<StringName> types;
+            ListPOD<StringName> types;
             base_theme->get_type_list(&types);
 
-            for (List<StringName>::Element *T = types.front(); T; T = T->next()) {
-                StringName type = T->deref();
+            for (const StringName &type : types) {
 
-                List<StringName> icons;
+                ListPOD<StringName> icons;
                 base_theme->get_icon_list(type, &icons);
 
-                for (List<StringName>::Element *E = icons.front(); E; E = E->next()) {
-                    theme->set_icon(E->deref(), type, import ? base_theme->get_icon(E->deref(), type) : Ref<Texture>());
+                for (const StringName &E : icons) {
+                    theme->set_icon(E, type, import ? base_theme->get_icon(E, type) : Ref<Texture>());
                 }
 
-                List<StringName> shaders;
+                ListPOD<StringName> shaders;
                 base_theme->get_shader_list(type, &shaders);
 
-                for (List<StringName>::Element *E = shaders.front(); E; E = E->next()) {
-                    theme->set_shader(E->deref(), type, import ? base_theme->get_shader(E->deref(), type) : Ref<Shader>());
+                for (const StringName &E : shaders) {
+                    theme->set_shader(E, type, import ? base_theme->get_shader(E, type) : Ref<Shader>());
                 }
 
-                List<StringName> styleboxs;
+                ListPOD<StringName> styleboxs;
                 base_theme->get_stylebox_list(type, &styleboxs);
 
-                for (List<StringName>::Element *E = styleboxs.front(); E; E = E->next()) {
-                    theme->set_stylebox(E->deref(), type, import ? base_theme->get_stylebox(E->deref(), type) : Ref<StyleBox>());
+                for (const StringName &E : styleboxs) {
+                    theme->set_stylebox(E, type, import ? base_theme->get_stylebox(E, type) : Ref<StyleBox>());
                 }
 
-                List<StringName> fonts;
+                ListPOD<StringName> fonts;
                 base_theme->get_font_list(type, &fonts);
 
-                for (List<StringName>::Element *E = fonts.front(); E; E = E->next()) {
-                    theme->set_font(E->deref(), type, Ref<Font>());
+                for (const StringName &E : fonts) {
+                    theme->set_font(E, type, Ref<Font>());
                 }
 
-                List<StringName> colors;
+                ListPOD<StringName> colors;
                 base_theme->get_color_list(type, &colors);
 
-                for (List<StringName>::Element *E = colors.front(); E; E = E->next()) {
-                    theme->set_color(E->deref(), type, import ? base_theme->get_color(E->deref(), type) : Color());
+                for (const StringName &E : colors) {
+                    theme->set_color(E, type, import ? base_theme->get_color(E, type) : Color());
                 }
 
-                List<StringName> constants;
+                ListPOD<StringName> constants;
                 base_theme->get_constant_list(type, &constants);
 
-                for (List<StringName>::Element *E = constants.front(); E; E = E->next()) {
-                    theme->set_constant(E->deref(), type, base_theme->get_constant(E->deref(), type));
+                for (const StringName &E : constants) {
+                    theme->set_constant(E, type, base_theme->get_constant(E, type));
                 }
             }
         }
@@ -555,35 +554,32 @@ void ThemeEditor::_theme_menu_cbk(int p_option) {
 
     ERR_FAIL_COND(not theme)
 
-    List<StringName> types;
+    ListPOD<StringName> types;
     base_theme->get_type_list(&types);
 
     type_menu->get_popup()->clear();
 
     if (p_option == 0 || p_option == 1) { // Add.
 
-        List<StringName> new_types;
+        ListPOD<StringName> new_types;
         theme->get_type_list(&new_types);
-        for (List<StringName>::Element *F = new_types.front(); F; F = F->next()) {
-
+        for (const StringName &F : new_types) {
             bool found = false;
-            for (List<StringName>::Element *E = types.front(); E; E = E->next()) {
-
-                if (E->deref() == F->deref()) {
+            for (const StringName &E : types) {
+                if (E == F) {
                     found = true;
                     break;
                 }
             }
-
             if (!found)
-                types.push_back(F->deref());
+                types.push_back(F);
         }
     }
 
-    types.sort_custom<WrapAlphaCompare>();
-    for (List<StringName>::Element *E = types.front(); E; E = E->next()) {
+    types.sort(WrapAlphaCompare());
+    for (const StringName &E : types) {
 
-        type_menu->get_popup()->add_item(E->deref());
+        type_menu->get_popup()->add_item(E);
     }
 }
 

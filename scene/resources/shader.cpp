@@ -122,7 +122,7 @@ Ref<Resource> Shader::get_default_texture_param(const StringName &p_param) const
     return default_textures.at(p_param,Ref<Resource>());
 }
 
-void Shader::get_default_texture_param_list(List<StringName> *r_textures) const {
+void Shader::get_default_texture_param_list(ListPOD<StringName> *r_textures) const {
 
     for (const eastl::pair<const StringName,Ref<Resource> > &E : default_textures) {
 

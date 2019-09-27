@@ -93,13 +93,13 @@ void VisualScriptPropertySelector::_update_search() {
     TreeItem *root = search_options->create_item();
     bool found = false;
     StringName base = base_type;
-    List<StringName> base_list;
+    PODVector<StringName> base_list;
     while (base) {
         base_list.push_back(base);
         base = ClassDB::get_parent_class_nocheck(base);
     }
 
-    for (List<StringName>::Element *E = base_list.front(); E; E = E->next()) {
+    for (const StringName &E : base_list) {
         PODVector<MethodInfo> methods;
         ListPOD<PropertyInfo> props;
         TreeItem *category = nullptr;
@@ -133,7 +133,7 @@ void VisualScriptPropertySelector::_update_search() {
             Control::get_icon("PoolColorArray", "EditorIcons")
         };
         {
-            String b = String(E->deref());
+            String b = String(E);
             category = search_options->create_item(root);
             if (category) {
                 category->set_text(0, StringUtils::replace_first(b,"*", ""));
@@ -152,7 +152,7 @@ void VisualScriptPropertySelector::_update_search() {
                 if (Object::cast_to<Script>(obj)) {
                     Object::cast_to<Script>(obj)->get_script_property_list(&props);
                 } else {
-                    ClassDB::get_property_list(E->deref(), &props, true);
+                    ClassDB::get_property_list(E, &props, true);
                 }
             }
             for(const PropertyInfo & F : props) {
@@ -209,8 +209,8 @@ void VisualScriptPropertySelector::_update_search() {
                     Object::cast_to<Script>(obj)->get_script_method_list(&methods);
 
                 } else {
-                    methods.push_back(MethodInfo(CharString("*") + StringUtils::to_utf8(String(E->deref()))));
-                    ClassDB::get_method_list(E->deref(), &methods, true, true);
+                    methods.push_back(MethodInfo(CharString("*") + StringUtils::to_utf8(String(E))));
+                    ClassDB::get_method_list(E, &methods, true, true);
                 }
             }
         }

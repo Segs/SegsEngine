@@ -114,7 +114,7 @@ Error ImageSaver::save_image(const String& p_file, const Ref<Image> &p_image, Fi
     return ERR_FILE_UNRECOGNIZED;
 }
 
-Error ImageSaver::save_image(const String& ext, const Ref<Image> & p_image, PoolVector<uint8_t> &tgt, float p_quality)
+Error ImageSaver::save_image(const String& ext, const Ref<Image> & p_image, PODVector<uint8_t> &tgt, float p_quality)
 {
     register_plugin_resolver();
     ImageData result_data;

@@ -950,13 +950,13 @@ void EditorData::script_class_set_name(const String &p_path, const StringName &p
 }
 
 void EditorData::script_class_save_icon_paths() {
-    List<StringName> keys;
-    _script_class_icon_paths.get_key_list(&keys);
+    ListPOD<StringName> keys;
+    _script_class_icon_paths.get_key_list(keys);
 
     Dictionary d;
-    for (List<StringName>::Element *E = keys.front(); E; E = E->next()) {
-        if (ScriptServer::is_global_class(E->deref()))
-            d[E->deref()] = _script_class_icon_paths[E->deref()];
+    for (const StringName &E : keys) {
+        if (ScriptServer::is_global_class(E))
+            d[E] = _script_class_icon_paths[E];
     }
 
     ProjectSettings::get_singleton()->set("_global_script_class_icons", d);

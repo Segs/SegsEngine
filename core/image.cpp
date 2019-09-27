@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "image.h"
+#include "image.h"
 #include "core/image_enum_casters.h"
 
 #include "core/hash_map.h"
@@ -91,7 +92,7 @@ namespace {
 
 Error Image::save_png_func(const String &p_path, const Ref<Image> &p_img)
 {
-    PoolVector<uint8_t> buffer;
+    PODVector<uint8_t> buffer;
     Ref<Image> source_image = prepareForPngStorage(p_img);
     ERR_FAIL_COND_V(source_image==nullptr, FAILED)
     Error err = ImageSaver::save_image(String("png"),source_image,buffer);
@@ -99,9 +100,7 @@ Error Image::save_png_func(const String &p_path, const Ref<Image> &p_img)
     FileAccess *file = FileAccess::open(p_path, FileAccess::WRITE, &err);
     ERR_FAIL_COND_V(err, err)
 
-    PoolVector<uint8_t>::Read reader = buffer.read();
-
-    file->store_buffer(reader.ptr(), buffer.size());
+    file->store_buffer(buffer.data(), buffer.size());
     if (file->get_error() != OK && file->get_error() != ERR_FILE_EOF) {
         memdelete(file);
         return ERR_CANT_CREATE;
@@ -114,16 +113,14 @@ Error Image::save_png_func(const String &p_path, const Ref<Image> &p_img)
 
 Error Image::save_exr_func(const String &p_path, const Ref<Image> &source_image, bool greyscale)
 {
-    PoolVector<uint8_t> buffer;
+    PODVector<uint8_t> buffer;
     ERR_FAIL_COND_V(source_image==nullptr, FAILED)
     Error err = ImageSaver::save_image(String("exr"),source_image,buffer);
     ERR_FAIL_COND_V(err, err)
     FileAccess *file = FileAccess::open(p_path, FileAccess::WRITE, &err);
     ERR_FAIL_COND_V(err, err)
 
-    PoolVector<uint8_t>::Read reader = buffer.read();
-
-    file->store_buffer(reader.ptr(), buffer.size());
+    file->store_buffer(buffer.data(), buffer.size());
     if (file->get_error() != OK && file->get_error() != ERR_FILE_EOF) {
         memdelete(file);
         return ERR_CANT_CREATE;
@@ -401,11 +398,6 @@ Vector2 Image::get_size() const {
     return Vector2(width, height);
 }
 
-bool Image::has_mipmaps() const {
-
-    return mipmaps;
-}
-
 int Image::get_mipmap_count() const {
 
     if (mipmaps)
@@ -445,7 +437,7 @@ static void _convert(int p_width, int p_height, const uint8_t *p_src, uint8_t *p
             }
 
             if (write_gray) {
-                //TODO: not correct grayscale, should use fixed point version of actual weights
+                // TODO: not correct grayscale, should use fixed point version of actual weights
                 wofs[0] = uint8_t((uint16_t(rofs[0]) + uint16_t(rofs[1]) + uint16_t(rofs[2])) / 3);
             } else {
                 for (uint32_t i = 0; i < write_bytes; i++) {
@@ -2383,7 +2375,7 @@ void (*Image::_image_decompress_bptc)(Image *) = nullptr;
 void (*Image::_image_decompress_etc1)(Image *) = nullptr;
 void (*Image::_image_decompress_etc2)(Image *) = nullptr;
 
-PoolVector<uint8_t> Image::lossy_packer(const Ref<Image> &p_image, float qualt)
+PODVector<uint8_t> Image::lossy_packer(const Ref<Image> &p_image, float qualt)
 {
     Ref<Image> img = p_image;
     if (p_image->get_format() != Image::FORMAT_RGBA8 && p_image->get_format() != Image::FORMAT_RGB8)
@@ -2394,24 +2386,17 @@ PoolVector<uint8_t> Image::lossy_packer(const Ref<Image> &p_image, float qualt)
         else
             img->convert(Image::FORMAT_RGB8);
     }
-    PoolVector<uint8_t> res,tmp;
-    res.resize(4);
-    PoolVector<uint8_t>::Write w = res.write();
-    w[0] = 'W';
-    w[1] = 'E';
-    w[2] = 'B';
-    w[3] = 'P';
+    PODVector<uint8_t> tmp;
 
     if(OK!=ImageSaver::save_image(String("webp"),p_image,tmp,qualt))
         return {};
-    res.append_array(tmp);
-    return res;
+    return tmp;
 }
-Ref<Image> Image::lossy_unpacker(const PoolVector<uint8_t> &p_buffer)
+Ref<Image> Image::lossy_unpacker(const PODVector<uint8_t> &p_buffer)
 {
     int size = p_buffer.size() - 4;
     ERR_FAIL_COND_V(size <= 0, Ref<Image>())
-    PoolVector<uint8_t>::Read r = p_buffer.read();
+    const uint8_t *r = p_buffer.data();
 
     ERR_FAIL_COND_V(r[0] != 'W' || r[1] != 'E' || r[2] != 'B' || r[3] != 'P', Ref<Image>())
 
@@ -2422,27 +2407,19 @@ Ref<Image> Image::lossy_unpacker(const PoolVector<uint8_t> &p_buffer)
     return res;
 
 }
-PoolVector<uint8_t> Image::lossless_packer(const Ref<Image> &p_image)
+PODVector<uint8_t> Image::lossless_packer(const Ref<Image> &p_image)
 {
     Ref<Image> img = prepareForPngStorage(p_image);
-    PoolVector<uint8_t> res,tmp;
-    res.resize(4);
-    PoolVector<uint8_t>::Write w = res.write();
-    w[0] = 'P';
-    w[1] = 'N';
-    w[2] = 'G';
-    w[3] = ' ';
-
+    PODVector<uint8_t> tmp;
     if(OK!=ImageSaver::save_image(String("png"),p_image,tmp,1.0f))
         return {};
-    res.append_array(tmp);
-    return res;
+    return tmp;
 }
-Ref<Image> Image::lossless_unpacker(const PoolVector<uint8_t> &p_data)
+Ref<Image> Image::lossless_unpacker(const PODVector<uint8_t> &p_data)
 {
     const int len = p_data.size();
     ERR_FAIL_COND_V(len < 4, {})
-    PoolVector<uint8_t>::Read r = p_data.read();
+    const uint8_t *r = p_data.data();
     ERR_FAIL_COND_V(r[0] != 'P' || r[1] != 'N' || r[2] != 'G' || r[3] != ' ', {})
     Ref<Image> res(make_ref_counted<Image>());
 
@@ -2552,7 +2529,7 @@ Color Image::get_pixel(int p_x, int p_y) const {
         }
         case FORMAT_RGBA4444: {
             uint16_t u = ((uint16_t *)ptr)[ofs];
-            float r = (u & 0xF) / 15.0;
+            float r = (u & 0xF) / 15.0f;
             float g = ((u >> 4) & 0xF) / 15.0f;
             float b = ((u >> 8) & 0xF) / 15.0f;
             float a = ((u >> 12) & 0xF) / 15.0f;
@@ -2561,10 +2538,10 @@ Color Image::get_pixel(int p_x, int p_y) const {
         case FORMAT_RGBA5551: {
 
             uint16_t u = ((uint16_t *)ptr)[ofs];
-            float r = (u & 0x1F) / 15.0;
-            float g = ((u >> 5) & 0x1F) / 15.0;
-            float b = ((u >> 10) & 0x1F) / 15.0;
-            float a = ((u >> 15) & 0x1) / 1.0;
+            float r = (u & 0x1F) / 15.0f;
+            float g = ((u >> 5) & 0x1F) / 15.0f;
+            float b = ((u >> 10) & 0x1F) / 15.0f;
+            float a = ((u >> 15) & 0x1) / 1.0f;
             return Color(r, g, b, a);
         }
         case FORMAT_RF: {
@@ -2650,38 +2627,38 @@ void Image::set_pixel(int p_x, int p_y, const Color &p_color) {
             ptr[ofs] = uint8_t(CLAMP(p_color.get_v() * 255.0f, 0, 255));
         } break;
         case FORMAT_LA8: {
-            ptr[ofs * 2 + 0] = uint8_t(CLAMP(p_color.get_v() * 255.0, 0, 255));
-            ptr[ofs * 2 + 1] = uint8_t(CLAMP(p_color.a * 255.0, 0, 255));
+            ptr[ofs * 2 + 0] = uint8_t(CLAMP(p_color.get_v() * 255.0f, 0, 255));
+            ptr[ofs * 2 + 1] = uint8_t(CLAMP(p_color.a * 255.0f, 0, 255));
         } break;
         case FORMAT_R8: {
 
-            ptr[ofs] = uint8_t(CLAMP(p_color.r * 255.0, 0, 255));
+            ptr[ofs] = uint8_t(CLAMP(p_color.r * 255.0f, 0, 255));
         } break;
         case FORMAT_RG8: {
 
-            ptr[ofs * 2 + 0] = uint8_t(CLAMP(p_color.r * 255.0, 0, 255));
-            ptr[ofs * 2 + 1] = uint8_t(CLAMP(p_color.g * 255.0, 0, 255));
+            ptr[ofs * 2 + 0] = uint8_t(CLAMP(p_color.r * 255.0f, 0, 255));
+            ptr[ofs * 2 + 1] = uint8_t(CLAMP(p_color.g * 255.0f, 0, 255));
         } break;
         case FORMAT_RGB8: {
-            ptr[ofs * 3 + 0] = uint8_t(CLAMP(p_color.r * 255.0, 0, 255));
-            ptr[ofs * 3 + 1] = uint8_t(CLAMP(p_color.g * 255.0, 0, 255));
-            ptr[ofs * 3 + 2] = uint8_t(CLAMP(p_color.b * 255.0, 0, 255));
+            ptr[ofs * 3 + 0] = uint8_t(CLAMP(p_color.r * 255.0f, 0, 255));
+            ptr[ofs * 3 + 1] = uint8_t(CLAMP(p_color.g * 255.0f, 0, 255));
+            ptr[ofs * 3 + 2] = uint8_t(CLAMP(p_color.b * 255.0f, 0, 255));
         } break;
         case FORMAT_RGBA8: {
-            ptr[ofs * 4 + 0] = uint8_t(CLAMP(p_color.r * 255.0, 0, 255));
-            ptr[ofs * 4 + 1] = uint8_t(CLAMP(p_color.g * 255.0, 0, 255));
-            ptr[ofs * 4 + 2] = uint8_t(CLAMP(p_color.b * 255.0, 0, 255));
-            ptr[ofs * 4 + 3] = uint8_t(CLAMP(p_color.a * 255.0, 0, 255));
+            ptr[ofs * 4 + 0] = uint8_t(CLAMP(p_color.r * 255.0f, 0, 255));
+            ptr[ofs * 4 + 1] = uint8_t(CLAMP(p_color.g * 255.0f, 0, 255));
+            ptr[ofs * 4 + 2] = uint8_t(CLAMP(p_color.b * 255.0f, 0, 255));
+            ptr[ofs * 4 + 3] = uint8_t(CLAMP(p_color.a * 255.0f, 0, 255));
 
         } break;
         case FORMAT_RGBA4444: {
 
             uint16_t rgba = 0;
 
-            rgba = uint16_t(CLAMP(p_color.r * 15.0, 0, 15));
-            rgba |= uint16_t(CLAMP(p_color.g * 15.0, 0, 15)) << 4;
-            rgba |= uint16_t(CLAMP(p_color.b * 15.0, 0, 15)) << 8;
-            rgba |= uint16_t(CLAMP(p_color.a * 15.0, 0, 15)) << 12;
+            rgba = uint16_t(CLAMP(p_color.r * 15.0f, 0, 15));
+            rgba |= uint16_t(CLAMP(p_color.g * 15.0f, 0, 15)) << 4;
+            rgba |= uint16_t(CLAMP(p_color.b * 15.0f, 0, 15)) << 8;
+            rgba |= uint16_t(CLAMP(p_color.a * 15.0f, 0, 15)) << 12;
 
             ((uint16_t *)ptr)[ofs] = rgba;
 
@@ -2690,10 +2667,10 @@ void Image::set_pixel(int p_x, int p_y, const Color &p_color) {
 
             uint16_t rgba = 0;
 
-            rgba = uint16_t(CLAMP(p_color.r * 31.0, 0, 31));
-            rgba |= uint16_t(CLAMP(p_color.g * 31.0, 0, 31)) << 5;
-            rgba |= uint16_t(CLAMP(p_color.b * 31.0, 0, 31)) << 10;
-            rgba |= uint16_t(p_color.a > 0.5 ? 1 : 0) << 15;
+            rgba = uint16_t(CLAMP(p_color.r * 31.0f, 0, 31));
+            rgba |= uint16_t(CLAMP(p_color.g * 31.0f, 0, 31)) << 5;
+            rgba |= uint16_t(CLAMP(p_color.b * 31.0f, 0, 31)) << 10;
+            rgba |= uint16_t(p_color.a > 0.5f ? 1 : 0) << 15;
 
             ((uint16_t *)ptr)[ofs] = rgba;
 
@@ -2764,13 +2741,13 @@ Image::DetectChannels Image::get_detected_channels() {
 
             Color col = get_pixel(i, j);
 
-            if (col.r > 0.001)
+            if (col.r > 0.001f)
                 r = true;
-            if (col.g > 0.001)
+            if (col.g > 0.001f)
                 g = true;
-            if (col.b > 0.001)
+            if (col.b > 0.001f)
                 b = true;
-            if (col.a < 0.999)
+            if (col.a < 0.999f)
                 a = true;
 
             if (col.r != col.b || col.r != col.g || col.b != col.g) {
@@ -3239,9 +3216,9 @@ void Image::renormalize_uint8(uint8_t *p_rgb) {
     n += Vector3(1, 1, 1);
     n *= 0.5;
     n *= 255;
-    p_rgb[0] = CLAMP(int(n.x), 0, 255);
-    p_rgb[1] = CLAMP(int(n.y), 0, 255);
-    p_rgb[2] = CLAMP(int(n.z), 0, 255);
+    p_rgb[0] = (uint8_t)CLAMP<int>(n.x, 0, 255);
+    p_rgb[1] = (uint8_t)CLAMP<int>(n.y, 0, 255);
+    p_rgb[2] = (uint8_t)CLAMP<int>(n.z, 0, 255);
 }
 
 void Image::renormalize_float(float *p_rgb) {

@@ -100,7 +100,7 @@ public:
 };
 
 template <class T>
-class wrap_allocator_T : public wrap_allocator {
+class GODOT_EXPORT wrap_allocator_T : public wrap_allocator {
 public:
     using size_type = size_t;
     using difference_type = ptrdiff_t;
@@ -116,6 +116,7 @@ public:
     }
     template<class U>
     wrap_allocator_T(const wrap_allocator_T<U> &) : wrap_allocator() {}
+
     using wrap_allocator::wrap_allocator;
 };
 GODOT_EXPORT void *operator new(size_t p_size, const char *p_description); ///< operator new that takes a description and uses MemoryStaticPool

@@ -41,7 +41,7 @@ public:
 class ImageFormatSaver {
     friend class ImageSaver;
 public:
-    virtual Error save_image(const ImageData &p_image, PoolVector<uint8_t> &tgt, SaveParams params) = 0;
+    virtual Error save_image(const ImageData &p_image, PODVector<uint8_t> &tgt, SaveParams params) = 0;
     virtual Error save_image(const ImageData &p_image, FileAccess *p_fileaccess, SaveParams params) = 0;
     virtual bool can_save(const String &extension)=0; // support for multi-format plugins
     virtual void get_saved_extensions(Vector<String> *p_extensions) const = 0;

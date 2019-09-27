@@ -34,6 +34,8 @@
 #include "core/hash_map.h"
 #include "core/string_name.h"
 #include "core/variant.h"
+#include "core/set.h"
+
 #include "EASTL/vector.h"
 
 #include <initializer_list>

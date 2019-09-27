@@ -32,6 +32,7 @@
 #include "core/object.h"
 #include "core/resource.h"
 #include "core/method_arg_casters.h"
+#include "core/rid.h"
 
 #include <utility>
 

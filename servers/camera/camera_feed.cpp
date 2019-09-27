@@ -37,6 +37,8 @@
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(CameraFeed)
+VARIANT_ENUM_CAST(CameraFeed::FeedDataType);
+VARIANT_ENUM_CAST(CameraFeed::FeedPosition);
 
 void CameraFeed::_bind_methods() {
     // The setters prefixed with _ are only exposed so we can have feeds through GDNative!

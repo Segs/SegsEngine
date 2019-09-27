@@ -71,7 +71,7 @@ public:
     void remove_animation(const StringName &p_anim);
     void rename_animation(const StringName &p_prev, const StringName &p_next);
 
-    void get_animation_list(List<StringName> *r_animations) const;
+    void get_animation_list(ListPOD<StringName> *r_animations) const;
     Vector<String> get_animation_names() const;
 
     void set_animation_speed(const StringName &p_anim, float p_fps);

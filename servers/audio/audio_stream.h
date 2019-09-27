@@ -28,13 +28,13 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef AUDIO_STREAM_H
-#define AUDIO_STREAM_H
+#pragma once
 
 #include "core/image.h"
 #include "core/resource.h"
 #include "servers/audio/audio_filter_sw.h"
 #include "servers/audio_server.h"
+#include "core/set.h"
 
 class AudioStreamPlayback : public Reference {
 
@@ -207,5 +207,3 @@ public:
 
 	~AudioStreamPlaybackRandomPitch() override;
 };
-
-#endif // AUDIO_STREAM_H

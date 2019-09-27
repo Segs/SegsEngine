@@ -28,77 +28,74 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef RANGE_H
-#define RANGE_H
+#pragma once
 
 #include "scene/gui/control.h"
 
 class Range : public Control {
 
-	GDCLASS(Range,Control)
+    GDCLASS(Range,Control)
 
-	struct Shared {
-		double val, min, max;
-		double step, page;
-		bool exp_ratio;
-		bool allow_greater;
-		bool allow_lesser;
-		Set<Range *> owners;
-		void emit_value_changed();
-		void emit_changed(const char *p_what = "");
-	};
+    struct Shared {
+        double val, min, max;
+        double step, page;
+        bool exp_ratio;
+        bool allow_greater;
+        bool allow_lesser;
+        Set<Range *> owners;
+        void emit_value_changed();
+        void emit_changed(const char *p_what = "");
+    };
 
-	Shared *shared;
+    Shared *shared;
 
-	void _ref_shared(Shared *p_shared);
-	void _unref_shared();
+    void _ref_shared(Shared *p_shared);
+    void _unref_shared();
 
-	void _share(Node *p_range);
+    void _share(Node *p_range);
 
-	void _value_changed_notify();
-	void _changed_notify(const char *p_what = "");
+    void _value_changed_notify();
+    void _changed_notify(const char *p_what = "");
 
 protected:
-	virtual void _value_changed(double) {}
+    virtual void _value_changed(double) {}
 
-	static void _bind_methods();
+    static void _bind_methods();
 
-	bool _rounded_values;
+    bool _rounded_values;
 
 public:
-	void set_value(double p_val);
-	void set_min(double p_min);
-	void set_max(double p_max);
-	void set_step(double p_step);
-	void set_page(double p_page);
-	void set_as_ratio(double p_value);
+    void set_value(double p_val);
+    void set_min(double p_min);
+    void set_max(double p_max);
+    void set_step(double p_step);
+    void set_page(double p_page);
+    void set_as_ratio(double p_value);
 
-	double get_value() const;
-	double get_min() const;
-	double get_max() const;
-	double get_step() const;
-	double get_page() const;
-	double get_as_ratio() const;
+    double get_value() const;
+    double get_min() const;
+    double get_max() const;
+    double get_step() const;
+    double get_page() const;
+    double get_as_ratio() const;
 
-	void set_use_rounded_values(bool p_enable);
-	bool is_using_rounded_values() const;
+    void set_use_rounded_values(bool p_enable);
+    bool is_using_rounded_values() const;
 
-	void set_exp_ratio(bool p_enable);
-	bool is_ratio_exp() const;
+    void set_exp_ratio(bool p_enable);
+    bool is_ratio_exp() const;
 
-	void set_allow_greater(bool p_allow);
-	bool is_greater_allowed() const;
+    void set_allow_greater(bool p_allow);
+    bool is_greater_allowed() const;
 
-	void set_allow_lesser(bool p_allow);
-	bool is_lesser_allowed() const;
+    void set_allow_lesser(bool p_allow);
+    bool is_lesser_allowed() const;
 
-	void share(Range *p_range);
-	void unshare();
+    void share(Range *p_range);
+    void unshare();
 
-	String get_configuration_warning() const override;
+    String get_configuration_warning() const override;
 
-	Range();
-	~Range() override;
+    Range();
+    ~Range() override;
 };
-
-#endif

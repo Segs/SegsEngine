@@ -45,7 +45,7 @@ struct _PHashTranslationCmp {
 
 void PHashTranslation::generate(const Ref<Translation> &p_from) {
 #ifdef TOOLS_ENABLED
-    List<StringName> keys;
+    ListPOD<StringName> keys;
     p_from->get_message_list(&keys);
 
     int size = Math::larger_prime(keys.size());
@@ -64,10 +64,10 @@ void PHashTranslation::generate(const Ref<Translation> &p_from) {
     int total_compression_size = 0;
     int total_string_size = 0;
 
-    for (List<StringName>::Element *E = keys.front(); E; E = E->next()) {
+    for (const StringName &E : keys) {
 
         //hash string
-        CharString cs = StringUtils::utf8(E->deref());
+        CharString cs = StringUtils::utf8(E);
         uint32_t h = hash(0, cs.data());
         Pair<int, CharString> p;
         p.first = idx;
@@ -75,7 +75,7 @@ void PHashTranslation::generate(const Ref<Translation> &p_from) {
         buckets.write[h % size].push_back(p);
 
         //compress string
-        CharString src_s = StringUtils::utf8(p_from->get_message(E->deref()));
+        CharString src_s = StringUtils::utf8(p_from->get_message(E));
         _PHashTranslationCmp ps;
         ps.orig_len = src_s.size();
         ps.offset = total_compression_size;

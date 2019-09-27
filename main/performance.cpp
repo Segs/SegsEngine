@@ -40,10 +40,14 @@
 #include "servers/physics_2d_server.h"
 #include "servers/physics_server.h"
 #include "servers/visual_server.h"
+#include "core/method_arg_casters.h"
+#include "core/method_enum_caster.h"
 
 Performance *Performance::singleton = nullptr;
 
 IMPL_GDCLASS(Performance)
+
+VARIANT_ENUM_CAST(Performance::Monitor);
 
 void Performance::_bind_methods() {
 

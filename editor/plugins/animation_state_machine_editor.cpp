@@ -193,7 +193,7 @@ void AnimationNodeStateMachineEditor::_state_machine_gui_input(const Ref<InputEv
 
         //test the lines now
         int closest = -1;
-        float closest_d = 1e20;
+        float closest_d = 1e20f;
         for (int i = 0; i < transition_lines.size(); i++) {
 
             Vector2 s[2] = {
@@ -329,29 +329,29 @@ void AnimationNodeStateMachineEditor::_state_machine_gui_input(const Ref<InputEv
         {
             //snap
             Vector2 cpos = state_machine->get_node_position(selected_node) + drag_ofs / EDSCALE;
-            List<StringName> nodes;
+            ListPOD<StringName> nodes;
             state_machine->get_node_list(&nodes);
 
-            float best_d_x = 1e20;
-            float best_d_y = 1e20;
+            float best_d_x = 1e20f;
+            float best_d_y = 1e20f;
 
-            for (List<StringName>::Element *E = nodes.front(); E; E = E->next()) {
-                if (E->deref() == selected_node)
+            for (const StringName &E : nodes) {
+                if (E == selected_node)
                     continue;
-                Vector2 npos = state_machine->get_node_position(E->deref());
+                Vector2 npos = state_machine->get_node_position(E);
 
                 float d_x = ABS(npos.x - cpos.x);
                 if (d_x < MIN(5, best_d_x)) {
                     drag_ofs.x -= cpos.x - npos.x;
                     best_d_x = d_x;
-                    snap_x = E->deref();
+                    snap_x = E;
                 }
 
                 float d_y = ABS(npos.y - cpos.y);
                 if (d_y < MIN(5, best_d_y)) {
                     drag_ofs.y -= cpos.y - npos.y;
                     best_d_y = d_y;
-                    snap_y = E->deref();
+                    snap_y = E;
                 }
             }
         }
@@ -511,9 +511,9 @@ void AnimationNodeStateMachineEditor::_connection_draw(const Vector2 &p_from, co
     Color accent = get_color("accent_color", "Editor");
 
     if (!p_enabled) {
-        linecolor.a *= 0.2;
-        icon_color.a *= 0.2;
-        accent.a *= 0.6;
+        linecolor.a *= 0.2f;
+        icon_color.a *= 0.2f;
+        accent.a *= 0.6f;
     }
 
     Ref<Texture> icons[6] = {
@@ -585,7 +585,7 @@ void AnimationNodeStateMachineEditor::_state_machine_draw() {
     Ref<Texture> edit = get_icon("Edit", "EditorIcons");
     Color accent = get_color("accent_color", "Editor");
     Color linecolor = get_color("font_color", "Label");
-    linecolor.a *= 0.3;
+    linecolor.a *= 0.3f;
     Ref<StyleBox> playing_overlay = get_stylebox("position", "GraphNode");
 
     bool playing = false;
@@ -605,7 +605,7 @@ void AnimationNodeStateMachineEditor::_state_machine_draw() {
     }
     int sep = 3 * EDSCALE;
 
-    List<StringName> nodes;
+    ListPOD<StringName> nodes;
     state_machine->get_node_list(&nodes);
 
     node_rects.clear();
@@ -626,12 +626,12 @@ void AnimationNodeStateMachineEditor::_state_machine_draw() {
     }
 
     //pre pass nodes so we know the rectangles
-    for (List<StringName>::Element *E = nodes.front(); E; E = E->next()) {
+    for (const StringName &E : nodes) {
 
-        Ref<AnimationNode> anode = state_machine->get_node(E->deref());
-        String name = E->deref();
+        Ref<AnimationNode> anode = state_machine->get_node(E);
+        String name = E;
         bool needs_editor = EditorNode::get_singleton()->item_has_editor(anode.get());
-        Ref<StyleBox> sb = E->deref() == selected_node ? style_selected : style;
+        Ref<StyleBox> sb = E == selected_node ? style_selected : style;
 
         Size2 s = sb->get_minimum_size();
         int strsize = font->get_string_size(name).width;
@@ -643,8 +643,8 @@ void AnimationNodeStateMachineEditor::_state_machine_draw() {
         }
 
         Vector2 offset;
-        offset += state_machine->get_node_position(E->deref()) * EDSCALE;
-        if (selected_node == E->deref() && dragging_selected) {
+        offset += state_machine->get_node_position(E) * EDSCALE;
+        if (selected_node == E && dragging_selected) {
             offset += drag_ofs;
         }
         offset -= s / 2;
@@ -654,7 +654,7 @@ void AnimationNodeStateMachineEditor::_state_machine_draw() {
 
         NodeRect nr;
         nr.node = Rect2(offset, s);
-        nr.node_name = E->deref();
+        nr.node_name = E;
 
         scroll_range = scroll_range.merge(nr.node); //merge with range
 

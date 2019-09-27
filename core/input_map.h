@@ -48,15 +48,13 @@ public:
     struct Action {
         int id;
         float deadzone;
-        List<Ref<InputEvent> > inputs;
+        ListPOD<Ref<InputEvent> > inputs;
     };
 
 private:
     static InputMap *singleton;
 
     mutable Map<StringName, Action> input_map;
-
-    List<Ref<InputEvent> >::Element *_find_event(Action &p_action, const Ref<InputEvent> &p_event, bool *p_pressed = nullptr, float *p_strength = nullptr) const;
 
     Array _get_action_list(const StringName &p_action);
     Array _get_actions();
@@ -78,7 +76,7 @@ public:
     void action_erase_event(const StringName &p_action, const Ref<InputEvent> &p_event);
     void action_erase_events(const StringName &p_action);
 
-    const List<Ref<InputEvent> > *get_action_list(const StringName &p_action);
+    const ListPOD<Ref<InputEvent> > *get_action_list(const StringName &p_action);
     bool event_is_action(const Ref<InputEvent> &p_event, const StringName &p_action) const;
     bool event_get_action_status(const Ref<InputEvent> &p_event, const StringName &p_action, bool *p_pressed = nullptr, float *p_strength = nullptr) const;
 

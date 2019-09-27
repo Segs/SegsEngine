@@ -33,6 +33,7 @@
 #include "collision_object_2d_sw.h"
 
 #include "core/map.h"
+#include "core/rid.h"
 #include "core/self_list.h"
 #include "servers/physics_2d_server.h"
 

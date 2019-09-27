@@ -68,15 +68,15 @@ Size2 AnimationTreePlayerEditor::_get_maximum_size() {
 
     Size2 max;
 
-    for (List<StringName>::Element *E = order.front(); E; E = E->next()) {
+    for (const StringName &E : order) {
 
-        Point2 pos = anim_tree->node_get_position(E->deref());
+        Point2 pos = anim_tree->node_get_position(E);
 
-        if (click_type == CLICK_NODE && click_node == E->deref()) {
+        if (click_type == CLICK_NODE && click_node == E) {
 
             pos += click_motion - click_pos;
         }
-        pos += get_node_size(E->deref());
+        pos += get_node_size(E);
         if (pos.x > max.x)
             max.x = pos.x;
         if (pos.y > max.y)
@@ -154,10 +154,10 @@ void AnimationTreePlayerEditor::_edit_dialog_changed() {
     if (renaming_edit) {
 
         if (anim_tree->node_rename(edited_node, edit_line[0]->get_text()) == OK) {
-            for (List<StringName>::Element *E = order.front(); E; E = E->next()) {
+            for (StringName &E : order) {
 
-                if (E->deref() == edited_node)
-                    E->deref() = edit_line[0]->get_text();
+                if (E == edited_node)
+                    E = edit_line[0]->get_text();
             }
             edited_node = edit_line[0]->get_text();
         }
@@ -621,9 +621,9 @@ AnimationTreePlayerEditor::ClickType AnimationTreePlayerEditor::_locate_click(co
 
     float h = (font->get_height() + get_constant("vseparation", "PopupMenu"));
 
-    for (const List<StringName>::Element *E = order.back(); E; E = E->prev()) {
+    for (auto iter = order.rbegin(); iter!=order.rend(); ++iter) {
 
-        const StringName &node = E->deref();
+        const StringName &node = *iter;
 
         AnimationTreePlayer::NodeType type = anim_tree->node_get_type(node);
 
@@ -727,9 +727,9 @@ void AnimationTreePlayerEditor::_gui_input(const Ref<InputEvent>& p_event) {
                 click_motion = click_pos;
                 click_type = _locate_click(click_pos, &click_node, &click_slot);
                 if (click_type != CLICK_NONE) {
-
-                    order.erase(click_node);
-                    order.push_back(click_node);
+                    auto iter = eastl::find(order.begin(),order.end(),click_node);
+                    // move node to back
+                    order.splice( order.end(), order, iter);
                     update();
                 }
 
@@ -897,9 +897,9 @@ void AnimationTreePlayerEditor::_notification(int p_what) {
             //VisualServer::get_singleton()->canvas_item_add_rect(get_canvas_item(),Rect2(Point2(),get_size()),Color(0,0,0,1));
             get_stylebox("bg", "Tree")->draw(get_canvas_item(), Rect2(Point2(), get_size()));
 
-            for (List<StringName>::Element *E = order.front(); E; E = E->next()) {
+            for (const StringName &E : order) {
 
-                _draw_node(E->deref());
+                _draw_node(E);
             }
 
             if (click_type == CLICK_INPUT_SLOT || click_type == CLICK_OUTPUT_SLOT) {
@@ -915,7 +915,7 @@ void AnimationTreePlayerEditor::_notification(int p_what) {
                 const AnimationTreePlayer::Connection &c = E->deref();
                 Point2 source = _get_slot_pos(c.src_node, false, 0);
                 Point2 dest = _get_slot_pos(c.dst_node, true, c.dst_input);
-                Color col = Color(1, 1, 0.5, 0.8);
+                Color col = Color(1, 1, 0.5, 0.8f);
                 /*
                 if (click_type==CLICK_NODE && click_node==c.src_node) {
 
@@ -935,12 +935,12 @@ void AnimationTreePlayerEditor::_notification(int p_what) {
                 case AnimationTreePlayer::CONNECT_OK: {
 
                     Ref<Font> f = get_font("font", "Label");
-                    f->draw(get_canvas_item(), Point2(5, 25 + f->get_ascent()), TTR("Animation tree is valid."), Color(0, 1, 0.6, 0.8));
+                    f->draw(get_canvas_item(), Point2(5, 25 + f->get_ascent()), TTR("Animation tree is valid."), Color(0, 1, 0.6f, 0.8f));
                 } break;
                 default: {
 
                     Ref<Font> f = get_font("font", "Label");
-                    f->draw(get_canvas_item(), Point2(5, 25 + f->get_ascent()), TTR("Animation tree is invalid."), Color(1, 0.6, 0.0, 0.8));
+                    f->draw(get_canvas_item(), Point2(5, 25 + f->get_ascent()), TTR("Animation tree is invalid."), Color(1, 0.6f, 0.0f, 0.8f));
                 } break;
             }
 
@@ -1057,7 +1057,9 @@ void AnimationTreePlayerEditor::_node_menu_item(int p_item) {
 
             if (rclick_node == "out")
                 break;
-            order.erase(rclick_node);
+            auto iter = eastl::find(order.begin(),order.end(),rclick_node);
+            assert(iter!=order.end());
+            order.erase(iter);
             anim_tree->remove_node(rclick_node);
             update();
         } break;

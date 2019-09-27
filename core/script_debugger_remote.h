@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef SCRIPT_DEBUGGER_REMOTE_H
-#define SCRIPT_DEBUGGER_REMOTE_H
+#pragma once
 
 #include "core/io/packet_peer.h"
 #include "core/io/stream_peer_tcp.h"
@@ -37,6 +36,7 @@
 #include "core/os/os.h"
 #include "core/script_language.h"
 #include "core/print_string.h"
+#include "core/rid.h"
 
 class ScriptDebuggerRemote : public ScriptDebugger {
 
@@ -192,5 +192,3 @@ public:
     ScriptDebuggerRemote();
     ~ScriptDebuggerRemote() override;
 };
-
-#endif // SCRIPT_DEBUGGER_REMOTE_H

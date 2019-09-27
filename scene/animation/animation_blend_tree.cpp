@@ -32,6 +32,8 @@
 #include "scene/scene_string_names.h"
 #include "core/method_bind.h"
 
+#include "EASTL/sort.h"
+
 IMPL_GDCLASS(AnimationNodeAnimation)
 IMPL_GDCLASS(AnimationNodeOneShot)
 IMPL_GDCLASS(AnimationNodeAdd2)
@@ -1098,7 +1100,7 @@ float AnimationNodeBlendTree::process(float p_time, bool p_seek) {
     return _blend_node("output", nodes[SceneStringNames::get_singleton()->output].connections, this, output, p_time, p_seek, 1.0);
 }
 
-void AnimationNodeBlendTree::get_node_list(List<StringName> *r_list) {
+void AnimationNodeBlendTree::get_node_list(ListPOD<StringName> *r_list) {
 
     for (eastl::pair<const StringName,Node> &E : nodes) {
         r_list->push_back(E.first);
@@ -1199,14 +1201,15 @@ bool AnimationNodeBlendTree::_get(const StringName &p_name, Variant &r_ret) cons
 }
 void AnimationNodeBlendTree::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
-    List<StringName> names;
+    PODVector<StringName> names;
+    names.reserve(nodes.size());
     for (const eastl::pair<const StringName,Node> &E : nodes) {
         names.push_back(E.first);
     }
-    names.sort_custom<WrapAlphaCompare>();
+    eastl::sort(names.begin(),names.end(),WrapAlphaCompare());
 
-    for (List<StringName>::Element *E = names.front(); E; E = E->next()) {
-        String name = E->deref();
+    for (const StringName &E : names) {
+        String name(E);
         if (name != "output") {
             p_list->push_back(PropertyInfo(VariantType::OBJECT, "nodes/" + name + "/node", PROPERTY_HINT_RESOURCE_TYPE, "AnimationNode", PROPERTY_USAGE_NOEDITOR));
         }
