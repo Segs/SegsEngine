@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef LINE_EDIT_H
-#define LINE_EDIT_H
+#pragma once
 
 #include "scene/gui/control.h"
 #include "scene/gui/popup_menu.h"
@@ -235,7 +234,4 @@ public:
 	~LineEdit() override;
 };
 
-VARIANT_ENUM_CAST(LineEdit::Align);
-VARIANT_ENUM_CAST(LineEdit::MenuItems);
 
-#endif

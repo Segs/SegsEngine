@@ -28,11 +28,11 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef ASTAR_H
-#define ASTAR_H
+#pragma once
 
 #include "core/oa_hash_map.h"
 #include "core/reference.h"
+#include "core/set.h"
 
 /**
 	A* pathfinding algorithm
@@ -191,5 +191,3 @@ public:
 	AStar2D();
 	~AStar2D() override;
 };
-
-#endif // ASTAR_H

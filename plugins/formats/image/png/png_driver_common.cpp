@@ -32,6 +32,7 @@
 
 #include "core/os/os.h"
 #include "core/image_data.h"
+#include "core/vector.h"
 
 #include <png.h>
 #include <cstring>
@@ -82,19 +83,19 @@ Error png_to_image(const uint8_t *p_source, size_t p_size, ImageData &p_image) {
 
     png_img.format &= format_mask;
 
-	ImageData::Format dest_format;
+    ImageData::Format dest_format;
     switch (png_img.format) {
         case PNG_FORMAT_GRAY:
-			dest_format = ImageData::FORMAT_L8;
+            dest_format = ImageData::FORMAT_L8;
             break;
         case PNG_FORMAT_GA:
-			dest_format = ImageData::FORMAT_LA8;
+            dest_format = ImageData::FORMAT_LA8;
             break;
         case PNG_FORMAT_RGB:
-			dest_format = ImageData::FORMAT_RGB8;
+            dest_format = ImageData::FORMAT_RGB8;
             break;
         case PNG_FORMAT_RGBA:
-			dest_format = ImageData::FORMAT_RGBA8;
+            dest_format = ImageData::FORMAT_RGBA8;
             break;
         default:
             png_image_free(&png_img); // only required when we return before finish_read
@@ -103,52 +104,52 @@ Error png_to_image(const uint8_t *p_source, size_t p_size, ImageData &p_image) {
     }
 
     const png_uint_32 stride = PNG_IMAGE_ROW_STRIDE(png_img);
-	Error err = p_image.data.resize(PNG_IMAGE_BUFFER_SIZE(png_img, stride));
+    Error err = p_image.data.resize(PNG_IMAGE_BUFFER_SIZE(png_img, stride));
     if (err) {
         png_image_free(&png_img); // only required when we return before finish_read
         return err;
     }
-	PoolVector<uint8_t>::Write writer = p_image.data.write();
+    PoolVector<uint8_t>::Write writer = p_image.data.write();
 
     // read image data to buffer and release libpng resources
     success = png_image_finish_read(&png_img, nullptr, writer.ptr(), stride, nullptr);
     ERR_FAIL_COND_V(check_error(png_img), ERR_FILE_CORRUPT)
     ERR_FAIL_COND_V(!success, ERR_FILE_CORRUPT)
 
-	p_image.width = png_img.width;
-	p_image.height = png_img.height;
-	p_image.mipmaps = false;
-	p_image.format = dest_format;
+    p_image.width = png_img.width;
+    p_image.height = png_img.height;
+    p_image.mipmaps = false;
+    p_image.format = dest_format;
 
     return OK;
 }
 
-Error image_to_png(const ImageData &source_image, PoolVector<uint8_t> &p_buffer) {
+Error image_to_png(const ImageData &source_image, PODVector<uint8_t> &p_buffer) {
 
     png_image png_img;
     memset(&png_img, 0, sizeof(png_img));
     png_img.version = PNG_IMAGE_VERSION;
-	png_img.width = source_image.width;
-	png_img.height = source_image.height;
+    png_img.width = source_image.width;
+    png_img.height = source_image.height;
 
-	switch (source_image.format) {
-		case ImageData::FORMAT_L8:
+    switch (source_image.format) {
+        case ImageData::FORMAT_L8:
             png_img.format = PNG_FORMAT_GRAY;
             break;
-		case ImageData::FORMAT_LA8:
+        case ImageData::FORMAT_LA8:
             png_img.format = PNG_FORMAT_GA;
             break;
-		case ImageData::FORMAT_RGB8:
+        case ImageData::FORMAT_RGB8:
             png_img.format = PNG_FORMAT_RGB;
             break;
-		case ImageData::FORMAT_RGBA8:
+        case ImageData::FORMAT_RGBA8:
             png_img.format = PNG_FORMAT_RGBA;
             break;
         default:
-		return ERR_INVALID_DATA;
+        return ERR_INVALID_DATA;
     }
 
-	const PoolVector<uint8_t> &image_data = source_image.data;
+    const PoolVector<uint8_t> &image_data = source_image.data;
     const PoolVector<uint8_t>::Read reader = image_data.read();
 
     // we may be passed a buffer with existing content we're expected to append to
@@ -160,11 +161,8 @@ Error image_to_png(const ImageData &source_image, PoolVector<uint8_t> &p_buffer)
     size_t compressed_size = png_size_estimate;
     int success = 0;
     { // scope writer lifetime
-        Error err = p_buffer.resize(buffer_offset + png_size_estimate);
-		ERR_FAIL_COND_V(err, err)
-
-        PoolVector<uint8_t>::Write writer = p_buffer.write();
-        success = png_image_write_to_memory(&png_img, &writer[buffer_offset],
+        p_buffer.resize(buffer_offset + png_size_estimate);
+        success = png_image_write_to_memory(&png_img, p_buffer.data() + buffer_offset,
                 &compressed_size, 0, reader.ptr(), 0, nullptr);
         ERR_FAIL_COND_V(check_error(png_img), FAILED)
     }
@@ -174,20 +172,17 @@ Error image_to_png(const ImageData &source_image, PoolVector<uint8_t> &p_buffer)
         ERR_FAIL_COND_V(compressed_size <= png_size_estimate, FAILED)
 
         // write failed due to buffer size, resize and retry
-        Error err = p_buffer.resize(buffer_offset + compressed_size);
-        ERR_FAIL_COND_V(err, err)
+        p_buffer.resize(buffer_offset + compressed_size);
 
-        PoolVector<uint8_t>::Write writer = p_buffer.write();
-        success = png_image_write_to_memory(&png_img, &writer[buffer_offset],
+        success = png_image_write_to_memory(&png_img, p_buffer.data()+buffer_offset,
                 &compressed_size, 0, reader.ptr(), 0, nullptr);
         ERR_FAIL_COND_V(check_error(png_img), FAILED)
         ERR_FAIL_COND_V(!success, FAILED)
     }
 
     // trim buffer size to content
-    Error err = p_buffer.resize(buffer_offset + compressed_size);
-    ERR_FAIL_COND_V(err, err)
-
+    p_buffer.resize(buffer_offset + compressed_size);
+    p_buffer.shrink_to_fit();
     return OK;
 }
 

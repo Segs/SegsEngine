@@ -38,7 +38,7 @@ class ImageLoaderPNG : public QObject, public ImageFormatLoader, public ImageFor
     Q_OBJECT
 
 private:
-    static PoolVector<uint8_t> lossless_pack_png(const ImageData &p_image);
+    static PODVector<uint8_t> lossless_pack_png(const ImageData &p_image);
     static ImageData lossless_unpack_png(const PoolVector<uint8_t> &p_data);
     static ImageData load_mem_png(const uint8_t *p_png, int p_size);
 
@@ -50,7 +50,7 @@ public:
     void get_saved_extensions(Vector<String> *p_extensions) const override {
         this->get_recognized_extensions(p_extensions);
     }
-    Error save_image(const ImageData &p_image, PoolVector<uint8_t> &tgt, SaveParams params) override;
+    Error save_image(const ImageData &p_image, PODVector<uint8_t> &tgt, SaveParams params) override;
     Error save_image(const ImageData &p_image, FileAccess *p_fileaccess, SaveParams params) override;
     bool can_save(const String &extension) override;
 

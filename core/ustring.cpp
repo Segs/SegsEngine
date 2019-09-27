@@ -46,7 +46,7 @@
 #include <cstdio>
 #include <cstdlib>
 
-
+//template class GODOT_EXPORT_TEMPLATE_B eastl::vector<String,wrap_allocator>;
 /*
     TODO: SEGS: When replacing QString as the underlying string type consider the following helper class from qt
     QTextBoundaryFinder for grapheme navigation in QChar-like *strings

@@ -36,6 +36,8 @@
 #include "core/variant.h"
 #include "core/vector.h"
 #include "core/vmap.h"
+#include "core/set.h"
+
 #include "gdscript_functions.h"
 
 class GDScriptTokenizer {

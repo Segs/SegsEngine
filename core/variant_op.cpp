@@ -34,6 +34,7 @@
 #include "core/object.h"
 #include "core/object_db.h"
 #include "core/script_language.h"
+#include "core/rid.h"
 
 #define CASE_TYPE_ALL(PREFIX, OP) \
     CASE_TYPE(PREFIX, OP, INT)    \

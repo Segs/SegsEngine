@@ -250,7 +250,7 @@ Error ImageLoaderTinyEXR::load_image(ImageData &p_image, FileAccess *f, LoadPara
 
 void ImageLoaderTinyEXR::get_recognized_extensions(Vector<String> *p_extensions) const {
 
-	p_extensions->push_back(String("exr"));
+    p_extensions->push_back(String("exr"));
 }
 
 ImageLoaderTinyEXR::ImageLoaderTinyEXR() {
@@ -261,7 +261,7 @@ bool ImageLoaderTinyEXR::can_save(const String &extension)
     return "exr"==extension;
 }
 
-Error ImageLoaderTinyEXR::save_image(const ImageData &p_image, PoolVector<uint8_t> &tgt, SaveParams params)
+Error ImageLoaderTinyEXR::save_image(const ImageData &p_image, PODVector<uint8_t> &tgt, SaveParams params)
 {
     auto err = save_exr(tgt,p_image,params.p_greyscale);
     return err;
@@ -269,13 +269,12 @@ Error ImageLoaderTinyEXR::save_image(const ImageData &p_image, PoolVector<uint8_
 
 Error ImageLoaderTinyEXR::save_image(const ImageData &p_image, FileAccess *p_fileaccess, SaveParams params)
 {
-    PoolVector<uint8_t> tgt;
+    PODVector<uint8_t> tgt;
     auto err = save_exr(tgt,p_image,params.p_greyscale);
 
     if(err!=OK)
         return err;
-    auto reader = tgt.read();
-    p_fileaccess->store_buffer(reader.ptr(), tgt.size());
+    p_fileaccess->store_buffer(tgt.data(), tgt.size());
     if (p_fileaccess->get_error() != OK && p_fileaccess->get_error() != ERR_FILE_EOF) {
         return ERR_CANT_CREATE;
     }

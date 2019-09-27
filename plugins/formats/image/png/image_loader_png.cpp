@@ -84,45 +84,32 @@ ImageData ImageLoaderPNG::lossless_unpack_png(const PoolVector<uint8_t> &p_data)
     return load_mem_png(&r[4], len - 4);
 }
 
-PoolVector<uint8_t> ImageLoaderPNG::lossless_pack_png(const ImageData &p_image) {
+PODVector<uint8_t> ImageLoaderPNG::lossless_pack_png(const ImageData &p_image) {
 
-    PoolVector<uint8_t> out_buffer;
-
-    // add Godot's own "PNG " prefix
-    if (out_buffer.resize(4) != OK) {
-        ERR_FAIL_V(PoolVector<uint8_t>())
-    }
-
-    // scope for writer lifetime
-    {
-        // must be closed before call to image_to_png
-        PoolVector<uint8_t>::Write writer = out_buffer.write();
-        memcpy(writer.ptr(), "PNG ", 4);
-    }
-
+    PODVector<uint8_t> out_buffer = {'P','N','G',' '}; // Header marker bytes.
     Error err = PNGDriverCommon::image_to_png(p_image, out_buffer);
     if (err) {
         ERR_REPORT_COND("Can't convert image to PNG.")
-        return PoolVector<uint8_t>();
+        return {};
     }
 
     return out_buffer;
 }
 
 
-Error ImageLoaderPNG::save_image(const ImageData &p_image, PoolVector<uint8_t> &tgt, SaveParams params)
+Error ImageLoaderPNG::save_image(const ImageData &p_image, PODVector<uint8_t> &tgt, SaveParams params)
 {
     tgt = lossless_pack_png(p_image);
-    return tgt.size()==0 ? ERR_CANT_CREATE : OK;
+    return tgt.empty() ? ERR_CANT_CREATE : OK;
 }
 
 Error ImageLoaderPNG::save_image(const ImageData &p_image, FileAccess *p_fileaccess, SaveParams params)
 {
-    PoolVector<uint8_t> tgt = lossless_pack_png(p_image);
+    PODVector<uint8_t> tgt = lossless_pack_png(p_image);
     if(tgt.size()==0)
         return ERR_CANT_CREATE;
-    auto reader = tgt.read();
-    p_fileaccess->store_buffer(reader.ptr(), tgt.size());
+
+    p_fileaccess->store_buffer(tgt.data(), tgt.size());
     if (p_fileaccess->get_error() != OK && p_fileaccess->get_error() != ERR_FILE_EOF) {
         return ERR_CANT_CREATE;
     }

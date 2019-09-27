@@ -393,7 +393,7 @@ public:
 	String get_caption() const override;
 	float process(float p_time, bool p_seek) override;
 
-	void get_node_list(List<StringName> *r_list);
+	void get_node_list(ListPOD<StringName> *r_list);
 
 	void set_graph_offset(const Vector2 &p_graph_offset);
 	Vector2 get_graph_offset() const;

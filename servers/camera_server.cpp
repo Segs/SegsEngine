@@ -30,8 +30,12 @@
 
 #include "camera_server.h"
 
-#include "core/method_bind.h"
+#include "camera_server_enum_casters.h"
 #include "servers/camera/camera_feed.h"
+
+#include "core/method_arg_casters.h"
+#include "core/method_bind.h"
+#include "core/method_enum_caster.h"
 #include "visual_server.h"
 
 IMPL_GDCLASS(CameraServer)

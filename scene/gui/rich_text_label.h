@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef RICH_TEXT_LABEL_H
-#define RICH_TEXT_LABEL_H
+#pragma once
 
 #include "rich_text_effect.h"
 #include "scene/gui/scroll_bar.h"
@@ -457,7 +456,7 @@ public:
     void push_meta(const Variant &p_meta);
     void push_table(int p_columns);
     void push_fade(int p_start_index, int p_length);
-	void push_shake(int p_strength, float p_rate);
+    void push_shake(int p_strength, float p_rate);
     void push_wave(float p_frequency, float p_amplitude);
     void push_tornado(float p_frequency, float p_radius);
     void push_rainbow(float p_saturation, float p_value, float p_frequency);
@@ -531,9 +530,3 @@ public:
     RichTextLabel();
     ~RichTextLabel() override;
 };
-
-VARIANT_ENUM_CAST(RichTextLabel::Align);
-VARIANT_ENUM_CAST(RichTextLabel::ListType);
-VARIANT_ENUM_CAST(RichTextLabel::ItemType);
-
-#endif // RICH_TEXT_LABEL_H

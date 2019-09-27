@@ -32,11 +32,16 @@
 
 #include "core/core_string_names.h"
 #include "core/map.h"
+#include "core/method_arg_casters.h"
+#include "core/method_enum_caster.h"
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(Curve)
 IMPL_GDCLASS(Curve2D)
 IMPL_GDCLASS(Curve3D)
+
+VARIANT_ENUM_CAST(Curve::TangentMode)
+
 
 template <class T>
 static _FORCE_INLINE_ T _bezier_interp(real_t t, T start, T control_1, T control_2, T end) {

@@ -36,6 +36,7 @@
 #include "main/default_controller_mappings.h"
 #include "scene/resources/texture.h"
 #include "servers/visual_server.h"
+#include "core/property_info.h"
 
 IMPL_GDCLASS(InputDefault)
 
@@ -71,8 +72,8 @@ void InputDefault::SpeedTrack::reset() {
 
 InputDefault::SpeedTrack::SpeedTrack() {
 
-    min_ref_frame = 0.1;
-    max_ref_frame = 0.3;
+    min_ref_frame = 0.1f;
+    max_ref_frame = 0.3f;
     reset();
 }
 

@@ -79,7 +79,7 @@ public:
     //TODO: SEGS: was `Ref<Texture> &p_texture` but can also use CubeMap so it's using common base of Texture/CubeMap, consider introducing a common ?ImageSource? base class?
     void set_default_texture_param(const StringName &p_param, const Ref<Resource> &p_texture);
     Ref<Resource> get_default_texture_param(const StringName &p_param) const;
-    void get_default_texture_param_list(DefList<StringName> *r_textures) const;
+    void get_default_texture_param_list(ListPOD<StringName> *r_textures) const;
 
     virtual bool is_text_shader() const;
 

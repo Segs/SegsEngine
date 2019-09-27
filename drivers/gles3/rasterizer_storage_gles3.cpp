@@ -1505,12 +1505,12 @@ String RasterizerStorageGLES3::texture_get_path(RID p_texture) const {
 }
 void RasterizerStorageGLES3::texture_debug_usage(List<VS::TextureInfo> *r_info) {
 
-    List<RID> textures;
+    ListPOD<RID> textures;
     texture_owner.get_owned_list(&textures);
 
-    for (List<RID>::Element *E = textures.front(); E; E = E->next()) {
+    for (const RID &E : textures) {
 
-        Texture *t = texture_owner.get(E->deref());
+        Texture *t = texture_owner.get(E);
         if (!t)
             continue;
         VS::TextureInfo tinfo;

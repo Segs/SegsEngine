@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef SCENE_MAIN_LOOP_H
-#define SCENE_MAIN_LOOP_H
+#pragma once
 
 #include "core/os/main_loop.h"
 #include "core/os/thread_safe.h"
@@ -434,5 +433,3 @@ public:
 VARIANT_ENUM_CAST(SceneTree::StretchMode);
 VARIANT_ENUM_CAST(SceneTree::StretchAspect);
 VARIANT_ENUM_CAST(SceneTree::GroupCallFlags);
-
-#endif

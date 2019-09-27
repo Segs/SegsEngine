@@ -37,6 +37,7 @@
 #include "core/io/resource_loader.h"
 #include "core/os/dir_access.h"
 #include "core/project_settings.h"
+#include "core/rid.h"
 #include "core/version.h"
 
 //#define print_bl(m_what) print_line(m_what)
@@ -601,11 +602,9 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
 
             } else {
                 //compressed
-                PoolVector<uint8_t> data;
+                PODVector<uint8_t> data;
                 data.resize(f->get_32());
-                PoolVector<uint8_t>::Write w = data.write();
-                f->get_buffer(w.ptr(), data.size());
-                w.release();
+                f->get_buffer(data.data(), data.size());
 
                 Ref<Image> image;
 
@@ -625,7 +624,7 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
 #endif
         default: {
             ERR_FAIL_V(ERR_FILE_CORRUPT);
-        } break;
+        }
     }
 
     return OK; //never reach anyway

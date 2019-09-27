@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "line_edit.h"
+#include "line_edit_enum_casters.h"
 
 #include "core/message_queue.h"
 #include "core/os/keyboard.h"
@@ -47,6 +48,8 @@
 #endif
 
 IMPL_GDCLASS(LineEdit)
+
+
 
 static bool _is_text_char(CharType c) {
 

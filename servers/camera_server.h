@@ -28,16 +28,13 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef CAMERA_SERVER_H
-#define CAMERA_SERVER_H
+#pragma once
 
 #include "core/object.h"
 #include "core/os/thread_safe.h"
 #include "core/reference.h"
 #include "core/rid.h"
 #include "core/variant.h"
-#include "core/method_arg_casters.h"
-#include "core/method_enum_caster.h"
 
 /**
     @author Bastiaan Olij <mux213@gmail.com>
@@ -93,7 +90,3 @@ public:
     CameraServer();
     ~CameraServer() override;
 };
-
-VARIANT_ENUM_CAST(CameraServer::FeedImage);
-
-#endif /* CAMERA_SERVER_H */

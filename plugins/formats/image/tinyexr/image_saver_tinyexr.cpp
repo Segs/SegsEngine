@@ -289,7 +289,7 @@ Error save_exr(const String &p_path, const ImageData &p_img, bool p_grayscale) {
 
     return OK;
 }
-Error save_exr(PoolVector<uint8_t> &tgt, const ImageData &p_img, bool p_grayscale) {
+Error save_exr(PODVector<uint8_t> &tgt, const ImageData &p_img, bool p_grayscale) {
     EXRImage image;
     EXRHeader header;
     auto res = prepare_exr_save(image,header,p_img,p_grayscale);
@@ -306,7 +306,7 @@ Error save_exr(PoolVector<uint8_t> &tgt, const ImageData &p_img, bool p_grayscal
         return ERR_FILE_CANT_WRITE;
     }
     tgt.resize(ret);
-    memcpy(tgt.write().ptr(),exr_memory,ret);
+    memcpy(tgt.data(),exr_memory,ret);
     free(exr_memory);
     return OK;
 }

@@ -33,6 +33,10 @@
 #include "core/os/os.h"
 #include "core/print_string.h"
 #include "core/ustring.h"
+#include "core/vector.h"
+
+template class GODOT_EXPORT_TEMPLATE_B eastl::vector<StringName,wrap_allocator>;
+template class GODOT_EXPORT_TEMPLATE_B eastl::list<StringName,wrap_allocator>;
 
 namespace
 {

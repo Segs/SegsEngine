@@ -28,11 +28,12 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef BODY_2D_SW_H
-#define BODY_2D_SW_H
+#pragma once
 
 #include "area_2d_sw.h"
 #include "collision_object_2d_sw.h"
+
+#include "core/rid.h"
 #include "core/vset.h"
 
 class Constraint2DSW;
@@ -422,5 +423,3 @@ public:
 		body = nullptr;
 	}
 };
-
-#endif // BODY_2D_SW_H

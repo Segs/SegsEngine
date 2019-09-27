@@ -141,12 +141,10 @@ void LayeredTextureImpl::_save_tex(const Vector<Ref<Image> > &p_images, const St
                         image->shrink_x2();
                     }
 
-                    PoolVector<uint8_t> data = Image::lossless_packer(image);
+                    PODVector<uint8_t> data = Image::lossless_packer(image);
                     int data_len = data.size();
                     f->store_32(data_len);
-
-                    PoolVector<uint8_t>::Read r = data.read();
-                    f->store_buffer(r.ptr(), data_len);
+                    f->store_buffer(data.data(), data_len);
                 }
 
             } break;

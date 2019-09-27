@@ -145,7 +145,7 @@ GDScriptDataType GDScriptCompiler::_gdtype_from_datatype(const GDScriptParser::D
         case GDScriptParser::DataType::CLASS: {
             // Locate class by constructing the path to it and following that path
             GDScriptParser::ClassNode *class_type = p_datatype.class_type;
-            List<StringName> names;
+            PODVector<StringName> names;
             while (class_type->owner) {
                 names.push_back(class_type->name);
                 class_type = class_type->owner;
@@ -153,12 +153,12 @@ GDScriptDataType GDScriptCompiler::_gdtype_from_datatype(const GDScriptParser::D
 
             Ref<GDScript> script = Ref<GDScript>(main_script);
             while (names.back()) {
-                if (!script->subclasses.contains(names.back()->deref())) {
-                    ERR_PRINT("Parser bug: Cannot locate datatype class.");
+                if (!script->subclasses.contains(names.back())) {
+                    ERR_PRINT("Parser bug: Cannot locate datatype class.")
                     result.has_type = false;
                     return GDScriptDataType();
                 }
-                script = script->subclasses[names.back()->deref()];
+                script = script->subclasses[names.back()];
                 names.pop_back();
             }
 
@@ -167,7 +167,7 @@ GDScriptDataType GDScriptCompiler::_gdtype_from_datatype(const GDScriptParser::D
             result.native_type = script->get_instance_base_type();
         } break;
         default: {
-            ERR_PRINT("Parser bug: converting unresolved type.");
+            ERR_PRINT("Parser bug: converting unresolved type.")
             return GDScriptDataType();
         }
     }

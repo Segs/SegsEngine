@@ -709,12 +709,11 @@ bool EditorSettings::_save_text_editor_theme(const String& p_file) {
     String theme_section = "color_theme";
     Ref<ConfigFile> cf(make_ref_counted<ConfigFile>()); // hex is better?
 
-    List<String> keys;
-    props.get_key_list(&keys);
+    ListPOD<String> keys;
+    props.get_key_list(keys);
     keys.sort();
 
-    for (const List<String>::Element *E = keys.front(); E; E = E->next()) {
-        const String &key = E->deref();
+    for (const String &key : keys) {
         if (StringUtils::begins_with(key,"text_editor/highlighting/") && StringUtils::find(key,"color") >= 0) {
             cf->set_value(theme_section, StringUtils::replace(key,"text_editor/highlighting/", ""), ((Color)props[key].variant).to_html());
         }

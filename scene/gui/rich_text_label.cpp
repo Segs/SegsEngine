@@ -45,11 +45,13 @@
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_scale.h"
-
-
 #endif
 
 IMPL_GDCLASS(RichTextLabel)
+
+VARIANT_ENUM_CAST(RichTextLabel::Align);
+VARIANT_ENUM_CAST(RichTextLabel::ListType);
+VARIANT_ENUM_CAST(RichTextLabel::ItemType);
 
 RichTextLabel::Item *RichTextLabel::_get_next_item(Item *p_item, bool p_free) {
 

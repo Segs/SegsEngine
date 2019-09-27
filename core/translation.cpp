@@ -885,11 +885,10 @@ void Translation::erase_message(const StringName &p_src_text) {
     translation_map.erase(p_src_text);
 }
 
-void Translation::get_message_list(List<StringName> *r_messages) const {
+void Translation::get_message_list(ListPOD<StringName> *r_messages) const {
 
     for (const eastl::pair<const StringName,StringName> &E : translation_map) {
-
-        r_messages->push_back(E.first);
+        r_messages->emplace_back(E.first);
     }
 }
 

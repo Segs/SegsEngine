@@ -950,7 +950,7 @@ void AnimationPlayer::_animation_process(float p_delta) {
         if (end_reached) {
             if (!queued.empty()) {
                 String old = playback.assigned;
-                play(queued.front()->deref());
+                play(queued.front());
                 String new_name = playback.assigned;
                 queued.pop_front();
                 if (end_notify)
@@ -1133,8 +1133,8 @@ void AnimationPlayer::queue(const StringName &p_name) {
 
 PoolVector<String> AnimationPlayer::get_queue() {
     PoolVector<String> ret;
-    for (List<StringName>::Element *E = queued.front(); E; E = E->next()) {
-        ret.push_back(E->deref());
+    for (const StringName &E : queued) {
+        ret.push_back(E);
     }
 
     return ret;

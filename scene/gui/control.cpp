@@ -355,75 +355,75 @@ void Control::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
     }*/
 
     {
-        List<StringName> names;
+        ListPOD<StringName> names;
         theme->get_icon_list(get_class_name(), &names);
-        for (List<StringName>::Element *E = names.front(); E; E = E->next()) {
+        for (const StringName &E : names) {
 
             uint32_t hint = PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_CHECKABLE;
-            if (data.icon_override.contains(E->deref()))
+            if (data.icon_override.contains(E))
                 hint |= PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_CHECKED;
 
-            p_list->push_back(PropertyInfo(VariantType::OBJECT, "custom_icons/" + E->deref(), PROPERTY_HINT_RESOURCE_TYPE, "Texture", hint));
+            p_list->push_back(PropertyInfo(VariantType::OBJECT, "custom_icons/" + E, PROPERTY_HINT_RESOURCE_TYPE, "Texture", hint));
         }
     }
     {
-        List<StringName> names;
+        ListPOD<StringName> names;
         theme->get_shader_list(get_class_name(), &names);
-        for (List<StringName>::Element *E = names.front(); E; E = E->next()) {
+        for (const StringName &E : names) {
 
             uint32_t hint = PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_CHECKABLE;
-            if (data.shader_override.contains(E->deref()))
+            if (data.shader_override.contains(E))
                 hint |= PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_CHECKED;
 
-            p_list->push_back(PropertyInfo(VariantType::OBJECT, "custom_shaders/" + E->deref(), PROPERTY_HINT_RESOURCE_TYPE, "Shader,VisualShader", hint));
+            p_list->push_back(PropertyInfo(VariantType::OBJECT, "custom_shaders/" + E, PROPERTY_HINT_RESOURCE_TYPE, "Shader,VisualShader", hint));
         }
     }
     {
-        List<StringName> names;
+        ListPOD<StringName> names;
         theme->get_stylebox_list(get_class_name(), &names);
-        for (List<StringName>::Element *E = names.front(); E; E = E->next()) {
+        for (const StringName &E : names) {
 
             uint32_t hint = PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_CHECKABLE;
-            if (data.style_override.contains(E->deref()))
+            if (data.style_override.contains(E))
                 hint |= PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_CHECKED;
 
-            p_list->push_back(PropertyInfo(VariantType::OBJECT, "custom_styles/" + E->deref(), PROPERTY_HINT_RESOURCE_TYPE, "StyleBox", hint));
+            p_list->push_back(PropertyInfo(VariantType::OBJECT, "custom_styles/" + E, PROPERTY_HINT_RESOURCE_TYPE, "StyleBox", hint));
         }
     }
     {
-        List<StringName> names;
+        ListPOD<StringName> names;
         theme->get_font_list(get_class_name(), &names);
-        for (List<StringName>::Element *E = names.front(); E; E = E->next()) {
+        for (const StringName &E : names) {
 
             uint32_t hint = PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_CHECKABLE;
-            if (data.font_override.contains(E->deref()))
+            if (data.font_override.contains(E))
                 hint |= PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_CHECKED;
 
-            p_list->push_back(PropertyInfo(VariantType::OBJECT, "custom_fonts/" + E->deref(), PROPERTY_HINT_RESOURCE_TYPE, "Font", hint));
+            p_list->push_back(PropertyInfo(VariantType::OBJECT, "custom_fonts/" + E, PROPERTY_HINT_RESOURCE_TYPE, "Font", hint));
         }
     }
     {
-        List<StringName> names;
+        ListPOD<StringName> names;
         theme->get_color_list(get_class_name(), &names);
-        for (List<StringName>::Element *E = names.front(); E; E = E->next()) {
+        for (const StringName &E : names) {
 
             uint32_t hint = PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_CHECKABLE;
-            if (data.color_override.contains(E->deref()))
+            if (data.color_override.contains(E))
                 hint |= PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_CHECKED;
 
-            p_list->push_back(PropertyInfo(VariantType::COLOR, "custom_colors/" + E->deref(), PROPERTY_HINT_NONE, "", hint));
+            p_list->push_back(PropertyInfo(VariantType::COLOR, "custom_colors/" + E, PROPERTY_HINT_NONE, "", hint));
         }
     }
     {
-        List<StringName> names;
+        ListPOD<StringName> names;
         theme->get_constant_list(get_class_name(), &names);
-        for (List<StringName>::Element *E = names.front(); E; E = E->next()) {
+        for (const StringName &E : names) {
 
             uint32_t hint = PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_CHECKABLE;
-            if (data.constant_override.contains(E->deref()))
+            if (data.constant_override.contains(E))
                 hint |= PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_CHECKED;
 
-            p_list->push_back(PropertyInfo(VariantType::INT, "custom_constants/" + E->deref(), PROPERTY_HINT_RANGE, "-16384,16384", hint));
+            p_list->push_back(PropertyInfo(VariantType::INT, "custom_constants/" + E, PROPERTY_HINT_RANGE, "-16384,16384", hint));
         }
     }
 }
@@ -2721,7 +2721,7 @@ void Control::get_argument_options(const StringName &p_function, int p_idx, List
     Node::get_argument_options(p_function, p_idx, r_options);
 
     if (p_idx == 0) {
-        List<StringName> sn;
+        ListPOD<StringName> sn;
         String pf = p_function;
         if (pf == "add_color_override" || pf == "has_color" || pf == "has_color_override" || pf == "get_color") {
             Theme::get_default()->get_color_list(get_class_name(), &sn);
@@ -2733,9 +2733,9 @@ void Control::get_argument_options(const StringName &p_function, int p_idx, List
             Theme::get_default()->get_constant_list(get_class_name(), &sn);
         }
 
-        sn.sort_custom<WrapAlphaCompare>();
-        for (List<StringName>::Element *E = sn.front(); E; E = E->next()) {
-            r_options->push_back(quote_style + E->deref() + quote_style);
+        sn.sort(WrapAlphaCompare());
+        for (const StringName &E : sn) {
+            r_options->push_back(quote_style + E + quote_style);
         }
     }
 }

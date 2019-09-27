@@ -603,13 +603,9 @@ Error StreamTexture::_load_data(const String &p_path, int &tw, int &th, int &tw_
                 size = f->get_32();
             }
 
-            PoolVector<uint8_t> pv;
+            PODVector<uint8_t> pv;
             pv.resize(size);
-            {
-                PoolVector<uint8_t>::Write w = pv.write();
-                f->get_buffer(w.ptr(), size);
-            }
-
+            f->get_buffer(pv.data(), size);
             Ref<Image> img;
             if (df & FORMAT_BIT_LOSSLESS) {
                 img = Image::lossless_unpacker(pv);
@@ -2419,12 +2415,9 @@ RES ResourceFormatLoaderTextureLayered::load(const String &p_path, const String 
             for (int i = 0; i < mipmaps; i++) {
                 uint32_t size = f->get_32();
 
-                PoolVector<uint8_t> pv;
+                PODVector<uint8_t> pv;
                 pv.resize(size);
-                {
-                    PoolVector<uint8_t>::Write w = pv.write();
-                    f->get_buffer(w.ptr(), size);
-                }
+                f->get_buffer(pv.data(), size);
 
                 Ref<Image> img = Image::lossless_unpacker(pv);
 
@@ -2433,7 +2426,7 @@ RES ResourceFormatLoaderTextureLayered::load(const String &p_path, const String 
                         *r_error = ERR_FILE_CORRUPT;
                     }
                     memdelete(f);
-                    ERR_FAIL_V(RES());
+                    ERR_FAIL_V(RES())
                 }
 
                 mipmap_images.push_back(img);
@@ -2523,7 +2516,7 @@ String ResourceFormatLoaderTextureLayered::get_resource_type(const String &p_pat
 }
 
 #include "camera_texture.h"
-
+#include "servers/camera_server_enum_casters.h"
 IMPL_GDCLASS(CameraTexture)
 
 void CameraTexture::_bind_methods() {

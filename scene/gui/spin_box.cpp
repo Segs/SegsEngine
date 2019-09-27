@@ -33,6 +33,8 @@
 #include "core/os/input.h"
 #include "core/method_bind.h"
 
+#include "line_edit_enum_casters.h"
+
 IMPL_GDCLASS(SpinBox)
 
 Size2 SpinBox::get_minimum_size() const {

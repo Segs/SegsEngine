@@ -128,7 +128,7 @@ protected:
 #endif
 
 public:
-    virtual void get_owned_list(DefList<RID> *p_owned);
+    virtual void get_owned_list(ListPOD<RID> *p_owned);
     static void init_rid();
     virtual ~RID_OwnerBase() {}
 };

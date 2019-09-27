@@ -54,6 +54,10 @@
 IMPL_GDCLASS(TreeItem)
 IMPL_GDCLASS(Tree)
 
+VARIANT_ENUM_CAST(Tree::SelectMode);
+VARIANT_ENUM_CAST(Tree::DropModeFlags);
+
+
 void TreeItem::move_to_top() {
 
     if (!parent || parent->children == this)

@@ -302,7 +302,7 @@ void Theme::clear_icon(const StringName &p_name, const StringName &p_type) {
     emit_changed();
 }
 
-void Theme::get_icon_list(const StringName& p_type, List<StringName> *p_list) const {
+void Theme::get_icon_list(const StringName& p_type, ListPOD<StringName> *p_list) const {
 
     if (!icon_map.contains(p_type))
         return;
@@ -345,7 +345,7 @@ void Theme::clear_shader(const StringName &p_name, const StringName &p_type) {
     emit_changed();
 }
 
-void Theme::get_shader_list(const StringName &p_type, List<StringName> *p_list) const {
+void Theme::get_shader_list(const StringName &p_type, ListPOD<StringName> *p_list) const {
     if (!shader_map.contains(p_type))
         return;
 
@@ -408,7 +408,7 @@ void Theme::clear_stylebox(const StringName &p_name, const StringName &p_type) {
     emit_changed();
 }
 
-void Theme::get_stylebox_list(const StringName& p_type, List<StringName> *p_list) const {
+void Theme::get_stylebox_list(const StringName& p_type, ListPOD<StringName> *p_list) const {
 
     if (!style_map.contains(p_type))
         return;
@@ -421,7 +421,7 @@ void Theme::get_stylebox_list(const StringName& p_type, List<StringName> *p_list
     }
 }
 
-void Theme::get_stylebox_types(List<StringName> *p_list) const {
+void Theme::get_stylebox_types(ListPOD<StringName> *p_list) const {
     const StringName *key = nullptr;
     while ((key = style_map.next(key))) {
         p_list->push_back(*key);
@@ -478,7 +478,7 @@ void Theme::clear_font(const StringName &p_name, const StringName &p_type) {
     emit_changed();
 }
 
-void Theme::get_font_list(const StringName& p_type, List<StringName> *p_list) const {
+void Theme::get_font_list(const StringName& p_type, ListPOD<StringName> *p_list) const {
 
     if (!font_map.contains(p_type))
         return;
@@ -526,7 +526,7 @@ void Theme::clear_color(const StringName &p_name, const StringName &p_type) {
     emit_changed();
 }
 
-void Theme::get_color_list(const StringName& p_type, List<StringName> *p_list) const {
+void Theme::get_color_list(const StringName& p_type, ListPOD<StringName> *p_list) const {
 
     if (!color_map.contains(p_type))
         return;
@@ -574,7 +574,7 @@ void Theme::clear_constant(const StringName &p_name, const StringName &p_type) {
     emit_changed();
 }
 
-void Theme::get_constant_list(const StringName& p_type, List<StringName> *p_list) const {
+void Theme::get_constant_list(const StringName& p_type, ListPOD<StringName> *p_list) const {
 
     if (!constant_map.contains(p_type))
         return;
@@ -676,7 +676,7 @@ void Theme::copy_theme(const Ref<Theme> &p_other) {
     emit_changed();
 }
 
-void Theme::get_type_list(List<StringName> *p_list) const {
+void Theme::get_type_list(ListPOD<StringName> *p_list) const {
 
     Set<StringName> types;
 

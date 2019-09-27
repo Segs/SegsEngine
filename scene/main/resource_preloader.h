@@ -53,7 +53,7 @@ public:
 	bool has_resource(const StringName &p_name) const;
 	RES get_resource(const StringName &p_name) const;
 
-	void get_resource_list(List<StringName> *p_list);
+    void get_resource_list(ListPOD<StringName> *p_list);
 
 	ResourcePreloader();
 };

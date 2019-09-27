@@ -36,6 +36,9 @@
 
 template<class T>
 using ListPOD = eastl::list<T,wrap_allocator>;
+
+extern template class GODOT_EXPORT_TEMPLATE_A eastl::list<class StringName,wrap_allocator>;
+
 /**
  * Generic Templatized Linked List Implementation.
  * The implementation differs from the STL one because

@@ -145,7 +145,7 @@ static bool debug_navigation = false;
 #endif
 static int frame_delay = 0;
 static bool disable_render_loop = false;
-static int fixed_fps = 60;
+static int fixed_fps = -1;
 static bool print_fps = false;
 
 /* Helper methods */

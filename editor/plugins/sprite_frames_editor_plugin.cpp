@@ -653,15 +653,13 @@ void SpriteFramesEditor::_update_library(bool p_skip_selector) {
 
         TreeItem *anim_root = animations->create_item();
 
-        List<StringName> anim_names;
+        ListPOD<StringName> anim_names;
 
         frames->get_animation_list(&anim_names);
 
-        anim_names.sort_custom<WrapAlphaCompare>();
+        anim_names.sort(WrapAlphaCompare());
 
-        for (List<StringName>::Element *E = anim_names.front(); E; E = E->next()) {
-
-            String name = E->deref();
+        for (const StringName &name : anim_names) {
 
             TreeItem *it = animations->create_item(anim_root);
 
@@ -670,7 +668,7 @@ void SpriteFramesEditor::_update_library(bool p_skip_selector) {
             it->set_text(0, name);
             it->set_editable(0, true);
 
-            if (E->deref() == edited_anim) {
+            if (name == edited_anim) {
                 it->select(0);
             }
         }
@@ -727,11 +725,11 @@ void SpriteFramesEditor::edit(SpriteFrames *p_frames) {
 
         if (!p_frames->has_animation(edited_anim)) {
 
-            List<StringName> anim_names;
+            ListPOD<StringName> anim_names;
             frames->get_animation_list(&anim_names);
-            anim_names.sort_custom<WrapAlphaCompare>();
+            anim_names.sort(WrapAlphaCompare());
             if (!anim_names.empty()) {
-                edited_anim = anim_names.front()->deref();
+                edited_anim = anim_names.front();
             } else {
                 edited_anim = StringName();
             }

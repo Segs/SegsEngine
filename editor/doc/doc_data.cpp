@@ -422,52 +422,52 @@ void DocData::generate(bool p_basic_types) {
         //theme stuff
 
         {
-            List<StringName> l;
+            ListPOD<StringName> l;
             Theme::get_default()->get_constant_list(cname, &l);
-            for (List<StringName>::Element *E = l.front(); E; E = E->next()) {
+            for (const StringName &E : l) {
 
                 PropertyDoc pd;
-                pd.name = E->deref();
+                pd.name = E;
                 pd.type = "int";
-                pd.default_value = itos(Theme::get_default()->get_constant(E->deref(), cname));
+                pd.default_value = itos(Theme::get_default()->get_constant(E, cname));
                 c.theme_properties.push_back(pd);
             }
 
             l.clear();
             Theme::get_default()->get_color_list(cname, &l);
-            for (List<StringName>::Element *E = l.front(); E; E = E->next()) {
+            for (const StringName &E : l) {
 
                 PropertyDoc pd;
-                pd.name = E->deref();
+                pd.name = E;
                 pd.type = "Color";
-                pd.default_value = Variant(Theme::get_default()->get_color(E->deref(), cname)).get_construct_string();
+                pd.default_value = Variant(Theme::get_default()->get_color(E, cname)).get_construct_string();
                 c.theme_properties.push_back(pd);
             }
 
             l.clear();
             Theme::get_default()->get_icon_list(cname, &l);
-            for (List<StringName>::Element *E = l.front(); E; E = E->next()) {
+            for (const StringName &E : l) {
 
                 PropertyDoc pd;
-                pd.name = E->deref();
+                pd.name = E;
                 pd.type = "Texture";
                 c.theme_properties.push_back(pd);
             }
             l.clear();
             Theme::get_default()->get_font_list(cname, &l);
-            for (List<StringName>::Element *E = l.front(); E; E = E->next()) {
+            for (const StringName &E : l) {
 
                 PropertyDoc pd;
-                pd.name = E->deref();
+                pd.name = E;
                 pd.type = "Font";
                 c.theme_properties.push_back(pd);
             }
             l.clear();
             Theme::get_default()->get_stylebox_list(cname, &l);
-            for (List<StringName>::Element *E = l.front(); E; E = E->next()) {
+            for (const StringName &E : l) {
 
                 PropertyDoc pd;
-                pd.name = E->deref();
+                pd.name = E;
                 pd.type = "StyleBox";
                 c.theme_properties.push_back(pd);
             }

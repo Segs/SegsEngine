@@ -185,21 +185,25 @@ int _main() {
 	LocalFree(wc_argv);
 	return result;
 }
+//To appease __try 
+int wrapped_main(int argc,char **argv) {
+    QCoreApplication app(argc, argv);
+    // _argc and _argv are ignored in the engine
+    // we are going to use the WideChar version of them instead
+    return _main();
 
+}
 int main(int _argc, char **_argv) {
-    QCoreApplication app(argc,argv);
 
-	// _argc and _argv are ignored
-	// we are going to use the WideChar version of them instead
 
 #ifdef CRASH_HANDLER_EXCEPTION
 	__try {
-		return _main();
+        return wrapped_main(_argc, _argv);
 	} __except (CrashHandlerException(GetExceptionInformation())) {
 		return 1;
 	}
 #else
-	return _main();
+	return wrapped_main(_argc, _argv);
 #endif
 }
 

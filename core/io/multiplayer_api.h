@@ -35,6 +35,7 @@
 #include "core/map.h"
 #include "core/hash_map.h"
 #include "core/method_enum_caster.h"
+#include "core/set.h"
 
 class MultiplayerAPI : public Reference {
 

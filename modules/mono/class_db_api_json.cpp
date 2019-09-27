@@ -36,11 +36,12 @@
 #include "core/os/file_access.h"
 #include "core/project_settings.h"
 #include "core/version.h"
+#include "EASTL/sort.h"
 
 void class_db_api_to_json(const String &p_output_file, ClassDB::APIType p_api) {
 	Dictionary classes_dict;
 
-	List<StringName> names;
+        PODVector<StringName> names;
 
 	const StringName *k = NULL;
 
@@ -49,11 +50,11 @@ void class_db_api_to_json(const String &p_output_file, ClassDB::APIType p_api) {
 		names.push_back(*k);
 	}
 	//must be alphabetically sorted for hash to compute
-	names.sort_custom<StringName::AlphCompare>();
+        eastl::sort(names.begin(),names.end(),StringName::AlphCompare());
 
-	for (List<StringName>::Element *E = names.front(); E; E = E->next()) {
+        for (const StringName &E : names) {
 
-		ClassDB::ClassInfo *t = ClassDB::classes.getptr(E->get());
+                ClassDB::ClassInfo *t = ClassDB::classes.getptr(E);
 		ERR_FAIL_COND(!t)
 		if (t->api != p_api || !t->exposed)
 			continue;
@@ -65,7 +66,7 @@ void class_db_api_to_json(const String &p_output_file, ClassDB::APIType p_api) {
 
 		{ //methods
 
-			List<StringName> snames;
+                        PODVector<StringName> snames;
 
 			k = NULL;
 
@@ -74,7 +75,7 @@ void class_db_api_to_json(const String &p_output_file, ClassDB::APIType p_api) {
 				snames.push_back(*k);
 			}
 
-			snames.sort_custom<StringName::AlphCompare>();
+                        eastl::sort(snames.begin(),snames.end(),StringName::AlphCompare());
 
 			Array methods;
 

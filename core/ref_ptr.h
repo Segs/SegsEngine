@@ -36,8 +36,9 @@
  * It's basically an opaque container of a Reference reference, so Variant can use it.
 */
 
-#include "core/rid.h"
+#include "core/typedefs.h"
 
+class RID;
 class GODOT_EXPORT RefPtr {
 
     mutable intptr_t data;

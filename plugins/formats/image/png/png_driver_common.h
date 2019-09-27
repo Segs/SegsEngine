@@ -34,7 +34,14 @@
 #include <cstdlib>
 
 struct ImageData;
-template <class T> class PoolVector;
+namespace eastl {
+template<class T,class A>
+class vector;
+}
+class wrap_allocator;
+
+template<class T>
+using PODVector = eastl::vector<T,wrap_allocator>;
 
 enum Error : int;
 struct ImageData;
@@ -46,6 +53,6 @@ Error png_to_image(const uint8_t *p_source, size_t p_size, ImageData &p_image);
 
 // Append p_image, as a png, to p_buffer.
 // Contents of p_buffer is unspecified if error returned.
-Error image_to_png(const ImageData &p_image, PoolVector<uint8_t> &p_buffer);
+Error image_to_png(const ImageData &p_image, PODVector<uint8_t> &p_buffer);
 
 } // namespace PNGDriverCommon
