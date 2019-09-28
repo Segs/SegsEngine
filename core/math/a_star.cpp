@@ -260,14 +260,14 @@ void AStar::reserve_space(int p_num_nodes) {
     points.reserve(p_num_nodes);
 }
 
-int AStar::get_closest_point(const Vector3 &p_point) const {
+int AStar::get_closest_point(const Vector3 &p_point, bool p_include_disabled) const {
 
     int closest_id = -1;
     real_t closest_dist = 1e20f;
 
     for (OAHashMap<int, Point *>::Iterator it = points.iter(); it.valid; it = points.next_iter(it)) {
 
-        if (!(*it.value)->enabled) continue; // Disabled points should not be considered.
+		if (!p_include_disabled && !(*it.value)->enabled) continue; // Disabled points should not be considered.
 
         real_t d = p_point.distance_squared_to((*it.value)->pos);
         if (closest_id < 0 || d < closest_dist) {
@@ -474,7 +474,6 @@ PoolVector<int> AStar::get_id_path(int p_from_id, int p_to_id) {
     bool found_route = _solve(begin_point, end_point);
     if (!found_route) return PoolVector<int>();
 
-    // Midpoints
     Point *p = end_point;
     int pc = 1; // Begin point
     while (p != begin_point) {
@@ -544,7 +543,7 @@ void AStar::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("reserve_space", {"num_nodes"}), &AStar::reserve_space);
     MethodBinder::bind_method(D_METHOD("clear"), &AStar::clear);
 
-    MethodBinder::bind_method(D_METHOD("get_closest_point", {"to_position"}), &AStar::get_closest_point);
+    MethodBinder::bind_method(D_METHOD("get_closest_point", {"to_position", "include_disabled"}), &AStar::get_closest_point, {DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("get_closest_position_in_segment", {"to_position"}), &AStar::get_closest_position_in_segment);
 
     MethodBinder::bind_method(D_METHOD("get_point_path", {"from_id", "to_id"}), &AStar::get_point_path);
@@ -641,8 +640,8 @@ void AStar2D::clear() {
 void AStar2D::reserve_space(int p_num_nodes) {
     astar.reserve_space(p_num_nodes);
 }
-int AStar2D::get_closest_point(const Vector2 &p_point) const {
-    return astar.get_closest_point(Vector3(p_point.x, p_point.y, 0));
+int AStar2D::get_closest_point(const Vector2 &p_point, bool p_include_disabled) const {
+	return astar.get_closest_point(Vector3(p_point.x, p_point.y, 0), p_include_disabled);
 }
 
 Vector2 AStar2D::get_closest_position_in_segment(const Vector2 &p_point) const {
@@ -696,7 +695,7 @@ void AStar2D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("reserve_space", {"num_nodes"}), &AStar2D::reserve_space);
     MethodBinder::bind_method(D_METHOD("clear"), &AStar2D::clear);
 
-    MethodBinder::bind_method(D_METHOD("get_closest_point", {"to_position"}), &AStar2D::get_closest_point);
+    MethodBinder::bind_method(D_METHOD("get_closest_point", {"to_position", "include_disabled"}), &AStar2D::get_closest_point,{DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("get_closest_position_in_segment", {"to_position"}), &AStar2D::get_closest_position_in_segment);
 
     MethodBinder::bind_method(D_METHOD("get_point_path", {"from_id", "to_id"}), &AStar2D::get_point_path);

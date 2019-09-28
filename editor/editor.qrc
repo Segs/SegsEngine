@@ -427,6 +427,7 @@
         <file alias="Onion.svg">icons/icon_onion.svg</file>
         <file alias="OptionButton.svg">icons/icon_option_button.svg</file>
         <file alias="Override.svg">icons/icon_override.svg</file>
+        <file alias="OverbrightIndicator.svg">icons/icon_overbright_indicator.svg</file>
         <file alias="PackedDataContainer.svg">icons/icon_packed_data_container.svg</file>
         <file alias="PackedScene.svg">icons/icon_packed_scene.svg</file>
         <file alias="PaintVertex.svg">icons/icon_paint_vertex.svg</file>

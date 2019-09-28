@@ -1178,7 +1178,7 @@ void ResourceImporterScene::get_import_options(ListPOD<ImportOption> *r_options,
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "animation/import", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), true));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::REAL, "animation/fps", PROPERTY_HINT_RANGE, "1,120,1"), 15));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::STRING, "animation/filter_script", PROPERTY_HINT_MULTILINE_TEXT), ""));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "animation/storage", PROPERTY_HINT_ENUM, "Built-In,Files (.anim),Files (.tres)"), animations_out));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "animation/storage", PROPERTY_HINT_ENUM, "Built-In,Files (.anim),Files (.tres)", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), animations_out));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "animation/keep_custom_tracks"), animations_out));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "animation/optimizer/enabled", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), true));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::REAL, "animation/optimizer/max_linear_error"), 0.05));

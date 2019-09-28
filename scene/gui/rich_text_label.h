@@ -300,18 +300,15 @@ private:
     };
 
     struct ItemCustomFX : public ItemFX {
-        String identifier;
-        Dictionary environment;
+        Ref<CharFXTransform> char_fx_transform;
+        Ref<RichTextEffect> custom_effect;
 
-        ItemCustomFX() {
-            identifier = "";
-            environment = Dictionary();
+        ItemCustomFX() : char_fx_transform(make_ref_counted<CharFXTransform>()) {
             type = ITEM_CUSTOMFX;
         }
 
         ~ItemCustomFX() override {
             _clear_children();
-            environment.clear();
         }
     };
     ItemFrame *main;
@@ -391,32 +388,7 @@ private:
     bool _find_layout_subitem(Item *from, Item *to);
     bool _find_by_type(Item *p_item, ItemType p_type);
 
-    template <typename T>
-    T *_fetch_by_type(Item *p_item, ItemType p_type) {
-        Item *item = p_item;
-        T *result = nullptr;
-        while (item) {
-            if (item->type == p_type) {
-                result = dynamic_cast<T *>(item);
-                if (result)
-                    return result;
-            }
-            item = item->parent;
-        }
-
-        return result;
-    }
-    template <typename T>
-    void _fetch_item_stack(Item *p_item, Vector<T *> &r_stack) {
-        Item *item = p_item;
-        while (item) {
-            T *found = dynamic_cast<T *>(item);
-            if (found) {
-                r_stack.push_back(found);
-            }
-            item = item->parent;
-        }
-    }
+	void _fetch_item_fx_stack(Item *p_item, Vector<ItemFX *> &r_stack);
 
     void _update_scroll();
     void _update_fx(ItemFrame *p_frame, float p_delta_time);
@@ -460,7 +432,7 @@ public:
     void push_wave(float p_frequency, float p_amplitude);
     void push_tornado(float p_frequency, float p_radius);
     void push_rainbow(float p_saturation, float p_value, float p_frequency);
-    void push_customfx(String p_identifier, const Dictionary& p_environment);
+	void push_customfx(const Ref<RichTextEffect> &p_custom_effect, Dictionary p_environment);
     void set_table_column_expand(int p_column, bool p_expand, int p_ratio = 1);
     int get_current_table_column() const;
     void push_cell();
