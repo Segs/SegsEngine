@@ -798,6 +798,7 @@ Ref<SkinReference> Skeleton::register_skin(const Ref<Skin> &p_skin) {
     skin_bindings.insert(skin_ref.get());
 
     skin->connect("changed", skin_ref.get(), "_skin_changed");
+	_make_dirty();
     return skin_ref;
 }
 

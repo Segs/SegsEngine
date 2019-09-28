@@ -4,6 +4,7 @@ set(doc_classes
         VisualScriptBuiltinFunc
         VisualScriptClassConstant
         VisualScriptComment
+        VisualScriptComposeArray
         VisualScriptCondition
         VisualScriptConstant
         VisualScriptConstructor
@@ -21,6 +22,7 @@ set(doc_classes
         VisualScriptIndexSet
         VisualScriptInputAction
         VisualScriptIterator
+        VisualScriptLists
         VisualScriptLocalVarSet
         VisualScriptLocalVar
         VisualScriptMathConstant

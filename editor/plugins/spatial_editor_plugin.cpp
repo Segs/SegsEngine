@@ -4080,7 +4080,6 @@ void _update_all_gizmos(Node *p_node) {
 
 void SpatialEditor::update_all_gizmos(Node *p_node) {
     if (!p_node) {
-        if (!SceneTree::get_singleton()) return;
         p_node = SceneTree::get_singleton()->get_root();
     }
     _update_all_gizmos(p_node);
@@ -6274,5 +6273,7 @@ EditorSpatialGizmoPlugin::~EditorSpatialGizmoPlugin() {
         current_gizmos[i]->set_plugin(nullptr);
         current_gizmos[i]->get_spatial_node()->set_gizmo(Ref<SpatialGizmo>());
     }
-    SpatialEditor::get_singleton()->update_all_gizmos();
+	if (SpatialEditor::get_singleton()) {
+        SpatialEditor::get_singleton()->update_all_gizmos();
+	}
 }
