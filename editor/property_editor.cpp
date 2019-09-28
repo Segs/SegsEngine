@@ -365,14 +365,14 @@ bool CustomPropertyEditor::edit(Object *p_owner, const String &p_name, VariantTy
             scroll[i]->hide();
     }
 
-    for (int i = 0; i < MAX_ACTION_BUTTONS; i++) {
+    for (auto & action_button : action_buttons) {
 
-        action_buttons[i]->hide();
+        action_button->hide();
     }
 
     checks20gc->hide();
-    for (int i = 0; i < 20; i++)
-        checks20[i]->hide();
+    for (auto & i : checks20)
+        i->hide();
 
     type = (p_variant.get_type() != VariantType::NIL && p_variant.get_type() != VariantType::_RID && p_type != VariantType::OBJECT) ? p_variant.get_type() : p_type;
 
@@ -1781,8 +1781,8 @@ void CustomPropertyEditor::_focus_exit() {
         case VariantType::TRANSFORM2D:
         case VariantType::BASIS:
         case VariantType::TRANSFORM: {
-            for (int i = 0; i < MAX_VALUE_EDITORS; ++i) {
-                value_editor[i]->select(0, 0);
+            for (auto & i : value_editor) {
+                i->select(0, 0);
             }
         } break;
         default: {
@@ -1901,14 +1901,14 @@ CustomPropertyEditor::CustomPropertyEditor() {
     }
     focused_value_editor = -1;
 
-    for (int i = 0; i < 4; i++) {
+    for (auto & i : scroll) {
 
-        scroll[i] = memnew(HScrollBar);
-        scroll[i]->hide();
-        scroll[i]->set_min(0);
-        scroll[i]->set_max(1.0);
-        scroll[i]->set_step(0.01);
-        add_child(scroll[i]);
+        i = memnew(HScrollBar);
+        i->hide();
+        i->set_min(0);
+        i->set_max(1.0);
+        i->set_step(0.01);
+        add_child(i);
     }
 
     checks20gc = memnew(GridContainer);

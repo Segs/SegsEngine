@@ -294,12 +294,12 @@ void GridMapEditor::_update_cursor_transform() {
 void GridMapEditor::_update_selection_transform() {
     Transform xf_zero;
     xf_zero.basis.set_zero();
-
+    VisualServer * vs = VisualServer::get_singleton();
     if (!selection.active) {
 
-        VisualServer::get_singleton()->instance_set_transform(selection_instance, xf_zero);
+        vs->instance_set_transform(selection_instance, xf_zero);
         for (int i = 0; i < 3; i++) {
-            VisualServer::get_singleton()->instance_set_transform(selection_level_instance[i], xf_zero);
+            vs->instance_set_transform(selection_level_instance[i], xf_zero);
         }
         return;
     }
@@ -308,11 +308,11 @@ void GridMapEditor::_update_selection_transform() {
     xf.scale(Vector3(1, 1, 1) * (Vector3(1, 1, 1) + (selection.end - selection.begin)) * node->get_cell_size());
     xf.origin = selection.begin * node->get_cell_size();
 
-    VisualServer::get_singleton()->instance_set_transform(selection_instance, node->get_global_transform() * xf);
+    vs->instance_set_transform(selection_instance, node->get_global_transform() * xf);
 
     for (int i = 0; i < 3; i++) {
         if (i != edit_axis || (edit_floor[edit_axis] < selection.begin[edit_axis]) || (edit_floor[edit_axis] > selection.end[edit_axis] + 1)) {
-            VisualServer::get_singleton()->instance_set_transform(selection_level_instance[i], xf_zero);
+            vs->instance_set_transform(selection_level_instance[i], xf_zero);
         } else {
 
             Vector3 scale = (selection.end - selection.begin + Vector3(1, 1, 1));
@@ -327,7 +327,7 @@ void GridMapEditor::_update_selection_transform() {
             xf2.basis.scale(scale);
             xf2.origin = pos;
 
-            VisualServer::get_singleton()->instance_set_transform(selection_level_instance[i], xf2);
+            vs->instance_set_transform(selection_level_instance[i], xf2);
         }
     }
 }
@@ -389,8 +389,8 @@ bool GridMapEditor::do_input_action(Camera *p_camera, const Point2 &p_point, boo
     if (!p.intersects_segment(from, from + normal * settings_pick_distance->get_value(), &inters))
         return false;
 
-	// Make sure the intersection is inside the frustum planes, to avoid
-	// Painting on invisible regions.
+    // Make sure the intersection is inside the frustum planes, to avoid
+    // Painting on invisible regions.
     for (int i = 0; i < planes.size(); i++) {
 
         Plane fp = local_xform.xform(planes[i]);
@@ -410,7 +410,7 @@ bool GridMapEditor::do_input_action(Camera *p_camera, const Point2 &p_point, boo
 
             cell[i] = inters[i] / node->get_cell_size()[i];
             if (inters[i] < 0)
-				cell[i] -= 1; // Compensate negative.
+                cell[i] -= 1; // Compensate negative.
             grid_ofs[i] = cell[i] * cell_size[i];
         }
 
@@ -698,7 +698,7 @@ bool GridMapEditor::forward_spatial_input_event(Camera *p_camera, const Ref<Inpu
             return do_input_action(p_camera, Point2(mb->get_position().x, mb->get_position().y), true);
         } else {
 
-			if ((mb->get_button_index() == BUTTON_RIGHT && input_action == INPUT_ERASE) || (mb->get_button_index() == BUTTON_LEFT && input_action == INPUT_PAINT)) {
+            if ((mb->get_button_index() == BUTTON_RIGHT && input_action == INPUT_ERASE) || (mb->get_button_index() == BUTTON_LEFT && input_action == INPUT_PAINT)) {
 
                 if (!set_items.empty()) {
                     undo_redo->create_action(TTR("GridMap Paint"));
@@ -927,7 +927,7 @@ void GridMapEditor::update_palette() {
         item++;
     }
 
-	if (selected != -1 && mesh_library_palette->get_item_count() > 0) {
+    if (selected != -1 && mesh_library_palette->get_item_count() > 0) {
         mesh_library_palette->select(selected);
     }
 
@@ -1045,7 +1045,7 @@ void GridMapEditor::_update_clip() {
 
 void GridMapEditor::update_grid() {
 
-	grid_xform.origin.x -= 1; // Force update in hackish way.
+    grid_xform.origin.x -= 1; // Force update in hackish way.
 
     grid_ofs[edit_axis] = edit_floor[edit_axis] * node->get_cell_size()[edit_axis];
 

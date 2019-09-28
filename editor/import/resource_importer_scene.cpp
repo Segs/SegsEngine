@@ -783,7 +783,7 @@ void ResourceImporterScene::_create_clips(Node *scene, const Array &p_clips, boo
 
 void ResourceImporterScene::_filter_anim_tracks(const Ref<Animation>& anim, Set<String> &keep) {
 
-    Ref<Animation> a = anim;
+    const Ref<Animation>& a(anim);
     ERR_FAIL_COND(!a)
 
     for (int j = 0; j < a->get_track_count(); j++) {
