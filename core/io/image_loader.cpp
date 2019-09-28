@@ -84,7 +84,7 @@ void ImageLoader::register_plugin_resolver()
 }
 
 Error ImageLoader::load_image(const String& p_file, Ref<Image> p_image, FileAccess *p_custom, const LoadParams &params) {
-    ERR_FAIL_COND_V(not p_image, ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V_CMSG(not p_image, ERR_INVALID_PARAMETER, "It's not a reference to a valid Image object.")
 
     register_plugin_resolver();
 
@@ -93,7 +93,7 @@ Error ImageLoader::load_image(const String& p_file, Ref<Image> p_image, FileAcce
         Error err;
         f = FileAccess::open(p_file, FileAccess::READ, &err);
         if (!f) {
-            ERR_PRINTS("Error opening file: " + p_file)
+            ERR_PRINTS("Error opening file '" + p_file+"'.")
             return err;
         }
     }

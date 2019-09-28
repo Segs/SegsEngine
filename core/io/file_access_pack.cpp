@@ -34,11 +34,11 @@
 
 #include <cstdio>
 
-Error PackedData::add_pack(const String &p_path) {
+Error PackedData::add_pack(const String &p_path, bool p_replace_files) {
 
     for (int i = 0; i < sources.size(); i++) {
 
-        if (sources[i]->try_open_pack(p_path)) {
+        if (sources[i]->try_open_pack(p_path, p_replace_files)) {
 
             return OK;
         }
@@ -47,7 +47,7 @@ Error PackedData::add_pack(const String &p_path) {
     return ERR_FILE_UNRECOGNIZED;
 };
 
-void PackedData::add_path(const String &pkg_path, const String &path, uint64_t ofs, uint64_t size, const uint8_t *p_md5, PackSourceInterface *p_src) {
+void PackedData::add_path(const String &pkg_path, const String &path, uint64_t ofs, uint64_t size, const uint8_t *p_md5, PackSourceInterface *p_src, bool p_replace_files) {
 
     PathMD5 pmd5(StringUtils::md5_buffer(path));
     //printf("adding path %ls, %lli, %lli\n", path.c_str(), pmd5.a, pmd5.b);
@@ -62,7 +62,8 @@ void PackedData::add_path(const String &pkg_path, const String &path, uint64_t o
         pf.md5[i] = p_md5[i];
     pf.src = p_src;
 
-    files[pmd5] = pf;
+    if (!exists || p_replace_files)
+        files[pmd5] = pf;
 
     if (!exists) {
         //search for dir

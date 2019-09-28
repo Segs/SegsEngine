@@ -1230,7 +1230,7 @@ Error Main::setup2(Thread::ID p_main_tid_override) {
             boot_logo = make_ref_counted<Image>();
             Error load_err = ImageLoader::load_image(boot_logo_path, boot_logo);
             if (load_err)
-                ERR_PRINTS("Non-existing or invalid boot splash at: " + boot_logo_path + ". Loading default splash.")
+				ERR_PRINTS("Non-existing or invalid boot splash at '" + boot_logo_path + "'. Loading default splash.")
         }
 
         Color boot_bg_color = GLOBAL_DEF("application/boot_splash/bg_color", boot_splash_bg_color);
@@ -1512,7 +1512,7 @@ bool Main::start() {
     }
 
     if (!test.empty()) {
-#ifdef DEBUG_ENABLED
+#ifdef TOOLS_ENABLED
         main_loop = test_main(test, args);
 
         if (!main_loop)

@@ -1561,6 +1561,22 @@ String StringUtils::replace(const String &str,const char *p_key, const char *p_w
 void StringUtils::Inplace::replace(String &s,int i,int len, const String &p_after) {
     s.m_str.replace(i,len,p_after.m_str);
 }
+
+String StringUtils::repeat(const String &str,int p_count) {
+
+    ERR_FAIL_COND_V_CMSG(p_count < 0, "", "Parameter count should be a positive number.")
+
+    String new_string;
+
+    new_string.m_str.resize(str.length() * p_count + 1);
+
+    for (int i = 0; i < p_count; i++)
+        for (int j = 0; j < str.length(); j++)
+            new_string.m_str[i * str.length() + j] = str[j];
+
+    return new_string;
+}
+
 String StringUtils::left(const String &s,int p_pos) {
     return s.m_str.mid(0, p_pos);
 }

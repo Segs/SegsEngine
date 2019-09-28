@@ -100,7 +100,7 @@ void TabContainer::_gui_input(const Ref<InputEvent> &p_event) {
             return;
         }
 
-        // Do not activate tabs when tabs is empty
+        // Do not activate tabs when tabs is empty.
         if (get_tab_count() == 0)
             return;
 
@@ -144,6 +144,75 @@ void TabContainer::_gui_input(const Ref<InputEvent> &p_event) {
                 break;
             }
             pos.x -= tab_width;
+        }
+    }
+    Ref<InputEventMouseMotion> mm = dynamic_ref_cast<InputEventMouseMotion>(p_event);
+
+    if (mm) {
+
+        Point2 pos(mm->get_position().x, mm->get_position().y);
+        Size2 size = get_size();
+
+        // Mouse must be on tabs in the tab header area.
+        if (pos.x < tabs_ofs_cache || pos.y > _get_top_margin()) {
+
+            if (menu_hovered || highlight_arrow > -1) {
+                menu_hovered = false;
+                highlight_arrow = -1;
+                update();
+            }
+            return;
+        }
+
+        Ref<Texture> menu = get_icon("menu");
+        if (popup) {
+
+            if (pos.x >= size.width - menu->get_width()) {
+                if (!menu_hovered) {
+                    menu_hovered = true;
+                    highlight_arrow = -1;
+                    update();
+                    return;
+                }
+            } else if (menu_hovered) {
+                menu_hovered = false;
+                update();
+            }
+
+            if (menu_hovered) {
+                return;
+            }
+        }
+
+        // Do not activate tabs when tabs is empty.
+        if ((get_tab_count() == 0 || !buttons_visible_cache) && menu_hovered) {
+            highlight_arrow = -1;
+            update();
+            return;
+        }
+
+        int popup_ofs = 0;
+        if (popup) {
+            popup_ofs = menu->get_width();
+        }
+
+        Ref<Texture> increment = get_icon("increment");
+        Ref<Texture> decrement = get_icon("decrement");
+        if (pos.x >= size.width - increment->get_width() - popup_ofs) {
+
+            if (highlight_arrow != 1) {
+                highlight_arrow = 1;
+                update();
+            }
+        } else if (pos.x >= size.width - increment->get_width() - decrement->get_width() - popup_ofs) {
+
+            if (highlight_arrow != 0) {
+                highlight_arrow = 0;
+                update();
+            }
+        } else if (highlight_arrow > -1) {
+            highlight_arrow = -1;
+            update();
         }
     }
 }
@@ -209,9 +278,11 @@ void TabContainer::_notification(int p_what) {
             Ref<StyleBox> tab_fg = get_stylebox("tab_fg");
             Ref<StyleBox> tab_disabled = get_stylebox("tab_disabled");
             Ref<Texture> increment = get_icon("increment");
+            Ref<Texture> increment_hl = get_icon("increment_highlight");
             Ref<Texture> decrement = get_icon("decrement");
+            Ref<Texture> decrement_hl = get_icon("decrement_highlight");
             Ref<Texture> menu = get_icon("menu");
-            Ref<Texture> menu_hl = get_icon("menu_hl");
+            Ref<Texture> menu_hl = get_icon("menu_highlight");
             Ref<Font> font = get_font("font");
             Color font_color_fg = get_color("font_color_fg");
             Color font_color_bg = get_color("font_color_bg");
@@ -338,7 +409,7 @@ void TabContainer::_notification(int p_what) {
             x = get_size().width;
             if (popup) {
                 x -= menu->get_width();
-                if (mouse_x_cache > x)
+                if (menu_hovered)
                     menu_hl->draw(get_canvas_item(), Size2(x, (header_height - menu_hl->get_height()) / 2));
                 else
                     menu->draw(get_canvas_item(), Size2(x, (header_height - menu->get_height()) / 2));
@@ -346,23 +417,26 @@ void TabContainer::_notification(int p_what) {
 
             // Draw the navigation buttons.
             if (buttons_visible_cache) {
-                int y_center = header_height / 2;
 
                 x -= increment->get_width();
-                increment->draw(canvas,
-                        Point2(x, y_center - (increment->get_height() / 2)),
-                        Color(1, 1, 1, last_tab_cache < tabs.size() - 1 ? 1.0 : 0.5));
+                if (last_tab_cache < tabs.size() - 1) {
+                    draw_texture(highlight_arrow == 1 ? increment_hl : increment, Point2(x, (header_height - increment->get_height()) / 2));
+                } else {
+                    draw_texture(increment, Point2(x, (header_height - increment->get_height()) / 2), Color(1, 1, 1, 0.5f));
+                }
 
                 x -= decrement->get_width();
-                decrement->draw(canvas,
-                        Point2(x, y_center - (decrement->get_height() / 2)),
-                        Color(1, 1, 1, first_tab_cache > 0 ? 1.0 : 0.5));
+                if (first_tab_cache > 0) {
+                    draw_texture(highlight_arrow == 0 ? decrement_hl : decrement, Point2(x, (header_height - decrement->get_height()) / 2));
+                } else {
+                    draw_texture(decrement, Point2(x, (header_height - decrement->get_height()) / 2), Color(1, 1, 1, 0.5f));
+                }
             }
         } break;
         case NOTIFICATION_THEME_CHANGED: {
 
             minimum_size_changed();
-            call_deferred("_on_theme_changed"); //wait until all changed theme
+            call_deferred("_on_theme_changed"); // Wait until all changed theme.
         } break;
     }
 }
@@ -372,7 +446,13 @@ void TabContainer::_on_theme_changed() {
         set_current_tab(get_current_tab());
     }
 }
-
+void TabContainer::_on_mouse_exited() {
+    if (menu_hovered || highlight_arrow > -1) {
+        menu_hovered = false;
+        highlight_arrow = -1;
+        update();
+    }
+}
 int TabContainer::_get_tab_width(int p_index) const {
 
     ERR_FAIL_INDEX_V(p_index, get_tab_count(), 0);
@@ -931,6 +1011,7 @@ void TabContainer::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_child_renamed_callback"), &TabContainer::_child_renamed_callback);
     MethodBinder::bind_method(D_METHOD("_on_theme_changed"), &TabContainer::_on_theme_changed);
+    MethodBinder::bind_method(D_METHOD("_on_mouse_exited"), &TabContainer::_on_mouse_exited);
     MethodBinder::bind_method(D_METHOD("_update_current_tab"), &TabContainer::_update_current_tab);
 
     ADD_SIGNAL(MethodInfo("tab_changed", PropertyInfo(VariantType::INT, "tab")));
@@ -953,14 +1034,17 @@ TabContainer::TabContainer() {
     first_tab_cache = 0;
     last_tab_cache = 0;
     buttons_visible_cache = false;
+    menu_hovered = false;
+    highlight_arrow = -1;
     tabs_ofs_cache = 0;
     current = 0;
     previous = 0;
-    mouse_x_cache = 0;
     align = ALIGN_CENTER;
     tabs_visible = true;
     popup = nullptr;
     drag_to_rearrange_enabled = false;
     tabs_rearrange_group = -1;
     use_hidden_tabs_for_min_size = false;
+
+    connect("mouse_exited", this, "_on_mouse_exited");
 }

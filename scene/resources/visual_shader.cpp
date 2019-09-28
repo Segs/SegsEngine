@@ -2421,10 +2421,10 @@ void VisualShaderNodeGroupBase::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("has_output_port", {"id"}), &VisualShaderNodeGroupBase::has_output_port);
     MethodBinder::bind_method(D_METHOD("clear_output_ports"), &VisualShaderNodeGroupBase::clear_output_ports);
 
-    MethodBinder::bind_method(D_METHOD("set_input_port_name"), &VisualShaderNodeGroupBase::set_input_port_name);
-    MethodBinder::bind_method(D_METHOD("set_input_port_type"), &VisualShaderNodeGroupBase::set_input_port_type);
-    MethodBinder::bind_method(D_METHOD("set_output_port_name"), &VisualShaderNodeGroupBase::set_output_port_name);
-    MethodBinder::bind_method(D_METHOD("set_output_port_type"), &VisualShaderNodeGroupBase::set_output_port_type);
+    MethodBinder::bind_method(D_METHOD("set_input_port_name", {"id", "name"}), &VisualShaderNodeGroupBase::set_input_port_name);
+    MethodBinder::bind_method(D_METHOD("set_input_port_type", {"id", "type"}), &VisualShaderNodeGroupBase::set_input_port_type);
+    MethodBinder::bind_method(D_METHOD("set_output_port_name", {"id", "name"}), &VisualShaderNodeGroupBase::set_output_port_name);
+    MethodBinder::bind_method(D_METHOD("set_output_port_type", {"id", "type"}), &VisualShaderNodeGroupBase::set_output_port_type);
 
     MethodBinder::bind_method(D_METHOD("get_free_input_port_id"), &VisualShaderNodeGroupBase::get_free_input_port_id);
     MethodBinder::bind_method(D_METHOD("get_free_output_port_id"), &VisualShaderNodeGroupBase::get_free_output_port_id);

@@ -179,7 +179,7 @@ void ResourceSaver::get_recognized_extensions(const RES &p_resource, Vector<Stri
 
 void ResourceSaver::add_resource_format_saver(const Ref<ResourceFormatSaver>& p_format_saver, bool p_at_front) {
 
-    ERR_FAIL_COND(not p_format_saver)
+    ERR_FAIL_COND_CMSG(not p_format_saver, "It's not a reference to a valid ResourceFormatSaver object.")
     ERR_FAIL_COND(saver_count >= MAX_SAVERS)
 
     if (p_at_front) {
@@ -195,7 +195,7 @@ void ResourceSaver::add_resource_format_saver(const Ref<ResourceFormatSaver>& p_
 
 void ResourceSaver::remove_resource_format_saver(const Ref<ResourceFormatSaver>& p_format_saver) {
 
-    ERR_FAIL_COND(not p_format_saver)
+    ERR_FAIL_COND_MSG(not p_format_saver, "It's not a reference to a valid ResourceFormatSaver object.")
 
     // Find saver
     int i = 0;

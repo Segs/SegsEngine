@@ -393,7 +393,7 @@ NodePath::NodePath(const String &p_path) {
                 if (str.empty()) {
                     if (path[i].isNull()) continue; // Allow end-of-path :
 
-                    ERR_FAIL_MSG("Invalid NodePath: " + p_path + ".")
+					ERR_FAIL_MSG("Invalid NodePath '" + p_path + "'.");
                 }
                 subpath.push_back(str);
 

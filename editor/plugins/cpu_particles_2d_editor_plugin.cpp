@@ -89,7 +89,7 @@ void CPUParticles2DEditorPlugin::_generate_emission_mask() {
 
     Ref<Image> img(make_ref_counted<Image>());
     Error err = ImageLoader::load_image(source_emission_file, img);
-    ERR_FAIL_COND_MSG(err != OK, "Error loading image: " + source_emission_file + ".")
+	ERR_FAIL_COND_MSG(err != OK, "Error loading image '" + source_emission_file + "'.")
 
     if (img->is_compressed()) {
         img->decompress();

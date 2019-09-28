@@ -120,26 +120,29 @@ void gdmono_debug_init() {
 
 	mono_debug_init(MONO_DEBUG_FORMAT_MONO);
 
+	CharString da_args = OS::get_singleton()->get_environment("GODOT_MONO_DEBUGGER_AGENT").utf8();
+
+#ifdef TOOLS_ENABLED
 	int da_port = GLOBAL_DEF("mono/debugger_agent/port", 23685);
 	bool da_suspend = GLOBAL_DEF("mono/debugger_agent/wait_for_debugger", false);
 	int da_timeout = GLOBAL_DEF("mono/debugger_agent/wait_timeout", 3000);
 
-	CharString da_args = OS::get_singleton()->get_environment("GODOT_MONO_DEBUGGER_AGENT").utf8();
-
-#ifdef TOOLS_ENABLED
 	if (Engine::get_singleton()->is_editor_hint() ||
 			ProjectSettings::get_singleton()->get_resource_path().empty() ||
 			Main::is_project_manager()) {
 		if (da_args.size() == 0)
 			return;
 	}
-#endif
 
 	if (da_args.length() == 0) {
 		da_args = String("--debugger-agent=transport=dt_socket,address=127.0.0.1:" + itos(da_port) +
 						 ",embedding=1,server=y,suspend=" + (da_suspend ? "y,timeout=" + itos(da_timeout) : "n"))
 						  .utf8();
 	}
+#else
+	if (da_args.length() == 0)
+		return; // Exported games don't use the project settings to setup the debugger agent
+#endif
 
 	// --debugger-agent=help
 	const char *options[] = {
@@ -761,7 +764,9 @@ bool GDMono::_try_load_api_assemblies() {
 
 void GDMono::_load_api_assemblies() {
 
-	if (!_try_load_api_assemblies()) {
+	bool api_assemblies_loaded = _try_load_api_assemblies();
+
+	if (!api_assemblies_loaded) {
 #ifdef TOOLS_ENABLED
 		// The API assemblies are out of sync. Fine, try one more time, but this time
 		// update them from the prebuilt assemblies directory before trying to load them.
@@ -782,7 +787,11 @@ void GDMono::_load_api_assemblies() {
 		CRASH_COND_MSG(domain_load_err != OK, "Mono: Failed to load scripts domain.");
 
 		// 4. Try loading the updated assemblies
-		if (!_try_load_api_assemblies()) {
+		api_assemblies_loaded = _try_load_api_assemblies();
+#endif
+	}
+
+	if (!api_assemblies_loaded) {
 			// welp... too bad
 
 			if (_are_api_assemblies_out_of_sync()) {
@@ -792,19 +801,17 @@ void GDMono::_load_api_assemblies() {
 					ERR_PRINT("The loaded assembly '" CORE_API_ASSEMBLY_NAME "' is in sync, but the cache update failed.");
 				}
 
+#ifdef TOOLS_ENABLED
 				if (editor_api_assembly_out_of_sync) {
 					ERR_PRINT("The assembly '" EDITOR_API_ASSEMBLY_NAME "' is out of sync.");
 				}
+#endif
 
 				CRASH_NOW();
 			} else {
 				CRASH_NOW_MSG("Failed to load one of the API assemblies.");
 			}
 		}
-#else
-		CRASH_NOW_MSG("Failed to load one of the API assemblies.");
-#endif
-	}
 }
 
 #ifdef TOOLS_ENABLED

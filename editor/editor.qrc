@@ -45,6 +45,7 @@
         <file alias="ArrowLeft.svg">icons/icon_arrow_left.svg</file>
         <file alias="ArrowRight.svg">icons/icon_arrow_right.svg</file>
         <file alias="ArrowUp.svg">icons/icon_arrow_up.svg</file>
+        <file alias="ArrowDown.svg">icons/icon_arrow_down.svg</file>
         <file alias="ARVRAnchor.svg">icons/icon_a_r_v_r_anchor.svg</file>
         <file alias="ARVRCamera.svg">icons/icon_a_r_v_r_camera.svg</file>
         <file alias="ARVRController.svg">icons/icon_a_r_v_r_controller.svg</file>
@@ -82,7 +83,6 @@
         <file alias="Bool.svg">icons/icon_bool.svg</file>
         <file alias="BoxShape.svg">icons/icon_box_shape.svg</file>
         <file alias="Bucket.svg">icons/icon_bucket.svg</file>
-        <file alias="BusVuDb.svg">icons/icon_bus_vu_db.svg</file>
         <file alias="BusVuEmpty.svg">icons/icon_bus_vu_empty.svg</file>
         <file alias="BusVuFrozen.svg">icons/icon_bus_vu_frozen.svg</file>
         <file alias="BusVuFull.svg">icons/icon_bus_vu_full.svg</file>
@@ -90,6 +90,7 @@
         <file alias="Button.svg">icons/icon_button.svg</file>
         <file alias="Camera2d.svg">icons/icon_camera_2d.svg</file>
         <file alias="Camera.svg">icons/icon_camera.svg</file>
+        <file alias="CameraTexture.svg">icons/icon_camera_texture.svg</file>
         <file alias="CanvasItemMaterial.svg">icons/icon_canvas_item_material.svg</file>
         <file alias="CanvasItemShaderGraph.svg">icons/icon_canvas_item_shader_graph.svg</file>
         <file alias="CanvasItemShader.svg">icons/icon_canvas_item_shader.svg</file>
@@ -106,6 +107,7 @@
         <file alias="CircleShape2d.svg">icons/icon_circle_shape_2d.svg</file>
         <file alias="ClassList.svg">icons/icon_class_list.svg</file>
         <file alias="Clear.svg">icons/icon_clear.svg</file>
+        <file alias="ClippedCamera.svg">icons/icon_clipped_camera.svg</file>
         <file alias="Close.svg">icons/icon_close.svg</file>
         <file alias="Collapse.svg">icons/icon_collapse.svg</file>
         <file alias="CollisionPolygon2d.svg">icons/icon_collision_polygon_2d.svg</file>
@@ -266,7 +268,9 @@
         <file alias="GuiRadioUnchecked.svg">icons/icon_GUI_radio_unchecked.svg</file>
         <file alias="GuiResizer.svg">icons/icon_gui_resizer.svg</file>
         <file alias="GuiScrollArrowLeft.svg">icons/icon_GUI_scroll_arrow_left.svg</file>
+        <file alias="GuiScrollArrowLeftHl.svg">icons/icon_GUI_scroll_arrow_left_hl.svg</file>
         <file alias="GuiScrollArrowRight.svg">icons/icon_GUI_scroll_arrow_right.svg</file>
+        <file alias="GuiScrollArrowRightHl.svg">icons/icon_GUI_scroll_arrow_right_hl.svg</file>
         <file alias="GuiScrollBg.svg">icons/icon_GUI_scroll_bg.svg</file>
         <file alias="GuiScrollGrabberHl.svg">icons/icon_GUI_scroll_grabber_hl.svg</file>
         <file alias="GuiScrollGrabberPressed.svg">icons/icon_GUI_scroll_grabber_pressed.svg</file>
@@ -276,13 +280,13 @@
         <file alias="GuiSpace.svg">icons/icon_GUI_space.svg</file>
         <file alias="GuiSpinboxUpdown.svg">icons/icon_GUI_spinbox_updown.svg</file>
         <file alias="GuiTabMenu.svg">icons/icon_GUI_tab_menu.svg</file>
+        <file alias="GuiTabMenuHl.svg">icons/icon_GUI_tab_menu_hl.svg</file>
         <file alias="GuiTab.svg">icons/icon_GUI_tab.svg</file>
         <file alias="GuiToggleOff.svg">icons/icon_GUI_toggle_off.svg</file>
         <file alias="GuiToggleOn.svg">icons/icon_GUI_toggle_on.svg</file>
         <file alias="GuiTreeArrowDown.svg">icons/icon_GUI_tree_arrow_down.svg</file>
         <file alias="GuiTreeArrowRight.svg">icons/icon_GUI_tree_arrow_right.svg</file>
         <file alias="GuiTreeArrowUp.svg">icons/icon_GUI_tree_arrow_up.svg</file>
-        <file alias="GuiTreeOption.svg">icons/icon_GUI_tree_option.svg</file>
         <file alias="GuiTreeUpdown.svg">icons/icon_GUI_tree_updown.svg</file>
         <file alias="GuiUnchecked.svg">icons/icon_GUI_unchecked.svg</file>
         <file alias="GuiViewportHdiagsplitter.svg">icons/icon_GUI_viewport_hdiagsplitter.svg</file>
@@ -296,6 +300,7 @@
         <file alias="GuiVTick.svg">icons/icon_GUI_v_tick.svg</file>
         <file alias="HBoxContainer.svg">icons/icon_h_box_container.svg</file>
         <file alias="Headphones.svg">icons/icon_headphones.svg</file>
+        <file alias="HeightMapShape.svg">icons/icon_height_map_shape.svg</file>
         <file alias="HelpSearch.svg">icons/icon_help_search.svg</file>
         <file alias="Help.svg">icons/icon_help.svg</file>
         <file alias="HingeJoint.svg">icons/icon_hinge_joint.svg</file>
@@ -385,6 +390,7 @@
         <file alias="MeshInstance2d.svg">icons/icon_mesh_instance_2d.svg</file>
         <file alias="MeshInstance.svg">icons/icon_mesh_instance.svg</file>
         <file alias="MeshLibrary.svg">icons/icon_mesh_library.svg</file>
+        <file alias="MeshTexture.svg">icons/icon_mesh_texture.svg</file>
         <file alias="Mesh.svg">icons/icon_mesh.svg</file>
         <file alias="MiniObject.svg">icons/icon_mini_object.svg</file>
         <file alias="MirrorX.svg">icons/icon_mirror_x.svg</file>
@@ -516,6 +522,7 @@
         <file alias="ReparentToNewNode.svg">icons/icon_reparent_to_new_node.svg</file>
         <file alias="ResourcePreloader.svg">icons/icon_resource_preloader.svg</file>
         <file alias="RichTextLabel.svg">icons/icon_rich_text_label.svg</file>
+        <file alias="RichTextEffect.svg">icons/icon_rich_text_effect.svg</file>
         <file alias="RID.svg">icons/icon_r_i_d.svg</file>
         <file alias="RigidBody2d.svg">icons/icon_rigid_body_2d.svg</file>
         <file alias="RigidBody.svg">icons/icon_rigid_body.svg</file>
@@ -525,6 +532,8 @@
         <file alias="Rotate180.svg">icons/icon_rotate_180.svg</file>
         <file alias="Rotate270.svg">icons/icon_rotate_270.svg</file>
         <file alias="Rotate90.svg">icons/icon_rotate_90.svg</file>
+        <file alias="RotateLeft.svg">icons/icon_rotate_left.svg</file>
+        <file alias="RotateRight.svg">icons/icon_rotate_right.svg</file>
         <file alias="Ruler.svg">icons/icon_ruler.svg</file>
         <file alias="SampleLibrary.svg">icons/icon_sample_library.svg</file>
         <file alias="Save.svg">icons/icon_save.svg</file>
@@ -544,6 +553,7 @@
         <file alias="Signal.svg">icons/icon_signal.svg</file>
         <file alias="Skeleton2d.svg">icons/icon_skeleton_2d.svg</file>
         <file alias="Skeleton.svg">icons/icon_skeleton.svg</file>
+        <file alias="SkeletonIK.svg">icons/icon_skeleton_i_k.svg</file>
         <file alias="SliderJoint.svg">icons/icon_slider_joint.svg</file>
         <file alias="Slot.svg">icons/icon_slot.svg</file>
         <file alias="SnapGrid.svg">icons/icon_snap_grid.svg</file>
@@ -556,6 +566,7 @@
         <file alias="SphereShape.svg">icons/icon_sphere_shape.svg</file>
         <file alias="SpinBox.svg">icons/icon_spin_box.svg</file>
         <file alias="SpotLight.svg">icons/icon_spot_light.svg</file>
+        <file alias="SpringArm.svg">icons/icon_spring_arm.svg</file>
         <file alias="Sprite3d.svg">icons/icon_sprite_3d.svg</file>
         <file alias="SpriteFrames.svg">icons/icon_sprite_frames.svg</file>
         <file alias="SpriteSheet.svg">icons/icon_sprite_sheet.svg</file>
@@ -570,6 +581,7 @@
         <file alias="String.svg">icons/icon_string.svg</file>
         <file alias="StyleBoxEmpty.svg">icons/icon_style_box_empty.svg</file>
         <file alias="StyleBoxFlat.svg">icons/icon_style_box_flat.svg</file>
+        <file alias="StyleBoxLine.svg">icons/icon_style_box_line.svg</file>
         <file alias="StyleBoxTexture.svg">icons/icon_style_box_texture.svg</file>
         <file alias="TabContainer.svg">icons/icon_tab_container.svg</file>
         <file alias="Tabs.svg">icons/icon_tabs.svg</file>

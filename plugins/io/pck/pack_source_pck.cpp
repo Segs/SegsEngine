@@ -162,7 +162,7 @@ FileAccessPack::FileAccessPack(const String &p_path, const PackedDataFile &p_fil
         pf(p_file),
         f(FileAccess::open(pf.pack, FileAccess::READ)) {
 
-    ERR_FAIL_COND_MSG(!f, "Can't open pack-referenced file: " + String(pf.pack) + ".")
+    ERR_FAIL_COND_MSG(!f, "Can't open pack-referenced file '" + String(pf.pack) + "'.")
 
     f->seek(pf.offset);
     pos = 0;
@@ -179,7 +179,7 @@ FileAccessPack::~FileAccessPack() {
 
 //////////////////////////////////////////////////////////////////
 
-bool PackedSourcePCK::try_open_pack(const String &p_path) {
+bool PackedSourcePCK::try_open_pack(const String &p_path, bool p_replace_files) {
 
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ);
     if (!f)
@@ -244,7 +244,7 @@ bool PackedSourcePCK::try_open_pack(const String &p_path) {
         uint64_t size = f->get_64();
         uint8_t md5[16];
         f->get_buffer(md5, 16);
-        PackedData::get_singleton()->add_path(p_path, path, ofs, size, md5, this);
+        PackedData::get_singleton()->add_path(p_path, path, ofs, size, md5, this, p_replace_files);
     }
 
     return true;

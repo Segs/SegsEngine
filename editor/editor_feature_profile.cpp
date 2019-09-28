@@ -170,7 +170,7 @@ Error EditorFeatureProfile::save_to_file(const String &p_path) {
     json["disabled_features"] = dis_features;
 
     FileAccessRef f = FileAccess::open(p_path, FileAccess::WRITE);
-    ERR_FAIL_COND_V(!f, ERR_CANT_OPEN)
+    ERR_FAIL_COND_V_MSG(!f, ERR_CANT_CREATE, "Cannot create file '" + p_path + "'.")
 
     String text = JSON::print(json, "\t");
     f->store_string(text);
@@ -259,8 +259,8 @@ void EditorFeatureProfile::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_disable_class_editor", {"class_name", "disable"}), &EditorFeatureProfile::set_disable_class_editor);
     MethodBinder::bind_method(D_METHOD("is_class_editor_disabled", {"class_name"}), &EditorFeatureProfile::is_class_editor_disabled);
 
-    MethodBinder::bind_method(D_METHOD("set_disable_class_property", {"class_name", "property"}), &EditorFeatureProfile::set_disable_class_property);
-    MethodBinder::bind_method(D_METHOD("is_class_property_disabled", {"class_name"}), &EditorFeatureProfile::is_class_property_disabled);
+    MethodBinder::bind_method(D_METHOD("set_disable_class_property", {"class_name", "property", "disable"}), &EditorFeatureProfile::set_disable_class_property);
+    MethodBinder::bind_method(D_METHOD("is_class_property_disabled", {"class_name", "disable"}), &EditorFeatureProfile::is_class_property_disabled);
 
     MethodBinder::bind_method(D_METHOD("set_disable_feature", {"feature", "disable"}), &EditorFeatureProfile::set_disable_feature);
     MethodBinder::bind_method(D_METHOD("is_feature_disabled", {"feature"}), &EditorFeatureProfile::is_feature_disabled);
@@ -331,7 +331,7 @@ void EditorFeatureProfileManager::_update_profile_list(const String &p_select_pr
 
     Vector<String> profiles;
     DirAccessRef d = DirAccess::open(EditorSettings::get_singleton()->get_feature_profiles_dir());
-    ERR_FAIL_COND(!d)
+    ERR_FAIL_COND_MSG(!d, "Cannot open directory '" + EditorSettings::get_singleton()->get_feature_profiles_dir() + "'.")
     d->list_dir_begin();
     while (true) {
         String f = d->get_next();
@@ -438,7 +438,7 @@ void EditorFeatureProfileManager::_erase_selected_profile() {
     String selected = _get_selected_profile();
     ERR_FAIL_COND(selected.empty())
     DirAccessRef da = DirAccess::open(EditorSettings::get_singleton()->get_feature_profiles_dir());
-    ERR_FAIL_COND(!da)
+    ERR_FAIL_COND_MSG(!da, "Cannot open directory '" + EditorSettings::get_singleton()->get_feature_profiles_dir() + "'.")
     da->remove(selected + ".profile");
     if (selected == current_profile) {
         _profile_action(PROFILE_CLEAR);
@@ -676,7 +676,7 @@ void EditorFeatureProfileManager::_update_selected_profile() {
         //reload edited, if different from current
         edited = make_ref_counted<EditorFeatureProfile>();
         Error err = edited->load_from_file(PathUtils::plus_file(EditorSettings::get_singleton()->get_feature_profiles_dir(),profile + ".profile"));
-        ERR_FAIL_COND(err != OK)
+        ERR_FAIL_COND_MSG(err != OK, "Error when loading EditorSettings from file '" + PathUtils::plus_file(EditorSettings::get_singleton()->get_feature_profiles_dir(),profile + ".profile") + "'.")
     }
 
     updating_features = true;

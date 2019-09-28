@@ -76,8 +76,8 @@ void TileMapEditor::_notification(int p_what) {
             picker_button->set_icon(get_icon("ColorPick", "EditorIcons"));
             select_button->set_icon(get_icon("ActionCopy", "EditorIcons"));
 
-            rotate_left_button->set_icon(get_icon("Rotate270", "EditorIcons"));
-            rotate_right_button->set_icon(get_icon("Rotate90", "EditorIcons"));
+            rotate_left_button->set_icon(get_icon("RotateLeft", "EditorIcons"));
+            rotate_right_button->set_icon(get_icon("RotateRight", "EditorIcons"));
             flip_horizontal_button->set_icon(get_icon("MirrorX", "EditorIcons"));
             flip_vertical_button->set_icon(get_icon("MirrorY", "EditorIcons"));
             clear_transform_button->set_icon(get_icon("Clear", "EditorIcons"));
@@ -994,7 +994,7 @@ bool TileMapEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
             if (mb->is_pressed()) {
 
                 if (Input::get_singleton()->is_key_pressed(KEY_SPACE))
-                    return false; //drag
+                    return false; // Drag.
 
                 if (tool == TOOL_NONE) {
 
@@ -1598,7 +1598,7 @@ void TileMapEditor::forward_canvas_draw_over_viewport(Control *p_overlay) {
             }
         }
 
-        int max_lines = 10000; //avoid crash if size too smal
+        int max_lines = 10000; //avoid crash if size too small
 
         if (node->get_half_offset() != TileMap::HALF_OFFSET_Y && node->get_half_offset() != TileMap::HALF_OFFSET_NEGATIVE_Y) {
 
@@ -1647,10 +1647,10 @@ void TileMapEditor::forward_canvas_draw_over_viewport(Control *p_overlay) {
         points.push_back(xform.xform(node->map_to_world((rectangle.position + Point2(rectangle.size.x + 1, rectangle.size.y + 1)))));
         points.push_back(xform.xform(node->map_to_world((rectangle.position + Point2(0, rectangle.size.y + 1)))));
 
-        p_overlay->draw_colored_polygon(points, Color(0.2, 0.8, 1, 0.4));
+        p_overlay->draw_colored_polygon(points, Color(0.2f, 0.8f, 1, 0.4f));
     }
 
-    if (mouse_over) {
+    if (mouse_over && node->get_tileset()) {
 
         Vector2 endpoints[4] = {
             node->map_to_world(over_tile, true),

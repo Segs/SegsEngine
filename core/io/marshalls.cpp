@@ -477,7 +477,7 @@ Error decode_variant(Variant &r_variant, const uint8_t *p_buffer, int p_len, int
 
                 int used;
                 Error err = decode_variant(key, buf, len, &used, p_allow_objects);
-                ERR_FAIL_COND_V(err, err)
+                ERR_FAIL_COND_V_CMSG(err != OK, err, "Error when trying to decode Variant.")
 
                 buf += used;
                 len -= used;
@@ -486,7 +486,7 @@ Error decode_variant(Variant &r_variant, const uint8_t *p_buffer, int p_len, int
                 }
 
                 err = decode_variant(value, buf, len, &used, p_allow_objects);
-                ERR_FAIL_COND_V(err, err)
+                ERR_FAIL_COND_V_CMSG(err != OK, err, "Error when trying to decode Variant.")
 
                 buf += used;
                 len -= used;
@@ -521,7 +521,7 @@ Error decode_variant(Variant &r_variant, const uint8_t *p_buffer, int p_len, int
                 int used = 0;
                 Variant v;
                 Error err = decode_variant(v, buf, len, &used, p_allow_objects);
-                ERR_FAIL_COND_V(err, err)
+                ERR_FAIL_COND_V_CMSG(err != OK, err, "Error when trying to decode Variant.")
                 buf += used;
                 len -= used;
                 varr.push_back(v);

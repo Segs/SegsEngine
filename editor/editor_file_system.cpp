@@ -341,7 +341,7 @@ void EditorFileSystem::_save_filesystem_cache() {
 
     FileAccess *f = FileAccess::open(fscache, FileAccess::WRITE);
     if (f == nullptr) {
-        ERR_PRINTS("Error writing fscache: " + fscache)
+		ERR_PRINTS("Error writing fscache '" + fscache + "'.")
     } else {
         f->store_line(filesystem_settings_version_for_import);
         _save_filesystem_cache(filesystem, f);
@@ -403,7 +403,7 @@ bool EditorFileSystem::_test_for_reimport(const String &p_path, bool p_only_impo
         if (err == ERR_FILE_EOF) {
             break;
         } else if (err != OK) {
-            ERR_PRINTS("ResourceFormatImporter::load - " + p_path + ".import:" + itos(lines) + " error: " + error_text)
+			ERR_PRINTS("ResourceFormatImporter::load - '" + p_path + ".import:" + itos(lines) + "' error '" + error_text + "'.");
             VariantParser::release_stream(stream);
             memdelete(f);
             return false; //parse error, try reimport manually (Avoid reimport loop on broken file)
@@ -452,7 +452,7 @@ bool EditorFileSystem::_test_for_reimport(const String &p_path, bool p_only_impo
         if (err == ERR_FILE_EOF) {
             break;
         } else if (err != OK) {
-            ERR_PRINTS("ResourceFormatImporter::load - " + p_path + ".import.md5:" + itos(lines) + " error: " + error_text)
+            ERR_PRINTS("ResourceFormatImporter::load - '" + p_path + ".import.md5:" + itos(lines) + "' error '" + error_text + "'.")
             VariantParser::release_stream(md5_stream);
             memdelete(md5s);
             return false; // parse error
@@ -1680,7 +1680,7 @@ Error EditorFileSystem::_reimport_group(const String &p_group_file, const Vector
 
         // Store the md5's of the various files. These are stored separately so that the .import files can be version controlled.
         FileAccessRef md5s = FileAccess::open(base_path + ".md5", FileAccess::WRITE);
-        ERR_FAIL_COND_V(!md5s, ERR_FILE_CANT_OPEN)
+		ERR_FAIL_COND_V_MSG(!md5s, ERR_FILE_CANT_OPEN, "Cannot open MD5 file '" + base_path + ".md5'.")
 
         md5s->store_line("source_md5=\"" + FileAccess::get_md5(file) + "\"");
         if (!dest_paths.empty()) {
@@ -1691,7 +1691,7 @@ Error EditorFileSystem::_reimport_group(const String &p_group_file, const Vector
         EditorFileSystemDirectory *fs = nullptr;
         int cpos = -1;
         bool found = _find_file(file, &fs, cpos);
-        ERR_FAIL_COND_V(!found, ERR_UNCONFIGURED)
+		ERR_FAIL_COND_V_MSG(!found, ERR_UNCONFIGURED, "Can't find file '" + file + "'.")
 
         //update modified times, to avoid reimport
         fs->files[cpos]->modified_time = FileAccess::get_modified_time(file);
@@ -1725,7 +1725,7 @@ void EditorFileSystem::_reimport_file(const String &p_file) {
     EditorFileSystemDirectory *fs = nullptr;
     int cpos = -1;
     bool found = _find_file(p_file, &fs, cpos);
-    ERR_FAIL_COND(!found)
+	ERR_FAIL_COND_MSG(!found, "Can't find file '" + p_file + "'.")
 
     //try to obtain existing params
 
@@ -1800,13 +1800,13 @@ void EditorFileSystem::_reimport_file(const String &p_file) {
     Error err = importer->import(p_file, base_path, params, &import_variants, &gen_files, &metadata);
 
     if (err != OK) {
-        ERR_PRINTS("Error importing: " + p_file)
+		ERR_PRINTS("Error importing '" + p_file + "'.")
     }
 
     //as import is complete, save the .import file
 
     FileAccess *f = FileAccess::open(p_file + ".import", FileAccess::WRITE);
-    ERR_FAIL_COND(!f)
+	ERR_FAIL_COND_MSG(!f, "Cannot open file from path '" + p_file + ".import'.")
 
     //write manually, as order matters ([remap] has to go first for performance).
     f->store_line("[remap]");

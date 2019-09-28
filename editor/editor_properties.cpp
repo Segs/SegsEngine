@@ -2106,7 +2106,7 @@ void EditorPropertyResource::_file_selected(const String &p_path) {
 
     RES res(ResourceLoader::load(p_path));
 
-    ERR_FAIL_COND(not res)
+    ERR_FAIL_COND_MSG(not res, "Cannot load resource from path '" + (String)p_path + "'.")
 
     ListPOD<PropertyInfo> prop_list;
     get_edited_object()->get_property_list(&prop_list);

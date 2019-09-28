@@ -1692,7 +1692,7 @@ void ProjectList::_panel_input(const Ref<InputEvent> &p_ev, Node *p_hb) {
 
         emit_signal(StaticCString(SIGNAL_SELECTION_CHANGED,true));
 
-        if (mb->is_doubleclick()) {
+        if (!mb->get_control() && mb->is_doubleclick()) {
             emit_signal(StaticCString(SIGNAL_PROJECT_ASK_OPEN,true));
         }
     }

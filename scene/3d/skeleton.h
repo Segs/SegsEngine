@@ -85,6 +85,8 @@ private:
         Transform pose;
         Transform pose_global;
 
+		bool custom_pose_enable;
+		Transform custom_pose;
 		float global_pose_override_amount;
 		bool global_pose_override_reset;
 		Transform global_pose_override;
@@ -100,6 +102,7 @@ private:
             parent = -1;
             enabled = true;
             disable_rest = false;
+			custom_pose_enable = false;
 			global_pose_override_amount = 0;
 			global_pose_override_reset = false;
 #ifndef _3D_DISABLED
@@ -186,6 +189,8 @@ public:
     void set_bone_pose(int p_bone, const Transform &p_pose);
     Transform get_bone_pose(int p_bone) const;
 
+	void set_bone_custom_pose(int p_bone, const Transform &p_custom_pose);
+	Transform get_bone_custom_pose(int p_bone) const;
 
     void localize_rests(); // used for loaders and tools
     int get_process_order(int p_idx);

@@ -300,7 +300,7 @@ Error OS_Unix::execute(const String &p_path, const ListPOD<String> &p_arguments,
         }
         FILE *f = popen(qPrintable(argss.m_str), "r");
 
-        ERR_FAIL_COND_V(!f, ERR_CANT_OPEN)
+		ERR_FAIL_COND_V_MSG(!f, ERR_CANT_OPEN, "Cannot pipe stream from process running with following arguments '" + argss + "'.")
 
         char buf[65535];
 
@@ -316,7 +316,7 @@ Error OS_Unix::execute(const String &p_path, const ListPOD<String> &p_arguments,
         }
         int rv = pclose(f);
         if (r_exitcode)
-            *r_exitcode = rv;
+			*r_exitcode = WEXITSTATUS(rv);
 
         return OK;
     }

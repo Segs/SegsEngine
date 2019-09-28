@@ -799,7 +799,7 @@ void Basis::get_axis_angle(Vector3 &r_axis, real_t &r_angle) const {
 void Basis::set_quat(const Quat &p_quat) {
 
     real_t d = p_quat.length_squared();
-    real_t s = 2.0 / d;
+    real_t s = 2.0f / d;
     real_t xs = p_quat.x * s, ys = p_quat.y * s, zs = p_quat.z * s;
     real_t wx = p_quat.w * xs, wy = p_quat.w * ys, wz = p_quat.w * zs;
     real_t xx = p_quat.x * xs, xy = p_quat.x * ys, xz = p_quat.x * zs;
@@ -812,13 +812,13 @@ void Basis::set_quat(const Quat &p_quat) {
 void Basis::set_axis_angle(const Vector3 &p_axis, real_t p_phi) {
 // Rotation matrix from axis and angle, see https://en.wikipedia.org/wiki/Rotation_matrix#Rotation_matrix_from_axis_angle
 #ifdef MATH_CHECKS
-    ERR_FAIL_COND(!p_axis.is_normalized())
+    ERR_FAIL_COND_CMSG(!p_axis.is_normalized(), "Axis must be normalized.")
 #endif
     Vector3 axis_sq(p_axis.x * p_axis.x, p_axis.y * p_axis.y, p_axis.z * p_axis.z);
     real_t cosine = Math::cos(p_phi);
-    elements[0][0] = axis_sq.x + cosine * (1.0 - axis_sq.x);
-    elements[1][1] = axis_sq.y + cosine * (1.0 - axis_sq.y);
-    elements[2][2] = axis_sq.z + cosine * (1.0 - axis_sq.z);
+    elements[0][0] = axis_sq.x + cosine * (1.0f - axis_sq.x);
+    elements[1][1] = axis_sq.y + cosine * (1.0f - axis_sq.y);
+    elements[2][2] = axis_sq.z + cosine * (1.0f - axis_sq.z);
 
     real_t sine = Math::sin(p_phi);
     real_t t = 1 - cosine;
