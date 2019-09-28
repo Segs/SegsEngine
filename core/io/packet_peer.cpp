@@ -101,9 +101,9 @@ Error PacketPeer::put_var(const Variant &p_packet, bool p_full_objects) {
         return OK;
 
     uint8_t *buf = (uint8_t *)alloca(len);
-    ERR_FAIL_COND_V(!buf, ERR_OUT_OF_MEMORY)
+    ERR_FAIL_COND_V_CMSG(!buf, ERR_OUT_OF_MEMORY, "Out of memory.")
     err = encode_variant(p_packet, buf, len, p_full_objects || allow_object_decoding);
-    ERR_FAIL_COND_V(err, err)
+    ERR_FAIL_COND_V_CMSG(err != OK, err, "Error when trying to encode Variant.")
 
     return put_packet(buf, len);
 }
@@ -150,7 +150,7 @@ void PacketPeer::_bind_methods() {
 
 void PacketPeerStream::_set_stream_peer(const REF& p_peer) {
 
-    ERR_FAIL_COND(not p_peer)
+    ERR_FAIL_COND_CMSG(not p_peer, "It's not a reference to a valid Resource object.")
     set_stream_peer(dynamic_ref_cast<StreamPeer>(p_peer));
 }
 

@@ -208,6 +208,29 @@ static void argument_doc_from_arginfo(DocData::ArgumentDoc &p_argument, const Pr
     }
 }
 
+static Variant get_documentation_default_value(const StringName &p_class_name, const StringName &p_property_name, bool &r_default_value_valid) {
+
+    Variant default_value = Variant();
+    r_default_value_valid = false;
+
+    if (ClassDB::can_instance(p_class_name)) {
+        default_value = ClassDB::class_get_default_property_value(p_class_name, p_property_name, &r_default_value_valid);
+    } else {
+        // Cannot get default value of classes that can't be instanced
+        ListPOD<StringName> inheriting_classes;
+        ClassDB::get_direct_inheriters_from_class(p_class_name, &inheriting_classes);
+        for (const StringName &E2 : inheriting_classes) {
+            if (ClassDB::can_instance(E2)) {
+                default_value = ClassDB::class_get_default_property_value(E2, p_property_name, &r_default_value_valid);
+                if (r_default_value_valid)
+                    break;
+            }
+        }
+    }
+
+    return default_value;
+}
+
 void DocData::generate(bool p_basic_types) {
 
     Vector<StringName> classes;
@@ -232,46 +255,48 @@ void DocData::generate(bool p_basic_types) {
         c.category = ClassDB::get_category(name);
 
         ListPOD<PropertyInfo> properties;
+        ListPOD<PropertyInfo> own_properties;
         if (name == "ProjectSettings") {
             //special case for project settings, so settings can be documented
             ProjectSettings::get_singleton()->get_property_list(&properties);
+            own_properties = properties;
         } else {
-            ClassDB::get_property_list(name, &properties, true);
+            ClassDB::get_property_list(name, &properties);
+            ClassDB::get_property_list(name, &own_properties, true);
         }
-
+        auto iter=own_properties.begin();
         for (const PropertyInfo & E : properties) {
+            bool inherited = iter == own_properties.end();
+            if (!inherited && *iter == E) {
+                ++iter;
+            }
             if (E.usage & PROPERTY_USAGE_GROUP || E.usage & PROPERTY_USAGE_CATEGORY || E.usage & PROPERTY_USAGE_INTERNAL)
                 continue;
 
             PropertyDoc prop;
-            StringName setter = ClassDB::get_property_setter(name, E.name);
-            StringName getter = ClassDB::get_property_getter(name, E.name);
 
             prop.name = E.name;
-            prop.setter = setter;
-            prop.getter = getter;
+            prop.overridden = inherited;
 
-            Variant default_value = Variant();
             bool default_value_valid = false;
+            Variant default_value = get_documentation_default_value(name, E.name, default_value_valid);
 
-            if (ClassDB::can_instance(name)) {
-                default_value = ClassDB::class_get_default_property_value(name, E.name, &default_value_valid);
-            } else {
-                // Cannot get default value of classes that can't be instanced
-                ListPOD<StringName> inheriting_classes;
-                ClassDB::get_direct_inheriters_from_class(name, &inheriting_classes);
-                for (const StringName &E2 : inheriting_classes) {
-                    if (ClassDB::can_instance(E2)) {
-                        default_value = ClassDB::class_get_default_property_value(E2, E.name, &default_value_valid);
-                        if (default_value_valid)
-                            break;
-                    }
-                }
+            if (inherited) {
+                bool base_default_value_valid = false;
+                Variant base_default_value = get_documentation_default_value(ClassDB::get_parent_class(name), E.name, base_default_value_valid);
+                if (!default_value_valid || !base_default_value_valid || default_value == base_default_value)
+                    continue;
             }
 
             if (default_value_valid && default_value.get_type() != VariantType::OBJECT) {
                 prop.default_value = StringUtils::replace(default_value.get_construct_string(),"\n", "");
             }
+
+            StringName setter = ClassDB::get_property_setter(name, E.name);
+            StringName getter = ClassDB::get_property_getter(name, E.name);
+
+            prop.setter = setter;
+            prop.getter = getter;
 
             bool found_type = false;
             if (getter != StringName()) {
@@ -841,7 +866,7 @@ Error DocData::_load(Ref<XMLParser> parser) {
                                 ERR_FAIL_V_MSG(ERR_FILE_CORRUPT, "Invalid tag in doc file: " + name3 + ".");
                             }
                         } else if (parser->get_node_type() == XMLParser::NODE_ELEMENT_END && parser->get_node_name() == "tutorials")
-                            break; //end of <tutorials>
+                            break; // End of <tutorials>.
                     }
                 } else if (name2 == "methods") {
 
@@ -874,16 +899,18 @@ Error DocData::_load(Ref<XMLParser> parser) {
                                     prop2.getter = parser->get_attribute_value("getter");
                                 if (parser->has_attribute("enum"))
                                     prop2.enumeration = parser->get_attribute_value("enum");
-                                parser->read();
-                                if (parser->get_node_type() == XMLParser::NODE_TEXT)
-                                    prop2.description = parser->get_node_data();
+                                if (!parser->is_empty()) {
+                                    parser->read();
+                                    if (parser->get_node_type() == XMLParser::NODE_TEXT)
+                                        prop2.description = parser->get_node_data();
+                                }
                                 c.properties.push_back(prop2);
                             } else {
                                 ERR_FAIL_V_MSG(ERR_FILE_CORRUPT, "Invalid tag in doc file: " + name3 + ".");
                             }
 
                         } else if (parser->get_node_type() == XMLParser::NODE_ELEMENT_END && parser->get_node_name() == "members")
-                            break; //end of <constants>
+                            break; // End of <members>.
                     }
 
                 } else if (name2 == "theme_items") {
@@ -902,16 +929,18 @@ Error DocData::_load(Ref<XMLParser> parser) {
                                 prop2.name = parser->get_attribute_value("name");
                                 ERR_FAIL_COND_V(!parser->has_attribute("type"), ERR_FILE_CORRUPT)
                                 prop2.type = parser->get_attribute_value("type");
-                                parser->read();
-                                if (parser->get_node_type() == XMLParser::NODE_TEXT)
-                                    prop2.description = parser->get_node_data();
+                                if (!parser->is_empty()) {
+                                    parser->read();
+                                    if (parser->get_node_type() == XMLParser::NODE_TEXT)
+                                        prop2.description = parser->get_node_data();
+                                }
                                 c.theme_properties.push_back(prop2);
                             } else {
                                 ERR_FAIL_V_MSG(ERR_FILE_CORRUPT, "Invalid tag in doc file: " + name3 + ".");
                             }
 
                         } else if (parser->get_node_type() == XMLParser::NODE_ELEMENT_END && parser->get_node_name() == "theme_items")
-                            break; //end of <constants>
+                            break; // End of <theme_items>.
                     }
 
                 } else if (name2 == "constants") {
@@ -932,16 +961,18 @@ Error DocData::_load(Ref<XMLParser> parser) {
                                 if (parser->has_attribute("enum")) {
                                     constant2.enumeration = parser->get_attribute_value("enum");
                                 }
-                                parser->read();
-                                if (parser->get_node_type() == XMLParser::NODE_TEXT)
-                                    constant2.description = parser->get_node_data();
+                                if (!parser->is_empty()) {
+                                    parser->read();
+                                    if (parser->get_node_type() == XMLParser::NODE_TEXT)
+                                        constant2.description = parser->get_node_data();
+                                }
                                 c.constants.push_back(constant2);
                             } else {
                                 ERR_FAIL_V_MSG(ERR_FILE_CORRUPT, "Invalid tag in doc file: " + name3 + ".");
                             }
 
                         } else if (parser->get_node_type() == XMLParser::NODE_ELEMENT_END && parser->get_node_name() == "constants")
-                            break; //end of <constants>
+                            break; // End of <constants>.
                     }
 
                 } else {
@@ -950,7 +981,7 @@ Error DocData::_load(Ref<XMLParser> parser) {
                 }
 
             } else if (parser->get_node_type() == XMLParser::NODE_ELEMENT_END && parser->get_node_name() == "class")
-                break; //end of <asset>
+                break; // End of <class>.
         }
     }
 
@@ -1080,9 +1111,13 @@ Error DocData::save_classes(const String &p_default_path, const Map<String, Stri
                     additional_attributes += " default=\"" + StringUtils::xml_escape(c.properties[i].default_value,true) + "\"";
                 }
                 const PropertyDoc &p = c.properties[i];
-                _write_string(f, 2, "<member name=\"" + p.name + "\" type=\"" + p.type + "\" setter=\"" + p.setter + "\" getter=\"" + p.getter + "\"" + additional_attributes + ">");
-                _write_string(f, 3, StringUtils::xml_escape(StringUtils::strip_edges(p.description)));
-                _write_string(f, 2, "</member>");
+                if (c.properties[i].overridden) {
+                    _write_string(f, 2, "<member name=\"" + p.name + "\" type=\"" + p.type + "\" setter=\"" + p.setter + "\" getter=\"" + p.getter + "\" override=\"true\"" + additional_attributes + " />");
+                } else {
+                    _write_string(f, 2, "<member name=\"" + p.name + "\" type=\"" + p.type + "\" setter=\"" + p.setter + "\" getter=\"" + p.getter + "\"" + additional_attributes + ">");
+                    _write_string(f, 3, StringUtils::xml_escape(StringUtils::strip_edges(p.description)));
+                    _write_string(f, 2, "</member>");
+                }
             }
             _write_string(f, 1, "</members>");
         }

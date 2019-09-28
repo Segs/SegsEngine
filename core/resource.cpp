@@ -107,7 +107,7 @@ void Resource::set_path(const String &p_path, bool p_take_over) {
             bool exists = cached_resources.contains(p_path);
             ResourceCache::lock->read_unlock();
 
-            ERR_FAIL_COND_MSG(exists, "Another resource is loaded from path: " + p_path + " (possible cyclic resource inclusion).")
+			ERR_FAIL_COND_MSG(exists, "Another resource is loaded from path '" + p_path + "' (possible cyclic resource inclusion).")
         }
     }
     impl_data->path_cache = p_path;
@@ -553,7 +553,7 @@ void ResourceCache::dump(const char *p_file, bool p_short) {
     FileAccess *f = nullptr;
     if (p_file) {
         f = FileAccess::open(p_file, FileAccess::WRITE);
-        ERR_FAIL_COND(!f)
+		ERR_FAIL_COND_MSG(!f, "Cannot create file at path '" + String(p_file) + "'.")
     }
 
     const String *K = nullptr;

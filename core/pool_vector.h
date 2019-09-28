@@ -84,7 +84,7 @@ class PoolVector {
         if (!alloc)
             return;
 
-        //		ERR_FAIL_COND(alloc->lock>0) should not be illegal to lock this for copy on write, as it's a copy on write after all
+		//		ERR_FAIL_COND(alloc->lock>0); should not be illegal to lock this for copy on write, as it's a copy on write after all
 
         // Refcount should not be zero, otherwise it's a misuse of COW
         if (alloc->refcount.get() == 1)
@@ -513,7 +513,7 @@ T PoolVector<T>::operator[](int p_index) const {
 template <class T>
 Error PoolVector<T>::resize(int p_size) {
 
-    ERR_FAIL_COND_V(p_size < 0, ERR_INVALID_PARAMETER)
+	ERR_FAIL_COND_V_CMSG(p_size < 0, ERR_INVALID_PARAMETER, "Size of PoolVector cannot be negative.")
 
     if (alloc == nullptr) {
 
@@ -541,7 +541,7 @@ Error PoolVector<T>::resize(int p_size) {
 
     } else {
 
-        ERR_FAIL_COND_V(alloc->lock > 0, ERR_LOCKED) //can't resize if locked!
+		ERR_FAIL_COND_V_CMSG(alloc->lock > 0, ERR_LOCKED, "Can't resize PoolVector if locked.") //can't resize if locked!
     }
 
     size_t new_size = sizeof(T) * p_size;

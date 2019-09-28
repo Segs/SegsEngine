@@ -304,7 +304,7 @@ void CSGShape::_update_shape() {
     root_mesh.unref(); //byebye root mesh
 
     CSGBrush *n = _get_brush();
-    ERR_FAIL_COND(!n)
+	ERR_FAIL_COND_CMSG(!n, "Cannot get CSGBrush.")
 
     OAHashMap<Vector3, Vector3> vec_map;
 
@@ -1089,6 +1089,7 @@ void CSGSphere::set_radius(const float p_radius) {
     radius = p_radius;
     _make_dirty();
     update_gizmo();
+	_change_notify("radius");
 }
 
 float CSGSphere::get_radius() const {
@@ -1273,6 +1274,7 @@ void CSGBox::set_width(const float p_width) {
     width = p_width;
     _make_dirty();
     update_gizmo();
+	_change_notify("width");
 }
 
 float CSGBox::get_width() const {
@@ -1283,6 +1285,7 @@ void CSGBox::set_height(const float p_height) {
     height = p_height;
     _make_dirty();
     update_gizmo();
+	_change_notify("height");
 }
 
 float CSGBox::get_height() const {
@@ -1293,6 +1296,7 @@ void CSGBox::set_depth(const float p_depth) {
     depth = p_depth;
     _make_dirty();
     update_gizmo();
+	_change_notify("depth");
 }
 
 float CSGBox::get_depth() const {
@@ -1487,6 +1491,7 @@ void CSGCylinder::set_radius(const float p_radius) {
     radius = p_radius;
     _make_dirty();
     update_gizmo();
+	_change_notify("radius");
 }
 
 float CSGCylinder::get_radius() const {
@@ -1497,6 +1502,7 @@ void CSGCylinder::set_height(const float p_height) {
     height = p_height;
     _make_dirty();
     update_gizmo();
+	_change_notify("height");
 }
 
 float CSGCylinder::get_height() const {
@@ -1712,6 +1718,7 @@ void CSGTorus::set_inner_radius(const float p_inner_radius) {
     inner_radius = p_inner_radius;
     _make_dirty();
     update_gizmo();
+	_change_notify("inner_radius");
 }
 
 float CSGTorus::get_inner_radius() const {
@@ -1722,6 +1729,7 @@ void CSGTorus::set_outer_radius(const float p_outer_radius) {
     outer_radius = p_outer_radius;
     _make_dirty();
     update_gizmo();
+	_change_notify("outer_radius");
 }
 
 float CSGTorus::get_outer_radius() const {

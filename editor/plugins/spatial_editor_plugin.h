@@ -635,7 +635,7 @@ private:
     Node *custom_camera;
 
     Object *_get_editor_data(Object *p_what);
-    Color _get_axis_color(int axis);
+    //Color _get_axis_color(int axis);
 
     Ref<Environment> viewport_environment;
 

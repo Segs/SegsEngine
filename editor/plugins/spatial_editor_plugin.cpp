@@ -2322,7 +2322,7 @@ void SpatialEditorViewport::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_THEME_CHANGED) {
 
-        view_menu->set_icon(get_icon("GuiMiniTabMenu", "EditorIcons"));
+        view_menu->set_icon(get_icon("GuiTabMenu", "EditorIcons"));
         preview_camera->set_icon(get_icon("Camera", "EditorIcons"));
 
         view_menu->add_style_override("normal", editor->get_gui_base()->get_stylebox("Information3dViewport", "EditorStyles"));
@@ -4079,7 +4079,10 @@ void _update_all_gizmos(Node *p_node) {
 }
 
 void SpatialEditor::update_all_gizmos(Node *p_node) {
-    if (!p_node) p_node = SceneTree::get_singleton()->get_root();
+    if (!p_node) {
+        if (!SceneTree::get_singleton()) return;
+        p_node = SceneTree::get_singleton()->get_root();
+    }
     _update_all_gizmos(p_node);
 }
 
@@ -4098,20 +4101,16 @@ Object *SpatialEditor::_get_editor_data(Object *p_what) {
     return si;
 }
 
-Color SpatialEditor::_get_axis_color(int axis) {
-
+static Color _get_axis_color(Control *c,int axis) {
     switch (axis) {
         case 0:
-            // X axis
-            return Color(0.96, 0.20, 0.32);
+            return c->get_color("axis_x_color", "Editor");
         case 1:
-            // Y axis
-            return Color(0.53, 0.84, 0.01);
+            return c->get_color("axis_y_color", "Editor");
         case 2:
-            // Z axis
-            return Color(0.16, 0.55, 0.96);
+            return c->get_color("axis_z_color", "Editor");
         default:
-            return Color(0, 0, 0);
+            return Color();
     }
 }
 
@@ -4666,7 +4665,7 @@ void SpatialEditor::_init_indicators() {
         for (int i = 0; i < 3; i++) {
             Vector3 axis;
             axis[i] = 1;
-            Color origin_color = _get_axis_color(i);
+            Color origin_color = _get_axis_color(this,i);
 
             grid_enable[i] = false;
             grid_visible[i] = false;
@@ -4703,7 +4702,7 @@ void SpatialEditor::_init_indicators() {
 
         for (int i = 0; i < 3; i++) {
 
-            Color col = _get_axis_color(i);
+            Color col = _get_axis_color(this,i);
             col.a = EditorSettings::get_singleton()->get("editors/3d/manipulator_gizmo_opacity");
 
             move_gizmo[i] = make_ref_counted<ArrayMesh>();
@@ -4742,11 +4741,11 @@ void SpatialEditor::_init_indicators() {
                 // Arrow profile
                 const int arrow_points = 5;
                 Vector3 arrow[5] = {
-                    nivec * 0.0 + ivec * 0.0,
-                    nivec * 0.01 + ivec * 0.0,
-                    nivec * 0.01 + ivec * GIZMO_ARROW_OFFSET,
-                    nivec * 0.065 + ivec * GIZMO_ARROW_OFFSET,
-                    nivec * 0.0 + ivec * (GIZMO_ARROW_OFFSET + GIZMO_ARROW_SIZE),
+                    nivec * 0.0f + ivec * 0.0f,
+                    nivec * 0.01f + ivec * 0.0f,
+                    nivec * 0.01f + ivec * GIZMO_ARROW_OFFSET,
+                    nivec * 0.065f + ivec * GIZMO_ARROW_OFFSET,
+                    nivec * 0.0f + ivec * (GIZMO_ARROW_OFFSET + GIZMO_ARROW_SIZE),
                 };
 
                 int arrow_sides = 16;

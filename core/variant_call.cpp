@@ -295,6 +295,7 @@ struct _VariantCall {
         r_ret = StringUtils::replace(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>(), String(*p_args[1]));
     }
     VCALL_SU_LOCALMEM2R(String, replacen)
+    VCALL_SU_LOCALMEM1R(String, repeat)
     VCALL_SU_LOCALMEM2R(String, insert)
     VCALL_SU_LOCALMEM0R(String, capitalize)
     VCALL_SU_LOCALMEM3R(String, split)
@@ -1596,6 +1597,7 @@ void register_variant_methods() {
     ADDFUNC1R(STRING, STRING, String, format, NIL, "values")
     ADDFUNC2R(STRING, STRING, String, replace, STRING, "what", STRING, "forwhat")
     ADDFUNC2R(STRING, STRING, String, replacen, STRING, "what", STRING, "forwhat")
+    ADDFUNC1R(STRING, STRING, String, repeat, INT, "count", varray())
     ADDFUNC2R(STRING, STRING, String, insert, INT, "position", STRING, "what")
     ADDFUNC0R(STRING, STRING, String, capitalize)
     ADDFUNC3R(STRING, POOL_STRING_ARRAY, String, split, STRING, "delimiter", BOOL, "allow_empty", INT, "maxsplit", true, 0)

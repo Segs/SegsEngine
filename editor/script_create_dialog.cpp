@@ -59,6 +59,13 @@ void ScriptCreateDialog::_notification(int p_what) {
             String last_lang = EditorSettings::get_singleton()->get_project_metadata("script_setup", "last_selected_language", "");
             Ref<Texture> last_lang_icon;
             if (!last_lang.empty()) {
+				for (int i = 0; i < language_menu->get_item_count(); i++) {
+					if (language_menu->get_item_text(i) == last_lang) {
+						language_menu->select(i);
+						current_language = i;
+						break;
+					}
+				}
                 last_lang_icon = get_icon(last_lang, "EditorIcons");
             } else {
                 last_lang_icon = language_menu->get_item_icon(default_language);
@@ -379,8 +386,8 @@ void ScriptCreateDialog::_lang_changed(int l) {
     bool use_templates = language->is_using_templates();
     template_menu->set_disabled(!use_templates);
     template_menu->clear();
-    if (use_templates) {
 
+    if (use_templates) {
         _update_script_templates(language->get_extension());
 
         String last_lang = EditorSettings::get_singleton()->get_project_metadata("script_setup", "last_selected_language", "");
@@ -596,7 +603,7 @@ void ScriptCreateDialog::_path_entered(const String &p_path) {
 
 void ScriptCreateDialog::_msg_script_valid(bool valid, const String &p_msg) {
 
-    error_label->set_text(TTR(p_msg));
+	error_label->set_text("- " + TTR(p_msg));
     if (valid) {
         error_label->add_color_override("font_color", get_color("success_color", "Editor"));
     } else {
@@ -606,7 +613,7 @@ void ScriptCreateDialog::_msg_script_valid(bool valid, const String &p_msg) {
 
 void ScriptCreateDialog::_msg_path_valid(bool valid, const String &p_msg) {
 
-    path_error_label->set_text(TTR(p_msg));
+	path_error_label->set_text("- " + TTR(p_msg));
     if (valid) {
         path_error_label->add_color_override("font_color", get_color("success_color", "Editor"));
     } else {
@@ -738,29 +745,14 @@ ScriptCreateDialog::ScriptCreateDialog() {
 
     VBoxContainer *vb = memnew(VBoxContainer);
 
-    HBoxContainer *hb = memnew(HBoxContainer);
-    Label *l = memnew(Label);
-    l->set_text(" - ");
-    hb->add_child(l);
     error_label = memnew(Label);
-    error_label->set_text(TTR("Error!"));
-    error_label->set_align(Label::ALIGN_LEFT);
-    hb->add_child(error_label);
-    vb->add_child(hb);
+	vb->add_child(error_label);
 
-    hb = memnew(HBoxContainer);
-    l = memnew(Label);
-    l->set_text(" - ");
-    hb->add_child(l);
     path_error_label = memnew(Label);
-    path_error_label->set_text(TTR("Error!"));
-    path_error_label->set_align(Label::ALIGN_LEFT);
-    hb->add_child(path_error_label);
-    vb->add_child(hb);
+	vb->add_child(path_error_label);
 
     status_panel = memnew(PanelContainer);
     status_panel->set_h_size_flags(Control::SIZE_FILL);
-    status_panel->add_style_override("panel", EditorNode::get_singleton()->get_gui_base()->get_stylebox("bg", "Tree"));
     status_panel->add_child(vb);
 
     /* Spacing */
@@ -772,7 +764,7 @@ ScriptCreateDialog::ScriptCreateDialog() {
     vb->add_child(gc);
     vb->add_child(spacing);
     vb->add_child(status_panel);
-    hb = memnew(HBoxContainer);
+	HBoxContainer *hb = memnew(HBoxContainer);
     hb->add_child(vb);
 
     add_child(hb);
@@ -782,9 +774,7 @@ ScriptCreateDialog::ScriptCreateDialog() {
     language_menu = memnew(OptionButton);
     language_menu->set_custom_minimum_size(Size2(250, 0) * EDSCALE);
     language_menu->set_h_size_flags(SIZE_EXPAND_FILL);
-    l = memnew(Label(TTR("Language")));
-    l->set_align(Label::ALIGN_RIGHT);
-    gc->add_child(l);
+	gc->add_child(memnew(Label(TTR("Language:"))));
     gc->add_child(language_menu);
 
     default_language = 0;
@@ -797,19 +787,8 @@ ScriptCreateDialog::ScriptCreateDialog() {
         }
     }
 
-    String last_selected_language = EditorSettings::get_singleton()->get_project_metadata("script_setup", "last_selected_language", "");
-    if (!last_selected_language.empty()) {
-        for (int i = 0; i < language_menu->get_item_count(); i++) {
-            if (language_menu->get_item_text(i) == last_selected_language) {
-                language_menu->select(i);
-                current_language = i;
-                break;
-            }
-        }
-    } else {
         language_menu->select(default_language);
         current_language = default_language;
-    }
 
     language_menu->connect("item_selected", this, "_lang_changed");
 
@@ -831,9 +810,7 @@ ScriptCreateDialog::ScriptCreateDialog() {
     parent_browse_button->set_flat(true);
     parent_browse_button->connect("pressed", this, "_browse_path", varray(true, false));
     hb->add_child(parent_browse_button);
-    l = memnew(Label(TTR("Inherits")));
-    l->set_align(Label::ALIGN_RIGHT);
-    gc->add_child(l);
+	gc->add_child(memnew(Label(TTR("Inherits:"))));
     gc->add_child(hb);
     is_browsing_parent = false;
 
@@ -842,17 +819,13 @@ ScriptCreateDialog::ScriptCreateDialog() {
     class_name = memnew(LineEdit);
     class_name->connect("text_changed", this, "_class_name_changed");
     class_name->set_h_size_flags(SIZE_EXPAND_FILL);
-    l = memnew(Label(TTR("Class Name")));
-    l->set_align(Label::ALIGN_RIGHT);
-    gc->add_child(l);
+	gc->add_child(memnew(Label(TTR("Class Name:"))));
     gc->add_child(class_name);
 
     /* Templates */
 
     template_menu = memnew(OptionButton);
-    l = memnew(Label(TTR("Template")));
-    l->set_align(Label::ALIGN_RIGHT);
-    gc->add_child(l);
+	gc->add_child(memnew(Label(TTR("Template:"))));
     gc->add_child(template_menu);
     template_menu->connect("item_selected", this, "_template_changed");
 
@@ -861,8 +834,7 @@ ScriptCreateDialog::ScriptCreateDialog() {
     internal = memnew(CheckBox);
     internal->set_text(TTR("On"));
     internal->connect("pressed", this, "_built_in_pressed");
-    internal_label = memnew(Label(TTR("Built-in Script")));
-    internal_label->set_align(Label::ALIGN_RIGHT);
+	internal_label = memnew(Label(TTR("Built-in Script:")));
     gc->add_child(internal_label);
     gc->add_child(internal);
 
@@ -879,9 +851,7 @@ ScriptCreateDialog::ScriptCreateDialog() {
     path_button->set_flat(true);
     path_button->connect("pressed", this, "_browse_path", varray(false, true));
     hb->add_child(path_button);
-    l = memnew(Label(TTR("Path")));
-    l->set_align(Label::ALIGN_RIGHT);
-    gc->add_child(l);
+	gc->add_child(memnew(Label(TTR("Path:"))));
     gc->add_child(hb);
 
     /* Dialog Setup */

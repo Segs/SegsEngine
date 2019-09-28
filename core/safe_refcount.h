@@ -181,7 +181,7 @@ public:
         return atomic_conditional_increment(&count) != 0;
     }
 
-    _ALWAYS_INLINE_ uint32_t refval() { //true on success
+	_ALWAYS_INLINE_ uint32_t refval() { // none-zero on success
 
         return atomic_conditional_increment(&count);
     }
@@ -189,6 +189,11 @@ public:
     _ALWAYS_INLINE_ bool unref() { // true if must be disposed of
 
         return atomic_decrement(&count) == 0;
+	}
+
+	_ALWAYS_INLINE_ uint32_t unrefval() { // 0 if must be disposed of
+
+		return atomic_decrement(&count);
     }
 
     _ALWAYS_INLINE_ uint32_t get() const { // nothrow

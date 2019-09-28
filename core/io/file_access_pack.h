@@ -106,13 +106,13 @@ private:
 public:
     void add_pack_source(PackSourceInterface *p_source);
     void remove_pack_source(PackSourceInterface *p_source);
-    void add_path(const String &pkg_path, const String &path, uint64_t ofs, uint64_t size, const uint8_t *p_md5, PackSourceInterface *p_src); // for PackSource
+    void add_path(const String &pkg_path, const String &path, uint64_t ofs, uint64_t size, const uint8_t *p_md5, PackSourceInterface *p_src, bool p_replace_files); // for PackSource
 
     void set_disabled(bool p_disabled) { disabled = p_disabled; }
     _FORCE_INLINE_ bool is_disabled() const { return disabled; }
 
     static PackedData *get_singleton() { return singleton; }
-    Error add_pack(const String &p_path);
+	Error add_pack(const String &p_path, bool p_replace_files);
 
     _FORCE_INLINE_ FileAccess *try_open_path(const String &p_path);
     _FORCE_INLINE_ bool has_path(const String &p_path);

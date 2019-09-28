@@ -233,6 +233,7 @@ double to_double(const CharType *p_str, const CharType **r_end = nullptr);
 [[nodiscard]] Vector<int> split_ints(const String &str,const String &p_splitter, bool p_allow_empty = true);
 [[nodiscard]] Vector<int> split_ints_mk(const String &str,const Vector<String> &p_splitters, bool p_allow_empty = true);
 [[nodiscard]] String join(const String &str, const Vector<String> &parts);
+[[nodiscard]] String repeat(const String &str,int p_count);
 
 [[nodiscard]] String quote(const String &str,CharType character = '\"');
 [[nodiscard]] String unquote(const String &str);

@@ -118,7 +118,7 @@ void register_connection_dialog_classes()
     ConnectDialogBinds::initialize_class();
 }
 /*
-Signal automatically called by parent dialog.
+ * Signal automatically called by parent dialog.
 */
 void ConnectDialog::ok_pressed() {
 
@@ -144,7 +144,7 @@ void ConnectDialog::_cancel_pressed() {
 }
 
 /*
-Called each time a target node is selected within the target node tree.
+ * Called each time a target node is selected within the target node tree.
 */
 void ConnectDialog::_tree_node_selected() {
 
@@ -158,7 +158,7 @@ void ConnectDialog::_tree_node_selected() {
 }
 
 /*
-Adds a new parameter bind to connection.
+ * Adds a new parameter bind to connection.
 */
 void ConnectDialog::_add_bind() {
 
@@ -275,7 +275,7 @@ bool ConnectDialog::get_oneshot() const {
 }
 
 /*
-Returns true if ConnectDialog is being used to edit an existing connection.
+ * Returns true if ConnectDialog is being used to edit an existing connection.
 */
 bool ConnectDialog::is_editing() const {
 
@@ -283,9 +283,9 @@ bool ConnectDialog::is_editing() const {
 }
 
 /*
-Initialize ConnectDialog and populate fields with expected data.
-If creating a connection from scratch, sensible defaults are used.
-If editing an existing connection, previous data is retained.
+ * Initialize ConnectDialog and populate fields with expected data.
+ * If creating a connection from scratch, sensible defaults are used.
+ * If editing an existing connection, previous data is retained.
 */
 void ConnectDialog::init(const Connection& c, bool bEdit) {
 
@@ -492,8 +492,8 @@ struct _ConnectionsDockMethodInfoSort {
 };
 
 /*
-Post-ConnectDialog callback for creating/editing connections.
-Creates or edits connections based on state of the ConnectDialog when "Connect" is pressed.
+ * Post-ConnectDialog callback for creating/editing connections.
+ * Creates or edits connections based on state of the ConnectDialog when "Connect" is pressed.
 */
 void ConnectionsDock::_make_or_edit_connection() {
 
@@ -562,7 +562,7 @@ void ConnectionsDock::_make_or_edit_connection() {
 }
 
 /*
-Creates single connection w/ undo-redo functionality.
+ * Creates single connection w/ undo-redo functionality.
 */
 void ConnectionsDock::_connect(const Connection& cToMake) {
 
@@ -585,7 +585,7 @@ void ConnectionsDock::_connect(const Connection& cToMake) {
 }
 
 /*
-Break single connection w/ undo-redo functionality.
+ * Break single connection w/ undo-redo functionality.
 */
 void ConnectionsDock::_disconnect(TreeItem &item) {
 
@@ -605,8 +605,8 @@ void ConnectionsDock::_disconnect(TreeItem &item) {
 }
 
 /*
-Break all connections of currently selected signal.
-Can undo-redo as a single action.
+ * Break all connections of currently selected signal.
+ * Can undo-redo as a single action.
 */
 void ConnectionsDock::_disconnect_all() {
 
@@ -710,7 +710,7 @@ void ConnectionsDock::_open_connection_dialog(TreeItem &item) {
 }
 
 /*
-Open connection dialog with Connection data to EDIT an existing connection.
+ * Open connection dialog with Connection data to EDIT an existing connection.
 */
 void ConnectionsDock::_open_connection_dialog(const Connection& cToEdit) {
 
@@ -725,7 +725,7 @@ void ConnectionsDock::_open_connection_dialog(const Connection& cToEdit) {
 }
 
 /*
-Open slot method location in script editor.
+ * Open slot method location in script editor.
 */
 void ConnectionsDock::_go_to_script(TreeItem &item) {
 
@@ -919,7 +919,6 @@ void ConnectionsDock::update_tree() {
             String signaldesc = "(";
             PoolStringArray argnames;
             if (!mi.arguments.empty()) {
-                signaldesc += " ";
                 int idx=0;
                 for (PropertyInfo &pi : mi.arguments) {
                     if (0==idx)
@@ -931,11 +930,9 @@ void ConnectionsDock::update_tree() {
                     } else if (pi.type != VariantType::NIL) {
                         tname = Variant::get_type_name(pi.type);
                     }
-                    signaldesc += tname + " " + (pi.name.empty() ? String("arg " + itos(idx)) : pi.name);
+                    signaldesc += (pi.name.empty() ? String("arg " + itos(idx++)) : pi.name) + ": " + tname;
                     argnames.push_back(pi.name + ":" + tname);
-                    ++idx;
                 }
-                signaldesc += " ";
             }
             signaldesc += ")";
 
@@ -947,7 +944,7 @@ void ConnectionsDock::update_tree() {
             item->set_metadata(0, sinfo);
             item->set_icon(0, get_icon("Signal", "EditorIcons"));
 
-            // Set tooltip with the signal's documentation
+			// Set tooltip with the signal's documentation.
             {
                 String descr;
                 bool found = false;

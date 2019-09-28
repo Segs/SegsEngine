@@ -943,7 +943,7 @@ void EditorNode::_set_scene_metadata(const String &p_file, int p_idx) {
     }
 
     Error err = cf->save(path);
-    ERR_FAIL_COND(err != OK)
+    ERR_FAIL_COND_MSG(err != OK, "Cannot save config file to '" + path + "'.")
 }
 
 bool EditorNode::_find_and_save_resource(const RES& p_res, Map<RES, bool> &processed, int32_t flags) {
@@ -2403,6 +2403,9 @@ void EditorNode::_menu_option_confirm(int p_option, bool p_confirmed) {
                 }
             }
         } break;
+        case RUN_PROJECT_DATA_FOLDER: {
+            OS::get_singleton()->shell_open(String("file://") + OS::get_singleton()->get_user_data_dir());
+        } break;
         case FILE_EXPLORE_ANDROID_BUILD_TEMPLATES: {
             OS::get_singleton()->shell_open("file://" + PathUtils::plus_file(ProjectSettings::get_singleton()->get_resource_path(),"android"));
         } break;
@@ -2557,7 +2560,7 @@ void EditorNode::_menu_option_confirm(int p_option, bool p_confirmed) {
 
             bool was_visible = OS::get_singleton()->is_console_visible();
             OS::get_singleton()->set_console_visible(!was_visible);
-            EditorSettings::get_singleton()->set_setting("interface/editor/hide_console_window", !was_visible);
+            EditorSettings::get_singleton()->set_setting("interface/editor/hide_console_window", was_visible);
         } break;
         case EDITOR_SCREENSHOT: {
 
@@ -2609,8 +2612,6 @@ void EditorNode::_menu_option_confirm(int p_option, bool p_confirmed) {
             save_all_scenes();
             restart_editor();
         } break;
-        default: {
-        }
     }
 }
 
@@ -2635,16 +2636,13 @@ void EditorNode::_save_screenshot(const NodePath& p_path) {
     img->flip_y();
     viewport->set_clear_mode(Viewport::CLEAR_MODE_ALWAYS);
     Error error = img->save_png((String)p_path);
-    ERR_FAIL_COND(error != OK)
+    ERR_FAIL_COND_MSG(error != OK, "Cannot save screenshot to file '" + (String)p_path + "'.")
 }
 
 void EditorNode::_tool_menu_option(int p_idx) {
     switch (tool_menu->get_item_id(p_idx)) {
         case TOOLS_ORPHAN_RESOURCES: {
             orphan_resources->show();
-        } break;
-        case RUN_PROJECT_DATA_FOLDER: {
-            OS::get_singleton()->shell_open(String("file://") + OS::get_singleton()->get_user_data_dir());
         } break;
         case TOOLS_CUSTOM: {
             if (tool_menu->get_item_submenu(p_idx).empty()) {
@@ -3968,7 +3966,7 @@ Ref<Texture> EditorNode::get_object_icon(const Object *p_object, const String &p
 }
 
 Ref<Texture> EditorNode::get_class_icon(const String &p_class, const String &p_fallback) const {
-    ERR_FAIL_COND_V(p_class.empty(), Ref<Texture>())
+    ERR_FAIL_COND_V_CMSG(p_class.empty(), Ref<Texture>(), "Class name cannot be empty.")
 
     if (gui_base->has_icon(p_class, "EditorIcons")) {
         return gui_base->get_icon(p_class, "EditorIcons");

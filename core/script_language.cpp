@@ -118,7 +118,7 @@ void Script::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_script_method_list"), &Script::_get_script_method_list);
     MethodBinder::bind_method(D_METHOD("get_script_signal_list"), &Script::_get_script_signal_list);
     MethodBinder::bind_method(D_METHOD("get_script_constant_map"), &Script::_get_script_constant_map);
-    MethodBinder::bind_method(D_METHOD("get_property_default_value"), &Script::_get_property_default_value);
+    MethodBinder::bind_method(D_METHOD("get_property_default_value", {"property"}), &Script::_get_property_default_value);
 
     MethodBinder::bind_method(D_METHOD("is_tool"), &Script::is_tool);
 
