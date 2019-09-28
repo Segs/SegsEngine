@@ -2926,7 +2926,7 @@ Control *VisualShaderNodePluginDefault::create_editor(const Ref<Resource> &p_par
 
     properties.clear();
 
-    Ref<VisualShaderNode> node = p_node;
+    const Ref<VisualShaderNode>& node = p_node;
     Vector<EditorProperty *> editors;
 
     for (int i = 0; i < pinfo.size(); i++) {

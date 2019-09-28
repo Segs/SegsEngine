@@ -148,7 +148,7 @@ void GDNativeExportPlugin::_export_file(const String &p_path, const String &p_ty
 
     if (p_features.contains("iOS")) {
         // Register symbols in the "fake" dynamic lookup table, because dlsym does not work well on iOS.
-        LibrarySymbol expected_symbols[] = {
+        constexpr LibrarySymbol expected_symbols[] = {
             { "gdnative_init", true },
             { "gdnative_terminate", false },
             { "nativescript_init", false },
@@ -161,13 +161,13 @@ void GDNativeExportPlugin::_export_file(const String &p_path, const String &p_ty
         String additional_code = "extern void register_dynamic_symbol(char *name, void *address);\n"
                                  "extern void add_ios_init_callback(void (*cb)());\n";
         String linker_flags = "";
-        for (unsigned int i = 0; i < sizeof(expected_symbols) / sizeof(expected_symbols[0]); ++i) {
-            String full_name = lib->get_symbol_prefix() + expected_symbols[i].name;
+        for (const auto & expected_symbol : expected_symbols) {
+            String full_name = lib->get_symbol_prefix() + expected_symbol.name;
             String code = StringUtils::replace(declare_pattern,"$name", full_name);
-            code = StringUtils::replace(code,"$weak", expected_symbols[i].is_required ? "" : " __attribute__((weak))");
+            code = StringUtils::replace(code,"$weak", expected_symbol.is_required ? "" : " __attribute__((weak))");
             additional_code += code;
 
-            if (!expected_symbols[i].is_required) {
+            if (!expected_symbol.is_required) {
                 if (linker_flags.length() > 0) {
                     linker_flags += " ";
                 }
@@ -177,8 +177,8 @@ void GDNativeExportPlugin::_export_file(const String &p_path, const String &p_ty
 
         additional_code += StringUtils::replace("void $prefixinit() {\n","$prefix", lib->get_symbol_prefix());
         String register_pattern = "  if (&$name) register_dynamic_symbol((char *)\"$name\", (void *)$name);\n";
-        for (unsigned int i = 0; i < sizeof(expected_symbols) / sizeof(expected_symbols[0]); ++i) {
-            String full_name = lib->get_symbol_prefix() + expected_symbols[i].name;
+        for (const auto & expected_symbol : expected_symbols) {
+            String full_name = lib->get_symbol_prefix() + expected_symbol.name;
             additional_code += StringUtils::replace(register_pattern,"$name", full_name);
         }
         additional_code += "}\n";

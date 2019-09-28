@@ -2055,7 +2055,7 @@ bool ShaderLanguage::_validate_function_call(BlockNode *p_block, OperatorNode *p
 
     StringName name = static_cast<VariableNode *>(p_func->arguments[0])->name.operator String();
     args.reserve(p_func->arguments.size());
-    for (int i = 1; i < p_func->arguments.size(); i++) {
+    for (size_t i = 1; i < p_func->arguments.size(); i++) {
         args.push_back(p_func->arguments[i]->get_datatype());
     }
 
@@ -2209,7 +2209,7 @@ bool ShaderLanguage::_validate_function_call(BlockNode *p_block, OperatorNode *p
 
         bool fail = false;
 
-        for (int j = 0; j < args.size(); j++) {
+        for (size_t j = 0; j < args.size(); j++) {
 
             if (get_scalar_type(args[j]) == args[j] && p_func->arguments[j + 1]->type == Node::TYPE_CONSTANT && convert_constant(static_cast<ConstantNode *>(p_func->arguments[j + 1]), pfunc->arguments[j].type)) {
                 //all good, but it needs implicit conversion later
@@ -2222,7 +2222,7 @@ bool ShaderLanguage::_validate_function_call(BlockNode *p_block, OperatorNode *p
         if (!fail) {
 
             //implicitly convert values if possible
-            for (int k = 0; k < args.size(); k++) {
+            for (size_t k = 0; k < args.size(); k++) {
 
                 if (get_scalar_type(args[k]) != args[k] || args[k] == pfunc->arguments[k].type || p_func->arguments[k + 1]->type != Node::TYPE_CONSTANT) {
                     //can't do implicit conversion here
@@ -2342,7 +2342,7 @@ bool ShaderLanguage::convert_constant(ConstantNode *p_constant, DataType p_to_ty
 
     if (p_constant->datatype == p_to_type) {
         if (p_value) {
-            for (int i = 0; i < p_constant->values.size(); i++) {
+            for (size_t i = 0; i < p_constant->values.size(); i++) {
                 p_value[i] = p_constant->values[i];
             }
         }
@@ -3634,7 +3634,7 @@ ShaderLanguage::Node *ShaderLanguage::_reduce_expression(BlockNode *p_block, Sha
                 ConstantNode *cn = static_cast<ConstantNode *>(op->arguments[i]);
 
                 if (get_scalar_type(cn->datatype) == base) {
-                    for (int j = 0; j < cn->values.size(); j++) {
+                    for (size_t j = 0; j < cn->values.size(); j++) {
                         values.push_back(cn->values[j]);
                     }
                 } else if (get_scalar_type(cn->datatype) == cn->datatype) {
@@ -5427,7 +5427,7 @@ Error ShaderLanguage::complete(const String &p_code, const Map<StringName, Funct
                     calltip += function.name;
                     calltip += "(";
 
-                    for (int j = 0; j < function.function->arguments.size(); j++) {
+                    for (size_t j = 0; j < function.function->arguments.size(); j++) {
 
                         if (j > 0)
                             calltip += ", ";

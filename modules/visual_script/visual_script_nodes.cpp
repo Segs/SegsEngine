@@ -4164,7 +4164,7 @@ void register_visual_script_nodes() {
 
             if (!E.arguments.empty()) {
                 String name = FormatV("functions/constructors/%s(",Variant::get_type_name(VariantType(i)));
-                for (int j = 0; j < E.arguments.size(); j++) {
+                for (size_t j = 0; j < E.arguments.size(); j++) {
                     if (j > 0) {
                         name += ", ";
                     }

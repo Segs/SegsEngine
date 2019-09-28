@@ -33,6 +33,6 @@
 #include "core/os/memory.h"
 #include "EASTL/set.h"
 
-template <class T, class C = Comparator<T> >
-using Set = eastl::set<T,C,wrap_allocator>;
+template <class T>
+using Set = eastl::set<T,Comparator<T>,wrap_allocator>;
 

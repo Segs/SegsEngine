@@ -452,4 +452,4 @@ public:
 
 VARIANT_ENUM_CAST(Node::DuplicateFlags);
 
-using NodeSet = Set<Node *, Node::Comparator>;
+using NodeSet = eastl::set<Node *, Node::Comparator, wrap_allocator>;

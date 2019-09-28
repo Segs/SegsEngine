@@ -4756,9 +4756,9 @@ void AnimationTrackEditor::_add_method_key(const String &p_method) {
             Dictionary d;
             d["method"] = p_method;
             Array params;
-            int first_defarg = E.arguments.size() - E.default_arguments.size();
+            size_t first_defarg = E.arguments.size() - E.default_arguments.size();
 
-            for (int i = 0; i < E.arguments.size(); i++) {
+            for (size_t i = 0; i < E.arguments.size(); i++) {
 
                 if (i >= first_defarg) {
                     Variant arg = E.default_arguments[i - first_defarg];
