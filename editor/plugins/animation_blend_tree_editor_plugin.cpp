@@ -249,11 +249,11 @@ void AnimationNodeBlendTreeEditor::_update_graph() {
             Ref<StyleBoxFlat> sb = dynamic_ref_cast<StyleBoxFlat>(node->get_stylebox("frame", "GraphNode"));
             Color c = sb->get_border_color();
             Color mono_color = ((c.r + c.g + c.b) / 3) < 0.7 ? Color(1.0, 1.0, 1.0) : Color(0.0, 0.0, 0.0);
-            mono_color.a = 0.85;
+            mono_color.a = 0.85f;
             c = mono_color;
 
             node->add_color_override("title_color", c);
-            c.a = 0.7;
+            c.a = 0.7f;
             node->add_color_override("close_color", c);
             node->add_color_override("resizer_color", c);
         }

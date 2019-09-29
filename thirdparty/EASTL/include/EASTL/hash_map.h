@@ -283,6 +283,16 @@ namespace eastl
             return (*base_type::DoInsertKey(true_type(), eastl::move(key)).first).second;
         }
 #if EASTL_LF3D_EXTENSIONS
+        const T& at(const key_type& k,const T &def) const
+        {
+            const_iterator it = base_type::find(k);
+
+            if (it == base_type::end())
+            {
+                return def;
+            }
+            return it->second;
+        }
         /// Populate the map using variadic template. This handles the base case.
         this_type& populate(const key_type& key, const mapped_type& value)
         {

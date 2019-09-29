@@ -89,7 +89,7 @@ public:
     operator String() const;
 
     Face3() {}
-    inline Face3(const Vector3 &p_v1, const Vector3 &p_v2, const Vector3 &p_v3) {
+    inline Face3(Vector3 p_v1, Vector3 p_v2, Vector3 p_v3) {
         vertex[0] = p_v1;
         vertex[1] = p_v2;
         vertex[2] = p_v3;

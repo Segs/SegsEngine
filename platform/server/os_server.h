@@ -119,12 +119,6 @@ public:
 	virtual int get_power_percent_left();
 	virtual bool _check_internal_feature_support(const String &p_feature);
 
-	virtual String get_config_path() const;
-	virtual String get_data_path() const;
-	virtual String get_cache_path() const;
-
-	virtual String get_system_dir(SystemDir p_dir) const;
-
 	void disable_crash_handler();
 	bool is_disable_crash_handler() const;
 

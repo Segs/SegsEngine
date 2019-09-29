@@ -34,6 +34,7 @@
 #include "core/math/math_funcs.h"
 #include "core/typedefs.h"
 #include "core/error_macros.h"
+#include <type_traits>
 
 class Basis;
 class String;
@@ -152,6 +153,7 @@ struct Vector3 {
     _FORCE_INLINE_ constexpr Vector3(real_t p_x, real_t p_y, real_t p_z) : x(p_x),y(p_y),z(p_z) {
     }
 };
+static_assert (std::is_trivially_copyable<Vector3>() );
 
 Vector3 Vector3::cross(const Vector3 &p_b) const {
 

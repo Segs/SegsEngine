@@ -741,7 +741,7 @@ Area::Area() :
         CollisionObject(PhysicsServer::get_singleton()->area_create(), true) {
 
     space_override = SPACE_OVERRIDE_DISABLED;
-    set_gravity(9.8);
+    set_gravity(9.8f);
     locked = false;
     set_gravity_vector(Vector3(0, -1, 0));
     gravity_is_point = false;

@@ -382,7 +382,7 @@ void EditorSettings::_load_defaults(Ref<ConfigFile> p_extra_config) {
     // Directories
     _initial_set("filesystem/directories/autoscan_project_path", "");
     hints["filesystem/directories/autoscan_project_path"] = PropertyInfo(VariantType::STRING, "filesystem/directories/autoscan_project_path", PROPERTY_HINT_GLOBAL_DIR);
-    _initial_set("filesystem/directories/default_project_path", OS::get_singleton()->has_environment("HOME") ? OS::get_singleton()->get_environment("HOME") : OS::get_singleton()->get_system_dir(OS::SYSTEM_DIR_DOCUMENTS));
+    _initial_set("filesystem/directories/default_project_path", OS::get_singleton()->has_environment("HOME") ? OS::get_singleton()->get_environment("HOME") : OS::get_system_dir(OS::SYSTEM_DIR_DOCUMENTS));
     hints["filesystem/directories/default_project_path"] = PropertyInfo(VariantType::STRING, "filesystem/directories/default_project_path", PROPERTY_HINT_GLOBAL_DIR);
 
     // On save
@@ -561,28 +561,28 @@ void EditorSettings::_load_defaults(Ref<ConfigFile> p_extra_config) {
     hints["editors/3d/navigation_feel/manipulation_translation_inertia"] = PropertyInfo(VariantType::REAL, "editors/3d/navigation_feel/manipulation_translation_inertia", PROPERTY_HINT_RANGE, "0.0, 1, 0.01");
 
     // 3D: Freelook
-    _initial_set("editors/3d/freelook/freelook_inertia", 0.1);
+    _initial_set("editors/3d/freelook/freelook_inertia", 0.1f);
     hints["editors/3d/freelook/freelook_inertia"] = PropertyInfo(VariantType::REAL, "editors/3d/freelook/freelook_inertia", PROPERTY_HINT_RANGE, "0.0, 1, 0.01");
-    _initial_set("editors/3d/freelook/freelook_base_speed", 5.0);
+    _initial_set("editors/3d/freelook/freelook_base_speed", 5.0f);
     hints["editors/3d/freelook/freelook_base_speed"] = PropertyInfo(VariantType::REAL, "editors/3d/freelook/freelook_base_speed", PROPERTY_HINT_RANGE, "0.0, 10, 0.01");
     _initial_set("editors/3d/freelook/freelook_activation_modifier", 0);
     hints["editors/3d/freelook/freelook_activation_modifier"] = PropertyInfo(VariantType::INT, "editors/3d/freelook/freelook_activation_modifier", PROPERTY_HINT_ENUM, "None,Shift,Alt,Meta,Ctrl");
-    _initial_set("editors/3d/freelook/freelook_modifier_speed_factor", 3.0);
+    _initial_set("editors/3d/freelook/freelook_modifier_speed_factor", 3.0f);
     hints["editors/3d/freelook/freelook_modifier_speed_factor"] = PropertyInfo(VariantType::REAL, "editors/3d/freelook/freelook_modifier_speed_factor", PROPERTY_HINT_RANGE, "0.0, 10.0, 0.1");
     _initial_set("editors/3d/freelook/freelook_speed_zoom_link", false);
 
     // 2D
-    _initial_set("editors/2d/grid_color", Color(1.0, 1.0, 1.0, 0.07));
-    _initial_set("editors/2d/guides_color", Color(0.6, 0.0, 0.8));
-    _initial_set("editors/2d/smart_snapping_line_color", Color(0.9, 0.1, 0.1));
+    _initial_set("editors/2d/grid_color", Color(1.0f, 1.0f, 1.0f, 0.07f));
+    _initial_set("editors/2d/guides_color", Color(0.6f, 0.0f, 0.8f));
+    _initial_set("editors/2d/smart_snapping_line_color", Color(0.9f, 0.1f, 0.1f));
     _initial_set("editors/2d/bone_width", 5);
-    _initial_set("editors/2d/bone_color1", Color(1.0, 1.0, 1.0, 0.9));
-    _initial_set("editors/2d/bone_color2", Color(0.6, 0.6, 0.6, 0.9));
-    _initial_set("editors/2d/bone_selected_color", Color(0.9, 0.45, 0.45, 0.9));
-    _initial_set("editors/2d/bone_ik_color", Color(0.9, 0.9, 0.45, 0.9));
-    _initial_set("editors/2d/bone_outline_color", Color(0.35, 0.35, 0.35));
+    _initial_set("editors/2d/bone_color1", Color(1.0f, 1.0f, 1.0f, 0.9f));
+    _initial_set("editors/2d/bone_color2", Color(0.6f, 0.6f, 0.6f, 0.9f));
+    _initial_set("editors/2d/bone_selected_color", Color(0.9f, 0.45f, 0.45f, 0.9f));
+    _initial_set("editors/2d/bone_ik_color", Color(0.9f, 0.9f, 0.45f, 0.9f));
+    _initial_set("editors/2d/bone_outline_color", Color(0.35f, 0.35f, 0.35f));
     _initial_set("editors/2d/bone_outline_size", 2);
-    _initial_set("editors/2d/viewport_border_color", Color(0.4, 0.4, 1.0, 0.4));
+    _initial_set("editors/2d/viewport_border_color", Color(0.4f, 0.4f, 1.0f, 0.4f));
     _initial_set("editors/2d/constrain_editor_view", true);
     _initial_set("editors/2d/warped_mouse_panning", true);
     _initial_set("editors/2d/simple_panning", false);
@@ -639,29 +639,29 @@ void EditorSettings::_load_defaults(Ref<ConfigFile> p_extra_config) {
     _initial_set("project_manager/sorting_order", 0);
     hints["project_manager/sorting_order"] = PropertyInfo(VariantType::INT, "project_manager/sorting_order", PROPERTY_HINT_ENUM, "Name,Path,Last Modified");
 
-    if (p_extra_config) {
+    if (!p_extra_config)
+        return;
 
-        if (p_extra_config->has_section("init_projects") && p_extra_config->has_section_key("init_projects", "list")) {
+    if (p_extra_config->has_section("init_projects") && p_extra_config->has_section_key("init_projects", "list")) {
 
-            Vector<String> list = p_extra_config->get_value("init_projects", "list");
-            for (int i = 0; i < list.size(); i++) {
+        Vector<String> list = p_extra_config->get_value("init_projects", "list");
+        for (int i = 0; i < list.size(); i++) {
 
-                String name = list[i];
-                set("projects/" + StringUtils::replace(name,"/", "::"), list[i]);
-            }
+            String name = list[i];
+            set("projects/" + StringUtils::replace(name,"/", "::"), list[i]);
         }
+    }
 
-        if (p_extra_config->has_section("presets")) {
+    if (p_extra_config->has_section("presets")) {
 
-            List<String> keys;
-            p_extra_config->get_section_keys("presets", &keys);
+        List<String> keys;
+        p_extra_config->get_section_keys("presets", &keys);
 
-            for (List<String>::Element *E = keys.front(); E; E = E->next()) {
+        for (List<String>::Element *E = keys.front(); E; E = E->next()) {
 
-                String key = E->deref();
-                Variant val = p_extra_config->get_value("presets", key);
-                set(key, val);
-            }
+            String key = E->deref();
+            Variant val = p_extra_config->get_value("presets", key);
+            set(key, val);
         }
     }
 }
@@ -675,16 +675,16 @@ void EditorSettings::_load_default_text_editor_theme() {
     _initial_set("text_editor/highlighting/engine_type_color", Color(0.51f, 0.83f, 1.0));
     _initial_set("text_editor/highlighting/comment_color", Color(0.4f, 0.4f, 0.4f));
     _initial_set("text_editor/highlighting/string_color", Color(0.94f, 0.43f, 0.75));
-    _initial_set("text_editor/highlighting/background_color", dark_theme ? Color(0.0, 0.0, 0.0, 0.23) : Color(0.2, 0.23, 0.31));
-    _initial_set("text_editor/highlighting/completion_background_color", Color(0.17, 0.16, 0.2));
-    _initial_set("text_editor/highlighting/completion_selected_color", Color(0.26, 0.26, 0.27));
-    _initial_set("text_editor/highlighting/completion_existing_color", Color(0.13, 0.87, 0.87, 0.87));
+    _initial_set("text_editor/highlighting/background_color", dark_theme ? Color(0.0f, 0.0f, 0.0f, 0.23f) : Color(0.2f, 0.23f, 0.31f));
+    _initial_set("text_editor/highlighting/completion_background_color", Color(0.17f, 0.16f, 0.2f));
+    _initial_set("text_editor/highlighting/completion_selected_color", Color(0.26f, 0.26f, 0.27f));
+    _initial_set("text_editor/highlighting/completion_existing_color", Color(0.13f, 0.87f, 0.87f, 0.87f));
     _initial_set("text_editor/highlighting/completion_scroll_color", Color(1, 1, 1));
-    _initial_set("text_editor/highlighting/completion_font_color", Color(0.67, 0.67, 0.67));
-    _initial_set("text_editor/highlighting/text_color", Color(0.67, 0.67, 0.67));
-    _initial_set("text_editor/highlighting/line_number_color", Color(0.67, 0.67, 0.67, 0.4));
-    _initial_set("text_editor/highlighting/safe_line_number_color", Color(0.67, 0.78, 0.67, 0.6));
-    _initial_set("text_editor/highlighting/caret_color", Color(0.67, 0.67, 0.67));
+    _initial_set("text_editor/highlighting/completion_font_color", Color(0.67f, 0.67f, 0.67f));
+    _initial_set("text_editor/highlighting/text_color", Color(0.67f, 0.67f, 0.67f));
+    _initial_set("text_editor/highlighting/line_number_color", Color(0.67f, 0.67f, 0.67f, 0.4f));
+    _initial_set("text_editor/highlighting/safe_line_number_color", Color(0.67f, 0.78f, 0.67f, 0.6f));
+    _initial_set("text_editor/highlighting/caret_color", Color(0.67f, 0.67f, 0.67f));
     _initial_set("text_editor/highlighting/caret_background_color", Color(0, 0, 0));
     _initial_set("text_editor/highlighting/text_selected_color", Color(0, 0, 0));
     _initial_set("text_editor/highlighting/selection_color", Color(0.41f, 0.61f, 0.91f, 0.35f));
@@ -777,6 +777,7 @@ EditorSettings *EditorSettings::get_singleton() {
 
 void EditorSettings::create() {
     Q_INIT_RESOURCE(editor);
+
     if (singleton.get())
         return; //pointless
 
@@ -786,10 +787,10 @@ void EditorSettings::create() {
     String config_dir;
     String cache_path;
     String cache_dir;
-
+    OS * os_ptr = OS::get_singleton();
     Ref<ConfigFile> extra_config(make_ref_counted<ConfigFile>());
 
-    String exe_path = PathUtils::get_base_dir(OS::get_singleton()->get_executable_path());
+    String exe_path = PathUtils::get_base_dir(os_ptr->get_executable_path());
     DirAccess *d = DirAccess::create_for_path(exe_path);
     bool self_contained = false;
 
@@ -820,18 +821,18 @@ void EditorSettings::create() {
     } else {
 
         // Typically XDG_DATA_HOME or %APPDATA%
-        data_path = OS::get_singleton()->get_data_path();
-        data_dir = PathUtils::plus_file(data_path,OS::get_singleton()->get_godot_dir_name());
+        data_path = os_ptr->get_data_path();
+        data_dir = data_path;
         // Can be different from data_path e.g. on Linux or macOS
-        config_path = OS::get_singleton()->get_config_path();
-        config_dir = PathUtils::plus_file(config_path,OS::get_singleton()->get_godot_dir_name());
+        config_path = os_ptr->get_config_path();
+        config_dir = config_path;
         // Can be different from above paths, otherwise a subfolder of data_dir
-        cache_path = OS::get_singleton()->get_cache_path();
+        cache_path = os_ptr->get_cache_path();
+        cache_dir = cache_path;
         if (cache_path == data_path) {
             cache_dir = PathUtils::plus_file(data_dir,"cache");
-        } else {
-            cache_dir = PathUtils::plus_file(cache_path,OS::get_singleton()->get_godot_dir_name());
         }
+        // Old code was making sure that cache was app specific, since transitioning to QStandardPaths, it should always be the case
     }
 
     ClassDB::register_class<EditorSettings>(); //otherwise it can't be unserialized
@@ -1237,8 +1238,8 @@ String EditorSettings::get_feature_profiles_dir() const {
 void EditorSettings::set_project_metadata(const String &p_section, const String &p_key, const Variant& p_data) {
     Ref<ConfigFile> cf(make_ref_counted<ConfigFile>());
     String path = PathUtils::plus_file(get_project_settings_dir(),"project_metadata.cfg");
-    Error err;
-    err = cf->load(path);
+    Error err = cf->load(path);
+
 	ERR_FAIL_COND_MSG(err != OK && err != ERR_FILE_NOT_FOUND, "Cannot load editor settings from file '" + path + "'.")
     cf->set_value(p_section, p_key, p_data);
     err = cf->save(path);

@@ -3004,99 +3004,30 @@ MainLoop *OS_Windows::get_main_loop() const {
     return main_loop;
 }
 
-String OS_Windows::get_config_path() const {
-
-    if (has_environment("XDG_CONFIG_HOME")) { // unlikely, but after all why not?
-        return get_environment("XDG_CONFIG_HOME");
-    } else if (has_environment("APPDATA")) {
-        return get_environment("APPDATA");
-    } else {
-        return ".";
-    }
-}
-
-String OS_Windows::get_data_path() const {
-
-    if (has_environment("XDG_DATA_HOME")) {
-        return get_environment("XDG_DATA_HOME");
-    } else {
-        return get_config_path();
-    }
-}
-
-String OS_Windows::get_cache_path() const {
-
-    if (has_environment("XDG_CACHE_HOME")) {
-        return get_environment("XDG_CACHE_HOME");
-    } else if (has_environment("TEMP")) {
-        return get_environment("TEMP");
-    } else {
-        return get_config_path();
-    }
-}
-
 // Get properly capitalized engine name for system paths
 String OS_Windows::get_godot_dir_name() const {
 
         return StringUtils::capitalize(String(VERSION_SHORT_NAME));
 }
 
-String OS_Windows::get_system_dir(SystemDir p_dir) const {
-
-    KNOWNFOLDERID id;
-
-    switch (p_dir) {
-        case SYSTEM_DIR_DESKTOP: {
-            id = FOLDERID_Desktop;
-        } break;
-        case SYSTEM_DIR_DCIM: {
-            id = FOLDERID_Pictures;
-        } break;
-        case SYSTEM_DIR_DOCUMENTS: {
-            id = FOLDERID_Documents;
-        } break;
-        case SYSTEM_DIR_DOWNLOADS: {
-            id = FOLDERID_Downloads;
-        } break;
-        case SYSTEM_DIR_MOVIES: {
-            id = FOLDERID_Videos;
-        } break;
-        case SYSTEM_DIR_MUSIC: {
-            id = FOLDERID_Music;
-        } break;
-        case SYSTEM_DIR_PICTURES: {
-            id = FOLDERID_Pictures;
-        } break;
-        case SYSTEM_DIR_RINGTONES: {
-            id = FOLDERID_Music;
-        } break;
-    }
-
-    PWSTR szPath;
-    HRESULT res = SHGetKnownFolderPath(id, 0, nullptr, &szPath);
-    ERR_FAIL_COND_V(res != S_OK, String())
-    String path = StringUtils::from_wchar(szPath);
-    CoTaskMemFree(szPath);
-    return path;
-}
-
 String OS_Windows::get_user_data_dir() const {
 
     String appname = get_safe_dir_name(ProjectSettings::get_singleton()->get("application/config/name"));
-    if (appname != "") {
-        bool use_custom_dir = ProjectSettings::get_singleton()->get("application/config/use_custom_user_dir");
-        if (use_custom_dir) {
-            String custom_dir = get_safe_dir_name(ProjectSettings::get_singleton()->get("application/config/custom_user_dir_name"), true);
-            if (custom_dir == "") {
-                custom_dir = appname;
-            }
-                        return PathUtils::from_native_path(PathUtils::plus_file(get_data_path(),custom_dir));
-        } else {
-                        return PathUtils::from_native_path(PathUtils::plus_file(PathUtils::plus_file(PathUtils::plus_file(get_data_path(),get_godot_dir_name()),"app_userdata"),appname));
-        }
-    }
+    if (appname.empty())
+        return ProjectSettings::get_singleton()->get_resource_path();
 
-    return ProjectSettings::get_singleton()->get_resource_path();
+    bool use_custom_dir = ProjectSettings::get_singleton()->get("application/config/use_custom_user_dir");
+    if (use_custom_dir) {
+        String custom_dir = get_safe_dir_name(
+                ProjectSettings::get_singleton()->get("application/config/custom_user_dir_name"), true);
+        if (custom_dir == "") {
+            custom_dir = appname;
+        }
+        return PathUtils::from_native_path(PathUtils::plus_file(get_data_path(), custom_dir));
+    }
+    return PathUtils::from_native_path(PathUtils::plus_file(
+            PathUtils::plus_file(PathUtils::plus_file(get_data_path(), get_godot_dir_name()), "app_userdata"),
+            appname));
 }
 
 String OS_Windows::get_unique_id() const {

@@ -122,37 +122,32 @@ String DirAccessWindows::get_drive(int p_drive) {
     return String(drives[p_drive]) + ":";
 }
 
-Error DirAccessWindows::change_dir(String p_dir) {
-
-    GLOBAL_LOCK_FUNCTION
-    bool worked = true;
+Error DirAccessWindows::change_dir(String p_dir)
+{
     p_dir = fix_path(p_dir);
-    QString actual_wd = QDir::currentPath();
-    // try_dir is the directory we are trying to change into
-    String try_dir;
-    if (PathUtils::is_rel_path(p_dir) || p_dir==".") {
-        String next_dir = PathUtils::plus_file(actual_wd, p_dir);
-        next_dir = PathUtils::simplify_path(next_dir);
-        if (next_dir.empty())
-            next_dir = actual_wd+"/.";
-        try_dir = next_dir;
-    }
-    else {
-        try_dir = p_dir;
-    }
-    QFileInfo my_dir(try_dir.m_str);
-    if(!my_dir.isDir() || !my_dir.isReadable()) {
-        return ERR_INVALID_PARAMETER;
-    }
+
+    QString real_current_dir_name = QDir::currentPath();
+    QString prev_dir = real_current_dir_name;
+
+    QDir cur_dir(current_dir.m_str);
+    bool worked = cur_dir.cd(p_dir.m_str);
 
     String base = _get_root_path();
-    // If base was set, and new path is not under base, revert the path.
-    if (!base.empty() && !StringUtils::begins_with(try_dir,base)) {
-        try_dir = current_dir; //revert
-        worked = false;
+    if (!base.empty()) {
+
+        real_current_dir_name = cur_dir.path();
+        String new_dir = real_current_dir_name;
+        if (!new_dir.m_str.startsWith(base.m_str)) {
+            worked = false;
+        }
     }
-    QDir::setCurrent(actual_wd);
-    current_dir = try_dir;
+
+    if (worked) {
+
+        real_current_dir_name = cur_dir.absolutePath();
+        current_dir = real_current_dir_name;
+    }
+
     return worked ? OK : ERR_INVALID_PARAMETER;
 }
 

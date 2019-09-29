@@ -319,12 +319,8 @@ public:
     virtual void enable_for_stealing_focus(ProcessID pid);
     void move_window_to_foreground() override;
 
-    String get_config_path() const override;
-    String get_data_path() const override;
-    String get_cache_path() const override;
     String get_godot_dir_name() const override;
 
-    String get_system_dir(SystemDir p_dir) const override;
     String get_user_data_dir() const override;
 
     String get_unique_id() const override;

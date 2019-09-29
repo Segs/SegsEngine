@@ -506,10 +506,10 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_draw() {
         Color color;
         if (i == selected_triangle) {
             color = get_color("accent_color", "Editor");
-            color.a *= 0.5;
+            color.a *= 0.5f;
         } else {
             color = linecolor;
-            color.a *= 0.2;
+            color.a *= 0.2f;
         }
 
         Vector<Color> colors;

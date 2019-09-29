@@ -2410,7 +2410,8 @@ Ref<Image> Image::lossy_unpacker(const PODVector<uint8_t> &p_buffer)
 PODVector<uint8_t> Image::lossless_packer(const Ref<Image> &p_image)
 {
     Ref<Image> img = prepareForPngStorage(p_image);
-    PODVector<uint8_t> tmp;
+    PODVector<uint8_t> tmp = {'P','N','G',' '}; // Header marker bytes.
+
     if(OK!=ImageSaver::save_image(String("png"),p_image,tmp,1.0f))
         return {};
     return tmp;

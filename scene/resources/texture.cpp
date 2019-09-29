@@ -41,6 +41,8 @@
 #include "scene/resources/bit_map.h"
 #include "servers/camera/camera_feed.h"
 #include "core/method_bind.h"
+#include "core/plugin_interfaces/ImageLoaderInterface.h"
+#include "core/io/image_saver.h"
 
 IMPL_GDCLASS(Texture)
 IMPL_GDCLASS(ImageTexture)
@@ -63,6 +65,58 @@ RES_BASE_EXTENSION_IMPL(MeshTexture,"meshtex")
 RES_BASE_EXTENSION_IMPL(LargeTexture,"largetex")
 RES_BASE_EXTENSION_IMPL(CubeMap,"cubemap")
 RES_BASE_EXTENSION_IMPL(CurveTexture,"curvetex")
+namespace  {
+    class ResourceSaverImage final : public ResourceFormatSaver {
+        ImageFormatSaver *m_saver;
+    public:
+        Error save(const String &p_path, const RES &p_resource, uint32_t p_flags = 0) final {
+
+            Error err;
+            Ref<ImageTexture> texture(dynamic_ref_cast<ImageTexture>(p_resource));
+
+            ERR_FAIL_COND_V_CMSG(not texture, ERR_INVALID_PARAMETER, "Can't save invalid texture as PNG.")
+            ERR_FAIL_COND_V_CMSG(!texture->get_width(), ERR_INVALID_PARAMETER, "Can't save empty texture as PNG.")
+
+            Ref<Image> img(texture->get_data());
+            FileAccess *file = FileAccess::open(p_path, FileAccess::WRITE, &err);
+            ERR_FAIL_COND_V_MSG(err, err, vformat("Can't save using saver wrapper at path: '%s'.", p_path))
+            PODVector<uint8_t> buffer;
+            err = m_saver->save_image(*img,buffer,{});
+
+            file->store_buffer(buffer.data(), buffer.size());
+            if (file->get_error() != OK && file->get_error() != ERR_FILE_EOF) {
+                memdelete(file);
+                return ERR_CANT_CREATE;
+            }
+
+            file->close();
+            memdelete(file);
+
+
+            return err;
+        }
+        bool recognize(const RES &p_resource) const final {
+
+            return dynamic_ref_cast<ImageTexture>(p_resource)!=nullptr;
+        }
+        void get_recognized_extensions(const RES &p_resource, Vector<String> *p_extensions) const final {
+            if (Object::cast_to<ImageTexture>(p_resource.get()))
+                return m_saver->get_saved_extensions(p_extensions);
+        }
+
+        ResourceSaverImage(ImageFormatSaver *saver) : m_saver(saver) {}
+    };
+    void register_image_resource_savers() {
+        //TODO: SEGS: the code to register image resource savers is brittle, i.e. it assumes all plugins were available before Texture::_bind_methods()
+        auto &all_savers(ImageSaver::get_image_format_savers());
+        for (ImageFormatSaver *svr : all_savers)
+        {
+            if (svr->can_save("png"))
+                ResourceSaver::add_resource_format_saver(Ref<ResourceSaverImage>(make_ref_counted<ResourceSaverImage>(svr)));
+
+        }
+    }
+}
 
 
 Size2 Texture::get_size() const {
@@ -98,7 +152,6 @@ bool Texture::get_rect_region(const Rect2 &p_rect, const Rect2 &p_src_rect, Rect
 }
 
 void Texture::_bind_methods() {
-
     MethodBinder::bind_method(D_METHOD("get_width"), &Texture::get_width);
     MethodBinder::bind_method(D_METHOD("get_height"), &Texture::get_height);
     MethodBinder::bind_method(D_METHOD("get_size"), &Texture::get_size);
@@ -2517,6 +2570,8 @@ String ResourceFormatLoaderTextureLayered::get_resource_type(const String &p_pat
 
 #include "camera_texture.h"
 #include "servers/camera_server_enum_casters.h"
+
+
 IMPL_GDCLASS(CameraTexture)
 
 void CameraTexture::_bind_methods() {

@@ -127,6 +127,8 @@ void register_core_types() {
 
     resource_saver_binary = make_ref_counted<ResourceFormatSaverBinary>();
     ResourceSaver::add_resource_format_saver(resource_saver_binary);
+    //TODO: SEGS: this is a hack to provide PNG resource saver
+    ResourceSaver::add_resource_format_saver(make_ref_counted<ResourceFormatSaver>());
 
     resource_loader_binary = make_ref_counted<ResourceFormatLoaderBinary>();
     ResourceLoader::add_resource_format_loader(resource_loader_binary);

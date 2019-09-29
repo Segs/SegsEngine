@@ -246,12 +246,6 @@ public:
     void make_rendering_thread() override;
     void swap_buffers() override;
 
-    String get_config_path() const override;
-    String get_data_path() const override;
-    String get_cache_path() const override;
-
-    String get_system_dir(SystemDir p_dir) const override;
-
     Error shell_open(String p_uri) override;
 
     void set_video_mode(const VideoMode &p_video_mode, int p_screen = 0) override;

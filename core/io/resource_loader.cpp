@@ -144,7 +144,7 @@ public:
     int get_stage_count() const override { return 1; }
     void set_translation_remapped(bool p_remapped) override { resource->set_as_translation_remapped(p_remapped); }
 
-    ResourceInteractiveLoaderDefault() {}
+    ResourceInteractiveLoaderDefault() = default;
 };
 IMPL_GDCLASS(ResourceInteractiveLoaderDefault)
 
@@ -351,7 +351,7 @@ RES ResourceLoader::load(const String &p_path, const String &p_type_hint, bool p
 
     if (r_error)
         *r_error = ERR_CANT_OPEN;
-
+    
     String local_path;
     if (PathUtils::is_rel_path(p_path))
         local_path = "res://" + p_path;
@@ -933,7 +933,7 @@ bool ResourceLoader::add_custom_resource_format_loader(const String& script_path
 
     ERR_FAIL_COND_V_MSG(obj == nullptr, false, "Cannot instance script as custom resource loader, expected 'ResourceFormatLoader' inheritance, got: " + String(ibt) + ".")
 
-    ResourceFormatLoader *crl = Object::cast_to<ResourceFormatLoader>(obj);
+    auto *crl = Object::cast_to<ResourceFormatLoader>(obj);
     crl->set_script(s.get_ref_ptr());
     ResourceLoader::add_resource_format_loader(Ref<ResourceFormatLoader>(crl));
 

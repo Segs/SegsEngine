@@ -30,6 +30,7 @@
 
 #include "main/main.h"
 #include "os_windows.h"
+#include "version.h"
 
 #include <locale.h>
 #include <stdio.h>
@@ -188,6 +189,9 @@ int _main() {
 //To appease __try 
 int wrapped_main(int argc,char **argv) {
     QCoreApplication app(argc, argv);
+    QCoreApplication::setApplicationName(VERSION_SHORT_NAME);
+    QCoreApplication::setApplicationVersion(VERSION_BRANCH);
+    QCoreApplication::setOrganizationName("Segs");
     // _argc and _argv are ignored in the engine
     // we are going to use the WideChar version of them instead
     return _main();

@@ -2776,61 +2776,6 @@ String OS_X11::get_cache_path() const {
     }
 }
 
-String OS_X11::get_system_dir(SystemDir p_dir) const {
-
-    String xdgparam;
-
-    switch (p_dir) {
-        case SYSTEM_DIR_DESKTOP: {
-
-            xdgparam = "DESKTOP";
-        } break;
-        case SYSTEM_DIR_DCIM: {
-
-            xdgparam = "PICTURES";
-
-        } break;
-        case SYSTEM_DIR_DOCUMENTS: {
-
-            xdgparam = "DOCUMENTS";
-
-        } break;
-        case SYSTEM_DIR_DOWNLOADS: {
-
-            xdgparam = "DOWNLOAD";
-
-        } break;
-        case SYSTEM_DIR_MOVIES: {
-
-            xdgparam = "VIDEOS";
-
-        } break;
-        case SYSTEM_DIR_MUSIC: {
-
-            xdgparam = "MUSIC";
-
-        } break;
-        case SYSTEM_DIR_PICTURES: {
-
-            xdgparam = "PICTURES";
-
-        } break;
-        case SYSTEM_DIR_RINGTONES: {
-
-            xdgparam = "MUSIC";
-
-        } break;
-    }
-
-    String pipe;
-    ListPOD<String> arg;
-    arg.push_back(xdgparam);
-    Error err = const_cast<OS_X11 *>(this)->execute("xdg-user-dir", arg, true, nullptr, &pipe);
-    if (err != OK)
-        return ".";
-    return StringUtils::strip_edges( pipe);
-}
-
 void OS_X11::move_window_to_foreground() {
 
     XEvent xev;

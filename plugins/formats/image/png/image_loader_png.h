@@ -38,8 +38,6 @@ class ImageLoaderPNG : public QObject, public ImageFormatLoader, public ImageFor
     Q_OBJECT
 
 private:
-    static PODVector<uint8_t> lossless_pack_png(const ImageData &p_image);
-    static ImageData lossless_unpack_png(const PoolVector<uint8_t> &p_data);
     static ImageData load_mem_png(const uint8_t *p_png, int p_size);
 
 public:
@@ -55,5 +53,5 @@ public:
     bool can_save(const String &extension) override;
 
 
-    ImageLoaderPNG();
+    ImageLoaderPNG() = default;
 };

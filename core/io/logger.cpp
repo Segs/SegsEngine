@@ -112,7 +112,7 @@ void Logger::logf_error(const QChar *p_msg) {
 
     logv(p_msg, true);
 }
-Logger::~Logger() {}
+Logger::~Logger() = default;
 
 void RotatedFileLogger::close_file() {
     if (file) {
@@ -268,7 +268,7 @@ void StdLogger::logv(const char *p_format, bool p_err) {
     }
 }
 
-StdLogger::~StdLogger() {}
+StdLogger::~StdLogger() = default;
 
 CompositeLogger::CompositeLogger(const Vector<Logger *>& p_loggers) :
         loggers(p_loggers) {

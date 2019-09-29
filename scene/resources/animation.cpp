@@ -39,7 +39,7 @@
 IMPL_GDCLASS(Animation)
 RES_BASE_EXTENSION_IMPL(Animation,"anim")
 
-#define ANIM_MIN_LENGTH 0.001
+#define ANIM_MIN_LENGTH 0.001f
 
 bool Animation::_set(const StringName &p_name, const Variant &p_value) {
 

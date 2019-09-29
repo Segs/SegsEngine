@@ -56,7 +56,7 @@ public:
     void set_euler_yxz(const Vector3 &p_euler);
     Vector3 get_euler_yxz() const;
 
-    void set_euler(const Vector3 &p_euler) { set_euler_yxz(p_euler); }
+    void set_euler(Vector3 p_euler) { set_euler_yxz(p_euler); }
     Vector3 get_euler() const { return get_euler_yxz(); }
 
     Quat slerp(const Quat &q, const real_t &t) const;
@@ -75,14 +75,14 @@ public:
     void operator*=(const Quat &q);
     Quat operator*(const Quat &q) const;
 
-    Quat operator*(const Vector3 &v) const {
+    Quat operator*(Vector3 v) const {
         return Quat(w * v.x + y * v.z - z * v.y,
                 w * v.y + z * v.x - x * v.z,
                 w * v.z + x * v.y - y * v.x,
                 -x * v.x - y * v.y - z * v.z);
     }
 
-    _FORCE_INLINE_ Vector3 xform(const Vector3 &v) const {
+    _FORCE_INLINE_ Vector3 xform(Vector3 v) const {
 #ifdef MATH_CHECKS
         ERR_FAIL_COND_V(!is_normalized(), v)
 #endif
@@ -124,13 +124,7 @@ public:
 
     Quat(const Quat &q) = default;
 
-    Quat &operator=(const Quat &q) {
-        x = q.x;
-        y = q.y;
-        z = q.z;
-        w = q.w;
-        return *this;
-    }
+    Quat &operator=(const Quat &q) = default;
 
     Quat(const Vector3 &v0, const Vector3 &v1) // shortest arc
     {

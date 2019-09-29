@@ -50,7 +50,7 @@ class EditorSettingsDialog : public AcceptDialog {
 	Control *tab_general;
 	Control *tab_shortcuts;
 
-	LineEdit *search_box;
+	LineEdit *search_box=nullptr;
 	LineEdit *shortcut_search_box;
 	SectionedInspector *inspector;
 

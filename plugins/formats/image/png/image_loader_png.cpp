@@ -75,39 +75,18 @@ ImageData ImageLoaderPNG::load_mem_png(const uint8_t *p_png, int p_size) {
     return dat;
 }
 
-ImageData ImageLoaderPNG::lossless_unpack_png(const PoolVector<uint8_t> &p_data) {
-
-    const int len = p_data.size();
-    ERR_FAIL_COND_V(len < 4, ImageData())
-    PoolVector<uint8_t>::Read r = p_data.read();
-    ERR_FAIL_COND_V(r[0] != 'P' || r[1] != 'N' || r[2] != 'G' || r[3] != ' ', ImageData())
-    return load_mem_png(&r[4], len - 4);
-}
-
-PODVector<uint8_t> ImageLoaderPNG::lossless_pack_png(const ImageData &p_image) {
-
-    PODVector<uint8_t> out_buffer = {'P','N','G',' '}; // Header marker bytes.
-    Error err = PNGDriverCommon::image_to_png(p_image, out_buffer);
-    if (err) {
-        ERR_REPORT_COND("Can't convert image to PNG.")
-        return {};
-    }
-
-    return out_buffer;
-}
-
-
 Error ImageLoaderPNG::save_image(const ImageData &p_image, PODVector<uint8_t> &tgt, SaveParams params)
 {
-    tgt = lossless_pack_png(p_image);
-    return tgt.empty() ? ERR_CANT_CREATE : OK;
+    Error err = PNGDriverCommon::image_to_png(p_image, tgt);
+    return err!=OK ? err : (tgt.empty() ? ERR_CANT_CREATE : OK);
 }
 
 Error ImageLoaderPNG::save_image(const ImageData &p_image, FileAccess *p_fileaccess, SaveParams params)
 {
-    PODVector<uint8_t> tgt = lossless_pack_png(p_image);
-    if(tgt.size()==0)
-        return ERR_CANT_CREATE;
+    PODVector<uint8_t> tgt;
+    Error err = PNGDriverCommon::image_to_png(p_image, tgt);
+    if(err!=OK)
+        return err;
 
     p_fileaccess->store_buffer(tgt.data(), tgt.size());
     if (p_fileaccess->get_error() != OK && p_fileaccess->get_error() != ERR_FILE_EOF) {
@@ -119,7 +98,4 @@ Error ImageLoaderPNG::save_image(const ImageData &p_image, FileAccess *p_fileacc
 bool ImageLoaderPNG::can_save(const String &extension)
 {
     return "png"==extension;
-}
-
-ImageLoaderPNG::ImageLoaderPNG() {
 }

@@ -1121,7 +1121,7 @@ bool _OS::is_keep_screen_on() const {
 
 String _OS::get_system_dir(SystemDir p_dir) const {
 
-    return OS::get_singleton()->get_system_dir(OS::SystemDir(p_dir));
+    return OS::get_system_dir(OS::SystemDir(p_dir));
 }
 
 String _OS::get_scancode_string(uint32_t p_code) const {

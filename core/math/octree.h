@@ -95,7 +95,7 @@ private:
             }
         }
 
-        _FORCE_INLINE_ PairKey() {}
+        PairKey() = default;
     };
 
     struct Element;
@@ -124,13 +124,7 @@ private:
                 children[i] = nullptr;
         }
 
-        ~Octant() {
-
-            /*
-            for (int i=0;i<8;i++)
-                memdelete_notnull(children[i]);
-            */
-        }
+        ~Octant() = default;
     };
 
     struct PairData;

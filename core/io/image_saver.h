@@ -1,7 +1,6 @@
 #pragma once
 
 #include "core/vector.h"
-#include "core/pool_vector.h"
 
 class ImageLoader;
 class String;
@@ -23,7 +22,7 @@ public:
     static void add_image_format_saver(ImageFormatSaver *p_loader);
     static void remove_image_format_saver(ImageFormatSaver *p_loader);
 
-    static const Vector<ImageFormatSaver *> &get_image_format_savers();
+    static const PODVector<ImageFormatSaver *> &get_image_format_savers();
 
     static void cleanup();
 };

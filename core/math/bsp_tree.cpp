@@ -469,7 +469,7 @@ BSP_Tree::operator Variant() const {
 	return Variant(d);
 }
 
-BSP_Tree::BSP_Tree() {}
+BSP_Tree::BSP_Tree() = default;
 
 BSP_Tree::BSP_Tree(const Variant &p_variant) {
 
@@ -576,4 +576,4 @@ BSP_Tree::BSP_Tree(const Vector<Node> &p_nodes, const Vector<Plane> &p_planes, c
 		error_radius(p_error_radius) {
 }
 
-BSP_Tree::~BSP_Tree() {}
+BSP_Tree::~BSP_Tree() = default;

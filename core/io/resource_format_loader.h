@@ -37,7 +37,7 @@ public:
     virtual void set_translation_remapped(bool p_remapped) = 0;
     virtual Error wait();
 
-    ResourceInteractiveLoader() {}
+    ResourceInteractiveLoader() = default;
     ~ResourceInteractiveLoader() override;
 };
 
