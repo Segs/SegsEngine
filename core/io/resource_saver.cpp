@@ -39,12 +39,16 @@
 #include "core/script_language.h"
 
 #include "scene/resources/texture.h"
+#include "EASTL/deque.h"
 
 IMPL_GDCLASS(ResourceFormatSaver)
 
-Ref<ResourceFormatSaver> ResourceSaver::saver[MAX_SAVERS];
+enum {
+    MAX_SAVERS = 64
+};
 
-int ResourceSaver::saver_count = 0;
+static eastl::deque<Ref<ResourceFormatSaver>> saver;
+
 bool ResourceSaver::timestamp_on_save = false;
 ResourceSavedCallback ResourceSaver::save_callback = nullptr;
 
@@ -111,14 +115,14 @@ Error ResourceSaver::save(const String &p_path, const RES &p_resource, uint32_t 
     String extension = PathUtils::get_extension(p_path);
     Error err = ERR_FILE_UNRECOGNIZED;
 
-    for (int i = 0; i < saver_count; i++) {
+    for (const Ref<ResourceFormatSaver> & s : saver) {
 
-        if (!saver[i]->recognize(p_resource))
+        if (!s->recognize(p_resource))
             continue;
 
         Vector<String> extensions;
         bool recognized = false;
-        saver[i]->get_recognized_extensions(p_resource, &extensions);
+        s->get_recognized_extensions(p_resource, &extensions);
 
         for (int i=0,fin=extensions.size(); i<fin; ++i) {
 
@@ -137,7 +141,7 @@ Error ResourceSaver::save(const String &p_path, const RES &p_resource, uint32_t 
         if (p_flags & FLAG_CHANGE_PATH)
             rwcopy->set_path(local_path);
 
-        err = saver[i]->save(p_path, p_resource, p_flags);
+        err = s->save(p_path, p_resource, p_flags);
 
         if (err == OK) {
 
@@ -171,25 +175,20 @@ void ResourceSaver::set_save_callback(ResourceSavedCallback p_callback) {
 
 void ResourceSaver::get_recognized_extensions(const RES &p_resource, Vector<String> *p_extensions) {
 
-    for (int i = 0; i < saver_count; i++) {
+    for (const Ref<ResourceFormatSaver> & s : saver) {
 
-        saver[i]->get_recognized_extensions(p_resource, p_extensions);
+        s->get_recognized_extensions(p_resource, p_extensions);
     }
 }
 
 void ResourceSaver::add_resource_format_saver(const Ref<ResourceFormatSaver>& p_format_saver, bool p_at_front) {
 
     ERR_FAIL_COND_CMSG(not p_format_saver, "It's not a reference to a valid ResourceFormatSaver object.")
-    ERR_FAIL_COND(saver_count >= MAX_SAVERS)
 
     if (p_at_front) {
-        for (int i = saver_count; i > 0; i--) {
-            saver[i] = saver[i - 1];
-        }
-        saver[0] = p_format_saver;
-        saver_count++;
+        saver.push_front(p_format_saver);
     } else {
-        saver[saver_count++] = p_format_saver;
+        saver.push_back(p_format_saver);
     }
 }
 
@@ -198,26 +197,22 @@ void ResourceSaver::remove_resource_format_saver(const Ref<ResourceFormatSaver>&
     ERR_FAIL_COND_MSG(not p_format_saver, "It's not a reference to a valid ResourceFormatSaver object.")
 
     // Find saver
-    int i = 0;
-    for (; i < saver_count; ++i) {
+    size_t i = 0;
+    for (; i < saver.size(); ++i) {
         if (saver[i] == p_format_saver)
+        {
+            saver.erase(saver.begin()+i);
             break;
+        }
     }
 
-    ERR_FAIL_COND(i >= saver_count) // Not found
-
-    // Shift next savers up
-    for (; i < saver_count - 1; ++i) {
-        saver[i] = saver[i + 1];
-    }
-    saver[saver_count - 1].unref();
-    --saver_count;
+    ERR_FAIL_COND(i >= saver.size()) // Not found
 }
 
 Ref<ResourceFormatSaver> ResourceSaver::_find_custom_resource_format_saver(const String& path) {
-    for (int i = 0; i < saver_count; ++i) {
-        if (saver[i]->get_script_instance() && saver[i]->get_script_instance()->get_script()->get_path() == path) {
-            return saver[i];
+    for (const Ref<ResourceFormatSaver> & s : saver) {
+        if (s->get_script_instance() && s->get_script_instance()->get_script()->get_path() == path) {
+            return s;
         }
     }
     return Ref<ResourceFormatSaver>();
@@ -278,9 +273,9 @@ void ResourceSaver::add_custom_savers() {
 void ResourceSaver::remove_custom_savers() {
 
     Vector<Ref<ResourceFormatSaver> > custom_savers;
-    for (int i = 0; i < saver_count; ++i) {
-        if (saver[i]->get_script_instance()) {
-            custom_savers.push_back(saver[i]);
+    for (const Ref<ResourceFormatSaver> & s : saver) {
+        if (s->get_script_instance()) {
+            custom_savers.push_back(s);
         }
     }
 
