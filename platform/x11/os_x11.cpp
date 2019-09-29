@@ -366,12 +366,12 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
         XChangeProperty(x11_display, x11_window, property, property, 32, PropModeReplace, (unsigned char *)&hints, 5);
     }
 
-	// make PID known to X11
-	{
-		const long pid = this->get_process_id();
-		Atom net_wm_pid = XInternAtom(x11_display, "_NET_WM_PID", False);
-		XChangeProperty(x11_display, x11_window, net_wm_pid, XA_CARDINAL, 32, PropModeReplace, (unsigned char *)&pid, 1);
-	}
+    // make PID known to X11
+    {
+        const long pid = this->get_process_id();
+        Atom net_wm_pid = XInternAtom(x11_display, "_NET_WM_PID", False);
+        XChangeProperty(x11_display, x11_window, net_wm_pid, XA_CARDINAL, 32, PropModeReplace, (unsigned char *)&pid, 1);
+    }
 
     // disable resizable window
     if (!current_videomode.resizable && !current_videomode.fullscreen) {
@@ -1555,7 +1555,7 @@ bool OS_X11::is_window_maximize_allowed() {
         bool found_wm_act_max_horz = false;
         bool found_wm_act_max_vert = false;
 
-		for (uint64_t i = 0; i < len; i++) {
+        for (uint64_t i = 0; i < len; i++) {
             if (atoms[i] == wm_act_max_horz)
                 found_wm_act_max_horz = true;
             if (atoms[i] == wm_act_max_vert)
@@ -1601,7 +1601,7 @@ bool OS_X11::is_window_maximized() const {
         bool found_wm_max_horz = false;
         bool found_wm_max_vert = false;
 
-		for (uint64_t i = 0; i < len; i++) {
+        for (uint64_t i = 0; i < len; i++) {
             if (atoms[i] == wm_max_horz)
                 found_wm_max_horz = true;
             if (atoms[i] == wm_max_vert)
@@ -2741,39 +2741,6 @@ Error OS_X11::shell_open(String p_uri) {
 bool OS_X11::_check_internal_feature_support(const String &p_feature) {
 
     return p_feature == "pc";
-}
-
-String OS_X11::get_config_path() const {
-
-    if (has_environment("XDG_CONFIG_HOME")) {
-        return get_environment("XDG_CONFIG_HOME");
-    } else if (has_environment("HOME")) {
-        return PathUtils::plus_file(get_environment("HOME"),".config");
-    } else {
-        return ".";
-    }
-}
-
-String OS_X11::get_data_path() const {
-
-    if (has_environment("XDG_DATA_HOME")) {
-        return get_environment("XDG_DATA_HOME");
-    } else if (has_environment("HOME")) {
-        return PathUtils::plus_file(get_environment("HOME"),".local/share");
-    } else {
-        return get_config_path();
-    }
-}
-
-String OS_X11::get_cache_path() const {
-
-    if (has_environment("XDG_CACHE_HOME")) {
-        return get_environment("XDG_CACHE_HOME");
-    } else if (has_environment("HOME")) {
-        return PathUtils::plus_file(get_environment("HOME"),".cache");
-    } else {
-        return get_config_path();
-    }
 }
 
 void OS_X11::move_window_to_foreground() {

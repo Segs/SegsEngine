@@ -50,12 +50,6 @@ using ResourceSavedCallback = void (*)(const Ref<Resource> &, const String &);
 
 class ResourceSaver {
 
-    enum {
-        MAX_SAVERS = 64
-    };
-
-    static Ref<ResourceFormatSaver> saver[MAX_SAVERS];
-    static int saver_count;
     static bool timestamp_on_save;
     static ResourceSavedCallback save_callback;
 
