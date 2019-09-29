@@ -1196,7 +1196,7 @@ Error EditorSceneImporterGLTF::_parse_meshes(GLTFState &state) {
 
             if (p.has("material")) {
                 const int material = p["material"];
-                ERR_FAIL_INDEX_V(material, state.materials.size(), ERR_FILE_CORRUPT);
+                ERR_FAIL_INDEX_V(material, state.materials.size(), ERR_FILE_CORRUPT)
                 const Ref<Material> &mat = state.materials[material];
 
                 mesh.mesh->surface_set_material(mesh.mesh->get_surface_count() - 1, mat);
@@ -1205,7 +1205,7 @@ Error EditorSceneImporterGLTF::_parse_meshes(GLTFState &state) {
 
         if (d.has("weights")) {
             const Array &weights = d["weights"];
-            ERR_FAIL_COND_V(mesh.mesh->get_blend_shape_count() != weights.size(), ERR_PARSE_ERROR);
+            ERR_FAIL_COND_V(mesh.mesh->get_blend_shape_count() != weights.size(), ERR_PARSE_ERROR)
             mesh.blend_weights.resize(weights.size());
             for (int j = 0; j < weights.size(); j++) {
                 mesh.blend_weights.write[j] = weights[j];
@@ -1338,10 +1338,10 @@ Error EditorSceneImporterGLTF::_parse_textures(GLTFState &state) {
 }
 
 Ref<Texture> EditorSceneImporterGLTF::_get_texture(GLTFState &state, const GLTFTextureIndex p_texture) {
-    ERR_FAIL_INDEX_V(p_texture, state.textures.size(), Ref<Texture>());
+    ERR_FAIL_INDEX_V(p_texture, state.textures.size(), Ref<Texture>())
     const GLTFImageIndex image = state.textures[p_texture].src_image;
 
-    ERR_FAIL_INDEX_V(image, state.images.size(), Ref<Texture>());
+    ERR_FAIL_INDEX_V(image, state.images.size(), Ref<Texture>())
 
     return state.images[image];
 }

@@ -46,7 +46,7 @@
 
 #include <cstdio>
 namespace {
-HashMap<String, Resource *> cached_resources;
+    DefHashMap<String, Resource *> cached_resources;
 
 } // end of anonymous namespace
 
@@ -100,7 +100,7 @@ void Resource::set_path(const String &p_path, bool p_take_over) {
         if (p_take_over) {
 
             ResourceCache::lock->write_lock();
-            cached_resources.get(p_path)->set_name(String::null_val);
+            cached_resources.at(p_path)->set_name(String::null_val);
             ResourceCache::lock->write_unlock();
         } else {
             ResourceCache::lock->read_lock();
@@ -502,35 +502,25 @@ bool ResourceCache::has(const String &p_path) {
 }
 
 Resource * ResourceCache::get_unguarded(const String &p_path) {
-    Resource **rptr = cached_resources.getptr(p_path);
-    if (!rptr)
-        return nullptr;
-    return *rptr;
+    return cached_resources.at(p_path,nullptr);
 }
 
 Resource *ResourceCache::get(const String &p_path) {
 
     lock->read_lock();
 
-    Resource **res = cached_resources.getptr(p_path);
+    Resource *res = cached_resources.at(p_path,nullptr);
 
     lock->read_unlock();
 
-    if (!res) {
-        return nullptr;
-    }
-
-    return *res;
+    return res;
 }
 
 void ResourceCache::get_cached_resources(List<Ref<Resource> > *p_resources) {
 
     lock->read_lock();
-    const String *K = nullptr;
-    while ((K = cached_resources.next(K))) {
-
-        Resource *r = cached_resources[*K];
-        p_resources->push_back(Ref<Resource>(r));
+    for(eastl::pair<const String,Resource *> & e :cached_resources) {
+        p_resources->push_back(Ref<Resource>(e.second));
     }
     lock->read_unlock();
 }
@@ -556,10 +546,9 @@ void ResourceCache::dump(const char *p_file, bool p_short) {
 		ERR_FAIL_COND_MSG(!f, "Cannot create file at path '" + String(p_file) + "'.")
     }
 
-    const String *K = nullptr;
-    while ((K = cached_resources.next(K))) {
+    for (eastl::pair<const String, Resource *> & e : cached_resources) {
 
-        Resource *r = cached_resources[*K];
+        Resource *r = e.second;
 
         if (!type_count.contains(r->get_class())) {
             type_count[r->get_class()] = 0;

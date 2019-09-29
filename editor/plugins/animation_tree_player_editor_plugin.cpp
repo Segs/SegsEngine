@@ -36,9 +36,9 @@
 #include "core/os/keyboard.h"
 #include "core/project_settings.h"
 #include "scene/gui/menu_button.h"
-#include "scene/gui/panel.h"
 #include "scene/main/viewport.h"
 #include "scene/resources/style_box.h"
+
 #include "EASTL/sort.h"
 
 IMPL_GDCLASS(AnimationTreePlayerEditor)
@@ -252,8 +252,8 @@ void AnimationTreePlayerEditor::_popup_edit_dialog() {
 
     updating_edit = true;
 
-    for (int i = 0; i < 2; i++)
-        edit_scroll[i]->hide();
+    for (HSlider * i : edit_scroll)
+        i->hide();
 
     for (int i = 0; i < 4; i++) {
 
@@ -485,7 +485,7 @@ void AnimationTreePlayerEditor::_draw_node(const StringName &p_node) {
     Ref<Font> font = get_font("font", "PopupMenu");
     Color font_color = get_color("font_color", "PopupMenu");
     Color font_color_title = get_color("font_color_hover", "PopupMenu");
-    font_color_title.a *= 0.8;
+    font_color_title.a *= 0.8f;
     Ref<Texture> slot_icon = get_icon("VisualShaderPort", "EditorIcons");
 
     Size2 size = get_node_size(p_node);
@@ -510,7 +510,7 @@ void AnimationTreePlayerEditor::_draw_node(const StringName &p_node) {
     Point2 ascofs(0, font->get_ascent());
 
     Color bx = font_color_title;
-    bx.a *= 0.1;
+    bx.a *= 0.1f;
     draw_rect(Rect2(ofs, Size2(size.width - style->get_minimum_size().width, font->get_height())), bx);
     font->draw_halign(ci, ofs + ascofs, HALIGN_CENTER, w, String(_node_type_names[type]), font_color_title);
 
@@ -520,7 +520,7 @@ void AnimationTreePlayerEditor::_draw_node(const StringName &p_node) {
 
     int inputs = anim_tree->node_get_input_count(p_node);
 
-    float icon_h_ofs = Math::floor((font->get_height() - slot_icon->get_height()) / 2.0) + 1;
+    float icon_h_ofs = Math::floor((font->get_height() - slot_icon->get_height()) / 2.0f) + 1;
 
     if (type != AnimationTreePlayer::NODE_OUTPUT)
         slot_icon->draw(ci, ofs + Point2(w, icon_h_ofs)); //output

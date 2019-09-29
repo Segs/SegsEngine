@@ -356,7 +356,7 @@ void BodySW::add_contact(const Vector3 &p_local_pos, const Vector3 &p_local_norm
 		idx = contact_count++;
 	} else {
 
-		real_t least_depth = 1e20;
+		real_t least_depth = 1e20f;
 		int least_deep = -1;
 		for (int i = 0; i < c_max; i++) {
 

@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "image_saver.h"
+#include "resource_saver.h"
 
 #include "core/plugin_interfaces/PluginDeclarations.h"
 #include "core/print_string.h"
@@ -40,7 +41,7 @@
 #include <QObject>
 
 namespace {
-Vector<ImageFormatSaver *> g_savers;
+    PODVector<ImageFormatSaver *> g_savers;
 
 struct ImagePluginResolver : public ResolverInterface
 {
@@ -90,12 +91,12 @@ Error ImageSaver::save_image(const String& p_file, const Ref<Image> &p_image, Fi
 
     String extension = PathUtils::get_extension(p_file);
 
-    for (int i = 0; i < g_savers.size(); i++) {
+    for (ImageFormatSaver * g_saver : g_savers) {
 
-        if (!g_savers[i]->can_save(extension))
+        if (!g_saver->can_save(extension))
             continue;
-        ImageData result_data = *p_image;
-        Error err = g_savers[i]->save_image(result_data, f, {p_quality,false});
+        ImageData result_data(static_cast<ImageData>(*p_image));
+        Error err = g_saver->save_image(result_data, f, {p_quality,false});
         if (err != OK) {
             ERR_PRINTS("Error saving image: " + p_file)
         }
@@ -119,11 +120,11 @@ Error ImageSaver::save_image(const String& ext, const Ref<Image> & p_image, PODV
     register_plugin_resolver();
     ImageData result_data;
 
-    for (int i = 0; i < g_savers.size(); i++) {
+    for (ImageFormatSaver *g_saver : g_savers) {
 
-        if (!g_savers[i]->can_save(ext))
+        if (!g_saver->can_save(ext))
             continue;
-        Error err = g_savers[i]->save_image(*p_image, tgt, {p_quality,false});
+        Error err = g_saver->save_image(*p_image, tgt, {p_quality,false});
         if (err != OK) {
             ERR_PRINT("Error loading image from memory")
         }
@@ -139,19 +140,19 @@ Error ImageSaver::save_image(const String& ext, const Ref<Image> & p_image, PODV
 void ImageSaver::get_recognized_extensions(Vector<String> *p_extensions) {
     register_plugin_resolver();
 
-    for (int i = 0; i < g_savers.size(); i++) {
+    for (ImageFormatSaver *g_saver : g_savers) {
 
-        g_savers[i]->get_saved_extensions(p_extensions);
+        g_saver->get_saved_extensions(p_extensions);
     }
 }
 
 ImageFormatSaver *ImageSaver::recognize(const String &p_extension) {
     register_plugin_resolver();
 
-    for (int i = 0; i < g_savers.size(); i++) {
+    for (ImageFormatSaver *g_saver : g_savers) {
 
-        if (g_savers[i]->can_save(p_extension))
-            return g_savers[i];
+        if (g_saver->can_save(p_extension))
+            return g_saver;
     }
 
     return nullptr;
@@ -164,10 +165,10 @@ void ImageSaver::add_image_format_saver(ImageFormatSaver *p_loader) {
 
 void ImageSaver::remove_image_format_saver(ImageFormatSaver *p_loader) {
 
-    g_savers.erase(p_loader);
+    g_savers.erase_first_unsorted(p_loader);
 }
 
-const Vector<ImageFormatSaver *> &ImageSaver::get_image_format_savers() {
+const PODVector<ImageFormatSaver *> &ImageSaver::get_image_format_savers() {
 
     return g_savers;
 }

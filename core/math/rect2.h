@@ -222,7 +222,7 @@ struct Rect2 {
 
 	operator String() const;
 
-	Rect2() {}
+	Rect2() = default;
 	Rect2(real_t p_x, real_t p_y, real_t p_width, real_t p_height) :
 			position(Point2(p_x, p_y)),
 			size(Size2(p_width, p_height)) {
@@ -383,7 +383,7 @@ struct Rect2i {
 			position(p_r2.position),
 			size(p_r2.size) {
 	}
-	Rect2i() {}
+	Rect2i() = default;
 	Rect2i(int p_x, int p_y, int p_width, int p_height) :
 			position(p_x, p_y),
 			size(p_width, p_height) {

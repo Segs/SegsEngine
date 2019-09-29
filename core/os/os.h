@@ -414,9 +414,9 @@ public:
     String get_safe_dir_name(const String& p_dir_name, bool p_allow_dir_separator = false) const;
     virtual String get_godot_dir_name() const;
 
-    virtual String get_data_path() const;
-    virtual String get_config_path() const;
-    virtual String get_cache_path() const;
+    String get_data_path() const;
+    String get_config_path() const;
+    String get_cache_path() const;
 
     virtual String get_user_data_dir() const;
     virtual String get_resource_dir() const;
@@ -428,11 +428,10 @@ public:
         SYSTEM_DIR_DOWNLOADS,
         SYSTEM_DIR_MOVIES,
         SYSTEM_DIR_MUSIC,
-        SYSTEM_DIR_PICTURES,
-        SYSTEM_DIR_RINGTONES,
+        SYSTEM_DIR_PICTURES
     };
 
-    virtual String get_system_dir(SystemDir p_dir) const;
+    static String get_system_dir(SystemDir p_dir);
 
     virtual Error move_to_trash(const String &p_path) { return FAILED; }
 

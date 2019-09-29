@@ -102,7 +102,7 @@ public:
 
 	operator String() const;
 
-	AABB() {}
+	AABB() = default;
 	inline AABB(const Vector3 &p_pos, const Vector3 &p_size) :
 			position(p_pos),
 			size(p_size) {

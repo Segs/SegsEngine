@@ -2094,85 +2094,10 @@ MainLoop *OS_OSX::get_main_loop() const {
 	return main_loop;
 }
 
-String OS_OSX::get_config_path() const {
-
-	if (has_environment("XDG_CONFIG_HOME")) {
-		return get_environment("XDG_CONFIG_HOME");
-	} else if (has_environment("HOME")) {
-		return get_environment("HOME").plus_file("Library/Application Support");
-	} else {
-		return ".";
-	}
-}
-
-String OS_OSX::get_data_path() const {
-
-	if (has_environment("XDG_DATA_HOME")) {
-		return get_environment("XDG_DATA_HOME");
-	} else {
-		return get_config_path();
-	}
-}
-
-String OS_OSX::get_cache_path() const {
-
-	if (has_environment("XDG_CACHE_HOME")) {
-		return get_environment("XDG_CACHE_HOME");
-	} else if (has_environment("HOME")) {
-		return get_environment("HOME").plus_file("Library/Caches");
-	} else {
-		return get_config_path();
-	}
-}
-
 // Get properly capitalized engine name for system paths
 String OS_OSX::get_godot_dir_name() const {
 
 	return String(VERSION_SHORT_NAME).capitalize();
-}
-
-String OS_OSX::get_system_dir(SystemDir p_dir) const {
-
-	NSSearchPathDirectory id;
-	bool found = true;
-
-	switch (p_dir) {
-		case SYSTEM_DIR_DESKTOP: {
-			id = NSDesktopDirectory;
-		} break;
-		case SYSTEM_DIR_DOCUMENTS: {
-			id = NSDocumentDirectory;
-		} break;
-		case SYSTEM_DIR_DOWNLOADS: {
-			id = NSDownloadsDirectory;
-		} break;
-		case SYSTEM_DIR_MOVIES: {
-			id = NSMoviesDirectory;
-		} break;
-		case SYSTEM_DIR_MUSIC: {
-			id = NSMusicDirectory;
-		} break;
-		case SYSTEM_DIR_PICTURES: {
-			id = NSPicturesDirectory;
-		} break;
-		default: {
-			found = false;
-		}
-	}
-
-	String ret;
-	if (found) {
-
-		NSArray *paths = NSSearchPathForDirectoriesInDomains(id, NSUserDomainMask, YES);
-		if (paths && [paths count] >= 1) {
-
-			char *utfs = strdup([[paths firstObject] UTF8String]);
-			ret.parse_utf8(utfs);
-			free(utfs);
-		}
-	}
-
-	return ret;
 }
 
 bool OS_OSX::can_draw() const {

@@ -97,7 +97,6 @@ private:                                                                        
     friend class ClassDB;                                                                                                               \
                                                                                                                                         \
 public:                                                                                                                                 \
-    void operator=(const m_class &/*p_rval*/) = delete;                                                                                 \
     static bool initialize_class();                                                                                                     \
     const char *get_class() const override {                                                                                            \
         return #m_class;																												\
@@ -544,6 +543,9 @@ public:
 
     Object();
     virtual ~Object();
+    // Non-copyable
+    void operator=(const Object &/*p_rval*/) = delete;                                                                                 \
+    Object(const Object &) = delete;
 };
 namespace ObjectNS
 {

@@ -66,7 +66,7 @@ public:
         /**
          * Get NEXT Element iterator, for constant lists.
          */
-        _FORCE_INLINE_ const Element *next() const {
+        [[nodiscard]] _FORCE_INLINE_ const Element *next() const {
 
             return next_ptr;
         }
@@ -81,7 +81,7 @@ public:
         /**
          * Get PREV Element iterator, for constant lists.
          */
-        _FORCE_INLINE_ const Element *prev() const {
+        [[nodiscard]] _FORCE_INLINE_ const Element *prev() const {
 
             return prev_ptr;
         }
@@ -128,7 +128,7 @@ public:
         /**
          * get the value stored in this element, for constant lists
          */
-        _FORCE_INLINE_ const T &deref() const {
+        [[nodiscard]] _FORCE_INLINE_ const T &deref() const {
             return value;
         }
         _FORCE_INLINE_ Element() {
@@ -176,7 +176,7 @@ public:
     /**
     * return a const iterator to the beginning of the list.
     */
-    _FORCE_INLINE_ const Element *front() const {
+    [[nodiscard]] _FORCE_INLINE_ const Element *front() const {
 
         return _data ? _data->first : nullptr;
     }
@@ -191,7 +191,7 @@ public:
     /**
     * return a const iterator to the last member of the list.
     */
-    _FORCE_INLINE_ const Element *back() const {
+    [[nodiscard]] _FORCE_INLINE_ const Element *back() const {
 
         return _data ? _data->last : nullptr;
     }
@@ -383,7 +383,7 @@ public:
     /**
      * return whether the list is empty
      */
-    _FORCE_INLINE_ bool empty() const {
+    [[nodiscard]] _FORCE_INLINE_ bool empty() const {
 
         return (!_data || !_data->size_cache);
     }
@@ -398,7 +398,7 @@ public:
         }
     }
 
-    _FORCE_INLINE_ int size() const {
+    [[nodiscard]] _FORCE_INLINE_ int size() const {
 
         return _data ? _data->size_cache : 0;
     }

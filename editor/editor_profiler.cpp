@@ -138,7 +138,7 @@ Color EditorProfiler::_get_color_from_signature(const StringName &p_signature) c
     double rot = ABS(double(p_signature.hash()) / double(0x7FFFFFFF));
     Color c;
     c.set_hsv(rot, bc.get_s(), bc.get_v());
-    return c.linear_interpolate(get_color("base_color", "Editor"), 0.07);
+    return c.linear_interpolate(get_color("base_color", "Editor"), 0.07f);
 }
 
 void EditorProfiler::_item_edited() {
@@ -158,7 +158,7 @@ void EditorProfiler::_item_edited() {
         plot_sigs.erase(signature);
 
     if (!frame_delay->is_processing()) {
-        frame_delay->set_wait_time(0.1);
+        frame_delay->set_wait_time(0.1f);
         frame_delay->start();
     }
 

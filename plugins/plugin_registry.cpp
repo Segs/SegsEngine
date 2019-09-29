@@ -12,7 +12,7 @@
 #include <QPluginLoader>
 
 static PluginRegistry s_common_plugins;
-//static Ref<ResourceFormatSaver> s_generic_saver;
+
 extern void get_static_plugins(PluginRegistry &reg);
 
 void add_plugin_resolver(ResolverInterface *r) {
@@ -32,7 +32,7 @@ static void load_all_plugins() {
     for (const QString &filename : plugins_dir.entryList(QDir::Files)) {
         qDebug() << "Filename: " << filename;
 
-        if (!filename.contains("plugin",Qt::CaseInsensitive))
+        if (!filename.contains(QLatin1String("plugin"),Qt::CaseInsensitive))
             continue;
 
         qDebug() << "Attempting to load: " << plugins_dir.absoluteFilePath(filename);
@@ -44,19 +44,9 @@ static void load_all_plugins() {
 void load_all_plugins(const char *plugin_paths)
 {
     load_all_plugins();
-
-    // add generic resource saver, based on ImageSaver and friends
-//    if(!s_generic_saver.is_valid())
-//    {
-//        s_generic_saver.instance();
-//    }
-//    ResourceSaver::add_resource_format_saver(s_generic_saver);
 }
 void unload_plugins()
 {
-    // NOOP for now
-//    ResourceSaver::remove_resource_format_saver(s_generic_saver);
-//    s_generic_saver.unref();
     s_common_plugins.unloadAll();
 }
 

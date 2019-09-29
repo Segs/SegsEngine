@@ -35,7 +35,11 @@ public:
     virtual void get_recognized_extensions(Vector<String> *p_extensions) const = 0;
 
 public:
-    virtual ~ImageFormatLoader() {}
+    virtual ~ImageFormatLoader() = default;
+    ImageFormatLoader() = default;
+    // Not copyable.
+    ImageFormatLoader(const ImageFormatLoader &) = delete;
+    ImageFormatLoader &operator=(const ImageFormatLoader &) = delete;
 };
 
 class ImageFormatSaver {
@@ -46,5 +50,10 @@ public:
     virtual bool can_save(const String &extension)=0; // support for multi-format plugins
     virtual void get_saved_extensions(Vector<String> *p_extensions) const = 0;
 public:
-    virtual ~ImageFormatSaver() {}
+    virtual ~ImageFormatSaver() = default;
+    ImageFormatSaver() = default;
+
+    // Not copyable.
+    ImageFormatSaver(const ImageFormatSaver &) = delete;
+    ImageFormatSaver &operator=(const ImageFormatSaver &) = delete;
 };

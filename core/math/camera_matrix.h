@@ -95,7 +95,7 @@ struct CameraMatrix {
 
     CameraMatrix();
     CameraMatrix(const Transform &p_transform);
-    ~CameraMatrix() {}
+    ~CameraMatrix() = default;
 };
 
 Vector3 CameraMatrix::xform(const Vector3 &p_vec3) const {

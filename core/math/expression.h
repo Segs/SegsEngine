@@ -123,7 +123,7 @@ private:
         VariantType type=VariantType::NIL;
 		String name;
 
-		Input() {}
+		Input() = default;
 	};
 
 	Vector<Input> inputs;
@@ -218,7 +218,7 @@ private:
 
 		Type type;
 
-		ENode() {}
+		ENode() = default;
 		virtual ~ENode() {
 			if (next) {
 				memdelete(next);
@@ -355,7 +355,7 @@ public:
 	bool has_execute_failed() const;
 	String get_error_text() const;
 
-	Expression() {}
+	Expression() = default;
 	~Expression() override;
 };
 

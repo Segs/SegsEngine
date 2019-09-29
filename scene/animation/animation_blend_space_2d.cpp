@@ -676,7 +676,7 @@ AnimationNodeBlendSpace2D::AnimationNodeBlendSpace2D() {
     blend_points_used = 0;
     max_space = Vector2(1, 1);
     min_space = Vector2(-1, -1);
-    snap = Vector2(0.1, 0.1);
+    snap = Vector2(0.1f, 0.1f);
     x_label = "x";
     y_label = "y";
     trianges_dirty = false;

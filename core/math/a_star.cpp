@@ -702,8 +702,6 @@ void AStar2D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_id_path", {"from_id", "to_id"}), &AStar2D::get_id_path);
 }
 
-AStar2D::AStar2D() {
-}
+AStar2D::AStar2D() = default;
 
-AStar2D::~AStar2D() {
-}
+AStar2D::~AStar2D() = default;

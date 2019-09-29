@@ -158,32 +158,32 @@ void EditorResourcePreview::_generate_preview(Ref<ImageTexture> &r_texture, Ref<
     r_texture = Ref<ImageTexture>();
     r_small_texture = Ref<ImageTexture>();
 
-    for (int i = 0; i < preview_generators.size(); i++) {
-        if (!preview_generators[i]->handles(type))
+    for (Ref<EditorResourcePreviewGenerator>& preview_generator : preview_generators) {
+        if (!preview_generator->handles(type))
             continue;
 
         Ref<Texture> generated;
         if (p_item.resource) {
-            generated = preview_generators[i]->generate(p_item.resource, Vector2(thumbnail_size, thumbnail_size));
+            generated = preview_generator->generate(p_item.resource, Vector2(thumbnail_size, thumbnail_size));
         } else {
-            generated = preview_generators[i]->generate_from_path(p_item.path, Vector2(thumbnail_size, thumbnail_size));
+            generated = preview_generator->generate_from_path(p_item.path, Vector2(thumbnail_size, thumbnail_size));
         }
         r_texture = dynamic_ref_cast<ImageTexture>(generated);
 
         int small_thumbnail_size = EditorNode::get_singleton()->get_theme_base()->get_icon("Object", "EditorIcons")->get_width(); // Kind of a workaround to retrieve the default icon size
         small_thumbnail_size *= EDSCALE;
 
-        if (preview_generators[i]->can_generate_small_preview()) {
+        if (preview_generator->can_generate_small_preview()) {
             Ref<Texture> generated_small;
             if (p_item.resource) {
-                generated_small = preview_generators[i]->generate(p_item.resource, Vector2(small_thumbnail_size, small_thumbnail_size));
+                generated_small = preview_generator->generate(p_item.resource, Vector2(small_thumbnail_size, small_thumbnail_size));
             } else {
-                generated_small = preview_generators[i]->generate_from_path(p_item.path, Vector2(small_thumbnail_size, small_thumbnail_size));
+                generated_small = preview_generator->generate_from_path(p_item.path, Vector2(small_thumbnail_size, small_thumbnail_size));
             }
             r_small_texture = dynamic_ref_cast<ImageTexture>(generated_small);
         }
 
-        if (not r_small_texture && r_texture && preview_generators[i]->generate_small_preview_automatically()) {
+        if (not r_small_texture && r_texture && preview_generator->generate_small_preview_automatically()) {
             Ref<Image> small_image = r_texture->get_data();
             small_image = dynamic_ref_cast<Image>(small_image->duplicate());
             small_image->resize(small_thumbnail_size, small_thumbnail_size, Image::INTERPOLATE_CUBIC);
@@ -224,123 +224,122 @@ void EditorResourcePreview::_thread() {
         preview_sem->wait();
         preview_mutex->lock();
 
-        if (!queue.empty()) {
+        if (queue.empty()) {
+            preview_mutex->unlock();
+            continue;
+        }
 
-            QueueItem item = queue.front()->deref();
-            queue.pop_front();
+        QueueItem item = queue.front()->deref();
+        queue.pop_front();
 
-            if (cache.contains(item.path)) {
-                //already has it because someone loaded it, just let it know it's ready
-                String path = item.path;
-                if (item.resource) {
-                    path += ":" + itos(cache[item.path].last_hash); //keep last hash (see description of what this is in condition below)
-                }
+        if (cache.contains(item.path)) {
+            //already has it because someone loaded it, just let it know it's ready
+            String path = item.path;
+            if (item.resource) {
+                path += ":" + itos(cache[item.path].last_hash); //keep last hash (see description of what this is in condition below)
+            }
 
-                _preview_ready(path, cache[item.path].preview, cache[item.path].small_preview, item.id, item.function, item.userdata);
+            _preview_ready(path, cache[item.path].preview, cache[item.path].small_preview, item.id, item.function, item.userdata);
 
-                preview_mutex->unlock();
+            preview_mutex->unlock();
+        } else {
+
+            preview_mutex->unlock();
+
+            Ref<ImageTexture> texture;
+            Ref<ImageTexture> small_texture;
+
+            int thumbnail_size = EditorSettings::get_singleton()->get("filesystem/file_dialog/thumbnail_size");
+            thumbnail_size *= EDSCALE;
+
+            if (item.resource) {
+
+                _generate_preview(texture, small_texture, item, String());
+
+                //adding hash to the end of path (should be ID:<objid>:<hash>) because of 5 argument limit to call_deferred
+                _preview_ready(item.path + ":" + itos(item.resource->hash_edited_version()), texture, small_texture, item.id, item.function, item.userdata);
+
             } else {
 
-                preview_mutex->unlock();
+                String temp_path = EditorSettings::get_singleton()->get_cache_dir();
+                String cache_base = StringUtils::md5_text(ProjectSettings::get_singleton()->globalize_path(item.path));
+                cache_base = PathUtils::plus_file(temp_path,"resthumb-" + cache_base);
 
-                Ref<ImageTexture> texture;
-                Ref<ImageTexture> small_texture;
+                //does not have it, try to load a cached thumbnail
 
-                int thumbnail_size = EditorSettings::get_singleton()->get("filesystem/file_dialog/thumbnail_size");
-                thumbnail_size *= EDSCALE;
+                String file = cache_base + ".txt";
+                FileAccess *f = FileAccess::open(file, FileAccess::READ);
+                if (!f) {
 
-                if (item.resource) {
-
-                    _generate_preview(texture, small_texture, item, String());
-
-                    //adding hash to the end of path (should be ID:<objid>:<hash>) because of 5 argument limit to call_deferred
-                    _preview_ready(item.path + ":" + itos(item.resource->hash_edited_version()), texture, small_texture, item.id, item.function, item.userdata);
-
+                    // No cache found, generate
+                    _generate_preview(texture, small_texture, item, cache_base);
                 } else {
 
-                    String temp_path = EditorSettings::get_singleton()->get_cache_dir();
-                    String cache_base = StringUtils::md5_text(ProjectSettings::get_singleton()->globalize_path(item.path));
-                    cache_base = PathUtils::plus_file(temp_path,"resthumb-" + cache_base);
+                    uint64_t modtime = FileAccess::get_modified_time(item.path);
+                    int tsize = StringUtils::to_int64(f->get_line());
+                    bool has_small_texture = StringUtils::to_int(f->get_line());
+                    uint64_t last_modtime = StringUtils::to_int64(f->get_line());
 
-                    //does not have it, try to load a cached thumbnail
+                    bool cache_valid = true;
 
-                    String file = cache_base + ".txt";
-                    FileAccess *f = FileAccess::open(file, FileAccess::READ);
-                    if (!f) {
+                    if (tsize != thumbnail_size) {
 
-                        // No cache found, generate
-                        _generate_preview(texture, small_texture, item, cache_base);
-                    } else {
+                        cache_valid = false;
+                        memdelete(f);
+                    } else if (last_modtime != modtime) {
 
-                        uint64_t modtime = FileAccess::get_modified_time(item.path);
-                        int tsize = StringUtils::to_int64(f->get_line());
-                        bool has_small_texture = StringUtils::to_int(f->get_line());
-                        uint64_t last_modtime = StringUtils::to_int64(f->get_line());
+                        String last_md5 = f->get_line();
+                        String md5 = FileAccess::get_md5(item.path);
+                        memdelete(f);
 
-                        bool cache_valid = true;
-
-                        if (tsize != thumbnail_size) {
+                        if (last_md5 != md5) {
 
                             cache_valid = false;
-                            memdelete(f);
-                        } else if (last_modtime != modtime) {
 
-                            String last_md5 = f->get_line();
-                            String md5 = FileAccess::get_md5(item.path);
-                            memdelete(f);
-
-                            if (last_md5 != md5) {
-
-                                cache_valid = false;
-
-                            } else {
-                                //update modified time
-
-                                f = FileAccess::open(file, FileAccess::WRITE);
-                                f->store_line(itos(thumbnail_size));
-                                f->store_line(itos(has_small_texture));
-                                f->store_line(itos(modtime));
-                                f->store_line(md5);
-                                memdelete(f);
-                            }
                         } else {
+                            //update modified time
+
+                            f = FileAccess::open(file, FileAccess::WRITE);
+                            f->store_line(itos(thumbnail_size));
+                            f->store_line(itos(has_small_texture));
+                            f->store_line(itos(modtime));
+                            f->store_line(md5);
                             memdelete(f);
                         }
+                    } else {
+                        memdelete(f);
+                    }
 
-                        if (cache_valid) {
+                    if (cache_valid) {
 
-                            Ref<Image> img(make_ref_counted<Image>());
-                            Ref<Image> small_img(make_ref_counted<Image>());
+                        Ref<Image> img(make_ref_counted<Image>());
+                        Ref<Image> small_img(make_ref_counted<Image>());
 
-                            if (img->load(cache_base + ".png") != OK) {
-                                cache_valid = false;
-                            } else {
+                        if (img->load(cache_base + ".png") != OK) {
+                            cache_valid = false;
+                        } else {
 
-                                texture = make_ref_counted<ImageTexture>();
-                                texture->create_from_image(img, Texture::FLAG_FILTER);
+                            texture = make_ref_counted<ImageTexture>();
+                            texture->create_from_image(img, Texture::FLAG_FILTER);
 
-                                if (has_small_texture) {
-                                    if (small_img->load(cache_base + "_small.png") != OK) {
-                                        cache_valid = false;
-                                    } else {
-                                        small_texture = make_ref_counted<ImageTexture>();
-                                        small_texture->create_from_image(small_img, Texture::FLAG_FILTER);
-                                    }
+                            if (has_small_texture) {
+                                if (small_img->load(cache_base + "_small.png") != OK) {
+                                    cache_valid = false;
+                                } else {
+                                    small_texture = make_ref_counted<ImageTexture>();
+                                    small_texture->create_from_image(small_img, Texture::FLAG_FILTER);
                                 }
                             }
                         }
-
-                        if (!cache_valid) {
-
-                            _generate_preview(texture, small_texture, item, cache_base);
-                        }
                     }
-                    _preview_ready(item.path, texture, small_texture, item.id, item.function, item.userdata);
-                }
-            }
 
-        } else {
-            preview_mutex->unlock();
+                    if (!cache_valid) {
+
+                        _generate_preview(texture, small_texture, item, cache_base);
+                    }
+                }
+                _preview_ready(item.path, texture, small_texture, item.id, item.function, item.userdata);
+            }
         }
     }
 #endif
@@ -406,8 +405,9 @@ void EditorResourcePreview::add_preview_generator(const Ref<EditorResourcePrevie
 }
 
 void EditorResourcePreview::remove_preview_generator(const Ref<EditorResourcePreviewGenerator> &p_generator) {
-
-    preview_generators.erase(p_generator);
+    auto iter = eastl::find(preview_generators.begin(), preview_generators.end(), p_generator);
+    if(iter!= preview_generators.end())
+        preview_generators.erase(iter);
 }
 
 EditorResourcePreview *EditorResourcePreview::get_singleton() {

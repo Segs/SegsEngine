@@ -148,8 +148,7 @@ Dictionary Engine::get_author_info() const {
 
 Array Engine::get_copyright_info() const {
     Array components;
-    for (int component_index = 0; component_index < COPYRIGHT_INFO_COUNT; component_index++) {
-        const ComponentCopyright &cp_info = COPYRIGHT_INFO[component_index];
+    for (const ComponentCopyright &cp_info : COPYRIGHT_INFO) {
         Dictionary component_dict;
         component_dict["name"] = cp_info.name;
         Array parts;

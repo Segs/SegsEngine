@@ -69,8 +69,8 @@ public:
 	void set_allow_object_decoding(bool p_enable);
 	bool is_object_decoding_allowed() const;
 
-	PacketPeer() {}
-	~PacketPeer() override {}
+	PacketPeer() = default;
+	~PacketPeer() override = default;
 };
 
 class PacketPeerStream : public PacketPeer {

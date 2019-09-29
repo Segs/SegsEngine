@@ -88,7 +88,7 @@ public:
     String recognize(FileAccess *p_f);
     void get_dependencies(FileAccess *p_f, ListPOD<String> *p_dependencies, bool p_add_types);
 
-    ResourceInteractiveLoaderBinary() {}
+    ResourceInteractiveLoaderBinary() = default;
     ~ResourceInteractiveLoaderBinary() override;
 };
 

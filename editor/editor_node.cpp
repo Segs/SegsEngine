@@ -4263,8 +4263,8 @@ void EditorNode::_dock_select_draw() {
     s.y /= 2.0;
     s.x /= 6.0;
 
-    Color used = Color(0.6, 0.6, 0.6, 0.8);
-    Color used_selected = Color(0.8, 0.8, 0.8, 0.8);
+    Color used = Color(0.6f, 0.6f, 0.6f, 0.8);
+    Color used_selected = Color(0.8f, 0.8, 0.8, 0.8);
     Color tab_selected = theme_base->get_color("mono_color", "Editor");
     Color unused = used;
     unused.a = 0.4;

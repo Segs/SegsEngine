@@ -38,7 +38,7 @@
 #define POW2(v) ((v) * (v))
 
 /* Helper */
-static int solve_quadratic(float a, float b, float c, float *r1, float *r2) {
+static int solve_quadratic(double a, double b, double c, double *r1, double *r2) {
     //solves quadractic and returns number of roots
 
     float base = 2 * a;
@@ -68,13 +68,13 @@ EQ::BandProcess::BandProcess() {
 
 void EQ::recalculate_band_coefficients() {
 
-#define BAND_LOG(m_f) (std::log((m_f)) / std::log(2.f))
+#define BAND_LOG(m_f) (std::log((m_f)) / std::log(2.0))
 
     for (int i = 0; i < band.size(); i++) {
 
-        float octave_size;
+        double octave_size;
 
-        float frq = band[i].freq;
+        double frq = band[i].freq;
 
         if (i == 0) {
 
@@ -84,33 +84,33 @@ void EQ::recalculate_band_coefficients() {
             octave_size = BAND_LOG(frq) - BAND_LOG(band[i - 1].freq);
         } else {
 
-            float next = BAND_LOG(band[i + 1].freq) - BAND_LOG(frq);
-            float prev = BAND_LOG(frq) - BAND_LOG(band[i - 1].freq);
+            double next = BAND_LOG(band[i + 1].freq) - BAND_LOG(frq);
+            double prev = BAND_LOG(frq) - BAND_LOG(band[i - 1].freq);
             octave_size = (next + prev) / 2.0f;
         }
 
-        float frq_l = std::round(frq / std::pow(2.0f, octave_size / 2.0f));
+        double frq_l = std::round(frq / std::pow(2.0f, octave_size / 2.0f));
 
-        float side_gain2 = POW2(Math_SQRT12);
-        float th = 2.0f * Math_PI * frq / mix_rate;
-        float th_l = 2.0f * Math_PI * frq_l / mix_rate;
+        double side_gain2 = POW2(Math_SQRT12);
+        double th = 2.0f * Math_PI * frq / mix_rate;
+        double th_l = 2.0f * Math_PI * frq_l / mix_rate;
 
-        float c2a = side_gain2 * POW2(std::cos(th)) - 2.0f * side_gain2 * std::cos(th_l) * std::cos(th) + side_gain2 - POW2(std::sin(th_l));
+        double c2a = side_gain2 * POW2(std::cos(th)) - 2.0f * side_gain2 * std::cos(th_l) * std::cos(th) + side_gain2 - POW2(std::sin(th_l));
 
-        float c2b = 2.0f * side_gain2 * POW2(std::cos(th_l)) + side_gain2 * POW2(std::cos(th)) - 2.0f * side_gain2 * std::cos(th_l) * std::cos(th) - side_gain2 + POW2(std::sin(th_l));
+        double c2b = 2.0f * side_gain2 * POW2(std::cos(th_l)) + side_gain2 * POW2(std::cos(th)) - 2.0 * side_gain2 * std::cos(th_l) * std::cos(th) - side_gain2 + POW2(std::sin(th_l));
 
-        float c2c = 0.25f * side_gain2 * POW2(std::cos(th)) - 0.5f * side_gain2 * std::cos(th_l) * std::cos(th) + 0.25f * side_gain2 - 0.25f * POW2(std::sin(th_l));
+        double c2c = 0.25f * side_gain2 * POW2(std::cos(th)) - 0.5 * side_gain2 * std::cos(th_l) * std::cos(th) + 0.25 * side_gain2 - 0.25 * POW2(std::sin(th_l));
 
         //printf("band %i, precoefs = %f,%f,%f\n",i,c2a,c2b,c2c);
 
-        float r1, r2; //roots
+        double r1, r2; //roots
         int roots = solve_quadratic(c2a, c2b, c2c, &r1, &r2);
 
         ERR_CONTINUE(roots == 0)
 
-        band.write[i].c1 = 2.0f * ((0.5f - r1) / 2.0f);
-        band.write[i].c2 = 2.0f * r1;
-        band.write[i].c3 = 2.0f * (0.5f + r1) * std::cos(th);
+        band.write[i].c1 = 2.0 * ((0.5 - r1) / 2.0f);
+        band.write[i].c2 = 2.0 * r1;
+        band.write[i].c3 = 2.0 * (0.5 + r1) * std::cos(th);
         //printf("band %i, coefs = %f,%f,%f\n",i,(float)bands[i].c1,(float)bands[i].c2,(float)bands[i].c3);
     }
 }

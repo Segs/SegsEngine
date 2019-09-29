@@ -28,11 +28,11 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef VECTOR2_H
-#define VECTOR2_H
+#pragma once
 
 #include "core/math/math_funcs.h"
 #include "core/error_macros.h"
+#include <type_traits>
 
 class String;
 
@@ -153,6 +153,7 @@ struct Vector2 {
     _FORCE_INLINE_ constexpr Vector2() : x(0),y(0) {
     }
 };
+static_assert (std::is_trivially_copyable<Vector2>() );
 
 _FORCE_INLINE_ Vector2 Vector2::plane_project(real_t p_d, const Vector2 &p_vec) const {
 
@@ -305,8 +306,8 @@ struct Vector2i {
     void operator/=(const int &rvalue);
 
     Vector2i operator-() const;
-    bool operator<(const Vector2i &p_vec2) const { return (x == p_vec2.x) ? (y < p_vec2.y) : (x < p_vec2.x); }
-    bool operator>(const Vector2i &p_vec2) const { return (x == p_vec2.x) ? (y > p_vec2.y) : (x > p_vec2.x); }
+    bool operator<(Vector2i p_vec2) const { return (x == p_vec2.x) ? (y < p_vec2.y) : (x < p_vec2.x); }
+    bool operator>(Vector2i p_vec2) const { return (x == p_vec2.x) ? (y > p_vec2.y) : (x > p_vec2.x); }
 
     bool operator==(const Vector2i &p_vec2) const;
     bool operator!=(const Vector2i &p_vec2) const;
@@ -316,7 +317,7 @@ struct Vector2i {
 	operator String() const;
 
     operator Vector2() const { return Vector2(float(x), float(y)); }
-    inline Vector2i(const Vector2 &p_vec2) {
+    inline Vector2i(Vector2 p_vec2) {
         x = (int)p_vec2.x;
         y = (int)p_vec2.y;
     }
@@ -332,5 +333,3 @@ struct Vector2i {
 
 using Size2i = Vector2i;
 using Point2i = Vector2i;
-
-#endif // VECTOR2_H

@@ -86,6 +86,6 @@ public:
 
 	Error get_error() const override;
 
-	FileAccessBuffered() {}
+	FileAccessBuffered() = default;
 	~FileAccessBuffered() override = default ;
 };

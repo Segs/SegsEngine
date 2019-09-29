@@ -50,8 +50,8 @@ public:
 	void invert();
 	void transpose();
 
-	Basis inverse() const;
-	Basis transposed() const;
+	[[nodiscard]] Basis inverse() const;
+	[[nodiscard]] Basis transposed() const;
 
 	_FORCE_INLINE_ real_t determinant() const;
 

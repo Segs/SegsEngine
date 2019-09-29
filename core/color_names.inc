@@ -2,8 +2,8 @@
 #include "core/map.h"
 #include "core/ustring.h"
 static Map<const char *, Color> _named_colors = {
-    {"aliceblue",Color(0.94f, 0.97, 1.00)},
-    {"antiquewhite",Color(0.98f, 0.92, 0.84)},
+    {"aliceblue",Color(0.94f, 0.97f, 1.00f)},
+    {"antiquewhite",Color(0.98f, 0.92f, 0.84f)},
     {"aqua",Color(0.00f, 1.00f, 1.00f)},
     {"aquamarine",Color(0.50f, 1.00f, 0.83f)},
     {"azure",Color(0.94f, 1.00f, 1.00f)},

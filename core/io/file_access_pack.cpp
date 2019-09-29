@@ -307,4 +307,4 @@ DirAccessPack::DirAccessPack() {
     cdir = false;
 }
 
-DirAccessPack::~DirAccessPack() {}
+DirAccessPack::~DirAccessPack() = default;

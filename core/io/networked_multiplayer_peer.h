@@ -74,6 +74,6 @@ public:
 
     virtual ConnectionStatus get_connection_status() const = 0;
 
-    NetworkedMultiplayerPeer() {}
+    NetworkedMultiplayerPeer() = default;
 };
 

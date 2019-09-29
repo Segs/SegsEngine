@@ -163,10 +163,10 @@ void AnimationTrackEditColor::draw_key(int p_index, float p_pixels_sec, int p_x,
 
     Rect2 rect(Vector2(p_x - fh / 2, int(get_size().height - fh) / 2), Size2(fh, fh));
 
-    draw_rect_clipped(Rect2(rect.position, rect.size / 2), Color(0.4, 0.4, 0.4));
-    draw_rect_clipped(Rect2(rect.position + rect.size / 2, rect.size / 2), Color(0.4, 0.4, 0.4));
-    draw_rect_clipped(Rect2(rect.position + Vector2(rect.size.x / 2, 0), rect.size / 2), Color(0.6, 0.6, 0.6));
-    draw_rect_clipped(Rect2(rect.position + Vector2(0, rect.size.y / 2), rect.size / 2), Color(0.6, 0.6, 0.6));
+    draw_rect_clipped(Rect2(rect.position, rect.size / 2), Color(0.4f, 0.4f, 0.4f));
+    draw_rect_clipped(Rect2(rect.position + rect.size / 2, rect.size / 2), Color(0.4f, 0.4f, 0.4f));
+    draw_rect_clipped(Rect2(rect.position + Vector2(rect.size.x / 2, 0), rect.size / 2), Color(0.6f, 0.6f, 0.6f));
+    draw_rect_clipped(Rect2(rect.position + Vector2(0, rect.size.y / 2), rect.size / 2), Color(0.6f, 0.6f, 0.6f));
     draw_rect_clipped(rect, color);
 
     if (p_selected) {

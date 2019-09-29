@@ -417,11 +417,8 @@ EditorSettingsDialog::EditorSettingsDialog() {
 
     // General Tab
 
-    search_box = memnew(LineEdit);
-    tab_general = memnew(VBoxContainer);
-    inspector = memnew(SectionedInspector);
-    restart_container = memnew(PanelContainer);
 
+    tab_general = memnew(VBoxContainer);
     tabs->add_child(tab_general);
     tab_general->set_name(TTR("General"));
 
@@ -429,9 +426,11 @@ EditorSettingsDialog::EditorSettingsDialog() {
     hbc->set_h_size_flags(Control::SIZE_EXPAND_FILL);
     tab_general->add_child(hbc);
 
+    search_box = memnew(LineEdit);
     search_box->set_h_size_flags(Control::SIZE_EXPAND_FILL);
     hbc->add_child(search_box);
 
+    inspector = memnew(SectionedInspector);
     //inspector->hide_top_label();
     inspector->get_inspector()->set_use_filter(true);
     inspector->register_search_box(search_box);
@@ -441,6 +440,7 @@ EditorSettingsDialog::EditorSettingsDialog() {
     inspector->get_inspector()->connect("property_edited", this, "_settings_property_edited");
     inspector->get_inspector()->connect("restart_requested", this, "_editor_restart_request");
 
+    restart_container = memnew(PanelContainer);
     tab_general->add_child(restart_container);
     HBoxContainer *restart_hb = memnew(HBoxContainer);
     restart_container->add_child(restart_hb);

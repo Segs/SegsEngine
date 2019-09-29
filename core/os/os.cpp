@@ -43,6 +43,7 @@
 #include "core/print_string.h"
 #include "core/object_db.h"
 
+#include <QtCore/QStandardPaths>
 #include <cstdarg>
 #include <codecvt>
 
@@ -351,20 +352,17 @@ String OS::get_godot_dir_name() const {
 
 // OS equivalent of XDG_DATA_HOME
 String OS::get_data_path() const {
-
-    return ".";
+    return QStandardPaths::standardLocations(QStandardPaths::AppDataLocation).front();
 }
 
 // OS equivalent of XDG_CONFIG_HOME
 String OS::get_config_path() const {
-
-    return ".";
+    return QStandardPaths::standardLocations(QStandardPaths::AppConfigLocation).front();
 }
 
 // OS equivalent of XDG_CACHE_HOME
 String OS::get_cache_path() const {
-
-    return ".";
+    return QStandardPaths::standardLocations(QStandardPaths::CacheLocation).front();
 }
 
 // OS specific path for user://
@@ -380,9 +378,19 @@ String OS::get_resource_dir() const {
 }
 
 // Access system-specific dirs like Documents, Downloads, etc.
-String OS::get_system_dir(SystemDir /*p_dir*/) const {
-
-    return ".";
+String OS::get_system_dir(SystemDir p_dir) {
+    QStandardPaths::StandardLocation translated = QStandardPaths::DocumentsLocation;
+    switch (p_dir) {
+        case SYSTEM_DIR_DESKTOP: translated = QStandardPaths::DesktopLocation; break;
+        case SYSTEM_DIR_DCIM:  translated = QStandardPaths::PicturesLocation; break;
+        case SYSTEM_DIR_DOCUMENTS:  translated = QStandardPaths::DocumentsLocation; break;
+        case SYSTEM_DIR_DOWNLOADS:  translated = QStandardPaths::DownloadLocation; break;
+        case SYSTEM_DIR_MOVIES:  translated = QStandardPaths::MoviesLocation; break;
+        case SYSTEM_DIR_MUSIC:  translated = QStandardPaths::MusicLocation; break;
+        case SYSTEM_DIR_PICTURES:  translated = QStandardPaths::PicturesLocation; break;
+        default: ;
+    }
+    return QStandardPaths::standardLocations(translated).front();
 }
 
 Error OS::shell_open(String p_uri) {
@@ -516,8 +524,7 @@ void OS::swap_buffers() {
 }
 
 String OS::get_unique_id() const {
-
-    ERR_FAIL_V("");
+    return QString::fromLatin1(QSysInfo::machineUniqueId());
 }
 
 int OS::get_processor_count() const {
