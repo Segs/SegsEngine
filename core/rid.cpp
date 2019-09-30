@@ -32,7 +32,6 @@
 
 #include "core/list.h"
 
-RID_Data::~RID_Data() {}
 
 SafeRefCount RID_OwnerBase::refcount;
 

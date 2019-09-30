@@ -83,7 +83,7 @@ void ImageLoader::register_plugin_resolver()
     }
 }
 
-Error ImageLoader::load_image(const String& p_file, Ref<Image> p_image, FileAccess *p_custom, const LoadParams &params) {
+Error ImageLoader::load_image(const String& p_file, const Ref<Image> &p_image, FileAccess *p_custom, const LoadParams &params) {
     ERR_FAIL_COND_V_CMSG(not p_image, ERR_INVALID_PARAMETER, "It's not a reference to a valid Image object.")
 
     register_plugin_resolver();

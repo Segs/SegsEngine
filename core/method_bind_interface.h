@@ -50,10 +50,10 @@ protected:
     void _set_returns(bool p_returns);
 #ifdef DEBUG_METHODS_ENABLED
     virtual PropertyInfo _gen_argument_type_info(int p_arg) const = 0;
+    virtual GodotTypeInfo::Metadata do_get_argument_meta(int p_arg) const = 0;
 #endif
     void set_argument_count(int p_count) { argument_count = p_count; }
     virtual Variant do_call(Object *p_object, const Variant **p_args, int p_arg_count, Variant::CallError &r_error)=0;
-    virtual GodotTypeInfo::Metadata do_get_argument_meta(int p_arg) const = 0;
 public:
     const Vector<Variant> &get_default_arguments() const { return default_arguments; }
     _FORCE_INLINE_ int get_default_argument_count() const { return default_argument_count; }

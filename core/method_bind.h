@@ -176,6 +176,7 @@ struct ArgumentWrapper {
         return provided_args[IDX];
     }
 };
+#ifdef DEBUG_METHODS_ENABLED
 
 struct GetPropertyType {
     using Result = PropertyInfo;
@@ -184,7 +185,7 @@ struct GetPropertyType {
         return GetTypeInfo<typename std::remove_cv<typename std::remove_reference<TS>::type>::type>::get_class_info();
     }
 };
-
+#endif
 template<class T, class RESULT,typename ...Args>
 class MethodBindVA final : public MethodBind {
 
@@ -233,11 +234,11 @@ public:
     constexpr static bool (*verifiers[sizeof...(Args)])(const Variant &) = {
         VariantObjectClassChecker<Args>::check ...
     };
+#ifdef DEBUG_METHODS_ENABLED
     constexpr static GodotTypeInfo::Metadata s_metadata[sizeof...(Args)+1] = {
         GetTypeInfo<typename std::conditional<std::is_same_v<void,RESULT>, bool , RESULT>::type >::METADATA,
         GetTypeInfo<typename std::decay<Args>::type>::METADATA ...
     };
-#ifdef DEBUG_METHODS_ENABLED
     GodotTypeInfo::Metadata do_get_argument_meta(int p_arg) const override {
         return s_metadata[p_arg+1];
     }

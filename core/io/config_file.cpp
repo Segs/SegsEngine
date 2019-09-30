@@ -309,4 +309,4 @@ void ConfigFile::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("save_encrypted_pass", {"path", "pass"}), &ConfigFile::save_encrypted_pass);
 }
 
-ConfigFile::ConfigFile() {}
+ConfigFile::ConfigFile() = default;

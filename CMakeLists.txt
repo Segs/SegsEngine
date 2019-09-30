@@ -32,7 +32,7 @@ add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
 
 include(LocateQt5)
 find_package(Qt5 COMPONENTS Core REQUIRED)
-
+#find_package(Dotnet)
 include(GenerateExportHeader)
 include(Helpers)
 include(PluginSupport)
@@ -140,8 +140,6 @@ OPTION(OPTION_XML "XML format support for resources" ON)
 
 # # Advanced options
 OPTION(OPTION_DISABLE_ADVANCED_GUI "Disable advanced 3D gui nodes and behaviors" OFF)
-OPTION(OPTION_VERBOSE "Enable verbose output for the compilation" OFF)
-OPTION(OPTION_PROGRESS "Show a progress indicator during build" ON)
 OPTION(OPTION_DEV "If yes, alias for verbose=yes warnings=all" OFF)
 
 # # Thirdparty libraries
@@ -197,7 +195,9 @@ endif()
 if(OPTION_PRECISE_MATH_CHECKS)
     add_definitions(-DPRECISE_MATH_CHECKS)
 endif()
-
+if((${CMAKE_BUILD_TYPE} STREQUAL "Debug") OR (${CMAKE_BUILD_TYPE} STREQUAL "RelWithDebInfo"))
+    add_definitions(-DDEBUG_ENABLED)
+endif()
 add_subdirectory("${PROJECT_SOURCE_DIR}/thirdparty/zstd")
 
 

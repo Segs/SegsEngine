@@ -455,7 +455,7 @@ class AnimationTrackEditor : public VBoxContainer {
     void _edit_menu_pressed(int p_option);
     int last_menu_track_opt;
 
-    void _cleanup_animation(Ref<Animation> p_animation);
+    void _cleanup_animation(const Ref<Animation> &p_animation);
 
     void _anim_duplicate_keys(bool transpose);
 

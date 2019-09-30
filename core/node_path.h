@@ -56,8 +56,8 @@ public:
 	StringName get_name(int p_idx) const;
 	int get_subname_count() const;
 	StringName get_subname(int p_idx) const;
-	Vector<StringName> get_names() const;
-	Vector<StringName> get_subnames() const;
+    const Vector<StringName> &get_names() const;
+    const Vector<StringName> &get_subnames() const;
 	StringName get_concatenated_subnames() const;
 
 	NodePath rel_path_to(const NodePath &p_np) const;
@@ -81,7 +81,7 @@ public:
 
 	bool operator==(const NodePath &p_path) const;
 	bool operator!=(const NodePath &p_path) const;
-	void operator=(const NodePath &p_path);
+    NodePath &operator=(const NodePath &p_path);
 
 	void simplify();
 	NodePath simplified() const;
@@ -89,6 +89,11 @@ public:
 	NodePath(const Vector<StringName> &p_path, bool p_absolute);
 	NodePath(const Vector<StringName> &p_path, const Vector<StringName> &p_subpath, bool p_absolute);
 	NodePath(const NodePath &p_path);
+    NodePath(NodePath &&p_path) noexcept : data(p_path.data),hash_cache_valid(p_path.hash_cache_valid),hash_cache(p_path.hash_cache) {
+        p_path.data = nullptr;
+        p_path.hash_cache_valid = false;
+        p_path.hash_cache = 0;
+    }
     explicit NodePath(const String &p_path);
 	NodePath();
 	~NodePath();

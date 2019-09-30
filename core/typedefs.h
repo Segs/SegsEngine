@@ -37,7 +37,7 @@
 #endif
 #include <cstddef>
 
-#ifndef NDEBUG
+#ifdef DEBUG_ENABLED
 #define DEBUG_METHODS_ENABLED
 #endif
 
@@ -101,13 +101,6 @@ T *_nullptr() {
 
 #define OFFSET_OF(st, m) \
     ((size_t)((char *)&(_nullptr<st>()->m) - (char *)0))
-/**
- * Some platforms (devices) don't define NULL
- */
-
-#ifndef NULL
-#define NULL 0
-#endif
 
 /**
  * Windows badly defines a lot of stuff we'll never use. Undefine it.

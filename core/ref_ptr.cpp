@@ -63,7 +63,7 @@ RefPtr::RefPtr(const RefPtr &p_other) {
 bool RefPtr::is_null() const {
 
     Ref<Reference> *ref = reinterpret_cast<Ref<Reference> *>(&data);
-    return not (*ref);
+    return data==0 || not (*ref);
 }
 
 RID RefPtr::get_rid() const {
@@ -78,7 +78,8 @@ RID RefPtr::get_rid() const {
 }
 
 void RefPtr::unref() {
-
+    if(0==data)
+        return;
     Ref<Reference> *ref = reinterpret_cast<Ref<Reference> *>(&data);
     ref->unref();
 }
@@ -89,7 +90,8 @@ RefPtr::RefPtr() {
 }
 
 RefPtr::~RefPtr() {
-
+    if(!data)
+        return;
     Ref<Reference> *ref = reinterpret_cast<Ref<Reference> *>(&data);
     ref->~Ref<Reference>();
 }

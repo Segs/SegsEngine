@@ -71,7 +71,7 @@ public:
         TKey key;
         TData data;
 
-        Pair() {}
+        constexpr Pair() = default;
         Pair(const TKey &p_key, const TData &p_data) :
                 key(p_key),
                 data(p_data) {
@@ -120,7 +120,7 @@ private:
 
     void erase_hash_table() {
 
-		ERR_FAIL_COND_CMSG(elements, "Cannot erase hash table if there are still elements inside.");
+        ERR_FAIL_COND_CMSG(elements, "Cannot erase hash table if there are still elements inside.")
 
         memdelete_arr(hash_table);
         hash_table = nullptr;

@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef FUNC_REF_H
-#define FUNC_REF_H
+#pragma once
 
 #include "core/reference.h"
 
@@ -48,8 +47,6 @@ public:
     void set_instance(Object *p_obj);
     void set_function(const StringName &p_func);
     bool is_valid() const;
-    FuncRef() {}
-    ~FuncRef() override;
+    FuncRef() = default;
+    ~FuncRef() override = default;
 };
-
-#endif // FUNC_REF_H

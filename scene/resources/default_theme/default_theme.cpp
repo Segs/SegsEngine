@@ -60,7 +60,7 @@ static Ref<StyleBoxTexture> make_stylebox(T p_src, float p_left, float p_top, fl
 
             img->convert(Image::FORMAT_RGBA8);
             img->expand_x2_hq2x();
-            if (scale != 2.0) {
+            if (scale != 2.0f) {
                 img->resize(orig_size.x * scale, orig_size.y * scale);
             }
         } else if (scale < 1) {

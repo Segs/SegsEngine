@@ -88,7 +88,7 @@ public:
     _FORCE_INLINE_ bool intersects_aabb2(const AABB &p_aabb) const;
     operator String() const;
 
-    Face3() {}
+    constexpr Face3() = default;
     inline Face3(Vector3 p_v1, Vector3 p_v2, Vector3 p_v3) {
         vertex[0] = p_v1;
         vertex[1] = p_v2;

@@ -114,8 +114,8 @@ public:
 
     static DirAccess *open(const String &p_path, Error *r_error = nullptr);
 
-    DirAccess() {}
-    virtual ~DirAccess() {}
+    DirAccess() = default;
+    virtual ~DirAccess() = default;
 };
 
 struct DirAccessRef {

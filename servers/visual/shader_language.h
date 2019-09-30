@@ -297,9 +297,8 @@ public:
         Type type;
 
         virtual DataType get_datatype() const { return TYPE_VOID; }
-        Node(Type t) :
-                type(t) {}
-        virtual ~Node() {}
+        Node(Type t) : type(t) {}
+        virtual ~Node() = default;
     };
 
     template <class T>

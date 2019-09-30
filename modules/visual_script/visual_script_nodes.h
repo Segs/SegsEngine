@@ -145,20 +145,20 @@ public:
     virtual bool is_input_port_name_editable() const;
     virtual bool is_input_port_type_editable() const;
 
-    virtual int get_output_sequence_port_count() const;
-    virtual bool has_input_sequence_port() const;
+    int get_output_sequence_port_count() const override;
+    bool has_input_sequence_port() const override;
 
-    virtual String get_output_sequence_port_text(int p_port) const;
+    String get_output_sequence_port_text(int p_port) const override;
 
-    virtual int get_input_value_port_count() const;
-    virtual int get_output_value_port_count() const;
+    int get_input_value_port_count() const override;
+    int get_output_value_port_count() const override;
 
-    virtual PropertyInfo get_input_value_port_info(int p_idx) const;
-    virtual PropertyInfo get_output_value_port_info(int p_idx) const;
+    PropertyInfo get_input_value_port_info(int p_idx) const override;
+    PropertyInfo get_output_value_port_info(int p_idx) const override;
 
-    virtual String get_caption() const = 0;
-    virtual String get_text() const = 0;
-    virtual String get_category() const = 0;
+    String get_caption() const override = 0;
+    String get_text() const override = 0;
+    String get_category() const override = 0;
 
     void add_input_data_port(VariantType p_type, const String &p_name, int p_index = -1);
     void set_input_data_port_type(int p_idx, VariantType p_type);
@@ -181,22 +181,22 @@ class VisualScriptComposeArray : public VisualScriptLists {
     GDCLASS(VisualScriptComposeArray, VisualScriptLists)
 
 public:
-    virtual int get_output_sequence_port_count() const;
-    virtual bool has_input_sequence_port() const;
+    int get_output_sequence_port_count() const override;
+    bool has_input_sequence_port() const override;
 
-    virtual String get_output_sequence_port_text(int p_port) const;
+    String get_output_sequence_port_text(int p_port) const override;
 
-    virtual int get_input_value_port_count() const;
-    virtual int get_output_value_port_count() const;
+    int get_input_value_port_count() const override;
+    int get_output_value_port_count() const override;
 
-    virtual PropertyInfo get_input_value_port_info(int p_idx) const;
-    virtual PropertyInfo get_output_value_port_info(int p_idx) const;
+    PropertyInfo get_input_value_port_info(int p_idx) const override;
+    PropertyInfo get_output_value_port_info(int p_idx) const override;
 
-    virtual String get_caption() const;
-    virtual String get_text() const;
-    virtual String get_category() const { return "functions"; }
+    String get_caption() const override;
+    String get_text() const override;
+    String get_category() const override { return "functions"; }
 
-    virtual VisualScriptNodeInstance *instance(VisualScriptInstance *p_instance);
+    VisualScriptNodeInstance *instance(VisualScriptInstance *p_instance) override;
 
     VisualScriptComposeArray();
 };

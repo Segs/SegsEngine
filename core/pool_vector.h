@@ -323,7 +323,7 @@ public:
             this->_ref(p_read.alloc);
         }
 
-        Read() {}
+        Read() = default;
     };
 
     class Write : public Access {
@@ -331,18 +331,19 @@ public:
         _FORCE_INLINE_ T &operator[](int p_index) const { return this->mem[p_index]; }
         _FORCE_INLINE_ T *ptr() const { return this->mem; }
 
-        void operator=(const Write &p_read) {
+        Write &operator=(const Write &p_read) {
             if (this->alloc == p_read.alloc)
-                return;
+                return *this;
             this->_unref();
             this->_ref(p_read.alloc);
+            return *this;
         }
 
         Write(const Write &p_read) {
             this->_ref(p_read.alloc);
         }
 
-        Write() {}
+        Write() = default;
     };
 
     Read read() const {
@@ -454,7 +455,7 @@ public:
 
     void invert();
 
-    void operator=(const PoolVector &p_pool_vector) { _reference(p_pool_vector); }
+    PoolVector & operator=(const PoolVector &p_pool_vector) { _reference(p_pool_vector); return *this; }
     PoolVector & operator=(PoolVector &&p_pool_vector) {
         if (this == &p_pool_vector || this->alloc==p_pool_vector.alloc)
         {

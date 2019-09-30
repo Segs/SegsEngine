@@ -19,7 +19,7 @@ public:
         Variant default_value;
 
         ImportOption(const PropertyInfo &p_info, const Variant &p_default) : option(p_info), default_value(p_default) {}
-        ImportOption() {}
+        ImportOption() = default;
     };
     void set_editor_interface(EditorServiceInterface *i) { m_editor_interface = i; }
 

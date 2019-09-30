@@ -83,11 +83,6 @@ bool FuncRef::is_valid() const {
     return obj->has_method(function);
 }
 
-FuncRef::~FuncRef()
-{
-
-}
-
 void FuncRef::_bind_methods() {
 
     {

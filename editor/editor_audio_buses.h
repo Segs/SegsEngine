@@ -240,7 +240,7 @@ private:
 			return *this;
 		}
 
-		_FORCE_INLINE_ AudioNotch() {}
+        _FORCE_INLINE_ AudioNotch() = default;
 	};
 
 	List<AudioNotch> notches;

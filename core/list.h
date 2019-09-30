@@ -431,7 +431,7 @@ public:
     /**
      * copy the list
      */
-    void operator=(const List &p_list) {
+    List &operator=(const List &p_list) {
 
         clear();
         const Element *it = p_list.front();
@@ -440,6 +440,7 @@ public:
             push_back(it->deref());
             it = it->next();
         }
+        return *this;
     }
 
     List &operator=(List &&p_list) {

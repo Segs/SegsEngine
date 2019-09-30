@@ -1015,7 +1015,7 @@ MethodBind *ClassDB::bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const M
     StringName mdname = method_name.name;
 #else
 MethodBind *ClassDB::bind_methodfi(
-        uint32_t p_flags, MethodBind *p_bind, const char *method_name, std::initializer_list<Variant> p_defcount) {
+        uint32_t p_flags, MethodBind *p_bind, const char *method_name, std::initializer_list<Variant> def_vals) {
     StringName mdname = StaticCString(method_name, true);
 #endif
 

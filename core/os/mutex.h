@@ -52,7 +52,7 @@ public:
 
     static Mutex *create(bool p_recursive = true); ///< Create a mutex
 
-    virtual ~Mutex() {}
+    virtual ~Mutex() = default;
 };
 
 class GODOT_EXPORT MutexLock {

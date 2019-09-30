@@ -576,10 +576,7 @@ public:
 
 		Vector3 n3 = (p_v1 - p_point).cross(p_v1 - p_v2);
 
-		if (face_n.dot(n3) < 0)
-			return false;
-
-		return true;
+        return face_n.dot(n3) >= 0;
 	}
 
 	static inline bool triangle_sphere_intersection_test(const Vector3 *p_triangle, const Vector3 &p_normal, const Vector3 &p_sphere_pos, real_t p_sphere_radius, Vector3 &r_triangle_contact, Vector3 &r_sphere_contact) {
