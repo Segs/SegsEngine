@@ -115,7 +115,7 @@ private:
     void _generate_node(ImportState &state, Skeleton *skeleton, const aiNode *assimp_node, Node *parent_node);
     // runs after _generate_node as it must then use pre-created godot skeleton.
     void generate_mesh_phase_from_skeletal_mesh(ImportState &state);
-    void _insert_animation_track(ImportState &scene, const aiAnimation *assimp_anim, int p_track, int p_bake_fps, Ref<Animation> animation, float ticks_per_second, Skeleton *p_skeleton, const NodePath &p_path, const String &p_name);
+    void _insert_animation_track(ImportState &scene, const aiAnimation *assimp_anim, int p_track, int p_bake_fps, const Ref<Animation>& animation, float ticks_per_second, Skeleton *p_skeleton, const NodePath &p_path, const String &p_name);
 
     void _import_animation(ImportState &state, int p_animation_index, int p_bake_fps);
 

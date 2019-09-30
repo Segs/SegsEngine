@@ -244,12 +244,12 @@ void EditorExportPlatformOSX::_make_icon(const Ref<Image> &p_icon, Vector<uint8_
         { "is32", "s8mk", false, 16 } //16x16 24-bit RLE + 8-bit uncompressed mask
     };
 
-    for (uint64_t i = 0; i < (sizeof(icon_infos) / sizeof(icon_infos[0])); ++i) {
-        Ref<Image> copy = p_icon; // does this make sense? doesn't this just increase the reference count instead of making a copy? Do we even need a copy?
+    for (const MacOSIconInfo & icon_info : icon_infos) {
+        const Ref<Image> &copy(p_icon);
         copy->convert(Image::FORMAT_RGBA8);
-        copy->resize(icon_infos[i].size, icon_infos[i].size);
+        copy->resize(icon_info.size, icon_info.size);
 
-        if (icon_infos[i].is_png) {
+        if (icon_info.is_png) {
             // Encode PNG icon.
             it->create_from_image(copy);
             String path = PathUtils::plus_file(EditorSettings::get_singleton()->get_cache_dir(),"icon.png");
@@ -269,7 +269,7 @@ void EditorExportPlatformOSX::_make_icon(const Ref<Image> &p_icon, Vector<uint8_
             memdelete(f);
             len += 8;
             len = BSWAP32(len);
-            memcpy(&data.write[ofs], icon_infos[i].name, 4);
+            memcpy(&data.write[ofs], icon_info.name, 4);
             encode_uint32(len, &data.write[ofs + 4]);
 
             // Clean up generated file.
@@ -283,13 +283,13 @@ void EditorExportPlatformOSX::_make_icon(const Ref<Image> &p_icon, Vector<uint8_
                 int ofs = data.size();
                 data.resize(data.size() + 8);
 
-                _rgba8_to_packbits_encode(0, icon_infos[i].size, src_data, data); // encode R
-                _rgba8_to_packbits_encode(1, icon_infos[i].size, src_data, data); // encode G
-                _rgba8_to_packbits_encode(2, icon_infos[i].size, src_data, data); // encode B
+                _rgba8_to_packbits_encode(0, icon_info.size, src_data, data); // encode R
+                _rgba8_to_packbits_encode(1, icon_info.size, src_data, data); // encode G
+                _rgba8_to_packbits_encode(2, icon_info.size, src_data, data); // encode B
 
                 int len = data.size() - ofs;
                 len = BSWAP32(len);
-                memcpy(&data.write[ofs], icon_infos[i].name, 4);
+                memcpy(&data.write[ofs], icon_info.name, 4);
                 encode_uint32(len, &data.write[ofs + 4]);
             }
 
@@ -304,7 +304,7 @@ void EditorExportPlatformOSX::_make_icon(const Ref<Image> &p_icon, Vector<uint8_
                 }
                 len += 8;
                 len = BSWAP32(len);
-                memcpy(&data.write[ofs], icon_infos[i].mask_name, 4);
+                memcpy(&data.write[ofs], icon_info.mask_name, 4);
                 encode_uint32(len, &data.write[ofs + 4]);
             }
         }

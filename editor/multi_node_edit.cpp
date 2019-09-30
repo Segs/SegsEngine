@@ -188,5 +188,4 @@ void MultiNodeEdit::set_property_field(const StringName &p_property, const Varia
     _set_impl(p_property, p_value, p_field);
 }
 
-MultiNodeEdit::MultiNodeEdit() {
-}
+MultiNodeEdit::MultiNodeEdit() = default;

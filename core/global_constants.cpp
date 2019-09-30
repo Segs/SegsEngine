@@ -46,7 +46,7 @@ struct _GlobalConstant {
     const char *name;
     int value;
 
-    _GlobalConstant() {}
+    _GlobalConstant() = default;
 
 #ifdef DEBUG_METHODS_ENABLED
     _GlobalConstant(StringName p_enum_name, const char *p_name, int p_value) :

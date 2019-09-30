@@ -1296,5 +1296,4 @@ SceneTreeDialog::SceneTreeDialog() {
     vbc->add_child(tree);
 }
 
-SceneTreeDialog::~SceneTreeDialog() {
-}
+SceneTreeDialog::~SceneTreeDialog() = default;

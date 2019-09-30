@@ -112,34 +112,34 @@ Error AudioDriverALSA::init_device() {
 
     // set buffer size from project settings
     status = snd_pcm_hw_params_set_buffer_size_near(pcm_handle, hwparams, &buffer_size);
-    CHECK_FAIL(status < 0);
+    CHECK_FAIL(status < 0)
 
     status = snd_pcm_hw_params_set_period_size_near(pcm_handle, hwparams, &period_size, nullptr);
-    CHECK_FAIL(status < 0);
+    CHECK_FAIL(status < 0)
 
     print_verbose("Audio buffer frames: " + itos(period_size) + " calculated latency: " + itos(period_size * 1000 / mix_rate) + "ms");
 
     status = snd_pcm_hw_params_set_periods_near(pcm_handle, hwparams, &periods, nullptr);
-    CHECK_FAIL(status < 0);
+    CHECK_FAIL(status < 0)
 
     status = snd_pcm_hw_params(pcm_handle, hwparams);
-    CHECK_FAIL(status < 0);
+    CHECK_FAIL(status < 0)
 
     //snd_pcm_hw_params_free(&hwparams);
 
     snd_pcm_sw_params_alloca(&swparams);
 
     status = snd_pcm_sw_params_current(pcm_handle, swparams);
-    CHECK_FAIL(status < 0);
+    CHECK_FAIL(status < 0)
 
     status = snd_pcm_sw_params_set_avail_min(pcm_handle, swparams, period_size);
-    CHECK_FAIL(status < 0);
+    CHECK_FAIL(status < 0)
 
     status = snd_pcm_sw_params_set_start_threshold(pcm_handle, swparams, 1);
-    CHECK_FAIL(status < 0);
+    CHECK_FAIL(status < 0)
 
     status = snd_pcm_sw_params(pcm_handle, swparams);
-    CHECK_FAIL(status < 0);
+    CHECK_FAIL(status < 0)
 
     samples_in.resize(period_size * channels);
     samples_out.resize(period_size * channels);
@@ -343,10 +343,7 @@ AudioDriverALSA::AudioDriverALSA() :
         new_device("Default") {
 }
 
-AudioDriverALSA::~AudioDriverALSA()
-{
-
-}
+AudioDriverALSA::~AudioDriverALSA() = default;
 
 
 #endif

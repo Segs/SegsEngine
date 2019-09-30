@@ -289,4 +289,4 @@ void PHashTranslation::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("generate", {"from"}), &PHashTranslation::generate);
 }
 
-PHashTranslation::PHashTranslation() {}
+PHashTranslation::PHashTranslation() = default;

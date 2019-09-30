@@ -178,7 +178,7 @@ class SceneTreeDock : public VBoxContainer {
 
     void _node_selected();
     void _node_renamed();
-    void _script_created(Ref<Script> p_script);
+    void _script_created(const Ref<Script>& p_script);
     void _script_creation_closed();
 
     void _delete_confirm();
@@ -192,7 +192,7 @@ class SceneTreeDock : public VBoxContainer {
 
     void _nodes_drag_begin();
     void _input(const Ref<InputEvent>& p_event);
-    void _unhandled_key_input(Ref<InputEvent> p_event);
+    void _unhandled_key_input(const Ref<InputEvent>& p_event);
 
     void _import_subscene();
 

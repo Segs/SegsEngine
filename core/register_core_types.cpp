@@ -326,7 +326,7 @@ void unregister_core_types() {
         memdelete(ip);
 
     ResourceLoader::finalize();
-
+    ResourceSaver::finalize();
     ClassDB::cleanup_defaults();
     ObjectDB::cleanup();
 
@@ -341,7 +341,7 @@ void unregister_core_types() {
     if (_global_mutex) {
         memdelete(_global_mutex);
         _global_mutex = nullptr; //still needed at a few places
-    };
+    }
 
     MemoryPool::cleanup();
 }

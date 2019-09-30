@@ -1332,5 +1332,4 @@ ProjectExportDialog::ProjectExportDialog() {
     _update_export_all();
 }
 
-ProjectExportDialog::~ProjectExportDialog() {
-}
+ProjectExportDialog::~ProjectExportDialog() = default;

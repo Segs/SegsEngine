@@ -2194,7 +2194,7 @@ void Image::blit_rect_mask(const Ref<Image> &p_src, const Ref<Image> &p_mask, co
 
     int pixel_size = get_format_pixel_size(format);
 
-    Ref<Image> msk = p_mask;
+    const Ref<Image> &msk(p_mask);
     msk->lock();
 
     for (int i = 0; i < dest_rect.size.y; i++) {
@@ -2204,7 +2204,7 @@ void Image::blit_rect_mask(const Ref<Image> &p_src, const Ref<Image> &p_mask, co
             int src_x = clipped_src_rect.position.x + j;
             int src_y = clipped_src_rect.position.y + i;
 
-            if (msk->get_pixel(src_x, src_y).a != 0) {
+            if (msk->get_pixel(src_x, src_y).a != 0.0f) {
 
                 int dst_x = dest_rect.position.x + j;
                 int dst_y = dest_rect.position.y + i;

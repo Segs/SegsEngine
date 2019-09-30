@@ -223,9 +223,9 @@ bool AABB::intersects_plane(const Plane &p_plane) const {
     bool over = false;
     bool under = false;
 
-    for (int i = 0; i < 8; i++) {
+    for (auto point : points) {
 
-        if (p_plane.distance_to(points[i]) > 0)
+        if (p_plane.distance_to(point) > 0)
             over = true;
         else
             under = true;

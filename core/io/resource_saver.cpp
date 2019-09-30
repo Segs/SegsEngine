@@ -281,3 +281,8 @@ void ResourceSaver::remove_custom_savers() {
         remove_resource_format_saver(custom_savers[i]);
     }
 }
+
+void ResourceSaver::finalize()
+{
+    saver.clear();
+}

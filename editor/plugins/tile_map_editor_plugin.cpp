@@ -2189,5 +2189,4 @@ TileMapEditorPlugin::TileMapEditorPlugin(EditorNode *p_node) {
     tile_map_editor->hide();
 }
 
-TileMapEditorPlugin::~TileMapEditorPlugin() {
-}
+TileMapEditorPlugin::~TileMapEditorPlugin() = default;

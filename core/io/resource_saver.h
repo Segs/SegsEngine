@@ -81,4 +81,5 @@ public:
     static void remove_custom_resource_format_saver(const String& script_path);
     static void add_custom_savers();
     static void remove_custom_savers();
+    static void finalize();
 };

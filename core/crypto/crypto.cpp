@@ -103,7 +103,7 @@ Ref<X509Certificate> Crypto::generate_self_signed_certificate(Ref<CryptoKey> p_k
     ERR_FAIL_V_CMSG(Ref<X509Certificate>(), "generate_self_signed_certificate is not available when mbedtls module is disabled.")
 }
 
-Crypto::Crypto() {}
+Crypto::Crypto() = default;
 
 /// Resource loader/saver
 
@@ -157,7 +157,7 @@ Error ResourceFormatSaverCrypto::save(const String &p_path, const RES &p_resourc
     } else {
         ERR_FAIL_V(ERR_INVALID_PARAMETER)
     }
-	ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot save Crypto resource to file '" + p_path + "'.")
+    ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot save Crypto resource to file '" + p_path + "'.")
     return OK;
 }
 

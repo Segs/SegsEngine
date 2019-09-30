@@ -118,8 +118,7 @@ public:
         _change_notify();
     }
 
-    ScriptEditorDebuggerVariables() {
-    }
+    ScriptEditorDebuggerVariables() = default;
 };
 IMPL_GDCLASS(ScriptEditorDebuggerVariables)
 
@@ -1621,9 +1620,9 @@ void ScriptEditorDebugger::_method_changed(Object *p_base, const StringName &p_n
 
     VARIANT_ARGPTRS
 
-    for (int i = 0; i < VARIANT_ARG_MAX; i++) {
+    for (const Variant *i : argptr) {
         //no pointers, sorry
-        if (argptr[i] && (argptr[i]->get_type() == VariantType::OBJECT || argptr[i]->get_type() == VariantType::_RID))
+        if (i && (i->get_type() == VariantType::OBJECT || i->get_type() == VariantType::_RID))
             return;
     }
 
@@ -1636,9 +1635,9 @@ void ScriptEditorDebugger::_method_changed(Object *p_base, const StringName &p_n
         msg.push_back("live_node_call");
         msg.push_back(pathid);
         msg.push_back(p_name);
-        for (int i = 0; i < VARIANT_ARG_MAX; i++) {
+        for (const Variant *i : argptr) {
             //no pointers, sorry
-            msg.push_back(*argptr[i]);
+            msg.push_back(*i);
         }
         ppeer->put_var(msg);
 
@@ -1656,9 +1655,9 @@ void ScriptEditorDebugger::_method_changed(Object *p_base, const StringName &p_n
         msg.push_back("live_res_call");
         msg.push_back(pathid);
         msg.push_back(p_name);
-        for (int i = 0; i < VARIANT_ARG_MAX; i++) {
+        for (const Variant *i : argptr) {
             //no pointers, sorry
-            msg.push_back(*argptr[i]);
+            msg.push_back(*i);
         }
         ppeer->put_var(msg);
 

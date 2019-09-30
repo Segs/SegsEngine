@@ -5365,7 +5365,7 @@ void RasterizerSceneGLES3::iteration() {
 void RasterizerSceneGLES3::finalize() {
 }
 
-RasterizerSceneGLES3::RasterizerSceneGLES3() {}
+RasterizerSceneGLES3::RasterizerSceneGLES3() = default;
 
 RasterizerSceneGLES3::~RasterizerSceneGLES3() {
 
