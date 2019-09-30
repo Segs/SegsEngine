@@ -73,6 +73,7 @@
 #include "core/string_formatter.h"
 #include "servers/register_server_types.h"
 
+
 #ifdef TOOLS_ENABLED
 #include "editor/doc/doc_data.h"
 #include "editor/doc_data_class_path.gen.h"
@@ -82,6 +83,7 @@
 #include "editor/progress_dialog.h"
 #endif
 
+#include <QCoreApplication>
 /* Static members */
 
 // Singletons
@@ -208,7 +210,7 @@ void finalize_physics() {
 #define MAIN_PRINT(m_txt)
 #endif
 
-void Main::print_help(const char *p_binary) {
+void Main::print_help(const String &p_binary) {
 
     print_line(String(VERSION_NAME) + " v" + get_full_version_string() + " - " + String(VERSION_WEBSITE));
     OS::get_singleton()->print("Free and open source software under the terms of the MIT license.\n");
@@ -341,7 +343,7 @@ struct ArchivePluginResolver : public ResolverInterface
  * The initialization is typically done in 3 steps (with the setup2 step triggered either
  * automatically by setup, or manually in the platform's main).
  *
- * - setup(execpath, argc, argv, p_second_phase) is the main entry point for all platforms,
+ * - setup(p_second_phase) is the main entry point for all platforms,
  *   responsible for the initialization of all low level singletons and core types, and parsing
  *   command line arguments to configure things accordingly.
  *   If p_second_phase is true, it will chain into setup2() (default behaviour). This is
@@ -357,7 +359,7 @@ struct ArchivePluginResolver : public ResolverInterface
  *   start() does it own argument parsing for a subset of the command line arguments described
  *   in help, it's a bit messy and should be globalized with the setup() parsing somehow.
  */
-Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_phase) {
+Error Main::setup(bool p_second_phase) {
     RID_OwnerBase::init_rid();
 
     OS::get_singleton()->initialize_core();
@@ -394,25 +396,21 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
     MAIN_PRINT("Main: Parse CMDLine");
 
     /* argument parsing and main creation */
-    List<String> args;
+    ListPOD<String> args;
     ListPOD<String> main_args;
+    QStringList q_args = qApp->arguments();
+    String execpath = q_args.takeFirst();
 
-    for (int i = 0; i < argc; i++) {
-
-        args.push_back(StringUtils::from_utf8(argv[i]));
+    for (const QString &arg : q_args) {
+        args.push_back(arg);
     }
 
-    List<String>::Element *I = args.front();
+    ListPOD<String>::iterator I = args.begin();
 
-    I = args.front();
+    for(String &a : args) {
 
-    while (I) {
-
-        I->deref() = unescape_cmdline(StringUtils::strip_edges(I->deref()));
-        I = I->next();
+        a = unescape_cmdline(StringUtils::strip_edges(a));
     }
-
-    I = args.front();
 
     String video_driver = "";
     String audio_driver = "";
@@ -441,69 +439,69 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 
     add_plugin_resolver(new ArchivePluginResolver(packed_data));
 
-    I = args.front();
-    while (I) {
+    I = args.begin();
+    while (I!= args.end()) {
 
-        List<String>::Element *N = I->next();
+        ListPOD<String>::iterator N = eastl::next(I);
 
-        if (I->deref() == "-h" || I->deref() == "--help" || I->deref() == "/?") { // display help
+        if (*I == "-h" || *I == "--help" || *I == "/?") { // display help
 
             show_help = true;
             goto error;
 
-        } else if (I->deref() == "--version") {
+        } else if (*I == "--version") {
 
             print_line(get_full_version_string());
             goto error;
 
-        } else if (I->deref() == "-v" || I->deref() == "--verbose") { // verbose output
+        } else if (*I == "-v" || *I == "--verbose") { // verbose output
 
             OS::get_singleton()->_verbose_stdout = true;
-        } else if (I->deref() == "--quiet") { // quieter output
+        } else if (*I == "--quiet") { // quieter output
 
             quiet_stdout = true;
 
-        } else if (I->deref() == "--audio-driver") { // audio driver
+        } else if (*I == "--audio-driver") { // audio driver
 
-            if (I->next()) {
+            if (N != args.end()) {
 
-                audio_driver = I->next()->deref();
-                N = I->next()->next();
+                audio_driver =*N;
+                ++N;
             } else {
                 OS::get_singleton()->print("Missing audio driver argument, aborting.\n");
                 goto error;
             }
 
-        } else if (I->deref() == "--video-driver") { // force video driver
+        } else if (*I == "--video-driver") { // force video driver
 
-            if (I->next()) {
+            if (N != args.end()) {
 
-                video_driver = I->next()->deref();
-                N = I->next()->next();
+                video_driver = *N;
+                ++N;
             } else {
                 OS::get_singleton()->print("Missing video driver argument, aborting.\n");
                 goto error;
             }
 #ifndef SERVER_ENABLED
-        } else if (I->deref() == "-f" || I->deref() == "--fullscreen") { // force fullscreen
+        } else if (*I == "-f" || *I == "--fullscreen") { // force fullscreen
 
             init_fullscreen = true;
-        } else if (I->deref() == "-m" || I->deref() == "--maximized") { // force maximized window
+        } else if (*I == "-m" || *I == "--maximized") { // force maximized window
 
             init_maximized = true;
             video_mode.maximized = true;
 
-        } else if (I->deref() == "-w" || I->deref() == "--windowed") { // force windowed window
+        } else if (*I == "-w" || *I == "--windowed") { // force windowed window
 
             init_windowed = true;
-        } else if (I->deref() == "-t" || I->deref() == "--always-on-top") { // force always-on-top window
+        } else if (*I == "-t" || *I == "--always-on-top") { // force always-on-top window
 
             init_always_on_top = true;
-        } else if (I->deref() == "--resolution") { // force resolution
+        } else if (*I == "--resolution") { // force resolution
 
-            if (I->next()) {
+            if (N != args.end()) {
 
-                String vm = I->next()->deref();
+                String vm = *N;
 
                 if (not StringUtils::contains(vm,'x')) { // invalid parameter format
 
@@ -524,16 +522,16 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
                 video_mode.height = h;
                 force_res = true;
 
-                N = I->next()->next();
+                ++N;
             } else {
                 OS::get_singleton()->print("Missing resolution argument, aborting.\n");
                 goto error;
             }
-        } else if (I->deref() == "--position") { // set window position
+        } else if (*I == "--position") { // set window position
 
-            if (I->next()) {
+            if (N != args.end()) {
 
-                String vm = I->next()->deref();
+                String vm = *N;
 
                 if (not StringUtils::contains(vm,',')) { // invalid parameter format
 
@@ -547,117 +545,117 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
                 init_custom_pos = Point2(x, y);
                 init_use_custom_pos = true;
 
-                N = I->next()->next();
+                ++N;
             } else {
                 OS::get_singleton()->print("Missing position argument, aborting.\n");
                 goto error;
             }
 
-        } else if (I->deref() == "--low-dpi") { // force low DPI (macOS only)
+        } else if (*I == "--low-dpi") { // force low DPI (macOS only)
 
             force_lowdpi = true;
-        } else if (I->deref() == "--no-window") { // disable window creation (Windows only)
+        } else if (*I == "--no-window") { // disable window creation (Windows only)
 
             OS::get_singleton()->set_no_window_mode(true);
 #endif
-        } else if (I->deref() == "--profiling") { // enable profiling
+        } else if (*I == "--profiling") { // enable profiling
 
             use_debug_profiler = true;
 
-        } else if (I->deref() == "-l" || I->deref() == "--language") { // language
+        } else if (*I == "-l" || *I == "--language") { // language
 
-            if (I->next()) {
+            if (N != args.end()) {
 
-                locale = I->next()->deref();
-                N = I->next()->next();
+                locale = *N;
+                ++N;
             } else {
                 OS::get_singleton()->print("Missing language argument, aborting.\n");
                 goto error;
             }
 
-        } else if (I->deref() == "--remote-fs") { // remote filesystem
+        } else if (*I == "--remote-fs") { // remote filesystem
 
-            if (I->next()) {
+            if (N != args.end()) {
 
-                remotefs = I->next()->deref();
-                N = I->next()->next();
+                remotefs = *N;
+                ++N;
             } else {
                 OS::get_singleton()->print("Missing remote filesystem address, aborting.\n");
                 goto error;
             }
-        } else if (I->deref() == "--remote-fs-password") { // remote filesystem password
+        } else if (*I == "--remote-fs-password") { // remote filesystem password
 
-            if (I->next()) {
+            if (N != args.end()) {
 
-                remotefs_pass = I->next()->deref();
-                N = I->next()->next();
+                remotefs_pass = *N;
+                ++N;
             } else {
                 OS::get_singleton()->print("Missing remote filesystem password, aborting.\n");
                 goto error;
             }
-        } else if (I->deref() == "--render-thread") { // render thread mode
+        } else if (*I == "--render-thread") { // render thread mode
 
-            if (I->next()) {
+            if (N != args.end()) {
 
-                if (I->next()->deref() == "safe")
+                if (*N == "safe")
                     rtm = OS::RENDER_THREAD_SAFE;
-                else if (I->next()->deref() == "unsafe")
+                else if (*N == "unsafe")
                     rtm = OS::RENDER_THREAD_UNSAFE;
-                else if (I->next()->deref() == "separate")
+                else if (*N == "separate")
                     rtm = OS::RENDER_SEPARATE_THREAD;
 
-                N = I->next()->next();
+                ++N;
             } else {
                 OS::get_singleton()->print("Missing render thread mode argument, aborting.\n");
                 goto error;
             }
 
 #ifdef TOOLS_ENABLED
-        } else if (I->deref() == "-e" || I->deref() == "--editor") { // starts editor
+        } else if (*I == "-e" || *I == "--editor") { // starts editor
 
             editor = true;
-        } else if (I->deref() == "-p" || I->deref() == "--project-manager") { // starts project manager
+        } else if (*I == "-p" || *I == "--project-manager") { // starts project manager
 
             project_manager = true;
-        } else if (I->deref() == "--build-solutions") { // Build the scripting solution such C#
+        } else if (*I == "--build-solutions") { // Build the scripting solution such C#
 
             auto_build_solutions = true;
             editor = true;
 #ifdef DEBUG_METHODS_ENABLED
-        } else if (I->deref() == "--gdnative-generate-json-api") {
+        } else if (*I == "--gdnative-generate-json-api") {
             // Register as an editor instance to use the GLES2 fallback automatically on hardware that doesn't support the GLES3 backend
             editor = true;
 
             // We still pass it to the main arguments since the argument handling itself is not done in this function
-            main_args.push_back(I->deref());
+            main_args.push_back(*I);
 #endif
-        } else if (I->deref() == "--export" || I->deref() == "--export-debug") { // Export project
+        } else if (*I == "--export" || *I == "--export-debug") { // Export project
 
             editor = true;
-            main_args.push_back(I->deref());
+            main_args.push_back(*I);
 #endif
-        } else if (I->deref() == "--path") { // set path of project to start or edit
+        } else if (*I == "--path") { // set path of project to start or edit
 
-            if (I->next()) {
+            if (N != args.end()) {
 
-                String p = I->next()->deref();
+                String p = *N;
                 if (OS::get_singleton()->set_cwd(p) == OK) {
                     //nothing
                 } else {
-                    project_path = I->next()->deref(); //use project_path instead
+                    project_path = *N; //use project_path instead
                 }
-                N = I->next()->next();
+                ++N;
             } else {
                 OS::get_singleton()->print("Missing relative or absolute path, aborting.\n");
                 goto error;
             }
-        } else if (I->deref() == "-u" || I->deref() == "--upwards") { // scan folders upwards
+        } else if (*I == "-u" || *I == "--upwards") { // scan folders upwards
             upwards = true;
-        } else if (I->deref() == "-q" || I->deref() == "--quit") { // Auto quit at the end of the first main loop iteration
+        } else if (*I == "-q" || *I == "--quit") { // Auto quit at the end of the first main loop iteration
             auto_quit = true;
-        } else if (StringUtils::ends_with(I->deref(),"project.godot")) {
+        } else if (StringUtils::ends_with(*I,"project.godot")) {
             String path;
-            String file = I->deref();
+            String file = *I;
             int sep = MAX(StringUtils::find_last(file,"/"), StringUtils::find_last(file,"\\"));
             if (sep == -1)
                 path = ".";
@@ -672,100 +670,100 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 #ifdef TOOLS_ENABLED
             editor = true;
 #endif
-        } else if (I->deref() == "-b" || I->deref() == "--breakpoints") { // add breakpoints
+        } else if (*I == "-b" || *I == "--breakpoints") { // add breakpoints
 
-            if (I->next()) {
+            if (N != args.end()) {
 
-                String bplist = I->next()->deref();
+                String bplist = *N;
                 breakpoints = StringUtils::split(bplist,",");
-                N = I->next()->next();
+                ++N;
             } else {
                 OS::get_singleton()->print("Missing list of breakpoints, aborting.\n");
                 goto error;
             }
 
-        } else if (I->deref() == "--frame-delay") { // force frame delay
+        } else if (*I == "--frame-delay") { // force frame delay
 
-            if (I->next()) {
+            if (N != args.end()) {
 
-                frame_delay = StringUtils::to_int(I->next()->deref());
-                N = I->next()->next();
+                frame_delay = StringUtils::to_int(*N);
+                ++N;
             } else {
                 OS::get_singleton()->print("Missing frame delay argument, aborting.\n");
                 goto error;
             }
 
-        } else if (I->deref() == "--time-scale") { // force time scale
+        } else if (*I == "--time-scale") { // force time scale
 
-            if (I->next()) {
+            if (N != args.end()) {
 
-                Engine::get_singleton()->set_time_scale(StringUtils::to_float(I->next()->deref()));
-                N = I->next()->next();
+                Engine::get_singleton()->set_time_scale(StringUtils::to_float(*N));
+                ++N;
             } else {
                 OS::get_singleton()->print("Missing time scale argument, aborting.\n");
                 goto error;
             }
 
-        } else if (I->deref() == "--main-pack") {
+        } else if (*I == "--main-pack") {
 
-            if (I->next()) {
+            if (N != args.end()) {
 
-                main_pack = I->next()->deref();
-                N = I->next()->next();
+                main_pack = *N;
+                ++N;
             } else {
                 OS::get_singleton()->print("Missing path to main pack file, aborting.\n");
                 goto error;
             }
 
-        } else if (I->deref() == "-d" || I->deref() == "--debug") {
+        } else if (*I == "-d" || *I == "--debug") {
             debug_mode = "local";
 #if defined(DEBUG_ENABLED) && !defined(SERVER_ENABLED)
-        } else if (I->deref() == "--debug-collisions") {
+        } else if (*I == "--debug-collisions") {
             debug_collisions = true;
-        } else if (I->deref() == "--debug-navigation") {
+        } else if (*I == "--debug-navigation") {
             debug_navigation = true;
 #endif
-        } else if (I->deref() == "--remote-debug") {
-            if (I->next()) {
+        } else if (*I == "--remote-debug") {
+            if (N != args.end()) {
 
                 debug_mode = "remote";
-                debug_host = I->next()->deref();
+                debug_host = *N;
                 if (not StringUtils::contains(debug_host,':')) { // wrong address
                     OS::get_singleton()->print("Invalid debug host address, it should be of the form <host/IP>:<port>.\n");
                     goto error;
                 }
-                N = I->next()->next();
+                ++N;
             } else {
                 OS::get_singleton()->print("Missing remote debug host address, aborting.\n");
                 goto error;
             }
-        } else if (I->deref() == "--allow_focus_steal_pid") { // not exposed to user
-            if (I->next()) {
+        } else if (*I == "--allow_focus_steal_pid") { // not exposed to user
+            if (N != args.end()) {
 
-                allow_focus_steal_pid = StringUtils::to_int64(I->next()->deref());
-                N = I->next()->next();
+                allow_focus_steal_pid = StringUtils::to_int64(*N);
+                ++N;
             } else {
                 OS::get_singleton()->print("Missing editor PID argument, aborting.\n");
                 goto error;
             }
-        } else if (I->deref() == "--disable-render-loop") {
+        } else if (*I == "--disable-render-loop") {
             disable_render_loop = true;
-        } else if (I->deref() == "--fixed-fps") {
-            if (I->next()) {
-                fixed_fps = StringUtils::to_int(I->next()->deref());
-                N = I->next()->next();
+        } else if (*I == "--fixed-fps") {
+            if (N != args.end()) {
+                fixed_fps = StringUtils::to_int(*N);
+                ++N;
             } else {
                 OS::get_singleton()->print("Missing fixed-fps argument, aborting.\n");
                 goto error;
             }
-        } else if (I->deref() == "--print-fps") {
+        } else if (*I == "--print-fps") {
             print_fps = true;
-        } else if (I->deref() == "--disable-crash-handler") {
+        } else if (*I == "--disable-crash-handler") {
             OS::get_singleton()->disable_crash_handler();
-        } else if (I->deref() == "--skip-breakpoints") {
+        } else if (*I == "--skip-breakpoints") {
             skip_breakpoints = true;
         } else {
-            main_args.push_back(I->deref());
+            main_args.push_back(*I);
         }
 
         I = N;

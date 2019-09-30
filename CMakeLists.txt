@@ -195,9 +195,11 @@ endif()
 if(OPTION_PRECISE_MATH_CHECKS)
     add_definitions(-DPRECISE_MATH_CHECKS)
 endif()
-if((${CMAKE_BUILD_TYPE} STREQUAL "Debug") OR (${CMAKE_BUILD_TYPE} STREQUAL "RelWithDebInfo"))
-    add_definitions(-DDEBUG_ENABLED)
-endif()
+
+set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS
+	$<$<CONFIG:Debug>:DEBUG_ENABLED>
+	$<$<CONFIG:RelWithDebInfo>:DEBUG_ENABLED>
+)
 add_subdirectory("${PROJECT_SOURCE_DIR}/thirdparty/zstd")
 
 
