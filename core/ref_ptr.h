@@ -45,11 +45,18 @@ class GODOT_EXPORT RefPtr {
 public:
 	bool is_null() const;
 	void operator=(const RefPtr &p_other);
+    void operator=(RefPtr &&p_other) {
+        // Do a swap here and assume p_other will be destroyed by the caller, so that our previous data will be freed
+        intptr_t t = data;
+        data = p_other.data;
+        p_other.data = t;
+    }
 	bool operator==(const RefPtr &p_other) const;
 	RID get_rid() const;
 	void unref();
     _FORCE_INLINE_ void *get_data() const { return &data; }
 	RefPtr(const RefPtr &p_other);
-	RefPtr();
+    RefPtr(RefPtr &&p_other) : data(p_other.data) { p_other.data = 0; }
+    RefPtr();
 	~RefPtr();
 };

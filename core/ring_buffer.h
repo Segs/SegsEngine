@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef RINGBUFFER_H
-#define RINGBUFFER_H
+#pragma once
 
 #include "core/vector.h"
 
@@ -218,7 +217,5 @@ public:
         write_pos = 0;
         resize(p_power);
     }
-	~RingBuffer() {}
+    ~RingBuffer() = default;
 };
-
-#endif

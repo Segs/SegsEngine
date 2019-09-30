@@ -32,6 +32,10 @@
 
 #include "core/ustring.h"
 #include "core/vector.h"
+namespace {
+// references to this static variable are returned from get_names and get_subnames
+static Vector<StringName> s_null_stringname_vec;
+}
 
 struct Data {
 
@@ -170,10 +174,10 @@ bool NodePath::operator!=(const NodePath &p_path) const {
     return (!(*this == p_path));
 }
 
-void NodePath::operator=(const NodePath &p_path) {
+NodePath &NodePath::operator=(const NodePath &p_path) {
 
     if (this == &p_path)
-        return;
+        return *this;
 
     unref();
 
@@ -181,6 +185,7 @@ void NodePath::operator=(const NodePath &p_path) {
 
         data = p_path.data;
     }
+    return *this;
 }
 
 NodePath::operator String() const {
@@ -217,18 +222,18 @@ NodePath::NodePath(const NodePath &p_path) {
     }
 }
 
-Vector<StringName> NodePath::get_names() const {
+const Vector<StringName> &NodePath::get_names() const {
 
     if (data)
         return data->path;
-    return Vector<StringName>();
+    return s_null_stringname_vec;
 }
 
-Vector<StringName> NodePath::get_subnames() const {
+const Vector<StringName> &NodePath::get_subnames() const {
 
     if (data)
         return data->subpath;
-    return Vector<StringName>();
+    return s_null_stringname_vec;
 }
 
 StringName NodePath::get_concatenated_subnames() const {
@@ -251,8 +256,8 @@ NodePath NodePath::rel_path_to(const NodePath &p_np) const {
     ERR_FAIL_COND_V(!is_absolute(), NodePath())
     ERR_FAIL_COND_V(!p_np.is_absolute(), NodePath())
 
-    Vector<StringName> src_dirs = get_names();
-    Vector<StringName> dst_dirs = p_np.get_names();
+    const Vector<StringName> &src_dirs(get_names());
+    const Vector<StringName> &dst_dirs(p_np.get_names());
 
     //find common parent
     int common_parent = 0;
@@ -344,8 +349,9 @@ void NodePath::simplify() {
         if (String(data->path[i]) == ".") {
             data->path.remove(i);
             i--;
-        } else if (String(data->path[i]) == ".." && i > 0 && String(data->path[i - 1]) != "." && String(data->path[i - 1]) != "..") {
-            //remove both
+        } else if (String(data->path[i]) == ".." && i > 0 && String(data->path[i - 1]) != "." &&
+                   String(data->path[i - 1]) != "..") {
+            // remove both
             data->path.remove(i - 1);
             data->path.remove(i - 1);
             i -= 2;
@@ -393,7 +399,7 @@ NodePath::NodePath(const String &p_path) {
                 if (str.empty()) {
                     if (path[i].isNull()) continue; // Allow end-of-path :
 
-					ERR_FAIL_MSG("Invalid NodePath '" + p_path + "'.");
+                    ERR_FAIL_MSG("Invalid NodePath '" + p_path + "'.")
                 }
                 subpath.push_back(str);
 
@@ -465,8 +471,7 @@ bool NodePath::is_empty() const {
 
     return !data;
 }
-NodePath::NodePath() {
-}
+NodePath::NodePath() = default;
 
 NodePath::~NodePath() {
 

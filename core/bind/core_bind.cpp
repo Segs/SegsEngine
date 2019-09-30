@@ -2882,7 +2882,7 @@ Array _ClassDB::get_method_list(StringName p_class, bool p_no_inheritance) const
         ret.push_back(E.operator Dictionary());
 #else
         Dictionary dict;
-        dict["name"] = E->get().name;
+        dict["name"] = E.name;
         ret.push_back(dict);
 #endif
     }

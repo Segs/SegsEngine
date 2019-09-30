@@ -71,19 +71,17 @@ Error ScriptDebuggerRemote::connect_to_host(const String &p_host, uint16_t p_por
 
     int port = p_port;
 
-    const int tries = 6;
-    int waits[tries] = { 1, 10, 100, 1000, 1000, 1000 };
+    constexpr int waits[6] = { 1, 10, 100, 1000, 1000, 1000 };
 
     tcp_client->connect_to_host(ip, port);
 
-    for (int i = 0; i < tries; i++) {
+    for (int ms : waits) {
 
         if (tcp_client->get_status() == StreamPeerTCP::STATUS_CONNECTED) {
             print_verbose("Remote Debugger: Connected!");
             break;
         } else {
 
-            const int ms = waits[i];
             OS::get_singleton()->delay_usec(ms * 1000);
             print_verbose(FormatV("Remote Debugger: Connection failed with status: '%d', retrying in %d msec.",tcp_client->get_status(),ms));
         }

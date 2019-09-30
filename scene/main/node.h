@@ -80,7 +80,7 @@ private:
 
         bool persistent = false;
         SceneTree::Group *group;
-        GroupData() {}
+        GroupData() = default;
     };
 
     struct Data {

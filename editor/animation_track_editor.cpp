@@ -1220,10 +1220,10 @@ public:
         bool show_time = true;
         bool same_track_type = true;
         bool same_key_type = true;
-        for (const eastl::pair<int,List<float> > &E : key_ofs_map) {
+        for (const eastl::pair<const int,List<float> > &E : key_ofs_map) {
 
             int track = E.first;
-            ERR_FAIL_INDEX(track, animation->get_track_count());
+            ERR_FAIL_INDEX(track, animation->get_track_count())
 
             if (first_track < 0)
                 first_track = track;
@@ -5640,7 +5640,7 @@ void AnimationTrackEditor::_edit_menu_pressed(int p_option) {
     }
 }
 
-void AnimationTrackEditor::_cleanup_animation(Ref<Animation> p_animation) {
+void AnimationTrackEditor::_cleanup_animation(const Ref<Animation> &p_animation) {
 
     for (int i = 0; i < p_animation->get_track_count(); i++) {
 

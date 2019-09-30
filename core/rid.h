@@ -61,7 +61,7 @@ class RID_Data {
 public:
     _FORCE_INLINE_ uint32_t get_id() const { return _id; }
 
-    virtual ~RID_Data();
+    virtual ~RID_Data() = default;
 };
 
 class RID {
@@ -130,7 +130,7 @@ protected:
 public:
     virtual void get_owned_list(ListPOD<RID> *p_owned);
     static void init_rid();
-    virtual ~RID_OwnerBase() {}
+    virtual ~RID_OwnerBase() = default;
 };
 
 template <class T>

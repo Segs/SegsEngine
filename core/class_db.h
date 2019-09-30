@@ -30,7 +30,6 @@
 
 #pragma once
 
-
 #include "core/hash_map.h"
 #include "core/string_name.h"
 #include "core/variant.h"
@@ -54,7 +53,7 @@ struct MethodDefinition {
 
     StringName name;
     eastl::vector<StringName,wrap_allocator> args;
-    MethodDefinition() {}
+    MethodDefinition() = default;
     MethodDefinition(const char *p_name) :
             name(p_name) {}
     MethodDefinition(const StringName &p_name) :
@@ -292,10 +291,10 @@ public:
 #else
 
 #define BIND_CONSTANT(m_constant) \
-    ClassDB::bind_integer_constant(get_class_static(), StringName(), #m_constant, m_constant);
+    ClassDB::bind_integer_constant(get_class_static_name(), StringName(), #m_constant, m_constant);
 
 #define BIND_ENUM_CONSTANT(m_constant) \
-    ClassDB::bind_integer_constant(get_class_static(), StringName(), #m_constant, m_constant);
+    ClassDB::bind_integer_constant(get_class_static_name(), StringName(), #m_constant, m_constant);
 
 #endif
 

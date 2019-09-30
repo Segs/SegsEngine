@@ -10,14 +10,14 @@ if(UNIX)
     # -O3 -ffast-math is identical to -Ofast. We need to split it out so we can selectively disable
     # -ffast-math in code for which it generates wrong results.
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -ffast-math")
-    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -ffast-math -DDEBUG_ENABLED")
+    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -ffast-math")
     if (${OPTION_DEBUG_SYMBOLS} EQUAL "yes")
         set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -g1")
     endif()
     if (${OPTION_DEBUG_SYMBOLS} EQUAL "full")
         set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -g2")
     endif()
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3 -DDEBUG_ENABLED")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3")
 
     ## Architecture
     add_definitions(-DTYPED_METHOD_BIND)

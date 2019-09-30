@@ -36,8 +36,11 @@
 #include "core/typesystem_decls.h"
 #include <cassert>
 
+#ifdef DEBUG_METHODS_ENABLED
+
 template <class T, typename>
 struct GetTypeInfo;
+#endif
 
 class GODOT_EXPORT Reference : public Object {
 
@@ -104,7 +107,8 @@ public:
     }
 
     Ref &operator=(const Ref &p_from) {
-        return operator=(p_from.reference);
+        operator=(p_from.reference);
+        return *this;
     }
 
     Ref & operator=(Ref &&p_from) noexcept {
@@ -115,7 +119,8 @@ public:
 
     template <class T_Other>
     Ref &operator=(const Ref<T_Other> &p_from) {
-        return operator=(p_from.reference);
+        operator=(p_from.reference);
+        return *this;
     }
 
     Ref& operator=(T* p_Object)

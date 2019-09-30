@@ -742,7 +742,7 @@ HTTPClient::HTTPClient() {
     read_chunk_size = 4096;
 }
 
-HTTPClient::~HTTPClient() {}
+HTTPClient::~HTTPClient() = default;
 
 #endif // #ifndef JAVASCRIPT_ENABLED
 

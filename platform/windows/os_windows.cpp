@@ -2133,7 +2133,7 @@ Error OS_Windows::close_dynamic_library(void *p_library_handle) {
     return OK;
 }
 
-Error OS_Windows::get_dynamic_library_symbol_handle(void *p_library_handle, const String p_name, void *&p_symbol_handle, bool p_optional) {
+Error OS_Windows::get_dynamic_library_symbol_handle(void *p_library_handle, const String &p_name, void *&p_symbol_handle, bool p_optional) {
     p_symbol_handle = (void *)GetProcAddress((HMODULE)p_library_handle, qUtf8Printable(p_name.m_str));
     if (!p_symbol_handle) {
         if (!p_optional) {

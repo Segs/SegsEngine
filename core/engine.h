@@ -125,6 +125,6 @@ public:
     String get_license_text() const;
 
     Engine();
-    virtual ~Engine() {}
+    virtual ~Engine() = default;
 };
 

@@ -58,7 +58,7 @@ class GODOT_EXPORT ImageLoader {
 protected:
 public:
     static void register_plugin_resolver();
-    static Error load_image(const String& p_file, Ref<Image> p_image, FileAccess *p_custom = nullptr, const LoadParams &params={});
+    static Error load_image(const String& p_file, const Ref<Image> &p_image, FileAccess *p_custom = nullptr, const LoadParams &params={});
     static ImageData load_image(const String &ext, const uint8_t *data, int sz, const LoadParams &params={});
     static void get_recognized_extensions(Vector<String> *p_extensions);
     static ImageFormatLoader *recognize(const String &p_extension);

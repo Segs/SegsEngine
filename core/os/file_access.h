@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef FILE_ACCESS_H
-#define FILE_ACCESS_H
+#pragma once
 
 #include "core/math/math_defs.h"
 #include "core/typedefs.h"
@@ -64,7 +63,7 @@ public:
     virtual Error _set_unix_permissions(const String &p_file, uint32_t p_permissions) = 0;
 
 protected:
-    String fix_path(String p_path) const;
+    String fix_path(const String &p_path) const;
     virtual Error _open(const String &p_path, int p_mode_flags) = 0; ///< open a file
     virtual uint64_t _get_modified_time(const String &p_file) = 0;
 
@@ -182,7 +181,7 @@ public:
     }
 
     FileAccess();
-    virtual ~FileAccess() {}
+    virtual ~FileAccess() = default;
 };
 
 struct FileAccessRef {
@@ -199,5 +198,3 @@ struct FileAccessRef {
         if (f) memdelete(f);
     }
 };
-
-#endif

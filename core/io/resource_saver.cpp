@@ -73,9 +73,7 @@ bool ResourceFormatSaver::recognize(const Ref<Resource> &p_resource) const {
     if (get_script_instance() && get_script_instance()->has_method("recognize")) {
         return get_script_instance()->call("recognize", p_resource).as<bool>();
     }
-    if(p_resource && p_resource->is_class("ImageTexture"))
-        return true;
-    return false;
+    return p_resource && p_resource->is_class("ImageTexture");
 }
 
 void ResourceFormatSaver::get_recognized_extensions(const Ref<Resource> &p_resource, Vector<String> *p_extensions) const {

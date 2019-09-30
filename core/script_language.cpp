@@ -339,8 +339,8 @@ void ScriptInstance::call_multilevel(const StringName &p_method, VARIANT_ARG_DEC
 
     VARIANT_ARGPTRS
     int argc = 0;
-    for (int i = 0; i < VARIANT_ARG_MAX; i++) {
-        if (argptr[i]->get_type() == VariantType::NIL)
+    for (const Variant *i : argptr) {
+        if (i->get_type() == VariantType::NIL)
             break;
         argc++;
     }
