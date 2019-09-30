@@ -47,125 +47,20 @@ static const char dummy[8] __attribute__((section("pck"), used)) = { 0 };
 #endif
 #endif
 
-PCHAR *
-CommandLineToArgvA(
-		PCHAR CmdLine,
-		int *_argc) {
-	PCHAR *argv;
-	PCHAR _argv;
-	ULONG len;
-	ULONG argc;
-	CHAR a;
-	ULONG i, j;
-
-	BOOLEAN in_QM;
-	BOOLEAN in_TEXT;
-	BOOLEAN in_SPACE;
-
-	len = strlen(CmdLine);
-	i = ((len + 2) / 2) * sizeof(PVOID) + sizeof(PVOID);
-
-	argv = (PCHAR *)GlobalAlloc(GMEM_FIXED,
-			i + (len + 2) * sizeof(CHAR));
-
-	_argv = (PCHAR)(((PUCHAR)argv) + i);
-
-	argc = 0;
-	argv[argc] = _argv;
-	in_QM = FALSE;
-	in_TEXT = FALSE;
-	in_SPACE = TRUE;
-	i = 0;
-	j = 0;
-
-	while ((a = CmdLine[i])) {
-		if (in_QM) {
-			if (a == '\"') {
-				in_QM = FALSE;
-			} else {
-				_argv[j] = a;
-				j++;
-			}
-		} else {
-			switch (a) {
-				case '\"':
-					in_QM = TRUE;
-					in_TEXT = TRUE;
-					if (in_SPACE) {
-						argv[argc] = _argv + j;
-						argc++;
-					}
-					in_SPACE = FALSE;
-					break;
-				case ' ':
-				case '\t':
-				case '\n':
-				case '\r':
-					if (in_TEXT) {
-						_argv[j] = '\0';
-						j++;
-					}
-					in_TEXT = FALSE;
-					in_SPACE = TRUE;
-					break;
-				default:
-					in_TEXT = TRUE;
-					if (in_SPACE) {
-						argv[argc] = _argv + j;
-						argc++;
-					}
-					_argv[j] = a;
-					j++;
-					in_SPACE = FALSE;
-					break;
-			}
-		}
-		i++;
-	}
-	_argv[j] = '\0';
-	argv[argc] = nullptr;
-
-	(*_argc) = argc;
-	return argv;
-}
-
-char *wc_to_utf8(const wchar_t *wc) {
-	int ulen = WideCharToMultiByte(CP_UTF8, 0, wc, -1, nullptr, 0, nullptr, nullptr);
-	char *ubuf = new char[ulen + 1];
-	WideCharToMultiByte(CP_UTF8, 0, wc, -1, ubuf, ulen, nullptr, nullptr);
-	ubuf[ulen] = 0;
-	return ubuf;
-}
-
 int widechar_main(int argc, wchar_t **argv) {
 	OS_Windows os(nullptr);
 
 	setlocale(LC_CTYPE, "");
 
-	char **argv_utf8 = new char *[argc];
-
-	for (int i = 0; i < argc; ++i) {
-		argv_utf8[i] = wc_to_utf8(argv[i]);
-	}
-
-	Error err = Main::setup(argv_utf8[0], argc - 1, &argv_utf8[1]);
+	Error err = Main::setup();
 
 	if (err != OK) {
-		for (int i = 0; i < argc; ++i) {
-			delete[] argv_utf8[i];
-		}
-		delete[] argv_utf8;
 		return 255;
 	}
 
 	if (Main::start())
 		os.run();
 	Main::cleanup();
-
-	for (int i = 0; i < argc; ++i) {
-		delete[] argv_utf8[i];
-	}
-	delete[] argv_utf8;
 
 	return os.get_exit_code();
 };

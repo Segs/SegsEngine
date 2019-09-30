@@ -34,8 +34,10 @@
 
 #include <string.h>
 #include <unistd.h>
+#include <QCoreApplication>
 
 int main(int argc, char **argv) {
+    QCoreApplication app(argc,argv);
 	int first_arg = 1;
 	const char *dbg_arg = "-NSDocumentRevisionsDebugMode";
 	printf("arguments\n");
@@ -90,7 +92,7 @@ int main(int argc, char **argv) {
 		err = Main::setup(argv[0], 1, &argv_c);
 		free(argv_c);
 	} else {
-		err = Main::setup(argv[0], argc - first_arg, &argv[first_arg]);
+		err = Main::setup();
 	}
 
 	if (err != OK)

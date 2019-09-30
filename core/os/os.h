@@ -137,7 +137,7 @@ protected:
     virtual void finalize() = 0;
     virtual void finalize_core() = 0;
 
-    virtual void set_cmdline(const char *p_execpath, const ListPOD<String> &p_args);
+    virtual void set_cmdline(const String &p_execpath, const ListPOD<String> &p_args);
 
     void _ensure_user_data_dir();
     virtual bool _check_internal_feature_support(const String &p_feature) = 0;

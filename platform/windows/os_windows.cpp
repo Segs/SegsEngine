@@ -2535,8 +2535,7 @@ Error OS_Windows::execute(const String &p_path, const ListPOD<String> &p_argumen
 
     if (p_blocking && r_pipe) {
 
-        String argss;
-        argss = "\"\"" + p_path + "\"";
+        String argss = "\"\"" + p_path + "\"";
 
         for (const String &E : p_arguments) {
 
@@ -2584,11 +2583,8 @@ Error OS_Windows::execute(const String &p_path, const ListPOD<String> &p_argumen
     ZeroMemory(&pi.pi, sizeof(pi.pi));
     LPSTARTUPINFOW si_w = (LPSTARTUPINFOW)&pi.si;
 
-    Vector<wchar_t> modstr; //windows wants to change this no idea why
-    modstr.resize(cmdline.size());
-    for (int i = 0; i < cmdline.size(); i++)
-        modstr.write[i] = cmdline[i].unicode();
-    int ret = CreateProcessW(nullptr, modstr.ptrw(), nullptr, nullptr, 0, NORMAL_PRIORITY_CLASS & CREATE_NO_WINDOW, nullptr, nullptr, si_w, &pi.pi);
+    auto modstr = cmdline.m_str.toStdWString();
+    int ret = CreateProcessW(nullptr, modstr.data(), nullptr, nullptr, 0, NORMAL_PRIORITY_CLASS & CREATE_NO_WINDOW, nullptr, nullptr, si_w, &pi.pi);
     ERR_FAIL_COND_V(ret == 0, ERR_CANT_FORK)
 
     if (p_blocking) {

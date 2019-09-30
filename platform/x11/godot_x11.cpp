@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) {
     ERR_FAIL_COND_V(!cwd, ERR_OUT_OF_MEMORY)
     char *ret = getcwd(cwd, PATH_MAX);
 
-    Error err = Main::setup(argv[0], argc - 1, &argv[1]);
+    Error err = Main::setup();
     if (err != OK) {
         free(cwd);
         return 255;
