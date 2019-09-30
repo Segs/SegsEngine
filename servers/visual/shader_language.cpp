@@ -3634,9 +3634,7 @@ ShaderLanguage::Node *ShaderLanguage::_reduce_expression(BlockNode *p_block, Sha
                 ConstantNode *cn = static_cast<ConstantNode *>(op->arguments[i]);
 
                 if (get_scalar_type(cn->datatype) == base) {
-                    for (size_t j = 0; j < cn->values.size(); j++) {
-                        values.push_back(cn->values[j]);
-                    }
+                    values.push_back(cn->values);
                 } else if (get_scalar_type(cn->datatype) == cn->datatype) {
 
                     ConstantNode::Value v;

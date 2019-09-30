@@ -150,6 +150,8 @@ void StringName::cleanup() {
     }
 
     memdelete(lock);
+    lock = nullptr;
+    configured = false;
 }
 
 void StringName::unref() {

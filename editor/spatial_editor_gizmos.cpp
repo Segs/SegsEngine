@@ -1508,8 +1508,7 @@ void CameraSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
 
 //////
 
-MeshInstanceSpatialGizmoPlugin::MeshInstanceSpatialGizmoPlugin() {
-}
+MeshInstanceSpatialGizmoPlugin::MeshInstanceSpatialGizmoPlugin() = default;
 
 bool MeshInstanceSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return Object::cast_to<MeshInstance>(p_spatial) != nullptr && Object::cast_to<SoftBody>(p_spatial) == nullptr;
@@ -1545,8 +1544,7 @@ void MeshInstanceSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
 }
 
 /////
-Sprite3DSpatialGizmoPlugin::Sprite3DSpatialGizmoPlugin() {
-}
+Sprite3DSpatialGizmoPlugin::Sprite3DSpatialGizmoPlugin() = default;
 
 bool Sprite3DSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return Object::cast_to<Sprite3D>(p_spatial) != nullptr;

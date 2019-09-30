@@ -688,8 +688,7 @@ CSGBrush *CSGCombiner::_build_brush() {
     return nullptr; //does not build anything
 }
 
-CSGCombiner::CSGCombiner() {
-}
+CSGCombiner::CSGCombiner() = default;
 
 /////////////////////
 

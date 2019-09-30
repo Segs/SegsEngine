@@ -334,7 +334,7 @@ Spatial *EditorSceneImporterAssimp::_generate_scene(const String &p_path, aiScen
     return state.root;
 }
 
-void EditorSceneImporterAssimp::_insert_animation_track(ImportState &scene, const aiAnimation *assimp_anim, int p_track, int p_bake_fps, Ref<Animation> animation, float ticks_per_second, Skeleton *p_skeleton, const NodePath &p_path, const String &p_name) {
+void EditorSceneImporterAssimp::_insert_animation_track(ImportState &scene, const aiAnimation *assimp_anim, int p_track, int p_bake_fps, const Ref<Animation>& animation, float ticks_per_second, Skeleton *p_skeleton, const NodePath &p_path, const String &p_name) {
 
     const aiNodeAnim *assimp_track = assimp_anim->mChannels[p_track];
     //make transform track

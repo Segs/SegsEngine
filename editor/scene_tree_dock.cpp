@@ -93,7 +93,7 @@ void SceneTreeDock::_input(const Ref<InputEvent>& p_event) {
     }
 }
 
-void SceneTreeDock::_unhandled_key_input(Ref<InputEvent> p_event) {
+void SceneTreeDock::_unhandled_key_input(const Ref<InputEvent>& p_event) {
 
     if (get_viewport()->get_modal_stack_top())
         return; //ignore because of modal window
@@ -936,7 +936,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
                     bool placeholder = node->get_scene_instance_load_placeholder();
                     // Fire confirmation dialog when children are editable.
                     if (editable && !placeholder) {
-                        placeholder_editable_instance_remove_dialog->set_text(TTR("Enabling \"Load As Placeholder\" will disable \"Editable Children\" and cause all properties of the node to be reverted to their default."));
+                        placeholder_editable_instance_remove_dialog->set_text(TTR(R"(Enabling "Load As Placeholder" will disable "Editable Children" and cause all properties of the node to be reverted to their default.)"));
                         placeholder_editable_instance_remove_dialog->popup_centered_minsize();
                         break;
                     }
@@ -1660,7 +1660,7 @@ void SceneTreeDock::_do_reparent(Node *p_new_parent, int p_position_in_parent, V
             NodePath old_new_name = path_renames[ni].second;
             NodePath new_path;
 
-            Vector<StringName> unfixed_new_names = old_new_name.get_names();
+            const Vector<StringName>& unfixed_new_names = old_new_name.get_names();
             Vector<StringName> fixed_new_names;
 
             // Get last name and replace with fixed new name.
@@ -1780,7 +1780,7 @@ void SceneTreeDock::_set_collapsed_recursive(TreeItem *p_item, bool p_collapsed)
     }
 }
 
-void SceneTreeDock::_script_created(Ref<Script> p_script) {
+void SceneTreeDock::_script_created(const Ref<Script>& p_script) {
 
     List<Node *> selected = editor_selection->get_selected_node_list();
 

@@ -267,7 +267,6 @@ IP *IP_Unix::_create_unix() {
     return memnew(IP_Unix);
 }
 
-IP_Unix::IP_Unix() {
-}
+IP_Unix::IP_Unix() = default;
 
 #endif

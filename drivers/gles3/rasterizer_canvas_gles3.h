@@ -150,7 +150,7 @@ public:
 
     void draw_window_margins(int *black_margin, RID *black_image) override;
 
-	RasterizerCanvasGLES3() {}
+    RasterizerCanvasGLES3() = default;
 };
 
 #endif // RASTERIZERCANVASGLES3_H

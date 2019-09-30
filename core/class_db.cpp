@@ -87,7 +87,7 @@ ClassDB::ClassInfo::ClassInfo() {
     exposed = false;
 }
 
-ClassDB::ClassInfo::~ClassInfo() {}
+ClassDB::ClassInfo::~ClassInfo() = default;
 
 bool ClassDB::is_parent_class(const StringName &p_class, const StringName &p_inherits) {
 
