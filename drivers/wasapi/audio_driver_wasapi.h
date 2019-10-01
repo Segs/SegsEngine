@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef AUDIO_DRIVER_WASAPI_H
-#define AUDIO_DRIVER_WASAPI_H
+#pragma once
 
 #ifdef WASAPI_ENABLED
 
@@ -45,28 +44,20 @@ class AudioDriverWASAPI : public AudioDriver {
 
     class AudioDeviceWASAPI {
     public:
-        IAudioClient *audio_client;
-        IAudioRenderClient *render_client;
-        IAudioCaptureClient *capture_client;
-        bool active;
+        IAudioClient *audio_client = nullptr;
+        IAudioRenderClient *render_client = nullptr;
+        IAudioCaptureClient *capture_client = nullptr;
+        bool active = false;
 
-        WORD format_tag;
-        WORD bits_per_sample;
-        unsigned int channels;
-        unsigned int frame_size;
+        WORD format_tag=0;
+        WORD bits_per_sample=0;
+        unsigned int channels=0;
+        unsigned int frame_size=0;
 
         String device_name;
         String new_device;
 
         AudioDeviceWASAPI() :
-                audio_client(NULL),
-                render_client(NULL),
-                capture_client(NULL),
-                active(false),
-                format_tag(0),
-                bits_per_sample(0),
-                channels(0),
-                frame_size(0),
                 device_name("Default"),
                 new_device("Default") {
         }
@@ -126,5 +117,4 @@ public:
     AudioDriverWASAPI();
 };
 
-#endif // AUDIO_DRIVER_WASAPI_H
-#endif
+#endif //WASAPI_ENABLED
