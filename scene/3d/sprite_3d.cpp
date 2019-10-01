@@ -37,6 +37,8 @@
 IMPL_GDCLASS(SpriteBase3D)
 IMPL_GDCLASS(Sprite3D)
 IMPL_GDCLASS(AnimatedSprite3D)
+//TODO: SEGS: copied from material.cpp
+VARIANT_ENUM_CAST(SpatialMaterial::BillboardMode)
 
 Color SpriteBase3D::_get_color_accum() {
 

@@ -154,7 +154,7 @@ public:
     Mesh();
 };
 
-class ArrayMesh : public Mesh {
+class GODOT_EXPORT ArrayMesh : public Mesh {
 
     GDCLASS(ArrayMesh,Mesh)
 
@@ -238,8 +238,3 @@ public:
 
     ~ArrayMesh() override;
 };
-
-VARIANT_ENUM_CAST(Mesh::ArrayType);
-VARIANT_ENUM_CAST(Mesh::ArrayFormat);
-VARIANT_ENUM_CAST(Mesh::PrimitiveType);
-VARIANT_ENUM_CAST(Mesh::BlendShapeMode);

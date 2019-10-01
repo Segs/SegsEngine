@@ -206,7 +206,7 @@ Error DynamicFontAtSize::_load() {
 
     ERR_FAIL_COND_V(error, ERR_FILE_CANT_OPEN)
 
-    if (FT_HAS_COLOR(face)) {
+    if (FT_HAS_COLOR(face) && face->num_fixed_sizes > 0) {
         int best_match = 0;
         int diff = ABS(id.size - ((int64_t)face->available_sizes[0].width));
         scale_color_font = float(id.size) / face->available_sizes[0].width;

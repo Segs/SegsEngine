@@ -1182,13 +1182,12 @@ void VisualScriptEditor::_member_edited() {
 }
 
 void VisualScriptEditor::_create_function_dialog() {
-    function_create_dialog->popup();
+    function_create_dialog->popup_centered();
     function_create_dialog->set_position(graph->get_global_position() + Vector2(55, 80));
     func_name_box->set_text("");
     func_name_box->grab_focus();
     for (int i = 0; i < func_input_vbox->get_child_count(); i++) {
         Node *nd = func_input_vbox->get_child(i);
-        func_input_vbox->remove_child(nd);
         nd->queue_delete();
     }
 }
@@ -1268,7 +1267,6 @@ void VisualScriptEditor::_add_func_input() {
 
     func_input_vbox->add_child(hbox);
     hbox->set_meta("id", hbox->get_position_in_parent());
-    function_create_dialog->set_size(Size2(-1, -1));
 
     delete_button->connect("pressed", this, "_remove_func_input", varray(Variant(hbox)));
 
@@ -1279,7 +1277,6 @@ void VisualScriptEditor::_add_func_input() {
 void VisualScriptEditor::_remove_func_input(Node *p_node) {
     func_input_vbox->remove_child(p_node);
     p_node->queue_delete();
-    function_create_dialog->set_size(Size2(-1, -1));
 }
 
 void VisualScriptEditor::_deselect_input_names() {
@@ -1368,6 +1365,8 @@ void VisualScriptEditor::_member_button(Object *p_item, int p_column, int p_butt
         selected = ti->get_text(0);
         function_name_edit->set_position(Input::get_singleton()->get_mouse_position() - Vector2(60, -10));
         function_name_edit->popup();
+        function_name_box->set_text(selected);
+        function_name_box->select_all();
     }
 }
 
@@ -1772,8 +1771,7 @@ void VisualScriptEditor::_members_gui_input(const Ref<InputEvent> &p_event) {
     Ref<InputEventMouseButton> btn(dynamic_ref_cast<InputEventMouseButton>(p_event));
     if (btn && btn->is_doubleclick()) {
         TreeItem *ti = members->get_selected();
-        ERR_FAIL_COND(!ti);
-        if (ti->get_parent() == members->get_root()->get_children()) // to check if it's a function
+        if (ti && ti->get_parent() == members->get_root()->get_children()) // to check if it's a function
             _center_on_node(ti->get_metadata(0), script->get_function_node_id(ti->get_metadata(0)));
     }
 }
@@ -3911,51 +3909,62 @@ void VisualScriptEditor::_hide_timer() {
 
 void VisualScriptEditor::_notification(int p_what) {
 
-    if (p_what == NOTIFICATION_READY || (p_what == NOTIFICATION_THEME_CHANGED && is_visible_in_tree())) {
-        if (p_what == NOTIFICATION_READY) {
+    switch (p_what) {
+        case NOTIFICATION_READY: {
             variable_editor->connect("changed", this, "_update_members");
             signal_editor->connect("changed", this, "_update_members");
+            FALLTHROUGH;
         }
-
-        Ref<Theme> tm = EditorNode::get_singleton()->get_theme_base()->get_theme();
-
-        bool dark_theme = tm->get_constant("dark_theme", "Editor");
-
-        List<Pair<String, Color> > colors;
-        if (dark_theme) {
-            colors.push_back(Pair<String, Color>("flow_control", Color(0.96f, 0.96f, 0.96f)));
-            colors.push_back(Pair<String, Color>("functions", Color(0.96f, 0.52f, 0.51f)));
-            colors.push_back(Pair<String, Color>("data", Color(0.5f, 0.96f, 0.81f)));
-            colors.push_back(Pair<String, Color>("operators", Color(0.67f, 0.59f, 0.87f)));
-            colors.push_back(Pair<String, Color>("custom", Color(0.5f, 0.73f, 0.96f)));
-            colors.push_back(Pair<String, Color>("constants", Color(0.96f, 0.5f, 0.69f)));
-        } else {
-            colors.push_back(Pair<String, Color>("flow_control", Color(0.26f, 0.26f, 0.26f)));
-            colors.push_back(Pair<String, Color>("functions", Color(0.95f, 0.4f, 0.38f)));
-            colors.push_back(Pair<String, Color>("data", Color(0.07f, 0.73f, 0.51f)));
-            colors.push_back(Pair<String, Color>("operators", Color(0.51f, 0.4f, 0.82f)));
-            colors.push_back(Pair<String, Color>("custom", Color(0.31f, 0.63f, 0.95f)));
-            colors.push_back(Pair<String, Color>("constants", Color(0.94f, 0.18f, 0.49f)));
-        }
-
-        for (List<Pair<String, Color> >::Element *E = colors.front(); E; E = E->next()) {
-            Ref<StyleBoxFlat> sb(dynamic_ref_cast<StyleBoxFlat>(tm->get_stylebox("frame", "GraphNode")));
-            if (sb) {
-                Ref<StyleBoxFlat> frame_style(dynamic_ref_cast<StyleBoxFlat>(sb->duplicate()));
-                Color c = sb->get_border_color();
-                Color cn = E->deref().second;
-                cn.a = c.a;
-                frame_style->set_border_color(cn);
-                node_styles[E->deref().first] = frame_style;
+        case NOTIFICATION_THEME_CHANGED: {
+            if (p_what != NOTIFICATION_READY && !is_visible_in_tree()) {
+                return;
             }
-        }
 
-        if (is_visible_in_tree() && script) {
-            _update_members();
-            _update_graph();
-        }
-    } else if (p_what == NOTIFICATION_VISIBILITY_CHANGED) {
-        members_section->set_visible(is_visible_in_tree());
+            edit_variable_edit->add_style_override("bg", get_stylebox("bg", "Tree"));
+            edit_signal_edit->add_style_override("bg", get_stylebox("bg", "Tree"));
+            func_input_scroll->add_style_override("bg", get_stylebox("bg", "Tree"));
+
+            Ref<Theme> tm = EditorNode::get_singleton()->get_theme_base()->get_theme();
+
+            bool dark_theme = tm->get_constant("dark_theme", "Editor");
+
+            List<Pair<String, Color>> colors;
+            if (dark_theme) {
+                colors.push_back(Pair<String, Color>("flow_control", Color(0.96f, 0.96f, 0.96f)));
+                colors.push_back(Pair<String, Color>("functions", Color(0.96f, 0.52f, 0.51f)));
+                colors.push_back(Pair<String, Color>("data", Color(0.5f, 0.96f, 0.81f)));
+                colors.push_back(Pair<String, Color>("operators", Color(0.67f, 0.59f, 0.87f)));
+                colors.push_back(Pair<String, Color>("custom", Color(0.5f, 0.73f, 0.96f)));
+                colors.push_back(Pair<String, Color>("constants", Color(0.96f, 0.5f, 0.69f)));
+            } else {
+                colors.push_back(Pair<String, Color>("flow_control", Color(0.26f, 0.26f, 0.26f)));
+                colors.push_back(Pair<String, Color>("functions", Color(0.95f, 0.4f, 0.38f)));
+                colors.push_back(Pair<String, Color>("data", Color(0.07f, 0.73f, 0.51f)));
+                colors.push_back(Pair<String, Color>("operators", Color(0.51f, 0.4f, 0.82f)));
+                colors.push_back(Pair<String, Color>("custom", Color(0.31f, 0.63f, 0.95f)));
+                colors.push_back(Pair<String, Color>("constants", Color(0.94f, 0.18f, 0.49f)));
+            }
+
+            for (List<Pair<String, Color>>::Element *E = colors.front(); E; E = E->next()) {
+                Ref<StyleBoxFlat> sb(dynamic_ref_cast<StyleBoxFlat>(tm->get_stylebox("frame", "GraphNode")));
+                if (sb) {
+                    Ref<StyleBoxFlat> frame_style(dynamic_ref_cast<StyleBoxFlat>(sb->duplicate()));
+                    Color c = sb->get_border_color();
+                    Color cn = E->deref().second;
+                    cn.a = c.a;
+                    frame_style->set_border_color(cn);
+                    node_styles[E->deref().first] = frame_style;
+                }
+            }
+
+            if (is_visible_in_tree() && script) {
+                _update_members();
+                _update_graph();
+            }
+        } break;
+        case NOTIFICATION_VISIBILITY_CHANGED: {
+            members_section->set_visible(is_visible_in_tree());
+        } break;
     }
 }
 
@@ -4543,6 +4552,8 @@ void VisualScriptEditor::_member_option(int p_option) {
             } else if (p_option == MEMBER_EDIT) {
                 selected = members->get_selected()->get_text(0);
                 function_name_edit->popup();
+                function_name_box->set_text(selected);
+                function_name_box->select_all();
             }
         } break;
         case MEMBER_VARIABLE: {
@@ -4764,7 +4775,7 @@ VisualScriptEditor::VisualScriptEditor() {
     add_nds->connect("pressed", this, "_add_node_dialog");
 
     Button *fn_btn = memnew(Button);
-    fn_btn->set_text("Add Function");
+    fn_btn->set_text("Add Function...");
     graph_hbc->add_child(fn_btn);
     fn_btn->connect("pressed", this, "_create_function_dialog");
 
@@ -4792,17 +4803,20 @@ VisualScriptEditor::VisualScriptEditor() {
 
     Button *add_input_button = memnew(Button);
     add_input_button->set_h_size_flags(SIZE_EXPAND_FILL);
-    add_input_button->set_text(TTR("Add input +"));
+    add_input_button->set_text(TTR("Add Input"));
     add_input_button->connect("pressed", this, "_add_func_input");
     function_vb->add_child(add_input_button);
 
-    func_input_vbox = memnew(VBoxContainer);
-    function_vb->add_child(func_input_vbox);
+    func_input_scroll = memnew(ScrollContainer);
+    func_input_scroll->set_v_size_flags(SIZE_EXPAND_FILL);
+    function_vb->add_child(func_input_scroll);
 
-    function_vb->add_child(memnew(HSeparator));
+    func_input_vbox = memnew(VBoxContainer);
+    func_input_vbox->set_h_size_flags(SIZE_EXPAND_FILL);
+    func_input_scroll->add_child(func_input_vbox);
 
     function_create_dialog = memnew(ConfirmationDialog);
-    function_create_dialog->set_custom_minimum_size(Size2(450 * EDSCALE, 0));
+    function_create_dialog->set_custom_minimum_size(Size2(450 * EDSCALE, 300));
     function_create_dialog->set_v_size_flags(SIZE_EXPAND_FILL);
     function_create_dialog->set_title(TTR("Create Function"));
     function_create_dialog->add_child(function_vb);

@@ -40,7 +40,7 @@ class Vector;
 class NodePath {
 
 
-	mutable class Data *data=nullptr;
+    mutable struct Data *data=nullptr;
     mutable bool hash_cache_valid=false;
     mutable uint32_t hash_cache;
 

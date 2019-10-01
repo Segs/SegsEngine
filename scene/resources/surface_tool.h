@@ -28,14 +28,13 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef SURFACE_TOOL_H
-#define SURFACE_TOOL_H
+#pragma once
 
 #include "scene/resources/mesh.h"
 
 #include "thirdparty/misc/mikktspace.h"
 
-class SurfaceTool : public Reference {
+class GODOT_EXPORT SurfaceTool : public Reference {
 
     GDCLASS(SurfaceTool,Reference)
 
@@ -72,8 +71,8 @@ private:
     int format;
     Ref<Material> material;
     //arrays
-    List<Vertex> vertex_array;
-    List<int> index_array;
+    PODVector<Vertex> vertex_array;
+    PODVector<int> index_array;
     Map<int, bool> smooth_groups;
 
     //memory
@@ -85,8 +84,8 @@ private:
     Vector<float> last_weights;
     Plane last_tangent;
 
-    void _create_list_from_arrays(Array arr, List<Vertex> *r_vertex, List<int> *r_index, int &lformat);
-    void _create_list(const Ref<Mesh> &p_existing, int p_surface, List<Vertex> *r_vertex, List<int> *r_index, int &lformat);
+    void _create_list_from_arrays(Array arr, PODVector<Vertex> *r_vertex, PODVector<int> *r_index, int &lformat);
+    void _create_list(const Ref<Mesh> &p_existing, int p_surface, PODVector<Vertex> *r_vertex, PODVector<int> *r_index, int &lformat);
 
     //mikktspace callbacks
     static int mikktGetNumFaces(const SMikkTSpaceContext *pContext);
@@ -126,7 +125,7 @@ public:
 
     void clear();
 
-    List<Vertex> &get_vertex_array() { return vertex_array; }
+    PODVector<Vertex> &get_vertex_array() { return vertex_array; }
 
     void create_from_triangle_arrays(const Array &p_arrays);
     static Vector<Vertex> create_vertex_array_from_triangle_arrays(const Array &p_arrays);
@@ -138,5 +137,3 @@ public:
 
     SurfaceTool();
 };
-
-#endif

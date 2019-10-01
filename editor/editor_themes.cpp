@@ -113,153 +113,157 @@ Ref<ImageTexture> editor_generate_icon(const QString &resource_path,bool p_conve
 #define ADD_CONVERT_COLOR(dictionary, old_color, new_color) dictionary[Color::html(old_color)] = Color::html(new_color)
 #endif
 
-void editor_register_and_generate_icons(Ref<Theme> p_theme, bool p_dark_theme = true, int p_thumb_size = 32, bool p_only_thumbs = false) {
+void editor_register_and_generate_icons(
+        Ref<Theme> p_theme, bool p_dark_theme = true, int p_thumb_size = 32, bool p_only_thumbs = false) {
+    ImageFormatLoader * loader= ImageLoader::recognize("svg");
+    if (loader) {
+        Dictionary dark_icon_color_dictionary;
+        if (!p_dark_theme) {
+            // convert color:                              FROM       TO
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#e0e0e0", "#5a5a5a"); // common icon color
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#ffffff", "#414141"); // white
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#b4b4b4", "#363636"); // script darker color
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#f9f9f9", "#606060"); // scrollbar grabber highlight color
 
-#ifdef SVG_ENABLED
-    Dictionary dark_icon_color_dictionary;
-    if (!p_dark_theme) {
-        //convert color:                              FROM       TO
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#e0e0e0", "#5a5a5a"); // common icon color
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#ffffff", "#414141"); // white
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#b4b4b4", "#363636"); // script darker color
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#f9f9f9", "#606060"); // scrollbar grabber highlight color
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#cea4f1", "#a85de9"); // animation
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#fc9c9c", "#cd3838"); // spatial
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#a5b7f3", "#3d64dd"); // 2d
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#708cea", "#1a3eac"); // 2d dark
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#a5efac", "#2fa139"); // control
 
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#cea4f1", "#a85de9"); // animation
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#fc9c9c", "#cd3838"); // spatial
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#a5b7f3", "#3d64dd"); // 2d
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#708cea", "#1a3eac"); // 2d dark
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#a5efac", "#2fa139"); // control
+            // rainbow
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#ff7070", "#ff2929"); // red
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#ffeb70", "#ffe337"); // yellow
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#9dff70", "#74ff34"); // green
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#70ffb9", "#2cff98"); // aqua
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#70deff", "#22ccff"); // blue
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#9f70ff", "#702aff"); // purple
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#ff70ac", "#ff2781"); // pink
 
-        // rainbow
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#ff7070", "#ff2929"); // red
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#ffeb70", "#ffe337"); // yellow
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#9dff70", "#74ff34"); // green
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#70ffb9", "#2cff98"); // aqua
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#70deff", "#22ccff"); // blue
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#9f70ff", "#702aff"); // purple
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#ff70ac", "#ff2781"); // pink
+            // audio gradient
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#ff8484", "#ff4040"); // red
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#e1dc7a", "#d6cf4b"); // yellow
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#84ffb1", "#00f010"); // green
 
-        // audio gradient
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#ff8484", "#ff4040"); // red
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#e1dc7a", "#d6cf4b"); // yellow
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#84ffb1", "#00f010"); // green
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#ffd684", "#fea900"); // mesh (orange)
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#40a2ff", "#68b6ff"); // shape (blue)
 
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#ffd684", "#fea900"); // mesh (orange)
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#40a2ff", "#68b6ff"); // shape (blue)
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#ff8484", "#ff3333"); // remove (red)
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#84ffb1", "#00db50"); // add (green)
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#84c2ff", "#5caeff"); // selection (blue)
 
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#ff8484", "#ff3333"); // remove (red)
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#84ffb1", "#00db50"); // add (green)
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#84c2ff", "#5caeff"); // selection (blue)
+            // Animation editor tracks
+            // The property track icon color is set by the common icon color
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#ea9568", "#bd5e2c"); // 3D Transform track
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#66f376", "#16a827"); // Call Method track
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#5792f6", "#236be6"); // Bezier Curve track
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#eae668", "#9f9722"); // Audio Playback track
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#b76ef0", "#9853ce"); // Animation Playback track
 
-        // Animation editor tracks
-        // The property track icon color is set by the common icon color
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#ea9568", "#bd5e2c"); // 3D Transform track
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#66f376", "#16a827"); // Call Method track
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#5792f6", "#236be6"); // Bezier Curve track
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#eae668", "#9f9722"); // Audio Playback track
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#b76ef0", "#9853ce"); // Animation Playback track
-
-        // TileSet editor icons
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#fce844", "#aa8d24"); // New Single Tile
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#4490fc", "#0350bd"); // New Autotile
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#c9cfd4", "#828f9b"); // New Atlas
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#69ecbd", "#25e3a0"); // VS variant
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#8da6f0", "#6d8eeb"); // VS bool
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#7dc6ef", "#4fb2e9"); // VS int
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#61daf4", "#27ccf0"); // VS float
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#6ba7ec", "#4690e7"); // VS string
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#bd91f1", "#ad76ee"); // VS vector2
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#f191a5", "#ee758e"); // VS rect
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#e286f0", "#dc6aed"); // VS vector3
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#c4ec69", "#96ce1a"); // VS transform2D
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#f77070", "#f77070"); // VS plane
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#ec69a3", "#ec69a3"); // VS quat
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#ee7991", "#ee7991"); // VS aabb
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#e3ec69", "#b2bb19"); // VS basis
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#f6a86e", "#f49047"); // VS transform
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#6993ec", "#6993ec"); // VS path
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#69ec9a", "#2ce573"); // VS rid
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#79f3e8", "#12d5c3"); // VS object
-        ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#77edb1", "#57e99f"); // VS dict
-    }
-
-    // these ones should be converted even if we are using a dark theme
-    const Color error_color = p_theme->get_color("error_color", "Editor");
-    const Color success_color = p_theme->get_color("success_color", "Editor");
-    const Color warning_color = p_theme->get_color("warning_color", "Editor");
-    dark_icon_color_dictionary[Color::html("#ff0000")] = error_color;
-    dark_icon_color_dictionary[Color::html("#45ff8b")] = success_color;
-    dark_icon_color_dictionary[Color::html("#dbab09")] = warning_color;
-
-    List<String> exceptions;
-    exceptions.push_back("EditorPivot");
-    exceptions.push_back("EditorHandle");
-    exceptions.push_back("Editor3DHandle");
-    exceptions.push_back("Godot");
-    exceptions.push_back("PanoramaSky");
-    exceptions.push_back("ProceduralSky");
-    exceptions.push_back("EditorControlAnchor");
-    exceptions.push_back("DefaultProjectIcon");
-    exceptions.push_back("GuiCloseCustomizable");
-    exceptions.push_back("GuiGraphNodePort");
-    exceptions.push_back("GuiResizer");
-    exceptions.push_back("ZoomMore");
-    exceptions.push_back("ZoomLess");
-    exceptions.push_back("ZoomReset");
-    exceptions.push_back("LockViewport");
-    exceptions.push_back("GroupViewport");
-    exceptions.push_back("StatusError");
-    exceptions.push_back("StatusSuccess");
-    exceptions.push_back("StatusWarning");
-    exceptions.push_back("NodeWarning");
-	exceptions.push_back("OverbrightIndicator");
-
-    ImageLoaderSVG::set_convert_colors(&dark_icon_color_dictionary);
-
-    // generate icons
-    if (!p_only_thumbs) {
-        QDirIterator embedded_icons(":/icons",{"*.svg"});
-        while(embedded_icons.hasNext()) {
-            const QString resourcepath = embedded_icons.next();
-            const QString base_name=embedded_icons.fileInfo().baseName();
-            List<String>::Element *is_exception = exceptions.find(qPrintable(base_name));
-            if (is_exception)
-                exceptions.erase(is_exception);
-            Ref<ImageTexture> icon = editor_generate_icon(resourcepath, !is_exception);
-            p_theme->set_icon(StringName(base_name), "EditorIcons", icon);
+            // TileSet editor icons
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#fce844", "#aa8d24"); // New Single Tile
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#4490fc", "#0350bd"); // New Autotile
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#c9cfd4", "#828f9b"); // New Atlas
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#69ecbd", "#25e3a0"); // VS variant
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#8da6f0", "#6d8eeb"); // VS bool
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#7dc6ef", "#4fb2e9"); // VS int
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#61daf4", "#27ccf0"); // VS float
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#6ba7ec", "#4690e7"); // VS string
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#bd91f1", "#ad76ee"); // VS vector2
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#f191a5", "#ee758e"); // VS rect
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#e286f0", "#dc6aed"); // VS vector3
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#c4ec69", "#96ce1a"); // VS transform2D
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#f77070", "#f77070"); // VS plane
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#ec69a3", "#ec69a3"); // VS quat
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#ee7991", "#ee7991"); // VS aabb
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#e3ec69", "#b2bb19"); // VS basis
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#f6a86e", "#f49047"); // VS transform
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#6993ec", "#6993ec"); // VS path
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#69ec9a", "#2ce573"); // VS rid
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#79f3e8", "#12d5c3"); // VS object
+            ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#77edb1", "#57e99f"); // VS dict
         }
-    }
 
-    // generate thumb files with the given thumb size
-    bool force_filter = !(p_thumb_size == 64 && p_thumb_size == 32); // we don't need filter with original resolution
-    if (p_thumb_size >= 64) {
-        float scale = (float)p_thumb_size / 64.0f * EDSCALE;
-        QDirIterator embedded_icons(":/icons/big_thumbs",{"*.svg"});
-        while(embedded_icons.hasNext()) {
-            const QString resourcepath = embedded_icons.next();
-            const QString base_name=embedded_icons.fileInfo().baseName();
-            List<String>::Element *is_exception = exceptions.find(qPrintable(base_name));
-            if (is_exception) exceptions.erase(is_exception);
-            Ref<ImageTexture> icon = editor_generate_icon(resourcepath, !p_dark_theme && !is_exception, scale, force_filter);
-            p_theme->set_icon(StringName(base_name), "EditorIcons", icon);
+        // these ones should be converted even if we are using a dark theme
+        const Color error_color = p_theme->get_color("error_color", "Editor");
+        const Color success_color = p_theme->get_color("success_color", "Editor");
+        const Color warning_color = p_theme->get_color("warning_color", "Editor");
+        dark_icon_color_dictionary[Color::html("#ff0000")] = error_color;
+        dark_icon_color_dictionary[Color::html("#45ff8b")] = success_color;
+        dark_icon_color_dictionary[Color::html("#dbab09")] = warning_color;
+        // Setup svg color conversion
+        loader->set_loader_option(0,&dark_icon_color_dictionary);
+
+        List<String> exceptions;
+        exceptions.push_back("EditorPivot");
+        exceptions.push_back("EditorHandle");
+        exceptions.push_back("Editor3DHandle");
+        exceptions.push_back("Godot");
+        exceptions.push_back("PanoramaSky");
+        exceptions.push_back("ProceduralSky");
+        exceptions.push_back("EditorControlAnchor");
+        exceptions.push_back("DefaultProjectIcon");
+        exceptions.push_back("GuiCloseCustomizable");
+        exceptions.push_back("GuiGraphNodePort");
+        exceptions.push_back("GuiResizer");
+        exceptions.push_back("ZoomMore");
+        exceptions.push_back("ZoomLess");
+        exceptions.push_back("ZoomReset");
+        exceptions.push_back("LockViewport");
+        exceptions.push_back("GroupViewport");
+        exceptions.push_back("StatusError");
+        exceptions.push_back("StatusSuccess");
+        exceptions.push_back("StatusWarning");
+        exceptions.push_back("NodeWarning");
+        exceptions.push_back("OverbrightIndicator");
+
+
+        // generate icons
+        if (!p_only_thumbs) {
+            QDirIterator embedded_icons(":/icons", { "*.svg" });
+            while (embedded_icons.hasNext()) {
+                const QString resourcepath = embedded_icons.next();
+                const QString base_name = embedded_icons.fileInfo().baseName();
+                List<String>::Element *is_exception = exceptions.find(qPrintable(base_name));
+                if (is_exception) exceptions.erase(is_exception);
+                Ref<ImageTexture> icon = editor_generate_icon(resourcepath, !is_exception);
+                p_theme->set_icon(StringName(base_name), "EditorIcons", icon);
+            }
         }
+
+        // generate thumb files with the given thumb size
+        bool force_filter =
+                !(p_thumb_size == 64 && p_thumb_size == 32); // we don't need filter with original resolution
+        if (p_thumb_size >= 64) {
+            float scale = (float)p_thumb_size / 64.0f * EDSCALE;
+            QDirIterator embedded_icons(":/icons/big_thumbs", { "*.svg" });
+            while (embedded_icons.hasNext()) {
+                const QString resourcepath = embedded_icons.next();
+                const QString base_name = embedded_icons.fileInfo().baseName();
+                List<String>::Element *is_exception = exceptions.find(qPrintable(base_name));
+                if (is_exception) exceptions.erase(is_exception);
+                Ref<ImageTexture> icon =
+                        editor_generate_icon(resourcepath, !p_dark_theme && !is_exception, scale, force_filter);
+                p_theme->set_icon(StringName(base_name), "EditorIcons", icon);
+            }
+        } else {
+            float scale = (float)p_thumb_size / 32.0f * EDSCALE;
+            QDirIterator embedded_icons(":/icons/medium_thumbs", { "*.svg" });
+            while (embedded_icons.hasNext()) {
+                const QString resourcepath = embedded_icons.next();
+                const QString base_name = embedded_icons.fileInfo().baseName();
+                List<String>::Element *is_exception = exceptions.find(qPrintable(base_name));
+                if (is_exception) exceptions.erase(is_exception);
+                Ref<ImageTexture> icon =
+                        editor_generate_icon(resourcepath, !p_dark_theme && !is_exception, scale, force_filter);
+                p_theme->set_icon(StringName(base_name), "EditorIcons", icon);
+            }
+        }
+        // Reset svg color conversion
+        loader->set_loader_option(0,nullptr);
     } else {
-        float scale = (float)p_thumb_size / 32.0f * EDSCALE;
-        QDirIterator embedded_icons(":/icons/medium_thumbs",{"*.svg"});
-        while(embedded_icons.hasNext()) {
-            const QString resourcepath = embedded_icons.next();
-            const QString base_name=embedded_icons.fileInfo().baseName();
-            List<String>::Element *is_exception = exceptions.find(qPrintable(base_name));
-            if (is_exception) exceptions.erase(is_exception);
-            Ref<ImageTexture> icon = editor_generate_icon(resourcepath, !p_dark_theme && !is_exception, scale, force_filter);
-            p_theme->set_icon(StringName(base_name), "EditorIcons", icon);
-        }
+        print_line("SVG plugin disabled, editor icons won't be rendered.");
     }
-
-    ImageLoaderSVG::set_convert_colors(nullptr);
-#else
-    print_line("SVG support disabled, editor icons won't be rendered.");
-#endif
 }
 
 Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
@@ -1138,19 +1142,20 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
     const Color dim_color = Color(font_color.r, font_color.g, font_color.b, 0.5);
 
     const float mono_value = mono_color.r;
-    const Color alpha1 = Color(mono_value, mono_value, mono_value, 0.07);
-    const Color alpha2 = Color(mono_value, mono_value, mono_value, 0.14);
-    const Color alpha3 = Color(mono_value, mono_value, mono_value, 0.7);
+    const Color alpha1 = Color(mono_value, mono_value, mono_value, 0.07f);
+    const Color alpha2 = Color(mono_value, mono_value, mono_value, 0.14f);
+    const Color alpha3 = Color(mono_value, mono_value, mono_value, 0.7f);
 
     // editor main color
-    const Color main_color = dark_theme ? Color(0.34, 0.7, 1.0) : Color(0.02, 0.5, 1.0);
+    const Color main_color = dark_theme ? Color(0.34f, 0.7f, 1.0) : Color(0.02f, 0.5, 1.0);
 
-    const Color symbol_color = Color(0.34, 0.57, 1.0).linear_interpolate(mono_color, dark_theme ? 0.5 : 0.3);
-    const Color keyword_color = Color(1.0, 0.44, 0.52);
-    const Color basetype_color = dark_theme ? Color(0.26, 1.0, 0.76) : Color(0.0, 0.76, 0.38);
-    const Color type_color = basetype_color.linear_interpolate(mono_color, dark_theme ? 0.7 : 0.5);
+    const Color symbol_color = Color(0.34f, 0.57f, 1.0).linear_interpolate(mono_color, dark_theme ? 0.5f : 0.3f);
+    const Color keyword_color = Color(1.0, 0.44f, 0.52f);
+    const Color basetype_color = dark_theme ? Color(0.26f, 1.0, 0.76f) : Color(0.0, 0.76f, 0.38f);
+    const Color type_color = basetype_color.linear_interpolate(mono_color, dark_theme ? 0.4f : 0.3f);
+    const Color usertype_color = basetype_color.linear_interpolate(mono_color, dark_theme ? 0.7f : 0.5);
     const Color comment_color = dim_color;
-    const Color string_color = (dark_theme ? Color(1.0, 0.85, 0.26) : Color(1.0, 0.82, 0.09)).linear_interpolate(mono_color, dark_theme ? 0.5 : 0.3);
+    const Color string_color = (dark_theme ? Color(1.0, 0.85f, 0.26f) : Color(1.0, 0.82f, 0.09f)).linear_interpolate(mono_color, dark_theme ? 0.5 : 0.3f);
 
     const Color te_background_color = dark_theme ? background_color : base_color;
     const Color completion_background_color = dark_theme ? base_color : background_color;
@@ -1169,16 +1174,16 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
     const Color current_line_color = alpha1;
     const Color line_length_guideline_color = dark_theme ? base_color : background_color;
     const Color word_highlighted_color = alpha1;
-    const Color number_color = basetype_color.linear_interpolate(mono_color, dark_theme ? 0.5 : 0.3);
+    const Color number_color = basetype_color.linear_interpolate(mono_color, dark_theme ? 0.5 : 0.3f);
     const Color function_color = main_color;
-    const Color member_variable_color = main_color.linear_interpolate(mono_color, 0.6);
-    const Color mark_color = Color(error_color.r, error_color.g, error_color.b, 0.3);
-    const Color bookmark_color = Color(0.08, 0.49, 0.98);
+    const Color member_variable_color = main_color.linear_interpolate(mono_color, 0.6f);
+    const Color mark_color = Color(error_color.r, error_color.g, error_color.b, 0.3f);
+    const Color bookmark_color = Color(0.08f, 0.49f, 0.98f);
     const Color breakpoint_color = error_color;
-    const Color executing_line_color = Color(0.2, 0.8, 0.2, 0.4);
+    const Color executing_line_color = Color(0.2f, 0.8f, 0.2f, 0.4f);
     const Color code_folding_color = alpha3;
     const Color search_result_color = alpha1;
-    const Color search_result_border_color = Color(0.41, 0.61, 0.91, 0.38);
+    const Color search_result_border_color = Color(0.41f, 0.61f, 0.91f, 0.38f);
 
     EditorSettings *setting = EditorSettings::get_singleton();
     String text_editor_color_theme = setting->get("text_editor/theme/color_theme");
@@ -1187,6 +1192,7 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
         setting->set_initial_value("text_editor/highlighting/keyword_color", keyword_color, true);
         setting->set_initial_value("text_editor/highlighting/base_type_color", basetype_color, true);
         setting->set_initial_value("text_editor/highlighting/engine_type_color", type_color, true);
+        setting->set_initial_value("text_editor/highlighting/user_type_color", usertype_color, true);
         setting->set_initial_value("text_editor/highlighting/comment_color", comment_color, true);
         setting->set_initial_value("text_editor/highlighting/string_color", string_color, true);
         setting->set_initial_value("text_editor/highlighting/background_color", te_background_color, true);

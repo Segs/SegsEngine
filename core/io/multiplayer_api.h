@@ -34,7 +34,6 @@
 #include "core/reference.h"
 #include "core/map.h"
 #include "core/hash_map.h"
-#include "core/method_enum_caster.h"
 #include "core/set.h"
 
 class MultiplayerAPI : public Reference {
@@ -66,23 +65,8 @@ private:
 
         Map<int, NodeInfo> nodes;
     };
-#ifdef DEBUG_ENABLED
-    struct BandwidthFrame {
-        uint32_t timestamp;
-        int packet_size;
-    };
-
-    int bandwidth_incoming_pointer;
-    Vector<BandwidthFrame> bandwidth_incoming_data;
-    int bandwidth_outgoing_pointer;
-    Vector<BandwidthFrame> bandwidth_outgoing_data;
-    Map<ObjectID, ProfilingInfo> profiler_frame_data;
-    bool profiling;
-
-    void _init_node_profile(ObjectID p_node);
-    int _get_bandwidth_usage(const Vector<BandwidthFrame> &p_buffer, int p_pointer);
-#endif
-
+    class DebugData;
+    DebugData *m_debug_data = nullptr;
     Ref<NetworkedMultiplayerPeer> network_peer;
     int rpc_sender_id;
     Set<int> connected_peers;

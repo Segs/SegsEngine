@@ -217,7 +217,7 @@ void Main::print_help(const String &p_binary) {
     OS::get_singleton()->print("(c) 2007-2019 Juan Linietsky, Ariel Manzur.\n");
     OS::get_singleton()->print("(c) 2014-2019 Godot Engine contributors.\n");
     OS::get_singleton()->print("\n");
-    OS::get_singleton()->print(FormatV("Usage: %s [options] [path to scene or 'project.godot' file]\n", p_binary));
+    OS::get_singleton()->print(FormatV("Usage: %s [options] [path to scene or 'project.godot' file]\n", qPrintable(p_binary.m_str)));
     OS::get_singleton()->print("\n");
 
     OS::get_singleton()->print("General options:\n");
@@ -466,6 +466,30 @@ Error Main::setup(bool p_second_phase) {
             if (N != args.end()) {
 
                 audio_driver =*N;
+                bool found = false;
+                for (int i = 0; i < OS::get_singleton()->get_audio_driver_count(); i++) {
+                    if (audio_driver == OS::get_singleton()->get_audio_driver_name(i)) {
+                        found = true;
+                    }
+                }
+
+                if (!found) {
+                    OS::get_singleton()->print(FormatV("Unknown audio driver '%s', aborting.\nValid options are ", qPrintable(audio_driver.m_str)));
+
+                    for (int i = 0; i < OS::get_singleton()->get_audio_driver_count(); i++) {
+                        if (i == OS::get_singleton()->get_audio_driver_count() - 1) {
+                            OS::get_singleton()->print(" and ");
+                        } else if (i != 0) {
+                            OS::get_singleton()->print(", ");
+                        }
+
+                        OS::get_singleton()->print(FormatV("'%s'",OS::get_singleton()->get_audio_driver_name(i)));
+                    }
+
+                    OS::get_singleton()->print(".\n");
+
+                    goto error;
+                }
                 ++N;
             } else {
                 OS::get_singleton()->print("Missing audio driver argument, aborting.\n");
@@ -477,6 +501,30 @@ Error Main::setup(bool p_second_phase) {
             if (N != args.end()) {
 
                 video_driver = *N;
+                bool found = false;
+                for (int i = 0; i < OS::get_singleton()->get_video_driver_count(); i++) {
+                    if (video_driver == OS::get_singleton()->get_video_driver_name(i)) {
+                        found = true;
+                    }
+                }
+
+                if (!found) {
+                    OS::get_singleton()->print(FormatV("Unknown video driver '%s', aborting.\nValid options are ", qPrintable(video_driver.m_str)));
+
+                    for (int i = 0; i < OS::get_singleton()->get_video_driver_count(); i++) {
+                        if (i == OS::get_singleton()->get_video_driver_count() - 1) {
+                            OS::get_singleton()->print(" and ");
+                        } else if (i != 0) {
+                            OS::get_singleton()->print(", ");
+                        }
+
+                        OS::get_singleton()->print(FormatV("'%s'", OS::get_singleton()->get_video_driver_name(i)));
+                    }
+
+                    OS::get_singleton()->print(".\n");
+
+                    goto error;
+                }
                 ++N;
             } else {
                 OS::get_singleton()->print("Missing video driver argument, aborting.\n");
@@ -1033,10 +1081,7 @@ Error Main::setup(bool p_second_phase) {
     }
 
     if (video_driver_idx < 0) {
-
-        //OS::get_singleton()->alert("Invalid Video Driver: " + video_driver);
         video_driver_idx = 0;
-        //goto error;
     }
 
     if (audio_driver.empty()) { // specified in project.godot
@@ -1053,10 +1098,7 @@ Error Main::setup(bool p_second_phase) {
     }
 
     if (audio_driver_idx < 0) {
-
-        OS::get_singleton()->alert("Invalid Audio Driver: " + audio_driver);
         audio_driver_idx = 0;
-        //goto error;
     }
 
     {

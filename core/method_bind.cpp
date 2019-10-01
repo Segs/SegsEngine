@@ -72,7 +72,7 @@ void MethodBind::set_argument_names(const PODVector<StringName> &p_names) {
 
     arg_names = p_names;
 }
-PODVector<StringName> MethodBind::get_argument_names() const {
+const PODVector<StringName> &MethodBind::get_argument_names() const {
 
     return arg_names;
 }

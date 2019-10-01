@@ -90,7 +90,6 @@ struct UndoRedo::PrivateData
 
         if (actions.empty())
             return;
-        size_t start=actions[0].undo_ops.size();
 
         for (Operation &op : actions[0].undo_ops) {
             assert(actions[0].undo_ops.size()==start);
@@ -404,7 +403,7 @@ void UndoRedo::add_undo_reference(Object *p_object) {
 
     ERR_FAIL_COND(p_object == nullptr)
     ERR_FAIL_COND(pimpl->action_level <= 0)
-    ERR_FAIL_COND((pimpl->current_action + 1) >= pimpl->actions.size())
+    ERR_FAIL_COND(size_t(pimpl->current_action + 1) >= pimpl->actions.size())
     pimpl->add_undo_reference(p_object);
 }
 
@@ -467,7 +466,7 @@ bool UndoRedo::has_undo() {
 
 bool UndoRedo::has_redo() {
 
-    return (pimpl->current_action + 1) < pimpl->actions.size();
+    return size_t(pimpl->current_action + 1) < pimpl->actions.size();
 }
 
 uint64_t UndoRedo::get_version() const {

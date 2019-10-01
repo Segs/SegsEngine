@@ -28,14 +28,13 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef COMPRESSED_TRANSLATION_H
-#define COMPRESSED_TRANSLATION_H
+#pragma once
 
 #include "core/translation.h"
 
-class PHashTranslation : public Translation {
+class GODOT_EXPORT PHashTranslation : public Translation {
 
-    GDCLASS(PHashTranslation, Translation);
+    GDCLASS(PHashTranslation, Translation)
 
     //this translation uses a sort of modified perfect hash algorithm
     //it requires hashing strings twice and then does a binary search,
@@ -88,5 +87,3 @@ public:
 
     PHashTranslation();
 };
-
-#endif // COMPRESSED_TRANSLATION_H

@@ -5540,6 +5540,7 @@ void CanvasItemEditorViewport::_create_preview(const Vector<String> &files) cons
     for (int i = 0; i < files.size(); i++) {
         String path = files[i];
         RES res(ResourceLoader::load(path));
+        ERR_FAIL_COND(not res)
         Ref<Texture> texture = Ref<Texture>(Object::cast_to<Texture>(res.get()));
         Ref<PackedScene> scene = Ref<PackedScene>(Object::cast_to<PackedScene>(res.get()));
         if (texture != nullptr || scene != nullptr) {

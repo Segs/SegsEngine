@@ -736,9 +736,8 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
 
             editor_data->get_undo_redo().create_action(TTR("Make node as Root"));
             editor_data->get_undo_redo().add_do_method(node->get_parent(), "remove_child", Variant(node));
-            editor_data->get_undo_redo().add_do_method(root->get_parent(), "remove_child", Variant(root));
-            editor_data->get_undo_redo().add_do_method(node, "add_child", Variant(root));
             editor_data->get_undo_redo().add_do_method(editor, "set_edited_scene", Variant(node));
+            editor_data->get_undo_redo().add_do_method(node, "add_child", Variant(root));
             editor_data->get_undo_redo().add_do_method(node, "set_filename", root->get_filename());
             editor_data->get_undo_redo().add_do_method(root, "set_filename", String());
             editor_data->get_undo_redo().add_do_method(node, "set_owner", Variant((Object *)nullptr));
@@ -750,9 +749,9 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
             editor_data->get_undo_redo().add_undo_method(node, "remove_child", Variant(root));
             editor_data->get_undo_redo().add_undo_method(editor, "set_edited_scene", Variant(root));
             editor_data->get_undo_redo().add_undo_method(node->get_parent(), "add_child", Variant(node));
+            editor_data->get_undo_redo().add_undo_method(node->get_parent(), "move_child", Variant(node), node->get_index());
             editor_data->get_undo_redo().add_undo_method(root, "set_owner", Variant((Object *)nullptr));
             editor_data->get_undo_redo().add_undo_method(node, "set_owner", Variant(root));
-
             _node_replace_owner(root, root, root, MODE_UNDO);
 
             editor_data->get_undo_redo().add_do_method(scene_tree, "update_tree");

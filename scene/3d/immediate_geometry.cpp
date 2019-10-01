@@ -32,6 +32,8 @@
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(ImmediateGeometry)
+//TODO: SEGS: copied from mesh.cpp
+VARIANT_ENUM_CAST(Mesh::PrimitiveType);
 
 void ImmediateGeometry::begin(Mesh::PrimitiveType p_primitive, const Ref<Texture> &p_texture) {
 

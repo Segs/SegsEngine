@@ -379,29 +379,25 @@ void DocData::generate(bool p_basic_types) {
                 method.qualifiers += "vararg";
             }
 
-            for (int i = -1; i < E.arguments.size(); i++) {
-
-                if (i == -1) {
 #ifdef DEBUG_METHODS_ENABLED
-                    return_doc_from_retinfo(method, E.return_val);
+            return_doc_from_retinfo(method, E.return_val);
 #endif
-                } else {
+            for (size_t i = 0; i < E.arguments.size(); i++) {
 
-                    const PropertyInfo &arginfo = E.arguments[i];
+                const PropertyInfo &arginfo = E.arguments[i];
 
-                    ArgumentDoc argument;
+                ArgumentDoc argument;
 
-                    argument_doc_from_arginfo(argument, arginfo);
+                argument_doc_from_arginfo(argument, arginfo);
 
-                    int darg_idx = i - (E.arguments.size() - E.default_arguments.size());
+                int darg_idx = int(i) - int(E.arguments.size() - E.default_arguments.size());
 
-                    if (darg_idx >= 0) {
-                        Variant default_arg = E.default_arguments[darg_idx];
-                        argument.default_value = default_arg.get_construct_string();
-                    }
-
-                    method.arguments.push_back(argument);
+                if (darg_idx >= 0) {
+                    Variant default_arg = E.default_arguments[darg_idx];
+                    argument.default_value = default_arg.get_construct_string();
                 }
+
+                method.arguments.push_back(argument);
             }
 
             c.methods.push_back(method);

@@ -35,7 +35,7 @@
 
 class String;
 
-struct Color {
+struct GODOT_EXPORT Color {
 
     union {
 
@@ -48,8 +48,8 @@ struct Color {
         float components[4];
     };
 
-    bool operator==(const Color &p_color) const { return (r == p_color.r && g == p_color.g && b == p_color.b && a == p_color.a); }
-    bool operator!=(const Color &p_color) const { return (r != p_color.r || g != p_color.g || b != p_color.b || a != p_color.a); }
+    constexpr bool operator==(Color p_color) const { return (r == p_color.r && g == p_color.g && b == p_color.b && a == p_color.a); }
+    constexpr bool operator!=(Color p_color) const { return (r != p_color.r || g != p_color.g || b != p_color.b || a != p_color.a); }
 
     [[nodiscard]] uint32_t to_rgba32() const;
     [[nodiscard]] uint32_t to_argb32() const;
@@ -66,7 +66,7 @@ struct Color {
     _FORCE_INLINE_ float &operator[](int idx) {
         return components[idx];
     }
-    _FORCE_INLINE_ const float &operator[](int idx) const {
+    _FORCE_INLINE_ float operator[](int idx) const {
         return components[idx];
     }
 
@@ -104,22 +104,20 @@ struct Color {
         return res;
     }
 
-    [[nodiscard]] _FORCE_INLINE_ Color darkened(float p_amount) const {
-
-        Color res = *this;
-        res.r = res.r * (1.0f - p_amount);
-        res.g = res.g * (1.0f - p_amount);
-        res.b = res.b * (1.0f - p_amount);
-        return res;
+    [[nodiscard]] constexpr Color darkened(float p_amount) const {
+        return Color(
+            r * (1.0f - p_amount),
+            g * (1.0f - p_amount),
+            b * (1.0f - p_amount)
+        );
     }
 
     [[nodiscard]] _FORCE_INLINE_ Color lightened(float p_amount) const {
-
-        Color res = *this;
-        res.r = res.r + (1.0f - res.r) * p_amount;
-        res.g = res.g + (1.0f - res.g) * p_amount;
-        res.b = res.b + (1.0f - res.b) * p_amount;
-        return res;
+        return Color(
+            r + (1.0f - r) * p_amount,
+            g + (1.0f - g) * p_amount,
+            b + (1.0f - b) * p_amount
+        );
     }
 
     [[nodiscard]] _FORCE_INLINE_ uint32_t to_rgbe9995() const {
@@ -129,7 +127,7 @@ struct Color {
         //const float Emax = 31.0f;
         const float N = 9.0f;
 
-        float sharedexp = 65408.000f; //(( pow2to9  - 1.0f)/ pow2to9)*powf( 2.0f, 31.0f - 15.0f);
+        float sharedexp = 65408.0f; //(( pow2to9  - 1.0f)/ pow2to9)*powf( 2.0f, 31.0f - 15.0f);
 
         float cRed = MAX(0.0f, MIN(sharedexp, r));
         float cGreen = MAX(0.0f, MIN(sharedexp, g));
@@ -161,7 +159,7 @@ struct Color {
         Color res;
         float sa = 1.0f - p_over.a;
         res.a = a * sa + p_over.a;
-        if (res.a == 0) {
+        if (res.a == 0.0f) {
             return Color(0, 0, 0, 0);
         } else {
             res.r = (r * a * sa + p_over.r * p_over.a) / res.a;
@@ -171,7 +169,7 @@ struct Color {
         return res;
     }
 
-    [[nodiscard]] _FORCE_INLINE_ Color to_linear() const {
+    [[nodiscard]] constexpr Color to_linear() const {
 
         return Color(
                 r < 0.04045f ? r * (1.0f / 12.92f) : Math::pow((r + 0.055f) * (1.0f / (1 + 0.055f)), 2.4f),
@@ -179,7 +177,7 @@ struct Color {
                 b < 0.04045f ? b * (1.0f / 12.92f) : Math::pow((b + 0.055f) * (1.0f / (1 + 0.055f)), 2.4f),
                 a);
     }
-    [[nodiscard]] _FORCE_INLINE_ Color to_srgb() const {
+    [[nodiscard]] constexpr Color to_srgb() const {
 
         return Color(
                 r < 0.0031308f ? 12.92f * r : (1.0f + 0.055f) * Math::pow(r, 1.0f / 2.4f) - 0.055f,
@@ -202,21 +200,13 @@ struct Color {
     /**
      * No construct parameters, r=0, g=0, b=0. a=255
      */
-    _FORCE_INLINE_ Color() {
-        r = 0;
-        g = 0;
-        b = 0;
-        a = 1.0;
+    constexpr _FORCE_INLINE_ Color() : r(0),g(0),b(0),a(1.0f) {
     }
 
     /**
      * RGB / RGBA construct parameters. Alpha is optional, but defaults to 1.0
      */
-    _FORCE_INLINE_ Color(float p_r, float p_g, float p_b, float p_a = 1.0) {
-        r = p_r;
-        g = p_g;
-        b = p_b;
-        a = p_a;
+    constexpr Color(float p_r, float p_g, float p_b, float p_a = 1.0) : r(p_r),g(p_g),b(p_b),a(p_a) {
     }
 };
 

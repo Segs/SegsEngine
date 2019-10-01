@@ -34,6 +34,9 @@
 
 IMPL_GDCLASS(MultiMesh)
 RES_BASE_EXTENSION_IMPL(MultiMesh,"multimesh")
+VARIANT_ENUM_CAST(MultiMesh::TransformFormat);
+VARIANT_ENUM_CAST(MultiMesh::ColorFormat);
+VARIANT_ENUM_CAST(MultiMesh::CustomDataFormat);
 
 void MultiMesh::_set_transform_array(const PoolVector<Vector3> &p_array) {
     if (transform_format != TRANSFORM_3D)

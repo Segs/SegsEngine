@@ -42,6 +42,11 @@ IMPL_GDCLASS(Mesh)
 IMPL_GDCLASS(ArrayMesh)
 RES_BASE_EXTENSION_IMPL(ArrayMesh,"mesh")
 
+VARIANT_ENUM_CAST(Mesh::ArrayType);
+VARIANT_ENUM_CAST(Mesh::ArrayFormat);
+VARIANT_ENUM_CAST(Mesh::PrimitiveType);
+VARIANT_ENUM_CAST(Mesh::BlendShapeMode);
+
 Mesh::ConvexDecompositionFunc Mesh::convex_composition_function = nullptr;
 
 Ref<TriangleMesh> Mesh::generate_triangle_mesh() const {

@@ -38,6 +38,9 @@ Map<ParticlesMaterial::MaterialKey, ParticlesMaterial::ShaderData> ParticlesMate
 ParticlesMaterial::ShaderNames *ParticlesMaterial::shader_names = nullptr;
 
 IMPL_GDCLASS(ParticlesMaterial)
+VARIANT_ENUM_CAST(ParticlesMaterial::Parameter)
+VARIANT_ENUM_CAST(ParticlesMaterial::Flags)
+VARIANT_ENUM_CAST(ParticlesMaterial::EmissionShape)
 
 void ParticlesMaterial::init_shaders() {
 

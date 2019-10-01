@@ -90,7 +90,7 @@ public:
     PropertyInfo get_return_info() const;
 
     void set_argument_names(const PODVector<StringName> &p_names); //set by class, db, can't be inferred otherwise
-    PODVector<StringName> get_argument_names() const;
+    const PODVector<StringName> &get_argument_names() const;
 
     GodotTypeInfo::Metadata get_argument_meta(int p_arg) const;
 
