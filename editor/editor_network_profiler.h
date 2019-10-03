@@ -35,6 +35,7 @@
 #include "scene/gui/label.h"
 #include "scene/gui/split_container.h"
 #include "scene/gui/tree.h"
+#include "core/io/multiplayer_api.h"
 
 class EditorNetworkProfiler : public VBoxContainer {
 

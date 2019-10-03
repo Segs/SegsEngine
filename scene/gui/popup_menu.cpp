@@ -1321,7 +1321,7 @@ bool PopupMenu::is_hide_on_multistate_item_selection() const {
 void PopupMenu::set_submenu_popup_delay(float p_time) {
 
     if (p_time <= 0)
-        p_time = 0.01;
+        p_time = 0.01f;
 
     submenu_timer->set_wait_time(p_time);
 }

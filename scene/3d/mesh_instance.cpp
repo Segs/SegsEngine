@@ -296,9 +296,9 @@ void MeshInstance::set_surface_material(int p_surface, const Ref<Material> &p_ma
     materials.write[p_surface] = p_material;
 
     if (materials[p_surface])
-        VS::get_singleton()->instance_set_surface_material(get_instance(), p_surface, materials[p_surface]->get_rid());
+        VisualServer::get_singleton()->instance_set_surface_material(get_instance(), p_surface, materials[p_surface]->get_rid());
     else
-        VS::get_singleton()->instance_set_surface_material(get_instance(), p_surface, RID());
+        VisualServer::get_singleton()->instance_set_surface_material(get_instance(), p_surface, RID());
 }
 
 Ref<Material> MeshInstance::get_surface_material(int p_surface) const {

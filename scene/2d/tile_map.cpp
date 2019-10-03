@@ -38,6 +38,9 @@
 #include "servers/physics_2d_server.h"
 
 IMPL_GDCLASS(TileMap)
+VARIANT_ENUM_CAST(TileMap::Mode);
+VARIANT_ENUM_CAST(TileMap::HalfOffset);
+VARIANT_ENUM_CAST(TileMap::TileOrigin);
 
 int TileMap::_get_quadrant_size() const {
 
@@ -99,7 +102,7 @@ void TileMap::_notification(int p_what) {
                 }
 
                 for (eastl::pair<const PosKey,Quadrant::Occluder> &F : q.occluder_instances) {
-                    VS::get_singleton()->free(F.second.id);
+                    VisualServer::get_singleton()->free(F.second.id);
                 }
                 q.occluder_instances.clear();
             }
@@ -170,7 +173,7 @@ void TileMap::_update_quadrant_transform() {
         }
 
         for (eastl::pair<const PosKey,Quadrant::Occluder> &F : q.occluder_instances) {
-            VS::get_singleton()->canvas_light_occluder_set_transform(F.second.id, global_transform * F.second.xform);
+            VisualServer::get_singleton()->canvas_light_occluder_set_transform(F.second.id, global_transform * F.second.xform);
         }
     }
 }
@@ -383,7 +386,7 @@ void TileMap::update_dirty_quadrants() {
         }
 
         for (eastl::pair<const PosKey,Quadrant::Occluder> &E : q.occluder_instances) {
-            VS::get_singleton()->free(E.second.id);
+            VisualServer::get_singleton()->free(E.second.id);
         }
         q.occluder_instances.clear();
         Ref<ShaderMaterial> prev_material;
@@ -681,11 +684,11 @@ void TileMap::update_dirty_quadrants() {
                 xform.set_origin(offset.floor() + q.pos);
                 _fix_cell_transform(xform, c, occluder_ofs, s);
 
-                RID orid = VS::get_singleton()->canvas_light_occluder_create();
-                VS::get_singleton()->canvas_light_occluder_set_transform(orid, get_global_transform() * xform);
-                VS::get_singleton()->canvas_light_occluder_set_polygon(orid, occluder->get_rid());
-                VS::get_singleton()->canvas_light_occluder_attach_to_canvas(orid, get_canvas());
-                VS::get_singleton()->canvas_light_occluder_set_light_mask(orid, occluder_light_mask);
+                RID orid = VisualServer::get_singleton()->canvas_light_occluder_create();
+                VisualServer::get_singleton()->canvas_light_occluder_set_transform(orid, get_global_transform() * xform);
+                VisualServer::get_singleton()->canvas_light_occluder_set_polygon(orid, occluder->get_rid());
+                VisualServer::get_singleton()->canvas_light_occluder_attach_to_canvas(orid, get_canvas());
+                VisualServer::get_singleton()->canvas_light_occluder_set_light_mask(orid, occluder_light_mask);
                 Quadrant::Occluder oc;
                 oc.xform = xform;
                 oc.id = orid;
@@ -707,7 +710,7 @@ void TileMap::update_dirty_quadrants() {
             Quadrant &q = E.second;
             for (List<RID>::Element *F = q.canvas_items.front(); F; F = F->next()) {
 
-                VS::get_singleton()->canvas_item_set_draw_index(F->deref(), index++);
+                VisualServer::get_singleton()->canvas_item_set_draw_index(F->deref(), index++);
             }
         }
 
@@ -815,7 +818,7 @@ void TileMap::_erase_quadrant(Map<PosKey, Quadrant>::iterator Q) {
     }
 
     for (eastl::pair<const PosKey,Quadrant::Occluder> &E : q.occluder_instances) {
-        VS::get_singleton()->free(E.second.id);
+        VisualServer::get_singleton()->free(E.second.id);
     }
     q.occluder_instances.clear();
 
@@ -1193,7 +1196,7 @@ void TileMap::_update_all_items_material_state() {
 
 void TileMap::_update_item_material_state(const RID &p_canvas_item) {
 
-    VS::get_singleton()->canvas_item_set_use_parent_material(p_canvas_item, get_use_parent_material() || get_material());
+    VisualServer::get_singleton()->canvas_item_set_use_parent_material(p_canvas_item, get_use_parent_material() || get_material());
 }
 
 void TileMap::clear() {
@@ -1651,7 +1654,7 @@ void TileMap::set_y_sort_mode(bool p_enable) {
 
     _clear_quadrants();
     y_sort_mode = p_enable;
-    VS::get_singleton()->canvas_item_set_sort_children_by_y(get_canvas_item(), y_sort_mode);
+    VisualServer::get_singleton()->canvas_item_set_sort_children_by_y(get_canvas_item(), y_sort_mode);
     _recreate_quadrants();
     emit_signal("settings_changed");
 }

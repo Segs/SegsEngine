@@ -52,13 +52,13 @@ void SoftBodyVisualServerHandler::prepare(RID p_mesh, int p_surface) {
     mesh = p_mesh;
     surface = p_surface;
 
-    const uint32_t surface_format = VS::get_singleton()->mesh_surface_get_format(mesh, surface);
-    const int surface_vertex_len = VS::get_singleton()->mesh_surface_get_array_len(mesh, p_surface);
-    const int surface_index_len = VS::get_singleton()->mesh_surface_get_array_index_len(mesh, p_surface);
+    const uint32_t surface_format = VisualServer::get_singleton()->mesh_surface_get_format(mesh, surface);
+    const int surface_vertex_len = VisualServer::get_singleton()->mesh_surface_get_array_len(mesh, p_surface);
+    const int surface_index_len = VisualServer::get_singleton()->mesh_surface_get_array_index_len(mesh, p_surface);
     uint32_t surface_offsets[VS::ARRAY_MAX];
 
-    buffer = VS::get_singleton()->mesh_surface_get_array(mesh, surface);
-    stride = VS::get_singleton()->mesh_surface_make_offsets_from_format(surface_format, surface_vertex_len, surface_index_len, surface_offsets);
+    buffer = VisualServer::get_singleton()->mesh_surface_get_array(mesh, surface);
+    stride = VisualServer::get_singleton()->mesh_surface_make_offsets_from_format(surface_format, surface_vertex_len, surface_index_len, surface_offsets);
     offset_vertices = surface_offsets[VS::ARRAY_VERTEX];
     offset_normal = surface_offsets[VS::ARRAY_NORMAL];
 }
@@ -81,7 +81,7 @@ void SoftBodyVisualServerHandler::close() {
 }
 
 void SoftBodyVisualServerHandler::commit_changes() {
-    VS::get_singleton()->mesh_surface_update_region(mesh, surface, 0, buffer);
+    VisualServer::get_singleton()->mesh_surface_update_region(mesh, surface, 0, buffer);
 }
 
 void SoftBodyVisualServerHandler::set_vertex(int p_vertex_id, const void *p_vector3) {
@@ -93,7 +93,7 @@ void SoftBodyVisualServerHandler::set_normal(int p_vertex_id, const void *p_vect
 }
 
 void SoftBodyVisualServerHandler::set_aabb(const AABB &p_aabb) {
-    VS::get_singleton()->mesh_set_custom_aabb(mesh, p_aabb);
+    VisualServer::get_singleton()->mesh_set_custom_aabb(mesh, p_aabb);
 }
 
 SoftBody::PinnedPoint::PinnedPoint() :
@@ -461,11 +461,11 @@ void SoftBody::update_physics_server() {
 
         become_mesh_owner();
         PhysicsServer::get_singleton()->soft_body_set_mesh(physics_rid, get_mesh());
-        VS::get_singleton()->connect("frame_pre_draw", this, "_draw_soft_mesh");
+        VisualServer::get_singleton()->connect("frame_pre_draw", this, "_draw_soft_mesh");
     } else {
 
         PhysicsServer::get_singleton()->soft_body_set_mesh(physics_rid, REF());
-        VS::get_singleton()->disconnect("frame_pre_draw", this, "_draw_soft_mesh");
+        VisualServer::get_singleton()->disconnect("frame_pre_draw", this, "_draw_soft_mesh");
     }
 }
 

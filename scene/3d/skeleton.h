@@ -42,7 +42,7 @@ class PhysicalBone;
 
 class Skeleton;
 
-class SkinReference : public Reference {
+class GODOT_EXPORT SkinReference : public Reference {
 	GDCLASS(SkinReference, Reference)
 	friend class Skeleton;
 
@@ -60,7 +60,7 @@ public:
 	Ref<Skin> get_skin() const;
 	~SkinReference();
 };
-class Skeleton : public Spatial {
+class GODOT_EXPORT Skeleton : public Spatial {
 
     GDCLASS(Skeleton,Spatial)
 private:

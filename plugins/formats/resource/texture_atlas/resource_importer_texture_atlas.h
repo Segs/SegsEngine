@@ -38,15 +38,6 @@ class ResourceImporterTextureAtlas : public QObject, public ResourceImporterInte
     Q_PLUGIN_METADATA(IID "org.godot.TextureAtlasImporter")
     Q_INTERFACES(ResourceImporterInterface)
     Q_OBJECT
-
-    struct PackData {
-        Rect2 region;
-        bool is_mesh;
-        Vector<int> chart_pieces; // one for region, many for mesh
-        Vector<Vector<Vector2>> chart_vertices; // for mesh
-        Ref<Image> image;
-    };
-
 public:
     enum ImportMode { IMPORT_MODE_REGION, IMPORT_MODE_2D_MESH };
 

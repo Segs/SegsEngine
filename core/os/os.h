@@ -47,7 +47,7 @@ class Resource;
 template <class T>
 class Ref;
 
-class OS {
+class GODOT_EXPORT OS {
 
     static OS *singleton;
     String _execpath;
@@ -535,8 +535,9 @@ public:
     ListPOD<String> get_restart_on_exit_arguments() const;
 
     virtual bool request_permission(const String &p_name) { return true; }
-
+    virtual void run() = 0;
     virtual void process_and_drop_events() {}
     OS();
     virtual ~OS();
 };
+GODOT_EXPORT OS *instantiateOS(void *);

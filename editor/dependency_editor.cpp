@@ -226,7 +226,7 @@ void DependencyEditor::edit(const String &p_path) {
     set_title(TTR("Dependencies For:") + " " + PathUtils::get_file(p_path));
 
     _update_list();
-    popup_centered_ratio(0.7); // So it doesn't completely cover the dialog below it.
+    popup_centered_ratio(0.7f); // So it doesn't completely cover the dialog below it.
 
     if (EditorNode::get_singleton()->is_scene_open(p_path)) {
         EditorNode::get_singleton()->show_warning(vformat(TTR("Scene '%s' is currently being edited.\nChanges will only take effect when reloaded."), PathUtils::get_file(p_path)));

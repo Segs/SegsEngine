@@ -1,5 +1,6 @@
 #pragma once
 #include "core/cowdata.h"
+#include "core/error_macros.h"
 #include <type_traits>
 
 class Object;

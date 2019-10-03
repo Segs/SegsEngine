@@ -29,10 +29,13 @@
 /*************************************************************************/
 
 #include "font.h"
+#include "font_serializers.h"
 
 #include "core/io/resource_loader.h"
 #include "core/os/file_access.h"
 #include "core/method_bind.h"
+#include "servers/visual_server.h"
+
 
 IMPL_GDCLASS(Font)
 IMPL_GDCLASS(BitmapFont)

@@ -56,6 +56,8 @@ IMPL_GDCLASS(Tree)
 
 VARIANT_ENUM_CAST(Tree::SelectMode);
 VARIANT_ENUM_CAST(Tree::DropModeFlags);
+VARIANT_ENUM_CAST(TreeItem::TreeCellMode);
+VARIANT_ENUM_CAST(TreeItem::TextAlign);
 
 
 void TreeItem::move_to_top() {

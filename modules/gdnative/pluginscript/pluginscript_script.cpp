@@ -296,9 +296,9 @@ Error PluginScript::reload(bool p_keep_state) {
         // rpc_mode is passed as an optional field and is not part of MethodInfo
         Variant var = v["rpc_mode"];
         if (var == Variant()) {
-            _methods_rpc_mode[mi.name] = MultiplayerAPI::RPC_MODE_DISABLED;
+            _methods_rpc_mode[mi.name] = MultiplayerAPI_RPCMode(0);
         } else {
-            _methods_rpc_mode[mi.name] = MultiplayerAPI::RPCMode(int(var));
+            _methods_rpc_mode[mi.name] = MultiplayerAPI_RPCMode(int(var));
         }
     }
     Array *manifest_signals = (Array *)&manifest.manifest_signals;
@@ -316,9 +316,9 @@ Error PluginScript::reload(bool p_keep_state) {
         // rset_mode is passed as an optional field and is not part of PropertyInfo
         Variant var = v["rset_mode"];
         if (var == Variant()) {
-            _methods_rpc_mode[pi.name] = MultiplayerAPI::RPC_MODE_DISABLED;
+            _methods_rpc_mode[pi.name] = MultiplayerAPI_RPCMode(0);
         } else {
-            _methods_rpc_mode[pi.name] = MultiplayerAPI::RPCMode(int(var));
+            _methods_rpc_mode[pi.name] = MultiplayerAPI_RPCMode(int(var));
         }
     }
     // Manifest's attributes must be explicitly freed
@@ -444,14 +444,14 @@ int PluginScript::get_member_line(const StringName &p_member) const {
 #endif
 }
 
-MultiplayerAPI::RPCMode PluginScript::get_rpc_mode(const StringName &p_method) const {
-    ASSERT_SCRIPT_VALID_V(MultiplayerAPI::RPC_MODE_DISABLED)
-    return _methods_rpc_mode.at(p_method,MultiplayerAPI::RPC_MODE_DISABLED);
+MultiplayerAPI_RPCMode PluginScript::get_rpc_mode(const StringName &p_method) const {
+    ASSERT_SCRIPT_VALID_V(MultiplayerAPI_RPCMode(0))
+    return _methods_rpc_mode.at(p_method,MultiplayerAPI_RPCMode(0));
 }
 
-MultiplayerAPI::RPCMode PluginScript::get_rset_mode(const StringName &p_variable) const {
-    ASSERT_SCRIPT_VALID_V(MultiplayerAPI::RPC_MODE_DISABLED)
-    return _variables_rset_mode.at(p_variable,MultiplayerAPI::RPC_MODE_DISABLED);
+MultiplayerAPI_RPCMode PluginScript::get_rset_mode(const StringName &p_variable) const {
+    ASSERT_SCRIPT_VALID_V(MultiplayerAPI_RPCMode(0))
+    return _variables_rset_mode.at(p_variable,MultiplayerAPI_RPCMode(0));
 }
 
 PluginScript::PluginScript() :

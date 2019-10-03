@@ -114,7 +114,7 @@ void EditorAudioBus::_notification(int p_what) {
 
             if (get_index() != 0 && hovering_drop) {
                 Color accent = get_color("accent_color", "Editor");
-                accent.a *= 0.7;
+                accent.a *= 0.7f;
                 draw_rect(Rect2(Point2(), get_size()), accent, false);
             }
         } break;

@@ -28,35 +28,33 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef MULTI_NODE_EDIT_H
-#define MULTI_NODE_EDIT_H
+#pragma once
 
 #include "scene/main/node.h"
+#include "core/property_info.h"
 
 class MultiNodeEdit : public Reference {
 
-	GDCLASS(MultiNodeEdit,Reference)
+    GDCLASS(MultiNodeEdit,Reference)
+    //TODO: SEGS replace NodePath storage with deque here.
+    List<NodePath> nodes;
+    struct PLData {
+        int uses;
+        PropertyInfo info;
+    };
 
-	List<NodePath> nodes;
-	struct PLData {
-		int uses;
-		PropertyInfo info;
-	};
-
-	bool _set_impl(const StringName &p_name, const Variant &p_value, const String &p_field);
+    bool _set_impl(const StringName &p_name, const Variant &p_value, const String &p_field);
 
 protected:
-	bool _set(const StringName &p_name, const Variant &p_value);
-	bool _get(const StringName &p_name, Variant &r_ret) const;
-	void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
+    bool _set(const StringName &p_name, const Variant &p_value);
+    bool _get(const StringName &p_name, Variant &r_ret) const;
+    void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
 
 public:
-	void clear_nodes();
-	void add_node(const NodePath &p_node);
+    void clear_nodes();
+    void add_node(const NodePath &p_node);
 
-	void set_property_field(const StringName &p_property, const Variant &p_value, const String &p_field);
+    void set_property_field(const StringName &p_property, const Variant &p_value, const String &p_field);
 
-	MultiNodeEdit();
+    MultiNodeEdit();
 };
-
-#endif // MULTI_NODE_EDIT_H

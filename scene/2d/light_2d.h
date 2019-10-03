@@ -165,7 +165,5 @@ public:
 	~Light2D() override;
 };
 
-VARIANT_ENUM_CAST(Light2D::Mode);
-VARIANT_ENUM_CAST(Light2D::ShadowFilter);
 
 #endif // LIGHT_2D_H

@@ -28,10 +28,9 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef TEXTURE_LOADER_DDS_H
-#define TEXTURE_LOADER_DDS_H
+#pragma once
 
-#include "core/io/resource_loader.h"
+#include "core/io/resource_format_loader.h"
 #include "scene/resources/texture.h"
 
 class ResourceFormatDDS : public ResourceFormatLoader {
@@ -43,5 +42,3 @@ public:
 
     ~ResourceFormatDDS() override {}
 };
-
-#endif // TEXTURE_LOADER_DDS_H

@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef MESH_INSTANCE_H
-#define MESH_INSTANCE_H
+#pragma once
 
 #include "scene/3d/visual_instance.h"
 #include "scene/resources/mesh.h"
@@ -37,7 +36,7 @@
 class Skin;
 class SkinReference;
 
-class MeshInstance : public GeometryInstance {
+class GODOT_EXPORT MeshInstance : public GeometryInstance {
 
     GDCLASS(MeshInstance,GeometryInstance)
 
@@ -99,5 +98,3 @@ public:
     MeshInstance();
     ~MeshInstance() override;
 };
-
-#endif

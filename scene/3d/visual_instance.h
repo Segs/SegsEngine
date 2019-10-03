@@ -28,19 +28,18 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef VISUAL_INSTANCE_H
-#define VISUAL_INSTANCE_H
+#pragma once
 
 #include "core/math/face3.h"
 #include "core/rid.h"
 #include "scene/3d/spatial.h"
 #include "scene/resources/material.h"
 
-class VisualInstance : public Spatial {
+class GODOT_EXPORT VisualInstance : public Spatial {
 
 	GDCLASS(VisualInstance,Spatial)
 
-    OBJ_CATEGORY("3D Visual Nodes");
+    OBJ_CATEGORY("3D Visual Nodes")
 
 	RID base;
 	RID instance;
@@ -143,8 +142,3 @@ public:
 
 	GeometryInstance();
 };
-
-VARIANT_ENUM_CAST(GeometryInstance::Flags);
-VARIANT_ENUM_CAST(GeometryInstance::ShadowCastingSetting);
-
-#endif

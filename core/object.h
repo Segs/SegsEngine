@@ -264,8 +264,8 @@ private:
 #ifdef DEBUG_ENABLED
     friend struct _ObjectDebugLock;
 #endif
-    friend bool predelete_handler(Object *);
-    friend void postinitialize_handler(Object *);
+    friend bool GODOT_EXPORT predelete_handler(Object *);
+    friend void GODOT_EXPORT postinitialize_handler(Object *);
 
     struct Signal;
     struct ObjectPrivate;
@@ -562,5 +562,5 @@ namespace ObjectNS
     }
 } // end of ObjectNS namespace
 
-bool predelete_handler(Object *p_object);
-void postinitialize_handler(Object *p_object);
+bool GODOT_EXPORT predelete_handler(Object *p_object);
+void GODOT_EXPORT postinitialize_handler(Object *p_object);

@@ -37,6 +37,7 @@
 #include "core/method_bind_interface.h"
 #include "core/os/file_access.h"
 #include "core/print_string.h"
+#include "core/io/multiplayer_api.h"
 #include "core/project_settings.h"
 #include "core/reference.h"
 #include "core/script_language.h"
@@ -3850,7 +3851,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                 function->arguments_usage = arguments_usage;
 #endif // DEBUG_ENABLED
                 function->rpc_mode = rpc_mode;
-                rpc_mode = MultiplayerAPI::RPC_MODE_DISABLED;
+                rpc_mode = MultiplayerAPI_RPCMode(0);
 
                 if (name == "_init") {
 
@@ -4571,7 +4572,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                         return;
                     }
                 }
-                rpc_mode = MultiplayerAPI::RPC_MODE_REMOTE;
+                rpc_mode = MultiplayerAPI_RPCMode::RPC_MODE_REMOTE;
 
                 continue;
             } break;
@@ -4592,7 +4593,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                     }
                 }
 
-                rpc_mode = MultiplayerAPI::RPC_MODE_MASTER;
+                rpc_mode = MultiplayerAPI_RPCMode::RPC_MODE_MASTER;
                 continue;
             } break;
             case GDScriptTokenizer::TK_PR_SLAVE:
@@ -4617,7 +4618,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                     }
                 }
 
-                rpc_mode = MultiplayerAPI::RPC_MODE_PUPPET;
+                rpc_mode = MultiplayerAPI_RPCMode::RPC_MODE_PUPPET;
                 continue;
             } break;
             case GDScriptTokenizer::TK_PR_REMOTESYNC:
@@ -4633,7 +4634,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                     return;
                 }
 
-                rpc_mode = MultiplayerAPI::RPC_MODE_REMOTESYNC;
+                rpc_mode = MultiplayerAPI_RPCMode::RPC_MODE_REMOTESYNC;
                 continue;
             } break;
             case GDScriptTokenizer::TK_PR_MASTERSYNC: {
@@ -4648,7 +4649,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                     return;
                 }
 
-                rpc_mode = MultiplayerAPI::RPC_MODE_MASTERSYNC;
+                rpc_mode = MultiplayerAPI_RPCMode::RPC_MODE_MASTERSYNC;
                 continue;
             } break;
             case GDScriptTokenizer::TK_PR_PUPPETSYNC: {
@@ -4663,7 +4664,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                     return;
                 }
 
-                rpc_mode = MultiplayerAPI::RPC_MODE_PUPPETSYNC;
+                rpc_mode = MultiplayerAPI_RPCMode::RPC_MODE_PUPPETSYNC;
                 continue;
             } break;
             case GDScriptTokenizer::TK_PR_VAR: {
@@ -4733,7 +4734,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
 #endif // DEBUG_ENABLED
                 tokenizer->advance();
 
-                rpc_mode = MultiplayerAPI::RPC_MODE_DISABLED;
+                rpc_mode = MultiplayerAPI_RPCMode::RPC_MODE_DISABLED;
 
                 if (tokenizer->get_token() == GDScriptTokenizer::TK_COLON) {
                     if (tokenizer->get_token(1) == GDScriptTokenizer::TK_OP_ASSIGN) {
@@ -8528,7 +8529,7 @@ void GDScriptParser::clear() {
     current_class = nullptr;
 
     completion_found = false;
-    rpc_mode = MultiplayerAPI::RPC_MODE_DISABLED;
+    rpc_mode = MultiplayerAPI_RPCMode::RPC_MODE_DISABLED;
 
     current_function = nullptr;
 

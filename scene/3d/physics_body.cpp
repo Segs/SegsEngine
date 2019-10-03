@@ -52,6 +52,8 @@ IMPL_GDCLASS(StaticBody)
 
 //TODO: SEGS: this is duplicating instantiation in physics_server.cpp
 VARIANT_ENUM_CAST(PhysicsServer::BodyAxis);
+VARIANT_ENUM_CAST(RigidBody::Mode);
+VARIANT_ENUM_CAST(PhysicalBone::JointType);
 
 
 void PhysicsBody::_notification(int p_what) {

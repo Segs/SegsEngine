@@ -39,6 +39,7 @@
 
 IMPL_GDCLASS(VisibilityNotifier)
 IMPL_GDCLASS(VisibilityEnabler)
+VARIANT_ENUM_CAST(VisibilityEnabler::Enabler);
 
 void VisibilityNotifier::_enter_camera(Camera *p_camera) {
 

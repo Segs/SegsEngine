@@ -48,7 +48,7 @@ public:
 
 using ResourceSavedCallback = void (*)(const Ref<Resource> &, const String &);
 
-class ResourceSaver {
+class GODOT_EXPORT ResourceSaver {
 
     static bool timestamp_on_save;
     static ResourceSavedCallback save_callback;

@@ -32,6 +32,9 @@
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(ARVRInterface)
+VARIANT_ENUM_CAST(ARVRInterface::Capabilities);
+VARIANT_ENUM_CAST(ARVRInterface::Eyes);
+VARIANT_ENUM_CAST(ARVRInterface::Tracking_status);
 
 void ARVRInterface::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_name"), &ARVRInterface::get_name);

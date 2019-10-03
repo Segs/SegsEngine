@@ -350,9 +350,4 @@ public:
     TileMap();
     ~TileMap() override;
 };
-
-VARIANT_ENUM_CAST(TileMap::Mode);
-VARIANT_ENUM_CAST(TileMap::HalfOffset);
-VARIANT_ENUM_CAST(TileMap::TileOrigin);
-
 #endif // TILE_MAP_H

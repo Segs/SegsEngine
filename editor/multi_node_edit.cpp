@@ -38,7 +38,7 @@ IMPL_GDCLASS(MultiNodeEdit)
 
 bool MultiNodeEdit::_set(const StringName &p_name, const Variant &p_value) {
 
-    return _set_impl(p_name, p_value, "");
+    return _set_impl(p_name, p_value, String::null_val);
 }
 
 bool MultiNodeEdit::_set_impl(const StringName &p_name, const Variant &p_value, const String &p_field) {

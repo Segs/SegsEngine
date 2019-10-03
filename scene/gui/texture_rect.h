@@ -81,5 +81,4 @@ public:
 	~TextureRect() override;
 };
 
-VARIANT_ENUM_CAST(TextureRect::StretchMode);
 #endif // TEXTURE_FRAME_H

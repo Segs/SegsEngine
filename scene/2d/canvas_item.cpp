@@ -29,10 +29,11 @@
 /*************************************************************************/
 
 #include "canvas_item.h"
-#include "core/method_bind.h"
+
 #include "core/message_queue.h"
-#include "editor/animation_track_editor.h"
+#include "core/method_bind.h"
 #include "core/os/input.h"
+#include "editor/animation_track_editor.h"
 #include "scene/main/canvas_layer.h"
 #include "scene/main/viewport.h"
 #include "scene/resources/font.h"
@@ -44,6 +45,10 @@
 
 IMPL_GDCLASS(CanvasItemMaterial)
 IMPL_GDCLASS(CanvasItem)
+
+VARIANT_ENUM_CAST(CanvasItemMaterial::BlendMode)
+VARIANT_ENUM_CAST(CanvasItemMaterial::LightMode)
+VARIANT_ENUM_CAST(CanvasItem::BlendMode);
 
 Mutex *CanvasItemMaterial::material_mutex = nullptr;
 SelfList<CanvasItemMaterial>::List *CanvasItemMaterial::dirty_materials = nullptr;
@@ -88,7 +93,7 @@ void CanvasItemMaterial::_update_shader() {
         shader_map[current_key].users--;
         if (shader_map[current_key].users == 0) {
             //deallocate shader, as it's no longer in use
-            VS::get_singleton()->free(shader_map[current_key].shader);
+            VisualServer::get_singleton()->free(shader_map[current_key].shader);
             shader_map.erase(current_key);
         }
     }
@@ -97,7 +102,7 @@ void CanvasItemMaterial::_update_shader() {
 
     if (shader_map.contains(mk)) {
 
-        VS::get_singleton()->material_set_shader(_get_material(), shader_map[mk].shader);
+        VisualServer::get_singleton()->material_set_shader(_get_material(), shader_map[mk].shader);
         shader_map[mk].users++;
         return;
     }
@@ -148,14 +153,14 @@ void CanvasItemMaterial::_update_shader() {
     }
 
     ShaderData shader_data;
-    shader_data.shader = VS::get_singleton()->shader_create();
+    shader_data.shader = VisualServer::get_singleton()->shader_create();
     shader_data.users = 1;
 
-    VS::get_singleton()->shader_set_code(shader_data.shader, code);
+    VisualServer::get_singleton()->shader_set_code(shader_data.shader, code);
 
     shader_map[mk] = shader_data;
 
-    VS::get_singleton()->material_set_shader(_get_material(), shader_data.shader);
+    VisualServer::get_singleton()->material_set_shader(_get_material(), shader_data.shader);
 }
 
 void CanvasItemMaterial::flush_changes() {
@@ -233,7 +238,7 @@ bool CanvasItemMaterial::get_particles_animation() const {
 void CanvasItemMaterial::set_particles_anim_h_frames(int p_frames) {
 
     particles_anim_h_frames = p_frames;
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->particles_anim_h_frames, p_frames);
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->particles_anim_h_frames, p_frames);
 }
 
 int CanvasItemMaterial::get_particles_anim_h_frames() const {
@@ -243,7 +248,7 @@ int CanvasItemMaterial::get_particles_anim_h_frames() const {
 void CanvasItemMaterial::set_particles_anim_v_frames(int p_frames) {
 
     particles_anim_v_frames = p_frames;
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->particles_anim_v_frames, p_frames);
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->particles_anim_v_frames, p_frames);
 }
 
 int CanvasItemMaterial::get_particles_anim_v_frames() const {
@@ -254,7 +259,7 @@ int CanvasItemMaterial::get_particles_anim_v_frames() const {
 void CanvasItemMaterial::set_particles_anim_loop(bool p_loop) {
 
     particles_anim_loop = p_loop;
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->particles_anim_loop, particles_anim_loop);
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->particles_anim_loop, particles_anim_loop);
 }
 
 bool CanvasItemMaterial::get_particles_anim_loop() const {
@@ -343,11 +348,11 @@ CanvasItemMaterial::~CanvasItemMaterial() {
         shader_map[current_key].users--;
         if (shader_map[current_key].users == 0) {
             //deallocate shader, as it's no longer in use
-            VS::get_singleton()->free(shader_map[current_key].shader);
+            VisualServer::get_singleton()->free(shader_map[current_key].shader);
             shader_map.erase(current_key);
         }
 
-        VS::get_singleton()->material_set_shader(_get_material(), RID());
+        VisualServer::get_singleton()->material_set_shader(_get_material(), RID());
     }
 
     if (material_mutex)
@@ -701,7 +706,7 @@ void CanvasItem::set_light_mask(int p_light_mask) {
         return;
 
     light_mask = p_light_mask;
-    VS::get_singleton()->canvas_item_set_light_mask(canvas_item, p_light_mask);
+    VisualServer::get_singleton()->canvas_item_set_light_mask(canvas_item, p_light_mask);
 }
 
 int CanvasItem::get_light_mask() const {
@@ -1043,14 +1048,14 @@ void CanvasItem::set_material(const Ref<Material> &p_material) {
     RID rid;
     if (material)
         rid = material->get_rid();
-    VS::get_singleton()->canvas_item_set_material(canvas_item, rid);
+    VisualServer::get_singleton()->canvas_item_set_material(canvas_item, rid);
     _change_notify(); //properties for material exposed
 }
 
 void CanvasItem::set_use_parent_material(bool p_use_parent_material) {
 
     use_parent_material = p_use_parent_material;
-    VS::get_singleton()->canvas_item_set_use_parent_material(canvas_item, p_use_parent_material);
+    VisualServer::get_singleton()->canvas_item_set_use_parent_material(canvas_item, p_use_parent_material);
 }
 
 bool CanvasItem::get_use_parent_material() const {

@@ -32,6 +32,8 @@
 
 #include "core/io/image_loader.h"
 #include "core/method_bind.h"
+#include "servers/visual_server.h"
+
 
 IMPL_GDCLASS(Sky)
 IMPL_GDCLASS(PanoramaSky)
@@ -41,7 +43,7 @@ VARIANT_ENUM_CAST(Sky::RadianceSize)
 VARIANT_ENUM_CAST(ProceduralSky::TextureSize)
 
 void Sky::set_radiance_size(RadianceSize p_size) {
-    ERR_FAIL_INDEX(p_size, RADIANCE_SIZE_MAX);
+    ERR_FAIL_INDEX(p_size, RADIANCE_SIZE_MAX)
 
     radiance_size = p_size;
     _radiance_changed();
@@ -81,7 +83,7 @@ void PanoramaSky::_radiance_changed() {
         static const int size[RADIANCE_SIZE_MAX] = {
             32, 64, 128, 256, 512, 1024, 2048
         };
-        VS::get_singleton()->sky_set_texture(sky, panorama->get_rid(), size[get_radiance_size()]);
+        VisualServer::get_singleton()->sky_set_texture(sky, panorama->get_rid(), size[get_radiance_size()]);
     }
 }
 
@@ -94,7 +96,7 @@ void PanoramaSky::set_panorama(const Ref<Texture> &p_panorama) {
         _radiance_changed();
 
     } else {
-        VS::get_singleton()->sky_set_texture(sky, RID(), 0);
+        VisualServer::get_singleton()->sky_set_texture(sky, RID(), 0);
     }
 }
 
@@ -118,12 +120,12 @@ void PanoramaSky::_bind_methods() {
 
 PanoramaSky::PanoramaSky() {
 
-    sky = VS::get_singleton()->sky_create();
+    sky = VisualServer::get_singleton()->sky_create();
 }
 
 PanoramaSky::~PanoramaSky() {
 
-    VS::get_singleton()->free(sky);
+    VisualServer::get_singleton()->free(sky);
 }
 //////////////////////////////////
 
@@ -135,7 +137,7 @@ void ProceduralSky::_radiance_changed() {
     static const int size[RADIANCE_SIZE_MAX] = {
         32, 64, 128, 256, 512, 1024, 2048
     };
-    VS::get_singleton()->sky_set_texture(sky, texture, size[get_radiance_size()]);
+    VisualServer::get_singleton()->sky_set_texture(sky, texture, size[get_radiance_size()]);
 }
 
 Ref<Image> ProceduralSky::_generate_sky() {
@@ -422,8 +424,8 @@ void ProceduralSky::_update_sky() {
 
     } else {
         Ref<Image> image = _generate_sky();
-        VS::get_singleton()->texture_allocate(texture, image->get_width(), image->get_height(), 0, Image::FORMAT_RGBE9995, VS::TEXTURE_TYPE_2D, VS::TEXTURE_FLAG_FILTER | VS::TEXTURE_FLAG_REPEAT);
-        VS::get_singleton()->texture_set_data(texture, image);
+        VisualServer::get_singleton()->texture_allocate(texture, image->get_width(), image->get_height(), 0, Image::FORMAT_RGBE9995, VS::TEXTURE_TYPE_2D, VS::TEXTURE_FLAG_FILTER | VS::TEXTURE_FLAG_REPEAT);
+        VisualServer::get_singleton()->texture_set_data(texture, image);
         _radiance_changed();
     }
 }
@@ -439,8 +441,8 @@ void ProceduralSky::_queue_update() {
 
 void ProceduralSky::_thread_done(const Ref<Image> &p_image) {
 
-    VS::get_singleton()->texture_allocate(texture, p_image->get_width(), p_image->get_height(), 0, Image::FORMAT_RGBE9995, VS::TEXTURE_TYPE_2D, VS::TEXTURE_FLAG_FILTER | VS::TEXTURE_FLAG_REPEAT);
-    VS::get_singleton()->texture_set_data(texture, p_image);
+    VisualServer::get_singleton()->texture_allocate(texture, p_image->get_width(), p_image->get_height(), 0, Image::FORMAT_RGBE9995, VS::TEXTURE_TYPE_2D, VS::TEXTURE_FLAG_FILTER | VS::TEXTURE_FLAG_REPEAT);
+    VisualServer::get_singleton()->texture_set_data(texture, p_image);
     _radiance_changed();
     Thread::wait_to_finish(sky_thread);
     memdelete(sky_thread);
@@ -545,8 +547,8 @@ void ProceduralSky::_bind_methods() {
 
 ProceduralSky::ProceduralSky(bool p_desaturate) {
 
-    sky = VS::get_singleton()->sky_create();
-    texture = VS::get_singleton()->texture_create();
+    sky = VisualServer::get_singleton()->sky_create();
+    texture = VisualServer::get_singleton()->texture_create();
 
     update_queued = false;
     sky_top_color = Color::hex(0xa5d6f1ff);
@@ -556,7 +558,7 @@ ProceduralSky::ProceduralSky(bool p_desaturate) {
 
     ground_bottom_color = Color::hex(0x282f36ff);
     ground_horizon_color = Color::hex(0x6c655fff);
-    ground_curve = 0.02;
+    ground_curve = 0.02f;
     ground_energy = 1;
 
     if (p_desaturate) {
@@ -588,6 +590,6 @@ ProceduralSky::~ProceduralSky() {
         memdelete(sky_thread);
         sky_thread = nullptr;
     }
-    VS::get_singleton()->free(sky);
-    VS::get_singleton()->free(texture);
+    VisualServer::get_singleton()->free(sky);
+    VisualServer::get_singleton()->free(texture);
 }

@@ -34,6 +34,7 @@
 #include "servers/physics_2d_server.h"
 #include "core/method_bind.h"
 #include "core/class_db.h"
+#include "core/script_language.h"
 #include "core/os/input_event.h"
 
 IMPL_GDCLASS(CollisionObject2D)

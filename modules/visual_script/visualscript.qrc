@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file alias="VisualScript.svg">icons/icon_visual_script.svg</file>
+    </qresource>
+</RCC>

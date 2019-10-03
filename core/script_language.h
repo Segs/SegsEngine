@@ -30,12 +30,19 @@
 
 #pragma once
 
-#include "core/io/multiplayer_api.h"
+
 #include "core/map.h"
+#include "core/set.h"
+#include "core/hash_map.h"
 #include "core/pair.h"
 #include "core/resource.h"
+#include "core/variant.h"
+#include "core/ustring.h"
+#include "core/property_info.h"
 
 class ScriptLanguage;
+class MultiplayerAPI;
+enum MultiplayerAPI_RPCMode : int8_t;
 
 using ScriptEditRequestFunction = void (*)(const String &);
 
@@ -164,7 +171,7 @@ public:
     virtual VariantType get_property_type(const StringName &p_name, bool *r_is_valid = nullptr) const = 0;
 
     virtual Object *get_owner() { return nullptr; }
-    virtual void get_property_state(List<Pair<StringName, Variant> > &state);
+    virtual void get_property_state(DefList<Pair<StringName, Variant> > &state);
 
     virtual void get_method_list(PODVector<MethodInfo> *p_list) const = 0;
     [[nodiscard]] virtual bool has_method(const StringName &p_method) const = 0;
@@ -194,8 +201,8 @@ public:
     virtual void property_set_fallback(const StringName &p_name, const Variant &p_value, bool *r_valid);
     virtual Variant property_get_fallback(const StringName &p_name, bool *r_valid);
 
-    [[nodiscard]] virtual MultiplayerAPI::RPCMode get_rpc_mode(const StringName &p_method) const = 0;
-    [[nodiscard]] virtual MultiplayerAPI::RPCMode get_rset_mode(const StringName &p_variable) const = 0;
+    [[nodiscard]] virtual MultiplayerAPI_RPCMode get_rpc_mode(const StringName &p_method) const = 0;
+    [[nodiscard]] virtual MultiplayerAPI_RPCMode get_rset_mode(const StringName &p_variable) const = 0;
 
     virtual ScriptLanguage *get_language() = 0;
     virtual ~ScriptInstance() {}
@@ -263,13 +270,13 @@ public:
         String message;
     };
 
-    virtual void get_reserved_words(List<String> *p_words) const = 0;
-    virtual void get_comment_delimiters(List<String> *p_delimiters) const = 0;
-    virtual void get_string_delimiters(List<String> *p_delimiters) const = 0;
+    virtual void get_reserved_words(DefList<String> *p_words) const = 0;
+    virtual void get_comment_delimiters(DefList<String> *p_delimiters) const = 0;
+    virtual void get_string_delimiters(DefList<String> *p_delimiters) const = 0;
     virtual Ref<Script> get_template(const String &p_class_name, const String &p_base_class_name) const = 0;
     virtual void make_template(const String & /*p_class_name*/, const String & /*p_base_class_name*/, Ref<Script> & /*p_script*/) {}
     virtual bool is_using_templates() { return false; }
-    virtual bool validate(const String &p_script, int &r_line_error, int &r_col_error, String &r_test_error, const String &p_path = String::null_val, List<String> *r_functions = nullptr, List<Warning> *r_warnings = nullptr, Set<int> *r_safe_lines = nullptr) const = 0;
+    virtual bool validate(const String &p_script, int &r_line_error, int &r_col_error, String &r_test_error, const String &p_path = String::null_val, DefList<String> *r_functions = nullptr, DefList<Warning> *r_warnings = nullptr, Set<int> *r_safe_lines = nullptr) const = 0;
     virtual String validate_path(const String & /*p_path*/) const { return String::null_val; }
     virtual Script *create_script() const = 0;
     virtual bool has_named_classes() const = 0;
@@ -280,7 +287,7 @@ public:
     virtual Error open_in_external_editor(const Ref<Script> & /*p_script*/, int /*p_line*/, int /*p_col*/) { return ERR_UNAVAILABLE; }
     virtual bool overrides_external_editor() { return false; }
 
-    virtual Error complete_code(const String &p_code, const String &p_path, Object *p_owner, List<ScriptCodeCompletionOption> *r_options, bool &r_force, String &r_call_hint) { return ERR_UNAVAILABLE; }
+    virtual Error complete_code(const String &p_code, const String &p_path, Object *p_owner, DefList<ScriptCodeCompletionOption> *r_options, bool &r_force, String &r_call_hint) { return ERR_UNAVAILABLE; }
 
     struct LookupResult {
         enum Type {
@@ -319,10 +326,10 @@ public:
     virtual int debug_get_stack_level_line(int p_level) const = 0;
     virtual String debug_get_stack_level_function(int p_level) const = 0;
     virtual String debug_get_stack_level_source(int p_level) const = 0;
-    virtual void debug_get_stack_level_locals(int p_level, List<String> *p_locals, List<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) = 0;
-    virtual void debug_get_stack_level_members(int p_level, List<String> *p_members, List<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) = 0;
+    virtual void debug_get_stack_level_locals(int p_level, DefList<String> *p_locals, DefList<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) = 0;
+    virtual void debug_get_stack_level_members(int p_level, DefList<String> *p_members, DefList<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) = 0;
     virtual ScriptInstance *debug_get_stack_level_instance(int p_level) { return nullptr; }
-    virtual void debug_get_globals(List<String> *p_globals, List<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) = 0;
+    virtual void debug_get_globals(DefList<String> *p_globals, DefList<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) = 0;
     virtual String debug_parse_stack_level_expression(int p_level, const String &p_expression, int p_max_subitems = -1, int p_max_depth = -1) = 0;
 
     struct StackInfo {
@@ -337,9 +344,9 @@ public:
     virtual void reload_tool_script(const Ref<Script> &p_script, bool p_soft_reload) = 0;
     /* LOADER FUNCTIONS */
 
-    virtual void get_recognized_extensions(List<String> *p_extensions) const = 0;
-    virtual void get_public_functions(List<MethodInfo> *p_functions) const = 0;
-    virtual void get_public_constants(List<Pair<String, Variant> > *p_constants) const = 0;
+    virtual void get_recognized_extensions(DefList<String> *p_extensions) const = 0;
+    virtual void get_public_functions(DefList<MethodInfo> *p_functions) const = 0;
+    virtual void get_public_constants(DefList<Pair<String, Variant> > *p_constants) const = 0;
 
     struct ProfilingInfo {
         StringName signature;
@@ -408,8 +415,8 @@ public:
     void property_set_fallback(const StringName &p_name, const Variant &p_value, bool *r_valid = nullptr) override;
     Variant property_get_fallback(const StringName &p_name, bool *r_valid = nullptr) override;
 
-    MultiplayerAPI::RPCMode get_rpc_mode(const StringName &p_method) const override { return MultiplayerAPI::RPC_MODE_DISABLED; }
-    MultiplayerAPI::RPCMode get_rset_mode(const StringName &p_variable) const override { return MultiplayerAPI::RPC_MODE_DISABLED; }
+    MultiplayerAPI_RPCMode get_rpc_mode(const StringName &p_method) const override { return MultiplayerAPI_RPCMode(0); }
+    MultiplayerAPI_RPCMode get_rset_mode(const StringName &p_variable) const override { return MultiplayerAPI_RPCMode(0); }
 
     PlaceHolderScriptInstance(ScriptLanguage *p_language, Ref<Script> p_script, Object *p_owner) :
         owner(p_owner),

@@ -31,10 +31,13 @@
 #pragma once
 
 #include "core/io/resource_loader.h"
+#include "core/io/resource_format_loader.h"
 #include "core/io/resource_saver.h"
 #include "core/os/file_access.h"
+#include "core/set.h"
 #include "core/variant_parser.h"
 #include "scene/resources/packed_scene.h"
+
 
 class ResourceInteractiveLoaderText : public ResourceInteractiveLoader {
 

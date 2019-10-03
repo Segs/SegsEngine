@@ -120,7 +120,7 @@ void RayShape2D::_update_shape() {
 void RayShape2D::draw(const RID &p_to_rid, const Color &p_color) {
 
     Vector2 tip = Vector2(0, get_length());
-    VS::get_singleton()->canvas_item_add_line(p_to_rid, Vector2(), tip, p_color, 3);
+    VisualServer::get_singleton()->canvas_item_add_line(p_to_rid, Vector2(), tip, p_color, 3);
     Vector<Vector2> pts;
     float tsize = 4;
     pts.push_back(tip + Vector2(0, tsize));
@@ -130,7 +130,7 @@ void RayShape2D::draw(const RID &p_to_rid, const Color &p_color) {
     for (int i = 0; i < 3; i++)
         cols.push_back(p_color);
 
-    VS::get_singleton()->canvas_item_add_primitive(p_to_rid, pts, cols, Vector<Point2>(), RID());
+    VisualServer::get_singleton()->canvas_item_add_primitive(p_to_rid, pts, cols, Vector<Point2>(), RID());
 }
 
 Rect2 RayShape2D::get_rect() const {

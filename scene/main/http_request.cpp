@@ -35,6 +35,7 @@
 
 IMPL_GDCLASS(HTTPRequest)
 
+VARIANT_ENUM_CAST(HTTPRequest::Result);
 //TODO: SEGS: duplicating HTTPClient enums here
 VARIANT_ENUM_CAST(HTTPClient::Method);
 VARIANT_ENUM_CAST(HTTPClient::Status);

@@ -33,8 +33,6 @@
 #include "core/object.h"
 #include "core/reference.h"
 #include "core/resource.h"
-#include "core/method_arg_casters.h"
-#include "core/method_enum_caster.h"
 #include "core/rid.h"
 
 #include <utility>
@@ -643,26 +641,7 @@ public:
 using CreatePhysics2DServerCallback = Physics2DServer *(*)();
 
 class Physics2DServerManager {
-    struct ClassInfo {
-        String name;
-        CreatePhysics2DServerCallback create_callback=nullptr;
 
-        ClassInfo() = default;
-
-        ClassInfo(String p_name, CreatePhysics2DServerCallback p_create_callback) :
-                name(std::move(p_name)),
-                create_callback(p_create_callback) {}
-
-        ClassInfo(const ClassInfo &p_ci) = default;
-
-        ClassInfo &operator=(const ClassInfo &p_ci) {
-            name = p_ci.name;
-            create_callback = p_ci.create_callback;
-            return *this;
-        }
-    };
-
-    static Vector<ClassInfo> physics_2d_servers;
     static int default_server_id;
     static int default_server_priority;
 
@@ -681,18 +660,3 @@ public:
     static Physics2DServer *new_default_server();
     static Physics2DServer *new_server(const String &p_name);
 };
-
-VARIANT_ENUM_CAST(Physics2DServer::ShapeType);
-VARIANT_ENUM_CAST(Physics2DServer::SpaceParameter);
-VARIANT_ENUM_CAST(Physics2DServer::AreaParameter);
-VARIANT_ENUM_CAST(Physics2DServer::AreaSpaceOverrideMode);
-VARIANT_ENUM_CAST(Physics2DServer::BodyMode);
-VARIANT_ENUM_CAST(Physics2DServer::BodyParameter);
-VARIANT_ENUM_CAST(Physics2DServer::BodyState);
-VARIANT_ENUM_CAST(Physics2DServer::CCDMode);
-VARIANT_ENUM_CAST(Physics2DServer::JointParam);
-VARIANT_ENUM_CAST(Physics2DServer::JointType);
-VARIANT_ENUM_CAST(Physics2DServer::DampedStringParam);
-//VARIANT_ENUM_CAST( Physics2DServer::ObjectType );
-VARIANT_ENUM_CAST(Physics2DServer::AreaBodyStatus);
-VARIANT_ENUM_CAST(Physics2DServer::ProcessInfo);

@@ -33,6 +33,7 @@
 #include "core/class_db.h"
 #include "grid_map.h"
 #include "grid_map_editor_plugin.h"
+#include <QResource>
 #endif
 
 void register_gridmap_types() {
@@ -40,6 +41,7 @@ void register_gridmap_types() {
 #ifndef _3D_DISABLED
     ClassDB::register_class<GridMap>();
 #ifdef TOOLS_ENABLED
+	Q_INIT_RESOURCE(gridmap);
     GridMapEditor::initialize_class();
     EditorPlugins::add_by_type<GridMapEditorPlugin>();
 #endif

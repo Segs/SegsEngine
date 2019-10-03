@@ -299,17 +299,17 @@ godot_int GDAPI godot_arvr_get_texid(godot_rid *p_render_target) {
     RID *render_target = (RID *)p_render_target;
 
     RID eye_texture = VSG::storage->render_target_get_texture(*render_target);
-    uint32_t texid = VS::get_singleton()->texture_get_texid(eye_texture);
+    uint32_t texid = VisualServer::get_singleton()->texture_get_texid(eye_texture);
 
     return texid;
 }
 
 godot_int GDAPI godot_arvr_add_controller(char *p_device_name, godot_int p_hand, godot_bool p_tracks_orientation, godot_bool p_tracks_position) {
     ARVRServer *arvr_server = ARVRServer::get_singleton();
-    ERR_FAIL_NULL_V(arvr_server, 0);
+    ERR_FAIL_NULL_V(arvr_server, 0)
 
     InputDefault *input = (InputDefault *)Input::get_singleton();
-    ERR_FAIL_NULL_V(input, 0);
+    ERR_FAIL_NULL_V(input, 0)
 
     ARVRPositionalTracker *new_tracker = memnew(ARVRPositionalTracker);
     new_tracker->set_name(p_device_name);
@@ -383,10 +383,10 @@ void GDAPI godot_arvr_set_controller_transform(godot_int p_controller_id, godot_
 
 void GDAPI godot_arvr_set_controller_button(godot_int p_controller_id, godot_int p_button, godot_bool p_is_pressed) {
     ARVRServer *arvr_server = ARVRServer::get_singleton();
-    ERR_FAIL_NULL(arvr_server);
+    ERR_FAIL_NULL(arvr_server)
 
     InputDefault *input = (InputDefault *)Input::get_singleton();
-    ERR_FAIL_NULL(input);
+    ERR_FAIL_NULL(input)
 
     ARVRPositionalTracker *tracker = arvr_server->find_by_type_and_id(ARVRServer::TRACKER_CONTROLLER, p_controller_id);
     if (tracker != nullptr) {
@@ -399,10 +399,10 @@ void GDAPI godot_arvr_set_controller_button(godot_int p_controller_id, godot_int
 
 void GDAPI godot_arvr_set_controller_axis(godot_int p_controller_id, godot_int p_axis, godot_real p_value, godot_bool p_can_be_negative) {
     ARVRServer *arvr_server = ARVRServer::get_singleton();
-    ERR_FAIL_NULL(arvr_server);
+    ERR_FAIL_NULL(arvr_server)
 
     InputDefault *input = (InputDefault *)Input::get_singleton();
-    ERR_FAIL_NULL(input);
+    ERR_FAIL_NULL(input)
 
     ARVRPositionalTracker *tracker = arvr_server->find_by_type_and_id(ARVRServer::TRACKER_CONTROLLER, p_controller_id);
     if (tracker != nullptr) {
@@ -418,7 +418,7 @@ void GDAPI godot_arvr_set_controller_axis(godot_int p_controller_id, godot_int p
 
 godot_real GDAPI godot_arvr_get_controller_rumble(godot_int p_controller_id) {
     ARVRServer *arvr_server = ARVRServer::get_singleton();
-    ERR_FAIL_NULL_V(arvr_server, 0.0);
+    ERR_FAIL_NULL_V(arvr_server, 0.0)
 
     ARVRPositionalTracker *tracker = arvr_server->find_by_type_and_id(ARVRServer::TRACKER_CONTROLLER, p_controller_id);
     if (tracker != nullptr) {

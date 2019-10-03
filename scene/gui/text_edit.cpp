@@ -49,6 +49,8 @@
 #endif
 
 IMPL_GDCLASS(TextEdit)
+VARIANT_ENUM_CAST(TextEdit::MenuItems)
+VARIANT_ENUM_CAST(TextEdit::SearchFlags)
 
 #define TAB_PIXELS
 

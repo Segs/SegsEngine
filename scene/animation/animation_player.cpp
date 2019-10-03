@@ -38,6 +38,9 @@
 
 IMPL_GDCLASS(AnimationPlayer)
 
+VARIANT_ENUM_CAST(AnimationPlayer::AnimationProcessMode);
+VARIANT_ENUM_CAST(AnimationPlayer::AnimationMethodCallMode);
+
 #ifdef TOOLS_ENABLED
 #include "editor/editor_settings.h"
 #include "scene/2d/skeleton_2d.h"

@@ -33,6 +33,7 @@
 #include "core/io/marshalls.h"
 #include "core/method_bind.h"
 #include "scene/main/node.h"
+#include "core/script_language.h"
 
 #ifdef DEBUG_ENABLED
 #include "core/object_db.h"
@@ -43,7 +44,7 @@
 
 IMPL_GDCLASS(MultiplayerAPI)
 
-VARIANT_ENUM_CAST(MultiplayerAPI::RPCMode);
+VARIANT_ENUM_CAST(MultiplayerAPI_RPCMode);
 //TODO: SEGS: duplicated instantiation
 VARIANT_ENUM_CAST(NetworkedMultiplayerPeer::TransferMode)
 
@@ -200,54 +201,54 @@ public:
 };
 
 namespace {
-_FORCE_INLINE_ bool _should_call_local(MultiplayerAPI::RPCMode mode, bool is_master, bool &r_skip_rpc) {
+_FORCE_INLINE_ bool _should_call_local(MultiplayerAPI_RPCMode mode, bool is_master, bool &r_skip_rpc) {
 
     switch (mode) {
 
-        case MultiplayerAPI::RPC_MODE_DISABLED: {
+        case MultiplayerAPI_RPCMode::RPC_MODE_DISABLED: {
             // Do nothing.
         } break;
-        case MultiplayerAPI::RPC_MODE_REMOTE: {
+        case MultiplayerAPI_RPCMode::RPC_MODE_REMOTE: {
             // Do nothing also. Remote cannot produce a local call.
         } break;
-        case MultiplayerAPI::RPC_MODE_MASTERSYNC: {
+        case MultiplayerAPI_RPCMode::RPC_MODE_MASTERSYNC: {
             if (is_master)
                 r_skip_rpc = true; // I am the master, so skip remote call.
             FALLTHROUGH;
         }
-        case MultiplayerAPI::RPC_MODE_REMOTESYNC:
-        case MultiplayerAPI::RPC_MODE_PUPPETSYNC: {
+        case MultiplayerAPI_RPCMode::RPC_MODE_REMOTESYNC:
+        case MultiplayerAPI_RPCMode::RPC_MODE_PUPPETSYNC: {
             // Call it, sync always results in a local call.
             return true;
         }
-        case MultiplayerAPI::RPC_MODE_MASTER: {
+        case MultiplayerAPI_RPCMode::RPC_MODE_MASTER: {
             if (is_master)
                 r_skip_rpc = true; // I am the master, so skip remote call.
             return is_master;
         }
-        case MultiplayerAPI::RPC_MODE_PUPPET: {
+        case MultiplayerAPI_RPCMode::RPC_MODE_PUPPET: {
             return !is_master;
         }
     }
     return false;
 }
 
-_FORCE_INLINE_ bool _can_call_mode(Node *p_node, MultiplayerAPI::RPCMode mode, int p_remote_id) {
+_FORCE_INLINE_ bool _can_call_mode(Node *p_node, MultiplayerAPI_RPCMode mode, int p_remote_id) {
     switch (mode) {
 
-        case MultiplayerAPI::RPC_MODE_DISABLED: {
+        case MultiplayerAPI_RPCMode::RPC_MODE_DISABLED: {
             return false;
         }
-        case MultiplayerAPI::RPC_MODE_REMOTE:
-        case MultiplayerAPI::RPC_MODE_REMOTESYNC: {
+        case MultiplayerAPI_RPCMode::RPC_MODE_REMOTE:
+        case MultiplayerAPI_RPCMode::RPC_MODE_REMOTESYNC: {
             return true;
         }
-        case MultiplayerAPI::RPC_MODE_MASTERSYNC:
-        case MultiplayerAPI::RPC_MODE_MASTER: {
+        case MultiplayerAPI_RPCMode::RPC_MODE_MASTERSYNC:
+        case MultiplayerAPI_RPCMode::RPC_MODE_MASTER: {
             return p_node->is_network_master();
         }
-        case MultiplayerAPI::RPC_MODE_PUPPETSYNC:
-        case MultiplayerAPI::RPC_MODE_PUPPET: {
+        case MultiplayerAPI_RPCMode::RPC_MODE_PUPPETSYNC:
+        case MultiplayerAPI_RPCMode::RPC_MODE_PUPPET: {
             return !p_node->is_network_master() && p_remote_id == p_node->get_network_master();
         }
     }
@@ -436,8 +437,8 @@ void MultiplayerAPI::_process_rpc(Node *p_node, const StringName &p_name, int p_
     ERR_FAIL_COND_MSG(p_offset >= p_packet_len, "Invalid packet received. Size too small.")
 
     // Check that remote can call the RPC on this node.
-    RPCMode rpc_mode = RPC_MODE_DISABLED;
-    const RPCMode *E = p_node->get_node_rpc_mode(p_name);
+    MultiplayerAPI_RPCMode rpc_mode = RPC_MODE_DISABLED;
+    const MultiplayerAPI_RPCMode *E = p_node->get_node_rpc_mode(p_name);
     if (E) {
         rpc_mode = *E;
     } else if (p_node->get_script_instance()) {
@@ -484,8 +485,8 @@ void MultiplayerAPI::_process_rset(Node *p_node, const StringName &p_name, int p
     ERR_FAIL_COND_MSG(p_offset >= p_packet_len, "Invalid packet received. Size too small.")
 
     // Check that remote can call the RSET on this node.
-    RPCMode rset_mode = RPC_MODE_DISABLED;
-    const RPCMode *E = p_node->get_node_rset_mode(p_name);
+    MultiplayerAPI_RPCMode rset_mode = RPC_MODE_DISABLED;
+    const MultiplayerAPI_RPCMode *E = p_node->get_node_rset_mode(p_name);
     if (E) {
         rset_mode = *E;
     } else if (p_node->get_script_instance()) {
@@ -775,7 +776,7 @@ void MultiplayerAPI::rpcp(Node *p_node, int p_peer_id, bool p_unreliable, const 
     if (p_peer_id == 0 || p_peer_id == node_id || (p_peer_id < 0 && p_peer_id != -node_id)) {
         // Check that send mode can use local call.
 
-        const RPCMode *E = p_node->get_node_rpc_mode(p_method);
+        const MultiplayerAPI_RPCMode *E = p_node->get_node_rpc_mode(p_method);
         if (E) {
             call_local_native = _should_call_local(*E, is_master, skip_rpc);
         }
@@ -784,7 +785,7 @@ void MultiplayerAPI::rpcp(Node *p_node, int p_peer_id, bool p_unreliable, const 
             // Done below.
         } else if (p_node->get_script_instance()) {
             // Attempt with script.
-            RPCMode rpc_mode = p_node->get_script_instance()->get_rpc_mode(p_method);
+            MultiplayerAPI_RPCMode rpc_mode = p_node->get_script_instance()->get_rpc_mode(p_method);
             call_local_script = _should_call_local(rpc_mode, is_master, skip_rpc);
         }
     }
@@ -839,7 +840,7 @@ void MultiplayerAPI::rsetp(Node *p_node, int p_peer_id, bool p_unreliable, const
 
     if (p_peer_id == 0 || p_peer_id == node_id || (p_peer_id < 0 && p_peer_id != -node_id)) {
         // Check that send mode can use local call.
-        const RPCMode *E = p_node->get_node_rset_mode(p_property);
+        const MultiplayerAPI_RPCMode *E = p_node->get_node_rset_mode(p_property);
         if (E) {
 
             set_local = _should_call_local(*E, is_master, skip_rset);
@@ -860,7 +861,7 @@ void MultiplayerAPI::rsetp(Node *p_node, int p_peer_id, bool p_unreliable, const
             }
         } else if (p_node->get_script_instance()) {
             // Attempt with script.
-            RPCMode rpc_mode = p_node->get_script_instance()->get_rset_mode(p_property);
+            MultiplayerAPI_RPCMode rpc_mode = p_node->get_script_instance()->get_rset_mode(p_property);
 
             set_local = _should_call_local(rpc_mode, is_master, skip_rset);
 

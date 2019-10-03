@@ -38,6 +38,10 @@
 #include "servers/visual_server.h"
 
 IMPL_GDCLASS(CPUParticles2D)
+VARIANT_ENUM_CAST(CPUParticles2D::DrawOrder)
+VARIANT_ENUM_CAST(CPUParticles2D::Parameter)
+VARIANT_ENUM_CAST(CPUParticles2D::Flags)
+VARIANT_ENUM_CAST(CPUParticles2D::EmissionShape)
 
 void CPUParticles2D::set_emitting(bool p_emitting) {
 
@@ -60,7 +64,7 @@ void CPUParticles2D::set_amount(int p_amount) {
     }
 
     particle_data.resize((8 + 4 + 1) * p_amount);
-    VS::get_singleton()->multimesh_allocate(multimesh, p_amount, VS::MULTIMESH_TRANSFORM_2D, VS::MULTIMESH_COLOR_8BIT, VS::MULTIMESH_CUSTOM_DATA_FLOAT);
+    VisualServer::get_singleton()->multimesh_allocate(multimesh, p_amount, VS::MULTIMESH_TRANSFORM_2D, VS::MULTIMESH_COLOR_8BIT, VS::MULTIMESH_CUSTOM_DATA_FLOAT);
 
     particle_order.resize(p_amount);
 }
@@ -194,8 +198,8 @@ void CPUParticles2D::_update_mesh_texture() {
     arr[VS::ARRAY_COLOR] = colors;
     arr[VS::ARRAY_INDEX] = indices;
 
-    VS::get_singleton()->mesh_clear(mesh);
-    VS::get_singleton()->mesh_add_surface_from_arrays(mesh, VS::PRIMITIVE_TRIANGLES, arr);
+    VisualServer::get_singleton()->mesh_clear(mesh);
+    VisualServer::get_singleton()->mesh_add_surface_from_arrays(mesh, VS::PRIMITIVE_TRIANGLES, arr);
 }
 
 void CPUParticles2D::set_texture(const Ref<Texture> &p_texture) {
@@ -964,15 +968,15 @@ void CPUParticles2D::_set_redraw(bool p_redraw) {
     update_mutex->lock();
 #endif
     if (redraw) {
-        VS::get_singleton()->connect("frame_pre_draw", this, "_update_render_thread");
-        VS::get_singleton()->canvas_item_set_update_when_visible(get_canvas_item(), true);
+        VisualServer::get_singleton()->connect("frame_pre_draw", this, "_update_render_thread");
+        VisualServer::get_singleton()->canvas_item_set_update_when_visible(get_canvas_item(), true);
 
-        VS::get_singleton()->multimesh_set_visible_instances(multimesh, -1);
+        VisualServer::get_singleton()->multimesh_set_visible_instances(multimesh, -1);
     } else {
-        VS::get_singleton()->disconnect("frame_pre_draw", this, "_update_render_thread");
-        VS::get_singleton()->canvas_item_set_update_when_visible(get_canvas_item(), false);
+        VisualServer::get_singleton()->disconnect("frame_pre_draw", this, "_update_render_thread");
+        VisualServer::get_singleton()->canvas_item_set_update_when_visible(get_canvas_item(), false);
 
-        VS::get_singleton()->multimesh_set_visible_instances(multimesh, 0);
+        VisualServer::get_singleton()->multimesh_set_visible_instances(multimesh, 0);
     }
 #ifndef NO_THREADS
     update_mutex->unlock();
@@ -986,7 +990,7 @@ void CPUParticles2D::_update_render_thread() {
     update_mutex->lock();
 #endif
 
-    VS::get_singleton()->multimesh_set_as_bulk_array(multimesh, particle_data);
+    VisualServer::get_singleton()->multimesh_set_as_bulk_array(multimesh, particle_data);
 
 #ifndef NO_THREADS
     update_mutex->unlock();
@@ -1017,7 +1021,7 @@ void CPUParticles2D::_notification(int p_what) {
             normrid = normalmap->get_rid();
         }
 
-        VS::get_singleton()->canvas_item_add_multimesh(get_canvas_item(), multimesh, texrid, normrid);
+        VisualServer::get_singleton()->canvas_item_add_multimesh(get_canvas_item(), multimesh, texrid, normrid);
     }
 
     if (p_what == NOTIFICATION_INTERNAL_PROCESS) {
@@ -1473,8 +1477,8 @@ CPUParticles2D::CPUParticles2D() {
 }
 
 CPUParticles2D::~CPUParticles2D() {
-    VS::get_singleton()->free(multimesh);
-    VS::get_singleton()->free(mesh);
+    VisualServer::get_singleton()->free(multimesh);
+    VisualServer::get_singleton()->free(mesh);
 
 #ifndef NO_THREADS
     memdelete(update_mutex);

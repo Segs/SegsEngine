@@ -893,7 +893,7 @@ void RasterizerSceneGLES3::environment_set_ssr(RID p_env, bool p_enable, int p_m
     env->ssr_roughness = p_roughness;
 }
 
-void RasterizerSceneGLES3::environment_set_ssao(RID p_env, bool p_enable, float p_radius, float p_intensity, float p_radius2, float p_intensity2, float p_bias, float p_light_affect, float p_ao_channel_affect, const Color &p_color, VS::EnvironmentSSAOQuality p_quality, VisualServer::EnvironmentSSAOBlur p_blur, float p_bilateral_sharpness) {
+void RasterizerSceneGLES3::environment_set_ssao(RID p_env, bool p_enable, float p_radius, float p_intensity, float p_radius2, float p_intensity2, float p_bias, float p_light_affect, float p_ao_channel_affect, const Color &p_color, VS::EnvironmentSSAOQuality p_quality, VS::EnvironmentSSAOBlur p_blur, float p_bilateral_sharpness) {
 
     Environment *env = environment_owner.getornull(p_env);
     ERR_FAIL_COND(!env)
@@ -4457,11 +4457,11 @@ void RasterizerSceneGLES3::render_scene(const Transform &p_cam_transform, const 
                     if (feed->get_datatype() == CameraFeed::FEED_RGB) {
                         RID camera_RGBA = feed->get_texture(CameraServer::FEED_RGBA_IMAGE);
 
-                        VS::get_singleton()->texture_bind(camera_RGBA, 0);
+                        VisualServer::get_singleton()->texture_bind(camera_RGBA, 0);
                     } else if (feed->get_datatype() == CameraFeed::FEED_YCBCR) {
                         RID camera_YCbCr = feed->get_texture(CameraServer::FEED_YCBCR_IMAGE);
 
-                        VS::get_singleton()->texture_bind(camera_YCbCr, 0);
+                        VisualServer::get_singleton()->texture_bind(camera_YCbCr, 0);
 
                         storage->shaders.copy.set_conditional(CopyShaderGLES3::YCBCR_TO_SRGB, true);
 
@@ -4469,12 +4469,12 @@ void RasterizerSceneGLES3::render_scene(const Transform &p_cam_transform, const 
                         RID camera_Y = feed->get_texture(CameraServer::FEED_Y_IMAGE);
                         RID camera_CbCr = feed->get_texture(CameraServer::FEED_CBCR_IMAGE);
 
-                        VS::get_singleton()->texture_bind(camera_Y, 0);
-                        VS::get_singleton()->texture_bind(camera_CbCr, 1);
+                        VisualServer::get_singleton()->texture_bind(camera_Y, 0);
+                        VisualServer::get_singleton()->texture_bind(camera_CbCr, 1);
 
                         storage->shaders.copy.set_conditional(CopyShaderGLES3::SEP_CBCR_TEXTURE, true);
                         storage->shaders.copy.set_conditional(CopyShaderGLES3::YCBCR_TO_SRGB, true);
-                    };
+                    }
 
                     storage->shaders.copy.bind();
                     storage->shaders.copy.set_uniform(CopyShaderGLES3::DISPLAY_TRANSFORM, feed->get_transform());

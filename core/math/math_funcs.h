@@ -270,19 +270,19 @@ public:
     }
 
     // double only, as these functions are mainly used by the editor and not performance-critical,
-    static double ease(double p_x, double p_c);
-    static int step_decimals(double p_step);
-    static int range_step_decimals(double p_step);
-    static double stepify(double p_value, double p_step);
-    static float stepify(float p_value, float p_step);
-    static double dectime(double p_value, double p_amount, double p_step);
+    GODOT_EXPORT static double ease(double p_x, double p_c);
+    GODOT_EXPORT static int step_decimals(double p_step);
+    GODOT_EXPORT static int range_step_decimals(double p_step);
+    GODOT_EXPORT static double stepify(double p_value, double p_step);
+    GODOT_EXPORT static float stepify(float p_value, float p_step);
+    GODOT_EXPORT static double dectime(double p_value, double p_amount, double p_step);
 
-    static uint32_t larger_prime(uint32_t p_val);
+    GODOT_EXPORT static uint32_t larger_prime(uint32_t p_val);
 
-    static void seed(uint64_t x);
-    static void randomize();
-    static uint32_t rand_from_seed(uint64_t *seed);
-    static uint32_t rand();
+    GODOT_EXPORT static void seed(uint64_t x);
+    GODOT_EXPORT static void randomize();
+    GODOT_EXPORT static uint32_t rand_from_seed(uint64_t *seed);
+    GODOT_EXPORT static uint32_t rand();
     static _ALWAYS_INLINE_ double randd() { return (double)rand() / (double)Math::RANDOM_MAX; }
     static _ALWAYS_INLINE_ float randf() { return (float)rand() / (float)Math::RANDOM_MAX; }
 

@@ -48,7 +48,7 @@ public:
     ~SpatialGizmo() override {}
 };
 
-class Spatial : public Node {
+class GODOT_EXPORT Spatial : public Node {
 
     GDCLASS(Spatial,Node)
 

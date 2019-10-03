@@ -86,7 +86,7 @@ void SpinBox::_range_click_timeout() {
         set_value(get_value() + (up ? get_step() : -get_step()));
 
         if (range_click_timer->is_one_shot()) {
-            range_click_timer->set_wait_time(0.075);
+            range_click_timer->set_wait_time(0.075f);
             range_click_timer->set_one_shot(false);
             range_click_timer->start();
         }
@@ -114,7 +114,7 @@ void SpinBox::_gui_input(const Ref<InputEvent> &p_event) {
 
                 set_value(get_value() + (up ? get_step() : -get_step()));
 
-                range_click_timer->set_wait_time(0.6);
+                range_click_timer->set_wait_time(0.6f);
                 range_click_timer->set_one_shot(true);
                 range_click_timer->start();
 

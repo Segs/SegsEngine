@@ -79,7 +79,6 @@ public:
 	AnimationNodeStateMachineTransition();
 };
 
-VARIANT_ENUM_CAST(AnimationNodeStateMachineTransition::SwitchMode)
 
 class AnimationNodeStateMachine;
 

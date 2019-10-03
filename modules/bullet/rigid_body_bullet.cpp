@@ -37,6 +37,7 @@
 #include "godot_motion_state.h"
 #include "joint_bullet.h"
 #include "core/class_db.h"
+#include "core/property_info.h"
 #include "core/object_db.h"
 
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>

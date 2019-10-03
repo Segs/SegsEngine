@@ -226,19 +226,21 @@ void VisualScriptPropertySelector::_update_search() {
             String desc_arguments;
             if (!mi.arguments.empty()) {
                 desc_arguments = "(";
-                for (int i = 0; i < mi.arguments.size(); i++) {
+                bool after_first=false;
+                for (PropertyInfo & pi : mi.arguments) {
 
-                    if (i > 0) {
+                    if (after_first) {
                         desc_arguments += ", ";
                     }
-                    if (mi.arguments[i].type == VariantType::NIL) {
+                    if (pi.type == VariantType::NIL) {
                         desc_arguments += "var";
-                    } else if (StringUtils::find(mi.arguments[i].name,":") != -1) {
-                        desc_arguments += StringUtils::get_slice(mi.arguments[i].name,":", 1);
-                        mi.arguments[i].name = StringUtils::get_slice(mi.arguments[i].name,":", 0);
+                    } else if (StringUtils::find(pi.name,":") != -1) {
+                        desc_arguments += StringUtils::get_slice(pi.name,":", 1);
+                        pi.name = StringUtils::get_slice(pi.name,":", 0);
                     } else {
-                        desc_arguments += Variant::get_type_name(mi.arguments[i].type);
+                        desc_arguments += Variant::get_type_name(pi.type);
                     }
+                    after_first = true;
                 }
                 desc_arguments += ")";
             }

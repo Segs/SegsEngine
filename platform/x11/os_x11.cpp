@@ -3312,7 +3312,7 @@ void OS_X11::update_real_mouse_position() {
     }
 }
 
-OS_X11::OS_X11() {
+OS_X11::OS_X11(void *) {
 
 #ifdef PULSEAUDIO_ENABLED
     AudioDriverManager::add_driver(&driver_pulseaudio);
@@ -3328,4 +3328,7 @@ OS_X11::OS_X11() {
     minimized = false;
     xim_style = 0L;
     mouse_mode = MOUSE_MODE_VISIBLE;
+}
+OS *instantiateOS(void *v) {
+    return new OS_X11(v);
 }

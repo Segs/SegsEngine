@@ -421,7 +421,6 @@ String Resource::_get_category_wrap() {
 }
 
 void Resource::_bind_methods() {
-
     MethodBinder::bind_method(D_METHOD("set_path", {"path"}), &Resource::_set_path);
     MethodBinder::bind_method(D_METHOD("take_over_path", {"path"}), &Resource::_take_over_path);
     MethodBinder::bind_method(D_METHOD("get_path"), &Resource::get_path);

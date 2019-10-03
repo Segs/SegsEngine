@@ -32,6 +32,7 @@
 
 #include "image_etc.h"
 #include "texture_loader_pkm.h"
+#include "core/io/resource_loader.h"
 
 static Ref<ResourceFormatPKM> resource_loader_pkm;
 

@@ -84,6 +84,28 @@ IMPL_GDCLASS(VisualShaderNodeSwitch)
 IMPL_GDCLASS(VisualShaderNodeFresnel)
 IMPL_GDCLASS(VisualShaderNodeIs)
 IMPL_GDCLASS(VisualShaderNodeCompare)
+
+VARIANT_ENUM_CAST(VisualShaderNodeTexture::TextureType)
+VARIANT_ENUM_CAST(VisualShaderNodeTexture::Source)
+VARIANT_ENUM_CAST(VisualShaderNodeCubeMap::TextureType)
+VARIANT_ENUM_CAST(VisualShaderNodeScalarOp::Operator)
+VARIANT_ENUM_CAST(VisualShaderNodeVectorOp::Operator)
+VARIANT_ENUM_CAST(VisualShaderNodeColorOp::Operator)
+VARIANT_ENUM_CAST(VisualShaderNodeTransformMult::Operator)
+VARIANT_ENUM_CAST(VisualShaderNodeTransformVecMult::Operator)
+VARIANT_ENUM_CAST(VisualShaderNodeScalarFunc::Function)
+VARIANT_ENUM_CAST(VisualShaderNodeVectorFunc::Function)
+VARIANT_ENUM_CAST(VisualShaderNodeColorFunc::Function)
+VARIANT_ENUM_CAST(VisualShaderNodeTransformFunc::Function)
+VARIANT_ENUM_CAST(VisualShaderNodeScalarDerivativeFunc::Function)
+VARIANT_ENUM_CAST(VisualShaderNodeVectorDerivativeFunc::Function)
+VARIANT_ENUM_CAST(VisualShaderNodeTextureUniform::TextureType)
+VARIANT_ENUM_CAST(VisualShaderNodeTextureUniform::ColorDefault)
+VARIANT_ENUM_CAST(VisualShaderNodeIs::Function)
+VARIANT_ENUM_CAST(VisualShaderNodeCompare::ComparsionType)
+VARIANT_ENUM_CAST(VisualShaderNodeCompare::Function)
+VARIANT_ENUM_CAST(VisualShaderNodeCompare::Condition)
+
 ////////////// Scalar
 
 String VisualShaderNodeScalarConstant::get_caption() const {

@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef COLOR_H
-#define COLOR_H
+#pragma once
 
 #include "core/math/math_funcs.h"
 
@@ -223,5 +222,3 @@ bool Color::operator<(const Color &p_color) const {
     } else
         return r < p_color.r;
 }
-
-#endif

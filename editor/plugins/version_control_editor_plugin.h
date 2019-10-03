@@ -141,6 +141,4 @@ public:
     ~VersionControlEditorPlugin() override;
 };
 
-VARIANT_ENUM_CAST(VersionControlEditorPlugin::ChangeType);
-
 #endif // !VERSION_CONTROL_EDITOR_PLUGIN_H

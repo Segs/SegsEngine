@@ -34,9 +34,16 @@
 #include "core/os/keyboard.h"
 #include "scene/main/viewport.h"
 #include "scene/scene_string_names.h"
+#include "core/script_language.h"
 
 IMPL_GDCLASS(BaseButton)
 IMPL_GDCLASS(ButtonGroup)
+//TODO: SEGS: using Control::FocusMode in base_button
+VARIANT_ENUM_CAST(Control::FocusMode);
+
+VARIANT_ENUM_CAST(BaseButton::DrawMode)
+VARIANT_ENUM_CAST(BaseButton::ActionMode)
+
 
 void BaseButton::_unpress_group() {
 

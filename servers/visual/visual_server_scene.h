@@ -65,28 +65,17 @@ public:
 			ORTHOGONAL,
 			FRUSTUM
 		};
-		Type type;
-		float fov;
-		float znear, zfar;
-		float size;
-		Vector2 offset;
-		uint32_t visible_layers;
-		bool vaspect;
+		Type type = PERSPECTIVE;
+		float fov=70.0f;
+        float znear=0.05f;
+	    float zfar=100.0f;
+		float size=1.0f;
+		Vector2 offset {};
+		uint32_t visible_layers = 0xFFFFFFFF;
+        bool vaspect = false;
 		RID env;
 
 		Transform transform;
-
-		Camera() {
-
-			visible_layers = 0xFFFFFFFF;
-			fov = 70;
-			type = PERSPECTIVE;
-			znear = 0.05;
-			zfar = 100;
-			size = 1.0;
-			offset = Vector2();
-			vaspect = false;
-		}
 	};
 
 	mutable RID_Owner<Camera> camera_owner;

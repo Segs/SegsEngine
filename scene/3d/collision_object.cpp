@@ -33,6 +33,7 @@
 #include "scene/scene_string_names.h"
 #include "servers/physics_server.h"
 #include "core/method_bind.h"
+#include "core/script_language.h"
 #include "core/os/input_event.h"
 
 IMPL_GDCLASS(CollisionObject)

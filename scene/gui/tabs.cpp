@@ -41,6 +41,8 @@
 
 
 IMPL_GDCLASS(Tabs)
+VARIANT_ENUM_CAST(Tabs::TabAlign);
+VARIANT_ENUM_CAST(Tabs::CloseButtonDisplayPolicy);
 
 Size2 Tabs::get_minimum_size() const {
 

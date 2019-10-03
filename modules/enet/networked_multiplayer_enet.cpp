@@ -89,20 +89,11 @@ Error NetworkedMultiplayerENet::create_server(int p_port, int p_max_clients, int
     ENetAddress address;
     memset(&address, 0, sizeof(address));
 
-#ifdef GODOT_ENET
     if (bind_ip.is_wildcard()) {
         address.wildcard = 1;
     } else {
         enet_address_set_ip(&address, bind_ip.get_ipv6(), 16);
     }
-#else
-    if (bind_ip.is_wildcard()) {
-        address.host = 0;
-    } else {
-        ERR_FAIL_COND_V(!bind_ip.is_ipv4(), ERR_INVALID_PARAMETER)
-        address.host = *(uint32_t *)bind_ip.get_ipv4();
-    }
-#endif
     address.port = p_port;
 
     host = enet_host_create(&address /* the address to bind the server host to */,
@@ -132,20 +123,11 @@ Error NetworkedMultiplayerENet::create_client(const String &p_address, int p_por
     if (p_client_port != 0) {
         ENetAddress c_client;
 
-#ifdef GODOT_ENET
         if (bind_ip.is_wildcard()) {
             c_client.wildcard = 1;
         } else {
             enet_address_set_ip(&c_client, bind_ip.get_ipv6(), 16);
         }
-#else
-        if (bind_ip.is_wildcard()) {
-            c_client.host = 0;
-        } else {
-            ERR_FAIL_COND_V(!bind_ip.is_ipv4(), ERR_INVALID_PARAMETER)
-            c_client.host = *(uint32_t *)bind_ip.get_ipv4();
-        }
-#endif
 
         c_client.port = p_client_port;
 
@@ -170,22 +152,13 @@ Error NetworkedMultiplayerENet::create_client(const String &p_address, int p_por
     if (StringUtils::is_valid_ip_address(p_address)) {
         ip = p_address;
     } else {
-#ifdef GODOT_ENET
         ip = IP::get_singleton()->resolve_hostname(p_address);
-#else
-        ip = IP::get_singleton()->resolve_hostname(p_address, IP::TYPE_IPV4);
-#endif
 
         ERR_FAIL_COND_V(!ip.is_valid(), ERR_CANT_RESOLVE)
     }
 
     ENetAddress address;
-#ifdef GODOT_ENET
     enet_address_set_ip(&address, ip.get_ipv6(), 16);
-#else
-    ERR_FAIL_COND_V(!ip.is_ipv4(), ERR_INVALID_PARAMETER)
-    address.host = *(uint32_t *)ip.get_ipv4();
-#endif
     address.port = p_port;
 
     unique_id = _gen_unique_id();
@@ -774,11 +747,7 @@ IP_Address NetworkedMultiplayerENet::get_peer_address(int p_peer_id) const {
     ERR_FAIL_COND_V(peer_map.at(p_peer_id) == NULL, IP_Address())
 
     IP_Address out;
-#ifdef GODOT_ENET
     out.set_ipv6((uint8_t *)&(peer_map.at(p_peer_id)->address.host));
-#else
-    out.set_ipv4((uint8_t *)&(peer_map.at(p_peer_id)->address.host));
-#endif
 
     return out;
 }
@@ -788,11 +757,7 @@ int NetworkedMultiplayerENet::get_peer_port(int p_peer_id) const {
     ERR_FAIL_COND_V(!peer_map.contains(p_peer_id), 0)
     ERR_FAIL_COND_V(!is_server() && p_peer_id != 1, 0)
     ERR_FAIL_COND_V(peer_map.at(p_peer_id,nullptr) == NULL, 0)
-#ifdef GODOT_ENET
     return peer_map.at(p_peer_id)->address.port;
-#else
-    return peer_map.at(p_peer_id)->address.port;
-#endif
 }
 
 void NetworkedMultiplayerENet::set_transfer_channel(int p_channel) {

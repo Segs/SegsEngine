@@ -30,16 +30,12 @@
 
 #pragma once
 
-#ifdef FREETYPE_ENABLED
 #include "core/hashfuncs.h"
 #include "core/io/resource_loader.h"
 #include "core/os/mutex.h"
 #include "core/os/thread_safe.h"
 #include "core/pair.h"
 #include "scene/resources/font.h"
-
-#include <ft2build.h>
-#include FT_FREETYPE_H
 
 class DynamicFontAtSize;
 class DynamicFont;
@@ -108,14 +104,14 @@ public:
 
 class DynamicFontAtSize : public Reference {
 
-    GDCLASS(DynamicFontAtSize,Reference)
+    GDCLASS(DynamicFontAtSize, Reference)
 
     _THREAD_SAFE_CLASS_
-
-    FT_Library library; /* handle to library     */
-    FT_Face face; /* handle to face object */
-    FT_StreamRec stream;
-
+    
+    struct ImplData;
+    ImplData *m_impl;
+    friend struct ImplData;
+private:
     float ascent;
     float descent;
     float linegap;
@@ -164,10 +160,6 @@ class DynamicFontAtSize : public Reference {
     const Pair<const Character *, DynamicFontAtSize *> _find_char_with_font(CharType p_char, const Vector<Ref<DynamicFontAtSize> > &p_fallbacks) const;
     Character _make_outline_char(CharType p_char);
     TexturePosition _find_texture_pos_for_glyph(int p_color_size, Image::Format p_image_format, int p_width, int p_height);
-    Character _bitmap_to_character(FT_Bitmap bitmap, int yofs, int xofs, float advance);
-
-    static unsigned long _ft_stream_io(FT_Stream stream, unsigned long offset, unsigned char *buffer, unsigned long count);
-    static void _ft_stream_close(FT_Stream stream);
 
     HashMap<CharType, Character> char_map;
 
@@ -295,15 +287,3 @@ public:
     DynamicFont();
     ~DynamicFont() override;
 };
-
-/////////////
-
-class ResourceFormatLoaderDynamicFont : public ResourceFormatLoader {
-public:
-    RES load(const String &p_path, const String &p_original_path = "", Error *r_error = nullptr) override;
-    void get_recognized_extensions(ListPOD<String> *p_extensions) const override;
-    bool handles_type(const String &p_type) const override;
-    String get_resource_type(const String &p_path) const override;
-};
-
-#endif

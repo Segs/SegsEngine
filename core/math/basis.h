@@ -34,7 +34,7 @@
 
 class Quat;
 
-class Basis {
+class GODOT_EXPORT Basis {
 public:
 	Vector3 elements[3];
 
@@ -236,23 +236,13 @@ public:
 	Basis(const Vector3 &p_axis, real_t p_phi) { set_axis_angle(p_axis, p_phi); }
 	Basis(const Vector3 &p_axis, real_t p_phi, const Vector3 &p_scale) { set_axis_angle_scale(p_axis, p_phi, p_scale); }
 
-	_FORCE_INLINE_ Basis(const Vector3 &row0, const Vector3 &row1, const Vector3 &row2) {
+	constexpr _FORCE_INLINE_ Basis(const Vector3 &row0, const Vector3 &row1, const Vector3 &row2) {
 		elements[0] = row0;
 		elements[1] = row1;
 		elements[2] = row2;
 	}
 
-	_FORCE_INLINE_ Basis() {
-
-		elements[0][0] = 1;
-		elements[0][1] = 0;
-		elements[0][2] = 0;
-		elements[1][0] = 0;
-		elements[1][1] = 1;
-		elements[1][2] = 0;
-		elements[2][0] = 0;
-		elements[2][1] = 0;
-		elements[2][2] = 1;
+	constexpr _FORCE_INLINE_ Basis() : elements{ {1,0,0},{0,1,0},{0,0,1} } {
 	}
 };
 

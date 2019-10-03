@@ -35,6 +35,8 @@
 #include "core/project_settings.h"
 
 IMPL_GDCLASS(ARVRServer)
+VARIANT_ENUM_CAST(ARVRServer::TrackerType);
+VARIANT_ENUM_CAST(ARVRServer::RotationMode);
 
 ARVRServer *ARVRServer::singleton = nullptr;
 

@@ -29,7 +29,7 @@
 /*************************************************************************/
 
 #include "register_types.h"
-
+#include "core/io/resource_loader.h"
 #include "texture_loader_dds.h"
 
 static Ref<ResourceFormatDDS> resource_loader_dds;

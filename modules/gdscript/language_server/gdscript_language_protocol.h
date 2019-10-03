@@ -39,56 +39,55 @@
 #include "modules/websocket/websocket_server.h"
 
 class GDScriptLanguageProtocol : public JSONRPC {
-	GDCLASS(GDScriptLanguageProtocol,JSONRPC)
-IMPL_GDCLASS(GDScriptLanguageProtocol)
+    GDCLASS(GDScriptLanguageProtocol,JSONRPC)
 
-	enum LSPErrorCode {
-		RequestCancelled = -32800,
-		ContentModified = -32801,
-	};
+    enum LSPErrorCode {
+        RequestCancelled = -32800,
+        ContentModified = -32801,
+    };
 
-	static GDScriptLanguageProtocol *singleton;
+    static GDScriptLanguageProtocol *singleton;
 
-	HashMap<int, Ref<WebSocketPeer> > clients;
-	WebSocketServer *server;
-	int lastest_client_id;
+    HashMap<int, Ref<WebSocketPeer> > clients;
+    WebSocketServer *server;
+    int lastest_client_id;
 
-	Ref<GDScriptTextDocument> text_document;
-	Ref<GDScriptWorkspace> workspace;
+    Ref<GDScriptTextDocument> text_document;
+    Ref<GDScriptWorkspace> workspace;
 
-	void on_data_received(int p_id);
-	void on_client_connected(int p_id, const String &p_protocal);
-	void on_client_disconnected(int p_id, bool p_was_clean_close);
+    void on_data_received(int p_id);
+    void on_client_connected(int p_id, const String &p_protocal);
+    void on_client_disconnected(int p_id, bool p_was_clean_close);
 
-	String process_message(const String &p_text);
-	String format_output(const String &p_text);
+    String process_message(const String &p_text);
+    String format_output(const String &p_text);
 
-	bool _initialized;
+    bool _initialized;
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
-	Dictionary initialize(const Dictionary &p_params);
-	void initialized(const Variant &p_params);
+    Dictionary initialize(const Dictionary &p_params);
+    void initialized(const Variant &p_params);
 
 public:
-	_FORCE_INLINE_ static GDScriptLanguageProtocol *get_singleton() { return singleton; }
-	_FORCE_INLINE_ Ref<GDScriptWorkspace> get_workspace() { return workspace; }
-	_FORCE_INLINE_ Ref<GDScriptTextDocument> get_text_document() { return text_document; }
-	_FORCE_INLINE_ bool is_initialized() const { return _initialized; }
+    _FORCE_INLINE_ static GDScriptLanguageProtocol *get_singleton() { return singleton; }
+    _FORCE_INLINE_ Ref<GDScriptWorkspace> get_workspace() { return workspace; }
+    _FORCE_INLINE_ Ref<GDScriptTextDocument> get_text_document() { return text_document; }
+    _FORCE_INLINE_ bool is_initialized() const { return _initialized; }
 
-	void poll();
-	Error start(int p_port);
-	void stop();
+    void poll();
+    Error start(int p_port);
+    void stop();
 
-	void notify_all_clients(const String &p_method, const Variant &p_params = Variant());
-	void notify_client(const String &p_method, const Variant &p_params = Variant(), int p_client = -1);
+    void notify_all_clients(const String &p_method, const Variant &p_params = Variant());
+    void notify_client(const String &p_method, const Variant &p_params = Variant(), int p_client = -1);
 
-	bool is_smart_resolve_enabled() const;
-	bool is_goto_native_symbols_enabled() const;
+    bool is_smart_resolve_enabled() const;
+    bool is_goto_native_symbols_enabled() const;
 
-	GDScriptLanguageProtocol();
-	~GDScriptLanguageProtocol();
+    GDScriptLanguageProtocol();
+    ~GDScriptLanguageProtocol();
 };
 
 #endif

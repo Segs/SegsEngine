@@ -52,6 +52,7 @@
 #include "editor/editor_node.h"
 #include "gdnative_library_editor_plugin.h"
 #include "gdnative_library_singleton_editor.h"
+#include <QResource>
 
 
 class GDNativeExportPlugin : public EditorExportPlugin {
@@ -226,6 +227,7 @@ Ref<GDNativeLibraryResourceSaver> resource_saver_gdnlib;
 void register_gdnative_types() {
 
 #ifdef TOOLS_ENABLED
+    Q_INIT_RESOURCE(gdnative); 
     GDNativeLibraryEditor::initialize_class();
     EditorNode::add_init_callback(editor_init_callback);
 #endif

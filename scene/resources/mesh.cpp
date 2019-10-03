@@ -33,6 +33,7 @@
 #include "core/pair.h"
 #include "scene/resources/concave_polygon_shape.h"
 #include "scene/resources/convex_polygon_shape.h"
+#include "servers/visual_server.h"
 #include "surface_tool.h"
 #include "core/method_bind.h"
 
@@ -751,15 +752,15 @@ bool ArrayMesh::_get(const StringName &p_name, Variant &r_ret) const {
 
     Dictionary d;
 
-    d["array_data"] = VS::get_singleton()->mesh_surface_get_array(mesh, idx);
-    d["vertex_count"] = VS::get_singleton()->mesh_surface_get_array_len(mesh, idx);
-    d["array_index_data"] = VS::get_singleton()->mesh_surface_get_index_array(mesh, idx);
-    d["index_count"] = VS::get_singleton()->mesh_surface_get_array_index_len(mesh, idx);
-    d["primitive"] = VS::get_singleton()->mesh_surface_get_primitive_type(mesh, idx);
-    d["format"] = VS::get_singleton()->mesh_surface_get_format(mesh, idx);
-    d["aabb"] = VS::get_singleton()->mesh_surface_get_aabb(mesh, idx);
+    d["array_data"] = VisualServer::get_singleton()->mesh_surface_get_array(mesh, idx);
+    d["vertex_count"] = VisualServer::get_singleton()->mesh_surface_get_array_len(mesh, idx);
+    d["array_index_data"] = VisualServer::get_singleton()->mesh_surface_get_index_array(mesh, idx);
+    d["index_count"] = VisualServer::get_singleton()->mesh_surface_get_array_index_len(mesh, idx);
+    d["primitive"] = VisualServer::get_singleton()->mesh_surface_get_primitive_type(mesh, idx);
+    d["format"] = VisualServer::get_singleton()->mesh_surface_get_format(mesh, idx);
+    d["aabb"] = VisualServer::get_singleton()->mesh_surface_get_aabb(mesh, idx);
 
-    Vector<AABB> skel_aabb = VS::get_singleton()->mesh_surface_get_skeleton_aabb(mesh, idx);
+    Vector<AABB> skel_aabb = VisualServer::get_singleton()->mesh_surface_get_skeleton_aabb(mesh, idx);
     Array arr;
     arr.resize(skel_aabb.size());
     for (int i = 0; i < skel_aabb.size(); i++) {
@@ -767,7 +768,7 @@ bool ArrayMesh::_get(const StringName &p_name, Variant &r_ret) const {
     }
     d["skeleton_aabb"] = arr;
 
-    Vector<PoolVector<uint8_t> > blend_shape_data = VS::get_singleton()->mesh_surface_get_blend_shapes(mesh, idx);
+    Vector<PoolVector<uint8_t> > blend_shape_data = VisualServer::get_singleton()->mesh_surface_get_blend_shapes(mesh, idx);
 
     Array md;
     for (int i = 0; i < blend_shape_data.size(); i++) {
@@ -841,7 +842,7 @@ void ArrayMesh::add_surface_from_arrays(PrimitiveType p_primitive, const Array &
 
     Surface s;
 
-    VisualServer::get_singleton()->mesh_add_surface_from_arrays(mesh, (VisualServer::PrimitiveType)p_primitive, p_arrays, p_blend_shapes, p_flags);
+    VisualServer::get_singleton()->mesh_add_surface_from_arrays(mesh, (VS::PrimitiveType)p_primitive, p_arrays, p_blend_shapes, p_flags);
 
     /* make aABB? */ {
 
@@ -907,7 +908,7 @@ void ArrayMesh::add_blend_shape(const StringName &p_name) {
     }
 
     blend_shapes.push_back(name);
-    VS::get_singleton()->mesh_set_blend_shape_count(mesh, blend_shapes.size());
+    VisualServer::get_singleton()->mesh_set_blend_shape_count(mesh, blend_shapes.size());
 }
 
 int ArrayMesh::get_blend_shape_count() const {
@@ -928,7 +929,7 @@ void ArrayMesh::clear_blend_shapes() {
 void ArrayMesh::set_blend_shape_mode(BlendShapeMode p_mode) {
 
     blend_shape_mode = p_mode;
-    VS::get_singleton()->mesh_set_blend_shape_mode(mesh, (VS::BlendShapeMode)p_mode);
+    VisualServer::get_singleton()->mesh_set_blend_shape_mode(mesh, (VS::BlendShapeMode)p_mode);
 }
 
 ArrayMesh::BlendShapeMode ArrayMesh::get_blend_shape_mode() const {
@@ -1011,7 +1012,7 @@ String ArrayMesh::surface_get_name(int p_idx) const {
 void ArrayMesh::surface_update_region(int p_surface, int p_offset, const PoolVector<uint8_t> &p_data) {
 
     ERR_FAIL_INDEX(p_surface, surfaces.size());
-    VS::get_singleton()->mesh_surface_update_region(mesh, p_surface, p_offset, p_data);
+    VisualServer::get_singleton()->mesh_surface_update_region(mesh, p_surface, p_offset, p_data);
     emit_changed();
 }
 
@@ -1068,7 +1069,7 @@ AABB ArrayMesh::get_aabb() const {
 void ArrayMesh::set_custom_aabb(const AABB &p_custom) {
 
     custom_aabb = p_custom;
-    VS::get_singleton()->mesh_set_custom_aabb(mesh, custom_aabb);
+    VisualServer::get_singleton()->mesh_set_custom_aabb(mesh, custom_aabb);
     emit_changed();
 }
 

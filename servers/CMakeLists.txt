@@ -3,10 +3,10 @@ file(GLOB_RECURSE source_files "*.cpp")
 file(GLOB_RECURSE header_files "*.h")
 
 foreach(tgt ${global_targets})
-    add_library(${tgt}_servers ${source_files} ${header_files})
-
-    target_link_libraries(${tgt}_servers PUBLIC ${tgt}_core)
-    set_common_target_properties(${tgt}_servers)
+    target_sources(${tgt}_engine PRIVATE
+        ${source_files} ${header_files}
+        "${PROJECT_SOURCE_DIR}/thirdparty/misc/easing_equations.cpp"
+        "${PROJECT_SOURCE_DIR}/thirdparty/misc/mikktspace.c"
+    )
 endforeach()
-
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${source_files} ${header_files})
+source_group(TREE ${PROJECT_SOURCE_DIR} FILES ${source_files} ${header_files})

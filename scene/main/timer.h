@@ -83,6 +83,4 @@ private:
 	void _set_process(bool p_process, bool p_force = false);
 };
 
-VARIANT_ENUM_CAST(Timer::TimerProcessMode);
-
 #endif // TIMER_H

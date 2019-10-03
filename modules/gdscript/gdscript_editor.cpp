@@ -38,6 +38,8 @@
 #include "core/method_bind_interface.h"
 #include "core/method_info.h"
 #include "core/os/file_access.h"
+#include "core/print_string.h"
+#include "core/project_settings.h"
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_file_system.h"

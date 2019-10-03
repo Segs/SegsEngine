@@ -37,6 +37,13 @@ IMPL_GDCLASS(HingeJoint)
 IMPL_GDCLASS(SliderJoint)
 IMPL_GDCLASS(ConeTwistJoint)
 IMPL_GDCLASS(Generic6DOFJoint)
+VARIANT_ENUM_CAST(PinJoint::Param);
+VARIANT_ENUM_CAST(HingeJoint::Param);
+VARIANT_ENUM_CAST(HingeJoint::Flag);
+VARIANT_ENUM_CAST(SliderJoint::Param);
+VARIANT_ENUM_CAST(ConeTwistJoint::Param);
+VARIANT_ENUM_CAST(Generic6DOFJoint::Param);
+VARIANT_ENUM_CAST(Generic6DOFJoint::Flag);
 
 void Joint::_update_joint(bool p_only_free) {
 
@@ -222,7 +229,7 @@ RID PinJoint::_configure_joint(PhysicsBody *body_a, PhysicsBody *body_b) {
 
 PinJoint::PinJoint() {
 
-    params[PARAM_BIAS] = 0.3;
+    params[PARAM_BIAS] = 0.3f;
     params[PARAM_DAMPING] = 1;
     params[PARAM_IMPULSE_CLAMP] = 0;
 }
@@ -352,12 +359,12 @@ RID HingeJoint::_configure_joint(PhysicsBody *body_a, PhysicsBody *body_b) {
 
 HingeJoint::HingeJoint() {
 
-    params[PARAM_BIAS] = 0.3;
-    params[PARAM_LIMIT_UPPER] = Math_PI * 0.5;
-    params[PARAM_LIMIT_LOWER] = -Math_PI * 0.5;
-    params[PARAM_LIMIT_BIAS] = 0.3;
-    params[PARAM_LIMIT_SOFTNESS] = 0.9;
-    params[PARAM_LIMIT_RELAXATION] = 1.0;
+    params[PARAM_BIAS] = 0.3f;
+    params[PARAM_LIMIT_UPPER] = Math_PI * 0.5f;
+    params[PARAM_LIMIT_LOWER] = -Math_PI * 0.5f;
+    params[PARAM_LIMIT_BIAS] = 0.3f;
+    params[PARAM_LIMIT_SOFTNESS] = 0.9f;
+    params[PARAM_LIMIT_RELAXATION] = 1.0f;
     params[PARAM_MOTOR_TARGET_VELOCITY] = 1;
     params[PARAM_MOTOR_MAX_IMPULSE] = 1;
 
@@ -997,13 +1004,13 @@ Generic6DOFJoint::Generic6DOFJoint() :
 
     set_param_y(PARAM_LINEAR_LOWER_LIMIT, 0);
     set_param_y(PARAM_LINEAR_UPPER_LIMIT, 0);
-    set_param_y(PARAM_LINEAR_LIMIT_SOFTNESS, 0.7);
-    set_param_y(PARAM_LINEAR_RESTITUTION, 0.5);
-    set_param_y(PARAM_LINEAR_DAMPING, 1.0);
+    set_param_y(PARAM_LINEAR_LIMIT_SOFTNESS, 0.7f);
+    set_param_y(PARAM_LINEAR_RESTITUTION, 0.5f);
+    set_param_y(PARAM_LINEAR_DAMPING, 1.0f);
     set_param_y(PARAM_LINEAR_MOTOR_TARGET_VELOCITY, 0);
     set_param_y(PARAM_LINEAR_MOTOR_FORCE_LIMIT, 0);
-    set_param_y(PARAM_LINEAR_SPRING_STIFFNESS, 0.01);
-    set_param_y(PARAM_LINEAR_SPRING_DAMPING, 0.01);
+    set_param_y(PARAM_LINEAR_SPRING_STIFFNESS, 0.01f);
+    set_param_y(PARAM_LINEAR_SPRING_DAMPING, 0.01f);
     set_param_y(PARAM_LINEAR_SPRING_EQUILIBRIUM_POINT, 0.0);
     set_param_y(PARAM_ANGULAR_LOWER_LIMIT, 0);
     set_param_y(PARAM_ANGULAR_UPPER_LIMIT, 0);
@@ -1027,13 +1034,13 @@ Generic6DOFJoint::Generic6DOFJoint() :
 
     set_param_z(PARAM_LINEAR_LOWER_LIMIT, 0);
     set_param_z(PARAM_LINEAR_UPPER_LIMIT, 0);
-    set_param_z(PARAM_LINEAR_LIMIT_SOFTNESS, 0.7);
-    set_param_z(PARAM_LINEAR_RESTITUTION, 0.5);
+    set_param_z(PARAM_LINEAR_LIMIT_SOFTNESS, 0.7f);
+    set_param_z(PARAM_LINEAR_RESTITUTION, 0.5f);
     set_param_z(PARAM_LINEAR_DAMPING, 1.0);
     set_param_z(PARAM_LINEAR_MOTOR_TARGET_VELOCITY, 0);
     set_param_z(PARAM_LINEAR_MOTOR_FORCE_LIMIT, 0);
-    set_param_z(PARAM_LINEAR_SPRING_STIFFNESS, 0.01);
-    set_param_z(PARAM_LINEAR_SPRING_DAMPING, 0.01);
+    set_param_z(PARAM_LINEAR_SPRING_STIFFNESS, 0.01f);
+    set_param_z(PARAM_LINEAR_SPRING_DAMPING, 0.01f);
     set_param_z(PARAM_LINEAR_SPRING_EQUILIBRIUM_POINT, 0.0);
     set_param_z(PARAM_ANGULAR_LOWER_LIMIT, 0);
     set_param_z(PARAM_ANGULAR_UPPER_LIMIT, 0);
@@ -1041,7 +1048,7 @@ Generic6DOFJoint::Generic6DOFJoint() :
     set_param_z(PARAM_ANGULAR_DAMPING, 1.0f);
     set_param_z(PARAM_ANGULAR_RESTITUTION, 0);
     set_param_z(PARAM_ANGULAR_FORCE_LIMIT, 0);
-    set_param_z(PARAM_ANGULAR_ERP, 0.5);
+    set_param_z(PARAM_ANGULAR_ERP, 0.5f);
     set_param_z(PARAM_ANGULAR_MOTOR_TARGET_VELOCITY, 0);
     set_param_z(PARAM_ANGULAR_MOTOR_FORCE_LIMIT, 300);
     set_param_z(PARAM_ANGULAR_SPRING_STIFFNESS, 0);

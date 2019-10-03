@@ -29,8 +29,11 @@
 /*************************************************************************/
 
 #include "material.h"
+
 #include "core/class_db.h"
 #include "core/method_enum_caster.h"
+#include "servers/visual/shader_language.h"
+#include "servers/visual_server.h"
 
 IMPL_GDCLASS(Material)
 IMPL_GDCLASS(ShaderMaterial)
@@ -71,7 +74,7 @@ void Material::set_next_pass(const Ref<Material> &p_pass) {
     RID next_pass_rid;
     if (next_pass)
         next_pass_rid = next_pass->get_rid();
-    VS::get_singleton()->material_set_next_pass(material, next_pass_rid);
+    VisualServer::get_singleton()->material_set_next_pass(material, next_pass_rid);
 }
 
 Ref<Material> Material::get_next_pass() const {
@@ -84,7 +87,7 @@ void Material::set_render_priority(int p_priority) {
     ERR_FAIL_COND(p_priority < RENDER_PRIORITY_MIN)
     ERR_FAIL_COND(p_priority > RENDER_PRIORITY_MAX)
     render_priority = p_priority;
-    VS::get_singleton()->material_set_render_priority(material, p_priority);
+    VisualServer::get_singleton()->material_set_render_priority(material, p_priority);
 }
 
 int Material::get_render_priority() const {
@@ -224,7 +227,7 @@ void ShaderMaterial::set_shader(const Ref<Shader> &p_shader) {
         shader->connect("changed", this, "_shader_changed");
     }
 
-    VS::get_singleton()->material_set_shader(_get_material(), rid);
+    VisualServer::get_singleton()->material_set_shader(_get_material(), rid);
     _change_notify(); //properties for shader exposed
     emit_changed();
 }
@@ -236,12 +239,12 @@ Ref<Shader> ShaderMaterial::get_shader() const {
 
 void ShaderMaterial::set_shader_param(const StringName &p_param, const Variant &p_value) {
 
-    VS::get_singleton()->material_set_param(_get_material(), p_param, p_value);
+    VisualServer::get_singleton()->material_set_param(_get_material(), p_param, p_value);
 }
 
 Variant ShaderMaterial::get_shader_param(const StringName &p_param) const {
 
-    return VS::get_singleton()->material_get_param(_get_material(), p_param);
+    return VisualServer::get_singleton()->material_get_param(_get_material(), p_param);
 }
 
 void ShaderMaterial::_shader_changed() {
@@ -414,7 +417,7 @@ void SpatialMaterial::_update_shader() {
         shader_map[current_key].users--;
         if (shader_map[current_key].users == 0) {
             //deallocate shader, as it's no longer in use
-            VS::get_singleton()->free(shader_map[current_key].shader);
+            VisualServer::get_singleton()->free(shader_map[current_key].shader);
             shader_map.erase(current_key);
         }
     }
@@ -423,7 +426,7 @@ void SpatialMaterial::_update_shader() {
 
     if (shader_map.contains(mk)) {
 
-        VS::get_singleton()->material_set_shader(_get_material(), shader_map[mk].shader);
+        VisualServer::get_singleton()->material_set_shader(_get_material(), shader_map[mk].shader);
         shader_map[mk].users++;
         return;
     }
@@ -1047,14 +1050,14 @@ void SpatialMaterial::_update_shader() {
     code += "}\n";
 
     ShaderData shader_data;
-    shader_data.shader = VS::get_singleton()->shader_create();
+    shader_data.shader = VisualServer::get_singleton()->shader_create();
     shader_data.users = 1;
 
-    VS::get_singleton()->shader_set_code(shader_data.shader, code);
+    VisualServer::get_singleton()->shader_set_code(shader_data.shader, code);
 
     shader_map[mk] = shader_data;
 
-    VS::get_singleton()->material_set_shader(_get_material(), shader_data.shader);
+    VisualServer::get_singleton()->material_set_shader(_get_material(), shader_data.shader);
 }
 
 void SpatialMaterial::flush_changes() {
@@ -1102,7 +1105,7 @@ void SpatialMaterial::set_albedo(const Color &p_albedo) {
 
     albedo = p_albedo;
 
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->albedo, p_albedo);
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->albedo, p_albedo);
 }
 
 Color SpatialMaterial::get_albedo() const {
@@ -1113,7 +1116,7 @@ Color SpatialMaterial::get_albedo() const {
 void SpatialMaterial::set_specular(float p_specular) {
 
     specular = p_specular;
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->specular, p_specular);
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->specular, p_specular);
 }
 
 float SpatialMaterial::get_specular() const {
@@ -1124,7 +1127,7 @@ float SpatialMaterial::get_specular() const {
 void SpatialMaterial::set_roughness(float p_roughness) {
 
     roughness = p_roughness;
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->roughness, p_roughness);
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->roughness, p_roughness);
 }
 
 float SpatialMaterial::get_roughness() const {
@@ -1135,7 +1138,7 @@ float SpatialMaterial::get_roughness() const {
 void SpatialMaterial::set_metallic(float p_metallic) {
 
     metallic = p_metallic;
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->metallic, p_metallic);
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->metallic, p_metallic);
 }
 
 float SpatialMaterial::get_metallic() const {
@@ -1146,7 +1149,7 @@ float SpatialMaterial::get_metallic() const {
 void SpatialMaterial::set_emission(const Color &p_emission) {
 
     emission = p_emission;
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->emission, p_emission);
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->emission, p_emission);
 }
 Color SpatialMaterial::get_emission() const {
 
@@ -1156,7 +1159,7 @@ Color SpatialMaterial::get_emission() const {
 void SpatialMaterial::set_emission_energy(float p_emission_energy) {
 
     emission_energy = p_emission_energy;
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->emission_energy, p_emission_energy);
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->emission_energy, p_emission_energy);
 }
 float SpatialMaterial::get_emission_energy() const {
 
@@ -1166,7 +1169,7 @@ float SpatialMaterial::get_emission_energy() const {
 void SpatialMaterial::set_normal_scale(float p_normal_scale) {
 
     normal_scale = p_normal_scale;
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->normal_scale, p_normal_scale);
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->normal_scale, p_normal_scale);
 }
 float SpatialMaterial::get_normal_scale() const {
 
@@ -1176,7 +1179,7 @@ float SpatialMaterial::get_normal_scale() const {
 void SpatialMaterial::set_rim(float p_rim) {
 
     rim = p_rim;
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->rim, p_rim);
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->rim, p_rim);
 }
 float SpatialMaterial::get_rim() const {
 
@@ -1186,7 +1189,7 @@ float SpatialMaterial::get_rim() const {
 void SpatialMaterial::set_rim_tint(float p_rim_tint) {
 
     rim_tint = p_rim_tint;
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->rim_tint, p_rim_tint);
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->rim_tint, p_rim_tint);
 }
 float SpatialMaterial::get_rim_tint() const {
 
@@ -1196,7 +1199,7 @@ float SpatialMaterial::get_rim_tint() const {
 void SpatialMaterial::set_ao_light_affect(float p_ao_light_affect) {
 
     ao_light_affect = p_ao_light_affect;
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->ao_light_affect, p_ao_light_affect);
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->ao_light_affect, p_ao_light_affect);
 }
 float SpatialMaterial::get_ao_light_affect() const {
 
@@ -1206,7 +1209,7 @@ float SpatialMaterial::get_ao_light_affect() const {
 void SpatialMaterial::set_clearcoat(float p_clearcoat) {
 
     clearcoat = p_clearcoat;
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->clearcoat, p_clearcoat);
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->clearcoat, p_clearcoat);
 }
 
 float SpatialMaterial::get_clearcoat() const {
@@ -1217,7 +1220,7 @@ float SpatialMaterial::get_clearcoat() const {
 void SpatialMaterial::set_clearcoat_gloss(float p_clearcoat_gloss) {
 
     clearcoat_gloss = p_clearcoat_gloss;
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->clearcoat_gloss, p_clearcoat_gloss);
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->clearcoat_gloss, p_clearcoat_gloss);
 }
 
 float SpatialMaterial::get_clearcoat_gloss() const {
@@ -1228,7 +1231,7 @@ float SpatialMaterial::get_clearcoat_gloss() const {
 void SpatialMaterial::set_anisotropy(float p_anisotropy) {
 
     anisotropy = p_anisotropy;
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->anisotropy, p_anisotropy);
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->anisotropy, p_anisotropy);
 }
 float SpatialMaterial::get_anisotropy() const {
 
@@ -1238,7 +1241,7 @@ float SpatialMaterial::get_anisotropy() const {
 void SpatialMaterial::set_depth_scale(float p_depth_scale) {
 
     depth_scale = p_depth_scale;
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->depth_scale, p_depth_scale);
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->depth_scale, p_depth_scale);
 }
 
 float SpatialMaterial::get_depth_scale() const {
@@ -1249,7 +1252,7 @@ float SpatialMaterial::get_depth_scale() const {
 void SpatialMaterial::set_subsurface_scattering_strength(float p_subsurface_scattering_strength) {
 
     subsurface_scattering_strength = p_subsurface_scattering_strength;
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->subsurface_scattering_strength, subsurface_scattering_strength);
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->subsurface_scattering_strength, subsurface_scattering_strength);
 }
 
 float SpatialMaterial::get_subsurface_scattering_strength() const {
@@ -1260,7 +1263,7 @@ float SpatialMaterial::get_subsurface_scattering_strength() const {
 void SpatialMaterial::set_transmission(const Color &p_transmission) {
 
     transmission = p_transmission;
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->transmission, transmission);
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->transmission, transmission);
 }
 
 Color SpatialMaterial::get_transmission() const {
@@ -1271,7 +1274,7 @@ Color SpatialMaterial::get_transmission() const {
 void SpatialMaterial::set_refraction(float p_refraction) {
 
     refraction = p_refraction;
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->refraction, refraction);
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->refraction, refraction);
 }
 
 float SpatialMaterial::get_refraction() const {
@@ -1409,7 +1412,7 @@ void SpatialMaterial::set_texture(TextureParam p_param, const Ref<Texture> &p_te
     ERR_FAIL_INDEX(p_param, TEXTURE_MAX)
     textures[p_param] = p_texture;
     RID rid = p_texture ? p_texture->get_rid() : RID();
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->texture_names[p_param], rid);
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->texture_names[p_param], rid);
 }
 
 Ref<Texture> SpatialMaterial::get_texture(TextureParam p_param) const {
@@ -1528,7 +1531,7 @@ void SpatialMaterial::_validate_property(PropertyInfo &property) const {
 void SpatialMaterial::set_line_width(float p_line_width) {
 
     line_width = p_line_width;
-    VS::get_singleton()->material_set_line_width(_get_material(), line_width);
+    VisualServer::get_singleton()->material_set_line_width(_get_material(), line_width);
 }
 
 float SpatialMaterial::get_line_width() const {
@@ -1539,7 +1542,7 @@ float SpatialMaterial::get_line_width() const {
 void SpatialMaterial::set_point_size(float p_point_size) {
 
     point_size = p_point_size;
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->point_size, p_point_size);
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->point_size, p_point_size);
 }
 
 float SpatialMaterial::get_point_size() const {
@@ -1550,7 +1553,7 @@ float SpatialMaterial::get_point_size() const {
 void SpatialMaterial::set_uv1_scale(const Vector3 &p_scale) {
 
     uv1_scale = p_scale;
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->uv1_scale, p_scale);
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->uv1_scale, p_scale);
 }
 
 Vector3 SpatialMaterial::get_uv1_scale() const {
@@ -1561,7 +1564,7 @@ Vector3 SpatialMaterial::get_uv1_scale() const {
 void SpatialMaterial::set_uv1_offset(const Vector3 &p_offset) {
 
     uv1_offset = p_offset;
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->uv1_offset, p_offset);
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->uv1_offset, p_offset);
 }
 Vector3 SpatialMaterial::get_uv1_offset() const {
 
@@ -1571,7 +1574,7 @@ Vector3 SpatialMaterial::get_uv1_offset() const {
 void SpatialMaterial::set_uv1_triplanar_blend_sharpness(float p_sharpness) {
 
     uv1_triplanar_sharpness = p_sharpness;
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->uv1_blend_sharpness, p_sharpness);
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->uv1_blend_sharpness, p_sharpness);
 }
 
 float SpatialMaterial::get_uv1_triplanar_blend_sharpness() const {
@@ -1582,7 +1585,7 @@ float SpatialMaterial::get_uv1_triplanar_blend_sharpness() const {
 void SpatialMaterial::set_uv2_scale(const Vector3 &p_scale) {
 
     uv2_scale = p_scale;
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->uv2_scale, p_scale);
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->uv2_scale, p_scale);
 }
 
 Vector3 SpatialMaterial::get_uv2_scale() const {
@@ -1593,7 +1596,7 @@ Vector3 SpatialMaterial::get_uv2_scale() const {
 void SpatialMaterial::set_uv2_offset(const Vector3 &p_offset) {
 
     uv2_offset = p_offset;
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->uv2_offset, p_offset);
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->uv2_offset, p_offset);
 }
 
 Vector3 SpatialMaterial::get_uv2_offset() const {
@@ -1604,7 +1607,7 @@ Vector3 SpatialMaterial::get_uv2_offset() const {
 void SpatialMaterial::set_uv2_triplanar_blend_sharpness(float p_sharpness) {
 
     uv2_triplanar_sharpness = p_sharpness;
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->uv2_blend_sharpness, p_sharpness);
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->uv2_blend_sharpness, p_sharpness);
 }
 
 float SpatialMaterial::get_uv2_triplanar_blend_sharpness() const {
@@ -1627,7 +1630,7 @@ SpatialMaterial::BillboardMode SpatialMaterial::get_billboard_mode() const {
 void SpatialMaterial::set_particles_anim_h_frames(int p_frames) {
 
     particles_anim_h_frames = p_frames;
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->particles_anim_h_frames, p_frames);
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->particles_anim_h_frames, p_frames);
 }
 
 int SpatialMaterial::get_particles_anim_h_frames() const {
@@ -1637,7 +1640,7 @@ int SpatialMaterial::get_particles_anim_h_frames() const {
 void SpatialMaterial::set_particles_anim_v_frames(int p_frames) {
 
     particles_anim_v_frames = p_frames;
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->particles_anim_v_frames, p_frames);
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->particles_anim_v_frames, p_frames);
 }
 
 int SpatialMaterial::get_particles_anim_v_frames() const {
@@ -1648,7 +1651,7 @@ int SpatialMaterial::get_particles_anim_v_frames() const {
 void SpatialMaterial::set_particles_anim_loop(bool p_loop) {
 
     particles_anim_loop = p_loop;
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->particles_anim_loop, particles_anim_loop);
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->particles_anim_loop, particles_anim_loop);
 }
 
 bool SpatialMaterial::get_particles_anim_loop() const {
@@ -1671,7 +1674,7 @@ bool SpatialMaterial::is_depth_deep_parallax_enabled() const {
 void SpatialMaterial::set_depth_deep_parallax_min_layers(int p_layer) {
 
     deep_parallax_min_layers = p_layer;
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->depth_min_layers, p_layer);
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->depth_min_layers, p_layer);
 }
 int SpatialMaterial::get_depth_deep_parallax_min_layers() const {
 
@@ -1681,7 +1684,7 @@ int SpatialMaterial::get_depth_deep_parallax_min_layers() const {
 void SpatialMaterial::set_depth_deep_parallax_max_layers(int p_layer) {
 
     deep_parallax_max_layers = p_layer;
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->depth_max_layers, p_layer);
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->depth_max_layers, p_layer);
 }
 int SpatialMaterial::get_depth_deep_parallax_max_layers() const {
 
@@ -1691,7 +1694,7 @@ int SpatialMaterial::get_depth_deep_parallax_max_layers() const {
 void SpatialMaterial::set_depth_deep_parallax_flip_tangent(bool p_flip) {
 
     depth_parallax_flip_tangent = p_flip;
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->depth_flip, Vector2(depth_parallax_flip_tangent ? -1 : 1, depth_parallax_flip_binormal ? -1 : 1));
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->depth_flip, Vector2(depth_parallax_flip_tangent ? -1 : 1, depth_parallax_flip_binormal ? -1 : 1));
 }
 
 bool SpatialMaterial::get_depth_deep_parallax_flip_tangent() const {
@@ -1702,7 +1705,7 @@ bool SpatialMaterial::get_depth_deep_parallax_flip_tangent() const {
 void SpatialMaterial::set_depth_deep_parallax_flip_binormal(bool p_flip) {
 
     depth_parallax_flip_binormal = p_flip;
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->depth_flip, Vector2(depth_parallax_flip_tangent ? -1 : 1, depth_parallax_flip_binormal ? -1 : 1));
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->depth_flip, Vector2(depth_parallax_flip_tangent ? -1 : 1, depth_parallax_flip_binormal ? -1 : 1));
 }
 
 bool SpatialMaterial::get_depth_deep_parallax_flip_binormal() const {
@@ -1722,7 +1725,7 @@ bool SpatialMaterial::is_grow_enabled() const {
 
 void SpatialMaterial::set_alpha_scissor_threshold(float p_threshold) {
     alpha_scissor_threshold = p_threshold;
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->alpha_scissor_threshold, p_threshold);
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->alpha_scissor_threshold, p_threshold);
 }
 
 float SpatialMaterial::get_alpha_scissor_threshold() const {
@@ -1732,7 +1735,7 @@ float SpatialMaterial::get_alpha_scissor_threshold() const {
 
 void SpatialMaterial::set_grow(float p_grow) {
     grow = p_grow;
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->grow, p_grow);
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->grow, p_grow);
 }
 
 float SpatialMaterial::get_grow() const {
@@ -1755,7 +1758,7 @@ static Plane _get_texture_mask(SpatialMaterial::TextureChannel p_channel) {
 void SpatialMaterial::set_metallic_texture_channel(TextureChannel p_channel) {
     ERR_FAIL_INDEX(p_channel, 5);
     metallic_texture_channel = p_channel;
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->metallic_texture_channel, _get_texture_mask(p_channel));
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->metallic_texture_channel, _get_texture_mask(p_channel));
 }
 
 SpatialMaterial::TextureChannel SpatialMaterial::get_metallic_texture_channel() const {
@@ -1766,7 +1769,7 @@ void SpatialMaterial::set_roughness_texture_channel(TextureChannel p_channel) {
 
     ERR_FAIL_INDEX(p_channel, 5);
     roughness_texture_channel = p_channel;
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->roughness_texture_channel, _get_texture_mask(p_channel));
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->roughness_texture_channel, _get_texture_mask(p_channel));
 }
 
 SpatialMaterial::TextureChannel SpatialMaterial::get_roughness_texture_channel() const {
@@ -1776,7 +1779,7 @@ SpatialMaterial::TextureChannel SpatialMaterial::get_roughness_texture_channel()
 void SpatialMaterial::set_ao_texture_channel(TextureChannel p_channel) {
 
     ao_texture_channel = p_channel;
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->ao_texture_channel, _get_texture_mask(p_channel));
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->ao_texture_channel, _get_texture_mask(p_channel));
 }
 
 SpatialMaterial::TextureChannel SpatialMaterial::get_ao_texture_channel() const {
@@ -1786,7 +1789,7 @@ SpatialMaterial::TextureChannel SpatialMaterial::get_ao_texture_channel() const 
 void SpatialMaterial::set_refraction_texture_channel(TextureChannel p_channel) {
 
     refraction_texture_channel = p_channel;
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->refraction_texture_channel, _get_texture_mask(p_channel));
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->refraction_texture_channel, _get_texture_mask(p_channel));
 }
 
 SpatialMaterial::TextureChannel SpatialMaterial::get_refraction_texture_channel() const {
@@ -1857,7 +1860,7 @@ bool SpatialMaterial::is_proximity_fade_enabled() const {
 void SpatialMaterial::set_proximity_fade_distance(float p_distance) {
 
     proximity_fade_distance = p_distance;
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->proximity_fade_distance, p_distance);
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->proximity_fade_distance, p_distance);
 }
 float SpatialMaterial::get_proximity_fade_distance() const {
 
@@ -1878,7 +1881,7 @@ SpatialMaterial::DistanceFadeMode SpatialMaterial::get_distance_fade() const {
 void SpatialMaterial::set_distance_fade_max_distance(float p_distance) {
 
     distance_fade_max_distance = p_distance;
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->distance_fade_max, distance_fade_max_distance);
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->distance_fade_max, distance_fade_max_distance);
 }
 float SpatialMaterial::get_distance_fade_max_distance() const {
 
@@ -1888,7 +1891,7 @@ float SpatialMaterial::get_distance_fade_max_distance() const {
 void SpatialMaterial::set_distance_fade_min_distance(float p_distance) {
 
     distance_fade_min_distance = p_distance;
-    VS::get_singleton()->material_set_param(_get_material(), shader_names->distance_fade_min, distance_fade_min_distance);
+    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->distance_fade_min, distance_fade_min_distance);
 }
 
 float SpatialMaterial::get_distance_fade_min_distance() const {
@@ -2424,11 +2427,11 @@ SpatialMaterial::~SpatialMaterial() {
         shader_map[current_key].users--;
         if (shader_map[current_key].users == 0) {
             //deallocate shader, as it's no longer in use
-            VS::get_singleton()->free(shader_map[current_key].shader);
+            VisualServer::get_singleton()->free(shader_map[current_key].shader);
             shader_map.erase(current_key);
         }
 
-        VS::get_singleton()->material_set_shader(_get_material(), RID());
+        VisualServer::get_singleton()->material_set_shader(_get_material(), RID());
     }
 
     if (material_mutex)

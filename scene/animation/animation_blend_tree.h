@@ -128,7 +128,6 @@ public:
 	AnimationNodeOneShot();
 };
 
-VARIANT_ENUM_CAST(AnimationNodeOneShot::MixMode)
 
 class AnimationNodeAdd2 : public AnimationNode {
 	GDCLASS(AnimationNodeAdd2,AnimationNode)
@@ -404,6 +403,5 @@ public:
 	~AnimationNodeBlendTree() override;
 };
 
-VARIANT_ENUM_CAST(AnimationNodeBlendTree::ConnectionError)
 
 #endif // ANIMATION_BLEND_TREE_H

@@ -979,7 +979,7 @@ public:
 	}
 
 	static real_t vec2_cross(const Point2 &O, const Point2 &A, const Point2 &B) {
-		return (real_t)(A.x - O.x) * (B.y - O.y) - (real_t)(A.y - O.y) * (B.x - O.x);
+        return (A.x - O.x) * (B.y - O.y) - (A.y - O.y) * (B.x - O.x);
 	}
 
 	// Returns a list of points on the convex hull in counter-clockwise order.

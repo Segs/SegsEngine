@@ -35,8 +35,6 @@
 #include "core/os/os.h"
 #include "core/variant.h"
 #include "servers/audio/audio_effect.h"
-#include "core/method_arg_casters.h"
-#include "core/method_enum_caster.h"
 #include "core/set.h"
 
 class AudioDriverDummy;
@@ -389,7 +387,6 @@ public:
     ~AudioServer() override;
 };
 
-VARIANT_ENUM_CAST(AudioServer::SpeakerMode)
 
 class AudioBusLayout : public Resource {
 

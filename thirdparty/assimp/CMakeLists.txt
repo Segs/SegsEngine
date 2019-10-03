@@ -7,7 +7,7 @@ file(GLOB assimp_source_files5 "${PROJECT_SOURCE_DIR}/thirdparty/assimp/code/MMD
 file(GLOB assimp_source_files6 "${PROJECT_SOURCE_DIR}/thirdparty/assimp/code/glTF/*.cpp")
 file(GLOB assimp_source_files7 "${PROJECT_SOURCE_DIR}/thirdparty/assimp/code/glTF2/*.cpp")
 
-add_library(assimp_lib STATIC
+add_library(assimp_lib OBJECT
     ${assimp_source_files1}
     ${assimp_source_files2}
     ${assimp_source_files3}
@@ -99,3 +99,5 @@ elseif(${OPTION_PLATFORM} STREQUAL "osx") #
 else()
     target_compile_definitions(assimp_lib PRIVATE PLATFORM_LINUX PLATFORM=LINUX)
 endif()
+set_property(TARGET assimp_lib PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_common_target_properties(assimp_lib)

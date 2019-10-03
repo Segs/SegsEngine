@@ -167,7 +167,7 @@ enum MidiMessageList {
  * for keyboard/mouse events.
  */
 
-class InputEvent : public Resource {
+class GODOT_EXPORT InputEvent : public Resource {
     GDCLASS(InputEvent,Resource)
 
     int device;
@@ -204,7 +204,7 @@ public:
     InputEvent();
 };
 
-class InputEventWithModifiers : public InputEvent {
+class GODOT_EXPORT InputEventWithModifiers : public InputEvent {
     GDCLASS(InputEventWithModifiers,InputEvent)
 
     bool shift;
@@ -249,7 +249,7 @@ public:
     InputEventWithModifiers();
 };
 
-class InputEventKey : public InputEventWithModifiers {
+class GODOT_EXPORT InputEventKey : public InputEventWithModifiers {
 
     GDCLASS(InputEventKey,InputEventWithModifiers)
 
@@ -288,7 +288,7 @@ public:
     InputEventKey();
 };
 
-class InputEventMouse : public InputEventWithModifiers {
+class GODOT_EXPORT InputEventMouse : public InputEventWithModifiers {
 
     GDCLASS(InputEventMouse,InputEventWithModifiers)
 
@@ -347,7 +347,7 @@ public:
     InputEventMouseButton();
 };
 
-class InputEventMouseMotion : public InputEventMouse {
+class GODOT_EXPORT InputEventMouseMotion : public InputEventMouse {
 
     GDCLASS(InputEventMouseMotion,InputEventMouse)
     Vector2 relative;
@@ -371,7 +371,7 @@ public:
     InputEventMouseMotion() {}
 };
 
-class InputEventJoypadMotion : public InputEvent {
+class GODOT_EXPORT InputEventJoypadMotion : public InputEvent {
 
     GDCLASS(InputEventJoypadMotion,InputEvent)
 
@@ -398,7 +398,7 @@ public:
     InputEventJoypadMotion();
 };
 
-class InputEventJoypadButton : public InputEvent {
+class GODOT_EXPORT InputEventJoypadButton : public InputEvent {
     GDCLASS(InputEventJoypadButton,InputEvent)
 
     int button_index;
@@ -426,7 +426,7 @@ public:
     InputEventJoypadButton();
 };
 
-class InputEventScreenTouch : public InputEvent {
+class GODOT_EXPORT InputEventScreenTouch : public InputEvent {
     GDCLASS(InputEventScreenTouch,InputEvent)
     int index;
     Vector2 pos;
@@ -451,7 +451,7 @@ public:
     InputEventScreenTouch();
 };
 
-class InputEventScreenDrag : public InputEvent {
+class GODOT_EXPORT InputEventScreenDrag : public InputEvent {
 
     GDCLASS(InputEventScreenDrag,InputEvent)
     int index;
@@ -481,7 +481,7 @@ public:
     InputEventScreenDrag();
 };
 
-class InputEventAction : public InputEvent {
+class GODOT_EXPORT InputEventAction : public InputEvent {
 
     GDCLASS(InputEventAction,InputEvent)
 
@@ -513,7 +513,7 @@ public:
     InputEventAction();
 };
 
-class InputEventGesture : public InputEventWithModifiers {
+class GODOT_EXPORT InputEventGesture : public InputEventWithModifiers {
 
     GDCLASS(InputEventGesture,InputEventWithModifiers)
 
@@ -563,7 +563,7 @@ public:
     InputEventPanGesture();
 };
 
-class InputEventMIDI : public InputEvent {
+class GODOT_EXPORT InputEventMIDI : public InputEvent {
     GDCLASS(InputEventMIDI,InputEvent)
 
     int channel;

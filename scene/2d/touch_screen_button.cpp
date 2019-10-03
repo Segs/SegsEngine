@@ -36,6 +36,7 @@
 #include "core/os/os.h"
 
 IMPL_GDCLASS(TouchScreenButton)
+VARIANT_ENUM_CAST(TouchScreenButton::VisibilityMode);
 
 void TouchScreenButton::set_texture(const Ref<Texture> &p_texture) {
 

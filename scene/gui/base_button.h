@@ -133,8 +133,6 @@ public:
 	~BaseButton() override;
 };
 
-VARIANT_ENUM_CAST(BaseButton::DrawMode)
-VARIANT_ENUM_CAST(BaseButton::ActionMode)
 
 class ButtonGroup : public Resource {
 

@@ -32,7 +32,7 @@
 #include "core/project_settings.h"
 #include "core/property_info.h"
 
-#define LARGE_ELEMENT_FI 1.01239812
+#define LARGE_ELEMENT_FI 1.01239812f
 
 void BroadPhase2DHashGrid::_pair_attempt(Element *p_elem, Element *p_with) {
 

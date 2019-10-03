@@ -36,24 +36,23 @@
 #include "gdscript_language_protocol.h"
 
 class GDScriptLanguageServer : public EditorPlugin {
-	GDCLASS(GDScriptLanguageServer,EditorPlugin)
-IMPL_GDCLASS(GDScriptLanguageServer)
+    GDCLASS(GDScriptLanguageServer,EditorPlugin)
 
-	GDScriptLanguageProtocol protocol;
+    GDScriptLanguageProtocol protocol;
 
-	Thread *thread;
-	bool thread_exit;
-	static void thread_main(void *p_userdata);
+    Thread *thread;
+    bool thread_exit;
+    static void thread_main(void *p_userdata);
 
 private:
-	void _notification(int p_what);
-	void _iteration();
+    void _notification(int p_what);
+    void _iteration();
 
 public:
-	Error parse_script_file(const String &p_path);
-	GDScriptLanguageServer();
-	void start();
-	void stop();
+    Error parse_script_file(const String &p_path);
+    GDScriptLanguageServer();
+    void start();
+    void stop();
 };
 
 void register_lsp_types();

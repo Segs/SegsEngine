@@ -292,9 +292,4 @@ public:
     ~CPUParticles2D() override;
 };
 
-VARIANT_ENUM_CAST(CPUParticles2D::DrawOrder)
-VARIANT_ENUM_CAST(CPUParticles2D::Parameter)
-VARIANT_ENUM_CAST(CPUParticles2D::Flags)
-VARIANT_ENUM_CAST(CPUParticles2D::EmissionShape)
-
 #endif // CPU_PARTICLES_2D_H

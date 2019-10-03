@@ -152,7 +152,6 @@ public:
 	AnimationNode();
 };
 
-VARIANT_ENUM_CAST(AnimationNode::FilterAction)
 
 //root node does not allow inputs
 class AnimationRootNode : public AnimationNode {
@@ -342,6 +341,5 @@ public:
 	~AnimationTree() override;
 };
 
-VARIANT_ENUM_CAST(AnimationTree::AnimationProcessMode)
 
 #endif // ANIMATION_GRAPH_PLAYER_H

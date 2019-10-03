@@ -38,7 +38,7 @@ class String;
 
 struct Vector2i;
 
-struct Vector2 {
+struct GODOT_EXPORT Vector2 {
 
     enum Axis {
 	AXIS_X,

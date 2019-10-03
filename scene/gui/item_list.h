@@ -236,7 +236,5 @@ public:
 	~ItemList() override;
 };
 
-VARIANT_ENUM_CAST(ItemList::SelectMode);
-VARIANT_ENUM_CAST(ItemList::IconMode);
 
 #endif // ITEMLIST_H

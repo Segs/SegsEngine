@@ -34,6 +34,7 @@
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(LinkButton)
+VARIANT_ENUM_CAST(LinkButton::UnderlineMode);
 
 void LinkButton::set_text(const String &p_text) {
 

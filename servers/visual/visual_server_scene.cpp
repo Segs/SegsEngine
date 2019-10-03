@@ -690,7 +690,7 @@ void VisualServerScene::instance_set_visible(RID p_instance, bool p_visible) {
         }
     }
 }
-inline bool is_geometry_instance(VisualServer::InstanceType p_type) {
+inline bool is_geometry_instance(VS::InstanceType p_type) {
     return p_type == VS::INSTANCE_MESH || p_type == VS::INSTANCE_MULTIMESH || p_type == VS::INSTANCE_PARTICLES || p_type == VS::INSTANCE_IMMEDIATE;
 }
 
@@ -1000,11 +1000,11 @@ void VisualServerScene::_update_instance_aabb(Instance *p_instance) {
     ERR_FAIL_COND(p_instance->base_type != VS::INSTANCE_NONE && !p_instance->base.is_valid())
 
     switch (p_instance->base_type) {
-        case VisualServer::INSTANCE_NONE: {
+        case VS::INSTANCE_NONE: {
 
             // do nothing
         } break;
-        case VisualServer::INSTANCE_MESH: {
+        case VS::INSTANCE_MESH: {
 
             if (p_instance->custom_aabb)
                 new_aabb = *p_instance->custom_aabb;
@@ -1013,7 +1013,7 @@ void VisualServerScene::_update_instance_aabb(Instance *p_instance) {
 
         } break;
 
-        case VisualServer::INSTANCE_MULTIMESH: {
+        case VS::INSTANCE_MULTIMESH: {
 
             if (p_instance->custom_aabb)
                 new_aabb = *p_instance->custom_aabb;
@@ -1021,7 +1021,7 @@ void VisualServerScene::_update_instance_aabb(Instance *p_instance) {
                 new_aabb = VSG::storage->multimesh_get_aabb(p_instance->base);
 
         } break;
-        case VisualServer::INSTANCE_IMMEDIATE: {
+        case VS::INSTANCE_IMMEDIATE: {
 
             if (p_instance->custom_aabb)
                 new_aabb = *p_instance->custom_aabb;
@@ -1029,7 +1029,7 @@ void VisualServerScene::_update_instance_aabb(Instance *p_instance) {
                 new_aabb = VSG::storage->immediate_get_aabb(p_instance->base);
 
         } break;
-        case VisualServer::INSTANCE_PARTICLES: {
+        case VS::INSTANCE_PARTICLES: {
 
             if (p_instance->custom_aabb)
                 new_aabb = *p_instance->custom_aabb;
@@ -1037,22 +1037,22 @@ void VisualServerScene::_update_instance_aabb(Instance *p_instance) {
                 new_aabb = VSG::storage->particles_get_aabb(p_instance->base);
 
         } break;
-        case VisualServer::INSTANCE_LIGHT: {
+        case VS::INSTANCE_LIGHT: {
 
             new_aabb = VSG::storage->light_get_aabb(p_instance->base);
 
         } break;
-        case VisualServer::INSTANCE_REFLECTION_PROBE: {
+        case VS::INSTANCE_REFLECTION_PROBE: {
 
             new_aabb = VSG::storage->reflection_probe_get_aabb(p_instance->base);
 
         } break;
-        case VisualServer::INSTANCE_GI_PROBE: {
+        case VS::INSTANCE_GI_PROBE: {
 
             new_aabb = VSG::storage->gi_probe_get_bounds(p_instance->base);
 
         } break;
-        case VisualServer::INSTANCE_LIGHTMAP_CAPTURE: {
+        case VS::INSTANCE_LIGHTMAP_CAPTURE: {
 
             new_aabb = VSG::storage->lightmap_capture_get_bounds(p_instance->base);
 
@@ -1616,13 +1616,13 @@ bool VisualServerScene::_light_instance_update_shadow(Instance *p_instance, cons
 
                 float radius = VSG::storage->light_get_param(p_instance->base, VS::LIGHT_PARAM_RANGE);
                 CameraMatrix cm;
-                cm.set_perspective(90, 1, 0.01, radius);
+                cm.set_perspective(90, 1, 0.01f, radius);
 
                 for (int i = 0; i < 6; i++) {
 
                     //using this one ensures that raster deferred will have it
 
-                    static const Vector3 view_normals[6] = {
+                    static constexpr const Vector3 view_normals[6] = {
                         Vector3(-1, 0, 0),
                         Vector3(+1, 0, 0),
                         Vector3(0, -1, 0),
@@ -1630,7 +1630,7 @@ bool VisualServerScene::_light_instance_update_shadow(Instance *p_instance, cons
                         Vector3(0, 0, -1),
                         Vector3(0, 0, +1)
                     };
-                    static const Vector3 view_up[6] = {
+                    static constexpr const Vector3 view_up[6] = {
                         Vector3(0, -1, 0),
                         Vector3(0, -1, 0),
                         Vector3(0, 0, -1),

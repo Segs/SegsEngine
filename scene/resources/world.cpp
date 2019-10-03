@@ -275,7 +275,7 @@ RID World::get_scenario() const {
 void World::set_environment(const Ref<Environment> &p_environment) {
 
     environment = p_environment;
-    VS::get_singleton()->scenario_set_environment(scenario, environment ? environment->get_rid() : RID());
+    VisualServer::get_singleton()->scenario_set_environment(scenario, environment ? environment->get_rid() : RID());
 }
 
 Ref<Environment> World::get_environment() const {
@@ -286,7 +286,7 @@ Ref<Environment> World::get_environment() const {
 void World::set_fallback_environment(const Ref<Environment> &p_environment) {
 
     fallback_environment = p_environment;
-    VS::get_singleton()->scenario_set_fallback_environment(scenario, fallback_environment ? fallback_environment->get_rid() : RID());
+    VisualServer::get_singleton()->scenario_set_fallback_environment(scenario, fallback_environment ? fallback_environment->get_rid() : RID());
 }
 
 Ref<Environment> World::get_fallback_environment() const {

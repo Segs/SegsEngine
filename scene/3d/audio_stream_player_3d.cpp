@@ -37,6 +37,9 @@
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(AudioStreamPlayer3D)
+VARIANT_ENUM_CAST(AudioStreamPlayer3D::AttenuationModel)
+VARIANT_ENUM_CAST(AudioStreamPlayer3D::OutOfRangeMode)
+VARIANT_ENUM_CAST(AudioStreamPlayer3D::DopplerTracking)
 
 // Based on "A Novel Multichannel Panning Method for Standard and Arbitrary Loudspeaker Configurations" by Ramy Sadek and Chris Kyriakakis (2004)
 // Speaker-Placement Correction Amplitude Panning (SPCAP)

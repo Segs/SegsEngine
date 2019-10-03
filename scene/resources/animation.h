@@ -32,7 +32,7 @@
 
 #include "core/resource.h"
 
-class Animation : public Resource {
+class GODOT_EXPORT Animation : public Resource {
 
     GDCLASS(Animation,Resource)
 

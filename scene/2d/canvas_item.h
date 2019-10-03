@@ -157,8 +157,6 @@ public:
 	~CanvasItemMaterial() override;
 };
 
-VARIANT_ENUM_CAST(CanvasItemMaterial::BlendMode)
-VARIANT_ENUM_CAST(CanvasItemMaterial::LightMode)
 
 class CanvasItem : public Node {
 
@@ -387,4 +385,3 @@ public:
 	~CanvasItem() override;
 };
 
-VARIANT_ENUM_CAST(CanvasItem::BlendMode);

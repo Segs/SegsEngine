@@ -4260,16 +4260,16 @@ void EditorNode::_dock_move_right() {
 
 void EditorNode::_dock_select_draw() {
     Size2 s = dock_select->get_size();
-    s.y /= 2.0;
-    s.x /= 6.0;
+    s.y /= 2.0f;
+    s.x /= 6.0f;
 
-    Color used = Color(0.6f, 0.6f, 0.6f, 0.8);
-    Color used_selected = Color(0.8f, 0.8, 0.8, 0.8);
+    Color used = Color(0.6f, 0.6f, 0.6f, 0.8f);
+    Color used_selected = Color(0.8f, 0.8f, 0.8f, 0.8f);
     Color tab_selected = theme_base->get_color("mono_color", "Editor");
     Color unused = used;
-    unused.a = 0.4;
+    unused.a = 0.4f;
     Color unusable = unused;
-    unusable.a = 0.1;
+    unusable.a = 0.1f;
 
     Rect2 unr(s.x * 2, 0, s.x * 2, s.y * 2);
     unr.position += Vector2(2, 5);

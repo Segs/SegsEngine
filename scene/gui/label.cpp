@@ -37,6 +37,8 @@
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(Label)
+VARIANT_ENUM_CAST(Label::Align);
+VARIANT_ENUM_CAST(Label::VAlign);
 
 void Label::set_autowrap(bool p_autowrap) {
 

@@ -64,6 +64,5 @@ public:
 	LinkButton();
 };
 
-VARIANT_ENUM_CAST(LinkButton::UnderlineMode);
 
 #endif // LINKBUTTON_H

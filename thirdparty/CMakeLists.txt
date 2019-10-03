@@ -7,7 +7,7 @@ add_subdirectory(bullet)
 add_subdirectory(zlib)
 
 
-add_library(thirdparty_misc STATIC
+add_library(thirdparty_misc OBJECT
     # Add required thirdparty code. Header paths are hardcoded, we don't need to append
     # to the include path (saves a few chars on the compiler invocation for touchy MSVC...)
         # C sources
@@ -28,26 +28,31 @@ add_library(thirdparty_misc STATIC
 target_include_directories(thirdparty_misc PUBLIC thirdparty/misc/)
 target_link_libraries(thirdparty_misc PUBLIC zlib)
 target_link_libraries(thirdparty_misc PRIVATE EASTL_Import)
+set_property(TARGET thirdparty_misc PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_common_target_properties(thirdparty_misc)
 
 if(OPTION_BUILTIN_SQUISH)
-# Thirdparty source files
-set(thirdparty_sources
-    ${PROJECT_SOURCE_DIR}/thirdparty/squish/alpha.cpp
-    ${PROJECT_SOURCE_DIR}/thirdparty/squish/clusterfit.cpp
-    ${PROJECT_SOURCE_DIR}/thirdparty/squish/colourblock.cpp
-    ${PROJECT_SOURCE_DIR}/thirdparty/squish/colourfit.cpp
-    ${PROJECT_SOURCE_DIR}/thirdparty/squish/colourset.cpp
-    ${PROJECT_SOURCE_DIR}/thirdparty/squish/maths.cpp
-    ${PROJECT_SOURCE_DIR}/thirdparty/squish/rangefit.cpp
-    ${PROJECT_SOURCE_DIR}/thirdparty/squish/singlecolourfit.cpp
-    ${PROJECT_SOURCE_DIR}/thirdparty/squish/squish.cpp
-)
-add_library(squish STATIC ${thirdparty_sources})
-target_include_directories(squish PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/squish/)
+    # Thirdparty source files
+    set(thirdparty_sources
+        ${PROJECT_SOURCE_DIR}/thirdparty/squish/alpha.cpp
+        ${PROJECT_SOURCE_DIR}/thirdparty/squish/clusterfit.cpp
+        ${PROJECT_SOURCE_DIR}/thirdparty/squish/colourblock.cpp
+        ${PROJECT_SOURCE_DIR}/thirdparty/squish/colourfit.cpp
+        ${PROJECT_SOURCE_DIR}/thirdparty/squish/colourset.cpp
+        ${PROJECT_SOURCE_DIR}/thirdparty/squish/maths.cpp
+        ${PROJECT_SOURCE_DIR}/thirdparty/squish/rangefit.cpp
+        ${PROJECT_SOURCE_DIR}/thirdparty/squish/singlecolourfit.cpp
+        ${PROJECT_SOURCE_DIR}/thirdparty/squish/squish.cpp
+    )
+    add_library(squish STATIC ${thirdparty_sources})
+    target_include_directories(squish PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/squish/)
+    set_property(TARGET squish PROPERTY POSITION_INDEPENDENT_CODE ON)
 endif()
 
-add_library(cvtt_lib STATIC cvtt/ConvectionKernels.cpp)
+add_library(cvtt_lib OBJECT cvtt/ConvectionKernels.cpp)
 target_include_directories(cvtt_lib PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/cvtt/)
+set_property(TARGET cvtt_lib PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_common_target_properties(cvtt_lib)
 
 set(thirdparty_sources
 #    ${PROJECT_SOURCE_DIR}/thirdparty/enet/godot.cpp
@@ -62,6 +67,8 @@ set(thirdparty_sources
 )
 add_library(enet_lib STATIC ${thirdparty_sources})
 target_include_directories(enet_lib PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/enet/)
+set_property(TARGET enet_lib PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_common_target_properties(enet_lib)
 
 # Thirdparty source files
 set(thirdparty_sources
@@ -73,7 +80,8 @@ set(thirdparty_sources
 )
 add_library(pvr_lib STATIC ${thirdparty_sources})
 target_include_directories(pvr_lib PUBLIC pvrtccompressor/)
-
+set_property(TARGET pvr_lib PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_common_target_properties(pvr_lib)
 
 macro(remove_flag_from_target _target _flag)
     get_target_property(_target_cxx_flags ${_target} COMPILE_OPTIONS)
@@ -100,9 +108,11 @@ set(source_files
     ${PROJECT_SOURCE_DIR}/thirdparty/etc2comp/EtcMath.cpp
     ${PROJECT_SOURCE_DIR}/thirdparty/etc2comp/EtcSortedBlockList.cpp
 )
-add_library(etc2comp ${source_files})
+add_library(etc2comp OBJECT ${source_files})
 target_include_directories(etc2comp PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/etc2comp/)
 remove_flag_from_target(etc2comp -ffast-math)
+set_property(TARGET etc2comp PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_common_target_properties(etc2comp)
 
 set(thirdparty_sources
     ${PROJECT_SOURCE_DIR}/thirdparty/pcre2/src/pcre2_auto_possess.c
@@ -138,6 +148,8 @@ set(thirdparty_sources
 add_library(regex STATIC ${thirdparty_sources})
 target_include_directories(regex PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/pcre2/src/)
 target_compile_definitions(regex PUBLIC PCRE2_CODE_UNIT_WIDTH=16 PCRE2_STATIC HAVE_CONFIG_H SUPPORT_JIT)
+set_property(TARGET regex PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_common_target_properties(regex)
 
 if(OPTION_BUILTIN_MBEDTLS)
     set(thirdparty_sources
@@ -222,7 +234,10 @@ if(OPTION_BUILTIN_MBEDTLS)
         ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/xtea.c
     )
     add_library(mbedtls STATIC ${thirdparty_sources})
+    set_property(TARGET mbedtls PROPERTY POSITION_INDEPENDENT_CODE ON)
     target_include_directories(mbedtls PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/include)
+    set_common_target_properties(mbedtls)
+
 endif()
 
 add_subdirectory(assimp)
@@ -247,10 +262,11 @@ configure_file(${PROJECT_SOURCE_DIR}/thirdparty/miniupnpc/miniupnpc/miniupnpcstr
 set(MINIUPNPC_VERSION "2.1")
 set(SYSTEM_NAME "Godot Engine")
 add_library(miniupnpc STATIC ${thirdparty_sources})
+set_property(TARGET miniupnpc PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_include_directories(miniupnpc PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/miniupnpc/)
 target_compile_definitions(miniupnpc PUBLIC MINIUPNP_STATICLIB)
 target_compile_definitions(miniupnpc PRIVATE MINIUPNPC_SET_SOCKET_TIMEOUT)
-
+set_common_target_properties(miniupnpc)
 
 
 set(thirdparty_sources
@@ -265,9 +281,10 @@ set(thirdparty_sources
     ${PROJECT_SOURCE_DIR}/thirdparty/vhacd/src/VHACD.cpp
     ${PROJECT_SOURCE_DIR}/thirdparty/vhacd/src/btConvexHullComputer.cpp
 )
-add_library(vhacd STATIC ${thirdparty_sources})
+add_library(vhacd OBJECT ${thirdparty_sources})
 target_include_directories(vhacd PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/vhacd/inc)
-
+set_property(TARGET vhacd PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_common_target_properties(vhacd)
 
 set(thirdparty_sources
 
@@ -277,8 +294,9 @@ set(thirdparty_sources
     ${PROJECT_SOURCE_DIR}/thirdparty/wslay/wslay_stack.c
     ${PROJECT_SOURCE_DIR}/thirdparty/wslay/wslay_frame.c
 )
-add_library(wslay STATIC ${thirdparty_sources})
+add_library(wslay OBJECT ${thirdparty_sources})
 target_include_directories(wslay PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/wslay/includes)
+set_common_target_properties(wslay)
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows") # Winsock
     target_compile_definitions(wslay PRIVATE HAVE_WINSOCK2_H)
@@ -314,9 +332,11 @@ set(thirdparty_sources
     ${PROJECT_SOURCE_DIR}/thirdparty/libpng/pngwutil.c
 )
 if(OPTION_BUILTIN_LIBPNG)
-    add_library(png STATIC ${thirdparty_sources})
-    target_include_directories(png PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/libpng/)
-    target_link_libraries(png PUBLIC zlib)
+    add_library(internal_png OBJECT ${thirdparty_sources})
+    target_include_directories(internal_png PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/libpng/)
+    target_link_libraries(internal_png PUBLIC zlib)
+    set_property(TARGET internal_png PROPERTY POSITION_INDEPENDENT_CODE ON)
+    set_common_target_properties(internal_png)
 endif()
 
 
@@ -364,12 +384,13 @@ set(source_files
     ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/winfonts/winfnt.c
     ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/sfnt/sfnt.c
 )
-add_library(freetype STATIC ${source_files})
+add_library(freetype OBJECT ${source_files})
+set_property(TARGET freetype PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_include_directories(freetype PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/freetype/include)
 target_compile_definitions(freetype PRIVATE FT2_BUILD_LIBRARY)
 target_compile_definitions(freetype PUBLIC FREETYPE_ENABLED FT_CONFIG_OPTION_USE_PNG)
-target_link_libraries(freetype PUBLIC png)
-
+target_link_libraries(freetype PUBLIC internal_png)
+set_common_target_properties(freetype)
 
 set(recast_source_files
     ${PROJECT_SOURCE_DIR}/thirdparty/recastnavigation/Recast/Source/Recast.cpp
@@ -387,3 +408,5 @@ set(recast_source_files
 )
 add_library(recast STATIC ${recast_source_files})
 target_include_directories(recast PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/recastnavigation/Recast/Include)
+set_property(TARGET recast PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_common_target_properties(recast)

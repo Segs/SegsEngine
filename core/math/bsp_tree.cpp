@@ -32,6 +32,7 @@
 
 #include "core/error_macros.h"
 #include "core/print_string.h"
+#include "core/method_ptrcall.h"
 
 void BSP_Tree::from_aabb(const AABB &p_aabb) {
 

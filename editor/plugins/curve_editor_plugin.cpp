@@ -465,8 +465,8 @@ void CurveEditor::remove_point(int index) {
     if (index == _selected_point)
         set_selected_point(-1);
 
-	if (index == _hover_point)
-		set_hover_point_index(-1);
+    if (index == _hover_point)
+        set_hover_point_index(-1);
 
     ur.commit_action();
 }
@@ -639,17 +639,17 @@ void CurveEditor::_draw() {
     Vector2 min_edge = get_world_pos(Vector2(0, view_size.y));
     Vector2 max_edge = get_world_pos(Vector2(view_size.x, 0));
 
-    const Color grid_color0 = get_color("mono_color", "Editor") * Color(1, 1, 1, 0.15);
-    const Color grid_color1 = get_color("mono_color", "Editor") * Color(1, 1, 1, 0.07);
+    const Color grid_color0 = get_color("mono_color", "Editor") * Color(1, 1, 1, 0.15f);
+    const Color grid_color1 = get_color("mono_color", "Editor") * Color(1, 1, 1, 0.07f);
     draw_line(Vector2(min_edge.x, curve.get_min_value()), Vector2(max_edge.x, curve.get_min_value()), grid_color0);
     draw_line(Vector2(max_edge.x, curve.get_max_value()), Vector2(min_edge.x, curve.get_max_value()), grid_color0);
     draw_line(Vector2(0, min_edge.y), Vector2(0, max_edge.y), grid_color0);
     draw_line(Vector2(1, max_edge.y), Vector2(1, min_edge.y), grid_color0);
 
     float curve_height = (curve.get_max_value() - curve.get_min_value());
-    const Vector2 grid_step(0.25, 0.5 * curve_height);
+    const Vector2 grid_step(0.25f, 0.5f * curve_height);
 
-    for (real_t x = 0; x < 1.0; x += grid_step.x) {
+    for (real_t x = 0; x < 1.0f; x += grid_step.x) {
         draw_line(Vector2(x, min_edge.y), Vector2(x, max_edge.y), grid_color1);
     }
     for (real_t y = curve.get_min_value(); y < curve.get_max_value(); y += grid_step.y) {
@@ -669,16 +669,16 @@ void CurveEditor::_draw() {
         float y = curve.get_min_value();
         Vector2 off(0, font_height - 1);
         draw_string(font, get_view_pos(Vector2(0, y)) + off, "0.0", text_color);
-        draw_string(font, get_view_pos(Vector2(0.25, y)) + off, "0.25", text_color);
-        draw_string(font, get_view_pos(Vector2(0.5, y)) + off, "0.5", text_color);
-        draw_string(font, get_view_pos(Vector2(0.75, y)) + off, "0.75", text_color);
+        draw_string(font, get_view_pos(Vector2(0.25f, y)) + off, "0.25", text_color);
+        draw_string(font, get_view_pos(Vector2(0.5f, y)) + off, "0.5", text_color);
+        draw_string(font, get_view_pos(Vector2(0.75f, y)) + off, "0.75", text_color);
         draw_string(font, get_view_pos(Vector2(1, y)) + off, "1.0", text_color);
     }
 
     {
         // Y axis
         float m0 = curve.get_min_value();
-        float m1 = 0.5 * (curve.get_min_value() + curve.get_max_value());
+        float m1 = 0.5f * (curve.get_min_value() + curve.get_max_value());
         float m2 = curve.get_max_value();
         Vector2 off(1, -1);
         draw_string(font, get_view_pos(Vector2(0, m0)) + off, StringUtils::num(m0, 2), text_color);

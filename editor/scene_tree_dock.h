@@ -31,6 +31,8 @@
 #pragma once
 
 #include "scene/gui/box_container.h"
+#include "core/pair.h"
+
 
 
 class EditorNode;

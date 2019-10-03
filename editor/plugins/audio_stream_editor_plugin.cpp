@@ -93,7 +93,7 @@ void AudioStreamEditor::_draw_preview() {
     Vector<Color> color;
     color.push_back(get_color("contrast_color_2", "Editor"));
 
-    VS::get_singleton()->canvas_item_add_multiline(_preview->get_canvas_item(), lines, color);
+    VisualServer::get_singleton()->canvas_item_add_multiline(_preview->get_canvas_item(), lines, color);
 }
 
 void AudioStreamEditor::_preview_changed(ObjectID p_which) {

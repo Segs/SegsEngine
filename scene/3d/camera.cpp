@@ -40,6 +40,11 @@
 IMPL_GDCLASS(Camera)
 IMPL_GDCLASS(ClippedCamera)
 
+VARIANT_ENUM_CAST(Camera::Projection);
+VARIANT_ENUM_CAST(Camera::KeepAspect);
+VARIANT_ENUM_CAST(Camera::DopplerTracking);
+VARIANT_ENUM_CAST(ClippedCamera::ProcessMode);
+
 void Camera::_update_audio_listener_state() {
 }
 
@@ -442,9 +447,9 @@ void Camera::set_environment(const Ref<Environment> &p_environment) {
 
     environment = p_environment;
     if (environment)
-        VS::get_singleton()->camera_set_environment(camera, environment->get_rid());
+        VisualServer::get_singleton()->camera_set_environment(camera, environment->get_rid());
     else
-        VS::get_singleton()->camera_set_environment(camera, RID());
+        VisualServer::get_singleton()->camera_set_environment(camera, RID());
     _update_camera_mode();
 }
 

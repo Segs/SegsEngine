@@ -38,6 +38,8 @@
 #include "scene/resources/style_box.h"
 
 IMPL_GDCLASS(ItemList)
+VARIANT_ENUM_CAST(ItemList::SelectMode);
+VARIANT_ENUM_CAST(ItemList::IconMode);
 
 void ItemList::add_item(const String &p_item, const Ref<Texture> &p_texture, bool p_selectable) {
 

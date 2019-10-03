@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef PHYSICS_BODY__H
-#define PHYSICS_BODY__H
+#pragma once
 
 #include "core/vset.h"
 #include "scene/3d/collision_object.h"
@@ -273,7 +272,6 @@ private:
 	void _reload_physics_characteristics();
 };
 
-VARIANT_ENUM_CAST(RigidBody::Mode);
 
 class KinematicCollision;
 
@@ -450,11 +448,11 @@ public:
 
 		HingeJointData() :
 				angular_limit_enabled(false),
-				angular_limit_upper(Math_PI * 0.5),
-				angular_limit_lower(-Math_PI * 0.5),
-				angular_limit_bias(0.3),
-				angular_limit_softness(0.9),
-				angular_limit_relaxation(1.) {}
+				angular_limit_upper(Math_PI * 0.5f),
+				angular_limit_lower(-Math_PI * 0.5f),
+				angular_limit_bias(0.3f),
+				angular_limit_softness(0.9f),
+				angular_limit_relaxation(1.f) {}
 	};
 
 	struct SliderJointData : public JointData {
@@ -476,64 +474,41 @@ public:
 		real_t angular_limit_damping;
 
 		SliderJointData() :
-				linear_limit_upper(1.),
-				linear_limit_lower(-1.),
-				linear_limit_softness(1.),
-				linear_limit_restitution(0.7),
-				linear_limit_damping(1.),
+				linear_limit_upper(1.f),
+				linear_limit_lower(-1.f),
+				linear_limit_softness(1.f),
+				linear_limit_restitution(0.7f),
+				linear_limit_damping(1.f),
 				angular_limit_upper(0),
 				angular_limit_lower(0),
-				angular_limit_softness(1.),
-				angular_limit_restitution(0.7),
-				angular_limit_damping(1.) {}
+				angular_limit_softness(1.f),
+				angular_limit_restitution(0.7f),
+				angular_limit_damping(1.f) {}
 	};
 
 	struct SixDOFJointData : public JointData {
 		struct SixDOFAxisData {
-			bool linear_limit_enabled;
-			real_t linear_limit_upper;
-			real_t linear_limit_lower;
-			real_t linear_limit_softness;
-			real_t linear_restitution;
-			real_t linear_damping;
-			bool linear_spring_enabled;
-			real_t linear_spring_stiffness;
-			real_t linear_spring_damping;
-			real_t linear_equilibrium_point;
-			bool angular_limit_enabled;
-			real_t angular_limit_upper;
-			real_t angular_limit_lower;
-			real_t angular_limit_softness;
-			real_t angular_restitution;
-			real_t angular_damping;
-			real_t erp;
-			bool angular_spring_enabled;
-			real_t angular_spring_stiffness;
-			real_t angular_spring_damping;
-			real_t angular_equilibrium_point;
-
-			SixDOFAxisData() :
-					linear_limit_enabled(true),
-					linear_limit_upper(0),
-					linear_limit_lower(0),
-					linear_limit_softness(0.7),
-					linear_restitution(0.5),
-					linear_damping(1.),
-					linear_spring_enabled(false),
-					linear_spring_stiffness(0),
-					linear_spring_damping(0),
-					linear_equilibrium_point(0),
-					angular_limit_enabled(true),
-					angular_limit_upper(0),
-					angular_limit_lower(0),
-					angular_limit_softness(0.5),
-					angular_restitution(0),
-					angular_damping(1.),
-					erp(0.5),
-					angular_spring_enabled(false),
-					angular_spring_stiffness(0),
-					angular_spring_damping(0.),
-					angular_equilibrium_point(0) {}
+			bool linear_limit_enabled = true;
+			real_t linear_limit_upper = 0;
+			real_t linear_limit_lower = 0;
+			real_t linear_limit_softness = 0.7f;
+			real_t linear_restitution = 0.5f;
+			real_t linear_damping = 1.f;
+			bool linear_spring_enabled = false;
+			real_t linear_spring_stiffness = 0;
+			real_t linear_spring_damping = 0;
+			real_t linear_equilibrium_point = 0;
+			bool angular_limit_enabled = true;
+			real_t angular_limit_upper = 0;
+			real_t angular_limit_lower = 0;
+			real_t angular_limit_softness = 0.5f;
+			real_t angular_restitution = 0;
+			real_t angular_damping = 1.f;
+			real_t erp = 0.5f;
+			bool angular_spring_enabled = false;
+			real_t angular_spring_stiffness = 0;
+			real_t angular_spring_damping = 0.;
+			real_t angular_equilibrium_point = 0;
 		};
 
 		JointType get_joint_type() override { return JOINT_TYPE_6DOF; }
@@ -650,7 +625,3 @@ private:
 	void _start_physics_simulation();
 	void _stop_physics_simulation();
 };
-
-VARIANT_ENUM_CAST(PhysicalBone::JointType);
-
-#endif // PHYSICS_BODY__H

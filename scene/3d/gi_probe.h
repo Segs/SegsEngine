@@ -174,6 +174,5 @@ public:
     ~GIProbe() override;
 };
 
-VARIANT_ENUM_CAST(GIProbe::Subdiv)
 
 #endif // GIPROBE_H

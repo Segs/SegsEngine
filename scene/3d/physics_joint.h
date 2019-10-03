@@ -99,7 +99,6 @@ public:
 	PinJoint();
 };
 
-VARIANT_ENUM_CAST(PinJoint::Param);
 
 class HingeJoint : public Joint {
 
@@ -146,8 +145,6 @@ public:
 	HingeJoint();
 };
 
-VARIANT_ENUM_CAST(HingeJoint::Param);
-VARIANT_ENUM_CAST(HingeJoint::Flag);
 
 class SliderJoint : public Joint {
 
@@ -200,7 +197,6 @@ public:
 	SliderJoint();
 };
 
-VARIANT_ENUM_CAST(SliderJoint::Param);
 
 class ConeTwistJoint : public Joint {
 
@@ -234,8 +230,6 @@ public:
 
 	ConeTwistJoint();
 };
-
-VARIANT_ENUM_CAST(ConeTwistJoint::Param);
 
 class Generic6DOFJoint : public Joint {
 
@@ -336,8 +330,5 @@ public:
 
 	Generic6DOFJoint();
 };
-
-VARIANT_ENUM_CAST(Generic6DOFJoint::Param);
-VARIANT_ENUM_CAST(Generic6DOFJoint::Flag);
 
 #endif // PHYSICS_JOINT_H

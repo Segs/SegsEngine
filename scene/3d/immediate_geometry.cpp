@@ -37,39 +37,39 @@ VARIANT_ENUM_CAST(Mesh::PrimitiveType);
 
 void ImmediateGeometry::begin(Mesh::PrimitiveType p_primitive, const Ref<Texture> &p_texture) {
 
-    VS::get_singleton()->immediate_begin(im, (VS::PrimitiveType)p_primitive, p_texture ? p_texture->get_rid() : RID());
+    VisualServer::get_singleton()->immediate_begin(im, (VS::PrimitiveType)p_primitive, p_texture ? p_texture->get_rid() : RID());
     if (p_texture)
         cached_textures.push_back(p_texture);
 }
 
 void ImmediateGeometry::set_normal(const Vector3 &p_normal) {
 
-    VS::get_singleton()->immediate_normal(im, p_normal);
+    VisualServer::get_singleton()->immediate_normal(im, p_normal);
 }
 
 void ImmediateGeometry::set_tangent(const Plane &p_tangent) {
 
-    VS::get_singleton()->immediate_tangent(im, p_tangent);
+    VisualServer::get_singleton()->immediate_tangent(im, p_tangent);
 }
 
 void ImmediateGeometry::set_color(const Color &p_color) {
 
-    VS::get_singleton()->immediate_color(im, p_color);
+    VisualServer::get_singleton()->immediate_color(im, p_color);
 }
 
 void ImmediateGeometry::set_uv(const Vector2 &p_uv) {
 
-    VS::get_singleton()->immediate_uv(im, p_uv);
+    VisualServer::get_singleton()->immediate_uv(im, p_uv);
 }
 
 void ImmediateGeometry::set_uv2(const Vector2 &p_uv2) {
 
-    VS::get_singleton()->immediate_uv2(im, p_uv2);
+    VisualServer::get_singleton()->immediate_uv2(im, p_uv2);
 }
 
 void ImmediateGeometry::add_vertex(const Vector3 &p_vertex) {
 
-    VS::get_singleton()->immediate_vertex(im, p_vertex);
+    VisualServer::get_singleton()->immediate_vertex(im, p_vertex);
     if (empty) {
         aabb.position = p_vertex;
         aabb.size = Vector3();
@@ -81,12 +81,12 @@ void ImmediateGeometry::add_vertex(const Vector3 &p_vertex) {
 
 void ImmediateGeometry::end() {
 
-    VS::get_singleton()->immediate_end(im);
+    VisualServer::get_singleton()->immediate_end(im);
 }
 
 void ImmediateGeometry::clear() {
 
-    VS::get_singleton()->immediate_clear(im);
+    VisualServer::get_singleton()->immediate_clear(im);
     empty = true;
     cached_textures.clear();
 }

@@ -1,5 +1,8 @@
-file(GLOB source_files "jsonrpc/*.cpp")
-file(GLOB header_files "jsonrpc/*.h")
+# This file is included from parent-dir CMakeLists.txt
 
-target_sources(${tgt}_modules PRIVATE ${source_files} ${header_files})
-target_compile_definitions(${tgt}_modules PUBLIC MODULE_JSONRPC_ENABLED)
+file(GLOB_RECURSE source_files "${module_dir}/*.cpp")
+file(GLOB_RECURSE header_files "${module_dir}/*.h")
+file(GLOB_RECURSE qrc_files "${module_dir}/*.qrc")
+
+list(APPEND module_sources ${source_files} ${header_files} ${qrc_files})
+

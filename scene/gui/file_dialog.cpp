@@ -37,6 +37,8 @@
 
 IMPL_GDCLASS(FileDialog)
 IMPL_GDCLASS(LineEditFileChooser)
+VARIANT_ENUM_CAST(FileDialog::Mode);
+VARIANT_ENUM_CAST(FileDialog::Access);
 
 FileDialog::GetIconFunc FileDialog::get_icon_func = nullptr;
 FileDialog::GetIconFunc FileDialog::get_large_icon_func = nullptr;

@@ -35,6 +35,12 @@
 
 #ifndef FT2BUILD_H_
 #define FT2BUILD_H_
+//SEGS: we don't want freetype symbols to be exported out of our shared library.
+#if defined( __cplusplus )
+#define FT_EXPORT( x )  extern "C"  x
+#else
+#define FT_EXPORT( x )  extern  x
+#endif
 
 #include <freetype/config/ftheader.h>
 

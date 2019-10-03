@@ -272,9 +272,9 @@ void CanvasLayer::_update_follow_viewport(bool p_force_exit) {
         return;
     }
     if (p_force_exit || !follow_viewport) {
-        VS::get_singleton()->canvas_set_parent(canvas, RID(), 1.0);
+        VisualServer::get_singleton()->canvas_set_parent(canvas, RID(), 1.0);
     } else {
-        VS::get_singleton()->canvas_set_parent(canvas, vp->get_world_2d()->get_canvas(), follow_viewport_scale);
+        VisualServer::get_singleton()->canvas_set_parent(canvas, vp->get_world_2d()->get_canvas(), follow_viewport_scale);
     }
 }
 
@@ -331,7 +331,7 @@ CanvasLayer::CanvasLayer() {
     rot = 0;
     locrotscale_dirty = false;
     layer = 1;
-    canvas = VS::get_singleton()->canvas_create();
+    canvas = VisualServer::get_singleton()->canvas_create();
     custom_viewport = nullptr;
     custom_viewport_id = 0;
     sort_index = 0;
@@ -341,5 +341,5 @@ CanvasLayer::CanvasLayer() {
 
 CanvasLayer::~CanvasLayer() {
 
-    VS::get_singleton()->free(canvas);
+    VisualServer::get_singleton()->free(canvas);
 }

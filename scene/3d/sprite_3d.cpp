@@ -39,6 +39,8 @@ IMPL_GDCLASS(Sprite3D)
 IMPL_GDCLASS(AnimatedSprite3D)
 //TODO: SEGS: copied from material.cpp
 VARIANT_ENUM_CAST(SpatialMaterial::BillboardMode)
+VARIANT_ENUM_CAST(SpriteBase3D::DrawFlags);
+VARIANT_ENUM_CAST(SpriteBase3D::AlphaCutMode);
 
 Color SpriteBase3D::_get_color_accum() {
 
@@ -404,7 +406,7 @@ void Sprite3D::_draw() {
 
     RID immediate = get_immediate();
 
-    VS::get_singleton()->immediate_clear(immediate);
+    VisualServer::get_singleton()->immediate_clear(immediate);
     if (not texture)
         return;
     Vector2 tsize = texture->get_size();
@@ -487,9 +489,9 @@ void Sprite3D::_draw() {
     }
 
     RID mat = SpatialMaterial::get_material_rid_for_2d(get_draw_flag(FLAG_SHADED), get_draw_flag(FLAG_TRANSPARENT), get_draw_flag(FLAG_DOUBLE_SIDED), get_alpha_cut_mode() == ALPHA_CUT_DISCARD, get_alpha_cut_mode() == ALPHA_CUT_OPAQUE_PREPASS, get_billboard_mode() == SpatialMaterial::BILLBOARD_ENABLED, get_billboard_mode() == SpatialMaterial::BILLBOARD_FIXED_Y);
-    VS::get_singleton()->immediate_set_material(immediate, mat);
+    VisualServer::get_singleton()->immediate_set_material(immediate, mat);
 
-    VS::get_singleton()->immediate_begin(immediate, VS::PRIMITIVE_TRIANGLE_FAN, texture->get_rid());
+    VisualServer::get_singleton()->immediate_begin(immediate, VS::PRIMITIVE_TRIANGLE_FAN, texture->get_rid());
 
     int x_axis = ((axis + 1) % 3);
     int y_axis = ((axis + 2) % 3);
@@ -511,15 +513,15 @@ void Sprite3D::_draw() {
     AABB aabb;
 
     for (int i = 0; i < 4; i++) {
-        VS::get_singleton()->immediate_normal(immediate, normal);
-        VS::get_singleton()->immediate_tangent(immediate, tangent);
-        VS::get_singleton()->immediate_color(immediate, color);
-        VS::get_singleton()->immediate_uv(immediate, uvs[i]);
+        VisualServer::get_singleton()->immediate_normal(immediate, normal);
+        VisualServer::get_singleton()->immediate_tangent(immediate, tangent);
+        VisualServer::get_singleton()->immediate_color(immediate, color);
+        VisualServer::get_singleton()->immediate_uv(immediate, uvs[i]);
 
         Vector3 vtx;
         vtx[x_axis] = vertices[i][0];
         vtx[y_axis] = vertices[i][1];
-        VS::get_singleton()->immediate_vertex(immediate, vtx);
+        VisualServer::get_singleton()->immediate_vertex(immediate, vtx);
         if (i == 0) {
             aabb.position = vtx;
             aabb.size = Vector3();
@@ -528,7 +530,7 @@ void Sprite3D::_draw() {
         }
     }
     set_aabb(aabb);
-    VS::get_singleton()->immediate_end(immediate);
+    VisualServer::get_singleton()->immediate_end(immediate);
 }
 
 void Sprite3D::set_texture(const Ref<Texture> &p_texture) {
@@ -720,7 +722,7 @@ Sprite3D::Sprite3D() {
 void AnimatedSprite3D::_draw() {
 
     RID immediate = get_immediate();
-    VS::get_singleton()->immediate_clear(immediate);
+    VisualServer::get_singleton()->immediate_clear(immediate);
 
     if (not frames) {
         return;
@@ -813,9 +815,9 @@ void AnimatedSprite3D::_draw() {
 
     RID mat = SpatialMaterial::get_material_rid_for_2d(get_draw_flag(FLAG_SHADED), get_draw_flag(FLAG_TRANSPARENT), get_draw_flag(FLAG_DOUBLE_SIDED), get_alpha_cut_mode() == ALPHA_CUT_DISCARD, get_alpha_cut_mode() == ALPHA_CUT_OPAQUE_PREPASS, get_billboard_mode() == SpatialMaterial::BILLBOARD_ENABLED, get_billboard_mode() == SpatialMaterial::BILLBOARD_FIXED_Y);
 
-    VS::get_singleton()->immediate_set_material(immediate, mat);
+    VisualServer::get_singleton()->immediate_set_material(immediate, mat);
 
-    VS::get_singleton()->immediate_begin(immediate, VS::PRIMITIVE_TRIANGLE_FAN, texture->get_rid());
+    VisualServer::get_singleton()->immediate_begin(immediate, VS::PRIMITIVE_TRIANGLE_FAN, texture->get_rid());
 
     int x_axis = ((axis + 1) % 3);
     int y_axis = ((axis + 2) % 3);
@@ -837,15 +839,15 @@ void AnimatedSprite3D::_draw() {
     AABB aabb;
 
     for (int i = 0; i < 4; i++) {
-        VS::get_singleton()->immediate_normal(immediate, normal);
-        VS::get_singleton()->immediate_tangent(immediate, tangent);
-        VS::get_singleton()->immediate_color(immediate, color);
-        VS::get_singleton()->immediate_uv(immediate, uvs[i]);
+        VisualServer::get_singleton()->immediate_normal(immediate, normal);
+        VisualServer::get_singleton()->immediate_tangent(immediate, tangent);
+        VisualServer::get_singleton()->immediate_color(immediate, color);
+        VisualServer::get_singleton()->immediate_uv(immediate, uvs[i]);
 
         Vector3 vtx;
         vtx[x_axis] = vertices[i][0];
         vtx[y_axis] = vertices[i][1];
-        VS::get_singleton()->immediate_vertex(immediate, vtx);
+        VisualServer::get_singleton()->immediate_vertex(immediate, vtx);
         if (i == 0) {
             aabb.position = vtx;
             aabb.size = Vector3();
@@ -854,7 +856,7 @@ void AnimatedSprite3D::_draw() {
         }
     }
     set_aabb(aabb);
-    VS::get_singleton()->immediate_end(immediate);
+    VisualServer::get_singleton()->immediate_end(immediate);
 }
 
 void AnimatedSprite3D::_validate_property(PropertyInfo &property) const {

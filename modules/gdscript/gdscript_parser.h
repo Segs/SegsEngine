@@ -167,7 +167,7 @@ public:
 			int line;
 			Node *expression;
 			OperatorNode *initial_assignment;
-			MultiplayerAPI::RPCMode rpc_mode;
+			MultiplayerAPI_RPCMode rpc_mode;
 			int usages;
 		};
 
@@ -208,7 +208,7 @@ public:
 	struct FunctionNode : public Node {
 
 		bool _static;
-		MultiplayerAPI::RPCMode rpc_mode;
+		MultiplayerAPI_RPCMode rpc_mode;
 		bool has_yield;
 		bool has_unreachable_code;
 		StringName name;
@@ -228,7 +228,7 @@ public:
 		FunctionNode() {
 			type = TYPE_FUNCTION;
 			_static = false;
-			rpc_mode = MultiplayerAPI::RPC_MODE_DISABLED;
+            rpc_mode = MultiplayerAPI_RPCMode(0);
 			has_yield = false;
 			has_unreachable_code = false;
 		}
@@ -574,7 +574,7 @@ private:
 
 	PropertyInfo current_export;
 
-	MultiplayerAPI::RPCMode rpc_mode;
+	MultiplayerAPI_RPCMode rpc_mode;
 
 	void _set_error(const String &p_error, int p_line = -1, int p_column = -1);
 #ifdef DEBUG_ENABLED

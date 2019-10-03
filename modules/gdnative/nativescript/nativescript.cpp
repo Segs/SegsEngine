@@ -36,6 +36,7 @@
 #include "core/global_constants.h"
 #include "core/method_bind.h"
 #include "core/io/file_access_encrypted.h"
+#include "core/io/multiplayer_api.h"
 #include "core/os/file_access.h"
 #include "core/os/os.h"
 #include "core/project_settings.h"
@@ -804,7 +805,7 @@ Ref<Script> NativeScriptInstance::get_script() const {
     return script;
 }
 
-MultiplayerAPI::RPCMode NativeScriptInstance::get_rpc_mode(const StringName &p_method) const {
+MultiplayerAPI_RPCMode NativeScriptInstance::get_rpc_mode(const StringName &p_method) const {
 
     NativeScriptDesc *script_data = GET_SCRIPT_DESC();
 
@@ -814,31 +815,31 @@ MultiplayerAPI::RPCMode NativeScriptInstance::get_rpc_mode(const StringName &p_m
         if (E!=script_data->methods.end()) {
             switch (E->second.rpc_mode) {
                 case GODOT_METHOD_RPC_MODE_DISABLED:
-                    return MultiplayerAPI::RPC_MODE_DISABLED;
+                    return MultiplayerAPI_RPCMode::RPC_MODE_DISABLED;
                 case GODOT_METHOD_RPC_MODE_REMOTE:
-                    return MultiplayerAPI::RPC_MODE_REMOTE;
+                    return MultiplayerAPI_RPCMode::RPC_MODE_REMOTE;
                 case GODOT_METHOD_RPC_MODE_MASTER:
-                    return MultiplayerAPI::RPC_MODE_MASTER;
+                    return MultiplayerAPI_RPCMode::RPC_MODE_MASTER;
                 case GODOT_METHOD_RPC_MODE_PUPPET:
-                    return MultiplayerAPI::RPC_MODE_PUPPET;
+                    return MultiplayerAPI_RPCMode::RPC_MODE_PUPPET;
                 case GODOT_METHOD_RPC_MODE_REMOTESYNC:
-                    return MultiplayerAPI::RPC_MODE_REMOTESYNC;
+                    return MultiplayerAPI_RPCMode::RPC_MODE_REMOTESYNC;
                 case GODOT_METHOD_RPC_MODE_MASTERSYNC:
-                    return MultiplayerAPI::RPC_MODE_MASTERSYNC;
+                    return MultiplayerAPI_RPCMode::RPC_MODE_MASTERSYNC;
                 case GODOT_METHOD_RPC_MODE_PUPPETSYNC:
-                    return MultiplayerAPI::RPC_MODE_PUPPETSYNC;
+                    return MultiplayerAPI_RPCMode::RPC_MODE_PUPPETSYNC;
                 default:
-                    return MultiplayerAPI::RPC_MODE_DISABLED;
+                    return MultiplayerAPI_RPCMode::RPC_MODE_DISABLED;
             }
         }
 
         script_data = script_data->base_data;
     }
 
-    return MultiplayerAPI::RPC_MODE_DISABLED;
+    return MultiplayerAPI_RPCMode::RPC_MODE_DISABLED;
 }
 
-MultiplayerAPI::RPCMode NativeScriptInstance::get_rset_mode(const StringName &p_variable) const {
+MultiplayerAPI_RPCMode NativeScriptInstance::get_rset_mode(const StringName &p_variable) const {
 
     NativeScriptDesc *script_data = GET_SCRIPT_DESC();
 
@@ -848,28 +849,28 @@ MultiplayerAPI::RPCMode NativeScriptInstance::get_rset_mode(const StringName &p_
         if (E) {
             switch (E.get().rset_mode) {
                 case GODOT_METHOD_RPC_MODE_DISABLED:
-                    return MultiplayerAPI::RPC_MODE_DISABLED;
+                    return MultiplayerAPI_RPCMode::RPC_MODE_DISABLED;
                 case GODOT_METHOD_RPC_MODE_REMOTE:
-                    return MultiplayerAPI::RPC_MODE_REMOTE;
+                    return MultiplayerAPI_RPCMode::RPC_MODE_REMOTE;
                 case GODOT_METHOD_RPC_MODE_MASTER:
-                    return MultiplayerAPI::RPC_MODE_MASTER;
+                    return MultiplayerAPI_RPCMode::RPC_MODE_MASTER;
                 case GODOT_METHOD_RPC_MODE_PUPPET:
-                    return MultiplayerAPI::RPC_MODE_PUPPET;
+                    return MultiplayerAPI_RPCMode::RPC_MODE_PUPPET;
                 case GODOT_METHOD_RPC_MODE_REMOTESYNC:
-                    return MultiplayerAPI::RPC_MODE_REMOTESYNC;
+                    return MultiplayerAPI_RPCMode::RPC_MODE_REMOTESYNC;
                 case GODOT_METHOD_RPC_MODE_MASTERSYNC:
-                    return MultiplayerAPI::RPC_MODE_MASTERSYNC;
+                    return MultiplayerAPI_RPCMode::RPC_MODE_MASTERSYNC;
                 case GODOT_METHOD_RPC_MODE_PUPPETSYNC:
-                    return MultiplayerAPI::RPC_MODE_PUPPETSYNC;
+                    return MultiplayerAPI_RPCMode::RPC_MODE_PUPPETSYNC;
                 default:
-                    return MultiplayerAPI::RPC_MODE_DISABLED;
+                    return MultiplayerAPI_RPCMode::RPC_MODE_DISABLED;
             }
         }
 
         script_data = script_data->base_data;
     }
 
-    return MultiplayerAPI::RPC_MODE_DISABLED;
+    return MultiplayerAPI_RPCMode::RPC_MODE_DISABLED;
 }
 
 ScriptLanguage *NativeScriptInstance::get_language() {

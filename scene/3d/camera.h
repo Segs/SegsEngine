@@ -35,7 +35,7 @@
 #include "scene/main/viewport.h"
 #include "scene/resources/environment.h"
 
-class Camera : public Spatial {
+class GODOT_EXPORT Camera : public Spatial {
 
 	GDCLASS(Camera,Spatial)
 
@@ -174,10 +174,6 @@ public:
 	~Camera() override;
 };
 
-VARIANT_ENUM_CAST(Camera::Projection);
-VARIANT_ENUM_CAST(Camera::KeepAspect);
-VARIANT_ENUM_CAST(Camera::DopplerTracking);
-
 class ClippedCamera : public Camera {
 
 	GDCLASS(ClippedCamera,Camera)
@@ -237,4 +233,3 @@ public:
 	~ClippedCamera() override;
 };
 
-VARIANT_ENUM_CAST(ClippedCamera::ProcessMode);

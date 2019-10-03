@@ -32,6 +32,8 @@
 
 #include "core/os/dir_access.h"
 #include "core/resource.h"
+#include "core/ustring.h"
+#include "core/property_info.h"
 #include "scene/main/node.h"
 #include "scene/main/timer.h"
 #include "scene/resources/texture.h"
@@ -159,32 +161,6 @@ public:
     using EditorExportSaveSharedObject = Error (*)(void *, const SharedObject &);
 
 private:
-    struct SavedData {
-
-        uint64_t ofs;
-        uint64_t size;
-        Vector<uint8_t> md5;
-        CharString path_utf8;
-
-        bool operator<(const SavedData &p_data) const {
-            return path_utf8 < p_data.path_utf8;
-        }
-    };
-
-    struct PackData {
-
-        FileAccess *f;
-        Vector<SavedData> file_ofs;
-        EditorProgress *ep;
-        Vector<SharedObject> *so_files;
-    };
-
-    struct ZipData {
-
-        void *zip;
-        EditorProgress *ep;
-    };
-
     struct FeatureContainers {
         Set<String> features;
         PoolVector<String> features_pv;

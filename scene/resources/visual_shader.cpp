@@ -45,6 +45,9 @@ IMPL_GDCLASS(VisualShaderNodeGroupBase)
 IMPL_GDCLASS(VisualShaderNodeExpression)
 IMPL_GDCLASS(VisualShaderNodeGlobalExpression)
 
+VARIANT_ENUM_CAST(VisualShader::Type)
+VARIANT_ENUM_CAST(VisualShaderNode::PortType)
+
 void VisualShaderNode::set_output_port_for_preview(int p_index) {
 
     port_preview = p_index;
@@ -964,9 +967,9 @@ void VisualShader::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
     Map<String, String> blend_mode_enums;
     Set<String> toggles;
 
-    for (int i = 0; i < ShaderTypes::get_singleton()->get_modes(VisualServer::ShaderMode(shader_mode)).size(); i++) {
+    for (int i = 0; i < ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader_mode)).size(); i++) {
 
-        String mode = ShaderTypes::get_singleton()->get_modes(VisualServer::ShaderMode(shader_mode))[i];
+        String mode = ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader_mode))[i];
         int idx = 0;
         bool in_enum = false;
         while (render_mode_enums[idx].string) {
@@ -1198,8 +1201,8 @@ void VisualShader::_update_shader() const {
 
                     int which = modes[render_mode_enums[idx].string];
                     int count = 0;
-                    for (int i = 0; i < ShaderTypes::get_singleton()->get_modes(VisualServer::ShaderMode(shader_mode)).size(); i++) {
-                        String mode = ShaderTypes::get_singleton()->get_modes(VisualServer::ShaderMode(shader_mode))[i];
+                    for (int i = 0; i < ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader_mode)).size(); i++) {
+                        String mode = ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader_mode))[i];
                         if (StringUtils::begins_with(mode,render_mode_enums[idx].string)) {
                             if (count == which) {
                                 if (!render_mode.empty()) {
@@ -1217,9 +1220,9 @@ void VisualShader::_update_shader() const {
         }
 
         //fill render mode flags
-        for (int i = 0; i < ShaderTypes::get_singleton()->get_modes(VisualServer::ShaderMode(shader_mode)).size(); i++) {
+        for (int i = 0; i < ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader_mode)).size(); i++) {
 
-            String mode = ShaderTypes::get_singleton()->get_modes(VisualServer::ShaderMode(shader_mode))[i];
+            String mode = ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader_mode))[i];
             if (flags.contains(mode)) {
                 if (!render_mode.empty()) {
                     render_mode += ", ";

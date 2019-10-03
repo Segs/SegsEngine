@@ -31,6 +31,8 @@
 #include "audio_server.h"
 #include "core/io/resource_loader.h"
 #include "core/method_bind.h"
+#include "core/method_arg_casters.h"
+#include "core/method_enum_caster.h"
 #include "core/os/file_access.h"
 #include "core/os/os.h"
 #include "core/project_settings.h"
@@ -51,6 +53,7 @@
 
 IMPL_GDCLASS(AudioServer)
 IMPL_GDCLASS(AudioBusLayout)
+VARIANT_ENUM_CAST(AudioServer::SpeakerMode)
 
 AudioDriver *AudioDriver::singleton = nullptr;
 AudioDriver *AudioDriver::get_singleton() {

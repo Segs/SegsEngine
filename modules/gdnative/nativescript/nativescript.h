@@ -210,8 +210,8 @@ public:
     void notification(int p_notification) override;
     String to_string(bool *r_valid) override;
     Ref<Script> get_script() const override;
-    MultiplayerAPI::RPCMode get_rpc_mode(const StringName &p_method) const override;
-    MultiplayerAPI::RPCMode get_rset_mode(const StringName &p_variable) const override;
+    MultiplayerAPI_RPCMode get_rpc_mode(const StringName &p_method) const override;
+    MultiplayerAPI_RPCMode get_rset_mode(const StringName &p_variable) const override;
     ScriptLanguage *get_language() override;
 
     void call_multilevel(const StringName &p_method, const Variant **p_args, int p_argcount) override;

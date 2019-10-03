@@ -32,8 +32,10 @@
 
 #include "core/engine.h"
 #include "core/method_bind.h"
+#include "scene/main/scene_tree.h"
 
 IMPL_GDCLASS(Timer)
+VARIANT_ENUM_CAST(Timer::TimerProcessMode);
 
 void Timer::_notification(int p_what) {
 
@@ -110,7 +112,7 @@ bool Timer::has_autostart() const {
 }
 
 void Timer::start(float p_time) {
-	ERR_FAIL_COND_MSG(!is_inside_tree(), "Timer was not added to the SceneTree!")
+    ERR_FAIL_COND_MSG(!is_inside_tree(), "Timer was not added to the SceneTree!")
 
     if (p_time > 0) {
         set_wait_time(p_time);

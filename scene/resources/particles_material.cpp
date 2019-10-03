@@ -31,6 +31,7 @@
 #include "particles_material.h"
 #include "core/method_bind.h"
 #include "scene/resources/curve_texture.h"
+#include "servers/visual_server.h"
 
 Mutex *ParticlesMaterial::material_mutex = nullptr;
 SelfList<ParticlesMaterial>::List *ParticlesMaterial::dirty_materials = nullptr;
@@ -136,7 +137,7 @@ void ParticlesMaterial::_update_shader() {
         shader_map[current_key].users--;
         if (shader_map[current_key].users == 0) {
             //deallocate shader, as it's no longer in use
-            VS::get_singleton()->free(shader_map[current_key].shader);
+            VisualServer::get_singleton()->free(shader_map[current_key].shader);
             shader_map.erase(current_key);
         }
     }
@@ -145,7 +146,7 @@ void ParticlesMaterial::_update_shader() {
 
     if (shader_map.contains(mk)) {
 
-        VS::get_singleton()->material_set_shader(_get_material(), shader_map[mk].shader);
+        VisualServer::get_singleton()->material_set_shader(_get_material(), shader_map[mk].shader);
         shader_map[mk].users++;
         return;
     }
@@ -598,14 +599,14 @@ void ParticlesMaterial::_update_shader() {
     code += "\n";
 
     ShaderData shader_data;
-    shader_data.shader = VS::get_singleton()->shader_create();
+    shader_data.shader = VisualServer::get_singleton()->shader_create();
     shader_data.users = 1;
 
-    VS::get_singleton()->shader_set_code(shader_data.shader, code);
+    VisualServer::get_singleton()->shader_set_code(shader_data.shader, code);
 
     shader_map[mk] = shader_data;
 
-    VS::get_singleton()->material_set_shader(_get_material(), shader_data.shader);
+    VisualServer::get_singleton()->material_set_shader(_get_material(), shader_data.shader);
 }
 
 void ParticlesMaterial::flush_changes() {
@@ -1302,11 +1303,11 @@ ParticlesMaterial::~ParticlesMaterial() {
         shader_map[current_key].users--;
         if (shader_map[current_key].users == 0) {
             //deallocate shader, as it's no longer in use
-            VS::get_singleton()->free(shader_map[current_key].shader);
+            VisualServer::get_singleton()->free(shader_map[current_key].shader);
             shader_map.erase(current_key);
         }
 
-        VS::get_singleton()->material_set_shader(_get_material(), RID());
+        VisualServer::get_singleton()->material_set_shader(_get_material(), RID());
     }
 
     if (material_mutex)

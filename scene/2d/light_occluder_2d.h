@@ -74,7 +74,6 @@ public:
 	~OccluderPolygon2D() override;
 };
 
-VARIANT_ENUM_CAST(OccluderPolygon2D::CullMode);
 
 class LightOccluder2D : public Node2D {
 	GDCLASS(LightOccluder2D,Node2D)

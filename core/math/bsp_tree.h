@@ -33,7 +33,7 @@
 #include "core/math/aabb.h"
 #include "core/math/face3.h"
 #include "core/math/plane.h"
-#include "core/method_ptrcall.h"
+
 #include "core/pool_vector.h"
 #include "core/variant.h"
 #include "core/vector.h"
@@ -132,6 +132,8 @@ bool BSP_Tree::convex_is_inside(const T &p_convex) const {
 }
 
 #ifdef PTRCALL_ENABLED
+template <class T>
+struct PtrToArg;
 
 template <>
 struct PtrToArg<BSP_Tree> {

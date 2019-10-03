@@ -35,7 +35,7 @@
 
 class String;
 
-class CryptoCore {
+class GODOT_EXPORT CryptoCore {
 
 public:
 	class MD5Context {

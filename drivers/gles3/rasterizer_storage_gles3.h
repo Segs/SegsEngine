@@ -327,7 +327,7 @@ public:
 
     void texture_set_shrink_all_x2_on_set_data(bool p_enable) override;
 
-    void texture_debug_usage(DefList<VS::TextureInfo> *r_info) override;
+    void texture_debug_usage(DefList<VisualServer::TextureInfo> *r_info) override;
 
     RID texture_create_radiance_cubemap(RID p_source, int p_resolution = -1) const override;
 

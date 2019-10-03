@@ -318,5 +318,5 @@ public:
     LatinKeyboardVariant get_latin_keyboard_variant() const override;
 
     void update_real_mouse_position();
-    OS_X11();
+    OS_X11(void */*unused*/);
 };

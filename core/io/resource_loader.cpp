@@ -1000,6 +1000,8 @@ void ResourceLoader::finalize() {
     loading_map.clear();
     memdelete(loading_map_mutex);
     loading_map_mutex = nullptr;
+    for(auto &ldr : loader)
+        ldr.reset();
 #endif
 }
 

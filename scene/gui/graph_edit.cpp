@@ -764,15 +764,14 @@ void GraphEdit::_top_layer_draw() {
             pos = from->get_connection_input_position(connecting_index);
         pos += from->get_position();
 
-        Vector2 topos;
-        topos = connecting_to;
+        Vector2 topos = connecting_to;
 
         Color col = connecting_color;
 
         if (connecting_target) {
-            col.r += 0.4;
-            col.g += 0.4;
-            col.b += 0.4;
+            col.r += 0.4f;
+            col.g += 0.4f;
+            col.b += 0.4f;
         }
 
         if (!connecting_out) {

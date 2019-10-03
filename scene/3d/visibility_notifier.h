@@ -96,6 +96,5 @@ public:
 	VisibilityEnabler();
 };
 
-VARIANT_ENUM_CAST(VisibilityEnabler::Enabler);
 
 #endif // VISIBILITY_NOTIFIER_H

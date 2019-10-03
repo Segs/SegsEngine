@@ -190,8 +190,8 @@ void PinJoint2D::_notification(int p_what) {
                 break;
             }
 
-            draw_line(Point2(-10, 0), Point2(+10, 0), Color(0.7, 0.6, 0.0, 0.5), 3);
-            draw_line(Point2(0, -10), Point2(0, +10), Color(0.7, 0.6, 0.0, 0.5), 3);
+            draw_line(Point2(-10, 0), Point2(+10, 0), Color(0.7f, 0.6f, 0.0f, 0.5f), 3);
+            draw_line(Point2(0, -10), Point2(0, +10), Color(0.7f, 0.6f, 0.0f, 0.5f), 3);
         } break;
     }
 }

@@ -34,6 +34,7 @@
 #include "core/math/camera_matrix.h"
 #include "core/math/math_funcs.h"
 #include "core/math/transform.h"
+#include "core/math/geometry.h"
 #include "core/os/file_access.h"
 #include "core/os/keyboard.h"
 #include "core/os/os.h"
@@ -87,36 +88,36 @@ class GetClassAndNamespace {
                     line++;
                     idx++;
                     break;
-                };
+                }
                 case 0: {
                     return TK_EOF;
 
-                } break;
+                }
                 case '{': {
 
                     idx++;
                     return TK_CURLY_BRACKET_OPEN;
-                };
+                }
                 case '}': {
 
                     idx++;
                     return TK_CURLY_BRACKET_CLOSE;
-                };
+                }
                 case '[': {
 
                     idx++;
                     return TK_BRACKET_OPEN;
-                };
+                }
                 case ']': {
 
                     idx++;
                     return TK_BRACKET_CLOSE;
-                };
+                }
                 case ':': {
 
                     idx++;
                     return TK_COLON;
-                };
+                }
                 case ',': {
 
                     idx++;
@@ -371,7 +372,7 @@ void test_vec(Plane p_vec) {
     Plane v0 = cm.xform4(p_vec);
 
     print_line("out: " + v0);
-    v0.normal.z = (v0.d / 100.0 * 2.0 - 1.0) * v0.d;
+    v0.normal.z = (v0.d / 100.0f * 2.0f - 1.0f) * v0.d;
     print_line("out_F: " + v0);
 }
 
@@ -407,8 +408,8 @@ MainLoop *test() {
 
     {
         float r = 1;
-        float g = 0.5;
-        float b = 0.1;
+        float g = 0.5f;
+        float b = 0.1f;
 
         const float pow2to9 = 512.0f;
         const float B = 15.0f;
@@ -428,7 +429,7 @@ MainLoop *test() {
 
         float exps = expp + 1.0f;
 
-        if (0.0 <= sMax && sMax < pow2to9) {
+        if (0.0f <= sMax && sMax < pow2to9) {
             exps = expp;
         }
 
@@ -444,7 +445,7 @@ MainLoop *test() {
         float gb = (rgbe >> 9) & 0x1ff;
         float bb = (rgbe >> 18) & 0x1ff;
         float eb = (rgbe >> 27);
-        float mb = Math::pow(2, eb - 15.0 - 9.0);
+        float mb = Math::pow(2, eb - 15.0f - 9.0f);
         float rd = rb * mb;
         float gd = gb * mb;
         float bd = bb * mb;

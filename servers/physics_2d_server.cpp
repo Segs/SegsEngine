@@ -34,6 +34,8 @@
 #include "core/object_db.h"
 #include "core/print_string.h"
 #include "core/project_settings.h"
+#include "core/method_arg_casters.h"
+#include "core/method_enum_caster.h"
 
 IMPL_GDCLASS(Physics2DDirectBodyState)
 IMPL_GDCLASS(Physics2DShapeQueryParameters)
@@ -42,8 +44,45 @@ IMPL_GDCLASS(Physics2DShapeQueryResult)
 IMPL_GDCLASS(Physics2DServer)
 IMPL_GDCLASS(Physics2DTestMotionResult)
 
+VARIANT_ENUM_CAST(Physics2DServer::ShapeType);
+VARIANT_ENUM_CAST(Physics2DServer::SpaceParameter);
+VARIANT_ENUM_CAST(Physics2DServer::AreaParameter);
+VARIANT_ENUM_CAST(Physics2DServer::AreaSpaceOverrideMode);
+VARIANT_ENUM_CAST(Physics2DServer::BodyMode);
+VARIANT_ENUM_CAST(Physics2DServer::BodyParameter);
+VARIANT_ENUM_CAST(Physics2DServer::BodyState);
+VARIANT_ENUM_CAST(Physics2DServer::CCDMode);
+VARIANT_ENUM_CAST(Physics2DServer::JointParam);
+VARIANT_ENUM_CAST(Physics2DServer::JointType);
+VARIANT_ENUM_CAST(Physics2DServer::DampedStringParam);
+//VARIANT_ENUM_CAST( Physics2DServer::ObjectType );
+VARIANT_ENUM_CAST(Physics2DServer::AreaBodyStatus);
+VARIANT_ENUM_CAST(Physics2DServer::ProcessInfo);
+
 Physics2DServer *Physics2DServer::singleton = nullptr;
 
+namespace {
+struct ClassInfo {
+    String name;
+    CreatePhysics2DServerCallback create_callback=nullptr;
+
+    ClassInfo() = default;
+
+    ClassInfo(String p_name, CreatePhysics2DServerCallback p_create_callback) :
+            name(std::move(p_name)),
+            create_callback(p_create_callback) {}
+
+    ClassInfo(const ClassInfo &p_ci) = default;
+
+    ClassInfo &operator=(const ClassInfo &p_ci) {
+        name = p_ci.name;
+        create_callback = p_ci.create_callback;
+        return *this;
+    }
+};
+
+static Vector<ClassInfo> physics_2d_servers;
+}
 void Physics2DDirectBodyState::integrate_forces() {
 
     real_t step = get_step();
@@ -782,7 +821,6 @@ Physics2DServer::~Physics2DServer() {
     singleton = nullptr;
 }
 
-Vector<Physics2DServerManager::ClassInfo> Physics2DServerManager::physics_2d_servers;
 int Physics2DServerManager::default_server_id = -1;
 int Physics2DServerManager::default_server_priority = -1;
 const StaticCString Physics2DServerManager::setting_property_name("physics/2d/physics_engine");

@@ -34,7 +34,7 @@
 #include "core/os/thread.h"
 #include "core/typedefs.h"
 
-class Main {
+class GODOT_EXPORT Main {
 
     static void print_help(const String &p_binary);
     static uint64_t last_ticks;

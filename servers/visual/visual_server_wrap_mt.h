@@ -35,7 +35,7 @@
 #include "core/list.h"
 #include "servers/visual_server.h"
 
-class VisualServerWrapMT : public VisualServer {
+class  VisualServerWrapMT : public VisualServer {
 
     // the real visual server
     mutable VisualServer *visual_server;
@@ -79,14 +79,14 @@ public:
 
     /* EVENT QUEUING */
     FUNCRID(texture)
-    FUNC7(texture_allocate, RID, int, int, int, Image::Format, TextureType, uint32_t)
+    FUNC7(texture_allocate, RID, int, int, int, Image::Format, VS::TextureType, uint32_t)
     FUNC3(texture_set_data, RID, const Ref<Image> &, int)
     FUNC10(texture_set_data_partial, RID, const Ref<Image> &, int, int, int, int, int, int, int, int)
     FUNC2RC(Ref<Image>, texture_get_data, RID, int)
     FUNC2(texture_set_flags, RID, uint32_t)
     FUNC1RC(uint32_t, texture_get_flags, RID)
     FUNC1RC(Image::Format, texture_get_format, RID)
-    FUNC1RC(TextureType, texture_get_type, RID)
+    FUNC1RC(VS::TextureType, texture_get_type, RID)
     FUNC1RC(uint32_t, texture_get_texid, RID)
     FUNC1RC(uint32_t, texture_get_width, RID)
     FUNC1RC(uint32_t, texture_get_height, RID)
@@ -145,13 +145,13 @@ public:
 
     FUNCRID(mesh)
 
-    FUNC10(mesh_add_surface, RID, uint32_t, PrimitiveType, const PoolVector<uint8_t> &, int, const PoolVector<uint8_t> &, int, const AABB &, const Vector<PoolVector<uint8_t> > &, const Vector<AABB> &)
+    FUNC10(mesh_add_surface, RID, uint32_t, VS::PrimitiveType, const PoolVector<uint8_t> &, int, const PoolVector<uint8_t> &, int, const AABB &, const Vector<PoolVector<uint8_t> > &, const Vector<AABB> &)
 
     FUNC2(mesh_set_blend_shape_count, RID, int)
     FUNC1RC(int, mesh_get_blend_shape_count, RID)
 
-    FUNC2(mesh_set_blend_shape_mode, RID, BlendShapeMode)
-    FUNC1RC(BlendShapeMode, mesh_get_blend_shape_mode, RID)
+    FUNC2(mesh_set_blend_shape_mode, RID, VS::BlendShapeMode)
+    FUNC1RC(VS::BlendShapeMode, mesh_get_blend_shape_mode, RID)
 
     FUNC4(mesh_surface_update_region, RID, int, int, const PoolVector<uint8_t> &)
 
@@ -165,7 +165,7 @@ public:
     FUNC2RC(PoolVector<uint8_t>, mesh_surface_get_index_array, RID, int)
 
     FUNC2RC(uint32_t, mesh_surface_get_format, RID, int)
-    FUNC2RC(PrimitiveType, mesh_surface_get_primitive_type, RID, int)
+    FUNC2RC(VS::PrimitiveType, mesh_surface_get_primitive_type, RID, int)
 
     FUNC2RC(AABB, mesh_surface_get_aabb, RID, int)
     FUNC2RC(Vector<PoolVector<uint8_t> >, mesh_surface_get_blend_shapes, RID, int)
@@ -183,7 +183,7 @@ public:
 
     FUNCRID(multimesh)
 
-    FUNC5(multimesh_allocate, RID, int, MultimeshTransformFormat, MultimeshColorFormat, MultimeshCustomDataFormat)
+    FUNC5(multimesh_allocate, RID, int, VS::MultimeshTransformFormat, VS::MultimeshColorFormat, VS::MultimeshCustomDataFormat)
     FUNC1RC(int, multimesh_get_instance_count, RID)
 
     FUNC2(multimesh_set_mesh, RID, RID)
@@ -208,7 +208,7 @@ public:
     /* IMMEDIATE API */
 
     FUNCRID(immediate)
-    FUNC3(immediate_begin, RID, PrimitiveType, RID)
+    FUNC3(immediate_begin, RID, VS::PrimitiveType, RID)
     FUNC2(immediate_vertex, RID, const Vector3 &)
     FUNC2(immediate_normal, RID, const Vector3 &)
     FUNC2(immediate_tangent, RID, const Plane &)
@@ -238,7 +238,7 @@ public:
     FUNCRID(spot_light)
 
     FUNC2(light_set_color, RID, const Color &)
-    FUNC3(light_set_param, RID, LightParam, float)
+    FUNC3(light_set_param, RID, VS::LightParam, float)
     FUNC2(light_set_shadow, RID, bool)
     FUNC2(light_set_shadow_color, RID, const Color &)
     FUNC2(light_set_projector, RID, RID)
@@ -247,18 +247,18 @@ public:
     FUNC2(light_set_reverse_cull_face_mode, RID, bool)
     FUNC2(light_set_use_gi, RID, bool)
 
-    FUNC2(light_omni_set_shadow_mode, RID, LightOmniShadowMode)
-    FUNC2(light_omni_set_shadow_detail, RID, LightOmniShadowDetail)
+    FUNC2(light_omni_set_shadow_mode, RID, VS::LightOmniShadowMode)
+    FUNC2(light_omni_set_shadow_detail, RID, VS::LightOmniShadowDetail)
 
-    FUNC2(light_directional_set_shadow_mode, RID, LightDirectionalShadowMode)
+    FUNC2(light_directional_set_shadow_mode, RID, VS::LightDirectionalShadowMode)
     FUNC2(light_directional_set_blend_splits, RID, bool)
-    FUNC2(light_directional_set_shadow_depth_range_mode, RID, LightDirectionalShadowDepthRangeMode)
+    FUNC2(light_directional_set_shadow_depth_range_mode, RID, VS::LightDirectionalShadowDepthRangeMode)
 
     /* PROBE API */
 
     FUNCRID(reflection_probe)
 
-    FUNC2(reflection_probe_set_update_mode, RID, ReflectionProbeUpdateMode)
+    FUNC2(reflection_probe_set_update_mode, RID, VS::ReflectionProbeUpdateMode)
     FUNC2(reflection_probe_set_intensity, RID, float)
     FUNC2(reflection_probe_set_interior_ambient, RID, const Color &)
     FUNC2(reflection_probe_set_interior_ambient_energy, RID, float)
@@ -375,13 +375,13 @@ public:
     FUNC2(viewport_set_active, RID, bool)
     FUNC2(viewport_set_parent_viewport, RID, RID)
 
-    FUNC2(viewport_set_clear_mode, RID, ViewportClearMode)
+    FUNC2(viewport_set_clear_mode, RID, VS::ViewportClearMode)
 
     FUNC3(viewport_attach_to_screen, RID, const Rect2 &, int)
     FUNC2(viewport_set_render_direct_to_screen, RID, bool)
     FUNC1(viewport_detach, RID)
 
-    FUNC2(viewport_set_update_mode, RID, ViewportUpdateMode)
+    FUNC2(viewport_set_update_mode, RID, VS::ViewportUpdateMode)
     FUNC2(viewport_set_vflip, RID, bool)
 
     FUNC1RC(RID, viewport_get_texture, RID)
@@ -404,22 +404,22 @@ public:
     FUNC4(viewport_set_canvas_stacking, RID, RID, int, int)
     FUNC2(viewport_set_shadow_atlas_size, RID, int)
     FUNC3(viewport_set_shadow_atlas_quadrant_subdivision, RID, int, int)
-    FUNC2(viewport_set_msaa, RID, ViewportMSAA)
+    FUNC2(viewport_set_msaa, RID, VS::ViewportMSAA)
     FUNC2(viewport_set_hdr, RID, bool)
-    FUNC2(viewport_set_usage, RID, ViewportUsage)
+    FUNC2(viewport_set_usage, RID, VS::ViewportUsage)
 
     //this passes directly to avoid stalling, but it's pretty dangerous, so don't call after freeing a viewport
-    int viewport_get_render_info(RID p_viewport, ViewportRenderInfo p_info) override {
+    int viewport_get_render_info(RID p_viewport, VS::ViewportRenderInfo p_info) override {
         return visual_server->viewport_get_render_info(p_viewport, p_info);
     }
 
-    FUNC2(viewport_set_debug_draw, RID, ViewportDebugDraw)
+    FUNC2(viewport_set_debug_draw, RID, VS::ViewportDebugDraw)
 
     /* ENVIRONMENT API */
 
     FUNCRID(environment)
 
-    FUNC2(environment_set_background, RID, EnvironmentBG)
+    FUNC2(environment_set_background, RID, VS::EnvironmentBG)
     FUNC2(environment_set_sky, RID, RID)
     FUNC2(environment_set_sky_custom_fov, RID, float)
     FUNC2(environment_set_sky_orientation, RID, const Basis &)
@@ -429,13 +429,13 @@ public:
     FUNC4(environment_set_ambient_light, RID, const Color &, float, float)
     FUNC2(environment_set_camera_feed_id, RID, int)
     FUNC7(environment_set_ssr, RID, bool, int, float, float, float, bool)
-    FUNC13(environment_set_ssao, RID, bool, float, float, float, float, float, float, float, const Color &, EnvironmentSSAOQuality, EnvironmentSSAOBlur, float)
+    FUNC13(environment_set_ssao, RID, bool, float, float, float, float, float, float, float, const Color &, VS::EnvironmentSSAOQuality, VS::EnvironmentSSAOBlur, float)
 
-    FUNC6(environment_set_dof_blur_near, RID, bool, float, float, float, EnvironmentDOFBlurQuality)
-    FUNC6(environment_set_dof_blur_far, RID, bool, float, float, float, EnvironmentDOFBlurQuality)
-    FUNC11(environment_set_glow, RID, bool, int, float, float, float, EnvironmentGlowBlendMode, float, float, float, bool)
+    FUNC6(environment_set_dof_blur_near, RID, bool, float, float, float, VS::EnvironmentDOFBlurQuality)
+    FUNC6(environment_set_dof_blur_far, RID, bool, float, float, float, VS::EnvironmentDOFBlurQuality)
+    FUNC11(environment_set_glow, RID, bool, int, float, float, float, VS::EnvironmentGlowBlendMode, float, float, float, bool)
 
-    FUNC9(environment_set_tonemap, RID, EnvironmentToneMapper, float, float, bool, float, float, float, float)
+    FUNC9(environment_set_tonemap, RID, VS::EnvironmentToneMapper, float, float, bool, float, float, float, float)
 
     FUNC6(environment_set_adjustment, RID, bool, float, float, float, RID)
 
@@ -445,7 +445,7 @@ public:
 
     FUNCRID(scenario)
 
-    FUNC2(scenario_set_debug, RID, ScenarioDebugMode)
+    FUNC2(scenario_set_debug, RID, VS::ScenarioDebugMode)
     FUNC2(scenario_set_environment, RID, RID)
     FUNC3(scenario_set_reflection_atlas_size, RID, int, int)
     FUNC2(scenario_set_fallback_environment, RID, RID)
@@ -476,8 +476,8 @@ public:
     FUNC3RC(Vector<ObjectID>, instances_cull_ray, const Vector3 &, const Vector3 &, RID)
     FUNC2RC(Vector<ObjectID>, instances_cull_convex, const Vector<Plane> &, RID)
 
-    FUNC3(instance_geometry_set_flag, RID, InstanceFlags, bool)
-    FUNC2(instance_geometry_set_cast_shadows_setting, RID, ShadowCastingSetting)
+    FUNC3(instance_geometry_set_flag, RID, VS::InstanceFlags, bool)
+    FUNC2(instance_geometry_set_cast_shadows_setting, RID, VS::ShadowCastingSetting)
     FUNC2(instance_geometry_set_material_override, RID, RID)
 
     FUNC5(instance_geometry_set_draw_range, RID, float, float, float, float)
@@ -515,7 +515,7 @@ public:
     FUNC4(canvas_item_add_circle, RID, const Point2 &, float, const Color &)
     FUNC7(canvas_item_add_texture_rect, RID, const Rect2 &, RID, bool, const Color &, bool, RID)
     FUNC8(canvas_item_add_texture_rect_region, RID, const Rect2 &, RID, const Rect2 &, const Color &, bool, RID, bool)
-    FUNC11(canvas_item_add_nine_patch, RID, const Rect2 &, const Rect2 &, RID, const Vector2 &, const Vector2 &, NinePatchAxisMode, NinePatchAxisMode, bool, const Color &, RID)
+    FUNC11(canvas_item_add_nine_patch, RID, const Rect2 &, const Rect2 &, RID, const Vector2 &, const Vector2 &, VS::NinePatchAxisMode, VS::NinePatchAxisMode, bool, const Color &, RID)
     FUNC7(canvas_item_add_primitive, RID, const Vector<Point2> &, const Vector<Color> &, const Vector<Point2> &, RID, float, RID)
     FUNC7(canvas_item_add_polygon, RID, const Vector<Point2> &, const Vector<Color> &, const Vector<Point2> &, RID, RID, bool)
     FUNC10(canvas_item_add_triangle_array, RID, const Vector<int> &, const Vector<Point2> &, const Vector<Color> &, const Vector<Point2> &, const Vector<int> &, const Vector<float> &, RID, int, RID)
@@ -552,12 +552,12 @@ public:
     FUNC2(canvas_light_set_item_cull_mask, RID, int)
     FUNC2(canvas_light_set_item_shadow_cull_mask, RID, int)
 
-    FUNC2(canvas_light_set_mode, RID, CanvasLightMode)
+    FUNC2(canvas_light_set_mode, RID, VS::CanvasLightMode)
 
     FUNC2(canvas_light_set_shadow_enabled, RID, bool)
     FUNC2(canvas_light_set_shadow_buffer_size, RID, int)
     FUNC2(canvas_light_set_shadow_gradient_length, RID, float)
-    FUNC2(canvas_light_set_shadow_filter, RID, CanvasLightShadowFilter)
+    FUNC2(canvas_light_set_shadow_filter, RID, VS::CanvasLightShadowFilter)
     FUNC2(canvas_light_set_shadow_color, RID, const Color &)
     FUNC2(canvas_light_set_shadow_smooth, RID, float)
 
@@ -572,7 +572,7 @@ public:
     FUNC3(canvas_occluder_polygon_set_shape, RID, const PoolVector<Vector2> &, bool)
     FUNC2(canvas_occluder_polygon_set_shape_as_lines, RID, const PoolVector<Vector2> &)
 
-    FUNC2(canvas_occluder_polygon_set_cull_mode, RID, CanvasOccluderPolygonCullMode)
+    FUNC2(canvas_occluder_polygon_set_cull_mode, RID, VS::CanvasOccluderPolygonCullMode)
 
     /* BLACK BARS */
 
@@ -596,7 +596,7 @@ public:
     /* RENDER INFO */
 
     //this passes directly to avoid stalling
-    int get_render_info(RenderInfo p_info) override {
+    int get_render_info(VS::RenderInfo p_info) override {
         return visual_server->get_render_info(p_info);
     }
 
@@ -607,7 +607,7 @@ public:
 
     FUNC1(set_debug_generate_wireframes, bool)
 
-    bool has_feature(Features p_feature) const override { return visual_server->has_feature(p_feature); }
+    bool has_feature(VS::Features p_feature) const override { return visual_server->has_feature(p_feature); }
     bool has_os_feature(const String &p_feature) const override { return visual_server->has_os_feature(p_feature); }
 
     FUNC1(call_set_use_vsync, bool)
@@ -618,7 +618,7 @@ public:
         return visual_server->is_low_end();
     }
 
-    VisualServerWrapMT(VisualServer *p_contained, bool p_create_thread);
+    GODOT_EXPORT VisualServerWrapMT(VisualServer *p_contained, bool p_create_thread);
     ~VisualServerWrapMT() override;
 
 #undef ServerName

@@ -31,7 +31,6 @@
 #pragma once
 
 #include "core/io/packet_peer.h"
-#include "core/type_info.h"
 
 class NetworkedMultiplayerPeer : public PacketPeer {
 

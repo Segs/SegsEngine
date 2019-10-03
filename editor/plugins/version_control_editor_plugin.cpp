@@ -38,6 +38,7 @@
 VersionControlEditorPlugin *VersionControlEditorPlugin::singleton = nullptr;
 
 IMPL_GDCLASS(VersionControlEditorPlugin)
+VARIANT_ENUM_CAST(VersionControlEditorPlugin::ChangeType);
 
 void VersionControlEditorPlugin::_bind_methods() {
 

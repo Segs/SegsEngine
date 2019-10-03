@@ -31,58 +31,63 @@
 #include "gdscript_language_server.h"
 #include "core/os/file_access.h"
 #include "core/os/os.h"
+#include "core/method_bind.h"
 #include "editor/editor_node.h"
+#include "editor/editor_log.h"
+
+IMPL_GDCLASS(GDScriptLanguageServer)
 
 GDScriptLanguageServer::GDScriptLanguageServer() {
-	thread = NULL;
-	thread_exit = false;
-	_EDITOR_DEF("network/language_server/remote_port", 6008);
-	_EDITOR_DEF("network/language_server/enable_smart_resolve", false);
-	_EDITOR_DEF("network/language_server/show_native_symbols_in_editor", false);
+    thread = nullptr;
+    thread_exit = false;
+    _EDITOR_DEF("network/language_server/remote_port", 6008);
+    _EDITOR_DEF("network/language_server/enable_smart_resolve", false);
+    _EDITOR_DEF("network/language_server/show_native_symbols_in_editor", false);
 }
 
 void GDScriptLanguageServer::_notification(int p_what) {
 
-	switch (p_what) {
-		case NOTIFICATION_ENTER_TREE:
-			start();
-			break;
-		case NOTIFICATION_EXIT_TREE:
-			stop();
-			break;
-	}
+    switch (p_what) {
+        case NOTIFICATION_ENTER_TREE:
+            start();
+            break;
+        case NOTIFICATION_EXIT_TREE:
+            stop();
+            break;
+    }
 }
 
 void GDScriptLanguageServer::thread_main(void *p_userdata) {
-	GDScriptLanguageServer *self = static_cast<GDScriptLanguageServer *>(p_userdata);
-	while (!self->thread_exit) {
-		self->protocol.poll();
-		OS::get_singleton()->delay_usec(10);
-	}
+    GDScriptLanguageServer *self = static_cast<GDScriptLanguageServer *>(p_userdata);
+    while (!self->thread_exit) {
+        self->protocol.poll();
+        OS::get_singleton()->delay_usec(10);
+    }
 }
 
 void GDScriptLanguageServer::start() {
-	int port = (int)_EDITOR_GET("network/language_server/remote_port");
-	if (protocol.start(port) == OK) {
-		EditorNode::get_log()->add_message("--- GDScript language server started ---", EditorLog::MSG_TYPE_EDITOR);
-		ERR_FAIL_COND(thread != NULL || thread_exit);
-		thread_exit = false;
-		thread = Thread::create(GDScriptLanguageServer::thread_main, this);
-	}
+    int port = (int)_EDITOR_GET("network/language_server/remote_port");
+    if (protocol.start(port) == OK) {
+        EditorNode::get_log()->add_message("--- GDScript language server started ---", EditorLog::MSG_TYPE_EDITOR);
+        ERR_FAIL_COND(thread != nullptr || thread_exit)
+        thread_exit = false;
+        thread = Thread::create(GDScriptLanguageServer::thread_main, this);
+    }
 }
 
 void GDScriptLanguageServer::stop() {
-	ERR_FAIL_COND(NULL == thread || thread_exit);
-	thread_exit = true;
-	Thread::wait_to_finish(thread);
-	memdelete(thread);
-	thread = NULL;
-	protocol.stop();
-	EditorNode::get_log()->add_message("--- GDScript language server stopped ---", EditorLog::MSG_TYPE_EDITOR);
+    ERR_FAIL_COND(nullptr == thread || thread_exit)
+    thread_exit = true;
+    Thread::wait_to_finish(thread);
+    memdelete(thread);
+    thread = nullptr;
+    protocol.stop();
+    EditorNode::get_log()->add_message("--- GDScript language server stopped ---", EditorLog::MSG_TYPE_EDITOR);
 }
 
 void register_lsp_types() {
-	ClassDB::register_class<GDScriptLanguageProtocol>();
-	ClassDB::register_class<GDScriptTextDocument>();
-	ClassDB::register_class<GDScriptWorkspace>();
+    GDScriptLanguageServer::initialize_class();
+    ClassDB::register_class<GDScriptLanguageProtocol>();
+    ClassDB::register_class<GDScriptTextDocument>();
+    ClassDB::register_class<GDScriptWorkspace>();
 }

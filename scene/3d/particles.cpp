@@ -32,11 +32,13 @@
 
 #include "core/os/os.h"
 #include "scene/resources/particles_material.h"
+#include "scene/resources/mesh.h"
 #include "core/method_bind.h"
 
 #include "servers/visual_server.h"
 
 IMPL_GDCLASS(Particles)
+VARIANT_ENUM_CAST(Particles::DrawOrder)
 
 AABB Particles::get_aabb() const {
 
@@ -49,7 +51,7 @@ PoolVector<Face3> Particles::get_faces(uint32_t p_usage_flags) const {
 
 void Particles::set_emitting(bool p_emitting) {
 
-    VS::get_singleton()->particles_set_emitting(particles, p_emitting);
+    VisualServer::get_singleton()->particles_set_emitting(particles, p_emitting);
 
     if (p_emitting && one_shot) {
         set_process_internal(true);
@@ -62,19 +64,19 @@ void Particles::set_amount(int p_amount) {
 
 	ERR_FAIL_COND_MSG(p_amount < 1, "Amount of particles cannot be smaller than 1.");
     amount = p_amount;
-    VS::get_singleton()->particles_set_amount(particles, amount);
+    VisualServer::get_singleton()->particles_set_amount(particles, amount);
 }
 void Particles::set_lifetime(float p_lifetime) {
 
 	ERR_FAIL_COND_MSG(p_lifetime <= 0, "Particles lifetime must be greater than 0.");
     lifetime = p_lifetime;
-    VS::get_singleton()->particles_set_lifetime(particles, lifetime);
+    VisualServer::get_singleton()->particles_set_lifetime(particles, lifetime);
 }
 
 void Particles::set_one_shot(bool p_one_shot) {
 
     one_shot = p_one_shot;
-    VS::get_singleton()->particles_set_one_shot(particles, one_shot);
+    VisualServer::get_singleton()->particles_set_one_shot(particles, one_shot);
 
     if (is_emitting()) {
 
@@ -90,29 +92,29 @@ void Particles::set_one_shot(bool p_one_shot) {
 void Particles::set_pre_process_time(float p_time) {
 
     pre_process_time = p_time;
-    VS::get_singleton()->particles_set_pre_process_time(particles, pre_process_time);
+    VisualServer::get_singleton()->particles_set_pre_process_time(particles, pre_process_time);
 }
 void Particles::set_explosiveness_ratio(float p_ratio) {
 
     explosiveness_ratio = p_ratio;
-    VS::get_singleton()->particles_set_explosiveness_ratio(particles, explosiveness_ratio);
+    VisualServer::get_singleton()->particles_set_explosiveness_ratio(particles, explosiveness_ratio);
 }
 void Particles::set_randomness_ratio(float p_ratio) {
 
     randomness_ratio = p_ratio;
-    VS::get_singleton()->particles_set_randomness_ratio(particles, randomness_ratio);
+    VisualServer::get_singleton()->particles_set_randomness_ratio(particles, randomness_ratio);
 }
 void Particles::set_visibility_aabb(const AABB &p_aabb) {
 
     visibility_aabb = p_aabb;
-    VS::get_singleton()->particles_set_custom_aabb(particles, visibility_aabb);
+    VisualServer::get_singleton()->particles_set_custom_aabb(particles, visibility_aabb);
     update_gizmo();
     _change_notify("visibility_aabb");
 }
 void Particles::set_use_local_coordinates(bool p_enable) {
 
     local_coords = p_enable;
-    VS::get_singleton()->particles_set_use_local_coordinates(particles, local_coords);
+    VisualServer::get_singleton()->particles_set_use_local_coordinates(particles, local_coords);
 }
 void Particles::set_process_material(const Ref<Material> &p_material) {
 
@@ -120,7 +122,7 @@ void Particles::set_process_material(const Ref<Material> &p_material) {
     RID material_rid;
     if (process_material)
         material_rid = process_material->get_rid();
-    VS::get_singleton()->particles_set_process_material(particles, material_rid);
+    VisualServer::get_singleton()->particles_set_process_material(particles, material_rid);
 
     update_configuration_warning();
 }
@@ -128,12 +130,12 @@ void Particles::set_process_material(const Ref<Material> &p_material) {
 void Particles::set_speed_scale(float p_scale) {
 
     speed_scale = p_scale;
-    VS::get_singleton()->particles_set_speed_scale(particles, p_scale);
+    VisualServer::get_singleton()->particles_set_speed_scale(particles, p_scale);
 }
 
 bool Particles::is_emitting() const {
 
-    return VS::get_singleton()->particles_get_emitting(particles);
+    return VisualServer::get_singleton()->particles_get_emitting(particles);
 }
 int Particles::get_amount() const {
 
@@ -181,7 +183,7 @@ float Particles::get_speed_scale() const {
 void Particles::set_draw_order(DrawOrder p_order) {
 
     draw_order = p_order;
-    VS::get_singleton()->particles_set_draw_order(particles, VS::ParticlesDrawOrder(p_order));
+    VisualServer::get_singleton()->particles_set_draw_order(particles, VS::ParticlesDrawOrder(p_order));
 }
 
 Particles::DrawOrder Particles::get_draw_order() const {
@@ -193,7 +195,7 @@ void Particles::set_draw_passes(int p_count) {
 
     ERR_FAIL_COND(p_count < 1)
     draw_passes.resize(p_count);
-    VS::get_singleton()->particles_set_draw_passes(particles, p_count);
+    VisualServer::get_singleton()->particles_set_draw_passes(particles, p_count);
     _change_notify();
 }
 int Particles::get_draw_passes() const {
@@ -211,7 +213,7 @@ void Particles::set_draw_pass_mesh(int p_pass, const Ref<Mesh> &p_mesh) {
     if (p_mesh)
         mesh_rid = p_mesh->get_rid();
 
-    VS::get_singleton()->particles_set_draw_pass_mesh(particles, p_pass, mesh_rid);
+    VisualServer::get_singleton()->particles_set_draw_pass_mesh(particles, p_pass, mesh_rid);
 
     update_configuration_warning();
 }
@@ -225,7 +227,7 @@ Ref<Mesh> Particles::get_draw_pass_mesh(int p_pass) const {
 
 void Particles::set_fixed_fps(int p_count) {
     fixed_fps = p_count;
-    VS::get_singleton()->particles_set_fixed_fps(particles, p_count);
+    VisualServer::get_singleton()->particles_set_fixed_fps(particles, p_count);
 }
 
 int Particles::get_fixed_fps() const {
@@ -234,7 +236,7 @@ int Particles::get_fixed_fps() const {
 
 void Particles::set_fractional_delta(bool p_enable) {
     fractional_delta = p_enable;
-    VS::get_singleton()->particles_set_fractional_delta(particles, p_enable);
+    VisualServer::get_singleton()->particles_set_fractional_delta(particles, p_enable);
 }
 
 bool Particles::get_fractional_delta() const {
@@ -300,7 +302,7 @@ void Particles::restart() {
 
 AABB Particles::capture_aabb() const {
 
-    return VS::get_singleton()->particles_get_current_aabb(particles);
+    return VisualServer::get_singleton()->particles_get_current_aabb(particles);
 }
 
 void Particles::_validate_property(PropertyInfo &property) const {
@@ -318,10 +320,10 @@ void Particles::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_PAUSED || p_what == NOTIFICATION_UNPAUSED) {
         if (can_process()) {
-            VS::get_singleton()->particles_set_speed_scale(particles, speed_scale);
+            VisualServer::get_singleton()->particles_set_speed_scale(particles, speed_scale);
         } else {
 
-            VS::get_singleton()->particles_set_speed_scale(particles, 0);
+            VisualServer::get_singleton()->particles_set_speed_scale(particles, 0);
         }
     }
 
@@ -412,7 +414,7 @@ void Particles::_bind_methods() {
 
 Particles::Particles() {
 
-    particles = VS::get_singleton()->particles_create();
+    particles = VisualServer::get_singleton()->particles_create();
     set_base(particles);
     one_shot = false; // Needed so that set_emitting doesn't access uninitialized values
     set_emitting(true);
@@ -433,5 +435,5 @@ Particles::Particles() {
 
 Particles::~Particles() {
 
-    VS::get_singleton()->free(particles);
+    VisualServer::get_singleton()->free(particles);
 }

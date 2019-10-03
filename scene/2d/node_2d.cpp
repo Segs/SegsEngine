@@ -336,7 +336,7 @@ void Node2D::set_z_index(int p_z) {
     ERR_FAIL_COND(p_z < VS::CANVAS_ITEM_Z_MIN)
     ERR_FAIL_COND(p_z > VS::CANVAS_ITEM_Z_MAX)
     z_index = p_z;
-    VS::get_singleton()->canvas_item_set_z_index(get_canvas_item(), z_index);
+    VisualServer::get_singleton()->canvas_item_set_z_index(get_canvas_item(), z_index);
     _change_notify("z_index");
 }
 
@@ -345,7 +345,7 @@ void Node2D::set_z_as_relative(bool p_enabled) {
     if (z_relative == p_enabled)
         return;
     z_relative = p_enabled;
-    VS::get_singleton()->canvas_item_set_z_as_relative_to_parent(get_canvas_item(), p_enabled);
+    VisualServer::get_singleton()->canvas_item_set_z_as_relative_to_parent(get_canvas_item(), p_enabled);
 }
 
 bool Node2D::is_z_relative() const {

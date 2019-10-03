@@ -92,7 +92,6 @@ struct UndoRedo::PrivateData
             return;
 
         for (Operation &op : actions[0].undo_ops) {
-            assert(actions[0].undo_ops.size()==start);
             if (op.type == Operation::TYPE_REFERENCE) {
                 Object *obj = ObjectDB::get_instance(op.object);
                 if (obj)

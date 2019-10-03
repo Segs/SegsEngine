@@ -95,7 +95,7 @@ void PrimitiveMesh::_update() const {
 
     // in with the new
     VisualServer::get_singleton()->mesh_clear(mesh);
-    VisualServer::get_singleton()->mesh_add_surface_from_arrays(mesh, (VisualServer::PrimitiveType)primitive_type, arr);
+    VisualServer::get_singleton()->mesh_add_surface_from_arrays(mesh, (VS::PrimitiveType)primitive_type, arr);
     VisualServer::get_singleton()->mesh_surface_set_material(mesh, 0, not material ? RID() : material->get_rid());
 
     pending_request = false;
@@ -243,7 +243,7 @@ Array PrimitiveMesh::get_mesh_arrays() const {
 void PrimitiveMesh::set_custom_aabb(const AABB &p_custom) {
 
     custom_aabb = p_custom;
-    VS::get_singleton()->mesh_set_custom_aabb(mesh, custom_aabb);
+    VisualServer::get_singleton()->mesh_set_custom_aabb(mesh, custom_aabb);
     emit_changed();
 }
 

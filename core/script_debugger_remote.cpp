@@ -33,6 +33,7 @@
 #include "core/engine.h"
 #include "core/io/ip.h"
 #include "core/io/marshalls.h"
+#include "core/io/resource_saver.h"
 #include "core/object_db.h"
 #include "core/os/input.h"
 #include "core/os/os.h"
@@ -110,7 +111,7 @@ void ScriptDebuggerRemote::_put_variable(const String &p_name, const Variant &p_
     int len = 0;
     Error err = encode_variant(var, nullptr, len, true);
     if (err != OK)
-        ERR_PRINT("Failed to encode variant.");
+        ERR_PRINT("Failed to encode variant.")
 
     if (len > packet_peer_stream->get_output_buffer_max_size()) { //limit to max size
         packet_peer_stream->put_var(Variant());
@@ -276,7 +277,7 @@ void ScriptDebuggerRemote::debug(ScriptLanguage *p_script, bool p_can_continue, 
                 OS::get_singleton()->move_window_to_foreground();
                 break;
             } else if (command == "break") {
-                ERR_PRINT("Got break when already broke!");
+                ERR_PRINT("Got break when already broke!")
                 break;
             } else if (command == "request_scene_tree") {
 

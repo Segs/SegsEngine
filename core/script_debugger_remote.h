@@ -37,6 +37,7 @@
 #include "core/script_language.h"
 #include "core/print_string.h"
 #include "core/rid.h"
+#include "core/io/multiplayer_api.h"
 
 class ScriptDebuggerRemote : public ScriptDebugger {
 

@@ -41,6 +41,7 @@
 
 IMPL_GDCLASS(VisibilityNotifier2D)
 IMPL_GDCLASS(VisibilityEnabler2D)
+VARIANT_ENUM_CAST(VisibilityEnabler2D::Enabler);
 
 void VisibilityNotifier2D::_enter_viewport(Viewport *p_viewport) {
 

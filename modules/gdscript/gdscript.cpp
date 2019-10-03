@@ -1264,7 +1264,7 @@ ScriptLanguage *GDScriptInstance::get_language() {
     return GDScriptLanguage::get_singleton();
 }
 
-MultiplayerAPI::RPCMode GDScriptInstance::get_rpc_mode(const StringName &p_method) const {
+MultiplayerAPI_RPCMode GDScriptInstance::get_rpc_mode(const StringName &p_method) const {
 
     const GDScript *cscript = script.get();
 
@@ -1272,17 +1272,17 @@ MultiplayerAPI::RPCMode GDScriptInstance::get_rpc_mode(const StringName &p_metho
         const Map<StringName, GDScriptFunction *>::const_iterator E = cscript->member_functions.find(p_method);
         if (E!=cscript->member_functions.end()) {
 
-            if (E->second->get_rpc_mode() != MultiplayerAPI::RPC_MODE_DISABLED) {
+            if (E->second->get_rpc_mode() != MultiplayerAPI_RPCMode(0)) {
                 return E->second->get_rpc_mode();
             }
         }
         cscript = cscript->_base;
     }
 
-    return MultiplayerAPI::RPC_MODE_DISABLED;
+    return MultiplayerAPI_RPCMode(0);
 }
 
-MultiplayerAPI::RPCMode GDScriptInstance::get_rset_mode(const StringName &p_variable) const {
+MultiplayerAPI_RPCMode GDScriptInstance::get_rset_mode(const StringName &p_variable) const {
 
     const GDScript *cscript = script.get();
 
@@ -1297,7 +1297,7 @@ MultiplayerAPI::RPCMode GDScriptInstance::get_rset_mode(const StringName &p_vari
         cscript = cscript->_base;
     }
 
-    return MultiplayerAPI::RPC_MODE_DISABLED;
+    return MultiplayerAPI_RPCMode(0);
 }
 
 void GDScriptInstance::reload_members() {
