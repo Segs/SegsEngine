@@ -445,38 +445,6 @@ Error VariantParser::get_token(Stream *p_stream, Token &r_token, int &line, Stri
     return ERR_PARSE_ERROR;
 }
 
-Error VariantParser::_parse_enginecfg(Stream *p_stream, Vector<String> &strings, int &line, String &r_err_str) {
-
-    Token token;
-    get_token(p_stream, token, line, r_err_str);
-    if (token.type != TK_PARENTHESIS_OPEN) {
-        r_err_str = "Expected '(' in old-style project.godot construct";
-        return ERR_PARSE_ERROR;
-    }
-
-    String accum;
-
-    while (true) {
-
-        CharType c = p_stream->get_char();
-
-        if (p_stream->is_eof()) {
-            r_err_str = "Unexpected EOF while parsing old-style project.godot construct";
-            return ERR_PARSE_ERROR;
-        }
-
-        if (c == ',') {
-            strings.push_back(StringUtils::strip_edges(accum));
-            accum = String();
-        } else if (c == ')') {
-            strings.push_back(StringUtils::strip_edges(accum));
-            return OK;
-        } else if (c == '\n') {
-            line++;
-        }
-    }
-}
-
 template <class T>
 Error VariantParser::_parse_construct(Stream *p_stream, Vector<T> &r_construct, int &line, String &r_err_str) {
 

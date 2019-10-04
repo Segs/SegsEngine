@@ -34,7 +34,7 @@
 #include "core/reference.h"
 #include "core/ustring.h"
 
-class Expression : public Reference {
+class GODOT_EXPORT Expression : public Reference {
     GDCLASS(Expression,Reference)
 
 public:

@@ -67,7 +67,6 @@
 #include "core/os/semaphore.h"
 #include "core/os/thread.h"
 #include "core/packed_data_container.h"
-#include "core/path_remap.h"
 #include "core/project_settings.h"
 #include "core/script_language.h"
 #include "core/translation.h"

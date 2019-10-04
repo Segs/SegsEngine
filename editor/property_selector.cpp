@@ -280,7 +280,7 @@ void PropertySelector::_update_search() {
 
             desc += " " + mi.name + " ( ";
 
-            for (int i = 0; i < mi.arguments.size(); i++) {
+            for (size_t i = 0; i < mi.arguments.size(); i++) {
 
                 if (i > 0)
                     desc += ", ";

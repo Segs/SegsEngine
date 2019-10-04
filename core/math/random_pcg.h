@@ -122,7 +122,7 @@ public:
 	}
 
 	_FORCE_INLINE_ double randfn(double p_mean, double p_deviation) {
-		return p_mean + p_deviation * (std::cos(Math_TAU * randd()) *
+        return p_mean + p_deviation * (std::cos(MathConsts<double>::TAU * randd()) *
 											  std::sqrt(-2.0 * std::log(randd()))); // Box-Muller transform
 	}
 	_FORCE_INLINE_ float randfn(float p_mean, float p_deviation) {

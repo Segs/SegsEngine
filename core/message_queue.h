@@ -28,13 +28,12 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef MESSAGE_QUEUE_H
-#define MESSAGE_QUEUE_H
+#pragma once
 
 #include "core/object.h"
 #include "core/os/thread_safe.h"
 
-class MessageQueue {
+class GODOT_EXPORT MessageQueue {
 
 	_THREAD_SAFE_CLASS_
 
@@ -96,5 +95,3 @@ public:
 	MessageQueue();
 	~MessageQueue();
 };
-
-#endif // MESSAGE_QUEUE_H

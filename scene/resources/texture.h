@@ -278,7 +278,7 @@ public:
 
 class Mesh;
 
-class MeshTexture : public Texture {
+class GODOT_EXPORT MeshTexture : public Texture {
 
     GDCLASS(MeshTexture,Texture)
 
@@ -292,32 +292,32 @@ protected:
     static void _bind_methods();
 
 public:
-    GODOT_EXPORT int get_width() const override;
-    GODOT_EXPORT int get_height() const override;
-    GODOT_EXPORT RID get_rid() const override;
+    int get_width() const override;
+    int get_height() const override;
+    RID get_rid() const override;
 
-    GODOT_EXPORT bool has_alpha() const override;
+    bool has_alpha() const override;
 
-    GODOT_EXPORT void set_flags(uint32_t p_flags) override;
-    GODOT_EXPORT uint32_t get_flags() const override;
+    void set_flags(uint32_t p_flags) override;
+    uint32_t get_flags() const override;
 
-    GODOT_EXPORT void set_mesh(const Ref<Mesh> &p_mesh);
-    GODOT_EXPORT const Ref<Mesh> &get_mesh() const;
+    void set_mesh(const Ref<Mesh> &p_mesh);
+    const Ref<Mesh> &get_mesh() const;
 
-    GODOT_EXPORT void set_image_size(const Size2 &p_size);
-    GODOT_EXPORT Size2 get_image_size() const;
+    void set_image_size(const Size2 &p_size);
+    Size2 get_image_size() const;
 
-    GODOT_EXPORT void set_base_texture(const Ref<Texture> &p_texture);
-    GODOT_EXPORT const Ref<Texture> &get_base_texture() const;
+    void set_base_texture(const Ref<Texture> &p_texture);
+    const Ref<Texture> &get_base_texture() const;
 
-    GODOT_EXPORT void draw(RID p_canvas_item, const Point2 &p_pos, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>()) const override;
-    GODOT_EXPORT void draw_rect(RID p_canvas_item, const Rect2 &p_rect, bool p_tile = false, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>()) const override;
-    GODOT_EXPORT void draw_rect_region(RID p_canvas_item, const Rect2 &p_rect, const Rect2 &p_src_rect, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>(), bool p_clip_uv = true) const override;
-    GODOT_EXPORT bool get_rect_region(const Rect2 &p_rect, const Rect2 &p_src_rect, Rect2 &r_rect, Rect2 &r_src_rect) const override;
+    void draw(RID p_canvas_item, const Point2 &p_pos, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>()) const override;
+    void draw_rect(RID p_canvas_item, const Rect2 &p_rect, bool p_tile = false, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>()) const override;
+    void draw_rect_region(RID p_canvas_item, const Rect2 &p_rect, const Rect2 &p_src_rect, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>(), bool p_clip_uv = true) const override;
+    bool get_rect_region(const Rect2 &p_rect, const Rect2 &p_src_rect, Rect2 &r_rect, Rect2 &r_src_rect) const override;
 
-    GODOT_EXPORT bool is_pixel_opaque(int p_x, int p_y) const override;
+    bool is_pixel_opaque(int p_x, int p_y) const override;
 
-    GODOT_EXPORT  MeshTexture();
+    MeshTexture();
 };
 
 class GODOT_EXPORT LargeTexture : public Texture {

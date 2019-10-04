@@ -17,11 +17,6 @@ add_library(thirdparty_misc OBJECT
         ${PROJECT_SOURCE_DIR}/thirdparty/misc/hq2x.cpp
         ${PROJECT_SOURCE_DIR}/thirdparty/misc/pcg.cpp
         ${PROJECT_SOURCE_DIR}/thirdparty/misc/triangulator.cpp
-    # Minizip library, can be unbundled in theory
-    # However, our version has some custom modifications, so it won't compile with the system one
-        ${PROJECT_SOURCE_DIR}/thirdparty/minizip/ioapi.c
-        ${PROJECT_SOURCE_DIR}/thirdparty/minizip/unzip.c
-        ${PROJECT_SOURCE_DIR}/thirdparty/minizip/zip.c
         # Used in scene
         ${PROJECT_SOURCE_DIR}/thirdparty/misc/mikktspace.c
     )
@@ -30,6 +25,21 @@ target_link_libraries(thirdparty_misc PUBLIC zlib)
 target_link_libraries(thirdparty_misc PRIVATE EASTL_Import)
 set_property(TARGET thirdparty_misc PROPERTY POSITION_INDEPENDENT_CODE ON)
 set_common_target_properties(thirdparty_misc)
+
+if(OPTION_MINIZIP)
+    add_library(minizip OBJECT
+        # Minizip library, can be unbundled in theory
+        # However, our version has some custom modifications, so it won't compile with the system one
+            ${PROJECT_SOURCE_DIR}/thirdparty/minizip/ioapi.c
+            ${PROJECT_SOURCE_DIR}/thirdparty/minizip/unzip.c
+            ${PROJECT_SOURCE_DIR}/thirdparty/minizip/zip.c
+        )
+target_include_directories(minizip PUBLIC thirdparty/misc/)
+target_link_libraries(minizip PUBLIC zlib)
+target_link_libraries(minizip PRIVATE EASTL_Import)
+set_property(TARGET minizip PROPERTY POSITION_INDEPENDENT_CODE ON)
+# minizip functions need to be accessible from plugins ? set_common_target_properties(minizip)
+endif()
 
 if(OPTION_BUILTIN_SQUISH)
     # Thirdparty source files

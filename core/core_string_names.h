@@ -28,11 +28,11 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef CORE_STRING_NAMES_H
-#define CORE_STRING_NAMES_H
+#pragma once
 
 #include "core/string_name.h"
 #include "core/os/memory.h"
+
 class CoreStringNames {
 
 	friend void register_core_types();
@@ -91,5 +91,3 @@ public:
 	StringName b8;
 	StringName a8;
 };
-
-#endif // SCENE_STRING_NAMES_H

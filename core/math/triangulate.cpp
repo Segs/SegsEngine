@@ -126,7 +126,7 @@ bool Triangulate::triangulate(const Vector<Vector2> &contour, Vector<int> &resul
 
 	/* we want a counter-clockwise polygon in V */
 
-	if (0.0 < get_area(contour))
+    if (0.0f < get_area(contour))
 		for (int v = 0; v < n; v++)
 			V.write[v] = v;
 	else

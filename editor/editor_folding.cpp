@@ -37,11 +37,11 @@
 PoolVector<String> EditorFolding::_get_unfolds(const Object *p_object) {
 
     PoolVector<String> sections;
-    sections.resize(p_object->editor_get_section_folding().size());
+    sections.resize(p_object->get_tooling_interface()->editor_get_section_folding().size());
     if (sections.size()) {
         PoolVector<String>::Write w = sections.write();
         int idx = 0;
-        for (const String &E : p_object->editor_get_section_folding()) {
+        for (const String &E : p_object->get_tooling_interface()->editor_get_section_folding()) {
             w[idx++] = E;
         }
     }
@@ -64,9 +64,9 @@ void EditorFolding::_set_unfolds(Object *p_object, const PoolVector<String> &p_u
 
     int uc = p_unfolds.size();
     PoolVector<String>::Read r = p_unfolds.read();
-    p_object->editor_clear_section_folding();
+    p_object->get_tooling_interface()->editor_clear_section_folding();
     for (int i = 0; i < uc; i++) {
-        p_object->editor_set_section_unfold(r[i], true);
+        p_object->get_tooling_interface()->editor_set_section_unfold(r[i], true);
     }
 }
 
@@ -272,7 +272,7 @@ void EditorFolding::_do_object_unfolds(Object *p_object, Set<RES> &resources) {
     }
 
     for (const String &E : unfold_group) {
-        p_object->editor_set_section_unfold(E, true);
+        p_object->get_tooling_interface()->editor_set_section_unfold(E, true);
     }
 }
 

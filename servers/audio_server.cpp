@@ -43,7 +43,7 @@
 
 #ifdef TOOLS_ENABLED
 
-#define MARK_EDITED set_edited(true);
+#define MARK_EDITED get_tooling_interface()->set_edited(true);
 
 #else
 
@@ -998,7 +998,7 @@ void AudioServer::init() {
         AudioDriver::get_singleton()->start();
 
 #ifdef TOOLS_ENABLED
-    set_edited(false); //avoid editors from thinking this was edited
+    get_tooling_interface()->set_edited(false); //avoid editors from thinking this was edited
 #endif
 
     GLOBAL_DEF_RST("audio/video_delay_compensation_ms", 0);
@@ -1270,7 +1270,7 @@ void AudioServer::set_bus_layout(const Ref<AudioBusLayout> &p_bus_layout) {
         _update_bus_effects(i);
     }
 #ifdef TOOLS_ENABLED
-    set_edited(false);
+    get_tooling_interface()->set_edited(false);
 #endif
     unlock();
 }

@@ -33,7 +33,7 @@
 #include "core/object.h"
 #include "core/resource.h"
 
-class UndoRedo : public Object {
+class GODOT_EXPORT UndoRedo : public Object {
 
     GDCLASS(UndoRedo,Object)
 

@@ -447,7 +447,7 @@ String Color::to_html(bool p_alpha) const {
 Color Color::from_hsv(float p_h, float p_s, float p_v, float p_a) const {
 
     p_h = Math::fmod(p_h * 360.0f, 360.0f);
-    if (p_h < 0.0)
+    if (p_h < 0.0f)
         p_h += 360.0f;
 
     const float h_ = p_h / 60.0f;
@@ -598,7 +598,7 @@ void Color::operator/=(const Color &p_color) {
 
 void Color::operator/=(const real_t &rvalue) {
 
-    if (rvalue == 0) {
+    if (rvalue == 0.0f) {
         r = 1.0;
         g = 1.0;
         b = 1.0;
@@ -614,8 +614,8 @@ void Color::operator/=(const real_t &rvalue) {
 Color Color::operator-() const {
 
     return Color(
-            1.0 - r,
-            1.0 - g,
-            1.0 - b,
-            1.0 - a);
+            1.0f - r,
+            1.0f - g,
+            1.0f - b,
+            1.0f - a);
 }

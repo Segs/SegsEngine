@@ -110,11 +110,11 @@ public:
     _FORCE_INLINE_ bool get_use_pixel_snap() const { return _pixel_snap; }
 
 #ifdef TOOLS_ENABLED
-    _FORCE_INLINE_ void set_editor_hint(bool p_enabled) { editor_hint = p_enabled; }
-    _FORCE_INLINE_ bool is_editor_hint() const { return editor_hint; }
+    void set_editor_hint(bool p_enabled) { editor_hint = p_enabled; }
+    bool is_editor_hint() const { return editor_hint; }
 #else
-    _FORCE_INLINE_ void set_editor_hint(bool p_enabled) {}
-    _FORCE_INLINE_ bool is_editor_hint() const { return false; }
+    void set_editor_hint(bool p_enabled) {}
+    bool is_editor_hint() const { return false; }
 #endif
 
     Dictionary get_version_info() const;

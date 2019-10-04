@@ -44,7 +44,49 @@
 #include "core/version.h"
 
 #define _printerr() ERR_PRINT(res_path + ":" + itos(lines) + " - Parse Error: " + error_text)
+namespace {
+class ResourceFormatSaverTextInstance {
 
+    String local_path;
+
+    Ref<PackedScene> packed_scene;
+
+    bool takeover_paths;
+    bool relative_paths;
+    bool bundle_resources;
+    bool skip_editor;
+    FileAccess *f;
+
+    struct NonPersistentKey { //for resource properties generated on the fly
+        RES base;
+        StringName property;
+        bool operator<(const NonPersistentKey &p_key) const { return base == p_key.base ? property < p_key.property : base < p_key.base; }
+    };
+
+    Map<NonPersistentKey, RES> non_persistent_map;
+
+    Set<RES> resource_set;
+    ListPOD<RES> saved_resources;
+    Map<RES, int> external_resources;
+    Map<RES, int> internal_resources;
+
+    struct ResourceSort {
+        RES resource;
+        int index;
+        bool operator<(const ResourceSort &p_right) const {
+            return index < p_right.index;
+        }
+    };
+
+    void _find_resources(const Variant &p_variant, bool p_main = false);
+
+    static String _write_resources(void *ud, const RES &p_resource);
+    String _write_resource(const RES &res);
+
+public:
+    Error save(const String &p_path, const RES &p_resource, uint32_t p_flags = 0);
+};
+} // end of anonymous namespace
 ///
 
 void ResourceInteractiveLoaderText::set_local_path(const String &p_local_path) {
@@ -1562,7 +1604,7 @@ Error ResourceFormatSaverTextInstance::save(const String &p_path, const RES &p_r
 #else
     //make sure to start from one, as it makes format more readable
     for (Map<RES, int>::Element *E = external_resources.front(); E; E = E->next()) {
-        E.second = E.second + 1;
+        E.second++;
     }
 #endif
 
@@ -1589,10 +1631,10 @@ Error ResourceFormatSaverTextInstance::save(const String &p_path, const RES &p_r
 
     Set<int> used_indices;
 
-    for (List<RES>::Element *E = saved_resources.front(); E; E = E->next()) {
+    for (auto E = saved_resources.begin(),fin=saved_resources.end(); E!=fin; ++E) {
 
-        RES &res(E->deref());
-        if (E->next() && (res->get_path().empty() || StringUtils::contains(res->get_path(),"::") )) {
+        RES &res(*E);
+        if (eastl::next(E)!=fin && (res->get_path().empty() || StringUtils::contains(res->get_path(),"::") )) {
 
             if (res->get_subindex() != 0) {
                 if (used_indices.contains(res->get_subindex())) {
@@ -1604,11 +1646,11 @@ Error ResourceFormatSaverTextInstance::save(const String &p_path, const RES &p_r
         }
     }
 
-    for (List<RES>::Element *E = saved_resources.front(); E; E = E->next()) {
+    for (auto E = saved_resources.begin(),fin=saved_resources.end(); E!=fin; ++E) {
 
-        RES &res(E->deref());
-        ERR_CONTINUE(!resource_set.contains(res));
-        bool main = (E->next() == nullptr);
+        RES &res(*E);
+        ERR_CONTINUE(!resource_set.contains(res))
+        bool main = (eastl::next(E)==fin);
 
         if (main && packed_scene)
             break; //save as a scene
@@ -1636,7 +1678,7 @@ Error ResourceFormatSaverTextInstance::save(const String &p_path, const RES &p_r
 
             internal_resources[res] = idx;
 #ifdef TOOLS_ENABLED
-            res->set_edited(false);
+            res->get_tooling_interface()->set_edited(false);
 #endif
         }
 
@@ -1677,8 +1719,8 @@ Error ResourceFormatSaverTextInstance::save(const String &p_path, const RES &p_r
             }
         }
 
-        if (E->next())
-            f->store_line(String());
+        if (!main)
+            f->store_line(String::null_val);
     }
 
     if (packed_scene) {

@@ -178,14 +178,14 @@ public:
 		while (true) {
 			while (compare(p_array[p_first], p_pivot)) {
 				if (Validate) {
-					ERR_BAD_COMPARE(p_first == unmodified_last - 1);
+                    ERR_BAD_COMPARE(p_first == unmodified_last - 1)
 				}
 				p_first++;
 			}
 			p_last--;
 			while (compare(p_pivot, p_array[p_last])) {
 				if (Validate) {
-					ERR_BAD_COMPARE(p_last == unmodified_first);
+                    ERR_BAD_COMPARE(p_last == unmodified_first)
 				}
 				p_last--;
 			}

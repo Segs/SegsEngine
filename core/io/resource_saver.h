@@ -49,7 +49,7 @@ public:
 using ResourceSavedCallback = void (*)(const Ref<Resource> &, const String &);
 
 class GODOT_EXPORT ResourceSaver {
-
+    //TODO: SEGS: timestamp_on_save variable is only used when TOOLS_ENABLED is set.
     static bool timestamp_on_save;
     static ResourceSavedCallback save_callback;
 

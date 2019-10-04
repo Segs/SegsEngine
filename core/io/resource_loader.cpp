@@ -35,7 +35,6 @@
 #include "core/io/resource_importer.h"
 #include "core/os/file_access.h"
 #include "core/os/os.h"
-#include "core/path_remap.h"
 #include "core/print_string.h"
 #include "core/project_settings.h"
 #include "core/translation.h"
@@ -419,7 +418,7 @@ RES ResourceLoader::load(const String &p_path, const String &p_type_hint, bool p
 
 #ifdef TOOLS_ENABLED
 
-    res->set_edited(false);
+    res->get_tooling_interface()->set_edited(false);
     if (timestamp_on_load) {
         uint64_t mt = FileAccess::get_modified_time(path);
         //printf("mt %s: %lli\n",remapped_path.utf8().get_data(),mt);

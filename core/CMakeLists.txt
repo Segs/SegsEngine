@@ -59,7 +59,7 @@ foreach(tgt ${global_targets})
 
     target_link_libraries(${tgt}_core PRIVATE core_plugin_interfaces ) # access to embedded resources
     target_link_libraries(${tgt}_core PUBLIC core_service_interfaces Qt5::Core)
-    target_link_libraries(${tgt}_core PUBLIC zstd_internal thirdparty_misc )
+    target_link_libraries(${tgt}_core PUBLIC zstd_internal thirdparty_misc minizip )
     target_link_libraries(${tgt}_core PRIVATE EASTL )
     target_link_libraries(${tgt}_core INTERFACE EASTL_Import )
 

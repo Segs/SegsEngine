@@ -28,12 +28,12 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef RWLOCK_H
-#define RWLOCK_H
+#pragma once
 
 #include "core/error_list.h"
+#include "core/typedefs.h"
 
-class RWLock {
+class GODOT_EXPORT RWLock {
 protected:
 	static RWLock *(*create_func)();
 
@@ -78,5 +78,3 @@ public:
 		if (lock) lock->write_unlock();
 	}
 };
-
-#endif // RWLOCK_H

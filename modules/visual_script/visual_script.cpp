@@ -59,20 +59,20 @@ void VisualScriptNode::ports_changed_notify() {
 
 void VisualScriptNode::set_default_input_value(int p_port, const Variant &p_value) {
 
-    ERR_FAIL_INDEX(p_port, default_input_values.size());
+    ERR_FAIL_INDEX(p_port, default_input_values.size())
 
     default_input_values[p_port] = p_value;
 
 #ifdef TOOLS_ENABLED
     for (VisualScript *E : scripts_used) {
-        E->set_edited(true);
+        E->get_tooling_interface()->set_edited(true);
     }
 #endif
 }
 
 Variant VisualScriptNode::get_default_input_value(int p_port) const {
 
-    ERR_FAIL_INDEX_V(p_port, default_input_values.size(), Variant());
+    ERR_FAIL_INDEX_V(p_port, default_input_values.size(), Variant::null_variant)
     return default_input_values[p_port];
 }
 
@@ -315,7 +315,7 @@ void VisualScript::_node_ports_changed(int p_id) {
     }
 
 #ifdef TOOLS_ENABLED
-    set_edited(true); //something changed, let's set as edited
+    get_tooling_interface()->set_edited(true); //something changed, let's set as edited
     emit_signal("node_ports_changed", function, p_id);
 #endif
 }
@@ -1096,7 +1096,7 @@ bool VisualScript::are_subnodes_edited() const {
     for (const eastl::pair<const StringName,Function> &E : functions) {
 
         for (const auto &F : E.second.nodes) {
-            if (F.second.node->is_edited()) {
+            if (F.second.node->get_tooling_interface()->is_edited()) {
                 return true;
             }
         }

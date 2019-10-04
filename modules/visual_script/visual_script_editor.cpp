@@ -51,7 +51,9 @@
 
 
 
-#ifdef TOOLS_ENABLED
+#ifndef TOOLS_ENABLED
+#error "VisualScriptEditor requires a defined TOOLS_ENABLED flag to compile."
+#endif
 
 IMPL_GDCLASS(_VisualScriptEditor)
 IMPL_GDCLASS(VisualScriptEditor)
@@ -1932,8 +1934,6 @@ bool VisualScriptEditor::can_drop_data_fw(const Point2 &p_point, const Variant &
     return false;
 }
 
-#ifdef TOOLS_ENABLED
-
 static Node *_find_script_node(Node *p_edited_scene, Node *p_current_node, const Ref<Script> &script) {
 
     if (p_edited_scene != p_current_node && p_current_node->get_owner() != p_edited_scene)
@@ -1952,8 +1952,6 @@ static Node *_find_script_node(Node *p_edited_scene, Node *p_current_node, const
 
     return nullptr;
 }
-
-#endif
 
 void VisualScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) {
 
@@ -2388,7 +2386,7 @@ void VisualScriptEditor::_draw_color_over_button(Object *obj, Color p_color) {
 void VisualScriptEditor::_button_resource_previewed(const String &p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, Variant p_ud) {
 
     Array ud = p_ud;
-    ERR_FAIL_COND(ud.size() != 2);
+    ERR_FAIL_COND(ud.size() != 2)
 
     ObjectID id = ud[0];
     Object *obj = ObjectDB::get_instance(id);
@@ -2397,7 +2395,7 @@ void VisualScriptEditor::_button_resource_previewed(const String &p_path, const 
         return;
 
     Button *b = Object::cast_to<Button>(obj);
-    ERR_FAIL_COND(!b);
+    ERR_FAIL_COND(!b)
 
     if (not p_preview) {
         b->set_text(ud[1]);
@@ -2431,7 +2429,7 @@ void VisualScriptEditor::set_edited_resource(const RES &p_res) {
     if (!script->has_function(default_func)) // this is the supposed default function
     {
         script->add_function(default_func);
-        script->set_edited(true); //so that if a function was added it's saved
+        script->get_tooling_interface()->set_edited(true); //so that if a function was added it's saved
     }
 
     _update_graph();
@@ -2469,12 +2467,7 @@ Ref<Texture> VisualScriptEditor::get_icon() {
 }
 
 bool VisualScriptEditor::is_unsaved() {
-#ifdef TOOLS_ENABLED
-
-    return script->is_edited() || script->are_subnodes_edited();
-#else
-    return false;
-#endif
+    return script->get_tooling_interface()->is_edited() || script->are_subnodes_edited();
 }
 
 Variant VisualScriptEditor::get_edit_state() {
@@ -2529,7 +2522,7 @@ void VisualScriptEditor::_center_on_node(const StringName &p_func, int p_id) {
         Vector2 new_scroll = gn->get_offset() - graph->get_size() * 0.5f + gn->get_size() * 0.5f;
         graph->set_scroll_ofs(new_scroll);
         script->set_function_scroll(p_func, new_scroll / EDSCALE);
-        script->set_edited(true);
+        script->get_tooling_interface()->set_edited(true);
     }
 }
 
@@ -3978,7 +3971,7 @@ void VisualScriptEditor::_graph_ofs_changed(const Vector2 &p_ofs) {
     // Just use the default func for all the properties that need to be handled for drawing rather than adding to the Visual Script Class
     if (script->has_function(default_func)) {
         script->set_function_scroll(default_func, graph->get_scroll_ofs() / EDSCALE);
-        script->set_edited(true);
+        script->get_tooling_interface()->set_edited(true);
     }
     updating_graph = false;
 }
@@ -4999,4 +4992,3 @@ void _VisualScriptEditor::_bind_methods() {
 
 void VisualScriptEditor::validate() {
 }
-#endif

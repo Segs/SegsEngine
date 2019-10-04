@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef GEOMETRY_H
-#define GEOMETRY_H
+#pragma once
 
 #include "core/math/delaunay.h"
 #include "core/math/face3.h"
@@ -41,7 +40,7 @@
 #include "core/print_string.h"
 #include "core/vector.h"
 
-class Geometry {
+class GODOT_EXPORT Geometry {
 public:
 	Geometry() = delete;
 
@@ -143,7 +142,7 @@ public:
 		} else { // Get the closest points on the infinite lines
 			sN = (b * e - c * d);
 			tN = (a * e - b * d);
-			if (sN < 0.0) { // sc < 0 => the s=0 edge is visible.
+            if (sN < 0.0f) { // sc < 0 => the s=0 edge is visible.
 				sN = 0.0;
 				tN = e;
 				tD = c;
@@ -157,7 +156,7 @@ public:
 		if (tN < 0.0f) { // tc < 0 => the t=0 edge is visible.
 			tN = 0.0;
 			// Recompute sc for this edge.
-			if (-d < 0.0)
+            if (-d < 0.0f)
 				sN = 0.0;
 			else if (-d > a)
 				sN = sD;
@@ -446,14 +445,14 @@ public:
 		Vector3 p = p_point - p_segment[0];
 		Vector3 n = p_segment[1] - p_segment[0];
 		real_t l2 = n.length_squared();
-		if (l2 < 1e-20)
+        if (l2 < 1e-20f)
 			return p_segment[0]; // Both points are the same, just give any.
 
 		real_t d = n.dot(p) / l2;
 
-		if (d <= 0.0)
+        if (d <= 0.0f)
 			return p_segment[0]; // Before first point.
-		else if (d >= 1.0)
+        else if (d >= 1.0f)
 			return p_segment[1]; // After first point.
 		else
 			return p_segment[0] + n * d; // Inside.
@@ -464,7 +463,7 @@ public:
 		Vector3 p = p_point - p_segment[0];
 		Vector3 n = p_segment[1] - p_segment[0];
 		real_t l2 = n.length_squared();
-		if (l2 < 1e-20)
+        if (l2 < 1e-20f)
 			return p_segment[0]; // Both points are the same, just give any.
 
 		real_t d = n.dot(p) / l2;
@@ -477,14 +476,14 @@ public:
 		Vector2 p = p_point - p_segment[0];
 		Vector2 n = p_segment[1] - p_segment[0];
 		real_t l2 = n.length_squared();
-		if (l2 < 1e-20)
+        if (l2 < 1e-20f)
 			return p_segment[0]; // Both points are the same, just give any.
 
 		real_t d = n.dot(p) / l2;
 
-		if (d <= 0.0)
+        if (d <= 0.0f)
 			return p_segment[0]; // Before first point.
-		else if (d >= 1.0)
+        else if (d >= 1.0f)
 			return p_segment[1]; // After first point.
 		else
 			return p_segment[0] + n * d; // Inside.
@@ -508,7 +507,7 @@ public:
 		Vector2 p = p_point - p_segment[0];
 		Vector2 n = p_segment[1] - p_segment[0];
 		real_t l2 = n.length_squared();
-		if (l2 < 1e-20)
+        if (l2 < 1e-20f)
 			return p_segment[0]; // Both points are the same, just give any.
 
 		real_t d = n.dot(p) / l2;
@@ -550,7 +549,7 @@ public:
 		real_t ABpos = D.x + (C.x - D.x) * D.y / (D.y - C.y);
 
 		//  Fail if segment C-D crosses line A-B outside of segment A-B.
-		if (ABpos < 0 || ABpos > 1.0)
+        if (ABpos < 0 || ABpos > 1.0f)
 			return false;
 
 		//  (4) Apply the discovered position to line A-B in the original coordinate system.
@@ -1023,5 +1022,3 @@ private:
 	static Vector<Vector<Point2> > _polypaths_do_operation(PolyBooleanOperation p_op, const Vector<Point2> &p_polypath_a, const Vector<Point2> &p_polypath_b, bool is_a_open = false);
 	static Vector<Vector<Point2> > _polypath_offset(const Vector<Point2> &p_polypath, real_t p_delta, PolyJoinType p_join_type, PolyEndType p_end_type);
 };
-
-#endif

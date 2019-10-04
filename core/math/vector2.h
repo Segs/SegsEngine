@@ -134,7 +134,7 @@ struct GODOT_EXPORT Vector2 {
     }
 
     Vector2 rotated(real_t p_by) const;
-    Vector2 tangent() const {
+    constexpr Vector2 tangent() const {
 
         return Vector2(y, -x);
     }
@@ -144,7 +144,7 @@ struct GODOT_EXPORT Vector2 {
     Vector2 ceil() const;
     Vector2 round() const;
     Vector2 snapped(const Vector2 &p_by) const;
-    real_t aspect() const { return width / height; }
+    constexpr real_t aspect() const { return width / height; }
 
 	operator String() const;
 
@@ -268,7 +268,7 @@ using Point2 = Vector2;
 
 /* INTEGER STUFF */
 
-struct Vector2i {
+struct GODOT_EXPORT Vector2i {
     enum Axis {
         AXIS_X,
         AXIS_Y,
@@ -312,23 +312,14 @@ struct Vector2i {
     bool operator==(const Vector2i &p_vec2) const;
     bool operator!=(const Vector2i &p_vec2) const;
 
-    real_t get_aspect() const { return width / (real_t)height; }
+    constexpr real_t get_aspect() const { return width / (real_t)height; }
 
 	operator String() const;
 
-    operator Vector2() const { return Vector2(float(x), float(y)); }
-    inline Vector2i(Vector2 p_vec2) {
-        x = (int)p_vec2.x;
-        y = (int)p_vec2.y;
-    }
-    inline Vector2i(int p_x, int p_y) {
-        x = p_x;
-        y = p_y;
-    }
-    inline Vector2i() {
-        x = 0;
-        y = 0;
-    }
+    constexpr operator Vector2() const { return Vector2(float(x), float(y)); }
+    constexpr Vector2i(Vector2 p_vec2) : x((int)p_vec2.x),y((int)p_vec2.y) {}
+    constexpr Vector2i(int p_x, int p_y) : x(p_x),y(p_y) {}
+    constexpr Vector2i() : x(0),y(0) {}
 };
 
 using Size2i = Vector2i;

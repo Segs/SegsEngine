@@ -46,7 +46,7 @@ enum MultiplayerAPI_RPCMode : int8_t;
 
 using ScriptEditRequestFunction = void (*)(const String &);
 
-class ScriptServer {
+class GODOT_EXPORT ScriptServer {
     enum {
 
         MAX_LANGUAGES = 16
@@ -102,7 +102,7 @@ public:
 class ScriptInstance;
 class PlaceHolderScriptInstance;
 
-class Script : public Resource {
+class GODOT_EXPORT Script : public Resource {
 
     GDCLASS(Script,Resource)
     OBJ_SAVE_TYPE(Script)
@@ -163,7 +163,7 @@ public:
     Script() {}
 };
 
-class ScriptInstance {
+class GODOT_EXPORT ScriptInstance {
 public:
     virtual bool set(const StringName &p_name, const Variant &p_value) = 0;
     virtual bool get(const StringName &p_name, Variant &r_ret) const = 0;
@@ -248,7 +248,7 @@ public:
 
     ScriptCodeCompletionCache();
 
-    virtual ~ScriptCodeCompletionCache() {}
+    virtual ~ScriptCodeCompletionCache() = default;
 };
 
 class ScriptLanguage {

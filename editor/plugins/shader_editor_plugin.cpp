@@ -492,7 +492,7 @@ void ShaderEditor::apply_shaders() {
         String editor_code = shader_editor->get_text_edit()->get_text();
         if (shader_code != editor_code) {
             shader->set_code(editor_code);
-            shader->set_edited(true);
+            shader->get_tooling_interface()->set_edited(true);
         }
     }
 }

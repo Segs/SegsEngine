@@ -120,7 +120,7 @@ T *_nullptr() {
 #undef CONNECT_DEFERRED // override from Windows SDK, clashes with Object enum
 #endif
 
-#include "core/int_types.h"
+#include <stdint.h>
 
 //#include "core/error_list.h"
 //#include "core/error_macros.h"

@@ -44,8 +44,48 @@
 #include "core/vmap.h"
 #include "core/method_bind.h"
 
+#ifdef TOOLS_ENABLED
+struct ObjectToolingImpl final : public IObjectTooling {
 
+    bool _edited;
+    uint32_t _edited_version;
+    Set<String> editor_section_folding;
 
+    // IObjectTooling interface
+public:
+    void set_edited(bool p_edited,bool increment_version=true) final {
+        _edited = p_edited;
+        if(increment_version)
+            _edited_version++;
+    }
+    bool is_edited() const final {
+        return _edited;
+    }
+    uint32_t get_edited_version() const final {
+        return _edited_version;
+    }
+    void editor_set_section_unfold(const String &p_section, bool p_unfolded) final {
+        set_edited(true);
+        if (p_unfolded)
+            editor_section_folding.insert(p_section);
+        else
+            editor_section_folding.erase(p_section);
+    }
+    bool editor_is_section_unfolded(const String &p_section) const final {
+        return editor_section_folding.contains(p_section);
+    }
+    const Set<String> &editor_get_section_folding() const final {
+        return editor_section_folding;
+    }
+    void editor_clear_section_folding() final {
+        editor_section_folding.clear();
+    }
+    ObjectToolingImpl() {
+        _edited = false;
+        _edited_version = 0;
+    }
+};
+#endif
 struct Object::Signal  {
 
     struct Target {
@@ -74,16 +114,23 @@ struct Object::Signal  {
     Signal() { lock = 0; }
 };
 struct Object::ObjectPrivate {
+#ifdef TOOLS_ENABLED
+    ObjectToolingImpl m_tooling;
+#endif
     HashMap<StringName, Signal> signal_map;
     Set<Object *> change_receptors;
     List<Connection> connections;
 
-#ifdef TOOLS_ENABLED
-    bool _edited;
-    uint32_t _edited_version;
-    Set<String> editor_section_folding;
+#ifdef DEBUG_ENABLED
+    SafeRefCount _lock_index;
 #endif
 
+    ObjectPrivate()
+    {
+#ifdef DEBUG_ENABLED
+    _lock_index.init(1);
+#endif
+    }
     ~ObjectPrivate() {
         const StringName *S = nullptr;
 
@@ -110,10 +157,11 @@ struct Object::ObjectPrivate {
             Connection c = connections.front()->deref();
             c.source->_disconnect(c.signal, c.target, c.method, true);
         }
-
+    }
+    IObjectTooling *get_tooling() {
+        return &m_tooling;
     }
 };
-
 #ifdef DEBUG_ENABLED
 
 struct _ObjectDebugLock {
@@ -122,10 +170,10 @@ struct _ObjectDebugLock {
 
     explicit _ObjectDebugLock(Object *p_obj) {
         obj = p_obj;
-        obj->_lock_index.ref();
+        obj->private_data->_lock_index.ref();
     }
     ~_ObjectDebugLock() {
-        obj->_lock_index.unref();
+        obj->private_data->_lock_index.unref();
     }
 };
 
@@ -479,8 +527,7 @@ bool Object::wrap_is_class(const String &p_class) const {
 void Object::set(const StringName &p_name, const Variant &p_value, bool *r_valid) {
 
 #ifdef TOOLS_ENABLED
-
-    private_data->_edited = true;
+    private_data->get_tooling()->set_edited(true,false);
 #endif
 
     if (script_instance) {
@@ -814,7 +861,7 @@ void Object::call_multilevel(const StringName &p_method, const Variant **p_args,
 #ifdef DEBUG_ENABLED
         ERR_FAIL_COND_CMSG(Object::cast_to<Reference>(this), "Can't 'free' a reference.")
 
-        ERR_FAIL_COND_CMSG(_lock_index.get() > 1, "Object is locked and can't be freed.")
+        ERR_FAIL_COND_CMSG(private_data->_lock_index.get() > 1, "Object is locked and can't be freed.")
 #endif
 
         //must be here, must be before everything,
@@ -956,7 +1003,7 @@ Variant Object::call(const StringName &p_method, const Variant **p_args, int p_a
             ERR_FAIL_V_CMSG(Variant(), "Can't 'free' a reference.")
         }
 
-        if (_lock_index.get() > 1) {
+        if (private_data->_lock_index.get() > 1) {
             r_error.argument = 0;
             r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
             ERR_FAIL_V_CMSG(Variant(), "Object is locked and can't be freed.")
@@ -1179,6 +1226,15 @@ void Object::get_meta_list(ListPOD<String> *p_list) const {
 
         p_list->push_back(E.as<String>());
     }
+}
+
+IObjectTooling *Object::get_tooling_interface() const
+{
+#ifdef TOOLS_ENABLED
+    return private_data->get_tooling();
+#else
+    return nullptr;
+#endif
 }
 
 void Object::add_user_signal(const MethodInfo &p_signal) {
@@ -1667,13 +1723,13 @@ bool Object::initialize_class() {
     initialized = true;
     return true;
 }
-#ifdef TOOLS_ENABLED
 void Object::_change_notify(const char *p_property) {
-    private_data->_edited = true;
+#ifdef TOOLS_ENABLED
+    private_data->get_tooling()->set_edited(true,false);
     for (Object *E : private_data->change_receptors)
         E->_changed_callback(this, p_property);
-}
 #endif
+}
 StringName Object::tr(const StringName &p_message) const {
 
     if (!_can_translate || !TranslationServer::get_singleton())
@@ -1726,27 +1782,6 @@ void Object::_clear_internal_resource_paths(const Variant &p_var) {
         }
     }
 }
-
-#ifdef TOOLS_ENABLED
-void Object::editor_set_section_unfold(const String &p_section, bool p_unfolded) {
-
-    set_edited(true);
-    if (p_unfolded)
-        private_data->editor_section_folding.insert(p_section);
-    else
-        private_data->editor_section_folding.erase(p_section);
-}
-
-bool Object::editor_is_section_unfolded(const String &p_section) {
-
-    return private_data->editor_section_folding.contains(p_section);
-}
-
-const Set<String> &Object::editor_get_section_folding() const { return private_data->editor_section_folding; }
-
-void Object::editor_clear_section_folding() { private_data->editor_section_folding.clear(); }
-
-#endif
 
 void Object::clear_internal_resource_paths() {
 
@@ -1969,24 +2004,6 @@ bool Object::is_queued_for_deletion() const {
     return _is_queued_for_deletion;
 }
 
-#ifdef TOOLS_ENABLED
-void Object::set_edited(bool p_edited) {
-
-    private_data->_edited = p_edited;
-    private_data->_edited_version++;
-}
-
-bool Object::is_edited() const {
-
-    return private_data->_edited;
-}
-
-uint32_t Object::get_edited_version() const {
-
-    return private_data->_edited_version;
-}
-#endif
-
 void *Object::get_script_instance_binding(int p_script_language_index) {
 #ifdef DEBUG_ENABLED
     ERR_FAIL_INDEX_V(p_script_language_index, MAX_SCRIPT_INSTANCE_BINDINGS, nullptr)
@@ -2032,15 +2049,6 @@ Object::Object() {
     instance_binding_count = 0;
     memset(_script_instance_bindings, 0, sizeof(void *) * MAX_SCRIPT_INSTANCE_BINDINGS);
     script_instance = nullptr;
-#ifdef TOOLS_ENABLED
-
-    private_data->_edited = false;
-    private_data->_edited_version = 0;
-#endif
-
-#ifdef DEBUG_ENABLED
-    _lock_index.init(1);
-#endif
 }
 
 Object::~Object() {

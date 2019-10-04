@@ -160,9 +160,9 @@ struct UndoRedo::PrivateData
 #ifdef TOOLS_ENABLED
                     Resource *res = Object::cast_to<Resource>(obj);
                     if (res)
-                        res->set_edited(true);
+                        res->get_tooling_interface()->set_edited(true);
 
-    #endif
+#endif
 
                     if (method_callback) {
                         method_callback(method_callbck_ud, obj, op.name, VARIANT_ARGS_FROM_ARRAY(op.args));
@@ -174,7 +174,7 @@ struct UndoRedo::PrivateData
     #ifdef TOOLS_ENABLED
                     Resource *res = Object::cast_to<Resource>(obj);
                     if (res)
-                        res->set_edited(true);
+                        res->get_tooling_interface()->set_edited(true);
     #endif
                     if (property_callback) {
                         property_callback(prop_callback_ud, obj, op.name, op.args[0]);

@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef MATH_FUNCS_H
-#define MATH_FUNCS_H
+#pragma once
 
 #include "core/math/math_defs.h"
 #include "core/math/random_pcg.h"
@@ -61,11 +60,11 @@ public:
     static _ALWAYS_INLINE_ double sinh(double p_x) { return ::sinh(p_x); }
     static _ALWAYS_INLINE_ float sinh(float p_x) { return ::sinhf(p_x); }
 
-    static _ALWAYS_INLINE_ float sinc(float p_x) { return p_x == 0 ? 1 : std::sin(p_x) / p_x; }
-    static _ALWAYS_INLINE_ double sinc(double p_x) { return p_x == 0 ? 1 : std::sin(p_x) / p_x; }
+    static _ALWAYS_INLINE_ float sinc(float p_x) { return p_x == 0.0f ? 1 : std::sin(p_x) / p_x; }
+    static _ALWAYS_INLINE_ double sinc(double p_x) { return p_x == 0.0 ? 1 : std::sin(p_x) / p_x; }
 
     static _ALWAYS_INLINE_ float sincn(float p_x) { return sinc(float(Math_PI) * p_x); }
-    static _ALWAYS_INLINE_ double sincn(double p_x) { return sinc(Math_PI * p_x); }
+    static _ALWAYS_INLINE_ double sincn(double p_x) { return sinc(MathConsts<double>::PI * p_x); }
 
     static _ALWAYS_INLINE_ double cosh(double p_x) { return ::cosh(p_x); }
     static _ALWAYS_INLINE_ float cosh(float p_x) { return ::coshf(p_x); }
@@ -294,7 +293,7 @@ public:
         // this is an approximate way to check that numbers are close, as a ratio of their average size
         // helps compare approximate numbers that may be very big or very small
         real_t diff = std::abs(a - b);
-        if (diff == 0.0 || diff < min_epsilon) {
+        if (diff == 0.0f || diff < min_epsilon) {
             return true;
         }
         real_t avg_size = (std::abs(a) + std::abs(b)) / 2.0f;
@@ -356,7 +355,7 @@ public:
         static int b;
 
 #if (defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0603) || WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP // windows 8 phone?
-        b = (int)((a > 0.0) ? (a + 0.5) : (a - 0.5));
+        b = (int)((a > 0.0f) ? (a + 0.5f) : (a - 0.5f));
 
 #elif defined(_MSC_VER) && _MSC_VER < 1800
         __asm fld a __asm fistp b
@@ -487,5 +486,3 @@ public:
         return p_target;
     }
 };
-
-#endif // MATH_FUNCS_H

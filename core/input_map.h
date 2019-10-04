@@ -35,7 +35,7 @@
 #include "core/map.h"
 #include "core/list.h"
 
-class InputMap : public Object {
+class GODOT_EXPORT InputMap : public Object {
 
     GDCLASS(InputMap, Object)
 

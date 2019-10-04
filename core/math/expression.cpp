@@ -125,7 +125,7 @@ Expression::BuiltinFunc Expression::find_function(const String &p_string) {
 
 String Expression::get_func_name(BuiltinFunc p_func) {
 
-    ERR_FAIL_INDEX_V(p_func, FUNC_MAX, String());
+    ERR_FAIL_INDEX_V(p_func, FUNC_MAX, String())
     return func_name[p_func];
 }
 

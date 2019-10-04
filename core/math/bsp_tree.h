@@ -38,7 +38,7 @@
 #include "core/variant.h"
 #include "core/vector.h"
 
-class BSP_Tree {
+class GODOT_EXPORT BSP_Tree {
 public:
 	enum {
 

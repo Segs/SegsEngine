@@ -59,7 +59,6 @@
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
 #include "core/os/os.h"
-#include "core/path_remap.h"
 #include "core/print_string.h"
 #include "core/project_settings.h"
 #include "core/translation.h"
@@ -956,8 +955,8 @@ bool EditorNode::_find_and_save_resource(const RES& p_res, Map<RES, bool> &proce
         return processed[p_res];
     }
 
-    bool changed = p_res->is_edited();
-    p_res->set_edited(false);
+    bool changed = p_res->get_tooling_interface()->is_edited();
+    p_res->get_tooling_interface()->set_edited(false);
 
     bool subchanged = _find_and_save_edited_subresources(p_res.get(), processed, flags);
 
@@ -1151,7 +1150,7 @@ bool EditorNode::_validate_scene_recursive(const String &p_filename, Node *p_nod
 
 static bool _find_edited_resources(const Ref<Resource> &p_resource, Set<Ref<Resource> > &edited_resources) {
 
-    if (p_resource->is_edited()) {
+    if (p_resource->get_tooling_interface()->is_edited()) {
         edited_resources.insert(p_resource);
         return true;
     }
@@ -1206,7 +1205,7 @@ int EditorNode::_save_external_resources() {
     // which will be shared until the next reload
 
     for (Ref<Resource> res : edited_subresources) {
-        res->set_edited(false);
+        res->get_tooling_interface()->set_edited(false);
     }
 
     return saved;

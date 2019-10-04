@@ -318,7 +318,7 @@ void Resource::notify_change_to_owners() {
 
 uint32_t Resource::hash_edited_version() const {
 
-    uint32_t hash = hash_djb2_one_32(get_edited_version());
+    uint32_t hash = hash_djb2_one_32(get_tooling_interface()->get_edited_version());
 
     ListPOD<PropertyInfo> plist;
     get_property_list(&plist);

@@ -5,7 +5,7 @@
 
 #include "core/property_info.h"
 
-struct MethodInfo {
+struct GODOT_EXPORT MethodInfo {
 
     String name;
     PropertyInfo return_val;

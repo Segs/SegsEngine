@@ -2591,14 +2591,14 @@ void EditorPropertyResource::_fold_other_editors(Object *p_self) {
 
     if (!use_editor)
         return;
-    bool unfolded = get_edited_object()->editor_is_section_unfolded(get_edited_property());
+    bool unfolded = get_edited_object()->get_tooling_interface()->editor_is_section_unfolded(get_edited_property());
 
     opened_editor = false;
 
     if (unfolded) {
         //refold
         assign->set_pressed(false);
-        get_edited_object()->editor_set_section_unfold(get_edited_property(), false);
+        get_edited_object()->get_tooling_interface()->editor_set_section_unfold(get_edited_property(), false);
         update_property();
     }
 }
@@ -2612,7 +2612,7 @@ void EditorPropertyResource::update_property() {
         if ((res!=nullptr) != assign->is_toggle_mode()) {
             assign->set_toggle_mode(res);
         }
-        if (res && get_edited_object()->editor_is_section_unfolded(get_edited_property())) {
+        if (res && get_edited_object()->get_tooling_interface()->editor_is_section_unfolded(get_edited_property())) {
 
             if (!sub_inspector) {
                 sub_inspector = memnew(EditorInspector);
@@ -2719,8 +2719,8 @@ void EditorPropertyResource::_resource_selected() {
 
     if (use_sub_inspector) {
 
-        bool unfold = !get_edited_object()->editor_is_section_unfolded(get_edited_property());
-        get_edited_object()->editor_set_section_unfold(get_edited_property(), unfold);
+        bool unfold = !get_edited_object()->get_tooling_interface()->editor_is_section_unfolded(get_edited_property());
+        get_edited_object()->get_tooling_interface()->editor_set_section_unfold(get_edited_property(), unfold);
         update_property();
     } else {
 

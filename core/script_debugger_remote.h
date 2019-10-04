@@ -39,7 +39,7 @@
 #include "core/rid.h"
 #include "core/io/multiplayer_api.h"
 
-class ScriptDebuggerRemote : public ScriptDebugger {
+class GODOT_EXPORT ScriptDebuggerRemote : public ScriptDebugger {
 
     struct Message {
 

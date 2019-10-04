@@ -277,7 +277,7 @@ using base_type = typename std::remove_cv<typename std::remove_reference<T>::typ
 
 #define MAX_CMD_PARAMS 13
 
-class CommandQueueMT {
+class GODOT_EXPORT CommandQueueMT {
 
     struct SyncSemaphore {
 
