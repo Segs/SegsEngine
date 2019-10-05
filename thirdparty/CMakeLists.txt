@@ -27,14 +27,20 @@ set_property(TARGET thirdparty_misc PROPERTY POSITION_INDEPENDENT_CODE ON)
 set_common_target_properties(thirdparty_misc)
 
 if(OPTION_MINIZIP)
-    add_library(minizip OBJECT
+    add_library(minizip STATIC
         # Minizip library, can be unbundled in theory
         # However, our version has some custom modifications, so it won't compile with the system one
             ${PROJECT_SOURCE_DIR}/thirdparty/minizip/ioapi.c
             ${PROJECT_SOURCE_DIR}/thirdparty/minizip/unzip.c
             ${PROJECT_SOURCE_DIR}/thirdparty/minizip/zip.c
         )
+add_library(minizip_interface INTERFACE)  
 target_include_directories(minizip PUBLIC thirdparty/misc/)
+# export minizip symbols.
+target_compile_definitions(minizip PUBLIC ZLIB_DLL)
+target_compile_definitions(minizip PUBLIC ZLIB_INTERNAL)
+target_compile_definitions(minizip_interface INTERFACE ZLIB_DLL)
+target_include_directories(minizip_interface INTERFACE thirdparty/misc/)
 target_link_libraries(minizip PUBLIC zlib)
 target_link_libraries(minizip PRIVATE EASTL_Import)
 set_property(TARGET minizip PROPERTY POSITION_INDEPENDENT_CODE ON)
