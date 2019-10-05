@@ -32,8 +32,12 @@
 #include "core/array.h"
 #include "core/engine.h"
 #include "core/method_bind.h"
+#include "core/script_language.h"
 
 IMPL_GDCLASS(TileSet)
+VARIANT_ENUM_CAST(TileSet::AutotileBindings);
+VARIANT_ENUM_CAST(TileSet::BitmaskMode);
+VARIANT_ENUM_CAST(TileSet::TileMode);
 
 bool TileSet::_set(const StringName &p_name, const Variant &p_value) {
 

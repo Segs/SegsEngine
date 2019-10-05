@@ -33,6 +33,7 @@
 #include "core/method_bind.h"
 #include "core/object_db.h"
 #include "core/os/input.h"
+#include "core/script_language.h"
 #include "core/os/os.h"
 #include "core/project_settings.h"
 #include "scene/2d/collision_object_2d.h"
@@ -57,6 +58,14 @@
 IMPL_GDCLASS(ViewportTexture)
 IMPL_GDCLASS(Viewport)
 
+VARIANT_ENUM_CAST(Viewport::UpdateMode);
+VARIANT_ENUM_CAST(Viewport::ShadowAtlasQuadrantSubdiv);
+VARIANT_ENUM_CAST(Viewport::MSAA);
+VARIANT_ENUM_CAST(Viewport::Usage);
+VARIANT_ENUM_CAST(Viewport::DebugDraw);
+VARIANT_ENUM_CAST(Viewport::ClearMode);
+VARIANT_ENUM_CAST(Viewport::RenderInfo);
+
 void ViewportTexture::setup_local_to_scene() {
 
     if (vp) {
@@ -79,10 +88,10 @@ void ViewportTexture::setup_local_to_scene() {
 
     vp->viewport_textures.insert(this);
 
-    VS::get_singleton()->texture_set_proxy(proxy, vp->texture_rid);
+    VisualServer::get_singleton()->texture_set_proxy(proxy, vp->texture_rid);
 
     vp->texture_flags = flags;
-    VS::get_singleton()->texture_set_flags(vp->texture_rid, flags);
+    VisualServer::get_singleton()->texture_set_flags(vp->texture_rid, flags);
 }
 
 void ViewportTexture::set_viewport_path_in_scene(const NodePath &p_path) {
@@ -130,7 +139,7 @@ bool ViewportTexture::has_alpha() const {
 Ref<Image> ViewportTexture::get_data() const {
 
     ERR_FAIL_COND_V(!vp, Ref<Image>())
-    return VS::get_singleton()->texture_get_data(vp->texture_rid);
+    return VisualServer::get_singleton()->texture_get_data(vp->texture_rid);
 }
 void ViewportTexture::set_flags(uint32_t p_flags) {
     flags = p_flags;
@@ -139,7 +148,7 @@ void ViewportTexture::set_flags(uint32_t p_flags) {
         return;
 
     vp->texture_flags = flags;
-    VS::get_singleton()->texture_set_flags(vp->texture_rid, flags);
+    VisualServer::get_singleton()->texture_set_flags(vp->texture_rid, flags);
 }
 
 uint32_t ViewportTexture::get_flags() const {
@@ -160,7 +169,7 @@ ViewportTexture::ViewportTexture() {
     vp = nullptr;
     flags = 0;
     set_local_to_scene(true);
-    proxy = VS::get_singleton()->texture_create();
+    proxy = VisualServer::get_singleton()->texture_create();
 }
 
 ViewportTexture::~ViewportTexture() {
@@ -169,7 +178,7 @@ ViewportTexture::~ViewportTexture() {
         vp->viewport_textures.erase(this);
     }
 
-    VS::get_singleton()->free(proxy);
+    VisualServer::get_singleton()->free(proxy);
 }
 
 /////////////////////////////////////
@@ -303,7 +312,7 @@ void Viewport::_notification(int p_what) {
                 //VisualServer::get_singleton()->instance_geometry_set_flag(contact_3d_debug_instance, VS::INSTANCE_FLAG_VISIBLE_IN_ALL_ROOMS, true);
             }
 
-            VS::get_singleton()->viewport_set_active(viewport, true);
+            VisualServer::get_singleton()->viewport_set_active(viewport, true);
         } break;
         case NOTIFICATION_READY: {
 #ifndef _3D_DISABLED
@@ -363,7 +372,7 @@ void Viewport::_notification(int p_what) {
 
             remove_from_group("_viewports");
 
-            VS::get_singleton()->viewport_set_active(viewport, false);
+            VisualServer::get_singleton()->viewport_set_active(viewport, false);
 
         } break;
         case NOTIFICATION_INTERNAL_PROCESS: {
@@ -398,13 +407,13 @@ void Viewport::_notification(int p_what) {
                 Vector<Vector3> points = PhysicsServer::get_singleton()->space_get_contacts(find_world()->get_space());
                 int point_count = PhysicsServer::get_singleton()->space_get_contact_count(find_world()->get_space());
 
-                VS::get_singleton()->multimesh_set_visible_instances(contact_3d_debug_multimesh, point_count);
+                VisualServer::get_singleton()->multimesh_set_visible_instances(contact_3d_debug_multimesh, point_count);
             }
 
             if (physics_object_picking && (to_screen_rect == Rect2() || Input::get_singleton()->get_mouse_mode() != Input::MOUSE_MODE_CAPTURED)) {
 
 #ifndef _3D_DISABLED
-                Vector2 last_pos(1e20, 1e20);
+                Vector2 last_pos(1e20f, 1e20f);
                 CollisionObject *last_object = nullptr;
                 ObjectID last_id = 0;
 #endif
@@ -693,7 +702,7 @@ RID Viewport::get_viewport_rid() const {
 void Viewport::set_use_arvr(bool p_use_arvr) {
     arvr = p_use_arvr;
 
-    VS::get_singleton()->viewport_set_use_arvr(viewport, arvr);
+    VisualServer::get_singleton()->viewport_set_use_arvr(viewport, arvr);
 }
 
 bool Viewport::use_arvr() {
@@ -712,7 +721,7 @@ void Viewport::set_size(const Size2 &p_size) {
     if (size == p_size.floor())
         return;
     size = p_size.floor();
-    VS::get_singleton()->viewport_set_size(viewport, size.width, size.height);
+    VisualServer::get_singleton()->viewport_set_size(viewport, size.width, size.height);
 
     _update_stretch_transform();
 
@@ -960,7 +969,7 @@ void Viewport::_canvas_layer_remove(CanvasLayer *p_canvas_layer) {
 void Viewport::set_transparent_background(bool p_enable) {
 
     transparent_bg = p_enable;
-    VS::get_singleton()->viewport_set_transparent_background(viewport, p_enable);
+    VisualServer::get_singleton()->viewport_set_transparent_background(viewport, p_enable);
 }
 
 bool Viewport::has_transparent_background() const {
@@ -1189,7 +1198,7 @@ bool Viewport::is_size_override_stretch_enabled() const {
 void Viewport::set_update_mode(UpdateMode p_mode) {
 
     update_mode = p_mode;
-    VS::get_singleton()->viewport_set_update_mode(viewport, VS::ViewportUpdateMode(p_mode));
+    VisualServer::get_singleton()->viewport_set_update_mode(viewport, VS::ViewportUpdateMode(p_mode));
 }
 Viewport::UpdateMode Viewport::get_update_mode() const {
 
@@ -1215,7 +1224,7 @@ bool Viewport::get_vflip() const {
 void Viewport::set_clear_mode(ClearMode p_mode) {
 
     clear_mode = p_mode;
-    VS::get_singleton()->viewport_set_clear_mode(viewport, VS::ViewportClearMode(p_mode));
+    VisualServer::get_singleton()->viewport_set_clear_mode(viewport, VS::ViewportClearMode(p_mode));
 }
 
 Viewport::ClearMode Viewport::get_clear_mode() const {
@@ -1229,7 +1238,7 @@ void Viewport::set_shadow_atlas_size(int p_size) {
         return;
 
     shadow_atlas_size = p_size;
-    VS::get_singleton()->viewport_set_shadow_atlas_size(viewport, p_size);
+    VisualServer::get_singleton()->viewport_set_shadow_atlas_size(viewport, p_size);
 }
 
 int Viewport::get_shadow_atlas_size() const {
@@ -1248,7 +1257,7 @@ void Viewport::set_shadow_atlas_quadrant_subdiv(int p_quadrant, ShadowAtlasQuadr
     shadow_atlas_quadrant_subdiv[p_quadrant] = p_subdiv;
     static const int subdiv[SHADOW_ATLAS_QUADRANT_SUBDIV_MAX] = { 0, 1, 4, 16, 64, 256, 1024 };
 
-    VS::get_singleton()->viewport_set_shadow_atlas_quadrant_subdivision(viewport, p_quadrant, subdiv[p_subdiv]);
+    VisualServer::get_singleton()->viewport_set_shadow_atlas_quadrant_subdivision(viewport, p_quadrant, subdiv[p_subdiv]);
 }
 Viewport::ShadowAtlasQuadrantSubdiv Viewport::get_shadow_atlas_quadrant_subdiv(int p_quadrant) const {
 
@@ -2745,7 +2754,7 @@ bool Viewport::is_using_own_world() const {
 
 void Viewport::set_attach_to_screen_rect(const Rect2 &p_rect) {
 
-    VS::get_singleton()->viewport_attach_to_screen(viewport, p_rect);
+    VisualServer::get_singleton()->viewport_attach_to_screen(viewport, p_rect);
     to_screen_rect = p_rect;
 }
 
@@ -2760,7 +2769,7 @@ void Viewport::set_use_render_direct_to_screen(bool p_render_direct_to_screen) {
         return;
 
     render_direct_to_screen = p_render_direct_to_screen;
-    VS::get_singleton()->viewport_set_render_direct_to_screen(viewport, p_render_direct_to_screen);
+    VisualServer::get_singleton()->viewport_set_render_direct_to_screen(viewport, p_render_direct_to_screen);
 }
 
 bool Viewport::is_using_render_direct_to_screen() const {
@@ -2807,7 +2816,7 @@ bool Viewport::is_input_disabled() const {
 
 void Viewport::set_disable_3d(bool p_disable) {
     disable_3d = p_disable;
-    VS::get_singleton()->viewport_set_disable_3d(viewport, p_disable);
+    VisualServer::get_singleton()->viewport_set_disable_3d(viewport, p_disable);
 }
 
 bool Viewport::is_3d_disabled() const {
@@ -2817,7 +2826,7 @@ bool Viewport::is_3d_disabled() const {
 
 void Viewport::set_keep_3d_linear(bool p_keep_3d_linear) {
     keep_3d_linear = p_keep_3d_linear;
-    VS::get_singleton()->viewport_set_keep_3d_linear(viewport, keep_3d_linear);
+    VisualServer::get_singleton()->viewport_set_keep_3d_linear(viewport, keep_3d_linear);
 }
 
 bool Viewport::get_keep_3d_linear() const {
@@ -2857,7 +2866,7 @@ void Viewport::set_msaa(MSAA p_msaa) {
     if (msaa == p_msaa)
         return;
     msaa = p_msaa;
-    VS::get_singleton()->viewport_set_msaa(viewport, VS::ViewportMSAA(p_msaa));
+    VisualServer::get_singleton()->viewport_set_msaa(viewport, VS::ViewportMSAA(p_msaa));
 }
 
 Viewport::MSAA Viewport::get_msaa() const {
@@ -2871,7 +2880,7 @@ void Viewport::set_hdr(bool p_hdr) {
         return;
 
     hdr = p_hdr;
-    VS::get_singleton()->viewport_set_hdr(viewport, p_hdr);
+    VisualServer::get_singleton()->viewport_set_hdr(viewport, p_hdr);
 }
 
 bool Viewport::get_hdr() const {
@@ -2882,7 +2891,7 @@ bool Viewport::get_hdr() const {
 void Viewport::set_usage(Usage p_usage) {
 
     usage = p_usage;
-    VS::get_singleton()->viewport_set_usage(viewport, VS::ViewportUsage(p_usage));
+    VisualServer::get_singleton()->viewport_set_usage(viewport, VS::ViewportUsage(p_usage));
 }
 
 Viewport::Usage Viewport::get_usage() const {
@@ -2892,7 +2901,7 @@ Viewport::Usage Viewport::get_usage() const {
 void Viewport::set_debug_draw(DebugDraw p_debug_draw) {
 
     debug_draw = p_debug_draw;
-    VS::get_singleton()->viewport_set_debug_draw(viewport, VS::ViewportDebugDraw(p_debug_draw));
+    VisualServer::get_singleton()->viewport_set_debug_draw(viewport, VS::ViewportDebugDraw(p_debug_draw));
 }
 
 Viewport::DebugDraw Viewport::get_debug_draw() const {
@@ -2902,7 +2911,7 @@ Viewport::DebugDraw Viewport::get_debug_draw() const {
 
 int Viewport::get_render_info(RenderInfo p_info) {
 
-    return VS::get_singleton()->viewport_get_render_info(viewport, VS::ViewportRenderInfo(p_info));
+    return VisualServer::get_singleton()->viewport_get_render_info(viewport, VS::ViewportRenderInfo(p_info));
 }
 
 void Viewport::set_snap_controls_to_pixels(bool p_enable) {
@@ -3177,7 +3186,7 @@ Viewport::Viewport() {
     default_texture = make_ref_counted<ViewportTexture>();
     default_texture->vp = const_cast<Viewport *>(this);
     viewport_textures.insert(default_texture.get());
-    VS::get_singleton()->texture_set_proxy(default_texture->proxy, texture_rid);
+    VisualServer::get_singleton()->texture_set_proxy(default_texture->proxy, texture_rid);
 
     //internal_listener = SpatialSoundServer::get_singleton()->listener_create();
     audio_listener = false;

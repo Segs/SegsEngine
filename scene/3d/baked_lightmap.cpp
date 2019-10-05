@@ -41,11 +41,14 @@
 
 IMPL_GDCLASS(BakedLightmapData)
 IMPL_GDCLASS(BakedLightmap)
+VARIANT_ENUM_CAST(BakedLightmap::BakeQuality);
+VARIANT_ENUM_CAST(BakedLightmap::BakeMode);
+VARIANT_ENUM_CAST(BakedLightmap::BakeError);
 
 void BakedLightmapData::set_bounds(const AABB &p_bounds) {
 
     bounds = p_bounds;
-    VS::get_singleton()->lightmap_capture_set_bounds(baked_light, p_bounds);
+    VisualServer::get_singleton()->lightmap_capture_set_bounds(baked_light, p_bounds);
 }
 
 AABB BakedLightmapData::get_bounds() const {
@@ -55,18 +58,18 @@ AABB BakedLightmapData::get_bounds() const {
 
 void BakedLightmapData::set_octree(const PoolVector<uint8_t> &p_octree) {
 
-    VS::get_singleton()->lightmap_capture_set_octree(baked_light, p_octree);
+    VisualServer::get_singleton()->lightmap_capture_set_octree(baked_light, p_octree);
 }
 
 PoolVector<uint8_t> BakedLightmapData::get_octree() const {
 
-    return VS::get_singleton()->lightmap_capture_get_octree(baked_light);
+    return VisualServer::get_singleton()->lightmap_capture_get_octree(baked_light);
 }
 
 void BakedLightmapData::set_cell_space_transform(const Transform &p_xform) {
 
     cell_space_xform = p_xform;
-    VS::get_singleton()->lightmap_capture_set_octree_cell_transform(baked_light, p_xform);
+    VisualServer::get_singleton()->lightmap_capture_set_octree_cell_transform(baked_light, p_xform);
 }
 
 Transform BakedLightmapData::get_cell_space_transform() const {
@@ -75,7 +78,7 @@ Transform BakedLightmapData::get_cell_space_transform() const {
 
 void BakedLightmapData::set_cell_subdiv(int p_cell_subdiv) {
     cell_subdiv = p_cell_subdiv;
-    VS::get_singleton()->lightmap_capture_set_octree_cell_subdiv(baked_light, p_cell_subdiv);
+    VisualServer::get_singleton()->lightmap_capture_set_octree_cell_subdiv(baked_light, p_cell_subdiv);
 }
 
 int BakedLightmapData::get_cell_subdiv() const {
@@ -85,7 +88,7 @@ int BakedLightmapData::get_cell_subdiv() const {
 void BakedLightmapData::set_energy(float p_energy) {
 
     energy = p_energy;
-    VS::get_singleton()->lightmap_capture_set_energy(baked_light, energy);
+    VisualServer::get_singleton()->lightmap_capture_set_energy(baked_light, energy);
 }
 
 float BakedLightmapData::get_energy() const {
@@ -187,14 +190,14 @@ void BakedLightmapData::_bind_methods() {
 
 BakedLightmapData::BakedLightmapData() {
 
-    baked_light = VS::get_singleton()->lightmap_capture_create();
+    baked_light = VisualServer::get_singleton()->lightmap_capture_create();
     energy = 1;
     cell_subdiv = 1;
 }
 
 BakedLightmapData::~BakedLightmapData() {
 
-    VS::get_singleton()->free(baked_light);
+    VisualServer::get_singleton()->free(baked_light);
 }
 
 ///////////////////////////
@@ -692,12 +695,12 @@ void BakedLightmap::_assign_lightmaps() {
         if (instance_idx >= 0) {
             RID instance = node->call("get_bake_mesh_instance", instance_idx);
             if (instance.is_valid()) {
-                VS::get_singleton()->instance_set_use_lightmap(instance, get_instance(), lightmap->get_rid());
+                VisualServer::get_singleton()->instance_set_use_lightmap(instance, get_instance(), lightmap->get_rid());
             }
         } else {
             VisualInstance *vi = Object::cast_to<VisualInstance>(node);
             ERR_CONTINUE(!vi)
-            VS::get_singleton()->instance_set_use_lightmap(vi->get_instance(), get_instance(), lightmap->get_rid());
+            VisualServer::get_singleton()->instance_set_use_lightmap(vi->get_instance(), get_instance(), lightmap->get_rid());
         }
     }
 }
@@ -710,12 +713,12 @@ void BakedLightmap::_clear_lightmaps() {
         if (instance_idx >= 0) {
             RID instance = node->call("get_bake_mesh_instance", instance_idx);
             if (instance.is_valid()) {
-                VS::get_singleton()->instance_set_use_lightmap(instance, get_instance(), RID());
+                VisualServer::get_singleton()->instance_set_use_lightmap(instance, get_instance(), RID());
             }
         } else {
             VisualInstance *vi = Object::cast_to<VisualInstance>(node);
             ERR_CONTINUE(!vi)
-            VS::get_singleton()->instance_set_use_lightmap(vi->get_instance(), get_instance(), RID());
+            VisualServer::get_singleton()->instance_set_use_lightmap(vi->get_instance(), get_instance(), RID());
         }
     }
 }

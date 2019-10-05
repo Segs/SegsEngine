@@ -114,7 +114,7 @@ void EditorAudioBus::_notification(int p_what) {
 
             if (get_index() != 0 && hovering_drop) {
                 Color accent = get_color("accent_color", "Editor");
-                accent.a *= 0.7;
+                accent.a *= 0.7f;
                 draw_rect(Rect2(Point2(), get_size()), accent, false);
             }
         } break;
@@ -1075,18 +1075,18 @@ void EditorAudioBuses::_notification(int p_what) {
         case NOTIFICATION_PROCESS: {
 
             // Check if anything was edited.
-            bool edited = AudioServer::get_singleton()->is_edited();
+            bool edited = AudioServer::get_singleton()->get_tooling_interface()->is_edited();
             for (int i = 0; i < AudioServer::get_singleton()->get_bus_count(); i++) {
                 for (int j = 0; j < AudioServer::get_singleton()->get_bus_effect_count(i); j++) {
                     Ref<AudioEffect> effect = AudioServer::get_singleton()->get_bus_effect(i, j);
-                    if (effect->is_edited()) {
+                    if (effect->get_tooling_interface()->is_edited()) {
                         edited = true;
-                        effect->set_edited(false);
+                        effect->get_tooling_interface()->set_edited(false);
                     }
                 }
             }
 
-            AudioServer::get_singleton()->set_edited(false);
+            AudioServer::get_singleton()->get_tooling_interface()->set_edited(false);
 
             if (edited) {
                 save_timer->start();

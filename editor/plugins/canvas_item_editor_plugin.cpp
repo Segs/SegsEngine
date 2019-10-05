@@ -944,7 +944,7 @@ bool CanvasItemEditor::_gui_input_rulers_and_guides(const Ref<InputEvent> &p_eve
             }
 
             // Hover over guides
-            float minimum = 1e20;
+            float minimum = 1e20f;
             is_hovering_h_guide = false;
             is_hovering_v_guide = false;
 
@@ -1363,7 +1363,7 @@ void CanvasItemEditor::_solve_IK(Node2D *leaf_node, Point2 target_position) {
 
             // Run the solver
             int solver_iterations = 64;
-            float solver_k = 0.3;
+            float solver_k = 0.3f;
 
             // Build the position list
             for (int i = 0; i < solver_iterations; i++) {
@@ -1378,8 +1378,8 @@ void CanvasItemEditor::_solve_IK(Node2D *leaf_node, Point2 target_position) {
                         joints_pos[node_id] = joints_pos[node_id].linear_interpolate(joints_pos[node_id + 1] - len * direction, solver_k);
                     } else {
                         Vector2 center = (joints_pos[node_id + 1] + joints_pos[node_id]) / 2.0;
-                        joints_pos[node_id] = joints_pos[node_id].linear_interpolate(center - (direction * len) / 2.0, solver_k);
-                        joints_pos[node_id + 1] = joints_pos[node_id + 1].linear_interpolate(center + (direction * len) / 2.0, solver_k);
+                        joints_pos[node_id] = joints_pos[node_id].linear_interpolate(center - (direction * len) / 2.0f, solver_k);
+                        joints_pos[node_id + 1] = joints_pos[node_id + 1].linear_interpolate(center + (direction * len) / 2.0f, solver_k);
                     }
                     node_id++;
                 }
@@ -1550,7 +1550,7 @@ bool CanvasItemEditor::_gui_input_anchors(const Ref<InputEvent> &p_event) {
             previous_anchor = xform.affine_inverse().xform(_anchor_to_position(control, previous_anchor));
 
             Vector2 new_anchor = xform.xform(snap_point(previous_anchor + (drag_to - drag_from), SNAP_GRID | SNAP_OTHER_NODES, SNAP_NODE_PARENT | SNAP_NODE_SIDES | SNAP_NODE_CENTER, control));
-            new_anchor = _position_to_anchor(control, new_anchor).snapped(Vector2(0.001, 0.001));
+            new_anchor = _position_to_anchor(control, new_anchor).snapped(Vector2(0.001f, 0.001f));
 
             bool use_single_axis = m->get_shift();
             Vector2 drag_vector = xform.xform(drag_to) - xform.xform(drag_from);
@@ -2457,7 +2457,7 @@ void CanvasItemEditor::_gui_input_viewport(const Ref<InputEvent> &p_event) {
 
 void CanvasItemEditor::_draw_text_at_position(Point2 p_position, const String& p_string, Margin p_side) {
     Color color = get_color("font_color", "Editor");
-    color.a = 0.8;
+    color.a = 0.8f;
     Ref<Font> font = get_font("font", "Label");
     Size2 text_size = font->get_string_size(p_string);
     switch (p_side) {
@@ -2560,7 +2560,7 @@ void CanvasItemEditor::_draw_rulers() {
     Color bg_color = get_color("dark_color_2", "Editor");
     Color graduation_color = get_color("font_color", "Editor").linear_interpolate(bg_color, 0.5);
     Color font_color = get_color("font_color", "Editor");
-    font_color.a = 0.8;
+    font_color.a = 0.8f;
     Ref<Font> font = get_font("rulers", "EditorFonts");
     bool is_snap_active = snap_active ^ Input::get_singleton()->is_key_pressed(KEY_CONTROL);
 
@@ -2798,7 +2798,7 @@ void CanvasItemEditor::_draw_control_helpers(Control *control) {
     Transform2D xform = transform * control->get_global_transform_with_canvas();
     if (tool == TOOL_SELECT && show_helpers && !Object::cast_to<Container>(control->get_parent())) {
         // Draw the helpers
-        Color color_base = Color(0.8, 0.8, 0.8, 0.5);
+        Color color_base = Color(0.8f, 0.8f, 0.8f, 0.5f);
 
         // Compute the anchors
         float anchors_values[4];
@@ -2837,7 +2837,7 @@ void CanvasItemEditor::_draw_control_helpers(Control *control) {
         if (dragged_anchor >= 0) {
             // Draw the 4 lines when dragged
             bool anchor_snapped;
-            Color color_snapped = Color(0.64, 0.93, 0.67, 0.5);
+            Color color_snapped = Color(0.64f, 0.93f, 0.67f, 0.5);
 
             Vector2 corners_pos[4];
             for (int i = 0; i < 4; i++) {
@@ -2874,7 +2874,7 @@ void CanvasItemEditor::_draw_control_helpers(Control *control) {
         }
 
         // Draw the margin values and the node width/height when dragging control side
-        float ratio = 0.33;
+        float ratio = 0.33f;
         Transform2D parent_transform = xform * control->get_transform().affine_inverse();
         float node_pos_in_parent[4];
 
@@ -2989,7 +2989,7 @@ void CanvasItemEditor::_draw_selection() {
                         drag_type == DRAG_LEFT || drag_type == DRAG_RIGHT || drag_type == DRAG_TOP || drag_type == DRAG_BOTTOM ||
                         drag_type == DRAG_TOP_LEFT || drag_type == DRAG_TOP_RIGHT || drag_type == DRAG_BOTTOM_LEFT || drag_type == DRAG_BOTTOM_RIGHT)) {
             const Transform2D pre_drag_xform = transform * se->pre_drag_xform;
-            const Color pre_drag_color = Color(0.4, 0.6, 1, 0.7);
+            const Color pre_drag_color = Color(0.4f, 0.6f, 1, 0.7f);
 
             if (canvas_item->_edit_use_rect()) {
                 Vector2 pre_drag_endpoints[4] = {
@@ -3020,7 +3020,7 @@ void CanvasItemEditor::_draw_selection() {
                 xform.xform(rect.position + Vector2(0, rect.size.y))
             };
 
-            Color c = Color(1, 0.6, 0.4, 0.7);
+            Color c = Color(1, 0.6f, 0.4f, 0.7f);
 
             for (int i = 0; i < 4; i++) {
                 viewport->draw_line(endpoints[i], endpoints[(i + 1) % 4], c, Math::round(2 * EDSCALE), true);
@@ -3141,7 +3141,7 @@ void CanvasItemEditor::_draw_selection() {
         viewport->draw_line(
                 transform.xform(drag_rotation_center),
                 transform.xform(drag_to),
-                get_color("accent_color", "Editor") * Color(1, 1, 1, 0.6),
+                get_color("accent_color", "Editor") * Color(1, 1, 1, 0.6f),
                 Math::round(2 * EDSCALE),
                 true);
     }
@@ -4608,7 +4608,7 @@ void CanvasItemEditor::_popup_callback(int p_op) {
 
             bool preview = view_menu->get_popup()->is_item_checked(view_menu->get_popup()->get_item_index(PREVIEW_CANVAS_SCALE));
             preview = !preview;
-            VS::get_singleton()->canvas_set_disable_scale(!preview);
+            VisualServer::get_singleton()->canvas_set_disable_scale(!preview);
             view_menu->get_popup()->set_item_checked(view_menu->get_popup()->get_item_index(PREVIEW_CANVAS_SCALE), preview);
 
         } break;
@@ -4765,7 +4765,7 @@ void CanvasItemEditor::_focus_selection(int p_op) {
             float scale_x = viewport->get_size().x / rect.size.x;
             float scale_y = viewport->get_size().y / rect.size.y;
             zoom = scale_x < scale_y ? scale_x : scale_y;
-            zoom *= 0.90;
+            zoom *= 0.9f;
             viewport->update();
             call_deferred("_popup_callback", VIEW_CENTER_TO_SELECTION);
         }
@@ -5540,6 +5540,7 @@ void CanvasItemEditorViewport::_create_preview(const Vector<String> &files) cons
     for (int i = 0; i < files.size(); i++) {
         String path = files[i];
         RES res(ResourceLoader::load(path));
+        ERR_FAIL_COND(not res)
         Ref<Texture> texture = Ref<Texture>(Object::cast_to<Texture>(res.get()));
         Ref<PackedScene> scene = Ref<PackedScene>(Object::cast_to<PackedScene>(res.get()));
         if (texture != nullptr || scene != nullptr) {
@@ -5966,7 +5967,7 @@ CanvasItemEditorViewport::CanvasItemEditorViewport(EditorNode *p_node, CanvasIte
     label_desc->add_constant_override("line_spacing", 0);
     label_desc->hide();
     editor->get_gui_base()->add_child(label_desc);
-    VS::get_singleton()->canvas_set_disable_scale(true);
+    VisualServer::get_singleton()->canvas_set_disable_scale(true);
 }
 
 CanvasItemEditorViewport::~CanvasItemEditorViewport() {

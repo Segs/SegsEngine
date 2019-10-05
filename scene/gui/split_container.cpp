@@ -39,6 +39,7 @@
 IMPL_GDCLASS(SplitContainer)
 IMPL_GDCLASS(HSplitContainer)
 IMPL_GDCLASS(VSplitContainer)
+VARIANT_ENUM_CAST(SplitContainer::DraggerVisibility);
 
 Control *SplitContainer::_getch(int p_idx) const {
 

@@ -265,8 +265,5 @@ public:
 	EditorLineEditFileChooser();
 };
 
-VARIANT_ENUM_CAST(EditorFileDialog::Mode);
-VARIANT_ENUM_CAST(EditorFileDialog::Access);
-VARIANT_ENUM_CAST(EditorFileDialog::DisplayMode);
 
 #endif // EDITORFILEDIALOG_H

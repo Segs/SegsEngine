@@ -2,20 +2,26 @@ set(common_x11
     context_gl_x11.cpp
     crash_handler_x11.cpp
     os_x11.cpp
-    key_mapping_x11.cpp
-    joypad_linux.cpp
-    power_x11.cpp
-    detect_prime.cpp
 )
 
 find_package(OpenGL REQUIRED)
 
 foreach(tgt ${global_targets})
-    add_executable(godot_${tgt} godot_x11.cpp ${common_x11})
-    target_link_libraries(godot_${tgt} PRIVATE ${tgt}_main edit_tools ${tgt}_scene ${tgt}_servers ${tgt}_modules ${tgt}_core)
-    target_link_libraries(godot_${tgt} PRIVATE ${LIBRARIES} ${X11_LIBRARIES} ${X11_Xcursor_LIB} ${X11_Xrender_LIB} Xinerama Xrandr X11 dl pthread Xi ${OPENGL_LIBRARIES})
-    set_target_properties(godot_${tgt} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
-    set_target_properties(godot_${tgt} PROPERTIES ENABLE_EXPORTS ON)
-    target_compile_definitions(godot_${tgt} PRIVATE ${godot_${tgt}_DEFINES})
-    target_include_directories(godot_${tgt} PRIVATE ${${PROJECT_BINARY_DIR}})
+    target_sources(${tgt}_engine PRIVATE
+        key_mapping_x11.cpp
+        joypad_linux.cpp
+        power_x11.cpp
+        detect_prime.cpp
+        context_gl_x11.cpp
+        crash_handler_x11.cpp
+        os_x11.cpp
+    )
+    target_link_libraries(${tgt}_engine PRIVATE
+        ${tgt}_modules ${tgt}_core
+        ${X11_LIBRARIES} ${X11_Xcursor_LIB} ${X11_Xrender_LIB} Xinerama Xrandr X11 dl pthread Xi ${OPENGL_LIBRARIES}
+    )
+
+    target_compile_definitions(${tgt}_engine PRIVATE ${godot_${tgt}_DEFINES})
+    target_include_directories(${tgt}_engine PRIVATE ${${PROJECT_BINARY_DIR}})
+    set_common_target_properties(${tgt}_engine)
 endforeach()

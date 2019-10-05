@@ -197,8 +197,8 @@ public:
         lightaux = vs->omni_light_create();
         //vs->light_set_color( lightaux, VisualServer::LIGHT_COLOR_AMBIENT, Color(0.0,0.0,1.0) );
         vs->light_set_color(lightaux, Color(1.0, 1.0, 0.0));
-        vs->light_set_param(lightaux, VisualServer::LIGHT_PARAM_RANGE, 4);
-        vs->light_set_param(lightaux, VisualServer::LIGHT_PARAM_ENERGY, 8);
+        vs->light_set_param(lightaux, VS::LIGHT_PARAM_RANGE, 4);
+        vs->light_set_param(lightaux, VS::LIGHT_PARAM_ENERGY, 8);
         //vs->light_set_shadow( lightaux, true );
         //light = vs->instance_create( lightaux );
 

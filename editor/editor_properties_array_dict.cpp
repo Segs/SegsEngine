@@ -283,7 +283,7 @@ void EditorPropertyArray::update_property() {
 
     edit->set_text(arrtype + " (size " + itos(array.call("size")) + ")");
 
-    bool unfolded = get_edited_object()->editor_is_section_unfolded(get_edited_property());
+    bool unfolded = get_edited_object()->get_tooling_interface()->editor_is_section_unfolded(get_edited_property());
     if (edit->is_pressed() != unfolded) {
         edit->set_pressed(unfolded);
     }
@@ -435,7 +435,7 @@ void EditorPropertyArray::_edit_pressed() {
         get_edited_object()->set(get_edited_property(), array);
     }
 
-    get_edited_object()->editor_set_section_unfold(get_edited_property(), edit->is_pressed());
+    get_edited_object()->get_tooling_interface()->editor_set_section_unfold(get_edited_property(), edit->is_pressed());
     update_property();
 }
 
@@ -654,7 +654,7 @@ void EditorPropertyDictionary::update_property() {
 
     edit->set_text("Dictionary (size " + itos(dict.size()) + ")");
 
-    bool unfolded = get_edited_object()->editor_is_section_unfolded(get_edited_property());
+    bool unfolded = get_edited_object()->get_tooling_interface()->editor_is_section_unfolded(get_edited_property());
     if (edit->is_pressed() != unfolded) {
         edit->set_pressed(unfolded);
     }
@@ -985,7 +985,7 @@ void EditorPropertyDictionary::_edit_pressed() {
         get_edited_object()->set(get_edited_property(), prop_val);
     }
 
-    get_edited_object()->editor_set_section_unfold(get_edited_property(), edit->is_pressed());
+    get_edited_object()->get_tooling_interface()->editor_set_section_unfold(get_edited_property(), edit->is_pressed());
     update_property();
 }
 

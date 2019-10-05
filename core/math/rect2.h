@@ -28,14 +28,13 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef RECT2_H
-#define RECT2_H
+#pragma once
 
 #include "core/math/vector2.h" // also includes math_funcs and ustring
 
 struct Transform2D;
 
-struct Rect2 {
+struct GODOT_EXPORT Rect2 {
 
 	Point2 position;
 	Size2 size;
@@ -379,12 +378,12 @@ struct Rect2i {
 	operator String() const;
 
 	operator Rect2() const { return Rect2(position, size); }
-	Rect2i(const Rect2 &p_r2) :
+    constexpr Rect2i(const Rect2 &p_r2) :
 			position(p_r2.position),
 			size(p_r2.size) {
 	}
-	Rect2i() = default;
-	Rect2i(int p_x, int p_y, int p_width, int p_height) :
+    constexpr Rect2i() = default;
+    constexpr Rect2i(int p_x, int p_y, int p_width, int p_height) :
 			position(p_x, p_y),
 			size(p_width, p_height) {
 	}
@@ -394,4 +393,3 @@ struct Rect2i {
 	}
 };
 
-#endif // RECT2_H

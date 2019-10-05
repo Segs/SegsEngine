@@ -68,10 +68,10 @@
 
 static void _debugger_get_resource_usage(ListPOD<ScriptDebuggerRemote::ResourceUsage> *r_usage) {
 
-    List<VS::TextureInfo> tinfo;
-    VS::get_singleton()->texture_debug_usage(&tinfo);
+    List<VisualServer::TextureInfo> tinfo;
+    VisualServer::get_singleton()->texture_debug_usage(&tinfo);
 
-    for (List<VS::TextureInfo>::Element *E = tinfo.front(); E; E = E->next()) {
+    for (List<VisualServer::TextureInfo>::Element *E = tinfo.front(); E; E = E->next()) {
 
         ScriptDebuggerRemote::ResourceUsage usage;
         usage.path = E->deref().path;

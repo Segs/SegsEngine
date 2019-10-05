@@ -39,7 +39,7 @@
 class Basis;
 class String;
 
-struct Vector3 {
+struct GODOT_EXPORT Vector3 {
 
     enum Axis {
         AXIS_X,

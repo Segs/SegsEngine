@@ -28,10 +28,9 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef GODOT_COLLISION_DISPATCHER_H
-#define GODOT_COLLISION_DISPATCHER_H
+#pragma once
 
-#include "core/int_types.h"
+#include <stdint.h>
 
 #include <btBulletDynamicsCommon.h>
 
@@ -49,4 +48,3 @@ public:
 	bool needsCollision(const btCollisionObject *body0, const btCollisionObject *body1) override;
 	bool needsResponse(const btCollisionObject *body0, const btCollisionObject *body1) override;
 };
-#endif

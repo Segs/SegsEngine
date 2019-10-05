@@ -879,9 +879,9 @@ Ref<Mesh> EditorSceneImporterAssimp::_generate_mesh_from_surface_indices(
                 }
 
             Array array_copy;
-            array_copy.resize(VisualServer::ARRAY_MAX);
+            array_copy.resize(VS::ARRAY_MAX);
 
-            for (int l = 0; l < VisualServer::ARRAY_MAX; l++) {
+            for (int l = 0; l < VS::ARRAY_MAX; l++) {
                 array_copy[l] = array_mesh[l].duplicate(true);
             }
 
@@ -895,14 +895,14 @@ Ref<Mesh> EditorSceneImporterAssimp::_generate_mesh_from_surface_indices(
                     Vector3 position = Vector3(ai_pos.x, ai_pos.y, ai_pos.z);
                     vertices.write()[l] = position;
                 }
-                PoolVector3Array new_vertices = array_copy[VisualServer::ARRAY_VERTEX].duplicate(true);
+                PoolVector3Array new_vertices = array_copy[VS::ARRAY_VERTEX].duplicate(true);
 
                 ERR_CONTINUE(vertices.size() != new_vertices.size());
                 for (int32_t l = 0; l < new_vertices.size(); l++) {
                     PoolVector3Array::Write w = new_vertices.write();
                     w[l] = vertices[l];
                 }
-                array_copy[VisualServer::ARRAY_VERTEX] = new_vertices;
+                array_copy[VS::ARRAY_VERTEX] = new_vertices;
             }
 
             int32_t color_set = 0;
@@ -914,14 +914,14 @@ Ref<Mesh> EditorSceneImporterAssimp::_generate_mesh_from_surface_indices(
                     Color color = Color(ai_color.r, ai_color.g, ai_color.b, ai_color.a);
                     colors.write()[l] = color;
                 }
-                PoolColorArray new_colors = array_copy[VisualServer::ARRAY_COLOR].duplicate(true);
+                PoolColorArray new_colors = array_copy[VS::ARRAY_COLOR].duplicate(true);
 
                 ERR_CONTINUE(colors.size() != new_colors.size());
                 for (int32_t l = 0; l < colors.size(); l++) {
                     PoolColorArray::Write w = new_colors.write();
                     w[l] = colors[l];
                 }
-                array_copy[VisualServer::ARRAY_COLOR] = new_colors;
+                array_copy[VS::ARRAY_COLOR] = new_colors;
             }
 
             if (ai_mesh->mAnimMeshes[j]->HasNormals()) {
@@ -932,14 +932,14 @@ Ref<Mesh> EditorSceneImporterAssimp::_generate_mesh_from_surface_indices(
                     Vector3 normal = Vector3(ai_normal.x, ai_normal.y, ai_normal.z);
                     normals.write()[l] = normal;
                 }
-                PoolVector3Array new_normals = array_copy[VisualServer::ARRAY_NORMAL].duplicate(true);
+                PoolVector3Array new_normals = array_copy[VS::ARRAY_NORMAL].duplicate(true);
 
                 ERR_CONTINUE(normals.size() != new_normals.size());
                 for (int l = 0; l < normals.size(); l++) {
                     PoolVector3Array::Write w = new_normals.write();
                     w[l] = normals[l];
                 }
-                array_copy[VisualServer::ARRAY_NORMAL] = new_normals;
+                array_copy[VS::ARRAY_NORMAL] = new_normals;
             }
 
             if (ai_mesh->mAnimMeshes[j]->HasTangentsAndBitangents()) {
@@ -949,7 +949,7 @@ Ref<Mesh> EditorSceneImporterAssimp::_generate_mesh_from_surface_indices(
                 for (size_t l = 0; l < num_vertices; l++) {
                     AssimpUtils::calc_tangent_from_mesh(ai_mesh, j, l, l, w);
                 }
-                PoolRealArray new_tangents = array_copy[VisualServer::ARRAY_TANGENT].duplicate(true);
+                PoolRealArray new_tangents = array_copy[VS::ARRAY_TANGENT].duplicate(true);
                 ERR_CONTINUE(new_tangents.size() != tangents.size() * 4);
                 for (int32_t l = 0; l < tangents.size(); l++) {
                     new_tangents.write()[l + 0] = tangents[l].r;
@@ -958,7 +958,7 @@ Ref<Mesh> EditorSceneImporterAssimp::_generate_mesh_from_surface_indices(
                     new_tangents.write()[l + 3] = tangents[l].a;
                 }
 
-                array_copy[VisualServer::ARRAY_TANGENT] = new_tangents;
+                array_copy[VS::ARRAY_TANGENT] = new_tangents;
             }
 
             morphs[j] = array_copy;

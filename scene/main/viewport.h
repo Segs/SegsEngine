@@ -43,6 +43,7 @@ class Control;
 class CanvasItem;
 class CanvasLayer;
 class Panel;
+class World;
 class Label;
 class Timer;
 class Viewport;
@@ -523,10 +524,3 @@ public:
 
 void register_viewport_local_classes();
 
-VARIANT_ENUM_CAST(Viewport::UpdateMode);
-VARIANT_ENUM_CAST(Viewport::ShadowAtlasQuadrantSubdiv);
-VARIANT_ENUM_CAST(Viewport::MSAA);
-VARIANT_ENUM_CAST(Viewport::Usage);
-VARIANT_ENUM_CAST(Viewport::DebugDraw);
-VARIANT_ENUM_CAST(Viewport::ClearMode);
-VARIANT_ENUM_CAST(Viewport::RenderInfo);

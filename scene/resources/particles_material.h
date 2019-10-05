@@ -305,7 +305,3 @@ public:
     ParticlesMaterial();
     ~ParticlesMaterial() override;
 };
-
-VARIANT_ENUM_CAST(ParticlesMaterial::Parameter)
-VARIANT_ENUM_CAST(ParticlesMaterial::Flags)
-VARIANT_ENUM_CAST(ParticlesMaterial::EmissionShape)

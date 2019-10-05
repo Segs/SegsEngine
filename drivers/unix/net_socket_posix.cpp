@@ -142,16 +142,16 @@ void NetSocketPosix::_set_ip_port(struct sockaddr_storage *p_addr, IP_Address &r
         r_ip.set_ipv6(addr6->sin6_addr.s6_addr);
 
         r_port = ntohs(addr6->sin6_port);
-    };
+    }
 }
 
 NetSocket *NetSocketPosix::_create_func() {
     return memnew(NetSocketPosix);
 }
 
-void NetSocketPosix::make_default() {
+GODOT_EXPORT void NetSocketPosix::make_default() {
 #if defined(WINDOWS_ENABLED)
-    if (_create == NULL) {
+    if (_create == nullptr) {
         WSADATA data;
         WSAStartup(MAKEWORD(2, 2), &data);
     }
@@ -159,12 +159,12 @@ void NetSocketPosix::make_default() {
     _create = _create_func;
 }
 
-void NetSocketPosix::cleanup() {
+GODOT_EXPORT void NetSocketPosix::cleanup() {
 #if defined(WINDOWS_ENABLED)
-    if (_create != NULL) {
+    if (_create != nullptr) {
         WSACleanup();
     }
-    _create = NULL;
+    _create = nullptr;
 #endif
 }
 

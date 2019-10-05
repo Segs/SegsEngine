@@ -90,19 +90,17 @@ void Transform::set_look_at(const Vector3 &p_eye, const Vector3 &p_target, const
     ERR_FAIL_COND(p_eye == p_target)
     ERR_FAIL_COND(p_up.length() == 0.0f)
 #endif
-    // Reference: MESA source code
-    Vector3 v_x, v_y, v_z;
 
     /* Make rotation matrix */
 
     /* Z vector */
-    v_z = p_eye - p_target;
+    Vector3 v_z = p_eye - p_target;
 
     v_z.normalize();
 
-    v_y = p_up;
+    Vector3 v_y = p_up;
 
-    v_x = v_y.cross(v_z);
+    Vector3 v_x = v_y.cross(v_z);
 #ifdef MATH_CHECKS
     ERR_FAIL_COND(v_x.length() == 0.0f)
 #endif
@@ -209,11 +207,6 @@ Transform Transform::operator*(const Transform &p_transform) const {
 Transform::operator String() const {
 
     return basis.operator String() + " - " + origin.operator String();
-}
-
-Transform::Transform(const Basis &p_basis, const Vector3 &p_origin) :
-        basis(p_basis),
-        origin(p_origin) {
 }
 
 Transform::Transform(real_t xx, real_t xy, real_t xz, real_t yx, real_t yy, real_t yz, real_t zx, real_t zy, real_t zz, real_t ox, real_t oy, real_t oz) {

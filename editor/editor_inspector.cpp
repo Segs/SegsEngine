@@ -1052,11 +1052,8 @@ void EditorInspectorSection::_notification(int p_what) {
         Ref<Texture> arrow;
 
         if (foldable) {
-            if (object->editor_is_section_unfolded(section)) {
-                arrow = get_icon("arrow", "Tree");
-            } else {
-                arrow = get_icon("arrow_collapsed", "Tree");
-            }
+            bool unfolded=object->get_tooling_interface()->editor_is_section_unfolded(section);
+            arrow = get_icon(unfolded ? StringName("arrow") : StringName("arrow_collapsed"), "Tree");
         }
 
         Size2 size = get_size();
@@ -1093,11 +1090,8 @@ void EditorInspectorSection::_notification(int p_what) {
         Ref<Texture> arrow;
 
         if (foldable) {
-            if (object->editor_is_section_unfolded(section)) {
-                arrow = get_icon("arrow", "Tree");
-            } else {
-                arrow = get_icon("arrow_collapsed", "Tree");
-            }
+            bool unfolded=object->get_tooling_interface()->editor_is_section_unfolded(section);
+            arrow = get_icon(unfolded ? StringName("arrow") : StringName("arrow_collapsed"), "Tree");
         }
 
         Ref<Font> font = get_font("font", "Tree");
@@ -1160,7 +1154,7 @@ void EditorInspectorSection::setup(const String &p_section, const String &p_labe
 
     if (foldable) {
         _test_unfold();
-        if (object->editor_is_section_unfolded(section)) {
+        if (object->get_tooling_interface()->editor_is_section_unfolded(section)) {
             vbox->show();
         } else {
             vbox->hide();
@@ -1183,8 +1177,8 @@ void EditorInspectorSection::_gui_input(const Ref<InputEvent> &p_event) {
 
         _test_unfold();
 
-        bool unfold = !object->editor_is_section_unfolded(section);
-        object->editor_set_section_unfold(section, unfold);
+        bool unfold = !object->get_tooling_interface()->editor_is_section_unfolded(section);
+        object->get_tooling_interface()->editor_set_section_unfold(section, unfold);
         if (unfold) {
             vbox->show();
         } else {
@@ -1204,7 +1198,7 @@ void EditorInspectorSection::unfold() {
 
     _test_unfold();
 
-    object->editor_set_section_unfold(section, true);
+    object->get_tooling_interface()->editor_set_section_unfold(section, true);
     vbox->show();
     update();
 }
@@ -1216,7 +1210,7 @@ void EditorInspectorSection::fold() {
     if (!vbox_added)
         return; //kinda pointless
 
-    object->editor_set_section_unfold(section, false);
+    object->get_tooling_interface()->editor_set_section_unfold(section, false);
     vbox->hide();
     update();
 }
@@ -1542,7 +1536,7 @@ void EditorInspector::update_tree() {
         } else if (!(p.usage & PROPERTY_USAGE_EDITOR) || _is_property_disabled_by_feature_profile(p.name))
             continue;
 
-        if (p.usage & PROPERTY_USAGE_HIGH_END_GFX && VS::get_singleton()->is_low_end())
+        if (p.usage & PROPERTY_USAGE_HIGH_END_GFX && VisualServer::get_singleton()->is_low_end())
             continue; //do not show this property in low end gfx
 
         if (p.name == "script" && (hide_script || bool(object->call("_hide_script_from_inspector")))) {

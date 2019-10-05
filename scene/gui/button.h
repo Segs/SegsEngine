@@ -85,4 +85,3 @@ public:
 	~Button() override;
 };
 
-VARIANT_ENUM_CAST(Button::TextAlign);

@@ -35,6 +35,9 @@
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(Tween)
+VARIANT_ENUM_CAST(Tween::TweenProcessMode);
+VARIANT_ENUM_CAST(Tween::TransitionType);
+VARIANT_ENUM_CAST(Tween::EaseType);
 
 void Tween::_add_pending_command(StringName p_key, const Variant &p_arg1, const Variant &p_arg2, const Variant &p_arg3, const Variant &p_arg4, const Variant &p_arg5, const Variant &p_arg6, const Variant &p_arg7, const Variant &p_arg8, const Variant &p_arg9, const Variant &p_arg10) {
 

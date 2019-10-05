@@ -37,6 +37,7 @@
 #include "core/project_settings.h"
 #include "scene/3d/physics_body.h"
 #include "scene/resources/surface_tool.h"
+#include "scene/resources/material.h"
 
 IMPL_GDCLASS(Skeleton)
 IMPL_GDCLASS(SkinReference)
@@ -65,7 +66,7 @@ SkinReference::~SkinReference() {
         skeleton_node->skin_bindings.erase(this);
     }
 
-    VS::get_singleton()->free(skeleton);
+    VisualServer::get_singleton()->free(skeleton);
 }
 bool Skeleton::_set(const StringName &p_path, const Variant &p_value) {
 
@@ -325,7 +326,7 @@ void Skeleton::_notification(int p_what) {
                 uint32_t bind_count = skin->get_bind_count();
 
                 if (E->bind_count != bind_count) {
-                    VS::get_singleton()->skeleton_allocate(skeleton, bind_count);
+                    VisualServer::get_singleton()->skeleton_allocate(skeleton, bind_count);
                     E->bind_count = bind_count;
                 }
 

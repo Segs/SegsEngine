@@ -238,6 +238,20 @@ private:
 class ScriptInstance;
 using ObjectID = uint64_t;
 
+class GODOT_EXPORT IObjectTooling {
+public:
+    virtual void set_edited(bool p_edited,bool increment_version=true)=0;
+    virtual bool is_edited() const = 0;
+    //! this function is used to check when something changed beyond a point, it's used mainly for generating previews
+    virtual uint32_t get_edited_version() const =0;
+
+    virtual void editor_set_section_unfold(const String &p_section, bool p_unfolded)=0;
+    virtual bool editor_is_section_unfolded(const String &p_section) const = 0;
+    virtual const Set<String> &editor_get_section_folding() const =0;
+    virtual void editor_clear_section_folding()=0;
+    virtual ~IObjectTooling() = default;
+};
+
 class GODOT_EXPORT Object {
 public:
 
@@ -264,8 +278,8 @@ private:
 #ifdef DEBUG_ENABLED
     friend struct _ObjectDebugLock;
 #endif
-    friend bool predelete_handler(Object *);
-    friend void postinitialize_handler(Object *);
+    friend bool GODOT_EXPORT predelete_handler(Object *);
+    friend void GODOT_EXPORT postinitialize_handler(Object *);
 
     struct Signal;
     struct ObjectPrivate;
@@ -278,9 +292,6 @@ private:
     mutable StringName _class_name;
     mutable const StringName *_class_ptr;
 
-#ifdef DEBUG_ENABLED
-    SafeRefCount _lock_index;
-#endif
     uint32_t instance_binding_count;
     int _predelete_ok;
     bool _block_signals;
@@ -366,7 +377,7 @@ public:
 #ifdef TOOLS_ENABLED
     void _change_notify(const char *p_property = "");
 #else
-    _FORCE_INLINE_ void _change_notify(const char *p_what = "") {}
+    void _change_notify(const char *p_what = "") {}
 #endif
     static void *get_class_ptr_static() {
         static int ptr;
@@ -483,17 +494,7 @@ public:
     Variant get_meta(const String &p_name) const;
     void get_meta_list(ListPOD<String> *p_list) const;
 
-#ifdef TOOLS_ENABLED
-    void set_edited(bool p_edited);
-    bool is_edited() const;
-    uint32_t get_edited_version() const; //this function is used to check when something changed beyond a point, it's used mainly for generating previews
-
-    void editor_set_section_unfold(const String &p_section, bool p_unfolded);
-    bool editor_is_section_unfolded(const String &p_section);
-    const Set<String> &editor_get_section_folding() const;
-    void editor_clear_section_folding();
-
-#endif
+    IObjectTooling *get_tooling_interface() const;
 
     void set_script_instance(ScriptInstance *p_instance);
     _FORCE_INLINE_ ScriptInstance *get_script_instance() const { return script_instance; }
@@ -547,6 +548,7 @@ public:
     void operator=(const Object &/*p_rval*/) = delete;                                                                                 \
     Object(const Object &) = delete;
 };
+
 namespace ObjectNS
 {
     enum ConnectFlags : uint8_t {
@@ -562,5 +564,5 @@ namespace ObjectNS
     }
 } // end of ObjectNS namespace
 
-bool predelete_handler(Object *p_object);
-void postinitialize_handler(Object *p_object);
+bool GODOT_EXPORT predelete_handler(Object *p_object);
+void GODOT_EXPORT postinitialize_handler(Object *p_object);

@@ -876,7 +876,7 @@ void SpaceBullet::update_gravity() {
 /// Debug motion and normal vector drawing
 #define debug_test_motion 0
 
-#define RECOVERING_MOVEMENT_SCALE 0.4
+#define RECOVERING_MOVEMENT_SCALE 0.4f
 #define RECOVERING_MOVEMENT_CYCLES 4
 
 #if debug_test_motion

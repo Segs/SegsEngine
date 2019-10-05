@@ -30,17 +30,17 @@
 
 #pragma once
 
-#include "typedefs.h"
+#include "core/typedefs.h"
 
 class StringName;
 class String;
 template <class T>
 class Vector;
 
-class NodePath {
+class GODOT_EXPORT NodePath {
 
 
-	mutable class Data *data=nullptr;
+    mutable struct Data *data=nullptr;
     mutable bool hash_cache_valid=false;
     mutable uint32_t hash_cache;
 

@@ -107,6 +107,5 @@ public:
 	VisibilityEnabler2D();
 };
 
-VARIANT_ENUM_CAST(VisibilityEnabler2D::Enabler);
 
 #endif // VISIBILITY_NOTIFIER_2D_H

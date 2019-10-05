@@ -91,6 +91,5 @@ public:
 	CollisionPolygon2D();
 };
 
-VARIANT_ENUM_CAST(CollisionPolygon2D::BuildMode);
 
 #endif // COLLISION_POLYGON_2D_H

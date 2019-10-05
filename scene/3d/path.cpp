@@ -36,6 +36,7 @@
 
 IMPL_GDCLASS(Path)
 IMPL_GDCLASS(PathFollow)
+VARIANT_ENUM_CAST(PathFollow::RotationMode);
 
 void Path::_notification(int p_what) {
 }

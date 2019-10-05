@@ -38,8 +38,10 @@
 #include "core/os/keyboard.h"
 #include "core/os/os.h"
 #include "core/print_string.h"
+#include "core/io/multiplayer_api.h"
 #include "core/project_settings.h"
 #include "core/method_bind.h"
+#include "core/script_language.h"
 #include "main/input_default.h"
 #include "node.h"
 #include "scene/resources/dynamic_font.h"
@@ -55,6 +57,396 @@
 
 IMPL_GDCLASS(SceneTreeTimer)
 IMPL_GDCLASS(SceneTree)
+
+VARIANT_ENUM_CAST(SceneTree::StretchMode);
+VARIANT_ENUM_CAST(SceneTree::StretchAspect);
+VARIANT_ENUM_CAST(SceneTree::GroupCallFlags);
+
+struct SceneTree::DebugData {
+    SceneTree *m_parent;
+    Map<int, NodePath> live_edit_node_path_cache;
+    Map<int, String> live_edit_resource_cache;
+
+    NodePath live_edit_root;
+    String live_edit_scene;
+
+    Map<String, Set<Node *>> live_scene_edit_cache;
+    Map<Node *, Map<ObjectID, Node *>> live_edit_remove_list;
+
+    ScriptDebugger::LiveEditFuncs live_edit_funcs;
+
+    DebugData(SceneTree *p) : m_parent(p) {
+#ifdef DEBUG_ENABLED
+
+        live_edit_funcs.udata = this;
+        live_edit_funcs.node_path_func = _live_edit_node_path_funcs;
+        live_edit_funcs.res_path_func = _live_edit_res_path_funcs;
+        live_edit_funcs.node_set_func = _live_edit_node_set_funcs;
+        live_edit_funcs.node_set_res_func = _live_edit_node_set_res_funcs;
+        live_edit_funcs.node_call_func = _live_edit_node_call_funcs;
+        live_edit_funcs.res_set_func = _live_edit_res_set_funcs;
+        live_edit_funcs.res_set_res_func = _live_edit_res_set_res_funcs;
+        live_edit_funcs.res_call_func = _live_edit_res_call_funcs;
+        live_edit_funcs.root_func = _live_edit_root_funcs;
+
+        live_edit_funcs.tree_create_node_func = _live_edit_create_node_funcs;
+        live_edit_funcs.tree_instance_node_func = _live_edit_instance_node_funcs;
+        live_edit_funcs.tree_remove_node_func = _live_edit_remove_node_funcs;
+        live_edit_funcs.tree_remove_and_keep_node_func = _live_edit_remove_and_keep_node_funcs;
+        live_edit_funcs.tree_restore_node_func = _live_edit_restore_node_funcs;
+        live_edit_funcs.tree_duplicate_node_func = _live_edit_duplicate_node_funcs;
+        live_edit_funcs.tree_reparent_node_func = _live_edit_reparent_node_funcs;
+
+        if (ScriptDebugger::get_singleton()) {
+            ScriptDebugger::get_singleton()->set_live_edit_funcs(&live_edit_funcs);
+        }
+
+        live_edit_root = NodePath("/root");
+
+#endif
+    }
+
+    static void _live_edit_node_path_funcs(void *self, const NodePath &p_path, int p_id) {
+        reinterpret_cast<DebugData *>(self)->_live_edit_node_path_func(p_path, p_id);
+    }
+    static void _live_edit_res_path_funcs(void *self, const String &p_path, int p_id) {
+        reinterpret_cast<DebugData *>(self)->_live_edit_res_path_func(p_path, p_id);
+    }
+
+    static void _live_edit_node_set_funcs(void *self, int p_id, const StringName &p_prop, const Variant &p_value) {
+        reinterpret_cast<DebugData *>(self)->_live_edit_node_set_func(p_id, p_prop, p_value);
+    }
+    static void _live_edit_node_set_res_funcs(void *self, int p_id, const StringName &p_prop, const String &p_value) {
+        reinterpret_cast<DebugData *>(self)->_live_edit_node_set_res_func(p_id, p_prop, p_value);
+    }
+    static void _live_edit_node_call_funcs(void *self, int p_id, const StringName &p_method, VARIANT_ARG_DECLARE) {
+        reinterpret_cast<DebugData *>(self)->_live_edit_node_call_func(p_id, p_method, VARIANT_ARG_PASS);
+    }
+    static void _live_edit_res_set_funcs(void *self, int p_id, const StringName &p_prop, const Variant &p_value) {
+        reinterpret_cast<DebugData *>(self)->_live_edit_res_set_func(p_id, p_prop, p_value);
+    }
+    static void _live_edit_res_set_res_funcs(void *self, int p_id, const StringName &p_prop, const String &p_value) {
+        reinterpret_cast<DebugData *>(self)->_live_edit_res_set_res_func(p_id, p_prop, p_value);
+    }
+    static void _live_edit_res_call_funcs(void *self, int p_id, const StringName &p_method, VARIANT_ARG_DECLARE) {
+        reinterpret_cast<DebugData *>(self)->_live_edit_res_call_func(p_id, p_method, VARIANT_ARG_PASS);
+    }
+    static void _live_edit_root_funcs(void *self, const NodePath &p_scene_path, const String &p_scene_from) {
+        reinterpret_cast<DebugData *>(self)->_live_edit_root_func(p_scene_path, p_scene_from);
+    }
+
+    static void _live_edit_create_node_funcs(
+            void *self, const NodePath &p_parent, const String &p_type, const String &p_name) {
+        reinterpret_cast<DebugData *>(self)->_live_edit_create_node_func(p_parent, p_type, p_name);
+    }
+    static void _live_edit_instance_node_funcs(
+            void *self, const NodePath &p_parent, const String &p_path, const String &p_name) {
+        reinterpret_cast<DebugData *>(self)->_live_edit_instance_node_func(p_parent, p_path, p_name);
+    }
+    static void _live_edit_remove_node_funcs(void *self, const NodePath &p_at) {
+        reinterpret_cast<DebugData *>(self)->_live_edit_remove_node_func(p_at);
+    }
+    static void _live_edit_remove_and_keep_node_funcs(void *self, const NodePath &p_at, ObjectID p_keep_id) {
+        reinterpret_cast<DebugData *>(self)->_live_edit_remove_and_keep_node_func(p_at, p_keep_id);
+    }
+    static void _live_edit_restore_node_funcs(void *self, ObjectID p_id, const NodePath &p_at, int p_at_pos) {
+        reinterpret_cast<DebugData *>(self)->_live_edit_restore_node_func(p_id, p_at, p_at_pos);
+    }
+    static void _live_edit_duplicate_node_funcs(void *self, const NodePath &p_at, const String &p_new_name) {
+        reinterpret_cast<DebugData *>(self)->_live_edit_duplicate_node_func(p_at, p_new_name);
+    }
+    static void _live_edit_reparent_node_funcs(
+            void *self, const NodePath &p_at, const NodePath &p_new_place, const String &p_new_name, int p_at_pos) {
+        reinterpret_cast<DebugData *>(self)->_live_edit_reparent_node_func(p_at, p_new_place, p_new_name, p_at_pos);
+    }
+#ifdef DEBUG_ENABLED
+
+    void _live_edit_node_path_func(const NodePath &p_path, int p_id) { live_edit_node_path_cache[p_id] = p_path; }
+
+    void _live_edit_res_path_func(const String &p_path, int p_id) { live_edit_resource_cache[p_id] = p_path; }
+
+    void _live_edit_node_set_func(int p_id, const StringName &p_prop, const Variant &p_value) {
+
+        if (!live_edit_node_path_cache.contains(p_id)) return;
+
+        NodePath np = live_edit_node_path_cache[p_id];
+        Node *base = nullptr;
+        if (m_parent->get_root()->has_node(live_edit_root)) base = m_parent->get_root()->get_node(live_edit_root);
+
+        Map<String, Set<Node *>>::iterator E = live_scene_edit_cache.find(live_edit_scene);
+        if (E == live_scene_edit_cache.end()) return; // scene not editable
+
+        for (Node *n : E->second) {
+
+            if (base && !base->is_a_parent_of(n)) continue;
+
+            if (!n->has_node(np)) continue;
+            Node *n2 = n->get_node(np);
+
+            n2->set(p_prop, p_value);
+        }
+    }
+
+    void _live_edit_node_set_res_func(int p_id, const StringName &p_prop, const String &p_value) {
+
+        RES r(ResourceLoader::load(p_value));
+        if (not r) return;
+        _live_edit_node_set_func(p_id, p_prop, r);
+    }
+    void _live_edit_node_call_func(int p_id, const StringName &p_method, VARIANT_ARG_DECLARE) {
+
+        if (!live_edit_node_path_cache.contains(p_id)) return;
+
+        NodePath np = live_edit_node_path_cache[p_id];
+        Node *base = nullptr;
+        if (m_parent->get_root()->has_node(live_edit_root)) base = m_parent->get_root()->get_node(live_edit_root);
+
+        Map<String, Set<Node *>>::iterator E = live_scene_edit_cache.find(live_edit_scene);
+        if (E == live_scene_edit_cache.end()) return; // scene not editable
+
+        for (Node *n : E->second) {
+
+            if (base && !base->is_a_parent_of(n)) continue;
+
+            if (!n->has_node(np)) continue;
+            Node *n2 = n->get_node(np);
+
+            n2->call(p_method, VARIANT_ARG_PASS);
+        }
+    }
+    void _live_edit_res_set_func(int p_id, const StringName &p_prop, const Variant &p_value) {
+
+        if (!live_edit_resource_cache.contains(p_id)) return;
+
+        String resp = live_edit_resource_cache[p_id];
+
+        if (!ResourceCache::has(resp)) return;
+
+        RES r(ResourceCache::get(resp));
+        if (not r) return;
+
+        r->set(p_prop, p_value);
+    }
+    void _live_edit_res_set_res_func(int p_id, const StringName &p_prop, const String &p_value) {
+
+        RES r(ResourceLoader::load(p_value));
+        if (not r) return;
+        _live_edit_res_set_func(p_id, p_prop, r);
+    }
+    void _live_edit_res_call_func(int p_id, const StringName &p_method, VARIANT_ARG_DECLARE) {
+
+        if (!live_edit_resource_cache.contains(p_id)) return;
+
+        String resp = live_edit_resource_cache[p_id];
+
+        if (!ResourceCache::has(resp)) return;
+
+        RES r(ResourceCache::get(resp));
+        if (not r) return;
+
+        r->call(p_method, VARIANT_ARG_PASS);
+    }
+
+    void _live_edit_root_func(const NodePath &p_scene_path, const String &p_scene_from) {
+
+        live_edit_root = p_scene_path;
+        live_edit_scene = p_scene_from;
+    }
+
+    void _live_edit_create_node_func(const NodePath &p_parent, const String &p_type, const String &p_name) {
+
+        Node *base = nullptr;
+        if (m_parent->get_root()->has_node(live_edit_root)) base = m_parent->get_root()->get_node(live_edit_root);
+
+        Map<String, Set<Node *>>::iterator E = live_scene_edit_cache.find(live_edit_scene);
+        if (E == live_scene_edit_cache.end()) return; // scene not editable
+
+        for (Node *n : E->second) {
+
+            if (base && !base->is_a_parent_of(n)) continue;
+
+            if (!n->has_node(p_parent)) continue;
+            Node *n2 = n->get_node(p_parent);
+
+            Node *no = Object::cast_to<Node>(ClassDB::instance(p_type));
+            if (!no) {
+                continue;
+            }
+
+            no->set_name(p_name);
+            n2->add_child(no);
+        }
+    }
+    void _live_edit_instance_node_func(const NodePath &p_parent, const String &p_path, const String &p_name) {
+
+        Ref<PackedScene> ps = dynamic_ref_cast<PackedScene>(ResourceLoader::load(p_path));
+
+        if (not ps) return;
+
+        Node *base = nullptr;
+        if (m_parent->get_root()->has_node(live_edit_root)) base = m_parent->get_root()->get_node(live_edit_root);
+
+        Map<String, Set<Node *>>::iterator E = live_scene_edit_cache.find(live_edit_scene);
+        if (E == live_scene_edit_cache.end()) return; // scene not editable
+
+        for (Node *n : E->second) {
+
+            if (base && !base->is_a_parent_of(n)) continue;
+
+            if (!n->has_node(p_parent)) continue;
+            Node *n2 = n->get_node(p_parent);
+
+            Node *no = ps->instance();
+            if (!no) {
+                continue;
+            }
+
+            no->set_name(p_name);
+            n2->add_child(no);
+        }
+    }
+    void _live_edit_remove_node_func(const NodePath &p_at) {
+
+        Node *base = nullptr;
+        if (m_parent->get_root()->has_node(live_edit_root)) base = m_parent->get_root()->get_node(live_edit_root);
+
+        Map<String, Set<Node *>>::iterator E = live_scene_edit_cache.find(live_edit_scene);
+        if (E == live_scene_edit_cache.end()) return; // scene not editable
+
+        for (Set<Node *>::iterator F = E->second.begin(); F != E->second.end();) {
+
+            Set<Node *>::iterator N = F;
+            N++;
+
+            Node *n = *F;
+
+            if (base && !base->is_a_parent_of(n)) continue;
+
+            if (!n->has_node(p_at)) continue;
+            Node *n2 = n->get_node(p_at);
+
+            memdelete(n2);
+
+            F = N;
+        }
+    }
+    void _live_edit_remove_and_keep_node_func(const NodePath &p_at, ObjectID p_keep_id) {
+
+        Node *base = nullptr;
+        if (m_parent->get_root()->has_node(live_edit_root)) base = m_parent->get_root()->get_node(live_edit_root);
+
+        Map<String, Set<Node *>>::iterator E = live_scene_edit_cache.find(live_edit_scene);
+        if (E == live_scene_edit_cache.end()) return; // scene not editable
+
+        for (Set<Node *>::iterator F = E->second.begin(); F != E->second.end();) {
+
+            Set<Node *>::iterator N = F;
+            N++;
+            Node *n = *F;
+
+            if (base && !base->is_a_parent_of(n)) continue;
+
+            if (!n->has_node(p_at)) continue;
+
+            Node *n2 = n->get_node(p_at);
+
+            n2->get_parent()->remove_child(n2);
+
+            live_edit_remove_list[n][p_keep_id] = n2;
+
+            F = N;
+        }
+    }
+    void _live_edit_restore_node_func(ObjectID p_id, const NodePath &p_at, int p_at_pos) {
+
+        Node *base = nullptr;
+        if (m_parent->get_root()->has_node(live_edit_root)) base = m_parent->get_root()->get_node(live_edit_root);
+
+        Map<String, Set<Node *>>::iterator E = live_scene_edit_cache.find(live_edit_scene);
+        if (E == live_scene_edit_cache.end()) return; // scene not editable
+
+        for (Set<Node *>::iterator F = E->second.begin(); F != E->second.end();) {
+
+            Set<Node *>::iterator N = F;
+            N++;
+
+            Node *n = *F;
+
+            if (base && !base->is_a_parent_of(n)) continue;
+
+            if (!n->has_node(p_at)) continue;
+            Node *n2 = n->get_node(p_at);
+
+            Map<Node *, Map<ObjectID, Node *>>::iterator EN = live_edit_remove_list.find(n);
+
+            if (EN == live_edit_remove_list.end()) continue;
+
+            Map<ObjectID, Node *>::iterator FN = EN->second.find(p_id);
+
+            if (FN == EN->second.end()) continue;
+            n2->add_child(FN->second);
+
+            EN->second.erase(FN);
+
+            if (EN->second.empty()) {
+                live_edit_remove_list.erase(EN);
+            }
+
+            F = N;
+        }
+    }
+    void _live_edit_duplicate_node_func(const NodePath &p_at, const String &p_new_name) {
+
+        Node *base = nullptr;
+        if (m_parent->get_root()->has_node(live_edit_root)) base = m_parent->get_root()->get_node(live_edit_root);
+
+        Map<String, Set<Node *>>::iterator E = live_scene_edit_cache.find(live_edit_scene);
+        if (E == live_scene_edit_cache.end()) return; // scene not editable
+
+        for (Node *n : E->second) {
+
+            if (base && !base->is_a_parent_of(n)) continue;
+
+            if (!n->has_node(p_at)) continue;
+            Node *n2 = n->get_node(p_at);
+
+            Node *dup = n2->duplicate(Node::DUPLICATE_SIGNALS | Node::DUPLICATE_GROUPS | Node::DUPLICATE_SCRIPTS);
+
+            if (!dup) continue;
+
+            dup->set_name(p_new_name);
+            n2->get_parent()->add_child(dup);
+        }
+    }
+    void _live_edit_reparent_node_func(
+            const NodePath &p_at, const NodePath &p_new_place, const String &p_new_name, int p_at_pos) {
+
+        Node *base = nullptr;
+        if (m_parent->get_root()->has_node(live_edit_root)) base = m_parent->get_root()->get_node(live_edit_root);
+
+        Map<String, Set<Node *>>::iterator E = live_scene_edit_cache.find(live_edit_scene);
+        if (E == live_scene_edit_cache.end()) return; // scene not editable
+
+        for (Node *n : E->second) {
+
+            if (base && !base->is_a_parent_of(n)) continue;
+
+            if (!n->has_node(p_at)) continue;
+            Node *nfrom = n->get_node(p_at);
+
+            if (!n->has_node(p_new_place)) continue;
+            Node *nto = n->get_node(p_new_place);
+
+            nfrom->get_parent()->remove_child(nfrom);
+            nfrom->set_name(p_new_name);
+
+            nto->add_child(nfrom);
+            if (p_at_pos >= 0) nto->move_child(nfrom, p_at_pos);
+        }
+    }
+
+#endif
+};
 
 void SceneTreeTimer::_bind_methods() {
 
@@ -94,7 +486,13 @@ void SceneTree::tree_changed() {
     tree_version++;
     emit_signal(tree_changed_name);
 }
-
+Map<String, Set<Node *>> &SceneTree::get_live_scene_edit_cache()
+{
+    return m_debug_data->live_scene_edit_cache;
+}
+Map<Node *, Map<ObjectID, Node *>> &SceneTree::get_live_edit_remove_list() {
+    return m_debug_data->live_edit_remove_list;
+}
 void SceneTree::node_added(Node *p_node) {
 
     emit_signal(node_added_name, Variant(p_node));
@@ -115,11 +513,11 @@ void SceneTree::node_renamed(Node *p_node) {
     emit_signal(node_renamed_name, Variant(p_node));
 }
 
-SceneTree::Group *SceneTree::add_to_group(const StringName &p_group, Node *p_node) {
+SceneTreeGroup *SceneTree::add_to_group(const StringName &p_group, Node *p_node) {
 
-    Map<StringName, Group>::iterator E = group_map.find(p_group);
+    Map<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
     if (E==group_map.end()) {
-        E = group_map.emplace(p_group, Group()).first;
+        E = group_map.emplace(p_group, SceneTreeGroup()).first;
     }
 
     ERR_FAIL_COND_V_MSG(E->second.nodes.find(p_node) != -1, &E->second, "Already in group: " + p_group + ".")
@@ -131,7 +529,7 @@ SceneTree::Group *SceneTree::add_to_group(const StringName &p_group, Node *p_nod
 
 void SceneTree::remove_from_group(const StringName &p_group, Node *p_node) {
 
-    Map<StringName, Group>::iterator E = group_map.find(p_group);
+    Map<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
     ERR_FAIL_COND(E==group_map.end())
 
     E->second.nodes.erase(p_node);
@@ -140,7 +538,7 @@ void SceneTree::remove_from_group(const StringName &p_group, Node *p_node) {
 }
 
 void SceneTree::make_group_changed(const StringName &p_group) {
-    Map<StringName, Group>::iterator E = group_map.find(p_group);
+    Map<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
     if (E!=group_map.end())
         E->second.changed = true;
 }
@@ -178,7 +576,7 @@ void SceneTree::_flush_ugc() {
     ugc_locked = false;
 }
 
-void SceneTree::_update_group_order(Group &g, bool p_use_priority) {
+void SceneTree::_update_group_order(SceneTreeGroup &g, bool p_use_priority) {
 
     if (!g.changed)
         return;
@@ -200,10 +598,10 @@ void SceneTree::_update_group_order(Group &g, bool p_use_priority) {
 
 void SceneTree::call_group_flags(uint32_t p_call_flags, const StringName &p_group, const StringName &p_function, VARIANT_ARG_DECLARE) {
 
-    Map<StringName, Group>::iterator E = group_map.find(p_group);
+    Map<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
     if (E==group_map.end())
         return;
-    Group &g = E->second;
+    SceneTreeGroup &g = E->second;
     if (g.nodes.empty())
         return;
 
@@ -279,10 +677,10 @@ void SceneTree::call_group_flags(uint32_t p_call_flags, const StringName &p_grou
 
 void SceneTree::notify_group_flags(uint32_t p_call_flags, const StringName &p_group, int p_notification) {
 
-    Map<StringName, Group>::iterator E = group_map.find(p_group);
+    Map<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
     if (E==group_map.end())
         return;
-    Group &g = E->second;
+    SceneTreeGroup &g = E->second;
     if (g.nodes.empty())
         return;
 
@@ -328,10 +726,10 @@ void SceneTree::notify_group_flags(uint32_t p_call_flags, const StringName &p_gr
 
 void SceneTree::set_group_flags(uint32_t p_call_flags, const StringName &p_group, const String &p_name, const Variant &p_value) {
 
-    Map<StringName, Group>::iterator E = group_map.find(p_group);
+    Map<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
     if (E==group_map.end())
         return;
-    Group &g = E->second;
+    SceneTreeGroup &g = E->second;
     if (g.nodes.empty())
         return;
 
@@ -499,7 +897,7 @@ bool SceneTree::idle(float p_time) {
 
     //print_line("ram: "+itos(OS::get_singleton()->get_static_memory_usage())+" sram: "+itos(OS::get_singleton()->get_dynamic_memory_usage()));
     //print_line("node count: "+itos(get_node_count()));
-    //print_line("TEXTURE RAM: "+itos(VS::get_singleton()->get_render_info(VS::INFO_TEXTURE_MEM_USED)));
+    //print_line("TEXTURE RAM: "+itos(VisualServer::get_singleton()->get_render_info(VS::INFO_TEXTURE_MEM_USED)));
 
     root_lock++;
 
@@ -565,6 +963,8 @@ bool SceneTree::idle(float p_time) {
         }
         E = N;
     }
+
+    flush_transform_notifications(); //additional transforms after timers update
 
     _call_idle_callbacks();
 
@@ -888,10 +1288,10 @@ bool SceneTree::is_paused() const {
 
 void SceneTree::_call_input_pause(const StringName &p_group, const StringName &p_method, const Ref<InputEvent> &p_input) {
 
-    Map<StringName, Group>::iterator E = group_map.find(p_group);
+    Map<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
     if (E==group_map.end())
         return;
-    Group &g = E->second;
+    SceneTreeGroup &g = E->second;
     if (g.nodes.empty())
         return;
 
@@ -932,10 +1332,10 @@ void SceneTree::_call_input_pause(const StringName &p_group, const StringName &p
 
 void SceneTree::_notify_group_pause(const StringName &p_group, int p_notification) {
 
-    Map<StringName, Group>::iterator E = group_map.find(p_group);
+    Map<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
     if (E==group_map.end())
         return;
-    Group &g = E->second;
+    SceneTreeGroup &g = E->second;
     if (g.nodes.empty())
         return;
 
@@ -1037,7 +1437,7 @@ int64_t SceneTree::get_event_count() const {
 Array SceneTree::_get_nodes_in_group(const StringName &p_group) {
 
     Array ret;
-    Map<StringName, Group>::iterator E = group_map.find(p_group);
+    Map<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
     if (E==group_map.end())
         return ret;
 
@@ -1063,7 +1463,7 @@ bool SceneTree::has_group(const StringName &p_identifier) const {
 }
 void SceneTree::get_nodes_in_group(const StringName &p_group, List<Node *> *p_list) {
 
-    Map<StringName, Group>::iterator E = group_map.find(p_group);
+    Map<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
     if (E==group_map.end())
         return;
 
@@ -1319,350 +1719,6 @@ void SceneTree::add_current_scene(Node *p_current) {
     current_scene = p_current;
     root->add_child(p_current);
 }
-#ifdef DEBUG_ENABLED
-
-void SceneTree::_live_edit_node_path_func(const NodePath &p_path, int p_id) {
-
-    live_edit_node_path_cache[p_id] = p_path;
-}
-
-void SceneTree::_live_edit_res_path_func(const String &p_path, int p_id) {
-
-    live_edit_resource_cache[p_id] = p_path;
-}
-
-void SceneTree::_live_edit_node_set_func(int p_id, const StringName &p_prop, const Variant &p_value) {
-
-    if (!live_edit_node_path_cache.contains(p_id))
-        return;
-
-    NodePath np = live_edit_node_path_cache[p_id];
-    Node *base = nullptr;
-    if (root->has_node(live_edit_root))
-        base = root->get_node(live_edit_root);
-
-    Map<String, Set<Node *> >::iterator E = live_scene_edit_cache.find(live_edit_scene);
-    if (E==live_scene_edit_cache.end())
-        return; //scene not editable
-
-    for (Node * n : E->second) {
-
-        if (base && !base->is_a_parent_of(n))
-            continue;
-
-        if (!n->has_node(np))
-            continue;
-        Node *n2 = n->get_node(np);
-
-        n2->set(p_prop, p_value);
-    }
-}
-
-void SceneTree::_live_edit_node_set_res_func(int p_id, const StringName &p_prop, const String &p_value) {
-
-    RES r(ResourceLoader::load(p_value));
-    if (not r)
-        return;
-    _live_edit_node_set_func(p_id, p_prop, r);
-}
-void SceneTree::_live_edit_node_call_func(int p_id, const StringName &p_method, VARIANT_ARG_DECLARE) {
-
-    if (!live_edit_node_path_cache.contains(p_id))
-        return;
-
-    NodePath np = live_edit_node_path_cache[p_id];
-    Node *base = nullptr;
-    if (root->has_node(live_edit_root))
-        base = root->get_node(live_edit_root);
-
-    Map<String, Set<Node *> >::iterator E = live_scene_edit_cache.find(live_edit_scene);
-    if (E==live_scene_edit_cache.end())
-        return; //scene not editable
-
-    for (Node * n : E->second) {
-
-        if (base && !base->is_a_parent_of(n))
-            continue;
-
-        if (!n->has_node(np))
-            continue;
-        Node *n2 = n->get_node(np);
-
-        n2->call(p_method, VARIANT_ARG_PASS);
-    }
-}
-void SceneTree::_live_edit_res_set_func(int p_id, const StringName &p_prop, const Variant &p_value) {
-
-    if (!live_edit_resource_cache.contains(p_id))
-        return;
-
-    String resp = live_edit_resource_cache[p_id];
-
-    if (!ResourceCache::has(resp))
-        return;
-
-    RES r(ResourceCache::get(resp));
-    if (not r)
-        return;
-
-    r->set(p_prop, p_value);
-}
-void SceneTree::_live_edit_res_set_res_func(int p_id, const StringName &p_prop, const String &p_value) {
-
-    RES r(ResourceLoader::load(p_value));
-    if (not r)
-        return;
-    _live_edit_res_set_func(p_id, p_prop, r);
-}
-void SceneTree::_live_edit_res_call_func(int p_id, const StringName &p_method, VARIANT_ARG_DECLARE) {
-
-    if (!live_edit_resource_cache.contains(p_id))
-        return;
-
-    String resp = live_edit_resource_cache[p_id];
-
-    if (!ResourceCache::has(resp))
-        return;
-
-    RES r(ResourceCache::get(resp));
-    if ( not r )
-        return;
-
-    r->call(p_method, VARIANT_ARG_PASS);
-}
-
-void SceneTree::_live_edit_root_func(const NodePath &p_scene_path, const String &p_scene_from) {
-
-    live_edit_root = p_scene_path;
-    live_edit_scene = p_scene_from;
-}
-
-void SceneTree::_live_edit_create_node_func(const NodePath &p_parent, const String &p_type, const String &p_name) {
-
-    Node *base = nullptr;
-    if (root->has_node(live_edit_root))
-        base = root->get_node(live_edit_root);
-
-    Map<String, Set<Node *> >::iterator E = live_scene_edit_cache.find(live_edit_scene);
-    if (E==live_scene_edit_cache.end())
-        return; //scene not editable
-
-    for (Node * n : E->second) {
-
-        if (base && !base->is_a_parent_of(n))
-            continue;
-
-        if (!n->has_node(p_parent))
-            continue;
-        Node *n2 = n->get_node(p_parent);
-
-        Node *no = Object::cast_to<Node>(ClassDB::instance(p_type));
-        if (!no) {
-            continue;
-        }
-
-        no->set_name(p_name);
-        n2->add_child(no);
-    }
-}
-void SceneTree::_live_edit_instance_node_func(const NodePath &p_parent, const String &p_path, const String &p_name) {
-
-    Ref<PackedScene> ps = dynamic_ref_cast<PackedScene>(ResourceLoader::load(p_path));
-
-    if (not ps)
-        return;
-
-    Node *base = nullptr;
-    if (root->has_node(live_edit_root))
-        base = root->get_node(live_edit_root);
-
-    Map<String, Set<Node *> >::iterator E = live_scene_edit_cache.find(live_edit_scene);
-    if (E==live_scene_edit_cache.end())
-        return; //scene not editable
-
-    for (Node * n : E->second) {
-
-        if (base && !base->is_a_parent_of(n))
-            continue;
-
-        if (!n->has_node(p_parent))
-            continue;
-        Node *n2 = n->get_node(p_parent);
-
-        Node *no = ps->instance();
-        if (!no) {
-            continue;
-        }
-
-        no->set_name(p_name);
-        n2->add_child(no);
-    }
-}
-void SceneTree::_live_edit_remove_node_func(const NodePath &p_at) {
-
-    Node *base = nullptr;
-    if (root->has_node(live_edit_root))
-        base = root->get_node(live_edit_root);
-
-    Map<String, Set<Node *> >::iterator E = live_scene_edit_cache.find(live_edit_scene);
-    if (E==live_scene_edit_cache.end())
-        return; //scene not editable
-
-    for (Set<Node *>::iterator F = E->second.begin(); F!=E->second.end();) {
-
-        Set<Node *>::iterator N = F;
-        N++;
-
-        Node *n = *F;
-
-        if (base && !base->is_a_parent_of(n))
-            continue;
-
-        if (!n->has_node(p_at))
-            continue;
-        Node *n2 = n->get_node(p_at);
-
-        memdelete(n2);
-
-        F = N;
-    }
-}
-void SceneTree::_live_edit_remove_and_keep_node_func(const NodePath &p_at, ObjectID p_keep_id) {
-
-    Node *base = nullptr;
-    if (root->has_node(live_edit_root))
-        base = root->get_node(live_edit_root);
-
-    Map<String, Set<Node *> >::iterator E = live_scene_edit_cache.find(live_edit_scene);
-    if (E==live_scene_edit_cache.end())
-        return; //scene not editable
-
-    for (Set<Node *>::iterator F = E->second.begin(); F!=E->second.end();) {
-
-        Set<Node *>::iterator N = F;
-        N++;
-        Node *n = *F;
-
-        if (base && !base->is_a_parent_of(n))
-            continue;
-
-        if (!n->has_node(p_at))
-            continue;
-
-        Node *n2 = n->get_node(p_at);
-
-        n2->get_parent()->remove_child(n2);
-
-        live_edit_remove_list[n][p_keep_id] = n2;
-
-        F = N;
-    }
-}
-void SceneTree::_live_edit_restore_node_func(ObjectID p_id, const NodePath &p_at, int p_at_pos) {
-
-    Node *base = nullptr;
-    if (root->has_node(live_edit_root))
-        base = root->get_node(live_edit_root);
-
-    Map<String, Set<Node *> >::iterator E = live_scene_edit_cache.find(live_edit_scene);
-    if (E==live_scene_edit_cache.end())
-        return; //scene not editable
-
-    for (Set<Node *>::iterator F = E->second.begin(); F!=E->second.end();) {
-
-        Set<Node *>::iterator N = F;
-        N++;
-
-        Node *n = *F;
-
-        if (base && !base->is_a_parent_of(n))
-            continue;
-
-        if (!n->has_node(p_at))
-            continue;
-        Node *n2 = n->get_node(p_at);
-
-        Map<Node *, Map<ObjectID, Node *> >::iterator EN = live_edit_remove_list.find(n);
-
-        if (EN==live_edit_remove_list.end())
-            continue;
-
-        Map<ObjectID, Node *>::iterator FN = EN->second.find(p_id);
-
-        if (FN==EN->second.end())
-            continue;
-        n2->add_child(FN->second);
-
-        EN->second.erase(FN);
-
-        if (EN->second.empty()) {
-            live_edit_remove_list.erase(EN);
-        }
-
-        F = N;
-    }
-}
-void SceneTree::_live_edit_duplicate_node_func(const NodePath &p_at, const String &p_new_name) {
-
-    Node *base = nullptr;
-    if (root->has_node(live_edit_root))
-        base = root->get_node(live_edit_root);
-
-    Map<String, Set<Node *> >::iterator E = live_scene_edit_cache.find(live_edit_scene);
-    if (E==live_scene_edit_cache.end())
-        return; //scene not editable
-
-    for (Node * n : E->second) {
-
-        if (base && !base->is_a_parent_of(n))
-            continue;
-
-        if (!n->has_node(p_at))
-            continue;
-        Node *n2 = n->get_node(p_at);
-
-        Node *dup = n2->duplicate(Node::DUPLICATE_SIGNALS | Node::DUPLICATE_GROUPS | Node::DUPLICATE_SCRIPTS);
-
-        if (!dup)
-            continue;
-
-        dup->set_name(p_new_name);
-        n2->get_parent()->add_child(dup);
-    }
-}
-void SceneTree::_live_edit_reparent_node_func(const NodePath &p_at, const NodePath &p_new_place, const String &p_new_name, int p_at_pos) {
-
-    Node *base = nullptr;
-    if (root->has_node(live_edit_root))
-        base = root->get_node(live_edit_root);
-
-    Map<String, Set<Node *> >::iterator E = live_scene_edit_cache.find(live_edit_scene);
-    if (E==live_scene_edit_cache.end())
-        return; //scene not editable
-
-    for (Node * n : E->second) {
-
-        if (base && !base->is_a_parent_of(n))
-            continue;
-
-        if (!n->has_node(p_at))
-            continue;
-        Node *nfrom = n->get_node(p_at);
-
-        if (!n->has_node(p_new_place))
-            continue;
-        Node *nto = n->get_node(p_new_place);
-
-        nfrom->get_parent()->remove_child(nfrom);
-        nfrom->set_name(p_new_name);
-
-        nto->add_child(nfrom);
-        if (p_at_pos >= 0)
-            nto->move_child(nfrom, p_at_pos);
-    }
-}
-
-#endif
 
 void SceneTree::drop_files(const Vector<String> &p_files, int p_from_screen) {
 
@@ -1989,6 +2045,8 @@ SceneTree::SceneTree() {
     quit_on_go_back = true;
     initialized = false;
     use_font_oversampling = false;
+    //TODO: SEGS: make it possible for m_debug_data to be nullptr and still be callable.
+    m_debug_data = new DebugData(this);
 #ifdef DEBUG_ENABLED
     debug_collisions_hint = false;
     debug_navigation_hint = false;
@@ -2049,7 +2107,7 @@ SceneTree::SceneTree() {
     bool hdr = GLOBAL_GET("rendering/quality/depth/hdr");
     root->set_hdr(hdr);
 
-    VS::get_singleton()->scenario_set_reflection_atlas_size(root->get_world()->get_scenario(), ref_atlas_size, ref_atlas_subdiv);
+    VisualServer::get_singleton()->scenario_set_reflection_atlas_size(root->get_world()->get_scenario(), ref_atlas_size, ref_atlas_subdiv);
 
     { //load default fallback environment
         //get possible extensions
@@ -2099,35 +2157,6 @@ SceneTree::SceneTree() {
 #ifdef TOOLS_ENABLED
     edited_scene_root = nullptr;
 #endif
-
-#ifdef DEBUG_ENABLED
-
-    live_edit_funcs.udata = this;
-    live_edit_funcs.node_path_func = _live_edit_node_path_funcs;
-    live_edit_funcs.res_path_func = _live_edit_res_path_funcs;
-    live_edit_funcs.node_set_func = _live_edit_node_set_funcs;
-    live_edit_funcs.node_set_res_func = _live_edit_node_set_res_funcs;
-    live_edit_funcs.node_call_func = _live_edit_node_call_funcs;
-    live_edit_funcs.res_set_func = _live_edit_res_set_funcs;
-    live_edit_funcs.res_set_res_func = _live_edit_res_set_res_funcs;
-    live_edit_funcs.res_call_func = _live_edit_res_call_funcs;
-    live_edit_funcs.root_func = _live_edit_root_funcs;
-
-    live_edit_funcs.tree_create_node_func = _live_edit_create_node_funcs;
-    live_edit_funcs.tree_instance_node_func = _live_edit_instance_node_funcs;
-    live_edit_funcs.tree_remove_node_func = _live_edit_remove_node_funcs;
-    live_edit_funcs.tree_remove_and_keep_node_func = _live_edit_remove_and_keep_node_funcs;
-    live_edit_funcs.tree_restore_node_func = _live_edit_restore_node_funcs;
-    live_edit_funcs.tree_duplicate_node_func = _live_edit_duplicate_node_funcs;
-    live_edit_funcs.tree_reparent_node_func = _live_edit_reparent_node_funcs;
-
-    if (ScriptDebugger::get_singleton()) {
-        ScriptDebugger::get_singleton()->set_live_edit_funcs(&live_edit_funcs);
-    }
-
-    live_edit_root = NodePath("/root");
-
-#endif
 }
 
 SceneTree::~SceneTree() {
@@ -2138,4 +2167,5 @@ SceneTree::~SceneTree() {
     }
 
     if (singleton == this) singleton = nullptr;
+    delete m_debug_data;
 }

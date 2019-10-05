@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef MULTIMESH_H
-#define MULTIMESH_H
+#pragma once
 
 #include "scene/resources/mesh.h"
 #include "servers/visual_server.h"
@@ -38,7 +37,7 @@ class MultiMesh : public Resource {
 
 	GDCLASS(MultiMesh,Resource)
 
-	RES_BASE_EXTENSION("multimesh");
+    RES_BASE_EXTENSION("multimesh")
 
 public:
 	enum TransformFormat {
@@ -122,8 +121,3 @@ public:
 	~MultiMesh() override;
 };
 
-VARIANT_ENUM_CAST(MultiMesh::TransformFormat);
-VARIANT_ENUM_CAST(MultiMesh::ColorFormat);
-VARIANT_ENUM_CAST(MultiMesh::CustomDataFormat);
-
-#endif // MULTI_MESH_H

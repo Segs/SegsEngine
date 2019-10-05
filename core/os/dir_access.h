@@ -37,7 +37,7 @@
 class String;
 
 //@ TODO, excellent candidate for THREAD_SAFE MACRO, should go through all these and add THREAD_SAFE where it applies
-class DirAccess {
+class GODOT_EXPORT DirAccess {
 public:
     enum AccessType {
         ACCESS_RESOURCES,

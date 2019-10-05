@@ -647,3 +647,7 @@ void PoolVector<T>::invert() {
         w[s - i - 1] = temp;
     }
 }
+
+GODOT_TEMPLATE_EXT_DECLARE(PoolVector<uint8_t>)
+GODOT_TEMPLATE_EXT_DECLARE(PoolVector<struct Vector2>)
+GODOT_TEMPLATE_EXT_DECLARE(PoolVector<struct Vector3>)

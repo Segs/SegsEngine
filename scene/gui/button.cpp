@@ -37,6 +37,7 @@
 #include "scene/resources/style_box.h"
 
 IMPL_GDCLASS(Button)
+VARIANT_ENUM_CAST(Button::TextAlign);
 
 Size2 Button::get_minimum_size() const {
 

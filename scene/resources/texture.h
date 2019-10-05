@@ -30,11 +30,13 @@
 
 #pragma once
 
-#include "core/io/resource_format_loader.h"
 #include "core/math/rect2.h"
+#include "core/image.h"
+#include "core/rid.h"
 #include "core/resource.h"
 #include "scene/resources/gradient.h"
-#include "servers/visual_server.h"
+#include "scene/resources/mesh.h"
+#include "servers/visual_server_enums.h"
 
 #include <EASTL/unique_ptr.h>
 
@@ -50,14 +52,14 @@ protected:
 
 public:
     enum Flags {
-        FLAG_MIPMAPS = VisualServer::TEXTURE_FLAG_MIPMAPS,
-        FLAG_REPEAT = VisualServer::TEXTURE_FLAG_REPEAT,
-        FLAG_FILTER = VisualServer::TEXTURE_FLAG_FILTER,
-        FLAG_ANISOTROPIC_FILTER = VisualServer::TEXTURE_FLAG_ANISOTROPIC_FILTER,
-        FLAG_CONVERT_TO_LINEAR = VisualServer::TEXTURE_FLAG_CONVERT_TO_LINEAR,
-        FLAG_VIDEO_SURFACE = VisualServer::TEXTURE_FLAG_USED_FOR_STREAMING,
+        FLAG_MIPMAPS = VS::TEXTURE_FLAG_MIPMAPS,
+        FLAG_REPEAT = VS::TEXTURE_FLAG_REPEAT,
+        FLAG_FILTER = VS::TEXTURE_FLAG_FILTER,
+        FLAG_ANISOTROPIC_FILTER = VS::TEXTURE_FLAG_ANISOTROPIC_FILTER,
+        FLAG_CONVERT_TO_LINEAR = VS::TEXTURE_FLAG_CONVERT_TO_LINEAR,
+        FLAG_VIDEO_SURFACE = VS::TEXTURE_FLAG_USED_FOR_STREAMING,
         FLAGS_DEFAULT = FLAG_MIPMAPS | FLAG_REPEAT | FLAG_FILTER,
-        FLAG_MIRRORED_REPEAT = VisualServer::TEXTURE_FLAG_MIRRORED_REPEAT
+        FLAG_MIRRORED_REPEAT = VS::TEXTURE_FLAG_MIRRORED_REPEAT
     };
 
     virtual int get_width() const = 0;
@@ -184,12 +186,8 @@ public:
 
 private:
     Error _load_data(const String &p_path, int &tw, int &th, int &tw_custom, int &th_custom, int &flags, Ref<Image> &image, int p_size_limit = 0);
-    String path_to_file;
-    RID texture;
-    Image::Format format;
-    uint32_t flags;
-    int w, h;
-    mutable eastl::unique_ptr<BitMap> alpha_cache;
+    struct StreamTextureData;
+    StreamTextureData *m_impl_data;
 
     void reload_from_file() override;
 
@@ -233,15 +231,7 @@ public:
     ~StreamTexture() override;
 };
 
-class ResourceFormatLoaderStreamTexture : public ResourceFormatLoader {
-public:
-    RES load(const String &p_path, const String &p_original_path = "", Error *r_error = nullptr) override;
-    void get_recognized_extensions(ListPOD<String> *p_extensions) const override;
-    bool handles_type(const String &p_type) const override;
-    String get_resource_type(const String &p_path) const override;
-};
-
-class AtlasTexture : public Texture {
+class GODOT_EXPORT AtlasTexture : public Texture {
 
     GDCLASS(AtlasTexture,Texture)
 
@@ -289,7 +279,7 @@ public:
 
 class Mesh;
 
-class MeshTexture : public Texture {
+class GODOT_EXPORT MeshTexture : public Texture {
 
     GDCLASS(MeshTexture,Texture)
 
@@ -313,13 +303,13 @@ public:
     uint32_t get_flags() const override;
 
     void set_mesh(const Ref<Mesh> &p_mesh);
-    Ref<Mesh> get_mesh() const;
+    const Ref<Mesh> &get_mesh() const;
 
     void set_image_size(const Size2 &p_size);
     Size2 get_image_size() const;
 
     void set_base_texture(const Ref<Texture> &p_texture);
-    Ref<Texture> get_base_texture() const;
+    const Ref<Texture> &get_base_texture() const;
 
     void draw(RID p_canvas_item, const Point2 &p_pos, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>()) const override;
     void draw_rect(RID p_canvas_item, const Rect2 &p_rect, bool p_tile = false, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>()) const override;
@@ -331,7 +321,7 @@ public:
     MeshTexture();
 };
 
-class LargeTexture : public Texture {
+class GODOT_EXPORT LargeTexture : public Texture {
 
     GDCLASS(LargeTexture,Texture)
 
@@ -382,7 +372,7 @@ public:
     LargeTexture();
 };
 
-class CubeMap : public Resource {
+class GODOT_EXPORT CubeMap : public Resource {
 
     GDCLASS(CubeMap,Resource)
 
@@ -406,9 +396,9 @@ public:
     };
 
     enum Flags {
-        FLAG_MIPMAPS = VisualServer::TEXTURE_FLAG_MIPMAPS,
-        FLAG_REPEAT = VisualServer::TEXTURE_FLAG_REPEAT,
-        FLAG_FILTER = VisualServer::TEXTURE_FLAG_FILTER,
+        FLAG_MIPMAPS = VS::TEXTURE_FLAG_MIPMAPS,
+        FLAG_REPEAT = VS::TEXTURE_FLAG_REPEAT,
+        FLAG_FILTER = VS::TEXTURE_FLAG_FILTER,
         FLAGS_DEFAULT = FLAG_MIPMAPS | FLAG_REPEAT | FLAG_FILTER,
     };
 
@@ -461,16 +451,16 @@ public:
 };
 
 
-class TextureLayered : public Resource {
+class GODOT_EXPORT TextureLayered : public Resource {
 
     GDCLASS(TextureLayered,Resource)
 
 public:
     enum Flags {
-        FLAG_MIPMAPS = VisualServer::TEXTURE_FLAG_MIPMAPS,
-        FLAG_REPEAT = VisualServer::TEXTURE_FLAG_REPEAT,
-        FLAG_FILTER = VisualServer::TEXTURE_FLAG_FILTER,
-        FLAG_CONVERT_TO_LINEAR = VisualServer::TEXTURE_FLAG_CONVERT_TO_LINEAR,
+        FLAG_MIPMAPS = VS::TEXTURE_FLAG_MIPMAPS,
+        FLAG_REPEAT = VS::TEXTURE_FLAG_REPEAT,
+        FLAG_FILTER = VS::TEXTURE_FLAG_FILTER,
+        FLAG_CONVERT_TO_LINEAR = VS::TEXTURE_FLAG_CONVERT_TO_LINEAR,
         FLAGS_DEFAULT = FLAG_FILTER,
     };
 
@@ -512,7 +502,7 @@ public:
 };
 
 
-class Texture3D : public TextureLayered {
+class GODOT_EXPORT Texture3D : public TextureLayered {
 
     GDCLASS(Texture3D,TextureLayered)
 
@@ -521,27 +511,13 @@ public:
             TextureLayered(true) {}
 };
 
-class TextureArray : public TextureLayered {
+class GODOT_EXPORT TextureArray : public TextureLayered {
 
     GDCLASS(TextureArray,TextureLayered)
 
 public:
     TextureArray() :
             TextureLayered(false) {}
-};
-
-class ResourceFormatLoaderTextureLayered : public ResourceFormatLoader {
-public:
-    enum Compression {
-        COMPRESSION_LOSSLESS,
-        COMPRESSION_VRAM,
-        COMPRESSION_UNCOMPRESSED
-    };
-
-    RES load(const String &p_path, const String &p_original_path = "", Error *r_error = nullptr) override;
-    void get_recognized_extensions(ListPOD<String> *p_extensions) const override;
-    bool handles_type(const String &p_type) const override;
-    String get_resource_type(const String &p_path) const override;
 };
 
 /*
@@ -558,7 +534,7 @@ public:
 */
 //VARIANT_ENUM_CAST( Texture::CubeMapSide );
 
-class GradientTexture : public Texture {
+class GODOT_EXPORT GradientTexture : public Texture {
     GDCLASS(GradientTexture,Texture)
 
 public:
@@ -603,7 +579,7 @@ public:
     ~GradientTexture() override;
 };
 
-class ProxyTexture : public Texture {
+class GODOT_EXPORT ProxyTexture : public Texture {
     GDCLASS(ProxyTexture,Texture)
 
 private:
@@ -630,7 +606,7 @@ public:
     ~ProxyTexture() override;
 };
 
-class AnimatedTexture : public Texture {
+class GODOT_EXPORT AnimatedTexture : public Texture {
     GDCLASS(AnimatedTexture,Texture)
 
     //use readers writers lock for this, since its far more times read than written to

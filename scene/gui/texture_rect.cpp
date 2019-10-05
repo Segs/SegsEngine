@@ -33,6 +33,7 @@
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(TextureRect)
+VARIANT_ENUM_CAST(TextureRect::StretchMode);
 
 void TextureRect::_notification(int p_what) {
 

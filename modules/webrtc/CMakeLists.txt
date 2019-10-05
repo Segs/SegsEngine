@@ -1,1 +1,0 @@
-create_simple_module_target(webrtc)

@@ -30,11 +30,14 @@
 
 #include "surface_tool.h"
 #include "core/method_bind.h"
+#include "scene/resources/material.h"
 
-#define _VERTEX_SNAP 0.0001
-#define EQ_VERTEX_DIST 0.00001
+#define _VERTEX_SNAP 0.0001f
+#define EQ_VERTEX_DIST 0.00001f
 
 IMPL_GDCLASS(SurfaceTool)
+//TODO: SEGS: Mesh::PrimitiveType is used here
+VARIANT_ENUM_CAST(Mesh::PrimitiveType);
 
 template<>
 struct Hasher<SurfaceTool::Vertex> {
@@ -296,10 +299,7 @@ Array SurfaceTool::commit_to_arrays() {
                 PoolVector<Vector3>::Write w = array.write();
 
                 int idx = 0;
-                for (List<Vertex>::Element *E = vertex_array.front(); E; E = E->next(), idx++) {
-
-                    const Vertex &v = E->deref();
-
+                for (const Vertex &v : vertex_array) {
                     switch (i) {
                         case Mesh::ARRAY_VERTEX: {
                             w[idx] = v.vertex;
@@ -308,6 +308,7 @@ Array SurfaceTool::commit_to_arrays() {
                             w[idx] = v.normal;
                         } break;
                     }
+                    idx++;
                 }
 
                 w.release();
@@ -323,10 +324,7 @@ Array SurfaceTool::commit_to_arrays() {
                 PoolVector<Vector2>::Write w = array.write();
 
                 int idx = 0;
-                for (List<Vertex>::Element *E = vertex_array.front(); E; E = E->next(), idx++) {
-
-                    const Vertex &v = E->deref();
-
+                for (const Vertex &v : vertex_array) {
                     switch (i) {
 
                         case Mesh::ARRAY_TEX_UV: {
@@ -336,6 +334,7 @@ Array SurfaceTool::commit_to_arrays() {
                             w[idx] = v.uv2;
                         } break;
                     }
+                    idx++;
                 }
 
                 w.release();
@@ -348,9 +347,7 @@ Array SurfaceTool::commit_to_arrays() {
                 PoolVector<float>::Write w = array.write();
 
                 int idx = 0;
-                for (List<Vertex>::Element *E = vertex_array.front(); E; E = E->next(), idx += 4) {
-
-                    const Vertex &v = E->deref();
+                for (const Vertex &v : vertex_array) {
 
                     w[idx + 0] = v.tangent.x;
                     w[idx + 1] = v.tangent.y;
@@ -359,6 +356,7 @@ Array SurfaceTool::commit_to_arrays() {
                     //float d = v.tangent.dot(v.binormal,v.normal);
                     float d = v.binormal.dot(v.normal.cross(v.tangent));
                     w[idx + 3] = d < 0 ? -1 : 1;
+                    idx += 4;
                 }
 
                 w.release();
@@ -372,10 +370,8 @@ Array SurfaceTool::commit_to_arrays() {
                 PoolVector<Color>::Write w = array.write();
 
                 int idx = 0;
-                for (List<Vertex>::Element *E = vertex_array.front(); E; E = E->next(), idx++) {
-
-                    const Vertex &v = E->deref();
-                    w[idx] = v.color;
+                for (const Vertex &v : vertex_array) {
+                    w[idx++] = v.color;
                 }
 
                 w.release();
@@ -387,12 +383,11 @@ Array SurfaceTool::commit_to_arrays() {
                 array.resize(varr_len * 4);
                 PoolVector<int>::Write w = array.write();
 
-                int idx = 0;
-                for (List<Vertex>::Element *E = vertex_array.front(); E; E = E->next(), idx += 4) {
+                int idx = -4;
+                for (const Vertex &v : vertex_array) {
 
-                    const Vertex &v = E->deref();
-
-                    ERR_CONTINUE(v.bones.size() != 4);
+                    idx += 4;
+                    ERR_CONTINUE(v.bones.size() != 4)
 
                     for (int j = 0; j < 4; j++) {
                         w[idx + j] = v.bones[j];
@@ -409,11 +404,10 @@ Array SurfaceTool::commit_to_arrays() {
                 array.resize(varr_len * 4);
                 PoolVector<float>::Write w = array.write();
 
-                int idx = 0;
-                for (List<Vertex>::Element *E = vertex_array.front(); E; E = E->next(), idx += 4) {
-
-                    const Vertex &v = E->deref();
-                    ERR_CONTINUE(v.weights.size() != 4);
+                int idx = -4;
+                for (const Vertex &v : vertex_array) {
+                    idx += 4;
+                    ERR_CONTINUE(v.weights.size() != 4)
 
                     for (int j = 0; j < 4; j++) {
 
@@ -427,16 +421,16 @@ Array SurfaceTool::commit_to_arrays() {
             } break;
             case Mesh::ARRAY_INDEX: {
 
-                ERR_CONTINUE(index_array.empty());
+                ERR_CONTINUE(index_array.empty())
 
                 PoolVector<int> array;
                 array.resize(index_array.size());
                 PoolVector<int>::Write w = array.write();
 
                 int idx = 0;
-                for (List<int>::Element *E = index_array.front(); E; E = E->next(), idx++) {
+                for (int v : index_array) {
 
-                    w[idx] = E->deref();
+                    w[idx++] = v;
                 }
 
                 w.release();
@@ -483,16 +477,16 @@ void SurfaceTool::index() {
         return; //already indexed
 
     HashMap<Vertex, int> indices;
-    List<Vertex> new_vertices;
+    PODVector<Vertex> new_vertices;
 
-    for (List<Vertex>::Element *E = vertex_array.front(); E; E = E->next()) {
+    for (const Vertex &E : vertex_array) {
 
-        int *idxptr = indices.getptr(E->deref());
+        int *idxptr = indices.getptr(E);
         int idx;
         if (!idxptr) {
             idx = indices.size();
-            new_vertices.push_back(E->deref());
-            indices[E->deref()] = idx;
+            new_vertices.push_back(E);
+            indices[E] = idx;
         } else {
             idx = *idxptr;
         }
@@ -513,21 +507,21 @@ void SurfaceTool::deindex() {
     Vector<Vertex> varr;
     varr.resize(vertex_array.size());
     int idx = 0;
-    for (List<Vertex>::Element *E = vertex_array.front(); E; E = E->next()) {
+    for (const Vertex &E : vertex_array) {
 
-        varr.write[idx++] = E->deref();
+        varr.write[idx++] = E;
     }
     vertex_array.clear();
-    for (List<int>::Element *E = index_array.front(); E; E = E->next()) {
+    for (int E : index_array) {
 
-        ERR_FAIL_INDEX(E->deref(), varr.size());
-        vertex_array.push_back(varr[E->deref()]);
+        ERR_FAIL_INDEX(E, varr.size())
+        vertex_array.push_back(varr[E]);
     }
     format &= ~Mesh::ARRAY_FORMAT_INDEX;
     index_array.clear();
 }
 
-void SurfaceTool::_create_list(const Ref<Mesh> &p_existing, int p_surface, List<Vertex> *r_vertex, List<int> *r_index, int &lformat) {
+void SurfaceTool::_create_list(const Ref<Mesh> &p_existing, int p_surface, PODVector<Vertex> *r_vertex, PODVector<int> *r_index, int &lformat) {
 
     Array arr = p_existing->surface_get_arrays(p_surface);
     ERR_FAIL_COND(arr.size() != VS::ARRAY_MAX)
@@ -641,7 +635,7 @@ Vector<SurfaceTool::Vertex> SurfaceTool::create_vertex_array_from_triangle_array
     return ret;
 }
 
-void SurfaceTool::_create_list_from_arrays(Array arr, List<Vertex> *r_vertex, List<int> *r_index, int &lformat) {
+void SurfaceTool::_create_list_from_arrays(Array arr, PODVector<Vertex> *r_vertex, PODVector<int> *r_index, int &lformat) {
 
     PoolVector<Vector3> varr = arr[VS::ARRAY_VERTEX];
     PoolVector<Vector3> narr = arr[VS::ARRAY_NORMAL];
@@ -800,15 +794,14 @@ void SurfaceTool::append_from(const Ref<Mesh> &p_existing, int p_surface, const 
     }
 
     int nformat;
-    List<Vertex> nvertices;
-    List<int> nindices;
+    PODVector<Vertex> nvertices;
+    PODVector<int> nindices;
     _create_list(p_existing, p_surface, &nvertices, &nindices, nformat);
     format |= nformat;
     int vfrom = vertex_array.size();
 
-    for (List<Vertex>::Element *E = nvertices.front(); E; E = E->next()) {
+    for (Vertex v : nvertices) {
 
-        Vertex v = E->deref();
         v.vertex = p_xform.xform(v.vertex);
         if (nformat & VS::ARRAY_FORMAT_NORMAL) {
             v.normal = p_xform.basis.xform(v.normal);
@@ -821,21 +814,21 @@ void SurfaceTool::append_from(const Ref<Mesh> &p_existing, int p_surface, const 
         vertex_array.push_back(v);
     }
 
-    for (List<int>::Element *E = nindices.front(); E; E = E->next()) {
+    for (int E : nindices) {
 
-        int dst_index = E->deref() + vfrom;
+        int dst_index = E + vfrom;
         index_array.push_back(dst_index);
     }
     if (index_array.size() % 3) {
-        WARN_PRINT("SurfaceTool: Index array not a multiple of 3.");
+        WARN_PRINT("SurfaceTool: Index array not a multiple of 3.")
     }
 }
 
 //mikktspace callbacks
 namespace {
 struct TangentGenerationContextUserData {
-    Vector<List<SurfaceTool::Vertex>::Element *> vertices;
-    Vector<List<int>::Element *> indices;
+    PODVector<SurfaceTool::Vertex> &vertices;
+    PODVector<int> &indices;
 };
 } // namespace
 
@@ -858,12 +851,12 @@ void SurfaceTool::mikktGetPosition(const SMikkTSpaceContext *pContext, float fvP
     TangentGenerationContextUserData &triangle_data = *reinterpret_cast<TangentGenerationContextUserData *>(pContext->m_pUserData);
     Vector3 v;
     if (!triangle_data.indices.empty()) {
-        int index = triangle_data.indices[iFace * 3 + iVert]->deref();
+        int index = triangle_data.indices[iFace * 3 + iVert];
         if (index < triangle_data.vertices.size()) {
-            v = triangle_data.vertices[index]->deref().vertex;
+            v = triangle_data.vertices[index].vertex;
         }
     } else {
-        v = triangle_data.vertices[iFace * 3 + iVert]->deref().vertex;
+        v = triangle_data.vertices[iFace * 3 + iVert].vertex;
     }
 
     fvPosOut[0] = v.x;
@@ -876,12 +869,12 @@ void SurfaceTool::mikktGetNormal(const SMikkTSpaceContext *pContext, float fvNor
     TangentGenerationContextUserData &triangle_data = *reinterpret_cast<TangentGenerationContextUserData *>(pContext->m_pUserData);
     Vector3 v;
     if (!triangle_data.indices.empty()) {
-        int index = triangle_data.indices[iFace * 3 + iVert]->deref();
+        int index = triangle_data.indices[iFace * 3 + iVert];
         if (index < triangle_data.vertices.size()) {
-            v = triangle_data.vertices[index]->deref().normal;
+            v = triangle_data.vertices[index].normal;
         }
     } else {
-        v = triangle_data.vertices[iFace * 3 + iVert]->deref().normal;
+        v = triangle_data.vertices[iFace * 3 + iVert].normal;
     }
 
     fvNormOut[0] = v.x;
@@ -893,12 +886,12 @@ void SurfaceTool::mikktGetTexCoord(const SMikkTSpaceContext *pContext, float fvT
     TangentGenerationContextUserData &triangle_data = *reinterpret_cast<TangentGenerationContextUserData *>(pContext->m_pUserData);
     Vector2 v;
     if (!triangle_data.indices.empty()) {
-        int index = triangle_data.indices[iFace * 3 + iVert]->deref();
+        int index = triangle_data.indices[iFace * 3 + iVert];
         if (index < triangle_data.vertices.size()) {
-            v = triangle_data.vertices[index]->deref().uv;
+            v = triangle_data.vertices[index].uv;
         }
     } else {
-        v = triangle_data.vertices[iFace * 3 + iVert]->deref().uv;
+        v = triangle_data.vertices[iFace * 3 + iVert].uv;
     }
 
     fvTexcOut[0] = v.x;
@@ -911,12 +904,12 @@ void SurfaceTool::mikktSetTSpaceDefault(const SMikkTSpaceContext *pContext, cons
     TangentGenerationContextUserData &triangle_data = *reinterpret_cast<TangentGenerationContextUserData *>(pContext->m_pUserData);
     Vertex *vtx = nullptr;
     if (!triangle_data.indices.empty()) {
-        int index = triangle_data.indices[iFace * 3 + iVert]->deref();
+        int index = triangle_data.indices[iFace * 3 + iVert];
         if (index < triangle_data.vertices.size()) {
-            vtx = &triangle_data.vertices[index]->deref();
+            vtx = &triangle_data.vertices[index];
         }
     } else {
-        vtx = &triangle_data.vertices[iFace * 3 + iVert]->deref();
+        vtx = &triangle_data.vertices[iFace * 3 + iVert];
     }
 
     if (vtx != nullptr) {
@@ -942,18 +935,10 @@ void SurfaceTool::generate_tangents() {
     SMikkTSpaceContext msc;
     msc.m_pInterface = &mkif;
 
-    TangentGenerationContextUserData triangle_data;
-    triangle_data.vertices.resize(vertex_array.size());
-    int idx = 0;
-    for (List<Vertex>::Element *E = vertex_array.front(); E; E = E->next()) {
-        triangle_data.vertices.write[idx++] = E;
-        E->deref().binormal = Vector3();
-        E->deref().tangent = Vector3();
-    }
-    triangle_data.indices.resize(index_array.size());
-    idx = 0;
-    for (List<int>::Element *E = index_array.front(); E; E = E->next()) {
-        triangle_data.indices.write[idx++] = E;
+    TangentGenerationContextUserData triangle_data {vertex_array,index_array};
+    for (Vertex &E : vertex_array) {
+        E.binormal = Vector3();
+        E.tangent = Vector3();
     }
     msc.m_pUserData = &triangle_data;
 
@@ -978,30 +963,29 @@ void SurfaceTool::generate_normals(bool p_flip) {
     if (smooth_groups.contains(0))
         smooth = smooth_groups[0];
 
-    List<Vertex>::Element *B = vertex_array.front();
-    for (List<Vertex>::Element *E = B; E;) {
+    PODVector<Vertex>::iterator B = vertex_array.begin();
+    for (PODVector<Vertex>::iterator E = B; E!=vertex_array.end();) {
 
-        List<Vertex>::Element *v[3];
-        v[0] = E;
-        v[1] = v[0]->next();
-        ERR_FAIL_COND(!v[1])
-        v[2] = v[1]->next();
-        ERR_FAIL_COND(!v[2])
-        E = v[2]->next();
+        PODVector<Vertex>::iterator v[3];
+        v[0] = E++;
+        v[1] = E++;
+        ERR_FAIL_COND(v[1]==vertex_array.end())
+        v[2] = E++;
+        ERR_FAIL_COND(v[2]==vertex_array.end())
 
         Vector3 normal;
         if (!p_flip)
-            normal = Plane(v[0]->deref().vertex, v[1]->deref().vertex, v[2]->deref().vertex).normal;
+            normal = Plane(v[0]->vertex, v[1]->vertex, v[2]->vertex).normal;
         else
-            normal = Plane(v[2]->deref().vertex, v[1]->deref().vertex, v[0]->deref().vertex).normal;
+            normal = Plane(v[2]->vertex, v[1]->vertex, v[0]->vertex).normal;
 
         if (smooth) {
 
             for (int i = 0; i < 3; i++) {
 
-                Vector3 *lv = vertex_hash.getptr(v[i]->deref());
+                Vector3 *lv = vertex_hash.getptr(*v[i]);
                 if (!lv) {
-                    vertex_hash.set(v[i]->deref(), normal);
+                    vertex_hash.set(*v[i], normal);
                 } else {
                     (*lv) += normal;
                 }
@@ -1010,7 +994,7 @@ void SurfaceTool::generate_normals(bool p_flip) {
 
             for (int i = 0; i < 3; i++) {
 
-                v[i]->deref().normal = normal;
+                v[i]->normal = normal;
             }
         }
         count += 3;
@@ -1021,12 +1005,12 @@ void SurfaceTool::generate_normals(bool p_flip) {
 
                 while (B != E) {
 
-                    Vector3 *lv = vertex_hash.getptr(B->deref());
+                    Vector3 *lv = vertex_hash.getptr(*B);
                     if (lv) {
-                        B->deref().normal = lv->normalized();
+                        B->normal = lv->normalized();
                     }
 
-                    B = B->next();
+                    ++B;
                 }
 
             } else {

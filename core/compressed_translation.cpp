@@ -186,7 +186,7 @@ void PHashTranslation::generate(const Ref<Translation> &p_from) {
 
 bool PHashTranslation::_set(const StringName &p_name, const Variant &p_value) {
 
-    String name = p_name.operator String();
+    String name = p_name.asString();
     if (name == "hash_table") {
         hash_table = p_value;
     } else if (name == "bucket_table") {

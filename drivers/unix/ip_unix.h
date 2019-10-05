@@ -45,7 +45,7 @@ class IP_Unix : public IP {
 public:
 	void get_local_interfaces(Map<String, Interface_Info> *r_interfaces) const override;
 
-	static void make_default();
+    static GODOT_EXPORT void make_default();
 	IP_Unix();
 };
 

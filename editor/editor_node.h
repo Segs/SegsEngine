@@ -789,7 +789,7 @@ public:
     Control *get_gui_base() { return gui_base; }
     Control *get_theme_base() { return gui_base->get_parent_control(); }
 
-    static void add_io_error(const String &p_error);
+    GODOT_EXPORT static void add_io_error(const String &p_error);
 
     static void progress_add_task(const String &p_task, const String &p_label, int p_steps, bool p_can_cancel = false);
     static bool progress_task_step(const String &p_task, const String &p_state, int p_step = -1, bool p_force_refresh = true);

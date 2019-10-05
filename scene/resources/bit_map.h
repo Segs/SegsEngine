@@ -28,14 +28,13 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef BIT_MAP_H
-#define BIT_MAP_H
+#pragma once
 
 #include "core/image.h"
 #include "core/io/resource_loader.h"
 #include "core/resource.h"
 
-class BitMap : public Resource {
+class GODOT_EXPORT BitMap : public Resource {
 
 	GDCLASS(BitMap,Resource)
 
@@ -76,5 +75,3 @@ public:
 
 	BitMap();
 };
-
-#endif // BIT_MAP_H

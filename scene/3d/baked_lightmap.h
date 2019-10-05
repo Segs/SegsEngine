@@ -207,8 +207,4 @@ public:
 	BakedLightmap();
 };
 
-VARIANT_ENUM_CAST(BakedLightmap::BakeQuality);
-VARIANT_ENUM_CAST(BakedLightmap::BakeMode);
-VARIANT_ENUM_CAST(BakedLightmap::BakeError);
-
 #endif // BAKED_INDIRECT_LIGHT_H

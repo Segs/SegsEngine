@@ -303,7 +303,7 @@ void Line2D::_draw() {
 
     lb.build();
 
-    VS::get_singleton()->canvas_item_add_triangle_array(
+    VisualServer::get_singleton()->canvas_item_add_triangle_array(
             get_canvas_item(),
             lb.indices,
             lb.vertices,

@@ -32,6 +32,7 @@
 #define TEXTURE_LOADER_PVR_H
 
 #include "core/io/resource_loader.h"
+#include "core/io/resource_format_loader.h"
 #include "scene/resources/texture.h"
 
 class ResourceFormatPVR : public ResourceFormatLoader {

@@ -39,6 +39,14 @@
 #include "scene/resources/mesh.h"
 #include "scene/resources/texture.h"
 
+struct PackData {
+    Rect2 region;
+    bool is_mesh;
+    Vector<int> chart_pieces; // one for region, many for mesh
+    Vector<Vector<Vector2>> chart_vertices; // for mesh
+    Ref<Image> image;
+};
+
 
 String ResourceImporterTextureAtlas::get_importer_name() const {
 

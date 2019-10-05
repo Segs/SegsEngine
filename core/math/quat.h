@@ -39,17 +39,17 @@
 
 class String;
 
-class Quat {
+class GODOT_EXPORT Quat {
 public:
     real_t x, y, z, w;
 
-    _FORCE_INLINE_ real_t length_squared() const;
+    constexpr real_t length_squared() const;
     real_t length() const;
     void normalize();
     Quat normalized() const;
     bool is_normalized() const;
     Quat inverse() const;
-    _FORCE_INLINE_ real_t dot(const Quat &q) const;
+    constexpr real_t dot(const Quat &q) const;
 
     void set_euler_xyz(const Vector3 &p_euler);
     Vector3 get_euler_xyz() const;
@@ -75,7 +75,7 @@ public:
     void operator*=(const Quat &q);
     Quat operator*(const Quat &q) const;
 
-    Quat operator*(Vector3 v) const {
+    constexpr Quat operator*(Vector3 v) const {
         return Quat(w * v.x + y * v.z - z * v.y,
                 w * v.y + z * v.x - x * v.z,
                 w * v.z + x * v.y - y * v.x,
@@ -112,7 +112,7 @@ public:
         z = p_z;
         w = p_w;
     }
-    inline Quat(real_t p_x, real_t p_y, real_t p_z, real_t p_w) :
+    constexpr inline Quat(real_t p_x, real_t p_y, real_t p_z, real_t p_w) :
             x(p_x),
             y(p_y),
             z(p_z),
@@ -122,7 +122,7 @@ public:
 
     Quat(const Vector3 &euler) { set_euler(euler); }
 
-    Quat(const Quat &q) = default;
+    constexpr Quat(const Quat &q) = default;
 
     Quat &operator=(const Quat &q) = default;
 
@@ -148,7 +148,7 @@ public:
         }
     }
 
-    Quat() :
+    constexpr Quat() :
             x(0),
             y(0),
             z(0),
@@ -156,11 +156,11 @@ public:
     }
 };
 
-real_t Quat::dot(const Quat &q) const {
+constexpr real_t Quat::dot(const Quat &q) const {
     return x * q.x + y * q.y + z * q.z + w * q.w;
 }
 
-real_t Quat::length_squared() const {
+constexpr real_t Quat::length_squared() const {
     return dot(*this);
 }
 

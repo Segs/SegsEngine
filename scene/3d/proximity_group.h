@@ -83,6 +83,5 @@ public:
 	~ProximityGroup() override;
 };
 
-VARIANT_ENUM_CAST(ProximityGroup::DispatchMode);
 
 #endif

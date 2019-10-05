@@ -32,8 +32,9 @@
 
 #include "core/image.h"
 #include "core/math/transform_2d.h"
+#include "core/ustring.h"
 #include "servers/camera_server.h"
-#include "servers/visual_server.h"
+#include "servers/visual_server_enums.h"
 
 /**
 	@author Bastiaan Olij <mux213@gmail.com>
@@ -103,7 +104,7 @@ public:
 	void set_RGB_img(Ref<Image> p_rgb_img);
 	void set_YCbCr_img(Ref<Image> p_ycbcr_img);
 	void set_YCbCr_imgs(Ref<Image> p_y_img, Ref<Image> p_cbcr_img);
-	void allocate_texture(int p_width, int p_height, Image::Format p_format, VisualServer::TextureType p_texture_type, FeedDataType p_data_type);
+    void allocate_texture(int p_width, int p_height, Image::Format p_format, VS::TextureType p_texture_type, FeedDataType p_data_type);
 
 	virtual bool activate_feed();
 	virtual void deactivate_feed();

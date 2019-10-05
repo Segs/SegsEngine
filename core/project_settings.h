@@ -158,7 +158,7 @@ public:
 };
 
 //not a macro any longer
-Variant _GLOBAL_DEF(const StringName &p_var, const Variant &p_default, bool p_restart_if_changed = false);
+GODOT_EXPORT Variant _GLOBAL_DEF(const StringName &p_var, const Variant &p_default, bool p_restart_if_changed = false);
 #define GLOBAL_DEF(m_var, m_value) _GLOBAL_DEF(m_var, m_value)
 #define GLOBAL_DEF_RST(m_var, m_value) _GLOBAL_DEF(m_var, m_value, true)
 #define GLOBAL_GET(m_var) ProjectSettings::get_singleton()->get(m_var)

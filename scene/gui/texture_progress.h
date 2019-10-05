@@ -112,6 +112,4 @@ private:
 	void draw_nine_patch_stretched(const Ref<Texture> &p_texture, FillMode p_mode, double p_ratio, const Color &p_modulate);
 };
 
-VARIANT_ENUM_CAST(TextureProgress::FillMode);
-
 #endif // TEXTURE_PROGRESS_H

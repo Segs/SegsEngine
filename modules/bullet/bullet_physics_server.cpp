@@ -32,14 +32,16 @@
 
 #include "bullet_utilities.h"
 #include "cone_twist_joint_bullet.h"
-#include "core/class_db.h"
-#include "core/error_macros.h"
-#include "core/ustring.h"
 #include "generic_6dof_joint_bullet.h"
 #include "hinge_joint_bullet.h"
 #include "pin_joint_bullet.h"
 #include "shape_bullet.h"
 #include "slider_joint_bullet.h"
+
+#include "core/class_db.h"
+#include "core/error_macros.h"
+#include "core/property_info.h"
+#include "core/ustring.h"
 
 #include <LinearMath/btVector3.h>
 

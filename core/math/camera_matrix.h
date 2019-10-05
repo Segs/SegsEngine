@@ -37,7 +37,7 @@
 template <class T>
 class Vector;
 
-struct CameraMatrix {
+struct GODOT_EXPORT CameraMatrix {
 
     enum Planes {
         PLANE_NEAR,

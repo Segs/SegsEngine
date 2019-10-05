@@ -38,12 +38,13 @@
 #include "core/math/math_defs.h"
 #include "core/os/file_access.h"
 #include "core/os/os.h"
-#include "modules/regex/regex.h"
 #include "scene/3d/bone_attachment.h"
 #include "scene/3d/camera.h"
 #include "scene/3d/mesh_instance.h"
 #include "scene/animation/animation_player.h"
 #include "scene/resources/surface_tool.h"
+
+#include <QtCore/QRegularExpression>
 
 uint32_t EditorSceneImporterGLTF::get_import_flags() const {
 
@@ -157,8 +158,8 @@ static Transform _arr_to_xform(const Array &p_array) {
 }
 
 String EditorSceneImporterGLTF::_sanitize_scene_name(const String &name) {
-    RegEx regex("([^a-zA-Z0-9_ -]+)");
-    String p_name = regex.sub(name, "", true);
+    QRegularExpression regex("([^a-zA-Z0-9_ -]+)");
+    String p_name = QString(name.m_str).replace(regex,"");
     return p_name;
 }
 
@@ -188,19 +189,20 @@ String EditorSceneImporterGLTF::_gen_unique_name(GLTFState &state, const String 
 String EditorSceneImporterGLTF::_sanitize_bone_name(const String &name) {
     String p_name = StringUtils::camelcase_to_underscore(name,true);
 
-    RegEx pattern_del("([^a-zA-Z0-9_ ])+");
-    p_name = pattern_del.sub(p_name, "", true);
+    QRegularExpression pattern_del("([^a-zA-Z0-9_ ])+");
+    QString val = name.m_str;
+    val.remove(pattern_del);
 
-    RegEx pattern_nospace(" +");
-    p_name = pattern_nospace.sub(p_name, "_", true);
+    QRegularExpression pattern_nospace(" +");
+    val.replace(pattern_nospace, "_");
 
-    RegEx pattern_multiple("_+");
-    p_name = pattern_multiple.sub(p_name, "_", true);
+    QRegularExpression pattern_multiple("_+");
+    val.replace(pattern_multiple, "_");
 
-    RegEx pattern_padded("0+(\\d+)");
-    p_name = pattern_padded.sub(p_name, "$1", true);
+    QRegularExpression pattern_padded("0+(\\d+)");
+    val.replace(pattern_padded, "$1");
 
-    return p_name;
+    return val;
 }
 
 String EditorSceneImporterGLTF::_gen_unique_bone_name(GLTFState &state, const GLTFSkeletonIndex skel_i, const String &p_name) {

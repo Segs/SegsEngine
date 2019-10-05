@@ -38,114 +38,115 @@
 
 IMPL_GDCLASS(GIProbeData)
 IMPL_GDCLASS(GIProbe)
+VARIANT_ENUM_CAST(GIProbe::Subdiv)
 
 void GIProbeData::set_bounds(const AABB &p_bounds) {
 
-    VS::get_singleton()->gi_probe_set_bounds(probe, p_bounds);
+    VisualServer::get_singleton()->gi_probe_set_bounds(probe, p_bounds);
 }
 
 AABB GIProbeData::get_bounds() const {
 
-    return VS::get_singleton()->gi_probe_get_bounds(probe);
+    return VisualServer::get_singleton()->gi_probe_get_bounds(probe);
 }
 
 void GIProbeData::set_cell_size(float p_size) {
 
-    VS::get_singleton()->gi_probe_set_cell_size(probe, p_size);
+    VisualServer::get_singleton()->gi_probe_set_cell_size(probe, p_size);
 }
 
 float GIProbeData::get_cell_size() const {
 
-    return VS::get_singleton()->gi_probe_get_cell_size(probe);
+    return VisualServer::get_singleton()->gi_probe_get_cell_size(probe);
 }
 
 void GIProbeData::set_to_cell_xform(const Transform &p_xform) {
 
-    VS::get_singleton()->gi_probe_set_to_cell_xform(probe, p_xform);
+    VisualServer::get_singleton()->gi_probe_set_to_cell_xform(probe, p_xform);
 }
 
 Transform GIProbeData::get_to_cell_xform() const {
 
-    return VS::get_singleton()->gi_probe_get_to_cell_xform(probe);
+    return VisualServer::get_singleton()->gi_probe_get_to_cell_xform(probe);
 }
 
 void GIProbeData::set_dynamic_data(const PoolVector<int> &p_data) {
 
-    VS::get_singleton()->gi_probe_set_dynamic_data(probe, p_data);
+    VisualServer::get_singleton()->gi_probe_set_dynamic_data(probe, p_data);
 }
 PoolVector<int> GIProbeData::get_dynamic_data() const {
 
-    return VS::get_singleton()->gi_probe_get_dynamic_data(probe);
+    return VisualServer::get_singleton()->gi_probe_get_dynamic_data(probe);
 }
 
 void GIProbeData::set_dynamic_range(int p_range) {
 
-    VS::get_singleton()->gi_probe_set_dynamic_range(probe, p_range);
+    VisualServer::get_singleton()->gi_probe_set_dynamic_range(probe, p_range);
 }
 
 void GIProbeData::set_energy(float p_range) {
 
-    VS::get_singleton()->gi_probe_set_energy(probe, p_range);
+    VisualServer::get_singleton()->gi_probe_set_energy(probe, p_range);
 }
 
 float GIProbeData::get_energy() const {
 
-    return VS::get_singleton()->gi_probe_get_energy(probe);
+    return VisualServer::get_singleton()->gi_probe_get_energy(probe);
 }
 
 void GIProbeData::set_bias(float p_range) {
 
-    VS::get_singleton()->gi_probe_set_bias(probe, p_range);
+    VisualServer::get_singleton()->gi_probe_set_bias(probe, p_range);
 }
 
 float GIProbeData::get_bias() const {
 
-    return VS::get_singleton()->gi_probe_get_bias(probe);
+    return VisualServer::get_singleton()->gi_probe_get_bias(probe);
 }
 
 void GIProbeData::set_normal_bias(float p_range) {
 
-    VS::get_singleton()->gi_probe_set_normal_bias(probe, p_range);
+    VisualServer::get_singleton()->gi_probe_set_normal_bias(probe, p_range);
 }
 
 float GIProbeData::get_normal_bias() const {
 
-    return VS::get_singleton()->gi_probe_get_normal_bias(probe);
+    return VisualServer::get_singleton()->gi_probe_get_normal_bias(probe);
 }
 
 void GIProbeData::set_propagation(float p_range) {
 
-    VS::get_singleton()->gi_probe_set_propagation(probe, p_range);
+    VisualServer::get_singleton()->gi_probe_set_propagation(probe, p_range);
 }
 
 float GIProbeData::get_propagation() const {
 
-    return VS::get_singleton()->gi_probe_get_propagation(probe);
+    return VisualServer::get_singleton()->gi_probe_get_propagation(probe);
 }
 
 void GIProbeData::set_interior(bool p_enable) {
 
-    VS::get_singleton()->gi_probe_set_interior(probe, p_enable);
+    VisualServer::get_singleton()->gi_probe_set_interior(probe, p_enable);
 }
 
 bool GIProbeData::is_interior() const {
 
-    return VS::get_singleton()->gi_probe_is_interior(probe);
+    return VisualServer::get_singleton()->gi_probe_is_interior(probe);
 }
 
 bool GIProbeData::is_compressed() const {
 
-    return VS::get_singleton()->gi_probe_is_compressed(probe);
+    return VisualServer::get_singleton()->gi_probe_is_compressed(probe);
 }
 
 void GIProbeData::set_compress(bool p_enable) {
 
-    VS::get_singleton()->gi_probe_set_compress(probe, p_enable);
+    VisualServer::get_singleton()->gi_probe_set_compress(probe, p_enable);
 }
 
 int GIProbeData::get_dynamic_range() const {
 
-    return VS::get_singleton()->gi_probe_get_dynamic_range(probe);
+    return VisualServer::get_singleton()->gi_probe_get_dynamic_range(probe);
 }
 
 RID GIProbeData::get_rid() const {
@@ -204,12 +205,12 @@ void GIProbeData::_bind_methods() {
 
 GIProbeData::GIProbeData() {
 
-    probe = VS::get_singleton()->gi_probe_create();
+    probe = VisualServer::get_singleton()->gi_probe_create();
 }
 
 GIProbeData::~GIProbeData() {
 
-    VS::get_singleton()->free(probe);
+    VisualServer::get_singleton()->free(probe);
 }
 
 //////////////////////
@@ -218,9 +219,9 @@ GIProbeData::~GIProbeData() {
 void GIProbe::set_probe_data(const Ref<GIProbeData> &p_data) {
 
     if (p_data) {
-        VS::get_singleton()->instance_set_base(get_instance(), p_data->get_rid());
+        VisualServer::get_singleton()->instance_set_base(get_instance(), p_data->get_rid());
     } else {
-        VS::get_singleton()->instance_set_base(get_instance(), RID());
+        VisualServer::get_singleton()->instance_set_base(get_instance(), RID());
     }
 
     probe_data = p_data;
@@ -571,10 +572,10 @@ GIProbe::GIProbe() {
     interior = false;
     compress = false;
 
-    gi_probe = VS::get_singleton()->gi_probe_create();
+    gi_probe = VisualServer::get_singleton()->gi_probe_create();
     set_disable_scale(true);
 }
 
 GIProbe::~GIProbe() {
-    VS::get_singleton()->free(gi_probe);
+    VisualServer::get_singleton()->free(gi_probe);
 }

@@ -32,6 +32,7 @@
 #define VISUAL_SCRIPT_H
 
 #include "core/os/thread.h"
+#include "core/set.h"
 #include "core/script_language.h"
 
 class VisualScriptInstance;
@@ -441,8 +442,8 @@ public:
 
 	ScriptLanguage *get_language() override;
 
-	MultiplayerAPI::RPCMode get_rpc_mode(const StringName &p_method) const override;
-	MultiplayerAPI::RPCMode get_rset_mode(const StringName &p_variable) const override;
+	MultiplayerAPI_RPCMode get_rpc_mode(const StringName &p_method) const override;
+	MultiplayerAPI_RPCMode get_rset_mode(const StringName &p_variable) const override;
 
 	VisualScriptInstance();
 	~VisualScriptInstance() override;

@@ -76,8 +76,8 @@ public:
 
 	void set_path(const String &p_path);
 
-	MultiplayerAPI::RPCMode get_rpc_mode(const StringName &p_method) const override;
-	MultiplayerAPI::RPCMode get_rset_mode(const StringName &p_variable) const override;
+	MultiplayerAPI_RPCMode get_rpc_mode(const StringName &p_method) const override;
+	MultiplayerAPI_RPCMode get_rset_mode(const StringName &p_variable) const override;
 
 	void refcount_incremented() override;
 	bool refcount_decremented() override;

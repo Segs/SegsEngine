@@ -23,17 +23,18 @@ add_subdirectory(tests)
 
 # Godot's own sources
 file(GLOB source_files "*.cpp")
-list(APPEND main_sources ${source_files})
-list(APPEND main_sources splash.gen.h splash_editor.gen.h app_icon.gen.h)
-list(APPEND main_sources ${CMAKE_CURRENT_BINARY_DIR}/default_controller_mappings.gen.cpp)
+list(APPEND main_sources ${source_files}
+    ${CMAKE_CURRENT_BINARY_DIR}/splash.gen.h ${CMAKE_CURRENT_BINARY_DIR}/splash_editor.gen.h ${CMAKE_CURRENT_BINARY_DIR}/app_icon.gen.h
+)
 
+add_library(gen_controllers STATIC ${CMAKE_CURRENT_BINARY_DIR}/default_controller_mappings.gen.cpp)
 
 foreach(tgt ${global_targets})
-    add_library(${tgt}_main ${main_sources})
-    target_link_libraries(${tgt}_main PUBLIC ${tgt}_tests ${tgt}_core ${tgt}_drivers Qt5::Core)
+
+    target_sources(${tgt}_engine PRIVATE ${main_sources})
+    target_link_libraries(${tgt}_engine PRIVATE ${tgt}_tests ${tgt}_drivers Qt5::Core gen_controllers)
     if(OPTION_TOOLS)
-        target_link_libraries(${tgt}_main PUBLIC edit_tools)
+        target_link_libraries(${tgt}_engine PRIVATE edit_tools)
     endif()
-    set_common_target_properties(${tgt}_main)
 endforeach()
 

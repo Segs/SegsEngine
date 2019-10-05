@@ -614,7 +614,7 @@ RID RasterizerStorageGLES3::texture_create() {
     return texture_owner.make_rid(texture);
 }
 
-void RasterizerStorageGLES3::texture_allocate(RID p_texture, int p_width, int p_height, int p_depth_3d, Image::Format p_format, VisualServer::TextureType p_type, uint32_t p_flags) {
+void RasterizerStorageGLES3::texture_allocate(RID p_texture, int p_width, int p_height, int p_depth_3d, Image::Format p_format, VS::TextureType p_type, uint32_t p_flags) {
 
     GLenum format;
     GLenum internal_format;
@@ -1426,7 +1426,7 @@ Image::Format RasterizerStorageGLES3::texture_get_format(RID p_texture) const {
     return texture->format;
 }
 
-VisualServer::TextureType RasterizerStorageGLES3::texture_get_type(RID p_texture) const {
+VS::TextureType RasterizerStorageGLES3::texture_get_type(RID p_texture) const {
     Texture *texture = texture_owner.get(p_texture);
 
     ERR_FAIL_COND_V(!texture, VS::TEXTURE_TYPE_2D)
@@ -1503,7 +1503,7 @@ String RasterizerStorageGLES3::texture_get_path(RID p_texture) const {
     ERR_FAIL_COND_V(!texture, String())
     return texture->path;
 }
-void RasterizerStorageGLES3::texture_debug_usage(List<VS::TextureInfo> *r_info) {
+void RasterizerStorageGLES3::texture_debug_usage(List<VisualServer::TextureInfo> *r_info) {
 
     ListPOD<RID> textures;
     texture_owner.get_owned_list(&textures);
@@ -1513,7 +1513,7 @@ void RasterizerStorageGLES3::texture_debug_usage(List<VS::TextureInfo> *r_info) 
         Texture *t = texture_owner.get(E);
         if (!t)
             continue;
-        VS::TextureInfo tinfo;
+        VisualServer::TextureInfo tinfo;
         tinfo.path = t->path;
         tinfo.format = t->format;
         tinfo.width = t->alloc_width;
@@ -5649,15 +5649,15 @@ RID RasterizerStorageGLES3::gi_probe_create() {
     GIProbe *gip = memnew(GIProbe);
 
     gip->bounds = AABB(Vector3(), Vector3(1, 1, 1));
-    gip->dynamic_range = 1.0;
-    gip->energy = 1.0;
-    gip->propagation = 1.0;
-    gip->bias = 0.4;
-    gip->normal_bias = 0.4;
+    gip->dynamic_range = 1.0f;
+    gip->energy = 1.0f;
+    gip->propagation = 1.0f;
+    gip->bias = 0.4f;
+    gip->normal_bias = 0.4f;
     gip->interior = false;
     gip->compress = false;
     gip->version = 1;
-    gip->cell_size = 1.0;
+    gip->cell_size = 1.0f;
 
     return gi_probe_owner.make_rid(gip);
 }

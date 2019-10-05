@@ -30,17 +30,22 @@
 
 #include "node.h"
 
+#include "instance_placeholder.h"
+#include "viewport.h"
+
 #include "core/core_string_names.h"
+#include "core/io/multiplayer_api.h"
 #include "core/io/resource_loader.h"
 #include "core/message_queue.h"
 #include "core/method_bind.h"
 #include "core/print_string.h"
+#include "core/script_language.h"
 #include "core/string_formatter.h"
 #include "core/ustring.h"
-#include "instance_placeholder.h"
+#include "scene/main/scene_tree.h"
 #include "scene/resources/packed_scene.h"
 #include "scene/scene_string_names.h"
-#include "viewport.h"
+
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_settings.h"
@@ -50,9 +55,10 @@
 IMPL_GDCLASS(Node)
 
 //TODO: SEGS: duplicated VARIANT_ENUM_CAST
-VARIANT_ENUM_CAST(MultiplayerAPI::RPCMode);
+VARIANT_ENUM_CAST(MultiplayerAPI_RPCMode);
 
 VARIANT_ENUM_CAST(Node::PauseMode);
+VARIANT_ENUM_CAST(Node::DuplicateFlags);
 
 int Node::orphan_node_count = 0;
 
@@ -191,12 +197,12 @@ void Node::_notification(int p_notification) {
 void Node::_propagate_ready() {
 
     data.ready_notified = true;
-    data.blocked++;
+    blocked++;
     for (int i = 0; i < data.children.size(); i++) {
 
         data.children[i]->_propagate_ready();
     }
-    data.blocked--;
+    blocked--;
 
     notification(NOTIFICATION_POST_ENTER_TREE);
 
@@ -239,7 +245,7 @@ void Node::_propagate_enter_tree() {
 
     data.tree->node_added(this);
 
-    data.blocked++;
+    blocked++;
     //block while adding children
 
     for (int i = 0; i < data.children.size(); i++) {
@@ -248,13 +254,13 @@ void Node::_propagate_enter_tree() {
             data.children[i]->_propagate_enter_tree();
     }
 
-    data.blocked--;
+    blocked--;
 
 #ifdef DEBUG_ENABLED
 
-    if (ScriptDebugger::get_singleton() && !data.filename.empty()) {
+    if (ScriptDebugger::get_singleton() && data.filename && !data.filename->empty()) {
         //used for live edit
-        data.tree->live_scene_edit_cache[data.filename].insert(this);
+        data.tree->get_live_scene_edit_cache()[*data.filename].insert(this);
     }
 #endif
     // enter groups
@@ -262,11 +268,11 @@ void Node::_propagate_enter_tree() {
 
 void Node::_propagate_after_exit_tree() {
 
-    data.blocked++;
+    blocked++;
     for (int i = 0; i < data.children.size(); i++) {
         data.children[i]->_propagate_after_exit_tree();
     }
-    data.blocked--;
+    blocked--;
     emit_signal(SceneStringNames::get_singleton()->tree_exited);
 }
 
@@ -276,34 +282,34 @@ void Node::_propagate_exit_tree() {
 
 #ifdef DEBUG_ENABLED
 
-    if (ScriptDebugger::get_singleton() && !data.filename.empty()) {
+    if (ScriptDebugger::get_singleton() && data.filename && !data.filename->empty()) {
         //used for live edit
-        Map<String, Set<Node *> >::iterator E = data.tree->live_scene_edit_cache.find(data.filename);
-        if (E!=data.tree->live_scene_edit_cache.end()) {
+        Map<String, Set<Node *> >::iterator E = data.tree->get_live_scene_edit_cache().find(*data.filename);
+        if (E!=data.tree->get_live_scene_edit_cache().end()) {
             E->second.erase(this);
             if (E->second.empty()) {
-                data.tree->live_scene_edit_cache.erase(E);
+                data.tree->get_live_scene_edit_cache().erase(E);
             }
         }
 
-        Map<Node *, Map<ObjectID, Node *> >::iterator F = data.tree->live_edit_remove_list.find(this);
-        if (F!=data.tree->live_edit_remove_list.end()) {
+        Map<Node *, Map<ObjectID, Node *> >::iterator F = data.tree->get_live_edit_remove_list().find(this);
+        if (F!=data.tree->get_live_edit_remove_list().end()) {
             for (eastl::pair<const ObjectID, Node *> &G : F->second) {
 
                 memdelete(G.second);
             }
-            data.tree->live_edit_remove_list.erase(F);
+            data.tree->get_live_edit_remove_list().erase(F);
         }
     }
 #endif
-    data.blocked++;
+    blocked++;
 
     for (int i = data.children.size() - 1; i >= 0; i--) {
 
         data.children[i]->_propagate_exit_tree();
     }
 
-    data.blocked--;
+    blocked--;
 
     if (get_script_instance()) {
 
@@ -338,7 +344,7 @@ void Node::move_child(Node *p_child, int p_pos) {
     ERR_FAIL_NULL(p_child)
     ERR_FAIL_INDEX_MSG(p_pos, data.children.size() + 1, "Invalid new child position: " + itos(p_pos) + ".");
     ERR_FAIL_COND_MSG(p_child->data.parent != this, "Child is not a child of this node.")
-    ERR_FAIL_COND_MSG(data.blocked > 0, "Parent node is busy setting up children, move_child() failed. Consider using call_deferred(\"move_child\") instead (or \"popup\" if this is from a popup).")
+    ERR_FAIL_COND_MSG(blocked > 0, "Parent node is busy setting up children, move_child() failed. Consider using call_deferred(\"move_child\") instead (or \"popup\" if this is from a popup).")
 
     // Specifying one place beyond the end
     // means the same as moving to the last position
@@ -358,7 +364,7 @@ void Node::move_child(Node *p_child, int p_pos) {
         data.tree->tree_changed();
     }
 
-    data.blocked++;
+    blocked++;
     //new pos first
     for (int i = motion_from; i <= motion_to; i++) {
 
@@ -374,7 +380,7 @@ void Node::move_child(Node *p_child, int p_pos) {
             E.second.group->changed = true;
     }
 
-    data.blocked--;
+    blocked--;
 }
 
 void Node::raise() {
@@ -507,22 +513,22 @@ bool Node::is_network_master() const {
 
 /***** RPC CONFIG ********/
 
-void Node::rpc_config(const StringName &p_method, MultiplayerAPI::RPCMode p_mode) {
+void Node::rpc_config(const StringName &p_method, MultiplayerAPI_RPCMode p_mode) {
 
-    if (p_mode == MultiplayerAPI::RPC_MODE_DISABLED) {
+    if (p_mode == MultiplayerAPI_RPCMode(0)) {
         data.rpc_methods.erase(p_method);
     } else {
         data.rpc_methods[p_method] = p_mode;
-    };
+    }
 }
 
-void Node::rset_config(const StringName &p_property, MultiplayerAPI::RPCMode p_mode) {
+void Node::rset_config(const StringName &p_property, MultiplayerAPI_RPCMode p_mode) {
 
-    if (p_mode == MultiplayerAPI::RPC_MODE_DISABLED) {
+    if (p_mode == MultiplayerAPI_RPCMode(0)) {
         data.rpc_properties.erase(p_property);
     } else {
         data.rpc_properties[p_property] = p_mode;
-    };
+    }
 }
 
 /***** RPC FUNCTIONS ********/
@@ -740,14 +746,14 @@ void Node::set_custom_multiplayer(Ref<MultiplayerAPI> p_multiplayer) {
     multiplayer = p_multiplayer;
 }
 
-const MultiplayerAPI::RPCMode *Node::get_node_rpc_mode(const StringName &p_method) {
+const MultiplayerAPI_RPCMode *Node::get_node_rpc_mode(const StringName &p_method) {
     auto iter = data.rpc_methods.find(p_method);
     if(iter==data.rpc_methods.end())
         return nullptr;
     return &iter->second;
 }
 
-const MultiplayerAPI::RPCMode *Node::get_node_rset_mode(const StringName &p_property) {
+const MultiplayerAPI_RPCMode *Node::get_node_rset_mode(const StringName &p_property) {
     auto iter = data.rpc_properties.find(p_property);
     if(iter==data.rpc_properties.end())
         return nullptr;
@@ -1180,7 +1186,7 @@ void Node::add_child(Node *p_child, bool p_legible_unique_name) {
     ERR_FAIL_COND_MSG(p_child->data.parent, "Can't add child '" + p_child->get_name() + "' to '" + get_name() +
                                                     "', already has a parent '" + p_child->data.parent->get_name() +
                                                     "'.") // Fail if node has a parent
-    ERR_FAIL_COND_CMSG(data.blocked > 0, "Parent node is busy setting up children, add_node() failed. Consider using "
+    ERR_FAIL_COND_CMSG(blocked > 0, "Parent node is busy setting up children, add_node() failed. Consider using "
                                          "call_deferred(\"add_child\", child) instead.")
 
     /* Validate name */
@@ -1237,7 +1243,7 @@ void Node::_propagate_validate_owner() {
 void Node::remove_child(Node *p_child) {
 
     ERR_FAIL_NULL(p_child)
-    ERR_FAIL_COND_MSG(data.blocked > 0, "Parent node is busy setting up children, remove_node() failed. Consider using call_deferred(\"remove_child\", child) instead.")
+    ERR_FAIL_COND_MSG(blocked > 0, "Parent node is busy setting up children, remove_node() failed. Consider using call_deferred(\"remove_child\", child) instead.")
 
     int child_count = data.children.size();
     Node **children = data.children.ptrw();
@@ -1261,7 +1267,7 @@ void Node::remove_child(Node *p_child) {
     }
 
     ERR_FAIL_COND_MSG(idx == -1, "Cannot remove child node " + p_child->get_name() + " as it is not a child of this node.")
-    //ERR_FAIL_COND( p_child->data.blocked > 0 )
+    //ERR_FAIL_COND( p_child->blocked > 0 )
 
     //if (data.scene) { does not matter
 
@@ -1761,21 +1767,21 @@ void Node::_print_tree(const Node *p_node) {
 
 void Node::_propagate_reverse_notification(int p_notification) {
 
-    data.blocked++;
+    blocked++;
     for (int i = data.children.size() - 1; i >= 0; i--) {
 
         data.children[i]->_propagate_reverse_notification(p_notification);
     }
 
     notification(p_notification, true);
-    data.blocked--;
+    blocked--;
 }
 
 void Node::_propagate_deferred_notification(int p_notification, bool p_reverse) {
 
     ERR_FAIL_COND(!is_inside_tree())
 
-    data.blocked++;
+    blocked++;
 
     if (!p_reverse)
         MessageQueue::get_singleton()->push_notification(this, p_notification);
@@ -1788,24 +1794,24 @@ void Node::_propagate_deferred_notification(int p_notification, bool p_reverse) 
     if (p_reverse)
         MessageQueue::get_singleton()->push_notification(this, p_notification);
 
-    data.blocked--;
+    blocked--;
 }
 
 void Node::propagate_notification(int p_notification) {
 
-    data.blocked++;
+    blocked++;
     notification(p_notification);
 
     for (int i = 0; i < data.children.size(); i++) {
 
         data.children[i]->propagate_notification(p_notification);
     }
-    data.blocked--;
+    blocked--;
 }
 
 void Node::propagate_call(const StringName &p_method, const Array &p_args, const bool p_parent_first) {
 
-    data.blocked++;
+    blocked++;
 
     if (p_parent_first && has_method(p_method))
         callv(p_method, p_args);
@@ -1817,17 +1823,17 @@ void Node::propagate_call(const StringName &p_method, const Array &p_args, const
     if (!p_parent_first && has_method(p_method))
         callv(p_method, p_args);
 
-    data.blocked--;
+    blocked--;
 }
 
 void Node::_propagate_replace_owner(Node *p_owner, Node *p_by_owner) {
     if (get_owner() == p_owner)
         set_owner(p_by_owner);
 
-    data.blocked++;
+    blocked++;
     for (int i = 0; i < data.children.size(); i++)
         data.children[i]->_propagate_replace_owner(p_owner, p_by_owner);
-    data.blocked--;
+    blocked--;
 }
 
 int Node::get_index() const {
@@ -1873,12 +1879,15 @@ void Node::remove_and_skip() {
 }
 
 void Node::set_filename(const String &p_filename) {
-
-    data.filename = p_filename;
+    if(!data.filename)
+        data.filename = new String;
+    *data.filename = p_filename;
 }
 String Node::get_filename() const {
 
-    return data.filename;
+    if(data.filename)
+        return *data.filename;
+    return String::null_val;
 }
 
 void Node::set_editor_description(const String &p_editor_description) {
@@ -2921,7 +2930,7 @@ Node::Node() {
 
     data.pos = -1;
     data.depth = -1;
-    data.blocked = 0;
+    blocked = 0;
     data.parent = nullptr;
     data.tree = nullptr;
     data.physics_process = false;
@@ -2952,7 +2961,7 @@ Node::Node() {
 }
 
 Node::~Node() {
-
+    delete data.filename;
     data.grouped.clear();
     data.owned.clear();
     data.children.clear();

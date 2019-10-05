@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef TABS_H
-#define TABS_H
+#pragma once
 
 #include "scene/gui/control.h"
 
@@ -58,6 +57,7 @@ private:
 	struct Tab {
 
 		String text;
+        String xl_text;
 		Ref<Texture> icon;
 		int ofs_cache;
 		bool disabled;
@@ -167,8 +167,3 @@ public:
 
 	Tabs();
 };
-
-VARIANT_ENUM_CAST(Tabs::TabAlign);
-VARIANT_ENUM_CAST(Tabs::CloseButtonDisplayPolicy);
-
-#endif // TABS_H

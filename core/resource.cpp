@@ -318,7 +318,7 @@ void Resource::notify_change_to_owners() {
 
 uint32_t Resource::hash_edited_version() const {
 
-    uint32_t hash = hash_djb2_one_32(get_edited_version());
+    uint32_t hash = hash_djb2_one_32(get_tooling_interface()->get_edited_version());
 
     ListPOD<PropertyInfo> plist;
     get_property_list(&plist);
@@ -421,7 +421,6 @@ String Resource::_get_category_wrap() {
 }
 
 void Resource::_bind_methods() {
-
     MethodBinder::bind_method(D_METHOD("set_path", {"path"}), &Resource::_set_path);
     MethodBinder::bind_method(D_METHOD("take_over_path", {"path"}), &Resource::_take_over_path);
     MethodBinder::bind_method(D_METHOD("get_path"), &Resource::get_path);

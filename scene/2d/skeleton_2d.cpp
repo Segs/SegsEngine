@@ -190,7 +190,7 @@ void Skeleton2D::_update_bone_setup() {
         return;
 
     bone_setup_dirty = false;
-    VS::get_singleton()->skeleton_allocate(skeleton, bones.size(), true);
+    VisualServer::get_singleton()->skeleton_allocate(skeleton, bones.size(), true);
 
     bones.sort(); //sorty so they are always in the same order/index
 
@@ -244,7 +244,7 @@ void Skeleton2D::_update_transform() {
     for (int i = 0; i < bones.size(); i++) {
 
         Transform2D final_xform = bones[i].accum_transform * bones[i].rest_inverse;
-        VS::get_singleton()->skeleton_bone_set_transform_2d(skeleton, i, final_xform);
+        VisualServer::get_singleton()->skeleton_bone_set_transform_2d(skeleton, i, final_xform);
     }
 }
 
@@ -280,7 +280,7 @@ void Skeleton2D::_notification(int p_what) {
     }
 
     if (p_what == NOTIFICATION_TRANSFORM_CHANGED) {
-        VS::get_singleton()->skeleton_set_base_transform_2d(skeleton, get_global_transform());
+        VisualServer::get_singleton()->skeleton_set_base_transform_2d(skeleton, get_global_transform());
     }
 }
 
@@ -304,11 +304,11 @@ Skeleton2D::Skeleton2D() {
     bone_setup_dirty = true;
     transform_dirty = true;
 
-    skeleton = VS::get_singleton()->skeleton_create();
+    skeleton = VisualServer::get_singleton()->skeleton_create();
     set_notify_transform(true);
 }
 
 Skeleton2D::~Skeleton2D() {
 
-    VS::get_singleton()->free(skeleton);
+    VisualServer::get_singleton()->free(skeleton);
 }

@@ -35,6 +35,7 @@
 #include "core/list.h"
 #include "core/math/math_funcs.h"
 #include "core/method_bind.h"
+#include "core/script_language.h"
 #include "core/object.h"
 #include "core/object_db.h"
 #include "core/rid.h"
@@ -45,6 +46,8 @@ IMPL_GDCLASS(StaticBody2D)
 IMPL_GDCLASS(RigidBody2D)
 IMPL_GDCLASS(KinematicBody2D)
 IMPL_GDCLASS(KinematicCollision2D)
+VARIANT_ENUM_CAST(RigidBody2D::Mode);
+VARIANT_ENUM_CAST(RigidBody2D::CCDMode);
 
 void PhysicsBody2D::_notification(int p_what) {
 }

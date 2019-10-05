@@ -91,8 +91,8 @@ public:
 		m_targetVelocity = 0;
 		m_maxMotorForce = 0.1f;
 		m_maxLimitForce = 300.0f;
-		m_loLimit = -1e30;
-		m_hiLimit = 1e30;
+		m_loLimit = -1e30f;
+		m_hiLimit = 1e30f;
 		m_ERP = 0.5f;
 		m_bounce = 0.0f;
 		m_damping = 1.0f;

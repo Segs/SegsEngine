@@ -251,8 +251,6 @@ public:
 	VisualShaderNodeTexture();
 };
 
-VARIANT_ENUM_CAST(VisualShaderNodeTexture::TextureType)
-VARIANT_ENUM_CAST(VisualShaderNodeTexture::Source)
 
 ///////////////////////////////////////
 
@@ -300,7 +298,6 @@ public:
 	VisualShaderNodeCubeMap();
 };
 
-VARIANT_ENUM_CAST(VisualShaderNodeCubeMap::TextureType)
 
 ///////////////////////////////////////
 /// OPS
@@ -350,7 +347,6 @@ public:
 	VisualShaderNodeScalarOp();
 };
 
-VARIANT_ENUM_CAST(VisualShaderNodeScalarOp::Operator)
 
 class VisualShaderNodeVectorOp : public VisualShaderNode {
 	GDCLASS(VisualShaderNodeVectorOp,VisualShaderNode)
@@ -398,7 +394,6 @@ public:
 	VisualShaderNodeVectorOp();
 };
 
-VARIANT_ENUM_CAST(VisualShaderNodeVectorOp::Operator)
 
 ///////////////////////////////////////
 
@@ -445,7 +440,6 @@ public:
 	VisualShaderNodeColorOp();
 };
 
-VARIANT_ENUM_CAST(VisualShaderNodeColorOp::Operator)
 
 ///////////////////////////////////////
 /// TRANSFORM-TRANSFORM MULTIPLICATION
@@ -489,7 +483,6 @@ public:
 	VisualShaderNodeTransformMult();
 };
 
-VARIANT_ENUM_CAST(VisualShaderNodeTransformMult::Operator)
 
 ///////////////////////////////////////
 /// TRANSFORM-VECTOR MULTIPLICATION
@@ -532,7 +525,6 @@ public:
 	VisualShaderNodeTransformVecMult();
 };
 
-VARIANT_ENUM_CAST(VisualShaderNodeTransformVecMult::Operator)
 
 ///////////////////////////////////////
 /// SCALAR FUNC
@@ -603,7 +595,6 @@ public:
 	VisualShaderNodeScalarFunc();
 };
 
-VARIANT_ENUM_CAST(VisualShaderNodeScalarFunc::Function)
 
 ///////////////////////////////////////
 /// VECTOR FUNC
@@ -677,8 +668,6 @@ public:
 	VisualShaderNodeVectorFunc();
 };
 
-VARIANT_ENUM_CAST(VisualShaderNodeVectorFunc::Function)
-
 ///////////////////////////////////////
 /// COLOR FUNC
 ///////////////////////////////////////
@@ -718,7 +707,6 @@ public:
 	VisualShaderNodeColorFunc();
 };
 
-VARIANT_ENUM_CAST(VisualShaderNodeColorFunc::Function)
 
 ///////////////////////////////////////
 /// TRANSFORM FUNC
@@ -759,7 +747,6 @@ public:
 	VisualShaderNodeTransformFunc();
 };
 
-VARIANT_ENUM_CAST(VisualShaderNodeTransformFunc::Function)
 
 ///////////////////////////////////////
 /// DOT
@@ -920,8 +907,6 @@ public:
 	VisualShaderNodeScalarDerivativeFunc();
 };
 
-VARIANT_ENUM_CAST(VisualShaderNodeScalarDerivativeFunc::Function)
-
 ///////////////////////////////////////
 
 class VisualShaderNodeVectorDerivativeFunc : public VisualShaderNode {
@@ -961,7 +946,6 @@ public:
 	VisualShaderNodeVectorDerivativeFunc();
 };
 
-VARIANT_ENUM_CAST(VisualShaderNodeVectorDerivativeFunc::Function)
 
 ///////////////////////////////////////
 /// FACEFORWARD
@@ -1479,8 +1463,6 @@ public:
 	VisualShaderNodeTextureUniform();
 };
 
-VARIANT_ENUM_CAST(VisualShaderNodeTextureUniform::TextureType)
-VARIANT_ENUM_CAST(VisualShaderNodeTextureUniform::ColorDefault)
 
 ///////////////////////////////////////
 
@@ -1648,8 +1630,6 @@ public:
 	VisualShaderNodeIs();
 };
 
-VARIANT_ENUM_CAST(VisualShaderNodeIs::Function)
-
 ///////////////////////////////////////
 /// Compare
 ///////////////////////////////////////
@@ -1715,9 +1695,5 @@ public:
 
 	VisualShaderNodeCompare();
 };
-
-VARIANT_ENUM_CAST(VisualShaderNodeCompare::ComparsionType)
-VARIANT_ENUM_CAST(VisualShaderNodeCompare::Function)
-VARIANT_ENUM_CAST(VisualShaderNodeCompare::Condition)
 
 #endif // VISUAL_SHADER_NODES_H

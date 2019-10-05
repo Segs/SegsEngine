@@ -194,6 +194,5 @@ public:
 	~Area2D() override;
 };
 
-VARIANT_ENUM_CAST(Area2D::SpaceOverride);
 
 #endif // AREA_2D_H

@@ -34,6 +34,7 @@
 #include <cstdlib>
 
 IMPL_GDCLASS(TextureButton)
+VARIANT_ENUM_CAST(TextureButton::StretchMode);
 
 Size2 TextureButton::get_minimum_size() const {
 

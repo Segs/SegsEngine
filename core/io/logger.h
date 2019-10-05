@@ -35,8 +35,9 @@
 #include <cstdarg>
 
 class QChar;
+GODOT_TEMPLATE_EXT_DECLARE(Vector<class Logger *>)
 
-class Logger {
+class GODOT_EXPORT Logger {
 protected:
 	bool should_log(bool p_err);
 
@@ -65,7 +66,7 @@ public:
 /**
  * Writes messages to stdout/stderr.
  */
-class StdLogger : public Logger {
+class GODOT_EXPORT StdLogger : public Logger {
 
 public:
 	void logv(const QChar *p_msg, bool p_err) override;
@@ -78,13 +79,13 @@ class CompositeLogger : public Logger {
 	Vector<Logger *> loggers;
 
 public:
-	CompositeLogger(const Vector<Logger *>& p_loggers);
+    GODOT_EXPORT CompositeLogger(const Vector<Logger *>& p_loggers);
 
-	void logv(const QChar *p_msg, bool p_err) override;
-	void logv(const char *p_msg, bool p_err) override;
-	void log_error(const char *p_function, const char *p_file, int p_line, const char *p_code, const char *p_rationale, ErrorType p_type = ERR_ERROR) override;
+    GODOT_EXPORT void logv(const QChar *p_msg, bool p_err) override;
+    GODOT_EXPORT void logv(const char *p_msg, bool p_err) override;
+    GODOT_EXPORT void log_error(const char *p_function, const char *p_file, int p_line, const char *p_code, const char *p_rationale, ErrorType p_type = ERR_ERROR) override;
 
-	void add_logger(Logger *p_logger);
+    GODOT_EXPORT void add_logger(Logger *p_logger);
 
-	~CompositeLogger() override;
+    GODOT_EXPORT ~CompositeLogger() override;
 };

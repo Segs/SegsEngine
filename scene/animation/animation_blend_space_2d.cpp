@@ -33,6 +33,7 @@
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(AnimationNodeBlendSpace2D)
+VARIANT_ENUM_CAST(AnimationNodeBlendSpace2D::BlendMode)
 
 void AnimationNodeBlendSpace2D::get_parameter_list(List<PropertyInfo> *r_list) const {
     r_list->push_back(PropertyInfo(VariantType::VECTOR2, blend_position));

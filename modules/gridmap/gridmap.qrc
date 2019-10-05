@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file alias="GridMap.svg">icons/icon_grid_map.svg</file>
+    </qresource>
+</RCC>

@@ -28,13 +28,12 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef CAMERAWIN_H
-#define CAMERAWIN_H
+#pragma once
 
 #include "servers/camera/camera_feed.h"
 #include "servers/camera_server.h"
 
-class CameraWindows : public CameraServer {
+class GODOT_EXPORT CameraWindows : public CameraServer {
 private:
 	void add_active_cameras();
 
@@ -42,5 +41,3 @@ public:
 	CameraWindows();
 	~CameraWindows() override;
 };
-
-#endif /* CAMERAWIN_H */

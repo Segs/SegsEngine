@@ -33,7 +33,7 @@
 #include "core/resource.h"
 
 // y(x) curve
-class Curve : public Resource {
+class GODOT_EXPORT Curve : public Resource {
     GDCLASS(Curve,Resource)
 
 public:
@@ -146,7 +146,7 @@ private:
 };
 
 
-class Curve2D : public Resource {
+class GODOT_EXPORT Curve2D : public Resource {
 
     GDCLASS(Curve2D,Resource)
 
@@ -209,7 +209,7 @@ public:
     Curve2D();
 };
 
-class Curve3D : public Resource {
+class GODOT_EXPORT Curve3D : public Resource {
 
     GDCLASS(Curve3D,Resource)
 

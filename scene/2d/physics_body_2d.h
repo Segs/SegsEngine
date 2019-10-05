@@ -282,8 +282,6 @@ private:
 	void _reload_physics_characteristics();
 };
 
-VARIANT_ENUM_CAST(RigidBody2D::Mode);
-VARIANT_ENUM_CAST(RigidBody2D::CCDMode);
 
 class KinematicBody2D : public PhysicsBody2D {
 

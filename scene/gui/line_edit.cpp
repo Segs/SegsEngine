@@ -1806,7 +1806,7 @@ LineEdit::LineEdit() {
     pass = false;
     secret_character = "*";
     text_changed_dirty = false;
-    placeholder_alpha = 0.6;
+    placeholder_alpha = 0.6f;
     clear_button_enabled = false;
     clear_button_status.press_attempt = false;
     clear_button_status.pressing_inside = false;

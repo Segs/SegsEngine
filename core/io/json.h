@@ -28,13 +28,12 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef JSON_H
-#define JSON_H
+#pragma once
 
 #include "core/variant.h"
 #include "core/ustring.h"
 
-class JSON {
+class GODOT_EXPORT JSON {
 
 	enum TokenType {
 		TK_CURLY_BRACKET_OPEN,
@@ -77,5 +76,3 @@ public:
 	static String print(const Variant &p_var, const String &p_indent = "", bool p_sort_keys = true);
 	static Error parse(const String &p_json, Variant &r_ret, String &r_err_str, int &r_err_line);
 };
-
-#endif // JSON_H

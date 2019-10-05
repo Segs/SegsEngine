@@ -39,9 +39,9 @@ class ObjectDB {
 public:
     using DebugFunc = void (*)(Object *);
 
-    static Object *get_instance(ObjectID p_instance_id);
-    static void debug_objects(DebugFunc p_func);
-    static int get_object_count();
+    GODOT_EXPORT static Object *get_instance(ObjectID p_instance_id);
+    GODOT_EXPORT static void debug_objects(DebugFunc p_func);
+    GODOT_EXPORT static int get_object_count();
 
     _FORCE_INLINE_ static bool instance_validate(Object *p_ptr) {
         rw_lock->read_lock();

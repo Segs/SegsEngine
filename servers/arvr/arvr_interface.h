@@ -120,8 +120,5 @@ public:
 	~ARVRInterface() override;
 };
 
-VARIANT_ENUM_CAST(ARVRInterface::Capabilities);
-VARIANT_ENUM_CAST(ARVRInterface::Eyes);
-VARIANT_ENUM_CAST(ARVRInterface::Tracking_status);
 
 #endif

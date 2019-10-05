@@ -36,6 +36,7 @@
 #include "servers/physics_server.h"
 
 IMPL_GDCLASS(Area)
+VARIANT_ENUM_CAST(Area::SpaceOverride);
 
 void Area::set_space_override_mode(SpaceOverride p_mode) {
 

@@ -12,7 +12,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(CMakeParseArguments)
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH})
 
@@ -71,6 +70,21 @@ macro(define_per_target_option name description initial_value)
 endmacro()
 
 define_per_target_option(DISABLE_3D "Disable 3D nodes for smaller executable" OFF)
+# add global engine targets
+foreach(tgt ${global_targets})
+    add_library(${tgt}_engine SHARED)
+    set_common_target_properties(${tgt}_engine)
+
+    add_executable(segs_${tgt} ${PROJECT_SOURCE_DIR}/executable/main.cpp)
+    if(UNIX AND NOT APPLE)
+        target_link_options(segs_${tgt} PUBLIC -Wl,--exclude-libs,ALL)
+    endif()
+    target_link_libraries(segs_${tgt} ${tgt}_engine Qt5::Core EASTL_Import)
+    set_target_properties(segs_${tgt} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
+    target_compile_definitions(segs_${tgt} PRIVATE ${godot_${tgt}_DEFINES})
+    target_include_directories(segs_${tgt} PRIVATE ${${PROJECT_BINARY_DIR}})
+
+endforeach()
 
 message(${global_targets})
 #define_target( NAME client
@@ -163,7 +177,6 @@ OPTION(OPTION_BUILTIN_ZSTD "Use the built-in zstd library" ON)
 OPTION(OPTION_NO_EDITOR_SPLASH "Don't use the custom splash screen for the editor" OFF)
 OPTION(OPTION_PRECISE_MATH_CHECKS "Math checks use very precise epsilon (useful to debug the engine)" OFF)
 
-
 # # add default include paths
 include_directories(
     ${PROJECT_SOURCE_DIR}/core
@@ -197,8 +210,8 @@ if(OPTION_PRECISE_MATH_CHECKS)
 endif()
 
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS
-	$<$<CONFIG:Debug>:DEBUG_ENABLED>
-	$<$<CONFIG:RelWithDebInfo>:DEBUG_ENABLED>
+    $<$<CONFIG:Debug>:DEBUG_ENABLED>
+    $<$<CONFIG:RelWithDebInfo>:DEBUG_ENABLED>
 )
 add_subdirectory("${PROJECT_SOURCE_DIR}/thirdparty/zstd")
 

@@ -63,6 +63,7 @@ extern "C" {
 __declspec(dllexport) DWORD NvOptimusEnablement = 1;
 __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 }
+HINSTANCE godot_hinstance;
 
 // Workaround mingw-w64 < 4.0 bug
 #ifndef WM_TOUCH
@@ -107,8 +108,6 @@ static String format_error_message(DWORD id) {
     return msg;
 }
 #endif // DEBUG_ENABLED
-
-extern HINSTANCE godot_hinstance;
 
 void RedirectIOToConsole() {
 
@@ -2644,7 +2643,7 @@ String OS_Windows::get_executable_path() const {
 void OS_Windows::set_native_icon(const String &p_filename) {
 
     FileAccess *f = FileAccess::open(p_filename, FileAccess::READ);
-	ERR_FAIL_COND_MSG(!f, "Cannot open file with icon '" + p_filename + "'.");
+    ERR_FAIL_COND_MSG(!f, "Cannot open file with icon '" + p_filename + "'.");
 
     ICONDIR *icon_dir = (ICONDIR *)memalloc(sizeof(ICONDIR));
     int pos = 0;
@@ -3184,4 +3183,8 @@ OS_Windows::~OS_Windows() {
 #ifdef STDOUT_FILE
     fclose(stdo);
 #endif
+}
+
+OS *instantiateOS(void *v) {
+    return new OS_Windows((HINSTANCE)v);
 }

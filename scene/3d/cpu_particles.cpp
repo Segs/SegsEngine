@@ -34,10 +34,15 @@
 #include "scene/3d/particles.h"
 #include "scene/resources/particles_material.h"
 #include "scene/resources/curve_texture.h"
+#include "scene/resources/mesh.h"
 #include "servers/visual_server.h"
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(CPUParticles)
+VARIANT_ENUM_CAST(CPUParticles::DrawOrder)
+VARIANT_ENUM_CAST(CPUParticles::Parameter)
+VARIANT_ENUM_CAST(CPUParticles::Flags)
+VARIANT_ENUM_CAST(CPUParticles::EmissionShape)
 
 AABB CPUParticles::get_aabb() const {
 
@@ -69,7 +74,7 @@ void CPUParticles::set_amount(int p_amount) {
     }
 
     particle_data.resize((12 + 4 + 1) * p_amount);
-    VS::get_singleton()->multimesh_allocate(multimesh, p_amount, VS::MULTIMESH_TRANSFORM_3D, VS::MULTIMESH_COLOR_8BIT, VS::MULTIMESH_CUSTOM_DATA_FLOAT);
+    VisualServer::get_singleton()->multimesh_allocate(multimesh, p_amount, VS::MULTIMESH_TRANSFORM_3D, VS::MULTIMESH_COLOR_8BIT, VS::MULTIMESH_CUSTOM_DATA_FLOAT);
 
     particle_order.resize(p_amount);
 }
@@ -167,9 +172,9 @@ void CPUParticles::set_mesh(const Ref<Mesh> &p_mesh) {
 
     mesh = p_mesh;
     if (mesh) {
-        VS::get_singleton()->multimesh_set_mesh(multimesh, mesh->get_rid());
+        VisualServer::get_singleton()->multimesh_set_mesh(multimesh, mesh->get_rid());
     } else {
-        VS::get_singleton()->multimesh_set_mesh(multimesh, RID());
+        VisualServer::get_singleton()->multimesh_set_mesh(multimesh, RID());
     }
 }
 
@@ -1040,13 +1045,13 @@ void CPUParticles::_set_redraw(bool p_redraw) {
     update_mutex->lock();
 #endif
     if (redraw) {
-        VS::get_singleton()->connect("frame_pre_draw", this, "_update_render_thread");
-        VS::get_singleton()->instance_geometry_set_flag(get_instance(), VS::INSTANCE_FLAG_DRAW_NEXT_FRAME_IF_VISIBLE, true);
-        VS::get_singleton()->multimesh_set_visible_instances(multimesh, -1);
+        VisualServer::get_singleton()->connect("frame_pre_draw", this, "_update_render_thread");
+        VisualServer::get_singleton()->instance_geometry_set_flag(get_instance(), VS::INSTANCE_FLAG_DRAW_NEXT_FRAME_IF_VISIBLE, true);
+        VisualServer::get_singleton()->multimesh_set_visible_instances(multimesh, -1);
     } else {
-        VS::get_singleton()->disconnect("frame_pre_draw", this, "_update_render_thread");
-        VS::get_singleton()->instance_geometry_set_flag(get_instance(), VS::INSTANCE_FLAG_DRAW_NEXT_FRAME_IF_VISIBLE, false);
-        VS::get_singleton()->multimesh_set_visible_instances(multimesh, 0);
+        VisualServer::get_singleton()->disconnect("frame_pre_draw", this, "_update_render_thread");
+        VisualServer::get_singleton()->instance_geometry_set_flag(get_instance(), VS::INSTANCE_FLAG_DRAW_NEXT_FRAME_IF_VISIBLE, false);
+        VisualServer::get_singleton()->multimesh_set_visible_instances(multimesh, 0);
     }
 #ifndef NO_THREADS
     update_mutex->unlock();
@@ -1059,7 +1064,7 @@ void CPUParticles::_update_render_thread() {
     update_mutex->lock();
 #endif
     if (can_update) {
-        VS::get_singleton()->multimesh_set_as_bulk_array(multimesh, particle_data);
+        VisualServer::get_singleton()->multimesh_set_as_bulk_array(multimesh, particle_data);
         can_update = false; //wait for next time
     }
 
@@ -1537,7 +1542,7 @@ CPUParticles::CPUParticles() {
 }
 
 CPUParticles::~CPUParticles() {
-    VS::get_singleton()->free(multimesh);
+    VisualServer::get_singleton()->free(multimesh);
 
 #ifndef NO_THREADS
     memdelete(update_mutex);

@@ -39,7 +39,7 @@ class Label;
 class Panel;
 class Theme;
 
-class Control : public CanvasItem {
+class GODOT_EXPORT Control : public CanvasItem {
 
     GDCLASS(Control,CanvasItem)
 
@@ -477,11 +477,3 @@ public:
     ~Control() override;
 };
 
-VARIANT_ENUM_CAST(Control::FocusMode);
-VARIANT_ENUM_CAST(Control::SizeFlags);
-VARIANT_ENUM_CAST(Control::CursorShape);
-VARIANT_ENUM_CAST(Control::LayoutPreset);
-VARIANT_ENUM_CAST(Control::LayoutPresetMode);
-VARIANT_ENUM_CAST(Control::MouseFilter);
-VARIANT_ENUM_CAST(Control::GrowDirection);
-VARIANT_ENUM_CAST(Control::Anchor);

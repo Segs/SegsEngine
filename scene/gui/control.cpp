@@ -31,8 +31,8 @@
 #include "control.h"
 
 #include "core/message_queue.h"
-#include "core/object_db.h"
 #include "core/method_bind.h"
+#include "core/object_db.h"
 #include "core/os/keyboard.h"
 #include "core/os/os.h"
 #include "core/print_string.h"
@@ -52,6 +52,14 @@
 #endif
 
 IMPL_GDCLASS(Control)
+VARIANT_ENUM_CAST(Control::FocusMode);
+VARIANT_ENUM_CAST(Control::SizeFlags);
+VARIANT_ENUM_CAST(Control::CursorShape);
+VARIANT_ENUM_CAST(Control::LayoutPreset);
+VARIANT_ENUM_CAST(Control::LayoutPresetMode);
+VARIANT_ENUM_CAST(Control::MouseFilter);
+VARIANT_ENUM_CAST(Control::GrowDirection);
+VARIANT_ENUM_CAST(Control::Anchor);
 
 Dictionary Control::_edit_get_state() const {
 
@@ -2952,7 +2960,8 @@ void Control::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "rect_global_position", PROPERTY_HINT_NONE, "", 0), "_set_global_position", "get_global_position");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "rect_size", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR), "_set_size", "get_size");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "rect_min_size"), "set_custom_minimum_size", "get_custom_minimum_size");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "rect_rotation", PROPERTY_HINT_RANGE, "-1080,1080,0.01"), "set_rotation_degrees", "get_rotation_degrees");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "rect_rotation", PROPERTY_HINT_RANGE, "-360,360,0.1,or_lesser,or_greater"), "set_rotation_degrees", "get_rotation_degrees");
+
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "rect_scale"), "set_scale", "get_scale");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "rect_pivot_offset"), "set_pivot_offset", "get_pivot_offset");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "rect_clip_content"), "set_clip_contents", "is_clipping_contents");

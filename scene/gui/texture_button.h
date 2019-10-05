@@ -92,5 +92,4 @@ public:
 	TextureButton();
 };
 
-VARIANT_ENUM_CAST(TextureButton::StretchMode);
 #endif // TEXTURE_BUTTON_H

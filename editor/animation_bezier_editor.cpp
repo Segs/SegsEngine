@@ -772,14 +772,14 @@ void AnimationBezierTrackEdit::_gui_input(const Ref<InputEvent> &p_event) {
             float h = (get_size().height / 2 - mb->get_position().y) * v_zoom + v_scroll;
 
             new_point[0] = h;
-            new_point[1] = -0.25;
+            new_point[1] = -0.25f;
             new_point[2] = 0;
-            new_point[3] = 0.25;
+            new_point[3] = 0.25f;
             new_point[4] = 0;
 
             float time = ((mb->get_position().x - timeline->get_name_limit()) / timeline->get_zoom_scale()) + timeline->get_value();
             while (animation->track_find_key(track, time, true) != -1) {
-                time += 0.001;
+                time += 0.001f;
             }
 
             undo_redo->create_action(TTR("Add Bezier Point"));

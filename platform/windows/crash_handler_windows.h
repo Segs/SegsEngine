@@ -32,15 +32,15 @@
 #define CRASH_HANDLER_WINDOWS_H
 
 #include <windows.h>
-
+#include "core/typedefs.h"
 // Crash handler exception only enabled with MSVC
 #if defined(DEBUG_ENABLED) && defined(MSVC)
 #define CRASH_HANDLER_EXCEPTION 1
 
-extern DWORD CrashHandlerException(EXCEPTION_POINTERS *ep);
+extern GODOT_EXPORT DWORD CrashHandlerException(EXCEPTION_POINTERS *ep);
 #endif
 
-class CrashHandler {
+class GODOT_EXPORT CrashHandler {
 
 	bool disabled;
 

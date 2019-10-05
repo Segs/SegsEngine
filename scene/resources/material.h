@@ -34,10 +34,10 @@
 #include "core/self_list.h"
 #include "scene/resources/shader.h"
 #include "scene/resources/texture.h"
-#include "servers/visual/shader_language.h"
-#include "servers/visual_server.h"
+#include "servers/visual_server_enums.h"
 
-class Material : public Resource {
+
+class GODOT_EXPORT Material : public Resource {
 
     GDCLASS(Material,Resource)
 
@@ -73,7 +73,7 @@ public:
     ~Material() override;
 };
 
-class ShaderMaterial : public Material {
+class GODOT_EXPORT ShaderMaterial : public Material {
 
     GDCLASS(ShaderMaterial,Material)
 
@@ -107,7 +107,7 @@ public:
     ~ShaderMaterial() override;
 };
 
-class SpatialMaterial : public Material {
+class GODOT_EXPORT SpatialMaterial : public Material {
 
     GDCLASS(SpatialMaterial,Material)
 
@@ -636,19 +636,5 @@ public:
     SpatialMaterial();
     ~SpatialMaterial() override;
 };
-
-VARIANT_ENUM_CAST(SpatialMaterial::TextureParam)
-VARIANT_ENUM_CAST(SpatialMaterial::DetailUV)
-VARIANT_ENUM_CAST(SpatialMaterial::Feature)
-VARIANT_ENUM_CAST(SpatialMaterial::BlendMode)
-VARIANT_ENUM_CAST(SpatialMaterial::DepthDrawMode)
-VARIANT_ENUM_CAST(SpatialMaterial::CullMode)
-VARIANT_ENUM_CAST(SpatialMaterial::Flags)
-VARIANT_ENUM_CAST(SpatialMaterial::DiffuseMode)
-VARIANT_ENUM_CAST(SpatialMaterial::SpecularMode)
-VARIANT_ENUM_CAST(SpatialMaterial::BillboardMode)
-VARIANT_ENUM_CAST(SpatialMaterial::TextureChannel)
-VARIANT_ENUM_CAST(SpatialMaterial::EmissionOperator)
-VARIANT_ENUM_CAST(SpatialMaterial::DistanceFadeMode)
 
 //////////////////////

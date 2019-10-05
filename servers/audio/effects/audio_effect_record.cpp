@@ -33,6 +33,8 @@
 
 IMPL_GDCLASS(AudioEffectRecordInstance)
 IMPL_GDCLASS(AudioEffectRecord)
+//TODO: SEGS: AudioStreamSample::Format used.
+VARIANT_ENUM_CAST(AudioStreamSample::Format)
 
 void AudioEffectRecordInstance::process(const AudioFrame *p_src_frames, AudioFrame *p_dst_frames, int p_frame_count) {
     if (!is_recording) {

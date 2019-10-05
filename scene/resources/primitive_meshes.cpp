@@ -31,6 +31,7 @@
 #include "primitive_meshes.h"
 #include "servers/visual_server.h"
 #include "core/method_bind.h"
+#include "scene/resources/material.h"
 
 IMPL_GDCLASS(PrimitiveMesh)
 IMPL_GDCLASS(CapsuleMesh)
@@ -95,7 +96,7 @@ void PrimitiveMesh::_update() const {
 
     // in with the new
     VisualServer::get_singleton()->mesh_clear(mesh);
-    VisualServer::get_singleton()->mesh_add_surface_from_arrays(mesh, (VisualServer::PrimitiveType)primitive_type, arr);
+    VisualServer::get_singleton()->mesh_add_surface_from_arrays(mesh, (VS::PrimitiveType)primitive_type, arr);
     VisualServer::get_singleton()->mesh_surface_set_material(mesh, 0, not material ? RID() : material->get_rid());
 
     pending_request = false;
@@ -243,7 +244,7 @@ Array PrimitiveMesh::get_mesh_arrays() const {
 void PrimitiveMesh::set_custom_aabb(const AABB &p_custom) {
 
     custom_aabb = p_custom;
-    VS::get_singleton()->mesh_set_custom_aabb(mesh, custom_aabb);
+    VisualServer::get_singleton()->mesh_set_custom_aabb(mesh, custom_aabb);
     emit_changed();
 }
 
@@ -285,8 +286,8 @@ PrimitiveMesh::~PrimitiveMesh() {
 void CapsuleMesh::_create_mesh_array(Array &p_arr) const {
     int i, j, prevrow, thisrow, point;
     float x, y, z, u, v, w;
-    float onethird = 1.0 / 3.0;
-    float twothirds = 2.0 / 3.0;
+    float onethird = 1.0f / 3.0f;
+    float twothirds = 2.0f / 3.0f;
 
     // note, this has been aligned with our collision shape but I've left the descriptions as top/middle/bottom
 
@@ -317,11 +318,11 @@ void CapsuleMesh::_create_mesh_array(Array &p_arr) const {
             u = i;
             u /= radial_segments;
 
-            x = sin(u * (Math_PI * 2.0));
-            y = -cos(u * (Math_PI * 2.0));
+            x = sin(u * (Math_PI * 2.0f));
+            y = -cos(u * (Math_PI * 2.0f));
 
             Vector3 p = Vector3(x * radius * w, y * radius * w, z);
-            points.push_back(p + Vector3(0.0, 0.0, 0.5 * mid_height));
+            points.push_back(p + Vector3(0.0, 0.0, 0.5f * mid_height));
             normals.push_back(p.normalized());
             ADD_TANGENT(-y, x, 0.0, 1.0)
             uvs.push_back(Vector2(u, v * onethird));
@@ -496,8 +497,8 @@ CapsuleMesh::CapsuleMesh() {
 void CubeMesh::_create_mesh_array(Array &p_arr) const {
     int i, j, prevrow, thisrow, point;
     float x, y, z;
-    float onethird = 1.0 / 3.0;
-    float twothirds = 2.0 / 3.0;
+    const float onethird = 1.0f / 3.0f;
+    const float twothirds = 2.0f / 3.0f;
 
     Vector3 start_pos = size * -0.5;
 
@@ -1080,10 +1081,10 @@ PlaneMesh::PlaneMesh() {
 void PrismMesh::_create_mesh_array(Array &p_arr) const {
     int i, j, prevrow, thisrow, point;
     float x, y, z;
-    float onethird = 1.0 / 3.0;
-    float twothirds = 2.0 / 3.0;
+    const float onethird = 1.0f / 3.0f;
+    const float twothirds = 2.0f / 3.0f;
 
-    Vector3 start_pos = size * -0.5;
+    Vector3 start_pos = size * -0.5f;
 
     // set our bounding box
 

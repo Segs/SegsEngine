@@ -35,6 +35,8 @@
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(AnimationTreePlayer)
+VARIANT_ENUM_CAST(AnimationTreePlayer::NodeType);
+VARIANT_ENUM_CAST(AnimationTreePlayer::AnimationProcessMode);
 
 void AnimationTreePlayer::set_animation_process_mode(AnimationProcessMode p_mode) {
 

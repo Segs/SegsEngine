@@ -169,7 +169,5 @@ public:
 	Camera2D();
 };
 
-VARIANT_ENUM_CAST(Camera2D::AnchorMode);
-VARIANT_ENUM_CAST(Camera2D::Camera2DProcessMode);
 
 #endif // CAMERA_2D_H

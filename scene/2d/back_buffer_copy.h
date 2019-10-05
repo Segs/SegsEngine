@@ -67,6 +67,5 @@ public:
 	~BackBufferCopy() override;
 };
 
-VARIANT_ENUM_CAST(BackBufferCopy::CopyMode);
 
 #endif // BACKBUFFERCOPY_H

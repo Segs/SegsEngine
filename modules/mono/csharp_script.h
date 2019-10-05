@@ -233,7 +233,7 @@ class CSharpInstance : public ScriptInstance {
 
     void _call_multilevel(MonoObject *p_mono_object, const StringName &p_method, const Variant **p_args, int p_argcount);
 
-    MultiplayerAPI::RPCMode _member_get_rpc_mode(IMonoClassMember *p_member) const;
+    MultiplayerAPI_RPCMode _member_get_rpc_mode(IMonoClassMember *p_member) const;
 
     void get_properties_state_for_reloading(List<Pair<StringName, Variant> > &r_state);
 
@@ -266,8 +266,8 @@ public:
     virtual void refcount_incremented();
     virtual bool refcount_decremented();
 
-    virtual MultiplayerAPI::RPCMode get_rpc_mode(const StringName &p_method) const;
-    virtual MultiplayerAPI::RPCMode get_rset_mode(const StringName &p_variable) const;
+    virtual MultiplayerAPI_RPCMode get_rpc_mode(const StringName &p_method) const;
+    virtual MultiplayerAPI_RPCMode get_rset_mode(const StringName &p_variable) const;
 
     virtual void notification(int p_notification);
     void _call_notification(int p_notification);

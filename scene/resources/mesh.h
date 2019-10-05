@@ -30,12 +30,16 @@
 
 #pragma once
 
+#include "core/math/geometry.h"
 #include "core/math/face3.h"
 #include "core/math/triangle_mesh.h"
 #include "core/resource.h"
-#include "scene/resources/material.h"
+#include "core/ustring.h"
+//#include "scene/resources/material.h"
 #include "scene/resources/shape.h"
-#include "servers/visual_server.h"
+#include "servers/visual_server_enums.h"
+
+class Material;
 
 class GODOT_EXPORT Mesh : public Resource {
     GDCLASS(Mesh,Resource)
@@ -50,22 +54,22 @@ protected:
 public:
     enum {
 
-        NO_INDEX_ARRAY = VisualServer::NO_INDEX_ARRAY,
-        ARRAY_WEIGHTS_SIZE = VisualServer::ARRAY_WEIGHTS_SIZE
+        NO_INDEX_ARRAY = VS::NO_INDEX_ARRAY,
+        ARRAY_WEIGHTS_SIZE = VS::ARRAY_WEIGHTS_SIZE
     };
 
     enum ArrayType {
 
-        ARRAY_VERTEX = VisualServer::ARRAY_VERTEX,
-        ARRAY_NORMAL = VisualServer::ARRAY_NORMAL,
-        ARRAY_TANGENT = VisualServer::ARRAY_TANGENT,
-        ARRAY_COLOR = VisualServer::ARRAY_COLOR,
-        ARRAY_TEX_UV = VisualServer::ARRAY_TEX_UV,
-        ARRAY_TEX_UV2 = VisualServer::ARRAY_TEX_UV2,
-        ARRAY_BONES = VisualServer::ARRAY_BONES,
-        ARRAY_WEIGHTS = VisualServer::ARRAY_WEIGHTS,
-        ARRAY_INDEX = VisualServer::ARRAY_INDEX,
-        ARRAY_MAX = VisualServer::ARRAY_MAX
+        ARRAY_VERTEX = VS::ARRAY_VERTEX,
+        ARRAY_NORMAL = VS::ARRAY_NORMAL,
+        ARRAY_TANGENT = VS::ARRAY_TANGENT,
+        ARRAY_COLOR = VS::ARRAY_COLOR,
+        ARRAY_TEX_UV = VS::ARRAY_TEX_UV,
+        ARRAY_TEX_UV2 = VS::ARRAY_TEX_UV2,
+        ARRAY_BONES = VS::ARRAY_BONES,
+        ARRAY_WEIGHTS = VS::ARRAY_WEIGHTS,
+        ARRAY_INDEX = VS::ARRAY_INDEX,
+        ARRAY_MAX = VS::ARRAY_MAX
 
     };
 
@@ -101,13 +105,13 @@ public:
     };
 
     enum PrimitiveType {
-        PRIMITIVE_POINTS = VisualServer::PRIMITIVE_POINTS,
-        PRIMITIVE_LINES = VisualServer::PRIMITIVE_LINES,
-        PRIMITIVE_LINE_STRIP = VisualServer::PRIMITIVE_LINE_STRIP,
-        PRIMITIVE_LINE_LOOP = VisualServer::PRIMITIVE_LINE_LOOP,
-        PRIMITIVE_TRIANGLES = VisualServer::PRIMITIVE_TRIANGLES,
-        PRIMITIVE_TRIANGLE_STRIP = VisualServer::PRIMITIVE_TRIANGLE_STRIP,
-        PRIMITIVE_TRIANGLE_FAN = VisualServer::PRIMITIVE_TRIANGLE_FAN,
+        PRIMITIVE_POINTS = VS::PRIMITIVE_POINTS,
+        PRIMITIVE_LINES = VS::PRIMITIVE_LINES,
+        PRIMITIVE_LINE_STRIP = VS::PRIMITIVE_LINE_STRIP,
+        PRIMITIVE_LINE_LOOP = VS::PRIMITIVE_LINE_LOOP,
+        PRIMITIVE_TRIANGLES = VS::PRIMITIVE_TRIANGLES,
+        PRIMITIVE_TRIANGLE_STRIP = VS::PRIMITIVE_TRIANGLE_STRIP,
+        PRIMITIVE_TRIANGLE_FAN = VS::PRIMITIVE_TRIANGLE_FAN,
     };
 
     enum BlendShapeMode {
@@ -154,7 +158,7 @@ public:
     Mesh();
 };
 
-class ArrayMesh : public Mesh {
+class GODOT_EXPORT ArrayMesh : public Mesh {
 
     GDCLASS(ArrayMesh,Mesh)
 
@@ -238,8 +242,3 @@ public:
 
     ~ArrayMesh() override;
 };
-
-VARIANT_ENUM_CAST(Mesh::ArrayType);
-VARIANT_ENUM_CAST(Mesh::ArrayFormat);
-VARIANT_ENUM_CAST(Mesh::PrimitiveType);
-VARIANT_ENUM_CAST(Mesh::BlendShapeMode);

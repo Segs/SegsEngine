@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file alias="GDNativeLibrary.svg">icons/icon_g_d_native_library.svg</file>
+        <file alias="NativeScript.svg">icons/icon_native_script.svg</file>
+    </qresource>
+</RCC>

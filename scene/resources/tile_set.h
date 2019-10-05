@@ -264,8 +264,4 @@ public:
 	TileSet();
 };
 
-VARIANT_ENUM_CAST(TileSet::AutotileBindings);
-VARIANT_ENUM_CAST(TileSet::BitmaskMode);
-VARIANT_ENUM_CAST(TileSet::TileMode);
-
 #endif // TILE_SET_H

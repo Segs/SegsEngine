@@ -99,13 +99,13 @@ Plane PlaneShapeSW::get_plane() const {
 void PlaneShapeSW::project_range(const Vector3 &p_normal, const Transform &p_transform, real_t &r_min, real_t &r_max) const {
 
     // gibberish, a plane is infinity
-    r_min = -1e7;
-    r_max = 1e7;
+    r_min = -1e7f;
+    r_max = 1e7f;
 }
 
 Vector3 PlaneShapeSW::get_support(const Vector3 &p_normal) const {
 
-    return p_normal * 1e15;
+    return p_normal * 1e15f;
 }
 
 bool PlaneShapeSW::intersect_segment(const Vector3 &p_begin, const Vector3 &p_end, Vector3 &r_result, Vector3 &r_normal) const {

@@ -60,7 +60,7 @@ using DependencyErrorNotify = void (*)(void *, const String &, const String &, c
 using ResourceLoaderImport = Error (*)(const String &);
 using ResourceLoadedCallback = void (*)(RES, const String &);
 
-class ResourceLoader {
+class GODOT_EXPORT ResourceLoader {
 
     enum {
         MAX_LOADERS = 64

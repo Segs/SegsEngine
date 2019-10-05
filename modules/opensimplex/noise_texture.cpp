@@ -49,13 +49,13 @@ NoiseTexture::NoiseTexture() {
 
     noise = Ref<OpenSimplexNoise>();
 
-    texture = VS::get_singleton()->texture_create();
+    texture = VisualServer::get_singleton()->texture_create();
 
     _queue_update();
 }
 
 NoiseTexture::~NoiseTexture() {
-    VS::get_singleton()->free(texture);
+    VisualServer::get_singleton()->free(texture);
 }
 
 void NoiseTexture::_bind_methods() {
@@ -99,8 +99,8 @@ void NoiseTexture::_validate_property(PropertyInfo &property) const {
 void NoiseTexture::_set_texture_data(const Ref<Image> &p_image) {
     data = p_image;
     if (data) {
-        VS::get_singleton()->texture_allocate(texture, size.x, size.y, 0, Image::FORMAT_RGBA8, VS::TEXTURE_TYPE_2D, flags);
-        VS::get_singleton()->texture_set_data(texture, p_image);
+        VisualServer::get_singleton()->texture_allocate(texture, size.x, size.y, 0, Image::FORMAT_RGBA8, VS::TEXTURE_TYPE_2D, flags);
+        VisualServer::get_singleton()->texture_set_data(texture, p_image);
     }
     emit_changed();
 }
@@ -251,7 +251,7 @@ int NoiseTexture::get_height() const {
 
 void NoiseTexture::set_flags(uint32_t p_flags) {
     flags = p_flags;
-    VS::get_singleton()->texture_set_flags(texture, flags);
+    VisualServer::get_singleton()->texture_set_flags(texture, flags);
 }
 
 uint32_t NoiseTexture::get_flags() const {

@@ -45,7 +45,7 @@
 
 class CameraFeed;
 
-class CameraServer : public Object {
+class GODOT_EXPORT CameraServer : public Object {
     GDCLASS(CameraServer,Object)
 
     _THREAD_SAFE_CLASS_

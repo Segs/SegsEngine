@@ -33,7 +33,7 @@ public:
         return res;
     }
     virtual void get_recognized_extensions(Vector<String> *p_extensions) const = 0;
-
+    virtual void set_loader_option(int option_id,void *option_var) {}
 public:
     virtual ~ImageFormatLoader() = default;
     ImageFormatLoader() = default;

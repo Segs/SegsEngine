@@ -416,7 +416,7 @@ bool GridMapEditor::do_input_action(Camera *p_camera, const Point2 &p_point, boo
 
     }
 
-    VS::get_singleton()->instance_set_transform(grid_instance[edit_axis], node->get_global_transform() * edit_grid_xform);
+    VisualServer::get_singleton()->instance_set_transform(grid_instance[edit_axis], node->get_global_transform() * edit_grid_xform);
 
     if (cursor_instance.is_valid()) {
 
@@ -937,7 +937,7 @@ void GridMapEditor::update_palette() {
 void GridMapEditor::edit(GridMap *p_gridmap) {
 
     node = p_gridmap;
-    VS *vs = VS::get_singleton();
+    VisualServer *vs = VisualServer::get_singleton();
 
     input_action = INPUT_NONE;
     selection.active = false;
@@ -1025,7 +1025,7 @@ void GridMapEditor::edit(GridMap *p_gridmap) {
             d.resize(VS::ARRAY_MAX);
             d[VS::ARRAY_VERTEX] = grid_points[i];
             d[VS::ARRAY_COLOR] = grid_colors[i];
-            VisualServer::get_singleton()->mesh_add_surface_from_arrays(grid[i], VisualServer::PRIMITIVE_LINES, d);
+            VisualServer::get_singleton()->mesh_add_surface_from_arrays(grid[i], VS::PRIMITIVE_LINES, d);
             VisualServer::get_singleton()->mesh_surface_set_material(grid[i], 0, indicator_mat->get_rid());
         }
     }
@@ -1070,8 +1070,8 @@ void GridMapEditor::_notification(int p_what) {
             mesh_library_palette->connect("item_selected", this, "_item_selected_cbk");
             for (int i = 0; i < 3; i++) {
 
-                grid[i] = VS::get_singleton()->mesh_create();
-                grid_instance[i] = VS::get_singleton()->instance_create2(grid[i], get_tree()->get_root()->get_world()->get_scenario());
+                grid[i] = VisualServer::get_singleton()->mesh_create();
+                grid_instance[i] = VisualServer::get_singleton()->instance_create2(grid[i], get_tree()->get_root()->get_world()->get_scenario());
                 selection_level_instance[i] = VisualServer::get_singleton()->instance_create2(selection_level_mesh[i], get_tree()->get_root()->get_world()->get_scenario());
             }
 
@@ -1088,8 +1088,8 @@ void GridMapEditor::_notification(int p_what) {
 
             for (int i = 0; i < 3; i++) {
 
-                VS::get_singleton()->free(grid_instance[i]);
-                VS::get_singleton()->free(grid[i]);
+                VisualServer::get_singleton()->free(grid_instance[i]);
+                VisualServer::get_singleton()->free(grid[i]);
                 grid_instance[i] = RID();
                 grid[i] = RID();
                 VisualServer::get_singleton()->free(selection_level_instance[i]);
@@ -1111,7 +1111,7 @@ void GridMapEditor::_notification(int p_what) {
             if (xf != grid_xform) {
                 for (int i = 0; i < 3; i++) {
 
-                    VS::get_singleton()->instance_set_transform(grid_instance[i], xf * edit_grid_xform);
+                    VisualServer::get_singleton()->instance_set_transform(grid_instance[i], xf * edit_grid_xform);
                 }
                 grid_xform = xf;
             }
@@ -1464,7 +1464,7 @@ GridMapEditor::GridMapEditor(EditorNode *p_editor) {
 
         for (int i = 0; i < 3; i++) {
             d[VS::ARRAY_VERTEX] = square[i];
-            selection_level_mesh[i] = VS::get_singleton()->mesh_create();
+            selection_level_mesh[i] = VisualServer::get_singleton()->mesh_create();
             VisualServer::get_singleton()->mesh_add_surface_from_arrays(selection_level_mesh[i], VS::PRIMITIVE_LINES, d);
             VisualServer::get_singleton()->mesh_surface_set_material(selection_level_mesh[i], 0, selection_floor_mat->get_rid());
         }

@@ -56,6 +56,21 @@ public:                                                                         
     static void register_custom_data_to_otdb();                                                                     \
 private:
 
+class GODOT_EXPORT IResourceTooling {
+public:
+    virtual uint32_t hash_edited_version() const = 0;
+
+    virtual void set_last_modified_time(uint64_t p_time) = 0;
+    virtual uint64_t get_last_modified_time() const = 0;
+
+    virtual void set_import_last_modified_time(uint64_t p_time) = 0;
+    virtual uint64_t get_import_last_modified_time() const = 0;
+
+    virtual void set_import_path(const String &p_path) = 0;
+    virtual String get_import_path() const = 0;
+    virtual ~IResourceTooling() = default;
+};
+
 class GODOT_EXPORT Resource : public Reference {
 
     GDCLASS(Resource,Reference)
@@ -114,6 +129,7 @@ public:
 
     Node *get_local_scene() const;
 
+    //IResourceTooling * get_resource_tooling() const;
 #ifdef TOOLS_ENABLED
 
     uint32_t hash_edited_version() const;
@@ -146,7 +162,7 @@ public:
 
 using RES = Ref<Resource>;
 
-class ResourceCache {
+class GODOT_EXPORT ResourceCache {
     friend class Resource;
     friend class ResourceLoader; //need the lock
     static RWLock *lock;

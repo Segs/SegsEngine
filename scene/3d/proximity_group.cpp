@@ -34,6 +34,7 @@
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(ProximityGroup)
+VARIANT_ENUM_CAST(ProximityGroup::DispatchMode);
 
 void ProximityGroup::clear_groups() {
 

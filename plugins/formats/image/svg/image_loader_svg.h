@@ -71,11 +71,16 @@ class ImageLoaderSVG : public QObject, public ImageFormatLoader {
     static Error _create_image(ImageData &p_image, const PoolVector<uint8_t> *p_data, const LoadParams &params);
 
 public:
-    static void set_convert_colors(Dictionary *p_replace_color = nullptr);
+    void set_convert_colors(Dictionary *p_replace_color = nullptr);
     static Error create_image_from_string(ImageData &p_image, const char *p_svg_str, float p_scale, bool upsample, bool convert_colors = false);
 
     Error load_image(ImageData & p_image, FileAccess *f, LoadParams params) override;
     void get_recognized_extensions(Vector<String> *p_extensions) const override;
+    void set_loader_option(int option_id,void *option_var) override {
+        if(option_id==0)
+            set_convert_colors((Dictionary *)option_var);
+    }
+
     ImageLoaderSVG();
 };
 

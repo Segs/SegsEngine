@@ -37,6 +37,7 @@ IMPL_GDCLASS(BoxContainer)
 IMPL_GDCLASS(HBoxContainer)
 IMPL_GDCLASS(VBoxContainer)
 
+VARIANT_ENUM_CAST(BoxContainer::AlignMode);
 struct _MinSizeCache {
 
     int min_size;

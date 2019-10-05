@@ -586,7 +586,7 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_draw() {
             closest.y = s.height - closest.y;
 
             Color lcol = color;
-            lcol.a *= 0.4;
+            lcol.a *= 0.4f;
             blend_space_draw->draw_line(point, closest, lcol, 2);
         }
 

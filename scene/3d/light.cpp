@@ -39,6 +39,12 @@ IMPL_GDCLASS(Light)
 IMPL_GDCLASS(DirectionalLight)
 IMPL_GDCLASS(OmniLight)
 IMPL_GDCLASS(SpotLight)
+VARIANT_ENUM_CAST(Light::Param);
+VARIANT_ENUM_CAST(Light::BakeMode);
+VARIANT_ENUM_CAST(DirectionalLight::ShadowMode)
+VARIANT_ENUM_CAST(DirectionalLight::ShadowDepthRange)
+VARIANT_ENUM_CAST(OmniLight::ShadowMode)
+VARIANT_ENUM_CAST(OmniLight::ShadowDetail)
 
 bool Light::_can_gizmo_scale() const {
 
@@ -50,7 +56,7 @@ void Light::set_param(Param p_param, float p_value) {
     ERR_FAIL_INDEX(p_param, PARAM_MAX);
     param[p_param] = p_value;
 
-    VS::get_singleton()->light_set_param(light, VS::LightParam(p_param), p_value);
+    VisualServer::get_singleton()->light_set_param(light, VS::LightParam(p_param), p_value);
 
     if (p_param == PARAM_SPOT_ANGLE || p_param == PARAM_RANGE) {
         update_gizmo();
@@ -74,9 +80,9 @@ float Light::get_param(Param p_param) const {
 void Light::set_shadow(bool p_enable) {
 
     shadow = p_enable;
-    VS::get_singleton()->light_set_shadow(light, p_enable);
+    VisualServer::get_singleton()->light_set_shadow(light, p_enable);
 
-    if (type == VisualServer::LIGHT_SPOT) {
+    if (type == VS::LIGHT_SPOT) {
         update_configuration_warning();
     }
 }
@@ -88,7 +94,7 @@ bool Light::has_shadow() const {
 void Light::set_negative(bool p_enable) {
 
     negative = p_enable;
-    VS::get_singleton()->light_set_negative(light, p_enable);
+    VisualServer::get_singleton()->light_set_negative(light, p_enable);
 }
 bool Light::is_negative() const {
 
@@ -98,7 +104,7 @@ bool Light::is_negative() const {
 void Light::set_cull_mask(uint32_t p_cull_mask) {
 
     cull_mask = p_cull_mask;
-    VS::get_singleton()->light_set_cull_mask(light, p_cull_mask);
+    VisualServer::get_singleton()->light_set_cull_mask(light, p_cull_mask);
 }
 uint32_t Light::get_cull_mask() const {
 
@@ -108,7 +114,7 @@ uint32_t Light::get_cull_mask() const {
 void Light::set_color(const Color &p_color) {
 
     color = p_color;
-    VS::get_singleton()->light_set_color(light, p_color);
+    VisualServer::get_singleton()->light_set_color(light, p_color);
 }
 Color Light::get_color() const {
 
@@ -118,7 +124,7 @@ Color Light::get_color() const {
 void Light::set_shadow_color(const Color &p_shadow_color) {
 
     shadow_color = p_shadow_color;
-    VS::get_singleton()->light_set_shadow_color(light, p_shadow_color);
+    VisualServer::get_singleton()->light_set_shadow_color(light, p_shadow_color);
 }
 
 Color Light::get_shadow_color() const {
@@ -128,7 +134,7 @@ Color Light::get_shadow_color() const {
 
 void Light::set_shadow_reverse_cull_face(bool p_enable) {
     reverse_cull = p_enable;
-    VS::get_singleton()->light_set_reverse_cull_face_mode(light, reverse_cull);
+    VisualServer::get_singleton()->light_set_reverse_cull_face_mode(light, reverse_cull);
 }
 
 bool Light::get_shadow_reverse_cull_face() const {
@@ -138,15 +144,15 @@ bool Light::get_shadow_reverse_cull_face() const {
 
 AABB Light::get_aabb() const {
 
-    if (type == VisualServer::LIGHT_DIRECTIONAL) {
+    if (type == VS::LIGHT_DIRECTIONAL) {
 
         return AABB(Vector3(-1, -1, -1), Vector3(2, 2, 2));
 
-    } else if (type == VisualServer::LIGHT_OMNI) {
+    } else if (type == VS::LIGHT_OMNI) {
 
         return AABB(Vector3(-1, -1, -1) * param[PARAM_RANGE], Vector3(2, 2, 2) * param[PARAM_RANGE]);
 
-    } else if (type == VisualServer::LIGHT_SPOT) {
+    } else if (type == VS::LIGHT_SPOT) {
 
         float len = param[PARAM_RANGE];
         float size = Math::tan(Math::deg2rad(param[PARAM_SPOT_ANGLE])) * len;
@@ -163,7 +169,7 @@ PoolVector<Face3> Light::get_faces(uint32_t p_usage_flags) const {
 
 void Light::set_bake_mode(BakeMode p_mode) {
     bake_mode = p_mode;
-    VS::get_singleton()->light_set_use_gi(light, p_mode != BAKE_DISABLED);
+    VisualServer::get_singleton()->light_set_use_gi(light, p_mode != BAKE_DISABLED);
 }
 
 Light::BakeMode Light::get_bake_mode() const {
@@ -191,7 +197,7 @@ void Light::_update_visibility() {
     }
 #endif
 
-    VS::get_singleton()->instance_set_visible(get_instance(), is_visible_in_tree() && editor_ok);
+    VisualServer::get_singleton()->instance_set_visible(get_instance(), is_visible_in_tree() && editor_ok);
 
     _change_notify("geometry/visible");
 }
@@ -295,7 +301,7 @@ void Light::_bind_methods() {
     BIND_ENUM_CONSTANT(BAKE_ALL)
 }
 
-Light::Light(VisualServer::LightType p_type) {
+Light::Light(VS::LightType p_type) {
 
     type = p_type;
     switch (p_type) {
@@ -306,7 +312,7 @@ Light::Light(VisualServer::LightType p_type) {
         };
     }
 
-    VS::get_singleton()->instance_set_base(get_instance(), light);
+    VisualServer::get_singleton()->instance_set_base(get_instance(), light);
 
     reverse_cull = false;
     bake_mode = BAKE_INDIRECT;
@@ -326,23 +332,23 @@ Light::Light(VisualServer::LightType p_type) {
     set_param(PARAM_SPOT_ATTENUATION, 1);
     set_param(PARAM_CONTACT_SHADOW_SIZE, 0);
     set_param(PARAM_SHADOW_MAX_DISTANCE, 0);
-    set_param(PARAM_SHADOW_SPLIT_1_OFFSET, 0.1);
-    set_param(PARAM_SHADOW_SPLIT_2_OFFSET, 0.2);
-    set_param(PARAM_SHADOW_SPLIT_3_OFFSET, 0.5);
+    set_param(PARAM_SHADOW_SPLIT_1_OFFSET, 0.1f);
+    set_param(PARAM_SHADOW_SPLIT_2_OFFSET, 0.2f);
+    set_param(PARAM_SHADOW_SPLIT_3_OFFSET, 0.5f);
     set_param(PARAM_SHADOW_NORMAL_BIAS, 0.0);
-    set_param(PARAM_SHADOW_BIAS, 0.15);
+    set_param(PARAM_SHADOW_BIAS, 0.15f);
     set_disable_scale(true);
 }
 
 Light::Light() {
 
-    type = VisualServer::LIGHT_DIRECTIONAL;
+    type = VS::LIGHT_DIRECTIONAL;
     ERR_PRINT("Light should not be instanced directly; use the DirectionalLight, OmniLight or SpotLight subtypes instead.");
 }
 
 Light::~Light() {
 
-    VS::get_singleton()->instance_set_base(get_instance(), RID());
+    VisualServer::get_singleton()->instance_set_base(get_instance(), RID());
 
     if (light.is_valid())
         VisualServer::get_singleton()->free(light);
@@ -352,7 +358,7 @@ Light::~Light() {
 void DirectionalLight::set_shadow_mode(ShadowMode p_mode) {
 
     shadow_mode = p_mode;
-    VS::get_singleton()->light_directional_set_shadow_mode(light, VS::LightDirectionalShadowMode(p_mode));
+    VisualServer::get_singleton()->light_directional_set_shadow_mode(light, VS::LightDirectionalShadowMode(p_mode));
 }
 
 DirectionalLight::ShadowMode DirectionalLight::get_shadow_mode() const {
@@ -362,7 +368,7 @@ DirectionalLight::ShadowMode DirectionalLight::get_shadow_mode() const {
 
 void DirectionalLight::set_shadow_depth_range(ShadowDepthRange p_range) {
     shadow_depth_range = p_range;
-    VS::get_singleton()->light_directional_set_shadow_depth_range_mode(light, VS::LightDirectionalShadowDepthRangeMode(p_range));
+    VisualServer::get_singleton()->light_directional_set_shadow_depth_range_mode(light, VS::LightDirectionalShadowDepthRangeMode(p_range));
 }
 
 DirectionalLight::ShadowDepthRange DirectionalLight::get_shadow_depth_range() const {
@@ -373,7 +379,7 @@ DirectionalLight::ShadowDepthRange DirectionalLight::get_shadow_depth_range() co
 void DirectionalLight::set_blend_splits(bool p_enable) {
 
     blend_splits = p_enable;
-    VS::get_singleton()->light_directional_set_blend_splits(light, p_enable);
+    VisualServer::get_singleton()->light_directional_set_blend_splits(light, p_enable);
 }
 
 bool DirectionalLight::is_blend_splits_enabled() const {
@@ -412,10 +418,10 @@ void DirectionalLight::_bind_methods() {
 }
 
 DirectionalLight::DirectionalLight() :
-        Light(VisualServer::LIGHT_DIRECTIONAL) {
+        Light(VS::LIGHT_DIRECTIONAL) {
 
-    set_param(PARAM_SHADOW_NORMAL_BIAS, 0.8);
-    set_param(PARAM_SHADOW_BIAS, 0.1);
+    set_param(PARAM_SHADOW_NORMAL_BIAS, 0.8f);
+    set_param(PARAM_SHADOW_BIAS, 0.1f);
     set_param(PARAM_SHADOW_MAX_DISTANCE, 100);
     set_param(PARAM_SHADOW_BIAS_SPLIT_SCALE, 0.25);
     set_shadow_mode(SHADOW_PARALLEL_4_SPLITS);
@@ -427,7 +433,7 @@ DirectionalLight::DirectionalLight() :
 void OmniLight::set_shadow_mode(ShadowMode p_mode) {
 
     shadow_mode = p_mode;
-    VS::get_singleton()->light_omni_set_shadow_mode(light, VS::LightOmniShadowMode(p_mode));
+    VisualServer::get_singleton()->light_omni_set_shadow_mode(light, VS::LightOmniShadowMode(p_mode));
 }
 
 OmniLight::ShadowMode OmniLight::get_shadow_mode() const {
@@ -438,7 +444,7 @@ OmniLight::ShadowMode OmniLight::get_shadow_mode() const {
 void OmniLight::set_shadow_detail(ShadowDetail p_detail) {
 
     shadow_detail = p_detail;
-    VS::get_singleton()->light_omni_set_shadow_detail(light, VS::LightOmniShadowDetail(p_detail));
+    VisualServer::get_singleton()->light_omni_set_shadow_detail(light, VS::LightOmniShadowDetail(p_detail));
 }
 OmniLight::ShadowDetail OmniLight::get_shadow_detail() const {
 
@@ -467,7 +473,7 @@ void OmniLight::_bind_methods() {
 }
 
 OmniLight::OmniLight() :
-        Light(VisualServer::LIGHT_OMNI) {
+        Light(VS::LIGHT_OMNI) {
 
     set_shadow_mode(SHADOW_CUBE);
     set_shadow_detail(SHADOW_DETAIL_HORIZONTAL);
@@ -476,7 +482,7 @@ OmniLight::OmniLight() :
 String SpotLight::get_configuration_warning() const {
     String warning = Light::get_configuration_warning();
 
-    if (has_shadow() && get_param(PARAM_SPOT_ANGLE) >= 90.0) {
+    if (has_shadow() && get_param(PARAM_SPOT_ANGLE) >= 90.0f) {
         if (!warning.empty()) {
             warning += "\n\n";
         }

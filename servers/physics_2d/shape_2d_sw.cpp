@@ -251,9 +251,9 @@ void SegmentShape2DSW::set_data(const Variant &p_data) {
     aabb.position = a;
     aabb.expand_to(b);
     if (aabb.size.x == 0)
-        aabb.size.x = 0.001;
+        aabb.size.x = 0.001f;
     if (aabb.size.y == 0)
-        aabb.size.y = 0.001;
+        aabb.size.y = 0.001f;
     configure(aabb);
 }
 

@@ -1,5 +1,1 @@
-foreach(tgt ${global_targets})
-    add_library(${tgt}_freetype OBJECT register_types.cpp register_types.h)
-    target_link_libraries(${tgt}_freetype PUBLIC ${tgt}_core freetype)
-    set_module_properties(${tgt} freetype)
-endforeach()
+create_module_target(freetype freetype)

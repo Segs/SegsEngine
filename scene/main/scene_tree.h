@@ -33,7 +33,6 @@
 #include "core/os/main_loop.h"
 #include "core/os/thread_safe.h"
 #include "core/self_list.h"
-#include "scene/resources/mesh.h"
 #include "scene/resources/world.h"
 #include "scene/resources/world_2d.h"
 
@@ -42,6 +41,9 @@ class Node;
 class Viewport;
 class Material;
 class Mesh;
+class ArrayMesh;
+class MultiplayerAPI;
+class NetworkedMultiplayerPeer;
 
 class SceneTreeTimer : public Reference {
     GDCLASS(SceneTreeTimer,Reference)
@@ -60,6 +62,12 @@ public:
     bool is_pause_mode_process();
 
     SceneTreeTimer();
+};
+struct SceneTreeGroup
+{
+    Vector<Node *> nodes;
+    //uint64_t last_tree_version;
+    bool changed=false;
 };
 
 class SceneTree : public MainLoop {
@@ -88,13 +96,6 @@ public:
     };
 
 private:
-    struct Group {
-
-        Vector<Node *> nodes;
-        //uint64_t last_tree_version;
-        bool changed;
-        Group() { changed = false; }
-    };
 
     Viewport *root;
 
@@ -111,7 +112,7 @@ private:
     bool pause;
     int root_lock;
 
-    Map<StringName, Group> group_map;
+    Map<StringName, SceneTreeGroup> group_map;
     bool _quit;
     bool initialized;
     bool input_handled;
@@ -156,7 +157,7 @@ private:
     bool ugc_locked;
     void _flush_ugc();
 
-    _FORCE_INLINE_ void _update_group_order(Group &g, bool p_use_priority = false);
+    _FORCE_INLINE_ void _update_group_order(SceneTreeGroup &g, bool p_use_priority = false);
     void _update_listener();
 
     Array _get_nodes_in_group(const StringName &p_group);
@@ -198,7 +199,7 @@ private:
     void node_removed(Node *p_node);
     void node_renamed(Node *p_node);
 
-    Group *add_to_group(const StringName &p_group, Node *p_node);
+    SceneTreeGroup *add_to_group(const StringName &p_group, Node *p_node);
     void remove_from_group(const StringName &p_group, Node *p_node);
     void make_group_changed(const StringName &p_group);
 
@@ -217,55 +218,8 @@ private:
     SelfList<Node>::List xform_change_list;
 
 #ifdef DEBUG_ENABLED
-
-    Map<int, NodePath> live_edit_node_path_cache;
-    Map<int, String> live_edit_resource_cache;
-
-    NodePath live_edit_root;
-    String live_edit_scene;
-
-    Map<String, Set<Node *> > live_scene_edit_cache;
-    Map<Node *, Map<ObjectID, Node *> > live_edit_remove_list;
-
-    ScriptDebugger::LiveEditFuncs live_edit_funcs;
-
-    void _live_edit_node_path_func(const NodePath &p_path, int p_id);
-    void _live_edit_res_path_func(const String &p_path, int p_id);
-
-    void _live_edit_node_set_func(int p_id, const StringName &p_prop, const Variant &p_value);
-    void _live_edit_node_set_res_func(int p_id, const StringName &p_prop, const String &p_value);
-    void _live_edit_node_call_func(int p_id, const StringName &p_method, VARIANT_ARG_DECLARE);
-    void _live_edit_res_set_func(int p_id, const StringName &p_prop, const Variant &p_value);
-    void _live_edit_res_set_res_func(int p_id, const StringName &p_prop, const String &p_value);
-    void _live_edit_res_call_func(int p_id, const StringName &p_method, VARIANT_ARG_DECLARE);
-    void _live_edit_root_func(const NodePath &p_scene_path, const String &p_scene_from);
-
-    void _live_edit_create_node_func(const NodePath &p_parent, const String &p_type, const String &p_name);
-    void _live_edit_instance_node_func(const NodePath &p_parent, const String &p_path, const String &p_name);
-    void _live_edit_remove_node_func(const NodePath &p_at);
-    void _live_edit_remove_and_keep_node_func(const NodePath &p_at, ObjectID p_keep_id);
-    void _live_edit_restore_node_func(ObjectID p_id, const NodePath &p_at, int p_at_pos);
-    void _live_edit_duplicate_node_func(const NodePath &p_at, const String &p_new_name);
-    void _live_edit_reparent_node_func(const NodePath &p_at, const NodePath &p_new_place, const String &p_new_name, int p_at_pos);
-
-    static void _live_edit_node_path_funcs(void *self, const NodePath &p_path, int p_id) { reinterpret_cast<SceneTree *>(self)->_live_edit_node_path_func(p_path, p_id); }
-    static void _live_edit_res_path_funcs(void *self, const String &p_path, int p_id) { reinterpret_cast<SceneTree *>(self)->_live_edit_res_path_func(p_path, p_id); }
-
-    static void _live_edit_node_set_funcs(void *self, int p_id, const StringName &p_prop, const Variant &p_value) { reinterpret_cast<SceneTree *>(self)->_live_edit_node_set_func(p_id, p_prop, p_value); }
-    static void _live_edit_node_set_res_funcs(void *self, int p_id, const StringName &p_prop, const String &p_value) { reinterpret_cast<SceneTree *>(self)->_live_edit_node_set_res_func(p_id, p_prop, p_value); }
-    static void _live_edit_node_call_funcs(void *self, int p_id, const StringName &p_method, VARIANT_ARG_DECLARE) { reinterpret_cast<SceneTree *>(self)->_live_edit_node_call_func(p_id, p_method, VARIANT_ARG_PASS); }
-    static void _live_edit_res_set_funcs(void *self, int p_id, const StringName &p_prop, const Variant &p_value) { reinterpret_cast<SceneTree *>(self)->_live_edit_res_set_func(p_id, p_prop, p_value); }
-    static void _live_edit_res_set_res_funcs(void *self, int p_id, const StringName &p_prop, const String &p_value) { reinterpret_cast<SceneTree *>(self)->_live_edit_res_set_res_func(p_id, p_prop, p_value); }
-    static void _live_edit_res_call_funcs(void *self, int p_id, const StringName &p_method, VARIANT_ARG_DECLARE) { reinterpret_cast<SceneTree *>(self)->_live_edit_res_call_func(p_id, p_method, VARIANT_ARG_PASS); }
-    static void _live_edit_root_funcs(void *self, const NodePath &p_scene_path, const String &p_scene_from) { reinterpret_cast<SceneTree *>(self)->_live_edit_root_func(p_scene_path, p_scene_from); }
-
-    static void _live_edit_create_node_funcs(void *self, const NodePath &p_parent, const String &p_type, const String &p_name) { reinterpret_cast<SceneTree *>(self)->_live_edit_create_node_func(p_parent, p_type, p_name); }
-    static void _live_edit_instance_node_funcs(void *self, const NodePath &p_parent, const String &p_path, const String &p_name) { reinterpret_cast<SceneTree *>(self)->_live_edit_instance_node_func(p_parent, p_path, p_name); }
-    static void _live_edit_remove_node_funcs(void *self, const NodePath &p_at) { reinterpret_cast<SceneTree *>(self)->_live_edit_remove_node_func(p_at); }
-    static void _live_edit_remove_and_keep_node_funcs(void *self, const NodePath &p_at, ObjectID p_keep_id) { reinterpret_cast<SceneTree *>(self)->_live_edit_remove_and_keep_node_func(p_at, p_keep_id); }
-    static void _live_edit_restore_node_funcs(void *self, ObjectID p_id, const NodePath &p_at, int p_at_pos) { reinterpret_cast<SceneTree *>(self)->_live_edit_restore_node_func(p_id, p_at, p_at_pos); }
-    static void _live_edit_duplicate_node_funcs(void *self, const NodePath &p_at, const String &p_new_name) { reinterpret_cast<SceneTree *>(self)->_live_edit_duplicate_node_func(p_at, p_new_name); }
-    static void _live_edit_reparent_node_funcs(void *self, const NodePath &p_at, const NodePath &p_new_place, const String &p_new_name, int p_at_pos) { reinterpret_cast<SceneTree *>(self)->_live_edit_reparent_node_func(p_at, p_new_place, p_new_name, p_at_pos); }
+    struct DebugData;
+    DebugData *m_debug_data=nullptr;
 
 #endif
 
@@ -343,6 +297,9 @@ public:
 
     void set_debug_navigation_hint(bool p_enabled);
     bool is_debugging_navigation_hint() const;
+
+    Map<String, Set<Node *> > &get_live_scene_edit_cache();
+    Map<Node *, Map<ObjectID, Node *>> &get_live_edit_remove_list();
 #else
     void set_debug_collisions_hint(bool p_enabled) {}
     bool is_debugging_collisions_hint() const { return false; }
@@ -430,6 +387,3 @@ public:
     ~SceneTree() override;
 };
 
-VARIANT_ENUM_CAST(SceneTree::StretchMode);
-VARIANT_ENUM_CAST(SceneTree::StretchAspect);
-VARIANT_ENUM_CAST(SceneTree::GroupCallFlags);

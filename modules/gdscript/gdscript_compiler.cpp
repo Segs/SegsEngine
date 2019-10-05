@@ -1687,7 +1687,7 @@ Error GDScriptCompiler::_parse_function(GDScript *p_script, const GDScriptParser
         gdfunc->return_type = _gdtype_from_datatype(p_func->return_type);
     } else {
         gdfunc->_static = false;
-        gdfunc->rpc_mode = MultiplayerAPI::RPC_MODE_DISABLED;
+        gdfunc->rpc_mode = MultiplayerAPI_RPCMode(0);
         gdfunc->return_type = GDScriptDataType();
         gdfunc->return_type.has_type = true;
         gdfunc->return_type.kind = GDScriptDataType::BUILTIN;

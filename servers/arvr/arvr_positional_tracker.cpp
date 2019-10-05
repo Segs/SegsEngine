@@ -33,6 +33,8 @@
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(ARVRPositionalTracker)
+//TODO: SEGS: ARVRServer::TrackerType used in another cpp
+VARIANT_ENUM_CAST(ARVRServer::TrackerType);
 
 void ARVRPositionalTracker::_bind_methods() {
     BIND_ENUM_CONSTANT(TRACKER_HAND_UNKNOWN)

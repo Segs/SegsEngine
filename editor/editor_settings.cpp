@@ -673,6 +673,7 @@ void EditorSettings::_load_default_text_editor_theme() {
     _initial_set("text_editor/highlighting/keyword_color", Color(1.0, 1.0, 0.7f));
     _initial_set("text_editor/highlighting/base_type_color", Color(0.64f, 1.0, 0.83f));
     _initial_set("text_editor/highlighting/engine_type_color", Color(0.51f, 0.83f, 1.0));
+    _initial_set("text_editor/highlighting/user_type_color", Color(0.42f, 0.67f, 0.93f));
     _initial_set("text_editor/highlighting/comment_color", Color(0.4f, 0.4f, 0.4f));
     _initial_set("text_editor/highlighting/string_color", Color(0.94f, 0.43f, 0.75));
     _initial_set("text_editor/highlighting/background_color", dark_theme ? Color(0.0f, 0.0f, 0.0f, 0.23f) : Color(0.2f, 0.23f, 0.31f));

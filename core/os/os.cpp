@@ -33,6 +33,7 @@
 #include "core/os/dir_access.h"
 #include "core/os/file_access.h"
 #include "core/os/input.h"
+#include "core/method_enum_caster.h"
 #include "core/os/main_loop.h"
 #include "core/image.h"
 #include "core/os/midi_driver.h"

@@ -232,9 +232,9 @@ Error DirAccessPack::change_dir(String p_dir) {
     for (int i = 0; i < paths.size(); i++) {
 
         String p = paths[i];
-        if (p == ".") {
+        if (p == ".")
             continue;
-        } else if (p == "..") {
+        if (p == "..") {
             if (pd->parent) {
                 pd = pd->parent;
             }

@@ -560,14 +560,14 @@ void VisualShaderEditor::_update_graph() {
                 HBoxContainer *hb2 = memnew(HBoxContainer);
 
                 Button *add_input_btn = memnew(Button);
-                add_input_btn->set_text(TTR("Add input +"));
+                add_input_btn->set_text(TTR("Add Input"));
                 add_input_btn->connect("pressed", this, "_add_input_port", varray(nodes[n_i], group_node->get_free_input_port_id(), VisualShaderNode::PORT_TYPE_VECTOR, String("input" + itos(group_node->get_free_input_port_id()))),ObjectNS::CONNECT_DEFERRED);
                 hb2->add_child(add_input_btn);
 
                 hb2->add_spacer();
 
                 Button *add_output_btn = memnew(Button);
-                add_output_btn->set_text(TTR("Add output +"));
+                add_output_btn->set_text(TTR("Add Output"));
                 add_output_btn->connect("pressed", this, "_add_output_port", varray(nodes[n_i], group_node->get_free_output_port_id(), VisualShaderNode::PORT_TYPE_VECTOR, String("output" + itos(group_node->get_free_output_port_id()))),ObjectNS::CONNECT_DEFERRED);
                 hb2->add_child(add_output_btn);
 
@@ -1226,10 +1226,13 @@ void VisualShaderEditor::_edit_port_default_input(Object *p_button, int p_node, 
     editing_node = p_node;
     editing_port = p_port;
 }
+void VisualShaderEditor::_add_texture_node(const String &p_path) {
+    VisualShaderNodeTexture *texture = (VisualShaderNodeTexture *)_add_node(texture_node_option_idx, -1);
+    texture->set_texture(dynamic_ref_cast<Texture>(ResourceLoader::load(p_path)));
+}
+VisualShaderNode *VisualShaderEditor::_add_node(int p_idx, int p_op_idx) {
 
-void VisualShaderEditor::_add_node(int p_idx, int p_op_idx) {
-
-    ERR_FAIL_INDEX(p_idx, add_options.size());
+    ERR_FAIL_INDEX_V(p_idx, add_options.size(),nullptr)
 
     Ref<VisualShaderNode> vsnode;
 
@@ -1237,7 +1240,7 @@ void VisualShaderEditor::_add_node(int p_idx, int p_op_idx) {
 
     if (!is_custom && !add_options[p_idx].type.empty()) {
         VisualShaderNode *vsn = Object::cast_to<VisualShaderNode>(ClassDB::instance(add_options[p_idx].type));
-        ERR_FAIL_COND(!vsn)
+        ERR_FAIL_COND_V(!vsn,nullptr)
 
         VisualShaderNodeScalarConstant *constant = Object::cast_to<VisualShaderNodeScalarConstant>(vsn);
 
@@ -1323,10 +1326,10 @@ void VisualShaderEditor::_add_node(int p_idx, int p_op_idx) {
 
         vsnode = Ref<VisualShaderNode>(vsn);
     } else {
-        ERR_FAIL_COND(not add_options[p_idx].script)
+        ERR_FAIL_COND_V(not add_options[p_idx].script,nullptr)
         String base_type = add_options[p_idx].script->get_instance_base_type();
         VisualShaderNode *vsn = Object::cast_to<VisualShaderNode>(ClassDB::instance(base_type));
-        ERR_FAIL_COND(!vsn)
+        ERR_FAIL_COND_V(!vsn,nullptr)
         vsnode = Ref<VisualShaderNode>(vsn);
         vsnode->set_script(add_options[p_idx].script.get_ref_ptr());
     }
@@ -1381,6 +1384,7 @@ void VisualShaderEditor::_add_node(int p_idx, int p_op_idx) {
     undo_redo->add_do_method(this, "_update_graph");
     undo_redo->add_undo_method(this, "_update_graph");
     undo_redo->commit_action();
+    return vsnode.get();
 }
 
 void VisualShaderEditor::_node_dragged(const Vector2 &p_from, const Vector2 &p_to, int p_node) {
@@ -2052,6 +2056,9 @@ bool VisualShaderEditor::can_drop_data_fw(const Point2 &p_point, const Variant &
         if (d.has("id")) {
             return true;
         }
+        if (d.has("files")) {
+            return true;
+        }
     }
 
     return false;
@@ -2068,6 +2075,20 @@ void VisualShaderEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
             saved_node_pos = p_point;
             saved_node_pos_dirty = true;
             _add_node(idx, add_options[idx].sub_func);
+        } else if (d.has("files")) {
+            if (d["files"].get_type() == VariantType::POOL_STRING_ARRAY) {
+
+                PoolStringArray arr = d["files"];
+                for (int i = 0; i < arr.size(); i++) {
+
+                    String type = ResourceLoader::get_resource_type(arr[i]);
+                    if (ClassDB::get_parent_class(type) == "Texture") {
+                        saved_node_pos = p_point + Vector2(0, i * 210 * EDSCALE);
+                        saved_node_pos_dirty = true;
+                        _add_texture_node(arr[i]);
+                    }
+                }
+            }
         }
     }
 }
@@ -2095,7 +2116,9 @@ void VisualShaderEditor::_update_preview() {
 
     ShaderLanguage sl;
 
-    Error err = sl.compile(code, ShaderTypes::get_singleton()->get_functions(VisualServer::ShaderMode(visual_shader->get_mode())), ShaderTypes::get_singleton()->get_modes(VisualServer::ShaderMode(visual_shader->get_mode())), ShaderTypes::get_singleton()->get_types());
+    Error err = sl.compile(code, ShaderTypes::get_singleton()->get_functions(VS::ShaderMode(visual_shader->get_mode())),
+            ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(visual_shader->get_mode())),
+            ShaderTypes::get_singleton()->get_types());
 
     for (int i = 0; i < preview_text->get_line_count(); i++) {
         preview_text->set_line_as_marked(i, false);
@@ -2570,6 +2593,7 @@ VisualShaderEditor::VisualShaderEditor() {
     // TEXTURES
 
     add_options.push_back(AddOption("CubeMap", "Textures", "Functions", "VisualShaderNodeCubeMap", TTR("Perform the cubic texture lookup."), -1, VisualShaderNode::PORT_TYPE_ICON_COLOR));
+    texture_node_option_idx = add_options.size();
     add_options.push_back(AddOption("Texture", "Textures", "Functions", "VisualShaderNodeTexture", TTR("Perform the texture lookup."), -1, VisualShaderNode::PORT_TYPE_ICON_COLOR));
 
     add_options.push_back(AddOption("CubeMapUniform", "Textures", "Variables", "VisualShaderNodeCubeMapUniform", TTR("Cubic texture uniform lookup."), -1, VisualShaderNode::PORT_TYPE_ICON_COLOR));

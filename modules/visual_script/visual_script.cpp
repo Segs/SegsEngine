@@ -59,20 +59,20 @@ void VisualScriptNode::ports_changed_notify() {
 
 void VisualScriptNode::set_default_input_value(int p_port, const Variant &p_value) {
 
-    ERR_FAIL_INDEX(p_port, default_input_values.size());
+    ERR_FAIL_INDEX(p_port, default_input_values.size())
 
     default_input_values[p_port] = p_value;
 
 #ifdef TOOLS_ENABLED
     for (VisualScript *E : scripts_used) {
-        E->set_edited(true);
+        E->get_tooling_interface()->set_edited(true);
     }
 #endif
 }
 
 Variant VisualScriptNode::get_default_input_value(int p_port) const {
 
-    ERR_FAIL_INDEX_V(p_port, default_input_values.size(), Variant());
+    ERR_FAIL_INDEX_V(p_port, default_input_values.size(), Variant::null_variant)
     return default_input_values[p_port];
 }
 
@@ -315,7 +315,7 @@ void VisualScript::_node_ports_changed(int p_id) {
     }
 
 #ifdef TOOLS_ENABLED
-    set_edited(true); //something changed, let's set as edited
+    get_tooling_interface()->set_edited(true); //something changed, let's set as edited
     emit_signal("node_ports_changed", function, p_id);
 #endif
 }
@@ -1096,7 +1096,7 @@ bool VisualScript::are_subnodes_edited() const {
     for (const eastl::pair<const StringName,Function> &E : functions) {
 
         for (const auto &F : E.second.nodes) {
-            if (F.second.node->is_edited()) {
+            if (F.second.node->get_tooling_interface()->is_edited()) {
                 return true;
             }
         }
@@ -2045,13 +2045,13 @@ Ref<Script> VisualScriptInstance::get_script() const {
     return script;
 }
 
-MultiplayerAPI::RPCMode VisualScriptInstance::get_rpc_mode(const StringName &p_method) const {
+MultiplayerAPI_RPCMode VisualScriptInstance::get_rpc_mode(const StringName &p_method) const {
     if (p_method == script->get_default_func())
-        return MultiplayerAPI::RPC_MODE_DISABLED;
+        return MultiplayerAPI_RPCMode(0);
 
     const Map<StringName, VisualScript::Function>::const_iterator E = script->functions.find(p_method);
     if (E==script->functions.end()) {
-        return MultiplayerAPI::RPC_MODE_DISABLED;
+        return MultiplayerAPI_RPCMode(0);
     }
 
     if (E->second.function_id >= 0 && E->second.nodes.contains(E->second.function_id)) {
@@ -2063,12 +2063,12 @@ MultiplayerAPI::RPCMode VisualScriptInstance::get_rpc_mode(const StringName &p_m
         }
     }
 
-    return MultiplayerAPI::RPC_MODE_DISABLED;
+    return MultiplayerAPI_RPCMode(0);
 }
 
-MultiplayerAPI::RPCMode VisualScriptInstance::get_rset_mode(const StringName &p_variable) const {
+MultiplayerAPI_RPCMode VisualScriptInstance::get_rset_mode(const StringName &p_variable) const {
 
-    return MultiplayerAPI::RPC_MODE_DISABLED;
+    return MultiplayerAPI_RPCMode(0);
 }
 
 void VisualScriptInstance::create(const Ref<VisualScript> &p_script, Object *p_owner) {

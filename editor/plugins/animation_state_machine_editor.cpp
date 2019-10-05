@@ -883,7 +883,7 @@ void AnimationNodeStateMachineEditor::_state_machine_pos_draw() {
     float c = pos / len;
     Color fg = get_color("font_color", "Label");
     Color bg = fg;
-    bg.a *= 0.3;
+    bg.a *= 0.3f;
 
     state_machine_play_pos->draw_line(from, to, bg, 2);
 

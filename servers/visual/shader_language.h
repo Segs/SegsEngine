@@ -33,6 +33,7 @@
 #include "core/list.h"
 #include "core/map.h"
 #include "core/script_language.h"
+#include "core/set.h"
 #include "core/string_name.h"
 #include "core/typedefs.h"
 #include "core/ustring.h"

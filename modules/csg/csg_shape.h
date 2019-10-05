@@ -153,7 +153,6 @@ public:
 	~CSGShape() override;
 };
 
-VARIANT_ENUM_CAST(CSGShape::Operation)
 
 class CSGCombiner : public CSGShape {
 	GDCLASS(CSGCombiner,CSGShape)
@@ -435,7 +434,5 @@ public:
 	CSGPolygon();
 };
 
-VARIANT_ENUM_CAST(CSGPolygon::Mode)
-VARIANT_ENUM_CAST(CSGPolygon::PathRotation)
 
 #endif // CSG_SHAPE_H

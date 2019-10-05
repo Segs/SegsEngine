@@ -1,3 +1,0 @@
-if(WIN32 AND (DEFINED ENV{VSINSTALLDIR}) AND (DEFINED ENV{ANGLE_SRC_PATH}))
-#TODO: do uwp stuff here
-endif()

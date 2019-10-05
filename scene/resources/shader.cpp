@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "shader.h"
+#include "shader_serialization.h"
 
 #include "texture.h"
 #include "shader_enum_casters.h"
@@ -108,10 +109,10 @@ void Shader::set_default_texture_param(const StringName &p_param, const Ref<Reso
 
     if (p_texture) {
         default_textures[p_param] = p_texture;
-        VS::get_singleton()->shader_set_default_texture_param(shader, p_param, p_texture->get_rid());
+        VisualServer::get_singleton()->shader_set_default_texture_param(shader, p_param, p_texture->get_rid());
     } else {
         default_textures.erase(p_param);
-        VS::get_singleton()->shader_set_default_texture_param(shader, p_param, RID());
+        VisualServer::get_singleton()->shader_set_default_texture_param(shader, p_param, RID());
     }
 
     emit_changed();

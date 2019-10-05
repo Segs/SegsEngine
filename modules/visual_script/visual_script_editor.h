@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef VISUALSCRIPT_EDITOR_H
-#define VISUALSCRIPT_EDITOR_H
+#pragma once
 
 #include "editor/create_dialog.h"
 #include "editor/plugins/script_editor_plugin.h"
@@ -81,36 +80,36 @@ class VisualScriptEditor : public ScriptEditorBase {
 		MEMBER_SIGNAL
 	};
 
-	VBoxContainer *members_section;
-	MenuButton *edit_menu;
+    VBoxContainer *members_section;
+    MenuButton *edit_menu;
 
-	Ref<VisualScript> script;
+    Ref<VisualScript> script;
 
-	Button *base_type_select;
+    Button *base_type_select;
 
-	LineEdit *func_name_box;
-	VBoxContainer *func_input_vbox;
-	ConfirmationDialog *function_create_dialog;
-	GraphEdit *graph;
+    LineEdit *func_name_box;
+    ScrollContainer *func_input_scroll;
+    VBoxContainer *func_input_vbox;
+    ConfirmationDialog *function_create_dialog;
+    GraphEdit *graph;
 
+    VisualScriptEditorSignalEdit *signal_editor;
 
-	VisualScriptEditorSignalEdit *signal_editor;
+    AcceptDialog *edit_signal_dialog;
+    EditorInspector *edit_signal_edit;
 
-	AcceptDialog *edit_signal_dialog;
-	EditorInspector *edit_signal_edit;
+    VisualScriptPropertySelector *method_select;
+    VisualScriptPropertySelector *new_connect_node_select;
+    VisualScriptPropertySelector *new_virtual_method_select;
 
-	VisualScriptPropertySelector *method_select;
-	VisualScriptPropertySelector *new_connect_node_select;
-	VisualScriptPropertySelector *new_virtual_method_select;
+    VisualScriptEditorVariableEdit *variable_editor;
 
-	VisualScriptEditorVariableEdit *variable_editor;
+    AcceptDialog *edit_variable_dialog;
+    EditorInspector *edit_variable_edit;
 
-	AcceptDialog *edit_variable_dialog;
-	EditorInspector *edit_variable_edit;
+    CustomPropertyEditor *default_value_edit;
 
-	CustomPropertyEditor *default_value_edit;
-
-	UndoRedo *undo_redo;
+    UndoRedo *undo_redo;
 
 	Tree *members;
 	PopupDialog *function_name_edit;
@@ -352,5 +351,3 @@ public:
 	~_VisualScriptEditor() override;
 };
 #endif
-
-#endif // VISUALSCRIPT_EDITOR_H

@@ -34,6 +34,7 @@
 #include "core/os/thread.h"
 #include "core/os/thread_safe.h"
 #include "core/set.h"
+#include "core/ustring.h"
 #include "scene/main/node.h"
 class FileAccess;
 

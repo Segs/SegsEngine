@@ -145,7 +145,7 @@ Error ResourceSaver::save(const String &p_path, const RES &p_resource, uint32_t 
 
 #ifdef TOOLS_ENABLED
 
-            p_resource->set_edited(false);
+            p_resource->get_tooling_interface()->set_edited(false);
             if (timestamp_on_save) {
                 uint64_t mt = FileAccess::get_modified_time(p_path);
 

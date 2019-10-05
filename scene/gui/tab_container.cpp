@@ -40,6 +40,7 @@
 #include "scene/resources/style_box.h"
 
 IMPL_GDCLASS(TabContainer)
+VARIANT_ENUM_CAST(TabContainer::TabAlign);
 
 int TabContainer::_get_top_margin() const {
 

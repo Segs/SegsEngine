@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef EDITOR_HELP_SEARCH_H
-#define EDITOR_HELP_SEARCH_H
+#pragma once
 
 #include "core/ordered_hash_map.h"
 #include "editor/code_editor.h"
@@ -40,6 +39,8 @@
 
 class EditorHelpSearch : public ConfirmationDialog {
     GDCLASS(EditorHelpSearch,ConfirmationDialog)
+
+    class Runner;
 
     enum SearchFlags {
         SEARCH_CLASSES = 1 << 0,
@@ -58,10 +59,8 @@ class EditorHelpSearch : public ConfirmationDialog {
     ToolButton *hierarchy_button;
     OptionButton *filter_combo;
     Tree *results_tree;
-    bool old_search;
-
-    class Runner;
     Ref<Runner> search;
+    bool old_search;
 
     void _update_icons();
     void _update_results();
@@ -81,76 +80,3 @@ public:
 
     EditorHelpSearch();
 };
-
-class EditorHelpSearch::Runner : public Reference {
-
-    enum Phase {
-        PHASE_MATCH_CLASSES_INIT,
-        PHASE_MATCH_CLASSES,
-        PHASE_CLASS_ITEMS_INIT,
-        PHASE_CLASS_ITEMS,
-        PHASE_MEMBER_ITEMS_INIT,
-        PHASE_MEMBER_ITEMS,
-        PHASE_SELECT_MATCH,
-        PHASE_MAX
-    };
-
-    struct ClassMatch {
-        DocData::ClassDoc *doc;
-        bool name;
-        Vector<DocData::MethodDoc *> methods;
-        Vector<DocData::MethodDoc *> defined_signals;
-        Vector<DocData::ConstantDoc *> constants;
-        Vector<DocData::PropertyDoc *> properties;
-        Vector<DocData::PropertyDoc *> theme_properties;
-
-        bool required() {
-            return name || !methods.empty() || !defined_signals.empty() || !constants.empty() || !properties.empty() || !theme_properties.empty();
-        }
-    };
-
-    Map<String, ClassMatch> matches;
-    Map<String, TreeItem *> class_items;
-    Control *ui_service;
-    Tree *results_tree;
-    String term;
-
-    Ref<Texture> empty_icon;
-    int search_flags;
-    int phase;
-    Color disabled_color;
-
-    Map<String, DocData::ClassDoc>::iterator iterator_doc;
-    Map<String, ClassMatch>::iterator iterator_match;
-    TreeItem *root_item;
-    TreeItem *matched_item;
-
-    bool _is_class_disabled_by_feature_profile(const StringName &p_class);
-
-    bool _slice();
-    bool _phase_match_classes_init();
-    bool _phase_match_classes();
-    bool _phase_class_items_init();
-    bool _phase_class_items();
-    bool _phase_member_items_init();
-    bool _phase_member_items();
-    bool _phase_select_match();
-
-    bool _match_string(const String &p_term, const String &p_string) const;
-    void _match_item(TreeItem *p_item, const String &p_text);
-    TreeItem *_create_class_hierarchy(const ClassMatch &p_match);
-    TreeItem *_create_class_item(TreeItem *p_parent, const DocData::ClassDoc *p_doc, bool p_gray);
-    TreeItem *_create_method_item(TreeItem *p_parent, const DocData::ClassDoc *p_class_doc, const DocData::MethodDoc *p_doc);
-    TreeItem *_create_signal_item(TreeItem *p_parent, const DocData::ClassDoc *p_class_doc, const DocData::MethodDoc *p_doc);
-    TreeItem *_create_constant_item(TreeItem *p_parent, const DocData::ClassDoc *p_class_doc, const DocData::ConstantDoc *p_doc);
-    TreeItem *_create_property_item(TreeItem *p_parent, const DocData::ClassDoc *p_class_doc, const DocData::PropertyDoc *p_doc);
-    TreeItem *_create_theme_property_item(TreeItem *p_parent, const DocData::ClassDoc *p_class_doc, const DocData::PropertyDoc *p_doc);
-    TreeItem *_create_member_item(TreeItem *p_parent, const String &p_class_name, const String &p_icon, const String &p_name, const String &p_type, const String &p_metatype, const String &p_tooltip);
-
-public:
-    bool work(uint64_t slot = 100000);
-
-    Runner(Control *p_icon_service, Tree *p_results_tree, const String &p_term, int p_search_flags);
-};
-
-#endif // EDITOR_HELP_SEARCH_H

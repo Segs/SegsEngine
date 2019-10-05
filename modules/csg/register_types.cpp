@@ -34,6 +34,8 @@
 #include "csg_shape.h"
 #include "core/class_db.h"
 
+#include <QResource>
+
 void register_csg_types() {
 
 #ifndef _3D_DISABLED
@@ -49,6 +51,7 @@ void register_csg_types() {
     ClassDB::register_class<CSGCombiner>();
 
 #ifdef TOOLS_ENABLED
+    Q_INIT_RESOURCE(csg); 
     CSGShapeSpatialGizmoPlugin::initialize_class();
 
     EditorPlugins::add_by_type<EditorPluginCSG>();

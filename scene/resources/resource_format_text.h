@@ -31,10 +31,13 @@
 #pragma once
 
 #include "core/io/resource_loader.h"
+#include "core/io/resource_format_loader.h"
 #include "core/io/resource_saver.h"
 #include "core/os/file_access.h"
+#include "core/set.h"
 #include "core/variant_parser.h"
 #include "scene/resources/packed_scene.h"
+
 
 class ResourceInteractiveLoaderText : public ResourceInteractiveLoader {
 
@@ -140,48 +143,6 @@ public:
     static Error convert_file_to_binary(const String &p_src_path, const String &p_dst_path);
 
     ResourceFormatLoaderText() { singleton = this; }
-};
-
-class ResourceFormatSaverTextInstance {
-
-    String local_path;
-
-    Ref<PackedScene> packed_scene;
-
-    bool takeover_paths;
-    bool relative_paths;
-    bool bundle_resources;
-    bool skip_editor;
-    FileAccess *f;
-
-    struct NonPersistentKey { //for resource properties generated on the fly
-        RES base;
-        StringName property;
-        bool operator<(const NonPersistentKey &p_key) const { return base == p_key.base ? property < p_key.property : base < p_key.base; }
-    };
-
-    Map<NonPersistentKey, RES> non_persistent_map;
-
-    Set<RES> resource_set;
-    List<RES> saved_resources;
-    Map<RES, int> external_resources;
-    Map<RES, int> internal_resources;
-
-    struct ResourceSort {
-        RES resource;
-        int index;
-        bool operator<(const ResourceSort &p_right) const {
-            return index < p_right.index;
-        }
-    };
-
-    void _find_resources(const Variant &p_variant, bool p_main = false);
-
-    static String _write_resources(void *ud, const RES &p_resource);
-    String _write_resource(const RES &res);
-
-public:
-    Error save(const String &p_path, const RES &p_resource, uint32_t p_flags = 0);
 };
 
 class ResourceFormatSaverText : public ResourceFormatSaver {

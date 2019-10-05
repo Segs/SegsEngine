@@ -37,6 +37,8 @@
 #include "servers/visual_server.h"
 
 IMPL_GDCLASS(Camera2D)
+VARIANT_ENUM_CAST(Camera2D::AnchorMode);
+VARIANT_ENUM_CAST(Camera2D::Camera2DProcessMode);
 
 void Camera2D::_update_scroll() {
 

@@ -31,7 +31,9 @@
 #include "packed_scene.h"
 
 #include "core/core_string_names.h"
+#include "core/pair.h"
 #include "core/engine.h"
+#include "core/script_language.h"
 #include "core/io/resource_loader.h"
 #include "core/project_settings.h"
 #include "scene/2d/node_2d.h"
@@ -45,6 +47,8 @@
 IMPL_GDCLASS(SceneState)
 IMPL_GDCLASS(PackedScene)
 RES_BASE_EXTENSION_IMPL(PackedScene,"scn")
+VARIANT_ENUM_CAST(SceneState::GenEditState)
+VARIANT_ENUM_CAST(PackedScene::GenEditState)
 
 bool SceneState::can_instance() const {
 

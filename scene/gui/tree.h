@@ -282,8 +282,6 @@ public:
 	~TreeItem() override;
 };
 
-VARIANT_ENUM_CAST(TreeItem::TreeCellMode);
-VARIANT_ENUM_CAST(TreeItem::TextAlign);
 
 class Tree : public Control {
 

@@ -1,9 +1,6 @@
 if(UNIX)
     set(name "X11")
     SET(OPTION_DEBUG_SYMBOLS "no" CACHE STRING "debug symbol level")
-    SET(OPTION_BUILTIN_FREETYPE OFF CACHE BOOL "Overriden by platform detect" FORCE)
-    SET(OPTION_BUILTIN_LIBPNG OFF CACHE BOOL "Overriden by platform detect" FORCE)
-    SET(OPTION_BUILTIN_ZLIB OFF CACHE BOOL "Overriden by platform detect" FORCE)
 
     ## Build type
 
@@ -42,18 +39,6 @@ if(UNIX)
 
     # freetype depends on libpng and zlib, so bundling one of them while keeping others
     # as shared libraries leads to weird issues
-    if( OPTION_BUILTIN_FREETYPE OR OPTION_BUILTIN_LIBPNG OR OPTION_BUILTIN_ZLIB)
-        SET(OPTION_BUILTIN_FREETYPE ON CACHE BOOL "Overriden by platform detect" FORCE)
-        SET(OPTION_BUILTIN_LIBPNG ON CACHE BOOL "Overriden by platform detect" FORCE)
-        SET(OPTION_BUILTIN_ZLIB ON CACHE BOOL "Overriden by platform detect" FORCE)
-    endif()
-    if(NOT OPTION_BUILTIN_FREETYPE)
-        find_package(Freetype)
-    endif()
-    if(NOT OPTION_BUILTIN_LIBPNG)
-        find_package(PNG)
-    endif()
-
     if(NOT OPTION_BUILTIN_BULLET)
         find_package(Bullet 2.88)
     endif()

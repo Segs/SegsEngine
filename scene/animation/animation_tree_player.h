@@ -482,7 +482,5 @@ public:
     ~AnimationTreePlayer() override;
 };
 
-VARIANT_ENUM_CAST(AnimationTreePlayer::NodeType);
-VARIANT_ENUM_CAST(AnimationTreePlayer::AnimationProcessMode);
 
 #endif // ANIMATION_TREE_PLAYER_H

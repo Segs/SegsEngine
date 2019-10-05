@@ -62,13 +62,13 @@ class FileAccessBufferedFA : public FileAccessBuffered {
 			f.get_buffer(cache.buffer.ptrw(), p_size);
 
 			return p_size;
-		};
-	};
+		}
+    }
 
 	static FileAccess *create() {
 
 		return memnew(FileAccessBufferedFA<T>());
-	};
+	}
 
 protected:
 	virtual void _set_access_type(AccessType p_access) {

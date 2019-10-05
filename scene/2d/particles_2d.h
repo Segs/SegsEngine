@@ -122,6 +122,5 @@ public:
 	~Particles2D() override;
 };
 
-VARIANT_ENUM_CAST(Particles2D::DrawOrder)
 
 #endif // PARTICLES_2D_H

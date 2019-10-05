@@ -219,6 +219,10 @@
 #include "scene/resources/environment.h"
 #include "scene/resources/mesh_library.h"
 
+#include "scene/resources/font_serializers.h"
+#include "scene/resources/texture_serializers.h"
+#include "scene/resources/shader_serialization.h"
+
 #endif
 
 static Ref<ResourceFormatSaverText> resource_saver_text;

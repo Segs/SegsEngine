@@ -28,11 +28,12 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef TEXT_EDIT_H
-#define TEXT_EDIT_H
+#pragma once
 
 #include <utility>
 
+#include "core/list.h"
+#include "core/script_language.h"
 #include "scene/gui/control.h"
 #include "scene/gui/popup_menu.h"
 #include "scene/gui/scroll_bar.h"
@@ -758,8 +759,6 @@ public:
     ~TextEdit() override;
 };
 
-VARIANT_ENUM_CAST(TextEdit::MenuItems);
-VARIANT_ENUM_CAST(TextEdit::SearchFlags);
 
 class SyntaxHighlighter {
 protected:
@@ -776,5 +775,3 @@ public:
     void set_text_editor(TextEdit *p_text_editor);
     TextEdit *get_text_editor();
 };
-
-#endif // TEXT_EDIT_H

@@ -289,7 +289,3 @@ public:
     ~CPUParticles() override;
 };
 
-VARIANT_ENUM_CAST(CPUParticles::DrawOrder)
-VARIANT_ENUM_CAST(CPUParticles::Parameter)
-VARIANT_ENUM_CAST(CPUParticles::Flags)
-VARIANT_ENUM_CAST(CPUParticles::EmissionShape)

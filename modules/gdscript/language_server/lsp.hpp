@@ -28,10 +28,10 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef GODOT_LSP_H
-#define GODOT_LSP_H
+#pragma once
 
 #include "core/variant.h"
+#include "core/ustring.h"
 
 namespace lsp {
 
@@ -1502,5 +1502,3 @@ struct InitializeResult {
 };
 
 } // namespace lsp
-
-#endif

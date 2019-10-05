@@ -42,7 +42,7 @@
 
 using PFNWGLSWAPINTERVALEXTPROC = bool (*)(int);
 
-class ContextGL_Windows {
+class GODOT_EXPORT ContextGL_Windows {
 
 	HDC hDC;
 	HGLRC hRC;

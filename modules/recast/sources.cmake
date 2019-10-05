@@ -1,6 +1,9 @@
-file(GLOB source_files "recast/*.cpp")
-file(GLOB header_files "recast/*.h")
+# This file is included from parent-dir CMakeLists.txt
 
-target_sources(${tgt}_modules PRIVATE ${source_files} ${header_files} ${recast_source_files})
+file(GLOB_RECURSE source_files "${module_dir}/*.cpp")
+file(GLOB_RECURSE header_files "${module_dir}/*.h")
+file(GLOB_RECURSE qrc_files "${module_dir}/*.qrc")
+
+list(APPEND module_sources ${source_files} ${header_files} ${qrc_files})
 target_link_libraries(${tgt}_modules PRIVATE recast)
-target_compile_definitions(${tgt}_modules PUBLIC MODULE_RECAST_ENABLED RECAST_ENABLED)
+

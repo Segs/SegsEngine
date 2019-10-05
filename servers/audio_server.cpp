@@ -31,6 +31,8 @@
 #include "audio_server.h"
 #include "core/io/resource_loader.h"
 #include "core/method_bind.h"
+#include "core/method_arg_casters.h"
+#include "core/method_enum_caster.h"
 #include "core/os/file_access.h"
 #include "core/os/os.h"
 #include "core/project_settings.h"
@@ -41,7 +43,7 @@
 
 #ifdef TOOLS_ENABLED
 
-#define MARK_EDITED set_edited(true);
+#define MARK_EDITED get_tooling_interface()->set_edited(true);
 
 #else
 
@@ -51,6 +53,7 @@
 
 IMPL_GDCLASS(AudioServer)
 IMPL_GDCLASS(AudioBusLayout)
+VARIANT_ENUM_CAST(AudioServer::SpeakerMode)
 
 AudioDriver *AudioDriver::singleton = nullptr;
 AudioDriver *AudioDriver::get_singleton() {
@@ -995,7 +998,7 @@ void AudioServer::init() {
         AudioDriver::get_singleton()->start();
 
 #ifdef TOOLS_ENABLED
-    set_edited(false); //avoid editors from thinking this was edited
+    get_tooling_interface()->set_edited(false); //avoid editors from thinking this was edited
 #endif
 
     GLOBAL_DEF_RST("audio/video_delay_compensation_ms", 0);
@@ -1267,7 +1270,7 @@ void AudioServer::set_bus_layout(const Ref<AudioBusLayout> &p_bus_layout) {
         _update_bus_effects(i);
     }
 #ifdef TOOLS_ENABLED
-    set_edited(false);
+    get_tooling_interface()->set_edited(false);
 #endif
     unlock();
 }

@@ -251,7 +251,7 @@ void CameraFeed::set_YCbCr_imgs(Ref<Image> p_y_img, Ref<Image> p_cbcr_img) {
     }
 }
 
-void CameraFeed::allocate_texture(int p_width, int p_height, Image::Format p_format, VisualServer::TextureType p_texture_type, FeedDataType p_data_type) {
+void CameraFeed::allocate_texture(int p_width, int p_height, Image::Format p_format, VS::TextureType p_texture_type, FeedDataType p_data_type) {
     VisualServer *vs = VisualServer::get_singleton();
 
     if ((base_width != p_width) || (base_height != p_height)) {

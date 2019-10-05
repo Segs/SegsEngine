@@ -56,13 +56,40 @@ IMPL_GDCLASS(EditorExport)
 IMPL_GDCLASS(EditorExportPlatformPC)
 IMPL_GDCLASS(EditorExportTextSceneToBinaryPlugin)
 
+struct SavedData {
+
+    uint64_t ofs;
+    uint64_t size;
+    Vector<uint8_t> md5;
+    CharString path_utf8;
+
+    bool operator<(const SavedData &p_data) const {
+        return path_utf8 < p_data.path_utf8;
+    }
+};
+
+struct PackData {
+
+    FileAccess *f;
+    Vector<SavedData> file_ofs;
+    EditorProgress *ep;
+    Vector<SharedObject> *so_files;
+};
+
+struct ZipData {
+
+    void *zip;
+    EditorProgress *ep;
+};
+
+
 static int _get_pad(int p_alignment, int p_n) {
 
     int rest = p_n % p_alignment;
     int pad = 0;
     if (rest > 0) {
         pad = p_alignment - rest;
-    };
+    }
 
     return pad;
 }
@@ -922,7 +949,7 @@ Error EditorExportPlatform::save_pack(const Ref<EditorExportPreset> &p_preset, c
 
     String tmppath = PathUtils::plus_file(EditorSettings::get_singleton()->get_cache_dir(),"packtmp");
     FileAccess *ftmp = FileAccess::open(tmppath, FileAccess::WRITE);
-	ERR_FAIL_COND_V_MSG(!ftmp, ERR_CANT_CREATE, "Cannot create file '" + tmppath + "'.")
+    ERR_FAIL_COND_V_MSG(!ftmp, ERR_CANT_CREATE, "Cannot create file '" + tmppath + "'.")
 
     PackData pd;
     pd.ep = &ep;
@@ -1026,7 +1053,7 @@ Error EditorExportPlatform::save_pack(const Ref<EditorExportPreset> &p_preset, c
     if (!ftmp) {
         memdelete(f);
         DirAccess::remove_file_or_error(tmppath);
-		ERR_FAIL_V_MSG(ERR_CANT_CREATE, "Can't open file to read from path '" + String(tmppath) + "'.")
+        ERR_FAIL_V_MSG(ERR_CANT_CREATE, "Can't open file to read from path '" + String(tmppath) + "'.")
     }
 
     const int bufsize = 16384;

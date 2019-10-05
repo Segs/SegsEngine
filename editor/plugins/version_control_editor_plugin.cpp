@@ -38,6 +38,7 @@
 VersionControlEditorPlugin *VersionControlEditorPlugin::singleton = nullptr;
 
 IMPL_GDCLASS(VersionControlEditorPlugin)
+VARIANT_ENUM_CAST(VersionControlEditorPlugin::ChangeType);
 
 void VersionControlEditorPlugin::_bind_methods() {
 
@@ -382,7 +383,7 @@ void VersionControlEditorPlugin::fetch_available_vcs_addon_names() {
 
         String path = ScriptServer::get_global_class_path(global_classes[i]);
         Ref<Script> script = dynamic_ref_cast<Script>(ResourceLoader::load(path));
-
+        ERR_FAIL_COND(not script)
         if (script->get_instance_base_type() == "EditorVCSInterface") {
 
             available_addons.push_back(global_classes[i]);

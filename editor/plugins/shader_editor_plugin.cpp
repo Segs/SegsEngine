@@ -153,16 +153,16 @@ void ShaderTextEditor::_load_theme_settings() {
 
     if (shader) {
 
-        for (const eastl::pair<const StringName, ShaderLanguage::FunctionInfo> &E : ShaderTypes::get_singleton()->get_functions(VisualServer::ShaderMode(shader->get_mode()))) {
+        for (const eastl::pair<const StringName, ShaderLanguage::FunctionInfo> &E : ShaderTypes::get_singleton()->get_functions(VS::ShaderMode(shader->get_mode()))) {
 
             for (const eastl::pair<const StringName, ShaderLanguage::BuiltInInfo> &F : E.second.built_ins) {
                 keywords.push_back(F.first);
             }
         }
 
-        for (int i = 0; i < ShaderTypes::get_singleton()->get_modes(VisualServer::ShaderMode(shader->get_mode())).size(); i++) {
+        for (int i = 0; i < ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader->get_mode())).size(); i++) {
 
-            keywords.push_back(ShaderTypes::get_singleton()->get_modes(VisualServer::ShaderMode(shader->get_mode()))[i]);
+            keywords.push_back(ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader->get_mode()))[i]);
         }
     }
 
@@ -203,9 +203,9 @@ void ShaderTextEditor::_code_complete_script(const String &p_code, List<ScriptCo
     ShaderLanguage sl;
     String calltip;
 
-    Error err = sl.complete(p_code, ShaderTypes::get_singleton()->get_functions(VisualServer::ShaderMode(shader->get_mode())), ShaderTypes::get_singleton()->get_modes(VisualServer::ShaderMode(shader->get_mode())), ShaderTypes::get_singleton()->get_types(), r_options, calltip);
+    Error err = sl.complete(p_code, ShaderTypes::get_singleton()->get_functions(VS::ShaderMode(shader->get_mode())), ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader->get_mode())), ShaderTypes::get_singleton()->get_types(), r_options, calltip);
     if (err != OK)
-        ERR_PRINT("Shaderlang complete failed");
+        ERR_PRINT("Shaderlang complete failed")
 
     if (!calltip.empty()) {
         get_text_edit()->set_code_hint(calltip);
@@ -222,7 +222,7 @@ void ShaderTextEditor::_validate_script() {
 
     ShaderLanguage sl;
 
-    Error err = sl.compile(code, ShaderTypes::get_singleton()->get_functions(VisualServer::ShaderMode(shader->get_mode())), ShaderTypes::get_singleton()->get_modes(VisualServer::ShaderMode(shader->get_mode())), ShaderTypes::get_singleton()->get_types());
+    Error err = sl.compile(code, ShaderTypes::get_singleton()->get_functions(VS::ShaderMode(shader->get_mode())), ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader->get_mode())), ShaderTypes::get_singleton()->get_types());
 
     if (err != OK) {
         String error_text = "error(" + itos(sl.get_error_line()) + "): " + sl.get_error_text();
@@ -492,7 +492,7 @@ void ShaderEditor::apply_shaders() {
         String editor_code = shader_editor->get_text_edit()->get_text();
         if (shader_code != editor_code) {
             shader->set_code(editor_code);
-            shader->set_edited(true);
+            shader->get_tooling_interface()->set_edited(true);
         }
     }
 }

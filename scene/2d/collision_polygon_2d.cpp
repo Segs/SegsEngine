@@ -39,6 +39,7 @@
 #include "thirdparty/misc/triangulator.h"
 
 IMPL_GDCLASS(CollisionPolygon2D)
+VARIANT_ENUM_CAST(CollisionPolygon2D::BuildMode);
 
 void CollisionPolygon2D::_build_polygon() {
 

@@ -134,7 +134,7 @@ extern zipFile ZEXPORT zipOpen64 OF((const void *pathname, int append));
    Of couse, you can use RAW reading and writing to copy the file you did not want delte
 */
 
-extern zipFile ZEXPORT zipOpen2 OF((const char *pathname,
+ZEXTERN zipFile zipOpen2 OF((const char *pathname,
                                    int append,
                                    zipcharpc* globalcomment,
                                    zlib_filefunc_def* pzlib_filefunc_def));

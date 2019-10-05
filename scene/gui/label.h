@@ -144,5 +144,3 @@ public:
 	~Label() override;
 };
 
-VARIANT_ENUM_CAST(Label::Align);
-VARIANT_ENUM_CAST(Label::VAlign);

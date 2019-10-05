@@ -36,7 +36,7 @@
 #include "core/project_settings.h"
 
 IMPL_GDCLASS(VisualServer)
-
+using namespace VS;
 VisualServer *VisualServer::singleton = nullptr;
 VisualServer *(*VisualServer::create_func)() = nullptr;
 
@@ -240,18 +240,18 @@ RID VisualServer::_make_test_cube() {
 
     Array d;
     d.resize(VS::ARRAY_MAX);
-    d[VisualServer::ARRAY_NORMAL] = normals;
-    d[VisualServer::ARRAY_TANGENT] = tangents;
-    d[VisualServer::ARRAY_TEX_UV] = uvs;
-    d[VisualServer::ARRAY_VERTEX] = vertices;
+    d[VS::ARRAY_NORMAL] = normals;
+    d[VS::ARRAY_TANGENT] = tangents;
+    d[VS::ARRAY_TEX_UV] = uvs;
+    d[VS::ARRAY_VERTEX] = vertices;
 
     PoolVector<int> indices;
     indices.resize(vertices.size());
     for (int i = 0; i < vertices.size(); i++)
         indices.set(i, i);
-    d[VisualServer::ARRAY_INDEX] = indices;
+    d[VS::ARRAY_INDEX] = indices;
 
-    mesh_add_surface_from_arrays(test_cube, PRIMITIVE_TRIANGLES, d);
+    mesh_add_surface_from_arrays(test_cube, VS::PRIMITIVE_TRIANGLES, d);
 
     /*
     test_material = fixed_material_create();
@@ -317,10 +317,10 @@ RID VisualServer::make_sphere_mesh(int p_lats, int p_lons, float p_radius) {
     Array d;
     d.resize(VS::ARRAY_MAX);
 
-    d[ARRAY_VERTEX] = vertices;
-    d[ARRAY_NORMAL] = normals;
+    d[VS::ARRAY_VERTEX] = vertices;
+    d[VS::ARRAY_NORMAL] = normals;
 
-    mesh_add_surface_from_arrays(mesh, PRIMITIVE_TRIANGLES, d);
+    mesh_add_surface_from_arrays(mesh, VS::PRIMITIVE_TRIANGLES, d);
 
     return mesh;
 }
@@ -1635,7 +1635,7 @@ Array VisualServer::mesh_surface_get_blend_shape_arrays(RID p_mesh, int p_surfac
 
 Array VisualServer::_mesh_surface_get_skeleton_aabb_bind(RID p_mesh, int p_surface) const {
 
-    Vector<AABB> vec = VS::get_singleton()->mesh_surface_get_skeleton_aabb(p_mesh, p_surface);
+    Vector<AABB> vec = VisualServer::get_singleton()->mesh_surface_get_skeleton_aabb(p_mesh, p_surface);
     Array arr;
     for (int i = 0; i < vec.size(); i++) {
         arr[i] = vec[i];

@@ -34,9 +34,28 @@
 #include "core/reference.h"
 #include "core/map.h"
 #include "core/hash_map.h"
-#include "core/method_enum_caster.h"
 #include "core/set.h"
+#include "core/ustring.h"
 
+enum MultiplayerAPI_NetworkCommands {
+    NETWORK_COMMAND_REMOTE_CALL,
+    NETWORK_COMMAND_REMOTE_SET,
+    NETWORK_COMMAND_SIMPLIFY_PATH,
+    NETWORK_COMMAND_CONFIRM_PATH,
+    NETWORK_COMMAND_RAW,
+};
+enum MultiplayerAPI_RPCMode : int8_t {
+
+    RPC_MODE_DISABLED=0, // No rpc for this method, calls to this will be blocked (default)
+    RPC_MODE_REMOTE, // Using rpc() on it will call method / set property in all remote peers
+    RPC_MODE_MASTER, // Using rpc() on it will call method on wherever the master is, be it local or remote
+    RPC_MODE_PUPPET, // Using rpc() on it will call method for all puppets
+    RPC_MODE_SLAVE = RPC_MODE_PUPPET, // Deprecated, same as puppet
+    RPC_MODE_REMOTESYNC, // Using rpc() on it will call method / set property in all remote peers and locally
+    RPC_MODE_SYNC = RPC_MODE_REMOTESYNC, // Deprecated. Same as RPC_MODE_REMOTESYNC
+    RPC_MODE_MASTERSYNC, // Using rpc() on it will call method / set property in the master peer and locally
+    RPC_MODE_PUPPETSYNC, // Using rpc() on it will call method / set property in all puppets peers and locally
+};
 class MultiplayerAPI : public Reference {
 
     GDCLASS(MultiplayerAPI, Reference)
@@ -66,23 +85,8 @@ private:
 
         Map<int, NodeInfo> nodes;
     };
-#ifdef DEBUG_ENABLED
-    struct BandwidthFrame {
-        uint32_t timestamp;
-        int packet_size;
-    };
-
-    int bandwidth_incoming_pointer;
-    Vector<BandwidthFrame> bandwidth_incoming_data;
-    int bandwidth_outgoing_pointer;
-    Vector<BandwidthFrame> bandwidth_outgoing_data;
-    Map<ObjectID, ProfilingInfo> profiler_frame_data;
-    bool profiling;
-
-    void _init_node_profile(ObjectID p_node);
-    int _get_bandwidth_usage(const Vector<BandwidthFrame> &p_buffer, int p_pointer);
-#endif
-
+    class DebugData;
+    DebugData *m_debug_data = nullptr;
     Ref<NetworkedMultiplayerPeer> network_peer;
     int rpc_sender_id;
     Set<int> connected_peers;
@@ -107,27 +111,9 @@ protected:
     void _send_rpc(Node *p_from, int p_to, bool p_unreliable, bool p_set, const StringName &p_name, const Variant **p_arg, int p_argcount);
     bool _send_confirm_path(const NodePath& p_path, PathSentCache *psc, int p_target);
 
+
 public:
-    enum NetworkCommands {
-        NETWORK_COMMAND_REMOTE_CALL,
-        NETWORK_COMMAND_REMOTE_SET,
-        NETWORK_COMMAND_SIMPLIFY_PATH,
-        NETWORK_COMMAND_CONFIRM_PATH,
-        NETWORK_COMMAND_RAW,
-    };
 
-    enum RPCMode {
-
-        RPC_MODE_DISABLED, // No rpc for this method, calls to this will be blocked (default)
-        RPC_MODE_REMOTE, // Using rpc() on it will call method / set property in all remote peers
-        RPC_MODE_MASTER, // Using rpc() on it will call method on wherever the master is, be it local or remote
-        RPC_MODE_PUPPET, // Using rpc() on it will call method for all puppets
-        RPC_MODE_SLAVE = RPC_MODE_PUPPET, // Deprecated, same as puppet
-        RPC_MODE_REMOTESYNC, // Using rpc() on it will call method / set property in all remote peers and locally
-        RPC_MODE_SYNC = RPC_MODE_REMOTESYNC, // Deprecated. Same as RPC_MODE_REMOTESYNC
-        RPC_MODE_MASTERSYNC, // Using rpc() on it will call method / set property in the master peer and locally
-        RPC_MODE_PUPPETSYNC, // Using rpc() on it will call method / set property in all puppets peers and locally
-    };
 
     void poll();
     void clear();

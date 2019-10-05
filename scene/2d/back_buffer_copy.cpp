@@ -32,6 +32,7 @@
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(BackBufferCopy)
+VARIANT_ENUM_CAST(BackBufferCopy::CopyMode);
 
 void BackBufferCopy::_update_copy_mode() {
 
@@ -39,15 +40,15 @@ void BackBufferCopy::_update_copy_mode() {
 
         case COPY_MODE_DISABLED: {
 
-            VS::get_singleton()->canvas_item_set_copy_to_backbuffer(get_canvas_item(), false, Rect2());
+            VisualServer::get_singleton()->canvas_item_set_copy_to_backbuffer(get_canvas_item(), false, Rect2());
         } break;
         case COPY_MODE_RECT: {
 
-            VS::get_singleton()->canvas_item_set_copy_to_backbuffer(get_canvas_item(), true, rect);
+            VisualServer::get_singleton()->canvas_item_set_copy_to_backbuffer(get_canvas_item(), true, rect);
         } break;
         case COPY_MODE_VIEWPORT: {
 
-            VS::get_singleton()->canvas_item_set_copy_to_backbuffer(get_canvas_item(), true, Rect2());
+            VisualServer::get_singleton()->canvas_item_set_copy_to_backbuffer(get_canvas_item(), true, Rect2());
 
         } break;
     }

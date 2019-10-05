@@ -112,5 +112,5 @@ public:
     _FORCE_INLINE_ CowData(const CowData<T> &p_from) { _ref(p_from); }
 };
 
-//GODOT_TEMPLATE_EXT_DECLARE(CowData<char>)
+extern template class GODOT_EXPORT_TEMPLATE_A CowData<String>;
 //GODOT_TEMPLATE_EXT_DECLARE(CowData<char16_t>)

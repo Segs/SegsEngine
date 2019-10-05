@@ -42,13 +42,17 @@
 #include "visual_script_nodes.h"
 #include "visual_script_yield_nodes.h"
 
+#include <QResource>
+
 VisualScriptLanguage *visual_script_language = nullptr;
 #ifdef TOOLS_ENABLED
 static _VisualScriptEditor *vs_editor_singleton = nullptr;
 #endif
 
 void register_visual_script_types() {
-
+#ifdef TOOLS_ENABLED
+    Q_INIT_RESOURCE(visualscript); 
+#endif
 	visual_script_language = memnew(VisualScriptLanguage);
 	//script_language_gd->init();
 	ScriptServer::register_language(visual_script_language);

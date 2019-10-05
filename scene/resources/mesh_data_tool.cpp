@@ -30,6 +30,8 @@
 
 #include "mesh_data_tool.h"
 #include "core/method_bind.h"
+#include "scene/resources/material.h"
+#include "core/map.h"
 
 IMPL_GDCLASS(MeshDataTool)
 

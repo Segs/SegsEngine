@@ -34,6 +34,7 @@
 #include "core/method_bind.h"
 #include "core/object_db.h"
 #include "core/engine.h"
+#include "core/script_language.h"
 
 #include "scene/scene_string_names.h"
 #include "servers/audio/audio_stream.h"
@@ -41,13 +42,15 @@
 IMPL_GDCLASS(AnimationNode)
 IMPL_GDCLASS(AnimationRootNode)
 IMPL_GDCLASS(AnimationTree)
+VARIANT_ENUM_CAST(AnimationNode::FilterAction)
+VARIANT_ENUM_CAST(AnimationTree::AnimationProcessMode)
 
 void AnimationNode::get_parameter_list(List<PropertyInfo> *r_list) const {
     if (get_script_instance()) {
         Array parameters = get_script_instance()->call("get_parameter_list");
         for (int i = 0; i < parameters.size(); i++) {
             Dictionary d = parameters[i];
-            ERR_CONTINUE(d.empty());
+            ERR_CONTINUE(d.empty())
             r_list->push_back(PropertyInfo::from_dict(d));
         }
     }

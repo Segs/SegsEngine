@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef TRIANGULATE_H
-#define TRIANGULATE_H
+#pragma once
 
 #include "core/math/vector2.h"
 #include "core/vector.h"
@@ -38,7 +37,7 @@
 http://www.flipcode.com/archives/Efficient_Polygon_Triangulation.shtml
 */
 
-class Triangulate {
+class GODOT_EXPORT Triangulate {
 public:
 	// triangulate a contour/polygon, places results in STL vector
 	// as series of triangles.
@@ -59,4 +58,3 @@ private:
 	static bool snip(const Vector<Vector2> &p_contour, int u, int v, int w, int n, const Vector<int> &V, bool relaxed);
 };
 
-#endif

@@ -36,6 +36,7 @@
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(Area2D)
+VARIANT_ENUM_CAST(Area2D::SpaceOverride);
 
 void Area2D::set_space_override_mode(SpaceOverride p_mode) {
 

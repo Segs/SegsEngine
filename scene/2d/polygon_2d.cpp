@@ -113,10 +113,10 @@ void Polygon2D::_notification(int p_what) {
             ObjectID new_skeleton_id = 0;
 
             if (skeleton_node) {
-                VS::get_singleton()->canvas_item_attach_skeleton(get_canvas_item(), skeleton_node->get_skeleton());
+                VisualServer::get_singleton()->canvas_item_attach_skeleton(get_canvas_item(), skeleton_node->get_skeleton());
                 new_skeleton_id = skeleton_node->get_instance_id();
             } else {
-                VS::get_singleton()->canvas_item_attach_skeleton(get_canvas_item(), RID());
+                VisualServer::get_singleton()->canvas_item_attach_skeleton(get_canvas_item(), RID());
             }
 
             if (new_skeleton_id != current_skeleton_id) {
@@ -307,12 +307,12 @@ void Polygon2D::_notification(int p_what) {
             }
 
             //			Vector<int> indices = Geometry::triangulate_polygon(points);
-            //			VS::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(), indices, points, colors, uvs, texture ? texture->get_rid() : RID());
+            //			VisualServer::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(), indices, points, colors, uvs, texture ? texture->get_rid() : RID());
 
             if (invert || polygons.empty()) {
                 Vector<int> indices = Geometry::triangulate_polygon(points);
                 if (!indices.empty()) {
-                    VS::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(), indices, points, colors, uvs, bones, weights, texture ? texture->get_rid() : RID());
+                    VisualServer::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(), indices, points, colors, uvs, bones, weights, texture ? texture->get_rid() : RID());
                 }
             } else {
                 //draw individual polygons
@@ -346,7 +346,7 @@ void Polygon2D::_notification(int p_what) {
                 }
 
                 if (!total_indices.empty()) {
-                    VS::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(), total_indices, points, colors, uvs, bones, weights, texture ? texture->get_rid() : RID());
+                    VisualServer::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(), total_indices, points, colors, uvs, bones, weights, texture ? texture->get_rid() : RID());
                 }
 
 #if 0
@@ -534,7 +534,7 @@ void Polygon2D::_notification(int p_what) {
                         }
                     }
 
-                    VS::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(), indices, points, colors, uvs, bones, weights, texture ? texture->get_rid() : RID());
+                    VisualServer::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(), indices, points, colors, uvs, bones, weights, texture ? texture->get_rid() : RID());
                 }
 #endif
             }
@@ -846,7 +846,7 @@ void Polygon2D::_bind_methods() {
     ADD_GROUP("Texture", "texture_");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "texture_offset"), "set_texture_offset", "get_texture_offset");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "texture_scale"), "set_texture_scale", "get_texture_scale");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "texture_rotation_degrees", PROPERTY_HINT_RANGE, "-1080,1080,0.1,or_lesser,or_greater"), "set_texture_rotation_degrees", "get_texture_rotation_degrees");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "texture_rotation_degrees", PROPERTY_HINT_RANGE, "-360,360,0.1,or_lesser,or_greater"), "set_texture_rotation_degrees", "get_texture_rotation_degrees");
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "texture_rotation", PROPERTY_HINT_NONE, "", 0), "set_texture_rotation", "get_texture_rotation");
     ADD_GROUP("Skeleton", "");
     ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "skeleton", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Skeleton2D"), "set_skeleton", "get_skeleton");

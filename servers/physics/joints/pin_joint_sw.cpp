@@ -154,7 +154,7 @@ PinJointSW::PinJointSW(BodySW *p_body_a, const Vector3 &p_pos_a, BodySW *p_body_
 	m_pivotInA = p_pos_a;
 	m_pivotInB = p_pos_b;
 
-	m_tau = 0.3;
+	m_tau = 0.3f;
 	m_damping = 1;
 	m_impulseClamp = 0;
 	m_appliedImpulse = 0;

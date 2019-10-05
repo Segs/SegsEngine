@@ -35,7 +35,7 @@
 #include "core/map.h"
 #include "core/set.h"
 
-class Translation : public Resource {
+class GODOT_EXPORT Translation : public Resource {
 
 	GDCLASS(Translation,Resource)
     OBJ_SAVE_TYPE(Translation)
@@ -45,7 +45,6 @@ class Translation : public Resource {
 	Map<StringName, StringName> translation_map;
 
 	PoolVector<String> _get_message_list() const;
-
 	PoolVector<String> _get_messages() const;
 	void _set_messages(const PoolVector<String> &p_messages);
 
@@ -66,7 +65,7 @@ public:
 	Translation();
 };
 
-class TranslationServer : public Object {
+class GODOT_EXPORT TranslationServer : public Object {
 
 	GDCLASS(TranslationServer,Object)
 

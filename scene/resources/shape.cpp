@@ -33,6 +33,7 @@
 #include "core/os/os.h"
 #include "scene/main/scene_tree.h"
 #include "scene/resources/mesh.h"
+#include "scene/resources/material.h"
 #include "servers/physics_server.h"
 #include "core/method_bind.h"
 

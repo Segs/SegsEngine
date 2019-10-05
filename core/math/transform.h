@@ -28,15 +28,14 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef TRANSFORM_H
-#define TRANSFORM_H
+#pragma once
 
 #include "core/math/aabb.h"
 #include "core/math/basis.h"
 #include "core/math/plane.h"
 #include "core/pool_vector.h"
 
-class Transform {
+class GODOT_EXPORT Transform {
 public:
     Basis basis;
     Vector3 origin;
@@ -109,8 +108,11 @@ public:
     operator String() const;
 
     Transform(real_t xx, real_t xy, real_t xz, real_t yx, real_t yy, real_t yz, real_t zx, real_t zy, real_t zz, real_t ox, real_t oy, real_t oz);
-    Transform(const Basis &p_basis, const Vector3 &p_origin = Vector3());
-    Transform() {}
+    constexpr Transform(const Basis &p_basis, const Vector3 &p_origin = Vector3()) :
+        basis(p_basis),
+        origin(p_origin) {
+    }
+    constexpr Transform() = default;
 };
 
 _FORCE_INLINE_ Vector3 Transform::xform(const Vector3 &p_vector) const {
@@ -221,4 +223,3 @@ void Transform::xform_inv(Vector3 *p_array,int size) const {
     }
 }
 
-#endif // TRANSFORM_H

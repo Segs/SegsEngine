@@ -28,11 +28,11 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef PLUGINSCRIPT_SCRIPT_H
-#define PLUGINSCRIPT_SCRIPT_H
+#pragma once
 
 // Godot imports
 #include "core/script_language.h"
+#include "core/set.h"
 // PluginScript imports
 #include "pluginscript_language.h"
 #include <pluginscript/godot_pluginscript.h>
@@ -61,8 +61,8 @@ private:
 	Map<StringName, PropertyInfo> _properties_info;
 	Map<StringName, MethodInfo> _signals_info;
 	Map<StringName, MethodInfo> _methods_info;
-	Map<StringName, MultiplayerAPI::RPCMode> _variables_rset_mode;
-	Map<StringName, MultiplayerAPI::RPCMode> _methods_rpc_mode;
+	Map<StringName, MultiplayerAPI_RPCMode> _variables_rset_mode;
+	Map<StringName, MultiplayerAPI_RPCMode> _methods_rpc_mode;
 
 	Set<Object *> _instances;
 	//exported members
@@ -119,12 +119,10 @@ public:
 
 	int get_member_line(const StringName &p_member) const override;
 
-	MultiplayerAPI::RPCMode get_rpc_mode(const StringName &p_method) const;
-	MultiplayerAPI::RPCMode get_rset_mode(const StringName &p_variable) const;
+	MultiplayerAPI_RPCMode get_rpc_mode(const StringName &p_method) const;
+	MultiplayerAPI_RPCMode get_rset_mode(const StringName &p_variable) const;
 
 	PluginScript();
 	void init(PluginScriptLanguage *language);
 	~PluginScript() override;
 };
-
-#endif // PLUGINSCRIPT_SCRIPT_H

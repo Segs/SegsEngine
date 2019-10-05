@@ -127,6 +127,5 @@ public:
     TabContainer();
 };
 
-VARIANT_ENUM_CAST(TabContainer::TabAlign);
 
 #endif // TAB_CONTAINER_H

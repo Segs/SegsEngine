@@ -57,10 +57,10 @@ class GODOT_EXPORT StringName {
 
     struct _Data;
 
-    static _Data *_table[STRING_TABLE_LEN];
+    GODOT_NO_EXPORT static _Data *_table[STRING_TABLE_LEN];
     static Mutex *lock;
-    static void setup();
-    static void cleanup();
+    GODOT_NO_EXPORT static void setup();
+    GODOT_NO_EXPORT static void cleanup();
     static bool configured;
 
     _Data *_data;
@@ -118,6 +118,7 @@ public:
     }
     //TODO: mark StringName(const String &p_name) explicit, it allocates some memory, even if COW'ed
     StringName(const String &p_name);
+
     StringName(const StaticCString &p_static_string) {
         _data = nullptr;
 
@@ -134,7 +135,7 @@ public:
     constexpr StringName() : _data(nullptr) {}
 
     template<std::size_t N>
-    StringName(char const (&s)[N]) {
+    GODOT_NO_EXPORT StringName(char const (&s)[N]) {
         _data = nullptr;
 
         if constexpr (N<=1) // static zero-terminated string of length 1 is just \000

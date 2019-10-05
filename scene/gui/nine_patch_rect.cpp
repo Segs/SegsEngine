@@ -35,6 +35,8 @@
 
 IMPL_GDCLASS(NinePatchRect)
 
+VARIANT_ENUM_CAST(NinePatchRect::AxisStretchMode)
+
 void NinePatchRect::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_DRAW) {
@@ -48,7 +50,7 @@ void NinePatchRect::_notification(int p_what) {
         texture->get_rect_region(rect, src_rect, rect, src_rect);
 
         RID ci = get_canvas_item();
-        VS::get_singleton()->canvas_item_add_nine_patch(ci, rect, src_rect, texture->get_rid(), Vector2(margin[MARGIN_LEFT], margin[MARGIN_TOP]), Vector2(margin[MARGIN_RIGHT], margin[MARGIN_BOTTOM]), VS::NinePatchAxisMode(axis_h), VS::NinePatchAxisMode(axis_v), draw_center);
+        VisualServer::get_singleton()->canvas_item_add_nine_patch(ci, rect, src_rect, texture->get_rid(), Vector2(margin[MARGIN_LEFT], margin[MARGIN_TOP]), Vector2(margin[MARGIN_RIGHT], margin[MARGIN_BOTTOM]), VS::NinePatchAxisMode(axis_h), VS::NinePatchAxisMode(axis_v), draw_center);
     }
 }
 

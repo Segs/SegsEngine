@@ -54,7 +54,7 @@ protected:
     static void _bind_methods();
 
 public:
-	_FORCE_INLINE_ bool is_referenced() const { return refcount_init.get() != 1; }
+    _FORCE_INLINE_ bool is_referenced() const { return refcount_init.get() != 1; }
     bool init_ref();
     bool reference(); // returns false if refcount is at zero and didn't get increased
     bool unreference();
@@ -304,12 +304,12 @@ struct PtrToArg;
 template <class T>
 struct PtrToArg<Ref<T> > {
 
-    _FORCE_INLINE_ static Ref<T> convert(const void *p_ptr) {
+    static Ref<T> convert(const void *p_ptr) {
 
         return Ref<T>(const_cast<T *>(reinterpret_cast<const T *>(p_ptr)));
     }
 
-    _FORCE_INLINE_ static void encode(const Ref<T> &p_val, void *p_ptr) {
+    static void encode(const Ref<T> &p_val, void *p_ptr) {
 
         *(Ref<Reference> *)p_ptr = p_val;
     }
@@ -318,9 +318,14 @@ struct PtrToArg<Ref<T> > {
 template <class T>
 struct PtrToArg<const Ref<T> &> {
 
-    _FORCE_INLINE_ static Ref<T> convert(const void *p_ptr) {
+    static Ref<T> convert(const void *p_ptr) {
 
         return Ref<T>((T *)p_ptr);
+    }
+    //TODO: added to allow const Ref<T> & return values, not tested.
+    static void encode(const Ref<T> &p_val, void *p_ptr) {
+
+        *(Ref<Reference> *)p_ptr = p_val;
     }
 };
 

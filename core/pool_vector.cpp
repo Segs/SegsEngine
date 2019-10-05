@@ -30,6 +30,12 @@
 
 #include "pool_vector.h"
 #include "ustring.h"
+#include "core/math/vector2.h"
+#include "core/math/vector3.h"
+
+GODOT_TEMPLATE_EXT_DEFINE(PoolVector<uint8_t>)
+GODOT_TEMPLATE_EXT_DEFINE(PoolVector<Vector2>)
+GODOT_TEMPLATE_EXT_DEFINE(PoolVector<Vector3>)
 
 Mutex *pool_vector_lock = nullptr;
 

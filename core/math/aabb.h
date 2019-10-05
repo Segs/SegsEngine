@@ -40,7 +40,7 @@
  * This is implemented by a point (position) and the box size
  */
 
-class AABB {
+class GODOT_EXPORT AABB {
 public:
 	Vector3 position;
 	Vector3 size;
