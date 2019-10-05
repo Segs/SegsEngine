@@ -30,9 +30,10 @@
 
 #include "surface_tool.h"
 #include "core/method_bind.h"
+#include "scene/resources/material.h"
 
-#define _VERTEX_SNAP 0.0001
-#define EQ_VERTEX_DIST 0.00001
+#define _VERTEX_SNAP 0.0001f
+#define EQ_VERTEX_DIST 0.00001f
 
 IMPL_GDCLASS(SurfaceTool)
 //TODO: SEGS: Mesh::PrimitiveType is used here

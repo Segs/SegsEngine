@@ -34,7 +34,7 @@
 #include "core/self_list.h"
 #include "scene/resources/shader.h"
 #include "scene/resources/texture.h"
-
+#include "servers/visual_server_enums.h"
 
 
 class GODOT_EXPORT Material : public Resource {

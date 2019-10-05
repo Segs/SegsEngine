@@ -35,9 +35,11 @@
 #include "core/math/triangle_mesh.h"
 #include "core/resource.h"
 #include "core/ustring.h"
-#include "scene/resources/material.h"
+//#include "scene/resources/material.h"
 #include "scene/resources/shape.h"
 #include "servers/visual_server_enums.h"
+
+class Material;
 
 class GODOT_EXPORT Mesh : public Resource {
     GDCLASS(Mesh,Resource)

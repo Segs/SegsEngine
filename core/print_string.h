@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #pragma once
+#include "godot_export.h"
 
 class String;
 
@@ -50,11 +51,11 @@ struct PrintHandlerList {
     }
 };
 
-void add_print_handler(PrintHandlerList *p_handler);
-void remove_print_handler(PrintHandlerList *p_handler);
+GODOT_EXPORT void add_print_handler(PrintHandlerList *p_handler);
+GODOT_EXPORT void remove_print_handler(PrintHandlerList *p_handler);
 
-extern bool _print_line_enabled;
-extern bool _print_error_enabled;
-extern void print_line(String p_string);
-extern void print_error(String p_string);
-extern void print_verbose(String p_string);
+GODOT_EXPORT extern bool _print_line_enabled;
+GODOT_EXPORT extern bool _print_error_enabled;
+GODOT_EXPORT extern void print_line(String p_string);
+GODOT_EXPORT extern void print_error(String p_string);
+GODOT_EXPORT extern void print_verbose(String p_string);

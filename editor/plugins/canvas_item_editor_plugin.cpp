@@ -2560,7 +2560,7 @@ void CanvasItemEditor::_draw_rulers() {
     Color bg_color = get_color("dark_color_2", "Editor");
     Color graduation_color = get_color("font_color", "Editor").linear_interpolate(bg_color, 0.5);
     Color font_color = get_color("font_color", "Editor");
-    font_color.a = 0.8;
+    font_color.a = 0.8f;
     Ref<Font> font = get_font("rulers", "EditorFonts");
     bool is_snap_active = snap_active ^ Input::get_singleton()->is_key_pressed(KEY_CONTROL);
 

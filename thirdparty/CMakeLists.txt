@@ -341,13 +341,12 @@ set(thirdparty_sources
     ${PROJECT_SOURCE_DIR}/thirdparty/libpng/pngwtran.c
     ${PROJECT_SOURCE_DIR}/thirdparty/libpng/pngwutil.c
 )
-if(OPTION_BUILTIN_LIBPNG)
-    add_library(internal_png OBJECT ${thirdparty_sources})
-    target_include_directories(internal_png PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/libpng/)
-    target_link_libraries(internal_png PUBLIC zlib)
-    set_property(TARGET internal_png PROPERTY POSITION_INDEPENDENT_CODE ON)
-    set_common_target_properties(internal_png)
-endif()
+
+add_library(internal_png STATIC ${thirdparty_sources})
+target_include_directories(internal_png PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/libpng/)
+target_link_libraries(internal_png PUBLIC zlib)
+set_property(TARGET internal_png PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_common_target_properties(internal_png)
 
 
 set(source_files
@@ -394,7 +393,7 @@ set(source_files
     ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/winfonts/winfnt.c
     ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/sfnt/sfnt.c
 )
-add_library(freetype OBJECT ${source_files})
+add_library(freetype STATIC ${source_files})
 set_property(TARGET freetype PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_include_directories(freetype PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/freetype/include)
 target_compile_definitions(freetype PRIVATE FT2_BUILD_LIBRARY)

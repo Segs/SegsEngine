@@ -33,6 +33,7 @@
 #include "editor/plugin_interfaces/PluginDeclarations.h"
 
 #include "editor/import/resource_importer_scene.h"
+#include "scene/resources/material.h"
 #include "scene/3d/skeleton.h"
 #include "scene/3d/spatial.h"
 

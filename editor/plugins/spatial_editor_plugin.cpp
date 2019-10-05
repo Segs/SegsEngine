@@ -2348,17 +2348,17 @@ static void draw_indicator_bar(Control &surface, real_t fill, Ref<Texture> icon)
 
     // Adjust bar size from control height
     Vector2 surface_size = surface.get_size();
-    real_t h = surface_size.y / 2.0;
-    real_t y = (surface_size.y - h) / 2.0;
+    real_t h = surface_size.y / 2.0f;
+    real_t y = (surface_size.y - h) / 2.0f;
 
     Rect2 r(10, y, 6, h);
     real_t sy = r.size.y * fill;
 
     // Note: because this bar appears over the viewport, it has to stay readable for any background color
     // Draw both neutral dark and bright colors to account this
-    surface.draw_rect(r, Color(1, 1, 1, 0.2));
-    surface.draw_rect(Rect2(r.position.x, r.position.y + r.size.y - sy, r.size.x, sy), Color(1, 1, 1, 0.6));
-    surface.draw_rect(r.grow(1), Color(0, 0, 0, 0.7), false, Math::round(EDSCALE));
+    surface.draw_rect(r, Color(1, 1, 1, 0.2f));
+    surface.draw_rect(Rect2(r.position.x, r.position.y + r.size.y - sy, r.size.x, sy), Color(1, 1, 1, 0.6f));
+    surface.draw_rect(r.grow(1), Color(0, 0, 0, 0.7f), false, Math::round(EDSCALE));
 
     Vector2 icon_size = icon->get_size();
     Vector2 icon_pos = Vector2(r.position.x - (icon_size.x - r.size.x) / 2, r.position.y + r.size.y + 2);
@@ -2402,8 +2402,8 @@ void SpatialEditorViewport::_draw() {
     if (message_time > 0) {
         Ref<Font> font = get_font("font", "Label");
         Point2 msgpos = Point2(5, get_size().y - 20);
-        font->draw(ci, msgpos + Point2(1, 1), message, Color(0, 0, 0, 0.8));
-        font->draw(ci, msgpos + Point2(-1, -1), message, Color(0, 0, 0, 0.8));
+        font->draw(ci, msgpos + Point2(1, 1), message, Color(0, 0, 0, 0.8f));
+        font->draw(ci, msgpos + Point2(-1, -1), message, Color(0, 0, 0, 0.8f));
         font->draw(ci, msgpos, message, Color(1, 1, 1, 1));
     }
 
@@ -2414,7 +2414,7 @@ void SpatialEditorViewport::_draw() {
                 ci,
                 _edit.mouse_pos,
                 center,
-                get_color("accent_color", "Editor") * Color(1, 1, 1, 0.6),
+                get_color("accent_color", "Editor") * Color(1, 1, 1, 0.6f),
                 Math::round(2 * EDSCALE),
                 true);
     }
@@ -2431,14 +2431,14 @@ void SpatialEditorViewport::_draw() {
 
                 draw_rect.size = Size2(s.width, s.width / aspect);
                 draw_rect.position.x = 0;
-                draw_rect.position.y = (s.height - draw_rect.size.y) * 0.5;
+                draw_rect.position.y = (s.height - draw_rect.size.y) * 0.5f;
 
             } break;
             case Camera::KEEP_HEIGHT: {
 
                 draw_rect.size = Size2(s.height * aspect, s.height);
                 draw_rect.position.y = 0;
-                draw_rect.position.x = (s.width - draw_rect.size.x) * 0.5;
+                draw_rect.position.x = (s.width - draw_rect.size.x) * 0.5f;
 
             } break;
         }
@@ -2498,7 +2498,7 @@ void SpatialEditorViewport::_menu_option(int p_option) {
         case VIEW_TOP: {
 
             cursor.y_rot = 0;
-            cursor.x_rot = Math_PI / 2.0;
+            cursor.x_rot = Math_PI / 2.0f;
             set_message(TTR("Top View."), 2);
             name = TTR("Top");
             _update_name();
@@ -2507,7 +2507,7 @@ void SpatialEditorViewport::_menu_option(int p_option) {
         case VIEW_BOTTOM: {
 
             cursor.y_rot = 0;
-            cursor.x_rot = -Math_PI / 2.0;
+            cursor.x_rot = -Math_PI / 2.0f;
             set_message(TTR("Bottom View."), 2);
             name = TTR("Bottom");
             _update_name();
@@ -2516,7 +2516,7 @@ void SpatialEditorViewport::_menu_option(int p_option) {
         case VIEW_LEFT: {
 
             cursor.x_rot = 0;
-            cursor.y_rot = Math_PI / 2.0;
+            cursor.y_rot = Math_PI / 2.0f;
             set_message(TTR("Left View."), 2);
             name = TTR("Left");
             _update_name();
@@ -2525,7 +2525,7 @@ void SpatialEditorViewport::_menu_option(int p_option) {
         case VIEW_RIGHT: {
 
             cursor.x_rot = 0;
-            cursor.y_rot = -Math_PI / 2.0;
+            cursor.y_rot = -Math_PI / 2.0f;
             set_message(TTR("Right View."), 2);
             name = TTR("Right");
             _update_name();

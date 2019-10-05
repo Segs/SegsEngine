@@ -31,6 +31,7 @@
 #pragma once
 
 #include "scene/resources/mesh.h"
+#include "core/map.h"
 
 #include "thirdparty/misc/mikktspace.h"
 

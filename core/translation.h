@@ -65,7 +65,7 @@ public:
 	Translation();
 };
 
-class TranslationServer : public Object {
+class GODOT_EXPORT TranslationServer : public Object {
 
 	GDCLASS(TranslationServer,Object)
 

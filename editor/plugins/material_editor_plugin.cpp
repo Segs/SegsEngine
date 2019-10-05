@@ -144,7 +144,7 @@ MaterialEditor::MaterialEditor() {
 
     light2 = memnew(DirectionalLight);
     light2->set_transform(Transform().looking_at(Vector3(0, 1, 0), Vector3(0, 0, 1)));
-    light2->set_color(Color(0.7, 0.7, 0.7));
+    light2->set_color(Color(0.7f, 0.7f, 0.7f));
     viewport->add_child(light2);
 
     sphere_instance = memnew(MeshInstance);

@@ -162,7 +162,7 @@ public:
 
 using RES = Ref<Resource>;
 
-class ResourceCache {
+class GODOT_EXPORT ResourceCache {
     friend class Resource;
     friend class ResourceLoader; //need the lock
     static RWLock *lock;

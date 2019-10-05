@@ -332,11 +332,11 @@ Light::Light(VS::LightType p_type) {
     set_param(PARAM_SPOT_ATTENUATION, 1);
     set_param(PARAM_CONTACT_SHADOW_SIZE, 0);
     set_param(PARAM_SHADOW_MAX_DISTANCE, 0);
-    set_param(PARAM_SHADOW_SPLIT_1_OFFSET, 0.1);
-    set_param(PARAM_SHADOW_SPLIT_2_OFFSET, 0.2);
-    set_param(PARAM_SHADOW_SPLIT_3_OFFSET, 0.5);
+    set_param(PARAM_SHADOW_SPLIT_1_OFFSET, 0.1f);
+    set_param(PARAM_SHADOW_SPLIT_2_OFFSET, 0.2f);
+    set_param(PARAM_SHADOW_SPLIT_3_OFFSET, 0.5f);
     set_param(PARAM_SHADOW_NORMAL_BIAS, 0.0);
-    set_param(PARAM_SHADOW_BIAS, 0.15);
+    set_param(PARAM_SHADOW_BIAS, 0.15f);
     set_disable_scale(true);
 }
 
