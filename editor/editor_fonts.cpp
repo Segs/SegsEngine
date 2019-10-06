@@ -203,6 +203,7 @@ void editor_register_fonts(const Ref<Theme>& p_theme) {
     // Default font
     auto df = make_def_font(holder,default_font_size,FontHolder::DefaultFont,CustomFont);
     p_theme->set_default_theme_font(df);
+	p_theme->set_font("main", "EditorFonts", df);
 
     // Bold font
     MAKE_BOLD_FONT(df_bold, default_font_size)

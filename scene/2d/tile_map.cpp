@@ -1055,6 +1055,7 @@ void TileMap::update_dirty_bitmask() {
 
 void TileMap::fix_invalid_tiles() {
 
+	ERR_FAIL_COND_MSG(not tile_set, "Cannot fix invalid tiles if Tileset is not open.");
     for (eastl::pair<const PosKey,Cell> &E : tile_map) {
 
         if (!tile_set->has_tile(get_cell(E.first.x, E.first.y))) {

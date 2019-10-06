@@ -310,6 +310,7 @@ void AnimationPlayerEditor::_animation_selected(int p_which) {
 
     AnimationPlayerEditor::singleton->get_track_editor()->update_keying();
     EditorNode::get_singleton()->update_keying();
+    _animation_key_editor_seek(timeline_position, false);
 }
 
 void AnimationPlayerEditor::_animation_new() {
@@ -489,6 +490,7 @@ double AnimationPlayerEditor::_get_editor_step() const {
     if (track_editor->is_snap_enabled()) {
         const String current = player->get_assigned_animation();
         const Ref<Animation> anim = player->get_animation(current);
+        ERR_FAIL_COND_V(not anim, 0.0);
         // Use more precise snapping when holding Shift
         return Input::get_singleton()->is_key_pressed(KEY_SHIFT) ? anim->get_step() * 0.25 : anim->get_step();
     }
@@ -1078,12 +1080,17 @@ void AnimationPlayerEditor::_animation_key_editor_anim_len_changed(float p_len) 
 
 void AnimationPlayerEditor::_animation_key_editor_seek(float p_pos, bool p_drag) {
 
+    timeline_position = p_pos;
+
     if (!is_visible_in_tree())
         return;
     if (!player)
         return;
 
     if (player->is_playing())
+        return;
+
+    if (!player->has_animation(player->get_assigned_animation()))
         return;
 
     Ref<Animation> anim = player->get_animation(player->get_assigned_animation());
@@ -1760,6 +1767,7 @@ AnimationPlayerEditor::AnimationPlayerEditor(EditorNode *p_editor, AnimationPlay
 
     renaming = false;
     last_active = false;
+    timeline_position = 0;
 
     set_process_unhandled_key_input(true);
 
@@ -1770,7 +1778,7 @@ AnimationPlayerEditor::AnimationPlayerEditor(EditorNode *p_editor, AnimationPlay
 
     _update_player();
 
-    // Onion skinning
+    // Onion skinning.
 
     track_editor->connect("visibility_changed", this, "_editor_visibility_changed");
 

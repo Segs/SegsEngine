@@ -76,7 +76,7 @@ void ResourceImporterTexture::_texture_reimport_normal(const StringName &p_tex_p
     singleton->mutex->unlock();
 }
 
-void ResourceImporterTexture::build_reconfigured_list(bool editor_is_scanning_or_importing) {
+void ResourceImporterTexture::build_reconfigured_list(Vector<String> &to_reimport) {
 
     mutex->lock();
 
@@ -85,7 +85,6 @@ void ResourceImporterTexture::build_reconfigured_list(bool editor_is_scanning_or
         return;
     }
 
-    Vector<String> to_reimport;
     for (eastl::pair<const StringName, int> &E : make_flags) {
 
         Ref<ConfigFile> cf(make_ref_counted<ConfigFile>());

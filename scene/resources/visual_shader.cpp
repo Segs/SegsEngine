@@ -118,6 +118,10 @@ String VisualShaderNode::get_warning(Shader::Mode p_mode, VisualShader::Type p_t
     return String();
 }
 
+String VisualShaderNode::get_input_port_default_hint(int p_port) const {
+    return "";
+}
+
 void VisualShaderNode::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_output_port_for_preview", {"port"}), &VisualShaderNode::set_output_port_for_preview);
@@ -137,7 +141,8 @@ void VisualShaderNode::_bind_methods() {
     BIND_ENUM_CONSTANT(PORT_TYPE_VECTOR)
     BIND_ENUM_CONSTANT(PORT_TYPE_BOOLEAN)
     BIND_ENUM_CONSTANT(PORT_TYPE_TRANSFORM)
-    BIND_ENUM_CONSTANT(PORT_TYPE_ICON_COLOR)
+    BIND_ENUM_CONSTANT(PORT_TYPE_SAMPLER)
+    BIND_ENUM_CONSTANT(PORT_TYPE_MAX)
 }
 
 VisualShaderNode::VisualShaderNode() {
@@ -1073,7 +1078,15 @@ Error VisualShader::_write_node(Type type, StringBuilder &global_code, StringBui
 
             String src_var = "n_out" + itos(from_node) + "p" + itos(from_port);
 
-            if (in_type == out_type) {
+            if (in_type == VisualShaderNode::PORT_TYPE_SAMPLER && out_type == VisualShaderNode::PORT_TYPE_SAMPLER) {
+
+                VisualShaderNodeUniform *uniform = (VisualShaderNodeUniform *)graph[type].nodes.at(from_node).node.get();
+                if (uniform) {
+                    inputs[i] = uniform->get_uniform_name();
+                } else {
+                    inputs[i] = "";
+                }
+            } else if (in_type == out_type) {
                 inputs[i] = src_var;
             } else if (in_type == VisualShaderNode::PORT_TYPE_SCALAR && out_type == VisualShaderNode::PORT_TYPE_VECTOR) {
                 inputs[i] = "dot(" + src_var + ",vec3(0.333333,0.333333,0.333333))";
@@ -1154,12 +1167,16 @@ Error VisualShader::_write_node(Type type, StringBuilder &global_code, StringBui
 
         global_code += vsnode->generate_global(get_mode(), type, node);
 
-        if (!r_classes.contains(vsnode->get_class_name())) {
+        String class_name = vsnode->get_class_name();
+        if (class_name == "VisualShaderNodeCustom") {
+            class_name = vsnode->get_script_instance()->get_script()->get_language()->get_global_class_name(vsnode->get_script_instance()->get_script()->get_path());
+        }
+        if (!r_classes.contains(class_name)) {
             global_code_per_node += vsnode->generate_global_per_node(get_mode(), type, node);
             for (int i = 0; i < TYPE_MAX; i++) {
                 global_code_per_func[Type(i)] += vsnode->generate_global_per_func(get_mode(), Type(i), node);
             }
-            r_classes.insert(vsnode->get_class_name());
+            r_classes.insert(class_name);
         }
     }
 
@@ -2221,7 +2238,7 @@ void VisualShaderNodeGroupBase::clear_output_ports() {
 void VisualShaderNodeGroupBase::set_input_port_type(int p_id, int p_type) {
 
     ERR_FAIL_COND(!has_input_port(p_id))
-    ERR_FAIL_COND(p_type < 0 || p_type > PORT_TYPE_TRANSFORM)
+    ERR_FAIL_COND(p_type < 0 || p_type >= PORT_TYPE_MAX)
 
     if (input_ports[p_id].type == p_type)
         return;
@@ -2287,7 +2304,7 @@ String VisualShaderNodeGroupBase::get_input_port_name(int p_id) const {
 void VisualShaderNodeGroupBase::set_output_port_type(int p_id, int p_type) {
 
     ERR_FAIL_COND(!has_output_port(p_id))
-    ERR_FAIL_COND(p_type < 0 || p_type > PORT_TYPE_TRANSFORM)
+    ERR_FAIL_COND(p_type < 0 || p_type >= PORT_TYPE_MAX)
 
     if (output_ports[p_id].type == p_type)
         return;

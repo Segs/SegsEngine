@@ -344,7 +344,7 @@ void TreeItem::set_collapsed(bool p_collapsed) {
 
             ci = ci->parent;
         }
-		if (ci) { // collapsing cursor/selected, move it!
+        if (ci) { // collapsing cursor/selected, move it!
 
             if (tree->select_mode == Tree::SELECT_MULTI) {
 
@@ -565,9 +565,9 @@ Ref<Texture> TreeItem::get_button(int p_column, int p_idx) const {
 }
 
 String TreeItem::get_button_tooltip(int p_column, int p_idx) const {
-	ERR_FAIL_INDEX_V(p_column, cells.size(), String());
-	ERR_FAIL_INDEX_V(p_idx, cells[p_column].buttons.size(), String());
-	return cells[p_column].buttons[p_idx].tooltip;
+    ERR_FAIL_INDEX_V(p_column, cells.size(), String());
+    ERR_FAIL_INDEX_V(p_idx, cells[p_column].buttons.size(), String());
+    return cells[p_column].buttons[p_idx].tooltip;
 }
 
 int TreeItem::get_button_id(int p_column, int p_idx) const {
@@ -747,6 +747,42 @@ bool TreeItem::is_folding_disabled() const {
     return disable_folding;
 }
 
+Variant TreeItem::_call_recursive_bind(const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+
+    if (p_argcount < 1) {
+        r_error.error = Variant::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS;
+        r_error.argument = 0;
+        return Variant();
+    }
+
+    if (p_args[0]->get_type() != VariantType::STRING) {
+        r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+        r_error.argument = 0;
+        r_error.expected = VariantType::STRING;
+        return Variant();
+    }
+
+    StringName method = *p_args[0];
+
+    call_recursive(method, &p_args[1], p_argcount - 1, r_error);
+    return Variant();
+}
+
+void recursive_call_aux(TreeItem *p_item, const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+    if (!p_item) {
+        return;
+    }
+    p_item->call(p_method, p_args, p_argcount, r_error);
+    TreeItem *c = p_item->get_children();
+    while (c) {
+        recursive_call_aux(c, p_method, p_args, p_argcount, r_error);
+        c = c->get_next();
+    }
+}
+
+void TreeItem::call_recursive(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+    recursive_call_aux(this, p_method, p_args, p_argcount, r_error);
+}
 void TreeItem::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_cell_mode", {"column", "mode"}), &TreeItem::set_cell_mode);
@@ -818,7 +854,7 @@ void TreeItem::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("add_button", {"column", "button", "button_idx", "disabled", "tooltip"}), &TreeItem::add_button, {DEFVAL(-1), DEFVAL(false), DEFVAL("")});
     MethodBinder::bind_method(D_METHOD("get_button_count", {"column"}), &TreeItem::get_button_count);
-    MethodBinder::bind_method(D_METHOD("get_button_tooltip", {"column"}), &TreeItem::get_button_tooltip);
+    MethodBinder::bind_method(D_METHOD("get_button_tooltip", {"column", "button_idx"}), &TreeItem::get_button_tooltip);
     MethodBinder::bind_method(D_METHOD("get_button", {"column", "button_idx"}), &TreeItem::get_button);
     MethodBinder::bind_method(D_METHOD("set_button", {"column", "button_idx", "button"}), &TreeItem::set_button);
     MethodBinder::bind_method(D_METHOD("erase_button", {"column", "button_idx"}), &TreeItem::erase_button);
@@ -837,7 +873,13 @@ void TreeItem::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_disable_folding", {"disable"}), &TreeItem::set_disable_folding);
     MethodBinder::bind_method(D_METHOD("is_folding_disabled"), &TreeItem::is_folding_disabled);
-
+    {
+        MethodInfo mi;
+        mi.name = "call_recursive";
+        mi.arguments.push_back(PropertyInfo(VariantType::STRING, "method"));
+        auto bind=MethodBinder::bind_vararg_method("call_recursive", &TreeItem::_call_recursive_bind, mi);
+        bind->set_hint_flags(METHOD_FLAGS_DEFAULT);
+    }
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "collapsed"), "set_collapsed", "is_collapsed");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "disable_folding"), "set_disable_folding", "is_folding_disabled");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "custom_minimum_height", PROPERTY_HINT_RANGE, "0,1000,1"), "set_custom_minimum_height", "get_custom_minimum_height");
@@ -2572,9 +2614,9 @@ void Tree::_gui_input(Ref<InputEvent> p_event) {
                     } else {
                         Rect2 rect = get_selected()->get_meta("__focus_rect");
                         if (rect.has_point(Point2(b->get_position().x, b->get_position().y))) {
-							if (!edit_selected()) {
-								emit_signal("item_double_clicked");
-							}
+                            if (!edit_selected()) {
+                                emit_signal("item_double_clicked");
+                            }
                         } else {
                             emit_signal("item_double_clicked");
                         }
@@ -2697,11 +2739,19 @@ void Tree::_gui_input(Ref<InputEvent> p_event) {
             } break;
             case BUTTON_WHEEL_UP: {
 
+                double prev_value = v_scroll->get_value();
                 v_scroll->set_value(v_scroll->get_value() - v_scroll->get_page() * b->get_factor() / 8);
+                if (v_scroll->get_value() != prev_value) {
+                    accept_event();
+                }
             } break;
             case BUTTON_WHEEL_DOWN: {
 
+                double prev_value = v_scroll->get_value();
                 v_scroll->set_value(v_scroll->get_value() + v_scroll->get_page() * b->get_factor() / 8);
+                if (v_scroll->get_value() != prev_value) {
+                    accept_event();
+                }
             } break;
         }
     }
@@ -2709,7 +2759,11 @@ void Tree::_gui_input(Ref<InputEvent> p_event) {
     Ref<InputEventPanGesture> pan_gesture = dynamic_ref_cast<InputEventPanGesture>(p_event);
     if (pan_gesture) {
 
+        double prev_value = v_scroll->get_value();
         v_scroll->set_value(v_scroll->get_value() + v_scroll->get_page() * pan_gesture->get_delta().y / 8);
+        if (v_scroll->get_value() != prev_value) {
+            accept_event();
+        }
     }
 }
 

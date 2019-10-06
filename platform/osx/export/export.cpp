@@ -136,8 +136,10 @@ void EditorExportPlatformOSX::get_export_options(List<ExportOption> *r_options) 
     r_options->push_back(ExportOption(PropertyInfo(VariantType::BOOL, "display/high_res"), false));
 
 #ifdef OSX_ENABLED
-    r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "codesign/identity"), ""));
-    r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "codesign/entitlements"), ""));
+    r_options->push_back(ExportOption(PropertyInfo(Variant::STRING, "codesign/identity"), ""));
+    r_options->push_back(ExportOption(PropertyInfo(Variant::BOOL, "codesign/timestamp"), true));
+    r_options->push_back(ExportOption(PropertyInfo(Variant::BOOL, "codesign/hardened_runtime"), true));
+    r_options->push_back(ExportOption(PropertyInfo(Variant::STRING, "codesign/entitlements", PROPERTY_HINT_GLOBAL_FILE, "*.plist"), ""));
 #endif
 
     r_options->push_back(ExportOption(PropertyInfo(VariantType::BOOL, "texture_format/s3tc"), true));
@@ -359,9 +361,17 @@ void EditorExportPlatformOSX::_fix_plist(const Ref<EditorExportPreset> &p_preset
 Error EditorExportPlatformOSX::_code_sign(const Ref<EditorExportPreset> &p_preset, const String &p_path) {
     ListPOD<String> args;
 
+    if (p_preset->get("codesign/timestamp")) {
+        args.push_back("--timestamp");
+    }
+    if (p_preset->get("codesign/hardened_runtime")) {
+        args.push_back("--options");
+        args.push_back("runtime");
+    }
+
     if (p_preset->get("codesign/entitlements") != "") {
         /* this should point to our entitlements.plist file that sandboxes our application, I don't know if this should also be placed in our app bundle */
-        args.push_back("-entitlements");
+        args.push_back("--entitlements");
         args.push_back(p_preset->get("codesign/entitlements"));
     }
     args.push_back("-s");
@@ -378,6 +388,10 @@ Error EditorExportPlatformOSX::_code_sign(const Ref<EditorExportPreset> &p_prese
         EditorNode::add_io_error("codesign: no identity found");
         return FAILED;
     }
+    if ((StringUtils::contains(str,"unrecognized blob type")) || (StringUtils::contains(str,"cannot read entitlement data"))) {
+        EditorNode::add_io_error("codesign: invalid entitlements file");
+        return FAILED;
+    }
 
     return OK;
 }
@@ -385,7 +399,9 @@ Error EditorExportPlatformOSX::_code_sign(const Ref<EditorExportPreset> &p_prese
 Error EditorExportPlatformOSX::_create_dmg(const String &p_dmg_path, const String &p_pkg_name, const String &p_app_path_name) {
     ListPOD<String> args;
 
-    OS::get_singleton()->move_to_trash(p_dmg_path);
+    if (FileAccess::exists(p_dmg_path)) {
+        OS::get_singleton()->move_to_trash(p_dmg_path);
+    }
 
     args.push_back("create");
     args.push_back(p_dmg_path);
@@ -669,19 +685,6 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
                 err = _code_sign(p_preset, tmp_app_path_name + "/Contents/MacOS/" + pkg_name);
 
                 ///@TODO we should check the contents of /Contents/Frameworks for frameworks to sign
-            }
-
-            if (err == OK && !identity.empty()) {
-                // we should probably loop through all resources and sign them?
-                err = _code_sign(p_preset, tmp_app_path_name + "/Contents/Resources/icon.icns");
-            }
-
-            if (err == OK && !identity.empty()) {
-                err = _code_sign(p_preset, pack_path);
-            }
-
-            if (err == OK && !identity.empty()) {
-                err = _code_sign(p_preset, tmp_app_path_name + "/Contents/Info.plist");
             }
 
             // and finally create a DMG

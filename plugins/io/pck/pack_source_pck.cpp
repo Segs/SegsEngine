@@ -196,6 +196,7 @@ bool PackedSourcePCK::try_open_pack(const String &p_path, bool p_replace_files) 
         magic = f->get_32();
         if (magic != 0x43504447) {
 
+            f->close();
             memdelete(f);
             return false;
         }
@@ -207,6 +208,7 @@ bool PackedSourcePCK::try_open_pack(const String &p_path, bool p_replace_files) 
         magic = f->get_32();
         if (magic != 0x43504447) {
 
+            f->close();
             memdelete(f);
             return false;
         }
@@ -219,10 +221,16 @@ bool PackedSourcePCK::try_open_pack(const String &p_path, bool p_replace_files) 
     uint32_t major,minor,patch;
     getCoreInterface()->fillVersion(major,minor,patch);
 
-    ERR_FAIL_COND_V_MSG(version != PACK_VERSION, false, "Pack version unsupported: " + itos(version) + ".")
-    ERR_FAIL_COND_V_MSG(ver_major > major || (ver_major == major && ver_minor > minor), false,
-            "Pack created with a newer version of the engine: " + itos(ver_major) + "." + itos(ver_minor) + ".")
-
+    if (version != PACK_VERSION) {
+        f->close();
+        memdelete(f);
+        ERR_FAIL_V_MSG(false, "Pack version unsupported: " + itos(version) + ".")
+    }
+    if (ver_major > major || (ver_major == major && ver_minor > minor)) {
+        f->close();
+        memdelete(f);
+        ERR_FAIL_V_MSG(false, "Pack created with a newer version of the engine: " + itos(ver_major) + "." + itos(ver_minor) + ".")
+    }
     for (int i = 0; i < 16; i++) {
         //reserved
         f->get_32();
@@ -247,6 +255,8 @@ bool PackedSourcePCK::try_open_pack(const String &p_path, bool p_replace_files) 
         PackedData::get_singleton()->add_path(p_path, path, ofs, size, md5, this, p_replace_files);
     }
 
+    f->close();
+    memdelete(f);
     return true;
 };
 
