@@ -204,7 +204,8 @@ public:
 		SOURCE_SCREEN,
 		SOURCE_2D_TEXTURE,
 		SOURCE_2D_NORMAL,
-		SOURCE_DEPTH
+		SOURCE_DEPTH,
+		SOURCE_PORT,
 	};
 
 	enum TextureType {
@@ -230,6 +231,8 @@ public:
 	int get_output_port_count() const override;
 	PortType get_output_port_type(int p_port) const override;
 	String get_output_port_name(int p_port) const override;
+
+	String get_input_port_default_hint(int p_port) const override;
 
 	Vector<VisualShader::DefaultTextureParam> get_default_texture_parameters(VisualShader::Type p_type, int p_id) const override;
 	String generate_global(Shader::Mode p_mode, VisualShader::Type p_type, int p_id) const override;
@@ -1444,6 +1447,7 @@ public:
 	int get_input_port_count() const override;
 	PortType get_input_port_type(int p_port) const override;
 	String get_input_port_name(int p_port) const override;
+    String get_input_port_default_hint(int p_port) const override;
 
 	int get_output_port_count() const override;
 	PortType get_output_port_type(int p_port) const override;
@@ -1477,7 +1481,9 @@ public:
 	PortType get_input_port_type(int p_port) const override;
 	String get_input_port_name(int p_port) const override;
 
-	String generate_global_per_node(Shader::Mode p_mode, VisualShader::Type p_type, int p_id) const override;
+    String get_input_port_default_hint(int p_port) const override;
+
+    String generate_global_per_node(Shader::Mode p_mode, VisualShader::Type p_type, int p_id) const override;
 	String generate_global_per_func(Shader::Mode p_mode, VisualShader::Type p_type, int p_id) const override;
 	String generate_code(Shader::Mode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 

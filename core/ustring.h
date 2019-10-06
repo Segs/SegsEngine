@@ -363,7 +363,7 @@ GODOT_EXPORT String get_basename(const String &p);
 [[nodiscard]] GODOT_EXPORT String path_to_file(const String &p,String p_path);
 [[nodiscard]] GODOT_EXPORT String get_base_dir(const String &p);
 [[nodiscard]] GODOT_EXPORT String get_file(const String &p);
-[[nodiscard]] GODOT_EXPORT String humanize_size(size_t p_size);
+[[nodiscard]] GODOT_EXPORT String humanize_size(uint64_t p_size);
 [[nodiscard]] GODOT_EXPORT String simplify_path(const String &p);
 [[nodiscard]] GODOT_EXPORT String trim_trailing_slash(const String &path);
 [[nodiscard]] GODOT_EXPORT bool is_internal_path(const String &path);

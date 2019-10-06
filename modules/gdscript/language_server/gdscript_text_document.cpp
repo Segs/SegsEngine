@@ -42,6 +42,7 @@ IMPL_GDCLASS(GDScriptTextDocument)
 void GDScriptTextDocument::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("didOpen"), &GDScriptTextDocument::didOpen);
     MethodBinder::bind_method(D_METHOD("didChange"), &GDScriptTextDocument::didChange);
+    MethodBinder::bind_method(D_METHOD("nativeSymbol"), &GDScriptTextDocument::nativeSymbol);
     MethodBinder::bind_method(D_METHOD("documentSymbol"), &GDScriptTextDocument::documentSymbol);
     MethodBinder::bind_method(D_METHOD("completion"), &GDScriptTextDocument::completion);
     MethodBinder::bind_method(D_METHOD("resolve"), &GDScriptTextDocument::resolve);
@@ -78,6 +79,10 @@ lsp::TextDocumentItem GDScriptTextDocument::load_document_item(const Variant &p_
     return doc;
 }
 
+void GDScriptTextDocument::notify_client_show_symbol(const lsp::DocumentSymbol *symbol) {
+    ERR_FAIL_NULL(symbol);
+    GDScriptLanguageProtocol::get_singleton()->notify_client("gdscript/show_native_symbol", symbol->to_json(true));
+}
 void GDScriptTextDocument::initialize() {
 
     if (GDScriptLanguageProtocol::get_singleton()->is_smart_resolve_enabled()) {
@@ -105,6 +110,20 @@ void GDScriptTextDocument::initialize() {
     }
 }
 
+Variant GDScriptTextDocument::nativeSymbol(const Dictionary &p_params) {
+
+    Variant ret;
+
+    lsp::NativeSymbolInspectParams params;
+    params.load(p_params);
+
+    if (const lsp::DocumentSymbol *symbol = GDScriptLanguageProtocol::get_singleton()->get_workspace()->resolve_native_symbol(params)) {
+        ret = symbol->to_json(true);
+        notify_client_show_symbol(symbol);
+    }
+
+    return ret;
+}
 Array GDScriptTextDocument::documentSymbol(const Dictionary &p_params) {
     Dictionary params = p_params["textDocument"];
     String uri = params["uri"];
@@ -277,8 +296,17 @@ Array GDScriptTextDocument::codeLens(const Dictionary &p_params) {
     return arr;
 }
 
-Variant GDScriptTextDocument::documentLink(const Dictionary &p_params) {
-    Variant ret;
+Array GDScriptTextDocument::documentLink(const Dictionary &p_params) {
+    Array ret;
+
+    lsp::DocumentLinkParams params;
+    params.load(p_params);
+
+    List<lsp::DocumentLink> links;
+    GDScriptLanguageProtocol::get_singleton()->get_workspace()->resolve_document_links(params.textDocument.uri, links);
+    for (const List<lsp::DocumentLink>::Element *E = links.front(); E; E = E->next()) {
+        ret.push_back(E->deref().to_json());
+    }
     return ret;
 }
 
@@ -332,7 +360,8 @@ Array GDScriptTextDocument::definition(const Dictionary &p_params) {
         const String &path = GDScriptLanguageProtocol::get_singleton()->get_workspace()->get_file_path(symbol->uri);
         if (file_checker->file_exists(path)) {
             arr.push_back(location.to_json());
-        } else if (!symbol->native_class.empty() && GDScriptLanguageProtocol::get_singleton()->is_goto_native_symbols_enabled()) {
+        } else if (!symbol->native_class.empty()) {
+            if (GDScriptLanguageProtocol::get_singleton()->is_goto_native_symbols_enabled()) {
             String id;
             switch (symbol->kind) {
                 case lsp::SymbolKind::Class:
@@ -357,6 +386,9 @@ Array GDScriptTextDocument::definition(const Dictionary &p_params) {
                     break;
             }
             call_deferred("show_native_symbol_in_editor", id);
+            } else {
+                notify_client_show_symbol(symbol);
+            }
         }
     } else if (GDScriptLanguageProtocol::get_singleton()->is_smart_resolve_enabled()) {
 

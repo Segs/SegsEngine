@@ -34,7 +34,7 @@ namespace GodotTools.Build
 
                             if (_msbuildToolsPath.Empty())
                             {
-                                throw new FileNotFoundException($"Cannot find executable for '{BuildManager.PropNameMsbuildVs}'. Tried with path: {_msbuildToolsPath}");
+                                throw new FileNotFoundException($"Cannot find executable for '{BuildManager.PropNameMsbuildVs}'.");
                             }
                         }
 

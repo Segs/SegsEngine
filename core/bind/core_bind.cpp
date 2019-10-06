@@ -162,11 +162,11 @@ Error _ResourceSaver::save(const String &p_path, const RES &p_resource, SaverFla
 
 PoolVector<String> _ResourceSaver::get_recognized_extensions(const RES &p_resource) {
 
-	ERR_FAIL_COND_V_CMSG(not p_resource, PoolVector<String>(), "It's not a reference to a valid Resource object.")
+    ERR_FAIL_COND_V_CMSG(not p_resource, PoolVector<String>(), "It's not a reference to a valid Resource object.")
     Vector<String> exts;
     ResourceSaver::get_recognized_extensions(p_resource, &exts);
     PoolVector<String> ret;
-    for (int i=0,fin=exts.size(); i<fin; ++i) {
+    for (int i = 0, fin = exts.size(); i < fin; ++i) {
 
         ret.push_back(exts[i]);
     }
@@ -489,18 +489,18 @@ Error _OS::shell_open(String p_uri) {
 int _OS::execute(const String &p_path, const Vector<String> &p_arguments, bool p_blocking, Array p_output, bool p_read_stderr) {
 
     OS::ProcessID pid = -2;
-	int exitcode = 0;
+    int exitcode = 0;
     ListPOD<String> args;
     for (int i = 0; i < p_arguments.size(); i++)
         args.push_back(p_arguments[i]);
     String pipe;
-	Error err = OS::get_singleton()->execute(p_path, args, p_blocking, &pid, &pipe, &exitcode, p_read_stderr);
+    Error err = OS::get_singleton()->execute(p_path, args, p_blocking, &pid, &pipe, &exitcode, p_read_stderr);
     p_output.clear();
     p_output.push_back(pipe);
     if (err != OK)
         return -1;
-	else if (p_blocking)
-		return exitcode;
+    else if (p_blocking)
+        return exitcode;
     else
         return pid;
 }
@@ -1877,98 +1877,100 @@ void _File::close() {
         memdelete(f);
     f = nullptr;
 }
+
 bool _File::is_open() const {
 
     return f != nullptr;
 }
+
 String _File::get_path() const {
 
-	ERR_FAIL_COND_V_CMSG(!f, "", "File must be opened before use.")
+    ERR_FAIL_COND_V_CMSG(!f, "", "File must be opened before use.")
     return f->get_path();
 }
 
 String _File::get_path_absolute() const {
 
-	ERR_FAIL_COND_V_CMSG(!f, "", "File must be opened before use.")
+    ERR_FAIL_COND_V_CMSG(!f, "", "File must be opened before use.")
     return f->get_path_absolute();
 }
 
 void _File::seek(int64_t p_position) {
 
-	ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
     f->seek(p_position);
 }
 void _File::seek_end(int64_t p_position) {
 
-	ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
     f->seek_end(p_position);
 }
 int64_t _File::get_position() const {
 
-	ERR_FAIL_COND_V_CMSG(!f, 0, "File must be opened before use.");
+    ERR_FAIL_COND_V_CMSG(!f, 0, "File must be opened before use.")
     return f->get_position();
 }
 
 int64_t _File::get_len() const {
 
-	ERR_FAIL_COND_V_CMSG(!f, 0, "File must be opened before use.");
+    ERR_FAIL_COND_V_CMSG(!f, 0, "File must be opened before use.")
     return f->get_len();
 }
 
 bool _File::eof_reached() const {
 
-	ERR_FAIL_COND_V_CMSG(!f, false, "File must be opened before use.")
+    ERR_FAIL_COND_V_CMSG(!f, false, "File must be opened before use.")
     return f->eof_reached();
 }
 
 uint8_t _File::get_8() const {
 
-	ERR_FAIL_COND_V_CMSG(!f, 0, "File must be opened before use.")
+    ERR_FAIL_COND_V_CMSG(!f, 0, "File must be opened before use.")
     return f->get_8();
 }
 uint16_t _File::get_16() const {
 
-	ERR_FAIL_COND_V_CMSG(!f, 0, "File must be opened before use.")
+    ERR_FAIL_COND_V_CMSG(!f, 0, "File must be opened before use.")
     return f->get_16();
 }
 uint32_t _File::get_32() const {
 
-	ERR_FAIL_COND_V_CMSG(!f, 0, "File must be opened before use.")
+    ERR_FAIL_COND_V_CMSG(!f, 0, "File must be opened before use.")
     return f->get_32();
 }
 uint64_t _File::get_64() const {
 
-	ERR_FAIL_COND_V_CMSG(!f, 0, "File must be opened before use.")
+    ERR_FAIL_COND_V_CMSG(!f, 0, "File must be opened before use.")
     return f->get_64();
 }
 
 float _File::get_float() const {
 
-	ERR_FAIL_COND_V_CMSG(!f, 0, "File must be opened before use.")
+    ERR_FAIL_COND_V_CMSG(!f, 0, "File must be opened before use.")
     return f->get_float();
 }
 double _File::get_double() const {
 
-	ERR_FAIL_COND_V_CMSG(!f, 0, "File must be opened before use.")
+    ERR_FAIL_COND_V_CMSG(!f, 0, "File must be opened before use.")
     return f->get_double();
 }
 real_t _File::get_real() const {
 
-	ERR_FAIL_COND_V_CMSG(!f, 0, "File must be opened before use.")
+    ERR_FAIL_COND_V_CMSG(!f, 0, "File must be opened before use.")
     return f->get_real();
 }
 
 PoolVector<uint8_t> _File::get_buffer(int p_length) const {
 
     PoolVector<uint8_t> data;
-	ERR_FAIL_COND_V_CMSG(!f, data, "File must be opened before use.")
+    ERR_FAIL_COND_V_CMSG(!f, data, "File must be opened before use.")
 
-	ERR_FAIL_COND_V_CMSG(p_length < 0, data, "Length of buffer cannot be smaller than 0.")
+    ERR_FAIL_COND_V_CMSG(p_length < 0, data, "Length of buffer cannot be smaller than 0.")
     if (p_length == 0)
         return data;
 
     Error err = data.resize(p_length);
-	ERR_FAIL_COND_V_MSG(err != OK, data, "Can't resize data to " + itos(p_length) + " elements.");
+    ERR_FAIL_COND_V_MSG(err != OK, data, "Can't resize data to " + itos(p_length) + " elements.");
 
     PoolVector<uint8_t>::Write w = data.write();
     int len = f->get_buffer(&w[0], p_length);
@@ -1984,7 +1986,7 @@ PoolVector<uint8_t> _File::get_buffer(int p_length) const {
 
 String _File::get_as_text() const {
 
-	ERR_FAIL_COND_V_CMSG(!f, String(), "File must be opened before use.")
+    ERR_FAIL_COND_V_CMSG(!f, String(), "File must be opened before use.")
 
     String text;
     size_t original_pos = f->get_position();
@@ -2014,7 +2016,7 @@ String _File::get_sha256(const String &p_path) const {
 
 String _File::get_line() const {
 
-	ERR_FAIL_COND_V_CMSG(!f, String(), "File must be opened before use.")
+    ERR_FAIL_COND_V_CMSG(!f, String(), "File must be opened before use.")
     return f->get_line();
 }
 
@@ -2048,72 +2050,72 @@ Error _File::get_error() const {
 
 void _File::store_8(uint8_t p_dest) {
 
-	ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
 
     f->store_8(p_dest);
 }
 void _File::store_16(uint16_t p_dest) {
 
-	ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
 
     f->store_16(p_dest);
 }
 void _File::store_32(uint32_t p_dest) {
 
-	ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
 
     f->store_32(p_dest);
 }
 void _File::store_64(uint64_t p_dest) {
 
-	ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
 
     f->store_64(p_dest);
 }
 
 void _File::store_float(float p_dest) {
 
-	ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
 
     f->store_float(p_dest);
 }
 void _File::store_double(double p_dest) {
 
-	ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
 
     f->store_double(p_dest);
 }
 void _File::store_real(real_t p_real) {
 
-	ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
 
     f->store_real(p_real);
 }
 
 void _File::store_string(const String &p_string) {
 
-	ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
 
     f->store_string(p_string);
 }
 
 void _File::store_pascal_string(const String &p_string) {
 
-	ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
 
     f->store_pascal_string(p_string);
 };
 
 String _File::get_pascal_string() {
 
-	ERR_FAIL_COND_V_CMSG(!f, "", "File must be opened before use.")
+    ERR_FAIL_COND_V_CMSG(!f, "", "File must be opened before use.")
 
     return f->get_pascal_string();
 };
 
 void _File::store_line(const String &p_string) {
 
-	ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
     f->store_line(p_string);
 }
 
@@ -2124,7 +2126,7 @@ void _File::store_csv_line(const Vector<String> &p_values, char p_delim) {
 
 void _File::store_buffer(const PoolVector<uint8_t> &p_buffer) {
 
-	ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
 
     int len = p_buffer.size();
     if (len == 0)
@@ -2142,17 +2144,17 @@ bool _File::file_exists(const String &p_name) const {
 
 void _File::store_var(const Variant &p_var, bool p_full_objects) {
 
-	ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
     int len;
     Error err = encode_variant(p_var, nullptr, len, p_full_objects);
-	ERR_FAIL_COND_CMSG(err != OK, "Error when trying to encode Variant.")
+    ERR_FAIL_COND_CMSG(err != OK, "Error when trying to encode Variant.")
 
     PoolVector<uint8_t> buff;
     buff.resize(len);
 
     PoolVector<uint8_t>::Write w = buff.write();
     err = encode_variant(p_var, &w[0], len, p_full_objects);
-	ERR_FAIL_COND_CMSG(err != OK, "Error when trying to encode Variant.")
+    ERR_FAIL_COND_CMSG(err != OK, "Error when trying to encode Variant.")
     w.release();
 
     store_32(len);
@@ -2277,7 +2279,7 @@ Error _Directory::open(const String &p_path) {
 
 Error _Directory::list_dir_begin(bool p_skip_navigational, bool p_skip_hidden) {
 
-	ERR_FAIL_COND_V_CMSG(!d, ERR_UNCONFIGURED, "Directory must be opened before use.")
+    ERR_FAIL_COND_V_CMSG(!d, ERR_UNCONFIGURED, "Directory must be opened before use.")
 
     _list_skip_navigational = p_skip_navigational;
     _list_skip_hidden = p_skip_hidden;
@@ -2287,7 +2289,7 @@ Error _Directory::list_dir_begin(bool p_skip_navigational, bool p_skip_hidden) {
 
 String _Directory::get_next() {
 
-	ERR_FAIL_COND_V_CMSG(!d, "", "Directory must be opened before use.")
+    ERR_FAIL_COND_V_CMSG(!d, "", "Directory must be opened before use.")
 
     String next = d->get_next();
     while (!next.empty() && ((_list_skip_navigational && (next == "." || next == "..")) || (_list_skip_hidden && d->current_is_hidden()))) {
@@ -2298,39 +2300,39 @@ String _Directory::get_next() {
 }
 bool _Directory::current_is_dir() const {
 
-	ERR_FAIL_COND_V_CMSG(!d, false, "Directory must be opened before use.")
+    ERR_FAIL_COND_V_CMSG(!d, false, "Directory must be opened before use.")
     return d->current_is_dir();
 }
 
 void _Directory::list_dir_end() {
 
-	ERR_FAIL_COND_CMSG(!d, "Directory must be opened before use.")
+    ERR_FAIL_COND_CMSG(!d, "Directory must be opened before use.")
     d->list_dir_end();
 }
 
 int _Directory::get_drive_count() {
 
-	ERR_FAIL_COND_V_CMSG(!d, 0, "Directory must be opened before use.")
+    ERR_FAIL_COND_V_CMSG(!d, 0, "Directory must be opened before use.")
     return d->get_drive_count();
 }
 String _Directory::get_drive(int p_drive) {
 
-	ERR_FAIL_COND_V_CMSG(!d, "", "Directory must be opened before use.")
+    ERR_FAIL_COND_V_CMSG(!d, "", "Directory must be opened before use.")
     return d->get_drive(p_drive);
 }
 int _Directory::get_current_drive() {
-	ERR_FAIL_COND_V_CMSG(!d, 0, "Directory must be opened before use.")
+    ERR_FAIL_COND_V_CMSG(!d, 0, "Directory must be opened before use.")
     return d->get_current_drive();
 }
 
 Error _Directory::change_dir(String p_dir) {
 
-	ERR_FAIL_COND_V_CMSG(!d, ERR_UNCONFIGURED, "Directory must be opened before use.")
+    ERR_FAIL_COND_V_CMSG(!d, ERR_UNCONFIGURED, "Directory must be opened before use.")
     return d->change_dir(p_dir);
 }
 String _Directory::get_current_dir() {
 
-	ERR_FAIL_COND_V_CMSG(!d, "", "Directory must be opened before use.")
+    ERR_FAIL_COND_V_CMSG(!d, "", "Directory must be opened before use.")
     return d->get_current_dir();
 }
 Error _Directory::make_dir(String p_dir) {
@@ -2358,7 +2360,7 @@ Error _Directory::make_dir_recursive(String p_dir) {
 
 bool _Directory::file_exists(String p_file) {
 
-	ERR_FAIL_COND_V_CMSG(!d, false, "Directory must be opened before use.")
+    ERR_FAIL_COND_V_CMSG(!d, false, "Directory must be opened before use.")
 
     if (!PathUtils::is_rel_path(p_file)) {
         return FileAccess::exists(p_file);
@@ -2383,13 +2385,13 @@ bool _Directory::dir_exists(String p_dir) {
 
 int _Directory::get_space_left() {
 
-	ERR_FAIL_COND_V_CMSG(!d, 0, "Directory must be opened before use.")
+    ERR_FAIL_COND_V_CMSG(!d, 0, "Directory must be opened before use.")
     return d->get_space_left() / 1024 * 1024; //return value in megabytes, given binding is int
 }
 
 Error _Directory::copy(String p_from, String p_to) {
 
-	ERR_FAIL_COND_V_CMSG(!d, ERR_UNCONFIGURED, "Directory must be opened before use.")
+    ERR_FAIL_COND_V_CMSG(!d, ERR_UNCONFIGURED, "Directory must be opened before use.")
     return d->copy(p_from, p_to);
 }
 Error _Directory::rename(String p_from, String p_to) {
@@ -2665,7 +2667,7 @@ void _Thread::_start_func(void *ud) {
             }
         }
 
-		ERR_FAIL_MSG("Could not call function '" + t->target_method.operator String() + "' to start thread " + t->get_id() + ": " + reason + ".")
+        ERR_FAIL_MSG("Could not call function '" + t->target_method.operator String() + "' to start thread " + t->get_id() + ": " + reason + ".")
     }
 }
 
@@ -2712,8 +2714,8 @@ bool _Thread::is_active() const {
 }
 Variant _Thread::wait_to_finish() {
 
-	ERR_FAIL_COND_V_CMSG(!thread, Variant(), "Thread must exist to wait for its completion.")
-	ERR_FAIL_COND_V_CMSG(!active, Variant(), "Thread must be active to wait for its completion.")
+    ERR_FAIL_COND_V_CMSG(!thread, Variant(), "Thread must exist to wait for its completion.")
+    ERR_FAIL_COND_V_CMSG(!active, Variant(), "Thread must be active to wait for its completion.")
     Thread::wait_to_finish(thread);
     Variant r = ret;
     active = false;

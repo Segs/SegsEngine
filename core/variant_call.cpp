@@ -262,6 +262,9 @@ struct _VariantCall {
 #define VCALL_PU_LOCALMEM1R(m_type, m_method) \
     static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant ** p_args) { \
     r_ret = PathUtils::m_method(*reinterpret_cast<m_type *>(p_self._data._mem),*p_args[0]); }
+#define VCALL_SPU_LOCALMEM1R(m_type, m_method) \
+    static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant ** p_args) { \
+    r_ret = PathUtils::m_method(*p_args[0]); }
 
     static void _call_String_casecmp_to(Variant &r_ret, Variant &p_self, const Variant **p_args) {
         r_ret = StringUtils::compare(*reinterpret_cast<String *>(p_self._data._mem),(*p_args[0]));
@@ -323,6 +326,7 @@ struct _VariantCall {
     VCALL_SU_LOCALMEM0R(String, sha1_buffer)
     VCALL_SU_LOCALMEM0R(String, sha256_buffer)
     VCALL_LOCALMEM0R(String, empty)
+    VCALL_SPU_LOCALMEM1R(String, humanize_size)
     VCALL_PU_LOCALMEM0R(String, is_abs_path)
     VCALL_PU_LOCALMEM0R(String, is_rel_path)
     VCALL_PU_LOCALMEM0R(String, get_base_dir)
@@ -1627,6 +1631,7 @@ void register_variant_methods() {
     ADDFUNC0R(STRING, POOL_BYTE_ARRAY, String, sha1_buffer)
     ADDFUNC0R(STRING, POOL_BYTE_ARRAY, String, sha256_buffer)
     ADDFUNC0R(STRING, BOOL, String, empty)
+    ADDFUNC1R(STRING, STRING, String, humanize_size, INT, "size")
     ADDFUNC0R(STRING, BOOL, String, is_abs_path)
     ADDFUNC0R(STRING, BOOL, String, is_rel_path)
     ADDFUNC0R(STRING, STRING, String, get_base_dir)

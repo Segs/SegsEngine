@@ -154,7 +154,13 @@ Error GDScriptLanguageProtocol::start(int p_port) {
 }
 
 void GDScriptLanguageProtocol::stop() {
+	const int *ptr = clients.next(nullptr);
+	while (ptr) {
+		clients.get(*ptr)->close();
+		ptr = clients.next(ptr);
+	}
     server->stop();
+	clients.clear();
 }
 
 void GDScriptLanguageProtocol::notify_all_clients(const String &p_method, const Variant &p_params) {
@@ -178,7 +184,7 @@ void GDScriptLanguageProtocol::notify_client(const String &p_method, const Varia
     }
 
     Ref<WebSocketPeer> *peer = clients.getptr(p_client);
-    ERR_FAIL_COND(peer == NULL)
+    ERR_FAIL_COND(peer == nullptr)
 
     Dictionary message = make_notification(p_method, p_params);
     String msg = JSON::print(message);

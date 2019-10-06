@@ -183,7 +183,8 @@ public:
 		PORT_TYPE_VECTOR,
 		PORT_TYPE_BOOLEAN,
 		PORT_TYPE_TRANSFORM,
-		PORT_TYPE_ICON_COLOR // just a hint for node tree icons, do not use it as actual port type !
+		PORT_TYPE_SAMPLER,
+		PORT_TYPE_MAX,
 	};
 
 	virtual String get_caption() const = 0;
@@ -198,6 +199,8 @@ public:
 	virtual int get_output_port_count() const = 0;
 	virtual PortType get_output_port_type(int p_port) const = 0;
 	virtual String get_output_port_name(int p_port) const = 0;
+
+	virtual String get_input_port_default_hint(int p_port) const;
 
 	void set_output_port_for_preview(int p_index);
 	int get_output_port_for_preview() const;

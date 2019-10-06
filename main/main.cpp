@@ -1022,9 +1022,11 @@ Error Main::setup(bool p_second_phase) {
 
             if (globals->has_setting("display/window/size/test_width") && globals->has_setting("display/window/size/test_height")) {
                 int tw = globals->get("display/window/size/test_width");
+				if (tw > 0) {
+					video_mode.width = tw;
+				}
                 int th = globals->get("display/window/size/test_height");
-                if (tw > 0 && th > 0) {
-                    video_mode.width = tw;
+				if (th > 0) {
                     video_mode.height = th;
                 }
             }

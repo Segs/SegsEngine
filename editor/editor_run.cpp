@@ -181,7 +181,14 @@ Error EditorRun::run(const String &p_scene, const String &p_custom_args, const L
         }
     }
 
+#ifdef RUN_DEBUGEE_THROUGH_VALGRIND
+    String exec = "/usr/bin/valgrind";
+    args.push_front("--track-origins=yes");
+    args.push_front(OS::get_singleton()->get_executable_path());
+#else
     String exec = OS::get_singleton()->get_executable_path();
+#endif
+
     {
         QDebug msg_log(qDebug());
         msg_log<<"Running: "<<exec.cdata();

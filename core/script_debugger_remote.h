@@ -100,7 +100,7 @@ class GODOT_EXPORT ScriptDebuggerRemote : public ScriptDebugger {
     int max_errors_per_second;
     int max_warnings_per_second;
     int n_errors_dropped;
-    int n_warnings_dropped;
+    int n_warnings_dropped=0;
 
     int max_cps;
     int char_count;
