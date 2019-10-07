@@ -513,9 +513,7 @@ bool EditorFileSystem::_update_scan_actions() {
     Vector<String> reimports;
     Vector<String> reloads;
 
-    for (List<ItemAction>::Element *E = scan_actions.front(); E; E = E->next()) {
-
-        ItemAction &ia = E->deref();
+    for (ItemAction &ia : scan_actions) {
 
         switch (ia.action) {
             case ItemAction::ACTION_NONE: {

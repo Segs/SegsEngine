@@ -206,7 +206,7 @@ class EditorFileSystem : public Node {
     static void _thread_func_sources(void *_userdata);
 
     List<String> sources_changed;
-    List<ItemAction> scan_actions;
+    ListPOD<ItemAction> scan_actions;
 
     bool _update_scan_actions();
 

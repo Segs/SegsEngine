@@ -1,6 +1,7 @@
 
 add_subdirectory(formats)
 add_subdirectory(io)
+add_subdirectory(CoH)
 
 set(source_files
     plugin_registry.cpp
