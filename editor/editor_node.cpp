@@ -5915,8 +5915,6 @@ EditorNode::EditorNode() {
         EditorInspector::add_inspector_plugin(smp);
     }
 
-    _pvrtc_register_compressors();
-
     editor_selection = memnew(EditorSelection);
 
     EditorFileSystem *efs = memnew(EditorFileSystem);

@@ -82,7 +82,7 @@ public:
     bool get_option_visibility(const String &p_option, const Map<StringName, Variant> &p_options) const override;
 
     void _save_stex(const Ref<Image> &p_image, const String &p_to_path, int p_compress_mode, float p_lossy_quality,
-            Image::CompressMode p_vram_compression, bool p_mipmaps, int p_texture_flags, bool p_streamable,
+            ImageCompressMode p_vram_compression, bool p_mipmaps, int p_texture_flags, bool p_streamable,
             bool p_detect_3d, bool p_detect_srgb, bool p_force_rgbe, bool p_detect_normal, bool p_force_normal,
             bool p_force_po2_for_compressed);
 

@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  register_types.cpp                                                   */
+/*  image_compress_squish.h                                              */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,18 +28,20 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "register_types.h"
+#pragma once
 
-#ifdef TOOLS_ENABLED
+#include "core/plugin_interfaces/PluginDeclarations.h"
+#include "core/image.h"
 
-#include "image_compress_cvtt.h"
+class ResourceFormatS3TC : public QObject, public ImageCodecInterface {
 
-void register_cvtt_types() {
+    Q_PLUGIN_METADATA(IID "org.godot.ResourceFormatS3TC")
+    Q_INTERFACES(ImageCodecInterface)
+    Q_OBJECT
 
-	Image::set_compress_bptc_func(image_compress_cvtt);
-	Image::_image_decompress_bptc = image_decompress_cvtt;
-}
-
-void unregister_cvtt_types() {}
-
-#endif
+    // ImageCompressor interface
+public:
+    Error compress_image(Image * p_image, CompressParams params) override;
+    Error decompress_image(Image * /*p_image*/) override;
+    void fill_modes(PODVector<int> &tgt) const override;
+};

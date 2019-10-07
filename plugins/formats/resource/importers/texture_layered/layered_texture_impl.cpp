@@ -94,7 +94,7 @@ void LayeredTextureImpl::get_import_options(ListPOD<ResourceImporterInterface::I
     r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "slices/vertical", PROPERTY_HINT_RANGE, "1,256,1"), p_preset == PRESET_COLOR_CORRECT ? 1 : 8));
 }
 
-void LayeredTextureImpl::_save_tex(const Vector<Ref<Image> > &p_images, const String &p_to_path, int p_compress_mode, Image::CompressMode p_vram_compression, bool p_mipmaps, int p_texture_flags) {
+void LayeredTextureImpl::_save_tex(const Vector<Ref<Image> > &p_images, const String &p_to_path, int p_compress_mode, ImageCompressMode p_vram_compression, bool p_mipmaps, int p_texture_flags) {
 
     FileAccess *f = FileAccess::open(p_to_path, FileAccess::WRITE);
     f->store_8('G');
@@ -153,7 +153,7 @@ void LayeredTextureImpl::_save_tex(const Vector<Ref<Image> > &p_images, const St
                 Ref<Image> image = dynamic_ref_cast<Image>(p_images[i]->duplicate());
                 image->generate_mipmaps(false);
 
-                Image::CompressSource csource = Image::COMPRESS_SOURCE_LAYERED;
+                ImageCompressSource csource = ImageCompressSource::COMPRESS_SOURCE_LAYERED;
                 image->compress(p_vram_compression, csource, 0.7f);
 
                 if (i == 0) {
@@ -278,14 +278,14 @@ Error LayeredTextureImpl::import(const String &p_source_file, const String &p_sa
 
         if (encode_bptc) {
 
-            _save_tex(slices, p_save_path + ".bptc." + extension, compress_mode, Image::COMPRESS_BPTC, mipmaps, tex_flags);
+            _save_tex(slices, p_save_path + ".bptc." + extension, compress_mode, ImageCompressMode::COMPRESS_BPTC, mipmaps, tex_flags);
             r_platform_variants->push_back("bptc");
             ok_on_pc = true;
         }
 
         if (ProjectSettings::get_singleton()->get("rendering/vram_compression/import_s3tc")) {
 
-            _save_tex(slices, p_save_path + ".s3tc." + extension, compress_mode, Image::COMPRESS_S3TC, mipmaps, tex_flags);
+            _save_tex(slices, p_save_path + ".s3tc." + extension, compress_mode, ImageCompressMode::COMPRESS_S3TC, mipmaps, tex_flags);
             r_platform_variants->push_back("s3tc");
             ok_on_pc = true;
             formats_imported.push_back("s3tc");
@@ -293,20 +293,20 @@ Error LayeredTextureImpl::import(const String &p_source_file, const String &p_sa
 
         if (ProjectSettings::get_singleton()->get("rendering/vram_compression/import_etc2")) {
 
-            _save_tex(slices, p_save_path + ".etc2." + extension, compress_mode, Image::COMPRESS_ETC2, mipmaps, tex_flags);
+            _save_tex(slices, p_save_path + ".etc2." + extension, compress_mode, ImageCompressMode::COMPRESS_ETC2, mipmaps, tex_flags);
             r_platform_variants->push_back("etc2");
             formats_imported.push_back("etc2");
         }
 
         if (ProjectSettings::get_singleton()->get("rendering/vram_compression/import_etc")) {
-            _save_tex(slices, p_save_path + ".etc." + extension, compress_mode, Image::COMPRESS_ETC, mipmaps, tex_flags);
+            _save_tex(slices, p_save_path + ".etc." + extension, compress_mode, ImageCompressMode::COMPRESS_ETC, mipmaps, tex_flags);
             r_platform_variants->push_back("etc");
             formats_imported.push_back("etc");
         }
 
         if (ProjectSettings::get_singleton()->get("rendering/vram_compression/import_pvrtc")) {
 
-            _save_tex(slices, p_save_path + ".pvrtc." + extension, compress_mode, Image::COMPRESS_PVRTC4, mipmaps, tex_flags);
+            _save_tex(slices, p_save_path + ".pvrtc." + extension, compress_mode, ImageCompressMode::COMPRESS_PVRTC4, mipmaps, tex_flags);
             r_platform_variants->push_back("pvrtc");
             formats_imported.push_back("pvrtc");
         }
@@ -316,7 +316,7 @@ Error LayeredTextureImpl::import(const String &p_source_file, const String &p_sa
         }
     } else {
         //import normally
-        _save_tex(slices, p_save_path + "." + extension, compress_mode, Image::COMPRESS_S3TC /*this is ignored */, mipmaps, tex_flags);
+        _save_tex(slices, p_save_path + "." + extension, compress_mode, ImageCompressMode::COMPRESS_S3TC /*this is ignored */, mipmaps, tex_flags);
     }
 
     if (r_metadata) {

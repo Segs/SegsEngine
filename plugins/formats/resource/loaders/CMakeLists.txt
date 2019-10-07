@@ -1,1 +1,5 @@
+add_subdirectory(cvtt)
+add_subdirectory(etc)
 add_subdirectory(dds)
+add_subdirectory(pvr)
+add_subdirectory(squish)

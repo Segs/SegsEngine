@@ -36,7 +36,8 @@
 #include "core/method_arg_casters.h"
 #include "core/pool_vector.h"
 #include "core/resource.h"
-
+#include "core/plugin_interfaces/load_params.h"
+#include "EASTL/array.h"
 
 /**
  *	@author Juan Linietsky <reduzio@gmail.com>
@@ -47,6 +48,13 @@
 */
 
 class Image;
+class ImageCodecInterface;
+enum class ImageCompressSource : int8_t {
+    COMPRESS_SOURCE_GENERIC,
+    COMPRESS_SOURCE_SRGB,
+    COMPRESS_SOURCE_NORMAL,
+    COMPRESS_SOURCE_LAYERED,
+};
 
 using SavePNGFunc = Error (*)(const String &, const Ref<Image> &);
 using ImageMemLoadFunc = ImageData (*)(const uint8_t *, int);
@@ -72,28 +80,10 @@ public:
         /* INTERPOLATE_TRICUBIC, */
         /* INTERPOLATE GAUSS */
     };
-
-    enum CompressSource {
-        COMPRESS_SOURCE_GENERIC,
-        COMPRESS_SOURCE_SRGB,
-        COMPRESS_SOURCE_NORMAL,
-        COMPRESS_SOURCE_LAYERED,
-    };
-
     //some functions provided by something else
-
-    static void (*_image_compress_bc_func)(Image *, float, CompressSource p_source);
-    static void (*_image_compress_bptc_func)(Image *, float p_lossy_quality, CompressSource p_source);
-    static void (*_image_compress_pvrtc2_func)(Image *);
-    static void (*_image_compress_pvrtc4_func)(Image *);
-    static void (*_image_compress_etc1_func)(Image *, float);
-    static void (*_image_compress_etc2_func)(Image *, float, CompressSource p_source);
-
-    static void (*_image_decompress_pvrtc)(Image *);
-    static void (*_image_decompress_bc)(Image *);
-    static void (*_image_decompress_bptc)(Image *);
-    static void (*_image_decompress_etc1)(Image *);
-    static void (*_image_decompress_etc2)(Image *);
+    static eastl::array<ImageCodecInterface *,COMPRESS_MAX> s_codecs;
+    static Error compress_image(Image *,CompressParams p);
+    static Error decompress_image(Image *,CompressParams p);
 
     static PODVector<uint8_t> lossy_packer(const Ref<Image> &p_image, float p_quality);
     static Ref<Image> lossy_unpacker(const PODVector<uint8_t> &p_buffer);
@@ -243,16 +233,7 @@ public:
     static int get_image_required_mipmaps(int p_width, int p_height, Format p_format);
     static int get_image_mipmap_offset(int p_width, int p_height, Format p_format, int p_mipmap);
 
-    enum CompressMode {
-        COMPRESS_S3TC,
-        COMPRESS_PVRTC2,
-        COMPRESS_PVRTC4,
-        COMPRESS_ETC,
-        COMPRESS_ETC2,
-        COMPRESS_BPTC
-    };
-
-    Error compress(CompressMode p_mode = COMPRESS_S3TC, CompressSource p_source = COMPRESS_SOURCE_GENERIC, float p_lossy_quality = 0.7f);
+    Error compress(ImageCompressMode p_mode = COMPRESS_S3TC, ImageCompressSource p_source = ImageCompressSource::COMPRESS_SOURCE_GENERIC, float p_lossy_quality = 0.7f);
     Error decompress();
     bool is_compressed() const;
 
@@ -272,8 +253,6 @@ public:
     Rect2 get_used_rect() const;
     Ref<Image> get_rect(const Rect2 &p_area) const;
 
-    static void set_compress_bc_func(void (*p_compress_func)(Image *, float, CompressSource));
-    static void set_compress_bptc_func(void (*p_compress_func)(Image *, float, CompressSource));
     static String get_format_name(Format p_format);
 
     Error load_png_from_buffer(const PoolVector<uint8_t> &p_array);
@@ -308,7 +287,7 @@ public:
     void set_pixel(int p_x, int p_y, const Color &p_color);
 
     void copy_internals_from(const Ref<Image> &p_image) {
-		ERR_FAIL_COND_CMSG(not p_image, "It's not a reference to a valid Image object.")
+        ERR_FAIL_COND_CMSG(not p_image, "It's not a reference to a valid Image object.")
         format = p_image->format;
         width = p_image->width;
         height = p_image->height;

@@ -28,103 +28,106 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "image_etc.h"
-#include "Etc.h"
-#include "EtcFilter.h"
+#include "texture_loader_pkm.h"
+
 #include "core/image.h"
 #include "core/os/os.h"
 #include "core/print_string.h"
 
+#include "Etc.h"
+#include "EtcFilter.h"
+
+namespace {
 static Image::Format _get_etc2_mode(Image::DetectChannels format) {
     switch (format) {
-        case Image::DETECTED_R:
-            return Image::FORMAT_ETC2_R11;
+    case Image::DETECTED_R:
+        return Image::FORMAT_ETC2_R11;
 
-        case Image::DETECTED_RG:
-            return Image::FORMAT_ETC2_RG11;
+    case Image::DETECTED_RG:
+        return Image::FORMAT_ETC2_RG11;
 
-        case Image::DETECTED_RGB:
-            return Image::FORMAT_ETC2_RGB8;
+    case Image::DETECTED_RGB:
+        return Image::FORMAT_ETC2_RGB8;
 
-        case Image::DETECTED_RGBA:
-            return Image::FORMAT_ETC2_RGBA8;
+    case Image::DETECTED_RGBA:
+        return Image::FORMAT_ETC2_RGBA8;
 
         // TODO: would be nice if we could use FORMAT_ETC2_RGB8A1 for FORMAT_RGBA5551
-        default:
-            // TODO: Kept for compatibility, but should be investigated whether it's correct or if it should error out
-            return Image::FORMAT_ETC2_RGBA8;
+    default:
+        // TODO: Kept for compatibility, but should be investigated whether it's correct or if it should error out
+        return Image::FORMAT_ETC2_RGBA8;
     }
 }
 
 static Etc::Image::Format _image_format_to_etc2comp_format(Image::Format format) {
     switch (format) {
-        case Image::FORMAT_ETC:
-            return Etc::Image::Format::ETC1;
+    case Image::FORMAT_ETC:
+        return Etc::Image::Format::ETC1;
 
-        case Image::FORMAT_ETC2_R11:
-            return Etc::Image::Format::R11;
+    case Image::FORMAT_ETC2_R11:
+        return Etc::Image::Format::R11;
 
-        case Image::FORMAT_ETC2_R11S:
-            return Etc::Image::Format::SIGNED_R11;
+    case Image::FORMAT_ETC2_R11S:
+        return Etc::Image::Format::SIGNED_R11;
 
-        case Image::FORMAT_ETC2_RG11:
-            return Etc::Image::Format::RG11;
+    case Image::FORMAT_ETC2_RG11:
+        return Etc::Image::Format::RG11;
 
-        case Image::FORMAT_ETC2_RG11S:
-            return Etc::Image::Format::SIGNED_RG11;
+    case Image::FORMAT_ETC2_RG11S:
+        return Etc::Image::Format::SIGNED_RG11;
 
-        case Image::FORMAT_ETC2_RGB8:
-            return Etc::Image::Format::RGB8;
+    case Image::FORMAT_ETC2_RGB8:
+        return Etc::Image::Format::RGB8;
 
-        case Image::FORMAT_ETC2_RGBA8:
-            return Etc::Image::Format::RGBA8;
+    case Image::FORMAT_ETC2_RGBA8:
+        return Etc::Image::Format::RGBA8;
 
-        case Image::FORMAT_ETC2_RGB8A1:
-            return Etc::Image::Format::RGB8A1;
+    case Image::FORMAT_ETC2_RGB8A1:
+        return Etc::Image::Format::RGB8A1;
 
-        default:
-            ERR_FAIL_V(Etc::Image::Format::UNKNOWN)
+    default:
+        ERR_FAIL_V(Etc::Image::Format::UNKNOWN)
     }
 }
 
-static void _compress_etc(Image *p_img, float p_lossy_quality, bool force_etc1_format, Image::CompressSource p_source) {
+static void _compress_etc(Image *p_img, float p_lossy_quality, bool force_etc1_format, ImageCompressSource p_source) {
     Image::Format img_format = p_img->get_format();
     Image::DetectChannels detected_channels = p_img->get_detected_channels();
 
-    if (p_source == Image::COMPRESS_SOURCE_LAYERED) {
+    if (p_source == ImageCompressSource::COMPRESS_SOURCE_LAYERED) {
         //keep what comes in
         switch (p_img->get_format()) {
-            case Image::FORMAT_L8: {
-                detected_channels = Image::DETECTED_L;
-            } break;
-            case Image::FORMAT_LA8: {
-                detected_channels = Image::DETECTED_LA;
-            } break;
-            case Image::FORMAT_R8: {
-                detected_channels = Image::DETECTED_R;
-            } break;
-            case Image::FORMAT_RG8: {
-                detected_channels = Image::DETECTED_RG;
-            } break;
-            case Image::FORMAT_RGB8: {
-                detected_channels = Image::DETECTED_RGB;
-            } break;
-            case Image::FORMAT_RGBA8:
-            case Image::FORMAT_RGBA4444:
-            case Image::FORMAT_RGBA5551: {
-                detected_channels = Image::DETECTED_RGBA;
-            } break;
-            default: {
-            }
+        case Image::FORMAT_L8: {
+            detected_channels = Image::DETECTED_L;
+        } break;
+        case Image::FORMAT_LA8: {
+            detected_channels = Image::DETECTED_LA;
+        } break;
+        case Image::FORMAT_R8: {
+            detected_channels = Image::DETECTED_R;
+        } break;
+        case Image::FORMAT_RG8: {
+            detected_channels = Image::DETECTED_RG;
+        } break;
+        case Image::FORMAT_RGB8: {
+            detected_channels = Image::DETECTED_RGB;
+        } break;
+        case Image::FORMAT_RGBA8:
+        case Image::FORMAT_RGBA4444:
+        case Image::FORMAT_RGBA5551: {
+            detected_channels = Image::DETECTED_RGBA;
+        } break;
+        default: {
+        }
         }
     }
 
-    if (p_source == Image::COMPRESS_SOURCE_SRGB && (detected_channels == Image::DETECTED_R || detected_channels == Image::DETECTED_RG)) {
+    if (p_source == ImageCompressSource::COMPRESS_SOURCE_SRGB && (detected_channels == Image::DETECTED_R || detected_channels == Image::DETECTED_RG)) {
         //R and RG do not support SRGB
         detected_channels = Image::DETECTED_RGB;
     }
 
-    if (p_source == Image::COMPRESS_SOURCE_NORMAL) {
+    if (p_source == ImageCompressSource::COMPRESS_SOURCE_NORMAL) {
         //use RG channels only for normal
         detected_channels = Image::DETECTED_RG;
     }
@@ -214,7 +217,7 @@ static void _compress_etc(Image *p_img, float p_lossy_quality, bool force_etc1_f
         Etc::Encode((float *)src_rgba_f, mipmap_w, mipmap_h, etc2comp_etc_format, error_metric, effort, num_cpus, num_cpus, &etc_data, &etc_data_len, &extended_width, &extended_height, &encoding_time);
 
         CRASH_COND(wofs + etc_data_len > target_size)
-        memcpy(&w[wofs], etc_data, etc_data_len);
+                memcpy(&w[wofs], etc_data, etc_data_len);
         wofs += etc_data_len;
 
         delete[] etc_data;
@@ -227,15 +230,30 @@ static void _compress_etc(Image *p_img, float p_lossy_quality, bool force_etc1_f
 }
 
 static void _compress_etc1(Image *p_img, float p_lossy_quality) {
-    _compress_etc(p_img, p_lossy_quality, true, Image::COMPRESS_SOURCE_GENERIC);
+    _compress_etc(p_img, p_lossy_quality, true, ImageCompressSource::COMPRESS_SOURCE_GENERIC);
 }
 
-static void _compress_etc2(Image *p_img, float p_lossy_quality, Image::CompressSource p_source) {
+static void _compress_etc2(Image *p_img, float p_lossy_quality, ImageCompressSource p_source) {
     _compress_etc(p_img, p_lossy_quality, false, p_source);
 }
+} // end of anonymous namespace
 
-void _register_etc_compress_func() {
-
-    Image::_image_compress_etc1_func = _compress_etc1;
-    Image::_image_compress_etc2_func = _compress_etc2;
+Error ResourceFormatPKM::compress_image(Image *p_image, CompressParams params)
+{
+    if(params.mode==ImageCompressMode::COMPRESS_ETC)
+    {
+        _compress_etc1(p_image,params.p_quality);
+    }
+    else if(params.mode==ImageCompressMode::COMPRESS_ETC2) {
+        _compress_etc2(p_image,params.p_quality,params.source);
+    }
+    else
+        return ERR_UNAVAILABLE;
+    return OK;
 }
+
+Error ResourceFormatPKM::decompress_image(Image * /*p_image*/)
+{
+    return ERR_UNAVAILABLE;
+}
+

@@ -39,14 +39,46 @@
 #include "core/math/math_funcs.h"
 #include "core/print_string.h"
 #include "core/plugin_interfaces/ImageLoaderInterface.h"
+#include "plugins/plugin_registry.h"
 #include "core/method_bind.h"
+#include "core/plugin_interfaces/PluginDeclarations.h"
 
 #include "thirdparty/misc/hq2x.h"
 
 #include <cstdio>
 
-IMPL_GDCLASS(Image)
+namespace  {
+struct CodecPluginResolver : public ResolverInterface
+{
+    bool new_plugin_detected(QObject * ob) final {
+        bool res=false;
+        auto interface = qobject_cast<ImageCodecInterface *>(ob);
+        if(interface) {
+            print_line(String("Adding image codec plugin:")+ob->metaObject()->className());
+            PODVector<int> modes;
+            interface->fill_modes(modes);
+            for(int m : modes)
+                Image::s_codecs.at(m) = interface;
+            res=true;
+        }
+        return res;
+    }
+    void plugin_removed(QObject * ob)  final  {
+        auto interface = qobject_cast<ImageCodecInterface *>(ob);
+        if(interface) {
+            print_line(String("Removing image codec plugin:")+ob->metaObject()->className());
+            PODVector<int> modes;
+            interface->fill_modes(modes);
+            for(int m : modes)
+                Image::s_codecs.at(m) = nullptr;
+        }
+    }
+    ~CodecPluginResolver() final = default;
+};
+}// end of anonymous namespace
 
+IMPL_GDCLASS(Image)
+eastl::array<ImageCodecInterface *,COMPRESS_MAX> Image::s_codecs;
 namespace {
     constexpr const char *format_names[Image::FORMAT_MAX] = {
         "Lum8", //luminance
@@ -130,6 +162,18 @@ Error Image::save_exr_func(const String &p_path, const Ref<Image> &source_image,
     memdelete(file);
     return OK;
 }
+
+Error Image::compress_image(Image *img, CompressParams p)
+{
+    ERR_FAIL_COND_V(s_codecs.at(int(p.mode))==nullptr,ERR_UNAVAILABLE)
+    return s_codecs.at(int(p.mode))->compress_image(img,p);
+}
+Error Image::decompress_image(Image *img, CompressParams p)
+{
+    ERR_FAIL_COND_V(s_codecs.at(int(p.mode))==nullptr,FAILED)
+    return s_codecs.at(int(p.mode))->decompress_image(img);
+}
+
 void Image::_put_pixelb(int p_x, int p_y, uint32_t p_pixelsize, uint8_t *p_data, const uint8_t *p_pixel) {
 
     uint32_t ofs = (p_y * width + p_x) * p_pixelsize;
@@ -1979,56 +2023,37 @@ bool Image::is_compressed() const {
 }
 
 Error Image::decompress() {
+    ImageCompressMode mode;
 
-    if (format >= FORMAT_DXT1 && format <= FORMAT_RGTC_RG && _image_decompress_bc)
-        _image_decompress_bc(this);
-    else if (format >= FORMAT_BPTC_RGBA && format <= FORMAT_BPTC_RGBFU && _image_decompress_bptc)
-        _image_decompress_bptc(this);
-    else if (format >= FORMAT_PVRTC2 && format <= FORMAT_PVRTC4A && _image_decompress_pvrtc)
-        _image_decompress_pvrtc(this);
-    else if (format == FORMAT_ETC && _image_decompress_etc1)
-        _image_decompress_etc1(this);
-    else if (format >= FORMAT_ETC2_R11 && format <= FORMAT_ETC2_RGB8A1 && _image_decompress_etc2)
-        _image_decompress_etc2(this);
+    if (format >= FORMAT_DXT1 && format <= FORMAT_RGTC_RG)
+        mode = COMPRESS_S3TC;
+    else if (format >= FORMAT_BPTC_RGBA && format <= FORMAT_BPTC_RGBFU)
+        mode = COMPRESS_BPTC;
+    else if (format >= FORMAT_PVRTC2 && format <= FORMAT_PVRTC4A)
+        mode = COMPRESS_PVRTC4;
+    else if (format == FORMAT_ETC)
+        mode = COMPRESS_ETC;
+    else if (format >= FORMAT_ETC2_R11 && format <= FORMAT_ETC2_RGB8A1)
+        mode = COMPRESS_ETC2;
     else
         return ERR_UNAVAILABLE;
-    return OK;
+    return decompress_image(this,CompressParams{1.0,mode});
 }
 
-Error Image::compress(CompressMode p_mode, CompressSource p_source, float p_lossy_quality) {
+Error Image::compress(ImageCompressMode p_mode, ImageCompressSource p_source, float p_lossy_quality) {
 
     switch (p_mode) {
 
-        case COMPRESS_S3TC: {
-
-            ERR_FAIL_COND_V(!_image_compress_bc_func, ERR_UNAVAILABLE)
-            _image_compress_bc_func(this, p_lossy_quality, p_source);
-        } break;
-        case COMPRESS_PVRTC2: {
-
-            ERR_FAIL_COND_V(!_image_compress_pvrtc2_func, ERR_UNAVAILABLE)
-            _image_compress_pvrtc2_func(this);
-        } break;
-        case COMPRESS_PVRTC4: {
-
-            ERR_FAIL_COND_V(!_image_compress_pvrtc4_func, ERR_UNAVAILABLE)
-            _image_compress_pvrtc4_func(this);
-        } break;
-        case COMPRESS_ETC: {
-
-            ERR_FAIL_COND_V(!_image_compress_etc1_func, ERR_UNAVAILABLE)
-            _image_compress_etc1_func(this, p_lossy_quality);
-        } break;
-        case COMPRESS_ETC2: {
-
-            ERR_FAIL_COND_V(!_image_compress_etc2_func, ERR_UNAVAILABLE)
-            _image_compress_etc2_func(this, p_lossy_quality, p_source);
-        } break;
-        case COMPRESS_BPTC: {
-
-            ERR_FAIL_COND_V(!_image_compress_bptc_func, ERR_UNAVAILABLE)
-            _image_compress_bptc_func(this, p_lossy_quality, p_source);
-        } break;
+        case COMPRESS_S3TC:
+        case COMPRESS_PVRTC2:
+        case COMPRESS_PVRTC4:
+        case COMPRESS_ETC:
+        case COMPRESS_ETC2:
+        case COMPRESS_BPTC:
+            return Image::compress_image(this,{p_lossy_quality,p_mode,p_source});
+        default:
+            ERR_PRINT("Unsupported compress mode")
+            return ERR_UNAVAILABLE;
     }
 
     return OK;
@@ -2362,18 +2387,6 @@ void Image::fill(const Color &c) {
 
     unlock();
 }
-
-void (*Image::_image_compress_bc_func)(Image *, float, Image::CompressSource) = nullptr;
-void (*Image::_image_compress_bptc_func)(Image *, float, Image::CompressSource) = nullptr;
-void (*Image::_image_compress_pvrtc2_func)(Image *) = nullptr;
-void (*Image::_image_compress_pvrtc4_func)(Image *) = nullptr;
-void (*Image::_image_compress_etc1_func)(Image *, float) = nullptr;
-void (*Image::_image_compress_etc2_func)(Image *, float, Image::CompressSource) = nullptr;
-void (*Image::_image_decompress_pvrtc)(Image *) = nullptr;
-void (*Image::_image_decompress_bc)(Image *) = nullptr;
-void (*Image::_image_decompress_bptc)(Image *) = nullptr;
-void (*Image::_image_decompress_etc1)(Image *) = nullptr;
-void (*Image::_image_decompress_etc2)(Image *) = nullptr;
 
 PODVector<uint8_t> Image::lossy_packer(const Ref<Image> &p_image, float qualt)
 {
@@ -2789,6 +2802,8 @@ void Image::optimize_channels() {
 
 void Image::_bind_methods() {
 
+    add_plugin_resolver(new CodecPluginResolver);
+
     MethodBinder::bind_method(D_METHOD("get_width"), &Image::get_width);
     MethodBinder::bind_method(D_METHOD("get_height"), &Image::get_height);
     MethodBinder::bind_method(D_METHOD("get_size"), &Image::get_size);
@@ -2919,19 +2934,18 @@ void Image::_bind_methods() {
     BIND_ENUM_CONSTANT(COMPRESS_ETC)
     BIND_ENUM_CONSTANT(COMPRESS_ETC2)
 
-    BIND_ENUM_CONSTANT(COMPRESS_SOURCE_GENERIC)
-    BIND_ENUM_CONSTANT(COMPRESS_SOURCE_SRGB)
-    BIND_ENUM_CONSTANT(COMPRESS_SOURCE_NORMAL)
-}
-
-void Image::set_compress_bc_func(void (*p_compress_func)(Image *, float, CompressSource)) {
-
-    _image_compress_bc_func = p_compress_func;
-}
-
-void Image::set_compress_bptc_func(void (*p_compress_func)(Image *, float, CompressSource)) {
-
-    _image_compress_bptc_func = p_compress_func;
+#ifdef DEBUG_METHODS_ENABLED
+#define ICS_NAME(_name) __constant_get_enum_name(ImageCompressSource::_name, #_name)
+#else
+#define ICS_NAME(_name) StringName()
+#endif
+    ClassDB::bind_integer_constant(get_class_static_name(), ICS_NAME(COMPRESS_SOURCE_GENERIC), "COMPRESS_SOURCE_GENERIC",
+            int(ImageCompressSource::COMPRESS_SOURCE_GENERIC));
+    ClassDB::bind_integer_constant(get_class_static_name(), ICS_NAME(COMPRESS_SOURCE_SRGB), "COMPRESS_SOURCE_SRGB",
+            int(ImageCompressSource::COMPRESS_SOURCE_SRGB));
+    ClassDB::bind_integer_constant(get_class_static_name(), ICS_NAME(COMPRESS_SOURCE_NORMAL), "COMPRESS_SOURCE_NORMAL",
+        int(ImageCompressSource::COMPRESS_SOURCE_NORMAL));
+#undef ICS_NAME
 }
 
 void Image::normalmap_to_xy() {

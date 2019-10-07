@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  register_types.h                                                     */
+/*  texture_loader_pvr.h                                                 */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,5 +28,28 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-void register_etc_types();
-void unregister_etc_types();
+#pragma once
+
+#include "core/plugin_interfaces/PluginDeclarations.h"
+#include "scene/resources/texture.h"
+
+class ResourceFormatPVR : public QObject, public ResourceLoaderInterface , public ImageCodecInterface {
+
+    Q_PLUGIN_METADATA(IID "org.godot.PVRLoader")
+    Q_INTERFACES(ResourceLoaderInterface ImageCodecInterface)
+    Q_OBJECT
+public:
+    RES load(const String &p_path, const String &p_original_path, Error *r_error = nullptr) override;
+    void get_recognized_extensions(ListPOD<String> *p_extensions) const override;
+    bool handles_type(const String &p_type) const override;
+    String get_resource_type(const String &p_path) const override;
+
+    ResourceFormatPVR();
+    ~ResourceFormatPVR() override {}
+
+    // ImageCompressor interface
+public:
+    Error compress_image(Image *p_image, CompressParams params) override;
+    Error decompress_image(Image *p_image) override;
+    void fill_modes(PODVector<int> &) const override;
+};

@@ -5,6 +5,6 @@
 
 VARIANT_ENUM_CAST(Image::Format)
 VARIANT_ENUM_CAST(Image::Interpolation)
-VARIANT_ENUM_CAST(Image::CompressMode)
-VARIANT_ENUM_CAST(Image::CompressSource)
+VARIANT_ENUM_CAST(ImageCompressMode)
+VARIANT_ENUM_CAST(ImageCompressSource)
 VARIANT_ENUM_CAST(Image::AlphaMode)
