@@ -34,9 +34,9 @@
 #include "core/reference.h"
 #include "editor_plugin.h"
 class EditorNode;
-class EditorScript : public Reference {
+class EditorScript : public RefCounted {
 
-	GDCLASS(EditorScript,Reference)
+	GDCLASS(EditorScript,RefCounted)
 
 	EditorNode *editor;
 

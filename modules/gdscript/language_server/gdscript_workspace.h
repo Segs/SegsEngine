@@ -36,8 +36,8 @@
 #include "gdscript_extend_parser.h"
 #include "lsp.hpp"
 
-class GDScriptWorkspace : public Reference {
-    GDCLASS(GDScriptWorkspace,Reference)
+class GDScriptWorkspace : public RefCounted {
+    GDCLASS(GDScriptWorkspace,RefCounted)
 
 protected:
     static void _bind_methods();

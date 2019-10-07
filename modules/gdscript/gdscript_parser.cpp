@@ -5886,7 +5886,7 @@ GDScriptParser::DataType GDScriptParser::_get_operation_type(const Variant::Oper
     Variant a;
     REF a_ref;
     if (a_type == VariantType::OBJECT) {
-        a_ref = make_ref_counted<Reference>();
+        a_ref = make_ref_counted<RefCounted>();
         a = a_ref;
     } else {
         Variant::CallError err;
@@ -5899,7 +5899,7 @@ GDScriptParser::DataType GDScriptParser::_get_operation_type(const Variant::Oper
     Variant b;
     REF b_ref;
     if (b_type == VariantType::OBJECT) {
-        b_ref = make_ref_counted<Reference>();
+        b_ref = make_ref_counted<RefCounted>();
         b = b_ref;
     } else {
         Variant::CallError err;

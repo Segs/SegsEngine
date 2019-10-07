@@ -354,9 +354,9 @@ public:
 	~KinematicBody2D() override;
 };
 
-class KinematicCollision2D : public Reference {
+class KinematicCollision2D : public RefCounted {
 
-	GDCLASS(KinematicCollision2D,Reference)
+	GDCLASS(KinematicCollision2D,RefCounted)
 
 	KinematicBody2D *owner;
 	friend class KinematicBody2D;

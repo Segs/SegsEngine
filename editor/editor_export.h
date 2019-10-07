@@ -43,9 +43,9 @@ class EditorExportPlatform;
 class EditorFileSystemDirectory;
 struct EditorProgress;
 
-class EditorExportPreset : public Reference {
+class EditorExportPreset : public RefCounted {
 
-    GDCLASS(EditorExportPreset,Reference)
+    GDCLASS(EditorExportPreset,RefCounted)
 
 public:
     enum ExportFilter {
@@ -152,9 +152,9 @@ struct SharedObject {
     SharedObject() {}
 };
 
-class EditorExportPlatform : public Reference {
+class EditorExportPlatform : public RefCounted {
 
-    GDCLASS(EditorExportPlatform,Reference)
+    GDCLASS(EditorExportPlatform,RefCounted)
 
 public:
     using EditorExportSaveFunction = Error (*)(void *, const String &, const Vector<uint8_t> &, int, int);
@@ -247,8 +247,8 @@ public:
     EditorExportPlatform();
 };
 
-class EditorExportPlugin : public Reference {
-    GDCLASS(EditorExportPlugin,Reference)
+class EditorExportPlugin : public RefCounted {
+    GDCLASS(EditorExportPlugin,RefCounted)
 
     friend class EditorExportPlatform;
 

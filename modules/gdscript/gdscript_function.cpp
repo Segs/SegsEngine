@@ -377,9 +377,9 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
         }
 
         if (p_instance) {
-            if (p_instance->base_ref && static_cast<Reference *>(p_instance->owner)->is_referenced()) {
+            if (p_instance->base_ref && static_cast<RefCounted *>(p_instance->owner)->is_referenced()) {
 
-                self = REF(static_cast<Reference *>(p_instance->owner));
+                self = REF(static_cast<RefCounted *>(p_instance->owner));
             } else {
                 self = Variant(p_instance->owner);
             }

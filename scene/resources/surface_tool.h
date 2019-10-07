@@ -35,9 +35,9 @@
 
 #include "thirdparty/misc/mikktspace.h"
 
-class GODOT_EXPORT SurfaceTool : public Reference {
+class GODOT_EXPORT SurfaceTool : public RefCounted {
 
-    GDCLASS(SurfaceTool,Reference)
+    GDCLASS(SurfaceTool,RefCounted)
 
 public:
     struct Vertex {

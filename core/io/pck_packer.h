@@ -35,9 +35,9 @@
 
 class FileAccess;
 
-class PCKPacker : public Reference {
+class PCKPacker : public RefCounted {
 
-	GDCLASS(PCKPacker, Reference);
+	GDCLASS(PCKPacker, RefCounted);
 
 	FileAccess *file;
 	int alignment;

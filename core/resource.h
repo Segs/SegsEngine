@@ -71,9 +71,9 @@ public:
     virtual ~IResourceTooling() = default;
 };
 
-class GODOT_EXPORT Resource : public Reference {
+class GODOT_EXPORT Resource : public RefCounted {
 
-    GDCLASS(Resource,Reference)
+    GDCLASS(Resource,RefCounted)
     OBJ_CATEGORY("Resources")
 public:
     virtual StringName get_base_extension() const { return StringName("res"); }

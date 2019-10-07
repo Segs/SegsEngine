@@ -342,9 +342,9 @@ public:
 	~KinematicBody() override;
 };
 
-class KinematicCollision : public Reference {
+class KinematicCollision : public RefCounted {
 
-	GDCLASS(KinematicCollision,Reference)
+	GDCLASS(KinematicCollision,RefCounted)
 
 	KinematicBody *owner;
 	friend class KinematicBody;

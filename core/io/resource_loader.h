@@ -53,6 +53,7 @@ struct Hasher<LoadingMapKey> {
 
 class ResourceFormatLoader;
 class ResourceInteractiveLoader;
+class ResourceLoaderInterface;
 
 using ResourceLoadErrorNotify = void (*)(void *, const String &);
 using DependencyErrorNotify = void (*)(void *, const String &, const String &, const String &);
@@ -106,6 +107,8 @@ public:
 
     static void get_recognized_extensions_for_type(const String &p_type, ListPOD<String> *p_extensions);
     static void add_resource_format_loader(const Ref<ResourceFormatLoader>& p_format_loader, bool p_at_front = false);
+    static void add_resource_format_loader(ResourceLoaderInterface *, bool p_at_front = false);
+    static void remove_resource_format_loader(const ResourceLoaderInterface *p_format_loader);
     static void remove_resource_format_loader(const Ref<ResourceFormatLoader>& p_format_loader);
     static String get_resource_type(const String &p_path);
     static void get_dependencies(const String &p_path, ListPOD<String> *p_dependencies, bool p_add_types = false);

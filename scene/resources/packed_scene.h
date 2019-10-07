@@ -36,9 +36,9 @@
 
 class PackedScene;
 
-class SceneState : public Reference {
+class SceneState : public RefCounted {
 
-    GDCLASS(SceneState,Reference)
+    GDCLASS(SceneState,RefCounted)
 
     Vector<StringName> names;
     Vector<Variant> variants;

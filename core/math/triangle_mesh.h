@@ -34,9 +34,9 @@
 #include "core/math/face3.h"
 #include "core/reference.h"
 
-class GODOT_EXPORT TriangleMesh : public Reference {
+class GODOT_EXPORT TriangleMesh : public RefCounted {
 
-	GDCLASS(TriangleMesh,Reference)
+	GDCLASS(TriangleMesh,RefCounted)
 
 	struct Triangle {
 

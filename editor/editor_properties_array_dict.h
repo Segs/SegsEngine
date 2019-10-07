@@ -35,9 +35,9 @@
 #include "editor/editor_spin_slider.h"
 #include "scene/gui/button.h"
 
-class EditorPropertyArrayObject : public Reference {
+class EditorPropertyArrayObject : public RefCounted {
 
-	GDCLASS(EditorPropertyArrayObject,Reference)
+	GDCLASS(EditorPropertyArrayObject,RefCounted)
 
 	Variant array;
 
@@ -52,9 +52,9 @@ public:
 	EditorPropertyArrayObject();
 };
 
-class EditorPropertyDictionaryObject : public Reference {
+class EditorPropertyDictionaryObject : public RefCounted {
 
-	GDCLASS(EditorPropertyDictionaryObject,Reference)
+	GDCLASS(EditorPropertyDictionaryObject,RefCounted)
 
 	Variant new_item_key;
 	Variant new_item_value;

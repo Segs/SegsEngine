@@ -78,7 +78,7 @@ Variant GDScriptNativeClass::_new() {
     Object *o = instance();
     ERR_FAIL_COND_V_MSG(!o, Variant(), "Class type: '" + String(name) + "' is not instantiable.")
 
-    Reference *ref = Object::cast_to<Reference>(o);
+    RefCounted *ref = Object::cast_to<RefCounted>(o);
     if (ref) {
         return REF(ref);
     } else {
@@ -162,11 +162,11 @@ Variant GDScript::_new(const Variant **p_args, int p_argcount, Variant::CallErro
     if (_baseptr->native.get()) {
         owner = _baseptr->native->instance();
     } else {
-        owner = memnew(Reference); //by default, no base means use reference
+        owner = memnew(RefCounted); //by default, no base means use reference
     }
     ERR_FAIL_COND_V_MSG(!owner, Variant(), "Can't inherit from a virtual class.")
 
-    Reference *r = Object::cast_to<Reference>(owner);
+    RefCounted *r = Object::cast_to<RefCounted>(owner);
     if (r) {
         ref = REF(r);
     }
@@ -336,7 +336,7 @@ ScriptInstance *GDScript::instance_create(Object *p_this) {
     }
 
     Variant::CallError unchecked_error;
-    return _create_instance(nullptr, 0, p_this, Object::cast_to<Reference>(p_this) != nullptr, unchecked_error);
+    return _create_instance(nullptr, 0, p_this, Object::cast_to<RefCounted>(p_this) != nullptr, unchecked_error);
 }
 
 PlaceHolderScriptInstance *GDScript::placeholder_instance_create(Object *p_this) {

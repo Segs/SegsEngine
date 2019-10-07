@@ -42,8 +42,8 @@ class PhysicalBone;
 
 class Skeleton;
 
-class GODOT_EXPORT SkinReference : public Reference {
-	GDCLASS(SkinReference, Reference)
+class GODOT_EXPORT SkinReference : public RefCounted {
+	GDCLASS(SkinReference, RefCounted)
 	friend class Skeleton;
 
 	Skeleton *skeleton_node;

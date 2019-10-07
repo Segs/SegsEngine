@@ -33,8 +33,8 @@
 
 #include "scene/3d/spatial.h"
 
-class SpatialVelocityTracker : public Reference {
-	GDCLASS(SpatialVelocityTracker,Reference)
+class SpatialVelocityTracker : public RefCounted {
+	GDCLASS(SpatialVelocityTracker,RefCounted)
 
 	struct PositionHistory {
 		uint64_t frame;

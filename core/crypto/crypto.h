@@ -63,8 +63,8 @@ public:
     virtual Error save(String p_path) = 0;
 };
 
-class Crypto : public Reference {
-    GDCLASS(Crypto, Reference);
+class Crypto : public RefCounted {
+    GDCLASS(Crypto, RefCounted);
 
 protected:
     static void _bind_methods();

@@ -35,9 +35,9 @@
 #include "core/object.h"
 #include "core/ring_buffer.h"
 
-class PacketPeer : public Reference {
+class PacketPeer : public RefCounted {
 
-	GDCLASS(PacketPeer, Reference)
+	GDCLASS(PacketPeer, RefCounted)
 
 	mutable Error last_get_error = OK;
 	bool allow_object_decoding = false;

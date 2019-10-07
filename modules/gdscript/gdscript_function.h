@@ -282,9 +282,9 @@ public:
 	~GDScriptFunction();
 };
 
-class GDScriptFunctionState : public Reference {
+class GDScriptFunctionState : public RefCounted {
 
-	GDCLASS(GDScriptFunctionState,Reference)
+	GDCLASS(GDScriptFunctionState,RefCounted)
 
     friend class GDScriptFunction;
 	GDScriptFunction *function;

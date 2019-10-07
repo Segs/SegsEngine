@@ -33,9 +33,9 @@
 #include "scene/main/node.h"
 #include "scene/main/scene_tree.h"
 
-class SpatialGizmo : public Reference {
+class SpatialGizmo : public RefCounted {
 
-    GDCLASS(SpatialGizmo,Reference)
+    GDCLASS(SpatialGizmo,RefCounted)
 
 public:
     virtual void create() = 0;

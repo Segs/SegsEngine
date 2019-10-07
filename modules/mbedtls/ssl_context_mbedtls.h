@@ -43,7 +43,7 @@
 #include <mbedtls/entropy.h>
 #include <mbedtls/ssl.h>
 
-class SSLContextMbedTLS : public Reference {
+class SSLContextMbedTLS : public RefCounted {
 
 protected:
 	bool inited;

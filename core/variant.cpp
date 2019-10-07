@@ -2282,7 +2282,7 @@ Variant::Variant(const Object *p_object) {
 
     type = VariantType::OBJECT;
 #if DEBUG_VARIANT_OBJECT_CONSTRUCTOR
-    assert(!p_object || !ObjectNS::cast_to<Reference>(p_object));
+    assert(!p_object || !ObjectNS::cast_to<RefCounted>(p_object));
 #endif
     memnew_placement(_data._mem, ObjData);
     _get_obj().obj = const_cast<Object *>(p_object);

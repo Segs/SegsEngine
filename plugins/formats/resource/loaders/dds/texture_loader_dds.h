@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  register_types.cpp                                                   */
+/*  texture_loader_dds.h                                                 */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,20 +28,22 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "register_types.h"
-#include "core/io/resource_loader.h"
-#include "texture_loader_dds.h"
+#pragma once
 
-static Ref<ResourceFormatDDS> resource_loader_dds;
+#include "core/plugin_interfaces/PluginDeclarations.h"
+#include "scene/resources/texture.h"
 
-void register_dds_types() {
+class ResourceFormatDDS : public QObject, public ResourceLoaderInterface {
 
-    resource_loader_dds = make_ref_counted<ResourceFormatDDS>();
-	ResourceLoader::add_resource_format_loader(resource_loader_dds);
-}
+    Q_PLUGIN_METADATA(IID "org.godot.DDSLoader")
+    Q_INTERFACES(ResourceLoaderInterface)
+    Q_OBJECT
 
-void unregister_dds_types() {
+public:
+    RES load(const String &p_path, const String &p_original_path = "", Error *r_error = nullptr) override;
+    void get_recognized_extensions(ListPOD<String> *p_extensions) const override;
+    bool handles_type(const String &p_type) const override;
+    String get_resource_type(const String &p_path) const override;
 
-	ResourceLoader::remove_resource_format_loader(resource_loader_dds);
-	resource_loader_dds.unref();
-}
+    ~ResourceFormatDDS() override {}
+};

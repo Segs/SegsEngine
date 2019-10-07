@@ -2805,7 +2805,7 @@ Variant _ClassDB::instance(const StringName &p_class) const {
     if (!obj)
         return Variant();
 
-    Reference *r = Object::cast_to<Reference>(obj);
+    RefCounted *r = Object::cast_to<RefCounted>(obj);
     if (r) {
         return REF(r);
     } else {

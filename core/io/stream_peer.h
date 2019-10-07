@@ -33,8 +33,8 @@
 
 #include "core/reference.h"
 
-class StreamPeer : public Reference {
-	GDCLASS(StreamPeer, Reference)
+class StreamPeer : public RefCounted {
+	GDCLASS(StreamPeer, RefCounted)
 	OBJ_CATEGORY("Networking")
 
 protected:

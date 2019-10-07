@@ -34,8 +34,8 @@
 #include "core/math/random_pcg.h"
 #include "core/reference.h"
 
-class RandomNumberGenerator : public Reference {
-	GDCLASS(RandomNumberGenerator,Reference)
+class RandomNumberGenerator : public RefCounted {
+	GDCLASS(RandomNumberGenerator,RefCounted)
 
 	RandomPCG randbase;
 

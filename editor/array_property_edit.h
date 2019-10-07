@@ -33,9 +33,9 @@
 #include "scene/main/node.h"
 #include "core/ustring.h"
 
-class ArrayPropertyEdit : public Reference {
+class ArrayPropertyEdit : public RefCounted {
 
-    GDCLASS(ArrayPropertyEdit,Reference)
+    GDCLASS(ArrayPropertyEdit,RefCounted)
 
     int page;
     ObjectID obj;

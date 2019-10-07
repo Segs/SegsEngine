@@ -1930,7 +1930,7 @@ bool Expression::_execute(const Array &p_inputs, Object *p_instance, Expression:
                 r_error_str = RTR("self can't be used because instance is null (not passed)");
                 return true;
             }
-            assert(!Object::cast_to<Reference>(p_instance));// refcounted should be actually treated as such
+            assert(!Object::cast_to<RefCounted>(p_instance));// refcounted should be actually treated as such
             r_ret = Variant(p_instance);
         } break;
         case Expression::ENode::TYPE_OPERATOR: {

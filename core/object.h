@@ -90,131 +90,125 @@ public:                                                             \
                                                                     \
 private:
 
-#define GDCLASS(m_class,m_inherits)                                                                                                     \
-    using SUPER_CLASS = m_inherits;                                                                                                     \
-private:                                                                                                                                \
-    mutable StringName _class_name;                                                                                                     \
-    friend class ClassDB;                                                                                                               \
-                                                                                                                                        \
-public:                                                                                                                                 \
-    static bool initialize_class();                                                                                                     \
-    const char *get_class() const override {                                                                                            \
-        return #m_class;																												\
-    }                                                                                                                                   \
-    const StringName *_get_class_namev() const override {                                                                               \
-        if (!_class_name)                                                                                                               \
-            _class_name = StringName(#m_class);		                                                                                    \
-        return &_class_name;                                                                                                            \
-    }                                                                                                                                   \
-    static _FORCE_INLINE_ void *get_class_ptr_static() {                                                                                \
-        static int ptr;                                                                                                                 \
-        return &ptr;                                                                                                                    \
-    }                                                                                                                                   \
-    static constexpr _FORCE_INLINE_ const char *get_class_static() {                                                                    \
-        return #m_class;				                                                                                                \
-    }                                                                                                                                   \
-    static _FORCE_INLINE_ StringName get_class_static_name() {                                                                          \
-        return StringName(#m_class);	                                                                                                \
-    }                                                                                                                                   \
-    static _FORCE_INLINE_ const char *get_parent_class_static() {                                                                       \
-        return SUPER_CLASS::get_class_static();                                                                                         \
-    }                                                                                                                                   \
-    static void get_inheritance_list_static(DefList<String> *p_inheritance_list);                                                       \
-    static String get_category_static();                                                                                                \
-    virtual bool is_class(const char *p_class) const override {                                                                         \
-            return (0==strcmp(p_class,#m_class)) ? true : SUPER_CLASS::is_class(p_class); }                                             \
-    virtual bool is_class_ptr(void *p_ptr) const override {                                                                             \
-            return (p_ptr == get_class_ptr_static()) ? true : SUPER_CLASS::is_class_ptr(p_ptr); }                                       \
-                                                                                                                                        \
-protected:                                                                                                                              \
-    _FORCE_INLINE_ static void (*_get_bind_methods())() {                                                                               \
-        return &m_class::_bind_methods;                                                                                                 \
-    }                                                                                                                                   \
-                                                                                                                                        \
-protected:                                                                                                                              \
-    bool _initialize_classv() override {                                                                                                \
-        return initialize_class();                                                                                                      \
-    }                                                                                                                                   \
-    _FORCE_INLINE_ bool (Object::*_get_get() const)(const StringName &p_name, Variant &) const {                                        \
-        return (bool (Object::*)(const StringName &, Variant &) const) & m_class::_get;                                                 \
-    }                                                                                                                                   \
-    bool _getv(const StringName &p_name, Variant &r_ret) const override {                                                               \
-        if (m_class::_get_get() != SUPER_CLASS::_get_get()) {                                                                           \
-            if (_get(p_name, r_ret))                                                                                                    \
-                return true;                                                                                                            \
-        }                                                                                                                               \
-        return SUPER_CLASS::_getv(p_name, r_ret);                                                                                       \
-    }                                                                                                                                   \
-    _FORCE_INLINE_ bool (Object::*_get_set() const)(const StringName &p_name, const Variant &p_property) {                              \
-        return (bool (Object::*)(const StringName &, const Variant &)) & m_class::_set;                                                 \
-    }                                                                                                                                   \
-    bool _setv(const StringName &p_name, const Variant &p_property) override {                                                          \
-        if (SUPER_CLASS::_setv(p_name, p_property)) return true;                                                                        \
-        if (m_class::_get_set() != SUPER_CLASS::_get_set()) {                                                                           \
-            return _set(p_name, p_property);                                                                                            \
-        }                                                                                                                               \
-        return false;                                                                                                                   \
-    }                                                                                                                                   \
-    _FORCE_INLINE_ void (Object::*_get_get_property_list() const)(ListPOD<PropertyInfo> * p_list) const {                                  \
-        return (void (Object::*)(ListPOD<PropertyInfo> *) const) & m_class::_get_property_list;                                            \
-    }                                                                                                                                   \
-    void _get_property_listv(ListPOD<PropertyInfo> *p_list, bool p_reversed) const override;                                            \
-    _FORCE_INLINE_ void (Object::*_get_notification() const)(int) {                                                                     \
-        return (void (Object::*)(int)) & m_class::_notification;                                                                        \
-    }                                                                                                                                   \
-    void _notificationv(int p_notification, bool p_reversed) override;                                                                  \
-                                                                                                                                        \
+#define GDCLASS(m_class,m_inherits)                                                                                    \
+    using SUPER_CLASS = m_inherits;                                                                                    \
+private:                                                                                                               \
+    mutable StringName _class_name;                                                                                    \
+    friend class ClassDB;                                                                                              \
+                                                                                                                       \
+public:                                                                                                                \
+    static bool initialize_class();                                                                                    \
+    const char *get_class() const override {                                                                           \
+        return #m_class;                                                                                               \
+    }                                                                                                                  \
+    const StringName *_get_class_namev() const override {                                                              \
+        if (!_class_name)                                                                                              \
+            _class_name = StringName(#m_class);		                                                                   \
+        return &_class_name;                                                                                           \
+    }                                                                                                                  \
+    static _FORCE_INLINE_ void *get_class_ptr_static() {                                                               \
+        static int ptr;                                                                                                \
+        return &ptr;                                                                                                   \
+    }                                                                                                                  \
+    static constexpr _FORCE_INLINE_ const char *get_class_static() {                                                   \
+        return #m_class;				                                                                               \
+    }                                                                                                                  \
+    static _FORCE_INLINE_ StringName get_class_static_name() {                                                         \
+        return StringName(#m_class);	                                                                               \
+    }                                                                                                                  \
+    static _FORCE_INLINE_ const char *get_parent_class_static() {                                                      \
+        return SUPER_CLASS::get_class_static();                                                                        \
+    }                                                                                                                  \
+    static void get_inheritance_list_static(DefList<String> *p_inheritance_list);                                      \
+    static String get_category_static();                                                                               \
+    virtual bool is_class(const char *p_class) const override {                                                        \
+            return (0==strcmp(p_class,#m_class)) ? true : SUPER_CLASS::is_class(p_class); }                            \
+    virtual bool is_class_ptr(void *p_ptr) const override {                                                            \
+            return (p_ptr == get_class_ptr_static()) ? true : SUPER_CLASS::is_class_ptr(p_ptr); }                      \
+                                                                                                                       \
+protected:                                                                                                             \
+    _FORCE_INLINE_ static void (*_get_bind_methods())() {                                                              \
+        return &m_class::_bind_methods;                                                                                \
+    }                                                                                                                  \
+                                                                                                                       \
+protected:                                                                                                             \
+    bool _initialize_classv() override {                                                                               \
+        return initialize_class();                                                                                     \
+    }                                                                                                                  \
+    _FORCE_INLINE_ bool (Object::*_get_get() const)(const StringName &p_name, Variant &) const {                       \
+        return (bool (Object::*)(const StringName &, Variant &) const) & m_class::_get;                                \
+    }                                                                                                                  \
+    bool _getv(const StringName &p_name, Variant &r_ret) const override {                                              \
+        if (m_class::_get_get() != SUPER_CLASS::_get_get()) {                                                          \
+            if (_get(p_name, r_ret))                                                                                   \
+                return true;                                                                                           \
+        }                                                                                                              \
+        return SUPER_CLASS::_getv(p_name, r_ret);                                                                      \
+    }                                                                                                                  \
+    _FORCE_INLINE_ bool (Object::*_get_set() const)(const StringName &p_name, const Variant &p_property) {             \
+        return (bool (Object::*)(const StringName &, const Variant &)) & m_class::_set;                                \
+    }                                                                                                                  \
+    bool _setv(const StringName &p_name, const Variant &p_property) override {                                         \
+        if (SUPER_CLASS::_setv(p_name, p_property)) return true;                                                       \
+        if (m_class::_get_set() != SUPER_CLASS::_get_set()) {                                                          \
+            return _set(p_name, p_property);                                                                           \
+        }                                                                                                              \
+        return false;                                                                                                  \
+    }                                                                                                                  \
+    _FORCE_INLINE_ void (Object::*_get_get_property_list() const)(ListPOD<PropertyInfo> * p_list) const {              \
+        return (void (Object::*)(ListPOD<PropertyInfo> *) const) & m_class::_get_property_list;                        \
+    }                                                                                                                  \
+    void _get_property_listv(ListPOD<PropertyInfo> *p_list, bool p_reversed) const override;                           \
+    _FORCE_INLINE_ void (Object::*_get_notification() const)(int) {                                                    \
+        return (void (Object::*)(int)) & m_class::_notification;                                                       \
+    }                                                                                                                  \
+    void _notificationv(int p_notification, bool p_reversed) override;                                                 \
+                                                                                                                       \
 private:
 
-#define IMPL_GDCLASS(m_class)                                                                                                           \
-    bool m_class::initialize_class() {                                                                                                  \
-            static bool initialized = false;                                                                                            \
-            if (initialized)                                                                                                            \
-                return false;                                                                                                           \
-            SUPER_CLASS::initialize_class();                                                                                            \
-            ClassDB::_add_class<m_class,SUPER_CLASS>();                                                                                 \
-            if (m_class::_get_bind_methods() != SUPER_CLASS::_get_bind_methods())                                                       \
-                _bind_methods();                                                                                                        \
-            initialized = true;                                                                                                         \
-            return true;\
-        }                                                                                                                               \
-    void m_class::get_inheritance_list_static(DefList<String> *p_inheritance_list) {                                                       \
-        SUPER_CLASS::get_inheritance_list_static(p_inheritance_list);                                                                   \
-        p_inheritance_list->push_back(QStringLiteral(#m_class));                                                                        \
-    }                                                                                                                                   \
-    String m_class::get_category_static() {                                                                                             \
-        String category = SUPER_CLASS::get_category_static();                                                                           \
-        if (_get_category!=SUPER_CLASS::_get_category) {                                                                                \
-            if (!category.empty())                                                                                                      \
-                category += '/';                                                                                                        \
-            category += _get_category();                                                                                                \
-        }                                                                                                                               \
-        return category;                                                                                                                \
-    }                                                                                                                                   \
-    void m_class::_notificationv(int p_notification, bool p_reversed) {                                                                 \
-        if (!p_reversed)                                                                                                                \
-            SUPER_CLASS::_notificationv(p_notification, p_reversed);                                                                    \
-        if (m_class::_get_notification() != SUPER_CLASS::_get_notification()) {                                                         \
-            _notification(p_notification);                                                                                              \
-        }                                                                                                                               \
-        if (p_reversed)                                                                                                                 \
-            SUPER_CLASS::_notificationv(p_notification, p_reversed);                                                                    \
-    }                                                                                                                                   \
-    void m_class::_get_property_listv(ListPOD<PropertyInfo> *p_list, bool p_reversed) const {                                              \
-        if (!p_reversed) {                                                                                                              \
-            SUPER_CLASS::_get_property_listv(p_list, p_reversed);                                                                       \
-        }                                                                                                                               \
-        p_list->push_back(PropertyInfo(VariantType::NIL, get_class_static(), PROPERTY_HINT_NONE, nullptr, PROPERTY_USAGE_CATEGORY));        \
-        if (!_is_gpl_reversed())                                                                                                        \
-            ClassDB::get_property_list(#m_class, p_list, true, this);                                                                   \
-        if (m_class::_get_get_property_list() != SUPER_CLASS::_get_get_property_list()) {                                               \
-            _get_property_list(p_list);                                                                                                 \
-        }                                                                                                                               \
-        if (_is_gpl_reversed())                                                                                                         \
-            ClassDB::get_property_list(#m_class, p_list, true, this);                                                                   \
-        if (p_reversed) {                                                                                                               \
-            SUPER_CLASS::_get_property_listv(p_list, p_reversed);                                                                       \
-        }                                                                                                                               \
+#define IMPL_GDCLASS(m_class)                                                                                          \
+    bool m_class::initialize_class() {                                                                                 \
+        static bool initialized = false;                                                                               \
+        if (initialized) return false;                                                                                 \
+        SUPER_CLASS::initialize_class();                                                                               \
+        ClassDB::_add_class<m_class, SUPER_CLASS>();                                                                   \
+        if (m_class::_get_bind_methods() != SUPER_CLASS::_get_bind_methods()) _bind_methods();                         \
+        initialized = true;                                                                                            \
+        return true;                                                                                                   \
+    }                                                                                                                  \
+    void m_class::get_inheritance_list_static(DefList<String> *p_inheritance_list) {                                   \
+        SUPER_CLASS::get_inheritance_list_static(p_inheritance_list);                                                  \
+        p_inheritance_list->push_back(QStringLiteral(#m_class));                                                       \
+    }                                                                                                                  \
+    String m_class::get_category_static() {                                                                            \
+        String category = SUPER_CLASS::get_category_static();                                                          \
+        if (_get_category != SUPER_CLASS::_get_category) {                                                             \
+            if (!category.empty()) category += '/';                                                                    \
+            category += _get_category();                                                                               \
+        }                                                                                                              \
+        return category;                                                                                               \
+    }                                                                                                                  \
+    void m_class::_notificationv(int p_notification, bool p_reversed) {                                                \
+        if (!p_reversed) SUPER_CLASS::_notificationv(p_notification, p_reversed);                                      \
+        if (m_class::_get_notification() != SUPER_CLASS::_get_notification()) {                                        \
+            _notification(p_notification);                                                                             \
+        }                                                                                                              \
+        if (p_reversed) SUPER_CLASS::_notificationv(p_notification, p_reversed);                                       \
+    }                                                                                                                  \
+    void m_class::_get_property_listv(ListPOD<PropertyInfo> *p_list, bool p_reversed) const {                          \
+        if (!p_reversed) {                                                                                             \
+            SUPER_CLASS::_get_property_listv(p_list, p_reversed);                                                      \
+        }                                                                                                              \
+        p_list->push_back(PropertyInfo(                                                                                \
+                VariantType::NIL, get_class_static(), PROPERTY_HINT_NONE, nullptr, PROPERTY_USAGE_CATEGORY));          \
+        if (!_is_gpl_reversed()) ClassDB::get_property_list(#m_class, p_list, true, this);                             \
+        if (m_class::_get_get_property_list() != SUPER_CLASS::_get_get_property_list()) {                              \
+            _get_property_list(p_list);                                                                                \
+        }                                                                                                              \
+        if (_is_gpl_reversed()) ClassDB::get_property_list(#m_class, p_list, true, this);                              \
+        if (p_reversed) {                                                                                              \
+            SUPER_CLASS::_get_property_listv(p_list, p_reversed);                                                      \
+        }                                                                                                              \
     }
 
 #define OBJ_CATEGORY(m_category)                                                                                       \
@@ -314,7 +308,7 @@ private:
 
     void property_list_changed_notify();
 
-    friend class Reference;
+    friend class RefCounted;
 protected:
     virtual bool _initialize_classv() { return initialize_class(); }
     virtual bool _setv(const StringName & /*p_name*/, const Variant & /*p_property*/) { return false; }
@@ -497,9 +491,9 @@ public:
     IObjectTooling *get_tooling_interface() const;
 
     void set_script_instance(ScriptInstance *p_instance);
-    _FORCE_INLINE_ ScriptInstance *get_script_instance() const { return script_instance; }
+    ScriptInstance *get_script_instance() const { return script_instance; }
 
-    void set_script_and_instance(const RefPtr &p_script, ScriptInstance *p_instance); //some script languages can't control instance creation, so this function eases the process
+    void set_script_and_instance(const RefPtr &p_script, ScriptInstance *p_instance);
 
     void add_user_signal(const MethodInfo &p_signal);
     Error emit_signal(const StringName &p_name, VARIANT_ARG_LIST);
@@ -545,7 +539,7 @@ public:
     Object();
     virtual ~Object();
     // Non-copyable
-    void operator=(const Object &/*p_rval*/) = delete;                                                                                 \
+    void operator=(const Object &/*p_rval*/) = delete;
     Object(const Object &) = delete;
 };
 

@@ -34,9 +34,9 @@
 #include "core/method_arg_casters.h"
 #include "core/method_enum_caster.h"
 
-class UPNPDevice : public Reference {
+class UPNPDevice : public RefCounted {
 
-    GDCLASS(UPNPDevice,Reference)
+    GDCLASS(UPNPDevice,RefCounted)
 
 public:
     enum IGDStatus {

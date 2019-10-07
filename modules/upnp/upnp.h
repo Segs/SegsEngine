@@ -36,9 +36,9 @@
 
 #include <miniupnpc/miniupnpc.h>
 
-class UPNP : public Reference {
+class UPNP : public RefCounted {
 
-	GDCLASS(UPNP,Reference)
+	GDCLASS(UPNP,RefCounted)
 
 private:
 	String discover_multicast_if;

@@ -38,9 +38,9 @@
 
 class Material;
 
-class EditorSceneImporter : public EditorSceneImporterInterface,public Reference {
+class EditorSceneImporter : public EditorSceneImporterInterface,public RefCounted {
 
-    GDCLASS(EditorSceneImporter,Reference)
+    GDCLASS(EditorSceneImporter,RefCounted)
 
 protected:
     static void _bind_methods();
@@ -57,9 +57,9 @@ public:
     EditorSceneImporter() {}
 };
 
-class EditorScenePostImport : public Reference {
+class EditorScenePostImport : public RefCounted {
 
-    GDCLASS(EditorScenePostImport,Reference)
+    GDCLASS(EditorScenePostImport,RefCounted)
 
     String source_folder;
     String source_file;

@@ -580,7 +580,7 @@ void GDScriptFunctions::call(Function p_func, const Variant **p_args, int p_arg_
             if (p_args[0]->get_type() == VariantType::OBJECT) {
                 if (p_args[0]->is_ref()) {
                     Ref<WeakRef> wref(make_ref_counted<WeakRef>());
-                    REF r = refFromVariant<Reference>(*p_args[0]);
+                    REF r = refFromVariant<RefCounted>(*p_args[0]);
                     if (r) {
                         wref->set_ref(r);
                     }

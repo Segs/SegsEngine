@@ -261,7 +261,7 @@ class BindingsGenerator {
          * VarArg (fictitious type to represent variable arguments): Array
          * float: double (because ptrcall only supports double)
          * int: int64_t (because ptrcall only supports int64_t and uint64_t)
-         * Reference types override this for the type of the return variable: Ref<Reference>
+         * Reference types override this for the type of the return variable: Ref<RefCounted>
          */
         String c_type;
 
