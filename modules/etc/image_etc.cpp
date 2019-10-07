@@ -83,7 +83,7 @@ static Etc::Image::Format _image_format_to_etc2comp_format(Image::Format format)
             return Etc::Image::Format::RGB8A1;
 
         default:
-            ERR_FAIL_V(Etc::Image::Format::UNKNOWN);
+            ERR_FAIL_V(Etc::Image::Format::UNKNOWN)
     }
 }
 
@@ -181,12 +181,12 @@ static void _compress_etc(Image *p_img, float p_lossy_quality, bool force_etc1_f
     int encoding_time = 0;
     float effort = 0.0; //default, reasonable time
 
-    if (p_lossy_quality > 0.75)
-        effort = 0.4;
-    else if (p_lossy_quality > 0.85)
-        effort = 0.6;
-    else if (p_lossy_quality > 0.95)
-        effort = 0.8;
+    if (p_lossy_quality > 0.75f)
+        effort = 0.4f;
+    else if (p_lossy_quality > 0.85f)
+        effort = 0.6f;
+    else if (p_lossy_quality > 0.95f)
+        effort = 0.8f;
 
     Etc::ErrorMetric error_metric = Etc::ErrorMetric::RGBX; // NOTE: we can experiment with other error metrics
     Etc::Image::Format etc2comp_etc_format = _image_format_to_etc2comp_format(etc_format);
@@ -213,7 +213,7 @@ static void _compress_etc(Image *p_img, float p_lossy_quality, bool force_etc1_f
         unsigned int extended_width = 0, extended_height = 0;
         Etc::Encode((float *)src_rgba_f, mipmap_w, mipmap_h, etc2comp_etc_format, error_metric, effort, num_cpus, num_cpus, &etc_data, &etc_data_len, &extended_width, &extended_height, &encoding_time);
 
-        CRASH_COND(wofs + etc_data_len > target_size);
+        CRASH_COND(wofs + etc_data_len > target_size)
         memcpy(&w[wofs], etc_data, etc_data_len);
         wofs += etc_data_len;
 

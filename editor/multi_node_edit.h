@@ -33,9 +33,9 @@
 #include "scene/main/node.h"
 #include "core/property_info.h"
 
-class MultiNodeEdit : public Reference {
+class MultiNodeEdit : public RefCounted {
 
-    GDCLASS(MultiNodeEdit,Reference)
+    GDCLASS(MultiNodeEdit,RefCounted)
     //TODO: SEGS replace NodePath storage with deque here.
     List<NodePath> nodes;
     struct PLData {

@@ -660,6 +660,7 @@ Error StreamTexture::_load_data(const String &p_path, int &tw, int &th, int &tw_
         //mipmaps need to be read independently, they will be later combined
         Vector<Ref<Image> > mipmap_images;
         int total_size = 0;
+        PODVector<uint8_t> pv;
 
         for (uint32_t i = 0; i < mipmaps; i++) {
 
@@ -667,7 +668,6 @@ Error StreamTexture::_load_data(const String &p_path, int &tw, int &th, int &tw_
                 size = f->get_32();
             }
 
-            PODVector<uint8_t> pv;
             pv.resize(size);
             f->get_buffer(pv.data(), size);
             Ref<Image> img;

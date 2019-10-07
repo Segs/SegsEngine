@@ -333,7 +333,26 @@ struct ArchivePluginResolver : public ResolverInterface
         }
     }
 };
-
+struct ResourcePluginResolver : public ResolverInterface
+{
+    bool new_plugin_detected(QObject * ob) override {
+        bool res=false;
+        auto interface = qobject_cast<ResourceLoaderInterface *>(ob);
+        if(interface) {
+            print_line(String("Adding resource loader plugin:")+ob->metaObject()->className());
+            ResourceLoader::add_resource_format_loader(interface);
+            res=true;
+        }
+        return res;
+    }
+    void plugin_removed(QObject * ob)  override  {
+        auto interface = qobject_cast<ResourceLoaderInterface *>(ob);
+        if(interface) {
+            print_line(String("Removing resource loader plugin:")+ob->metaObject()->className());
+            ResourceLoader::remove_resource_format_loader(interface);
+        }
+    }
+};
 /* Engine initialization
  *
  * Consists of several methods that are called by each platform's specific main(argc, argv).
@@ -1360,6 +1379,8 @@ Error Main::setup2(Thread::ID p_main_tid_override) {
 
 
     MAIN_PRINT("Main: Load Modules, Physics, Drivers, Scripts");
+
+    add_plugin_resolver(new ResourcePluginResolver);
 
     register_module_types();
 

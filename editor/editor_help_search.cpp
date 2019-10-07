@@ -37,7 +37,7 @@
 
 IMPL_GDCLASS(EditorHelpSearch)
 
-class EditorHelpSearch::Runner : public Reference {
+class EditorHelpSearch::Runner : public RefCounted {
 
     enum Phase {
         PHASE_MATCH_CLASSES_INIT,

@@ -36,9 +36,9 @@
 #include "core/io/stream_peer.h"
 #include "core/io/stream_peer_tcp.h"
 
-class TCP_Server : public Reference {
+class TCP_Server : public RefCounted {
 
-    GDCLASS(TCP_Server,Reference)
+    GDCLASS(TCP_Server,RefCounted)
 
 protected:
 	enum {

@@ -18,9 +18,9 @@ using DefMap = eastl::map<K,V,Comparator<K>,wrap_allocator>;
 class Resource;
 using RES = Ref<Resource>;
 
-class ResourceInteractiveLoader : public Reference {
+class ResourceInteractiveLoader : public RefCounted {
 
-    GDCLASS(ResourceInteractiveLoader, Reference)
+    GDCLASS(ResourceInteractiveLoader, RefCounted)
     friend class ResourceLoader;
     String path_loading;
     Thread::ID path_loading_thread;
@@ -41,9 +41,9 @@ public:
     ~ResourceInteractiveLoader() override;
 };
 
-class ResourceFormatLoader : public Reference {
+class ResourceFormatLoader : public RefCounted {
 
-    GDCLASS(ResourceFormatLoader, Reference)
+    GDCLASS(ResourceFormatLoader, RefCounted)
 
 protected:
     static void _bind_methods();

@@ -2066,7 +2066,7 @@ Error GDScriptCompiler::_parse_class_blocks(GDScript *p_script, const GDScriptPa
                     p_script->placeholders.erase(psi); //remove placeholder
 
                     GDScriptInstance *instance = memnew(GDScriptInstance);
-                    instance->base_ref = Object::cast_to<Reference>(*E);
+                    instance->base_ref = Object::cast_to<RefCounted>(*E);
                     instance->members.resize(p_script->member_indices.size());
                     instance->script = Ref<GDScript>(p_script);
                     instance->owner = *E;

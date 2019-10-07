@@ -36,9 +36,9 @@
 #include "servers/audio_server.h"
 #include "core/set.h"
 
-class AudioStreamPlayback : public Reference {
+class AudioStreamPlayback : public RefCounted {
 
-	GDCLASS(AudioStreamPlayback,Reference)
+	GDCLASS(AudioStreamPlayback,RefCounted)
 
 public:
 	virtual void start(float p_from_pos = 0.0) = 0;

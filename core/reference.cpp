@@ -34,10 +34,10 @@
 #include "core/object_db.h"
 #include "core/method_bind.h"
 
-IMPL_GDCLASS(Reference)
+IMPL_GDCLASS(RefCounted)
 IMPL_GDCLASS(WeakRef)
 
-bool Reference::init_ref() {
+bool RefCounted::init_ref() {
 
     if (!reference()) {
         return false;
@@ -50,18 +50,18 @@ bool Reference::init_ref() {
     return true;
 }
 
-void Reference::_bind_methods() {
+void RefCounted::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("init_ref"), &Reference::init_ref);
-    MethodBinder::bind_method(D_METHOD("reference"), &Reference::reference);
-    MethodBinder::bind_method(D_METHOD("unreference"), &Reference::unreference);
+    MethodBinder::bind_method(D_METHOD("init_ref"), &RefCounted::init_ref);
+    MethodBinder::bind_method(D_METHOD("reference"), &RefCounted::reference);
+    MethodBinder::bind_method(D_METHOD("unreference"), &RefCounted::unreference);
 }
 
-int Reference::reference_get_count() const {
+int RefCounted::reference_get_count() const {
     return refcount.get();
 }
 
-bool Reference::reference() {
+bool RefCounted::reference() {
 
 	uint32_t rc_val = refcount.refval();
 	bool success = rc_val != 0;
@@ -82,7 +82,7 @@ bool Reference::reference() {
     return success;
 }
 
-bool Reference::unreference() {
+bool RefCounted::unreference() {
 
 	uint32_t rc_val = refcount.unrefval();
 	bool die = rc_val == 0;
@@ -105,13 +105,13 @@ bool Reference::unreference() {
     return die;
 }
 
-Reference::Reference() {
+RefCounted::RefCounted() {
 
     refcount.init();
     refcount_init.init();
 }
 
-Reference::~Reference() {
+RefCounted::~RefCounted() {
     assert(refcount.get()<=1);
 }
 
@@ -123,7 +123,7 @@ Variant WeakRef::get_ref() const {
     Object *obj = ObjectDB::get_instance(ref);
     if (!obj)
         return Variant();
-    Reference *r = cast_to<Reference>(obj);
+    RefCounted *r = cast_to<RefCounted>(obj);
     if (r) {
 
         return REF(r);

@@ -34,8 +34,8 @@
 #include "core/reference.h"
 #include "core/ustring.h"
 
-class GODOT_EXPORT Expression : public Reference {
-    GDCLASS(Expression,Reference)
+class GODOT_EXPORT Expression : public RefCounted {
+    GDCLASS(Expression,RefCounted)
 
 public:
 	enum BuiltinFunc {

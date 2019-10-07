@@ -35,8 +35,8 @@
 #include "core/reference.h"
 #include "lsp.hpp"
 
-class GDScriptTextDocument : public Reference {
-    GDCLASS(GDScriptTextDocument,Reference)
+class GDScriptTextDocument : public RefCounted {
+    GDCLASS(GDScriptTextDocument,RefCounted)
 protected:
     static void _bind_methods();
 

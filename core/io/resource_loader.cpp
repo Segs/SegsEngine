@@ -42,6 +42,40 @@
 #include "core/variant_parser.h"
 #include "core/method_bind.h"
 #include "core/property_info.h"
+#include "core/plugin_interfaces/ResourceLoaderInterface.h"
+namespace {
+/**
+ * @brief The ResourceFormatLoaderWrap class is meant as a wrapper for a plugin-based resource format loaders.
+ */
+class ResourceFormatLoaderWrap final : public ResourceFormatLoader {
+
+protected:
+    ResourceLoaderInterface *m_wrapped;
+public:
+    RES load(const String &p_path, const String &p_original_path = "", Error *r_error = nullptr) override {
+        return m_wrapped->load(p_path,p_original_path,r_error);
+    }
+    void get_recognized_extensions(ListPOD<String> *p_extensions) const final {
+        m_wrapped->get_recognized_extensions(p_extensions);
+    }
+    bool handles_type(const String &p_type) const final{
+        return m_wrapped->handles_type(p_type);
+    }
+    String get_resource_type(const String &p_path) const final {
+        return m_wrapped->get_resource_type(p_path);
+    }
+
+    ResourceFormatLoaderWrap(ResourceLoaderInterface *w ) : m_wrapped(w) {}
+    ~ResourceFormatLoaderWrap() override = default;
+    bool wrapped_same(const ResourceLoaderInterface *wrapped) const { return m_wrapped == wrapped;}
+};
+
+Ref<ResourceFormatLoader> createLoaderWrap(ResourceLoaderInterface *iface)
+{
+    //TODO: SEGS: verify that we don't create multiple wrappers for the same interface ?
+    return make_ref_counted<ResourceFormatLoaderWrap>(iface);
+}
+} // end of anonymous namespace
 
 Ref<ResourceFormatLoader> ResourceLoader::loader[ResourceLoader::MAX_LOADERS];
 
@@ -553,6 +587,46 @@ void ResourceLoader::add_resource_format_loader(const Ref<ResourceFormatLoader>&
     }
 }
 
+void ResourceLoader::add_resource_format_loader(ResourceLoaderInterface *p_format_loader, bool p_at_front)
+{
+    ERR_FAIL_COND(not p_format_loader)
+    ERR_FAIL_COND(loader_count >= MAX_LOADERS)
+#ifdef DEBUG_ENABLED
+    for(int i=0; i<loader_count; ++i)
+    {
+        Ref<ResourceFormatLoaderWrap> fmt = dynamic_ref_cast<ResourceFormatLoaderWrap>(loader[i]);
+        if(fmt) {
+            ERR_FAIL_COND(fmt->wrapped_same(p_format_loader))
+        }
+    }
+#endif
+    add_resource_format_loader(createLoaderWrap(p_format_loader),p_at_front);
+}
+void ResourceLoader::remove_resource_format_loader(const ResourceLoaderInterface *p_format_loader) {
+
+    if (unlikely(not p_format_loader)) {
+        _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Null p_format_loader in remove_resource_format_loader.");
+        return;
+    }
+    _err_error_exists = false;
+
+    // Find loader
+    int i = 0;
+    for (; i < loader_count; ++i) {
+        Ref<ResourceFormatLoaderWrap> fmt = dynamic_ref_cast<ResourceFormatLoaderWrap>(loader[i]);
+        if (fmt->wrapped_same(p_format_loader))
+            break;
+    }
+
+    ERR_FAIL_COND(i >= loader_count) // Not found
+
+    // Shift next loaders up
+    for (; i < loader_count - 1; ++i) {
+        loader[i] = loader[i + 1];
+    }
+    loader[loader_count - 1].unref();
+    --loader_count;
+}
 void ResourceLoader::remove_resource_format_loader(const Ref<ResourceFormatLoader>& p_format_loader) {
 
     if (unlikely(not p_format_loader)) {
@@ -1022,3 +1096,6 @@ HashMap<String, Vector<String> > ResourceLoader::translation_remaps;
 HashMap<String, String> ResourceLoader::path_remaps;
 
 ResourceLoaderImport ResourceLoader::import = nullptr;
+
+
+

@@ -491,7 +491,7 @@ struct GDScriptCompletionContext {
     const GDScriptParser::ClassNode *_class;
     const GDScriptParser::FunctionNode *function;
     const GDScriptParser::BlockNode *block;
-    Object *base; //NOTE: returned by raw Variant(Object *) be wary if it's an Reference *
+    Object *base; //NOTE: returned by raw Variant(Object *) be wary if it's an RefCounted *
     String base_path;
     int line;
     uint32_t depth;
@@ -3211,7 +3211,7 @@ static Error _lookup_symbol_from_base(const GDScriptParser::DataType &p_base, co
                 Variant v;
                 REF v_ref;
                 if (base_type.builtin_type == VariantType::OBJECT) {
-                    v_ref = make_ref_counted<Reference>();
+                    v_ref = make_ref_counted<RefCounted>();
                     v = v_ref;
                 } else {
                     Variant::CallError err;

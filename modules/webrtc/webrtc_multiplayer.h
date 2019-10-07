@@ -51,7 +51,7 @@ private:
         CH_RESERVED_MAX = 3
     };
 
-    class ConnectedPeer : public Reference {
+    class ConnectedPeer : public RefCounted {
 
     public:
         Ref<WebRTCPeerConnection> connection;

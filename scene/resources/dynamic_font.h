@@ -102,9 +102,9 @@ public:
     ~DynamicFontData() override;
 };
 
-class DynamicFontAtSize : public Reference {
+class DynamicFontAtSize : public RefCounted {
 
-    GDCLASS(DynamicFontAtSize, Reference)
+    GDCLASS(DynamicFontAtSize, RefCounted)
 
     _THREAD_SAFE_CLASS_
     

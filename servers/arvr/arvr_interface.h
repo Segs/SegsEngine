@@ -48,8 +48,8 @@
 	Note that we may make this into a fully instantiable class for GDNative support.
 */
 
-class ARVRInterface : public Reference {
-	GDCLASS(ARVRInterface,Reference)
+class ARVRInterface : public RefCounted {
+	GDCLASS(ARVRInterface,RefCounted)
 
 
 public:

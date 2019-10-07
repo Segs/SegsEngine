@@ -100,9 +100,9 @@ public:
     ResourceFormatImporter();
 };
 
-class ResourceImporter : public Reference,public ResourceImporterInterface {
+class ResourceImporter : public RefCounted,public ResourceImporterInterface {
 
-    GDCLASS(ResourceImporter, Reference)
+    GDCLASS(ResourceImporter, RefCounted)
 
 public:
     float get_priority() const override { return 1.0; }

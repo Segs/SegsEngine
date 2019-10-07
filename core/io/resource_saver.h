@@ -32,8 +32,8 @@
 
 #include "core/resource.h"
 
-class ResourceFormatSaver : public Reference {
-    GDCLASS(ResourceFormatSaver, Reference)
+class ResourceFormatSaver : public RefCounted {
+    GDCLASS(ResourceFormatSaver, RefCounted)
 
 protected:
     static void _bind_methods();

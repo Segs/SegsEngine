@@ -35,7 +35,6 @@ static void load_all_plugins() {
         if (!filename.contains(QLatin1String("plugin"),Qt::CaseInsensitive))
             continue;
 
-        qDebug() << "Attempting to load: " << plugins_dir.absoluteFilePath(filename);
         s_common_plugins.add_plugin(plugins_dir.absoluteFilePath(filename));
     }
     s_common_plugins.resolve_plugins();
@@ -97,7 +96,7 @@ bool PluginRegistry::add_plugin(const QString &path)
         used |= r->new_plugin_detected(ob);
     }
     if(!used)
-        qDebug() << "Plugin loaded but no resolver can use it." << path;
+        qDebug().noquote() << "Plugin loaded but no resolver can use it." << path;
     return true;
 }
 

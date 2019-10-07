@@ -685,7 +685,7 @@ Dictionary ExtendGDScriptParser::dump_class_api(const GDScriptParser::ClassNode 
     }
     class_api["members"] = members;
 
-    Array signals;
+    Array defined_signals;
     for (int i = 0; i < p_class->_signals.size(); ++i) {
         const GDScriptParser::ClassNode::Signal &signal = p_class->_signals[i];
         Dictionary api;
@@ -699,9 +699,9 @@ Dictionary ExtendGDScriptParser::dump_class_api(const GDScriptParser::ClassNode 
             api["signature"] = symbol->detail;
             api["description"] = symbol->documentation;
         }
-        signals.push_back(api);
+        defined_signals.push_back(api);
     }
-    class_api["signals"] = signals;
+    class_api["signals"] = defined_signals;
 
     Array methods;
     for (int i = 0; i < p_class->functions.size(); ++i) {

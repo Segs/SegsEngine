@@ -36,9 +36,9 @@
 #include "scene/main/node.h"
 #include "scene/resources/texture.h"
 
-class EditorResourcePreviewGenerator : public Reference {
+class EditorResourcePreviewGenerator : public RefCounted {
 
-    GDCLASS(EditorResourcePreviewGenerator,Reference)
+    GDCLASS(EditorResourcePreviewGenerator,RefCounted)
 
 protected:
     static void _bind_methods();

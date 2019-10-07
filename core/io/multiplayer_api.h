@@ -56,9 +56,9 @@ enum MultiplayerAPI_RPCMode : int8_t {
     RPC_MODE_MASTERSYNC, // Using rpc() on it will call method / set property in the master peer and locally
     RPC_MODE_PUPPETSYNC, // Using rpc() on it will call method / set property in all puppets peers and locally
 };
-class MultiplayerAPI : public Reference {
+class MultiplayerAPI : public RefCounted {
 
-    GDCLASS(MultiplayerAPI, Reference)
+    GDCLASS(MultiplayerAPI, RefCounted)
 
 public:
     struct ProfilingInfo {

@@ -34,7 +34,7 @@
 #include "core/io/ip.h"
 #include "core/reference.h"
 
-class NetSocket : public Reference {
+class NetSocket : public RefCounted {
 
 protected:
 	static NetSocket *(*_create)();

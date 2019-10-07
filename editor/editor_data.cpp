@@ -86,7 +86,7 @@ void EditorHistory::_add_object(ObjectID p_object, const String &p_property, int
 
     Object *obj = ObjectDB::get_instance(p_object);
     ERR_FAIL_COND(!obj)
-    Reference *r = Object::cast_to<Reference>(obj);
+    RefCounted *r = Object::cast_to<RefCounted>(obj);
     Obj o;
     if (r)
         o.ref = REF(r);

@@ -39,8 +39,8 @@
 #include "scene/gui/split_container.h"
 #include "scene/gui/tree.h"
 
-class EditorFeatureProfile : public Reference {
-	GDCLASS(EditorFeatureProfile,Reference)
+class EditorFeatureProfile : public RefCounted {
+	GDCLASS(EditorFeatureProfile,RefCounted)
 
 public:
 	enum Feature {

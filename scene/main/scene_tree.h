@@ -45,8 +45,8 @@ class ArrayMesh;
 class MultiplayerAPI;
 class NetworkedMultiplayerPeer;
 
-class SceneTreeTimer : public Reference {
-    GDCLASS(SceneTreeTimer,Reference)
+class SceneTreeTimer : public RefCounted {
+    GDCLASS(SceneTreeTimer,RefCounted)
 
     float time_left;
     bool process_pause;

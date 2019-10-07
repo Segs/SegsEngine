@@ -99,9 +99,9 @@ public:
 
 class PhysicsShapeQueryResult;
 
-class PhysicsShapeQueryParameters : public Reference {
+class PhysicsShapeQueryParameters : public RefCounted {
 
-    GDCLASS(PhysicsShapeQueryParameters,Reference)
+    GDCLASS(PhysicsShapeQueryParameters,RefCounted)
 
     friend class PhysicsDirectSpaceState;
 
@@ -203,9 +203,9 @@ public:
     PhysicsDirectSpaceState();
 };
 
-class PhysicsShapeQueryResult : public Reference {
+class PhysicsShapeQueryResult : public RefCounted {
 
-    GDCLASS(PhysicsShapeQueryResult,Reference)
+    GDCLASS(PhysicsShapeQueryResult,RefCounted)
 
     Vector<PhysicsDirectSpaceState::ShapeResult> result;
 

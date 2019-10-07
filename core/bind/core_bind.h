@@ -445,9 +445,9 @@ VARIANT_ENUM_CAST(_Geometry::PolyBooleanOperation);
 VARIANT_ENUM_CAST(_Geometry::PolyJoinType);
 VARIANT_ENUM_CAST(_Geometry::PolyEndType);
 
-class _File : public Reference {
+class _File : public RefCounted {
 
-    GDCLASS(_File, Reference)
+    GDCLASS(_File, RefCounted)
     FileAccess *f;
     bool eswap;
 
@@ -547,9 +547,9 @@ public:
 VARIANT_ENUM_CAST(_File::ModeFlags);
 VARIANT_ENUM_CAST(_File::CompressionMode);
 
-class _Directory : public Reference {
+class _Directory : public RefCounted {
 
-    GDCLASS(_Directory, Reference)
+    GDCLASS(_Directory, RefCounted)
     DirAccess *d;
 
 protected:
@@ -591,9 +591,9 @@ private:
     bool _list_skip_hidden;
 };
 
-class _Marshalls : public Reference {
+class _Marshalls : public RefCounted {
 
-    GDCLASS(_Marshalls, Reference)
+    GDCLASS(_Marshalls, RefCounted)
 
     static _Marshalls *singleton;
 
@@ -616,9 +616,9 @@ public:
     ~_Marshalls() override { singleton = nullptr; }
 };
 
-class _Mutex : public Reference {
+class _Mutex : public RefCounted {
 
-    GDCLASS(_Mutex, Reference);
+    GDCLASS(_Mutex, RefCounted);
     Mutex *mutex;
 
     static void _bind_methods();
@@ -632,9 +632,9 @@ public:
     ~_Mutex() override;
 };
 
-class _Semaphore : public Reference {
+class _Semaphore : public RefCounted {
 
-    GDCLASS(_Semaphore, Reference);
+    GDCLASS(_Semaphore, RefCounted);
     Semaphore *semaphore;
 
     static void _bind_methods();
@@ -647,9 +647,9 @@ public:
     ~_Semaphore() override;
 };
 
-class _Thread : public Reference {
+class _Thread : public RefCounted {
 
-    GDCLASS(_Thread, Reference);
+    GDCLASS(_Thread, RefCounted);
 
 protected:
     Variant ret;
@@ -768,8 +768,8 @@ public:
 
 class _JSON;
 
-class JSONParseResult : public Reference {
-    GDCLASS(JSONParseResult, Reference);
+class JSONParseResult : public RefCounted {
+    GDCLASS(JSONParseResult, RefCounted);
 
     friend class _JSON;
 

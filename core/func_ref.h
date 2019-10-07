@@ -32,9 +32,9 @@
 
 #include "core/reference.h"
 
-class FuncRef : public Reference {
+class FuncRef : public RefCounted {
 
-    GDCLASS(FuncRef, Reference)
+    GDCLASS(FuncRef, RefCounted)
     ObjectID id{0};
     StringName function;
 

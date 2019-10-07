@@ -35,9 +35,9 @@
 
 class FileAccess;
 
-class GODOT_EXPORT ConfigFile : public Reference {
+class GODOT_EXPORT ConfigFile : public RefCounted {
 
-    GDCLASS(ConfigFile, Reference)
+    GDCLASS(ConfigFile, RefCounted)
 
     OrderedHashMap<String, OrderedHashMap<String, Variant> > values;
 

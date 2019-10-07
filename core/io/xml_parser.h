@@ -39,9 +39,9 @@
   Based on irrXML (see their zlib license). Added mainly for compatibility with their Collada loader.
 */
 
-class GODOT_EXPORT XMLParser : public Reference {
+class GODOT_EXPORT XMLParser : public RefCounted {
 
-    GDCLASS(XMLParser,Reference)
+    GDCLASS(XMLParser,RefCounted)
 
 public:
     //! Enumeration of all supported source text file formats

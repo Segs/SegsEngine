@@ -37,9 +37,9 @@
 #include "core/set.h"
 
 
-class GDScriptNativeClass : public Reference {
+class GDScriptNativeClass : public RefCounted {
 
-    GDCLASS(GDScriptNativeClass,Reference)
+    GDCLASS(GDScriptNativeClass,RefCounted)
 
     StringName name;
 

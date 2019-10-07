@@ -33,9 +33,9 @@
 
 #include "scene/resources/mesh.h"
 
-class MeshDataTool : public Reference {
+class MeshDataTool : public RefCounted {
 
-	GDCLASS(MeshDataTool,Reference)
+	GDCLASS(MeshDataTool,RefCounted)
 
 	int format;
 	struct Vertex {

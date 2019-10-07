@@ -37,9 +37,9 @@
 class StreamPeer;
 class StreamPeerTCP;
 
-class HTTPClient : public Reference {
+class HTTPClient : public RefCounted {
 
-	GDCLASS(HTTPClient, Reference);
+	GDCLASS(HTTPClient, RefCounted);
 
 public:
 	enum ResponseCode {

@@ -447,7 +447,7 @@ MethodInfo::MethodInfo(const PropertyInfo &p_ret, const char *p_name, const Prop
 Object::Connection::operator Variant() const {
 
     Dictionary d;
-    //TODO: SEGS: note that this WILL NOT PRESERVE source and target if they are Reference counted types!
+    //TODO: SEGS: note that this WILL NOT PRESERVE source and target if they are RefCounted types!
     d["source"] = Variant(source);
     d["signal"] = signal;
     d["target"] = Variant(target);
@@ -859,7 +859,7 @@ void Object::call_multilevel(const StringName &p_method, const Variant **p_args,
 
     if (p_method == CoreStringNames::get_singleton()->_free) {
 #ifdef DEBUG_ENABLED
-        ERR_FAIL_COND_CMSG(Object::cast_to<Reference>(this), "Can't 'free' a reference.")
+        ERR_FAIL_COND_CMSG(Object::cast_to<RefCounted>(this), "Can't 'free' a reference.")
 
         ERR_FAIL_COND_CMSG(private_data->_lock_index.get() > 1, "Object is locked and can't be freed.")
 #endif
@@ -997,7 +997,7 @@ Variant Object::call(const StringName &p_method, const Variant **p_args, int p_a
             r_error.error = Variant::CallError::CALL_ERROR_TOO_MANY_ARGUMENTS;
             return Variant();
         }
-        if (Object::cast_to<Reference>(this)) {
+        if (Object::cast_to<RefCounted>(this)) {
             r_error.argument = 0;
             r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
             ERR_FAIL_V_CMSG(Variant(), "Can't 'free' a reference.")
@@ -1097,7 +1097,7 @@ void Object::cancel_delete() {
 
     _predelete_ok = true;
 }
-
+//! @note some script languages can't control instance creation, so this function eases the process
 void Object::set_script_and_instance(const RefPtr &p_script, ScriptInstance *p_instance) {
 
     //this function is not meant to be used in any of these ways

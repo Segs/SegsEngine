@@ -38,9 +38,9 @@
 #include "core/ustring.h"
 #include "core/vector.h"
 
-class RegExMatch : public Reference {
+class RegExMatch : public RefCounted {
 
-	GDCLASS(RegExMatch,Reference)
+	GDCLASS(RegExMatch,RefCounted)
 
 	struct Range {
 		int start;
@@ -69,9 +69,9 @@ public:
 	int get_end(const Variant &p_name) const;
 };
 
-class RegEx : public Reference {
+class RegEx : public RefCounted {
 
-	GDCLASS(RegEx,Reference)
+	GDCLASS(RegEx,RefCounted)
 
 	void *general_ctx;
 	void *code;

@@ -42,9 +42,9 @@ template <class T, typename>
 struct GetTypeInfo;
 #endif
 
-class GODOT_EXPORT Reference : public Object {
+class GODOT_EXPORT RefCounted : public Object {
 
-    GDCLASS(Reference,Object)
+    GDCLASS(RefCounted,Object)
 
     friend class RefBase;
     SafeRefCount refcount;
@@ -60,8 +60,8 @@ public:
     bool unreference();
     int reference_get_count() const;
 
-    Reference();
-    ~Reference() override;
+    RefCounted();
+    ~RefCounted() override;
 };
 enum RefMode {
     AddRef,
@@ -176,7 +176,7 @@ public:
     RefPtr get_ref_ptr() const {
 
         RefPtr refptr;
-        Ref<Reference> *irr = reinterpret_cast<Ref<Reference> *>(refptr.get_data());
+        Ref<RefCounted> *irr = reinterpret_cast<Ref<RefCounted> *>(refptr.get_data());
         *irr = *this;
         return refptr;
     }
@@ -243,8 +243,8 @@ inline Ref<T> make_ref_counted(Args&&... args)
 template<class T>
 inline Ref<T> refFromRefPtr(RefPtr p_refptr) {
 
-    Ref<Reference> *irr = reinterpret_cast<Ref<Reference> *>(p_refptr.get_data());
-    Reference *refb = irr->get();
+    Ref<RefCounted> *irr = reinterpret_cast<Ref<RefCounted> *>(p_refptr.get_data());
+    RefCounted *refb = irr->get();
     if (!refb) {
         return Ref<T>();
     }
@@ -278,11 +278,11 @@ Ref<T> dynamic_ref_cast(Ref<U>& intrusivePtr)
     return Ref<T>(Object::cast_to<T>(intrusivePtr.get()));
 }
 
-using REF = Ref<Reference>;
+using REF = Ref<RefCounted>;
 
-class WeakRef : public Reference {
+class WeakRef : public RefCounted {
 
-    GDCLASS(WeakRef,Reference)
+    GDCLASS(WeakRef,RefCounted)
 
     ObjectID ref {0};
 
@@ -311,7 +311,7 @@ struct PtrToArg<Ref<T> > {
 
     static void encode(const Ref<T> &p_val, void *p_ptr) {
 
-        *(Ref<Reference> *)p_ptr = p_val;
+        *(Ref<RefCounted> *)p_ptr = p_val;
     }
 };
 
@@ -325,7 +325,7 @@ struct PtrToArg<const Ref<T> &> {
     //TODO: added to allow const Ref<T> & return values, not tested.
     static void encode(const Ref<T> &p_val, void *p_ptr) {
 
-        *(Ref<Reference> *)p_ptr = p_val;
+        *(Ref<RefCounted> *)p_ptr = p_val;
     }
 };
 
@@ -336,12 +336,12 @@ struct PtrToArg<RefPtr> {
 
     _FORCE_INLINE_ static RefPtr convert(const void *p_ptr) {
 
-        return Ref<Reference>(const_cast<Reference *>(reinterpret_cast<const Reference *>(p_ptr))).get_ref_ptr();
+        return Ref<RefCounted>(const_cast<RefCounted *>(reinterpret_cast<const RefCounted *>(p_ptr))).get_ref_ptr();
     }
 
     _FORCE_INLINE_ static void encode(const RefPtr &p_val, void *p_ptr) {
 
-        *(Ref<Reference> *)p_ptr = refFromRefPtr<Reference>(p_val);
+        *(Ref<RefCounted> *)p_ptr = refFromRefPtr<RefCounted>(p_val);
     }
 };
 
@@ -350,7 +350,7 @@ struct PtrToArg<const RefPtr &> {
 
     _FORCE_INLINE_ static RefPtr convert(const void *p_ptr) {
 
-        return Ref<Reference>(const_cast<Reference *>(reinterpret_cast<const Reference *>(p_ptr))).get_ref_ptr();
+        return Ref<RefCounted>(const_cast<RefCounted *>(reinterpret_cast<const RefCounted *>(p_ptr))).get_ref_ptr();
     }
 };
 

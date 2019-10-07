@@ -40,9 +40,9 @@
 	@author Juan Linietsky <reduzio@gmail.com>
 */
 
-class AStar : public Reference {
+class AStar : public RefCounted {
 
-    GDCLASS(AStar,Reference)
+    GDCLASS(AStar,RefCounted)
 
 	struct Point {
 
@@ -150,8 +150,8 @@ public:
 	~AStar() override;
 };
 
-class AStar2D : public Reference {
-    GDCLASS(AStar2D,Reference)
+class AStar2D : public RefCounted {
+    GDCLASS(AStar2D,RefCounted)
 	AStar astar;
 
 protected:

@@ -98,9 +98,9 @@ public:
 class Physics2DShapeQueryResult;
 
 //used for script
-class Physics2DShapeQueryParameters : public Reference {
+class Physics2DShapeQueryParameters : public RefCounted {
 
-    GDCLASS(Physics2DShapeQueryParameters,Reference)
+    GDCLASS(Physics2DShapeQueryParameters,RefCounted)
 
     friend class Physics2DDirectSpaceState;
     RID shape;
@@ -209,9 +209,9 @@ public:
     Physics2DDirectSpaceState();
 };
 
-class Physics2DShapeQueryResult : public Reference {
+class Physics2DShapeQueryResult : public RefCounted {
 
-    GDCLASS(Physics2DShapeQueryResult,Reference)
+    GDCLASS(Physics2DShapeQueryResult,RefCounted)
 
     Vector<Physics2DDirectSpaceState::ShapeResult> result;
 
@@ -609,9 +609,9 @@ public:
     ~Physics2DServer() override;
 };
 
-class Physics2DTestMotionResult : public Reference {
+class Physics2DTestMotionResult : public RefCounted {
 
-    GDCLASS(Physics2DTestMotionResult,Reference)
+    GDCLASS(Physics2DTestMotionResult,RefCounted)
 
     Physics2DServer::MotionResult result;
     bool colliding;

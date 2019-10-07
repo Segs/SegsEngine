@@ -48,8 +48,8 @@ public:
     RichTextEffect();
 };
 
-class CharFXTransform : public Reference {
-    GDCLASS(CharFXTransform, Reference)
+class CharFXTransform : public RefCounted {
+    GDCLASS(CharFXTransform, RefCounted)
 
 protected:
     static void _bind_methods();

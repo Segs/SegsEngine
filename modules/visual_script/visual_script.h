@@ -449,9 +449,9 @@ public:
 	~VisualScriptInstance() override;
 };
 
-class VisualScriptFunctionState : public Reference {
+class VisualScriptFunctionState : public RefCounted {
 
-	GDCLASS(VisualScriptFunctionState,Reference)
+	GDCLASS(VisualScriptFunctionState,RefCounted)
 
     friend class VisualScriptInstance;
 

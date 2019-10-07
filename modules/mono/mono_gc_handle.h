@@ -35,9 +35,9 @@
 
 #include "core/reference.h"
 
-class MonoGCHandle : public Reference {
+class MonoGCHandle : public RefCounted {
 
-	GDCLASS(MonoGCHandle,Reference)
+	GDCLASS(MonoGCHandle,RefCounted)
 IMPL_GDCLASS(MonoGCHandle)
 
 	bool released;
