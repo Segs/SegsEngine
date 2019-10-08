@@ -30,11 +30,13 @@
 
 #include "editor_themes.h"
 
-#include "core/io/resource_loader.h"
-#include "core/io/image_loader.h"
 #include "editor_fonts.h"
 #include "editor_scale.h"
 #include "editor_settings.h"
+
+#include "core/io/resource_loader.h"
+#include "core/io/image_loader.h"
+#include "core/print_string.h"
 #include "plugins/formats/image/svg/image_loader_svg.h"
 
 #include <QDir>

@@ -30,6 +30,7 @@
 
 #include "file_access.h"
 
+#include "core/pool_vector.h"
 #include "core/crypto/crypto_core.h"
 #include "core/io/file_access_pack.h"
 #include "core/io/marshalls.h"

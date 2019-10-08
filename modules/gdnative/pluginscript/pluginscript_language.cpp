@@ -35,7 +35,9 @@
 // Godot imports
 #include "core/method_info.h"
 #include "core/os/file_access.h"
+#include "core/os/mutex.h"
 #include "core/os/os.h"
+#include "core/pool_vector.h"
 #include "core/project_settings.h"
 
 String PluginScriptLanguage::get_name() const {
@@ -426,7 +428,7 @@ PluginScriptLanguage::PluginScriptLanguage(const godot_pluginscript_language_des
 #ifdef NO_THREADS
 	_lock = NULL;
 #else
-	_lock = Mutex::create();
+	_lock = memnew(Mutex);
 #endif
 }
 

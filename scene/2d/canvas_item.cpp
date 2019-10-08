@@ -33,6 +33,7 @@
 #include "core/message_queue.h"
 #include "core/method_bind.h"
 #include "core/os/input.h"
+#include "core/os/mutex.h"
 #include "editor/animation_track_editor.h"
 #include "scene/main/canvas_layer.h"
 #include "scene/main/viewport.h"
@@ -58,7 +59,7 @@ CanvasItemMaterial::ShaderNames *CanvasItemMaterial::shader_names = nullptr;
 void CanvasItemMaterial::init_shaders() {
 
 #ifndef NO_THREADS
-    material_mutex = Mutex::create();
+    material_mutex = memnew(Mutex);
 #endif
 
     dirty_materials = memnew(SelfList<CanvasItemMaterial>::List);

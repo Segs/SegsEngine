@@ -35,6 +35,7 @@
 #include "core/io/stream_peer_tcp.h"
 #include "core/os/os.h"
 #include "core/os/semaphore.h"
+#include "core/os/mutex.h"
 #include "core/os/thread.h"
 #include "core/project_settings.h"
 
@@ -228,8 +229,8 @@ FileAccessNetworkClient *FileAccessNetworkClient::singleton = nullptr;
 FileAccessNetworkClient::FileAccessNetworkClient() {
 
     thread = nullptr;
-    mutex = Mutex::create();
-    blockrequest_mutex = Mutex::create();
+    mutex = memnew(Mutex);
+    blockrequest_mutex = memnew(Mutex);
     quit = false;
     singleton = this;
     last_id = 0;
@@ -255,7 +256,7 @@ FileAccessNetworkClient::~FileAccessNetworkClient() {
 void FileAccessNetwork::_set_block(int p_offset, const Vector<uint8_t> &p_block) {
 
     int page = p_offset / page_size;
-    ERR_FAIL_INDEX(page, pages.size());
+    ERR_FAIL_INDEX(page, pages.size())
     if (page < pages.size() - 1) {
         ERR_FAIL_COND(p_block.size() != page_size)
     } else {
@@ -527,7 +528,7 @@ FileAccessNetwork::FileAccessNetwork() {
     pos = 0;
     sem = Semaphore::create();
     page_sem = Semaphore::create();
-    buffer_mutex = Mutex::create();
+    buffer_mutex = memnew(Mutex);
     FileAccessNetworkClient *nc = FileAccessNetworkClient::singleton;
     nc->lock_mutex();
     id = nc->last_id++;

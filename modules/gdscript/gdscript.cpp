@@ -41,6 +41,7 @@
 #include "core/method_bind.h"
 #include "core/object_db.h"
 #include "core/os/file_access.h"
+#include "core/os/mutex.h"
 #include "core/os/os.h"
 #include "core/print_string.h"
 #include "core/project_settings.h"
@@ -2128,7 +2129,7 @@ GDScriptLanguage::GDScriptLanguage() {
 #ifdef NO_THREADS
     lock = NULL;
 #else
-    lock = Mutex::create();
+    lock = memnew(Mutex);
 #endif
     profiling = false;
     script_frame_time = 0;

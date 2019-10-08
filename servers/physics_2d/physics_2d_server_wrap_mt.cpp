@@ -159,7 +159,7 @@ Physics2DServerWrapMT::Physics2DServerWrapMT(Physics2DServer *p_contained, bool 
 	step_sem = nullptr;
 	step_pending = 0;
 	step_thread_up = false;
-	alloc_mutex = Mutex::create();
+	alloc_mutex = memnew(Mutex);
 
 	pool_max_size = GLOBAL_GET("memory/limits/multithreaded_server/rid_pool_prealloc");
 

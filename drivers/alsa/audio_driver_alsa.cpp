@@ -31,7 +31,7 @@
 #include "audio_driver_alsa.h"
 
 #ifdef ALSA_ENABLED
-
+#include "core/os/mutex.h"
 #include "core/os/os.h"
 #include "core/project_settings.h"
 #include "core/print_string.h"
@@ -155,7 +155,7 @@ Error AudioDriverALSA::init() {
 
     Error err = init_device();
     if (err == OK) {
-        mutex = Mutex::create();
+        mutex = memnew(Mutex);
         thread = Thread::create(AudioDriverALSA::thread_func, this);
     }
 

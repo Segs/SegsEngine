@@ -32,6 +32,8 @@
 
 #include "core/resource.h"
 #include "core/ustring.h"
+#include "core/map.h"
+#include "core/hash_map.h"
 #include "scene/main/node.h"
 
 class PackedScene;

@@ -31,6 +31,7 @@
 #include "geometry.h"
 
 #include "core/map.h"
+#include "core/pool_vector.h"
 
 #include "thirdparty/misc/clipper.hpp"
 #include "thirdparty/misc/triangulator.h"

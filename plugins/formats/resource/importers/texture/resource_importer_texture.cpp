@@ -33,6 +33,7 @@
 #include "core/io/config_file.h"
 #include "core/io/image_loader.h"
 #include "core/io/resource_importer.h"
+#include "core/os/mutex.h"
 #include "core/project_settings.h"
 #include "editor/service_interfaces/EditorServiceInterface.h"
 #include "scene/resources/texture.h"
@@ -604,7 +605,7 @@ ResourceImporterTexture::ResourceImporterTexture() {
     StreamTexture::request_3d_callback = _texture_reimport_3d;
     StreamTexture::request_srgb_callback = _texture_reimport_srgb;
     StreamTexture::request_normal_callback = _texture_reimport_normal;
-    mutex = Mutex::create();
+    mutex = memnew(Mutex);
 }
 
 ResourceImporterTexture::~ResourceImporterTexture() {

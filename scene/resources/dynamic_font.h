@@ -32,7 +32,6 @@
 
 #include "core/hashfuncs.h"
 #include "core/io/resource_loader.h"
-#include "core/os/mutex.h"
 #include "core/os/thread_safe.h"
 #include "core/pair.h"
 #include "scene/resources/font.h"

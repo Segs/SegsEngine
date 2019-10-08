@@ -28,10 +28,10 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef RESOURCEIMPORTWAV_H
-#define RESOURCEIMPORTWAV_H
+#pragma once
 
 #include "core/io/resource_importer.h"
+#include "core/pool_vector.h"
 
 class ResourceImporterWAV : public ResourceImporter {
     GDCLASS(ResourceImporterWAV,ResourceImporter)
@@ -131,7 +131,7 @@ public:
 
                 step >>= 1;
                 mask >>= 1;
-            };
+            }
 
             if (nibble & 8)
                 prev -= vpdiff;
@@ -166,5 +166,3 @@ public:
 
     ResourceImporterWAV();
 };
-
-#endif // RESOURCEIMPORTWAV_H

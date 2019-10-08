@@ -35,6 +35,7 @@
 #include "core/io/ip.h"
 #include "core/io/net_socket.h"
 #include "core/os/os.h"
+#include "core/pool_vector.h"
 
 // This must be last for windows to compile (tested with MinGW)
 #include "enet/enet.h"

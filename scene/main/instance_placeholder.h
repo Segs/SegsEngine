@@ -32,6 +32,7 @@
 
 #include "scene/main/node.h"
 #include "core/ustring.h"
+#include "core/list.h"
 
 class PackedScene;
 

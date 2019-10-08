@@ -32,6 +32,7 @@
 
 #include "../editor_settings.h"
 #include "core/io/marshalls.h"
+#include "core/os/mutex.h"
 #include "core/os/os.h"
 #include "core/print_string.h"
 #include "core/class_db.h"
@@ -334,7 +335,7 @@ void EditorFileServer::stop() {
 EditorFileServer::EditorFileServer() {
 
     server = make_ref_counted<TCP_Server>();
-    wait_mutex = Mutex::create();
+    wait_mutex = memnew(Mutex);
     quit = false;
     active = false;
     cmd = CMD_NONE;

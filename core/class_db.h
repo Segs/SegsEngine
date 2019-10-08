@@ -40,6 +40,7 @@
 #include <initializer_list>
 
 class MethodBind;
+class RWLock;
 template<class T>
 using PODVector = eastl::vector<T,wrap_allocator>;
 

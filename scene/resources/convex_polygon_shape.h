@@ -28,10 +28,10 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef CONVEX_POLYGON_SHAPE_H
-#define CONVEX_POLYGON_SHAPE_H
+#pragma once
 
 #include "scene/resources/shape.h"
+#include "core/pool_vector.h"
 
 class ConvexPolygonShape : public Shape {
 
@@ -52,5 +52,3 @@ public:
 
 	ConvexPolygonShape();
 };
-
-#endif // CONVEX_POLYGON_SHAPE_H

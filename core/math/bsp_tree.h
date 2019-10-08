@@ -33,10 +33,11 @@
 #include "core/math/aabb.h"
 #include "core/math/face3.h"
 #include "core/math/plane.h"
-
-#include "core/pool_vector.h"
-#include "core/variant.h"
 #include "core/vector.h"
+
+template <class T>
+class PoolVector;
+class Variant;
 
 class GODOT_EXPORT BSP_Tree {
 public:
@@ -132,6 +133,8 @@ bool BSP_Tree::convex_is_inside(const T &p_convex) const {
 }
 
 #ifdef PTRCALL_ENABLED
+#include "core/variant.h"
+
 template <class T>
 struct PtrToArg;
 

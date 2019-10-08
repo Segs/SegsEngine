@@ -30,15 +30,17 @@
 
 #include "editor_resource_preview.h"
 
+#include "editor_node.h"
+#include "editor_scale.h"
+#include "editor_settings.h"
+
 #include "core/method_bind.h"
 #include "core/io/resource_loader.h"
 #include "core/io/resource_saver.h"
 #include "core/message_queue.h"
 #include "core/os/file_access.h"
+#include "core/os/mutex.h"
 #include "core/project_settings.h"
-#include "editor_node.h"
-#include "editor_scale.h"
-#include "editor_settings.h"
 
 IMPL_GDCLASS(EditorResourcePreviewGenerator)
 IMPL_GDCLASS(EditorResourcePreview)
@@ -471,7 +473,7 @@ void EditorResourcePreview::stop() {
 EditorResourcePreview::EditorResourcePreview() {
     thread = nullptr;
     singleton = this;
-    preview_mutex = Mutex::create();
+    preview_mutex = memnew(Mutex);
     preview_sem = Semaphore::create();
     order = 0;
     exit = false;

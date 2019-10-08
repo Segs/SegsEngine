@@ -33,6 +33,7 @@
 #include "core/crypto/crypto_core.h"
 #include "core/io/image_loader.h"
 #include "core/io/json.h"
+#include "core/print_string.h"
 #include "core/io/resource_loader.h"
 #include "core/math/disjoint_set.h"
 #include "core/math/math_defs.h"

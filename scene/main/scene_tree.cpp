@@ -34,6 +34,7 @@
 #include "core/io/resource_loader.h"
 #include "core/message_queue.h"
 #include "core/object_db.h"
+#include "core/os/mutex.h"
 #include "core/os/dir_access.h"
 #include "core/os/keyboard.h"
 #include "core/os/os.h"
@@ -2038,6 +2039,7 @@ void SceneTree::get_argument_options(const StringName &p_function, int p_idx, Li
     }
 }
 SceneTree::SceneTree() {
+    __thread__safe__.reset(new Mutex);
 
     if (singleton == nullptr) singleton = this;
     _quit = false;

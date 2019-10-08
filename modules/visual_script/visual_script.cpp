@@ -35,6 +35,7 @@
 #include "core/project_settings.h"
 #include "scene/main/node.h"
 #include "core/object_db.h"
+#include "core/os/mutex.h"
 #include "core/method_bind.h"
 #include "visual_script_nodes.h"
 
@@ -2740,7 +2741,7 @@ VisualScriptLanguage::VisualScriptLanguage() {
     _subcall = "_subcall";
     singleton = this;
 #ifndef NO_THREADS
-    lock = Mutex::create();
+    lock = memnew(Mutex);
 #endif
 
     _debug_parse_err_node = -1;

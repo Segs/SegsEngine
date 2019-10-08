@@ -36,6 +36,7 @@
 #include "core/io/resource_saver.h"
 #include "core/object_db.h"
 #include "core/os/input.h"
+#include "core/os/mutex.h"
 #include "core/os/os.h"
 #include "core/project_settings.h"
 #include "core/string_formatter.h"
@@ -1179,7 +1180,7 @@ ScriptDebuggerRemote::ScriptDebuggerRemote() :
         last_net_bandwidth_time(0),
         performance(Engine::get_singleton()->get_singleton_object("Performance")),
         requested_quit(false),
-        mutex(Mutex::create()),
+        mutex(memnew(Mutex)),
         max_messages_per_frame(GLOBAL_GET("network/limits/debugger_stdout/max_messages_per_frame")),
         n_messages_dropped(0),
         max_errors_per_second(GLOBAL_GET("network/limits/debugger_stdout/max_errors_per_second")),

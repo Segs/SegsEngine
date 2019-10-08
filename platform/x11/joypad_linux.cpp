@@ -31,6 +31,7 @@
 #ifdef JOYDEV_ENABLED
 
 #include "joypad_linux.h"
+#include "core/os/mutex.h"
 #include "core/print_string.h"
 
 #include <cerrno>
@@ -84,7 +85,7 @@ void JoypadLinux::Joypad::reset() {
 JoypadLinux::JoypadLinux(InputDefault *in) {
     exit_udev = false;
     input = in;
-    joy_mutex = Mutex::create();
+    joy_mutex = memnew(Mutex);
     joy_thread = Thread::create(joy_thread_func, this);
 }
 
@@ -458,7 +459,7 @@ InputDefault::JoyAxis JoypadLinux::axis_correct(const input_absinfo *p_abs, int 
 
 void JoypadLinux::process_joypads() {
 
-    if (joy_mutex->try_lock() != OK) {
+    if (not joy_mutex->try_lock()) {
         return;
     }
     for (int i = 0; i < JOYPADS_MAX; i++) {

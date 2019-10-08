@@ -31,7 +31,6 @@
 #pragma once
 
 #include "core/math/rect2.h" // also includes vector2, math_funcs, and ustring
-#include "core/pool_vector.h"
 
 struct GODOT_EXPORT Transform2D {
     // Warning #1: basis of Transform2D is stored differently from Basis. In terms of elements array, the basis matrix looks like "on paper":

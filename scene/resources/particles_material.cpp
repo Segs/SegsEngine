@@ -29,9 +29,11 @@
 /*************************************************************************/
 
 #include "particles_material.h"
-#include "core/method_bind.h"
+
 #include "scene/resources/curve_texture.h"
 #include "servers/visual_server.h"
+#include "core/method_bind.h"
+#include "core/os/mutex.h"
 
 Mutex *ParticlesMaterial::material_mutex = nullptr;
 SelfList<ParticlesMaterial>::List *ParticlesMaterial::dirty_materials = nullptr;
@@ -46,7 +48,7 @@ VARIANT_ENUM_CAST(ParticlesMaterial::EmissionShape)
 void ParticlesMaterial::init_shaders() {
 
 #ifndef NO_THREADS
-    material_mutex = Mutex::create();
+    material_mutex = memnew(Mutex);
 #endif
 
     dirty_materials = memnew(SelfList<ParticlesMaterial>::List);

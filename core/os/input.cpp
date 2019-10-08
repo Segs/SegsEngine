@@ -36,6 +36,7 @@
 #include "core/method_bind.h"
 #include "core/method_enum_caster.h"
 #include "core/os/os.h"
+#include "core/os/thread_safe.h"
 #include "core/project_settings.h"
 
 #ifdef TOOLS_ENABLED

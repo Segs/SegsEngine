@@ -36,6 +36,10 @@
 #include "gdscript_function.h"
 #include "core/set.h"
 
+namespace std {
+class recursive_mutex;
+}
+using Mutex = std::recursive_mutex;
 
 class GDScriptNativeClass : public RefCounted {
 

@@ -30,6 +30,7 @@
 
 #include "arvr_interface.h"
 #include "core/method_bind.h"
+#include "core/os/mutex.h"
 
 IMPL_GDCLASS(ARVRInterface)
 VARIANT_ENUM_CAST(ARVRInterface::Capabilities);
@@ -125,6 +126,7 @@ ARVRInterface::Tracking_status ARVRInterface::get_tracking_status() const {
 };
 
 ARVRInterface::ARVRInterface() {
+    __thread__safe__.reset(new Mutex);
     tracking_state = ARVR_UNKNOWN_TRACKING;
 };
 

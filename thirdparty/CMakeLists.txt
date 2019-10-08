@@ -63,6 +63,8 @@ if(OPTION_BUILTIN_SQUISH)
     add_library(squish STATIC ${thirdparty_sources})
     target_include_directories(squish PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/squish/)
     set_property(TARGET squish PROPERTY POSITION_INDEPENDENT_CODE ON)
+    set_common_target_properties(squish)
+
 endif()
 
 add_library(cvtt_lib OBJECT cvtt/ConvectionKernels.cpp)

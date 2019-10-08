@@ -39,6 +39,7 @@
 #include "core/os/dir_access.h"
 #include "core/os/file_access.h"
 #include "core/os/keyboard.h"
+#include "core/os/mutex.h"
 #include "core/os/os.h"
 #include "core/os/input_event.h"
 #include "core/variant_parser.h"
@@ -989,6 +990,7 @@ void ProjectSettings::_bind_methods() {
 }
 
 ProjectSettings::ProjectSettings() {
+    __thread__safe__.reset(new Mutex);
 
     singleton = this;
     last_order = NO_BUILTIN_ORDER_BASE;

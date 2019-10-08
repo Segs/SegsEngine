@@ -32,6 +32,7 @@
 
 #include "scene/main/node.h"
 #include "core/property_info.h"
+#include "core/list.h"
 
 class MultiNodeEdit : public RefCounted {
 

@@ -30,10 +30,11 @@
 
 #include "material.h"
 
-#include "core/class_db.h"
-#include "core/method_enum_caster.h"
 #include "servers/visual/shader_language.h"
 #include "servers/visual_server.h"
+#include "core/class_db.h"
+#include "core/method_enum_caster.h"
+#include "core/os/mutex.h"
 
 IMPL_GDCLASS(Material)
 IMPL_GDCLASS(ShaderMaterial)
@@ -314,7 +315,7 @@ SpatialMaterial::ShaderNames *SpatialMaterial::shader_names = nullptr;
 void SpatialMaterial::init_shaders() {
 
 #ifndef NO_THREADS
-    material_mutex = Mutex::create();
+    material_mutex = memnew(Mutex);
 #endif
 
     dirty_materials = memnew(SelfList<SpatialMaterial>::List);

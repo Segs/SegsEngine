@@ -31,41 +31,8 @@
 #pragma once
 #include "core/godot_export.h"
 #include "core/error_list.h"
+#include <mutex>
 
-/**
- * @class Mutex
- * @author Juan Linietsky
- * Portable Mutex (thread-safe locking) implementation.
- * Mutexes are always recursive ( they don't self-lock in a single thread ).
- * Mutexes can be used with a Lockp object like this, to avoid having to worry about unlocking:
- * Lockp( mutex );
- */
-
-class GODOT_EXPORT Mutex {
-protected:
-    static Mutex *(*create_func)(bool);
-
-public:
-    virtual void lock() = 0; ///< Lock the mutex, block if locked by someone else
-    virtual void unlock() = 0; ///< Unlock the mutex, let other threads continue
-    virtual Error try_lock() = 0; ///< Attempt to lock the mutex, OK on success, ERROR means it can't lock.
-
-    static Mutex *create(bool p_recursive = true); ///< Create a mutex
-
-    virtual ~Mutex() = default;
-};
-
-class GODOT_EXPORT MutexLock {
-
-    Mutex *mutex;
-
-public:
-    MutexLock(Mutex *p_mutex) {
-        mutex = p_mutex;
-        if (mutex) mutex->lock();
-    }
-    ~MutexLock() {
-        if (mutex) mutex->unlock();
-    }
-};
+using Mutex = std::recursive_mutex;
+using MutexLock = std::scoped_lock<Mutex>;
 

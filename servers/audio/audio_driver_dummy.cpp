@@ -30,6 +30,7 @@
 
 #include "audio_driver_dummy.h"
 
+#include "core/os/mutex.h"
 #include "core/os/os.h"
 #include "core/project_settings.h"
 
@@ -49,7 +50,7 @@ Error AudioDriverDummy::init() {
 
 	samples_in = memnew_arr(int32_t, buffer_frames * channels);
 
-	mutex = Mutex::create();
+	mutex = memnew(Mutex);
 	thread = Thread::create(AudioDriverDummy::thread_func, this);
 
 	return OK;

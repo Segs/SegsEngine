@@ -31,6 +31,7 @@
 #include "gdscript_function.h"
 
 #include "core/method_bind.h"
+#include "core/os/mutex.h"
 #include "core/os/os.h"
 #include "core/object_db.h"
 #include "gdscript.h"

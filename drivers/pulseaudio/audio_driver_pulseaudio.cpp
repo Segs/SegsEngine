@@ -290,7 +290,7 @@ Error AudioDriverPulseAudio::init() {
 
     Error err = init_device();
     if (err == OK) {
-        mutex = Mutex::create();
+        mutex = memnew(Mutex);
         thread = Thread::create(AudioDriverPulseAudio::thread_func, this);
     }
 

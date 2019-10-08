@@ -30,11 +30,13 @@
 
 #include "editor_file_system.h"
 
-#include "core/method_bind.h"
 #include "core/io/resource_importer.h"
 #include "core/io/resource_loader.h"
 #include "core/io/resource_saver.h"
+#include "core/map.h"
+#include "core/method_bind.h"
 #include "core/os/file_access.h"
+#include "core/os/mutex.h"
 #include "core/os/os.h"
 #include "core/project_settings.h"
 #include "core/variant_parser.h"
@@ -2124,7 +2126,7 @@ void EditorFileSystem::_update_extensions() {
 }
 
 EditorFileSystem::EditorFileSystem() {
-
+    __thread__safe__.reset(new Mutex);
     ResourceLoader::import = _resource_import;
     reimport_on_missing_imported_files = GLOBAL_DEF("editor/reimport_missing_imported_files", true);
 

@@ -40,8 +40,11 @@
 
 #include <cstdarg>
 
-class Mutex;
 class Image;
+namespace std {
+class recursive_mutex;
+}
+using Mutex = std::recursive_mutex;
 class MainLoop;
 class Resource;
 template <class T>

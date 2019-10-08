@@ -30,11 +30,12 @@
 
 #pragma once
 
-#include "core/pool_vector.h"
 #include "core/reference.h"
 #include "core/resource.h"
 
 using RES = Ref<Resource>;
+template <class T>
+class PoolVector;
 class Node;
 
 

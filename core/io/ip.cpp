@@ -31,11 +31,12 @@
 #include "ip.h"
 
 #include "core/hash_map.h"
+#include "core/method_arg_casters.h"
+#include "core/method_bind.h"
+#include "core/method_enum_caster.h"
+#include "core/os/mutex.h"
 #include "core/os/semaphore.h"
 #include "core/os/thread.h"
-#include "core/method_bind.h"
-#include "core/method_arg_casters.h"
-#include "core/method_enum_caster.h"
 
 IMPL_GDCLASS(IP);
 
@@ -58,11 +59,11 @@ struct _IP_ResolverPrivate {
             response = IP_Address();
             type = IP::TYPE_NONE;
             hostname = "";
-        };
+        }
 
         QueueItem() {
             clear();
-        };
+        }
     };
 
     QueueItem queue[IP::RESOLVER_MAX_QUERIES];
@@ -321,7 +322,7 @@ IP::IP() {
     singleton = this;
     resolver = memnew(_IP_ResolverPrivate);
     resolver->sem = nullptr;
-    resolver->mutex = Mutex::create();
+    resolver->mutex = memnew(Mutex);
 
 #ifndef NO_THREADS
 

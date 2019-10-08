@@ -30,24 +30,27 @@
 
 #include "gdscript_functions.h"
 
+#include "gdscript.h"
+
 #include "core/class_db.h"
 #include "core/func_ref.h"
 #include "core/io/json.h"
-#include "core/io/resource_loader.h"
 #include "core/io/marshalls.h"
+#include "core/io/resource_loader.h"
 #include "core/math/math_funcs.h"
 #include "core/method_info.h"
-#include "core/os/os.h"
 #include "core/object_db.h"
+#include "core/os/os.h"
+#include "core/pool_vector.h"
 #include "core/print_string.h"
 #include "core/reference.h"
-#include "core/variant_parser.h"
 #include "core/string_formatter.h"
-#include "gdscript.h"
+#include "core/variant_parser.h"
+#include "core/vector.h"
 
 const char *GDScriptFunctions::get_func_name(Function p_func) {
 
-    ERR_FAIL_INDEX_V(p_func, FUNC_MAX, "");
+    ERR_FAIL_INDEX_V(p_func, FUNC_MAX, "")
 
     static const char *_names[FUNC_MAX] = {
         "sin",

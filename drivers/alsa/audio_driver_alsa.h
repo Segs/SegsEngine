@@ -32,7 +32,6 @@
 
 #ifdef ALSA_ENABLED
 
-#include "core/os/mutex.h"
 #include "core/os/thread.h"
 
 #include <alsa/asoundlib.h>

@@ -36,6 +36,7 @@
 #include "core/print_string.h"
 #include "core/io/compression.h"
 #include "core/project_settings.h"
+#include "core/pool_vector.h"
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_settings.h"
@@ -57,7 +58,7 @@ Error CryptoKeyMbedTLS::load(String p_path) {
 
     PoolByteArray out;
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ);
-	ERR_FAIL_COND_V_MSG(!f, ERR_INVALID_PARAMETER, "Cannot open CryptoKeyMbedTLS file '" + p_path + "'.");
+    ERR_FAIL_COND_V_MSG(!f, ERR_INVALID_PARAMETER, "Cannot open CryptoKeyMbedTLS file '" + p_path + "'.")
 
     int flen = f->get_len();
     out.resize(flen + 1);
@@ -71,7 +72,7 @@ Error CryptoKeyMbedTLS::load(String p_path) {
     int ret = mbedtls_pk_parse_key(&pkey, out.read().ptr(), out.size(), nullptr, 0);
     // We MUST zeroize the memory for safety!
     mbedtls_platform_zeroize(out.write().ptr(), out.size());
-	ERR_FAIL_COND_V_MSG(ret, FAILED, "Error parsing private key '" + itos(ret) + "'.");
+    ERR_FAIL_COND_V_MSG(ret, FAILED, "Error parsing private key '" + itos(ret) + "'.")
 
     return OK;
 }

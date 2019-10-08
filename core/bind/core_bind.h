@@ -44,6 +44,10 @@ class Thread;
 class Semaphore;
 
 using RES = Ref<Resource>;
+namespace std {
+class recursive_mutex;
+}
+using Mutex = std::recursive_mutex;
 
 class _ResourceLoader : public Object {
     GDCLASS(_ResourceLoader, Object)

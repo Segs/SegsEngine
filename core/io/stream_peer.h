@@ -28,10 +28,10 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef STREAM_PEER_H
-#define STREAM_PEER_H
+#pragma once
 
 #include "core/reference.h"
+#include "core/pool_vector.h"
 
 class StreamPeer : public RefCounted {
 	GDCLASS(StreamPeer, RefCounted)
@@ -125,5 +125,3 @@ public:
 
 	StreamPeerBuffer();
 };
-
-#endif // STREAM_PEER_H

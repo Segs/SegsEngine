@@ -31,6 +31,7 @@
 #include "midi_driver.h"
 
 #include "core/os/os.h"
+#include "core/pool_vector.h"
 #include "main/input_default.h"
 
 MIDIDriver *MIDIDriver::singleton = nullptr;

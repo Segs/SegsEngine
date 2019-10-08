@@ -39,9 +39,10 @@ class map;
 template <class T>
 struct Comparator;
 class wrap_allocator;
-
 template <class K,class V>
 using DefMap = eastl::map<K,V,Comparator<K>,wrap_allocator>;
+class RWLock;
+
 
 #define RES_BASE_EXTENSION_IMPL(m_class,m_ext)                                                                      \
                                                                                                                     \

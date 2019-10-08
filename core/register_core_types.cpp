@@ -64,6 +64,7 @@
 #include "core/object_db.h"
 #include "core/os/input.h"
 #include "core/os/main_loop.h"
+#include "core/os/mutex.h"
 #include "core/os/semaphore.h"
 #include "core/os/thread.h"
 #include "core/packed_data_container.h"
@@ -105,7 +106,7 @@ void register_core_types() {
     ResourceCache::setup();
     MemoryPool::setup();
 
-    _global_mutex = Mutex::create();
+    _global_mutex = memnew(Mutex);
 
     StringName::setup();
     ResourceLoader::initialize();

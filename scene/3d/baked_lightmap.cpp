@@ -38,6 +38,7 @@
 #include "core/os/dir_access.h"
 #include "core/os/file_access.h"
 #include "core/os/os.h"
+#include "core/print_string.h"
 
 IMPL_GDCLASS(BakedLightmapData)
 IMPL_GDCLASS(BakedLightmap)

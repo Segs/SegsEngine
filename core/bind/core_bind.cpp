@@ -39,6 +39,7 @@
 #include "core/io/resource_format_loader.h"
 #include "core/io/resource_loader.h"
 #include "core/io/resource_saver.h"
+#include "core/os/mutex.h"
 #include "core/math/geometry.h"
 #include "core/method_bind.h"
 #include "core/os/dir_access.h"
@@ -2603,7 +2604,7 @@ void _Mutex::lock() {
 
 Error _Mutex::try_lock() {
 
-    return mutex->try_lock();
+    return mutex->try_lock() ? OK : FAILED;
 }
 
 void _Mutex::unlock() {
@@ -2622,7 +2623,7 @@ void _Mutex::_bind_methods() {
 
 _Mutex::_Mutex() {
 
-    mutex = Mutex::create();
+    mutex = memnew(Mutex);
 }
 
 _Mutex::~_Mutex() {

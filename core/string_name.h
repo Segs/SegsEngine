@@ -30,7 +30,6 @@
 
 #pragma once
 
-#include "core/os/mutex.h"
 #include "core/safe_refcount.h"
 #include "core/error_macros.h"
 #include <cstddef>
@@ -38,6 +37,7 @@
 class QString;
 class String;
 class QChar;
+
 struct StaticCString {
 
     const char *ptr;
@@ -58,7 +58,6 @@ class GODOT_EXPORT StringName {
     struct _Data;
 
     GODOT_NO_EXPORT static _Data *_table[STRING_TABLE_LEN];
-    static Mutex *lock;
     GODOT_NO_EXPORT static void setup();
     GODOT_NO_EXPORT static void cleanup();
     static bool configured;

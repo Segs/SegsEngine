@@ -32,11 +32,13 @@
 
 #include "camera_server_enum_casters.h"
 #include "servers/camera/camera_feed.h"
+#include "visual_server.h"
 
 #include "core/method_arg_casters.h"
 #include "core/method_bind.h"
 #include "core/method_enum_caster.h"
-#include "visual_server.h"
+#include "core/os/mutex.h"
+#include "core/print_string.h"
 
 IMPL_GDCLASS(CameraServer)
 
@@ -138,7 +140,7 @@ void CameraServer::remove_feed(const Ref<CameraFeed> &p_feed) {
 };
 
 Ref<CameraFeed> CameraServer::get_feed(int p_index) {
-    ERR_FAIL_INDEX_V(p_index, feeds.size(), Ref<CameraFeed>());
+    ERR_FAIL_INDEX_V(p_index, feeds.size(), Ref<CameraFeed>())
 
     return feeds[p_index];
 };
@@ -169,6 +171,7 @@ RID CameraServer::feed_texture(int p_id, CameraServer::FeedImage p_texture) {
 };
 
 CameraServer::CameraServer() {
+    __thread__safe__.reset(new Mutex);
     singleton = this;
 };
 

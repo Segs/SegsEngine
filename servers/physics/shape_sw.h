@@ -32,7 +32,9 @@
 
 #include "core/math/bsp_tree.h"
 #include "core/math/geometry.h"
+#include "core/pool_vector.h"
 #include "servers/physics_server.h"
+
 #include "EASTL/unordered_map.h"
 
 template<class TKey, class TData>

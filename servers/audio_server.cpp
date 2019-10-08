@@ -34,6 +34,7 @@
 #include "core/method_arg_casters.h"
 #include "core/method_enum_caster.h"
 #include "core/os/file_access.h"
+#include "core/os/mutex.h"
 #include "core/os/os.h"
 #include "core/project_settings.h"
 #include "core/script_language.h"
@@ -1153,27 +1154,23 @@ void *AudioServer::audio_data_alloc(uint32_t p_data_len, const uint8_t *p_from_d
         memcpy(ad, p_from_data, p_data_len);
     }
 
-    audio_data_lock->lock();
+    MutexLock scoped(*audio_data_lock);
     audio_data[ad] = p_data_len;
     audio_data_total_mem += p_data_len;
     audio_data_max_mem = MAX(audio_data_total_mem, audio_data_max_mem);
-    audio_data_lock->unlock();
-
     return ad;
 }
 
 void AudioServer::audio_data_free(void *p_data) {
 
-    audio_data_lock->lock();
+    MutexLock scoped(*audio_data_lock);
     if (!audio_data.contains(p_data)) {
-        audio_data_lock->unlock();
         ERR_FAIL();
     }
 
     audio_data_total_mem -= audio_data[p_data];
     audio_data.erase(p_data);
     memfree(p_data);
-    audio_data_lock->unlock();
 }
 
 size_t AudioServer::audio_data_get_total_memory_usage() const {
@@ -1444,7 +1441,7 @@ AudioServer::AudioServer() {
     singleton = this;
     audio_data_total_mem = 0;
     audio_data_max_mem = 0;
-    audio_data_lock = Mutex::create();
+    audio_data_lock = memnew(Mutex);
     mix_frames = 0;
     channel_count = 0;
     to_mix = 0;

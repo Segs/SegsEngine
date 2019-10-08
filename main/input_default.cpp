@@ -32,6 +32,7 @@
 
 #include "core/class_db.h"
 #include "core/input_map.h"
+#include "core/os/mutex.h"
 #include "core/os/os.h"
 #include "main/default_controller_mappings.h"
 #include "scene/resources/texture.h"
@@ -694,6 +695,7 @@ void InputDefault::release_pressed_events() {
 }
 
 InputDefault::InputDefault() {
+    __thread__safe__.reset(new Mutex);
 
     use_accumulated_input = true;
     mouse_button_mask = 0;
@@ -737,6 +739,11 @@ InputDefault::InputDefault() {
 
         parse_mapping(DefaultControllerMappings::mappings[i++]);
     }
+}
+
+InputDefault::~InputDefault()
+{
+
 }
 
 void InputDefault::joy_button(int p_device, int p_button, bool p_pressed) {
@@ -808,10 +815,10 @@ void InputDefault::joy_axis(int p_device, int p_axis, const JoyAxis &p_value) {
         jx.min = p_value.min;
         jx.value = p_value.value < 0.5f ? 0.6f : 0.4f;
         joy_axis(p_device, p_axis, jx);
-    } else if (ABS(last) > 0.5 && last * p_value.value < 0) {
+    } else if (ABS(last) > 0.5f && last * p_value.value < 0) {
         JoyAxis jx;
         jx.min = p_value.min;
-        jx.value = p_value.value < 0 ? 0.1 : -0.1;
+        jx.value = p_value.value < 0 ? 0.1f : -0.1f;
         joy_axis(p_device, p_axis, jx);
     }
 
@@ -827,7 +834,7 @@ void InputDefault::joy_axis(int p_device, int p_axis, const JoyAxis &p_value) {
     if (el==axes.end()) {
         //return _axis_event(p_last_id, p_device, p_axis, p_value);
         return;
-    };
+    }
 
     JoyEvent map = el->second;
 
@@ -904,7 +911,7 @@ void InputDefault::joy_hat(int p_device, int p_val) {
         map = hat_map_default;
     } else {
         map = map_db[joy.mapping].hat;
-    };
+    }
 
     int cur_val = joy_names[p_device].hat_current;
 
@@ -964,9 +971,9 @@ InputDefault::JoyEvent InputDefault::_find_to_event(const String& p_to) {
             ret.index = i;
             ret.value = 0;
             return ret;
-        };
+        }
         ++i;
-    };
+    }
 
     i = 0;
     while (axis[i]) {
@@ -976,9 +983,9 @@ InputDefault::JoyEvent InputDefault::_find_to_event(const String& p_to) {
             ret.index = i;
             ret.value = 0;
             return ret;
-        };
+        }
         ++i;
-    };
+    }
 
     return ret;
 };
@@ -1041,9 +1048,9 @@ void InputDefault::parse_mapping(const String& p_mapping) {
                 case 8:
                     mapping.hat[HAT_LEFT] = to_event;
                     break;
-            };
-        };
-    };
+            }
+        }
+    }
     map_db.push_back(mapping);
     //printf("added mapping with uuid %ls\n", mapping.uid.c_str());
 };

@@ -32,6 +32,7 @@
 
 #include "core/message_queue.h"
 #include "core/method_bind.h"
+#include "core/os/mutex.h"
 #include "core/os/os.h"
 #include "editor_scale.h"
 #include "main/main.h"
@@ -135,6 +136,15 @@ void BackgroundProgress::task_step(const String &p_task, int p_step) {
 void BackgroundProgress::end_task(const String &p_task) {
 
     MessageQueue::get_singleton()->push_call(this, "_end_task", p_task);
+}
+
+BackgroundProgress::BackgroundProgress() {
+    __thread__safe__.reset(new Mutex);
+}
+
+BackgroundProgress::~BackgroundProgress()
+{
+
 }
 
 ////////////////////////////////////////////////

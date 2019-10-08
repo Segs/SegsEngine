@@ -33,6 +33,7 @@
 #include "core/math/a_star.h"
 #include "core/os/os.h"
 #include "core/string_formatter.h"
+#include "core/pool_vector.h"
 
 #include <cstdio>
 

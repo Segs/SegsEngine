@@ -32,7 +32,6 @@
 
 #include "core/object.h"
 #include "core/os/main_loop.h"
-#include "core/os/thread_safe.h"
 
 class Resource;
 using RES = Ref<Resource>;
