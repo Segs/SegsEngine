@@ -36,6 +36,7 @@
 #include "scene/gui/label.h"
 #include "scene/gui/popup.h"
 #include "scene/gui/progress_bar.h"
+#include "core/os/thread_safe.h"
 
 class BackgroundProgress : public HBoxContainer {
 
@@ -65,7 +66,8 @@ public:
     void task_step(const String &p_task, int p_step = -1);
     void end_task(const String &p_task);
 
-    BackgroundProgress() = default;
+    BackgroundProgress();
+    ~BackgroundProgress() override;
 };
 
 class ProgressDialog : public Popup {

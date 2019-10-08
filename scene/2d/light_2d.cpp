@@ -30,8 +30,9 @@
 
 #include "light_2d.h"
 
-#include "core/engine.h"
 #include "servers/visual_server.h"
+#include "scene/main/scene_tree.h"
+#include "core/engine.h"
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(Light2D)

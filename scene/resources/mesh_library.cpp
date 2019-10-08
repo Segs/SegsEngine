@@ -29,8 +29,8 @@
 /*************************************************************************/
 
 #include "mesh_library.h"
+#include "scene/resources/texture.h"
 #include "core/method_bind.h"
-
 #include "core/engine.h"
 
 IMPL_GDCLASS(MeshLibrary)

@@ -29,7 +29,9 @@
 /*************************************************************************/
 
 #include "mesh_editor_plugin.h"
+
 #include "editor/editor_scale.h"
+#include "scene/resources/world.h"
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(MeshEditor)
@@ -128,8 +130,8 @@ MeshEditor::MeshEditor() {
     viewport->set_msaa(Viewport::MSAA_2X);
     set_stretch(true);
     camera = memnew(Camera);
-    camera->set_transform(Transform(Basis(), Vector3(0, 0, 1.1)));
-    camera->set_perspective(45, 0.1, 10);
+    camera->set_transform(Transform(Basis(), Vector3(0, 0, 1.1f)));
+    camera->set_perspective(45, 0.1f, 10);
     viewport->add_child(camera);
 
     light1 = memnew(DirectionalLight);
@@ -138,7 +140,7 @@ MeshEditor::MeshEditor() {
 
     light2 = memnew(DirectionalLight);
     light2->set_transform(Transform().looking_at(Vector3(0, 1, 0), Vector3(0, 0, 1)));
-    light2->set_color(Color(0.7, 0.7, 0.7));
+    light2->set_color(Color(0.7f, 0.7f, 0.7f));
     viewport->add_child(light2);
 
     rotation = memnew(Spatial);

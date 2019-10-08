@@ -36,6 +36,7 @@
 #include "core/class_db.h"
 #include "core/script_language.h"
 #include "core/os/input_event.h"
+#include "scene/resources/world_2d.h"
 
 IMPL_GDCLASS(CollisionObject2D)
 

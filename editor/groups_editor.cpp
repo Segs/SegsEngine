@@ -35,6 +35,7 @@
 #include "core/method_bind.h"
 #include "scene/gui/box_container.h"
 #include "scene/gui/label.h"
+#include "scene/main/scene_tree.h"
 #include "scene/resources/packed_scene.h"
 
 IMPL_GDCLASS(GroupDialog)

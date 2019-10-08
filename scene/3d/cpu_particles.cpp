@@ -37,6 +37,7 @@
 #include "scene/resources/mesh.h"
 #include "servers/visual_server.h"
 #include "core/method_bind.h"
+#include "core/os/mutex.h"
 
 IMPL_GDCLASS(CPUParticles)
 VARIANT_ENUM_CAST(CPUParticles::DrawOrder)
@@ -1537,7 +1538,7 @@ CPUParticles::CPUParticles() {
     set_color(Color(1, 1, 1, 1));
 
 #ifndef NO_THREADS
-    update_mutex = Mutex::create();
+    update_mutex = memnew(Mutex);
 #endif
 }
 

@@ -32,6 +32,9 @@
 #define RAY_CAST_H
 
 #include "scene/3d/spatial.h"
+#include "core/set.h"
+
+class Material;
 
 class RayCast : public Spatial {
 

@@ -31,6 +31,7 @@
 #include "visual_server_wrap_mt.h"
 #include "core/os/os.h"
 #include "core/list.h"
+#include "core/print_string.h"
 #include "core/project_settings.h"
 
 void VisualServerWrapMT::thread_exit() {
@@ -179,7 +180,7 @@ VisualServerWrapMT::VisualServerWrapMT(VisualServer *p_contained, bool p_create_
 	thread = nullptr;
 	draw_pending = 0;
 	draw_thread_up = false;
-	alloc_mutex = Mutex::create();
+	alloc_mutex = memnew(Mutex);
 	pool_max_size = GLOBAL_GET("memory/limits/multithreaded_server/rid_pool_prealloc");
 
 	if (!p_create_thread) {

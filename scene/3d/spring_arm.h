@@ -31,6 +31,8 @@
 #pragma once
 
 #include "scene/3d/spatial.h"
+#include "core/set.h"
+
 class Shape;
 class SpringArm : public Spatial {
 	GDCLASS(SpringArm,Spatial)

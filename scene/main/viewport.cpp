@@ -50,6 +50,7 @@
 #include "scene/gui/popup_menu.h"
 #include "scene/resources/style_box.h"
 #include "scene/main/canvas_layer.h"
+#include "scene/main/scene_tree.h"
 #include "scene/main/timer.h"
 #include "scene/resources/mesh.h"
 #include "scene/scene_string_names.h"

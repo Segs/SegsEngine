@@ -33,6 +33,7 @@
 
 #include "scene/3d/navigation_mesh.h"
 #include "scene/3d/spatial.h"
+#include "core/map.h"
 
 class Navigation : public Spatial {
 

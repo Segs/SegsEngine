@@ -44,10 +44,13 @@
 #include "core/plugin_interfaces/PluginDeclarations.h"
 
 #include "thirdparty/misc/hq2x.h"
+#include "EASTL/array.h"
 
 #include <cstdio>
 
 namespace  {
+static eastl::array<ImageCodecInterface *, COMPRESS_MAX> s_codecs;
+
 struct CodecPluginResolver : public ResolverInterface
 {
     bool new_plugin_detected(QObject * ob) final {
@@ -58,7 +61,7 @@ struct CodecPluginResolver : public ResolverInterface
             PODVector<int> modes;
             interface->fill_modes(modes);
             for(int m : modes)
-                Image::s_codecs.at(m) = interface;
+                s_codecs.at(m) = interface;
             res=true;
         }
         return res;
@@ -70,7 +73,7 @@ struct CodecPluginResolver : public ResolverInterface
             PODVector<int> modes;
             interface->fill_modes(modes);
             for(int m : modes)
-                Image::s_codecs.at(m) = nullptr;
+                s_codecs.at(m) = nullptr;
         }
     }
     ~CodecPluginResolver() final = default;
@@ -78,7 +81,7 @@ struct CodecPluginResolver : public ResolverInterface
 }// end of anonymous namespace
 
 IMPL_GDCLASS(Image)
-eastl::array<ImageCodecInterface *,COMPRESS_MAX> Image::s_codecs;
+
 namespace {
     constexpr const char *format_names[Image::FORMAT_MAX] = {
         "Lum8", //luminance

@@ -40,6 +40,7 @@
 #include "scene/gui/control.h"
 #include "scene/gui/label.h"
 #include "scene/gui/tab_container.h"
+#include "scene/main/scene_tree.h"
 
 IMPL_GDCLASS(RenameDialog)
 

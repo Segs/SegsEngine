@@ -38,7 +38,10 @@
 #include "scene/3d/collision_object.h"
 #include "scene/3d/physics_body.h"
 #include "scene/3d/skeleton.h"
+#include "scene/main/scene_tree.h"
+
 #include "servers/physics_server.h"
+#include "servers/visual_server.h"
 
 IMPL_GDCLASS(SoftBody)
 

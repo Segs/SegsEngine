@@ -30,6 +30,7 @@
 
 #include "root_motion_editor_plugin.h"
 #include "editor/editor_node.h"
+#include "scene/main/scene_tree.h"
 #include "scene/main/viewport.h"
 #include "core/method_bind.h"
 

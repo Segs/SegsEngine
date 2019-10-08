@@ -32,6 +32,7 @@
 
 #include "core/project_settings.h"
 #include "core/print_string.h"
+#include "core/os/mutex.h"
 #include "core/object_db.h"
 #include "core/script_language.h"
 
@@ -341,7 +342,7 @@ bool MessageQueue::is_flushing() const {
 }
 
 MessageQueue::MessageQueue() {
-
+    __thread__safe__.reset(new Mutex);
 	ERR_FAIL_COND_CMSG(singleton != nullptr, "MessageQueue singleton already exist.")
     singleton = this;
     flushing = false;

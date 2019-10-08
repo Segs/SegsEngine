@@ -37,6 +37,14 @@
 #include "core/self_list.h"
 #include "core/ustring.h"
 
+namespace std {
+class recursive_mutex;
+}
+using Mutex = std::recursive_mutex;
+class ResourceFormatLoader;
+class ResourceInteractiveLoader;
+class ResourceLoaderInterface;
+
 //used to track paths being loaded in a thread, avoids cyclic recursion
 struct LoadingMapKey {
     String path;
@@ -51,13 +59,9 @@ struct Hasher<LoadingMapKey> {
 };
 
 
-class ResourceFormatLoader;
-class ResourceInteractiveLoader;
-class ResourceLoaderInterface;
 
 using ResourceLoadErrorNotify = void (*)(void *, const String &);
 using DependencyErrorNotify = void (*)(void *, const String &, const String &, const String &);
-
 using ResourceLoaderImport = Error (*)(const String &);
 using ResourceLoadedCallback = void (*)(RES, const String &);
 

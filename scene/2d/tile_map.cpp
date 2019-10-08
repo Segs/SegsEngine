@@ -34,7 +34,10 @@
 #include "core/method_bind.h"
 #include "core/io/marshalls.h"
 #include "core/os/os.h"
+#include "core/print_string.h"
 #include "scene/2d/area_2d.h"
+#include "scene/main/scene_tree.h"
+#include "scene/resources/world_2d.h"
 #include "servers/physics_2d_server.h"
 
 IMPL_GDCLASS(TileMap)

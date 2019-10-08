@@ -33,6 +33,7 @@
 #include "font_serializers.h"
 
 #include "core/os/file_access.h"
+#include "core/os/mutex.h"
 #include "core/os/os.h"
 #include "core/method_bind.h"
 #include "servers/visual_server.h"
@@ -659,6 +660,7 @@ void DynamicFontAtSize::update_oversampling() {
 }
 
 DynamicFontAtSize::DynamicFontAtSize() {
+    __thread__safe__.reset(new Mutex);
 
     valid = false;
     rect_margin = 1;
@@ -1078,7 +1080,7 @@ DynamicFont::~DynamicFont() {
 
 void DynamicFont::initialize_dynamic_fonts() {
     dynamic_fonts = memnew(SelfList<DynamicFont>::List());
-    dynamic_font_mutex = Mutex::create();
+    dynamic_font_mutex = memnew(Mutex);
 }
 
 void DynamicFont::finish_dynamic_fonts() {

@@ -30,12 +30,13 @@
 
 #pragma once
 
-#include "core/os/input.h"
-#include "core/os/input_event.h"
 #include "core/list.h"
 #include "core/map.h"
-#include "core/ustring.h"
+#include "core/os/input.h"
+#include "core/os/input_event.h"
+#include "core/os/thread_safe.h"
 #include "core/set.h"
+#include "core/ustring.h"
 
 class InputDefault : public Input {
 
@@ -280,4 +281,5 @@ public:
 
 	virtual void release_pressed_events();
 	InputDefault();
+    ~InputDefault() override;
 };

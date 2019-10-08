@@ -32,6 +32,7 @@
 
 #include "core/method_bind.h"
 #include "core/io/resource_loader.h"
+#include "core/project_settings.h"
 #include "core/os/file_access.h"
 #include "editor_node.h"
 #include "scene/gui/margin_container.h"

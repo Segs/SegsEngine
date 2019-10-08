@@ -32,6 +32,7 @@
 
 #include "core/method_bind.h"
 #include "core/os/os.h"
+#include "scene/main/scene_tree.h"
 #include "scene/resources/particles_material.h"
 #include "scene/scene_string_names.h"
 

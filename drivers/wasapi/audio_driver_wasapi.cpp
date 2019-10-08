@@ -407,7 +407,7 @@ Error AudioDriverWASAPI::init() {
     exit_thread = false;
     thread_exited = false;
 
-    mutex = Mutex::create(true);
+    mutex = memnew(Mutex);
     thread = Thread::create(thread_func, this);
 
     return OK;

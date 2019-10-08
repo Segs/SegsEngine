@@ -31,6 +31,7 @@
 #include "string_name.h"
 
 #include "core/os/os.h"
+#include "core/os/mutex.h"
 #include "core/print_string.h"
 #include "core/ustring.h"
 #include "core/vector.h"
@@ -40,6 +41,8 @@ template class GODOT_EXPORT_TEMPLATE_B eastl::list<StringName,wrap_allocator>;
 
 namespace
 {
+static Mutex *lock=nullptr;
+
 template <typename L, typename R>
 _FORCE_INLINE_ bool is_str_less(const L *l_ptr, const R *r_ptr) {
 
@@ -109,12 +112,11 @@ struct StringName::_Data {
 
 StringName::_Data *StringName::_table[STRING_TABLE_LEN];
 bool StringName::configured = false;
-Mutex *StringName::lock = nullptr;
 
 
 void StringName::setup() {
 
-    lock = Mutex::create();
+    lock = memnew(Mutex);
 
     ERR_FAIL_COND(configured)
     for (int i = 0; i < STRING_TABLE_LEN; i++) {
@@ -127,7 +129,7 @@ void StringName::setup() {
 void StringName::cleanup() {
 
     { // this block is done under lock, exiting the block will release the block automatically.
-        MutexLock mlocker(lock);
+        MutexLock mlocker(*lock);
 
         int lost_strings = 0;
         for (int i = 0; i < STRING_TABLE_LEN; i++) {
@@ -159,7 +161,7 @@ void StringName::unref() {
     ERR_FAIL_COND(!configured)
     assert(_data);
     if (_data->refcount.unref()) {
-        MutexLock mlocker(lock);
+        MutexLock mlocker(*lock);
 
         if (_data->prev) {
             _data->prev->next = _data->next;
@@ -286,7 +288,7 @@ StringName::StringName(const char *p_name) {
     if (!p_name || p_name[0] == 0)
         return; //empty, ignore
 
-    MutexLock mlocker(lock);
+    MutexLock mlocker(*lock);
 
     uint32_t hash = StringUtils::hash(p_name);
 
@@ -324,7 +326,7 @@ StringName::StringName(const char *p_name) {
 
 void StringName::setupFromCString(const StaticCString &p_static_string) {
 
-    MutexLock mlocker(lock);
+    MutexLock mlocker(*lock);
 
     uint32_t hash = StringUtils::hash(p_static_string.ptr);
 
@@ -370,7 +372,7 @@ StringName::StringName(const String &p_name) {
     if (p_name.empty())
         return;
 
-    MutexLock mlocker(lock);
+    MutexLock mlocker(*lock);
 
     uint32_t hash = StringUtils::hash(p_name);
 
@@ -413,7 +415,7 @@ StringName StringName::search(const char *p_name) {
     if (!p_name[0])
         return StringName();
 
-    MutexLock mlocker(lock);
+    MutexLock mlocker(*lock);
 
     uint32_t hash = StringUtils::hash(p_name);
 
@@ -440,7 +442,7 @@ StringName StringName::search(const String &p_name) {
 
     ERR_FAIL_COND_V(p_name.empty(), StringName())
 
-    MutexLock mlocker(lock);
+    MutexLock mlocker(*lock);
 
     uint32_t hash = StringUtils::hash(p_name);
 

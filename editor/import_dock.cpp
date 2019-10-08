@@ -32,6 +32,7 @@
 #include "editor_node.h"
 #include "editor_resource_preview.h"
 #include "core/method_bind.h"
+#include "core/project_settings.h"
 #include "scene/resources/style_box.h"
 
 IMPL_GDCLASS(ImportDock)

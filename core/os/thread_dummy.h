@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef THREAD_DUMMY_H
-#define THREAD_DUMMY_H
+#pragma once
 
 #include "core/os/mutex.h"
 #include "core/os/rw_lock.h"
@@ -41,21 +40,9 @@ class ThreadDummy : public Thread {
 	static Thread *create(ThreadCreateCallback p_callback, void *p_user, const Settings &p_settings = Settings());
 
 public:
-	ID get_id() const override { return 0; };
+    ID get_id() const override { return 0; }
 
-	static void make_default();
-};
-
-class MutexDummy : public Mutex {
-
-	static Mutex *create(bool p_recursive);
-
-public:
-	void lock() override{};
-	void unlock() override{};
-	Error try_lock() override { return OK; };
-
-	static void make_default();
+    static void make_default();
 };
 
 class SemaphoreDummy : public Semaphore {
@@ -63,9 +50,9 @@ class SemaphoreDummy : public Semaphore {
 	static Semaphore *create();
 
 public:
-	Error wait() override { return OK; };
-	Error post() override { return OK; };
-	int get() const override { return 0; }; ///< get semaphore value
+	Error wait() override { return OK; }
+	Error post() override { return OK; }
+	int get() const override { return 0; } ///< get semaphore value
 
 	static void make_default();
 };
@@ -86,4 +73,3 @@ public:
 	static void make_default();
 };
 
-#endif

@@ -30,6 +30,8 @@
 
 #include "bsp_tree.h"
 
+#include "core/pool_vector.h"
+#include "core/variant.h"
 #include "core/error_macros.h"
 #include "core/print_string.h"
 #include "core/method_ptrcall.h"

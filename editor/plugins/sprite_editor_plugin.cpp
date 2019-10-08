@@ -38,6 +38,7 @@
 #include "scene/2d/mesh_instance_2d.h"
 #include "scene/2d/polygon_2d.h"
 #include "scene/gui/box_container.h"
+#include "scene/main/scene_tree.h"
 #include "thirdparty/misc/clipper.hpp"
 
 IMPL_GDCLASS(SpriteEditor)

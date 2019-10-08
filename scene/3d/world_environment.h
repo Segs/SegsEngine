@@ -32,6 +32,8 @@
 
 #include "scene/3d/spatial.h"
 
+class Environment;
+
 class WorldEnvironment : public Node {
 
 	GDCLASS(WorldEnvironment,Node)

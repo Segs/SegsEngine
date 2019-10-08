@@ -28,12 +28,12 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef HTTPREQUEST_H
-#define HTTPREQUEST_H
+#pragma once
 
 #include "core/io/http_client.h"
 #include "core/os/file_access.h"
 #include "core/os/thread.h"
+#include "core/pool_vector.h"
 #include "node.h"
 #include "scene/main/timer.h"
 
@@ -145,5 +145,3 @@ public:
     HTTPRequest();
     ~HTTPRequest() override;
 };
-
-#endif // HTTPREQUEST_H

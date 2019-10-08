@@ -31,6 +31,7 @@
 #include "separator.h"
 #include "scene/resources/style_box.h"
 #include "core/class_db.h"
+#include "core/property_info.h"
 
 IMPL_GDCLASS(Separator)
 IMPL_GDCLASS(VSeparator)

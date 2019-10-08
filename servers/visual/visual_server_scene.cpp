@@ -29,9 +29,12 @@
 /*************************************************************************/
 
 #include "visual_server_scene.h"
-#include "core/os/os.h"
+
 #include "visual_server_globals.h"
 #include "visual_server_raster.h"
+
+#include "core/os/mutex.h"
+#include "core/os/os.h"
 #include <new>
 /* CAMERA API */
 
@@ -3514,7 +3517,7 @@ VisualServerScene::VisualServerScene() {
 
 #ifndef NO_THREADS
     probe_bake_sem = Semaphore::create();
-    probe_bake_mutex = Mutex::create();
+    probe_bake_mutex = memnew(Mutex);
     probe_bake_thread = Thread::create(_gi_probe_bake_threads, this);
     probe_bake_thread_exit = false;
 #endif

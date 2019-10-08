@@ -35,6 +35,7 @@
 #include "scene/resources/concave_polygon_shape.h"
 #include "scene/resources/convex_polygon_shape.h"
 #include "scene/resources/material.h"
+#include "core/print_string.h"
 #include "servers/visual_server.h"
 #include "surface_tool.h"
 #include "core/method_bind.h"

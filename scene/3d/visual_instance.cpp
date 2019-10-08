@@ -33,6 +33,7 @@
 #include "core/method_bind.h"
 #include "scene/scene_string_names.h"
 #include "servers/visual_server.h"
+#include "scene/resources/world.h"
 #include "skeleton.h"
 
 IMPL_GDCLASS(VisualInstance)

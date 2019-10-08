@@ -32,6 +32,7 @@
 #define ANIMATION_TREE_PLAYER_H
 
 #include "animation_player.h"
+#include "core/hash_map.h"
 #include "scene/3d/skeleton.h"
 #include "scene/3d/spatial.h"
 #include "scene/resources/animation.h"

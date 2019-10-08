@@ -31,7 +31,7 @@
 #pragma once
 
 #include "scene/main/node.h"
-
+#include "core/map.h"
 class Resource;
 
 class ResourcePreloader : public Node {

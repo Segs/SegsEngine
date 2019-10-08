@@ -55,6 +55,7 @@
 #include "scene/3d/sprite_3d.h"
 #include "scene/3d/vehicle_body.h"
 #include "scene/3d/visibility_notifier.h"
+#include "scene/main/scene_tree.h"
 #include "scene/resources/box_shape.h"
 #include "scene/resources/capsule_shape.h"
 #include "scene/resources/concave_polygon_shape.h"
@@ -366,10 +367,10 @@ void EditorSpatialGizmo::add_handles(const Vector<Vector3> &p_handles, const Ref
 
             Color col(1, 1, 1, 1);
             if (is_handle_highlighted(i))
-                col = Color(0, 0, 1, 0.9);
+                col = Color(0, 0, 1, 0.9f);
 
             if (SpatialEditor::get_singleton()->get_over_gizmo_handle() != i)
-                col.a = 0.8;
+                col.a = 0.8f;
 
             w[i] = col;
         }
@@ -810,10 +811,10 @@ Vector3 EditorSpatialGizmo::get_handle_pos(int p_idx) const {
 
 LightSpatialGizmoPlugin::LightSpatialGizmoPlugin() {
 
-    Color gizmo_color = EDITOR_DEF("editors/3d_gizmos/gizmo_colors/light", Color(1, 1, 0.7));
+    Color gizmo_color = EDITOR_DEF("editors/3d_gizmos/gizmo_colors/light", Color(1, 1, 0.7f));
 
     create_material("lines_primary", gizmo_color);
-    create_material("lines_secondary", gizmo_color * Color(1, 1, 1, 0.35));
+    create_material("lines_secondary", gizmo_color * Color(1, 1, 1, 0.35f));
     create_material("lines_billboard", gizmo_color, true);
 
     create_icon_material("light_directional_icon", SpatialEditor::get_singleton()->get_icon("GizmoDirectionalLight", "EditorIcons"));
@@ -1450,8 +1451,8 @@ void CameraSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
             ADD_TRIANGLE(Vector3(), side + up + offset, nside + up + offset);
             ADD_TRIANGLE(Vector3(), side - up + offset, nside - up + offset);
 
-            side.x *= 0.25;
-            nside.x *= 0.25;
+            side.x *= 0.25f;
+            nside.x *= 0.25f;
             Vector3 tup(0, up.y * 3 / 2, side.z);
             ADD_TRIANGLE(tup + offset, side + up + offset, nside + up + offset);
         }
@@ -1461,7 +1462,7 @@ void CameraSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
 #undef ADD_QUAD
 
     p_gizmo->add_lines(lines, material);
-    p_gizmo->add_unscaled_billboard(icon, 0.05);
+    p_gizmo->add_unscaled_billboard(icon, 0.05f);
     p_gizmo->add_handles(handles, get_material("handles"));
 
     ClippedCamera *clipcam = Object::cast_to<ClippedCamera>(camera);
@@ -1480,17 +1481,17 @@ void CameraSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
         Vector3 ray_from = parent_plane.project(cam_pos);
 
         lines.clear();
-        lines.push_back(ray_from + cam_x * 0.5 + cam_y * 0.5);
-        lines.push_back(ray_from + cam_x * 0.5 + cam_y * -0.5);
+        lines.push_back(ray_from + cam_x * 0.5f + cam_y * 0.5f);
+        lines.push_back(ray_from + cam_x * 0.5f + cam_y * -0.5f);
 
-        lines.push_back(ray_from + cam_x * 0.5 + cam_y * -0.5);
-        lines.push_back(ray_from + cam_x * -0.5 + cam_y * -0.5);
+        lines.push_back(ray_from + cam_x * 0.5f + cam_y * -0.5f);
+        lines.push_back(ray_from + cam_x * -0.5f + cam_y * -0.5f);
 
-        lines.push_back(ray_from + cam_x * -0.5 + cam_y * -0.5);
-        lines.push_back(ray_from + cam_x * -0.5 + cam_y * 0.5);
+        lines.push_back(ray_from + cam_x * -0.5f + cam_y * -0.5f);
+        lines.push_back(ray_from + cam_x * -0.5f + cam_y * 0.5f);
 
-        lines.push_back(ray_from + cam_x * -0.5 + cam_y * 0.5);
-        lines.push_back(ray_from + cam_x * 0.5 + cam_y * 0.5);
+        lines.push_back(ray_from + cam_x * -0.5f + cam_y * 0.5f);
+        lines.push_back(ray_from + cam_x * 0.5f + cam_y * 0.5f);
 
         if (parent_plane.distance_to(cam_pos) < 0) {
             lines.push_back(ray_from);
@@ -1632,7 +1633,7 @@ void Position3DSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
 
 SkeletonSpatialGizmoPlugin::SkeletonSpatialGizmoPlugin() {
 
-    Color gizmo_color = EDITOR_DEF("editors/3d_gizmos/gizmo_colors/skeleton", Color(1, 0.8, 0.4));
+    Color gizmo_color = EDITOR_DEF("editors/3d_gizmos/gizmo_colors/skeleton", Color(1, 0.8f, 0.4f));
     create_material("skeleton_material", gizmo_color);
 }
 
@@ -1696,7 +1697,7 @@ void SkeletonSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
 
             //find closest axis
             int closest = -1;
-            float closest_d = 0.0;
+            float closest_d = 0.0f;
 
             for (int j = 0; j < 3; j++) {
                 float dp = Math::abs(grests[parent].basis[j].normalized().dot(d));
@@ -1714,11 +1715,11 @@ void SkeletonSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
                 surface_tool->add_bones(bones);
                 surface_tool->add_weights(weights);
                 surface_tool->add_color(rootcolor);
-                surface_tool->add_vertex(v0 - grests[parent].basis[j].normalized() * dist * 0.05);
+                surface_tool->add_vertex(v0 - grests[parent].basis[j].normalized() * dist * 0.05f);
                 surface_tool->add_bones(bones);
                 surface_tool->add_weights(weights);
                 surface_tool->add_color(rootcolor);
-                surface_tool->add_vertex(v0 + grests[parent].basis[j].normalized() * dist * 0.05);
+                surface_tool->add_vertex(v0 + grests[parent].basis[j].normalized() * dist * 0.05f);
 
                 if (j == closest)
                     continue;
@@ -1735,8 +1736,8 @@ void SkeletonSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
 
                     if (k == 1)
                         axis = -axis;
-                    Vector3 point = v0 + d * dist * 0.2;
-                    point += axis * dist * 0.1;
+                    Vector3 point = v0 + d * dist * 0.2f;
+                    point += axis * dist * 0.1f;
 
                     bones.write[0] = parent;
                     surface_tool->add_bones(bones);
@@ -1840,7 +1841,7 @@ void SkeletonSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
 ////
 
 PhysicalBoneSpatialGizmoPlugin::PhysicalBoneSpatialGizmoPlugin() {
-    create_material("joint_material", EDITOR_DEF("editors/3d_gizmos/gizmo_colors/joint", Color(0.5, 0.8, 1)));
+    create_material("joint_material", EDITOR_DEF("editors/3d_gizmos/gizmo_colors/joint", Color(0.5f, 0.8f, 1)));
 }
 
 bool PhysicalBoneSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
@@ -3790,10 +3791,10 @@ void CollisionShapeSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
 /////
 
 CollisionPolygonSpatialGizmoPlugin::CollisionPolygonSpatialGizmoPlugin() {
-    const Color gizmo_color = EDITOR_DEF("editors/3d_gizmos/gizmo_colors/shape", Color(0.5, 0.7, 1));
+    const Color gizmo_color = EDITOR_DEF("editors/3d_gizmos/gizmo_colors/shape", Color(0.5f, 0.7f, 1));
     create_material("shape_material", gizmo_color);
     const float gizmo_value = gizmo_color.get_v();
-    const Color gizmo_color_disabled = Color(gizmo_value, gizmo_value, gizmo_value, 0.65);
+    const Color gizmo_color_disabled = Color(gizmo_value, gizmo_value, gizmo_value, 0.65f);
     create_material("shape_material_disabled", gizmo_color_disabled);
 }
 
@@ -3844,7 +3845,7 @@ NavigationMeshSpatialGizmoPlugin::NavigationMeshSpatialGizmoPlugin() {
     create_material("navigation_edge_material", EDITOR_DEF("editors/3d_gizmos/gizmo_colors/navigation_edge", Color(0.5, 1, 1)));
     create_material("navigation_edge_material_disabled", EDITOR_DEF("editors/3d_gizmos/gizmo_colors/navigation_edge_disabled", Color(0.7f, 0.7f, 0.7f)));
     create_material("navigation_solid_material", EDITOR_DEF("editors/3d_gizmos/gizmo_colors/navigation_solid", Color(0.5, 1, 1, 0.4)));
-    create_material("navigation_solid_material_disabled", EDITOR_DEF("editors/3d_gizmos/gizmo_colors/navigation_solid_disabled", Color(0.7, 0.7, 0.7, 0.4)));
+    create_material("navigation_solid_material_disabled", EDITOR_DEF("editors/3d_gizmos/gizmo_colors/navigation_solid_disabled", Color(0.7f, 0.7f, 0.7f, 0.4f)));
 }
 
 bool NavigationMeshSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {

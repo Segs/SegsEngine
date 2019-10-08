@@ -38,6 +38,10 @@
 class VisualScriptInstance;
 class VisualScriptNodeInstance;
 class VisualScript;
+namespace std {
+class recursive_mutex;
+}
+using Mutex = std::recursive_mutex;
 
 class VisualScriptNode : public Resource {
 	GDCLASS(VisualScriptNode,Resource)

@@ -28,10 +28,10 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef ANIMATION_GRAPH_PLAYER_H
-#define ANIMATION_GRAPH_PLAYER_H
+#pragma once
 
-#include "animation_player.h"
+#include "scene/animation/animation_player.h"
+#include "core/hash_map.h"
 #include "scene/3d/skeleton.h"
 #include "scene/3d/spatial.h"
 #include "scene/resources/animation.h"
@@ -340,6 +340,3 @@ public:
 	AnimationTree();
 	~AnimationTree() override;
 };
-
-
-#endif // ANIMATION_GRAPH_PLAYER_H

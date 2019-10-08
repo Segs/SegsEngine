@@ -36,6 +36,7 @@
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
 #include "editor/editor_settings.h"
+#include "scene/main/scene_tree.h"
 #include "scene/3d/camera.h"
 #include "spatial_editor_plugin.h"
 

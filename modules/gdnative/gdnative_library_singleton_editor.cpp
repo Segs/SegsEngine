@@ -32,6 +32,7 @@
 #include "gdnative_library_singleton_editor.h"
 #include "gdnative.h"
 #include "core/method_bind.h"
+#include "core/project_settings.h"
 
 #include "editor/editor_node.h"
 IMPL_GDCLASS(GDNativeLibrarySingletonEditor)

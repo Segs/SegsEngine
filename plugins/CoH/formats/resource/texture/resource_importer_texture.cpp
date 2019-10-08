@@ -33,6 +33,7 @@
 #include "core/io/config_file.h"
 #include "core/io/image_loader.h"
 #include "core/io/resource_importer.h"
+#include "core/os/mutex.h"
 #include "core/project_settings.h"
 #include "editor/service_interfaces/EditorServiceInterface.h"
 #include "scene/resources/texture.h"
@@ -292,7 +293,7 @@ ResourceImporterCoHTexture *ResourceImporterCoHTexture::singleton = nullptr;
 ResourceImporterCoHTexture::ResourceImporterCoHTexture() {
 
     singleton = this;
-    mutex = Mutex::create();
+    mutex = memnew(Mutex);
 }
 
 ResourceImporterCoHTexture::~ResourceImporterCoHTexture() {

@@ -37,7 +37,7 @@ using ThreadCreateCallback = void (*)(void *);
 
 class String;
 
-class Thread {
+class GODOT_EXPORT Thread {
 public:
     enum Priority {
 

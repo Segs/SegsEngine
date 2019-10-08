@@ -38,6 +38,7 @@
 #include "scene/2d/sprite.h"
 #include "editor/editor_scale.h"
 #include "editor/editor_file_system.h"
+#include "scene/main/scene_tree.h"
 #include "scene/resources/style_box.h"
 
 IMPL_GDCLASS(TileSetEditor)

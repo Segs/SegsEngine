@@ -33,7 +33,6 @@
 #include "core/math/aabb.h"
 #include "core/math/basis.h"
 #include "core/math/plane.h"
-#include "core/pool_vector.h"
 
 class GODOT_EXPORT Transform {
 public:

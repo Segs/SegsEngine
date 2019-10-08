@@ -30,6 +30,8 @@
 
 #pragma once
 
+#include "core/list.h"
+#include "core/map.h"
 #include "core/os/dir_access.h"
 #include "core/resource.h"
 #include "core/ustring.h"

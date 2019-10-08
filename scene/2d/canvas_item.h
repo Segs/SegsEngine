@@ -31,16 +31,17 @@
 #pragma once
 
 #include "scene/main/node.h"
-#include "scene/main/scene_tree.h"
+#include "scene/main/scene_tree_notifications.h"
 #include "scene/resources/material.h"
 #include "scene/resources/multimesh.h"
 #include "scene/resources/shader.h"
 #include "scene/resources/texture.h"
+#include "core/list.h"
 
 class CanvasLayer;
 class Viewport;
 class Font;
-
+class World2D;
 class StyleBox;
 
 class CanvasItemMaterial : public Material {
@@ -235,7 +236,7 @@ protected:
 
 public:
 	enum {
-		NOTIFICATION_TRANSFORM_CHANGED = SceneTree::NOTIFICATION_TRANSFORM_CHANGED, //unique
+		NOTIFICATION_TRANSFORM_CHANGED = SceneTreeNotifications::NOTIFICATION_TRANSFORM_CHANGED, //unique
 		NOTIFICATION_DRAW = 30,
 		NOTIFICATION_VISIBILITY_CHANGED = 31,
 		NOTIFICATION_ENTER_CANVAS = 32,

@@ -37,6 +37,7 @@
 #include "editor_feature_profile.h"
 #include "scene/resources/packed_scene.h"
 #include "core/method_bind.h"
+#include "scene/main/scene_tree.h"
 #include "scene/resources/style_box.h"
 
 IMPL_GDCLASS(EditorProperty)

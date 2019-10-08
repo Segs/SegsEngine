@@ -31,6 +31,7 @@
 #pragma once
 
 #include "core/resource.h"
+#include "core/pool_vector.h"
 
 // y(x) curve
 class GODOT_EXPORT Curve : public Resource {

@@ -37,6 +37,7 @@
 #include "core/print_string.h"
 #include "core/translation.h"
 #include "label.h"
+#include "scene/main/scene_tree.h"
 #include "scene/resources/style_box.h"
 #include "scene/resources/font.h"
 #include "scene/main/timer.h"

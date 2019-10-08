@@ -34,6 +34,7 @@
 #include "scene/3d/collision_shape.h"
 #include "scene/3d/physics_body.h"
 #include "scene/3d/physics_joint.h"
+#include "scene/main/scene_tree.h"
 #include "scene/resources/capsule_shape.h"
 #include "scene/resources/sphere_shape.h"
 #include "spatial_editor_plugin.h"

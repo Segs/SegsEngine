@@ -32,6 +32,7 @@
 
 #include "scene/3d/spatial.h"
 #include "scene/resources/shape.h"
+#include "core/map.h"
 
 class CollisionObject : public Spatial {
 

@@ -33,6 +33,7 @@
 #include "core/io/resource_loader.h"
 #include "core/os/input_event.h"
 #include "core/os/keyboard.h"
+#include "core/pool_vector.h"
 #include "core/ustring.h"
 #include "core/class_db.h"
 #include "core/property_info.h"

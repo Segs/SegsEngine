@@ -58,6 +58,7 @@
 #include "core/os/file_access.h"
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
+#include "core/os/mutex.h"
 #include "core/os/os.h"
 #include "core/print_string.h"
 #include "core/project_settings.h"
@@ -149,11 +150,12 @@
 #include "editor/plugins/tile_set_editor_plugin.h"
 #include "editor/plugins/version_control_editor_plugin.h"
 #include "editor/plugins/visual_shader_editor_plugin.h"
-#include "editor/pvrtc_compress.h"
 #include "editor/quick_open.h"
 #include "editor/register_exporters.h"
 #include "editor/script_editor_debugger.h"
 #include "scene/gui/tabs.h"
+#include "scene/main/scene_tree.h"
+
 #include <cstdio>
 
 EditorNode *EditorNode::singleton = nullptr;
@@ -5683,7 +5685,7 @@ int EditorNode::execute_and_show_output(const String &p_title, const String &p_p
     ExecuteThreadArgs eta;
     eta.path = p_path;
     eta.args = p_arguments;
-    eta.execute_output_mutex = Mutex::create();
+    eta.execute_output_mutex = memnew(Mutex);
     eta.exitcode = 255;
     eta.done = false;
 

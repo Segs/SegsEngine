@@ -35,6 +35,7 @@
 #include "core/method_bind.h"
 #include "core/script_language.h"
 #include "core/os/input_event.h"
+#include "scene/main/scene_tree.h"
 
 IMPL_GDCLASS(CollisionObject)
 

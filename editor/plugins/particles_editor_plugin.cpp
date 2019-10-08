@@ -34,6 +34,7 @@
 #include "core/io/resource_loader.h"
 #include "editor/plugins/spatial_editor_plugin.h"
 #include "scene/3d/cpu_particles.h"
+#include "scene/main/scene_tree.h"
 #include "scene/resources/particles_material.h"
 #include "editor/scene_tree_editor.h"
 

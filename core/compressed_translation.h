@@ -31,6 +31,7 @@
 #pragma once
 
 #include "core/translation.h"
+#include "core/pool_vector.h"
 
 class GODOT_EXPORT PHashTranslation : public Translation {
 

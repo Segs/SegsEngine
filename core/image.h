@@ -37,7 +37,6 @@
 #include "core/pool_vector.h"
 #include "core/resource.h"
 #include "core/plugin_interfaces/load_params.h"
-#include "EASTL/array.h"
 
 /**
  *	@author Juan Linietsky <reduzio@gmail.com>
@@ -81,7 +80,6 @@ public:
         /* INTERPOLATE GAUSS */
     };
     //some functions provided by something else
-    static eastl::array<ImageCodecInterface *,COMPRESS_MAX> s_codecs;
     static Error compress_image(Image *,CompressParams p);
     static Error decompress_image(Image *,CompressParams p);
 

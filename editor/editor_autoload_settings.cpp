@@ -37,6 +37,7 @@
 #include "editor_node.h"
 #include "editor_scale.h"
 #include "scene/main/viewport.h"
+#include "scene/main/scene_tree.h"
 #include "scene/resources/packed_scene.h"
 
 #define PREVIEW_LIST_MAX_SIZE 10

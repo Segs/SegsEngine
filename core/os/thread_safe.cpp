@@ -33,17 +33,3 @@
 #include "core/error_macros.h"
 #include "core/os/memory.h"
 
-ThreadSafe::ThreadSafe() {
-
-	mutex = Mutex::create();
-	if (!mutex) {
-
-		WARN_PRINT("THREAD_SAFE defined, but no default mutex type");
-	}
-}
-
-ThreadSafe::~ThreadSafe() {
-
-	if (mutex)
-		memdelete(mutex);
-}

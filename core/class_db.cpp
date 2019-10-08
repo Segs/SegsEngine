@@ -36,9 +36,11 @@
 #include "core/method_bind_interface.h"
 #include "core/method_info.h"
 #include "core/object.h"
+#include "core/os/rw_lock.h"
 #include "core/version.h"
 
 #include "EASTL/sort.h"
+
 
 #define OBJTYPE_RLOCK RWLockRead _rw_lockr_(lock);
 #define OBJTYPE_WLOCK RWLockWrite _rw_lockw_(lock);

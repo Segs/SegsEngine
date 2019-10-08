@@ -28,10 +28,10 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef TWEEN_H
-#define TWEEN_H
+#pragma once
 
 #include "scene/main/node.h"
+#include "core/list.h"
 
 class Tween : public Node {
 
@@ -191,6 +191,3 @@ public:
     Tween();
     ~Tween() override;
 };
-
-
-#endif

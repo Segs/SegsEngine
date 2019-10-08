@@ -34,6 +34,7 @@
 #include "core/typedefs.h"
 #include "core/variant.h"
 #include "core/ustring.h"
+#include "core/pool_vector.h"
 #include "core/vector.h"
 #include "core/rid.h"
 

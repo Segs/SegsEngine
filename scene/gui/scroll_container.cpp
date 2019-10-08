@@ -34,6 +34,7 @@
 #include "core/os/input_event.h"
 #include "core/os/os.h"
 #include "scene/resources/style_box.h"
+#include "core/project_settings.h"
 
 IMPL_GDCLASS(ScrollContainer)
 

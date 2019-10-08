@@ -40,6 +40,10 @@ class Thread;
 class FileAccessNetwork;
 class Semaphore;
 class StreamPeerTCP;
+namespace std {
+class recursive_mutex;
+}
+using Mutex = std::recursive_mutex;
 
 class FileAccessNetworkClient {
 

@@ -35,6 +35,7 @@
 #include "core/object_db.h"
 #include "core/method_bind.h"
 #include "physics_body_2d.h"
+#include "scene/main/scene_tree.h"
 #include "servers/physics_2d_server.h"
 
 IMPL_GDCLASS(RayCast2D)

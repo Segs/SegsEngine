@@ -42,6 +42,7 @@
 #include "core/os/dir_access.h"
 #include "core/os/file_access.h"
 #include "core/os/keyboard.h"
+#include "core/os/mutex.h"
 #include "core/os/os.h"
 #include "core/project_settings.h"
 #include "core/version.h"
@@ -1607,7 +1608,7 @@ void EditorSettings::_bind_methods() {
 }
 
 EditorSettings::EditorSettings() {
-
+    __thread__safe__.reset(new Mutex);
     last_order = 0;
     optimize_save = true;
     save_changed_setting = true;

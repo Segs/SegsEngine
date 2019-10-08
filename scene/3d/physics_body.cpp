@@ -38,6 +38,7 @@
 #include "core/object_db.h"
 #include "core/rid.h"
 #include "scene/scene_string_names.h"
+#include "core/project_settings.h"
 
 #ifdef TOOLS_ENABLED
 #include "editor/plugins/spatial_editor_plugin.h"

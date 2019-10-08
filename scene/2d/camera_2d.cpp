@@ -35,6 +35,7 @@
 #include "core/method_bind.h"
 #include "scene/scene_string_names.h"
 #include "servers/visual_server.h"
+#include "scene/main/scene_tree.h"
 
 IMPL_GDCLASS(Camera2D)
 VARIANT_ENUM_CAST(Camera2D::AnchorMode);

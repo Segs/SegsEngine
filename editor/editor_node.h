@@ -35,6 +35,7 @@
 #include "editor/inspector_dock.h"
 #include "editor/scene_tree_dock.h"
 #include "editor/editor_data.h"
+#include "core/print_string.h"
 
 using EditorNodeInitCallback = void (*)();
 using EditorPluginInitializeCallback = void (*)();

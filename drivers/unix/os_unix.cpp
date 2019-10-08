@@ -37,7 +37,6 @@
 #include "core/script_language.h"
 #include "drivers/unix/dir_access_unix.h"
 #include "drivers/unix/file_access_unix.h"
-#include "drivers/unix/mutex_posix.h"
 #include "drivers/unix/net_socket_posix.h"
 #include "drivers/unix/rw_lock_posix.h"
 #include "drivers/unix/semaphore_posix.h"
@@ -125,12 +124,10 @@ void OS_Unix::initialize_core() {
 #ifdef NO_THREADS
     ThreadDummy::make_default();
     SemaphoreDummy::make_default();
-    MutexDummy::make_default();
     RWLockDummy::make_default();
 #else
     ThreadPosix::make_default();
     SemaphorePosix::make_default();
-    MutexPosix::make_default();
     RWLockPosix::make_default();
 #endif
     FileAccess::make_default<FileAccessUnix>(FileAccess::ACCESS_RESOURCES);

@@ -30,9 +30,10 @@
 
 #include "text_file.h"
 
-#include "core/os/file_access.h"
-#include "core/property_info.h"
 #include "core/class_db.h"
+#include "core/os/file_access.h"
+#include "core/pool_vector.h"
+#include "core/property_info.h"
 
 IMPL_GDCLASS(TextFile)
 

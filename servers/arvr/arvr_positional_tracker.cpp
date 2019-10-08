@@ -30,6 +30,7 @@
 
 #include "arvr_positional_tracker.h"
 #include "core/os/input.h"
+#include "core/os/mutex.h"
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(ARVRPositionalTracker)
@@ -188,13 +189,13 @@ void ARVRPositionalTracker::set_hand(const ARVRPositionalTracker::TrackerHand p_
         if (hand == ARVRPositionalTracker::TRACKER_LEFT_HAND) {
             if (!arvr_server->is_tracker_id_in_use_for_type(type, 1)) {
                 tracker_id = 1;
-            };
+            }
         } else if (hand == ARVRPositionalTracker::TRACKER_RIGHT_HAND) {
             if (!arvr_server->is_tracker_id_in_use_for_type(type, 2)) {
                 tracker_id = 2;
-            };
-        };
-    };
+            }
+        }
+    }
 };
 
 Transform ARVRPositionalTracker::get_transform(bool p_adjust_by_reference_frame) const {
@@ -205,10 +206,10 @@ Transform ARVRPositionalTracker::get_transform(bool p_adjust_by_reference_frame)
 
     if (p_adjust_by_reference_frame) {
         ARVRServer *arvr_server = ARVRServer::get_singleton();
-        ERR_FAIL_NULL_V(arvr_server, new_transform);
+        ERR_FAIL_NULL_V(arvr_server, new_transform)
 
         new_transform = arvr_server->get_reference_frame() * new_transform;
-    };
+    }
 
     return new_transform;
 };
@@ -218,14 +219,15 @@ real_t ARVRPositionalTracker::get_rumble() const {
 };
 
 void ARVRPositionalTracker::set_rumble(real_t p_rumble) {
-    if (p_rumble > 0.0) {
+    if (p_rumble > 0.0f) {
         rumble = p_rumble;
     } else {
         rumble = 0.0;
-    };
+    }
 };
 
 ARVRPositionalTracker::ARVRPositionalTracker() {
+    __thread__safe__.reset(new Mutex);
     type = ARVRServer::TRACKER_UNKNOWN;
     name = "Unknown";
     joy_id = -1;

@@ -30,10 +30,7 @@
 
 #pragma once
 
-#include "core/map.h"
-#include "core/node_path.h"
 #include "core/object.h"
-#include "core/hash_map.h"
 #include "core/os/main_loop.h"
 
 class Viewport;
@@ -42,6 +39,33 @@ class MultiplayerAPI;
 class SceneTree;
 class Resource;
 struct SceneTreeGroup;
+class wrap_allocator;
+class NodePath;
+template <class T, class A>
+class List;
+namespace eastl {
+template <class T, class A>
+class list;
+template <typename Key, typename T, typename Compare, typename Allocator>
+class map;
+}
+
+template <class T>
+using DefList = class List<T, DefaultAllocator>;
+template<class T>
+using ListPOD = eastl::list<T,wrap_allocator>;
+
+template <class T>
+struct Comparator;
+template <class K,class V>
+using DefMap = eastl::map<K,V,Comparator<K>,wrap_allocator>;
+
+template <class TKey, class TData, class Hasher,
+        class Comparator, uint8_t MIN_HASH_TABLE_POWER, uint8_t RELATIONSHIP>
+class HashMap;
+template <class TKey, class TData, class Hasher = Hasher<TKey>,
+        class Comparator = HashMapComparatorDefault<TKey> >
+using BaseHashMap = HashMap<TKey,TData,Hasher,Comparator,3,8>;
 
 enum MultiplayerAPI_RPCMode : int8_t;
 
@@ -79,7 +103,10 @@ public:
 
     struct ComparatorWithPriority {
 
-        bool operator()(const Node *p_a, const Node *p_b) const { return p_b->data.process_priority == p_a->data.process_priority ? p_b->is_greater_than(p_a) : p_b->data.process_priority > p_a->data.process_priority; }
+        bool operator()(const Node *p_a, const Node *p_b) const {
+            return p_b->process_priority == p_a->process_priority ? p_b->is_greater_than(p_a) :
+                                                                    p_b->process_priority > p_a->process_priority;
+        }
     };
 
     static int orphan_node_count;
@@ -93,64 +120,13 @@ private:
     };
 
     int blocked; // safeguard that throws an error when attempting to modify the tree in a harmful way while being traversed.
-
-    struct Data {
-
-        String *filename=nullptr;
-        Ref<SceneState> instance_state;
-        Ref<SceneState> inherited_state;
-
-        HashMap<NodePath, int> editable_instances;
-
-        Node *parent;
-        Node *owner;
-        Vector<Node *> children; // list of children
-        int pos;
-        int depth;
-        StringName name;
-        SceneTree *tree;
-        bool inside_tree;
-        bool ready_notified; //this is a small hack, so if a node is added during _ready() to the tree, it correctly gets the _ready() notification
-        bool ready_first;
-#ifdef TOOLS_ENABLED
-        NodePath import_path; //path used when imported, used by scene editors to keep tracking
-#endif
-
-        Viewport *viewport;
-
-        Map<StringName, GroupData> grouped;
-        List<Node *>::Element *OW; // owned element
-        List<Node *> owned;
-
-        PauseMode pause_mode;
-        Node *pause_owner;
-
-        int network_master;
-        Map<StringName, MultiplayerAPI_RPCMode> rpc_methods;
-        Map<StringName, MultiplayerAPI_RPCMode> rpc_properties;
-
-        // variables used to properly sort the node when processing, ignored otherwise
-        //should move all the stuff below to bits
-        bool physics_process;
-        bool idle_process;
-        int process_priority;
-
-        bool physics_process_internal;
-        bool idle_process_internal;
-
-        bool input;
-        bool unhandled_input;
-        bool unhandled_key_input;
-
-        bool parent_owned;
-        bool in_constructor;
-        bool use_placeholder;
-
-        bool display_folded;
-
-        mutable NodePath *path_cache;
-
-    } data;
+    int process_priority;
+    SceneTree *tree;
+    Viewport *viewport;
+    bool inside_tree;
+    bool parent_owned;
+    struct PrivData;
+    PrivData *data;
 
     enum NameCasing {
         NAME_CASING_PASCAL_CASE,
@@ -182,8 +158,8 @@ private:
     Array _get_node_and_resource(const NodePath &p_path);
 
     void _duplicate_signals(const Node *p_original, Node *p_copy) const;
-    void _duplicate_and_reown(Node *p_new_parent, const Map<Node *, Node *> &p_reown_map) const;
-    Node *_duplicate(int p_flags, Map<const Node *, Node *> *r_duplimap = nullptr) const;
+    void _duplicate_and_reown(Node *p_new_parent, const DefMap<Node *, Node *> &p_reown_map) const;
+    Node *_duplicate(int p_flags, DefMap<const Node *, Node *> *r_duplimap = nullptr) const;
 
     Array _get_children() const;
     Array _get_groups() const;
@@ -286,11 +262,11 @@ public:
     Node *find_parent(const String &p_mask) const;
 
     _FORCE_INLINE_ SceneTree *get_tree() const {
-        ERR_FAIL_COND_V(!data.tree, nullptr)
-        return data.tree;
+        ERR_FAIL_COND_V(!tree, nullptr)
+        return tree;
     }
 
-    _FORCE_INLINE_ bool is_inside_tree() const { return data.inside_tree; }
+    _FORCE_INLINE_ bool is_inside_tree() const { return inside_tree; }
 
     bool is_a_parent_of(const Node *p_node) const;
     bool is_greater_than(const Node *p_node) const;
@@ -309,7 +285,7 @@ public:
         bool persistent;
     };
 
-    void get_groups(List<GroupInfo> *p_groups) const;
+    void get_groups(DefList<GroupInfo> *p_groups) const;
     int get_persistent_group_count() const;
 
     void move_child(Node *p_child, int p_pos);
@@ -317,7 +293,7 @@ public:
 
     void set_owner(Node *p_owner);
     Node *get_owner() const;
-    void get_owned_by(Node *p_by, List<Node *> *p_owned);
+    void get_owned_by(Node *p_by, DefList<Node *> *p_owned);
 
     void remove_and_skip();
     int get_index() const;
@@ -333,8 +309,8 @@ public:
 
     void set_editable_instance(Node *p_node, bool p_editable);
     bool is_editable_instance(const Node *p_node) const;
-    void set_editable_instances(const HashMap<NodePath, int> &p_editable_instances);
-    HashMap<NodePath, int> get_editable_instances() const;
+    void set_editable_instances(const BaseHashMap<NodePath, int> &p_editable_instances);
+    BaseHashMap<NodePath, int> get_editable_instances() const;
 
     /* NOTIFICATIONS */
 
@@ -371,9 +347,9 @@ public:
     int get_position_in_parent() const;
 
     Node *duplicate(int p_flags = DUPLICATE_GROUPS | DUPLICATE_SIGNALS | DUPLICATE_SCRIPTS) const;
-    Node *duplicate_and_reown(const Map<Node *, Node *> &p_reown_map) const;
+    Node *duplicate_and_reown(const DefMap<Node *, Node *> &p_reown_map) const;
 #ifdef TOOLS_ENABLED
-    Node *duplicate_from_editor(Map<const Node *, Node *> &r_duplimap) const;
+    Node *duplicate_from_editor(DefMap<const Node *, Node *> &r_duplimap) const;
 #endif
 
     // used by editors, to save what has changed only
@@ -409,7 +385,7 @@ public:
     static void set_human_readable_collision_renaming(bool p_enabled);
     static void init_node_hrcr();
 
-    void force_parent_owned() { data.parent_owned = true; } //hack to avoid duplicate nodes
+    void force_parent_owned() { parent_owned = true; } //hack to avoid duplicate nodes
 
     void set_import_path(const NodePath &p_import_path); //path used when imported, used by scene editors to keep tracking
     NodePath get_import_path() const;
@@ -420,7 +396,7 @@ public:
 
     void clear_internal_tree_resource_paths();
 
-    _FORCE_INLINE_ Viewport *get_viewport() const { return data.viewport; }
+    _FORCE_INLINE_ Viewport *get_viewport() const { return viewport; }
 
     virtual String get_configuration_warning() const;
 

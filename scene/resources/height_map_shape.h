@@ -28,10 +28,10 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef HEIGHT_MAP_SHAPE_H
-#define HEIGHT_MAP_SHAPE_H
+#pragma once
 
 #include "scene/resources/shape.h"
+#include "core/pool_vector.h"
 
 class HeightMapShape : public Shape {
 	GDCLASS(HeightMapShape,Shape)
@@ -58,5 +58,3 @@ public:
 
 	HeightMapShape();
 };
-
-#endif /* !HEIGHT_MAP_SHAPE_H */

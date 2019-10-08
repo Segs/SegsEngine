@@ -30,6 +30,8 @@
 
 #include "resource_loader.h"
 
+#include "core/os/mutex.h"
+
 #include <utility>
 
 #include "core/io/resource_importer.h"
@@ -1064,7 +1066,7 @@ HashMap<LoadingMapKey, int,Hasher<LoadingMapKey> > ResourceLoader::loading_map;
 void ResourceLoader::initialize() {
 
 #ifndef NO_THREADS
-    loading_map_mutex = Mutex::create();
+    loading_map_mutex = memnew(Mutex);
 #endif
 }
 

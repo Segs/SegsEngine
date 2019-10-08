@@ -30,6 +30,7 @@
 
 #include "variant.h"
 
+#include "core/pool_vector.h"
 #include "core/core_string_names.h"
 #include "core/object.h"
 #include "core/object_db.h"

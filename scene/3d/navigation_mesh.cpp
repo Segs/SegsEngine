@@ -31,6 +31,7 @@
 #include "navigation_mesh.h"
 #include "mesh_instance.h"
 #include "navigation.h"
+#include "scene/main/scene_tree.h"
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(NavigationMesh)

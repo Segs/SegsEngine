@@ -34,6 +34,7 @@
 #include "core/io/image_loader.h"
 #include "import_state.h"
 #include "core/ustring.h"
+#include "core/print_string.h"
 
 #include <assimp/SceneCombiner.h>
 #include <assimp/cexport.h>

@@ -55,6 +55,7 @@
 #include "scene/3d/physics_body.h"
 #include "scene/3d/visual_instance.h"
 #include "scene/gui/viewport_container.h"
+#include "scene/main/scene_tree.h"
 #include "scene/resources/packed_scene.h"
 #include "scene/resources/style_box.h"
 #include "scene/resources/surface_tool.h"

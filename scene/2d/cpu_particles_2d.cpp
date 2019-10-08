@@ -31,6 +31,7 @@
 #include "cpu_particles_2d.h"
 
 #include "core/method_bind.h"
+#include "core/os/mutex.h"
 #include "scene/2d/canvas_item.h"
 #include "scene/2d/particles_2d.h"
 #include "scene/resources/curve_texture.h"
@@ -1470,7 +1471,7 @@ CPUParticles2D::CPUParticles2D() {
     set_color(Color(1, 1, 1, 1));
 
 #ifndef NO_THREADS
-    update_mutex = Mutex::create();
+    update_mutex = memnew(Mutex);
 #endif
 
     _update_mesh_texture();

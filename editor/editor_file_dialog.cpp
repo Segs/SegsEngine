@@ -37,6 +37,7 @@
 #include "core/os/keyboard.h"
 #include "core/os/os.h"
 #include "core/print_string.h"
+#include "core/project_settings.h"
 #include "dependency_editor.h"
 #include "editor_file_system.h"
 #include "editor_resource_preview.h"

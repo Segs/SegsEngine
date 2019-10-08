@@ -34,6 +34,7 @@
 #include "core/io/marshalls.h"
 #include "core/math/math_funcs.h"
 #include "core/object_db.h"
+#include "core/pool_vector.h"
 #include "core/print_string.h"
 #include "core/resource.h"
 #include "core/string_formatter.h"
@@ -115,63 +116,63 @@ const char * Variant::get_type_name(VariantType p_type) {
 
             return "Transform";
 
-        } break;
+        }
 
         // misc types
         case VariantType::COLOR: {
 
             return "Color";
 
-        } break;
+        }
         case VariantType::_RID: {
 
             return "RID";
-        } break;
+        }
         case VariantType::OBJECT: {
 
             return "Object";
-        } break;
+        }
         case VariantType::NODE_PATH: {
 
             return "NodePath";
 
-        } break;
+        }
         case VariantType::DICTIONARY: {
 
             return "Dictionary";
 
-        } break;
+        }
         case VariantType::ARRAY: {
 
             return "Array";
 
-        } break;
+        }
 
         // arrays
         case VariantType::POOL_BYTE_ARRAY: {
 
             return "PoolByteArray";
 
-        } break;
+        }
         case VariantType::POOL_INT_ARRAY: {
 
             return "PoolIntArray";
 
-        } break;
+        }
         case VariantType::POOL_REAL_ARRAY: {
 
             return "PoolRealArray";
 
-        } break;
+        }
         case VariantType::POOL_STRING_ARRAY: {
 
             return "PoolStringArray";
-        } break;
+        }
         case VariantType::POOL_VECTOR2_ARRAY: {
 
             return "PoolVector2Array";
 
-        } break;
+        }
         case VariantType::POOL_VECTOR3_ARRAY: {
 
             return "PoolVector3Array";
@@ -1559,7 +1560,7 @@ String Variant::stringify(List<const void *> &stack) const {
             }
             str += "]";
             return str;
-        } break;
+        }
         case VariantType::POOL_VECTOR3_ARRAY: {
 
             PoolVector<Vector3> vec = operator PoolVector<Vector3>();
@@ -1572,7 +1573,7 @@ String Variant::stringify(List<const void *> &stack) const {
             }
             str += "]";
             return str;
-        } break;
+        }
         case VariantType::POOL_STRING_ARRAY: {
 
             PoolVector<String> vec = operator PoolVector<String>();
@@ -1585,7 +1586,7 @@ String Variant::stringify(List<const void *> &stack) const {
             }
             str += "]";
             return str;
-        } break;
+        }
         case VariantType::POOL_INT_ARRAY: {
 
             PoolVector<int> vec = operator PoolVector<int>();
@@ -1598,7 +1599,7 @@ String Variant::stringify(List<const void *> &stack) const {
             }
             str += "]";
             return str;
-        } break;
+        }
         case VariantType::POOL_REAL_ARRAY: {
 
             PoolVector<real_t> vec = operator PoolVector<real_t>();
@@ -1631,7 +1632,7 @@ String Variant::stringify(List<const void *> &stack) const {
             str += "]";
             return str;
 
-        } break;
+        }
         case VariantType::OBJECT: {
 
             if (_get_obj().obj) {
@@ -1647,7 +1648,7 @@ String Variant::stringify(List<const void *> &stack) const {
             }
             return "[Object:null]";
 
-        } break;
+        }
         default: {
             return "[" + String(get_type_name(type)) + "]";
         }
@@ -2798,22 +2799,22 @@ uint32_t Variant::hash() const {
         case VariantType::OBJECT: {
 
             return hash_djb2_one_64(make_uint64_t(_get_obj().obj));
-        } break;
+        }
         case VariantType::NODE_PATH: {
 
             return reinterpret_cast<const NodePath *>(_data._mem)->hash();
-        } break;
+        }
         case VariantType::DICTIONARY: {
 
             return reinterpret_cast<const Dictionary *>(_data._mem)->hash();
 
-        } break;
+        }
         case VariantType::ARRAY: {
 
             const Array &arr = *reinterpret_cast<const Array *>(_data._mem);
             return arr.hash();
 
-        } break;
+        }
         case VariantType::POOL_BYTE_ARRAY: {
 
             const PoolVector<uint8_t> &arr = *reinterpret_cast<const PoolVector<uint8_t> *>(_data._mem);
@@ -2824,7 +2825,7 @@ uint32_t Variant::hash() const {
             }
             return hash_djb2_one_64(0);
 
-        } break;
+        }
         case VariantType::POOL_INT_ARRAY: {
 
             const PoolVector<int> &arr = *reinterpret_cast<const PoolVector<int> *>(_data._mem);
@@ -2834,8 +2835,7 @@ uint32_t Variant::hash() const {
                 return hash_djb2_buffer((uint8_t *)&r[0], len * sizeof(int));
             }
             return hash_djb2_one_64(0);
-
-        } break;
+        }
         case VariantType::POOL_REAL_ARRAY: {
 
             const PoolVector<real_t> &arr = *reinterpret_cast<const PoolVector<real_t> *>(_data._mem);
@@ -2847,7 +2847,7 @@ uint32_t Variant::hash() const {
             }
             return hash_djb2_one_float(0.0);
 
-        } break;
+        }
         case VariantType::POOL_STRING_ARRAY: {
 
             uint32_t hash = 5831;
@@ -2863,7 +2863,7 @@ uint32_t Variant::hash() const {
             }
 
             return hash;
-        } break;
+        }
         case VariantType::POOL_VECTOR2_ARRAY: {
 
             uint32_t hash = 5831;

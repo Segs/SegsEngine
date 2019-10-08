@@ -33,6 +33,7 @@
 #include "editor/plugins/spatial_editor_plugin.h"
 #include "core/method_bind.h"
 #include "editor/scene_tree_editor.h"
+#include "scene/resources/environment.h"
 
 IMPL_GDCLASS(CPUParticlesEditor)
 IMPL_GDCLASS(CPUParticlesEditorPlugin)

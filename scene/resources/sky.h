@@ -31,7 +31,11 @@
 #pragma once
 
 #include "core/os/thread.h"
-#include "scene/resources/texture.h"
+#include "core/resource.h"
+#include "core/rid.h"
+
+class Texture;
+class Image;
 
 class Sky : public Resource {
 	GDCLASS(Sky,Resource)

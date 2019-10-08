@@ -37,6 +37,8 @@
 #include "scene/3d/navigation_mesh.h"
 #include "shape.h"
 
+class Texture;
+
 class GODOT_EXPORT MeshLibrary : public Resource {
 
     GDCLASS(MeshLibrary,Resource)

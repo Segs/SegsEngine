@@ -106,7 +106,7 @@ CommandQueueMT::CommandQueueMT(bool p_sync) {
 	read_ptr = 0;
 	write_ptr = 0;
 	dealloc_ptr = 0;
-	mutex = Mutex::create();
+    mutex = memnew(Mutex);
 	command_mem = (uint8_t *)memalloc(COMMAND_MEM_SIZE);
 
 	for (int i = 0; i < SYNC_SEMAPHORES; i++) {

@@ -44,7 +44,6 @@
 #include "core/math/transform_2d.h"
 #include "core/math/vector3.h"
 #include "core/node_path.h"
-#include "core/pool_vector.h"
 #include "core/ref_ptr.h"
 
 #include "core/hashfuncs.h"
@@ -59,6 +58,8 @@ class RID;
 using CharType = class QChar;
 struct PropertyInfo;
 struct MethodInfo;
+template <class T>
+class PoolVector;
 
 using PoolByteArray = PoolVector<uint8_t>;
 using PoolIntArray = PoolVector<int>;

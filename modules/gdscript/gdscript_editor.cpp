@@ -40,6 +40,7 @@
 #include "core/os/file_access.h"
 #include "core/print_string.h"
 #include "core/project_settings.h"
+#include "core/pool_vector.h"
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_file_system.h"

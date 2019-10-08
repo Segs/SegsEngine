@@ -40,6 +40,7 @@
 #include "core/object_db.h"
 #include "core/rid.h"
 #include "scene/scene_string_names.h"
+#include "core/project_settings.h"
 
 IMPL_GDCLASS(PhysicsBody2D)
 IMPL_GDCLASS(StaticBody2D)

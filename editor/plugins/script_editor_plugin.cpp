@@ -47,6 +47,7 @@
 #include "editor/plugins/shader_editor_plugin.h"
 #include "editor/script_editor_debugger.h"
 #include "editor_run_script.h"
+#include "scene/main/scene_tree.h"
 #include "scene/main/viewport.h"
 #include "scene/resources/style_box.h"
 #include "script_text_editor.h"

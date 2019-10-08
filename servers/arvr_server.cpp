@@ -32,6 +32,8 @@
 #include "arvr/arvr_interface.h"
 #include "arvr/arvr_positional_tracker.h"
 #include "core/method_bind.h"
+#include "core/os/mutex.h"
+#include "core/print_string.h"
 #include "core/project_settings.h"
 
 IMPL_GDCLASS(ARVRServer)
@@ -327,7 +329,7 @@ void ARVRServer::clear_primary_interface_if(const Ref<ARVRInterface> &p_primary_
     if (primary_interface == p_primary_interface) {
         print_verbose("ARVR: Clearing primary interface");
         primary_interface.unref();
-    };
+    }
 };
 
 uint64_t ARVRServer::get_last_process_usec() {
@@ -354,8 +356,8 @@ void ARVRServer::_process() {
             // ignore, not a valid reference
         } else if (interfaces[i]->is_initialized()) {
             interfaces.write[i]->process();
-        };
-    };
+        }
+    }
 };
 
 void ARVRServer::_mark_commit() {
@@ -367,6 +369,7 @@ void ARVRServer::_mark_commit() {
 };
 
 ARVRServer::ARVRServer() {
+    __thread__safe__.reset(new Mutex);
     singleton = this;
     world_scale = 1.0;
 };
