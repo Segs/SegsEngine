@@ -57,3 +57,18 @@ public:
     ImageFormatSaver(const ImageFormatSaver &) = delete;
     ImageFormatSaver &operator=(const ImageFormatSaver &) = delete;
 };
+
+class ImageCodecInterface {
+    friend class ImageSaver;
+public:
+    virtual Error compress_image(Image *p_image, CompressParams params) = 0;
+    virtual Error decompress_image(Image *p_image) = 0;
+    virtual void fill_modes(PODVector<int> &) const = 0;
+public:
+    virtual ~ImageCodecInterface() = default;
+    ImageCodecInterface() = default;
+
+    // Not copyable.
+    ImageCodecInterface(const ImageCodecInterface &) = delete;
+    ImageCodecInterface &operator=(const ImageCodecInterface &) = delete;
+};

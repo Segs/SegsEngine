@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  image_compress_squish.h                                              */
+/*  image_compress_cvtt.h                                                */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,14 +28,20 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef IMAGE_COMPRESS_SQUISH_H
-#define IMAGE_COMPRESS_SQUISH_H
+#pragma once
 
+#include "core/plugin_interfaces/PluginDeclarations.h"
 #include "core/image.h"
 
-#ifdef TOOLS_ENABLED
-void image_compress_squish(Image *p_image, float p_lossy_quality, Image::CompressSource p_source);
-#endif
-void image_decompress_squish(Image *p_image);
+class ResourceFormatBPTC : public QObject, public ImageCodecInterface {
 
-#endif // IMAGE_COMPRESS_SQUISH_H
+    Q_PLUGIN_METADATA(IID "org.godot.ResourceFormatBPTC")
+    Q_INTERFACES(ImageCodecInterface)
+    Q_OBJECT
+
+    // ImageCompressor interface
+public:
+    Error compress_image(Image * p_image, CompressParams params) override;
+    Error decompress_image(Image * /*p_image*/) override;
+    void fill_modes(PODVector<int> &tgt) const override;
+};

@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  texture_loader_pvr.h                                                 */
+/*  texture_loader_pkm.h                                                 */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,22 +28,27 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef TEXTURE_LOADER_PVR_H
-#define TEXTURE_LOADER_PVR_H
+#pragma once
 
-#include "core/io/resource_loader.h"
-#include "core/io/resource_format_loader.h"
+#include "core/plugin_interfaces/PluginDeclarations.h"
 #include "scene/resources/texture.h"
 
-class ResourceFormatPVR : public ResourceFormatLoader {
+class ResourceFormatPKM : public QObject, public ResourceLoaderInterface , public ImageCodecInterface {
+
+    Q_PLUGIN_METADATA(IID "org.godot.PKMLoader")
+    Q_INTERFACES(ResourceLoaderInterface ImageCodecInterface)
+    Q_OBJECT
 public:
-    RES load(const String &p_path, const String &p_original_path, Error *r_error = nullptr) override;
+    RES load(const String &p_path, const String &p_original_path = "", Error *r_error = nullptr) override;
     void get_recognized_extensions(ListPOD<String> *p_extensions) const override;
     bool handles_type(const String &p_type) const override;
     String get_resource_type(const String &p_path) const override;
 
-    ResourceFormatPVR();
-    ~ResourceFormatPVR() override {}
-};
+    ~ResourceFormatPKM() override {}
 
-#endif // TEXTURE_LOADER_PVR_H
+    // ImageCompressor interface
+public:
+    Error compress_image(Image * p_image, CompressParams params) override;
+    Error decompress_image(Image * /*p_image*/) override;
+    void fill_modes(PODVector<int> &tgt) const override;
+};

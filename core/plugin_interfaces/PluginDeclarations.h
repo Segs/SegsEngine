@@ -13,6 +13,10 @@ Q_DECLARE_INTERFACE(ImageFormatLoader, ImageFormatLoader_iid)
 
 Q_DECLARE_INTERFACE(ImageFormatSaver, ImageFormatSaver_iid)
 
+#define ImageCodecInterface_iid "org.godot.ImageCodec"
+
+Q_DECLARE_INTERFACE(ImageCodecInterface, ImageCodecInterface_iid)
+
 #define ResourceImporterInterface_iid "org.godot.editor.ResourceImporterInterface"
 
 Q_DECLARE_INTERFACE(ResourceImporterInterface, ResourceImporterInterface_iid)

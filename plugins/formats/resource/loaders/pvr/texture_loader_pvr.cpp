@@ -37,206 +37,9 @@
 
 #include <cstring>
 #include <new>
+namespace  {
 
-static void _pvrtc_decompress(Image *p_img);
-
-enum PVRFLags {
-
-    PVR_HAS_MIPMAPS = 0x00000100,
-    PVR_TWIDDLED = 0x00000200,
-    PVR_NORMAL_MAP = 0x00000400,
-    PVR_BORDER = 0x00000800,
-    PVR_CUBE_MAP = 0x00001000,
-    PVR_FALSE_MIPMAPS = 0x00002000,
-    PVR_VOLUME_TEXTURES = 0x00004000,
-    PVR_HAS_ALPHA = 0x00008000,
-    PVR_VFLIP = 0x00010000
-
-};
-
-RES ResourceFormatPVR::load(const String &p_path, const String &p_original_path, Error *r_error) {
-
-    if (r_error)
-        *r_error = ERR_CANT_OPEN;
-
-    Error err;
-    FileAccess *f = FileAccess::open(p_path, FileAccess::READ, &err);
-    if (!f)
-        return RES();
-
-    FileAccessRef faref(f);
-
-    ERR_FAIL_COND_V(err, RES())
-
-    if (r_error)
-        *r_error = ERR_FILE_CORRUPT;
-
-    uint32_t hsize = f->get_32();
-
-    ERR_FAIL_COND_V(hsize != 52, RES())
-    uint32_t height = f->get_32();
-    uint32_t width = f->get_32();
-    uint32_t mipmaps = f->get_32();
-    uint32_t flags = f->get_32();
-    uint32_t surfsize = f->get_32();
-    f->seek(f->get_position() + 20); // bpp, rmask, gmask, bmask, amask
-    uint8_t pvrid[5] = { 0, 0, 0, 0, 0 };
-    f->get_buffer(pvrid, 4);
-    ERR_FAIL_COND_V(String((char *)pvrid) != "PVR!", RES())
-    f->get_32(); // surfcount
-
-    /*
-    print_line("height: "+itos(height));
-    print_line("width: "+itos(width));
-    print_line("mipmaps: "+itos(mipmaps));
-    print_line("flags: "+itos(flags));
-    print_line("surfsize: "+itos(surfsize));
-    print_line("bpp: "+itos(bpp));
-    print_line("rmask: "+itos(rmask));
-    print_line("gmask: "+itos(gmask));
-    print_line("bmask: "+itos(bmask));
-    print_line("amask: "+itos(amask));
-    print_line("surfcount: "+itos(surfcount));
-    */
-
-    PoolVector<uint8_t> data;
-    data.resize(surfsize);
-
-    ERR_FAIL_COND_V(data.size() == 0, RES())
-
-    PoolVector<uint8_t>::Write w = data.write();
-    f->get_buffer(&w[0], surfsize);
-    err = f->get_error();
-    ERR_FAIL_COND_V(err != OK, RES())
-
-    Image::Format format = Image::FORMAT_MAX;
-
-    switch (flags & 0xFF) {
-
-        case 0x18:
-        case 0xC: format = (flags & PVR_HAS_ALPHA) ? Image::FORMAT_PVRTC2A : Image::FORMAT_PVRTC2; break;
-        case 0x19:
-        case 0xD: format = (flags & PVR_HAS_ALPHA) ? Image::FORMAT_PVRTC4A : Image::FORMAT_PVRTC4; break;
-        case 0x16:
-            format = Image::FORMAT_L8;
-            break;
-        case 0x17:
-            format = Image::FORMAT_LA8;
-            break;
-        case 0x20:
-        case 0x80:
-        case 0x81:
-            format = Image::FORMAT_DXT1;
-            break;
-        case 0x21:
-        case 0x22:
-        case 0x82:
-        case 0x83:
-            format = Image::FORMAT_DXT3;
-            break;
-        case 0x23:
-        case 0x24:
-        case 0x84:
-        case 0x85:
-            format = Image::FORMAT_DXT5;
-            break;
-        case 0x4:
-        case 0x15:
-            format = Image::FORMAT_RGB8;
-            break;
-        case 0x5:
-        case 0x12:
-            format = Image::FORMAT_RGBA8;
-            break;
-        case 0x36:
-            format = Image::FORMAT_ETC;
-            break;
-        default:
-            ERR_FAIL_V_MSG(RES(), "Unsupported format in PVR texture: " + itos(flags & 0xFF) + ".");
-    }
-
-    w.release();
-
-    int tex_flags = Texture::FLAG_FILTER | Texture::FLAG_REPEAT;
-
-    if (mipmaps)
-        tex_flags |= Texture::FLAG_MIPMAPS;
-
-    Ref<Image> image(make_ref_counted<Image>(width, height, mipmaps, format, data));
-    ERR_FAIL_COND_V(image->empty(), RES())
-
-    Ref<ImageTexture> texture(make_ref_counted<ImageTexture>());
-    texture->create_from_image(image, tex_flags);
-
-    if (r_error)
-        *r_error = OK;
-
-    return texture;
-}
-
-void ResourceFormatPVR::get_recognized_extensions(ListPOD<String> *p_extensions) const {
-
-    p_extensions->push_back("pvr");
-}
-bool ResourceFormatPVR::handles_type(const String &p_type) const {
-
-    return ClassDB::is_parent_class(p_type, "Texture");
-}
-String ResourceFormatPVR::get_resource_type(const String &p_path) const {
-
-    if (StringUtils::to_lower(PathUtils::get_extension(p_path)) == "pvr")
-        return "Texture";
-    return "";
-}
-
-static void _compress_pvrtc4(Image *p_img) {
-
-    Ref<Image> img = dynamic_ref_cast<Image>(p_img->duplicate());
-
-    bool make_mipmaps = false;
-    if (!img->is_size_po2() || img->get_width() != img->get_height()) {
-        make_mipmaps = img->has_mipmaps();
-        img->resize_to_po2(true);
-    }
-    img->convert(Image::FORMAT_RGBA8);
-    if (!img->has_mipmaps() && make_mipmaps)
-        img->generate_mipmaps();
-
-    bool use_alpha = img->detect_alpha();
-
-    Ref<Image> new_img(make_ref_counted<Image>());
-    new_img->create(img->get_width(), img->get_height(), img->has_mipmaps(), use_alpha ? Image::FORMAT_PVRTC4A : Image::FORMAT_PVRTC4);
-
-    PoolVector<uint8_t> data = new_img->get_data();
-    {
-        PoolVector<uint8_t>::Write wr = data.write();
-        PoolVector<uint8_t>::Read r = img->get_data().read();
-
-        for (int i = 0; i <= new_img->get_mipmap_count(); i++) {
-
-            int ofs, size, w, h;
-            img->get_mipmap_offset_size_and_dimensions(i, ofs, size, w, h);
-            Javelin::RgbaBitmap bm(w, h);
-            for (int j = 0; j < size / 4; j++) {
-                Javelin::ColorRgba<unsigned char> *dp = bm.GetData();
-                /* red and Green colors are swapped.  */
-                new (dp) Javelin::ColorRgba<unsigned char>(r[ofs + 4 * j + 2], r[ofs + 4 * j + 1], r[ofs + 4 * j], r[ofs + 4 * j + 3]);
-            }
-            new_img->get_mipmap_offset_size_and_dimensions(i, ofs, size, w, h);
-            Javelin::PvrTcEncoder::EncodeRgba4Bpp(&wr[ofs], bm);
-        }
-    }
-
-    p_img->create(new_img->get_width(), new_img->get_height(), new_img->has_mipmaps(), new_img->get_format(), data);
-}
-
-ResourceFormatPVR::ResourceFormatPVR() {
-
-    Image::_image_decompress_pvrtc = _pvrtc_decompress;
-    Image::_image_compress_pvrtc4_func = _compress_pvrtc4;
-    Image::_image_compress_pvrtc2_func = _compress_pvrtc4;
-}
-
+static Error _pvrtc_decompress(Image *p_img);
 /////////////////////////////////////////////////////////
 
 //PVRTC decompressor, Based on PVRTC decompressor by IMGTEC.
@@ -641,9 +444,11 @@ static void decompress_pvrtc(PVRTCBlock *p_comp_img, const int p_2bit, const int
     }
 }
 
-static void _pvrtc_decompress(Image *p_img) {
+static Error _pvrtc_decompress(Image *p_img) {
 
-    ERR_FAIL_COND(p_img->get_format() != Image::FORMAT_PVRTC2 && p_img->get_format() != Image::FORMAT_PVRTC2A && p_img->get_format() != Image::FORMAT_PVRTC4 && p_img->get_format() != Image::FORMAT_PVRTC4A)
+    ERR_FAIL_COND_V(p_img->get_format() != Image::FORMAT_PVRTC2 && p_img->get_format() != Image::FORMAT_PVRTC2A &&
+                        p_img->get_format() != Image::FORMAT_PVRTC4 && p_img->get_format() != Image::FORMAT_PVRTC4A,
+        ERR_FILE_UNRECOGNIZED)
 
     bool _2bit = (p_img->get_format() == Image::FORMAT_PVRTC2 || p_img->get_format() == Image::FORMAT_PVRTC2A);
 
@@ -663,4 +468,226 @@ static void _pvrtc_decompress(Image *p_img) {
     p_img->create(p_img->get_width(), p_img->get_height(), false, Image::FORMAT_RGBA8, newdata);
     if (make_mipmaps)
         p_img->generate_mipmaps();
+    return OK;
 }
+
+static void _compress_pvrtc4(Image *p_img) {
+
+    Ref<Image> img = dynamic_ref_cast<Image>(p_img->duplicate());
+
+    bool make_mipmaps = false;
+    if (!img->is_size_po2() || img->get_width() != img->get_height()) {
+        make_mipmaps = img->has_mipmaps();
+        img->resize_to_po2(true);
+    }
+    img->convert(Image::FORMAT_RGBA8);
+    if (!img->has_mipmaps() && make_mipmaps)
+        img->generate_mipmaps();
+
+    bool use_alpha = img->detect_alpha();
+
+    Ref<Image> new_img(make_ref_counted<Image>());
+    new_img->create(img->get_width(), img->get_height(), img->has_mipmaps(), use_alpha ? Image::FORMAT_PVRTC4A : Image::FORMAT_PVRTC4);
+
+    PoolVector<uint8_t> data = new_img->get_data();
+    {
+        PoolVector<uint8_t>::Write wr = data.write();
+        PoolVector<uint8_t>::Read r = img->get_data().read();
+
+        for (int i = 0; i <= new_img->get_mipmap_count(); i++) {
+
+            int ofs, size, w, h;
+            img->get_mipmap_offset_size_and_dimensions(i, ofs, size, w, h);
+            Javelin::RgbaBitmap bm(w, h);
+            for (int j = 0; j < size / 4; j++) {
+                Javelin::ColorRgba<unsigned char> *dp = bm.GetData();
+                /* red and Green colors are swapped.  */
+                new (dp) Javelin::ColorRgba<unsigned char>(r[ofs + 4 * j + 2], r[ofs + 4 * j + 1], r[ofs + 4 * j], r[ofs + 4 * j + 3]);
+            }
+            new_img->get_mipmap_offset_size_and_dimensions(i, ofs, size, w, h);
+            Javelin::PvrTcEncoder::EncodeRgba4Bpp(&wr[ofs], bm);
+        }
+    }
+
+    p_img->create(new_img->get_width(), new_img->get_height(), new_img->has_mipmaps(), new_img->get_format(), data);
+}
+
+
+} //end of anonymous namespace
+enum PVRFLags {
+
+    PVR_HAS_MIPMAPS = 0x00000100,
+    PVR_TWIDDLED = 0x00000200,
+    PVR_NORMAL_MAP = 0x00000400,
+    PVR_BORDER = 0x00000800,
+    PVR_CUBE_MAP = 0x00001000,
+    PVR_FALSE_MIPMAPS = 0x00002000,
+    PVR_VOLUME_TEXTURES = 0x00004000,
+    PVR_HAS_ALPHA = 0x00008000,
+    PVR_VFLIP = 0x00010000
+
+};
+
+RES ResourceFormatPVR::load(const String &p_path, const String &p_original_path, Error *r_error) {
+
+    if (r_error)
+        *r_error = ERR_CANT_OPEN;
+
+    Error err;
+    FileAccess *f = FileAccess::open(p_path, FileAccess::READ, &err);
+    if (!f)
+        return RES();
+
+    FileAccessRef faref(f);
+
+    ERR_FAIL_COND_V(err, RES())
+
+    if (r_error)
+        *r_error = ERR_FILE_CORRUPT;
+
+    uint32_t hsize = f->get_32();
+
+    ERR_FAIL_COND_V(hsize != 52, RES())
+    uint32_t height = f->get_32();
+    uint32_t width = f->get_32();
+    uint32_t mipmaps = f->get_32();
+    uint32_t flags = f->get_32();
+    uint32_t surfsize = f->get_32();
+    f->seek(f->get_position() + 20); // bpp, rmask, gmask, bmask, amask
+    uint8_t pvrid[5] = { 0, 0, 0, 0, 0 };
+    f->get_buffer(pvrid, 4);
+    ERR_FAIL_COND_V(String((char *)pvrid) != "PVR!", RES())
+    f->get_32(); // surfcount
+
+    /*
+    print_line("height: "+itos(height));
+    print_line("width: "+itos(width));
+    print_line("mipmaps: "+itos(mipmaps));
+    print_line("flags: "+itos(flags));
+    print_line("surfsize: "+itos(surfsize));
+    print_line("bpp: "+itos(bpp));
+    print_line("rmask: "+itos(rmask));
+    print_line("gmask: "+itos(gmask));
+    print_line("bmask: "+itos(bmask));
+    print_line("amask: "+itos(amask));
+    print_line("surfcount: "+itos(surfcount));
+    */
+
+    PoolVector<uint8_t> data;
+    data.resize(surfsize);
+
+    ERR_FAIL_COND_V(data.size() == 0, RES())
+
+    PoolVector<uint8_t>::Write w = data.write();
+    f->get_buffer(&w[0], surfsize);
+    err = f->get_error();
+    ERR_FAIL_COND_V(err != OK, RES())
+
+    Image::Format format = Image::FORMAT_MAX;
+
+    switch (flags & 0xFF) {
+
+        case 0x18:
+        case 0xC: format = (flags & PVR_HAS_ALPHA) ? Image::FORMAT_PVRTC2A : Image::FORMAT_PVRTC2; break;
+        case 0x19:
+        case 0xD: format = (flags & PVR_HAS_ALPHA) ? Image::FORMAT_PVRTC4A : Image::FORMAT_PVRTC4; break;
+        case 0x16:
+            format = Image::FORMAT_L8;
+            break;
+        case 0x17:
+            format = Image::FORMAT_LA8;
+            break;
+        case 0x20:
+        case 0x80:
+        case 0x81:
+            format = Image::FORMAT_DXT1;
+            break;
+        case 0x21:
+        case 0x22:
+        case 0x82:
+        case 0x83:
+            format = Image::FORMAT_DXT3;
+            break;
+        case 0x23:
+        case 0x24:
+        case 0x84:
+        case 0x85:
+            format = Image::FORMAT_DXT5;
+            break;
+        case 0x4:
+        case 0x15:
+            format = Image::FORMAT_RGB8;
+            break;
+        case 0x5:
+        case 0x12:
+            format = Image::FORMAT_RGBA8;
+            break;
+        case 0x36:
+            format = Image::FORMAT_ETC;
+            break;
+        default:
+            ERR_FAIL_V_MSG(RES(), "Unsupported format in PVR texture: " + itos(flags & 0xFF) + ".");
+    }
+
+    w.release();
+
+    int tex_flags = Texture::FLAG_FILTER | Texture::FLAG_REPEAT;
+
+    if (mipmaps)
+        tex_flags |= Texture::FLAG_MIPMAPS;
+
+    Ref<Image> image(make_ref_counted<Image>(width, height, mipmaps, format, data));
+    ERR_FAIL_COND_V(image->empty(), RES())
+
+    Ref<ImageTexture> texture(make_ref_counted<ImageTexture>());
+    texture->create_from_image(image, tex_flags);
+
+    if (r_error)
+        *r_error = OK;
+
+    return texture;
+}
+
+void ResourceFormatPVR::get_recognized_extensions(ListPOD<String> *p_extensions) const {
+
+    p_extensions->push_back("pvr");
+}
+bool ResourceFormatPVR::handles_type(const String &p_type) const {
+
+    return ClassDB::is_parent_class(p_type, "Texture");
+}
+String ResourceFormatPVR::get_resource_type(const String &p_path) const {
+
+    if (StringUtils::to_lower(PathUtils::get_extension(p_path)) == "pvr")
+        return "Texture";
+    return "";
+}
+
+
+ResourceFormatPVR::ResourceFormatPVR() {
+}
+
+Error ResourceFormatPVR::compress_image(Image *p_image, CompressParams params)
+{
+    switch(params.mode)
+    {
+        case ImageCompressMode::COMPRESS_PVRTC2:
+        case ImageCompressMode::COMPRESS_PVRTC4:
+            _compress_pvrtc4(p_image);
+        break;
+    default:
+        return ERR_INVALID_PARAMETER;
+    }
+    return OK;
+}
+
+Error ResourceFormatPVR::decompress_image(Image *p_image)
+{
+    return _pvrtc_decompress(p_image);
+}
+void ResourceFormatPVR::fill_modes(PODVector<int> &tgt) const
+{
+    tgt.push_back(ImageCompressMode::COMPRESS_PVRTC4);
+    tgt.push_back(ImageCompressMode::COMPRESS_PVRTC2);
+}
+

@@ -113,3 +113,10 @@ String ResourceFormatPKM::get_resource_type(const String &p_path) const {
         return "ImageTexture";
     return "";
 }
+
+void ResourceFormatPKM::fill_modes(PODVector<int> &modes) const
+{
+    modes.push_back(ImageCompressMode::COMPRESS_ETC);
+    modes.push_back(ImageCompressMode::COMPRESS_ETC2);
+}
+
