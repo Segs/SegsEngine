@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "canvas_modulate.h"
+#include "scene/main/scene_tree.h"
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(CanvasModulate)

@@ -32,6 +32,7 @@
 
 #include "core/os/file_access.h"
 #include "core/pool_vector.h"
+#include "core/property_info.h"
 #include "editor_inspector.h"
 #include "editor_settings.h"
 

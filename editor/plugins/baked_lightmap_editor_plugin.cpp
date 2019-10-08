@@ -29,6 +29,8 @@
 /*************************************************************************/
 
 #include "baked_lightmap_editor_plugin.h"
+
+#include "scene/main/scene_tree.h"
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(BakedLightmapEditorPlugin)

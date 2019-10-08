@@ -31,6 +31,8 @@
 #ifndef VISIBILITY_NOTIFIER_H
 #define VISIBILITY_NOTIFIER_H
 
+#include "core/set.h"
+#include "core/map.h"
 #include "scene/3d/spatial.h"
 
 class Camera;

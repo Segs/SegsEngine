@@ -478,7 +478,7 @@ Error PoolVector<T>::resize(int p_size) {
 
     _copy_on_write(); // make it unique
 
-    MemoryPool::updateTotalMemory(new_size-alloc->size);
+    MemoryPool::updateTotalMemory(int(int64_t(new_size)-int64_t(alloc->size)));
 
     int cur_elements = int(alloc->size / sizeof(T));
 
@@ -507,9 +507,10 @@ Error PoolVector<T>::resize(int p_size) {
 
         {
             Write w = write();
-            for (int i = p_size; i < cur_elements; i++) {
-
-                w[i].~T();
+            if constexpr (!std::is_trivially_destructible<T>::value) {
+                for (int i = p_size; i < cur_elements; i++) {
+                    w[i].~T();
+                }
             }
         }
 

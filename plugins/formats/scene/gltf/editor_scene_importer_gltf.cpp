@@ -2463,7 +2463,8 @@ Camera *EditorSceneImporterGLTF::_generate_camera(GLTFState &state, Node *scene_
     const GLTFNode *gltf_node = state.nodes[node_index];
 
     ERR_FAIL_INDEX_V(gltf_node->camera, state.cameras.size(), nullptr);
-        Camera *camera = memnew(Camera);
+
+    Camera *camera = memnew(Camera);
     print_verbose("glTF: Creating camera for: " + gltf_node->name);
 
     const GLTFCamera &c = state.cameras[gltf_node->camera];

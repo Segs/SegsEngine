@@ -39,6 +39,7 @@
 #include "scene/resources/style_box.h"
 #include "scene/resources/font.h"
 #include "scene/main/timer.h"
+#include "core/project_settings.h"
 
 IMPL_GDCLASS(PopupMenu)
 

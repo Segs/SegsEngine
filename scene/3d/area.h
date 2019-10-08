@@ -32,6 +32,7 @@
 
 #include "core/vset.h"
 #include "scene/3d/collision_object.h"
+#include "core/map.h"
 
 class Area : public CollisionObject {
 

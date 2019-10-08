@@ -35,6 +35,7 @@
 #include "core/self_list.h"
 #include "scene/resources/world.h"
 #include "scene/resources/world_2d.h"
+#include "scene/main/scene_tree_notifications.h"
 
 class PackedScene;
 class Node;
@@ -236,10 +237,6 @@ protected:
     static void _bind_methods();
 
 public:
-    enum {
-        NOTIFICATION_TRANSFORM_CHANGED = 2000
-    };
-
     enum GroupCallFlags {
         GROUP_CALL_DEFAULT = 0,
         GROUP_CALL_REVERSE = 1,

@@ -40,6 +40,7 @@
 #include "core/os/keyboard.h"
 #include "core/os/os.h"
 #include "core/print_string.h"
+#include "core/project_settings.h"
 #include "core/translation.h"
 #include "core/version.h"
 #include "core/version_hash.gen.h"
@@ -53,6 +54,7 @@
 #include "scene/gui/separator.h"
 #include "scene/gui/texture_rect.h"
 #include "scene/gui/tool_button.h"
+#include "scene/main/scene_tree.h"
 
 static inline String get_project_key_from_path(const String& dir) {
     return StringUtils::replace(dir,"/", "::");

@@ -31,6 +31,7 @@
 #include "baked_lightmap.h"
 #include "voxel_light_baker.h"
 
+#include "scene/main/scene_tree.h"
 #include "core/io/config_file.h"
 #include "core/io/resource_loader.h"
 #include "core/io/resource_saver.h"

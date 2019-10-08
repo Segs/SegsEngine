@@ -35,6 +35,7 @@
 #include "editor/editor_settings.h"
 #include "editor/plugins/spatial_editor_plugin.h"
 #include "scene/3d/camera.h"
+#include "scene/main/scene_tree.h"
 
 #include "core/math/geometry.h"
 #include "core/os/keyboard.h"

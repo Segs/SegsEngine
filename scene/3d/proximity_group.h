@@ -28,10 +28,11 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef PROXIMITY_GROUP_H
-#define PROXIMITY_GROUP_H
+#pragma once
 
-#include "spatial.h"
+#include "scene/3d/spatial.h"
+#include "core/map.h"
+#include "core/ustring.h"
 
 class ProximityGroup : public Spatial {
 
@@ -82,6 +83,3 @@ public:
 	ProximityGroup();
 	~ProximityGroup() override;
 };
-
-
-#endif

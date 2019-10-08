@@ -34,6 +34,8 @@
 #include "physics_body_2d.h"
 #include "servers/physics_2d_server.h"
 #include "core/method_bind.h"
+#include "scene/main/scene_tree.h"
+
 
 IMPL_GDCLASS(Joint2D)
 IMPL_GDCLASS(PinJoint2D)
@@ -244,10 +246,10 @@ void GrooveJoint2D::_notification(int p_what) {
                 break;
             }
 
-            draw_line(Point2(-10, 0), Point2(+10, 0), Color(0.7, 0.6, 0.0, 0.5), 3);
-            draw_line(Point2(-10, length), Point2(+10, length), Color(0.7, 0.6, 0.0, 0.5), 3);
-            draw_line(Point2(0, 0), Point2(0, length), Color(0.7, 0.6, 0.0, 0.5), 3);
-            draw_line(Point2(-10, initial_offset), Point2(+10, initial_offset), Color(0.8, 0.8, 0.9, 0.5), 5);
+            draw_line(Point2(-10, 0), Point2(+10, 0), Color(0.7f, 0.6f, 0.0, 0.5f), 3);
+            draw_line(Point2(-10, length), Point2(+10, length), Color(0.7f, 0.6f, 0.0, 0.5f), 3);
+            draw_line(Point2(0, 0), Point2(0, length), Color(0.7f, 0.6f, 0.0, 0.5f), 3);
+            draw_line(Point2(-10, initial_offset), Point2(+10, initial_offset), Color(0.8f, 0.8f, 0.9f, 0.5f), 5);
         } break;
     }
 }

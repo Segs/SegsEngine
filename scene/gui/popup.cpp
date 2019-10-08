@@ -32,6 +32,7 @@
 
 #include "core/engine.h"
 #include "core/os/keyboard.h"
+#include "scene/main/scene_tree.h"
 #include "scene/resources/style_box.h"
 #include "core/method_bind.h"
 

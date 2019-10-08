@@ -154,6 +154,8 @@
 #include "editor/register_exporters.h"
 #include "editor/script_editor_debugger.h"
 #include "scene/gui/tabs.h"
+#include "scene/main/scene_tree.h"
+
 #include <cstdio>
 
 EditorNode *EditorNode::singleton = nullptr;

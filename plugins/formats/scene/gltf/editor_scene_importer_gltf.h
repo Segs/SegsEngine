@@ -40,6 +40,7 @@
 class AnimationPlayer;
 class BoneAttachment;
 class MeshInstance;
+class Camera;
 
 class EditorSceneImporterGLTF : public QObject, public EditorSceneImporterInterface {
     Q_PLUGIN_METADATA(IID "org.godot.GLTFImporter")

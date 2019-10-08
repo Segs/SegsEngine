@@ -30,8 +30,10 @@
 
 #include "proximity_group.h"
 
+#include "scene/main/scene_tree.h"
 #include "core/math/math_funcs.h"
 #include "core/method_bind.h"
+#include "core/map.h"
 
 IMPL_GDCLASS(ProximityGroup)
 VARIANT_ENUM_CAST(ProximityGroup::DispatchMode);

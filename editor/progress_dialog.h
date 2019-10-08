@@ -36,6 +36,7 @@
 #include "scene/gui/label.h"
 #include "scene/gui/popup.h"
 #include "scene/gui/progress_bar.h"
+#include "core/os/thread_safe.h"
 
 class BackgroundProgress : public HBoxContainer {
 

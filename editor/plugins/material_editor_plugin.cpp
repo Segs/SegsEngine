@@ -35,6 +35,7 @@
 #include "core/method_bind.h"
 #include "scene/gui/viewport_container.h"
 #include "editor/editor_scale.h"
+#include "scene/resources/world.h"
 
 IMPL_GDCLASS(MaterialEditor)
 IMPL_GDCLASS(EditorInspectorPluginMaterial)

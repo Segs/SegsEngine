@@ -39,6 +39,7 @@
 #include "editor/editor_scale.h"
 #include "editor/editor_settings.h"
 #include "editor/script_editor_debugger.h"
+#include "scene/main/scene_tree.h"
 
 IMPL_GDCLASS(ConnectionInfoDialog)
 IMPL_GDCLASS(ScriptTextEditor)

@@ -32,6 +32,7 @@
 
 #include "core/method_bind.h"
 #include "scene/resources/mesh.h"
+#include "scene/main/scene_tree.h"
 
 IMPL_GDCLASS(Listener)
 

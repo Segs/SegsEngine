@@ -42,6 +42,7 @@
 #include "editor_scale.h"
 #include "editor_settings.h"
 #include "import_dock.h"
+#include "scene/main/scene_tree.h"
 #include "scene/main/viewport.h"
 #include "scene/resources/packed_scene.h"
 

@@ -38,6 +38,7 @@
 #include "scene/gui/label.h"
 #include "scene/gui/popup_menu.h"
 #include "scene/resources/style_box.h"
+#include "scene/main/scene_tree.h"
 
 IMPL_GDCLASS(ConnectDialog)
 IMPL_GDCLASS(ConnectionsDock)

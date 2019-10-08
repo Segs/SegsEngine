@@ -38,6 +38,7 @@
 #include "scene/3d/physics_body.h"
 #include "scene/resources/surface_tool.h"
 #include "scene/resources/material.h"
+#include "servers/visual_server.h"
 
 IMPL_GDCLASS(Skeleton)
 IMPL_GDCLASS(SkinReference)

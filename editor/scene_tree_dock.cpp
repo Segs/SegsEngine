@@ -57,6 +57,7 @@
 #include "editor/script_editor_debugger.h"
 #include "editor/editor_scale.h"
 #include "scene/animation/animation_player.h"
+#include "scene/main/scene_tree.h"
 #include "scene/main/viewport.h"
 #include "scene/gui/button.h"
 #include "scene/gui/control.h"

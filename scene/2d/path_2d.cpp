@@ -32,6 +32,7 @@
 
 #include "core/engine.h"
 #include "scene/scene_string_names.h"
+#include "scene/main/scene_tree.h"
 #include "core/method_bind.h"
 
 #ifdef TOOLS_ENABLED

@@ -35,6 +35,7 @@
 #include "core/method_bind.h"
 #include "canvas_item_editor_plugin.h"
 #include "core/os/keyboard.h"
+#include "scene/main/scene_tree.h"
 #include "editor/editor_scale.h"
 
 IMPL_GDCLASS(AbstractPolygon2DEditor)

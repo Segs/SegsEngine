@@ -35,6 +35,8 @@
 #include "scene/3d/listener.h"
 #include "scene/main/viewport.h"
 #include "core/method_bind.h"
+#include "servers/physics_server.h"
+#include "scene/resources/world.h"
 
 IMPL_GDCLASS(AudioStreamPlayer3D)
 VARIANT_ENUM_CAST(AudioStreamPlayer3D::AttenuationModel)

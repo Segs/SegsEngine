@@ -31,8 +31,9 @@
 #include "item_list_editor_plugin.h"
 
 #include "core/io/resource_loader.h"
-#include "editor/editor_scale.h"
 #include "core/method_bind.h"
+#include "editor/editor_scale.h"
+#include "scene/main/scene_tree.h"
 
 IMPL_GDCLASS(ItemListPlugin)
 IMPL_GDCLASS(ItemListOptionButtonPlugin)

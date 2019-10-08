@@ -31,6 +31,7 @@
 #include "tool_button.h"
 
 #include "core/class_db.h"
+#include "core/property_info.h"
 
 IMPL_GDCLASS(ToolButton)
 

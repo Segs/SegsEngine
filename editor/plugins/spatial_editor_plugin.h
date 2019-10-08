@@ -44,6 +44,7 @@ class Camera;
 class SpatialEditor;
 class EditorSpatialGizmoPlugin;
 class ViewportContainer;
+class Environment;
 
 class EditorSpatialGizmo : public SpatialGizmo {
 
@@ -700,7 +701,7 @@ public:
     Dictionary get_state() const;
     void set_state(const Dictionary &p_state);
 
-    Ref<Environment> get_viewport_environment() { return viewport_environment; }
+    const Ref<Environment> &get_viewport_environment() { return viewport_environment; }
 
     UndoRedo *get_undo_redo() { return undo_redo; }
 

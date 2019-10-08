@@ -33,6 +33,7 @@
 #include "core/rid.h"
 #include "scene/3d/spatial.h"
 #include "scene/resources/skin.h"
+#include "core/ustring.h"
 
 #ifndef _3D_DISABLED
 using BoneId = int;

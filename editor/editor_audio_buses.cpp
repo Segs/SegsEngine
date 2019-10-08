@@ -33,6 +33,7 @@
 #include "core/method_bind.h"
 #include "core/io/resource_saver.h"
 #include "core/os/keyboard.h"
+#include "core/project_settings.h"
 #include "editor_node.h"
 #include "editor_scale.h"
 #include "filesystem_dock.h"

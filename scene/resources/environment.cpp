@@ -29,9 +29,10 @@
 /*************************************************************************/
 
 #include "environment.h"
+
 #include "core/project_settings.h"
 #include "servers/visual_server.h"
-#include "texture.h"
+#include "scene/resources/texture.h"
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(Environment)

@@ -34,6 +34,7 @@
 #include "core/method_bind.h"
 #include "core/engine.h"
 #include "navigation_2d.h"
+#include "scene/main/scene_tree.h"
 
 #include "thirdparty/misc/triangulator.h"
 

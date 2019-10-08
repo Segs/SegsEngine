@@ -34,8 +34,9 @@
 #include "core/engine.h"
 #include "core/math/camera_matrix.h"
 #include "core/method_bind.h"
-#include "scene/resources/material.h"
-#include "scene/resources/surface_tool.h"
+#include "scene/main/scene_tree.h"
+#include "servers/physics_server.h"
+#include "scene/resources/world.h"
 
 IMPL_GDCLASS(Camera)
 IMPL_GDCLASS(ClippedCamera)

@@ -223,7 +223,7 @@ public:
         richtext->pop();
         richtext->add_text("In this new episode, we will attempt to ");
         richtext->push_font(richtext->get_font("mono_font", "Fonts"));
-        richtext->push_color(Color(0.7, 0.5, 1.0));
+        richtext->push_color(Color(0.7f, 0.5f, 1.0f));
         richtext->add_text("deliver something nice");
         richtext->pop();
         richtext->pop();

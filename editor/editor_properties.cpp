@@ -42,6 +42,7 @@
 #include "editor_node.h"
 #include "editor_properties_array_dict.h"
 #include "scene/gui/color_picker.h"
+#include "scene/main/scene_tree.h"
 #include "scene/main/viewport.h"
 #include "scene/resources/style_box.h"
 

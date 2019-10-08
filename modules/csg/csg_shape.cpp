@@ -33,6 +33,8 @@
 #include "scene/resources/mesh.h"
 #include "core/hashfuncs.h"
 #include "core/method_bind.h"
+#include "servers/physics_server.h"
+#include "scene/resources/world.h"
 
 IMPL_GDCLASS(CSGShape)
 IMPL_GDCLASS(CSGCombiner)

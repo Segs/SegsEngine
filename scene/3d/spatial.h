@@ -31,9 +31,13 @@
 #pragma once
 
 #include "scene/main/node.h"
-#include "scene/main/scene_tree.h"
+#include "scene/main/scene_tree_notifications.h"
+#include "core/self_list.h"
+#include "core/list.h"
 
-class SpatialGizmo : public RefCounted {
+class World;
+
+class GODOT_EXPORT SpatialGizmo : public RefCounted {
 
     GDCLASS(SpatialGizmo,RefCounted)
 
@@ -115,7 +119,7 @@ protected:
 public:
     enum {
 
-        NOTIFICATION_TRANSFORM_CHANGED = SceneTree::NOTIFICATION_TRANSFORM_CHANGED,
+        NOTIFICATION_TRANSFORM_CHANGED = SceneTreeNotifications::NOTIFICATION_TRANSFORM_CHANGED,
         NOTIFICATION_ENTER_WORLD = 41,
         NOTIFICATION_EXIT_WORLD = 42,
         NOTIFICATION_VISIBILITY_CHANGED = 43,

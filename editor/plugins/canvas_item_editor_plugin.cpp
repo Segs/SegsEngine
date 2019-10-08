@@ -52,6 +52,7 @@
 #include "scene/gui/nine_patch_rect.h"
 #include "scene/gui/viewport_container.h"
 #include "scene/main/canvas_layer.h"
+#include "scene/main/scene_tree.h"
 #include "scene/main/viewport.h"
 #include "scene/resources/packed_scene.h"
 #include "scene/resources/style_box.h"

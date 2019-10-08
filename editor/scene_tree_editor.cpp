@@ -40,6 +40,7 @@
 #include "editor/editor_file_system.h"
 #include "editor_node.h"
 #include "scene/gui/label.h"
+#include "scene/main/scene_tree.h"
 #include "scene/main/viewport.h"
 #include "scene/resources/packed_scene.h"
 

@@ -37,6 +37,8 @@
 #include "scene/resources/material.h"
 #include "scene/scene_string_names.h"
 #include "skeleton.h"
+#include "scene/main/scene_tree.h"
+#include "servers/visual_server.h"
 
 IMPL_GDCLASS(MeshInstance)
 

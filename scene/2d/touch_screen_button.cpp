@@ -30,6 +30,7 @@
 
 #include "touch_screen_button.h"
 
+#include "scene/main/scene_tree.h"
 #include "core/method_bind.h"
 #include "core/input_map.h"
 #include "core/os/input.h"

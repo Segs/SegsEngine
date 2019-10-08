@@ -34,6 +34,7 @@
 #include "core/os/keyboard.h"
 #include "core/os/os.h"
 #include "core/string_formatter.h"
+#include "scene/main/scene_tree.h"
 #include "scene/resources/style_box.h"
 #include "core/method_bind.h"
 
