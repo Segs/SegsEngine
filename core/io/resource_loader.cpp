@@ -614,7 +614,7 @@ void ResourceLoader::remove_resource_format_loader(const ResourceLoaderInterface
     int i = 0;
     for (; i < loader_count; ++i) {
         Ref<ResourceFormatLoaderWrap> fmt = dynamic_ref_cast<ResourceFormatLoaderWrap>(loader[i]);
-        if (fmt->wrapped_same(p_format_loader))
+        if (fmt && fmt->wrapped_same(p_format_loader))
             break;
     }
 
