@@ -41,7 +41,8 @@ class ItemList : public Control {
 public:
 	enum IconMode {
 		ICON_MODE_TOP,
-		ICON_MODE_LEFT
+        ICON_MODE_LEFT,
+        ICON_MODE_MAX
 	};
 
 	enum SelectMode {

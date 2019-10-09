@@ -283,7 +283,7 @@ void register_gdnative_types() {
                 proc_ptr);
 
         if (err != OK) {
-            ERR_PRINT(StringUtils::to_utf8("No godot_gdnative_singleton in \"" + singleton->get_library()->get_current_library_path() + "\" found").data())
+            ERR_PRINTS("No " + lib->get_symbol_prefix() + "gdnative_singleton in \"" + singleton->get_library()->get_current_library_path() + "\" found")
         } else {
             singleton_gdnatives.push_back(singleton);
             ((void (*)())proc_ptr)();

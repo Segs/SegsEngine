@@ -30,11 +30,12 @@
 
 #include "resource_importer_texture.h"
 
+#include "core/class_db.h"
+#include "core/image.h"
 #include "core/io/config_file.h"
 #include "core/io/image_loader.h"
 #include "core/io/resource_importer.h"
 #include "core/os/mutex.h"
-#include "core/class_db.h"
 #include "core/project_settings.h"
 #include "editor/service_interfaces/EditorServiceInterface.h"
 #include "scene/resources/texture.h"
@@ -125,7 +126,7 @@ struct FileDeleter {
     }
 };
 
-RES ResourceImporterCoHTexture::load(const String &p_path, const String &p_original_path, Error *r_error) {
+RES ResourceLoaderCoHTexture::load(const String &p_path, const String &p_original_path, Error *r_error) {
 
     if (r_error)
         *r_error = ERR_CANT_OPEN;
@@ -498,17 +499,17 @@ RES ResourceImporterCoHTexture::load(const String &p_path, const String &p_origi
     return texture;
 }
 
-void ResourceImporterCoHTexture::get_recognized_extensions(ListPOD<String> *p_extensions) const {
+void ResourceLoaderCoHTexture::get_recognized_extensions(ListPOD<String> *p_extensions) const {
 
     p_extensions->push_back("texture");
 }
 
-bool ResourceImporterCoHTexture::handles_type(const String &p_type) const {
+bool ResourceLoaderCoHTexture::handles_type(const String &p_type) const {
 
     return ClassDB::is_parent_class(p_type, "Texture");
 }
 
-String ResourceImporterCoHTexture::get_resource_type(const String &p_path) const {
+String ResourceLoaderCoHTexture::get_resource_type(const String &p_path) const {
 
     if (StringUtils::to_lower(PathUtils::get_extension(p_path)) == "texture")
         return "ImageTexture";

@@ -1426,6 +1426,8 @@ void Control::_size_changed() {
 }
 
 void Control::set_anchor(Margin p_margin, float p_anchor, bool p_keep_margin, bool p_push_opposite_anchor) {
+    ERR_FAIL_INDEX((int)p_margin, int(MARGIN_MAX))
+
     Rect2 parent_rect = get_parent_anchorable_rect();
     float parent_range = (p_margin == MARGIN_LEFT || p_margin == MARGIN_RIGHT) ? parent_rect.size.x : parent_rect.size.y;
     float previous_margin_pos = data.margin[p_margin] + data.anchor[p_margin] * parent_range;

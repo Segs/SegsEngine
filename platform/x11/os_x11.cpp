@@ -223,22 +223,6 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
         XFree(imvalret);
     }
 
-/*
-    char* windowid = getenv("GODOT_WINDOWID");
-    if (windowid) {
-
-        //freopen("/home/punto/stdout", "w", stdout);
-        //reopen("/home/punto/stderr", "w", stderr);
-        x11_window = atol(windowid);
-
-        XWindowAttributes xwa;
-        XGetWindowAttributes(x11_display,x11_window,&xwa);
-
-        current_videomode.width = xwa.width;
-        current_videomode.height = xwa.height;
-    };
-    */
-
 // maybe contextgl wants to be in charge of creating the window
 #if defined(OPENGL_ENABLED)
     if (getenv("DRI_PRIME") == nullptr) {

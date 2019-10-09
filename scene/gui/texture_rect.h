@@ -56,6 +56,7 @@ private:
 	Ref<Texture> texture;
 	StretchMode stretch_mode;
 
+    void _texture_changed();
 protected:
 	void _notification(int p_what);
 	Size2 get_minimum_size() const override;

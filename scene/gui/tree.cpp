@@ -845,6 +845,7 @@ void TreeItem::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_custom_color", {"column", "color"}), &TreeItem::set_custom_color);
     MethodBinder::bind_method(D_METHOD("clear_custom_color", {"column"}), &TreeItem::clear_custom_color);
+    MethodBinder::bind_method(D_METHOD("get_custom_color", {"column"}), &TreeItem::get_custom_color);
 
     MethodBinder::bind_method(D_METHOD("set_custom_bg_color", {"column", "color", "just_outline"}), &TreeItem::set_custom_bg_color, {DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("clear_custom_bg_color", {"column"}), &TreeItem::clear_custom_bg_color);

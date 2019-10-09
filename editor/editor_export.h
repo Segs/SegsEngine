@@ -400,6 +400,7 @@ public:
     bool can_export(const Ref<EditorExportPreset> &p_preset, String &r_error, bool &r_missing_templates) const override;
     List<String> get_binary_extensions(const Ref<EditorExportPreset> &p_preset) const override;
     Error export_project(const Ref<EditorExportPreset> &p_preset, bool p_debug, const String &p_path, int p_flags = 0) override;
+    virtual Error sign_shared_object(const Ref<EditorExportPreset> &p_preset, bool p_debug, const String &p_path);
 
     void set_extension(const String &p_extension, const String &p_feature_key = "default");
     void set_name(const String &p_name);

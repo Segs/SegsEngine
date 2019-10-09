@@ -1640,6 +1640,10 @@ Error EditorExportPlatformPC::export_project(const Ref<EditorExportPreset> &p_pr
             da = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
             for (int i = 0; i < so_files.size() && err == OK; i++) {
                 err = da->copy(so_files[i].path, PathUtils::plus_file(PathUtils::get_base_dir(p_path),PathUtils::get_file(so_files[i].path)));
+                if (err == OK) {
+                    err = sign_shared_object(p_preset, p_debug, PathUtils::plus_file(PathUtils::get_base_dir(p_path),PathUtils::get_file(so_files[i].path)));
+                }
+
             }
             memdelete(da);
         }
@@ -1647,7 +1651,9 @@ Error EditorExportPlatformPC::export_project(const Ref<EditorExportPreset> &p_pr
 
     return err;
 }
-
+Error EditorExportPlatformPC::sign_shared_object(const Ref<EditorExportPreset> &p_preset, bool p_debug, const String &p_path) {
+    return OK;
+}
 void EditorExportPlatformPC::set_extension(const String &p_extension, const String &p_feature_key) {
     extensions[p_feature_key] = p_extension;
 }

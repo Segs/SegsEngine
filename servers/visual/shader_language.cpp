@@ -2885,7 +2885,15 @@ ShaderLanguage::Node *ShaderLanguage::_parse_expression(BlockNode *p_block, cons
                 int carg = -1;
 
                 bool ok = _parse_function_arguments(p_block, p_builtin_types, func, &carg);
-
+                // Check if block has a variable with the same name as function to prevent shader crash.
+                ShaderLanguage::BlockNode *bnode = p_block;
+                while (bnode) {
+                    if (bnode->variables.contains(name)) {
+                        _set_error("Expected function name");
+                        return nullptr;
+                    }
+                    bnode = bnode->parent_block;
+                }
                 //test if function was parsed first
                 for (const ShaderNode::Function &ifunc : shader->functions) {
                     if (ifunc.name == name) {
@@ -3794,9 +3802,12 @@ Error ShaderLanguage::_parse_block(BlockNode *p_block, const Map<StringName, Bui
                 }
 
                 StringName name = tk.text;
-                if (_find_identifier(p_block, p_builtin_types, name)) {
-                    _set_error("Redefinition of '" + String(name) + "'");
-                    return ERR_PARSE_ERROR;
+                ShaderLanguage::IdentifierType itype;
+                if (_find_identifier(p_block, p_builtin_types, name, (ShaderLanguage::DataType *)nullptr, &itype)) {
+                    if (itype != IDENTIFIER_FUNCTION) {
+                        _set_error("Redefinition of '" + String(name) + "'");
+                        return ERR_PARSE_ERROR;
+                    }
                 }
 
                 BlockNode::Variable var;
@@ -3953,7 +3964,11 @@ Error ShaderLanguage::_parse_block(BlockNode *p_block, const Map<StringName, Bui
                                 if (!n) {
                                     return ERR_PARSE_ERROR;
                                 }
-
+                                if (node->is_const && n->type == Node::TYPE_OPERATOR &&
+                                        ((OperatorNode *)n)->op == OP_CALL) {
+                                    _set_error("Expected constant expression");
+                                    return ERR_PARSE_ERROR;
+                                }
                                 if (var.type != n->get_datatype()) {
                                     _set_error("Invalid assignment of '" + get_datatype_name(n->get_datatype()) + "' to '" + get_datatype_name(var.type) + "'");
                                     return ERR_PARSE_ERROR;
@@ -4015,6 +4030,10 @@ Error ShaderLanguage::_parse_block(BlockNode *p_block, const Map<StringName, Bui
                     if (!n)
                         return ERR_PARSE_ERROR;
 
+                    if (node->is_const && n->type == Node::TYPE_OPERATOR && ((OperatorNode *)n)->op == OP_CALL) {
+                        _set_error("Expected constant expression after '='");
+                        return ERR_PARSE_ERROR;
+                    }
                     decl.initializer = n;
 
                     if (var.type != n->get_datatype()) {
@@ -5073,9 +5092,13 @@ Error ShaderLanguage::_parse_shader(const Map<StringName, FunctionInfo> &p_funct
 
                     pname = tk.text;
 
-                    if (_find_identifier(func_node->body, builtin_types, pname)) {
-                        _set_error("Redefinition of '" + String(pname) + "'");
-                        return ERR_PARSE_ERROR;
+                    ShaderLanguage::IdentifierType itype;
+                    if (_find_identifier(
+                                func_node->body, builtin_types, pname, (ShaderLanguage::DataType *)nullptr, &itype)) {
+                        if (itype != IDENTIFIER_FUNCTION) {
+                            _set_error("Redefinition of '" + String(pname) + "'");
+                            return ERR_PARSE_ERROR;
+                        }
                     }
                     FunctionNode::Argument arg;
                     arg.type = ptype;
@@ -5346,7 +5369,7 @@ Error ShaderLanguage::complete(const String &p_code, const Map<StringName, Funct
                     if (block->parent_function) {
                         if (comp_ident) {
                             for (FunctionNode::Argument & argument : block->parent_function->arguments) {
-                                matches.emplace(argument.name, ScriptCodeCompletionOption::KIND_FUNCTION);
+                                matches.emplace(argument.name, ScriptCodeCompletionOption::KIND_VARIABLE);
                             }
                         }
                         skip_function = block->parent_function->name;

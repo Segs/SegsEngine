@@ -30,8 +30,6 @@
 
 #include "resource_importer_layered_texture.h"
 
-//#include "resource_importer_texture.h"
-
 #include "core/io/config_file.h"
 #include "core/object.h"
 #include "core/io/image_loader.h"
@@ -63,7 +61,7 @@ String LayeredTextureImpl::get_resource_type() const {
     return is_3d ? "Texture3D" : "TextureArray";
 }
 
-bool LayeredTextureImpl::get_option_visibility(const String &p_option, const Map<StringName, Variant> &p_options) const {
+bool LayeredTextureImpl::get_option_visibility(const String & /*p_option*/, const Map<StringName, Variant> &/*p_options*/) const {
 
     return true;
 }
