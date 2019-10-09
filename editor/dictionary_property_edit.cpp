@@ -102,7 +102,7 @@ Node *DictionaryPropertyEdit::get_node() {
     if (!o)
         return nullptr;
 
-    return cast_to<Node>(o);
+    return object_cast<Node>(o);
 }
 
 bool DictionaryPropertyEdit::_dont_undo_redo() {

@@ -146,7 +146,7 @@ void GraphEdit::_update_scroll_offset() {
 
     for (int i = 0; i < get_child_count(); i++) {
 
-        GraphNode *gn = Object::cast_to<GraphNode>(get_child(i));
+        GraphNode *gn = object_cast<GraphNode>(get_child(i));
         if (!gn)
             continue;
 
@@ -175,7 +175,7 @@ void GraphEdit::_update_scroll() {
     Rect2 screen;
     for (int i = 0; i < get_child_count(); i++) {
 
-        GraphNode *gn = Object::cast_to<GraphNode>(get_child(i));
+        GraphNode *gn = object_cast<GraphNode>(get_child(i));
         if (!gn)
             continue;
 
@@ -217,7 +217,7 @@ void GraphEdit::_update_scroll() {
 
 void GraphEdit::_graph_node_raised(Node *p_gn) {
 
-    GraphNode *gn = Object::cast_to<GraphNode>(p_gn);
+    GraphNode *gn = object_cast<GraphNode>(p_gn);
     ERR_FAIL_COND(!gn)
     if (gn->is_comment()) {
         move_child(gn, 0);
@@ -226,7 +226,7 @@ void GraphEdit::_graph_node_raised(Node *p_gn) {
     }
     int first_not_comment = 0;
     for (int i = 0; i < get_child_count(); i++) {
-        GraphNode *gn2 = Object::cast_to<GraphNode>(get_child(i));
+        GraphNode *gn2 = object_cast<GraphNode>(get_child(i));
         if (gn2 && !gn2->is_comment()) {
             first_not_comment = i;
             break;
@@ -240,7 +240,7 @@ void GraphEdit::_graph_node_raised(Node *p_gn) {
 
 void GraphEdit::_graph_node_moved(Node *p_gn) {
 
-    GraphNode *gn = Object::cast_to<GraphNode>(p_gn);
+    GraphNode *gn = object_cast<GraphNode>(p_gn);
     ERR_FAIL_COND(!gn)
     top_layer->update();
     update();
@@ -252,7 +252,7 @@ void GraphEdit::add_child_notify(Node *p_child) {
     Control::add_child_notify(p_child);
 
     top_layer->call_deferred("raise"); //top layer always on top!
-    GraphNode *gn = Object::cast_to<GraphNode>(p_child);
+    GraphNode *gn = object_cast<GraphNode>(p_child);
     if (gn) {
         gn->set_scale(Vector2(zoom, zoom));
         gn->connect("offset_changed", this, "_graph_node_moved", varray(Variant(gn)));
@@ -269,7 +269,7 @@ void GraphEdit::remove_child_notify(Node *p_child) {
     if (is_inside_tree()) {
         top_layer->call_deferred("raise"); //top layer always on top!
     }
-    GraphNode *gn = Object::cast_to<GraphNode>(p_child);
+    GraphNode *gn = object_cast<GraphNode>(p_child);
     if (gn) {
         gn->disconnect("offset_changed", this, "_graph_node_moved");
         gn->disconnect("raise_request", this, "_graph_node_raised");
@@ -359,7 +359,7 @@ bool GraphEdit::_filter_input(const Point2 &p_point) {
 
     for (int i = get_child_count() - 1; i >= 0; i--) {
 
-        GraphNode *gn = Object::cast_to<GraphNode>(get_child(i));
+        GraphNode *gn = object_cast<GraphNode>(get_child(i));
         if (!gn)
             continue;
 
@@ -391,7 +391,7 @@ void GraphEdit::_top_layer_input(const Ref<InputEvent> &p_ev) {
         Vector2 mpos(mb->get_position().x, mb->get_position().y);
         for (int i = get_child_count() - 1; i >= 0; i--) {
 
-            GraphNode *gn = Object::cast_to<GraphNode>(get_child(i));
+            GraphNode *gn = object_cast<GraphNode>(get_child(i));
             if (!gn)
                 continue;
 
@@ -407,20 +407,20 @@ void GraphEdit::_top_layer_input(const Ref<InputEvent> &p_ev) {
                             if (E->deref().from == gn->get_name() && E->deref().from_port == j) {
 
                                 Node *to = get_node((NodePath)String(E->deref().to));
-                                if (Object::cast_to<GraphNode>(to)) {
+                                if (object_cast<GraphNode>(to)) {
 
                                     connecting_from = E->deref().to;
                                     connecting_index = E->deref().to_port;
                                     connecting_out = false;
-                                    connecting_type = Object::cast_to<GraphNode>(to)->get_connection_input_type(E->deref().to_port);
-                                    connecting_color = Object::cast_to<GraphNode>(to)->get_connection_input_color(E->deref().to_port);
+                                    connecting_type = object_cast<GraphNode>(to)->get_connection_input_type(E->deref().to_port);
+                                    connecting_color = object_cast<GraphNode>(to)->get_connection_input_color(E->deref().to_port);
                                     connecting_target = false;
                                     connecting_to = pos;
                                     just_disconnected = true;
 
                                     emit_signal("disconnection_request", E->deref().from, E->deref().from_port, E->deref().to, E->deref().to_port);
                                     to = get_node((NodePath)String(connecting_from)); // maybe it was erased
-                                    if (Object::cast_to<GraphNode>(to)) {
+                                    if (object_cast<GraphNode>(to)) {
                                         connecting = true;
                                     }
                                     return;
@@ -454,20 +454,20 @@ void GraphEdit::_top_layer_input(const Ref<InputEvent> &p_ev) {
                             if (E->deref().to == gn->get_name() && E->deref().to_port == j) {
 
                                 Node *fr = get_node((NodePath)String(E->deref().from));
-                                if (Object::cast_to<GraphNode>(fr)) {
+                                if (object_cast<GraphNode>(fr)) {
 
                                     connecting_from = E->deref().from;
                                     connecting_index = E->deref().from_port;
                                     connecting_out = true;
-                                    connecting_type = Object::cast_to<GraphNode>(fr)->get_connection_output_type(E->deref().from_port);
-                                    connecting_color = Object::cast_to<GraphNode>(fr)->get_connection_output_color(E->deref().from_port);
+                                    connecting_type = object_cast<GraphNode>(fr)->get_connection_output_type(E->deref().from_port);
+                                    connecting_color = object_cast<GraphNode>(fr)->get_connection_output_color(E->deref().from_port);
                                     connecting_target = false;
                                     connecting_to = pos;
                                     just_disconnected = true;
 
                                     emit_signal("disconnection_request", E->deref().from, E->deref().from_port, E->deref().to, E->deref().to_port);
                                     fr = get_node((NodePath)String(connecting_from)); // maybe it was erased
-                                    if (Object::cast_to<GraphNode>(fr)) {
+                                    if (object_cast<GraphNode>(fr)) {
                                         connecting = true;
                                     }
                                     return;
@@ -503,7 +503,7 @@ void GraphEdit::_top_layer_input(const Ref<InputEvent> &p_ev) {
         Vector2 mpos = mm->get_position();
         for (int i = get_child_count() - 1; i >= 0; i--) {
 
-            GraphNode *gn = Object::cast_to<GraphNode>(get_child(i));
+            GraphNode *gn = object_cast<GraphNode>(get_child(i));
             if (!gn)
                 continue;
 
@@ -582,7 +582,7 @@ bool GraphEdit::_check_clickable_control(Control *p_control, const Vector2 &pos)
     if (!p_control->has_point(pos) || p_control->get_mouse_filter() == MOUSE_FILTER_IGNORE) {
         //test children
         for (int i = 0; i < p_control->get_child_count(); i++) {
-            Control *subchild = Object::cast_to<Control>(p_control->get_child(i));
+            Control *subchild = object_cast<Control>(p_control->get_child(i));
             if (!subchild)
                 continue;
             if (_check_clickable_control(subchild, pos - subchild->get_position())) {
@@ -601,7 +601,7 @@ bool GraphEdit::is_in_hot_zone(const Vector2 &pos, const Vector2 &p_mouse_pos) {
         return false;
 
     for (int i = 0; i < get_child_count(); i++) {
-        Control *child = Object::cast_to<Control>(get_child(i));
+        Control *child = object_cast<Control>(get_child(i));
         if (!child)
             continue;
         Rect2 rect = child->get_rect();
@@ -611,7 +611,7 @@ bool GraphEdit::is_in_hot_zone(const Vector2 &pos, const Vector2 &p_mouse_pos) {
             Vector2 subpos = p_mouse_pos - rect.position;
 
             for (int j = 0; j < child->get_child_count(); j++) {
-                Control *subchild = Object::cast_to<Control>(child->get_child(j));
+                Control *subchild = object_cast<Control>(child->get_child(j));
                 if (!subchild)
                     continue;
 
@@ -708,7 +708,7 @@ void GraphEdit::_connections_layer_draw() {
             continue;
         }
 
-        GraphNode *gfrom = Object::cast_to<GraphNode>(from);
+        GraphNode *gfrom = object_cast<GraphNode>(from);
 
         if (!gfrom) {
             to_erase.push_back(E);
@@ -722,7 +722,7 @@ void GraphEdit::_connections_layer_draw() {
             continue;
         }
 
-        GraphNode *gto = Object::cast_to<GraphNode>(to);
+        GraphNode *gto = object_cast<GraphNode>(to);
 
         if (!gto) {
             to_erase.push_back(E);
@@ -755,7 +755,7 @@ void GraphEdit::_top_layer_draw() {
 
         Node *fromn = get_node((NodePath)connecting_from);
         ERR_FAIL_COND(!fromn)
-        GraphNode *from = Object::cast_to<GraphNode>(fromn);
+        GraphNode *from = object_cast<GraphNode>(fromn);
         ERR_FAIL_COND(!from)
         Vector2 pos;
         if (connecting_out)
@@ -796,7 +796,7 @@ void GraphEdit::set_selected(Node *p_child) {
 
     for (int i = get_child_count() - 1; i >= 0; i--) {
 
-        GraphNode *gn = Object::cast_to<GraphNode>(get_child(i));
+        GraphNode *gn = object_cast<GraphNode>(get_child(i));
         if (!gn)
             continue;
 
@@ -819,7 +819,7 @@ void GraphEdit::_gui_input(const Ref<InputEvent> &p_ev) {
         //drag_accum+=Vector2(mm->get_relative().x,mm->get_relative().y);
         drag_accum = get_local_mouse_position() - drag_origin;
         for (int i = get_child_count() - 1; i >= 0; i--) {
-            GraphNode *gn = Object::cast_to<GraphNode>(get_child(i));
+            GraphNode *gn = object_cast<GraphNode>(get_child(i));
             if (gn && gn->is_selected()) {
 
                 Vector2 pos = (gn->get_drag_from() * zoom + drag_accum) / zoom;
@@ -843,7 +843,7 @@ void GraphEdit::_gui_input(const Ref<InputEvent> &p_ev) {
 
         for (int i = get_child_count() - 1; i >= 0; i--) {
 
-            GraphNode *gn = Object::cast_to<GraphNode>(get_child(i));
+            GraphNode *gn = object_cast<GraphNode>(get_child(i));
             if (!gn)
                 continue;
 
@@ -868,7 +868,7 @@ void GraphEdit::_gui_input(const Ref<InputEvent> &p_ev) {
                 box_selecting = false;
                 for (int i = get_child_count() - 1; i >= 0; i--) {
 
-                    GraphNode *gn = Object::cast_to<GraphNode>(get_child(i));
+                    GraphNode *gn = object_cast<GraphNode>(get_child(i));
                     if (!gn)
                         continue;
 
@@ -889,7 +889,7 @@ void GraphEdit::_gui_input(const Ref<InputEvent> &p_ev) {
             if (!just_selected && drag_accum == Vector2() && Input::get_singleton()->is_key_pressed(KEY_CONTROL)) {
                 //deselect current node
                 for (int i = get_child_count() - 1; i >= 0; i--) {
-                    GraphNode *gn = Object::cast_to<GraphNode>(get_child(i));
+                    GraphNode *gn = object_cast<GraphNode>(get_child(i));
 
                     if (gn) {
                         Rect2 r = gn->get_rect();
@@ -905,7 +905,7 @@ void GraphEdit::_gui_input(const Ref<InputEvent> &p_ev) {
                 emit_signal("_begin_node_move");
 
                 for (int i = get_child_count() - 1; i >= 0; i--) {
-                    GraphNode *gn = Object::cast_to<GraphNode>(get_child(i));
+                    GraphNode *gn = object_cast<GraphNode>(get_child(i));
                     if (gn && gn->is_selected())
                         gn->set_drag(false);
                 }
@@ -926,7 +926,7 @@ void GraphEdit::_gui_input(const Ref<InputEvent> &p_ev) {
 
             for (int i = get_child_count() - 1; i >= 0; i--) {
 
-                GraphNode *gn_selected = Object::cast_to<GraphNode>(get_child(i));
+                GraphNode *gn_selected = object_cast<GraphNode>(get_child(i));
 
                 if (gn_selected) {
                     if (gn_selected->is_resizing())
@@ -950,7 +950,7 @@ void GraphEdit::_gui_input(const Ref<InputEvent> &p_ev) {
                 just_selected = !gn->is_selected();
                 if (!gn->is_selected() && !Input::get_singleton()->is_key_pressed(KEY_CONTROL)) {
                     for (int i = 0; i < get_child_count(); i++) {
-                        GraphNode *o_gn = Object::cast_to<GraphNode>(get_child(i));
+                        GraphNode *o_gn = object_cast<GraphNode>(get_child(i));
                         if (o_gn)
                             o_gn->set_selected(o_gn == gn);
                     }
@@ -958,7 +958,7 @@ void GraphEdit::_gui_input(const Ref<InputEvent> &p_ev) {
 
                 gn->set_selected(true);
                 for (int i = 0; i < get_child_count(); i++) {
-                    GraphNode *o_gn = Object::cast_to<GraphNode>(get_child(i));
+                    GraphNode *o_gn = object_cast<GraphNode>(get_child(i));
                     if (!o_gn)
                         continue;
                     if (o_gn->is_selected())
@@ -978,7 +978,7 @@ void GraphEdit::_gui_input(const Ref<InputEvent> &p_ev) {
                     previus_selected.clear();
                     for (int i = get_child_count() - 1; i >= 0; i--) {
 
-                        GraphNode *gn2 = Object::cast_to<GraphNode>(get_child(i));
+                        GraphNode *gn2 = object_cast<GraphNode>(get_child(i));
                         if (!gn2 || !gn2->is_selected())
                             continue;
 
@@ -989,7 +989,7 @@ void GraphEdit::_gui_input(const Ref<InputEvent> &p_ev) {
                     previus_selected.clear();
                     for (int i = get_child_count() - 1; i >= 0; i--) {
 
-                        GraphNode *gn2 = Object::cast_to<GraphNode>(get_child(i));
+                        GraphNode *gn2 = object_cast<GraphNode>(get_child(i));
                         if (!gn2 || !gn2->is_selected())
                             continue;
 
@@ -1000,7 +1000,7 @@ void GraphEdit::_gui_input(const Ref<InputEvent> &p_ev) {
                     previus_selected.clear();
                     for (int i = get_child_count() - 1; i >= 0; i--) {
 
-                        GraphNode *gn2 = Object::cast_to<GraphNode>(get_child(i));
+                        GraphNode *gn2 = object_cast<GraphNode>(get_child(i));
                         if (!gn2)
                             continue;
 

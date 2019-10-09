@@ -63,8 +63,8 @@ void Joint::_update_joint(bool p_only_free) {
     Node *node_a = has_node(get_node_a()) ? get_node(get_node_a()) : (Node *)nullptr;
     Node *node_b = has_node(get_node_b()) ? get_node(get_node_b()) : (Node *)nullptr;
 
-    PhysicsBody *body_a = Object::cast_to<PhysicsBody>(node_a);
-    PhysicsBody *body_b = Object::cast_to<PhysicsBody>(node_b);
+    PhysicsBody *body_a = object_cast<PhysicsBody>(node_a);
+    PhysicsBody *body_b = object_cast<PhysicsBody>(node_b);
 
     if (!body_a && body_b)
         SWAP(body_a, body_b);

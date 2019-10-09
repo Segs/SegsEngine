@@ -81,7 +81,7 @@ void godot_icall_Reference_Disposed(MonoObject *p_obj, Object *p_ptr, MonoBoolea
 #ifdef DEBUG_ENABLED
 	CRASH_COND(p_ptr == NULL);
 	// This is only called with Reference derived classes
-	CRASH_COND(!Object::cast_to<Reference>(p_ptr));
+	CRASH_COND(!object_cast<Reference>(p_ptr));
 #endif
 
 	Reference *ref = static_cast<Reference *>(p_ptr);
@@ -135,7 +135,7 @@ MonoObject *godot_icall_Object_weakref(Object *p_obj) {
 		return NULL;
 
 	Ref<WeakRef> wref;
-	Reference *ref = Object::cast_to<Reference>(p_obj);
+	Reference *ref = object_cast<Reference>(p_obj);
 
 	if (ref) {
 		REF r = ref;
@@ -223,7 +223,7 @@ MonoString *godot_icall_Object_ToString(Object *p_ptr) {
 	// Cannot happen in C#; would get an ObjectDisposedException instead.
 	CRASH_COND(p_ptr == NULL);
 
-	if (ScriptDebugger::get_singleton() && !Object::cast_to<Reference>(p_ptr)) { // Only if debugging!
+	if (ScriptDebugger::get_singleton() && !object_cast<Reference>(p_ptr)) { // Only if debugging!
 		// Cannot happen either in C#; the handle is nullified when the object is destroyed
 		CRASH_COND(!ObjectDB::instance_validate(p_ptr));
 	}

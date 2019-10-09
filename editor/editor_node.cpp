@@ -501,7 +501,7 @@ void EditorNode::_update_update_spinner() {
 }
 
 void EditorNode::_on_plugin_ready(Object *p_script, const String &p_activate_name) {
-    Ref<Script> script(Object::cast_to<Script>(p_script));
+    Ref<Script> script(object_cast<Script>(p_script));
     if (not script)
         return;
     if (p_activate_name.length()) {
@@ -1240,7 +1240,7 @@ void EditorNode::_save_scene(const String& p_file, int idx) {
         // we must update it, but also let the previous scene state go, as
         // old version still work for referencing changes in instanced or inherited scenes
 
-        sdata = Ref<PackedScene>(Object::cast_to<PackedScene>(ResourceCache::get(p_file)));
+        sdata = Ref<PackedScene>(object_cast<PackedScene>(ResourceCache::get(p_file)));
         if (sdata)
             sdata->recreate_state();
         else
@@ -1693,7 +1693,7 @@ void EditorNode::_set_editing_top_editors(Object *p_current_object) {
 
 static bool overrides_external_editor(Object *p_object) {
 
-    Script *script = Object::cast_to<Script>(p_object);
+    Script *script = object_cast<Script>(p_object);
 
     if (!script)
         return false;
@@ -1730,7 +1730,7 @@ void EditorNode::_edit_current() {
 
     if (is_resource) {
 
-        Resource *current_res = Object::cast_to<Resource>(current_obj);
+        Resource *current_res = object_cast<Resource>(current_obj);
         ERR_FAIL_COND(!current_res)
         get_inspector()->edit(current_res);
         scene_tree_dock->set_selected(nullptr);
@@ -1756,7 +1756,7 @@ void EditorNode::_edit_current() {
         }
     } else if (is_node) {
 
-        Node *current_node = Object::cast_to<Node>(current_obj);
+        Node *current_node = object_cast<Node>(current_obj);
         ERR_FAIL_COND(!current_node)
 
         get_inspector()->edit(current_node);
@@ -3067,8 +3067,8 @@ void EditorNode::set_edited_scene(Node *p_scene) {
     }
     get_editor_data().set_edited_scene_root(p_scene);
 
-    if (Object::cast_to<Popup>(p_scene))
-        Object::cast_to<Popup>(p_scene)->show(); //show popups
+    if (object_cast<Popup>(p_scene))
+        object_cast<Popup>(p_scene)->show(); //show popups
     scene_tree_dock->set_edited_scene(p_scene);
     if (get_tree())
         get_tree()->set_edited_scene_root(p_scene);
@@ -3192,8 +3192,8 @@ void EditorNode::set_current_scene(int p_idx) {
 
     Node *new_scene = editor_data.get_edited_scene_root();
 
-    if (Object::cast_to<Popup>(new_scene))
-        Object::cast_to<Popup>(new_scene)->show(); //show popups
+    if (object_cast<Popup>(new_scene))
+        object_cast<Popup>(new_scene)->show(); //show popups
 
     scene_tree_dock->set_edited_scene(new_scene);
     if (get_tree())
@@ -3328,7 +3328,7 @@ Error EditorNode::load_scene(const String &p_scene, bool p_ignore_broken_deps, b
 
     if (ResourceCache::has(lpath)) {
         //used from somewhere else? no problem! update state and replace sdata
-        Ref<PackedScene> ps(Object::cast_to<PackedScene>(ResourceCache::get(lpath)));
+        Ref<PackedScene> ps(object_cast<PackedScene>(ResourceCache::get(lpath)));
         if (ps) {
             ps->replace_state(sdata->get_state());
             ps->set_last_modified_time(sdata->get_last_modified_time());
@@ -4546,7 +4546,7 @@ void EditorNode::_load_docks_from_config(Ref<ConfigFile> p_layout, const String 
             for (int k = 0; k < DOCK_SLOT_MAX; k++) {
                 if (!dock_slot[k]->has_node((NodePath)name))
                     continue;
-                node = Object::cast_to<Control>(dock_slot[k]->get_node((NodePath)name));
+                node = object_cast<Control>(dock_slot[k]->get_node((NodePath)name));
                 if (!node)
                     continue;
                 atidx = k;
@@ -5113,7 +5113,7 @@ void EditorNode::remove_control_from_dock(Control *p_control) {
         }
     }
 
-    ERR_FAIL_COND_MSG(!dock, "Control was not in dock.")
+    ERR_FAIL_COND_CMSG(!dock, "Control was not in dock.")
 
     dock->remove_child(p_control);
     _update_dock_slots_visibility();
@@ -5519,9 +5519,9 @@ void EditorNode::_resource_loaded(RES p_resource, const String &p_path) {
 
 void EditorNode::_feature_profile_changed() {
     Ref<EditorFeatureProfile> profile = feature_profile_manager->get_current_profile();
-    TabContainer *import_tabs = cast_to<TabContainer>(import_dock->get_parent());
-    TabContainer *node_tabs = cast_to<TabContainer>(node_dock->get_parent());
-    TabContainer *fs_tabs = cast_to<TabContainer>(filesystem_dock->get_parent());
+    TabContainer *import_tabs = object_cast<TabContainer>(import_dock->get_parent());
+    TabContainer *node_tabs = object_cast<TabContainer>(node_dock->get_parent());
+    TabContainer *fs_tabs = object_cast<TabContainer>(filesystem_dock->get_parent());
     if (profile) {
 
         import_tabs->set_tab_hidden(import_dock->get_index(), profile->is_feature_disabled(EditorFeatureProfile::FEATURE_IMPORT_DOCK));
@@ -5794,7 +5794,7 @@ EditorNode::EditorNode() {
     ResourceLoader::clear_translation_remaps(); //no remaps using during editor
     ResourceLoader::clear_path_remaps();
 
-    InputDefault *id = Object::cast_to<InputDefault>(Input::get_singleton());
+    InputDefault *id = object_cast<InputDefault>(Input::get_singleton());
 
     if (id) {
 
@@ -6796,7 +6796,7 @@ EditorNode::EditorNode() {
     if (StreamPeerSSL::is_available()) {
         add_editor_plugin(memnew(AssetLibraryEditorPlugin(this)));
     } else {
-        WARN_PRINT("Asset Library not available, as it requires SSL to work.");
+        WARN_PRINT("Asset Library not available, as it requires SSL to work.")
     }
 
     //add interface before adding plugins

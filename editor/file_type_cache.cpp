@@ -88,7 +88,7 @@ void FileTypeCache::save() {
 	String project = ProjectSettings::get_singleton()->get_resource_path();
 	FileAccess *f = FileAccess::open(project + "/file_type_cache.cch", FileAccess::WRITE);
 
-	ERR_FAIL_COND_MSG(!f, "Can't open file_type_cache.cch for writing, not saving file type cache!")
+    ERR_FAIL_COND_CMSG(!f, "Can't open file_type_cache.cch for writing, not saving file type cache!")
 
 	const String *K = nullptr;
 

@@ -44,12 +44,13 @@ class GODOT_EXPORT RefPtr {
     mutable intptr_t data;
 public:
 	bool is_null() const;
-	void operator=(const RefPtr &p_other);
-    void operator=(RefPtr &&p_other) {
+    RefPtr &operator=(const RefPtr &p_other);
+    RefPtr &operator=(RefPtr &&p_other) {
         // Do a swap here and assume p_other will be destroyed by the caller, so that our previous data will be freed
         intptr_t t = data;
         data = p_other.data;
         p_other.data = t;
+        return *this;
     }
 	bool operator==(const RefPtr &p_other) const;
 	RID get_rid() const;

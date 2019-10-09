@@ -41,7 +41,7 @@ IMPL_GDCLASS(CPUParticles2DEditorPlugin)
 
 void CPUParticles2DEditorPlugin::edit(Object *p_object) {
 
-    particles = Object::cast_to<CPUParticles2D>(p_object);
+    particles = object_cast<CPUParticles2D>(p_object);
 }
 
 bool CPUParticles2DEditorPlugin::handles(Object *p_object) const {
@@ -197,7 +197,7 @@ void CPUParticles2DEditorPlugin::_generate_emission_mask() {
         valid_normals.resize(vpc);
     }
 
-    ERR_FAIL_COND_MSG(valid_positions.empty(), "No pixels with transparency > 128 in image...")
+    ERR_FAIL_COND_CMSG(valid_positions.empty(), "No pixels with transparency > 128 in image...")
 
     if (capture_colors) {
         PoolColorArray pca;

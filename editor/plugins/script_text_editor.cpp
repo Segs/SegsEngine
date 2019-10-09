@@ -65,7 +65,7 @@ void ConnectionInfoDialog::popup_connections(const String& p_method, const Vecto
 
             TreeItem *node_item = tree->create_item(root);
 
-            node_item->set_text(0, Object::cast_to<Node>(connection.source)->get_name());
+            node_item->set_text(0, object_cast<Node>(connection.source)->get_name());
             node_item->set_icon(0, EditorNode::get_singleton()->get_object_icon(connection.source, "Node"));
             node_item->set_selectable(0, false);
             node_item->set_editable(0, false);
@@ -75,7 +75,7 @@ void ConnectionInfoDialog::popup_connections(const String& p_method, const Vecto
             node_item->set_selectable(1, false);
             node_item->set_editable(1, false);
 
-            node_item->set_text(2, Object::cast_to<Node>(connection.target)->get_name());
+            node_item->set_text(2, object_cast<Node>(connection.target)->get_name());
             node_item->set_icon(2, EditorNode::get_singleton()->get_object_icon(connection.target, "Node"));
             node_item->set_selectable(2, false);
             node_item->set_editable(2, false);
@@ -605,8 +605,8 @@ void ScriptTextEditor::_validate_script() {
                 Connection connection = E->deref();
 
                 String base_path = base->get_name();
-                String source_path = base == connection.source ? base_path : base_path + "/" + String(base->get_path_to(Object::cast_to<Node>(connection.source)));
-                String target_path = base == connection.target ? base_path : base_path + "/" + String(base->get_path_to(Object::cast_to<Node>(connection.target)));
+                String source_path = base == connection.source ? base_path : base_path + "/" + String(base->get_path_to(object_cast<Node>(connection.source)));
+                String target_path = base == connection.target ? base_path : base_path + "/" + String(base->get_path_to(object_cast<Node>(connection.target)));
 
                 warnings_panel->push_cell();
                 warnings_panel->push_color(warnings_panel->get_color("warning_color", "Editor"));
@@ -987,7 +987,7 @@ void ScriptTextEditor::_update_connected_methods() {
             }
 
             // As deleted nodes are still accessible via the undo/redo system, check if they're still on the tree.
-            Node *source = Object::cast_to<Node>(connection.source);
+            Node *source = object_cast<Node>(connection.source);
             if (source && !source->is_inside_tree()) {
                 continue;
             }

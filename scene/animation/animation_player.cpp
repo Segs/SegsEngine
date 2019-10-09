@@ -50,9 +50,9 @@ void AnimatedValuesBackup::update_skeletons() {
     for (int i = 0; i < entries.size(); i++) {
         if (entries[i].bone_idx != -1) {
             // 3D bone
-            Object::cast_to<Skeleton>(entries[i].object)->notification(Skeleton::NOTIFICATION_UPDATE_SKELETON);
+            object_cast<Skeleton>(entries[i].object)->notification(Skeleton::NOTIFICATION_UPDATE_SKELETON);
         } else {
-            Bone2D *bone = Object::cast_to<Bone2D>(entries[i].object);
+            Bone2D *bone = object_cast<Bone2D>(entries[i].object);
             if (bone && bone->skeleton) {
                 // 2D bone
                 bone->skeleton->_update_transform();
@@ -258,9 +258,9 @@ void AnimationPlayer::_ensure_node_caches(AnimationData *p_anim) {
         uint32_t id = resource ? resource->get_instance_id() : child->get_instance_id();
         int bone_idx = -1;
 
-        if (a->track_get_path(i).get_subname_count() == 1 && Object::cast_to<Skeleton>(child)) {
+        if (a->track_get_path(i).get_subname_count() == 1 && object_cast<Skeleton>(child)) {
 
-            Skeleton *sk = Object::cast_to<Skeleton>(child);
+            Skeleton *sk = object_cast<Skeleton>(child);
             bone_idx = sk->find_bone(a->track_get_path(i).get_subname(0));
             if (bone_idx == -1) {
 
@@ -284,14 +284,14 @@ void AnimationPlayer::_ensure_node_caches(AnimationData *p_anim) {
         p_anim->node_cache[i]->path = a->track_get_path(i);
         p_anim->node_cache[i]->node = child;
         p_anim->node_cache[i]->resource = resource;
-        p_anim->node_cache[i]->node_2d = Object::cast_to<Node2D>(child);
+        p_anim->node_cache[i]->node_2d = object_cast<Node2D>(child);
         if (a->track_get_type(i) == Animation::TYPE_TRANSFORM) {
             // special cases and caches for transform tracks
 
             // cache spatial
-            p_anim->node_cache[i]->spatial = Object::cast_to<Spatial>(child);
+            p_anim->node_cache[i]->spatial = object_cast<Spatial>(child);
             // cache skeleton
-            p_anim->node_cache[i]->skeleton = Object::cast_to<Skeleton>(child);
+            p_anim->node_cache[i]->skeleton = object_cast<Skeleton>(child);
             if (p_anim->node_cache[i]->skeleton) {
                 if (a->track_get_path(i).get_subname_count() == 1) {
                     StringName bone_name = a->track_get_path(i).get_subname(0);
@@ -711,7 +711,7 @@ void AnimationPlayer::_animation_process_animation(AnimationData *p_anim, float 
             } break;
             case Animation::TYPE_ANIMATION: {
 
-                AnimationPlayer *player = Object::cast_to<AnimationPlayer>(nc->node);
+                AnimationPlayer *player = object_cast<AnimationPlayer>(nc->node);
                 if (!player)
                     continue;
 
@@ -1394,7 +1394,7 @@ void AnimationPlayer::_stop_playing_caches() {
             E->node->call("stop");
         }
         if (E->node && E->animation_playing) {
-            AnimationPlayer *player = Object::cast_to<AnimationPlayer>(E->node);
+            AnimationPlayer *player = object_cast<AnimationPlayer>(E->node);
             if (!player)
                 continue;
             player->stop();
@@ -1617,7 +1617,7 @@ void AnimationPlayer::restore_animated_values(const AnimatedValuesBackup &p_back
         if (entry->bone_idx == -1) {
             entry->object->set_indexed(entry->subpath, entry->value);
         } else {
-            Object::cast_to<Skeleton>(entry->object)->set_bone_pose(entry->bone_idx, entry->value);
+            object_cast<Skeleton>(entry->object)->set_bone_pose(entry->bone_idx, entry->value);
         }
     }
 }

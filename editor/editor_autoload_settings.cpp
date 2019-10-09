@@ -230,7 +230,7 @@ void EditorAutoloadSettings::_autoload_edited() {
 
 void EditorAutoloadSettings::_autoload_button_pressed(Object *p_item, int p_column, int p_button) {
 
-    TreeItem *ti = Object::cast_to<TreeItem>(p_item);
+    TreeItem *ti = object_cast<TreeItem>(p_item);
 
     String name = "autoload/" + ti->get_text(0);
 
@@ -336,7 +336,7 @@ Node *EditorAutoloadSettings::_create_autoload(const String &p_path) {
 
         ERR_FAIL_COND_V_MSG(obj == nullptr, nullptr, "Cannot instance script for autoload, expected 'Node' inheritance, got: " + String(ibt) + ".")
 
-        n = Object::cast_to<Node>(obj);
+        n = object_cast<Node>(obj);
         n->set_script(s.get_ref_ptr());
     }
 

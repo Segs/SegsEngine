@@ -134,7 +134,7 @@ Array PhysicsBody::get_collision_exceptions() {
         RID body = E->deref();
         ObjectID instance_id = PhysicsServer::get_singleton()->body_get_object_instance_id(body);
         Object *obj = ObjectDB::get_instance(instance_id);
-        PhysicsBody *physics_body = Object::cast_to<PhysicsBody>(obj);
+        PhysicsBody *physics_body = object_cast<PhysicsBody>(obj);
         ret.append(Variant(physics_body));
     }
     return ret;
@@ -143,7 +143,7 @@ Array PhysicsBody::get_collision_exceptions() {
 void PhysicsBody::add_collision_exception_with(Node *p_node) {
 
     ERR_FAIL_NULL(p_node);
-    CollisionObject *collision_object = Object::cast_to<CollisionObject>(p_node);
+    CollisionObject *collision_object = object_cast<CollisionObject>(p_node);
     ERR_FAIL_COND_MSG(!collision_object, "Collision exception only works between two CollisionObject.")
     PhysicsServer::get_singleton()->body_add_collision_exception(get_rid(), collision_object->get_rid());
 }
@@ -151,7 +151,7 @@ void PhysicsBody::add_collision_exception_with(Node *p_node) {
 void PhysicsBody::remove_collision_exception_with(Node *p_node) {
 
     ERR_FAIL_NULL(p_node);
-    CollisionObject *collision_object = Object::cast_to<CollisionObject>(p_node);
+    CollisionObject *collision_object = object_cast<CollisionObject>(p_node);
     ERR_FAIL_COND_MSG(!collision_object, "Collision exception only works between two CollisionObject.")
     PhysicsServer::get_singleton()->body_remove_collision_exception(get_rid(), collision_object->get_rid());
 }
@@ -343,7 +343,7 @@ void StaticBody::_reload_physics_characteristics() {
 void RigidBody::_body_enter_tree(ObjectID p_id) {
 
     Object *obj = ObjectDB::get_instance(p_id);
-    Node *node = Object::cast_to<Node>(obj);
+    Node *node = object_cast<Node>(obj);
     ERR_FAIL_COND(!node)
 
     ERR_FAIL_COND(!contact_monitor)
@@ -368,7 +368,7 @@ void RigidBody::_body_enter_tree(ObjectID p_id) {
 void RigidBody::_body_exit_tree(ObjectID p_id) {
 
     Object *obj = ObjectDB::get_instance(p_id);
-    Node *node = Object::cast_to<Node>(obj);
+    Node *node = object_cast<Node>(obj);
     ERR_FAIL_COND(!node)
     ERR_FAIL_COND(!contact_monitor)
     Map<ObjectID, BodyState>::iterator E = contact_monitor->body_map.find(p_id);
@@ -394,7 +394,7 @@ void RigidBody::_body_inout(int p_status, ObjectID p_instance, int p_body_shape,
     ObjectID objid = p_instance;
 
     Object *obj = ObjectDB::get_instance(objid);
-    Node *node = Object::cast_to<Node>(obj);
+    Node *node = object_cast<Node>(obj);
 
     ERR_FAIL_COND(!contact_monitor)
     Map<ObjectID, BodyState>::iterator E = contact_monitor->body_map.find(objid);
@@ -459,7 +459,7 @@ struct _RigidBodyInOut {
 void RigidBody::_direct_state_changed(Object *p_state) {
 
 #ifdef DEBUG_ENABLED
-    state = Object::cast_to<PhysicsDirectBodyState>(p_state);
+    state = object_cast<PhysicsDirectBodyState>(p_state);
 #else
     state = (PhysicsDirectBodyState *)p_state; //trust it
 #endif
@@ -874,7 +874,7 @@ void RigidBody::set_contact_monitor(bool p_enabled) {
 
             //clean up mess
             Object *obj = ObjectDB::get_instance(E.first);
-            Node *node = Object::cast_to<Node>(obj);
+            Node *node = object_cast<Node>(obj);
 
             if (node) {
 
@@ -1501,7 +1501,7 @@ Object *KinematicCollision::get_collider_shape() const {
 
     Object *collider = get_collider();
     if (collider) {
-        CollisionObject *obj2d = Object::cast_to<CollisionObject>(collider);
+        CollisionObject *obj2d = object_cast<CollisionObject>(collider);
         if (obj2d) {
             uint32_t ownerid = obj2d->shape_find_owner(collision.collider_shape);
             return obj2d->shape_owner_get_owner(ownerid);
@@ -2212,7 +2212,7 @@ void PhysicalBone::_direct_state_changed(Object *p_state) {
     PhysicsDirectBodyState *state;
 
 #ifdef DEBUG_ENABLED
-    state = Object::cast_to<PhysicsDirectBodyState>(p_state);
+    state = object_cast<PhysicsDirectBodyState>(p_state);
 #else
     state = (PhysicsDirectBodyState *)p_state; //trust it
 #endif
@@ -2290,7 +2290,7 @@ Skeleton *PhysicalBone::find_skeleton_parent(Node *p_parent) {
     if (!p_parent) {
         return nullptr;
     }
-    Skeleton *s = Object::cast_to<Skeleton>(p_parent);
+    Skeleton *s = object_cast<Skeleton>(p_parent);
     return s ? s : find_skeleton_parent(p_parent->get_parent());
 }
 

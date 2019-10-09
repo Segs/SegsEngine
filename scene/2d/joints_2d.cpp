@@ -63,8 +63,8 @@ void Joint2D::_update_joint(bool p_only_free) {
     if (!node_a || !node_b)
         return;
 
-    PhysicsBody2D *body_a = Object::cast_to<PhysicsBody2D>(node_a);
-    PhysicsBody2D *body_b = Object::cast_to<PhysicsBody2D>(node_b);
+    PhysicsBody2D *body_a = object_cast<PhysicsBody2D>(node_a);
+    PhysicsBody2D *body_b = object_cast<PhysicsBody2D>(node_b);
 
     if (!body_a || !body_b)
         return;

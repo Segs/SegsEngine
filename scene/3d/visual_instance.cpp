@@ -64,7 +64,7 @@ void VisualInstance::_notification(int p_what) {
 
             // CHECK SKELETON => moving skeleton attaching logic to MeshInstance
             /*
-            Skeleton *skeleton=Object::cast_to<Skeleton>(get_parent());
+            Skeleton *skeleton=object_cast<Skeleton>(get_parent());
             if (skeleton)
                 VisualServer::get_singleton()->instance_attach_skeleton( instance, skeleton->get_skeleton() );
             */

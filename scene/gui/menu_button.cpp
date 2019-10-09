@@ -40,8 +40,8 @@ void MenuButton::_unhandled_key_input(Ref<InputEvent> p_event) {
     if (disable_shortcuts) return;
 
     if (p_event->is_pressed() && !p_event->is_echo() &&
-            (Object::cast_to<InputEventKey>(p_event.get()) || Object::cast_to<InputEventJoypadButton>(p_event.get()) ||
-                    Object::cast_to<InputEventAction>(p_event.get()))) {
+            (object_cast<InputEventKey>(p_event.get()) || object_cast<InputEventJoypadButton>(p_event.get()) ||
+                    object_cast<InputEventAction>(p_event.get()))) {
 
         if (!get_parent() || !is_visible_in_tree() || is_disabled()) return;
 

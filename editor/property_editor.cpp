@@ -225,7 +225,7 @@ void CustomPropertyEditor::_menu_option(int p_which) {
 
                     Object *inst = ClassDB::instance(orig_type);
 
-                    Ref<Resource> res(Object::cast_to<Resource>(inst));
+                    Ref<Resource> res(object_cast<Resource>(inst));
 
                     ERR_FAIL_COND(not res)
 
@@ -253,8 +253,8 @@ void CustomPropertyEditor::_menu_option(int p_which) {
                 } break;
                 case OBJ_MENU_NEW_SCRIPT: {
 
-                    if (Object::cast_to<Node>(owner))
-                        EditorNode::get_singleton()->get_scene_tree_dock()->open_script_dialog(Object::cast_to<Node>(owner));
+                    if (object_cast<Node>(owner))
+                        EditorNode::get_singleton()->get_scene_tree_dock()->open_script_dialog(object_cast<Node>(owner));
 
                 } break;
                 case OBJ_MENU_SHOW_IN_FILE_SYSTEM: {
@@ -304,7 +304,7 @@ void CustomPropertyEditor::_menu_option(int p_which) {
                     }
 
                     ERR_BREAK(!obj)
-                    Resource *res = Object::cast_to<Resource>(obj);
+                    Resource *res = object_cast<Resource>(obj);
                     ERR_BREAK(!res)
                     if (owner && hint == PROPERTY_HINT_RESOURCE_TYPE && hint_text == "Script") {
                         //make visual script the right type
@@ -649,8 +649,8 @@ bool CustomPropertyEditor::edit(Object *p_owner, const String &p_name, VariantTy
                 MAKE_PROPSELECT
 
                 Object *obj = ObjectDB::get_instance(StringUtils::to_int64(hint_text));
-                if (Object::cast_to<Script>(obj)) {
-                    property_select->select_method_from_script(Ref<Script>(Object::cast_to<Script>(obj)), v);
+                if (object_cast<Script>(obj)) {
+                    property_select->select_method_from_script(Ref<Script>(object_cast<Script>(obj)), v);
                 }
 
                 updating = false;
@@ -699,8 +699,8 @@ bool CustomPropertyEditor::edit(Object *p_owner, const String &p_name, VariantTy
                 MAKE_PROPSELECT
 
                 Object *obj = ObjectDB::get_instance(StringUtils::to_int64(hint_text));
-                if (Object::cast_to<Script>(obj)) {
-                    property_select->select_property_from_script(Ref<Script>(Object::cast_to<Script>(obj)), v);
+                if (object_cast<Script>(obj)) {
+                    property_select->select_property_from_script(Ref<Script>(object_cast<Script>(obj)), v);
                 }
 
                 updating = false;
@@ -889,7 +889,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, const String &p_name, VariantTy
             names.push_back(TTR("Assign"));
             names.push_back(TTR("Clear"));
 
-            if (owner && owner->is_class("Node") && (v.get_type() == VariantType::NODE_PATH) && Object::cast_to<Node>(owner)->has_node(v))
+            if (owner && owner->is_class("Node") && (v.get_type() == VariantType::NODE_PATH) && object_cast<Node>(owner)->has_node(v))
                 names.push_back(TTR("Select Node"));
 
             config_action_buttons(names);
@@ -900,7 +900,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, const String &p_name, VariantTy
             if (hint != PROPERTY_HINT_RESOURCE_TYPE)
                 break;
 
-            if (p_name == "script" && hint_text == "Script" && Object::cast_to<Node>(owner)) {
+            if (p_name == "script" && hint_text == "Script" && object_cast<Node>(owner)) {
                 menu->add_icon_item(get_icon("Script", "EditorIcons"), TTR("New Script"), OBJ_MENU_NEW_SCRIPT);
                 menu->add_separator();
             } else if (!hint_text.empty()) {
@@ -1161,7 +1161,7 @@ void CustomPropertyEditor::_type_create_selected(int p_idx) {
 
         ERR_FAIL_COND(!obj)
 
-        Resource *res = Object::cast_to<Resource>(obj);
+        Resource *res = object_cast<Resource>(obj);
         ERR_FAIL_COND(!res)
 
         v = Variant(Ref<Resource>(res));
@@ -1181,7 +1181,7 @@ void CustomPropertyEditor::_node_path_selected(NodePath p_path) {
     if (picking_viewport) {
 
         Node *to_node = get_node(p_path);
-        if (!Object::cast_to<Viewport>(to_node)) {
+        if (!object_cast<Viewport>(to_node)) {
             EditorNode::get_singleton()->show_warning(TTR("Selected node is not a Viewport!"));
             return;
         }
@@ -1210,11 +1210,11 @@ void CustomPropertyEditor::_node_path_selected(NodePath p_path) {
         Node *node = nullptr;
 
         if (owner->is_class("Node"))
-            node = Object::cast_to<Node>(owner);
+            node = object_cast<Node>(owner);
         else if (owner->is_class("ArrayPropertyEdit"))
-            node = Object::cast_to<ArrayPropertyEdit>(owner)->get_node();
+            node = object_cast<ArrayPropertyEdit>(owner)->get_node();
         else if (owner->is_class("DictionaryPropertyEdit"))
-            node = Object::cast_to<DictionaryPropertyEdit>(owner)->get_node();
+            node = object_cast<DictionaryPropertyEdit>(owner)->get_node();
         if (!node) {
             v = p_path;
             emit_signal("variant_changed");
@@ -1333,9 +1333,9 @@ void CustomPropertyEditor::_action_pressed(int p_which) {
                 hide();
             } else if (p_which == 2) {
 
-                if (owner->is_class("Node") && (v.get_type() == VariantType::NODE_PATH) && Object::cast_to<Node>(owner)->has_node(v)) {
+                if (owner->is_class("Node") && (v.get_type() == VariantType::NODE_PATH) && object_cast<Node>(owner)->has_node(v)) {
 
-                    Node *target_node = Object::cast_to<Node>(owner)->get_node(v);
+                    Node *target_node = object_cast<Node>(owner)->get_node(v);
                     EditorNode::get_singleton()->get_editor_selection()->clear();
                     EditorNode::get_singleton()->get_scene_tree_dock()->set_selected(target_node);
                 }
@@ -1365,7 +1365,7 @@ void CustomPropertyEditor::_action_pressed(int p_which) {
                     }
 
                     ERR_BREAK(!obj)
-                    Resource *res = Object::cast_to<Resource>(obj);
+                    Resource *res = object_cast<Resource>(obj);
                     ERR_BREAK(!res)
 
                     v = Variant(Ref<Resource>(res));

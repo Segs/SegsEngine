@@ -749,7 +749,7 @@ Transform ClippedCamera::get_camera_transform() const {
 void ClippedCamera::_notification(int p_what) {
     if (p_what == NOTIFICATION_INTERNAL_PROCESS || p_what == NOTIFICATION_INTERNAL_PHYSICS_PROCESS) {
 
-        Spatial *parent = Object::cast_to<Spatial>(get_parent());
+        Spatial *parent = object_cast<Spatial>(get_parent());
         if (!parent) {
             return;
         }
@@ -840,7 +840,7 @@ void ClippedCamera::add_exception_rid(const RID &p_rid) {
 void ClippedCamera::add_exception(const Object *p_object) {
 
     ERR_FAIL_NULL(p_object);
-    const CollisionObject *co = Object::cast_to<CollisionObject>(p_object);
+    const CollisionObject *co = object_cast<CollisionObject>(p_object);
     if (!co)
         return;
     add_exception_rid(co->get_rid());
@@ -854,7 +854,7 @@ void ClippedCamera::remove_exception_rid(const RID &p_rid) {
 void ClippedCamera::remove_exception(const Object *p_object) {
 
     ERR_FAIL_NULL(p_object);
-    const CollisionObject *co = Object::cast_to<CollisionObject>(p_object);
+    const CollisionObject *co = object_cast<CollisionObject>(p_object);
     if (!co)
         return;
     remove_exception_rid(co->get_rid());

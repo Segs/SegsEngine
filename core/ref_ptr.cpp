@@ -34,12 +34,14 @@
 #include "core/resource.h"
 #include "core/rid.h"
 
-void RefPtr::operator=(const RefPtr &p_other) {
-
+RefPtr &RefPtr::operator=(const RefPtr &p_other) {
+    if(data==p_other.data)
+        return *this;
     Ref<RefCounted> *ref = reinterpret_cast<Ref<RefCounted> *>(&data);
     Ref<RefCounted> *ref_other = reinterpret_cast<Ref<RefCounted> *>(&p_other.data);
 
     *ref = *ref_other;
+    return *this;
 }
 
 bool RefPtr::operator==(const RefPtr &p_other) const {
@@ -71,7 +73,7 @@ RID RefPtr::get_rid() const {
     Ref<RefCounted> *ref = reinterpret_cast<Ref<RefCounted> *>(&data);
     if ( not *ref)
         return RID();
-    Resource *res = Object::cast_to<Resource>(ref->get());
+    Resource *res = object_cast<Resource>(ref->get());
     if (res)
         return res->get_rid();
     return RID();

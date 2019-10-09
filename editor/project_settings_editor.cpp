@@ -573,7 +573,7 @@ void ProjectSettingsEditor::_action_activated() {
 
 void ProjectSettingsEditor::_action_button_pressed(Object *p_obj, int p_column, int p_id) {
 
-    TreeItem *ti = Object::cast_to<TreeItem>(p_obj);
+    TreeItem *ti = object_cast<TreeItem>(p_obj);
 
     ERR_FAIL_COND(!ti)
 
@@ -1195,7 +1195,7 @@ void ProjectSettingsEditor::_translation_file_open() {
 
 void ProjectSettingsEditor::_translation_delete(Object *p_item, int p_column, int p_button) {
 
-    TreeItem *ti = Object::cast_to<TreeItem>(p_item);
+    TreeItem *ti = object_cast<TreeItem>(p_item);
     ERR_FAIL_COND(!ti)
 
     int idx = ti->get_metadata(0);
@@ -1340,7 +1340,7 @@ void ProjectSettingsEditor::_translation_res_delete(Object *p_item, int p_column
 
     Dictionary remaps = ProjectSettings::get_singleton()->get("locale/translation_remaps");
 
-    TreeItem *k = Object::cast_to<TreeItem>(p_item);
+    TreeItem *k = object_cast<TreeItem>(p_item);
 
     String key = k->get_metadata(0);
     ERR_FAIL_COND(!remaps.has(key))
@@ -1369,7 +1369,7 @@ void ProjectSettingsEditor::_translation_res_option_delete(Object *p_item, int p
 
     TreeItem *k = translation_remap->get_selected();
     ERR_FAIL_COND(!k)
-    TreeItem *ed = Object::cast_to<TreeItem>(p_item);
+    TreeItem *ed = object_cast<TreeItem>(p_item);
     ERR_FAIL_COND(!ed)
 
     String key = k->get_metadata(0);

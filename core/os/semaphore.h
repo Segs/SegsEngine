@@ -43,5 +43,5 @@ public:
 
 	static Semaphore *create(); ///< Create a mutex
 
-	virtual ~Semaphore() {}
+    virtual ~Semaphore() = default;
 };

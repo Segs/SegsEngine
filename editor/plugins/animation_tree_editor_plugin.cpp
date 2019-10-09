@@ -217,7 +217,7 @@ Vector<String> AnimationTreeEditor::get_animation_list() {
     if (!tree || !tree->has_node(tree->get_animation_player()))
         return Vector<String>();
 
-    AnimationPlayer *ap = Object::cast_to<AnimationPlayer>(tree->get_node(tree->get_animation_player()));
+    AnimationPlayer *ap = object_cast<AnimationPlayer>(tree->get_node(tree->get_animation_player()));
 
     if (!ap)
         return Vector<String>();
@@ -259,7 +259,7 @@ AnimationTreeEditor::AnimationTreeEditor() {
 
 void AnimationTreeEditorPlugin::edit(Object *p_object) {
 
-    anim_tree_editor->edit(Object::cast_to<AnimationTree>(p_object));
+    anim_tree_editor->edit(object_cast<AnimationTree>(p_object));
 }
 
 bool AnimationTreeEditorPlugin::handles(Object *p_object) const {

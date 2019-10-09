@@ -30,10 +30,10 @@
 
 #pragma once
 
+#include "core/typedefs.h"
 #include "core/os/memory.h"
 #include "core/safe_refcount.h"
 #include "core/set.h"
-#include "core/typedefs.h"
 #include "core/error_macros.h"
 
 template <class T, class A>

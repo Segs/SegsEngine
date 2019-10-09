@@ -646,7 +646,7 @@ public:
 
                 if (root_path && root_path->has_node(animation->track_get_path(track))) {
 
-                    AnimationPlayer *ap = Object::cast_to<AnimationPlayer>(root_path->get_node(animation->track_get_path(track)));
+                    AnimationPlayer *ap = object_cast<AnimationPlayer>(root_path->get_node(animation->track_get_path(track)));
                     if (ap) {
                         ListPOD<StringName> anims;
                         ap->get_animation_list(&anims);
@@ -1348,7 +1348,7 @@ public:
 
                     if (root_path && root_path->has_node(animation->track_get_path(first_track))) {
 
-                        AnimationPlayer *ap = Object::cast_to<AnimationPlayer>(root_path->get_node(animation->track_get_path(first_track)));
+                        AnimationPlayer *ap = object_cast<AnimationPlayer>(root_path->get_node(animation->track_get_path(first_track)));
                         if (ap) {
                             ListPOD<StringName> anims;
                             ap->get_animation_list(&anims);
@@ -3155,7 +3155,7 @@ AnimationTrackEdit *AnimationTrackEditPlugin::create_value_track_edit(Object *p_
         };
 
         Variant::CallError ce;
-        return Object::cast_to<AnimationTrackEdit>(get_script_instance()->call("create_value_track_edit", (const Variant **)&argptrs, 6, ce).operator Object *());
+        return object_cast<AnimationTrackEdit>(get_script_instance()->call("create_value_track_edit", (const Variant **)&argptrs, 6, ce).operator Object *());
     }
     return nullptr;
 }
@@ -3163,14 +3163,14 @@ AnimationTrackEdit *AnimationTrackEditPlugin::create_value_track_edit(Object *p_
 AnimationTrackEdit *AnimationTrackEditPlugin::create_audio_track_edit() {
 
     if (get_script_instance()) {
-        return Object::cast_to<AnimationTrackEdit>(get_script_instance()->call("create_audio_track_edit").operator Object *());
+        return object_cast<AnimationTrackEdit>(get_script_instance()->call("create_audio_track_edit").operator Object *());
     }
     return nullptr;
 }
 
 AnimationTrackEdit *AnimationTrackEditPlugin::create_animation_track_edit(Object *p_object) {
     if (get_script_instance()) {
-        return Object::cast_to<AnimationTrackEdit>(get_script_instance()->call("create_animation_track_edit", Variant(p_object)).operator Object *());
+        return object_cast<AnimationTrackEdit>(get_script_instance()->call("create_animation_track_edit", Variant(p_object)).operator Object *());
     }
     return nullptr;
 }
@@ -3444,7 +3444,7 @@ void AnimationTrackEditor::_track_remove_request(int p_track) {
 void AnimationTrackEditor::_track_grab_focus(int p_track) {
 
     // Don't steal focus if not working with the track editor.
-    if (Object::cast_to<AnimationTrackEdit>(get_focus_owner()))
+    if (object_cast<AnimationTrackEdit>(get_focus_owner()))
         track_edits[p_track]->grab_focus();
 }
 
@@ -3656,7 +3656,7 @@ void AnimationTrackEditor::insert_node_value_key(Node *p_node, const String &p_p
 
     String path(root->get_path_to(node));
 
-    if (Object::cast_to<AnimationPlayer>(node) && p_property == "current_animation") {
+    if (object_cast<AnimationPlayer>(node) && p_property == "current_animation") {
         if (node == AnimationPlayerEditor::singleton->get_player()) {
             EditorNode::get_singleton()->show_warning(TTR("AnimationPlayer can't animate itself, only other players."));
             return;
@@ -3750,13 +3750,13 @@ void AnimationTrackEditor::insert_value_key(const String &p_property, const Vari
     //let's build a node path
     ERR_FAIL_COND(history->get_path_size() == 0)
     Object *obj = ObjectDB::get_instance(history->get_path_object(0));
-    ERR_FAIL_COND(!Object::cast_to<Node>(obj))
+    ERR_FAIL_COND(!object_cast<Node>(obj))
 
-    Node *node = Object::cast_to<Node>(obj);
+    Node *node = object_cast<Node>(obj);
 
     String path(root->get_path_to(node));
 
-    if (Object::cast_to<AnimationPlayer>(node) && p_property == "current_animation") {
+    if (object_cast<AnimationPlayer>(node) && p_property == "current_animation") {
         if (node == AnimationPlayerEditor::singleton->get_player()) {
             EditorNode::get_singleton()->show_warning(TTR("AnimationPlayer can't animate itself, only other players."));
             return;
@@ -4203,7 +4203,7 @@ void AnimationTrackEditor::_update_tracks() {
                 node = root->get_node(path);
             }
 
-            if (node && Object::cast_to<AnimationPlayer>(node)) {
+            if (node && object_cast<AnimationPlayer>(node)) {
                 for (int j = 0; j < track_edit_plugins.size(); j++) {
                     track_edit = track_edit_plugins.write[j]->create_animation_track_edit(node);
                     if (track_edit) {
@@ -4652,7 +4652,7 @@ void AnimationTrackEditor::_insert_key_from_track(float p_ofs, int p_track) {
                 EditorNode::get_singleton()->show_warning(TTR("Track path is invalid, so can't add a key."));
                 return;
             }
-            Spatial *base = Object::cast_to<Spatial>(root->get_node(animation->track_get_path(p_track)));
+            Spatial *base = object_cast<Spatial>(root->get_node(animation->track_get_path(p_track)));
 
             if (!base) {
                 EditorNode::get_singleton()->show_warning(TTR("Track is not of type Spatial, can't insert key"));

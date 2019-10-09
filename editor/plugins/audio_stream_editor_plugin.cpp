@@ -264,7 +264,7 @@ AudioStreamEditor::AudioStreamEditor() {
 
 void AudioStreamEditorPlugin::edit(Object *p_object) {
 
-    AudioStream *s = Object::cast_to<AudioStream>(p_object);
+    AudioStream *s = object_cast<AudioStream>(p_object);
     if (!s)
         return;
 

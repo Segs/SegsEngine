@@ -81,10 +81,10 @@ void MeshLibraryEditor::_import_scene(Node *p_scene,const Ref<MeshLibrary> &p_li
 
         Node *child = p_scene->get_child(i);
 
-        if (!Object::cast_to<MeshInstance>(child)) {
+        if (!object_cast<MeshInstance>(child)) {
             if (child->get_child_count() > 0) {
                 child = child->get_child(0);
-                if (!Object::cast_to<MeshInstance>(child)) {
+                if (!object_cast<MeshInstance>(child)) {
                     continue;
                 }
 
@@ -92,7 +92,7 @@ void MeshLibraryEditor::_import_scene(Node *p_scene,const Ref<MeshLibrary> &p_li
                 continue;
         }
 
-        MeshInstance *mi = Object::cast_to<MeshInstance>(child);
+        MeshInstance *mi = object_cast<MeshInstance>(child);
         Ref<Mesh> mesh = mi->get_mesh();
         if (not mesh)
             continue;
@@ -122,10 +122,10 @@ void MeshLibraryEditor::_import_scene(Node *p_scene,const Ref<MeshLibrary> &p_li
         for (int j = 0; j < mi->get_child_count(); j++) {
 
             Node *child2 = mi->get_child(j);
-            if (!Object::cast_to<StaticBody>(child2))
+            if (!object_cast<StaticBody>(child2))
                 continue;
 
-            StaticBody *sb = Object::cast_to<StaticBody>(child2);
+            StaticBody *sb = object_cast<StaticBody>(child2);
             List<uint32_t> shapes;
             sb->get_shape_owners(&shapes);
 
@@ -156,9 +156,9 @@ void MeshLibraryEditor::_import_scene(Node *p_scene,const Ref<MeshLibrary> &p_li
         Transform navmesh_transform;
         for (int j = 0; j < mi->get_child_count(); j++) {
             Node *child2 = mi->get_child(j);
-            if (!Object::cast_to<NavigationMeshInstance>(child2))
+            if (!object_cast<NavigationMeshInstance>(child2))
                 continue;
-            NavigationMeshInstance *sb = Object::cast_to<NavigationMeshInstance>(child2);
+            NavigationMeshInstance *sb = object_cast<NavigationMeshInstance>(child2);
             navmesh = sb->get_navigation_mesh();
             navmesh_transform = sb->get_transform();
             if (navmesh)
@@ -295,8 +295,8 @@ MeshLibraryEditor::MeshLibraryEditor(EditorNode *p_editor) {
 
 void MeshLibraryEditorPlugin::edit(Object *p_node) {
 
-    if (Object::cast_to<MeshLibrary>(p_node)) {
-        mesh_library_editor->edit(Ref<MeshLibrary>(Object::cast_to<MeshLibrary>(p_node)));
+    if (object_cast<MeshLibrary>(p_node)) {
+        mesh_library_editor->edit(Ref<MeshLibrary>(object_cast<MeshLibrary>(p_node)));
         mesh_library_editor->show();
     } else
         mesh_library_editor->hide();

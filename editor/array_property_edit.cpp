@@ -208,8 +208,8 @@ bool ArrayPropertyEdit::_get(const StringName &p_name, Variant &r_ret) const {
             bool valid;
             r_ret = arr.get(idx, &valid);
 
-            if (r_ret.get_type() == VariantType::OBJECT && Object::cast_to<EncodedObjectAsID>(r_ret)) {
-                r_ret = Object::cast_to<EncodedObjectAsID>(r_ret)->get_object_id();
+            if (r_ret.get_type() == VariantType::OBJECT && object_cast<EncodedObjectAsID>(r_ret)) {
+                r_ret = object_cast<EncodedObjectAsID>(r_ret)->get_object_id();
             }
 
             return valid;
@@ -242,7 +242,7 @@ void ArrayPropertyEdit::_get_property_list(ListPOD<PropertyInfo> *p_list) const 
             p_list->push_back(PropertyInfo(VariantType::INT, "indices/" + itos(i + offset) + "_type", PROPERTY_HINT_ENUM, vtypes));
         }
 
-        if (v.get_type() == VariantType::OBJECT && Object::cast_to<EncodedObjectAsID>(v)) {
+        if (v.get_type() == VariantType::OBJECT && object_cast<EncodedObjectAsID>(v)) {
             p_list->push_back(PropertyInfo(VariantType::INT, "indices/" + itos(i + offset), PROPERTY_HINT_OBJECT_ID, "Object"));
             continue;
         }
@@ -289,7 +289,7 @@ void ArrayPropertyEdit::edit(Object *p_obj, const StringName &p_prop, const Stri
 
 Node *ArrayPropertyEdit::get_node() {
 
-    return Object::cast_to<Node>(ObjectDB::get_instance(obj));
+    return object_cast<Node>(ObjectDB::get_instance(obj));
 }
 
 bool ArrayPropertyEdit::_dont_undo_redo() {

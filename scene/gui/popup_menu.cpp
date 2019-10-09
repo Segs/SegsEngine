@@ -157,7 +157,7 @@ void PopupMenu::_activate_submenu(int over) {
 
     Node *n = get_node((NodePath)items[over].submenu);
     ERR_FAIL_COND_MSG(!n, "Item subnode does not exist: " + items[over].submenu + ".")
-    Popup *pm = Object::cast_to<Popup>(n);
+    Popup *pm = object_cast<Popup>(n);
     ERR_FAIL_COND_MSG(!pm, "Item subnode is not a Popup: " + items[over].submenu + ".")
     if (pm->is_visible_in_tree())
         return; //already visible!
@@ -176,7 +176,7 @@ void PopupMenu::_activate_submenu(int over) {
     pm->set_scale(get_global_transform().get_scale());
     pm->popup();
 
-    PopupMenu *pum = Object::cast_to<PopupMenu>(pm);
+    PopupMenu *pum = object_cast<PopupMenu>(pm);
     if (pum) {
 
         pr.position -= pum->get_global_position();
@@ -261,7 +261,7 @@ void PopupMenu::_gui_input(const Ref<InputEvent> &p_event) {
     } else if (p_event->is_action("ui_left") && p_event->is_pressed()) {
 
         Node *n = get_parent();
-        if (n && Object::cast_to<PopupMenu>(n)) {
+        if (n && object_cast<PopupMenu>(n)) {
             hide();
             accept_event();
         }
@@ -444,7 +444,7 @@ void PopupMenu::_notification(int p_what) {
 
         case NOTIFICATION_ENTER_TREE: {
 
-            PopupMenu *pm = Object::cast_to<PopupMenu>(get_parent());
+            PopupMenu *pm = object_cast<PopupMenu>(get_parent());
             if (pm) {
                 // Inherit submenu's popup delay time from parent menu
                 float pm_delay = pm->get_submenu_popup_delay();
@@ -624,7 +624,7 @@ void PopupMenu::_notification(int p_what) {
                 if (!n)
                     continue;
 
-                PopupMenu *pm = Object::cast_to<PopupMenu>(n);
+                PopupMenu *pm = object_cast<PopupMenu>(n);
                 if (!pm || !pm->is_visible())
                     continue;
 
@@ -1104,7 +1104,7 @@ bool PopupMenu::activate_item_by_event(const Ref<InputEvent> &p_event, bool p_fo
             if (!n)
                 continue;
 
-            PopupMenu *pm = Object::cast_to<PopupMenu>(n);
+            PopupMenu *pm = object_cast<PopupMenu>(n);
             if (!pm)
                 continue;
 
@@ -1124,7 +1124,7 @@ void PopupMenu::activate_item(int p_item) {
 
     //hide all parent PopupMenus
     Node *next = get_parent();
-    PopupMenu *pop = Object::cast_to<PopupMenu>(next);
+    PopupMenu *pop = object_cast<PopupMenu>(next);
     while (pop) {
         // We close all parents that are chained together,
         // with hide_on_item_selection enabled
@@ -1140,7 +1140,7 @@ void PopupMenu::activate_item(int p_item) {
 
         pop->hide();
         next = next->get_parent();
-        pop = Object::cast_to<PopupMenu>(next);
+        pop = object_cast<PopupMenu>(next);
     }
 
     // Hides popup by default; unless otherwise specified

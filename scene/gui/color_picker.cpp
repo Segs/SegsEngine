@@ -81,7 +81,7 @@ void ColorPicker::_notification(int p_what) {
         } break;
         case NOTIFICATION_VISIBILITY_CHANGED: {
 
-            Popup *p = Object::cast_to<Popup>(get_parent());
+            Popup *p = object_cast<Popup>(get_parent());
             if (p)
                 p->set_size(Size2(get_combined_minimum_size().width + get_constant("margin") * 2, get_combined_minimum_size().height + get_constant("margin") * 2));
         } break;

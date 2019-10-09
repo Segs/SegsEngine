@@ -99,7 +99,7 @@ void AnimationCache::_update_cache() {
                 ERR_CONTINUE_MSG(animation->track_get_type(i) == Animation::TYPE_TRANSFORM, "Transform tracks can't have a subpath: " + (String)np + ".");
             }
 
-            Spatial *sp = Object::cast_to<Spatial>(node);
+            Spatial *sp = object_cast<Spatial>(node);
 
             if (!sp) {
 
@@ -111,7 +111,7 @@ void AnimationCache::_update_cache() {
                 StringName property = np.get_subname(0);
                 String ps = property;
 
-                Skeleton *sk = Object::cast_to<Skeleton>(node);
+                Skeleton *sk = object_cast<Skeleton>(node);
                 if (!sk) {
 
                     path_cache.push_back(Path());

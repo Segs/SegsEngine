@@ -183,7 +183,7 @@ Ref<Resource> Resource::duplicate_for_local_scene(Node *p_for_scene, Map<Ref<Res
     ListPOD<PropertyInfo> plist;
     get_property_list(&plist);
 
-    Resource *r = Object::cast_to<Resource>(ClassDB::instance(get_class_name()));
+    Resource *r = object_cast<Resource>(ClassDB::instance(get_class_name()));
     ERR_FAIL_COND_V(!r, Ref<Resource>())
 
     r->impl_data->local_scene = p_for_scene;

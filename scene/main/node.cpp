@@ -281,7 +281,7 @@ void Node::_propagate_enter_tree() {
         data->depth = 1;
     }
 
-    viewport = Object::cast_to<Viewport>(this);
+    viewport = object_cast<Viewport>(this);
     if (!viewport && data->parent)
         viewport = data->parent->viewport;
 
@@ -399,9 +399,9 @@ void Node::_propagate_exit_tree() {
 void Node::move_child(Node *p_child, int p_pos) {
 
     ERR_FAIL_NULL(p_child)
-    ERR_FAIL_INDEX_MSG(p_pos, data->children.size() + 1, "Invalid new child position: " + itos(p_pos) + ".");
-    ERR_FAIL_COND_MSG(p_child->data->parent != this, "Child is not a child of this node.")
-    ERR_FAIL_COND_MSG(blocked > 0, "Parent node is busy setting up children, move_child() failed. Consider using call_deferred(\"move_child\") instead (or \"popup\" if this is from a popup).")
+    ERR_FAIL_INDEX_MSG(p_pos, data->children.size() + 1, "Invalid new child position: " + itos(p_pos) + ".")
+    ERR_FAIL_COND_CMSG(p_child->data->parent != this, "Child is not a child of this node.")
+    ERR_FAIL_COND_CMSG(blocked > 0, "Parent node is busy setting up children, move_child() failed. Consider using call_deferred(\"move_child\") instead (or \"popup\" if this is from a popup).")
 
     // Specifying one place beyond the end
     // means the same as moving to the last position
@@ -1300,7 +1300,7 @@ void Node::_propagate_validate_owner() {
 void Node::remove_child(Node *p_child) {
 
     ERR_FAIL_NULL(p_child)
-    ERR_FAIL_COND_MSG(blocked > 0, "Parent node is busy setting up children, remove_node() failed. Consider using call_deferred(\"remove_child\", child) instead.")
+    ERR_FAIL_COND_CMSG(blocked > 0, "Parent node is busy setting up children, remove_node() failed. Consider using call_deferred(\"remove_child\", child) instead.")
 
     int child_count = data->children.size();
     Node **children = data->children.ptrw();
@@ -2036,9 +2036,9 @@ Node *Node::_duplicate(int p_flags, Map<const Node *, Node *> *r_duplimap) const
 
     bool instanced = false;
 
-    if (Object::cast_to<InstancePlaceholder>(this)) {
+    if (object_cast<InstancePlaceholder>(this)) {
 
-        const InstancePlaceholder *ip = Object::cast_to<const InstancePlaceholder>(this);
+        const InstancePlaceholder *ip = object_cast<const InstancePlaceholder>(this);
         InstancePlaceholder *nip = memnew(InstancePlaceholder);
         nip->set_instance_path(ip->get_instance_path());
         node = nip;
@@ -2061,7 +2061,7 @@ Node *Node::_duplicate(int p_flags, Map<const Node *, Node *> *r_duplimap) const
 
         Object *obj = ClassDB::instance(get_class_name());
         ERR_FAIL_COND_V(!obj, nullptr)
-        node = Object::cast_to<Node>(obj);
+        node = object_cast<Node>(obj);
         if (!node)
             memdelete(obj);
         ERR_FAIL_COND_V(!node, nullptr)
@@ -2126,7 +2126,7 @@ Node *Node::_duplicate(int p_flags, Map<const Node *, Node *> *r_duplimap) const
 
             if (E.usage & PROPERTY_USAGE_DO_NOT_SHARE_ON_DUPLICATE) {
 
-                Resource *res = Object::cast_to<Resource>(value);
+                Resource *res = object_cast<Resource>(value);
                 if (res) { // Duplicate only if it's a resource
                     current_node->set(name, res->duplicate());
                 }
@@ -2251,7 +2251,7 @@ void Node::_duplicate_and_reown(Node *p_new_parent, const Map<Node *, Node *> &p
 
         Object *obj = ClassDB::instance(get_class_name());
         ERR_FAIL_COND_MSG(!obj, "Node: Could not duplicate: " + String(get_class()) + ".")
-        node = Object::cast_to<Node>(obj);
+        node = object_cast<Node>(obj);
         if (!node) {
             memdelete(obj);
             ERR_FAIL_MSG("Node: Could not duplicate: " + String(get_class()) + ".")
@@ -2321,7 +2321,7 @@ void Node::_duplicate_signals(const Node *p_original, Node *p_copy) const {
             NodePath p = p_original->get_path_to(this);
             Node *copy = p_copy->get_node(p);
 
-            Node *target = Object::cast_to<Node>(E.target);
+            Node *target = object_cast<Node>(E.target);
             if (!target) {
                 continue;
             }
@@ -2354,7 +2354,7 @@ Node *Node::duplicate_and_reown(const Map<Node *, Node *> &p_reown_map) const {
     Object *obj = ClassDB::instance(get_class_name());
     ERR_FAIL_COND_V_MSG(!obj, nullptr, "Node: Could not duplicate: " + String(get_class()) + ".")
 
-    Node *node = Object::cast_to<Node>(obj);
+    Node *node = object_cast<Node>(obj);
     if (!node) {
         memdelete(obj);
         ERR_FAIL_V_MSG(nullptr, "Node: Could not duplicate: " + String(get_class()) + ".")
@@ -2635,7 +2635,7 @@ void Node::_set_tree(SceneTree *p_tree) {
 #ifdef DEBUG_ENABLED
 static void _Node_debug_sn(Object *p_obj) {
 
-    Node *n = Object::cast_to<Node>(p_obj);
+    Node *n = object_cast<Node>(p_obj);
     if (!n)
         return;
 

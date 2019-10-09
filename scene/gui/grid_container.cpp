@@ -53,7 +53,7 @@ void GridContainer::_notification(int p_what) {
             // Compute the per-column/per-row data.
             int valid_controls_index = 0;
             for (int i = 0; i < get_child_count(); i++) {
-                Control *c = Object::cast_to<Control>(get_child(i));
+                Control *c = object_cast<Control>(get_child(i));
                 if (!c || !c->is_visible_in_tree())
                     continue;
 
@@ -148,7 +148,7 @@ void GridContainer::_notification(int p_what) {
 
             valid_controls_index = 0;
             for (int i = 0; i < get_child_count(); i++) {
-                Control *c = Object::cast_to<Control>(get_child(i));
+                Control *c = object_cast<Control>(get_child(i));
                 if (!c || !c->is_visible_in_tree())
                     continue;
                 int row = valid_controls_index / columns;
@@ -212,7 +212,7 @@ Size2 GridContainer::get_minimum_size() const {
     int valid_controls_index = 0;
     for (int i = 0; i < get_child_count(); i++) {
 
-        Control *c = Object::cast_to<Control>(get_child(i));
+        Control *c = object_cast<Control>(get_child(i));
 		if (!c || !c->is_visible())
             continue;
         int row = valid_controls_index / columns;

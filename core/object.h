@@ -290,6 +290,7 @@ private:
     int _predelete_ok;
     bool _block_signals;
     bool _can_translate;
+    bool _is_queued_for_deletion; // set to true by SceneTree::queue_delete()
 
 
     bool _predelete();
@@ -385,34 +386,6 @@ public:
 
     void add_change_receptor(Object *p_receptor);
     void remove_change_receptor(Object *p_receptor);
-
-    template <class T>
-    static T *cast_to(Object *p_object) {
-#ifdef RTTI_ENABLED
-        return dynamic_cast<T *>(p_object);
-#else
-        if (!p_object)
-            return nullptr;
-        if (p_object->is_class_ptr(T::get_class_ptr_static()))
-            return static_cast<T *>(p_object);
-        else
-            return nullptr;
-#endif
-    }
-
-    template <class T>
-    static const T *cast_to(const Object *p_object) {
-#ifdef RTTI_ENABLED
-        return dynamic_cast<const T *>(p_object);
-#else
-        if (!p_object)
-            return nullptr;
-        if (p_object->is_class_ptr(T::get_class_ptr_static()))
-            return static_cast<const T *>(p_object);
-        else
-            return nullptr;
-#endif
-    }
 
     enum {
 
@@ -522,8 +495,8 @@ public:
 
     StringName tr(const StringName &p_message) const; // translate message (internationalization)
 
-    bool _is_queued_for_deletion; // set to true by SceneTree::queue_delete()
     bool is_queued_for_deletion() const;
+    void deleteLater() { _is_queued_for_deletion = true; }
 
     _FORCE_INLINE_ void set_message_translation(bool p_enable) { _can_translate = p_enable; }
     _FORCE_INLINE_ bool can_translate_messages() const { return _can_translate; }
@@ -538,11 +511,39 @@ public:
 
     Object();
     virtual ~Object();
+
     // Non-copyable
     void operator=(const Object &/*p_rval*/) = delete;
     Object(const Object &) = delete;
 };
 
+template <class T>
+T *object_cast(Object *p_object) {
+#ifdef RTTI_ENABLED
+    return dynamic_cast<T *>(p_object);
+#else
+    if (!p_object)
+        return nullptr;
+    if (p_object->is_class_ptr(T::get_class_ptr_static()))
+        return static_cast<T *>(p_object);
+    else
+        return nullptr;
+#endif
+}
+
+template <class T>
+const T *object_cast(const Object *p_object) {
+#ifdef RTTI_ENABLED
+    return dynamic_cast<const T *>(p_object);
+#else
+    if (!p_object)
+        return nullptr;
+    if (p_object->is_class_ptr(T::get_class_ptr_static()))
+        return static_cast<const T *>(p_object);
+    else
+        return nullptr;
+#endif
+}
 namespace ObjectNS
 {
     enum ConnectFlags : uint8_t {
@@ -554,7 +555,7 @@ namespace ObjectNS
     };
     template<class T>
     T* cast_to(::Object *f) {
-        return Object::cast_to<T>(f);
+        return object_cast<T>(f);
     }
 } // end of ObjectNS namespace
 

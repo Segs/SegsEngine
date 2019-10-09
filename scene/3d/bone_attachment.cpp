@@ -35,7 +35,7 @@ IMPL_GDCLASS(BoneAttachment)
 void BoneAttachment::_validate_property(PropertyInfo &property) const {
 
     if (property.name == "bone_name") {
-        Skeleton *parent = Object::cast_to<Skeleton>(get_parent());
+        Skeleton *parent = object_cast<Skeleton>(get_parent());
 
         if (parent) {
 
@@ -58,7 +58,7 @@ void BoneAttachment::_validate_property(PropertyInfo &property) const {
 
 void BoneAttachment::_check_bind() {
 
-    Skeleton *sk = Object::cast_to<Skeleton>(get_parent());
+    Skeleton *sk = object_cast<Skeleton>(get_parent());
     if (sk) {
 
         int idx = sk->find_bone(bone_name);
@@ -74,7 +74,7 @@ void BoneAttachment::_check_unbind() {
 
     if (bound) {
 
-        Skeleton *sk = Object::cast_to<Skeleton>(get_parent());
+        Skeleton *sk = object_cast<Skeleton>(get_parent());
         if (sk) {
 
             int idx = sk->find_bone(bone_name);

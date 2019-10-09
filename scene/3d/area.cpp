@@ -121,7 +121,7 @@ real_t Area::get_priority() const {
 void Area::_body_enter_tree(ObjectID p_id) {
 
     Object *obj = ObjectDB::get_instance(p_id);
-    Node *node = Object::cast_to<Node>(obj);
+    Node *node = object_cast<Node>(obj);
     ERR_FAIL_COND(!node)
 
     Map<ObjectID, BodyState>::iterator E = body_map.find(p_id);
@@ -139,7 +139,7 @@ void Area::_body_enter_tree(ObjectID p_id) {
 void Area::_body_exit_tree(ObjectID p_id) {
 
     Object *obj = ObjectDB::get_instance(p_id);
-    Node *node = Object::cast_to<Node>(obj);
+    Node *node = object_cast<Node>(obj);
     ERR_FAIL_COND(!node)
     Map<ObjectID, BodyState>::iterator E = body_map.find(p_id);
     ERR_FAIL_COND(E==body_map.end())
@@ -158,7 +158,7 @@ void Area::_body_inout(int p_status, const RID &p_body, int p_instance, int p_bo
     ObjectID objid = p_instance;
 
     Object *obj = ObjectDB::get_instance(objid);
-    Node *node = Object::cast_to<Node>(obj);
+    Node *node = object_cast<Node>(obj);
 
     Map<ObjectID, BodyState>::iterator E = body_map.find(objid);
 
@@ -233,7 +233,7 @@ void Area::_clear_monitoring() {
         for (eastl::pair<const ObjectID,BodyState> &E : bmcopy) {
 
             Object *obj = ObjectDB::get_instance(E.first);
-            Node *node = Object::cast_to<Node>(obj);
+            Node *node = object_cast<Node>(obj);
 
             if (!node) //node may have been deleted in previous frame or at other legiminate point
                 continue;
@@ -263,7 +263,7 @@ void Area::_clear_monitoring() {
         for (eastl::pair<const ObjectID,AreaState> &E : bmcopy) {
 
             Object *obj = ObjectDB::get_instance(E.first);
-            Node *node = Object::cast_to<Node>(obj);
+            Node *node = object_cast<Node>(obj);
 
             if (!node) //node may have been deleted in previous frame or at other legiminate point
                 continue;
@@ -314,7 +314,7 @@ void Area::set_monitoring(bool p_enable) {
 void Area::_area_enter_tree(ObjectID p_id) {
 
     Object *obj = ObjectDB::get_instance(p_id);
-    Node *node = Object::cast_to<Node>(obj);
+    Node *node = object_cast<Node>(obj);
     ERR_FAIL_COND(!node)
 
     Map<ObjectID, AreaState>::iterator E = area_map.find(p_id);
@@ -332,7 +332,7 @@ void Area::_area_enter_tree(ObjectID p_id) {
 void Area::_area_exit_tree(ObjectID p_id) {
 
     Object *obj = ObjectDB::get_instance(p_id);
-    Node *node = Object::cast_to<Node>(obj);
+    Node *node = object_cast<Node>(obj);
     ERR_FAIL_COND(!node)
     Map<ObjectID, AreaState>::iterator E = area_map.find(p_id);
     ERR_FAIL_COND(E==area_map.end())
@@ -351,7 +351,7 @@ void Area::_area_inout(int p_status, const RID &p_area, int p_instance, int p_ar
     ObjectID objid = p_instance;
 
     Object *obj = ObjectDB::get_instance(objid);
-    Node *node = Object::cast_to<Node>(obj);
+    Node *node = object_cast<Node>(obj);
 
     Map<ObjectID, AreaState>::iterator E = area_map.find(objid);
 

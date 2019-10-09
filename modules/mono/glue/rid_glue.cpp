@@ -35,7 +35,7 @@
 #include "core/resource.h"
 
 RID *godot_icall_RID_Ctor(Object *p_from) {
-	Resource *res_from = Object::cast_to<Resource>(p_from);
+	Resource *res_from = object_cast<Resource>(p_from);
 
 	if (res_from)
 		return memnew(RID(res_from->get_rid()));

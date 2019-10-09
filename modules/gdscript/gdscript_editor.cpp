@@ -372,7 +372,7 @@ void GDScriptLanguage::debug_get_globals(List<String> *p_globals, List<Variant> 
 
         const Variant &var = globals[E.second];
         if (Object *obj = var) {
-            if (Object::cast_to<GDScriptNativeClass>(obj))
+            if (object_cast<GDScriptNativeClass>(obj))
                 continue;
         }
 
@@ -3416,9 +3416,9 @@ Error GDScriptLanguage::lookup_code(const String &p_code, const String &p_symbol
                     if (value.get_type() == VariantType::OBJECT) {
                         Object *obj = value;
                         if (obj) {
-                            if (Object::cast_to<GDScriptNativeClass>(obj)) {
+                            if (object_cast<GDScriptNativeClass>(obj)) {
                                 r_result.type = ScriptLanguage::LookupResult::RESULT_CLASS;
-                                r_result.class_name = Object::cast_to<GDScriptNativeClass>(obj)->get_name();
+                                r_result.class_name = object_cast<GDScriptNativeClass>(obj)->get_name();
                             } else {
                                 r_result.type = ScriptLanguage::LookupResult::RESULT_CLASS;
                                 r_result.class_name = obj->get_class();

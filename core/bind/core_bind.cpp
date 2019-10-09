@@ -484,7 +484,7 @@ String _OS::get_executable_path() const {
 
 Error _OS::shell_open(String p_uri) {
 
-    return OS::get_singleton()->shell_open(p_uri);
+    return OS::get_singleton()->shell_open(eastl::move(p_uri));
 };
 
 int _OS::execute(const String &p_path, const Vector<String> &p_arguments, bool p_blocking, Array p_output, bool p_read_stderr) {
@@ -2752,7 +2752,7 @@ _Thread::_Thread() {
 
 _Thread::~_Thread() {
 
-    ERR_FAIL_COND_MSG(active, "Reference to a Thread object object was lost while the thread is still running...")
+    ERR_FAIL_COND_CMSG(active, "Reference to a Thread object object was lost while the thread is still running...")
 }
 /////////////////////////////////////
 
@@ -2806,7 +2806,7 @@ Variant _ClassDB::instance(const StringName &p_class) const {
     if (!obj)
         return Variant();
 
-    RefCounted *r = Object::cast_to<RefCounted>(obj);
+    RefCounted *r = object_cast<RefCounted>(obj);
     if (r) {
         return REF(r);
     } else {

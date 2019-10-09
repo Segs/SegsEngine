@@ -333,7 +333,7 @@ void VisualScript::add_node(const StringName &p_func, int p_id, const Ref<Visual
 
     Function &func = functions[p_func];
 
-    if (Object::cast_to<VisualScriptFunction>(p_node.get())) {
+    if (object_cast<VisualScriptFunction>(p_node.get())) {
         //the function indeed
         ERR_FAIL_COND_MSG(func.function_id >= 0, "A function node has already been set here.")
 
@@ -390,7 +390,7 @@ void VisualScript::remove_node(const StringName &p_func, int p_id) {
         }
     }
 
-    if (Object::cast_to<VisualScriptFunction>(func.nodes[p_id].node.get())) {
+    if (object_cast<VisualScriptFunction>(func.nodes[p_id].node.get())) {
         func.function_id = -1; //revert to invalid
     }
 
@@ -1083,7 +1083,7 @@ int VisualScript::get_member_line(const StringName &p_member) const {
 #ifdef TOOLS_ENABLED
     if (has_function(p_member)) {
         for (const auto &E : functions.at(p_member).nodes) {
-            if (Object::cast_to<VisualScriptFunction>(E.second.node.get()))
+            if (object_cast<VisualScriptFunction>(E.second.node.get()))
                 return E.first;
         }
     }
@@ -1973,7 +1973,7 @@ Variant VisualScriptInstance::call(const StringName &p_method, const Variant **p
     if (E==instances.end()) {
         r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
 
-        ERR_FAIL_V_MSG(Variant(), "No VisualScriptFunction node in function.");
+        ERR_FAIL_V_CMSG(Variant(), "No VisualScriptFunction node in function.")
     }
 
     VisualScriptNodeInstance *node = E->second;
@@ -2081,9 +2081,9 @@ void VisualScriptInstance::create(const Ref<VisualScript> &p_script, Object *p_o
     max_input_args = 0;
     max_output_args = 0;
 
-    if (Object::cast_to<Node>(p_owner)) {
+    if (object_cast<Node>(p_owner)) {
         //turn on these if they exist and base is a node
-        Node *node = Object::cast_to<Node>(p_owner);
+        Node *node = object_cast<Node>(p_owner);
         if (p_script->functions.contains("_process"))
             node->set_process(true);
         if (p_script->functions.contains("_physics_process"))
@@ -2178,16 +2178,16 @@ void VisualScriptInstance::create(const Ref<VisualScript> &p_script, Object *p_o
                 }
             }
 
-            if (Object::cast_to<VisualScriptLocalVar>(node.get()) || Object::cast_to<VisualScriptLocalVarSet>(node.get())) {
+            if (object_cast<VisualScriptLocalVar>(node.get()) || object_cast<VisualScriptLocalVarSet>(node.get())) {
                 //working memory is shared only for this node, for the same variables
                 Ref<VisualScriptLocalVar> vslv = dynamic_ref_cast<VisualScriptLocalVar>(node);
 
                 StringName var_name;
 
-                if (Object::cast_to<VisualScriptLocalVar>(node.get()))
-                    var_name = StringUtils::strip_edges(Object::cast_to<VisualScriptLocalVar>(node.get())->get_var_name());
+                if (object_cast<VisualScriptLocalVar>(node.get()))
+                    var_name = StringUtils::strip_edges(object_cast<VisualScriptLocalVar>(node.get())->get_var_name());
                 else
-                    var_name = StringUtils::strip_edges(Object::cast_to<VisualScriptLocalVarSet>(node.get())->get_var_name());
+                    var_name = StringUtils::strip_edges(object_cast<VisualScriptLocalVarSet>(node.get())->get_var_name());
 
                 if (!local_var_indices.contains(var_name)) {
                     local_var_indices[var_name] = function.max_stack;
@@ -2319,8 +2319,8 @@ Variant VisualScriptFunctionState::_signal_callback(const Variant **p_args, int 
 
 #ifdef DEBUG_ENABLED
 
-    ERR_FAIL_COND_V_MSG(instance_id && !ObjectDB::get_instance(instance_id), Variant(), "Resumed after yield, but class instance is gone.")
-    ERR_FAIL_COND_V_MSG(script_id && !ObjectDB::get_instance(script_id), Variant(), "Resumed after yield, but script is gone.")
+    ERR_FAIL_COND_V_CMSG(instance_id && !ObjectDB::get_instance(instance_id), Variant(), "Resumed after yield, but class instance is gone.")
+    ERR_FAIL_COND_V_CMSG(script_id && !ObjectDB::get_instance(script_id), Variant(), "Resumed after yield, but script is gone.")
 
 #endif
 
@@ -2381,8 +2381,8 @@ Variant VisualScriptFunctionState::resume(Array p_args) {
     ERR_FAIL_COND_V(function == StringName(), Variant())
 #ifdef DEBUG_ENABLED
 
-    ERR_FAIL_COND_V_MSG(instance_id && !ObjectDB::get_instance(instance_id), Variant(), "Resumed after yield, but class instance is gone.")
-    ERR_FAIL_COND_V_MSG(script_id && !ObjectDB::get_instance(script_id), Variant(), "Resumed after yield, but script is gone.")
+    ERR_FAIL_COND_V_CMSG(instance_id && !ObjectDB::get_instance(instance_id), Variant(), "Resumed after yield, but class instance is gone.")
+    ERR_FAIL_COND_V_CMSG(script_id && !ObjectDB::get_instance(script_id), Variant(), "Resumed after yield, but script is gone.")
 
 #endif
 

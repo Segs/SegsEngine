@@ -859,7 +859,7 @@ void Object::call_multilevel(const StringName &p_method, const Variant **p_args,
 
     if (p_method == CoreStringNames::get_singleton()->_free) {
 #ifdef DEBUG_ENABLED
-        ERR_FAIL_COND_CMSG(Object::cast_to<RefCounted>(this), "Can't 'free' a reference.")
+        ERR_FAIL_COND_CMSG(object_cast<RefCounted>(this), "Can't 'free' a reference.")
 
         ERR_FAIL_COND_CMSG(private_data->_lock_index.get() > 1, "Object is locked and can't be freed.")
 #endif
@@ -997,7 +997,7 @@ Variant Object::call(const StringName &p_method, const Variant **p_args, int p_a
             r_error.error = Variant::CallError::CALL_ERROR_TOO_MANY_ARGUMENTS;
             return Variant();
         }
-        if (Object::cast_to<RefCounted>(this)) {
+        if (object_cast<RefCounted>(this)) {
             r_error.argument = 0;
             r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
             ERR_FAIL_V_CMSG(Variant(), "Can't 'free' a reference.")

@@ -53,7 +53,7 @@ void Path::_curve_changed() {
     // previously used for PathFollowOriented (now enforced orientation is done in PathFollow)
     if (is_inside_tree()) {
         for (int i = 0; i < get_child_count(); i++) {
-            PathFollow *child = Object::cast_to<PathFollow>(get_child(i));
+            PathFollow *child = object_cast<PathFollow>(get_child(i));
             if (child) {
                 child->update_configuration_warning();
             }
@@ -229,7 +229,7 @@ void PathFollow::_notification(int p_what) {
 
             Node *parent = get_parent();
             if (parent) {
-                path = Object::cast_to<Path>(parent);
+                path = object_cast<Path>(parent);
                 if (path) {
                     _update_transform();
                 }
@@ -270,10 +270,10 @@ String PathFollow::get_configuration_warning() const {
     if (!is_visible_in_tree() || !is_inside_tree())
         return String();
 
-    if (!Object::cast_to<Path>(get_parent())) {
+    if (!object_cast<Path>(get_parent())) {
         return TTR("PathFollow only works when set as a child of a Path node.");
     } else {
-        Path *path = Object::cast_to<Path>(get_parent());
+        Path *path = object_cast<Path>(get_parent());
         if (path->get_curve() && !path->get_curve()->is_up_vector_enabled() && rotation_mode == ROTATION_ORIENTED) {
             return TTR("PathFollow's ROTATION_ORIENTED requires \"Up Vector\" to be enabled in its parent Path's Curve resource.");
         }

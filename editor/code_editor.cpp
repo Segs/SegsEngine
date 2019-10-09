@@ -1444,7 +1444,7 @@ void CodeTextEditor::_update_font() {
     error->add_font_override("font", status_bar_font);
     int count = status_bar->get_child_count();
     for (int i = 0; i < count; i++) {
-        Control *n = Object::cast_to<Control>(status_bar->get_child(i));
+        Control *n = object_cast<Control>(status_bar->get_child(i));
         if (n)
             n->add_font_override("font", status_bar_font);
     }

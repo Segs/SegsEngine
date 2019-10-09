@@ -508,7 +508,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
 
             for (int i = 0; i < selection.size(); i++) {
 
-                Node *n = Object::cast_to<Node>(selection[i]);
+                Node *n = object_cast<Node>(selection[i]);
                 Ref<Script> existing(refFromRefPtr<Script>(n->get_script()));
                 Ref<Script> empty = EditorNode::get_singleton()->get_object_custom_type_base(n);
                 if (existing != empty) {
@@ -1031,14 +1031,14 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
             if (TOOL_CREATE_FAVORITE == p_tool) {
                 String name = StringUtils::get_slice(selected_favorite_root,' ', 0);
                 if (ScriptServer::is_global_class(name)) {
-                    new_node = Object::cast_to<Node>(ClassDB::instance(ScriptServer::get_global_class_native_base(name)));
+                    new_node = object_cast<Node>(ClassDB::instance(ScriptServer::get_global_class_native_base(name)));
                     Ref<Script> script = dynamic_ref_cast<Script>(ResourceLoader::load(ScriptServer::get_global_class_path(name), "Script"));
                     if (new_node && script) {
                         new_node->set_script(script.get_ref_ptr());
                         new_node->set_name(name);
                     }
                 } else {
-                    new_node = Object::cast_to<Node>(ClassDB::instance(selected_favorite_root));
+                    new_node = object_cast<Node>(ClassDB::instance(selected_favorite_root));
                 }
 
                 if (!new_node) {
@@ -1090,7 +1090,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
 
 void SceneTreeDock::_node_collapsed(Object *p_obj) {
 
-    TreeItem *ti = Object::cast_to<TreeItem>(p_obj);
+    TreeItem *ti = object_cast<TreeItem>(p_obj);
     if (!ti)
         return;
 
@@ -1111,14 +1111,14 @@ void SceneTreeDock::_notification(int p_what) {
 
             EditorFeatureProfileManager::get_singleton()->connect("current_feature_profile_changed", this, "_feature_profile_changed");
 
-            CanvasItemEditorPlugin *canvas_item_plugin = Object::cast_to<CanvasItemEditorPlugin>(editor_data->get_editor("2D"));
+            CanvasItemEditorPlugin *canvas_item_plugin = object_cast<CanvasItemEditorPlugin>(editor_data->get_editor("2D"));
             if (canvas_item_plugin) {
                 canvas_item_plugin->get_canvas_item_editor()->connect("item_lock_status_changed", scene_tree, "_update_tree");
                 canvas_item_plugin->get_canvas_item_editor()->connect("item_group_status_changed", scene_tree, "_update_tree");
                 scene_tree->connect("node_changed", canvas_item_plugin->get_canvas_item_editor()->get_viewport_control(), "update");
             }
 
-            SpatialEditorPlugin *spatial_editor_plugin = Object::cast_to<SpatialEditorPlugin>(editor_data->get_editor("3D"));
+            SpatialEditorPlugin *spatial_editor_plugin = object_cast<SpatialEditorPlugin>(editor_data->get_editor("3D"));
             spatial_editor_plugin->get_spatial_editor()->connect("item_lock_status_changed", scene_tree, "_update_tree");
             spatial_editor_plugin->get_spatial_editor()->connect("item_group_status_changed", scene_tree, "_update_tree");
 
@@ -1287,7 +1287,7 @@ void SceneTreeDock::_set_owners(Node *p_owner, const Array &p_nodes) {
 
     for (int i = 0; i < p_nodes.size(); i++) {
 
-        Node *n = Object::cast_to<Node>(p_nodes[i]);
+        Node *n = object_cast<Node>(p_nodes[i]);
         if (!n)
             continue;
         n->set_owner(p_owner);
@@ -1406,9 +1406,9 @@ void SceneTreeDock::perform_node_renames(Node *p_base, List<Pair<NodePath, NodeP
 
     bool autorename_animation_tracks = bool(EDITOR_DEF("editors/animation/autorename_animation_tracks", true));
 
-    if (autorename_animation_tracks && Object::cast_to<AnimationPlayer>(p_base)) {
+    if (autorename_animation_tracks && object_cast<AnimationPlayer>(p_base)) {
 
-        AnimationPlayer *ap = Object::cast_to<AnimationPlayer>(p_base);
+        AnimationPlayer *ap = object_cast<AnimationPlayer>(p_base);
         ListPOD<StringName> anims;
         ap->get_animation_list(&anims);
         Node *root = ap->get_node(ap->get_root());
@@ -1610,7 +1610,7 @@ void SceneTreeDock::_do_reparent(Node *p_new_parent, int p_position_in_parent, V
     Node *validate = new_parent;
     while (validate) {
 
-        ERR_FAIL_COND_MSG(p_nodes.find(validate) != -1, "Selection changed at some point. Can't reparent.")
+        ERR_FAIL_COND_CMSG(p_nodes.find(validate) != -1, "Selection changed at some point. Can't reparent.")
         validate = validate->get_parent();
     }
 
@@ -1678,12 +1678,12 @@ void SceneTreeDock::_do_reparent(Node *p_new_parent, int p_position_in_parent, V
         editor_data->get_undo_redo().add_undo_method(sed, "live_debug_reparent_node", NodePath(PathUtils::plus_file(String(edited_scene->get_path_to(new_parent)),new_name)), edited_scene->get_path_to(node->get_parent()), node->get_name(), node->get_index());
 
         if (p_keep_global_xform) {
-            if (Object::cast_to<Node2D>(node))
-                editor_data->get_undo_redo().add_do_method(node, "set_global_transform", Object::cast_to<Node2D>(node)->get_global_transform());
-            if (Object::cast_to<Spatial>(node))
-                editor_data->get_undo_redo().add_do_method(node, "set_global_transform", Object::cast_to<Spatial>(node)->get_global_transform());
-            if (Object::cast_to<Control>(node))
-                editor_data->get_undo_redo().add_do_method(node, "set_global_position", Object::cast_to<Control>(node)->get_global_position());
+            if (object_cast<Node2D>(node))
+                editor_data->get_undo_redo().add_do_method(node, "set_global_transform", object_cast<Node2D>(node)->get_global_transform());
+            if (object_cast<Spatial>(node))
+                editor_data->get_undo_redo().add_do_method(node, "set_global_transform", object_cast<Spatial>(node)->get_global_transform());
+            if (object_cast<Control>(node))
+                editor_data->get_undo_redo().add_do_method(node, "set_global_position", object_cast<Control>(node)->get_global_position());
         }
 
         editor_data->get_undo_redo().add_do_method(this, "_set_owners", Variant(edited_scene), owners);
@@ -1720,12 +1720,12 @@ void SceneTreeDock::_do_reparent(Node *p_new_parent, int p_position_in_parent, V
             editor_data->get_undo_redo().add_undo_method(AnimationPlayerEditor::singleton->get_track_editor(), "set_root", Variant(node));
 
         if (p_keep_global_xform) {
-            if (Object::cast_to<Node2D>(node))
-                editor_data->get_undo_redo().add_undo_method(node, "set_transform", Object::cast_to<Node2D>(node)->get_transform());
-            if (Object::cast_to<Spatial>(node))
-                editor_data->get_undo_redo().add_undo_method(node, "set_transform", Object::cast_to<Spatial>(node)->get_transform());
-            if (Object::cast_to<Control>(node))
-                editor_data->get_undo_redo().add_undo_method(node, "set_position", Object::cast_to<Control>(node)->get_position());
+            if (object_cast<Node2D>(node))
+                editor_data->get_undo_redo().add_undo_method(node, "set_transform", object_cast<Node2D>(node)->get_transform());
+            if (object_cast<Spatial>(node))
+                editor_data->get_undo_redo().add_undo_method(node, "set_transform", object_cast<Spatial>(node)->get_transform());
+            if (object_cast<Control>(node))
+                editor_data->get_undo_redo().add_undo_method(node, "set_position", object_cast<Control>(node)->get_position());
         }
     }
 
@@ -1955,7 +1955,7 @@ void SceneTreeDock::_update_script_button() {
         button_create_script->hide();
         Array selection = editor_selection->get_selected_nodes();
         for (int i = 0; i < selection.size(); i++) {
-            Node *n = Object::cast_to<Node>(selection[i]);
+            Node *n = object_cast<Node>(selection[i]);
             if (!n->get_script().is_null()) {
                 button_clear_script->show();
                 return;
@@ -2000,7 +2000,7 @@ void SceneTreeDock::_do_create(Node *p_parent) {
     Object *c = create_dialog->instance_selected();
 
     ERR_FAIL_COND(!c)
-    Node *child = Object::cast_to<Node>(c);
+    Node *child = object_cast<Node>(c);
     ERR_FAIL_COND(!child)
 
     editor_data->get_undo_redo().create_action(TTR("Create Node"));
@@ -2031,9 +2031,9 @@ void SceneTreeDock::_do_create(Node *p_parent) {
     editor->push_item(c);
     editor_selection->clear();
     editor_selection->add_node(child);
-    if (Object::cast_to<Control>(c)) {
+    if (object_cast<Control>(c)) {
         //make editor more comfortable, so some controls don't appear super shrunk
-        Control *ct = Object::cast_to<Control>(c);
+        Control *ct = object_cast<Control>(c);
 
         Size2 ms = ct->get_minimum_size();
         if (ms.width < 4)
@@ -2078,7 +2078,7 @@ void SceneTreeDock::_create() {
             Object *c = create_dialog->instance_selected();
 
             ERR_FAIL_COND(!c)
-            Node *newnode = Object::cast_to<Node>(c);
+            Node *newnode = object_cast<Node>(c);
             ERR_FAIL_COND(!newnode)
 
             ur->add_do_method(this, "replace_node", Variant(n), Variant(newnode), true, false);
@@ -2145,7 +2145,7 @@ void SceneTreeDock::replace_node(Node *p_node, Node *p_by_node, bool p_keep_prop
     Node *newnode = p_by_node;
 
     if (p_keep_properties) {
-        Node *default_oldnode = Object::cast_to<Node>(ClassDB::instance(n->get_class_name()));
+        Node *default_oldnode = object_cast<Node>(ClassDB::instance(n->get_class_name()));
         ListPOD<PropertyInfo> pinfo;
         n->get_property_list(&pinfo);
 
@@ -2607,10 +2607,10 @@ void SceneTreeDock::_focus_node() {
     ERR_FAIL_COND(!node)
 
     if (node->is_class("CanvasItem")) {
-        CanvasItemEditorPlugin *editor = Object::cast_to<CanvasItemEditorPlugin>(editor_data->get_editor("2D"));
+        CanvasItemEditorPlugin *editor = object_cast<CanvasItemEditorPlugin>(editor_data->get_editor("2D"));
         editor->get_canvas_item_editor()->focus_selection();
     } else {
-        SpatialEditorPlugin *editor = Object::cast_to<SpatialEditorPlugin>(editor_data->get_editor("3D"));
+        SpatialEditorPlugin *editor = object_cast<SpatialEditorPlugin>(editor_data->get_editor("3D"));
         editor->get_spatial_editor()->get_editor_viewport(0)->focus_selection();
     }
 }
@@ -2671,14 +2671,14 @@ void SceneTreeDock::_local_tree_selected() {
 
 void SceneTreeDock::_update_create_root_dialog() {
 
-    BaseButton *toggle = Object::cast_to<BaseButton>(create_root_dialog->get_node(NodePath("NodeShortcutsTopRow/NodeShortcutsToggle")));
+    BaseButton *toggle = object_cast<BaseButton>(create_root_dialog->get_node(NodePath("NodeShortcutsTopRow/NodeShortcutsToggle")));
     Node *node_shortcuts = create_root_dialog->get_node(NodePath("NodeShortcuts"));
 
     if (!toggle || !node_shortcuts)
         return;
 
-    Control *beginner_nodes = Object::cast_to<Control>(node_shortcuts->get_node(NodePath("BeginnerNodeShortcuts")));
-    Control *favorite_nodes = Object::cast_to<Control>(node_shortcuts->get_node(NodePath("FavoriteNodeShortcuts")));
+    Control *beginner_nodes = object_cast<Control>(node_shortcuts->get_node(NodePath("BeginnerNodeShortcuts")));
+    Control *favorite_nodes = object_cast<Control>(node_shortcuts->get_node(NodePath("FavoriteNodeShortcuts")));
 
     if (!beginner_nodes || !favorite_nodes)
         return;

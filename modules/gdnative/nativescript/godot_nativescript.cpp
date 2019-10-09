@@ -104,7 +104,7 @@ void GDAPI godot_nativescript_register_method(void *p_gdnative_handle, const cha
     String *s = (String *)p_gdnative_handle;
     auto &classes(NSL->library_classes[*s]);
     Map<StringName, NativeScriptDesc>::iterator E = classes.find(StringName(p_name));
-    ERR_FAIL_COND_MSG(E==classes.end(), "Attempted to register method on non-existent class.")
+    ERR_FAIL_COND_CMSG(E==classes.end(), "Attempted to register method on non-existent class.")
 
     NativeScriptDesc::Method method;
     method.method = p_method;
@@ -119,7 +119,7 @@ void GDAPI godot_nativescript_register_property(void *p_gdnative_handle, const c
     String *s = (String *)p_gdnative_handle;
     auto &classes(NSL->library_classes[*s]);
     Map<StringName, NativeScriptDesc>::iterator E = classes.find(StringName(p_name));
-    ERR_FAIL_COND_MSG(E==classes.end(), "Attempted to register method on non-existent class.")
+    ERR_FAIL_COND_CMSG(E==classes.end(), "Attempted to register method on non-existent class.")
 
     NativeScriptDesc::Property property;
     property.default_value = *(Variant *)&p_attr->default_value;
@@ -233,7 +233,7 @@ void GDAPI godot_nativescript_set_class_documentation(void *p_gdnative_handle, c
     auto &classes(NSL->library_classes[*s]);
 
     Map<StringName, NativeScriptDesc>::iterator E = classes.find(StringName(p_name));
-    ERR_FAIL_COND_MSG(E==classes.end(), "Attempted to add documentation to a non-existent class.")
+    ERR_FAIL_COND_CMSG(E==classes.end(), "Attempted to add documentation to a non-existent class.")
 
     E->second.documentation = *(String *)&p_documentation;
 }
@@ -246,7 +246,7 @@ void GDAPI godot_nativescript_set_method_documentation(void *p_gdnative_handle, 
     ERR_FAIL_COND_CMSG(E==classes.end(), "Attempted to add documentation to a method on a non-existent class.")
 
     Map<StringName, NativeScriptDesc::Method>::iterator method = E->second.methods.find(StringName(p_function_name));
-    ERR_FAIL_COND_MSG(method==E->second.methods.end(), "Attempted to add documentation to non-existent method.")
+    ERR_FAIL_COND_CMSG(method==E->second.methods.end(), "Attempted to add documentation to non-existent method.")
 
     method->second.documentation = *(String *)&p_documentation;
 }
@@ -256,10 +256,10 @@ void GDAPI godot_nativescript_set_property_documentation(void *p_gdnative_handle
     auto &classes(NSL->library_classes[*s]);
 
     Map<StringName, NativeScriptDesc>::iterator E = classes.find(StringName(p_name));
-    ERR_FAIL_COND_MSG(E==classes.end(), "Attempted to add documentation to a property on a non-existent class.")
+    ERR_FAIL_COND_CMSG(E==classes.end(), "Attempted to add documentation to a property on a non-existent class.")
 
     OrderedHashMap<StringName, NativeScriptDesc::Property>::Element property = E->second.properties.find(StringName(p_path));
-    ERR_FAIL_COND_MSG(!property, "Attempted to add documentation to non-existent property.")
+    ERR_FAIL_COND_CMSG(!property, "Attempted to add documentation to non-existent property.")
 
     property.get().documentation = *(String *)&p_documentation;
 }
@@ -268,10 +268,10 @@ void GDAPI godot_nativescript_set_signal_documentation(void *p_gdnative_handle, 
     String *s = (String *)p_gdnative_handle;
     auto &classes(NSL->library_classes[*s]);
     Map<StringName, NativeScriptDesc>::iterator E = classes.find(StringName(p_name));
-    ERR_FAIL_COND_MSG(E==classes.end(), "Attempted to add documentation to a signal on a non-existent class.")
+    ERR_FAIL_COND_CMSG(E==classes.end(), "Attempted to add documentation to a signal on a non-existent class.")
 
     Map<StringName, NativeScriptDesc::Signal>::iterator signal = E->second.signals_.find(StringName(p_signal_name));
-    ERR_FAIL_COND_MSG(signal==E->second.signals_.end(), "Attempted to add documentation to non-existent signal.")
+    ERR_FAIL_COND_CMSG(signal==E->second.signals_.end(), "Attempted to add documentation to non-existent signal.")
 
     signal->second.documentation = *(String *)&p_documentation;
 }
@@ -301,7 +301,7 @@ const void GDAPI *godot_nativescript_get_type_tag(const godot_object *p_object) 
     if (!o->get_script_instance()) {
         return nullptr;
     } else {
-        NativeScript *script = Object::cast_to<NativeScript>(o->get_script_instance()->get_script().get());
+        NativeScript *script = object_cast<NativeScript>(o->get_script_instance()->get_script().get());
         if (!script) {
             return nullptr;
         }

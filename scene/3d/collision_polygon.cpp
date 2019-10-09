@@ -90,7 +90,7 @@ void CollisionPolygon::_notification(int p_what) {
     switch (p_what) {
 
         case NOTIFICATION_PARENTED: {
-            parent = Object::cast_to<CollisionObject>(get_parent());
+            parent = object_cast<CollisionObject>(get_parent());
             if (parent) {
                 owner_id = parent->create_shape_owner(this);
                 _build_polygon();
@@ -168,7 +168,7 @@ bool CollisionPolygon::is_disabled() const {
 
 String CollisionPolygon::get_configuration_warning() const {
 
-    if (!Object::cast_to<CollisionObject>(get_parent())) {
+    if (!object_cast<CollisionObject>(get_parent())) {
         return TTR("CollisionPolygon only serves to provide a collision shape to a CollisionObject derived node. Please only use it as a child of Area, StaticBody, RigidBody, KinematicBody, etc. to give them a shape.");
     }
 

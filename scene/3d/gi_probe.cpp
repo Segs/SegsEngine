@@ -342,7 +342,7 @@ bool GIProbe::is_compressed() const {
 
 void GIProbe::_find_meshes(Node *p_at_node, List<PlotMesh> &plot_meshes) {
 
-    MeshInstance *mi = Object::cast_to<MeshInstance>(p_at_node);
+    MeshInstance *mi = object_cast<MeshInstance>(p_at_node);
     if (mi && mi->get_flag(GeometryInstance::FLAG_USE_BAKED_LIGHT) && mi->is_visible_in_tree()) {
         Ref<Mesh> mesh = mi->get_mesh();
         if (mesh) {
@@ -364,7 +364,7 @@ void GIProbe::_find_meshes(Node *p_at_node, List<PlotMesh> &plot_meshes) {
         }
     }
 
-    Spatial *s = Object::cast_to<Spatial>(p_at_node);
+    Spatial *s = object_cast<Spatial>(p_at_node);
     if (s) {
 
         if (s->is_visible_in_tree()) {

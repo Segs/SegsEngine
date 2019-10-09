@@ -35,6 +35,8 @@
 #include "core/print_string.h"
 #include "core/ustring.h"
 #include "core/string_formatter.h"
+#include "core/pool_vector.h"
+#include "core/image_data.h"
 
 #include <nanosvg.h>
 #include <nanosvgrast.h>
@@ -80,19 +82,14 @@ void ImageLoaderSVG::_convert_colors(NSVGimage *p_svg_image) {
     }
 }
 
-void ImageLoaderSVG::set_convert_colors(Dictionary *p_replace_color) {
+void ImageLoaderSVG::set_convert_colors(PODVector<eastl::pair<Color,Color>> *p_replace_color) {
 
     if (p_replace_color) {
-        Dictionary replace_color = *p_replace_color;
-        for (int i = 0; i < replace_color.keys().size(); i++) {
-            Variant o_c = replace_color.keys()[i];
-            Variant n_c = replace_color[replace_color.keys()[i]];
-            if (o_c.get_type() == VariantType::COLOR && n_c.get_type() == VariantType::COLOR) {
-                Color old_color = o_c;
-                Color new_color = n_c;
-                replace_colors.old_colors.push_back(old_color.to_abgr32());
-                replace_colors.new_colors.push_back(new_color.to_abgr32());
-            }
+        for (const eastl::pair<Color,Color> &entry : *p_replace_color) {
+            Color old_color = entry.first;
+            Color new_color = entry.second;
+            replace_colors.old_colors.push_back(old_color.to_abgr32());
+            replace_colors.new_colors.push_back(new_color.to_abgr32());
         }
     } else {
         replace_colors.old_colors.clear();

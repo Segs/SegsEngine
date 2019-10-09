@@ -55,7 +55,7 @@ void RemoteTransform::_update_remote() {
     if (!cache)
         return;
 
-    Spatial *n = Object::cast_to<Spatial>(ObjectDB::get_instance(cache));
+    Spatial *n = object_cast<Spatial>(ObjectDB::get_instance(cache));
     if (!n)
         return;
 
@@ -185,7 +185,7 @@ void RemoteTransform::force_update_cache() {
 
 String RemoteTransform::get_configuration_warning() const {
 
-    if (!has_node(remote_node) || !Object::cast_to<Spatial>(get_node(remote_node))) {
+    if (!has_node(remote_node) || !object_cast<Spatial>(get_node(remote_node))) {
         return TTR("The \"Remote Path\" property must point to a valid Spatial or Spatial-derived node to work.");
     }
 

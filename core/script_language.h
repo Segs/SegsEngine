@@ -205,7 +205,7 @@ public:
     [[nodiscard]] virtual MultiplayerAPI_RPCMode get_rset_mode(const StringName &p_variable) const = 0;
 
     virtual ScriptLanguage *get_language() = 0;
-    virtual ~ScriptInstance() {}
+    virtual ~ScriptInstance() = default;
 };
 
 struct ScriptCodeCompletionOption {
@@ -371,7 +371,7 @@ public:
     virtual bool handles_global_class_type(const String & /*p_type*/) const { return false; }
     virtual String get_global_class_name(const String & /*p_path*/, String * /*r_base_type*/ = nullptr, String * /*r_icon_path*/ = nullptr) const { return String(); }
 
-    virtual ~ScriptLanguage() {}
+    virtual ~ScriptLanguage() = default;
 };
 
 extern uint8_t script_encryption_key[32];

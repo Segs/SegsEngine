@@ -219,7 +219,7 @@ void GDMonoField::set_value_from_variant(MonoObject *p_object, const Variant &p_
 						break;
 					}
 					default: {
-						ERR_FAIL_MSG("Attempted to convert Variant to a managed enum value of unmarshallable base type.");
+                                                ERR_FAIL_CMSG("Attempted to convert Variant to a managed enum value of unmarshallable base type.");
 					}
 				}
 

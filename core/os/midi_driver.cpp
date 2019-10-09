@@ -96,7 +96,7 @@ void MIDIDriver::receive_input_packet(uint64_t timestamp, uint8_t *data, uint32_
 			break;
 	}
 
-	InputDefault *id = Object::cast_to<InputDefault>(Input::get_singleton());
+	InputDefault *id = object_cast<InputDefault>(Input::get_singleton());
 	id->parse_input_event(event);
 }
 

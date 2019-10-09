@@ -40,11 +40,7 @@
 #include "core/set.h"
 
 #include "platform_config.h"
-#ifndef GLES3_INCLUDE_H
-#include <GLES3/gl3.h>
-#else
-#include GLES3_INCLUDE_H
-#endif
+#include "thirdparty/glad/glad/glad.h"
 
 #include <cstdio>
 

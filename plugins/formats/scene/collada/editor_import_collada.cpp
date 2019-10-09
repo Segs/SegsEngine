@@ -320,7 +320,7 @@ Error ColladaImport::_create_scene(Collada::Node *p_node, Spatial *p_parent) {
             } else {
                 //mesh since nothing else
                 node = memnew(MeshInstance);
-                //Object::cast_to<MeshInstance>(node)->set_flag(GeometryInstance::FLAG_USE_BAKED_LIGHT, true);
+                //object_cast<MeshInstance>(node)->set_flag(GeometryInstance::FLAG_USE_BAKED_LIGHT, true);
             }
         } break;
         case Collada::Node::TYPE_SKELETON: {
@@ -1010,9 +1010,9 @@ Error ColladaImport::_create_resources(Collada::Node *p_node, bool p_use_compres
         Spatial *node = node_map[p_node->id.m_str].node;
         Collada::NodeGeometry *ng = static_cast<Collada::NodeGeometry *>(p_node);
 
-        if (Object::cast_to<Path>(node)) {
+        if (object_cast<Path>(node)) {
 
-            Path *path = Object::cast_to<Path>(node);
+            Path *path = object_cast<Path>(node);
 
             String curve = ng->source;
 
@@ -1082,11 +1082,11 @@ Error ColladaImport::_create_resources(Collada::Node *p_node, bool p_use_compres
             }
         }
 
-        if (Object::cast_to<MeshInstance>(node)) {
+        if (object_cast<MeshInstance>(node)) {
 
             Collada::NodeGeometry *ng2 = static_cast<Collada::NodeGeometry *>(p_node);
 
-            MeshInstance *mi = Object::cast_to<MeshInstance>(node);
+            MeshInstance *mi = object_cast<MeshInstance>(node);
 
             ERR_FAIL_COND_V(!mi, ERR_BUG)
 
@@ -1113,7 +1113,7 @@ Error ColladaImport::_create_resources(Collada::Node *p_node, bool p_use_compres
                     String skname = skeletons[0];
                     ERR_FAIL_COND_V(!node_map.contains(skname.m_str), ERR_INVALID_DATA)
                     NodeMap nmsk = node_map[skname.m_str];
-                    Skeleton *sk = Object::cast_to<Skeleton>(nmsk.node);
+                    Skeleton *sk = object_cast<Skeleton>(nmsk.node);
                     ERR_FAIL_COND_V(!sk, ERR_INVALID_DATA)
                     ERR_FAIL_COND_V(!skeleton_bone_map.contains(sk), ERR_INVALID_DATA)
                     Map<String, int> &bone_remap_map = skeleton_bone_map[sk];
@@ -1621,7 +1621,7 @@ void ColladaImport::create_animation(int p_clip, bool p_make_tracks_in_all_bones
 
             if (nm.bone >= 0) {
                 //make bone transform relative to rest (in case of skeleton)
-                Skeleton *sk = Object::cast_to<Skeleton>(nm.node);
+                Skeleton *sk = object_cast<Skeleton>(nm.node);
                 if (sk) {
 
                     xform = sk->get_bone_rest(nm.bone).affine_inverse() * xform;

@@ -370,7 +370,7 @@ void RenameDialog::_bind_methods() {
 
 void RenameDialog::_update_substitute() {
 
-    LineEdit *focus_owner_line_edit = Object::cast_to<LineEdit>(get_focus_owner());
+    LineEdit *focus_owner_line_edit = object_cast<LineEdit>(get_focus_owner());
     bool is_main_field = _is_main_field(focus_owner_line_edit);
 
     but_insert_name->set_disabled(!is_main_field);
@@ -672,7 +672,7 @@ bool RenameDialog::_is_main_field(LineEdit *line_edit) {
 
 void RenameDialog::_insert_text(const String& text) {
 
-    LineEdit *focus_owner = Object::cast_to<LineEdit>(get_focus_owner());
+    LineEdit *focus_owner = object_cast<LineEdit>(get_focus_owner());
 
     if (_is_main_field(focus_owner)) {
         focus_owner->selection_delete();

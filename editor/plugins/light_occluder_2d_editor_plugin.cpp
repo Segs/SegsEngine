@@ -52,7 +52,7 @@ Node2D *LightOccluder2DEditor::_get_node() const {
 
 void LightOccluder2DEditor::_set_node(Node *p_polygon) {
 
-    node = Object::cast_to<LightOccluder2D>(p_polygon);
+    node = object_cast<LightOccluder2D>(p_polygon);
 }
 
 bool LightOccluder2DEditor::_is_line() const {

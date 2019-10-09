@@ -472,19 +472,19 @@ Error VisualShader::connect_nodes(Type p_type, int p_from_node, int p_from_port,
     Graph *g = &graph[p_type];
 
     ERR_FAIL_COND_V(!g->nodes.contains(p_from_node), ERR_INVALID_PARAMETER)
-    ERR_FAIL_INDEX_V(p_from_port, g->nodes[p_from_node].node->get_output_port_count(), ERR_INVALID_PARAMETER);
+    ERR_FAIL_INDEX_V(p_from_port, g->nodes[p_from_node].node->get_output_port_count(), ERR_INVALID_PARAMETER)
     ERR_FAIL_COND_V(!g->nodes.contains(p_to_node), ERR_INVALID_PARAMETER)
-    ERR_FAIL_INDEX_V(p_to_port, g->nodes[p_to_node].node->get_input_port_count(), ERR_INVALID_PARAMETER);
+    ERR_FAIL_INDEX_V(p_to_port, g->nodes[p_to_node].node->get_input_port_count(), ERR_INVALID_PARAMETER)
 
     VisualShaderNode::PortType from_port_type = g->nodes[p_from_node].node->get_output_port_type(p_from_port);
     VisualShaderNode::PortType to_port_type = g->nodes[p_to_node].node->get_input_port_type(p_to_port);
 
-    ERR_FAIL_COND_V_MSG(!is_port_types_compatible(from_port_type, to_port_type), ERR_INVALID_PARAMETER, "Incompatible port types (scalar/vec/bool) with transform.")
+    ERR_FAIL_COND_V_CMSG(!is_port_types_compatible(from_port_type, to_port_type), ERR_INVALID_PARAMETER, "Incompatible port types (scalar/vec/bool) with transform.")
 
     for (List<Connection>::Element *E = g->connections.front(); E; E = E->next()) {
 
         if (E->deref().from_node == p_from_node && E->deref().from_port == p_from_port && E->deref().to_node == p_to_node && E->deref().to_port == p_to_port) {
-            ERR_FAIL_V(ERR_ALREADY_EXISTS);
+            ERR_FAIL_V(ERR_ALREADY_EXISTS)
         }
     }
 
@@ -1019,12 +1019,12 @@ void VisualShader::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
             }
             p_list->push_back(PropertyInfo(VariantType::VECTOR2, prop_name + "/position", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
 
-            if (Object::cast_to<VisualShaderNodeGroupBase>(E.second.node.get()) != nullptr) {
+            if (object_cast<VisualShaderNodeGroupBase>(E.second.node.get()) != nullptr) {
                 p_list->push_back(PropertyInfo(VariantType::VECTOR2, prop_name + "/size", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
                 p_list->push_back(PropertyInfo(VariantType::STRING, prop_name + "/input_ports", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
                 p_list->push_back(PropertyInfo(VariantType::STRING, prop_name + "/output_ports", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
             }
-            if (Object::cast_to<VisualShaderNodeExpression>(E.second.node.get()) != nullptr) {
+            if (object_cast<VisualShaderNodeExpression>(E.second.node.get()) != nullptr) {
                 p_list->push_back(PropertyInfo(VariantType::STRING, prop_name + "/expression", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
             }
         }

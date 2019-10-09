@@ -1,9 +1,9 @@
 #pragma once
-
 #include "core/plugin_interfaces/ImageLoaderInterface.h"
 #include "core/plugin_interfaces/ResourceImporterInterface.h"
 #include "core/plugin_interfaces/ResourceLoaderInterface.h"
 #include "core/plugin_interfaces/PackSourceInterface.h"
+#include <QtCore/QObject>
 
 #define ImageFormatLoader_iid "org.godot.ImageFormatLoader"
 

@@ -52,7 +52,7 @@ Node2D *NavigationPolygonEditor::_get_node() const {
 
 void NavigationPolygonEditor::_set_node(Node *p_polygon) {
 
-    node = Object::cast_to<NavigationPolygonInstance>(p_polygon);
+    node = object_cast<NavigationPolygonInstance>(p_polygon);
 }
 
 int NavigationPolygonEditor::_get_polygon_count() const {

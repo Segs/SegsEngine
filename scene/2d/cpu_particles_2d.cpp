@@ -246,7 +246,7 @@ String CPUParticles2D::get_configuration_warning() const {
 
     String warnings;
 
-    CanvasItemMaterial *mat = Object::cast_to<CanvasItemMaterial>(get_material().get());
+    CanvasItemMaterial *mat = object_cast<CanvasItemMaterial>(get_material().get());
 
     if (not get_material() || (mat && !mat->get_particles_animation())) {
         if (get_param(PARAM_ANIM_SPEED) != 0.0f || get_param(PARAM_ANIM_OFFSET) != 0.0f ||
@@ -1131,7 +1131,7 @@ void CPUParticles2D::_notification(int p_what) {
 }
 
 void CPUParticles2D::convert_from_particles(Node *p_particles) {
-    Particles2D *particles = Object::cast_to<Particles2D>(p_particles);
+    Particles2D *particles = object_cast<Particles2D>(p_particles);
 	ERR_FAIL_COND_MSG(!particles, "Only Particles2D nodes can be converted to CPUParticles2D.");
 
     set_emitting(particles->is_emitting());

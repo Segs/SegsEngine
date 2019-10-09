@@ -386,7 +386,7 @@ void VisualServerCanvas::canvas_item_set_parent(RID p_item, RID p_parent) {
 
         } else {
 
-            ERR_FAIL_MSG("Invalid parent.");
+            ERR_FAIL_CMSG("Invalid parent.")
         }
     }
 

@@ -1774,7 +1774,7 @@ void TileMapEditor::edit(Node *p_tile_map) {
         node->disconnect("settings_changed", this, "_tileset_settings_changed");
     if (p_tile_map) {
 
-        node = Object::cast_to<TileMap>(p_tile_map);
+        node = object_cast<TileMap>(p_tile_map);
         if (!canvas_item_editor_viewport->is_connected("mouse_entered", this, "_canvas_mouse_enter"))
             canvas_item_editor_viewport->connect("mouse_entered", this, "_canvas_mouse_enter");
         if (!canvas_item_editor_viewport->is_connected("mouse_exited", this, "_canvas_mouse_exit"))
@@ -2139,7 +2139,7 @@ void TileMapEditorPlugin::_notification(int p_what) {
 
 void TileMapEditorPlugin::edit(Object *p_object) {
 
-    tile_map_editor->edit(Object::cast_to<Node>(p_object));
+    tile_map_editor->edit(object_cast<Node>(p_object));
 }
 
 bool TileMapEditorPlugin::handles(Object *p_object) const {

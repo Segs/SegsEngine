@@ -54,7 +54,7 @@ void EditorHistory::cleanup_history() {
 
             Object *obj = ObjectDB::get_instance(history[i].path[j].object);
             if (obj) {
-                Node *n = Object::cast_to<Node>(obj);
+                Node *n = object_cast<Node>(obj);
                 if (n && n->is_inside_tree())
                     continue;
                 if (!n) // Possibly still alive
@@ -86,7 +86,7 @@ void EditorHistory::_add_object(ObjectID p_object, const String &p_property, int
 
     Object *obj = ObjectDB::get_instance(p_object);
     ERR_FAIL_COND(!obj)
-    RefCounted *r = Object::cast_to<RefCounted>(obj);
+    RefCounted *r = object_cast<RefCounted>(obj);
     Obj o;
     if (r)
         o.ref = REF(r);

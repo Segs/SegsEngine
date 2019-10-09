@@ -54,7 +54,7 @@ void ThemeEditor::_propagate_redraw(Control *p_at) {
     p_at->minimum_size_changed();
     p_at->update();
     for (int i = 0; i < p_at->get_child_count(); i++) {
-        Control *a = Object::cast_to<Control>(p_at->get_child(i));
+        Control *a = object_cast<Control>(p_at->get_child(i));
         if (a)
             _propagate_redraw(a);
     }
@@ -881,7 +881,7 @@ ThemeEditor::ThemeEditor() {
 
 void ThemeEditorPlugin::edit(Object *p_node) {
 
-    Theme *t = Object::cast_to<Theme>(p_node);
+    Theme *t = object_cast<Theme>(p_node);
     theme_editor->edit(Ref<Theme>(t));
 }
 

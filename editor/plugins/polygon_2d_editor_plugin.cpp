@@ -50,7 +50,7 @@ Node2D *Polygon2DEditor::_get_node() const {
 
 void Polygon2DEditor::_set_node(Node *p_polygon) {
 
-    node = Object::cast_to<Polygon2D>(p_polygon);
+    node = object_cast<Polygon2D>(p_polygon);
     _update_polygon_editing_state();
 }
 
@@ -115,7 +115,7 @@ void Polygon2DEditor::_sync_bones() {
         error->popup_centered_minsize();
     } else {
         Node *sn = node->get_node(node->get_skeleton());
-        skeleton = Object::cast_to<Skeleton2D>(sn);
+        skeleton = object_cast<Skeleton2D>(sn);
     }
 
     Array prev_bones = node->call("_get_bones");
@@ -166,7 +166,7 @@ void Polygon2DEditor::_update_bone_list() {
 
     NodePath selected;
     while (bone_scroll_vb->get_child_count()) {
-        CheckBox *cb = Object::cast_to<CheckBox>(bone_scroll_vb->get_child(0));
+        CheckBox *cb = object_cast<CheckBox>(bone_scroll_vb->get_child(0));
         if (cb && cb->is_pressed()) {
             selected = cb->get_meta("bone_path");
         }
@@ -744,7 +744,7 @@ void Polygon2DEditor::_uv_input(const Ref<InputEvent> &p_input) {
 
                     int bone_selected = -1;
                     for (int i = 0; i < bone_scroll_vb->get_child_count(); i++) {
-                        CheckBox *c = Object::cast_to<CheckBox>(bone_scroll_vb->get_child(i));
+                        CheckBox *c = object_cast<CheckBox>(bone_scroll_vb->get_child(i));
                         if (c && c->is_pressed()) {
                             bone_selected = i;
                             break;
@@ -1037,7 +1037,7 @@ void Polygon2DEditor::_uv_draw() {
     if (uv_edit_mode[3]->is_pressed()) {
         int bone_selected = -1;
         for (int i = 0; i < bone_scroll_vb->get_child_count(); i++) {
-            CheckBox *c = Object::cast_to<CheckBox>(bone_scroll_vb->get_child(i));
+            CheckBox *c = object_cast<CheckBox>(bone_scroll_vb->get_child(i));
             if (c && c->is_pressed()) {
                 bone_selected = i;
                 break;
@@ -1143,7 +1143,7 @@ void Polygon2DEditor::_uv_draw() {
 
         NodePath bone_path;
         for (int i = 0; i < bone_scroll_vb->get_child_count(); i++) {
-            CheckBox *c = Object::cast_to<CheckBox>(bone_scroll_vb->get_child(i));
+            CheckBox *c = object_cast<CheckBox>(bone_scroll_vb->get_child(i));
             if (c && c->is_pressed()) {
                 bone_path = node->get_bone_path(i);
                 break;
@@ -1153,7 +1153,7 @@ void Polygon2DEditor::_uv_draw() {
         //draw skeleton
         NodePath skeleton_path = node->get_skeleton();
         if (node->has_node(skeleton_path)) {
-            Skeleton2D *skeleton = Object::cast_to<Skeleton2D>(node->get_node(skeleton_path));
+            Skeleton2D *skeleton = object_cast<Skeleton2D>(node->get_node(skeleton_path));
             if (skeleton) {
                 for (int i = 0; i < skeleton->get_bone_count(); i++) {
 
@@ -1167,7 +1167,7 @@ void Polygon2DEditor::_uv_draw() {
 
                     for (int j = 0; j < bone->get_child_count(); j++) {
 
-                        Bone2D *n = Object::cast_to<Bone2D>(bone->get_child(j));
+                        Bone2D *n = object_cast<Bone2D>(bone->get_child(j));
                         if (!n)
                             continue;
 

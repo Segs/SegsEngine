@@ -375,7 +375,7 @@ ConnectDialog::ConnectDialog() {
     tree->set_connect_to_script_mode(true);
 
     Node *mc = vbc_left->add_margin_child(TTR("Connect to Script:"), tree, true);
-    connect_to_label = Object::cast_to<Label>(vbc_left->get_child(mc->get_index() - 1));
+    connect_to_label = object_cast<Label>(vbc_left->get_child(mc->get_index() - 1));
 
     error_label = memnew(Label);
     error_label->set_text(TTR("Scene does not contain any script."));
@@ -990,7 +990,7 @@ void ConnectionsDock::update_tree() {
                 if (!(c.flags & ObjectNS::CONNECT_PERSIST))
                     continue;
 
-                Node *target = Object::cast_to<Node>(c.target);
+                Node *target = object_cast<Node>(c.target);
                 if (!target)
                     continue;
 

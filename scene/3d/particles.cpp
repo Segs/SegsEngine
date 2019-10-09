@@ -258,16 +258,16 @@ String Particles::get_configuration_warning() const {
         if (draw_passes[i]) {
             meshes_found = true;
             for (int j = 0; j < draw_passes[i]->get_surface_count(); j++) {
-                anim_material_found = Object::cast_to<ShaderMaterial>(draw_passes[i]->surface_get_material(j).get()) != nullptr;
-                SpatialMaterial *spat = Object::cast_to<SpatialMaterial>(draw_passes[i]->surface_get_material(j).get());
+                anim_material_found = object_cast<ShaderMaterial>(draw_passes[i]->surface_get_material(j).get()) != nullptr;
+                SpatialMaterial *spat = object_cast<SpatialMaterial>(draw_passes[i]->surface_get_material(j).get());
                 anim_material_found = anim_material_found || (spat && spat->get_billboard_mode() == SpatialMaterial::BILLBOARD_PARTICLES);
             }
             if (anim_material_found) break;
         }
     }
 
-    anim_material_found = anim_material_found || Object::cast_to<ShaderMaterial>(get_material_override().get()) != nullptr;
-    SpatialMaterial *spat = Object::cast_to<SpatialMaterial>(get_material_override().get());
+    anim_material_found = anim_material_found || object_cast<ShaderMaterial>(get_material_override().get()) != nullptr;
+    SpatialMaterial *spat = object_cast<SpatialMaterial>(get_material_override().get());
     anim_material_found = anim_material_found || (spat && spat->get_billboard_mode() == SpatialMaterial::BILLBOARD_PARTICLES);
 
     if (!meshes_found) {
@@ -281,7 +281,7 @@ String Particles::get_configuration_warning() const {
             warnings += "\n";
         warnings += "- " + TTR("A material to process the particles is not assigned, so no behavior is imprinted.");
     } else {
-        const ParticlesMaterial *process = Object::cast_to<ParticlesMaterial>(process_material.get());
+        const ParticlesMaterial *process = object_cast<ParticlesMaterial>(process_material.get());
         if (!anim_material_found && process &&
                 (process->get_param(ParticlesMaterial::PARAM_ANIM_SPEED) != 0.0f || process->get_param(ParticlesMaterial::PARAM_ANIM_OFFSET) != 0.0f ||
                         process->get_param_texture(ParticlesMaterial::PARAM_ANIM_SPEED) || process->get_param_texture(ParticlesMaterial::PARAM_ANIM_OFFSET))) {

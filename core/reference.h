@@ -241,19 +241,19 @@ inline Ref<T> make_ref_counted(Args&&... args)
     { return Ref<T>(_post_initialize(new (typeid(T).name()) T(eastl::forward<Args>(args)...)),DoNotAddRef); }
 
 template<class T>
-inline Ref<T> refFromRefPtr(RefPtr p_refptr) {
+inline Ref<T> refFromRefPtr(const RefPtr &p_refptr) {
 
     Ref<RefCounted> *irr = reinterpret_cast<Ref<RefCounted> *>(p_refptr.get_data());
     RefCounted *refb = irr->get();
     if (!refb) {
         return Ref<T>();
     }
-    return Ref<T>(Object::cast_to<T>(refb));
+    return Ref<T>(object_cast<T>(refb));
 }
 template<class T>
 inline Ref<T> refFromVariant(const Variant &p_variant) {
     //TODO: SEGS: notify about failed type conversions?
-    RefPtr refptr = p_variant.as<RefPtr>();
+    RefPtr refptr(p_variant.as<RefPtr>());
     return refFromRefPtr<T>(refptr);
 }
 template<class T>
@@ -270,12 +270,12 @@ Ref<T>::Ref(const Variant &p_variant) {
 template <class T, class U>
 Ref<T> dynamic_ref_cast(const Ref<U>& intrusivePtr)
 {
-    return Ref<T>(Object::cast_to<T>(intrusivePtr.get()));
+    return Ref<T>(object_cast<T>(intrusivePtr.get()));
 }
 template <class T, class U>
 Ref<T> dynamic_ref_cast(Ref<U>& intrusivePtr)
 {
-    return Ref<T>(Object::cast_to<T>(intrusivePtr.get()));
+    return Ref<T>(object_cast<T>(intrusivePtr.get()));
 }
 
 using REF = Ref<RefCounted>;
@@ -294,7 +294,7 @@ public:
     void set_obj(Object *p_object);
     void set_ref(const REF &p_ref);
 
-    WeakRef() {}
+    WeakRef() = default;
 };
 
 #ifdef PTRCALL_ENABLED

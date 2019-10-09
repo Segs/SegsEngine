@@ -198,7 +198,7 @@ void AudioStreamPlayer2D::_notification(int p_what) {
 
             for (int i = 0; i < areas; i++) {
 
-                Area2D *area2d = Object::cast_to<Area2D>(sr[i].collider);
+                Area2D *area2d = object_cast<Area2D>(sr[i].collider);
                 if (!area2d)
                     continue;
 

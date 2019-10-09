@@ -474,7 +474,7 @@ MonoObject *variant_to_mono_object(const Variant *p_var, const ManagedType &p_ty
 						return BOX_ENUM(enum_baseclass, val);
 					}
 					default: {
-						ERR_FAIL_V_MSG(NULL, "Attempted to convert Variant to a managed enum value of unmarshallable base type.");
+                                                ERR_FAIL_V_CMSG(NULL, "Attempted to convert Variant to a managed enum value of unmarshallable base type.");
 					}
 				}
 			}
@@ -508,7 +508,7 @@ MonoObject *variant_to_mono_object(const Variant *p_var, const ManagedType &p_ty
 			if (array_type->eklass == CACHED_CLASS_RAW(Color))
 				return (MonoObject *)PoolColorArray_to_mono_array(p_var->operator PoolColorArray());
 
-			ERR_FAIL_V_MSG(NULL, "Attempted to convert Variant to a managed array of unmarshallable element type.");
+                        ERR_FAIL_V_CMSG(NULL, "Attempted to convert Variant to a managed array of unmarshallable element type.");
 		} break;
 
 		case MONO_TYPE_CLASS: {
@@ -806,7 +806,7 @@ Variant mono_object_to_variant(MonoObject *p_obj) {
 			if (array_type->eklass == CACHED_CLASS_RAW(Color))
 				return mono_array_to_PoolColorArray((MonoArray *)p_obj);
 
-			ERR_FAIL_V_MSG(Variant(), "Attempted to convert a managed array of unmarshallable element type to Variant.");
+                        ERR_FAIL_V_CMSG(Variant(), "Attempted to convert a managed array of unmarshallable element type to Variant.");
 		} break;
 
 		case MONO_TYPE_CLASS: {
@@ -816,7 +816,7 @@ Variant mono_object_to_variant(MonoObject *p_obj) {
 			if (CACHED_CLASS(GodotObject)->is_assignable_from(type_class)) {
 				Object *ptr = unbox<Object *>(CACHED_FIELD(GodotObject, ptr)->get_value(p_obj));
 				if (ptr != NULL) {
-					Reference *ref = Object::cast_to<Reference>(ptr);
+					Reference *ref = object_cast<Reference>(ptr);
 					return ref ? Variant(Ref<Reference>(ref)) : Variant(ptr);
 				}
 				return Variant();

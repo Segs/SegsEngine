@@ -464,7 +464,7 @@ void ExportTemplateManager::_begin_template_download(const String &p_url) {
     }
 
     for (int i = 0; i < template_list->get_child_count(); i++) {
-        BaseButton *b = Object::cast_to<BaseButton>(template_list->get_child(0));
+        BaseButton *b = object_cast<BaseButton>(template_list->get_child(0));
         if (b) {
             b->set_disabled(true);
         }
@@ -599,7 +599,7 @@ Error ExportTemplateManager::install_android_template() {
     zlib_filefunc_def io = zipio_create_io_from_file(&src_f);
 
     unzFile pkg = unzOpen2(qPrintable(source_zip.m_str), &io);
-    ERR_FAIL_COND_V_MSG(!pkg, ERR_CANT_OPEN, "Android sources not in ZIP format.")
+    ERR_FAIL_COND_V_CMSG(!pkg, ERR_CANT_OPEN, "Android sources not in ZIP format.")
 
     int ret = unzGoToFirstFile(pkg);
 
@@ -663,9 +663,9 @@ Error ExportTemplateManager::install_android_template() {
 
     // Extract libs from pre-built APKs.
     err = _extract_libs_from_apk("release");
-    ERR_FAIL_COND_V_MSG(err != OK, err, "Can't extract Android libs from android_release.apk.")
+    ERR_FAIL_COND_V_CMSG(err != OK, err, "Can't extract Android libs from android_release.apk.")
     err = _extract_libs_from_apk("debug");
-    ERR_FAIL_COND_V_MSG(err != OK, err, "Can't extract Android libs from android_debug.apk.")
+    ERR_FAIL_COND_V_CMSG(err != OK, err, "Can't extract Android libs from android_debug.apk.")
 
     return OK;
 }

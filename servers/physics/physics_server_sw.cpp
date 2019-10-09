@@ -73,7 +73,7 @@ RID PhysicsServerSW::shape_create(ShapeType p_shape) {
         } break;
         case SHAPE_CYLINDER: {
 
-            ERR_FAIL_V_MSG(RID(), "CylinderShape is not supported in GodotPhysics. Please switch to Bullet in the Project Settings.");
+            ERR_FAIL_V_CMSG(RID(), "CylinderShape is not supported in GodotPhysics. Please switch to Bullet in the Project Settings.")
         } break;
         case SHAPE_CONVEX_POLYGON: {
 
@@ -199,7 +199,7 @@ PhysicsDirectSpaceState *PhysicsServerSW::space_get_direct_state(RID p_space) {
 
     SpaceSW *space = space_owner.get(p_space);
     ERR_FAIL_COND_V(!space, nullptr)
-    ERR_FAIL_COND_V_MSG(!doing_sync || space->is_locked(), nullptr, "Space state is inaccessible right now, wait for iteration or physics process notification.")
+    ERR_FAIL_COND_V_CMSG(!doing_sync || space->is_locked(), nullptr, "Space state is inaccessible right now, wait for iteration or physics process notification.")
 
     return space->get_direct_state();
 }
@@ -1400,7 +1400,7 @@ void PhysicsServerSW::free(RID p_rid) {
 
     } else {
 
-        ERR_FAIL_MSG("Invalid ID.");
+        ERR_FAIL_CMSG("Invalid ID.")
     }
 };
 

@@ -263,7 +263,7 @@ public:
     T *get_node_editor_data(Node *p_node) {
         if (!selection.contains(p_node))
             return nullptr;
-        return Object::cast_to<T>(selection[p_node]);
+        return object_cast<T>(selection[p_node]);
     }
 
     void add_editor_plugin(Object *p_object);

@@ -707,7 +707,7 @@ bool Tabs::can_drop_data(const Point2 &p_point, const Variant &p_data) const {
         } else if (get_tabs_rearrange_group() != -1) {
             // drag and drop between other Tabs
             Node *from_node = get_node(from_path);
-            Tabs *from_tabs = Object::cast_to<Tabs>(from_node);
+            Tabs *from_tabs = object_cast<Tabs>(from_node);
             if (from_tabs && from_tabs->get_tabs_rearrange_group() == get_tabs_rearrange_group()) {
                 return true;
             }
@@ -741,7 +741,7 @@ void Tabs::drop_data(const Point2 &p_point, const Variant &p_data) {
         } else if (get_tabs_rearrange_group() != -1) {
             // drag and drop between Tabs
             Node *from_node = get_node(from_path);
-            Tabs *from_tabs = Object::cast_to<Tabs>(from_node);
+            Tabs *from_tabs = object_cast<Tabs>(from_node);
             if (from_tabs && from_tabs->get_tabs_rearrange_group() == get_tabs_rearrange_group()) {
                 if (tab_from_id >= from_tabs->get_tab_count())
                     return;

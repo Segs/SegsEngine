@@ -180,7 +180,7 @@ void ParticlesEditorBase::_node_selected(const NodePath &p_path) {
         return;
     }
 
-    VisualInstance *vi = Object::cast_to<VisualInstance>(sel);
+    VisualInstance *vi = object_cast<VisualInstance>(sel);
     if (!vi) {
 
         EditorNode::get_singleton()->show_warning(vformat(TTR("\"%s\" doesn't contain geometry."), sel->get_name()));
@@ -502,7 +502,7 @@ ParticlesEditor::ParticlesEditor() {
 
 void ParticlesEditorPlugin::edit(Object *p_object) {
 
-    particles_editor->edit(Object::cast_to<Particles>(p_object));
+    particles_editor->edit(object_cast<Particles>(p_object));
 }
 
 bool ParticlesEditorPlugin::handles(Object *p_object) const {

@@ -79,7 +79,7 @@ Variant GDScriptNativeClass::_new() {
     Object *o = instance();
     ERR_FAIL_COND_V_MSG(!o, Variant(), "Class type: '" + String(name) + "' is not instantiable.")
 
-    RefCounted *ref = Object::cast_to<RefCounted>(o);
+    RefCounted *ref = object_cast<RefCounted>(o);
     if (ref) {
         return REF(ref);
     } else {
@@ -165,9 +165,9 @@ Variant GDScript::_new(const Variant **p_args, int p_argcount, Variant::CallErro
     } else {
         owner = memnew(RefCounted); //by default, no base means use reference
     }
-    ERR_FAIL_COND_V_MSG(!owner, Variant(), "Can't inherit from a virtual class.")
+    ERR_FAIL_COND_V_CMSG(!owner, Variant(), "Can't inherit from a virtual class.")
 
-    RefCounted *r = Object::cast_to<RefCounted>(owner);
+    RefCounted *r = object_cast<RefCounted>(owner);
     if (r) {
         ref = REF(r);
     }
@@ -337,7 +337,7 @@ ScriptInstance *GDScript::instance_create(Object *p_this) {
     }
 
     Variant::CallError unchecked_error;
-    return _create_instance(nullptr, 0, p_this, Object::cast_to<RefCounted>(p_this) != nullptr, unchecked_error);
+    return _create_instance(nullptr, 0, p_this, object_cast<RefCounted>(p_this) != nullptr, unchecked_error);
 }
 
 PlaceHolderScriptInstance *GDScript::placeholder_instance_create(Object *p_this) {
@@ -531,7 +531,7 @@ void GDScript::update_exports() {
 
     for (ObjectID E : copy) {
         Object *id = ObjectDB::get_instance(E);
-        GDScript *s = Object::cast_to<GDScript>(id);
+        GDScript *s = object_cast<GDScript>(id);
         if (!s)
             continue;
         s->update_exports();
@@ -2274,11 +2274,11 @@ Error ResourceFormatSaverGDScript::save(const String &p_path, const RES &p_resou
 
 void ResourceFormatSaverGDScript::get_recognized_extensions(const RES &p_resource, Vector<String> *p_extensions) const {
 
-    if (Object::cast_to<GDScript>(p_resource.get())) {
+    if (object_cast<GDScript>(p_resource.get())) {
         p_extensions->push_back("gd");
     }
 }
 bool ResourceFormatSaverGDScript::recognize(const RES &p_resource) const {
 
-    return Object::cast_to<GDScript>(p_resource.get()) != nullptr;
+    return object_cast<GDScript>(p_resource.get()) != nullptr;
 }

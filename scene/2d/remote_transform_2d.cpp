@@ -56,7 +56,7 @@ void RemoteTransform2D::_update_remote() {
     if (!cache)
         return;
 
-    Node2D *n = Object::cast_to<Node2D>(ObjectDB::get_instance(cache));
+    Node2D *n = object_cast<Node2D>(ObjectDB::get_instance(cache));
     if (!n)
         return;
 
@@ -190,7 +190,7 @@ void RemoteTransform2D::force_update_cache() {
 
 String RemoteTransform2D::get_configuration_warning() const {
 
-    if (!has_node(remote_node) || !Object::cast_to<Node2D>(get_node(remote_node))) {
+    if (!has_node(remote_node) || !object_cast<Node2D>(get_node(remote_node))) {
         return TTR("Path property must point to a valid Node2D node to work.");
     }
 

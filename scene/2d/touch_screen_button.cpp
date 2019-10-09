@@ -203,11 +203,11 @@ void TouchScreenButton::_input(const Ref<InputEvent> &p_event) {
 
     ERR_FAIL_COND(!is_visible_in_tree())
 
-    const InputEventScreenTouch *st = Object::cast_to<InputEventScreenTouch>(p_event.get());
+    const InputEventScreenTouch *st = object_cast<InputEventScreenTouch>(p_event.get());
 
     if (passby_press) {
 
-        const InputEventScreenDrag *sd = Object::cast_to<InputEventScreenDrag>(p_event.get());
+        const InputEventScreenDrag *sd = object_cast<InputEventScreenDrag>(p_event.get());
 
         if (st && !st->is_pressed() && finger_pressed == st->get_index()) {
 

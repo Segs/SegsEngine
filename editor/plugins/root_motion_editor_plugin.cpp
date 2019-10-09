@@ -53,12 +53,12 @@ void EditorPropertyRootMotion::_node_assign() {
 
     NodePath current = get_edited_object()->get(get_edited_property());
 
-    AnimationTree *atree = Object::cast_to<AnimationTree>(get_edited_object());
+    AnimationTree *atree = object_cast<AnimationTree>(get_edited_object());
     if (!atree->has_node(atree->get_animation_player())) {
         EditorNode::get_singleton()->show_warning(TTR("AnimationTree has no path set to an AnimationPlayer"));
         return;
     }
-    AnimationPlayer *player = Object::cast_to<AnimationPlayer>(atree->get_node(atree->get_animation_player()));
+    AnimationPlayer *player = object_cast<AnimationPlayer>(atree->get_node(atree->get_animation_player()));
     if (!player) {
         EditorNode::get_singleton()->show_warning(TTR("Path to AnimationPlayer is invalid"));
         return;
@@ -134,7 +134,7 @@ void EditorPropertyRootMotion::_node_assign() {
 
             String concat = path.get_concatenated_subnames();
 
-            Skeleton *skeleton = Object::cast_to<Skeleton>(node);
+            Skeleton *skeleton = object_cast<Skeleton>(node);
             if (skeleton && skeleton->find_bone(concat) != -1) {
                 //path in skeleton
                 const String &bone = concat;
@@ -224,7 +224,7 @@ void EditorPropertyRootMotion::update_property() {
             base_node = get_tree()->get_root()->get_node(base_hint);
         }
     } else {
-        base_node = Object::cast_to<Node>(get_edited_object());
+        base_node = object_cast<Node>(get_edited_object());
     }
 
     if (!base_node || !base_node->has_node(p)) {

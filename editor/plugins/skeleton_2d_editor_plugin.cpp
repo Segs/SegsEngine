@@ -122,7 +122,7 @@ Skeleton2DEditor::Skeleton2DEditor() {
 
 void Skeleton2DEditorPlugin::edit(Object *p_object) {
 
-    sprite_editor->edit(Object::cast_to<Skeleton2D>(p_object));
+    sprite_editor->edit(object_cast<Skeleton2D>(p_object));
 }
 
 bool Skeleton2DEditorPlugin::handles(Object *p_object) const {

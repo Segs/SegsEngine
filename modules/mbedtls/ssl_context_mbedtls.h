@@ -28,20 +28,13 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef SSL_CONTEXT_MBED_TLS_H
-#define SSL_CONTEXT_MBED_TLS_H
+#pragma once
 
 #include "crypto_mbedtls.h"
 
 #include "core/os/file_access.h"
-#include "core/pool_vector.h"
+#include "core/forward_decls.h"
 #include "core/reference.h"
-
-#include <mbedtls/config.h>
-#include <mbedtls/ctr_drbg.h>
-#include <mbedtls/debug.h>
-#include <mbedtls/entropy.h>
-#include <mbedtls/ssl.h>
 
 class SSLContextMbedTLS : public RefCounted {
 
@@ -69,5 +62,3 @@ public:
 	SSLContextMbedTLS();
 	~SSLContextMbedTLS() override;
 };
-
-#endif // SSL_CONTEXT_MBED_TLS_H

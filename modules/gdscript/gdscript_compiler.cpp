@@ -1255,11 +1255,11 @@ int GDScriptCompiler::_parse_expression(CodeGen &codegen, const GDScriptParser::
             codegen.opcodes.push_back(dst_addr); // append the stack level as destination address of the opcode
             codegen.alloc_stack(p_stack_level);
             return dst_addr;
-        } break;
+        }
         //TYPE_TYPE,
         default: {
 
-            ERR_FAIL_V_MSG(-1, "Bug in bytecode compiler, unexpected node in parse tree while parsing expression."); //unreachable code
+            ERR_FAIL_V_CMSG(-1, "Bug in bytecode compiler, unexpected node in parse tree while parsing expression."); //unreachable code
         } break;
     }
 }
@@ -2066,7 +2066,7 @@ Error GDScriptCompiler::_parse_class_blocks(GDScript *p_script, const GDScriptPa
                     p_script->placeholders.erase(psi); //remove placeholder
 
                     GDScriptInstance *instance = memnew(GDScriptInstance);
-                    instance->base_ref = Object::cast_to<RefCounted>(*E);
+                    instance->base_ref = object_cast<RefCounted>(*E);
                     instance->members.resize(p_script->member_indices.size());
                     instance->script = Ref<GDScript>(p_script);
                     instance->owner = *E;

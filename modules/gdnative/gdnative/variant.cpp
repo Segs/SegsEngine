@@ -175,7 +175,7 @@ void GDAPI godot_variant_new_rid(godot_variant *r_dest, const godot_rid *p_rid) 
 void GDAPI godot_variant_new_object(godot_variant *r_dest, const godot_object *p_obj) {
     Variant *dest = (Variant *)r_dest;
     Object *obj = (Object *)p_obj;
-    RefCounted *reference = Object::cast_to<RefCounted>(obj);
+    RefCounted *reference = object_cast<RefCounted>(obj);
     REF ref;
     if (reference) {
         ref = REF(reference);

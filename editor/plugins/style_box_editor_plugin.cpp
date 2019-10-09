@@ -38,12 +38,12 @@ IMPL_GDCLASS(StyleBoxEditorPlugin)
 
 bool EditorInspectorPluginStyleBox::can_handle(Object *p_object) {
 
-    return Object::cast_to<StyleBox>(p_object) != nullptr;
+    return object_cast<StyleBox>(p_object) != nullptr;
 }
 
 void EditorInspectorPluginStyleBox::parse_begin(Object *p_object) {
 
-    Ref<StyleBox> sb = Ref<StyleBox>(Object::cast_to<StyleBox>(p_object));
+    Ref<StyleBox> sb = Ref<StyleBox>(object_cast<StyleBox>(p_object));
 
     StyleBoxPreview *preview = memnew(StyleBoxPreview);
     preview->edit(sb);

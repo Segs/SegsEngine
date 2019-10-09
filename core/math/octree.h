@@ -35,7 +35,6 @@
 #include "core/math/aabb.h"
 #include "core/math/vector3.h"
 #include "core/print_string.h"
-//#include "core/variant.h"
 #include "core/vector.h"
 
 using OctreeElementID = uint32_t;

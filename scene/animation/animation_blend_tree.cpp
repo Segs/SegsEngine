@@ -90,7 +90,7 @@ float AnimationNodeAnimation::process(float p_time, bool p_seek) {
 
     if (!ap->has_animation(animation)) {
 
-        AnimationNodeBlendTree *tree = Object::cast_to<AnimationNodeBlendTree>(parent);
+        AnimationNodeBlendTree *tree = object_cast<AnimationNodeBlendTree>(parent);
         if (tree) {
             String name = tree->get_node_name(Ref<AnimationNodeAnimation>(this));
             make_invalid(vformat(RTR("On BlendTree node '%s', animation not found: '%s'"), name, animation));

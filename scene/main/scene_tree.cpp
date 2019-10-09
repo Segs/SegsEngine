@@ -269,7 +269,7 @@ struct SceneTree::DebugData {
             if (!n->has_node(p_parent)) continue;
             Node *n2 = n->get_node(p_parent);
 
-            Node *no = Object::cast_to<Node>(ClassDB::instance(p_type));
+            Node *no = object_cast<Node>(ClassDB::instance(p_type));
             if (!no) {
                 continue;
             }
@@ -808,7 +808,7 @@ bool SceneTree::is_input_handled() {
 
 void SceneTree::input_event(const Ref<InputEvent> &p_event) {
 
-    if (Engine::get_singleton()->is_editor_hint() && (Object::cast_to<InputEventJoypadButton>(p_event.get()) || Object::cast_to<InputEventJoypadMotion>(p_event.get())))
+    if (Engine::get_singleton()->is_editor_hint() && (object_cast<InputEventJoypadButton>(p_event.get()) || object_cast<InputEventJoypadMotion>(p_event.get())))
         return; //avoid joy input on editor
 
     current_event++;
@@ -1048,7 +1048,7 @@ void SceneTree::_notification(int p_notification) {
 
         case NOTIFICATION_WM_FOCUS_IN: {
 
-            InputDefault *id = Object::cast_to<InputDefault>(Input::get_singleton());
+            InputDefault *id = object_cast<InputDefault>(Input::get_singleton());
             if (id) {
                 id->ensure_touch_mouse_raised();
             }
@@ -1518,7 +1518,7 @@ void SceneTree::queue_delete(Object *p_object) {
 
     _THREAD_SAFE_METHOD_
     ERR_FAIL_NULL(p_object)
-    p_object->_is_queued_for_deletion = true;
+    p_object->deleteLater();
     delete_queue.push_back(p_object->get_instance_id());
 }
 

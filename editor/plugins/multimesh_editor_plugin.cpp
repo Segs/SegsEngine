@@ -83,7 +83,7 @@ void MultiMeshEditor::_populate() {
             return;
         }
 
-        MeshInstance *ms_instance = Object::cast_to<MeshInstance>(ms_node);
+        MeshInstance *ms_instance = object_cast<MeshInstance>(ms_node);
 
         if (!ms_instance) {
 
@@ -118,7 +118,7 @@ void MultiMeshEditor::_populate() {
         return;
     }
 
-    GeometryInstance *ss_instance = Object::cast_to<MeshInstance>(ss_node);
+    GeometryInstance *ss_instance = object_cast<MeshInstance>(ss_node);
 
     if (!ss_instance) {
 
@@ -153,7 +153,7 @@ void MultiMeshEditor::_populate() {
 
     PoolVector<Face3> faces = geometry;
     int facecount = faces.size();
-    ERR_FAIL_COND_MSG(!facecount, "Parent has no solid faces to populate.")
+    ERR_FAIL_COND_CMSG(!facecount, "Parent has no solid faces to populate.")
 
     PoolVector<Face3>::Read r = faces.read();
 
@@ -391,7 +391,7 @@ MultiMeshEditor::MultiMeshEditor() {
 
 void MultiMeshEditorPlugin::edit(Object *p_object) {
 
-    multimesh_editor->edit(Object::cast_to<MultiMeshInstance>(p_object));
+    multimesh_editor->edit(object_cast<MultiMeshInstance>(p_object));
 }
 
 bool MultiMeshEditorPlugin::handles(Object *p_object) const {

@@ -245,10 +245,10 @@ String Particles2D::get_configuration_warning() const {
         warnings += "- " + TTR("A material to process the particles is not assigned, so no behavior is imprinted.");
     } else {
 
-        CanvasItemMaterial *mat = Object::cast_to<CanvasItemMaterial>(get_material().get());
+        CanvasItemMaterial *mat = object_cast<CanvasItemMaterial>(get_material().get());
 
         if (not get_material() || (mat && !mat->get_particles_animation())) {
-            const ParticlesMaterial *process = Object::cast_to<ParticlesMaterial>(process_material.get());
+            const ParticlesMaterial *process = object_cast<ParticlesMaterial>(process_material.get());
             if (process &&
                     (process->get_param(ParticlesMaterial::PARAM_ANIM_SPEED) != 0.0f || process->get_param(ParticlesMaterial::PARAM_ANIM_OFFSET) != 0.0f ||
                             process->get_param_texture(ParticlesMaterial::PARAM_ANIM_SPEED) || process->get_param_texture(ParticlesMaterial::PARAM_ANIM_OFFSET))) {

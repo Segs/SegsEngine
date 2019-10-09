@@ -4456,7 +4456,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                         Variant constant = static_cast<ConstantNode *>(subexpr)->value;
 
                         if (constant.get_type() == VariantType::OBJECT) {
-                            GDScriptNativeClass *native_class = Object::cast_to<GDScriptNativeClass>(constant);
+                            GDScriptNativeClass *native_class = object_cast<GDScriptNativeClass>(constant);
 
                             if (native_class && ClassDB::is_parent_class(native_class->get_name(), "Resource")) {
                                 current_export.type = VariantType::OBJECT;
@@ -4798,7 +4798,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                         member._export.usage |= PROPERTY_USAGE_SCRIPT_VARIABLE;
                         if (cn->value.get_type() == VariantType::OBJECT) {
                             Object *obj = cn->value;
-                            Resource *res = Object::cast_to<Resource>(obj);
+                            Resource *res = object_cast<Resource>(obj);
                             if (res == nullptr) {
                                 _set_error("The exported constant isn't a type or resource.");
                                 return;

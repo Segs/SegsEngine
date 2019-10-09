@@ -106,7 +106,7 @@ void EditorSubScene::_selected_changed() {
 
 void EditorSubScene::_item_multi_selected(Object *p_object, int p_cell, bool p_selected) {
     if (!is_root) {
-        TreeItem *item = Object::cast_to<TreeItem>(p_object);
+        TreeItem *item = object_cast<TreeItem>(p_object);
         ERR_FAIL_COND(!item)
 
         Node *n = item->get_metadata(0);

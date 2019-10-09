@@ -522,11 +522,6 @@ void StreamPeerBuffer::set_data_array(const PoolVector<uint8_t> &p_data) {
     pointer = 0;
 }
 
-PoolVector<uint8_t> StreamPeerBuffer::get_data_array() const {
-
-    return data;
-}
-
 void StreamPeerBuffer::clear() {
 
     data.resize(0);
@@ -540,7 +535,4 @@ Ref<StreamPeerBuffer> StreamPeerBuffer::duplicate() const {
     return spb;
 }
 
-StreamPeerBuffer::StreamPeerBuffer() {
 
-    pointer = 0;
-}

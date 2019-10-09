@@ -690,8 +690,8 @@ void AnimationPlayerEditor::set_state(const Dictionary &p_state) {
     if (p_state.has("player")) {
 
         Node *n = EditorNode::get_singleton()->get_edited_scene()->get_node(p_state["player"]);
-        if (Object::cast_to<AnimationPlayer>(n) && EditorNode::get_singleton()->get_editor_selection()->is_selected(n)) {
-            player = Object::cast_to<AnimationPlayer>(n);
+        if (object_cast<AnimationPlayer>(n) && EditorNode::get_singleton()->get_editor_selection()->is_selected(n)) {
+            player = object_cast<AnimationPlayer>(n);
             _update_player();
             editor->make_bottom_panel_item_visible(this);
             set_process(true);
@@ -776,9 +776,9 @@ void AnimationPlayerEditor::_dialog_action(String p_file) {
             if (!current.empty()) {
                 Ref<Animation> anim = player->get_animation(current);
 
-                ERR_FAIL_COND(!Object::cast_to<Resource>(anim.get()))
+                ERR_FAIL_COND(!object_cast<Resource>(anim.get()))
 
-                RES current_res(RES(Object::cast_to<Resource>(anim.get())));
+                RES current_res(RES(object_cast<Resource>(anim.get())));
 
                 _animation_save_in_path(current_res, p_file);
             }
@@ -1847,7 +1847,7 @@ void AnimationPlayerEditorPlugin::edit(Object *p_object) {
     anim_editor->set_undo_redo(&get_undo_redo());
     if (!p_object)
         return;
-    anim_editor->edit(Object::cast_to<AnimationPlayer>(p_object));
+    anim_editor->edit(object_cast<AnimationPlayer>(p_object));
 }
 
 bool AnimationPlayerEditorPlugin::handles(Object *p_object) const {

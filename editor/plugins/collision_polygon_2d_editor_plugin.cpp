@@ -41,7 +41,7 @@ Node2D *CollisionPolygon2DEditor::_get_node() const {
 
 void CollisionPolygon2DEditor::_set_node(Node *p_polygon) {
 
-	node = Object::cast_to<CollisionPolygon2D>(p_polygon);
+	node = object_cast<CollisionPolygon2D>(p_polygon);
 }
 
 CollisionPolygon2DEditor::CollisionPolygon2DEditor(EditorNode *p_editor) :

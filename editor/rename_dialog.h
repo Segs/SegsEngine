@@ -47,8 +47,8 @@ class RenameDialog : public ConfirmationDialog {
 
 	GDCLASS(RenameDialog,ConfirmationDialog)
 
-	void ok_pressed() override { rename(); };
-	void _cancel_pressed(){};
+    void ok_pressed() override { rename(); }
+    void _cancel_pressed() {}
 	void _features_toggled(bool pressed);
 	void _insert_text(const String& text);
 	void _update_substitute();
@@ -103,7 +103,7 @@ class RenameDialog : public ConfirmationDialog {
 	bool has_errors;
 
 protected:
-	void _notification(int /*p_what*/){};
+    void _notification(int /*p_what*/){}
 	static void _bind_methods();
 	void _post_popup() override;
 
@@ -112,7 +112,7 @@ public:
 	void rename();
 
 	RenameDialog(SceneTreeEditor *p_scene_tree_editor, UndoRedo *p_undo_redo = nullptr);
-	~RenameDialog() override{};
+    ~RenameDialog() override = default;
 };
 
 #endif

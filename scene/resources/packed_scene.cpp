@@ -161,18 +161,18 @@ Node *SceneState::instance(GenEditState p_edit_state) const {
         } else if (ClassDB::is_class_enabled(snames[n.type])) {
             //node belongs to this scene and must be created
             Object *obj = ClassDB::instance(snames[n.type]);
-            if (!Object::cast_to<Node>(obj)) {
+            if (!object_cast<Node>(obj)) {
                 if (obj) {
                     memdelete(obj);
                     obj = nullptr;
                 }
                 WARN_PRINT("Warning node of type " + snames[n.type] + " does not exist.")
                 if (n.parent >= 0 && n.parent < nc && ret_nodes[n.parent]) {
-                    if (Object::cast_to<Spatial>(ret_nodes[n.parent])) {
+                    if (object_cast<Spatial>(ret_nodes[n.parent])) {
                         obj = memnew(Spatial);
-                    } else if (Object::cast_to<Control>(ret_nodes[n.parent])) {
+                    } else if (object_cast<Control>(ret_nodes[n.parent])) {
                         obj = memnew(Control);
-                    } else if (Object::cast_to<Node2D>(ret_nodes[n.parent])) {
+                    } else if (object_cast<Node2D>(ret_nodes[n.parent])) {
                         obj = memnew(Node2D);
                     }
                 }
@@ -182,7 +182,7 @@ Node *SceneState::instance(GenEditState p_edit_state) const {
                 }
             }
 
-            node = Object::cast_to<Node>(obj);
+            node = object_cast<Node>(obj);
 
         } else {
             //print_line("Class is disabled for: " + itos(n.type));
@@ -706,7 +706,7 @@ Error SceneState::_parse_connections(Node *p_owner, Node *p_node, Map<StringName
             // only connections that originate or end into main saved scene are saved
             // everything else is discarded
 
-            Node *target = Object::cast_to<Node>(c.target);
+            Node *target = object_cast<Node>(c.target);
 
             if (!target) {
                 continue;
@@ -1693,7 +1693,7 @@ bool PackedScene::can_instance() const {
 Node *PackedScene::instance(GenEditState p_edit_state) const {
 
 #ifndef TOOLS_ENABLED
-    ERR_FAIL_COND_V_MSG(p_edit_state != GEN_EDIT_STATE_DISABLED, NULL, "Edit state is only for editors, does not work without tools compiled.")
+    ERR_FAIL_COND_V_CMSG(p_edit_state != GEN_EDIT_STATE_DISABLED, NULL, "Edit state is only for editors, does not work without tools compiled.")
 #endif
 
     Node *s = state->instance((SceneState::GenEditState)p_edit_state);

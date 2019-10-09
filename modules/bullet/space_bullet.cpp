@@ -586,7 +586,7 @@ void SpaceBullet::create_empty_world(bool p_create_soft_world) {
         world_mem = malloc(sizeof(btDiscreteDynamicsWorld));
     }
 
-    ERR_FAIL_COND_MSG(!world_mem, "Out of memory.")
+    ERR_FAIL_COND_CMSG(!world_mem, "Out of memory.")
 
     if (p_create_soft_world) {
         collisionConfiguration = bulletnew(GodotSoftCollisionConfiguration(static_cast<btDiscreteDynamicsWorld *>(world_mem)));

@@ -1336,7 +1336,7 @@ Error Main::setup2(Thread::ID p_main_tid_override) {
     GLOBAL_DEF("application/config/windows_native_icon", String());
     ProjectSettings::get_singleton()->set_custom_property_info("application/config/windows_native_icon", PropertyInfo(VariantType::STRING, "application/config/windows_native_icon", PROPERTY_HINT_FILE, "*.ico"));
 
-    InputDefault *id = Object::cast_to<InputDefault>(Input::get_singleton());
+    InputDefault *id = object_cast<InputDefault>(Input::get_singleton());
     if (id) {
         if (bool(GLOBAL_DEF("input_devices/pointing/emulate_touch_from_mouse", false)) && !(editor || project_manager)) {
             if (!OS::get_singleton()->has_touchscreen_ui_hint()) {
@@ -1596,7 +1596,7 @@ bool Main::start() {
 
             StringName instance_type = script_res->get_instance_base_type();
             Object *obj = ClassDB::instance(instance_type);
-            MainLoop *script_loop = Object::cast_to<MainLoop>(obj);
+            MainLoop *script_loop = object_cast<MainLoop>(obj);
             if (!script_loop) {
                 if (obj)
                     memdelete(obj);
@@ -1626,7 +1626,7 @@ bool Main::start() {
             Object *ml = ClassDB::instance(main_loop_type);
             ERR_FAIL_COND_V_CMSG(!ml, false, "Can't instance MainLoop type.")
 
-            main_loop = Object::cast_to<MainLoop>(ml);
+            main_loop = object_cast<MainLoop>(ml);
             if (!main_loop) {
 
                 memdelete(ml);
@@ -1637,7 +1637,7 @@ bool Main::start() {
 
     if (main_loop->is_class("SceneTree")) {
 
-        SceneTree *sml = Object::cast_to<SceneTree>(main_loop);
+        SceneTree *sml = object_cast<SceneTree>(main_loop);
 
 #ifdef DEBUG_ENABLED
         if (debug_collisions) {
@@ -1707,7 +1707,7 @@ bool Main::start() {
 
                         ERR_CONTINUE_MSG(obj == nullptr, "Cannot instance script for autoload, expected 'Node' inheritance, got: " + String(ibt))
 
-                        n = Object::cast_to<Node>(obj);
+                        n = object_cast<Node>(obj);
                         n->set_script(script_res.get_ref_ptr());
                     }
 

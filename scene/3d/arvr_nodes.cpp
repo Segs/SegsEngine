@@ -46,14 +46,14 @@ void ARVRCamera::_notification(int p_what) {
     switch (p_what) {
         case NOTIFICATION_ENTER_TREE: {
             // need to find our ARVROrigin parent and let it know we're its camera!
-            ARVROrigin *origin = Object::cast_to<ARVROrigin>(get_parent());
+            ARVROrigin *origin = object_cast<ARVROrigin>(get_parent());
             if (origin != nullptr) {
                 origin->set_tracked_camera(this);
             }
         }; break;
         case NOTIFICATION_EXIT_TREE: {
             // need to find our ARVROrigin parent and let it know we're no longer its camera!
-            ARVROrigin *origin = Object::cast_to<ARVROrigin>(get_parent());
+            ARVROrigin *origin = object_cast<ARVROrigin>(get_parent());
             if (origin != nullptr) {
                 origin->clear_tracked_camera_if(this);
             }
@@ -66,7 +66,7 @@ String ARVRCamera::get_configuration_warning() const {
         return String();
 
     // must be child node of ARVROrigin!
-    ARVROrigin *origin = Object::cast_to<ARVROrigin>(get_parent());
+    ARVROrigin *origin = object_cast<ARVROrigin>(get_parent());
     if (origin == nullptr) {
         return TTR("ARVRCamera must have an ARVROrigin node as its parent.");
     };
@@ -85,7 +85,7 @@ Vector3 ARVRCamera::project_local_ray_normal(const Point2 &p_pos) const {
         return Camera::project_local_ray_normal(p_pos);
     }
 
-    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector3(), "Camera is not inside scene.")
+    ERR_FAIL_COND_V_CMSG(!is_inside_tree(), Vector3(), "Camera is not inside scene.")
 
     Size2 viewport_size = get_viewport()->get_camera_rect_size();
     Vector2 cpos = get_viewport()->get_camera_coords(p_pos);
@@ -376,7 +376,7 @@ String ARVRController::get_configuration_warning() const {
         return String();
 
     // must be child node of ARVROrigin!
-    ARVROrigin *origin = Object::cast_to<ARVROrigin>(get_parent());
+    ARVROrigin *origin = object_cast<ARVROrigin>(get_parent());
     if (origin == nullptr) {
         return TTR("ARVRController must have an ARVROrigin node as its parent.");
     };
@@ -503,7 +503,7 @@ String ARVRAnchor::get_configuration_warning() const {
         return String();
 
     // must be child node of ARVROrigin!
-    ARVROrigin *origin = Object::cast_to<ARVROrigin>(get_parent());
+    ARVROrigin *origin = object_cast<ARVROrigin>(get_parent());
     if (origin == nullptr) {
         return TTR("ARVRAnchor must have an ARVROrigin node as its parent.");
     };

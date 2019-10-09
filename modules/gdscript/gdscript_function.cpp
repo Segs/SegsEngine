@@ -506,7 +506,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
                     Object *obj_A = *a;
                     Object *obj_B = *b;
 
-                    GDScript *scr_B = Object::cast_to<GDScript>(obj_B);
+                    GDScript *scr_B = object_cast<GDScript>(obj_B);
 
                     if (scr_B) {
                         //if B is a script, the only valid condition is that A has an instance which inherits from the script
@@ -530,7 +530,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 
                     } else {
 
-                        GDScriptNativeClass *nc = Object::cast_to<GDScriptNativeClass>(obj_B);
+                        GDScriptNativeClass *nc = object_cast<GDScriptNativeClass>(obj_B);
 
 #ifdef DEBUG_ENABLED
                         if (!nc) {
@@ -802,7 +802,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 
 #ifdef DEBUG_ENABLED
                 GET_VARIANT_PTR(type, 1);
-                GDScriptNativeClass *nc = Object::cast_to<GDScriptNativeClass>(type->operator Object *());
+                GDScriptNativeClass *nc = object_cast<GDScriptNativeClass>(type->operator Object *());
                 GD_ERR_BREAK(!nc);
                 if (src->get_type() != VariantType::OBJECT && src->get_type() != VariantType::NIL) {
                     err_text = "Trying to assign value of type '" + String(Variant::get_type_name(src->get_type())) +
@@ -831,7 +831,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 
 #ifdef DEBUG_ENABLED
                 GET_VARIANT_PTR(type, 1);
-                Script *base_type = Object::cast_to<Script>(type->operator Object *());
+                Script *base_type = object_cast<Script>(type->operator Object *());
 
                 GD_ERR_BREAK(!base_type);
 
@@ -904,7 +904,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
                 GET_VARIANT_PTR(src, 2);
                 GET_VARIANT_PTR(dst, 3);
 
-                GDScriptNativeClass *nc = Object::cast_to<GDScriptNativeClass>(to_type->operator Object *());
+                GDScriptNativeClass *nc = object_cast<GDScriptNativeClass>(to_type->operator Object *());
                 GD_ERR_BREAK(!nc);
 
 #ifdef DEBUG_ENABLED
@@ -932,7 +932,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
                 GET_VARIANT_PTR(src, 2);
                 GET_VARIANT_PTR(dst, 3);
 
-                Script *base_type = Object::cast_to<Script>(to_type->operator Object *());
+                Script *base_type = object_cast<Script>(to_type->operator Object *());
 
                 GD_ERR_BREAK(!base_type);
 
@@ -1858,7 +1858,7 @@ Variant GDScriptFunctionState::resume(const Variant &p_arg) {
     // If the return value is a GDScriptFunctionState reference,
     // then the function did yield again after resuming.
     if (ret.is_ref()) {
-        GDScriptFunctionState *gdfs = Object::cast_to<GDScriptFunctionState>(ret);
+        GDScriptFunctionState *gdfs = object_cast<GDScriptFunctionState>(ret);
         if (gdfs && gdfs->function == function) {
             completed = false;
             gdfs->first_state = first_state ? first_state : Ref<GDScriptFunctionState>(this);

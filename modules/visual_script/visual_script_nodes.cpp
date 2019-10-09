@@ -2495,7 +2495,7 @@ public:
 
     int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
 
-        Node *node = Object::cast_to<Node>(instance->get_owner_ptr());
+        Node *node = object_cast<Node>(instance->get_owner_ptr());
         if (!node) {
             r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
             r_error_str = "Base object is not a Node!";
@@ -2559,7 +2559,7 @@ VisualScriptSceneNode::TypeGuess VisualScriptSceneNode::guess_output_type(TypeGu
         return tg;
 
     MainLoop *main_loop = OS::get_singleton()->get_main_loop();
-    SceneTree *scene_tree = Object::cast_to<SceneTree>(main_loop);
+    SceneTree *scene_tree = object_cast<SceneTree>(main_loop);
 
     if (!scene_tree)
         return tg;
@@ -2594,7 +2594,7 @@ void VisualScriptSceneNode::_validate_property(PropertyInfo &property) const {
             return;
 
         MainLoop *main_loop = OS::get_singleton()->get_main_loop();
-        SceneTree *scene_tree = Object::cast_to<SceneTree>(main_loop);
+        SceneTree *scene_tree = object_cast<SceneTree>(main_loop);
 
         if (!scene_tree)
             return;
@@ -2679,7 +2679,7 @@ public:
 
     int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
 
-        Node *node = Object::cast_to<Node>(instance->get_owner_ptr());
+        Node *node = object_cast<Node>(instance->get_owner_ptr());
         if (!node) {
             r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
             r_error_str = "Base object is not a Node!";

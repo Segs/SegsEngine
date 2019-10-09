@@ -83,7 +83,7 @@ void ViewportTexture::setup_local_to_scene() {
     Node *vpn = local_scene->get_node(path);
     ERR_FAIL_COND_MSG(!vpn, "ViewportTexture: Path to node is invalid.")
 
-    vp = Object::cast_to<Viewport>(vpn);
+    vp = object_cast<Viewport>(vpn);
 
     ERR_FAIL_COND_MSG(!vp, "ViewportTexture: Path to node does not point to a viewport.")
 
@@ -544,7 +544,7 @@ void Viewport::_notification(int p_what) {
                             for (int i = 0; i < rc; i++) {
 
                                 if (res[i].collider_id && res[i].collider) {
-                                    CollisionObject2D *co = Object::cast_to<CollisionObject2D>(res[i].collider);
+                                    CollisionObject2D *co = object_cast<CollisionObject2D>(res[i].collider);
                                     if (co) {
                                         bool send_event = true;
                                         if (is_mouse) {
@@ -578,7 +578,7 @@ void Viewport::_notification(int p_what) {
                                     Object *o = ObjectDB::get_instance(iter->first);
                                     if (o) {
 
-                                        CollisionObject2D *co = Object::cast_to<CollisionObject2D>(o);
+                                        CollisionObject2D *co = object_cast<CollisionObject2D>(o);
                                         if (co) {
                                             co->_mouse_exit();
                                         }
@@ -599,7 +599,7 @@ void Viewport::_notification(int p_what) {
 
                     if (physics_object_capture != 0) {
 
-                        CollisionObject *co = Object::cast_to<CollisionObject>(ObjectDB::get_instance(physics_object_capture));
+                        CollisionObject *co = object_cast<CollisionObject>(ObjectDB::get_instance(physics_object_capture));
                         if (co && camera) {
                             _collision_object_input_event(co, camera, ev, Vector3(), Vector3(), 0);
                             captured = true;
@@ -639,7 +639,7 @@ void Viewport::_notification(int p_what) {
                                 ObjectID new_collider = 0;
                                 if (col) {
 
-                                    CollisionObject *co = Object::cast_to<CollisionObject>(result.collider);
+                                    CollisionObject *co = object_cast<CollisionObject>(result.collider);
                                     if (co) {
 
                                         _collision_object_input_event(co, camera, ev, result.position, result.normal, result.shape);
@@ -656,7 +656,7 @@ void Viewport::_notification(int p_what) {
 
                                     if (physics_object_over) {
 
-                                        CollisionObject *co = Object::cast_to<CollisionObject>(ObjectDB::get_instance(physics_object_over));
+                                        CollisionObject *co = object_cast<CollisionObject>(ObjectDB::get_instance(physics_object_over));
                                         if (co) {
                                             co->_mouse_exit();
                                         }
@@ -664,7 +664,7 @@ void Viewport::_notification(int p_what) {
 
                                     if (new_collider) {
 
-                                        CollisionObject *co = Object::cast_to<CollisionObject>(ObjectDB::get_instance(new_collider));
+                                        CollisionObject *co = object_cast<CollisionObject>(ObjectDB::get_instance(new_collider));
                                         if (co) {
                                             co->_mouse_enter();
                                         }
@@ -753,7 +753,7 @@ Size2 Viewport::get_size() const {
 
 void Viewport::_update_listener() {
     /*
-    if (is_inside_tree() && audio_listener && (camera || listener) && (!get_parent() || (Object::cast_to<Control>(get_parent()) && Object::cast_to<Control>(get_parent())->is_visible_in_tree())))  {
+    if (is_inside_tree() && audio_listener && (camera || listener) && (!get_parent() || (object_cast<Control>(get_parent()) && object_cast<Control>(get_parent())->is_visible_in_tree())))  {
         SpatialSoundServer::get_singleton()->listener_set_space(internal_listener, find_world()->get_sound_space());
     } else {
         SpatialSoundServer::get_singleton()->listener_set_space(internal_listener, RID());
@@ -764,7 +764,7 @@ void Viewport::_update_listener() {
 void Viewport::_update_listener_2d() {
 
     /*
-    if (is_inside_tree() && audio_listener && (!get_parent() || (Object::cast_to<Control>(get_parent()) && Object::cast_to<Control>(get_parent())->is_visible_in_tree())))
+    if (is_inside_tree() && audio_listener && (!get_parent() || (object_cast<Control>(get_parent()) && object_cast<Control>(get_parent())->is_visible_in_tree())))
         SpatialSound2DServer::get_singleton()->listener_set_space(internal_listener_2d, find_world_2d()->get_sound_space());
     else
         SpatialSound2DServer::get_singleton()->listener_set_space(internal_listener_2d, RID());
@@ -1025,11 +1025,11 @@ void Viewport::_propagate_enter_world(Node *p_node) {
         if (!p_node->is_inside_tree()) //may not have entered scene yet
             return;
 
-        if (Object::cast_to<Spatial>(p_node) || Object::cast_to<WorldEnvironment>(p_node)) {
+        if (object_cast<Spatial>(p_node) || object_cast<WorldEnvironment>(p_node)) {
 
             p_node->notification(Spatial::NOTIFICATION_ENTER_WORLD);
         } else {
-            Viewport *v = Object::cast_to<Viewport>(p_node);
+            Viewport *v = object_cast<Viewport>(p_node);
             if (v) {
 
                 if (v->world || v->own_world)
@@ -1049,7 +1049,7 @@ void Viewport::_propagate_viewport_notification(Node *p_node, int p_what) {
     p_node->notification(p_what);
     for (int i = 0; i < p_node->get_child_count(); i++) {
         Node *c = p_node->get_child(i);
-        if (Object::cast_to<Viewport>(c))
+        if (object_cast<Viewport>(c))
             continue;
         _propagate_viewport_notification(c, p_what);
     }
@@ -1062,11 +1062,11 @@ void Viewport::_propagate_exit_world(Node *p_node) {
         if (!p_node->is_inside_tree()) //may have exited scene already
             return;
 
-        if (Object::cast_to<Spatial>(p_node) || Object::cast_to<WorldEnvironment>(p_node)) {
+        if (object_cast<Spatial>(p_node) || object_cast<WorldEnvironment>(p_node)) {
 
             p_node->notification(Spatial::NOTIFICATION_EXIT_WORLD);
         } else {
-            Viewport *v = Object::cast_to<Viewport>(p_node);
+            Viewport *v = object_cast<Viewport>(p_node);
             if (v) {
 
                 if (v->world || v->own_world)
@@ -1141,11 +1141,11 @@ Transform2D Viewport::get_final_transform() const {
 void Viewport::_update_canvas_items(Node *p_node) {
     if (p_node != this) {
 
-        Viewport *vp = Object::cast_to<Viewport>(p_node);
+        Viewport *vp = object_cast<Viewport>(p_node);
         if (vp)
             return;
 
-        CanvasItem *ci = Object::cast_to<CanvasItem>(p_node);
+        CanvasItem *ci = object_cast<CanvasItem>(p_node);
         if (ci) {
             ci->update();
         }
@@ -1525,12 +1525,12 @@ void Viewport::_gui_call_input(Control *p_control, const Ref<InputEvent> &p_inpu
     Ref<InputEventPanGesture> pn = dynamic_ref_cast<InputEventPanGesture>(p_input);
     cant_stop_me_now = pn || cant_stop_me_now;
 
-    bool ismouse = ev || Object::cast_to<InputEventMouseMotion>(p_input.get()) != nullptr;
+    bool ismouse = ev || object_cast<InputEventMouseMotion>(p_input.get()) != nullptr;
 
     CanvasItem *ci = p_control;
     while (ci) {
 
-        Control *control = Object::cast_to<Control>(ci);
+        Control *control = object_cast<Control>(ci);
         if (control) {
 
             if (control->data.mouse_filter != Control::MOUSE_FILTER_IGNORE) {
@@ -1568,7 +1568,7 @@ void Viewport::_gui_call_notification(Control *p_control, int p_what) {
     CanvasItem *ci = p_control;
     while (ci) {
 
-        Control *control = Object::cast_to<Control>(ci);
+        Control *control = object_cast<Control>(ci);
         if (control) {
 
             if (control->data.mouse_filter != Control::MOUSE_FILTER_IGNORE) {
@@ -1639,7 +1639,7 @@ Control *Viewport::_gui_find_control(const Point2 &p_global) {
 
 Control *Viewport::_gui_find_control_at_pos(CanvasItem *p_node, const Point2 &p_global, const Transform2D &p_xform, Transform2D &r_inv_xform) {
 
-    if (Object::cast_to<Viewport>(p_node))
+    if (object_cast<Viewport>(p_node))
         return nullptr;
 
     //subwindows first!!
@@ -1654,7 +1654,7 @@ Control *Viewport::_gui_find_control_at_pos(CanvasItem *p_node, const Point2 &p_
     if (matrix.basis_determinant() == 0.0f)
         return nullptr;
 
-    Control *c = Object::cast_to<Control>(p_node);
+    Control *c = object_cast<Control>(p_node);
 
     if (!c || !c->clips_input() || c->has_point(matrix.affine_inverse().xform(p_global))) {
 
@@ -1663,7 +1663,7 @@ Control *Viewport::_gui_find_control_at_pos(CanvasItem *p_node, const Point2 &p_
             if (p_node == gui.tooltip_popup)
                 continue;
 
-            CanvasItem *ci = Object::cast_to<CanvasItem>(p_node->get_child(i));
+            CanvasItem *ci = object_cast<CanvasItem>(p_node->get_child(i));
             if (!ci || ci->is_set_as_toplevel())
                 continue;
 
@@ -1692,7 +1692,7 @@ bool Viewport::_gui_drop(Control *p_at_control, Point2 p_at_pos, bool p_just_che
         CanvasItem *ci = p_at_control;
         while (ci) {
 
-            Control *control = Object::cast_to<Control>(ci);
+            Control *control = object_cast<Control>(ci);
             if (control) {
 
                 if (control->can_drop_data(p_at_pos, gui.drag_data)) {
@@ -1830,7 +1830,7 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
                 CanvasItem *ci = gui.mouse_focus;
                 while (ci) {
 
-                    Control *control = Object::cast_to<Control>(ci);
+                    Control *control = object_cast<Control>(ci);
                     if (control) {
                         if (control->get_focus_mode() != Control::FOCUS_NONE) {
                             if (control != gui.key_focus) {
@@ -1955,7 +1955,7 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
                     CanvasItem *ci = gui.mouse_focus;
                     while (ci) {
 
-                        Control *control = Object::cast_to<Control>(ci);
+                        Control *control = object_cast<Control>(ci);
                         if (control) {
 
                             gui.dragging = true;
@@ -2008,18 +2008,18 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
 
             if (over != top && !top->is_a_parent_of(over)) {
 
-                PopupMenu *popup_menu = Object::cast_to<PopupMenu>(top);
+                PopupMenu *popup_menu = object_cast<PopupMenu>(top);
                 MenuButton *popup_menu_parent = nullptr;
-                MenuButton *menu_button = Object::cast_to<MenuButton>(over);
+                MenuButton *menu_button = object_cast<MenuButton>(over);
 
                 if (popup_menu) {
-                    popup_menu_parent = Object::cast_to<MenuButton>(popup_menu->get_parent());
+                    popup_menu_parent = object_cast<MenuButton>(popup_menu->get_parent());
                     if (!popup_menu_parent) {
                         // Go through the parents to see if there's a MenuButton at the end.
-                        while (Object::cast_to<PopupMenu>(popup_menu->get_parent())) {
-                            popup_menu = Object::cast_to<PopupMenu>(popup_menu->get_parent());
+                        while (object_cast<PopupMenu>(popup_menu->get_parent())) {
+                            popup_menu = object_cast<PopupMenu>(popup_menu->get_parent());
                         }
-                        popup_menu_parent = Object::cast_to<MenuButton>(popup_menu->get_parent());
+                        popup_menu_parent = object_cast<MenuButton>(popup_menu->get_parent());
                     }
                 }
 
@@ -2403,7 +2403,7 @@ void Viewport::_gui_remove_from_modal_stack(List<Control *>::Element *MI, Object
         if (!next) { //top of stack
 
             Object *pfo = ObjectDB::get_instance(p_prev_focus_owner);
-            Control *pfoc = Object::cast_to<Control>(pfo);
+            Control *pfoc = object_cast<Control>(pfo);
             if (!pfoc)
                 return;
 
@@ -2433,7 +2433,7 @@ void Viewport::_gui_force_drag(Control *p_base, const Variant &p_data, Control *
 void Viewport::_gui_set_drag_preview(Control *p_base, Control *p_control) {
 
     ERR_FAIL_NULL(p_control);
-    ERR_FAIL_COND(!Object::cast_to<Control>((Object *)p_control))
+    ERR_FAIL_COND(!object_cast<Control>((Object *)p_control))
     ERR_FAIL_COND(p_control->is_inside_tree())
     ERR_FAIL_COND(p_control->get_parent() != nullptr)
 
@@ -2583,7 +2583,7 @@ void Viewport::_drop_physics_mouseover() {
     while (!physics_2d_mouseover.empty()) {
         Object *o = ObjectDB::get_instance(physics_2d_mouseover.begin()->first);
         if (o) {
-            CollisionObject2D *co = Object::cast_to<CollisionObject2D>(o);
+            CollisionObject2D *co = object_cast<CollisionObject2D>(o);
             co->_mouse_exit();
         }
         physics_2d_mouseover.erase(physics_2d_mouseover.begin());
@@ -2591,7 +2591,7 @@ void Viewport::_drop_physics_mouseover() {
 
 #ifndef _3D_DISABLED
     if (physics_object_over) {
-        CollisionObject *co = Object::cast_to<CollisionObject>(ObjectDB::get_instance(physics_object_over));
+        CollisionObject *co = object_cast<CollisionObject>(ObjectDB::get_instance(physics_object_over));
         if (co) {
             co->_mouse_exit();
         }
@@ -2705,7 +2705,7 @@ void Viewport::unhandled_input(const Ref<InputEvent> &p_event) {
 
     get_tree()->_call_input_pause(unhandled_input_group, "_unhandled_input", p_event);
     //call_group(GROUP_CALL_REVERSE|GROUP_CALL_REALTIME|GROUP_CALL_MULIILEVEL,"unhandled_input","_unhandled_input",ev);
-    if (!get_tree()->input_handled && Object::cast_to<InputEventKey>(p_event.get()) != nullptr) {
+    if (!get_tree()->input_handled && object_cast<InputEventKey>(p_event.get()) != nullptr) {
         get_tree()->_call_input_pause(unhandled_key_input_group, "_unhandled_key_input", p_event);
         //call_group(GROUP_CALL_REVERSE|GROUP_CALL_REALTIME|GROUP_CALL_MULIILEVEL,"unhandled_key_input","_unhandled_key_input",ev);
     }
@@ -2713,11 +2713,11 @@ void Viewport::unhandled_input(const Ref<InputEvent> &p_event) {
     if (physics_object_picking && !get_tree()->input_handled) {
 
         if (Input::get_singleton()->get_mouse_mode() != Input::MOUSE_MODE_CAPTURED &&
-                (Object::cast_to<InputEventMouseButton>(p_event.get()) ||
-                        Object::cast_to<InputEventMouseMotion>(p_event.get()) ||
-                        Object::cast_to<InputEventScreenDrag>(p_event.get()) ||
-                        Object::cast_to<InputEventScreenTouch>(p_event.get()) ||
-                        Object::cast_to<InputEventKey>(p_event.get()) //to remember state
+                (object_cast<InputEventMouseButton>(p_event.get()) ||
+                        object_cast<InputEventMouseMotion>(p_event.get()) ||
+                        object_cast<InputEventScreenDrag>(p_event.get()) ||
+                        object_cast<InputEventScreenTouch>(p_event.get()) ||
+                        object_cast<InputEventKey>(p_event.get()) //to remember state
 
                         )) {
             physics_picking_events.push_back(p_event);
@@ -2845,7 +2845,7 @@ Control *Viewport::get_modal_stack_top() const {
 
 String Viewport::get_configuration_warning() const {
 
-    /*if (get_parent() && !Object::cast_to<Control>(get_parent()) && !render_target) {
+    /*if (get_parent() && !object_cast<Control>(get_parent()) && !render_target) {
 
         return TTR("This viewport is not set as render target. If you intend for it to display its contents directly to the screen, make it a child of a Control so it can obtain a size. Otherwise, make it a RenderTarget and assign its internal texture to some node for display.");
     }*/

@@ -752,7 +752,7 @@ Error VariantParser::parse_value(Token &token, Variant &value, Stream *p_stream,
                         return err;
 
                     if (token2.type == TK_PARENTHESIS_CLOSE) {
-                        RefCounted *reference = Object::cast_to<RefCounted>(obj);
+                        RefCounted *reference = object_cast<RefCounted>(obj);
                         if (reference) {
                             value = REF(reference);
                         } else {

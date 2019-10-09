@@ -322,9 +322,9 @@ Node *ResourceImporterScene::_fix_node(Node *p_node, Node *p_root, Map<Ref<Mesh>
         return nullptr;
     }
 
-    if (Object::cast_to<MeshInstance>(p_node)) {
+    if (object_cast<MeshInstance>(p_node)) {
 
-        MeshInstance *mi = Object::cast_to<MeshInstance>(p_node);
+        MeshInstance *mi = object_cast<MeshInstance>(p_node);
 
         Ref<ArrayMesh> m = dynamic_ref_cast<ArrayMesh>(mi->get_mesh());
 
@@ -356,9 +356,9 @@ Node *ResourceImporterScene::_fix_node(Node *p_node, Node *p_root, Map<Ref<Mesh>
         }
     }
 
-    if (Object::cast_to<AnimationPlayer>(p_node)) {
+    if (object_cast<AnimationPlayer>(p_node)) {
         //remove animations referencing non-importable nodes
-        AnimationPlayer *ap = Object::cast_to<AnimationPlayer>(p_node);
+        AnimationPlayer *ap = object_cast<AnimationPlayer>(p_node);
 
         ListPOD<StringName> anims;
         ap->get_animation_list(&anims);
@@ -385,7 +385,7 @@ Node *ResourceImporterScene::_fix_node(Node *p_node, Node *p_root, Map<Ref<Mesh>
 
         if (isroot)
             return p_node;
-        MeshInstance *mi = Object::cast_to<MeshInstance>(p_node);
+        MeshInstance *mi = object_cast<MeshInstance>(p_node);
         if (mi) {
             Ref<Mesh> mesh = mi->get_mesh();
 
@@ -437,7 +437,7 @@ Node *ResourceImporterScene::_fix_node(Node *p_node, Node *p_root, Map<Ref<Mesh>
             String empty_draw_type = String(p_node->get_meta("empty_draw_type"));
             StaticBody *sb = memnew(StaticBody);
             sb->set_name(_fixstr(name, "colonly"));
-            Object::cast_to<Spatial>(sb)->set_transform(Object::cast_to<Spatial>(p_node)->get_transform());
+            object_cast<Spatial>(sb)->set_transform(object_cast<Spatial>(p_node)->get_transform());
             p_node->replace_by(sb);
             memdelete(p_node);
             p_node = nullptr;
@@ -452,7 +452,7 @@ Node *ResourceImporterScene::_fix_node(Node *p_node, Node *p_root, Map<Ref<Mesh>
                 rayShape->set_length(1);
                 colshape->set_shape(Ref<Shape>(rayShape));
                 colshape->set_name("RayShape");
-                Object::cast_to<Spatial>(sb)->rotate_x(Math_PI / 2);
+                object_cast<Spatial>(sb)->rotate_x(Math_PI / 2);
             } else if (empty_draw_type == "IMAGE") {
                 PlaneShape *planeShape = memnew(PlaneShape);
                 colshape->set_shape(Ref<Shape>(planeShape));
@@ -467,12 +467,12 @@ Node *ResourceImporterScene::_fix_node(Node *p_node, Node *p_root, Map<Ref<Mesh>
             colshape->set_owner(sb->get_owner());
         }
 
-    } else if (_teststr(name, "rigid") && Object::cast_to<MeshInstance>(p_node)) {
+    } else if (_teststr(name, "rigid") && object_cast<MeshInstance>(p_node)) {
 
         if (isroot)
             return p_node;
 
-        MeshInstance *mi = Object::cast_to<MeshInstance>(p_node);
+        MeshInstance *mi = object_cast<MeshInstance>(p_node);
         Ref<Mesh> mesh = mi->get_mesh();
 
         if (mesh) {
@@ -506,9 +506,9 @@ Node *ResourceImporterScene::_fix_node(Node *p_node, Node *p_root, Map<Ref<Mesh>
             }
         }
 
-    } else if ((_teststr(name, "col") || (_teststr(name, "convcol"))) && Object::cast_to<MeshInstance>(p_node)) {
+    } else if ((_teststr(name, "col") || (_teststr(name, "convcol"))) && object_cast<MeshInstance>(p_node)) {
 
-        MeshInstance *mi = Object::cast_to<MeshInstance>(p_node);
+        MeshInstance *mi = object_cast<MeshInstance>(p_node);
 
         Ref<Mesh> mesh = mi->get_mesh();
 
@@ -558,12 +558,12 @@ Node *ResourceImporterScene::_fix_node(Node *p_node, Node *p_root, Map<Ref<Mesh>
             }
         }
 
-    } else if (_teststr(name, "navmesh") && Object::cast_to<MeshInstance>(p_node)) {
+    } else if (_teststr(name, "navmesh") && object_cast<MeshInstance>(p_node)) {
 
         if (isroot)
             return p_node;
 
-        MeshInstance *mi = Object::cast_to<MeshInstance>(p_node);
+        MeshInstance *mi = object_cast<MeshInstance>(p_node);
 
         Ref<ArrayMesh> mesh = dynamic_ref_cast<ArrayMesh>(mi->get_mesh());
         ERR_FAIL_COND_V(not mesh, nullptr)
@@ -573,7 +573,7 @@ Node *ResourceImporterScene::_fix_node(Node *p_node, Node *p_root, Map<Ref<Mesh>
         Ref<NavigationMesh> nmesh(make_ref_counted<NavigationMesh>());
         nmesh->create_from_mesh(mesh);
         nmi->set_navigation_mesh(nmesh);
-        Object::cast_to<Spatial>(nmi)->set_transform(mi->get_transform());
+        object_cast<Spatial>(nmi)->set_transform(mi->get_transform());
         p_node->replace_by(nmi);
         memdelete(p_node);
         p_node = nmi;
@@ -583,7 +583,7 @@ Node *ResourceImporterScene::_fix_node(Node *p_node, Node *p_root, Map<Ref<Mesh>
             return p_node;
 
         Node *owner = p_node->get_owner();
-        Spatial *s = Object::cast_to<Spatial>(p_node);
+        Spatial *s = object_cast<Spatial>(p_node);
         VehicleBody *bv = memnew(VehicleBody);
         String n = _fixstr(p_node->get_name(), "vehicle");
         bv->set_name(n);
@@ -603,7 +603,7 @@ Node *ResourceImporterScene::_fix_node(Node *p_node, Node *p_root, Map<Ref<Mesh>
             return p_node;
 
         Node *owner = p_node->get_owner();
-        Spatial *s = Object::cast_to<Spatial>(p_node);
+        Spatial *s = object_cast<Spatial>(p_node);
         VehicleWheel *bv = memnew(VehicleWheel);
         String n = _fixstr(p_node->get_name(), "wheel");
         bv->set_name(n);
@@ -617,11 +617,11 @@ Node *ResourceImporterScene::_fix_node(Node *p_node, Node *p_root, Map<Ref<Mesh>
 
         p_node = bv;
 
-    } else if (Object::cast_to<MeshInstance>(p_node)) {
+    } else if (object_cast<MeshInstance>(p_node)) {
 
         //last attempt, maybe collision inside the mesh data
 
-        MeshInstance *mi = Object::cast_to<MeshInstance>(p_node);
+        MeshInstance *mi = object_cast<MeshInstance>(p_node);
 
         Ref<ArrayMesh> mesh = dynamic_ref_cast<ArrayMesh>(mi->get_mesh());
         if (mesh) {
@@ -670,7 +670,7 @@ void ResourceImporterScene::_create_clips(Node *scene, const Array &p_clips, boo
 
     Node *n = scene->get_node(NodePath("AnimationPlayer"));
     ERR_FAIL_COND(!n)
-    AnimationPlayer *anim = Object::cast_to<AnimationPlayer>(n);
+    AnimationPlayer *anim = object_cast<AnimationPlayer>(n);
     ERR_FAIL_COND(!anim)
 
     if (!anim->has_animation("default"))
@@ -803,7 +803,7 @@ void ResourceImporterScene::_filter_tracks(Node *scene, const String &p_text) {
         return;
     Node *n = scene->get_node(NodePath("AnimationPlayer"));
     ERR_FAIL_COND(!n)
-    AnimationPlayer *anim = Object::cast_to<AnimationPlayer>(n);
+    AnimationPlayer *anim = object_cast<AnimationPlayer>(n);
     ERR_FAIL_COND(!anim)
 
     Vector<String> strings = StringUtils::split(p_text,"\n");
@@ -909,7 +909,7 @@ void ResourceImporterScene::_optimize_animations(Node *scene, float p_max_lin_er
         return;
     Node *n = scene->get_node(NodePath("AnimationPlayer"));
     ERR_FAIL_COND(!n)
-    AnimationPlayer *anim = Object::cast_to<AnimationPlayer>(n);
+    AnimationPlayer *anim = object_cast<AnimationPlayer>(n);
     ERR_FAIL_COND(!anim)
 
     ListPOD<StringName> anim_names;
@@ -943,7 +943,7 @@ void ResourceImporterScene::_find_meshes(Node *p_node, Map<Ref<ArrayMesh>, Trans
     ListPOD<PropertyInfo> pi;
     p_node->get_property_list(&pi);
 
-    MeshInstance *mi = Object::cast_to<MeshInstance>(p_node);
+    MeshInstance *mi = object_cast<MeshInstance>(p_node);
 
     if (mi) {
 
@@ -971,8 +971,8 @@ void ResourceImporterScene::_make_external_resources(Node *p_node, const String 
     ListPOD<PropertyInfo> pi;
 
     if (p_make_animations) {
-        if (Object::cast_to<AnimationPlayer>(p_node)) {
-            AnimationPlayer *ap = Object::cast_to<AnimationPlayer>(p_node);
+        if (object_cast<AnimationPlayer>(p_node)) {
+            AnimationPlayer *ap = object_cast<AnimationPlayer>(p_node);
 
             ListPOD<StringName> anims;
             ap->get_animation_list(&anims);
@@ -1333,7 +1333,7 @@ Error ResourceImporterScene::import(const String &p_source_file, const String &p
     }
 
     if (root_type != "Spatial") {
-        Node *base_node = Object::cast_to<Node>(ClassDB::instance(root_type));
+        Node *base_node = object_cast<Node>(ClassDB::instance(root_type));
 
         if (base_node) {
 
@@ -1347,9 +1347,9 @@ Error ResourceImporterScene::import(const String &p_source_file, const String &p
         scene->set_script(Variant(root_script));
     }
 
-    if (Object::cast_to<Spatial>(scene)) {
+    if (object_cast<Spatial>(scene)) {
         float root_scale = p_options.at("nodes/root_scale");
-        Object::cast_to<Spatial>(scene)->scale(Vector3(root_scale, root_scale, root_scale));
+        object_cast<Spatial>(scene)->scale(Vector3(root_scale, root_scale, root_scale));
     }
 
     if (p_options.at("nodes/root_name") != "Scene Root")

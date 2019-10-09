@@ -62,17 +62,17 @@ void TileMap::_notification(int p_what) {
             Node2D *c = this;
             while (c) {
 
-                navigation = Object::cast_to<Navigation2D>(c);
+                navigation = object_cast<Navigation2D>(c);
                 if (navigation) {
                     break;
                 }
 
-                c = Object::cast_to<Node2D>(c->get_parent());
+                c = object_cast<Node2D>(c->get_parent());
             }
 
             if (use_parent) {
                 _clear_quadrants();
-                collision_parent = Object::cast_to<CollisionObject2D>(get_parent());
+                collision_parent = object_cast<CollisionObject2D>(get_parent());
             }
 
             pending_update = true;
@@ -321,7 +321,7 @@ void TileMap::_add_shape(int &shape_idx, const Quadrant &p_q, const Ref<Shape2D>
         int real_index = collision_parent->shape_owner_get_shape_index(p_q.shape_owner_id, shape_idx);
         RID rid = collision_parent->get_rid();
 
-        if (Object::cast_to<Area2D>(collision_parent) != nullptr) {
+        if (object_cast<Area2D>(collision_parent) != nullptr) {
             ps->area_set_shape_transform(rid, real_index, get_transform() * xform);
         } else {
             ps->body_set_shape_transform(rid, real_index, get_transform() * xform);
@@ -1369,7 +1369,7 @@ void TileMap::set_collision_use_parent(bool p_use_parent) {
     set_notify_local_transform(use_parent);
 
     if (use_parent && is_inside_tree()) {
-        collision_parent = Object::cast_to<CollisionObject2D>(get_parent());
+        collision_parent = object_cast<CollisionObject2D>(get_parent());
     } else {
         collision_parent = nullptr;
     }

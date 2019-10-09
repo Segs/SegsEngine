@@ -497,7 +497,7 @@ void EditorSceneImporterAssimp::_import_animation(ImportState &state, int p_anim
 
         ERR_CONTINUE(!state.node_map.contains(mesh_name))
 
-        const MeshInstance *mesh_instance = Object::cast_to<MeshInstance>(state.node_map[mesh_name]);
+        const MeshInstance *mesh_instance = object_cast<MeshInstance>(state.node_map[mesh_name]);
 
         ERR_CONTINUE(mesh_instance == nullptr)
 
@@ -1260,13 +1260,13 @@ void EditorSceneImporterAssimp::create_bone(ImportState &state, RecursiveState &
         print_verbose("Parent armature node is called " + recursive_state.parent_node->get_name());
         // store root node for this skeleton / used in animation playback and bone detection.
 
-        state.armature_skeletons.emplace(recursive_state.skeleton, Object::cast_to<Spatial>(recursive_state.parent_node));
+        state.armature_skeletons.emplace(recursive_state.skeleton, object_cast<Spatial>(recursive_state.parent_node));
 
         //skeleton->set_use_bones_in_world_transform(true);
         print_verbose("Created new FBX skeleton for armature node");
     }
 
-    ERR_FAIL_COND_MSG(recursive_state.skeleton == nullptr, "Mesh has invalid armature detection - report this")
+    ERR_FAIL_COND_CMSG(recursive_state.skeleton == nullptr, "Mesh has invalid armature detection - report this")
 
     // this transform is a bone
     recursive_state.skeleton->add_bone(recursive_state.node_name);

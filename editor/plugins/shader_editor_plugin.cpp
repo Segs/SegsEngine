@@ -405,7 +405,7 @@ void ShaderEditor::ensure_select_current() {
     /*
     if (tab_container->get_child_count() && tab_container->get_current_tab()>=0) {
 
-        ShaderTextEditor *ste = Object::cast_to<ShaderTextEditor>(tab_container->get_child(tab_container->get_current_tab()));
+        ShaderTextEditor *ste = object_cast<ShaderTextEditor>(tab_container->get_child(tab_container->get_current_tab()));
         if (!ste)
             return;
         Ref<Shader> shader = ste->get_edited_shader();
@@ -715,13 +715,13 @@ ShaderEditor::ShaderEditor(EditorNode *p_node) {
 
 void ShaderEditorPlugin::edit(Object *p_object) {
 
-    Shader *s = Object::cast_to<Shader>(p_object);
+    Shader *s = object_cast<Shader>(p_object);
     shader_editor->edit(Ref<Shader>(s));
 }
 
 bool ShaderEditorPlugin::handles(Object *p_object) const {
 
-    Shader *shader = Object::cast_to<Shader>(p_object);
+    Shader *shader = object_cast<Shader>(p_object);
     return shader != nullptr && shader->is_text_shader();
 }
 

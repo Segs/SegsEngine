@@ -1418,12 +1418,12 @@ void OS_Windows::set_clipboard(const String &p_text) {
     String text = StringUtils::replace(p_text,"\n", "\r\n");
 
     if (!OpenClipboard(hWnd)) {
-        ERR_FAIL_MSG("Unable to open clipboard.");
+        ERR_FAIL_CMSG("Unable to open clipboard.");
     }
     EmptyClipboard();
 
     HGLOBAL mem = GlobalAlloc(GMEM_MOVEABLE, (text.length() + 1) * sizeof(CharType));
-    ERR_FAIL_COND_MSG(mem == nullptr, "Unable to allocate memory for clipboard contents.")
+    ERR_FAIL_COND_CMSG(mem == nullptr, "Unable to allocate memory for clipboard contents.")
 
     LPWSTR lptstrCopy = (LPWSTR)GlobalLock(mem);
     text.m_str.toWCharArray(lptstrCopy);

@@ -163,8 +163,8 @@ Error ResourceFormatSaverCrypto::save(const String &p_path, const RES &p_resourc
 
 void ResourceFormatSaverCrypto::get_recognized_extensions(const RES &p_resource, Vector<String> *p_extensions) const {
 
-    const X509Certificate *cert = Object::cast_to<X509Certificate>(p_resource.get());
-    const CryptoKey *key = Object::cast_to<CryptoKey>(p_resource.get());
+    const X509Certificate *cert = object_cast<X509Certificate>(p_resource.get());
+    const CryptoKey *key = object_cast<CryptoKey>(p_resource.get());
     if (cert) {
         p_extensions->push_back("crt");
     }
@@ -174,5 +174,5 @@ void ResourceFormatSaverCrypto::get_recognized_extensions(const RES &p_resource,
 }
 bool ResourceFormatSaverCrypto::recognize(const RES &p_resource) const {
 
-    return Object::cast_to<X509Certificate>(p_resource.get()) || Object::cast_to<CryptoKey>(p_resource.get());
+    return object_cast<X509Certificate>(p_resource.get()) || object_cast<CryptoKey>(p_resource.get());
 }
