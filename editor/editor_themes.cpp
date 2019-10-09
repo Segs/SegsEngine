@@ -112,15 +112,17 @@ Ref<ImageTexture> editor_generate_icon(const QString &resource_path,bool p_conve
 }
 
 #ifndef ADD_CONVERT_COLOR
-#define ADD_CONVERT_COLOR(dictionary, old_color, new_color) dictionary[Color::html(old_color)] = Color::html(new_color)
+#define ADD_CONVERT_COLOR(dictionary, old_color, new_color) dictionary.emplace_back(Color::html(old_color),Color::html(new_color))
 #endif
 
-void editor_register_and_generate_icons(
-        Ref<Theme> p_theme, bool p_dark_theme = true, int p_thumb_size = 32, bool p_only_thumbs = false) {
+static void editor_register_and_generate_icons(
+        const Ref<Theme> &p_theme, bool p_dark_theme = true, int p_thumb_size = 32, bool p_only_thumbs = false) {
     ImageFormatLoader * loader= ImageLoader::recognize("svg");
     if (loader) {
-        Dictionary dark_icon_color_dictionary;
+        //Dictionary dark_icon_color_dictionary;
+        PODVector<eastl::pair<Color,Color>> dark_icon_color_dictionary;
         if (!p_dark_theme) {
+            dark_icon_color_dictionary.reserve(100);
             // convert color:                              FROM       TO
             ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#e0e0e0", "#5a5a5a"); // common icon color
             ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#ffffff", "#414141"); // white
@@ -190,9 +192,9 @@ void editor_register_and_generate_icons(
         const Color error_color = p_theme->get_color("error_color", "Editor");
         const Color success_color = p_theme->get_color("success_color", "Editor");
         const Color warning_color = p_theme->get_color("warning_color", "Editor");
-        dark_icon_color_dictionary[Color::html("#ff0000")] = error_color;
-        dark_icon_color_dictionary[Color::html("#45ff8b")] = success_color;
-        dark_icon_color_dictionary[Color::html("#dbab09")] = warning_color;
+        dark_icon_color_dictionary.emplace_back(Color::html("#ff0000"),error_color);
+        dark_icon_color_dictionary.emplace_back(Color::html("#45ff8b"),success_color);
+        dark_icon_color_dictionary.emplace_back(Color::html("#dbab09"),warning_color);
         // Setup svg color conversion
         loader->set_loader_option(0,&dark_icon_color_dictionary);
 

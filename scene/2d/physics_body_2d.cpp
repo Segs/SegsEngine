@@ -158,7 +158,7 @@ Array PhysicsBody2D::get_collision_exceptions() {
         RID body = E->deref();
         ObjectID instance_id = Physics2DServer::get_singleton()->body_get_object_instance_id(body);
         Object *obj = ObjectDB::get_instance(instance_id);
-        PhysicsBody2D *physics_body = Object::cast_to<PhysicsBody2D>(obj);
+        PhysicsBody2D *physics_body = object_cast<PhysicsBody2D>(obj);
         ret.append(Variant(physics_body));
     }
     return ret;
@@ -167,7 +167,7 @@ Array PhysicsBody2D::get_collision_exceptions() {
 void PhysicsBody2D::add_collision_exception_with(Node *p_node) {
 
     ERR_FAIL_NULL(p_node);
-    PhysicsBody2D *physics_body = Object::cast_to<PhysicsBody2D>(p_node);
+    PhysicsBody2D *physics_body = object_cast<PhysicsBody2D>(p_node);
     ERR_FAIL_COND_MSG(!physics_body, "Collision exception only works between two objects of PhysicsBody type.")
     Physics2DServer::get_singleton()->body_add_collision_exception(get_rid(), physics_body->get_rid());
 }
@@ -175,7 +175,7 @@ void PhysicsBody2D::add_collision_exception_with(Node *p_node) {
 void PhysicsBody2D::remove_collision_exception_with(Node *p_node) {
 
     ERR_FAIL_NULL(p_node);
-    PhysicsBody2D *physics_body = Object::cast_to<PhysicsBody2D>(p_node);
+    PhysicsBody2D *physics_body = object_cast<PhysicsBody2D>(p_node);
     ERR_FAIL_COND_MSG(!physics_body, "Collision exception only works between two objects of PhysicsBody type.")
     Physics2DServer::get_singleton()->body_remove_collision_exception(get_rid(), physics_body->get_rid());
 }
@@ -328,7 +328,7 @@ void StaticBody2D::_reload_physics_characteristics() {
 void RigidBody2D::_body_enter_tree(ObjectID p_id) {
 
     Object *obj = ObjectDB::get_instance(p_id);
-    Node *node = Object::cast_to<Node>(obj);
+    Node *node = object_cast<Node>(obj);
     ERR_FAIL_COND(!node)
 
     ERR_FAIL_COND(!contact_monitor)
@@ -352,7 +352,7 @@ void RigidBody2D::_body_enter_tree(ObjectID p_id) {
 void RigidBody2D::_body_exit_tree(ObjectID p_id) {
 
     Object *obj = ObjectDB::get_instance(p_id);
-    Node *node = Object::cast_to<Node>(obj);
+    Node *node = object_cast<Node>(obj);
     ERR_FAIL_COND(!node)
     ERR_FAIL_COND(!contact_monitor)
     Map<ObjectID, BodyState>::iterator E = contact_monitor->body_map.find(p_id);
@@ -378,7 +378,7 @@ void RigidBody2D::_body_inout(int p_status, ObjectID p_instance, int p_body_shap
     ObjectID objid = p_instance;
 
     Object *obj = ObjectDB::get_instance(objid);
-    Node *node = Object::cast_to<Node>(obj);
+    Node *node = object_cast<Node>(obj);
 
     ERR_FAIL_COND(!contact_monitor)
     Map<ObjectID, BodyState>::iterator E = contact_monitor->body_map.find(objid);
@@ -453,7 +453,7 @@ bool RigidBody2D::_test_motion(const Vector2 &p_motion, bool p_infinite_inertia,
 void RigidBody2D::_direct_state_changed(Object *p_state) {
 
 #ifdef DEBUG_ENABLED
-    state = Object::cast_to<Physics2DDirectBodyState>(p_state);
+    state = object_cast<Physics2DDirectBodyState>(p_state);
 #else
     state = (Physics2DDirectBodyState *)p_state; //trust it
 #endif
@@ -908,7 +908,7 @@ void RigidBody2D::set_contact_monitor(bool p_enabled) {
 
             //clean up mess
             Object *obj = ObjectDB::get_instance(E.first);
-            Node *node = Object::cast_to<Node>(obj);
+            Node *node = object_cast<Node>(obj);
 
             if (node) {
 
@@ -1446,7 +1446,7 @@ void KinematicBody2D::_direct_state_changed(Object *p_state) {
     if (!sync_to_physics)
         return;
 
-    Physics2DDirectBodyState *state = Object::cast_to<Physics2DDirectBodyState>(p_state);
+    Physics2DDirectBodyState *state = object_cast<Physics2DDirectBodyState>(p_state);
 
     last_valid_transform = state->get_transform();
     set_notify_local_transform(false);
@@ -1564,7 +1564,7 @@ Object *KinematicCollision2D::get_collider_shape() const {
 
     Object *collider = get_collider();
     if (collider) {
-        CollisionObject2D *obj2d = Object::cast_to<CollisionObject2D>(collider);
+        CollisionObject2D *obj2d = object_cast<CollisionObject2D>(collider);
         if (obj2d) {
             uint32_t ownerid = obj2d->shape_find_owner(collision.collider_shape);
             return obj2d->shape_owner_get_owner(ownerid);

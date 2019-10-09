@@ -120,7 +120,7 @@ void AnimationNodeBlendTreeEditor::_update_graph() {
     //erase all nodes
     for (int i = 0; i < graph->get_child_count(); i++) {
 
-        if (Object::cast_to<GraphNode>(graph->get_child(i))) {
+        if (object_cast<GraphNode>(graph->get_child(i))) {
             memdelete(graph->get_child(i));
             i--;
         }
@@ -221,7 +221,7 @@ void AnimationNodeBlendTreeEditor::_update_graph() {
 
             AnimationTree *player = AnimationTreeEditor::get_singleton()->get_tree();
             if (player->has_node(player->get_animation_player())) {
-                AnimationPlayer *ap = Object::cast_to<AnimationPlayer>(player->get_node(player->get_animation_player()));
+                AnimationPlayer *ap = object_cast<AnimationPlayer>(player->get_node(player->get_animation_player()));
                 if (ap) {
                     ListPOD<StringName> anims;
                     ap->get_animation_list(&anims);
@@ -306,14 +306,14 @@ void AnimationNodeBlendTreeEditor::_add_node(int p_idx) {
         ERR_FAIL_COND(not anode)
         base_name = anode->get_class();
     } else if (!add_options[p_idx].type.empty()) {
-        AnimationNode *an = Object::cast_to<AnimationNode>(ClassDB::instance(add_options[p_idx].type));
+        AnimationNode *an = object_cast<AnimationNode>(ClassDB::instance(add_options[p_idx].type));
         ERR_FAIL_COND(!an)
         anode = Ref<AnimationNode>(an);
         base_name = add_options[p_idx].name;
     } else {
         ERR_FAIL_COND(not add_options[p_idx].script)
         String base_type = add_options[p_idx].script->get_instance_base_type();
-        AnimationNode *an = Object::cast_to<AnimationNode>(ClassDB::instance(base_type));
+        AnimationNode *an = object_cast<AnimationNode>(ClassDB::instance(base_type));
         ERR_FAIL_COND(!an)
         anode = Ref<AnimationNode>(an);
         anode->set_script(add_options[p_idx].script.get_ref_ptr());
@@ -433,7 +433,7 @@ void AnimationNodeBlendTreeEditor::_delete_nodes_request() {
     PODVector<StringName> to_erase;
     to_erase.reserve(graph->get_child_count());
     for (int i = 0; i < graph->get_child_count(); i++) {
-        GraphNode *gn = Object::cast_to<GraphNode>(graph->get_child(i));
+        GraphNode *gn = object_cast<GraphNode>(graph->get_child(i));
         if (gn) {
             if (gn->is_selected() && gn->is_close_button_visible()) {
                 to_erase.push_back(gn->get_name());
@@ -464,7 +464,7 @@ void AnimationNodeBlendTreeEditor::_popup_request(const Vector2 &p_position) {
 
 void AnimationNodeBlendTreeEditor::_node_selected(Object *p_node) {
 
-    GraphNode *gn = Object::cast_to<GraphNode>(p_node);
+    GraphNode *gn = object_cast<GraphNode>(p_node);
     ERR_FAIL_COND(!gn)
 
     String name = gn->get_name();
@@ -524,7 +524,7 @@ bool AnimationNodeBlendTreeEditor::_update_filters(const Ref<AnimationNode> &ano
         return false;
     }
 
-    AnimationPlayer *player = Object::cast_to<AnimationPlayer>(AnimationTreeEditor::get_singleton()->get_tree()->get_node(player_path));
+    AnimationPlayer *player = object_cast<AnimationPlayer>(AnimationTreeEditor::get_singleton()->get_tree()->get_node(player_path));
     if (!player) {
         EditorNode::get_singleton()->show_warning(TTR("Player path set is invalid, so unable to retrieve track names."));
         return false;
@@ -602,7 +602,7 @@ bool AnimationNodeBlendTreeEditor::_update_filters(const Ref<AnimationNode> &ano
 
             String concat = path.get_concatenated_subnames();
 
-            Skeleton *skeleton = Object::cast_to<Skeleton>(node);
+            Skeleton *skeleton = object_cast<Skeleton>(node);
             if (skeleton && skeleton->find_bone(concat) != -1) {
                 //path in skeleton
                 const String &bone = concat;
@@ -729,7 +729,7 @@ void AnimationNodeBlendTreeEditor::_notification(int p_what) {
         AnimationTree *graph_player = AnimationTreeEditor::get_singleton()->get_tree();
         AnimationPlayer *player = nullptr;
         if (graph_player->has_node(graph_player->get_animation_player())) {
-            player = Object::cast_to<AnimationPlayer>(graph_player->get_node(graph_player->get_animation_player()));
+            player = object_cast<AnimationPlayer>(graph_player->get_node(graph_player->get_animation_player()));
         }
 
         if (player) {
@@ -800,7 +800,7 @@ void AnimationNodeBlendTreeEditor::_node_renamed(const String &p_text, const Ref
 
     String prev_name = blend_tree->get_node_name(p_node);
     ERR_FAIL_COND(prev_name.empty())
-    GraphNode *gn = Object::cast_to<GraphNode>(graph->get_node(NodePath(prev_name)));
+    GraphNode *gn = object_cast<GraphNode>(graph->get_node(NodePath(prev_name)));
     ERR_FAIL_COND(!gn)
 
     const String &new_name = p_text;

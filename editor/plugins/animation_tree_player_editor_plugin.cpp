@@ -37,6 +37,7 @@
 #include "core/project_settings.h"
 #include "scene/gui/menu_button.h"
 #include "scene/main/viewport.h"
+#include "scene/main/scene_tree.h"
 #include "scene/resources/style_box.h"
 
 #include "EASTL/sort.h"
@@ -290,9 +291,9 @@ void AnimationTreePlayerEditor::_popup_edit_dialog() {
 
             case AnimationTreePlayer::NODE_ANIMATION:
 
-                if (anim_tree->get_master_player() != NodePath() && anim_tree->has_node(anim_tree->get_master_player()) && Object::cast_to<AnimationPlayer>(anim_tree->get_node(anim_tree->get_master_player()))) {
+                if (anim_tree->get_master_player() != NodePath() && anim_tree->has_node(anim_tree->get_master_player()) && object_cast<AnimationPlayer>(anim_tree->get_node(anim_tree->get_master_player()))) {
 
-                    AnimationPlayer *ap = Object::cast_to<AnimationPlayer>(anim_tree->get_node(anim_tree->get_master_player()));
+                    AnimationPlayer *ap = object_cast<AnimationPlayer>(anim_tree->get_node(anim_tree->get_master_player()));
                     master_anim_popup->clear();
                     master_anim_popup->add_item(TTR("Edit Filters"));
                     master_anim_popup->add_separator();
@@ -1213,7 +1214,7 @@ void AnimationTreePlayerEditor::_edit_filters() {
 
             if (np.get_subname_count() == 1) {
                 Node *n = base->get_node(np);
-                Skeleton *s = Object::cast_to<Skeleton>(n);
+                Skeleton *s = object_cast<Skeleton>(n);
                 if (s) {
 
                     String skelbase = StringUtils::substr(E,0, StringUtils::find(E,":"));
@@ -1420,7 +1421,7 @@ AnimationTreePlayerEditor::AnimationTreePlayerEditor() {
 
 void AnimationTreePlayerEditorPlugin::edit(Object *p_object) {
 
-    anim_tree_editor->edit(Object::cast_to<AnimationTreePlayer>(p_object));
+    anim_tree_editor->edit(object_cast<AnimationTreePlayer>(p_object));
 }
 
 bool AnimationTreePlayerEditorPlugin::handles(Object *p_object) const {

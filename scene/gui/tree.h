@@ -168,7 +168,7 @@ protected:
 		return d;
 	}
 	void _remove_child(Object *p_child) {
-		remove_child(Object::cast_to<TreeItem>(p_child));
+		remove_child(object_cast<TreeItem>(p_child));
 	}
 
 	Variant _call_recursive_bind(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
@@ -515,15 +515,15 @@ protected:
 
 	//bind helpers
 	TreeItem *_create_item(Object *p_parent, int p_idx = -1) {
-		return create_item(Object::cast_to<TreeItem>(p_parent), p_idx);
+		return create_item(object_cast<TreeItem>(p_parent), p_idx);
 	}
 
 	TreeItem *_get_next_selected(Object *p_item) {
-		return get_next_selected(Object::cast_to<TreeItem>(p_item));
+		return get_next_selected(object_cast<TreeItem>(p_item));
 	}
 
 	Rect2 _get_item_rect(Object *p_item, int p_column) const {
-		return get_item_rect(Object::cast_to<TreeItem>(p_item), p_column);
+		return get_item_rect(object_cast<TreeItem>(p_item), p_column);
 	}
 
 public:

@@ -107,7 +107,7 @@ void Polygon2D::_notification(int p_what) {
 
             Skeleton2D *skeleton_node = nullptr;
             if (has_node(skeleton)) {
-                skeleton_node = Object::cast_to<Skeleton2D>(get_node(skeleton));
+                skeleton_node = object_cast<Skeleton2D>(get_node(skeleton));
             }
 
             ObjectID new_skeleton_id = 0;
@@ -253,7 +253,7 @@ void Polygon2D::_notification(int p_what) {
                     if (!skeleton_node->has_node(bone_weights[i].path)) {
                         continue; //node does not exist
                     }
-                    Bone2D *bone = Object::cast_to<Bone2D>(skeleton_node->get_node(bone_weights[i].path));
+                    Bone2D *bone = object_cast<Bone2D>(skeleton_node->get_node(bone_weights[i].path));
                     if (!bone) {
                         continue;
                     }

@@ -38,13 +38,13 @@ void Bone2D::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_ENTER_TREE) {
         Node *parent = get_parent();
-        parent_bone = Object::cast_to<Bone2D>(parent);
+        parent_bone = object_cast<Bone2D>(parent);
         skeleton = nullptr;
         while (parent) {
-            skeleton = Object::cast_to<Skeleton2D>(parent);
+            skeleton = object_cast<Skeleton2D>(parent);
             if (skeleton)
                 break;
-            if (!Object::cast_to<Bone2D>(parent))
+            if (!object_cast<Bone2D>(parent))
                 break; //skeletons must be chained to Bone2Ds.
 
             parent = parent->get_parent();
@@ -197,7 +197,7 @@ void Skeleton2D::_update_bone_setup() {
     for (int i = 0; i < bones.size(); i++) {
         bones.write[i].rest_inverse = bones[i].bone->get_skeleton_rest().affine_inverse(); //bind pose
         bones.write[i].bone->skeleton_index = i;
-        Bone2D *parent_bone = Object::cast_to<Bone2D>(bones[i].bone->get_parent());
+        Bone2D *parent_bone = object_cast<Bone2D>(bones[i].bone->get_parent());
         if (parent_bone) {
             bones.write[i].parent_index = parent_bone->skeleton_index;
         } else {

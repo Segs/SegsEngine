@@ -123,9 +123,8 @@ Variant WeakRef::get_ref() const {
     Object *obj = ObjectDB::get_instance(ref);
     if (!obj)
         return Variant();
-    RefCounted *r = cast_to<RefCounted>(obj);
+    RefCounted *r = object_cast<RefCounted>(obj);
     if (r) {
-
         return REF(r);
     }
 

@@ -395,7 +395,7 @@ Size2 VisualShaderEditor::get_minimum_size() const {
 
 void VisualShaderEditor::_draw_color_over_button(Object *obj, Color p_color) {
 
-    Button *button = Object::cast_to<Button>(obj);
+    Button *button = object_cast<Button>(obj);
     if (!button)
         return;
 
@@ -443,7 +443,7 @@ void VisualShaderEditor::_update_graph() {
     //erase all nodes
     for (int i = 0; i < graph->get_child_count(); i++) {
 
-        if (Object::cast_to<GraphNode>(graph->get_child(i))) {
+        if (object_cast<GraphNode>(graph->get_child(i))) {
             Node *node = graph->get_child(i);
             graph->remove_child(node);
             memdelete(node);
@@ -1034,7 +1034,7 @@ void VisualShaderEditor::_expression_focus_out(Object *text_edit, int p_node) {
         return;
     }
 
-    TextEdit *expression_box = Object::cast_to<TextEdit>(text_edit);
+    TextEdit *expression_box = object_cast<TextEdit>(text_edit);
 
     if (node->get_expression() == expression_box->get_text())
         return;
@@ -1075,7 +1075,7 @@ void VisualShaderEditor::_set_node_size(int p_type, int p_node, const Vector2 &p
     GraphNode *gn = nullptr;
     if (edit_type->get_selected() == p_type) { // check - otherwise the error will be emitted
         Node *node2 = graph->get_node(NodePath(itos(p_node)));
-        gn = Object::cast_to<GraphNode>(node2);
+        gn = object_cast<GraphNode>(node2);
         if (!gn)
             return;
 
@@ -1152,12 +1152,12 @@ void VisualShaderEditor::_line_edit_changed(const String &p_text, Object *line_e
     undo_redo->commit_action();
     updating = false;
 
-    Object::cast_to<LineEdit>(line_edit)->set_text(validated_name);
+    object_cast<LineEdit>(line_edit)->set_text(validated_name);
 }
 
 void VisualShaderEditor::_line_edit_focus_out(Object *line_edit, int p_node_id) {
 
-    String text = Object::cast_to<LineEdit>(line_edit)->get_text();
+    String text = object_cast<LineEdit>(line_edit)->get_text();
     _line_edit_changed(text, line_edit, p_node_id);
 }
 
@@ -1168,7 +1168,7 @@ void VisualShaderEditor::_port_name_focus_out(Object *line_edit, int p_node_id, 
     Ref<VisualShaderNodeGroupBase> node = dynamic_ref_cast<VisualShaderNodeGroupBase>(visual_shader->get_node(type, p_node_id));
     ERR_FAIL_COND(not node)
 
-    String text = Object::cast_to<LineEdit>(line_edit)->get_text();
+    String text = object_cast<LineEdit>(line_edit)->get_text();
 
     if (!p_output) {
         if (node->get_input_port_name(p_port_id) == text)
@@ -1193,9 +1193,9 @@ void VisualShaderEditor::_port_name_focus_out(Object *line_edit, int p_node_id, 
     String validated_name = visual_shader->validate_port_name(text, input_names, output_names);
     if (validated_name.empty()) {
         if (!p_output) {
-            Object::cast_to<LineEdit>(line_edit)->set_text(node->get_input_port_name(p_port_id));
+            object_cast<LineEdit>(line_edit)->set_text(node->get_input_port_name(p_port_id));
         } else {
-            Object::cast_to<LineEdit>(line_edit)->set_text(node->get_output_port_name(p_port_id));
+            object_cast<LineEdit>(line_edit)->set_text(node->get_output_port_name(p_port_id));
         }
         return;
     }
@@ -1231,7 +1231,7 @@ void VisualShaderEditor::_edit_port_default_input(Object *p_button, int p_node, 
 
     Ref<VisualShaderNode> vsn = visual_shader->get_node(type, p_node);
 
-    Button *button = Object::cast_to<Button>(p_button);
+    Button *button = object_cast<Button>(p_button);
     ERR_FAIL_COND(!button)
     Variant value = vsn->get_input_port_default_value(p_port);
     property_editor->set_global_position(button->get_global_position() + Vector2(0, button->get_size().height));
@@ -1270,10 +1270,10 @@ VisualShaderNode *VisualShaderEditor::_add_node(int p_idx, int p_op_idx) {
     bool is_custom = add_options[p_idx].is_custom;
 
     if (!is_custom && !add_options[p_idx].type.empty()) {
-        VisualShaderNode *vsn = Object::cast_to<VisualShaderNode>(ClassDB::instance(add_options[p_idx].type));
+        VisualShaderNode *vsn = object_cast<VisualShaderNode>(ClassDB::instance(add_options[p_idx].type));
         ERR_FAIL_COND_V(!vsn,nullptr)
 
-        VisualShaderNodeScalarConstant *constant = Object::cast_to<VisualShaderNodeScalarConstant>(vsn);
+        VisualShaderNodeScalarConstant *constant = object_cast<VisualShaderNodeScalarConstant>(vsn);
 
         if (constant) {
             if ((int)add_options[p_idx].value != -1)
@@ -1282,73 +1282,73 @@ VisualShaderNode *VisualShaderEditor::_add_node(int p_idx, int p_op_idx) {
 
         if (p_op_idx != -1) {
 
-            VisualShaderNodeInput *input = Object::cast_to<VisualShaderNodeInput>(vsn);
+            VisualShaderNodeInput *input = object_cast<VisualShaderNodeInput>(vsn);
 
             if (input) {
                 input->set_input_name(add_options[p_idx].sub_func_str);
             }
 
-            VisualShaderNodeIs *is = Object::cast_to<VisualShaderNodeIs>(vsn);
+            VisualShaderNodeIs *is = object_cast<VisualShaderNodeIs>(vsn);
 
             if (is) {
                 is->set_function((VisualShaderNodeIs::Function)p_op_idx);
             }
 
-            VisualShaderNodeCompare *cmp = Object::cast_to<VisualShaderNodeCompare>(vsn);
+            VisualShaderNodeCompare *cmp = object_cast<VisualShaderNodeCompare>(vsn);
 
             if (cmp) {
                 cmp->set_function((VisualShaderNodeCompare::Function)p_op_idx);
             }
 
-            VisualShaderNodeColorOp *colorOp = Object::cast_to<VisualShaderNodeColorOp>(vsn);
+            VisualShaderNodeColorOp *colorOp = object_cast<VisualShaderNodeColorOp>(vsn);
 
             if (colorOp) {
                 colorOp->set_operator((VisualShaderNodeColorOp::Operator)p_op_idx);
             }
 
-            VisualShaderNodeColorFunc *colorFunc = Object::cast_to<VisualShaderNodeColorFunc>(vsn);
+            VisualShaderNodeColorFunc *colorFunc = object_cast<VisualShaderNodeColorFunc>(vsn);
 
             if (colorFunc) {
                 colorFunc->set_function((VisualShaderNodeColorFunc::Function)p_op_idx);
             }
 
-            VisualShaderNodeScalarOp *scalarOp = Object::cast_to<VisualShaderNodeScalarOp>(vsn);
+            VisualShaderNodeScalarOp *scalarOp = object_cast<VisualShaderNodeScalarOp>(vsn);
 
             if (scalarOp) {
                 scalarOp->set_operator((VisualShaderNodeScalarOp::Operator)p_op_idx);
             }
 
-            VisualShaderNodeScalarFunc *scalarFunc = Object::cast_to<VisualShaderNodeScalarFunc>(vsn);
+            VisualShaderNodeScalarFunc *scalarFunc = object_cast<VisualShaderNodeScalarFunc>(vsn);
 
             if (scalarFunc) {
                 scalarFunc->set_function((VisualShaderNodeScalarFunc::Function)p_op_idx);
             }
 
-            VisualShaderNodeVectorOp *vecOp = Object::cast_to<VisualShaderNodeVectorOp>(vsn);
+            VisualShaderNodeVectorOp *vecOp = object_cast<VisualShaderNodeVectorOp>(vsn);
 
             if (vecOp) {
                 vecOp->set_operator((VisualShaderNodeVectorOp::Operator)p_op_idx);
             }
 
-            VisualShaderNodeVectorFunc *vecFunc = Object::cast_to<VisualShaderNodeVectorFunc>(vsn);
+            VisualShaderNodeVectorFunc *vecFunc = object_cast<VisualShaderNodeVectorFunc>(vsn);
 
             if (vecFunc) {
                 vecFunc->set_function((VisualShaderNodeVectorFunc::Function)p_op_idx);
             }
 
-            VisualShaderNodeTransformFunc *matFunc = Object::cast_to<VisualShaderNodeTransformFunc>(vsn);
+            VisualShaderNodeTransformFunc *matFunc = object_cast<VisualShaderNodeTransformFunc>(vsn);
 
             if (matFunc) {
                 matFunc->set_function((VisualShaderNodeTransformFunc::Function)p_op_idx);
             }
 
-            VisualShaderNodeScalarDerivativeFunc *sderFunc = Object::cast_to<VisualShaderNodeScalarDerivativeFunc>(vsn);
+            VisualShaderNodeScalarDerivativeFunc *sderFunc = object_cast<VisualShaderNodeScalarDerivativeFunc>(vsn);
 
             if (sderFunc) {
                 sderFunc->set_function((VisualShaderNodeScalarDerivativeFunc::Function)p_op_idx);
             }
 
-            VisualShaderNodeVectorDerivativeFunc *vderFunc = Object::cast_to<VisualShaderNodeVectorDerivativeFunc>(vsn);
+            VisualShaderNodeVectorDerivativeFunc *vderFunc = object_cast<VisualShaderNodeVectorDerivativeFunc>(vsn);
 
             if (vderFunc) {
                 vderFunc->set_function((VisualShaderNodeVectorDerivativeFunc::Function)p_op_idx);
@@ -1359,7 +1359,7 @@ VisualShaderNode *VisualShaderEditor::_add_node(int p_idx, int p_op_idx) {
     } else {
         ERR_FAIL_COND_V(not add_options[p_idx].script,nullptr)
         String base_type = add_options[p_idx].script->get_instance_base_type();
-        VisualShaderNode *vsn = Object::cast_to<VisualShaderNode>(ClassDB::instance(base_type));
+        VisualShaderNode *vsn = object_cast<VisualShaderNode>(ClassDB::instance(base_type));
         ERR_FAIL_COND_V(!vsn,nullptr)
         vsnode = Ref<VisualShaderNode>(vsn);
         vsnode->set_script(add_options[p_idx].script.get_ref_ptr());
@@ -1383,7 +1383,7 @@ VisualShaderNode *VisualShaderEditor::_add_node(int p_idx, int p_op_idx) {
     undo_redo->add_do_method(visual_shader.get(), "add_node", type, vsnode, position, id_to_use);
     undo_redo->add_undo_method(visual_shader.get(), "remove_node", type, id_to_use);
 
-    VisualShaderNodeExpression *expr = Object::cast_to<VisualShaderNodeExpression>(vsnode.get());
+    VisualShaderNodeExpression *expr = object_cast<VisualShaderNodeExpression>(vsnode.get());
     if (expr) {
         undo_redo->add_do_method(expr, "set_size", Size2(250 * EDSCALE, 150 * EDSCALE));
     }
@@ -1506,7 +1506,7 @@ void VisualShaderEditor::_delete_request(int which) {
     undo_redo->add_undo_method(this, "_clear_buffer");
 
     // restore size, inputs and outputs if node is group
-    VisualShaderNodeGroupBase *group = Object::cast_to<VisualShaderNodeGroupBase>(node.get());
+    VisualShaderNodeGroupBase *group = object_cast<VisualShaderNodeGroupBase>(node.get());
     if (group) {
         undo_redo->add_undo_method(group, "set_size", group->get_size());
         undo_redo->add_undo_method(group, "set_inputs", group->get_inputs());
@@ -1514,7 +1514,7 @@ void VisualShaderEditor::_delete_request(int which) {
     }
 
     // restore expression text if node is expression
-    VisualShaderNodeExpression *expression = Object::cast_to<VisualShaderNodeExpression>(node.get());
+    VisualShaderNodeExpression *expression = object_cast<VisualShaderNodeExpression>(node.get());
     if (expression) {
         undo_redo->add_undo_method(expression, "set_expression", expression->get_expression());
     }
@@ -1537,7 +1537,7 @@ void VisualShaderEditor::_node_selected(Object *p_node) {
 
     VisualShader::Type type = VisualShader::Type(edit_type->get_selected());
 
-    GraphNode *gn = Object::cast_to<GraphNode>(p_node);
+    GraphNode *gn = object_cast<GraphNode>(p_node);
     ERR_FAIL_COND(!gn)
 
     int id = StringUtils::to_int(gn->get_name());
@@ -1691,7 +1691,7 @@ void VisualShaderEditor::_dup_update_excluded(int p_type, Set<int> &r_excluded) 
 
     for (int i = 0; i < graph->get_child_count(); i++) {
 
-        GraphNode *gn = Object::cast_to<GraphNode>(graph->get_child(i));
+        GraphNode *gn = object_cast<GraphNode>(graph->get_child(i));
         if (gn) {
             int id = StringUtils::to_int(gn->get_name());
             Ref<VisualShaderNode> node = visual_shader->get_node(type, id);
@@ -1714,7 +1714,7 @@ void VisualShaderEditor::_dup_copy_nodes(int p_type, List<int> &r_nodes, Set<int
 
     for (int i = 0; i < graph->get_child_count(); i++) {
 
-        GraphNode *gn = Object::cast_to<GraphNode>(graph->get_child(i));
+        GraphNode *gn = object_cast<GraphNode>(graph->get_child(i));
         if (gn) {
             int id = StringUtils::to_int(gn->get_name());
             Ref<VisualShaderNode> node = visual_shader->get_node(type, id);
@@ -1805,7 +1805,7 @@ void VisualShaderEditor::_dup_paste_nodes(int p_type, int p_pasted_type, List<in
         // reselect duplicated nodes by excluding the other ones
         for (int i = 0; i < graph->get_child_count(); i++) {
 
-            GraphNode *gn = Object::cast_to<GraphNode>(graph->get_child(i));
+            GraphNode *gn = object_cast<GraphNode>(graph->get_child(i));
             if (gn) {
                 int id = StringUtils::to_int(gn->get_name());
                 if (!r_excluded.contains(id)) {
@@ -1872,7 +1872,7 @@ void VisualShaderEditor::_on_nodes_delete() {
     List<int> to_erase;
 
     for (int i = 0; i < graph->get_child_count(); i++) {
-        GraphNode *gn = Object::cast_to<GraphNode>(graph->get_child(i));
+        GraphNode *gn = object_cast<GraphNode>(graph->get_child(i));
         if (gn) {
             if (gn->is_selected() && gn->is_close_button_visible()) {
                 to_erase.push_back(StringUtils::to_int(gn->get_name()));
@@ -1896,7 +1896,7 @@ void VisualShaderEditor::_on_nodes_delete() {
         undo_redo->add_undo_method(this, "_clear_buffer");
 
         // restore size, inputs and outputs if node is group
-        VisualShaderNodeGroupBase *group = Object::cast_to<VisualShaderNodeGroupBase>(node.get());
+        VisualShaderNodeGroupBase *group = object_cast<VisualShaderNodeGroupBase>(node.get());
         if (group) {
             undo_redo->add_undo_method(group, "set_size", group->get_size());
             undo_redo->add_undo_method(group, "set_inputs", group->get_inputs());
@@ -1904,7 +1904,7 @@ void VisualShaderEditor::_on_nodes_delete() {
         }
 
         // restore expression text if node is expression
-        VisualShaderNodeExpression *expression = Object::cast_to<VisualShaderNodeExpression>(node.get());
+        VisualShaderNodeExpression *expression = object_cast<VisualShaderNodeExpression>(node.get());
         if (expression) {
             undo_redo->add_undo_method(expression, "set_expression", expression->get_expression());
         }
@@ -2771,7 +2771,7 @@ VisualShaderEditor::VisualShaderEditor() {
 
 void VisualShaderEditorPlugin::edit(Object *p_object) {
 
-    visual_shader_editor->edit(Object::cast_to<VisualShader>(p_object));
+    visual_shader_editor->edit(object_cast<VisualShader>(p_object));
 }
 
 bool VisualShaderEditorPlugin::handles(Object *p_object) const {
@@ -2937,7 +2937,7 @@ public:
 
             add_child(p_properties[i]);
 
-            bool res_prop = Object::cast_to<EditorPropertyResource>(p_properties[i]);
+            bool res_prop = object_cast<EditorPropertyResource>(p_properties[i]);
             if (res_prop) {
                 p_properties[i]->connect("resource_selected", this, "_resource_selected");
             }
@@ -3004,16 +3004,16 @@ Control *VisualShaderNodePluginDefault::create_editor(const Ref<Resource> &p_par
         if (!prop)
             return nullptr;
 
-        if (Object::cast_to<EditorPropertyResource>(prop)) {
-            Object::cast_to<EditorPropertyResource>(prop)->set_use_sub_inspector(false);
+        if (object_cast<EditorPropertyResource>(prop)) {
+            object_cast<EditorPropertyResource>(prop)->set_use_sub_inspector(false);
             prop->set_custom_minimum_size(Size2(100 * EDSCALE, 0));
-        } else if (Object::cast_to<EditorPropertyTransform>(prop) || Object::cast_to<EditorPropertyVector3>(prop)) {
+        } else if (object_cast<EditorPropertyTransform>(prop) || object_cast<EditorPropertyVector3>(prop)) {
             prop->set_custom_minimum_size(Size2(250 * EDSCALE, 0));
-        } else if (Object::cast_to<EditorPropertyFloat>(prop)) {
+        } else if (object_cast<EditorPropertyFloat>(prop)) {
             prop->set_custom_minimum_size(Size2(100 * EDSCALE, 0));
-        } else if (Object::cast_to<EditorPropertyEnum>(prop)) {
+        } else if (object_cast<EditorPropertyEnum>(prop)) {
             prop->set_custom_minimum_size(Size2(100 * EDSCALE, 0));
-            Object::cast_to<EditorPropertyEnum>(prop)->set_option_button_clip(false);
+            object_cast<EditorPropertyEnum>(prop)->set_option_button_clip(false);
         }
 
         editors.push_back(prop);
@@ -3029,7 +3029,7 @@ void EditorPropertyShaderMode::_option_selected(int p_which) {
     //will not use this, instead will do all the logic setting manually
     //emit_signal("property_changed", get_edited_property(), p_which);
 
-    Ref<VisualShader> visual_shader(Object::cast_to<VisualShader>(get_edited_object()));
+    Ref<VisualShader> visual_shader(object_cast<VisualShader>(get_edited_object()));
 
     if (visual_shader->get_mode() == p_which)
         return;
@@ -3169,7 +3169,7 @@ void VisualShaderNodePortPreview::_shader_changed() {
         Object *object = ObjectDB::get_instance(EditorNode::get_singleton()->get_editor_history()->get_path_object(i));
         if (!object)
             continue;
-        ShaderMaterial *src_mat = Object::cast_to<ShaderMaterial>(object);
+        ShaderMaterial *src_mat = object_cast<ShaderMaterial>(object);
         if (src_mat && src_mat->get_shader()) {
 
             ListPOD<PropertyInfo> params;

@@ -66,8 +66,8 @@ bool EditorPropertyArrayObject::_get(const StringName &p_name, Variant &r_ret) c
         int idx = StringUtils::to_int(StringUtils::get_slice(pn,'/', 1));
         bool valid;
         r_ret = array.get(idx, &valid);
-        if (r_ret.get_type() == VariantType::OBJECT && Object::cast_to<EncodedObjectAsID>(r_ret)) {
-            r_ret = Object::cast_to<EncodedObjectAsID>(r_ret)->get_object_id();
+        if (r_ret.get_type() == VariantType::OBJECT && object_cast<EncodedObjectAsID>(r_ret)) {
+            r_ret = object_cast<EncodedObjectAsID>(r_ret)->get_object_id();
         }
 
         return valid;
@@ -136,8 +136,8 @@ bool EditorPropertyDictionaryObject::_get(const StringName &p_name, Variant &r_r
         int idx = StringUtils::to_int(StringUtils::get_slice(pn,'/', 1));
         Variant key = dict.get_key_at_index(idx);
         r_ret = dict[key];
-        if (r_ret.get_type() == VariantType::OBJECT && Object::cast_to<EncodedObjectAsID>(r_ret)) {
-            r_ret = Object::cast_to<EncodedObjectAsID>(r_ret)->get_object_id();
+        if (r_ret.get_type() == VariantType::OBJECT && object_cast<EncodedObjectAsID>(r_ret)) {
+            r_ret = object_cast<EncodedObjectAsID>(r_ret)->get_object_id();
         }
 
         return true;
@@ -192,7 +192,7 @@ void EditorPropertyArray::_property_changed(const String &p_prop, const Variant&
 
 void EditorPropertyArray::_change_type(Object *p_button, int p_index) {
 
-    Button *button = Object::cast_to<Button>(p_button);
+    Button *button = object_cast<Button>(p_button);
     changing_type_idx = p_index;
     Rect2 rect = button->get_global_rect();
     change_type->set_as_minsize();
@@ -359,7 +359,7 @@ void EditorPropertyArray::update_property() {
                 value_type = subtype;
             }
 
-            if (value_type == VariantType::OBJECT && Object::cast_to<EncodedObjectAsID>(value)) {
+            if (value_type == VariantType::OBJECT && object_cast<EncodedObjectAsID>(value)) {
                 EditorPropertyObjectID *editor = memnew(EditorPropertyObjectID);
                 editor->setup("Object");
                 prop = editor;
@@ -570,7 +570,7 @@ void EditorPropertyDictionary::_property_changed(const String &p_prop, const Var
 
 void EditorPropertyDictionary::_change_type(Object *p_button, int p_index) {
 
-    Button *button = Object::cast_to<Button>(p_button);
+    Button *button = object_cast<Button>(p_button);
 
     Rect2 rect = button->get_global_rect();
     change_type->set_as_minsize();
@@ -831,7 +831,7 @@ void EditorPropertyDictionary::update_property() {
                 } break;
                 case VariantType::OBJECT: {
 
-                    if (Object::cast_to<EncodedObjectAsID>(value)) {
+                    if (object_cast<EncodedObjectAsID>(value)) {
 
                         EditorPropertyObjectID *editor = memnew(EditorPropertyObjectID);
                         editor->setup("Object");

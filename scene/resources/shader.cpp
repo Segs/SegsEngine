@@ -242,7 +242,7 @@ Error ResourceFormatSaverShader::save(const String &p_path, const RES &p_resourc
 
 void ResourceFormatSaverShader::get_recognized_extensions(const RES &p_resource, Vector<String> *p_extensions) const {
 
-    if (const Shader *shader = Object::cast_to<Shader>(p_resource.get())) {
+    if (const Shader *shader = object_cast<Shader>(p_resource.get())) {
         if (shader->is_text_shader()) {
             p_extensions->push_back("shader");
         }

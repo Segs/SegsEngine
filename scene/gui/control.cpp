@@ -451,7 +451,7 @@ void Control::_resize(const Size2 &p_size) {
 
 void Control::add_child_notify(Node *p_child) {
 
-    Control *child_c = Object::cast_to<Control>(p_child);
+    Control *child_c = object_cast<Control>(p_child);
     if (!child_c)
         return;
 
@@ -462,7 +462,7 @@ void Control::add_child_notify(Node *p_child) {
 
 void Control::remove_child_notify(Node *p_child) {
 
-    Control *child_c = Object::cast_to<Control>(p_child);
+    Control *child_c = object_cast<Control>(p_child);
     if (!child_c)
         return;
 
@@ -503,7 +503,7 @@ void Control::_notification(int p_notification) {
 
         case NOTIFICATION_ENTER_CANVAS: {
 
-            data.parent = Object::cast_to<Control>(get_parent());
+            data.parent = object_cast<Control>(get_parent());
 
             if (is_set_as_toplevel()) {
                 data.SI = get_viewport()->_gui_add_subwindow_control(this);
@@ -526,13 +526,13 @@ void Control::_notification(int p_notification) {
                     if (!parent)
                         break;
 
-                    CanvasItem *ci = Object::cast_to<CanvasItem>(parent);
+                    CanvasItem *ci = object_cast<CanvasItem>(parent);
                     if (ci && ci->is_set_as_toplevel()) {
                         subwindow = true;
                         break;
                     }
 
-                    parent_control = Object::cast_to<Control>(parent);
+                    parent_control = object_cast<Control>(parent);
 
                     if (parent_control) {
                         break;
@@ -731,7 +731,7 @@ Variant Control::get_drag_data(const Point2 &p_point) {
     if (data.drag_owner) {
         Object *obj = ObjectDB::get_instance(data.drag_owner);
         if (obj) {
-            Control *c = Object::cast_to<Control>(obj);
+            Control *c = object_cast<Control>(obj);
             return c->call("get_drag_data_fw", p_point, Variant(this));
         }
     }
@@ -753,7 +753,7 @@ bool Control::can_drop_data(const Point2 &p_point, const Variant &p_data) const 
     if (data.drag_owner) {
         Object *obj = ObjectDB::get_instance(data.drag_owner);
         if (obj) {
-            Control *c = Object::cast_to<Control>(obj);
+            Control *c = object_cast<Control>(obj);
             return c->call("can_drop_data_fw", p_point, p_data, Variant(this));
         }
     }
@@ -774,7 +774,7 @@ void Control::drop_data(const Point2 &p_point, const Variant &p_data) {
     if (data.drag_owner) {
         Object *obj = ObjectDB::get_instance(data.drag_owner);
         if (obj) {
-            Control *c = Object::cast_to<Control>(obj);
+            Control *c = object_cast<Control>(obj);
             c->call("drop_data_fw", p_point, p_data, Variant(this));
             return;
         }
@@ -857,7 +857,7 @@ Ref<Texture> Control::get_icon(const StringName &p_name, const StringName &p_typ
             class_name = ClassDB::get_parent_class_nocheck(class_name);
         }
 
-        Control *parent = Object::cast_to<Control>(theme_owner->get_parent());
+        Control *parent = object_cast<Control>(theme_owner->get_parent());
 
         if (parent)
             theme_owner = parent->data.theme_owner;
@@ -899,7 +899,7 @@ Ref<Shader> Control::get_shader(const StringName &p_name, const StringName &p_ty
             class_name = ClassDB::get_parent_class_nocheck(class_name);
         }
 
-        Control *parent = Object::cast_to<Control>(theme_owner->get_parent());
+        Control *parent = object_cast<Control>(theme_owner->get_parent());
 
         if (parent)
             theme_owner = parent->data.theme_owner;
@@ -943,7 +943,7 @@ Ref<StyleBox> Control::get_stylebox(const StringName &p_name, const StringName &
 
         class_name = type;
 
-        Control *parent = Object::cast_to<Control>(theme_owner->get_parent());
+        Control *parent = object_cast<Control>(theme_owner->get_parent());
 
         if (parent)
             theme_owner = parent->data.theme_owner;
@@ -989,7 +989,7 @@ Ref<Font> Control::get_font(const StringName &p_name, const StringName &p_type) 
 
         if (theme_owner->data.theme->get_default_theme_font())
             return theme_owner->data.theme->get_default_theme_font();
-        Control *parent = Object::cast_to<Control>(theme_owner->get_parent());
+        Control *parent = object_cast<Control>(theme_owner->get_parent());
 
         if (parent)
             theme_owner = parent->data.theme_owner;
@@ -1023,7 +1023,7 @@ Color Control::get_color(const StringName &p_name, const StringName &p_type) con
             class_name = ClassDB::get_parent_class_nocheck(class_name);
         }
 
-        Control *parent = Object::cast_to<Control>(theme_owner->get_parent());
+        Control *parent = object_cast<Control>(theme_owner->get_parent());
 
         if (parent)
             theme_owner = parent->data.theme_owner;
@@ -1063,7 +1063,7 @@ int Control::get_constant(const StringName &p_name, const StringName &p_type) co
             class_name = ClassDB::get_parent_class_nocheck(class_name);
         }
 
-        Control *parent = Object::cast_to<Control>(theme_owner->get_parent());
+        Control *parent = object_cast<Control>(theme_owner->get_parent());
 
         if (parent)
             theme_owner = parent->data.theme_owner;
@@ -1138,7 +1138,7 @@ bool Control::has_icon(const StringName &p_name, const StringName &p_type) const
             class_name = ClassDB::get_parent_class_nocheck(class_name);
         }
 
-        Control *parent = Object::cast_to<Control>(theme_owner->get_parent());
+        Control *parent = object_cast<Control>(theme_owner->get_parent());
 
         if (parent)
             theme_owner = parent->data.theme_owner;
@@ -1177,7 +1177,7 @@ bool Control::has_shader(const StringName &p_name, const StringName &p_type) con
             class_name = ClassDB::get_parent_class_nocheck(class_name);
         }
 
-        Control *parent = Object::cast_to<Control>(theme_owner->get_parent());
+        Control *parent = object_cast<Control>(theme_owner->get_parent());
 
         if (parent)
             theme_owner = parent->data.theme_owner;
@@ -1215,7 +1215,7 @@ bool Control::has_stylebox(const StringName &p_name, const StringName &p_type) c
             class_name = ClassDB::get_parent_class_nocheck(class_name);
         }
 
-        Control *parent = Object::cast_to<Control>(theme_owner->get_parent());
+        Control *parent = object_cast<Control>(theme_owner->get_parent());
 
         if (parent)
             theme_owner = parent->data.theme_owner;
@@ -1253,7 +1253,7 @@ bool Control::has_font(const StringName &p_name, const StringName &p_type) const
             class_name = ClassDB::get_parent_class_nocheck(class_name);
         }
 
-        Control *parent = Object::cast_to<Control>(theme_owner->get_parent());
+        Control *parent = object_cast<Control>(theme_owner->get_parent());
 
         if (parent)
             theme_owner = parent->data.theme_owner;
@@ -1292,7 +1292,7 @@ bool Control::has_color(const StringName &p_name, const StringName &p_type) cons
             class_name = ClassDB::get_parent_class_nocheck(class_name);
         }
 
-        Control *parent = Object::cast_to<Control>(theme_owner->get_parent());
+        Control *parent = object_cast<Control>(theme_owner->get_parent());
 
         if (parent)
             theme_owner = parent->data.theme_owner;
@@ -1331,7 +1331,7 @@ bool Control::has_constant(const StringName &p_name, const StringName &p_type) c
             class_name = ClassDB::get_parent_class_nocheck(class_name);
         }
 
-        Control *parent = Object::cast_to<Control>(theme_owner->get_parent());
+        Control *parent = object_cast<Control>(theme_owner->get_parent());
 
         if (parent)
             theme_owner = parent->data.theme_owner;
@@ -1976,7 +1976,7 @@ static Control *_next_control(Control *p_from) {
     if (p_from->is_set_as_toplevel())
         return nullptr; // can't go above
 
-    Control *parent = Object::cast_to<Control>(p_from->get_parent());
+    Control *parent = object_cast<Control>(p_from->get_parent());
 
     if (!parent) {
 
@@ -1987,7 +1987,7 @@ static Control *_next_control(Control *p_from) {
     ERR_FAIL_INDEX_V(next, parent->get_child_count(), nullptr)
     for (int i = (next + 1); i < parent->get_child_count(); i++) {
 
-        Control *c = Object::cast_to<Control>(parent->get_child(i));
+        Control *c = object_cast<Control>(parent->get_child(i));
         if (!c || !c->is_visible_in_tree() || c->is_set_as_toplevel())
             continue;
 
@@ -2009,7 +2009,7 @@ Control *Control::find_next_valid_focus() const {
         if (!data.focus_next.is_empty()) {
             Node *n = get_node(data.focus_next);
             if (n) {
-                from = Object::cast_to<Control>(n);
+                from = object_cast<Control>(n);
                 ERR_FAIL_COND_V_MSG(!from, nullptr, "Next focus node is not a control: " + n->get_name() + ".")
             } else {
                 return nullptr;
@@ -2024,7 +2024,7 @@ Control *Control::find_next_valid_focus() const {
 
         for (int i = 0; i < from->get_child_count(); i++) {
 
-            Control *c = Object::cast_to<Control>(from->get_child(i));
+            Control *c = object_cast<Control>(from->get_child(i));
             if (!c || !c->is_visible_in_tree() || c->is_set_as_toplevel()) {
                 continue;
             }
@@ -2040,7 +2040,7 @@ Control *Control::find_next_valid_focus() const {
                 next_child = const_cast<Control *>(this);
                 while (next_child && !next_child->is_set_as_toplevel()) {
 
-                    next_child = cast_to<Control>(next_child->get_parent());
+                    next_child = object_cast<Control>(next_child->get_parent());
                 }
 
                 if (!next_child) {
@@ -2074,7 +2074,7 @@ static Control *_prev_control(Control *p_from) {
     Control *child = nullptr;
     for (int i = p_from->get_child_count() - 1; i >= 0; i--) {
 
-        Control *c = Object::cast_to<Control>(p_from->get_child(i));
+        Control *c = object_cast<Control>(p_from->get_child(i));
         if (!c || !c->is_visible_in_tree() || c->is_set_as_toplevel())
             continue;
 
@@ -2099,7 +2099,7 @@ Control *Control::find_prev_valid_focus() const {
         if (!data.focus_prev.is_empty()) {
             Node *n = get_node(data.focus_prev);
             if (n) {
-                from = Object::cast_to<Control>(n);
+                from = object_cast<Control>(n);
                 ERR_FAIL_COND_V_MSG(!from, nullptr, "Previous focus node is not a control: " + n->get_name() + ".")
             } else {
                 return nullptr;
@@ -2112,7 +2112,7 @@ Control *Control::find_prev_valid_focus() const {
 
         Control *prev_child = nullptr;
 
-        if (from->is_set_as_toplevel() || !Object::cast_to<Control>(from->get_parent())) {
+        if (from->is_set_as_toplevel() || !object_cast<Control>(from->get_parent())) {
 
             //find last of the children
 
@@ -2122,7 +2122,7 @@ Control *Control::find_prev_valid_focus() const {
 
             for (int i = (from->get_position_in_parent() - 1); i >= 0; i--) {
 
-                Control *c = Object::cast_to<Control>(from->get_parent()->get_child(i));
+                Control *c = object_cast<Control>(from->get_parent()->get_child(i));
 
                 if (!c || !c->is_visible_in_tree() || c->is_set_as_toplevel()) {
                     continue;
@@ -2134,7 +2134,7 @@ Control *Control::find_prev_valid_focus() const {
 
             if (!prev_child) {
 
-                prev_child = Object::cast_to<Control>(from->get_parent());
+                prev_child = object_cast<Control>(from->get_parent());
             } else {
 
                 prev_child = _prev_control(prev_child);
@@ -2225,14 +2225,14 @@ void Control::_modal_stack_remove() {
 
 void Control::_propagate_theme_changed(CanvasItem *p_at, Control *p_owner, bool p_assign) {
 
-    Control *c = Object::cast_to<Control>(p_at);
+    Control *c = object_cast<Control>(p_at);
 
     if (c && c != p_owner && c->data.theme) // has a theme, this can't be propagated
         return;
 
     for (int i = 0; i < p_at->get_child_count(); i++) {
 
-        CanvasItem *child = Object::cast_to<CanvasItem>(p_at->get_child(i));
+        CanvasItem *child = object_cast<CanvasItem>(p_at->get_child(i));
         if (child) {
             _propagate_theme_changed(child, p_owner, p_assign);
         }
@@ -2268,7 +2268,7 @@ void Control::set_theme(const Ref<Theme> &p_theme) {
         _propagate_theme_changed(this, this);
     } else {
 
-        Control *parent = cast_to<Control>(get_parent());
+        Control *parent = object_cast<Control>(get_parent());
         if (parent && parent->data.theme_owner) {
             _propagate_theme_changed(this, parent->data.theme_owner);
         } else {
@@ -2379,7 +2379,7 @@ Control *Control::_get_focus_neighbour(Margin p_margin, int p_count) {
         Control *c = nullptr;
         Node *n = get_node(data.focus_neighbour[p_margin]);
         if (n) {
-            c = Object::cast_to<Control>(n);
+            c = object_cast<Control>(n);
             ERR_FAIL_COND_V_MSG(!c, nullptr, "Neighbor focus node is not a control: " + n->get_name() + ".")
         } else {
             return nullptr;
@@ -2430,7 +2430,7 @@ Control *Control::_get_focus_neighbour(Margin p_margin, int p_count) {
 
     while (base) {
 
-        Control *c = Object::cast_to<Control>(base);
+        Control *c = object_cast<Control>(base);
         if (c) {
             if (c->data.SI)
                 break;
@@ -2450,10 +2450,10 @@ Control *Control::_get_focus_neighbour(Margin p_margin, int p_count) {
 
 void Control::_window_find_focus_neighbour(const Vector2 &p_dir, Node *p_at, const Point2 *p_points, float p_min, float &r_closest_dist, Control **r_closest) {
 
-    if (Object::cast_to<Viewport>(p_at))
+    if (object_cast<Viewport>(p_at))
         return; //bye
 
-    Control *c = Object::cast_to<Control>(p_at);
+    Control *c = object_cast<Control>(p_at);
 
     if (c && c != this && c->get_focus_mode() == FOCUS_ALL && c->is_visible_in_tree()) {
 
@@ -2502,7 +2502,7 @@ void Control::_window_find_focus_neighbour(const Vector2 &p_dir, Node *p_at, con
     for (int i = 0; i < p_at->get_child_count(); i++) {
 
         Node *child = p_at->get_child(i);
-        Control *childc = Object::cast_to<Control>(child);
+        Control *childc = object_cast<Control>(child);
         if (childc && childc->data.SI)
             continue; //subwindow, ignore
         _window_find_focus_neighbour(p_dir, p_at->get_child(i), p_points, p_min, r_closest_dist, r_closest);
@@ -2684,7 +2684,7 @@ Control *Control::get_root_parent_control() const {
 
     while (ci) {
 
-        const Control *c = Object::cast_to<Control>(ci);
+        const Control *c = object_cast<Control>(ci);
         if (c) {
             root = c;
 

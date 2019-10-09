@@ -402,7 +402,7 @@ void CanvasItem::_propagate_visibility_changed(bool p_visible) {
 
     for (int i = 0; i < get_child_count(); i++) {
 
-        CanvasItem *c = Object::cast_to<CanvasItem>(get_child(i));
+        CanvasItem *c = object_cast<CanvasItem>(get_child(i));
 
         if (c && c->visible) //should the toplevels stop propagation? i think so but..
             c->_propagate_visibility_changed(p_visible);
@@ -515,7 +515,7 @@ void CanvasItem::_toplevel_raise_self() {
 
 void CanvasItem::_enter_canvas() {
 
-    if ((!Object::cast_to<CanvasItem>(get_parent())) || toplevel) {
+    if ((!object_cast<CanvasItem>(get_parent())) || toplevel) {
 
         Node *n = this;
 
@@ -523,11 +523,11 @@ void CanvasItem::_enter_canvas() {
 
         while (n) {
 
-            canvas_layer = Object::cast_to<CanvasLayer>(n);
+            canvas_layer = object_cast<CanvasLayer>(n);
             if (canvas_layer) {
                 break;
             }
-            if (Object::cast_to<Viewport>(n)) {
+            if (object_cast<Viewport>(n)) {
                 break;
             }
             n = n->get_parent();
@@ -580,7 +580,7 @@ void CanvasItem::_notification(int p_what) {
 
             first_draw = true;
             if (get_parent()) {
-                CanvasItem *ci = Object::cast_to<CanvasItem>(get_parent());
+                CanvasItem *ci = object_cast<CanvasItem>(get_parent());
                 if (ci)
                     C = ci->children_items.push_back(this);
             }
@@ -608,7 +608,7 @@ void CanvasItem::_notification(int p_what) {
                 get_tree()->xform_change_list.remove(&xform_change);
             _exit_canvas();
             if (C) {
-                Object::cast_to<CanvasItem>(get_parent())->children_items.erase(C);
+                object_cast<CanvasItem>(get_parent())->children_items.erase(C);
                 C = nullptr;
             }
             global_invalid = true;
@@ -686,7 +686,7 @@ CanvasItem *CanvasItem::get_parent_item() const {
     if (toplevel)
         return nullptr;
 
-    return Object::cast_to<CanvasItem>(get_parent());
+    return object_cast<CanvasItem>(get_parent());
 }
 
 void CanvasItem::set_self_modulate(const Color &p_self_modulate) {
@@ -996,8 +996,8 @@ ObjectID CanvasItem::get_canvas_layer_instance_id() const {
 CanvasItem *CanvasItem::get_toplevel() const {
 
     CanvasItem *ci = const_cast<CanvasItem *>(this);
-    while (!ci->toplevel && Object::cast_to<CanvasItem>(ci->get_parent())) {
-        ci = Object::cast_to<CanvasItem>(ci->get_parent());
+    while (!ci->toplevel && object_cast<CanvasItem>(ci->get_parent())) {
+        ci = object_cast<CanvasItem>(ci->get_parent());
     }
 
     return ci;
@@ -1252,8 +1252,8 @@ Transform2D CanvasItem::get_canvas_transform() const {
 
     if (canvas_layer)
         return canvas_layer->get_transform();
-    else if (Object::cast_to<CanvasItem>(get_parent()))
-        return Object::cast_to<CanvasItem>(get_parent())->get_canvas_transform();
+    else if (object_cast<CanvasItem>(get_parent()))
+        return object_cast<CanvasItem>(get_parent())->get_canvas_transform();
     else
         return get_viewport()->get_canvas_transform();
 }

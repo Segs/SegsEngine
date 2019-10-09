@@ -137,7 +137,7 @@ void GDNativeLibraryEditor::_update_tree() {
 
 void GDNativeLibraryEditor::_on_item_button(Object *item, int column, int id) {
 
-    String target = Object::cast_to<TreeItem>(item)->get_metadata(0);
+    String target = object_cast<TreeItem>(item)->get_metadata(0);
     String platform = StringUtils::substr(target,0, StringUtils::find(target,"."));
     String entry = StringUtils::substr(target,platform.length() + 1, target.length());
     String section = (id == BUTTON_SELECT_DEPENDENCES || id == BUTTON_CLEAR_DEPENDENCES) ? "dependencies" : "entry";
@@ -151,7 +151,7 @@ void GDNativeLibraryEditor::_on_item_button(Object *item, int column, int id) {
         file_dialog->set_meta("target", target);
         file_dialog->set_meta("section", section);
         file_dialog->clear_filters();
-        file_dialog->add_filter(Object::cast_to<TreeItem>(item)->get_parent()->get_metadata(0));
+        file_dialog->add_filter(object_cast<TreeItem>(item)->get_parent()->get_metadata(0));
         file_dialog->set_mode(mode);
         file_dialog->popup_centered_ratio();
 
@@ -185,7 +185,7 @@ void GDNativeLibraryEditor::_on_filter_selected(int index) {
 
 void GDNativeLibraryEditor::_on_item_collapsed(Object *p_item) {
 
-    TreeItem *item = Object::cast_to<TreeItem>(p_item);
+    TreeItem *item = object_cast<TreeItem>(p_item);
     String name = item->get_text(0);
 
     if (item->is_collapsed()) {
@@ -404,7 +404,7 @@ GDNativeLibraryEditor::GDNativeLibraryEditor() {
 
 void GDNativeLibraryEditorPlugin::edit(Object *p_node) {
 
-    Ref<GDNativeLibrary> new_library(Object::cast_to<GDNativeLibrary>(p_node));
+    Ref<GDNativeLibrary> new_library(object_cast<GDNativeLibrary>(p_node));
     if (new_library)
         library_editor->edit(new_library);
 }

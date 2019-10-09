@@ -122,7 +122,7 @@ public:
 #endif
 
     AudioDriver();
-    virtual ~AudioDriver() {}
+    virtual ~AudioDriver() = default;
 };
 
 class AudioDriverManager {

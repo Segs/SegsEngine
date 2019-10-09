@@ -54,25 +54,25 @@ CSGShapeSpatialGizmoPlugin::CSGShapeSpatialGizmoPlugin() {
 
 String CSGShapeSpatialGizmoPlugin::get_handle_name(const EditorSpatialGizmo *p_gizmo, int p_idx) const {
 
-    CSGShape *cs = Object::cast_to<CSGShape>(p_gizmo->get_spatial_node());
+    CSGShape *cs = object_cast<CSGShape>(p_gizmo->get_spatial_node());
 
-    if (Object::cast_to<CSGSphere>(cs)) {
+    if (object_cast<CSGSphere>(cs)) {
 
         return "Radius";
     }
 
-    if (Object::cast_to<CSGBox>(cs)) {
+    if (object_cast<CSGBox>(cs)) {
 
         static const char *hname[3] = { "Width", "Height", "Depth" };
         return hname[p_idx];
     }
 
-    if (Object::cast_to<CSGCylinder>(cs)) {
+    if (object_cast<CSGCylinder>(cs)) {
 
         return p_idx == 0 ? "Radius" : "Height";
     }
 
-    if (Object::cast_to<CSGTorus>(cs)) {
+    if (object_cast<CSGTorus>(cs)) {
 
         return p_idx == 0 ? "InnerRadius" : "OuterRadius";
     }
@@ -81,17 +81,17 @@ String CSGShapeSpatialGizmoPlugin::get_handle_name(const EditorSpatialGizmo *p_g
 }
 Variant CSGShapeSpatialGizmoPlugin::get_handle_value(EditorSpatialGizmo *p_gizmo, int p_idx) const {
 
-    CSGShape *cs = Object::cast_to<CSGShape>(p_gizmo->get_spatial_node());
+    CSGShape *cs = object_cast<CSGShape>(p_gizmo->get_spatial_node());
 
-    if (Object::cast_to<CSGSphere>(cs)) {
+    if (object_cast<CSGSphere>(cs)) {
 
-        CSGSphere *s = Object::cast_to<CSGSphere>(cs);
+        CSGSphere *s = object_cast<CSGSphere>(cs);
         return s->get_radius();
     }
 
-    if (Object::cast_to<CSGBox>(cs)) {
+    if (object_cast<CSGBox>(cs)) {
 
-        CSGBox *s = Object::cast_to<CSGBox>(cs);
+        CSGBox *s = object_cast<CSGBox>(cs);
         switch (p_idx) {
             case 0: return s->get_width();
             case 1: return s->get_height();
@@ -99,15 +99,15 @@ Variant CSGShapeSpatialGizmoPlugin::get_handle_value(EditorSpatialGizmo *p_gizmo
         }
     }
 
-    if (Object::cast_to<CSGCylinder>(cs)) {
+    if (object_cast<CSGCylinder>(cs)) {
 
-        CSGCylinder *s = Object::cast_to<CSGCylinder>(cs);
+        CSGCylinder *s = object_cast<CSGCylinder>(cs);
         return p_idx == 0 ? s->get_radius() : s->get_height();
     }
 
-    if (Object::cast_to<CSGTorus>(cs)) {
+    if (object_cast<CSGTorus>(cs)) {
 
-        CSGTorus *s = Object::cast_to<CSGTorus>(cs);
+        CSGTorus *s = object_cast<CSGTorus>(cs);
         return p_idx == 0 ? s->get_inner_radius() : s->get_outer_radius();
     }
 
@@ -115,7 +115,7 @@ Variant CSGShapeSpatialGizmoPlugin::get_handle_value(EditorSpatialGizmo *p_gizmo
 }
 void CSGShapeSpatialGizmoPlugin::set_handle(EditorSpatialGizmo *p_gizmo, int p_idx, Camera *p_camera, const Point2 &p_point) {
 
-    CSGShape *cs = Object::cast_to<CSGShape>(p_gizmo->get_spatial_node());
+    CSGShape *cs = object_cast<CSGShape>(p_gizmo->get_spatial_node());
 
     Transform gt = cs->get_global_transform();
     //gt.orthonormalize();
@@ -126,9 +126,9 @@ void CSGShapeSpatialGizmoPlugin::set_handle(EditorSpatialGizmo *p_gizmo, int p_i
 
     Vector3 sg[2] = { gi.xform(ray_from), gi.xform(ray_from + ray_dir * 16384) };
 
-    if (Object::cast_to<CSGSphere>(cs)) {
+    if (object_cast<CSGSphere>(cs)) {
 
-        CSGSphere *s = Object::cast_to<CSGSphere>(cs);
+        CSGSphere *s = object_cast<CSGSphere>(cs);
 
         Vector3 ra, rb;
         Geometry::get_closest_points_between_segments(Vector3(), Vector3(4096, 0, 0), sg[0], sg[1], ra, rb);
@@ -143,9 +143,9 @@ void CSGShapeSpatialGizmoPlugin::set_handle(EditorSpatialGizmo *p_gizmo, int p_i
         s->set_radius(d);
     }
 
-    if (Object::cast_to<CSGBox>(cs)) {
+    if (object_cast<CSGBox>(cs)) {
 
-        CSGBox *s = Object::cast_to<CSGBox>(cs);
+        CSGBox *s = object_cast<CSGBox>(cs);
 
         Vector3 axis;
         axis[p_idx] = 1.0;
@@ -166,9 +166,9 @@ void CSGShapeSpatialGizmoPlugin::set_handle(EditorSpatialGizmo *p_gizmo, int p_i
         }
     }
 
-    if (Object::cast_to<CSGCylinder>(cs)) {
+    if (object_cast<CSGCylinder>(cs)) {
 
-        CSGCylinder *s = Object::cast_to<CSGCylinder>(cs);
+        CSGCylinder *s = object_cast<CSGCylinder>(cs);
 
         Vector3 axis;
         axis[p_idx == 0 ? 0 : 1] = 1.0;
@@ -188,9 +188,9 @@ void CSGShapeSpatialGizmoPlugin::set_handle(EditorSpatialGizmo *p_gizmo, int p_i
             s->set_height(d * 2.0f);
     }
 
-    if (Object::cast_to<CSGTorus>(cs)) {
+    if (object_cast<CSGTorus>(cs)) {
 
-        CSGTorus *s = Object::cast_to<CSGTorus>(cs);
+        CSGTorus *s = object_cast<CSGTorus>(cs);
 
         Vector3 axis;
         axis[0] = 1.0;
@@ -212,10 +212,10 @@ void CSGShapeSpatialGizmoPlugin::set_handle(EditorSpatialGizmo *p_gizmo, int p_i
 }
 void CSGShapeSpatialGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo, int p_idx, const Variant &p_restore, bool p_cancel) {
 
-    CSGShape *cs = Object::cast_to<CSGShape>(p_gizmo->get_spatial_node());
+    CSGShape *cs = object_cast<CSGShape>(p_gizmo->get_spatial_node());
 
-    if (Object::cast_to<CSGSphere>(cs)) {
-        CSGSphere *s = Object::cast_to<CSGSphere>(cs);
+    if (object_cast<CSGSphere>(cs)) {
+        CSGSphere *s = object_cast<CSGSphere>(cs);
         if (p_cancel) {
             s->set_radius(p_restore);
             return;
@@ -228,8 +228,8 @@ void CSGShapeSpatialGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo, int 
         ur->commit_action();
     }
 
-    if (Object::cast_to<CSGBox>(cs)) {
-        CSGBox *s = Object::cast_to<CSGBox>(cs);
+    if (object_cast<CSGBox>(cs)) {
+        CSGBox *s = object_cast<CSGBox>(cs);
         if (p_cancel) {
             switch (p_idx) {
                 case 0: s->set_width(p_restore); break;
@@ -254,8 +254,8 @@ void CSGShapeSpatialGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo, int 
         ur->commit_action();
     }
 
-    if (Object::cast_to<CSGCylinder>(cs)) {
-        CSGCylinder *s = Object::cast_to<CSGCylinder>(cs);
+    if (object_cast<CSGCylinder>(cs)) {
+        CSGCylinder *s = object_cast<CSGCylinder>(cs);
         if (p_cancel) {
             if (p_idx == 0)
                 s->set_radius(p_restore);
@@ -278,8 +278,8 @@ void CSGShapeSpatialGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo, int 
         ur->commit_action();
     }
 
-    if (Object::cast_to<CSGTorus>(cs)) {
-        CSGTorus *s = Object::cast_to<CSGTorus>(cs);
+    if (object_cast<CSGTorus>(cs)) {
+        CSGTorus *s = object_cast<CSGTorus>(cs);
         if (p_cancel) {
             if (p_idx == 0)
                 s->set_inner_radius(p_restore);
@@ -303,7 +303,7 @@ void CSGShapeSpatialGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo, int 
     }
 }
 bool CSGShapeSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
-    return Object::cast_to<CSGSphere>(p_spatial) || Object::cast_to<CSGBox>(p_spatial) || Object::cast_to<CSGCylinder>(p_spatial) || Object::cast_to<CSGTorus>(p_spatial) || Object::cast_to<CSGMesh>(p_spatial) || Object::cast_to<CSGPolygon>(p_spatial);
+    return object_cast<CSGSphere>(p_spatial) || object_cast<CSGBox>(p_spatial) || object_cast<CSGCylinder>(p_spatial) || object_cast<CSGTorus>(p_spatial) || object_cast<CSGMesh>(p_spatial) || object_cast<CSGPolygon>(p_spatial);
 }
 
 String CSGShapeSpatialGizmoPlugin::get_name() const {
@@ -320,7 +320,7 @@ bool CSGShapeSpatialGizmoPlugin::is_selectable_when_hidden() const {
 
 void CSGShapeSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
 
-    CSGShape *cs = Object::cast_to<CSGShape>(p_gizmo->get_spatial_node());
+    CSGShape *cs = object_cast<CSGShape>(p_gizmo->get_spatial_node());
 
     p_gizmo->clear();
 
@@ -385,8 +385,8 @@ void CSGShapeSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
         p_gizmo->add_mesh(mesh, false, Ref<SkinReference>(), solid_material);
     }
 
-    if (Object::cast_to<CSGSphere>(cs)) {
-        CSGSphere *s = Object::cast_to<CSGSphere>(cs);
+    if (object_cast<CSGSphere>(cs)) {
+        CSGSphere *s = object_cast<CSGSphere>(cs);
 
         float r = s->get_radius();
         Vector<Vector3> handles;
@@ -394,8 +394,8 @@ void CSGShapeSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
         p_gizmo->add_handles(handles, handles_material);
     }
 
-    if (Object::cast_to<CSGBox>(cs)) {
-        CSGBox *s = Object::cast_to<CSGBox>(cs);
+    if (object_cast<CSGBox>(cs)) {
+        CSGBox *s = object_cast<CSGBox>(cs);
 
         Vector<Vector3> handles;
         handles.push_back(Vector3(s->get_width() * 0.5f, 0, 0));
@@ -404,8 +404,8 @@ void CSGShapeSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
         p_gizmo->add_handles(handles, handles_material);
     }
 
-    if (Object::cast_to<CSGCylinder>(cs)) {
-        CSGCylinder *s = Object::cast_to<CSGCylinder>(cs);
+    if (object_cast<CSGCylinder>(cs)) {
+        CSGCylinder *s = object_cast<CSGCylinder>(cs);
 
         Vector<Vector3> handles;
         handles.push_back(Vector3(s->get_radius(), 0, 0));
@@ -413,8 +413,8 @@ void CSGShapeSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
         p_gizmo->add_handles(handles, handles_material);
     }
 
-    if (Object::cast_to<CSGTorus>(cs)) {
-        CSGTorus *s = Object::cast_to<CSGTorus>(cs);
+    if (object_cast<CSGTorus>(cs)) {
+        CSGTorus *s = object_cast<CSGTorus>(cs);
 
         Vector<Vector3> handles;
         handles.push_back(Vector3(s->get_inner_radius(), 0, 0));

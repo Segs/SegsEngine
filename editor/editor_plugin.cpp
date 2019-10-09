@@ -500,7 +500,7 @@ void EditorPlugin::add_tool_menu_item(const String &p_name, Object *p_handler, c
 
 void EditorPlugin::add_tool_submenu_item(const String &p_name, Object *p_submenu) {
     ERR_FAIL_NULL(p_submenu);
-    PopupMenu *submenu = Object::cast_to<PopupMenu>(p_submenu);
+    PopupMenu *submenu = object_cast<PopupMenu>(p_submenu);
     ERR_FAIL_NULL(submenu);
     EditorNode::get_singleton()->add_tool_submenu_item(p_name, submenu);
 }
@@ -641,7 +641,7 @@ void EditorPlugin::edit(Object *p_object) {
 
     if (get_script_instance() && get_script_instance()->has_method("edit")) {
         if (p_object->is_class("Resource")) {
-            get_script_instance()->call("edit", Ref<Resource>(Object::cast_to<Resource>(p_object)));
+            get_script_instance()->call("edit", Ref<Resource>(object_cast<Resource>(p_object)));
         } else {
             get_script_instance()->call("edit", Variant(p_object));
         }

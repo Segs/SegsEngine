@@ -527,7 +527,7 @@ Object *CreateDialog::instance_selected() {
         if (!custom.empty()) {
             if (ScriptServer::is_global_class(custom)) {
                 Object *obj = EditorNode::get_editor_data().script_class_instance(custom);
-                Node *n = Object::cast_to<Node>(obj);
+                Node *n = object_cast<Node>(obj);
                 if (n)
                     n->set_name(custom);
                 return obj;

@@ -88,7 +88,7 @@ void ResourceFormatSaver::get_recognized_extensions(const Ref<Resource> &p_resou
             }
         }
     }
-    if (Object::cast_to<ImageTexture>(p_resource.get())) {
+    if (object_cast<ImageTexture>(p_resource.get())) {
         //TODO: use resource name here ?
         auto saver = ImageSaver::recognize("png");
         saver->get_saved_extensions(p_extensions);
@@ -234,7 +234,7 @@ bool ResourceSaver::add_custom_resource_format_saver(const String& script_path) 
 
     ERR_FAIL_COND_V_MSG(obj == nullptr, false, "Cannot instance script as custom resource saver, expected 'ResourceFormatSaver' inheritance, got: " + String(ibt) + ".")
 
-    auto *crl = Object::cast_to<ResourceFormatSaver>(obj);
+    auto *crl = object_cast<ResourceFormatSaver>(obj);
     crl->set_script(s.get_ref_ptr());
     ResourceSaver::add_resource_format_saver(Ref<ResourceFormatSaver>(crl));
 

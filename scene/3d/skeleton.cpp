@@ -146,7 +146,7 @@ bool Skeleton::_get(const StringName &p_path, Variant &r_ret) const {
 
             Object *obj = ObjectDB::get_instance(E->deref());
             ERR_CONTINUE(!obj);
-            Node *node = Object::cast_to<Node>(obj);
+            Node *node = object_cast<Node>(obj);
             ERR_CONTINUE(!node);
             NodePath npath = get_path_to(node);
             children.push_back(npath);
@@ -314,7 +314,7 @@ void Skeleton::_notification(int p_what) {
 
                     Object *obj = ObjectDB::get_instance(E->deref());
                     ERR_CONTINUE(!obj)
-                    Spatial *sp = Object::cast_to<Spatial>(obj);
+                    Spatial *sp = object_cast<Spatial>(obj);
                     ERR_CONTINUE(!sp)
                     sp->set_transform(b.pose_global);
                 }
@@ -517,7 +517,7 @@ void Skeleton::get_bound_child_nodes_to_bone(int p_bone, List<Node *> *p_bound) 
 
         Object *obj = ObjectDB::get_instance(E->deref());
         ERR_CONTINUE(!obj)
-        p_bound->push_back(Object::cast_to<Node>(obj));
+        p_bound->push_back(object_cast<Node>(obj));
     }
 }
 
@@ -658,7 +658,7 @@ void _pb_stop_simulation(Node *p_node) {
         _pb_stop_simulation(p_node->get_child(i));
     }
 
-    PhysicalBone *pb = Object::cast_to<PhysicalBone>(p_node);
+    PhysicalBone *pb = object_cast<PhysicalBone>(p_node);
     if (pb) {
         pb->set_simulate_physics(false);
         pb->set_static_body(false);
@@ -675,7 +675,7 @@ void _pb_start_simulation(const Skeleton *p_skeleton, Node *p_node, const Vector
         _pb_start_simulation(p_skeleton, p_node->get_child(i), p_sim_bones);
     }
 
-    PhysicalBone *pb = Object::cast_to<PhysicalBone>(p_node);
+    PhysicalBone *pb = object_cast<PhysicalBone>(p_node);
     if (pb) {
         bool sim = false;
         for (int i = p_sim_bones.size() - 1; 0 <= i; --i) {
@@ -721,7 +721,7 @@ void _physical_bones_add_remove_collision_exception(bool p_add, Node *p_node, RI
         _physical_bones_add_remove_collision_exception(p_add, p_node->get_child(i), p_exception);
     }
 
-    CollisionObject *co = Object::cast_to<CollisionObject>(p_node);
+    CollisionObject *co = object_cast<CollisionObject>(p_node);
     if (co) {
         if (p_add) {
             PhysicsServer::get_singleton()->body_add_collision_exception(co->get_rid(), p_exception);

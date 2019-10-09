@@ -47,7 +47,7 @@ void Container::add_child_notify(Node *p_child) {
 
     Control::add_child_notify(p_child);
 
-    Control *control = Object::cast_to<Control>(p_child);
+    Control *control = object_cast<Control>(p_child);
     if (!control)
         return;
 
@@ -63,7 +63,7 @@ void Container::move_child_notify(Node *p_child) {
 
     Control::move_child_notify(p_child);
 
-    if (!Object::cast_to<Control>(p_child))
+    if (!object_cast<Control>(p_child))
         return;
 
     minimum_size_changed();
@@ -74,7 +74,7 @@ void Container::remove_child_notify(Node *p_child) {
 
     Control::remove_child_notify(p_child);
 
-    Control *control = Object::cast_to<Control>(p_child);
+    Control *control = object_cast<Control>(p_child);
     if (!control)
         return;
 

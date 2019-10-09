@@ -49,7 +49,7 @@ void Room::_notification(int p_what) {
 
             while (parent_room) {
 
-                Room *r = Object::cast_to<Room>(parent_room);
+                Room *r = object_cast<Room>(parent_room);
                 if (r) {
 
                     level = r->level + 1;
@@ -107,7 +107,7 @@ Ref<RoomBounds> Room::get_room() const {
 
 void Room::_parse_node_faces(PoolVector<Face3> &all_faces, const Node *p_node) const {
 
-    const VisualInstance *vi = Object::cast_to<VisualInstance>(p_node);
+    const VisualInstance *vi = object_cast<VisualInstance>(p_node);
 
     if (vi) {
         PoolVector<Face3> faces = vi->get_faces(FACES_ENCLOSING);

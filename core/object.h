@@ -135,7 +135,7 @@ protected:                                                                      
     bool _initialize_classv() override {                                                                               \
         return initialize_class();                                                                                     \
     }                                                                                                                  \
-    _FORCE_INLINE_ bool (Object::*_get_get() const)(const StringName &p_name, Variant &) const {                       \
+    static constexpr _FORCE_INLINE_ bool (Object::*_get_get() )(const StringName &p_name, Variant &r_ret) const {      \
         return (bool (Object::*)(const StringName &, Variant &) const) & m_class::_get;                                \
     }                                                                                                                  \
     bool _getv(const StringName &p_name, Variant &r_ret) const override {                                              \
@@ -145,7 +145,7 @@ protected:                                                                      
         }                                                                                                              \
         return SUPER_CLASS::_getv(p_name, r_ret);                                                                      \
     }                                                                                                                  \
-    _FORCE_INLINE_ bool (Object::*_get_set() const)(const StringName &p_name, const Variant &p_property) {             \
+    static constexpr _FORCE_INLINE_ bool (Object::*_get_set() )(const StringName &p_name, const Variant &p_property) { \
         return (bool (Object::*)(const StringName &, const Variant &)) & m_class::_set;                                \
     }                                                                                                                  \
     bool _setv(const StringName &p_name, const Variant &p_property) override {                                         \
@@ -290,6 +290,7 @@ private:
     int _predelete_ok;
     bool _block_signals;
     bool _can_translate;
+    bool _is_queued_for_deletion; // set to true by SceneTree::queue_delete()
 
 
     bool _predelete();
@@ -326,7 +327,7 @@ protected:
     _FORCE_INLINE_ static void (*_get_bind_methods())() {
         return &Object::_bind_methods;
     }
-    _FORCE_INLINE_ bool (Object::*_get_get() const)(const StringName &p_name, Variant &r_ret) const {
+    static constexpr _FORCE_INLINE_ bool (Object::*_get_get() )(const StringName &p_name, Variant &r_ret) const {
         return &Object::_get;
     }
     _FORCE_INLINE_ bool (Object::*_get_set() const)(const StringName &p_name, const Variant &p_property) {
@@ -348,7 +349,7 @@ protected:
 
     virtual const StringName *_get_class_namev() const {
         if (!_class_name)
-            _class_name = StringName(get_class_static());
+            _class_name = get_class_static_name();
         return &_class_name;
     }
 
@@ -386,34 +387,6 @@ public:
     void add_change_receptor(Object *p_receptor);
     void remove_change_receptor(Object *p_receptor);
 
-    template <class T>
-    static T *cast_to(Object *p_object) {
-#ifdef RTTI_ENABLED
-        return dynamic_cast<T *>(p_object);
-#else
-        if (!p_object)
-            return nullptr;
-        if (p_object->is_class_ptr(T::get_class_ptr_static()))
-            return static_cast<T *>(p_object);
-        else
-            return nullptr;
-#endif
-    }
-
-    template <class T>
-    static const T *cast_to(const Object *p_object) {
-#ifdef RTTI_ENABLED
-        return dynamic_cast<const T *>(p_object);
-#else
-        if (!p_object)
-            return nullptr;
-        if (p_object->is_class_ptr(T::get_class_ptr_static()))
-            return static_cast<const T *>(p_object);
-        else
-            return nullptr;
-#endif
-    }
-
     enum {
 
         NOTIFICATION_POSTINITIALIZE = 0,
@@ -424,7 +397,7 @@ public:
     static void get_inheritance_list_static(DefList<String> *p_inheritance_list);
 
     static constexpr const char * get_class_static() { return "Object"; }
-    static StringName get_class_static_name();
+    static StringName get_class_static_name() { return StringName("Object"); }
     static const char * get_parent_class_static() { return nullptr; }
     static String get_category_static();
 
@@ -522,8 +495,8 @@ public:
 
     StringName tr(const StringName &p_message) const; // translate message (internationalization)
 
-    bool _is_queued_for_deletion; // set to true by SceneTree::queue_delete()
     bool is_queued_for_deletion() const;
+    void deleteLater() { _is_queued_for_deletion = true; }
 
     _FORCE_INLINE_ void set_message_translation(bool p_enable) { _can_translate = p_enable; }
     _FORCE_INLINE_ bool can_translate_messages() const { return _can_translate; }
@@ -538,11 +511,39 @@ public:
 
     Object();
     virtual ~Object();
+
     // Non-copyable
     void operator=(const Object &/*p_rval*/) = delete;
     Object(const Object &) = delete;
 };
 
+template <class T>
+T *object_cast(Object *p_object) {
+#ifdef RTTI_ENABLED
+    return dynamic_cast<T *>(p_object);
+#else
+    if (!p_object)
+        return nullptr;
+    if (p_object->is_class_ptr(T::get_class_ptr_static()))
+        return static_cast<T *>(p_object);
+    else
+        return nullptr;
+#endif
+}
+
+template <class T>
+const T *object_cast(const Object *p_object) {
+#ifdef RTTI_ENABLED
+    return dynamic_cast<const T *>(p_object);
+#else
+    if (!p_object)
+        return nullptr;
+    if (p_object->is_class_ptr(T::get_class_ptr_static()))
+        return static_cast<const T *>(p_object);
+    else
+        return nullptr;
+#endif
+}
 namespace ObjectNS
 {
     enum ConnectFlags : uint8_t {
@@ -554,7 +555,7 @@ namespace ObjectNS
     };
     template<class T>
     T* cast_to(::Object *f) {
-        return Object::cast_to<T>(f);
+        return object_cast<T>(f);
     }
 } // end of ObjectNS namespace
 

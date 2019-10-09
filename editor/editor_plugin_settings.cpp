@@ -191,7 +191,7 @@ void EditorPluginSettings::_create_clicked() {
 }
 
 void EditorPluginSettings::_cell_button_pressed(Object *p_item, int p_column, int p_id) {
-    TreeItem *item = Object::cast_to<TreeItem>(p_item);
+    TreeItem *item = object_cast<TreeItem>(p_item);
     if (!item)
         return;
     if (p_id == BUTTON_PLUGIN_EDIT) {

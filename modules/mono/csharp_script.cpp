@@ -743,7 +743,7 @@ void CSharpLanguage::reload_assemblies(bool p_soft_reload) {
 
     for (Map<Object *, CSharpScriptBinding>::Element *E = script_bindings.front(); E; E = E->next()) {
         CSharpScriptBinding &script_binding = E->value();
-        Reference *ref = Object::cast_to<Reference>(script_binding.owner);
+        Reference *ref = object_cast<Reference>(script_binding.owner);
         if (ref) {
             ref_instances.push_back(Ref<Reference>(ref));
         }
@@ -770,7 +770,7 @@ void CSharpLanguage::reload_assemblies(bool p_soft_reload) {
 
             script->pending_reload_instances.insert(obj->get_instance_id());
 
-            Reference *ref = Object::cast_to<Reference>(obj);
+            Reference *ref = object_cast<Reference>(obj);
             if (ref) {
                 ref_instances.push_back(Ref<Reference>(ref));
             }
@@ -781,7 +781,7 @@ void CSharpLanguage::reload_assemblies(bool p_soft_reload) {
             Object *obj = F->get_owner();
             script->pending_reload_instances.insert(obj->get_instance_id());
 
-            Reference *ref = Object::cast_to<Reference>(obj);
+            Reference *ref = object_cast<Reference>(obj);
             if (ref) {
                 ref_instances.push_back(Ref<Reference>(ref));
             }
@@ -1145,7 +1145,7 @@ void CSharpLanguage::_editor_init_callback() {
     GDMonoUtils::runtime_object_init(mono_object, editor_klass, &exc);
     UNHANDLED_EXCEPTION(exc);
 
-    EditorPlugin *godotsharp_editor = Object::cast_to<EditorPlugin>(GDMonoMarshal::mono_object_to_variant(mono_object));
+    EditorPlugin *godotsharp_editor = object_cast<EditorPlugin>(GDMonoMarshal::mono_object_to_variant(mono_object));
     CRASH_COND(godotsharp_editor == NULL);
 
     // Enable it as a plugin
@@ -1275,7 +1275,7 @@ bool CSharpLanguage::setup_csharp_script_binding(CSharpScriptBinding &r_script_b
     r_script_binding.owner = p_object;
 
     // Tie managed to unmanaged
-    Reference *ref = Object::cast_to<Reference>(p_object);
+    Reference *ref = object_cast<Reference>(p_object);
 
     if (ref) {
         // Unsafe refcount increment. The managed instance also counts as a reference.
@@ -1345,7 +1345,7 @@ void CSharpLanguage::free_instance_binding_data(void *p_data) {
 
 void CSharpLanguage::refcount_incremented_instance_binding(Object *p_object) {
 
-    Reference *ref_owner = Object::cast_to<Reference>(p_object);
+    Reference *ref_owner = object_cast<Reference>(p_object);
 
 #ifdef DEBUG_ENABLED
     CRASH_COND(!ref_owner);
@@ -1378,7 +1378,7 @@ void CSharpLanguage::refcount_incremented_instance_binding(Object *p_object) {
 
 bool CSharpLanguage::refcount_decremented_instance_binding(Object *p_object) {
 
-    Reference *ref_owner = Object::cast_to<Reference>(p_object);
+    Reference *ref_owner = object_cast<Reference>(p_object);
 
 #ifdef DEBUG_ENABLED
     CRASH_COND(!ref_owner);
@@ -1418,7 +1418,7 @@ CSharpInstance *CSharpInstance::create_for_managed_type(Object *p_owner, CSharpS
 
     CSharpInstance *instance = memnew(CSharpInstance);
 
-    Reference *ref = Object::cast_to<Reference>(p_owner);
+    Reference *ref = object_cast<Reference>(p_owner);
 
     instance->base_ref = ref != NULL;
     instance->script = Ref<CSharpScript>(p_script);
@@ -1734,7 +1734,7 @@ bool CSharpInstance::_reference_owner_unsafe() {
     // See: _unreference_owner_unsafe()
 
     // May not me referenced yet, so we must use init_ref() instead of reference()
-    bool success = Object::cast_to<Reference>(owner)->init_ref();
+    bool success = object_cast<Reference>(owner)->init_ref();
     unsafe_referenced = success;
     return success;
 }
@@ -1787,7 +1787,7 @@ MonoObject *CSharpInstance::_internal_new_managed() {
 
         owner = NULL;
 
-        ERR_FAIL_V_MSG(NULL, "Failed to allocate memory for the object.");
+        ERR_FAIL_V_CMSG(NULL, "Failed to allocate memory for the object.");
     }
 
     // Tie managed to unmanaged
@@ -1854,7 +1854,7 @@ void CSharpInstance::refcount_incremented() {
     CRASH_COND(owner == NULL);
 #endif
 
-    Reference *ref_owner = Object::cast_to<Reference>(owner);
+    Reference *ref_owner = object_cast<Reference>(owner);
 
     if (ref_owner->reference_get_count() > 1 && gchandle->is_weak()) { // The managed side also holds a reference, hence 1 instead of 0
         // The reference count was increased after the managed side was the only one referencing our owner.
@@ -1875,7 +1875,7 @@ bool CSharpInstance::refcount_decremented() {
     CRASH_COND(owner == NULL);
 #endif
 
-    Reference *ref_owner = Object::cast_to<Reference>(owner);
+    Reference *ref_owner = object_cast<Reference>(owner);
 
     int refcount = ref_owner->reference_get_count();
 
@@ -2560,11 +2560,11 @@ int CSharpScript::_try_get_member_export_hint(IMonoClassMember *p_member, Manage
         PropertyHint elem_hint = PROPERTY_HINT_NONE;
         String elem_hint_string;
 
-        ERR_FAIL_COND_V_MSG(elem_variant_type == Variant::NIL, -1, "Unknown array element type.")
+        ERR_FAIL_COND_V_CMSG(elem_variant_type == Variant::NIL, -1, "Unknown array element type.")
 
         int hint_res = _try_get_member_export_hint(p_member, elem_type, elem_variant_type, /* allow_generics: */ false, elem_hint, elem_hint_string);
 
-        ERR_FAIL_COND_V_MSG(hint_res == -1, -1, "Error while trying to determine information about the array element type.")
+        ERR_FAIL_COND_V_CMSG(hint_res == -1, -1, "Error while trying to determine information about the array element type.")
 
         // Format: type/hint:hint_string
         r_hint_string = itos(elem_variant_type) + "/" + itos(elem_hint) + ":" + elem_hint_string;
@@ -2800,7 +2800,7 @@ CSharpInstance *CSharpScript::_create_instance(const Variant **p_args, int p_arg
                         "' does not define a parameterless constructor." +
                         (get_path().empty() ? String() : " Path: '" + get_path() + "'."));
 
-        ERR_FAIL_V_MSG(NULL, "Constructor not found.");
+        ERR_FAIL_V_CMSG(NULL, "Constructor not found.");
     }
 
     Ref<Reference> ref;
@@ -2851,7 +2851,7 @@ CSharpInstance *CSharpScript::_create_instance(const Variant **p_args, int p_arg
 
         p_owner->set_script_instance(NULL);
         r_error.error = Variant::CallError::CALL_ERROR_INSTANCE_IS_NULL;
-        ERR_FAIL_V_MSG(NULL, "Failed to allocate memory for the object.");
+        ERR_FAIL_V_CMSG(NULL, "Failed to allocate memory for the object.");
     }
 
     // Tie managed to unmanaged
@@ -2890,7 +2890,7 @@ Variant CSharpScript::_new(const Variant **p_args, int p_argcount, Variant::Call
 
     Object *owner = ClassDB::instance(NATIVE_GDMONOCLASS_NAME(native));
 
-    Reference *r = Object::cast_to<Reference>(owner);
+    Reference *r = object_cast<Reference>(owner);
     if (r) {
         ref = REF(r);
     }
@@ -2928,7 +2928,7 @@ ScriptInstance *CSharpScript::instance_create(Object *p_this) {
     }
 
     Variant::CallError unchecked_error;
-    return _create_instance(NULL, 0, p_this, Object::cast_to<Reference>(p_this) != NULL, unchecked_error);
+    return _create_instance(NULL, 0, p_this, object_cast<Reference>(p_this) != NULL, unchecked_error);
 }
 
 PlaceHolderScriptInstance *CSharpScript::placeholder_instance_create(Object *p_this) {
@@ -3346,14 +3346,14 @@ Error ResourceFormatSaverCSharpScript::save(const String &p_path, const RES &p_r
 
 void ResourceFormatSaverCSharpScript::get_recognized_extensions(const RES &p_resource, List<String> *p_extensions) const {
 
-    if (Object::cast_to<CSharpScript>(p_resource.ptr())) {
+    if (object_cast<CSharpScript>(p_resource.ptr())) {
         p_extensions->push_back("cs");
     }
 }
 
 bool ResourceFormatSaverCSharpScript::recognize(const RES &p_resource) const {
 
-    return Object::cast_to<CSharpScript>(p_resource.ptr()) != NULL;
+    return object_cast<CSharpScript>(p_resource.ptr()) != NULL;
 }
 
 CSharpLanguage::StringNameCache::StringNameCache() {

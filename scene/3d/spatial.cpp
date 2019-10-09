@@ -133,7 +133,7 @@ void Spatial::_notification(int p_what) {
 
             Node *p = get_parent();
             if (p)
-                data.parent = Object::cast_to<Spatial>(p);
+                data.parent = object_cast<Spatial>(p);
 
             if (data.parent)
                 data.C = data.parent->data.children.push_back(this);
@@ -172,7 +172,7 @@ void Spatial::_notification(int p_what) {
             data.viewport = nullptr;
             Node *parent = get_parent();
             while (parent && !data.viewport) {
-                data.viewport = Object::cast_to<Viewport>(parent);
+                data.viewport = object_cast<Viewport>(parent);
                 parent = parent->get_parent();
             }
 

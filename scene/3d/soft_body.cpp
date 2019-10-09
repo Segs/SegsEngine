@@ -575,7 +575,7 @@ Array SoftBody::get_collision_exceptions() {
         RID body = E->deref();
         ObjectID instance_id = PhysicsServer::get_singleton()->body_get_object_instance_id(body);
         Object *obj = ObjectDB::get_instance(instance_id);
-        PhysicsBody *physics_body = Object::cast_to<PhysicsBody>(obj);
+        PhysicsBody *physics_body = object_cast<PhysicsBody>(obj);
         ret.append(Variant(physics_body));
     }
     return ret;
@@ -583,14 +583,14 @@ Array SoftBody::get_collision_exceptions() {
 
 void SoftBody::add_collision_exception_with(Node *p_node) {
     ERR_FAIL_NULL(p_node);
-    CollisionObject *collision_object = Object::cast_to<CollisionObject>(p_node);
+    CollisionObject *collision_object = object_cast<CollisionObject>(p_node);
     ERR_FAIL_COND_MSG(!collision_object, "Collision exception only works between two CollisionObject.")
     PhysicsServer::get_singleton()->soft_body_add_collision_exception(physics_rid, collision_object->get_rid());
 }
 
 void SoftBody::remove_collision_exception_with(Node *p_node) {
     ERR_FAIL_NULL(p_node);
-    CollisionObject *collision_object = Object::cast_to<CollisionObject>(p_node);
+    CollisionObject *collision_object = object_cast<CollisionObject>(p_node);
     ERR_FAIL_COND_MSG(!collision_object, "Collision exception only works between two CollisionObject.")
     PhysicsServer::get_singleton()->soft_body_remove_collision_exception(physics_rid, collision_object->get_rid());
 }
@@ -738,7 +738,7 @@ void SoftBody::_update_cache_pin_points_datas() {
     for (int i = pinned_points.size() - 1; 0 <= i; --i) {
 
         if (!w[i].spatial_attachment_path.is_empty()) {
-            w[i].spatial_attachment = Object::cast_to<Spatial>(get_node(w[i].spatial_attachment_path));
+            w[i].spatial_attachment = object_cast<Spatial>(get_node(w[i].spatial_attachment_path));
         }
         if (!w[i].spatial_attachment) {
             ERR_PRINT("Spatial node not defined in the pinned point, Softbody undefined behaviour!");
@@ -760,7 +760,7 @@ void SoftBody::_add_pinned_point(int p_point_index, const NodePath &p_spatial_at
         pp.spatial_attachment_path = p_spatial_attachment_path;
 
         if (!p_spatial_attachment_path.is_empty() && has_node(p_spatial_attachment_path)) {
-            pp.spatial_attachment = Object::cast_to<Spatial>(get_node(p_spatial_attachment_path));
+            pp.spatial_attachment = object_cast<Spatial>(get_node(p_spatial_attachment_path));
             pp.offset = (pp.spatial_attachment->get_global_transform().affine_inverse() * get_global_transform()).xform(PhysicsServer::get_singleton()->soft_body_get_point_global_position(physics_rid, pp.point_index));
         }
 
@@ -772,7 +772,7 @@ void SoftBody::_add_pinned_point(int p_point_index, const NodePath &p_spatial_at
         pinned_point->spatial_attachment_path = p_spatial_attachment_path;
 
         if (!p_spatial_attachment_path.is_empty() && has_node(p_spatial_attachment_path)) {
-            pinned_point->spatial_attachment = Object::cast_to<Spatial>(get_node(p_spatial_attachment_path));
+            pinned_point->spatial_attachment = object_cast<Spatial>(get_node(p_spatial_attachment_path));
             pinned_point->offset = (pinned_point->spatial_attachment->get_global_transform().affine_inverse() * get_global_transform()).xform(PhysicsServer::get_singleton()->soft_body_get_point_global_position(physics_rid, pinned_point->point_index));
         }
     }
@@ -788,7 +788,7 @@ void SoftBody::_reset_points_offsets() {
     for (int i = pinned_points.size() - 1; 0 <= i; --i) {
 
         if (!r[i].spatial_attachment)
-            w[i].spatial_attachment = Object::cast_to<Spatial>(get_node(r[i].spatial_attachment_path));
+            w[i].spatial_attachment = object_cast<Spatial>(get_node(r[i].spatial_attachment_path));
 
         if (!r[i].spatial_attachment)
             continue;

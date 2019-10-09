@@ -228,7 +228,7 @@ void ResourcePreloaderEditor::_update_library() {
 
 void ResourcePreloaderEditor::_cell_button_pressed(Object *p_item, int p_column, int p_id) {
 
-    TreeItem *item = Object::cast_to<TreeItem>(p_item);
+    TreeItem *item = object_cast<TreeItem>(p_item);
     ERR_FAIL_COND(!item)
 
     if (p_id == BUTTON_OPEN_SCENE) {
@@ -407,7 +407,7 @@ ResourcePreloaderEditor::ResourcePreloaderEditor() {
 void ResourcePreloaderEditorPlugin::edit(Object *p_object) {
 
     preloader_editor->set_undo_redo(&get_undo_redo());
-    ResourcePreloader *s = Object::cast_to<ResourcePreloader>(p_object);
+    ResourcePreloader *s = object_cast<ResourcePreloader>(p_object);
     if (!s)
         return;
 

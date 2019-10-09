@@ -370,7 +370,7 @@ Rect2 AnimationTrackEditSpriteFrame::get_key_rect(int p_index, float p_pixels_se
 
     Size2 size;
 
-    if (Object::cast_to<Sprite>(object) || Object::cast_to<Sprite3D>(object)) {
+    if (object_cast<Sprite>(object) || object_cast<Sprite3D>(object)) {
 
         Ref<Texture> texture(object->call("get_texture"));
         if (not texture) {
@@ -392,7 +392,7 @@ Rect2 AnimationTrackEditSpriteFrame::get_key_rect(int p_index, float p_pixels_se
         if (vframes > 1) {
             size.y /= vframes;
         }
-    } else if (Object::cast_to<AnimatedSprite>(object) || Object::cast_to<AnimatedSprite3D>(object)) {
+    } else if (object_cast<AnimatedSprite>(object) || object_cast<AnimatedSprite3D>(object)) {
 
         Ref<SpriteFrames> sf(object->call("get_sprite_frames"));
         if (not sf) {
@@ -449,7 +449,7 @@ void AnimationTrackEditSpriteFrame::draw_key(int p_index, float p_pixels_sec, in
     Ref<Texture> texture;
     Rect2 region;
 
-    if (Object::cast_to<Sprite>(object) || Object::cast_to<Sprite3D>(object)) {
+    if (object_cast<Sprite>(object) || object_cast<Sprite3D>(object)) {
 
         int frame = get_animation()->track_get_key_value(get_track(), p_index);
 
@@ -479,7 +479,7 @@ void AnimationTrackEditSpriteFrame::draw_key(int p_index, float p_pixels_sec, in
         region.position.x += region.size.x * (frame % hframes);
         region.position.y += region.size.y * (frame / hframes);
 
-    } else if (Object::cast_to<AnimatedSprite>(object) || Object::cast_to<AnimatedSprite3D>(object)) {
+    } else if (object_cast<AnimatedSprite>(object) || object_cast<AnimatedSprite3D>(object)) {
 
         Ref<SpriteFrames> sf(object->call("get_sprite_frames"));
         if (not sf) {
@@ -563,7 +563,7 @@ Rect2 AnimationTrackEditSubAnim::get_key_rect(int p_index, float p_pixels_sec) {
         return AnimationTrackEdit::get_key_rect(p_index, p_pixels_sec);
     }
 
-    AnimationPlayer *ap = Object::cast_to<AnimationPlayer>(object);
+    AnimationPlayer *ap = object_cast<AnimationPlayer>(object);
 
     if (!ap) {
         return AnimationTrackEdit::get_key_rect(p_index, p_pixels_sec);
@@ -600,7 +600,7 @@ void AnimationTrackEditSubAnim::draw_key(int p_index, float p_pixels_sec, int p_
         return;
     }
 
-    AnimationPlayer *ap = Object::cast_to<AnimationPlayer>(object);
+    AnimationPlayer *ap = object_cast<AnimationPlayer>(object);
 
     if (!ap) {
         AnimationTrackEdit::draw_key(p_index, p_pixels_sec, p_x, p_selected, p_clip_left, p_clip_right);
@@ -1146,7 +1146,7 @@ Rect2 AnimationTrackEditTypeAnimation::get_key_rect(int p_index, float p_pixels_
         return AnimationTrackEdit::get_key_rect(p_index, p_pixels_sec);
     }
 
-    AnimationPlayer *ap = Object::cast_to<AnimationPlayer>(object);
+    AnimationPlayer *ap = object_cast<AnimationPlayer>(object);
 
     if (!ap) {
         return AnimationTrackEdit::get_key_rect(p_index, p_pixels_sec);
@@ -1183,7 +1183,7 @@ void AnimationTrackEditTypeAnimation::draw_key(int p_index, float p_pixels_sec, 
         return;
     }
 
-    AnimationPlayer *ap = Object::cast_to<AnimationPlayer>(object);
+    AnimationPlayer *ap = object_cast<AnimationPlayer>(object);
 
     if (!ap) {
         AnimationTrackEdit::draw_key(p_index, p_pixels_sec, p_x, p_selected, p_clip_left, p_clip_right);

@@ -94,7 +94,7 @@ void RootMotionView::_notification(int p_what) {
 
             Node *node = get_node(path);
 
-            AnimationTree *tree = Object::cast_to<AnimationTree>(node);
+            AnimationTree *tree = object_cast<AnimationTree>(node);
             if (tree && tree->is_active() && tree->get_root_motion_track() != NodePath()) {
                 if (is_processing_internal() && tree->get_process_mode() == AnimationTree::ANIMATION_PROCESS_PHYSICS) {
                     set_process_internal(false);

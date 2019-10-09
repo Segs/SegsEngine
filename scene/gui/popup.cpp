@@ -101,7 +101,7 @@ void Popup::set_as_minsize() {
 
     for (int i = 0; i < get_child_count(); i++) {
 
-        Control *c = Object::cast_to<Control>(get_child(i));
+        Control *c = object_cast<Control>(get_child(i));
         if (!c)
             continue;
         if (!c->is_visible())
@@ -257,7 +257,7 @@ Size2 PopupPanel::get_minimum_size() const {
     Size2 ms;
 
     for (int i = 0; i < get_child_count(); i++) {
-        Control *c = Object::cast_to<Control>(get_child(i));
+        Control *c = object_cast<Control>(get_child(i));
         if (!c)
             continue;
 
@@ -280,7 +280,7 @@ void PopupPanel::_update_child_rects() {
     Vector2 csize(get_size() - p->get_minimum_size());
 
     for (int i = 0; i < get_child_count(); i++) {
-        Control *c = Object::cast_to<Control>(get_child(i));
+        Control *c = object_cast<Control>(get_child(i));
         if (!c)
             continue;
 

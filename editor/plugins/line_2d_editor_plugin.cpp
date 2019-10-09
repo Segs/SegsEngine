@@ -41,7 +41,7 @@ Node2D *Line2DEditor::_get_node() const {
 
 void Line2DEditor::_set_node(Node *p_line) {
 
-	node = Object::cast_to<Line2D>(p_line);
+	node = object_cast<Line2D>(p_line);
 }
 
 bool Line2DEditor::_is_line() const {

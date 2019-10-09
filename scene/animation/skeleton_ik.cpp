@@ -408,7 +408,7 @@ void SkeletonIK::_bind_methods() {
 void SkeletonIK::_notification(int p_what) {
     switch (p_what) {
         case NOTIFICATION_ENTER_TREE: {
-            skeleton = Object::cast_to<Skeleton>(get_parent());
+            skeleton = object_cast<Skeleton>(get_parent());
             set_process_priority(1);
             reload_chain();
         } break;
@@ -539,7 +539,7 @@ void SkeletonIK::stop() {
 Transform SkeletonIK::_get_target_transform() {
 
     if (!target_node_override && !target_node_path_override.is_empty())
-        target_node_override = Object::cast_to<Spatial>(get_node(target_node_path_override));
+        target_node_override = object_cast<Spatial>(get_node(target_node_path_override));
 
     if (target_node_override)
         return target_node_override->get_global_transform();

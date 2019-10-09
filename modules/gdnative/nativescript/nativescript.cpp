@@ -408,7 +408,7 @@ void NativeScript::get_script_property_list(ListPOD<PropertyInfo> *p_list) const
 String NativeScript::get_class_documentation() const {
     NativeScriptDesc *script_data = get_script_desc();
 
-    ERR_FAIL_COND_V_MSG(!script_data, "", "Attempt to get class documentation on invalid NativeScript.")
+    ERR_FAIL_COND_V_CMSG(!script_data, "", "Attempt to get class documentation on invalid NativeScript.")
 
     return script_data->documentation;
 }
@@ -416,7 +416,7 @@ String NativeScript::get_class_documentation() const {
 String NativeScript::get_method_documentation(const StringName &p_method) const {
     NativeScriptDesc *script_data = get_script_desc();
 
-    ERR_FAIL_COND_V_MSG(!script_data, "", "Attempt to get method documentation on invalid NativeScript.")
+    ERR_FAIL_COND_V_CMSG(!script_data, "", "Attempt to get method documentation on invalid NativeScript.")
 
     while (script_data) {
 
@@ -429,7 +429,7 @@ String NativeScript::get_method_documentation(const StringName &p_method) const 
         script_data = script_data->base_data;
     }
 
-    ERR_FAIL_V_MSG("", "Attempt to get method documentation for non-existent method.");
+    ERR_FAIL_V_CMSG("", "Attempt to get method documentation for non-existent method.")
 }
 
 String NativeScript::get_signal_documentation(const StringName &p_signal_name) const {
@@ -448,13 +448,13 @@ String NativeScript::get_signal_documentation(const StringName &p_signal_name) c
         script_data = script_data->base_data;
     }
 
-    ERR_FAIL_V_MSG("", "Attempt to get signal documentation for non-existent signal.");
+    ERR_FAIL_V_CMSG("", "Attempt to get signal documentation for non-existent signal.")
 }
 
 String NativeScript::get_property_documentation(const StringName &p_path) const {
     NativeScriptDesc *script_data = get_script_desc();
 
-    ERR_FAIL_COND_V_MSG(!script_data, "", "Attempt to get property documentation on invalid NativeScript.")
+    ERR_FAIL_COND_V_CMSG(!script_data, "", "Attempt to get property documentation on invalid NativeScript.")
 
     while (script_data) {
 
@@ -467,7 +467,7 @@ String NativeScript::get_property_documentation(const StringName &p_path) const 
         script_data = script_data->base_data;
     }
 
-    ERR_FAIL_V_MSG("", "Attempt to get property documentation for non-existent signal.");
+    ERR_FAIL_V_CMSG("", "Attempt to get property documentation for non-existent signal.")
 }
 
 Variant NativeScript::_new(const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
@@ -500,7 +500,7 @@ Variant NativeScript::_new(const Variant **p_args, int p_argcount, Variant::Call
         return Variant();
     }
 
-    RefCounted *r = Object::cast_to<RefCounted>(owner);
+    RefCounted *r = object_cast<RefCounted>(owner);
     if (r) {
         ref = REF(r);
     }
@@ -1764,11 +1764,11 @@ Error ResourceFormatSaverNativeScript::save(const String &p_path, const RES &p_r
 }
 
 bool ResourceFormatSaverNativeScript::recognize(const RES &p_resource) const {
-    return Object::cast_to<NativeScript>(p_resource.get()) != nullptr;
+    return object_cast<NativeScript>(p_resource.get()) != nullptr;
 }
 
 void ResourceFormatSaverNativeScript::get_recognized_extensions(const RES &p_resource, Vector<String> *p_extensions) const {
-    if (Object::cast_to<NativeScript>(p_resource.get())) {
+    if (object_cast<NativeScript>(p_resource.get())) {
         p_extensions->push_back("gdns");
     }
 }

@@ -53,7 +53,7 @@ void WSLClient::_do_handshake() {
                 // Header is too big
                 disconnect_from_host();
                 _on_error();
-                ERR_FAIL_MSG("Response headers too big.");
+                ERR_FAIL_CMSG("Response headers too big.")
             }
             Error err = _connection->get_partial_data(&_resp_buf[_resp_pos], 1, read);
             if (err == ERR_FILE_EOF) {
@@ -80,7 +80,7 @@ void WSLClient::_do_handshake() {
                 if (!_verify_headers(protocol)) {
                     disconnect_from_host();
                     _on_error();
-                    ERR_FAIL_MSG("Invalid response headers.");
+                    ERR_FAIL_CMSG("Invalid response headers.")
                 }
                 // Create peer.
                 WSLPeer::PeerData *data = memnew(struct WSLPeer::PeerData);

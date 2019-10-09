@@ -105,7 +105,7 @@ void AnimationNode::blend_animation(const StringName &p_animation, float p_time,
 
     if (not animation) {
 
-        AnimationNodeBlendTree *btree = Object::cast_to<AnimationNodeBlendTree>(parent);
+        AnimationNodeBlendTree *btree = object_cast<AnimationNodeBlendTree>(parent);
         if (btree) {
             String name = btree->get_node_name(Ref<AnimationNode>(this));
             make_invalid(vformat(RTR("In node '%s', invalid animation: '%s'."), name, p_animation));
@@ -158,7 +158,7 @@ float AnimationNode::blend_input(int p_input, float p_time, bool p_seek, float p
     ERR_FAIL_INDEX_V(p_input, inputs.size(), 0);
     ERR_FAIL_COND_V(!state, 0)
 
-    AnimationNodeBlendTree *blend_tree = Object::cast_to<AnimationNodeBlendTree>(parent);
+    AnimationNodeBlendTree *blend_tree = object_cast<AnimationNodeBlendTree>(parent);
     ERR_FAIL_COND_V(!blend_tree, 0)
 
     StringName node_name = connections[p_input];
@@ -325,7 +325,7 @@ String AnimationNode::get_caption() const {
 
 void AnimationNode::add_input(const String &p_name) {
     //root nodes can't add inputs
-    ERR_FAIL_COND(Object::cast_to<AnimationRootNode>(this) != nullptr)
+    ERR_FAIL_COND(object_cast<AnimationRootNode>(this) != nullptr)
     Input input;
     ERR_FAIL_COND(StringUtils::find(p_name,".") != -1 || StringUtils::find(p_name,"/") != -1)
     input.name = p_name;
@@ -614,7 +614,7 @@ bool AnimationTree::_update_caches(AnimationPlayer *player) {
                     } break;
                     case Animation::TYPE_TRANSFORM: {
 
-                        Spatial *spatial = Object::cast_to<Spatial>(child);
+                        Spatial *spatial = object_cast<Spatial>(child);
 
                         if (!spatial) {
                             ERR_PRINTS("AnimationTree: '" + String(E) + "', transform track does not point to spatial:  '" + String(path) + "'");
@@ -627,9 +627,9 @@ bool AnimationTree::_update_caches(AnimationPlayer *player) {
                         track_xform->skeleton = nullptr;
                         track_xform->bone_idx = -1;
 
-                        if (path.get_subname_count() == 1 && Object::cast_to<Skeleton>(spatial)) {
+                        if (path.get_subname_count() == 1 && object_cast<Skeleton>(spatial)) {
 
-                            Skeleton *sk = Object::cast_to<Skeleton>(spatial);
+                            Skeleton *sk = object_cast<Skeleton>(spatial);
                             int bone_idx = sk->find_bone(path.get_subname(0));
                             if (bone_idx != -1) {
 
@@ -774,7 +774,7 @@ void AnimationTree::_process_graph(float p_delta) {
         return;
     }
 
-    AnimationPlayer *player = Object::cast_to<AnimationPlayer>(get_node(animation_player));
+    AnimationPlayer *player = object_cast<AnimationPlayer>(get_node(animation_player));
 
     ObjectID current_animation_player = 0;
 
@@ -1166,7 +1166,7 @@ void AnimationTree::_process_graph(float p_delta) {
 
                         TrackCacheAnimation *t = static_cast<TrackCacheAnimation *>(track);
 
-                        AnimationPlayer *player2 = Object::cast_to<AnimationPlayer>(t->object);
+                        AnimationPlayer *player2 = object_cast<AnimationPlayer>(t->object);
 
                         if (!player2)
                             continue;
@@ -1366,7 +1366,7 @@ String AnimationTree::get_configuration_warning() const {
         return warning;
     }
 
-    AnimationPlayer *player = Object::cast_to<AnimationPlayer>(get_node(animation_player));
+    AnimationPlayer *player = object_cast<AnimationPlayer>(get_node(animation_player));
 
     if (!player) {
         if (!warning.empty()) {

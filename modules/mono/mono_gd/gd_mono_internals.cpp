@@ -51,7 +51,7 @@ void tie_managed_to_unmanaged(MonoObject *managed, Object *unmanaged) {
 	// All mono objects created from the managed world (e.g.: 'new Player()')
 	// need to have a CSharpScript in order for their methods to be callable from the unmanaged side
 
-	Reference *ref = Object::cast_to<Reference>(unmanaged);
+	Reference *ref = object_cast<Reference>(unmanaged);
 
 	GDMonoClass *klass = GDMonoUtils::get_object_class(managed);
 

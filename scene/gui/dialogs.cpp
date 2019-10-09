@@ -466,7 +466,7 @@ void AcceptDialog::_update_child_rects() {
     Vector2 csize(size.x - margin * 2, size.y - margin * 3 - hminsize.y - label_size.height);
 
     for (int i = 0; i < get_child_count(); i++) {
-        Control *c = Object::cast_to<Control>(get_child(i));
+        Control *c = object_cast<Control>(get_child(i));
         if (!c)
             continue;
 
@@ -490,7 +490,7 @@ Size2 AcceptDialog::get_minimum_size() const {
     Size2 minsize = label->get_combined_minimum_size();
 
     for (int i = 0; i < get_child_count(); i++) {
-        Control *c = Object::cast_to<Control>(get_child(i));
+        Control *c = object_cast<Control>(get_child(i));
         if (!c)
             continue;
 

@@ -546,7 +546,7 @@ void NavigationMeshInstance::set_enabled(bool p_enabled) {
     }
 
     if (debug_view) {
-        MeshInstance *dm = Object::cast_to<MeshInstance>(debug_view);
+        MeshInstance *dm = object_cast<MeshInstance>(debug_view);
         if (is_enabled()) {
             dm->set_material_override(get_tree()->get_debug_navigation_material());
         } else {
@@ -572,7 +572,7 @@ void NavigationMeshInstance::_notification(int p_what) {
             Spatial *c = this;
             while (c) {
 
-                navigation = Object::cast_to<Navigation>(c);
+                navigation = object_cast<Navigation>(c);
                 if (navigation) {
 
                     if (enabled && navmesh) {
@@ -650,7 +650,7 @@ void NavigationMeshInstance::set_navigation_mesh(const Ref<NavigationMesh> &p_na
     }
 
     if (debug_view && navmesh) {
-        Object::cast_to<MeshInstance>(debug_view)->set_mesh(navmesh->get_debug_mesh());
+        object_cast<MeshInstance>(debug_view)->set_mesh(navmesh->get_debug_mesh());
     }
 
     update_gizmo();
@@ -673,10 +673,10 @@ String NavigationMeshInstance::get_configuration_warning() const {
     const Spatial *c = this;
     while (c) {
 
-        if (Object::cast_to<Navigation>(c))
+        if (object_cast<Navigation>(c))
             return String();
 
-        c = Object::cast_to<Spatial>(c->get_parent());
+        c = object_cast<Spatial>(c->get_parent());
     }
 
     return TTR("NavigationMeshInstance must be a child or grandchild to a Navigation node. It only provides navigation data.");

@@ -96,7 +96,7 @@ public:
     bool valid;
     bool hidden;
 
-    void _set_spatial_node(Node *p_node) { set_spatial_node(Object::cast_to<Spatial>(p_node)); }
+    void _set_spatial_node(Node *p_node) { set_spatial_node(object_cast<Spatial>(p_node)); }
 
 protected:
     static void _bind_methods();

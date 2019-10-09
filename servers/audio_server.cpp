@@ -829,7 +829,7 @@ void AudioServer::_update_bus_effects(int p_bus) {
         buses.write[p_bus]->channels.write[i].effect_instances.resize(buses[p_bus]->effects.size());
         for (int j = 0; j < buses[p_bus]->effects.size(); j++) {
             Ref<AudioEffectInstance> fx = buses.write[p_bus]->effects.write[j].effect->instance();
-            auto ptr=Object::cast_to<AudioEffectCompressorInstance>(fx.get());
+            auto ptr=object_cast<AudioEffectCompressorInstance>(fx.get());
             if (ptr) {
                 ptr->set_current_channel(i);
             }

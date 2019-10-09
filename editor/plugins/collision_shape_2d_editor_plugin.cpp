@@ -536,7 +536,7 @@ void CollisionShape2DEditor::edit(Node *p_node) {
     }
 
     if (p_node) {
-        node = Object::cast_to<CollisionShape2D>(p_node);
+        node = object_cast<CollisionShape2D>(p_node);
 
         _get_current_shape_type();
 
@@ -569,7 +569,7 @@ CollisionShape2DEditor::CollisionShape2DEditor(EditorNode *p_editor) {
 
 void CollisionShape2DEditorPlugin::edit(Object *p_obj) {
 
-    collision_shape_2d_editor->edit(Object::cast_to<Node>(p_obj));
+    collision_shape_2d_editor->edit(object_cast<Node>(p_obj));
 }
 
 bool CollisionShape2DEditorPlugin::handles(Object *p_obj) const {

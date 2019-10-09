@@ -60,7 +60,7 @@ void SceneTreeEditor::_cell_button_pressed(Object *p_item, int p_column, int p_i
         return; //don't do anything in this mode
     }
 
-    TreeItem *item = Object::cast_to<TreeItem>(p_item);
+    TreeItem *item = object_cast<TreeItem>(p_item);
     ERR_FAIL_COND(!item)
 
     NodePath np = item->get_metadata(0);
@@ -643,7 +643,7 @@ void SceneTreeEditor::_deselect_items() {
 
 void SceneTreeEditor::_cell_multi_selected(Object *p_object, int p_cell, bool p_selected) {
 
-    TreeItem *item = Object::cast_to<TreeItem>(p_object);
+    TreeItem *item = object_cast<TreeItem>(p_object);
     ERR_FAIL_COND(!item)
 
     NodePath np = item->get_metadata(0);
@@ -757,7 +757,7 @@ void SceneTreeEditor::_rename_node(ObjectID p_node, const String &p_name) {
 
     Object *o = ObjectDB::get_instance(p_node);
     ERR_FAIL_COND(!o)
-    Node *n = Object::cast_to<Node>(o);
+    Node *n = object_cast<Node>(o);
     ERR_FAIL_COND(!n)
     TreeItem *item = _find(tree->get_root(), n->get_path());
     ERR_FAIL_COND(!item)
@@ -916,7 +916,7 @@ void SceneTreeEditor::_cell_collapsed(Object *p_obj) {
     if (!can_rename)
         return;
 
-    TreeItem *ti = Object::cast_to<TreeItem>(p_obj);
+    TreeItem *ti = object_cast<TreeItem>(p_obj);
     if (!ti)
         return;
 
@@ -1037,7 +1037,7 @@ bool SceneTreeEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_d
     }
 
     if (String(d["type"]) == "script_list_element") {
-        ScriptEditorBase *se = Object::cast_to<ScriptEditorBase>(d["script_list_element"]);
+        ScriptEditorBase *se = object_cast<ScriptEditorBase>(d["script_list_element"]);
         if (se) {
             String sp = se->get_edited_resource()->get_path();
             if (_is_script_type(EditorFileSystem::get_singleton()->get_file_type(sp))) {
@@ -1086,7 +1086,7 @@ void SceneTreeEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data,
     }
 
     if (String(d["type"]) == "script_list_element") {
-        ScriptEditorBase *se = Object::cast_to<ScriptEditorBase>(d["script_list_element"]);
+        ScriptEditorBase *se = object_cast<ScriptEditorBase>(d["script_list_element"]);
         if (se) {
             String sp = se->get_edited_resource()->get_path();
             if (_is_script_type(EditorFileSystem::get_singleton()->get_file_type(sp))) {

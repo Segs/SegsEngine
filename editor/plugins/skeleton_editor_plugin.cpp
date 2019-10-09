@@ -172,7 +172,7 @@ SkeletonEditor::SkeletonEditor() {
 SkeletonEditor::~SkeletonEditor() {}
 
 void SkeletonEditorPlugin::edit(Object *p_object) {
-    skeleton_editor->edit(Object::cast_to<Skeleton>(p_object));
+    skeleton_editor->edit(object_cast<Skeleton>(p_object));
 }
 
 bool SkeletonEditorPlugin::handles(Object *p_object) const {

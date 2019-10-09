@@ -38,9 +38,9 @@ class FileAccessBufferedFA : public FileAccessBuffered {
 
 	T f;
 
-	int read_data_block(int p_offset, int p_size, uint8_t *p_dest = 0) const {
+    int read_data_block(int p_offset, int p_size, uint8_t *p_dest = nullptr) const {
 
-		ERR_FAIL_COND_V_MSG(!f.is_open(), -1, "Can't read data block when file is not opened.")
+        ERR_FAIL_COND_V_CMSG(!f.is_open(), -1, "Can't read data block when file is not opened.")
 
 		((T *)&f)->seek(p_offset);
 

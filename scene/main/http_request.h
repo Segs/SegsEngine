@@ -31,12 +31,9 @@
 #pragma once
 
 #include "core/io/http_client.h"
-#include "core/os/file_access.h"
-#include "core/os/thread.h"
-#include "core/pool_vector.h"
-#include "node.h"
-#include "scene/main/timer.h"
+#include "scene/main/node.h"
 
+class Timer;
 class HTTPRequest : public Node {
 
     GDCLASS(HTTPRequest,Node)
@@ -60,56 +57,9 @@ public:
     };
 
 private:
-    bool requesting;
-
-    String request_string;
-    String url;
-    int port;
-    Vector<String> headers;
-    bool validate_ssl;
-    bool use_ssl;
-    HTTPClient::Method method;
-    String request_data;
-
-    bool request_sent;
-    Ref<HTTPClient> client;
-    PoolByteArray body;
-    volatile bool use_threads;
-
-    bool got_response;
-    int response_code;
-    PoolVector<String> response_headers;
-
-    String download_to_file;
-
-    FileAccess *file;
-
-    int body_len;
-    volatile int downloaded;
-    int body_size_limit;
-
-    int redirections;
-
-    bool _update_connection();
-
-    int max_redirects;
-
-    int timeout;
 
     void _redirect_request(const String &p_new_url);
-
-    bool _handle_response(bool *ret_value);
-
-    Error _parse_url(const String &p_url);
-    Error _request();
-
-    volatile bool thread_done;
-    volatile bool thread_request_quit;
-
-    Thread *thread;
-
     void _request_done(int p_status, int p_code, const PoolStringArray &headers, const PoolByteArray &p_data);
-    static void _thread_func(void *p_userdata);
 
 protected:
     void _notification(int p_what);
@@ -133,6 +83,7 @@ public:
     int get_max_redirects() const;
 
     Timer *timer;
+    void *m_impl = nullptr; // made public to allow implementation methods to access it.
 
     void set_timeout(int p_timeout);
     int get_timeout();

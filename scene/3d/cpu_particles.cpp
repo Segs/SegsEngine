@@ -210,14 +210,14 @@ String CPUParticles::get_configuration_warning() const {
     if (get_mesh()) {
         mesh_found = true;
         for (int j = 0; j < get_mesh()->get_surface_count(); j++) {
-            anim_material_found = Object::cast_to<ShaderMaterial>(get_mesh()->surface_get_material(j).get()) != nullptr;
-            SpatialMaterial *spat = Object::cast_to<SpatialMaterial>(get_mesh()->surface_get_material(j).get());
+            anim_material_found = object_cast<ShaderMaterial>(get_mesh()->surface_get_material(j).get()) != nullptr;
+            SpatialMaterial *spat = object_cast<SpatialMaterial>(get_mesh()->surface_get_material(j).get());
             anim_material_found = anim_material_found || (spat && spat->get_billboard_mode() == SpatialMaterial::BILLBOARD_PARTICLES);
         }
     }
 
-    anim_material_found = anim_material_found || Object::cast_to<ShaderMaterial>(get_material_override().get()) != nullptr;
-    SpatialMaterial *spat = Object::cast_to<SpatialMaterial>(get_material_override().get());
+    anim_material_found = anim_material_found || object_cast<ShaderMaterial>(get_material_override().get()) != nullptr;
+    SpatialMaterial *spat = object_cast<SpatialMaterial>(get_material_override().get());
     anim_material_found = anim_material_found || (spat && spat->get_billboard_mode() == SpatialMaterial::BILLBOARD_PARTICLES);
 
     if (!mesh_found) {
@@ -1202,7 +1202,7 @@ void CPUParticles::_notification(int p_what) {
 
 void CPUParticles::convert_from_particles(Node *p_particles) {
 
-    Particles *particles = Object::cast_to<Particles>(p_particles);
+    Particles *particles = object_cast<Particles>(p_particles);
 	ERR_FAIL_COND_MSG(!particles, "Only Particles nodes can be converted to CPUParticles.");
 
     set_emitting(particles->is_emitting());

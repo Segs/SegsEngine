@@ -90,11 +90,6 @@ set(module_deps)
 
 foreach(tgt ${global_targets})
     add_library(${tgt}_modules)
-    target_compile_options(${tgt}_modules PUBLIC
-            $<$<CXX_COMPILER_ID:MSVC>:/W3>
-            $<$<CXX_COMPILER_ID:Clang>:-Wall -Wextra -Wno-unused-parameter>
-            $<$<CXX_COMPILER_ID:GNU>:-Wall -Wextra -Wno-unused-parameter -Wno-deprecated-copy -Wduplicated-cond -Wduplicated-branches -Wlogical-op -Wpacked-not-aligned > #-Wnull-dereference -Wuseless-cast
-    )
     set_target_properties(${tgt}_modules PROPERTIES AUTORCC ON)
     foreach(module_dir ${module_list})
         if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${module_dir}/sources.cmake")
@@ -116,6 +111,11 @@ foreach(tgt ${global_targets})
     endforeach()
     target_link_libraries(${tgt}_modules PRIVATE ${tgt}_core ${module_deps})
     set_common_target_properties(${tgt}_modules)
+    set_target_properties(${tgt}_modules PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
+    set_target_properties(${tgt}_modules PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "${PROJECT_SOURCE_DIR}/core/precompiled.h")
+    if(ENABLE_COTIRE)
+        cotire(${tgt}_modules)
+    endif()
 endforeach()
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${module_sources})
 source_group(TREE ${PROJECT_SOURCE_DIR} FILES ${module_3rdparty})

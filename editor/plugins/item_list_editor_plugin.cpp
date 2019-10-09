@@ -140,7 +140,7 @@ void ItemListPlugin::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
 void ItemListOptionButtonPlugin::set_object(Object *p_object) {
 
-    ob = Object::cast_to<OptionButton>(p_object);
+    ob = object_cast<OptionButton>(p_object);
 }
 
 bool ItemListOptionButtonPlugin::handles(Object *p_object) const {
@@ -180,9 +180,9 @@ ItemListOptionButtonPlugin::ItemListOptionButtonPlugin() {
 void ItemListPopupMenuPlugin::set_object(Object *p_object) {
 
     if (p_object->is_class("MenuButton"))
-        pp = Object::cast_to<MenuButton>(p_object)->get_popup();
+        pp = object_cast<MenuButton>(p_object)->get_popup();
     else
-        pp = Object::cast_to<PopupMenu>(p_object);
+        pp = object_cast<PopupMenu>(p_object);
 }
 
 bool ItemListPopupMenuPlugin::handles(Object *p_object) const {
@@ -221,7 +221,7 @@ ItemListPopupMenuPlugin::ItemListPopupMenuPlugin() {
 
 void ItemListItemListPlugin::set_object(Object *p_object) {
 
-    pp = Object::cast_to<ItemList>(p_object);
+    pp = object_cast<ItemList>(p_object);
 }
 
 bool ItemListItemListPlugin::handles(Object *p_object) const {
@@ -407,7 +407,7 @@ ItemListEditor::~ItemListEditor() {
 
 void ItemListEditorPlugin::edit(Object *p_object) {
 
-    item_list_editor->edit(Object::cast_to<Node>(p_object));
+    item_list_editor->edit(object_cast<Node>(p_object));
 }
 
 bool ItemListEditorPlugin::handles(Object *p_object) const {

@@ -459,7 +459,7 @@ void SpriteEditor::_add_as_sibling_or_child(Node *p_own_node, Node *p_new_node) 
     // Can't make sibling if own node is scene root
     if (p_own_node != this->get_tree()->get_edited_scene_root()) {
         p_own_node->get_parent()->add_child(p_new_node, true);
-        Object::cast_to<Node2D>(p_new_node)->set_transform(Object::cast_to<Node2D>(p_own_node)->get_transform());
+        object_cast<Node2D>(p_new_node)->set_transform(object_cast<Node2D>(p_own_node)->get_transform());
     } else {
         p_own_node->add_child(p_new_node, true);
     }
@@ -626,7 +626,7 @@ SpriteEditor::SpriteEditor() {
 
 void SpriteEditorPlugin::edit(Object *p_object) {
 
-    sprite_editor->edit(Object::cast_to<Sprite>(p_object));
+    sprite_editor->edit(object_cast<Sprite>(p_object));
 }
 
 bool SpriteEditorPlugin::handles(Object *p_object) const {

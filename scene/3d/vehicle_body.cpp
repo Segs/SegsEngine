@@ -86,7 +86,7 @@ void VehicleWheel::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_ENTER_TREE) {
 
-        VehicleBody *cb = Object::cast_to<VehicleBody>(get_parent());
+        VehicleBody *cb = object_cast<VehicleBody>(get_parent());
         if (!cb)
             return;
         body = cb;
@@ -99,7 +99,7 @@ void VehicleWheel::_notification(int p_what) {
     }
     if (p_what == NOTIFICATION_EXIT_TREE) {
 
-        VehicleBody *cb = Object::cast_to<VehicleBody>(get_parent());
+        VehicleBody *cb = object_cast<VehicleBody>(get_parent());
         if (!cb)
             return;
         cb->wheels.erase(this);
@@ -108,7 +108,7 @@ void VehicleWheel::_notification(int p_what) {
 }
 
 String VehicleWheel::get_configuration_warning() const {
-    if (!Object::cast_to<VehicleBody>(get_parent())) {
+    if (!object_cast<VehicleBody>(get_parent())) {
         return TTR("VehicleWheel serves to provide a wheel system to a VehicleBody. Please use it as a child of a VehicleBody.");
     }
 
@@ -445,7 +445,7 @@ real_t VehicleBody::_ray_cast(int p_idx, PhysicsDirectBodyState *s) {
 
         wheel.m_raycastInfo.m_isInContact = true;
         if (rr.collider)
-            wheel.m_raycastInfo.m_groundObject = Object::cast_to<PhysicsBody>(rr.collider);
+            wheel.m_raycastInfo.m_groundObject = object_cast<PhysicsBody>(rr.collider);
 
         real_t hitDistance = param * raylen;
         wheel.m_raycastInfo.m_suspensionLength = hitDistance - wheel.m_wheelRadius;
@@ -836,7 +836,7 @@ void VehicleBody::_direct_state_changed(Object *p_state) {
 
     RigidBody::_direct_state_changed(p_state);
 
-    state = Object::cast_to<PhysicsDirectBodyState>(p_state);
+    state = object_cast<PhysicsDirectBodyState>(p_state);
 
     float step = state->get_step();
 

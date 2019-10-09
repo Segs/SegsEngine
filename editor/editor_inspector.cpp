@@ -54,7 +54,7 @@ Size2 EditorProperty::get_minimum_size() const {
 
     for (int i = 0; i < get_child_count(); i++) {
 
-        Control *c = Object::cast_to<Control>(get_child(i));
+        Control *c = object_cast<Control>(get_child(i));
         if (!c)
             continue;
         if (c->is_set_as_toplevel())
@@ -118,7 +118,7 @@ void EditorProperty::_notification(int p_what) {
             //compute room needed
             for (int i = 0; i < get_child_count(); i++) {
 
-                Control *c = Object::cast_to<Control>(get_child(i));
+                Control *c = object_cast<Control>(get_child(i));
                 if (!c)
                     continue;
                 if (c->is_set_as_toplevel())
@@ -167,7 +167,7 @@ void EditorProperty::_notification(int p_what) {
         //set children
         for (int i = 0; i < get_child_count(); i++) {
 
-            Control *c = Object::cast_to<Control>(get_child(i));
+            Control *c = object_cast<Control>(get_child(i));
             if (!c)
                 continue;
             if (c->is_set_as_toplevel())
@@ -453,7 +453,7 @@ bool EditorPropertyRevert::can_property_revert(Object *p_object, const StringNam
 
     bool has_revert = false;
 
-    Node *node = Object::cast_to<Node>(p_object);
+    Node *node = object_cast<Node>(p_object);
 
     if (node && EditorPropertyRevert::may_node_be_in_instance(node)) {
         //check for difference including instantiation
@@ -661,7 +661,7 @@ void EditorProperty::_gui_input(const Ref<InputEvent> &p_event) {
 
             Variant vorig;
 
-            Node *node = Object::cast_to<Node>(object);
+            Node *node = object_cast<Node>(object);
             if (node && EditorPropertyRevert::may_node_be_in_instance(node) && EditorPropertyRevert::get_instanced_node_original_property(node, property, vorig)) {
 
                 emit_changed(property, vorig.duplicate(true));
@@ -872,7 +872,7 @@ void EditorInspectorPlugin::add_custom_control(Control *control) {
 
 void EditorInspectorPlugin::add_property_editor(const String &p_for_property, Control *p_prop) {
 
-    ERR_FAIL_COND(Object::cast_to<EditorProperty>(p_prop) == nullptr)
+    ERR_FAIL_COND(object_cast<EditorProperty>(p_prop) == nullptr)
 
     AddedEditor ae;
     ae.properties.push_back(p_for_property);
@@ -1072,7 +1072,7 @@ void EditorInspectorSection::_notification(int p_what) {
         //set children
         for (int i = 0; i < get_child_count(); i++) {
 
-            Control *c = Object::cast_to<Control>(get_child(i));
+            Control *c = object_cast<Control>(get_child(i));
             if (!c)
                 continue;
             if (c->is_set_as_toplevel())
@@ -1121,7 +1121,7 @@ Size2 EditorInspectorSection::get_minimum_size() const {
     Size2 ms;
     for (int i = 0; i < get_child_count(); i++) {
 
-        Control *c = Object::cast_to<Control>(get_child(i));
+        Control *c = object_cast<Control>(get_child(i));
         if (!c)
             continue;
         if (c->is_set_as_toplevel())
@@ -1255,7 +1255,7 @@ EditorProperty *EditorInspector::instantiate_property_editor(Object *p_object, V
                 memdelete(inspector_plugins[i]->added_editors[j].property_editor);
             }
 
-            EditorProperty *prop = Object::cast_to<EditorProperty>(inspector_plugins[i]->added_editors[0].property_editor);
+            EditorProperty *prop = object_cast<EditorProperty>(inspector_plugins[i]->added_editors[0].property_editor);
             if (prop) {
 
                 inspector_plugins[i]->added_editors.clear();
@@ -1323,7 +1323,7 @@ void EditorInspector::_parse_added_editors(VBoxContainer *current_vbox, const Re
 
     for (List<EditorInspectorPlugin::AddedEditor>::Element *F = ped->added_editors.front(); F; F = F->next()) {
 
-        EditorProperty *ep = Object::cast_to<EditorProperty>(F->deref().property_editor);
+        EditorProperty *ep = object_cast<EditorProperty>(F->deref().property_editor);
         current_vbox->add_child(F->deref().property_editor);
 
         if (ep) {
@@ -1405,7 +1405,7 @@ void EditorInspector::update_tree() {
         if (focused) {
             Node *parent = focused->get_parent();
             while (parent) {
-                EditorInspector *inspector = Object::cast_to<EditorInspector>(parent);
+                EditorInspector *inspector = object_cast<EditorInspector>(parent);
                 if (inspector) {
                     restore_focus = inspector == this; //may be owned by another inspector
                     break; //exit after the first inspector is found, since there may be nested ones
@@ -1435,7 +1435,7 @@ void EditorInspector::update_tree() {
     bool draw_red = false;
 
     {
-        Node *nod = Object::cast_to<Node>(object);
+        Node *nod = object_cast<Node>(object);
         Node *es = EditorNode::get_singleton()->get_edited_scene();
         if (nod && es != nod && nod->get_owner() != es) {
             draw_red = true;
@@ -1697,7 +1697,7 @@ void EditorInspector::update_tree() {
 
             for (List<EditorInspectorPlugin::AddedEditor>::Element *F = editors.front(); F; F = F->next()) {
 
-                EditorProperty *ep = Object::cast_to<EditorProperty>(F->deref().property_editor);
+                EditorProperty *ep = object_cast<EditorProperty>(F->deref().property_editor);
 
                 if (ep) {
                     //set all this before the control gets the ENTER_TREE notification
@@ -1876,7 +1876,7 @@ void EditorInspector::set_use_filter(bool p_use) {
     update_tree();
 }
 void EditorInspector::register_text_enter(Node *p_line_edit) {
-    search_box = Object::cast_to<LineEdit>(p_line_edit);
+    search_box = object_cast<LineEdit>(p_line_edit);
     if (search_box)
         search_box->connect("text_changed", this, "_filter_changed");
 }
@@ -1976,9 +1976,9 @@ void EditorInspector::_edit_set(const String &p_name, const Variant &p_value, bo
 
         emit_signal(_prop_edited, p_name);
 
-    } else if (Object::cast_to<MultiNodeEdit>(object)) {
+    } else if (object_cast<MultiNodeEdit>(object)) {
 
-        Object::cast_to<MultiNodeEdit>(object)->set_property_field(p_name, p_value, p_changed_field);
+        object_cast<MultiNodeEdit>(object)->set_property_field(p_name, p_value, p_changed_field);
         _edit_request_change(object, p_name);
         emit_signal(_prop_edited, p_name);
     } else {
@@ -1996,7 +1996,7 @@ void EditorInspector::_edit_set(const String &p_name, const Variant &p_value, bo
             undo_redo->add_undo_method(this, "_edit_request_change", Variant(object), p_name);
         }
 
-        Resource *r = Object::cast_to<Resource>(object);
+        Resource *r = object_cast<Resource>(object);
         if (r) {
 
             if (String(p_name) == "resource_local_to_scene") {

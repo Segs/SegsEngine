@@ -518,7 +518,7 @@ void FileSystemDock::_tree_thumbnail_done(const String &p_path, const Ref<Textur
     if (p_small_preview) {
         Array uarr = p_udata;
         if (tree_update_id == (int)uarr[0]) {
-            TreeItem *file_item = Object::cast_to<TreeItem>(uarr[1]);
+            TreeItem *file_item = object_cast<TreeItem>(uarr[1]);
             if (file_item) {
                 file_item->set_icon(0, p_small_preview);
             }
@@ -1794,7 +1794,7 @@ void FileSystemDock::_resource_created() const {
     Object *c = new_resource_dialog->instance_selected();
 
     ERR_FAIL_COND(!c)
-    Resource *r = Object::cast_to<Resource>(c);
+    Resource *r = object_cast<Resource>(c);
     ERR_FAIL_COND(!r)
 
     REF res(r);
@@ -2742,5 +2742,4 @@ FileSystemDock::FileSystemDock(EditorNode *p_editor) {
     always_show_folders = false;
 }
 
-FileSystemDock::~FileSystemDock() {
-}
+FileSystemDock::~FileSystemDock() = default;

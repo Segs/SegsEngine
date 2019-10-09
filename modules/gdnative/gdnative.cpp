@@ -273,7 +273,7 @@ void GDNative::_bind_methods() {
 }
 
 void GDNative::set_library(Ref<GDNativeLibrary> p_library) {
-    ERR_FAIL_COND_MSG(library, "Tried to change library of GDNative when it is already set.")
+    ERR_FAIL_COND_CMSG(library, "Tried to change library of GDNative when it is already set.")
     library = p_library;
 }
 
@@ -548,11 +548,11 @@ Error GDNativeLibraryResourceSaver::save(const String &p_path, const RES &p_reso
 }
 
 bool GDNativeLibraryResourceSaver::recognize(const RES &p_resource) const {
-    return Object::cast_to<GDNativeLibrary>(p_resource.get()) != nullptr;
+    return object_cast<GDNativeLibrary>(p_resource.get()) != nullptr;
 }
 
 void GDNativeLibraryResourceSaver::get_recognized_extensions(const RES &p_resource, Vector<String> *p_extensions) const {
-    if (Object::cast_to<GDNativeLibrary>(p_resource.get()) != nullptr) {
+    if (object_cast<GDNativeLibrary>(p_resource.get()) != nullptr) {
         p_extensions->push_back("gdnlib");
     }
 }

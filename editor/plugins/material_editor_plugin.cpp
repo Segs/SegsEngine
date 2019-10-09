@@ -210,7 +210,7 @@ MaterialEditor::MaterialEditor() {
 
 bool EditorInspectorPluginMaterial::can_handle(Object *p_object) {
 
-    Material *material = Object::cast_to<Material>(p_object);
+    Material *material = object_cast<Material>(p_object);
     if (!material)
         return false;
 
@@ -219,7 +219,7 @@ bool EditorInspectorPluginMaterial::can_handle(Object *p_object) {
 
 void EditorInspectorPluginMaterial::parse_begin(Object *p_object) {
 
-    Material *material = Object::cast_to<Material>(p_object);
+    Material *material = object_cast<Material>(p_object);
     if (!material) {
         return;
     }

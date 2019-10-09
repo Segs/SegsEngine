@@ -127,7 +127,7 @@ CPUParticlesEditor::CPUParticlesEditor() {
 
 void CPUParticlesEditorPlugin::edit(Object *p_object) {
 
-    particles_editor->edit(Object::cast_to<CPUParticles>(p_object));
+    particles_editor->edit(object_cast<CPUParticles>(p_object));
 }
 
 bool CPUParticlesEditorPlugin::handles(Object *p_object) const {

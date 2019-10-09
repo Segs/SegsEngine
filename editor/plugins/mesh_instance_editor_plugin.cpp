@@ -105,7 +105,7 @@ void MeshInstanceEditor::_menu_option(int p_option) {
 
             for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
 
-                MeshInstance *instance = Object::cast_to<MeshInstance>(E->deref());
+                MeshInstance *instance = object_cast<MeshInstance>(E->deref());
                 if (!instance)
                     continue;
 
@@ -471,7 +471,7 @@ MeshInstanceEditor::MeshInstanceEditor() {
 
 void MeshInstanceEditorPlugin::edit(Object *p_object) {
 
-    mesh_editor->edit(Object::cast_to<MeshInstance>(p_object));
+    mesh_editor->edit(object_cast<MeshInstance>(p_object));
 }
 
 bool MeshInstanceEditorPlugin::handles(Object *p_object) const {

@@ -280,8 +280,8 @@ uint64_t ClassDB::get_api_hash(APIType p_api) {
 
                 MethodInfo &mi = t->signal_map[sn];
                 hash = hash_djb2_one_64(sn.hash(), hash);
-                for (int i = 0; i < mi.arguments.size(); i++) {
-                    hash = hash_djb2_one_64(uint64_t(mi.arguments[i].type), hash);
+                for (const PropertyInfo & argument : mi.arguments) {
+                    hash = hash_djb2_one_64(uint64_t(argument.type), hash);
                 }
             }
         }
@@ -1053,7 +1053,7 @@ MethodBind *ClassDB::bind_methodfi(
 
 #ifdef DEBUG_METHODS_ENABLED
 
-    if (method_name.args.size() > p_bind->get_argument_count()) {
+    if (method_name.parameterCount() > p_bind->get_argument_count()) {
         memdelete(p_bind);
         ERR_FAIL_V_MSG(nullptr, String("Method definition provides more arguments than the method actually has '") + instance_type + "::" + mdname + "'.")
     }

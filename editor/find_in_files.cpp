@@ -100,7 +100,7 @@ FindInFiles::FindInFiles() {
 }
 
 void FindInFiles::set_search_text(String p_pattern) {
-    _pattern = p_pattern;
+    _pattern = std::move(p_pattern);
 }
 
 void FindInFiles::set_whole_words(bool p_whole_word) {
@@ -694,7 +694,7 @@ void FindInFilesPanel::_on_result_found(const String& fpath, int line_number, in
 
 void FindInFilesPanel::draw_result_text(Object *item_obj, Rect2 rect) {
 
-    TreeItem *item = Object::cast_to<TreeItem>(item_obj);
+    TreeItem *item = object_cast<TreeItem>(item_obj);
     if (!item)
         return;
 

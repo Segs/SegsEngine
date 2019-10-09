@@ -32,6 +32,7 @@
 
 #include "core/io/image_loader.h"
 #include "core/method_bind.h"
+#include "core/os/thread.h"
 #include "servers/visual_server.h"
 #include "scene/resources/texture.h"
 

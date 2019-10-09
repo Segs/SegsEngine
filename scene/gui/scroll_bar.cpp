@@ -300,7 +300,7 @@ void ScrollBar::_notification(int p_what) {
 
         if (has_node(drag_node_path)) {
             Node *n = get_node(drag_node_path);
-            drag_node = Object::cast_to<Control>(n);
+            drag_node = object_cast<Control>(n);
         }
 
         if (drag_node) {
@@ -631,7 +631,7 @@ void ScrollBar::set_drag_node(const NodePath &p_path) {
 
         if (has_node(p_path)) {
             Node *n = get_node(p_path);
-            drag_node = Object::cast_to<Control>(n);
+            drag_node = object_cast<Control>(n);
         }
 
         if (drag_node) {

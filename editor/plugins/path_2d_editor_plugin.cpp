@@ -444,7 +444,7 @@ void Path2DEditor::edit(Node *p_path2d) {
 
     if (p_path2d) {
 
-        node = Object::cast_to<Path2D>(p_path2d);
+        node = object_cast<Path2D>(p_path2d);
         if (!node->is_connected("visibility_changed", this, "_node_visibility_changed"))
             node->connect("visibility_changed", this, "_node_visibility_changed");
 
@@ -609,7 +609,7 @@ Path2DEditor::Path2DEditor(EditorNode *p_editor) {
 
 void Path2DEditorPlugin::edit(Object *p_object) {
 
-    path2d_editor->edit(Object::cast_to<Node>(p_object));
+    path2d_editor->edit(object_cast<Node>(p_object));
 }
 
 bool Path2DEditorPlugin::handles(Object *p_object) const {

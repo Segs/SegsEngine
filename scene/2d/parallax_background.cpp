@@ -107,7 +107,7 @@ void ParallaxBackground::_update_scroll() {
 
     for (int i = 0; i < get_child_count(); i++) {
 
-        ParallaxLayer *l = Object::cast_to<ParallaxLayer>(get_child(i));
+        ParallaxLayer *l = object_cast<ParallaxLayer>(get_child(i));
         if (!l)
             continue;
 

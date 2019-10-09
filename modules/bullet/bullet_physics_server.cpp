@@ -1553,7 +1553,7 @@ void BulletPhysicsServer::free(RID p_rid) {
         bulletdelete(space);
     } else {
 
-        ERR_FAIL_MSG("Invalid ID.");
+        ERR_FAIL_CMSG("Invalid ID.");
     }
 }
 

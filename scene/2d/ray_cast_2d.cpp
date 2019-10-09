@@ -127,11 +127,11 @@ void RayCast2D::set_exclude_parent_body(bool p_exclude_parent_body) {
     if (!is_inside_tree())
         return;
 
-    if (Object::cast_to<CollisionObject2D>(get_parent())) {
+    if (object_cast<CollisionObject2D>(get_parent())) {
         if (exclude_parent_body)
-            exclude.insert(Object::cast_to<CollisionObject2D>(get_parent())->get_rid());
+            exclude.insert(object_cast<CollisionObject2D>(get_parent())->get_rid());
         else
-            exclude.erase(Object::cast_to<CollisionObject2D>(get_parent())->get_rid());
+            exclude.erase(object_cast<CollisionObject2D>(get_parent())->get_rid());
     }
 }
 
@@ -151,11 +151,11 @@ void RayCast2D::_notification(int p_what) {
             else
                 set_physics_process_internal(false);
 
-            if (Object::cast_to<CollisionObject2D>(get_parent())) {
+            if (object_cast<CollisionObject2D>(get_parent())) {
                 if (exclude_parent_body)
-                    exclude.insert(Object::cast_to<CollisionObject2D>(get_parent())->get_rid());
+                    exclude.insert(object_cast<CollisionObject2D>(get_parent())->get_rid());
                 else
-                    exclude.erase(Object::cast_to<CollisionObject2D>(get_parent())->get_rid());
+                    exclude.erase(object_cast<CollisionObject2D>(get_parent())->get_rid());
             }
         } break;
         case NOTIFICATION_EXIT_TREE: {
@@ -247,7 +247,7 @@ void RayCast2D::add_exception_rid(const RID &p_rid) {
 void RayCast2D::add_exception(const Object *p_object) {
 
     ERR_FAIL_NULL(p_object)
-    const CollisionObject2D *co = Object::cast_to<CollisionObject2D>(p_object);
+    const CollisionObject2D *co = object_cast<CollisionObject2D>(p_object);
     if (!co)
         return;
     add_exception_rid(co->get_rid());
@@ -261,7 +261,7 @@ void RayCast2D::remove_exception_rid(const RID &p_rid) {
 void RayCast2D::remove_exception(const Object *p_object) {
 
     ERR_FAIL_NULL(p_object)
-    const CollisionObject2D *co = Object::cast_to<CollisionObject2D>(p_object);
+    const CollisionObject2D *co = object_cast<CollisionObject2D>(p_object);
     if (!co)
         return;
     remove_exception_rid(co->get_rid());

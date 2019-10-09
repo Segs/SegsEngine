@@ -1,15 +1,10 @@
 #pragma once
 
-#include "core/vector.h"
 #include "core/plugin_interfaces/load_params.h"
 #include "core/service_interfaces/CoreInterface.h"
-#include "core/image_data.h"
-#include <QObject>
+#include "core/error_list.h"
+#include "core/forward_decls.h"
 
-template <class T>
-class Ref;
-template <class T>
-class PoolVector;
 class Image;
 enum Error : int;
 class FileAccess;
@@ -33,7 +28,7 @@ public:
         return res;
     }
     virtual void get_recognized_extensions(Vector<String> *p_extensions) const = 0;
-    virtual void set_loader_option(int option_id,void *option_var) {}
+    virtual void set_loader_option(int /*option_id*/,void * /*option_var*/) {}
 public:
     virtual ~ImageFormatLoader() = default;
     ImageFormatLoader() = default;

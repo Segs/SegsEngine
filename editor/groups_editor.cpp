@@ -301,7 +301,7 @@ void GroupDialog::_load_groups(Node *p_current) {
 }
 
 void GroupDialog::_delete_group_pressed(Object *p_item, int p_column, int p_id) {
-    TreeItem *ti = Object::cast_to<TreeItem>(p_item);
+    TreeItem *ti = object_cast<TreeItem>(p_item);
     if (!ti)
         return;
 
@@ -581,7 +581,7 @@ void GroupsEditor::_remove_group(Object *p_item, int p_column, int p_id) {
     if (!node)
         return;
 
-    TreeItem *ti = Object::cast_to<TreeItem>(p_item);
+    TreeItem *ti = object_cast<TreeItem>(p_item);
     if (!ti)
         return;
 
@@ -714,5 +714,4 @@ GroupsEditor::GroupsEditor() {
     add_constant_override("separation", 3 * EDSCALE);
 }
 
-GroupsEditor::~GroupsEditor() {
-}
+GroupsEditor::~GroupsEditor() = default;

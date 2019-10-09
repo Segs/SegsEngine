@@ -543,7 +543,7 @@ Error ResourceInteractiveLoaderText::poll() {
                 return error;
             }
 
-            Resource *r = Object::cast_to<Resource>(obj);
+            Resource *r = object_cast<Resource>(obj);
             if (!r) {
 
                 error_text += "Can't create sub resource of type, because not a resource: " + type;
@@ -609,7 +609,7 @@ Error ResourceInteractiveLoaderText::poll() {
             return error;
         }
 
-        Resource *r = Object::cast_to<Resource>(obj);
+        Resource *r = object_cast<Resource>(obj);
         if (!r) {
 
             error_text += "Can't create sub resource of type, because not a resource: " + res_type;
@@ -1412,7 +1412,7 @@ String ResourceFormatSaverTextInstance::_write_resource(const RES &res) {
             String path = relative_paths ? PathUtils::path_to_file(local_path,res->get_path()) : res->get_path();
             return "Resource( \"" + path + "\" )";
         } else {
-            ERR_FAIL_V_MSG("null", "Resource was not pre cached for the resource section, bug?")
+            ERR_FAIL_V_CMSG("null", "Resource was not pre cached for the resource section, bug?")
             //internal resource
         }
     }

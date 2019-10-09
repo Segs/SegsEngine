@@ -2265,7 +2265,7 @@ Error EditorSceneImporterGLTF::_parse_cameras(GLTFState &state) {
                 camera.fov_size = 10;
             }
         } else {
-            ERR_FAIL_V_MSG(ERR_PARSE_ERROR, "Camera should be in 'orthographic' or 'perspective'");
+            ERR_FAIL_V_CMSG(ERR_PARSE_ERROR, "Camera should be in 'orthographic' or 'perspective'")
         }
 
         state.cameras.push_back(camera);
@@ -2493,7 +2493,7 @@ void EditorSceneImporterGLTF::_generate_scene_node(GLTFState &state, Node *scene
     Spatial *current_node = nullptr;
 
     // Is our parent a skeleton
-    Skeleton *active_skeleton = Object::cast_to<Skeleton>(scene_parent);
+    Skeleton *active_skeleton = object_cast<Skeleton>(scene_parent);
 
     if (gltf_node->skeleton >= 0) {
         Skeleton *skeleton = state.skeletons[gltf_node->skeleton].godot_skeleton;
@@ -2709,7 +2709,7 @@ void EditorSceneImporterGLTF::_import_animation(GLTFState &state, AnimationPlaye
         const GLTFNode *node = state.nodes[E.first];
 
         if (node->skeleton >= 0) {
-            const Skeleton *sk = Object::cast_to<Skeleton>(state.scene_nodes.find(node_index)->second);
+            const Skeleton *sk = object_cast<Skeleton>(state.scene_nodes.find(node_index)->second);
             ERR_FAIL_COND(sk == nullptr)
 
             const String path = (String)ap->get_parent()->get_path_to(sk);
@@ -2865,7 +2865,7 @@ void EditorSceneImporterGLTF::_process_mesh_instances(GLTFState &state, Spatial 
             const GLTFSkinIndex skin_i = node->skin;
 
             auto mi_element = state.scene_nodes.find(node_i);
-            MeshInstance *mi = Object::cast_to<MeshInstance>(mi_element->second);
+            MeshInstance *mi = object_cast<MeshInstance>(mi_element->second);
             ERR_FAIL_COND(mi == nullptr)
 
             const GLTFSkeletonIndex skel_i = state.skins[node->skin].skeleton;

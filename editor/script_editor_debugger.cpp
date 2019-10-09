@@ -281,7 +281,7 @@ void ScriptEditorDebugger::_scene_tree_folded(Object *obj) {
 
         return;
     }
-    TreeItem *item = Object::cast_to<TreeItem>(obj);
+    TreeItem *item = object_cast<TreeItem>(obj);
 
     if (!item)
         return;
@@ -611,7 +611,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
                         debugObj->set_script(var);
                 } else if (var.get_type() == VariantType::OBJECT) {
                     if (((Object *)var)->is_class("EncodedObjectAsID")) {
-                        var = Object::cast_to<EncodedObjectAsID>(var)->get_object_id();
+                        var = object_cast<EncodedObjectAsID>(var)->get_object_id();
                         pinfo.type = var.get_type();
                         pinfo.hint = PROPERTY_HINT_OBJECT_ID;
                         pinfo.hint_string = "Object";
@@ -711,7 +711,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
             String hs = String();
 
             if (v.get_type() == VariantType::OBJECT) {
-                v = Object::cast_to<EncodedObjectAsID>(v)->get_object_id();
+                v = object_cast<EncodedObjectAsID>(v)->get_object_id();
                 h = PROPERTY_HINT_OBJECT_ID;
                 hs = "Object";
             }
@@ -730,7 +730,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
             String hs = String();
 
             if (v.get_type() == VariantType::OBJECT) {
-                v = Object::cast_to<EncodedObjectAsID>(v)->get_object_id();
+                v = object_cast<EncodedObjectAsID>(v)->get_object_id();
                 h = PROPERTY_HINT_OBJECT_ID;
                 hs = "Object";
             }
@@ -753,7 +753,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
             String hs = String();
 
             if (v.get_type() == VariantType::OBJECT) {
-                v = Object::cast_to<EncodedObjectAsID>(v)->get_object_id();
+                v = object_cast<EncodedObjectAsID>(v)->get_object_id();
                 h = PROPERTY_HINT_OBJECT_ID;
                 hs = "Object";
             }
@@ -818,11 +818,11 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
     } else if (p_msg == "error") {
 
         // Should have at least two elements, error array and stack items count.
-        ERR_FAIL_COND_MSG(p_data.size() < 2, "Malformed error message from script debugger.");
+        ERR_FAIL_COND_CMSG(p_data.size() < 2, "Malformed error message from script debugger.");
 
         // Error or warning data.
         Array err = p_data[0];
-        ERR_FAIL_COND_MSG(err.size() < 10, "Malformed error message from script debugger.");
+        ERR_FAIL_COND_CMSG(err.size() < 10, "Malformed error message from script debugger.");
 
         // Format time.
         Array time_vals;
@@ -1211,7 +1211,7 @@ void ScriptEditorDebugger::_notification(int p_what) {
                 if (inspect_edited_object_timeout < 0) {
                     inspect_edited_object_timeout = EditorSettings::get_singleton()->get("debugger/remote_inspect_refresh_interval");
                     if (inspected_object_id) {
-                        if (ScriptEditorDebuggerInspectedObject *obj = Object::cast_to<ScriptEditorDebuggerInspectedObject>(ObjectDB::get_instance(editor->get_editor_history()->get_current()))) {
+                        if (ScriptEditorDebuggerInspectedObject *obj = object_cast<ScriptEditorDebuggerInspectedObject>(ObjectDB::get_instance(editor->get_editor_history()->get_current()))) {
                             if (obj->remote_object_id == inspected_object_id) {
                                 //take the chance and re-inspect selected object
                                 Array msg;
@@ -1620,7 +1620,7 @@ void ScriptEditorDebugger::_method_changed(Object *p_base, const StringName &p_n
     if (!p_base || !live_debug || not connection || !editor->get_edited_scene())
         return;
 
-    Node *node = Object::cast_to<Node>(p_base);
+    Node *node = object_cast<Node>(p_base);
 
     VARIANT_ARGPTRS
 
@@ -1648,7 +1648,7 @@ void ScriptEditorDebugger::_method_changed(Object *p_base, const StringName &p_n
         return;
     }
 
-    Resource *res = Object::cast_to<Resource>(p_base);
+    Resource *res = object_cast<Resource>(p_base);
 
     if (res && !res->get_path().empty()) {
 
@@ -1674,7 +1674,7 @@ void ScriptEditorDebugger::_property_changed(Object *p_base, const StringName &p
     if (!p_base || !live_debug || not connection || !editor->get_edited_scene())
         return;
 
-    Node *node = Object::cast_to<Node>(p_base);
+    Node *node = object_cast<Node>(p_base);
 
     if (node) {
 
@@ -1705,7 +1705,7 @@ void ScriptEditorDebugger::_property_changed(Object *p_base, const StringName &p
         return;
     }
 
-    Resource *res = Object::cast_to<Resource>(p_base);
+    Resource *res = object_cast<Resource>(p_base);
 
     if (res && !res->get_path().empty()) {
 

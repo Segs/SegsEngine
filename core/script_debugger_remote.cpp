@@ -123,7 +123,7 @@ void ScriptDebuggerRemote::_put_variable(const String &p_name, const Variant &p_
 
 void ScriptDebuggerRemote::_save_node(ObjectID id, const String &p_path) {
 
-    Node *node = Object::cast_to<Node>(ObjectDB::get_instance(id));
+    Node *node = object_cast<Node>(ObjectDB::get_instance(id));
     ERR_FAIL_COND(!node)
 
     Ref<PackedScene> ps(make_ref_counted<PackedScene>());
@@ -139,7 +139,7 @@ void ScriptDebuggerRemote::debug(ScriptLanguage *p_script, bool p_can_continue, 
     if (skip_breakpoints && !p_is_error_breakpoint)
         return;
 
-    ERR_FAIL_COND_MSG(!tcp_client->is_connected_to_host(), "Script Debugger failed to connect, but being used anyway.")
+    ERR_FAIL_COND_CMSG(!tcp_client->is_connected_to_host(), "Script Debugger failed to connect, but being used anyway.")
 
     packet_peer_stream->put_var("debug_enter");
     packet_peer_stream->put_var(2);
@@ -605,7 +605,7 @@ void ScriptDebuggerRemote::_send_object_id(ObjectID p_id) {
         }
     }
 
-    if (Node *node = Object::cast_to<Node>(obj)) {
+    if (Node *node = object_cast<Node>(obj)) {
         // in some cases node will not be in tree here
         // for instance where it created as variable and not yet added to tree
         // in such cases we can't ask for it's path
@@ -617,8 +617,8 @@ void ScriptDebuggerRemote::_send_object_id(ObjectID p_id) {
             properties.push_front(PropertyDesc(pi, "[Orphan]"));
         }
 
-    } else if (Resource *res = Object::cast_to<Resource>(obj)) {
-        if (Script *s = Object::cast_to<Script>(res)) {
+    } else if (Resource *res = object_cast<Resource>(obj)) {
+        if (Script *s = object_cast<Script>(res)) {
             Map<StringName, Variant> constants;
             s->get_constants(&constants);
             for (eastl::pair<const StringName,Variant> &E : constants) {
@@ -647,7 +647,7 @@ void ScriptDebuggerRemote::_send_object_id(ObjectID p_id) {
         const PropertyInfo &pi = desc.first;
         Variant &var = desc.second;
 
-        WeakRef *ref = Object::cast_to<WeakRef>(var);
+        WeakRef *ref = object_cast<WeakRef>(var);
         if (ref) {
             var = ref->get_ref();
         }

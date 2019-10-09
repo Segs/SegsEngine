@@ -88,7 +88,7 @@ void Performance::_bind_methods() {
 
 float Performance::_get_node_count() const {
     MainLoop *ml = OS::get_singleton()->get_main_loop();
-    SceneTree *sml = Object::cast_to<SceneTree>(ml);
+    SceneTree *sml = object_cast<SceneTree>(ml);
     if (!sml)
         return 0;
     return sml->get_node_count();

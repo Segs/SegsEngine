@@ -61,7 +61,7 @@ void TileSetEditor::_import_node(Node *p_node, const Ref<TileSet> &p_library) {
 
         Node *child = p_node->get_child(i);
 
-        if (!Object::cast_to<Sprite>(child)) {
+        if (!object_cast<Sprite>(child)) {
             if (child->get_child_count() > 0) {
                 _import_node(child, p_library);
             }
@@ -69,7 +69,7 @@ void TileSetEditor::_import_node(Node *p_node, const Ref<TileSet> &p_library) {
             continue;
         }
 
-        Sprite *mi = Object::cast_to<Sprite>(child);
+        Sprite *mi = object_cast<Sprite>(child);
         Ref<Texture> texture = mi->get_texture();
         Ref<Texture> normal_map = mi->get_normal_map();
         Ref<ShaderMaterial> material = dynamic_ref_cast<ShaderMaterial>(mi->get_material());
@@ -117,18 +117,18 @@ void TileSetEditor::_import_node(Node *p_node, const Ref<TileSet> &p_library) {
 
             Node *child2 = mi->get_child(j);
 
-            if (Object::cast_to<NavigationPolygonInstance>(child2))
-                nav_poly = Object::cast_to<NavigationPolygonInstance>(child2)->get_navigation_polygon();
+            if (object_cast<NavigationPolygonInstance>(child2))
+                nav_poly = object_cast<NavigationPolygonInstance>(child2)->get_navigation_polygon();
 
-            if (Object::cast_to<LightOccluder2D>(child2))
-                occluder = Object::cast_to<LightOccluder2D>(child2)->get_occluder_polygon();
+            if (object_cast<LightOccluder2D>(child2))
+                occluder = object_cast<LightOccluder2D>(child2)->get_occluder_polygon();
 
-            if (!Object::cast_to<StaticBody2D>(child2))
+            if (!object_cast<StaticBody2D>(child2))
                 continue;
 
             found_collisions = true;
 
-            StaticBody2D *sb = Object::cast_to<StaticBody2D>(child2);
+            StaticBody2D *sb = object_cast<StaticBody2D>(child2);
 
             List<uint32_t> shapes;
             sb->get_shape_owners(&shapes);
@@ -3497,8 +3497,8 @@ TilesetEditorContext::TilesetEditorContext(TileSetEditor *p_tileset_editor) {
 
 void TileSetEditorPlugin::edit(Object *p_node) {
 
-    if (Object::cast_to<TileSet>(p_node)) {
-        tileset_editor->edit(Ref<TileSet>(Object::cast_to<TileSet>(p_node)));
+    if (object_cast<TileSet>(p_node)) {
+        tileset_editor->edit(Ref<TileSet>(object_cast<TileSet>(p_node)));
     }
 }
 

@@ -131,7 +131,7 @@ NavigationMeshEditor::~NavigationMeshEditor() {
 
 void NavigationMeshEditorPlugin::edit(Object *p_object) {
 
-    navigation_mesh_editor->edit(Object::cast_to<NavigationMeshInstance>(p_object));
+    navigation_mesh_editor->edit(object_cast<NavigationMeshInstance>(p_object));
 }
 
 bool NavigationMeshEditorPlugin::handles(Object *p_object) const {

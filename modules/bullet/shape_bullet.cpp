@@ -499,7 +499,7 @@ void HeightMapShapeBullet::set_data(const Variant &p_data) {
         }
 
     } else {
-        ERR_FAIL_MSG("Expected PoolRealArray or float Image.");
+        ERR_FAIL_CMSG("Expected PoolRealArray or float Image.");
     }
 
     ERR_FAIL_COND(l_width <= 0)

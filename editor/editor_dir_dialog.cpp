@@ -111,7 +111,7 @@ void EditorDirDialog::_notification(int p_what) {
 
 void EditorDirDialog::_item_collapsed(Object *p_item) {
 
-    TreeItem *item = Object::cast_to<TreeItem>(p_item);
+    TreeItem *item = object_cast<TreeItem>(p_item);
 
     if (updating)
         return;

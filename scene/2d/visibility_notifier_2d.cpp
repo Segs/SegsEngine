@@ -195,7 +195,7 @@ void VisibilityEnabler2D::_find_nodes(Node *p_node) {
 
     if (enabler[ENABLER_FREEZE_BODIES]) {
 
-        RigidBody2D *rb2d = Object::cast_to<RigidBody2D>(p_node);
+        RigidBody2D *rb2d = object_cast<RigidBody2D>(p_node);
         if (rb2d && ((rb2d->get_mode() == RigidBody2D::MODE_CHARACTER || rb2d->get_mode() == RigidBody2D::MODE_RIGID))) {
 
             add = true;
@@ -205,7 +205,7 @@ void VisibilityEnabler2D::_find_nodes(Node *p_node) {
 
     if (enabler[ENABLER_PAUSE_ANIMATIONS]) {
 
-        AnimationPlayer *ap = Object::cast_to<AnimationPlayer>(p_node);
+        AnimationPlayer *ap = object_cast<AnimationPlayer>(p_node);
         if (ap) {
             add = true;
         }
@@ -213,7 +213,7 @@ void VisibilityEnabler2D::_find_nodes(Node *p_node) {
 
     if (enabler[ENABLER_PAUSE_ANIMATED_SPRITES]) {
 
-        AnimatedSprite *as = Object::cast_to<AnimatedSprite>(p_node);
+        AnimatedSprite *as = object_cast<AnimatedSprite>(p_node);
         if (as) {
             add = true;
         }
@@ -221,7 +221,7 @@ void VisibilityEnabler2D::_find_nodes(Node *p_node) {
 
     if (enabler[ENABLER_PAUSE_PARTICLES]) {
 
-        Particles2D *ps = Object::cast_to<Particles2D>(p_node);
+        Particles2D *ps = object_cast<Particles2D>(p_node);
         if (ps) {
             add = true;
         }
@@ -284,7 +284,7 @@ void VisibilityEnabler2D::_change_node_state(Node *p_node, bool p_enabled) {
     ERR_FAIL_COND(!nodes.contains(p_node))
 
     {
-        RigidBody2D *rb = Object::cast_to<RigidBody2D>(p_node);
+        RigidBody2D *rb = object_cast<RigidBody2D>(p_node);
         if (rb) {
 
             rb->set_sleeping(!p_enabled);
@@ -292,7 +292,7 @@ void VisibilityEnabler2D::_change_node_state(Node *p_node, bool p_enabled) {
     }
 
     {
-        AnimationPlayer *ap = Object::cast_to<AnimationPlayer>(p_node);
+        AnimationPlayer *ap = object_cast<AnimationPlayer>(p_node);
 
         if (ap) {
 
@@ -300,7 +300,7 @@ void VisibilityEnabler2D::_change_node_state(Node *p_node, bool p_enabled) {
         }
     }
     {
-        AnimatedSprite *as = Object::cast_to<AnimatedSprite>(p_node);
+        AnimatedSprite *as = object_cast<AnimatedSprite>(p_node);
 
         if (as) {
 
@@ -312,7 +312,7 @@ void VisibilityEnabler2D::_change_node_state(Node *p_node, bool p_enabled) {
     }
 
     {
-        Particles2D *ps = Object::cast_to<Particles2D>(p_node);
+        Particles2D *ps = object_cast<Particles2D>(p_node);
 
         if (ps) {
 

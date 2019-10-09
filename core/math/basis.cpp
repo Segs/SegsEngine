@@ -623,17 +623,17 @@ Basis::operator String() const {
 Quat Basis::get_quat() const {
 
 #ifdef MATH_CHECKS
-    ERR_FAIL_COND_V_MSG(!is_rotation(), Quat(), "Basis must be normalized in order to be casted to a Quaternion. Use get_rotation_quat() or call orthonormalized() instead.")
+    ERR_FAIL_COND_V_CMSG(!is_rotation(), Quat(), "Basis must be normalized in order to be casted to a Quaternion. Use get_rotation_quat() or call orthonormalized() instead.")
 #endif
     /* Allow getting a quaternion from an unnormalized transform */
     Basis m = *this;
     real_t trace = m.elements[0][0] + m.elements[1][1] + m.elements[2][2];
     real_t temp[4];
 
-    if (trace > 0.0) {
-        real_t s = Math::sqrt(trace + 1.0);
-        temp[3] = (s * 0.5);
-        s = 0.5 / s;
+    if (trace > 0.0f) {
+        real_t s = Math::sqrt(trace + 1.0f);
+        temp[3] = (s * 0.5f);
+        s = 0.5f / s;
 
         temp[0] = ((m.elements[2][1] - m.elements[1][2]) * s);
         temp[1] = ((m.elements[0][2] - m.elements[2][0]) * s);
@@ -645,9 +645,9 @@ Quat Basis::get_quat() const {
         int j = (i + 1) % 3;
         int k = (i + 2) % 3;
 
-        real_t s = Math::sqrt(m.elements[i][i] - m.elements[j][j] - m.elements[k][k] + 1.0);
-        temp[i] = s * 0.5;
-        s = 0.5 / s;
+        real_t s = Math::sqrt(m.elements[i][i] - m.elements[j][j] - m.elements[k][k] + 1.0f);
+        temp[i] = s * 0.5f;
+        s = 0.5f / s;
 
         temp[3] = (m.elements[k][j] - m.elements[j][k]) * s;
         temp[j] = (m.elements[j][i] + m.elements[i][j]) * s;

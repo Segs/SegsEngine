@@ -107,7 +107,7 @@ Variant PluginScript::_new(const Variant **p_args, int p_argcount, Variant::Call
         return Variant();
     }
 
-    RefCounted *r = Object::cast_to<RefCounted>(owner);
+    RefCounted *r = object_cast<RefCounted>(owner);
     if (r) {
         ref = REF(r);
     }

@@ -157,7 +157,7 @@ void MeshInstance::_resolve_skeleton_path() {
     Ref<SkinReference> new_skin_reference;
 
     if (!skeleton_path.is_empty()) {
-    Skeleton *skeleton = Object::cast_to<Skeleton>(get_node(skeleton_path));
+    Skeleton *skeleton = object_cast<Skeleton>(get_node(skeleton_path));
         if (skeleton) {
             new_skin_reference = skeleton->register_skin(skin);
             if (not skin) {
@@ -237,13 +237,13 @@ Node *MeshInstance::create_trimesh_collision_node() {
 
 void MeshInstance::create_trimesh_collision() {
 
-    StaticBody *static_body = Object::cast_to<StaticBody>(create_trimesh_collision_node());
+    StaticBody *static_body = object_cast<StaticBody>(create_trimesh_collision_node());
     ERR_FAIL_COND(!static_body)
     static_body->set_name(String(get_name()) + "_col");
 
     add_child(static_body);
     if (get_owner()) {
-        CollisionShape *cshape = Object::cast_to<CollisionShape>(static_body->get_child(0));
+        CollisionShape *cshape = object_cast<CollisionShape>(static_body->get_child(0));
         static_body->set_owner(get_owner());
         cshape->set_owner(get_owner());
     }
@@ -267,13 +267,13 @@ Node *MeshInstance::create_convex_collision_node() {
 
 void MeshInstance::create_convex_collision() {
 
-    StaticBody *static_body = Object::cast_to<StaticBody>(create_convex_collision_node());
+    StaticBody *static_body = object_cast<StaticBody>(create_convex_collision_node());
     ERR_FAIL_COND(!static_body)
     static_body->set_name(String(get_name()) + "_col");
 
     add_child(static_body);
     if (get_owner()) {
-        CollisionShape *cshape = Object::cast_to<CollisionShape>(static_body->get_child(0));
+        CollisionShape *cshape = object_cast<CollisionShape>(static_body->get_child(0));
         static_body->set_owner(get_owner());
         cshape->set_owner(get_owner());
     }

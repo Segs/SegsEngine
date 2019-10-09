@@ -759,12 +759,12 @@ void CurveEditor::_bind_methods() {
 
 bool EditorInspectorPluginCurve::can_handle(Object *p_object) {
 
-    return Object::cast_to<Curve>(p_object) != nullptr;
+    return object_cast<Curve>(p_object) != nullptr;
 }
 
 void EditorInspectorPluginCurve::parse_begin(Object *p_object) {
 
-    Curve *curve = Object::cast_to<Curve>(p_object);
+    Curve *curve = object_cast<Curve>(p_object);
     ERR_FAIL_COND(!curve)
     Ref<Curve> c(curve);
 
@@ -791,7 +791,7 @@ bool CurvePreviewGenerator::handles(const String &p_type) const {
 Ref<Texture> CurvePreviewGenerator::generate(const Ref<Resource> &p_from, const Size2 &p_size) const {
 
     Ref<Curve> curve_ref = dynamic_ref_cast<Curve>(p_from);
-    ERR_FAIL_COND_V_MSG(not curve_ref, Ref<Texture>(), "It's not a reference to a valid Resource object.")
+    ERR_FAIL_COND_V_CMSG(not curve_ref, Ref<Texture>(), "It's not a reference to a valid Resource object.")
     Curve &curve = *curve_ref;
 
     // FIXME: Should be ported to use p_size as done in b2633a97

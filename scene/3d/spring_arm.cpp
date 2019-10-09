@@ -168,7 +168,7 @@ void SpringArm::process_spring() {
 
     for (int i = get_child_count() - 1; 0 <= i; --i) {
 
-        Spatial *child = Object::cast_to<Spatial>(get_child(i));
+        Spatial *child = object_cast<Spatial>(get_child(i));
         if (child) {
             childs_transform.basis = child->get_global_transform().basis;
             child->set_global_transform(childs_transform);

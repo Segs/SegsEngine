@@ -179,12 +179,12 @@ MeshEditor::MeshEditor() {
 
 bool EditorInspectorPluginMesh::can_handle(Object *p_object) {
 
-    return Object::cast_to<Mesh>(p_object) != nullptr;
+    return object_cast<Mesh>(p_object) != nullptr;
 }
 
 void EditorInspectorPluginMesh::parse_begin(Object *p_object) {
 
-    Mesh *mesh = Object::cast_to<Mesh>(p_object);
+    Mesh *mesh = object_cast<Mesh>(p_object);
     if (!mesh) {
         return;
     }

@@ -1513,8 +1513,8 @@ AnimationTreePlayer::Track *AnimationTreePlayer::_find_track(const NodePath &p_p
 
     if (p_path.get_subname_count()) {
 
-        if (Object::cast_to<Skeleton>(child))
-            bone_idx = Object::cast_to<Skeleton>(child)->find_bone(p_path.get_subname(0));
+        if (object_cast<Skeleton>(child))
+            bone_idx = object_cast<Skeleton>(child)->find_bone(p_path.get_subname(0));
     }
 
     TrackKey key;
@@ -1527,8 +1527,8 @@ AnimationTreePlayer::Track *AnimationTreePlayer::_find_track(const NodePath &p_p
         Track tr;
         tr.id = id;
         tr.object = resource ? (Object *)resource.get() : (Object *)child;
-        tr.skeleton = Object::cast_to<Skeleton>(child);
-        tr.spatial = Object::cast_to<Spatial>(child);
+        tr.skeleton = object_cast<Skeleton>(child);
+        tr.spatial = object_cast<Spatial>(child);
         tr.bone_idx = bone_idx;
         if (bone_idx == -1) tr.subpath = leftover_path;
 
@@ -1668,7 +1668,7 @@ void AnimationTreePlayer::_update_sources() {
         ERR_FAIL_COND(!m)
     }
 
-    AnimationPlayer *ap = Object::cast_to<AnimationPlayer>(m);
+    AnimationPlayer *ap = object_cast<AnimationPlayer>(m);
 
     if (!ap) {
 

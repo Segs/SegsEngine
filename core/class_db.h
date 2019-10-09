@@ -59,6 +59,7 @@ struct MethodDefinition {
             name(p_name) {}
     MethodDefinition(const StringName &p_name) :
             name(p_name) {}
+    int parameterCount() const { return args.size(); }
 };
 
 MethodDefinition D_METHOD(const char *p_name);

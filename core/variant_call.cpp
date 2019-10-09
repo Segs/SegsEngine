@@ -663,7 +663,9 @@ struct _VariantCall {
     VCALL_LOCALMEM1(PoolByteArray, remove)
     VCALL_LOCALMEM1(PoolByteArray, append)
     VCALL_LOCALMEM1(PoolByteArray, append_array)
-    VCALL_LOCALMEM0(PoolByteArray, invert)
+    static void _call_PoolByteArray_invert(Variant &r_ret, Variant &p_self, const Variant ** /*p_args*/) {
+        invert(*reinterpret_cast<PoolByteArray *>(p_self._data._mem)); }
+
     VCALL_LOCALMEM2R(PoolByteArray, subarray)
 
     VCALL_LOCALMEM0R(PoolIntArray, size)
@@ -675,7 +677,8 @@ struct _VariantCall {
     VCALL_LOCALMEM1(PoolIntArray, remove)
     VCALL_LOCALMEM1(PoolIntArray, append)
     VCALL_LOCALMEM1(PoolIntArray, append_array)
-    VCALL_LOCALMEM0(PoolIntArray, invert)
+    static void _call_PoolIntArray_invert(Variant &r_ret, Variant &p_self, const Variant ** /*p_args*/) {
+        invert(*reinterpret_cast<PoolIntArray *>(p_self._data._mem)); }
 
     VCALL_LOCALMEM0R(PoolRealArray, size)
     VCALL_LOCALMEM2(PoolRealArray, set)
@@ -686,7 +689,8 @@ struct _VariantCall {
     VCALL_LOCALMEM1(PoolRealArray, remove)
     VCALL_LOCALMEM1(PoolRealArray, append)
     VCALL_LOCALMEM1(PoolRealArray, append_array)
-    VCALL_LOCALMEM0(PoolRealArray, invert)
+    static void _call_PoolRealArray_invert(Variant &r_ret, Variant &p_self, const Variant ** /*p_args*/) {
+        invert(*reinterpret_cast<PoolRealArray *>(p_self._data._mem)); }
 
     VCALL_LOCALMEM0R(PoolStringArray, size)
     VCALL_LOCALMEM2(PoolStringArray, set)
@@ -697,7 +701,9 @@ struct _VariantCall {
     VCALL_LOCALMEM1(PoolStringArray, remove)
     VCALL_LOCALMEM1(PoolStringArray, append)
     VCALL_LOCALMEM1(PoolStringArray, append_array)
-    VCALL_LOCALMEM0(PoolStringArray, invert)
+    static void _call_PoolStringArray_invert(Variant &r_ret, Variant &p_self, const Variant ** /*p_args*/) {
+        invert(*reinterpret_cast<PoolStringArray *>(p_self._data._mem)); }
+
     VCALL_LOCALMEM1R(PoolStringArray, join)
 
     VCALL_LOCALMEM0R(PoolVector2Array, size)
@@ -709,7 +715,8 @@ struct _VariantCall {
     VCALL_LOCALMEM1(PoolVector2Array, remove)
     VCALL_LOCALMEM1(PoolVector2Array, append)
     VCALL_LOCALMEM1(PoolVector2Array, append_array)
-    VCALL_LOCALMEM0(PoolVector2Array, invert)
+    static void _call_PoolVector2Array_invert(Variant &r_ret, Variant &p_self, const Variant ** /*p_args*/) {
+        invert(*reinterpret_cast<PoolVector2Array *>(p_self._data._mem)); }
 
     VCALL_LOCALMEM0R(PoolVector3Array, size)
     VCALL_LOCALMEM2(PoolVector3Array, set)
@@ -720,7 +727,8 @@ struct _VariantCall {
     VCALL_LOCALMEM1(PoolVector3Array, remove)
     VCALL_LOCALMEM1(PoolVector3Array, append)
     VCALL_LOCALMEM1(PoolVector3Array, append_array)
-    VCALL_LOCALMEM0(PoolVector3Array, invert)
+    static void _call_PoolVector3Array_invert(Variant &r_ret, Variant &p_self, const Variant ** /*p_args*/) {
+        invert(*reinterpret_cast<PoolVector3Array *>(p_self._data._mem)); }
 
     VCALL_LOCALMEM0R(PoolColorArray, size)
     VCALL_LOCALMEM2(PoolColorArray, set)
@@ -731,7 +739,8 @@ struct _VariantCall {
     VCALL_LOCALMEM1(PoolColorArray, remove)
     VCALL_LOCALMEM1(PoolColorArray, append)
     VCALL_LOCALMEM1(PoolColorArray, append_array)
-    VCALL_LOCALMEM0(PoolColorArray, invert)
+    static void _call_PoolColorArray_invert(Variant &r_ret, Variant &p_self, const Variant ** /*p_args*/) {
+        invert(*reinterpret_cast<PoolColorArray *>(p_self._data._mem)); }
 
 #define VCALL_PTR0(m_type, m_method) \
     static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { reinterpret_cast<m_type *>(p_self._data._ptr)->m_method(); }

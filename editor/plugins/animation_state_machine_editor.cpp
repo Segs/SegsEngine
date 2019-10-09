@@ -96,7 +96,7 @@ void AnimationNodeStateMachineEditor::_state_machine_gui_input(const Ref<InputEv
         AnimationTree *gp = AnimationTreeEditor::get_singleton()->get_tree();
         ERR_FAIL_COND(!gp)
         if (gp && gp->has_node(gp->get_animation_player())) {
-            AnimationPlayer *ap = Object::cast_to<AnimationPlayer>(gp->get_node(gp->get_animation_player()));
+            AnimationPlayer *ap = object_cast<AnimationPlayer>(gp->get_node(gp->get_animation_player()));
             if (ap) {
                 ListPOD<StringName> names;
                 ap->get_animation_list(&names);
@@ -442,7 +442,7 @@ void AnimationNodeStateMachineEditor::_add_menu_type(int p_index) {
 
         Object *obj = ClassDB::instance(type);
         ERR_FAIL_COND(!obj)
-        AnimationNode *an = Object::cast_to<AnimationNode>(obj);
+        AnimationNode *an = object_cast<AnimationNode>(obj);
         ERR_FAIL_COND(!an)
 
         node = dynamic_ref_cast<AnimationRootNode>(Ref<AnimationNode>(an));

@@ -380,7 +380,7 @@ void TabContainer::_notification(int p_what) {
                 tab_style->draw(canvas, tab_rect);
 
                 // Draw the tab contents.
-                Control *control = Object::cast_to<Control>(tabs[i + first_tab_cache]);
+                Control *control = object_cast<Control>(tabs[i + first_tab_cache]);
                 String text = control->has_meta("_tab_name") ? String(tr(String(control->get_meta("_tab_name")))) : String(tr(control->get_name()));
 
                 int x_content = tab_rect.position.x + tab_style->get_margin(MARGIN_LEFT);
@@ -457,7 +457,7 @@ void TabContainer::_on_mouse_exited() {
 int TabContainer::_get_tab_width(int p_index) const {
 
     ERR_FAIL_INDEX_V(p_index, get_tab_count(), 0);
-    Control *control = Object::cast_to<Control>(_get_tabs()[p_index]);
+    Control *control = object_cast<Control>(_get_tabs()[p_index]);
     if (!control || control->is_set_as_toplevel() || get_tab_hidden(p_index))
         return 0;
 
@@ -496,7 +496,7 @@ Vector<Control *> TabContainer::_get_tabs() const {
     Vector<Control *> controls;
     for (int i = 0; i < get_child_count(); i++) {
 
-        Control *control = Object::cast_to<Control>(get_child(i));
+        Control *control = object_cast<Control>(get_child(i));
         if (!control || control->is_toplevel_control())
             continue;
 
@@ -514,7 +514,7 @@ void TabContainer::add_child_notify(Node *p_child) {
 
     Container::add_child_notify(p_child);
 
-    Control *c = Object::cast_to<Control>(p_child);
+    Control *c = object_cast<Control>(p_child);
     if (!c)
         return;
     if (c->is_set_as_toplevel())
@@ -687,7 +687,7 @@ bool TabContainer::can_drop_data(const Point2 &p_point, const Variant &p_data) c
         } else if (get_tabs_rearrange_group() != -1) {
             // drag and drop between other TabContainers
             Node *from_node = get_node(from_path);
-            TabContainer *from_tabc = Object::cast_to<TabContainer>(from_node);
+            TabContainer *from_tabc = object_cast<TabContainer>(from_node);
             if (from_tabc && from_tabc->get_tabs_rearrange_group() == get_tabs_rearrange_group()) {
                 return true;
             }
@@ -720,7 +720,7 @@ void TabContainer::drop_data(const Point2 &p_point, const Variant &p_data) {
         } else if (get_tabs_rearrange_group() != -1) {
             // drag and drop between TabContainers
             Node *from_node = get_node(from_path);
-            TabContainer *from_tabc = Object::cast_to<TabContainer>(from_node);
+            TabContainer *from_tabc = object_cast<TabContainer>(from_node);
             if (from_tabc && from_tabc->get_tabs_rearrange_group() == get_tabs_rearrange_group()) {
                 Control *moving_tabc = from_tabc->get_tab_control(tab_from_id);
                 from_tabc->remove_child(moving_tabc);
@@ -951,7 +951,7 @@ Size2 TabContainer::get_minimum_size() const {
 
 void TabContainer::set_popup(Node *p_popup) {
     ERR_FAIL_NULL(p_popup);
-    popup = Object::cast_to<Popup>(p_popup);
+    popup = object_cast<Popup>(p_popup);
     update();
 }
 

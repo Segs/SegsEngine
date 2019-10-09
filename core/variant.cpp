@@ -1757,7 +1757,7 @@ Variant::operator RID() const {
     if (type == VariantType::OBJECT && _get_obj().obj) {
 #ifdef DEBUG_ENABLED
         if (ScriptDebugger::get_singleton()) {
-            ERR_FAIL_COND_V_MSG(!ObjectDB::instance_validate(_get_obj().obj), RID(), "Invalid pointer (object was deleted).")
+            ERR_FAIL_COND_V_CMSG(!ObjectDB::instance_validate(_get_obj().obj), RID(), "Invalid pointer (object was deleted).")
         }
 #endif
         Variant::CallError ce;
@@ -1779,13 +1779,13 @@ Variant::operator Object *() const {
 Variant::operator Node *() const {
 
     if (type == VariantType::OBJECT)
-        return Object::cast_to<Node>(_get_obj().obj);
+        return object_cast<Node>(_get_obj().obj);
     return nullptr;
 }
 Variant::operator Control *() const {
 
     if (type == VariantType::OBJECT)
-        return Object::cast_to<Control>(_get_obj().obj);
+        return object_cast<Control>(_get_obj().obj);
     return nullptr;
 }
 

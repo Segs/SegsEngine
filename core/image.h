@@ -34,7 +34,7 @@
 #include "core/image_data.h"
 #include "core/math/rect2.h"
 #include "core/method_arg_casters.h"
-#include "core/pool_vector.h"
+#include "core/forward_decls.h"
 #include "core/resource.h"
 #include "core/plugin_interfaces/load_params.h"
 
@@ -194,7 +194,7 @@ public:
      */
     bool empty() const;
 
-    PoolVector<uint8_t> get_data() const;
+    const PoolVector<uint8_t> &get_data() const { return data; }
 
     Error load(const String &p_path);
     Error save_png(const String &p_path) const;

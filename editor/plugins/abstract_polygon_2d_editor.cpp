@@ -849,7 +849,7 @@ AbstractPolygon2DEditor::AbstractPolygon2DEditor(EditorNode *p_editor, bool p_wi
 
 void AbstractPolygon2DEditorPlugin::edit(Object *p_object) {
 
-    polygon_editor->edit(Object::cast_to<Node>(p_object));
+    polygon_editor->edit(object_cast<Node>(p_object));
 }
 
 bool AbstractPolygon2DEditorPlugin::handles(Object *p_object) const {
@@ -877,5 +877,4 @@ AbstractPolygon2DEditorPlugin::AbstractPolygon2DEditorPlugin(EditorNode *p_node,
     polygon_editor->hide();
 }
 
-AbstractPolygon2DEditorPlugin::~AbstractPolygon2DEditorPlugin() {
-}
+AbstractPolygon2DEditorPlugin::~AbstractPolygon2DEditorPlugin() = default;

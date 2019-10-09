@@ -62,10 +62,7 @@ public:
 
         int idx = argument_count - p_arg - 1;
 
-        if (idx < 0 || idx >= default_arguments.size())
-            return false;
-        else
-            return true;
+        return (idx >= 0 && idx < default_arguments.size());
     }
 
     _FORCE_INLINE_ Variant get_default_argument(int p_arg) const {
@@ -148,20 +145,9 @@ public:
         }
     }
 
-    VariantType _gen_argument_type(int p_arg) const {
-        return _gen_argument_type_info(p_arg).type;
-    }
-
     GodotTypeInfo::Metadata do_get_argument_meta(int) const override {
         return GodotTypeInfo::METADATA_NONE;
     }
-
-#else
-
-    virtual VariantType _gen_argument_type(int p_arg) const {
-        return VariantType::NIL;
-    }
-
 #endif
     Variant do_call(Object *p_object, const Variant **p_args, int p_arg_count, Variant::CallError &r_error) override {
 
@@ -196,7 +182,7 @@ public:
 
 #ifdef PTRCALL_ENABLED
     void ptrcall(Object * /*p_object*/, const void ** /*p_args*/, void * /*r_ret*/) override {
-        ERR_FAIL(); //can't call
+        ERR_FAIL() //can't call
     } //todo
 #endif
 

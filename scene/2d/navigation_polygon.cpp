@@ -378,7 +378,7 @@ void NavigationPolygonInstance::_notification(int p_what) {
             Node2D *c = this;
             while (c) {
 
-                navigation = Object::cast_to<Navigation2D>(c);
+                navigation = object_cast<Navigation2D>(c);
                 if (navigation) {
 
                     if (enabled && navpoly) {
@@ -388,7 +388,7 @@ void NavigationPolygonInstance::_notification(int p_what) {
                     break;
                 }
 
-                c = Object::cast_to<Node2D>(c->get_parent());
+                c = object_cast<Node2D>(c->get_parent());
             }
 
         } break;
@@ -509,11 +509,11 @@ String NavigationPolygonInstance::get_configuration_warning() const {
     const Node2D *c = this;
     while (c) {
 
-        if (Object::cast_to<Navigation2D>(c)) {
+        if (object_cast<Navigation2D>(c)) {
             return String();
         }
 
-        c = Object::cast_to<Node2D>(c->get_parent());
+        c = object_cast<Node2D>(c->get_parent());
     }
 
     return TTR("NavigationPolygonInstance must be a child or grandchild to a Navigation2D node. It only provides navigation data.");

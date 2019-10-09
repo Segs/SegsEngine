@@ -158,7 +158,7 @@ struct UndoRedo::PrivateData
                                 Variant::get_call_error_text(obj, op.name, (const Variant **)argptrs.ptr(), argc, ce))
                     }
 #ifdef TOOLS_ENABLED
-                    Resource *res = Object::cast_to<Resource>(obj);
+                    Resource *res = object_cast<Resource>(obj);
                     if (res)
                         res->get_tooling_interface()->set_edited(true);
 
@@ -172,7 +172,7 @@ struct UndoRedo::PrivateData
 
                     obj->set(op.name, op.args[0]);
     #ifdef TOOLS_ENABLED
-                    Resource *res = Object::cast_to<Resource>(obj);
+                    Resource *res = object_cast<Resource>(obj);
                     if (res)
                         res->get_tooling_interface()->set_edited(true);
     #endif
@@ -237,8 +237,8 @@ struct UndoRedo::PrivateData
         VARIANT_ARGPTRS
         Operation do_op;
         do_op.object = p_object->get_instance_id();
-        if (Object::cast_to<Resource>(p_object))
-            do_op.resref = Ref<Resource>(Object::cast_to<Resource>(p_object));
+        if (object_cast<Resource>(p_object))
+            do_op.resref = Ref<Resource>(object_cast<Resource>(p_object));
 
         do_op.type = Operation::TYPE_METHOD;
         do_op.name = p_method;
@@ -257,8 +257,8 @@ struct UndoRedo::PrivateData
 
         Operation undo_op;
         undo_op.object = p_object->get_instance_id();
-        if (Object::cast_to<Resource>(p_object))
-            undo_op.resref = Ref<Resource>(Object::cast_to<Resource>(p_object));
+        if (object_cast<Resource>(p_object))
+            undo_op.resref = Ref<Resource>(object_cast<Resource>(p_object));
 
         undo_op.type = Operation::TYPE_METHOD;
         undo_op.name = p_method;
@@ -272,8 +272,8 @@ struct UndoRedo::PrivateData
 
         Operation do_op;
         do_op.object = p_object->get_instance_id();
-        if (Object::cast_to<Resource>(p_object))
-            do_op.resref = Ref<Resource>(Object::cast_to<Resource>(p_object));
+        if (object_cast<Resource>(p_object))
+            do_op.resref = Ref<Resource>(object_cast<Resource>(p_object));
 
         do_op.type = Operation::TYPE_PROPERTY;
         do_op.name = p_property;
@@ -287,8 +287,8 @@ struct UndoRedo::PrivateData
 
         Operation undo_op;
         undo_op.object = p_object->get_instance_id();
-        if (Object::cast_to<Resource>(p_object))
-            undo_op.resref = Ref<Resource>(Object::cast_to<Resource>(p_object));
+        if (object_cast<Resource>(p_object))
+            undo_op.resref = Ref<Resource>(object_cast<Resource>(p_object));
 
         undo_op.type = Operation::TYPE_PROPERTY;
         undo_op.name = p_property;
@@ -298,8 +298,8 @@ struct UndoRedo::PrivateData
     void add_do_reference(Object *p_object) {
         Operation do_op;
         do_op.object = p_object->get_instance_id();
-        if (Object::cast_to<Resource>(p_object))
-            do_op.resref = Ref<Resource>(Object::cast_to<Resource>(p_object));
+        if (object_cast<Resource>(p_object))
+            do_op.resref = Ref<Resource>(object_cast<Resource>(p_object));
 
         do_op.type = Operation::TYPE_REFERENCE;
         actions[current_action + 1].do_ops.push_back(do_op);
@@ -311,8 +311,8 @@ struct UndoRedo::PrivateData
 
         Operation undo_op;
         undo_op.object = p_object->get_instance_id();
-        if (Object::cast_to<Resource>(p_object))
-            undo_op.resref = Ref<Resource>(Object::cast_to<Resource>(p_object));
+        if (object_cast<Resource>(p_object))
+            undo_op.resref = Ref<Resource>(object_cast<Resource>(p_object));
 
         undo_op.type = Operation::TYPE_REFERENCE;
         actions[current_action + 1].undo_ops.push_back(undo_op);

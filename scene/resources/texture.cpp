@@ -103,7 +103,7 @@ namespace  {
             return dynamic_ref_cast<ImageTexture>(p_resource)!=nullptr;
         }
         void get_recognized_extensions(const RES &p_resource, Vector<String> *p_extensions) const final {
-            if (Object::cast_to<ImageTexture>(p_resource.get()))
+            if (object_cast<ImageTexture>(p_resource.get()))
                 return m_saver->get_saved_extensions(p_extensions);
         }
 
@@ -2455,7 +2455,7 @@ RES ResourceFormatLoaderTextureLayered::load(const String &p_path, const String 
         }
     } else {
 
-        ERR_FAIL_V_MSG(RES(), "Unrecognized layered texture file format: " + String((const char *)header) + ".");
+        ERR_FAIL_V_MSG(RES(), "Unrecognized layered texture file format: " + String((const char *)header) + ".")
     }
 
     int tw = f->get_32();

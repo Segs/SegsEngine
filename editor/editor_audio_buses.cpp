@@ -540,7 +540,7 @@ void EditorAudioBus::_effect_add(int p_which) {
 
     Object *fx = ClassDB::instance(name);
     ERR_FAIL_COND(!fx)
-    AudioEffect *afx = Object::cast_to<AudioEffect>(fx);
+    AudioEffect *afx = object_cast<AudioEffect>(fx);
     ERR_FAIL_COND(!afx)
     Ref<AudioEffect> afxr = Ref<AudioEffect>(afx);
 
@@ -842,7 +842,7 @@ EditorAudioBus::EditorAudioBus(EditorAudioBuses *p_buses, bool p_is_master) {
 
     Ref<StyleBoxEmpty> sbempty(make_ref_counted<StyleBoxEmpty>());
     for (int i = 0; i < hbc->get_child_count(); i++) {
-        Control *child = Object::cast_to<Control>(hbc->get_child(i));
+        Control *child = object_cast<Control>(hbc->get_child(i));
         child->add_style_override("normal", sbempty);
         child->add_style_override("hover", sbempty);
         child->add_style_override("focus", sbempty);
@@ -1125,7 +1125,7 @@ void EditorAudioBuses::_update_sends() {
 
 void EditorAudioBuses::_delete_bus(Object *p_which) {
 
-    EditorAudioBus *bus = Object::cast_to<EditorAudioBus>(p_which);
+    EditorAudioBus *bus = object_cast<EditorAudioBus>(p_which);
     int index = bus->get_index();
     if (index == 0) {
         EditorNode::get_singleton()->show_warning(TTR("Master bus can't be deleted!"));
@@ -1178,7 +1178,7 @@ void EditorAudioBuses::_duplicate_bus(int p_which) {
 
 void EditorAudioBuses::_reset_bus_volume(Object *p_which) {
 
-    EditorAudioBus *bus = Object::cast_to<EditorAudioBus>(p_which);
+    EditorAudioBus *bus = object_cast<EditorAudioBus>(p_which);
     int index = bus->get_index();
 
     UndoRedo *ur = EditorNode::get_undo_redo();
@@ -1196,7 +1196,7 @@ void EditorAudioBuses::_request_drop_end() {
         drop_end = memnew(EditorAudioBusDrop);
 
         bus_hb->add_child(drop_end);
-        drop_end->set_custom_minimum_size(Object::cast_to<Control>(bus_hb->get_child(0))->get_size());
+        drop_end->set_custom_minimum_size(object_cast<Control>(bus_hb->get_child(0))->get_size());
         drop_end->connect("dropped", this, "_drop_at_index", varray(), ObjectNS::CONNECT_DEFERRED);
     }
 }
@@ -1427,9 +1427,9 @@ void EditorAudioBuses::open_layout(const String &p_path) {
 
 void AudioBusesEditorPlugin::edit(Object *p_node) {
 
-    if (Object::cast_to<AudioBusLayout>(p_node)) {
+    if (object_cast<AudioBusLayout>(p_node)) {
 
-        String path = Object::cast_to<AudioBusLayout>(p_node)->get_path();
+        String path = object_cast<AudioBusLayout>(p_node)->get_path();
         if (PathUtils::is_resource_file(path)) {
             audio_bus_editor->open_layout(path);
         }
@@ -1438,7 +1438,7 @@ void AudioBusesEditorPlugin::edit(Object *p_node) {
 
 bool AudioBusesEditorPlugin::handles(Object *p_node) const {
 
-    return (Object::cast_to<AudioBusLayout>(p_node) != nullptr);
+    return (object_cast<AudioBusLayout>(p_node) != nullptr);
 }
 
 void AudioBusesEditorPlugin::make_visible(bool p_visible) {

@@ -177,7 +177,7 @@ void InspectorDock::_resource_file_selected(const String& p_file) {
 void InspectorDock::_save_resource(bool save_as) const {
     uint32_t current = EditorNode::get_singleton()->get_editor_history()->get_current();
     Object *current_obj = current > 0 ? ObjectDB::get_instance(current) : nullptr;
-    RES current_res(Object::cast_to<Resource>(current_obj));
+    RES current_res(object_cast<Resource>(current_obj));
 
     ERR_FAIL_COND(not current_res)
 
@@ -191,7 +191,7 @@ void InspectorDock::_save_resource(bool save_as) const {
 void InspectorDock::_unref_resource() const {
     uint32_t current = EditorNode::get_singleton()->get_editor_history()->get_current();
     Object *current_obj = current > 0 ? ObjectDB::get_instance(current) : nullptr;
-    RES current_res(Object::cast_to<Resource>(current_obj));
+    RES current_res(object_cast<Resource>(current_obj));
 
     ERR_FAIL_COND(not current_res)
 
@@ -202,7 +202,7 @@ void InspectorDock::_unref_resource() const {
 void InspectorDock::_copy_resource() const {
     uint32_t current = EditorNode::get_singleton()->get_editor_history()->get_current();
     Object *current_obj = current > 0 ? ObjectDB::get_instance(current) : nullptr;
-    RES current_res(Object::cast_to<Resource>(current_obj));
+    RES current_res(object_cast<Resource>(current_obj));
 
     ERR_FAIL_COND(not current_res)
 
@@ -245,8 +245,8 @@ void InspectorDock::_prepare_history() {
         }
 
         String text;
-        if (Object::cast_to<Resource>(obj)) {
-            Resource *r = Object::cast_to<Resource>(obj);
+        if (object_cast<Resource>(obj)) {
+            Resource *r = object_cast<Resource>(obj);
             if (PathUtils::is_resource_file(r->get_path()))
                 text = PathUtils::get_file(r->get_path());
             else if (!r->get_name().empty()) {
@@ -254,8 +254,8 @@ void InspectorDock::_prepare_history() {
             } else {
                 text = r->get_class();
             }
-        } else if (Object::cast_to<Node>(obj)) {
-            text = Object::cast_to<Node>(obj)->get_name();
+        } else if (object_cast<Node>(obj)) {
+            text = object_cast<Node>(obj)->get_name();
         } else if (obj->is_class("ScriptEditorDebuggerInspectedObject")) {
             text = obj->call("get_title");
         } else {
@@ -282,7 +282,7 @@ void InspectorDock::_resource_created() const {
     Object *c = new_resource_dialog->instance_selected();
 
     ERR_FAIL_COND(!c)
-    Resource *r = Object::cast_to<Resource>(c);
+    Resource *r = object_cast<Resource>(c);
     ERR_FAIL_COND(!r)
 
     REF res(r);
@@ -319,7 +319,7 @@ void InspectorDock::_property_keyed(const String &p_keyed, const Variant &p_valu
 }
 
 void InspectorDock::_transform_keyed(Object *sp, const String &p_sub, const Transform &p_key) {
-    Spatial *s = Object::cast_to<Spatial>(sp);
+    Spatial *s = object_cast<Spatial>(sp);
     if (!s)
         return;
     AnimationPlayerEditor::singleton->get_track_editor()->insert_transform_key(s, p_sub, p_key);
@@ -492,7 +492,7 @@ void InspectorDock::update_keying() {
         if (editor_history->get_path_size() >= 1) {
 
             Object *obj = ObjectDB::get_instance(editor_history->get_path_object(0));
-            if (Object::cast_to<Node>(obj)) {
+            if (object_cast<Node>(obj)) {
 
                 valid = true;
             }

@@ -147,17 +147,17 @@ void PluginConfigDialog::config(const String &p_config_path) {
 
         _edit_mode = true;
         active_edit->hide();
-        Object::cast_to<Label>(active_edit->get_parent()->get_child(active_edit->get_index() - 1))->hide();
+        object_cast<Label>(active_edit->get_parent()->get_child(active_edit->get_index() - 1))->hide();
         subfolder_edit->hide();
-        Object::cast_to<Label>(subfolder_edit->get_parent()->get_child(subfolder_edit->get_index() - 1))->hide();
+        object_cast<Label>(subfolder_edit->get_parent()->get_child(subfolder_edit->get_index() - 1))->hide();
         set_title(TTR("Edit a Plugin"));
     } else {
         _clear_fields();
         _edit_mode = false;
         active_edit->show();
-        Object::cast_to<Label>(active_edit->get_parent()->get_child(active_edit->get_index() - 1))->show();
+        object_cast<Label>(active_edit->get_parent()->get_child(active_edit->get_index() - 1))->show();
         subfolder_edit->show();
-        Object::cast_to<Label>(subfolder_edit->get_parent()->get_child(subfolder_edit->get_index() - 1))->show();
+        object_cast<Label>(subfolder_edit->get_parent()->get_child(subfolder_edit->get_index() - 1))->show();
         set_title(TTR("Create a Plugin"));
     }
     get_ok()->set_disabled(!_edit_mode);

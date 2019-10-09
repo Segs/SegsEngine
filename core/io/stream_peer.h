@@ -117,11 +117,11 @@ public:
 	void resize(int p_size);
 
 	void set_data_array(const PoolVector<uint8_t> &p_data);
-	PoolVector<uint8_t> get_data_array() const;
+    const PoolVector<uint8_t> &get_data_array() const { return data; }
 
 	void clear();
 
 	Ref<StreamPeerBuffer> duplicate() const;
 
-	StreamPeerBuffer();
+    StreamPeerBuffer() : pointer(0) {}
 };

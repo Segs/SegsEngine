@@ -1649,11 +1649,6 @@ bool Image::empty() const {
     return (data.size() == 0);
 }
 
-PoolVector<uint8_t> Image::get_data() const {
-
-    return data;
-}
-
 void Image::create(int p_width, int p_height, bool p_use_mipmaps, Format p_format) {
 
     ERR_FAIL_INDEX(p_width - 1, MAX_WIDTH)

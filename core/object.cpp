@@ -859,7 +859,7 @@ void Object::call_multilevel(const StringName &p_method, const Variant **p_args,
 
     if (p_method == CoreStringNames::get_singleton()->_free) {
 #ifdef DEBUG_ENABLED
-        ERR_FAIL_COND_CMSG(Object::cast_to<RefCounted>(this), "Can't 'free' a reference.")
+        ERR_FAIL_COND_CMSG(object_cast<RefCounted>(this), "Can't 'free' a reference.")
 
         ERR_FAIL_COND_CMSG(private_data->_lock_index.get() > 1, "Object is locked and can't be freed.")
 #endif
@@ -997,7 +997,7 @@ Variant Object::call(const StringName &p_method, const Variant **p_args, int p_a
             r_error.error = Variant::CallError::CALL_ERROR_TOO_MANY_ARGUMENTS;
             return Variant();
         }
-        if (Object::cast_to<RefCounted>(this)) {
+        if (object_cast<RefCounted>(this)) {
             r_error.argument = 0;
             r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
             ERR_FAIL_V_CMSG(Variant(), "Can't 'free' a reference.")
@@ -1084,9 +1084,7 @@ void Object::get_inheritance_list_static(List<String> *p_inheritance_list) {
     p_inheritance_list->push_back(String("Object"));
 }
 
-StringName Object::get_class_static_name() {
-    return StaticCString("Object");
-}
+
 
 void Object::property_list_changed_notify() {
 
@@ -1239,9 +1237,9 @@ IObjectTooling *Object::get_tooling_interface() const
 
 void Object::add_user_signal(const MethodInfo &p_signal) {
 
-	ERR_FAIL_COND_CMSG(p_signal.name == "", "Signal name cannot be empty.")
-	ERR_FAIL_COND_MSG(ClassDB::has_signal(get_class_name(), p_signal.name), "User signal's name conflicts with a built-in signal of '" + get_class_name() + "'.")
-	ERR_FAIL_COND_MSG(private_data->signal_map.contains(p_signal.name), "Trying to add already existing signal '" + p_signal.name + "'.")
+    ERR_FAIL_COND_CMSG(p_signal.name == "", "Signal name cannot be empty.")
+    ERR_FAIL_COND_MSG(ClassDB::has_signal(get_class_name(), p_signal.name), "User signal's name conflicts with a built-in signal of '" + get_class_name() + "'.")
+    ERR_FAIL_COND_MSG(private_data->signal_map.contains(p_signal.name), "Trying to add already existing signal '" + p_signal.name + "'.")
     Signal s;
     s.user = p_signal;
     private_data->signal_map[p_signal.name] = s;

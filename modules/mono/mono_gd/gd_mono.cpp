@@ -934,13 +934,13 @@ Error GDMono::reload_scripts_domain() {
 
 	if (scripts_domain) {
 		Error domain_unload_err = _unload_scripts_domain();
-		ERR_FAIL_COND_V_MSG(domain_unload_err != OK, domain_unload_err, "Mono: Failed to unload scripts domain.")
+                ERR_FAIL_COND_V_CMSG(domain_unload_err != OK, domain_unload_err, "Mono: Failed to unload scripts domain.")
 	}
 
 	CSharpLanguage::get_singleton()->_on_scripts_domain_unloaded();
 
 	Error domain_load_err = _load_scripts_domain();
-	ERR_FAIL_COND_V_MSG(domain_load_err != OK, domain_load_err, "Mono: Failed to load scripts domain.")
+        ERR_FAIL_COND_V_CMSG(domain_load_err != OK, domain_load_err, "Mono: Failed to load scripts domain.")
 
 	// Load assemblies. The API and tools assemblies are required,
 	// the application is aborted if these assemblies cannot be loaded.

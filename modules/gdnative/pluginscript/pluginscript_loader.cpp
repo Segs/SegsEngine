@@ -102,12 +102,12 @@ Error ResourceFormatSaverPluginScript::save(const String &p_path, const RES &p_r
 
 void ResourceFormatSaverPluginScript::get_recognized_extensions(const RES &p_resource, Vector<String> *p_extensions) const {
 
-    if (Object::cast_to<PluginScript>(p_resource.get())) {
+    if (object_cast<PluginScript>(p_resource.get())) {
         p_extensions->push_back(_language->get_extension());
     }
 }
 
 bool ResourceFormatSaverPluginScript::recognize(const RES &p_resource) const {
 
-    return Object::cast_to<PluginScript>(p_resource.get()) != nullptr;
+    return object_cast<PluginScript>(p_resource.get()) != nullptr;
 }

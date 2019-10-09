@@ -688,12 +688,12 @@ void GridMap::_notification(int p_what) {
 
             Spatial *c = this;
             while (c) {
-                navigation = Object::cast_to<Navigation>(c);
+                navigation = object_cast<Navigation>(c);
                 if (navigation) {
                     break;
                 }
 
-                c = Object::cast_to<Spatial>(c->get_parent());
+                c = object_cast<Spatial>(c->get_parent());
             }
 
             last_transform = get_global_transform();

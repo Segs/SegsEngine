@@ -191,7 +191,7 @@ CSGBrush *CSGShape::_get_brush() {
 
         for (int i = 0; i < get_child_count(); i++) {
 
-            CSGShape *child = Object::cast_to<CSGShape>(get_child(i));
+            CSGShape *child = object_cast<CSGShape>(get_child(i));
             if (!child)
                 continue;
             if (!child->is_visible_in_tree())
@@ -532,7 +532,7 @@ void CSGShape::_notification(int p_what) {
 
         Node *parentn = get_parent();
         if (parentn) {
-            parent = Object::cast_to<CSGShape>(parentn);
+            parent = object_cast<CSGShape>(parentn);
             if (parent) {
                 set_base(RID());
                 root_mesh.unref();
@@ -1840,7 +1840,7 @@ CSGBrush *CSGPolygon::_build_brush() {
         Node *n = get_node(path_node);
         if (!n)
             return nullptr;
-        path = Object::cast_to<Path>(n);
+        path = object_cast<Path>(n);
         if (!path)
             return nullptr;
 
@@ -2110,7 +2110,7 @@ CSGBrush *CSGPolygon::_build_brush() {
                 } else {
                     Vector3 p1, p2;
                     p1 = curve->interpolate_baked(0);
-                    p2 = curve->interpolate_baked(0.1);
+                    p2 = curve->interpolate_baked(0.1f);
                     lookat_dir = (p2 - p1).normalized();
                 }
 
@@ -2131,7 +2131,7 @@ CSGBrush *CSGPolygon::_build_brush() {
 
                     if (path_rotation == PATH_ROTATION_PATH_FOLLOW && ofs > 0) {
                         //before end
-                        Vector3 p1 = curve->interpolate_baked(ofs - 0.1);
+                        Vector3 p1 = curve->interpolate_baked(ofs - 0.1f);
                         Vector3 p2 = curve->interpolate_baked(ofs);
                         local_dir = (p2 - p1).normalized();
 

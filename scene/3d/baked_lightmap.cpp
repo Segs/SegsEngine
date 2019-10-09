@@ -245,7 +245,7 @@ float BakedLightmap::get_bake_default_texels_per_unit() const {
 
 void BakedLightmap::_find_meshes_and_lights(Node *p_at_node, List<PlotMesh> &plot_meshes, List<PlotLight> &plot_lights) {
 
-    MeshInstance *mi = Object::cast_to<MeshInstance>(p_at_node);
+    MeshInstance *mi = object_cast<MeshInstance>(p_at_node);
     if (mi && mi->get_flag(GeometryInstance::FLAG_USE_BAKED_LIGHT) && mi->is_visible_in_tree()) {
         Ref<Mesh> mesh = mi->get_mesh();
         if (mesh) {
@@ -281,7 +281,7 @@ void BakedLightmap::_find_meshes_and_lights(Node *p_at_node, List<PlotMesh> &plo
         }
     }
 
-    Spatial *s = Object::cast_to<Spatial>(p_at_node);
+    Spatial *s = object_cast<Spatial>(p_at_node);
 
     if (!mi && s) {
         Array meshes = p_at_node->call("get_bake_meshes");
@@ -301,7 +301,7 @@ void BakedLightmap::_find_meshes_and_lights(Node *p_at_node, List<PlotMesh> &plo
         }
     }
 
-    Light *light = Object::cast_to<Light>(p_at_node);
+    Light *light = object_cast<Light>(p_at_node);
 
     if (light && light->get_bake_mode() != Light::BAKE_DISABLED) {
         PlotLight pl;
@@ -700,7 +700,7 @@ void BakedLightmap::_assign_lightmaps() {
                 VisualServer::get_singleton()->instance_set_use_lightmap(instance, get_instance(), lightmap->get_rid());
             }
         } else {
-            VisualInstance *vi = Object::cast_to<VisualInstance>(node);
+            VisualInstance *vi = object_cast<VisualInstance>(node);
             ERR_CONTINUE(!vi)
             VisualServer::get_singleton()->instance_set_use_lightmap(vi->get_instance(), get_instance(), lightmap->get_rid());
         }
@@ -718,7 +718,7 @@ void BakedLightmap::_clear_lightmaps() {
                 VisualServer::get_singleton()->instance_set_use_lightmap(instance, get_instance(), RID());
             }
         } else {
-            VisualInstance *vi = Object::cast_to<VisualInstance>(node);
+            VisualInstance *vi = object_cast<VisualInstance>(node);
             ERR_CONTINUE(!vi)
             VisualServer::get_singleton()->instance_set_use_lightmap(vi->get_instance(), get_instance(), RID());
         }

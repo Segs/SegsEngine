@@ -1652,7 +1652,7 @@ void ProjectList::erase_selected_projects() {
 
 // Draws selected project highlight
 void ProjectList::_panel_draw(Node *p_hb) {
-    Control *hb = Object::cast_to<Control>(p_hb);
+    Control *hb = object_cast<Control>(p_hb);
 
     hb->draw_line(Point2(0, hb->get_size().y + 1), Point2(hb->get_size().x - 10, hb->get_size().y + 1), get_color("guide_color", "Tree"));
 
@@ -1703,7 +1703,7 @@ void ProjectList::_panel_input(const Ref<InputEvent> &p_ev, Node *p_hb) {
 
 void ProjectList::_favorite_pressed(Node *p_hb) {
 
-    ProjectListItemControl *control = Object::cast_to<ProjectListItemControl>(p_hb);
+    ProjectListItemControl *control = object_cast<ProjectListItemControl>(p_hb);
 
     int index = control->get_index();
     Item item = _projects.write[index]; // Take copy

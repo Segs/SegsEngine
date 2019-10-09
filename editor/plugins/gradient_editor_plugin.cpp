@@ -87,12 +87,12 @@ GradientEditor::GradientEditor() {
 
 bool EditorInspectorPluginGradient::can_handle(Object *p_object) {
 
-    return Object::cast_to<Gradient>(p_object) != nullptr;
+    return object_cast<Gradient>(p_object) != nullptr;
 }
 
 void EditorInspectorPluginGradient::parse_begin(Object *p_object) {
 
-    Gradient *gradient = Object::cast_to<Gradient>(p_object);
+    Gradient *gradient = object_cast<Gradient>(p_object);
     Ref<Gradient> g(gradient);
 
     GradientEditor *editor = memnew(GradientEditor);

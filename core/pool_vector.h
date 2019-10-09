@@ -100,7 +100,7 @@ class PoolVector {
         if (!alloc)
             return;
 
-		//		ERR_FAIL_COND(alloc->lock>0); should not be illegal to lock this for copy on write, as it's a copy on write after all
+        //		ERR_FAIL_COND(alloc->lock>0); should not be illegal to lock this for copy on write, as it's a copy on write after all
 
         // Refcount should not be zero, otherwise it's a misuse of COW
         if (alloc->refcount.get() == 1)
@@ -198,10 +198,6 @@ class PoolVector {
         MemoryPool::releaseBlock(alloc);
         alloc = nullptr;
     }
-
-public:
-    using ValueType = T;
-
     class Access {
         friend class PoolVector;
 
@@ -244,6 +240,10 @@ public:
             _unref();
         }
     };
+
+public:
+    using ValueType = T;
+
 
     class Read : public Access {
     public:
@@ -392,8 +392,6 @@ public:
 
     Error resize(int p_size);
 
-    void invert();
-
     PoolVector & operator=(const PoolVector &p_pool_vector) { _reference(p_pool_vector); return *this; }
     PoolVector & operator=(PoolVector &&p_pool_vector) {
         if (this == &p_pool_vector || this->alloc==p_pool_vector.alloc)
@@ -405,7 +403,7 @@ public:
         p_pool_vector.alloc=nullptr;
         return *this;
     }
-    PoolVector() { alloc = nullptr; }
+    constexpr PoolVector() : alloc(nullptr) {}
     PoolVector(const PoolVector &p_pool_vector) {
         alloc = nullptr;
         _reference(p_pool_vector);
@@ -453,7 +451,7 @@ T PoolVector<T>::operator[](int p_index) const {
 template <class T>
 Error PoolVector<T>::resize(int p_size) {
 
-	ERR_FAIL_COND_V_CMSG(p_size < 0, ERR_INVALID_PARAMETER, "Size of PoolVector cannot be negative.")
+    ERR_FAIL_COND_V_CMSG(p_size < 0, ERR_INVALID_PARAMETER, "Size of PoolVector cannot be negative.")
 
     if (alloc == nullptr) {
 
@@ -463,7 +461,7 @@ Error PoolVector<T>::resize(int p_size) {
             return ERR_OUT_OF_MEMORY;
     } else {
 
-		ERR_FAIL_COND_V_CMSG(alloc->lock > 0, ERR_LOCKED, "Can't resize PoolVector if locked.") //can't resize if locked!
+        ERR_FAIL_COND_V_CMSG(alloc->lock > 0, ERR_LOCKED, "Can't resize PoolVector if locked.") //can't resize if locked!
     }
 
     size_t new_size = sizeof(T) * p_size;
@@ -526,10 +524,10 @@ Error PoolVector<T>::resize(int p_size) {
 }
 
 template <class T>
-void PoolVector<T>::invert() {
+void invert(PoolVector<T> &v) {
     T temp;
-    Write w = write();
-    int s = size();
+    typename PoolVector<T>::Write w = v.write();
+    int s = v.size();
     int half_s = s / 2;
 
     for (int i = 0; i < half_s; i++) {

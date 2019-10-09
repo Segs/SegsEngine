@@ -1567,7 +1567,7 @@ void EditorSettings::notify_changes() {
 
     _THREAD_SAFE_METHOD_
 
-    SceneTree *sml = Object::cast_to<SceneTree>(OS::get_singleton()->get_main_loop());
+    SceneTree *sml = object_cast<SceneTree>(OS::get_singleton()->get_main_loop());
 
     if (!sml) {
         return;

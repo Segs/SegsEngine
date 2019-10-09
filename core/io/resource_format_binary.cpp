@@ -530,7 +530,7 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
 #endif
 
             } else {
-                ERR_FAIL_V_MSG(ERR_UNAVAILABLE, "Vector3 size is NOT 12!");
+                ERR_FAIL_V_CMSG(ERR_UNAVAILABLE, "Vector3 size is NOT 12!")
             }
             w.release();
             r_v = array;
@@ -557,7 +557,7 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
 #endif
 
             } else {
-                ERR_FAIL_V_MSG(ERR_UNAVAILABLE, "Color size is NOT 16!");
+                ERR_FAIL_V_CMSG(ERR_UNAVAILABLE, "Color size is NOT 16!")
             }
             w.release();
             r_v = array;
@@ -720,7 +720,7 @@ Error ResourceInteractiveLoaderBinary::poll() {
         ERR_FAIL_V_MSG(ERR_FILE_CORRUPT, local_path + ":Resource of unrecognized type in file: " + t + ".")
     }
 
-    Resource *r = Object::cast_to<Resource>(obj);
+    Resource *r = object_cast<Resource>(obj);
     if (!r) {
         String obj_class = obj->get_class();
         error = ERR_FILE_CORRUPT;
@@ -1489,7 +1489,7 @@ void ResourceFormatSaverBinaryInstance::write_variant(FileAccess *f, const Varia
 
                 if (!resource_set.contains(res)) {
                     f->store_32(OBJECT_EMPTY);
-                    ERR_FAIL_MSG("Resource was not pre cached for the resource section, most likely due to circular reference.")
+                    ERR_FAIL_CMSG("Resource was not pre cached for the resource section, most likely due to circular reference.")
                 }
 
                 f->store_32(OBJECT_INTERNAL_RESOURCE);
@@ -1620,7 +1620,7 @@ void ResourceFormatSaverBinaryInstance::write_variant(FileAccess *f, const Varia
         } break;
         default: {
 
-            ERR_FAIL_MSG("Invalid variant.")
+            ERR_FAIL_CMSG("Invalid variant.")
         }
     }
 }

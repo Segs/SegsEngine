@@ -70,7 +70,7 @@ void AnimationNodeBlendSpace1DEditor::_blend_space_gui_input(const Ref<InputEven
         ERR_FAIL_COND(!gp)
 
         if (gp->has_node(gp->get_animation_player())) {
-            AnimationPlayer *ap = Object::cast_to<AnimationPlayer>(gp->get_node(gp->get_animation_player()));
+            AnimationPlayer *ap = object_cast<AnimationPlayer>(gp->get_node(gp->get_animation_player()));
 
             if (ap) {
                 ListPOD<StringName> names;
@@ -394,7 +394,7 @@ void AnimationNodeBlendSpace1DEditor::_add_menu_type(int p_index) {
 
         Object *obj = ClassDB::instance(type);
         ERR_FAIL_COND(!obj)
-        AnimationNode *an = Object::cast_to<AnimationNode>(obj);
+        AnimationNode *an = object_cast<AnimationNode>(obj);
         ERR_FAIL_COND(!an)
 
         node = dynamic_ref_cast<AnimationRootNode>(Ref<AnimationNode>(an));

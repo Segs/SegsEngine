@@ -183,7 +183,7 @@ void ProgressDialog::_popup() {
 void ProgressDialog::add_task(const String &p_task, const String &p_label, int p_steps, bool p_can_cancel) {
 
     if (MessageQueue::get_singleton()->is_flushing()) {
-        ERR_PRINT("Do not use progress dialog (task) while flushing the message queue or using call_deferred()!");
+        ERR_PRINT("Do not use progress dialog (task) while flushing the message queue or using call_deferred()!")
         return;
     }
 

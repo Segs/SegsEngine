@@ -101,7 +101,7 @@ Node *VisualScriptFunctionCall::_get_base_node() const {
         return nullptr;
 
     MainLoop *main_loop = OS::get_singleton()->get_main_loop();
-    SceneTree *scene_tree = Object::cast_to<SceneTree>(main_loop);
+    SceneTree *scene_tree = object_cast<SceneTree>(main_loop);
 
     if (!scene_tree)
         return nullptr;
@@ -782,7 +782,7 @@ public:
         if (!p_base)
             return false;
 
-        Node *node = Object::cast_to<Node>(p_base);
+        Node *node = object_cast<Node>(p_base);
         if (!node)
             return false;
 
@@ -823,7 +823,7 @@ public:
             } break;
             case VisualScriptFunctionCall::CALL_MODE_NODE_PATH: {
 
-                Node *node = Object::cast_to<Node>(instance->get_owner_ptr());
+                Node *node = object_cast<Node>(instance->get_owner_ptr());
                 if (!node) {
                     r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
                     r_error_str = "Base object is not a Node!";
@@ -975,7 +975,7 @@ Node *VisualScriptPropertySet::_get_base_node() const {
 
     MainLoop *main_loop = OS::get_singleton()->get_main_loop();
 
-    SceneTree *scene_tree = Object::cast_to<SceneTree>(main_loop);
+    SceneTree *scene_tree = object_cast<SceneTree>(main_loop);
 
     if (!scene_tree)
         return nullptr;
@@ -1172,7 +1172,7 @@ String VisualScriptPropertySet::get_base_script() const {
 
 void VisualScriptPropertySet::_update_cache() {
 
-    if (!Object::cast_to<SceneTree>(OS::get_singleton()->get_main_loop()))
+    if (!object_cast<SceneTree>(OS::get_singleton()->get_main_loop()))
         return;
 
     if (!Engine::get_singleton()->is_editor_hint()) //only update cache if editor exists, it's pointless otherwise
@@ -1619,7 +1619,7 @@ public:
             } break;
             case VisualScriptPropertySet::CALL_MODE_NODE_PATH: {
 
-                Node *node = Object::cast_to<Node>(instance->get_owner_ptr());
+                Node *node = object_cast<Node>(instance->get_owner_ptr());
                 if (!node) {
                     r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
                     r_error_str = "Base object is not a Node!";
@@ -1754,7 +1754,7 @@ Node *VisualScriptPropertyGet::_get_base_node() const {
 
     MainLoop *main_loop = OS::get_singleton()->get_main_loop();
 
-    SceneTree *scene_tree = Object::cast_to<SceneTree>(main_loop);
+    SceneTree *scene_tree = object_cast<SceneTree>(main_loop);
 
     if (!scene_tree)
         return nullptr;
@@ -2250,7 +2250,7 @@ public:
             } break;
             case VisualScriptPropertyGet::CALL_MODE_NODE_PATH: {
 
-                Node *node = Object::cast_to<Node>(instance->get_owner_ptr());
+                Node *node = object_cast<Node>(instance->get_owner_ptr());
                 if (!node) {
                     r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
                     r_error_str = RTR("Base object is not a Node!");

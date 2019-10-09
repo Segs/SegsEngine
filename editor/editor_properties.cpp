@@ -437,8 +437,8 @@ void EditorPropertyMember::_property_select() {
     } else if (hint == MEMBER_METHOD_OF_SCRIPT) {
 
         Object *obj = ObjectDB::get_instance(StringUtils::to_int64(hint_text));
-        if (Object::cast_to<Script>(obj)) {
-            selector->select_method_from_script(Ref<Script>(Object::cast_to<Script>(obj)), current);
+        if (object_cast<Script>(obj)) {
+            selector->select_method_from_script(Ref<Script>(object_cast<Script>(obj)), current);
         }
 
     } else if (hint == MEMBER_PROPERTY_OF_VARIANT_TYPE) {
@@ -469,8 +469,8 @@ void EditorPropertyMember::_property_select() {
     } else if (hint == MEMBER_PROPERTY_OF_SCRIPT) {
 
         Object *obj = ObjectDB::get_instance(StringUtils::to_int64(hint_text));
-        if (Object::cast_to<Script>(obj)) {
-            selector->select_property_from_script(Ref<Script>(Object::cast_to<Script>(obj)), current);
+        if (object_cast<Script>(obj)) {
+            selector->select_property_from_script(Ref<Script>(object_cast<Script>(obj)), current);
         }
     }
 }
@@ -1954,14 +1954,14 @@ void EditorPropertyNodePath::_node_selected(const NodePath &p_path) {
     Node *base_node = nullptr;
 
     if (!use_path_from_scene_root) {
-        base_node = Object::cast_to<Node>(get_edited_object());
+        base_node = object_cast<Node>(get_edited_object());
 
         if (!base_node) {
             //try a base node within history
             if (EditorNode::get_singleton()->get_editor_history()->get_path_size() > 0) {
                 Object *base = ObjectDB::get_instance(EditorNode::get_singleton()->get_editor_history()->get_path_object(0));
                 if (base) {
-                    base_node = Object::cast_to<Node>(base);
+                    base_node = object_cast<Node>(base);
                 }
             }
         }
@@ -1971,7 +1971,7 @@ void EditorPropertyNodePath::_node_selected(const NodePath &p_path) {
         base_node = get_edited_object()->call("get_root_path");
     }
 
-    if (!base_node && Object::cast_to<RefCounted>(get_edited_object())) {
+    if (!base_node && object_cast<RefCounted>(get_edited_object())) {
         Node *to_node = get_node(p_path);
         ERR_FAIL_COND(!to_node)
         path = get_tree()->get_edited_scene_root()->get_path_to(to_node);
@@ -2020,7 +2020,7 @@ void EditorPropertyNodePath::update_property() {
             base_node = get_tree()->get_root()->get_node(base_hint);
         }
     } else {
-        base_node = Object::cast_to<Node>(get_edited_object());
+        base_node = object_cast<Node>(get_edited_object());
     }
 
     if (!base_node || !base_node->has_node(p)) {
@@ -2212,7 +2212,7 @@ void EditorPropertyResource::_menu_option(int p_which) {
 
             Object *inst = ClassDB::instance(orig_type);
 
-            Ref<Resource> res = Ref<Resource>(Object::cast_to<Resource>(inst));
+            Ref<Resource> res = Ref<Resource>(object_cast<Resource>(inst));
 
             ERR_FAIL_COND(not res)
 
@@ -2249,8 +2249,8 @@ void EditorPropertyResource::_menu_option(int p_which) {
         } break;
         case OBJ_MENU_NEW_SCRIPT: {
 
-            if (Object::cast_to<Node>(get_edited_object())) {
-                EditorNode::get_singleton()->get_scene_tree_dock()->open_script_dialog(Object::cast_to<Node>(get_edited_object()));
+            if (object_cast<Node>(get_edited_object())) {
+                EditorNode::get_singleton()->get_scene_tree_dock()->open_script_dialog(object_cast<Node>(get_edited_object()));
             }
 
         } break;
@@ -2287,7 +2287,7 @@ void EditorPropertyResource::_menu_option(int p_which) {
 
             if (intype == "ViewportTexture") {
 
-                Resource *r = Object::cast_to<Resource>(get_edited_object());
+                Resource *r = object_cast<Resource>(get_edited_object());
                 if (r && PathUtils::is_resource_file(r->get_path())) {
                     EditorNode::get_singleton()->show_warning(TTR("Can't create a ViewportTexture on resources saved as a file.\nResource needs to belong to a scene."));
                     return;
@@ -2332,7 +2332,7 @@ void EditorPropertyResource::_menu_option(int p_which) {
             }
 
             ERR_BREAK(!obj);
-            Resource *resp = Object::cast_to<Resource>(obj);
+            Resource *resp = object_cast<Resource>(obj);
             ERR_BREAK(!resp);
             if (get_edited_object() && !base_type.empty() && base_type == "Script") {
                 //make visual script the right type
@@ -2382,7 +2382,7 @@ void EditorPropertyResource::_update_menu_items() {
 
     menu->clear();
 
-    if (get_edited_property() == "script" && base_type == "Script" && Object::cast_to<Node>(get_edited_object())) {
+    if (get_edited_property() == "script" && base_type == "Script" && object_cast<Node>(get_edited_object())) {
         menu->add_icon_item(get_icon("Script", "EditorIcons"), TTR("New Script"), OBJ_MENU_NEW_SCRIPT);
         menu->add_separator();
     } else if (!base_type.empty()) {
@@ -2761,7 +2761,7 @@ void EditorPropertyResource::_notification(int p_what) {
 void EditorPropertyResource::_viewport_selected(const NodePath &p_path) {
 
     Node *to_node = get_node(p_path);
-    if (!Object::cast_to<Viewport>(to_node)) {
+    if (!object_cast<Viewport>(to_node)) {
         EditorNode::get_singleton()->show_warning(TTR("Selected node is not a Viewport!"));
         return;
     }
