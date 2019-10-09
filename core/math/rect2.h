@@ -95,14 +95,14 @@ struct GODOT_EXPORT Rect2 {
 
 	bool intersects_segment(const Point2 &p_from, const Point2 &p_to, Point2 *r_pos = nullptr, Point2 *r_normal = nullptr) const;
 
-	bool encloses(const Rect2 &p_rect) const {
+    bool encloses(const Rect2 &p_rect) const {
 
-		return (p_rect.position.x >= position.x) && (p_rect.position.y >= position.y) &&
-			   ((p_rect.position.x + p_rect.size.x) < (position.x + size.x)) &&
-			   ((p_rect.position.y + p_rect.size.y) < (position.y + size.y));
-	}
+        return (p_rect.position.x >= position.x) && (p_rect.position.y >= position.y) &&
+               ((p_rect.position.x + p_rect.size.x) <= (position.x + size.x)) &&
+               ((p_rect.position.y + p_rect.size.y) <= (position.y + size.y));
+    }
 
-	_FORCE_INLINE_ bool has_no_area() const {
+    _FORCE_INLINE_ bool has_no_area() const {
 
 		return (size.x <= 0 || size.y <= 0);
 	}

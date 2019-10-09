@@ -1114,46 +1114,56 @@ void EditorHelp::_update_doc() {
         section_line.push_back(Pair<String, int>(TTR("Method Descriptions"), class_desc->get_line_count() - 2));
         class_desc->push_color(title_color);
         class_desc->push_font(doc_title_font);
-		class_desc->add_text(TTR("Method Descriptions"));
+        class_desc->add_text(TTR("Method Descriptions"));
         class_desc->pop();
         class_desc->pop();
 
         class_desc->add_newline();
         class_desc->add_newline();
 
-        for (int i = 0; i < methods.size(); i++) {
+        for (int pass = 0; pass < 2; pass++) {
+            Vector<DocData::MethodDoc> methods_filtered;
 
-            class_desc->push_font(doc_code_font);
-            _add_method(methods[i], false);
-            class_desc->pop();
-
-            class_desc->add_newline();
-            class_desc->add_newline();
-
-            class_desc->push_color(text_color);
-            class_desc->push_font(doc_font);
-            class_desc->push_indent(1);
-            if (not StringUtils::strip_edges(methods[i].description).empty()) {
-                _add_text(methods[i].description);
-            } else {
-                class_desc->add_image(get_icon("Error", "EditorIcons"));
-                class_desc->add_text(" ");
-                class_desc->push_color(comment_color);
-                String translated=TTR("There is currently no description for this method. Please help us by "
-                                      "[color=$color][url=$url]contributing one[/url][/color]!");
-                class_desc->append_bbcode(replace(replace(translated,"$url", CONTRIBUTE_URL),"$color", link_color_text));
-                class_desc->pop();
+            for (int i = 0; i < methods.size(); i++) {
+                const String &q = methods[i].qualifiers;
+                if ((pass == 0 && contains(q, "virtual")) || (pass == 1 && not contains(q, "virtual"))) {
+                    methods_filtered.push_back(methods[i]);
+                }
             }
 
-            class_desc->pop();
-            class_desc->pop();
-            class_desc->pop();
-            class_desc->add_newline();
-            class_desc->add_newline();
-            class_desc->add_newline();
+            for (int i = 0; i < methods_filtered.size(); i++) {
+                class_desc->push_font(doc_code_font);
+                _add_method(methods_filtered[i], false);
+                class_desc->pop();
+
+                class_desc->add_newline();
+                class_desc->add_newline();
+
+                class_desc->push_color(text_color);
+                class_desc->push_font(doc_font);
+                class_desc->push_indent(1);
+                if (not StringUtils::strip_edges(methods_filtered[i].description).empty()) {
+                    _add_text(methods_filtered[i].description);
+                } else {
+                    class_desc->add_image(get_icon("Error", "EditorIcons"));
+                    class_desc->add_text(" ");
+                    class_desc->push_color(comment_color);
+                    String translated = TTR("There is currently no description for this method. Please help us by "
+                                            "[color=$color][url=$url]contributing one[/url][/color]!");
+                    class_desc->append_bbcode(
+                            replace(replace(translated, "$url", CONTRIBUTE_URL), "$color", link_color_text));
+                    class_desc->pop();
+                }
+
+                class_desc->pop();
+                class_desc->pop();
+                class_desc->pop();
+                class_desc->add_newline();
+                class_desc->add_newline();
+                class_desc->add_newline();
+            }
         }
     }
-
     scroll_locked = false;
 }
 

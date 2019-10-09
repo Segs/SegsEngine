@@ -87,7 +87,7 @@ class SnapDialog : public ConfirmationDialog {
 
 public:
     SnapDialog() {
-        const int SPIN_BOX_GRID_RANGE = 256;
+        const int SPIN_BOX_GRID_RANGE = 16384;
         const int SPIN_BOX_ROTATION_RANGE = 360;
         Label *label;
         VBoxContainer *container;
@@ -111,6 +111,8 @@ public:
         grid_offset_x = memnew(SpinBox);
         grid_offset_x->set_min(-SPIN_BOX_GRID_RANGE);
         grid_offset_x->set_max(SPIN_BOX_GRID_RANGE);
+        grid_offset_x->set_allow_lesser(true);
+        grid_offset_x->set_allow_greater(true);
         grid_offset_x->set_suffix("px");
         grid_offset_x->set_h_size_flags(SIZE_EXPAND_FILL);
         child_container->add_child(grid_offset_x);
@@ -118,6 +120,8 @@ public:
         grid_offset_y = memnew(SpinBox);
         grid_offset_y->set_min(-SPIN_BOX_GRID_RANGE);
         grid_offset_y->set_max(SPIN_BOX_GRID_RANGE);
+        grid_offset_y->set_allow_lesser(true);
+        grid_offset_y->set_allow_greater(true);
         grid_offset_y->set_suffix("px");
         grid_offset_y->set_h_size_flags(SIZE_EXPAND_FILL);
         child_container->add_child(grid_offset_y);
@@ -130,6 +134,7 @@ public:
         grid_step_x = memnew(SpinBox);
         grid_step_x->set_min(0.01);
         grid_step_x->set_max(SPIN_BOX_GRID_RANGE);
+        grid_step_x->set_allow_greater(true);
         grid_step_x->set_suffix("px");
         grid_step_x->set_h_size_flags(SIZE_EXPAND_FILL);
         child_container->add_child(grid_step_x);
@@ -137,6 +142,7 @@ public:
         grid_step_y = memnew(SpinBox);
         grid_step_y->set_min(0.01);
         grid_step_y->set_max(SPIN_BOX_GRID_RANGE);
+        grid_step_y->set_allow_greater(true);
         grid_step_y->set_suffix("px");
         grid_step_y->set_h_size_flags(SIZE_EXPAND_FILL);
         child_container->add_child(grid_step_y);
@@ -2718,6 +2724,7 @@ void CanvasItemEditor::_draw_ruler_tool() {
         font_secondary_color.a = 0.5;
         float text_height = font->get_height();
         const float text_width = 76;
+        const float angle_text_width = 54;
 
         Point2 text_pos = (begin + end) / 2 - Vector2(text_width / 2, text_height / 2);
         text_pos.x = CLAMP(text_pos.x, text_width / 2, viewport->get_rect().size.x - text_width * 1.5);
@@ -2725,21 +2732,45 @@ void CanvasItemEditor::_draw_ruler_tool() {
         viewport->draw_string(font, text_pos, vformat("%.2f px", length_vector.length()), font_color);
 
         if (draw_secondary_lines) {
+            int horizontal_axis_angle = round(180 * std::atan2(length_vector.y, length_vector.x) / Math_PI);
+            int vertictal_axis_angle = 90 - horizontal_axis_angle;
 
             Point2 text_pos2 = text_pos;
             text_pos2.x = begin.x < text_pos.x ? MIN(text_pos.x - text_width, begin.x - text_width / 2) : MAX(text_pos.x + text_width, begin.x - text_width / 2);
             viewport->draw_string(font, text_pos2, vformat("%.2f px", length_vector.y), font_secondary_color);
 
+            Point2 v_angle_text_pos = Point2();
+            v_angle_text_pos.x = CLAMP(begin.x - angle_text_width / 2, angle_text_width / 2, viewport->get_rect().size.x - angle_text_width);
+            v_angle_text_pos.y = begin.y < end.y ? MIN(text_pos2.y - 2 * text_height, begin.y - text_height * 0.5f) : MAX(text_pos2.y + text_height * 3, begin.y + text_height * 1.5f);
+            viewport->draw_string(font, v_angle_text_pos, vformat("%d deg", vertictal_axis_angle), font_secondary_color);
+
             text_pos2 = text_pos;
             text_pos2.y = end.y < text_pos.y ? MIN(text_pos.y - text_height * 2, end.y - text_height / 2) : MAX(text_pos.y + text_height * 2, end.y - text_height / 2);
             viewport->draw_string(font, text_pos2, vformat("%.2f px", length_vector.x), font_secondary_color);
+
+            Point2 h_angle_text_pos = Point2();
+            h_angle_text_pos.x = CLAMP(end.x - angle_text_width / 2, angle_text_width / 2, viewport->get_rect().size.x - angle_text_width);
+            if (begin.y < end.y) {
+                h_angle_text_pos.y = end.y + text_height * 1.5f;
+                if (ABS(text_pos2.x - h_angle_text_pos.x) < text_width) {
+                    int height_multiplier = 1.5f + (int)is_snap_active;
+                    h_angle_text_pos.y = MAX(text_pos.y + height_multiplier * text_height, MAX(end.y + text_height * 1.5f, text_pos2.y + height_multiplier * text_height));
+                }
+            } else {
+                h_angle_text_pos.y = end.y - text_height * 0.5f;
+                if (ABS(text_pos2.x - h_angle_text_pos.x) < text_width) {
+                    int height_multiplier = 1 + (int)is_snap_active;
+                    h_angle_text_pos.y = MIN(text_pos.y - height_multiplier * text_height, MIN(end.y - text_height * 0.5f, text_pos2.y - height_multiplier * text_height));
+                }
+            }
+            viewport->draw_string(font, h_angle_text_pos, vformat("%d deg", horizontal_axis_angle), font_secondary_color);
         }
 
         if (is_snap_active) {
 
             text_pos = (begin + end) / 2 + Vector2(-text_width / 2, text_height / 2);
-            text_pos.x = CLAMP(text_pos.x, text_width / 2, viewport->get_rect().size.x - text_width * 1.5);
-            text_pos.y = CLAMP(text_pos.y, text_height * 2.5, viewport->get_rect().size.y - text_height / 2);
+            text_pos.x = CLAMP(text_pos.x, text_width / 2, viewport->get_rect().size.x - text_width * 1.5f);
+            text_pos.y = CLAMP(text_pos.y, text_height * 2.5f, viewport->get_rect().size.y - text_height / 2);
 
             if (draw_secondary_lines) {
                 viewport->draw_string(font, text_pos, vformat("%.2f units", (length_vector / grid_step).length()), font_color);
@@ -5341,7 +5372,7 @@ CanvasItemEditor::CanvasItemEditor(EditorNode *p_editor) {
     p->set_hide_on_checkable_item_selection(false);
     p->add_check_shortcut(ED_SHORTCUT("canvas_item_editor/show_grid", TTR("Show Grid"), KEY_G), SHOW_GRID);
     p->add_check_shortcut(ED_SHORTCUT("canvas_item_editor/show_helpers", TTR("Show Helpers"), KEY_H), SHOW_HELPERS);
-    p->add_check_shortcut(ED_SHORTCUT("canvas_item_editor/show_rulers", TTR("Show Rulers"), KEY_MASK_CMD | KEY_R), SHOW_RULERS);
+    p->add_check_shortcut(ED_SHORTCUT("canvas_item_editor/show_rulers", TTR("Show Rulers")), SHOW_RULERS);
     p->add_check_shortcut(ED_SHORTCUT("canvas_item_editor/show_guides", TTR("Show Guides"), KEY_Y), SHOW_GUIDES);
     p->add_check_shortcut(ED_SHORTCUT("canvas_item_editor/show_origin", TTR("Show Origin")), SHOW_ORIGIN);
     p->add_check_shortcut(ED_SHORTCUT("canvas_item_editor/show_viewport", TTR("Show Viewport")), SHOW_VIEWPORT);

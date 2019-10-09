@@ -111,7 +111,8 @@ enum Margin {
     MARGIN_LEFT,
     MARGIN_TOP,
     MARGIN_RIGHT,
-    MARGIN_BOTTOM
+    MARGIN_BOTTOM,
+    MARGIN_MAX
 };
 
 enum Corner {

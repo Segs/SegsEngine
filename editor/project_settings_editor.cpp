@@ -81,6 +81,26 @@ static const char *_axis_names[JOY_AXIS_MAX * 2] = {
     "", " (R2)"
 };
 
+void ProjectSettingsEditor::_unhandled_input(const Ref<InputEvent> &p_event) {
+
+    const Ref<InputEventKey> k(dynamic_ref_cast<InputEventKey>(p_event));
+
+    if (k && is_window_modal_on_top() && k->is_pressed()) {
+
+        if (k->get_scancode_with_modifiers() == (KEY_MASK_CMD | KEY_F)) {
+            if (search_button->is_pressed()) {
+                search_box->grab_focus();
+                search_box->select_all();
+            } else {
+                // This toggles the search bar display while giving the button its "pressed" appearance
+                search_button->set_pressed(true);
+            }
+
+            accept_event();
+        }
+    }
+}
+
 void ProjectSettingsEditor::_notification(int p_what) {
 
     switch (p_what) {
@@ -122,6 +142,7 @@ void ProjectSettingsEditor::_notification(int p_what) {
         } break;
         case NOTIFICATION_POPUP_HIDE: {
             EditorSettings::get_singleton()->set_project_metadata("dialog_bounds", "project_settings", get_rect());
+            set_process_unhandled_input(false);
         } break;
         case EditorSettings::NOTIFICATION_EDITOR_SETTINGS_CHANGED: {
             search_button->set_icon(get_icon("Search", "EditorIcons"));
@@ -796,13 +817,14 @@ void ProjectSettingsEditor::popup_project_settings() {
     if (saved_size != Rect2()) {
         popup(saved_size);
     } else {
-        popup_centered_clamped(Size2(900, 700) * EDSCALE, 0.8);
+        popup_centered_clamped(Size2(900, 700) * EDSCALE, 0.8f);
     }
 
     globals_editor->update_category_list();
     _update_translations();
     autoload_settings->update_autoload();
     plugin_settings->update_plugins();
+    set_process_unhandled_input(true);
 }
 
 void ProjectSettingsEditor::update_plugins() {
@@ -826,13 +848,9 @@ void ProjectSettingsEditor::_item_adds(const String&) {
 
 void ProjectSettingsEditor::_item_add() {
 
-    Variant value;
-    switch (type->get_selected()) {
-        case 0: value = false; break;
-        case 1: value = 0; break;
-        case 2: value = 0.0; break;
-        case 3: value = ""; break;
-    }
+    // Initialize the property with the default value for the given type
+    Variant::CallError ce;
+    const Variant value = Variant::construct(VariantType(type->get_selected()), nullptr, 0, ce);
 
     String catname = StringUtils::strip_edges(category->get_text());
     String propname = StringUtils::strip_edges(property->get_text());
@@ -1699,6 +1717,7 @@ void ProjectSettingsEditor::_editor_restart_close() {
 
 void ProjectSettingsEditor::_bind_methods() {
 
+    MethodBinder::bind_method(D_METHOD("_unhandled_input"), &ProjectSettingsEditor::_unhandled_input);
     MethodBinder::bind_method(D_METHOD("_item_selected"), &ProjectSettingsEditor::_item_selected);
     MethodBinder::bind_method(D_METHOD("_item_add"), &ProjectSettingsEditor::_item_add);
     MethodBinder::bind_method(D_METHOD("_item_adds"), &ProjectSettingsEditor::_item_adds);
@@ -1813,10 +1832,10 @@ ProjectSettingsEditor::ProjectSettingsEditor(EditorData *p_data) {
     type = memnew(OptionButton);
     type->set_h_size_flags(Control::SIZE_EXPAND_FILL);
     add_prop_bar->add_child(type);
-    type->add_item("bool");
-    type->add_item("int");
-    type->add_item("float");
-    type->add_item("string");
+    // Start at 1 to avoid adding "Nil" as an option
+    for (int i = 1; i < (int)VariantType::VARIANT_MAX; i++) {
+        type->add_item(Variant::get_type_name(VariantType(i)), i);
+    }
 
     Button *add = memnew(Button);
     add_prop_bar->add_child(add);

@@ -30,12 +30,11 @@
 
 #pragma once
 
-#include "core/image.h"
 #include "core/plugin_interfaces/PluginDeclarations.h"
 
 class StringName;
 
-class ResourceImporterCoHTexture : public QObject, public ResourceLoaderInterface {
+class ResourceLoaderCoHTexture : public QObject, public ResourceLoaderInterface {
 
     Q_PLUGIN_METADATA(IID "org.godot.CoHTextureLoader")
     Q_INTERFACES(ResourceLoaderInterface)
@@ -47,5 +46,5 @@ public:
     bool handles_type(const String &p_type) const override;
     String get_resource_type(const String &p_path) const override;
 
-    ~ResourceImporterCoHTexture() override = default;
+    ~ResourceLoaderCoHTexture() override = default;
 };

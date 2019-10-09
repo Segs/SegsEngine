@@ -156,6 +156,8 @@ Rect2 RichTextLabel::_get_text_rect() {
 }
 int RichTextLabel::_process_line(ItemFrame *p_frame, const Vector2 &p_ofs, int &y, int p_width, int p_line, ProcessMode p_mode, const Ref<Font> &p_base_font, const Color &p_base_color, const Color &p_font_color_shadow, bool p_shadow_as_outline, const Point2 &shadow_ofs, const Point2i &p_click_pos, Item **r_click_item, int *r_click_char, bool *r_outside, int p_char_count) {
 
+    ERR_FAIL_INDEX_V((int)p_mode, 3, 0)
+
     RID ci;
     if (r_outside)
         *r_outside = false;
@@ -178,7 +180,7 @@ int RichTextLabel::_process_line(ItemFrame *p_frame, const Vector2 &p_ofs, int &
 
     if (p_mode != PROCESS_CACHE) {
 
-        ERR_FAIL_INDEX_V(line, l.offset_caches.size(), 0);
+        ERR_FAIL_INDEX_V(line, l.offset_caches.size(), 0)
         line_ofs = l.offset_caches[line];
     }
 
@@ -1428,6 +1430,8 @@ bool RichTextLabel::_find_strikethrough(Item *p_item) {
 }
 
 bool RichTextLabel::_find_by_type(Item *p_item, ItemType p_type) {
+    ERR_FAIL_INDEX_V((int)p_type, int(ITEM_TYPE_MAX), false)
+
     Item *item = p_item;
 
     while (item) {

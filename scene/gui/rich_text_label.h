@@ -73,7 +73,8 @@ public:
         ITEM_TORNADO,
         ITEM_RAINBOW,
         ITEM_META,
-        ITEM_CUSTOMFX
+        ITEM_CUSTOMFX,
+        ITEM_TYPE_MAX,
     };
 
 protected:

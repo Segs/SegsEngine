@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "texture_rect.h"
+#include "core/core_string_names.h"
 #include "servers/visual_server.h"
 #include "core/method_bind.h"
 
@@ -129,6 +130,7 @@ void TextureRect::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("is_flipped_v"), &TextureRect::is_flipped_v);
     MethodBinder::bind_method(D_METHOD("set_stretch_mode", {"stretch_mode"}), &TextureRect::set_stretch_mode);
     MethodBinder::bind_method(D_METHOD("get_stretch_mode"), &TextureRect::get_stretch_mode);
+    MethodBinder::bind_method(D_METHOD("_texture_changed"), &TextureRect::_texture_changed);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_texture", "get_texture");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "expand"), "set_expand", "has_expand");
@@ -145,10 +147,25 @@ void TextureRect::_bind_methods() {
     BIND_ENUM_CONSTANT(STRETCH_KEEP_ASPECT_CENTERED)
     BIND_ENUM_CONSTANT(STRETCH_KEEP_ASPECT_COVERED)
 }
+void TextureRect::_texture_changed() {
 
+    if (texture) {
+        update();
+        minimum_size_changed();
+    }
+}
 void TextureRect::set_texture(const Ref<Texture> &p_tex) {
+    if (p_tex == texture)
+        return;
+
+    if (texture)
+        texture->disconnect(CoreStringNames::get_singleton()->changed, this, "_texture_changed");
 
     texture = p_tex;
+
+    if (texture)
+        texture->connect(CoreStringNames::get_singleton()->changed, this, "_texture_changed");
+
     if(not p_tex)
     {
         //NOTE: this is potential break-point location for finding missing textures :)
