@@ -98,6 +98,12 @@ public:
     const char* get_name() const noexcept { return "wrap godot allocator"; }
     void        set_name(const char* pName) {}
 };
+template<typename T>
+struct GenericDeleter {
+    void operator()(T *fa) const {
+        memdelete(fa);
+    }
+};
 
 template <class T>
 class GODOT_EXPORT wrap_allocator_T : public wrap_allocator {

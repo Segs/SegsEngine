@@ -19,12 +19,15 @@
 //THE SOFTWARE.
 
 
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
-
 #include "triangulator.h"
 
+#include "core/sort_array.h"
+#include "core/typedefs.h"
+#include "core/math/vector2.h"
+
+#include "EASTL/type_traits.h"
+#include <math.h>
+#include <string.h>
 
 #define TRIANGULATOR_VERTEXTYPE_REGULAR 0
 #define TRIANGULATOR_VERTEXTYPE_START 1

@@ -20,7 +20,7 @@ add_library(thirdparty_misc OBJECT
         # Used in scene
         ${PROJECT_SOURCE_DIR}/thirdparty/misc/mikktspace.c
     )
-target_include_directories(thirdparty_misc PUBLIC thirdparty/misc/)
+target_include_directories(thirdparty_misc PUBLIC misc/)
 target_link_libraries(thirdparty_misc PUBLIC zlib)
 target_link_libraries(thirdparty_misc PRIVATE EASTL_Import)
 set_property(TARGET thirdparty_misc PROPERTY POSITION_INDEPENDENT_CODE ON)
@@ -32,18 +32,21 @@ if(OPTION_MINIZIP)
         # However, our version has some custom modifications, so it won't compile with the system one
             ${PROJECT_SOURCE_DIR}/thirdparty/minizip/ioapi.c
             ${PROJECT_SOURCE_DIR}/thirdparty/minizip/unzip.c
+            ${PROJECT_SOURCE_DIR}/thirdparty/minizip/unzip.h
             ${PROJECT_SOURCE_DIR}/thirdparty/minizip/zip.c
+            ${PROJECT_SOURCE_DIR}/thirdparty/minizip/zip.h
         )
-add_library(minizip_interface INTERFACE)  
-target_include_directories(minizip PUBLIC thirdparty/misc/)
-# export minizip symbols.
-target_compile_definitions(minizip PUBLIC ZLIB_DLL)
-target_compile_definitions(minizip PUBLIC ZLIB_INTERNAL)
-target_compile_definitions(minizip_interface INTERFACE ZLIB_DLL)
-target_include_directories(minizip_interface INTERFACE thirdparty/misc/)
-target_link_libraries(minizip PUBLIC zlib)
-target_link_libraries(minizip PRIVATE EASTL_Import)
-set_property(TARGET minizip PROPERTY POSITION_INDEPENDENT_CODE ON)
+    target_include_directories(minizip PUBLIC thirdparty/misc/)
+    # export minizip symbols.
+    target_compile_definitions(minizip PUBLIC ZLIB_DLL)
+    target_compile_definitions(minizip PUBLIC ZLIB_INTERNAL)
+    target_link_libraries(minizip PUBLIC zlib)
+    target_link_libraries(minizip PRIVATE EASTL_Import)
+    set_property(TARGET minizip PROPERTY POSITION_INDEPENDENT_CODE ON)
+
+    add_library(minizip_interface INTERFACE)
+    target_compile_definitions(minizip_interface INTERFACE ZLIB_DLL)
+    target_include_directories(minizip_interface INTERFACE minizip/)
 # minizip functions need to be accessible from plugins ? set_common_target_properties(minizip)
 endif()
 

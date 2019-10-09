@@ -55,7 +55,8 @@ public:
 
     // ResourceImporterInterface defaults
 public:
-    float get_priority() const override {return 1.0f;}
+    // priority lowered to make images the default import mode.
+    float get_priority() const override {return 0.9f;}
     int get_import_order() const override {return 0;}
     String get_option_group_file() const override { return String(); }
     Error import_group_file(const String & /*p_group_file*/, const Map<String, Map<StringName, Variant> > & /*p_source_file_options*/, const Map<String, String> & /*p_base_paths*/) override {

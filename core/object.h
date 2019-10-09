@@ -33,27 +33,11 @@
 #include "core/os/memory.h"
 #include "core/variant.h"
 #include "core/vector.h"
-
+#include "core/forward_decls.h"
 /**
 @author Juan Linietsky <reduzio@gmail.com>
 */
 
-template <class T, class A>
-class List;
-namespace eastl {
-template <class T, class A>
-class list;
-template <class K,class CMP, class A>
-class set;
-
-}
-
-template <class T>
-using DefList = class List<T,DefaultAllocator>;
-template<class T>
-using ListPOD = eastl::list<T,wrap_allocator>;
-template <class T>
-using Set = eastl::set<T, Comparator<T>, wrap_allocator>;
 
 #define VARIANT_ARG_LIST const Variant &p_arg1 = Variant(), const Variant &p_arg2 = Variant(), const Variant &p_arg3 = Variant(), const Variant &p_arg4 = Variant(), const Variant &p_arg5 = Variant()
 #define VARIANT_ARG_PASS p_arg1, p_arg2, p_arg3, p_arg4, p_arg5

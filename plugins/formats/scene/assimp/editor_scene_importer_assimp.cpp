@@ -30,7 +30,6 @@
 
 #include "editor_scene_importer_assimp.h"
 
-#include "core/bind/core_bind.h"
 #include "core/io/image_loader.h"
 #include "editor/editor_file_system.h"
 #include "editor/import/resource_importer_scene.h"
@@ -58,22 +57,50 @@
 #include <assimp/Logger.hpp>
 #include <string>
 
+using namespace AssimpImporter;
+
+class AssimpStream : public Assimp::LogStream {
+public:
+    // Constructor
+    AssimpStream() {}
+
+    // Destructor
+    ~AssimpStream() override {}
+    // Write something using your own functionality
+    void write(const char *message) override {
+        print_verbose(String("Open Asset Import: ") + StringUtils::strip_edges(message));
+    }
+};
+static String decaptialize(String a)
+{
+    QString res;
+    for(QChar c : a.m_str)
+    {
+        if(c.isUpper()) {
+            res+='_';
+            res+=c.toLower();
+        }
+        else if(c.isSpace())
+            res+='_';
+        else
+            res+=c;
+    }
+    return res;
+}
 void EditorSceneImporterAssimp::get_extensions(Vector<String> *r_extensions) const {
 
     const String import_setting_string = "filesystem/import/open_asset_import/";
-
+    Assimp::Importer importer;
+    size_t imp_count = importer.GetImporterCount();
     Map<String, ImportFormat> import_format;
+    for(size_t i=0; i<imp_count; ++i)
     {
-        Vector<String> exts;
-        exts.push_back("fbx");
+        const aiImporterDesc *idesc = importer.GetImporterInfo(i);
+        Vector<String> exts = StringUtils::split(idesc->mFileExtensions,' ');
         ImportFormat import = { exts, true };
-        import_format.emplace("fbx", import);
-    }
-    {
-        Vector<String> exts;
-        exts.push_back("pmx");
-        ImportFormat import = { exts, true };
-        import_format.emplace("mmd", import);
+
+        String generic_name = decaptialize(idesc->mName);
+        import_format.emplace(generic_name, import);
     }
     for (eastl::pair<const String,ImportFormat> &E : import_format) {
         _register_project_setting_import(E.first, import_setting_string, E.second.extensions, r_extensions, E.second.is_default);
@@ -95,6 +122,16 @@ uint32_t EditorSceneImporterAssimp::get_import_flags() const {
 }
 
 void EditorSceneImporterAssimp::_bind_methods() {
+}
+
+EditorSceneImporterAssimp::EditorSceneImporterAssimp() {
+    Assimp::DefaultLogger::create("", Assimp::Logger::VERBOSE);
+    unsigned int severity = Assimp::Logger::Info | Assimp::Logger::Err | Assimp::Logger::Warn;
+    Assimp::DefaultLogger::get()->attachStream(new AssimpStream(), severity);
+}
+
+EditorSceneImporterAssimp::~EditorSceneImporterAssimp() {
+    Assimp::DefaultLogger::kill();
 }
 
 Node *EditorSceneImporterAssimp::import_scene(const String &p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err) {
@@ -1271,7 +1308,7 @@ void EditorSceneImporterAssimp::create_bone(ImportState &state, RecursiveState &
     // this transform is a bone
     recursive_state.skeleton->add_bone(recursive_state.node_name);
 
-	//ERR_FAIL_COND(recursive_state.skeleton->get_name() == "");
+    //ERR_FAIL_COND(recursive_state.skeleton->get_name() == "");
     print_verbose("Bone added to lookup: " + AssimpUtils::get_assimp_string(recursive_state.bone->mName));
     print_verbose("Skeleton attached to: " + recursive_state.skeleton->get_name());
     // make sure to write the bone lookup inverse so we can retrieve the mesh for this bone later

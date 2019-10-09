@@ -1,21 +1,13 @@
 #pragma once
 
-#include "core/vector.h"
-
 #include <cstdint>
 
-class Image;
-enum Error : int;
-class FileAccess;
-class String;
-class Node;
 class Animation;
-struct ImageData;
-
-template <class T>
-class Ref;
-template <class T>
-class PoolVector;
+class Node;
+class String;
+template <class T> class Ref;
+template <class T> class Vector;
+enum Error : int;
 
 class EditorSceneImporterInterface {
 public:
