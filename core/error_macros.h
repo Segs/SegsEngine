@@ -32,8 +32,6 @@
 
 #include "core/typedefs.h"
 
-class QString;
-
 /**
  * Error macros. Unlike exceptions and asserts, these macros try to maintain consistency and stability
  * inside the code. It is recommended to always return processable data, so in case of an error, the

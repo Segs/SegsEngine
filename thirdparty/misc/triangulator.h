@@ -20,10 +20,13 @@
 
 #pragma once
 
-
-#include "core/list.h"
+#include "core/os/memory.h"
 #include "core/math/vector2.h"
-#include "core/set.h"
+#include "core/math/math_defs.h"
+#include "core/forward_decls.h"
+
+#include "EASTL/list.h"
+#include "EASTL/set.h"
 //2D point structure
 
 

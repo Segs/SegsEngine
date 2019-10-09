@@ -30,8 +30,8 @@
 
 #pragma once
 
-#ifdef TOOLS_ENABLED
-#include "core/bind/core_bind.h"
+#include "editor/plugin_interfaces/PluginDeclarations.h"
+
 #include "core/io/resource_importer.h"
 #include "core/vector.h"
 #include "editor/import/resource_importer_scene.h"
@@ -53,23 +53,11 @@
 #include "import_state.h"
 #include "import_utils.h"
 
-using namespace AssimpImporter;
+class EditorSceneImporterAssimp : public QObject, public EditorSceneImporterInterface {
+    Q_PLUGIN_METADATA(IID "org.godot.ASSIMPImporter")
+    Q_INTERFACES(EditorSceneImporterInterface)
+    Q_OBJECT
 
-class AssimpStream : public Assimp::LogStream {
-public:
-    // Constructor
-    AssimpStream() {}
-
-    // Destructor
-    ~AssimpStream() override {}
-    // Write something using your own functionality
-    void write(const char *message) override {
-        print_verbose(String("Open Asset Import: ") + StringUtils::strip_edges(message));
-    }
-};
-
-
-class EditorSceneImporterAssimp : public EditorSceneImporterInterface {
 private:
 
     const String ASSIMP_FBX_KEY = "_$AssimpFbx$";
@@ -137,14 +125,8 @@ protected:
     static void _bind_methods();
 
 public:
-    EditorSceneImporterAssimp() {
-        Assimp::DefaultLogger::create("", Assimp::Logger::VERBOSE);
-        unsigned int severity = Assimp::Logger::Info | Assimp::Logger::Err | Assimp::Logger::Warn;
-        Assimp::DefaultLogger::get()->attachStream(new AssimpStream(), severity);
-    }
-    ~EditorSceneImporterAssimp() override {
-        Assimp::DefaultLogger::kill();
-    }
+    EditorSceneImporterAssimp();
+    ~EditorSceneImporterAssimp() override;
 
     void get_extensions(Vector<String> *r_extensions) const override;
     uint32_t get_import_flags() const override;
@@ -155,4 +137,3 @@ public:
 
     Ref<Animation> import_animation(const String &p_path, uint32_t p_flags, int p_bake_fps) override;
 };
-#endif

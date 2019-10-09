@@ -31,6 +31,7 @@
 #include "editor_about.h"
 #include "editor_node.h"
 
+#include "editor/editor_scale.h"
 #include "core/method_bind.h"
 #include "core/authors.gen.h"
 #include "core/donors.gen.h"
@@ -262,4 +263,4 @@ EditorAbout::EditorAbout() {
     _tpl_text->set_text(tpl_ti_all->get_metadata(0));
 }
 
-EditorAbout::~EditorAbout() {}
+EditorAbout::~EditorAbout() = default;

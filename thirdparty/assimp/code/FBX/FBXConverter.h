@@ -77,14 +77,6 @@ namespace FBX {
 
 class Document;
 
-enum class FbxUnit {
-    cm = 0,
-    m,
-    km,
-    NumUnits,
-
-    Undefined
-};
 
 /** 
  *  Convert a FBX #Document to #aiScene
@@ -92,7 +84,7 @@ enum class FbxUnit {
  *  @param doc Parsed FBX document
  *  @param removeEmptyBones Will remove bones, which do not have any references to vertices.
  */
-void ConvertToAssimpScene(aiScene* out, const Document& doc, bool removeEmptyBones, FbxUnit unit);
+void ConvertToAssimpScene(aiScene* out, const Document& doc, bool removeEmptyBones);
 
 /** Dummy class to encapsulate the conversion process */
 class FBXConverter {
@@ -123,7 +115,7 @@ public:
     };
 
 public:
-    FBXConverter(aiScene* out, const Document& doc, bool removeEmptyBones, FbxUnit unit);
+    FBXConverter(aiScene* out, const Document& doc, bool removeEmptyBones);
     ~FBXConverter();
 
 private:
@@ -466,7 +458,6 @@ private:
 
     aiScene* const out;
     const FBX::Document& doc;
-    FbxUnit mCurrentUnit;
 };
 
 }

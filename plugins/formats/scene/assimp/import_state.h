@@ -31,7 +31,6 @@
 #ifndef EDITOR_SCENE_IMPORT_STATE_H
 #define EDITOR_SCENE_IMPORT_STATE_H
 
-#include "core/bind/core_bind.h"
 #include "core/io/resource_importer.h"
 #include "core/vector.h"
 #include "editor/import/resource_importer_scene.h"
