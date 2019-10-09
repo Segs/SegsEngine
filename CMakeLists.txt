@@ -23,18 +23,17 @@ cmake_policy(SET CMP0065 NEW)
 cmake_policy(SET CMP0072 NEW)
 cmake_policy(SET CMP0079 NEW)
 
-
-set(VD_SRC "${VisualDesigner_SOURCE_DIR}/src/visualdesigner")
-
-add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
-add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
-
 include(LocateQt5)
 find_package(Qt5 COMPONENTS Core REQUIRED)
 #find_package(Dotnet)
 include(GenerateExportHeader)
 include(Helpers)
 include(PluginSupport)
+####################### COTIRE SUPPORT
+include(cotire)
+set(COTIRE_ADD_UNITY_BUILD FALSE)
+#set(ENABLE_COTIRE ON)
+######################################
 
 set(global_targets "" CACHE INTERNAL "")
 
@@ -73,6 +72,8 @@ define_per_target_option(DISABLE_3D "Disable 3D nodes for smaller executable" OF
 # add global engine targets
 foreach(tgt ${global_targets})
     add_library(${tgt}_engine SHARED)
+    target_link_libraries(${tgt}_engine PUBLIC Qt5::Core EASTL_Import)
+
     set_common_target_properties(${tgt}_engine)
 
     add_executable(segs_${tgt} ${PROJECT_SOURCE_DIR}/executable/main.cpp)
@@ -83,7 +84,6 @@ foreach(tgt ${global_targets})
     set_target_properties(segs_${tgt} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
     target_compile_definitions(segs_${tgt} PRIVATE ${godot_${tgt}_DEFINES})
     target_include_directories(segs_${tgt} PRIVATE ${${PROJECT_BINARY_DIR}})
-
 endforeach()
 
 message(${global_targets})
@@ -242,3 +242,11 @@ elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
     add_subdirectory(platform/osx)
 endif()
+
+foreach(tgt ${global_targets})
+    set_target_properties(${tgt}_engine PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
+    set_target_properties(${tgt}_engine PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "${PROJECT_SOURCE_DIR}/core/precompiled.h")
+    if(ENABLE_COTIRE)
+        cotire(${tgt}_engine)
+    endif()
+endforeach()

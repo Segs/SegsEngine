@@ -1,14 +1,12 @@
 #pragma once
 
-#ifdef LUTEFISK_PRECOMPILED_HEADERS
-#include <cstddef>
-#include <cassert>
 #include <QString>
+#include <EASTL/vector.h>
+#ifdef USE_PRECOMPILED_HEADERS
 #if 0
 
 #include "Export.h"
 
-#include <EASTL/vector.h>
 #include <EASTL/deque.h>
 #include <EASTL/string.h>
 #include <EASTL/unordered_map.h>

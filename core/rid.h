@@ -131,6 +131,25 @@ public:
     virtual void get_owned_list(ListPOD<RID> *p_owned);
     static void init_rid();
     virtual ~RID_OwnerBase() = default;
+
+    void free(RID p_rid) {
+
+#ifdef DEBUG_ENABLED
+        id_map.erase(p_rid.get_data());
+#else
+        _remove_owner(p_rid);
+#endif
+    }
+    _FORCE_INLINE_ bool owns(const RID &p_rid) const {
+
+        if (p_rid.get_data() == nullptr)
+            return false;
+#ifdef DEBUG_ENABLED
+        return id_map.contains(p_rid.get_data());
+#else
+        return _is_owner(p_rid);
+#endif
+    }
 };
 
 template <class T>
@@ -175,23 +194,4 @@ public:
         return static_cast<T *>(p_rid.get_data());
     }
 
-    _FORCE_INLINE_ bool owns(const RID &p_rid) const {
-
-        if (p_rid.get_data() == nullptr)
-            return false;
-#ifdef DEBUG_ENABLED
-        return id_map.contains(p_rid.get_data());
-#else
-        return _is_owner(p_rid);
-#endif
-    }
-
-    void free(RID p_rid) {
-
-#ifdef DEBUG_ENABLED
-        id_map.erase(p_rid.get_data());
-#else
-        _remove_owner(p_rid);
-#endif
-    }
 };

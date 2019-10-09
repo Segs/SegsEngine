@@ -73,7 +73,7 @@ void MemoryPool::cleanup() {
     memdelete_arr(allocs);
     memdelete(alloc_mutex);
 
-	ERR_FAIL_COND_CMSG(allocs_used > 0, "There are still MemoryPool allocs in use at exit!")
+    ERR_FAIL_COND_CMSG(allocs_used > 0, "There are still MemoryPool allocs in use at exit!")
 }
 
 bool MemoryPool::do_alloc_block(MemoryPool::Alloc *&alloc)

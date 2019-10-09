@@ -31,7 +31,7 @@
 #pragma once
 
 #include "core/godot_export.h"
-#include "core/array.h"
+//#include "core/array.h"
 #include "core/color.h"
 #include "core/dictionary.h"
 #include "core/io/ip_address.h"
@@ -55,6 +55,7 @@ class Node; // helper
 class Control; // helper
 class String;
 class RID;
+class Array;
 using CharType = class QChar;
 struct PropertyInfo;
 struct MethodInfo;
@@ -80,7 +81,7 @@ using PODVector = eastl::vector<T,wrap_allocator>;
 #else
 #define GCC_ALIGNED_8
 #endif
-    // If this changes the table in variant_op must be updated
+// If this changes the table in variant_op must be updated
 enum class VariantType : int8_t {
 
     NIL = 0,

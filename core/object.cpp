@@ -1084,9 +1084,7 @@ void Object::get_inheritance_list_static(List<String> *p_inheritance_list) {
     p_inheritance_list->push_back(String("Object"));
 }
 
-StringName Object::get_class_static_name() {
-    return StaticCString("Object");
-}
+
 
 void Object::property_list_changed_notify() {
 
@@ -1239,9 +1237,9 @@ IObjectTooling *Object::get_tooling_interface() const
 
 void Object::add_user_signal(const MethodInfo &p_signal) {
 
-	ERR_FAIL_COND_CMSG(p_signal.name == "", "Signal name cannot be empty.")
-	ERR_FAIL_COND_MSG(ClassDB::has_signal(get_class_name(), p_signal.name), "User signal's name conflicts with a built-in signal of '" + get_class_name() + "'.")
-	ERR_FAIL_COND_MSG(private_data->signal_map.contains(p_signal.name), "Trying to add already existing signal '" + p_signal.name + "'.")
+    ERR_FAIL_COND_CMSG(p_signal.name == "", "Signal name cannot be empty.")
+    ERR_FAIL_COND_MSG(ClassDB::has_signal(get_class_name(), p_signal.name), "User signal's name conflicts with a built-in signal of '" + get_class_name() + "'.")
+    ERR_FAIL_COND_MSG(private_data->signal_map.contains(p_signal.name), "Trying to add already existing signal '" + p_signal.name + "'.")
     Signal s;
     s.user = p_signal;
     private_data->signal_map[p_signal.name] = s;

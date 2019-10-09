@@ -37,6 +37,7 @@
 #include "core/project_settings.h"
 #include "scene/gui/menu_button.h"
 #include "scene/main/viewport.h"
+#include "scene/main/scene_tree.h"
 #include "scene/resources/style_box.h"
 
 #include "EASTL/sort.h"

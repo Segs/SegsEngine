@@ -135,7 +135,7 @@ protected:                                                                      
     bool _initialize_classv() override {                                                                               \
         return initialize_class();                                                                                     \
     }                                                                                                                  \
-    _FORCE_INLINE_ bool (Object::*_get_get() const)(const StringName &p_name, Variant &) const {                       \
+    static constexpr _FORCE_INLINE_ bool (Object::*_get_get() )(const StringName &p_name, Variant &r_ret) const {      \
         return (bool (Object::*)(const StringName &, Variant &) const) & m_class::_get;                                \
     }                                                                                                                  \
     bool _getv(const StringName &p_name, Variant &r_ret) const override {                                              \
@@ -145,7 +145,7 @@ protected:                                                                      
         }                                                                                                              \
         return SUPER_CLASS::_getv(p_name, r_ret);                                                                      \
     }                                                                                                                  \
-    _FORCE_INLINE_ bool (Object::*_get_set() const)(const StringName &p_name, const Variant &p_property) {             \
+    static constexpr _FORCE_INLINE_ bool (Object::*_get_set() )(const StringName &p_name, const Variant &p_property) { \
         return (bool (Object::*)(const StringName &, const Variant &)) & m_class::_set;                                \
     }                                                                                                                  \
     bool _setv(const StringName &p_name, const Variant &p_property) override {                                         \
@@ -326,7 +326,7 @@ protected:
     _FORCE_INLINE_ static void (*_get_bind_methods())() {
         return &Object::_bind_methods;
     }
-    _FORCE_INLINE_ bool (Object::*_get_get() const)(const StringName &p_name, Variant &r_ret) const {
+    static constexpr _FORCE_INLINE_ bool (Object::*_get_get() )(const StringName &p_name, Variant &r_ret) const {
         return &Object::_get;
     }
     _FORCE_INLINE_ bool (Object::*_get_set() const)(const StringName &p_name, const Variant &p_property) {
@@ -348,7 +348,7 @@ protected:
 
     virtual const StringName *_get_class_namev() const {
         if (!_class_name)
-            _class_name = StringName(get_class_static());
+            _class_name = get_class_static_name();
         return &_class_name;
     }
 
@@ -424,7 +424,7 @@ public:
     static void get_inheritance_list_static(DefList<String> *p_inheritance_list);
 
     static constexpr const char * get_class_static() { return "Object"; }
-    static StringName get_class_static_name();
+    static StringName get_class_static_name() { return StringName("Object"); }
     static const char * get_parent_class_static() { return nullptr; }
     static String get_category_static();
 

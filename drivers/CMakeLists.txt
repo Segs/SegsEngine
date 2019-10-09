@@ -58,5 +58,10 @@ foreach(tgt ${global_targets})
     target_sources(${tgt}_drivers PRIVATE ${drivers_sources})
 
     set_common_target_properties(${tgt}_drivers)
+    set_target_properties(${tgt}_drivers PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
+    set_target_properties(${tgt}_drivers PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "${PROJECT_SOURCE_DIR}/core/precompiled.h")
+    if(ENABLE_COTIRE)
+        cotire(${tgt}_drivers)
+    endif()
 endforeach()
 

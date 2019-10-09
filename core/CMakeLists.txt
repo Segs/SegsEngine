@@ -71,13 +71,13 @@ foreach(tgt ${global_targets})
         target_compile_definitions(${tgt}_core PUBLIC PTRCALL_ENABLED)
     endif()
 
-    target_compile_options(${tgt}_core PUBLIC
-            $<$<CXX_COMPILER_ID:MSVC>:/W3>
-            $<$<CXX_COMPILER_ID:Clang>:-Wall -Wextra -Wno-unused-parameter>
-            $<$<CXX_COMPILER_ID:GNU>:-Wall -Wextra -Wno-unused-parameter -Wno-deprecated-copy>
-    )
     target_include_directories(${tgt}_core PUBLIC ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR}/..)
     target_include_directories(${tgt}_core PRIVATE ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/include)
 
     set_common_target_properties(${tgt}_core)
+    set_target_properties(${tgt}_core PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
+    set_target_properties(${tgt}_core PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "${PROJECT_SOURCE_DIR}/core/precompiled.h")
+    if(ENABLE_COTIRE)
+        cotire(${tgt}_core)
+    endif()
 endforeach()
