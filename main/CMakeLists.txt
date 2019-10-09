@@ -23,6 +23,7 @@ add_subdirectory(tests)
 
 # Godot's own sources
 file(GLOB source_files "*.cpp")
+file(GLOB headers_files "*.h")
 list(APPEND main_sources ${source_files}
     ${CMAKE_CURRENT_BINARY_DIR}/splash.gen.h ${CMAKE_CURRENT_BINARY_DIR}/splash_editor.gen.h ${CMAKE_CURRENT_BINARY_DIR}/app_icon.gen.h
 )
@@ -38,3 +39,7 @@ foreach(tgt ${global_targets})
     endif()
 endforeach()
 
+INSTALL (
+    FILES ${headers_files}
+    DESTINATION include/SegsEngine/main
+)

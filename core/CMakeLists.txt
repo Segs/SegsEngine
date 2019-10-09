@@ -64,6 +64,11 @@ foreach(tgt ${global_targets})
     target_link_libraries(${tgt}_core INTERFACE EASTL_Import )
     target_link_libraries(${tgt}_engine PRIVATE minizip)
     target_link_libraries(${tgt}_engine INTERFACE minizip_interface)
+    INSTALL (
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        DESTINATION include/SegsEngine
+        FILES_MATCHING PATTERN "*.h"
+    )
 
     target_compile_definitions(${tgt}_core PUBLIC BUILTIN_CERTS_ENABLED)
     target_include_directories(${tgt}_core PRIVATE ${Qt5Core_PRIVATE_INCLUDE_DIRS})

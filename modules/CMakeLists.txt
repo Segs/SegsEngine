@@ -120,3 +120,8 @@ endforeach()
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${module_sources})
 source_group(TREE ${PROJECT_SOURCE_DIR} FILES ${module_3rdparty})
 source_group(Generated FILES ${module_sources_gen})
+INSTALL (
+    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    DESTINATION include/SegsEngine
+    FILES_MATCHING PATTERN "*.h"
+)

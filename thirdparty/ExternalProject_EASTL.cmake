@@ -1,6 +1,8 @@
 configure_file(EASTL/SegsEngine_config.h.cmake
     ${CMAKE_CURRENT_SOURCE_DIR}/EASTL/SegsEngine_config.h
 )
+file(GLOB all_includes "${CMAKE_CURRENT_SOURCE_DIR}/EASTL/include/EASTL/*.h")
+file(GLOB all_includes_2 "${CMAKE_CURRENT_SOURCE_DIR}/EASTL/include/EASTL/EABase/*.h")
 set(SOURCE
 EASTL/source/allocator_eastl.cpp
 EASTL/source/assert.cpp
@@ -11,6 +13,7 @@ EASTL/source/numeric_limits.cpp
 EASTL/source/red_black_tree.cpp
 EASTL/source/string.cpp
 EASTL/source/thread_support.cpp
+${all_includes}
 ${CMAKE_CURRENT_SOURCE_DIR}/EASTL/SegsEngine_config.h
 ${INC}
 )
@@ -18,7 +21,7 @@ add_library(EASTL OBJECT ${SOURCE})
 add_library(EASTL_Import INTERFACE)
 
 set_property(TARGET EASTL PROPERTY POSITION_INDEPENDENT_CODE ON)
-
+set(eastl_public_headers ${CMAKE_CURRENT_SOURCE_DIR}/EASTL/SegsEngine_config.h)
 target_include_directories(EASTL PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/EASTL/include>
     $<INSTALL_INTERFACE:include>
@@ -38,6 +41,10 @@ target_compile_definitions(EASTL_Import INTERFACE
 )
 
 target_compile_definitions(EASTL PRIVATE
-	GODOT_EXPORTS
+    GODOT_EXPORTS
 )
-install(TARGETS EASTL EXPORT SegsEngine ARCHIVE DESTINATION ${DEST_ARCHIVE_DIR})
+
+install(TARGETS EASTL_Import EXPORT SegsEngine
+    ARCHIVE DESTINATION ${DEST_ARCHIVE_DIR}
+)
+INSTALL( DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/EASTL/include/" DESTINATION include )

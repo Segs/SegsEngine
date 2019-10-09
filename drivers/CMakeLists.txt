@@ -63,5 +63,11 @@ foreach(tgt ${global_targets})
     if(ENABLE_COTIRE)
         cotire(${tgt}_drivers)
     endif()
+    INSTALL (
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        DESTINATION include/SegsEngine
+        FILES_MATCHING PATTERN "*.h"
+    )
+
 endforeach()
 

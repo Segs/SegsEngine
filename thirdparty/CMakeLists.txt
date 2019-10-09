@@ -27,14 +27,18 @@ set_property(TARGET thirdparty_misc PROPERTY POSITION_INDEPENDENT_CODE ON)
 set_common_target_properties(thirdparty_misc)
 
 if(OPTION_MINIZIP)
+    set(minizip_headers
+        ${PROJECT_SOURCE_DIR}/thirdparty/minizip/unzip.h
+        ${PROJECT_SOURCE_DIR}/thirdparty/minizip/zip.h
+
+    )
     add_library(minizip STATIC
         # Minizip library, can be unbundled in theory
         # However, our version has some custom modifications, so it won't compile with the system one
             ${PROJECT_SOURCE_DIR}/thirdparty/minizip/ioapi.c
             ${PROJECT_SOURCE_DIR}/thirdparty/minizip/unzip.c
-            ${PROJECT_SOURCE_DIR}/thirdparty/minizip/unzip.h
             ${PROJECT_SOURCE_DIR}/thirdparty/minizip/zip.c
-            ${PROJECT_SOURCE_DIR}/thirdparty/minizip/zip.h
+            ${minizip_headers}
         )
     target_include_directories(minizip PUBLIC thirdparty/misc/)
     # export minizip symbols.
@@ -45,8 +49,14 @@ if(OPTION_MINIZIP)
     set_property(TARGET minizip PROPERTY POSITION_INDEPENDENT_CODE ON)
 
     add_library(minizip_interface INTERFACE)
+    set_target_properties(minizip_interface PROPERTIES PUBLIC_HEADER "${minizip_headers}")
     target_compile_definitions(minizip_interface INTERFACE ZLIB_DLL)
-    target_include_directories(minizip_interface INTERFACE minizip/)
+    target_include_directories(minizip_interface INTERFACE
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/minizip>
+        $<INSTALL_INTERFACE:include/minizip>
+    )
+
+    install(TARGETS minizip_interface EXPORT SegsEngine PUBLIC_HEADER DESTINATION include/minizip)
 # minizip functions need to be accessible from plugins ? set_common_target_properties(minizip)
 endif()
 
