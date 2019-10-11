@@ -315,7 +315,7 @@ Error EditorExportPlatformWindows::_code_sign(const Ref<EditorExportPreset> &p_p
 #ifndef WINDOWS_ENABLED
     if (StringUtils::contains(str,"SignTool Error")) {
 #else
-    if (str.find("Failed") != -1) {
+    if (StringUtils::contains(str,"Failed")) {
 #endif
         return FAILED;
     }

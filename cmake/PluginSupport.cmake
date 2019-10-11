@@ -35,6 +35,10 @@ macro(set_plugin_options )
             set_target_properties(${tgt_name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin/plugins)
             set_target_properties(${tgt_name} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin/plugins)
             target_link_libraries(${tgt_name} PRIVATE ${tgt}_engine)
+			install(TARGETS ${tgt_name} EXPORT SegsEngine
+				LIBRARY DESTINATION plugins
+				RUNTIME DESTINATION plugins
+			)
         else()
             continue()
         endif()
@@ -42,7 +46,7 @@ macro(set_plugin_options )
         target_link_libraries(${tgt_name} PRIVATE Qt5::Core EASTL_Import)
         set_target_properties(${tgt_name} PROPERTIES AUTOMOC TRUE)
         if(libs)
-            target_link_libraries(${tgt_name} PUBLIC ${libs})
+            target_link_libraries(${tgt_name} PRIVATE ${libs})
 
         endif()
         set_target_properties(${tgt_name} PROPERTIES PLUGIN_CLASS ${classprop})

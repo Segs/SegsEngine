@@ -53,7 +53,6 @@ struct GODOT_EXPORT MemoryPool {
         SafeRefCount refcount;
         uint32_t lock = 0;
         void *mem = nullptr;
-        PoolAllocator::ID pool_id = POOL_ALLOCATOR_INVALID_ID;
         size_t size = 0;
         Alloc *free_list = nullptr;
     };

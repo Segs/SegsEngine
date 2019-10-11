@@ -49,14 +49,15 @@ if(OPTION_MINIZIP)
     set_property(TARGET minizip PROPERTY POSITION_INDEPENDENT_CODE ON)
 
     add_library(minizip_interface INTERFACE)
-    set_target_properties(minizip_interface PROPERTIES PUBLIC_HEADER "${minizip_headers}")
     target_compile_definitions(minizip_interface INTERFACE ZLIB_DLL)
     target_include_directories(minizip_interface INTERFACE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/minizip>
         $<INSTALL_INTERFACE:include/minizip>
     )
-
-    install(TARGETS minizip_interface EXPORT SegsEngine PUBLIC_HEADER DESTINATION include/minizip)
+	install(FILES ${minizip_headers} DESTINATION include/minizip)
+    install(TARGETS minizip_interface EXPORT SegsEngine 
+		INCLUDES DESTINATION include/minizip
+	)
 # minizip functions need to be accessible from plugins ? set_common_target_properties(minizip)
 endif()
 

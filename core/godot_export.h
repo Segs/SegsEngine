@@ -7,7 +7,7 @@
 #define EXPORT_PREFIX __attribute__((visibility("default")))
 #endif
 
-#ifdef _MSC_VER
+#ifdef _WIN32
 #define GODOT_EXPORT_TEMPLATE_A
 #define GODOT_EXPORT_TEMPLATE_B __declspec(dllexport)
 #else
