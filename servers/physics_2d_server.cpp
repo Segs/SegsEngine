@@ -885,3 +885,13 @@ Physics2DServer *Physics2DServerManager::new_server(const String &p_name) {
         return physics_2d_servers[id].create_callback();
     }
 }
+Physics2DServer *initialize_2d_physics() {
+    Physics2DServer *physics_2d_server = Physics2DServerManager::new_server(ProjectSettings::get_singleton()->get(Physics2DServerManager::setting_property_name));
+    if (!physics_2d_server) {
+        // Physics server not found, Use the default physics
+        physics_2d_server = Physics2DServerManager::new_default_server();
+    }
+    ERR_FAIL_COND_V(!physics_2d_server,nullptr)
+    physics_2d_server->init();
+    return physics_2d_server;
+}

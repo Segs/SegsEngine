@@ -47,7 +47,7 @@ Line2D::Line2D() {
     _begin_cap_mode = LINE_CAP_NONE;
     _end_cap_mode = LINE_CAP_NONE;
     _width = 10;
-    _default_color = Color(0.4, 0.5, 1);
+    _default_color = Color(0.4f, 0.5f, 1);
     _texture_mode = LINE_TEXTURE_NONE;
     _sharp_limit = 2.f;
     _round_precision = 8;
@@ -89,7 +89,7 @@ void Line2D::set_points(const PoolVector<Vector2> &p_points) {
 }
 
 void Line2D::set_width(float p_width) {
-    if (p_width < 0.0)
+    if (p_width < 0.0f)
         p_width = 0.0;
     _width = p_width;
     update();
@@ -129,7 +129,7 @@ void Line2D::set_point_position(int i, Vector2 p_pos) {
 }
 
 Vector2 Line2D::get_point_position(int i) const {
-    ERR_FAIL_INDEX_V(i, _points.size(), Vector2());
+    ERR_FAIL_INDEX_V(i, _points.size(), Vector2())
     return _points.get(i);
 }
 

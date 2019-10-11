@@ -350,7 +350,7 @@ void DocData::generate(bool p_basic_types) {
 
         for (const MethodInfo &E : method_list) {
 
-            if (E.name.empty() || (E.name[0] == '_' && !(E.flags & METHOD_FLAG_VIRTUAL)))
+            if (E.name.empty() || (E.name.asCString()[0] == '_' && !(E.flags & METHOD_FLAG_VIRTUAL)))
                 continue; //hidden, don't count
 
             if (skip_setter_getter_methods && setters_getters.contains(E.name)) {

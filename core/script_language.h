@@ -287,7 +287,10 @@ public:
     virtual Error open_in_external_editor(const Ref<Script> & /*p_script*/, int /*p_line*/, int /*p_col*/) { return ERR_UNAVAILABLE; }
     virtual bool overrides_external_editor() { return false; }
 
-    virtual Error complete_code(const String &p_code, const String &p_path, Object *p_owner, DefList<ScriptCodeCompletionOption> *r_options, bool &r_force, String &r_call_hint) { return ERR_UNAVAILABLE; }
+    virtual Error complete_code(const String &/*p_code*/, const String &/*p_path*/, Object * /*p_owner*/,
+            DefList<ScriptCodeCompletionOption> * /*r_options*/, bool &/*r_force*/, String &/*r_call_hint*/) {
+        return ERR_UNAVAILABLE;
+    }
 
     struct LookupResult {
         enum Type {
@@ -306,12 +309,15 @@ public:
         int location;
     };
 
-    virtual Error lookup_code(const String &p_code, const String &p_symbol, const String &p_path, Object *p_owner, LookupResult &r_result) { return ERR_UNAVAILABLE; }
+    virtual Error lookup_code(const String & /*p_code*/, const String & /*p_symbol*/, const String & /*p_path*/,
+            Object * /*p_owner*/, LookupResult & /*r_result*/) {
+        return ERR_UNAVAILABLE;
+    }
 
     virtual void auto_indent_code(String &p_code, int p_from_line, int p_to_line) const = 0;
     virtual void add_global_constant(const StringName &p_variable, const Variant &p_value) = 0;
-    virtual void add_named_global_constant(const StringName &p_name, const Variant &p_value) {}
-    virtual void remove_named_global_constant(const StringName &p_name) {}
+    virtual void add_named_global_constant(const StringName &/*p_name*/, const Variant &/*p_value*/) {}
+    virtual void remove_named_global_constant(const StringName &/*p_name*/) {}
 
     /* MULTITHREAD FUNCTIONS */
 
@@ -328,7 +334,7 @@ public:
     virtual String debug_get_stack_level_source(int p_level) const = 0;
     virtual void debug_get_stack_level_locals(int p_level, DefList<String> *p_locals, DefList<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) = 0;
     virtual void debug_get_stack_level_members(int p_level, DefList<String> *p_members, DefList<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) = 0;
-    virtual ScriptInstance *debug_get_stack_level_instance(int p_level) { return nullptr; }
+    virtual ScriptInstance *debug_get_stack_level_instance(int /*p_level*/) { return nullptr; }
     virtual void debug_get_globals(DefList<String> *p_globals, DefList<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) = 0;
     virtual String debug_parse_stack_level_expression(int p_level, const String &p_expression, int p_max_subitems = -1, int p_max_depth = -1) = 0;
 
@@ -393,14 +399,16 @@ public:
 
     void get_method_list(PODVector<MethodInfo> *p_list) const override;
     bool has_method(const StringName &p_method) const override;
-    Variant call(const StringName & /*p_method*/, VARIANT_ARG_LIST) override { return Variant(); }
+    Variant call(const StringName & /*p_method*/, VARIANT_ARG_LIST) override {
+        (void)p_arg1, (void)p_arg2, (void)p_arg3, (void)p_arg4, (void)p_arg5;
+        return Variant(); }
     Variant call(const StringName & /*p_method*/, const Variant ** /*p_args*/, int /*p_argcount*/, Variant::CallError &r_error) override {
         r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
         return Variant();
     }
     //virtual void call_multilevel(const StringName& p_method,VARIANT_ARG_LIST) { return Variant(); }
     //virtual void call_multilevel(const StringName& p_method,const Variant** p_args,int p_argcount,Variant::CallError &r_error) { return Variant(); }
-    void notification(int p_notification) override {}
+    void notification(int /*p_notification*/) override {}
 
     Ref<Script> get_script() const override { return script; }
 
@@ -415,8 +423,8 @@ public:
     void property_set_fallback(const StringName &p_name, const Variant &p_value, bool *r_valid = nullptr) override;
     Variant property_get_fallback(const StringName &p_name, bool *r_valid = nullptr) override;
 
-    MultiplayerAPI_RPCMode get_rpc_mode(const StringName &p_method) const override { return MultiplayerAPI_RPCMode(0); }
-    MultiplayerAPI_RPCMode get_rset_mode(const StringName &p_variable) const override { return MultiplayerAPI_RPCMode(0); }
+    MultiplayerAPI_RPCMode get_rpc_mode(const StringName &/*p_method*/) const override { return MultiplayerAPI_RPCMode(0); }
+    MultiplayerAPI_RPCMode get_rset_mode(const StringName &/*p_variable*/) const override { return MultiplayerAPI_RPCMode(0); }
 
     PlaceHolderScriptInstance(ScriptLanguage *p_language, Ref<Script> p_script, Object *p_owner) :
         owner(p_owner),
@@ -490,9 +498,9 @@ public:
     virtual bool is_remote() const { return false; }
     virtual void request_quit() {}
 
-    virtual void set_request_scene_tree_message_func(RequestSceneTreeMessageFunc p_func, void *p_udata) {}
-    virtual void set_live_edit_funcs(LiveEditFuncs *p_funcs) {}
-    virtual void set_multiplayer(const Ref<MultiplayerAPI> &p_multiplayer) {}
+    virtual void set_request_scene_tree_message_func(RequestSceneTreeMessageFunc /*p_func*/, void * /*p_udata*/) {}
+    virtual void set_live_edit_funcs(LiveEditFuncs * /*p_funcs*/) {}
+    virtual void set_multiplayer(const Ref<MultiplayerAPI> & /*p_multiplayer*/) {}
 
     virtual bool is_profiling() const = 0;
     virtual void add_profiling_frame_data(const StringName &p_name, const Array &p_data) = 0;

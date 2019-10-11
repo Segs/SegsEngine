@@ -42,7 +42,7 @@ class EditorExportPlatformWindows : public EditorExportPlatformPC {
     Error _code_sign(const Ref<EditorExportPreset> &p_preset, const String &p_path);
 public:
     Error export_project(const Ref<EditorExportPreset> &p_preset, bool p_debug, const String &p_path, int p_flags = 0) override;
-    virtual Error sign_shared_object(const Ref<EditorExportPreset> &p_preset, bool p_debug, const String &p_path);
+    Error sign_shared_object(const Ref<EditorExportPreset> &p_preset, bool p_debug, const String &p_path) override;
     void get_export_options(List<ExportOption> *r_options) override;
 };
 

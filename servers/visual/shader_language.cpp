@@ -31,6 +31,12 @@
 #include "shader_language.h"
 #include "core/os/os.h"
 #include "core/print_string.h"
+#include "core/color.h"
+#include "core/math/vector3.h"
+#include "core/math/plane.h"
+#include "core/math/transform_2d.h"
+#include "core/math/transform.h"
+
 static bool _is_text_char(CharType c) {
 
     return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_';
@@ -5531,7 +5537,7 @@ Error ShaderLanguage::complete(const String &p_code, const Map<StringName, Funct
 
             return OK;
 
-        } break;
+        }
         case COMPLETION_INDEX: {
 
             const char colv[4] = { 'r', 'g', 'b', 'a' };

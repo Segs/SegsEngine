@@ -252,8 +252,8 @@ public:
 	virtual bool _edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const;
 
 	// Save and restore a CanvasItem state
-	virtual void _edit_set_state(const Dictionary &p_state){};
-	virtual Dictionary _edit_get_state() const { return Dictionary(); };
+    virtual void _edit_set_state(const Dictionary &/*p_state*/){}
+    virtual Dictionary _edit_get_state() const { return Dictionary(); }
 
 	// Used to move the node
 	virtual void _edit_set_position(const Point2 &p_position) = 0;
@@ -264,20 +264,20 @@ public:
 	virtual Size2 _edit_get_scale() const = 0;
 
 	// Used to rotate the node
-	virtual bool _edit_use_rotation() const { return false; };
-	virtual void _edit_set_rotation(float p_rotation){};
-	virtual float _edit_get_rotation() const { return 0.0; };
+    virtual bool _edit_use_rotation() const { return false; }
+    virtual void _edit_set_rotation(float /*p_rotation*/){}
+    virtual float _edit_get_rotation() const { return 0.0; }
 
 	// Used to resize/move the node
-	virtual bool _edit_use_rect() const { return false; }; // MAYBE REPLACE BY A _edit_get_editmode()
-	virtual void _edit_set_rect(const Rect2 &p_rect){};
-	virtual Rect2 _edit_get_rect() const { return Rect2(0, 0, 0, 0); };
-	virtual Size2 _edit_get_minimum_size() const { return Size2(-1, -1); }; // LOOKS WEIRD
+    virtual bool _edit_use_rect() const { return false; } // MAYBE REPLACE BY A _edit_get_editmode()
+    virtual void _edit_set_rect(const Rect2 &/*p_rect*/){}
+    virtual Rect2 _edit_get_rect() const { return Rect2(0, 0, 0, 0); }
+    virtual Size2 _edit_get_minimum_size() const { return Size2(-1, -1); } // LOOKS WEIRD
 
 	// Used to set a pivot
-	virtual bool _edit_use_pivot() const { return false; };
-	virtual void _edit_set_pivot(const Point2 &p_pivot){};
-	virtual Point2 _edit_get_pivot() const { return Point2(); };
+    virtual bool _edit_use_pivot() const { return false; }
+    virtual void _edit_set_pivot(const Point2 &/*p_pivot*/){}
+    virtual Point2 _edit_get_pivot() const { return Point2(); }
 
 	/* VISIBILITY */
 
@@ -378,7 +378,7 @@ public:
 	void force_update_transform();
 
 	// Used by control nodes to retrieve the parent's anchorable area
-	virtual Rect2 get_anchorable_rect() const { return Rect2(0, 0, 0, 0); };
+    virtual Rect2 get_anchorable_rect() const { return Rect2(0, 0, 0, 0); }
 
 	int get_canvas_layer() const;
 

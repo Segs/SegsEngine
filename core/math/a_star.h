@@ -30,6 +30,7 @@
 
 #pragma once
 
+#include "core/math/vector3.h"
 #include "core/oa_hash_map.h"
 #include "core/reference.h"
 #include "core/set.h"

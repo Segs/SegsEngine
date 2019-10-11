@@ -67,19 +67,19 @@ public:
 class GODOT_EXPORT wrap_allocator
 {
 public:
-    explicit wrap_allocator(const char* pName = "") noexcept {}
+    explicit wrap_allocator(const char* /*pName*/ = "") noexcept {}
     wrap_allocator(const wrap_allocator& x) noexcept = default;
-    wrap_allocator(const wrap_allocator& x, const char* pName) noexcept {}
+    wrap_allocator(const wrap_allocator& /*x*/, const char* /*pName*/) noexcept {}
 
     wrap_allocator& operator=(const wrap_allocator& x) noexcept = default;
 
-    void* allocate(size_t n, int flags = 0) {
+    void* allocate(size_t n, int /*flags*/ = 0) {
         return Memory::alloc_static(n, false);
     }
-    void* allocate(size_t n, size_t alignment, size_t offset, int flags = 0) {
+    void* allocate(size_t n, size_t /*alignment*/, size_t /*offset*/, int /*flags*/ = 0) {
         return Memory::alloc_static(n, true);
     }
-    void  deallocate(void* p, size_t n) {
+    void  deallocate(void* p, size_t /*n*/) {
         return Memory::free_static(p, false);
 
     }
@@ -96,7 +96,7 @@ public:
         return false; // All allocators are considered equal, as they merely use global new/delete.
     }
     const char* get_name() const noexcept { return "wrap godot allocator"; }
-    void        set_name(const char* pName) {}
+    void        set_name(const char* /*pName*/) {}
 };
 template<typename T>
 struct GenericDeleter {
@@ -149,7 +149,7 @@ _ALWAYS_INLINE_ T *_post_initialize(T *p_obj) {
     postinitialize_handler(p_obj);
     return p_obj;
 }
-_ALWAYS_INLINE_ void *operator new(size_t p_size, void *p_pointer, size_t check, const char *p_description) {
+_ALWAYS_INLINE_ void *operator new(size_t /*p_size*/, void *p_pointer, size_t /*check*/, const char * /*p_description*/) {
     //void *failptr=0;
     //ERR_FAIL_COND_V( check < p_size , failptr) /** bug, or strange compiler, most likely */
 
@@ -232,7 +232,7 @@ T *memnew_arr_template(size_t p_elements, const char *p_descr = "") {
 template <typename T>
 size_t memarr_len(const T *p_class) {
 
-    uint64_t *ptr = (uint64_t *)p_class;
+    const uint64_t *ptr = (const uint64_t *)p_class;
     return *(ptr - 1);
 }
 

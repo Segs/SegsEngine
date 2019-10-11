@@ -130,7 +130,7 @@ public:
         ERR_RESET()
         setupFromCString(p_static_string);
     }
-
+    constexpr bool empty() const { return _data==nullptr; }
     constexpr StringName() : _data(nullptr) {}
 
     template<std::size_t N>

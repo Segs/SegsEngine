@@ -251,11 +251,15 @@ foreach(tgt ${global_targets})
         cotire(${tgt}_engine)
     endif()
     install(TARGETS ${tgt}_engine EXPORT SegsEngine
-        ARCHIVE DESTINATION .
         LIBRARY DESTINATION .
         RUNTIME DESTINATION .
         INCLUDES DESTINATION include
     )
+if(WIN32)
+    install(TARGETS ${tgt}_engine EXPORT SegsEngine
+        ARCHIVE DESTINATION .
+    )
+endif()
     install(EXPORT SegsEngine
         FILE ${tgt}_engine_targets.cmake
         NAMESPACE SegsEngine::

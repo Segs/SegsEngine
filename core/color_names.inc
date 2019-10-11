@@ -1,6 +1,8 @@
 // Names from https://en.wikipedia.org/wiki/List_of_colors (through https://raw.githubusercontent.com/SuperUserNameMan/color_to_name/616a7cddafefda91478b7bc26167de97fb5badb1/godot_version.gd), slightly edited and normalized
 #include "core/map.h"
 #include "core/ustring.h"
+#include "core/color.h"
+
 static Map<const char *, Color> _named_colors = {
     {"aliceblue",Color(0.94f, 0.97f, 1.00f)},
     {"antiquewhite",Color(0.98f, 0.92f, 0.84f)},

@@ -1060,7 +1060,7 @@ void ScriptDebuggerRemote::send_error(const String &p_func, const String &p_file
     mutex->unlock();
 }
 
-void ScriptDebuggerRemote::_print_handler(void *p_this, const String &p_string, bool p_error) {
+void ScriptDebuggerRemote::_print_handler(void *p_this, const String &p_string, bool /*p_error*/) {
 
     ScriptDebuggerRemote *sdr = (ScriptDebuggerRemote *)p_this;
 

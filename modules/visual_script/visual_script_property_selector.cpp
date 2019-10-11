@@ -244,7 +244,7 @@ void VisualScriptPropertySelector::_update_search() {
                 }
                 desc_arguments += ")";
             }
-            String desc_raw = mi.name + desc_arguments;
+            String desc_raw = mi.name.asCString() + desc_arguments;
             String desc = StringUtils::replace(StringUtils::capitalize(desc_raw),"( ", "(");
 
             if (not search_box->get_text().empty() &&

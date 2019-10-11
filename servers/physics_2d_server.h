@@ -31,6 +31,7 @@
 #pragma once
 
 #include "core/object.h"
+#include "core/math/transform_2d.h"
 #include "core/reference.h"
 #include "core/resource.h"
 #include "core/rid.h"
@@ -660,3 +661,4 @@ public:
     static Physics2DServer *new_default_server();
     static Physics2DServer *new_server(const String &p_name);
 };
+GODOT_EXPORT Physics2DServer *initialize_2d_physics();

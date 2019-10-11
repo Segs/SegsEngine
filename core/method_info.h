@@ -1,13 +1,11 @@
 #pragma once
 #include "core/variant.h"
-#include "core/ustring.h"
 #include "core/vector.h"
-
 #include "core/property_info.h"
 
 struct GODOT_EXPORT MethodInfo {
 
-    String name;
+    StringName name;
     PropertyInfo return_val;
     uint32_t flags;
     int id = 0;

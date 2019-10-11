@@ -32,6 +32,8 @@
 
 #include "core/resource.h"
 #include "core/pool_vector.h"
+#include "core/math/vector2.h"
+#include "core/math/vector3.h"
 
 // y(x) curve
 class GODOT_EXPORT Curve : public Resource {

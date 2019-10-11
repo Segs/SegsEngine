@@ -31,6 +31,7 @@
 #include "image_loader_hdr.h"
 
 #include "core/os/os.h"
+#include "core/color.h"
 #include "core/os/file_access.h"
 #include "core/image_data.h"
 #include "core/print_string.h"
@@ -47,7 +48,7 @@ Error ImageLoaderHDR::load_image(ImageData & p_image, FileAccess *f, LoadParams 
         if (line.empty()) // empty line indicates end of header
             break;
         if (StringUtils::begins_with(line,"FORMAT=")) { // leave option to implement other commands
-			ERR_FAIL_COND_V_CMSG(line != "FORMAT=32-bit_rle_rgbe", ERR_FILE_UNRECOGNIZED, "Only 32-bit_rle_rgbe is supported for HDR files.")
+            ERR_FAIL_COND_V_CMSG(line != "FORMAT=32-bit_rle_rgbe", ERR_FILE_UNRECOGNIZED, "Only 32-bit_rle_rgbe is supported for HDR files.")
         } else if (!StringUtils::begins_with(line,"#")) { // not comment
             WARN_PRINTS("Ignoring unsupported header information in HDR: " + line + ".")
         }
@@ -99,7 +100,7 @@ Error ImageLoaderHDR::load_image(ImageData & p_image, FileAccess *f, LoadParams 
                 len <<= 8;
                 len |= f->get_8();
 
-				ERR_FAIL_COND_V_CMSG(len != width, ERR_FILE_CORRUPT, "Invalid decoded scanline length, corrupt HDR.")
+                ERR_FAIL_COND_V_CMSG(len != width, ERR_FILE_CORRUPT, "Invalid decoded scanline length, corrupt HDR.")
 
                 for (int k = 0; k < 4; ++k) {
                     int i = 0;
@@ -150,7 +151,7 @@ Error ImageLoaderHDR::load_image(ImageData & p_image, FileAccess *f, LoadParams 
 
 void ImageLoaderHDR::get_recognized_extensions(Vector<String> *p_extensions) const {
 
-	p_extensions->push_back(String("hdr"));
+    p_extensions->push_back(String("hdr"));
 }
 
 ImageLoaderHDR::ImageLoaderHDR() {

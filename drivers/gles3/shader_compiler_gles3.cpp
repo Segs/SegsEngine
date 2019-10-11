@@ -270,7 +270,7 @@ void ShaderCompilerGLES3::_dump_function_deps(SL::ShaderNode *p_node, const Stri
 
     int fidx = -1;
 
-    for (int i = 0; i < p_node->functions.size(); i++) {
+    for (size_t i = 0; i < p_node->functions.size(); i++) {
         if (p_node->functions[i].name == p_for_func) {
             fidx = i;
             break;
@@ -302,7 +302,7 @@ void ShaderCompilerGLES3::_dump_function_deps(SL::ShaderNode *p_node, const Stri
 
         String header;
         header = _typestr(fnode->return_type) + " " + _mkid(fnode->name) + "(";
-        for (int i = 0; i < fnode->arguments.size(); i++) {
+        for (size_t i = 0; i < fnode->arguments.size(); i++) {
 
             if (i > 0)
                 header += ", ";
@@ -506,7 +506,7 @@ String ShaderCompilerGLES3::_dump_node_code(SL::Node *p_node, int p_level, Gener
             Set<StringName> added_vtx;
             Set<StringName> added_fragment; //share for light
 
-            for (int i = 0; i < pnode->functions.size(); i++) {
+            for (size_t i = 0; i < pnode->functions.size(); i++) {
 
                 SL::FunctionNode *fnode = pnode->functions[i].function;
 
@@ -568,7 +568,7 @@ String ShaderCompilerGLES3::_dump_node_code(SL::Node *p_node, int p_level, Gener
             }
             declaration += _prestr(vdnode->precision);
             declaration += _typestr(vdnode->datatype);
-            for (int i = 0; i < vdnode->declarations.size(); i++) {
+            for (size_t i = 0; i < vdnode->declarations.size(); i++) {
                 if (i > 0) {
                     declaration += ",";
                 } else {
@@ -629,7 +629,7 @@ String ShaderCompilerGLES3::_dump_node_code(SL::Node *p_node, int p_level, Gener
             }
             declaration += _prestr(adnode->precision);
             declaration += _typestr(adnode->datatype);
-            for (int i = 0; i < adnode->declarations.size(); i++) {
+            for (size_t i = 0; i < adnode->declarations.size(); i++) {
                 if (i > 0) {
                     declaration += ",";
                 } else {
@@ -762,7 +762,7 @@ String ShaderCompilerGLES3::_dump_node_code(SL::Node *p_node, int p_level, Gener
 
                     code += "(";
 
-                    for (int i = 1; i < onode->arguments.size(); i++) {
+                    for (size_t i = 1; i < onode->arguments.size(); i++) {
                         if (i > 1)
                             code += ", ";
                         code += _dump_node_code(onode->arguments[i], p_level, r_gen_code, p_actions, p_default_actions, p_assigning);
@@ -899,7 +899,7 @@ Error ShaderCompilerGLES3::compile(VS::ShaderMode p_mode, const String &p_code, 
     _dump_node_code(parser.get_shader(), 1, r_gen_code, *p_actions, actions[p_mode], false);
 
     if (r_gen_code.uniform_total_size) { //uniforms used?
-        int md = sizeof(float) * 4;
+        unsigned int md = sizeof(float) * 4;
         if (r_gen_code.uniform_total_size % md) {
             r_gen_code.uniform_total_size += md - (r_gen_code.uniform_total_size % md);
         }

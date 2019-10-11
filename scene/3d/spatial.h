@@ -33,6 +33,7 @@
 #include "scene/main/node.h"
 #include "scene/main/scene_tree_notifications.h"
 #include "core/self_list.h"
+#include "core/math/transform.h"
 #include "core/list.h"
 
 class World;

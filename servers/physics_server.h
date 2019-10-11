@@ -31,6 +31,7 @@
 #pragma once
 #include "core/object.h"
 #include "core/resource.h"
+#include "core/math/transform.h"
 #include "core/method_arg_casters.h"
 #include "core/rid.h"
 
@@ -817,3 +818,4 @@ public:
     static PhysicsServer *new_default_server();
     static PhysicsServer *new_server(const String &p_name);
 };
+GODOT_EXPORT PhysicsServer * initialize_3d_physics();

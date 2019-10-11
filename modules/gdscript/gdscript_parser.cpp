@@ -30,18 +30,29 @@
 
 #include "gdscript_parser.h"
 
+#include "gdscript.h"
+
 #include "core/core_string_names.h"
 #include "core/engine.h"
-#include "core/string_formatter.h"
+#include "core/io/multiplayer_api.h"
 #include "core/io/resource_loader.h"
+#include "core/math/aabb.h"
+#include "core/math/basis.h"
+#include "core/math/face3.h"
+#include "core/math/math_funcs.h"
+#include "core/math/plane.h"
+#include "core/math/quat.h"
+#include "core/math/transform.h"
+#include "core/math/transform_2d.h"
+#include "core/math/vector3.h"
 #include "core/method_bind_interface.h"
 #include "core/os/file_access.h"
 #include "core/print_string.h"
-#include "core/io/multiplayer_api.h"
 #include "core/project_settings.h"
 #include "core/reference.h"
 #include "core/script_language.h"
-#include "gdscript.h"
+#include "core/string_formatter.h"
+
 #include "EASTL/unordered_set.h"
 
 template <class T>

@@ -2928,7 +2928,7 @@ void VisualScriptEditor::_graph_connected(const String &p_from, int p_from_slot,
             exceptions = exceptions || (to_type == VariantType::REAL && from_type == VariantType::INT);
             if (Variant::can_convert(from_type, to_type) && !exceptions) {
                 MethodInfo mi;
-                mi.name = Variant::get_type_name(to_type);
+                mi.name = Variant::interned_type_name(to_type);
                 PropertyInfo pi;
                 pi.name = "from";
                 pi.type = from_type;
@@ -3401,7 +3401,7 @@ void VisualScriptEditor::_port_action_menu(int p_option, const StringName &func)
             if (tg.type == VariantType::OBJECT) {
                 if (tg.script) {
                     new_connect_node_select->select_from_script(tg.script, "");
-                } else if (type_string != String()) {
+                } else if (not type_string.empty()) {
                     new_connect_node_select->select_from_base_type(type_string);
                 } else {
                     new_connect_node_select->select_from_base_type(n->get_base_type());

@@ -30,6 +30,16 @@
 
 #include "gdnative/variant.h"
 
+#include "core/color.h"
+#include "core/math/aabb.h"
+#include "core/math/basis.h"
+#include "core/math/face3.h"
+#include "core/math/math_funcs.h"
+#include "core/math/plane.h"
+#include "core/math/quat.h"
+#include "core/math/transform.h"
+#include "core/math/transform_2d.h"
+#include "core/math/vector3.h"
 #include "core/pool_vector.h"
 #include "core/reference.h"
 #include "core/rid.h"

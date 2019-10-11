@@ -35,6 +35,15 @@
 #include "core/core_string_names.h"
 #include "core/crypto/crypto_core.h"
 #include "core/io/compression.h"
+#include "core/math/aabb.h"
+#include "core/math/basis.h"
+#include "core/math/face3.h"
+#include "core/math/plane.h"
+#include "core/math/quat.h"
+#include "core/math/transform.h"
+#include "core/math/transform_2d.h"
+#include "core/math/vector3.h"
+#include "core/math/math_funcs.h"
 #include "core/method_bind_interface.h"
 #include "core/method_info.h"
 #include "core/object.h"
@@ -1450,7 +1459,7 @@ void Variant::get_constructor_list(VariantType p_type, PODVector<MethodInfo> *p_
 
         const _VariantCall::ConstructData &cd = E->deref();
         MethodInfo mi;
-        mi.name = Variant::get_type_name(p_type);
+        mi.name = Variant::interned_type_name(p_type);
         mi.return_val.type = p_type;
         for (int i = 0; i < cd.arg_count; i++) {
 
@@ -1469,7 +1478,7 @@ void Variant::get_constructor_list(VariantType p_type, PODVector<MethodInfo> *p_
             continue;
 
         MethodInfo mi;
-        mi.name = Variant::get_type_name(p_type);
+        mi.name = Variant::interned_type_name(p_type);
         PropertyInfo pi;
         pi.name = "from";
         pi.type = VariantType(i);

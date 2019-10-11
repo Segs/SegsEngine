@@ -56,8 +56,6 @@
 Array convert_property_list(const ListPOD<PropertyInfo> *p_list);
 Array convert_property_vector(const PODVector<PropertyInfo> *p_list);
 
-//#include "core/method_info.h"
-
 /*
    the following is an incomprehensible blob of hacks and workarounds to compensate for many of the fallencies in C++. As a plus, this macro pretty much alone defines the object model.
 */

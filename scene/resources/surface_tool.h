@@ -32,6 +32,7 @@
 
 #include "scene/resources/mesh.h"
 #include "core/map.h"
+#include "core/color.h"
 
 #include "thirdparty/misc/mikktspace.h"
 

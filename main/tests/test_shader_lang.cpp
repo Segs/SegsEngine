@@ -241,7 +241,7 @@ static String dump_node_code(SL::Node *p_node, int p_level) {
                 case SL::OP_CALL:
                 case SL::OP_CONSTRUCT:
                     code = dump_node_code(onode->arguments[0], p_level) + "(";
-                    for (int i = 1; i < onode->arguments.size(); i++) {
+                    for (size_t i = 1; i < onode->arguments.size(); i++) {
                         if (i > 1)
                             code += ", ";
                         code += dump_node_code(onode->arguments[i], p_level);

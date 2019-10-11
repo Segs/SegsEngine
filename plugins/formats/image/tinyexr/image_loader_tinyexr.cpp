@@ -33,6 +33,7 @@
 
 #include "core/os/file_access.h"
 #include "core/os/os.h"
+#include "core/color.h"
 #include "core/print_string.h"
 #include "core/image_data.h"
 

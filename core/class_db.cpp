@@ -498,7 +498,7 @@ void ClassDB::bind_integer_constant(
 
     if (type->constant_map.contains(p_name)) {
 
-        ERR_FAIL();
+        ERR_FAIL()
     }
 
     type->constant_map[p_name] = p_constant;

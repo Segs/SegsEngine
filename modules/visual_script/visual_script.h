@@ -34,6 +34,7 @@
 #include "core/os/thread.h"
 #include "core/set.h"
 #include "core/script_language.h"
+#include "core/math/vector2.h"
 
 class VisualScriptInstance;
 class VisualScriptNodeInstance;
