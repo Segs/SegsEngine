@@ -79,9 +79,12 @@ void EditorHelp::_unhandled_key_input(const Ref<InputEvent> &p_ev) {
     }
 }
 
-void EditorHelp::_search(const String &) {
+void EditorHelp::_search(bool p_search_previous) {
 
-    find_bar->search_next();
+    if (p_search_previous)
+        find_bar->search_prev();
+    else
+        find_bar->search_next();
 }
 
 void EditorHelp::_class_list_select(const String &p_select) {
@@ -265,17 +268,17 @@ void EditorHelp::_add_method(const DocData::MethodDoc &p_method, bool p_overview
     }
 
     class_desc->push_color(symbol_color);
-	class_desc->add_text("(");
+    class_desc->add_text("(");
     class_desc->pop();
 
     for (int j = 0; j < p_method.arguments.size(); j++) {
         class_desc->push_color(text_color);
         if (j > 0)
             class_desc->add_text(", ");
-		_add_text(p_method.arguments[j].name);
-		class_desc->add_text(": ");
+        _add_text(p_method.arguments[j].name);
+        class_desc->add_text(": ");
         _add_type(p_method.arguments[j].type, p_method.arguments[j].enumeration);
-		if (not p_method.arguments[j].default_value.empty()) {
+        if (not p_method.arguments[j].default_value.empty()) {
 
             class_desc->push_color(symbol_color);
             class_desc->add_text(" = ");
@@ -299,7 +302,7 @@ void EditorHelp::_add_method(const DocData::MethodDoc &p_method, bool p_overview
     }
 
     class_desc->push_color(symbol_color);
-	class_desc->add_text(")");
+    class_desc->add_text(")");
     class_desc->pop();
     if (!p_method.qualifiers.empty()) {
 
@@ -461,7 +464,7 @@ void EditorHelp::_update_doc() {
         section_line.push_back(Pair<String, int>(TTR("Properties"), class_desc->get_line_count() - 2));
         class_desc->push_color(title_color);
         class_desc->push_font(doc_title_font);
-		class_desc->add_text(TTR("Properties"));
+        class_desc->add_text(TTR("Properties"));
         class_desc->pop();
         class_desc->pop();
 
@@ -497,9 +500,9 @@ void EditorHelp::_update_doc() {
                 describe = true;
             }
 
-			if (cd.properties[i].overridden) {
-				describe = false;
-			}
+            if (cd.properties[i].overridden) {
+                describe = false;
+            }
 
             class_desc->push_cell();
             class_desc->push_font(doc_code_font);
@@ -518,7 +521,7 @@ void EditorHelp::_update_doc() {
 
             if (!cd.properties[i].default_value.empty()) {
                 class_desc->push_color(symbol_color);
-				class_desc->add_text(cd.properties[i].overridden ? " [override: " : " [default: ");
+                class_desc->add_text(cd.properties[i].overridden ? " [override: " : " [default: ");
                 class_desc->pop();
                 class_desc->push_color(value_color);
                 _add_text(_fix_constant(cd.properties[i].default_value));
@@ -561,7 +564,7 @@ void EditorHelp::_update_doc() {
         section_line.push_back(Pair<String, int>(TTR("Methods"), class_desc->get_line_count() - 2));
         class_desc->push_color(title_color);
         class_desc->push_font(doc_title_font);
-		class_desc->add_text(TTR("Methods"));
+        class_desc->add_text(TTR("Methods"));
         class_desc->pop();
         class_desc->pop();
 
@@ -632,7 +635,7 @@ void EditorHelp::_update_doc() {
         section_line.push_back(Pair<String, int>(TTR("Theme Properties"), class_desc->get_line_count() - 2));
         class_desc->push_color(title_color);
         class_desc->push_font(doc_title_font);
-		class_desc->add_text(TTR("Theme Properties"));
+        class_desc->add_text(TTR("Theme Properties"));
         class_desc->pop();
         class_desc->pop();
 
@@ -699,7 +702,7 @@ void EditorHelp::_update_doc() {
         section_line.push_back(Pair<String, int>(TTR("Signals"), class_desc->get_line_count() - 2));
         class_desc->push_color(title_color);
         class_desc->push_font(doc_title_font);
-		class_desc->add_text(TTR("Signals"));
+        class_desc->add_text(TTR("Signals"));
         class_desc->pop();
         class_desc->pop();
 
@@ -716,14 +719,14 @@ void EditorHelp::_update_doc() {
             _add_text(cd.defined_signals[i].name);
             class_desc->pop();
             class_desc->push_color(symbol_color);
-			class_desc->add_text("(");
+            class_desc->add_text("(");
             class_desc->pop();
             for (int j = 0; j < cd.defined_signals[i].arguments.size(); j++) {
                 class_desc->push_color(text_color);
                 if (j > 0)
                     class_desc->add_text(", ");
-				_add_text(cd.defined_signals[i].arguments[j].name);
-				class_desc->add_text(": ");
+                _add_text(cd.defined_signals[i].arguments[j].name);
+                class_desc->add_text(": ");
                 _add_type(cd.defined_signals[i].arguments[j].type);
                 if (!cd.defined_signals[i].arguments[j].default_value.empty()) {
 
@@ -737,7 +740,7 @@ void EditorHelp::_update_doc() {
             }
 
             class_desc->push_color(symbol_color);
-			class_desc->add_text(")");
+            class_desc->add_text(")");
             class_desc->pop();
             class_desc->pop(); // end monofont
             if (!cd.defined_signals[i].description.empty()) {
@@ -784,7 +787,7 @@ void EditorHelp::_update_doc() {
             section_line.push_back(Pair<String, int>(TTR("Enumerations"), class_desc->get_line_count() - 2));
             class_desc->push_color(title_color);
             class_desc->push_font(doc_title_font);
-			class_desc->add_text(TTR("Enumerations"));
+            class_desc->add_text(TTR("Enumerations"));
             class_desc->pop();
             class_desc->pop();
             class_desc->push_indent(1);
@@ -870,7 +873,7 @@ void EditorHelp::_update_doc() {
             section_line.push_back(Pair<String, int>(TTR("Constants"), class_desc->get_line_count() - 2));
             class_desc->push_color(title_color);
             class_desc->push_font(doc_title_font);
-			class_desc->add_text(TTR("Constants"));
+            class_desc->add_text(TTR("Constants"));
             class_desc->pop();
             class_desc->pop();
             class_desc->push_indent(1);
@@ -930,7 +933,7 @@ void EditorHelp::_update_doc() {
         description_line = class_desc->get_line_count() - 2;
         class_desc->push_color(title_color);
         class_desc->push_font(doc_title_font);
-		class_desc->add_text(TTR("Class Description"));
+        class_desc->add_text(TTR("Class Description"));
         class_desc->pop();
         class_desc->pop();
 
@@ -952,7 +955,7 @@ void EditorHelp::_update_doc() {
     {
         class_desc->push_color(title_color);
         class_desc->push_font(doc_title_font);
-		class_desc->add_text(TTR("Online Tutorials"));
+        class_desc->add_text(TTR("Online Tutorials"));
         class_desc->pop();
         class_desc->pop();
         class_desc->push_indent(1);
@@ -999,7 +1002,7 @@ void EditorHelp::_update_doc() {
         section_line.push_back(Pair<String, int>(TTR("Property Descriptions"), class_desc->get_line_count() - 2));
         class_desc->push_color(title_color);
         class_desc->push_font(doc_title_font);
-		class_desc->add_text(TTR("Property Descriptions"));
+        class_desc->add_text(TTR("Property Descriptions"));
         class_desc->pop();
         class_desc->pop();
 
@@ -1007,8 +1010,8 @@ void EditorHelp::_update_doc() {
         class_desc->add_newline();
 
         for (int i = 0; i < cd.properties.size(); i++) {
-			if (cd.properties[i].overridden)
-				continue;
+            if (cd.properties[i].overridden)
+                continue;
 
             property_line[cd.properties[i].name] = class_desc->get_line_count() - 2;
 
@@ -1515,8 +1518,8 @@ String EditorHelp::get_class() {
     return edited_class;
 }
 
-void EditorHelp::search_again() {
-    _search(prev_search);
+void EditorHelp::search_again(bool p_search_previous) {
+    _search(p_search_previous);
 }
 
 int EditorHelp::get_scroll() const {
@@ -1839,9 +1842,9 @@ void FindBar::_search_text_changed(const String &/*p_text*/) {
 
 void FindBar::_search_text_entered(const String &/*p_text*/) {
 
-	if (Input::get_singleton()->is_key_pressed(KEY_SHIFT)) {
-		search_prev();
-	} else {
+    if (Input::get_singleton()->is_key_pressed(KEY_SHIFT)) {
+        search_prev();
+    } else {
     search_next();
-	}
+    }
 }

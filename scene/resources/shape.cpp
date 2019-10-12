@@ -42,7 +42,7 @@ RES_BASE_EXTENSION_IMPL(Shape,"shape")
 
 void Shape::add_vertices_to_array(PoolVector<Vector3> &array, const Transform &p_xform) {
 
-    Vector<Vector3> toadd = _gen_debug_mesh_lines();
+    Vector<Vector3> toadd = get_debug_mesh_lines();
 
     if (!toadd.empty()) {
 
@@ -69,7 +69,7 @@ Ref<ArrayMesh> Shape::get_debug_mesh() {
     if (debug_mesh_cache)
         return debug_mesh_cache;
 
-    Vector<Vector3> lines = _gen_debug_mesh_lines();
+    Vector<Vector3> lines = get_debug_mesh_lines();
 
     debug_mesh_cache = make_ref_counted<ArrayMesh>();
 

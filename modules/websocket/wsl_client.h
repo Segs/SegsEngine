@@ -42,47 +42,47 @@
 
 class WSLClient : public WebSocketClient {
 
-	GDCIIMPL(WSLClient, WebSocketClient);
+    GDCIIMPL(WSLClient, WebSocketClient);
 
 private:
-	int _in_buf_size;
-	int _in_pkt_size;
-	int _out_buf_size;
-	int _out_pkt_size;
+    int _in_buf_size;
+    int _in_pkt_size;
+    int _out_buf_size;
+    int _out_pkt_size;
 
-	Ref<WSLPeer> _peer;
-	Ref<StreamPeerTCP> _tcp;
-	Ref<StreamPeer> _connection;
+    Ref<WSLPeer> _peer;
+    Ref<StreamPeerTCP> _tcp;
+    Ref<StreamPeer> _connection;
 
-	CharString _request;
-	int _requested;
+    CharString _request;
+    int _requested;
 
-	uint8_t _resp_buf[WSL_MAX_HEADER_SIZE];
-	int _resp_pos;
+    uint8_t _resp_buf[WSL_MAX_HEADER_SIZE];
+    int _resp_pos;
 
-	String _response;
+    String _response;
 
-	String _key;
-	String _host;
-	PoolVector<String> _protocols;
-	bool _use_ssl;
+    String _key;
+    String _host;
+    PoolVector<String> _protocols;
+    bool _use_ssl;
 
-	void _do_handshake();
-	bool _verify_headers(String &r_protocol);
+    void _do_handshake();
+    bool _verify_headers(String &r_protocol);
 
 public:
-	Error set_buffers(int p_in_buffer, int p_in_packets, int p_out_buffer, int p_out_packets) override;
-	Error connect_to_host(String p_host, String p_path, uint16_t p_port, bool p_ssl, PoolVector<String> p_protocol = PoolVector<String>()) override;
-	int get_max_packet_size() const override;
-	Ref<WebSocketPeer> get_peer(int p_peer_id) const override;
-	void disconnect_from_host(int p_code = 1000, String p_reason = "") override;
-	IP_Address get_connected_host() const override;
-	uint16_t get_connected_port() const override;
-	ConnectionStatus get_connection_status() const override;
-	void poll() override;
+    Error set_buffers(int p_in_buffer, int p_in_packets, int p_out_buffer, int p_out_packets) override;
+    Error connect_to_host(String p_host, String p_path, uint16_t p_port, bool p_ssl, const PoolVector<String> &p_protocol = PoolVector<String>(), const PoolVector<String> &p_custom_headers = PoolVector<String>()) override;
+    int get_max_packet_size() const override;
+    Ref<WebSocketPeer> get_peer(int p_peer_id) const override;
+    void disconnect_from_host(int p_code = 1000, String p_reason = "") override;
+    IP_Address get_connected_host() const override;
+    uint16_t get_connected_port() const override;
+    ConnectionStatus get_connection_status() const override;
+    void poll() override;
 
-	WSLClient();
-	~WSLClient() override;
+    WSLClient();
+    ~WSLClient() override;
 };
 
 #endif // JAVASCRIPT_ENABLED

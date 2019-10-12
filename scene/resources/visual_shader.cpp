@@ -1364,7 +1364,6 @@ void VisualShader::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_valid_node_id", {"type"}), &VisualShader::get_valid_node_id);
 
     MethodBinder::bind_method(D_METHOD("remove_node", {"type", "id"}), &VisualShader::remove_node);
-    MethodBinder::bind_method(D_METHOD("rebuild"), &VisualShader::rebuild);
 
     MethodBinder::bind_method(D_METHOD("is_node_connection", {"type", "from_node", "from_port", "to_node", "to_port"}), &VisualShader::is_node_connection);
     MethodBinder::bind_method(D_METHOD("can_connect_nodes", {"type", "from_node", "from_port", "to_node", "to_port"}), &VisualShader::is_node_connection);

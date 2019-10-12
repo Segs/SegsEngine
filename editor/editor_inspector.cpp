@@ -1292,7 +1292,7 @@ void EditorInspector::remove_inspector_plugin(const Ref<EditorInspectorPlugin> &
         }
     }
 
-	ERR_FAIL_COND_CMSG(idx == -1, "Trying to remove nonexistent inspector plugin.")
+    ERR_FAIL_COND_CMSG(idx == -1, "Trying to remove nonexistent inspector plugin.")
     for (int i = idx; i < inspector_plugin_count - 1; i++) {
         inspector_plugins[i] = inspector_plugins[i + 1];
     }
@@ -1568,11 +1568,11 @@ void EditorInspector::update_tree() {
             if (dot != -1) {
                 String ov = StringUtils::right(name,dot);
                 name = StringUtils::substr(name,0, dot);
-                name = StringUtils::capitalize(StringUtils::camelcase_to_underscore(name));
+                name = StringUtils::capitalize(name);
                 name += ov;
 
             } else {
-                name = StringUtils::capitalize(StringUtils::camelcase_to_underscore(name));
+                name = StringUtils::capitalize(name);
             }
         }
 

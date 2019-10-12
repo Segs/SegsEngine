@@ -34,7 +34,7 @@
 
 IMPL_GDCLASS(BoxShape)
 
-Vector<Vector3> BoxShape::_gen_debug_mesh_lines() {
+Vector<Vector3> BoxShape::get_debug_mesh_lines() {
 
     Vector<Vector3> lines;
     AABB aabb;

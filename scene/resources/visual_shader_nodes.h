@@ -263,6 +263,10 @@ class VisualShaderNodeCubeMap : public VisualShaderNode {
     Ref<CubeMap> cube_map;
 
 public:
+    enum Source {
+        SOURCE_TEXTURE,
+        SOURCE_PORT
+    };
     enum TextureType {
         TYPE_DATA,
         TYPE_COLOR,
@@ -270,6 +274,7 @@ public:
     };
 
 private:
+    Source source;
     TextureType texture_type;
 
 protected:
@@ -281,6 +286,7 @@ public:
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
     String get_input_port_name(int p_port) const override;
+    String get_input_port_default_hint(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
@@ -289,6 +295,9 @@ public:
     Vector<VisualShader::DefaultTextureParam> get_default_texture_parameters(VisualShader::Type p_type, int p_id) const override;
     String generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
     String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+
+    void set_source(Source p_source);
+    Source get_source() const;
 
     void set_cube_map(Ref<CubeMap> p_value);
     Ref<CubeMap> get_cube_map() const;
@@ -1434,7 +1443,7 @@ public:
         COLOR_DEFAULT_BLACK
     };
 
-private:
+protected:
     TextureType texture_type;
     ColorDefault color_default;
 
@@ -1492,8 +1501,8 @@ public:
 
 ///////////////////////////////////////
 
-class VisualShaderNodeCubeMapUniform : public VisualShaderNode {
-    GDCLASS(VisualShaderNodeCubeMapUniform,VisualShaderNode)
+class VisualShaderNodeCubeMapUniform : public VisualShaderNodeTextureUniform {
+    GDCLASS(VisualShaderNodeCubeMapUniform,VisualShaderNodeTextureUniform)
 
 
 public:
@@ -1507,6 +1516,8 @@ public:
     PortType get_output_port_type(int p_port) const override;
     String get_output_port_name(int p_port) const override;
 
+    String get_input_port_default_hint(int p_port) const override;
+    String generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
     String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     VisualShaderNodeCubeMapUniform();

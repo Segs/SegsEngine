@@ -345,7 +345,7 @@ public:
 
 class VisualShaderNodeUniform : public VisualShaderNode {
     GDCLASS(VisualShaderNodeUniform,VisualShaderNode)
-
+private:
     String uniform_name;
 
 protected:

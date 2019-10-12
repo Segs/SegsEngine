@@ -1055,7 +1055,7 @@ PropertyInfo VisualScriptPropertySet::get_input_value_port_info(int p_idx) const
     }
 
     ListPOD<PropertyInfo> props;
-    ClassDB::get_property_list(_get_base_type(), &props, true);
+    ClassDB::get_property_list(_get_base_type(), &props, false);
     for(const PropertyInfo & E : props) {
         if (E.name == property) {
             PropertyInfo pinfo = PropertyInfo(E.type, "value", PROPERTY_HINT_TYPE_STRING, E.hint_string);
@@ -1823,7 +1823,7 @@ PropertyInfo VisualScriptPropertyGet::get_input_value_port_info(int p_idx) const
 
 PropertyInfo VisualScriptPropertyGet::get_output_value_port_info(int p_idx) const {
     ListPOD<PropertyInfo> props;
-    ClassDB::get_property_list(_get_base_type(), &props, true);
+    ClassDB::get_property_list(_get_base_type(), &props, false);
     for(const PropertyInfo & E : props) {
         if (E.name == property) {
             return PropertyInfo(E.type, "value." + String(index));

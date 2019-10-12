@@ -86,6 +86,7 @@ void WSLClient::_do_handshake() {
                 WSLPeer::PeerData *data = memnew(struct WSLPeer::PeerData);
                 data->obj = this;
                 data->conn = _connection;
+                data->tcp = _tcp;
                 data->is_server = false;
                 data->id = 1;
                 _peer->make_context(data, _in_buf_size, _in_pkt_size, _out_buf_size, _out_pkt_size);
@@ -151,7 +152,7 @@ bool WSLClient::_verify_headers(String &r_protocol) {
     return true;
 }
 
-Error WSLClient::connect_to_host(String p_host, String p_path, uint16_t p_port, bool p_ssl, PoolVector<String> p_protocols) {
+Error WSLClient::connect_to_host(String p_host, String p_path, uint16_t p_port, bool p_ssl, const PoolVector<String> &p_protocols, const PoolVector<String> &p_custom_headers) {
 
     ERR_FAIL_COND_V(_connection, ERR_ALREADY_IN_USE)
 
@@ -199,6 +200,9 @@ Error WSLClient::connect_to_host(String p_host, String p_path, uint16_t p_port, 
         }
         request += "\r\n";
     }
+    for (int i = 0; i < p_custom_headers.size(); i++) {
+        request += p_custom_headers[i] + "\r\n";
+    }
     request += "\r\n";
     _request = StringUtils::to_utf8(request);
 
@@ -236,7 +240,7 @@ void WSLClient::poll() {
                     ssl = Ref<StreamPeerSSL>(StreamPeerSSL::create());
                     ERR_FAIL_COND_MSG(not ssl, "SSL is not available in this build.")
                     ssl->set_blocking_handshake_enabled(false);
-                    if (ssl->connect_to_stream(_tcp, verify_ssl, _host) != OK) {
+                    if (ssl->connect_to_stream(_tcp, verify_ssl, _host, ssl_cert) != OK) {
                         disconnect_from_host();
                         _on_error();
                         return;
@@ -305,12 +309,14 @@ void WSLClient::disconnect_from_host(int p_code, String p_reason) {
 
 IP_Address WSLClient::get_connected_host() const {
 
-    return IP_Address();
+    ERR_FAIL_COND_V(!_peer->is_connected_to_host(), IP_Address());
+    return _peer->get_connected_host();
 }
 
 uint16_t WSLClient::get_connected_port() const {
 
-    return 1025;
+    ERR_FAIL_COND_V(!_peer->is_connected_to_host(), 0);
+    return _peer->get_connected_port();
 }
 
 Error WSLClient::set_buffers(int p_in_buffer, int p_in_packets, int p_out_buffer, int p_out_packets) {

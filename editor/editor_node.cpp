@@ -80,7 +80,6 @@
 #include "editor/editor_settings.h"
 #include "editor/editor_themes.h"
 #include "editor/filesystem_dock.h"
-#include "editor/output_strings.h"
 #include "editor/editor_network_profiler.h"
 #include "editor/project_manager.h"
 #include "editor/animation_track_editor_plugins.h"
@@ -3591,7 +3590,6 @@ void EditorNode::register_editor_types() {
     DependencyErrorDialog::initialize_class();
     OrphanResourcesDialog::initialize_class();
     EditorFileServer::initialize_class();
-    OutputStrings::initialize_class();
     EditorNetworkProfiler::initialize_class();
     AudioStreamPreview::initialize_class();
     AudioStreamPreviewGenerator::initialize_class();
