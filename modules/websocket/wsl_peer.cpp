@@ -179,7 +179,7 @@ Error WSLPeer::parse_message(const wslay_event_on_msg_recv_arg *arg) {
         size_t len = arg->msg_length;
         close_reason = "";
         if (len > 2 /* first 2 bytes = close code */) {
-			close_reason = StringUtils::from_utf8((char *)arg->msg + 2, len - 2);
+            close_reason = StringUtils::from_utf8((char *)arg->msg + 2, len - 2);
         }
         if (!wslay_event_get_close_sent(_data->ctx)) {
             if (_data->is_server) {
@@ -209,7 +209,6 @@ void WSLPeer::make_context(PeerData *p_data, unsigned int p_in_buf_size, unsigne
     _data = p_data;
     _data->peer = this;
     _data->valid = true;
-    _connection = Ref<StreamPeer>(_data->conn);
 
     if (_data->is_server)
         wslay_event_context_server_init(&(_data->ctx), &wsl_callbacks, _data);
@@ -292,7 +291,7 @@ void WSLPeer::close_now() {
 
 void WSLPeer::close(int p_code, String p_reason) {
     if (_data && !wslay_event_get_close_sent(_data->ctx)) {
-		CharString cs = StringUtils::to_utf8(p_reason);
+        CharString cs = StringUtils::to_utf8(p_reason);
         wslay_event_queue_close(_data->ctx, p_code, (uint8_t *)cs.data(), cs.size());
         wslay_event_send(_data->ctx);
     }
@@ -303,18 +302,16 @@ void WSLPeer::close(int p_code, String p_reason) {
 
 IP_Address WSLPeer::get_connected_host() const {
 
-    ERR_FAIL_COND_V(!is_connected_to_host(), IP_Address())
+    ERR_FAIL_COND_V(!is_connected_to_host() || not _data->tcp, IP_Address());
 
-    IP_Address ip;
-    return ip;
+    return _data->tcp->get_connected_host();
 }
 
 uint16_t WSLPeer::get_connected_port() const {
 
-    ERR_FAIL_COND_V(!is_connected_to_host(), 0)
+    ERR_FAIL_COND_V(!is_connected_to_host() || not _data->tcp, 0);
 
-    uint16_t port = 0;
-    return port;
+    return _data->tcp->get_connected_port();
 }
 
 void WSLPeer::invalidate() {

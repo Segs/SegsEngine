@@ -367,6 +367,10 @@ struct _VariantCall {
     static void _call_String_to_ascii(Variant &r_ret, Variant &p_self, const Variant **p_args) {
 
         String *s = reinterpret_cast<String *>(p_self._data._mem);
+        if (s->empty()) {
+            r_ret = PoolByteArray();
+            return;
+        }
         CharString charstr = StringUtils::ascii(*s);
 
         PoolByteArray retval;
@@ -382,6 +386,10 @@ struct _VariantCall {
     static void _call_String_to_utf8(Variant &r_ret, Variant &p_self, const Variant **p_args) {
 
         String *s = reinterpret_cast<String *>(p_self._data._mem);
+        if (s->empty()) {
+            r_ret = PoolByteArray();
+            return;
+        }
         CharString charstr = StringUtils::utf8(*s);
 
         PoolByteArray retval;
@@ -596,7 +604,7 @@ struct _VariantCall {
 
         PoolByteArray *ba = reinterpret_cast<PoolByteArray *>(p_self._data._mem);
         String s;
-        if (ba->size() >= 0) {
+        if (ba->size() > 0) {
             PoolByteArray::Read r = ba->read();
             CharString cs;
             cs.resize(ba->size() + 1);
@@ -612,7 +620,7 @@ struct _VariantCall {
 
         PoolByteArray *ba = reinterpret_cast<PoolByteArray *>(p_self._data._mem);
         String s;
-        if (ba->size() >= 0) {
+        if (ba->size() > 0) {
             PoolByteArray::Read r = ba->read();
             s = StringUtils::from_utf8((const char *)r.ptr(), ba->size());
         }
@@ -623,14 +631,15 @@ struct _VariantCall {
 
         PoolByteArray *ba = reinterpret_cast<PoolByteArray *>(p_self._data._mem);
         PoolByteArray compressed;
-        Compression::Mode mode = (Compression::Mode)(int)(*p_args[0]);
+        if (ba->size() > 0) {
+            Compression::Mode mode = (Compression::Mode)(int)(*p_args[0]);
 
-        compressed.resize(Compression::get_max_compressed_buffer_size(ba->size(), mode));
-        int result = Compression::compress(compressed.write().ptr(), ba->read().ptr(), ba->size(), mode);
+            compressed.resize(Compression::get_max_compressed_buffer_size(ba->size(), mode));
+            int result = Compression::compress(compressed.write().ptr(), ba->read().ptr(), ba->size(), mode);
 
-        result = result >= 0 ? result : 0;
-        compressed.resize(result);
-
+            result = result >= 0 ? result : 0;
+            compressed.resize(result);
+        }
         r_ret = compressed;
     }
 
@@ -642,9 +651,9 @@ struct _VariantCall {
 
         int buffer_size = (int)(*p_args[0]);
 
-        if (buffer_size < 0) {
+        if (buffer_size <= 0) {
             r_ret = decompressed;
-            ERR_FAIL_CMSG("Decompression buffer size is less than zero.")
+            ERR_FAIL_CMSG("Decompression buffer size must be greater than zero.")
         }
 
         decompressed.resize(buffer_size);
@@ -658,6 +667,10 @@ struct _VariantCall {
 
     static void _call_PoolByteArray_hex_encode(Variant &r_ret, Variant &p_self, const Variant **p_args) {
         PoolByteArray *ba = reinterpret_cast<PoolByteArray *>(p_self._data._mem);
+        if (ba->size() == 0) {
+            r_ret = String();
+            return;
+        }
         PoolByteArray::Read r = ba->read();
         String s = StringUtils::hex_encode_buffer(&r[0], ba->size());
         r_ret = s;

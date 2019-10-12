@@ -57,7 +57,7 @@ struct DrawEdge {
 };
 } // end of anonymous namespace
 
-Vector<Vector3> ConcavePolygonShape::_gen_debug_mesh_lines() {
+Vector<Vector3> ConcavePolygonShape::get_debug_mesh_lines() {
 
     Set<DrawEdge> edges;
 

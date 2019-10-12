@@ -35,7 +35,7 @@
 
 IMPL_GDCLASS(PlaneShape)
 
-Vector<Vector3> PlaneShape::_gen_debug_mesh_lines() {
+Vector<Vector3> PlaneShape::get_debug_mesh_lines() {
 
     Plane p = get_plane();
     Vector<Vector3> points;

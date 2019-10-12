@@ -35,7 +35,7 @@
 
 IMPL_GDCLASS(RayShape)
 
-Vector<Vector3> RayShape::_gen_debug_mesh_lines() {
+Vector<Vector3> RayShape::get_debug_mesh_lines() {
 
     Vector<Vector3> points;
     points.push_back(Vector3());

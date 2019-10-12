@@ -42,7 +42,7 @@ WebSocketClient::WebSocketClient() {
 WebSocketClient::~WebSocketClient() {
 }
 
-Error WebSocketClient::connect_to_url(String p_url, PoolVector<String> p_protocols, bool gd_mp_api) {
+Error WebSocketClient::connect_to_url(String p_url, const PoolVector<String> &p_protocols, bool gd_mp_api, const PoolVector<String> &p_custom_headers) {
     _is_multiplayer = gd_mp_api;
 
     String host = p_url;
@@ -74,7 +74,7 @@ Error WebSocketClient::connect_to_url(String p_url, PoolVector<String> p_protoco
         host = StringUtils::substr(host,0, p_len);
     }
 
-    return connect_to_host(host, path, port, ssl, p_protocols);
+    return connect_to_host(host, path, port, ssl, p_protocols, p_custom_headers);
 }
 
 void WebSocketClient::set_verify_ssl_enabled(bool p_verify_ssl) {
@@ -85,6 +85,17 @@ void WebSocketClient::set_verify_ssl_enabled(bool p_verify_ssl) {
 bool WebSocketClient::is_verify_ssl_enabled() const {
 
     return verify_ssl;
+}
+
+Ref<X509Certificate> WebSocketClient::get_trusted_ssl_certificate() const {
+
+    return ssl_cert;
+}
+
+void WebSocketClient::set_trusted_ssl_certificate(Ref<X509Certificate> p_cert) {
+
+    ERR_FAIL_COND(get_connection_status() != CONNECTION_DISCONNECTED);
+    ssl_cert = p_cert;
 }
 
 bool WebSocketClient::is_server() const {
@@ -134,8 +145,10 @@ void WebSocketClient::_on_error() {
 }
 
 void WebSocketClient::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("connect_to_url", {"url", "protocols", "gd_mp_api"}), &WebSocketClient::connect_to_url, {DEFVAL(PoolVector<String>()), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("connect_to_url", {"url", "protocols", "gd_mp_api", "custom_headers"}), &WebSocketClient::connect_to_url, {DEFVAL(PoolVector<String>()), DEFVAL(false), DEFVAL(Vector<String>())});
     MethodBinder::bind_method(D_METHOD("disconnect_from_host", {"code", "reason"}), &WebSocketClient::disconnect_from_host, {DEFVAL(1000), DEFVAL("")});
+    MethodBinder::bind_method(D_METHOD("get_connected_host"), &WebSocketClient::get_connected_host);
+    MethodBinder::bind_method(D_METHOD("get_connected_port"), &WebSocketClient::get_connected_port);
     MethodBinder::bind_method(D_METHOD("set_verify_ssl_enabled", {"enabled"}), &WebSocketClient::set_verify_ssl_enabled);
     MethodBinder::bind_method(D_METHOD("is_verify_ssl_enabled"), &WebSocketClient::is_verify_ssl_enabled);
 

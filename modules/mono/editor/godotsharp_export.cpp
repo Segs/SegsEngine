@@ -32,85 +32,90 @@
 
 #include <mono/metadata/image.h>
 
+#include "core/os/os.h"
+
 #include "../mono_gd/gd_mono.h"
 #include "../mono_gd/gd_mono_assembly.h"
 
+namespace GodotSharpExport {
+
 String get_assemblyref_name(MonoImage *p_image, int index) {
-	const MonoTableInfo *table_info = mono_image_get_table_info(p_image, MONO_TABLE_ASSEMBLYREF);
+    const MonoTableInfo *table_info = mono_image_get_table_info(p_image, MONO_TABLE_ASSEMBLYREF);
 
-	uint32_t cols[MONO_ASSEMBLYREF_SIZE];
+    uint32_t cols[MONO_ASSEMBLYREF_SIZE];
 
-	mono_metadata_decode_row(table_info, index, cols, MONO_ASSEMBLYREF_SIZE);
+    mono_metadata_decode_row(table_info, index, cols, MONO_ASSEMBLYREF_SIZE);
 
-	return String::utf8(mono_metadata_string_heap(p_image, cols[MONO_ASSEMBLYREF_NAME]));
+    return String::utf8(mono_metadata_string_heap(p_image, cols[MONO_ASSEMBLYREF_NAME]));
 }
 
 Error GodotSharpExport::get_assembly_dependencies(GDMonoAssembly *p_assembly, const Vector<String> &p_search_dirs, Dictionary &r_dependencies) {
-	MonoImage *image = p_assembly->get_image();
+    MonoImage *image = p_assembly->get_image();
 
-	for (int i = 0; i < mono_image_get_table_rows(image, MONO_TABLE_ASSEMBLYREF); i++) {
-		String ref_name = get_assemblyref_name(image, i);
+    for (int i = 0; i < mono_image_get_table_rows(image, MONO_TABLE_ASSEMBLYREF); i++) {
+        String ref_name = get_assemblyref_name(image, i);
 
-		if (r_dependencies.has(ref_name))
-			continue;
+        if (r_dependencies.has(ref_name))
+            continue;
 
-		GDMonoAssembly *ref_assembly = NULL;
-		String path;
+        GDMonoAssembly *ref_assembly = NULL;
+        String path;
                 bool has_extension = StringUtils::ends_with(ref_name,".dll") || StringUtils::ends_with(ref_name,".exe");
 
-		for (int j = 0; j < p_search_dirs.size(); j++) {
-			const String &search_dir = p_search_dirs[j];
+        for (int j = 0; j < p_search_dirs.size(); j++) {
+            const String &search_dir = p_search_dirs[j];
 
-			if (has_extension) {
+            if (has_extension) {
                                 path = PathUtils::plus_file(search_dir,ref_name);
-				if (FileAccess::exists(path)) {
+                if (FileAccess::exists(path)) {
                                         GDMono::get_singleton()->load_assembly_from(PathUtils::get_basename(ref_name), path, &ref_assembly, true);
-					if (ref_assembly != NULL)
-						break;
-				}
-			} else {
+                    if (ref_assembly != NULL)
+                        break;
+                }
+            } else {
                                 path = PathUtils::plus_file(search_dir,ref_name + ".dll");
-				if (FileAccess::exists(path)) {
-					GDMono::get_singleton()->load_assembly_from(ref_name, path, &ref_assembly, true);
-					if (ref_assembly != NULL)
-						break;
-				}
+                if (FileAccess::exists(path)) {
+                    GDMono::get_singleton()->load_assembly_from(ref_name, path, &ref_assembly, true);
+                    if (ref_assembly != NULL)
+                        break;
+                }
 
                                 path = PathUtils::plus_file(search_dir,ref_name + ".exe");
-				if (FileAccess::exists(path)) {
-					GDMono::get_singleton()->load_assembly_from(ref_name, path, &ref_assembly, true);
-					if (ref_assembly != NULL)
-						break;
-				}
-			}
-		}
+                if (FileAccess::exists(path)) {
+                    GDMono::get_singleton()->load_assembly_from(ref_name, path, &ref_assembly, true);
+                    if (ref_assembly != NULL)
+                        break;
+                }
+            }
+        }
 
-		ERR_FAIL_COND_V_MSG(!ref_assembly, ERR_CANT_RESOLVE, "Cannot load assembly (refonly): '" + ref_name + "'.")
+        ERR_FAIL_COND_V_MSG(!ref_assembly, ERR_CANT_RESOLVE, "Cannot load assembly (refonly): '" + ref_name + "'.")
 
-		r_dependencies[ref_name] = ref_assembly->get_path();
+        r_dependencies[ref_name] = ref_assembly->get_path();
 
-		Error err = get_assembly_dependencies(ref_assembly, p_search_dirs, r_dependencies);
-		ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot load one of the dependencies for the assembly: '" + ref_name + "'.")
-	}
+        Error err = get_assembly_dependencies(ref_assembly, p_search_dirs, r_dependencies);
+        ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot load one of the dependencies for the assembly: '" + ref_name + "'.")
+    }
 
-	return OK;
+    return OK;
 }
 
-Error GodotSharpExport::get_exported_assembly_dependencies(const String &p_project_dll_name, const String &p_project_dll_src_path, const String &p_build_config, const String &p_custom_lib_dir, Dictionary &r_dependencies) {
-	MonoDomain *export_domain = GDMonoUtils::create_domain("GodotEngine.ProjectExportDomain");
-	ERR_FAIL_NULL_V(export_domain, FAILED);
-	_GDMONO_SCOPE_EXIT_DOMAIN_UNLOAD_(export_domain);
+Error GodotSharpExport::get_exported_assembly_dependencies(const String &p_project_dll_name, const String &p_project_dll_src_path, const String &p_build_config, const String &p_custom_bcl_dir, Dictionary &r_dependencies) {
+    MonoDomain *export_domain = GDMonoUtils::create_domain("GodotEngine.Domain.ProjectExport");
+    ERR_FAIL_NULL_V(export_domain, FAILED);
+    _GDMONO_SCOPE_EXIT_DOMAIN_UNLOAD_(export_domain);
 
-	_GDMONO_SCOPE_DOMAIN_(export_domain);
+    _GDMONO_SCOPE_DOMAIN_(export_domain);
 
-	GDMonoAssembly *scripts_assembly = NULL;
-	bool load_success = GDMono::get_singleton()->load_assembly_from(p_project_dll_name,
-			p_project_dll_src_path, &scripts_assembly, /* refonly: */ true);
+    GDMonoAssembly *scripts_assembly = NULL;
+    bool load_success = GDMono::get_singleton()->load_assembly_from(p_project_dll_name,
+            p_project_dll_src_path, &scripts_assembly, /* refonly: */ true);
 
-	ERR_FAIL_COND_V_MSG(!load_success, ERR_CANT_RESOLVE, "Cannot load assembly (refonly): '" + p_project_dll_name + "'.")
+    ERR_FAIL_COND_V_MSG(!load_success, ERR_CANT_RESOLVE, "Cannot load assembly (refonly): '" + p_project_dll_name + "'.")
 
-	Vector<String> search_dirs;
-	GDMonoAssembly::fill_search_dirs(search_dirs, p_build_config, p_custom_lib_dir);
+    Vector<String> search_dirs;
+    GDMonoAssembly::fill_search_dirs(search_dirs, p_build_config, p_custom_bcl_dir);
 
-	return get_assembly_dependencies(scripts_assembly, search_dirs, r_dependencies);
+    return get_assembly_dependencies(scripts_assembly, search_dirs, r_dependencies);
 }
+} // namespace GodotSharpExport

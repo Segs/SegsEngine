@@ -35,17 +35,18 @@
 
 class ConcavePolygonShape : public Shape {
 
-	GDCLASS(ConcavePolygonShape,Shape)
+    GDCLASS(ConcavePolygonShape,Shape)
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
-	void _update_shape() override;
-	Vector<Vector3> _gen_debug_mesh_lines() override;
+    void _update_shape() override;
 
 public:
-	void set_faces(const PoolVector<Vector3> &p_faces);
-	PoolVector<Vector3> get_faces() const;
+    Vector<Vector3> get_debug_mesh_lines() override;
 
-	ConcavePolygonShape();
+    void set_faces(const PoolVector<Vector3> &p_faces);
+    PoolVector<Vector3> get_faces() const;
+
+    ConcavePolygonShape();
 };

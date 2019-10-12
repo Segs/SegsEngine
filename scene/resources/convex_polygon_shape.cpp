@@ -35,7 +35,7 @@
 
 IMPL_GDCLASS(ConvexPolygonShape)
 
-Vector<Vector3> ConvexPolygonShape::_gen_debug_mesh_lines() {
+Vector<Vector3> ConvexPolygonShape::get_debug_mesh_lines() {
 
     PoolVector<Vector3> points = get_points();
 

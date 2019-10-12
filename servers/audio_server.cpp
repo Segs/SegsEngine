@@ -1090,6 +1090,7 @@ void AudioServer::finish() {
 
     for (int i = 0; i < AudioDriverManager::get_driver_count(); i++) {
         AudioDriverManager::get_driver(i)->finish();
+        AudioDriverManager::get_driver(i)->clear_capture_buffer();
     }
 
     for (int i = 0; i < buses.size(); i++) {

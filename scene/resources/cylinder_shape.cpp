@@ -34,7 +34,7 @@
 
 IMPL_GDCLASS(CylinderShape)
 
-Vector<Vector3> CylinderShape::_gen_debug_mesh_lines() {
+Vector<Vector3> CylinderShape::get_debug_mesh_lines() {
 
     float radius = get_radius();
     float height = get_height();

@@ -260,13 +260,14 @@ private:
 
     float snap_rotation_step;
     float snap_rotation_offset;
-    bool snap_active;
+    bool smart_snap_active;
+    bool grid_snap_active;
+
     bool snap_node_parent;
     bool snap_node_anchors;
     bool snap_node_sides;
     bool snap_node_center;
     bool snap_other_nodes;
-    bool snap_grid;
     bool snap_guides;
     bool snap_rotation;
     bool snap_relative;
@@ -348,7 +349,8 @@ private:
 
     ToolButton *ruler_button;
 
-    ToolButton *snap_button;
+    ToolButton *smart_snap_button;
+    ToolButton *grid_snap_button;
     MenuButton *snap_config_menu;
     PopupMenu *smartsnap_config_popup;
 
@@ -526,11 +528,12 @@ private:
 
     HBoxContainer *zoom_hb;
     void _zoom_on_position(float p_zoom, Point2 p_position = Point2());
-	void _update_zoom_label();
+    void _update_zoom_label();
     void _button_zoom_minus();
     void _button_zoom_reset();
     void _button_zoom_plus();
-    void _button_toggle_snap(bool p_status);
+    void _button_toggle_smart_snap(bool p_status);
+    void _button_toggle_grid_snap(bool p_status);
     void _button_tool_select(int p_index);
 
     HSplitContainer *palette_split;

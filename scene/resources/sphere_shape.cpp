@@ -34,7 +34,7 @@
 
 IMPL_GDCLASS(SphereShape)
 
-Vector<Vector3> SphereShape::_gen_debug_mesh_lines() {
+Vector<Vector3> SphereShape::get_debug_mesh_lines() {
 
     float r = get_radius();
 
