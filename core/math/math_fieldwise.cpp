@@ -32,6 +32,12 @@
 
 #include "math_fieldwise.h"
 #include "core/ustring.h"
+#include "vector3.h"
+#include "vector2.h"
+#include "quat.h"
+#include "aabb.h"
+#include "transform.h"
+#include "transform_2d.h"
 
 #define SETUP_TYPE(m_type)    \
 	m_type source = p_source; \

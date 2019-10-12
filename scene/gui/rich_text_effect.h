@@ -31,6 +31,9 @@
 #pragma once
 
 #include "core/resource.h"
+#include "core/math/vector2.h"
+#include "core/color.h"
+
 #include <QChar>
 using CharType = class QChar;
 

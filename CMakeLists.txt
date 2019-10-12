@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.13)
 project(SegsEngine)
 
+set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}/../SegsEngine_installdir/)
 # NOTE: when running on linux the following commands allow for ccache based build acceleration and build timing
 # respectively
 #set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
@@ -249,4 +250,19 @@ foreach(tgt ${global_targets})
     if(ENABLE_COTIRE)
         cotire(${tgt}_engine)
     endif()
+    install(TARGETS ${tgt}_engine EXPORT SegsEngine
+        LIBRARY DESTINATION .
+        RUNTIME DESTINATION .
+        INCLUDES DESTINATION include
+    )
+if(WIN32)
+    install(TARGETS ${tgt}_engine EXPORT SegsEngine
+        ARCHIVE DESTINATION .
+    )
+endif()
+    install(EXPORT SegsEngine
+        FILE ${tgt}_engine_targets.cmake
+        NAMESPACE SegsEngine::
+        DESTINATION cmake
+    )
 endforeach()

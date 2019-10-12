@@ -37,6 +37,14 @@
 #include "core/pool_vector.h"
 
 #include "core/variant.h"
+#include "core/math/aabb.h"
+#include "core/math/basis.h"
+#include "core/math/face3.h"
+#include "core/math/plane.h"
+#include "core/math/quat.h"
+#include "core/math/transform.h"
+#include "core/math/transform_2d.h"
+#include "core/math/vector3.h"
 #include "core/ustring.h"
 
 #ifdef __cplusplus

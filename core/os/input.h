@@ -32,6 +32,7 @@
 
 #include "core/object.h"
 #include "core/os/main_loop.h"
+#include "core/math/vector2.h"
 
 class Resource;
 using RES = Ref<Resource>;

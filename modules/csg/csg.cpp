@@ -33,6 +33,7 @@
 #include "core/math/geometry.h"
 #include "core/os/os.h"
 #include "core/sort_array.h"
+#include "core/math/transform_2d.h"
 #include "thirdparty/misc/triangulator.h"
 
 void CSGBrush::clear() {

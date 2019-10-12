@@ -308,7 +308,7 @@ public:
     bool _check_internal_feature_support(const String &p_feature) override;
 
     void force_process_input() override;
-    void run();
+    void run() override;
 
     void disable_crash_handler() override;
     bool is_disable_crash_handler() const override;

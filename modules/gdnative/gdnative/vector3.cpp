@@ -33,7 +33,8 @@
 #include "core/variant.h"
 #include "core/vector.h"
 #include "core/ustring.h"
-
+#include "core/math/vector3.h"
+#include "core/math/basis.h"
 #ifdef __cplusplus
 extern "C" {
 #endif

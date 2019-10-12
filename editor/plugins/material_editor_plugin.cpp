@@ -30,11 +30,11 @@
 
 #include "material_editor_plugin.h"
 
-#include "scene/resources/particles_material.h"
-
 #include "core/method_bind.h"
-#include "scene/gui/viewport_container.h"
 #include "editor/editor_scale.h"
+#include "scene/gui/viewport_container.h"
+#include "scene/resources/particles_material.h"
+#include "scene/resources/shader.h"
 #include "scene/resources/world.h"
 
 IMPL_GDCLASS(MaterialEditor)
@@ -214,7 +214,7 @@ bool EditorInspectorPluginMaterial::can_handle(Object *p_object) {
     if (!material)
         return false;
 
-    return material->get_shader_mode() == Shader::MODE_SPATIAL;
+    return material->get_shader_mode() == ShaderMode::SPATIAL;
 }
 
 void EditorInspectorPluginMaterial::parse_begin(Object *p_object) {

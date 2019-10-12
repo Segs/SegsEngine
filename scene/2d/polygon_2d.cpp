@@ -30,10 +30,11 @@
 
 #include "polygon_2d.h"
 
+#include "skeleton_2d.h"
 #include "core/object_db.h"
 #include "core/method_bind.h"
 #include "core/math/geometry.h"
-#include "skeleton_2d.h"
+#include "servers/visual_server.h"
 
 IMPL_GDCLASS(Polygon2D)
 

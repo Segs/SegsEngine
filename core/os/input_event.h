@@ -200,7 +200,7 @@ public:
     virtual bool shortcut_match(const Ref<InputEvent> &p_event) const;
     virtual bool is_action_type() const;
 
-    virtual bool accumulate(const Ref<InputEvent> &p_event) { return false; }
+    virtual bool accumulate(const Ref<InputEvent> &/*p_event*/) { return false; }
     InputEvent();
 };
 

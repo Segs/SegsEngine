@@ -32,6 +32,7 @@
 
 #include "core/math/transform_2d.h"
 #include "core/hash_map.h"
+#include "core/ustring.h"
 #include "core/rid.h"
 #include "scene/2d/canvas_item.h"
 

@@ -1,6 +1,7 @@
 #pragma once
 
-#include "scene/resources/shader.h"
+#include "scene/resources/shader_enums.h"
 #include "core/method_enum_caster.h"
+#include "core/method_arg_casters.h"
 
-VARIANT_ENUM_CAST(Shader::Mode);
+VARIANT_ENUM_CAST(ShaderMode);

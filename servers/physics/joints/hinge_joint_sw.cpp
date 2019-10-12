@@ -48,20 +48,21 @@ subject to the following restrictions:
 */
 
 #include "hinge_joint_sw.h"
+#include "core/math/quat.h"
 
 static void plane_space(const Vector3 &n, Vector3 &p, Vector3 &q) {
 
-	if (Math::abs(n.z) > 0.707106781186547524400844362) {
+    if (Math::abs(n.z) > 0.707106781186547524400844362f) {
 		// choose p in y-z plane
-		real_t a = n[1] * n[1] + n[2] * n[2];
-		real_t k = 1.0 / Math::sqrt(a);
-		p = Vector3(0, -n[2] * k, n[1] * k);
+        real_t a = n.y * n.y + n.z * n.z;
+        real_t k = 1.0f / Math::sqrt(a);
+        p = Vector3(0, -n.z * k, n.y * k);
 		// set q = n x p
-		q = Vector3(a * k, -n[0] * p[2], n[0] * p[1]);
+        q = Vector3(a * k, -n.x * p[2], n.x * p[1]);
 	} else {
 		// choose p in x-y plane
 		real_t a = n.x * n.x + n.y * n.y;
-		real_t k = 1.0 / Math::sqrt(a);
+        real_t k = 1.0f / Math::sqrt(a);
 		p = Vector3(-n.y * k, n.x * k, 0);
 		// set q = n x p
 		q = Vector3(-n.z * p.y, n.z * p.x, a * k);
@@ -148,7 +149,7 @@ HingeJointSW::HingeJointSW(BodySW *rbA, BodySW *rbB, const Vector3 &pivotInA, co
 	m_limitSoftness = 0.9f;
 	m_solveLimit = false;
 
-	tau = 0.3;
+    tau = 0.3f;
 
 	m_angularOnly = false;
 	m_enableAngularMotor = false;

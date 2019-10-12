@@ -34,10 +34,19 @@
 #include "core/hash_map.h"
 #include "core/map.h"
 #include "core/math/camera_matrix.h"
+#include "core/color.h"
 #include "core/variant.h"
 #include "core/ustring.h"
 #include "core/vector.h"
 #include "core/set.h"
+#include "core/math/aabb.h"
+#include "core/math/basis.h"
+#include "core/math/face3.h"
+#include "core/math/plane.h"
+#include "core/math/quat.h"
+#include "core/math/transform.h"
+#include "core/math/transform_2d.h"
+#include "core/math/vector3.h"
 
 #include "platform_config.h"
 #include "thirdparty/glad/glad/glad.h"
@@ -279,7 +288,7 @@ private:
                 glUniformMatrix4fv(p_uniform, 1, false, matrix);
             } break;
             default: {
-                ERR_FAIL();
+                ERR_FAIL()
             } // do nothing
         }
     }

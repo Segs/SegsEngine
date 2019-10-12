@@ -31,6 +31,7 @@
 #include "tile_set.h"
 #include "core/array.h"
 #include "core/engine.h"
+#include "core/math/geometry.h"
 #include "core/method_bind.h"
 #include "core/script_language.h"
 

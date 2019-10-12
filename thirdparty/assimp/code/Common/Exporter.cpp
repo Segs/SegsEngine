@@ -184,11 +184,12 @@ Exporter::ExportFormatEntry gExporters[] =
 #endif
 
 #ifndef ASSIMP_BUILD_NO_ASSJSON_EXPORTER
-    Exporter::ExportFormatEntry( "assjson", "Assimp JSON Document", "json", &ExportAssimp2Json, 0)
+    Exporter::ExportFormatEntry( "assjson", "Assimp JSON Document", "json", &ExportAssimp2Json, 0),
 #endif
+    Exporter::ExportFormatEntry() // Sentinel value required for correct compilation under visual studio
 };
 
-#define ASSIMP_NUM_EXPORTERS (sizeof(gExporters)/sizeof(gExporters[0]))
+#define ASSIMP_NUM_EXPORTERS ((sizeof(gExporters)/sizeof(gExporters[0]))-1)
 
 
 class ExporterPimpl {

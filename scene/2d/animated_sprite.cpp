@@ -187,6 +187,12 @@ Vector<String> SpriteFrames::_get_animation_list() const {
     return ret;
 }
 
+void SpriteFrames::report_missing_animation(const char *name)
+{
+    String msg="Animation '" + String(name) + "' doesn't exist.";
+    ERR_EXPLAIN(msg);
+}
+
 void SpriteFrames::get_animation_list(ListPOD<StringName> *r_animations) const {
 
     for (const eastl::pair<const StringName,Anim> &E : animations) {

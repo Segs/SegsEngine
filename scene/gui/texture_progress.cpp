@@ -29,9 +29,10 @@
 /*************************************************************************/
 
 #include "texture_progress.h"
-#include "core/method_bind.h"
 
 #include "core/engine.h"
+#include "core/method_bind.h"
+#include "servers/visual_server.h"
 
 IMPL_GDCLASS(TextureProgress)
 VARIANT_ENUM_CAST(TextureProgress::FillMode);

@@ -38,7 +38,6 @@
 #include "core/method_enum_caster.h"
 #include "core/type_info.h"
 
-
 #include <cstdio>
 #include <type_traits>
 #include <functional>

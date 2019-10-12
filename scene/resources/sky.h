@@ -32,6 +32,7 @@
 
 #include "core/resource.h"
 #include "core/rid.h"
+#include "core/color.h"
 
 class Texture;
 class Image;

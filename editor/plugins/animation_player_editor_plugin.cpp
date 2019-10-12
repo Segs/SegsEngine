@@ -40,6 +40,7 @@
 #include "editor/editor_settings.h"
 #include "editor/editor_scale.h"
 #include "scene/resources/style_box.h"
+#include "scene/resources/shader.h"
 #include "scene/main/scene_tree.h"
 
 // For onion skinning.

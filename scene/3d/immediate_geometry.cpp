@@ -30,6 +30,7 @@
 
 #include "immediate_geometry.h"
 #include "core/method_bind.h"
+#include "scene/resources/texture.h"
 #include "servers/visual_server.h"
 
 IMPL_GDCLASS(ImmediateGeometry)

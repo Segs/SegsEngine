@@ -37,6 +37,7 @@
 #include "core/ustring.h"
 #include "core/vector.h"
 #include "core/variant.h"
+#include "core/math/rect2.h"
 
 #include <cstdarg>
 
@@ -150,12 +151,14 @@ public:
 
     static OS *get_singleton();
 
-    virtual void global_menu_add_item(const String &p_menu, const String &p_label, const Variant &p_signal, const Variant &p_meta){}
-    virtual void global_menu_add_separator(const String &p_menu){}
-    virtual void global_menu_remove_item(const String &p_menu, int p_idx){}
-    virtual void global_menu_clear(const String &p_menu){}
+    virtual void global_menu_add_item(const String & /*p_menu*/, const String & /*p_label*/,
+            const Variant & /*p_signal*/, const Variant & /*p_meta*/) {}
+    virtual void global_menu_add_separator(const String & /*p_menu*/) {}
+    virtual void global_menu_remove_item(const String &/*p_menu*/, int /*p_idx*/){}
+    virtual void global_menu_clear(const String &/*p_menu*/){}
 
-    void print_error(const char *p_function, const char *p_file, int p_line, const char *p_code, const char *p_rationale, Logger::ErrorType p_type = Logger::ERR_ERROR);
+    void print_error(const char *p_function, const char *p_file, int p_line, const char *p_code,
+            const char *p_rationale, Logger::ErrorType p_type = Logger::ERR_ERROR);
     void print(const char *p_msg);
     void print(const String &p_msg);
     void printerr(const char *p_msg);
@@ -178,7 +181,7 @@ public:
     virtual void set_mouse_mode(MouseMode p_mode);
     virtual MouseMode get_mouse_mode() const;
 
-    virtual void warp_mouse_position(const Point2 &p_to) {}
+    virtual void warp_mouse_position(const Point2 &/*p_to*/) {}
     virtual Point2 get_mouse_position() const = 0;
     virtual int get_mouse_button_state() const = 0;
     virtual void set_window_title(const String &p_title) = 0;
@@ -209,30 +212,30 @@ public:
 
     virtual int get_screen_count() const { return 1; }
     virtual int get_current_screen() const { return 0; }
-    virtual void set_current_screen(int p_screen) {}
-    virtual Point2 get_screen_position(int p_screen = -1) const { return Point2(); }
-    virtual Size2 get_screen_size(int p_screen = -1) const { return get_window_size(); }
-    virtual int get_screen_dpi(int p_screen = -1) const { return 72; }
+    virtual void set_current_screen(int /*p_screen*/) {}
+    virtual Point2 get_screen_position(int /*p_screen*/ = -1) const { return Point2(); }
+    virtual Size2 get_screen_size(int /*p_screen*/ = -1) const { return get_window_size(); }
+    virtual int get_screen_dpi(int /*p_screen*/ = -1) const { return 72; }
     virtual Point2 get_window_position() const { return Vector2(); }
-    virtual void set_window_position(const Point2 &p_position) {}
-    virtual Size2 get_max_window_size() const { return Size2(); };
-    virtual Size2 get_min_window_size() const { return Size2(); };
+    virtual void set_window_position(const Point2 &/*p_position*/) {}
+    virtual Size2 get_max_window_size() const { return Size2(); }
+    virtual Size2 get_min_window_size() const { return Size2(); }
     virtual Size2 get_window_size() const = 0;
     virtual Size2 get_real_window_size() const { return get_window_size(); }
-    virtual void set_min_window_size(const Size2 p_size) {}
-    virtual void set_max_window_size(const Size2 p_size) {}
-    virtual void set_window_size(const Size2 p_size) {}
-    virtual void set_window_fullscreen(bool p_enabled) {}
+    virtual void set_min_window_size(const Size2 /*p_size*/) {}
+    virtual void set_max_window_size(const Size2 /*p_size*/) {}
+    virtual void set_window_size(const Size2 /*p_size*/) {}
+    virtual void set_window_fullscreen(bool /*p_enabled*/) {}
     virtual bool is_window_fullscreen() const { return true; }
-    virtual void set_window_resizable(bool p_enabled) {}
+    virtual void set_window_resizable(bool /*p_enabled*/) {}
     virtual bool is_window_resizable() const { return false; }
-    virtual void set_window_minimized(bool p_enabled) {}
+    virtual void set_window_minimized(bool /*p_enabled*/) {}
     virtual bool is_window_minimized() const { return false; }
-    virtual void set_window_maximized(bool p_enabled) {}
+    virtual void set_window_maximized(bool /*p_enabled*/) {}
     virtual bool is_window_maximized() const { return true; }
-    virtual void set_window_always_on_top(bool p_enabled) {}
+    virtual void set_window_always_on_top(bool /*p_enabled*/) {}
     virtual bool is_window_always_on_top() const { return false; }
-    virtual void set_console_visible(bool p_enabled) {}
+    virtual void set_console_visible(bool /*p_enabled*/) {}
     virtual bool is_console_visible() const { return false; }
     virtual void request_attention() {}
     virtual void center_window();
@@ -264,9 +267,9 @@ public:
     virtual Point2 get_ime_selection() const { return Point2(); }
     virtual String get_ime_text() const { return String(); }
 
-    virtual Error open_dynamic_library(const String &p_path, void *&p_library_handle, bool p_also_set_library_path = false) { return ERR_UNAVAILABLE; }
-    virtual Error close_dynamic_library(void *p_library_handle) { return ERR_UNAVAILABLE; }
-    virtual Error get_dynamic_library_symbol_handle(void *p_library_handle, const String &p_name, void *&p_symbol_handle, bool p_optional = false) { return ERR_UNAVAILABLE; }
+    virtual Error open_dynamic_library(const String &/*p_path*/, void *&/*p_library_handle*/, bool /*p_also_set_library_path*/ = false) { return ERR_UNAVAILABLE; }
+    virtual Error close_dynamic_library(void */*p_library_handle*/) { return ERR_UNAVAILABLE; }
+    virtual Error get_dynamic_library_symbol_handle(void */*p_library_handle*/, const String &/*p_name*/, void *&/*p_symbol_handle*/, bool /*p_optional*/ = false) { return ERR_UNAVAILABLE; }
 
     virtual void set_keep_screen_on(bool p_enabled);
     virtual bool is_keep_screen_on() const;
@@ -436,7 +439,7 @@ public:
 
     static String get_system_dir(SystemDir p_dir);
 
-    virtual Error move_to_trash(const String &p_path) { return FAILED; }
+    virtual Error move_to_trash(const String &/*p_path*/) { return FAILED; }
 
     virtual void set_no_window_mode(bool p_enable);
     virtual bool is_no_window_mode_enabled() const;
@@ -457,7 +460,7 @@ public:
     virtual void set_screen_orientation(ScreenOrientation p_orientation);
     ScreenOrientation get_screen_orientation() const;
 
-    virtual void enable_for_stealing_focus(ProcessID pid) {}
+    virtual void enable_for_stealing_focus(ProcessID /*pid*/) {}
     virtual void move_window_to_foreground() {}
 
     virtual void debug_break();
@@ -519,7 +522,7 @@ public:
     bool is_vsync_enabled() const;
 
     //real, actual overridable function to switch vsync, which needs to be called from graphics thread if needed
-    virtual void _set_use_vsync(bool p_enable) {}
+    virtual void _set_use_vsync(bool /*p_enable*/) {}
 
     virtual OS::PowerState get_power_state();
     virtual int get_power_seconds_left();
@@ -537,7 +540,7 @@ public:
     bool is_restart_on_exit_set() const;
     ListPOD<String> get_restart_on_exit_arguments() const;
 
-    virtual bool request_permission(const String &p_name) { return true; }
+    virtual bool request_permission(const String &/*p_name*/) { return true; }
     virtual void run() = 0;
     virtual void process_and_drop_events() {}
     OS();

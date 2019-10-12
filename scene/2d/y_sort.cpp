@@ -30,6 +30,7 @@
 
 #include "y_sort.h"
 #include "core/method_bind.h"
+#include "servers/visual_server.h"
 
 IMPL_GDCLASS(YSort)
 

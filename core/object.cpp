@@ -1249,7 +1249,7 @@ bool Object::_has_user_signal(const StringName &p_name) const {
 
     if (!private_data->signal_map.contains(p_name))
         return false;
-    return private_data->signal_map[p_name].user.name.length() > 0;
+    return not private_data->signal_map[p_name].user.name.empty();
 }
 
 struct _ObjectSignalDisconnectData {
@@ -1508,7 +1508,7 @@ void Object::get_signal_list(ListPOD<MethodInfo> *p_signals) const {
 
     while ((S = private_data->signal_map.next(S))) {
 
-        if (private_data->signal_map[*S].user.name != "") {
+        if (not private_data->signal_map[*S].user.name.empty()) {
             //user signal
             p_signals->push_back(private_data->signal_map[*S].user);
         }

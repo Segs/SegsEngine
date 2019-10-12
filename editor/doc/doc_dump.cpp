@@ -32,6 +32,7 @@
 
 #include "core/os/file_access.h"
 #include "core/version.h"
+#include "core/math/transform.h"
 #include "scene/main/node.h"
 #include "core/method_bind_interface.h"
 
@@ -113,7 +114,7 @@ void DocDump::dump(const String &p_file) {
         eastl::sort(method_list.begin(),method_list.end());
 
         for (const MethodInfo &E : method_list) {
-            if (E.name.empty() || E.name[0] == '_')
+            if (E.name.empty() || E.name.asCString()[0] == '_')
                 continue; //hidden
 
             MethodBind *m = ClassDB::get_method(name, E.name);
@@ -174,7 +175,7 @@ void DocDump::dump(const String &p_file) {
                                 default_arg_text = "\"" + default_arg_text + "\"";
                                 break;
                             case VariantType::TRANSFORM:
-                                if (default_arg.operator Transform() == Transform()) {
+                                if (default_arg.as<Transform>() == Transform()) {
                                     default_arg_text = "";
                                 }
 

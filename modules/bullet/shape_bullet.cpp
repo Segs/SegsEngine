@@ -35,6 +35,7 @@
 #include "bullet_types_converter.h"
 #include "bullet_utilities.h"
 #include "core/project_settings.h"
+#include "core/image.h"
 #include "shape_owner_bullet.h"
 
 #include <BulletCollision/CollisionDispatch/btInternalEdgeUtility.h>

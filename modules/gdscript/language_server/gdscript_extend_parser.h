@@ -28,10 +28,10 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef GDSCRIPT_EXTEND_PARSER_H
-#define GDSCRIPT_EXTEND_PARSER_H
+#pragma once
 
 #include "../gdscript_parser.h"
+#include "core/math/vector2.h"
 #include "core/variant.h"
 #include "lsp.hpp"
 
@@ -98,5 +98,3 @@ public:
 
 	Error parse(const String &p_code, const String &p_path);
 };
-
-#endif

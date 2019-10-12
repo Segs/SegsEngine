@@ -35,6 +35,28 @@
 
 IMPL_GDCLASS(ConcavePolygonShape)
 
+namespace {
+struct DrawEdge {
+
+    Vector3 a;
+    Vector3 b;
+    bool operator<(const DrawEdge &p_edge) const {
+        if (a == p_edge.a)
+            return b < p_edge.b;
+        else
+            return a < p_edge.a;
+    }
+
+    DrawEdge(const Vector3 &p_a = Vector3(), const Vector3 &p_b = Vector3()) {
+        a = p_a;
+        b = p_b;
+        if (a < b) {
+            SWAP(a, b);
+        }
+    }
+};
+} // end of anonymous namespace
+
 Vector<Vector3> ConcavePolygonShape::_gen_debug_mesh_lines() {
 
     Set<DrawEdge> edges;

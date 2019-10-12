@@ -31,6 +31,8 @@
 #include "animation_blend_space_2d.h"
 #include "core/math/delaunay.h"
 #include "core/method_bind.h"
+#include "core/math/geometry.h"
+
 
 IMPL_GDCLASS(AnimationNodeBlendSpace2D)
 VARIANT_ENUM_CAST(AnimationNodeBlendSpace2D::BlendMode)

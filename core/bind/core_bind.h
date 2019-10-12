@@ -34,6 +34,8 @@
 #include "core/io/compression.h"
 #include "core/method_enum_caster.h"
 #include "core/method_arg_casters.h"
+#include "core/math/rect2.h"
+#include "core/math/vector3.h"
 
 class ResourceInteractiveLoader;
 class Resource;
@@ -370,7 +372,7 @@ VARIANT_ENUM_CAST(_OS::ScreenOrientation);
 
 class _Geometry : public Object {
 
-    GDCLASS(_Geometry, Object);
+    GDCLASS(_Geometry, Object)
 
     static _Geometry *singleton;
 

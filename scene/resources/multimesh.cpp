@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "multimesh.h"
+#include "scene/resources/mesh.h"
 #include "servers/visual_server.h"
 #include "core/method_bind.h"
 

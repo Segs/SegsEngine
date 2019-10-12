@@ -32,23 +32,15 @@
 
 #include "core/godot_export.h"
 //#include "core/array.h"
-#include "core/color.h"
+//#include "core/color.h"
 #include "core/dictionary.h"
 #include "core/io/ip_address.h"
-#include "core/math/aabb.h"
-#include "core/math/basis.h"
-#include "core/math/face3.h"
-#include "core/math/plane.h"
-#include "core/math/quat.h"
-#include "core/math/transform.h"
-#include "core/math/transform_2d.h"
-#include "core/math/vector3.h"
 #include "core/node_path.h"
 #include "core/ref_ptr.h"
-
 #include "core/hashfuncs.h"
 
 #include <cstdint>
+
 class RefPtr;
 class Object;
 class Node; // helper
@@ -56,6 +48,17 @@ class Control; // helper
 class String;
 class RID;
 class Array;
+struct Color;
+struct Vector2;
+struct Vector3;
+class Basis;
+class AABB;
+struct Rect2;
+class Plane;
+struct Transform2D;
+class Transform;
+class Face3;
+class Quat;
 using CharType = class QChar;
 struct PropertyInfo;
 struct MethodInfo;
@@ -141,7 +144,7 @@ private:
     _FORCE_INLINE_ ObjData &_get_obj();
     _FORCE_INLINE_ const ObjData &_get_obj() const;
 
-    union {
+    union VariantUnion {
         bool _bool;
         int64_t _int;
         double _real;
@@ -151,6 +154,8 @@ private:
         Transform *_transform;
         void *_ptr; //generic pointer
         uint8_t _mem[sizeof(ObjData) > (sizeof(real_t) * 4) ? sizeof(ObjData) : (sizeof(real_t) * 4)];
+        constexpr VariantUnion() : _bool(false) {}
+        constexpr VariantUnion(double f) : _real(f) {}
     } _data GCC_ALIGNED_8;
 
     void reference(const Variant &p_variant);
@@ -160,6 +165,7 @@ public:
     static const Variant null_variant;
     _FORCE_INLINE_ VariantType get_type() const { return type; }
     static const char *get_type_name(VariantType p_type);
+    static StringName interned_type_name(VariantType p_type);
     static bool can_convert(VariantType p_type_from, VariantType p_type_to);
     static bool can_convert_strict(VariantType p_type_from, VariantType p_type_to);
 
@@ -250,6 +256,10 @@ public:
         type = VariantType::BOOL;
         _data._bool = p_bool;
     }
+    template<class T ,
+               class = typename std::enable_if<std::is_enum<T>::value>::type >
+    Variant(T p_bool,int=0) : Variant(std::underlying_type_t<T>(p_bool)){
+    }
     Variant(VariantType p_v) : Variant(int8_t(p_v)) {}
     Variant(signed int p_int); // real one
     Variant(unsigned int p_int);
@@ -265,7 +275,7 @@ public:
     Variant(QChar p_char);
     Variant(int64_t p_int); // real one
     Variant(uint64_t p_int);
-    Variant(float p_float);
+    constexpr Variant(float p_float) : type(VariantType::REAL),_data(p_float) { }
     Variant(double p_double);
     Variant(const String &p_string);
     Variant(const StringName &p_string);

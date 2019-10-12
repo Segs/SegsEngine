@@ -32,6 +32,14 @@
 
 #include "core/core_string_names.h"
 #include "core/io/marshalls.h"
+#include "core/math/aabb.h"
+#include "core/math/basis.h"
+#include "core/math/face3.h"
+#include "core/math/plane.h"
+#include "core/math/quat.h"
+#include "core/math/transform.h"
+#include "core/math/transform_2d.h"
+#include "core/math/vector3.h"
 #include "core/math/math_funcs.h"
 #include "core/object_db.h"
 #include "core/pool_vector.h"
@@ -43,150 +51,85 @@
 #include "scene/gui/control.h"
 #include "scene/main/node.h"
 
+
+template class EXPORT_TEMPLATE_DEFINE(GODOT_EXPORT) eastl::vector<Variant,wrap_allocator>;
+
 const Variant Variant::null_variant;
 
-const char * Variant::get_type_name(VariantType p_type) {
+const char *Variant::get_type_name(VariantType p_type) {
 
     switch (p_type) {
-        case VariantType::NIL: {
-
-            return "Nil";
-        }
-
+        case VariantType::NIL: return "Nil";
         // atomic types
-        case VariantType::BOOL: {
-
-            return "bool";
-        }
-        case VariantType::INT: {
-
-            return "int";
-
-        }
-        case VariantType::REAL: {
-
-            return "float";
-
-        }
-        case VariantType::STRING: {
-
-            return "String";
-        }
-
+        case VariantType::BOOL: return "bool";
+        case VariantType::INT: return "int";
+        case VariantType::REAL: return "float";
+        case VariantType::STRING: return "String";
         // math types
-        case VariantType::VECTOR2: {
-
-            return "Vector2";
-        }
-        case VariantType::RECT2: {
-
-            return "Rect2";
-        }
-        case VariantType::TRANSFORM2D: {
-
-            return "Transform2D";
-        }
-        case VariantType::VECTOR3: {
-
-            return "Vector3";
-        }
-        case VariantType::PLANE: {
-
-            return "Plane";
-
-        }
-        /*
-            case VariantType::QUAT: {
-
-
-            } break;*/
-        case VariantType::AABB: {
-
-            return "AABB";
-        }
-        case VariantType::QUAT: {
-
-            return "Quat";
-
-        }
-        case VariantType::BASIS: {
-            return "Basis";
-        }
-        case VariantType::TRANSFORM: {
-
-            return "Transform";
-
-        }
-
+        case VariantType::VECTOR2: return "Vector2";
+        case VariantType::RECT2: return "Rect2";
+        case VariantType::TRANSFORM2D: return "Transform2D";
+        case VariantType::VECTOR3: return "Vector3";
+        case VariantType::PLANE: return "Plane";
+        case VariantType::AABB: return "AABB";
+        case VariantType::QUAT: return "Quat";
+        case VariantType::BASIS: return "Basis";
+        case VariantType::TRANSFORM: return "Transform";
         // misc types
-        case VariantType::COLOR: {
-
-            return "Color";
-
-        }
-        case VariantType::_RID: {
-
-            return "RID";
-        }
-        case VariantType::OBJECT: {
-
-            return "Object";
-        }
-        case VariantType::NODE_PATH: {
-
-            return "NodePath";
-
-        }
-        case VariantType::DICTIONARY: {
-
-            return "Dictionary";
-
-        }
-        case VariantType::ARRAY: {
-
-            return "Array";
-
-        }
-
+        case VariantType::COLOR: return "Color";
+        case VariantType::_RID: return "RID";
+        case VariantType::OBJECT: return "Object";
+        case VariantType::NODE_PATH: return "NodePath";
+        case VariantType::DICTIONARY: return "Dictionary";
+        case VariantType::ARRAY: return "Array";
         // arrays
-        case VariantType::POOL_BYTE_ARRAY: {
-
-            return "PoolByteArray";
-
-        }
-        case VariantType::POOL_INT_ARRAY: {
-
-            return "PoolIntArray";
-
-        }
-        case VariantType::POOL_REAL_ARRAY: {
-
-            return "PoolRealArray";
-
-        }
-        case VariantType::POOL_STRING_ARRAY: {
-
-            return "PoolStringArray";
-        }
-        case VariantType::POOL_VECTOR2_ARRAY: {
-
-            return "PoolVector2Array";
-
-        }
-        case VariantType::POOL_VECTOR3_ARRAY: {
-
-            return "PoolVector3Array";
-
-        }
-        case VariantType::POOL_COLOR_ARRAY: {
-
-            return "PoolColorArray";
-
-        }
-        default: {
-        }
+        case VariantType::POOL_BYTE_ARRAY: return "PoolByteArray";
+        case VariantType::POOL_INT_ARRAY: return "PoolIntArray";
+        case VariantType::POOL_REAL_ARRAY: return "PoolRealArray";
+        case VariantType::POOL_STRING_ARRAY: return "PoolStringArray";
+        case VariantType::POOL_VECTOR2_ARRAY: return "PoolVector2Array";
+        case VariantType::POOL_VECTOR3_ARRAY: return "PoolVector3Array";
+        case VariantType::POOL_COLOR_ARRAY: return "PoolColorArray";
+        default: { }
     }
+    return "";
+}
+StringName Variant::interned_type_name(VariantType p_type) {
 
+    switch (p_type) {
+        case VariantType::NIL: return "Nil";
+        // atomic types
+        case VariantType::BOOL: return "bool";
+        case VariantType::INT: return "int";
+        case VariantType::REAL: return "float";
+        case VariantType::STRING: return "String";
+        // math types
+        case VariantType::VECTOR2: return "Vector2";
+        case VariantType::RECT2: return "Rect2";
+        case VariantType::TRANSFORM2D: return "Transform2D";
+        case VariantType::VECTOR3: return "Vector3";
+        case VariantType::PLANE: return "Plane";
+        case VariantType::AABB: return "AABB";
+        case VariantType::QUAT: return "Quat";
+        case VariantType::BASIS: return "Basis";
+        case VariantType::TRANSFORM: return "Transform";
+        // misc types
+        case VariantType::COLOR: return "Color";
+        case VariantType::_RID: return "RID";
+        case VariantType::OBJECT: return "Object";
+        case VariantType::NODE_PATH: return "NodePath";
+        case VariantType::DICTIONARY: return "Dictionary";
+        case VariantType::ARRAY: return "Array";
+        // arrays
+        case VariantType::POOL_BYTE_ARRAY: return "PoolByteArray";
+        case VariantType::POOL_INT_ARRAY: return "PoolIntArray";
+        case VariantType::POOL_REAL_ARRAY: return "PoolRealArray";
+        case VariantType::POOL_STRING_ARRAY: return "PoolStringArray";
+        case VariantType::POOL_VECTOR2_ARRAY: return "PoolVector2Array";
+        case VariantType::POOL_VECTOR3_ARRAY: return "PoolVector3Array";
+        case VariantType::POOL_COLOR_ARRAY: return "PoolColorArray";
+        default: { }
+    }
     return "";
 }
 
@@ -2170,11 +2113,7 @@ Variant::Variant(QChar p_char) {
     _data._int = p_char.unicode();
 }
 
-Variant::Variant(float p_float) {
 
-    type = VariantType::REAL;
-    _data._real = p_float;
-}
 Variant::Variant(double p_double) {
 
     type = VariantType::REAL;

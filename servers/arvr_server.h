@@ -28,12 +28,12 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef ARVR_SERVER_H
-#define ARVR_SERVER_H
+#pragma once
 
 #include "core/os/os.h"
 #include "core/os/thread_safe.h"
 #include "core/reference.h"
+#include "core/math/transform.h"
 #include "core/rid.h"
 #include "core/variant.h"
 #include "core/method_arg_casters.h"
@@ -100,7 +100,7 @@ protected:
 public:
     static ARVRServer *get_singleton();
 
-    /*
+    /**
         World scale allows you to specify a scale factor that is applied to all positioning vectors in our VR world in essence scaling up, or scaling down the world.
         For stereoscopic rendering specifically this is very important to give an accurate sense of scale.
         Add controllers into the mix and an accurate mapping of real world movement to perceived virtual movement becomes very important.
@@ -113,7 +113,7 @@ public:
     real_t get_world_scale() const;
     void set_world_scale(real_t p_world_scale);
 
-    /*
+    /**
         The world maps the 0,0,0 coordinate of our real world coordinate system for our tracking volume to a location in our
         virtual world. It is this origin point that should be moved when the player is moved through the world by controller
         actions be it straffing, teleporting, etc. Movement of the player by moving through the physical space is always tracked
@@ -128,7 +128,7 @@ public:
     Transform get_world_origin() const;
     void set_world_origin(const Transform &p_world_origin);
 
-    /*
+    /**
         center_on_hmd calculates a new reference frame. This ensures the HMD is positioned to 0,0,0 facing 0,0,-1 (need to verify this direction)
         in the virtual world.
 
@@ -187,7 +187,4 @@ public:
     ~ARVRServer() override;
 };
 
-#define ARVR ARVRServer
-
-
-#endif
+using ARVR = ARVRServer;

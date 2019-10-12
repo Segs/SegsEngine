@@ -50,20 +50,21 @@ Written by: Marcus Hennix
 */
 
 #include "cone_twist_joint_sw.h"
+#include "core/math/quat.h"
 
 static void plane_space(const Vector3 &n, Vector3 &p, Vector3 &q) {
 
-	if (Math::abs(n.z) > 0.707106781186547524400844362) {
+    if (Math::abs(n.z) > 0.707106781186547524400844362f) {
 		// choose p in y-z plane
 		real_t a = n[1] * n[1] + n[2] * n[2];
-		real_t k = 1.0 / Math::sqrt(a);
+        real_t k = 1.0f / Math::sqrt(a);
 		p = Vector3(0, -n[2] * k, n[1] * k);
 		// set q = n x p
 		q = Vector3(a * k, -n[0] * p[2], n[0] * p[1]);
 	} else {
 		// choose p in x-y plane
 		real_t a = n.x * n.x + n.y * n.y;
-		real_t k = 1.0 / Math::sqrt(a);
+        real_t k = 1.0f / Math::sqrt(a);
 		p = Vector3(-n.y * k, n.x * k, 0);
 		// set q = n x p
 		q = Vector3(-n.z * p.y, n.z * p.x, a * k);
@@ -94,8 +95,8 @@ ConeTwistJointSW::ConeTwistJointSW(BodySW *rbA, BodySW *rbB, const Transform &rb
 	m_rbAFrame = rbAFrame;
 	m_rbBFrame = rbBFrame;
 
-	m_swingSpan1 = Math_PI / 4.0;
-	m_swingSpan2 = Math_PI / 4.0;
+    m_swingSpan1 = Math_PI / 4.0f;
+    m_swingSpan2 = Math_PI / 4.0f;
 	m_twistSpan = Math_PI * 2;
 	m_biasFactor = 0.3f;
 	m_relaxationFactor = 1.0f;
@@ -342,23 +343,23 @@ real_t ConeTwistJointSW::get_param(PhysicsServer::ConeTwistJointParam p_param) c
 		case PhysicsServer::CONE_TWIST_JOINT_SWING_SPAN: {
 
 			return m_swingSpan1;
-		} break;
+        }
 		case PhysicsServer::CONE_TWIST_JOINT_TWIST_SPAN: {
 
 			return m_twistSpan;
-		} break;
+        }
 		case PhysicsServer::CONE_TWIST_JOINT_BIAS: {
 
 			return m_biasFactor;
-		} break;
+        }
 		case PhysicsServer::CONE_TWIST_JOINT_SOFTNESS: {
 
 			return m_limitSoftness;
-		} break;
+        }
 		case PhysicsServer::CONE_TWIST_JOINT_RELAXATION: {
 
 			return m_relaxationFactor;
-		} break;
+        }
 		case PhysicsServer::CONE_TWIST_MAX: break; // Can't happen, but silences warning
 	}
 

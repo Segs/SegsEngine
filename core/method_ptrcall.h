@@ -37,6 +37,10 @@
 #include "core/pool_vector.h"
 #include "core/vector.h"
 #include "core/rid.h"
+#include "core/color.h"
+#include "core/math/transform.h"
+#include "core/math/quat.h"
+#include "core/math/face3.h"
 
 #ifdef PTRCALL_ENABLED
 

@@ -28,18 +28,17 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef GRADIENT_H
-#define GRADIENT_H
+#pragma once
 
 #include "core/resource.h"
+#include "core/color.h"
 
 class Gradient : public Resource {
 	GDCLASS(Gradient,Resource)
-	OBJ_SAVE_TYPE(Gradient);
+    OBJ_SAVE_TYPE(Gradient)
 
 public:
 	struct Point {
-
 		float offset;
 		Color color;
 		bool operator<(const Point &p_ponit) const {
@@ -93,7 +92,7 @@ public:
 
 #ifdef DEBUG_ENABLED
 		if (low > high)
-			ERR_PRINT("low > high, this may be a bug");
+            ERR_PRINT("low > high, this may be a bug")
 #endif
 
 		while (low <= high) {
@@ -125,5 +124,3 @@ public:
 
 	int get_points_count() const;
 };
-
-#endif // GRADIENT_H

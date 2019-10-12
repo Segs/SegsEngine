@@ -44,6 +44,7 @@
 #include "core/os/os.h"
 #include "core/plugin_interfaces/ImageLoaderInterface.h"
 #include "scene/resources/bit_map.h"
+#include "scene/resources/mesh.h"
 #include "servers/camera/camera_feed.h"
 #include "servers/visual_server.h"
 

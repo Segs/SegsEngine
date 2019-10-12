@@ -15,7 +15,7 @@ class Ref;
 template <class T>
 class PoolVector;
 
-struct wrap_allocator;
+class wrap_allocator;
 class DefaultAllocator;
 
 template <class T>

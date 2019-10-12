@@ -28,10 +28,10 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef PLANE_SHAPE_H
-#define PLANE_SHAPE_H
+#pragma once
 
 #include "scene/resources/shape.h"
+#include "core/math/plane.h"
 
 class PlaneShape : public Shape {
 
@@ -51,4 +51,3 @@ public:
 
 	PlaneShape();
 };
-#endif // PLANE_SHAPE_H

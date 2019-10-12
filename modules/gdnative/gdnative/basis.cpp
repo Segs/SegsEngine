@@ -31,6 +31,7 @@
 #include "gdnative/basis.h"
 
 #include "core/math/basis.h"
+#include "core/math/quat.h"
 #include "core/variant.h"
 #include "core/ustring.h"
 

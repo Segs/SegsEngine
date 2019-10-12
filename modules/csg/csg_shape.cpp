@@ -29,12 +29,13 @@
 /*************************************************************************/
 
 #include "csg_shape.h"
-#include "scene/3d/path.h"
-#include "scene/resources/mesh.h"
+
 #include "core/hashfuncs.h"
 #include "core/method_bind.h"
-#include "servers/physics_server.h"
+#include "scene/3d/path.h"
+#include "scene/resources/mesh.h"
 #include "scene/resources/world.h"
+#include "servers/physics_server.h"
 
 IMPL_GDCLASS(CSGShape)
 IMPL_GDCLASS(CSGCombiner)
@@ -259,7 +260,7 @@ int CSGShape::mikktGetNumVerticesOfFace(const SMikkTSpaceContext *pContext, cons
 }
 
 void CSGShape::mikktGetPosition(const SMikkTSpaceContext *pContext, float fvPosOut[], const int iFace, const int iVert) {
-    ShapeUpdateSurface &surface = *((ShapeUpdateSurface *)pContext->m_pUserData);
+    const ShapeUpdateSurface &surface = *((ShapeUpdateSurface *)pContext->m_pUserData);
 
     Vector3 v = surface.verticesw[iFace * 3 + iVert];
     fvPosOut[0] = v.x;
@@ -268,7 +269,7 @@ void CSGShape::mikktGetPosition(const SMikkTSpaceContext *pContext, float fvPosO
 }
 
 void CSGShape::mikktGetNormal(const SMikkTSpaceContext *pContext, float fvNormOut[], const int iFace, const int iVert) {
-    ShapeUpdateSurface &surface = *((ShapeUpdateSurface *)pContext->m_pUserData);
+    const ShapeUpdateSurface &surface = *((ShapeUpdateSurface *)pContext->m_pUserData);
 
     Vector3 n = surface.normalsw[iFace * 3 + iVert];
     fvNormOut[0] = n.x;
@@ -277,7 +278,7 @@ void CSGShape::mikktGetNormal(const SMikkTSpaceContext *pContext, float fvNormOu
 }
 
 void CSGShape::mikktGetTexCoord(const SMikkTSpaceContext *pContext, float fvTexcOut[], const int iFace, const int iVert) {
-    ShapeUpdateSurface &surface = *((ShapeUpdateSurface *)pContext->m_pUserData);
+    const ShapeUpdateSurface &surface = *((ShapeUpdateSurface *)pContext->m_pUserData);
 
     Vector2 t = surface.uvsw[iFace * 3 + iVert];
     fvTexcOut[0] = t.x;
@@ -311,7 +312,7 @@ void CSGShape::_update_shape() {
     root_mesh.unref(); //byebye root mesh
 
     CSGBrush *n = _get_brush();
-	ERR_FAIL_COND_CMSG(!n, "Cannot get CSGBrush.")
+    ERR_FAIL_COND_CMSG(!n, "Cannot get CSGBrush.")
 
     OAHashMap<Vector3, Vector3> vec_map;
 
@@ -674,7 +675,7 @@ CSGShape::CSGShape() {
     parent = nullptr;
     brush = nullptr;
     dirty = false;
-    snap = 0.001;
+    snap = 0.001f;
     use_collision = false;
     collision_layer = 1;
     collision_mask = 1;
@@ -1059,7 +1060,7 @@ CSGBrush *CSGSphere::_build_brush() {
         }
 
         if (face != face_count) {
-            ERR_PRINT("Face mismatch bug! fix code");
+            ERR_PRINT("Face mismatch bug! fix code")
         }
     }
 
@@ -1095,7 +1096,7 @@ void CSGSphere::set_radius(const float p_radius) {
     radius = p_radius;
     _make_dirty();
     update_gizmo();
-	_change_notify("radius");
+    _change_notify("radius");
 }
 
 float CSGSphere::get_radius() const {
@@ -1186,7 +1187,7 @@ CSGBrush *CSGBox::_build_brush() {
 
         int face = 0;
 
-        Vector3 vertex_mul(width * 0.5, height * 0.5, depth * 0.5);
+        Vector3 vertex_mul(width * 0.5f, height * 0.5f, depth * 0.5f);
 
         {
 
@@ -1248,7 +1249,7 @@ CSGBrush *CSGBox::_build_brush() {
         }
 
         if (face != face_count) {
-            ERR_PRINT("Face mismatch bug! fix code");
+            ERR_PRINT("Face mismatch bug! fix code")
         }
     }
 
@@ -1280,7 +1281,7 @@ void CSGBox::set_width(const float p_width) {
     width = p_width;
     _make_dirty();
     update_gizmo();
-	_change_notify("width");
+    _change_notify("width");
 }
 
 float CSGBox::get_width() const {
@@ -1291,7 +1292,7 @@ void CSGBox::set_height(const float p_height) {
     height = p_height;
     _make_dirty();
     update_gizmo();
-	_change_notify("height");
+    _change_notify("height");
 }
 
 float CSGBox::get_height() const {
@@ -1302,7 +1303,7 @@ void CSGBox::set_depth(const float p_depth) {
     depth = p_depth;
     _make_dirty();
     update_gizmo();
-	_change_notify("depth");
+    _change_notify("depth");
 }
 
 float CSGBox::get_depth() const {
@@ -1497,7 +1498,7 @@ void CSGCylinder::set_radius(const float p_radius) {
     radius = p_radius;
     _make_dirty();
     update_gizmo();
-	_change_notify("radius");
+    _change_notify("radius");
 }
 
 float CSGCylinder::get_radius() const {
@@ -1508,7 +1509,7 @@ void CSGCylinder::set_height(const float p_height) {
     height = p_height;
     _make_dirty();
     update_gizmo();
-	_change_notify("height");
+    _change_notify("height");
 }
 
 float CSGCylinder::get_height() const {
@@ -1724,7 +1725,7 @@ void CSGTorus::set_inner_radius(const float p_inner_radius) {
     inner_radius = p_inner_radius;
     _make_dirty();
     update_gizmo();
-	_change_notify("inner_radius");
+    _change_notify("inner_radius");
 }
 
 float CSGTorus::get_inner_radius() const {
@@ -1735,7 +1736,7 @@ void CSGTorus::set_outer_radius(const float p_outer_radius) {
     outer_radius = p_outer_radius;
     _make_dirty();
     update_gizmo();
-	_change_notify("outer_radius");
+    _change_notify("outer_radius");
 }
 
 float CSGTorus::get_outer_radius() const {

@@ -10,3 +10,8 @@ foreach(tgt ${global_targets})
     )
 endforeach()
 source_group(TREE ${PROJECT_SOURCE_DIR} FILES ${source_files} ${header_files})
+INSTALL (
+    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    DESTINATION include/SegsEngine
+    FILES_MATCHING PATTERN "*.h"
+)

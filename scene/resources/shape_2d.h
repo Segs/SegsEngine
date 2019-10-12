@@ -30,6 +30,7 @@
 
 #pragma once
 
+#include "core/math/rect2.h"
 #include "core/resource.h"
 #include "core/rid.h"
 

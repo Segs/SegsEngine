@@ -30,6 +30,7 @@
 
 #include "voxel_light_baker.h"
 
+#include "scene/resources/texture.h"
 #include "core/os/os.h"
 #include "core/os/threaded_array_processor.h"
 #include "core/print_string.h"

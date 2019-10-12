@@ -29,7 +29,6 @@
 /*************************************************************************/
 
 #include "pool_vector.h"
-#include "ustring.h"
 #include "core/math/vector2.h"
 #include "core/math/vector3.h"
 #include "core/os/mutex.h"
@@ -95,7 +94,6 @@ bool MemoryPool::do_alloc_block(MemoryPool::Alloc *&alloc)
     //copy the alloc data
     alloc->size = old_alloc ? old_alloc->size : 0;
     alloc->refcount.init();
-    alloc->pool_id = POOL_ALLOCATOR_INVALID_ID;
     alloc->lock = 0;
 
 #ifdef DEBUG_ENABLED

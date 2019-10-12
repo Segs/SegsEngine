@@ -42,6 +42,8 @@
 #include "core/os/mutex.h"
 #include "core/project_settings.h"
 
+#include "servers/visual_server.h"
+
 IMPL_GDCLASS(EditorResourcePreviewGenerator)
 IMPL_GDCLASS(EditorResourcePreview)
 
@@ -207,7 +209,7 @@ void EditorResourcePreview::_generate_preview(Ref<ImageTexture> &r_texture, Ref<
             }
             Error err;
             FileAccess *f = FileAccess::open(cache_base + ".txt", FileAccess::WRITE, &err);
-			ERR_FAIL_COND_MSG(err != OK, "Cannot create file '" + cache_base + ".txt'.")
+            ERR_FAIL_COND_MSG(err != OK, "Cannot create file '" + cache_base + ".txt'.")
             f->store_line(itos(thumbnail_size));
             f->store_line(itos(has_small_texture));
             f->store_line(itos(FileAccess::get_modified_time(p_item.path)));

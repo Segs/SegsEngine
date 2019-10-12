@@ -28,34 +28,14 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef CONCAVE_POLYGON_SHAPE_H
-#define CONCAVE_POLYGON_SHAPE_H
+#pragma once
 
 #include "scene/resources/shape.h"
+#include "core/math/vector3.h"
 
 class ConcavePolygonShape : public Shape {
 
 	GDCLASS(ConcavePolygonShape,Shape)
-
-	struct DrawEdge {
-
-		Vector3 a;
-		Vector3 b;
-		bool operator<(const DrawEdge &p_edge) const {
-			if (a == p_edge.a)
-				return b < p_edge.b;
-			else
-				return a < p_edge.a;
-		}
-
-		DrawEdge(const Vector3 &p_a = Vector3(), const Vector3 &p_b = Vector3()) {
-			a = p_a;
-			b = p_b;
-			if (a < b) {
-				SWAP(a, b);
-			}
-		}
-	};
 
 protected:
 	static void _bind_methods();
@@ -69,5 +49,3 @@ public:
 
 	ConcavePolygonShape();
 };
-
-#endif // CONCAVE_POLYGON_SHAPE_H

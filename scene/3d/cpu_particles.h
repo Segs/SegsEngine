@@ -31,9 +31,12 @@
 #pragma once
 
 #include "core/rid.h"
+#include "core/pool_vector.h"
 #include "scene/3d/visual_instance.h"
 
 class Curve;
+class Mesh;
+class Gradient;
 
 class CPUParticles : public GeometryInstance {
 private:
