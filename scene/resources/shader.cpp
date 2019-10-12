@@ -42,7 +42,7 @@
 
 IMPL_GDCLASS(Shader)
 
-Shader::Mode Shader::get_mode() const {
+ShaderMode Shader::get_mode() const {
 
     return mode;
 }
@@ -52,11 +52,11 @@ void Shader::set_code(const String &p_code) {
     String type = ShaderLanguage::get_shader_type(p_code);
 
     if (type == "canvas_item") {
-        mode = MODE_CANVAS_ITEM;
+        mode = ShaderMode::CANVAS_ITEM;
     } else if (type == "particles") {
-        mode = MODE_PARTICLES;
+        mode = ShaderMode::PARTICLES;
     } else {
-        mode = MODE_SPATIAL;
+        mode = ShaderMode::SPATIAL;
     }
 
     VisualServer::get_singleton()->shader_set_code(shader, p_code);
@@ -158,15 +158,14 @@ void Shader::_bind_methods() {
     //MethodBinder::bind_method(D_METHOD("get_param_list"),&Shader::get_fragment_code);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "code", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_code", "get_code");
-
-    BIND_ENUM_CONSTANT(MODE_SPATIAL)
-    BIND_ENUM_CONSTANT(MODE_CANVAS_ITEM)
-    BIND_ENUM_CONSTANT(MODE_PARTICLES)
+    ClassDB::bind_integer_constant(get_class_static_name(), __constant_get_enum_name(ShaderMode::SPATIAL, "MODE_SPATIAL"), "MODE_SPATIAL", (int)ShaderMode::SPATIAL);
+    ClassDB::bind_integer_constant(get_class_static_name(), __constant_get_enum_name(ShaderMode::CANVAS_ITEM, "MODE_CANVAS_ITEM"), "MODE_CANVAS_ITEM", (int)ShaderMode::CANVAS_ITEM);
+    ClassDB::bind_integer_constant(get_class_static_name(), __constant_get_enum_name(ShaderMode::PARTICLES, "MODE_PARTICLES"), "MODE_PARTICLES", (int)ShaderMode::PARTICLES);
 }
 
 Shader::Shader() {
 
-    mode = MODE_SPATIAL;
+    mode = ShaderMode::SPATIAL;
     shader = VisualServer::get_singleton()->shader_create();
     params_cache_dirty = true;
 }

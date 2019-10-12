@@ -30,6 +30,7 @@
 
 #include "back_buffer_copy.h"
 #include "core/method_bind.h"
+#include "servers/visual_server.h"
 
 IMPL_GDCLASS(BackBufferCopy)
 VARIANT_ENUM_CAST(BackBufferCopy::CopyMode);

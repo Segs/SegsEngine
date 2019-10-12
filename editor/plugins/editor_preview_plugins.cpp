@@ -43,6 +43,7 @@
 #include "scene/resources/material.h"
 #include "scene/resources/mesh.h"
 
+#include "servers/visual_server.h"
 #include "servers/audio/audio_stream.h"
 
 IMPL_GDCLASS(EditorTexturePreviewPlugin)
@@ -334,7 +335,7 @@ Ref<Texture> EditorMaterialPreviewPlugin::generate(const RES &p_from, const Size
     Ref<Material> material = dynamic_ref_cast<Material>(p_from);
     ERR_FAIL_COND_V(not material, Ref<Texture>())
 
-    if (material->get_shader_mode() == Shader::MODE_SPATIAL) {
+    if (material->get_shader_mode() == ShaderMode::SPATIAL) {
 
         VisualServer::get_singleton()->mesh_surface_set_material(sphere, 0, material->get_rid());
 
@@ -380,14 +381,14 @@ EditorMaterialPreviewPlugin::EditorMaterialPreviewPlugin() {
     camera = VisualServer::get_singleton()->camera_create();
     VisualServer::get_singleton()->viewport_attach_camera(viewport, camera);
     VisualServer::get_singleton()->camera_set_transform(camera, Transform(Basis(), Vector3(0, 0, 3)));
-    VisualServer::get_singleton()->camera_set_perspective(camera, 45, 0.1, 10);
+    VisualServer::get_singleton()->camera_set_perspective(camera, 45, 0.1f, 10);
 
     light = VisualServer::get_singleton()->directional_light_create();
     light_instance = VisualServer::get_singleton()->instance_create2(light, scenario);
     VisualServer::get_singleton()->instance_set_transform(light_instance, Transform().looking_at(Vector3(-1, -1, -1), Vector3(0, 1, 0)));
 
     light2 = VisualServer::get_singleton()->directional_light_create();
-    VisualServer::get_singleton()->light_set_color(light2, Color(0.7, 0.7, 0.7));
+    VisualServer::get_singleton()->light_set_color(light2, Color(0.7f, 0.7f, 0.7f));
     //VisualServer::get_singleton()->light_set_color(light2, Color(0.7, 0.7, 0.7));
 
     light_instance2 = VisualServer::get_singleton()->instance_create2(light2, scenario);

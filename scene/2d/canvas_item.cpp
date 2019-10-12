@@ -39,6 +39,7 @@
 #include "scene/main/scene_tree.h"
 #include "scene/main/viewport.h"
 #include "scene/resources/font.h"
+#include "scene/resources/shader.h"
 #include "scene/resources/style_box.h"
 #include "scene/resources/texture.h"
 #include "scene/scene_string_names.h"
@@ -281,9 +282,9 @@ RID CanvasItemMaterial::get_shader_rid() const {
     return shader_map[current_key].shader;
 }
 
-Shader::Mode CanvasItemMaterial::get_shader_mode() const {
+ShaderMode CanvasItemMaterial::get_shader_mode() const {
 
-    return Shader::MODE_CANVAS_ITEM;
+    return ShaderMode::CANVAS_ITEM;
 }
 
 void CanvasItemMaterial::_bind_methods() {
@@ -540,16 +541,17 @@ void CanvasItem::_enter_canvas() {
             canvas = get_viewport()->find_world_2d()->get_canvas();
 
         VisualServer::get_singleton()->canvas_item_set_parent(canvas_item, canvas);
+        snprintf(group,31,"root_canvas%d",canvas.get_id());
+        group[31]=0;
 
-        group = "root_canvas" + itos(canvas.get_id());
-
-        add_to_group(group);
+        StringName gname(group);
+        add_to_group(gname);
         if (canvas_layer)
             canvas_layer->reset_sort_index();
         else
             get_viewport()->gui_reset_canvas_sort_index();
 
-        get_tree()->call_group_flags(SceneTree::GROUP_CALL_UNIQUE, group, "_toplevel_raise_self");
+        get_tree()->call_group_flags(SceneTree::GROUP_CALL_UNIQUE, gname, "_toplevel_raise_self");
 
     } else {
 
@@ -570,7 +572,7 @@ void CanvasItem::_exit_canvas() {
     notification(NOTIFICATION_EXIT_CANVAS, true); //reverse the notification
     VisualServer::get_singleton()->canvas_item_set_parent(canvas_item, RID());
     canvas_layer = nullptr;
-    group = "";
+    group[0]=0;
 }
 
 void CanvasItem::_notification(int p_what) {
@@ -594,8 +596,8 @@ void CanvasItem::_notification(int p_what) {
             if (!is_inside_tree())
                 break;
 
-            if (!group.empty()) {
-                get_tree()->call_group_flags(SceneTree::GROUP_CALL_UNIQUE, group, "_toplevel_raise_self");
+            if (group[0]!=0) {
+                get_tree()->call_group_flags(SceneTree::GROUP_CALL_UNIQUE, StringName(group), "_toplevel_raise_self");
             } else {
                 CanvasItem *p = get_parent_item();
                 ERR_FAIL_COND(!p)
@@ -613,7 +615,7 @@ void CanvasItem::_notification(int p_what) {
             }
             global_invalid = true;
         } break;
-		case NOTIFICATION_DRAW:
+        case NOTIFICATION_DRAW:
         case NOTIFICATION_TRANSFORM_CHANGED: {
 
         } break;
@@ -767,12 +769,12 @@ void CanvasItem::draw_rect(const Rect2 &p_rect, const Color &p_color, bool p_fil
     ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.")
 
     if (p_filled) {
-        if (p_width != 1.0) {
-            WARN_PRINT("The draw_rect() \"width\" argument has no effect when \"filled\" is \"true\".");
+        if (p_width != 1.0f) {
+            WARN_PRINT("The draw_rect() \"width\" argument has no effect when \"filled\" is \"true\".")
         }
 
         if (p_antialiased) {
-            WARN_PRINT("The draw_rect() \"antialiased\" argument has no effect when \"filled\" is \"true\".");
+            WARN_PRINT("The draw_rect() \"antialiased\" argument has no effect when \"filled\" is \"true\".")
         }
 
         VisualServer::get_singleton()->canvas_item_add_rect(canvas_item, p_rect, p_color);
@@ -781,7 +783,7 @@ void CanvasItem::draw_rect(const Rect2 &p_rect, const Color &p_color, bool p_fil
         // Thin lines don't require an offset, so don't apply one in this case
         float offset;
         if (p_width >= 2) {
-            offset = p_width / 2.0;
+            offset = p_width / 2.0f;
         } else {
             offset = 0.0;
         }
@@ -919,23 +921,21 @@ void CanvasItem::draw_multimesh(const Ref<MultiMesh> &p_multimesh, const Ref<Tex
 
 void CanvasItem::draw_string(const Ref<Font> &p_font, const Point2 &p_pos, const String &p_text, const Color &p_modulate, int p_clip_w) {
 
-    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.")
+    ERR_FAIL_COND_CMSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.")
 
     ERR_FAIL_COND(not p_font)
     p_font->draw(canvas_item, p_pos, p_text, p_modulate, p_clip_w);
 }
 
-float CanvasItem::draw_char(const Ref<Font> &p_font, const Point2 &p_pos, const String &p_char, const String &p_next, const Color &p_modulate) {
+float CanvasItem::draw_char(const Ref<Font> &p_font, const Point2 &p_pos, QChar p_char, QChar p_next, const Color &p_modulate) {
 
-    ERR_FAIL_COND_V_MSG(!drawing, 0, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.")
-
-    ERR_FAIL_COND_V(p_char.length() != 1, 0)
+    ERR_FAIL_COND_V_CMSG(!drawing, 0, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.")
     ERR_FAIL_COND_V(not p_font, 0)
 
     if (p_font->has_outline()) {
-        p_font->draw_char(canvas_item, p_pos, p_char[0], p_next.cdata()[0], Color(1, 1, 1), true);
+        p_font->draw_char(canvas_item, p_pos, p_char, p_next, Color(1, 1, 1), true);
     }
-    return p_font->draw_char(canvas_item, p_pos, p_char[0], p_next.cdata()[0], p_modulate);
+    return p_font->draw_char(canvas_item, p_pos, p_char, p_next, p_modulate);
 }
 
 void CanvasItem::_notify_transform(CanvasItem *p_node) {
@@ -1210,7 +1210,7 @@ void CanvasItem::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("make_canvas_position_local", {"screen_point"}), &CanvasItem::make_canvas_position_local);
     MethodBinder::bind_method(D_METHOD("make_input_local", {"event"}), &CanvasItem::make_input_local);
 
-    BIND_VMETHOD(MethodInfo("_draw"));
+    BIND_VMETHOD(MethodInfo("_draw"))
 
     ADD_GROUP("Visibility", "");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "visible"), "set_visible", "is_visible");
@@ -1239,11 +1239,11 @@ void CanvasItem::_bind_methods() {
     BIND_ENUM_CONSTANT(BLEND_MODE_PREMULT_ALPHA)
     BIND_ENUM_CONSTANT(BLEND_MODE_DISABLED)
 
-    BIND_CONSTANT(NOTIFICATION_TRANSFORM_CHANGED);
-    BIND_CONSTANT(NOTIFICATION_DRAW);
-    BIND_CONSTANT(NOTIFICATION_VISIBILITY_CHANGED);
-    BIND_CONSTANT(NOTIFICATION_ENTER_CANVAS);
-    BIND_CONSTANT(NOTIFICATION_EXIT_CANVAS);
+    BIND_CONSTANT(NOTIFICATION_TRANSFORM_CHANGED)
+    BIND_CONSTANT(NOTIFICATION_DRAW)
+    BIND_CONSTANT(NOTIFICATION_VISIBILITY_CHANGED)
+    BIND_CONSTANT(NOTIFICATION_ENTER_CANVAS)
+    BIND_CONSTANT(NOTIFICATION_EXIT_CANVAS)
 }
 
 Transform2D CanvasItem::get_canvas_transform() const {

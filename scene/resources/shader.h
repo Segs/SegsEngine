@@ -33,6 +33,7 @@
 #include "core/map.h"
 #include "core/resource.h"
 #include "scene/resources/texture.h"
+#include "scene/resources/shader_enums.h"
 
 class Shader : public Resource {
 
@@ -40,18 +41,9 @@ class Shader : public Resource {
 
     OBJ_SAVE_TYPE(Shader)
 
-public:
-    enum Mode {
-
-        MODE_SPATIAL,
-        MODE_CANVAS_ITEM,
-        MODE_PARTICLES,
-        MODE_MAX
-    };
-
 private:
     RID shader;
-    Mode mode;
+    ShaderMode mode;
 
     // hack the name of performance
     // shaders keep a list of ShaderMaterial -> VisualServer name translations, to make
@@ -67,7 +59,7 @@ protected:
 
 public:
     //void set_mode(Mode p_mode);
-    virtual Mode get_mode() const;
+    virtual ShaderMode get_mode() const;
 
     void set_code(const String &p_code);
     String get_code() const;

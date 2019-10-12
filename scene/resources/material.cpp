@@ -32,6 +32,8 @@
 
 #include "servers/visual/shader_language.h"
 #include "servers/visual_server.h"
+#include "scene/resources/shader.h"
+#include "scene/resources/texture.h"
 #include "core/class_db.h"
 #include "core/method_enum_caster.h"
 #include "core/os/mutex.h"
@@ -118,8 +120,8 @@ void Material::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "render_priority", PROPERTY_HINT_RANGE, itos(RENDER_PRIORITY_MIN) + "," + itos(RENDER_PRIORITY_MAX) + ",1"), "set_render_priority", "get_render_priority");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "next_pass", PROPERTY_HINT_RESOURCE_TYPE, "Material"), "set_next_pass", "get_next_pass");
 
-    BIND_CONSTANT(RENDER_PRIORITY_MAX);
-    BIND_CONSTANT(RENDER_PRIORITY_MIN);
+    BIND_CONSTANT(RENDER_PRIORITY_MAX)
+    BIND_CONSTANT(RENDER_PRIORITY_MIN)
 }
 
 Material::Material() {
@@ -289,14 +291,14 @@ void ShaderMaterial::get_argument_options(const StringName &p_function, int p_id
 
 bool ShaderMaterial::_can_do_next_pass() const {
 
-    return shader && shader->get_mode() == Shader::MODE_SPATIAL;
+    return shader && shader->get_mode() == ShaderMode::SPATIAL;
 }
 
-Shader::Mode ShaderMaterial::get_shader_mode() const {
+ShaderMode ShaderMaterial::get_shader_mode() const {
     if (shader)
         return shader->get_mode();
     else
-        return Shader::MODE_SPATIAL;
+        return ShaderMode::SPATIAL;
 }
 
 ShaderMaterial::ShaderMaterial() {
@@ -1750,14 +1752,14 @@ static Plane _get_texture_mask(SpatialMaterial::TextureChannel p_channel) {
         Plane(0, 1, 0, 0),
         Plane(0, 0, 1, 0),
         Plane(0, 0, 0, 1),
-        Plane(0.3333333, 0.3333333, 0.3333333, 0),
+        Plane(0.3333333f, 0.3333333f, 0.3333333f, 0),
     };
 
     return masks[p_channel];
 }
 
 void SpatialMaterial::set_metallic_texture_channel(TextureChannel p_channel) {
-    ERR_FAIL_INDEX(p_channel, 5);
+    ERR_FAIL_INDEX(p_channel, 5)
     metallic_texture_channel = p_channel;
     VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->metallic_texture_channel, _get_texture_mask(p_channel));
 }
@@ -1768,7 +1770,7 @@ SpatialMaterial::TextureChannel SpatialMaterial::get_metallic_texture_channel() 
 
 void SpatialMaterial::set_roughness_texture_channel(TextureChannel p_channel) {
 
-    ERR_FAIL_INDEX(p_channel, 5);
+    ERR_FAIL_INDEX(p_channel, 5)
     roughness_texture_channel = p_channel;
     VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->roughness_texture_channel, _get_texture_mask(p_channel));
 }
@@ -1919,9 +1921,9 @@ RID SpatialMaterial::get_shader_rid() const {
     return shader_map[current_key].shader;
 }
 
-Shader::Mode SpatialMaterial::get_shader_mode() const {
+ShaderMode SpatialMaterial::get_shader_mode() const {
 
-    return Shader::MODE_SPATIAL;
+    return ShaderMode::SPATIAL;
 }
 
 void SpatialMaterial::_bind_methods() {
@@ -2357,10 +2359,10 @@ SpatialMaterial::SpatialMaterial() :
     set_clearcoat(1);
     set_clearcoat_gloss(0.5);
     set_anisotropy(0);
-    set_depth_scale(0.05);
+    set_depth_scale(0.05f);
     set_subsurface_scattering_strength(0);
     set_transmission(Color(0, 0, 0));
-    set_refraction(0.05);
+    set_refraction(0.05f);
     set_line_width(1);
     set_point_size(1);
     set_uv1_offset(Vector3(0, 0, 0));
@@ -2373,7 +2375,7 @@ SpatialMaterial::SpatialMaterial() :
     set_particles_anim_h_frames(1);
     set_particles_anim_v_frames(1);
     set_particles_anim_loop(false);
-    set_alpha_scissor_threshold(0.98);
+    set_alpha_scissor_threshold(0.98f);
     emission_op = EMISSION_OP_ADD;
 
     proximity_fade_enabled = false;

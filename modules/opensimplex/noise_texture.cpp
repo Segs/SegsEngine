@@ -32,6 +32,7 @@
 
 #include "core/method_bind.h"
 #include "core/core_string_names.h"
+#include "servers/visual_server.h"
 
 IMPL_GDCLASS(NoiseTexture)
 

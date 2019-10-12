@@ -30,6 +30,7 @@
 
 #include "mesh_instance_2d.h"
 #include "core/method_bind.h"
+#include "scene/resources/mesh.h"
 
 IMPL_GDCLASS(MeshInstance2D)
 

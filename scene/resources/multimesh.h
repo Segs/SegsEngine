@@ -30,94 +30,97 @@
 
 #pragma once
 
-#include "scene/resources/mesh.h"
-#include "servers/visual_server.h"
+#include "core/resource.h"
+#include "core/rid.h"
+#include "servers/visual_server_enums.h"
+
+class Mesh;
 
 class MultiMesh : public Resource {
 
-	GDCLASS(MultiMesh,Resource)
+    GDCLASS(MultiMesh,Resource)
 
     RES_BASE_EXTENSION("multimesh")
 
 public:
-	enum TransformFormat {
-		TRANSFORM_2D = VS::MULTIMESH_TRANSFORM_2D,
-		TRANSFORM_3D = VS::MULTIMESH_TRANSFORM_3D
-	};
+    enum TransformFormat {
+        TRANSFORM_2D = VS::MULTIMESH_TRANSFORM_2D,
+        TRANSFORM_3D = VS::MULTIMESH_TRANSFORM_3D
+    };
 
-	enum ColorFormat {
-		COLOR_NONE = VS::MULTIMESH_COLOR_NONE,
-		COLOR_8BIT = VS::MULTIMESH_COLOR_8BIT,
-		COLOR_FLOAT = VS::MULTIMESH_COLOR_FLOAT,
-	};
+    enum ColorFormat {
+        COLOR_NONE = VS::MULTIMESH_COLOR_NONE,
+        COLOR_8BIT = VS::MULTIMESH_COLOR_8BIT,
+        COLOR_FLOAT = VS::MULTIMESH_COLOR_FLOAT,
+    };
 
-	enum CustomDataFormat {
-		CUSTOM_DATA_NONE,
-		CUSTOM_DATA_8BIT,
-		CUSTOM_DATA_FLOAT,
-	};
+    enum CustomDataFormat {
+        CUSTOM_DATA_NONE,
+        CUSTOM_DATA_8BIT,
+        CUSTOM_DATA_FLOAT,
+    };
 
 private:
-	Ref<Mesh> mesh;
-	RID multimesh;
-	TransformFormat transform_format;
-	ColorFormat color_format;
-	CustomDataFormat custom_data_format;
-	int instance_count;
-	int visible_instance_count;
+    Ref<Mesh> mesh;
+    RID multimesh;
+    TransformFormat transform_format;
+    ColorFormat color_format;
+    CustomDataFormat custom_data_format;
+    int instance_count;
+    int visible_instance_count;
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
-	void _set_transform_array(const PoolVector<Vector3> &p_array);
-	PoolVector<Vector3> _get_transform_array() const;
+    void _set_transform_array(const PoolVector<Vector3> &p_array);
+    PoolVector<Vector3> _get_transform_array() const;
 
-	void _set_transform_2d_array(const PoolVector<Vector2> &p_array);
-	PoolVector<Vector2> _get_transform_2d_array() const;
+    void _set_transform_2d_array(const PoolVector<Vector2> &p_array);
+    PoolVector<Vector2> _get_transform_2d_array() const;
 
-	void _set_color_array(const PoolVector<Color> &p_array);
-	PoolVector<Color> _get_color_array() const;
+    void _set_color_array(const PoolVector<Color> &p_array);
+    PoolVector<Color> _get_color_array() const;
 
-	void _set_custom_data_array(const PoolVector<Color> &p_array);
-	PoolVector<Color> _get_custom_data_array() const;
+    void _set_custom_data_array(const PoolVector<Color> &p_array);
+    PoolVector<Color> _get_custom_data_array() const;
 
 public:
-	void set_mesh(const Ref<Mesh> &p_mesh);
-	Ref<Mesh> get_mesh() const;
+    void set_mesh(const Ref<Mesh> &p_mesh);
+    Ref<Mesh> get_mesh() const;
 
-	void set_color_format(ColorFormat p_color_format);
-	ColorFormat get_color_format() const;
+    void set_color_format(ColorFormat p_color_format);
+    ColorFormat get_color_format() const;
 
-	void set_custom_data_format(CustomDataFormat p_custom_data_format);
-	CustomDataFormat get_custom_data_format() const;
+    void set_custom_data_format(CustomDataFormat p_custom_data_format);
+    CustomDataFormat get_custom_data_format() const;
 
-	void set_transform_format(TransformFormat p_transform_format);
-	TransformFormat get_transform_format() const;
+    void set_transform_format(TransformFormat p_transform_format);
+    TransformFormat get_transform_format() const;
 
-	void set_instance_count(int p_count);
-	int get_instance_count() const;
+    void set_instance_count(int p_count);
+    int get_instance_count() const;
 
-	void set_visible_instance_count(int p_count);
-	int get_visible_instance_count() const;
+    void set_visible_instance_count(int p_count);
+    int get_visible_instance_count() const;
 
-	void set_instance_transform(int p_instance, const Transform &p_transform);
-	void set_instance_transform_2d(int p_instance, const Transform2D &p_transform);
-	Transform get_instance_transform(int p_instance) const;
-	Transform2D get_instance_transform_2d(int p_instance) const;
+    void set_instance_transform(int p_instance, const Transform &p_transform);
+    void set_instance_transform_2d(int p_instance, const Transform2D &p_transform);
+    Transform get_instance_transform(int p_instance) const;
+    Transform2D get_instance_transform_2d(int p_instance) const;
 
-	void set_instance_color(int p_instance, const Color &p_color);
-	Color get_instance_color(int p_instance) const;
+    void set_instance_color(int p_instance, const Color &p_color);
+    Color get_instance_color(int p_instance) const;
 
-	void set_instance_custom_data(int p_instance, const Color &p_custom_data);
-	Color get_instance_custom_data(int p_instance) const;
+    void set_instance_custom_data(int p_instance, const Color &p_custom_data);
+    Color get_instance_custom_data(int p_instance) const;
 
-	void set_as_bulk_array(const PoolVector<float> &p_array);
+    void set_as_bulk_array(const PoolVector<float> &p_array);
 
-	virtual AABB get_aabb() const;
+    virtual AABB get_aabb() const;
 
-	RID get_rid() const override;
+    RID get_rid() const override;
 
-	MultiMesh();
-	~MultiMesh() override;
+    MultiMesh();
+    ~MultiMesh() override;
 };
 

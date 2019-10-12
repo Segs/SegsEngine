@@ -30,6 +30,7 @@
 
 #include "navigation_2d.h"
 #include "core/method_bind.h"
+#include "core/math/geometry.h"
 
 #define USE_ENTRY_POINT
 

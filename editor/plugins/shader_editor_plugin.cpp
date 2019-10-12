@@ -180,14 +180,14 @@ void ShaderTextEditor::_check_shader_mode() {
 
     String type = ShaderLanguage::get_shader_type(get_text_edit()->get_text());
 
-    Shader::Mode mode;
+    ShaderMode mode;
 
     if (type == "canvas_item") {
-        mode = Shader::MODE_CANVAS_ITEM;
+        mode = ShaderMode::CANVAS_ITEM;
     } else if (type == "particles") {
-        mode = Shader::MODE_PARTICLES;
+        mode = ShaderMode::PARTICLES;
     } else {
-        mode = Shader::MODE_SPATIAL;
+        mode = ShaderMode::SPATIAL;
     }
 
     if (shader->get_mode() != mode) {

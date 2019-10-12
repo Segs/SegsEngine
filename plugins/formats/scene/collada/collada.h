@@ -32,6 +32,8 @@
 
 #include "core/io/xml_parser.h"
 #include "core/map.h"
+#include "core/math/transform.h"
+#include "core/math/vector2.h"
 #include "core/project_settings.h"
 #include "scene/resources/material.h"
 

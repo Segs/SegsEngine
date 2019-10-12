@@ -31,8 +31,9 @@
 #include "sprite_3d.h"
 #include "core/core_string_names.h"
 #include "core/method_bind.h"
-
+#include "core/math/triangle_mesh.h"
 #include "scene/scene_string_names.h"
+#include "servers/visual_server.h"
 
 IMPL_GDCLASS(SpriteBase3D)
 IMPL_GDCLASS(Sprite3D)
@@ -410,7 +411,7 @@ void Sprite3D::_draw() {
     if (not texture)
         return;
     Vector2 tsize = texture->get_size();
-    if (tsize.x == 0 || tsize.y == 0)
+    if (tsize.x == 0.0f || tsize.y == 0.0f)
         return;
 
     Rect2 base_rect;

@@ -30,12 +30,14 @@
 
 #include "audio_stream_editor_plugin.h"
 
+#include "audio_stream_preview.h"
+
 #include "core/io/resource_loader.h"
+#include "core/method_bind.h"
 #include "core/project_settings.h"
 #include "editor/editor_settings.h"
-#include "core/method_bind.h"
+#include "servers/visual_server.h"
 
-#include "audio_stream_preview.h"
 
 IMPL_GDCLASS(AudioStreamEditor)
 IMPL_GDCLASS(AudioStreamEditorPlugin)

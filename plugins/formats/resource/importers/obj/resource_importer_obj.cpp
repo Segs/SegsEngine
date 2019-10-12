@@ -38,6 +38,7 @@
 #include "scene/3d/spatial.h"
 #include "scene/resources/animation.h"
 #include "scene/resources/mesh.h"
+#include "scene/resources/texture.h"
 #include "scene/resources/surface_tool.h"
 
 //IMPL_GDCLASS(EditorOBJImporter)

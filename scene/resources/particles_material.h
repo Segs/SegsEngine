@@ -33,6 +33,7 @@
 #include "scene/resources/material.h"
 
 class CurveTexture;
+class GradientTexture;
 
 class ParticlesMaterial : public Material {
 
@@ -300,7 +301,7 @@ public:
 
     RID get_shader_rid() const;
 
-    Shader::Mode get_shader_mode() const override;
+    ShaderMode get_shader_mode() const override;
 
     ParticlesMaterial();
     ~ParticlesMaterial() override;

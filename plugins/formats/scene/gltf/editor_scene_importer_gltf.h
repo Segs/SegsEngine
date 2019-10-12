@@ -34,6 +34,7 @@
 
 #include "editor/import/resource_importer_scene.h"
 #include "scene/resources/material.h"
+#include "scene/resources/texture.h"
 #include "scene/3d/skeleton.h"
 #include "scene/3d/spatial.h"
 
@@ -345,7 +346,7 @@ class EditorSceneImporterGLTF : public QObject, public EditorSceneImporterInterf
     Error _parse_buffer_views(GLTFState &state);
     GLTFType _get_type_from_str(const String &p_string);
     Error _parse_accessors(GLTFState &state);
-	Error _decode_buffer_view(GLTFState &state, double *dst, const GLTFBufferViewIndex p_buffer_view, const int skip_every, const int skip_bytes, const int element_size, const int count, const GLTFType type, const int component_count, const int component_type, const int component_size, const bool normalized, const int byte_offset, const bool for_vertex);
+    Error _decode_buffer_view(GLTFState &state, double *dst, const GLTFBufferViewIndex p_buffer_view, const int skip_every, const int skip_bytes, const int element_size, const int count, const GLTFType type, const int component_count, const int component_type, const int component_size, const bool normalized, const int byte_offset, const bool for_vertex);
 
     Vector<double> _decode_accessor(GLTFState &state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex);
     PoolVector<float> _decode_accessor_as_floats(GLTFState &state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex);

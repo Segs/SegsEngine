@@ -33,6 +33,7 @@
 #include "core/image.h"
 #include "core/reference.h"
 #include "scene/resources/texture.h"
+#include "core/math/vector3.h"
 
 #include "thirdparty/misc/open-simplex-noise.h"
 

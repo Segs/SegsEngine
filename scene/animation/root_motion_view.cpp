@@ -29,9 +29,11 @@
 /*************************************************************************/
 
 #include "root_motion_view.h"
+
+#include "core/method_bind.h"
 #include "scene/animation/animation_tree.h"
 #include "scene/resources/material.h"
-#include "core/method_bind.h"
+#include "servers/visual_server.h"
 
 IMPL_GDCLASS(RootMotionView)
 

@@ -32,10 +32,20 @@
 
 #include "core/resource.h"
 #include "core/self_list.h"
-#include "scene/resources/shader.h"
-#include "scene/resources/texture.h"
+#include "scene/resources/shader_enums.h"
+#include "core/color.h"
+#include "core/rid.h"
+#include "core/math/vector3.h"
+#include "core/map.h"
+
 #include "servers/visual_server_enums.h"
 
+class Shader;
+class Texture;
+namespace std {
+class recursive_mutex;
+}
+using Mutex = std::recursive_mutex;
 
 class GODOT_EXPORT Material : public Resource {
 
@@ -68,7 +78,7 @@ public:
 
     RID get_rid() const override;
 
-    virtual Shader::Mode get_shader_mode() const = 0;
+    virtual ShaderMode get_shader_mode() const = 0;
     Material();
     ~Material() override;
 };
@@ -101,7 +111,7 @@ public:
     void set_shader_param(const StringName &p_param, const Variant &p_value);
     Variant get_shader_param(const StringName &p_param) const;
 
-    Shader::Mode get_shader_mode() const override;
+    ShaderMode get_shader_mode() const override;
 
     ShaderMaterial();
     ~ShaderMaterial() override;
@@ -631,7 +641,7 @@ public:
 
     RID get_shader_rid() const;
 
-    Shader::Mode get_shader_mode() const override;
+    ShaderMode get_shader_mode() const override;
 
     SpatialMaterial();
     ~SpatialMaterial() override;

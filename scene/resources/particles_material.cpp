@@ -1083,9 +1083,9 @@ void ParticlesMaterial::_validate_property(PropertyInfo &property) const {
     }
 }
 
-Shader::Mode ParticlesMaterial::get_shader_mode() const {
+ShaderMode ParticlesMaterial::get_shader_mode() const {
 
-    return Shader::MODE_PARTICLES;
+    return ShaderMode::PARTICLES;
 }
 
 void ParticlesMaterial::_bind_methods() {

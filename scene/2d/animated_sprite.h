@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef ANIMATED_SPRITE_H
-#define ANIMATED_SPRITE_H
+#pragma once
 
 #include "scene/2d/node_2d.h"
 #include "scene/resources/texture.h"
@@ -61,7 +60,7 @@ class SpriteFrames : public Resource {
     void _set_animations(const Array &p_animations);
 
     Vector<String> _get_animation_list() const;
-
+    static void report_missing_animation(const char *name);
 protected:
     static void _bind_methods();
 
@@ -85,7 +84,11 @@ public:
     _FORCE_INLINE_ Ref<Texture> get_frame(const StringName &p_anim, int p_idx) const {
 
         const Map<StringName, Anim>::const_iterator E = animations.find(p_anim);
-        ERR_FAIL_COND_V_MSG(E==animations.end(), Ref<Texture>(), "Animation '" + String(p_anim) + "' doesn't exist.")
+        if (unlikely(E==animations.end())) {
+            report_missing_animation(p_anim.asCString());
+            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Animation missing: " _STR(Ref<Texture>()));
+            return Ref<Texture>();
+        }
         ERR_FAIL_COND_V(p_idx < 0, Ref<Texture>())
         if (p_idx >= E->second.frames.size())
             return Ref<Texture>();
@@ -96,7 +99,11 @@ public:
     _FORCE_INLINE_ Ref<Texture> get_normal_frame(const StringName &p_anim, int p_idx) const {
 
         const Map<StringName, Anim>::const_iterator E = animations.find(p_anim);
-        ERR_FAIL_COND_V_MSG(E==animations.end(), Ref<Texture>(), "Animation '" + String(p_anim) + "' doesn't exist.")
+        if (unlikely(E==animations.end())) {
+            report_missing_animation(p_anim.asCString());
+            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Animation missing: " _STR(Ref<Texture>()));
+            return Ref<Texture>();
+        }
         ERR_FAIL_COND_V(p_idx < 0, Ref<Texture>())
 
         const Map<StringName, Anim>::const_iterator EN = animations.find(E->second.normal_name);
@@ -109,7 +116,11 @@ public:
 
     void set_frame(const StringName &p_anim, int p_idx, const Ref<Texture> &p_frame) {
         Map<StringName, Anim>::iterator E = animations.find(p_anim);
-        ERR_FAIL_COND_MSG(E==animations.end(), "Animation '" + String(p_anim) + "' doesn't exist.")
+        if (unlikely(E==animations.end())) {
+            report_missing_animation(p_anim.asCString());
+            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Animation missing: " _STR(Ref<Texture>()));
+            return;
+        }
         ERR_FAIL_COND(p_idx < 0)
         if (p_idx >= E->second.frames.size())
             return;
@@ -201,5 +212,3 @@ public:
     String get_configuration_warning() const override;
     AnimatedSprite();
 };
-
-#endif // ANIMATED_SPRITE_H
