@@ -250,14 +250,18 @@ foreach(tgt ${global_targets})
     if(ENABLE_COTIRE)
         cotire(${tgt}_engine)
     endif()
+if(WIN32)
     install(TARGETS ${tgt}_engine EXPORT SegsEngine
+        ARCHIVE DESTINATION .
         LIBRARY DESTINATION .
         RUNTIME DESTINATION .
         INCLUDES DESTINATION include
     )
-if(WIN32)
+else()
     install(TARGETS ${tgt}_engine EXPORT SegsEngine
-        ARCHIVE DESTINATION .
+        LIBRARY DESTINATION .
+        RUNTIME DESTINATION .
+        INCLUDES DESTINATION include
     )
 endif()
     install(EXPORT SegsEngine

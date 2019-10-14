@@ -727,7 +727,7 @@ void AudioServer::set_bus_name(int p_bus, const String &p_name) {
 
     emit_signal("bus_layout_changed");
 }
-String AudioServer::get_bus_name(int p_bus) const {
+StringName AudioServer::get_bus_name(int p_bus) const {
 
     ERR_FAIL_INDEX_V(p_bus, buses.size(), String());
     return buses[p_bus]->name;

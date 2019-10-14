@@ -125,4 +125,3 @@ public:
     AudioEffectPitchShift();
 };
 
-VARIANT_ENUM_CAST(AudioEffectPitchShift::FFT_Size);

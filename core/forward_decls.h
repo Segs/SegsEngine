@@ -1,4 +1,5 @@
 #pragma once
+#include "core/godot_export.h"
 
 namespace eastl {
     template <typename T, typename Allocator>
@@ -7,6 +8,10 @@ namespace eastl {
     class list;
     template <class K,class CMP, class A>
     class set;
+    template<class T,class Allocator>
+    class basic_string;
+    template<class T>
+    class basic_string_view;
 }
 
 template <class T>
@@ -35,3 +40,6 @@ template<class T>
 using ListPOD = eastl::list<T,wrap_allocator>;
 template <class T>
 using Set = eastl::set<T, Comparator<T>, wrap_allocator>;
+
+using se_string = eastl::basic_string<char, wrap_allocator>;
+using se_string_view = eastl::basic_string_view<char>;

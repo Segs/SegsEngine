@@ -37,6 +37,8 @@
 IMPL_GDCLASS(AudioEffectPitchShiftInstance)
 IMPL_GDCLASS(AudioEffectPitchShift)
 
+VARIANT_ENUM_CAST(AudioEffectPitchShift::FFT_Size);
+
 /* Thirdparty code, so disable clang-format with Godot style */
 /* clang-format off */
 

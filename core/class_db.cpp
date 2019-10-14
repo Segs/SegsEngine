@@ -1068,7 +1068,7 @@ MethodBind *ClassDB::bind_methodfi(
     Vector<Variant> defvals;
 
     defvals.resize(def_vals.size());
-    for (int i = 0; i < def_vals.size(); i++) {
+    for (size_t i = 0; i < def_vals.size(); i++) {
 
         defvals.write[i] = def_vals.begin()[def_vals.size() - i - 1];
     }

@@ -155,7 +155,11 @@ private:
         void *_ptr; //generic pointer
         uint8_t _mem[sizeof(ObjData) > (sizeof(real_t) * 4) ? sizeof(ObjData) : (sizeof(real_t) * 4)];
         constexpr VariantUnion() : _bool(false) {}
-        constexpr VariantUnion(double f) : _real(f) {}
+        explicit constexpr VariantUnion(double f) : _real(f) {}
+        explicit constexpr VariantUnion(int32_t f) : _int(f) {}
+        explicit constexpr VariantUnion(uint32_t f) : _int(f) {}
+        explicit constexpr VariantUnion(int64_t f) : _int(f) {}
+        explicit constexpr VariantUnion(uint64_t f) : _int(f) {}
     } _data GCC_ALIGNED_8;
 
     void reference(const Variant &p_variant);
@@ -169,12 +173,12 @@ public:
     static bool can_convert(VariantType p_type_from, VariantType p_type_to);
     static bool can_convert_strict(VariantType p_type_from, VariantType p_type_to);
 
-    bool is_ref() const;
+    [[nodiscard]] bool is_ref() const;
     _FORCE_INLINE_ bool is_num() const { return type == VariantType::INT || type == VariantType::REAL; }
     _FORCE_INLINE_ bool is_array() const { return type >= VariantType::ARRAY; }
-    bool is_shared() const;
-    bool is_zero() const;
-    bool is_one() const;
+    [[nodiscard]] bool is_shared() const;
+    [[nodiscard]] bool is_zero() const;
+    [[nodiscard]] bool is_one() const;
 
     operator bool() const;
     operator signed int() const;
@@ -261,22 +265,17 @@ public:
     Variant(T p_bool,int=0) : Variant(std::underlying_type_t<T>(p_bool)){
     }
     Variant(VariantType p_v) : Variant(int8_t(p_v)) {}
-    Variant(signed int p_int); // real one
-    Variant(unsigned int p_int);
-#ifdef NEED_LONG_INT
-    Variant(signed long p_long); // real one
-    Variant(unsigned long p_long);
-//Variant(long unsigned int p_long);
-#endif
-    Variant(signed short p_short); // real one
-    Variant(unsigned short p_short);
-    Variant(signed char p_char); // real one
-    Variant(unsigned char p_char);
-    Variant(QChar p_char);
-    Variant(int64_t p_int); // real one
-    Variant(uint64_t p_int);
+    constexpr Variant(int8_t p_int)  : type(VariantType::INT),_data(p_int) { }
+    constexpr Variant(uint8_t p_int)  : type(VariantType::INT),_data(p_int) { }
+    constexpr Variant(int16_t p_int)  : type(VariantType::INT),_data(p_int) { }
+    constexpr Variant(uint16_t p_int)  : type(VariantType::INT),_data(p_int) { }
+    constexpr Variant(int32_t p_int)  : type(VariantType::INT),_data(p_int) { }
+    constexpr Variant(uint32_t p_int)  : type(VariantType::INT),_data(p_int) { }
+    constexpr Variant(int64_t p_int)   : type(VariantType::INT),_data(p_int) { }
+    constexpr Variant(uint64_t p_int)  : type(VariantType::INT),_data(p_int) { }
     constexpr Variant(float p_float) : type(VariantType::REAL),_data(p_float) { }
-    Variant(double p_double);
+    constexpr Variant(double p_float) : type(VariantType::REAL),_data(p_float) { }
+    Variant(QChar p_char);
     Variant(const String &p_string);
     Variant(const StringName &p_string);
     Variant(const char *const p_cstring);
@@ -361,7 +360,7 @@ public:
 
     static String get_operator_name(Operator p_op);
     static void evaluate(const Operator &p_op, const Variant &p_a, const Variant &p_b, Variant &r_ret, bool &r_valid);
-    static _FORCE_INLINE_ Variant evaluate(const Operator &p_op, const Variant &p_a, const Variant &p_b) {
+    static _FORCE_INLINE_ Variant evaluate(Operator p_op, const Variant &p_a, const Variant &p_b) {
 
         bool valid = true;
         Variant res;
@@ -422,9 +421,9 @@ public:
     bool operator==(const Variant &p_variant) const;
     bool operator!=(const Variant &p_variant) const;
     bool operator<(const Variant &p_variant) const;
-    uint32_t hash() const;
+    [[nodiscard]] uint32_t hash() const;
 
-    bool hash_compare(const Variant &p_variant) const;
+    [[nodiscard]] bool hash_compare(const Variant &p_variant) const;
     bool booleanize() const;
     String stringify(DefList<const void *> &stack) const;
 
@@ -437,12 +436,12 @@ public:
     using ObjectDeConstruct = String (*)(const Variant &, void *);
     using ObjectConstruct = void (*)(const String &, void *, Variant &);
 
-    String get_construct_string() const;
+    [[nodiscard]] String get_construct_string() const;
     static void construct_from_string(const String &p_string, Variant &r_value, ObjectConstruct p_obj_construct = nullptr, void *p_construct_ud = nullptr);
 
     Variant &operator=(const Variant &p_variant); // only this is enough for all the other types
     Variant(const Variant &p_variant);
-    _FORCE_INLINE_ Variant() { type = VariantType::NIL; }
+    constexpr _FORCE_INLINE_ Variant() : type(VariantType::NIL) {}
     _FORCE_INLINE_ ~Variant() {
         if (type != VariantType::NIL) clear();
     }

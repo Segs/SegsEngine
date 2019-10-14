@@ -2040,84 +2040,10 @@ Variant::operator IP_Address() const {
     return as<IP_Address>();
 }
 
-
-
-/*
-Variant::Variant(long unsigned int p_long) {
-
-    type=INT;
-    _data._int=p_long;
-};
-*/
-
-Variant::Variant(signed int p_int) {
-
-    type = VariantType::INT;
-    _data._int = p_int;
-}
-Variant::Variant(unsigned int p_int) {
-
-    type = VariantType::INT;
-    _data._int = p_int;
-}
-
-#ifdef NEED_LONG_INT
-
-Variant::Variant(signed long p_int) {
-
-    type = VariantType::INT;
-    _data._int = p_int;
-}
-Variant::Variant(unsigned long p_int) {
-
-    type = VariantType::INT;
-    _data._int = p_int;
-}
-#endif
-
-Variant::Variant(int64_t p_int) {
-
-    type = VariantType::INT;
-    _data._int = p_int;
-}
-
-Variant::Variant(uint64_t p_int) {
-
-    type = VariantType::INT;
-    _data._int = p_int;
-}
-
-Variant::Variant(signed short p_short) {
-
-    type = VariantType::INT;
-    _data._int = p_short;
-}
-Variant::Variant(unsigned short p_short) {
-
-    type = VariantType::INT;
-    _data._int = p_short;
-}
-Variant::Variant(signed char p_char) {
-
-    type = VariantType::INT;
-    _data._int = p_char;
-}
-Variant::Variant(unsigned char p_char) {
-
-    type = VariantType::INT;
-    _data._int = p_char;
-}
 Variant::Variant(QChar p_char) {
 
     type = VariantType::INT;
     _data._int = p_char.unicode();
-}
-
-
-Variant::Variant(double p_double) {
-
-    type = VariantType::REAL;
-    _data._real = p_double;
 }
 
 Variant::Variant(const StringName &p_string) {

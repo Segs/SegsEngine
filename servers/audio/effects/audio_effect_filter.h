@@ -28,13 +28,11 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef AUDIOEFFECTFILTER_H
-#define AUDIOEFFECTFILTER_H
+#pragma once
 
 #include "servers/audio/audio_effect.h"
 #include "servers/audio/audio_filter_sw.h"
-#include "core/method_arg_casters.h"
-#include "core/method_enum_caster.h"
+#include "core/property_info.h"
 
 class AudioEffectFilter;
 
@@ -94,8 +92,6 @@ public:
 
     AudioEffectFilter(AudioFilterSW::Mode p_mode = AudioFilterSW::LOWPASS);
 };
-
-VARIANT_ENUM_CAST(AudioEffectFilter::FilterDB)
 
 class AudioEffectLowPassFilter : public AudioEffectFilter {
     GDCLASS(AudioEffectLowPassFilter,AudioEffectFilter)
@@ -165,4 +161,3 @@ public:
             AudioEffectFilter(AudioFilterSW::HIGHSHELF) {}
 };
 
-#endif // AUDIOEFFECTFILTER_H
