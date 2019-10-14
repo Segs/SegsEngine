@@ -745,6 +745,10 @@ namespace eastl
 		int  validate_iterator(const_iterator i) const EA_NOEXCEPT;
 
 #if EASTL_LF3D_EXTENSIONS
+		this_type& append(view_type p)
+		{
+		    return append(p.begin(), p.end());
+		}
 		this_type trimmed() const
 		{
 			this_type result(*this);
@@ -923,20 +927,44 @@ namespace eastl
 
 			return ret;
 		}
+		/**
+		 * @note This function does not clear the target container before adding new parts to it.
+		 */
+		template<typename CONTAINER>
+		static void split_ref(CONTAINER &tgt,const view_type str, value_type separator, bool keepEmptyStrings = false)
+		{
+		    const char* strEnd = str.data() + str.size();
+		    const char *start = str.data();
+		    for (const char* splitEnd = start; splitEnd != strEnd; ++splitEnd)
+		    {
+			if (*splitEnd == separator)
+			{
+			    const ptrdiff_t splitLen = splitEnd - start;
+			    if (splitLen > 0 || keepEmptyStrings)
+				tgt.emplace_back(start,splitLen);
+			    start = splitEnd + 1;
+			}
+			}
 
+		    const ptrdiff_t splitLen = strEnd - start;
+		    if (splitLen > 0 || keepEmptyStrings)
+			tgt.emplace_back(start, splitLen);
+
+		}
 		eastl::vector<this_type> split(value_type separator, bool keepEmptyStrings = false) const
 		{
 			return split(c_str(), separator, keepEmptyStrings);
 		}
 		/// Return a string by joining substrings with a 'glue' string.
-		static this_type joined(const eastl::vector<this_type>& subStrings, const this_type& glue)
+		template<typename CONTAINER>
+		static this_type joined(const CONTAINER & subStrings, const this_type& glue)
 		{
 			if (subStrings.empty())
 				return this_type();
 
 			size_type result_size = (subStrings.size() - 1) * glue.length();
 			for (const auto& sub : subStrings)
-				result_size += sub.length();
+				result_size += sub.length()+glue.size();
 
 			this_type joinedString;
 			joinedString.reserve(result_size);
