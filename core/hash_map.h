@@ -212,7 +212,7 @@ private:
 
         /* if element doesn't exist, create it */
         Element *e = memnew(Element);
-        ERR_FAIL_COND_V_CMSG(!e, nullptr, "Out of memory.")
+        ERR_FAIL_COND_V_MSG(!e, nullptr, "Out of memory.")
         uint32_t hash = Hasher()(p_key);
         uint32_t index = hash & ((1 << hash_table_power) - 1);
         e->next = hash_table[index];
@@ -499,7 +499,7 @@ public:
         } else { /* get the next key */
 
             const Element *e = get_element(*p_key);
-            ERR_FAIL_COND_V_CMSG(!e, nullptr, "Invalid key supplied.")
+            ERR_FAIL_COND_V_MSG(!e, nullptr, "Invalid key supplied.")
             if (e->next) {
                 /* if there is a "next" in the list, return that */
                 return &e->next->pair.key;

@@ -197,17 +197,22 @@ void Engine::add_singleton(const Singleton &p_singleton) {
 }
 
 Object *Engine::get_singleton_object(const String &p_name) const {
-
+    //TODO: SEGS: use find_as(p_name.c_str(), {}(const char *a,const StringName &s)->bool { return strcmp(a,s.asCString());});
+    return get_singleton_object(StringName(p_name));
+};
+Object *Engine::get_singleton_object(const StringName &p_name) const {
     Map<StringName, Object *>::const_iterator E = singleton_ptrs.find(p_name);
     ERR_FAIL_COND_V_MSG(E==singleton_ptrs.end(), nullptr, "Failed to retrieve non-existent singleton '" + p_name + "'.")
     return E->second;
 };
 
 bool Engine::has_singleton(const String &p_name) const {
-
+    //TODO: SEGS: use contains_as to prevent allocations
+    return has_singleton(StringName(p_name));
+};
+bool Engine::has_singleton(const StringName &p_name) const {
     return singleton_ptrs.contains(p_name);
 };
-
 Engine *Engine::singleton = nullptr;
 
 Engine *Engine::get_singleton() {

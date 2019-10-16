@@ -32,6 +32,7 @@
 
 #include "core/typedefs.h"
 #include "core/variant.h"
+#include "core/error_list.h"
 
 /**
  * Multi-Platform abstraction for accessing to MIDI.

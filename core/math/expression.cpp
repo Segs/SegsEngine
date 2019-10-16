@@ -39,6 +39,7 @@
 #include "core/print_string.h"
 #include "core/reference.h"
 #include "core/variant_parser.h"
+#include "core/translation_helpers.h"
 
 IMPL_GDCLASS(Expression)
 
@@ -1390,7 +1391,7 @@ Expression::ENode *Expression::_parse_expression() {
                 if (tk.type == TK_PARENTHESIS_OPEN) {
                     //function call
                     CallNode *func_call = alloc_node<CallNode>();
-                    func_call->method = identifier;
+                    func_call->method = StringName(identifier);
                     SelfNode *self_node = alloc_node<SelfNode>();
                     func_call->base = self_node;
 
@@ -1442,7 +1443,7 @@ Expression::ENode *Expression::_parse_expression() {
                         NamedIndexNode *index = alloc_node<NamedIndexNode>();
                         SelfNode *self_node = alloc_node<SelfNode>();
                         index->base = self_node;
-                        index->name = identifier;
+                        index->name = StringName(identifier);
                         expr = index;
                     }
                 }

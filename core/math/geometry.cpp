@@ -243,7 +243,7 @@ PoolVector<PoolVector<Face3> > Geometry::separate_objects(const PoolVector<Face3
 
     bool error = _connect_faces(_fcptr, len, -1);
 
-    ERR_FAIL_COND_V_CMSG(error, PoolVector<PoolVector<Face3> >(), "Invalid geometry.")
+    ERR_FAIL_COND_V_MSG(error, PoolVector<PoolVector<Face3> >(), "Invalid geometry.")
 
     // Group connected faces in separate objects.
 
@@ -695,7 +695,7 @@ constexpr int _MAX_LENGTH = 20;
 
 Vector<Vector<Vector2> > Geometry::decompose_polygon_in_convex(const Vector<Point2>& polygon) {
     Vector<Vector<Vector2> > decomp;
-    ListPOD<TriangulatorPoly> in_poly, out_poly;
+    eastl::list<TriangulatorPoly> in_poly, out_poly;
 
     TriangulatorPoly inp;
     inp.Init(polygon.size());
@@ -706,7 +706,7 @@ Vector<Vector<Vector2> > Geometry::decompose_polygon_in_convex(const Vector<Poin
     in_poly.push_back(inp);
     TriangulatorPartition tpart;
     if (tpart.ConvexPartition_HM(&in_poly, &out_poly) == 0) { // Failed.
-        ERR_PRINT("Convex decomposing failed!");
+        ERR_PRINT("Convex decomposing failed!")
         return decomp;
     }
 
@@ -715,10 +715,7 @@ Vector<Vector<Vector2> > Geometry::decompose_polygon_in_convex(const Vector<Poin
     for (const TriangulatorPoly &tp : out_poly) {
 
         decomp.write[idx].resize(tp.GetNumPoints());
-
-        for (long i = 0; i < tp.GetNumPoints(); i++) {
-            decomp.write[idx].write[i] = tp.GetPoint(i);
-        }
+        memcpy(decomp.write[idx].ptrw(),tp.GetPoints(),sizeof(Vector2)*tp.GetNumPoints());
 
         idx++;
     }

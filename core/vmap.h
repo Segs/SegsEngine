@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef VMAP_H
-#define VMAP_H
+#pragma once
 
 #include "core/cowdata.h"
 #include "core/cowdata_impl.h"
@@ -39,177 +38,176 @@
 template <class T, class V>
 class VMap {
 public:
-	struct Pair {
+    struct Pair {
 
-		T key;
-		V value;
+        T key;
+        V value;
 
-		Pair() {}
+        Pair() {}
 
-		_FORCE_INLINE_ Pair(const T &p_key, const V &p_value) {
+        _FORCE_INLINE_ Pair(const T &p_key, const V &p_value) {
 
-			key = p_key;
-			value = p_value;
-		}
-	};
+            key = p_key;
+            value = p_value;
+        }
+    };
 
 private:
-	CowData<Pair> _cowdata;
+    CowData<Pair> _cowdata;
 
-	_FORCE_INLINE_ int _find(const T &p_val, bool &r_exact) const {
+    _FORCE_INLINE_ int _find(const T &p_val, bool &r_exact) const {
 
-		r_exact = false;
-		if (_cowdata.empty())
-			return 0;
+        r_exact = false;
+        if (_cowdata.empty())
+            return 0;
 
-		int low = 0;
-		int high = _cowdata.size() - 1;
-		const Pair *a = _cowdata.ptr();
-		int middle = 0;
+        int low = 0;
+        int high = _cowdata.size() - 1;
+        const Pair *a = _cowdata.ptr();
+        int middle = 0;
 
 #ifdef DEBUG_ENABLED
-		if (low > high)
-			ERR_PRINT("low > high, this may be a bug");
+        if (low > high)
+            ERR_PRINT("low > high, this may be a bug")
 #endif
-		while (low <= high) {
-			middle = (low + high) / 2;
+        while (low <= high) {
+            middle = (low + high) / 2;
 
-			if (p_val < a[middle].key) {
-				high = middle - 1; //search low end of array
-			} else if (a[middle].key < p_val) {
-				low = middle + 1; //search high end of array
-			} else {
-				r_exact = true;
-				return middle;
-			}
-		}
+            if (p_val < a[middle].key) {
+                high = middle - 1; //search low end of array
+            } else if (a[middle].key < p_val) {
+                low = middle + 1; //search high end of array
+            } else {
+                r_exact = true;
+                return middle;
+            }
+        }
 
-		//return the position where this would be inserted
-		if (a[middle].key < p_val)
-			middle++;
-		return middle;
-	}
+        //return the position where this would be inserted
+        if (a[middle].key < p_val)
+            middle++;
+        return middle;
+    }
 
-	_FORCE_INLINE_ int _find_exact(const T &p_val) const {
+    _FORCE_INLINE_ int _find_exact(const T &p_val) const {
 
-		if (_cowdata.empty())
-			return -1;
+        if (_cowdata.empty())
+            return -1;
 
-		int low = 0;
-		int high = _cowdata.size() - 1;
-		int middle;
-		const Pair *a = _cowdata.ptr();
+        int low = 0;
+        int high = _cowdata.size() - 1;
+        int middle;
+        const Pair *a = _cowdata.ptr();
 
-		while (low <= high) {
-			middle = (low + high) / 2;
+        while (low <= high) {
+            middle = (low + high) / 2;
 
-			if (p_val < a[middle].key) {
-				high = middle - 1; //search low end of array
-			} else if (a[middle].key < p_val) {
-				low = middle + 1; //search high end of array
-			} else {
-				return middle;
-			}
-		}
+            if (p_val < a[middle].key) {
+                high = middle - 1; //search low end of array
+            } else if (a[middle].key < p_val) {
+                low = middle + 1; //search high end of array
+            } else {
+                return middle;
+            }
+        }
 
-		return -1;
-	}
+        return -1;
+    }
 
 public:
-	int insert(const T &p_key, const V &p_val) {
+    int insert(const T &p_key, const V &p_val) {
 
-		bool exact;
-		int pos = _find(p_key, exact);
-		if (exact) {
-			_cowdata.get_m(pos).value = p_val;
-			return pos;
-		}
-		_cowdata.insert(pos, Pair(p_key, p_val));
-		return pos;
-	}
+        bool exact;
+        int pos = _find(p_key, exact);
+        if (exact) {
+            _cowdata.get_m(pos).value = p_val;
+            return pos;
+        }
+        _cowdata.insert(pos, Pair(p_key, p_val));
+        return pos;
+    }
 
-	bool has(const T &p_val) const {
+    bool has(const T &p_val) const {
 
-		return _find_exact(p_val) != -1;
-	}
+        return _find_exact(p_val) != -1;
+    }
 
-	void erase(const T &p_val) {
+    void erase(const T &p_val) {
 
-		int pos = _find_exact(p_val);
-		if (pos < 0)
-			return;
-		_cowdata.remove(pos);
-	}
+        int pos = _find_exact(p_val);
+        if (pos < 0)
+            return;
+        _cowdata.remove(pos);
+    }
 
-	int find(const T &p_val) const {
+    int find(const T &p_val) const {
 
-		return _find_exact(p_val);
-	}
+        return _find_exact(p_val);
+    }
 
-	int find_nearest(const T &p_val) const {
+    int find_nearest(const T &p_val) const {
 
-		bool exact;
-		return _find(p_val, exact);
-	}
+        bool exact;
+        return _find(p_val, exact);
+    }
 
-	[[nodiscard]] _FORCE_INLINE_ int size() const { return _cowdata.size(); }
-	[[nodiscard]] _FORCE_INLINE_ bool empty() const { return _cowdata.empty(); }
+    [[nodiscard]] _FORCE_INLINE_ int size() const { return _cowdata.size(); }
+    [[nodiscard]] _FORCE_INLINE_ bool empty() const { return _cowdata.empty(); }
 
-	const Pair *get_array() const {
+    const Pair *get_array() const {
 
-		return _cowdata.ptr();
-	}
+        return _cowdata.ptr();
+    }
 
-	Pair *get_array() {
+    Pair *get_array() {
 
-		return _cowdata.ptrw();
-	}
+        return _cowdata.ptrw();
+    }
 
-	const V &getv(int p_index) const {
+    const V &getv(int p_index) const {
 
-		return _cowdata.get(p_index).value;
-	}
+        return _cowdata.get(p_index).value;
+    }
 
-	V &getv(int p_index) {
+    V &getv(int p_index) {
 
-		return _cowdata.get_m(p_index).value;
-	}
+        return _cowdata.get_m(p_index).value;
+    }
 
-	const T &getk(int p_index) const {
+    const T &getk(int p_index) const {
 
-		return _cowdata.get(p_index).key;
-	}
+        return _cowdata.get(p_index).key;
+    }
 
-	T &getk(int p_index) {
+    T &getk(int p_index) {
 
-		return _cowdata.get_m(p_index).key;
-	}
+        return _cowdata.get_m(p_index).key;
+    }
 
-	inline const V &operator[](const T &p_key) const {
+    inline const V &operator[](const T &p_key) const {
 
-		int pos = _find_exact(p_key);
+        int pos = _find_exact(p_key);
 
-		CRASH_COND(pos < 0)
+        CRASH_COND(pos < 0)
 
-		return _cowdata.get(pos).value;
-	}
+        return _cowdata.get(pos).value;
+    }
 
-	inline V &operator[](const T &p_key) {
+    inline V &operator[](const T &p_key) {
 
-		int pos = _find_exact(p_key);
-		if (pos < 0) {
-			V val;
-			pos = insert(p_key, val);
-		}
+        int pos = _find_exact(p_key);
+        if (pos < 0) {
+            V val;
+            pos = insert(p_key, val);
+        }
 
-		return _cowdata.get_m(pos).value;
-	}
+        return _cowdata.get_m(pos).value;
+    }
 
-	_FORCE_INLINE_ VMap() {}
-	_FORCE_INLINE_ VMap(const VMap &p_from) { _cowdata._ref(p_from._cowdata); }
-	inline VMap &operator=(const VMap &p_from) {
-		_cowdata._ref(p_from._cowdata);
-		return *this;
-	}
+    _FORCE_INLINE_ VMap() {}
+    _FORCE_INLINE_ VMap(const VMap &p_from) { _cowdata._ref(p_from._cowdata); }
+    inline VMap &operator=(const VMap &p_from) {
+        _cowdata._ref(p_from._cowdata);
+        return *this;
+    }
 };
-#endif // VMAP_H

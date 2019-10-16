@@ -791,7 +791,7 @@ static bool _guess_expression_type(GDScriptCompletionContext &p_context, const G
                                         native_type.kind = GDScriptParser::DataType::NATIVE;
                                         native_type.native_type = native_type.script_type->get_instance_base_type();
                                         if (!ClassDB::class_exists(native_type.native_type)) {
-                                            native_type.native_type = String("_") + native_type.native_type;
+                                            native_type.native_type = StringName(String("_") + native_type.native_type);
                                             if (!ClassDB::class_exists(native_type.native_type)) {
                                                 native_type.has_type = false;
                                             }
@@ -829,9 +829,10 @@ static bool _guess_expression_type(GDScriptCompletionContext &p_context, const G
                                         if (StringUtils::begins_with(arg1,"/root/")) {
                                             String which = StringUtils::get_slice(arg1,"/", 2);
                                             if (!which.empty()) {
+                                                StringName whichname(which);
                                                 // Try singletons first
-                                                if (GDScriptLanguage::get_singleton()->get_named_globals_map().contains(which)) {
-                                                    r_type = _type_from_variant(GDScriptLanguage::get_singleton()->get_named_globals_map().at(which));
+                                                if (GDScriptLanguage::get_singleton()->get_named_globals_map().contains(whichname)) {
+                                                    r_type = _type_from_variant(GDScriptLanguage::get_singleton()->get_named_globals_map().at(whichname));
                                                     found = true;
                                                 } else {
                                                     ListPOD<PropertyInfo> props;
@@ -839,7 +840,7 @@ static bool _guess_expression_type(GDScriptCompletionContext &p_context, const G
 
                                                     for(const PropertyInfo & E : props) {
 
-                                                        String s = E.name;
+                                                        StringName s = E.name;
                                                         if (!StringUtils::begins_with(s,"autoload/")) {
                                                             continue;
                                                         }
@@ -1355,7 +1356,7 @@ static bool _guess_identifier_type(GDScriptCompletionContext &p_context, const S
                 break;
             case 1:
                 // ClassDB again for underscore-prefixed classes
-                target_id = String("_") + p_identifier;
+                target_id = StringName(String("_") + p_identifier);
                 break;
         }
 
@@ -1490,7 +1491,7 @@ static bool _guess_identifier_type_from_base(GDScriptCompletionContext &p_contex
             case GDScriptParser::DataType::NATIVE: {
                 StringName class_name = base_type.native_type;
                 if (!ClassDB::class_exists(class_name)) {
-                    class_name = String("_") + class_name;
+                    class_name = StringName(String("_") + class_name);
                     if (!ClassDB::class_exists(class_name)) {
                         return false;
                     }
@@ -1676,7 +1677,7 @@ static bool _guess_method_return_type_from_base(GDScriptCompletionContext &p_con
             case GDScriptParser::DataType::NATIVE: {
                 StringName native = base_type.native_type;
                 if (!ClassDB::class_exists(native)) {
-                    native = String("_") + native;
+                    native = StringName(String("_") + native);
                     if (!ClassDB::class_exists(native)) {
                         return false;
                     }
@@ -1817,7 +1818,7 @@ static void _find_enumeration_candidates(const String p_enum_hint, Map<String, S
 
     if (StringUtils::find(p_enum_hint,".") == -1) {
         // Global constant
-        StringName current_enum = p_enum_hint;
+        StringName current_enum = StringName(p_enum_hint);
         for (int i = 0; i < GlobalConstants::get_global_constant_count(); i++) {
             if (GlobalConstants::get_global_constant_enum(i) == current_enum) {
                 ScriptCodeCompletionOption option(GlobalConstants::get_global_constant_name(i), ScriptCodeCompletionOption::KIND_ENUM);
@@ -1825,8 +1826,8 @@ static void _find_enumeration_candidates(const String p_enum_hint, Map<String, S
             }
         }
     } else {
-        String class_name = StringUtils::get_slice(p_enum_hint,".", 0);
-        String enum_name = StringUtils::get_slice(p_enum_hint,".", 1);
+        StringName class_name = StringName(StringUtils::get_slice(p_enum_hint,".", 0));
+        StringName enum_name = StringName(StringUtils::get_slice(p_enum_hint,".", 1));
 
         if (!ClassDB::class_exists(class_name)) {
             return;
@@ -1835,7 +1836,7 @@ static void _find_enumeration_candidates(const String p_enum_hint, Map<String, S
         ListPOD<StringName> enum_constants;
         ClassDB::get_enum_constants(class_name, enum_name, &enum_constants);
         for(const StringName & E : enum_constants) {
-            String candidate = class_name + "." + E;
+            String candidate = class_name.asString() + "." + E;
             ScriptCodeCompletionOption option(candidate, ScriptCodeCompletionOption::KIND_ENUM);
             r_result.emplace(option.display, option);
         }
@@ -2035,7 +2036,7 @@ static void _find_identifiers_in_base(const GDScriptCompletionContext &p_context
             case GDScriptParser::DataType::NATIVE: {
                 StringName type = base_type.native_type;
                 if (!ClassDB::class_exists(type)) {
-                    type = String("_") + type;
+                    type = StringName(String("_") + type);
                     if (!ClassDB::class_exists(type)) {
                         return;
                     }
@@ -2203,7 +2204,7 @@ static void _find_identifiers(const GDScriptCompletionContext &p_context, bool p
         if (!StringUtils::begins_with(s,"autoload/")) {
             continue;
         }
-        String path = ProjectSettings::get_singleton()->get(s);
+        String path = ProjectSettings::get_singleton()->get(StringName(s));
         if (StringUtils::begins_with(path,"*")) {
             ScriptCodeCompletionOption option(StringUtils::get_slice(s,"/", 1), ScriptCodeCompletionOption::KIND_CONSTANT);
             r_result.emplace(option.display, option);
@@ -2283,7 +2284,7 @@ static void _find_call_arguments(const GDScriptCompletionContext &p_context, con
             case GDScriptParser::DataType::NATIVE: {
                 StringName class_name = base_type.native_type;
                 if (!ClassDB::class_exists(class_name)) {
-                    class_name = String("_") + class_name;
+                    class_name = StringName(String("_") + class_name);
                     if (!ClassDB::class_exists(class_name)) {
                         base_type.has_type = false;
                         break;
@@ -2670,7 +2671,7 @@ Error GDScriptLanguage::complete_code(const String &p_code, const String &p_path
 
             StringName class_name = native_type.native_type;
             if (!ClassDB::class_exists(class_name)) {
-                class_name = String("_") + class_name;
+                class_name = StringName(String("_") + class_name);
                 if (!ClassDB::class_exists(class_name)) {
                     break;
                 }
@@ -2772,7 +2773,7 @@ Error GDScriptLanguage::complete_code(const String &p_code, const String &p_path
 
                         StringName class_name = base_type.native_type;
                         if (!ClassDB::class_exists(class_name)) {
-                            class_name = String("_") + class_name;
+                            class_name = StringName(String("_") + class_name);
                             if (!ClassDB::class_exists(class_name)) {
                                 break;
                             }
@@ -2878,7 +2879,7 @@ Error GDScriptLanguage::complete_code(const String &p_code, const String &p_path
         case GDScriptParser::COMPLETION_TYPE_HINT_INDEX: {
             GDScriptCompletionIdentifier base;
             String index = parser.get_completion_cursor().operator String();
-            if (!_guess_identifier_type(context, StringUtils::get_slice(index,".", 0), base)) {
+            if (!_guess_identifier_type(context, StringName(StringUtils::get_slice(index,".", 0)), base)) {
                 break;
             }
 
@@ -2892,7 +2893,7 @@ Error GDScriptLanguage::complete_code(const String &p_code, const String &p_path
                 String id = StringUtils::get_slice(index,".", 0);
 
                 GDScriptCompletionIdentifier sub_base;
-                if (!_guess_identifier_type_from_base(c, base, id, sub_base)) {
+                if (!_guess_identifier_type_from_base(c, base, StringName(id), sub_base)) {
                     finding = false;
                     break;
                 }
@@ -3070,35 +3071,35 @@ void GDScriptLanguage::auto_indent_code(String &p_code, int p_from_line, int p_t
 
 static Error _lookup_symbol_from_base(const GDScriptParser::DataType &p_base, const String &p_symbol, bool p_is_function, GDScriptLanguage::LookupResult &r_result) {
     GDScriptParser::DataType base_type = p_base;
-
+    StringName symbol_name(p_symbol);
     while (base_type.has_type) {
         switch (base_type.kind) {
             case GDScriptParser::DataType::CLASS: {
                 if (base_type.class_type) {
                     if (p_is_function) {
                         for (int i = 0; i < base_type.class_type->functions.size(); i++) {
-                            if (base_type.class_type->functions[i]->name == p_symbol) {
+                            if (base_type.class_type->functions[i]->name == symbol_name) {
                                 r_result.type = ScriptLanguage::LookupResult::RESULT_SCRIPT_LOCATION;
                                 r_result.location = base_type.class_type->functions[i]->line;
                                 return OK;
                             }
                         }
                         for (int i = 0; i < base_type.class_type->static_functions.size(); i++) {
-                            if (base_type.class_type->static_functions[i]->name == p_symbol) {
+                            if (base_type.class_type->static_functions[i]->name == symbol_name) {
                                 r_result.type = ScriptLanguage::LookupResult::RESULT_SCRIPT_LOCATION;
                                 r_result.location = base_type.class_type->static_functions[i]->line;
                                 return OK;
                             }
                         }
                     } else {
-                        if (base_type.class_type->constant_expressions.contains(p_symbol)) {
+                        if (base_type.class_type->constant_expressions.contains(symbol_name)) {
                             r_result.type = ScriptLanguage::LookupResult::RESULT_SCRIPT_LOCATION;
-                            r_result.location = base_type.class_type->constant_expressions[p_symbol].expression->line;
+                            r_result.location = base_type.class_type->constant_expressions[symbol_name].expression->line;
                             return OK;
                         }
 
                         for (int i = 0; i < base_type.class_type->variables.size(); i++) {
-                            if (base_type.class_type->variables[i].identifier == p_symbol) {
+                            if (base_type.class_type->variables[i].identifier == symbol_name) {
                                 r_result.type = ScriptLanguage::LookupResult::RESULT_SCRIPT_LOCATION;
                                 r_result.location = base_type.class_type->variables[i].line;
                                 return OK;
@@ -3112,7 +3113,7 @@ static Error _lookup_symbol_from_base(const GDScriptParser::DataType &p_base, co
             case GDScriptParser::DataType::GDSCRIPT: {
                 Ref<Script> scr = base_type.script_type;
                 if (scr) {
-                    int line = scr->get_member_line(p_symbol);
+                    int line = scr->get_member_line(symbol_name);
                     if (line >= 0) {
                         r_result.type = ScriptLanguage::LookupResult::RESULT_SCRIPT_LOCATION;
                         r_result.location = line;
@@ -3133,14 +3134,14 @@ static Error _lookup_symbol_from_base(const GDScriptParser::DataType &p_base, co
             case GDScriptParser::DataType::NATIVE: {
                 StringName class_name = base_type.native_type;
                 if (!ClassDB::class_exists(class_name)) {
-                    class_name = String("_") + class_name;
+                    class_name = StringName(String("_") + class_name);
                     if (!ClassDB::class_exists(class_name)) {
                         base_type.has_type = false;
                         break;
                     }
                 }
 
-                if (ClassDB::has_method(class_name, p_symbol, true)) {
+                if (ClassDB::has_method(class_name, symbol_name, true)) {
                     r_result.type = ScriptLanguage::LookupResult::RESULT_CLASS_METHOD;
                     r_result.class_name = base_type.native_type;
                     r_result.class_member = p_symbol;
@@ -3150,7 +3151,7 @@ static Error _lookup_symbol_from_base(const GDScriptParser::DataType &p_base, co
                 PODVector<MethodInfo> virtual_methods;
                 ClassDB::get_virtual_methods(class_name, &virtual_methods, true);
                 for(const MethodInfo & E : virtual_methods) {
-                    if (E.name == p_symbol) {
+                    if (E.name == symbol_name) {
                         r_result.type = ScriptLanguage::LookupResult::RESULT_CLASS_METHOD;
                         r_result.class_name = base_type.native_type;
                         r_result.class_member = p_symbol;
@@ -3158,7 +3159,7 @@ static Error _lookup_symbol_from_base(const GDScriptParser::DataType &p_base, co
                     }
                 }
 
-                StringName enum_name = ClassDB::get_integer_constant_enum(class_name, p_symbol, true);
+                StringName enum_name = ClassDB::get_integer_constant_enum(class_name, symbol_name, true);
                 if (enum_name != StringName()) {
                     r_result.type = ScriptLanguage::LookupResult::RESULT_CLASS_ENUM;
                     r_result.class_name = base_type.native_type;
@@ -3180,7 +3181,7 @@ static Error _lookup_symbol_from_base(const GDScriptParser::DataType &p_base, co
                 ListPOD<PropertyInfo> properties;
                 ClassDB::get_property_list(class_name, &properties, true);
                 for(const PropertyInfo & E : properties) {
-                    if (E.name == p_symbol) {
+                    if (E.name == symbol_name) {
                         r_result.type = ScriptLanguage::LookupResult::RESULT_CLASS_PROPERTY;
                         r_result.class_name = base_type.native_type;
                         r_result.class_member = p_symbol;
@@ -3191,7 +3192,7 @@ static Error _lookup_symbol_from_base(const GDScriptParser::DataType &p_base, co
                 StringName parent = ClassDB::get_parent_class(class_name);
                 if (parent != StringName()) {
                     if (StringUtils::begins_with(String(parent),"_")) {
-                        base_type.native_type = StringUtils::right(parent,1);
+                        base_type.native_type = StringName(StringUtils::right(parent,1));
                     } else {
                         base_type.native_type = parent;
                     }
@@ -3202,7 +3203,7 @@ static Error _lookup_symbol_from_base(const GDScriptParser::DataType &p_base, co
             case GDScriptParser::DataType::BUILTIN: {
                 base_type.has_type = false;
 
-                if (Variant::has_constant(base_type.builtin_type, p_symbol)) {
+                if (Variant::has_constant(base_type.builtin_type, symbol_name)) {
                     r_result.type = ScriptLanguage::LookupResult::RESULT_CLASS_CONSTANT;
                     r_result.class_name = Variant::get_type_name(base_type.builtin_type);
                     r_result.class_member = p_symbol;
@@ -3222,7 +3223,7 @@ static Error _lookup_symbol_from_base(const GDScriptParser::DataType &p_base, co
                     }
                 }
 
-                if (v.has_method(p_symbol)) {
+                if (v.has_method(symbol_name)) {
                     r_result.type = ScriptLanguage::LookupResult::RESULT_CLASS_METHOD;
                     r_result.class_name = Variant::get_type_name(base_type.builtin_type);
                     r_result.class_member = p_symbol;
@@ -3250,14 +3251,16 @@ static Error _lookup_symbol_from_base(const GDScriptParser::DataType &p_base, co
 Error GDScriptLanguage::lookup_code(const String &p_code, const String &p_symbol, const String &p_path, Object *p_owner, LookupResult &r_result) {
 
 #if defined(DEBUG_METHODS_ENABLED) && defined(TOOLS_ENABLED)
+    StringName symbol_name(p_symbol);
+
     //before parsing, try the usual stuff
-    if (ClassDB::class_exists(p_symbol)) {
+    if (ClassDB::class_exists(symbol_name)) {
         r_result.type = ScriptLanguage::LookupResult::RESULT_CLASS;
         r_result.class_name = p_symbol;
         return OK;
     } else {
         String under_prefix = "_" + p_symbol;
-        if (ClassDB::class_exists(under_prefix)) {
+        if (ClassDB::class_exists(StringName(under_prefix))) {
             r_result.type = ScriptLanguage::LookupResult::RESULT_CLASS;
             r_result.class_name = p_symbol;
             return OK;
@@ -3306,7 +3309,7 @@ Error GDScriptLanguage::lookup_code(const String &p_code, const String &p_symbol
 
     if (context._class && !context._class->extends_class.empty()) {
         bool success = false;
-        ClassDB::get_integer_constant(context._class->extends_class[0], p_symbol, &success);
+        ClassDB::get_integer_constant(context._class->extends_class[0], symbol_name, &success);
         if (success) {
             r_result.type = ScriptLanguage::LookupResult::RESULT_CLASS_CONSTANT;
             r_result.class_name = context._class->extends_class[0];
@@ -3351,9 +3354,9 @@ Error GDScriptLanguage::lookup_code(const String &p_code, const String &p_symbol
                 // Lookup local variables
                 const GDScriptParser::BlockNode *block = context.block;
                 while (block) {
-                    if (block->variables.contains(p_symbol)) {
+                    if (block->variables.contains(symbol_name)) {
                         r_result.type = ScriptLanguage::LookupResult::RESULT_SCRIPT_LOCATION;
-                        r_result.location = block->variables.at(p_symbol)->line;
+                        r_result.location = block->variables.at(symbol_name)->line;
                         return OK;
                     }
                     block = block->parent_block;
@@ -3363,7 +3366,7 @@ Error GDScriptLanguage::lookup_code(const String &p_code, const String &p_symbol
             if (context.function && context.function->name != StringName()) {
                 // Lookup function arguments
                 for (int i = 0; i < context.function->arguments.size(); i++) {
-                    if (context.function->arguments[i] == p_symbol) {
+                    if (context.function->arguments[i] == symbol_name) {
                         r_result.type = ScriptLanguage::LookupResult::RESULT_SCRIPT_LOCATION;
                         r_result.location = context.function->line;
                         return OK;
@@ -3382,11 +3385,11 @@ Error GDScriptLanguage::lookup_code(const String &p_code, const String &p_symbol
 
                 for(const PropertyInfo & E : props) {
 
-                    String s = E.name;
+                    StringName s = E.name;
                     if (!StringUtils::begins_with(s,"autoload/"))
                         continue;
                     String name = StringUtils::get_slice(s,"/", 1);
-                    if (name == String(p_symbol)) {
+                    if (name == p_symbol) {
 
                         String path = ProjectSettings::get_singleton()->get(s);
                         if (StringUtils::begins_with(path,"*")) {
@@ -3411,8 +3414,8 @@ Error GDScriptLanguage::lookup_code(const String &p_code, const String &p_symbol
 
                 // Global
                 Map<StringName, int> classes = GDScriptLanguage::get_singleton()->get_global_map();
-                if (classes.contains(p_symbol)) {
-                    Variant value = GDScriptLanguage::get_singleton()->get_global_array()[classes[p_symbol]];
+                if (classes.contains(symbol_name)) {
+                    Variant value = GDScriptLanguage::get_singleton()->get_global_array()[classes[symbol_name]];
                     if (value.get_type() == VariantType::OBJECT) {
                         Object *obj = value;
                         if (obj) {

@@ -34,6 +34,7 @@
 #include "scene/scene_string_names.h"
 #include "scene/main/scene_tree.h"
 #include "core/method_bind.h"
+#include "core/translation_helpers.h"
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_scale.h"

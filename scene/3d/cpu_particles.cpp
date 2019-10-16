@@ -38,6 +38,7 @@
 #include "servers/visual_server.h"
 #include "core/method_bind.h"
 #include "core/os/mutex.h"
+#include "core/translation_helpers.h"
 
 IMPL_GDCLASS(CPUParticles)
 VARIANT_ENUM_CAST(CPUParticles::DrawOrder)

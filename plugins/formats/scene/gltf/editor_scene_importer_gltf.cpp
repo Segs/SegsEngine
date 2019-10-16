@@ -2265,7 +2265,7 @@ Error EditorSceneImporterGLTF::_parse_cameras(GLTFState &state) {
                 camera.fov_size = 10;
             }
         } else {
-            ERR_FAIL_V_CMSG(ERR_PARSE_ERROR, "Camera should be in 'orthographic' or 'perspective'")
+            ERR_FAIL_V_MSG(ERR_PARSE_ERROR, "Camera should be in 'orthographic' or 'perspective'")
         }
 
         state.cameras.push_back(camera);

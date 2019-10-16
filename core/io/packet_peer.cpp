@@ -101,9 +101,9 @@ Error PacketPeer::put_var(const Variant &p_packet, bool p_full_objects) {
         return OK;
 
     uint8_t *buf = (uint8_t *)alloca(len);
-    ERR_FAIL_COND_V_CMSG(!buf, ERR_OUT_OF_MEMORY, "Out of memory.")
+    ERR_FAIL_COND_V_MSG(!buf, ERR_OUT_OF_MEMORY, "Out of memory.")
     err = encode_variant(p_packet, buf, len, p_full_objects || allow_object_decoding);
-    ERR_FAIL_COND_V_CMSG(err != OK, err, "Error when trying to encode Variant.")
+    ERR_FAIL_COND_V_MSG(err != OK, err, "Error when trying to encode Variant.")
 
     return put_packet(buf, len);
 }

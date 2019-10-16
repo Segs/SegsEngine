@@ -218,7 +218,7 @@ private:
 
 	StringName base_type;
 	struct Argument {
-		String name;
+        StringName name;
 		VariantType type;
 	};
 
@@ -320,10 +320,10 @@ public:
 
 	void add_custom_signal(const StringName &p_name);
 	bool has_custom_signal(const StringName &p_name) const;
-	void custom_signal_add_argument(const StringName &p_func, VariantType p_type, const String &p_name, int p_index = -1);
+    void custom_signal_add_argument(const StringName &p_func, VariantType p_type, const StringName &p_name, int p_index = -1);
 	void custom_signal_set_argument_type(const StringName &p_func, int p_argidx, VariantType p_type);
 	VariantType custom_signal_get_argument_type(const StringName &p_func, int p_argidx) const;
-	void custom_signal_set_argument_name(const StringName &p_func, int p_argidx, const String &p_name);
+    void custom_signal_set_argument_name(const StringName &p_func, int p_argidx, const StringName &p_name);
 	String custom_signal_get_argument_name(const StringName &p_func, int p_argidx) const;
 	void custom_signal_remove_argument(const StringName &p_func, int p_argidx);
 	int custom_signal_get_argument_count(const StringName &p_func) const;

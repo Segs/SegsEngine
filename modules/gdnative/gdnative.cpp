@@ -129,7 +129,7 @@ void GDNativeLibrary::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
         PropertyInfo prop;
 
         prop.type = VariantType::STRING;
-        prop.name = "entry/" + key;
+        prop.name = StringName("entry/" + key);
 
         p_list->push_back(prop);
     }
@@ -146,7 +146,7 @@ void GDNativeLibrary::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
         PropertyInfo prop;
 
         prop.type = VariantType::STRING;
-        prop.name = "dependency/" + key;
+        prop.name = StringName("dependency/" + key);
 
         p_list->push_back(prop);
     }
@@ -337,14 +337,14 @@ bool GDNative::initialize() {
     // we cheat here a little bit. you saw nothing
     initialized = true;
 
-    err = get_symbol(library->get_symbol_prefix() + init_symbol, library_init, false);
+    err = get_symbol(StringName(library->get_symbol_prefix() + init_symbol), library_init, false);
 
     initialized = false;
 
     if (err || !library_init) {
         OS::get_singleton()->close_dynamic_library(native_handle);
         native_handle = nullptr;
-        ERR_PRINTS("Failed to obtain " + library->get_symbol_prefix() + "gdnative_init symbol")
+        ERR_PRINT("Failed to obtain " + library->get_symbol_prefix() + "gdnative_init symbol")
         return false;
     }
 
@@ -410,7 +410,7 @@ bool GDNative::terminate() {
     }
 
     void *library_terminate;
-    Error error = get_symbol(library->get_symbol_prefix() + terminate_symbol, library_terminate);
+    Error error = get_symbol(StringName(library->get_symbol_prefix() + terminate_symbol), library_terminate);
     if (error || !library_terminate) {
         OS::get_singleton()->close_dynamic_library(native_handle);
         native_handle = nullptr;

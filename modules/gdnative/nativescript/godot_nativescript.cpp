@@ -154,7 +154,7 @@ void GDAPI godot_nativescript_register_signal(void *p_gdnative_handle, const cha
 
         info.hint = (PropertyHint)arg.hint;
         info.hint_string = *(String *)&arg.hint_string;
-        info.name = *(String *)&arg.name;
+        info.name = StringName(*(String *)&arg.name);
         info.type = (VariantType)arg.type;
         info.usage = (PropertyUsageFlags)arg.usage;
 
@@ -172,14 +172,14 @@ void GDAPI godot_nativescript_register_signal(void *p_gdnative_handle, const cha
     }
 
     MethodInfo method_info;
-    method_info.name = *(String *)&p_signal->name;
+    method_info.name = StringName(*(String *)&p_signal->name);
     method_info.arguments = std::move(args);
     method_info.default_arguments = std::move(default_args);
 
     NativeScriptDesc::Signal signal;
     signal.signal = method_info;
 
-    E->second.signals_.emplace(*(String *)&p_signal->name, signal);
+    E->second.signals_.emplace(StringName(*(String *)&p_signal->name), signal);
 }
 
 void GDAPI *godot_nativescript_get_userdata(godot_object *p_instance) {

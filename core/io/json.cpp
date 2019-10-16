@@ -32,6 +32,8 @@
 
 #include "core/print_string.h"
 #include "core/list.h"
+#include "core/dictionary.h"
+
 
 const char *JSON::tk_name[TK_MAX] = {
     "'{'",

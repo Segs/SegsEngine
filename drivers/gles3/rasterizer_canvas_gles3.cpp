@@ -35,10 +35,6 @@
 #include "rasterizer_scene_gles3.h"
 #include "servers/visual/visual_server_raster.h"
 
-#ifndef GLES_OVER_GL
-#define glClearDepth glClearDepthf
-#endif
-
 static _FORCE_INLINE_ void store_transform2d(const Transform2D &p_mtx, float *p_array) {
 
 	p_array[0] = p_mtx.elements[0][0];
@@ -552,17 +548,13 @@ void RasterizerCanvasGLES3::_canvas_item_render_commands(Item *p_item, Item *cur
 						Vector2(line->to.x, line->to.y)
 					};
 
-#ifdef GLES_OVER_GL
 					if (line->antialiased)
 						glEnable(GL_LINE_SMOOTH);
-#endif
 					//glLineWidth(line->width);
 					_draw_gui_primitive(2, verts, nullptr, nullptr);
 
-#ifdef GLES_OVER_GL
 					if (line->antialiased)
 						glDisable(GL_LINE_SMOOTH);
-#endif
 				} else {
 					//thicker line
 
@@ -577,7 +569,6 @@ void RasterizerCanvasGLES3::_canvas_item_render_commands(Item *p_item, Item *cur
 
 					//glLineWidth(line->width);
 					_draw_gui_primitive(4, verts, nullptr, nullptr);
-#ifdef GLES_OVER_GL
 					if (line->antialiased) {
 						glEnable(GL_LINE_SMOOTH);
 						for (int j = 0; j < 4; j++) {
@@ -589,7 +580,6 @@ void RasterizerCanvasGLES3::_canvas_item_render_commands(Item *p_item, Item *cur
 						}
 						glDisable(GL_LINE_SMOOTH);
 					}
-#endif
 				}
 
 			} break;
@@ -603,7 +593,6 @@ void RasterizerCanvasGLES3::_canvas_item_render_commands(Item *p_item, Item *cur
 				if (!pline->triangles.empty()) {
 
 					_draw_generic(GL_TRIANGLE_STRIP, pline->triangles.size(), pline->triangles.ptr(), nullptr, pline->triangle_colors.ptr(), pline->triangle_colors.size() == 1);
-#ifdef GLES_OVER_GL
 					glEnable(GL_LINE_SMOOTH);
 					if (pline->multiline) {
 						//needs to be different
@@ -611,13 +600,10 @@ void RasterizerCanvasGLES3::_canvas_item_render_commands(Item *p_item, Item *cur
 						_draw_generic(GL_LINE_LOOP, pline->lines.size(), pline->lines.ptr(), nullptr, pline->line_colors.ptr(), pline->line_colors.size() == 1);
 					}
 					glDisable(GL_LINE_SMOOTH);
-#endif
 				} else {
 
-#ifdef GLES_OVER_GL
 					if (pline->antialiased)
 						glEnable(GL_LINE_SMOOTH);
-#endif
 
 					if (pline->multiline) {
 						int todo = pline->lines.size() / 2;
@@ -636,10 +622,8 @@ void RasterizerCanvasGLES3::_canvas_item_render_commands(Item *p_item, Item *cur
 						_draw_generic(GL_LINE_STRIP, pline->lines.size(), pline->lines.ptr(), nullptr, pline->line_colors.ptr(), pline->line_colors.size() == 1);
 					}
 
-#ifdef GLES_OVER_GL
 					if (pline->antialiased)
 						glDisable(GL_LINE_SMOOTH);
-#endif
 				}
 
 			} break;
@@ -799,18 +783,17 @@ void RasterizerCanvasGLES3::_canvas_item_render_commands(Item *p_item, Item *cur
 				RasterizerStorageGLES3::Texture *texture = _bind_canvas_texture(polygon->texture, polygon->normal_map);
 
 				if (texture) {
-					Size2 texpixel_size(1.0 / texture->width, 1.0 / texture->height);
+                    Size2 texpixel_size(1.0f / texture->width, 1.0f / texture->height);
 					state.canvas_shader.set_uniform(CanvasShaderGLES3::COLOR_TEXPIXEL_SIZE, texpixel_size);
 				}
 
 				_draw_polygon(polygon->indices.ptr(), polygon->count, polygon->points.size(), polygon->points.ptr(), polygon->uvs.ptr(), polygon->colors.ptr(), polygon->colors.size() == 1, polygon->bones.ptr(), polygon->weights.ptr());
-#ifdef GLES_OVER_GL
+
 				if (polygon->antialiased) {
 					glEnable(GL_LINE_SMOOTH);
 					_draw_generic(GL_LINE_LOOP, polygon->points.size(), polygon->points.ptr(), polygon->uvs.ptr(), polygon->colors.ptr(), polygon->colors.size() == 1);
 					glDisable(GL_LINE_SMOOTH);
 				}
-#endif
 
 			} break;
 			case Item::Command::TYPE_MESH: {

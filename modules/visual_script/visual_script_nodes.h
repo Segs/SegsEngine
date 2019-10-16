@@ -39,7 +39,7 @@ class VisualScriptFunction : public VisualScriptNode {
 
 
     struct Argument {
-        String name;
+        StringName name;
         VariantType type;
         PropertyHint hint;
         String hint_string;
@@ -73,11 +73,11 @@ public:
     String get_text() const override;
     String get_category() const override { return "flow_control"; }
 
-    void add_argument(VariantType p_type, const String &p_name, int p_index = -1, const PropertyHint p_hint = PROPERTY_HINT_NONE, const String &p_hint_string = String(""));
+    void add_argument(VariantType p_type, const StringName &p_name, int p_index = -1, const PropertyHint p_hint = PROPERTY_HINT_NONE, const String &p_hint_string = String(""));
     void set_argument_type(int p_argidx, VariantType p_type);
     VariantType get_argument_type(int p_argidx) const;
-    void set_argument_name(int p_argidx, const String &p_name);
-    String get_argument_name(int p_argidx) const;
+    void set_argument_name(int p_argidx, const StringName &p_name);
+    StringName get_argument_name(int p_argidx) const;
     void remove_argument(int p_argidx);
     int get_argument_count() const;
 
@@ -109,7 +109,7 @@ class VisualScriptLists : public VisualScriptNode {
     GDCLASS(VisualScriptLists, VisualScriptNode)
 
     struct Port {
-        String name;
+        StringName name;
         VariantType type;
     };
 
@@ -160,14 +160,14 @@ public:
     String get_text() const override = 0;
     String get_category() const override = 0;
 
-    void add_input_data_port(VariantType p_type, const String &p_name, int p_index = -1);
+    void add_input_data_port(VariantType p_type, const StringName &p_name, int p_index = -1);
     void set_input_data_port_type(int p_idx, VariantType p_type);
-    void set_input_data_port_name(int p_idx, const String &p_name);
+    void set_input_data_port_name(int p_idx, const StringName &p_name);
     void remove_input_data_port(int p_argidx);
 
-    void add_output_data_port(VariantType p_type, const String &p_name, int p_index = -1);
+    void add_output_data_port(VariantType p_type, const StringName &p_name, int p_index = -1);
     void set_output_data_port_type(int p_idx, VariantType p_type);
-    void set_output_data_port_name(int p_idx, const String &p_name);
+    void set_output_data_port_name(int p_idx, const StringName &p_name);
     void remove_output_data_port(int p_argidx);
 
     void set_sequenced(bool p_enable);

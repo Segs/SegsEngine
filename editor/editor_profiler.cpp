@@ -32,6 +32,7 @@
 
 #include "core/method_bind.h"
 #include "core/os/os.h"
+#include "core/translation_helpers.h"
 #include "editor_scale.h"
 #include "editor_settings.h"
 

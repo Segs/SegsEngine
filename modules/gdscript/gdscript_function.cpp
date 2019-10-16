@@ -91,7 +91,7 @@ Variant *GDScriptFunction::_get_variant(int p_address, GDScriptInstance *p_insta
                 o = o->_owner;
             }
 
-            ERR_FAIL_V_CMSG(nullptr, "GDScriptCompiler bug.")
+            ERR_FAIL_V_MSG(nullptr, "GDScriptCompiler bug.")
         }
         case ADDR_TYPE_LOCAL_CONSTANT: {
 #ifdef DEBUG_ENABLED
@@ -132,7 +132,7 @@ Variant *GDScriptFunction::_get_variant(int p_address, GDScriptInstance *p_insta
         }
     }
 
-    ERR_FAIL_V_CMSG(nullptr, "Bad code! (unknown addressing mode).")
+    ERR_FAIL_V_MSG(nullptr, "Bad code! (unknown addressing mode).")
     return nullptr;
 }
 
@@ -1298,7 +1298,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 #endif
 
                     Object *obj = argobj->operator Object *();
-                    String signal = argname->operator String();
+                    StringName signal = argname->as<StringName>();
 
 #ifdef DEBUG_ENABLED
                     if (!obj) {
@@ -1311,7 +1311,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
                             OPCODE_BREAK;
                         }
                     }
-                    if (signal.length() == 0) {
+                    if (signal.empty()) {
 
                         err_text = "Second argument of yield() is an empty string (for signal name).";
                         OPCODE_BREAK;
@@ -1319,11 +1319,11 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 
                     Error err = obj->connect(signal, gdfs.get(), "_signal_callback", varray(gdfs), ObjectNS::CONNECT_ONESHOT);
                     if (err != OK) {
-                        err_text = "Error connecting to signal: " + signal + " during yield().";
+                        err_text = "Error connecting to signal: " + signal.asString() + " during yield().";
                         OPCODE_BREAK;
                     }
 #else
-                    obj->connect(signal, gdfs.ptr(), "_signal_callback", varray(gdfs), ObjectNS::CONNECT_ONESHOT);
+                    obj->connect(signal, gdfs.get(), "_signal_callback", varray(gdfs), ObjectNS::CONNECT_ONESHOT);
 #endif
                 }
 
@@ -1575,7 +1575,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
             err_file = "<built-in>";
         String err_func = name;
         if (p_instance && p_instance->script->is_valid() && !p_instance->script->name.empty())
-            err_func = p_instance->script->name + "." + err_func;
+            err_func = p_instance->script->name.asString() + "." + err_func;
         int err_line = line;
         if (err_text.empty()) {
             err_text = "Internal Script Error! - opcode #" + itos(last_opcode) + " (report please).";
@@ -1940,7 +1940,7 @@ bool GDScriptDataType::is_type(const Variant &p_variant, bool p_allow_implicit_c
         if (obj) {
             if (!ClassDB::is_parent_class(obj->get_class_name(), native_type)) {
                 // Try with underscore prefix
-                StringName underscore_native_type = "_" + native_type;
+                StringName underscore_native_type = StringName("_" + native_type);
                 if (!ClassDB::is_parent_class(obj->get_class_name(), underscore_native_type)) {
                     return false;
                 }

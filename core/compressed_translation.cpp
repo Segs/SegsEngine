@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "compressed_translation.h"
+
 #include "core/method_bind.h"
 #include "core/pair.h"
 
@@ -258,20 +259,19 @@ StringName PHashTranslation::get_message(const StringName &p_src_text) const {
         return StringName();
     }
 
+    String rstr;
     if (bucket.elem[idx].comp_size == bucket.elem[idx].uncomp_size) {
 
-        String rstr;
         StringUtils::parse_utf8(rstr,&sptr[bucket.elem[idx].str_offset], bucket.elem[idx].uncomp_size);
 
-        return rstr;
     } else {
 
         CharString uncomp;
         uncomp.resize(bucket.elem[idx].uncomp_size + 1);
         smaz_decompress(&sptr[bucket.elem[idx].str_offset], bucket.elem[idx].comp_size, uncomp.data(), bucket.elem[idx].uncomp_size);
-        String rstr = StringUtils::from_utf8(uncomp.data());
-        return rstr;
+        rstr = StringUtils::from_utf8(uncomp.data());
     }
+    return StringName(rstr);
 }
 
 void PHashTranslation::_get_property_list(ListPOD<PropertyInfo> *p_list) const {

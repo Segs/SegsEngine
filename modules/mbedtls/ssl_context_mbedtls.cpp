@@ -45,7 +45,7 @@ static void my_debug(void *ctx, int level,
 }
 
 Error SSLContextMbedTLS::_setup(int p_endpoint, int p_transport, int p_authmode) {
-    ERR_FAIL_COND_V_CMSG(inited, ERR_ALREADY_IN_USE, "This SSL context is already active")
+    ERR_FAIL_COND_V_MSG(inited, ERR_ALREADY_IN_USE, "This SSL context is already active")
 
     mbedtls_ssl_init(&ssl);
     mbedtls_ssl_config_init(&conf);
@@ -114,7 +114,7 @@ Error SSLContextMbedTLS::init_client(int p_transport, int p_authmode, Ref<X509Ce
         cas = CryptoMbedTLS::get_default_certificates();
         if (cas == nullptr) {
         clear();
-        ERR_FAIL_V_CMSG(ERR_UNCONFIGURED, "SSL module failed to initialize!")
+        ERR_FAIL_V_MSG(ERR_UNCONFIGURED, "SSL module failed to initialize!")
         }
 
     }

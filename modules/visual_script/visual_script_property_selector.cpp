@@ -33,6 +33,7 @@
 #include "core/method_bind.h"
 #include "core/object_db.h"
 #include "core/os/keyboard.h"
+#include "core/translation_helpers.h"
 #include "editor/editor_node.h"
 #include "editor_scale.h"
 #include "modules/visual_script/visual_script.h"
@@ -92,7 +93,7 @@ void VisualScriptPropertySelector::_update_search() {
 
     TreeItem *root = search_options->create_item();
     bool found = false;
-    StringName base = base_type;
+    StringName base(base_type);
     PODVector<StringName> base_list;
     while (base) {
         base_list.push_back(base);
@@ -236,7 +237,7 @@ void VisualScriptPropertySelector::_update_search() {
                         desc_arguments += "var";
                     } else if (StringUtils::find(pi.name,":") != -1) {
                         desc_arguments += StringUtils::get_slice(pi.name,":", 1);
-                        pi.name = StringUtils::get_slice(pi.name,":", 0);
+                        pi.name = StringName(StringUtils::get_slice(pi.name,":", 0));
                     } else {
                         desc_arguments += Variant::get_type_name(pi.type);
                     }
@@ -456,7 +457,7 @@ void VisualScriptPropertySelector::_item_selected() {
             }
         }
 
-        at_class = ClassDB::get_parent_class_nocheck(at_class);
+        at_class = ClassDB::get_parent_class_nocheck(StringName(at_class));
     }
     at_class = class_type;
 
@@ -471,7 +472,7 @@ void VisualScriptPropertySelector::_item_selected() {
             }
         }
 
-        at_class = ClassDB::get_parent_class_nocheck(at_class);
+        at_class = ClassDB::get_parent_class_nocheck(StringName(at_class));
     }
     Map<String, DocData::ClassDoc>::iterator T = dd->class_list.find(class_type);
     if (T!=dd->class_list.end()) {

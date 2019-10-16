@@ -78,8 +78,8 @@ namespace  {
             Error err;
             Ref<ImageTexture> texture(dynamic_ref_cast<ImageTexture>(p_resource));
 
-            ERR_FAIL_COND_V_CMSG(not texture, ERR_INVALID_PARAMETER, "Can't save invalid texture as PNG.")
-            ERR_FAIL_COND_V_CMSG(!texture->get_width(), ERR_INVALID_PARAMETER, "Can't save empty texture as PNG.")
+            ERR_FAIL_COND_V_MSG(not texture, ERR_INVALID_PARAMETER, "Can't save invalid texture as PNG.")
+            ERR_FAIL_COND_V_MSG(!texture->get_width(), ERR_INVALID_PARAMETER, "Can't save empty texture as PNG.")
 
             Ref<Image> img(texture->get_data());
             FileAccess *file = FileAccess::open(p_path, FileAccess::WRITE, &err);
@@ -1357,6 +1357,8 @@ void MeshTexture::_bind_methods() {
 MeshTexture::MeshTexture() {
 }
 
+MeshTexture::~MeshTexture() {
+}
 //////////////////////////////////////////
 
 int LargeTexture::get_width() const {
@@ -2442,7 +2444,7 @@ RES ResourceFormatLoaderTextureLayered::load(const String &p_path, const String 
         texarr = make_ref_counted<TextureArray>();
         lt = texarr;
     } else {
-        ERR_FAIL_V_CMSG(RES(), "Unrecognized layered texture extension.")
+        ERR_FAIL_V_MSG(RES(), "Unrecognized layered texture extension.")
     }
 
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ);

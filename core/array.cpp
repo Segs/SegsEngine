@@ -35,6 +35,62 @@
 #include "core/variant.h"
 #include "core/vector.h"
 
+namespace {
+struct _ArrayVariantSortCustom {
+
+    Object *obj;
+    StringName func;
+
+    bool operator()(const Variant &p_l, const Variant &p_r) const {
+
+        const Variant *args[2] = { &p_l, &p_r };
+        Variant::CallError err;
+        bool res = obj->call(func, args, 2, err).as<bool>();
+        if (err.error != Variant::CallError::CALL_OK)
+            res = false;
+        return res;
+    }
+};
+struct _ArrayVariantSort {
+
+    bool operator()(const Variant &p_l, const Variant &p_r) const {
+        bool valid = false;
+        Variant res;
+        Variant::evaluate(Variant::OP_LESS, p_l, p_r, res, valid);
+        if (!valid)
+            res = false;
+        return res.as<bool>();
+    }
+};
+template <typename Less>
+_FORCE_INLINE_ int bisect(const Variant *p_array,int size, const Variant &p_value, bool p_before, const Less &p_less) {
+
+    int lo = 0;
+    int hi = size;
+    if (p_before) {
+        while (lo < hi) {
+            const int mid = (lo + hi) / 2;
+            if (p_less(p_array[mid], p_value)) {
+                lo = mid + 1;
+            } else {
+                hi = mid;
+            }
+        }
+    } else {
+        while (lo < hi) {
+            const int mid = (lo + hi) / 2;
+            if (p_less(p_value, p_array[mid])) {
+                hi = mid;
+            } else {
+                lo = mid + 1;
+            }
+        }
+    }
+    return lo;
+}
+
+} // end of anonymous namespace
+
 class ArrayPrivate {
 public:
     SafeRefCount refcount;
@@ -133,12 +189,12 @@ void Array::erase(const Variant &p_value) {
 }
 
 Variant Array::front() const {
-    ERR_FAIL_COND_V_CMSG(_p->array.empty(), Variant(), "Can't take value from empty array.")
+    ERR_FAIL_COND_V_MSG(_p->array.empty(), Variant(), "Can't take value from empty array.")
     return operator[](0);
 }
 
 Variant Array::back() const {
-    ERR_FAIL_COND_V_CMSG(_p->array.empty(), Variant(), "Can't take value from empty array.")
+    ERR_FAIL_COND_V_MSG(_p->array.empty(), Variant(), "Can't take value from empty array.")
     return operator[](_p->array.size() - 1);
 }
 
@@ -280,17 +336,6 @@ Array Array::slice(int p_begin, int p_end, int p_step, bool p_deep) const { // l
 
     return new_arr;
 }
-struct _ArrayVariantSort {
-
-    _FORCE_INLINE_ bool operator()(const Variant &p_l, const Variant &p_r) const {
-        bool valid = false;
-        Variant res;
-        Variant::evaluate(Variant::OP_LESS, p_l, p_r, res, valid);
-        if (!valid)
-            res = false;
-        return res.as<bool>();
-    }
-};
 
 Array &Array::sort() {
 
@@ -298,21 +343,6 @@ Array &Array::sort() {
     return *this;
 }
 
-struct _ArrayVariantSortCustom {
-
-    Object *obj;
-    StringName func;
-
-    _FORCE_INLINE_ bool operator()(const Variant &p_l, const Variant &p_r) const {
-
-        const Variant *args[2] = { &p_l, &p_r };
-        Variant::CallError err;
-        bool res = obj->call(func, args, 2, err).as<bool>();
-        if (err.error != Variant::CallError::CALL_OK)
-            res = false;
-        return res;
-    }
-};
 Array &Array::sort_custom(Object *p_obj, const StringName &p_function) {
 
     ERR_FAIL_NULL_V(p_obj, *this)
@@ -338,36 +368,9 @@ void Array::shuffle() {
     }
 }
 
-template <typename Less>
-_FORCE_INLINE_ int bisect(const Vector<Variant> &p_array, const Variant &p_value, bool p_before, const Less &p_less) {
-
-    int lo = 0;
-    int hi = p_array.size();
-    if (p_before) {
-        while (lo < hi) {
-            const int mid = (lo + hi) / 2;
-            if (p_less(p_array.get(mid), p_value)) {
-                lo = mid + 1;
-            } else {
-                hi = mid;
-            }
-        }
-    } else {
-        while (lo < hi) {
-            const int mid = (lo + hi) / 2;
-            if (p_less(p_value, p_array.get(mid))) {
-                hi = mid;
-            } else {
-                lo = mid + 1;
-            }
-        }
-    }
-    return lo;
-}
-
 int Array::bsearch(const Variant &p_value, bool p_before) {
 
-    return bisect(_p->array, p_value, p_before, _ArrayVariantSort());
+    return bisect(_p->array.ptr(),_p->array.size(), p_value, p_before, _ArrayVariantSort());
 }
 
 int Array::bsearch_custom(const Variant &p_value, Object *p_obj, const StringName &p_function, bool p_before) {
@@ -378,7 +381,7 @@ int Array::bsearch_custom(const Variant &p_value, Object *p_obj, const StringNam
     less.obj = p_obj;
     less.func = p_function;
 
-    return bisect(_p->array, p_value, p_before, less);
+    return bisect(_p->array.ptr(),_p->array.size(), p_value, p_before, less);
 }
 
 Array &Array::invert() {

@@ -359,18 +359,18 @@ void FileAccessNetwork::seek_end(int64_t p_position) {
 }
 size_t FileAccessNetwork::get_position() const {
 
-	ERR_FAIL_COND_V_CMSG(!opened, 0, "File must be opened before use.")
+	ERR_FAIL_COND_V_MSG(!opened, 0, "File must be opened before use.")
     return pos;
 }
 size_t FileAccessNetwork::get_len() const {
 
-	ERR_FAIL_COND_V_CMSG(!opened, 0, "File must be opened before use.")
+	ERR_FAIL_COND_V_MSG(!opened, 0, "File must be opened before use.")
     return total_size;
 }
 
 bool FileAccessNetwork::eof_reached() const {
 
-	ERR_FAIL_COND_V_CMSG(!opened, false, "File must be opened before use.")
+	ERR_FAIL_COND_V_MSG(!opened, false, "File must be opened before use.")
     return eof_flag;
 }
 

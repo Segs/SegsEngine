@@ -160,11 +160,7 @@ enum {
 
 	MATCHES_double = (sizeof(double) == sizeof(uint64_t)),
 
-#ifdef REAL_T_IS_DOUBLE
-	MATCHES_real_t = (sizeof(real_t) == sizeof(uint64_t)),
-#else
 	MATCHES_real_t = (sizeof(real_t) == sizeof(uint32_t)),
-#endif
 
 	MATCHES_Vector2 = (MATCHES_real_t && (sizeof(Vector2) == (sizeof(real_t) * 2)) &&
 					   offsetof(Vector2, x) == (sizeof(real_t) * 0) &&

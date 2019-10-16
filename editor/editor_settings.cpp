@@ -31,7 +31,7 @@
 #include "editor_settings.h"
 
 #include "core/method_bind.h"
-#include "core/container_utils.h"
+#include "core/container_tools.h"
 #include "core/io/compression.h"
 #include "core/io/config_file.h"
 #include "core/io/file_access_memory.h"
@@ -800,13 +800,13 @@ void EditorSettings::create() {
         self_contained = true;
         Error err = extra_config->load(exe_path + "/._sc_");
         if (err != OK) {
-			ERR_PRINTS("Can't load config from path '" + exe_path + "/._sc_'.");
+			ERR_PRINT("Can't load config from path '" + exe_path + "/._sc_'.");
         }
     } else if (d->file_exists(exe_path + "/_sc_")) {
         self_contained = true;
         Error err = extra_config->load(exe_path + "/_sc_");
         if (err != OK) {
-			ERR_PRINTS("Can't load config from path '" + exe_path + "/_sc_'.");
+			ERR_PRINT("Can't load config from path '" + exe_path + "/_sc_'.");
         }
     }
     memdelete(d);
@@ -1062,7 +1062,7 @@ void EditorSettings::save() {
     Error err = ResourceSaver::save(singleton->config_file_path, singleton);
 
     if (err != OK) {
-        ERR_PRINTS("Error saving editor settings to " + singleton->config_file_path)
+        ERR_PRINT("Error saving editor settings to " + singleton->config_file_path)
     } else {
         print_verbose("EditorSettings: Save OK!");
     }

@@ -1259,7 +1259,7 @@ int GDScriptCompiler::_parse_expression(CodeGen &codegen, const GDScriptParser::
         //TYPE_TYPE,
         default: {
 
-            ERR_FAIL_V_CMSG(-1, "Bug in bytecode compiler, unexpected node in parse tree while parsing expression."); //unreachable code
+            ERR_FAIL_V_MSG(-1, "Bug in bytecode compiler, unexpected node in parse tree while parsing expression."); //unreachable code
         } break;
     }
 }
@@ -1787,7 +1787,7 @@ Error GDScriptCompiler::_parse_function(GDScript *p_script, const GDScriptParser
             signature += "::" + String(func_name);
         }
 
-        gdfunc->profile.signature = signature;
+        gdfunc->profile.signature = StringName(signature);
     }
 #endif
     gdfunc->_script = p_script;
@@ -2150,7 +2150,7 @@ Error GDScriptCompiler::compile(const GDScriptParser *p_parser, GDScript *p_scri
     const GDScriptParser::Node *root = parser->get_parse_tree();
     ERR_FAIL_COND_V(root->type != GDScriptParser::Node::TYPE_CLASS, ERR_INVALID_DATA)
 
-    source = p_script->get_path();
+    source = StringName(p_script->get_path());
 
     // Create scripts for subclasses beforehand so they can be referenced
     _make_scripts(p_script, static_cast<const GDScriptParser::ClassNode *>(root), p_keep_state);

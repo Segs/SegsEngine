@@ -34,6 +34,7 @@
 #include "canvas_item_editor_plugin.h"
 #include "core/os/file_access.h"
 #include "core/os/keyboard.h"
+#include "core/translation_helpers.h"
 #include "editor/editor_settings.h"
 #include "editor/editor_scale.h"
 

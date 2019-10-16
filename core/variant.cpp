@@ -31,7 +31,11 @@
 #include "variant.h"
 
 #include "core/core_string_names.h"
+#include "core/hashfuncs.h"
+#include "core/node_path.h"
+#include "core/dictionary.h"
 #include "core/io/marshalls.h"
+#include "core/io/ip_address.h"
 #include "core/math/aabb.h"
 #include "core/math/basis.h"
 #include "core/math/face3.h"
@@ -1175,44 +1179,6 @@ Variant::operator uint64_t() const {
     }
 }
 
-#ifdef NEED_LONG_INT
-Variant::operator signed long() const {
-
-    switch (type) {
-
-        case VariantType::NIL: return 0;
-        case VariantType::BOOL: return _data._bool ? 1 : 0;
-        case VariantType::INT: return _data._int;
-        case VariantType::REAL: return _data._real;
-        case VariantType::STRING: return as<String>().to_int();
-        default: {
-
-            return 0;
-        }
-    }
-
-    return 0;
-};
-
-Variant::operator unsigned long() const {
-
-    switch (type) {
-
-        case VariantType::NIL: return 0;
-        case VariantType::BOOL: return _data._bool ? 1 : 0;
-        case VariantType::INT: return _data._int;
-        case VariantType::REAL: return _data._real;
-        case VariantType::STRING: return as<String>().to_int();
-        default: {
-
-            return 0;
-        }
-    }
-
-    return 0;
-};
-#endif
-
 Variant::operator signed short() const {
 
     switch (type) {
@@ -1700,7 +1666,7 @@ Variant::operator RID() const {
     if (type == VariantType::OBJECT && _get_obj().obj) {
 #ifdef DEBUG_ENABLED
         if (ScriptDebugger::get_singleton()) {
-            ERR_FAIL_COND_V_CMSG(!ObjectDB::instance_validate(_get_obj().obj), RID(), "Invalid pointer (object was deleted).")
+            ERR_FAIL_COND_V_MSG(!ObjectDB::instance_validate(_get_obj().obj), RID(), "Invalid pointer (object was deleted).")
         }
 #endif
         Variant::CallError ce;
@@ -1990,7 +1956,7 @@ Variant::operator Vector<StringName>() const {
     to.resize(len);
     for (int i = 0; i < len; i++) {
 
-        to.write[i] = from[i];
+        to.write[i] = StringName(from[i]);
     }
     return to;
 }
@@ -2040,84 +2006,10 @@ Variant::operator IP_Address() const {
     return as<IP_Address>();
 }
 
-
-
-/*
-Variant::Variant(long unsigned int p_long) {
-
-    type=INT;
-    _data._int=p_long;
-};
-*/
-
-Variant::Variant(signed int p_int) {
-
-    type = VariantType::INT;
-    _data._int = p_int;
-}
-Variant::Variant(unsigned int p_int) {
-
-    type = VariantType::INT;
-    _data._int = p_int;
-}
-
-#ifdef NEED_LONG_INT
-
-Variant::Variant(signed long p_int) {
-
-    type = VariantType::INT;
-    _data._int = p_int;
-}
-Variant::Variant(unsigned long p_int) {
-
-    type = VariantType::INT;
-    _data._int = p_int;
-}
-#endif
-
-Variant::Variant(int64_t p_int) {
-
-    type = VariantType::INT;
-    _data._int = p_int;
-}
-
-Variant::Variant(uint64_t p_int) {
-
-    type = VariantType::INT;
-    _data._int = p_int;
-}
-
-Variant::Variant(signed short p_short) {
-
-    type = VariantType::INT;
-    _data._int = p_short;
-}
-Variant::Variant(unsigned short p_short) {
-
-    type = VariantType::INT;
-    _data._int = p_short;
-}
-Variant::Variant(signed char p_char) {
-
-    type = VariantType::INT;
-    _data._int = p_char;
-}
-Variant::Variant(unsigned char p_char) {
-
-    type = VariantType::INT;
-    _data._int = p_char;
-}
 Variant::Variant(QChar p_char) {
 
     type = VariantType::INT;
     _data._int = p_char.unicode();
-}
-
-
-Variant::Variant(double p_double) {
-
-    type = VariantType::REAL;
-    _data._real = p_double;
 }
 
 Variant::Variant(const StringName &p_string) {

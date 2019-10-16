@@ -510,7 +510,7 @@ void Image::convert(Format p_new_format) {
 
     if (format > FORMAT_RGBE9995 || p_new_format > FORMAT_RGBE9995) {
 
-        ERR_FAIL_CMSG("Cannot convert to <-> from compressed formats. Use compress() and decompress() instead.");
+        ERR_FAIL_MSG("Cannot convert to <-> from compressed formats. Use compress() and decompress() instead.")
 
     } else if (format > FORMAT_RGBA8 || p_new_format > FORMAT_RGBA8) {
 
@@ -1528,9 +1528,9 @@ void Image::normalize() {
 
 Error Image::generate_mipmaps(bool p_renormalize) {
 
-    ERR_FAIL_COND_V_CMSG(!_can_modify(format), ERR_UNAVAILABLE, "Cannot generate mipmaps in compressed or custom image formats.")
+    ERR_FAIL_COND_V_MSG(!_can_modify(format), ERR_UNAVAILABLE, "Cannot generate mipmaps in compressed or custom image formats.")
 
-    ERR_FAIL_COND_V_CMSG(width == 0 || height == 0, ERR_UNCONFIGURED, "Cannot generate mipmaps with width or height equal to 0.")
+    ERR_FAIL_COND_V_MSG(width == 0 || height == 0, ERR_UNCONFIGURED, "Cannot generate mipmaps with width or height equal to 0.")
 
     int mmcount;
 
@@ -2496,7 +2496,7 @@ Color Image::get_pixel(int p_x, int p_y) const {
 
     uint8_t *ptr = write_lock.ptr();
 #ifdef DEBUG_ENABLED
-    ERR_FAIL_COND_V_CMSG(!ptr, Color(), "Image must be locked with 'lock()' before using get_pixel().")
+    ERR_FAIL_COND_V_MSG(!ptr, Color(), "Image must be locked with 'lock()' before using get_pixel().")
 
     ERR_FAIL_INDEX_V(p_x, width, Color());
     ERR_FAIL_INDEX_V(p_y, height, Color());
@@ -2612,7 +2612,7 @@ Color Image::get_pixel(int p_x, int p_y) const {
             return Color::from_rgbe9995(((uint32_t *)ptr)[ofs]);
         }
         default: {
-            ERR_FAIL_V_CMSG(Color(), "Can't get_pixel() on compressed image, sorry.");
+            ERR_FAIL_V_MSG(Color(), "Can't get_pixel() on compressed image, sorry.");
         }
     }
 }
@@ -2737,7 +2737,7 @@ void Image::set_pixel(int p_x, int p_y, const Color &p_color) {
 
         } break;
         default: {
-            ERR_FAIL_CMSG("Can't set_pixel() on compressed image, sorry.");
+            ERR_FAIL_MSG("Can't set_pixel() on compressed image, sorry.");
         }
     }
 }

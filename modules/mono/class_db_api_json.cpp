@@ -32,216 +32,220 @@
 
 #ifdef DEBUG_METHODS_ENABLED
 
+#include "EASTL/sort.h"
 #include "core/io/json.h"
 #include "core/os/file_access.h"
 #include "core/project_settings.h"
+#include "core/string_name.h"
+#include "core/print_string.h"
 #include "core/version.h"
-#include "EASTL/sort.h"
+#include "core/method_bind_interface.h"
+
 
 void class_db_api_to_json(const String &p_output_file, ClassDB::APIType p_api) {
-	Dictionary classes_dict;
+    Dictionary classes_dict;
 
-        PODVector<StringName> names;
+    PODVector<StringName> names;
 
-	const StringName *k = NULL;
+    const StringName *k = nullptr;
 
-	while ((k = ClassDB::classes.next(k))) {
+    while ((k = ClassDB::classes.next(k))) {
 
-		names.push_back(*k);
-	}
-	//must be alphabetically sorted for hash to compute
-        eastl::sort(names.begin(),names.end(),StringName::AlphCompare());
+        names.push_back(*k);
+    }
+    // must be alphabetically sorted for hash to compute
+    eastl::sort(names.begin(), names.end(), StringName::AlphCompare);
 
-        for (const StringName &E : names) {
+    for (const StringName &E : names) {
 
-                ClassDB::ClassInfo *t = ClassDB::classes.getptr(E);
-		ERR_FAIL_COND(!t)
-		if (t->api != p_api || !t->exposed)
-			continue;
+        ClassDB::ClassInfo *t = ClassDB::classes.getptr(E);
+        ERR_FAIL_COND(!t)
+        if (t->api != p_api || !t->exposed) continue;
 
-		Dictionary class_dict;
-		classes_dict[t->name] = class_dict;
+        Dictionary class_dict;
+        classes_dict[t->name] = class_dict;
 
-		class_dict["inherits"] = t->inherits;
+        class_dict["inherits"] = t->inherits;
 
-		{ //methods
+        { // methods
 
-                        PODVector<StringName> snames;
+            PODVector<StringName> snames;
 
-			k = NULL;
+            k = nullptr;
 
-			while ((k = t->method_map.next(k))) {
+            while ((k = t->method_map.next(k))) {
 
-				snames.push_back(*k);
-			}
+                snames.push_back(*k);
+            }
 
-                        eastl::sort(snames.begin(),snames.end(),StringName::AlphCompare());
+            eastl::sort(snames.begin(), snames.end(), StringName::AlphCompare);
 
-			Array methods;
+            Array methods;
 
-			for (List<StringName>::Element *F = snames.front(); F; F = F->next()) {
-				Dictionary method_dict;
-				methods.push_back(method_dict);
+            for (const StringName &F : snames) {
+                Dictionary method_dict;
+                methods.push_back(method_dict);
 
-				MethodBind *mb = t->method_map[F->get()];
-				method_dict["name"] = mb->get_name();
-				method_dict["argument_count"] = mb->get_argument_count();
-				method_dict["return_type"] = mb->get_argument_type(-1);
+                MethodBind *mb = t->method_map[F];
+                method_dict["name"] = mb->get_name();
+                method_dict["argument_count"] = mb->get_argument_count();
+                method_dict["return_type"] = mb->get_argument_type(-1);
 
-				Array arguments;
-				method_dict["arguments"] = arguments;
+                Array arguments;
+                method_dict["arguments"] = arguments;
 
-				for (int i = 0; i < mb->get_argument_count(); i++) {
-					Dictionary argument_dict;
-					arguments.push_back(argument_dict);
-					const PropertyInfo info = mb->get_argument_info(i);
-					argument_dict["type"] = info.type;
-					argument_dict["name"] = info.name;
-					argument_dict["hint"] = info.hint;
-					argument_dict["hint_string"] = info.hint_string;
-				}
+                for (int i = 0; i < mb->get_argument_count(); i++) {
+                    Dictionary argument_dict;
+                    arguments.push_back(argument_dict);
+                    const PropertyInfo info = mb->get_argument_info(i);
+                    argument_dict["type"] = info.type;
+                    argument_dict["name"] = info.name;
+                    argument_dict["hint"] = info.hint;
+                    argument_dict["hint_string"] = info.hint_string;
+                }
 
-				method_dict["default_argument_count"] = mb->get_default_argument_count();
+                method_dict["default_argument_count"] = mb->get_default_argument_count();
 
-				Array default_arguments;
-				method_dict["default_arguments"] = default_arguments;
+                Array default_arguments;
+                method_dict["default_arguments"] = default_arguments;
 
-				for (int i = 0; i < mb->get_default_argument_count(); i++) {
-					Dictionary default_argument_dict;
-					default_arguments.push_back(default_argument_dict);
-					//hash should not change, i hope for tis
-					Variant da = mb->get_default_argument(i);
-					default_argument_dict["value"] = da;
-				}
+                for (int i = 0; i < mb->get_default_argument_count(); i++) {
+                    Dictionary default_argument_dict;
+                    default_arguments.push_back(default_argument_dict);
+                    // hash should not change, i hope for tis
+                    Variant da = mb->get_default_argument(i);
+                    default_argument_dict["value"] = da;
+                }
 
-				method_dict["hint_flags"] = mb->get_hint_flags();
-			}
+                method_dict["hint_flags"] = mb->get_hint_flags();
+            }
 
-			if (!methods.empty()) {
-				class_dict["methods"] = methods;
-			}
-		}
+            if (!methods.empty()) {
+                class_dict["methods"] = methods;
+            }
+        }
 
-		{ //constants
+        { // constants
 
-			List<StringName> snames;
+            ListPOD<StringName> snames;
 
-			k = NULL;
+            k = nullptr;
 
-			while ((k = t->constant_map.next(k))) {
+            while ((k = t->constant_map.next(k))) {
 
-				snames.push_back(*k);
-			}
+                snames.push_back(*k);
+            }
 
-			snames.sort_custom<StringName::AlphCompare>();
+            snames.sort(StringName::AlphCompare);
 
-			Array constants;
+            Array constants;
 
-			for (List<StringName>::Element *F = snames.front(); F; F = F->next()) {
-				Dictionary constant_dict;
-				constants.push_back(constant_dict);
+            for (const StringName &F : snames) {
+                Dictionary constant_dict;
+                constants.push_back(constant_dict);
 
-				constant_dict["name"] = F->get();
-				constant_dict["value"] = t->constant_map[F->get()];
-			}
+                constant_dict["name"] = F;
+                constant_dict["value"] = t->constant_map[F];
+            }
 
-			if (!constants.empty()) {
-				class_dict["constants"] = constants;
-			}
-		}
+            if (!constants.empty()) {
+                class_dict["constants"] = constants;
+            }
+        }
 
-		{ //signals
+        { // signals
 
-			List<StringName> snames;
+            ListPOD<StringName> snames;
 
-			k = NULL;
+            k = nullptr;
 
-			while ((k = t->signal_map.next(k))) {
+            while ((k = t->signal_map.next(k))) {
 
-				snames.push_back(*k);
-			}
+                snames.push_back(*k);
+            }
 
-			snames.sort_custom<StringName::AlphCompare>();
+            snames.sort(StringName::AlphCompare);
 
-			Array signals;
+            Array signals;
 
-			for (List<StringName>::Element *F = snames.front(); F; F = F->next()) {
-				Dictionary signal_dict;
-				signals.push_back(signal_dict);
+            for (const StringName &F : snames) {
+                Dictionary signal_dict;
+                signals.push_back(signal_dict);
 
-				MethodInfo &mi = t->signal_map[F->get()];
-				signal_dict["name"] = F->get();
+                MethodInfo &mi = t->signal_map[F];
+                signal_dict["name"] = F;
 
-				Array arguments;
-				signal_dict["arguments"] = arguments;
-				for (int i = 0; i < mi.arguments.size(); i++) {
-					Dictionary argument_dict;
-					arguments.push_back(argument_dict);
-					argument_dict["type"] = mi.arguments[i].type;
-				}
-			}
+                Array arguments;
+                signal_dict["arguments"] = arguments;
+                for (int i = 0; i < mi.arguments.size(); i++) {
+                    Dictionary argument_dict;
+                    arguments.push_back(argument_dict);
+                    argument_dict["type"] = mi.arguments[i].type;
+                }
+            }
 
-			if (!signals.empty()) {
-				class_dict["signals"] = signals;
-			}
-		}
+            if (!signals.empty()) {
+                class_dict["signals"] = signals;
+            }
+        }
 
-		{ //properties
+        { // properties
 
-			List<StringName> snames;
+            ListPOD<StringName> snames;
 
-			k = NULL;
+            k = nullptr;
 
-			while ((k = t->property_setget.next(k))) {
+            while ((k = t->property_setget.next(k))) {
 
-				snames.push_back(*k);
-			}
+                snames.push_back(*k);
+            }
 
-			snames.sort_custom<StringName::AlphCompare>();
+            snames.sort(StringName::AlphCompare);
 
-			Array properties;
+            Array properties;
 
-			for (List<StringName>::Element *F = snames.front(); F; F = F->next()) {
-				Dictionary property_dict;
-				properties.push_back(property_dict);
+            for (const StringName &F : snames) {
+                Dictionary property_dict;
+                properties.push_back(property_dict);
 
-				ClassDB::PropertySetGet *psg = t->property_setget.getptr(F->get());
+                ClassDB::PropertySetGet *psg = t->property_setget.getptr(F);
 
-				property_dict["name"] = F->get();
-				property_dict["setter"] = psg->setter;
-				property_dict["getter"] = psg->getter;
-			}
+                property_dict["name"] = F;
+                property_dict["setter"] = psg->setter;
+                property_dict["getter"] = psg->getter;
+            }
 
-			if (!properties.empty()) {
-				class_dict["property_setget"] = properties;
-			}
-		}
+            if (!properties.empty()) {
+                class_dict["property_setget"] = properties;
+            }
+        }
 
-		Array property_list;
+        Array property_list;
 
-		//property list
-		for (List<PropertyInfo>::Element *F = t->property_list.front(); F; F = F->next()) {
-			Dictionary property_dict;
-			property_list.push_back(property_dict);
+        // property list
+        for (const PropertyInfo &F : t->property_list) {
+            Dictionary property_dict;
+            property_list.push_back(property_dict);
 
-			property_dict["name"] = F->get().name;
-			property_dict["type"] = F->get().type;
-			property_dict["hint"] = F->get().hint;
-			property_dict["hint_string"] = F->get().hint_string;
-			property_dict["usage"] = F->get().usage;
-		}
+            property_dict["name"] = F.name;
+            property_dict["type"] = F.type;
+            property_dict["hint"] = F.hint;
+            property_dict["hint_string"] = F.hint_string;
+            property_dict["usage"] = F.usage;
+        }
 
-		if (!property_list.empty()) {
-			class_dict["property_list"] = property_list;
-		}
-	}
+        if (!property_list.empty()) {
+            class_dict["property_list"] = property_list;
+        }
+    }
 
-	FileAccessRef f = FileAccess::open(p_output_file, FileAccess::WRITE);
-	ERR_FAIL_COND_MSG(!f, "Cannot open file '" + p_output_file + "'.");
-	f->store_string(JSON::print(classes_dict, /*indent: */ "\t"));
-	f->close();
+    FileAccessRef f = FileAccess::open(p_output_file, FileAccess::WRITE);
+    ERR_FAIL_COND_MSG(!f, "Cannot open file '" + p_output_file + "'.")
+    f->store_string(JSON::print(classes_dict, /*indent: */ "\t"));
+    f->close();
 
-	print_line(String() + "ClassDB API JSON written to: " + ProjectSettings::get_singleton()->globalize_path(p_output_file));
+    print_line(String() +
+               "ClassDB API JSON written to: " + ProjectSettings::get_singleton()->globalize_path(p_output_file));
 }
 
 #endif // DEBUG_METHODS_ENABLED

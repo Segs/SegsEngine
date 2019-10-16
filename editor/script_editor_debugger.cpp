@@ -343,7 +343,7 @@ void ScriptEditorDebugger::_file_selected(const String &p_file) {
             FileAccessRef file = FileAccess::open(p_file, FileAccess::WRITE, &err);
 
             if (err != OK) {
-                ERR_PRINTS("Failed to open " + p_file)
+                ERR_PRINT("Failed to open " + p_file)
                 return;
             }
             Vector<String> line;
@@ -386,7 +386,7 @@ void ScriptEditorDebugger::_scene_tree_property_value_edited(const String &p_pro
     msg.push_back(p_prop);
     msg.push_back(p_value);
     ppeer->put_var(msg);
-    inspect_edited_object_timeout = 0.7; //avoid annoyance, don't request soon after editing
+    inspect_edited_object_timeout = 0.7f; //avoid annoyance, don't request soon after editing
 }
 
 void ScriptEditorDebugger::_scene_tree_property_select_object(ObjectID p_object) {
@@ -681,10 +681,10 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
         for (int i = 0; i < p_data.size(); i++) {
 
             Dictionary d = p_data[i];
-            ERR_CONTINUE(!d.has("function"));
-            ERR_CONTINUE(!d.has("file"));
-            ERR_CONTINUE(!d.has("line"));
-            ERR_CONTINUE(!d.has("id"));
+            ERR_CONTINUE(!d.has("function"))
+            ERR_CONTINUE(!d.has("file"))
+            ERR_CONTINUE(!d.has("line"))
+            ERR_CONTINUE(!d.has("id"))
             TreeItem *s = stack_dump->create_item(r);
             d["frame"] = i;
             s->set_metadata(0, d);
@@ -708,7 +708,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
             Variant v = p_data[ofs + i * 2 + 1];
 
             PropertyHint h = PROPERTY_HINT_NONE;
-            String hs = String();
+            const char *hs = "";
 
             if (v.get_type() == VariantType::OBJECT) {
                 v = object_cast<EncodedObjectAsID>(v)->get_object_id();
@@ -727,7 +727,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
             String n = p_data[ofs + i * 2 + 0];
             Variant v = p_data[ofs + i * 2 + 1];
             PropertyHint h = PROPERTY_HINT_NONE;
-            String hs = String();
+            const char *hs = "";
 
             if (v.get_type() == VariantType::OBJECT) {
                 v = object_cast<EncodedObjectAsID>(v)->get_object_id();
@@ -750,7 +750,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
             String n = p_data[ofs + i * 2 + 0];
             Variant v = p_data[ofs + i * 2 + 1];
             PropertyHint h = PROPERTY_HINT_NONE;
-            String hs = String();
+            const char *hs = "";
 
             if (v.get_type() == VariantType::OBJECT) {
                 v = object_cast<EncodedObjectAsID>(v)->get_object_id();

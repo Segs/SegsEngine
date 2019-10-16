@@ -32,6 +32,7 @@
 
 #include "core/method_bind.h"
 #include "core/os/keyboard.h"
+#include "core/translation_helpers.h"
 #include "scene/animation/animation_blend_tree.h"
 #include "editor/editor_scale.h"
 #include "scene/resources/style_box.h"
@@ -39,7 +40,7 @@
 IMPL_GDCLASS(AnimationNodeBlendSpace1DEditor)
 
 StringName AnimationNodeBlendSpace1DEditor::get_blend_position_path() const {
-    StringName path = AnimationTreeEditor::get_singleton()->get_base_path() + "blend_position";
+    StringName path(AnimationTreeEditor::get_singleton()->get_base_path() + "blend_position");
     return path;
 }
 
@@ -392,7 +393,7 @@ void AnimationNodeBlendSpace1DEditor::_add_menu_type(int p_index) {
     } else {
         String type = menu->get_item_metadata(p_index);
 
-        Object *obj = ClassDB::instance(type);
+        Object *obj = ClassDB::instance(StringName(type));
         ERR_FAIL_COND(!obj)
         AnimationNode *an = object_cast<AnimationNode>(obj);
         ERR_FAIL_COND(!an)
@@ -420,7 +421,7 @@ void AnimationNodeBlendSpace1DEditor::_add_menu_type(int p_index) {
 void AnimationNodeBlendSpace1DEditor::_add_animation_type(int p_index) {
     Ref<AnimationNodeAnimation> anim(make_ref_counted<AnimationNodeAnimation>());
 
-    anim->set_animation(animations_to_add[p_index]);
+    anim->set_animation(StringName(animations_to_add[p_index]));
 
     updating = true;
     undo_redo->create_action(TTR("Add Animation Point"));

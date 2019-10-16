@@ -21,11 +21,8 @@
 
 #include "triangulator.h"
 
-#include "core/sort_array.h"
-#include "core/typedefs.h"
-#include "core/math/vector2.h"
-
 #include "EASTL/type_traits.h"
+#include "EASTL/sort.h"
 #include <math.h>
 #include <string.h>
 
@@ -40,7 +37,12 @@ TriangulatorPoly::TriangulatorPoly() {
     numpoints = 0;
     points = nullptr;
 }
-
+TriangulatorPoly::TriangulatorPoly(const TriangulatorPoint *src, int size) {
+    hole = false;
+    this->numpoints = numpoints;
+    points = new TriangulatorPoint[numpoints];
+    memcpy(points,src,sizeof(TriangulatorPoint)*size);
+}
 TriangulatorPoly::~TriangulatorPoly() {
     if(points) delete [] points;
 }
@@ -55,10 +57,10 @@ void TriangulatorPoly::Clear() {
 void TriangulatorPoly::Init(long numpoints) {
     Clear();
     this->numpoints = numpoints;
-    points = new Vector2[numpoints];
+    points = new TriangulatorPoint[numpoints];
 }
 
-void TriangulatorPoly::Triangle(const Vector2 &p1,const Vector2 &p2,const Vector2 &p3) {
+void TriangulatorPoly::Triangle(const TriangulatorPoint &p1, const TriangulatorPoint &p2, const TriangulatorPoint &p3) {
     Init(3);
     points[0] = p1;
     points[1] = p2;
@@ -68,16 +70,16 @@ void TriangulatorPoly::Triangle(const Vector2 &p1,const Vector2 &p2,const Vector
 TriangulatorPoly::TriangulatorPoly(const TriangulatorPoly &src) {
     hole = src.hole;
     numpoints = src.numpoints;
-    points = new Vector2[numpoints];
-    memcpy(points, src.points, numpoints*sizeof(Vector2));
+    points = new TriangulatorPoint[numpoints];
+    memcpy(points, src.points, numpoints*sizeof(TriangulatorPoint));
 }
 
 TriangulatorPoly& TriangulatorPoly::operator=(const TriangulatorPoly &src) {
     Clear();
     hole = src.hole;
     numpoints = src.numpoints;
-    points = new Vector2[numpoints];
-    memcpy(points, src.points, numpoints*sizeof(Vector2));
+    points = new TriangulatorPoint[numpoints];
+    memcpy(points, src.points, numpoints*sizeof(TriangulatorPoint));
     return *this;
 }
 
@@ -103,9 +105,9 @@ void TriangulatorPoly::SetOrientation(int orientation) {
 
 void TriangulatorPoly::Invert() {
     long i;
-    Vector2 *invpoints;
+    TriangulatorPoint *invpoints;
 
-    invpoints = new Vector2[numpoints];
+    invpoints = new TriangulatorPoint[numpoints];
     for(i=0;i<numpoints;i++) {
         invpoints[i] = points[numpoints-i-1];
     }
@@ -114,8 +116,8 @@ void TriangulatorPoly::Invert() {
     points = invpoints;
 }
 
-Vector2 TriangulatorPartition::Normalize(const Vector2 &p) {
-    Vector2 r;
+TriangulatorPoint TriangulatorPartition::Normalize(const TriangulatorPoint &p) {
+    TriangulatorPoint r;
     real_t n = sqrt(p.x*p.x + p.y*p.y);
     if(n!=0) {
         r = p/n;
@@ -126,7 +128,7 @@ Vector2 TriangulatorPartition::Normalize(const Vector2 &p) {
     return r;
 }
 
-real_t TriangulatorPartition::Distance(const Vector2 &p1, const Vector2 &p2) {
+real_t TriangulatorPartition::Distance(const TriangulatorPoint &p1, const TriangulatorPoint &p2) {
     real_t dx,dy;
     dx = p2.x - p1.x;
     dy = p2.y - p1.y;
@@ -134,13 +136,13 @@ real_t TriangulatorPartition::Distance(const Vector2 &p1, const Vector2 &p2) {
 }
 
 //checks if two lines intersect
-int TriangulatorPartition::Intersects(Vector2 &p11, Vector2 &p12, Vector2 &p21, Vector2 &p22) {
+int TriangulatorPartition::Intersects(TriangulatorPoint &p11, TriangulatorPoint &p12, TriangulatorPoint &p21, TriangulatorPoint &p22) {
     if((p11.x == p21.x)&&(p11.y == p21.y)) return 0;
     if((p11.x == p22.x)&&(p11.y == p22.y)) return 0;
     if((p12.x == p21.x)&&(p12.y == p21.y)) return 0;
     if((p12.x == p22.x)&&(p12.y == p22.y)) return 0;
 
-    Vector2 v1ort,v2ort,v;
+    TriangulatorPoint v1ort,v2ort,v;
     real_t dot11,dot12,dot21,dot22;
 
     v1ort.x = p12.y-p11.y;
@@ -166,13 +168,13 @@ int TriangulatorPartition::Intersects(Vector2 &p11, Vector2 &p12, Vector2 &p21, 
 }
 
 //removes holes from inpolys by merging them with non-holes
-int TriangulatorPartition::RemoveHoles(ListPOD<TriangulatorPoly> *inpolys, ListPOD<TriangulatorPoly> *outpolys) {
-    ListPOD<TriangulatorPoly> polys;
-    ListPOD<TriangulatorPoly>::iterator holeiter,polyiter,iter,iter2;
+int TriangulatorPartition::RemoveHoles(eastl::list<TriangulatorPoly> *inpolys, eastl::list<TriangulatorPoly> *outpolys) {
+    eastl::list<TriangulatorPoly> polys;
+    eastl::list<TriangulatorPoly>::iterator holeiter,polyiter,iter,iter2;
     long i,i2,holepointindex,polypointindex;
-    Vector2 holepoint,polypoint,bestpolypoint;
-    Vector2 linep1,linep2;
-    Vector2 v1,v2;
+    TriangulatorPoint holepoint,polypoint,bestpolypoint;
+    TriangulatorPoint linep1,linep2;
+    TriangulatorPoint v1,v2;
     TriangulatorPoly newpoly;
     bool hasholes;
     bool pointvisible;
@@ -284,28 +286,28 @@ int TriangulatorPartition::RemoveHoles(ListPOD<TriangulatorPoly> *inpolys, ListP
     return 1;
 }
 
-bool TriangulatorPartition::IsConvex(const Vector2& p1,const Vector2& p2,const Vector2& p3) {
+bool TriangulatorPartition::IsConvex(const TriangulatorPoint& p1,const TriangulatorPoint& p2,const TriangulatorPoint& p3) {
     real_t tmp;
     tmp = (p3.y-p1.y)*(p2.x-p1.x)-(p3.x-p1.x)*(p2.y-p1.y);
     if(tmp>0) return 1;
     else return 0;
 }
 
-bool TriangulatorPartition::IsReflex(Vector2& p1, Vector2& p2, Vector2& p3) {
+bool TriangulatorPartition::IsReflex(TriangulatorPoint& p1, TriangulatorPoint& p2, TriangulatorPoint& p3) {
     real_t tmp;
     tmp = (p3.y-p1.y)*(p2.x-p1.x)-(p3.x-p1.x)*(p2.y-p1.y);
     if(tmp<0) return 1;
     else return 0;
 }
 
-bool TriangulatorPartition::IsInside(Vector2& p1, Vector2& p2, Vector2& p3, Vector2 &p) {
+bool TriangulatorPartition::IsInside(TriangulatorPoint& p1, TriangulatorPoint& p2, TriangulatorPoint& p3, TriangulatorPoint &p) {
     if(IsConvex(p1,p,p2)) return false;
     if(IsConvex(p2,p,p3)) return false;
     if(IsConvex(p3,p,p1)) return false;
     return true;
 }
 
-bool TriangulatorPartition::InCone(Vector2 &p1, Vector2 &p2, Vector2 &p3, Vector2 &p) {
+bool TriangulatorPartition::InCone(TriangulatorPoint &p1, TriangulatorPoint &p2, TriangulatorPoint &p3, TriangulatorPoint &p) {
     bool convex;
 
     convex = IsConvex(p1,p2,p3);
@@ -321,8 +323,8 @@ bool TriangulatorPartition::InCone(Vector2 &p1, Vector2 &p2, Vector2 &p3, Vector
     }
 }
 
-bool TriangulatorPartition::InCone(PartitionVertex *v, Vector2 &p) {
-    Vector2 p1,p2,p3;
+bool TriangulatorPartition::InCone(PartitionVertex *v, TriangulatorPoint &p) {
+    TriangulatorPoint p1,p2,p3;
 
     p1 = v->previous->p;
     p2 = v->p;
@@ -341,7 +343,7 @@ void TriangulatorPartition::UpdateVertexReflexity(PartitionVertex *v) {
 void TriangulatorPartition::UpdateVertex(PartitionVertex *v, PartitionVertex *vertices, long numvertices) {
     long i;
     PartitionVertex *v1,*v3;
-    Vector2 vec1,vec3;
+    TriangulatorPoint vec1,vec3;
 
     v1 = v->previous;
     v3 = v->next;
@@ -369,7 +371,7 @@ void TriangulatorPartition::UpdateVertex(PartitionVertex *v, PartitionVertex *ve
 }
 
 //triangulation by ear removal
-int TriangulatorPartition::Triangulate_EC(TriangulatorPoly *poly, ListPOD<TriangulatorPoly> *triangles) {
+int TriangulatorPartition::Triangulate_EC(TriangulatorPoly *poly, eastl::list<TriangulatorPoly> *triangles) {
     long numvertices;
     PartitionVertex *vertices;
     PartitionVertex *ear;
@@ -443,9 +445,9 @@ int TriangulatorPartition::Triangulate_EC(TriangulatorPoly *poly, ListPOD<Triang
     return 1;
 }
 
-int TriangulatorPartition::Triangulate_EC(ListPOD<TriangulatorPoly> *inpolys, ListPOD<TriangulatorPoly> *triangles) {
-    ListPOD<TriangulatorPoly> outpolys;
-    ListPOD<TriangulatorPoly>::iterator iter;
+int TriangulatorPartition::Triangulate_EC(eastl::list<TriangulatorPoly> *inpolys, eastl::list<TriangulatorPoly> *triangles) {
+    eastl::list<TriangulatorPoly> outpolys;
+    eastl::list<TriangulatorPoly>::iterator iter;
 
     if(!RemoveHoles(inpolys,&outpolys)) return 0;
     for(iter=outpolys.begin();iter!=outpolys.end();++iter) {
@@ -454,12 +456,12 @@ int TriangulatorPartition::Triangulate_EC(ListPOD<TriangulatorPoly> *inpolys, Li
     return 1;
 }
 
-int TriangulatorPartition::ConvexPartition_HM(TriangulatorPoly *poly, ListPOD<TriangulatorPoly> *parts) {
-    ListPOD<TriangulatorPoly> triangles;
-    ListPOD<TriangulatorPoly>::iterator iter1,iter2;
+int TriangulatorPartition::ConvexPartition_HM(TriangulatorPoly *poly, eastl::list<TriangulatorPoly> *parts) {
+    eastl::list<TriangulatorPoly> triangles;
+    eastl::list<TriangulatorPoly>::iterator iter1,iter2;
     TriangulatorPoly *poly1,*poly2;
     TriangulatorPoly newpoly;
-    Vector2 d1,d2,p1,p2,p3;
+    TriangulatorPoint d1,d2,p1,p2,p3;
     long i11,i12,i21,i22,i13,i23,j,k;
     bool isdiagonal;
     long numreflex;
@@ -554,12 +556,14 @@ int TriangulatorPartition::ConvexPartition_HM(TriangulatorPoly *poly, ListPOD<Tr
     return 1;
 }
 
-int TriangulatorPartition::ConvexPartition_HM(ListPOD<TriangulatorPoly> *inpolys, ListPOD<TriangulatorPoly> *parts) {
-    ListPOD<TriangulatorPoly> outpolys;
+int TriangulatorPartition::ConvexPartition_HM(eastl::list<TriangulatorPoly> *inpolys, eastl::list<TriangulatorPoly> *parts) {
+    eastl::list<TriangulatorPoly> outpolys;
 
-    if(!RemoveHoles(inpolys,&outpolys)) return 0;
+    if(!RemoveHoles(inpolys,&outpolys))
+        return 0;
     for(TriangulatorPoly & poly : outpolys) {
-        if(!ConvexPartition_HM(&poly,parts)) return 0;
+        if(!ConvexPartition_HM(&poly,parts))
+            return 0;
     }
     return 1;
 }
@@ -567,14 +571,14 @@ int TriangulatorPartition::ConvexPartition_HM(ListPOD<TriangulatorPoly> *inpolys
 //minimum-weight polygon triangulation by dynamic programming
 //O(n^3) time complexity
 //O(n^2) space complexity
-int TriangulatorPartition::Triangulate_OPT(TriangulatorPoly *poly, ListPOD<TriangulatorPoly> *triangles) {
+int TriangulatorPartition::Triangulate_OPT(TriangulatorPoly *poly, eastl::list<TriangulatorPoly> *triangles) {
     long i,j,k,gap,n;
     DPState **dpstates;
-    Vector2 p1,p2,p3,p4;
+    TriangulatorPoint p1,p2,p3,p4;
     long bestvertex;
     real_t weight,minweight,d1,d2;
     Diagonal diagonal,newdiagonal;
-    ListPOD<Diagonal> diagonals;
+    eastl::list<Diagonal> diagonals;
     TriangulatorPoly triangle;
     int ret = 1;
 
@@ -699,7 +703,7 @@ int TriangulatorPartition::Triangulate_OPT(TriangulatorPoly *poly, ListPOD<Trian
 
 void TriangulatorPartition::UpdateState(long a, long b, long w, long i, long j, DPState2 **dpstates) {
     Diagonal newdiagonal;
-    ListPOD<Diagonal> *pairs;
+    eastl::list<Diagonal> *pairs;
     long w2;
 
     w2 = dpstates[a][b].weight;
@@ -721,8 +725,8 @@ void TriangulatorPartition::UpdateState(long a, long b, long w, long i, long j, 
 }
 
 void TriangulatorPartition::TypeA(long i, long j, long k, PartitionVertex *vertices, DPState2 **dpstates) {
-    ListPOD<Diagonal> *pairs;
-    ListPOD<Diagonal>::reverse_iterator lastiter;
+    eastl::list<Diagonal> *pairs;
+    eastl::list<Diagonal>::reverse_iterator lastiter;
     long top;
     long w;
 
@@ -755,8 +759,8 @@ void TriangulatorPartition::TypeA(long i, long j, long k, PartitionVertex *verti
 }
 
 void TriangulatorPartition::TypeB(long i, long j, long k, PartitionVertex *vertices, DPState2 **dpstates) {
-    ListPOD<Diagonal> *pairs;
-    ListPOD<Diagonal>::iterator iter, lastiter;
+    eastl::list<Diagonal> *pairs;
+    eastl::list<Diagonal>::iterator iter, lastiter;
     long top;
     long w;
 
@@ -791,17 +795,17 @@ void TriangulatorPartition::TypeB(long i, long j, long k, PartitionVertex *verti
     UpdateState(i, k, w, j, top, dpstates);
 }
 
-int TriangulatorPartition::ConvexPartition_OPT(TriangulatorPoly *poly, ListPOD<TriangulatorPoly> *parts) {
-    Vector2 p1,p2,p3,p4;
+int TriangulatorPartition::ConvexPartition_OPT(TriangulatorPoly *poly, eastl::list<TriangulatorPoly> *parts) {
+    TriangulatorPoint p1,p2,p3,p4;
     PartitionVertex *vertices;
     DPState2 **dpstates;
     long i,j,k,n,gap;
-    ListPOD<Diagonal> diagonals,diagonals2;
+    eastl::list<Diagonal> diagonals,diagonals2;
     Diagonal diagonal,newdiagonal;
-    ListPOD<Diagonal> *pairs,*pairs2;
+    eastl::list<Diagonal> *pairs,*pairs2;
     int ret;
     TriangulatorPoly newpoly;
-    ListPOD<long> indices;
+    eastl::list<long> indices;
     bool ijreal,jkreal;
 
     n = poly->GetNumPoints();
@@ -1056,7 +1060,7 @@ int TriangulatorPartition::ConvexPartition_OPT(TriangulatorPoly *poly, ListPOD<T
 //"Computational Geometry: Algorithms and Applications"
 //by Mark de Berg, Otfried Cheong, Marc van Kreveld and Mark Overmars
 int TriangulatorPartition::MonotonePartition(
-        ListPOD<TriangulatorPoly> *inpolys, ListPOD<TriangulatorPoly> *monotonePolys) {
+        eastl::list<TriangulatorPoly> *inpolys, eastl::list<TriangulatorPoly> *monotonePolys) {
     MonotoneVertex *vertices;
     long i, numvertices, vindex, vindex2, newnumvertices, maxnumvertices;
     long polystartindex, polyendindex;
@@ -1093,9 +1097,9 @@ int TriangulatorPartition::MonotonePartition(
     //construct the priority queue
     long *priority = new long [numvertices];
     for(i=0;i<numvertices;i++) priority[i] = i;
-    SortArray<long,VertexSorter> sorter;
-    sorter.compare.vertices=vertices;
-    sorter.sort(priority,numvertices);
+    VertexSorter sorter;
+    sorter.vertices=vertices;
+    eastl::sort(priority,priority+numvertices,sorter);
 
     //determine vertex types
     char *vertextypes = new char[maxnumvertices];
@@ -1128,12 +1132,12 @@ int TriangulatorPartition::MonotonePartition(
     //binary search tree that holds edges intersecting the scanline
     //note that while set doesn't actually have to be implemented as a tree
     //complexity requirements for operations are the same as for the balanced binary search tree
-    Set<ScanLineEdge> edgeTree;
+    eastl::set<ScanLineEdge> edgeTree;
     //store iterators to the edge tree elements
     //this makes deleting existing edges much faster
-    Set<ScanLineEdge>::iterator *edgeTreeIterators,edgeIter;
-    edgeTreeIterators = new Set<ScanLineEdge>::iterator[maxnumvertices];
-    //Pair<Set<ScanLineEdge>::Element*,bool> edgeTreeRet;
+    eastl::set<ScanLineEdge>::iterator *edgeTreeIterators,edgeIter;
+    edgeTreeIterators = new eastl::set<ScanLineEdge>::iterator[maxnumvertices];
+    //Pair<eastl::set<ScanLineEdge>::Element*,bool> edgeTreeRet;
     for(i = 0; i<numvertices; i++)
         edgeTreeIterators[i] = {};
 
@@ -1317,8 +1321,8 @@ int TriangulatorPartition::MonotonePartition(
 
 //adds a diagonal to the doubly-connected list of vertices
 void TriangulatorPartition::AddDiagonal(MonotoneVertex *vertices, long *numvertices, long index1, long index2,
-                    char *vertextypes, Set<ScanLineEdge>::iterator *edgeTreeIterators,
-                    Set<ScanLineEdge> *edgeTree, long *helpers)
+                    char *vertextypes, eastl::set<ScanLineEdge>::iterator *edgeTreeIterators,
+                    eastl::set<ScanLineEdge> *edgeTree, long *helpers)
 {
     long newindex1,newindex2;
 
@@ -1346,16 +1350,16 @@ void TriangulatorPartition::AddDiagonal(MonotoneVertex *vertices, long *numverti
     vertextypes[newindex1] = vertextypes[index1];
     edgeTreeIterators[newindex1] = edgeTreeIterators[index1];
     helpers[newindex1] = helpers[index1];
-    if(edgeTreeIterators[newindex1] != Set<ScanLineEdge>::iterator())
+    if(edgeTreeIterators[newindex1] != eastl::set<ScanLineEdge>::iterator())
         edgeTreeIterators[newindex1]->index = newindex1;
     vertextypes[newindex2] = vertextypes[index2];
     edgeTreeIterators[newindex2] = edgeTreeIterators[index2];
     helpers[newindex2] = helpers[index2];
-    if(edgeTreeIterators[newindex2] != Set<ScanLineEdge>::iterator())
+    if(edgeTreeIterators[newindex2] != eastl::set<ScanLineEdge>::iterator())
         edgeTreeIterators[newindex2]->index = newindex2;
 }
 
-bool TriangulatorPartition::Below(const Vector2 &p1, const Vector2 &p2) {
+bool TriangulatorPartition::Below(const TriangulatorPoint &p1, const TriangulatorPoint &p2) {
     if(p1.y < p2.y) return true;
     else if(p1.y == p2.y) {
         if(p1.x < p2.x) return true;
@@ -1376,7 +1380,7 @@ bool TriangulatorPartition::VertexSorter::operator() (long index1, long index2) 
     return false;
 }
 
-bool TriangulatorPartition::ScanLineEdge::IsConvex(const Vector2& p1, const Vector2& p2, const Vector2& p3) const {
+bool TriangulatorPartition::ScanLineEdge::IsConvex(const TriangulatorPoint& p1, const TriangulatorPoint& p2, const TriangulatorPoint& p3) const {
     real_t tmp;
     tmp = (p3.y-p1.y)*(p2.x-p1.x)-(p3.x-p1.x)*(p2.y-p1.y);
     if(tmp>0) return 1;
@@ -1405,9 +1409,9 @@ bool TriangulatorPartition::ScanLineEdge::operator < (const ScanLineEdge & other
 
 //triangulates monotone polygon
 //O(n) time, O(n) space complexity
-int TriangulatorPartition::TriangulateMonotone(const TriangulatorPoly *inPoly, ListPOD<TriangulatorPoly> *triangles) {
+int TriangulatorPartition::TriangulateMonotone(const TriangulatorPoly *inPoly, eastl::list<TriangulatorPoly> *triangles) {
     long i,i2,j,topindex,bottomindex,leftindex,rightindex,vindex;
-    const Vector2 *points;
+    const TriangulatorPoint *points;
     long numpoints;
     TriangulatorPoly triangle;
 
@@ -1537,8 +1541,8 @@ int TriangulatorPartition::TriangulateMonotone(const TriangulatorPoly *inPoly, L
     return 1;
 }
 
-int TriangulatorPartition::Triangulate_MONO(ListPOD<TriangulatorPoly> *inpolys, ListPOD<TriangulatorPoly> *triangles) {
-    ListPOD<TriangulatorPoly> monotone;
+int TriangulatorPartition::Triangulate_MONO(eastl::list<TriangulatorPoly> *inpolys, eastl::list<TriangulatorPoly> *triangles) {
+    eastl::list<TriangulatorPoly> monotone;
 
     if(!MonotonePartition(inpolys,&monotone)) return 0;
     for(const TriangulatorPoly &iter : monotone) {
@@ -1547,8 +1551,8 @@ int TriangulatorPartition::Triangulate_MONO(ListPOD<TriangulatorPoly> *inpolys, 
     return 1;
 }
 
-int TriangulatorPartition::Triangulate_MONO(TriangulatorPoly *poly, ListPOD<TriangulatorPoly> *triangles) {
-    ListPOD<TriangulatorPoly> polys;
+int TriangulatorPartition::Triangulate_MONO(TriangulatorPoly *poly, eastl::list<TriangulatorPoly> *triangles) {
+    eastl::list<TriangulatorPoly> polys;
     polys.push_back(*poly);
 
     return Triangulate_MONO(&polys, triangles);

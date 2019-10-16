@@ -122,7 +122,7 @@ float Color::get_h() const {
 
     float delta = max - min;
 
-    if (delta == 0)
+    if (delta == 0.0f)
         return 0;
 
     float h;
@@ -149,7 +149,7 @@ float Color::get_s() const {
 
     float delta = max - min;
 
-    return (max != 0) ? (delta / max) : 0;
+    return (max != 0.0f) ? (delta / max) : 0;
 }
 
 float Color::get_v() const {
@@ -171,7 +171,7 @@ void Color::set_hsv(float p_h, float p_s, float p_v, float p_alpha) {
         return;
     }
 
-    p_h *= 6.0;
+    p_h *= 6.0f;
     p_h = Math::fmod(p_h, 6);
     i = Math::floor(p_h);
 
@@ -216,39 +216,39 @@ void Color::set_hsv(float p_h, float p_s, float p_v, float p_alpha) {
 
 void Color::invert() {
 
-    r = 1.0 - r;
-    g = 1.0 - g;
-    b = 1.0 - b;
+    r = 1.0f - r;
+    g = 1.0f - g;
+    b = 1.0f - b;
 }
 void Color::contrast() {
 
-    r = Math::fmod(r + 0.5, 1.0);
-    g = Math::fmod(g + 0.5, 1.0);
-    b = Math::fmod(b + 0.5, 1.0);
+    r = Math::fmod(r + 0.5f, 1.0f);
+    g = Math::fmod(g + 0.5f, 1.0f);
+    b = Math::fmod(b + 0.5f, 1.0f);
 }
 
 Color Color::hex(uint32_t p_hex) {
 
-    float a = (p_hex & 0xFF) / 255.0;
+    float a = (p_hex & 0xFF) / 255.0f;
     p_hex >>= 8;
-    float b = (p_hex & 0xFF) / 255.0;
+    float b = (p_hex & 0xFF) / 255.0f;
     p_hex >>= 8;
-    float g = (p_hex & 0xFF) / 255.0;
+    float g = (p_hex & 0xFF) / 255.0f;
     p_hex >>= 8;
-    float r = (p_hex & 0xFF) / 255.0;
+    float r = (p_hex & 0xFF) / 255.0f;
 
     return Color(r, g, b, a);
 }
 
 Color Color::hex64(uint64_t p_hex) {
 
-    float a = (p_hex & 0xFFFF) / 65535.0;
+    float a = (p_hex & 0xFFFF) / 65535.0f;
     p_hex >>= 16;
-    float b = (p_hex & 0xFFFF) / 65535.0;
+    float b = (p_hex & 0xFFFF) / 65535.0f;
     p_hex >>= 16;
-    float g = (p_hex & 0xFFFF) / 65535.0;
+    float g = (p_hex & 0xFFFF) / 65535.0f;
     p_hex >>= 16;
-    float r = (p_hex & 0xFFFF) / 65535.0;
+    float r = (p_hex & 0xFFFF) / 65535.0f;
 
     return Color(r, g, b, a);
 }
@@ -259,7 +259,7 @@ Color Color::from_rgbe9995(uint32_t p_rgbe) {
     float g = (p_rgbe >> 9) & 0x1ff;
     float b = (p_rgbe >> 18) & 0x1ff;
     float e = (p_rgbe >> 27);
-    float m = Math::pow(2, e - 15.0 - 9.0);
+    float m = Math::pow(2, e - 15.0f - 9.0f);
 
     float rd = r * m;
     float gd = g * m;
@@ -599,10 +599,10 @@ void Color::operator/=(const Color &p_color) {
 void Color::operator/=(const real_t &rvalue) {
 
     if (rvalue == 0.0f) {
-        r = 1.0;
-        g = 1.0;
-        b = 1.0;
-        a = 1.0;
+        r = 1.0f;
+        g = 1.0f;
+        b = 1.0f;
+        a = 1.0f;
     } else {
         r = r / rvalue;
         g = g / rvalue;

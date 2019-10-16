@@ -70,7 +70,7 @@ StringName NodePath::get_sname() const {
     if (data && data->path.size() == 1 && data->subpath.empty()) {
         return data->path[0];
     } else {
-        return operator String();
+        return StringName(asString());
     }
 }
 
@@ -187,9 +187,7 @@ NodePath &NodePath::operator=(const NodePath &p_path) {
     }
     return *this;
 }
-
-NodePath::operator String() const {
-
+String NodePath::asString() const {
     if (!data)
         return String();
 
@@ -201,15 +199,18 @@ NodePath::operator String() const {
 
         if (i > 0)
             ret += '/';
-        ret += data->path[i].operator String();
+        ret += data->path[i].asString();
     }
 
     for (int i = 0; i < data->subpath.size(); i++) {
 
-        ret += ":" + data->subpath[i].operator String();
+        ret += ":" + data->subpath[i].asString();
     }
 
     return ret;
+}
+NodePath::operator String() const {
+    return asString();
 }
 
 NodePath::NodePath(const NodePath &p_path) {
@@ -246,7 +247,7 @@ StringName NodePath::get_concatenated_subnames() const {
         for (int i = 0; i < spc; i++) {
             concatenated += i == 0 ? ssn[i].operator String() : ":" + ssn[i];
         }
-        data->concatenated_subpath = concatenated;
+        data->concatenated_subpath = StringName(concatenated);
     }
     return data->concatenated_subpath;
 }
@@ -304,7 +305,7 @@ NodePath NodePath::get_as_property_path() const {
         for (int i = 1; i < data->path.size(); i++) {
             initial_subname += "/" + data->path[i];
         }
-        new_path.insert(0, initial_subname);
+        new_path.insert(0, StringName(initial_subname));
 
         return NodePath(Vector<StringName>(), new_path, false);
     }
@@ -401,7 +402,7 @@ NodePath::NodePath(const String &p_path) {
 
                     ERR_FAIL_MSG("Invalid NodePath '" + p_path + "'.")
                 }
-                subpath.push_back(str);
+                subpath.push_back(StringName(str));
 
                 from = i + 1;
             }
@@ -449,7 +450,7 @@ NodePath::NodePath(const String &p_path) {
 
                 String name = StringUtils::substr(path,from, i - from);
                 ERR_FAIL_INDEX(slice, data->path.size())
-                data->path.write[slice++] = name;
+                data->path.write[slice++] = StringName(name);
             }
             from = i + 1;
             last_is_slash = true;
@@ -462,7 +463,7 @@ NodePath::NodePath(const String &p_path) {
 
         String name = StringUtils::substr(path,from);
         ERR_FAIL_INDEX(slice, data->path.size())
-        data->path.write[slice++] = name;
+        data->path.write[slice++] = StringName(name);
     }
 
 }

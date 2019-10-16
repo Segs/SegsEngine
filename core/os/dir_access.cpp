@@ -285,7 +285,7 @@ Error DirAccess::copy(String p_from, String p_to, int p_chmod_flags) {
     FileAccess *fsrc = FileAccess::open(p_from, FileAccess::READ, &err);
 
     if (err) {
-        ERR_PRINTS("Failed to open " + p_from);
+        ERR_PRINT("Failed to open " + p_from);
         return err;
     }
 
@@ -294,7 +294,7 @@ Error DirAccess::copy(String p_from, String p_to, int p_chmod_flags) {
 
         fsrc->close();
         memdelete(fsrc);
-        ERR_PRINTS("Failed to open " + p_to);
+        ERR_PRINT("Failed to open " + p_to);
         return err;
     }
 
@@ -402,17 +402,17 @@ Error DirAccess::_copy_dir(DirAccess *p_target_da, const String& p_to, int p_chm
         err = _copy_dir(p_target_da, p_to + rel_path + "/", p_chmod_flags);
         if (err) {
             change_dir("..");
-            ERR_FAIL_V_CMSG(err, "Failed to copy recursively.")
+            ERR_FAIL_V_MSG(err, "Failed to copy recursively.")
         }
         err = change_dir("..");
-        ERR_FAIL_COND_V_CMSG(err != OK, err, "Failed to go back.")
+        ERR_FAIL_COND_V_MSG(err != OK, err, "Failed to go back.")
     }
 
     return OK;
 }
 
 Error DirAccess::copy_dir(const String& p_from, String p_to, int p_chmod_flags) {
-    ERR_FAIL_COND_V_CMSG(!dir_exists(p_from), ERR_FILE_NOT_FOUND, "Source directory doesn't exist.")
+    ERR_FAIL_COND_V_MSG(!dir_exists(p_from), ERR_FILE_NOT_FOUND, "Source directory doesn't exist.")
 
     DirAccess *target_da = DirAccess::create_for_path(p_to);
     ERR_FAIL_COND_V_MSG(!target_da, ERR_CANT_CREATE, "Cannot create DirAccess for path '" + p_to + "'.")

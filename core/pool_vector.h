@@ -33,7 +33,6 @@
 #include "core/os/memory.h"
 #include "core/os/rw_lock.h"
 
-#include "core/pool_allocator.h"
 #include "core/safe_refcount.h"
 #include "core/error_macros.h"
 
@@ -58,8 +57,6 @@ struct GODOT_EXPORT MemoryPool {
     };
 
     //avoid accessing these directly, must be public for template access
-    static uint8_t *pool_memory;
-    static size_t *pool_size;
     static Alloc *allocs;
     static Alloc *free_list;
     static uint32_t alloc_count;
@@ -154,7 +151,7 @@ class PoolVector {
         if (alloc == p_pool_vector.alloc)
             return;
 
-        _unreference();
+        pv_unreference();
 
         if (!p_pool_vector.alloc) {
             return;
@@ -165,7 +162,7 @@ class PoolVector {
         }
     }
 
-    void _unreference() {
+    void pv_unreference() {
 
         if (!alloc)
             return;
@@ -397,7 +394,7 @@ public:
         {
             return *this;
         }
-        _unreference();
+        pv_unreference();
         alloc=p_pool_vector.alloc;
         p_pool_vector.alloc=nullptr;
         return *this;
@@ -407,7 +404,7 @@ public:
         alloc = nullptr;
         _reference(p_pool_vector);
     }
-    ~PoolVector() { _unreference(); }
+    ~PoolVector() { pv_unreference(); }
 };
 
 template <class T>
@@ -450,7 +447,7 @@ T PoolVector<T>::operator[](int p_index) const {
 template <class T>
 Error PoolVector<T>::resize(int p_size) {
 
-    ERR_FAIL_COND_V_CMSG(p_size < 0, ERR_INVALID_PARAMETER, "Size of PoolVector cannot be negative.")
+    ERR_FAIL_COND_V_MSG(p_size < 0, ERR_INVALID_PARAMETER, "Size of PoolVector cannot be negative.")
 
     if (alloc == nullptr) {
 
@@ -460,7 +457,7 @@ Error PoolVector<T>::resize(int p_size) {
             return ERR_OUT_OF_MEMORY;
     } else {
 
-        ERR_FAIL_COND_V_CMSG(alloc->lock > 0, ERR_LOCKED, "Can't resize PoolVector if locked.") //can't resize if locked!
+        ERR_FAIL_COND_V_MSG(alloc->lock > 0, ERR_LOCKED, "Can't resize PoolVector if locked.") //can't resize if locked!
     }
 
     size_t new_size = sizeof(T) * p_size;
@@ -469,7 +466,7 @@ Error PoolVector<T>::resize(int p_size) {
         return OK; //nothing to do
 
     if (p_size == 0) {
-        _unreference();
+        pv_unreference();
         return OK;
     }
 
@@ -535,7 +532,9 @@ void invert(PoolVector<T> &v) {
         w[s - i - 1] = temp;
     }
 }
+#ifndef __MINGW32__
 
-GODOT_TEMPLATE_EXT_DECLARE(PoolVector<uint8_t>)
+#endif
+GODOT_TEMPLATE_EXT_DECLARE(PoolVector<unsigned char>)
 GODOT_TEMPLATE_EXT_DECLARE(PoolVector<struct Vector2>)
 GODOT_TEMPLATE_EXT_DECLARE(PoolVector<struct Vector3>)

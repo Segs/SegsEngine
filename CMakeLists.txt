@@ -84,7 +84,7 @@ foreach(tgt ${global_targets})
     target_link_libraries(segs_${tgt} ${tgt}_engine Qt5::Core EASTL_Import)
     set_target_properties(segs_${tgt} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
     target_compile_definitions(segs_${tgt} PRIVATE ${godot_${tgt}_DEFINES})
-    target_include_directories(segs_${tgt} PRIVATE ${${PROJECT_BINARY_DIR}})
+    target_include_directories(segs_${tgt} PRIVATE ${PROJECT_BINARY_DIR})
 endforeach()
 
 message(${global_targets})
@@ -206,9 +206,6 @@ endif()
 if(OPTION_MINIZIP)
     add_definitions(-DMINIZIP_ENABLED)
 endif()
-if(OPTION_PRECISE_MATH_CHECKS)
-    add_definitions(-DPRECISE_MATH_CHECKS)
-endif()
 
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS
     $<$<CONFIG:Debug>:DEBUG_ENABLED>
@@ -250,14 +247,18 @@ foreach(tgt ${global_targets})
     if(ENABLE_COTIRE)
         cotire(${tgt}_engine)
     endif()
+if(WIN32)
     install(TARGETS ${tgt}_engine EXPORT SegsEngine
+        ARCHIVE DESTINATION .
         LIBRARY DESTINATION .
         RUNTIME DESTINATION .
         INCLUDES DESTINATION include
     )
-if(WIN32)
+else()
     install(TARGETS ${tgt}_engine EXPORT SegsEngine
-        ARCHIVE DESTINATION .
+        LIBRARY DESTINATION .
+        RUNTIME DESTINATION .
+        INCLUDES DESTINATION include
     )
 endif()
     install(EXPORT SegsEngine

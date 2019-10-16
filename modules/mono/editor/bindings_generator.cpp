@@ -38,7 +38,6 @@
 #include "core/os/dir_access.h"
 #include "core/os/file_access.h"
 #include "core/os/os.h"
-#include "core/ucaps.h"
 
 #include "../glue/cs_compressed.gen.h"
 #include "../glue/cs_glue_version.gen.h"
@@ -277,7 +276,7 @@ String BindingsGenerator::bbcode_to_xml(const String &p_bbcode, const TypeInterf
             Vector<String> link_target_parts = link_target.split(".");
 
             if (link_target_parts.size() <= 0 || link_target_parts.size() > 2) {
-                ERR_PRINTS("Invalid reference format: '" + tag + "'.");
+                ERR_PRINT("Invalid reference format: '" + tag + "'.");
 
                 xml_output.append("<c>");
                 xml_output.append(tag);
@@ -373,7 +372,7 @@ String BindingsGenerator::bbcode_to_xml(const String &p_bbcode, const TypeInterf
                     xml_output.append(target_enum_itype.proxy_name); // Includes nesting class if any
                     xml_output.append("\"/>");
                 } else {
-                    ERR_PRINTS("Cannot resolve enum reference in documentation: '" + link_target + "'.");
+                    ERR_PRINT("Cannot resolve enum reference in documentation: '" + link_target + "'.");
 
                     xml_output.append("<c>");
                     xml_output.append(link_target);
@@ -422,7 +421,7 @@ String BindingsGenerator::bbcode_to_xml(const String &p_bbcode, const TypeInterf
                             xml_output.append(target_iconst->proxy_name);
                             xml_output.append("\"/>");
                         } else {
-                            ERR_PRINTS("Cannot resolve global constant reference in documentation: '" + link_target + "'.");
+                            ERR_PRINT("Cannot resolve global constant reference in documentation: '" + link_target + "'.");
 
                             xml_output.append("<c>");
                             xml_output.append(link_target);
@@ -462,7 +461,7 @@ String BindingsGenerator::bbcode_to_xml(const String &p_bbcode, const TypeInterf
                             xml_output.append(target_iconst->proxy_name);
                             xml_output.append("\"/>");
                         } else {
-                            ERR_PRINTS("Cannot resolve constant reference in documentation: '" + link_target + "'.");
+                            ERR_PRINT("Cannot resolve constant reference in documentation: '" + link_target + "'.");
 
                             xml_output.append("<c>");
                             xml_output.append(link_target);
@@ -484,11 +483,7 @@ String BindingsGenerator::bbcode_to_xml(const String &p_bbcode, const TypeInterf
                 xml_output.append("\"/>");
             } else if (tag == "float") {
                 xml_output.append("<see cref=\""
-#ifdef REAL_T_IS_DOUBLE
-                                  "double"
-#else
                                   "float"
-#endif
                                   "\"/>");
             } else if (tag == "Variant") {
                 // We use System.Object for Variant, so there is no Variant type in C#
@@ -507,11 +502,7 @@ String BindingsGenerator::bbcode_to_xml(const String &p_bbcode, const TypeInterf
             } else if (tag == "PoolIntArray") {
                 xml_output.append("<see cref=\"int\"/>");
             } else if (tag == "PoolRealArray") {
-#ifdef REAL_T_IS_DOUBLE
-                xml_output.append("<see cref=\"double\"/>");
-#else
                 xml_output.append("<see cref=\"float\"/>");
-#endif
             } else if (tag == "PoolStringArray") {
                 xml_output.append("<see cref=\"string\"/>");
             } else if (tag == "PoolVector2Array") {
@@ -532,7 +523,7 @@ String BindingsGenerator::bbcode_to_xml(const String &p_bbcode, const TypeInterf
                     xml_output.append(target_itype->proxy_name);
                     xml_output.append("\"/>");
                 } else {
-                    ERR_PRINTS("Cannot resolve type reference in documentation: '" + tag + "'.");
+                    ERR_PRINT("Cannot resolve type reference in documentation: '" + tag + "'.");
 
                     xml_output.append("<c>");
                     xml_output.append(tag);
@@ -795,7 +786,7 @@ void BindingsGenerator::_generate_global_constants(StringBuilder &p_output) {
     // Enums
 
     for (List<EnumInterface>::Element *E = global_enums.front(); E; E = E->next()) {
-        const EnumInterface &ienum = E->get();
+        const EnumInterface &ienum = E->deref();
 
         CRASH_COND(ienum.constants.empty());
 
@@ -861,13 +852,13 @@ void BindingsGenerator::_generate_global_constants(StringBuilder &p_output) {
 
 Error BindingsGenerator::generate_cs_core_project(const String &p_proj_dir, Vector<String> &r_compile_items) {
 
-	ERR_FAIL_COND_V(!initialized, ERR_UNCONFIGURED);
+    ERR_FAIL_COND_V(!initialized, ERR_UNCONFIGURED);
     DirAccessRef da = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
     ERR_FAIL_COND_V(!da, ERR_CANT_CREATE)
 
     if (!DirAccess::exists(p_proj_dir)) {
         Error err = da->make_dir_recursive(p_proj_dir);
-		ERR_FAIL_COND_V_MSG(err != OK, ERR_CANT_CREATE, "Cannot create directory '" + p_proj_dir + "'.")
+        ERR_FAIL_COND_V_MSG(err != OK, ERR_CANT_CREATE, "Cannot create directory '" + p_proj_dir + "'.")
     }
 
     da->change_dir(p_proj_dir);
@@ -983,7 +974,7 @@ Error BindingsGenerator::generate_cs_core_project(const String &p_proj_dir, Vect
 
 Error BindingsGenerator::generate_cs_editor_project(const String &p_proj_dir, Vector<String> &r_compile_items) {
 
-	ERR_FAIL_COND_V(!initialized, ERR_UNCONFIGURED);
+    ERR_FAIL_COND_V(!initialized, ERR_UNCONFIGURED);
     DirAccessRef da = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
     ERR_FAIL_COND_V(!da, ERR_CANT_CREATE)
 
@@ -1064,7 +1055,7 @@ Error BindingsGenerator::generate_cs_editor_project(const String &p_proj_dir, Ve
 
 Error BindingsGenerator::generate_cs_api(const String &p_output_dir) {
 
-	ERR_FAIL_COND_V(!initialized, ERR_UNCONFIGURED);
+    ERR_FAIL_COND_V(!initialized, ERR_UNCONFIGURED);
     String output_dir = path::abspath(path::realpath(p_output_dir));
 
     DirAccessRef da = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
@@ -1187,7 +1178,7 @@ Error BindingsGenerator::_generate_cs_type(const TypeInterface &itype, const Str
             output.append(obj_types[itype.base_name].proxy_name);
             output.append("\n");
         } else {
-            ERR_PRINTS("Base type '" + itype.base_name.operator String() + "' does not exist, for class '" + itype.name + "'.");
+            ERR_PRINT("Base type '" + itype.base_name.operator String() + "' does not exist, for class '" + itype.name + "'.");
             return ERR_INVALID_DATA;
         }
     }
@@ -1704,7 +1695,7 @@ Error BindingsGenerator::_generate_cs_method(const BindingsGenerator::TypeInterf
 
 Error BindingsGenerator::generate_glue(const String &p_output_dir) {
 
-	ERR_FAIL_COND_V(!initialized, ERR_UNCONFIGURED);
+    ERR_FAIL_COND_V(!initialized, ERR_UNCONFIGURED);
     bool dir_exists = DirAccess::exists(p_output_dir);
     ERR_FAIL_COND_V_MSG(!dir_exists, ERR_FILE_BAD_PATH, "The output directory does not exist.")
 
@@ -1723,11 +1714,11 @@ Error BindingsGenerator::generate_glue(const String &p_output_dir) {
 
         if (!is_derived_type) {
             // Some Object assertions
-            CRASH_COND(itype.cname != name_cache.type_Object);
-            CRASH_COND(!itype.is_instantiable);
-            CRASH_COND(itype.api_type != ClassDB::API_CORE);
-            CRASH_COND(itype.is_reference);
-            CRASH_COND(itype.is_singleton);
+            CRASH_COND(itype.cname != name_cache.type_Object)
+            CRASH_COND(!itype.is_instantiable)
+            CRASH_COND(itype.api_type != ClassDB::API_CORE)
+            CRASH_COND(itype.is_reference)
+            CRASH_COND(itype.is_singleton)
         }
 
         List<InternalCall> &custom_icalls = itype.api_type == ClassDB::API_EDITOR ? editor_custom_icalls : core_custom_icalls;
@@ -1737,7 +1728,7 @@ Error BindingsGenerator::generate_glue(const String &p_output_dir) {
         String ctor_method(ICALL_PREFIX + itype.proxy_name + "_Ctor"); // Used only for derived types
 
         for (const List<MethodInterface>::Element *E = itype.methods.front(); E; E = E->next()) {
-            const MethodInterface &imethod = E->get();
+            const MethodInterface &imethod = E->deref();
             Error method_err = _generate_glue_method(itype, imethod, output);
             ERR_FAIL_COND_V_MSG(method_err != OK, method_err,
                     "Failed to generate method '" + imethod.name + "' for class '" + itype.name + "'.");
@@ -1787,8 +1778,8 @@ Error BindingsGenerator::generate_glue(const String &p_output_dir) {
     output.append("uint32_t get_bindings_version() { return ");
     output.append(String::num_uint64(BINDINGS_GENERATOR_VERSION) + "; }\n");
 
-	output.append("uint32_t get_cs_glue_version() { return ");
-	output.append(String::num_uint64(CS_GLUE_VERSION) + "; }\n");
+    output.append("uint32_t get_cs_glue_version() { return ");
+    output.append(String::num_uint64(CS_GLUE_VERSION) + "; }\n");
 
     output.append("\nvoid register_generated_icalls() " OPEN_BLOCK);
     output.append("\tgodot_register_glue_header_icalls();\n");
@@ -1932,7 +1923,7 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
     }
 
     const Map<const MethodInterface *, const InternalCall *>::Element *match = method_icalls_map.find(&p_imethod);
-    ERR_FAIL_NULL_V(match, ERR_BUG);
+    ERR_FAIL_NULL_V(match, ERR_BUG)
 
     const InternalCall *im_icall = match->value();
     String icall_method = im_icall->name;
@@ -2088,7 +2079,7 @@ const BindingsGenerator::TypeInterface *BindingsGenerator::_get_type_or_placehol
     if (found)
         return found;
 
-    ERR_PRINTS(String() + "Type not found. Creating placeholder: '" + p_typeref.cname.operator String() + "'.");
+    ERR_PRINT(String() + "Type not found. Creating placeholder: '" + p_typeref.cname.operator String() + "'.");
 
     const Map<StringName, TypeInterface>::Element *match = placeholder_types.find(p_typeref.cname);
 
@@ -2144,12 +2135,8 @@ StringName BindingsGenerator::_get_float_type_name_from_meta(GodotTypeInfo::Meta
             return "double";
             break;
         default:
-            // Assume real_t (float or double depending of REAL_T_IS_DOUBLE)
-#ifdef REAL_T_IS_DOUBLE
-            return "double";
-#else
+            // Assume real_t (float )
             return "float";
-#endif
     }
 }
 
@@ -2231,7 +2218,7 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
 
             bool valid = false;
             iprop.index = ClassDB::get_property_index(type_cname, iprop.cname, &valid);
-			ERR_FAIL_COND_V(!valid, false);
+            ERR_FAIL_COND_V(!valid, false);
 
             iprop.proxy_name = escape_csharp_keyword(snake_to_pascal_case(iprop.cname));
 
@@ -2295,7 +2282,7 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
             imethod.is_vararg = m && m->is_vararg();
 
             if (!m && !imethod.is_virtual) {
-				ERR_FAIL_COND_V_MSG(!virtual_method_list.find(method_info), false,
+                ERR_FAIL_COND_V_MSG(!virtual_method_list.find(method_info), false,
                         "Missing MethodBind for non-virtual method: '" + itype.name + "." + imethod.name + "'.");
 
                 // A virtual method without the virtual flag. This is a special case.
@@ -2312,7 +2299,7 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
                 // which could actually will return something different.
                 // Let's put this to notify us if that ever happens.
                 if (itype.cname != name_cache.type_Object || imethod.name != "free") {
-					WARN_PRINTS("Notification: New unexpected virtual non-overridable method found."
+                    WARN_PRINTS("Notification: New unexpected virtual non-overridable method found."
                                " We only expected Object.free, but found '" +
                                itype.name + "." + imethod.name + "'.");
                 }
@@ -2323,10 +2310,10 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
                 imethod.return_type.cname = return_info.class_name;
                 if (!imethod.is_virtual && ClassDB::is_parent_class(return_info.class_name, name_cache.type_Reference) && return_info.hint != PROPERTY_HINT_RESOURCE_TYPE) {
                     /* clang-format off */
-                    ERR_PRINTS("Return type is reference but hint is not '" _STR(PROPERTY_HINT_RESOURCE_TYPE) "'."
+                    ERR_PRINT("Return type is reference but hint is not '" _STR(PROPERTY_HINT_RESOURCE_TYPE) "'."
                             " Are you returning a reference type by pointer? Method: '" + itype.name + "." + imethod.name + "'.");
                     /* clang-format on */
-					ERR_FAIL_V(false);
+                    ERR_FAIL_V(false);
                 }
             } else if (return_info.hint == PROPERTY_HINT_RESOURCE_TYPE) {
                 imethod.return_type.cname = return_info.hint_string;
@@ -2346,10 +2333,10 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
 
             for (int i = 0; i < argc; i++) {
                 PropertyInfo arginfo = method_info.arguments[i];
-				String orig_arg_name = arginfo.name;
+                String orig_arg_name = arginfo.name;
 
                 ArgumentInterface iarg;
-				iarg.name = orig_arg_name;
+                iarg.name = orig_arg_name;
 
                 if (arginfo.type == Variant::INT && arginfo.usage & PROPERTY_USAGE_CLASS_IS_ENUM) {
                     iarg.type.cname = arginfo.class_name;
@@ -2373,9 +2360,9 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
                 iarg.name = escape_csharp_keyword(snake_to_camel_case(iarg.name));
 
                 if (m && m->has_default_argument(i)) {
-					bool defval_ok = _arg_default_value_from_variant(m->get_default_argument(i), iarg);
-					ERR_FAIL_COND_V_MSG(!defval_ok, false,
-							"Cannot determine default value for argument '" + orig_arg_name + "' of method '" + itype.name + "." + imethod.name + "'.");
+                    bool defval_ok = _arg_default_value_from_variant(m->get_default_argument(i), iarg);
+                    ERR_FAIL_COND_V_MSG(!defval_ok, false,
+                            "Cannot determine default value for argument '" + orig_arg_name + "' of method '" + itype.name + "." + imethod.name + "'.");
                 }
 
                 imethod.add_argument(iarg);
@@ -2455,7 +2442,7 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
                 const StringName &constant_cname = E->get();
                 String constant_name = constant_cname.operator String();
                 int *value = class_info->constant_map.getptr(constant_cname);
-				ERR_FAIL_NULL_V(value, false);
+                ERR_FAIL_NULL_V(value, false);
                 constants.erase(constant_name);
 
                 ConstantInterface iconstant(constant_name, snake_to_pascal_case(constant_name, true), *value);
@@ -2491,7 +2478,7 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
         for (const List<String>::Element *E = constants.front(); E; E = E->next()) {
             const String &constant_name = E->get();
             int *value = class_info->constant_map.getptr(StringName(E->get()));
-			ERR_FAIL_NULL_V(value, false);
+            ERR_FAIL_NULL_V(value, false);
 
             ConstantInterface iconstant(constant_name, snake_to_pascal_case(constant_name, true), *value);
 
@@ -2512,7 +2499,7 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
 
         class_list.pop_front();
     }
-	return true;
+    return true;
 }
 
 bool BindingsGenerator::_arg_default_value_from_variant(const Variant &p_val, ArgumentInterface &r_iarg) {
@@ -2534,9 +2521,7 @@ bool BindingsGenerator::_arg_default_value_from_variant(const Variant &p_val, Ar
             }
             break;
         case Variant::REAL:
-#ifndef REAL_T_IS_DOUBLE
             r_iarg.default_argument += "f";
-#endif
             break;
         case Variant::STRING:
         case Variant::NODE_PATH:
@@ -2561,22 +2546,22 @@ bool BindingsGenerator::_arg_default_value_from_variant(const Variant &p_val, Ar
             r_iarg.def_param_mode = ArgumentInterface::NULLABLE_VAL;
             break;
         case Variant::OBJECT:
-			ERR_FAIL_COND_V_MSG(!p_val.is_zero(), false,
-					"Parameter of type '" + String(r_iarg.type.cname) + "' can only have null/zero as the default value.");
+            ERR_FAIL_COND_V_MSG(!p_val.is_zero(), false,
+                    "Parameter of type '" + String(r_iarg.type.cname) + "' can only have null/zero as the default value.");
                 r_iarg.default_argument = "null";
                 break;
         case Variant::DICTIONARY:
             r_iarg.default_argument = "new %s()";
             r_iarg.def_param_mode = ArgumentInterface::NULLABLE_REF;
-			break;
-		case Variant::_RID:
-			ERR_FAIL_COND_V_MSG(r_iarg.type.cname != name_cache.type_RID, false,
-					"Parameter of type '" + String(r_iarg.type.cname) + "' cannot have a default value of type '" + String(name_cache.type_RID) + "'.");
+            break;
+        case Variant::_RID:
+            ERR_FAIL_COND_V_MSG(r_iarg.type.cname != name_cache.type_RID, false,
+                    "Parameter of type '" + String(r_iarg.type.cname) + "' cannot have a default value of type '" + String(name_cache.type_RID) + "'.");
 
-			ERR_FAIL_COND_V_MSG(!p_val.is_zero(), false,
-					"Parameter of type '" + String(r_iarg.type.cname) + "' can only have null/zero as the default value.");
+            ERR_FAIL_COND_V_MSG(!p_val.is_zero(), false,
+                    "Parameter of type '" + String(r_iarg.type.cname) + "' can only have null/zero as the default value.");
 
-			r_iarg.default_argument = "null";
+            r_iarg.default_argument = "null";
             break;
         case Variant::ARRAY:
         case Variant::POOL_BYTE_ARRAY:
@@ -2601,7 +2586,7 @@ bool BindingsGenerator::_arg_default_value_from_variant(const Variant &p_val, Ar
 
     if (r_iarg.def_param_mode == ArgumentInterface::CONSTANT && r_iarg.type.cname == name_cache.type_Variant && r_iarg.default_argument != "null")
         r_iarg.def_param_mode = ArgumentInterface::NULLABLE_REF;
-	return true;
+    return true;
 }
 
 void BindingsGenerator::_populate_builtin_type_interfaces() {
@@ -2819,15 +2804,8 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
 
     INSERT_ARRAY(PoolIntArray, int);
     INSERT_ARRAY_FULL(PoolByteArray, PoolByteArray, byte);
-
-#ifdef REAL_T_IS_DOUBLE
-    INSERT_ARRAY(PoolRealArray, double);
-#else
     INSERT_ARRAY(PoolRealArray, float);
-#endif
-
     INSERT_ARRAY(PoolStringArray, string);
-
     INSERT_ARRAY(PoolColorArray, Color);
     INSERT_ARRAY(PoolVector2Array, Vector2);
     INSERT_ARRAY(PoolVector3Array, Vector3);
@@ -2941,7 +2919,7 @@ void BindingsGenerator::_populate_global_constants() {
             // HARDCODED: The Error enum have the prefix 'ERR_' for everything except 'OK' and 'FAILED'.
             if (ienum.cname == name_cache.enum_Error) {
                 if (prefix_length > 0) { // Just in case it ever changes
-                    ERR_PRINTS("Prefix for enum '" _STR(Error) "' is not empty.");
+                    ERR_PRINT("Prefix for enum '" _STR(Error) "' is not empty.");
                 }
 
                 prefix_length = 1; // 'ERR_'
@@ -2986,7 +2964,7 @@ void BindingsGenerator::_log(const char *p_format, ...) {
 }
 
 void BindingsGenerator::_initialize() {
-	initialized = false;
+    initialized = false;
 
     EditorHelp::generate_doc();
 
@@ -2994,8 +2972,8 @@ void BindingsGenerator::_initialize() {
 
     _initialize_blacklisted_methods();
 
-	bool obj_type_ok = _populate_object_type_interfaces();
-	ERR_FAIL_COND_MSG(!obj_type_ok, "Failed to generate object type interfaces");
+    bool obj_type_ok = _populate_object_type_interfaces();
+    ERR_FAIL_COND_MSG(!obj_type_ok, "Failed to generate object type interfaces");
     _populate_builtin_type_interfaces();
 
     _populate_global_constants();
@@ -3007,7 +2985,7 @@ void BindingsGenerator::_initialize() {
 
     for (OrderedHashMap<StringName, TypeInterface>::Element E = obj_types.front(); E; E = E.next())
         _generate_method_icalls(E.get());
-	initialized = true;
+    initialized = true;
 }
 
 void BindingsGenerator::handle_cmdline_args(const List<String> &p_cmdline_args) {
@@ -3033,7 +3011,7 @@ void BindingsGenerator::handle_cmdline_args(const List<String> &p_cmdline_args) 
                 glue_dir_path = path_elem->get();
                 elem = elem->next();
             } else {
-                ERR_PRINTS(generate_all_glue_option + ": No output directory specified (expected path to '{GODOT_ROOT}/modules/mono/glue').");
+                ERR_PRINT(generate_all_glue_option + ": No output directory specified (expected path to '{GODOT_ROOT}/modules/mono/glue').");
             }
 
             --options_left;
@@ -3044,7 +3022,7 @@ void BindingsGenerator::handle_cmdline_args(const List<String> &p_cmdline_args) 
                 cs_dir_path = path_elem->get();
                 elem = elem->next();
             } else {
-                ERR_PRINTS(generate_cs_glue_option + ": No output directory specified.");
+                ERR_PRINT(generate_cs_glue_option + ": No output directory specified.");
             }
 
             --options_left;
@@ -3055,7 +3033,7 @@ void BindingsGenerator::handle_cmdline_args(const List<String> &p_cmdline_args) 
                 cpp_dir_path = path_elem->get();
                 elem = elem->next();
             } else {
-                ERR_PRINTS(generate_cpp_glue_option + ": No output directory specified.");
+                ERR_PRINT(generate_cpp_glue_option + ": No output directory specified.");
             }
 
             --options_left;
@@ -3067,27 +3045,27 @@ void BindingsGenerator::handle_cmdline_args(const List<String> &p_cmdline_args) 
     if (glue_dir_path.length() || cs_dir_path.length() || cpp_dir_path.length()) {
         BindingsGenerator bindings_generator;
         bindings_generator.set_log_print_enabled(true);
-		if (!bindings_generator.initialized) {
-			ERR_PRINTS("Failed to initialize the bindings generator");
-			::exit(0);
-		}
+        if (!bindings_generator.initialized) {
+            ERR_PRINT("Failed to initialize the bindings generator");
+            ::exit(0);
+        }
 
         if (glue_dir_path.length()) {
             if (bindings_generator.generate_glue(glue_dir_path) != OK)
-                ERR_PRINTS(generate_all_glue_option + ": Failed to generate the C++ glue.");
+                ERR_PRINT(generate_all_glue_option + ": Failed to generate the C++ glue.");
 
-			if (bindings_generator.generate_cs_api(glue_dir_path.plus_file("Managed/Generated")) != OK)
-                ERR_PRINTS(generate_all_glue_option + ": Failed to generate the C# API.");
+            if (bindings_generator.generate_cs_api(glue_dir_path.plus_file("Managed/Generated")) != OK)
+                ERR_PRINT(generate_all_glue_option + ": Failed to generate the C# API.");
         }
 
         if (cs_dir_path.length()) {
             if (bindings_generator.generate_cs_api(cs_dir_path) != OK)
-                ERR_PRINTS(generate_cs_glue_option + ": Failed to generate the C# API.");
+                ERR_PRINT(generate_cs_glue_option + ": Failed to generate the C# API.");
         }
 
         if (cpp_dir_path.length()) {
             if (bindings_generator.generate_glue(cpp_dir_path) != OK)
-                ERR_PRINTS(generate_cpp_glue_option + ": Failed to generate the C++ glue.");
+                ERR_PRINT(generate_cpp_glue_option + ": Failed to generate the C++ glue.");
         }
 
         // Exit once done

@@ -33,7 +33,7 @@
 #include "core/project_settings.h"
 #include "rasterizer_canvas_gles3.h"
 #include "rasterizer_scene_gles3.h"
-
+#include "glad/glad.h"
 /* TEXTURE API */
 
 #define _EXT_COMPRESSED_RGB_PVRTC_4BPPV1_IMG 0x8C00
@@ -101,36 +101,12 @@
 #define _EXT_COMPRESSED_RGB_BPTC_SIGNED_FLOAT 0x8E8E
 #define _EXT_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT 0x8E8F
 
-#ifndef GLES_OVER_GL
-#define glClearDepth glClearDepthf
-#endif
-
-#ifdef __EMSCRIPTEN__
-#include <emscripten/emscripten.h>
-
-void glGetBufferSubData(GLenum target, GLintptr offset, GLsizeiptr size, GLvoid *data) {
-
-    /* clang-format off */
-    EM_ASM({
-        GLctx.getBufferSubData($0, $1, HEAPU8, $2, $3);
-    }, target, offset, data, size);
-    /* clang-format on */
-}
-#endif
-
 void glTexStorage2DCustom(GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height, GLenum format, GLenum type) {
-
-#ifdef GLES_OVER_GL
-
     for (int i = 0; i < levels; i++) {
         glTexImage2D(target, i, internalformat, width, height, 0, format, type, nullptr);
         width = MAX(1, (width / 2));
         height = MAX(1, (height / 2));
     }
-
-#else
-    glTexStorage2D(target, levels, internalformat, width, height);
-#endif
 }
 
 GLuint RasterizerStorageGLES3::system_fbo = 0;
@@ -148,26 +124,14 @@ Ref<Image> RasterizerStorageGLES3::_get_gl_image_and_format(const Ref<Image> &p_
     switch (p_format) {
 
         case Image::FORMAT_L8: {
-#ifdef GLES_OVER_GL
             r_gl_internal_format = GL_R8;
             r_gl_format = GL_RED;
             r_gl_type = GL_UNSIGNED_BYTE;
-#else
-            r_gl_internal_format = GL_LUMINANCE;
-            r_gl_format = GL_LUMINANCE;
-            r_gl_type = GL_UNSIGNED_BYTE;
-#endif
         } break;
         case Image::FORMAT_LA8: {
-#ifdef GLES_OVER_GL
             r_gl_internal_format = GL_RG8;
             r_gl_format = GL_RG;
             r_gl_type = GL_UNSIGNED_BYTE;
-#else
-            r_gl_internal_format = GL_LUMINANCE_ALPHA;
-            r_gl_format = GL_LUMINANCE_ALPHA;
-            r_gl_type = GL_UNSIGNED_BYTE;
-#endif
         } break;
         case Image::FORMAT_R8: {
 
@@ -627,26 +591,6 @@ void RasterizerStorageGLES3::texture_allocate(RID p_texture, int p_width, int p_
         p_flags &= ~VS::TEXTURE_FLAG_MIPMAPS; // no mipies for video
     }
 
-#ifndef GLES_OVER_GL
-    switch (p_format) {
-        case Image::FORMAT_RF:
-        case Image::FORMAT_RGF:
-        case Image::FORMAT_RGBF:
-        case Image::FORMAT_RGBAF:
-        case Image::FORMAT_RH:
-        case Image::FORMAT_RGH:
-        case Image::FORMAT_RGBH:
-        case Image::FORMAT_RGBAH: {
-            if (!config.texture_float_linear_supported) {
-                // disable linear texture filtering when not supported for float format on some devices (issue #24295)
-                p_flags &= ~VS::TEXTURE_FLAG_FILTER;
-            }
-        } break;
-        default: {
-        }
-    }
-#endif
-
     Texture *texture = texture_owner.get(p_texture);
     ERR_FAIL_COND(!texture)
     texture->width = p_width;
@@ -753,11 +697,7 @@ void RasterizerStorageGLES3::texture_set_data(RID p_texture, const Ref<Image> &p
     if (config.keep_original_textures && !(texture->flags & VS::TEXTURE_FLAG_USED_FOR_STREAMING)) {
         texture->images.write[p_layer] = p_image;
     }
-#ifndef GLES_OVER_GL
-    if (p_image->is_compressed() && p_image->has_mipmaps() && !p_image->is_size_po2()) {
-        ERR_PRINTS("Texuture '" + texture->path + "' is compressed, has mipmaps but is not of powerf-of-2 size. This does not work on OpenGL ES 3.0.");
-    }
-#endif
+
     Image::Format real_format;
     Ref<Image> img = _get_gl_image_and_format(p_image, p_image->get_format(), texture->flags, real_format, format, internal_format, type, compressed, srgb);
 
@@ -849,7 +789,6 @@ void RasterizerStorageGLES3::texture_set_data(RID p_texture, const Ref<Image> &p
     }
 
 //set swizle for older format compatibility
-#ifdef GLES_OVER_GL
     switch (texture->format) {
 
         case Image::FORMAT_L8: {
@@ -874,7 +813,7 @@ void RasterizerStorageGLES3::texture_set_data(RID p_texture, const Ref<Image> &p
 
         } break;
     }
-#endif
+
     if (config.use_anisotropic_filter) {
 
         if (texture->flags & VS::TEXTURE_FLAG_ANISOTROPIC_FILTER) {
@@ -1189,8 +1128,6 @@ Ref<Image> RasterizerStorageGLES3::texture_get_data(RID p_texture, int p_layer) 
         return Ref<Image>(img);
     }
 
-#ifdef GLES_OVER_GL
-
     Image::Format real_format;
     GLenum gl_format;
     GLenum gl_internal_format;
@@ -1259,78 +1196,6 @@ Ref<Image> RasterizerStorageGLES3::texture_get_data(RID p_texture, int p_layer) 
     Image *img = memnew(Image(texture->alloc_width, texture->alloc_height, texture->mipmaps > 1, img_format, data));
 
     return Ref<Image>(img);
-#else
-
-    Image::Format real_format;
-    GLenum gl_format;
-    GLenum gl_internal_format;
-    GLenum gl_type;
-    bool compressed;
-    bool srgb;
-    _get_gl_image_and_format(Ref<Image>(), texture->format, texture->flags, real_format, gl_format, gl_internal_format, gl_type, compressed, srgb);
-
-    PoolVector<uint8_t> data;
-
-    int data_size = Image::get_image_data_size(texture->alloc_width, texture->alloc_height, Image::FORMAT_RGBA8, false);
-
-    data.resize(data_size * 2); //add some memory at the end, just in case for buggy drivers
-    PoolVector<uint8_t>::Write wb = data.write();
-
-    GLuint temp_framebuffer;
-    glGenFramebuffers(1, &temp_framebuffer);
-
-    GLuint temp_color_texture;
-    glGenTextures(1, &temp_color_texture);
-
-    glBindFramebuffer(GL_FRAMEBUFFER, temp_framebuffer);
-
-    glBindTexture(GL_TEXTURE_2D, temp_color_texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->alloc_width, texture->alloc_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, temp_color_texture, 0);
-
-    glDepthMask(GL_FALSE);
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_CULL_FACE);
-    glDisable(GL_BLEND);
-    glDepthFunc(GL_LEQUAL);
-    glColorMask(1, 1, 1, 1);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture->tex_id);
-
-    glViewport(0, 0, texture->alloc_width, texture->alloc_height);
-
-    shaders.copy.set_conditional(CopyShaderGLES3::LINEAR_TO_SRGB, !srgb);
-    shaders.copy.bind();
-
-    glClearColor(0.0, 0.0, 0.0, 0.0);
-    glClear(GL_COLOR_BUFFER_BIT);
-    glBindVertexArray(resources.quadie_array);
-    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-    glBindVertexArray(0);
-
-    glReadPixels(0, 0, texture->alloc_width, texture->alloc_height, GL_RGBA, GL_UNSIGNED_BYTE, &wb[0]);
-
-    shaders.copy.set_conditional(CopyShaderGLES3::LINEAR_TO_SRGB, false);
-
-    glDeleteTextures(1, &temp_color_texture);
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glDeleteFramebuffers(1, &temp_framebuffer);
-
-    wb.release();
-
-    data.resize(data_size);
-
-    Image *img = memnew(Image(texture->alloc_width, texture->alloc_height, false, Image::FORMAT_RGBA8, data));
-    if (!texture->compressed) {
-        img->convert(real_format);
-    }
-
-    return Ref<Image>(img);
-#endif
 }
 
 void RasterizerStorageGLES3::texture_set_flags(RID p_texture, uint32_t p_flags) {
@@ -2249,7 +2114,9 @@ void RasterizerStorageGLES3::shader_get_param_list(RID p_shader, ListPOD<Propert
                 pi.type = VariantType::INT;
                 if (u.hint == ShaderLanguage::ShaderNode::Uniform::HINT_RANGE) {
                     pi.hint = PROPERTY_HINT_RANGE;
-                    pi.hint_string = rtos(u.hint_range[0]) + "," + rtos(u.hint_range[1]) + "," + rtos(u.hint_range[2]);
+                    char buf[128];
+                    snprintf(buf,127,"%f,%f,%f", u.hint_range[0], u.hint_range[1], u.hint_range[2]);
+                    pi.hint_string = buf;
                 }
 
             } break;
@@ -2266,7 +2133,9 @@ void RasterizerStorageGLES3::shader_get_param_list(RID p_shader, ListPOD<Propert
                 pi.type = VariantType::REAL;
                 if (u.hint == ShaderLanguage::ShaderNode::Uniform::HINT_RANGE) {
                     pi.hint = PROPERTY_HINT_RANGE;
-                    pi.hint_string = rtos(u.hint_range[0]) + "," + rtos(u.hint_range[1]) + "," + rtos(u.hint_range[2]);
+                    char buf[128];
+                    snprintf(buf, 127, "%f,%f,%f", u.hint_range[0], u.hint_range[1], u.hint_range[2]);
+                    pi.hint_string = buf;
                 }
 
             } break;
@@ -3751,20 +3620,10 @@ PoolVector<uint8_t> RasterizerStorageGLES3::mesh_surface_get_array(RID p_mesh, i
     ret.resize(surface->array_byte_size);
     glBindBuffer(GL_ARRAY_BUFFER, surface->vertex_id);
 
-#if defined(GLES_OVER_GL) || defined(__EMSCRIPTEN__)
     {
         PoolVector<uint8_t>::Write w = ret.write();
         glGetBufferSubData(GL_ARRAY_BUFFER, 0, surface->array_byte_size, w.ptr());
     }
-#else
-    void *data = glMapBufferRange(GL_ARRAY_BUFFER, 0, surface->array_byte_size, GL_MAP_READ_BIT);
-    ERR_FAIL_NULL_V(data, PoolVector<uint8_t>());
-    {
-        PoolVector<uint8_t>::Write w = ret.write();
-        copymem(w.ptr(), data, surface->array_byte_size);
-    }
-    glUnmapBuffer(GL_ARRAY_BUFFER);
-#endif
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     return ret;
@@ -3783,20 +3642,10 @@ PoolVector<uint8_t> RasterizerStorageGLES3::mesh_surface_get_index_array(RID p_m
     if (surface->index_array_byte_size > 0) {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, surface->index_id);
 
-#if defined(GLES_OVER_GL) || defined(__EMSCRIPTEN__)
         {
             PoolVector<uint8_t>::Write w = ret.write();
             glGetBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, surface->index_array_byte_size, w.ptr());
         }
-#else
-        void *data = glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, surface->index_array_byte_size, GL_MAP_READ_BIT);
-        ERR_FAIL_NULL_V(data, PoolVector<uint8_t>());
-        {
-            PoolVector<uint8_t>::Write w = ret.write();
-            copymem(w.ptr(), data, surface->index_array_byte_size);
-        }
-        glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
-#endif
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }
@@ -3827,7 +3676,7 @@ AABB RasterizerStorageGLES3::mesh_surface_get_aabb(RID p_mesh, int p_surface) co
 
     const Mesh *mesh = mesh_owner.getornull(p_mesh);
     ERR_FAIL_COND_V(!mesh, AABB())
-    ERR_FAIL_INDEX_V(p_surface, mesh->surfaces.size(), AABB());
+    ERR_FAIL_INDEX_V(p_surface, mesh->surfaces.size(), AABB())
 
     return mesh->surfaces[p_surface]->aabb;
 }
@@ -3835,7 +3684,7 @@ Vector<PoolVector<uint8_t> > RasterizerStorageGLES3::mesh_surface_get_blend_shap
 
     const Mesh *mesh = mesh_owner.getornull(p_mesh);
     ERR_FAIL_COND_V(!mesh, Vector<PoolVector<uint8_t> >())
-    ERR_FAIL_INDEX_V(p_surface, mesh->surfaces.size(), Vector<PoolVector<uint8_t> >());
+    ERR_FAIL_INDEX_V(p_surface, mesh->surfaces.size(), Vector<PoolVector<uint8_t> >())
 
     Vector<PoolVector<uint8_t> > bsarr;
 
@@ -3845,20 +3694,10 @@ Vector<PoolVector<uint8_t> > RasterizerStorageGLES3::mesh_surface_get_blend_shap
         ret.resize(mesh->surfaces[p_surface]->array_byte_size);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->surfaces[p_surface]->blend_shapes[i].vertex_id);
 
-#if defined(GLES_OVER_GL) || defined(__EMSCRIPTEN__)
         {
             PoolVector<uint8_t>::Write w = ret.write();
             glGetBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, mesh->surfaces[p_surface]->array_byte_size, w.ptr());
         }
-#else
-        void *data = glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, mesh->surfaces[p_surface]->array_byte_size, GL_MAP_READ_BIT);
-        ERR_FAIL_COND_V(!data, Vector<PoolVector<uint8_t> >())
-        {
-            PoolVector<uint8_t>::Write w = ret.write();
-            copymem(w.ptr(), data, mesh->surfaces[p_surface]->array_byte_size);
-        }
-        glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
-#endif
 
         bsarr.push_back(ret);
     }
@@ -3870,7 +3709,7 @@ Vector<AABB> RasterizerStorageGLES3::mesh_surface_get_skeleton_aabb(RID p_mesh, 
 
     const Mesh *mesh = mesh_owner.getornull(p_mesh);
     ERR_FAIL_COND_V(!mesh, Vector<AABB>())
-    ERR_FAIL_INDEX_V(p_surface, mesh->surfaces.size(), Vector<AABB>());
+    ERR_FAIL_INDEX_V(p_surface, mesh->surfaces.size(), Vector<AABB>())
 
     return mesh->surfaces[p_surface]->skeleton_bone_aabb;
 }
@@ -3879,7 +3718,7 @@ void RasterizerStorageGLES3::mesh_remove_surface(RID p_mesh, int p_surface) {
 
     Mesh *mesh = mesh_owner.getornull(p_mesh);
     ERR_FAIL_COND(!mesh)
-    ERR_FAIL_INDEX(p_surface, mesh->surfaces.size());
+    ERR_FAIL_INDEX(p_surface, mesh->surfaces.size())
 
     Surface *surface = mesh->surfaces[p_surface];
 
@@ -6287,7 +6126,7 @@ AABB RasterizerStorageGLES3::particles_get_current_aabb(RID p_particles) {
     const float *data;
     glBindBuffer(GL_ARRAY_BUFFER, particles->particle_buffers[0]);
 
-#if defined(GLES_OVER_GL) || defined(__EMSCRIPTEN__)
+
     PoolVector<uint8_t> vector;
     vector.resize(particles->amount * 16 * 6);
     {
@@ -6296,9 +6135,7 @@ AABB RasterizerStorageGLES3::particles_get_current_aabb(RID p_particles) {
     }
     PoolVector<uint8_t>::Read r = vector.read();
     data = reinterpret_cast<const float *>(r.ptr());
-#else
-    data = (float *)glMapBufferRange(GL_ARRAY_BUFFER, 0, particles->amount * 16 * 6, GL_MAP_READ_BIT);
-#endif
+
     AABB aabb;
 
     Transform inv = particles->emission_transform.affine_inverse();
@@ -6315,12 +6152,8 @@ AABB RasterizerStorageGLES3::particles_get_current_aabb(RID p_particles) {
             aabb.expand_to(pos);
     }
 
-#if defined(GLES_OVER_GL) || defined(__EMSCRIPTEN__)
     r.release();
     vector = PoolVector<uint8_t>();
-#else
-    glUnmapBuffer(GL_ARRAY_BUFFER);
-#endif
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -6553,15 +6386,15 @@ void RasterizerStorageGLES3::update_particles() {
         shaders.particles.set_uniform(ParticlesShaderGLES3::EMITTING, particles->emitting);
         shaders.particles.set_uniform(ParticlesShaderGLES3::RANDOMNESS, particles->randomness);
 
-        bool zero_time_scale = Engine::get_singleton()->get_time_scale() <= 0.0;
+        bool zero_time_scale = Engine::get_singleton()->get_time_scale() <= 0.0f;
 
-        if (particles->clear && particles->pre_process_time > 0.0) {
+        if (particles->clear && particles->pre_process_time > 0.0f) {
 
             float frame_time;
             if (particles->fixed_fps > 0)
-                frame_time = 1.0 / particles->fixed_fps;
+                frame_time = 1.0f / particles->fixed_fps;
             else
-                frame_time = 1.0 / 30.0;
+                frame_time = 1.0f / 30.0f;
 
             float todo = particles->pre_process_time;
 
@@ -6576,16 +6409,16 @@ void RasterizerStorageGLES3::update_particles() {
             float decr;
             if (zero_time_scale) {
                 frame_time = 0.0;
-                decr = 1.0 / particles->fixed_fps;
+                decr = 1.0f / particles->fixed_fps;
             } else {
-                frame_time = 1.0 / particles->fixed_fps;
+                frame_time = 1.0f / particles->fixed_fps;
                 decr = frame_time;
             }
             float delta = frame.delta;
-            if (delta > 0.1) { //avoid recursive stalls if fps goes below 10
-                delta = 0.1;
-            } else if (delta <= 0.0) { //unlikely but..
-                delta = 0.001;
+            if (delta > 0.1f) { //avoid recursive stalls if fps goes below 10
+                delta = 0.1f;
+            } else if (delta <= 0.0f) { //unlikely but..
+                delta = 0.001f;
             }
             float todo = particles->frame_remainder + delta;
 
@@ -7963,23 +7796,13 @@ void RasterizerStorageGLES3::initialize() {
     config.etc_supported = config.extensions.contains("GL_OES_compressed_ETC1_RGB8_texture");
     config.latc_supported = config.extensions.contains("GL_EXT_texture_compression_latc");
     config.bptc_supported = config.extensions.contains("GL_ARB_texture_compression_bptc");
-#ifdef GLES_OVER_GL
+
     config.etc2_supported = false;
     config.s3tc_supported = true;
     config.rgtc_supported = true; //RGTC - core since OpenGL version 3.0
     config.texture_float_linear_supported = true;
     config.framebuffer_float_supported = true;
     config.framebuffer_half_float_supported = true;
-
-#else
-    config.etc2_supported = true;
-    config.s3tc_supported = config.extensions.has("GL_EXT_texture_compression_dxt1") || config.extensions.has("GL_EXT_texture_compression_s3tc") || config.extensions.has("WEBGL_compressed_texture_s3tc");
-    config.rgtc_supported = config.extensions.has("GL_EXT_texture_compression_rgtc") || config.extensions.has("GL_ARB_texture_compression_rgtc") || config.extensions.has("EXT_texture_compression_rgtc");
-    config.texture_float_linear_supported = config.extensions.has("GL_OES_texture_float_linear");
-    config.framebuffer_float_supported = config.extensions.has("GL_EXT_color_buffer_float");
-    config.framebuffer_half_float_supported = config.extensions.has("GL_EXT_color_buffer_half_float") || config.framebuffer_float_supported;
-
-#endif
 
     config.pvrtc_supported = config.extensions.contains("GL_IMG_texture_compression_pvrtc");
     config.srgb_decode_supported = config.extensions.contains("GL_EXT_texture_sRGB_decode");
@@ -8140,9 +7963,7 @@ void RasterizerStorageGLES3::initialize() {
     shaders.cubemap_filter.set_conditional(CubemapFilterShaderGLES3::LOW_QUALITY, !ggx_hq);
     shaders.particles.init();
 
-#ifdef GLES_OVER_GL
     glEnable(_EXT_TEXTURE_CUBE_MAP_SEAMLESS);
-#endif
 
     frame.count = 0;
     frame.delta = 0;

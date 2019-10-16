@@ -68,7 +68,6 @@ TScriptInstance *cast_script_instance(ScriptInstance *p_inst) {
 class CSharpScript : public Script {
 
     GDCLASS(CSharpScript,Script)
-IMPL_GDCLASS(CSharpScript)
 
     friend class CSharpInstance;
     friend class CSharpLanguage;
@@ -452,7 +451,7 @@ public:
     virtual void refcount_incremented_instance_binding(Object *p_object);
     virtual bool refcount_decremented_instance_binding(Object *p_object);
 
-    Map<Object *, CSharpScriptBinding>::Element *insert_script_binding(Object *p_object, const CSharpScriptBinding &p_script_binding);
+    Map<Object *, CSharpScriptBinding>::iterator insert_script_binding(Object *p_object, const CSharpScriptBinding &p_script_binding);
     bool setup_csharp_script_binding(CSharpScriptBinding &r_script_binding, Object *p_object);
 
 #ifdef DEBUG_ENABLED

@@ -154,7 +154,7 @@ static void _display_error_with_code(const String &p_error, const Vector<const c
         line++;
     }
 
-    ERR_PRINTS(p_error)
+    ERR_PRINT(p_error)
 }
 
 ShaderGLES3::Version *ShaderGLES3::get_current_version() {
@@ -196,12 +196,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
     /* SETUP CONDITIONALS */
 
     Vector<const char *> strings;
-#ifdef GLES_OVER_GL
     strings.push_back("#version 330\n");
-    strings.push_back("#define GLES_OVER_GL\n");
-#else
-    strings.push_back("#version 300 es\n");
-#endif
 
     for (int i = 0; i < custom_defines.size(); i++) {
 
@@ -255,11 +250,6 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
     //vertex precision is high
     strings.push_back("precision highp float;\n");
     strings.push_back("precision highp int;\n");
-#ifndef GLES_OVER_GL
-    strings.push_back("precision highp sampler2D;\n");
-    strings.push_back("precision highp samplerCube;\n");
-    strings.push_back("precision highp sampler2DArray;\n");
-#endif
 
     strings.push_back(vertex_code0.data());
 
@@ -343,11 +333,6 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
     //fragment precision is medium
     strings.push_back("precision highp float;\n");
     strings.push_back("precision highp int;\n");
-#ifndef GLES_OVER_GL
-    strings.push_back("precision highp sampler2D;\n");
-    strings.push_back("precision highp samplerCube;\n");
-    strings.push_back("precision highp sampler2DArray;\n");
-#endif
 
     strings.push_back(fragment_code0.data());
     if (cc) {

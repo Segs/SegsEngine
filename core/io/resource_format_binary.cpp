@@ -90,13 +90,13 @@ enum {
     VARIANT_VECTOR2_ARRAY = 37,
     VARIANT_INT64 = 40,
     VARIANT_DOUBLE = 41,
-#ifndef DISABLE_DEPRECATED
-    VARIANT_IMAGE = 21, // - no longer variant type
-    IMAGE_ENCODING_EMPTY = 0,
-    IMAGE_ENCODING_RAW = 1,
-    IMAGE_ENCODING_LOSSLESS = 2,
-    IMAGE_ENCODING_LOSSY = 3,
-#endif
+//#ifndef DISABLE_DEPRECATED
+//    VARIANT_IMAGE = 21, // - no longer variant type
+//    IMAGE_ENCODING_EMPTY = 0,
+//    IMAGE_ENCODING_RAW = 1,
+//    IMAGE_ENCODING_LOSSLESS = 2,
+//    IMAGE_ENCODING_LOSSY = 3,
+//#endif
     OBJECT_EMPTY = 0,
     OBJECT_EXTERNAL_RESOURCE = 1,
     OBJECT_INTERNAL_RESOURCE = 2,
@@ -129,8 +129,7 @@ StringName ResourceInteractiveLoaderBinary::_get_string() {
         if (len == 0)
             return StringName();
         f->get_buffer((uint8_t *)&str_buf[0], len);
-        String s = StringUtils::from_utf8(&str_buf[0]);
-        return s;
+        return StringName(StringUtils::from_utf8(&str_buf[0]));
     }
 
     return string_map[id];
@@ -394,10 +393,10 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
             for (uint32_t i = 0; i < len; i++) {
                 Variant key;
                 Error err = parse_variant(key);
-                ERR_FAIL_COND_V_CMSG(err, ERR_FILE_CORRUPT, "Error when trying to parse Variant.")
+                ERR_FAIL_COND_V_MSG(err, ERR_FILE_CORRUPT, "Error when trying to parse Variant.")
                 Variant value;
                 err = parse_variant(value);
-                ERR_FAIL_COND_V_CMSG(err, ERR_FILE_CORRUPT, "Error when trying to parse Variant.")
+                ERR_FAIL_COND_V_MSG(err, ERR_FILE_CORRUPT, "Error when trying to parse Variant.")
                 d[key] = value;
             }
             r_v = d;
@@ -411,7 +410,7 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
             for (uint32_t i = 0; i < len; i++) {
                 Variant val;
                 Error err = parse_variant(val);
-                ERR_FAIL_COND_V_CMSG(err, ERR_FILE_CORRUPT, "Error when trying to parse Variant.")
+                ERR_FAIL_COND_V_MSG(err, ERR_FILE_CORRUPT, "Error when trying to parse Variant.")
                 a[i] = val;
             }
             r_v = a;
@@ -506,7 +505,7 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
 #endif
 
             } else {
-                ERR_FAIL_V_CMSG(ERR_UNAVAILABLE, "Vector2 size is NOT 8!")
+                ERR_FAIL_V_MSG(ERR_UNAVAILABLE, "Vector2 size is NOT 8!")
             }
             w.release();
             r_v = Variant(array);
@@ -533,7 +532,7 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
 #endif
 
             } else {
-                ERR_FAIL_V_CMSG(ERR_UNAVAILABLE, "Vector3 size is NOT 12!")
+                ERR_FAIL_V_MSG(ERR_UNAVAILABLE, "Vector3 size is NOT 12!")
             }
             w.release();
             r_v = array;
@@ -560,73 +559,13 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
 #endif
 
             } else {
-                ERR_FAIL_V_CMSG(ERR_UNAVAILABLE, "Color size is NOT 16!")
+                ERR_FAIL_V_MSG(ERR_UNAVAILABLE, "Color size is NOT 16!")
             }
             w.release();
             r_v = array;
         } break;
-#ifndef DISABLE_DEPRECATED
-        case VARIANT_IMAGE: {
-            uint32_t encoding = f->get_32();
-            if (encoding == IMAGE_ENCODING_EMPTY) {
-                r_v = Ref<Image>();
-                break;
-            } else if (encoding == IMAGE_ENCODING_RAW) {
-                uint32_t width = f->get_32();
-                uint32_t height = f->get_32();
-                uint32_t mipmaps = f->get_32();
-                uint32_t format = f->get_32();
-                const uint32_t format_version_shift = 24;
-                const uint32_t format_version_mask = format_version_shift - 1;
-
-                uint32_t format_version = format >> format_version_shift;
-
-                const uint32_t current_version = 0;
-                if (format_version > current_version) {
-
-                    ERR_PRINT("Format version for encoded binary image is too new.");
-                    return ERR_PARSE_ERROR;
-                }
-
-                Image::Format fmt = Image::Format(format & format_version_mask); //if format changes, we can add a compatibility bit on top
-
-                uint32_t datalen = f->get_32();
-
-                PoolVector<uint8_t> imgdata;
-                imgdata.resize(datalen);
-                PoolVector<uint8_t>::Write w = imgdata.write();
-                f->get_buffer(w.ptr(), datalen);
-                _advance_padding(datalen);
-                w.release();
-
-                Ref<Image> image(make_ref_counted<Image>());
-                image->create(width, height, mipmaps, fmt, imgdata);
-                r_v = image;
-
-            } else {
-                //compressed
-                PODVector<uint8_t> data;
-                data.resize(f->get_32());
-                f->get_buffer(data.data(), data.size());
-
-                Ref<Image> image;
-
-                if (encoding == IMAGE_ENCODING_LOSSY) {
-
-                    image = Image::lossy_unpacker(data);
-                } else if (encoding == IMAGE_ENCODING_LOSSLESS) {
-
-                    image = Image::lossless_unpacker(data);
-                }
-                _advance_padding(data.size());
-
-                r_v = image;
-            }
-
-        } break;
-#endif
         default: {
-            ERR_FAIL_V(ERR_FILE_CORRUPT);
+            ERR_FAIL_V(ERR_FILE_CORRUPT)
         }
     }
 
@@ -717,7 +656,7 @@ Error ResourceInteractiveLoaderBinary::poll() {
 
     String t = get_unicode_string();
 
-    Object *obj = ClassDB::instance(t);
+    Object *obj = ClassDB::instance(StringName(t));
     if (!obj) {
         error = ERR_FILE_CORRUPT;
         ERR_FAIL_V_MSG(ERR_FILE_CORRUPT, local_path + ":Resource of unrecognized type in file: " + t + ".")
@@ -898,7 +837,7 @@ void ResourceInteractiveLoaderBinary::open(FileAccess *p_f) {
     string_map.resize(string_table_size);
     for (uint32_t i = 0; i < string_table_size; i++) {
 
-        StringName s = get_unicode_string();
+        StringName s(get_unicode_string());
         string_map.write[i] = s;
     }
 
@@ -1008,7 +947,7 @@ void ResourceFormatLoaderBinary::get_recognized_extensions_for_type(const String
     }
 
     ListPOD<String> extensions;
-    ClassDB::get_extensions_for_type(p_type, &extensions);
+    ClassDB::get_extensions_for_type(StringName(p_type), &extensions);
 
     extensions.sort();
 
@@ -1492,7 +1431,7 @@ void ResourceFormatSaverBinaryInstance::write_variant(FileAccess *f, const Varia
 
                 if (!resource_set.contains(res)) {
                     f->store_32(OBJECT_EMPTY);
-                    ERR_FAIL_CMSG("Resource was not pre cached for the resource section, most likely due to circular reference.")
+                    ERR_FAIL_MSG("Resource was not pre cached for the resource section, most likely due to circular reference.")
                 }
 
                 f->store_32(OBJECT_INTERNAL_RESOURCE);
@@ -1623,7 +1562,7 @@ void ResourceFormatSaverBinaryInstance::write_variant(FileAccess *f, const Varia
         } break;
         default: {
 
-            ERR_FAIL_CMSG("Invalid variant.")
+            ERR_FAIL_MSG("Invalid variant.")
         }
     }
 }
@@ -1640,7 +1579,7 @@ void ResourceFormatSaverBinaryInstance::_find_resources(const Variant &p_variant
 
             if (!p_main && (!bundle_resources) && res->get_path().length() && !StringUtils::contains(res->get_path(),"::")) {
                 if (res->get_path() == path) {
-                    ERR_PRINTS("Circular reference to resource being saved found: '" + local_path + "' will be null next time it's loaded.")
+                    ERR_PRINT("Circular reference to resource being saved found: '" + local_path + "' will be null next time it's loaded.")
                     return;
                 }
                 int idx = external_resources.size();
@@ -1732,7 +1671,7 @@ void ResourceFormatSaverBinaryInstance::save_unicode_string(FileAccess *f, const
 
 int ResourceFormatSaverBinaryInstance::get_string_index(const String &p_string) {
 
-    StringName s = p_string;
+    StringName s(p_string);
     if (string_map.contains(s))
         return string_map[s];
 

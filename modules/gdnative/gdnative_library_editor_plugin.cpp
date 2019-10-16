@@ -30,9 +30,11 @@
 
 #ifdef TOOLS_ENABLED
 #include "gdnative_library_editor_plugin.h"
-#include "gdnative.h"
+
 #include "core/method_bind.h"
-#include "editor_scale.h"
+#include "core/translation_helpers.h"
+#include "editor/editor_scale.h"
+#include "gdnative.h"
 
 IMPL_GDCLASS(GDNativeLibraryEditor)
 IMPL_GDCLASS(GDNativeLibraryEditorPlugin)

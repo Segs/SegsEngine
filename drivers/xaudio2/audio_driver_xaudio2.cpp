@@ -63,10 +63,10 @@ Error AudioDriverXAudio2::init() {
 
 	HRESULT hr;
 	hr = XAudio2Create(&xaudio, 0, XAUDIO2_DEFAULT_PROCESSOR);
-        ERR_FAIL_COND_V_CMSG(hr != S_OK, ERR_UNAVAILABLE, "Error creating XAudio2 engine.")
+        ERR_FAIL_COND_V_MSG(hr != S_OK, ERR_UNAVAILABLE, "Error creating XAudio2 engine.")
 
 	hr = xaudio->CreateMasteringVoice(&mastering_voice);
-        ERR_FAIL_COND_V_CMSG(hr != S_OK, ERR_UNAVAILABLE, "Error creating XAudio2 mastering voice.")
+        ERR_FAIL_COND_V_MSG(hr != S_OK, ERR_UNAVAILABLE, "Error creating XAudio2 mastering voice.")
 
 	wave_format.nChannels = channels;
 	wave_format.cbSize = 0;

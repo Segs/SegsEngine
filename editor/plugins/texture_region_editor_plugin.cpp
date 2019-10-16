@@ -35,6 +35,7 @@
 #include "editor/editor_scale.h"
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
+#include "core/translation_helpers.h"
 #include "scene/gui/check_box.h"
 
 IMPL_GDCLASS(TextureRegionEditor)

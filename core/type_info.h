@@ -255,7 +255,7 @@ struct GetTypeInfo<const T *, typename EnableIf<TypeInherits<Object, T>::value>:
         static inline PropertyInfo get_class_info() {                                                                  \
             return PropertyInfo(VariantType::INT, nullptr, PROPERTY_HINT_NONE, nullptr,                                    \
                     PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_CLASS_IS_ENUM,                                             \
-                    StringUtils::replace(String(#m_enum), "::", "."));                                                 \
+                    StringName(StringUtils::replace(String(#m_enum), "::", ".")));                                     \
         }                                                                                                              \
     };
 
@@ -265,7 +265,7 @@ struct GetTypeInfo<const T *, typename EnableIf<TypeInherits<Object, T>::value>:
 template <typename T>
 inline StringName __constant_get_enum_name(T /*param*/, const char *p_constant) {
     if (GetTypeInfo<T>::VARIANT_TYPE == VariantType::NIL)
-        ERR_PRINTS(String("Missing VARIANT_ENUM_CAST for constant's enum: ") + p_constant)
+        ERR_PRINT(String("Missing VARIANT_ENUM_CAST for constant's enum: ") + p_constant)
     return GetTypeInfo<T>::get_class_info().class_name;
 }
 

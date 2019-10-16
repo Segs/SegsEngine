@@ -31,6 +31,7 @@
 #include "skeleton_2d_editor_plugin.h"
 
 #include "core/method_bind.h"
+#include "core/translation_helpers.h"
 #include "canvas_item_editor_plugin.h"
 #include "scene/2d/mesh_instance_2d.h"
 #include "scene/gui/box_container.h"

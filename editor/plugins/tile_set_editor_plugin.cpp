@@ -33,6 +33,7 @@
 #include "core/method_bind.h"
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
+#include "core/translation_helpers.h"
 #include "editor/plugins/canvas_item_editor_plugin.h"
 #include "scene/2d/physics_body_2d.h"
 #include "scene/2d/sprite.h"

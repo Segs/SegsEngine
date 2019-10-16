@@ -68,7 +68,6 @@
 #include "main/main.h"
 #include "scene/resources/packed_scene.h"
 #include "servers/physics_2d_server.h"
-#include "core/container_utils.h"
 #include "core/container_tools.h"
 #include "fileserver/editor_file_server.h"
 #include "editor/editor_audio_buses.h"
@@ -570,12 +569,12 @@ void EditorNode::_fs_changed() {
         }
         if (not preset) {
             String errstr = "Unknown export preset: " + export_defer.preset;
-            ERR_PRINTS(errstr)
+            ERR_PRINT(errstr)
         } else {
             Ref<EditorExportPlatform> platform = preset->get_platform();
             if (not platform) {
                 String errstr = "Preset \"" + export_defer.preset + "\" doesn't have a platform.";
-                ERR_PRINTS(errstr)
+                ERR_PRINT(errstr)
             } else {
                 // ensures export_project does not loop infinitely, because notifications may
                 // come during the export
@@ -591,7 +590,7 @@ void EditorNode::_fs_changed() {
                     err = platform->export_project(preset, export_defer.debug, export_defer.path);
                 }
                 if (err != OK) {
-                    ERR_PRINTS(vformat(TTR("Project export failed with error code %d."), (int)err))
+                    ERR_PRINT(vformat(TTR("Project export failed with error code %d."), (int)err))
                 }
             }
         }
@@ -2656,7 +2655,7 @@ void EditorNode::_tool_menu_option(int p_idx) {
                 handler->call(callback, (const Variant **)&ud, 1, ce);
                 if (ce.error != Variant::CallError::CALL_OK) {
                     String err = Variant::get_call_error_text(handler, callback, (const Variant **)&ud, 1, ce);
-                    ERR_PRINTS("Error calling function from tool menu: " + err)
+                    ERR_PRINT("Error calling function from tool menu: " + err)
                 }
             } // else it's a submenu so don't do anything.
         } break;
@@ -3965,7 +3964,7 @@ Ref<Texture> EditorNode::get_object_icon(const Object *p_object, const String &p
 }
 
 Ref<Texture> EditorNode::get_class_icon(const String &p_class, const String &p_fallback) const {
-    ERR_FAIL_COND_V_CMSG(p_class.empty(), Ref<Texture>(), "Class name cannot be empty.")
+    ERR_FAIL_COND_V_MSG(p_class.empty(), Ref<Texture>(), "Class name cannot be empty.")
 
     if (gui_base->has_icon(p_class, "EditorIcons")) {
         return gui_base->get_icon(p_class, "EditorIcons");

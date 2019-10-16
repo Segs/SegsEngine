@@ -38,6 +38,7 @@
 #include "core/os/os.h"
 #include "core/print_string.h"
 #include "core/project_settings.h"
+#include "core/translation_helpers.h"
 #include "scene/main/scene_tree.h"
 #include "scene/main/timer.h"
 #include "scene/main/viewport.h"

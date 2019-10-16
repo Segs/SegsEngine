@@ -35,6 +35,7 @@
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
 #include "core/project_settings.h"
+#include "core/translation_helpers.h"
 #include "editor/editor_inspector.h"
 #include "editor/editor_scale.h"
 #include "scene/animation/animation_player.h"
@@ -174,7 +175,7 @@ void AnimationNodeBlendTreeEditor::_update_graph() {
             String base_path = AnimationTreeEditor::get_singleton()->get_base_path() + String(E) + "/" + F->deref().name;
             EditorProperty *prop = EditorInspector::instantiate_property_editor(AnimationTreeEditor::get_singleton()->get_tree(), F->deref().type, base_path, F->deref().hint, F->deref().hint_string, F->deref().usage);
             if (prop) {
-                prop->set_object_and_property(AnimationTreeEditor::get_singleton()->get_tree(), base_path);
+                prop->set_object_and_property(AnimationTreeEditor::get_singleton()->get_tree(), StringName(base_path));
                 prop->update_property();
                 prop->set_name_split_ratio(0);
                 prop->connect("property_changed", this, "_property_changed");
@@ -306,14 +307,14 @@ void AnimationNodeBlendTreeEditor::_add_node(int p_idx) {
         ERR_FAIL_COND(not anode)
         base_name = anode->get_class();
     } else if (!add_options[p_idx].type.empty()) {
-        AnimationNode *an = object_cast<AnimationNode>(ClassDB::instance(add_options[p_idx].type));
+        AnimationNode *an = object_cast<AnimationNode>(ClassDB::instance(StringName(add_options[p_idx].type)));
         ERR_FAIL_COND(!an)
         anode = Ref<AnimationNode>(an);
         base_name = add_options[p_idx].name;
     } else {
         ERR_FAIL_COND(not add_options[p_idx].script)
         String base_type = add_options[p_idx].script->get_instance_base_type();
-        AnimationNode *an = object_cast<AnimationNode>(ClassDB::instance(base_type));
+        AnimationNode *an = object_cast<AnimationNode>(ClassDB::instance(StringName(base_type)));
         ERR_FAIL_COND(!an)
         anode = Ref<AnimationNode>(an);
         anode->set_script(add_options[p_idx].script.get_ref_ptr());
@@ -337,7 +338,7 @@ void AnimationNodeBlendTreeEditor::_add_node(int p_idx) {
 
     int base = 1;
     String name = base_name;
-    while (blend_tree->has_node(name)) {
+    while (blend_tree->has_node(StringName(name))) {
         base++;
         name = base_name + " " + itos(base);
     }
@@ -364,7 +365,7 @@ void AnimationNodeBlendTreeEditor::_node_dragged(const Vector2 &p_from, const Ve
 
 void AnimationNodeBlendTreeEditor::_connection_request(const String &p_from, int p_from_index, const String &p_to, int p_to_index) {
 
-    AnimationNodeBlendTree::ConnectionError err = blend_tree->can_connect_node(p_to, p_to_index, p_from);
+    AnimationNodeBlendTree::ConnectionError err = blend_tree->can_connect_node(StringName(p_to), p_to_index, StringName(p_from));
 
     if (err != AnimationNodeBlendTree::CONNECTION_OK) {
         EditorNode::get_singleton()->show_warning(TTR("Unable to connect, port may be in use or connection may be invalid."));
@@ -381,7 +382,7 @@ void AnimationNodeBlendTreeEditor::_connection_request(const String &p_from, int
 
 void AnimationNodeBlendTreeEditor::_disconnection_request(const String &p_from, int p_from_index, const String &p_to, int p_to_index) {
 
-    graph->disconnect_node(p_from, p_from_index, p_to, p_to_index);
+    graph->disconnect_node(StringName(p_from), p_from_index, StringName(p_to), p_to_index);
 
     updating = true;
     undo_redo->create_action(TTR("Nodes Disconnected"));
@@ -397,7 +398,7 @@ void AnimationNodeBlendTreeEditor::_anim_selected(int p_index, Array p_options, 
 
     String option = p_options[p_index];
 
-    Ref<AnimationNodeAnimation> anim = dynamic_ref_cast<AnimationNodeAnimation>(blend_tree->get_node(p_node));
+    Ref<AnimationNodeAnimation> anim = dynamic_ref_cast<AnimationNodeAnimation>(blend_tree->get_node(StringName(p_node)));
     ERR_FAIL_COND(not anim)
 
     undo_redo->create_action(TTR("Set Animation"));
@@ -412,13 +413,13 @@ void AnimationNodeBlendTreeEditor::_delete_request(const String &p_which) {
 
     undo_redo->create_action(TTR("Delete Node"));
     undo_redo->add_do_method(blend_tree.get(), "remove_node", p_which);
-    undo_redo->add_undo_method(blend_tree.get(), "add_node", p_which, blend_tree->get_node(p_which), blend_tree.get()->get_node_position(p_which));
+    undo_redo->add_undo_method(blend_tree.get(), "add_node", p_which, blend_tree->get_node(StringName(p_which)), blend_tree.get()->get_node_position(StringName(p_which)));
 
     List<AnimationNodeBlendTree::NodeConnection> conns;
     blend_tree->get_node_connections(&conns);
 
     for (List<AnimationNodeBlendTree::NodeConnection>::Element *E = conns.front(); E; E = E->next()) {
-        if (E->deref().output_node == p_which || E->deref().input_node == p_which) {
+        if (E->deref().output_node == StringName(p_which) || E->deref().input_node == StringName(p_which)) {
             undo_redo->add_undo_method(blend_tree.get(), "connect_node", E->deref().input_node, E->deref().input_index, E->deref().output_node);
         }
     }
@@ -469,7 +470,7 @@ void AnimationNodeBlendTreeEditor::_node_selected(Object *p_node) {
 
     String name = gn->get_name();
 
-    Ref<AnimationNode> anode = blend_tree->get_node(name);
+    Ref<AnimationNode> anode = blend_tree->get_node(StringName(name));
     ERR_FAIL_COND(not anode)
 
     EditorNode::get_singleton()->push_item(anode.get(), "", true);
@@ -477,7 +478,7 @@ void AnimationNodeBlendTreeEditor::_node_selected(Object *p_node) {
 
 void AnimationNodeBlendTreeEditor::_open_in_editor(const String &p_which) {
 
-    Ref<AnimationNode> an = blend_tree->get_node(p_which);
+    Ref<AnimationNode> an = blend_tree->get_node(StringName(p_which));
     ERR_FAIL_COND(not an)
     AnimationTreeEditor::get_singleton()->enter_editor(p_which);
 }
@@ -669,7 +670,7 @@ bool AnimationNodeBlendTreeEditor::_update_filters(const Ref<AnimationNode> &ano
 
 void AnimationNodeBlendTreeEditor::_edit_filters(const String &p_which) {
 
-    Ref<AnimationNode> anode = blend_tree->get_node(p_which);
+    Ref<AnimationNode> anode = blend_tree->get_node(StringName(p_which));
     ERR_FAIL_COND(not anode)
 
     _filter_edit = anode;
@@ -719,7 +720,7 @@ void AnimationNodeBlendTreeEditor::_notification(int p_what) {
         blend_tree->get_node_connections(&conns);
         for (List<AnimationNodeBlendTree::NodeConnection>::Element *E = conns.front(); E; E = E->next()) {
             float activity = 0;
-            StringName path = AnimationTreeEditor::get_singleton()->get_base_path() + E->deref().input_node;
+            StringName path(AnimationTreeEditor::get_singleton()->get_base_path() + E->deref().input_node);
             if (AnimationTreeEditor::get_singleton()->get_tree() && !AnimationTreeEditor::get_singleton()->get_tree()->is_state_invalid()) {
                 activity = AnimationTreeEditor::get_singleton()->get_tree()->get_connection_activity(path, E->deref().input_index);
             }
@@ -741,7 +742,7 @@ void AnimationNodeBlendTreeEditor::_notification(int p_what) {
                         if (anim) {
                             E.second->set_max(anim->get_length());
                             //StringName path = AnimationTreeEditor::get_singleton()->get_base_path() + E->get().input_node;
-                            StringName time_path = AnimationTreeEditor::get_singleton()->get_base_path() + String(E.first) + "/time";
+                            StringName time_path(AnimationTreeEditor::get_singleton()->get_base_path() + String(E.first) + "/time");
                             E.second->set_value(AnimationTreeEditor::get_singleton()->get_tree()->get(time_path));
                         }
                     }
@@ -798,7 +799,7 @@ AnimationNodeBlendTreeEditor *AnimationNodeBlendTreeEditor::singleton = nullptr;
 
 void AnimationNodeBlendTreeEditor::_node_renamed(const String &p_text, const Ref<AnimationNode>& p_node) {
 
-    String prev_name = blend_tree->get_node_name(p_node);
+    StringName prev_name = blend_tree->get_node_name(p_node);
     ERR_FAIL_COND(prev_name.empty())
     GraphNode *gn = object_cast<GraphNode>(graph->get_node(NodePath(prev_name)));
     ERR_FAIL_COND(!gn)
@@ -814,7 +815,7 @@ void AnimationNodeBlendTreeEditor::_node_renamed(const String &p_text, const Ref
     const String &base_name = new_name;
     int base = 1;
     String name = base_name;
-    while (blend_tree->has_node(name)) {
+    while (blend_tree->has_node(StringName(name))) {
         base++;
         name = base_name + " " + itos(base);
     }
@@ -838,7 +839,7 @@ void AnimationNodeBlendTreeEditor::_node_renamed(const String &p_text, const Ref
     for (int i = 0; i < visible_properties.size(); i++) {
         String pname = visible_properties[i]->get_edited_property().operator String();
         if (StringUtils::begins_with(pname,base_path + prev_name)) {
-            String new_name2 = StringUtils::replace_first(pname,base_path + prev_name, base_path + name);
+            StringName new_name2(StringUtils::replace_first(pname,base_path + prev_name, base_path + name));
             visible_properties[i]->set_object_and_property(visible_properties[i]->get_edited_object(), new_name2);
         }
     }
@@ -861,7 +862,7 @@ void AnimationNodeBlendTreeEditor::_node_renamed(const String &p_text, const Ref
     //update animations
     for (eastl::pair<const StringName,ProgressBar *> &E : animations) {
         if (E.first == prev_name) {
-            animations[new_name] = animations[prev_name];
+            animations[StringName(new_name)] = animations[prev_name];
             animations.erase(prev_name);
             break;
         }

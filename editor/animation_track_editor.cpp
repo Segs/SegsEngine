@@ -35,6 +35,7 @@
 #include "core/object_db.h"
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
+#include "core/translation_helpers.h"
 #include "editor/animation_bezier_editor.h"
 #include "editor/plugins/animation_player_editor_plugin.h"
 #include "editor_node.h"

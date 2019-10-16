@@ -46,6 +46,7 @@
 #include "core/io/resource_saver.h"
 #include "core/os/os.h"
 #include "core/project_settings.h"
+#include "core/translation_helpers.h"
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_export.h"
@@ -227,7 +228,7 @@ Ref<GDNativeLibraryResourceSaver> resource_saver_gdnlib;
 void register_gdnative_types() {
 
 #ifdef TOOLS_ENABLED
-    Q_INIT_RESOURCE(gdnative); 
+    Q_INIT_RESOURCE(gdnative);
     GDNativeLibraryEditor::initialize_class();
     EditorNode::add_init_callback(editor_init_callback);
 #endif
@@ -279,11 +280,11 @@ void register_gdnative_types() {
 
         void *proc_ptr;
         Error err = singleton->get_symbol(
-                lib->get_symbol_prefix() + "gdnative_singleton",
+                StringName(lib->get_symbol_prefix() + "gdnative_singleton"),
                 proc_ptr);
 
         if (err != OK) {
-            ERR_PRINTS("No " + lib->get_symbol_prefix() + "gdnative_singleton in \"" + singleton->get_library()->get_current_library_path() + "\" found")
+            ERR_PRINT("No " + lib->get_symbol_prefix() + "gdnative_singleton in \"" + singleton->get_library()->get_current_library_path() + "\" found")
         } else {
             singleton_gdnatives.push_back(singleton);
             ((void (*)())proc_ptr)();

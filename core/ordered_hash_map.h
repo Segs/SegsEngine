@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef ORDERED_HASH_MAP_H
-#define ORDERED_HASH_MAP_H
+#pragma once
 
 #include "core/hash_map.h"
 #include "core/list.h"
@@ -313,5 +312,3 @@ public:
 
     OrderedHashMap() {}
 };
-
-#endif // ORDERED_HASH_MAP_H

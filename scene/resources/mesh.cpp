@@ -1116,7 +1116,7 @@ struct ArrayMeshLightmapSurface {
 Error ArrayMesh::lightmap_unwrap(const Transform &p_base_transform, float p_texel_size) {
 
     ERR_FAIL_COND_V(!array_mesh_lightmap_unwrap_callback, ERR_UNCONFIGURED)
-    ERR_FAIL_COND_V_CMSG(!blend_shapes.empty(), ERR_UNAVAILABLE, "Can't unwrap mesh with blend shapes.")
+    ERR_FAIL_COND_V_MSG(!blend_shapes.empty(), ERR_UNAVAILABLE, "Can't unwrap mesh with blend shapes.")
 
     Vector<float> vertices;
     Vector<float> normals;
@@ -1130,9 +1130,9 @@ Error ArrayMesh::lightmap_unwrap(const Transform &p_base_transform, float p_texe
         ArrayMeshLightmapSurface s;
         s.primitive = surface_get_primitive_type(i);
 
-        ERR_FAIL_COND_V_CMSG(s.primitive != Mesh::PRIMITIVE_TRIANGLES, ERR_UNAVAILABLE, "Only triangles are supported for lightmap unwrap.")
+        ERR_FAIL_COND_V_MSG(s.primitive != Mesh::PRIMITIVE_TRIANGLES, ERR_UNAVAILABLE, "Only triangles are supported for lightmap unwrap.")
         s.format = surface_get_format(i);
-        ERR_FAIL_COND_V_CMSG(!(s.format & ARRAY_FORMAT_NORMAL), ERR_UNAVAILABLE, "Normals are required for lightmap unwrap.")
+        ERR_FAIL_COND_V_MSG(!(s.format & ARRAY_FORMAT_NORMAL), ERR_UNAVAILABLE, "Normals are required for lightmap unwrap.")
 
         Array arrays = surface_get_arrays(i);
         s.material = surface_get_material(i);

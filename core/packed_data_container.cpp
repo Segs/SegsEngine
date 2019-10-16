@@ -124,7 +124,7 @@ Variant PackedDataContainer::_get_at_ofs(uint32_t p_ofs, const uint8_t *p_buf, b
         if (rerr != OK) {
 
             err = true;
-			ERR_FAIL_COND_V_CMSG(err != OK, Variant(), "Error when trying to decode Variant.")
+			ERR_FAIL_COND_V_MSG(err != OK, Variant(), "Error when trying to decode Variant.")
         }
         return v;
     }

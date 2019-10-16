@@ -35,6 +35,7 @@
 #include "core/io/marshalls.h"
 #include "core/os/os.h"
 #include "core/print_string.h"
+#include "core/translation_helpers.h"
 #include "scene/2d/area_2d.h"
 #include "scene/main/scene_tree.h"
 #include "scene/resources/world_2d.h"
@@ -1607,7 +1608,7 @@ void TileMap::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 }
 
 void TileMap::_validate_property(PropertyInfo &property) const {
-    if (use_parent && property.name != "collision_use_parent" && StringUtils::begins_with(property.name,"collision_")) {
+    if (use_parent && property.name != StringName("collision_use_parent") && StringUtils::begins_with(property.name,"collision_")) {
         property.usage = PROPERTY_USAGE_NOEDITOR;
     }
 }

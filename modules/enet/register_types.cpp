@@ -31,6 +31,7 @@
 #include "register_types.h"
 
 #include "core/class_db.h"
+#include "core/string_name.h"
 #include "core/error_macros.h"
 #include "networked_multiplayer_enet.h"
 

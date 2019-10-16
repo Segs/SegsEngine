@@ -33,7 +33,10 @@
 #include "core/os/memory.h"
 #include "core/variant.h"
 #include "core/vector.h"
+#include "core/string_name.h"
 #include "core/forward_decls.h"
+#include "core/dictionary.h"
+
 /**
 @author Juan Linietsky <reduzio@gmail.com>
 */

@@ -37,10 +37,6 @@
 #include "servers/camera/camera_feed.h"
 #include "servers/visual/visual_server_raster.h"
 
-#ifndef GLES_OVER_GL
-#define glClearDepth glClearDepthf
-#endif
-
 static const GLenum _cube_side_enum[6] = {
 
     GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
@@ -3128,18 +3124,6 @@ void RasterizerSceneGLES3::_setup_reflections(RID *p_reflection_probe_cull_resul
 
 void RasterizerSceneGLES3::_copy_screen(bool p_invalidate_color, bool p_invalidate_depth) {
 
-#ifndef GLES_OVER_GL
-    if (p_invalidate_color) {
-
-        GLenum attachments[2] = {
-            GL_COLOR_ATTACHMENT0,
-            GL_DEPTH_ATTACHMENT
-        };
-
-        glInvalidateFramebuffer(GL_FRAMEBUFFER, p_invalidate_depth ? 2 : 1, attachments);
-    }
-#endif
-
     glBindVertexArray(storage->resources.quadie_array);
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
     glBindVertexArray(0);
@@ -3160,7 +3144,7 @@ void RasterizerSceneGLES3::_copy_texture_to_front_buffer(GLuint p_texture) {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, p_texture);
 
-    glViewport(0, 0, storage->frame.current_rt->width * 0.5, storage->frame.current_rt->height * 0.5);
+    glViewport(0, 0, storage->frame.current_rt->width * 0.5f, storage->frame.current_rt->height * 0.5f);
 
     storage->shaders.copy.set_conditional(CopyShaderGLES3::DISABLE_ALPHA, true);
     storage->shaders.copy.bind();
@@ -5285,11 +5269,8 @@ void RasterizerSceneGLES3::initialize() {
         glGenVertexArrays(1, &state.immediate_array);
     }
 
-#ifdef GLES_OVER_GL
     //"desktop" opengl needs this.
     glEnable(GL_PROGRAM_POINT_SIZE);
-
-#endif
 
     state.resolve_shader.init();
     state.ssr_shader.init();

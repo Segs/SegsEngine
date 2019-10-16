@@ -1387,7 +1387,7 @@ Node *Node::get_node_or_null(const NodePath &p_path) const {
         return nullptr;
     }
 
-    ERR_FAIL_COND_V_CMSG(!inside_tree && p_path.is_absolute(), nullptr, "Can't use get_node() with absolute paths from outside the active scene tree.")
+    ERR_FAIL_COND_V_MSG(!inside_tree && p_path.is_absolute(), nullptr, "Can't use get_node() with absolute paths from outside the active scene tree.")
 
     Node *current = nullptr;
     Node *root = nullptr;
@@ -1716,7 +1716,7 @@ NodePath Node::get_path_to(const Node *p_node) const {
 
 NodePath Node::get_path() const {
 
-    ERR_FAIL_COND_V_CMSG(!is_inside_tree(), NodePath(), "Cannot get path of node as it is not in a scene tree.")
+    ERR_FAIL_COND_V_MSG(!is_inside_tree(), NodePath(), "Cannot get path of node as it is not in a scene tree.")
 
     if (data->path_cache)
         return *data->path_cache;

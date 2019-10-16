@@ -36,6 +36,7 @@
 #include "scene/resources/convex_polygon_shape_2d.h"
 #include "scene/main/scene_tree.h"
 #include "core/method_bind.h"
+#include "core/translation_helpers.h"
 
 #include "thirdparty/misc/triangulator.h"
 

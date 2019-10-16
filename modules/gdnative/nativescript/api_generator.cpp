@@ -231,7 +231,7 @@ List<ClassAPI> generate_c_api_classes() {
             for (const String &c : constant) {
                 ConstantAPI constant_api;
                 constant_api.constant_name = c;
-                constant_api.constant_value = ClassDB::get_integer_constant(class_name, c);
+                constant_api.constant_value = ClassDB::get_integer_constant(class_name, StringName(c));
 
                 class_api.constants.push_back(constant_api);
             }

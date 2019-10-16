@@ -39,6 +39,7 @@
 #include "scene/resources/line_shape_2d.h"
 #include "scene/resources/rectangle_shape_2d.h"
 #include "scene/resources/segment_shape_2d.h"
+#include "core/translation_helpers.h"
 
 IMPL_GDCLASS(CollisionShape2DEditor)
 IMPL_GDCLASS(CollisionShape2DEditorPlugin)

@@ -61,7 +61,7 @@ class GODOT_EXPORT ScriptServer {
     struct GlobalScriptClass {
         StringName language;
         String path;
-        String base;
+        StringName base;
     };
 
     static HashMap<StringName, GlobalScriptClass> global_classes;

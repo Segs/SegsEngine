@@ -34,6 +34,7 @@
 #include "core/math/face3.h"
 #include "core/math/plane.h"
 #include "core/vector.h"
+#include "core/dictionary.h"
 
 template <class T>
 class PoolVector;

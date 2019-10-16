@@ -65,7 +65,7 @@ bool xatlas_mesh_lightmap_unwrap_callback(float p_texel_size, const float *p_ver
     xatlas::Atlas *atlas = xatlas::Create();
     printf("Adding mesh..\n");
     xatlas::AddMeshError::Enum err = xatlas::AddMesh(atlas, input_mesh, 1);
-    ERR_EXPLAINC(xatlas::StringForEnum(err))
+    ERR_EXPLAIN(xatlas::StringForEnum(err))
     ERR_FAIL_COND_V(err != xatlas::AddMeshError::Enum::Success, false)
 
     printf("Generate..\n");
@@ -77,7 +77,7 @@ bool xatlas_mesh_lightmap_unwrap_callback(float p_texel_size, const float *p_ver
     float w = *r_size_hint_x;
     float h = *r_size_hint_y;
 
-    if (w == 0 || h == 0) {
+    if (w == 0.0f || h == 0.0f) {
 		return false; //could not bake because there is no area
     }
 

@@ -322,29 +322,29 @@ class BindingsGenerator {
 
         const MethodInterface *find_method_by_name(const StringName &p_cname) const {
             for (const List<MethodInterface>::Element *E = methods.front(); E; E = E->next()) {
-                if (E->get().cname == p_cname)
-                    return &E->get();
+                if (E->deref().cname == p_cname)
+                    return &E->deref();
             }
 
-            return NULL;
+            return nullptr;
         }
 
         const PropertyInterface *find_property_by_name(const StringName &p_cname) const {
             for (const List<PropertyInterface>::Element *E = properties.front(); E; E = E->next()) {
-                if (E->get().cname == p_cname)
-                    return &E->get();
+                if (E->deref().cname == p_cname)
+                    return &E->deref();
             }
 
-            return NULL;
+            return nullptr;
         }
 
         const PropertyInterface *find_property_by_proxy_name(const String &p_proxy_name) const {
             for (const List<PropertyInterface>::Element *E = properties.front(); E; E = E->next()) {
-                if (E->get().proxy_name == p_proxy_name)
-                    return &E->get();
+                if (E->deref().proxy_name == p_proxy_name)
+                    return &E->deref();
             }
 
-            return NULL;
+            return nullptr;
         }
 
     private:
@@ -472,7 +472,7 @@ class BindingsGenerator {
     };
 
     bool log_print_enabled;
-	bool initialized;
+    bool initialized;
 
     OrderedHashMap<StringName, TypeInterface> obj_types;
 
@@ -503,7 +503,7 @@ class BindingsGenerator {
         StringName type_VarArg;
         StringName type_Object;
         StringName type_Reference;
-		StringName type_RID;
+        StringName type_RID;
         StringName type_String;
         StringName type_at_GlobalScope;
         StringName enum_Error;
@@ -520,28 +520,28 @@ class BindingsGenerator {
         StringName type_double;
 
         NameCache() {
-            type_void = StaticCString::create("void");
-            type_Array = StaticCString::create("Array");
-            type_Dictionary = StaticCString::create("Dictionary");
-            type_Variant = StaticCString::create("Variant");
-            type_VarArg = StaticCString::create("VarArg");
-            type_Object = StaticCString::create("Object");
-            type_Reference = StaticCString::create("Reference");
-			type_RID = StaticCString::create("RID");
-            type_String = StaticCString::create("String");
-            type_at_GlobalScope = StaticCString::create("@GlobalScope");
-            enum_Error = StaticCString::create("Error");
+            type_void = StaticCString("void");
+            type_Array = StaticCString("Array");
+            type_Dictionary = StaticCString("Dictionary");
+            type_Variant = StaticCString("Variant");
+            type_VarArg = StaticCString("VarArg");
+            type_Object = StaticCString("Object");
+            type_Reference = StaticCString("Reference");
+            type_RID = StaticCString("RID");
+            type_String = StaticCString("String");
+            type_at_GlobalScope = StaticCString("@GlobalScope");
+            enum_Error = StaticCString("Error");
 
-            type_sbyte = StaticCString::create("sbyte");
-            type_short = StaticCString::create("short");
-            type_int = StaticCString::create("int");
-            type_long = StaticCString::create("long");
-            type_byte = StaticCString::create("byte");
-            type_ushort = StaticCString::create("ushort");
-            type_uint = StaticCString::create("uint");
-            type_ulong = StaticCString::create("ulong");
-            type_float = StaticCString::create("float");
-            type_double = StaticCString::create("double");
+            type_sbyte = StaticCString("sbyte");
+            type_short = StaticCString("short");
+            type_int = StaticCString("int");
+            type_long = StaticCString("long");
+            type_byte = StaticCString("byte");
+            type_ushort = StaticCString("ushort");
+            type_uint = StaticCString("uint");
+            type_ulong = StaticCString("ulong");
+            type_float = StaticCString("float");
+            type_double = StaticCString("double");
         }
 
     private:
@@ -554,7 +554,7 @@ class BindingsGenerator {
     const List<InternalCall>::Element *find_icall_by_name(const String &p_name, const List<InternalCall> &p_list) {
         const List<InternalCall>::Element *it = p_list.front();
         while (it) {
-            if (it->get().name == p_name) return it;
+            if (it->deref().name == p_name) return it;
             it = it->next();
         }
         return NULL;
@@ -562,8 +562,8 @@ class BindingsGenerator {
 
     const ConstantInterface *find_constant_by_name(const String &p_name, const List<ConstantInterface> &p_constants) const {
         for (const List<ConstantInterface>::Element *E = p_constants.front(); E; E = E->next()) {
-            if (E->get().name == p_name)
-                return &E->get();
+            if (E->deref().name == p_name)
+                return &E->deref();
         }
 
         return NULL;
@@ -593,9 +593,9 @@ class BindingsGenerator {
     StringName _get_int_type_name_from_meta(GodotTypeInfo::Metadata p_meta);
     StringName _get_float_type_name_from_meta(GodotTypeInfo::Metadata p_meta);
 
-	bool _arg_default_value_from_variant(const Variant &p_val, ArgumentInterface &r_iarg);
+    bool _arg_default_value_from_variant(const Variant &p_val, ArgumentInterface &r_iarg);
 
-	bool _populate_object_type_interfaces();
+    bool _populate_object_type_interfaces();
     void _populate_builtin_type_interfaces();
 
     void _populate_global_constants();
@@ -623,15 +623,15 @@ public:
 
     _FORCE_INLINE_ bool is_log_print_enabled() { return log_print_enabled; }
     _FORCE_INLINE_ void set_log_print_enabled(bool p_enabled) { log_print_enabled = p_enabled; }
-	_FORCE_INLINE_ bool is_initialized() { return initialized; }
+    _FORCE_INLINE_ bool is_initialized() { return initialized; }
 
     static uint32_t get_version();
 
     static void handle_cmdline_args(const List<String> &p_cmdline_args);
 
     BindingsGenerator() :
-			log_print_enabled(true),
-			initialized(false) {
+            log_print_enabled(true),
+            initialized(false) {
         _initialize();
     }
 };

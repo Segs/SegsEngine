@@ -9,7 +9,7 @@ class Dictionary;
 
 struct GODOT_EXPORT PropertyInfo {
 public:
-    String name;
+    StringName name;
     String hint_string;
     StringName class_name; // for classes
     VariantType type = VariantType(0);
@@ -59,7 +59,7 @@ public:
         }
     }
     PropertyInfo(VariantType p_type, String &&p_name, PropertyHint p_hint = PROPERTY_HINT_NONE,
-            const StringName &p_hint_string = String::null_val, uint32_t p_usage = PROPERTY_USAGE_DEFAULT,
+            const StringName &p_hint_string = StringName(), uint32_t p_usage = PROPERTY_USAGE_DEFAULT,
             const StringName &p_class_name = StringName()) :
             name(std::move(p_name)),
             hint_string(p_hint_string),
@@ -68,7 +68,7 @@ public:
             usage(p_usage) {
 
         if (hint == PROPERTY_HINT_RESOURCE_TYPE) {
-            class_name = hint_string;
+            class_name = StringName(hint_string);
         } else {
             class_name = p_class_name;
         }

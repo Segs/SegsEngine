@@ -412,9 +412,9 @@ void CapsuleShape2DSW::get_supports(const Vector2 &p_normal, Vector2 *r_supports
 
         r_amount = 2;
         r_supports[0] = n;
-        r_supports[0].y += height * 0.5;
+        r_supports[0].y += height * 0.5f;
         r_supports[1] = n;
-        r_supports[1].y -= height * 0.5;
+        r_supports[1].y -= height * 0.5f;
 
     } else {
 
@@ -485,7 +485,7 @@ bool CapsuleShape2DSW::intersect_segment(const Vector2 &p_begin, const Vector2 &
     }
 
     Vector2 rpos, rnorm;
-    if (Rect2(Point2(-radius, -height * 0.5), Size2(radius * 2.0, height)).intersects_segment(p_begin, p_end, &rpos, &rnorm)) {
+    if (Rect2(Point2(-radius, -height * 0.5f), Size2(radius * 2.0f, height)).intersects_segment(p_begin, p_end, &rpos, &rnorm)) {
 
         real_t pd = n.dot(rpos);
         if (pd < d) {
@@ -503,7 +503,7 @@ bool CapsuleShape2DSW::intersect_segment(const Vector2 &p_begin, const Vector2 &
 real_t CapsuleShape2DSW::get_moment_of_inertia(real_t p_mass, const Size2 &p_scale) const {
 
     Vector2 he2 = Vector2(radius * 2, height + radius * 2) * p_scale;
-    return p_mass * he2.dot(he2) / 12.0;
+    return p_mass * he2.dot(he2) / 12.0f;
 }
 
 void CapsuleShape2DSW::set_data(const Variant &p_data) {
@@ -522,7 +522,7 @@ void CapsuleShape2DSW::set_data(const Variant &p_data) {
         height = p.y;
     }
 
-    Point2 he(radius, height * 0.5 + radius);
+    Point2 he(radius, height * 0.5f + radius);
     configure(Rect2(-he, he * 2));
 }
 
@@ -538,7 +538,7 @@ Variant CapsuleShape2DSW::get_data() const {
 void ConvexPolygonShape2DSW::get_supports(const Vector2 &p_normal, Vector2 *r_supports, int &r_amount) const {
 
     int support_idx = -1;
-    real_t d = -1e10;
+    real_t d = -1e10f;
 
     for (int i = 0; i < point_count; i++) {
 
@@ -585,7 +585,7 @@ bool ConvexPolygonShape2DSW::contains_point(const Vector2 &p_point) const {
 bool ConvexPolygonShape2DSW::intersect_segment(const Vector2 &p_begin, const Vector2 &p_end, Vector2 &r_point, Vector2 &r_normal) const {
 
     Vector2 n = (p_end - p_begin).normalized();
-    real_t d = 1e10;
+    real_t d = 1e10f;
     bool inters = false;
 
     for (int i = 0; i < point_count; i++) {

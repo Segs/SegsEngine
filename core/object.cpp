@@ -138,7 +138,7 @@ struct Object::ObjectPrivate {
 
             Signal *s = &signal_map[*S];
 
-            ERR_CONTINUE_CMSG(s->lock > 0, "Attempt to delete an object in the middle of a signal emission from it.")
+            ERR_CONTINUE_MSG(s->lock > 0, "Attempt to delete an object in the middle of a signal emission from it.")
 
             //brute force disconnect for performance
             const VMap<Signal::Target, Signal::Slot>::Pair *slot_list = s->slot_map.get_array();
@@ -205,10 +205,10 @@ PropertyInfo PropertyInfo::from_dict(const Dictionary &p_dict) {
         pi.type = VariantType(int(p_dict["type"]));
 
     if (p_dict.has("name"))
-        pi.name = p_dict["name"].as<String>();
+        pi.name = p_dict["name"].as<StringName>();
 
     if (p_dict.has("class_name"))
-        pi.class_name = p_dict["class_name"].as<String>();
+        pi.class_name = p_dict["class_name"].as<StringName>();
 
     if (p_dict.has("hint"))
         pi.hint = PropertyHint(int(p_dict["hint"]));
@@ -268,7 +268,7 @@ MethodInfo MethodInfo::from_dict(const Dictionary &p_dict) {
     MethodInfo mi;
 
     if (p_dict.has("name"))
-        mi.name = p_dict["name"].as<String>();
+        mi.name = p_dict["name"].as<StringName>();
     Array args;
     if (p_dict.has("args")) {
         args = p_dict["args"];
@@ -482,11 +482,11 @@ Object::Connection::Connection(const Variant &p_variant) {
     if (d.has("source"))
         source = d["source"];
     if (d.has("signal"))
-        signal = d["signal"].as<String>();
+        signal = d["signal"].as<StringName>();
     if (d.has("target"))
         target = d["target"];
     if (d.has("method"))
-        method = d["method"].as<String>();
+        method = d["method"].as<StringName>();
     if (d.has("flags"))
         flags = d["flags"];
     if (d.has("binds"))
@@ -1000,13 +1000,13 @@ Variant Object::call(const StringName &p_method, const Variant **p_args, int p_a
         if (object_cast<RefCounted>(this)) {
             r_error.argument = 0;
             r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
-            ERR_FAIL_V_CMSG(Variant(), "Can't 'free' a reference.")
+            ERR_FAIL_V_MSG(Variant(), "Can't 'free' a reference.")
         }
 
         if (private_data->_lock_index.get() > 1) {
             r_error.argument = 0;
             r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
-            ERR_FAIL_V_CMSG(Variant(), "Object is locked and can't be freed.")
+            ERR_FAIL_V_MSG(Variant(), "Object is locked and can't be freed.")
         }
 
 #endif
@@ -1363,7 +1363,7 @@ Error Object::emit_signal(const StringName &p_name, const Variant **p_args, int 
                 if (ce.error == Variant::CallError::CALL_ERROR_INVALID_METHOD && !ClassDB::class_exists(target->get_class_name())) {
                     // most likely object is not initialized yet, do not throw error.
                 } else {
-                    ERR_PRINTS("Error calling method from signal '" + String(p_name) +
+                    ERR_PRINT("Error calling method from signal '" + String(p_name) +
                                "': " + Variant::get_call_error_text(target, c.method, args, argc, ce) + ".")
                     err = ERR_METHOD_NOT_FOUND;
                 }
@@ -1420,7 +1420,7 @@ void Object::_add_user_signal(const String &p_name, const Array &p_args) {
     // added events are per instance, as opposed to the other ones, which are global
 
     MethodInfo mi;
-    mi.name = p_name;
+    mi.name = StringName(p_name);
 
     for (int i = 0; i < p_args.size(); i++) {
 
@@ -1428,7 +1428,7 @@ void Object::_add_user_signal(const String &p_name, const Array &p_args) {
         PropertyInfo param;
 
         if (d.has("name"))
-            param.name = d["name"].as<String>();
+            param.name = d["name"].as<StringName>();
         if (d.has("type"))
             param.type = (VariantType)(int)d["type"];
 
@@ -1460,8 +1460,8 @@ Array Object::_get_signal_connection_list(const String &p_signal) const {
     Array ret;
 
     for(Connection &c : conns ) {
-
-        if (c.signal == p_signal) {
+        //TODO: SEGS: unneeded string allocations.
+        if (c.signal.asString() == p_signal) {
             Dictionary rc;
             //TODO: SEGS: note that this WILL NOT PRESERVE source and target if they are Reference counted types!
             rc["signal"] = c.signal;
@@ -1693,12 +1693,12 @@ void Object::_disconnect(const StringName &p_signal, Object *p_to_object, const 
 
 void Object::_set_bind(const String &p_set, const Variant &p_value) {
 
-    set(p_set, p_value);
+    set(StringName(p_set), p_value);
 }
 
 Variant Object::_get_bind(const String &p_name) const {
 
-    return get(p_name);
+    return get(StringName(p_name));
 }
 
 void Object::_set_indexed_bind(const NodePath &p_name, const Variant &p_value) {

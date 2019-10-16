@@ -1309,7 +1309,7 @@ void Physics2DServerSW::free(RID p_rid) {
 
     } else {
 
-        ERR_FAIL_CMSG("Invalid ID.")
+        ERR_FAIL_MSG("Invalid ID.")
     }
 };
 

@@ -36,6 +36,7 @@
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
 #include "core/project_settings.h"
+#include "core/translation_helpers.h"
 #include "editor/animation_track_editor.h"
 #include "editor/editor_settings.h"
 #include "editor/editor_scale.h"
@@ -79,7 +80,7 @@ void AnimationPlayerEditor::_notification(int p_what) {
             if (player->is_playing()) {
 
                 {
-                    String animname = player->get_assigned_animation();
+                    StringName animname(player->get_assigned_animation());
 
                     if (player->has_animation(animname)) {
                         Ref<Animation> anim = player->get_animation(animname);
@@ -193,7 +194,7 @@ void AnimationPlayerEditor::_play_pressed() {
 
         if (current == player->get_assigned_animation())
             player->stop(); //so it won't blend with itself
-        player->play(current);
+        player->play(StringName(current));
     }
 
     //unstop
@@ -217,7 +218,7 @@ void AnimationPlayerEditor::_play_from_pressed() {
             player->stop(); //so it won't blend with itself
         }
 
-        player->play(current);
+        player->play(StringName(current));
         player->seek(time);
     }
 
@@ -237,7 +238,7 @@ void AnimationPlayerEditor::_play_bw_pressed() {
 
         if (current == player->get_assigned_animation())
             player->stop(); //so it won't blend with itself
-        player->play(current, -1, -1, true);
+        player->play(StringName(current), -1, -1, true);
     }
 
     //unstop
@@ -258,7 +259,7 @@ void AnimationPlayerEditor::_play_bw_from_pressed() {
         if (current == player->get_assigned_animation())
             player->stop(); //so it won't blend with itself
 
-        player->play(current, -1, -1, true);
+        player->play(StringName(current), -1, -1, true);
         player->seek(time);
     }
 
@@ -292,7 +293,7 @@ void AnimationPlayerEditor::_animation_selected(int p_which) {
 
         player->set_assigned_animation(current);
 
-        Ref<Animation> anim = player->get_animation(current);
+        Ref<Animation> anim = player->get_animation(StringName(current));
         {
 
             track_editor->set_animation(anim);
@@ -326,7 +327,7 @@ void AnimationPlayerEditor::_animation_new() {
         String attempt = base;
         if (count > 1)
             attempt += " (" + itos(count) + ")";
-        if (player->has_animation(attempt)) {
+        if (player->has_animation(StringName(attempt))) {
             count++;
             continue;
         }
@@ -446,7 +447,7 @@ void AnimationPlayerEditor::_animation_remove() {
 
 void AnimationPlayerEditor::_animation_remove_confirmed() {
 
-    String current = animation->get_item_text(animation->get_selected());
+    StringName current(animation->get_item_text(animation->get_selected()));
     Ref<Animation> anim = player->get_animation(current);
 
     undo_redo->create_action(TTR("Remove Animation"));
@@ -491,7 +492,7 @@ double AnimationPlayerEditor::_get_editor_step() const {
     // Returns the effective snapping value depending on snapping modifiers, or 0 if snapping is disabled.
     if (track_editor->is_snap_enabled()) {
         const String current = player->get_assigned_animation();
-        const Ref<Animation> anim = player->get_animation(current);
+        const Ref<Animation> anim = player->get_animation(StringName(current));
         ERR_FAIL_COND_V(not anim, 0.0);
         // Use more precise snapping when holding Shift
         return Input::get_singleton()->is_key_pressed(KEY_SHIFT) ? anim->get_step() * 0.25 : anim->get_step();
@@ -516,7 +517,7 @@ void AnimationPlayerEditor::_animation_name_edited() {
         return;
     }
 
-    if (player->has_animation(new_name)) {
+    if (player->has_animation(StringName(new_name))) {
         error_dialog->set_text(TTR("Animation name already exists!"));
         error_dialog->popup_centered_minsize();
         return;
@@ -524,7 +525,7 @@ void AnimationPlayerEditor::_animation_name_edited() {
 
     if (renaming) {
         String current = animation->get_item_text(animation->get_selected());
-        Ref<Animation> anim = player->get_animation(current);
+        Ref<Animation> anim = player->get_animation(StringName(current));
 
         undo_redo->create_action(TTR("Rename Animation"));
         undo_redo->add_do_method(player, "rename_animation", current, new_name);
@@ -568,7 +569,7 @@ void AnimationPlayerEditor::_blend_editor_next_changed(const int p_idx) {
 
     undo_redo->create_action(TTR("Blend Next Changed"));
     undo_redo->add_do_method(player, "animation_set_next", current, blend_editor.next->get_item_text(p_idx));
-    undo_redo->add_undo_method(player, "animation_set_next", current, player->animation_get_next(current));
+    undo_redo->add_undo_method(player, "animation_set_next", current, player->animation_get_next(StringName(current)));
     undo_redo->add_do_method(this, "_animation_player_changed", Variant(player));
     undo_redo->add_undo_method(this, "_animation_player_changed", Variant(player));
     undo_redo->commit_action();
@@ -611,11 +612,11 @@ void AnimationPlayerEditor::_animation_blend() {
         blend->set_text(0, to);
         blend->set_cell_mode(1, TreeItem::CELL_MODE_RANGE);
         blend->set_range_config(1, 0, 3600, 0.001);
-        blend->set_range(1, player->get_blend_time(current, to));
+        blend->set_range(1, player->get_blend_time(StringName(current), StringName(to)));
 
         i++;
         blend_editor.next->add_item(to, i);
-        if (to == player->animation_get_next(current)) {
+        if (to == player->animation_get_next(StringName(current))) {
             blend_editor.next->select(i);
             anim_found = true;
         }
@@ -624,7 +625,7 @@ void AnimationPlayerEditor::_animation_blend() {
     // make sure we reset it else it becomes out of sync and could contain a deleted animation
     if (!anim_found) {
         blend_editor.next->select(0);
-        player->animation_set_next(current, blend_editor.next->get_item_text(0));
+        player->animation_set_next(StringName(current), StringName(blend_editor.next->get_item_text(0)));
     }
 
     updating_blends = false;
@@ -647,7 +648,7 @@ void AnimationPlayerEditor::_blend_edited() {
     updating_blends = true;
     String to = selected->get_text(0);
     float blend_time = selected->get_range(1);
-    float prev_blend_time = player->get_blend_time(current, to);
+    float prev_blend_time = player->get_blend_time(StringName(current), StringName(to));
 
     undo_redo->create_action(TTR("Change Blend Time"));
     undo_redo->add_do_method(player, "set_blend_time", current, to, blend_time);
@@ -700,7 +701,7 @@ void AnimationPlayerEditor::set_state(const Dictionary &p_state) {
 
             if (p_state.has("animation")) {
                 String anim = p_state["animation"];
-                if (!anim.empty() && player->has_animation(anim)) {
+                if (!anim.empty() && player->has_animation(StringName(anim))) {
                 _select_anim_by_name(anim);
                 _animation_edit();
             }
@@ -717,7 +718,7 @@ void AnimationPlayerEditor::_animation_resource_edit() {
 
     if (animation->get_item_count()) {
         String current = animation->get_item_text(animation->get_selected());
-        Ref<Animation> anim = player->get_animation(current);
+        Ref<Animation> anim = player->get_animation(StringName(current));
         editor->edit_resource(anim);
     }
 }
@@ -726,7 +727,7 @@ void AnimationPlayerEditor::_animation_edit() {
 
     if (animation->get_item_count()) {
         String current = animation->get_item_text(animation->get_selected());
-        Ref<Animation> anim = player->get_animation(current);
+        Ref<Animation> anim = player->get_animation(StringName(current));
         track_editor->set_animation(anim);
 
         Node *root = player->get_node(player->get_root());
@@ -763,8 +764,8 @@ void AnimationPlayerEditor::_dialog_action(String p_file) {
             undo_redo->create_action(TTR("Load Animation"));
             undo_redo->add_do_method(player, "add_animation", p_file, res);
             undo_redo->add_undo_method(player, "remove_animation", p_file);
-            if (player->has_animation(p_file)) {
-                undo_redo->add_undo_method(player, "add_animation", p_file, player->get_animation(p_file));
+            if (player->has_animation(StringName(p_file))) {
+                undo_redo->add_undo_method(player, "add_animation", p_file, player->get_animation(StringName(p_file)));
             }
             undo_redo->add_do_method(this, "_animation_player_changed", Variant(player));
             undo_redo->add_undo_method(this, "_animation_player_changed", Variant(player));
@@ -775,7 +776,7 @@ void AnimationPlayerEditor::_dialog_action(String p_file) {
 
             String current = animation->get_item_text(animation->get_selected());
             if (!current.empty()) {
-                Ref<Animation> anim = player->get_animation(current);
+                Ref<Animation> anim = player->get_animation(StringName(current));
 
                 ERR_FAIL_COND(!object_cast<Resource>(anim.get()))
 
@@ -891,7 +892,7 @@ void AnimationPlayerEditor::_update_player() {
 
     if (animation->get_item_count()) {
         String current = animation->get_item_text(animation->get_selected());
-        Ref<Animation> anim = player->get_animation(current);
+        Ref<Animation> anim = player->get_animation(StringName(current));
         track_editor->set_animation(anim);
         Node *root = player->get_node(player->get_root());
         if (root) {
@@ -944,7 +945,7 @@ void AnimationPlayerEditor::forward_canvas_force_draw_over_viewport(Control *p_o
 
     Rect2 dst_rect = Rect2(Point2(), p_overlay->get_size());
 
-    float alpha_step = 1.0 / (onion.steps + 1);
+    float alpha_step = 1.0f / (onion.steps + 1);
 
     int cidx = 0;
     if (onion.past) {
@@ -981,7 +982,7 @@ void AnimationPlayerEditor::_animation_duplicate() {
     if (!animation->get_item_count())
         return;
 
-    String current = animation->get_item_text(animation->get_selected());
+    StringName current(animation->get_item_text(animation->get_selected()));
     Ref<Animation> anim = player->get_animation(current);
     if (not anim)
         return;
@@ -999,7 +1000,7 @@ void AnimationPlayerEditor::_animation_duplicate() {
     new_anim->set_path("");
 
     String new_name = current;
-    while (player->has_animation(new_name)) {
+    while (player->has_animation(StringName(new_name))) {
 
         new_name = new_name + " (copy)";
     }
@@ -1027,15 +1028,15 @@ void AnimationPlayerEditor::_seek_value_changed(float p_value, bool p_set) {
 
     if (updating || !player || player->is_playing()) {
         return;
-    };
+    }
 
     updating = true;
-    String current = player->get_assigned_animation();
+    StringName current(player->get_assigned_animation());
     if (current.empty() || !player->has_animation(current)) {
         updating = false;
         current = "";
         return;
-    };
+    }
 
     Ref<Animation> anim;
     anim = player->get_animation(current);
@@ -1092,10 +1093,10 @@ void AnimationPlayerEditor::_animation_key_editor_seek(float p_pos, bool p_drag)
     if (player->is_playing())
         return;
 
-    if (!player->has_animation(player->get_assigned_animation()))
+    if (!player->has_animation(StringName(player->get_assigned_animation())))
         return;
 
-    Ref<Animation> anim = player->get_animation(player->get_assigned_animation());
+    Ref<Animation> anim = player->get_animation(StringName(player->get_assigned_animation()));
 
     updating = true;
     frame->set_value(Math::stepify(p_pos, float(_get_editor_step())));
@@ -1115,7 +1116,7 @@ void AnimationPlayerEditor::_animation_tool_menu(int p_option) {
 
     Ref<Animation> anim;
     if (!current.empty()) {
-        anim = player->get_animation(current);
+        anim = player->get_animation(StringName(current));
     }
 
     switch (p_option) {
@@ -1164,7 +1165,7 @@ void AnimationPlayerEditor::_animation_tool_menu(int p_option) {
                 return;
             }
 
-            String current2 = animation->get_item_text(animation->get_selected());
+            StringName current2(animation->get_item_text(animation->get_selected()));
             Ref<Animation> anim2 = player->get_animation(current2);
             EditorSettings::get_singleton()->set_resource_clipboard(anim2);
         } break;
@@ -1184,7 +1185,7 @@ void AnimationPlayerEditor::_animation_tool_menu(int p_option) {
 
             int idx = 1;
             String base = name;
-            while (player->has_animation(name)) {
+            while (player->has_animation(StringName(name))) {
 
                 idx++;
                 name = base + " " + itos(idx);
@@ -1208,7 +1209,7 @@ void AnimationPlayerEditor::_animation_tool_menu(int p_option) {
             }
 
             String current2 = animation->get_item_text(animation->get_selected());
-            Ref<Animation> anim2 = player->get_animation(current2);
+            Ref<Animation> anim2 = player->get_animation(StringName(current2));
             editor->edit_resource(anim2);
         } break;
     }
@@ -1380,7 +1381,7 @@ void AnimationPlayerEditor::_prepare_onion_layers_1() {
 
 void AnimationPlayerEditor::_prepare_onion_layers_2() {
 
-    Ref<Animation> anim = player->get_animation(player->get_assigned_animation());
+    Ref<Animation> anim = player->get_animation(StringName(player->get_assigned_animation()));
     if (not anim)
         return;
 

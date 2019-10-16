@@ -32,6 +32,7 @@
 
 #include "core/object_db.h"
 #include "core/method_bind.h"
+#include "core/translation_helpers.h"
 
 IMPL_GDCLASS(RemoteTransform)
 

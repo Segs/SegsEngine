@@ -68,7 +68,7 @@ Error EditorExportPlatformWindows::export_project(const Ref<EditorExportPreset> 
     }
 
     if (!FileAccess::exists(rcedit_path)) {
-        ERR_PRINTS("Could not find rcedit executable at " + rcedit_path + ", aborting.")
+        ERR_PRINT("Could not find rcedit executable at " + rcedit_path + ", aborting.")
         return ERR_FILE_NOT_FOUND;
     }
 
@@ -77,7 +77,7 @@ Error EditorExportPlatformWindows::export_project(const Ref<EditorExportPreset> 
     String wine_path = EditorSettings::get_singleton()->get("export/windows/wine");
 
     if (!wine_path.empty() && !FileAccess::exists(wine_path)) {
-        ERR_PRINTS("Could not find wine executable at " + wine_path + ", aborting.")
+        ERR_PRINT("Could not find wine executable at " + wine_path + ", aborting.")
         return ERR_FILE_NOT_FOUND;
     }
 
@@ -181,7 +181,7 @@ Error EditorExportPlatformWindows::_code_sign(const Ref<EditorExportPreset> &p_p
 #ifdef WINDOWS_ENABLED
     String signtool_path = EditorSettings::get_singleton()->get("export/windows/signtool");
     if (signtool_path != String() && !FileAccess::exists(signtool_path)) {
-        ERR_PRINTS("Could not find signtool executable at " + signtool_path + ", aborting.");
+        ERR_PRINT("Could not find signtool executable at " + signtool_path + ", aborting.");
         return ERR_FILE_NOT_FOUND;
     }
     if (signtool_path == String()) {
@@ -190,7 +190,7 @@ Error EditorExportPlatformWindows::_code_sign(const Ref<EditorExportPreset> &p_p
 #else
     String signtool_path = EditorSettings::get_singleton()->get("export/windows/osslsigncode");
     if (signtool_path != String() && !FileAccess::exists(signtool_path)) {
-        ERR_PRINTS("Could not find osslsigncode executable at " + signtool_path + ", aborting.")
+        ERR_PRINT("Could not find osslsigncode executable at " + signtool_path + ", aborting.")
         return ERR_FILE_NOT_FOUND;
     }
     if (signtool_path == String()) {

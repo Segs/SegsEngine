@@ -30,13 +30,14 @@
 
 #include "abstract_polygon_2d_editor.h"
 
-#include <utility>
-
-#include "core/method_bind.h"
 #include "canvas_item_editor_plugin.h"
+#include "core/method_bind.h"
 #include "core/os/keyboard.h"
-#include "scene/main/scene_tree.h"
+#include "core/translation_helpers.h"
 #include "editor/editor_scale.h"
+#include "scene/main/scene_tree.h"
+
+#include <utility>
 
 IMPL_GDCLASS(AbstractPolygon2DEditor)
 IMPL_GDCLASS(AbstractPolygon2DEditorPlugin)

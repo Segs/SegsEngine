@@ -29,12 +29,11 @@
 /*************************************************************************/
 
 #pragma once
-
-#include "thirdparty/misc/pcg.h"
+#include "core/typedefs.h"
 #include "core/math/math_defs.h"
 
+#include "thirdparty/misc/pcg.h"
 #include <cmath>
-
 
 #if defined(__GNUC__) || (_llvm_has_builtin(__builtin_clz))
 #define CLZ32(x) __builtin_clz(x)

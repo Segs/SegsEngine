@@ -28,10 +28,10 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef ROOT_MOTION_VIEW_H
-#define ROOT_MOTION_VIEW_H
+#pragma once
 
 #include "scene/3d/visual_instance.h"
+#include "core/node_path.h"
 
 class RootMotionView : public VisualInstance {
 	GDCLASS(RootMotionView,VisualInstance)
@@ -74,5 +74,3 @@ public:
 	RootMotionView();
 	~RootMotionView() override;
 };
-
-#endif // ROOT_MOTION_VIEW_H

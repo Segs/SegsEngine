@@ -87,7 +87,7 @@ void post_process_preview(Ref<Image> p_image) {
 
 bool EditorTexturePreviewPlugin::handles(const String &p_type) const {
 
-    return ClassDB::is_parent_class(p_type, "Texture");
+    return ClassDB::is_parent_class(StringName(p_type), "Texture");
 }
 
 bool EditorTexturePreviewPlugin::generate_small_preview_automatically() const {
@@ -204,7 +204,7 @@ bool EditorImagePreviewPlugin::generate_small_preview_automatically() const {
 /////////////////////////////////////////////////
 bool EditorBitmapPreviewPlugin::handles(const String &p_type) const {
 
-    return ClassDB::is_parent_class(p_type, "BitMap");
+    return ClassDB::is_parent_class(StringName(p_type), "BitMap");
 }
 
 Ref<Texture> EditorBitmapPreviewPlugin::generate(const RES &p_from, const Size2 &p_size) const {
@@ -271,7 +271,7 @@ EditorBitmapPreviewPlugin::EditorBitmapPreviewPlugin() {
 
 bool EditorPackedScenePreviewPlugin::handles(const String &p_type) const {
 
-    return ClassDB::is_parent_class(p_type, "PackedScene");
+    return ClassDB::is_parent_class(StringName(p_type), "PackedScene");
 }
 Ref<Texture> EditorPackedScenePreviewPlugin::generate(const RES &p_from, const Size2 &p_size) const {
 
@@ -323,7 +323,7 @@ void EditorMaterialPreviewPlugin::_bind_methods() {
 
 bool EditorMaterialPreviewPlugin::handles(const String &p_type) const {
 
-    return ClassDB::is_parent_class(p_type, "Material"); //any material
+    return ClassDB::is_parent_class(StringName(p_type), "Material"); //any material
 }
 
 bool EditorMaterialPreviewPlugin::generate_small_preview_automatically() const {
@@ -493,7 +493,7 @@ static bool _is_text_char(CharType c) {
 
 bool EditorScriptPreviewPlugin::handles(const String &p_type) const {
 
-    return ClassDB::is_parent_class(p_type, "Script");
+    return ClassDB::is_parent_class(StringName(p_type), "Script");
 }
 
 Ref<Texture> EditorScriptPreviewPlugin::generate(const RES &p_from, const Size2 &p_size) const {
@@ -614,7 +614,7 @@ EditorScriptPreviewPlugin::EditorScriptPreviewPlugin() {
 
 bool EditorAudioStreamPreviewPlugin::handles(const String &p_type) const {
 
-    return ClassDB::is_parent_class(p_type, "AudioStream");
+    return ClassDB::is_parent_class(StringName(p_type), "AudioStream");
 }
 
 Ref<Texture> EditorAudioStreamPreviewPlugin::generate(const RES &p_from, const Size2 &p_size) const {
@@ -711,7 +711,7 @@ void EditorMeshPreviewPlugin::_bind_methods() {
 }
 bool EditorMeshPreviewPlugin::handles(const String &p_type) const {
 
-    return ClassDB::is_parent_class(p_type, "Mesh"); //any Mesh
+    return ClassDB::is_parent_class(StringName(p_type), "Mesh"); //any Mesh
 }
 
 Ref<Texture> EditorMeshPreviewPlugin::generate(const RES &p_from, const Size2 &p_size) const {
@@ -832,7 +832,7 @@ void EditorFontPreviewPlugin::_bind_methods() {
 
 bool EditorFontPreviewPlugin::handles(const String &p_type) const {
 
-    return ClassDB::is_parent_class(p_type, "DynamicFontData");
+    return ClassDB::is_parent_class(StringName(p_type), "DynamicFontData");
 }
 
 Ref<Texture> EditorFontPreviewPlugin::generate_from_path(const String &p_path, const Size2 &p_size) const {

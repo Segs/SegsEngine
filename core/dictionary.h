@@ -29,23 +29,11 @@
 /*************************************************************************/
 
 #pragma once
-
+#include "core/forward_decls.h"
 #include "core/array.h"
 #include "core/os/memory.h"
 
 class Variant;
-template <class T, class A>
-class List;
-namespace eastl {
-template <class T, class A>
-class list;
-}
-
-template <class T>
-using DefList = class List<T, DefaultAllocator>;
-template<class T>
-using ListPOD = eastl::list<T,wrap_allocator>;
-
 struct DictionaryPrivate;
 
 class GODOT_EXPORT Dictionary {

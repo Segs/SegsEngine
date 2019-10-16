@@ -31,8 +31,6 @@
 #pragma once
 
 #include "servers/audio/audio_effect.h"
-#include "core/method_arg_casters.h"
-#include "core/method_enum_caster.h"
 
 class AudioEffectSpectrumAnalyzer;
 
@@ -66,7 +64,6 @@ public:
     Vector2 get_magnitude_for_frequency_range(float p_begin, float p_end, MagnitudeMode p_mode = MAGNITUDE_MAX) const;
 };
 
-VARIANT_ENUM_CAST(AudioEffectSpectrumAnalyzerInstance::MagnitudeMode)
 
 class AudioEffectSpectrumAnalyzer : public AudioEffect {
     GDCLASS(AudioEffectSpectrumAnalyzer,AudioEffect)
@@ -103,4 +100,3 @@ public:
     AudioEffectSpectrumAnalyzer();
 };
 
-VARIANT_ENUM_CAST(AudioEffectSpectrumAnalyzer::FFT_Size);

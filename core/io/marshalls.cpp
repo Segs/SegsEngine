@@ -332,7 +332,7 @@ Error decode_variant(Variant &r_variant, const uint8_t *p_buffer, int p_len, int
         case VariantType::NODE_PATH: {
 
             ERR_FAIL_COND_V(len < 4, ERR_INVALID_DATA)
-            int32_t strlen = decode_uint32(buf);
+            uint32_t strlen = decode_uint32(buf);
 
             if (strlen & 0x80000000) {
                 //new format
@@ -361,11 +361,11 @@ Error decode_variant(Variant &r_variant, const uint8_t *p_buffer, int p_len, int
                     Error err = _decode_string(buf, len, r_len, str);
                     if (err)
                         return err;
-
+                    StringName sname(str);
                     if (i < namecount)
-                        names.push_back(str);
+                        names.push_back(sname);
                     else
-                        subnames.push_back(str);
+                        subnames.push_back(sname);
                 }
 
                 r_variant = NodePath(names, subnames, flags & 1);
@@ -373,7 +373,7 @@ Error decode_variant(Variant &r_variant, const uint8_t *p_buffer, int p_len, int
             } else {
                 //old format, just a string
 
-                ERR_FAIL_V(ERR_INVALID_DATA);
+                ERR_FAIL_V(ERR_INVALID_DATA)
             }
 
         } break;
@@ -411,7 +411,7 @@ Error decode_variant(Variant &r_variant, const uint8_t *p_buffer, int p_len, int
                     r_variant = Variant((Object *)nullptr);
                 } else {
 
-                    Object *obj = ClassDB::instance(str);
+                    Object *obj = ClassDB::instance(StringName(str));
 
                     ERR_FAIL_COND_V(!obj, ERR_UNAVAILABLE)
                     ERR_FAIL_COND_V(len < 4, ERR_INVALID_DATA)
@@ -442,7 +442,7 @@ Error decode_variant(Variant &r_variant, const uint8_t *p_buffer, int p_len, int
                             (*r_len) += used;
                         }
 
-                        obj->set(str, value);
+                        obj->set(StringName(str), value);
                     }
 
                     if (object_cast<RefCounted>(obj)) {
@@ -477,7 +477,7 @@ Error decode_variant(Variant &r_variant, const uint8_t *p_buffer, int p_len, int
 
                 int used;
                 Error err = decode_variant(key, buf, len, &used, p_allow_objects);
-                ERR_FAIL_COND_V_CMSG(err != OK, err, "Error when trying to decode Variant.")
+                ERR_FAIL_COND_V_MSG(err != OK, err, "Error when trying to decode Variant.")
 
                 buf += used;
                 len -= used;
@@ -486,7 +486,7 @@ Error decode_variant(Variant &r_variant, const uint8_t *p_buffer, int p_len, int
                 }
 
                 err = decode_variant(value, buf, len, &used, p_allow_objects);
-                ERR_FAIL_COND_V_CMSG(err != OK, err, "Error when trying to decode Variant.")
+                ERR_FAIL_COND_V_MSG(err != OK, err, "Error when trying to decode Variant.")
 
                 buf += used;
                 len -= used;
@@ -521,7 +521,7 @@ Error decode_variant(Variant &r_variant, const uint8_t *p_buffer, int p_len, int
                 int used = 0;
                 Variant v;
                 Error err = decode_variant(v, buf, len, &used, p_allow_objects);
-                ERR_FAIL_COND_V_CMSG(err != OK, err, "Error when trying to decode Variant.")
+                ERR_FAIL_COND_V_MSG(err != OK, err, "Error when trying to decode Variant.")
                 buf += used;
                 len -= used;
                 varr.push_back(v);

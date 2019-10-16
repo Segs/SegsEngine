@@ -32,6 +32,7 @@
 
 #include "core/engine.h"
 #include "core/project_settings.h"
+#include "core/translation_helpers.h"
 #include "scene/resources/surface_tool.h"
 #include "scene/main/scene_tree.h"
 #include "core/method_bind.h"

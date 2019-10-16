@@ -35,6 +35,7 @@
 #include "core/math/expression.h"
 #include "core/os/keyboard.h"
 #include "core/method_bind.h"
+#include "core/translation_helpers.h"
 #include "editor/editor_node.h"
 #include "editor/editor_scale.h"
 #include "editor/editor_settings.h"
@@ -59,7 +60,7 @@ void ConnectionInfoDialog::popup_connections(const String& p_method, const Vecto
 
         for(const Connection &connection : all_connections) {
 
-            if (connection.method != p_method) {
+            if (connection.method != StringName(p_method)) {
                 continue;
             }
 
@@ -350,7 +351,7 @@ void ScriptTextEditor::_set_theme_for_script() {
         if (!StringUtils::begins_with(s,"autoload/")) {
             continue;
         }
-        String path = ProjectSettings::get_singleton()->get(s);
+        String path = ProjectSettings::get_singleton()->get(StringName(s));
         if (StringUtils::begins_with(path,'*')) {
             text_edit->add_keyword_color(StringUtils::get_slice(s,"/", 1), colors_cache.usertype_color);
         }
@@ -817,7 +818,7 @@ void ScriptTextEditor::_code_complete_script(const String &p_code, List<ScriptCo
     }
     String hint;
     Error err = script->get_language()->complete_code(p_code, script->get_path(), base, r_options, r_force, hint);
-	if (err == OK) {
+    if (err == OK) {
         code_editor->get_text_edit()->set_code_hint(hint);
     }
 }
@@ -873,7 +874,7 @@ void ScriptTextEditor::_lookup_symbol(const String &p_symbol, int p_row, int p_c
     }
 
     ScriptLanguage::LookupResult result;
-    if (ScriptServer::is_global_class(p_symbol)) {
+    if (ScriptServer::is_global_class(StringName(p_symbol))) {
         EditorNode::get_singleton()->load_resource(ScriptServer::get_global_class_path(p_symbol));
     } else if (PathUtils::is_resource_file(p_symbol)) {
         ListPOD<String> scene_extensions;
@@ -906,10 +907,10 @@ void ScriptTextEditor::_lookup_symbol(const String &p_symbol, int p_row, int p_c
             } break;
             case ScriptLanguage::LookupResult::RESULT_CLASS_CONSTANT: {
 
-                StringName cname = result.class_name;
+                StringName cname = StringName(result.class_name);
                 bool success;
                 while (true) {
-                    ClassDB::get_integer_constant(cname, result.class_member, &success);
+                    ClassDB::get_integer_constant(cname, StringName(result.class_member), &success);
                     if (success) {
                         result.class_name = cname;
                         cname = ClassDB::get_parent_class(cname);
@@ -927,10 +928,10 @@ void ScriptTextEditor::_lookup_symbol(const String &p_symbol, int p_row, int p_c
             } break;
             case ScriptLanguage::LookupResult::RESULT_CLASS_METHOD: {
 
-                StringName cname = result.class_name;
+                StringName cname = StringName(result.class_name);
 
                 while (true) {
-                    if (ClassDB::has_method(cname, result.class_member)) {
+                    if (ClassDB::has_method(cname, StringName(result.class_member))) {
                         result.class_name = cname;
                         cname = ClassDB::get_parent_class(cname);
                     } else {
@@ -943,11 +944,11 @@ void ScriptTextEditor::_lookup_symbol(const String &p_symbol, int p_row, int p_c
             } break;
             case ScriptLanguage::LookupResult::RESULT_CLASS_ENUM: {
 
-                StringName cname = result.class_name;
+                StringName cname = StringName(result.class_name);
                 StringName success;
                 while (true) {
-                    success = ClassDB::get_integer_constant_enum(cname, result.class_member, true);
-                    if (success != StringName()) {
+                    success = ClassDB::get_integer_constant_enum(cname, StringName(result.class_member), true);
+                    if (not success.empty()) {
                         result.class_name = cname;
                         cname = ClassDB::get_parent_class(cname);
                     } else {
@@ -1438,7 +1439,7 @@ void ScriptTextEditor::get_breakpoints(List<int> *p_breakpoints) {
 
 void ScriptTextEditor::set_tooltip_request_func(String p_method, Object *p_obj) {
 
-    code_editor->get_text_edit()->set_tooltip_request_func(p_obj, p_method, Variant(this));
+    code_editor->get_text_edit()->set_tooltip_request_func(p_obj, StringName(p_method), Variant(this));
 }
 
 void ScriptTextEditor::set_debugger_active(bool p_active) {

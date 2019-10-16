@@ -38,6 +38,7 @@
 #include "core/os/os.h"
 #include "core/print_string.h"
 #include "core/reference.h"
+#include "core/translation_helpers.h"
 #include "core/variant_parser.h"
 
 IMPL_GDCLASS(VisualScriptBuiltinFunc)

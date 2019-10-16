@@ -1291,7 +1291,7 @@ Error Main::setup2(Thread::ID p_main_tid_override) {
             boot_logo = make_ref_counted<Image>();
             Error load_err = ImageLoader::load_image(boot_logo_path, boot_logo);
             if (load_err)
-				ERR_PRINTS("Non-existing or invalid boot splash at '" + boot_logo_path + "'. Loading default splash.")
+				ERR_PRINT("Non-existing or invalid boot splash at '" + boot_logo_path + "'. Loading default splash.")
         }
 
         Color boot_bg_color = GLOBAL_DEF("application/boot_splash/bg_color", boot_splash_bg_color);
@@ -1505,7 +1505,7 @@ bool Main::start() {
         Engine::get_singleton()->set_editor_hint(true); // Needed to instance editor-only classes for their default values
         {
             DirAccessRef da = DirAccess::open(doc_tool);
-            ERR_FAIL_COND_V_CMSG(!da, false, "Argument supplied to --doctool must be a base Godot build directory.")
+            ERR_FAIL_COND_V_MSG(!da, false, "Argument supplied to --doctool must be a base Godot build directory.")
         }
         DocData doc;
         doc.generate(doc_base);
@@ -1624,13 +1624,13 @@ bool Main::start() {
         } else {
 
             Object *ml = ClassDB::instance(main_loop_type);
-            ERR_FAIL_COND_V_CMSG(!ml, false, "Can't instance MainLoop type.")
+            ERR_FAIL_COND_V_MSG(!ml, false, "Can't instance MainLoop type.")
 
             main_loop = object_cast<MainLoop>(ml);
             if (!main_loop) {
 
                 memdelete(ml);
-                ERR_FAIL_V_CMSG(false, "Invalid MainLoop type.")
+                ERR_FAIL_V_MSG(false, "Invalid MainLoop type.")
             }
         }
     }

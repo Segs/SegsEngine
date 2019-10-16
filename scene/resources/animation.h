@@ -34,6 +34,7 @@
 #include "core/math/vector3.h"
 #include "core/math/vector2.h"
 #include "core/math/quat.h"
+#include "core/node_path.h"
 
 class GODOT_EXPORT Animation : public Resource {
 
@@ -70,8 +71,8 @@ private:
 
         TrackType type;
         InterpolationType interpolation = INTERPOLATION_LINEAR;
-        bool loop_wrap=true;
         NodePath path; // path to something
+        bool loop_wrap=true;
         bool imported = false;
         bool enabled = true;
         Track(TrackType t) : type(t) {}
@@ -335,7 +336,7 @@ public:
 
     void clear();
 
-    void optimize(float p_allowed_linear_err = 0.05f, float p_allowed_angular_err = 0.01f, float p_max_optimizable_angle = Math_PI * 0.125);
+    void optimize(float p_allowed_linear_err = 0.05f, float p_allowed_angular_err = 0.01f, float p_max_optimizable_angle = Math_PI * 0.125f);
 
     Animation();
     ~Animation() override;

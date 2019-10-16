@@ -31,11 +31,10 @@
 #pragma once
 
 #include "core/typedefs.h"
+#include "core/forward_decls.h"
 
 class StringName;
 class String;
-template <class T>
-class Vector;
 
 class GODOT_EXPORT NodePath {
 
@@ -50,6 +49,7 @@ class GODOT_EXPORT NodePath {
 
 public:
 	StringName get_sname() const;
+    String asString() const;
 
 	bool is_absolute() const;
 	int get_name_count() const;
@@ -77,6 +77,7 @@ public:
 	}
 
     explicit operator String() const;
+
 	bool is_empty() const;
 
 	bool operator==(const NodePath &p_path) const;

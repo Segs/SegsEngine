@@ -238,7 +238,7 @@ class VisualScriptEditor : public ScriptEditorBase {
 	void _graph_gui_input(const Ref<InputEvent> &p_event);
 	void _members_gui_input(const Ref<InputEvent> &p_event);
 	void _fn_name_box_input(const Ref<InputEvent> &p_event);
-	void _rename_function(const String &p_name, const String &p_new_name);
+    void _rename_function(const StringName &name, const StringName &p_new_name);
 
 	void _create_function_dialog();
 	void _create_function();

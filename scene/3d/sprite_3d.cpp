@@ -32,6 +32,7 @@
 #include "core/core_string_names.h"
 #include "core/method_bind.h"
 #include "core/math/triangle_mesh.h"
+#include "core/translation_helpers.h"
 #include "scene/scene_string_names.h"
 #include "servers/visual_server.h"
 

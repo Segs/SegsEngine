@@ -53,7 +53,7 @@ void WSLClient::_do_handshake() {
                 // Header is too big
                 disconnect_from_host();
                 _on_error();
-                ERR_FAIL_CMSG("Response headers too big.")
+                ERR_FAIL_MSG("Response headers too big.")
             }
             Error err = _connection->get_partial_data(&_resp_buf[_resp_pos], 1, read);
             if (err == ERR_FILE_EOF) {
@@ -80,7 +80,7 @@ void WSLClient::_do_handshake() {
                 if (!_verify_headers(protocol)) {
                     disconnect_from_host();
                     _on_error();
-                    ERR_FAIL_CMSG("Invalid response headers.")
+                    ERR_FAIL_MSG("Invalid response headers.")
                 }
                 // Create peer.
                 WSLPeer::PeerData *data = memnew(struct WSLPeer::PeerData);
@@ -105,10 +105,10 @@ bool WSLClient::_verify_headers(String &r_protocol) {
     ERR_FAIL_COND_V_MSG(len < 4, false, "Not enough response headers, got: " + itos(len) + ", expected >= 4.")
 
     Vector<String> req = StringUtils::split(psa[0]," ", false);
-    ERR_FAIL_COND_V_CMSG(req.size() < 2, false, "Invalid protocol or status code.")
+    ERR_FAIL_COND_V_MSG(req.size() < 2, false, "Invalid protocol or status code.")
 
     // Wrong protocol
-    ERR_FAIL_COND_V_CMSG(req[0] != "HTTP/1.1" || req[1] != "101", false, "Invalid protocol or status code.")
+    ERR_FAIL_COND_V_MSG(req[0] != "HTTP/1.1" || req[1] != "101", false, "Invalid protocol or status code.")
 
     Map<String, String> headers;
     for (int i = 1; i < len; i++) {

@@ -105,7 +105,9 @@ public:
     void add_singleton(const Singleton &p_singleton);
     const PODVector<Singleton> &get_singletons() { return singletons; }
     bool has_singleton(const String &p_name) const;
+    bool has_singleton(const StringName &p_name) const;
     Object *get_singleton_object(const String &p_name) const;
+    Object *get_singleton_object(const StringName &p_name) const;
 
     _FORCE_INLINE_ bool get_use_pixel_snap() const { return _pixel_snap; }
 

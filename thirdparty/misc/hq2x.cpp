@@ -16,15 +16,13 @@
 
 
 #include "hq2x.h"
-
-#include "core/math/math_funcs.h"
-
+namespace {
 static const uint32_t AMASK = 0xFF000000;
 static const uint32_t YMASK = 0x00FF0000;
 static const uint32_t UMASK = 0x0000FF00;
 static const uint32_t VMASK = 0x000000FF;
 
-_FORCE_INLINE_ static uint32_t ARGBtoAYUV(
+static uint32_t ARGBtoAYUV(
 	uint32_t value )
 {
     uint32_t A, R, G, B, Y, U, V;
@@ -34,9 +32,9 @@ _FORCE_INLINE_ static uint32_t ARGBtoAYUV(
     G = (value >> 8) & 0xFF;
     B = value & 0xFF;
 
-    Y = Math::fast_ftoi( 0.299 * R + 0.587 * G + 0.114 * B);
-    U = Math::fast_ftoi(-0.169 * R - 0.331 * G +   0.5 * B) + 128;
-    V = Math::fast_ftoi(   0.5 * R - 0.419 * G - 0.081 * B) + 128;
+    Y = int( 0.299f * R + 0.587f * G + 0.114f * B);
+    U = int(-0.169f * R - 0.331f * G +   0.5f * B) + 128;
+    V = int(   0.5f * R - 0.419f * G - 0.081f * B) + 128;
     return (A << 24) + (Y << 16) + (U << 8) + V;
 }
 
@@ -45,7 +43,7 @@ _FORCE_INLINE_ static uint32_t ARGBtoAYUV(
  * Use this function for sharper images (good for cartoon style, used by DOSBOX)
  */
 
-_FORCE_INLINE_ static bool isDifferent(
+static bool isDifferent(
 	uint32_t color1,
 	uint32_t color2,
 	uint32_t trY,
@@ -194,6 +192,7 @@ _FORCE_INLINE_ static bool isDifferent(
 #define MIX_22_4_5_7_2_7_7	*(output + lineSize + lineSize + 2) = HQX_MIX_3(w[4],w[5],w[7],2U,7U,7U);
 #define MIX_22_5_7_1_1		*(output + lineSize + lineSize + 2) = HQX_MIX_2(w[5],w[7],1U,1U);
 
+} //end of anonymous namespace
 
 
 uint32_t *hq2x_resize(

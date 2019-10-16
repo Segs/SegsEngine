@@ -30,6 +30,7 @@
 
 #include "skeleton_2d.h"
 #include "core/method_bind.h"
+#include "core/translation_helpers.h"
 #include "servers/visual_server.h"
 
 IMPL_GDCLASS(Bone2D)

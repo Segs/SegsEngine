@@ -396,7 +396,7 @@ void ResourceFormatLoaderVideoStreamGDNative::get_recognized_extensions(ListPOD<
 }
 
 bool ResourceFormatLoaderVideoStreamGDNative::handles_type(const String &p_type) const {
-    return ClassDB::is_parent_class(p_type, "VideoStream");
+    return ClassDB::is_parent_class(StringName(p_type), "VideoStream");
 }
 
 String ResourceFormatLoaderVideoStreamGDNative::get_resource_type(const String &p_path) const {

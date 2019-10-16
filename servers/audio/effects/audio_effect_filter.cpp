@@ -31,6 +31,8 @@
 #include "audio_effect_filter.h"
 #include "servers/audio_server.h"
 #include "core/method_bind.h"
+#include "core/method_arg_casters.h"
+#include "core/method_enum_caster.h"
 
 IMPL_GDCLASS(AudioEffectFilterInstance)
 IMPL_GDCLASS(AudioEffectFilter)
@@ -41,6 +43,8 @@ IMPL_GDCLASS(AudioEffectNotchFilter)
 IMPL_GDCLASS(AudioEffectBandLimitFilter)
 IMPL_GDCLASS(AudioEffectLowShelfFilter)
 IMPL_GDCLASS(AudioEffectHighShelfFilter)
+
+VARIANT_ENUM_CAST(AudioEffectFilter::FilterDB)
 
 template <int S>
 void AudioEffectFilterInstance::_process_filter(const AudioFrame *p_src_frames, AudioFrame *p_dst_frames, int p_frame_count) {

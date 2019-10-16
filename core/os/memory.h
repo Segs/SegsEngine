@@ -41,10 +41,6 @@
 
 class GODOT_EXPORT Memory {
 
-#ifdef DEBUG_ENABLED
-    static uint64_t mem_usage;
-    static uint64_t max_usage;
-#endif
     static uint64_t alloc_count;
 
 public:
@@ -252,17 +248,3 @@ void memdelete_arr(T *p_class) {
     Memory::free_static(ptr, true);
 }
 
-struct GODOT_EXPORT _GlobalNil {
-
-    int color;
-    _GlobalNil *right;
-    _GlobalNil *left;
-    _GlobalNil *parent;
-
-    _GlobalNil();
-};
-
-struct GODOT_EXPORT _GlobalNilClass {
-
-    static _GlobalNil _nil;
-};

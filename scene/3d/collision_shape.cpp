@@ -31,6 +31,7 @@
 #include "collision_shape.h"
 
 #include "core/method_bind.h"
+#include "core/translation_helpers.h"
 #include "scene/main/scene_tree.h"
 #include "scene/resources/box_shape.h"
 #include "scene/resources/capsule_shape.h"

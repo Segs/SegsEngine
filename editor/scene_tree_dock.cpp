@@ -1043,7 +1043,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
 
                 if (!new_node) {
                     new_node = memnew(Node);
-                    ERR_PRINTS("Creating root from favorite '" + selected_favorite_root + "' failed. Creating 'Node' instead.")
+                    ERR_PRINT("Creating root from favorite '" + selected_favorite_root + "' failed. Creating 'Node' instead.")
                 }
             } else {
                 switch (p_tool) {
@@ -2333,7 +2333,7 @@ void SceneTreeDock::_normalize_drop(Node *&to_node, int &to_pos, int p_type) {
         //drop at above selected node
         if (to_node == EditorNode::get_singleton()->get_edited_scene()) {
             to_node = nullptr;
-            ERR_FAIL_CMSG("Cannot perform drop above the root node!")
+            ERR_FAIL_MSG("Cannot perform drop above the root node!")
         }
 
         to_pos = to_node->get_index();

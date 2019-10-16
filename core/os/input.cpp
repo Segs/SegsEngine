@@ -152,7 +152,8 @@ void Input::get_argument_options(const StringName &p_function, int p_idx, ListPO
             if (!StringUtils::begins_with(pi.name,"input/"))
                 continue;
 
-            String name = StringUtils::substr(pi.name,StringUtils::find(pi.name,"/") + 1, pi.name.length());
+            String name = pi.name.asString();
+            name = StringUtils::substr(name,StringUtils::find(name,"/") + 1, name.length());
             r_options->push_back(quote_style + name + quote_style);
         }
     }

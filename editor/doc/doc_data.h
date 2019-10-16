@@ -28,12 +28,10 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef DOC_DATA_H
-#define DOC_DATA_H
+#pragma once
 
 #include "core/io/xml_parser.h"
 #include "core/map.h"
-#include "core/variant.h"
 
 class DocData {
 public:
@@ -111,4 +109,3 @@ public:
     Error load_compressed(const uint8_t *p_data, int p_compressed_size, int p_uncompressed_size);
 };
 
-#endif // DOC_DATA_H

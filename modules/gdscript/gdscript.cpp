@@ -165,7 +165,7 @@ Variant GDScript::_new(const Variant **p_args, int p_argcount, Variant::CallErro
     } else {
         owner = memnew(RefCounted); //by default, no base means use reference
     }
-    ERR_FAIL_COND_V_CMSG(!owner, Variant(), "Can't inherit from a virtual class.")
+    ERR_FAIL_COND_V_MSG(!owner, Variant(), "Can't inherit from a virtual class.")
 
     RefCounted *r = object_cast<RefCounted>(owner);
     if (r) {
@@ -448,7 +448,7 @@ bool GDScript::_update_exports() {
                         }
                     }
                 } else if (!c->extends_class.empty()) {
-                    String base = c->extends_class[0];
+                    StringName base = c->extends_class[0];
 
                     if (ScriptServer::is_global_class(base))
                         path = ScriptServer::get_global_class_path(base);
@@ -1410,7 +1410,7 @@ void GDScriptLanguage::init() {
         StringName n = class_list[i];
         String s = String(n);
         if (StringUtils::begins_with(s,'_'))
-            n = StringUtils::substr(s,1);
+            n = StringName(StringUtils::substr(s,1));
 
         if (globals.contains(n))
             continue;
@@ -2155,7 +2155,7 @@ GDScriptLanguage::GDScriptLanguage() {
     GLOBAL_DEF("debug/gdscript/completion/autocomplete_setters_and_getters", false);
     for (int i = 0; i < (int)GDScriptWarning::WARNING_MAX; i++) {
         String warning = StringUtils::to_lower(GDScriptWarning::get_name_from_code((GDScriptWarning::Code)i));
-        GLOBAL_DEF("debug/gdscript/warnings/" + warning, !StringUtils::begins_with(warning,"unsafe_"));
+        GLOBAL_DEF(StringName("debug/gdscript/warnings/" + warning), !StringUtils::begins_with(warning,"unsafe_"));
     }
 #endif // DEBUG_ENABLED
 }

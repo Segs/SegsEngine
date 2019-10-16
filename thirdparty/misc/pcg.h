@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "core/typedefs.h"
+#include <stdint.h>
 
 #define PCG_DEFAULT_INC_64 1442695040888963407ULL
 

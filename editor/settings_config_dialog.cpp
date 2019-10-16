@@ -35,6 +35,7 @@
 #include "core/method_bind.h"
 #include "core/os/keyboard.h"
 #include "core/project_settings.h"
+#include "core/translation_helpers.h"
 #include "editor_file_system.h"
 #include "editor_node.h"
 #include "editor/editor_scale.h"

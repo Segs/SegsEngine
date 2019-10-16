@@ -416,7 +416,7 @@ Error OS::dialog_show(String p_title, String p_description, Vector<String> p_but
         if (n < 0 || n >= p_buttons.size())
             continue;
         if (p_obj && !p_callback.empty())
-            p_obj->call_deferred(p_callback, n);
+            p_obj->call_deferred(StringName(p_callback), n);
         break;
     }
     return OK;
@@ -434,7 +434,7 @@ Error OS::dialog_input_text(String p_title, String p_description, String p_parti
         res = p_partial;
     }
 
-    p_obj->call_deferred(p_callback, success, res);
+    p_obj->call_deferred(StringName(p_callback), success, res);
 
     return OK;
 };

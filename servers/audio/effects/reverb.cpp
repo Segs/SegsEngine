@@ -86,9 +86,9 @@ void Reverb::process(float *p_src, float *p_dst, int p_frames) {
     }
 
     if (params.hpf > 0) {
-        float hpaux = expf(-2.0 * Math_PI * params.hpf * 6000 / params.mix_rate);
-        float hp_a1 = (1.0 + hpaux) / 2.0;
-        float hp_a2 = -(1.0 + hpaux) / 2.0;
+        float hpaux = expf(-2.0f * Math_PI * params.hpf * 6000 / params.mix_rate);
+        float hp_a1 = (1.0f + hpaux) / 2.0f;
+        float hp_a2 = -(1.0f + hpaux) / 2.0f;
         float hp_b1 = hpaux;
 
         for (int i = 0; i < p_frames; i++) {
@@ -104,14 +104,14 @@ void Reverb::process(float *p_src, float *p_dst, int p_frames) {
 
         Comb &c = comb[i];
 
-        int size_limit = c.size - lrintf((float)c.extra_spread_frames * (1.0 - params.extra_spread));
+        int size_limit = c.size - lrintf((float)c.extra_spread_frames * (1.0f - params.extra_spread));
         for (int j = 0; j < p_frames; j++) {
 
             if (c.pos >= size_limit) //reset this now just in case
                 c.pos = 0;
 
             float out = undenormalise(c.buffer[c.pos] * c.feedback);
-            out = out * (1.0 - c.damp) + c.damp_h * c.damp; //lowpass
+            out = out * (1.0f- c.damp) + c.damp_h * c.damp; //lowpass
             c.damp_h = out;
             c.buffer[c.pos] = input_buffer[j] + out;
             p_dst[j] += out;
@@ -119,7 +119,7 @@ void Reverb::process(float *p_src, float *p_dst, int p_frames) {
         }
     }
 
-    static const float allpass_feedback = 0.7;
+    constexpr float allpass_feedback = 0.7f;
     /* this one works, but the other version is just nicer....
     int ap_size_limit[MAX_ALLPASS];
 
@@ -154,9 +154,8 @@ void Reverb::process(float *p_src, float *p_dst, int p_frames) {
     }
     */
 
-    for (int i = 0; i < MAX_ALLPASS; i++) {
+    for (AllPass & a : allpass) {
 
-        AllPass &a = allpass[i];
         int size_limit = a.size - lrintf((float)a.extra_spread_frames * (1.0 - params.extra_spread));
 
         for (int j = 0; j < p_frames; j++) {

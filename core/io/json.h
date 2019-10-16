@@ -32,6 +32,7 @@
 
 #include "core/variant.h"
 #include "core/ustring.h"
+#include "core/error_list.h"
 
 class GODOT_EXPORT JSON {
 

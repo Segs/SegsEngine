@@ -156,7 +156,7 @@ RES ResourceLoaderCoHTexture::load(const String &p_path, const String &p_origina
     QString originalname = QString::fromLatin1(data);
     if(PathUtils::get_extension(originalname)!="dds")
     {
-        ERR_FAIL_V_CMSG(RES(), "Only embedded dds textures are supported for now.")
+        ERR_FAIL_V_MSG(RES(), "Only embedded dds textures are supported for now.")
     }
 
     uint32_t magic = f->get_32();

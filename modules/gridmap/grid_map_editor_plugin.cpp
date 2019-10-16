@@ -29,8 +29,10 @@
 /*************************************************************************/
 
 #include "grid_map_editor_plugin.h"
-#include "core/os/input.h"
+
 #include "core/method_bind.h"
+#include "core/os/input.h"
+#include "core/translation_helpers.h"
 #include "editor/editor_scale.h"
 #include "editor/editor_settings.h"
 #include "editor/plugins/spatial_editor_plugin.h"

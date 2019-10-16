@@ -116,7 +116,7 @@ class NativeScript : public Script {
 
     String lib_path;
 
-    String class_name;
+    StringName class_name;
 
     String script_class_name;
     String script_class_icon_path;

@@ -38,6 +38,7 @@
 #include "scene/main/scene_tree.h"
 #include "spatial_editor_plugin.h"
 #include "editor/editor_scale.h"
+#include "core/translation_helpers.h"
 
 IMPL_GDCLASS(MeshInstanceEditor)
 IMPL_GDCLASS(MeshInstanceEditorPlugin)

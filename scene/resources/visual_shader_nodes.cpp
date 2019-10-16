@@ -31,6 +31,7 @@
 #include "visual_shader_nodes.h"
 
 #include "core/method_bind.h"
+#include "core/translation_helpers.h"
 
 IMPL_GDCLASS(VisualShaderNodeScalarConstant)
 IMPL_GDCLASS(VisualShaderNodeBooleanConstant)

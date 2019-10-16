@@ -32,6 +32,7 @@
 
 #include "core/method_bind.h"
 #include "core/object_db.h"
+#include "core/translation_helpers.h"
 #include "editor/audio_stream_preview.h"
 #include "editor_resource_preview.h"
 #include "editor_scale.h"

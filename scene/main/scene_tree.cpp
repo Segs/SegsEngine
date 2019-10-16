@@ -43,6 +43,7 @@
 #include "core/project_settings.h"
 #include "core/method_bind.h"
 #include "core/script_language.h"
+#include "core/translation_helpers.h"
 #include "main/input_default.h"
 #include "node.h"
 #include "scene/resources/dynamic_font.h"
@@ -63,6 +64,7 @@ VARIANT_ENUM_CAST(SceneTree::StretchMode);
 VARIANT_ENUM_CAST(SceneTree::StretchAspect);
 VARIANT_ENUM_CAST(SceneTree::GroupCallFlags);
 
+#ifdef DEBUG_ENABLED
 struct SceneTree::DebugData {
     SceneTree *m_parent;
     Map<int, NodePath> live_edit_node_path_cache;
@@ -77,7 +79,6 @@ struct SceneTree::DebugData {
     ScriptDebugger::LiveEditFuncs live_edit_funcs;
 
     DebugData(SceneTree *p) : m_parent(p) {
-#ifdef DEBUG_ENABLED
 
         live_edit_funcs.udata = this;
         live_edit_funcs.node_path_func = _live_edit_node_path_funcs;
@@ -104,7 +105,6 @@ struct SceneTree::DebugData {
 
         live_edit_root = NodePath("/root");
 
-#endif
     }
 
     static void _live_edit_node_path_funcs(void *self, const NodePath &p_path, int p_id) {
@@ -160,7 +160,6 @@ struct SceneTree::DebugData {
             void *self, const NodePath &p_at, const NodePath &p_new_place, const String &p_new_name, int p_at_pos) {
         reinterpret_cast<DebugData *>(self)->_live_edit_reparent_node_func(p_at, p_new_place, p_new_name, p_at_pos);
     }
-#ifdef DEBUG_ENABLED
 
     void _live_edit_node_path_func(const NodePath &p_path, int p_id) { live_edit_node_path_cache[p_id] = p_path; }
 
@@ -446,8 +445,8 @@ struct SceneTree::DebugData {
         }
     }
 
-#endif
 };
+#endif
 
 void SceneTreeTimer::_bind_methods() {
 
@@ -487,6 +486,7 @@ void SceneTree::tree_changed() {
     tree_version++;
     emit_signal(tree_changed_name);
 }
+#ifdef DEBUG_ENABLED
 Map<String, Set<Node *>> &SceneTree::get_live_scene_edit_cache()
 {
     return m_debug_data->live_scene_edit_cache;
@@ -494,6 +494,7 @@ Map<String, Set<Node *>> &SceneTree::get_live_scene_edit_cache()
 Map<Node *, Map<ObjectID, Node *>> &SceneTree::get_live_edit_remove_list() {
     return m_debug_data->live_edit_remove_list;
 }
+#endif
 void SceneTree::node_added(Node *p_node) {
 
     emit_signal(node_added_name, Variant(p_node));
@@ -2047,9 +2048,9 @@ SceneTree::SceneTree() {
     quit_on_go_back = true;
     initialized = false;
     use_font_oversampling = false;
-    //TODO: SEGS: make it possible for m_debug_data to be nullptr and still be callable.
-    m_debug_data = new DebugData(this);
 #ifdef DEBUG_ENABLED
+    //TODO: SEGS: make it possible for m_debug_data to be nullptr and still be callable ?
+    m_debug_data = new DebugData(this);
     debug_collisions_hint = false;
     debug_navigation_hint = false;
 #endif
@@ -2136,7 +2137,7 @@ SceneTree::SceneTree() {
                     ProjectSettings::get_singleton()->set("rendering/environment/default_environment", "");
                 } else {
                     //file was erased, notify user.
-                    ERR_PRINTS(RTR("Default Environment as specified in Project Settings (Rendering -> Environment -> Default Environment) could not be loaded."))
+                    ERR_PRINT(RTR("Default Environment as specified in Project Settings (Rendering -> Environment -> Default Environment) could not be loaded."))
                 }
             }
         }
@@ -2169,5 +2170,7 @@ SceneTree::~SceneTree() {
     }
 
     if (singleton == this) singleton = nullptr;
+#ifdef DEBUG_ENABLED
     delete m_debug_data;
+#endif
 }

@@ -31,6 +31,7 @@
 #include "skeleton_editor_plugin.h"
 
 #include "core/method_bind.h"
+#include "core/translation_helpers.h"
 #include "scene/3d/collision_shape.h"
 #include "scene/3d/physics_body.h"
 #include "scene/3d/physics_joint.h"

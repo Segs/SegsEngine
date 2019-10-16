@@ -4,7 +4,7 @@ foreach(tgt ${global_targets})
     OPTION(OPTION_${tgt}_DISABLE_RENDERING "Useful for some tests or a server build" OFF)
     OPTION(OPTION_${tgt}_ENABLE_MIDI "Support for midi access" OFF)
 
-    add_library(${tgt}_drivers OBJECT )
+    add_library(${tgt}_drivers STATIC )
 
     set(drivers_sources)
 
@@ -22,15 +22,13 @@ foreach(tgt ${global_targets})
     include(windows/sources.cmake)
     # Sounds drivers
 
-    if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
-        target_link_libraries(${tgt}_drivers PUBLIC ${tgt}_wasapi)
-    endif()
+
 
 
     list(APPEND drivers_sources "register_driver_types.cpp")
 
+    target_link_libraries(${tgt}_drivers PRIVATE glad)
 
-    include(gl_context/sources.cmake)
     include(convex_decomp/sources.cmake)
     if(OPTION_${tgt}_ENABLE_MIDI)
         if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
@@ -52,8 +50,8 @@ foreach(tgt ${global_targets})
         add_subdirectory(dummy)
     endif()
 
-    target_link_libraries(${tgt}_drivers PUBLIC ${tgt}_core)
-    target_link_libraries(${tgt}_drivers PUBLIC gles3_shaders)
+    target_link_libraries(${tgt}_drivers PRIVATE ${tgt}_core)
+    target_link_libraries(${tgt}_drivers PRIVATE gles3_shaders)
 
     target_sources(${tgt}_drivers PRIVATE ${drivers_sources})
 

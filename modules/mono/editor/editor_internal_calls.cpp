@@ -261,11 +261,7 @@ MonoBoolean godot_icall_Internal_GodotIs32Bits() {
 }
 
 MonoBoolean godot_icall_Internal_GodotIsRealTDouble() {
-#ifdef REAL_T_IS_DOUBLE
-    return (MonoBoolean) true;
-#else
     return (MonoBoolean) false;
-#endif
 }
 
 void godot_icall_Internal_GodotMainIteration() {

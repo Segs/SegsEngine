@@ -1159,7 +1159,7 @@ void EditorAudioBuses::_duplicate_bus(int p_which) {
     UndoRedo *ur = EditorNode::get_undo_redo();
     ur->create_action(TTR("Duplicate Audio Bus"));
     ur->add_do_method(AudioServer::get_singleton(), "add_bus", add_at_pos);
-    ur->add_do_method(AudioServer::get_singleton(), "set_bus_name", add_at_pos, String(AudioServer::get_singleton()->get_bus_name(p_which) + " Copy"));
+    ur->add_do_method(AudioServer::get_singleton(), "set_bus_name", add_at_pos, AudioServer::get_singleton()->get_bus_name(p_which).asString() + " Copy");
     ur->add_do_method(AudioServer::get_singleton(), "set_bus_volume_db", add_at_pos, AudioServer::get_singleton()->get_bus_volume_db(p_which));
     ur->add_do_method(AudioServer::get_singleton(), "set_bus_send", add_at_pos, AudioServer::get_singleton()->get_bus_send(p_which));
     ur->add_do_method(AudioServer::get_singleton(), "set_bus_solo", add_at_pos, AudioServer::get_singleton()->is_bus_solo(p_which));

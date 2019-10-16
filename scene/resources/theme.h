@@ -69,7 +69,7 @@ protected:
     PoolVector<String> _get_icon_list(const String &p_type) const {
         PoolVector<String> ilret;
         ListPOD<StringName> il;
-        get_icon_list(p_type, &il);
+        get_icon_list(StringName(p_type), &il);
         for (const StringName &E : il) {
             ilret.push_back(E);
         }
@@ -78,7 +78,7 @@ protected:
     PoolVector<String> _get_stylebox_list(const String &p_type) const {
         PoolVector<String> ilret;
         ListPOD<StringName> il;
-        get_stylebox_list(p_type, &il);
+        get_stylebox_list(StringName(p_type), &il);
         for (const StringName &E : il) {
             ilret.push_back(E);
         }
@@ -96,7 +96,7 @@ protected:
     PoolVector<String> _get_font_list(const String &p_type) const {
         PoolVector<String> ilret;
         ListPOD<StringName> il;
-        get_font_list(p_type, &il);
+        get_font_list(StringName(p_type), &il);
         for (const StringName &E : il) {
             ilret.push_back(E);
         }
@@ -105,7 +105,7 @@ protected:
     PoolVector<String> _get_color_list(const String &p_type) const {
         PoolVector<String> ilret;
         ListPOD<StringName> il;
-        get_color_list(p_type, &il);
+        get_color_list(StringName(p_type), &il);
         for (const StringName &E : il) {
             ilret.push_back(E);
         }
@@ -114,7 +114,7 @@ protected:
     PoolVector<String> _get_constant_list(const String &p_type) const {
         PoolVector<String> ilret;
         ListPOD<StringName> il;
-        get_constant_list(p_type, &il);
+        get_constant_list(StringName(p_type), &il);
         for (const StringName &E : il) {
             ilret.push_back(E);
         }

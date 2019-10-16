@@ -929,7 +929,7 @@ void CanvasItem::draw_string(const Ref<Font> &p_font, const Point2 &p_pos, const
 
 float CanvasItem::draw_char(const Ref<Font> &p_font, const Point2 &p_pos, QChar p_char, QChar p_next, const Color &p_modulate) {
 
-    ERR_FAIL_COND_V_CMSG(!drawing, 0, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.")
+    ERR_FAIL_COND_V_MSG(!drawing, 0, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.")
     ERR_FAIL_COND_V(not p_font, 0)
 
     if (p_font->has_outline()) {

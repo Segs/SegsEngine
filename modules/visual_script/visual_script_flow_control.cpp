@@ -34,6 +34,7 @@
 #include "core/method_bind.h"
 #include "core/os/keyboard.h"
 #include "core/project_settings.h"
+#include "core/translation_helpers.h"
 
 IMPL_GDCLASS(VisualScriptReturn)
 IMPL_GDCLASS(VisualScriptCondition)

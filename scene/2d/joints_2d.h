@@ -28,10 +28,10 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef JOINTS_2D_H
-#define JOINTS_2D_H
+#pragma once
 
-#include "node_2d.h"
+#include "scene/2d/node_2d.h"
+#include "core/node_path.h"
 
 class PhysicsBody2D;
 
@@ -142,5 +142,3 @@ public:
 
 	DampedSpringJoint2D();
 };
-
-#endif // JOINTS_2D_H

@@ -30,13 +30,17 @@
 
 #include "memory.h"
 
-//#include "core/error_macros.h"
 #include "core/safe_refcount.h"
+#include "core/error_macros.h"
 
 #include <cstdio>
 #include <cstdlib>
 #include <cassert>
-#include "error_macros.h"
+
+#ifdef DEBUG_ENABLED
+static uint64_t mem_usage=0;
+static uint64_t max_usage=0;
+#endif
 
 void *operator new(size_t p_size, const char *p_description) {
 
@@ -51,26 +55,21 @@ void *operator new(size_t p_size, void *(*p_allocfunc)(size_t p_size)) {
 #ifdef _MSC_VER
 void operator delete(void *p_mem, const char *p_description) {
 
-    ERR_EXPLAINC("Call to placement delete should not happen.");
+    ERR_EXPLAIN("Call to placement delete should not happen.");
     CRASH_NOW();
 }
 
 void operator delete(void *p_mem, void *(*p_allocfunc)(size_t p_size)) {
 
-    ERR_EXPLAINC("Call to placement delete should not happen.");
+    ERR_EXPLAIN("Call to placement delete should not happen.");
     CRASH_NOW();
 }
 
 void operator delete(void *p_mem, void *p_pointer, size_t check, const char *p_description) {
 
-    ERR_EXPLAINC("Call to placement delete should not happen.");
+    ERR_EXPLAIN("Call to placement delete should not happen.");
     CRASH_NOW();
 }
-#endif
-
-#ifdef DEBUG_ENABLED
-uint64_t Memory::mem_usage = 0;
-uint64_t Memory::max_usage = 0;
 #endif
 
 uint64_t Memory::alloc_count = 0;
@@ -193,7 +192,7 @@ void Memory::free_static(void *p_ptr, bool p_pad_align) {
 
 uint64_t Memory::get_mem_available() {
 
-    return -1; // 0xFFFF...
+    return ~0ULL;
 }
 
 uint64_t Memory::get_mem_usage() {
@@ -211,13 +210,3 @@ uint64_t Memory::get_mem_max_usage() {
     return 0;
 #endif
 }
-
-_GlobalNil::_GlobalNil() {
-
-    color = 1;
-    left = this;
-    right = this;
-    parent = this;
-}
-
-_GlobalNil _GlobalNilClass::_nil;

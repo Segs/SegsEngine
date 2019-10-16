@@ -31,6 +31,7 @@
 #include "multimesh_editor_plugin.h"
 
 #include "core/method_bind.h"
+#include "core/translation_helpers.h"
 #include "editor/scene_tree_editor.h"
 #include "scene/3d/mesh_instance.h"
 #include "scene/gui/box_container.h"

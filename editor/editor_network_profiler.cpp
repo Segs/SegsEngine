@@ -32,6 +32,7 @@
 
 #include "core/method_bind.h"
 #include "core/os/os.h"
+#include "core/translation_helpers.h"
 #include "editor_scale.h"
 #include "editor_settings.h"
 #include "scene/main/timer.h"
@@ -47,15 +48,15 @@ void EditorNetworkProfiler::_bind_methods() {
 
 void EditorNetworkProfiler::_notification(int p_what) {
 
-	if (p_what == NOTIFICATION_ENTER_TREE || p_what == NOTIFICATION_THEME_CHANGED) {
+    if (p_what == NOTIFICATION_ENTER_TREE || p_what == NOTIFICATION_THEME_CHANGED) {
         activate->set_icon(get_icon("Play", "EditorIcons"));
         clear_button->set_icon(get_icon("Clear", "EditorIcons"));
-		incoming_bandwidth_text->set_right_icon(get_icon("ArrowDown", "EditorIcons"));
-		outgoing_bandwidth_text->set_right_icon(get_icon("ArrowUp", "EditorIcons"));
+        incoming_bandwidth_text->set_right_icon(get_icon("ArrowDown", "EditorIcons"));
+        outgoing_bandwidth_text->set_right_icon(get_icon("ArrowUp", "EditorIcons"));
 
-		// This needs to be done here to set the faded color when the profiler is first opened
-		incoming_bandwidth_text->add_color_override("font_color_uneditable", get_color("font_color", "Editor") * Color(1, 1, 1, 0.5));
-		outgoing_bandwidth_text->add_color_override("font_color_uneditable", get_color("font_color", "Editor") * Color(1, 1, 1, 0.5));
+        // This needs to be done here to set the faded color when the profiler is first opened
+        incoming_bandwidth_text->add_color_override("font_color_uneditable", get_color("font_color", "Editor") * Color(1, 1, 1, 0.5));
+        outgoing_bandwidth_text->add_color_override("font_color_uneditable", get_color("font_color", "Editor") * Color(1, 1, 1, 0.5));
     }
 }
 
@@ -148,31 +149,31 @@ EditorNetworkProfiler::EditorNetworkProfiler() {
     hb->add_spacer();
 
     Label *lb = memnew(Label);
-	lb->set_text(TTR("Down"));
+    lb->set_text(TTR("Down"));
     hb->add_child(lb);
 
     incoming_bandwidth_text = memnew(LineEdit);
     incoming_bandwidth_text->set_editable(false);
-	incoming_bandwidth_text->set_custom_minimum_size(Size2(120, 0) * EDSCALE);
+    incoming_bandwidth_text->set_custom_minimum_size(Size2(120, 0) * EDSCALE);
     incoming_bandwidth_text->set_align(LineEdit::Align::ALIGN_RIGHT);
     hb->add_child(incoming_bandwidth_text);
 
-	Control *down_up_spacer = memnew(Control);
-	down_up_spacer->set_custom_minimum_size(Size2(30, 0) * EDSCALE);
-	hb->add_child(down_up_spacer);
+    Control *down_up_spacer = memnew(Control);
+    down_up_spacer->set_custom_minimum_size(Size2(30, 0) * EDSCALE);
+    hb->add_child(down_up_spacer);
 
     lb = memnew(Label);
-	lb->set_text(TTR("Up"));
+    lb->set_text(TTR("Up"));
     hb->add_child(lb);
 
     outgoing_bandwidth_text = memnew(LineEdit);
     outgoing_bandwidth_text->set_editable(false);
-	outgoing_bandwidth_text->set_custom_minimum_size(Size2(120, 0) * EDSCALE);
+    outgoing_bandwidth_text->set_custom_minimum_size(Size2(120, 0) * EDSCALE);
     outgoing_bandwidth_text->set_align(LineEdit::Align::ALIGN_RIGHT);
     hb->add_child(outgoing_bandwidth_text);
 
-	// Set initial texts in the incoming/outgoing bandwidth labels
-	set_bandwidth(0, 0);
+    // Set initial texts in the incoming/outgoing bandwidth labels
+    set_bandwidth(0, 0);
 
     counters_display = memnew(Tree);
     counters_display->set_custom_minimum_size(Size2(300, 0) * EDSCALE);
@@ -183,7 +184,7 @@ EditorNetworkProfiler::EditorNetworkProfiler() {
     counters_display->set_column_titles_visible(true);
     counters_display->set_column_title(0, TTR("Node"));
     counters_display->set_column_expand(0, true);
-	counters_display->set_column_min_width(0, 60 * EDSCALE);
+    counters_display->set_column_min_width(0, 60 * EDSCALE);
     counters_display->set_column_title(1, TTR("Incoming RPC"));
     counters_display->set_column_expand(1, false);
     counters_display->set_column_min_width(1, 120 * EDSCALE);

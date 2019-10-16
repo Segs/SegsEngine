@@ -28,10 +28,10 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef POLYGON_2D_H
-#define POLYGON_2D_H
+#pragma once
 
 #include "scene/2d/node_2d.h"
+#include "core/node_path.h"
 
 class Polygon2D : public Node2D {
 
@@ -147,5 +147,3 @@ public:
 
 	Polygon2D();
 };
-
-#endif // POLYGON_2D_H

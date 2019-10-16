@@ -32,6 +32,7 @@
 
 #include "core/engine.h"
 #include "core/method_bind.h"
+#include "core/translation_helpers.h"
 #include "parallax_background.h"
 
 IMPL_GDCLASS(ParallaxLayer)

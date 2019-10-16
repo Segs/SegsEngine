@@ -60,6 +60,8 @@
 
 #define CACHED_STRING_NAME(m_var) (CSharpLanguage::get_singleton()->get_string_names().m_var)
 
+IMPL_GDCLASS(CSharpScript)
+
 #ifdef TOOLS_ENABLED
 static bool _create_project_solution_if_needed() {
 
@@ -69,7 +71,7 @@ static bool _create_project_solution_if_needed() {
     if (!FileAccess::exists(sln_path) || !FileAccess::exists(csproj_path)) {
         // A solution does not yet exist, create a new one
 
-        CRASH_COND(CSharpLanguage::get_singleton()->get_godotsharp_editor() == NULL);
+        CRASH_COND(CSharpLanguage::get_singleton()->get_godotsharp_editor() == nullptr)
         return CSharpLanguage::get_singleton()->get_godotsharp_editor()->call("CreateProjectSolution");
     }
 
@@ -77,7 +79,7 @@ static bool _create_project_solution_if_needed() {
 }
 #endif
 
-CSharpLanguage *CSharpLanguage::singleton = NULL;
+CSharpLanguage *CSharpLanguage::singleton = nullptr;
 
 String CSharpLanguage::get_name() const {
 
@@ -397,11 +399,7 @@ static String variant_type_to_managed_name(const String &p_var_type_name) {
         return "Godot.Object";
 
     if (p_var_type_name == Variant::get_type_name(Variant::REAL)) {
-#ifdef REAL_T_IS_DOUBLE
-        return "double";
-#else
         return "float";
-#endif
     }
 
     if (p_var_type_name == Variant::get_type_name(Variant::STRING))
@@ -418,11 +416,7 @@ static String variant_type_to_managed_name(const String &p_var_type_name) {
     if (p_var_type_name == Variant::get_type_name(Variant::POOL_INT_ARRAY))
         return "int[]";
     if (p_var_type_name == Variant::get_type_name(Variant::POOL_REAL_ARRAY)) {
-#ifdef REAL_T_IS_DOUBLE
-        return "double[]";
-#else
         return "float[]";
-#endif
     }
     if (p_var_type_name == Variant::get_type_name(Variant::POOL_STRING_ARRAY))
         return "string[]";
@@ -1042,7 +1036,7 @@ void CSharpLanguage::_load_scripts_metadata() {
         int err_line;
         Error json_err = JSON::parse(old_json, old_dict_var, err_str, err_line);
         if (json_err != OK) {
-            ERR_PRINTS("Failed to parse metadata file: '" + err_str + "' (" + StringUtils::num_int64(err_line) + ").");
+            ERR_PRINT("Failed to parse metadata file: '" + err_str + "' (" + StringUtils::num_int64(err_line) + ").");
             return;
         }
 
@@ -1193,7 +1187,7 @@ void CSharpLanguage::release_script_gchandle(MonoObject *p_expected_obj, Ref<Mon
 
 CSharpLanguage::CSharpLanguage() {
 
-	ERR_FAIL_COND_MSG(singleton, "C# singleton already exist.");
+    ERR_FAIL_COND_MSG(singleton, "C# singleton already exist.");
     singleton = this;
 
     finalizing = false;
@@ -1787,7 +1781,7 @@ MonoObject *CSharpInstance::_internal_new_managed() {
 
         owner = NULL;
 
-        ERR_FAIL_V_CMSG(NULL, "Failed to allocate memory for the object.");
+        ERR_FAIL_V_MSG(NULL, "Failed to allocate memory for the object.");
     }
 
     // Tie managed to unmanaged
@@ -2389,7 +2383,7 @@ bool CSharpScript::_get_signal(GDMonoClass *p_class, GDMonoClass *p_delegate, Ve
                     arg.type = GDMonoMarshal::managed_to_variant_type(types[i]);
 
                     if (arg.type == Variant::NIL) {
-                        ERR_PRINTS("Unknown type of signal parameter: '" + arg.name + "' in '" + p_class->get_full_name() + "'.");
+                        ERR_PRINT("Unknown type of signal parameter: '" + arg.name + "' in '" + p_class->get_full_name() + "'.");
                         return false;
                     }
 
@@ -2417,7 +2411,7 @@ bool CSharpScript::_get_member_export(IMonoClassMember *p_member, bool p_inspect
 
     if (p_member->is_static()) {
         if (p_member->has_attribute(CACHED_CLASS(ExportAttribute)))
-            ERR_PRINTS("Cannot export member because it is static: '" + MEMBER_FULL_QUALIFIED_NAME(p_member) + "'.");
+            ERR_PRINT("Cannot export member because it is static: '" + MEMBER_FULL_QUALIFIED_NAME(p_member) + "'.");
         return false;
     }
 
@@ -2440,12 +2434,12 @@ bool CSharpScript::_get_member_export(IMonoClassMember *p_member, bool p_inspect
         GDMonoProperty *property = static_cast<GDMonoProperty *>(p_member);
         if (!property->has_getter()) {
             if (exported)
-                ERR_PRINTS("Read-only property cannot be exported: '" + MEMBER_FULL_QUALIFIED_NAME(p_member) + "'.");
+                ERR_PRINT("Read-only property cannot be exported: '" + MEMBER_FULL_QUALIFIED_NAME(p_member) + "'.");
             return false;
         }
         if (!property->has_setter()) {
             if (exported)
-                ERR_PRINTS("Write-only property (without getter) cannot be exported: '" + MEMBER_FULL_QUALIFIED_NAME(p_member) + "'.");
+                ERR_PRINT("Write-only property (without getter) cannot be exported: '" + MEMBER_FULL_QUALIFIED_NAME(p_member) + "'.");
             return false;
         }
     }
@@ -2464,7 +2458,7 @@ bool CSharpScript::_get_member_export(IMonoClassMember *p_member, bool p_inspect
     String hint_string;
 
     if (variant_type == Variant::NIL) {
-        ERR_PRINTS("Unknown exported member type: '" + MEMBER_FULL_QUALIFIED_NAME(p_member) + "'.");
+        ERR_PRINT("Unknown exported member type: '" + MEMBER_FULL_QUALIFIED_NAME(p_member) + "'.");
         return false;
     }
 
@@ -2560,11 +2554,11 @@ int CSharpScript::_try_get_member_export_hint(IMonoClassMember *p_member, Manage
         PropertyHint elem_hint = PROPERTY_HINT_NONE;
         String elem_hint_string;
 
-        ERR_FAIL_COND_V_CMSG(elem_variant_type == Variant::NIL, -1, "Unknown array element type.")
+        ERR_FAIL_COND_V_MSG(elem_variant_type == Variant::NIL, -1, "Unknown array element type.")
 
         int hint_res = _try_get_member_export_hint(p_member, elem_type, elem_variant_type, /* allow_generics: */ false, elem_hint, elem_hint_string);
 
-        ERR_FAIL_COND_V_CMSG(hint_res == -1, -1, "Error while trying to determine information about the array element type.")
+        ERR_FAIL_COND_V_MSG(hint_res == -1, -1, "Error while trying to determine information about the array element type.")
 
         // Format: type/hint:hint_string
         r_hint_string = itos(elem_variant_type) + "/" + itos(elem_hint) + ":" + elem_hint_string;
@@ -2752,7 +2746,7 @@ bool CSharpScript::can_instance() const {
                         "Compile",
                         ProjectSettings::get_singleton()->globalize_path(get_path()));
             } else {
-                ERR_PRINTS("C# project could not be created; cannot add file: '" + get_path() + "'.");
+                ERR_PRINT("C# project could not be created; cannot add file: '" + get_path() + "'.");
             }
         }
     }
@@ -2800,7 +2794,7 @@ CSharpInstance *CSharpScript::_create_instance(const Variant **p_args, int p_arg
                         "' does not define a parameterless constructor." +
                         (get_path().empty() ? String() : " Path: '" + get_path() + "'."));
 
-        ERR_FAIL_V_CMSG(NULL, "Constructor not found.");
+        ERR_FAIL_V_MSG(NULL, "Constructor not found.");
     }
 
     Ref<Reference> ref;
@@ -2851,7 +2845,7 @@ CSharpInstance *CSharpScript::_create_instance(const Variant **p_args, int p_arg
 
         p_owner->set_script_instance(NULL);
         r_error.error = Variant::CallError::CALL_ERROR_INSTANCE_IS_NULL;
-        ERR_FAIL_V_CMSG(NULL, "Failed to allocate memory for the object.");
+        ERR_FAIL_V_MSG(NULL, "Failed to allocate memory for the object.");
     }
 
     // Tie managed to unmanaged
@@ -3240,7 +3234,7 @@ RES ResourceFormatLoaderCSharpScript::load(const String &p_path, const String &p
 
 #if defined(DEBUG_ENABLED) || defined(TOOLS_ENABLED)
     Error err = script->load_source_code(p_path);
-	ERR_FAIL_COND_V_MSG(err != OK, RES(), "Cannot load C# script file '" + p_path + "'.");
+    ERR_FAIL_COND_V_MSG(err != OK, RES(), "Cannot load C# script file '" + p_path + "'.");
 #endif
 
     script->set_path(p_original_path);
@@ -3316,14 +3310,14 @@ Error ResourceFormatSaverCSharpScript::save(const String &p_path, const RES &p_r
                     "Compile",
                     ProjectSettings::get_singleton()->globalize_path(p_path));
         } else {
-            ERR_PRINTS("C# project could not be created; cannot add file: '" + p_path + "'.");
+            ERR_PRINT("C# project could not be created; cannot add file: '" + p_path + "'.");
         }
     }
 #endif
 
     Error err;
     FileAccess *file = FileAccess::open(p_path, FileAccess::WRITE, &err);
-	ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot save C# script file '" + p_path + "'.");
+    ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot save C# script file '" + p_path + "'.");
 
     file->store_string(source);
 

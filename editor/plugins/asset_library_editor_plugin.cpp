@@ -36,6 +36,7 @@
 #include "core/io/image_loader.h"
 #include "core/method_bind.h"
 #include "core/object_db.h"
+#include "core/translation_helpers.h"
 #include "core/version.h"
 #include "editor_node.h"
 #include "editor_settings.h"
