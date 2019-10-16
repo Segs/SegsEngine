@@ -398,9 +398,9 @@ void TileMap::update_dirty_quadrants() {
         RID prev_canvas_item;
         RID prev_debug_canvas_item;
 
-        for (int i = 0; i < q.cells.size(); i++) {
+        for (const PosKey &pk : q.cells) {
 
-            Map<PosKey, Cell>::iterator E = tile_map.find(q.cells[i]);
+            Map<PosKey, Cell>::iterator E = tile_map.find(pk);
             Cell &c = E->second;
             //moment of truth
             if (!tile_set->has_tile(c.id))

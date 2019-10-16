@@ -321,7 +321,7 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
                 *r_return = ABS(i);
             } else if (p_inputs[0]->get_type() == VariantType::REAL) {
 
-                real_t r = *p_inputs[0];
+                real_t r = p_inputs[0]->as<float>();
                 *r_return = Math::abs(r);
             } else {
 
@@ -338,8 +338,8 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
                 *r_return = i < 0 ? -1 : (i > 0 ? +1 : 0);
             } else if (p_inputs[0]->get_type() == VariantType::REAL) {
 
-                real_t r = *p_inputs[0];
-                *r_return = r < 0.0 ? -1.0 : (r > 0.0 ? +1.0 : 0.0);
+                real_t r = p_inputs[0]->as<float>();
+                *r_return = r < 0.0f ? -1.0f : (r > 0.0f ? +1.0f : 0.0f);
             } else {
 
                 r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
@@ -426,23 +426,23 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
             *r_return = Math::range_lerp(p_inputs[0]->as<double>(), p_inputs[1]->as<double>(), p_inputs[2]->as<double>(), p_inputs[3]->as<double>(), p_inputs[4]->as<double>());
         } break;
         case MATH_SMOOTHSTEP: {
-            VALIDATE_ARG_NUM(0);
-            VALIDATE_ARG_NUM(1);
-            VALIDATE_ARG_NUM(2);
+            VALIDATE_ARG_NUM(0)
+            VALIDATE_ARG_NUM(1)
+            VALIDATE_ARG_NUM(2)
             *r_return = Math::smoothstep(p_inputs[0]->as<double>(), p_inputs[1]->as<double>(), p_inputs[2]->as<double>());
         } break;
         case MATH_MOVE_TOWARD: {
 
-            VALIDATE_ARG_NUM(0);
-            VALIDATE_ARG_NUM(1);
-            VALIDATE_ARG_NUM(2);
+            VALIDATE_ARG_NUM(0)
+            VALIDATE_ARG_NUM(1)
+            VALIDATE_ARG_NUM(2)
             *r_return = Math::move_toward(p_inputs[0]->as<double>(), p_inputs[1]->as<double>(), p_inputs[2]->as<double>());
         } break;
         case MATH_DECTIME: {
 
-            VALIDATE_ARG_NUM(0);
-            VALIDATE_ARG_NUM(1);
-            VALIDATE_ARG_NUM(2);
+            VALIDATE_ARG_NUM(0)
+            VALIDATE_ARG_NUM(1)
+            VALIDATE_ARG_NUM(2)
             *r_return = Math::dectime(p_inputs[0]->as<double>(), p_inputs[1]->as<double>(), p_inputs[2]->as<double>());
         } break;
         case MATH_RANDOMIZE: {
@@ -500,29 +500,29 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
             *r_return = Math::db2linear(p_inputs[0]->as<double>());
         } break;
         case MATH_POLAR2CARTESIAN: {
-            VALIDATE_ARG_NUM(0);
-            VALIDATE_ARG_NUM(1);
-            double r = *p_inputs[0];
-            double th = *p_inputs[1];
+            VALIDATE_ARG_NUM(0)
+            VALIDATE_ARG_NUM(1)
+            double r = p_inputs[0]->as<float>();
+            double th = p_inputs[1]->as<float>();
             *r_return = Vector2(r * Math::cos(th), r * Math::sin(th));
         } break;
         case MATH_CARTESIAN2POLAR: {
-            VALIDATE_ARG_NUM(0);
-            VALIDATE_ARG_NUM(1);
-            double x = *p_inputs[0];
-            double y = *p_inputs[1];
+            VALIDATE_ARG_NUM(0)
+            VALIDATE_ARG_NUM(1)
+            double x = p_inputs[0]->as<float>();
+            double y = p_inputs[1]->as<float>();
             *r_return = Vector2(Math::sqrt(x * x + y * y), Math::atan2(y, x));
         } break;
         case MATH_WRAP: {
-            VALIDATE_ARG_NUM(0);
-            VALIDATE_ARG_NUM(1);
-            VALIDATE_ARG_NUM(2);
+            VALIDATE_ARG_NUM(0)
+            VALIDATE_ARG_NUM(1)
+            VALIDATE_ARG_NUM(2)
             *r_return = Math::wrapi((int64_t)*p_inputs[0], (int64_t)*p_inputs[1], (int64_t)*p_inputs[2]);
         } break;
         case MATH_WRAPF: {
-            VALIDATE_ARG_NUM(0);
-            VALIDATE_ARG_NUM(1);
-            VALIDATE_ARG_NUM(2);
+            VALIDATE_ARG_NUM(0)
+            VALIDATE_ARG_NUM(1)
+            VALIDATE_ARG_NUM(2)
             *r_return = Math::wrapf(p_inputs[0]->as<double>(), p_inputs[1]->as<double>(), p_inputs[2]->as<double>());
         } break;
         case LOGIC_MAX: {
@@ -533,8 +533,8 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
                 int64_t b = *p_inputs[1];
                 *r_return = MAX(a, b);
             } else {
-                VALIDATE_ARG_NUM(0);
-                VALIDATE_ARG_NUM(1);
+                VALIDATE_ARG_NUM(0)
+                VALIDATE_ARG_NUM(1)
 
                 real_t a = p_inputs[0]->as<float>();
                 real_t b = p_inputs[1]->as<float>();
@@ -551,11 +551,11 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
                 int64_t b = *p_inputs[1];
                 *r_return = MIN(a, b);
             } else {
-                VALIDATE_ARG_NUM(0);
-                VALIDATE_ARG_NUM(1);
+                VALIDATE_ARG_NUM(0)
+                VALIDATE_ARG_NUM(1)
 
-                real_t a = *p_inputs[0];
-                real_t b = *p_inputs[1];
+                real_t a = p_inputs[0]->as<float>();
+                real_t b = p_inputs[1]->as<float>();
 
                 *r_return = MIN(a, b);
             }
@@ -569,20 +569,20 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
                 int64_t c = *p_inputs[2];
                 *r_return = CLAMP(a, b, c);
             } else {
-                VALIDATE_ARG_NUM(0);
-                VALIDATE_ARG_NUM(1);
-                VALIDATE_ARG_NUM(2);
+                VALIDATE_ARG_NUM(0)
+                VALIDATE_ARG_NUM(1)
+                VALIDATE_ARG_NUM(2)
 
-                real_t a = *p_inputs[0];
-                real_t b = *p_inputs[1];
-                real_t c = *p_inputs[2];
+                real_t a = p_inputs[0]->as<float>();
+                real_t b = p_inputs[1]->as<float>();
+                real_t c = p_inputs[2]->as<float>();
 
                 *r_return = CLAMP(a, b, c);
             }
         } break;
         case LOGIC_NEAREST_PO2: {
 
-            VALIDATE_ARG_NUM(0);
+            VALIDATE_ARG_NUM(0)
             int64_t num = *p_inputs[0];
             *r_return = next_power_of_2(num);
         } break;
@@ -642,7 +642,7 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
             Ref<FuncRef> fr(make_ref_counted<FuncRef>());
 
             fr->set_instance(*p_inputs[0]);
-            fr->set_function(*p_inputs[1]);
+            fr->set_function(p_inputs[1]->as<StringName>());
 
             *r_return = fr;
 
@@ -671,7 +671,7 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
         } break;
         case TYPE_EXISTS: {
 
-            *r_return = ClassDB::class_exists(*p_inputs[0]);
+            *r_return = ClassDB::class_exists(p_inputs[0]->as<StringName>());
 
         } break;
         case TEXT_CHAR: {
@@ -688,20 +688,20 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
         } break;
         case TEXT_PRINT: {
 
-            String str(*p_inputs[0]);
+            String str(p_inputs[0]->as<String>());
             print_line(str);
 
         } break;
 
         case TEXT_PRINTERR: {
 
-            String str(*p_inputs[0]);
+            String str(p_inputs[0]->as<String>());
             print_error(str);
 
         } break;
         case TEXT_PRINTRAW: {
 
-            String str = *p_inputs[0];
+            String str(p_inputs[0]->as<String>());
             OS::get_singleton()->print(str);
 
         } break;
@@ -721,7 +721,7 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
                 return;
             }
 
-            VariantParser::Stream *ss=VariantParser::get_string_stream(*p_inputs[0]);
+            VariantParser::Stream *ss=VariantParser::get_string_stream(p_inputs[0]->as<String>());
 
             String errs;
             int line;
@@ -787,10 +787,10 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
         } break;
         case COLORN: {
 
-            VALIDATE_ARG_NUM(1);
+            VALIDATE_ARG_NUM(1)
 
-            Color color = Color::named(*p_inputs[0]);
-            color.a = *p_inputs[1];
+            Color color = Color::named(p_inputs[0]->as<String>());
+            color.a = p_inputs[1]->as<float>();
 
             *r_return = String(color);
 
@@ -818,32 +818,32 @@ Error Expression::_get_token(Token &r_token) {
             case 0: {
                 r_token.type = TK_EOF;
                 return OK;
-            };
+            }
             case '{': {
 
                 r_token.type = TK_CURLY_BRACKET_OPEN;
                 return OK;
-            };
+            }
             case '}': {
 
                 r_token.type = TK_CURLY_BRACKET_CLOSE;
                 return OK;
-            };
+            }
             case '[': {
 
                 r_token.type = TK_BRACKET_OPEN;
                 return OK;
-            };
+            }
             case ']': {
 
                 r_token.type = TK_BRACKET_CLOSE;
                 return OK;
-            };
+            }
             case '(': {
 
                 r_token.type = TK_PARENTHESIS_OPEN;
                 return OK;
-            };
+            }
             case ')': {
 
                 r_token.type = TK_PARENTHESIS_CLOSE;
@@ -1384,7 +1384,7 @@ Expression::ENode *Expression::_parse_expression() {
             } break;
             case TK_IDENTIFIER: {
 
-                String identifier = tk.value;
+                String identifier = tk.value.as<String>();
 
                 int cofs = str_ofs;
                 _get_token(tk);
@@ -1614,7 +1614,7 @@ Expression::ENode *Expression::_parse_expression() {
                         return nullptr;
                     }
 
-                    StringName identifier = tk.value;
+                    StringName identifier = tk.value.as<StringName>();
 
                     int cofs = str_ofs;
                     _get_token(tk);

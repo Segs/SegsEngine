@@ -69,7 +69,7 @@ Error ResourceFormatImporter::_get_path_and_type(const String &p_path, PathAndTy
     bool path_found = false; //first match must have priority
     while (true) {
 
-        assign = Variant();
+        assign = Variant().as<String>();
         next_tag.fields.clear();
         next_tag.name = String();
 
@@ -89,19 +89,19 @@ Error ResourceFormatImporter::_get_path_and_type(const String &p_path, PathAndTy
             if (!path_found && StringUtils::begins_with(assign,"path.") && r_path_and_type.path.empty()) {
                 String feature = StringUtils::get_slice(assign,'.', 1);
                 if (OS::get_singleton()->has_feature(feature)) {
-                    r_path_and_type.path = value;
+                    r_path_and_type.path = value.as<String>();
                     path_found = true; //first match must have priority
                 }
 
             } else if (!path_found && assign == "path") {
-                r_path_and_type.path = value;
+                r_path_and_type.path = value.as<String>();
                 path_found = true; //first match must have priority
             } else if (assign == "type") {
-                r_path_and_type.type = value;
+                r_path_and_type.type = value.as<String>();
             } else if (assign == "importer") {
-                r_path_and_type.importer = value;
+                r_path_and_type.importer = value.as<String>();
             } else if (assign == "group_file") {
-                r_path_and_type.group_file = value;
+                r_path_and_type.group_file = value.as<String>();
             } else if (assign == "metadata") {
                 r_path_and_type.metadata = value;
             } else if (assign == "valid") {
@@ -311,7 +311,7 @@ void ResourceFormatImporter::get_internal_resource_path_list(const String &p_pat
     String error_text;
     while (true) {
 
-        assign = Variant();
+        assign = Variant().as<String>();
         next_tag.fields.clear();
         next_tag.name = String();
 
@@ -329,9 +329,9 @@ void ResourceFormatImporter::get_internal_resource_path_list(const String &p_pat
 
         if (!assign.empty()) {
             if (StringUtils::begins_with(assign,"path.")) {
-                r_paths->push_back(value);
+                r_paths->push_back(value.as<String>());
             } else if (assign == "path") {
-                r_paths->push_back(value);
+                r_paths->push_back(value.as<String>());
             }
         } else if (next_tag.name != "remap") {
             break;

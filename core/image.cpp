@@ -29,19 +29,17 @@
 /*************************************************************************/
 
 #include "image.h"
-#include "image.h"
 #include "core/image_enum_casters.h"
 
-#include "core/hash_map.h"
 #include "core/io/image_loader.h"
 #include "core/io/image_saver.h"
 #include "core/io/resource_loader.h"
 #include "core/math/math_funcs.h"
-#include "core/print_string.h"
-#include "core/plugin_interfaces/ImageLoaderInterface.h"
-#include "plugins/plugin_registry.h"
 #include "core/method_bind.h"
+#include "core/plugin_interfaces/ImageLoaderInterface.h"
 #include "core/plugin_interfaces/PluginDeclarations.h"
+#include "core/print_string.h"
+#include "plugins/plugin_registry.h"
 
 #include "thirdparty/misc/hq2x.h"
 #include "EASTL/array.h"

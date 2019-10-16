@@ -40,43 +40,12 @@
 
 	@author Juan Linietsky <reduzio@gmail.com>
 */
+struct AStarPoint;
 
-class AStar : public RefCounted {
+class GODOT_EXPORT AStar : public RefCounted {
 
     GDCLASS(AStar,RefCounted)
 
-	struct Point {
-
-		Point() :
-				neighbours(4u),
-				unlinked_neighbours(4u) {}
-		int id;
-		Vector3 pos;
-		real_t weight_scale;
-		bool enabled;
-		OAHashMap<int, Point *> neighbours;
-		OAHashMap<int, Point *> unlinked_neighbours;
-
-		// Used for pathfinding.
-
-		Point *prev_point;
-		real_t g_score;
-		real_t f_score;
-		uint64_t open_pass;
-		uint64_t closed_pass;
-	};
-
-	struct SortPoints {
-		_FORCE_INLINE_ bool operator()(const Point *A, const Point *B) const { // Returns true when the Point A is worse than Point B.
-			if (A->f_score > B->f_score) {
-				return true;
-			} else if (A->f_score < B->f_score) {
-				return false;
-			} else {
-				return A->g_score < B->g_score; // If the f_costs are the same then prioritize the points that are further away from the start.
-			}
-		}
-	};
 
 	struct Segment {
 		union {
@@ -87,8 +56,8 @@ class AStar : public RefCounted {
 			uint64_t key;
 		};
 
-		Point *from_point;
-		Point *to_point;
+        AStarPoint *from_point;
+        AStarPoint *to_point;
 
 		bool operator<(const Segment &p_s) const { return key < p_s.key; }
 		Segment() { key = 0; }
@@ -105,10 +74,10 @@ class AStar : public RefCounted {
 	int last_free_id;
 	uint64_t pass;
 
-	OAHashMap<int, Point *> points;
+    OAHashMap<int, AStarPoint *> points;
 	Set<Segment> segments;
 
-	bool _solve(Point *begin_point, Point *end_point);
+    bool _solve(AStarPoint *begin_point, AStarPoint *end_point);
 
 protected:
 	static void _bind_methods();
@@ -151,7 +120,7 @@ public:
 	~AStar() override;
 };
 
-class AStar2D : public RefCounted {
+class GODOT_EXPORT AStar2D : public RefCounted {
     GDCLASS(AStar2D,RefCounted)
 	AStar astar;
 

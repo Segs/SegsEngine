@@ -348,9 +348,9 @@ void Area2D::_clear_monitoring() {
             if (!E.second.in_tree)
                 continue;
 
-            for (int i = 0; i < E.second.shapes.size(); i++) {
+            for (const ShapePair & entry : E.second.shapes) {
 
-                emit_signal(SceneStringNames::get_singleton()->body_shape_exited, E.first, Variant(node), E.second.shapes[i].body_shape, E.second.shapes[i].area_shape);
+                emit_signal(SceneStringNames::get_singleton()->body_shape_exited, E.first, Variant(node), entry.body_shape, entry.area_shape);
             }
 
             emit_signal(SceneStringNames::get_singleton()->body_exited, Variant(obj));
@@ -378,9 +378,9 @@ void Area2D::_clear_monitoring() {
             if (!E.second.in_tree)
                 continue;
 
-            for (int i = 0; i < E.second.shapes.size(); i++) {
+            for (const auto &entry : E.second.shapes) {
 
-                emit_signal(SceneStringNames::get_singleton()->area_shape_exited, E.first, Variant(node), E.second.shapes[i].area_shape, E.second.shapes[i].self_shape);
+                emit_signal(SceneStringNames::get_singleton()->area_shape_exited, E.first, Variant(node), entry.area_shape, entry.self_shape);
             }
 
             emit_signal(SceneStringNames::get_singleton()->area_exited, Variant(obj));

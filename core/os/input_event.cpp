@@ -749,7 +749,7 @@ bool InputEventJoypadMotion::action_match(const Ref<InputEvent> &p_event, bool *
 
 String InputEventJoypadMotion::as_text() const {
 
-    return "InputEventJoypadMotion : axis=" + itos(axis) + ", axis_value=" + String(Variant(axis_value));
+    return "InputEventJoypadMotion : axis=" + itos(axis) + ", axis_value=" + rtos(axis_value);
 }
 
 void InputEventJoypadMotion::_bind_methods() {

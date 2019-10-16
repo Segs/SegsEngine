@@ -184,7 +184,7 @@ public:
 
 	_FORCE_INLINE_ void add_exception(const RID &p_exception) { exceptions.insert(p_exception); }
 	_FORCE_INLINE_ void remove_exception(const RID &p_exception) { exceptions.erase(p_exception); }
-	_FORCE_INLINE_ bool has_exception(const RID &p_exception) const { return exceptions.has(p_exception); }
+    _FORCE_INLINE_ bool has_exception(const RID &p_exception) const { return exceptions.contains(p_exception); }
 	_FORCE_INLINE_ const VSet<RID> &get_exceptions() const { return exceptions; }
 
 	_FORCE_INLINE_ uint64_t get_island_step() const { return island_step; }

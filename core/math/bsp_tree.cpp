@@ -508,7 +508,7 @@ BSP_Tree::BSP_Tree(const Variant &p_variant) {
 		planes = d["planes"];
 	}
 
-	error_radius = d["error"];
+    error_radius = d["error"].as<float>();
 	aabb = d["aabb"];
 
 	//int node_count = src_nodes.size();

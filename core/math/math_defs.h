@@ -66,12 +66,9 @@ struct MathConsts<double> {
 
 #define Math_INF INFINITY
 #define Math_NAN NAN
-#ifdef DEBUG_ENABLED
-#define MATH_CHECKS
-#endif
 
 //this epsilon is for values related to a unit size (scalar or vector len)
-#ifdef PRECISE_MATH_CHECKS
+#ifdef OPTION_PRECISE_MATH_CHECKS
 #define UNIT_EPSILON 0.00001f
 #else
 //tolerate some more floating point error normally

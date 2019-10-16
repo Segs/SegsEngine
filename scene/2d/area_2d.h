@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef AREA_2D_H
-#define AREA_2D_H
+#pragma once
 
 #include "core/vset.h"
 #include "scene/2d/collision_object_2d.h"
@@ -193,6 +192,3 @@ public:
 	Area2D();
 	~Area2D() override;
 };
-
-
-#endif // AREA_2D_H

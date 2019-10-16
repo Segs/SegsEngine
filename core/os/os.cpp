@@ -30,23 +30,30 @@
 
 #include "os.h"
 
+#include "core/image.h"
+#include "core/method_enum_caster.h"
+#include "core/object_db.h"
 #include "core/os/dir_access.h"
 #include "core/os/file_access.h"
 #include "core/os/input.h"
-#include "core/method_enum_caster.h"
 #include "core/os/main_loop.h"
-#include "core/image.h"
 #include "core/os/midi_driver.h"
-#include "core/project_settings.h"
-#include "version_generated.gen.h"
-#include "servers/audio_server.h"
-#include "core/string_formatter.h"
 #include "core/print_string.h"
-#include "core/object_db.h"
+#include "core/project_settings.h"
+#include "core/string_formatter.h"
+#include "core/type_info.h"
+#include "servers/audio_server.h"
+#include "version_generated.gen.h"
 
+#include "EASTL/fixed_hash_set.h"
+#include "EASTL/string_view.h"
 #include <QtCore/QStandardPaths>
+
 #include <cstdarg>
 #include <codecvt>
+namespace {
+eastl::fixed_hash_set<se_string_view,16,4,true> s_dynamic_features;
+} // end of anonymous namespace
 
 OS *OS::singleton = nullptr;
 
@@ -559,12 +566,7 @@ void OS::set_mouse_mode(MouseMode p_mode) {
 }
 
 bool OS::can_use_threads() const {
-
-#ifdef NO_THREADS
-    return false;
-#else
     return true;
-#endif
 }
 
 OS::MouseMode OS::get_mouse_mode() const {
@@ -619,25 +621,10 @@ void OS::set_has_server_feature_callback(HasServerFeatureCallback p_callback) {
     has_server_feature_callback = p_callback;
 }
 
-bool OS::has_feature(const String &p_feature) {
+bool OS::has_feature(const StringName &p_feature) {
 
     if (p_feature == get_name())
         return true;
-#ifdef DEBUG_ENABLED
-    if (p_feature == "debug")
-        return true;
-#else
-    if (p_feature == "release")
-        return true;
-#endif
-#ifdef TOOLS_ENABLED
-    if (p_feature == "editor")
-        return true;
-#else
-    if (p_feature == "standalone")
-        return true;
-#endif
-
     if (sizeof(void *) == 8 && p_feature == "64") {
         return true;
     }
@@ -652,25 +639,14 @@ bool OS::has_feature(const String &p_feature) {
     if (p_feature == "x86") {
         return true;
     }
-#elif defined(__aarch64__)
-    if (p_feature == "arm64") {
-        return true;
-    }
 #elif defined(__arm__)
-#if defined(__ARM_ARCH_7A__)
-    if (p_feature == "armv7a" || p_feature == "armv7") {
-        return true;
-    }
-#endif
-#if defined(__ARM_ARCH_7S__)
-    if (p_feature == "armv7s" || p_feature == "armv7") {
-        return true;
-    }
-#endif
     if (p_feature == "arm") {
         return true;
     }
 #endif
+    auto iter = s_dynamic_features.find(p_feature.asCString());
+    if(iter!=s_dynamic_features.end())
+        return true;
 
     if (_check_internal_feature_support(p_feature))
         return true;
@@ -683,6 +659,17 @@ bool OS::has_feature(const String &p_feature) {
         return true;
 
     return false;
+}
+
+void OS::register_feature(const char *name)
+{
+    assert(!s_dynamic_features.contains(name));
+    s_dynamic_features.emplace(name);
+}
+void OS::unregister_feature(const char *name)
+{
+    assert(s_dynamic_features.contains(name));
+    s_dynamic_features.erase(name);
 }
 
 void OS::center_window() {
@@ -707,8 +694,6 @@ int OS::get_video_driver_count() const {
 const char *OS::get_video_driver_name(int p_driver) const {
 
     switch (p_driver) {
-        case VIDEO_DRIVER_GLES2:
-            return "GLES2";
         case VIDEO_DRIVER_GLES3:
         default:
             return "GLES3";

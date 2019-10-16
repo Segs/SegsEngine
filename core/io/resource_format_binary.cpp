@@ -1250,7 +1250,7 @@ void ResourceFormatSaverBinaryInstance::write_variant(FileAccess *f, const Varia
         } break;
         case VariantType::REAL: {
 
-            double d = p_property;
+            double d = p_property.as<float>();
             float fl = d;
             if (double(fl) != d) {
                 f->store_32(VARIANT_DOUBLE);
@@ -1265,7 +1265,7 @@ void ResourceFormatSaverBinaryInstance::write_variant(FileAccess *f, const Varia
         case VariantType::STRING: {
 
             f->store_32(VARIANT_STRING);
-            String val = p_property;
+            String val = p_property.as<String>();
             save_unicode_string(f, val);
 
         } break;

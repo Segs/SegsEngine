@@ -160,7 +160,7 @@ Quat Quat::slerp(const Quat &q, const real_t &t) const {
     cosom = dot(q);
 
     // adjust signs (if necessary)
-    if (cosom < 0.0) {
+    if (cosom < 0.0f) {
         cosom = -cosom;
         to1.x = -q.x;
         to1.y = -q.y;
@@ -175,16 +175,16 @@ Quat Quat::slerp(const Quat &q, const real_t &t) const {
 
     // calculate coefficients
 
-    if ((1.0 - cosom) > CMP_EPSILON) {
+    if ((1.0f - cosom) > CMP_EPSILON) {
         // standard case (slerp)
         omega = Math::acos(cosom);
         sinom = Math::sin(omega);
-        scale0 = Math::sin((1.0 - t) * omega) / sinom;
+        scale0 = Math::sin((1.0f - t) * omega) / sinom;
         scale1 = Math::sin(t * omega) / sinom;
     } else {
         // "from" and "to" quaternions are very close
         //  ... so we can do a linear interpolation
-        scale0 = 1.0 - t;
+        scale0 = 1.0f - t;
         scale1 = t;
     }
     // calculate final values
@@ -204,12 +204,12 @@ Quat Quat::slerpni(const Quat &q, const real_t &t) const {
 
     real_t dot = from.dot(q);
 
-    if (Math::absf(dot) > 0.9999) return from;
+    if (Math::absf(dot) > 0.9999f) return from;
 
     real_t theta = Math::acos(dot),
-           sinT = 1.0 / Math::sin(theta),
+           sinT = 1.0f / Math::sin(theta),
            newFactor = Math::sin(t * theta) * sinT,
-           invFactor = Math::sin((1.0 - t) * theta) * sinT;
+           invFactor = Math::sin((1.0f - t) * theta) * sinT;
 
     return Quat(invFactor * from.x + newFactor * q.x,
             invFactor * from.y + newFactor * q.y,
@@ -223,7 +223,7 @@ Quat Quat::cubic_slerp(const Quat &q, const Quat &prep, const Quat &postq, const
     ERR_FAIL_COND_V(!q.is_normalized(), Quat())
 #endif
     //the only way to do slerp :|
-    real_t t2 = (1.0 - t) * t * 2;
+    real_t t2 = (1.0f - t) * t * 2;
     Quat sp = this->slerp(q, t);
     Quat sq = prep.slerpni(postq, t);
     return sp.slerpni(sq, t2);
@@ -239,11 +239,11 @@ void Quat::set_axis_angle(const Vector3 &axis, const real_t &angle) {
     ERR_FAIL_COND(!axis.is_normalized())
 #endif
     real_t d = axis.length();
-    if (d == 0)
+    if (d == 0.0f)
         set(0, 0, 0, 0);
     else {
-        real_t sin_angle = Math::sin(angle * 0.5);
-        real_t cos_angle = Math::cos(angle * 0.5);
+        real_t sin_angle = Math::sin(angle * 0.5f);
+        real_t cos_angle = Math::cos(angle * 0.5f);
         real_t s = sin_angle / d;
         set(axis.x * s, axis.y * s, axis.z * s,
                 cos_angle);

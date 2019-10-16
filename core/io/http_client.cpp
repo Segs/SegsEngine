@@ -768,7 +768,7 @@ String HTTPClient::query_string_from_dict(const Dictionary &p_dict) {
             }
             default: {
                 // Add the key-value pair
-                query += "&" + encoded_key + "=" + StringUtils::http_escape(value);
+                query += "&" + encoded_key + "=" + StringUtils::http_escape(value.as<String>());
             }
         }
     }

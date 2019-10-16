@@ -2665,7 +2665,7 @@ String StringUtils::sprintf(const String &str,const Array &values, bool *error) 
                         return String("a number is required");
                     }
 
-                    double value = values[value_index];
+                    double value = values[value_index].as<float>();
                     String str = StringUtils::num(value, min_decimals);
 
                     // Pad decimals out.

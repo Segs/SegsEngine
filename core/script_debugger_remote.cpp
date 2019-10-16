@@ -168,7 +168,7 @@ void ScriptDebuggerRemote::debug(ScriptLanguage *p_script, bool p_can_continue, 
             ERR_CONTINUE(cmd.empty())
             ERR_CONTINUE(cmd[0].get_type() != VariantType::STRING)
 
-            String command = cmd[0];
+            String command = cmd[0].as<String>();
 
             if (command == "get_stack_dump") {
 
@@ -294,7 +294,7 @@ void ScriptDebuggerRemote::debug(ScriptLanguage *p_script, bool p_can_continue, 
                 _send_object_id(id);
             } else if (command == "set_object_property") {
 
-                _set_object_property(cmd[1], cmd[2], cmd[3]);
+                _set_object_property(cmd[1], cmd[2].as<String>(), cmd[3]);
 
             } else if (command == "reload_scripts") {
                 reload_all_scripts = true;
@@ -302,12 +302,12 @@ void ScriptDebuggerRemote::debug(ScriptLanguage *p_script, bool p_can_continue, 
 
                 bool set = cmd[3].as<bool>();
                 if (set)
-                    insert_breakpoint(cmd[2], cmd[1]);
+                    insert_breakpoint(cmd[2], cmd[1].as<StringName>());
                 else
-                    remove_breakpoint(cmd[2], cmd[1]);
+                    remove_breakpoint(cmd[2], cmd[1].as<StringName>());
 
             } else if (command == "save_node") {
-                _save_node(cmd[1], cmd[2]);
+                _save_node(cmd[1], cmd[2].as<StringName>());
             } else {
                 _parse_live_edit(cmd);
             }
@@ -447,7 +447,7 @@ void ScriptDebuggerRemote::_err_handler(void *ud, const char *p_func, const char
 
 bool ScriptDebuggerRemote::_parse_live_edit(const Array &p_command) {
 
-    String cmdstr = p_command[0];
+    String cmdstr = p_command[0].as<String>();
     if (!live_edit_funcs || !StringUtils::begins_with(cmdstr,"live_"))
         return false;
 
@@ -457,7 +457,7 @@ bool ScriptDebuggerRemote::_parse_live_edit(const Array &p_command) {
         if (!live_edit_funcs->root_func)
             return true;
         //print_line("root: "+Variant(cmd).get_construct_string());
-        live_edit_funcs->root_func(live_edit_funcs->udata, p_command[1], p_command[2]);
+        live_edit_funcs->root_func(live_edit_funcs->udata, p_command[1], p_command[2].as<String>());
 
     } else if (cmdstr == "live_node_path") {
 

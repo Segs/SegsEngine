@@ -36,18 +36,8 @@ class recursive_mutex;
 }
 using Mutex = std::recursive_mutex;
 
-#ifndef NO_THREADS
-
 #define _THREAD_SAFE_CLASS_ eastl::unique_ptr<Mutex> __thread__safe__;
 #define _THREAD_SAFE_METHOD_ MutexLock scopedlock(*__thread__safe__);
 #define _THREAD_SAFE_LOCK_ __thread__safe__->lock();
 #define _THREAD_SAFE_UNLOCK_ __thread__safe__->unlock();
 
-#else
-
-#define _THREAD_SAFE_CLASS_
-#define _THREAD_SAFE_METHOD_
-#define _THREAD_SAFE_LOCK_
-#define _THREAD_SAFE_UNLOCK_
-
-#endif

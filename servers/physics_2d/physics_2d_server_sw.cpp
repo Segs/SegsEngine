@@ -977,8 +977,8 @@ void Physics2DServerSW::body_get_collision_exceptions(RID p_body, List<RID> *p_e
     Body2DSW *body = body_owner.get(p_body);
     ERR_FAIL_COND(!body)
 
-    for (int i = 0; i < body->get_exceptions().size(); i++) {
-        p_exceptions->push_back(body->get_exceptions()[i]);
+    for (const auto &i : body->get_exceptions()) {
+        p_exceptions->push_back(i);
     }
 };
 

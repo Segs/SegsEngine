@@ -381,8 +381,18 @@ struct ResourcePluginResolver : public ResolverInterface
 Error Main::setup(bool p_second_phase) {
     RID_OwnerBase::init_rid();
 
-    OS::get_singleton()->initialize_core();
+#ifdef TOOLS_ENABLED
+    OS::register_feature("editor");
+#else
+    OS::register_feature("standalone");
+#endif
+#ifdef DEBUG_ENABLED
+    OS::register_feature("debug");
+#else
+    OS::register_feature("release");
+#endif
 
+    OS::get_singleton()->initialize_core();
     engine = memnew(Engine);
 
     ClassDB::init();

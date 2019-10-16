@@ -115,24 +115,16 @@ bool Face3::intersects_aabb2(const AABB &p_aabb) const {
     if (dist_a * dist_b > 0)
         return false; //does not intersect the plane
 
-#define TEST_AXIS(m_ax)                                                                                                \
-    {                                                                                                                  \
-        real_t aabb_min = p_aabb.position.m_ax;                                                                        \
-        real_t aabb_max = p_aabb.position.m_ax + p_aabb.size.m_ax;                                                     \
-        real_t tri_min = vertex[0].m_ax, tri_max = vertex[0].m_ax;                                                     \
-        for (int i = 1; i < 3; i++) {                                                                                  \
-            if (vertex[i].m_ax > tri_max) tri_max = vertex[i].m_ax;                                                    \
-            if (vertex[i].m_ax < tri_min) tri_min = vertex[i].m_ax;                                                    \
-        }                                                                                                              \
-                                                                                                                       \
-        if (tri_max < aabb_min || aabb_max < tri_min) return false;                                                    \
+    for(int ax=0; ax<3; ++ax){
+        real_t aabb_min = p_aabb.position[ax];
+        real_t aabb_max = p_aabb.position[ax] + p_aabb.size[ax];
+        real_t tri_min = vertex[0][ax], tri_max = vertex[0][ax];
+        for (int i = 1; i < 3; i++) {
+            if (vertex[i][ax] > tri_max) tri_max = vertex[i][ax];
+            if (vertex[i][ax] < tri_min) tri_min = vertex[i][ax];
+        }
+        if (tri_max < aabb_min || aabb_max < tri_min) return false;
     }
-
-    TEST_AXIS(x)
-    TEST_AXIS(y)
-    TEST_AXIS(z)
-
-#undef TEST_AXIS
 
     Vector3 edge_norms[3] = {
         vertex[0] - vertex[1],

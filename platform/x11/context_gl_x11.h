@@ -46,7 +46,6 @@ class ContextGL_X11 {
 public:
 	enum ContextType {
 		OLDSTYLE,
-		GLES_2_0_COMPATIBLE,
 		GLES_3_0_COMPATIBLE
 	};
 

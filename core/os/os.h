@@ -195,7 +195,6 @@ public:
 
     enum VideoDriver {
         VIDEO_DRIVER_GLES3,
-        VIDEO_DRIVER_GLES2,
         VIDEO_DRIVER_MAX,
     };
 
@@ -529,7 +528,9 @@ public:
     virtual int get_power_percent_left();
 
     virtual void force_process_input() {}
-    bool has_feature(const String &p_feature);
+    bool has_feature(const StringName &p_feature);
+    static void register_feature(const char *name);
+    static void unregister_feature(const char *name);
 
     void set_has_server_feature_callback(HasServerFeatureCallback p_callback);
 

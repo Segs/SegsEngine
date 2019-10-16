@@ -135,7 +135,7 @@ bool ResourceFormatLoader::handles_type(const String &p_type) const {
 String ResourceFormatLoader::get_resource_type(const String &p_path) const {
 
     if (get_script_instance() && get_script_instance()->has_method("get_resource_type")) {
-        return get_script_instance()->call("get_resource_type", p_path);
+        return get_script_instance()->call("get_resource_type", p_path).as<String>();
     }
 
     return "";
@@ -867,7 +867,7 @@ String ResourceLoader::_path_remap(const String &p_path, bool *r_translation_rem
             String error_text;
             while (true) {
 
-                assign = Variant();
+                assign = Variant().as<String>();
                 next_tag.fields.clear();
                 next_tag.name = String();
 
@@ -875,12 +875,12 @@ String ResourceLoader::_path_remap(const String &p_path, bool *r_translation_rem
                 if (err == ERR_FILE_EOF) {
                     break;
                 } else if (err != OK) {
-                    ERR_PRINT("Parse error: " + p_path + ".remap:" + itos(lines) + " error: " + error_text + ".");
+                    ERR_PRINT("Parse error: " + p_path + ".remap:" + itos(lines) + " error: " + error_text + ".")
                     break;
                 }
 
                 if (assign == "path") {
-                    new_path = value;
+                    new_path = value.as<String>();
                     break;
                 } else if (next_tag.name != "remap") {
                     break;
@@ -947,10 +947,10 @@ void ResourceLoader::load_translation_remaps() {
         Vector<String> lang_remaps;
         lang_remaps.resize(langs.size());
         for (int i = 0; i < langs.size(); i++) {
-            lang_remaps.write[i] = langs[i];
+            lang_remaps.write[i] = langs[i].as<String>();
         }
 
-        translation_remaps[String(E)] = lang_remaps;
+        translation_remaps[E.as<String>()] = lang_remaps;
     }
 }
 

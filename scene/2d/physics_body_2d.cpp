@@ -447,8 +447,8 @@ void RigidBody2D::_direct_state_changed(Object *p_state) {
             }
 
             ShapePair sp(shape, local_shape);
-            int idx = E->second.shapes.find(sp);
-            if (idx == -1) {
+            auto idx = E->second.shapes.find(sp);
+            if (idx == E->second.shapes.end()) {
 
                 toadd[toadd_count].local_shape = local_shape;
                 toadd[toadd_count].id = obj;
@@ -457,19 +457,19 @@ void RigidBody2D::_direct_state_changed(Object *p_state) {
                 continue;
             }
 
-            E->second.shapes[idx].tagged = true;
+            idx->tagged = true;
         }
 
         //put the ones to remove
 
         for (eastl::pair<const ObjectID,BodyState> &E : contact_monitor->body_map) {
 
-            for (int i = 0; i < E.second.shapes.size(); i++) {
+            for (auto &i : E.second.shapes) {
 
-                if (!E.second.shapes[i].tagged) {
+                if (!i.tagged) {
 
                     toremove[toremove_count].body_id = E.first;
-                    toremove[toremove_count].pair = E.second.shapes[i];
+                    toremove[toremove_count].pair = i;
                     toremove_count++;
                 }
             }

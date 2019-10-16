@@ -53,11 +53,11 @@ struct GODOT_EXPORT Transform2D {
     Vector2 &operator[](int p_idx) { return elements[p_idx]; }
 
     _FORCE_INLINE_ Vector2 get_axis(int p_axis) const {
-        ERR_FAIL_INDEX_V(p_axis, 3, Vector2());
+        ERR_FAIL_INDEX_V(p_axis, 3, Vector2())
         return elements[p_axis];
     }
     _FORCE_INLINE_ void set_axis(int p_axis, const Vector2 &p_vec) {
-        ERR_FAIL_INDEX(p_axis, 3);
+        ERR_FAIL_INDEX(p_axis, 3)
         elements[p_axis] = p_vec;
     }
 

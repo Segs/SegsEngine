@@ -171,11 +171,6 @@ Error ContextGL_X11::initialize() {
             p->glx_context = glXCreateContext(x11_display, vi, nullptr, GL_TRUE);
             ERR_FAIL_COND_V(!p->glx_context, ERR_UNCONFIGURED)
         } break;
-        case GLES_2_0_COMPATIBLE: {
-
-            p->glx_context = glXCreateNewContext(x11_display, fbconfig, GLX_RGBA_TYPE, nullptr, true);
-            ERR_FAIL_COND_V(!p->glx_context, ERR_UNCONFIGURED)
-        } break;
         case GLES_3_0_COMPATIBLE: {
 
             static int context_attribs[] = {

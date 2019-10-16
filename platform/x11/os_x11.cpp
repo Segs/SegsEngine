@@ -267,11 +267,6 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
 
     ContextGL_X11::ContextType opengl_api_type = ContextGL_X11::GLES_3_0_COMPATIBLE;
 
-    if (p_video_driver == VIDEO_DRIVER_GLES2) {
-        opengl_api_type = ContextGL_X11::GLES_2_0_COMPATIBLE;
-    }
-
-    bool editor = Engine::get_singleton()->is_editor_hint();
     bool gl_initialization_error = false;
 
     context_gl = nullptr;
@@ -281,19 +276,8 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
         if (context_gl->initialize() != OK) {
             memdelete(context_gl);
             context_gl = nullptr;
-
-            if (GLOBAL_GET("rendering/quality/driver/fallback_to_gles2") || editor) {
-                if (p_video_driver == VIDEO_DRIVER_GLES2) {
-                    gl_initialization_error = true;
-                    break;
-                }
-
-                p_video_driver = VIDEO_DRIVER_GLES2;
-                opengl_api_type = ContextGL_X11::GLES_2_0_COMPATIBLE;
-            } else {
-                gl_initialization_error = true;
-                break;
-            }
+            gl_initialization_error = true;
+            break;
         }
     }
 
@@ -304,14 +288,8 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
                 RasterizerGLES3::make_current();
                 break;
             } else {
-                if (GLOBAL_GET("rendering/quality/driver/fallback_to_gles2") || editor) {
-                    p_video_driver = VIDEO_DRIVER_GLES2;
-                    opengl_api_type = ContextGL_X11::GLES_2_0_COMPATIBLE;
-                    continue;
-                } else {
-                    gl_initialization_error = true;
-                    break;
-                }
+                gl_initialization_error = true;
+                break;
             }
         }
     }

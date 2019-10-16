@@ -795,7 +795,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
         } break;
         case VariantType::REAL: {
 
-            double d = p_variant;
+            double d = p_variant.as<float>();
             float f = d;
             if (double(f) != d) {
                 flags |= ENCODE_FLAG_64; //always encode real as double
@@ -915,7 +915,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
         } break;
         case VariantType::STRING: {
 
-            _encode_string(p_variant, buf, r_len);
+            _encode_string(p_variant.as<String>(), buf, r_len);
 
         } break;
 

@@ -73,7 +73,7 @@ String JSON::_print_var(const Variant &p_var, const String &p_indent, int p_cur_
         case VariantType::NIL: return "null";
         case VariantType::BOOL: return p_var.operator bool() ? "true" : "false";
         case VariantType::INT: return itos(p_var);
-        case VariantType::REAL: return rtos(p_var);
+        case VariantType::REAL: return rtos(p_var.as<float>());
         case VariantType::POOL_INT_ARRAY:
         case VariantType::POOL_REAL_ARRAY:
         case VariantType::POOL_STRING_ARRAY:
@@ -109,7 +109,7 @@ String JSON::_print_var(const Variant &p_var, const String &p_indent, int p_cur_
                     s += ",";
                     s += end_statement;
                 }
-                s += _make_indent(p_indent, p_cur_indent + 1) + _print_var(String(*E), p_indent, p_cur_indent + 1, p_sort_keys);
+                s += _make_indent(p_indent, p_cur_indent + 1) + _print_var(E->as<String>(), p_indent, p_cur_indent + 1, p_sort_keys);
                 s += colon;
                 s += _print_var(d[*E], p_indent, p_cur_indent + 1, p_sort_keys);
             }
@@ -117,7 +117,7 @@ String JSON::_print_var(const Variant &p_var, const String &p_indent, int p_cur_
             s += end_statement + _make_indent(p_indent, p_cur_indent) + "}";
             return s;
         }
-    default: return "\"" + StringUtils::json_escape(p_var) + "\"";
+    default: return "\"" + StringUtils::json_escape(p_var.as<String>()) + "\"";
     }
 }
 
@@ -326,7 +326,7 @@ Error JSON::_parse_value(Variant &value, Token &token, const CharType *p_str, in
 
     } else if (token.type == TK_IDENTIFIER) {
 
-        String id = token.value;
+        String id = token.value.as<String>();
         if (id == "true")
             value = true;
         else if (id == "false")
@@ -431,7 +431,7 @@ Error JSON::_parse_object(Dictionary &object, const CharType *p_str, int &index,
                 return ERR_PARSE_ERROR;
             }
 
-            key = token.value;
+            key = token.value.as<String>();
             err = _get_token(p_str, index, p_len, token, line, r_err_str);
             if (err != OK)
                 return err;

@@ -1,7 +1,8 @@
 #pragma once
 
-#include <cstdint>
 #include "core/godot_export.h"
+
+#include <cstdint>
 
 class FileAccess;
 class String;

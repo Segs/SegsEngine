@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef AABB_H
-#define AABB_H
+#pragma once
 
 #include "core/math/math_defs.h"
 #include "core/math/plane.h"
@@ -46,17 +45,17 @@ public:
 	Vector3 size;
 
 	real_t get_area() const; /// get area
-	_FORCE_INLINE_ bool has_no_area() const {
+    constexpr _FORCE_INLINE_ bool has_no_area() const {
 
 		return (size.x <= 0 || size.y <= 0 || size.z <= 0);
 	}
 
-	_FORCE_INLINE_ bool has_no_surface() const {
+    constexpr _FORCE_INLINE_ bool has_no_surface() const {
 
 		return (size.x <= 0 && size.y <= 0 && size.z <= 0);
 	}
 
-	const Vector3 &get_position() const { return position; }
+    Vector3 get_position() const { return position; }
 	void set_position(const Vector3 &p_pos) { position = p_pos; }
 	const Vector3 &get_size() const { return size; }
 	void set_size(const Vector3 &p_size) { size = p_size; }
@@ -102,8 +101,8 @@ public:
 
 	operator String() const;
 
-	AABB() = default;
-	inline AABB(const Vector3 &p_pos, const Vector3 &p_size) :
+    constexpr AABB() = default;
+    constexpr inline AABB(Vector3 p_pos, Vector3 p_size) :
 			position(p_pos),
 			size(p_size) {
 	}
@@ -184,9 +183,9 @@ Vector3 AABB::get_endpoint(int p_point) const {
 		case 5: return Vector3(position.x + size.x, position.y, position.z + size.z);
 		case 6: return Vector3(position.x + size.x, position.y + size.y, position.z);
 		case 7: return Vector3(position.x + size.x, position.y + size.y, position.z + size.z);
-	};
+    }
 
-	ERR_FAIL_V(Vector3());
+    ERR_FAIL_V(Vector3())
 }
 
 bool AABB::intersects_convex_shape(const Plane *p_planes, int p_plane_count) const {
@@ -362,5 +361,3 @@ void AABB::grow_by(real_t p_amount) {
 	size.y += 2 * p_amount;
 	size.z += 2 * p_amount;
 }
-
-#endif // AABB_H

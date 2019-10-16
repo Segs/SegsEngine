@@ -123,7 +123,7 @@ struct _FaceClassify {
     _FaceClassify() {
         group = -1;
         valid = false;
-    };
+    }
 };
 
 static bool _connect_faces(_FaceClassify *p_faces, int len, int p_group) {
@@ -159,19 +159,18 @@ static bool _connect_faces(_FaceClassify *p_faces, int len, int p_group) {
                     Vector3 vj2 = p_faces[j].face.vertex[l];
                     Vector3 vj1 = p_faces[j].face.vertex[(l + 1) % 3];
 
-                    if (vi1.distance_to(vj1) < 0.00001 &&
-                            vi2.distance_to(vj2) < 0.00001) {
+                    if (vi1.distance_to(vj1) < 0.00001f && vi2.distance_to(vj2) < 0.00001f) {
                         if (p_faces[i].links[k].face != -1) {
 
-                            ERR_PRINT("already linked\n");
+                            ERR_PRINT("already linked\n")
                             error = true;
-                            break;
+                            goto ERR_OUT;
                         }
                         if (p_faces[j].links[l].face != -1) {
 
-                            ERR_PRINT("already linked\n");
+                            ERR_PRINT("already linked\n")
                             error = true;
-                            break;
+                            goto ERR_OUT;
                         }
 
                         p_faces[i].links[k].face = j;
@@ -180,15 +179,10 @@ static bool _connect_faces(_FaceClassify *p_faces, int len, int p_group) {
                         p_faces[j].links[l].edge = k;
                     }
                 }
-                if (error)
-                    break;
             }
-            if (error)
-                break;
         }
-        if (error)
-            break;
     }
+ERR_OUT:
 
     for (int i = 0; i < len; i++) {
 
@@ -211,7 +205,7 @@ static bool _group_face(_FaceClassify *p_faces, int len, int p_index, int p_grou
 
     for (int i = 0; i < 3; i++) {
 
-        ERR_FAIL_INDEX_V(p_faces[p_index].links[i].face, len, true);
+        ERR_FAIL_INDEX_V(p_faces[p_index].links[i].face, len, true)
         _group_face(p_faces, len, p_faces[p_index].links[i].face, p_group);
     }
 
@@ -457,7 +451,7 @@ static inline void _mark_outside(uint8_t ***p_cell_status, int x, int y, int z, 
                 next_z--;
                 prev = _CELL_PREV_Z_POS;
             } break;
-            default: ERR_FAIL();
+            default: ERR_FAIL()
         }
 
         if (next_x < 0 || next_x >= len_x)
