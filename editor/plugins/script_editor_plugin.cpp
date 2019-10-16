@@ -39,6 +39,7 @@
 #include "core/os/keyboard.h"
 #include "core/os/os.h"
 #include "core/project_settings.h"
+#include "core/translation_helpers.h"
 #include "editor/editor_node.h"
 #include "editor/editor_scale.h"
 #include "editor/editor_settings.h"
@@ -2945,7 +2946,7 @@ void ScriptEditor::set_scene_root_script(const Ref<Script>& p_script) {
 
 bool ScriptEditor::script_goto_method(Ref<Script> p_script, const String &p_method) {
 
-    int line = p_script->get_member_line(p_method);
+    int line = p_script->get_member_line(StringName(p_method));
 
     if (line == -1)
         return false;

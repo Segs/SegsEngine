@@ -33,6 +33,7 @@
 
 #include "scene/scene_string_names.h"
 #include "core/method_bind.h"
+#include "core/translation_helpers.h"
 
 IMPL_GDCLASS(AnimationTreePlayer)
 VARIANT_ENUM_CAST(AnimationTreePlayer::NodeType);
@@ -1684,12 +1685,12 @@ void AnimationTreePlayer::_update_sources() {
 
             if (!an->from.empty()) {
 
-                an->animation = ap->get_animation(an->from);
+                an->animation = ap->get_animation(StringName(an->from));
             }
         }
     }
 }
-
+//TODO: SEGS: use string_view parameter + contains_as here.
 bool AnimationTreePlayer::node_exists(const StringName &p_name) const {
 
     return (node_map.contains(p_name));

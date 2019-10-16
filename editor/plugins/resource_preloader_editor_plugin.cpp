@@ -33,6 +33,7 @@
 #include "core/method_bind.h"
 #include "core/io/resource_loader.h"
 #include "core/project_settings.h"
+#include "core/translation_helpers.h"
 #include "editor/editor_settings.h"
 #include "EASTL/sort.h"
 
@@ -78,7 +79,7 @@ void ResourcePreloaderEditor::_files_load_request(const Vector<String> &p_paths)
         String basename = PathUtils::get_basename(PathUtils::get_file(path));
         String name = basename;
         int counter = 1;
-        while (preloader->has_resource(name)) {
+        while (preloader->has_resource(StringName(name))) {
             counter++;
             name = basename + " " + itos(counter);
         }
@@ -121,13 +122,13 @@ void ResourcePreloaderEditor::_item_edited() {
         if (old_name == new_name)
             return;
 
-        if (new_name.empty() || StringUtils::find(new_name,"\\") != -1 || StringUtils::find(new_name,"/") != -1 || preloader->has_resource(new_name)) {
+        if (new_name.empty() || StringUtils::find(new_name,"\\") != -1 || StringUtils::find(new_name,"/") != -1 || preloader->has_resource(StringName(new_name))) {
 
             s->set_text(0, old_name);
             return;
         }
 
-        RES samp(preloader->get_resource(old_name));
+        RES samp(preloader->get_resource(StringName(old_name)));
         undo_redo->create_action(TTR("Rename Resource"));
         undo_redo->add_do_method(preloader, "remove_resource", old_name);
         undo_redo->add_do_method(preloader, "add_resource", new_name, samp);
@@ -143,7 +144,7 @@ void ResourcePreloaderEditor::_remove_resource(const String &p_to_remove) {
 
     undo_redo->create_action(TTR("Delete Resource"));
     undo_redo->add_do_method(preloader, "remove_resource", p_to_remove);
-    undo_redo->add_undo_method(preloader, "add_resource", p_to_remove, preloader->get_resource(p_to_remove));
+    undo_redo->add_undo_method(preloader, "add_resource", p_to_remove, preloader->get_resource(StringName(p_to_remove)));
     undo_redo->add_do_method(this, "_update_library");
     undo_redo->add_undo_method(this, "_update_library");
     undo_redo->commit_action();
@@ -168,7 +169,7 @@ void ResourcePreloaderEditor::_paste_pressed() {
 
     String basename = name;
     int counter = 1;
-    while (preloader->has_resource(name)) {
+    while (preloader->has_resource(StringName(name))) {
         counter++;
         name = basename + " " + itos(counter);
     }
@@ -203,7 +204,7 @@ void ResourcePreloaderEditor::_update_library() {
         ti->set_text(0, E);
         ti->set_metadata(0, E);
 
-        RES r(preloader->get_resource(E));
+        RES r(preloader->get_resource(StringName(E)));
 
         ERR_CONTINUE(not r)
 
@@ -236,7 +237,7 @@ void ResourcePreloaderEditor::_cell_button_pressed(Object *p_item, int p_column,
         EditorInterface::get_singleton()->open_scene_from_path(rpath);
 
     } else if (p_id == BUTTON_EDIT_RESOURCE) {
-        RES r(preloader->get_resource(item->get_text(0)));
+        RES r(preloader->get_resource(StringName(item->get_text(0))));
         EditorInterface::get_singleton()->edit_resource(r);
 
     } else if (p_id == BUTTON_REMOVE) {
@@ -265,7 +266,7 @@ Variant ResourcePreloaderEditor::get_drag_data_fw(const Point2 &p_point, Control
 
     String name = ti->get_metadata(0);
 
-    RES res(preloader->get_resource(name));
+    RES res(preloader->get_resource(StringName(name)));
     if (not res)
         return Variant();
 
@@ -323,7 +324,7 @@ void ResourcePreloaderEditor::drop_data_fw(const Point2 &p_point, const Variant 
 
             String name = basename;
             int counter = 0;
-            while (preloader->has_resource(name)) {
+            while (preloader->has_resource(StringName(name))) {
                 counter++;
                 name = basename + "_" + itos(counter);
             }

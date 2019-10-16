@@ -243,10 +243,10 @@ void DocData::generate(bool p_basic_types) {
 
         Set<StringName> setters_getters;
 
-        String name = classes[i];
+        StringName name = classes[i];
         String cname = name;
         if (StringUtils::begins_with(cname,"_")) //proxy class
-            cname = StringUtils::substr(cname,1, name.length());
+            cname = StringUtils::substr(cname,1, strlen(name.asCString()));
 
         class_list[cname] = ClassDoc();
         ClassDoc &c = class_list[cname];
@@ -416,7 +416,7 @@ void DocData::generate(bool p_basic_types) {
 
                     ArgumentDoc argument;
                     argument.name = arginfo.name;
-                    if (arginfo.type == VariantType::OBJECT && arginfo.class_name != StringName()) {
+                    if (arginfo.type == VariantType::OBJECT && not arginfo.class_name.empty() ) {
                         argument.type = arginfo.class_name.operator String();
                     } else {
                         argument.type = Variant::get_type_name(arginfo.type);
@@ -435,8 +435,8 @@ void DocData::generate(bool p_basic_types) {
 
             ConstantDoc constant;
             constant.name = E;
-            constant.value = itos(ClassDB::get_integer_constant(name, E));
-            constant.enumeration = ClassDB::get_integer_constant_enum(name, E);
+            constant.value = itos(ClassDB::get_integer_constant(name, StringName(E)));
+            constant.enumeration = ClassDB::get_integer_constant_enum(name, StringName(E));
             c.constants.push_back(constant);
         }
 

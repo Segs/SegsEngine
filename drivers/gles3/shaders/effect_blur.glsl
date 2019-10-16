@@ -26,10 +26,6 @@ void main() {
 
 /* clang-format off */
 [fragment]
-
-#if !defined(GLES_OVER_GL)
-precision mediump float;
-#endif
 /* clang-format on */
 
 in vec2 uv_interp;

@@ -36,6 +36,7 @@
 #include "core/set.h"
 #include "core/hash_map.h"
 #include "core/ustring.h"
+#include "core/translation_helpers.h"
 #include "scene/main/node.h"
 class FileAccess;
 

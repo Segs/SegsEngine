@@ -230,7 +230,7 @@ bool GDScriptParser::_get_completable_identifier(CompletionType p_type, StringNa
         tokenizer->advance();
 
         if (tokenizer->is_token_literal()) {
-            identifier = identifier.operator String() + tokenizer->get_token_literal().operator String();
+            identifier = StringName(identifier.asString() + tokenizer->get_token_literal().asString());
             tokenizer->advance();
         }
 
@@ -310,7 +310,7 @@ GDScriptParser::Node *GDScriptParser::_parse_expression(Node *p_parent, bool p_s
                         completion_class = current_class;
                         completion_function = current_function;
                         completion_line = tokenizer->get_token_line();
-                        completion_cursor = path;
+                        completion_cursor = StringName(path);
                         completion_argument = 0;
                         completion_block = current_block;
                         completion_found = true;
@@ -3553,7 +3553,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                     return;
                 }
 
-                if (p_class->classname_used && ProjectSettings::get_singleton()->has_setting("autoload/" + p_class->name)) {
+                if (p_class->classname_used && ProjectSettings::get_singleton()->has_setting(StringName("autoload/" + p_class->name))) {
                     const String autoload_path = ProjectSettings::get_singleton()->get_setting("autoload/" + p_class->name);
                     if (StringUtils::begins_with(autoload_path,'*')) {
                         // It's a singleton, and not just a regular AutoLoad script.
@@ -3621,7 +3621,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                 tokenizer->advance(2);
 
                 // Check if name is shadowing something else
-                if (ClassDB::class_exists(name) || ClassDB::class_exists("_" + name.operator String())) {
+                if (ClassDB::class_exists(name) || ClassDB::class_exists(StringName("_" + name.asString()))) {
                     _set_error("The class \"" + String(name) + "\" shadows a native class.");
                     return;
                 }
@@ -5034,7 +5034,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                 //multiple constant declarations..
 
                 int last_assign = -1; // Incremented by 1 right before the assignment.
-                String enum_name;
+                StringName enum_name;
                 Dictionary enum_dict;
 
                 tokenizer->advance();
@@ -5245,7 +5245,7 @@ void GDScriptParser::_determine_inheritance(ClassNode *p_class, bool p_recursive
 
                 for (int i = 0; i < p_class->extends_class.size(); i++) {
 
-                    String sub = p_class->extends_class[i];
+                    StringName sub = p_class->extends_class[i];
                     if (script->get_subclasses().contains(sub)) {
 
                         Ref<Script> subclass = script->get_subclasses().at(sub); //avoid reference from disappearing
@@ -5267,7 +5267,7 @@ void GDScriptParser::_determine_inheritance(ClassNode *p_class, bool p_recursive
             //look around for the subclasses
 
             int extend_iter = 1;
-            String base = p_class->extends_class[0];
+            StringName base = p_class->extends_class[0];
             ClassNode *p = p_class->owner;
             Ref<GDScript> base_script;
 
@@ -5282,7 +5282,7 @@ void GDScriptParser::_determine_inheritance(ClassNode *p_class, bool p_recursive
                 ListPOD<PropertyInfo> props;
                 ProjectSettings::get_singleton()->get_property_list(&props);
                 for(const PropertyInfo & E : props) {
-                    String s = E.name;
+                    StringName s = E.name;
                     if (!StringUtils::begins_with(s,"autoload/")) {
                         continue;
                     }
@@ -5362,7 +5362,7 @@ void GDScriptParser::_determine_inheritance(ClassNode *p_class, bool p_recursive
 
                 for (int i = extend_iter; i < p_class->extends_class.size(); i++) {
 
-                    String subclass = p_class->extends_class[i];
+                    StringName subclass = p_class->extends_class[i];
 
                     ident += ("." + subclass);
 
@@ -5443,13 +5443,13 @@ String GDScriptParser::DataType::to_string() const {
         case BUILTIN: {
             if (builtin_type == VariantType::NIL) return "null";
             return Variant::get_type_name(builtin_type);
-        } break;
+        }
         case NATIVE: {
             if (is_meta_type) {
                 return "GDScriptNativeClass";
             }
             return native_type.operator String();
-        } break;
+        }
 
         case GDSCRIPT: {
             Ref<GDScript> gds = dynamic_ref_cast<GDScript>(script_type);
@@ -5530,7 +5530,7 @@ bool GDScriptParser::_parse_type(DataType &r_type, bool p_can_be_void) {
         } break;
         case GDScriptTokenizer::TK_IDENTIFIER: {
             r_type.native_type = tokenizer->get_token_identifier();
-            if (ClassDB::class_exists(r_type.native_type) || ClassDB::class_exists("_" + r_type.native_type.operator String())) {
+            if (ClassDB::class_exists(r_type.native_type) || ClassDB::class_exists(StringName("_" + r_type.native_type.asString()))) {
                 r_type.kind = DataType::NATIVE;
             } else {
                 r_type.kind = DataType::UNRESOLVED;
@@ -5584,7 +5584,7 @@ bool GDScriptParser::_parse_type(DataType &r_type, bool p_can_be_void) {
                     full_name += "." + id.operator String();
                     can_index = true;
                     if (has_completion) {
-                        completion_cursor = full_name;
+                        completion_cursor = StringName(full_name);
                     }
                 } break;
                 default: {
@@ -5598,7 +5598,7 @@ bool GDScriptParser::_parse_type(DataType &r_type, bool p_can_be_void) {
             return false;
         }
 
-        r_type.native_type = full_name;
+        r_type.native_type = StringName(full_name);
     }
 
     return true;
@@ -5617,7 +5617,7 @@ GDScriptParser::DataType GDScriptParser::_resolve_type(const DataType &p_source,
     while (name_part < full_name.size()) {
 
         bool found = false;
-        StringName id = full_name[name_part];
+        StringName id = StringName(full_name[name_part]);
         DataType base_type = result;
 
         ClassNode *p = nullptr;
@@ -5652,7 +5652,7 @@ GDScriptParser::DataType GDScriptParser::_resolve_type(const DataType &p_source,
             ProjectSettings::get_singleton()->get_property_list(&props);
             String singleton_path;
             for(const PropertyInfo & E : props) {
-                String s = E.name;
+                StringName s = E.name;
                 if (!StringUtils::begins_with(s,"autoload/")) {
                     continue;
                 }
@@ -6822,7 +6822,7 @@ bool GDScriptParser::_get_function_signature(DataType &p_base_type, const String
 
     // Only native remains
     if (!ClassDB::class_exists(native)) {
-        native = "_" + native.operator String();
+        native = StringName("_" + native.asString());
     }
     if (!ClassDB::class_exists(native)) {
         if (!check_types) return false;
@@ -6900,7 +6900,7 @@ GDScriptParser::DataType GDScriptParser::_reduce_function_call_type(const Operat
     List<DataType> arg_types;
     int default_args_count = 0;
     int arg_count = p_call->arguments.size();
-    String callee_name;
+    StringName callee_name;
     bool is_vararg = false;
 
     switch (p_call->arguments[0]->type) {
@@ -7136,7 +7136,7 @@ GDScriptParser::DataType GDScriptParser::_reduce_function_call_type(const Operat
             // Check signal emission for warnings
             if (callee_name == "emit_signal" && p_call->op == OperatorNode::OP_CALL && p_call->arguments[0]->type == Node::TYPE_SELF && p_call->arguments.size() >= 3 && p_call->arguments[2]->type == Node::TYPE_CONSTANT) {
                 ConstantNode *sig = static_cast<ConstantNode *>(p_call->arguments[2]);
-                String emitted = sig->value.get_type() == VariantType::STRING ? sig->value.operator String() : "";
+                StringName emitted = sig->value.get_type() == VariantType::STRING ? sig->value.as<StringName>() : StringName();
                 for (int i = 0; i < current_class->_signals.size(); i++) {
                     if (current_class->_signals[i].name == emitted) {
                         current_class->_signals.write[i].emissions += 1;
@@ -7324,7 +7324,7 @@ bool GDScriptParser::_get_member_type(const DataType &p_base_type, const StringN
 
     // Check ClassDB
     if (!ClassDB::class_exists(native)) {
-        native = "_" + native.operator String();
+        native = StringName("_" + native.asString());
     }
     if (!ClassDB::class_exists(native)) {
         if (!check_types) return false;
@@ -7443,7 +7443,7 @@ GDScriptParser::DataType GDScriptParser::_reduce_identifier_type(const DataType 
     if (!p_base_type) {
         // Possibly this is a global, check before failing
 
-        if (ClassDB::class_exists(p_identifier) || ClassDB::class_exists("_" + p_identifier.operator String())) {
+        if (ClassDB::class_exists(p_identifier) || ClassDB::class_exists(StringName("_" + p_identifier.asString()))) {
             DataType result;
             result.has_type = true;
             result.is_constant = true;
@@ -7527,7 +7527,7 @@ GDScriptParser::DataType GDScriptParser::_reduce_identifier_type(const DataType 
         ProjectSettings::get_singleton()->get_property_list(&props);
 
         for(const PropertyInfo & E : props) {
-            String s = E.name;
+            StringName s = E.name;
             if (!StringUtils::begins_with(s,"autoload/")) {
                 continue;
             }
@@ -8342,7 +8342,7 @@ void GDScriptParser::_add_warning(int p_code, int p_line, const Vector<String> &
     if (tokenizer->get_warning_global_skips().contains(warn_name)) {
         return;
     }
-    if (!GLOBAL_GET("debug/gdscript/warnings/" + warn_name)) {
+    if (!GLOBAL_GET(StringName("debug/gdscript/warnings/" + warn_name))) {
         return;
     }
 

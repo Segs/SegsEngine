@@ -35,63 +35,7 @@
 
 // Atomic functions, these are used for multithread safe reference counters!
 
-#ifdef NO_THREADS
-
-/* Bogus implementation unaware of multiprocessing */
-
-template <class T>
-static _ALWAYS_INLINE_ T atomic_conditional_increment(volatile T *pw) {
-
-    if (*pw == 0)
-        return 0;
-
-    (*pw)++;
-
-    return *pw;
-}
-
-template <class T>
-static _ALWAYS_INLINE_ T atomic_decrement(volatile T *pw) {
-
-    (*pw)--;
-
-    return *pw;
-}
-
-template <class T>
-static _ALWAYS_INLINE_ T atomic_increment(volatile T *pw) {
-
-    (*pw)++;
-
-    return *pw;
-}
-
-template <class T, class V>
-static _ALWAYS_INLINE_ T atomic_sub(volatile T *pw, volatile V val) {
-
-    (*pw) -= val;
-
-    return *pw;
-}
-
-template <class T, class V>
-static _ALWAYS_INLINE_ T atomic_add(volatile T *pw, volatile V val) {
-
-    (*pw) += val;
-
-    return *pw;
-}
-
-template <class T, class V>
-static _ALWAYS_INLINE_ T atomic_exchange_if_greater(volatile T *pw, volatile V val) {
-
-    if (val > *pw)
-        *pw = val;
-
-    return *pw;
-}
-
-#elif defined(__GNUC__)
+#if defined(__GNUC__)
 
 /* Implementation for GCC & Clang */
 

@@ -35,6 +35,7 @@
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
 #include "core/project_settings.h"
+#include "core/translation_helpers.h"
 #include "scene/gui/menu_button.h"
 #include "scene/main/viewport.h"
 #include "scene/main/scene_tree.h"
@@ -154,13 +155,13 @@ void AnimationTreePlayerEditor::_edit_dialog_changed() {
 
     if (renaming_edit) {
 
-        if (anim_tree->node_rename(edited_node, edit_line[0]->get_text()) == OK) {
+        if (anim_tree->node_rename(edited_node, StringName(edit_line[0]->get_text())) == OK) {
             for (StringName &E : order) {
 
                 if (E == edited_node)
-                    E = edit_line[0]->get_text();
+                    E = StringName(edit_line[0]->get_text());
             }
-            edited_node = edit_line[0]->get_text();
+            edited_node = StringName(edit_line[0]->get_text());
         }
         update();
         return;
@@ -1090,22 +1091,22 @@ StringName AnimationTreePlayerEditor::_add_node(int p_item) {
         name = bname[p_item];
         if (idx > 1)
             name += " " + itos(idx);
-        if (anim_tree->node_exists(name))
+        if (anim_tree->node_exists(StringName(name)))
             idx++;
         else
             break;
     }
-
-    anim_tree->add_node((AnimationTreePlayer::NodeType)p_item, name);
-    anim_tree->node_set_position(name, Point2(last_x, last_y));
-    order.push_back(name);
+    StringName sn_name(name);
+    anim_tree->add_node((AnimationTreePlayer::NodeType)p_item, sn_name);
+    anim_tree->node_set_position(sn_name, Point2(last_x, last_y));
+    order.push_back(sn_name);
     last_x += 10;
     last_y += 10;
     last_x = last_x % (int)get_size().width;
     last_y = last_y % (int)get_size().height;
     update();
 
-    return name;
+    return sn_name;
 };
 
 void AnimationTreePlayerEditor::_file_dialog_selected(const String& p_path) {

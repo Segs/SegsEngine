@@ -1693,7 +1693,7 @@ bool PackedScene::can_instance() const {
 Node *PackedScene::instance(GenEditState p_edit_state) const {
 
 #ifndef TOOLS_ENABLED
-    ERR_FAIL_COND_V_CMSG(p_edit_state != GEN_EDIT_STATE_DISABLED, NULL, "Edit state is only for editors, does not work without tools compiled.")
+    ERR_FAIL_COND_V_MSG(p_edit_state != GEN_EDIT_STATE_DISABLED, NULL, "Edit state is only for editors, does not work without tools compiled.")
 #endif
 
     Node *s = state->instance((SceneState::GenEditState)p_edit_state);

@@ -34,6 +34,7 @@
 #include "core/os/keyboard.h"
 #include "core/os/os.h"
 #include "core/string_formatter.h"
+#include "core/translation_helpers.h"
 #include "scene/main/scene_tree.h"
 #include "scene/resources/style_box.h"
 #include "core/method_bind.h"
@@ -404,15 +405,15 @@ void ColorPicker::_update_text_value() {
 }
 
 void ColorPicker::_sample_draw() {
-	const Rect2 r = Rect2(Point2(), Size2(uv_edit->get_size().width, sample->get_size().height * 0.95));
+    const Rect2 r = Rect2(Point2(), Size2(uv_edit->get_size().width, sample->get_size().height * 0.95));
     if (color.a < 1.0f) {
         sample->draw_texture_rect(get_icon("preset_bg", "ColorPicker"), r, true);
     }
     sample->draw_rect(r, color);
-	if (color.r > 1 || color.g > 1 || color.b > 1) {
-		// Draw an indicator to denote that the color is "overbright" and can't be displayed accurately in the preview
-		sample->draw_texture(get_icon("overbright_indicator", "ColorPicker"), Point2());
-	}
+    if (color.r > 1 || color.g > 1 || color.b > 1) {
+        // Draw an indicator to denote that the color is "overbright" and can't be displayed accurately in the preview
+        sample->draw_texture(get_icon("overbright_indicator", "ColorPicker"), Point2());
+    }
 }
 
 void ColorPicker::_hsv_draw(int p_which, Control *c) {
@@ -908,14 +909,14 @@ void ColorPickerButton::_notification(int p_what) {
     switch (p_what) {
         case NOTIFICATION_DRAW: {
 
-			const Ref<StyleBox> normal = get_stylebox("normal");
-			const Rect2 r = Rect2(normal->get_offset(), get_size() - normal->get_minimum_size());
+            const Ref<StyleBox> normal = get_stylebox("normal");
+            const Rect2 r = Rect2(normal->get_offset(), get_size() - normal->get_minimum_size());
             draw_texture_rect(Control::get_icon("bg", "ColorPickerButton"), r, true);
             draw_rect(r, color);
-			if (color.r > 1 || color.g > 1 || color.b > 1) {
-				// Draw an indicator to denote that the color is "overbright" and can't be displayed accurately in the preview
-				draw_texture(Control::get_icon("overbright_indicator", "ColorPicker"), normal->get_offset());
-			}
+            if (color.r > 1 || color.g > 1 || color.b > 1) {
+                // Draw an indicator to denote that the color is "overbright" and can't be displayed accurately in the preview
+                draw_texture(Control::get_icon("overbright_indicator", "ColorPicker"), normal->get_offset());
+            }
         } break;
         case MainLoop::NOTIFICATION_WM_QUIT_REQUEST: {
 

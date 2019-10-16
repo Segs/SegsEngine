@@ -32,6 +32,7 @@
 
 #include "core/method_bind.h"
 #include "core/os/input.h"
+#include "core/translation_helpers.h"
 #include "servers/arvr/arvr_interface.h"
 #include "servers/arvr_server.h"
 
@@ -85,7 +86,7 @@ Vector3 ARVRCamera::project_local_ray_normal(const Point2 &p_pos) const {
         return Camera::project_local_ray_normal(p_pos);
     }
 
-    ERR_FAIL_COND_V_CMSG(!is_inside_tree(), Vector3(), "Camera is not inside scene.")
+    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector3(), "Camera is not inside scene.")
 
     Size2 viewport_size = get_viewport()->get_camera_rect_size();
     Vector2 cpos = get_viewport()->get_camera_coords(p_pos);

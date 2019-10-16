@@ -31,12 +31,13 @@
 #include "visual_script.h"
 
 #include "core/core_string_names.h"
-#include "core/os/os.h"
-#include "core/project_settings.h"
-#include "scene/main/node.h"
+#include "core/method_bind.h"
 #include "core/object_db.h"
 #include "core/os/mutex.h"
-#include "core/method_bind.h"
+#include "core/os/os.h"
+#include "core/project_settings.h"
+#include "core/translation_helpers.h"
+#include "scene/main/node.h"
 #include "visual_script_nodes.h"
 
 IMPL_GDCLASS(VisualScript)
@@ -140,7 +141,7 @@ VisualScriptNode::TypeGuess VisualScriptNode::guess_output_type(TypeGuess *p_inp
 
     tg.type = pinfo.type;
     if (pinfo.hint == PROPERTY_HINT_RESOURCE_TYPE) {
-        tg.gdclass = pinfo.hint_string;
+        tg.gdclass = StringName(pinfo.hint_string);
     }
 
     return tg;
@@ -745,7 +746,7 @@ bool VisualScript::has_custom_signal(const StringName &p_name) const {
 
     return custom_signals.contains(p_name);
 }
-void VisualScript::custom_signal_add_argument(const StringName &p_func, VariantType p_type, const String &p_name, int p_index) {
+void VisualScript::custom_signal_add_argument(const StringName &p_func, VariantType p_type, const StringName &p_name, int p_index) {
 
     ERR_FAIL_COND(instances.size())
     ERR_FAIL_COND(!custom_signals.contains(p_func))
@@ -770,7 +771,7 @@ VariantType VisualScript::custom_signal_get_argument_type(const StringName &p_fu
     ERR_FAIL_INDEX_V(p_argidx, custom_signals.at(p_func).size(), VariantType::NIL)
     return custom_signals.at(p_func)[p_argidx].type;
 }
-void VisualScript::custom_signal_set_argument_name(const StringName &p_func, int p_argidx, const String &p_name) {
+void VisualScript::custom_signal_set_argument_name(const StringName &p_func, int p_argidx, const StringName &p_name) {
     ERR_FAIL_COND(instances.size())
     ERR_FAIL_COND(!custom_signals.contains(p_func))
     ERR_FAIL_INDEX(p_argidx, custom_signals[p_func].size())
@@ -885,7 +886,7 @@ void VisualScript::_update_placeholders() {
             continue;
 
         PropertyInfo p = E.second.info;
-        p.name = String(E.first);
+        p.name = E.first;
         pinfo.push_back(p);
         values[p.name] = E.second.default_value;
     }
@@ -916,7 +917,7 @@ ScriptInstance *VisualScript::instance_create(Object *p_this) {
                 continue;
 
             PropertyInfo p = E.second.info;
-            p.name = String(E.first);
+            p.name = E.first;
             pinfo.push_back(p);
             values[p.name] = E.second.default_value;
         }
@@ -1374,7 +1375,7 @@ StringName VisualScript::get_default_func() const {
 
 Set<int> VisualScript::get_output_sequence_ports_connected(const String &edited_func, int from_node) {
     List<VisualScript::SequenceConnection> *sc = memnew(List<VisualScript::SequenceConnection>);
-    get_sequence_connection_list(edited_func, sc);
+    get_sequence_connection_list(StringName(edited_func), sc);
     Set<int> connected;
     for (List<VisualScript::SequenceConnection>::Element *E = sc->front(); E; E = E->next()) {
         if (E->deref().from_node == from_node) {
@@ -1421,7 +1422,7 @@ void VisualScriptInstance::get_property_list(ListPOD<PropertyInfo> *p_properties
         if (!E.second._export)
             continue;
         PropertyInfo p = E.second.info;
-        p.name = String(E.first);
+        p.name = E.first;
         p.usage |= PROPERTY_USAGE_SCRIPT_VARIABLE;
         p_properties->push_back(p);
     }
@@ -1973,7 +1974,7 @@ Variant VisualScriptInstance::call(const StringName &p_method, const Variant **p
     if (E==instances.end()) {
         r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
 
-        ERR_FAIL_V_CMSG(Variant(), "No VisualScriptFunction node in function.")
+        ERR_FAIL_V_MSG(Variant(), "No VisualScriptFunction node in function.")
     }
 
     VisualScriptNodeInstance *node = E->second;
@@ -2076,7 +2077,7 @@ void VisualScriptInstance::create(const Ref<VisualScript> &p_script, Object *p_o
 
     script = p_script;
     owner = p_owner;
-    source = p_script->get_path();
+    source = StringName(p_script->get_path());
 
     max_input_args = 0;
     max_output_args = 0;
@@ -2185,9 +2186,9 @@ void VisualScriptInstance::create(const Ref<VisualScript> &p_script, Object *p_o
                 StringName var_name;
 
                 if (object_cast<VisualScriptLocalVar>(node.get()))
-                    var_name = StringUtils::strip_edges(object_cast<VisualScriptLocalVar>(node.get())->get_var_name());
+                    var_name = StringName(StringUtils::strip_edges(object_cast<VisualScriptLocalVar>(node.get())->get_var_name()));
                 else
-                    var_name = StringUtils::strip_edges(object_cast<VisualScriptLocalVarSet>(node.get())->get_var_name());
+                    var_name = StringName(StringUtils::strip_edges(object_cast<VisualScriptLocalVarSet>(node.get())->get_var_name()));
 
                 if (!local_var_indices.contains(var_name)) {
                     local_var_indices[var_name] = function.max_stack;
@@ -2319,8 +2320,8 @@ Variant VisualScriptFunctionState::_signal_callback(const Variant **p_args, int 
 
 #ifdef DEBUG_ENABLED
 
-    ERR_FAIL_COND_V_CMSG(instance_id && !ObjectDB::get_instance(instance_id), Variant(), "Resumed after yield, but class instance is gone.")
-    ERR_FAIL_COND_V_CMSG(script_id && !ObjectDB::get_instance(script_id), Variant(), "Resumed after yield, but script is gone.")
+    ERR_FAIL_COND_V_MSG(instance_id && !ObjectDB::get_instance(instance_id), Variant(), "Resumed after yield, but class instance is gone.")
+    ERR_FAIL_COND_V_MSG(script_id && !ObjectDB::get_instance(script_id), Variant(), "Resumed after yield, but script is gone.")
 
 #endif
 
@@ -2368,7 +2369,7 @@ void VisualScriptFunctionState::connect_to_signal(Object *p_obj, const String &p
         binds.push_back(p_binds[i]);
     }
     binds.push_back(Ref<VisualScriptFunctionState>(this)); //add myself on the back to avoid dying from unreferencing
-    p_obj->connect(p_signal, this, "_signal_callback", binds, ObjectNS::CONNECT_ONESHOT);
+    p_obj->connect(StringName(p_signal), this, "_signal_callback", binds, ObjectNS::CONNECT_ONESHOT);
 }
 
 bool VisualScriptFunctionState::is_valid() const {
@@ -2381,8 +2382,8 @@ Variant VisualScriptFunctionState::resume(Array p_args) {
     ERR_FAIL_COND_V(function == StringName(), Variant())
 #ifdef DEBUG_ENABLED
 
-    ERR_FAIL_COND_V_CMSG(instance_id && !ObjectDB::get_instance(instance_id), Variant(), "Resumed after yield, but class instance is gone.")
-    ERR_FAIL_COND_V_CMSG(script_id && !ObjectDB::get_instance(script_id), Variant(), "Resumed after yield, but script is gone.")
+    ERR_FAIL_COND_V_MSG(instance_id && !ObjectDB::get_instance(instance_id), Variant(), "Resumed after yield, but class instance is gone.")
+    ERR_FAIL_COND_V_MSG(script_id && !ObjectDB::get_instance(script_id), Variant(), "Resumed after yield, but script is gone.")
 
 #endif
 
@@ -2454,7 +2455,7 @@ void VisualScriptLanguage::get_string_delimiters(List<String> *p_delimiters) con
 Ref<Script> VisualScriptLanguage::get_template(const String &p_class_name, const String &p_base_class_name) const {
 
     Ref<VisualScript> script(make_ref_counted<VisualScript>());
-    script->set_instance_base_type(p_base_class_name);
+    script->set_instance_base_type(StringName(p_base_class_name));
     return script;
 }
 
@@ -2465,7 +2466,7 @@ bool VisualScriptLanguage::is_using_templates() {
 
 void VisualScriptLanguage::make_template(const String &p_class_name, const String &p_base_class_name, Ref<Script> &p_script) {
     Ref<VisualScript> script = dynamic_ref_cast<VisualScript>(p_script);
-    script->set_instance_base_type(p_base_class_name);
+    script->set_instance_base_type(StringName(p_base_class_name));
 }
 
 bool VisualScriptLanguage::validate(const String &p_script, int &r_line_error, int &r_col_error, String &r_test_error, const String &p_path, List<String> *r_functions, List<ScriptLanguage::Warning> *r_warnings, Set<int> *r_safe_lines) const {

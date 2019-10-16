@@ -441,3 +441,11 @@ add_library(recast STATIC ${recast_source_files})
 target_include_directories(recast PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/recastnavigation/Recast/Include)
 set_property(TARGET recast PROPERTY POSITION_INDEPENDENT_CODE ON)
 set_common_target_properties(recast)
+
+set(source_files
+    ${PROJECT_SOURCE_DIR}/thirdparty/glad/glad.c
+)
+add_library(glad STATIC ${source_files})
+target_include_directories(glad PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/glad/)
+set_property(TARGET glad PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_common_target_properties(glad)

@@ -1418,7 +1418,7 @@ void OS_Windows::set_clipboard(const String &p_text) {
     String text = StringUtils::replace(p_text,"\n", "\r\n");
 
     if (!OpenClipboard(hWnd)) {
-        ERR_FAIL_CMSG("Unable to open clipboard.");
+        ERR_FAIL_MSG("Unable to open clipboard.");
     }
     EmptyClipboard();
 
@@ -1450,7 +1450,7 @@ String OS_Windows::get_clipboard() const {
 
     String ret;
     if (!OpenClipboard(hWnd)) {
-        ERR_FAIL_V_CMSG("", "Unable to open clipboard.")
+        ERR_FAIL_V_MSG("", "Unable to open clipboard.")
     }
 
     if (IsClipboardFormatAvailable(CF_UNICODETEXT)) {
@@ -3135,7 +3135,7 @@ Error OS_Windows::move_to_trash(const String &p_path) {
     delete[] from;
 
     if (ret) {
-        ERR_PRINTS("SHFileOperation error: " + itos(ret));
+        ERR_PRINT("SHFileOperation error: " + itos(ret));
         return FAILED;
     }
 

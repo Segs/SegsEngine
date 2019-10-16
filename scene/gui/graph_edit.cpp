@@ -35,6 +35,7 @@
 #include "scene/gui/box_container.h"
 #include "scene/resources/style_box.h"
 #include "core/method_bind.h"
+#include "core/translation_helpers.h"
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_scale.h"

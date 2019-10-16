@@ -31,6 +31,7 @@
 #include "gdnative/aabb.h"
 
 #include "core/math/aabb.h"
+#include "core/os/memory.h"
 #include "core/variant.h"
 #include "core/ustring.h"
 

@@ -219,7 +219,7 @@ void GDMonoField::set_value_from_variant(MonoObject *p_object, const Variant &p_
 						break;
 					}
 					default: {
-                                                ERR_FAIL_CMSG("Attempted to convert Variant to a managed enum value of unmarshallable base type.");
+                                                ERR_FAIL_MSG("Attempted to convert Variant to a managed enum value of unmarshallable base type.");
 					}
 				}
 
@@ -363,13 +363,8 @@ void GDMonoField::set_value_from_variant(MonoObject *p_object, const Variant &p_
 					mono_field_set_value(p_object, mono_field, &val);
 				} break;
 				case Variant::REAL: {
-#ifdef REAL_T_IS_DOUBLE
-					double val = p_value.operator double();
-					mono_field_set_value(p_object, mono_field, &val);
-#else
 					float val = p_value.operator float();
 					mono_field_set_value(p_object, mono_field, &val);
-#endif
 				} break;
 				case Variant::STRING: {
 					MonoString *mono_string = GDMonoMarshal::mono_string_from_godot(p_value);
@@ -504,7 +499,7 @@ void GDMonoField::set_value_from_variant(MonoObject *p_object, const Variant &p_
 		} break;
 
 		default: {
-			ERR_PRINTS("Attempted to set the value of a field of unexpected type encoding: " + itos(type.type_encoding) + ".");
+			ERR_PRINT("Attempted to set the value of a field of unexpected type encoding: " + itos(type.type_encoding) + ".");
 		} break;
 	}
 

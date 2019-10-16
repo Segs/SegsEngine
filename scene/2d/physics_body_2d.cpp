@@ -39,6 +39,7 @@
 #include "core/object.h"
 #include "core/object_db.h"
 #include "core/rid.h"
+#include "core/translation_helpers.h"
 #include "scene/scene_string_names.h"
 #include "core/project_settings.h"
 
@@ -201,63 +202,10 @@ real_t StaticBody2D::get_constant_angular_velocity() const {
     return constant_angular_velocity;
 }
 
-#ifndef DISABLE_DEPRECATED
-void StaticBody2D::set_friction(real_t p_friction) {
-
-    if (p_friction == 1.0 && not physics_material_override) { // default value, don't create an override for that
-        return;
-    }
-
-    WARN_DEPRECATED_MSG("The method set_friction has been deprecated and will be removed in the future, use physics material instead.");
-
-	ERR_FAIL_COND_MSG(p_friction < 0 || p_friction > 1, "Friction must be between 0 and 1.");
-
-    if (not physics_material_override) {
-        physics_material_override = make_ref_counted<PhysicsMaterial>();
-        set_physics_material_override(physics_material_override);
-    }
-    physics_material_override->set_friction(p_friction);
-}
-
-real_t StaticBody2D::get_friction() const {
-
-    WARN_DEPRECATED_MSG("The method get_friction has been deprecated and will be removed in the future, use physics material instead.");
-
-    if (not physics_material_override) {
-        return 1;
-    }
-
-    return physics_material_override->get_friction();
-}
-
-void StaticBody2D::set_bounce(real_t p_bounce) {
-
-    if (p_bounce == 0.0 && not physics_material_override) { // default value, don't create an override for that
-        return;
-    }
-
-    WARN_DEPRECATED_MSG("The method set_bounce has been deprecated and will be removed in the future, use physics material instead.");
-
-    ERR_FAIL_COND(p_bounce < 0 || p_bounce > 1)
-
-    if (not physics_material_override) {
-        physics_material_override = make_ref_counted<PhysicsMaterial>();
-        set_physics_material_override(physics_material_override);
-    }
-    physics_material_override->set_bounce(p_bounce);
-}
-
-real_t StaticBody2D::get_bounce() const {
-
-    WARN_DEPRECATED_MSG("The method get_bounce has been deprecated and will be removed in the future, use physics material instead.");
-
-    if (not physics_material_override) {
-        return 0;
-    }
-
-    return physics_material_override->get_bounce();
-}
-#endif // DISABLE_DEPRECATED
+//WARN_DEPRECATED_MSG("The method set_friction has been deprecated and will be removed in the future, use physics material instead.");
+//WARN_DEPRECATED_MSG("The method get_friction has been deprecated and will be removed in the future, use physics material instead.");
+//WARN_DEPRECATED_MSG("The method set_bounce has been deprecated and will be removed in the future, use physics material instead.");
+//WARN_DEPRECATED_MSG("The method get_bounce has been deprecated and will be removed in the future, use physics material instead.");
 
 void StaticBody2D::set_physics_material_override(const Ref<PhysicsMaterial> &p_physics_material_override) {
     if (physics_material_override) {
@@ -284,14 +232,6 @@ void StaticBody2D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_constant_linear_velocity"), &StaticBody2D::get_constant_linear_velocity);
     MethodBinder::bind_method(D_METHOD("get_constant_angular_velocity"), &StaticBody2D::get_constant_angular_velocity);
 
-#ifndef DISABLE_DEPRECATED
-    MethodBinder::bind_method(D_METHOD("set_friction", {"friction"}), &StaticBody2D::set_friction);
-    MethodBinder::bind_method(D_METHOD("get_friction"), &StaticBody2D::get_friction);
-
-    MethodBinder::bind_method(D_METHOD("set_bounce", {"bounce"}), &StaticBody2D::set_bounce);
-    MethodBinder::bind_method(D_METHOD("get_bounce"), &StaticBody2D::get_bounce);
-#endif // DISABLE_DEPRECATED
-
     MethodBinder::bind_method(D_METHOD("set_physics_material_override", {"physics_material_override"}), &StaticBody2D::set_physics_material_override);
     MethodBinder::bind_method(D_METHOD("get_physics_material_override"), &StaticBody2D::get_physics_material_override);
 
@@ -299,10 +239,6 @@ void StaticBody2D::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "constant_linear_velocity"), "set_constant_linear_velocity", "get_constant_linear_velocity");
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "constant_angular_velocity"), "set_constant_angular_velocity", "get_constant_angular_velocity");
-#ifndef DISABLE_DEPRECATED
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "friction", PROPERTY_HINT_RANGE, "0,1,0.01", 0), "set_friction", "get_friction");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "bounce", PROPERTY_HINT_RANGE, "0,1,0.01", 0), "set_bounce", "get_bounce");
-#endif // DISABLE_DEPRECATED
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "physics_material_override", PROPERTY_HINT_RESOURCE_TYPE, "PhysicsMaterial"), "set_physics_material_override", "get_physics_material_override");
 }
 
@@ -624,61 +560,10 @@ real_t RigidBody2D::get_weight() const {
     return mass * (real_t(GLOBAL_DEF("physics/2d/default_gravity", 98)) / 10);
 }
 
-#ifndef DISABLE_DEPRECATED
-void RigidBody2D::set_friction(real_t p_friction) {
-
-    if (p_friction == 1.0 && not physics_material_override) { // default value, don't create an override for that
-        return;
-    }
-
-    WARN_DEPRECATED_MSG("The method set_friction has been deprecated and will be removed in the future, use physics material instead.");
-
-    ERR_FAIL_COND(p_friction < 0 || p_friction > 1)
-
-    if (not physics_material_override) {
-        physics_material_override = make_ref_counted<PhysicsMaterial>();
-        set_physics_material_override(physics_material_override);
-    }
-    physics_material_override->set_friction(p_friction);
-}
-real_t RigidBody2D::get_friction() const {
-
-    WARN_DEPRECATED_MSG("The method get_friction has been deprecated and will be removed in the future, use physics material instead.");
-
-    if (not physics_material_override) {
-        return 1;
-    }
-
-    return physics_material_override->get_friction();
-}
-
-void RigidBody2D::set_bounce(real_t p_bounce) {
-
-    if (p_bounce == 0.0 && not physics_material_override) { // default value, don't create an override for that
-        return;
-    }
-
-    WARN_DEPRECATED_MSG("The method set_bounce has been deprecated and will be removed in the future, use physics material instead.");
-
-    ERR_FAIL_COND(p_bounce < 0 || p_bounce > 1)
-
-    if (not physics_material_override) {
-        physics_material_override = make_ref_counted<PhysicsMaterial>();
-        set_physics_material_override(physics_material_override);
-    }
-    physics_material_override->set_bounce(p_bounce);
-}
-real_t RigidBody2D::get_bounce() const {
-
-    WARN_DEPRECATED_MSG("The method get_bounce has been deprecated and will be removed in the future, use physics material instead.");
-
-    if (not physics_material_override) {
-        return 0;
-    }
-
-    return physics_material_override->get_bounce();
-}
-#endif // DISABLE_DEPRECATED
+//WARN_DEPRECATED_MSG("The method set_friction has been deprecated and will be removed in the future, use physics material instead.");
+//WARN_DEPRECATED_MSG("The method get_friction has been deprecated and will be removed in the future, use physics material instead.");
+//WARN_DEPRECATED_MSG("The method set_bounce has been deprecated and will be removed in the future, use physics material instead.");
+//WARN_DEPRECATED_MSG("The method get_bounce has been deprecated and will be removed in the future, use physics material instead.");
 
 void RigidBody2D::set_physics_material_override(const Ref<PhysicsMaterial> &p_physics_material_override) {
     if (physics_material_override) {
@@ -978,14 +863,6 @@ void RigidBody2D::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_weight", {"weight"}), &RigidBody2D::set_weight);
     MethodBinder::bind_method(D_METHOD("get_weight"), &RigidBody2D::get_weight);
-
-#ifndef DISABLE_DEPRECATED
-    MethodBinder::bind_method(D_METHOD("set_friction", {"friction"}), &RigidBody2D::set_friction);
-    MethodBinder::bind_method(D_METHOD("get_friction"), &RigidBody2D::get_friction);
-
-    MethodBinder::bind_method(D_METHOD("set_bounce", {"bounce"}), &RigidBody2D::set_bounce);
-    MethodBinder::bind_method(D_METHOD("get_bounce"), &RigidBody2D::get_bounce);
-#endif // DISABLE_DEPRECATED
 
     MethodBinder::bind_method(D_METHOD("set_physics_material_override", {"physics_material_override"}), &RigidBody2D::set_physics_material_override);
     MethodBinder::bind_method(D_METHOD("get_physics_material_override"), &RigidBody2D::get_physics_material_override);

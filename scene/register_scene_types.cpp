@@ -1113,7 +1113,7 @@ void register_scene_types() {
     if (!font_path.empty()) {
         font = dynamic_ref_cast<Font>(ResourceLoader::load(font_path));
         if (not font) {
-            ERR_PRINTS("Error loading custom font '" + font_path + "'")
+            ERR_PRINT("Error loading custom font '" + font_path + "'")
         }
     }
 
@@ -1128,7 +1128,7 @@ void register_scene_types() {
                 Theme::set_default_font(font);
             }
         } else {
-            ERR_PRINTS("Error loading custom theme '" + theme_path + "'")
+            ERR_PRINT("Error loading custom theme '" + theme_path + "'")
         }
     }
 }

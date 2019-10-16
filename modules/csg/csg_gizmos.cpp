@@ -29,7 +29,9 @@
 /*************************************************************************/
 
 #include "csg_gizmos.h"
+
 #include "core/class_db.h"
+#include "core/translation_helpers.h"
 
 ///////////
 IMPL_GDCLASS(CSGShapeSpatialGizmoPlugin)

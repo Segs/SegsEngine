@@ -31,6 +31,7 @@
 #include "keyboard.h"
 
 #include "core/os/os.h"
+#include "core/ustring.h"
 
 struct _KeyCodeText {
     int code;

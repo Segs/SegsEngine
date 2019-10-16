@@ -124,10 +124,10 @@ Variant JSONRPC::process_action(const Variant &p_action, bool p_process_arr_elem
             id = dict["id"];
         }
 
-        if (object == nullptr || !object->has_method(method)) {
+        if (object == nullptr || !object->has_method(StringName(method))) {
             ret = make_response_error(JSONRPC::METHOD_NOT_FOUND, "Method not found", id);
         } else {
-            Variant call_ret = object->callv(method, args);
+            Variant call_ret = object->callv(StringName(method), args);
             if (id.get_type() != VariantType::NIL) {
                 ret = make_response(call_ret, id);
             }

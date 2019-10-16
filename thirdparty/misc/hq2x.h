@@ -1,7 +1,7 @@
 #ifndef HQ2X_H
 #define HQ2X_H
 
-#include "core/typedefs.h"
+#include <stdint.h>
 
 
 uint32_t *hq2x_resize(

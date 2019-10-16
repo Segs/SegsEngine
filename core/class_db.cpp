@@ -355,7 +355,7 @@ Object *ClassDB::instance(const StringName &p_class) {
     }
 #ifdef TOOLS_ENABLED
     if (ti->api == API_EDITOR && !Engine::get_singleton()->is_editor_hint()) {
-        ERR_PRINTS("Class '" + String(p_class) + "' can only be instantiated by editor.")
+        ERR_PRINT("Class '" + String(p_class) + "' can only be instantiated by editor.")
         return nullptr;
     }
 #endif
@@ -508,15 +508,16 @@ void ClassDB::bind_integer_constant(
         if (StringUtils::contains(enum_name, '.') ) {
             enum_name = StringUtils::get_slice(enum_name, '.', 1);
         }
+        StringName interned_enum_name(enum_name);
 
-        ListPOD<StringName> *constants_list = type->enum_map.getptr(enum_name);
+        ListPOD<StringName> *constants_list = type->enum_map.getptr(interned_enum_name);
 
         if (constants_list) {
             constants_list->push_back(p_name);
         } else {
             ListPOD<StringName> new_list {p_name};
 
-            type->enum_map[enum_name] = new_list;
+            type->enum_map[interned_enum_name] = new_list;
         }
     }
 
@@ -1023,8 +1024,7 @@ MethodBind *ClassDB::bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const M
         std::initializer_list<Variant> def_vals) {
     StringName mdname = method_name.name;
 #else
-MethodBind *ClassDB::bind_methodfi(
-        uint32_t p_flags, MethodBind *p_bind, const char *method_name, std::initializer_list<Variant> def_vals) {
+MethodBind *ClassDB::bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const char *method_name, std::initializer_list<Variant> def_vals) {
     StringName mdname = StaticCString(method_name, true);
 #endif
 

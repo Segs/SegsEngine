@@ -32,6 +32,7 @@
 
 #include "core/os/keyboard.h"
 #include "core/print_string.h"
+#include "core/translation_helpers.h"
 #include "scene/gui/label.h"
 #include "scene/main/scene_tree.h"
 #include "core/method_bind.h"

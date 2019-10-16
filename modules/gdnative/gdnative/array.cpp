@@ -309,7 +309,7 @@ void GDAPI godot_array_sort(godot_array *p_self) {
 void GDAPI godot_array_sort_custom(godot_array *p_self, godot_object *p_obj, const godot_string *p_func) {
     Array *self = (Array *)p_self;
     const String *func = (const String *)p_func;
-    self->sort_custom((Object *)p_obj, *func);
+    self->sort_custom((Object *)p_obj, StringName(*func));
 }
 
 godot_int GDAPI godot_array_bsearch(godot_array *p_self, const godot_variant *p_value, const godot_bool p_before) {
@@ -320,7 +320,7 @@ godot_int GDAPI godot_array_bsearch(godot_array *p_self, const godot_variant *p_
 godot_int GDAPI godot_array_bsearch_custom(godot_array *p_self, const godot_variant *p_value, godot_object *p_obj, const godot_string *p_func, const godot_bool p_before) {
     Array *self = (Array *)p_self;
     const String *func = (const String *)p_func;
-    return self->bsearch_custom(*(const Variant *)p_value, (Object *)p_obj, *func, p_before);
+    return self->bsearch_custom(*(const Variant *)p_value, (Object *)p_obj, StringName(*func), p_before);
 }
 
 void GDAPI godot_array_destroy(godot_array *p_self) {

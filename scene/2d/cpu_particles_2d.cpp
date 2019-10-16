@@ -32,6 +32,7 @@
 
 #include "core/method_bind.h"
 #include "core/os/mutex.h"
+#include "core/translation_helpers.h"
 #include "scene/2d/canvas_item.h"
 #include "scene/2d/particles_2d.h"
 #include "scene/resources/curve_texture.h"
@@ -53,7 +54,7 @@ void CPUParticles2D::set_emitting(bool p_emitting) {
 
 void CPUParticles2D::set_amount(int p_amount) {
 
-	ERR_FAIL_COND_MSG(p_amount < 1, "Amount of particles must be greater than 0.");
+    ERR_FAIL_COND_MSG(p_amount < 1, "Amount of particles must be greater than 0.")
 
     particles.resize(p_amount);
     {

@@ -30,6 +30,7 @@
 
 #include "gi_probe_editor_plugin.h"
 #include "core/method_bind.h"
+#include "core/translation_helpers.h"
 
 IMPL_GDCLASS(GIProbeEditorPlugin)
 

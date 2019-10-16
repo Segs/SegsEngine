@@ -110,7 +110,7 @@ Error PCKPacker::add_file(const String &p_file, const String &p_src) {
 
 Error PCKPacker::flush(bool p_verbose) {
 
-    ERR_FAIL_COND_V_CMSG(!file, ERR_INVALID_PARAMETER, "File must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!file, ERR_INVALID_PARAMETER, "File must be opened before use.")
     // write the index
 
     file->store_32(files.size());

@@ -30,11 +30,12 @@
 
 #include "curve_editor_plugin.h"
 
-#include "core/method_bind.h"
 #include "canvas_item_editor_plugin.h"
 #include "core/core_string_names.h"
+#include "core/method_bind.h"
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
+#include "core/translation_helpers.h"
 #include "editor/editor_scale.h"
 #include "scene/gui/spin_box.h"
 #include "scene/resources/style_box.h"
@@ -791,7 +792,7 @@ bool CurvePreviewGenerator::handles(const String &p_type) const {
 Ref<Texture> CurvePreviewGenerator::generate(const Ref<Resource> &p_from, const Size2 &p_size) const {
 
     Ref<Curve> curve_ref = dynamic_ref_cast<Curve>(p_from);
-    ERR_FAIL_COND_V_CMSG(not curve_ref, Ref<Texture>(), "It's not a reference to a valid Resource object.")
+    ERR_FAIL_COND_V_MSG(not curve_ref, Ref<Texture>(), "It's not a reference to a valid Resource object.")
     Curve &curve = *curve_ref;
 
     // FIXME: Should be ported to use p_size as done in b2633a97

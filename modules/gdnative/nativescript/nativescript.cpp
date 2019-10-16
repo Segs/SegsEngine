@@ -115,7 +115,7 @@ void NativeScript::_placeholder_erased(PlaceHolderScriptInstance *p_placeholder)
 #endif
 
 void NativeScript::set_class_name(String p_class_name) {
-    class_name = p_class_name;
+    class_name = StringName(p_class_name);
 }
 
 String NativeScript::get_class_name() const {
@@ -408,7 +408,7 @@ void NativeScript::get_script_property_list(ListPOD<PropertyInfo> *p_list) const
 String NativeScript::get_class_documentation() const {
     NativeScriptDesc *script_data = get_script_desc();
 
-    ERR_FAIL_COND_V_CMSG(!script_data, "", "Attempt to get class documentation on invalid NativeScript.")
+    ERR_FAIL_COND_V_MSG(!script_data, "", "Attempt to get class documentation on invalid NativeScript.")
 
     return script_data->documentation;
 }
@@ -416,7 +416,7 @@ String NativeScript::get_class_documentation() const {
 String NativeScript::get_method_documentation(const StringName &p_method) const {
     NativeScriptDesc *script_data = get_script_desc();
 
-    ERR_FAIL_COND_V_CMSG(!script_data, "", "Attempt to get method documentation on invalid NativeScript.")
+    ERR_FAIL_COND_V_MSG(!script_data, "", "Attempt to get method documentation on invalid NativeScript.")
 
     while (script_data) {
 
@@ -429,7 +429,7 @@ String NativeScript::get_method_documentation(const StringName &p_method) const 
         script_data = script_data->base_data;
     }
 
-    ERR_FAIL_V_CMSG("", "Attempt to get method documentation for non-existent method.")
+    ERR_FAIL_V_MSG("", "Attempt to get method documentation for non-existent method.")
 }
 
 String NativeScript::get_signal_documentation(const StringName &p_signal_name) const {
@@ -448,13 +448,13 @@ String NativeScript::get_signal_documentation(const StringName &p_signal_name) c
         script_data = script_data->base_data;
     }
 
-    ERR_FAIL_V_CMSG("", "Attempt to get signal documentation for non-existent signal.")
+    ERR_FAIL_V_MSG("", "Attempt to get signal documentation for non-existent signal.")
 }
 
 String NativeScript::get_property_documentation(const StringName &p_path) const {
     NativeScriptDesc *script_data = get_script_desc();
 
-    ERR_FAIL_COND_V_CMSG(!script_data, "", "Attempt to get property documentation on invalid NativeScript.")
+    ERR_FAIL_COND_V_MSG(!script_data, "", "Attempt to get property documentation on invalid NativeScript.")
 
     while (script_data) {
 
@@ -467,7 +467,7 @@ String NativeScript::get_property_documentation(const StringName &p_path) const 
         script_data = script_data->base_data;
     }
 
-    ERR_FAIL_V_CMSG("", "Attempt to get property documentation for non-existent signal.")
+    ERR_FAIL_V_MSG("", "Attempt to get property documentation for non-existent signal.")
 }
 
 Variant NativeScript::_new(const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
@@ -748,7 +748,7 @@ void NativeScriptInstance::notification(int p_notification) {
 #ifdef DEBUG_ENABLED
     if (p_notification == MainLoop::NOTIFICATION_CRASH) {
         if (current_method_call != StringName("")) {
-            ERR_PRINTS("NativeScriptInstance detected crash on method: " + current_method_call)
+            ERR_PRINT("NativeScriptInstance detected crash on method: " + current_method_call)
             current_method_call = "";
         }
     }
@@ -1003,7 +1003,7 @@ void NativeScriptLanguage::_unload_stuff(bool p_reload) {
         if (gdn && gdn->get_library()) {
             Ref<GDNativeLibrary> lib = gdn->get_library();
             void *terminate_fn;
-            Error err = gdn->get_symbol(lib->get_symbol_prefix() + _terminate_call_name, terminate_fn, true);
+            Error err = gdn->get_symbol(StringName(lib->get_symbol_prefix() + _terminate_call_name), terminate_fn, true);
 
             if (err == OK) {
                 void (*terminate)(void *) = (void (*)(void *))terminate_fn;
@@ -1501,7 +1501,7 @@ void NativeScriptLanguage::init_library(const Ref<GDNativeLibrary> &lib) {
 
         void *proc_ptr;
 
-        Error err = gdn->get_symbol(lib->get_symbol_prefix() + _init_call_name, proc_ptr);
+        Error err = gdn->get_symbol(StringName(lib->get_symbol_prefix() + _init_call_name), proc_ptr);
 
         if (err != OK) {
             ERR_PRINT("No " + _init_call_name + " in \"" + lib_path + "\" found")
@@ -1547,7 +1547,7 @@ void NativeScriptLanguage::call_libraries_cb(const StringName &name) {
         if (L.second->is_initialized()) {
 
             void *proc_ptr;
-            Error err = L.second->get_symbol(L.second->get_library()->get_symbol_prefix() + name, proc_ptr);
+            Error err = L.second->get_symbol(StringName(L.second->get_library()->get_symbol_prefix() + name), proc_ptr);
 
             if (!err) {
                 ((void (*)())proc_ptr)();
@@ -1707,7 +1707,7 @@ void NativeReloadNode::_notification(int p_what) {
                 // here the library registers all the classes and stuff.
 
                 void *proc_ptr;
-                Error err = gdn->get_symbol(gdn->get_library()->get_symbol_prefix() + "nativescript_init", proc_ptr);
+                Error err = gdn->get_symbol(StringName(gdn->get_library()->get_symbol_prefix() + "nativescript_init"), proc_ptr);
                 if (err != OK) {
                     ERR_PRINT("No godot_nativescript_init in \"" + L.first + "\" found")
                 } else {

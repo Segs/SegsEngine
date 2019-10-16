@@ -583,7 +583,7 @@ bool GDMono::copy_prebuilt_api_assembly(ApiAssemblyInfo::Type p_api_type, const 
 		memdelete(da);
 
 		if (err != OK) {
-			ERR_PRINTS("Failed to create destination directory for the API assemblies. Error: " + itos(err) + ".");
+			ERR_PRINT("Failed to create destination directory for the API assemblies. Error: " + itos(err) + ".");
 			return false;
 		}
 	}
@@ -600,7 +600,7 @@ bool GDMono::copy_prebuilt_api_assembly(ApiAssemblyInfo::Type p_api_type, const 
 
 	String assembly_file = assembly_name + ".dll";
 	if (da->copy(src_dir.plus_file(assembly_file), dst_dir.plus_file(assembly_file)) != OK) {
-			ERR_PRINTS("Failed to copy '" + assembly_file + "'.");
+			ERR_PRINT("Failed to copy '" + assembly_file + "'.");
 			return false;
 		}
 
@@ -1014,13 +1014,13 @@ Error GDMono::reload_scripts_domain() {
 
 	if (scripts_domain) {
 		Error domain_unload_err = _unload_scripts_domain();
-                ERR_FAIL_COND_V_CMSG(domain_unload_err != OK, domain_unload_err, "Mono: Failed to unload scripts domain.")
+                ERR_FAIL_COND_V_MSG(domain_unload_err != OK, domain_unload_err, "Mono: Failed to unload scripts domain.")
 	}
 
 	CSharpLanguage::get_singleton()->_on_scripts_domain_unloaded();
 
 	Error domain_load_err = _load_scripts_domain();
-        ERR_FAIL_COND_V_CMSG(domain_load_err != OK, domain_load_err, "Mono: Failed to load scripts domain.")
+        ERR_FAIL_COND_V_MSG(domain_load_err != OK, domain_load_err, "Mono: Failed to load scripts domain.")
 
 	// Load assemblies. The API and tools assemblies are required,
 	// the application is aborted if these assemblies cannot be loaded.
@@ -1068,7 +1068,7 @@ Error GDMono::finalize_and_unload_domain(MonoDomain *p_domain) {
 	mono_domain_try_unload(p_domain, (MonoObject **)&exc);
 
 	if (exc) {
-		ERR_PRINTS("Exception thrown when unloading domain '" + domain_name + "'.");
+		ERR_PRINT("Exception thrown when unloading domain '" + domain_name + "'.");
 		GDMonoUtils::debug_print_unhandled_exception(exc);
 		return FAILED;
 	}

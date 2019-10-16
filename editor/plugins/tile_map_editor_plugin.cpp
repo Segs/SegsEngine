@@ -36,6 +36,7 @@
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
 #include "core/string_formatter.h"
+#include "core/translation_helpers.h"
 #include "editor/editor_scale.h"
 #include "editor/editor_settings.h"
 #include "scene/gui/split_container.h"

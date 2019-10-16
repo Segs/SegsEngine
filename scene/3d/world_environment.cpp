@@ -31,6 +31,7 @@
 #include "world_environment.h"
 #include "scene/main/viewport.h"
 #include "core/method_bind.h"
+#include "core/translation_helpers.h"
 #include "scene/main/scene_tree.h"
 #include "scene/resources/environment.h"
 #include "scene/resources/world.h"

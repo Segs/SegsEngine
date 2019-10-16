@@ -30,6 +30,7 @@
 
 #include "vehicle_body.h"
 #include "core/method_bind.h"
+#include "core/translation_helpers.h"
 
 #define ROLLING_INFLUENCE_FIX
 

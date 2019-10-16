@@ -201,7 +201,7 @@ void ScriptDebuggerLocal::debug(ScriptLanguage *p_script, bool p_can_continue, b
                 if (source.empty())
                     continue;
 
-                insert_breakpoint(linenr, source);
+                insert_breakpoint(linenr, StringName(source));
 
                 print_line("Added breakpoint at " + source + ":" + itos(linenr));
             }
@@ -229,7 +229,7 @@ void ScriptDebuggerLocal::debug(ScriptLanguage *p_script, bool p_can_continue, b
                 if (source.empty())
                     continue;
 
-                remove_breakpoint(linenr, source);
+                remove_breakpoint(linenr, StringName(source));
 
                 print_line("Removed breakpoint at " + source + ":" + itos(linenr));
             }

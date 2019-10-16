@@ -32,6 +32,7 @@
 
 #include "core/method_bind.h"
 #include "core/io/marshalls.h"
+#include "core/translation_helpers.h"
 #include "core/io/resource_saver.h"
 #include "scene/3d/mesh_instance.h"
 #include "scene/gui/box_container.h"

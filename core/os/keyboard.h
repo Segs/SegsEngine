@@ -28,10 +28,11 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef KEYBOARD_H
-#define KEYBOARD_H
+#pragma once
 
-#include "core/ustring.h"
+#include "core/typedefs.h"
+
+class String;
 
 /*
 	Special Key:
@@ -297,10 +298,10 @@ enum KeyList {
 
 };
 
-enum KeyModifierMask {
+enum KeyModifierMask : uint32_t {
 
 	KEY_CODE_MASK = ((1 << 25) - 1), ///< Apply this mask to any keycode to remove modifiers.
-	KEY_MODIFIER_MASK = (0xFF << 24), ///< Apply this mask to isolate modifiers.
+    KEY_MODIFIER_MASK = (0xFFU << 24), ///< Apply this mask to isolate modifiers.
 	KEY_MASK_SHIFT = (1 << 25),
 	KEY_MASK_ALT = (1 << 26),
 	KEY_MASK_META = (1 << 27),
@@ -325,4 +326,3 @@ int keycode_get_count();
 int keycode_get_value_by_index(int p_index);
 const char *keycode_get_name_by_index(int p_index);
 
-#endif

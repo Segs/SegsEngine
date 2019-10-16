@@ -38,6 +38,7 @@
 #include "core/os/os.h"
 #include "core/project_settings.h"
 #include "core/string_formatter.h"
+#include "core/translation_helpers.h"
 #include "scene/main/node.h"
 #include "scene/main/scene_tree.h"
 
@@ -91,7 +92,7 @@ bool VisualScriptFunction::_set(const StringName &p_name, const Variant &p_value
         arguments.resize(new_argc);
 
         for (int i = argc; i < new_argc; i++) {
-            arguments.write[i].name = "arg" + itos(i + 1);
+            arguments.write[i].name = StringName("arg" + itos(i + 1));
             arguments.write[i].type = VariantType::NIL;
         }
         ports_changed_notify();
@@ -254,7 +255,7 @@ String VisualScriptFunction::get_text() const {
     return get_name(); //use name as function name I guess
 }
 
-void VisualScriptFunction::add_argument(VariantType p_type, const String &p_name, int p_index, const PropertyHint p_hint, const String &p_hint_string) {
+void VisualScriptFunction::add_argument(VariantType p_type, const StringName &p_name, int p_index, const PropertyHint p_hint, const String &p_hint_string) {
 
     Argument arg;
     arg.name = p_name;
@@ -280,16 +281,16 @@ VariantType VisualScriptFunction::get_argument_type(int p_argidx) const {
     ERR_FAIL_INDEX_V(p_argidx, arguments.size(), VariantType::NIL);
     return arguments[p_argidx].type;
 }
-void VisualScriptFunction::set_argument_name(int p_argidx, const String &p_name) {
+void VisualScriptFunction::set_argument_name(int p_argidx, const StringName &p_name) {
 
     ERR_FAIL_INDEX(p_argidx, arguments.size());
 
     arguments.write[p_argidx].name = p_name;
     ports_changed_notify();
 }
-String VisualScriptFunction::get_argument_name(int p_argidx) const {
+StringName VisualScriptFunction::get_argument_name(int p_argidx) const {
 
-    ERR_FAIL_INDEX_V(p_argidx, arguments.size(), String());
+    ERR_FAIL_INDEX_V(p_argidx, arguments.size(), StringName());
     return arguments[p_argidx].name;
 }
 void VisualScriptFunction::remove_argument(int p_argidx) {
@@ -465,7 +466,7 @@ bool VisualScriptLists::_set(const StringName &p_name, const Variant &p_value) {
         inputports.resize(new_argc);
 
         for (int i = argc; i < new_argc; i++) {
-            inputports.write[i].name = "arg" + itos(i + 1);
+            inputports.write[i].name = StringName("arg" + itos(i + 1));
             inputports.write[i].type = VariantType::NIL;
         }
         ports_changed_notify();
@@ -503,7 +504,7 @@ bool VisualScriptLists::_set(const StringName &p_name, const Variant &p_value) {
         outputports.resize(new_argc);
 
         for (int i = argc; i < new_argc; i++) {
-            outputports.write[i].name = "arg" + itos(i + 1);
+            outputports.write[i].name = StringName("arg" + itos(i + 1));
             outputports.write[i].type = VariantType::NIL;
         }
         ports_changed_notify();
@@ -596,7 +597,7 @@ void VisualScriptLists::_get_property_list(ListPOD<PropertyInfo> *p_list) const 
         }
 
         for (int i = 0; i < inputports.size(); i++) {
-            p_list->push_back(PropertyInfo(VariantType::INT, "input_" + itos(i + 1) + "/type", PROPERTY_HINT_ENUM, argt));
+            p_list->push_back(PropertyInfo(VariantType::INT, String("input_" + itos(i + 1) + "/type"), PROPERTY_HINT_ENUM, StringName(argt)));
             p_list->push_back(PropertyInfo(VariantType::STRING, "input_" + itos(i + 1) + "/name"));
         }
     }
@@ -609,7 +610,7 @@ void VisualScriptLists::_get_property_list(ListPOD<PropertyInfo> *p_list) const 
         }
 
         for (int i = 0; i < outputports.size(); i++) {
-            p_list->push_back(PropertyInfo(VariantType::INT, "output_" + itos(i + 1) + "/type", PROPERTY_HINT_ENUM, argt));
+            p_list->push_back(PropertyInfo(VariantType::INT, "output_" + itos(i + 1) + "/type", PROPERTY_HINT_ENUM, StringName(argt)));
             p_list->push_back(PropertyInfo(VariantType::STRING, "output_" + itos(i + 1) + "/name"));
         }
     }
@@ -617,7 +618,7 @@ void VisualScriptLists::_get_property_list(ListPOD<PropertyInfo> *p_list) const 
 }
 
 // input data port interaction
-void VisualScriptLists::add_input_data_port(VariantType p_type, const String &p_name, int p_index) {
+void VisualScriptLists::add_input_data_port(VariantType p_type, const StringName &p_name, int p_index) {
 
     if (!is_input_port_editable())
         return;
@@ -644,7 +645,7 @@ void VisualScriptLists::set_input_data_port_type(int p_idx, VariantType p_type) 
     ports_changed_notify();
     _change_notify();
 }
-void VisualScriptLists::set_input_data_port_name(int p_idx, const String &p_name) {
+void VisualScriptLists::set_input_data_port_name(int p_idx, const StringName &p_name) {
 
     if (!is_input_port_name_editable())
         return;
@@ -669,7 +670,7 @@ void VisualScriptLists::remove_input_data_port(int p_argidx) {
 }
 
 // output data port interaction
-void VisualScriptLists::add_output_data_port(VariantType p_type, const String &p_name, int p_index) {
+void VisualScriptLists::add_output_data_port(VariantType p_type, const StringName &p_name, int p_index) {
 
     if (!is_output_port_editable())
         return;
@@ -696,7 +697,7 @@ void VisualScriptLists::set_output_data_port_type(int p_idx, VariantType p_type)
     ports_changed_notify();
     _change_notify();
 }
-void VisualScriptLists::set_output_data_port_name(int p_idx, const String &p_name) {
+void VisualScriptLists::set_output_data_port_name(int p_idx, const StringName &p_name) {
 
     if (!is_output_port_name_editable())
         return;
@@ -738,15 +739,15 @@ VisualScriptLists::VisualScriptLists() {
 }
 
 void VisualScriptLists::_bind_methods() {
-	MethodBinder::bind_method(D_METHOD("add_input_data_port", {"type", "name", "index"}), &VisualScriptLists::add_input_data_port);
-	MethodBinder::bind_method(D_METHOD("set_input_data_port_name", {"index", "name"}), &VisualScriptLists::set_input_data_port_name);
-	MethodBinder::bind_method(D_METHOD("set_input_data_port_type", {"index", "type"}), &VisualScriptLists::set_input_data_port_type);
-	MethodBinder::bind_method(D_METHOD("remove_input_data_port", {"index"}), &VisualScriptLists::remove_input_data_port);
+    MethodBinder::bind_method(D_METHOD("add_input_data_port", {"type", "name", "index"}), &VisualScriptLists::add_input_data_port);
+    MethodBinder::bind_method(D_METHOD("set_input_data_port_name", {"index", "name"}), &VisualScriptLists::set_input_data_port_name);
+    MethodBinder::bind_method(D_METHOD("set_input_data_port_type", {"index", "type"}), &VisualScriptLists::set_input_data_port_type);
+    MethodBinder::bind_method(D_METHOD("remove_input_data_port", {"index"}), &VisualScriptLists::remove_input_data_port);
 
-	MethodBinder::bind_method(D_METHOD("add_output_data_port", {"type", "name", "index"}), &VisualScriptLists::add_output_data_port);
-	MethodBinder::bind_method(D_METHOD("set_output_data_port_name", {"index", "name"}), &VisualScriptLists::set_output_data_port_name);
-	MethodBinder::bind_method(D_METHOD("set_output_data_port_type", {"index", "type"}), &VisualScriptLists::set_output_data_port_type);
-	MethodBinder::bind_method(D_METHOD("remove_output_data_port", {"index"}), &VisualScriptLists::remove_output_data_port);
+    MethodBinder::bind_method(D_METHOD("add_output_data_port", {"type", "name", "index"}), &VisualScriptLists::add_output_data_port);
+    MethodBinder::bind_method(D_METHOD("set_output_data_port_name", {"index", "name"}), &VisualScriptLists::set_output_data_port_name);
+    MethodBinder::bind_method(D_METHOD("set_output_data_port_type", {"index", "type"}), &VisualScriptLists::set_output_data_port_type);
+    MethodBinder::bind_method(D_METHOD("remove_output_data_port", {"index"}), &VisualScriptLists::remove_output_data_port);
 }
 
 //////////////////////////////////////////
@@ -893,7 +894,7 @@ PropertyInfo VisualScriptOperator::get_input_value_port_info(int p_idx) const {
     ERR_FAIL_INDEX_V(p_idx, 2, PropertyInfo());
 
     PropertyInfo pinfo;
-    pinfo.name = p_idx == 0 ? "A" : "B";
+    pinfo.name = StringName(p_idx == 0 ? "A" : "B");
     pinfo.type = port_types[op][p_idx];
     if (pinfo.type == VariantType::NIL)
         pinfo.type = typed;
@@ -1056,7 +1057,7 @@ void VisualScriptOperator::_bind_methods() {
     char argt[7+(longest_variant_type_name+1)*(int)VariantType::VARIANT_MAX];
     fill_with_all_variant_types("Any",argt);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "operator", PROPERTY_HINT_ENUM, types), "set_operator", "get_operator");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "operator", PROPERTY_HINT_ENUM, StringName(types)), "set_operator", "get_operator");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "type", PROPERTY_HINT_ENUM, argt), "set_typed", "get_typed");
 }
 
@@ -1498,7 +1499,7 @@ PropertyInfo VisualScriptConstant::get_input_value_port_info(int p_idx) const {
 PropertyInfo VisualScriptConstant::get_output_value_port_info(int p_idx) const {
 
     PropertyInfo pinfo;
-    pinfo.name = String(value);
+    pinfo.name = value.as<StringName>();
     pinfo.type = type;
     return pinfo;
 }
@@ -1627,11 +1628,11 @@ PropertyInfo VisualScriptPreload::get_output_value_port_info(int p_idx) const {
         pinfo.hint = PROPERTY_HINT_RESOURCE_TYPE;
         pinfo.hint_string = preload->get_class();
         if (PathUtils::is_resource_file(preload->get_path())) {
-            pinfo.name = preload->get_path();
+            pinfo.name = StringName(preload->get_path());
         } else if (!preload->get_name().empty()) {
-            pinfo.name = preload->get_name();
+            pinfo.name = StringName(preload->get_name());
         } else {
-            pinfo.name = preload->get_class();
+            pinfo.name = StringName(preload->get_class());
         }
     } else {
         pinfo.name = "<empty>";
@@ -1923,7 +1924,7 @@ void VisualScriptGlobalConstant::_bind_methods() {
             cc += ",";
         cc += GlobalConstants::get_global_constant_name(i);
     }
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "constant", PROPERTY_HINT_ENUM, cc), "set_global_constant", "get_global_constant");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "constant", PROPERTY_HINT_ENUM, StringName(cc)), "set_global_constant", "get_global_constant");
 }
 
 VisualScriptGlobalConstant::VisualScriptGlobalConstant() {
@@ -2299,7 +2300,7 @@ void VisualScriptMathConstant::_bind_methods() {
             cc += ",";
         cc += const_name[i];
     }
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "constant", PROPERTY_HINT_ENUM, cc), "set_math_constant", "get_math_constant");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "constant", PROPERTY_HINT_ENUM, StringName(cc)), "set_math_constant", "get_math_constant");
 
     BIND_ENUM_CONSTANT(MATH_CONSTANT_ONE)
     BIND_ENUM_CONSTANT(MATH_CONSTANT_PI)
@@ -2423,7 +2424,7 @@ void VisualScriptEngineSingleton::_bind_methods() {
         cc += E.name;
     }
 
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "constant", PROPERTY_HINT_ENUM, cc), "set_singleton", "get_singleton");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "constant", PROPERTY_HINT_ENUM, StringName(cc)), "set_singleton", "get_singleton");
 }
 
 VisualScriptEngineSingleton::VisualScriptEngineSingleton() {
@@ -3893,7 +3894,9 @@ void VisualScriptInputAction::_validate_property(PropertyInfo &property) const {
             if (!StringUtils::begins_with(pi.name,"input/"))
                 continue;
 
-            String name = StringUtils::substr(pi.name,StringUtils::find(pi.name,"/") + 1, pi.name.length());
+            String name = pi.name;
+            name = StringUtils::substr(name,StringUtils::find(name,"/") + 1);
+
 
             al.push_back(name);
         }

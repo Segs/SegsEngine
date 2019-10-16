@@ -33,6 +33,7 @@
 #include "core/io/logger.h"
 #include "os/os.h"
 #include "core/string_formatter.h"
+#include "core/se_string.h"
 
 bool _err_error_exists = false;
 
@@ -41,6 +42,16 @@ static ErrorHandlerList *error_handler_list = nullptr;
 void _err_set_last_error(const char *p_err) {
 
     OS::get_singleton()->set_last_error(p_err);
+    _err_error_exists = true;
+}
+void _err_set_last_error(se_string_view p_err) {
+
+    OS::get_singleton()->set_last_error(p_err.data());
+    _err_error_exists = true;
+}
+void _err_set_last_error(const String &p_err) {
+
+    OS::get_singleton()->set_last_error(StringUtils::utf8(p_err).data());
     _err_error_exists = true;
 }
 

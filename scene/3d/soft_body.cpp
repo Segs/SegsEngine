@@ -35,6 +35,7 @@
 #include "core/object_db.h"
 #include "core/os/os.h"
 #include "core/rid.h"
+#include "core/translation_helpers.h"
 #include "scene/3d/collision_object.h"
 #include "scene/3d/physics_body.h"
 #include "scene/3d/skeleton.h"

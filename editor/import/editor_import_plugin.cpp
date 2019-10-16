@@ -120,7 +120,7 @@ void EditorImportPlugin::get_import_options(ListPOD<ImportOption> *r_options, in
             usage = d["usage"];
         }
 
-        ImportOption option(PropertyInfo(default_value.get_type(), String(name), hint, hint_string, usage), default_value);
+        ImportOption option(PropertyInfo(default_value.get_type(), String(name), hint, StringName(hint_string), usage), default_value);
         r_options->push_back(option);
     }
 }

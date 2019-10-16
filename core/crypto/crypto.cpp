@@ -92,15 +92,15 @@ void Crypto::_bind_methods() {
 }
 
 PoolByteArray Crypto::generate_random_bytes(int p_bytes) {
-    ERR_FAIL_V_CMSG(PoolByteArray(), "generate_random_bytes is not available when mbedtls module is disabled.")
+    ERR_FAIL_V_MSG(PoolByteArray(), "generate_random_bytes is not available when mbedtls module is disabled.")
 }
 
 Ref<CryptoKey> Crypto::generate_rsa(int p_bytes) {
-    ERR_FAIL_V_CMSG(Ref<CryptoKey>(), "generate_rsa is not available when mbedtls module is disabled.")
+    ERR_FAIL_V_MSG(Ref<CryptoKey>(), "generate_rsa is not available when mbedtls module is disabled.")
 }
 
 Ref<X509Certificate> Crypto::generate_self_signed_certificate(Ref<CryptoKey> p_key, String p_issuer_name, String p_not_before, String p_not_after) {
-    ERR_FAIL_V_CMSG(Ref<X509Certificate>(), "generate_self_signed_certificate is not available when mbedtls module is disabled.")
+    ERR_FAIL_V_MSG(Ref<X509Certificate>(), "generate_self_signed_certificate is not available when mbedtls module is disabled.")
 }
 
 Crypto::Crypto() = default;

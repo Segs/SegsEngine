@@ -382,7 +382,7 @@ String ShaderCompilerGLES3::_dump_node_code(SL::Node *p_node, int p_level, Gener
                 if (SL::is_sampler_type(E.second.type)) {
                     r_gen_code.vertex_global += ucode;
                     r_gen_code.fragment_global += ucode;
-                    r_gen_code.texture_uniforms.write[E.second.texture_order] = _mkid(E.first);
+                    r_gen_code.texture_uniforms.write[E.second.texture_order] = StringName(_mkid(E.first));
                     r_gen_code.texture_hints.write[E.second.texture_order] = E.second.hint;
                     r_gen_code.texture_types.write[E.second.texture_order] = E.second.type;
                 } else {
@@ -391,7 +391,7 @@ String ShaderCompilerGLES3::_dump_node_code(SL::Node *p_node, int p_level, Gener
                         r_gen_code.defines.push_back("#define USE_MATERIAL\n");
                         uses_uniforms = true;
                     }
-                    uniform_defines.write[E.second.order] = ucode;
+                    uniform_defines.write[E.second.order] = StringName(ucode);
                     uniform_sizes.write[E.second.order] = _get_datatype_size(E.second.type);
                     uniform_alignments.write[E.second.order] = _get_datatype_alignment(E.second.type);
                 }
@@ -593,7 +593,7 @@ String ShaderCompilerGLES3::_dump_node_code(SL::Node *p_node, int p_level, Gener
             if (p_default_actions.usage_defines.contains(vnode->name) && !used_name_defines.contains(vnode->name)) {
                 String define = p_default_actions.usage_defines.at(vnode->name);
                 if (StringUtils::begins_with(define,"@")) {
-                    define = p_default_actions.usage_defines.at(StringUtils::substr(define,1, define.length()));
+                    define = p_default_actions.usage_defines.at(StringName(StringUtils::substr(define,1, define.length())));
                 }
                 r_gen_code.defines.push_back(StringUtils::to_utf8(define));
                 used_name_defines.insert(vnode->name);
@@ -669,7 +669,7 @@ String ShaderCompilerGLES3::_dump_node_code(SL::Node *p_node, int p_level, Gener
             if (p_default_actions.usage_defines.contains(anode->name) && !used_name_defines.contains(anode->name)) {
                 String define = p_default_actions.usage_defines.at(anode->name);
                 if (StringUtils::begins_with(define,"@")) {
-                    define = p_default_actions.usage_defines.at(StringUtils::substr(define, 1, define.length()));
+                    define = p_default_actions.usage_defines.at(StringName(StringUtils::substr(define, 1, define.length())));
                 }
                 r_gen_code.defines.push_back(StringUtils::to_utf8(define));
                 used_name_defines.insert(anode->name);

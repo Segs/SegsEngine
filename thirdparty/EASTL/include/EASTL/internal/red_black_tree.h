@@ -517,7 +517,11 @@ namespace eastl
         {
             return find(key) != end();
         }
-
+        template<class U,class Compare2>
+        EA_PURE bool contains_as(const U& key,Compare2 c = Compare2()) const
+        {
+            return find_as<U,Compare2>(key) != end();
+        }
         eastl::vector<key_type> keys() const
         {
             eastl::vector<key_type> result{};

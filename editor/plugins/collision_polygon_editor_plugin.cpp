@@ -35,6 +35,7 @@
 #include "core/os/file_access.h"
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
+#include "core/translation_helpers.h"
 #include "editor/editor_settings.h"
 #include "scene/main/scene_tree.h"
 #include "scene/3d/camera.h"

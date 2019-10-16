@@ -32,6 +32,7 @@
 #include "core/message_queue.h"
 #include "scene/scene_string_names.h"
 #include "core/method_bind.h"
+#include "core/translation_helpers.h"
 
 IMPL_GDCLASS(Container)
 

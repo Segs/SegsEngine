@@ -37,6 +37,7 @@
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
 #include "core/project_settings.h"
+#include "core/translation_helpers.h"
 #include "editor/editor_log.h"
 #include "editor/editor_properties.h"
 #include "editor/editor_scale.h"

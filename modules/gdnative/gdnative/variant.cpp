@@ -473,7 +473,7 @@ godot_variant GDAPI godot_variant_call(godot_variant *p_self, const godot_string
     godot_variant raw_dest;
     Variant *dest = (Variant *)&raw_dest;
     Variant::CallError error;
-    memnew_placement_custom(dest, Variant, Variant(self->call(*method, args, p_argcount, error)));
+    memnew_placement_custom(dest, Variant, Variant(self->call(StringName(*method), args, p_argcount, error)));
     if (r_error) {
         r_error->error = (godot_variant_call_error_error)error.error;
         r_error->argument = error.argument;
@@ -485,7 +485,7 @@ godot_variant GDAPI godot_variant_call(godot_variant *p_self, const godot_string
 godot_bool GDAPI godot_variant_has_method(const godot_variant *p_self, const godot_string *p_method) {
     const Variant *self = (const Variant *)p_self;
     const String *method = (const String *)p_method;
-    return self->has_method(*method);
+    return self->has_method(StringName(*method));
 }
 
 godot_bool GDAPI godot_variant_operator_equal(const godot_variant *p_self, const godot_variant *p_other) {

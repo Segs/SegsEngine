@@ -1412,7 +1412,7 @@ String ResourceFormatSaverTextInstance::_write_resource(const RES &res) {
             String path = relative_paths ? PathUtils::path_to_file(local_path,res->get_path()) : res->get_path();
             return "Resource( \"" + path + "\" )";
         } else {
-            ERR_FAIL_V_CMSG("null", "Resource was not pre cached for the resource section, bug?")
+            ERR_FAIL_V_MSG("null", "Resource was not pre cached for the resource section, bug?")
             //internal resource
         }
     }
@@ -1430,7 +1430,7 @@ void ResourceFormatSaverTextInstance::_find_resources(const Variant &p_variant, 
 
             if (!p_main && (!bundle_resources) && res->get_path().length() && !StringUtils::contains(res->get_path(),"::") ) {
                 if (res->get_path() == local_path) {
-                    ERR_PRINTS("Circular reference to resource being saved found: '" + local_path + "' will be null next time it's loaded.")
+                    ERR_PRINT("Circular reference to resource being saved found: '" + local_path + "' will be null next time it's loaded.")
                     return;
                 }
                 int index = external_resources.size();

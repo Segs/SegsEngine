@@ -1,4 +1,1 @@
-#ifndef TIMING_ASSERT_H
-#define TIMING_ASSERT_H
-
-#endif // TIMING_ASSERT_H
+#pragma once

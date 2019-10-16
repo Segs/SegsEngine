@@ -30,9 +30,10 @@
 
 #include "cpu_particles_2d_editor_plugin.h"
 
-#include "core/method_bind.h"
 #include "canvas_item_editor_plugin.h"
 #include "core/io/image_loader.h"
+#include "core/method_bind.h"
+#include "core/translation_helpers.h"
 #include "scene/2d/cpu_particles_2d.h"
 #include "scene/gui/separator.h"
 #include "scene/resources/particles_material.h"
@@ -89,7 +90,7 @@ void CPUParticles2DEditorPlugin::_generate_emission_mask() {
 
     Ref<Image> img(make_ref_counted<Image>());
     Error err = ImageLoader::load_image(source_emission_file, img);
-	ERR_FAIL_COND_MSG(err != OK, "Error loading image '" + source_emission_file + "'.")
+    ERR_FAIL_COND_MSG(err != OK, "Error loading image '" + source_emission_file + "'.")
 
     if (img->is_compressed()) {
         img->decompress();

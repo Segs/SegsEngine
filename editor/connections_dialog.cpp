@@ -31,6 +31,7 @@
 #include "connections_dialog.h"
 
 #include "core/method_bind.h"
+#include "core/translation_helpers.h"
 #include "editor_node.h"
 #include "editor/editor_scale.h"
 #include "editor_settings.h"
@@ -931,8 +932,8 @@ void ConnectionsDock::update_tree() {
                     } else if (pi.type != VariantType::NIL) {
                         tname = Variant::get_type_name(pi.type);
                     }
-                    signaldesc += (pi.name.empty() ? String("arg " + itos(idx++)) : pi.name) + ": " + tname;
-                    argnames.push_back(pi.name + ":" + tname);
+                    signaldesc += (pi.name.empty() ? StringName("arg " + itos(idx++)) : pi.name).asString() + ": " + tname;
+                    argnames.push_back(pi.name.asString() + ":" + tname);
                 }
             }
             signaldesc += ")";
@@ -945,7 +946,7 @@ void ConnectionsDock::update_tree() {
             item->set_metadata(0, sinfo);
             item->set_icon(0, get_icon("Signal", "EditorIcons"));
 
-			// Set tooltip with the signal's documentation.
+            // Set tooltip with the signal's documentation.
             {
                 String descr;
                 bool found = false;

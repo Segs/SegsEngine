@@ -183,7 +183,7 @@ bool ProjectSettings::_set(const StringName &p_name, const Variant &p_value) {
 
                 if (override_valid) {
 
-                    feature_overrides[s[0]] = p_name;
+                    feature_overrides[StringName(s[0])] = p_name;
                 }
             }
         }
@@ -217,7 +217,7 @@ bool ProjectSettings::_get(const StringName &p_name, Variant &r_ret) const {
 
 struct _VCSort {
 
-    String name;
+    StringName name;
     VariantType type;
     int order;
     int flags;
@@ -256,10 +256,10 @@ void ProjectSettings::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
     for (const _VCSort &E : vclist) {
 
-        String prop_info_name = E.name;
+        StringName prop_info_name = E.name;
         int dot = StringUtils::find(prop_info_name,".");
         if (dot != -1)
-            prop_info_name = StringUtils::substr(prop_info_name,0, dot);
+            prop_info_name = StringName(StringUtils::substr(prop_info_name.asString(),0, dot));
 
         if (custom_prop_info.contains(prop_info_name)) {
             PropertyInfo pi = custom_prop_info.at(prop_info_name);
@@ -507,7 +507,7 @@ Error ProjectSettings::_load_settings_binary(const String &p_path) {
     if (hdr[0] != 'E' || hdr[1] != 'C' || hdr[2] != 'F' || hdr[3] != 'G') {
 
         memdelete(f);
-        ERR_FAIL_V_CMSG(ERR_FILE_CORRUPT, "Corrupted header in binary project.binary (not ECFG).");
+        ERR_FAIL_V_MSG(ERR_FILE_CORRUPT, "Corrupted header in binary project.binary (not ECFG).");
     }
 
     uint32_t count = f->get_32();
@@ -528,7 +528,7 @@ Error ProjectSettings::_load_settings_binary(const String &p_path) {
         Variant value;
         err = decode_variant(value, d.ptr(), d.size(), nullptr, true);
         ERR_CONTINUE_MSG(err != OK, "Error decoding property: " + key + ".")
-        set(key, value);
+        set(StringName(key), value);
     }
 
     return OK;
@@ -571,7 +571,7 @@ Error ProjectSettings::_load_settings_text(const String &p_path) {
             _convert_to_last_version(config_version);
             return OK;
         } else if (err != OK) {
-            ERR_PRINTS("Error parsing " + p_path + " at line " + itos(lines) + ": " + error_text + " File might be corrupted.");
+            ERR_PRINT("Error parsing " + p_path + " at line " + itos(lines) + ": " + error_text + " File might be corrupted.");
             VariantParser::release_stream(stream);
             memdelete(f);
             return err;
@@ -587,9 +587,9 @@ Error ProjectSettings::_load_settings_text(const String &p_path) {
                 }
             } else {
                 if (section.empty()) {
-                    set(assign, value);
+                    set(StringName(assign), value);
                 } else {
-                    set(section + "/" + assign, value);
+                    set(StringName(section + "/" + assign), value);
                 }
             }
         } else if (!next_tag.name.empty()) {
@@ -606,7 +606,7 @@ Error ProjectSettings::_load_settings_text_or_binary(const String &p_text_path, 
         return OK;
     } else if (err_text != ERR_FILE_NOT_FOUND) {
         // If the text-based file exists but can't be loaded, we want to know it
-        ERR_PRINTS("Couldn't load file '" + p_text_path + "', error code " + itos(err_text) + ".")
+        ERR_PRINT("Couldn't load file '" + p_text_path + "', error code " + itos(err_text) + ".")
         return err_text;
     }
 
@@ -615,13 +615,13 @@ Error ProjectSettings::_load_settings_text_or_binary(const String &p_text_path, 
     return err_bin;
 }
 
-int ProjectSettings::get_order(const String &p_name) const {
+int ProjectSettings::get_order(const StringName &p_name) const {
 
     ERR_FAIL_COND_V_MSG(!props.contains(p_name), -1, "Request for nonexistent project setting: " + p_name + ".")
     return props.at(p_name).order;
 }
 
-void ProjectSettings::set_order(const String &p_name, int p_order) {
+void ProjectSettings::set_order(const StringName &p_name, int p_order) {
 
     ERR_FAIL_COND_MSG(!props.contains(p_name), "Request for nonexistent project setting: " + p_name + ".")
     props[p_name].order = p_order;
@@ -634,7 +634,7 @@ void ProjectSettings::set_builtin_order(const StringName &p_name) {
     }
 }
 
-void ProjectSettings::clear(const String &p_name) {
+void ProjectSettings::clear(const StringName &p_name) {
 
     ERR_FAIL_COND_MSG(!props.contains(p_name), "Request for nonexistent project setting: " + p_name + ".")
     props.erase(p_name);
@@ -698,10 +698,11 @@ Error ProjectSettings::_save_settings_binary(const String &p_file, const Map<Str
             if (!E.first.empty())
                 key = E.first + "/" + key;
             Variant value;
-            if (p_custom.contains(key))
-                value = p_custom.at(key);
+            StringName keyname(key);
+            if (p_custom.contains(keyname))
+                value = p_custom.at(keyname);
             else
-                value = get(key);
+                value = get(keyname);
 
             file->store_32(key.length());
             file->store_string(key);
@@ -710,7 +711,7 @@ Error ProjectSettings::_save_settings_binary(const String &p_file, const Map<Str
             err = encode_variant(value, nullptr, len, true);
             if (err != OK)
                 memdelete(file);
-            ERR_FAIL_COND_V_CMSG(err != OK, ERR_INVALID_DATA, "Error when trying to encode Variant.")
+            ERR_FAIL_COND_V_MSG(err != OK, ERR_INVALID_DATA, "Error when trying to encode Variant.")
 
             Vector<uint8_t> buff;
             buff.resize(len);
@@ -718,7 +719,7 @@ Error ProjectSettings::_save_settings_binary(const String &p_file, const Map<Str
             err = encode_variant(value, buff.ptrw(), len, true);
             if (err != OK)
                 memdelete(file);
-            ERR_FAIL_COND_V_CMSG(err != OK, ERR_INVALID_DATA, "Error when trying to encode Variant.")
+            ERR_FAIL_COND_V_MSG(err != OK, ERR_INVALID_DATA, "Error when trying to encode Variant.")
             file->store_32(len);
             file->store_buffer(buff.ptr(), buff.size());
         }
@@ -764,10 +765,11 @@ Error ProjectSettings::_save_settings_text(const String &p_file, const Map<Strin
             if (!E->first.empty())
                 key = E->first + "/" + key;
             Variant value;
-            if (p_custom.contains(key))
-                value = p_custom.at(key);
+            StringName keyname(key);
+            if (p_custom.contains(keyname))
+                value = p_custom.at(keyname);
             else
-                value = get(key);
+                value = get(keyname);
 
             String vstr;
             VariantWriter::write_to_string(value, vstr);
@@ -791,7 +793,7 @@ Error ProjectSettings::_save_custom_bnd(const String &p_file) { // add other par
 
 Error ProjectSettings::save_custom(const String &p_path, const CustomMap &p_custom, const Vector<String> &p_custom_features, bool p_merge_with_current) {
 
-    ERR_FAIL_COND_V_CMSG(p_path.empty(), ERR_INVALID_PARAMETER, "Project settings save path cannot be empty.")
+    ERR_FAIL_COND_V_MSG(p_path.empty(), ERR_INVALID_PARAMETER, "Project settings save path cannot be empty.")
 
     Set<_VCSort> vclist;
 
@@ -818,7 +820,7 @@ Error ProjectSettings::save_custom(const String &p_path, const CustomMap &p_cust
         }
     }
 
-    for (const eastl::pair<const String,Variant> &E : p_custom) {
+    for (const eastl::pair<const StringName,Variant> &E : p_custom) {
 
         // Lookup global prop to store in the same order
         Map<StringName, VariantContainer>::iterator global_prop = props.find(E.first);
@@ -940,29 +942,38 @@ bool ProjectSettings::is_using_datapack() const {
 
     return using_datapack;
 }
+struct CompareStringAndStringName {
+    bool operator()(const StringName &a,const String &b) const {
+        return a.asString() < b;
+    }
+    bool operator()(const String &a,const StringName &b) const {
+        return a < b.asString();
+    }
+};
 
 bool ProjectSettings::property_can_revert(const String &p_name) {
 
-    if (!props.contains(p_name))
+    auto iter = props.find_as(p_name,CompareStringAndStringName());
+    if (iter==props.end())
         return false;
 
-    return props[p_name].initial != props[p_name].variant;
+    return iter->second.initial != iter->second.variant;
 }
 
 Variant ProjectSettings::property_get_revert(const String &p_name) {
-
-    if (!props.contains(p_name))
+    auto iter = props.find_as(p_name,CompareStringAndStringName());
+    if (iter==props.end())
         return Variant();
 
-    return props[p_name].initial;
+    return iter->second.initial;
 }
 
 void ProjectSettings::set_setting(const String &p_setting, const Variant &p_value) {
-    set(p_setting, p_value);
+    set(StringName(p_setting), p_value);
 }
 
 Variant ProjectSettings::get_setting(const String &p_setting) const {
-    return get(p_setting);
+    return get(StringName(p_setting));
 }
 
 bool ProjectSettings::has_custom_feature(const String &p_feature) const {

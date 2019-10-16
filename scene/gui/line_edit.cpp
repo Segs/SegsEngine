@@ -36,6 +36,7 @@
 #include "core/os/os.h"
 #include "core/print_string.h"
 #include "core/translation.h"
+#include "core/translation_helpers.h"
 #include "label.h"
 #include "scene/main/scene_tree.h"
 #include "scene/resources/style_box.h"

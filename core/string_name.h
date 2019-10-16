@@ -30,6 +30,7 @@
 
 #pragma once
 
+#include "core/forward_decls.h"
 #include "core/safe_refcount.h"
 #include "core/error_macros.h"
 #include <cstddef>
@@ -78,7 +79,6 @@ public:
     bool operator==(const char *p_name) const;
     bool operator!=(const QString &p_name) const;
     _FORCE_INLINE_ bool operator<(const StringName &p_name) const {
-
         return _data < p_name._data;
     }
     _FORCE_INLINE_ bool operator==(const StringName &p_name) const {
@@ -105,6 +105,8 @@ public:
 
     static bool AlphCompare(const StringName &l, const StringName &r);
 
+    [[nodiscard]] constexpr bool empty() const { return _data == nullptr; }
+
     //Marked as explicit since it *will* allocate memory
     explicit StringName(const char *p_name);
 
@@ -130,7 +132,6 @@ public:
         ERR_RESET()
         setupFromCString(p_static_string);
     }
-    constexpr bool empty() const { return _data==nullptr; }
     constexpr StringName() : _data(nullptr) {}
 
     template<std::size_t N>

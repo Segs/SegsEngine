@@ -30,6 +30,7 @@
 
 #include "navigation_polygon_editor_plugin.h"
 #include "core/class_db.h"
+#include "core/translation_helpers.h"
 
 IMPL_GDCLASS(NavigationPolygonEditor)
 IMPL_GDCLASS(NavigationPolygonEditorPlugin)

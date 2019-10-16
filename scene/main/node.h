@@ -29,7 +29,7 @@
 /*************************************************************************/
 
 #pragma once
-
+#include "core/forward_decls.h"
 #include "core/object.h"
 #include "core/os/main_loop.h"
 
@@ -41,31 +41,7 @@ class Resource;
 struct SceneTreeGroup;
 class wrap_allocator;
 class NodePath;
-template <class T, class A>
-class List;
-namespace eastl {
-template <class T, class A>
-class list;
-template <typename Key, typename T, typename Compare, typename Allocator>
-class map;
-}
 
-template <class T>
-using DefList = class List<T, DefaultAllocator>;
-template<class T>
-using ListPOD = eastl::list<T,wrap_allocator>;
-
-template <class T>
-struct Comparator;
-template <class K,class V>
-using DefMap = eastl::map<K,V,Comparator<K>,wrap_allocator>;
-
-template <class TKey, class TData, class Hasher,
-        class Comparator, uint8_t MIN_HASH_TABLE_POWER, uint8_t RELATIONSHIP>
-class HashMap;
-template <class TKey, class TData, class Hasher = Hasher<TKey>,
-        class Comparator = HashMapComparatorDefault<TKey> >
-using BaseHashMap = HashMap<TKey,TData,Hasher,Comparator,3,8>;
 
 enum MultiplayerAPI_RPCMode : int8_t;
 

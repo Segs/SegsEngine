@@ -35,6 +35,7 @@
 #include "scene/resources/convex_polygon_shape.h"
 #include "core/method_bind.h"
 #include "core/math/geometry.h"
+#include "core/translation_helpers.h"
 
 IMPL_GDCLASS(CollisionPolygon)
 

@@ -35,6 +35,7 @@
 #include "core/os/os.h"
 #include "scene/resources/style_box.h"
 #include "core/project_settings.h"
+#include "core/translation_helpers.h"
 
 IMPL_GDCLASS(ScrollContainer)
 

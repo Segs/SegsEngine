@@ -41,6 +41,7 @@
 #include "core/project_settings.h"
 #include "core/sort_array.h"
 #include "core/string_formatter.h"
+#include "core/translation_helpers.h"
 #include "editor/animation_track_editor.h"
 #include "editor/editor_node.h"
 #include "editor/editor_scale.h"
@@ -597,7 +598,7 @@ void SpatialEditorViewport::_compute_edit(const Point2 &p_point) {
 
 static int _get_key_modifier_setting(const String &p_property) {
 
-    switch (EditorSettings::get_singleton()->get(p_property).operator int()) {
+    switch (EditorSettings::get_singleton()->get(StringName(p_property)).as<int>()) {
 
         case 0: return 0;
         case 1: return KEY_SHIFT;
@@ -2191,7 +2192,7 @@ void SpatialEditorViewport::_notification(int p_what) {
 
             VisualInstance *vi = object_cast<VisualInstance>(sp);
 
-			se->aabb = vi ? vi->get_aabb() : _calculate_spatial_bounds(sp);
+            se->aabb = vi ? vi->get_aabb() : _calculate_spatial_bounds(sp);
 
             Transform t = sp->get_global_gizmo_transform();
             t.translate(se->aabb.position);
@@ -3229,31 +3230,31 @@ Vector3 SpatialEditorViewport::_get_instance_position(const Point2 &p_pos) const
 }
 
 AABB SpatialEditorViewport::_calculate_spatial_bounds(const Spatial *p_parent, bool p_exclude_toplevel_transform) {
-	AABB bounds;
+    AABB bounds;
 
-	const MeshInstance *mesh_instance = object_cast<MeshInstance>(p_parent);
-	if (mesh_instance) {
-		bounds = mesh_instance->get_aabb();
-	}
+    const MeshInstance *mesh_instance = object_cast<MeshInstance>(p_parent);
+    if (mesh_instance) {
+        bounds = mesh_instance->get_aabb();
+    }
     for (int i = 0; i < p_parent->get_child_count(); i++) {
         Spatial *child = object_cast<Spatial>(p_parent->get_child(i));
         if (child) {
-			AABB child_bounds = _calculate_spatial_bounds(child, false);
+            AABB child_bounds = _calculate_spatial_bounds(child, false);
 
-			if (bounds.size == Vector3() && p_parent->get_class_name() == StringName("Spatial")) {
-				bounds = child_bounds;
-			} else {
-				bounds.merge_with(child_bounds);
+            if (bounds.size == Vector3() && p_parent->get_class_name() == StringName("Spatial")) {
+                bounds = child_bounds;
+            } else {
+                bounds.merge_with(child_bounds);
             }
         }
     }
-	if (bounds.size == Vector3() && p_parent->get_class_name() != StringName("Spatial")) {
-		bounds = AABB(Vector3(-0.2f, -0.2f, -0.2f), Vector3(0.4f, 0.4f, 0.4f));
-	}
+    if (bounds.size == Vector3() && p_parent->get_class_name() != StringName("Spatial")) {
+        bounds = AABB(Vector3(-0.2f, -0.2f, -0.2f), Vector3(0.4f, 0.4f, 0.4f));
+    }
 
-	if (!p_exclude_toplevel_transform) {
-		bounds = p_parent->get_transform().xform(bounds);
-	}
+    if (!p_exclude_toplevel_transform) {
+        bounds = p_parent->get_transform().xform(bounds);
+    }
     return bounds;
 }
 
@@ -3280,7 +3281,7 @@ void SpatialEditorViewport::_create_preview(const Vector<String> &files) const {
             editor->get_scene_root()->add_child(preview_node);
         }
     }
-	*preview_bounds = _calculate_spatial_bounds(preview_node);
+    *preview_bounds = _calculate_spatial_bounds(preview_node);
 }
 
 void SpatialEditorViewport::_remove_preview() {
@@ -6287,7 +6288,7 @@ EditorSpatialGizmoPlugin::~EditorSpatialGizmoPlugin() {
         current_gizmos[i]->set_plugin(nullptr);
         current_gizmos[i]->get_spatial_node()->set_gizmo(Ref<SpatialGizmo>());
     }
-	if (SpatialEditor::get_singleton()) {
+    if (SpatialEditor::get_singleton()) {
         SpatialEditor::get_singleton()->update_all_gizmos();
-	}
+    }
 }

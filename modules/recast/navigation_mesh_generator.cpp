@@ -33,6 +33,7 @@
 #include "core/math/quick_hull.h"
 #include "core/method_bind.h"
 #include "core/os/thread.h"
+#include "core/translation_helpers.h"
 #include "editor/editor_settings.h"
 #include "scene/3d/collision_shape.h"
 #include "scene/3d/mesh_instance.h"

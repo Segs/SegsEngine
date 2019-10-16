@@ -72,7 +72,7 @@ void GDScriptWorkspace::remove_cache_parser(const String &p_path) {
 
 const lsp::DocumentSymbol *GDScriptWorkspace::get_native_symbol(const String &p_class, const String &p_member) const {
 
-    StringName class_name = p_class;
+    StringName class_name = StringName(p_class);
     StringName empty;
 
     while (class_name != empty) {
@@ -194,7 +194,7 @@ Error GDScriptWorkspace::initialize() {
 
         const DocData::ClassDoc &class_data = E.second;
         lsp::DocumentSymbol class_symbol;
-        String class_name = E.first;
+        StringName class_name(E.first);
         class_symbol.name = class_name;
         class_symbol.native_class = class_name;
         class_symbol.kind = lsp::SymbolKind::Class;
@@ -403,7 +403,7 @@ const lsp::DocumentSymbol *GDScriptWorkspace::resolve_symbol(const lsp::TextDocu
 
         if (!symbol_identifier.empty()) {
 
-            if (ScriptServer::is_global_class(symbol_identifier)) {
+            if (ScriptServer::is_global_class(StringName(symbol_identifier))) {
 
                 String class_path = ScriptServer::get_global_class_path(symbol_identifier);
                 symbol = get_script_symbol(class_path);
@@ -484,7 +484,7 @@ void GDScriptWorkspace::resolve_related_symbols(const lsp::TextDocumentPositionP
 
 const lsp::DocumentSymbol *GDScriptWorkspace::resolve_native_symbol(const lsp::NativeSymbolInspectParams &p_params) {
 
-    auto E = native_symbols.find(p_params.native_class);
+    auto E = native_symbols.find(StringName(p_params.native_class));
     if (E!=native_symbols.end()) {
         const lsp::DocumentSymbol &symbol = E->second;
         if (p_params.symbol_name.empty() || p_params.symbol_name == symbol.name) {

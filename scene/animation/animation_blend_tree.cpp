@@ -31,6 +31,7 @@
 #include "animation_blend_tree.h"
 #include "scene/scene_string_names.h"
 #include "core/method_bind.h"
+#include "core/translation_helpers.h"
 
 #include "EASTL/sort.h"
 

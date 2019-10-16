@@ -89,7 +89,7 @@ Error webp_load_image_from_buffer(ImageData &p_image, const uint8_t *p_buffer, i
     }
     dst_w.release();
 
-    ERR_FAIL_COND_V_CMSG(errdec, ERR_FILE_CORRUPT, "Failed decoding WebP image.")
+    ERR_FAIL_COND_V_MSG(errdec, ERR_FILE_CORRUPT, "Failed decoding WebP image.")
 
     p_image.width=features.width;
     p_image.height=features.height;

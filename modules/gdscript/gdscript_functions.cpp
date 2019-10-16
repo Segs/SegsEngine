@@ -32,8 +32,8 @@
 
 #include "gdscript.h"
 
-#include "core/color.h"
 #include "core/class_db.h"
+#include "core/color.h"
 #include "core/func_ref.h"
 #include "core/io/json.h"
 #include "core/io/marshalls.h"
@@ -41,12 +41,12 @@
 #include "core/math/aabb.h"
 #include "core/math/basis.h"
 #include "core/math/face3.h"
+#include "core/math/math_funcs.h"
 #include "core/math/plane.h"
 #include "core/math/quat.h"
 #include "core/math/transform.h"
 #include "core/math/transform_2d.h"
 #include "core/math/vector3.h"
-#include "core/math/math_funcs.h"
 #include "core/method_info.h"
 #include "core/object_db.h"
 #include "core/os/os.h"
@@ -54,6 +54,7 @@
 #include "core/print_string.h"
 #include "core/reference.h"
 #include "core/string_formatter.h"
+#include "core/translation_helpers.h"
 #include "core/variant_parser.h"
 #include "core/vector.h"
 
@@ -814,7 +815,7 @@ void GDScriptFunctions::call(Function p_func, const Variant **p_args, int p_arg_
             }
 
             String message = *p_args[0];
-            ERR_PRINTS(message);
+            ERR_PRINT(message);
             r_ret = Variant();
         } break;
         case PUSH_WARNING: {

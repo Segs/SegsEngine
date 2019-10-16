@@ -185,7 +185,7 @@ CryptoMbedTLS::CryptoMbedTLS() {
     mbedtls_entropy_init(&entropy);
     int ret = mbedtls_ctr_drbg_seed(&ctr_drbg, mbedtls_entropy_func, &entropy, nullptr, 0);
     if (ret != 0) {
-        ERR_PRINTS(" failed\n  ! mbedtls_ctr_drbg_seed returned an error" + itos(ret));
+        ERR_PRINT(" failed\n  ! mbedtls_ctr_drbg_seed returned an error" + itos(ret));
     }
 }
 
@@ -244,7 +244,7 @@ Ref<CryptoKey> CryptoMbedTLS::generate_rsa(int p_bytes) {
 
 Ref<X509Certificate> CryptoMbedTLS::generate_self_signed_certificate(Ref<CryptoKey> p_key, String p_issuer_name, String p_not_before, String p_not_after) {
     Ref<CryptoKeyMbedTLS> key = dynamic_ref_cast<CryptoKeyMbedTLS>(p_key);
-    ERR_FAIL_COND_V_CMSG(not key, Ref<X509Certificate>(), "Invalid private key argument.")
+    ERR_FAIL_COND_V_MSG(not key, Ref<X509Certificate>(), "Invalid private key argument.")
 
     assert(key);
 
@@ -278,7 +278,7 @@ Ref<X509Certificate> CryptoMbedTLS::generate_self_signed_certificate(Ref<CryptoK
     if (err != 0) {
         mbedtls_mpi_free(&serial);
         mbedtls_x509write_crt_free(&crt);
-        ERR_PRINTS("Generated invalid certificate: " + itos(err))
+        ERR_PRINT("Generated invalid certificate: " + itos(err))
         return Ref<X509Certificate>();
     }
 

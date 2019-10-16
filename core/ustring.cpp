@@ -35,6 +35,7 @@
 #include "core/math/math_funcs.h"
 #include "core/os/memory.h"
 #include "core/translation.h"
+#include "core/translation_helpers.h"
 #include "core/list.h"
 #include "core/vector.h"
 #include "core/variant.h"
@@ -1563,7 +1564,7 @@ void StringUtils::Inplace::replace(String &s,int i,int len, const String &p_afte
 
 String StringUtils::repeat(const String &str,int p_count) {
 
-    ERR_FAIL_COND_V_CMSG(p_count < 0, "", "Parameter count should be a positive number.")
+    ERR_FAIL_COND_V_MSG(p_count < 0, "", "Parameter count should be a positive number.")
 
     String new_string;
 
@@ -2854,7 +2855,7 @@ String StringUtils::unquote(const String &str) {
 String TTR(const String &p_text) {
 
     if (TranslationServer::get_singleton()) {
-        return TranslationServer::get_singleton()->tool_translate(p_text);
+        return TranslationServer::get_singleton()->tool_translate(StringName(p_text));
     }
 
     return p_text;
@@ -2865,9 +2866,9 @@ String TTR(const String &p_text) {
 String RTR(const String &p_text) {
 
     if (TranslationServer::get_singleton()) {
-        String rtr = TranslationServer::get_singleton()->tool_translate(p_text);
+        String rtr = TranslationServer::get_singleton()->tool_translate(StringName(p_text));
         if (rtr.empty() || rtr == p_text) {
-            return TranslationServer::get_singleton()->translate(p_text);
+            return TranslationServer::get_singleton()->translate(StringName(p_text));
         } else {
             return rtr;
         }

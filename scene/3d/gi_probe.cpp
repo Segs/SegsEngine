@@ -35,6 +35,7 @@
 #include "mesh_instance.h"
 #include "voxel_light_baker.h"
 #include "core/method_bind.h"
+#include "core/translation_helpers.h"
 #include "scene/main/scene_tree.h"
 
 IMPL_GDCLASS(GIProbeData)

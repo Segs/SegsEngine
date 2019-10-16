@@ -31,6 +31,7 @@
 #pragma once
 
 #include "core/typedefs.h"
+#include "core/forward_decls.h"
 
 /**
  * Error macros. Unlike exceptions and asserts, these macros try to maintain consistency and stability
@@ -57,6 +58,8 @@ enum ErrorHandlerType {
 
 using ErrorHandlerFunc = void (*)(void *, const char *, const char *, int, const char *, const char *, ErrorHandlerType);
 GODOT_EXPORT void _err_set_last_error(const char *p_err);
+GODOT_EXPORT void _err_set_last_error(const class String &str);
+GODOT_EXPORT void _err_set_last_error(se_string_view str);
 GODOT_EXPORT void _err_clear_last_error();
 
 struct ErrorHandlerList {
@@ -97,19 +100,14 @@ extern GODOT_EXPORT bool _err_error_exists;
 #ifdef DEBUG_ENABLED
 /** Print a warning string.
  */
-#define ERR_EXPLAINC(m_reason)         \
+#define ERR_EXPLAIN(m_reason)         \
     {                                  \
         _err_set_last_error(m_reason); \
-    }
-#define ERR_EXPLAIN(m_string)                                    \
-    {                                                            \
-        _err_set_last_error(StringUtils::utf8(m_string).data()); \
     }
 
 #else
 
 #define ERR_EXPLAIN(m_text)
-#define ERR_EXPLAINC(m_text)
 
 #endif
 
@@ -292,7 +290,7 @@ extern GODOT_EXPORT bool _err_error_exists;
 #define ERR_FAIL_COND_CMSG(m_cond, m_msg)                                                                               \
     {                                                                                                                  \
         if (unlikely(m_cond)) {                                                                                        \
-            ERR_EXPLAINC(m_msg);                                                                                        \
+            ERR_EXPLAIN(m_msg);                                                                                        \
             _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' " _STR(m_cond) " ' is true.");             \
             return;                                                                                                    \
         }                                                                                                              \
@@ -343,16 +341,6 @@ extern GODOT_EXPORT bool _err_error_exists;
         }                                                                                                                            \
         _err_error_exists = false;                                                                                                   \
     }
-#define ERR_FAIL_COND_V_CMSG(m_cond, m_retval, m_msg)                                                                   \
-    {                                                                                                                  \
-        if (unlikely(m_cond)) {                                                                                        \
-            ERR_EXPLAINC(m_msg);                                                                                        \
-            _err_print_error(FUNCTION_STR, __FILE__, __LINE__,                                                         \
-                    "Condition ' " _STR(m_cond) " ' is true. returned: " _STR(m_retval));                              \
-            return m_retval;                                                                                           \
-        }                                                                                                              \
-        _err_error_exists = false;                                                                                     \
-    }
 /** An error condition happened (m_cond tested true) (WARNING this is the opposite as assert().
  * the loop will skip to the next iteration.
  */
@@ -370,15 +358,6 @@ extern GODOT_EXPORT bool _err_error_exists;
     {                                                                                                                    \
         if (unlikely(m_cond)) {                                                                                          \
             ERR_EXPLAIN(m_msg);                                                                                          \
-            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' " _STR(m_cond) " ' is true. Continuing..:"); \
-            continue;                                                                                                    \
-        }                                                                                                                \
-        _err_error_exists = false;                                                                                       \
-    }
-#define ERR_CONTINUE_CMSG(m_cond, m_msg)                                                                                  \
-    {                                                                                                                    \
-        if (unlikely(m_cond)) {                                                                                          \
-            ERR_EXPLAINC(m_msg);                                                                                          \
             _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' " _STR(m_cond) " ' is true. Continuing..:"); \
             continue;                                                                                                    \
         }                                                                                                                \
@@ -423,12 +402,6 @@ extern GODOT_EXPORT bool _err_error_exists;
         ERR_FAIL();         \
     }
 
-#define ERR_FAIL_CMSG(m_msg) \
-    {                       \
-        ERR_EXPLAINC(m_msg); \
-        ERR_FAIL();         \
-    }
-
 /** Print an error string and return with value
  */
 
@@ -445,11 +418,6 @@ extern GODOT_EXPORT bool _err_error_exists;
         ERR_FAIL_V(m_value);           \
     }
 
-#define ERR_FAIL_V_CMSG(m_value, m_msg) \
-    {                                  \
-        ERR_EXPLAINC(m_msg);            \
-        ERR_FAIL_V(m_value);           \
-    }
 /** Use this one if there is no sensible fallback, that is, the error is unrecoverable.
  */
 
@@ -471,12 +439,6 @@ extern GODOT_EXPORT bool _err_error_exists;
 #define ERR_PRINT(m_string)                                           \
     {                                                                 \
         _err_print_error(FUNCTION_STR, __FILE__, __LINE__, m_string); \
-        _err_error_exists = false;                                    \
-    }
-
-#define ERR_PRINTS(m_string)                                                                    \
-    {                                                                                           \
-        _err_print_error(FUNCTION_STR, __FILE__, __LINE__, StringUtils::utf8(m_string).data()); \
         _err_error_exists = false;                                                              \
     }
 

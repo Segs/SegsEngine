@@ -28,10 +28,10 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef REMOTETRANSFORM_H
-#define REMOTETRANSFORM_H
+#pragma once
 
 #include "scene/3d/spatial.h"
+#include "core/node_path.h"
 
 class RemoteTransform : public Spatial {
 	GDCLASS(RemoteTransform,Spatial)
@@ -75,5 +75,3 @@ public:
 
 	RemoteTransform();
 };
-
-#endif // REMOTETRANSFORM_H

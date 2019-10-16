@@ -32,6 +32,7 @@
 
 #include "core/method_bind.h"
 #include "core/io/resource_saver.h"
+#include "core/translation_helpers.h"
 #include "editor/editor_node.h"
 #include "scene/resources/packed_scene.h"
 
@@ -775,7 +776,7 @@ void ResourceImporterScene::_create_clips(Node *scene, const Array &p_clips, boo
 
         new_anim->set_loop(loop);
         new_anim->set_length(to - from);
-        anim->add_animation(name, new_anim);
+        anim->add_animation(StringName(name), new_anim);
     }
 
     anim->remove_animation("default"); //remove default (no longer needed)
@@ -860,7 +861,7 @@ void ResourceImporterScene::_filter_tracks(Node *scene, const String &p_text) {
 
             } else if (valid_for_this) {
 
-                Ref<Animation> a = anim->get_animation(name);
+                Ref<Animation> a = anim->get_animation(StringName(name));
                 if (not a)
                     continue;
 
@@ -898,7 +899,7 @@ void ResourceImporterScene::_filter_tracks(Node *scene, const String &p_text) {
             for (const String &F : keep_local) {
                 keep.insert(F);
             }
-            _filter_anim_tracks(anim->get_animation(name), keep);
+            _filter_anim_tracks(anim->get_animation(StringName(name)), keep);
         }
     }
 }
@@ -1164,7 +1165,7 @@ void ResourceImporterScene::get_import_options(ListPOD<ImportOption> *r_options,
     bool animations_out = p_preset == PRESET_SEPARATE_ANIMATIONS || p_preset == PRESET_SEPARATE_MESHES_AND_ANIMATIONS || p_preset == PRESET_SEPARATE_MATERIALS_AND_ANIMATIONS || p_preset == PRESET_SEPARATE_MESHES_MATERIALS_AND_ANIMATIONS;
 
     r_options->push_back(ImportOption(PropertyInfo(VariantType::REAL, "nodes/root_scale", PROPERTY_HINT_RANGE, "0.001,1000,0.001"), 1.0));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::STRING, "nodes/custom_script", PROPERTY_HINT_FILE, script_ext_hint), ""));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::STRING, "nodes/custom_script", PROPERTY_HINT_FILE, StringName(script_ext_hint)), ""));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "nodes/storage", PROPERTY_HINT_ENUM, "Single Scene,Instanced Sub-Scenes"), scenes_out ? 1 : 0));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "materials/location", PROPERTY_HINT_ENUM, "Node,Mesh"), (meshes_out || materials_out) ? 1 : 0));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "materials/storage", PROPERTY_HINT_ENUM, "Built-In,Files (.material),Files (.tres)", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), materials_out ? 1 : 0));
@@ -1327,13 +1328,13 @@ Error ResourceImporterScene::import(const String &p_source_file, const String &p
     root_type = StringUtils::split(root_type," ")[0]; // full root_type is "ClassName (filename.gd)" for a script global class.
 
     Ref<Script> root_script;
-    if (ScriptServer::is_global_class(root_type)) {
+    if (ScriptServer::is_global_class(StringName(root_type))) {
         root_script = dynamic_ref_cast<Script>(ResourceLoader::load(ScriptServer::get_global_class_path(root_type)));
         root_type = ScriptServer::get_global_class_base(root_type);
     }
 
     if (root_type != "Spatial") {
-        Node *base_node = object_cast<Node>(ClassDB::instance(root_type));
+        Node *base_node = object_cast<Node>(ClassDB::instance(StringName(root_type)));
 
         if (base_node) {
 
@@ -1381,10 +1382,10 @@ Error ResourceImporterScene::import(const String &p_source_file, const String &p
         int clip_count = p_options.at("animation/clips/amount");
 
         for (int i = 0; i < clip_count; i++) {
-            String name = p_options.at("animation/clip_" + itos(i + 1) + "/name");
-            int from_frame = p_options.at("animation/clip_" + itos(i + 1) + "/start_frame");
-            int end_frame = p_options.at("animation/clip_" + itos(i + 1) + "/end_frame");
-            bool loop = p_options.at("animation/clip_" + itos(i + 1) + "/loops");
+            String name = p_options.at(StringName("animation/clip_" + itos(i + 1) + "/name"));
+            int from_frame = p_options.at(StringName("animation/clip_" + itos(i + 1) + "/start_frame"));
+            int end_frame = p_options.at(StringName("animation/clip_" + itos(i + 1) + "/end_frame"));
+            bool loop = p_options.at(StringName("animation/clip_" + itos(i + 1) + "/loops"));
 
             animation_clips.push_back(name);
             animation_clips.push_back(from_frame / fps);

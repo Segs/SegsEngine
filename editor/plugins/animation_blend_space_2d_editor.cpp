@@ -37,6 +37,7 @@
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
 #include "core/project_settings.h"
+#include "core/translation_helpers.h"
 #include "scene/animation/animation_blend_tree.h"
 #include "scene/animation/animation_player.h"
 #include "scene/gui/menu_button.h"
@@ -70,7 +71,7 @@ void AnimationNodeBlendSpace2DEditor::edit(const Ref<AnimationNode> &p_node) {
 }
 
 StringName AnimationNodeBlendSpace2DEditor::get_blend_position_path() const {
-    StringName path = AnimationTreeEditor::get_singleton()->get_base_path() + "blend_position";
+    StringName path(AnimationTreeEditor::get_singleton()->get_base_path() + "blend_position");
     return path;
 }
 
@@ -324,7 +325,7 @@ void AnimationNodeBlendSpace2DEditor::_add_menu_type(int p_index) {
     } else {
         String type = menu->get_item_metadata(p_index);
 
-        Object *obj = ClassDB::instance(type);
+        Object *obj = ClassDB::instance(StringName(type));
         ERR_FAIL_COND(!obj)
         AnimationNode *an = object_cast<AnimationNode>(obj);
         ERR_FAIL_COND(!an)
@@ -353,7 +354,7 @@ void AnimationNodeBlendSpace2DEditor::_add_animation_type(int p_index) {
 
     Ref<AnimationNodeAnimation> anim(make_ref_counted<AnimationNodeAnimation>());
 
-    anim->set_animation(animations_to_add[p_index]);
+    anim->set_animation(StringName(animations_to_add[p_index]));
 
     updating = true;
     undo_redo->create_action(TTR("Add Animation Point"));

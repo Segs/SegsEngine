@@ -35,6 +35,7 @@
 #include "core/object_db.h"
 #include "core/engine.h"
 #include "core/script_language.h"
+#include "core/translation_helpers.h"
 
 #include "scene/scene_string_names.h"
 #include "servers/audio/audio_stream.h"
@@ -587,7 +588,7 @@ bool AnimationTree::_update_caches(AnimationPlayer *player) {
                 Node *child = parent->get_node_and_resource(path, resource, leftover_path);
 
                 if (!child) {
-                    ERR_PRINTS("AnimationTree: '" + String(E) + "', couldn't resolve track:  '" + String(path) + "'")
+                    ERR_PRINT("AnimationTree: '" + String(E) + "', couldn't resolve track:  '" + String(path) + "'")
                     continue;
                 }
 
@@ -617,7 +618,7 @@ bool AnimationTree::_update_caches(AnimationPlayer *player) {
                         Spatial *spatial = object_cast<Spatial>(child);
 
                         if (!spatial) {
-                            ERR_PRINTS("AnimationTree: '" + String(E) + "', transform track does not point to spatial:  '" + String(path) + "'");
+                            ERR_PRINT("AnimationTree: '" + String(E) + "', transform track does not point to spatial:  '" + String(path) + "'");
                             continue;
                         }
 

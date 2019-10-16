@@ -45,9 +45,7 @@ CoreStringNames::CoreStringNames() :
         _iter_get("_iter_get"),
         get_rid("get_rid"),
         _to_string("_to_string"),
-#ifdef TOOLS_ENABLED
         _sections_unfolded("_sections_unfolded"),
-#endif
         _custom_features("_custom_features"),
         x("x"),
         y("y"),

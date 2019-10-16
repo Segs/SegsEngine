@@ -53,7 +53,7 @@ struct UndoRedo::PrivateData
 
         Ref<Resource> resref;
         ObjectID object;
-        String name;
+        StringName name;
         Variant args[VARIANT_ARG_MAX];
         Type type;
     };
@@ -153,7 +153,7 @@ struct UndoRedo::PrivateData
                     Variant::CallError ce;
                     obj->call(op.name, (const Variant **)argptrs.ptr(), argc, ce);
                     if (ce.error != Variant::CallError::CALL_OK) {
-                        ERR_PRINTS(
+                        ERR_PRINT(
                                 "Error calling method from signal '" + String(op.name) + "': " +
                                 Variant::get_call_error_text(obj, op.name, (const Variant **)argptrs.ptr(), argc, ce))
                     }
@@ -241,7 +241,7 @@ struct UndoRedo::PrivateData
             do_op.resref = Ref<Resource>(object_cast<Resource>(p_object));
 
         do_op.type = Operation::TYPE_METHOD;
-        do_op.name = p_method;
+        do_op.name = StringName(p_method);
 
         for (int i = 0; i < VARIANT_ARG_MAX; i++) {
             do_op.args[i] = *argptr[i];
@@ -261,7 +261,7 @@ struct UndoRedo::PrivateData
             undo_op.resref = Ref<Resource>(object_cast<Resource>(p_object));
 
         undo_op.type = Operation::TYPE_METHOD;
-        undo_op.name = p_method;
+        undo_op.name = StringName(p_method);
 
         for (int i = 0; i < VARIANT_ARG_MAX; i++) {
             undo_op.args[i] = *argptr[i];
@@ -276,7 +276,7 @@ struct UndoRedo::PrivateData
             do_op.resref = Ref<Resource>(object_cast<Resource>(p_object));
 
         do_op.type = Operation::TYPE_PROPERTY;
-        do_op.name = p_property;
+        do_op.name = StringName(p_property);
         do_op.args[0] = p_value;
         actions[current_action + 1].do_ops.push_back(do_op);
     }
@@ -291,7 +291,7 @@ struct UndoRedo::PrivateData
             undo_op.resref = Ref<Resource>(object_cast<Resource>(p_object));
 
         undo_op.type = Operation::TYPE_PROPERTY;
-        undo_op.name = p_property;
+        undo_op.name = StringName(p_property);
         undo_op.args[0] = p_value;
         actions[current_action + 1].undo_ops.push_back(undo_op);
     }

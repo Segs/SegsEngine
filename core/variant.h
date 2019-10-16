@@ -31,15 +31,12 @@
 #pragma once
 
 #include "core/godot_export.h"
-//#include "core/array.h"
-//#include "core/color.h"
-#include "core/dictionary.h"
-#include "core/io/ip_address.h"
-#include "core/node_path.h"
+#include "core/math/math_defs.h"
+#include "core/forward_decls.h"
 #include "core/ref_ptr.h"
-#include "core/hashfuncs.h"
 
 #include <cstdint>
+#include <type_traits>
 
 class RefPtr;
 class Object;
@@ -48,10 +45,13 @@ class Control; // helper
 class String;
 class RID;
 class Array;
+class NodePath;
+class Dictionary;
 struct Color;
 struct Vector2;
 struct Vector3;
 class Basis;
+class StringName;
 class AABB;
 struct Rect2;
 class Plane;
@@ -60,10 +60,12 @@ class Transform;
 class Face3;
 class Quat;
 using CharType = class QChar;
+struct IP_Address;
 struct PropertyInfo;
 struct MethodInfo;
 template <class T>
 class PoolVector;
+template <class T> struct Hasher;
 
 using PoolByteArray = PoolVector<uint8_t>;
 using PoolIntArray = PoolVector<int>;
@@ -190,10 +192,6 @@ public:
     //operator long unsigned int() const;
     operator int64_t() const;
     operator uint64_t() const;
-#ifdef NEED_LONG_INT
-    operator signed long() const;
-    operator unsigned long() const;
-#endif
 
     template <typename T>
     [[nodiscard]] T as() const {

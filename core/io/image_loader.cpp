@@ -84,7 +84,7 @@ void ImageLoader::register_plugin_resolver()
 }
 
 Error ImageLoader::load_image(const String& p_file, const Ref<Image> &p_image, FileAccess *p_custom, const LoadParams &params) {
-    ERR_FAIL_COND_V_CMSG(not p_image, ERR_INVALID_PARAMETER, "It's not a reference to a valid Image object.")
+    ERR_FAIL_COND_V_MSG(not p_image, ERR_INVALID_PARAMETER, "It's not a reference to a valid Image object.")
 
     register_plugin_resolver();
 
@@ -93,7 +93,7 @@ Error ImageLoader::load_image(const String& p_file, const Ref<Image> &p_image, F
         Error err;
         f = FileAccess::open(p_file, FileAccess::READ, &err);
         if (!f) {
-            ERR_PRINTS("Error opening file '" + p_file+"'.")
+            ERR_PRINT("Error opening file '" + p_file+"'.")
             return err;
         }
     }
@@ -107,7 +107,7 @@ Error ImageLoader::load_image(const String& p_file, const Ref<Image> &p_image, F
         ImageData result_data;
         Error err = loader[i]->load_image(result_data, f, params);
         if (err != OK) {
-            ERR_PRINTS("Error loading image: " + p_file)
+            ERR_PRINT("Error loading image: " + p_file)
         }
         else
             p_image->create(std::move(result_data));
@@ -150,7 +150,7 @@ ImageData ImageLoader::load_image(const String &extension, const uint8_t *data, 
 
     }
     if(!loader_found)
-        ERR_PRINTS("No loader found for file with extension:"+extension)
+        ERR_PRINT("No loader found for file with extension:"+extension)
     return result_data;
 }
 

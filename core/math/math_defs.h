@@ -28,8 +28,8 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef MATH_DEFS_H
-#define MATH_DEFS_H
+#pragma once
+#include "core/configuration.h"
 
 #define CMP_EPSILON 0.00001f
 #define CMP_EPSILON2 (CMP_EPSILON * CMP_EPSILON)
@@ -123,19 +123,4 @@ enum Corner {
     CORNER_BOTTOM_LEFT
 };
 
-/**
-  * The "Real" type is an abstract type used for real numbers, such as 1.5,
-  * in contrast to integer numbers. Precision can be controlled with the
-  * presence or absence of the REAL_T_IS_DOUBLE define.
-  */
-#ifdef REAL_T_IS_DOUBLE
-
-typedef double real_t;
-
-#else
-
 using real_t = float;
-
-#endif
-
-#endif // MATH_DEFS_H

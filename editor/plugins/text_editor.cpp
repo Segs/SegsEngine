@@ -33,6 +33,7 @@
 #include "core/string_formatter.h"
 #include "core/method_bind.h"
 #include "core/os/keyboard.h"
+#include "core/translation_helpers.h"
 #include "editor_node.h"
 
 IMPL_GDCLASS(TextEditor)
@@ -352,7 +353,7 @@ void TextEditor::update_settings() {
 
 void TextEditor::set_tooltip_request_func(String p_method, Object *p_obj) {
 
-    code_editor->get_text_edit()->set_tooltip_request_func(p_obj, p_method, Variant(this));
+    code_editor->get_text_edit()->set_tooltip_request_func(p_obj, StringName(p_method), Variant(this));
 }
 
 Control *TextEditor::get_edit_menu() {

@@ -20,25 +20,44 @@
 
 #pragma once
 
-#include "core/os/memory.h"
-#include "core/math/vector2.h"
-#include "core/math/math_defs.h"
-#include "core/forward_decls.h"
-
 #include "EASTL/list.h"
 #include "EASTL/set.h"
 //2D point structure
 
+using real_t = float;
+
+struct TriangulatorPoint {
+    real_t x,y;
+    template<class T>
+    TriangulatorPoint &operator=(T v) {
+        x=v.x;
+        y=v.y;
+        return *this;
+    }
+    TriangulatorPoint operator+(TriangulatorPoint p) const {
+        TriangulatorPoint r;
+        r.x = x + p.x;
+        r.y = y + p.y;
+        return r;
+    }
+
+    TriangulatorPoint operator-(TriangulatorPoint p) const { return { x - p.x, y - p.y }; }
+
+    TriangulatorPoint operator*(const real_t f) const { return { x * f, y * f }; }
+
+    TriangulatorPoint operator/(const real_t f) const { return { x / f, y / f }; }
+
+    bool operator==(const TriangulatorPoint &p) const { return (x == p.x) && (y == p.y); }
+
+    bool operator!=(const TriangulatorPoint &p) const { return !((x == p.x) && (y == p.y)); }
+};
 
 #define TRIANGULATOR_CCW 1
 #define TRIANGULATOR_CW -1
 //Polygon implemented as an array of points with a 'hole' flag
 class TriangulatorPoly {
 protected:
-
-
-
-    Vector2 *points;
+    TriangulatorPoint *points;
     long numpoints;
     bool hole;
 
@@ -46,6 +65,7 @@ public:
 
     //constructors/destructors
     TriangulatorPoly();
+    TriangulatorPoly(const TriangulatorPoint *src,int size);
     ~TriangulatorPoly();
 
     TriangulatorPoly(const TriangulatorPoly &src);
@@ -64,21 +84,21 @@ public:
         this->hole = hole;
     }
 
-    Vector2 &GetPoint(long i) {
+    TriangulatorPoint &GetPoint(long i) {
         return points[i];
     }
-    const Vector2 &GetPoint(long i) const {
+    const TriangulatorPoint &GetPoint(long i) const {
         return points[i];
     }
 
-    Vector2 *GetPoints() {
+    TriangulatorPoint *GetPoints() {
         return points;
     }
-    const Vector2 *GetPoints() const {
+    const TriangulatorPoint *GetPoints() const {
         return points;
     }
 
-    Vector2& operator[] (int i) {
+    TriangulatorPoint& operator[] (int i) {
         return points[i];
     }
 
@@ -89,7 +109,7 @@ public:
     void Init(long numpoints);
 
     //creates a triangle with points p1,p2,p3
-    void Triangle(const Vector2 &p1, const Vector2 &p2, const Vector2 &p3);
+    void Triangle(const TriangulatorPoint &p1, const TriangulatorPoint &p2, const TriangulatorPoint &p3);
 
     //inverts the orfer of vertices
     void Invert();
@@ -115,14 +135,14 @@ protected:
         bool isConvex;
         bool isEar;
 
-        Vector2 p;
+        TriangulatorPoint p;
         real_t angle;
         PartitionVertex *previous;
         PartitionVertex *next;
     };
 
     struct MonotoneVertex {
-        Vector2 p;
+        TriangulatorPoint p;
         long previous;
         long next;
     };
@@ -148,33 +168,33 @@ protected:
     struct DPState2 {
         bool visible;
         long weight;
-        ListPOD<Diagonal> pairs;
+        eastl::list<Diagonal> pairs;
     };
 
     //edge that intersects the scanline
     struct ScanLineEdge {
         mutable long index;
-        Vector2 p1;
-        Vector2 p2;
+        TriangulatorPoint p1;
+        TriangulatorPoint p2;
 
         //determines if the edge is to the left of another edge
         bool operator< (const ScanLineEdge & other) const;
 
-        bool IsConvex(const Vector2& p1, const Vector2& p2, const Vector2& p3) const;
+        bool IsConvex(const TriangulatorPoint& p1, const TriangulatorPoint& p2, const TriangulatorPoint& p3) const;
     };
 
     //standard helper functions
-    bool IsConvex(const Vector2 &p1, const Vector2 &p2, const Vector2 &p3);
-    bool IsReflex(Vector2& p1, Vector2& p2, Vector2& p3);
-    bool IsInside(Vector2& p1, Vector2& p2, Vector2& p3, Vector2 &p);
+    bool IsConvex(const TriangulatorPoint &p1, const TriangulatorPoint &p2, const TriangulatorPoint &p3);
+    bool IsReflex(TriangulatorPoint& p1, TriangulatorPoint& p2, TriangulatorPoint& p3);
+    bool IsInside(TriangulatorPoint& p1, TriangulatorPoint& p2, TriangulatorPoint& p3, TriangulatorPoint &p);
 
-    bool InCone(Vector2 &p1, Vector2 &p2, Vector2 &p3, Vector2 &p);
-    bool InCone(PartitionVertex *v, Vector2 &p);
+    bool InCone(TriangulatorPoint &p1, TriangulatorPoint &p2, TriangulatorPoint &p3, TriangulatorPoint &p);
+    bool InCone(PartitionVertex *v, TriangulatorPoint &p);
 
-    int Intersects(Vector2 &p11, Vector2 &p12, Vector2 &p21, Vector2 &p22);
+    int Intersects(TriangulatorPoint &p11, TriangulatorPoint &p12, TriangulatorPoint &p21, TriangulatorPoint &p22);
 
-    Vector2 Normalize(const Vector2 &p);
-    real_t Distance(const Vector2 &p1, const Vector2 &p2);
+    TriangulatorPoint Normalize(const TriangulatorPoint &p);
+    real_t Distance(const TriangulatorPoint &p1, const TriangulatorPoint &p2);
 
     //helper functions for Triangulate_EC
     void UpdateVertexReflexity(PartitionVertex *v);
@@ -186,13 +206,13 @@ protected:
     void TypeB(long i, long j, long k, PartitionVertex *vertices, DPState2 **dpstates);
 
     //helper functions for MonotonePartition
-    bool Below(const Vector2 &p1, const Vector2 &p2);
+    bool Below(const TriangulatorPoint &p1, const TriangulatorPoint &p2);
     void AddDiagonal(MonotoneVertex *vertices, long *numvertices, long index1, long index2,
-             char *vertextypes, Set<ScanLineEdge>::iterator *edgeTreeIterators,
-             Set<ScanLineEdge> *edgeTree, long *helpers);
+             char *vertextypes, eastl::set<ScanLineEdge>::iterator *edgeTreeIterators,
+             eastl::set<ScanLineEdge> *edgeTree, long *helpers);
 
     //triangulates a monotone polygon, used in Triangulate_MONO
-    int TriangulateMonotone(const TriangulatorPoly *inPoly, ListPOD<TriangulatorPoly> *triangles);
+    int TriangulateMonotone(const TriangulatorPoly *inPoly, eastl::list<TriangulatorPoly> *triangles);
 
 public:
 
@@ -206,7 +226,7 @@ public:
     //             vertices of all hole polys have to be in clockwise order
     //   outpolys : a list of polygons without holes
     //returns 1 on success, 0 on failure
-    int RemoveHoles(ListPOD<TriangulatorPoly> *inpolys, ListPOD<TriangulatorPoly> *outpolys);
+    int RemoveHoles(eastl::list<TriangulatorPoly> *inpolys, eastl::list<TriangulatorPoly> *outpolys);
 
     //triangulates a polygon by ear clipping
     //time complexity O(n^2), n is the number of vertices
@@ -216,7 +236,7 @@ public:
     //          vertices have to be in counter-clockwise order
     //   triangles : a list of triangles (result)
     //returns 1 on success, 0 on failure
-    int Triangulate_EC(TriangulatorPoly *poly, ListPOD<TriangulatorPoly> *triangles);
+    int Triangulate_EC(TriangulatorPoly *poly, eastl::list<TriangulatorPoly> *triangles);
 
     //triangulates a list of polygons that may contain holes by ear clipping algorithm
     //first calls RemoveHoles to get rid of the holes, and then Triangulate_EC for each resulting polygon
@@ -228,7 +248,7 @@ public:
     //             vertices of all hole polys have to be in clockwise order
     //   triangles : a list of triangles (result)
     //returns 1 on success, 0 on failure
-    int Triangulate_EC(ListPOD<TriangulatorPoly> *inpolys, ListPOD<TriangulatorPoly> *triangles);
+    int Triangulate_EC(eastl::list<TriangulatorPoly> *inpolys, eastl::list<TriangulatorPoly> *triangles);
 
     //creates an optimal polygon triangulation in terms of minimal edge length
     //time complexity: O(n^3), n is the number of vertices
@@ -238,7 +258,7 @@ public:
     //          vertices have to be in counter-clockwise order
     //   triangles : a list of triangles (result)
     //returns 1 on success, 0 on failure
-    int Triangulate_OPT(TriangulatorPoly *poly, ListPOD<TriangulatorPoly> *triangles);
+    int Triangulate_OPT(TriangulatorPoly *poly, eastl::list<TriangulatorPoly> *triangles);
 
     //triangulates a polygons by firstly partitioning it into monotone polygons
     //time complexity: O(n*log(n)), n is the number of vertices
@@ -248,7 +268,7 @@ public:
     //          vertices have to be in counter-clockwise order
     //   triangles : a list of triangles (result)
     //returns 1 on success, 0 on failure
-    int Triangulate_MONO(TriangulatorPoly *poly, ListPOD<TriangulatorPoly> *triangles);
+    int Triangulate_MONO(TriangulatorPoly *poly, eastl::list<TriangulatorPoly> *triangles);
 
     //triangulates a list of polygons by firstly partitioning them into monotone polygons
     //time complexity: O(n*log(n)), n is the number of vertices
@@ -259,7 +279,7 @@ public:
     //             vertices of all hole polys have to be in clockwise order
     //   triangles : a list of triangles (result)
     //returns 1 on success, 0 on failure
-    int Triangulate_MONO(ListPOD<TriangulatorPoly> *inpolys, ListPOD<TriangulatorPoly> *triangles);
+    int Triangulate_MONO(eastl::list<TriangulatorPoly> *inpolys, eastl::list<TriangulatorPoly> *triangles);
 
     //creates a monotone partition of a list of polygons that can contain holes
     //time complexity: O(n*log(n)), n is the number of vertices
@@ -270,7 +290,7 @@ public:
     //             vertices of all hole polys have to be in clockwise order
     //   monotonePolys : a list of monotone polygons (result)
     //returns 1 on success, 0 on failure
-    int MonotonePartition(ListPOD<TriangulatorPoly> *inpolys, ListPOD<TriangulatorPoly> *monotonePolys);
+    int MonotonePartition(eastl::list<TriangulatorPoly> *inpolys, eastl::list<TriangulatorPoly> *monotonePolys);
 
     //partitions a polygon into convex polygons by using Hertel-Mehlhorn algorithm
     //the algorithm gives at most four times the number of parts as the optimal algorithm
@@ -283,7 +303,7 @@ public:
     //          vertices have to be in counter-clockwise order
     //   parts : resulting list of convex polygons
     //returns 1 on success, 0 on failure
-    int ConvexPartition_HM(TriangulatorPoly *poly, ListPOD<TriangulatorPoly> *parts);
+    int ConvexPartition_HM(TriangulatorPoly *poly, eastl::list<TriangulatorPoly> *parts);
 
     //partitions a list of polygons into convex parts by using Hertel-Mehlhorn algorithm
     //the algorithm gives at most four times the number of parts as the optimal algorithm
@@ -297,7 +317,7 @@ public:
     //             vertices of all hole polys have to be in clockwise order
     //   parts : resulting list of convex polygons
     //returns 1 on success, 0 on failure
-    int ConvexPartition_HM(ListPOD<TriangulatorPoly> *inpolys, ListPOD<TriangulatorPoly> *parts);
+    int ConvexPartition_HM(eastl::list<TriangulatorPoly> *inpolys, eastl::list<TriangulatorPoly> *parts);
 
     //optimal convex partitioning (in terms of number of resulting convex polygons)
     //using the Keil-Snoeyink algorithm
@@ -308,5 +328,5 @@ public:
     //          vertices have to be in counter-clockwise order
     //   parts : resulting list of convex polygons
     //returns 1 on success, 0 on failure
-    int ConvexPartition_OPT(TriangulatorPoly *poly, ListPOD<TriangulatorPoly> *parts);
+    int ConvexPartition_OPT(TriangulatorPoly *poly, eastl::list<TriangulatorPoly> *parts);
 };

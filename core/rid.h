@@ -49,7 +49,7 @@ using ListPOD = eastl::list<T,wrap_allocator>;
 
 class RID_OwnerBase;
 
-class RID_Data {
+class GODOT_EXPORT RID_Data {
 
     friend class RID_OwnerBase;
 
@@ -64,7 +64,7 @@ public:
     virtual ~RID_Data() = default;
 };
 
-class RID {
+class GODOT_EXPORT RID {
     friend class RID_OwnerBase;
 
     mutable RID_Data *_data = nullptr;
@@ -98,7 +98,7 @@ public:
 
 };
 
-class RID_OwnerBase {
+class GODOT_EXPORT RID_OwnerBase {
 public:
 #ifdef DEBUG_ENABLED
     mutable Set<RID_Data *> id_map;

@@ -67,12 +67,11 @@ Error ImageLoaderBMP::convert_to_image(ImageData &p_image,
             PLUG_FAIL_V(ERR_UNAVAILABLE)
         }
         // Image data (might be indexed)
-        int data_len = 0;
+        int data_len = width * height; // indexed
 
-        if (bits_per_pixel <= 8) { // indexed
-            data_len = width * height;
-        } else { // color
-            data_len = width * height * 4;
+        if (bits_per_pixel > 8) {
+            // assume full color
+            data_len *= 4;
         }
         PLUG_FAIL_COND_V(data_len == 0, ERR_BUG)
         err = p_image.data.resize(data_len);

@@ -28,9 +28,9 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef ANIMATION_NODE_STATE_MACHINE_H
-#define ANIMATION_NODE_STATE_MACHINE_H
+#pragma once
 
+#include "core/forward_decls.h"
 #include "scene/animation/animation_tree.h"
 
 class AnimationNodeStateMachineTransition : public Resource {
@@ -215,5 +215,3 @@ public:
 
 	AnimationNodeStateMachine();
 };
-
-#endif // ANIMATION_NODE_STATE_MACHINE_H

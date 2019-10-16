@@ -45,7 +45,7 @@ namespace PNGDriverCommon {
 static bool check_error(const png_image &image) {
     const png_uint_32 failed = PNG_IMAGE_FAILED(image);
     if (failed & PNG_IMAGE_ERROR) {
-        ERR_EXPLAINC(image.message)
+        ERR_EXPLAIN(image.message)
         return true;
     } else if (failed) {
 #ifdef TOOLS_ENABLED

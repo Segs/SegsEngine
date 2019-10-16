@@ -40,6 +40,7 @@
 #include "scene/main/viewport.h"
 #include "scene/resources/packed_scene.h"
 #include "spatial_editor_plugin.h"
+#include "core/translation_helpers.h"
 
 IMPL_GDCLASS(MeshLibraryEditor)
 IMPL_GDCLASS(MeshLibraryEditorPlugin)
@@ -205,7 +206,7 @@ void MeshLibraryEditor::_import_scene_cbk(const String &p_str) {
     ERR_FAIL_COND(not ps)
     Node *scene = ps->instance();
 
-	ERR_FAIL_COND_MSG(!scene, "Cannot create an instance from PackedScene '" + p_str + "'.")
+    ERR_FAIL_COND_MSG(!scene, "Cannot create an instance from PackedScene '" + p_str + "'.")
 
     _import_scene(scene, mesh_library, option == MENU_OPTION_UPDATE_FROM_SCENE);
 

@@ -32,6 +32,7 @@
 
 #include "core/hash_map.h"
 #include "core/string_name.h"
+#include "core/hashfuncs.h"
 #include "core/variant.h"
 #include "core/set.h"
 

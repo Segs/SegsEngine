@@ -35,6 +35,7 @@
 #include "scene/main/scene_tree.h"
 #include "scene/resources/style_box.h"
 #include "core/method_bind.h"
+#include "core/translation_helpers.h"
 
 IMPL_GDCLASS(Popup)
 IMPL_GDCLASS(PopupPanel)

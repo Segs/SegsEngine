@@ -89,7 +89,7 @@ StringName ARVRInterfaceGDNative::get_name() const {
 
     godot_string result = interface->get_name(data);
 
-    StringName name = *(String *)&result;
+    StringName name(*(String *)&result);
 
     godot_string_destroy(&result);
 

@@ -239,17 +239,17 @@ StringName ScriptServer::get_global_class_language(const StringName &p_class) {
     return global_classes[p_class].language;
 }
 String ScriptServer::get_global_class_path(const String &p_class) {
-    ERR_FAIL_COND_V(!global_classes.contains(p_class), String())
-    return global_classes[p_class].path;
+    ERR_FAIL_COND_V(!global_classes.contains(StringName(p_class)), String())
+    return global_classes[StringName(p_class)].path;
 }
 
 StringName ScriptServer::get_global_class_base(const String &p_class) {
-    ERR_FAIL_COND_V(!global_classes.contains(p_class), StringName())
-    return global_classes[p_class].base;
+    ERR_FAIL_COND_V(!global_classes.contains(StringName(p_class)), StringName())
+    return global_classes[StringName(p_class)].base;
 }
 StringName ScriptServer::get_global_class_native_base(const String &p_class) {
-    ERR_FAIL_COND_V(!global_classes.contains(p_class), StringName())
-    String base = global_classes[p_class].base;
+    ERR_FAIL_COND_V(!global_classes.contains(StringName(p_class)), StringName())
+    StringName base = global_classes[StringName(p_class)].base;
     while (global_classes.contains(base)) {
         base = global_classes[base].base;
     }

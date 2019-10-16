@@ -595,8 +595,9 @@ void AnimationNodeStateMachine::get_child_nodes(List<ChildNode> *r_child_nodes) 
         r_child_nodes->push_back(cn);
     }
 }
-
+//TODO: SEGS: use string_view as a parameter here
 bool AnimationNodeStateMachine::has_node(const StringName &p_name) const {
+    //TODO: SEGS: use contains_as to prevent allocations
     return states.contains(p_name);
 }
 void AnimationNodeStateMachine::remove_node(const StringName &p_name) {
@@ -818,7 +819,7 @@ bool AnimationNodeStateMachine::_set(const StringName &p_name, const Variant &p_
 
     String name = p_name;
     if (StringUtils::begins_with(name,"states/")) {
-        String node_name = StringUtils::get_slice(name,'/', 1);
+        StringName node_name(StringUtils::get_slice(name,'/', 1));
         String what = StringUtils::get_slice(name,'/', 2);
 
         if (what == "node") {
@@ -863,7 +864,7 @@ bool AnimationNodeStateMachine::_get(const StringName &p_name, Variant &r_ret) c
 
     String name = p_name;
     if (StringUtils::begins_with(name,"states/")) {
-        String node_name = StringUtils::get_slice(name,'/', 1);
+        StringName node_name(StringUtils::get_slice(name,'/', 1));
         String what = StringUtils::get_slice(name,'/', 2);
 
         if (what == "node") {

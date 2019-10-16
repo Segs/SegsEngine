@@ -33,6 +33,7 @@
 #include "core/method_bind.h"
 #include "core/os/file_access.h"
 #include "core/version.h"
+#include "core/translation_helpers.h"
 #include "editor/editor_scale.h"
 #include "scene/gui/progress_bar.h"
 #include "scene/gui/color_picker.h"
@@ -73,7 +74,7 @@ void ThemeEditor::_type_menu_cbk(int p_option) {
 
 void ThemeEditor::_name_menu_about_to_show() {
 
-    String fromtype = type_edit->get_text();
+    StringName fromtype(type_edit->get_text());
     ListPOD<StringName> names;
 
     if (popup_mode == POPUP_ADD) {
@@ -138,7 +139,7 @@ void ThemeEditor::_save_template_cbk(const String &fname) {
 
     String filename = file_dialog->get_current_path();
 
-    Map<String, _TECategory> categories;
+    Map<StringName, _TECategory> categories;
 
     // Fill types.
     ListPOD<StringName> type_list;
@@ -148,7 +149,7 @@ void ThemeEditor::_save_template_cbk(const String &fname) {
     }
 
     // Fill default theme.
-    for (eastl::pair<const String,_TECategory> &E : categories) {
+    for (eastl::pair<const StringName,_TECategory> &E : categories) {
 
         _TECategory &tc(E.second);
 
@@ -200,7 +201,7 @@ void ThemeEditor::_save_template_cbk(const String &fname) {
 
     FileAccess *file = FileAccess::open(filename, FileAccess::WRITE);
 
-	ERR_FAIL_COND_MSG(!file, "Can't save theme to file '" + filename + "'.")
+    ERR_FAIL_COND_MSG(!file, "Can't save theme to file '" + filename + "'.")
 
     file->store_line("; ******************* ");
     file->store_line("; Template Theme File ");
@@ -265,12 +266,12 @@ void ThemeEditor::_save_template_cbk(const String &fname) {
     file->store_line("");
 
     // Write default theme.
-    for (eastl::pair<const String,_TECategory> &E : categories) {
+    for (eastl::pair<const StringName,_TECategory> &E : categories) {
 
         _TECategory &tc(E.second);
 
         String underline = "; ";
-        for (int i = 0; i < E.first.length(); i++)
+        for (size_t i = 0,fin=strlen(E.first.asCString()); i < fin; i++)
             underline += "*";
 
         file->store_line("");
@@ -283,7 +284,7 @@ void ThemeEditor::_save_template_cbk(const String &fname) {
 
         for (const _TECategory::RefItem<StyleBox>  &F : tc.stylebox_items) {
 
-            file->store_line(E.first + "." + F.name + " = default");
+            file->store_line(E.first.asString() + "." + F.name + " = default");
         }
 
         if (!tc.font_items.empty())
@@ -291,7 +292,7 @@ void ThemeEditor::_save_template_cbk(const String &fname) {
 
         for (const _TECategory::RefItem<Font>  &F : tc.font_items) {
 
-            file->store_line(E.first + "." + F.name + " = default");
+            file->store_line(E.first.asString() + "." + F.name + " = default");
         }
 
         if (!tc.icon_items.empty())
@@ -299,7 +300,7 @@ void ThemeEditor::_save_template_cbk(const String &fname) {
 
         for (const _TECategory::RefItem<Texture>  &F : tc.icon_items) {
 
-            file->store_line(E.first + "." + F.name + " = default");
+            file->store_line(E.first.asString()+ "." + F.name + " = default");
         }
 
         if (!tc.color_items.empty())
@@ -307,7 +308,7 @@ void ThemeEditor::_save_template_cbk(const String &fname) {
 
         for (const _TECategory::Item<Color>  &F : tc.color_items) {
 
-            file->store_line(E.first + "." + F.name + " = default");
+            file->store_line(E.first.asString() + "." + F.name + " = default");
         }
 
         if (!tc.constant_items.empty())
@@ -315,7 +316,7 @@ void ThemeEditor::_save_template_cbk(const String &fname) {
 
         for (const _TECategory::Item<int>  &F : tc.constant_items) {
 
-            file->store_line(E.first + "." + F.name + " = default");
+            file->store_line(E.first.asString() + "." + F.name + " = default");
         }
     }
 
@@ -327,20 +328,21 @@ void ThemeEditor::_dialog_cbk() {
 
     switch (popup_mode) {
         case POPUP_ADD: {
-
+            StringName name_sn(name_edit->get_text());
+            StringName type_sn(type_edit->get_text());
             switch (type_select->get_selected()) {
 
-                case 0: theme->set_icon(name_edit->get_text(), type_edit->get_text(), Ref<Texture>()); break;
-                case 1: theme->set_stylebox(name_edit->get_text(), type_edit->get_text(), Ref<StyleBox>()); break;
-                case 2: theme->set_font(name_edit->get_text(), type_edit->get_text(), Ref<Font>()); break;
-                case 3: theme->set_color(name_edit->get_text(), type_edit->get_text(), Color()); break;
-                case 4: theme->set_constant(name_edit->get_text(), type_edit->get_text(), 0); break;
+                case 0: theme->set_icon(name_sn, type_sn, Ref<Texture>()); break;
+                case 1: theme->set_stylebox(name_sn, type_sn, Ref<StyleBox>()); break;
+                case 2: theme->set_font(name_sn, type_sn, Ref<Font>()); break;
+                case 3: theme->set_color(name_sn, type_sn, Color()); break;
+                case 4: theme->set_constant(name_sn, type_sn, 0); break;
             }
 
         } break;
         case POPUP_CLASS_ADD: {
 
-            StringName fromtype = type_edit->get_text();
+            StringName fromtype = StringName(type_edit->get_text());
             ListPOD<StringName> names;
 
             {
@@ -380,18 +382,21 @@ void ThemeEditor::_dialog_cbk() {
             }
         } break;
         case POPUP_REMOVE: {
+            StringName name_sn(name_edit->get_text());
+            StringName type_sn(type_edit->get_text());
+
             switch (type_select->get_selected()) {
 
-                case 0: theme->clear_icon(name_edit->get_text(), type_edit->get_text()); break;
-                case 1: theme->clear_stylebox(name_edit->get_text(), type_edit->get_text()); break;
-                case 2: theme->clear_font(name_edit->get_text(), type_edit->get_text()); break;
-                case 3: theme->clear_color(name_edit->get_text(), type_edit->get_text()); break;
-                case 4: theme->clear_constant(name_edit->get_text(), type_edit->get_text()); break;
+                case 0: theme->clear_icon(name_sn, type_sn); break;
+                case 1: theme->clear_stylebox(name_sn, type_sn); break;
+                case 2: theme->clear_font(name_sn, type_sn); break;
+                case 3: theme->clear_color(name_sn, type_sn); break;
+                case 4: theme->clear_constant(name_sn, type_sn); break;
             }
 
         } break;
         case POPUP_CLASS_REMOVE: {
-            StringName fromtype = type_edit->get_text();
+            StringName fromtype = StringName(type_edit->get_text());
             ListPOD<StringName> names;
 
             {

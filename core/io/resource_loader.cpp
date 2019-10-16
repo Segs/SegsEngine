@@ -875,7 +875,7 @@ String ResourceLoader::_path_remap(const String &p_path, bool *r_translation_rem
                 if (err == ERR_FILE_EOF) {
                     break;
                 } else if (err != OK) {
-                    ERR_PRINTS("Parse error: " + p_path + ".remap:" + itos(lines) + " error: " + error_text + ".");
+                    ERR_PRINT("Parse error: " + p_path + ".remap:" + itos(lines) + " error: " + error_text + ".");
                     break;
                 }
 
@@ -1029,7 +1029,7 @@ void ResourceLoader::remove_custom_resource_format_loader(const String& script_p
 void ResourceLoader::add_custom_loaders() {
     // Custom loaders registration exploits global class names
 
-    String custom_loader_base_class = ResourceFormatLoader::get_class_static();
+    StringName custom_loader_base_class = ResourceFormatLoader::get_class_static_name();
 
     Vector<StringName> global_classes;
     ScriptServer::get_global_class_list(&global_classes);
@@ -1074,7 +1074,7 @@ void ResourceLoader::finalize() {
 #ifndef NO_THREADS
     const LoadingMapKey *K = nullptr;
     while ((K = loading_map.next(K))) {
-        ERR_PRINTS("Exited while resource is being loaded: " + K->path)
+        ERR_PRINT("Exited while resource is being loaded: " + K->path)
     }
     loading_map.clear();
     memdelete(loading_map_mutex);

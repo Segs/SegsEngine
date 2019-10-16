@@ -1523,7 +1523,7 @@ void EditorInspector::update_tree() {
                     class_descr_cache[type2] = descr;
                 }
 
-                category->set_tooltip(p.name + "::" + (class_descr_cache[type2].empty() ? "" : class_descr_cache[type2]));
+                category->set_tooltip(p.name.asString() + "::" + (class_descr_cache[type2].empty() ? "" : class_descr_cache[type2]));
             }
 
             for (List<Ref<EditorInspectorPlugin> >::Element *E = valid_plugins.front(); E; E = E->next()) {

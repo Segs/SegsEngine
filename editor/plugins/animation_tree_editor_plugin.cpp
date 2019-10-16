@@ -40,6 +40,7 @@
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
 #include "core/project_settings.h"
+#include "core/translation_helpers.h"
 #include "scene/animation/animation_blend_tree.h"
 #include "scene/animation/animation_player.h"
 #include "scene/gui/menu_button.h"
@@ -113,7 +114,7 @@ void AnimationTreeEditor::edit_path(const Vector<String> &p_path) {
 
         for (int i = 0; i < p_path.size(); i++) {
 
-            Ref<AnimationNode> child = node->get_child_by_name(p_path[i]);
+            Ref<AnimationNode> child = node->get_child_by_name(StringName(p_path[i]));
             ERR_BREAK(not child);
             node = child;
             button_path.push_back(p_path[i]);

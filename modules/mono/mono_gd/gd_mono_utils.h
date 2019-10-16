@@ -332,11 +332,7 @@ void dispose(MonoObject *p_mono_object, MonoException **r_exc);
 #define CACHED_METHOD_THUNK(m_class, m_method) (GDMonoUtils::mono_cache.methodthunk_##m_class##_##m_method)
 #define CACHED_PROPERTY(m_class, m_property) (GDMonoUtils::mono_cache.property_##m_class##_##m_property)
 
-#ifdef REAL_T_IS_DOUBLE
-#define REAL_T_MONOCLASS CACHED_CLASS_RAW(double)
-#else
 #define REAL_T_MONOCLASS CACHED_CLASS_RAW(float)
-#endif
 
 #define GD_MONO_BEGIN_RUNTIME_INVOKE                                              \
 	int &_runtime_invoke_count_ref = GDMonoUtils::get_runtime_invoke_count_ref(); \

@@ -84,7 +84,7 @@ Error ImageSaver::save_image(const String& p_file, const Ref<Image> &p_image, Fi
         Error err;
         f = FileAccess::open(p_file, FileAccess::WRITE, &err);
         if (!f) {
-            ERR_PRINTS("Error opening file: " + p_file)
+            ERR_PRINT("Error opening file: " + p_file)
             return err;
         }
     }
@@ -98,7 +98,7 @@ Error ImageSaver::save_image(const String& p_file, const Ref<Image> &p_image, Fi
         ImageData result_data(static_cast<ImageData>(*p_image));
         Error err = g_saver->save_image(result_data, f, {p_quality,false});
         if (err != OK) {
-            ERR_PRINTS("Error saving image: " + p_file)
+            ERR_PRINT("Error saving image: " + p_file)
         }
         if (err != ERR_FILE_UNRECOGNIZED) {
 

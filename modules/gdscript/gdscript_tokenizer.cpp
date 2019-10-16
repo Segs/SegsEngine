@@ -359,7 +359,7 @@ StringName GDScriptTokenizer::get_token_literal(int p_offset) const {
             }
         }
     }
-    ERR_FAIL_V_CMSG("", "Failed to get token literal.")
+    ERR_FAIL_V_MSG("", "Failed to get token literal.")
 }
 
 static bool _is_text_char(CharType c) {
@@ -1081,7 +1081,7 @@ void GDScriptTokenizerText::_advance() {
                     }
 
                     if (identifier) {
-                        _make_identifier(str);
+                        _make_identifier(StringName(str));
                     }
                     INCPOS(str.length());
                     return;
@@ -1248,7 +1248,7 @@ Error GDScriptTokenizerBuffer::set_code_buffer(const Vector<uint8_t> &p_buffer) 
         String s = StringUtils::from_utf8((const char *)cs.ptr());
         b += len;
         total_len -= len + 4;
-        identifiers.write[i] = s;
+        identifiers.write[i] = StringName(s);
     }
 
     constants.resize(constant_count);

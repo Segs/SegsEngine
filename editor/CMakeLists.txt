@@ -83,8 +83,8 @@ set_target_properties(edit_tools PROPERTIES AUTORCC ON)
 target_link_libraries(edit_tools PUBLIC Qt5::Core)
 
 foreach(tgt ${global_targets})
-    target_link_libraries(edit_tools PUBLIC ${tgt}_core ${tgt}_modules)
-    target_link_libraries(edit_tools PUBLIC ${tgt}_plug_registry)
+    target_link_libraries(edit_tools PRIVATE ${tgt}_core ${tgt}_modules)
+    target_link_libraries(edit_tools PRIVATE ${tgt}_plug_registry)
 endforeach()
 set_common_target_properties(edit_tools)
 

@@ -37,6 +37,7 @@
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
 #include "core/project_settings.h"
+#include "core/translation_helpers.h"
 #include "scene/animation/animation_blend_tree.h"
 #include "scene/animation/animation_player.h"
 #include "scene/gui/menu_button.h"
@@ -68,9 +69,9 @@ void AnimationNodeStateMachineEditor::edit(const Ref<AnimationNode> &p_node) {
 
 void AnimationNodeStateMachineEditor::_state_machine_gui_input(const Ref<InputEvent> &p_event) {
 
-    Ref<AnimationNodeStateMachinePlayback> playback(AnimationTreeEditor::get_singleton()->get_tree()->get(AnimationTreeEditor::get_singleton()->get_base_path() + "playback"));
-    if (not playback)
-        return;
+    Ref<AnimationNodeStateMachinePlayback> playback(AnimationTreeEditor::get_singleton()->get_tree()->get(
+            StringName(AnimationTreeEditor::get_singleton()->get_base_path() + "playback")));
+    if (not playback) return;
 
     Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(p_event);
     if (tool_select->is_pressed() && k && k->is_pressed() && k->get_scancode() == KEY_DELETE && !k->is_echo()) {
@@ -365,7 +366,7 @@ void AnimationNodeStateMachineEditor::_state_machine_gui_input(const Ref<InputEv
         state_machine_draw->grab_focus();
 
         bool over_text_now = false;
-        String new_over_node = StringName();
+        StringName new_over_node;
         int new_over_node_what = -1;
         if (tool_select->is_pressed()) {
 
@@ -440,7 +441,7 @@ void AnimationNodeStateMachineEditor::_add_menu_type(int p_index) {
     } else {
         String type = menu->get_item_metadata(p_index);
 
-        Object *obj = ClassDB::instance(type);
+        Object *obj = ClassDB::instance(StringName(type));
         ERR_FAIL_COND(!obj)
         AnimationNode *an = object_cast<AnimationNode>(obj);
         ERR_FAIL_COND(!an)
@@ -461,7 +462,7 @@ void AnimationNodeStateMachineEditor::_add_menu_type(int p_index) {
 
     int base = 1;
     String name = base_name;
-    while (state_machine->has_node(name)) {
+    while (state_machine->has_node(StringName(name))) {
         base++;
         name = base_name + " " + itos(base);
     }
@@ -484,12 +485,12 @@ void AnimationNodeStateMachineEditor::_add_animation_type(int p_index) {
 
     anim->set_animation(animations_to_add[p_index]);
 
-    String base_name = animations_to_add[p_index];
+    StringName base_name = animations_to_add[p_index];
     int base = 1;
-    String name = base_name;
+    StringName name = base_name;
     while (state_machine->has_node(name)) {
         base++;
-        name = base_name + " " + itos(base);
+        name = StringName(base_name.asString() + " " + itos(base));
     }
 
     updating = true;
@@ -573,7 +574,8 @@ void AnimationNodeStateMachineEditor::_clip_dst_line_to_rect(Vector2 &r_from, Ve
 
 void AnimationNodeStateMachineEditor::_state_machine_draw() {
 
-    Ref<AnimationNodeStateMachinePlayback> playback(AnimationTreeEditor::get_singleton()->get_tree()->get(AnimationTreeEditor::get_singleton()->get_base_path() + "playback"));
+    Ref<AnimationNodeStateMachinePlayback> playback(AnimationTreeEditor::get_singleton()->get_tree()->get(
+            StringName(AnimationTreeEditor::get_singleton()->get_base_path() + "playback")));
 
     Ref<StyleBox> style = get_stylebox("state_machine_frame", "GraphNode");
     Ref<StyleBox> style_selected = get_stylebox("state_machine_selectedframe", "GraphNode");
@@ -749,7 +751,7 @@ void AnimationNodeStateMachineEditor::_state_machine_draw() {
         }
 
         bool auto_advance = tl.auto_advance;
-        StringName fullpath = AnimationTreeEditor::get_singleton()->get_base_path() + String(tl.advance_condition_name);
+        StringName fullpath(AnimationTreeEditor::get_singleton()->get_base_path() + String(tl.advance_condition_name));
         if (tl.advance_condition_name != StringName() && bool(AnimationTreeEditor::get_singleton()->get_tree()->get(fullpath))) {
             tl.advance_condition_state = true;
             auto_advance = true;
@@ -762,7 +764,7 @@ void AnimationNodeStateMachineEditor::_state_machine_draw() {
     //draw actual nodes
     for (int i = 0; i < node_rects.size(); i++) {
 
-        String name = node_rects[i].node_name;
+        StringName name = node_rects[i].node_name;
         Ref<AnimationNode> anode = state_machine->get_node(name);
         bool needs_editor = AnimationTreeEditor::get_singleton()->can_edit(anode);
         Ref<StyleBox> sb = name == selected_node ? style_selected : style;
@@ -847,7 +849,8 @@ void AnimationNodeStateMachineEditor::_state_machine_draw() {
 
 void AnimationNodeStateMachineEditor::_state_machine_pos_draw() {
 
-    Ref<AnimationNodeStateMachinePlayback> playback(AnimationTreeEditor::get_singleton()->get_tree()->get(AnimationTreeEditor::get_singleton()->get_base_path() + "playback"));
+    Ref<AnimationNodeStateMachinePlayback> playback(AnimationTreeEditor::get_singleton()->get_tree()->get(
+            StringName(AnimationTreeEditor::get_singleton()->get_base_path() + "playback")));
 
     if (not playback || !playback->is_playing())
         return;
@@ -867,7 +870,7 @@ void AnimationNodeStateMachineEditor::_state_machine_pos_draw() {
 
     Vector2 from;
     from.x = nr.play.position.x;
-    from.y = (nr.play.position.y + nr.play.size.y + nr.node.position.y + nr.node.size.y) * 0.5;
+    from.y = (nr.play.position.y + nr.play.size.y + nr.node.position.y + nr.node.size.y) * 0.5f;
 
     Vector2 to;
     if (nr.edit.size.x) {
@@ -877,7 +880,7 @@ void AnimationNodeStateMachineEditor::_state_machine_pos_draw() {
     }
     to.y = from.y;
 
-    float len = MAX(0.0001, current_length);
+    float len = MAX(0.0001f, current_length);
 
     float pos = CLAMP(play_pos, 0, len);
     float c = pos / len;
@@ -941,7 +944,8 @@ void AnimationNodeStateMachineEditor::_notification(int p_what) {
 
         String error;
 
-        Ref<AnimationNodeStateMachinePlayback> playback(AnimationTreeEditor::get_singleton()->get_tree()->get(AnimationTreeEditor::get_singleton()->get_base_path() + "playback"));
+        Ref<AnimationNodeStateMachinePlayback> playback(AnimationTreeEditor::get_singleton()->get_tree()->get(
+                StringName(AnimationTreeEditor::get_singleton()->get_base_path() + "playback")));
 
         if (error_time > 0) {
             error = error_text;
@@ -1001,7 +1005,10 @@ void AnimationNodeStateMachineEditor::_notification(int p_what) {
                 break;
             }
 
-            bool acstate = transition_lines[i].advance_condition_name != StringName() && bool(AnimationTreeEditor::get_singleton()->get_tree()->get(AnimationTreeEditor::get_singleton()->get_base_path() + String(transition_lines[i].advance_condition_name)));
+            bool acstate = !transition_lines[i].advance_condition_name.empty() &&
+                           bool(AnimationTreeEditor::get_singleton()->get_tree()->get(
+                                   StringName(AnimationTreeEditor::get_singleton()->get_base_path() +
+                                   transition_lines[i].advance_condition_name)));
 
             if (transition_lines[i].advance_condition_state != acstate) {
                 state_machine_draw->update();
@@ -1054,14 +1061,14 @@ void AnimationNodeStateMachineEditor::_notification(int p_what) {
         {
             if (current_node != StringName() && state_machine->has_node(current_node)) {
 
-                String next = current_node;
+                StringName next = current_node;
                 Ref<AnimationNodeStateMachine> anodesm = dynamic_ref_cast<AnimationNodeStateMachine>(state_machine->get_node(next));
                 Ref<AnimationNodeStateMachinePlayback> current_node_playback;
                 AnimationTreeEditor *editor = AnimationTreeEditor::get_singleton();
                 while (anodesm) {
                     current_node_playback = refFromVariant<AnimationNodeStateMachinePlayback>(editor->get_tree()->get(
-                            editor->get_base_path() + next + "/playback"));
-                    next += "/" + current_node_playback->get_current_node();
+                            StringName(editor->get_base_path() + next + "/playback")));
+                    next = StringName(next.asString() + "/" + current_node_playback->get_current_node());
                     anodesm = dynamic_ref_cast<AnimationNodeStateMachine>(anodesm->get_node(current_node_playback->get_current_node()));
                 }
 
@@ -1109,7 +1116,7 @@ void AnimationNodeStateMachineEditor::_name_edited(const String &p_text) {
     const String &base_name = new_name;
     int base = 1;
     String name = base_name;
-    while (state_machine->has_node(name)) {
+    while (state_machine->has_node(StringName(name))) {
         base++;
         name = base_name + " " + itos(base);
     }

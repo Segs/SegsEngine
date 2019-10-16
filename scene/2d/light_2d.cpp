@@ -34,6 +34,7 @@
 #include "scene/main/scene_tree.h"
 #include "core/engine.h"
 #include "core/method_bind.h"
+#include "core/translation_helpers.h"
 
 IMPL_GDCLASS(Light2D)
 VARIANT_ENUM_CAST(Light2D::Mode);

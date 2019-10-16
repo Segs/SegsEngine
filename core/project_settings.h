@@ -46,7 +46,7 @@ class GODOT_EXPORT ProjectSettings : public Object {
     _THREAD_SAFE_CLASS_
 
 public:
-    using CustomMap = Map<String, Variant>;
+    using CustomMap = Map<StringName, Variant>;
 
     enum {
         //properties that are not for built in values begin from this value, so builtin ones are displayed first
@@ -129,9 +129,9 @@ public:
 
     static ProjectSettings *get_singleton();
 
-    void clear(const String &p_name);
-    int get_order(const String &p_name) const;
-    void set_order(const String &p_name, int p_order);
+    void clear(const StringName &p_name);
+    int get_order(const StringName &p_name) const;
+    void set_order(const StringName &p_name, int p_order);
     void set_builtin_order(const StringName &p_name);
 
     Error setup(const String &p_path, const String &p_main_pack, bool p_upwards = false);

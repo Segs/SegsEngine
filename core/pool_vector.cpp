@@ -33,14 +33,10 @@
 #include "core/math/vector3.h"
 #include "core/os/mutex.h"
 
-GODOT_TEMPLATE_EXT_DEFINE(PoolVector<uint8_t>)
-GODOT_TEMPLATE_EXT_DEFINE(PoolVector<Vector2>)
-GODOT_TEMPLATE_EXT_DEFINE(PoolVector<Vector3>)
+template class EXPORT_TEMPLATE_DEFINE(GODOT_EXPORT) PoolVector<Vector2>;
+template class EXPORT_TEMPLATE_DEFINE(GODOT_EXPORT) PoolVector<Vector3>;
+template class EXPORT_TEMPLATE_DEFINE(GODOT_EXPORT) PoolVector<unsigned char>;
 
-Mutex *pool_vector_lock = nullptr;
-
-uint8_t *MemoryPool::pool_memory = nullptr;
-size_t *MemoryPool::pool_size = nullptr;
 
 MemoryPool::Alloc *MemoryPool::allocs = nullptr;
 MemoryPool::Alloc *MemoryPool::free_list = nullptr;
@@ -80,7 +76,7 @@ bool MemoryPool::do_alloc_block(MemoryPool::Alloc *&alloc)
     MemoryPool::alloc_mutex->lock();
     if (MemoryPool::allocs_used == MemoryPool::alloc_count) {
         MemoryPool::alloc_mutex->unlock();
-        ERR_FAIL_V_CMSG(false,"All memory pool allocations are in use, can't COW.")
+        ERR_FAIL_V_MSG(false,"All memory pool allocations are in use, can't COW.")
     }
 
     MemoryPool::Alloc *old_alloc = alloc;

@@ -33,6 +33,7 @@
 #include "core/core_string_names.h"
 #include "core/method_bind.h"
 #include "core/engine.h"
+#include "core/translation_helpers.h"
 #include "navigation_2d.h"
 #include "scene/main/scene_tree.h"
 
@@ -194,7 +195,7 @@ void NavigationPolygon::clear_outlines() {
 }
 void NavigationPolygon::make_polygons_from_outlines() {
 
-    ListPOD<TriangulatorPoly> in_poly, out_poly;
+    eastl::list<TriangulatorPoly> in_poly, out_poly;
 
     Vector2 outside_point(-1e10, -1e10);
 
@@ -243,12 +244,8 @@ void NavigationPolygon::make_polygons_from_outlines() {
         }
 
         bool outer = (interscount % 2) == 0;
-
-        TriangulatorPoly tp;
-        tp.Init(olsize);
-        for (int j = 0; j < olsize; j++) {
-            tp[j] = r[j];
-        }
+        static_assert(sizeof(Vector2)==sizeof(TriangulatorPoint));
+        TriangulatorPoly tp((const TriangulatorPoint *)r.ptr(),olsize);
 
         if (outer)
             tp.SetOrientation(TRIANGULATOR_CCW);
@@ -273,12 +270,12 @@ void NavigationPolygon::make_polygons_from_outlines() {
     for (TriangulatorPoly &tp : out_poly) {
         struct Polygon p;
 
-        for (int64_t i = 0; i < tp.GetNumPoints(); i++) {
-
-            Map<Vector2, int>::iterator E = points.find(tp[i]);
+        for (long i = 0; i < tp.GetNumPoints(); i++) {
+            Vector2 pt {tp[i].x,tp[i].y};
+            Map<Vector2, int>::iterator E = points.find(pt);
             if (E==points.end()) {
-                E = points.emplace(tp[i], vertices.size()).first;
-                vertices.push_back(tp[i]);
+                E = points.emplace(pt, vertices.size()).first;
+                vertices.push_back(pt);
             }
             p.indices.push_back(E->second);
         }

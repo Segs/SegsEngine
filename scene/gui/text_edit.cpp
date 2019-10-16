@@ -39,6 +39,7 @@
 #include "core/os/os.h"
 #include "core/project_settings.h"
 #include "core/script_language.h"
+#include "core/translation_helpers.h"
 #include "scene/main/viewport.h"
 
 #include "scene/resources/style_box.h"

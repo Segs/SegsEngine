@@ -116,7 +116,7 @@ class GDScript : public Script {
     //exported members
     String source;
     String path;
-    String name;
+    StringName name;
     SelfList<GDScript> script_list;
 
     GDScriptInstance *_create_instance(const Variant **p_args, int p_argcount, Object *p_owner, bool p_isref, Variant::CallError &r_error);
@@ -154,12 +154,12 @@ public:
     const Map<StringName, Variant> &get_constants() const { return constants; }
     const Set<StringName> &get_members() const { return members; }
     const GDScriptDataType &get_member_type(const StringName &p_member) const {
-        CRASH_COND(!member_indices.contains(p_member));
+        CRASH_COND(!member_indices.contains(p_member))
         return member_indices.at(p_member).data_type;
     }
     const Map<StringName, GDScriptFunction *> &get_member_functions() const { return member_functions; }
     const Ref<GDScriptNativeClass> &get_native() const { return native; }
-    const String &get_script_class_name() const { return name; }
+    const StringName &get_script_class_name() const { return name; }
 
     bool has_script_signal(const StringName &p_signal) const override;
     void get_script_signal_list(ListPOD<MethodInfo> *r_signals) const override;

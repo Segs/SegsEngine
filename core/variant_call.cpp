@@ -653,7 +653,7 @@ struct _VariantCall {
 
         if (buffer_size <= 0) {
             r_ret = decompressed;
-            ERR_FAIL_CMSG("Decompression buffer size must be greater than zero.")
+            ERR_FAIL_MSG("Decompression buffer size must be greater than zero.")
         }
 
         decompressed.resize(buffer_size);
@@ -1477,7 +1477,7 @@ void Variant::get_constructor_list(VariantType p_type, PODVector<MethodInfo> *p_
         for (int i = 0; i < cd.arg_count; i++) {
 
             PropertyInfo pi;
-            pi.name = cd.arg_names[i];
+            pi.name = StringName(cd.arg_names[i]);
             pi.type = cd.arg_types[i];
             mi.arguments.push_back(pi);
         }
@@ -1512,8 +1512,7 @@ void Variant::get_constants_for_type(VariantType p_type, ListPOD<StringName> *p_
 
         p_constants->push_back(E);
 #else
-    for (Map<StringName, int>::Element *E = cd.value.front(); E; E = E->next()) {
-
+    for (const auto &E : cd.value) {
         p_constants->push_back(E.first);
 #endif
     }

@@ -251,7 +251,7 @@ void ResourceSaver::remove_custom_resource_format_saver(const String& script_pat
 void ResourceSaver::add_custom_savers() {
     // Custom resource savers exploits global class names
 
-    String custom_saver_base_class = ResourceFormatSaver::get_class_static();
+    StringName custom_saver_base_class(ResourceFormatSaver::get_class_static_name());
 
     Vector<StringName> global_classes;
     ScriptServer::get_global_class_list(&global_classes);

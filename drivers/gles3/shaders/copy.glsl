@@ -64,10 +64,6 @@ void main() {
 
 #define M_PI 3.14159265359
 
-#if !defined(USE_GLES_OVER_GL)
-precision mediump float;
-#endif
-
 #if defined(USE_CUBEMAP) || defined(USE_PANORAMA)
 in vec3 cube_interp;
 #else

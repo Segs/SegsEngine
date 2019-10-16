@@ -32,6 +32,7 @@
 
 #include "core/object_db.h"
 #include "core/io/marshalls.h"
+#include "core/translation_helpers.h"
 #include "editor_node.h"
 #include "core/method_bind.h"
 
@@ -57,7 +58,7 @@ void ArrayPropertyEdit::_notif_change() {
 }
 void ArrayPropertyEdit::_notif_changev(const String &p_v) {
 
-	_change_notify(qPrintable(p_v.m_str));
+    _change_notify(qPrintable(p_v.m_str));
 }
 
 void ArrayPropertyEdit::_set_size(int p_size) {

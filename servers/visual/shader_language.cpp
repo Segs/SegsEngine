@@ -36,6 +36,7 @@
 #include "core/math/plane.h"
 #include "core/math/transform_2d.h"
 #include "core/math/transform.h"
+#include "core/translation_helpers.h"
 
 static bool _is_text_char(CharType c) {
 
@@ -5328,7 +5329,7 @@ Error ShaderLanguage::complete(const String &p_code, const Map<StringName, Funct
     nodes = nullptr;
 
     shader = alloc_node<ShaderNode>();
-	_parse_shader(p_functions, p_render_modes, p_shader_types);
+    _parse_shader(p_functions, p_render_modes, p_shader_types);
 
     switch (completion_type) {
 

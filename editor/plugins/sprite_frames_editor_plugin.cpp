@@ -33,6 +33,7 @@
 #include "core/io/resource_loader.h"
 #include "core/method_bind.h"
 #include "core/project_settings.h"
+#include "core/translation_helpers.h"
 #include "editor/editor_scale.h"
 #include "editor/editor_settings.h"
 #include "scene/3d/sprite_3d.h"
@@ -479,7 +480,7 @@ void SpriteFramesEditor::_animation_select() {
 
     TreeItem *selected = animations->get_selected();
     ERR_FAIL_COND(!selected)
-    edited_anim = selected->get_text(0);
+    edited_anim = StringName(selected->get_text(0));
     _update_library(true);
 }
 
@@ -531,7 +532,7 @@ void SpriteFramesEditor::_animation_name_edited() {
 
     String name = new_name;
     int counter = 0;
-    while (frames->has_animation(name)) {
+    while (frames->has_animation(StringName(name))) {
         counter++;
         name = new_name + " " + itos(counter);
     }
@@ -553,7 +554,7 @@ void SpriteFramesEditor::_animation_name_edited() {
     undo_redo->add_do_method(this, "_update_library");
     undo_redo->add_undo_method(this, "_update_library");
 
-    edited_anim = new_name;
+    edited_anim = StringName(new_name);
 
     undo_redo->commit_action();
 }
@@ -561,7 +562,7 @@ void SpriteFramesEditor::_animation_add() {
 
     String name = "New Anim";
     int counter = 0;
-    while (frames->has_animation(name)) {
+    while (frames->has_animation(StringName(name))) {
         counter++;
         name = "New Anim " + itos(counter);
     }
@@ -582,7 +583,7 @@ void SpriteFramesEditor::_animation_add() {
         undo_redo->add_undo_method(E->deref(), "set_animation", current);
     }
 
-    edited_anim = name;
+    edited_anim = StringName(name);
 
     undo_redo->commit_action();
     animations->grab_focus();
@@ -795,7 +796,7 @@ bool SpriteFramesEditor::can_drop_data_fw(const Point2 &p_point, const Variant &
             String file = files[i];
             String ftype = EditorFileSystem::get_singleton()->get_file_type(file);
 
-            if (!ClassDB::is_parent_class(ftype, "Texture")) {
+            if (!ClassDB::is_parent_class(StringName(ftype), "Texture")) {
                 return false;
             }
         }

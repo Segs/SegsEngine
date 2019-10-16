@@ -35,6 +35,7 @@
 #include "core/variant.h"
 #include "core/vector.h"
 #include "core/pool_vector.h"
+#include "core/array.h"
 
 #include <cstring>
 

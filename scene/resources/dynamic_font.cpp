@@ -234,7 +234,7 @@ Error DynamicFontAtSize::_load() {
 
     int error = FT_Init_FreeType(&m_impl->library);
 
-    ERR_FAIL_COND_V_CMSG(error != 0, ERR_CANT_CREATE, "Error initializing FreeType.")
+    ERR_FAIL_COND_V_MSG(error != 0, ERR_CANT_CREATE, "Error initializing FreeType.")
 
     // FT_OPEN_STREAM is extremely slow only on Android.
     if (OS::get_singleton()->get_name() == "Android" && font->font_mem == nullptr && !font->font_path.empty()) {
@@ -292,18 +292,18 @@ Error DynamicFontAtSize::_load() {
         error = FT_Open_Face(m_impl->library, &fargs, 0, &m_impl->face);
 
     } else {
-        ERR_FAIL_V_CMSG(ERR_UNCONFIGURED, "DynamicFont uninitialized.");
+        ERR_FAIL_V_MSG(ERR_UNCONFIGURED, "DynamicFont uninitialized.");
     }
 
     //error = FT_New_Face( library, src_path.utf8().get_data(),0,&face );
 
     if (error == FT_Err_Unknown_File_Format) {
-        ERR_EXPLAINC("Unknown font format.")
+        ERR_EXPLAIN("Unknown font format.")
         FT_Done_FreeType(m_impl->library);
 
     } else if (error) {
 
-        ERR_EXPLAINC("Error loading font.")
+        ERR_EXPLAIN("Error loading font.")
         FT_Done_FreeType(m_impl->library);
     }
 

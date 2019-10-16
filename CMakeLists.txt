@@ -84,7 +84,7 @@ foreach(tgt ${global_targets})
     target_link_libraries(segs_${tgt} ${tgt}_engine Qt5::Core EASTL_Import)
     set_target_properties(segs_${tgt} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
     target_compile_definitions(segs_${tgt} PRIVATE ${godot_${tgt}_DEFINES})
-    target_include_directories(segs_${tgt} PRIVATE ${${PROJECT_BINARY_DIR}})
+    target_include_directories(segs_${tgt} PRIVATE ${PROJECT_BINARY_DIR})
 endforeach()
 
 message(${global_targets})
@@ -205,9 +205,6 @@ if(OPTION_DISABLE_ADVANCED_GUI)
 endif()
 if(OPTION_MINIZIP)
     add_definitions(-DMINIZIP_ENABLED)
-endif()
-if(OPTION_PRECISE_MATH_CHECKS)
-    add_definitions(-DPRECISE_MATH_CHECKS)
 endif()
 
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS

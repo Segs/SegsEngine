@@ -195,7 +195,7 @@ NetSocketPosix::NetError NetSocketPosix::_get_socket_error() {
         return ERR_NET_IN_PROGRESS;
     if (err == WSAEWOULDBLOCK)
         return ERR_NET_WOULD_BLOCK;
-    ERR_PRINTS("Socket error: " + itos(err));
+    ERR_PRINT("Socket error: " + itos(err));
     return ERR_NET_OTHER;
 #else
     if (errno == EISCONN)
@@ -204,7 +204,7 @@ NetSocketPosix::NetError NetSocketPosix::_get_socket_error() {
         return ERR_NET_IN_PROGRESS;
     if (errno == EAGAIN || errno == EWOULDBLOCK)
         return ERR_NET_WOULD_BLOCK;
-    ERR_PRINTS("Socket error: " + itos(errno));
+    ERR_PRINT("Socket error: " + itos(errno));
     return ERR_NET_OTHER;
 #endif
 }

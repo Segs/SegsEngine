@@ -373,7 +373,7 @@ Variant StreamPeer::get_var(bool p_allow_objects) {
 
     Variant ret;
     err = decode_variant(ret, var.ptr(), len, nullptr, p_allow_objects);
-    ERR_FAIL_COND_V_CMSG(err != OK, Variant(), "Error when trying to decode Variant.")
+    ERR_FAIL_COND_V_MSG(err != OK, Variant(), "Error when trying to decode Variant.")
 
     return ret;
 }

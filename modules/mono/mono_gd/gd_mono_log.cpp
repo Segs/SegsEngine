@@ -72,7 +72,7 @@ static void mono_log_callback(const char *log_domain, const char *log_level, con
     }
 
     if (fatal) {
-        ERR_PRINTS("Mono: FATAL ERROR, ABORTING! Logfile: '" + GDMonoLog::get_singleton()->get_log_file_path() + "'.");
+        ERR_PRINT("Mono: FATAL ERROR, ABORTING! Logfile: '" + GDMonoLog::get_singleton()->get_log_file_path() + "'.");
         // Make sure to flush before aborting
         f->flush();
         f->close();
@@ -130,7 +130,7 @@ void GDMonoLog::initialize() {
     CharString log_level = OS::get_singleton()->get_environment("GODOT_MONO_LOG_LEVEL").utf8();
 
     if (log_level.length() != 0 && log_level_get_id(log_level.get_data()) == -1) {
-        ERR_PRINTS(String() + "Mono: Ignoring invalid log level (GODOT_MONO_LOG_LEVEL): '" + log_level.get_data() + "'.");
+        ERR_PRINT(String() + "Mono: Ignoring invalid log level (GODOT_MONO_LOG_LEVEL): '" + log_level.get_data() + "'.");
         log_level = CharString();
     }
 
@@ -159,7 +159,7 @@ void GDMonoLog::initialize() {
 
         log_file = FileAccess::open(log_file_path, FileAccess::WRITE);
         if (!log_file) {
-            ERR_PRINTS("Mono: Cannot create log file at: " + log_file_path);
+            ERR_PRINT("Mono: Cannot create log file at: " + log_file_path);
         }
     }
 

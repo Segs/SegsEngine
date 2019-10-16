@@ -599,7 +599,7 @@ Error ExportTemplateManager::install_android_template() {
     zlib_filefunc_def io = zipio_create_io_from_file(&src_f);
 
     unzFile pkg = unzOpen2(qPrintable(source_zip.m_str), &io);
-    ERR_FAIL_COND_V_CMSG(!pkg, ERR_CANT_OPEN, "Android sources not in ZIP format.")
+    ERR_FAIL_COND_V_MSG(!pkg, ERR_CANT_OPEN, "Android sources not in ZIP format.")
 
     int ret = unzGoToFirstFile(pkg);
 
@@ -648,7 +648,7 @@ Error ExportTemplateManager::install_android_template() {
                 FileAccess::set_unix_permissions(to_write, (info.external_fa >> 16) & 0x01FF);
 #endif
             } else {
-                ERR_PRINTS("Can't uncompress file: " + to_write);
+                ERR_PRINT("Can't uncompress file: " + to_write);
             }
         }
 
@@ -663,9 +663,9 @@ Error ExportTemplateManager::install_android_template() {
 
     // Extract libs from pre-built APKs.
     err = _extract_libs_from_apk("release");
-    ERR_FAIL_COND_V_CMSG(err != OK, err, "Can't extract Android libs from android_release.apk.")
+    ERR_FAIL_COND_V_MSG(err != OK, err, "Can't extract Android libs from android_release.apk.")
     err = _extract_libs_from_apk("debug");
-    ERR_FAIL_COND_V_CMSG(err != OK, err, "Can't extract Android libs from android_debug.apk.")
+    ERR_FAIL_COND_V_MSG(err != OK, err, "Can't extract Android libs from android_debug.apk.")
 
     return OK;
 }
@@ -733,7 +733,7 @@ Error ExportTemplateManager::_extract_libs_from_apk(const String &p_target_name)
             FileAccess::set_unix_permissions(to_write, 0755);
 #endif
         } else {
-            ERR_PRINTS("Can't uncompress file: " + to_write);
+            ERR_PRINT("Can't uncompress file: " + to_write);
         }
 
         ProgressDialog::get_singleton()->task_step("extract_libs_from_apk", path, idx);

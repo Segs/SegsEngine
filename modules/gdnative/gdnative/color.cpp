@@ -33,7 +33,7 @@
 #include "core/color.h"
 #include "core/variant.h"
 #include "core/ustring.h"
-
+#include "core/os/memory.h"
 #ifdef __cplusplus
 extern "C" {
 #endif

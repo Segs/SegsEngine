@@ -68,7 +68,7 @@ RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, const S
 
             if (status == STATUS_READING_ID) {
                 memdelete(f);
-                ERR_FAIL_V_MSG(RES(), p_path + ":" + itos(line) + " Unexpected EOF while reading 'msgid' at file: ");
+                ERR_FAIL_V_MSG(RES(), p_path + ":" + itos(line) + " Unexpected EOF while reading 'msgid' at file: ")
             } else {
                 break;
             }
@@ -79,12 +79,12 @@ RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, const S
             if (status == STATUS_READING_ID) {
 
                 memdelete(f);
-                ERR_FAIL_V_MSG(RES(), p_path + ":" + itos(line) + " Unexpected 'msgid', was expecting 'msgstr' while parsing: ");
+                ERR_FAIL_V_MSG(RES(), p_path + ":" + itos(line) + " Unexpected 'msgid', was expecting 'msgstr' while parsing: ")
             }
 
             if (!msg_id.empty()) {
                 if (!skip_this)
-                    translation->add_message(msg_id, msg_str);
+                    translation->add_message(StringName(msg_id), StringName(msg_str));
             } else if (config.empty())
                 config = msg_str;
 
@@ -149,7 +149,7 @@ RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, const S
 
         if (!msg_id.empty()) {
             if (!skip_this)
-                translation->add_message(msg_id, msg_str);
+                translation->add_message(StringName(msg_id), StringName(msg_str));
         } else if (config.empty())
             config = msg_str;
     }

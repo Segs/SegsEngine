@@ -238,18 +238,19 @@ void InputMap::load_from_globals() {
         if (!begins_with(pi.name,"input/"))
             continue;
 
-        String name = substr(pi.name,find(pi.name,"/") + 1, pi.name.length());
+        String name = pi.name.asString();
+        name = substr(name,find(name,"/") + 1, name.length());
 
         Dictionary action = ProjectSettings::get_singleton()->get(pi.name);
         float deadzone = action.has("deadzone") ? action["deadzone"].as<float>() : 0.5f;
         Array events = action["events"];
 
-        add_action(name, deadzone);
+        add_action(StringName(name), deadzone);
         for (int i = 0; i < events.size(); i++) {
             Ref<InputEvent> event = refFromVariant<InputEvent>(events[i]);
             if (not event)
                 continue;
-            action_add_event(name, event);
+            action_add_event(StringName(name), event);
         }
     }
 }
