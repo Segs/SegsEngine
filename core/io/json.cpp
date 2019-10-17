@@ -32,8 +32,10 @@
 
 #include "core/print_string.h"
 #include "core/list.h"
+#include "core/vector.h"
 #include "core/dictionary.h"
 
+#include "EASTL/sort.h"
 
 const char *JSON::tk_name[TK_MAX] = {
     "'{'",
@@ -97,21 +99,20 @@ String JSON::_print_var(const Variant &p_var, const String &p_indent, int p_cur_
             String s = "{";
             s += end_statement;
             Dictionary d = p_var;
-            ListPOD<Variant> keys;
-            d.get_key_list(&keys);
+            PODVector<Variant> keys(d.get_key_list());
 
             if (p_sort_keys)
-                keys.sort();
+                eastl::sort(keys.begin(),keys.end());
 
-            for (ListPOD<Variant>::iterator E = keys.begin(); E!=keys.end(); ++E) {
+            for (const Variant &E : keys) {
 
-                if (E != keys.begin()) {
+                if (&E != &keys.front()) {
                     s += ",";
                     s += end_statement;
                 }
-                s += _make_indent(p_indent, p_cur_indent + 1) + _print_var(E->as<String>(), p_indent, p_cur_indent + 1, p_sort_keys);
+                s += _make_indent(p_indent, p_cur_indent + 1) + _print_var(E.as<String>(), p_indent, p_cur_indent + 1, p_sort_keys);
                 s += colon;
-                s += _print_var(d[*E], p_indent, p_cur_indent + 1, p_sort_keys);
+                s += _print_var(d[E], p_indent, p_cur_indent + 1, p_sort_keys);
             }
 
             s += end_statement + _make_indent(p_indent, p_cur_indent) + "}";

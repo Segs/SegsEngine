@@ -1207,8 +1207,7 @@ PoolVector<String> Object::_get_meta_list_bind() const {
 
     PoolVector<String> _metaret;
 
-    ListPOD<Variant> keys;
-    metadata.get_key_list(&keys);
+    PODVector<Variant> keys(metadata.get_key_list());
     for(const Variant &E : keys ) {
 
         _metaret.push_back(E.as<String>());
@@ -1218,8 +1217,7 @@ PoolVector<String> Object::_get_meta_list_bind() const {
 }
 void Object::get_meta_list(ListPOD<String> *p_list) const {
 
-    ListPOD<Variant> keys;
-    metadata.get_key_list(&keys);
+    PODVector<Variant> keys(metadata.get_key_list());
     for(const Variant &E : keys ) {
 
         p_list->push_back(E.as<String>());
@@ -1767,8 +1765,7 @@ void Object::_clear_internal_resource_paths(const Variant &p_var) {
         case VariantType::DICTIONARY: {
 
             Dictionary d = p_var;
-            ListPOD<Variant> keys;
-            d.get_key_list(&keys);
+            PODVector<Variant> keys(d.get_key_list());
 
             for(Variant &E : keys ) {
 

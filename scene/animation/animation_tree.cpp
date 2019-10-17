@@ -86,8 +86,7 @@ void AnimationNode::get_child_nodes(List<ChildNode> *r_child_nodes) {
 
     if (get_script_instance()) {
         Dictionary cn = get_script_instance()->call("get_child_nodes");
-        ListPOD<Variant> keys;
-        cn.get_key_list(&keys);
+        PODVector<Variant> keys(cn.get_key_list());
         for (const Variant &E :keys) {
             ChildNode child;
             child.name = E;

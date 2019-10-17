@@ -150,7 +150,7 @@ public:
         max_time_cache = 5 * 60 * 1000; //minutes, five
     }
 
-    ~EditorScriptCodeCompletionCache() override {}
+    ~EditorScriptCodeCompletionCache() override = default;
 };
 
 void ScriptEditorQuickOpen::popup_dialog(const Vector<String> &p_functions, bool p_dontclear) {

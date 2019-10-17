@@ -269,7 +269,7 @@ Error QuickHull::build(const Vector<Vector3> &p_points, Geometry::MeshData &r_me
 
     uint32_t debug_stop = debug_stop_after;
 
-    while (debug_stop > 0 && faces.back()->deref().points_over.size()) {
+    while (debug_stop > 0 && !faces.back()->deref().points_over.empty()) {
 
         debug_stop--;
         QHFace &f = faces.back()->deref();
@@ -377,7 +377,7 @@ Error QuickHull::build(const Vector<Vector3> &p_points, Geometry::MeshData &r_me
 
         //erase lit faces
 
-        while (lit_faces.size()) {
+        while (!lit_faces.empty()) {
 
             faces.erase(lit_faces.front()->deref());
             lit_faces.pop_front();
@@ -388,7 +388,7 @@ Error QuickHull::build(const Vector<Vector3> &p_points, Geometry::MeshData &r_me
         for (List<List<QHFace>::Element *>::Element *E = new_faces.front(); E; E = E->next()) {
 
             QHFace &f2 = E->deref()->deref();
-            if (f2.points_over.size() == 0) {
+            if (f2.points_over.empty()) {
                 faces.move_to_front(E->deref());
             }
         }

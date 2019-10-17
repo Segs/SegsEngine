@@ -100,7 +100,7 @@ public:
 
 		Octree<Instance, true> octree;
 
-		List<Instance *> directional_lights;
+        ListPOD<Instance *> directional_lights;
 		RID environment;
 		RID fallback_environment;
 		RID reflection_probe_shadow_atlas;
@@ -273,7 +273,7 @@ public:
 
 		RID instance;
 		uint64_t last_version;
-		List<Instance *>::Element *D; // directional light in scenario
+        ListPOD<Instance *>::iterator D; // directional light in scenario
 
 		bool shadow_dirty;
 

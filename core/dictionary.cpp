@@ -42,14 +42,16 @@ struct DictionaryPrivate {
     OrderedHashMap<Variant, Variant, Hasher<Variant>, VariantComparator> variant_map;
 };
 
-void Dictionary::get_key_list(ListPOD<Variant> *p_keys) const {
-
+PODVector<Variant> Dictionary::get_key_list() const {
+    PODVector<Variant> res;
     if (_p->variant_map.empty())
-        return;
+        return {};
+    res.reserve(_p->variant_map.size());
 
     for (OrderedHashMap<Variant, Variant, Hasher<Variant>, VariantComparator>::Element E = _p->variant_map.front(); E; E = E.next()) {
-        p_keys->push_back(E.key());
+        res.emplace_back(E.key());
     }
+    return res;
 }
 
 Variant Dictionary::get_key_at_index(int p_index) const {
@@ -194,8 +196,7 @@ uint32_t Dictionary::hash() const {
 
     uint32_t h = hash_djb2_one_32(int(VariantType::DICTIONARY));
 
-    ListPOD<Variant> keys;
-    get_key_list(&keys);
+    PODVector<Variant> keys(get_key_list());
 
     for (const Variant &E : keys) {
 
@@ -257,8 +258,7 @@ Dictionary Dictionary::duplicate(bool p_deep) const {
 
     Dictionary n;
 
-    ListPOD<Variant> keys;
-    get_key_list(&keys);
+    PODVector<Variant> keys(get_key_list());
 
     for (const Variant &E : keys) {
         n[E] = p_deep ? operator[](E).duplicate(p_deep) : operator[](E);

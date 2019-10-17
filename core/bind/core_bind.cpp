@@ -2957,7 +2957,7 @@ void _ClassDB::_bind_methods() {
 }
 
 _ClassDB::_ClassDB() {}
-_ClassDB::~_ClassDB() {}
+_ClassDB::~_ClassDB() = default;
 ///////////////////////////////
 
 void _Engine::set_iterations_per_second(int p_ips) {

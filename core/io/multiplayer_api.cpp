@@ -567,7 +567,7 @@ void MultiplayerAPI::_process_confirm_path(int p_from, const uint8_t *p_packet, 
 
 bool MultiplayerAPI::_send_confirm_path(const NodePath& p_path, PathSentCache *psc, int p_target) {
     bool has_all_peers = true;
-    List<int> peers_to_add; // If one is missing, take note to add it.
+    PODVector<int> peers_to_add; // If one is missing, take note to add it.
 
     for (int E : connected_peers) {
 
@@ -579,7 +579,7 @@ bool MultiplayerAPI::_send_confirm_path(const NodePath& p_path, PathSentCache *p
 
         Map<int, bool>::iterator F = psc->confirmed_peers.find(E);
 
-        if (F== psc->confirmed_peers.end() || !F->second) {
+        if (F == psc->confirmed_peers.end() || !F->second) {
             // Path was not cached, or was cached but is unconfirmed.
             if (F== psc->confirmed_peers.end()) {
                 // Not cached at all, take note.
@@ -592,7 +592,7 @@ bool MultiplayerAPI::_send_confirm_path(const NodePath& p_path, PathSentCache *p
 
     // Those that need to be added, send a message for this.
 
-    for (List<int>::Element *E = peers_to_add.front(); E; E = E->next()) {
+    for (int peer : peers_to_add) {
 
         // Encode function name.
         CharString pname = StringUtils::to_utf8((String)p_path);
@@ -605,11 +605,11 @@ bool MultiplayerAPI::_send_confirm_path(const NodePath& p_path, PathSentCache *p
         encode_uint32(psc->id, &packet.write[1]);
         encode_cstring(pname.data(), &packet.write[5]);
 
-        network_peer->set_target_peer(E->deref()); // To all of you.
+        network_peer->set_target_peer(peer); // To all of you.
         network_peer->set_transfer_mode(NetworkedMultiplayerPeer::TRANSFER_MODE_RELIABLE);
         network_peer->put_packet(packet.ptr(), packet.size());
 
-        psc->confirmed_peers.emplace(E->deref(), false); // Insert into confirmed, but as false since it was not confirmed.
+        psc->confirmed_peers.emplace(peer, false); // Insert into confirmed, but as false since it was not confirmed.
     }
 
     return has_all_peers;

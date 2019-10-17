@@ -646,6 +646,7 @@ bool Variant::operator<(const Variant &p_variant) const {
     bool v;
     Variant r;
     evaluate(OP_LESS, *this, p_variant, r, v);
+    assert(r.get_type()==VariantType::BOOL);
     return r.as<bool>();
 }
 
@@ -1383,7 +1384,7 @@ String Variant::stringify(List<const void *> &stack) const {
 
             Transform2D mat32 = operator Transform2D();
             return "(" + Variant(mat32.elements[0]).as<String>() + ", " + Variant(mat32.elements[1]).as<String>() + ", " + Variant(mat32.elements[2]).as<String>() + ")";
-        } break;
+        }
         case VariantType::VECTOR3: return "(" + operator Vector3() + ")";
         case VariantType::PLANE:
             return operator Plane();
@@ -1432,8 +1433,7 @@ String Variant::stringify(List<const void *> &stack) const {
 
             //const String *K=NULL;
             String str("{");
-            ListPOD<Variant> keys;
-            d.get_key_list(&keys);
+            PODVector<Variant> keys(d.get_key_list());
 
             Vector<_VariantStrPair> pairs;
 
@@ -1521,7 +1521,7 @@ String Variant::stringify(List<const void *> &stack) const {
             }
             str += "]";
             return str;
-        } break;
+        }
         case VariantType::ARRAY: {
 
             Array arr = operator Array();

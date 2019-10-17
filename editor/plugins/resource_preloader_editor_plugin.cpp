@@ -450,5 +450,4 @@ ResourcePreloaderEditorPlugin::ResourcePreloaderEditorPlugin(EditorNode *p_node)
     //preloader_editor->set_margin( MARGIN_TOP, 120 );
 }
 
-ResourcePreloaderEditorPlugin::~ResourcePreloaderEditorPlugin() {
-}
+ResourcePreloaderEditorPlugin::~ResourcePreloaderEditorPlugin() = default;

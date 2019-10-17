@@ -264,7 +264,7 @@ bool EditorSettings::has_default_value(const String &p_setting) const {
     return props[p_setting].has_default_value;
 }
 
-void EditorSettings::_load_defaults(Ref<ConfigFile> p_extra_config) {
+void EditorSettings::_load_defaults(const Ref<ConfigFile> &p_extra_config) {
 
     _THREAD_SAFE_METHOD_
     /* Languages */
@@ -751,8 +751,7 @@ static Dictionary _get_builtin_script_templates() {
 static void _create_script_templates(const String &p_path) {
 
     Dictionary templates = _get_builtin_script_templates();
-    ListPOD<Variant> keys;
-    templates.get_key_list(&keys);
+    PODVector<Variant> keys(templates.get_key_list());
     FileAccess *file = FileAccess::create(FileAccess::ACCESS_FILESYSTEM);
 
     DirAccess *dir = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
@@ -1616,5 +1615,4 @@ EditorSettings::EditorSettings() {
     _load_defaults();
 }
 
-EditorSettings::~EditorSettings() {
-}
+EditorSettings::~EditorSettings() = default;

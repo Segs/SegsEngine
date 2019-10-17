@@ -1138,8 +1138,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
             }
             r_len += 4;
 
-            ListPOD<Variant> keys;
-            d.get_key_list(&keys);
+            PODVector<Variant> keys(d.get_key_list());
 
             for(Variant &E : keys ) {
 

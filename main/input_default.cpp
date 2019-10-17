@@ -741,10 +741,7 @@ InputDefault::InputDefault() {
     }
 }
 
-InputDefault::~InputDefault()
-{
-
-}
+InputDefault::~InputDefault() = default;
 
 void InputDefault::joy_button(int p_device, int p_button, bool p_pressed) {
 
@@ -902,7 +899,7 @@ void InputDefault::joy_axis(int p_device, int p_axis, const JoyAxis &p_value) {
 
 void InputDefault::joy_hat(int p_device, int p_val) {
 
-    _THREAD_SAFE_METHOD_;
+    _THREAD_SAFE_METHOD_
     const Joypad &joy = joy_names[p_device];
 
     const JoyEvent *map;

@@ -35,6 +35,8 @@
 #include "core/io/marshalls.h"
 #include "core/method_bind.h"
 
+#include "EASTL/sort.h"
+
 IMPL_GDCLASS(PackedDataContainer)
 IMPL_GDCLASS(PackedDataContainerRef)
 
@@ -259,14 +261,12 @@ uint32_t PackedDataContainer::_pack(const Variant &p_data, Vector<uint8_t> &tmpd
             tmpdata.resize(tmpdata.size() + len);
             encode_variant(p_data, &tmpdata.write[pos], len, false);
             return pos;
-
-        } break;
+        }
         // misc types
         case VariantType::_RID:
         case VariantType::OBJECT: {
-
             return _pack(Variant(), tmpdata, string_cache);
-        } break;
+        }
         case VariantType::DICTIONARY: {
 
             Dictionary d = p_data;
@@ -277,10 +277,9 @@ uint32_t PackedDataContainer::_pack(const Variant &p_data, Vector<uint8_t> &tmpd
             encode_uint32(TYPE_DICT, &tmpdata.write[pos + 0]);
             encode_uint32(len, &tmpdata.write[pos + 4]);
 
-            ListPOD<Variant> keys;
-            d.get_key_list(&keys);
-            List<DictKey> sortk;
-
+            PODVector<Variant> keys(d.get_key_list());
+            PODVector<DictKey> sortk;
+            sortk.reserve(keys.size());
             for(Variant &E : keys ) {
 
                 DictKey dk;
@@ -289,22 +288,20 @@ uint32_t PackedDataContainer::_pack(const Variant &p_data, Vector<uint8_t> &tmpd
                 sortk.push_back(dk);
             }
 
-            sortk.sort();
+            eastl::sort(sortk.begin(),sortk.end());
 
             int idx = 0;
-            for (List<DictKey>::Element *E = sortk.front(); E; E = E->next()) {
+            for (const DictKey &E : sortk) {
 
-                encode_uint32(E->deref().hash, &tmpdata.write[pos + 8 + idx * 12 + 0]);
-                uint32_t ofs = _pack(E->deref().key, tmpdata, string_cache);
+                encode_uint32(E.hash, &tmpdata.write[pos + 8 + idx * 12 + 0]);
+                uint32_t ofs = _pack(E.key, tmpdata, string_cache);
                 encode_uint32(ofs, &tmpdata.write[pos + 8 + idx * 12 + 4]);
-                ofs = _pack(d[E->deref().key], tmpdata, string_cache);
+                ofs = _pack(d[E.key], tmpdata, string_cache);
                 encode_uint32(ofs, &tmpdata.write[pos + 8 + idx * 12 + 8]);
                 idx++;
             }
-
             return pos;
-
-        } break;
+        }
         case VariantType::ARRAY: {
 
             Array a = p_data;
@@ -323,7 +320,7 @@ uint32_t PackedDataContainer::_pack(const Variant &p_data, Vector<uint8_t> &tmpd
 
             return pos;
 
-        } break;
+        }
 
         default: {
         }

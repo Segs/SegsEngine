@@ -46,8 +46,8 @@ protected:
         return true;
     }
 #endif
-    void _set_const(bool p_const);
-    void _set_returns(bool p_returns);
+    void _set_const(bool p_const) noexcept;
+    void _set_returns(bool p_returns) noexcept;
 #ifdef DEBUG_METHODS_ENABLED
     virtual PropertyInfo _gen_argument_type_info(int p_arg) const = 0;
     virtual GodotTypeInfo::Metadata do_get_argument_meta(int p_arg) const = 0;
@@ -89,7 +89,7 @@ public:
     void set_argument_names(const PODVector<StringName> &p_names); //set by class, db, can't be inferred otherwise
     const PODVector<StringName> &get_argument_names() const;
 
-    GodotTypeInfo::Metadata get_argument_meta(int p_arg) const;
+    GodotTypeInfo::Metadata get_argument_meta(int p_arg) const  noexcept;
 
 #endif
     void set_hint_flags(uint32_t p_hint) { hint_flags = p_hint; }
@@ -132,7 +132,7 @@ protected:
 public:
 #ifdef DEBUG_METHODS_ENABLED
 
-    PropertyInfo _gen_argument_type_info(int p_arg) const override {
+    PropertyInfo _gen_argument_type_info(int p_arg) const noexcept override {
 
         if (p_arg < 0) {
             return arguments.return_val;
@@ -145,7 +145,7 @@ public:
         }
     }
 
-    GodotTypeInfo::Metadata do_get_argument_meta(int) const override {
+    GodotTypeInfo::Metadata do_get_argument_meta(int) const noexcept override {
         return GodotTypeInfo::METADATA_NONE;
     }
 #endif

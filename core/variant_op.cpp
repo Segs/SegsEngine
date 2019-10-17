@@ -409,8 +409,7 @@ bool Variant::booleanize() const {
         _RETURN(sum);                                                                                      \
     }
 
-void Variant::evaluate(const Operator &p_op, const Variant &p_a,
-        const Variant &p_b, Variant &r_ret, bool &r_valid) {
+void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Variant &r_ret, bool &r_valid) {
 
     CASES(math);
     r_valid = true;
@@ -500,42 +499,42 @@ void Variant::evaluate(const Operator &p_op, const Variant &p_a,
             DEFAULT_OP_STR_NULL(math, OP_EQUAL, NODE_PATH, ==, NodePath)
             DEFAULT_OP_LOCALMEM_NULL(math, OP_EQUAL, _RID, ==, RID)
 
-            DEFAULT_OP_ARRAY_EQ(math, OP_EQUAL, POOL_BYTE_ARRAY, uint8_t);
-            DEFAULT_OP_ARRAY_EQ(math, OP_EQUAL, POOL_INT_ARRAY, int);
-            DEFAULT_OP_ARRAY_EQ(math, OP_EQUAL, POOL_REAL_ARRAY, real_t);
-            DEFAULT_OP_ARRAY_EQ(math, OP_EQUAL, POOL_STRING_ARRAY, String);
-            DEFAULT_OP_ARRAY_EQ(math, OP_EQUAL, POOL_VECTOR2_ARRAY, Vector2);
-            DEFAULT_OP_ARRAY_EQ(math, OP_EQUAL, POOL_VECTOR3_ARRAY, Vector3);
-            DEFAULT_OP_ARRAY_EQ(math, OP_EQUAL, POOL_COLOR_ARRAY, Color);
+            DEFAULT_OP_ARRAY_EQ(math, OP_EQUAL, POOL_BYTE_ARRAY, uint8_t)
+            DEFAULT_OP_ARRAY_EQ(math, OP_EQUAL, POOL_INT_ARRAY, int)
+            DEFAULT_OP_ARRAY_EQ(math, OP_EQUAL, POOL_REAL_ARRAY, real_t)
+            DEFAULT_OP_ARRAY_EQ(math, OP_EQUAL, POOL_STRING_ARRAY, String)
+            DEFAULT_OP_ARRAY_EQ(math, OP_EQUAL, POOL_VECTOR2_ARRAY, Vector2)
+            DEFAULT_OP_ARRAY_EQ(math, OP_EQUAL, POOL_VECTOR3_ARRAY, Vector3)
+            DEFAULT_OP_ARRAY_EQ(math, OP_EQUAL, POOL_COLOR_ARRAY, Color)
         }
 
         SWITCH_OP(math, OP_NOT_EQUAL, p_a.type) {
             CASE_TYPE(math, OP_NOT_EQUAL, NIL) {
-                if (p_b.type == VariantType::NIL) _RETURN(false);
+                if (p_b.type == VariantType::NIL) _RETURN(false)
                 if (p_b.type == VariantType::OBJECT)
-                    _RETURN(p_b._get_obj().obj != nullptr);
+                    _RETURN(p_b._get_obj().obj != nullptr)
 
-                _RETURN(true);
+                _RETURN(true)
             }
 
             CASE_TYPE(math, OP_NOT_EQUAL, BOOL) {
                 if (p_b.type != VariantType::BOOL) {
                     if (p_b.type == VariantType::NIL)
-                        _RETURN(true);
+                        _RETURN(true)
 
-                    _RETURN_FAIL;
+                    _RETURN_FAIL
                 }
 
-                _RETURN(p_a._data._bool != p_b._data._bool);
+                _RETURN(p_a._data._bool != p_b._data._bool)
             }
 
             CASE_TYPE(math, OP_NOT_EQUAL, OBJECT) {
                 if (p_b.type == VariantType::OBJECT)
-                    _RETURN((p_a._get_obj().obj != p_b._get_obj().obj));
+                    _RETURN((p_a._get_obj().obj != p_b._get_obj().obj))
                 if (p_b.type == VariantType::NIL)
-                    _RETURN(p_a._get_obj().obj != nullptr);
+                    _RETURN(p_a._get_obj().obj != nullptr)
 
-                _RETURN_FAIL;
+                _RETURN_FAIL
             }
 
             CASE_TYPE(math, OP_NOT_EQUAL, DICTIONARY) {
@@ -564,105 +563,100 @@ void Variant::evaluate(const Operator &p_op, const Variant &p_a,
 
                 int l = arr_a->size();
                 if (arr_b->size() != l)
-                    _RETURN(true);
+                    _RETURN(true)
                 for (int i = 0; i < l; i++) {
                     if (((*arr_a)[i] != (*arr_b)[i])) {
-                        _RETURN(true);
+                        _RETURN(true)
                     }
                 }
 
-                _RETURN(false);
+                _RETURN(false)
             }
 
-            DEFAULT_OP_NUM_NULL(math, OP_NOT_EQUAL, INT, !=, _int);
-            DEFAULT_OP_NUM_NULL(math, OP_NOT_EQUAL, REAL, !=, _real);
+            DEFAULT_OP_NUM_NULL(math, OP_NOT_EQUAL, INT, !=, _int)
+            DEFAULT_OP_NUM_NULL(math, OP_NOT_EQUAL, REAL, !=, _real)
             CASE_TYPE(math, OP_NOT_EQUAL, STRING) {
-                if (p_b.type == VariantType::STRING) _RETURN(String(*reinterpret_cast<const String *>(p_a._data._mem)) != *reinterpret_cast<const String *>(p_b._data._mem));
+                if (p_b.type == VariantType::STRING) _RETURN(*reinterpret_cast<const String *>(p_a._data._mem) != *reinterpret_cast<const String *>(p_b._data._mem));
                 if (p_b.type == VariantType::NODE_PATH) _RETURN(*reinterpret_cast<const String *>(p_a._data._mem) != (String)*reinterpret_cast<const NodePath *>(p_b._data._mem));
-                if (p_b.type == VariantType::NIL) _RETURN(!(p_b.type != VariantType::NIL));
+                if (p_b.type == VariantType::NIL) _RETURN(!(p_b.type != VariantType::NIL))
 
                 _RETURN_FAIL
-            };
+            }
 
-            DEFAULT_OP_LOCALMEM_NULL(math, OP_NOT_EQUAL, VECTOR2, !=, Vector2);
-            DEFAULT_OP_LOCALMEM_NULL(math, OP_NOT_EQUAL, RECT2, !=, Rect2);
-            DEFAULT_OP_PTRREF_NULL(math, OP_NOT_EQUAL, TRANSFORM2D, !=, _transform2d);
-            DEFAULT_OP_LOCALMEM_NULL(math, OP_NOT_EQUAL, VECTOR3, !=, Vector3);
-            DEFAULT_OP_LOCALMEM_NULL(math, OP_NOT_EQUAL, PLANE, !=, Plane);
-            DEFAULT_OP_LOCALMEM_NULL(math, OP_NOT_EQUAL, QUAT, !=, Quat);
-            DEFAULT_OP_PTRREF_NULL(math, OP_NOT_EQUAL, AABB, !=, _aabb);
-            DEFAULT_OP_PTRREF_NULL(math, OP_NOT_EQUAL, BASIS, !=, _basis);
-            DEFAULT_OP_PTRREF_NULL(math, OP_NOT_EQUAL, TRANSFORM, !=, _transform);
-            DEFAULT_OP_LOCALMEM_NULL(math, OP_NOT_EQUAL, COLOR, !=, Color);
-            DEFAULT_OP_STR_NULL(math, OP_NOT_EQUAL, NODE_PATH, !=, NodePath);
-            DEFAULT_OP_LOCALMEM_NULL(math, OP_NOT_EQUAL, _RID, !=, RID);
+            DEFAULT_OP_LOCALMEM_NULL(math, OP_NOT_EQUAL, VECTOR2, !=, Vector2)
+            DEFAULT_OP_LOCALMEM_NULL(math, OP_NOT_EQUAL, RECT2, !=, Rect2)
+            DEFAULT_OP_PTRREF_NULL(math, OP_NOT_EQUAL, TRANSFORM2D, !=, _transform2d)
+            DEFAULT_OP_LOCALMEM_NULL(math, OP_NOT_EQUAL, VECTOR3, !=, Vector3)
+            DEFAULT_OP_LOCALMEM_NULL(math, OP_NOT_EQUAL, PLANE, !=, Plane)
+            DEFAULT_OP_LOCALMEM_NULL(math, OP_NOT_EQUAL, QUAT, !=, Quat)
+            DEFAULT_OP_PTRREF_NULL(math, OP_NOT_EQUAL, AABB, !=, _aabb)
+            DEFAULT_OP_PTRREF_NULL(math, OP_NOT_EQUAL, BASIS, !=, _basis)
+            DEFAULT_OP_PTRREF_NULL(math, OP_NOT_EQUAL, TRANSFORM, !=, _transform)
+            DEFAULT_OP_LOCALMEM_NULL(math, OP_NOT_EQUAL, COLOR, !=, Color)
+            DEFAULT_OP_STR_NULL(math, OP_NOT_EQUAL, NODE_PATH, !=, NodePath)
+            DEFAULT_OP_LOCALMEM_NULL(math, OP_NOT_EQUAL, _RID, !=, RID)
 
-            DEFAULT_OP_ARRAY_NEQ(math, OP_NOT_EQUAL, POOL_BYTE_ARRAY, uint8_t);
-            DEFAULT_OP_ARRAY_NEQ(math, OP_NOT_EQUAL, POOL_INT_ARRAY, int);
-            DEFAULT_OP_ARRAY_NEQ(math, OP_NOT_EQUAL, POOL_REAL_ARRAY, real_t);
-            DEFAULT_OP_ARRAY_NEQ(math, OP_NOT_EQUAL, POOL_STRING_ARRAY, String);
-            DEFAULT_OP_ARRAY_NEQ(math, OP_NOT_EQUAL, POOL_VECTOR2_ARRAY, Vector2);
-            DEFAULT_OP_ARRAY_NEQ(math, OP_NOT_EQUAL, POOL_VECTOR3_ARRAY, Vector3);
-            DEFAULT_OP_ARRAY_NEQ(math, OP_NOT_EQUAL, POOL_COLOR_ARRAY, Color);
+            DEFAULT_OP_ARRAY_NEQ(math, OP_NOT_EQUAL, POOL_BYTE_ARRAY, uint8_t)
+            DEFAULT_OP_ARRAY_NEQ(math, OP_NOT_EQUAL, POOL_INT_ARRAY, int)
+            DEFAULT_OP_ARRAY_NEQ(math, OP_NOT_EQUAL, POOL_REAL_ARRAY, real_t)
+            DEFAULT_OP_ARRAY_NEQ(math, OP_NOT_EQUAL, POOL_STRING_ARRAY, String)
+            DEFAULT_OP_ARRAY_NEQ(math, OP_NOT_EQUAL, POOL_VECTOR2_ARRAY, Vector2)
+            DEFAULT_OP_ARRAY_NEQ(math, OP_NOT_EQUAL, POOL_VECTOR3_ARRAY, Vector3)
+            DEFAULT_OP_ARRAY_NEQ(math, OP_NOT_EQUAL, POOL_COLOR_ARRAY, Color)
         }
 
         SWITCH_OP(math, OP_LESS, p_a.type) {
             CASE_TYPE(math, OP_LESS, BOOL) {
                 if (p_b.type != VariantType::BOOL)
-                    _RETURN_FAIL;
+                    _RETURN_FAIL
 
-                if (p_a._data._bool == p_b._data._bool)
-                    _RETURN(false);
-
-                if (p_a._data._bool && !p_b._data._bool)
-                    _RETURN(false);
-
-                _RETURN(true);
+                _RETURN(p_a._data._bool < p_b._data._bool)
             }
 
             CASE_TYPE(math, OP_LESS, OBJECT) {
                 if (p_b.type != VariantType::OBJECT)
-                    _RETURN_FAIL;
-                _RETURN((p_a._get_obj().obj < p_b._get_obj().obj));
+                    _RETURN_FAIL
+                _RETURN((p_a._get_obj().obj < p_b._get_obj().obj))
             }
 
             CASE_TYPE(math, OP_LESS, ARRAY) {
                 if (p_b.type != VariantType::ARRAY)
-                    _RETURN_FAIL;
+                    _RETURN_FAIL
 
                 const Array *arr_a = reinterpret_cast<const Array *>(p_a._data._mem);
                 const Array *arr_b = reinterpret_cast<const Array *>(p_b._data._mem);
 
                 int l = arr_a->size();
                 if (arr_b->size() < l)
-                    _RETURN(false);
+                    _RETURN(false)
                 for (int i = 0; i < l; i++) {
                     if (!((*arr_a)[i] < (*arr_b)[i])) {
-                        _RETURN(true);
+                        _RETURN(true)
                     }
                 }
 
                 _RETURN(false);
             }
 
-            DEFAULT_OP_NUM(math, OP_LESS, INT, <, _int);
-            DEFAULT_OP_NUM(math, OP_LESS, REAL, <, _real);
+            DEFAULT_OP_NUM(math, OP_LESS, INT, <, _int)
+            DEFAULT_OP_NUM(math, OP_LESS, REAL, <, _real)
             CASE_TYPE(math, OP_LESS, STRING) {
-                if (p_b.type == VariantType::STRING) _RETURN(String(*reinterpret_cast<const String *>(p_a._data._mem) < *reinterpret_cast<const String *>(p_b._data._mem)));
-                if (p_b.type == VariantType::NODE_PATH) _RETURN(String(*reinterpret_cast<const String *>(p_a._data._mem) < (String)*reinterpret_cast<const NodePath *>(p_b._data._mem)));
+                if (p_b.type == VariantType::STRING)
+                    _RETURN(*reinterpret_cast<const String *>(p_a._data._mem) < *reinterpret_cast<const String *>(p_b._data._mem))
+                if (p_b.type == VariantType::NODE_PATH) _RETURN(*reinterpret_cast<const String *>(p_a._data._mem) < (String)*reinterpret_cast<const NodePath *>(p_b._data._mem));
 
                 _RETURN_FAIL
-            };
-            DEFAULT_OP_LOCALMEM(math, OP_LESS, VECTOR2, <, Vector2);
-            DEFAULT_OP_LOCALMEM(math, OP_LESS, VECTOR3, <, Vector3);
-            DEFAULT_OP_LOCALMEM(math, OP_LESS, _RID, <, RID);
-            DEFAULT_OP_ARRAY_LT(math, OP_LESS, POOL_BYTE_ARRAY, uint8_t);
-            DEFAULT_OP_ARRAY_LT(math, OP_LESS, POOL_INT_ARRAY, int);
-            DEFAULT_OP_ARRAY_LT(math, OP_LESS, POOL_REAL_ARRAY, real_t);
-            DEFAULT_OP_ARRAY_LT(math, OP_LESS, POOL_STRING_ARRAY, String);
-            DEFAULT_OP_ARRAY_LT(math, OP_LESS, POOL_VECTOR2_ARRAY, Vector3);
-            DEFAULT_OP_ARRAY_LT(math, OP_LESS, POOL_VECTOR3_ARRAY, Vector3);
-            DEFAULT_OP_ARRAY_LT(math, OP_LESS, POOL_COLOR_ARRAY, Color);
+            }
+            DEFAULT_OP_LOCALMEM(math, OP_LESS, VECTOR2, <, Vector2)
+            DEFAULT_OP_LOCALMEM(math, OP_LESS, VECTOR3, <, Vector3)
+            DEFAULT_OP_LOCALMEM(math, OP_LESS, _RID, <, RID)
+            DEFAULT_OP_ARRAY_LT(math, OP_LESS, POOL_BYTE_ARRAY, uint8_t)
+            DEFAULT_OP_ARRAY_LT(math, OP_LESS, POOL_INT_ARRAY, int)
+            DEFAULT_OP_ARRAY_LT(math, OP_LESS, POOL_REAL_ARRAY, real_t)
+            DEFAULT_OP_ARRAY_LT(math, OP_LESS, POOL_STRING_ARRAY, String)
+            DEFAULT_OP_ARRAY_LT(math, OP_LESS, POOL_VECTOR2_ARRAY, Vector3)
+            DEFAULT_OP_ARRAY_LT(math, OP_LESS, POOL_VECTOR3_ARRAY, Vector3)
+            DEFAULT_OP_ARRAY_LT(math, OP_LESS, POOL_COLOR_ARRAY, Color)
 
             CASE_TYPE(math, OP_LESS, NIL)
             CASE_TYPE(math, OP_LESS, RECT2)
@@ -675,18 +669,18 @@ void Variant::evaluate(const Operator &p_op, const Variant &p_a,
             CASE_TYPE(math, OP_LESS, COLOR)
             CASE_TYPE(math, OP_LESS, NODE_PATH)
             CASE_TYPE(math, OP_LESS, DICTIONARY)
-            _RETURN_FAIL;
+            _RETURN_FAIL
         }
 
         SWITCH_OP(math, OP_LESS_EQUAL, p_a.type) {
             CASE_TYPE(math, OP_LESS_EQUAL, OBJECT) {
                 if (p_b.type != VariantType::OBJECT)
-                    _RETURN_FAIL;
-                _RETURN((p_a._get_obj().obj <= p_b._get_obj().obj));
+                    _RETURN_FAIL
+                _RETURN((p_a._get_obj().obj <= p_b._get_obj().obj))
             }
 
-            DEFAULT_OP_NUM(math, OP_LESS_EQUAL, INT, <=, _int);
-            DEFAULT_OP_NUM(math, OP_LESS_EQUAL, REAL, <=, _real);
+            DEFAULT_OP_NUM(math, OP_LESS_EQUAL, INT, <=, _int)
+            DEFAULT_OP_NUM(math, OP_LESS_EQUAL, REAL, <=, _real)
             CASE_TYPE(math, OP_LESS_EQUAL, STRING) {
                 if (p_b.type == VariantType::STRING) _RETURN(String(*reinterpret_cast<const String *>(p_a._data._mem) <= *reinterpret_cast<const String *>(p_b._data._mem)));
                 if (p_b.type == VariantType::NODE_PATH) _RETURN(String(*reinterpret_cast<const String *>(p_a._data._mem) <= (String)*reinterpret_cast<const NodePath *>(p_b._data._mem)));
@@ -2966,8 +2960,7 @@ void Variant::get_property_list(ListPOD<PropertyInfo> *p_list) const {
         case VariantType::DICTIONARY: {
 
             const Dictionary *dic = reinterpret_cast<const Dictionary *>(_data._mem);
-            ListPOD<Variant> keys;
-            dic->get_key_list(&keys);
+            PODVector<Variant> keys(dic->get_key_list());
             for(Variant &E : keys ) {
                 if (E.get_type() == VariantType::STRING) {
                     p_list->push_back(PropertyInfo(VariantType::STRING, StringUtils::to_utf8(E).data()));

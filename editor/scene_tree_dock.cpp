@@ -800,7 +800,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
                     delete_dialog->set_text(vformat(TTR("Delete %d nodes?"), remove_list.size()));
                 } else if (remove_list.size() == 1 && remove_list[0] == editor_data->get_edited_scene_root()) {
                     delete_dialog->set_text(vformat(TTR("Delete the root node \"%s\"?"), remove_list[0]->get_name()));
-                } else if (remove_list.size() == 1 && remove_list[0]->get_filename() == "" && remove_list[0]->get_child_count() >= 1) {
+                } else if (remove_list.size() == 1 && remove_list[0]->get_filename().empty() && remove_list[0]->get_child_count() >= 1) {
                     // Display this message only for non-instanced scenes
                     delete_dialog->set_text(vformat(TTR("Delete node \"%s\" and its children?"), remove_list[0]->get_name()));
                 } else {
@@ -1589,7 +1589,7 @@ void SceneTreeDock::_do_reparent(Node *p_new_parent, int p_position_in_parent, V
     Node *new_parent = p_new_parent;
     ERR_FAIL_COND(!new_parent);
 
-    if (p_nodes.size() == 0)
+    if (p_nodes.empty())
         return; // Nothing to reparent.
 
     p_nodes.sort_custom<Node::Comparator>(); //Makes result reliable.

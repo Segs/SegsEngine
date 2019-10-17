@@ -959,7 +959,7 @@ struct _VariantCall {
 
     struct ConstructFunc {
 
-        List<ConstructData> constructors;
+        PODVector<ConstructData> constructors;
     };
 
     static ConstructFunc *construct_funcs;
@@ -1123,7 +1123,7 @@ struct _VariantCall {
 
     end:
 
-        construct_funcs[(int)p_type].constructors.push_back(cd);
+        construct_funcs[(int)p_type].constructors.emplace_back(cd);
     }
 
     struct ConstantData {
@@ -1264,8 +1264,7 @@ Variant Variant::construct(const VariantType p_type, const Variant **p_args, int
 
         _VariantCall::ConstructFunc &c = _VariantCall::construct_funcs[(int)p_type];
 
-        for (List<_VariantCall::ConstructData>::Element *E = c.constructors.front(); E; E = E->next()) {
-            const _VariantCall::ConstructData &cd = E->deref();
+        for (const _VariantCall::ConstructData &cd : c.constructors) {
 
             if (cd.arg_count != p_argcount)
                 continue;
@@ -1468,9 +1467,8 @@ void Variant::get_constructor_list(VariantType p_type, PODVector<MethodInfo> *p_
     ERR_FAIL_INDEX(int(p_type), int(VariantType::VARIANT_MAX))
 
     //custom constructors
-    for (const List<_VariantCall::ConstructData>::Element *E = _VariantCall::construct_funcs[(int)p_type].constructors.front(); E; E = E->next()) {
+    for (const _VariantCall::ConstructData &cd : _VariantCall::construct_funcs[(int)p_type].constructors) {
 
-        const _VariantCall::ConstructData &cd = E->deref();
         MethodInfo mi;
         mi.name = Variant::interned_type_name(p_type);
         mi.return_val.type = p_type;

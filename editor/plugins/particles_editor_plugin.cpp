@@ -532,5 +532,4 @@ ParticlesEditorPlugin::ParticlesEditorPlugin(EditorNode *p_node) {
     particles_editor->hide();
 }
 
-ParticlesEditorPlugin::~ParticlesEditorPlugin() {
-}
+ParticlesEditorPlugin::~ParticlesEditorPlugin() = default;

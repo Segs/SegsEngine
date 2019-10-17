@@ -45,7 +45,7 @@ class JointBullet : public ConstraintBullet {
 
 public:
 	JointBullet();
-	~JointBullet() override;
+    ~JointBullet() override = default;
 
 	virtual PhysicsServer::JointType get_type() const = 0;
 };

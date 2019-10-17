@@ -5,6 +5,6 @@
 
 template class EXPORT_TEMPLATE_DEFINE(GODOT_EXPORT) eastl::vector<uint8_t,wrap_allocator>;
 
-GODOT_TEMPLATE_EXT_DEFINE(Vector<String>)
-GODOT_TEMPLATE_EXT_DEFINE(Vector<Vector2>)
-GODOT_TEMPLATE_EXT_DEFINE(Vector<Vector3>)
+template class EXPORT_TEMPLATE_DEFINE(GODOT_EXPORT) Vector<String>;
+template class EXPORT_TEMPLATE_DEFINE(GODOT_EXPORT) Vector<struct Vector2>;
+template class EXPORT_TEMPLATE_DEFINE(GODOT_EXPORT) Vector<struct Vector3>;

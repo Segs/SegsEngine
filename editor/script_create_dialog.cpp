@@ -230,11 +230,7 @@ String ScriptCreateDialog::_validate_path(const String &p_path, bool p_file_must
 
 void ScriptCreateDialog::_class_name_changed(const String &p_name) {
 
-    if (_validate_class(class_name->get_text())) {
-        is_class_name_valid = true;
-    } else {
-        is_class_name_valid = false;
-    }
+    is_class_name_valid = _validate_class(class_name->get_text());
     _update_dialog();
 }
 

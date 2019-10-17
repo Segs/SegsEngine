@@ -152,4 +152,4 @@ Skeleton2DEditorPlugin::Skeleton2DEditorPlugin(EditorNode *p_node) {
     //sprite_editor->options->hide();
 }
 
-Skeleton2DEditorPlugin::~Skeleton2DEditorPlugin() {}
+Skeleton2DEditorPlugin::~Skeleton2DEditorPlugin() = default;

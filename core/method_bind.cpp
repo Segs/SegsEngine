@@ -50,12 +50,12 @@ PropertyInfo MethodBind::get_return_info() const {
 }
 
 #endif
-void MethodBind::_set_const(bool p_const) {
+void MethodBind::_set_const(bool p_const) noexcept {
 
     _const = p_const;
 }
 
-void MethodBind::_set_returns(bool p_returns) {
+void MethodBind::_set_returns(bool p_returns) noexcept {
 
     _returns = p_returns;
 }
@@ -77,7 +77,7 @@ const PODVector<StringName> &MethodBind::get_argument_names() const {
     return arg_names;
 }
 
-GodotTypeInfo::Metadata MethodBind::get_argument_meta(int p_arg) const
+GodotTypeInfo::Metadata MethodBind::get_argument_meta(int p_arg) const noexcept
 {
     if(p_arg<-1 || p_arg >= argument_count)
         return GodotTypeInfo::METADATA_NONE;

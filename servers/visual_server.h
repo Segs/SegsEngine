@@ -140,7 +140,7 @@ public:
 
     virtual void shader_set_code(RID p_shader, const String &p_code) = 0;
     virtual String shader_get_code(RID p_shader) const = 0;
-    virtual void shader_get_param_list(RID p_shader, ListPOD<PropertyInfo> *p_param_list) const = 0;
+    virtual void shader_get_param_list(RID p_shader, PODVector<PropertyInfo> *p_param_list) const = 0;
     Array _shader_get_param_list_bind(RID p_shader) const;
 
     virtual void shader_set_default_texture_param(RID p_shader, const StringName &p_name, RID p_texture) = 0;

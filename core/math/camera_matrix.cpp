@@ -48,13 +48,7 @@ void CameraMatrix::set_identity() {
 
 void CameraMatrix::set_zero() {
 
-    for (int i = 0; i < 4; i++) {
-
-        for (int j = 0; j < 4; j++) {
-
-            matrix[i][j] = 0;
-        }
-    }
+    memset(matrix,0,sizeof(real_t)*16);
 }
 
 Plane CameraMatrix::xform4(const Plane &p_vec4) const {

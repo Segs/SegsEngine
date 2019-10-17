@@ -899,10 +899,6 @@ void RigidBody::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "mode", PROPERTY_HINT_ENUM, "Rigid,Static,Character,Kinematic"), "set_mode", "get_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "mass", PROPERTY_HINT_EXP_RANGE, "0.01,65535,0.01"), "set_mass", "get_mass");
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "weight", PROPERTY_HINT_EXP_RANGE, "0.01,65535,0.01", PROPERTY_USAGE_EDITOR), "set_weight", "get_weight");
-#ifndef DISABLE_DEPRECATED
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "friction", PROPERTY_HINT_RANGE, "0,1,0.01", 0), "set_friction", "get_friction");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "bounce", PROPERTY_HINT_RANGE, "0,1,0.01", 0), "set_bounce", "get_bounce");
-#endif // DISABLE_DEPRECATED
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "physics_material_override", PROPERTY_HINT_RESOURCE_TYPE, "PhysicsMaterial"), "set_physics_material_override", "get_physics_material_override");
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "gravity_scale", PROPERTY_HINT_RANGE, "-128,128,0.01"), "set_gravity_scale", "get_gravity_scale");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "custom_integrator"), "set_use_custom_integrator", "is_using_custom_integrator");

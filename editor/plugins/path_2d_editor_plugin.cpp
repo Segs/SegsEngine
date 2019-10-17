@@ -640,5 +640,4 @@ Path2DEditorPlugin::Path2DEditorPlugin(EditorNode *p_node) {
     path2d_editor->hide();
 }
 
-Path2DEditorPlugin::~Path2DEditorPlugin() {
-}
+Path2DEditorPlugin::~Path2DEditorPlugin() = default;

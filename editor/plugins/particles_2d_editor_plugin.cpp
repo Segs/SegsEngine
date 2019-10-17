@@ -438,5 +438,4 @@ Particles2DEditorPlugin::Particles2DEditorPlugin(EditorNode *p_node) {
     emission_mask->connect("confirmed", this, "_generate_emission_mask");
 }
 
-Particles2DEditorPlugin::~Particles2DEditorPlugin() {
-}
+Particles2DEditorPlugin::~Particles2DEditorPlugin() = default;

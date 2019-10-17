@@ -1,5 +1,34 @@
-# Godot's own sources
+# Generate AES256 script encryption key
+add_custom_command(
+    COMMAND editor_to_header encryption ${CMAKE_CURRENT_BINARY_DIR}
+    OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/script_encryption_key.gen.cpp
+    DEPENDS editor_to_header
+    COMMENT "Generating controllers header"
+)
 
+update_version("")
+
+
+add_custom_command(
+    COMMAND editor_to_header license "${PROJECT_SOURCE_DIR}/COPYRIGHT.txt" "${PROJECT_SOURCE_DIR}/LICENSE.txt" ${CMAKE_CURRENT_BINARY_DIR}/license.gen.h
+    OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/license.gen.h
+    DEPENDS editor_to_header ${PROJECT_SOURCE_DIR}/COPYRIGHT.txt ${PROJECT_SOURCE_DIR}/LICENSE.txt
+    COMMENT "Generating license header"
+)
+add_custom_command(
+    COMMAND editor_to_header authors "${PROJECT_SOURCE_DIR}/AUTHORS.md" ${CMAKE_CURRENT_BINARY_DIR}/authors.gen.h
+    OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/authors.gen.h
+    DEPENDS editor_to_header ${PROJECT_SOURCE_DIR}/AUTHORS.md
+    COMMENT "Generating authors header"
+)
+add_custom_command(
+    COMMAND editor_to_header donors "${PROJECT_SOURCE_DIR}/DONORS.md" ${CMAKE_CURRENT_BINARY_DIR}/donors.gen.h
+    OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/donors.gen.h
+    DEPENDS editor_to_header ${PROJECT_SOURCE_DIR}/DONORS.md
+    COMMENT "Generating donors header"
+)
+
+# Godot's own sources
 set(core_sources
     bind/core_bind.cpp
     bind/core_bind.h
@@ -82,10 +111,6 @@ set(core_sources
     math/triangle_mesh.h
 
     os/alloc_wrapper.h
-    os/dir_access.cpp
-    os/dir_access.h
-    os/file_access.cpp
-    os/file_access.h
     os/input.cpp
     os/input.h
     os/input_event.cpp
@@ -166,8 +191,6 @@ set(core_sources
     variant_op.cpp
     variant_parser.cpp
     variant_parser.h
-    version.h
-    version_generated.gen.h
 )
 
 configure_file(configuration.h.cmake configuration.h)
@@ -223,6 +246,10 @@ set(generic_core_sources
     math/vector3.cpp
     math/vector3.h
 
+    os/dir_access.cpp
+    os/dir_access.h
+    os/file_access.cpp
+    os/file_access.h
     os/keyboard.cpp
     os/keyboard.h
     os/memory.cpp
@@ -302,43 +329,15 @@ set(generic_core_sources
 
     container_tools.h
     sort_array.h
+
+    version.h
+    version_generated.gen.h
+    configuration.h
 )
 set(tool_core_sources
     math/math_fieldwise.cpp
     math/math_fieldwise.h
 )
-list(APPEND core_sources configuration.h )
-
-# Generate AES256 script encryption key
-add_custom_command(
-    COMMAND editor_to_header encryption ${CMAKE_CURRENT_BINARY_DIR}
-    OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/script_encryption_key.gen.cpp
-    DEPENDS editor_to_header
-    COMMENT "Generating controllers header"
-)
-
-update_version("")
-
-
-add_custom_command(
-    COMMAND editor_to_header license "${PROJECT_SOURCE_DIR}/COPYRIGHT.txt" "${PROJECT_SOURCE_DIR}/LICENSE.txt" ${CMAKE_CURRENT_BINARY_DIR}/license.gen.h
-    OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/license.gen.h
-    DEPENDS editor_to_header ${PROJECT_SOURCE_DIR}/COPYRIGHT.txt ${PROJECT_SOURCE_DIR}/LICENSE.txt
-    COMMENT "Generating license header"
-)
-add_custom_command(
-    COMMAND editor_to_header authors "${PROJECT_SOURCE_DIR}/AUTHORS.md" ${CMAKE_CURRENT_BINARY_DIR}/authors.gen.h
-    OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/authors.gen.h
-    DEPENDS editor_to_header ${PROJECT_SOURCE_DIR}/AUTHORS.md
-    COMMENT "Generating authors header"
-)
-add_custom_command(
-    COMMAND editor_to_header donors "${PROJECT_SOURCE_DIR}/DONORS.md" ${CMAKE_CURRENT_BINARY_DIR}/donors.gen.h
-    OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/donors.gen.h
-    DEPENDS editor_to_header ${PROJECT_SOURCE_DIR}/DONORS.md
-    COMMENT "Generating donors header"
-)
-
 
 list(APPEND core_sources ${CMAKE_CURRENT_BINARY_DIR}/license.gen.h)
 list(APPEND core_sources ${CMAKE_CURRENT_BINARY_DIR}/authors.gen.h)
@@ -368,7 +367,7 @@ foreach(tgt ${global_targets})
 
     target_link_libraries(${tgt}_core PRIVATE core_plugin_interfaces )
     target_link_libraries(${tgt}_core PUBLIC se_core)
-    target_link_libraries(${tgt}_core PUBLIC EASTL_Import )
+    target_link_libraries(${tgt}_core PUBLIC EASTL_Import zlib_interface)
 
     target_link_libraries(${tgt}_engine PRIVATE EASTL )
     target_link_libraries(${tgt}_engine INTERFACE EASTL_Import )

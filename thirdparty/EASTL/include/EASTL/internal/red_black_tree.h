@@ -522,9 +522,10 @@ namespace eastl
         {
             return find_as<U,Compare2>(key) != end();
         }
-        eastl::vector<key_type> keys() const
+        template<class VectorAllocator = allocator_type>
+        eastl::vector<key_type,VectorAllocator> keys(const VectorAllocator& allocator=VectorAllocator()) const
         {
-            eastl::vector<key_type> result{};
+            eastl::vector<key_type,VectorAllocator> result(allocator);
             result.reserve(size());
             for (const auto& pair : *this)
                 result.emplace_back(pair.first);

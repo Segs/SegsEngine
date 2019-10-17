@@ -5,7 +5,7 @@
  */
 
 #include "scene/animation/tween.h"
-
+#include <cmath>
 const real_t pi = 3.1415926535898f;
 
 ///////////////////////////////////////////////////////////////////////////

@@ -413,7 +413,7 @@ void AnimationNodeBlendTreeEditor::_delete_request(const String &p_which) {
 
     undo_redo->create_action(TTR("Delete Node"));
     undo_redo->add_do_method(blend_tree.get(), "remove_node", p_which);
-    undo_redo->add_undo_method(blend_tree.get(), "add_node", p_which, blend_tree->get_node(StringName(p_which)), blend_tree.get()->get_node_position(StringName(p_which)));
+    undo_redo->add_undo_method(blend_tree.get(), "add_node", p_which, blend_tree->get_node(StringName(p_which)), blend_tree->get_node_position(StringName(p_which)));
 
     List<AnimationNodeBlendTree::NodeConnection> conns;
     blend_tree->get_node_connections(&conns);

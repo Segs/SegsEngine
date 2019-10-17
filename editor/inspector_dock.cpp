@@ -619,4 +619,4 @@ InspectorDock::InspectorDock(EditorNode *p_editor, EditorData &p_editor_data) {
     inspector->connect("property_keyed", this, "_property_keyed");
 }
 
-InspectorDock::~InspectorDock() {}
+InspectorDock::~InspectorDock() = default;

@@ -4291,8 +4291,7 @@ void SpatialEditor::set_state(const Dictionary &p_state) {
 
     if (d.has("gizmos_status")) {
         Dictionary gizmos_status = d["gizmos_status"];
-        ListPOD<Variant> keys;
-        gizmos_status.get_key_list(&keys);
+        PODVector<Variant> keys(gizmos_status.get_key_list());
 
         for (int j = 0; j < gizmo_plugins_by_name.size(); ++j) {
             if (!gizmo_plugins_by_name[j]->can_be_hidden()) continue;

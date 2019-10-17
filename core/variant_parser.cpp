@@ -48,6 +48,8 @@
 #include "core/class_db.h"
 #include "core/property_info.h"
 
+#include "EASTL/sort.h"
+
 struct VariantParser::Stream {
 
     virtual CharType get_char() = 0;
@@ -162,7 +164,7 @@ Error VariantParser::get_token(Stream *p_stream, Token &r_token, int &line, Stri
             case 0: {
                 r_token.type = TK_EOF;
                 return OK;
-            } break;
+            }
             case '{': {
 
                 r_token.type = TK_CURLY_BRACKET_OPEN;
@@ -1610,9 +1612,8 @@ Error VariantWriter::write(const Variant &p_variant, StoreStringFunc p_store_str
 
             Dictionary dict = p_variant;
 
-            ListPOD<Variant> keys;
-            dict.get_key_list(&keys);
-            keys.sort();
+            PODVector<Variant> keys(dict.get_key_list());
+            eastl::sort(keys.begin(),keys.end(),Comparator<Variant>());
 
             p_store_string_func(p_store_string_ud, "{\n");
             int size = keys.size()-1;

@@ -5,7 +5,8 @@
 
 class Object;
 
-template <class T> bool CowData<T>::_get_alloc_size_checked(size_t p_elements, size_t *out) const {
+template <class T>
+bool CowData<T>::_get_alloc_size_checked(size_t p_elements, size_t *out) const {
 #if defined(_add_overflow) && defined(_mul_overflow)
     size_t o;
     size_t p;

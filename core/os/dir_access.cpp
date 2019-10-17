@@ -350,7 +350,7 @@ public:
     DirChanger(DirAccess *p_da, String p_dir) :
         da(p_da),
         original_dir(p_da->get_current_dir()) {
-        p_da->change_dir(p_dir);
+        p_da->change_dir(std::move(p_dir));
     }
 
     ~DirChanger() {

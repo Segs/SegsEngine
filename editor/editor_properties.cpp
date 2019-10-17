@@ -2468,7 +2468,7 @@ void EditorPropertyResource::_update_menu_items() {
         menu->add_icon_item(get_icon("Clear", "EditorIcons"), TTR("Clear"), OBJ_MENU_CLEAR);
         menu->add_icon_item(get_icon("Duplicate", "EditorIcons"), TTR("Make Unique"), OBJ_MENU_MAKE_UNIQUE);
         menu->add_icon_item(get_icon("Save", "EditorIcons"), TTR("Save"), OBJ_MENU_SAVE);
-        RES r(res);
+        const RES &r(res);
         if (r && PathUtils::is_resource_file(r->get_path())) {
             menu->add_separator();
             menu->add_item(TTR("Show in FileSystem"), OBJ_MENU_SHOW_IN_FILE_SYSTEM);

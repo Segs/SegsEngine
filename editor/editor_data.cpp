@@ -358,8 +358,7 @@ Dictionary EditorData::get_scene_editor_states(int p_idx) const {
 
 void EditorData::set_editor_states(const Dictionary &p_states) {
 
-    ListPOD<Variant> keys;
-    p_states.get_key_list(&keys);
+    PODVector<Variant> keys(p_states.get_key_list());
 
     for (const Variant & k : keys) {
 
@@ -968,8 +967,7 @@ void EditorData::script_class_load_icon_paths() {
 
     if (ProjectSettings::get_singleton()->has_setting("_global_script_class_icons")) {
         Dictionary d = ProjectSettings::get_singleton()->get("_global_script_class_icons");
-        ListPOD<Variant> keys;
-        d.get_key_list(&keys);
+        PODVector<Variant> keys(d.get_key_list());
 
         for (const Variant &E : keys) {
             String name = E.as<String>();

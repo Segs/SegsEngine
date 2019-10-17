@@ -129,5 +129,4 @@ BakedLightmapEditorPlugin::BakedLightmapEditorPlugin(EditorNode *p_node) {
     BakedLightmap::bake_end_function = bake_func_end;
 }
 
-BakedLightmapEditorPlugin::~BakedLightmapEditorPlugin() {
-}
+BakedLightmapEditorPlugin::~BakedLightmapEditorPlugin() = default;

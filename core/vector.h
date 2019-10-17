@@ -162,10 +162,13 @@ bool Vector<T>::push_back(const T &p_elem) {
     return false;
 }
 
+#ifndef __MINGW32__
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<class StringName,wrap_allocator>;
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<uint8_t,wrap_allocator>;
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<class Variant,wrap_allocator>;
-GODOT_TEMPLATE_EXT_DECLARE(Vector<String>)
-GODOT_TEMPLATE_EXT_DECLARE(Vector<struct Vector2>)
-GODOT_TEMPLATE_EXT_DECLARE(Vector<struct Vector3>)
+extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<struct PropertyInfo,wrap_allocator>;
 
+extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) Vector<String>;
+extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) Vector<struct Vector2>;
+extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) Vector<struct Vector3>;
+#endif

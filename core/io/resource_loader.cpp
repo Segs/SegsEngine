@@ -939,8 +939,7 @@ void ResourceLoader::load_translation_remaps() {
         return;
 
     Dictionary remaps = ProjectSettings::get_singleton()->get("locale/translation_remaps");
-    ListPOD<Variant> keys;
-    remaps.get_key_list(&keys);
+    PODVector<Variant> keys(remaps.get_key_list());
     for(const Variant &E : keys ) {
 
         Array langs = remaps[E];

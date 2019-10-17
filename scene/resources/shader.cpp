@@ -75,7 +75,7 @@ void Shader::get_param_list(ListPOD<PropertyInfo> *p_params) const {
 
     _update_shader();
 
-    ListPOD<PropertyInfo> local;
+    PODVector<PropertyInfo> local;
     VisualServer::get_singleton()->shader_get_param_list(shader, &local);
     params_cache.clear();
     params_cache_dirty = false;

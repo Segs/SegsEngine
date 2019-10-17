@@ -1783,8 +1783,7 @@ void EditorFileSystem::_reimport_file(const String &p_file) {
     if (load_default && ProjectSettings::get_singleton()->has_setting("importer_defaults/" + importer->get_importer_name())) {
         //use defaults if exist
         Dictionary d = ProjectSettings::get_singleton()->get("importer_defaults/" + importer->get_importer_name());
-        ListPOD<Variant> v;
-        d.get_key_list(&v);
+        PODVector<Variant> v(d.get_key_list());
 
         for (const Variant &E : v) {
             params[E] = d[E];

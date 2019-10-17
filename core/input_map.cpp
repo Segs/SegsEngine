@@ -36,7 +36,7 @@
 #include "core/method_bind.h"
 
 namespace  {
-ListPOD<Ref<InputEvent> >::iterator _find_event(InputMap::Action &p_action, const Ref<InputEvent> &p_event, bool *p_pressed=nullptr, float *p_strength=nullptr) {
+PODVector<Ref<InputEvent> >::iterator _find_event(InputMap::Action &p_action, const Ref<InputEvent> &p_event, bool *p_pressed=nullptr, float *p_strength=nullptr) {
 
     for (auto iter = p_action.inputs.begin(); iter!=p_action.inputs.end(); ++iter) {
 
@@ -99,30 +99,22 @@ void InputMap::erase_action(const StringName &p_action) {
 Array InputMap::_get_actions() {
 
     Array ret;
-    ListPOD<StringName> actions = get_actions();
+    PODVector<StringName> actions(get_actions());
     if (actions.empty())
         return ret;
 
     for(const StringName &E : actions ) {
-
         ret.push_back(E);
     }
 
     return ret;
 }
 
-ListPOD<StringName> InputMap::get_actions() const {
-
-    ListPOD<StringName> actions;
+PODVector<StringName> InputMap::get_actions() const {
     if (input_map.empty()) {
-        return actions;
+        return {};
     }
-
-    for (eastl::pair<const StringName, Action> &E : input_map) {
-        actions.push_back(E.first);
-    }
-
-    return actions;
+    return input_map.keys<wrap_allocator>();
 }
 
 bool InputMap::has_action(const StringName &p_action) const {
@@ -158,7 +150,7 @@ void InputMap::action_erase_event(const StringName &p_action, const Ref<InputEve
     ERR_FAIL_COND_MSG(!input_map.contains(p_action), "Request for nonexistent InputMap action '" + String(p_action) + "'.")
 
     auto iter = _find_event(input_map[p_action], p_event);
-    if (input_map[p_action].inputs.end()==iter)
+    if (input_map[p_action].inputs.end()!=iter)
         input_map[p_action].inputs.erase(iter);
 }
 
@@ -172,7 +164,7 @@ void InputMap::action_erase_events(const StringName &p_action) {
 Array InputMap::_get_action_list(const StringName &p_action) {
 
     Array ret;
-    const ListPOD<Ref<InputEvent> > *al = get_action_list(p_action);
+    const PODVector<Ref<InputEvent> > *al = get_action_list(p_action);
     if (al) {
         for (const Ref<InputEvent> &E : *al) {
             ret.push_back(E);
@@ -182,7 +174,7 @@ Array InputMap::_get_action_list(const StringName &p_action) {
     return ret;
 }
 
-const ListPOD<Ref<InputEvent> > *InputMap::get_action_list(const StringName &p_action) {
+const PODVector<Ref<InputEvent> > *InputMap::get_action_list(const StringName &p_action) {
 
     const Map<StringName, Action>::iterator E = input_map.find(p_action);
     if (E==input_map.end())
@@ -210,7 +202,7 @@ bool InputMap::event_get_action_status(const Ref<InputEvent> &p_event, const Str
 
     bool pressed;
     float strength;
-    ListPOD<Ref<InputEvent> >::iterator event = _find_event(E->second, p_event, &pressed, &strength);
+    PODVector<Ref<InputEvent> >::iterator event = _find_event(E->second, p_event, &pressed, &strength);
     if (event != E->second.inputs.end()) {
         if (p_pressed != nullptr)
             *p_pressed = pressed;
@@ -222,9 +214,7 @@ bool InputMap::event_get_action_status(const Ref<InputEvent> &p_event, const Str
     }
 }
 
-const Map<StringName, InputMap::Action> &InputMap::get_action_map() const {
-    return input_map;
-}
+
 
 void InputMap::load_from_globals() {
     using namespace StringUtils;

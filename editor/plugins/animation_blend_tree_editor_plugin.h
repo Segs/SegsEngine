@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef ANIMATION_BLEND_TREE_EDITOR_PLUGIN_H
-#define ANIMATION_BLEND_TREE_EDITOR_PLUGIN_H
+#pragma once
 
 #include "editor/editor_node.h"
 #include "editor/editor_plugin.h"
@@ -46,40 +45,40 @@ class ProgressBar;
 class AnimationNodeBlendTreeEditor : public AnimationTreeNodeEditorPlugin {
 
 	GDCLASS(AnimationNodeBlendTreeEditor,AnimationTreeNodeEditorPlugin)
+    struct AddOption {
+        String name;
+        String type;
+        Ref<Script> script;
+        AddOption() = default;
+        AddOption(String p_name, String p_type) :
+                name(std::move(p_name)),
+                type(std::move(p_type)) {
+        }
+    };
+    Map<StringName, ProgressBar *> animations;
+    Vector<EditorProperty *> visible_properties;
+    Vector<AddOption> add_options;
 
-	Ref<AnimationNodeBlendTree> blend_tree;
-	GraphEdit *graph;
-	MenuButton *add_node;
-	Vector2 popup_menu_position;
-	bool use_popup_menu_position;
+    Vector2 popup_menu_position;
+    Ref<AnimationNodeBlendTree> blend_tree;
+    Ref<AnimationNode> _filter_edit;
+    Ref<AnimationNode> file_loaded;
+    GraphEdit *graph;
+    MenuButton *add_node;
+    PanelContainer *error_panel;
+    Label *error_label;
+    UndoRedo *undo_redo;
+    AcceptDialog *filter_dialog;
+    Tree *filters;
+    CheckBox *filter_enabled;
+    EditorFileDialog *open_file;
+    bool use_popup_menu_position;
+    bool updating;
 
-	PanelContainer *error_panel;
-	Label *error_label;
 
-	UndoRedo *undo_redo;
+    void _update_graph();
 
-	AcceptDialog *filter_dialog;
-	Tree *filters;
-	CheckBox *filter_enabled;
-
-	Map<StringName, ProgressBar *> animations;
-	Vector<EditorProperty *> visible_properties;
-
-	void _update_graph();
-
-	struct AddOption {
-		String name;
-		String type;
-		Ref<Script> script;
-		AddOption(const String &p_name = String(), const String &p_type = String()) :
-				name(p_name),
-				type(p_type) {
-		}
-	};
-
-	Vector<AddOption> add_options;
-
-	void _add_node(int p_idx);
+    void _add_node(int p_idx);
 	void _update_options_menu();
 
 	static AnimationNodeBlendTreeEditor *singleton;
@@ -88,7 +87,6 @@ class AnimationNodeBlendTreeEditor : public AnimationTreeNodeEditorPlugin {
 	void _node_renamed(const String &p_text, const Ref<AnimationNode>& p_node);
 	void _node_renamed_focus_out(Node *le, const Ref<AnimationNode>& p_node);
 
-	bool updating;
 
 	void _connection_request(const String &p_from, int p_from_index, const String &p_to, int p_to_index);
 	void _disconnection_request(const String &p_from, int p_from_index, const String &p_to, int p_to_index);
@@ -105,13 +103,10 @@ class AnimationNodeBlendTreeEditor : public AnimationTreeNodeEditorPlugin {
 	void _edit_filters(const String &p_which);
 	void _filter_edited();
 	void _filter_toggled();
-	Ref<AnimationNode> _filter_edit;
 
 	void _property_changed(const StringName &p_property, const Variant &p_value, const String &p_field, bool p_changing);
 	void _removed_from_graph();
 
-	EditorFileDialog *open_file;
-	Ref<AnimationNode> file_loaded;
 	void _file_opened(const String &p_file);
 
 	enum {
@@ -137,5 +132,3 @@ public:
 
 	AnimationNodeBlendTreeEditor();
 };
-
-#endif // ANIMATION_BLEND_TREE_EDITOR_PLUGIN_H

@@ -267,7 +267,7 @@ Ref<Resource> SpatialMaterialConversionPlugin::convert(const Ref<Resource> &p_re
 
     smat->set_shader(shader);
 
-    ListPOD<PropertyInfo> params;
+    PODVector<PropertyInfo> params;
     VisualServer::get_singleton()->shader_get_param_list(mat->get_shader_rid(), &params);
 
     for(const PropertyInfo & E : params) {
@@ -311,7 +311,7 @@ Ref<Resource> ParticlesMaterialConversionPlugin::convert(const Ref<Resource> &p_
 
     smat->set_shader(shader);
 
-    ListPOD<PropertyInfo> params;
+    PODVector<PropertyInfo> params;
     VisualServer::get_singleton()->shader_get_param_list(mat->get_shader_rid(), &params);
 
     for(const PropertyInfo & E : params) {
@@ -347,7 +347,7 @@ Ref<Resource> CanvasItemMaterialConversionPlugin::convert(const Ref<Resource> &p
 
     smat->set_shader(shader);
 
-    ListPOD<PropertyInfo> params;
+    PODVector<PropertyInfo> params;
     VisualServer::get_singleton()->shader_get_param_list(mat->get_shader_rid(), &params);
 
     for(const PropertyInfo & E : params) {

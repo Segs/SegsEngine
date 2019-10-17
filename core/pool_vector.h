@@ -533,8 +533,7 @@ void invert(PoolVector<T> &v) {
     }
 }
 #ifndef __MINGW32__
-
-#endif
 GODOT_TEMPLATE_EXT_DECLARE(PoolVector<unsigned char>)
 GODOT_TEMPLATE_EXT_DECLARE(PoolVector<struct Vector2>)
 GODOT_TEMPLATE_EXT_DECLARE(PoolVector<struct Vector3>)
+#endif

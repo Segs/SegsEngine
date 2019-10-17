@@ -1507,8 +1507,7 @@ String StringUtils::format(const String &fmt, const Variant &values) {
         }
     } else if (values.get_type() == VariantType::DICTIONARY) {
         Dictionary d = values;
-        ListPOD<Variant> keys;
-        d.get_key_list(&keys);
+        PODVector<Variant> keys(d.get_key_list());
 
         for (const Variant &E : keys) {
             String key = E.as<String>();

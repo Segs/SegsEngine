@@ -1616,8 +1616,8 @@ void ProjectSettingsEditor::_update_translations() {
     if (ProjectSettings::get_singleton()->has_setting("locale/translation_remaps")) {
 
         Dictionary remaps = ProjectSettings::get_singleton()->get("locale/translation_remaps");
-        ListPOD<Variant> rk;
-        remaps.get_key_list(&rk);
+        PODVector<Variant> rk(remaps.get_key_list());
+
         Vector<String> keys;
         for (const Variant &E : rk) {
             keys.push_back(E);

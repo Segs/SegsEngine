@@ -1446,8 +1446,7 @@ void ResourceFormatSaverBinaryInstance::write_variant(FileAccess *f, const Varia
             Dictionary d = p_property;
             f->store_32(uint32_t(d.size()));
 
-            ListPOD<Variant> keys;
-            d.get_key_list(&keys);
+            PODVector<Variant> keys(d.get_key_list());
 
             for(Variant &E : keys ) {
 
@@ -1635,8 +1634,7 @@ void ResourceFormatSaverBinaryInstance::_find_resources(const Variant &p_variant
         case VariantType::DICTIONARY: {
 
             Dictionary d = p_variant;
-            ListPOD<Variant> keys;
-            d.get_key_list(&keys);
+            PODVector<Variant> keys(d.get_key_list());
             for(Variant &E : keys ) {
 
                 _find_resources(E);

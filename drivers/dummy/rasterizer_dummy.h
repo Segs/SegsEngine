@@ -257,7 +257,7 @@ public:
 
     void shader_set_code(RID p_shader, const String &p_code) {}
     String shader_get_code(RID p_shader) const { return ""; }
-    void shader_get_param_list(RID p_shader, ListPOD<PropertyInfo> *p_param_list) const {}
+    void shader_get_param_list(RID p_shader, PODVector<PropertyInfo> *p_param_list) const {}
 
     void shader_set_default_texture_param(RID p_shader, const StringName &p_name, RID p_texture) {}
     RID shader_get_default_texture_param(RID p_shader, const StringName &p_name) const { return RID(); }

@@ -113,7 +113,6 @@ private:
 
     _FORCE_INLINE_ void _get_mipmap_offset_and_size(int p_mipmap, int &r_offset, int &r_width, int &r_height) const; //get where the mipmap begins in data
 
-    static int _get_dst_image_size(int p_width, int p_height, Format p_format, int &r_mipmaps, int p_mipmaps = -1);
     bool _can_modify(Format p_format) const;
 
     _FORCE_INLINE_ void _put_pixelb(int p_x, int p_y, uint32_t p_pixelsize, uint8_t *p_data, const uint8_t *p_pixel);
@@ -124,15 +123,6 @@ private:
 
     Error _load_from_buffer(const PoolVector<uint8_t> &p_array, const char *ext);
     Error _load_from_buffer(const uint8_t *p_array,int size, const char *ext);
-
-    static void average_4_uint8(uint8_t &p_out, const uint8_t &p_a, const uint8_t &p_b, const uint8_t &p_c, const uint8_t &p_d);
-    static void average_4_float(float &p_out, const float &p_a, const float &p_b, const float &p_c, const float &p_d);
-    static void average_4_half(uint16_t &p_out, const uint16_t &p_a, const uint16_t &p_b, const uint16_t &p_c, const uint16_t &p_d);
-    static void average_4_rgbe9995(uint32_t &p_out, const uint32_t &p_a, const uint32_t &p_b, const uint32_t &p_c, const uint32_t &p_d);
-    static void renormalize_uint8(uint8_t *p_rgb);
-    static void renormalize_float(float *p_rgb);
-    static void renormalize_half(uint16_t *p_rgb);
-    static void renormalize_rgbe9995(uint32_t *p_rgb);
 
 public:
     int get_width() const; ///< Get image width

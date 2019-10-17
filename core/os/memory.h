@@ -63,11 +63,11 @@ public:
 class GODOT_EXPORT wrap_allocator
 {
 public:
-    explicit wrap_allocator(const char* /*pName*/ = "") noexcept {}
-    wrap_allocator(const wrap_allocator& x) noexcept = default;
-    wrap_allocator(const wrap_allocator& /*x*/, const char* /*pName*/) noexcept {}
+    constexpr explicit wrap_allocator(const char* /*pName*/ = "") noexcept {}
+    constexpr wrap_allocator(const wrap_allocator& x) noexcept = default;
+    constexpr wrap_allocator(const wrap_allocator& /*x*/, const char* /*pName*/) noexcept {}
 
-    wrap_allocator& operator=(const wrap_allocator& x) noexcept = default;
+    constexpr wrap_allocator& operator=(const wrap_allocator& x) noexcept = default;
 
     void* allocate(size_t n, int /*flags*/ = 0) {
         return Memory::alloc_static(n, false);
@@ -81,18 +81,18 @@ public:
     }
     static void *alloc(size_t p_memory) { return Memory::alloc_static(p_memory, false); }
     static void free(void *p_ptr) { Memory::free_static(p_ptr, false); }
-    inline bool operator==(const wrap_allocator&)
+    constexpr inline bool operator==(const wrap_allocator&)
     {
         return true; // All allocators are considered equal, as they merely use global new/delete.
     }
 
 
-    inline bool operator!=(const wrap_allocator&)
+    constexpr inline bool operator!=(const wrap_allocator&)
     {
         return false; // All allocators are considered equal, as they merely use global new/delete.
     }
-    const char* get_name() const noexcept { return "wrap godot allocator"; }
-    void        set_name(const char* /*pName*/) {}
+    constexpr const char* get_name() const noexcept { return "wrap godot allocator"; }
+    constexpr void        set_name(const char* /*pName*/) {}
 };
 template<typename T>
 struct GenericDeleter {

@@ -1486,8 +1486,7 @@ void ResourceFormatSaverTextInstance::_find_resources(const Variant &p_variant, 
         case VariantType::DICTIONARY: {
 
             Dictionary d = p_variant;
-            ListPOD<Variant> keys;
-            d.get_key_list(&keys);
+            PODVector<Variant> keys(d.get_key_list());
             for (const Variant & E : keys) {
 
                 Variant v = d[E];

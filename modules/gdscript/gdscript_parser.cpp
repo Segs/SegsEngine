@@ -4502,8 +4502,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                             current_export.usage |= PROPERTY_USAGE_SCRIPT_VARIABLE;
                             Dictionary enum_values = constant;
 
-                            ListPOD<Variant> keys;
-                            enum_values.get_key_list(&keys);
+                            PODVector<Variant> keys(enum_values.get_key_list());
 
                             bool first = true;
                             for (const Variant &E : keys) {

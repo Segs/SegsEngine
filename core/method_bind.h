@@ -180,7 +180,7 @@ struct ArgumentWrapper {
 struct GetPropertyType {
     using Result = PropertyInfo;
     template<class TS,int IDX>
-    Result static doit() {
+    Result static doit() noexcept {
         return GetTypeInfo<typename std::remove_cv<typename std::remove_reference<TS>::type>::type>::get_class_info();
     }
 };

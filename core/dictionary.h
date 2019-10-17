@@ -44,7 +44,7 @@ class GODOT_EXPORT Dictionary {
     void _unref() const;
 
 public:
-    void get_key_list(ListPOD<Variant> *p_keys) const;
+    PODVector<Variant> get_key_list() const;
     Variant get_key_at_index(int p_index) const;
     Variant get_value_at_index(int p_index) const;
 

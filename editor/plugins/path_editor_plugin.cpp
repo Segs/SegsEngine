@@ -634,8 +634,7 @@ PathEditorPlugin::PathEditorPlugin(EditorNode *p_node) {
     */
 }
 
-PathEditorPlugin::~PathEditorPlugin() {
-}
+PathEditorPlugin::~PathEditorPlugin() = default;
 
 Ref<EditorSpatialGizmo> PathSpatialGizmoPlugin::create_gizmo(Spatial *p_spatial) {
     Ref<PathSpatialGizmo> ref;

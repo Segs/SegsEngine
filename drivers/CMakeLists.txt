@@ -22,7 +22,7 @@ foreach(tgt ${global_targets})
     include(windows/sources.cmake)
     # Sounds drivers
 
-
+    target_compile_definitions(${tgt}_drivers PRIVATE GLAD_ENABLED)
 
 
     list(APPEND drivers_sources "register_driver_types.cpp")

@@ -184,7 +184,7 @@ public:
     BIND2(shader_set_code, RID, const String &)
     BIND1RC(String, shader_get_code, RID)
 
-    BIND2C(shader_get_param_list, RID, ListPOD<PropertyInfo> *)
+    BIND2C(shader_get_param_list, RID, PODVector<PropertyInfo> *)
 
     BIND3(shader_set_default_texture_param, RID, const StringName &, RID)
     BIND2RC(RID, shader_get_default_texture_param, RID, const StringName &)

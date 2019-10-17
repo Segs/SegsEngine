@@ -43,8 +43,7 @@ btRayShape::btRayShape(btScalar length) : m_shapeAxis(0, 0, 1) {
     setLength(length);
 }
 
-btRayShape::~btRayShape() {
-}
+btRayShape::~btRayShape() = default;
 
 void btRayShape::setLength(btScalar p_length) {
 

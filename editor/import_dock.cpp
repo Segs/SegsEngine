@@ -247,8 +247,7 @@ void ImportDock::set_edit_multiple_paths(const Vector<String> &p_paths) {
 
             Dictionary d = value_frequency[E.option.name];
             int freq = 0;
-            ListPOD<Variant> v;
-            d.get_key_list(&v);
+            PODVector<Variant> v(d.get_key_list());
             Variant value;
             for (const Variant &F : v) {
                 int f = d[F];
@@ -342,8 +341,7 @@ void ImportDock::_preset_selected(int p_idx) {
             ERR_FAIL_COND(!ProjectSettings::get_singleton()->has_setting("importer_defaults/" + params->importer->get_importer_name()))
 
             Dictionary d = ProjectSettings::get_singleton()->get("importer_defaults/" + params->importer->get_importer_name());
-            ListPOD<Variant> v;
-            d.get_key_list(&v);
+            PODVector<Variant> v(d.get_key_list());
 
             for (const Variant &E : v) {
                 params->values[E] = d[E];

@@ -1280,11 +1280,6 @@ Error OS_Windows::initialize(const VideoMode &p_desired, int p_video_driver, int
 #if defined(OPENGL_ENABLED)
 
     bool gles3_context = true;
-    if (p_video_driver == VIDEO_DRIVER_GLES2) {
-        gles3_context = false;
-    }
-
-    bool editor = Engine::get_singleton()->is_editor_hint();
     bool gl_initialization_error = false;
 
     gl_context = nullptr;
@@ -1295,18 +1290,8 @@ Error OS_Windows::initialize(const VideoMode &p_desired, int p_video_driver, int
             memdelete(gl_context);
             gl_context = nullptr;
 
-            if (GLOBAL_GET("rendering/quality/driver/fallback_to_gles2") || editor) {
-                if (p_video_driver == VIDEO_DRIVER_GLES2) {
-                    gl_initialization_error = true;
-                    break;
-                }
-
-                p_video_driver = VIDEO_DRIVER_GLES2;
-                gles3_context = false;
-            } else {
-                gl_initialization_error = true;
-                break;
-            }
+            gl_initialization_error = true;
+            break;
         }
     }
 
@@ -1317,14 +1302,8 @@ Error OS_Windows::initialize(const VideoMode &p_desired, int p_video_driver, int
                 RasterizerGLES3::make_current();
                 break;
             } else {
-                if (GLOBAL_GET("rendering/quality/driver/fallback_to_gles2") || editor) {
-                    p_video_driver = VIDEO_DRIVER_GLES2;
-                    gles3_context = false;
-                    continue;
-                } else {
-                    gl_initialization_error = true;
-                    break;
-                }
+                gl_initialization_error = true;
+                break;
             }
         } else {
             gl_initialization_error = true;

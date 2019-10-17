@@ -370,7 +370,7 @@ struct PtrToArg<StringName> {
         StringName s(*reinterpret_cast<const String *>(p_ptr));
         return s;
     }
-    _FORCE_INLINE_ static void encode(StringName p_vec, void *p_ptr) {
+    _FORCE_INLINE_ static void encode(const StringName &p_vec, void *p_ptr) {
         String *arr = reinterpret_cast<String *>(p_ptr);
         *arr = p_vec;
     }

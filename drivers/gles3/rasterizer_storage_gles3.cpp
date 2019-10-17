@@ -2067,7 +2067,7 @@ void RasterizerStorageGLES3::update_dirty_shaders() {
     }
 }
 
-void RasterizerStorageGLES3::shader_get_param_list(RID p_shader, ListPOD<PropertyInfo> *p_param_list) const {
+void RasterizerStorageGLES3::shader_get_param_list(RID p_shader, PODVector<PropertyInfo> *p_param_list) const {
 
     Shader *shader = shader_owner.get(p_shader);
     ERR_FAIL_COND(!shader)
@@ -2085,7 +2085,7 @@ void RasterizerStorageGLES3::shader_get_param_list(RID p_shader, ListPOD<Propert
             order[E.second.order] = E.first;
         }
     }
-
+    p_param_list->reserve(p_param_list->size()+order.size());
     for (const eastl::pair<const int,StringName> &E : order) {
 
         PropertyInfo pi;

@@ -933,8 +933,7 @@ void EditorNode::_set_scene_metadata(const String &p_file, int p_idx) {
         md = editor_data.get_scene_editor_states(p_idx);
     }
 
-    ListPOD<Variant> keys;
-    md.get_key_list(&keys);
+    PODVector<Variant> keys(md.get_key_list());
 
     for (const Variant &E : keys) {
 
@@ -1009,8 +1008,7 @@ bool EditorNode::_find_and_save_edited_subresources(Object *obj, Map<RES, bool> 
             case VariantType::DICTIONARY: {
 
                 Dictionary d = obj->get(E.name);
-                ListPOD<Variant> keys;
-                d.get_key_list(&keys);
+                PODVector<Variant> keys(d.get_key_list());
                 for (const Variant &F : keys) {
 
                     Variant v = d[F];
